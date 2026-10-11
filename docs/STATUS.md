@@ -157,6 +157,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-277 — Un contorno che cade su un nodo solo non si disegna, e la
+  ricerca va avanti** (aggiunta ad ADR-0040, con rimando ad ADR-0148; da
+  un `engine_error` nei log dell'API del 2026-10-10: due cerchi da 5 km su
+  una zona di campagna scaricata al volo). Branch
+  `fix/TASK-277-collapsed-outline`. Il motore lancia `CollapsedShapeError`
+  (uno `ShapeNotDrawableError`) invece di un `ValueError`; la ricerca salta
+  quel tentativo, poi cerca entro 2 km, e se niente si traccia risponde
+  `shape_not_drawable` con un messaggio chiaro. Ogni altro percorso
+  identico; `engine.zip` e `paddleExamples.json` rifatti (solo la
+  fingerprint). **Ferma** fino all'approvazione Apple della 1.0 e agli ok
+  dell'utente; entra dopo la #489 (TASK-271), e allora i due file si
+  rifanno su `main`. Dopo il merge: server, `draw_examples`, pubblicazione
+  dell'app (Coordinatore). File: `tasks/TASK-277.md`, «File toccati».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
