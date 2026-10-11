@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-276 — Più percorsi all'ora sullo stesso server** (ADR-0242
+  riservato; chiesto dall'utente il 2026-10-11). **Aspetta
+  l'approvazione di Apple della 1.0**. Poi, con l'ok dell'utente e il via
+  del coordinatore, circa 10 minuti di misura sul server: CPU per
+  percorso, percorsi al minuto con più richieste insieme, RAM per
+  processo. Con quei numeri l'utente sceglie se e come farne di più.
+  Sul Mac ogni percorso usa già altri core per le partenze vicine
+  (ADR-0071): i loro processi consumano circa il doppio della CPU del
+  job. Un pool di processi da solo darebbe quindi al massimo +33%.
+  File: `tasks/TASK-276.md`.
 - **TASK-273 — Una forma chiusa si comincia da qualunque punto** (ADR-0241;
   dalla prima recensione di un tester del 2026-10-10, scelta dell'utente
   «Automatico, dove la tocchi»). Branch `feat/TASK-273-start-anywhere`, da
@@ -740,6 +750,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-275 (aggiunta ad ADR-0228, per la risposta ad Apple del
+  2026-10-11, «Guideline 2.1 – Information Needed»): tenendo premuto il
+  commento di un altro, «Report» (i cinque motivi) e «Block» chi l'ha
+  scritto; sotto il proprio disegno anche «Delete», il proprio commento
+  solo «Delete». Alert nativi, le stesse scelte come azioni di VoiceOver.
+  Nessun testo nuovo, niente server (l'API accettava già
+  `kind: "comment"`). Entra nella **build 6**, quella su cui l'utente
+  registra il video chiesto da Apple; via della build dal Coordinatore.
+  `tasks/TASK-275.md`.
 - **App** — TASK-270 (aggiunta ad ADR-0052, dalla prima recensione di un
   tester del 2026-10-10): dopo 20 s senza posizioni (app dietro un'altra,
   congelata da iOS, corsa ripresa) il navigatore cerca il corridore su

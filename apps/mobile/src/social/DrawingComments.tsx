@@ -28,6 +28,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { useCommentChoices } from "./commentChoices";
 import { useCommentsDoor } from "./commentsDoor";
 import { agoLabel, commentsLabel, negativeComment } from "./commentText";
 import {
@@ -40,6 +41,9 @@ const SHEET_SHARE = 0.72;
 const AVATAR_SIDE = 32;
 // The count shows from here, so the limit never comes as a surprise.
 const COUNT_FROM = COMMENT_MAX_LENGTH - 50;
+
+/** What a comment can be asked for, held or with VoiceOver's actions. */
+type CommentAction = "report" | "block" | "delete";
 
 type Props = {
   drawingId: string;
@@ -93,6 +97,8 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
   const length = [...commentOf(text)].length;
   const tooLong = length > COMMENT_MAX_LENGTH;
   const canSend = !comments.sending && commentTextProblem(text) === null;
+  const choices = useCommentChoices();
+  const me = choices?.me ?? null;
 
   async function onSend() {
     if (!canSend) {
@@ -107,10 +113,7 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
     }
   }
 
-  function onHold(comment: Comment) {
-    if (!comment.deletable) {
-      return;
-    }
+  function askDelete(comment: Comment) {
     Alert.alert(t("Delete this comment?"), undefined, [
       { text: t("Cancel"), style: "cancel" },
       {
@@ -119,6 +122,35 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
         onPress: () => comments.remove(comment.id),
       },
     ]);
+  }
+
+  function onAction(comment: Comment, action: CommentAction) {
+    if (action === "delete") {
+      askDelete(comment);
+    } else if (action === "report") {
+      choices?.report(comment);
+    } else {
+      // Their comments leave the sheet with the page asked again.
+      choices?.block(comment, comments.reload);
+    }
+  }
+
+  // Another's comment (TASK-275): «Report», «Block» its author, and «Delete»
+  // too under one's own drawing. One's own: «Delete» straight away.
+  function onHold(comment: Comment) {
+    const actions = actionsOf(comment, me);
+    if (actions.length === 1 && actions[0] === "delete") {
+      askDelete(comment);
+    } else if (actions.length > 0) {
+      Alert.alert(t("Report or block"), undefined, [
+        ...actions.map((action) => ({
+          text: actionLabel(comment, action),
+          style: action === "report" ? ("default" as const) : ("destructive" as const),
+          onPress: () => onAction(comment, action),
+        })),
+        { text: t("Cancel"), style: "cancel" },
+      ]);
+    }
   }
 
   return (
@@ -161,7 +193,13 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
               <Text style={styles.closeText}>{t("Close")}</Text>
             </Pressable>
           </View>
-          <CommentsList comments={comments} list={list} onHold={onHold} />
+          <CommentsList
+            comments={comments}
+            list={list}
+            me={me}
+            onHold={onHold}
+            onAction={onAction}
+          />
           {comments.sendProblem !== null && (
             <Text style={styles.problem} accessibilityLiveRegion="polite">
               {comments.sendProblem}
@@ -206,13 +244,36 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
   );
 }
 
+/** What `comment` offers to `me`: «Report» and «Block» if another wrote it,
+ * «Delete» if the API says it can go. */
+function actionsOf(comment: Comment, me: string | null): CommentAction[] {
+  const another = me !== null && comment.author.public_id !== me;
+  return [
+    ...(another ? (["report", "block"] as const) : []),
+    ...(comment.deletable ? (["delete"] as const) : []),
+  ];
+}
+
+function actionLabel(comment: Comment, action: CommentAction): string {
+  if (action === "report") {
+    return t("Report");
+  }
+  if (action === "block") {
+    return t("Block {user}", { user: comment.author.username });
+  }
+  return t("Delete");
+}
+
 type ListProps = {
   comments: Shown;
   list: RefObject<FlatList<Comment> | null>;
+  /** The account signed in; null when nothing can be reported (`actionsOf`). */
+  me: string | null;
   onHold: (comment: Comment) => void;
+  onAction: (comment: Comment, action: CommentAction) => void;
 };
 
-function CommentsList({ comments, list, onHold }: ListProps) {
+function CommentsList({ comments, list, me, onHold, onAction }: ListProps) {
   if (comments.status === "loading") {
     return (
       <View style={styles.middle}>
@@ -242,7 +303,9 @@ function CommentsList({ comments, list, onHold }: ListProps) {
       contentContainerStyle={styles.listContent}
       data={comments.comments}
       keyExtractor={(comment) => comment.id}
-      renderItem={({ item }) => <CommentRow comment={item} onHold={onHold} />}
+      renderItem={({ item }) => (
+        <CommentRow comment={item} me={me} onHold={onHold} onAction={onAction} />
+      )}
       keyboardShouldPersistTaps="handled"
       ListEmptyComponent={
         <Text style={[styles.muted, styles.empty]}>
@@ -266,11 +329,13 @@ function CommentsList({ comments, list, onHold }: ListProps) {
 
 type RowProps = {
   comment: Comment;
+  me: string | null;
   onHold: (comment: Comment) => void;
+  onAction: (comment: Comment, action: CommentAction) => void;
 };
 
 /** One comment: who, how long ago, and the words, always as plain text. */
-function CommentRow({ comment, onHold }: RowProps) {
+function CommentRow({ comment, me, onHold, onAction }: RowProps) {
   const door = useCommentsDoor();
   const [photo, setPhoto] = useState<string | null>(null);
   const publicId = comment.author.public_id;
@@ -286,6 +351,7 @@ function CommentRow({ comment, onHold }: RowProps) {
     };
   }, [door, publicId]);
   const ago = agoLabel(comment.created_at);
+  const actions = actionsOf(comment, me);
   return (
     <Pressable
       style={styles.row}
@@ -296,14 +362,22 @@ function CommentRow({ comment, onHold }: RowProps) {
         ago,
         text: comment.text,
       })}
-      accessibilityHint={comment.deletable ? t("Touch and hold to delete.") : undefined}
-      // VoiceOver has no long press: the same choice as an action.
-      accessibilityActions={
-        comment.deletable ? [{ name: "delete", label: t("Delete") }] : []
+      accessibilityHint={
+        actions.includes("report")
+          ? t("Report or block")
+          : comment.deletable
+            ? t("Touch and hold to delete.")
+            : undefined
       }
+      // VoiceOver has no long press: the same choices as actions.
+      accessibilityActions={actions.map((action) => ({
+        name: action,
+        label: actionLabel(comment, action),
+      }))}
       onAccessibilityAction={(event) => {
-        if (event.nativeEvent.actionName === "delete") {
-          onHold(comment);
+        const asked = actions.find((action) => action === event.nativeEvent.actionName);
+        if (asked !== undefined) {
+          onAction(comment, asked);
         }
       }}
     >
