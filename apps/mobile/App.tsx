@@ -59,13 +59,17 @@ import {
   canResume,
   endFreeRun,
   type FreeRun,
+  isFreeRun,
   pendingFreeRun,
 } from "./src/navigation/freeRun";
 import { headingDeg } from "./src/navigation/runStats";
 import {
   clearRun,
   endRun,
+  interruptedRun,
+  loadRun,
   pendingRun,
+  type SavedRun,
   type ScorableRun,
 } from "./src/navigation/trackStore";
 import { trackOf, useFreeRun } from "./src/navigation/useFreeRun";
@@ -160,7 +164,33 @@ type ExploreRun = {
   activity?: Activity;
   /** How far its shape is turned (TASK-232): the map stays turned as it. */
   rotation_deg?: number;
+  /** The route of a run the app was closed during, opened again with the
+   * app (TASK-272): it has no card of "Explore" to go back to. */
+  reopened?: true;
 };
+
+/** A run the app was closed during, lately, if any (TASK-272): it opens
+ * again, paused. */
+function leftRunning(): SavedRun | null {
+  return interruptedRun(loadRun(), Date.now());
+}
+
+/** The route of a run opened again with the app (TASK-272), as its file
+ * keeps it: followed as it was, with its turns, its word, its stretches
+ * on foot. */
+function reopenedRoute(run: SavedRun): ExploreRun {
+  return {
+    points: run.route,
+    directions: run.directions ?? NO_DIRECTIONS,
+    // Always there: a run of a route without it is not opened again.
+    similarity: run.similarity ?? 0,
+    ...(run.walks !== undefined ? { walks: run.walks, word: run.word ?? null } : {}),
+    ...(run.on_foot !== undefined ? { on_foot: run.on_foot } : {}),
+    ...(run.activity !== undefined ? { activity: run.activity } : {}),
+    ...(run.rotation_deg !== undefined ? { rotation_deg: run.rotation_deg } : {}),
+    reopened: true,
+  };
+}
 
 function finishedRun(run: ScorableRun, resumable: boolean): Finished {
   return { run, line: run.track.fixes.map((fix) => fix.point), resumable };
@@ -212,14 +242,27 @@ export default function App() {
 }
 
 function MuW() {
-  // A run still waiting for its score comes first (TASK-113).
-  const [finished, setFinished] = useState<Finished | null>(leftRun);
+  // A run the app was closed during opens again, paused, on its run screen
+  // (TASK-272, ADR-0240: the user's choice).
+  const [reopened] = useState(leftRunning);
+  // Else a run still waiting for its score comes first (TASK-113).
+  const [finished, setFinished] = useState<Finished | null>(() =>
+    reopened === null ? leftRun() : null,
+  );
   // Or a run without a route, closed with the app (TASK-149).
   const [freeFinished, setFreeFinished] = useState<FreeFinished | null>(() =>
-    finished === null ? leftFreeRun() : null,
+    reopened === null && finished === null ? leftFreeRun() : null,
   );
   const [screenNow, setScreen] = useState<Screen>(() =>
-    finished !== null ? "finish" : freeFinished !== null ? "runFinish" : "choose",
+    reopened !== null
+      ? isFreeRun(reopened)
+        ? "run"
+        : "navigate"
+      : finished !== null
+        ? "finish"
+        : freeFinished !== null
+          ? "runFinish"
+          : "choose",
   );
   // A favorite opened from «Profile» (TASK-171) takes the map at once, over
   // the page it was opened from, as a route of "Explore" does.
@@ -412,7 +455,10 @@ function MuW() {
   const startDirections = useStartDirections(API_URL);
   // Start on the water: the safety notice first, the first time (TASK-191).
   const paddleNotice = usePaddleNotice();
-  const [exploreRun, setExploreRun] = useState<ExploreRun | null>(null);
+  // A run opened again with the app follows the route of its file (TASK-272).
+  const [exploreRun, setExploreRun] = useState<ExploreRun | null>(() =>
+    reopened !== null && !isFreeRun(reopened) ? reopenedRoute(reopened) : null,
+  );
   const followed = exploreRun ?? chosen;
   // The shape of a drawn route on the water, moved with a finger (TASK-238).
   const move = useMoveShape(view, chosen, draw);
@@ -593,6 +639,12 @@ function MuW() {
   /** The end of a run along a route leaves the screen. */
   function leaveFinish() {
     setFinished(null);
+    // A run opened again with the app has no card to go back to (TASK-272).
+    if (exploreRun?.reopened === true) {
+      setExploreRun(null);
+      setScreen("choose");
+      return;
+    }
     // A run of "Explore" goes back to its route's card.
     setScreen(exploreRun !== null || view.status === "done" ? "map" : "choose");
   }

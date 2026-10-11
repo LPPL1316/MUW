@@ -149,7 +149,9 @@ export function useNavigation(
         const walked = walksOf(points, walks);
         let pen = startPen(started.navigation.along, walked, word, activity);
         let bike = startOnFoot(started.navigation.along, onFootOf(points, onFoot));
-        // A route stopped lately goes on with its track (trackStore).
+        // A route stopped lately goes on with its track (trackStore); one
+        // the app was closed during, paused (TASK-272). Its directions, word
+        // and stretches on foot are kept with it, to follow it so again.
         const recorder = startRun(
           points,
           Date.now(),
@@ -157,6 +159,7 @@ export function useNavigation(
           walked,
           activity,
           rotationDeg,
+          { directions, word, onFoot },
         );
         stopRecording = recorder.stop;
         // A run that goes on: the navigator, the pen and the bike on foot

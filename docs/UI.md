@@ -2064,7 +2064,8 @@ la registrazione. Dove il percorso ripassa dallo stesso punto entro 300 m
 si era: andare avanti lungo il percorso costa un quarto di metro al metro,
 andare indietro un metro al metro, e fra i punti del percorso entro 40 m
 vince il più economico (ADR-0217). Dopo «Stop» e «Keep running», o dopo
-l'app chiusa a metà corsa, il navigatore riparte da dove la traccia era
+l'app chiusa a metà corsa e riaperta (in pausa, TASK-272: «La corsa
+interrotta si riapre in pausa», sotto), il navigatore riparte da dove la traccia era
 arrivata, ripassando in silenzio le posizioni registrate: la prossima
 svolta detta è quella davanti, le lettere già disegnate restano disegnate,
 e «Head out on …» non si ripete. **Lo schermo resta acceso da solo per
@@ -2187,7 +2188,27 @@ posizione quando il telefono la dà, e il segno sulla prima posizione dopo
 una pausa; la durata è il tempo senza le pause. Un file di prima si legge
 come sempre. Da TASK-198 una pausa «penna» ha `pen: true`, e il file di
 una parola a penna alzata ha anche i `walks` del percorso, per il
-punteggio; quello di ogni altro percorso è come prima.
+punteggio; quello di ogni altro percorso è come prima. Da TASK-272 il file
+tiene anche quello che serve alla voce, quando il percorso ce l'ha: le
+indicazioni (`directions`), la parola (`word`) e i tratti con la bici a
+mano (`on_foot`).
+
+**La corsa interrotta si riapre in pausa** (TASK-272, ADR-0240; scelta
+dell'utente del 2026-10-10). Se l'app si chiude durante la corsa (chiusa a
+mano, o fermata da iOS), riaprendo MuW entro **2 ore** dall'ultima
+posizione si apre la schermata della corsa, **in pausa**: lo stesso
+percorso sulla mappa, con la parte corsa e la prossima svolta, i numeri
+della traccia fin lì, «Paused», «Resume» e «Stop» da tenere premuto.
+Niente conto alla rovescia e niente «Head out on …». Il tempo con l'app
+chiusa, e quello in pausa dopo, è una pausa: non conta nella durata, e la
+prima posizione dopo «Resume» non si unisce alla linea di prima; se nel
+frattempo si è andati avanti, il navigatore ritrova chi corre più avanti
+sul percorso (TASK-270). Chiusa durante una pausa della penna, fra due
+lettere, la lettera dopo la chiude da sé come sempre. «Stop» tenuto apre
+la fine della corsa come sempre, e poi si torna alla prima schermata. Una
+corsa interrotta da più di 2 ore apre invece la sua fine, da salvare o da
+lasciare, come prima. Nessun testo nuovo. Lo stesso per la corsa senza
+percorso («Correre senza percorso», sotto).
 
 **Con le miglia** (TASK-182 parte C, ADR-0149 «aggiornamento (parte C)»;
 scelta dell'utente del 2026-10-03, «come fa Strava»). Con «Miles» in
@@ -2793,9 +2814,12 @@ prima schermata e toglie la corsa dal file: si perde, com'era, e sotto la
 scheda c'è la riga che invita a entrare. Con un account al posto di
 «Done» ci sono **«Save»** e **«Discard»** («La fine della corsa», sopra):
 salvata, la corsa va in «My activities» senza punteggio (TASK-172). Uno «Stop» prima della prima posizione torna subito alla
-prima schermata. Se l'app si chiude durante la corsa, alla riapertura si
-apre su questa schermata; «Keep running» c'è solo se l'ultima posizione è
-di meno di 30 minuti prima.
+prima schermata. Se l'app si chiude durante la corsa, alla riapertura entro
+2 ore si riapre la corsa, in pausa, con «Resume» (TASK-272, ADR-0240, come
+lungo un percorso: «La corsa interrotta si riapre in pausa», sopra); più
+tardi si apre questa schermata, senza «Keep running». Dopo uno «Stop»,
+«Keep running» c'è solo se l'ultima posizione è di meno di 30 minuti
+prima.
 
 ## Export del GPX
 

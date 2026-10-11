@@ -13928,3 +13928,81 @@ per cancellare); un «…» su ogni commento (più rumore in ogni riga, e
 cambia il disegno della riga); aprire il profilo dal commento e segnalare
 da lì (due passi in più, e la segnalazione sarebbe della persona, non del
 commento).
+
+## ADR-0240 — La corsa interrotta si riapre in pausa
+**Stato**: Attiva · 2026-10-10 · scelta dell'utente del 2026-10-10,
+chiesta in chat con le opzioni: **«Riapre la corsa in pausa»**; il limite
+di età, il file più vecchio e le corse senza percorso sono **decisi
+dall'agente su delega dell'utente** (TASK-272).
+
+**Contesto**: la prima recensione di un tester (2026-10-10): uscito
+dall'app a metà corsa, tornato ha dovuto chiuderla e riaprirla, «ma era
+scomparsa»; ha calcolato un altro percorso e le due metà non combaciavano.
+Il file della corsa (`current-run.json`, ADR-0091) restava, con `status:
+"running"`, ma all'apertura l'app mostrava la fine della corsa senza
+«Keep running»: il percorso non era più in memoria, e il file non teneva
+le indicazioni, la parola né i tratti a piedi per rifarne la navigazione.
+«Start» sullo stesso percorso entro 30 minuti (`RESUME_WITHIN_MS`)
+continuava la traccia, ma solo ritrovando lo stesso percorso, e subito in
+corsa.
+
+**Decisione**:
+- **Il file tiene quello che serve alla voce**: `directions`, `word` e
+  `on_foot` del percorso, accanto a `walks`, `activity` e `rotation_deg`.
+  Facoltativi e scritti solo quando il percorso li ha: il file di ogni
+  altra corsa è quello di prima, e un file di prima si legge come sempre
+  (riaperto, una corsa così va senza svolte dette). Campi sbagliati rendono
+  il file «nessuna corsa», come gli altri.
+- **All'apertura** (`interruptedRun`), una corsa che il file dà `running`,
+  con almeno due posizioni e l'ultima da meno di **2 ore**
+  (`REOPEN_WITHIN_MS`), apre la sua schermata in pausa: lungo il percorso
+  del file con le sue indicazioni, la parola, i tratti a piedi, l'attività
+  e la rotazione; o senza percorso. Il navigatore, la penna e la bici a
+  mano ripassano in silenzio la traccia (TASK-253): niente conto alla
+  rovescia, niente «Head out on …», la prossima svolta è quella davanti.
+- **In pausa**: il tempo dall'ultima posizione è una pausa di chi corre,
+  aperta (`holdTrack`), che «Resume» chiude in quel momento: il tempo con
+  l'app chiusa, e quello passato in pausa dopo, non conta nella durata, e
+  la prima posizione dopo non si unisce alla linea. Una pausa già aperta
+  quando l'app si è chiusa continua da dove era cominciata: quella di chi
+  corre resta sua, quella della penna fra due lettere resta della penna
+  (la lettera dopo la chiude da sé, o «Resume»); una pausa da fermi o
+  dell'app via diventa di chi corre. «Stop» tenuto chiude la corsa come
+  sempre, con «Keep running», «Save» / «Discard» o «Done». Dopo la fine si
+  torna alla prima schermata: la corsa riaperta non ha una scheda di
+  «Explore» a cui tornare.
+- **Il riconoscimento è dei controlli**: `startRun` riprende in pausa la
+  corsa dello stesso percorso che il file dà `running` (l'app si è chiusa
+  durante), e `controlRun` parte in pausa quando la traccia ha una pausa
+  aperta. Una corsa fermata con «Stop» continua subito come prima
+  («Keep running», `RESUME_WITHIN_MS`).
+- **Il limite di 2 ore**: abbastanza per una corsa andata avanti senza
+  l'app (una mezza maratona lenta), poco perché la corsa di ieri sera, col
+  telefono scarico, si apra come una corsa in corso. L'età la giudica solo
+  l'app quando si apre; `startRun` non la guarda, perché una corsa riaperta
+  a un passo dal limite non diventi una corsa nuova un secondo dopo.
+- **Un file più vecchio** resta com'è e l'app apre la sua fine della corsa,
+  come prima: da salvare con «Save» o da lasciare con «Discard» / «Done».
+  Non si butta niente da sé, e la fine della corsa non si lascia senza uno
+  dei tre: non c'è modo di ripartire per sbaglio da una corsa vecchia.
+- **Le corse senza percorso** si riaprono allo stesso modo, sulla loro
+  schermata, in pausa: una sola regola per chi corre. Prima si apriva la
+  loro fine con «Keep running» entro 30 minuti; ora quella fine resta per
+  le corse fermate con «Stop» e per quelle interrotte da più di 2 ore.
+- **Nessun testo nuovo**: «Paused», «Resume» e «Stop» ci sono già. Una
+  riga che dica che la corsa era stata interrotta sarebbe un testo da far
+  approvare in cinque lingue; non serve per capire cosa fare.
+
+**Alternative scartate**: aprire la fine della corsa con «Keep running»
+(la scelta dell'utente è la corsa in pausa); riprendere da sé, in corsa
+(il tempo con l'app chiusa diventerebbe corsa, e chi ha già finito si
+troverebbe in una corsa che va); salvare da sé la corsa interrotta (un
+salvataggio che nessuno ha chiesto, e senza account non c'è dove); lo
+stesso limite di 30 minuti di «Keep running» (chi se ne accorge a fine
+corsa perderebbe il «Resume»); rifare la richiesta delle indicazioni
+all'API (serve la rete, e la risposta può cambiare).
+
+**Conseguenza**: una corsa interrotta non sparisce più e non va rifatta
+da capo; dopo «Resume» il navigatore ritrova chi corre anche più avanti
+sul percorso (TASK-270, ADR-0052). Il file della corsa cresce delle
+indicazioni del percorso (qualche decina di kB al più).

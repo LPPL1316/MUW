@@ -1,7 +1,9 @@
 import {
   ACTIVITIES,
   type Activity,
+  type Direction,
   type LatLon,
+  type Stretch,
   type Walk,
 } from "@shaperoute/shared-types";
 import { File, Paths } from "expo-file-system";
@@ -10,6 +12,7 @@ import {
   addFix,
   continueTrack,
   emptyTrack,
+  holdTrack,
   leaveTrack,
   pauseTrack,
   penDownTrack,
@@ -30,6 +33,10 @@ export const RUN_FILE = "current-run.json";
 export const SAVE_EVERY_MS = 15_000;
 /** A run stopped less than this ago goes on when the same route starts again. */
 export const RESUME_WITHIN_MS = 30 * 60_000;
+/** A run the app was closed during, less than this ago, opens again with the
+ * app, paused (TASK-272, ADR-0240): long enough for a run gone on without
+ * the app, short enough that yesterday's run is not one in progress. */
+export const REOPEN_WITHIN_MS = 2 * 60 * 60_000;
 /** With the app behind another, or the phone locked, no fix for this long
  * is a pause of the phone's (TASK-255, ADR-0219: the user's choice of 60
  * seconds): a shorter absence, a change of song, joins the line as before. */
@@ -56,6 +63,16 @@ export type SavedRun = {
    * TASK-232): the run saved and its post show the drawing turned back.
    * Absent for a route north up, and before TASK-232 part C. */
   rotation_deg?: number;
+  /** The route's directions, for the voice (TASK-272): a run the app was
+   * closed during opens again with its turns. Absent for a route without
+   * them, a run without a route, and before TASK-272. */
+  directions?: Direction[];
+  /** The route's word, for the voice of a word with the pen up (TASK-272).
+   * Absent for any other route, and before TASK-272. */
+  word?: string;
+  /** The route's stretches with the bike on foot (TASK-272). Absent for any
+   * other route, and before TASK-272. */
+  on_foot?: Stretch[];
   track: Track;
   status: RunStatus;
 };
@@ -148,6 +165,20 @@ function isWalk(value: unknown): value is Walk {
   );
 }
 
+/** What the navigator reads of a direction: where it is, and the turn. */
+function isDirection(value: unknown): value is Direction {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const direction = value as Record<string, unknown>;
+  return (
+    isLatLon(direction.point) &&
+    typeof direction.distance_m === "number" &&
+    typeof direction.turn === "string" &&
+    typeof direction.angle_deg === "number"
+  );
+}
+
 function isSavedRun(value: unknown): value is SavedRun {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -164,6 +195,11 @@ function isSavedRun(value: unknown): value is SavedRun {
     (run.activity === undefined ||
       (ACTIVITIES as readonly unknown[]).includes(run.activity)) &&
     (run.rotation_deg === undefined || typeof run.rotation_deg === "number") &&
+    (run.directions === undefined ||
+      (Array.isArray(run.directions) && run.directions.every(isDirection))) &&
+    (run.word === undefined || typeof run.word === "string") &&
+    (run.on_foot === undefined ||
+      (Array.isArray(run.on_foot) && run.on_foot.every(isWalk))) &&
     (run.status === "running" ||
       run.status === "stopped" ||
       run.status === "arrived") &&
@@ -207,6 +243,54 @@ function resumable(
   return continueTrack(saved.track, nowMs);
 }
 
+/** The saved track when the app was closed during a run of `route`
+ * (TASK-272): it goes on paused, the time since its last fix a pause that
+ * «Resume» ends. How long ago is for the app to judge as it opens
+ * (`interruptedRun`): a run it does not open again shows on its end screen,
+ * which leaves the file only by «Save», «Discard» or «Done». */
+function reopened(saved: SavedRun | null, route: LatLon[]): Track | null {
+  if (
+    saved === null ||
+    saved.status !== "running" ||
+    !sameRoute(saved.route, route) ||
+    // As in `resumable`: one fix alone is no run (TASK-252).
+    saved.track.fixes.length < 2
+  ) {
+    return null;
+  }
+  return holdTrack(saved.track);
+}
+
+/**
+ * The run in the file when the app was closed during it, its last fix less
+ * than REOPEN_WITHIN_MS before `nowMs` (TASK-272, ADR-0240): the app opens
+ * it again, paused, along its route or without one. Null for a run stopped
+ * or arrived, one with less than a line, one older (its end screen shows
+ * it, to be saved), and a run of a route with nothing for its end (no
+ * similarity, before TASK-113).
+ */
+export function interruptedRun(saved: SavedRun | null, nowMs: number): SavedRun | null {
+  if (
+    saved === null ||
+    saved.status !== "running" ||
+    saved.track.fixes.length < 2 ||
+    (saved.route.length > 0 && saved.similarity === undefined)
+  ) {
+    return null;
+  }
+  const last = saved.track.fixes[saved.track.fixes.length - 1];
+  return nowMs - last.timeMs <= REOPEN_WITHIN_MS ? saved : null;
+}
+
+/** What the voice needs to follow a route again (TASK-272): kept with the
+ * track, so a run the app was closed during opens with its turns, the
+ * letters of its word and its stretches with the bike on foot. */
+export type FollowedRoute = {
+  directions?: readonly Direction[];
+  word?: string | null;
+  onFoot?: readonly Stretch[];
+};
+
 export type RunRecorder = {
   /** A fix from the GPS; `arrived` when the navigator says the run is over. */
   onFix(fix: TrackFix, arrived: boolean): void;
@@ -239,7 +323,10 @@ export type RunRecorder = {
  * route's, for a word with the pen up (TASK-198): kept for the score.
  * `activity` is the route's, kept when it is not a run's (TASK-251).
  * `rotationDeg` is how far the route's shape is turned, kept when it is
- * (TASK-232): the run saved shows the drawing turned back.
+ * (TASK-232): the run saved shows the drawing turned back. `followed` is
+ * what the voice needs of the route, kept when the route has it (TASK-272).
+ * A run of the same route the app was closed during goes on paused, until
+ * «Resume» (TASK-272, ADR-0240).
  */
 export function startRun(
   route: LatLon[],
@@ -248,8 +335,10 @@ export function startRun(
   walks: readonly Walk[] = [],
   activity?: Activity,
   rotationDeg?: number,
+  { directions = [], word = null, onFoot = [] }: FollowedRoute = {},
 ): RunRecorder {
-  let track = resumable(loadRun(), route, nowMs) ?? emptyTrack();
+  const saved = loadRun();
+  let track = reopened(saved, route) ?? resumable(saved, route, nowMs) ?? emptyTrack();
   let status: RunStatus = "running";
   let savedMs: number | null = null;
   let unsaved = false;
@@ -264,6 +353,14 @@ export function startRun(
     typeof rotationDeg === "number" && Number.isFinite(rotationDeg) && rotationDeg !== 0
       ? { rotation_deg: rotationDeg }
       : {};
+  // Only what the route has: the file of any other route is as it was.
+  const followed = {
+    ...(directions.length > 0 ? { directions: [...directions] } : {}),
+    ...(typeof word === "string" ? { word } : {}),
+    ...(onFoot.length > 0
+      ? { on_foot: onFoot.map(([from, to]): Stretch => [from, to]) }
+      : {}),
+  };
 
   // The run as it would be in the file, when the last write failed.
   let notWritten: SavedRun | null = null;
@@ -276,6 +373,7 @@ export function startRun(
       ...walked,
       ...sport,
       ...turned,
+      ...followed,
       track,
       status,
     };
