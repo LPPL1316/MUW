@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-276 — Più percorsi all'ora sullo stesso server** (ADR-0242
+  riservato; chiesto dall'utente il 2026-10-11). **Aspetta
+  l'approvazione di Apple della 1.0**. Poi, con l'ok dell'utente e il via
+  del coordinatore, circa 10 minuti di misura sul server: CPU per
+  percorso, percorsi al minuto con più richieste insieme, RAM per
+  processo. Con quei numeri l'utente sceglie se e come farne di più.
+  Sul Mac ogni percorso usa già altri core per le partenze vicine
+  (ADR-0071): i loro processi consumano circa il doppio della CPU del
+  job. Un pool di processi da solo darebbe quindi al massimo +33%.
+  File: `tasks/TASK-276.md`.
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
