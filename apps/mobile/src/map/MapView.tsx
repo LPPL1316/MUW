@@ -76,8 +76,16 @@ type Props = {
   heading?: number | null;
   /** While running the route, how far along it the runner is (TASK-224):
    * the part run stays solid yellow, the part left is dashed and blinks.
-   * None draws the route whole, as before. */
-  progress?: { alongM: number; arrived: boolean } | null;
+   * None draws the route whole, as before. `points` and `along` are the
+   * line `alongM` is measured on, when the navigator gives it: a closed
+   * route is run from where the runner joined it (TASK-273), and the line
+   * run starts there. */
+  progress?: {
+    alongM: number;
+    arrived: boolean;
+    points?: LatLon[];
+    along?: number[];
+  } | null;
   /** The places of a themed route (TASK-129), or null for none. */
   stops?: { name: string; point: LatLon; passed: boolean }[] | null;
   /** With it, a double tap on the map calls it and no longer zooms
@@ -156,6 +164,13 @@ export function MapView({
   const along = useMemo(() => (route ? cumulative(route) : null), [route]);
   // In steps, so the map is not told of every metre.
   const doneM = progress ? doneMetres(progress) : null;
+  // The line the progress is measured on, when it is not the route as
+  // drawn: the same shape from where the run joined it (TASK-273).
+  const runPoints =
+    progress?.points !== undefined && progress.points !== route
+      ? progress.points
+      : null;
+  const runAlong = runPoints === null ? null : (progress?.along ?? null);
   // Under the black screen of pocket mode nobody sees the blinking.
   const pocket = usePocketOn();
 
@@ -275,15 +290,18 @@ export function MapView({
       return;
     }
     if (route && along && doneM !== null) {
-      webView.current?.injectJavaScript(
-        pageScript(showProgress(splitRoute(route, along, doneM, walks), !pocket)),
-      );
+      // A route joined away from its start has no walks: it is not a word.
+      const split =
+        runPoints !== null && runAlong !== null
+          ? splitRoute(runPoints, runAlong, doneM)
+          : splitRoute(route, along, doneM, walks);
+      webView.current?.injectJavaScript(pageScript(showProgress(split, !pocket)));
       progressShown.current = true;
     } else if (progressShown.current) {
       webView.current?.injectJavaScript(pageScript(clearProgress()));
       progressShown.current = false;
     }
-  }, [ready, route, along, walks, doneM, pocket]);
+  }, [ready, route, along, walks, doneM, pocket, runPoints, runAlong]);
 
   // Asked for only where a double tap means something: elsewhere it zooms.
   const wantsDoubleTap = onDoubleTap !== undefined;

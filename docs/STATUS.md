@@ -170,6 +170,37 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente; entra dopo la #489 (TASK-271), e allora i due file si
   rifanno su `main`. Dopo il merge: server, `draw_examples`, pubblicazione
   dell'app (Coordinatore). File: `tasks/TASK-277.md`, «File toccati».
+- **TASK-276 — Più percorsi all'ora sullo stesso server** (ADR-0242
+  riservato; chiesto dall'utente il 2026-10-11). **Aspetta
+  l'approvazione di Apple della 1.0**. Poi, con l'ok dell'utente e il via
+  del coordinatore, circa 10 minuti di misura sul server: CPU per
+  percorso, percorsi al minuto con più richieste insieme, RAM per
+  processo. Con quei numeri l'utente sceglie se e come farne di più.
+  Sul Mac ogni percorso usa già altri core per le partenze vicine
+  (ADR-0071): i loro processi consumano circa il doppio della CPU del
+  job. Un pool di processi da solo darebbe quindi al massimo +33%.
+  File: `tasks/TASK-276.md`.
+- **TASK-272 — La corsa interrotta si riapre in pausa** (ADR-0240; dalla
+  prima recensione di un tester del 2026-10-10, scelta dell'utente «Riapre
+  la corsa in pausa»). Branch `feat/TASK-272-reopen-interrupted-run`. Se
+  l'app si chiude durante una corsa, riaprendola entro 2 ore si apre la
+  corsa in pausa, sullo stesso percorso con la traccia fin lì: «Resume» o
+  «Stop» tenuto; il tempo chiusa è una pausa. Il file della corsa tiene
+  ora anche indicazioni, parola e tratti a piedi. Anche la corsa senza
+  percorso. Più vecchia di 2 ore, la fine della corsa come prima. Solo
+  app, nessun testo nuovo; pubblica il coordinatore.
+  File: `tasks/TASK-272.md`, «File toccati».
+  **Chiuso con la #492** (dopo il taglio della build 6); vedi «Completato».
+- **TASK-273 — Una forma chiusa si comincia da qualunque punto** (ADR-0241;
+  dalla prima recensione di un tester del 2026-10-10, scelta dell'utente
+  «Automatico, dove la tocchi»). Branch `feat/TASK-273-start-anywhere`, da
+  `main` con la #486. Lungo una forma chiusa la corsa comincia dove il
+  corridore raggiunge la forma, fa tutto il giro e finisce lì; la voce dà
+  le svolte da quel punto. Parole e forme aperte come prima. Solo app,
+  nessun testo nuovo, non nella 1.0; tocca `navigator.ts`, `progress.ts`,
+  `useNavigation.ts` come TASK-272: l'ordine lo dà il Coordinatore.
+  File: `tasks/TASK-273.md`, «File toccati».
+  **Chiuso con la #493** (dopo la #492); vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -744,6 +775,29 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-273 (ADR-0241; dalla prima recensione di un tester del
+  2026-10-10, scelta dell'utente «Automatico, dove la tocchi»): lungo una
+  forma chiusa la corsa comincia dove il corridore raggiunge la forma (3
+  posizioni di fila, 20 m lungo la forma, il passaggio percorso nel verso
+  del percorso), fa tutto il giro e finisce lì; la voce dà le svolte da quel
+  punto, compresa quella alla vecchia partenza, ricavata sul telefono con la
+  regola del motore. Parole e forme aperte come prima; anche una corsa
+  riaperta (TASK-272) rientra nello stesso punto, e una parola riaperta
+  resta una parola. PR #493, merge `f7ddfe81`, dopo la #492 e il taglio
+  della build 6. Solo app, nessun testo nuovo, non nella 1.0: la pubblica
+  il coordinatore. Provata nel simulatore con un cuore vero di 3,9 km a
+  Trento; resta la prova correndo. `tasks/TASK-273.md`.
+- **App** — TASK-272 (ADR-0240; dalla prima recensione di un tester del
+  2026-10-10, scelta dell'utente «Riapre la corsa in pausa»): se l'app si
+  chiude durante una corsa, riaprendola entro 2 ore si apre la corsa **in
+  pausa**, lungo lo stesso percorso (indicazioni, parola, tratti a piedi e
+  rotazione presi dal file della corsa) o senza percorso: «Resume» o
+  «Stop» tenuto, il tempo chiusa è una pausa, e dopo «Resume» il
+  navigatore ritrova chi corre anche più avanti (TASK-270). Più vecchia di
+  2 ore, la fine della corsa come prima. PR #492, entrata dopo il taglio
+  della build 6. Solo app, nessun testo nuovo; la pubblica il
+  coordinatore. Provata nel simulatore (Expo Go); resta la prova correndo.
+  TASK-273 (#493) tocca gli stessi file ed entra dopo. `tasks/TASK-272.md`.
 - **App** — TASK-275 (aggiunta ad ADR-0228, per la risposta ad Apple del
   2026-10-11, «Guideline 2.1 – Information Needed»): tenendo premuto il
   commento di un altro, «Report» (i cinque motivi) e «Block» chi l'ha

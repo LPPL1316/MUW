@@ -13929,6 +13929,172 @@ cambia il disegno della riga); aprire il profilo dal commento e segnalare
 da lì (due passi in più, e la segnalazione sarebbe della persona, non del
 commento).
 
+## ADR-0240 — La corsa interrotta si riapre in pausa
+**Stato**: Attiva · 2026-10-10 · scelta dell'utente del 2026-10-10,
+chiesta in chat con le opzioni: **«Riapre la corsa in pausa»**; il limite
+di età, il file più vecchio e le corse senza percorso sono **decisi
+dall'agente su delega dell'utente** (TASK-272).
+
+**Contesto**: la prima recensione di un tester (2026-10-10): uscito
+dall'app a metà corsa, tornato ha dovuto chiuderla e riaprirla, «ma era
+scomparsa»; ha calcolato un altro percorso e le due metà non combaciavano.
+Il file della corsa (`current-run.json`, ADR-0091) restava, con `status:
+"running"`, ma all'apertura l'app mostrava la fine della corsa senza
+«Keep running»: il percorso non era più in memoria, e il file non teneva
+le indicazioni, la parola né i tratti a piedi per rifarne la navigazione.
+«Start» sullo stesso percorso entro 30 minuti (`RESUME_WITHIN_MS`)
+continuava la traccia, ma solo ritrovando lo stesso percorso, e subito in
+corsa.
+
+**Decisione**:
+- **Il file tiene quello che serve alla voce**: `directions`, `word` e
+  `on_foot` del percorso, accanto a `walks`, `activity` e `rotation_deg`.
+  Facoltativi e scritti solo quando il percorso li ha: il file di ogni
+  altra corsa è quello di prima, e un file di prima si legge come sempre
+  (riaperto, una corsa così va senza svolte dette). Campi sbagliati rendono
+  il file «nessuna corsa», come gli altri.
+- **All'apertura** (`interruptedRun`), una corsa che il file dà `running`,
+  con almeno due posizioni e l'ultima da meno di **2 ore**
+  (`REOPEN_WITHIN_MS`), apre la sua schermata in pausa: lungo il percorso
+  del file con le sue indicazioni, la parola, i tratti a piedi, l'attività
+  e la rotazione; o senza percorso. Il navigatore, la penna e la bici a
+  mano ripassano in silenzio la traccia (TASK-253): niente conto alla
+  rovescia, niente «Head out on …», la prossima svolta è quella davanti.
+- **In pausa**: il tempo dall'ultima posizione è una pausa di chi corre,
+  aperta (`holdTrack`), che «Resume» chiude in quel momento: il tempo con
+  l'app chiusa, e quello passato in pausa dopo, non conta nella durata, e
+  la prima posizione dopo non si unisce alla linea. Una pausa già aperta
+  quando l'app si è chiusa continua da dove era cominciata: quella di chi
+  corre resta sua, quella della penna fra due lettere resta della penna
+  (la lettera dopo la chiude da sé, o «Resume»); una pausa da fermi o
+  dell'app via diventa di chi corre. «Stop» tenuto chiude la corsa come
+  sempre, con «Keep running», «Save» / «Discard» o «Done». Dopo la fine si
+  torna alla prima schermata: la corsa riaperta non ha una scheda di
+  «Explore» a cui tornare.
+- **Il riconoscimento è dei controlli**: `startRun` riprende in pausa la
+  corsa dello stesso percorso che il file dà `running` (l'app si è chiusa
+  durante), e `controlRun` parte in pausa quando la traccia ha una pausa
+  aperta. Una corsa fermata con «Stop» continua subito come prima
+  («Keep running», `RESUME_WITHIN_MS`).
+- **Il limite di 2 ore**: abbastanza per una corsa andata avanti senza
+  l'app (una mezza maratona lenta), poco perché la corsa di ieri sera, col
+  telefono scarico, si apra come una corsa in corso. L'età la giudica solo
+  l'app quando si apre; `startRun` non la guarda, perché una corsa riaperta
+  a un passo dal limite non diventi una corsa nuova un secondo dopo.
+- **Un file più vecchio** resta com'è e l'app apre la sua fine della corsa,
+  come prima: da salvare con «Save» o da lasciare con «Discard» / «Done».
+  Non si butta niente da sé, e la fine della corsa non si lascia senza uno
+  dei tre: non c'è modo di ripartire per sbaglio da una corsa vecchia.
+- **Le corse senza percorso** si riaprono allo stesso modo, sulla loro
+  schermata, in pausa: una sola regola per chi corre. Prima si apriva la
+  loro fine con «Keep running» entro 30 minuti; ora quella fine resta per
+  le corse fermate con «Stop» e per quelle interrotte da più di 2 ore.
+- **Nessun testo nuovo**: «Paused», «Resume» e «Stop» ci sono già. Una
+  riga che dica che la corsa era stata interrotta sarebbe un testo da far
+  approvare in cinque lingue; non serve per capire cosa fare.
+
+**Alternative scartate**: aprire la fine della corsa con «Keep running»
+(la scelta dell'utente è la corsa in pausa); riprendere da sé, in corsa
+(il tempo con l'app chiusa diventerebbe corsa, e chi ha già finito si
+troverebbe in una corsa che va); salvare da sé la corsa interrotta (un
+salvataggio che nessuno ha chiesto, e senza account non c'è dove); lo
+stesso limite di 30 minuti di «Keep running» (chi se ne accorge a fine
+corsa perderebbe il «Resume»); rifare la richiesta delle indicazioni
+all'API (serve la rete, e la risposta può cambiare).
+
+**Conseguenza**: una corsa interrotta non sparisce più e non va rifatta
+da capo; dopo «Resume» il navigatore ritrova chi corre anche più avanti
+sul percorso (TASK-270, ADR-0052). Il file della corsa cresce delle
+indicazioni del percorso (qualche decina di kB al più).
+
+## ADR-0241 — Una forma chiusa si comincia dove la si raggiunge
+**Stato**: Attiva · 2026-10-10 · la scelta di prodotto è dell'utente
+(chiesta in chat con le opzioni, TASK-273): «Automatico, dove la tocchi»;
+il come deciso dall'agente su delega dell'utente. Dalla prima recensione di
+un tester («ho iniziato da una parte diversa … non ci ho fatto, funziona
+un po' a tentoni»).
+
+Il navigatore (ADR-0052) aspettava il corridore al primo metro: chi
+cominciava il cuore da un'altra parte restava «fuori percorso». La scelta
+dell'utente: si preme «Start» dove si vuole; la corsa comincia nel punto
+della forma dove la si raggiunge, fa tutto il giro e finisce quando si
+torna lì; la voce dà le svolte da quel punto. Solo per le forme chiuse;
+parole e forme aperte partono dalla loro partenza come prima.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Chiusa** (`startAnywhere.ts`): l'ultimo punto entro 25 m dal primo
+   (`CLOSED_M`, quanto `ARRIVE_M`: a quella distanza il navigatore
+   dice già che si è arrivati), e il percorso non è una parola (`word`) né
+   in pezzi a penna alzata (`walks`). Vale anche in bici e sull'acqua.
+2. **Prima dell'ingresso** «Head out on …» non si dice allo «Start». Una
+   posizione si cerca su **tutta** la forma: lontano più di 40 m
+   (`OFF_ROUTE_M`) da tutta la forma vale «Off the route» come per chi va
+   verso la partenza.
+3. **L'ingresso** dopo 3 posizioni di fila (`JOIN_FIXES`) sulla forma,
+   ognuna entro 50 m lungo la forma dalla precedente, che si sono spostate
+   di almeno 20 m lungo la forma (`JOIN_M`). Una posizione storta vicino a
+   un passaggio lontano, o una vecchia che il telefono dà per prima (dove
+   si è disegnato il percorso), resta sola; attraversare la forma di
+   traverso non la percorre. Una posizione con più di 40 m d'errore non
+   conta né azzera. La serie parte su **ogni passaggio** vicino alla prima
+   posizione (una forma ripassa la stessa via, ADR-0039): vince quello che
+   il corridore percorre nel verso del percorso. Il punto d'ingresso è la
+   prima posizione della serie.
+4. **Il giro**: il percorso del navigatore diventa la stessa forma dal
+   punto d'ingresso a sé stesso (`joinRoute`, con la forma due volte di
+   fila per passare la partenza in tutti e due i versi); le indicazioni
+   restano quelle del motore con le distanze da lì. Un ingresso entro 25 m
+   dalla partenza (`AT_START_M`) è la partenza: il percorso resta com'è.
+5. **L'incrocio della vecchia partenza**, dove il motore non dice niente
+   (è l'ultimo nodo), riceve la svolta ricavata sul telefono come la
+   ricava il motore (`directions.py`): direzione d'arrivo e di partenza a
+   20 m, le stesse soglie (30°, 135°, 165°), solo a un incrocio
+   (`branches` ≥ 3 della partenza) e solo se si gira o si cambia via. La
+   via è quella della partenza.
+6. **All'ingresso** la voce dice «Head out on …» con la via su cui si è
+   (quella dell'ultima indicazione prima del punto), dopo «Back on the
+   route» se si era detto «Off the route»; poi le svolte come sempre.
+   **Nessun testo nuovo.** L'arrivo (`ARRIVE_M`, `ARRIVE_FIXES`) è al
+   punto d'ingresso.
+7. **La direzione resta quella del percorso**: chi entra e va nel verso
+   opposto sente «Head out on …» e poco dopo «Off the route», come chi
+   oggi parte dalla partenza al contrario.
+8. **Mappa, bici a mano, corsa ripresa**: la parte corsa (TASK-224) si
+   taglia sulla linea del navigatore, che parte dal punto d'ingresso; i
+   tratti con la bici a mano (TASK-206) si ruotano con il percorso (uno a
+   cavallo del punto in due) e prima dell'ingresso non si dicono; una corsa
+   ripresa (TASK-253) ripassa le posizioni della traccia e rientra nello
+   stesso punto, senza campi nuovi nel file della corsa. La traccia, i
+   chilometri, il file e la corsa salvata non cambiano: la linea corsa fa
+   tutto il giro, quindi tutta la forma.
+
+**Motivo**: la forma è un disegno chiuso, e da dove si comincia non cambia
+il disegno. Più posizioni di fila che si muovono lungo la forma sono la
+prova che il corridore la sta correndo, non solo che le è passato vicino;
+la svolta della vecchia partenza serve perché, ruotato, quell'incrocio
+cade in mezzo al giro.
+
+**Alternative scartate**: la prima posizione vicina alla forma (una sola
+storta, o quella vecchia di dove si è disegnato, sceglierebbe l'ingresso);
+il punto più vicino senza guardare il verso (sulle vie ripassate, metà
+delle volte il passaggio sbagliato e «Off the route»); dire «Head out» allo
+«Start» con la via della partenza (sbagliata per chi è altrove); seguire la
+forma al contrario per chi va nell'altro verso (svolte e sensi unici
+cambiano, i tratti a mano in bici valgono in un verso: sarebbe una scelta
+di prodotto); un campo nuovo nel file della corsa per il punto d'ingresso
+(le stesse posizioni lo ritrovano).
+
+**Conseguenza**: anche chi parte dalla partenza di una forma chiusa sente
+«Head out on …» dopo una ventina di metri sulla forma, non allo «Start».
+Il segnaposto della partenza resta dove il percorso è stato disegnato.
+Una corsa riaperta con l'app (TASK-272, ADR-0240) passa per lo stesso
+`useNavigation`, quindi per la stessa scelta (`startsAnywhere`):
+`reopenedRoute` passa ora sempre la parola del file, anche senza
+camminate, perché una parola riaperta non diventi una forma chiusa. Se il motore
+cambierà le indicazioni ai vicoli ciechi (TASK-271), la svolta alla vecchia
+partenza segue ancora la regola degli incroci di `directions.py`.
+
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 
 **Stato**: Attiva · 2026-10-11 · deciso dall'agente su delega dell'utente

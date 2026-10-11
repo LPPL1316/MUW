@@ -1,7 +1,8 @@
 import { BASE_LANGUAGE } from "../i18n/languages";
 import { wordsOf } from "../voice/words";
+import { moveOnFootJoined } from "./joinOnFoot";
 import { type Navigation, onFix } from "./navigator";
-import { moveOnFoot, type OnFoot } from "./onFootVoice";
+import type { OnFoot } from "./onFootVoice";
 import { movePen, type Pen } from "./penUp";
 import type { TrackFix } from "./trackRecorder";
 
@@ -13,7 +14,8 @@ import type { TrackFix } from "./trackRecorder";
  * not the first of the route, and the letters already drawn are not drawn
  * again. Before, «Keep running» and a run started again after the app was
  * closed restarted at the route's first metre, found nobody there, and
- * stayed off the route to the end.
+ * stayed off the route to the end. Along a closed shape the same fixes join
+ * it where the run first did (TASK-273): the file needs nothing more.
  */
 
 export type Followed = { navigation: Navigation; pen: Pen; onFoot: OnFoot };
@@ -30,12 +32,13 @@ export function resumeFollowing(
     if (navigation.arrived) {
       break;
     }
+    const before = navigation;
     navigation = onFix(navigation, fix.point, {
       accuracyM: fix.accuracyM,
       timeMs: fix.timeMs,
     }).navigation;
     pen = movePen(pen, navigation.alongM, fix.accuracyM).pen;
-    onFoot = moveOnFoot(onFoot, navigation.alongM, words, fix.accuracyM).onFoot;
+    onFoot = moveOnFootJoined(before, navigation, onFoot, words, fix.accuracyM).onFoot;
   }
   return { navigation, pen, onFoot };
 }
