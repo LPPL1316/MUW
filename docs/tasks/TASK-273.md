@@ -59,6 +59,11 @@ partirebbe «dovunque». Nella #493: `word: run.word ?? null` sempre in
 `reopenedRoute` (le `walks` solo quando ci sono), più il test della ripresa
 (una forma chiusa riaperta rientra nello stesso punto; una parola senza
 camminate riaperta non diventa forma chiusa). La #492 resta com'è.
+**Fatto il 2026-10-11** dopo «492 in main» (`6ad41c74`): `reopenedRoute`
+passa sempre `word`, e due test in `AppReopenRun.test.tsx` (la forma chiusa
+riaperta riparte dal punto d'ingresso e dice la svolta alla vecchia
+partenza; la parola senza camminate riaperta resta seguita dalla sua
+partenza: con la riga di prima il test fallisce).
 
 ## Contesto da leggere
 

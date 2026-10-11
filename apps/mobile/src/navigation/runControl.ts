@@ -179,7 +179,10 @@ export type RunSession = {
 
 /**
  * Puts the run that `recorder` records under these controls until `end`.
- * A new run begins with the countdown; one taken up again goes on at once.
+ * A new run begins with the countdown; one taken up again goes on at once,
+ * unless it comes with its pause still open: a run the app was closed
+ * during waits for «Resume» (TASK-272, ADR-0240), and on a walk between two
+ * letters for the next one too.
  * `onChange` is called when a control changed the track, `say` with what the
  * voice has to tell (it is the caller's to keep quiet when the voice is off).
  */
@@ -195,6 +198,7 @@ export function controlRun(
     clearInterval(session.watch);
   }
   const fresh = recorder.track().fixes.length === 0;
+  const held = fresh ? null : openPause(recorder.track());
   const mine: Session = {
     recorder,
     onChange,
@@ -206,10 +210,10 @@ export function controlRun(
   };
   session = mine;
   set({
-    phase: fresh ? "countdown" : "running",
+    phase: fresh ? "countdown" : held !== null ? "paused" : "running",
     startsAtMs: fresh ? Date.now() + COUNTDOWN_MS : null,
     auto: false,
-    pen: false,
+    pen: held?.pen === true,
   });
   return {
     onFix(fix, arrived) {

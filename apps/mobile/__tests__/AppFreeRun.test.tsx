@@ -238,17 +238,19 @@ test("Stop before the first fix goes back to the first screen", async () => {
   expect(screen.queryByText("Your run")).toBeNull();
 });
 
-test("a free run left when the app closed opens with the app", async () => {
+/** A free run of 500 m in a minute the app was closed during, its last fix
+ * `agoMs` ago: when that was. */
+function closedFreeRun(agoMs: number): number {
   const now = Date.now();
   saveRun({
     version: 1,
     route: [],
     track: {
       fixes: [
-        { point: START, timeMs: now - 120_000, accuracyM: 5 },
+        { point: START, timeMs: now - agoMs - 60_000, accuracyM: 5 },
         {
           point: [START[0] + 500 * METRE, START[1]],
-          timeMs: now - 60_000,
+          timeMs: now - agoMs,
           accuracyM: 5,
         },
       ],
@@ -256,8 +258,40 @@ test("a free run left when the app closed opens with the app", async () => {
     },
     status: "running",
   });
+  return now - agoMs;
+}
+
+test("a free run left when the app closed opens again, paused (TASK-272)", async () => {
+  const closed = closedFreeRun(60_000);
+  await render(<App />);
+  // Its run screen, as a run along a route: paused, the numbers so far.
+  expect(await screen.findByText("Paused")).toBeOnTheScreen();
+  expect(screen.getByLabelText("Distance: 0.50 km")).toBeOnTheScreen();
+  expect(screen.queryByText("Get ready")).toBeNull();
+
+  // «Resume» goes on: the minute closed is a pause, not a minute of the run.
+  const resumed = Date.now();
+  await fireEvent.press(screen.getByLabelText("Resume"));
+  await screen.findByLabelText("Pause");
+  await act(async () => {
+    onPosition(position(700, resumed + 10_000));
+    onPosition(position(800, resumed + 40_000));
+  });
+  expect(loadRun()?.track.pauses).toEqual([{ fromMs: closed, toMs: resumed }]);
+  expect(loadRun()?.track.distanceM).toBeCloseTo(600, 0);
+
+  await fireEvent.press(screen.getByLabelText("Pause"));
+  await fireEvent(screen.getByLabelText("Stop"), "longPress");
+  expect(await screen.findByText("Your run")).toBeOnTheScreen();
+  expect(screen.getByText("0.60 km")).toBeOnTheScreen();
+  // A minute before the app closed, 40 seconds after «Resume».
+  expect(screen.getByLabelText("Time: 1:40")).toBeOnTheScreen();
+});
+
+test("a free run closed long ago opens on its end, to be saved (TASK-272)", async () => {
+  closedFreeRun(3 * 60 * 60_000);
   await render(<App />);
   expect(await screen.findByText("Your run")).toBeOnTheScreen();
   expect(screen.getByText("0.50 km")).toBeOnTheScreen();
-  expect(screen.getByText("Keep running")).toBeOnTheScreen();
+  expect(screen.queryByText("Keep running")).toBeNull();
 });
