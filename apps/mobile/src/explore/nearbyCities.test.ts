@@ -67,6 +67,42 @@ test("six at most, and what does not read is left out", async () => {
   );
 });
 
+test("a town's photo and its credit, when the API gives them (TASK-283)", async () => {
+  const fetchFn = answering({
+    places: [
+      {
+        ...levico,
+        photo: { url: "/city-photos/Q1.jpg", credit: "© A · CC BY-SA 4.0" },
+      },
+      { ...pergine, photo: { url: "/city-photos/Q2.jpg", credit: null } },
+    ],
+  });
+  const towns = await fetchNearbyCities(API, CALDONAZZO, { fetchFn });
+  expect(towns?.map((town) => town.photo)).toEqual([
+    { url: "/city-photos/Q1.jpg", credit: "© A · CC BY-SA 4.0" },
+    { url: "/city-photos/Q2.jpg", credit: null },
+  ]);
+  // Kept with the towns: there again at once.
+  expect(knownNearby(API, CALDONAZZO)?.[0].photo?.url).toBe("/city-photos/Q1.jpg");
+});
+
+test("a photo that does not read, or not on the API, is none: the town stays", async () => {
+  const odd = [
+    null,
+    { photo: null },
+    { photo: { credit: "x" } },
+    { photo: { url: "https://elsewhere.test/a.jpg", credit: null } },
+    { photo: { url: "//elsewhere.test/a.jpg", credit: null } },
+    { photo: { url: "@elsewhere.test/a.jpg", credit: null } },
+  ];
+  const fetchFn = answering({
+    places: odd.map((extra, i) => ({ ...levico, label: `Town ${i}`, ...extra })),
+  });
+  const towns = await fetchNearbyCities(API, CALDONAZZO, { fetchFn });
+  expect(towns).toHaveLength(MAX_NEARBY);
+  expect(towns?.every((town) => town.photo === undefined)).toBe(true);
+});
+
 test("no towns around is an answer, and is kept", async () => {
   const fetchFn = answering({ places: [] });
   expect(await fetchNearbyCities(API, CALDONAZZO, { fetchFn })).toEqual([]);

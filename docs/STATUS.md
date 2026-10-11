@@ -157,6 +157,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
+  dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
+  «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
+  foto»). Branch `feat/TASK-283-city-photos`. Ogni paese che ha
+  un'immagine su Wikidata con licenza libera mostra la foto al posto di
+  mappa e cuore, con «© autore · licenza» in piccolo; senza foto la scheda
+  di prima. Le foto le prende e le tiene l'API (`GET /city-photos/…`): a
+  Wikimedia vanno solo gli elementi, mai la posizione, e il telefono non
+  chiede niente a Wikimedia. Provato nel simulatore intorno a Moreda: sei
+  paesi su sei con la foto. **Server: merge e aggiornamento dopo
+  l'approvazione di Apple e con l'ok dell'utente**; l'app senza il server
+  nuovo mostra le schede di prima. File: `tasks/TASK-283.md`.
 - **TASK-276 — Più percorsi all'ora sullo stesso server** (ADR-0242
   riservato; chiesto dall'utente il 2026-10-11). **Aspetta
   l'approvazione di Apple della 1.0**. Poi, con l'ok dell'utente e il via
