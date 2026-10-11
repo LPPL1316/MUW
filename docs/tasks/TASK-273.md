@@ -1,6 +1,6 @@
 # TASK-273 — Una forma chiusa si comincia da qualunque punto
 
-**Stato**: In corso
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-273-start-anywhere`
 
 ## Obiettivo
@@ -137,8 +137,8 @@ partenza: con la riga di prima il test fallisce).
       file della corsa vero in `useNavigation.test.ts`).
 - [x] Nessun testo nuovo.
 - [x] Corsa simulata nel simulatore iOS, entrando a metà di una forma.
-- [ ] `npm run lint`, `typecheck`, `test`, `format:check` verdi (CI;
-      in locale verdi).
+- [x] `npm run lint`, `typecheck`, `test`, `format:check` verdi (CI 5/5
+      su `6ad50fe1`).
 
 ## File toccati
 
@@ -172,7 +172,15 @@ docs/STATUS.md, docs/DECISIONS.md                     (le righe di questo task)
 
 ## Esito
 
-*(in corso: si completa dopo il merge)*
+Una forma chiusa ora si comincia dove il corridore la raggiunge, fa tutto
+il giro e finisce lì, con le svolte da quel punto e quella alla vecchia
+partenza; parole e forme aperte come prima. PR #493, merge `f7ddfe81`
+(2026-10-11) dal Coordinatore, dopo la #492 (TASK-272) e il taglio della
+build 6; nella #493 anche `word` sempre in `reopenedRoute`, così una parola
+riaperta non diventa una forma chiusa. Non nella 1.0: la pubblica il
+coordinatore. Resta la prova correndo su un iPhone vero. Fuori scope e
+annotati sopra: correre la forma al contrario (scelta di prodotto), il
+segnaposto della partenza al punto d'ingresso.
 
 **Prova nel simulatore** (2026-10-10, iPhone 17e con Expo Go, l'API del
 worktree sulla cache delle mappe del Mac): un cuore vero di 3,9 km a Trento
