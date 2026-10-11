@@ -184,7 +184,10 @@ function reopenedRoute(run: SavedRun): ExploreRun {
     directions: run.directions ?? NO_DIRECTIONS,
     // Always there: a run of a route without it is not opened again.
     similarity: run.similarity ?? 0,
-    ...(run.walks !== undefined ? { walks: run.walks, word: run.word ?? null } : {}),
+    // The word even without walks: a word starts at its start, never where
+    // the runner reaches it as a closed shape does (TASK-273).
+    word: run.word ?? null,
+    ...(run.walks !== undefined ? { walks: run.walks } : {}),
     ...(run.on_foot !== undefined ? { on_foot: run.on_foot } : {}),
     ...(run.activity !== undefined ? { activity: run.activity } : {}),
     ...(run.rotation_deg !== undefined ? { rotation_deg: run.rotation_deg } : {}),

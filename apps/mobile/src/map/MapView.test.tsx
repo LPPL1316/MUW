@@ -331,6 +331,28 @@ describe("running the route (TASK-224)", () => {
     expect(progressed()).toHaveLength(2);
   });
 
+  test("a route joined away from its start is cut on the navigator's line (TASK-273)", async () => {
+    // The route from its third point round: the line run starts there.
+    const turned = [...route.slice(2), ...route.slice(1, 3)];
+    await render(
+      <MapView
+        start={route[0]}
+        route={route}
+        progress={{
+          alongM: 120,
+          arrived: false,
+          points: turned,
+          along: cumulative(turned),
+        }}
+        onError={onError}
+      />,
+    );
+    await pagePosts('{"type":"ready"}');
+    const [message] = progressed();
+    expect(message.done[0][0]).toEqual([11, 46.002]);
+    expect(message.ahead[0].at(-1)).toEqual([11, 46.002]);
+  });
+
   test("arrived, the whole route is done", async () => {
     await render(
       <MapView

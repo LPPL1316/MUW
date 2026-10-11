@@ -14006,3 +14006,91 @@ all'API (serve la rete, e la risposta può cambiare).
 da capo; dopo «Resume» il navigatore ritrova chi corre anche più avanti
 sul percorso (TASK-270, ADR-0052). Il file della corsa cresce delle
 indicazioni del percorso (qualche decina di kB al più).
+
+## ADR-0241 — Una forma chiusa si comincia dove la si raggiunge
+**Stato**: Attiva · 2026-10-10 · la scelta di prodotto è dell'utente
+(chiesta in chat con le opzioni, TASK-273): «Automatico, dove la tocchi»;
+il come deciso dall'agente su delega dell'utente. Dalla prima recensione di
+un tester («ho iniziato da una parte diversa … non ci ho fatto, funziona
+un po' a tentoni»).
+
+Il navigatore (ADR-0052) aspettava il corridore al primo metro: chi
+cominciava il cuore da un'altra parte restava «fuori percorso». La scelta
+dell'utente: si preme «Start» dove si vuole; la corsa comincia nel punto
+della forma dove la si raggiunge, fa tutto il giro e finisce quando si
+torna lì; la voce dà le svolte da quel punto. Solo per le forme chiuse;
+parole e forme aperte partono dalla loro partenza come prima.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Chiusa** (`startAnywhere.ts`): l'ultimo punto entro 25 m dal primo
+   (`CLOSED_M`, quanto `ARRIVE_M`: a quella distanza il navigatore
+   dice già che si è arrivati), e il percorso non è una parola (`word`) né
+   in pezzi a penna alzata (`walks`). Vale anche in bici e sull'acqua.
+2. **Prima dell'ingresso** «Head out on …» non si dice allo «Start». Una
+   posizione si cerca su **tutta** la forma: lontano più di 40 m
+   (`OFF_ROUTE_M`) da tutta la forma vale «Off the route» come per chi va
+   verso la partenza.
+3. **L'ingresso** dopo 3 posizioni di fila (`JOIN_FIXES`) sulla forma,
+   ognuna entro 50 m lungo la forma dalla precedente, che si sono spostate
+   di almeno 20 m lungo la forma (`JOIN_M`). Una posizione storta vicino a
+   un passaggio lontano, o una vecchia che il telefono dà per prima (dove
+   si è disegnato il percorso), resta sola; attraversare la forma di
+   traverso non la percorre. Una posizione con più di 40 m d'errore non
+   conta né azzera. La serie parte su **ogni passaggio** vicino alla prima
+   posizione (una forma ripassa la stessa via, ADR-0039): vince quello che
+   il corridore percorre nel verso del percorso. Il punto d'ingresso è la
+   prima posizione della serie.
+4. **Il giro**: il percorso del navigatore diventa la stessa forma dal
+   punto d'ingresso a sé stesso (`joinRoute`, con la forma due volte di
+   fila per passare la partenza in tutti e due i versi); le indicazioni
+   restano quelle del motore con le distanze da lì. Un ingresso entro 25 m
+   dalla partenza (`AT_START_M`) è la partenza: il percorso resta com'è.
+5. **L'incrocio della vecchia partenza**, dove il motore non dice niente
+   (è l'ultimo nodo), riceve la svolta ricavata sul telefono come la
+   ricava il motore (`directions.py`): direzione d'arrivo e di partenza a
+   20 m, le stesse soglie (30°, 135°, 165°), solo a un incrocio
+   (`branches` ≥ 3 della partenza) e solo se si gira o si cambia via. La
+   via è quella della partenza.
+6. **All'ingresso** la voce dice «Head out on …» con la via su cui si è
+   (quella dell'ultima indicazione prima del punto), dopo «Back on the
+   route» se si era detto «Off the route»; poi le svolte come sempre.
+   **Nessun testo nuovo.** L'arrivo (`ARRIVE_M`, `ARRIVE_FIXES`) è al
+   punto d'ingresso.
+7. **La direzione resta quella del percorso**: chi entra e va nel verso
+   opposto sente «Head out on …» e poco dopo «Off the route», come chi
+   oggi parte dalla partenza al contrario.
+8. **Mappa, bici a mano, corsa ripresa**: la parte corsa (TASK-224) si
+   taglia sulla linea del navigatore, che parte dal punto d'ingresso; i
+   tratti con la bici a mano (TASK-206) si ruotano con il percorso (uno a
+   cavallo del punto in due) e prima dell'ingresso non si dicono; una corsa
+   ripresa (TASK-253) ripassa le posizioni della traccia e rientra nello
+   stesso punto, senza campi nuovi nel file della corsa. La traccia, i
+   chilometri, il file e la corsa salvata non cambiano: la linea corsa fa
+   tutto il giro, quindi tutta la forma.
+
+**Motivo**: la forma è un disegno chiuso, e da dove si comincia non cambia
+il disegno. Più posizioni di fila che si muovono lungo la forma sono la
+prova che il corridore la sta correndo, non solo che le è passato vicino;
+la svolta della vecchia partenza serve perché, ruotato, quell'incrocio
+cade in mezzo al giro.
+
+**Alternative scartate**: la prima posizione vicina alla forma (una sola
+storta, o quella vecchia di dove si è disegnato, sceglierebbe l'ingresso);
+il punto più vicino senza guardare il verso (sulle vie ripassate, metà
+delle volte il passaggio sbagliato e «Off the route»); dire «Head out» allo
+«Start» con la via della partenza (sbagliata per chi è altrove); seguire la
+forma al contrario per chi va nell'altro verso (svolte e sensi unici
+cambiano, i tratti a mano in bici valgono in un verso: sarebbe una scelta
+di prodotto); un campo nuovo nel file della corsa per il punto d'ingresso
+(le stesse posizioni lo ritrovano).
+
+**Conseguenza**: anche chi parte dalla partenza di una forma chiusa sente
+«Head out on …» dopo una ventina di metri sulla forma, non allo «Start».
+Il segnaposto della partenza resta dove il percorso è stato disegnato.
+Una corsa riaperta con l'app (TASK-272, ADR-0240) passa per lo stesso
+`useNavigation`, quindi per la stessa scelta (`startsAnywhere`):
+`reopenedRoute` passa ora sempre la parola del file, anche senza
+camminate, perché una parola riaperta non diventi una forma chiusa. Se il motore
+cambierà le indicazioni ai vicoli ciechi (TASK-271), la svolta alla vecchia
+partenza segue ancora la regola degli incroci di `directions.py`.

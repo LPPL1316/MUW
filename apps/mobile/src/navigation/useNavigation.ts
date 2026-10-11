@@ -18,8 +18,9 @@ import { loadVoices, speaking } from "../voice/voiceChoice";
 import { wordsOf } from "../voice/words";
 import { kmAnnouncement } from "./freeRun";
 import { comparisonOf } from "./kmCompare";
+import { moveOnFootJoined } from "./joinOnFoot";
 import { type Cue, type Navigation, onFix, startNavigation } from "./navigator";
-import { moveOnFoot, startOnFoot } from "./onFootVoice";
+import { startOnFoot } from "./onFootVoice";
 import { isPaddle, paddleAnnouncement } from "./paddle";
 import { movePen, startPen } from "./penUp";
 import { resumeFollowing } from "./resume";
@@ -27,6 +28,7 @@ import { announceMOf, isRide, rideAnnouncement, saidKmOf } from "./ride";
 import { type RunAway, watchAway } from "./runAway";
 import { controlRun, runControl, type RunSession } from "./runControl";
 import { type RunWatch, watchRunPosition } from "./runPosition";
+import { startsAnywhere } from "./startAnywhere";
 import { emptyTrack, type Track } from "./trackRecorder";
 import { startRun } from "./trackStore";
 
@@ -76,7 +78,8 @@ export function play(cues: Cue[]): void {
  * way between the letters ridden. On the water (`activity` "paddling") each
  * kilometre is said with the average pace of 500 m (TASK-251). After the
  * kilometres the voice says how they went against those before (TASK-217,
- * `kmCompare`).
+ * `kmCompare`). A closed shape is run from wherever the runner reaches it,
+ * all the way round to there (TASK-273, `startAnywhere`).
  * Each fix is said in the voice's language of that moment (TASK-209), so a
  * change on «Data» is heard at once, and in the units «Settings» has at
  * that moment (TASK-182): with miles each mile, on a bike every
@@ -139,14 +142,16 @@ export function useNavigation(
           setState({ status: "denied" });
           return;
         }
+        const walked = walksOf(points, walks);
+        // A closed shape starts wherever the runner reaches it (TASK-273).
         const started = startNavigation(
           points,
           directions,
           speaking().language,
           announceMOf(activity),
+          startsAnywhere(points, { word, walks: walked }),
         );
         navigation.current = started.navigation;
-        const walked = walksOf(points, walks);
         let pen = startPen(started.navigation.along, walked, word, activity);
         let bike = startOnFoot(started.navigation.along, onFootOf(points, onFoot));
         // A route stopped lately goes on with its track (trackStore); one
@@ -215,8 +220,9 @@ export function useNavigation(
             const fix: LatLon = [coords.latitude, coords.longitude];
             position = fix;
             const { language } = speaking();
+            const before = navigation.current;
             const next = onFix(
-              navigation.current,
+              before,
               fix,
               { accuracyM: coords.accuracy, timeMs: timestamp },
               language,
@@ -256,10 +262,12 @@ export function useNavigation(
             // The pen first: what the runner does next depends on it.
             play(drawing.cues);
             play(next.cues);
-            // After the turn, which may be the way onto the stretch.
-            const walking = moveOnFoot(
+            // After the turn, which may be the way onto the stretch; from
+            // where the run joined a closed route (TASK-273).
+            const walking = moveOnFootJoined(
+              before,
+              next.navigation,
               bike,
-              next.navigation.alongM,
               wordsOf(language),
               coords.accuracy,
             );

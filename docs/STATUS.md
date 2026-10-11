@@ -178,6 +178,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   app, nessun testo nuovo; pubblica il coordinatore.
   File: `tasks/TASK-272.md`, «File toccati».
   **Chiuso con la #492** (dopo il taglio della build 6); vedi «Completato».
+- **TASK-273 — Una forma chiusa si comincia da qualunque punto** (ADR-0241;
+  dalla prima recensione di un tester del 2026-10-10, scelta dell'utente
+  «Automatico, dove la tocchi»). Branch `feat/TASK-273-start-anywhere`, da
+  `main` con la #486. Lungo una forma chiusa la corsa comincia dove il
+  corridore raggiunge la forma, fa tutto il giro e finisce lì; la voce dà
+  le svolte da quel punto. Parole e forme aperte come prima. Solo app,
+  nessun testo nuovo, non nella 1.0; tocca `navigator.ts`, `progress.ts`,
+  `useNavigation.ts` come TASK-272: l'ordine lo dà il Coordinatore.
+  File: `tasks/TASK-273.md`, «File toccati».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app

@@ -92,6 +92,75 @@ export function locate(
   return onRoute ?? nearest;
 }
 
+/**
+ * The point of the route nearest to the fix, between `fromM` and `toM`
+ * metres along it, either way from where the runner was, or anywhere on it:
+ * for a run that may join a closed route wherever it reaches it (TASK-273),
+ * before it has a way to go along it. Works as `locate` does.
+ */
+export function nearest(
+  points: LatLon[],
+  along: number[],
+  fix: LatLon,
+  fromM: number = -Infinity,
+  toM: number = Infinity,
+): Located {
+  let best: Located = { alongM: 0, offM: Infinity };
+  for (let i = 1; i < points.length; i += 1) {
+    if (along[i] < fromM) {
+      continue;
+    }
+    if (along[i - 1] > toM) {
+      break;
+    }
+    const here = onSegment(points, along, fix, i);
+    if (here.offM < best.offM) {
+      best = here;
+    }
+  }
+  return best;
+}
+
+/**
+ * Each pass of the route within OFF_ROUTE_M of the fix, at its point
+ * nearest to it, in their order along the route: a shape passes the same
+ * street twice (ADR-0039), and which pass a runner joining it is on shows
+ * only from the way they go (TASK-273).
+ */
+export function passesNear(points: LatLon[], along: number[], fix: LatLon): Located[] {
+  const passes: Located[] = [];
+  let within = false;
+  for (let i = 1; i < points.length; i += 1) {
+    const here = onSegment(points, along, fix, i);
+    if (here.offM > OFF_ROUTE_M) {
+      within = false;
+      continue;
+    }
+    const last = passes[passes.length - 1];
+    if (!within || last === undefined) {
+      passes.push(here);
+      within = true;
+    } else if (here.offM < last.offM) {
+      passes[passes.length - 1] = here;
+    }
+  }
+  return passes;
+}
+
+/** The point of the route's segment ending at point `i` nearest to the fix. */
+function onSegment(points: LatLon[], along: number[], fix: LatLon, i: number): Located {
+  const [ax, ay] = toPlane(fix, points[i - 1]);
+  const [bx, by] = toPlane(fix, points[i]);
+  const dx = bx - ax;
+  const dy = by - ay;
+  const length2 = dx * dx + dy * dy;
+  const t = length2 > 0 ? clamp(-(ax * dx + ay * dy) / length2, 0, 1) : 0;
+  return {
+    alongM: along[i - 1] + t * (along[i] - along[i - 1]),
+    offM: Math.hypot(ax + t * dx, ay + t * dy),
+  };
+}
+
 const EARTH_RADIUS_M = 6_371_000;
 
 function toPlane([lat0, lon0]: LatLon, [lat, lon]: LatLon): [number, number] {

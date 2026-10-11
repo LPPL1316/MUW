@@ -297,3 +297,95 @@ test("a run stopped by the runner opens on its end, as before", async () => {
   expect(await screen.findByText("Your run")).toBeOnTheScreen();
   expect(screen.queryByText("Paused")).toBeNull();
 });
+
+describe("a closed shape, started where it was reached (TASK-273)", () => {
+  // A block 400 m a side, clockwise from START: north on Via Roma, east on
+  // Via Verdi, south on Via Bianchi, west on Via Neri, back to START.
+  const metreLon = METRE / Math.cos((START[0] * Math.PI) / 180);
+  const at = (x: number, y: number): LatLon => [
+    START[0] + y * METRE,
+    START[1] + x * metreLon,
+  ];
+  const onBlock = (m: number): LatLon => {
+    const s = ((m % 1600) + 1600) % 1600;
+    if (s <= 400) return at(0, s);
+    if (s <= 800) return at(s - 400, 400);
+    if (s <= 1200) return at(400, 1200 - s);
+    return at(1600 - s, 0);
+  };
+  const block: LatLon[] = Array.from({ length: 17 }, (_, i) => onBlock(100 * i));
+  block[16] = block[0];
+  const right = (distance_m: number, street: string): Direction => ({
+    ...DEPART,
+    node: distance_m,
+    point: onBlock(distance_m),
+    distance_m,
+    turn: "right",
+    angle_deg: 90,
+    street,
+  });
+  const blockDirections: Direction[] = [
+    DEPART,
+    right(400, "Via Verdi"),
+    right(800, "Via Bianchi"),
+    right(1200, "Via Neri"),
+  ];
+  /** Started half-way down Via Bianchi, at 1000 m; closed at 1300 m. */
+  function joinedRun(more: Partial<SavedRun> = {}): SavedRun {
+    const fixes: TrackFix[] = [];
+    for (let m = 1000; m <= 1300; m += 20) {
+      fixes.push({
+        point: onBlock(m),
+        timeMs: CLOSED - (1300 - m) * 300,
+        accuracyM: 5,
+      });
+    }
+    return {
+      version: 1,
+      route: block,
+      similarity: 0.8,
+      directions: blockDirections,
+      track: { fixes, distanceM: 300 },
+      status: "running",
+      ...more,
+    };
+  }
+
+  test("it opens again going on from where it was reached", async () => {
+    saveRun(joinedRun());
+    await openApp();
+    expect(await screen.findByText("Paused")).toBeOnTheScreen();
+    // Past Via Neri, the turn ahead is the one at the route's own start.
+    expect(screen.getByText("Turn right onto Via Roma")).toBeOnTheScreen();
+    expect(screen.queryByText("Off the route")).toBeNull();
+    expect(said()).not.toContainEqual(expect.stringMatching(/Head out/));
+
+    // «Resume» a minute later, 200 m on: the turn there is said, and the
+    // run does not end at the route's start.
+    jest.setSystemTime(NOW + 60_000);
+    await fireEvent.press(screen.getByLabelText("Resume"));
+    expect(await screen.findByLabelText("Pause")).toBeOnTheScreen();
+    await act(async () => {
+      for (let m = 1500; m <= 1660; m += 20) {
+        const [latitude, longitude] = onBlock(m);
+        onPosition({
+          coords: { latitude, longitude, accuracy: 5 },
+          timestamp: NOW + 60_000 + (m - 1500) * 300,
+        } as Location.LocationObject);
+      }
+    });
+    expect(said()).toContainEqual(expect.stringMatching(/turn right onto Via Roma/));
+    expect(said()).not.toContainEqual("You are off the route. Head back to it.");
+    expect(said()).not.toContainEqual("You have arrived.");
+  });
+
+  test("a word without walks opens again from its start, never as a closed shape", async () => {
+    // The same closed line as a word drawn without lifting the pen: the
+    // fixes half-way along are far from its start, as they always were.
+    saveRun(joinedRun({ word: "O" }));
+    await openApp();
+    expect(await screen.findByText("Paused")).toBeOnTheScreen();
+    expect(screen.getByText("Off the route")).toBeOnTheScreen();
+    expect(screen.queryByText("Turn right onto Via Roma")).toBeNull();
+  });
+});
