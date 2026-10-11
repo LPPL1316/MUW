@@ -52,6 +52,14 @@ ripresa di TASK-272 a questa scelta (chi ricostruisce la navigazione passa
 poi «#493 pronta» e merge solo al suo «merge 493». Intanto la #493 resta
 verde.
 
+**Dopo il «merge 492», anche** (Coordinatore, 2026-10-11): la #492 riapre
+una corsa con `reopenedRoute` in `App.tsx`, che passa `word` solo quando ci
+sono le `walks`; una parola senza camminate riaperta perderebbe la parola e
+partirebbe «dovunque». Nella #493: `word: run.word ?? null` sempre in
+`reopenedRoute` (le `walks` solo quando ci sono), più il test della ripresa
+(una forma chiusa riaperta rientra nello stesso punto; una parola senza
+camminate riaperta non diventa forma chiusa). La #492 resta com'è.
+
 ## Contesto da leggere
 
 - `docs/DECISIONS.md`: ADR-0052 e la sua aggiunta (TASK-270), ADR-0070
@@ -141,6 +149,8 @@ apps/mobile/src/navigation/resume.ts
 apps/mobile/src/map/MapView.tsx
 apps/mobile/src/map/MapView.test.tsx
 apps/mobile/__tests__/AppExploreStart.test.tsx        («Head out» della stella d'esempio, chiusa: ora all'ingresso)
+apps/mobile/App.tsx                                   (dopo la #492: `word` sempre in `reopenedRoute`)
+apps/mobile/__tests__/AppReopenRun.test.tsx           (dopo la #492: il test della ripresa)
 docs/tasks/TASK-273.md
 docs/STATUS.md, docs/DECISIONS.md                     (le righe di questo task)
 ```
