@@ -157,6 +157,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-278…282 — Cinque richieste dell'utente del 2026-10-11 su
+  «Explore» e «Draw»** (numeri dal Coordinatore; task file scritti dalla
+  sessione «Explore e Draw: profilo e disegno mappa», nessun codice
+  ancora). Ognuno parte nella sua sessione, col via del Coordinatore;
+  le scelte dell'utente già fatte sono nei task file.
+  - **TASK-278** — il proprio profilo come quarta pagina dopo «Explore»;
+    in alto tre nomi più il cerchio, che si illumina (scelta
+    dell'utente). Solo app: può partire subito.
+  - **TASK-279** — parole con la penna alzata negli esempi di una città
+    in «Explore» (parte A, solo app: l'API tiene già le parole chieste
+    dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
+  - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
+    «PICTURES» (sagome pronte). Solo app: può partire subito.
+  - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
+    forme e immagini sulla mappa della città, e cambiarle senza uscire.
+    Solo app; il motore parte da dove è stata messa la figura.
+  - **TASK-282** — il percorso proprio dove la figura è stata messa
+    (`near` a piedi): motore, dopo l'approvazione di Apple e TASK-281.
+  278, 280 e 281 toccano `App.tsx`, 280 e 281 anche `ChooseScreen.tsx`:
+  l'ordine lo dà il Coordinatore. File: `tasks/TASK-278.md` … `TASK-282.md`.
 - **TASK-276 — Più percorsi all'ora sullo stesso server** (ADR-0242
   riservato; chiesto dall'utente il 2026-10-11). **Aspetta
   l'approvazione di Apple della 1.0**. Poi, con l'ok dell'utente e il via
