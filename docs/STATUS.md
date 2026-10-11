@@ -187,6 +187,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nessun testo nuovo, non nella 1.0; tocca `navigator.ts`, `progress.ts`,
   `useNavigation.ts` come TASK-272: l'ordine lo dà il Coordinatore.
   File: `tasks/TASK-273.md`, «File toccati».
+  **Chiuso con la #493** (dopo la #492); vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -761,6 +762,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-273 (ADR-0241; dalla prima recensione di un tester del
+  2026-10-10, scelta dell'utente «Automatico, dove la tocchi»): lungo una
+  forma chiusa la corsa comincia dove il corridore raggiunge la forma (3
+  posizioni di fila, 20 m lungo la forma, il passaggio percorso nel verso
+  del percorso), fa tutto il giro e finisce lì; la voce dà le svolte da quel
+  punto, compresa quella alla vecchia partenza, ricavata sul telefono con la
+  regola del motore. Parole e forme aperte come prima; anche una corsa
+  riaperta (TASK-272) rientra nello stesso punto, e una parola riaperta
+  resta una parola. PR #493, merge `f7ddfe81`, dopo la #492 e il taglio
+  della build 6. Solo app, nessun testo nuovo, non nella 1.0: la pubblica
+  il coordinatore. Provata nel simulatore con un cuore vero di 3,9 km a
+  Trento; resta la prova correndo. `tasks/TASK-273.md`.
 - **App** — TASK-272 (ADR-0240; dalla prima recensione di un tester del
   2026-10-10, scelta dell'utente «Riapre la corsa in pausa»): se l'app si
   chiude durante una corsa, riaprendola entro 2 ore si apre la corsa **in
