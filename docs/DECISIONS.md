@@ -13890,6 +13890,45 @@ e tutti i test del database fallivano.
 volume `tmpfs` per `PGDATA` (cambia l'avvio e la memoria usata, per un
 problema che `-v` risolve da solo).
 
+## ADR-0228, aggiunta — Segnalare un commento e bloccare chi l'ha scritto
+
+**Stato**: Attiva · 2026-10-11 · il sì dell'utente a segnalare i commenti
+(2026-10-11, dopo la risposta di Apple alla 1.0.0); il modo deciso
+dall'agente su delega dell'utente (TASK-275). Aggiunta ad ADR-0228, senza
+numero nuovo.
+
+**Contesto**: Apple ha chiesto, per la revisione, un video con i modi di
+segnalare i contenuti degli utenti e di bloccare le persone (Guideline
+1.2). Nella build 5 un commento non si segnalava e dal commento non si
+arrivava al profilo di chi l'aveva scritto. L'API accettava già
+`kind: "comment"` (punto 4 di ADR-0228) e rifiuta con 422 il proprio.
+
+**Decisione**:
+
+1. Tenendo premuto il commento di un altro si apre un alert nativo
+   «Report or block» con «Report», «Block {user}» e, se il commento si
+   può cancellare (sotto il proprio disegno), «Delete». Il proprio
+   commento apre «Delete this comment?» come prima, mai «Report».
+2. «Report» chiede uno dei cinque motivi e dice grazie; «Block» chiede
+   prima con la frase del «…». Stesse parole di `ReportMenu.tsx`: nessun
+   testo nuovo nelle cinque lingue.
+3. Dopo un blocco il foglio chiede di nuovo la prima pagina dei commenti
+   (l'API non dà più quelli di chi è bloccato) e `markBlocked` toglie le
+   sue schede da «Feed». Un commento segnalato resta: lo guarda chi
+   gestisce l'app.
+4. La logica sta in un file nuovo, `social/commentChoices.ts`, con l'API e
+   l'account di `FollowsContext`, che copre gli stessi schermi di
+   `CommentsContext`. Senza account niente cambia.
+5. Le stesse scelte sono azioni di VoiceOver, che non ha il tocco lungo.
+
+**Alternative scartate**: il foglio del «…» (`ReportMenu`) sopra il foglio
+dei commenti (un `Modal` dentro un `Modal`, da provare su un iPhone vero
+prima della build per Apple; gli alert sono quelli che il foglio usa già
+per cancellare); un «…» su ogni commento (più rumore in ogni riga, e
+cambia il disegno della riga); aprire il profilo dal commento e segnalare
+da lì (due passi in più, e la segnalazione sarebbe della persona, non del
+commento).
+
 ## ADR-0240 — La corsa interrotta si riapre in pausa
 **Stato**: Attiva · 2026-10-10 · scelta dell'utente del 2026-10-10,
 chiesta in chat con le opzioni: **«Riapre la corsa in pausa»**; il limite
