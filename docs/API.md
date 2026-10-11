@@ -427,9 +427,35 @@ se il servizio non risponde; 422 per un punto fuori dalla Terra.
 ```json
 {"places": [
   {"label": "Levico Terme, Trentino – Alto Adige/Südtirol, Italy",
-   "point": [46.0091259, 11.3017774], "away_m": 2929}
+   "point": [46.0091259, 11.3017774], "away_m": 2929, "photo": null},
+  {"label": "Moreda de Álava / Moreda Araba, Autonomous Community of the Basque Country, Spain",
+   "point": [42.5246992, -2.4085108], "away_m": 1886,
+   "photo": {"url": "/city-photos/Q1442886.jpg", "credit": "© LBM1948 · CC BY-SA 4.0"}}
 ]}
 ```
+
+**`photo`** (TASK-283, ADR-0243): la foto del posto, quando il suo
+elemento Wikidata (che Geoapify dà da OpenStreetMap) ha un'immagine (P18)
+su Wikimedia Commons con una licenza che ne permette l'uso a chiunque (CC
+BY, CC BY-SA, CC0, pubblico dominio); altrimenti `null`. `url` è un
+percorso su questa API; `credit` è ciò che la licenza chiede di scrivere
+accanto alla foto, «© autore · licenza» o «Wikimedia Commons · licenza»
+senza autore, sempre con la licenza in fondo; `null` quando la licenza
+non chiede niente. A Wikidata e Commons vanno solo l'elemento e il nome
+del file, mai il punto. La risposta aspetta al più 2 s le foto di un posto
+nuovo per l'API: quelle che arrivano dopo sono tenute per la richiesta
+successiva. Un'API prima di TASK-283 non ha il campo: l'app mostra le
+schede di prima.
+
+### `GET /city-photos/{item}.jpg` (TASK-283, ADR-0243)
+
+La foto di un posto di `/nearby-cities`, `item` il suo elemento Wikidata
+(`Q1442886`): JPEG larga al più 500 pixel, presa da Commons la prima volta
+e tenuta nella cartella `city_photos/` della cache, senza i metadati del
+file. Cosa si sa di ogni elemento (la foto, o nessuna) è tenuto lì e
+richiesto di nuovo dopo 30 giorni. 404 per un elemento senza foto o mai
+nominato da `/nearby-cities` (non è un proxy di Commons); 503 se Commons
+non dà la foto. `Cache-Control: private, max-age=86400`.
 
 ### `GET /city-suggestions` (TASK-134, TASK-138, ADR-0110)
 

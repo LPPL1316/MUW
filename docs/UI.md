@@ -386,6 +386,20 @@ pagine»):
    l'API non risponde, la sezione non c'è. I testi, nelle cinque lingue:
    «NEARBY TOWNS», «{km} km away», «{town}, {km} km away» (VoiceOver).
 
+   **Da TASK-283** (ADR-0243, chiesto dall'utente: «aggiungere foto delle
+   città»; le tre scelte sono sue): la scheda di un paese che ha una foto
+   mostra **solo la foto**, al posto di mappa e disegno, e sotto il nome
+   solo la distanza (niente «Drawing…»). In basso a destra sulla foto, in
+   piccolo, bianco su una fascia scura in tutti e due i toni, il credito
+   che la licenza chiede: «© LBM1948 · CC BY-SA 4.0»; su una scheda
+   stretta si accorcia l'autore, mai la licenza. Una foto di pubblico
+   dominio o CC0 non ha scritte. Un paese **senza foto**, o la cui foto non
+   si carica, ha la scheda di prima, con mappa e campione. I campioni si
+   disegnano lo stesso per tutti: il paese si apre con le forme pronte. Il
+   credito delle mappe sotto la fila c'è solo se una scheda mostra una
+   mappa. Nessun testo nuovo: autori e licenze sono quelli di Wikimedia
+   Commons.
+
    **Da TASK-163**, chiesto dall'utente: finché uno dei primi tre esempi è
    «Next» o «Drawing…», sotto «EXAMPLES IN …» c'è **«MEANWHILE, FROM THE FEED»**,
    con una riga che dice perché si aspetta (la prima volta in una città la
