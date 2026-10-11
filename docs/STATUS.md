@@ -177,6 +177,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   percorso. Più vecchia di 2 ore, la fine della corsa come prima. Solo
   app, nessun testo nuovo; pubblica il coordinatore.
   File: `tasks/TASK-272.md`, «File toccati».
+  **Chiuso con la #492** (dopo il taglio della build 6); vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -751,6 +752,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-272 (ADR-0240; dalla prima recensione di un tester del
+  2026-10-10, scelta dell'utente «Riapre la corsa in pausa»): se l'app si
+  chiude durante una corsa, riaprendola entro 2 ore si apre la corsa **in
+  pausa**, lungo lo stesso percorso (indicazioni, parola, tratti a piedi e
+  rotazione presi dal file della corsa) o senza percorso: «Resume» o
+  «Stop» tenuto, il tempo chiusa è una pausa, e dopo «Resume» il
+  navigatore ritrova chi corre anche più avanti (TASK-270). Più vecchia di
+  2 ore, la fine della corsa come prima. PR #492, entrata dopo il taglio
+  della build 6. Solo app, nessun testo nuovo; la pubblica il
+  coordinatore. Provata nel simulatore (Expo Go); resta la prova correndo.
+  TASK-273 (#493) tocca gli stessi file ed entra dopo. `tasks/TASK-272.md`.
 - **App** — TASK-275 (aggiunta ad ADR-0228, per la risposta ad Apple del
   2026-10-11, «Guideline 2.1 – Information Needed»): tenendo premuto il
   commento di un altro, «Report» (i cinque motivi) e «Block» chi l'ha

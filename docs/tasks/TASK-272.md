@@ -1,6 +1,6 @@
 # TASK-272 — La corsa interrotta si riapre in pausa
 
-**Stato**: In corso
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-272-reopen-interrupted-run`
 **ADR**: ADR-0240 (numeri dati dal Coordinatore, sessione local_e57a8224,
 il 2026-10-10)
@@ -67,28 +67,28 @@ richiesta di nuovo). Gli altri due problemi della recensione sono TASK-270
 
 ## Criteri di accettazione
 
-- [ ] Un file scritto da una corsa lungo un percorso con indicazioni,
+- [x] Un file scritto da una corsa lungo un percorso con indicazioni,
       parola e tratti a piedi li rilegge uguali; un file senza questi campi
       si legge come prima; campi sbagliati rendono il file «nessuna corsa»,
       come per gli altri campi.
-- [ ] All'apertura, con nel file una corsa `running` con almeno due
+- [x] All'apertura, con nel file una corsa `running` con almeno due
       posizioni e l'ultima da meno di `REOPEN_WITHIN_MS`, l'app apre la
       corsa in pausa: «Paused», «Resume», «Stop» da tenere, i numeri della
       traccia, il percorso sulla mappa; nessun conto alla rovescia, nessun
       «Head out on …».
-- [ ] «Resume» chiude la pausa in quel momento: il tempo con l'app chiusa
+- [x] «Resume» chiude la pausa in quel momento: il tempo con l'app chiusa
       (e in pausa) non conta nella durata, la prima posizione dopo non si
       unisce alla linea di prima; la navigazione prosegue dalla posizione
       nuova anche più avanti sul percorso (TASK-270).
-- [ ] «Stop» tenuto apre «Your run» con «Keep running», «Save»/«Discard» o
+- [x] «Stop» tenuto apre «Your run» con «Keep running», «Save»/«Discard» o
       «Done» come sempre; dopo, si torna alla prima schermata.
-- [ ] Una corsa interrotta più vecchia del limite apre la fine della corsa
+- [x] Una corsa interrotta più vecchia del limite apre la fine della corsa
       come prima; una corsa fermata con «Stop» o arrivata non si riapre.
-- [ ] Una corsa senza percorso interrotta si riapre allo stesso modo, in
+- [x] Una corsa senza percorso interrotta si riapre allo stesso modo, in
       pausa sulla sua schermata.
-- [ ] Nessun testo nuovo nell'interfaccia (si riusano «Paused», «Resume»,
+- [x] Nessun testo nuovo nell'interfaccia (si riusano «Paused», «Resume»,
       «Stop»).
-- [ ] `npm run lint`, `typecheck`, `test`, `format:check` verdi; provato nel
+- [x] `npm run lint`, `typecheck`, `test`, `format:check` verdi; provato nel
       simulatore iOS.
 
 ## File toccati
@@ -139,4 +139,10 @@ l'accesso al pannello non è stato dato); li coprono i test dell'app.
 
 ## Esito
 
-*(a fine task)*
+Una corsa interrotta da meno di 2 ore si riapre in pausa all'apertura, lungo
+il percorso del file o senza percorso; più vecchia, la sua fine come prima
+(ADR-0240). PR #492, entrata dopo il taglio della build 6 su «merge 492»
+del Coordinatore; il coordinatore la pubblica. Resta da provare su una
+corsa vera (con l'app chiusa a metà). «Stop» tenuto non provato nel
+simulatore (senza tocchi): lo coprono i test. TASK-273 (#493) collega la
+ripresa alla sua scelta di partenza (`startsAnywhere`).
