@@ -455,7 +455,7 @@ non la ricarica. La scheda sta sotto la mappa, non sopra, così non copre
 l'attribuzione; i margini seguono la tacca e la barra in basso di ogni
 telefono.
 
-## Le pagine: «Feed», «Draw», «Explore» (TASK-154, ADR-0124)
+## Le pagine: «Feed», «Draw», «Explore» e il profilo (TASK-154, ADR-0124; TASK-278)
 
 Tre pagine affiancate, scelta dell'utente: **«Feed»** a sinistra,
 **«Draw»** al centro, **«Explore»** a destra. Si passa dall'una all'altra
@@ -463,6 +463,23 @@ con uno swipe a destra o a sinistra, oppure toccando il nome in alto. I tre
 nomi stanno in alto a sinistra, nell'ordine in cui sono le pagine: dicono
 dove porta lo swipe. Il nome della pagina sullo schermo è chiaro, con una
 lineetta sotto; gli altri sono grigi. Niente giallo: è del percorso.
+
+**Dopo «Explore», il proprio profilo** (TASK-278, aggiunta ad ADR-0124;
+scelta dell'utente del 2026-10-11): una quarta pagina a destra di
+«Explore», a uno swipe a sinistra da lì; uno swipe a destra torna a
+«Explore». In alto i nomi restano tre: la quarta pagina non ha un nome, ha
+**il cerchio di «Profile»** in alto a destra (sotto, «Profile»). Quando il
+profilo è sullo schermo il cerchio ha la lineetta della pagina accesa,
+bianca come quella dei nomi, subito sotto di sé (l'intestazione resta alta
+com'era), e nessun nome è chiaro; VoiceOver legge il cerchio come
+selezionato. Un tocco sul cerchio, da qualunque pagina, porta lì scorrendo,
+come un tocco su un nome; non apre più un foglio sopra l'app. La pagina è
+la prima di «Profile»: senza account «Sign up» e «Log in», con l'account il
+profilo con le sue righe; **senza «←» e senza titolo**, come le altre
+pagine. Si costruisce la prima volta che ci si arriva, come «Explore», e si
+rifà ogni volta che torna sullo schermo (dopo uno swipe o un tocco, o
+chiusa una pagina che si era aperta sopra): gli elenchi di chi segue e i
+disegni si rileggono, come quando «Profile» si apriva.
 
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
@@ -573,10 +590,21 @@ lineetta sotto; gli altri sono grigi. Niente giallo: è del percorso.
 
 ## «Profile» (TASK-115, ADR-0125; TASK-154; TASK-177, ADR-0145; TASK-178, ADR-0146; TASK-116, ADR-0128)
 
-In alto a destra, accanto ai nomi delle pagine, un pulsante tondo apre
+In alto a destra, accanto ai nomi delle pagine, un pulsante tondo porta a
 **«Profile»**, l'account: mostra la foto di chi è entrato, o la sua
-iniziale se non ne ha messa una, o una figura quando non c'è nessuno. «Profile» si apre sopra l'app e si chiude
-con «←»: sotto, forma, distanza e mappa restano come erano. Sulla mappa e
+iniziale se non ne ha messa una, o una figura quando non c'è nessuno. Dal
+TASK-278 la prima pagina di «Profile» è **la quarta pagina**, dopo
+«Explore» (sopra, «Le pagine»), e il cerchio ha la lineetta quando è lì.
+Le pagine che si aprono da lì («Settings», «Favorites», «My activities»,
+«Edit profile», «Guide», il profilo di un altro, un disegno) si aprono
+sopra l'app come prima, e «←» (o «Back to the profile») torna alla quarta
+pagina. Aperto da un'altra parte dell'app (il cuore sulla mappa senza
+account, la lente di «Feed» senza account, «Save» a fine corsa senza
+account), «Profile» si apre ancora sopra l'app e si chiude con «←»:
+sotto, forma, distanza e mappa restano come erano; il profilo di un altro
+aperto da un nome taggato o da una notifica torna, con «←», a «Profile»
+sopra l'app, come prima. Portare questi ingressi alla quarta pagina è una
+scelta dell'utente non ancora fatta (`tasks/TASK-278.md`). Sulla mappa e
 durante la corsa il pulsante non c'è.
 
 **Lo sport** (TASK-205, ADR-0165, chiesto dall'utente): a sinistra del

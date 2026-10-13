@@ -219,10 +219,13 @@ test("«My activities» in «Profile» lists the runs, with how many they are", 
   expect(screen.getAllByTestId("run-drawing-route")).toHaveLength(4);
   expect(screen.getAllByTestId("run-drawing-track")).toHaveLength(4 + 2);
 
-  // Back to «Profile», then to the app.
+  // Back to the page of the profile (TASK-278), then to «Draw».
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
-  expect(screen.getByRole("header", { name: "Profile" })).toBeOnTheScreen();
-  await fireEvent.press(screen.getByRole("button", { name: "Back" }));
+  expect(screen.queryByRole("header", { name: "My activities" })).toBeNull();
+  expect(
+    screen.getByRole("button", { name: /^Profile/, selected: true }),
+  ).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
 });
 
@@ -264,8 +267,9 @@ test("a run opens on the map, its route under what was run, and goes back to the
   await fireEvent.press(screen.getByText("Back to the list"));
   expect(screen.getByRole("header", { name: "My activities" })).toBeOnTheScreen();
   expect(screen.getAllByTestId("activity-row")).toHaveLength(2);
+  // Then the page of the profile (TASK-278), and «Draw».
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
-  await fireEvent.press(screen.getByRole("button", { name: "Back" }));
+  await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   // The map lets the run go.
   expect(screen.queryByText("Back to the list")).toBeNull();

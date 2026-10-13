@@ -108,6 +108,11 @@ async function back() {
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
 }
 
+/** From the page of the profile (TASK-278), to «Draw». */
+async function toDraw() {
+  await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
+}
+
 beforeEach(() => {
   store.kept.clear();
   store.kept.set(SESSION_KEY, JSON.stringify(session));
@@ -151,7 +156,7 @@ test("a picture chosen in «Settings» shows in the row, in «Profile» and in t
   expect(screen.getByTestId("avatar-photo")).toHaveProp("source", {
     uri: photoUri(KEPT),
   });
-  await back();
+  await toDraw();
   expect(screen.getByTestId("profile-button-photo")).toHaveProp("source", {
     uri: photoUri(KEPT),
   });
@@ -173,7 +178,7 @@ test("the picture is there again when the app opens, and can be removed", async 
   expect(ImagePicker.launchImageLibraryAsync).not.toHaveBeenCalled();
 
   await back();
-  await back();
+  await toDraw();
   expect(screen.queryByTestId("profile-button-photo")).toBeNull();
   expect(screen.getByRole("button", { name: /^Profile/ })).toHaveTextContent("R");
 });
@@ -185,7 +190,8 @@ test("logged out, the header shows the figure, not the picture of who left", asy
   await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: "Settings" }));
   await fireEvent.press(screen.getByRole("button", { name: "Log out" }));
-  await back();
+  // Out of the account, back on the page of the profile (TASK-278).
+  await toDraw();
   expect(screen.queryByTestId("profile-button-photo")).toBeNull();
   expect(screen.getByRole("button", { name: /^Profile/ })).not.toHaveTextContent("R");
 });
