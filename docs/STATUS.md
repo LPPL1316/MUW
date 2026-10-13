@@ -157,6 +157,39 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
+  dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
+  «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
+  foto»). Codice in `main` con la #499. Ogni paese che ha
+  un'immagine su Wikidata con licenza libera mostra la foto al posto di
+  mappa e cuore, con «© autore · licenza» in piccolo; senza foto la scheda
+  di prima. Le foto le prende e le tiene l'API (`GET /city-photos/…`): a
+  Wikimedia vanno solo gli elementi, mai la posizione, e il telefono non
+  chiede niente a Wikimedia. Provato nel simulatore intorno a Moreda: sei
+  paesi su sei con la foto. **Resta: server** (lo aggiorna il
+  Coordinatore dopo l'approvazione di Apple e con l'ok dell'utente, e
+  controlla che `data/cache/city_photos/` stia sul volume); fino ad
+  allora l'app mostra le schede di prima. File: `tasks/TASK-283.md`.
+- **TASK-278…282 — Cinque richieste dell'utente del 2026-10-11 su
+  «Explore» e «Draw»** (numeri dal Coordinatore; task file scritti dalla
+  sessione «Explore e Draw: profilo e disegno mappa», nessun codice
+  ancora). Ognuno parte nella sua sessione, col via del Coordinatore;
+  le scelte dell'utente già fatte sono nei task file.
+  - **TASK-278** — il proprio profilo come quarta pagina dopo «Explore»;
+    in alto tre nomi più il cerchio, che si illumina (scelta
+    dell'utente). Solo app: può partire subito.
+  - **TASK-279** — parole con la penna alzata negli esempi di una città
+    in «Explore» (parte A, solo app: l'API tiene già le parole chieste
+    dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
+  - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
+    «PICTURES» (sagome pronte). Solo app: può partire subito.
+  - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
+    forme e immagini sulla mappa della città, e cambiarle senza uscire.
+    Solo app; il motore parte da dove è stata messa la figura.
+  - **TASK-282** — il percorso proprio dove la figura è stata messa
+    (`near` a piedi): motore, dopo l'approvazione di Apple e TASK-281.
+  278, 280 e 281 toccano `App.tsx`, 280 e 281 anche `ChooseScreen.tsx`:
+  l'ordine lo dà il Coordinatore. File: `tasks/TASK-278.md` … `TASK-282.md`.
 - **TASK-276 — Più percorsi all'ora sullo stesso server** (ADR-0242
   riservato; chiesto dall'utente il 2026-10-11). **Aspetta
   l'approvazione di Apple della 1.0**. Poi, con l'ok dell'utente e il via

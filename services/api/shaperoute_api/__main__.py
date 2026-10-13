@@ -36,6 +36,7 @@ from shaperoute_api.away_email import (
     install_away_email,
 )
 from shaperoute_api.cities import CitySearch
+from shaperoute_api.city_photos import PHOTOS_FOLDER, CityPhotos, install_city_photos
 from shaperoute_api.db import DATABASE_VARIABLE, Database, MigrationError
 from shaperoute_api.insights import Insights
 from shaperoute_api.insights.events import DEFAULT_DIR as INSIGHTS_DIR
@@ -213,8 +214,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         accounts=accounts,
         route_store=route_store,
     )
-    # The towns near the user, under "Near me" in "Explore" (TASK-236).
-    install_nearby_cities(app, NearbyCities(places.key), route_store)
+    # The towns near the user, under "Near me" in "Explore" (TASK-236), with
+    # their photos beside the zones (TASK-283).
+    photos = CityPhotos(args.cache_dir / PHOTOS_FOLDER)
+    install_nearby_cities(app, NearbyCities(places.key, photos=photos), route_store)
+    install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)
     # The email to who has not opened the app for two weeks (TASK-284): off
