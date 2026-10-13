@@ -58,9 +58,9 @@ test("a line drawn by finger is an image request: closed in [-1, 1], from where 
   expect(request.strokes).toBeUndefined();
   // The first point drawn is where the route starts.
   expect(metresBetween(request.start, line[0])).toBeLessThan(15);
-  // The distance is the line's, in whole metres: about the circle's.
+  // The distance is the line's, to the tenth of a km: about the circle's.
   expect(Number.isInteger(request.distance_m)).toBe(true);
-  expect(request.distance_m).toBe(Math.round(distanceOf(placed)));
+  expect(request.distance_m).toBe(Math.round(distanceOf(placed) / 100) * 100);
   expect(request.distance_m).toBeGreaterThan(0.97 * 2 * Math.PI * 1000);
   expect(request.distance_m).toBeLessThan(1.01 * 2 * Math.PI * 1000);
   expect(request.activity).toBe("running");
@@ -113,6 +113,12 @@ test("a shape of the catalogue is a route request by its name, from its first po
   const lifted = asShape(canvasRequest(smiley, true, "running"));
   expect(lifted.pen_up).toBe(true);
   expect(lifted.distance_m).toBe(5000);
+  // In miles, to the tenth of a mile: the route says «target 3.6 mi».
+  const odd = placeAt({ kind: "shape", shape: "heart" }, TRENTO, 5748);
+  expect(asShape(canvasRequest(odd, true, "running", "km")).distance_m).toBe(5700);
+  expect(asShape(canvasRequest(odd, true, "running", "mi")).distance_m).toBe(
+    Math.round(3.6 * 1609.344),
+  );
   // Off, the same figure is drawn with the pen down: longer for its size.
   const down = asShape(canvasRequest(smiley, false, "running"));
   expect("pen_up" in down).toBe(false);

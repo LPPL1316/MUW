@@ -848,7 +848,7 @@ export function buildMapPage(language: Language = appLanguage()): string {
         }
       }
     }
-    // «Draw on the map» (TASK-281, ADR-0244): while the app asks, the
+    // «Draw on the map» (TASK-281, ADR-0245): while the app asks, the
     // fingers on the map are the page's own, and MapLibre's gestures are
     // off. With «Draw» one finger draws a yellow line and the map keeps
     // still. With «Move» one finger drags the figure, when it starts on it,
@@ -909,10 +909,7 @@ export function buildMapPage(language: Language = appLanguage()): string {
       });
     }
     // The figure's box on the screen, with room for a finger around it.
-    function onFigure(point) {
-      if (!canvas || canvas.lines.length === 0) {
-        return false;
-      }
+    function screenBox() {
       var box = null;
       eachPoint(canvas.lines, function (lngLat) {
         var p = map.project(lngLat);
@@ -925,6 +922,13 @@ export function buildMapPage(language: Language = appLanguage()): string {
             }
           : { left: p.x, right: p.x, top: p.y, bottom: p.y };
       });
+      return box;
+    }
+    function onFigure(point) {
+      if (!canvas || canvas.lines.length === 0) {
+        return false;
+      }
+      var box = screenBox();
       return (
         point.x >= box.left - ${GRAB_PX} &&
         point.x <= box.right + ${GRAB_PX} &&
@@ -970,8 +974,26 @@ export function buildMapPage(language: Language = appLanguage()): string {
       if (centre) {
         post({ type: "figure", centre: centre, factor: factor, done: true });
       }
+      // Grown past the screen, the map steps back to show it whole: there
+      // is room again to zoom the map around it.
+      var surface = map.getCanvasContainer();
+      var box = factor > 1 && lines.length > 0 ? screenBox() : null;
+      if (
+        box &&
+        (box.left < 0 ||
+          box.top < 0 ||
+          box.right > surface.clientWidth ||
+          box.bottom > surface.clientHeight)
+      ) {
+        frameCanvas();
+      }
     }
     function startGesture(touches) {
+      // A finger on the map stops it where it is: a line drawn while the
+      // map still eases into place would not be where it was drawn.
+      if (map.stop) {
+        map.stop();
+      }
       if (touches.length === 1) {
         var at = pointOf(touches[0]);
         if (canvas.mode === "draw") {

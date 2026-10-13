@@ -7,11 +7,13 @@ import type {
 
 import type { AnyRouteRequest } from "../api/routes";
 import { shapeAsked } from "../route/penUpShapes";
+import { nearestTenths, tenthsToM } from "../units/distanceInput";
+import { appUnits, type Units } from "../units/units";
 import { distanceOf, type Figure, type Placed, placedStart } from "./figure";
 import { boxOf } from "./geometry";
 
 /**
- * «Draw route» on the map (TASK-281, ADR-0244): the request for the figure
+ * «Draw route» on the map (TASK-281, ADR-0245): the request for the figure
  * where it is and as big as it is, without a new field in the contract. The
  * engine starts from the figure's first point, sizes the route by the
  * figure's distance, and may move it to find the roads: the very place is
@@ -76,18 +78,20 @@ function framedOf(figure: Extract<Figure, { outline: unknown }>) {
  * The request for `placed`: a shape of the catalogue by its name
  * (`POST /route-jobs`), a drawing or a picture by its outline
  * (`POST /image-route-jobs`). `start` is where the figure starts on the map,
- * `distance_m` its distance in whole metres.
+ * `distance_m` its distance in whole metres, to the tenth of a km or of a
+ * mile as a distance typed in «Draw»: the route says «target 5.7 km».
  */
 export function canvasRequest(
   placed: Placed,
   penUp: boolean,
   activity: Activity,
+  units: Units = appUnits(),
 ): AnyRouteRequest {
   const figure = placed.figure;
   const apart = figureApart(figure, penUp, activity);
   const common = {
     start: placedStart(placed, apart),
-    distance_m: Math.round(distanceOf(placed, apart)),
+    distance_m: tenthsToM(nearestTenths(distanceOf(placed, apart), units), units),
     activity,
   };
   if (figure.kind === "shape") {

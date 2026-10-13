@@ -169,6 +169,9 @@ function Note({
 }
 
 const TILE = MIN_TAP_SIZE + space.md;
+/** Two lines of the note, kept whatever it says: «Draw» and «Move» do not
+ * move the tiles up and down. */
+const NOTE_HEIGHT = Math.ceil(fontSize.small * 1.35) * 2;
 
 const styles = StyleSheet.create({
   panel: {
@@ -199,10 +202,12 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   note: {
+    minHeight: NOTE_HEIGHT,
     color: color.textMuted,
     fontSize: fontSize.small,
   },
   problem: {
+    minHeight: NOTE_HEIGHT,
     color: color.error,
     fontSize: fontSize.small,
   },

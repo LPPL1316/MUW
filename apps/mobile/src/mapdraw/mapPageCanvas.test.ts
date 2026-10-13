@@ -46,6 +46,8 @@ function runPage() {
   const mapEvents = new Map<string, (() => void)[]>();
   const surface = {
     style: { touchAction: "" },
+    clientWidth: WIDTH,
+    clientHeight: HEIGHT,
     addEventListener(type: string, listener: Listener, options: unknown) {
       // Never in the way of MapLibre's own gestures.
       expect(options).toEqual({ passive: true });
@@ -56,6 +58,7 @@ function runPage() {
   const scale = () => PX_PER_DEG * 2 ** (view.zoom - CANVAS_ZOOM);
   const framed: { bounds: unknown; options: unknown }[] = [];
   const eased: Record<string, unknown>[] = [];
+  const halts = { times: 0 };
   const handlers = {
     dragPan: handler(),
     touchZoomRotate: handler(),
@@ -93,6 +96,9 @@ function runPage() {
     }
     easeTo(options: Record<string, unknown>) {
       eased.push(options);
+    }
+    stop() {
+      halts.times += 1;
     }
     getCanvasContainer() {
       return surface;
@@ -162,6 +168,7 @@ function runPage() {
     handlers,
     framed,
     eased,
+    halts,
     // Through JSON, as injectJavaScript delivers it.
     send: (message: ToPage) => page.receive(JSON.parse(JSON.stringify(message))),
     /** What the page told the app, read as the app reads it. */
@@ -352,4 +359,40 @@ test("framed as the screen opens: on the figure, or on the town around the start
   // Once still, the app is told where the map is.
   empty.stopped();
   expect(only(empty.told(), "centre")).toEqual([{ type: "centre", lngLat: [11, 46] }]);
+});
+
+test("a finger on the map stops it easing, so a line is drawn where the finger is", () => {
+  const page = runPage();
+  page.send(canvas("draw", false, true));
+  page.down(100, 100);
+  expect(page.halts.times).toBe(1);
+});
+
+test("grown past the screen, the map steps back to show the figure whole", () => {
+  const page = runPage();
+  page.send(
+    setCanvas({
+      mode: "move",
+      lines: [SQUARE],
+      centre: [46, 11],
+      shrink: 0.1,
+      grow: 10,
+      frame: false,
+    }),
+  );
+  // Twice as big: 200 px, still on the screen.
+  page.down(180, 300, 220, 300);
+  page.to(160, 300, 240, 300);
+  page.up();
+  expect(page.framed).toHaveLength(0);
+  // Four times bigger again: 800 px, wider than the screen.
+  page.down(180, 300, 220, 300);
+  page.to(120, 300, 280, 300);
+  page.up();
+  expect(page.framed).toHaveLength(1);
+  // Shrunk, it stays where it is.
+  page.down(150, 300, 250, 300);
+  page.to(190, 300, 210, 300);
+  page.up();
+  expect(page.framed).toHaveLength(1);
 });

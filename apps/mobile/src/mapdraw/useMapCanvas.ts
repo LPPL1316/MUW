@@ -6,6 +6,7 @@ import type { CanvasEvent, MapCanvas } from "../map/MapView";
 import type { CanvasMode } from "../map/messages";
 import type { ImageSource, Picked } from "../route/pickImage";
 import { type ImageState, useImageOutline } from "../route/useImageOutline";
+import { appUnits } from "../units/units";
 import { canvasRequest, figureApart } from "./canvasRequest";
 import { type DrawingProblem, newDrawing, withDetail } from "./drawing";
 import {
@@ -71,7 +72,7 @@ export type MapCanvasState = {
 };
 
 /**
- * «Draw on the map» (TASK-281, ADR-0244): the figure on the map of the
+ * «Draw on the map» (TASK-281, ADR-0245): the figure on the map of the
  * town, drawn with a finger, a shape of the catalogue or a photo's outline;
  * moved and sized by the fingers on the map, changed in place by a tile, and
  * taken back by «Undo». It stays as it was while the route of it is shown,
@@ -252,9 +253,11 @@ export function useMapCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placed, apart, mode, lowest, highest, framing, answers]);
 
+  // The app renders again with new units (TASK-182): the request follows.
+  const units = appUnits();
   const request = useMemo(
-    () => (placed === null ? null : canvasRequest(placed, penUp, activity)),
-    [placed, penUp, activity],
+    () => (placed === null ? null : canvasRequest(placed, penUp, activity, units)),
+    [placed, penUp, activity, units],
   );
 
   const open = useCallback(() => setFraming((n) => n + 1), []);
@@ -266,9 +269,9 @@ export function useMapCanvas({
       }
       const sized = within(placeAt(placed.figure, placed.centre, metres, apart));
       setKept(sized);
-      return canvasRequest(sized, penUp, activity);
+      return canvasRequest(sized, penUp, activity, units);
     },
-    [placed, apart, within, penUp, activity],
+    [placed, apart, within, penUp, activity, units],
   );
 
   return {

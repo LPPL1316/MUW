@@ -5,7 +5,7 @@ import { lineLength } from "./geometry";
 import { fromPlane } from "./plane";
 
 /**
- * The figure of «Draw on the map» (TASK-281, ADR-0244): what is on the map
+ * The figure of «Draw on the map» (TASK-281, ADR-0245): what is on the map
  * and where, before any route is asked for. The app only shows it and
  * measures it; the engine decides the route from it.
  */
