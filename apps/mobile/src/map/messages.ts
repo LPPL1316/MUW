@@ -58,7 +58,33 @@ export type ToPage =
    * clockwise from north; 0 is north up. */
   | { type: "turn"; bearing: number }
   /** The map's kind (TASK-264): standard, the aerial photos, or 3D. */
-  | { type: "setKind"; kind: MapKind };
+  | { type: "setKind"; kind: MapKind }
+  /** «Draw on the map» (TASK-281): what fingers do on the map, and the
+   * figure on it (`setCanvas`). */
+  | ({ type: "setCanvas" } & CanvasOnPage)
+  | { type: "clearCanvas" };
+
+/** What fingers do on the map of «Draw on the map» (TASK-281): «Draw», one
+ * finger draws and the map keeps still; «Move», one finger moves the
+ * figure, or the map away from it, and two fingers size the figure, or
+ * zoom the map away from it. */
+export type CanvasMode = "draw" | "move";
+
+/** The figure on the map of «Draw on the map», as the page draws it. */
+export type CanvasOnPage = {
+  mode: CanvasMode;
+  /** The figure's lines; none without a figure. */
+  lines: LngLat[][];
+  /** The middle of the figure's frame, told back moved or sized. */
+  centre: LngLat | null;
+  /** How much two fingers may shrink and grow the figure: beyond, it stays
+   * as big as the distances of «Draw» allow. */
+  shrink: number;
+  grow: number;
+  /** Frame the map on the figure, or on the start without one: as the
+   * screen opens and as a figure is put on it. */
+  frame: boolean;
+};
 
 /** A place of a themed route on the map (TASK-129). */
 export type StopFeature = { name: string; lngLat: LngLat; passed: boolean };
@@ -76,6 +102,14 @@ export type FromPage =
   /** The map turned, by the app or by two fingers (TASK-232): its bearing
    * now, in whole degrees clockwise from north. */
   | { type: "turned"; bearing: number }
+  /** «Draw on the map» (TASK-281): a line drawn with one finger, lifted. */
+  | { type: "drawn"; line: LngLat[] }
+  /** The figure moved or sized by the fingers: the middle of its frame
+   * now, and how many times bigger. While two fingers still size it
+   * `done` is false, for the distance on screen. */
+  | { type: "figure"; centre: LngLat; factor: number; done: boolean }
+  /** The middle of the map, where a figure is put (TASK-281). */
+  | { type: "centre"; lngLat: LngLat }
   | { type: "error"; message: string };
 
 export function setPosition(point: LatLon): ToPage {
@@ -233,10 +267,48 @@ export function setKind(kind: MapKind): ToPage {
   return { type: "setKind", kind };
 }
 
+/**
+ * «Draw on the map» (TASK-281): the figure drawn on the map, and what
+ * fingers do there. The page tells the app of lines drawn (`drawn`), of the
+ * figure moved or sized (`figure`) and of where the map is (`centre`).
+ */
+export function setCanvas(canvas: {
+  mode: CanvasMode;
+  lines: LatLon[][];
+  centre: LatLon | null;
+  shrink: number;
+  grow: number;
+  frame: boolean;
+}): ToPage {
+  return {
+    type: "setCanvas",
+    ...canvas,
+    lines: canvas.lines.map((line) => line.map(toLngLat)),
+    centre: canvas.centre === null ? null : toLngLat(canvas.centre),
+  };
+}
+
+/** The map is the map again: fingers move it, and no figure is on it. */
+export function clearCanvas(): ToPage {
+  return { type: "clearCanvas" };
+}
+
 /** JavaScript that hands a message to the page (see `mapPage.ts`). */
 export function pageScript(message: ToPage): string {
   // The trailing `true` is what injectJavaScript expects as a result.
   return `window.shaperoute && window.shaperoute.receive(${JSON.stringify(message)}); true;`;
+}
+
+/** A [lng, lat] pair of finite numbers, as the page sends points. */
+function isLngLat(value: unknown): value is LngLat {
+  return (
+    Array.isArray(value) &&
+    value.length === 2 &&
+    typeof value[0] === "number" &&
+    typeof value[1] === "number" &&
+    Number.isFinite(value[0]) &&
+    Number.isFinite(value[1])
+  );
 }
 
 /** Reads a message posted by the page; anything unexpected gives null. */
@@ -270,6 +342,31 @@ export function parsePageMessage(data: string): FromPage | null {
       return { type: "moved", by: [by[0], by[1]] };
     }
     return null;
+  }
+  if (message.type === "drawn" && "line" in message) {
+    const line = message.line;
+    return Array.isArray(line) && line.length > 0 && line.every(isLngLat)
+      ? { type: "drawn", line: line.map(([lng, lat]) => [lng, lat] as LngLat) }
+      : null;
+  }
+  if (
+    message.type === "figure" &&
+    "centre" in message &&
+    "factor" in message &&
+    "done" in message
+  ) {
+    const { centre, factor, done } = message;
+    return isLngLat(centre) &&
+      typeof factor === "number" &&
+      Number.isFinite(factor) &&
+      factor > 0 &&
+      typeof done === "boolean"
+      ? { type: "figure", centre: [centre[0], centre[1]], factor, done }
+      : null;
+  }
+  if (message.type === "centre" && "lngLat" in message) {
+    const lngLat = message.lngLat;
+    return isLngLat(lngLat) ? { type: "centre", lngLat: [lngLat[0], lngLat[1]] } : null;
   }
   if (message.type === "turned" && "bearing" in message) {
     const bearing = message.bearing;

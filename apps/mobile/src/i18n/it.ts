@@ -1153,4 +1153,15 @@ export const IT: Table = {
   "Suggested near {place}": "Consigliati vicino a {place}",
   "Suggested near where you usually start": "Consigliati vicino a dove parti di solito",
   "Suggested near your start": "Consigliati vicino alla tua partenza",
+
+  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
+  "Draw on the map": "Disegna sulla mappa",
+  Move: "Sposta",
+  "Draw with one finger. Lines after the first are joined to it.":
+    "Disegna con un dito. Le linee dopo la prima vengono unite a lei.",
+  "Drag the figure or the map. Two fingers on the figure resize it.":
+    "Trascina la figura o la mappa. Con due dita sulla figura la ingrandisci o la rimpicciolisci.",
+  "This line crosses itself. Draw it again without crossing it.":
+    "Questa linea si incrocia. Ridisegnala senza incrociarla.",
+  "+ photo": "+ foto",
 };
