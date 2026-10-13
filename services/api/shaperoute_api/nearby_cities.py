@@ -16,6 +16,9 @@ town tapped here and the same town typed are one city, with the same
 examples kept (route_store.py). The service is asked
 from the middle of a square of about 1 km, not from the user's own
 position, and the answer is kept a day.
+
+A place has its photo when its Wikidata item has one (TASK-283, ADR-0243,
+city_photos.py): only the item goes to Wikimedia.
 """
 
 from __future__ import annotations
@@ -25,7 +28,7 @@ import time
 import urllib.parse
 from collections import OrderedDict
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Annotated, Any
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query
@@ -33,6 +36,7 @@ from pydantic import BaseModel
 from route_engine.geo import haversine_m
 
 from shaperoute_api.cities import place_label, result_point
+from shaperoute_api.city_photos import CityPhotoBody, CityPhotos, is_item
 from shaperoute_api.places import Fetch, PlacesUnavailableError, fetch_json
 from shaperoute_api.route_store import RouteStore
 from shaperoute_api.schemas import ErrorBody
@@ -74,6 +78,8 @@ class NearbyCityBody(BaseModel):
     """(lat, lon)."""
     away_m: int
     """From the point asked to the town's centre, as the crow flies."""
+    photo: CityPhotoBody | None = None
+    """Its photo, when it has one (TASK-283)."""
 
 
 class NearbyCitiesBody(BaseModel):
@@ -88,6 +94,8 @@ class Town:
     point: LatLon
     population: int
     """0 when OpenStreetMap does not say."""
+    item: str | None = None
+    """Its Wikidata item, "Q1442886", when OpenStreetMap names one."""
 
 
 def nearby_url(key: str, categories: str, centre: LatLon, radius_m: int) -> str:
@@ -116,8 +124,23 @@ def population_of(properties: dict[str, Any]) -> int:
     return int(digits) if digits.isdigit() else 0
 
 
+def item_of(properties: dict[str, Any]) -> str | None:
+    """The place's Wikidata item, as Geoapify gives it."""
+    wiki = properties.get("wiki_and_media")
+    source = properties.get("datasource")
+    raw = source.get("raw") if isinstance(source, dict) else None
+    for found in (
+        wiki.get("wikidata") if isinstance(wiki, dict) else None,
+        raw.get("wikidata") if isinstance(raw, dict) else None,
+    ):
+        if is_item(found):
+            return str(found)
+    return None
+
+
 def parse_towns(body: Any) -> list[Town]:
-    """The service's towns that read: a name, a point; each label once."""
+    """The service's towns that read: a name, a point; each label once,
+    with the first item one of them names."""
     features = body.get("features") if isinstance(body, dict) else None
     towns: dict[str, Town] = {}
     for feature in features if isinstance(features, list) else []:
@@ -126,9 +149,14 @@ def parse_towns(body: Any) -> list[Town]:
             continue
         point = result_point(properties)
         label = place_label(properties)
-        if point is None or label is None or label in towns:
+        if point is None or label is None:
             continue
-        towns[label] = Town(label, point, population_of(properties))
+        item = item_of(properties)
+        kept = towns.get(label)
+        if kept is None:
+            towns[label] = Town(label, point, population_of(properties), item)
+        elif kept.item is None and item is not None:
+            towns[label] = replace(kept, item=item)
     return list(towns.values())
 
 
@@ -179,8 +207,10 @@ class NearbyCities:
         key: str | None,
         fetch: Fetch = fetch_json,
         clock: Callable[[], float] = time.monotonic,
+        photos: CityPhotos | None = None,
     ) -> None:
         self.key = key
+        self.photos = photos
         self._fetch = fetch
         self._clock = clock
         self._cache: OrderedDict[LatLon, tuple[float, list[Town]]] = OrderedDict()
@@ -228,14 +258,22 @@ class NearbyCities:
 
     def body(self, point: LatLon) -> NearbyCitiesBody:
         """The places of `point`'s square, the nearest to `point` first: two
-        of them may be nearer the square's middle the other way round."""
+        of them may be nearer the square's middle the other way round. With
+        their photos, those that have one."""
+        towns = self.towns(point)
+        photos = (
+            {}
+            if self.photos is None
+            else self.photos.photos(t.item for t in towns if t.item is not None)
+        )
         places = [
             NearbyCityBody(
                 label=town.label,
                 point=town.point,
                 away_m=round(haversine_m(point, town.point)),
+                photo=None if town.item is None else photos.get(town.item),
             )
-            for town in self.towns(point)
+            for town in towns
         ]
         return NearbyCitiesBody(places=sorted(places, key=lambda p: p.away_m))
 

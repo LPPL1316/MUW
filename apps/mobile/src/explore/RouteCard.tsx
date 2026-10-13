@@ -66,6 +66,24 @@ export function CardMapsCredit() {
   return <Text style={styles.credit}>{cardMapsCredit()}</Text>;
 }
 
+/**
+ * A photo's credit in two: who, then the licence, as the API writes it
+ * ("© LBM1948 · CC BY-SA 4.0"). On a narrow card the first is shortened,
+ * never the licence. The space between is the licence's margin: a space
+ * at the end of a line is dropped.
+ */
+export function creditParts(credit: string): string[] {
+  const at = credit.lastIndexOf(" · ");
+  return at < 0 ? [credit] : [credit.slice(0, at + 2), credit.slice(at + 3)];
+}
+
+/** A photo on a card: where it is read from, and what is written on it. */
+export type CardPhoto = {
+  source: { uri: string; headers?: Record<string, string> };
+  credit: string | null;
+  onError?: () => void;
+};
+
 type Props = {
   /** How wide the card is: the drawing fills it. */
   width: number;
@@ -82,6 +100,12 @@ type Props = {
   match?: number;
   /** Lays the map of its streets under the line, as in «Feed» (TASK-174). */
   map?: boolean;
+  /**
+   * A photo in the place of the drawing, line and map (TASK-283): a town's,
+   * with the credit its licence asks for written small on it. `onError`
+   * when it cannot be shown.
+   */
+  photo?: CardPhoto;
   /**
    * How far the route's shape is turned, counterclockwise
    * (`RouteResult.rotation_deg`): the line and its map are turned the other
@@ -106,7 +130,8 @@ type Props = {
  * (TASK-162), taken by its page. Who shows cards with `map` shows
  * `CardMapsCredit` beside them. A finger that slides over a card has not
  * touched it (TASK-196, `useTapNotSwipe`). A route whose shape is turned is
- * drawn turned back, as the map shows it once opened (TASK-232).
+ * drawn turned back, as the map shows it once opened (TASK-232). With
+ * `photo`, a photo fills the drawing's place instead (TASK-283).
  */
 export function RouteCard({
   width,
@@ -116,13 +141,16 @@ export function RouteCard({
   detail,
   match,
   map = false,
+  photo,
   rotationDeg,
   onPress,
   accessibilityLabel,
 }: Props) {
   const height = cardDrawingHeight(width);
   const bearing = bearingOf(rotationDeg);
-  const mapped = map && line !== null ? line : NO_LINE;
+  // A photo takes the drawing's place: no line, no map taken for it.
+  const drawn = photo === undefined ? line : null;
+  const mapped = map && drawn !== null ? drawn : NO_LINE;
   const framing = useMemo(
     () => framingName(lineCamera(mapped, width, height, DRAWING_PAD, bearing)),
     [mapped, width, height, bearing],
@@ -130,10 +158,10 @@ export function RouteCard({
   const picture = useFeedMap(framing, mapped, width, height, DRAWING_PAD, bearing);
   const segments = useMemo(
     () =>
-      line === null
+      drawn === null
         ? []
-        : thumbSegments(turnedLine(line, bearing), width, height, DRAWING_PAD, gaps),
-    [line, bearing, width, height, gaps],
+        : thumbSegments(turnedLine(drawn, bearing), width, height, DRAWING_PAD, gaps),
+    [drawn, bearing, width, height, gaps],
   );
   const tap = useTapNotSwipe(onPress);
   const body = (
@@ -146,6 +174,35 @@ export function RouteCard({
             source={{ uri: picture }}
             accessible={false}
           />
+        )}
+        {photo !== undefined && (
+          <>
+            <Image
+              testID="route-card-photo"
+              style={StyleSheet.absoluteFill}
+              source={photo.source}
+              resizeMode="cover"
+              onError={photo.onError}
+              accessible={false}
+            />
+            {photo.credit !== null && (
+              <View style={styles.photoCredit} pointerEvents="none">
+                <View style={[StyleSheet.absoluteFill, styles.photoCreditShade]} />
+                {creditParts(photo.credit).map((part, i) => (
+                  <Text
+                    key={i}
+                    style={[
+                      styles.photoCreditText,
+                      i === 0 ? styles.photoCreditWho : styles.photoCreditLicence,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {part}
+                  </Text>
+                ))}
+              </View>
+            )}
+          </>
         )}
         {segments.map((s, i) => (
           <View
@@ -242,6 +299,33 @@ const styles = StyleSheet.create({
     color: color.textFaint,
     fontSize: fontSize.label,
     textAlign: "right",
+  },
+  // A photo's credit, small in its corner: on a dark shade in both tones,
+  // so it reads on any photo (TASK-283).
+  photoCredit: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    maxWidth: "100%",
+    flexDirection: "row",
+    paddingHorizontal: space.xs,
+    paddingVertical: 1,
+    borderTopLeftRadius: radius.sm / 2,
+    overflow: "hidden",
+  },
+  photoCreditShade: {
+    backgroundColor: color.scrim,
+    opacity: 0.6,
+  },
+  photoCreditText: {
+    color: color.onScrim,
+    fontSize: fontSize.label,
+  },
+  photoCreditWho: {
+    flexShrink: 1,
+  },
+  photoCreditLicence: {
+    marginLeft: space.xs,
   },
   words: {
     gap: 2,

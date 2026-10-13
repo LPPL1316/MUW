@@ -14095,6 +14095,75 @@ camminate, perché una parola riaperta non diventi una forma chiusa. Se il motor
 cambierà le indicazioni ai vicoli ciechi (TASK-271), la svolta alla vecchia
 partenza segue ancora la regola degli incroci di `directions.py`.
 
+## ADR-0243 — Le foto dei paesi vicini: l'immagine di Wikidata, tenuta sul nostro server
+**Stato**: Attiva · 2026-10-11 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-283): «Solo foto», «Scheda di oggi»
+per un paese senza foto, «Piccolo sulla foto» per il credito; il come
+deciso dall'agente su delega dell'utente. Dalla richiesta «Aggiungere foto
+delle città» con lo screenshot di «NEARBY TOWNS» intorno a Moreda de Álava
+(schede vuote mentre il cuore si disegnava).
+
+Le schede di «NEARBY TOWNS» (TASK-236, ADR-0200) mostravano un campione
+disegnato sulla mappa del paese, vuote finché il server non lo aveva
+disegnato. L'utente vuole le foto dei paesi: al posto di mappa e disegno.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **La fonte**: l'elemento Wikidata del posto, che Geoapify dà già con
+   il posto (`wiki_and_media.wikidata` o `datasource.raw.wikidata`), e la
+   sua immagine (P18, la preferita, mai una deprecata), un file di
+   Wikimedia Commons. Intorno a Moreda 19 posti su 22 ne hanno una.
+2. **La licenza**: tenute solo le foto che chiunque può usare, CC BY, CC
+   BY-SA, CC0, pubblico dominio (`License` di Commons: `cc-by-*`, `cc0`,
+   `pd*`); GFDL da sola, Free Art e il resto no. Il credito è quello che
+   la licenza chiede: «© autore · licenza» (l'autore da `Artist`, senza
+   HTML, al più 60 caratteri), «Wikimedia Commons · licenza» senza
+   autore; nessuno quando `AttributionRequired` è falso, CC0 o pubblico
+   dominio. La licenza è sempre in fondo, e l'app accorcia l'autore, mai
+   lei.
+3. **Sul nostro server**: l'API scarica la miniatura di Commons larga 500
+   pixel, la risalva JPEG senza i metadati del file (EXIF compresi) e la
+   dà da `GET /city-photos/{item}.jpg`. Il telefono non chiede mai niente
+   a Wikimedia: nessun servizio nuovo nell'informativa privacy. A
+   Wikidata e Commons vanno solo l'elemento e il nome del file, con uno
+   User-Agent che dice chi siamo (lo chiede Wikimedia), mai la posizione.
+   Cosa si sa di un elemento è tenuto in `city_photos/` della cartella
+   della cache, accanto alle zone, e richiesto di nuovo dopo 30 giorni;
+   se la foto cambia, la vecchia va via.
+4. **I tempi**: un elemento chiede a Wikidata `wbgetclaims` (piccolo; il
+   `wbgetentities` di sei città pesava 340 kB e 15 s), i sei in parallelo,
+   poi una sola richiesta a Commons per tutti i file: 1–3 s misurati. La
+   risposta di `/nearby-cities` aspetta al più 2 s; quello che arriva dopo
+   resta per la richiesta successiva. Le foto trovate si scaricano subito
+   dopo, prima che il telefono le chieda. Se Wikimedia non risponde,
+   niente foto e nessuna richiesta per 10 minuti; un elemento senza
+   risposta resta da chiedere.
+5. **L'app**: una scheda con la foto mostra solo la foto e il credito; un
+   paese senza foto, o la cui foto non si carica (`onError`), ha la scheda
+   di prima. I campioni si disegnano lo stesso per tutti, come prima: il
+   paese si apre con le forme pronte. Un'API senza il campo `photo` dà le
+   schede di prima: app e server possono arrivare in qualsiasi ordine.
+   L'`url` della foto deve essere un percorso dell'API (`/…`): mai un
+   altro host con la chiave dell'API nell'intestazione.
+
+**Motivo**: Wikidata è la fonte libera che copre anche i paesini
+(OpenStreetMap la nomina già), e Commons dice di ogni file licenza e
+autore. Tenere le foto sul server costa poco (~60 kB l'una) e lascia la
+privacy com'è.
+
+**Alternative scartate**: `wbgetentities` (troppo grande e lento), lo
+SPARQL di Wikidata (una richiesta sola ma 1,2 s e a volte sovraccarico);
+far caricare le foto al telefono da Wikimedia (un servizio nuovo che vede
+chi guarda, da scrivere nell'informativa); Google Places Photos o Unsplash
+(a pagamento o con chiave, e poco per i paesini); una foto per i paesi
+senza (un'immagine generica dice meno della mappa col disegno, che l'utente
+ha scelto di tenere).
+
+**Conseguenza**: la cartella `city_photos/` cresce di un file JSON per
+elemento e di una JPEG per foto vista: con mille paesi, circa 60 MB. Una
+foto di Commons può mostrare un monumento invece del paese (Laguardia: un
+dolmen); la sceglie chi cura Wikidata.
+
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 
 **Stato**: Attiva · 2026-10-11 · deciso dall'agente su delega dell'utente
