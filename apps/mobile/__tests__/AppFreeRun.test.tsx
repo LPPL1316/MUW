@@ -186,6 +186,11 @@ test("Run records a run without a route, and Stop shows it", async () => {
   await fireEvent.press(screen.getByLabelText("Stop"));
   expect(screen.queryByText("Your run")).toBeNull();
   await fireEvent(screen.getByLabelText("Stop"), "longPress");
+  // The stretching is asked first (TASK-285 part A); «Skip» shows the run.
+  expect(await screen.findByText("Remember to stretch")).toBeOnTheScreen();
+  expect(screen.queryByText("0.30 km")).toBeNull();
+  await fireEvent.press(screen.getByText("Skip"));
+  expect(screen.queryByText("Remember to stretch")).toBeNull();
   expect(await screen.findByText("Your run")).toBeOnTheScreen();
   // The arrow is the position marker again.
   expect(scripts("stopFollow")).toHaveLength(1);
@@ -216,6 +221,8 @@ test("Keep running goes on with the same track", async () => {
   });
   await fireEvent.press(screen.getByLabelText("Pause"));
   await fireEvent(screen.getByLabelText("Stop"), "longPress");
+  // The stretching is asked first (TASK-285): skipped here.
+  await fireEvent.press(await screen.findByText("Skip"));
   await fireEvent.press(await screen.findByText("Keep running"));
 
   // The run goes on at once: no countdown, and «Pause» again.
@@ -236,6 +243,8 @@ test("Stop before the first fix goes back to the first screen", async () => {
   await fireEvent.press(await screen.findByText("Stop"));
   expect(await screen.findByText("Starting from your position.")).toBeOnTheScreen();
   expect(screen.queryByText("Your run")).toBeNull();
+  // Nothing to stretch after: not asked (TASK-285).
+  expect(screen.queryByText("Remember to stretch")).toBeNull();
 });
 
 /** A free run of 500 m in a minute the app was closed during, its last fix
@@ -282,6 +291,8 @@ test("a free run left when the app closed opens again, paused (TASK-272)", async
 
   await fireEvent.press(screen.getByLabelText("Pause"));
   await fireEvent(screen.getByLabelText("Stop"), "longPress");
+  // The stretching is asked first (TASK-285): skipped here.
+  await fireEvent.press(await screen.findByText("Skip"));
   expect(await screen.findByText("Your run")).toBeOnTheScreen();
   expect(screen.getByText("0.60 km")).toBeOnTheScreen();
   // A minute before the app closed, 40 seconds after «Resume».
@@ -292,6 +303,8 @@ test("a free run closed long ago opens on its end, to be saved (TASK-272)", asyn
   closedFreeRun(3 * 60 * 60_000);
   await render(<App />);
   expect(await screen.findByText("Your run")).toBeOnTheScreen();
+  // A run that ended long ago is not asked for the stretching (TASK-285).
+  expect(screen.queryByText("Remember to stretch")).toBeNull();
   expect(screen.getByText("0.50 km")).toBeOnTheScreen();
   expect(screen.queryByText("Keep running")).toBeNull();
 });
