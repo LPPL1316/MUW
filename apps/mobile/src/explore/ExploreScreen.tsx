@@ -43,8 +43,10 @@ import {
   firstExamples,
   shapesOf,
   useCityExamples,
+  wordsOf,
 } from "./exampleRoutes";
 import { CityExamples } from "./CityExamples";
+import { CityWords } from "./CityWords";
 import { CityPicker } from "./ExploreTools";
 import { NearbyTowns } from "./NearbyTowns";
 import { byPlace, OWN_RADIUS_M } from "./ownRoutes";
@@ -187,8 +189,12 @@ export function ExploreScreen({
   // (TASK-143); with them, the shapes it has none of, added to its cards
   // while those are looked at (TASK-176).
   const drawnCity = city !== null && list.status === "done" ? city : null;
-  const has = useMemo(() => (own.length === 0 ? undefined : shapesOf(own)), [own]);
-  const { examples, retry } = useCityExamples(apiUrl, drawnCity, { has });
+  // Its words are not written again either (TASK-279).
+  const has = useMemo(
+    () => (own.length === 0 ? undefined : [...shapesOf(own), ...wordsOf(own)]),
+    [own],
+  );
+  const { examples, words, retry } = useCityExamples(apiUrl, drawnCity, { has });
   const examplesCity = has === undefined ? drawnCity : null;
   const added =
     has === undefined || examples === null ? [] : addedExamples(examples, has);
@@ -215,6 +221,20 @@ export function ExploreScreen({
     examplesCity !== null &&
     examples !== null &&
     examples.some((example) => example.status === "ready");
+  // After the city's shapes, its words (TASK-279), named as its cards; the
+  // row has the maps' credit when nothing above it has.
+  const wordsRow = words !== null && (
+    <CityWords
+      words={words.map((word) =>
+        word.status === "ready" && ownName !== undefined
+          ? { ...word, route: { ...word.route, city: ownName } }
+          : word,
+      )}
+      width={contentWidth}
+      onOpen={onOpen}
+      credit={routes.length === 0 && !credited}
+    />
+  );
   const routeCard = (route: RecommendedRoute, width: number = card) => (
     <RouteCard
       key={route.id}
@@ -294,6 +314,7 @@ export function ExploreScreen({
             width={contentWidth}
           />
         )}
+        {examplesCity !== null && wordsRow}
         {examplesKey !== null && waited && (
           <WhileDrawing cityKey={examplesKey} drawing={drawing} />
         )}
@@ -346,6 +367,7 @@ export function ExploreScreen({
             )}
           </View>
         )}
+        {own.length > 0 && wordsRow}
         {/* The neighbours' routes, under the city's own: alternatives a short
             run away (TASK-192). */}
         {city !== null && nearby.length > 0 && (
