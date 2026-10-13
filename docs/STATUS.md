@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
+  dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
+  ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
+  fine corsa «Remember to stretch» a schermo e a voce, «Skip» verso «Your
+  run» o l'uscita verso lo stretching. **Parte B**, sessione «Animazione
+  esercizi stretching post-corsa»: cinque esercizi animati uno dopo
+  l'altro, con il conto alla rovescia e il passaggio da sé, «come
+  sull'app bEND»; figura e testi nostri, nessuna dipendenza nuova. Solo
+  app; A entra prima di B; non nella 1.0. Testi e voce nelle cinque
+  lingue con il sì dell'utente. File: `tasks/TASK-285.md`.
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
