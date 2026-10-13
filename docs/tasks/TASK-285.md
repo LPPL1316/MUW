@@ -102,6 +102,15 @@ Cosa fare (A):
    scrive A**, in una voce con le due parti (B aggiunge la sua riga se
    serve); `STATUS.md`.
 
+**Testi approvati dall'utente il 2026-10-13** («sì, i testi vanno bene»,
+detto al Coordinatore): «Remember to stretch» / «Stretch» / «Skip» nelle
+cinque lingue (it «Ricordati di fare stretching» / «Stretching» /
+«Salta», de «Denk ans Dehnen» / «Dehnen» / «Überspringen», es «Recuerda
+estirar» / «Estirar» / «Omitir», fr «Pensez à vous étirer» / «S'étirer»
+/ «Passer») e la frase della voce, la stessa col punto. La frase detta
+dalla voce sta nel frasario (`src/voice/`), non nei testi dell'app.
+PR di A: #504 (dopo la #500).
+
 ## Parte B — I cinque esercizi animati
 
 ### Cosa si vede
@@ -217,6 +226,9 @@ Parte A:
 apps/mobile/App.tsx   (poche righe: onEndRun/onStopFreeRun, la scelta della scheda)
 apps/mobile/src/screens/StretchReminder.tsx, StretchReminder.test.tsx   (nuovi)
 apps/mobile/src/i18n/it.ts, de.ts, es.ts, fr.ts   (tre voci nuove)
+apps/mobile/src/voice/phrasebook.ts   (campo `stretch`)
+apps/mobile/src/voice/en.ts, de.ts, it.ts, es.ts, fr.ts   (una riga l'uno)
+apps/mobile/__tests__/AppFreeRun.test.tsx, AppReopenRun.test.tsx   (premono «Skip» dopo «Stop»)
 docs/UI.md, docs/DECISIONS.md (ADR-0247), docs/STATUS.md, docs/tasks/TASK-285.md
 ```
 
