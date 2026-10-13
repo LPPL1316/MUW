@@ -123,6 +123,7 @@ services/api/tests/test_notifications.py
 services/api/tests/test_accounts.py
 packages/shared-types/src/index.ts
 packages/shared-types/fixtures/session.json
+packages/shared-types/test/accounts.test.ts
 apps/mobile/src/api/notifications.test.ts
 apps/mobile/src/settings/notificationFields.test.ts
 .env.example
@@ -164,6 +165,44 @@ docs/tasks/TASK-284.md                                 (nuovo)
    SPF, DKIM, DMARC), `RESEND_API_KEY` e `SHAPEROUTE_EMAIL_SECRET` in
    `deploy/.env` sul server (`docs/DEPLOY.md`, «Email di ritorno»).
 4. Il coordinatore aggiorna il server col suo via.
+
+## Dove si è (2026-10-13)
+
+- **Parte A**: fatta sul branch `feat/TASK-284-return-email` (worktree
+  `.claude/worktrees/TASK-284`), unita a `main` `f88eca5d`, PR aperta e
+  «pronta» al coordinatore. Test locali: API intera, `shared-types`, app
+  (jest, tipi, lint, prettier). Spenta finché il server non ha chiave,
+  segreto e dominio: entrare in `main` non manda niente. La migrazione è
+  `0022_away_email.sql`: se al merge `0022` è già presa, rinominarla al
+  primo numero libero (nessun test la cerca per numero).
+- **I testi dell'email e della pagina** sono in
+  `services/api/shaperoute_api/away_texts.py` (en, it, de, es, fr; de, es,
+  fr tradotti dall'agente). **Aspettano il sì dell'utente** prima della
+  prima email: mostrarglieli nella parte B insieme alla privacy.
+- **Parte B**, da fare dopo il merge di #461 (TASK-262 C, privacy):
+  1. «Sign up»: la riga «If you don't open MuW for 2 weeks, we email you
+     once with what's new.» e la casella non spuntata «Don't send me these
+     emails»; la richiesta manda `away_email` (falso se spuntata) e
+     `language` (la lingua dell'app). Aggiornare
+     `fixtures/sign-up-request.json` con i due campi e i test dell'app che
+     lo confrontano (`api/accounts.test.ts`, `account/fields.test.ts`,
+     `account/useAccount.test.ts`, `account/Profile.test.tsx`); poi in
+     `test_accounts.py` togliere l'eccezione `optional`.
+  2. «Settings»: l'interruttore «Email when I'm away» sotto «Email
+     notifications» (`PUT /me/notifications {"away": …}`), con le parole
+     di `away_texts.WORDS[…].switch`.
+  3. Privacy in cinque lingue (`about/content/*.ts`, poi `node
+     site/tools/make_privacy.mjs`): l'email di ritorno, interesse
+     legittimo / soft opt-in, il rifiuto all'iscrizione, in «Settings» e in
+     ogni email, Resend (Stati Uniti) come fornitore, e il fatto che gli
+     account di prima la ricevono (avvisati dalla privacy nuova e dalla
+     prima email). Togliere «MuW sends no emails yet». Sì dell'utente al
+     testo e alla data.
+- **Prima della prima email**: A e B in `main`, l'app pubblicata,
+  l'approvazione di Apple, il server dal coordinatore col sì dell'utente,
+  e l'utente che crea l'account Resend, verifica `getmuw.app` e scrive la
+  chiave (`DEPLOY.md`, «Email di ritorno»). Poi `docker compose exec api
+  python -m shaperoute_api.away_email` per contare, prima del primo giro.
 
 ## Esito
 
