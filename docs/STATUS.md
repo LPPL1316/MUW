@@ -175,9 +175,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dire all'inizio "ricordati di fare stretching" e dai la possibilità di
   skipparlo»). Branch `feat/TASK-285-a-stretch-reminder`: la scheda
   `StretchReminder.tsx` con la frase della voce nelle cinque lingue è
-  scritta e testata; **resta**: il collegamento in `App.tsx` (dopo l'ok
-  del Coordinatore sui file della fine corsa), il sì dell'utente sui
-  testi nelle cinque lingue, la prova nel simulatore. La parte B (gli
+  scritta e testata, `App.tsx` collegato (ok del Coordinatore), i test
+  dell'app della corsa libera e della corsa riaperta premono «Skip» dopo
+  «Stop»; **resta**: il sì dell'utente sui testi nelle cinque lingue, poi
+  il merge dopo la #500 (TASK-278). La parte B (gli
   esercizi animati) è della sessione «Animazione esercizi stretching
   post-corsa», che scrive `tasks/TASK-285.md`.
 - **TASK-278…282 — Cinque richieste dell'utente del 2026-10-11 su
