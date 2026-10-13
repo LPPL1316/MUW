@@ -44,8 +44,15 @@ in mezzo fra la corsa e quella schermata: il bivio della parte A ci entra
 prima di «Your run».
 
 Regole date dal Coordinatore per tutte e due le parti:
+- **«come bEND» è l'idea**, non il materiale: figure, animazioni, nomi e
+  testi degli esercizi sono nostri, niente copiato o ricalcato da bEND
+  (diritti d'autore e marchio);
 - **testi nuovi e voce nelle cinque lingue solo con il sì dell'utente**:
-  si mostrano prima del merge;
+  si mostrano prima del merge; la riga di salute, breve e neutra («Stop
+  if it hurts.»), va approvata dall'utente con gli altri testi;
+- **dove si innesta**: la fine corsa la toccano già altri task (TASK-208
+  B, la pagina «Data» di TASK-268). Il punto esatto è nei «File toccati»;
+  prima di partire il Coordinatore ricontrolla che sia libero;
 - **prima di toccare i file della fine corsa** (`App.tsx`,
   `FinishScreen.tsx`, `FreeRunScreen.tsx`, `RunEnd.tsx`) si manda
   l'elenco al Coordinatore, che lo ricontrolla;
@@ -224,6 +231,15 @@ apps/mobile/src/i18n/it.ts, de.ts, es.ts, fr.ts   (solo voci nuove)
 apps/mobile/App.tsx   (poche righe: onStretch apre la schermata; elenco al Coordinatore prima)
 docs/UI.md, docs/DECISIONS.md (la riga di B), docs/STATUS.md, docs/tasks/TASK-285.md
 ```
+**Il punto esatto dove si apre**: in `App.tsx`, dentro `MapScreen`, dove
+oggi si scelgono `FreeFinishCard` (corsa libera, riga ~953) e
+`FinishCard` (corsa con percorso, riga ~1018) sopra la mappa. A mette lì
+la sua scheda `StretchReminder` al loro posto finché `stretchAsked` è
+falso; B, da `onStretch` di quella scheda, monta `StretchScreen` a tutto
+schermo sopra `MapScreen`, accanto alle schede, e al termine chiama la
+stessa chiusura di «Skip». `RunEnd` (TASK-172, TASK-208 B) e la pagina
+«Data» (TASK-268) non si toccano.
+
 `App.tsx` e i quattro file `i18n` sono di tutte e due le parti: B si
 riallinea a `main` dopo il merge di A. Nessuna delle due tocca i file
 dell'altra (`StretchReminder.*` è di A, `src/stretch/` è di B).
