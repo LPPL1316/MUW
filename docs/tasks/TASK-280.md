@@ -131,7 +131,7 @@ docs/tasks/TASK-280.md
 
 ## Esito
 
-Fatto il 2026-10-13 (ADR-0245). In fondo a «Draw», sotto la distanza:
+Fatto il 2026-10-13 (ADR-0246). In fondo a «Draw», sotto la distanza:
 «CITY TOURS», quattro giri a tema (Famous Places, Best Views, Hidden Gems,
 Romantic) intorno alla partenza, che si aprono sulla mappa coi luoghi e
 tornano a «Draw» con «Back to Draw» o «←»; «PICTURES», dodici sagome
@@ -140,3 +140,8 @@ contorno già calcolato dal motore, pronto per «Draw route». Con «Paddle»
 nessuna delle due righe. Sagome e testi approvati dall'utente. Solo app,
 non nella 1.0; la pubblica il Coordinatore. Da provare sull'iPhone: un
 giro e una sagoma a 5 km.
+
+**Licenza delle immagini**: i dodici PNG di `apps/mobile/assets/pictures/`
+li abbiamo disegnati noi, con codice (`tools/sample_pictures.py`, da
+cerchi, linee e poligoni): sono nostri e vanno con la licenza del progetto.
+Nessuna immagine d'altri, nessun credito da dare.

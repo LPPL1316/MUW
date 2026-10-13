@@ -185,7 +185,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
   - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
     «PICTURES» (sagome pronte). Solo app: può partire subito.
-    **Fatto il 2026-10-13** (ADR-0245), PR in attesa del merge del
+    **Fatto il 2026-10-13** (ADR-0246), PR in attesa del merge del
     Coordinatore dopo la #500; vedi «Completato».
   - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
     forme e immagini sulla mappa della città, e cambiarle senza uscire.
@@ -799,7 +799,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
-- **App** — TASK-280 (ADR-0245; chiesto dall'utente il 2026-10-11, scelte
+- **App** — TASK-280 (ADR-0246; chiesto dall'utente il 2026-10-11, scelte
   sue del 2026-10-13): in fondo a «Draw», sotto la distanza, due righe da
   scorrere. «CITY TOURS»: Famous Places, Best Views, Hidden Gems e Romantic
   «near your start» (l'app non sa il nome del paese di una posizione GPS),

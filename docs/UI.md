@@ -1617,7 +1617,7 @@ semplici, con sotto il testo del motore:
 | fotocamera negata | The camera is off for this app. Allow it in Settings, or choose a picture instead. + «Open Settings» (TASK-259) |
 | oltre 10 MB | This picture is too large: 12.3 MB, at most 10 MB. Choose a smaller one. |
 
-### I giri e le immagini pronte (TASK-280, ADR-0245)
+### I giri e le immagini pronte (TASK-280, ADR-0246)
 
 Chiesto dall'utente il 2026-10-11 («Sotto draw nella sezione draw
 inserisci i tour delle città o immagini varie»); le scelte sono sue, del

@@ -14209,7 +14209,7 @@ elemento e di una JPEG per foto vista: con mille paesi, circa 60 MB. Una
 foto di Commons può mostrare un monumento invece del paese (Laguardia: un
 dolmen); la sceglie chi cura Wikidata.
 
-## ADR-0245 — Sotto «Draw» i giri a tema e dodici sagome pronte, col contorno già nell'app
+## ADR-0246 — Sotto «Draw» i giri a tema e dodici sagome pronte, col contorno già nell'app
 **Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente
 (chieste in chat con le opzioni, TASK-280): le dodici sagome col razzo al
 posto del Colosseo, i quattro giri, «near your start» al posto del nome
