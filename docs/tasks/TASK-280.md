@@ -1,6 +1,6 @@
 # TASK-280 — Sotto «Draw»: i tour della città e le immagini pronte
 
-**Stato**: In lavorazione
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-280-draw-tours-pictures`
 
 ## Obiettivo
@@ -82,16 +82,19 @@ Solo app. Può partire mentre Apple prova la 1.0; va su `preview`.
 
 ## Criteri di accettazione
 
-- [ ] La riga dei giri mostra le categorie scelte con il nome della città
-      di partenza; un tocco chiede il giro a tema e apre la mappa (test).
-- [ ] La riga delle sagome ne mostra quante l'utente ha scelto; un tocco
+- [x] La riga dei giri mostra le categorie scelte con da dove partono
+      («near your start»: il nome della città dal GPS non si sa, scelta
+      dell'utente); un tocco chiede il giro a tema e apre la mappa (test).
+- [x] La riga delle sagome ne mostra quante l'utente ha scelto; un tocco
       passa a «Image» con la sagoma e il suo contorno (test).
-- [ ] «Draw route» con una sagoma manda `POST /image-route-jobs` con il
+- [x] «Draw route» con una sagoma manda `POST /image-route-jobs` con il
       contorno della sagoma (test).
-- [ ] Con «Paddle» le due righe non ci sono (test).
-- [ ] Le sagome sono file dell'app disegnati da noi, senza licenze di
+- [x] Con «Paddle» le due righe non ci sono (test).
+- [x] Le sagome sono file dell'app disegnati da noi, senza licenze di
       altri; nessuna dipendenza nuova.
-- [ ] Testi approvati; `npm test`, `expo lint`, `format:check` verdi.
+- [x] Testi approvati dall'utente il 2026-10-13; `npm test` (398 suite,
+      3302 test), `expo lint`, `tsc`, `format:check` e i test di `tools/`
+      verdi.
 
 ## File toccati
 
@@ -128,4 +131,12 @@ docs/tasks/TASK-280.md
 
 ## Esito
 
-*(a fine task)*
+Fatto il 2026-10-13 (ADR-0245). In fondo a «Draw», sotto la distanza:
+«CITY TOURS», quattro giri a tema (Famous Places, Best Views, Hidden Gems,
+Romantic) intorno alla partenza, che si aprono sulla mappa coi luoghi e
+tornano a «Draw» con «Back to Draw» o «←»; «PICTURES», dodici sagome
+disegnate da `tools/sample_pictures.py`, che un tocco mette in «Image» col
+contorno già calcolato dal motore, pronto per «Draw route». Con «Paddle»
+nessuna delle due righe. Sagome e testi approvati dall'utente. Solo app,
+non nella 1.0; la pubblica il Coordinatore. Da provare sull'iPhone: un
+giro e una sagoma a 5 km.
