@@ -118,7 +118,10 @@ def rows(database: Database, table: str) -> list[dict[str, Any]]:
 
 def test_the_fixtures_are_the_contract() -> None:
     request = _load("sign-up-request.json")
-    assert set(request) == set(SignUpRequestBody.model_fields)
+    # The box «Don't send me these emails» and the language (TASK-284) may
+    # be left out, as the app of before does.
+    optional = {"away_email", "language"}
+    assert set(request) == set(SignUpRequestBody.model_fields) - optional
     SignUpRequestBody.model_validate(request)
     session = _load("session.json")
     assert set(session) == set(SessionBody.model_fields)

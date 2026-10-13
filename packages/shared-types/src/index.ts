@@ -538,6 +538,13 @@ export interface SignUpRequest {
   username: string;
   /** The "I am at least 16" box (ADR-0114): false is refused. */
   at_least_16: boolean;
+  /**
+   * The box «Don't send me these emails» (TASK-284): false when ticked.
+   * Without it, «Email when I'm away» is on.
+   */
+  away_email?: boolean;
+  /** The app's language, for the texts of the emails; English without it. */
+  language?: PushLanguage | null;
 }
 
 /** The limits of a password, checked by the API too. */
@@ -586,11 +593,18 @@ export interface User {
 /**
  * What an account chose about being notified (TASK-185): both off until
  * turned on. With «Push notifications» on the API sends push notifications
- * to the phones of the account (TASK-262); no email is sent yet.
+ * to the phones of the account (TASK-262); no email of the news is sent
+ * yet.
  */
 export interface Notifications {
   email: boolean;
   push: boolean;
+  /**
+   * «Email when I'm away» (TASK-284): one email after two weeks without
+   * opening the app, with what is new. On until turned off. Missing from
+   * an API older than TASK-284: on.
+   */
+  away?: boolean;
 }
 
 /**
@@ -600,6 +614,8 @@ export interface Notifications {
 export interface NotificationsRequest {
   email?: boolean;
   push?: boolean;
+  /** «Email when I'm away» (TASK-284). */
+  away?: boolean;
 }
 
 /**

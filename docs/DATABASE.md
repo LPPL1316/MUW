@@ -422,6 +422,25 @@ Migrazione `0021_push_tokens.sql` (TASK-262 parte A, ADR-0226; il numero
   server per un terzo**: il token, con il testo della notifica, va al
   servizio push di Expo, che lo passa ad Apple o a Google.
 
+Migrazione `0022_away_email.sql` (TASK-284, ADR-0244; il numero è il primo
+libero in `main` al merge):
+
+- `users.notify_away` (`boolean NOT NULL DEFAULT true`): «Email when I'm
+  away» di «Settings». **Acceso** per ogni account, quelli di prima
+  compresi (scelta dell'utente: tutti gli iscritti); lo spengono
+  `away_email: false` all'iscrizione, `PUT /me/notifications` e il link
+  della email. In `GET /me` è `notifications.away`.
+- `users.away_emailed_at` (`timestamptz`, facoltativa): l'ultima email di
+  ritorno. Un account la riceve di nuovo solo quando l'app è stata usata
+  dopo (`sessions.last_used_at` più recente di questa data).
+- `users.language` (`en`, `de`, `it`, `es`, `fr`, o `NULL`): la lingua
+  dell'app all'iscrizione, per i testi delle email; `NULL` per gli account
+  di prima, e allora vale quella del telefono (`push_tokens.language`) o
+  l'inglese.
+- Nessun indice: il giro di ogni giorno legge tutti gli account con
+  `notify_away` una volta. **L'indirizzo email lascia il server per un
+  terzo**, Resend, solo dentro un'email di ritorno (ADR-0244).
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

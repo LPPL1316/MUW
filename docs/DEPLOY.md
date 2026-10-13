@@ -394,6 +394,67 @@ Il secret, come ogni chiave, mai in un file del repository o in una chat.
 Se finisce dove non deve, dalla pagina del punto 1 se ne genera uno nuovo
 e si riscrive la riga in `deploy/.env`: gli atleti collegati restano.
 
+## Email di ritorno (TASK-284)
+
+Una email a chi non apre l'app da 14 giorni (`API.md`, «Email when I'm
+away»; ADR-0244), con **Resend**. Spenta finché `deploy/.env` non ha la
+chiave di Resend, il segreto dei link e `SHAPEROUTE_DOMAIN`. **Prima di
+accenderla**: le due parti del TASK-284 in `main` (la casella
+all'iscrizione e la privacy nuova sono nella parte B), l'app pubblicata, e
+l'ok del coordinatore per il server.
+
+1. Su <https://resend.com> (lo fa l'utente) un account, poi **Domains ›
+   Add domain** `getmuw.app`. Resend mostra i record DNS da aggiungere dal
+   gestore del dominio: **SPF** (un `TXT` e un `MX` su un sottodominio di
+   invio), **DKIM** (un `TXT` `resend._domainkey`) e, consigliato,
+   **DMARC** (un `TXT` `_dmarc` con `v=DMARC1; p=none;` per cominciare).
+   Quando Resend dice il dominio «Verified», **API Keys › Create API key**
+   con permesso «Sending access» solo per `getmuw.app`: la chiave (`re_…`)
+   si vede una volta sola.
+2. Sul server, in `deploy/.env`: la chiave la scrive l'utente con un
+   comando che non la mostra; il segreto dei link lo genera il server, e
+   non serve leggerlo:
+
+   ```bash
+   cd /root/shaperoute/deploy
+   read -rs -p "Resend API key: " K && printf 'RESEND_API_KEY=%s\n' "$K" >> .env; unset K
+   printf 'SHAPEROUTE_EMAIL_SECRET=%s\n' "$(openssl rand -hex 32)" >> .env
+   grep '^SHAPEROUTE_DOMAIN=' .env
+   ```
+
+   `SHAPEROUTE_DOMAIN` è il dominio dei link della email
+   (`https://<dominio>/away-email/stop?t=…`): `api.getmuw.app`. Il mittente
+   è `MuW <hello@getmuw.app>` (`SHAPEROUTE_EMAIL_FROM` lo cambia); il giro
+   è alle 17:00 UTC (`AWAY_EMAIL_AT` lo cambia).
+3. L'API nuova, che al primo avvio applica la migrazione `0022` (o il
+   numero che ha preso al merge), come ogni aggiornamento del server:
+
+   ```bash
+   cd /root/shaperoute && git pull
+   cd deploy && docker compose up -d --build
+   docker compose logs api | grep -E "Accounts|away"
+   ```
+
+   La riga «Email to who is away for 14 days: every day at 17:00 UTC» dice
+   che è accesa; «No email to who is away» che manca qualcosa.
+4. La prova, senza mandare niente: quanti la riceverebbero adesso.
+
+   ```bash
+   docker compose exec api python -m shaperoute_api.away_email
+   ```
+
+   `--send` fa un giro subito invece di aspettare le 17:00. Il log dice
+   quanti erano via, quante email sono partite e quante Resend ne ha
+   rifiutate (mai gli indirizzi).
+
+Per spegnerla basta togliere `RESEND_API_KEY` da `deploy/.env` e
+`docker compose up -d`: anche la pagina del link sparisce. **Il segreto
+non si cambia** se non è finito dove non deve: i link delle email già
+mandate smetterebbero di funzionare (chi li apre trova la pagina «This
+link does not work» e può spegnerla in «Settings»). La chiave, come ogni
+chiave, mai in un file del repository o in una chat; se finisce dove non
+deve, da Resend se ne crea una nuova e si cancella la vecchia.
+
 ## Il registro delle richieste e le posizioni
 
 L'API può scrivere ogni richiesta di percorso in un file, per rifarla

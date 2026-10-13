@@ -1013,7 +1013,7 @@ Tipi e esempi in `shared-types` (`SignUpRequest`, `SignInRequest`,
 
 | Endpoint | Cosa | Risposta |
 |---|---|---|
-| `POST /accounts` | iscriversi: `email`, `password`, `username`, `at_least_16` | `201` `Session`: iscriversi fa anche entrare |
+| `POST /accounts` | iscriversi: `email`, `password`, `username`, `at_least_16`; facoltativi `away_email` e `language` (TASK-284) | `201` `Session`: iscriversi fa anche entrare |
 | `POST /session` | entrare: `email`, `password` | `200` `Session` |
 | `DELETE /session` | uscire, solo da questo telefono | `204` |
 | `GET /me` | chi sono | `200` `User` |
@@ -1033,6 +1033,11 @@ Tipi e esempi in `shared-types` (`SignUpRequest`, `SignInRequest`,
   da 3 a 20 fra lettere, cifre, `_` e `.`, unico senza badare alle
   maiuscole. `at_least_16` falso è `422 invalid_request` (ADR-0114, punto
   6). Campi in più, come `role`, sono `invalid_request`.
+- `away_email` (TASK-284) è la casella «Don't send me these emails»:
+  `false` quando è spuntata spegne «Email when I'm away»; senza, resta
+  acceso. Solo `true` o `false`. `language` (`en`, `de`, `it`, `es`, `fr`,
+  o `null`) è la lingua dell'app, per i testi delle email; un'altra è
+  `422 invalid_request`. L'app di prima non li manda: vale com'è senza.
 - La password resta solo come hash Argon2id; del token il database tiene
   solo lo SHA-256. Né l'una né l'altro finiscono nei log.
 - Una sessione finisce 90 giorni dopo l'ultimo uso (`session_expired`, una
@@ -1412,12 +1417,15 @@ accounts_unavailable`. Tipi in `shared-types` (`Notifications`,
 
 | Endpoint | Cosa | Risposta |
 |---|---|---|
-| `PUT /me/notifications` | accendere o spegnere un interruttore, o tutti e due: `email`, `push` | `200` `User`, com'è adesso |
+| `PUT /me/notifications` | accendere o spegnere uno o più interruttori: `email`, `push`, `away` | `200` `User`, com'è adesso |
 
 - **`User`** (anche in `Session` e `GET /me`) ha in più `notifications`:
-  `{ "email": false, "push": false }`. **Tutti e due spenti** finché il
-  proprietario non li accende, anche per gli account di prima (scelta
-  dell'utente). Solo il proprietario li legge: non sono in
+  `{ "email": false, "push": false, "away": true }`. **`email` e `push`
+  spenti** finché il proprietario non li accende, anche per gli account di
+  prima (scelta dell'utente). **`away`**, «Email when I'm away» (TASK-284,
+  sotto), è **acceso** finché il proprietario non lo spegne, anche per gli
+  account di prima (scelta dell'utente del 2026-10-11); un'API più vecchia
+  non lo manda, e l'app lo legge acceso. Solo il proprietario li legge: non sono in
   `PublicProfile`, nella ricerca né negli elenchi (un test lo prova).
   `DELETE /me` li cancella con l'account.
 - **`PUT /me/notifications`** porta **solo quello che cambia**: `{ "push":
@@ -1497,6 +1505,58 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   /me/activities/{key}/drawing` (solo i taggati nuovi rispetto a prima del
   salvataggio). Un blocco (TASK-121, `follows.apart_sql`) in uno dei due
   versi ferma ogni notifica fra i due.
+
+### Email when I'm away (TASK-284, ADR-0244)
+
+Una email a chi non apre l'app da 14 giorni, con quello che c'è di nuovo,
+attraverso Resend. Scelte dell'utente del 2026-10-11: **a tutti gli
+iscritti**, con un interruttore suo acceso di default (`notifications.away`,
+sopra), una casella non spuntata all'iscrizione (`away_email` di `POST
+/accounts`) e il link per disiscriversi in ogni email. Il codice in
+`away_email.py` (chi, quando, la pagina), `away_texts.py` (le parole) e
+`resend_email.py` (il filo verso Resend).
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /away-email/stop?t=…` | la pagina del link «Don't send me these emails»: la domanda e il pulsante | `200` HTML; `404` HTML con un link che non è nostro |
+| `POST /away-email/stop?t=…` | il pulsante della pagina, e il «disiscriviti» del programma di posta (RFC 8058): spegne `away` | `200` HTML; `404` HTML come sopra |
+
+- **Chi la riceve**, in un giro al giorno alle `AWAY_EMAIL_AT` UTC (17:00
+  di default): `away` acceso; l'ultimo uso dell'app (il `last_used_at`
+  più recente delle sue sessioni) più vecchio di 14 giorni; nessuna email
+  di ritorno dopo quell'ultimo uso. **Una email per assenza**: la
+  seguente solo se torna e poi sta via altri 14 giorni. Uscito da ogni
+  telefono (`DELETE /session` dappertutto), un account non ha un ultimo
+  uso e non la riceve.
+- **Solo se c'è qualcosa di nuovo**: i disegni pubblicati dopo l'ultimo
+  uso che il Feed gli mostrerebbe (`shown_sql`: mai «only me», «followers»
+  solo se segue, mai attraverso un blocco), i suoi esclusi. Senza niente
+  di nuovo, niente email: il giro del giorno dopo richiede.
+- **Cosa dice**: con disegni nuovi di chi segue, quanti e fino a tre nomi
+  («ada, bea, cleo +2»): «2 new drawings from people you follow»; senza,
+  quanti nel Feed: «3 new drawings on MuW». Il pulsante «Open MuW» porta
+  alla pagina App Store dell'app (su un iPhone che l'ha, dice «Apri»). In
+  fondo perché la riceve, il link e dove spegnerla in «Settings». Testo e
+  HTML; nella lingua dell'iscrizione, poi in quella del telefono con le
+  push, poi in inglese.
+- **Il link** porta un token: l'HMAC del `public_id` con
+  `SHAPEROUTE_EMAIL_SECRET`, niente nel database. Il `GET` non spegne
+  niente (i filtri antispam aprono i link): solo il `POST`. La pagina non
+  vuole `X-API-Key` (`access.py`), è `no-store` e senza referrer; il
+  token non va nel log degli accessi. Le email portano anche
+  `List-Unsubscribe` e `List-Unsubscribe-Post`.
+- **L'invio**: ogni account è preso (`away_emailed_at`) prima di mandare,
+  solo se niente è cambiato da quando è stato letto, e restituito se
+  Resend rifiuta: due giri insieme non mandano mai due email, e una
+  rifiutata si riprova il giorno dopo. Al più 500 per giro, mezzo secondo
+  fra due; dopo 3 rifiuti di fila il giro si ferma. Resend riceve una
+  `Idempotency-Key` per assenza. La chiave e l'indirizzo non vanno mai nel
+  log.
+- **Spenta** senza `RESEND_API_KEY`, `SHAPEROUTE_EMAIL_SECRET` (almeno 32
+  caratteri) e `SHAPEROUTE_DOMAIN`: niente giro e niente pagina, e l'API
+  lo dice all'avvio (`docs/DEPLOY.md`, «Email di ritorno»). A mano:
+  `python -m shaperoute_api.away_email` conta chi la riceverebbe adesso,
+  `--send` fa un giro.
 
 ### Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170)
 
