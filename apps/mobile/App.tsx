@@ -104,7 +104,7 @@ import { MapScreen } from "./src/screens/MapScreen";
 import { NavigationBanner, NavigationCard } from "./src/screens/NavigateScreen";
 import { Pager } from "./src/screens/Pager";
 import { pageTitle } from "./src/screens/pageTitles";
-import { ProfileButton, ProfileLayer } from "./src/screens/ProfileLayer";
+import { OwnProfile, ProfileButton, ProfileLayer } from "./src/screens/ProfileLayer";
 import { PaddleExplore } from "./src/paddle/PaddleExplore";
 import { MoveShape } from "./src/paddle/MoveShape";
 import { PaddleNotice } from "./src/paddle/PaddleNotice";
@@ -133,13 +133,23 @@ const API_URL = apiUrl();
 /** The screens (TASK-051): what to draw, the map with the route, the
  * turn-by-turn along it (TASK-049), the run with its score (TASK-113), the
  * best routes near the start (TASK-126), a run without a route with its
- * end (TASK-149), and what runners publish (TASK-154, then TASK-118). */
+ * end (TASK-149), what runners publish (TASK-154, then TASK-118), and the
+ * account's own profile (TASK-278). */
 type Screen =
-  "choose" | "map" | "navigate" | "finish" | "explore" | "run" | "runFinish" | "feed";
+  | "choose"
+  | "map"
+  | "navigate"
+  | "finish"
+  | "explore"
+  | "run"
+  | "runFinish"
+  | "feed"
+  | "profile";
 
 /** The screens that are pages side by side, left to right, one swipe apart
- * (TASK-154, ADR-0124); the others take the whole screen. */
-const PAGES: readonly Screen[] = ["feed", "choose", "explore"];
+ * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
+ * take the whole screen. */
+const PAGES: readonly Screen[] = ["feed", "choose", "explore", "profile"];
 
 /** A run that ended, shown on the finish screen. */
 type Finished = {
@@ -804,6 +814,13 @@ function MuW() {
   // The page on screen; -1 while the map or a run takes the whole screen.
   const page = PAGES.indexOf(screen);
 
+  /** Another page, by a swipe, its name or the profile's circle. */
+  function showPage(next: Screen) {
+    // A keyboard left open would follow to the next page.
+    Keyboard.dismiss();
+    setScreen(next);
+  }
+
   return (
     <View style={styles.screen}>
       <MapScreen
@@ -1084,16 +1101,16 @@ function MuW() {
       {page !== -1 && (
         <Pager
           page={page}
-          onPage={(index) => {
-            // A keyboard left open would follow to the next page.
-            Keyboard.dismiss();
-            setScreen(PAGES[index]);
-          }}
+          onPage={(index) => showPage(PAGES[index])}
           action={
-            // The sport at the left of the way to «Profile» (TASK-205).
+            // The sport at the left of the way to «Profile» (TASK-205),
+            // whose circle is the name of the profile's page (TASK-278).
             <View style={styles.actions}>
               <SportButton />
-              <ProfileButton />
+              <ProfileButton
+                selected={screen === "profile"}
+                onPress={() => showPage("profile")}
+              />
             </View>
           }
           pages={[
@@ -1238,6 +1255,14 @@ function MuW() {
                     }}
                   />
                 ),
+            },
+            {
+              // The account's own profile, after «Explore» (TASK-278): no
+              // name in the header, where its circle is.
+              title: pageTitle("profile"),
+              unnamed: true,
+              lazy: true,
+              render: () => <OwnProfile active={screen === "profile"} />,
             },
           ]}
         />
