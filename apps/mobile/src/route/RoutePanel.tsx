@@ -549,9 +549,9 @@ function PenSwitch({
  * records, apart from the km walked between them; on a bike, ridden
  * (TASK-216). So a shape in pieces, between its parts (TASK-223). Nothing
  * for any other route, nor from an API that sends no walks. With «Miles»
- * the same in miles (TASK-182).
+ * the same in miles (TASK-182). Also under a word of «Explore» (TASK-279).
  */
-function PenSplit({
+export function PenSplit({
   result,
   activity,
   units,

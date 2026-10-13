@@ -1,6 +1,7 @@
 # TASK-279 — Parole e frasi con la penna alzata in «Explore»
 
-**Stato**: Todo
+**Stato**: parte A In lavorazione (PR pronta, aspetta il «merge» del
+Coordinatore); parte B Todo
 **Fase**: 4 · **Branch**: parte A `feat/TASK-279-a-explore-words`,
 parte B `feat/TASK-279-b-phrases`
 
@@ -90,13 +91,13 @@ dopo Apple»: va detto che la parte A può partire prima.
 ## Criteri di accettazione
 
 Parte A:
-- [ ] Le parole scelte dall'utente si chiedono dal centro della città
+- [x] Le parole scelte dall'utente si chiedono dal centro della città
       dopo le forme, con `pen_up: true`, una alla volta (test).
-- [ ] La riga mostra solo le parole riuscite; un tocco apre il percorso
+- [x] La riga mostra solo le parole riuscite; un tocco apre il percorso
       con i tratti a piedi e «Start» (test).
-- [ ] Una seconda apertura della stessa città mostra le parole senza
+- [x] Una seconda apertura della stessa città mostra le parole senza
       chiederle di nuovo (test).
-- [ ] Testi nuovi approvati dall'utente nelle cinque lingue; `npm test`,
+- [x] Testi nuovi approvati dall'utente nelle cinque lingue; `npm test`,
       `expo lint`, `format:check` verdi.
 
 Parte B:
@@ -123,6 +124,20 @@ docs/STATUS.md
 docs/tasks/TASK-279.md
 ```
 
+Confermati dalla sessione della parte A (2026-10-13), con questi in più:
+
+```
+apps/mobile/src/explore/CityWords.tsx          (nuovo: la riga «WORDS»)
+apps/mobile/src/explore/CityWords.test.tsx     (nuovo)
+apps/mobile/src/explore/exampleWords.test.ts   (nuovo: i test delle parole)
+apps/mobile/src/explore/ExploreMoreShapes.test.tsx  (conta anche le parole)
+apps/mobile/src/explore/ExploredCard.tsx       (la riga dei km a piedi)
+apps/mobile/src/route/RoutePanel.tsx           (solo `export` di PenSplit)
+```
+
+`CityExamples.tsx` e `CityExamples.test.tsx` non servono: la riga è un
+file nuovo.
+
 Parte B: da definire all'inizio della parte, dopo i campioni
 (`services/route-engine/route_engine/words.py` e `letters`,
 `packages/shared-types/src/index.ts`, `services/api/shaperoute_api/schemas.py`,
@@ -137,4 +152,13 @@ Parte B: da definire all'inizio della parte, dopo i campioni
 
 ## Esito
 
-*(a fine task)*
+**Parte A** (2026-10-13, PR #503, aggiunta ad ADR-0144): dopo le otto
+forme di una città «Explore» scrive CIAO, LOVE, AMORE, RUN, HELLO, MUW dal
+centro, lettere tonde e penna alzata, nella riga «WORDS». Il punto 1
+diceva «5 km come le forme», ma il contratto vuole 3 km a lettera: scelta
+dell'utente del 2026-10-13, ogni parola alla sua distanza minima (9, 12 o
+15 km). Testo «WORDS» · «PAROLE» · «WÖRTER» · «PALABRAS» · «MOTS»
+approvato dall'utente. `npm test` (397 suite, 3288 test), lint, tipi e
+`format:check` verdi. Resta da provare su un telefono una città nuova per
+l'API (la prima volta 30–50 s a parola). Restano il punto 7
+(`draw_examples`, dopo Apple) e la parte B.

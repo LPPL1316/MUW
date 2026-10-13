@@ -32,6 +32,9 @@ export type PagerPage = {
   /** Built only when first reached: a page that asks the API as it opens
    * («Explore») asks nothing until someone goes to look. */
   lazy?: boolean;
+  /** Not named in the header: a control of `action` goes there, and shows
+   * when it is on screen (the profile's circle, TASK-278). */
+  unnamed?: boolean;
   render: () => ReactNode;
 };
 
@@ -41,7 +44,7 @@ type Props = {
   /** The one on screen. */
   page: number;
   onPage: (index: number) => void;
-  /** At the right of the names: the way to the profile. */
+  /** At the right of the names: the sport, and the way to the profile. */
   action?: ReactNode;
 };
 
@@ -73,8 +76,10 @@ export function pagesInView(x: number, width: number, count: number): number[] {
 /**
  * The pages of the app side by side (TASK-154, ADR-0124): a swipe to the
  * left or to the right goes to the next one, and so does touching its name
- * in the header, which shows all of them in the order they lie in. Made of
- * the paging scroll of React Native: no navigation library, as in TASK-051.
+ * in the header, which shows them in the order they lie in. A page without
+ * a name there (the profile, TASK-278) is reached by its control in
+ * `action`. Made of the paging scroll of React Native: no navigation
+ * library, as in TASK-051.
  */
 export function Pager({ pages, page, onPage, action }: Props) {
   const { width } = useWindowDimensions();
@@ -154,6 +159,9 @@ export function Pager({ pages, page, onPage, action }: Props) {
       <View style={[styles.header, { paddingTop: insets.top + space.sm }]}>
         <View style={styles.names} accessibilityRole="tablist">
           {pages.map((each, index) => {
+            if (each.unnamed) {
+              return null;
+            }
             const selected = index === page;
             return (
               <Pressable
