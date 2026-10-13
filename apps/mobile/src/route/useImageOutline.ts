@@ -59,6 +59,7 @@ export function useImageOutline(
 ): {
   state: ImageState;
   choose: (source: ImageSource) => void;
+  show: (picture: Picture, outline: ImageOutline) => void;
   edits: EditsState;
   add: (kind: EditKind, line: OutlinePoint[]) => void;
   undo: () => void;
@@ -118,6 +119,16 @@ export function useImageOutline(
     [baseUrl, pick],
   );
 
+  // A ready-made picture of «Draw» (TASK-280): its outline is already
+  // traced, so it shows at once, as a photo does once traced. Whatever was
+  // on its way is dropped, as by a new choice.
+  const show = useCallback((picture: Picture, outline: ImageOutline) => {
+    current.current?.abort();
+    current.current = null;
+    setEdits(NO_EDITS);
+    setState({ status: "traced", picture, outline });
+  }, []);
+
   const add = useCallback(
     (kind: EditKind, line: OutlinePoint[]) => {
       if (!baseUrl || state.status !== "traced" || edits.edit.status === "sending") {
@@ -162,5 +173,5 @@ export function useImageOutline(
     setEdits({ earlier: edits.earlier.slice(0, -1), edit: IDLE });
   }, [state, edits]);
 
-  return { state, choose, edits, add, undo };
+  return { state, choose, show, edits, add, undo };
 }
