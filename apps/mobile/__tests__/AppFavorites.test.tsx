@@ -258,9 +258,13 @@ test("«Favorites» in «Profile» lists them, and one opens on the map", async 
   // Back: the list it came from, over the page left under it.
   await fireEvent.press(screen.getByText("Back to the list"));
   expect(screen.getByRole("header", { name: "Favorites" })).toBeOnTheScreen();
+  // Then the page of the profile, under it (TASK-278).
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
-  expect(screen.getByRole("header", { name: "Profile" })).toBeOnTheScreen();
-  await fireEvent.press(screen.getByRole("button", { name: "Back" }));
+  expect(screen.queryByRole("header", { name: "Favorites" })).toBeNull();
+  expect(
+    screen.getByRole("button", { name: /^Profile/, selected: true }),
+  ).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   expect(screen.queryByRole("button", { name: /favorites/ })).toBeNull();
 });

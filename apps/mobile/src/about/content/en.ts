@@ -23,7 +23,7 @@ const help: AboutDocument = {
       heading: "What MuW is",
       blocks: [
         "MuW draws real routes that trace a shape on the map. You choose the shape, the distance and where to start; you get a route on real streets, with its GPX file.",
-        "The app has three pages side by side, «Feed», «Draw» and «Explore»: swipe left or right, or tap a name at the top. «Profile» opens from the circle at the top.",
+        "The app has four pages side by side, «Feed», «Draw», «Explore» and your profile: swipe left or right, or tap a name at the top. The circle at the top takes you to your profile.",
       ],
     },
     {
