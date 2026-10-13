@@ -178,6 +178,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - **TASK-278** — il proprio profilo come quarta pagina dopo «Explore»;
     in alto tre nomi più il cerchio, che si illumina (scelta
     dell'utente). Solo app: può partire subito.
+    **Fatto il 2026-10-13**, branch `feat/TASK-278-profile-page`; vedi
+    «Completato».
   - **TASK-279** — parole con la penna alzata negli esempi di una città
     in «Explore» (parte A, solo app: l'API tiene già le parole chieste
     dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
@@ -795,6 +797,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-278 (aggiunta ad ADR-0124; chiesto dall'utente il
+  2026-10-11, scelte sue): il proprio profilo è **la quarta pagina**, dopo
+  «Explore», a uno swipe a sinistra. In alto restano tre nomi; il cerchio
+  della foto ha la lineetta quando il profilo è sullo schermo e ci porta
+  con un tocco, da qualunque pagina (non apre più un foglio sopra l'app).
+  La pagina non ha «←» né titolo (scelta dell'utente del 2026-10-13); si
+  rifà a ogni ritorno, così elenchi e richieste sono nuovi. «Settings»,
+  «Favorites», «My activities», «Edit profile», «Guide», il profilo di un
+  altro e un disegno si aprono sopra l'app come prima, e «←» torna alla
+  quarta pagina. Il cuore e «Save» senza account, la lente di «Feed» senza
+  account, i nomi taggati e le notifiche aprono «Profile» sopra l'app come
+  prima: portarli alla quarta pagina è da chiedere all'utente. «Help» dice
+  ora «four pages» nelle cinque lingue (sì dell'utente). Solo app, non
+  nella 1.0: la pubblica il coordinatore. `tasks/TASK-278.md`.
 - **App** — TASK-273 (ADR-0241; dalla prima recensione di un tester del
   2026-10-10, scelta dell'utente «Automatico, dove la tocchi»): lungo una
   forma chiusa la corsa comincia dove il corridore raggiunge la forma (3
