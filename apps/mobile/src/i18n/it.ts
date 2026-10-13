@@ -1156,4 +1156,21 @@ export const IT: Table = {
   "Suggested near {place}": "Consigliati vicino a {place}",
   "Suggested near where you usually start": "Consigliati vicino a dove parti di solito",
   "Suggested near your start": "Consigliati vicino alla tua partenza",
+
+  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
+  // src/explore/ThemedCard.tsx (TASK-280)
+  "CITY TOURS": "GIRI IN CITTÀ",
+  PICTURES: "IMMAGINI",
+  "Running shoe": "Scarpa da corsa",
+  Dinosaur: "Dinosauro",
+  Guitar: "Chitarra",
+  "Eiffel Tower": "Torre Eiffel",
+  Rocket: "Razzo",
+  "Heart with arrow": "Cuore con freccia",
+  Anchor: "Ancora",
+  Plane: "Aereo",
+  "Ice cream": "Gelato",
+  Balloon: "Palloncino",
+  Leaf: "Foglia",
+  "Back to Draw": "Torna a Disegna",
 };

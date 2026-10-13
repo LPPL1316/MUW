@@ -203,6 +203,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     B e, facoltativo, `draw_examples` con le parole (punto 7, dopo Apple).
   - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
     «PICTURES» (sagome pronte). Solo app: può partire subito.
+    **Fatto il 2026-10-13** (ADR-0246), PR in attesa del merge del
+    Coordinatore dopo la #500; vedi «Completato».
   - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
     forme e immagini sulla mappa della città, e cambiarle senza uscire.
     Solo app; il motore parte da dove è stata messa la figura.
@@ -815,6 +817,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-280 (ADR-0246; chiesto dall'utente il 2026-10-11, scelte
+  sue del 2026-10-13): in fondo a «Draw», sotto la distanza, due righe da
+  scorrere. «CITY TOURS»: Famous Places, Best Views, Hidden Gems e Romantic
+  «near your start» (l'app non sa il nome del paese di una posizione GPS),
+  chiesti come «Ask for a route» con «Near me»; si aprono sulla mappa coi
+  luoghi, e «Back to Draw» o «←» tornano a «Draw». «PICTURES»: dodici
+  sagome disegnate da `tools/sample_pictures.py` (bici, scarpa, dinosauro,
+  chitarra, Torre Eiffel, razzo, cuore con freccia, ancora, aereo, gelato,
+  palloncino, foglia), col contorno del motore già nell'app: un tocco le
+  mette in «Image», «Draw route» manda quel contorno. Con «Paddle» nessuna
+  delle due. Solo app, non nella 1.0; la pubblica il Coordinatore. Da
+  provare sull'iPhone. File: `tasks/TASK-280.md`.
 - **App** — TASK-278 (aggiunta ad ADR-0124; chiesto dall'utente il
   2026-10-11, scelte sue): il proprio profilo è **la quarta pagina**, dopo
   «Explore», a uno swipe a sinistra. In alto restano tre nomi; il cerchio
