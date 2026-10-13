@@ -2307,6 +2307,15 @@ corsa riaperta da lì ha i tratti a piedi tratteggiati («My activities»).
 Il GPX per Strava (TASK-187) apre un segmento nuovo a ogni pausa: Strava
 mostra le lettere unite da linee dritte sulla base.
 
+- **«Remember to stretch»** prima di tutto (TASK-285 parte A, ADR-0247;
+  chiesto dall'utente il 2026-10-13): appena la corsa finisce, con o
+  senza percorso, al posto della scheda c'è il promemoria con **«Skip»**
+  e **«Stretch»**, e la voce lo dice una volta nella sua lingua («Remember
+  to stretch.»; niente con «Voice» spento). «Skip» mostra la scheda di
+  sotto com'è; «Stretch» apre gli esercizi (parte B; finché non c'è,
+  chiude come «Skip»). Nessuno dei due è giallo. Non si chiede per uno
+  «Stop» prima della prima posizione né per la corsa riaperta dopo due
+  ore (TASK-272).
 - **Senza rete o senza API** la schermata è la stessa: non chiede niente
   a nessuno.
 - **«Keep running»**, dopo uno «Stop» e con il percorso ancora sullo
