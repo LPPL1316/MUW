@@ -152,4 +152,13 @@ Parte B: da definire all'inizio della parte, dopo i campioni
 
 ## Esito
 
-*(a fine task)*
+**Parte A** (2026-10-13, PR #503, aggiunta ad ADR-0144): dopo le otto
+forme di una città «Explore» scrive CIAO, LOVE, AMORE, RUN, HELLO, MUW dal
+centro, lettere tonde e penna alzata, nella riga «WORDS». Il punto 1
+diceva «5 km come le forme», ma il contratto vuole 3 km a lettera: scelta
+dell'utente del 2026-10-13, ogni parola alla sua distanza minima (9, 12 o
+15 km). Testo «WORDS» · «PAROLE» · «WÖRTER» · «PALABRAS» · «MOTS»
+approvato dall'utente. `npm test` (397 suite, 3288 test), lint, tipi e
+`format:check` verdi. Resta da provare su un telefono una città nuova per
+l'API (la prima volta 30–50 s a parola). Restano il punto 7
+(`draw_examples`, dopo Apple) e la parte B.
