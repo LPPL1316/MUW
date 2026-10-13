@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
+  dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
+  ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
+  fine corsa «Remember to stretch» a schermo e a voce, «Skip» verso «Your
+  run» o l'uscita verso lo stretching. **Parte B**, sessione «Animazione
+  esercizi stretching post-corsa»: cinque esercizi animati uno dopo
+  l'altro, con il conto alla rovescia e il passaggio da sé, «come
+  sull'app bEND»; figura e testi nostri, nessuna dipendenza nuova. Solo
+  app; A entra prima di B; non nella 1.0. Testi e voce nelle cinque
+  lingue con il sì dell'utente. File: `tasks/TASK-285.md`.
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
@@ -194,6 +204,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - **TASK-279** — parole con la penna alzata negli esempi di una città
     in «Explore» (parte A, solo app: l'API tiene già le parole chieste
     dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
+    **Parte A: PR #503** (2026-10-13, aggiunta ad ADR-0144), branch
+    `feat/TASK-279-a-explore-words`. Dopo le otto forme una città scrive
+    CIAO, LOVE, AMORE, RUN, HELLO, MUW (scelte dell'utente) con la penna
+    alzata, ognuna alla distanza minima, 3 km a lettera (scelta
+    dell'utente: a 5 km l'API rifiuta le parole), nella riga «WORDS»
+    (testo approvato nelle cinque lingue). Aspetta il «merge 503» del
+    Coordinatore; non nella 1.0; pubblica il Coordinatore. Resta la parte
+    B e, facoltativo, `draw_examples` con le parole (punto 7, dopo Apple).
   - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
     «PICTURES» (sagome pronte). Solo app: può partire subito.
   - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare

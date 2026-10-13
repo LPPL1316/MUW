@@ -418,6 +418,30 @@ pagine»):
    senza «Drawing…». Berlin non ancora: li disegna al tocco, come una città
    cercata.
 
+   **Da TASK-279** parte A (aggiunta ad ADR-0144; chiesto dall'utente il
+   2026-10-11, «in Explore frasi con l'alzata di penna», per ora parole;
+   parole e distanze scelte da lui il 2026-10-13): dopo le otto forme una
+   città scelta scrive **sei parole** dal suo centro, lettere tonde e la
+   penna alzata fra una lettera e l'altra: **CIAO, LOVE, AMORE, RUN, HELLO,
+   MUW**. Ognuna alla distanza minima che il motore accetta, 3 km a
+   lettera: RUN e MUW 9 km, CIAO e LOVE 12, AMORE e HELLO 15 (a 5 km come
+   le forme l'API le rifiuta). Sotto gli esempi della città, o sotto le
+   sue schede se ha percorsi consigliati, c'è la riga **«WORDS»**
+   («PAROLE», «WÖRTER», «PALABRAS», «MOTS»), etichetta grigia in
+   maiuscolo come «NEARBY TOWNS», con schede larghe come le sue (due
+   intere e l'orlo della terza) da scorrere: la parola e i km («RUN ·
+   9.6 km»), la città, la somiglianza, la mappa sotto il disegno; i tratti
+   a piedi fra le lettere non si disegnano. Le parole si chiedono una
+   alla volta come le forme in più, la più lunga per prima: una diventa
+   scheda quando tocca a lei («Drawing…»), una che non riesce non
+   compare, e senza parole la riga non c'è. Una città che ha già una
+   parola fra i suoi percorsi (CIAO nel catalogo) non la riscrive.
+   Restano sul telefono con gli esempi e sull'API: una seconda apertura
+   le mostra subito, senza chiederle. Un tocco apre la parola sulla mappa
+   come gli esempi, con i tratti a piedi, «Start», «Export GPX» e, sotto
+   il titolo, «9.0 km of letters + 0.6 km walking between them» come in
+   «Draw». Con «Paddle» niente parole.
+
    **Da TASK-145** ogni percorso di «Explore» aperto sulla mappa
    (consigliato, esempio, a tema) ha «Start», giallo, sopra «Export GPX».
    Questi percorsi arrivano senza indicazioni: al tocco l'app le chiede

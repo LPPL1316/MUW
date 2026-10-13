@@ -1,5 +1,6 @@
 import type { RouteResult, Shape } from "@shaperoute/shared-types";
 import fixture from "@shaperoute/shared-types/fixtures/route-result.json";
+import penUpFixture from "@shaperoute/shared-types/fixtures/route-result-pen-up.json";
 import { act, renderHook } from "@testing-library/react-native";
 
 import type { requestRoute, RouteOutcome } from "../api/routes";
@@ -11,11 +12,13 @@ import {
   drawExamples,
   EXAMPLE_DISTANCE_M,
   EXAMPLE_SHAPES,
+  EXAMPLE_WORDS,
   EXAMPLES_PER_MINUTE,
   exampleDetail,
   exampleRequest,
   examplesKey,
   type Example,
+  type ExampleSet,
   firstExamples,
   forgetExamples,
   isMore,
@@ -25,10 +28,13 @@ import {
   moreWaitMs,
   PADDLE_EXAMPLES,
   readKept,
+  RUN_EXAMPLES,
   shownExamples,
+  shownWords,
   type Storage,
   thinned,
   useCityExamples,
+  type WordExample,
 } from "./exampleRoutes";
 import type { RecommendedRouteDetail } from "./recommendedRoutes";
 
@@ -56,6 +62,8 @@ function memory(): Storage & { kept: Record<string, RecommendedRouteDetail[]> } 
 function api() {
   const asked: {
     shape: Shape;
+    /** A word's (TASK-279), or null for a shape. */
+    word: string | null;
     penUp: boolean;
     signal?: AbortSignal;
     answer: (o: RouteOutcome) => void;
@@ -63,12 +71,13 @@ function api() {
   const request = jest.fn(
     (
       _url: string,
-      body: { shape?: Shape | null; pen_up?: boolean },
+      body: { shape?: Shape | null; word?: string | null; pen_up?: boolean },
       options?: { signal?: AbortSignal },
     ) =>
       new Promise<RouteOutcome>((resolve) => {
         asked.push({
           shape: body.shape as Shape,
+          word: body.word ?? null,
           penUp: body.pen_up === true,
           signal: options?.signal,
           answer: resolve,
@@ -96,6 +105,33 @@ function others(read: () => Example[] | null): string {
 }
 
 const EVERY_SHAPE = EXAMPLE_SHAPES.length + MORE_SHAPES.length;
+/** The shapes and then the words (TASK-279): all a city asks. */
+const EVERY_EXAMPLE = EVERY_SHAPE + EXAMPLE_WORDS.length;
+/** A word as the API writes it, the pen up between its letters. */
+const written = penUpFixture as unknown as RouteResult;
+
+/** Answers requests `from` to `to`, one after the other: a shape with
+ * `result`, a word with `written`. */
+async function answerAll(
+  asked: ReturnType<typeof api>["asked"],
+  from: number,
+  to: number,
+): Promise<void> {
+  for (let i = from; i < to; i += 1) {
+    const { word } = asked[i];
+    await act(async () =>
+      asked[i].answer({ kind: "route", result: word === null ? result : written }),
+    );
+  }
+}
+
+/** Where the words are (TASK-279). */
+function wordsNow(read: () => WordExample[] | null): string {
+  return (read() ?? []).map((e) => `${e.word}:${e.status}`).join(" ");
+}
+
+/** The cities' shapes alone, as before the words: for what is the shapes'. */
+const SHAPES_ONLY: ExampleSet = { ...RUN_EXAMPLES, words: [] };
 const notDrawable: RouteOutcome = {
   kind: "api_error",
   code: "shape_not_drawable",
@@ -194,9 +230,8 @@ test("the next time, after closing the app: from the file, nothing asked", async
   const first = api();
   const storage = memory();
   drawExamples("http://api", vercelli, { request: first.request, storage });
-  for (let i = 0; i < EVERY_SHAPE; i += 1) {
-    await act(async () => first.asked[i].answer({ kind: "route", result }));
-  }
+  await answerAll(first.asked, 0, EVERY_EXAMPLE);
+  expect(first.asked).toHaveLength(EVERY_EXAMPLE);
   forgetExamples(); // the app closed
 
   const again = api();
@@ -206,9 +241,18 @@ test("the next time, after closing the app: from the file, nothing asked", async
   expect(hook.current.examples?.map((e) => e.status)).toEqual(
     Array.from({ length: EVERY_SHAPE }, () => "ready"),
   );
+  // The words too (TASK-279), with the walks between their letters.
+  expect(wordsNow(() => hook.current.words)).toBe(
+    EXAMPLE_WORDS.map((word) => `${word}:ready`).join(" "),
+  );
   expect(again.request).not.toHaveBeenCalled();
   const star = hook.current.examples?.[2];
   expect(star?.status === "ready" && exampleDetail(star.route.id)).toBeTruthy();
+  const [ciao] = hook.current.words ?? [];
+  expect(ciao.status === "ready" && exampleDetail(ciao.route.id)?.walks).toEqual(
+    written.walks,
+  );
+  expect(ciao.status === "ready" && ciao.route.gaps).toEqual([3, 4, 5]);
 });
 
 test("no map for the zone: every shape says so, and Try again asks again", async () => {
@@ -405,10 +449,8 @@ test("another shape that does not come out is left out, and not asked again", as
     ...EXAMPLE_SHAPES,
     MORE_SHAPES[1],
   ]);
-  for (let i = 4; i < EVERY_SHAPE; i += 1) {
-    await act(async () => asked[i].answer({ kind: "route", result }));
-  }
-  expect(asked).toHaveLength(EVERY_SHAPE);
+  await answerAll(asked, 4, EVERY_EXAMPLE);
+  expect(asked).toHaveLength(EVERY_EXAMPLE);
 
   // Choosing the city again, or Try again, does not ask for it.
   await act(async () => hook.current.retry());
@@ -416,7 +458,7 @@ test("another shape that does not come out is left out, and not asked again", as
     drawExamples("http://api", levico, { request, storage });
     drawExamples("http://api", vercelli, { request, storage });
   });
-  expect(asked.map((a) => a.shape).slice(EVERY_SHAPE)).toEqual(["circle"]);
+  expect(asked.map((a) => a.shape).slice(EVERY_EXAMPLE)).toEqual(["circle"]);
   expect(asked.filter((a) => a.shape === MORE_SHAPES[0])).toHaveLength(1);
 });
 
@@ -451,6 +493,11 @@ test("trouble that is not a shape's stops the other shapes, quietly", async () =
   expect(heart()).toEqual(said);
   expect(shownExamples(read() ?? [])).toHaveLength(EXAMPLE_SHAPES.length);
   expect(others(read)).toBe(MORE_SHAPES.map((shape) => `${shape}:failed`).join(" "));
+  // So the words (TASK-279): no card, none asked.
+  expect(shownWords(hook.current.words ?? [])).toEqual([]);
+  expect(wordsNow(() => hook.current.words)).toBe(
+    EXAMPLE_WORDS.map((word) => `${word}:failed`).join(" "),
+  );
   expect(asked).toHaveLength(4);
 
   // The next time the city is chosen they are asked again, the heart first.
@@ -491,10 +538,12 @@ test("cities the API has drawn already: the other shapes keep to the minute's al
     }));
     const answerNext = () =>
       act(async () => asked.at(-1)?.answer({ kind: "route", result }));
+    // The shapes alone: the words keep to the same allowance (below).
+    const set = SHAPES_ONLY;
     // Two cities, every shape answered at once: all sixteen are asked.
     expect(2 * EVERY_SHAPE).toBeLessThan(EXAMPLES_PER_MINUTE);
     for (const city of cities.slice(0, 2)) {
-      drawExamples("http://api", city, { request, storage });
+      drawExamples("http://api", city, { request, storage, set });
       for (let i = 0; i < EVERY_SHAPE; i += 1) {
         await answerNext();
       }
@@ -504,7 +553,7 @@ test("cities the API has drawn already: the other shapes keep to the minute's al
 
     // The third city has its first three at once, as ever; the others wait:
     // the API takes 30 POSTs a minute, and they are not all for examples.
-    drawExamples("http://api", cities[2], { request, storage });
+    drawExamples("http://api", cities[2], { request, storage, set });
     for (let i = 0; i < EXAMPLE_SHAPES.length; i += 1) {
       await answerNext();
     }
@@ -535,19 +584,20 @@ test("another city chosen while a shape waits for its allowance: it stops waitin
     }));
     const answerNext = () =>
       act(async () => asked.at(-1)?.answer({ kind: "route", result }));
+    const set = SHAPES_ONLY;
     for (const city of cities.slice(0, 2)) {
-      drawExamples("http://api", city, { request, storage });
+      drawExamples("http://api", city, { request, storage, set });
       for (let i = 0; i < EVERY_SHAPE; i += 1) {
         await answerNext();
       }
     }
-    drawExamples("http://api", cities[2], { request, storage });
+    drawExamples("http://api", cities[2], { request, storage, set });
     for (let i = 0; i < EXAMPLE_SHAPES.length; i += 1) {
       await answerNext();
     }
     const before = asked.length;
     // The fourth city's first three are asked at once all the same.
-    drawExamples("http://api", cities[3], { request, storage });
+    drawExamples("http://api", cities[3], { request, storage, set });
     expect(asked).toHaveLength(before + 1);
     expect(asked.at(-1)?.shape).toBe(DRAW_ORDER[0]);
     // And the third city's other shapes are not asked behind its back.
@@ -704,9 +754,13 @@ describe("on the water (TASK-191)", () => {
     for (let i = 0; i < eight.length; i += 1) {
       await act(async () => asked[i].answer({ kind: "route", result }));
     }
-    expect(asked.map((a) => a.shape)).toEqual(DRAW_ORDER);
-    expect(asked.some((a) => a.penUp)).toBe(false);
-    expect(request.mock.calls.every(([, body]) => !("pen_up" in body))).toBe(true);
+    // After them the words, with the pen up (TASK-279).
+    const shapes = asked.filter((a) => a.word === null);
+    expect(shapes.map((a) => a.shape)).toEqual(DRAW_ORDER);
+    expect(shapes.some((a) => a.penUp)).toBe(false);
+    const shapeBodies = request.mock.calls.filter(([, body]) => "shape" in body);
+    expect(shapeBodies).toHaveLength(eight.length);
+    expect(shapeBodies.every(([, body]) => !("pen_up" in body))).toBe(true);
   });
 
   test("a run's examples of the same point stay apart, and say no activity", async () => {
