@@ -215,6 +215,9 @@ export const FR: Table = {
   "{mi} mi away": "à {mi} mi",
   "{town}, {mi} mi away": "{town}, à {mi} mi",
 
+  // src/explore/CityWords.tsx
+  WORDS: "MOTS",
+
   // src/intro/AppBoundary.tsx
   "Something went wrong.": "Quelque chose n'a pas marché.",
 

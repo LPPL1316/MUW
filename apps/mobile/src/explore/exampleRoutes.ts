@@ -1,9 +1,10 @@
-import type {
-  Activity,
-  LatLon,
-  RouteRequest,
-  RouteResult,
-  Shape,
+import {
+  type Activity,
+  type LatLon,
+  LETTER_DISTANCE_M,
+  type RouteRequest,
+  type RouteResult,
+  type Shape,
 } from "@shaperoute/shared-types";
 import { File, Paths } from "expo-file-system";
 import { useEffect, useSyncExternalStore } from "react";
@@ -60,6 +61,40 @@ export const DRAW_ORDER: readonly Shape[] = ["circle", "heart", "star", ...MORE_
 export const EXAMPLE_DISTANCE_M = 5000;
 
 /**
+ * Words written from a city's centre after its shapes (TASK-279, the
+ * user's choice of 2026-10-13): round letters, the pen up between them,
+ * one at a time as the other shapes, and as quiet. Their cards show in
+ * this order.
+ */
+export const EXAMPLE_WORDS: readonly string[] = [
+  "CIAO",
+  "LOVE",
+  "AMORE",
+  "RUN",
+  "HELLO",
+  "MUW",
+];
+
+/**
+ * The distance a word is asked at: the least its letters may have,
+ * LETTER_DISTANCE_M each, as «Use 12 km» in «Draw» (the user's choice). A
+ * word of 5 km the API refuses.
+ */
+export function wordDistanceM(word: string): number {
+  return word.length * LETTER_DISTANCE_M;
+}
+
+/**
+ * The order the words are asked in: the longest first, as the circle among
+ * the shapes. Every letter has the same distance, so a longer word reaches
+ * farther from the centre, and the zone the API downloads for it holds the
+ * shorter ones'.
+ */
+export function wordOrder(words: readonly string[]): string[] {
+  return [...words].sort((a, b) => b.length - a.length);
+}
+
+/**
  * What a place's examples are drawn for (TASK-191): a run's from a city's
  * centre, or paddling's from a point on the shore of a lake or the sea,
  * 2 km; the first shapes and then the others, for both (TASK-227, the
@@ -71,6 +106,8 @@ export type ExampleSet = {
   distance_m: number;
   /** The shapes after the first ones. */
   more: readonly Shape[];
+  /** The words after the shapes (TASK-279): a run's only. */
+  words?: readonly string[];
   prefix: string;
   /**
    * Examples that come with the app, drawn before it was built, by key
@@ -84,6 +121,7 @@ export const RUN_EXAMPLES: ExampleSet = {
   activity: "running",
   distance_m: EXAMPLE_DISTANCE_M,
   more: MORE_SHAPES,
+  words: EXAMPLE_WORDS,
   prefix: "",
 };
 
@@ -116,6 +154,22 @@ export function requestOf(city: Place, shape: Shape, set: ExampleSet): RouteRequ
   return {
     ...shapeOf(shape, set),
     distance_m: set.distance_m,
+    start: city.point,
+    activity: set.activity,
+  };
+}
+
+/** What a set asks the API for `word` from `city` (TASK-279): the pen up. */
+export function wordRequestOf(
+  city: Place,
+  word: string,
+  set: ExampleSet,
+): RouteRequest {
+  return {
+    word,
+    style: "round",
+    pen_up: true,
+    distance_m: wordDistanceM(word),
     start: city.point,
     activity: set.activity,
   };
@@ -170,11 +224,17 @@ export type ExampleDetail = RecommendedRouteDetail & {
   centre?: LatLon;
 };
 
-export type Example =
-  | { shape: Shape; status: "waiting" }
-  | { shape: Shape; status: "drawing" }
-  | { shape: Shape; status: "ready"; route: RecommendedRoute }
-  | { shape: Shape; status: "failed"; message: string };
+/** Where an example is: to ask, being drawn, drawn, or not. */
+type Progress =
+  | { status: "waiting" }
+  | { status: "drawing" }
+  | { status: "ready"; route: RecommendedRoute }
+  | { status: "failed"; message: string };
+
+export type Example = { shape: Shape } & Progress;
+
+/** A word of a city (TASK-279): as one of its other shapes. */
+export type WordExample = { word: string } & Progress;
 
 /** One of the shapes drawn after the first ones. */
 export function isMore(shape: Shape): boolean {
@@ -203,7 +263,15 @@ export function addedExamples(list: Example[], has: readonly string[]): Example[
   return list.filter((e) => !has.includes(e.shape) && arrived(e));
 }
 
-function arrived(example: Example): boolean {
+/**
+ * The cards of a city's words (TASK-279), as its other shapes: one while it
+ * is drawn and once it is ready; one that does not come out is none.
+ */
+export function shownWords(list: WordExample[]): WordExample[] {
+  return list.filter(arrived);
+}
+
+function arrived(example: Progress): boolean {
   return example.status === "drawing" || example.status === "ready";
 }
 
@@ -211,6 +279,13 @@ function arrived(example: Example): boolean {
 export function shapesOf(routes: readonly { shape: string | null }[]): string[] {
   return Array.from(
     new Set(routes.flatMap((r) => (r.shape === null ? [] : [r.shape]))),
+  );
+}
+
+/** The words among a city's routes, in capitals (TASK-279). */
+export function wordsOf(routes: readonly { word: string | null }[]): string[] {
+  return Array.from(
+    new Set(routes.flatMap((r) => (r.word === null ? [] : [r.word.toUpperCase()]))),
   );
 }
 
@@ -233,6 +308,16 @@ export function thinned(points: LatLon[], most: number = PREVIEW_POINTS): LatLon
   return Array.from({ length: most }, (_, i) => points[Math.round(i * step)]);
 }
 
+/** What an example draws: a shape, or a word (TASK-279). */
+type Drawn = {
+  /** In its id, before the place's key. */
+  name: string;
+  shape: Shape | null;
+  word: string | null;
+  style: "round" | null;
+  distance_m: number;
+};
+
 /** A planned route as one of the list, and whole: it opens like one. An
  * example that is not a run says its activity (TASK-191). */
 export function asRecommended(
@@ -241,15 +326,48 @@ export function asRecommended(
   result: RouteResult,
   set: ExampleSet = RUN_EXAMPLES,
 ): { route: RecommendedRoute; detail: ExampleDetail } {
-  const id = `${ID_PREFIX}${shape}:${examplesKey(city.point, set)}`;
+  const drawn: Drawn = {
+    name: shape,
+    shape,
+    word: null,
+    style: null,
+    distance_m: set.distance_m,
+  };
+  return asExample(city, drawn, result, set);
+}
+
+/** The same for a word with the pen up (TASK-279), at its own distance. */
+export function asWord(
+  city: Place,
+  word: string,
+  result: RouteResult,
+  set: ExampleSet = RUN_EXAMPLES,
+): { route: RecommendedRoute; detail: ExampleDetail } {
+  const drawn: Drawn = {
+    name: `word:${word}`,
+    shape: null,
+    word,
+    style: "round",
+    distance_m: wordDistanceM(word),
+  };
+  return asExample(city, drawn, result, set);
+}
+
+function asExample(
+  city: Place,
+  { name: drawnName, shape, word, style, distance_m }: Drawn,
+  result: RouteResult,
+  set: ExampleSet,
+): { route: RecommendedRoute; detail: ExampleDetail } {
+  const id = `${ID_PREFIX}${drawnName}:${examplesKey(city.point, set)}`;
   const name = cityShort(city.label);
   const whole = (of: RouteResult, routeId: string): RecommendedRouteDetail => ({
     id: routeId,
     city: name,
     shape,
-    word: null,
-    style: null,
-    distance_m: set.distance_m,
+    word,
+    style,
+    distance_m,
     route_m: of.distance_m,
     similarity: of.similarity,
     points: of.points,
@@ -364,12 +482,15 @@ function cannotBeDrawn(outcome: RouteOutcome): boolean {
 // The examples of every city asked in this run of the app, and their routes
 // whole, to open. Outside the screen: going to the map stops nothing.
 const examples = new Map<string, Example[]>();
+// Their words, after the shapes (TASK-279).
+const words = new Map<string, WordExample[]>();
 const details = new Map<string, ExampleDetail>();
 // How each was asked, to ask for it again with its shape moved (TASK-244).
 const asked = new Map<string, RouteRequest>();
 const listeners = new Set<() => void>();
-// The other shapes the API could not draw in a city, in this run of the
-// app: asked again they would fail the same, at the cost of a whole search.
+// The other shapes and the words the API could not draw in a city, in this
+// run of the app: asked again they would fail the same, at the cost of a
+// whole search.
 const leftOut = new Set<string>();
 // When each example of the last minute was asked, the oldest first.
 const sent: number[] = [];
@@ -401,6 +522,36 @@ let running: { key: string; controller: AbortController } | null = null;
 function show(key: string, list: Example[]): void {
   examples.set(key, list);
   listeners.forEach((listener) => listener());
+}
+
+function showWords(key: string, list: WordExample[]): void {
+  words.set(key, list);
+  listeners.forEach((listener) => listener());
+}
+
+/**
+ * Every example of `key` not ready yet, of the shapes `which` says and of
+ * the words, failed with `message`: they are asked again the next time.
+ */
+function failRest(
+  key: string,
+  message: string,
+  which: (shape: Shape) => boolean,
+): void {
+  show(
+    key,
+    (examples.get(key) ?? []).map((e) =>
+      which(e.shape) && e.status !== "ready"
+        ? { shape: e.shape, status: "failed", message }
+        : e,
+    ),
+  );
+  showWords(
+    key,
+    (words.get(key) ?? []).map((e) =>
+      e.status !== "ready" ? { word: e.word, status: "failed", message } : e,
+    ),
+  );
 }
 
 function subscribe(listener: () => void): () => void {
@@ -509,9 +660,10 @@ function isPoint(value: unknown): value is LatLon {
   );
 }
 
-/** `city`'s routes first in the file, the oldest cities out. */
-function keep(storage: Storage, key: string, list: Example[]): void {
-  const ready = list.flatMap((e) => {
+/** `city`'s routes first in the file, its words too, the oldest cities out. */
+function keep(storage: Storage, key: string): void {
+  const all = [...(examples.get(key) ?? []), ...(words.get(key) ?? [])];
+  const ready = all.flatMap((e) => {
     const detail = e.status === "ready" ? details.get(e.route.id) : undefined;
     return detail === undefined ? [] : [detail];
   });
@@ -526,24 +678,24 @@ function keep(storage: Storage, key: string, list: Example[]): void {
 }
 
 /**
- * The examples the file had for this city, as ready cards. One kept before
- * the alternatives (TASK-151) is drawn again, to have them.
+ * What was kept for this place: what came with the app first, then what the
+ * phone drew ahead of the page (TASK-246); the phone's file is for the rest.
  */
-function fromFile(
-  storage: Storage,
-  city: Place,
-  key: string,
-  set: ExampleSet,
-): Example[] {
-  // What came with the app first, then what the phone drew ahead of the
-  // page (TASK-246): the phone's file is for the rest.
-  const saved = [
+function savedOf(storage: Storage, key: string, set: ExampleSet): ExampleDetail[] {
+  return [
     ...(set.bundled?.[key] ?? []),
     ...(set.activity === "paddling"
       ? (readKept({ [key]: readAheadFile().examples[key] })[key] ?? [])
       : []),
     ...(storage.load()[key] ?? []),
   ];
+}
+
+/**
+ * The examples the file had for this city, as ready cards. One kept before
+ * the alternatives (TASK-151) is drawn again, to have them.
+ */
+function fromFile(saved: ExampleDetail[], city: Place, set: ExampleSet): Example[] {
   return setShapes(set).map((shape): Example => {
     const detail = saved.find((d) => d.shape === shape);
     if (
@@ -556,24 +708,73 @@ function fromFile(
     }
     details.set(detail.id, detail);
     asked.set(detail.id, requestOf(city, shape, set));
-    const { id, city: name, word, style, distance_m, route_m, similarity } = detail;
-    const route: RecommendedRoute = {
-      id,
-      city: name,
-      shape,
-      word,
-      style,
-      distance_m,
-      route_m,
-      similarity,
-      start: detail.points[0],
-      away_m: metresBetween(city.point, detail.points[0]),
-      ...previewOf(detail.points, walksOf(detail.points, detail.walks)),
-      ...turnOf(detail),
-    };
-    return { shape, status: "ready", route };
+    return { shape, status: "ready", route: cardOf(city, detail) };
   });
 }
+
+/**
+ * The words the file had for this city (TASK-279), as ready cards. One kept
+ * at another distance, or without its walks, is drawn again.
+ */
+function wordsFromFile(
+  saved: ExampleDetail[],
+  city: Place,
+  set: ExampleSet,
+): WordExample[] {
+  return (set.words ?? []).map((word): WordExample => {
+    const detail = saved.find((d) => d.shape === null && d.word === word);
+    if (
+      detail === undefined ||
+      detail.distance_m !== wordDistanceM(word) ||
+      detail.walks === undefined
+    ) {
+      return { word, status: "waiting" };
+    }
+    details.set(detail.id, detail);
+    asked.set(detail.id, wordRequestOf(city, word, set));
+    return { word, status: "ready", route: cardOf(city, detail) };
+  });
+}
+
+/** A kept example as its card shows it. */
+function cardOf(city: Place, detail: ExampleDetail): RecommendedRoute {
+  const {
+    id,
+    city: name,
+    shape,
+    word,
+    style,
+    distance_m,
+    route_m,
+    similarity,
+  } = detail;
+  return {
+    id,
+    city: name,
+    shape,
+    word,
+    style,
+    distance_m,
+    route_m,
+    similarity,
+    start: detail.points[0],
+    away_m: metresBetween(city.point, detail.points[0]),
+    ...previewOf(detail.points, walksOf(detail.points, detail.walks)),
+    ...turnOf(detail),
+  };
+}
+
+/** One example to ask for: a shape of the city, or one of its words. */
+type Ask = {
+  /** As `leftOut` knows it, after the place's key. */
+  name: string;
+  /** Nobody waits for it: it fails without a card or a word. */
+  quiet: boolean;
+  request: RouteRequest;
+  status: () => Progress["status"] | undefined;
+  put: (progress: Progress) => void;
+  made: (result: RouteResult) => { route: RecommendedRoute; detail: ExampleDetail };
+};
 
 type Options = {
   request?: typeof requestRoute;
@@ -583,7 +784,8 @@ type Options = {
    * (TASK-176): those are not drawn, and the others are drawn as the
    * shapes after the first ones, a card from their turn on and no word
    * when they fail. Without it the city has no routes: the first shapes
-   * are its examples, announced at once.
+   * are its examples, announced at once. Its words too (wordsOf): those are
+   * not written again (TASK-279).
    */
   has?: readonly string[];
   /** What the examples are for: a run's unless said (TASK-191). */
@@ -612,7 +814,10 @@ export function drawExamples(
   }
   // Nobody waits for these: they fail without a card or a word.
   const quiet = (shape: Shape) => has !== undefined || isMore(shape);
-  const before = examples.get(key) ?? fromFile(storage, city, key, set);
+  // The file is read once, and only when the memory has nothing.
+  let saved: ExampleDetail[] | undefined;
+  const kept = () => (saved ??= savedOf(storage, key, set));
+  const before = examples.get(key) ?? fromFile(kept(), city, set);
   const list = setShapes(set).flatMap((shape): Example[] => {
     const was = before.find((e) => e.shape === shape);
     if (was?.status === "ready") {
@@ -627,35 +832,84 @@ export function drawExamples(
         : { shape, status: "waiting" },
     ];
   });
+  // The words after the shapes (TASK-279), as the other shapes; those the
+  // city has among its routes are not written again.
+  const wordsBefore = words.get(key) ?? wordsFromFile(kept(), city, set);
+  const wordList = (set.words ?? []).flatMap((word): WordExample[] => {
+    const was = wordsBefore.find((e) => e.word === word);
+    if (was?.status === "ready") {
+      return [was];
+    }
+    if (has?.includes(word)) {
+      return [];
+    }
+    return [
+      was !== undefined && leftOut.has(`${key} ${word}`)
+        ? was
+        : { word, status: "waiting" },
+    ];
+  });
   show(key, list);
-  if (list.every((e) => e.status !== "waiting")) {
+  showWords(key, wordList);
+  if ([...list, ...wordList].every((e) => e.status !== "waiting")) {
     return;
   }
   if (running !== null) {
     const stopped = running.key;
     running.controller.abort();
-    const left = examples.get(stopped) ?? [];
     show(
       stopped,
-      left.map((e) =>
+      (examples.get(stopped) ?? []).map((e) =>
         e.status === "drawing" ? { shape: e.shape, status: "waiting" } : e,
       ),
     );
+    showWords(
+      stopped,
+      (words.get(stopped) ?? []).map((e) =>
+        e.status === "drawing" ? { word: e.word, status: "waiting" } : e,
+      ),
+    );
   }
+  const shapeAsk = (shape: Shape): Ask => ({
+    name: shape,
+    quiet: quiet(shape),
+    request: requestOf(city, shape, set),
+    status: () => examples.get(key)?.find((e) => e.shape === shape)?.status,
+    put: (progress) =>
+      show(
+        key,
+        (examples.get(key) ?? []).map((e) =>
+          e.shape === shape ? { shape, ...progress } : e,
+        ),
+      ),
+    made: (result) => asRecommended(city, shape, result, set),
+  });
+  const wordAsk = (word: string): Ask => ({
+    name: word,
+    quiet: true,
+    request: wordRequestOf(city, word, set),
+    status: () => words.get(key)?.find((e) => e.word === word)?.status,
+    put: (progress) =>
+      showWords(
+        key,
+        (words.get(key) ?? []).map((e) =>
+          e.word === word ? { word, ...progress } : e,
+        ),
+      ),
+    made: (result) => asWord(city, word, result, set),
+  });
+  const asks = [
+    ...drawOrderOf(set).map(shapeAsk),
+    ...wordOrder(set.words ?? []).map(wordAsk),
+  ];
   const controller = new AbortController();
   running = { key, controller };
   void (async () => {
-    for (const shape of drawOrderOf(set)) {
-      const now = examples.get(key) ?? [];
-      if (now.find((e) => e.shape === shape)?.status !== "waiting") {
+    for (const ask of asks) {
+      if (ask.status() !== "waiting") {
         continue;
       }
-      const put = (example: Example) =>
-        show(
-          key,
-          (examples.get(key) ?? []).map((e) => (e.shape === shape ? example : e)),
-        );
-      if (quiet(shape)) {
+      if (ask.quiet) {
         // No card yet while it waits for the minute's allowance.
         for (
           let wait = moreWaitMs(Date.now());
@@ -669,51 +923,39 @@ export function drawExamples(
         }
       }
       sent.push(Date.now());
-      put({ shape, status: "drawing" });
-      const outcome = await request(apiUrl, requestOf(city, shape, set), {
+      ask.put({ status: "drawing" });
+      const outcome = await request(apiUrl, ask.request, {
         signal: controller.signal,
       });
       if (controller.signal.aborted || outcome.kind === "cancelled") {
         return;
       }
       if (outcome.kind === "route") {
-        const { route, detail } = asRecommended(city, shape, outcome.result, set);
+        const { route, detail } = ask.made(outcome.result);
         details.set(detail.id, detail);
-        asked.set(detail.id, requestOf(city, shape, set));
-        put({ shape, status: "ready", route });
-        keep(storage, key, examples.get(key) ?? []);
+        asked.set(detail.id, ask.request);
+        ask.put({ status: "ready", route });
+        keep(storage, key);
         continue;
       }
       const message = failureText(outcome, set.activity);
-      if (quiet(shape)) {
+      if (ask.quiet) {
         if (cannotBeDrawn(outcome)) {
-          leftOut.add(`${key} ${shape}`);
-          put({ shape, status: "failed", message });
+          leftOut.add(`${key} ${ask.name}`);
+          ask.put({ status: "failed", message });
           continue;
         }
         // Trouble that is not this shape's (no network, too many requests):
-        // the other shapes are for the next time, and the first stay as
-        // they are.
-        show(
-          key,
-          (examples.get(key) ?? []).map((e) =>
-            quiet(e.shape) && e.status !== "ready"
-              ? { shape: e.shape, status: "failed", message }
-              : e,
-          ),
-        );
+        // the other shapes and the words are for the next time, and the
+        // first stay as they are.
+        failRest(key, message, quiet);
         break;
       }
       if (stopsAll(outcome)) {
-        show(
-          key,
-          (examples.get(key) ?? []).map((e) =>
-            e.status === "ready" ? e : { shape: e.shape, status: "failed", message },
-          ),
-        );
+        failRest(key, message, () => true);
         break;
       }
-      put({ shape, status: "failed", message });
+      ask.put({ status: "failed", message });
     }
     if (running?.key === key) {
       running = null;
@@ -726,6 +968,7 @@ export function forgetExamples(): void {
   running?.controller.abort();
   running = null;
   examples.clear();
+  words.clear();
   details.clear();
   asked.clear();
   leftOut.clear();
@@ -735,17 +978,21 @@ export function forgetExamples(): void {
 /**
  * The shapes drawn for `city` while it is chosen: its examples when it has
  * no recommended routes, or the shapes it does not `has` yet; null without
- * a city. They start at once, and go on when the screen closes.
+ * a city. They start at once, and go on when the screen closes. Then its
+ * words, a run's (TASK-279).
  */
 export function useCityExamples(
   apiUrl: string | null,
   city: Place | null,
   options: Options = {},
-): { examples: Example[] | null; retry: () => void } {
+): { examples: Example[] | null; words: WordExample[] | null; retry: () => void } {
   const { request, storage, has, set } = options;
   const key = city === null ? null : examplesKey(city.point, set);
   const list = useSyncExternalStore(subscribe, () =>
     key === null ? null : (examples.get(key) ?? null),
+  );
+  const wordList = useSyncExternalStore(subscribe, () =>
+    key === null ? null : (words.get(key) ?? null),
   );
   // The same shapes in another array are the same city's routes.
   const hasKey = has?.join(",");
@@ -764,6 +1011,7 @@ export function useCityExamples(
   }, [apiUrl, key, request, storage, hasKey]);
   return {
     examples: list,
+    words: wordList,
     retry: () => {
       if (apiUrl !== null && city !== null) {
         drawExamples(apiUrl, city, { request, storage, has, set });
