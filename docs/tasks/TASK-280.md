@@ -1,6 +1,6 @@
 # TASK-280 — Sotto «Draw»: i tour della città e le immagini pronte
 
-**Stato**: Todo
+**Stato**: In lavorazione
 **Fase**: 4 · **Branch**: `feat/TASK-280-draw-tours-pictures`
 
 ## Obiettivo
@@ -28,6 +28,19 @@ Le due cose esistono già altrove, e qui si riusano:
   (`POST /image-outlines`, `POST /image-route-jobs`). API già sul server.
 
 Solo app. Può partire mentre Apple prova la 1.0; va su `preview`.
+
+**Scelte dell'utente del 2026-10-13** (chieste in chat con le opzioni):
+- sagome: «Dodici, razzo»: bici, scarpa da corsa, dinosauro, chitarra,
+  Torre Eiffel, razzo, cuore con freccia, ancora, aereo, gelato,
+  palloncino, foglia (il razzo al posto del Colosseo). Scartati: le dodici
+  col Colosseo; otto;
+- giri: «Quattro»: Famous Places, Best Views, Hidden Gems, Romantic.
+  Scartati: cinque con Food; tutte e tredici;
+- il nome della città: con la partenza dal GPS l'app non lo sa e nessuna
+  API lo dice. Scelta «Sempre, near your start»: etichetta «CITY TOURS»,
+  sotto ogni categoria «near your start» (o «near Trento» da un luogo
+  cercato). Scartati: la riga solo con un luogo cercato; un indirizzo
+  nuovo dell'API (server, fuori da questo task).
 
 ## Contesto da leggere
 
@@ -82,18 +95,24 @@ Solo app. Può partire mentre Apple prova la 1.0; va su `preview`.
 
 ## File toccati
 
-Previsti; la sessione li conferma all'inizio. I componenti nuovi stanno in
-file nuovi, così `ChooseScreen.tsx` cambia il meno possibile.
+Confermati dalla sessione (2026-10-13). `ChooseScreen.tsx` non cambia: le
+due righe sono figlie della pagina, messe da `App.tsx`. In più, con l'ok del
+Coordinatore, `ThemedCard.tsx` per «Back to Draw».
 
 ```
-apps/mobile/src/screens/ChooseScreen.tsx
 apps/mobile/App.tsx
-apps/mobile/src/route/DrawIdeas.tsx          (nuovo, nome indicativo)
+apps/mobile/src/explore/ThemedCard.tsx       (solo «Back to Draw»)
+apps/mobile/src/route/DrawIdeas.tsx          (nuovo)
+apps/mobile/src/route/DrawIdeas.test.tsx     (nuovo)
 apps/mobile/src/route/samplePictures.ts      (nuovo)
+apps/mobile/src/route/samplePictures.json    (nuovo, scritto dallo strumento)
+apps/mobile/src/route/samplePictures.test.ts (nuovo)
 apps/mobile/src/route/useImageOutline.ts
-apps/mobile/assets/pictures/*.png            (nuovi)
-apps/mobile/src/i18n/*                       (solo le stringhe nuove)
-tools/sample_pictures.py                     (nuovo, se il contorno sta nell'app)
+apps/mobile/__tests__/AppDrawIdeas.test.tsx  (nuovo)
+apps/mobile/assets/pictures/*.png            (nuovi, dodici)
+apps/mobile/src/i18n/{it,de,es,fr}.ts        (solo le stringhe nuove)
+tools/sample_pictures.py                     (nuovo)
+tools/test_sample_pictures.py                (nuovo)
 docs/UI.md
 docs/DECISIONS.md
 docs/STATUS.md
