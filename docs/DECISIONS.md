@@ -4634,6 +4634,51 @@ stato provato niente. Il nome «Sgrava» resta in
 cima a «Draw» e «Best near you» in cima a «Explore»: toglierli o no è
 parte del ridisegno delle due pagine, non ancora scelto.
 
+**Aggiunta del 2026-10-13 (TASK-278): il proprio profilo come quarta
+pagina.** **Deciso dall'utente il 2026-10-11** il cosa («Dopo explore metti
+il mio profilo personale facendo uno swipe a sinistra»; in alto tre nomi
+più il cerchio, che si illumina; scartati quattro nomi in alto, che accanto
+allo sport non ci stanno su un iPhone da 390 pt né in tedesco); dall'utente
+il 2026-10-13 la pagina senza titolo e il testo nuovo di «Help»; il come
+deciso dall'agente su delega dell'utente.
+
+- **Quattro pagine**: «Feed», «Draw», «Explore» e, a destra, il profilo
+  (`profile` in `PAGES` di `App.tsx`). La quarta pagina non ha un nome in
+  alto (`unnamed` in `Pager.tsx`): ci porta il cerchio di «Profile», che ha
+  la lineetta della pagina accesa quando è lì e per VoiceOver è
+  «selezionato» (`ProfileButton` con `selected` e `onPress`). La lineetta
+  sta sotto il cerchio, nello spazio in fondo all'intestazione, che resta
+  alta com'era. Si monta alla prima visita (`lazy`), come «Explore».
+- **La pagina è la prima di «Profile»** (`OwnProfile` in
+  `ProfileLayer.tsx`, che mostra `ProfileScreen` senza `onBack`: niente «←»
+  né titolo, come le altre pagine). Si rifà ogni volta che torna sullo
+  schermo (una `key` che cresce): gli elenchi di chi segue e i disegni si
+  rileggono come quando «Profile» si apriva sopra l'app, e il numero rosso
+  delle richieste apre ancora «Requests».
+- **Le pagine che apre restano sopra l'app** («Settings», «Favorites», «My
+  activities», «Edit profile», «Guide», il profilo di un altro), con lo
+  strato e i contesti dove erano: `ProfileLayer` ricorda da dove si è
+  partiti (`home`, la quarta pagina o lo strato) e «←» verso la prima
+  pagina chiude lo strato quando si era partiti dalla quarta. Un disegno
+  aperto dalla pagina torna alla pagina sotto la mappa, come da «Feed».
+  «Guide» aperto da lì torna lì, non a «Settings».
+- **Gli altri ingressi restano come prima**: il cuore e «Save» senza
+  account, la lente di «Feed» senza account, un nome taggato, una notifica
+  aprono «Profile» sopra l'app. Portarli alla quarta pagina è una scelta
+  dell'utente, da chiedere.
+- Il giro di benvenuto (ADR-0235) regge con quattro pagine: non nomina il
+  loro numero, e il passo dell'intestazione dice già «In your profile…».
+  «Help» lo diceva («three pages»): cambiato nelle cinque lingue.
+
+**Scartate**: aprire anche le pagine del profilo dentro la quarta pagina
+(cambierebbe dove sono, fuori dal task); tenere «Profile» sopra l'app e
+aggiungere solo lo swipe (due posti per la stessa pagina); una pagina che
+non si rifà mai (elenchi e richieste vecchi fino alla riapertura dell'app).
+
+**Conseguenze**: uno swipe che arriva sul profilo mostra per un attimo
+gli elenchi di prima, poi i trattini mentre si rileggono; un tocco sul
+cerchio no, perché la pagina si rifà prima di scorrere.
+
 ## ADR-0127 — «Feed» con quindici esempi dal catalogo, finché non pubblicano gli iscritti
 **Stato**: Attiva · 2026-10-02 · **scelta dell'utente** per il cosa («nella
 sezione feed crea già in automatico 15 attività con nomi inventati, utenti

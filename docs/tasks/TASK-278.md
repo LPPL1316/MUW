@@ -1,6 +1,6 @@
 # TASK-278 — Il proprio profilo come quarta pagina, dopo «Explore»
 
-**Stato**: Todo
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-278-profile-page`
 
 ## Obiettivo
@@ -67,17 +67,17 @@ mentre Apple prova la 1.0; va su `preview`, non nella 1.0.
 
 ## Criteri di accettazione
 
-- [ ] Da «Explore» uno swipe a sinistra mostra il proprio profilo; uno a
+- [x] Da «Explore» uno swipe a sinistra mostra il proprio profilo; uno a
       destra torna a «Explore» (test del `Pager` con quattro pagine).
-- [ ] In alto restano tre nomi; il cerchio ha la lineetta solo quando il
+- [x] In alto restano tre nomi; il cerchio ha la lineetta solo quando il
       profilo è sullo schermo (test).
-- [ ] Un tocco sul cerchio da qualsiasi pagina porta al profilo; non si
+- [x] Un tocco sul cerchio da qualsiasi pagina porta al profilo; non si
       apre più il foglio sopra l'app per la pagina principale del profilo
       (test).
-- [ ] Settings, Favorites, My activities e un disegno aperti dal profilo
+- [x] Settings, Favorites, My activities e un disegno aperti dal profilo
       tornano con «←» alla quarta pagina (test).
-- [ ] Senza account la pagina mostra «Sign up» e «Log in» come oggi.
-- [ ] Nessun testo nuovo senza il sì dell'utente; `npm test`,
+- [x] Senza account la pagina mostra «Sign up» e «Log in» come oggi.
+- [x] Nessun testo nuovo senza il sì dell'utente; `npm test`,
       `expo lint`, `format:check` verdi.
 
 ## File toccati
@@ -108,4 +108,28 @@ docs/tasks/TASK-278.md
 
 ## Esito
 
-*(a fine task)*
+Fatto il 2026-10-13 (aggiunta ad ADR-0124): il proprio profilo è la quarta
+pagina dopo «Explore», con il cerchio che ha la lineetta quando è lì e ci
+porta con un tocco; le pagine che apre restano sopra l'app e «←» torna
+alla quarta pagina; la pagina si rifà a ogni ritorno. Provato anche nel
+simulatore (iPhone 17e): tocco sul cerchio, «Settings» e «←», «Guide» e
+«←», swipe da e verso «Explore».
+
+- **Scelte dell'utente del 2026-10-13**: la quarta pagina **senza titolo**
+  né «←», come le altre; il testo di «Help» cambiato nelle cinque lingue
+  («The app has four pages side by side, «Feed», «Draw», «Explore» and your
+  profile: … The circle at the top takes you to your profile.»). Il giro di
+  benvenuto non cambia: non nomina il numero delle pagine.
+- **File in più**, con l'ok del Coordinatore: `src/screens/ProfileScreen.tsx`
+  (`onBack` facoltativo: senza, niente «←» né titolo; «Guide» aperto per
+  primo torna alla prima pagina), i test che aprivano «Profile» dal cerchio
+  e lo chiudevano con «←» (`src/account/Profile.test.tsx`,
+  `__tests__/AppActivities.test.tsx`, `AppFavorites.test.tsx`,
+  `AppProfilePhoto.test.tsx`) e `src/about/content/{en,it,de,es,fr}.ts`
+  (solo il paragrafo delle pagine). `tourParts.ts` non è servito.
+- **Resta da chiedere all'utente** (punto 4): se gli altri ingressi (il
+  cuore e «Save» senza account, la lente di «Feed» senza account, un nome
+  taggato, una notifica) debbano portare alla quarta pagina invece di
+  aprire «Profile» sopra l'app. Oggi restano come prima.
+- **Da guardare**: il sito (`site/`) non dice «three pages»; se la guida
+  del sito lo dicesse altrove, è un seguito del Coordinatore.
