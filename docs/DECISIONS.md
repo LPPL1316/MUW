@@ -14208,3 +14208,71 @@ ha scelto di tenere).
 elemento e di una JPEG per foto vista: con mille paesi, circa 60 MB. Una
 foto di Commons può mostrare un monumento invece del paese (Laguardia: un
 dolmen); la sceglie chi cura Wikidata.
+
+## ADR-0144, aggiunta — Le parole di una città, dopo le sue forme
+
+**Stato**: Attiva · 2026-10-13 · **scelte dell'utente** il cosa (il
+2026-10-11 «prima parole, poi frasi»; il 2026-10-13 le sei parole e la
+distanza minima di ognuna); il come deciso dall'agente su delega
+dell'utente (TASK-279 parte A). Aggiunta ad ADR-0144, senza numero nuovo.
+
+**Contesto**: in «Explore» una città scelta disegna otto forme da 5 km dal
+centro, una alla volta (ADR-0144). L'utente vuole anche parole con la penna
+alzata (ADR-0157). L'API tiene già ogni percorso chiesto da un centro,
+parole comprese (ADR-0136): basta l'app. Il task diceva «5 km come le
+forme», ma il contratto vuole almeno `LETTER_DISTANCE_M` (3 km) per
+lettera: a 5 km l'API rifiuta ogni parola (`check_word`).
+
+**Decisione**:
+- **Sei parole**, scelte dall'utente: CIAO, LOVE, AMORE, RUN, HELLO, MUW
+  (`EXAMPLE_WORDS` in `exampleRoutes.ts`), lettere tonde, `pen_up: true`.
+  **Ognuna alla distanza minima** (scelta dell'utente): 3 km a lettera,
+  come «Use 12 km» in «Draw». RUN e MUW 9 km, CIAO e LOVE 12, AMORE e
+  HELLO 15.
+- **Dopo le otto forme**, nello stesso giro e con le stesse regole delle
+  forme in più: una alla volta, dentro `EXAMPLES_PER_MINUTE`, una scheda
+  solo quando tocca a lei, nessuna scheda né messaggio per una che non
+  riesce. `shape_not_drawable` la lascia fuori finché l'app resta aperta;
+  un guaio che non è della parola (rete, troppe richieste) ferma in
+  silenzio anche le parole, che si richiedono alla prossima scelta della
+  città. Sull'acqua niente parole.
+- **La più lunga per prima** (`wordOrder`): AMORE, HELLO, CIAO, LOVE, RUN,
+  MUW. Ogni lettera ha la stessa distanza, quindi una parola più lunga va
+  più lontano dal centro e la zona che l'API scarica per lei contiene
+  quelle delle più corte, come il cerchio fra le forme. Le schede restano
+  nell'ordine dell'utente.
+- **Una lista accanto alle forme**, non dentro: `Example` ha `shape`, e lo
+  leggono anche «Paddle», «WhileDrawing» e le schede degli esempi.
+  `WordExample` ha `word` e gli stessi stati; il giro chiede le forme e
+  poi le parole con la stessa funzione (`Ask`). Gli id sono
+  `example:word:CIAO:<chiave>`.
+- **Nello stesso file degli esempi**, con le forme della città: una parola
+  tenuta a un'altra distanza o senza `walks` si ridisegna. Un'app più
+  vecchia legge il file come prima (cerca le forme per `shape`).
+- **Anche una città con percorsi consigliati** riceve le parole, meno
+  quelle che ha già fra i suoi percorsi (`wordsOf`, nel catalogo c'è un
+  CIAO); la riga sta sotto le sue schede, con il nome della città del
+  catalogo.
+- **La riga**: «WORDS», schede come «NEARBY TOWNS» (42% della pagina), la
+  parola e i km, la città, la somiglianza, la mappa; i tratti a piedi non
+  si disegnano (`gaps`). Il credito delle mappe sotto la riga solo se
+  sopra non c'è. Aperta, la scheda del percorso dice anche «6.0 km of
+  letters + 0.4 km walking between them», come «Draw» (`PenSplit`, ora
+  esportato da `RoutePanel.tsx`), solo per le parole.
+
+**Motivo**: le parole sono richieste uguali per tutti i telefoni, che
+l'API tiene; seguire le regole delle forme in più non tocca il limite
+dell'API (ADR-0076) né i primi tre esempi, che non aspettano mai.
+
+**Alternative scartate**: le parole a 5 km (rifiutate dal contratto); tutte
+a 15 km (scartata dall'utente); un `Example` con `shape` o `word` (cambia
+i file di «Paddle» e degli esempi); una seconda coda di richieste per le
+parole (due giri insieme supererebbero il limite al minuto); farle
+disegnare prima dal server con `draw_examples` (TASK-279 punto 7, dopo
+l'approvazione di Apple e con l'ok dell'utente).
+
+**Conseguenza**: il primo telefono in una città aspetta, dopo le forme,
+30–50 s per parola sul server (15 km); gli altri le ricevono subito. Fra
+due città sfogliate in un minuto le parole della seconda aspettano il
+minuto dopo. Una città senza zona sul server può scaricarne una più
+grande per la parola più lunga.

@@ -183,6 +183,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - **TASK-279** — parole con la penna alzata negli esempi di una città
     in «Explore» (parte A, solo app: l'API tiene già le parole chieste
     dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
+    **Parte A: PR #503** (2026-10-13, aggiunta ad ADR-0144), branch
+    `feat/TASK-279-a-explore-words`. Dopo le otto forme una città scrive
+    CIAO, LOVE, AMORE, RUN, HELLO, MUW (scelte dell'utente) con la penna
+    alzata, ognuna alla distanza minima, 3 km a lettera (scelta
+    dell'utente: a 5 km l'API rifiuta le parole), nella riga «WORDS»
+    (testo approvato nelle cinque lingue). Aspetta il «merge 503» del
+    Coordinatore; non nella 1.0; pubblica il Coordinatore. Resta la parte
+    B e, facoltativo, `draw_examples` con le parole (punto 7, dopo Apple).
   - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
     «PICTURES» (sagome pronte). Solo app: può partire subito.
   - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
