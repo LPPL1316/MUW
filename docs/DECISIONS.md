@@ -14277,6 +14277,71 @@ due città sfogliate in un minuto le parole della seconda aspettano il
 minuto dopo. Una città senza zona sul server può scaricarne una più
 grande per la parola più lunga.
 
+## ADR-0246 — Sotto «Draw» i giri a tema e dodici sagome pronte, col contorno già nell'app
+**Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-280): le dodici sagome col razzo al
+posto del Colosseo, i quattro giri, «near your start» al posto del nome
+della città; il come deciso dall'agente su delega dell'utente. Dalla
+richiesta del 2026-10-11 «Sotto draw nella sezione draw inserisci i tour
+delle città o immagini varie» (scelta «Tour e immagini»).
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Due righe nuove in un file nuovo**, `src/route/DrawIdeas.tsx`, messe
+   da `App.tsx` sotto `RouteChoice` dentro la pagina che scorre:
+   `ChooseScreen.tsx` non cambia. Nessuna con «Paddle».
+2. **I giri sono quelli di «Explore»** (ADR-0099), senza niente di nuovo
+   sul server: `useThemedRoute.ask` con la categoria da sola, `centre` la
+   partenza di «Draw» e `city` nullo, come «Near me» in «Explore». La mappa
+   e la scheda (ThemedCard) sono le stesse; `routeList` ricorda «Draw»
+   (`"choose"`), così «←» e «Back to Draw» tornano lì.
+3. **Il nome della città non c'è**: con la partenza dal GPS l'app non lo
+   sa e nessuna API lo dice (`/nearby-cities` esclude il paese entro
+   1,5 km, ADR-0200; il nome di una corsa lo cerca solo il server per le
+   attività). Le tessere dicono «near your start», o «near {posto}» per un
+   luogo cercato, testi già tradotti (scelta dell'utente). Un indirizzo
+   nuovo per il nome sarebbe lavoro di server, fuori da un task solo app.
+4. **Le sagome le disegna uno strumento**, `tools/sample_pictures.py`, con
+   Pillow da cerchi, linee e poligoni: dodici PNG 640 × 640 (il lato che
+   il motore analizza, `ANALYSIS_SIDE`), figura scura su fondo chiaro,
+   12–27 kB l'una, in `assets/pictures/`. Nessuna immagine d'altri, nessuna
+   licenza, nessuna dipendenza nuova (Pillow è già del motore).
+5. **Il contorno lo calcola il motore una volta**, con lo stesso
+   `outline_data` di `POST /image-outlines`, girato nella risposta
+   dell'API come fa `images.trace` (senza importare l'API, così lo
+   strumento gira col solo motore, come il job «Tools» della CI), e sta in
+   `src/route/samplePictures.json`: 17–46 angoli, un soggetto ciascuna.
+   L'app lo mostra subito, senza aspettare il tracciato (meno di 2 s, ma
+   con la rete) e senza mandare l'immagine. «Draw route» manda quel
+   contorno a `POST /image-route-jobs`, che lo ricontrolla come ogni
+   contorno che arriva dal telefono (ADR-0069).
+6. **`useImageOutline.show(picture, outline)`**: mette la sagoma come una
+   foto già tracciata, toglie le modifiche e lascia perdere un tracciato
+   in corso. Il `Picture` di una sagoma è fatto una volta
+   (`Image.resolveAssetSource`) e si riconosce perché è lo stesso oggetto:
+   così la tessera scelta ha il bordo chiaro, e una foto scelta dopo no.
+7. **I test di `tools/`** controllano che i PNG dell'app siano quelli
+   disegnati, che il contorno nel JSON sia quello che il motore traccia dai
+   PNG (entro 0,02 nel quadrato [-1, 1]: un'altra versione di shapely può
+   spostare un angolo) e che il JSON sia scritto come lo scrive Prettier.
+
+**Motivo**: le due cose esistevano già, giri a tema e immagini; qui si
+riusano dove l'utente le vuole, senza toccare server, motore e schermate
+degli altri task. Il contorno nell'app toglie l'unica attesa di una
+sagoma.
+
+**Alternative scartate**: tracciare la sagoma con `POST /image-outlines` a
+ogni tocco (attesa e immagine mandata per niente); disegnare le sagome a
+mano in un programma di grafica (non si rifanno uguali, e lo strumento le
+prova); il Colosseo (del contorno esterno resterebbe un blocco largo col
+bordo rotto, scelta dell'utente); «CITY TOURS · {città}» solo con un luogo
+cercato (la riga mancherebbe nel caso più comune, il GPS).
+
+**Conseguenza**: quindici file nuovi nell'app, oltre ai test, con circa 220 kB di PNG. Una
+sagoma nuova è una funzione in `tools/sample_pictures.py`, un nome in
+`samplePictures.ts` e le sue traduzioni. Un giro chiesto con «Bike» è
+quello di «Explore», a piedi, come in «Explore».
+
 ## ADR-0247 — A fine corsa l'app ricorda lo stretching, con «Skip»
 **Stato**: Attiva · 2026-10-13 · chiesto dall'utente («Finito
 l'esercizio, puoi dire all'inizio "ricordati di fare stretching" e dai la
