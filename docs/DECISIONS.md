@@ -14324,6 +14324,113 @@ due città sfogliate in un minuto le parole della seconda aspettano il
 minuto dopo. Una città senza zona sul server può scaricarne una più
 grande per la parola più lunga.
 
+## ADR-0245 — «Draw on the map»: la figura sulla mappa la misura l'app, il percorso lo fa il motore
+**Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente:
+una schermata sola con «Draw | Move», una riga di forme e immagini che
+cambia la figura dove sta, la figura trascinata col dito, e «in due
+passi» (il motore può spostare la figura; il posto esatto è TASK-282),
+il 2026-10-11; il tasto «Draw on the map» sotto «Shape | Word | Image» e
+i sei testi nuovi nelle cinque lingue, il 2026-10-13. Il come è deciso
+dall'agente su delega dell'utente (TASK-281).
+
+**Decisione** (tecnica, dell'agente):
+
+1. **La stessa mappa, una schermata nuova** (`screen: "canvas"` in
+   `App.tsx`): la WebView di MapLibre resta una sola, come per il
+   percorso. In alto «←» e il luogo cercato in «Draw» (la posizione del
+   GPS non ha un nome nell'app); sotto la mappa il pannello
+   `src/mapdraw/DrawOnMap.tsx`. Con «Paddle» il tasto non c'è: sull'acqua
+   la forma si sposta già (ADR-0202).
+2. **I gesti sono della pagina della mappa.** Sulla tela la pagina spegne
+   i gesti di MapLibre (`dragPan`, `touchZoomRotate`, `doubleClickZoom`,
+   `dragRotate`, `touchPitch`) e li fa da sé, come il trascinamento di
+   ADR-0202: con «Draw» un dito disegna una linea gialla e la mappa sta
+   ferma, due dita non fanno niente; con «Move» un dito che parte sulla
+   figura (il suo riquadro sullo schermo, più 24 px) la trascina, altrove
+   sposta la mappa; due dita col punto di mezzo sulla figura la
+   ingrandiscono o rimpiccioliscono dal suo centro, altrove fanno lo zoom
+   della mappa. Un dito ferma la mappa che si sta ancora muovendo (nel
+   simulatore una linea disegnata durante l'inquadratura veniva storta).
+   Una figura cresciuta oltre lo schermo fa allontanare la mappa, così
+   resta posto per lo zoom fuori dalla figura. Uscendo, i gesti di
+   MapLibre tornano com'erano. Messaggi nuovi in `messages.ts`:
+   `setCanvas`/`clearCanvas` verso la pagina; `drawn` (la linea, in
+   lat/lon), `figure` (il centro nuovo e il fattore; `done: false` mentre
+   due dita la ridimensionano, per la distanza che segue) e `centre` (il
+   centro della mappa) verso l'app.
+3. **La figura nell'app** (`figure.ts`): la figura nella sua cornice, con
+   x a destra e y in alto, più il centro sulla mappa e i metri di
+   un'unità. La distanza è la lunghezza nella cornice per i metri
+   dell'unità; la lunghezza è quella su cui il motore scala (§3): il
+   perimetro della linea a 64 punti per una forma, `drawn_length` con la
+   penna alzata, e per un disegno o una foto il contorno più i dettagli
+   andata e ritorno (un anello una volta). I conti sono sul piano
+   tangente, in metri, con la proiezione del motore (`plane.ts`).
+4. **Le forme del catalogo le dà il motore**: `tools/catalogue_shapes.py`
+   scrive `src/mapdraw/catalogueShapes.json` (le linee, la lunghezza e la
+   partenza di ogni forma, con la penna giù e, se ha pezzi, alzata), come
+   lo scrive Prettier (`as_prettier` di ADR-0246).
+   `tools/test_catalogue_shapes.py` fallisce quando il motore cambia una
+   forma: chi cambia il motore lo rigenera.
+5. **La linea a dito** (`drawing.ts`): la prima diventa il contorno,
+   semplificata all'1% (Douglas–Peucker, al più 100 angoli) e chiusa
+   dall'app: una fine entro il 5% dall'inizio finisce lì. Se si incrocia,
+   resta l'anello più grande chiuso dove si incrocia (una linea che passa
+   oltre l'inizio, un otto), o si accorcia la coda; se così si perde più
+   del 40% del disegno, «This line crosses itself…» e niente cambia. Le
+   linee dopo sono **dettagli appesi**, come «Add a detail» (ADR-0074),
+   ma calcolati dall'app: dal punto più vicino della figura, col capo
+   più vicino, agganciati entro il 6% o con un trattino dritto; un capo
+   che torna entro il 3% su un suo punto chiude un anello. Oltre
+   `MAX_DETAIL_POINTS` il testo già approvato «That is too much for one
+   route…». Una linea su una forma o su una foto ne prende il posto.
+6. **Il contratto non cambia**: una forma va a `POST /route-jobs` con
+   `shape` (e la penna alzata come la chiede «Draw», `shapeAsked`), un
+   disegno o una foto a `POST /image-route-jobs` col contorno ricentrato
+   e portato in [-1, 1] insieme ai dettagli (`strokes`). `start` è il
+   primo punto della figura sulla mappa (la fase 0); `distance_m` la sua
+   distanza al decimo di km o di miglio, come una distanza scritta in
+   «Draw» (il risultato dice «target 5.7 km»), dentro i limiti di «Draw»
+   per lo sport. Il motore cerca come sempre (fasi, rotazioni, partenze
+   vicine e lontane).
+7. **La riga delle tessere**: «+ photo» per prima (una foto della libreria,
+   tracciata dal motore con un `useImageOutline` suo), poi le 17 forme e
+   le 12 sagome di ADR-0246, col loro contorno già nell'app. La prima
+   figura va nel centro della mappa, lunga quanto la distanza di «Draw»,
+   e la mappa si inquadra su di lei; una tessera dopo la cambia dov'è,
+   grande uguale sulla mappa (la distanza cambia con la forma). Dopo una
+   tessera l'interruttore passa a «Move», che è la cosa da fare dopo.
+8. **«Undo»** toglie l'ultima figura messa o disegnata (torna quella di
+   prima, dov'era), l'ultimo cambio di tessera (torna la forma di prima,
+   dove sta ora) o l'ultimo dettaglio. Spostare e ridimensionare non si
+   annullano.
+9. **Il risultato è quello di «Draw»**: lo stesso `useRouteRequest`, e
+   `fromCanvas` dice che la richiesta è della figura. «←» e «Cancel»
+   tornano alla figura com'era; «Try 8 km» porta la figura a quella
+   grandezza e la richiede. Le richieste della stessa figura, spostata o
+   ridimensionata, hanno gli stessi array del contorno, così l'app
+   riconosce il risultato e non lo chiede due volte.
+
+**Motivo**: la richiesta dell'utente in due passi si fa senza toccare
+contratto, API e motore: la figura sulla mappa diventa le richieste che
+esistono, con la grandezza disegnata e la partenza dove la figura
+comincia. I gesti nella pagina sono la sola parte che sa dove sta la
+figura sullo schermo; la geometria nell'app si prova coi test.
+
+**Alternative scartate**: una seconda WebView solo per la tela (il doppio
+della memoria di MapLibre, che iOS chiude quando manca); tenere i gesti di
+MapLibre con delle eccezioni (dalla pagina non si sceglie chi riceve il
+dito per primo); mandare ogni tratto a `POST /image-outline-edits`
+(vuole un contorno di una foto, e una chiamata per tratto); `near` su
+strada (rifiutato dal motore, ADR-0202 punto 4: è TASK-282).
+
+**Conseguenza**: la figura non è ancora il percorso. Provato nel
+simulatore a Trento: la stella da 5,7 km messa a nord del centro è venuta
+5,4 km, 1–2 km più in là, con «Start here». Il dito vero sull'iPhone
+resta da provare. Una figura grande quanto lo schermo prende tutte le due
+dita: per lo zoom della mappa serve il margine fuori dalla figura, ed è
+per questo che la mappa si allontana quando la figura cresce oltre.
+
 ## ADR-0246 — Sotto «Draw» i giri a tema e dodici sagome pronte, col contorno già nell'app
 **Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente
 (chieste in chat con le opzioni, TASK-280): le dodici sagome col razzo al
