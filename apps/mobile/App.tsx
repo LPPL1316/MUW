@@ -108,6 +108,7 @@ import { Pager } from "./src/screens/Pager";
 import { pageTitle } from "./src/screens/pageTitles";
 import { OwnProfile, ProfileButton, ProfileLayer } from "./src/screens/ProfileLayer";
 import { StretchReminder } from "./src/screens/StretchReminder";
+import { StretchScreen } from "./src/stretch/StretchScreen";
 import { PaddleExplore } from "./src/paddle/PaddleExplore";
 import { MoveShape } from "./src/paddle/MoveShape";
 import { PaddleNotice } from "./src/paddle/PaddleNotice";
@@ -272,6 +273,8 @@ function MuW() {
   // A run that just ended asks for the stretching first (TASK-285 part A):
   // never one opened again with the app, which ended long ago.
   const [stretchAsked, setStretchAsked] = useState(false);
+  // The five exercises are on (TASK-285 part B), over «Your run».
+  const [stretching, setStretching] = useState(false);
   const [screenNow, setScreen] = useState<Screen>(() =>
     reopened !== null
       ? isFreeRun(reopened)
@@ -976,11 +979,14 @@ function MuW() {
         ) : reviewing && drawing !== null ? (
           <DrawingCard drawing={drawing} onBack={backFromDrawing} />
         ) : (finishing || freeFinishing) && stretchAsked ? (
-          // «Stretch» opens the exercises of part B; until then it goes on
-          // to «Your run» as «Skip» does.
+          // «Stretch» opens the exercises (part B) over «Your run», where
+          // they leave the runner; «Skip» goes there at once.
           <StretchReminder
             onSkip={() => setStretchAsked(false)}
-            onStretch={() => setStretchAsked(false)}
+            onStretch={() => {
+              setStretchAsked(false);
+              setStretching(true);
+            }}
           />
         ) : freeFinishing ? (
           <FreeFinishCard
@@ -1112,6 +1118,9 @@ function MuW() {
         {(finishing || freeFinishing) && (
           <RunEnd onSave={onSaveRun} onDiscard={onDiscardRun} />
         )}
+        {/* The stretching, over the whole screen, until done or skipped
+            (TASK-285 part B). */}
+        {stretching && <StretchScreen onLeave={() => setStretching(false)} />}
       </MapScreen>
       {/* Over the map, opposite the way back: keep the route shown. */}
       <FavoriteHeart route={onMap} />

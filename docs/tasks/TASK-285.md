@@ -1,6 +1,6 @@
 # TASK-285 — Lo stretching dopo la corsa: il promemoria (A) e i cinque esercizi animati (B)
 
-**Stato**: Parte A Todo · Parte B Todo
+**Stato**: Parte A Done (#504) · Parte B In corso (PR aperta, aspetta il sì dell'utente ai testi)
 **Fase**: 4 · **Branch**: `feat/TASK-285-a-stretch-reminder` (A),
 `feat/TASK-285-b-stretch-exercises` (B)
 **Dipende da**: TASK-113 (la fine della corsa), TASK-172 («Save» e

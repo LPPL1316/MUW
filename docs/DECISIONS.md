@@ -14391,3 +14391,40 @@ alla rovescia (non chiesto).
 **Conseguenza**: la fine della corsa ha un tocco in più per chi non fa
 stretching. Lo screenshot della fine corsa nei materiali per lo store
 mostra «Your run» dopo «Skip».
+
+**Aggiunta del 2026-10-14, parte B (sessione «Animazione esercizi
+stretching post-corsa»; chiesto dall'utente il 2026-10-13: «Dopo la
+corsa, metti l'animazione di cinque esercizi di stretching come sull'app
+bEND»; il come deciso dall'agente su delega dell'utente):
+
+5. **Cinque esercizi in una schermata sola** (`src/stretch/StretchScreen.tsx`,
+   un `Modal` a tutto schermo sopra «Your run», montato da `App.tsx` da
+   `onStretch` della scheda): i classici del dopo corsa, quadricipite,
+   posteriore della coscia, polpaccio, flessori dell'anca, gluteo, 20 s
+   per lato, 3 min 20 s in tutto (`exercises.ts`: nomi, righe e tempi
+   sono dati, facili da cambiare con le scelte dell'utente). Il tempo lo
+   tiene un `setInterval` di un secondo che porta avanti da sé il proprio
+   passo in un ref: sotto jest due tick possono scattare prima di un
+   render, e il secondo deve contare dal primo.
+6. **La figura senza dipendenze nuove** (`Figure.tsx`, `poses.ts`): una
+   persona vista di lato fatta di dodici segmenti, ognuno una View a
+   dimensione zero sul suo snodo, girata del suo angolo, che contiene la
+   barra e i segmenti che le pendono: un arto non cambia mai lunghezza
+   mentre gira. Una posa è l'angolo assoluto di ogni segmento (0 in giù,
+   90 avanti, 180 su); il passaggio da una posa all'altra è un solo
+   `Animated.timing` di 0,8 s, ogni snodo per la via più corta; il bacino
+   sale e scende con la posa (`grounding`: il punto più basso tocca il
+   pavimento). I test controllano la geometria pura: le pose stanno in
+   piedi, la testa sopra il bacino, il ginocchio a terra nell'affondo.
+   Scartati: Lottie e `react-native-svg` (dipendenze nuove, come per
+   ADR-0147), disegni PNG per posa (niente movimento fra le pose), una
+   WebView (parte tardi).
+7. **Il suono** fra un lato e l'altro e fra due esercizi è un «ding» di
+   0,35 s nostro, scritto da `tools/stretch_chime.py` con la sola
+   libreria standard (`assets/stretch/ding.wav`), suonato con
+   `expo-audio` (già in app per la voce in sottofondo) e mai bloccante:
+   senza suono si va avanti lo stesso. Scartato per ora dire a voce il
+   nome dell'esercizio seguente: vorrebbe il frasario nelle cinque
+   lingue; resta una scelta dell'utente.
+8. **Nessun consiglio di salute** oltre «Stop if it hurts.», e nessun
+   materiale di bEND: figure, animazioni, nomi e testi sono nostri.

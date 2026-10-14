@@ -167,6 +167,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   sull'app bEND»; figura e testi nostri, nessuna dipendenza nuova. Solo
   app; A entra prima di B; non nella 1.0. Testi e voce nelle cinque
   lingue con il sì dell'utente. File: `tasks/TASK-285.md`.
+- **TASK-285 parte B — I cinque esercizi animati** (ADR-0247, punti
+  5–8; sessione «Animazione esercizi stretching post-corsa»). Branch
+  `feat/TASK-285-b-stretch-exercises`: da «Stretch» della scheda di A si
+  apre la schermata con i cinque esercizi (quadricipite, posteriore
+  coscia, polpaccio, flessori dell'anca, gluteo), la figura stilizzata
+  che entra in ogni posa, il conto alla rovescia di 20 s per lato, il
+  «ding» fra un lato e l'altro, «Pause», «Skip»/«Done»; poi «Your run».
+  File nuovi in `src/stretch/`, poche righe in `App.tsx`, le voci nei
+  quattro `i18n`, `tools/stretch_chime.py` e `assets/stretch/ding.wav`.
+  **Aspetta**: il sì dell'utente ai testi (nomi, righe, «Stop if it
+  hurts.») e alle tre scelte del task file (esercizi e tempi, suono o
+  voce, figura stilizzata); entra dopo 278 B e 281 su `App.tsx`, o prima
+  se pronta. Non nella 1.0.
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla

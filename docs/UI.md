@@ -2429,6 +2429,26 @@ mostra le lettere unite da linee dritte sulla base.
   chiude come «Skip»). Nessuno dei due è giallo. Non si chiede per uno
   «Stop» prima della prima posizione né per la corsa riaperta dopo due
   ore (TASK-272).
+- **Lo stretching** (TASK-285 parte B, ADR-0247; chiesto dall'utente il
+  2026-10-13, «come sull'app bEND»): «Stretch» apre una schermata a tutto
+  schermo, sopra «Your run», con cinque esercizi uno dopo l'altro:
+  quadricipite, posteriore della coscia, polpaccio, flessori dell'anca,
+  gluteo (`src/stretch/exercises.ts`). In alto «1 of 5», il nome
+  («Quad stretch») e una riga su come si fa; al centro una **figura
+  stilizzata** vista di lato, fatta di segmenti sottili come il cuore
+  dell'avvio, che dalla posizione in piedi entra in quella dell'esercizio
+  in 0,8 s e la tiene; sotto il conto alla rovescia («0:20»), una barra
+  gialla che si svuota, **«Pause»/«Resume»** e **«Skip»** (**«Done»**
+  nell'ultimo), e in fondo, piccolo, «Stop if it hurts.». Ogni esercizio
+  si tiene **20 s per lato**: a metà un suono breve
+  (`assets/stretch/ding.wav`, nostro), «Left side» al posto di «Right
+  side», la figura si rialza, si gira e torna giù; finito il lato
+  sinistro, il suono e l'esercizio seguente da sé. In tutto 3 min 20 s.
+  «Skip» e «Done» portano a «Your run» com'è, con «Save» e «Discard»;
+  anche la fine del quinto. Lo schermo resta acceso. Al lettore di
+  schermo: il nome dell'esercizio a ogni cambio, «Switch sides», e i
+  secondi che restano ogni dieci; la figura non è un elemento. Nessuna
+  dipendenza nuova; disegni, nomi e testi sono nostri, non di bEND.
 - **Senza rete o senza API** la schermata è la stessa: non chiede niente
   a nessuno.
 - **«Keep running»**, dopo uno «Stop» e con il percorso ancora sullo
