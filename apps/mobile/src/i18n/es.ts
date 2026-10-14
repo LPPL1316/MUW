@@ -1166,4 +1166,28 @@ export const ES: Table = {
   "Suggested near {place}": "Sugeridos cerca de {place}",
   "Suggested near where you usually start": "Sugeridos cerca de donde sueles salir",
   "Suggested near your start": "Sugeridos cerca de tu salida",
+
+  // src/stretch (TASK-285 part B)
+  "Quad stretch": "Estiramiento de cuádriceps",
+  "Stand tall. Pull one heel toward your glutes, knees together.":
+    "De pie, erguido. Lleva un talón hacia el glúteo, rodillas juntas.",
+  "Hamstring stretch": "Estiramiento de isquiotibiales",
+  "Put one heel forward, toes up. Lean from the hips, back straight.":
+    "Un talón adelante, punta arriba. Inclínate desde la cadera, espalda recta.",
+  "Calf stretch": "Estiramiento de pantorrilla",
+  "Step back, heel down. Lean toward the wall until the calf pulls.":
+    "Un paso atrás, talón en el suelo. Inclínate hacia la pared hasta sentir la pantorrilla.",
+  "Hip flexor stretch": "Estiramiento de flexores de cadera",
+  "Kneel on one knee. Push your hips forward, chest up.":
+    "Apoya una rodilla en el suelo. Empuja la cadera adelante, pecho arriba.",
+  "Glute stretch": "Estiramiento de glúteo",
+  "Cross one ankle over the other knee. Sit back as if into a chair.":
+    "Cruza un tobillo sobre la otra rodilla. Siéntate atrás como en una silla.",
+  "{index} of {total}": "{index} de {total}",
+  "Right side": "Lado derecho",
+  "Left side": "Lado izquierdo",
+  "Switch sides": "Cambia de lado",
+  "{seconds} seconds left": "Quedan {seconds} segundos",
+  Skip: "Omitir",
+  "Stop if it hurts.": "Para si duele.",
 };
