@@ -7,7 +7,7 @@ import {
   SHAPES,
 } from "@shaperoute/shared-types";
 import type { Signal } from "@shaperoute/shared-types/src/signals";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
@@ -116,6 +116,8 @@ type ChoiceProps = {
   /** Whose distances the field offers (TASK-190): a run's unless said. On
    * the water only shapes are drawn (TASK-191): no word, no picture. */
   activity?: Activity;
+  /** Under the switch, off the water: «Draw on the map» (TASK-281). */
+  underKinds?: ReactNode;
 };
 
 /**
@@ -145,6 +147,7 @@ export function RouteChoice({
   distanceM,
   onDistanceText,
   activity = "running",
+  underKinds,
 }: ChoiceProps) {
   // The distance is asked in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -165,12 +168,15 @@ export function RouteChoice({
       {shapesOnly ? (
         <Text style={styles.note}>{t("On the water, a shape of the catalogue.")}</Text>
       ) : (
-        <Segmented
-          options={translated(DRAW_KINDS)}
-          value={kind}
-          onChange={onKind}
-          style={styles.kinds}
-        />
+        <>
+          <Segmented
+            options={translated(DRAW_KINDS)}
+            value={kind}
+            onChange={onKind}
+            style={styles.kinds}
+          />
+          {underKinds}
+        </>
       )}
       {kind === "shape" || shapesOnly ? (
         <>

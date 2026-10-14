@@ -1700,6 +1700,81 @@ ci sono città né foto). I testi nuovi, nelle cinque lingue:
 «Bike», le quattro categorie, «near your start» e «near {place}» c'erano
 già.
 
+### Disegnare sulla mappa: «Draw on the map» (TASK-281, ADR-0245)
+
+Sotto «Shape | Word | Image», largo quanto l'interruttore, il tasto
+**«Draw on the map»** (scelta dell'utente del 2026-10-13; con «Paddle»
+non c'è). Apre a tutto schermo la mappa della partenza di «Draw»,
+inquadrata sul paese intorno (zoom 13): in alto «←», che torna a «Draw»,
+e il nome del luogo se la partenza è un luogo cercato; il segnaposto
+della partenza resta. Sotto la mappa:
+
+- **«Draw | Move»** e **«Undo»** sulla stessa riga. Con «Draw» un dito
+  traccia una linea gialla e la mappa sta ferma; due dita non fanno
+  niente. Con «Move» un dito che parte sulla figura (il suo riquadro, con
+  un margine per il dito) la trascina, altrove sposta la mappa; due dita
+  col punto di mezzo sulla figura la ingrandiscono o la rimpiccioliscono,
+  altrove fanno lo zoom della mappa. Sotto, in grigio: *Draw with one
+  finger. Lines after the first are joined to it.* · *Drag the figure or
+  the map. Two fingers on the figure resize it.* (sempre due righe di
+  posto, così le tessere non saltano).
+- **Una riga di tessere** che scorre di lato: **«+ photo»** (una foto della
+  libreria; mentre il motore ne traccia il contorno, *Tracing the
+  outline…*, e i suoi rifiuti con le parole di «Image»), le 17 forme del
+  catalogo coi loro simboli, e le 12 immagini pronte (TASK-280). La
+  prima figura va nel centro della mappa, lunga quanto la distanza di
+  «Draw», e la mappa si inquadra su di lei; un'altra tessera la cambia
+  dov'è, grande uguale sulla mappa. Dopo una tessera l'interruttore passa
+  a «Move».
+- **La distanza** che la figura farebbe, «≈ 6.2 km» (in miglia con
+  «Miles»), che segue le due dita mentre la ridimensionano, e **«Draw
+  route»**, acceso con una figura.
+
+**La linea a dito**: la prima diventa la figura, chiusa dall'app (l'ultimo
+punto torna al primo); una linea che passa oltre l'inizio si chiude dove
+si incrocia. Le linee dopo la prima sono appese alla figura come «Add a
+detail» dell'immagine: un trattino dritto dal punto più vicino, e il
+percorso le fa andata e ritorno; una linea che torna su se stessa fa un
+anello, come un occhio. Una linea su una forma o su una foto ne prende il
+posto. In rosso, al posto della riga grigia: *This line crosses itself.
+Draw it again without crossing it.* quando non si può chiudere, e *That
+is too much for one route. Undo something, or draw simpler lines.* oltre
+i dettagli che un percorso fa.
+
+**Grandezza**: dentro i limiti di «Draw» per lo sport (1–21 km a piedi,
+10–30 in bici): oltre, la figura non cresce e non cala più. Una figura
+cresciuta oltre lo schermo fa allontanare la mappa, che la mostra intera.
+
+**«Undo»** toglie l'ultima figura messa o disegnata (torna quella di
+prima, dov'era), l'ultimo cambio di tessera o l'ultimo tratto appeso.
+Spostare e ridimensionare non si annullano. Spento finché non c'è niente.
+
+**«Draw route»** chiede il percorso della figura dov'è, senza niente di
+nuovo nel contratto: una forma come in «Draw» (con la penna alzata se
+«Draw» la chiede così), un disegno o una foto come un contorno di
+«Image»; la partenza è il primo punto della figura, la distanza la sua,
+al decimo («target 5.7 km»). Il motore la mette dove trova le strade e
+**può spostarla** di qualche centinaio di metri o più, con «Start here»
+(scelta dell'utente «in due passi»; il posto esatto è TASK-282). Il
+risultato è quello di «Draw»: tessere «A · B · C», avvisi, «Start»,
+«Export GPX», «Try 8 km» (che porta la figura a quella grandezza).
+**«←»** e «Cancel» tornano alla mappa con la figura com'era; «Draw route»
+sulla stessa figura mostra di nuovo lo stesso percorso.
+
+Testi nuovi, **approvati dall'utente** il 2026-10-13 nelle cinque lingue:
+
+| English | Italiano | Deutsch | Español | Français |
+|---|---|---|---|---|
+| Draw on the map | Disegna sulla mappa | Auf der Karte zeichnen | Dibujar en el mapa | Dessiner sur la carte |
+| Move | Sposta | Verschieben | Mover | Déplacer |
+| Draw with one finger. Lines after the first are joined to it. | Disegna con un dito. Le linee dopo la prima vengono unite a lei. | Zeichne mit einem Finger. Linien nach der ersten werden mit ihr verbunden. | Dibuja con un dedo. Las líneas después de la primera se unen a ella. | Dessine avec un doigt. Les lignes après la première y sont reliées. |
+| Drag the figure or the map. Two fingers on the figure resize it. | Trascina la figura o la mappa. Con due dita sulla figura la ingrandisci o la rimpicciolisci. | Ziehe die Figur oder die Karte. Zwei Finger auf der Figur ändern ihre Größe. | Arrastra la figura o el mapa. Dos dedos sobre la figura cambian su tamaño. | Fais glisser la figure ou la carte. Deux doigts sur la figure changent sa taille. |
+| This line crosses itself. Draw it again without crossing it. | Questa linea si incrocia. Ridisegnala senza incrociarla. | Diese Linie kreuzt sich selbst. Zeichne sie ohne Kreuzung neu. | Esta línea se cruza consigo misma. Dibújala de nuevo sin cruzarla. | Cette ligne se croise elle-même. Redessine-la sans la croiser. |
+| + photo | + foto | + Foto | + foto | + photo |
+
+«Draw», «Undo», «Draw route», *Tracing the outline…* e le parole dei
+rifiuti c'erano già.
+
 ## Chiedere un percorso
 
 «Draw route» è spento finché non c'è una partenza. Toccato, la richiesta va

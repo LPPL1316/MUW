@@ -1186,4 +1186,15 @@ export const ES: Table = {
   Balloon: "Globo",
   Leaf: "Hoja",
   "Back to Draw": "Volver a Dibuja",
+
+  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
+  "Draw on the map": "Dibujar en el mapa",
+  Move: "Mover",
+  "Draw with one finger. Lines after the first are joined to it.":
+    "Dibuja con un dedo. Las líneas después de la primera se unen a ella.",
+  "Drag the figure or the map. Two fingers on the figure resize it.":
+    "Arrastra la figura o el mapa. Dos dedos sobre la figura cambian su tamaño.",
+  "This line crosses itself. Draw it again without crossing it.":
+    "Esta línea se cruza consigo misma. Dibújala de nuevo sin cruzarla.",
+  "+ photo": "+ foto",
 };

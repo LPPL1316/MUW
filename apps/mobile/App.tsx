@@ -52,6 +52,10 @@ import { PhoneEngineView } from "./src/engine/PhoneEngineView";
 import { usePhoneZones } from "./src/engine/usePhoneZones";
 import { ZoneNotice } from "./src/engine/ZoneNotice";
 import { useLanguage } from "./src/i18n/useLanguage";
+import { CanvasTop } from "./src/mapdraw/CanvasTop";
+import { DrawOnMap } from "./src/mapdraw/DrawOnMap";
+import { MapDrawButton } from "./src/mapdraw/MapDrawButton";
+import { useMapCanvas } from "./src/mapdraw/useMapCanvas";
 import { MapView } from "./src/map/MapView";
 import { NorthArrow } from "./src/map/NorthArrow";
 import { useTurnedMap } from "./src/map/turnedMap";
@@ -76,6 +80,7 @@ import { trackOf, useFreeRun } from "./src/navigation/useFreeRun";
 import { trackOfNavigation, useNavigation } from "./src/navigation/useNavigation";
 import type { Place } from "./src/places/photon";
 import { choicesOf, type Picked, pickedIndex } from "./src/route/choices";
+import { distanceLimitsM } from "./src/route/distance";
 import { ImageEditsContext } from "./src/route/imageEdits";
 import type { ChoiceKind } from "./src/route/problems";
 import { shapeAsked } from "./src/route/penUpShapes";
@@ -136,8 +141,9 @@ const API_URL = apiUrl();
 /** The screens (TASK-051): what to draw, the map with the route, the
  * turn-by-turn along it (TASK-049), the run with its score (TASK-113), the
  * best routes near the start (TASK-126), a run without a route with its
- * end (TASK-149), what runners publish (TASK-154, then TASK-118), and the
- * account's own profile (TASK-278). */
+ * end (TASK-149), what runners publish (TASK-154, then TASK-118), the
+ * account's own profile (TASK-278), and the map to draw a figure on
+ * (TASK-281). */
 type Screen =
   | "choose"
   | "map"
@@ -147,7 +153,8 @@ type Screen =
   | "run"
   | "runFinish"
   | "feed"
-  | "profile";
+  | "profile"
+  | "canvas";
 
 /** The screens that are pages side by side, left to right, one swipe apart
  * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
@@ -437,9 +444,23 @@ function MuW() {
     start && drawn !== null && distanceM !== null
       ? { start: start.point, ...drawn, distance_m: distanceM, activity: sportActivity }
       : null;
-  // A new start, shape, word or distance leaves the last answer behind.
+  // «Draw on the map» (TASK-281): the figure on the map of the start, and
+  // its request. The route on the map is the figure's after its «Draw
+  // route», until «Draw route» of «Draw».
+  const mapDraw = useMapCanvas({
+    apiUrl: API_URL,
+    penUp,
+    activity: sportActivity,
+    limitsM: distanceLimitsM(sportActivity),
+    distanceM,
+    start: start?.point ?? null,
+  });
+  const [fromCanvas, setFromCanvas] = useState(false);
+  const asked = fromCanvas ? mapDraw.request : request;
+  // A new start, shape, word or distance leaves the last answer behind; so
+  // does a figure moved or changed.
   const view: RouteState =
-    request && state.status !== "idle" && sameRequest(state.request, request)
+    asked && state.status !== "idle" && sameRequest(state.request, asked)
       ? state
       : { status: "idle" };
   // The routes to choose from (TASK-093): what follows shows, runs and
@@ -559,8 +580,9 @@ function MuW() {
   const exploring = screen === "map" && !reviewing && explored !== null;
   // A route whose shape is turned turns the map, so the drawing is upright
   // (TASK-232): choosing it, running it and at its end.
+  const canvasOn = screen === "canvas";
   const turned = useTurnedMap(
-    reviewing || running || freeFinishing || theming
+    reviewing || running || freeFinishing || theming || canvasOn
       ? null
       : exploring
         ? explored.status === "done"
@@ -772,9 +794,32 @@ function MuW() {
     Keyboard.dismiss();
     // The drawn route takes the map back from "Explore".
     closeExplore();
+    setFromCanvas(false);
     // The same route already drawn is shown again, not asked for again.
-    if (request && view.status !== "done") {
+    if (request && (fromCanvas || view.status !== "done")) {
       draw(request);
+    }
+    setScreen("map");
+  }
+
+  /** «Draw on the map» (TASK-281): the map of the start, to draw on. */
+  function onOpenCanvas() {
+    Keyboard.dismiss();
+    mapDraw.open();
+    setScreen("canvas");
+  }
+
+  /** «Draw route» on the map: the route of the figure, shown as one of
+   * «Draw»; «←» comes back to the figure as it was. */
+  function onDrawCanvas() {
+    if (mapDraw.request === null) {
+      return;
+    }
+    closeExplore();
+    setFromCanvas(true);
+    // The same figure already drawn is shown again, not asked for again.
+    if (!fromCanvas || view.status !== "done") {
+      draw(mapDraw.request);
     }
     setScreen("map");
   }
@@ -812,7 +857,8 @@ function MuW() {
     if (view.status === "waiting") {
       cancel();
     }
-    setScreen("choose");
+    // The route of a figure goes back to the figure (TASK-281).
+    setScreen(fromCanvas ? "canvas" : "choose");
   }
 
   function onPickShape(picked: Shape) {
@@ -833,11 +879,23 @@ function MuW() {
   return (
     <View style={styles.screen}>
       <MapScreen
-        active={screen === "map" || navigating || finishing || running || freeFinishing}
+        active={
+          screen === "map" ||
+          canvasOn ||
+          navigating ||
+          finishing ||
+          running ||
+          freeFinishing
+        }
         onBack={onBack}
         mapError={mapError}
         banner={
-          finishing ? (
+          canvasOn ? (
+            <CanvasTop
+              place={start?.source === "search" ? start.label : null}
+              onBack={() => setScreen("choose")}
+            />
+          ) : finishing ? (
             <FinishBanner />
           ) : freeFinishing ? (
             <FreeFinishBanner />
@@ -887,8 +945,10 @@ function MuW() {
                       ? explored.status === "done"
                         ? explored.detail.points
                         : null
-                      : // A shape left elsewhere stays there while it is drawn.
-                        (followed?.points ?? move.left?.points ?? null)
+                      : canvasOn
+                        ? null
+                        : // A shape left elsewhere stays there while it is drawn.
+                          (followed?.points ?? move.left?.points ?? null)
             }
             walks={
               finishing
@@ -900,7 +960,9 @@ function MuW() {
                       explored.status === "done"
                       ? (explored.result.walks ?? null)
                       : null
-                    : (followedWalks ?? move.left?.walks ?? null)
+                    : canvasOn
+                      ? null
+                      : (followedWalks ?? move.left?.walks ?? null)
             }
             onFoot={
               finishing || running || freeFinishing || theming
@@ -910,7 +972,9 @@ function MuW() {
                     explored.status === "done"
                     ? (explored.result.on_foot ?? null)
                     : null
-                  : (followedOnFoot ?? move.left?.onFoot ?? null)
+                  : canvasOn
+                    ? null
+                    : (followedOnFoot ?? move.left?.onFoot ?? null)
             }
             // Only while choosing, a drawn route or an example of "Explore"
             // (TASK-155): running, or on a themed route, one route is the route.
@@ -956,13 +1020,31 @@ function MuW() {
             bearing={turned.bearing}
             turn={turned.turn}
             onTurned={turned.onTurned}
+            // «Draw on the map» (TASK-281): the figure, and the fingers.
+            canvas={canvasOn ? mapDraw.canvas : null}
+            onCanvas={mapDraw.onCanvas}
             onError={setMapError}
             // A run of «My activities» takes the map from whatever was on it.
             {...(reviewing ? reviewed : null)}
           />
         }
       >
-        {reviewing && activity !== null ? (
+        {canvasOn ? (
+          <DrawOnMap
+            mode={mapDraw.mode}
+            onMode={mapDraw.setMode}
+            placed={mapDraw.placed}
+            onPick={mapDraw.pick}
+            onSample={mapDraw.pickSample}
+            photo={mapDraw.photo}
+            onPhoto={mapDraw.choosePhoto}
+            onUndo={mapDraw.undo}
+            canUndo={mapDraw.canUndo}
+            distanceM={mapDraw.distanceM}
+            problem={mapDraw.problem}
+            onDraw={mapDraw.request === null ? null : onDrawCanvas}
+          />
+        ) : reviewing && activity !== null ? (
           <ActivityCard
             // A new card for each run: «Delete» asks again.
             key={activity.id}
@@ -1077,7 +1159,7 @@ function MuW() {
             view={shown}
             onCancel={() => {
               cancel();
-              setScreen("choose");
+              setScreen(fromCanvas ? "canvas" : "choose");
             }}
             exporting={exporting}
             onExport={() => {
@@ -1086,6 +1168,14 @@ function MuW() {
               }
             }}
             onTryDistance={(distance_m) => {
+              // The figure on the map grows or shrinks to it (TASK-281).
+              if (fromCanvas) {
+                const sized = mapDraw.sizeTo(distance_m);
+                if (sized) {
+                  draw(sized);
+                }
+                return;
+              }
               distance.choose(distance_m);
               if (request) {
                 draw({ ...request, distance_m });
@@ -1221,6 +1311,7 @@ function MuW() {
                       distanceM={distanceM}
                       onDistanceText={distance.type}
                       activity={sportActivity}
+                      underKinds={<MapDrawButton onPress={onOpenCanvas} />}
                     />
                   </ImageEditsContext.Provider>
                   {/* The city tours and the ready-made pictures (TASK-280):
