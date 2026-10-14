@@ -14448,3 +14448,53 @@ cercato (la riga mancherebbe nel caso più comune, il GPS).
 sagoma nuova è una funzione in `tools/sample_pictures.py`, un nome in
 `samplePictures.ts` e le sue traduzioni. Un giro chiesto con «Bike» è
 quello di «Explore», a piedi, come in «Explore».
+
+## ADR-0247 — A fine corsa l'app ricorda lo stretching, con «Skip»
+**Stato**: Attiva · 2026-10-13 · chiesto dall'utente («Finito
+l'esercizio, puoi dire all'inizio "ricordati di fare stretching" e dai la
+possibilità di skipparlo»); il come deciso dall'agente su delega
+dell'utente. TASK-285 in due parti: A il bivio (questa voce), B gli
+esercizi animati (sessione «Animazione esercizi stretching post-corsa»).
+
+«Stop» tenuto premuto, o «Finish» all'arrivo, apriva subito «Your run»:
+nessuno ricordava lo stretching.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Un bivio prima di «Your run»**: con una traccia da mostrare, al posto
+   della scheda di fine corsa compare «Remember to stretch» con due
+   pulsanti, «Skip» e «Stretch» (`src/screens/StretchReminder.tsx`).
+   «Skip» mostra la scheda di oggi, intatta («Keep running», «Save» e
+   «Discard», «Done»). «Stretch» apre gli esercizi della parte B; finché
+   la parte B non è in `main`, chiude la scheda come «Skip». Nessun colore
+   nuovo e niente giallo: il giallo resta del percorso (ADR-0183), e
+   nessuno dei due pulsanti è «quello giusto».
+2. **La voce la dice una volta**, all'apertura della scheda, nella lingua e
+   con la voce scelte per la corsa (ADR-0171): la frase sta nel frasario
+   della voce (`stretch` in `src/voice/*.ts`), non nei testi dell'app,
+   come ogni altra cosa detta. Con «Voice» spento non si sente niente.
+   Mentre la scheda è sullo schermo l'app tiene il suono della corsa
+   (`startRunAudio`/`endRunAudio` di TASK-261 B): la frase passa sopra
+   l'interruttore silenzioso e abbassa la musica come le altre; alla
+   chiusura della scheda il suono torna com'è fuori da una corsa.
+3. **Quando si chiede**: ogni volta che una corsa finisce dalle sue mani
+   (`onEndRun`, `onStopFreeRun`), con o senza percorso; mai per uno «Stop»
+   prima della prima posizione (torna alla prima schermata) né per la
+   corsa riaperta dopo due ore (TASK-272, ADR-0240), che non è appena
+   finita. «Keep running» e poi un nuovo «Stop» lo chiedono di nuovo: è
+   una nuova fine.
+4. **Nessuna memoria della scelta**: il promemoria torna a ogni corsa; un
+   «non chiedermelo più» non è stato chiesto.
+
+**Motivo**: lo stretching va fatto subito dopo la corsa, quando la
+schermata di fine è la prima cosa che si vede; chi non vuole ha «Skip» a
+un tocco, senza niente da leggere prima di salvare.
+
+**Alternative scartate**: una riga nella scheda «Your run» invece del
+bivio (si perde fra «Save» e «Discard»); dirlo solo con la voce (chi corre
+con la voce spenta non lo saprebbe); un promemoria anche prima del conto
+alla rovescia (non chiesto).
+
+**Conseguenza**: la fine della corsa ha un tocco in più per chi non fa
+stretching. Lo screenshot della fine corsa nei materiali per lo store
+mostra «Your run» dopo «Skip».

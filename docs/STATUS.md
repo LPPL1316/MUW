@@ -180,6 +180,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Coordinatore dopo l'approvazione di Apple e con l'ok dell'utente, e
   controlla che `data/cache/city_photos/` stia sul volume); fino ad
   allora l'app mostra le schede di prima. File: `tasks/TASK-283.md`.
+- **TASK-285 parte A — «Remember to stretch» a fine corsa, con «Skip»**
+  (ADR-0247; chiesto dall'utente il 2026-10-13: «Finito l'esercizio, puoi
+  dire all'inizio "ricordati di fare stretching" e dai la possibilità di
+  skipparlo»). Branch `feat/TASK-285-a-stretch-reminder`: la scheda
+  `StretchReminder.tsx` con la frase della voce nelle cinque lingue è
+  scritta e testata, `App.tsx` collegato (ok del Coordinatore), i test
+  dell'app della corsa libera e della corsa riaperta premono «Skip» dopo
+  «Stop»; **resta**: il sì dell'utente sui testi nelle cinque lingue, poi
+  il merge dopo la #500 (TASK-278). La parte B (gli
+  esercizi animati) è della sessione «Animazione esercizi stretching
+  post-corsa», che scrive `tasks/TASK-285.md`.
 - **TASK-278…282 — Cinque richieste dell'utente del 2026-10-11 su
   «Explore» e «Draw»** (numeri dal Coordinatore; task file scritti dalla
   sessione «Explore e Draw: profilo e disegno mappa», nessun codice

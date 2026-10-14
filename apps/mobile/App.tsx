@@ -112,6 +112,7 @@ import { NavigationBanner, NavigationCard } from "./src/screens/NavigateScreen";
 import { Pager } from "./src/screens/Pager";
 import { pageTitle } from "./src/screens/pageTitles";
 import { OwnProfile, ProfileButton, ProfileLayer } from "./src/screens/ProfileLayer";
+import { StretchReminder } from "./src/screens/StretchReminder";
 import { PaddleExplore } from "./src/paddle/PaddleExplore";
 import { MoveShape } from "./src/paddle/MoveShape";
 import { PaddleNotice } from "./src/paddle/PaddleNotice";
@@ -275,6 +276,9 @@ function MuW() {
   const [freeFinished, setFreeFinished] = useState<FreeFinished | null>(() =>
     reopened === null && finished === null ? leftFreeRun() : null,
   );
+  // A run that just ended asks for the stretching first (TASK-285 part A):
+  // never one opened again with the app, which ended long ago.
+  const [stretchAsked, setStretchAsked] = useState(false);
   const [screenNow, setScreen] = useState<Screen>(() =>
     reopened !== null
       ? isFreeRun(reopened)
@@ -635,6 +639,7 @@ function MuW() {
       return;
     }
     setFinished(finishedRun(run, run.status !== "arrived"));
+    setStretchAsked(true);
     setScreen("finish");
   }
 
@@ -646,6 +651,7 @@ function MuW() {
       return;
     }
     setFreeFinished(freeFinishedRun(run, true));
+    setStretchAsked(true);
     setScreen("runFinish");
   }
 
@@ -1051,6 +1057,13 @@ function MuW() {
           />
         ) : reviewing && drawing !== null ? (
           <DrawingCard drawing={drawing} onBack={backFromDrawing} />
+        ) : (finishing || freeFinishing) && stretchAsked ? (
+          // «Stretch» opens the exercises of part B; until then it goes on
+          // to «Your run» as «Skip» does.
+          <StretchReminder
+            onSkip={() => setStretchAsked(false)}
+            onStretch={() => setStretchAsked(false)}
+          />
         ) : freeFinishing ? (
           <FreeFinishCard
             run={freeFinished.run}
