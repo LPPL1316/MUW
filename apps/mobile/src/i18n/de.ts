@@ -1213,4 +1213,15 @@ export const DE: Table = {
   Balloon: "Luftballon",
   Leaf: "Blatt",
   "Back to Draw": "Zurück zu Zeichnen",
+
+  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
+  "Draw on the map": "Auf der Karte zeichnen",
+  Move: "Verschieben",
+  "Draw with one finger. Lines after the first are joined to it.":
+    "Zeichne mit einem Finger. Linien nach der ersten werden mit ihr verbunden.",
+  "Drag the figure or the map. Two fingers on the figure resize it.":
+    "Ziehe die Figur oder die Karte. Zwei Finger auf der Figur ändern ihre Größe.",
+  "This line crosses itself. Draw it again without crossing it.":
+    "Diese Linie kreuzt sich selbst. Zeichne sie ohne Kreuzung neu.",
+  "+ photo": "+ Foto",
 };
