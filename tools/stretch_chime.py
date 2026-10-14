@@ -22,7 +22,8 @@ SECONDS = 0.35
 NOTE_HZ = 880.0
 HARMONIC_HZ = 1760.0
 PEAK = 0.6
-OUT = Path(__file__).resolve().parents[1] / "apps" / "mobile" / "assets" / "stretch" / "ding.wav"
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "apps" / "mobile" / "assets" / "stretch" / "ding.wav"
 
 
 def sample(t: float) -> float:
