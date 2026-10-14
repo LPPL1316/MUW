@@ -195,7 +195,9 @@ pagine»):
    con, quando servono, il rimando alle Impostazioni e la ricerca del
    luogo; l'errore della mappa; le forme del catalogo come tessere, con un
    simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +. In fondo, fermo mentre
+   un'altra parola; la distanza, grande, fra − e +; sotto la distanza, due
+   righe da scorrere di lato, «CITY TOURS» e «PICTURES» (TASK-280, sotto
+   «I giri e le immagini pronte»). In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -1639,6 +1641,65 @@ semplici, con sotto il testo del motore:
 | fotocamera negata | The camera is off for this app. Allow it in Settings, or choose a picture instead. + «Open Settings» (TASK-259) |
 | oltre 10 MB | This picture is too large: 12.3 MB, at most 10 MB. Choose a smaller one. |
 
+### I giri e le immagini pronte (TASK-280, ADR-0246)
+
+Chiesto dall'utente il 2026-10-11 («Sotto draw nella sezione draw
+inserisci i tour delle città o immagini varie»); le scelte sono sue, del
+2026-10-13. Sotto la distanza, nella parte che scorre, sopra «Draw route»
+che resta fermo in fondo, due righe da scorrere di lato, con l'etichetta
+grigia in maiuscolo come «NEARBY TOWNS»:
+
+- **«CITY TOURS»**: quattro tessere, le categorie di «Ask for a route»
+  (sopra, «Explore»): **Famous Places, Best Views, Hidden Gems, Romantic**.
+  Sotto il nome, da dove parte il giro: **«near your start»** con la
+  partenza dal GPS, «near Trento» con un luogo cercato (il primo pezzo del
+  suo nome). L'app non sa il paese di una posizione GPS e nessuna API lo
+  dice (`/nearby-cities` esclude apposta il paese dove si è): per questo
+  l'etichetta è «CITY TOURS» da sola, non «CITY TOURS · Trento» come
+  proponeva il task, scelta dell'utente. Un tocco chiede il giro come una
+  categoria di «Explore» con «Near me»: la categoria da sola, dalla
+  partenza (`POST /themed-route-jobs` con `text`, `centre` = la partenza,
+  `city` nullo). Si apre la mappa coi luoghi e la scheda di sempre
+  (ThemedCard), con «Start» ed «Export GPX»; la via del ritorno è
+  **«Back to Draw»** al posto di «Back to Explore», e «←» torna a «Draw».
+  Senza una partenza la riga non c'è.
+- **«PICTURES»**: dodici sagome disegnate da noi, una figura scura su
+  fondo chiaro: **bici, scarpa da corsa, dinosauro, chitarra, Torre Eiffel,
+  razzo, cuore con freccia, ancora, aereo, gelato, palloncino, foglia**
+  (il razzo al posto del Colosseo, che del contorno esterno avrebbe tenuto
+  solo un blocco col bordo rotto). Ogni tessera ha la sagoma e il nome
+  sotto; quella scelta ha il bordo chiaro, come le forme. Un tocco porta
+  l'interruttore su «Image» con quella sagoma già scelta, il suo contorno
+  giallo, «Hide the picture» ed «Edit the outline» come per una foto, e la
+  pagina torna in cima, dove si vede l'anteprima. Il contorno è già
+  nell'app (`samplePictures.json`): niente attesa e niente
+  `POST /image-outlines`. «Draw route» manda quel contorno a
+  `POST /image-route-jobs`, come per una foto. «Choose picture» o «Take
+  photo» la sostituiscono.
+
+Con «Bike» le righe sono uguali; con «Paddle» non ci sono (sull'acqua non
+ci sono città né foto). I testi nuovi, nelle cinque lingue:
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| CITY TOURS | GIRI IN CITTÀ | STADTTOUREN | RUTAS POR LA CIUDAD | BALADES EN VILLE |
+| PICTURES | IMMAGINI | BILDER | IMÁGENES | IMAGES |
+| Back to Draw | Torna a Disegna | Zurück zu Zeichnen | Volver a Dibuja | Retour à Dessiner |
+| Running shoe | Scarpa da corsa | Laufschuh | Zapatilla | Basket |
+| Dinosaur | Dinosauro | Dinosaurier | Dinosaurio | Dinosaure |
+| Guitar | Chitarra | Gitarre | Guitarra | Guitare |
+| Eiffel Tower | Torre Eiffel | Eiffelturm | Torre Eiffel | Tour Eiffel |
+| Rocket | Razzo | Rakete | Cohete | Fusée |
+| Heart with arrow | Cuore con freccia | Herz mit Pfeil | Corazón con flecha | Cœur et flèche |
+| Anchor | Ancora | Anker | Ancla | Ancre |
+| Plane | Aereo | Flugzeug | Avión | Avion |
+| Ice cream | Gelato | Eis | Helado | Glace |
+| Balloon | Palloncino | Luftballon | Globo | Ballon |
+| Leaf | Foglia | Blatt | Hoja | Feuille |
+
+«Bike», le quattro categorie, «near your start» e «near {place}» c'erano
+già.
+
 ## Chiedere un percorso
 
 «Draw route» è spento finché non c'è una partenza. Toccato, la richiesta va
@@ -2359,6 +2420,15 @@ corsa riaperta da lì ha i tratti a piedi tratteggiati («My activities»).
 Il GPX per Strava (TASK-187) apre un segmento nuovo a ogni pausa: Strava
 mostra le lettere unite da linee dritte sulla base.
 
+- **«Remember to stretch»** prima di tutto (TASK-285 parte A, ADR-0247;
+  chiesto dall'utente il 2026-10-13): appena la corsa finisce, con o
+  senza percorso, al posto della scheda c'è il promemoria con **«Skip»**
+  e **«Stretch»**, e la voce lo dice una volta nella sua lingua («Remember
+  to stretch.»; niente con «Voice» spento). «Skip» mostra la scheda di
+  sotto com'è; «Stretch» apre gli esercizi (parte B; finché non c'è,
+  chiude come «Skip»). Nessuno dei due è giallo. Non si chiede per uno
+  «Stop» prima della prima posizione né per la corsa riaperta dopo due
+  ore (TASK-272).
 - **Senza rete o senza API** la schermata è la stessa: non chiede niente
   a nessuno.
 - **«Keep running»**, dopo uno «Stop» e con il percorso ancora sullo
