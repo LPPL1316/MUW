@@ -1,6 +1,6 @@
 # TASK-285 — Lo stretching dopo la corsa: il promemoria (A) e i cinque esercizi animati (B)
 
-**Stato**: Parte A Todo · Parte B Todo
+**Stato**: Parte A Done (in `main` con la #504, 8cdadf70, 2026-10-14) · Parte B Todo
 **Fase**: 4 · **Branch**: `feat/TASK-285-a-stretch-reminder` (A),
 `feat/TASK-285-b-stretch-exercises` (B)
 **Dipende da**: TASK-113 (la fine della corsa), TASK-172 («Save» e
@@ -109,7 +109,7 @@ cinque lingue (it «Ricordati di fare stretching» / «Stretching» /
 estirar» / «Estirar» / «Omitir», fr «Pensez à vous étirer» / «S'étirer»
 / «Passer») e la frase della voce, la stessa col punto. La frase detta
 dalla voce sta nel frasario (`src/voice/`), non nei testi dell'app.
-PR di A: #504 (dopo la #500).
+PR di A: #504, in `main` il 2026-10-14 (8cdadf70).
 
 ## Parte B — I cinque esercizi animati
 
@@ -268,4 +268,7 @@ dell'altra (`StretchReminder.*` è di A, `src/stretch/` è di B).
 
 ## Esito
 
-*(si compila a fine task)*
+- **Parte A** (2026-10-14, #504, 8cdadf70): dopo «Stop» tenuto o «Finish»,
+  con o senza percorso, prima di «Your run» c'è «Remember to stretch» con
+  «Skip» e «Stretch», e la voce lo dice una volta nella sua lingua. «Stretch»
+  chiude come «Skip» finché non c'è la parte B. Non provata nel simulatore.
