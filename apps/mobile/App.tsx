@@ -1029,6 +1029,7 @@ function MuW() {
             onMode={mapDraw.setMode}
             placed={mapDraw.placed}
             onPick={mapDraw.pick}
+            onSample={mapDraw.pickSample}
             photo={mapDraw.photo}
             onPhoto={mapDraw.choosePhoto}
             onUndo={mapDraw.undo}

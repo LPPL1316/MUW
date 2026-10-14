@@ -29,7 +29,6 @@ one this script writes.
 
 from __future__ import annotations
 
-import json
 import math
 from collections.abc import Sequence
 from pathlib import Path
@@ -38,6 +37,7 @@ from route_engine.optimizer import SHAPE_POINTS
 from route_engine.projection import perimeter
 from route_engine.shapes import SHAPES, get_shape
 from route_engine.shapes.outline import Outline
+from sample_pictures import as_prettier
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUT = REPO_ROOT / "apps" / "mobile" / "src" / "mapdraw" / "catalogueShapes.json"
@@ -99,7 +99,9 @@ def build() -> dict[str, object]:
 
 
 def text() -> str:
-    return json.dumps(build(), separators=(",", ":")) + "\n"
+    """The file as the app's Prettier writes it (TASK-280's `as_prettier`):
+    `format:check` passes, and the test compares it as it is."""
+    return as_prettier(build())
 
 
 def main() -> None:

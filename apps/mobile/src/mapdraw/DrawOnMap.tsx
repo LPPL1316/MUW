@@ -1,10 +1,11 @@
 import { type Shape, SHAPES } from "@shaperoute/shared-types";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { t, tLater } from "../i18n";
 import type { CanvasMode } from "../map/messages";
 import { imageProblemText } from "../route/problems";
 import { DrawButton } from "../route/RoutePanel";
+import { SAMPLE_PICTURES, type SamplePicture } from "../route/samplePictures";
 import { SHAPE_SIGNS } from "../route/ShapeTiles";
 import { shapeName } from "../route/shapeWords";
 import type { ImageState } from "../route/useImageOutline";
@@ -45,6 +46,8 @@ type Props = {
   onMode: (mode: CanvasMode) => void;
   placed: Placed | null;
   onPick: (shape: Shape) => void;
+  /** A ready-made picture of «Draw» (TASK-280). */
+  onSample: (sample: SamplePicture) => void;
   photo: ImageState;
   onPhoto: () => void;
   onUndo: () => void;
@@ -60,13 +63,15 @@ type Props = {
  * Under the map of «Draw on the map» (TASK-281): «Draw | Move» and «Undo»,
  * what the fingers do, a row of tiles that put a figure on the map or
  * change it where it is («+ photo» first, then the shapes of the
- * catalogue), the distance the figure would make, and «Draw route».
+ * catalogue and the ready-made pictures of «Draw»), the distance the figure
+ * would make, and «Draw route».
  */
 export function DrawOnMap({
   mode,
   onMode,
   placed,
   onPick,
+  onSample,
   photo,
   onPhoto,
   onUndo,
@@ -76,6 +81,7 @@ export function DrawOnMap({
   onDraw,
 }: Props) {
   const chosen = placed?.figure.kind === "shape" ? placed.figure.shape : null;
+  const sample = placed?.figure.kind === "picture" ? placed.figure.sample : undefined;
   return (
     <View style={styles.panel}>
       <View style={styles.top}>
@@ -123,6 +129,21 @@ export function DrawOnMap({
               accessibilityState={{ selected }}
             >
               <Text style={styles.sign}>{SHAPE_SIGNS[shape]}</Text>
+            </Pressable>
+          );
+        })}
+        {SAMPLE_PICTURES.map((picture) => {
+          const selected = picture.id === sample;
+          return (
+            <Pressable
+              key={picture.id}
+              style={[styles.tile, selected && styles.selected]}
+              onPress={() => onSample(picture)}
+              accessibilityRole="button"
+              accessibilityLabel={t(picture.name)}
+              accessibilityState={{ selected }}
+            >
+              <Image source={picture.source} style={styles.picture} />
             </Pressable>
           );
         })}
@@ -240,6 +261,11 @@ const styles = StyleSheet.create({
   sign: {
     color: color.text,
     fontSize: fontSize.title,
+  },
+  picture: {
+    width: TILE - space.md,
+    height: TILE - space.md,
+    borderRadius: radius.sm,
   },
   foot: {
     flexDirection: "row",

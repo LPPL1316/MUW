@@ -5,6 +5,7 @@ import type { AnyRouteRequest } from "../api/routes";
 import type { CanvasEvent, MapCanvas } from "../map/MapView";
 import type { CanvasMode } from "../map/messages";
 import type { ImageSource, Picked } from "../route/pickImage";
+import type { SamplePicture } from "../route/samplePictures";
 import { type ImageState, useImageOutline } from "../route/useImageOutline";
 import { appUnits } from "../units/units";
 import { canvasRequest, figureApart } from "./canvasRequest";
@@ -53,6 +54,8 @@ export type MapCanvasState = {
   /** A tile: the shape in the middle of the map, or in place of the figure,
    * where it is and as big. */
   pick: (shape: Shape) => void;
+  /** A ready-made picture of «Draw» (TASK-280): its outline, as a tile. */
+  pickSample: (sample: SamplePicture) => void;
   /** «+ photo»: a picture of the phone, whose outline the engine traces. */
   photo: ImageState;
   choosePhoto: () => void;
@@ -146,6 +149,21 @@ export function useMapCanvas({
         return;
       }
       putFigure({ kind: "shape", shape });
+    },
+    [placed, putFigure],
+  );
+
+  const pickSample = useCallback(
+    (sample: SamplePicture) => {
+      if (placed?.figure.kind === "picture" && placed.figure.sample === sample.id) {
+        return;
+      }
+      putFigure({
+        kind: "picture",
+        outline: sample.outline.points,
+        strokes: sample.outline.strokes ?? [],
+        sample: sample.id,
+      });
     },
     [placed, putFigure],
   );
@@ -281,6 +299,7 @@ export function useMapCanvas({
     canvas,
     onCanvas,
     pick,
+    pickSample,
     photo: photo.state,
     choosePhoto,
     undo,

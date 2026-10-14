@@ -16,11 +16,12 @@ export type Unit = OutlinePoint;
 
 /** What is on the map: a line drawn with a finger and the lines drawn after
  * it, hung on it as details (ADR-0074); a shape of the catalogue; or the
- * outline the engine traced from a photo (ADR-0069). */
+ * outline the engine traced from a photo (ADR-0069), or from one of the
+ * ready-made pictures of «Draw» (TASK-280), which `sample` names. */
 export type Figure =
   | { kind: "drawing"; outline: Unit[]; details: Unit[][] }
   | { kind: "shape"; shape: Shape }
-  | { kind: "picture"; outline: Unit[]; strokes: Unit[][] };
+  | { kind: "picture"; outline: Unit[]; strokes: Unit[][]; sample?: string };
 
 /** A figure on the map: the middle of its frame, and the metres of one of
  * its units. Its size on the map is all there is to its distance. */

@@ -5,6 +5,7 @@ import { requestImageOutline } from "../api/imageOutlines";
 import { isImageRequest } from "../api/routes";
 import { metresBetween } from "../map/coordinates";
 import type { Picked } from "../route/pickImage";
+import { SAMPLE_PICTURES } from "../route/samplePictures";
 import { lookOf } from "./figure";
 import { fromPlane } from "./plane";
 import { type MapCanvasOptions, useMapCanvas } from "./useMapCanvas";
@@ -236,4 +237,26 @@ test("«Try 8 km» makes the figure that size and gives its request", async () =
   expect(sized).toMatchObject({ shape: "heart", distance_m: 8000 });
   expect(result.current.request).toEqual(sized);
   expect(result.current.distanceM).toBeCloseTo(8000);
+});
+
+test("a ready-made picture of «Draw» is a tile: its outline goes on the map", async () => {
+  const [first, second] = SAMPLE_PICTURES;
+  const { result } = await setUp();
+  await act(async () => result.current.onCanvas({ type: "centre", point: MIDDLE }));
+  await act(async () => result.current.pickSample(first));
+  expect(result.current.placed?.figure).toEqual({
+    kind: "picture",
+    outline: first.outline.points,
+    strokes: first.outline.strokes ?? [],
+    sample: first.id,
+  });
+  expect(result.current.distanceM).toBeCloseTo(5000);
+  expect(isImageRequest(result.current.request!)).toBe(true);
+  // The same tile again changes nothing; another takes its place, as big.
+  const placed = result.current.placed;
+  await act(async () => result.current.pickSample(first));
+  expect(result.current.placed).toBe(placed);
+  await act(async () => result.current.pickSample(second));
+  expect(result.current.placed?.figure).toMatchObject({ sample: second.id });
+  expect(result.current.placed?.unitM).toBe(placed?.unitM);
 });

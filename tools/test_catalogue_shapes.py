@@ -47,7 +47,7 @@ def test_the_pen_up_length_is_the_one_the_engine_sizes_by() -> None:
         assert entry["up"]["length"] == pytest.approx(drawn, rel=1e-3), name
 
 
-def test_the_file_is_compact_json() -> None:
+def test_the_file_says_where_it_comes_from_and_stays_small() -> None:
     data = json.loads(text())
     assert data["about"].startswith("Written by tools/catalogue_shapes.py")
     assert len(text()) < 80_000
