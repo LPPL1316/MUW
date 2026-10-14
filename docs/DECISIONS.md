@@ -4679,6 +4679,53 @@ non si rifà mai (elenchi e richieste vecchi fino alla riapertura dell'app).
 gli elenchi di prima, poi i trattini mentre si rileggono; un tocco sul
 cerchio no, perché la pagina si rifà prima di scorrere.
 
+**Aggiunta del 2026-10-13 (TASK-278 parte B): gli altri ingressi alla
+quarta pagina.** **Deciso dall'utente il 2026-10-13** il cosa («sì, portali
+tutti alla 4ª pagina»; poi, alle due domande della sessione: «4ª pagina, poi
+torni» per il cuore e «Save», «Torna dov'eri» per il profilo di un altro);
+il come deciso dall'agente su delega dell'utente.
+
+- **Cuore e «Save» senza account** stanno sulla mappa e sulla fine della
+  corsa, che prendono tutto lo schermo: portano alla quarta pagina con la
+  loro riga sopra «Sign up» e, solo finché nessuno entra, con «←» e il
+  titolo «Profile» (`OwnProfile` con `onBack`), che tornano lì senza
+  tenere niente. Appena si entra l'app torna da sola dov'era: il percorso
+  è tenuto (come prima, quando arriva l'elenco dei preferiti), la fine
+  della corsa ha «Save» e «Discard». Uno swipe o un nome lasciano la mappa
+  o la fine della corsa: il percorso non si tiene (`forgetWaiting`, come
+  il vecchio «←»), la corsa resta sul telefono e torna alla prossima
+  apertura.
+- **La lente di «Feed» senza account** porta alla quarta pagina con «Log
+  in to find your friends.», senza «←»: si parte da una pagina.
+- **Il profilo di un altro** (nome taggato, notifica) resta sopra l'app;
+  «←» chiude e mostra l'app com'era (`home` = `app`), non più «Profile».
+  **Il proprio nome** chiude il disegno e porta alla quarta pagina; una
+  notifica non lo porta mai (l'API non avvisa l'account di quello che fa
+  lui), ma passa dalla stessa porta. Durante una corsa nessuna richiesta
+  la toglie dallo schermo.
+- **Un disegno di una notifica** toccata mentre una pagina del profilo è
+  sopra la quarta pagina torna, con «Back to the profile», alla quarta
+  pagina invece di aprire «Profile» sopra l'app.
+- **Come**: `ProfileLayer` chiude ciò che è sopra l'app e conta la
+  richiesta con la riga del perché (`OwnAsk`, letto con `useOwnPage`);
+  `App.tsx` va alla quarta pagina a ogni richiesta nuova e ricorda da dove
+  (`profileFrom`, solo dalla mappa o dalla fine della corsa senza account)
+  per «←» e per il ritorno dopo l'ingresso. Uscendo dalla quarta pagina
+  (`leave`) la riga va via. Le liste di «Profile» aperto sopra l'app dal
+  cerchio fuori dal pager (oggi solo nei test) tornano lì come prima
+  (`home` = `layer`).
+
+**Scartate** (dall'utente): la quarta pagina senza «←» anche da mappa e
+fine corsa (chi non entra perde la fine della corsa fino alla prossima
+apertura); cuore e «Save» ancora sopra l'app; «←» dal profilo di un altro
+alla quarta pagina. (Dall'agente): far decidere a ogni porta se c'è «←»
+invece che dallo schermo di partenza; un'attesa dell'ingresso in un
+`useEffect`, che il lint di React rifiuta.
+
+**Conseguenze**: dalla mappa e dalla fine della corsa la quarta pagina
+ha, per poco, sia lo swipe sia «←»; chi entra non vede il proprio profilo
+ma torna subito dov'era. Nessun testo nuovo.
+
 ## ADR-0127 — «Feed» con quindici esempi dal catalogo, finché non pubblicano gli iscritti
 **Stato**: Attiva · 2026-10-02 · **scelta dell'utente** per il cosa («nella
 sezione feed crea già in automatico 15 attività con nomi inventati, utenti
