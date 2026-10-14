@@ -78,6 +78,8 @@ type Props = {
   /** Turn-by-turn along it, the directions asked for first (TASK-145). */
   start: StartView;
   onStart: () => void;
+  /** Asked from the tours of «Draw» (TASK-280): the way back goes there. */
+  fromDraw?: boolean;
 };
 
 /** Under the map: a shape through the places of a theme (TASK-129). */
@@ -88,6 +90,7 @@ export function ThemedCard({
   onCancel,
   start,
   onStart,
+  fromDraw = false,
 }: Props) {
   // Written again when «Settings» changes the units (TASK-182); with a
   // point, as the texts here, still in English.
@@ -120,7 +123,9 @@ export function ThemedCard({
           onPress={onCancel}
           accessibilityRole="button"
         >
-          <Text style={styles.secondaryText}>{t("Back to Explore")}</Text>
+          <Text style={styles.secondaryText}>
+            {fromDraw ? t("Back to Draw") : t("Back to Explore")}
+          </Text>
         </Pressable>
       </View>
     );
@@ -160,7 +165,9 @@ export function ThemedCard({
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
       )}
       <Pressable style={styles.secondary} onPress={onCancel} accessibilityRole="button">
-        <Text style={styles.secondaryText}>{t("Back to Explore")}</Text>
+        <Text style={styles.secondaryText}>
+          {fromDraw ? t("Back to Draw") : t("Back to Explore")}
+        </Text>
       </Pressable>
     </View>
   );

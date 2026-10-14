@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
+  dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
+  ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
+  fine corsa «Remember to stretch» a schermo e a voce, «Skip» verso «Your
+  run» o l'uscita verso lo stretching. **Parte B**, sessione «Animazione
+  esercizi stretching post-corsa»: cinque esercizi animati uno dopo
+  l'altro, con il conto alla rovescia e il passaggio da sé, «come
+  sull'app bEND»; figura e testi nostri, nessuna dipendenza nuova. Solo
+  app; A entra prima di B; non nella 1.0. Testi e voce nelle cinque
+  lingue con il sì dell'utente. File: `tasks/TASK-285.md`.
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
@@ -178,11 +188,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - **TASK-278** — il proprio profilo come quarta pagina dopo «Explore»;
     in alto tre nomi più il cerchio, che si illumina (scelta
     dell'utente). Solo app: può partire subito.
+    **Fatto il 2026-10-13**, branch `feat/TASK-278-profile-page`; vedi
+    «Completato».
   - **TASK-279** — parole con la penna alzata negli esempi di una città
     in «Explore» (parte A, solo app: l'API tiene già le parole chieste
     dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
+    **Parte A: PR #503** (2026-10-13, aggiunta ad ADR-0144), branch
+    `feat/TASK-279-a-explore-words`. Dopo le otto forme una città scrive
+    CIAO, LOVE, AMORE, RUN, HELLO, MUW (scelte dell'utente) con la penna
+    alzata, ognuna alla distanza minima, 3 km a lettera (scelta
+    dell'utente: a 5 km l'API rifiuta le parole), nella riga «WORDS»
+    (testo approvato nelle cinque lingue). Aspetta il «merge 503» del
+    Coordinatore; non nella 1.0; pubblica il Coordinatore. Resta la parte
+    B e, facoltativo, `draw_examples` con le parole (punto 7, dopo Apple).
   - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
     «PICTURES» (sagome pronte). Solo app: può partire subito.
+    **Fatto il 2026-10-13** (ADR-0246), PR in attesa del merge del
+    Coordinatore dopo la #500; vedi «Completato».
   - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
     forme e immagini sulla mappa della città, e cambiarle senza uscire.
     Solo app; il motore parte da dove è stata messa la figura.
@@ -795,6 +817,32 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-280 (ADR-0246; chiesto dall'utente il 2026-10-11, scelte
+  sue del 2026-10-13): in fondo a «Draw», sotto la distanza, due righe da
+  scorrere. «CITY TOURS»: Famous Places, Best Views, Hidden Gems e Romantic
+  «near your start» (l'app non sa il nome del paese di una posizione GPS),
+  chiesti come «Ask for a route» con «Near me»; si aprono sulla mappa coi
+  luoghi, e «Back to Draw» o «←» tornano a «Draw». «PICTURES»: dodici
+  sagome disegnate da `tools/sample_pictures.py` (bici, scarpa, dinosauro,
+  chitarra, Torre Eiffel, razzo, cuore con freccia, ancora, aereo, gelato,
+  palloncino, foglia), col contorno del motore già nell'app: un tocco le
+  mette in «Image», «Draw route» manda quel contorno. Con «Paddle» nessuna
+  delle due. Solo app, non nella 1.0; la pubblica il Coordinatore. Da
+  provare sull'iPhone. File: `tasks/TASK-280.md`.
+- **App** — TASK-278 (aggiunta ad ADR-0124; chiesto dall'utente il
+  2026-10-11, scelte sue): il proprio profilo è **la quarta pagina**, dopo
+  «Explore», a uno swipe a sinistra. In alto restano tre nomi; il cerchio
+  della foto ha la lineetta quando il profilo è sullo schermo e ci porta
+  con un tocco, da qualunque pagina (non apre più un foglio sopra l'app).
+  La pagina non ha «←» né titolo (scelta dell'utente del 2026-10-13); si
+  rifà a ogni ritorno, così elenchi e richieste sono nuovi. «Settings»,
+  «Favorites», «My activities», «Edit profile», «Guide», il profilo di un
+  altro e un disegno si aprono sopra l'app come prima, e «←» torna alla
+  quarta pagina. Il cuore e «Save» senza account, la lente di «Feed» senza
+  account, i nomi taggati e le notifiche aprono «Profile» sopra l'app come
+  prima: portarli alla quarta pagina è da chiedere all'utente. «Help» dice
+  ora «four pages» nelle cinque lingue (sì dell'utente). Solo app, non
+  nella 1.0: la pubblica il coordinatore. `tasks/TASK-278.md`.
 - **App** — TASK-273 (ADR-0241; dalla prima recensione di un tester del
   2026-10-10, scelta dell'utente «Automatico, dove la tocchi»): lungo una
   forma chiusa la corsa comincia dove il corridore raggiunge la forma (3

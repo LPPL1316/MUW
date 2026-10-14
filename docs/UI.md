@@ -195,7 +195,9 @@ pagine»):
    con, quando servono, il rimando alle Impostazioni e la ricerca del
    luogo; l'errore della mappa; le forme del catalogo come tessere, con un
    simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +. In fondo, fermo mentre
+   un'altra parola; la distanza, grande, fra − e +; sotto la distanza, due
+   righe da scorrere di lato, «CITY TOURS» e «PICTURES» (TASK-280, sotto
+   «I giri e le immagini pronte»). In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -418,6 +420,30 @@ pagine»):
    senza «Drawing…». Berlin non ancora: li disegna al tocco, come una città
    cercata.
 
+   **Da TASK-279** parte A (aggiunta ad ADR-0144; chiesto dall'utente il
+   2026-10-11, «in Explore frasi con l'alzata di penna», per ora parole;
+   parole e distanze scelte da lui il 2026-10-13): dopo le otto forme una
+   città scelta scrive **sei parole** dal suo centro, lettere tonde e la
+   penna alzata fra una lettera e l'altra: **CIAO, LOVE, AMORE, RUN, HELLO,
+   MUW**. Ognuna alla distanza minima che il motore accetta, 3 km a
+   lettera: RUN e MUW 9 km, CIAO e LOVE 12, AMORE e HELLO 15 (a 5 km come
+   le forme l'API le rifiuta). Sotto gli esempi della città, o sotto le
+   sue schede se ha percorsi consigliati, c'è la riga **«WORDS»**
+   («PAROLE», «WÖRTER», «PALABRAS», «MOTS»), etichetta grigia in
+   maiuscolo come «NEARBY TOWNS», con schede larghe come le sue (due
+   intere e l'orlo della terza) da scorrere: la parola e i km («RUN ·
+   9.6 km»), la città, la somiglianza, la mappa sotto il disegno; i tratti
+   a piedi fra le lettere non si disegnano. Le parole si chiedono una
+   alla volta come le forme in più, la più lunga per prima: una diventa
+   scheda quando tocca a lei («Drawing…»), una che non riesce non
+   compare, e senza parole la riga non c'è. Una città che ha già una
+   parola fra i suoi percorsi (CIAO nel catalogo) non la riscrive.
+   Restano sul telefono con gli esempi e sull'API: una seconda apertura
+   le mostra subito, senza chiederle. Un tocco apre la parola sulla mappa
+   come gli esempi, con i tratti a piedi, «Start», «Export GPX» e, sotto
+   il titolo, «9.0 km of letters + 0.6 km walking between them» come in
+   «Draw». Con «Paddle» niente parole.
+
    **Da TASK-145** ogni percorso di «Explore» aperto sulla mappa
    (consigliato, esempio, a tema) ha «Start», giallo, sopra «Export GPX».
    Questi percorsi arrivano senza indicazioni: al tocco l'app le chiede
@@ -453,7 +479,7 @@ non la ricarica. La scheda sta sotto la mappa, non sopra, così non copre
 l'attribuzione; i margini seguono la tacca e la barra in basso di ogni
 telefono.
 
-## Le pagine: «Feed», «Draw», «Explore» (TASK-154, ADR-0124)
+## Le pagine: «Feed», «Draw», «Explore» e il profilo (TASK-154, ADR-0124; TASK-278)
 
 Tre pagine affiancate, scelta dell'utente: **«Feed»** a sinistra,
 **«Draw»** al centro, **«Explore»** a destra. Si passa dall'una all'altra
@@ -461,6 +487,23 @@ con uno swipe a destra o a sinistra, oppure toccando il nome in alto. I tre
 nomi stanno in alto a sinistra, nell'ordine in cui sono le pagine: dicono
 dove porta lo swipe. Il nome della pagina sullo schermo è chiaro, con una
 lineetta sotto; gli altri sono grigi. Niente giallo: è del percorso.
+
+**Dopo «Explore», il proprio profilo** (TASK-278, aggiunta ad ADR-0124;
+scelta dell'utente del 2026-10-11): una quarta pagina a destra di
+«Explore», a uno swipe a sinistra da lì; uno swipe a destra torna a
+«Explore». In alto i nomi restano tre: la quarta pagina non ha un nome, ha
+**il cerchio di «Profile»** in alto a destra (sotto, «Profile»). Quando il
+profilo è sullo schermo il cerchio ha la lineetta della pagina accesa,
+bianca come quella dei nomi, subito sotto di sé (l'intestazione resta alta
+com'era), e nessun nome è chiaro; VoiceOver legge il cerchio come
+selezionato. Un tocco sul cerchio, da qualunque pagina, porta lì scorrendo,
+come un tocco su un nome; non apre più un foglio sopra l'app. La pagina è
+la prima di «Profile»: senza account «Sign up» e «Log in», con l'account il
+profilo con le sue righe; **senza «←» e senza titolo**, come le altre
+pagine. Si costruisce la prima volta che ci si arriva, come «Explore», e si
+rifà ogni volta che torna sullo schermo (dopo uno swipe o un tocco, o
+chiusa una pagina che si era aperta sopra): gli elenchi di chi segue e i
+disegni si rileggono, come quando «Profile» si apriva.
 
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
@@ -571,10 +614,21 @@ lineetta sotto; gli altri sono grigi. Niente giallo: è del percorso.
 
 ## «Profile» (TASK-115, ADR-0125; TASK-154; TASK-177, ADR-0145; TASK-178, ADR-0146; TASK-116, ADR-0128)
 
-In alto a destra, accanto ai nomi delle pagine, un pulsante tondo apre
+In alto a destra, accanto ai nomi delle pagine, un pulsante tondo porta a
 **«Profile»**, l'account: mostra la foto di chi è entrato, o la sua
-iniziale se non ne ha messa una, o una figura quando non c'è nessuno. «Profile» si apre sopra l'app e si chiude
-con «←»: sotto, forma, distanza e mappa restano come erano. Sulla mappa e
+iniziale se non ne ha messa una, o una figura quando non c'è nessuno. Dal
+TASK-278 la prima pagina di «Profile» è **la quarta pagina**, dopo
+«Explore» (sopra, «Le pagine»), e il cerchio ha la lineetta quando è lì.
+Le pagine che si aprono da lì («Settings», «Favorites», «My activities»,
+«Edit profile», «Guide», il profilo di un altro, un disegno) si aprono
+sopra l'app come prima, e «←» (o «Back to the profile») torna alla quarta
+pagina. Aperto da un'altra parte dell'app (il cuore sulla mappa senza
+account, la lente di «Feed» senza account, «Save» a fine corsa senza
+account), «Profile» si apre ancora sopra l'app e si chiude con «←»:
+sotto, forma, distanza e mappa restano come erano; il profilo di un altro
+aperto da un nome taggato o da una notifica torna, con «←», a «Profile»
+sopra l'app, come prima. Portare questi ingressi alla quarta pagina è una
+scelta dell'utente non ancora fatta (`tasks/TASK-278.md`). Sulla mappa e
 durante la corsa il pulsante non c'è.
 
 **Lo sport** (TASK-205, ADR-0165, chiesto dall'utente): a sinistra del
@@ -1586,6 +1640,65 @@ semplici, con sotto il testo del motore:
 | `unreadable` | This picture could not be read. Choose another one. |
 | fotocamera negata | The camera is off for this app. Allow it in Settings, or choose a picture instead. + «Open Settings» (TASK-259) |
 | oltre 10 MB | This picture is too large: 12.3 MB, at most 10 MB. Choose a smaller one. |
+
+### I giri e le immagini pronte (TASK-280, ADR-0246)
+
+Chiesto dall'utente il 2026-10-11 («Sotto draw nella sezione draw
+inserisci i tour delle città o immagini varie»); le scelte sono sue, del
+2026-10-13. Sotto la distanza, nella parte che scorre, sopra «Draw route»
+che resta fermo in fondo, due righe da scorrere di lato, con l'etichetta
+grigia in maiuscolo come «NEARBY TOWNS»:
+
+- **«CITY TOURS»**: quattro tessere, le categorie di «Ask for a route»
+  (sopra, «Explore»): **Famous Places, Best Views, Hidden Gems, Romantic**.
+  Sotto il nome, da dove parte il giro: **«near your start»** con la
+  partenza dal GPS, «near Trento» con un luogo cercato (il primo pezzo del
+  suo nome). L'app non sa il paese di una posizione GPS e nessuna API lo
+  dice (`/nearby-cities` esclude apposta il paese dove si è): per questo
+  l'etichetta è «CITY TOURS» da sola, non «CITY TOURS · Trento» come
+  proponeva il task, scelta dell'utente. Un tocco chiede il giro come una
+  categoria di «Explore» con «Near me»: la categoria da sola, dalla
+  partenza (`POST /themed-route-jobs` con `text`, `centre` = la partenza,
+  `city` nullo). Si apre la mappa coi luoghi e la scheda di sempre
+  (ThemedCard), con «Start» ed «Export GPX»; la via del ritorno è
+  **«Back to Draw»** al posto di «Back to Explore», e «←» torna a «Draw».
+  Senza una partenza la riga non c'è.
+- **«PICTURES»**: dodici sagome disegnate da noi, una figura scura su
+  fondo chiaro: **bici, scarpa da corsa, dinosauro, chitarra, Torre Eiffel,
+  razzo, cuore con freccia, ancora, aereo, gelato, palloncino, foglia**
+  (il razzo al posto del Colosseo, che del contorno esterno avrebbe tenuto
+  solo un blocco col bordo rotto). Ogni tessera ha la sagoma e il nome
+  sotto; quella scelta ha il bordo chiaro, come le forme. Un tocco porta
+  l'interruttore su «Image» con quella sagoma già scelta, il suo contorno
+  giallo, «Hide the picture» ed «Edit the outline» come per una foto, e la
+  pagina torna in cima, dove si vede l'anteprima. Il contorno è già
+  nell'app (`samplePictures.json`): niente attesa e niente
+  `POST /image-outlines`. «Draw route» manda quel contorno a
+  `POST /image-route-jobs`, come per una foto. «Choose picture» o «Take
+  photo» la sostituiscono.
+
+Con «Bike» le righe sono uguali; con «Paddle» non ci sono (sull'acqua non
+ci sono città né foto). I testi nuovi, nelle cinque lingue:
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| CITY TOURS | GIRI IN CITTÀ | STADTTOUREN | RUTAS POR LA CIUDAD | BALADES EN VILLE |
+| PICTURES | IMMAGINI | BILDER | IMÁGENES | IMAGES |
+| Back to Draw | Torna a Disegna | Zurück zu Zeichnen | Volver a Dibuja | Retour à Dessiner |
+| Running shoe | Scarpa da corsa | Laufschuh | Zapatilla | Basket |
+| Dinosaur | Dinosauro | Dinosaurier | Dinosaurio | Dinosaure |
+| Guitar | Chitarra | Gitarre | Guitarra | Guitare |
+| Eiffel Tower | Torre Eiffel | Eiffelturm | Torre Eiffel | Tour Eiffel |
+| Rocket | Razzo | Rakete | Cohete | Fusée |
+| Heart with arrow | Cuore con freccia | Herz mit Pfeil | Corazón con flecha | Cœur et flèche |
+| Anchor | Ancora | Anker | Ancla | Ancre |
+| Plane | Aereo | Flugzeug | Avión | Avion |
+| Ice cream | Gelato | Eis | Helado | Glace |
+| Balloon | Palloncino | Luftballon | Globo | Ballon |
+| Leaf | Foglia | Blatt | Hoja | Feuille |
+
+«Bike», le quattro categorie, «near your start» e «near {place}» c'erano
+già.
 
 ## Chiedere un percorso
 

@@ -4634,6 +4634,51 @@ stato provato niente. Il nome «Sgrava» resta in
 cima a «Draw» e «Best near you» in cima a «Explore»: toglierli o no è
 parte del ridisegno delle due pagine, non ancora scelto.
 
+**Aggiunta del 2026-10-13 (TASK-278): il proprio profilo come quarta
+pagina.** **Deciso dall'utente il 2026-10-11** il cosa («Dopo explore metti
+il mio profilo personale facendo uno swipe a sinistra»; in alto tre nomi
+più il cerchio, che si illumina; scartati quattro nomi in alto, che accanto
+allo sport non ci stanno su un iPhone da 390 pt né in tedesco); dall'utente
+il 2026-10-13 la pagina senza titolo e il testo nuovo di «Help»; il come
+deciso dall'agente su delega dell'utente.
+
+- **Quattro pagine**: «Feed», «Draw», «Explore» e, a destra, il profilo
+  (`profile` in `PAGES` di `App.tsx`). La quarta pagina non ha un nome in
+  alto (`unnamed` in `Pager.tsx`): ci porta il cerchio di «Profile», che ha
+  la lineetta della pagina accesa quando è lì e per VoiceOver è
+  «selezionato» (`ProfileButton` con `selected` e `onPress`). La lineetta
+  sta sotto il cerchio, nello spazio in fondo all'intestazione, che resta
+  alta com'era. Si monta alla prima visita (`lazy`), come «Explore».
+- **La pagina è la prima di «Profile»** (`OwnProfile` in
+  `ProfileLayer.tsx`, che mostra `ProfileScreen` senza `onBack`: niente «←»
+  né titolo, come le altre pagine). Si rifà ogni volta che torna sullo
+  schermo (una `key` che cresce): gli elenchi di chi segue e i disegni si
+  rileggono come quando «Profile» si apriva sopra l'app, e il numero rosso
+  delle richieste apre ancora «Requests».
+- **Le pagine che apre restano sopra l'app** («Settings», «Favorites», «My
+  activities», «Edit profile», «Guide», il profilo di un altro), con lo
+  strato e i contesti dove erano: `ProfileLayer` ricorda da dove si è
+  partiti (`home`, la quarta pagina o lo strato) e «←» verso la prima
+  pagina chiude lo strato quando si era partiti dalla quarta. Un disegno
+  aperto dalla pagina torna alla pagina sotto la mappa, come da «Feed».
+  «Guide» aperto da lì torna lì, non a «Settings».
+- **Gli altri ingressi restano come prima**: il cuore e «Save» senza
+  account, la lente di «Feed» senza account, un nome taggato, una notifica
+  aprono «Profile» sopra l'app. Portarli alla quarta pagina è una scelta
+  dell'utente, da chiedere.
+- Il giro di benvenuto (ADR-0235) regge con quattro pagine: non nomina il
+  loro numero, e il passo dell'intestazione dice già «In your profile…».
+  «Help» lo diceva («three pages»): cambiato nelle cinque lingue.
+
+**Scartate**: aprire anche le pagine del profilo dentro la quarta pagina
+(cambierebbe dove sono, fuori dal task); tenere «Profile» sopra l'app e
+aggiungere solo lo swipe (due posti per la stessa pagina); una pagina che
+non si rifà mai (elenchi e richieste vecchi fino alla riapertura dell'app).
+
+**Conseguenze**: uno swipe che arriva sul profilo mostra per un attimo
+gli elenchi di prima, poi i trattini mentre si rileggono; un tocco sul
+cerchio no, perché la pagina si rifà prima di scorrere.
+
 ## ADR-0127 — «Feed» con quindici esempi dal catalogo, finché non pubblicano gli iscritti
 **Stato**: Attiva · 2026-10-02 · **scelta dell'utente** per il cosa («nella
 sezione feed crea già in automatico 15 attività con nomi inventati, utenti
@@ -14163,3 +14208,136 @@ ha scelto di tenere).
 elemento e di una JPEG per foto vista: con mille paesi, circa 60 MB. Una
 foto di Commons può mostrare un monumento invece del paese (Laguardia: un
 dolmen); la sceglie chi cura Wikidata.
+
+## ADR-0144, aggiunta — Le parole di una città, dopo le sue forme
+
+**Stato**: Attiva · 2026-10-13 · **scelte dell'utente** il cosa (il
+2026-10-11 «prima parole, poi frasi»; il 2026-10-13 le sei parole e la
+distanza minima di ognuna); il come deciso dall'agente su delega
+dell'utente (TASK-279 parte A). Aggiunta ad ADR-0144, senza numero nuovo.
+
+**Contesto**: in «Explore» una città scelta disegna otto forme da 5 km dal
+centro, una alla volta (ADR-0144). L'utente vuole anche parole con la penna
+alzata (ADR-0157). L'API tiene già ogni percorso chiesto da un centro,
+parole comprese (ADR-0136): basta l'app. Il task diceva «5 km come le
+forme», ma il contratto vuole almeno `LETTER_DISTANCE_M` (3 km) per
+lettera: a 5 km l'API rifiuta ogni parola (`check_word`).
+
+**Decisione**:
+- **Sei parole**, scelte dall'utente: CIAO, LOVE, AMORE, RUN, HELLO, MUW
+  (`EXAMPLE_WORDS` in `exampleRoutes.ts`), lettere tonde, `pen_up: true`.
+  **Ognuna alla distanza minima** (scelta dell'utente): 3 km a lettera,
+  come «Use 12 km» in «Draw». RUN e MUW 9 km, CIAO e LOVE 12, AMORE e
+  HELLO 15.
+- **Dopo le otto forme**, nello stesso giro e con le stesse regole delle
+  forme in più: una alla volta, dentro `EXAMPLES_PER_MINUTE`, una scheda
+  solo quando tocca a lei, nessuna scheda né messaggio per una che non
+  riesce. `shape_not_drawable` la lascia fuori finché l'app resta aperta;
+  un guaio che non è della parola (rete, troppe richieste) ferma in
+  silenzio anche le parole, che si richiedono alla prossima scelta della
+  città. Sull'acqua niente parole.
+- **La più lunga per prima** (`wordOrder`): AMORE, HELLO, CIAO, LOVE, RUN,
+  MUW. Ogni lettera ha la stessa distanza, quindi una parola più lunga va
+  più lontano dal centro e la zona che l'API scarica per lei contiene
+  quelle delle più corte, come il cerchio fra le forme. Le schede restano
+  nell'ordine dell'utente.
+- **Una lista accanto alle forme**, non dentro: `Example` ha `shape`, e lo
+  leggono anche «Paddle», «WhileDrawing» e le schede degli esempi.
+  `WordExample` ha `word` e gli stessi stati; il giro chiede le forme e
+  poi le parole con la stessa funzione (`Ask`). Gli id sono
+  `example:word:CIAO:<chiave>`.
+- **Nello stesso file degli esempi**, con le forme della città: una parola
+  tenuta a un'altra distanza o senza `walks` si ridisegna. Un'app più
+  vecchia legge il file come prima (cerca le forme per `shape`).
+- **Anche una città con percorsi consigliati** riceve le parole, meno
+  quelle che ha già fra i suoi percorsi (`wordsOf`, nel catalogo c'è un
+  CIAO); la riga sta sotto le sue schede, con il nome della città del
+  catalogo.
+- **La riga**: «WORDS», schede come «NEARBY TOWNS» (42% della pagina), la
+  parola e i km, la città, la somiglianza, la mappa; i tratti a piedi non
+  si disegnano (`gaps`). Il credito delle mappe sotto la riga solo se
+  sopra non c'è. Aperta, la scheda del percorso dice anche «6.0 km of
+  letters + 0.4 km walking between them», come «Draw» (`PenSplit`, ora
+  esportato da `RoutePanel.tsx`), solo per le parole.
+
+**Motivo**: le parole sono richieste uguali per tutti i telefoni, che
+l'API tiene; seguire le regole delle forme in più non tocca il limite
+dell'API (ADR-0076) né i primi tre esempi, che non aspettano mai.
+
+**Alternative scartate**: le parole a 5 km (rifiutate dal contratto); tutte
+a 15 km (scartata dall'utente); un `Example` con `shape` o `word` (cambia
+i file di «Paddle» e degli esempi); una seconda coda di richieste per le
+parole (due giri insieme supererebbero il limite al minuto); farle
+disegnare prima dal server con `draw_examples` (TASK-279 punto 7, dopo
+l'approvazione di Apple e con l'ok dell'utente).
+
+**Conseguenza**: il primo telefono in una città aspetta, dopo le forme,
+30–50 s per parola sul server (15 km); gli altri le ricevono subito. Fra
+due città sfogliate in un minuto le parole della seconda aspettano il
+minuto dopo. Una città senza zona sul server può scaricarne una più
+grande per la parola più lunga.
+
+## ADR-0246 — Sotto «Draw» i giri a tema e dodici sagome pronte, col contorno già nell'app
+**Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-280): le dodici sagome col razzo al
+posto del Colosseo, i quattro giri, «near your start» al posto del nome
+della città; il come deciso dall'agente su delega dell'utente. Dalla
+richiesta del 2026-10-11 «Sotto draw nella sezione draw inserisci i tour
+delle città o immagini varie» (scelta «Tour e immagini»).
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Due righe nuove in un file nuovo**, `src/route/DrawIdeas.tsx`, messe
+   da `App.tsx` sotto `RouteChoice` dentro la pagina che scorre:
+   `ChooseScreen.tsx` non cambia. Nessuna con «Paddle».
+2. **I giri sono quelli di «Explore»** (ADR-0099), senza niente di nuovo
+   sul server: `useThemedRoute.ask` con la categoria da sola, `centre` la
+   partenza di «Draw» e `city` nullo, come «Near me» in «Explore». La mappa
+   e la scheda (ThemedCard) sono le stesse; `routeList` ricorda «Draw»
+   (`"choose"`), così «←» e «Back to Draw» tornano lì.
+3. **Il nome della città non c'è**: con la partenza dal GPS l'app non lo
+   sa e nessuna API lo dice (`/nearby-cities` esclude il paese entro
+   1,5 km, ADR-0200; il nome di una corsa lo cerca solo il server per le
+   attività). Le tessere dicono «near your start», o «near {posto}» per un
+   luogo cercato, testi già tradotti (scelta dell'utente). Un indirizzo
+   nuovo per il nome sarebbe lavoro di server, fuori da un task solo app.
+4. **Le sagome le disegna uno strumento**, `tools/sample_pictures.py`, con
+   Pillow da cerchi, linee e poligoni: dodici PNG 640 × 640 (il lato che
+   il motore analizza, `ANALYSIS_SIDE`), figura scura su fondo chiaro,
+   12–27 kB l'una, in `assets/pictures/`. Nessuna immagine d'altri, nessuna
+   licenza, nessuna dipendenza nuova (Pillow è già del motore).
+5. **Il contorno lo calcola il motore una volta**, con lo stesso
+   `outline_data` di `POST /image-outlines`, girato nella risposta
+   dell'API come fa `images.trace` (senza importare l'API, così lo
+   strumento gira col solo motore, come il job «Tools» della CI), e sta in
+   `src/route/samplePictures.json`: 17–46 angoli, un soggetto ciascuna.
+   L'app lo mostra subito, senza aspettare il tracciato (meno di 2 s, ma
+   con la rete) e senza mandare l'immagine. «Draw route» manda quel
+   contorno a `POST /image-route-jobs`, che lo ricontrolla come ogni
+   contorno che arriva dal telefono (ADR-0069).
+6. **`useImageOutline.show(picture, outline)`**: mette la sagoma come una
+   foto già tracciata, toglie le modifiche e lascia perdere un tracciato
+   in corso. Il `Picture` di una sagoma è fatto una volta
+   (`Image.resolveAssetSource`) e si riconosce perché è lo stesso oggetto:
+   così la tessera scelta ha il bordo chiaro, e una foto scelta dopo no.
+7. **I test di `tools/`** controllano che i PNG dell'app siano quelli
+   disegnati, che il contorno nel JSON sia quello che il motore traccia dai
+   PNG (entro 0,02 nel quadrato [-1, 1]: un'altra versione di shapely può
+   spostare un angolo) e che il JSON sia scritto come lo scrive Prettier.
+
+**Motivo**: le due cose esistevano già, giri a tema e immagini; qui si
+riusano dove l'utente le vuole, senza toccare server, motore e schermate
+degli altri task. Il contorno nell'app toglie l'unica attesa di una
+sagoma.
+
+**Alternative scartate**: tracciare la sagoma con `POST /image-outlines` a
+ogni tocco (attesa e immagine mandata per niente); disegnare le sagome a
+mano in un programma di grafica (non si rifanno uguali, e lo strumento le
+prova); il Colosseo (del contorno esterno resterebbe un blocco largo col
+bordo rotto, scelta dell'utente); «CITY TOURS · {città}» solo con un luogo
+cercato (la riga mancherebbe nel caso più comune, il GPS).
+
+**Conseguenza**: quindici file nuovi nell'app, oltre ai test, con circa 220 kB di PNG. Una
+sagoma nuova è una funzione in `tools/sample_pictures.py`, un nome in
+`samplePictures.ts` e le sue traduzioni. Un giro chiesto con «Bike» è
+quello di «Explore», a piedi, come in «Explore».

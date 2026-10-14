@@ -215,6 +215,9 @@ export const FR: Table = {
   "{mi} mi away": "à {mi} mi",
   "{town}, {mi} mi away": "{town}, à {mi} mi",
 
+  // src/explore/CityWords.tsx
+  WORDS: "MOTS",
+
   // src/intro/AppBoundary.tsx
   "Something went wrong.": "Quelque chose n'a pas marché.",
 
@@ -1158,6 +1161,23 @@ export const FR: Table = {
   "Suggested near {place}": "Suggérés près de {place}",
   "Suggested near where you usually start": "Suggérés près de ton départ habituel",
   "Suggested near your start": "Suggérés près de ton départ",
+
+  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
+  // src/explore/ThemedCard.tsx (TASK-280)
+  "CITY TOURS": "BALADES EN VILLE",
+  PICTURES: "IMAGES",
+  "Running shoe": "Basket",
+  Dinosaur: "Dinosaure",
+  Guitar: "Guitare",
+  "Eiffel Tower": "Tour Eiffel",
+  Rocket: "Fusée",
+  "Heart with arrow": "Cœur et flèche",
+  Anchor: "Ancre",
+  Plane: "Avion",
+  "Ice cream": "Glace",
+  Balloon: "Ballon",
+  Leaf: "Feuille",
+  "Back to Draw": "Retour à Dessiner",
 
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Dessiner sur la carte",

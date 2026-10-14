@@ -88,6 +88,8 @@ import { DrawButton, RouteChoice, RouteOutcome } from "./src/route/RoutePanel";
 import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
+import { DrawIdeas, toursFrom } from "./src/route/DrawIdeas";
+import { sampleOf, samplePicture } from "./src/route/samplePictures";
 import {
   type AnyRouteRequest,
   type RouteState,
@@ -109,7 +111,7 @@ import { MapScreen } from "./src/screens/MapScreen";
 import { NavigationBanner, NavigationCard } from "./src/screens/NavigateScreen";
 import { Pager } from "./src/screens/Pager";
 import { pageTitle } from "./src/screens/pageTitles";
-import { ProfileButton, ProfileLayer } from "./src/screens/ProfileLayer";
+import { OwnProfile, ProfileButton, ProfileLayer } from "./src/screens/ProfileLayer";
 import { PaddleExplore } from "./src/paddle/PaddleExplore";
 import { MoveShape } from "./src/paddle/MoveShape";
 import { PaddleNotice } from "./src/paddle/PaddleNotice";
@@ -138,8 +140,9 @@ const API_URL = apiUrl();
 /** The screens (TASK-051): what to draw, the map with the route, the
  * turn-by-turn along it (TASK-049), the run with its score (TASK-113), the
  * best routes near the start (TASK-126), a run without a route with its
- * end (TASK-149), what runners publish (TASK-154, then TASK-118), and the
- * map to draw a figure on (TASK-281). */
+ * end (TASK-149), what runners publish (TASK-154, then TASK-118), the
+ * account's own profile (TASK-278), and the map to draw a figure on
+ * (TASK-281). */
 type Screen =
   | "choose"
   | "map"
@@ -149,11 +152,13 @@ type Screen =
   | "run"
   | "runFinish"
   | "feed"
+  | "profile"
   | "canvas";
 
 /** The screens that are pages side by side, left to right, one swipe apart
- * (TASK-154, ADR-0124); the others take the whole screen. */
-const PAGES: readonly Screen[] = ["feed", "choose", "explore"];
+ * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
+ * take the whole screen. */
+const PAGES: readonly Screen[] = ["feed", "choose", "explore", "profile"];
 
 /** A run that ended, shown on the finish screen. */
 type Finished = {
@@ -381,8 +386,9 @@ function MuW() {
   } = useExplored(API_URL);
   const explored = favorite ?? exploredRoute;
   // The page a route was opened from, where «←» goes back to: a drawing of
-  // «Feed» opens as a route of "Explore" does (TASK-188).
-  const [routeList, setRouteList] = useState<"explore" | "feed">("explore");
+  // «Feed» opens as a route of "Explore" does (TASK-188); a tour of «Draw»
+  // goes back to «Draw» (TASK-280).
+  const [routeList, setRouteList] = useState<"explore" | "feed" | "choose">("explore");
   // "Explore" for any city, and a shape through a theme's places (TASK-129).
   const [exploreCity, setExploreCity] = useState<Place | null>(null);
   // The cities chosen last, kept on the phone (TASK-134).
@@ -857,6 +863,13 @@ function MuW() {
   // The page on screen; -1 while the map or a run takes the whole screen.
   const page = PAGES.indexOf(screen);
 
+  /** Another page, by a swipe, its name or the profile's circle. */
+  function showPage(next: Screen) {
+    // A keyboard left open would follow to the next page.
+    Keyboard.dismiss();
+    setScreen(next);
+  }
+
   return (
     <View style={styles.screen}>
       <MapScreen
@@ -1068,8 +1081,9 @@ function MuW() {
             }}
             onCancel={() => {
               closeExplore();
-              setScreen("explore");
+              setScreen(routeList);
             }}
+            fromDraw={routeList === "choose"}
             start={startViewOf(
               startDirections.state,
               themed.state.status === "done" ? themed.state.result.points : null,
@@ -1180,16 +1194,16 @@ function MuW() {
       {page !== -1 && (
         <Pager
           page={page}
-          onPage={(index) => {
-            // A keyboard left open would follow to the next page.
-            Keyboard.dismiss();
-            setScreen(PAGES[index]);
-          }}
+          onPage={(index) => showPage(PAGES[index])}
           action={
-            // The sport at the left of the way to «Profile» (TASK-205).
+            // The sport at the left of the way to «Profile» (TASK-205),
+            // whose circle is the name of the profile's page (TASK-278).
             <View style={styles.actions}>
               <SportButton />
-              <ProfileButton />
+              <ProfileButton
+                selected={screen === "profile"}
+                onPress={() => showPage("profile")}
+              />
             </View>
           }
           pages={[
@@ -1286,6 +1300,34 @@ function MuW() {
                       underKinds={<MapDrawButton onPress={onOpenCanvas} />}
                     />
                   </ImageEditsContext.Provider>
+                  {/* The city tours and the ready-made pictures (TASK-280):
+                      none on the water, where there are no towns or photos. */}
+                  {sportActivity !== "paddling" && (
+                    <DrawIdeas
+                      where={toursFrom(start)}
+                      onTour={(category) => {
+                        if (start === null) {
+                          return;
+                        }
+                        Keyboard.dismiss();
+                        closeExplore();
+                        // As a category of «Explore» with «Near me»: around
+                        // the start, the category alone (ADR-0099).
+                        themed.ask({ text: category, centre: start.point, city: null });
+                        setRouteList("choose");
+                        setScreen("map");
+                      }}
+                      chosen={
+                        drawKind === "image" && image.state.status === "traced"
+                          ? sampleOf(image.state.picture)
+                          : null
+                      }
+                      onPicture={(picture) => {
+                        setKind("image");
+                        image.show(samplePicture(picture), picture.outline);
+                      }}
+                    />
+                  )}
                 </ChooseScreen>
               ),
             },
@@ -1335,6 +1377,14 @@ function MuW() {
                     }}
                   />
                 ),
+            },
+            {
+              // The account's own profile, after «Explore» (TASK-278): no
+              // name in the header, where its circle is.
+              title: pageTitle("profile"),
+              unnamed: true,
+              lazy: true,
+              render: () => <OwnProfile active={screen === "profile"} />,
             },
           ]}
         />
