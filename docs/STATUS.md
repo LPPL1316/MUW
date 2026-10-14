@@ -187,8 +187,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `StretchReminder.tsx` con la frase della voce nelle cinque lingue è
   scritta e testata, `App.tsx` collegato (ok del Coordinatore), i test
   dell'app della corsa libera e della corsa riaperta premono «Skip» dopo
-  «Stop»; **resta**: il sì dell'utente sui testi nelle cinque lingue, poi
-  il merge dopo la #500 (TASK-278). La parte B (gli
+  «Stop». Testi approvati dall'utente il 2026-10-13; **in `main` con la
+  #504 (8cdadf70, 2026-10-14)**. Non provata nel simulatore (nessun tocco
+  possibile): da vedere alla prima corsa vera. «Stretch» per ora chiude
+  come «Skip», finché non c'è la parte B. La parte B (gli
   esercizi animati) è della sessione «Animazione esercizi stretching
   post-corsa», che scrive `tasks/TASK-285.md`.
 - **TASK-278…282 — Cinque richieste dell'utente del 2026-10-11 su
