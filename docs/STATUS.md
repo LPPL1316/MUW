@@ -176,10 +176,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «ding» fra un lato e l'altro, «Pause», «Skip»/«Done»; poi «Your run».
   File nuovi in `src/stretch/`, poche righe in `App.tsx`, le voci nei
   quattro `i18n`, `tools/stretch_chime.py` e `assets/stretch/ding.wav`.
-  **Aspetta**: il sì dell'utente ai testi (nomi, righe, «Stop if it
-  hurts.») e alle tre scelte del task file (esercizi e tempi, suono o
-  voce, figura stilizzata); entra dopo 278 B e 281 su `App.tsx`, o prima
-  se pronta. Non nella 1.0.
+  Il 2026-10-14 l'utente ha approvato i testi nelle cinque lingue e le
+  tre proposte (i cinque esercizi a 20 s per lato, il «ding» nostro, la
+  figura stilizzata); le pose viste in Expo Go nel simulatore. **Aspetta
+  «merge 508»** dal Coordinatore (ordine su `App.tsx` con 278 B). Non
+  nella 1.0.
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla

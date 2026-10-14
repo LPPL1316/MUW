@@ -1,6 +1,6 @@
 # TASK-285 — Lo stretching dopo la corsa: il promemoria (A) e i cinque esercizi animati (B)
 
-**Stato**: Parte A Done (in `main` con la #504, 8cdadf70, 2026-10-14) · Parte B In corso (#508, aspetta il sì dell'utente ai testi e alle tre scelte)
+**Stato**: Parte A Done (in `main` con la #504, 8cdadf70, 2026-10-14) · Parte B In corso (#508, testi e scelte approvati dall'utente il 2026-10-14; aspetta «merge 508»)
 **Fase**: 4 · **Branch**: `feat/TASK-285-a-stretch-reminder` (A),
 `feat/TASK-285-b-stretch-exercises` (B)
 **Dipende da**: TASK-113 (la fine della corsa), TASK-172 («Save» e
@@ -185,7 +185,16 @@ nell'interfaccia, tradotti nelle cinque lingue con il sì dell'utente.
 7. `docs/UI.md` «La fine della corsa»: la sottosezione «Lo stretching»;
    la riga di B nella ADR-0247 scritta da A; `STATUS.md`.
 
-### Da chiedere all'utente (una per volta, con la proposta pronta)
+### Scelte dell'utente (2026-10-14)
+
+«Sì, i testi vanno bene e confermo le tre proposte»: i cinque esercizi
+della tabella a 20 s per lato, il «ding» nostro fra un lato e l'altro e
+fra due esercizi, la figura stilizzata fatta dall'app. Approvati i testi
+nelle cinque lingue: i cinque nomi e le cinque righe «come si fa», «{index}
+of {total}», «Right side» / «Left side», «Switch sides», «{seconds}
+seconds left», «Stop if it hurts.» (le traduzioni sono nei quattro
+`i18n`). Le proposte, com'erano state fatte:
+
 
 - **Quali cinque esercizi** e quanto tempo l'uno: proposta la tabella
   sopra (20 s per lato, 3 min 20 s in tutto).
