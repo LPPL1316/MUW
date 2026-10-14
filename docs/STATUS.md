@@ -208,6 +208,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
     forme e immagini sulla mappa della città, e cambiarle senza uscire.
     Solo app; il motore parte da dove è stata messa la figura.
+    **Fatto il 2026-10-14** (ADR-0245), PR in attesa del merge del
+    Coordinatore dopo la #504 e 278 B; vedi «Completato».
   - **TASK-282** — il percorso proprio dove la figura è stata messa
     (`near` a piedi): motore, dopo l'approvazione di Apple e TASK-281.
   278, 280 e 281 toccano `App.tsx`, 280 e 281 anche `ChooseScreen.tsx`:
@@ -817,6 +819,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-281 (ADR-0245; chiesto dall'utente il 2026-10-11, scelte
+  sue del 2026-10-11 e del 2026-10-13): in «Draw», sotto «Shape | Word |
+  Image», «Draw on the map» apre la mappa della partenza. Un dito disegna
+  (la linea si chiude da sola, le linee dopo si appendono come dettagli),
+  oppure una tessera mette una delle 17 forme, delle 12 immagini pronte
+  di TASK-280 o una foto («+ photo»); con «Move» la figura si trascina e
+  si ridimensiona con due dita, con la distanza che segue, una tessera la
+  cambia dov'è e «Undo» toglie l'ultima cosa. «Draw route» chiede il
+  percorso con le richieste di sempre (forma, o contorno come «Image»),
+  dal primo punto della figura e con la sua distanza: il motore può
+  spostarla, il posto esatto è TASK-282. Il risultato è quello di «Draw»
+  e «←» torna alla figura. Le forme per l'app le scrive
+  `tools/catalogue_shapes.py` dal motore: chi cambia una forma lo
+  rigenera (il test di `tools/` lo dice). Provato nel simulatore; resta
+  all'utente il dito vero sull'iPhone. Niente cambia nell'API né sul
+  server; pubblica il Coordinatore.
 - **App** — TASK-280 (ADR-0246; chiesto dall'utente il 2026-10-11, scelte
   sue del 2026-10-13): in fondo a «Draw», sotto la distanza, due righe da
   scorrere. «CITY TOURS»: Famous Places, Best Views, Hidden Gems e Romantic
