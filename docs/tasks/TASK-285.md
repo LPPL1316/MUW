@@ -130,9 +130,13 @@ PR di A: #504 (dopo la #500).
 3. Sotto la figura il **conto alla rovescia** grande («0:30»), una barra
    che si svuota e, piccolo, «2 of 5». Il tempo lo tiene un timer, non
    l'animazione (sotto jest le animazioni finiscono all'istante).
-4. Alla fine del tempo un **suono breve** (un «ding» con `expo-audio`,
-   file nostro, oppure la voce che dice il nome dell'esercizio seguente:
-   da decidere con l'utente, vedi sotto) e si passa da sé al prossimo. Gli
+4. Alla fine del tempo un **suono breve** e si passa da sé al prossimo.
+   Il suono è **nostro**: `assets/stretch/ding.wav`, un «ding» di 0,35 s
+   scritto da `tools/stretch_chime.py` con la sola libreria standard di
+   Python (due sinusoidi che si spengono), suonato con `expo-audio`;
+   niente preso da bEND né da librerie di suoni. L'alternativa, la voce
+   che dice il nome dell'esercizio seguente, è da decidere con l'utente
+   (vedi sotto). Gli
    esercizi su un lato solo hanno due tempi: a metà la voce dice «Switch
    sides» e la figura si gira.
 5. In fondo **«Skip»** (va a «Your run») e, nell'ultimo esercizio,
