@@ -147,11 +147,11 @@ export const HAMSTRING: Pose = {
   forearmFar: 40,
   upperArmNear: 60,
   forearmNear: 40,
-  thighFar: 12,
-  shinFar: -8,
+  thighFar: 25,
+  shinFar: -20,
   footFar: 85,
-  thighNear: 45,
-  shinNear: 42,
+  thighNear: 24,
+  shinNear: 22,
   footNear: 150,
 };
 
@@ -201,7 +201,7 @@ export const GLUTE: Pose = {
   thighFar: 22,
   shinFar: -16,
   footFar: 88,
-  thighNear: 82,
-  shinNear: -100,
-  footNear: -70,
+  thighNear: 75,
+  shinNear: -35,
+  footNear: -100,
 };

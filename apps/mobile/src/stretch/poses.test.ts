@@ -72,6 +72,19 @@ describe("the figure's poses", () => {
     expect(shinNear.to.y).toBeLessThan(bones(STAND).shinNear.to.y - 0.3);
   });
 
+  it("puts the near heel on the floor for the hamstring stretch, toes up", () => {
+    const { footNear, thighNear } = bones(HAMSTRING);
+    expect(Math.abs(footNear.from.y - grounding(HAMSTRING))).toBeLessThan(0.02);
+    expect(footNear.from.x).toBeGreaterThan(thighNear.from.x + 0.1);
+    expect(footNear.to.y).toBeLessThan(footNear.from.y);
+  });
+
+  it("rests the near ankle on the far knee for the glute stretch", () => {
+    const { shinNear, thighFar } = bones(GLUTE);
+    expect(Math.abs(shinNear.to.x - thighFar.to.x)).toBeLessThan(0.03);
+    expect(Math.abs(shinNear.to.y - thighFar.to.y)).toBeLessThan(0.03);
+  });
+
   it("fit in a box a little wider than the figure is tall", () => {
     for (const pose of Object.values(POSES)) {
       const { back, front } = span(pose);
