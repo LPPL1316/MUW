@@ -1175,6 +1175,28 @@ export const DE: Table = {
     "Vorschläge in der Nähe deines üblichen Starts",
   "Suggested near your start": "Vorschläge in der Nähe deines Starts",
 
+  // src/stretch (TASK-285 part B)
+  "Quad stretch": "Quadrizeps dehnen",
+  "Stand tall. Pull one heel toward your glutes, knees together.":
+    "Aufrecht stehen. Eine Ferse zum Gesäß ziehen, Knie zusammen.",
+  "Hamstring stretch": "Hintere Oberschenkel dehnen",
+  "Put one heel forward, toes up. Lean from the hips, back straight.":
+    "Eine Ferse nach vorn, Zehen hoch. Aus der Hüfte beugen, Rücken gerade.",
+  "Calf stretch": "Wade dehnen",
+  "Step back, heel down. Lean toward the wall until the calf pulls.":
+    "Einen Schritt zurück, Ferse am Boden. Zur Wand lehnen, bis die Wade zieht.",
+  "Hip flexor stretch": "Hüftbeuger dehnen",
+  "Kneel on one knee. Push your hips forward, chest up.":
+    "Auf ein Knie gehen. Hüfte nach vorn schieben, Brust hoch.",
+  "Glute stretch": "Gesäß dehnen",
+  "Cross one ankle over the other knee. Sit back as if into a chair.":
+    "Einen Knöchel aufs andere Knie legen. Zurücksetzen wie auf einen Stuhl.",
+  "{index} of {total}": "{index} von {total}",
+  "Right side": "Rechte Seite",
+  "Left side": "Linke Seite",
+  "Switch sides": "Seite wechseln",
+  "{seconds} seconds left": "Noch {seconds} Sekunden",
+  "Stop if it hurts.": "Hör auf, wenn es wehtut.",
   // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
   // src/explore/ThemedCard.tsx (TASK-280)
   "CITY TOURS": "STADTTOUREN",
