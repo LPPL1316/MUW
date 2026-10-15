@@ -86,9 +86,9 @@ le richieste che esistono.
    si porta su un piano in metri attorno al suo centro.
 5. Il risultato si apre come un percorso di «Draw», con i suoi «Start»,
    GPX e alternative; «←» torna alla schermata con la figura com'era,
-   così cambiarla non vuol dire ricominciare. Se l'utente vuole cambiare
-   figura anche dalla mappa del risultato, è una domanda da fargli, non
-   da decidere qui.
+   così cambiarla non vuol dire ricominciare. **Risposto dall'utente il
+   2026-10-15: sì, si deve poter cambiare figura anche dalla mappa del
+   risultato.** È un seguito (sotto, «Esito»), con numero dal Coordinatore.
 6. Il tocco sulla mappa si legge nella pagina MapLibre (messaggi nuovi in
    `messages.ts`, come `setMove`/`moved` di TASK-238): la pagina dà i
    punti già in lat/lon.
@@ -171,3 +171,7 @@ figura (a Trento la stella da 5,7 km è venuta 1–2 km più in là): il posto
 esatto è TASK-282. Nel simulatore: disegno, trascinamento, due dita,
 cambio di tessera, percorso e ritorno; «+ photo» provata solo nei test.
 Resta all'utente il dito vero sull'iPhone.
+
+**Seguito (scelta dell'utente del 2026-10-15)**: cambiare figura anche
+dalla mappa del risultato, senza tornare con «←» («sì, dai la possibilità
+di cambiare figura dalla mappa»). Task a parte, numero dal Coordinatore.

@@ -7,7 +7,7 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import { Pressable, Text } from "react-native";
 
 import type { MemorySecureStore } from "../account/testing";
-import { ProfileLayer } from "../screens/ProfileLayer";
+import { OwnProfile, ProfileLayer } from "../screens/ProfileLayer";
 import { useDrawingsDoor } from "./drawingsDoor";
 import { FindFriendsButton } from "./FindFriendsButton";
 
@@ -109,11 +109,19 @@ test("from «Feed» to a friend's drawing and back to their profile", async () =
   expect(screen.getByRole("button", { name: "Find friends" })).toBeOnTheScreen();
 });
 
-test("without an account, «Profile» opens first and says why", async () => {
+test("without an account, the page of the profile comes first and says why", async () => {
   api({});
-  await showFeed();
+  await render(
+    <ProfileLayer apiUrl={API}>
+      <FindFriendsButton />
+      {/* The fourth page of the pager (TASK-278 part B). */}
+      <OwnProfile active />
+    </ProfileLayer>,
+  );
+  expect(screen.queryByText("Log in to find your friends.")).toBeNull();
   await fireEvent.press(screen.getByRole("button", { name: "Find friends" }));
   expect(await screen.findByText("Log in to find your friends.")).toBeOnTheScreen();
+  expect(screen.queryByRole("header", { name: "Profile" })).toBeNull();
   expect(screen.queryByPlaceholderText("Name")).toBeNull();
   expect(fetchSpy).not.toHaveBeenCalled();
 });
