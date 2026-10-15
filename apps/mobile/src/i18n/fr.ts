@@ -1165,6 +1165,28 @@ export const FR: Table = {
   "Suggested near where you usually start": "Suggérés près de ton départ habituel",
   "Suggested near your start": "Suggérés près de ton départ",
 
+  // src/stretch (TASK-285 part B)
+  "Quad stretch": "Étirement du quadriceps",
+  "Stand tall. Pull one heel toward your glutes, knees together.":
+    "Debout, bien droit. Ramenez un talon vers la fesse, genoux serrés.",
+  "Hamstring stretch": "Étirement des ischio-jambiers",
+  "Put one heel forward, toes up. Lean from the hips, back straight.":
+    "Un talon devant, pointe vers le haut. Penchez-vous depuis les hanches, dos droit.",
+  "Calf stretch": "Étirement du mollet",
+  "Step back, heel down. Lean toward the wall until the calf pulls.":
+    "Un pas en arrière, talon au sol. Penchez-vous vers le mur jusqu'à sentir le mollet.",
+  "Hip flexor stretch": "Étirement des fléchisseurs de hanche",
+  "Kneel on one knee. Push your hips forward, chest up.":
+    "Un genou au sol. Poussez le bassin vers l'avant, poitrine haute.",
+  "Glute stretch": "Étirement du fessier",
+  "Cross one ankle over the other knee. Sit back as if into a chair.":
+    "Croisez une cheville sur l'autre genou. Asseyez-vous en arrière comme sur une chaise.",
+  "{index} of {total}": "{index} sur {total}",
+  "Right side": "Côté droit",
+  "Left side": "Côté gauche",
+  "Switch sides": "Changez de côté",
+  "{seconds} seconds left": "{seconds} secondes restantes",
+  "Stop if it hurts.": "Arrêtez si ça fait mal.",
   // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
   // src/explore/ThemedCard.tsx (TASK-280)
   "CITY TOURS": "BALADES EN VILLE",

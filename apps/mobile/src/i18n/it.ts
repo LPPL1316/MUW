@@ -1160,6 +1160,28 @@ export const IT: Table = {
   "Suggested near where you usually start": "Consigliati vicino a dove parti di solito",
   "Suggested near your start": "Consigliati vicino alla tua partenza",
 
+  // src/stretch (TASK-285 part B)
+  "Quad stretch": "Stretching del quadricipite",
+  "Stand tall. Pull one heel toward your glutes, knees together.":
+    "In piedi, dritto. Porta un tallone verso il gluteo, ginocchia unite.",
+  "Hamstring stretch": "Stretching del posteriore della coscia",
+  "Put one heel forward, toes up. Lean from the hips, back straight.":
+    "Un tallone avanti, punta in su. Piegati dalle anche, schiena dritta.",
+  "Calf stretch": "Stretching del polpaccio",
+  "Step back, heel down. Lean toward the wall until the calf pulls.":
+    "Un passo indietro, tallone a terra. Spingi verso il muro finché il polpaccio tira.",
+  "Hip flexor stretch": "Stretching dei flessori dell'anca",
+  "Kneel on one knee. Push your hips forward, chest up.":
+    "In ginocchio su una gamba. Spingi il bacino in avanti, petto in alto.",
+  "Glute stretch": "Stretching del gluteo",
+  "Cross one ankle over the other knee. Sit back as if into a chair.":
+    "Incrocia una caviglia sull'altro ginocchio. Siediti indietro come su una sedia.",
+  "{index} of {total}": "{index} di {total}",
+  "Right side": "Lato destro",
+  "Left side": "Lato sinistro",
+  "Switch sides": "Cambia lato",
+  "{seconds} seconds left": "Mancano {seconds} secondi",
+  "Stop if it hurts.": "Fermati se fa male.",
   // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
   // src/explore/ThemedCard.tsx (TASK-280)
   "CITY TOURS": "GIRI IN CITTÀ",
