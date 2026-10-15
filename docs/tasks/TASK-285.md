@@ -295,3 +295,5 @@ dell'altra (`StretchReminder.*` è di A, `src/stretch/` è di B).
   Rimandato: la voce che dice il nome dell'esercizio seguente (scartata
   per ora); routine per sport e stretching prima della corsa restano fuori
   scope. Entra nella versione dopo la 1.0.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A (#504) e per la parte B (#508).

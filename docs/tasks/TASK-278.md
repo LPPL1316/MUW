@@ -228,3 +228,5 @@ Elenco mandato al Coordinatore prima di cominciare, con il suo ok
 ### Esito
 
 *(al merge)*
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A e per la parte B (#509).

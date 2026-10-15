@@ -175,3 +175,5 @@ Resta all'utente il dito vero sull'iPhone.
 **Seguito (scelta dell'utente del 2026-10-15)**: cambiare figura anche
 dalla mappa del risultato, senza tornare con «←» («sì, dai la possibilità
 di cambiare figura dalla mappa»). Task a parte, numero dal Coordinatore.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». È la prova col dito vero che restava all'utente.
