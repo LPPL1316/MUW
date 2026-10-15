@@ -586,8 +586,9 @@ disegni si rileggono, come quando «Profile» si apriva.
   profilo (sotto, «Il profilo di un altro iscritto») con il titolo
   «Profile»; «←» torna ai nomi trovati, con il campo com'era, e un altro «←»
   a «Feed». Un disegno aperto da quel profilo, chiuso, torna al profilo.
-  **Senza account** il tasto apre «Profile» con «Log in to find your
-  friends.» sopra «Sign up». Un server senza la ricerca (prima della
+  **Senza account** il tasto porta alla quarta pagina, il profilo, con «Log
+  in to find your friends.» sopra «Sign up» (TASK-278 parte B); senza «←»:
+  si torna con lo swipe o con «Feed». Un server senza la ricerca (prima della
   migrazione `0011`) fa dire «This server cannot look for members yet.».
   Sul profilo c'è il tasto «Follow» (TASK-211, sotto).
   **Sotto ogni linea c'è la mappa** della zona (TASK-162, ADR-0131,
@@ -622,14 +623,19 @@ TASK-278 la prima pagina di «Profile» è **la quarta pagina**, dopo
 Le pagine che si aprono da lì («Settings», «Favorites», «My activities»,
 «Edit profile», «Guide», il profilo di un altro, un disegno) si aprono
 sopra l'app come prima, e «←» (o «Back to the profile») torna alla quarta
-pagina. Aperto da un'altra parte dell'app (il cuore sulla mappa senza
-account, la lente di «Feed» senza account, «Save» a fine corsa senza
-account), «Profile» si apre ancora sopra l'app e si chiude con «←»:
-sotto, forma, distanza e mappa restano come erano; il profilo di un altro
-aperto da un nome taggato o da una notifica torna, con «←», a «Profile»
-sopra l'app, come prima. Portare questi ingressi alla quarta pagina è una
-scelta dell'utente non ancora fatta (`tasks/TASK-278.md`). Sulla mappa e
-durante la corsa il pulsante non c'è.
+pagina. **Anche le altre parti dell'app portano alla quarta pagina**
+(TASK-278 parte B, scelte dell'utente del 2026-10-13): la lente di «Feed»
+senza account, e il cuore sulla mappa e la riga sotto la fine della corsa
+senza account, ognuno con la sua riga sopra «Sign up». Dalla mappa e dalla
+fine della corsa, che prendono tutto lo schermo, la pagina ha anche «←» e
+il titolo «Profile» finché nessuno entra: «←» torna lì senza tenere niente,
+e appena si entra l'app torna lì da sola, con il percorso tenuto o con
+«Save» e «Discard» sotto la corsa. Uno swipe o un nome lasciano invece la
+mappa o la fine della corsa (la corsa torna alla prossima apertura). **Il
+profilo di un altro**, da un nome taggato o da una notifica, si apre sopra
+l'app come prima, e «←» mostra l'app com'era (il disegno, la pagina, la
+mappa): non apre più «Profile». Il proprio nome taggato porta alla quarta
+pagina. Sulla mappa e durante la corsa il pulsante non c'è.
 
 **Lo sport** (TASK-205, ADR-0165, chiesto dall'utente): a sinistra del
 profilo un pulsante tondo uguale mostra l'emoji dello sport scelto (🏃‍♂️
@@ -681,7 +687,9 @@ giorno), il giorno, l'attività e i km («Run · 4.0 km»), mai il punteggio
 né l'ora; poi, da TASK-208, **le foto** (alte 160 punti, da scorrere di
 lato, lette dall'API con il token), **com'è andata** (la descrizione) e
 **i nomi taggati** in pillole, ognuna delle quali apre il profilo di quella
-persona sopra l'app; un disegno di un'API senza questi campi si vede come
+persona sopra l'app, e «←» torna al disegno (TASK-278 parte B); il proprio
+nome chiude il disegno e porta alla quarta pagina, il profilo. Un disegno
+di un'API senza questi campi si vede come
 prima. **«Back to the profile»** e «←» tornano a «Profile». Se nel
 frattempo è tornato privato: «This drawing is no longer public.» sopra la
 griglia.
@@ -842,7 +850,10 @@ TASK-262).
 - **Toccare una notifica** apre il disegno (una reazione, un commento, un
   tag) sulla mappa, come dal «Feed», o il profilo di chi ha chiesto o
   accettato di seguire, come da «Find friends»; anche quando è la
-  notifica ad aprire l'app. Senza account non apre niente. Con l'app
+  notifica ad aprire l'app. Da quel profilo «←» mostra l'app com'era,
+  la pagina, la mappa o la corsa (TASK-278 parte B); da quel disegno, se
+  era aperta una pagina del profilo, «Back to the profile» torna alla
+  quarta pagina. Senza account non apre niente. Con l'app
   aperta una notifica arriva come banner, senza suono.
 - **In Expo Go le push non arrivano** (dall'SDK 53): l'interruttore si
   accende, il token non viene e niente lo dice. Si provano con una build
@@ -1091,9 +1102,11 @@ dell'account.
   corsa e la fine della corsa il cuore non c'è.
 - **Fra tre percorsi (A · B · C)** il cuore è di quello scelto: ognuno è un
   preferito a sé.
-- **Senza account** il tocco apre «Profile» con la riga «Sign up or log in
-  to keep your favorite routes.» sopra il modulo; appena si entra il
-  percorso è tenuto. Chiuso «Profile» senza entrare, non si tiene niente.
+- **Senza account** il tocco porta alla quarta pagina, il profilo, con la
+  riga «Sign up or log in to keep your favorite routes.» sopra il modulo,
+  «←» e il titolo «Profile» (TASK-278 parte B); appena si entra l'app torna
+  da sola sulla mappa e il percorso è tenuto. Tornati con «←», o andati
+  altrove con uno swipe o un nome, senza entrare, non si tiene niente.
 - **La pagina «Favorites»**, da «Profile»: i preferiti come le schede di
   «Explore», due per riga, dal più recente: il disegno, «Star · 5.1 km», la
   somiglianza in un angolo, e sotto la città («Trento») o, per un percorso
@@ -1184,9 +1197,10 @@ telefono dell'account: con un percorso o senza.
   when there is a connection; then save this one.».
 - **Senza account** non si salva niente, com'era: sotto la scheda di fine
   corsa la riga «Sign up or log in to keep your runs and share them as
-  drawings.» (TASK-117) apre «Profile» con la stessa frase sopra il
-  modulo. Chi entra da lì e
-  torna alla scheda trova «Save» e «Discard» al posto di «Done».
+  drawings.» (TASK-117) porta alla quarta pagina, il profilo, con la
+  stessa frase sopra il modulo, «←» e il titolo «Profile» (TASK-278 parte
+  B). Chi entra da lì torna da solo alla scheda e trova «Save» e «Discard»
+  al posto di «Done»; «←» torna alla scheda senza entrare.
 - **La pagina «My activities»**, da «Profile»: una scheda per corsa, dalla
   più recente. A sinistra il disegno, come a fine corsa: il percorso
   giallo e sopra, sottile e chiara, la linea corsa; una corsa senza
@@ -2613,7 +2627,8 @@ mostra le lettere unite da linee dritte sulla base.
   alla prossima apertura con la rete, una volta sola (sotto, «Cosa esce dal
   telefono»).
 - **Senza account**, sotto la scheda, la riga «Sign up or log in to keep
-  your runs and share them as drawings.» (TASK-117), che apre «Profile».
+  your runs and share them as drawings.» (TASK-117), che porta alla quarta
+  pagina, il profilo (TASK-278 parte B).
 
 Niente nella scheda è giallo: il giallo resta del percorso e dell'azione
 principale.

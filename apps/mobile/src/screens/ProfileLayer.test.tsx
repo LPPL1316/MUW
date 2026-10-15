@@ -2,9 +2,10 @@
  * The account's own profile as the fourth page, after «Explore» (TASK-278,
  * ADR-0124): three names in the header and the circle, which has the mark
  * of the page on screen there; what the profile opens comes over the app,
- * and «←» comes back to the page. Elsewhere «Profile» opens over the app as
- * before. «Favorites» and «My activities» from the page are in
- * __tests__/AppFavorites.test.tsx and AppActivities.test.tsx.
+ * and «←» comes back to the page. The lens of «Feed» without an account
+ * goes to the page too (TASK-278 part B); the other ways there are in
+ * ProfileEntryPoints.test.tsx. «Favorites» and «My activities» from the
+ * page are in __tests__/AppFavorites.test.tsx and AppActivities.test.tsx.
  */
 import drawing from "@shaperoute/shared-types/fixtures/drawing.json";
 import drawings from "@shaperoute/shared-types/fixtures/drawings.json";
@@ -283,14 +284,18 @@ test("a drawing opened from the page goes back to it", async () => {
   expect(await screen.findByText("Drawings")).toBeOnTheScreen();
 });
 
-test("from «Feed» without an account «Find friends» still opens «Profile» over the app", async () => {
+test("from «Feed» without an account «Find friends» goes to the page, saying why", async () => {
   await open();
   await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
   await fireEvent.press(screen.getByRole("button", { name: "Find friends" }));
-  expect(screen.getByRole("header", { name: "Profile" })).toBeOnTheScreen();
-  expect(screen.getByText("Log in to find your friends.")).toBeOnTheScreen();
-  expect(screen.queryByTestId("profile-page-mark")).toBeNull();
-  await fireEvent.press(screen.getByRole("button", { name: "Back" }));
-  expect(screen.getByRole("tab", { name: "Feed", selected: true })).toBeOnTheScreen();
+  // The page, as from the circle (TASK-278 part B): no «←», no title.
+  onProfilePage();
   expect(screen.queryByRole("header", { name: "Profile" })).toBeNull();
+  expect(screen.getByText("Log in to find your friends.")).toBeOnTheScreen();
+  expect(screen.getByTestId("account-submit")).toBeOnTheScreen();
+  // Back to «Feed» by its name; the line goes with the page.
+  await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
+  expect(screen.getByRole("tab", { name: "Feed", selected: true })).toBeOnTheScreen();
+  await fireEvent.press(circle());
+  expect(screen.queryByText("Log in to find your friends.")).toBeNull();
 });

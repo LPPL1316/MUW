@@ -111,7 +111,12 @@ import { MapScreen } from "./src/screens/MapScreen";
 import { NavigationBanner, NavigationCard } from "./src/screens/NavigateScreen";
 import { Pager } from "./src/screens/Pager";
 import { pageTitle } from "./src/screens/pageTitles";
-import { OwnProfile, ProfileButton, ProfileLayer } from "./src/screens/ProfileLayer";
+import {
+  OwnProfile,
+  ProfileButton,
+  ProfileLayer,
+  useOwnPage,
+} from "./src/screens/ProfileLayer";
 import { StretchReminder } from "./src/screens/StretchReminder";
 import { StretchScreen } from "./src/stretch/StretchScreen";
 import { PaddleExplore } from "./src/paddle/PaddleExplore";
@@ -316,6 +321,24 @@ function MuW() {
     (favorite !== null || activity !== null || drawing !== null) && onPage
       ? "map"
       : screenNow;
+  // The fourth page asked for from elsewhere (TASK-278 part B, the user's
+  // choice): from the map or the end of a run with nobody signed in (the
+  // heart, «Save»), «←» goes back there, and so does signing in, with the
+  // route kept or «Save» under the run. A run in progress keeps its screen.
+  const ownPage = useOwnPage();
+  const [askSeen, setAskSeen] = useState(ownPage.asked.n);
+  const [profileFrom, setProfileFrom] = useState<Screen | null>(null);
+  if (ownPage.asked.n !== askSeen) {
+    setAskSeen(ownPage.asked.n);
+    if (screenNow !== "run" && screenNow !== "navigate") {
+      setProfileFrom(onPage || signedIn ? null : screenNow);
+      setScreen("profile");
+    }
+  }
+  if (profileFrom !== null && signedIn) {
+    setProfileFrom(null);
+    setScreen(profileFrom);
+  }
   // A run of «My activities» on the map, as the end of a run shows one: its
   // route, and over it what was run. Or a drawing: the run cut as the
   // others see it, in the route's yellow as in «Feed», the map framed on it.
@@ -876,7 +899,24 @@ function MuW() {
   function showPage(next: Screen) {
     // A keyboard left open would follow to the next page.
     Keyboard.dismiss();
+    if (screenNow === "profile" && next !== "profile") {
+      // Out of the profile: whatever it was asked for waits no more.
+      ownPage.leave();
+      setProfileFrom(null);
+    }
     setScreen(next);
+  }
+
+  /** «←» of the fourth page asked for from the map or the end of a run:
+   * back there, nothing kept (TASK-278 part B). */
+  function backFromProfile() {
+    if (profileFrom === null) {
+      return;
+    }
+    Keyboard.dismiss();
+    ownPage.leave();
+    setProfileFrom(null);
+    setScreen(profileFrom);
   }
 
   return (
@@ -1407,7 +1447,12 @@ function MuW() {
               title: pageTitle("profile"),
               unnamed: true,
               lazy: true,
-              render: () => <OwnProfile active={screen === "profile"} />,
+              render: () => (
+                <OwnProfile
+                  active={screen === "profile"}
+                  onBack={profileFrom !== null ? backFromProfile : undefined}
+                />
+              ),
             },
           ]}
         />

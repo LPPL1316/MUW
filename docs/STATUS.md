@@ -217,6 +217,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     dell'utente). Solo app: può partire subito.
     **Fatto il 2026-10-13**, branch `feat/TASK-278-profile-page`; vedi
     «Completato».
+    **Parte B** (scelte dell'utente del 2026-10-13): cuore, «Save» e lente
+    senza account e il proprio nome taggato portano alla quarta pagina; il
+    profilo di un altro torna con «←» dov'era. Branch
+    `feat/TASK-278-b-profile-entry-points`; vedi «Completato».
   - **TASK-279** — parole con la penna alzata negli esempi di una città
     in «Explore» (parte A, solo app: l'API tiene già le parole chieste
     dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
@@ -846,6 +850,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-278 parte B (aggiunta ad ADR-0124; scelte dell'utente del
+  2026-10-13, «sì, portali tutti alla 4ª pagina»): gli altri ingressi al
+  profilo portano alla **quarta pagina**. La lente di «Feed» senza account
+  ci arriva con «Log in to find your friends.»; il cuore sulla mappa e la
+  riga sotto la fine della corsa senza account con la loro riga, «←» e il
+  titolo finché nessuno entra, e appena si entra l'app torna da sola dove
+  era (percorso tenuto, «Save» e «Discard» sotto la corsa). Il profilo di
+  un altro, da un nome taggato o da una notifica, si apre sopra l'app e «←»
+  mostra l'app com'era, non più «Profile»; il proprio nome taggato porta
+  alla quarta pagina. Nessun testo nuovo. Solo app, non nella 1.0: la
+  pubblica il coordinatore. `tasks/TASK-278.md`, «Parte B».
 - **App** — TASK-281 (ADR-0245; chiesto dall'utente il 2026-10-11, scelte
   sue del 2026-10-11 e del 2026-10-13): in «Draw», sotto «Shape | Word |
   Image», «Draw on the map» apre la mappa della partenza. Un dito disegna
@@ -888,6 +903,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   prima: portarli alla quarta pagina è da chiedere all'utente. «Help» dice
   ora «four pages» nelle cinque lingue (sì dell'utente). Solo app, non
   nella 1.0: la pubblica il coordinatore. `tasks/TASK-278.md`.
+  Chiesto il 2026-10-13: ci portano, con la parte B (sopra).
 - **App** — TASK-273 (ADR-0241; dalla prima recensione di un tester del
   2026-10-10, scelta dell'utente «Automatico, dove la tocchi»): lungo una
   forma chiusa la corsa comincia dove il corridore raggiunge la forma (3
