@@ -60,9 +60,9 @@ fermi mentre il revisore prova l'app (`AGENTI.md`). Tocca `route_engine`:
    tecnica della sessione).
 3. `ImageRouteRequest.near` (nuovo, facoltativo), con la stessa regola.
 4. `RouteResult.centre` anche a piedi, come sull'acqua.
-5. L'inclinazione: una figura messa dritta resta dritta? Domanda per
-   l'utente, con i campioni (oggi il motore la inclina fino a 45°,
-   TASK-232).
+5. L'inclinazione: **risposto dall'utente il 2026-10-15, «per me va bene
+   inclinarli»**: il motore può inclinare la figura come oggi (fino a
+   45°, TASK-232, ADR-0232). Nessuna domanda da fare coi campioni.
 6. Test deterministici; `engine.zip` rifatto; `paddleExamples.json`
    ridisegnato se cambia l'impronta (devono uscire uguali).
 

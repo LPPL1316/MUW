@@ -157,6 +157,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **Risposte dell'utente del 2026-10-15** (sessione di riepilogo; dette
+  anche al Coordinatore): la 1.0.0 (7) è **rimandata ad Apple** con video
+  e Notes, in attesa del verdetto (`tasks/TASK-152.md`); i testi
+  dell'email di TASK-284 e la privacy **vanno bene** (la parte B può
+  partire dopo #461); in TASK-282 la figura messa sulla mappa **può
+  essere inclinata** come oggi; seguito di TASK-281: **cambiare figura
+  anche dalla mappa del risultato** (numero dal Coordinatore); **ok a
+  pubblicare su `preview` tutto `main`** (278 A+B, 279 A, 280, 281, 283
+  lato app, 285 A+B), lo fa il Coordinatore. TASK-276 va rispiegato.
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
