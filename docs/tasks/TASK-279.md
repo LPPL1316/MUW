@@ -1,7 +1,8 @@
 # TASK-279 — Parole e frasi con la penna alzata in «Explore»
 
-**Stato**: parte A In lavorazione (PR pronta, aspetta il «merge» del
-Coordinatore); parte B Todo
+**Stato**: parte A Done, in `main` con la #503 (`100aca2c`, 2026-10-13),
+su `preview` con il gruppo `9dbc73d0`; parte B (frasi) Todo e il punto 7
+(`draw_examples`) dopo l'approvazione di Apple
 **Fase**: 4 · **Branch**: parte A `feat/TASK-279-a-explore-words`,
 parte B `feat/TASK-279-b-phrases`
 

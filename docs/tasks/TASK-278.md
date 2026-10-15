@@ -138,7 +138,8 @@ simulatore (iPhone 17e): tocco sul cerchio, «Settings» e «←», «Guide» e
 
 ## Parte B — Gli altri ingressi alla quarta pagina
 
-**Stato**: In revisione · **Branch**: `feat/TASK-278-b-profile-entry-points`
+**Stato**: Done, in `main` con la #509 (`8b02165e`, 2026-10-15), su
+`preview` con il gruppo `9dbc73d0` · **Branch**: `feat/TASK-278-b-profile-entry-points`
 (da `main` con la #500, la #504 e la #505), aggiunta ad ADR-0124, solo app.
 
 ### Scelte dell'utente
@@ -227,6 +228,13 @@ Elenco mandato al Coordinatore prima di cominciare, con il suo ok
 
 ### Esito
 
-*(al merge)*
+In `main` con la #509 (`8b02165e`, 2026-10-15), aggiunta ad ADR-0124, solo
+app, nessun testo nuovo. Tutti gli ingressi al proprio profilo portano
+alla quarta pagina: la lente di «Feed» senza account, il cuore e «Save»
+senza account (con «←» e il ritorno da soli alla mappa o alla fine della
+corsa dopo l'ingresso), il proprio nome taggato. Il profilo di un altro,
+da un tag o da una notifica, resta sopra l'app e «←» torna dov'era. Tutti
+i criteri provati con i test. Pubblicato su `preview` il 2026-10-15
+(gruppo `9dbc73d0`, da `main` `fd4ae341`).
 
 **Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A e per la parte B (#509).
