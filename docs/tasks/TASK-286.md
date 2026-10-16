@@ -1,6 +1,6 @@
 # TASK-286 — Cambiare figura dalla mappa del risultato
 
-**Stato**: In revisione (PR #513, aspetta «merge 513» dal Coordinatore)
+**Stato**: Done (in `main` con la #513, `52b331f7`, 2026-10-16)
 **Fase**: 4 · **Branch**: `feat/TASK-286-change-shape-on-result`
 **Dipende da**: TASK-280 (le 12 sagome), TASK-281 («Draw on the map»),
 tutti e due in `main`.
@@ -135,3 +135,5 @@ resta dov'era; dalla tela la figura nuova prende il posto di quella sulla
 mappa, stesso centro e distanza del percorso, e «Undo» rimette la vecchia.
 Provato con i test (App intera compresa); non nel simulatore: il tocco
 vero su un iPhone resta all'utente, alla prima prova di `preview`.
+In `main` con la #513 (`52b331f7`), mergiata dal Coordinatore il
+2026-10-16, che la pubblica su `preview` dopo la CI di `main`.
