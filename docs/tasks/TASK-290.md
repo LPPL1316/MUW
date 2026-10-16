@@ -1,6 +1,6 @@
 # TASK-290 — Le sagome di «PICTURES» che vengono bene in città
 
-**Stato**: In revisione (PR #520, aspetta «merge 520» dal Coordinatore)
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-290-better-draw-pictures`
 **Dipende da**: TASK-280 (le dodici sagome, ADR-0246)
 **ADR**: aggiunta ad ADR-0246
@@ -128,3 +128,7 @@ foglia, che resta). `npm test` (417 suite, 3425 test), `tsc`, `expo lint`,
 **Approvato dall'utente il 2026-10-16**: «I approve the eight new names in
 all five languages and removing the bike, heart with arrow, anchor and ice
 cream».
+
+**Fatto il 2026-10-16**: mergiato come #520 (`ff786f67`) dal Coordinatore,
+sulla testa `57962a5a`. Le sedici sagome vanno su `preview` appena la CI
+di `main` è verde. Da provare sull'iPhone: qualche sagoma nuova a 5 km.

@@ -166,6 +166,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   le più chiare prima, anche nelle righe di «Draw on the map» e del
   risultato. Solo app e `tools/`; i nomi nuovi nelle cinque lingue
   approvati dall'utente il 2026-10-16. **PR #520**. File: `tasks/TASK-290.md`.
+  **Chiuso**: in `main` con la #520 (`ff786f67`, 2026-10-16); vedi
+  «Completato».
 - **TASK-288 — Le ricerche dell'API più veloci** (ADR-0249, migrazione
   `0022_faster_searches.sql`; dall'analisi delle ricerche del 2026-10-16,
   sessione «MUW app performance e ricerca»). Branch
@@ -937,6 +939,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-290 (aggiunta ad ADR-0246, punti 8–10; richiesta
+  dell'utente del 2026-10-16): le sagome di «PICTURES» scelte dal
+  percorso, non dal disegno. 546 percorsi veri (le 12 sagome di TASK-280 e
+  29 nuove, in otto città a 5 e a 10 km, sulle zone del server copiate in
+  sola lettura), nessun errore. Tolte bici, cuore con freccia, ancora e
+  gelato; aggiunte fungo, auto, maglietta, paperella, stivale, casa, osso
+  e coppa. Sedici, le più chiare prima, anche in «Draw on the map» e
+  sotto il risultato (33 tessere). La `similarity` del motore non basta
+  per giudicare: è sopra 0,9 anche per un percorso illeggibile. Nomi e
+  sagome tolte approvati dall'utente. Mergiato come #520 (`ff786f67`);
+  su `preview` appena la CI di `main` è verde. Da provare sull'iPhone:
+  qualche sagoma nuova a 5 km. `tasks/TASK-290.md`.
 - **API** — TASK-288 (ADR-0249, migrazione `0022_faster_searches.sql`;
   dall'analisi delle ricerche del 2026-10-16): le ricerche diverse dal
   percorso rispondono prima, con le stesse risposte. gzip nell'API da
