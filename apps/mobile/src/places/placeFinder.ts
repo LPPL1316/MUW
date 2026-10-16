@@ -6,6 +6,9 @@ import { type Place, searchPlaces } from "./photon";
 /** An API that does not answer by then is skipped for Photon: the PC may
  * be off, and a suggestion late by seconds is no suggestion. */
 export const API_TIMEOUT_MS = 2500;
+/** After the API was slow or did not answer, Photon alone for this long
+ * (TASK-287): else each letter typed waits API_TIMEOUT_MS again. */
+export const API_PAUSE_MS = 3 * 60_000;
 
 export type FindPlaces = (query: string, near: LatLon | null) => Promise<Place[]>;
 
@@ -13,27 +16,32 @@ export type FindPlaces = (query: string, near: LatLon | null) => Promise<Place[]
  * Places from the API's GET /places, Geoapify behind it (TASK-123,
  * ADR-0095); from Photon, as before, when there is no API, it is slow, or
  * it says the search is off (503: no key). After a 503 the API is not asked
- * again until the app restarts. Throws only when Photon fails too.
+ * again until the app restarts; after a slow or failed answer, not for
+ * API_PAUSE_MS. Throws only when Photon fails too.
  */
 export function placeFinder({
   baseUrl = apiUrl(),
   key = apiKey(),
   fetchFn = fetch,
   timeoutMs = API_TIMEOUT_MS,
+  now = () => Date.now(),
 }: {
   baseUrl?: string | null;
   key?: string | null;
   fetchFn?: typeof fetch;
   timeoutMs?: number;
+  now?: () => number;
 } = {}): FindPlaces {
   let apiOff = baseUrl === null;
+  let pausedUntil = 0;
   return async (query, near) => {
-    if (!apiOff && baseUrl) {
+    if (!apiOff && baseUrl && now() >= pausedUntil) {
       const answer = await fromApi(baseUrl, key, query, near, fetchFn, timeoutMs);
       if (answer.kind === "places") {
         return answer.places;
       }
       apiOff = answer.kind === "off";
+      pausedUntil = now() + API_PAUSE_MS;
     }
     return searchPlaces(query, fetchFn, near);
   };
