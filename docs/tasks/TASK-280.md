@@ -145,3 +145,5 @@ giro e una sagoma a 5 km.
 li abbiamo disegnati noi, con codice (`tools/sample_pictures.py`, da
 cerchi, linee e poligoni): sono nostri e vanno con la licenza del progetto.
 Nessuna immagine d'altri, nessun credito da dare.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok».

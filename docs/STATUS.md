@@ -157,6 +157,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **Prova sull'iPhone del 2026-10-15**: l'utente ha provato `preview`
+  (gruppo `9dbc73d0`, da `main` `fd4ae341`) con TASK-278 A e B, 279 A,
+  280, 281 e 285 A e B: «funziona tutto ok». Le foto di TASK-283 non si
+  vedono ancora: aspettano il server, dopo Apple.
 - **Risposte dell'utente del 2026-10-15** (sessione di riepilogo; dette
   anche al Coordinatore): la 1.0.0 (7) è **rimandata ad Apple** con video
   e Notes, in attesa del verdetto (`tasks/TASK-152.md`); i testi
