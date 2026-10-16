@@ -1,6 +1,6 @@
 # TASK-290 — Le sagome di «PICTURES» che vengono bene in città
 
-**Stato**: In revisione (PR #520, aspetta l'ok dell'utente ai nomi e «merge» dal Coordinatore)
+**Stato**: In revisione (PR #520, aspetta «merge 520» dal Coordinatore)
 **Fase**: 4 · **Branch**: `feat/TASK-290-better-draw-pictures`
 **Dipende da**: TASK-280 (le dodici sagome, ADR-0246)
 **ADR**: aggiunta ad ADR-0246
@@ -56,7 +56,7 @@ c'è, e le parti sottili diventano una strada sola o spariscono.
       quelle nuove sì, disegnate dallo strumento, senza immagini d'altri.
 - [x] `npm test`, `expo lint`, `tsc`, `format:check` e i test di `tools/`
       verdi.
-- [ ] Nomi nuovi approvati dall'utente nelle cinque lingue.
+- [x] Nomi nuovi approvati dall'utente nelle cinque lingue (2026-10-16).
 
 ## File toccati
 
@@ -124,3 +124,7 @@ e il commento di `mapdraw/FigureTiles.tsx` («12» → «16»).
 `FigureTiles.test.tsx` e `AppDrawIdeas.test.tsx` non cambiano (usano la
 foglia, che resta). `npm test` (417 suite, 3425 test), `tsc`, `expo lint`,
 `format:check`, i test di `tools/` (50), `ruff` e `black` verdi.
+
+**Approvato dall'utente il 2026-10-16**: «I approve the eight new names in
+all five languages and removing the bike, heart with arrow, anchor and ice
+cream».

@@ -165,7 +165,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   paperella, stivale, casa, osso e coppa, scelte fra 29 provate. Sedici,
   le più chiare prima, anche nelle righe di «Draw on the map» e del
   risultato. Solo app e `tools/`; i nomi nuovi nelle cinque lingue
-  aspettano l'ok dell'utente. **PR #520**. File: `tasks/TASK-290.md`.
+  approvati dall'utente il 2026-10-16. **PR #520**. File: `tasks/TASK-290.md`.
 - **TASK-287 — La ricerca dei percorsi più veloce, lato app** (ADR-0248;
   dall'analisi della lentezza del 2026-10-16, sessione «MUW app
   performance e ricerca»; le parti del server sono TASK-288 e TASK-289,
