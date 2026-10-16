@@ -1,11 +1,13 @@
 # TASK-288 — Le ricerche dell'API più veloci
 
-**Stato**: In revisione (PR #518). Porta una migrazione: resta ferma, come
-la #502, fino all'approvazione di Apple e all'ok dell'utente per il server
-**Fase**: 4 · **Branch**: `feat/TASK-288-faster-api-searches`
-**ADR**: ADR-0249 · **Migrazione**: `0022_faster_searches.sql` (al merge
-le rinumera il Coordinatore: chi entra prima fra #502 e #518 prende la
-0022)
+**Stato**: Done · in `main` con la #518 (`2d8b4562`, 2026-10-16), mergiata
+su richiesta dell'utente col via del Coordinatore. **Non ancora sul
+server**: la migrazione va con il prossimo aggiornamento, dopo Apple e con
+l'ok dell'utente
+**Fase**: 4 · **Branch**: `feat/TASK-288-faster-api-searches` (cancellato
+al merge)
+**ADR**: ADR-0249 · **Migrazione**: `0022_faster_searches.sql`, entrata
+prima della #502 (che prende la 0023)
 
 ## Obiettivo
 
@@ -74,7 +76,7 @@ poche righe di questo task.
       prima di 90 giorni dall'ultimo uso vero.
 - [x] Tempi prima e dopo misurati in locale su `/users?q=`, `/cities` e
       `/feed` (sotto).
-- [ ] CI verde.
+- [x] CI verde (5/5 sulla head `20d87af2`).
 
 ## File toccati
 
@@ -198,6 +200,13 @@ Le ricerche rispondono con gli stessi corpi di prima, più leggere (gzip) e
 prima: il feed con la posizione 20 volte più svelto in locale, `/cities`
 non aspetta più un'area dopo l'altra, «Find friends» usa un indice e non
 rifà le foto, una GET con il token non scrive più nel database. Nessuna
-dipendenza nuova. Rimandati, in «Fuori scope»: il pool di connessioni
-(chiedere all'utente), le anteprime di «My activities», il riquadro prima
-di `ST_DWithin`. Il server e la misura lì li fa il Coordinatore.
+dipendenza nuova. Rimandati, in «Fuori scope»: il pool di connessioni, le
+anteprime di «My activities», il riquadro prima di `ST_DWithin`. Il server
+e la misura lì li fa il Coordinatore.
+
+Merge del 2026-10-16: la #518 è in `main` (`2d8b4562`), con la CI 5/5 verde.
+L'utente ha scritto «tu mergia tutte le nuove funzioni se hai finito
+archiviati», e il Coordinatore ha dato il via. Il pool di connessioni
+(`psycopg_pool`) l'utente l'ha approvato, dice il Coordinatore: è un task a
+sé, con la sessione «API connection pool with psycopg_pool» proposta e
+non ancora avviata, e un numero da chiedere al Coordinatore.
