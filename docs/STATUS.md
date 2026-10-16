@@ -172,7 +172,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   della sessione scritto una volta l'ora (90 giorni sempre garantiti).
   Stesse risposte, nessuna dipendenza nuova; il pool di connessioni
   (`psycopg_pool`) aspetta un sì dell'utente. Il server lo fa il
-  Coordinatore, con l'ok dell'utente. **PR #518**, aspetta «merge 518».
+  Coordinatore, con l'ok dell'utente. **PR #518**: porta una migrazione,
+  ferma come la #502 fino ad Apple e all'ok dell'utente; prima, il
+  controllo del Caddy del server e la domanda sul pool, nel task file.
   File: `tasks/TASK-288.md`.
 - **TASK-289 — I tempi per fase nel log dei percorsi** (ADR-0250;
   dall'analisi della lentezza del 2026-10-16, prepara la misura di

@@ -1,9 +1,11 @@
 # TASK-288 — Le ricerche dell'API più veloci
 
-**Stato**: In revisione (PR #518, aspetta «merge 518» dal Coordinatore)
+**Stato**: In revisione (PR #518). Porta una migrazione: resta ferma, come
+la #502, fino all'approvazione di Apple e all'ok dell'utente per il server
 **Fase**: 4 · **Branch**: `feat/TASK-288-faster-api-searches`
-**ADR**: ADR-0249 · **Migrazione**: `0022_faster_searches.sql` (il numero
-è il primo libero in `main` al merge: con #502 prima, diventa 0023)
+**ADR**: ADR-0249 · **Migrazione**: `0022_faster_searches.sql` (al merge
+le rinumera il Coordinatore: chi entra prima fra #502 e #518 prende la
+0022)
 
 ## Obiettivo
 
@@ -102,6 +104,39 @@ docs/DECISIONS.md
 docs/STATUS.md
 docs/tasks/TASK-288.md                                    (nuovo)
 ```
+
+## Prima dell'aggiornamento del server (per il Coordinatore)
+
+1. **Caddy non deve comprimere già il blocco dell'API.** Non ho potuto
+   leggere il server; nel repository, `DEPLOY.md` F.14 dice che il Caddy di
+   apt ha `encode gzip` solo nel blocco del sito (`getmuw.app`), e che il
+   blocco dell'API (`188-245-9-220.sslip.io, api.getmuw.app`) ha solo
+   `reverse_proxy 127.0.0.1:8000`. Il controllo lo fa il Coordinatore sul
+   server, prima dell'aggiornamento:
+
+   ```bash
+   grep -n -B2 -A4 "api.getmuw.app" /etc/caddy/Caddyfile
+   ```
+
+   Se nel blocco dell'API ci fosse un `encode`, non si comprimerebbe due
+   volte comunque: Caddy lascia com'è una risposta che ha già
+   `Content-Encoding`. Ma allora il gzip dell'API non servirebbe, e
+   converrebbe dirlo prima del merge. Il `deploy/Caddyfile` del
+   repository (profilo `public` di `compose.yaml`, non usato sul server)
+   ha `encode gzip`: vale lo stesso.
+2. **Domanda per l'utente: il pool di connessioni.** Oggi ogni chiamata a
+   `Database.connect()` apre una connessione nuova a PostgreSQL, con la
+   stretta di mano della password. Una richiesta con un token ne apre due:
+   una per il token, una per l'endpoint. In locale `GET /me`, che è solo il
+   token, costa 66 ms, e `GET /users?q=` 144–189 ms. Quasi tutta la
+   differenza fra i due sono le due connessioni, non la ricerca: la
+   ricerca di «mar» nel database costa 7,8 ms. Sono tempi del database
+   emulato del Mac; sul server il rapporto dovrebbe essere simile, i tempi
+   più bassi. Il pool tiene aperte poche connessioni e le riusa. Vuole
+   `psycopg_pool`, il pool ufficiale di psycopg 3, una **dipendenza nuova**
+   (`psycopg[binary,pool]` in `services/api/pyproject.toml`). Va bene
+   aggiungerla? Con un sì è un task a sé (la sessione «API connection pool
+   with psycopg_pool», proposta e ferma), da misurare con lo stesso script.
 
 ## Fuori scope
 
