@@ -1,6 +1,6 @@
 # TASK-290 — Le sagome di «PICTURES» che vengono bene in città
 
-**Stato**: In revisione (aspetta l'ok dell'utente ai nomi e «merge» dal Coordinatore)
+**Stato**: In revisione (PR #520, aspetta l'ok dell'utente ai nomi e «merge» dal Coordinatore)
 **Fase**: 4 · **Branch**: `feat/TASK-290-better-draw-pictures`
 **Dipende da**: TASK-280 (le dodici sagome, ADR-0246)
 **ADR**: aggiunta ad ADR-0246

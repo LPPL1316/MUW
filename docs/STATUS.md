@@ -165,7 +165,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   paperella, stivale, casa, osso e coppa, scelte fra 29 provate. Sedici,
   le più chiare prima, anche nelle righe di «Draw on the map» e del
   risultato. Solo app e `tools/`; i nomi nuovi nelle cinque lingue
-  aspettano l'ok dell'utente. File: `tasks/TASK-290.md`.
+  aspettano l'ok dell'utente. **PR #520**. File: `tasks/TASK-290.md`.
 - **TASK-289 — I tempi per fase nel log dei percorsi** (ADR-0250;
   dall'analisi della lentezza del 2026-10-16, prepara la misura di
   TASK-276). Branch `feat/TASK-289-phase-times`. Ogni job di percorso
