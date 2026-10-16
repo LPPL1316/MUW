@@ -166,7 +166,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Draw» la figura diventa la scelta di «Draw»; dalla tela prende il posto
   di quella sulla mappa (stesso centro, distanza del percorso) e «Undo» la
   rimette. Solo app, nessun testo nuovo, non nella 1.0; file e ordine con
-  l'ok del Coordinatore. File: `tasks/TASK-286.md`.
+  l'ok del Coordinatore; **PR #513**, aspetta «merge 513». File:
+  `tasks/TASK-286.md`.
 - **Risposte dell'utente del 2026-10-15** (sessione di riepilogo; dette
   anche al Coordinatore): la 1.0.0 (7) è **rimandata ad Apple** con video
   e Notes, in attesa del verdetto (`tasks/TASK-152.md`); i testi

@@ -1,6 +1,6 @@
 # TASK-286 — Cambiare figura dalla mappa del risultato
 
-**Stato**: In revisione (PR aperta, aspetta «merge» dal Coordinatore)
+**Stato**: In revisione (PR #513, aspetta «merge 513» dal Coordinatore)
 **Fase**: 4 · **Branch**: `feat/TASK-286-change-shape-on-result`
 **Dipende da**: TASK-280 (le 12 sagome), TASK-281 («Draw on the map»),
 tutti e due in `main`.
