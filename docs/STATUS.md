@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-289 — I tempi per fase nel log dei percorsi** (ADR-0250;
+  dall'analisi della lentezza del 2026-10-16, prepara la misura di
+  TASK-276). Branch `feat/TASK-289-phase-times`. Ogni job di percorso
+  dell'API scrive una riga `job <id>: times total=… crop=… start=…
+  traces=… converged=… wait=… nearby=… directions=…`, senza posizioni.
+  L'immagine Docker porta il bytecode dei pacchetti (`compileall`), così
+  i processi `spawn` delle partenze vicine non ricompilano il motore.
+  Motore non toccato: gli esempi tenuti sul server restano validi. Sul
+  server serve un'immagine nuova, dopo Apple e con l'ok dell'utente.
+  File: `tasks/TASK-289.md`.
 - **TASK-286 — Un'altra figura dalla mappa del risultato** (aggiunta ad
   ADR-0245; scelta dell'utente del 2026-10-15, seguito di TASK-281).
   Branch `feat/TASK-286-change-shape-on-result`. Sotto un percorso

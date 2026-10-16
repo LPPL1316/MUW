@@ -14623,3 +14623,67 @@ bEND»; il come deciso dall'agente su delega dell'utente):
    lingue; resta una scelta dell'utente.
 8. **Nessun consiglio di salute** oltre «Stop if it hurts.», e nessun
    materiale di bEND: figure, animazioni, nomi e testi sono nostri.
+
+## ADR-0250 — Una riga di tempi per ogni job di percorso, e il bytecode nell'immagine
+**Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega dell'utente
+(TASK-289; prepara la misura di TASK-276, dove l'utente ha scelto il
+2026-10-11 di misurare prima di decidere)
+
+**Contesto**: sul server un cuore da 5 km a Trento risponde in 9–18 s,
+sul Mac in meno di 2 (TASK-276). Il log del job diceva solo il tempo
+totale. Il motore misura i secondi di ogni partenza (`Tried.seconds`), ma
+non li scrive. Ogni processo `spawn` delle partenze vicine importa il
+motore: nell'immagine Docker non c'è bytecode (`.dockerignore` toglie
+`__pycache__`), e l'API gira con `PYTHONDONTWRITEBYTECODE` e un utente
+che non può scrivere accanto ai sorgenti. Quindi ogni processo ricompila
+il motore, a ogni percorso.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Una riga per job** in `jobs.py`, dopo quella di fine, anche per i
+   job falliti e per quelli lasciati: `job <id>: times total=… crop=…
+   loads=… download=… start=… traces=… converged=… far=… wait=… nearby=…
+   chosen=… directions=…`. Sono coppie `chiave=valore` con i secondi a
+   due decimali e `-` per ciò che il job non sa, così la misura di
+   TASK-276 le legge con `grep` e `awk`. Le chiavi sono spiegate in
+   `shaperoute_api/job_times.py`. Ci sono solo secondi e conteggi, nessuna
+   posizione (ADR-0092).
+2. **Tutto si misura dall'API, il motore non si tocca.** Il ritaglio si
+   misura in `_Reporting.load`, contando anche un download fallito. Le
+   indicazioni si misurano intorno a `with_choices`, il planner intorno a
+   sé stesso. Il piano dalla partenza con le sue tracce e la convergenza,
+   e i secondi di ogni partenza vicina, vengono dal `NearbyPlan`:
+   `images.plan_request` lo passa al source del job (`job_times.noted`,
+   protocollo `NotesNearby`, come `KnowsDownloads` e `KnowsNames`) e poi
+   restituisce il piano come prima. `wait` è il tempo del planner meno il
+   primo ritaglio e il piano dalla partenza: grafo in pickle e processi
+   avviati prima, attesa e arresto dopo, scelta fra i piani.
+3. **Il bytecode nell'immagine**: `RUN python -m compileall -q` sui tre
+   pacchetti, dopo la copia dei sorgenti e prima di `USER`. L'impronta del
+   motore legge solo `.py` e `.json` (`route_store.engine_fingerprint`):
+   i percorsi già tenuti restano validi, e un test lo controlla.
+
+**Motivo**: la scelta di TASK-276 (pool di processi, meno partenze vicine
+quando il server è carico, server più grande) dipende da quale fase pesa.
+Una riga per job, con le stesse chiavi, si legge su ore di traffico vero
+e non solo nei 10 minuti della misura.
+
+**Alternative scartate**:
+
+- Due campi di tempo in `NearbyPlan`, per separare esattamente la
+  preparazione dall'attesa: cambiano l'impronta del motore, e gli esempi
+  tenuti sul server andrebbero rifatti (Coordinatore, 2026-10-16). Si
+  potranno aggiungere con i prossimi cambi del motore, dopo Apple.
+- Una riga per fase: le righe di job diversi si mescolano, perché i job
+  girano su due thread (ADR-0032).
+- Un `ContextVar` al posto del source per passare il `NearbyPlan`: è un
+  canale nascosto; il source è già l'oggetto che il job dà al planner.
+- `--invalidation-mode unchecked-hash`: risparmia solo uno `stat` per
+  modulo, e un sorgente cambiato a mano nel container userebbe il
+  bytecode vecchio.
+
+**Conseguenza**: il log dell'API ha una riga in più per percorso. `wait`
+mette insieme la preparazione e l'attesa delle partenze vicine. Sul
+server il bytecode arriva solo con un'immagine nuova (dopo Apple e con
+l'ok dell'utente). `engine.zip` è rifatto, perché `jobs.py` e `images.py`
+sono nel motore del telefono.

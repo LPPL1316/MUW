@@ -39,6 +39,7 @@ from route_engine.outline_edits import MAX_DETAIL_POINTS, travelled_points
 from route_engine.shapes.outline import InvalidOutlineError, Outline, parse_outline
 from route_engine.water import WaterSource
 
+from shaperoute_api.job_times import noted
 from shaperoute_api.paddling import plan_water
 from shaperoute_api.schemas import MAX_IMAGE_BYTES, ImageOutlineBody
 
@@ -201,12 +202,14 @@ def plan_request(request: AnyRequest, source: GraphLoader | WaterSource) -> Plan
         assert isinstance(request, RouteRequest)
         return plan_water(request, cast(WaterSource, source))
     roads = cast(GraphLoader, source)
+    # The job's source keeps how the nearby starts went, for its times.
     if isinstance(request, ImageRequest):
-        plan = plan_nearby(image_job(request), request.start, roads).plan
+        plan = noted(source, plan_nearby(image_job(request), request.start, roads))
         return replace(
             _unnamed(plan), alternatives=[_unnamed(p) for p in plan.alternatives]
         )
-    return plan_nearby(ShapeJob.of_request(request), request.start, roads).plan
+    job = ShapeJob.of_request(request)
+    return noted(source, plan_nearby(job, request.start, roads))
 
 
 def _unnamed(plan: Plan) -> Plan:
