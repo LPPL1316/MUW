@@ -157,6 +157,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-288 — Le ricerche dell'API più veloci** (ADR-0249, migrazione
+  `0022_faster_searches.sql`; dall'analisi delle ricerche del 2026-10-16,
+  sessione «MUW app performance e ricerca»). Branch
+  `feat/TASK-288-faster-api-searches`. gzip nell'API da 1 KB in su;
+  Geoapify chiesto insieme (aree di `/cities`, categorie di
+  `/nearby-cities`), 3 s e un secondo tentativo su timeout/429/5xx, mai
+  la chiave nei log, nessuna cache per le risposte vuote;
+  `draw_examples` richiede un 503 invece di dire «not found»; i download
+  delle foto delle città in un pool loro; «Find friends» con `pg_trgm` e
+  la foto piccola fatta una volta; il feed e i profili leggono
+  l'anteprima di 64 punti che PostgreSQL tiene in `drawings.preview`
+  (feed con la posizione da 15 s a 0,75 s a pagina in locale); l'uso
+  della sessione scritto una volta l'ora (90 giorni sempre garantiti).
+  Stesse risposte, nessuna dipendenza nuova; il pool di connessioni
+  (`psycopg_pool`) aspetta un sì dell'utente. Il server lo fa il
+  Coordinatore, con l'ok dell'utente. **PR #518**: porta una migrazione,
+  ferma come la #502 fino ad Apple e all'ok dell'utente. Il Caddy del
+  server non comprime l'API (controllato il 2026-10-16); la domanda sul
+  pool la porta il Coordinatore all'utente.
+  File: `tasks/TASK-288.md`.
 - **TASK-287 — La ricerca dei percorsi più veloce, lato app** (ADR-0248;
   dall'analisi della lentezza del 2026-10-16, sessione «MUW app
   performance e ricerca»; le parti del server sono TASK-288 e TASK-289,

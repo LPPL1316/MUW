@@ -61,7 +61,9 @@ Migrazione `0001_users_sessions.sql` (TASK-114, ADR-0120):
 - `sessions`: `token_hash` (SHA-256 del token, 32 byte, chiave),
   `user_id` (`ON DELETE CASCADE`), `created_at`, `last_used_at`. Valida
   finché `last_used_at` è più recente di 90 giorni; ogni uso la sposta.
-  Una sessione scaduta si cancella quando qualcuno la usa.
+  Una sessione scaduta si cancella quando qualcuno la usa. Da TASK-288
+  (ADR-0249) un uso si scrive solo quando quello scritto ha un'ora, e la
+  sessione vale 90 giorni e un'ora: mai meno di 90 dall'ultimo uso vero.
 - L'estensione PostGIS la crea la prima migrazione che usa una geometria:
   è la `0002` (`CREATE EXTENSION IF NOT EXISTS postgis`); l'immagine la ha
   già.
@@ -421,6 +423,25 @@ Migrazione `0021_push_tokens.sql` (TASK-262 parte A, ADR-0226; il numero
   (`DeviceNotRegistered`) e con l'account. È **l'unico dato che lascia il
   server per un terzo**: il token, con il testo della notifica, va al
   servizio push di Expo, che lo passa ad Apple o a Google.
+
+Migrazione `0022_faster_searches.sql` (TASK-288, ADR-0249; il numero è il
+primo libero in `main` al merge):
+
+- L'estensione **`pg_trgm`** (di PostgreSQL, nell'immagine PostGIS) e
+  l'indice GIN `users_username_trgm_idx` su `lower(username)
+  gin_trgm_ops`: «Find friends» (`lower(username) LIKE '%q%'`) lo usa da
+  tre lettere in su, senza leggere ogni account.
+- **`drawings.preview`**: colonna generata (`GENERATED ALWAYS AS …
+  STORED`) dalla funzione `drawing_preview(track)`, al più 64 punti della
+  traccia tagliata scelti per indice come `recommended.preview`, primo e
+  ultimo compresi; `NULL` senza traccia. PostgreSQL la rifà a ogni
+  scrittura di `track`. Il feed e i disegni di un profilo la leggono al
+  posto della traccia intera, e il feed le chiede se un disegno è vicino.
+  La funzione ha `search_path = public`: un ripristino la chiama con un
+  `search_path` vuoto.
+- L'indice parziale `drawings_published_idx` su `(published_at DESC, id
+  DESC) WHERE visibility <> 'only_me'`: i disegni pubblicati, i più
+  recenti prima, l'ordine del feed.
 
 ## Come si memorizza una traccia
 

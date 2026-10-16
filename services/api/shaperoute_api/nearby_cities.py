@@ -37,7 +37,12 @@ from route_engine.geo import haversine_m
 
 from shaperoute_api.cities import place_label, result_point
 from shaperoute_api.city_photos import CityPhotoBody, CityPhotos, is_item
-from shaperoute_api.places import Fetch, PlacesUnavailableError, fetch_json
+from shaperoute_api.places import (
+    Fetch,
+    PlacesUnavailableError,
+    fetch_json,
+    fetch_together,
+)
 from shaperoute_api.route_store import RouteStore
 from shaperoute_api.schemas import ErrorBody
 
@@ -228,14 +233,19 @@ class NearbyCities:
                 self._cache.move_to_end(centre)
                 return kept[1]
         try:
-            cities = self._ask(CITIES, centre, FAR_RADIUS_M)
-            near = self._ask(TOWNS, centre, NEAR_RADIUS_M)
+            cities, near, villages = self._ask(
+                centre,
+                (CITIES, FAR_RADIUS_M),
+                (TOWNS, NEAR_RADIUS_M),
+                (VILLAGES, NEAR_RADIUS_M),
+            )
             near += [c for c in cities if haversine_m(centre, c.point) <= NEAR_RADIUS_M]
-            small = [*self._ask(VILLAGES, centre, NEAR_RADIUS_M), *near]
+            small = [*villages, *near]
             own = own_place(centre, [*small, *cities])
             large = choose(centre, near, [], own)
             if len(large) < MAX_LARGE:
-                far = cities + self._ask(TOWNS, centre, FAR_RADIUS_M)
+                (far_towns,) = self._ask(centre, (TOWNS, FAR_RADIUS_M))
+                far = cities + far_towns
                 large = choose(centre, near, far, own)
             chosen = sorted(
                 [*large, *nearest_others(centre, small, large, own)],
@@ -250,11 +260,19 @@ class NearbyCities:
                 self._cache.popitem(last=False)
         return chosen
 
-    def _ask(self, categories: str, centre: LatLon, radius_m: int) -> list[Town]:
+    def _ask(self, centre: LatLon, *asked: tuple[str, int]) -> list[list[Town]]:
+        """The places of each (categories, radius) around `centre`, asked
+        side by side (TASK-288); raises when one did not answer."""
         assert self.key is not None
-        return parse_towns(
-            self._fetch(nearby_url(self.key, categories, centre, radius_m))
-        )
+        urls = [
+            nearby_url(self.key, categories, centre, radius_m)
+            for categories, radius_m in asked
+        ]
+        bodies = fetch_together(self._fetch, urls, len(urls))
+        for body in bodies:
+            if isinstance(body, Exception):
+                raise body
+        return [parse_towns(body) for body in bodies]
 
     def body(self, point: LatLon) -> NearbyCitiesBody:
         """The places of `point`'s square, the nearest to `point` first: two

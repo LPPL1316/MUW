@@ -26,7 +26,10 @@ across it is 404, as for nobody.
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
+import threading
+from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
@@ -61,6 +64,9 @@ MAX_QUERY_LENGTH = 20
 # A list shows the picture small: half the side of the profile's, a quarter
 # of its bytes (ADR-0173, point 7).
 SMALL_PHOTO_SIDE = PHOTO_SIDE // 2
+# The small pictures made, kept: a search shows the same faces letter after
+# letter (TASK-288). A few KB each in base64.
+SMALL_PHOTOS_KEPT = 2000
 PAGE_SIZE = 20
 MAX_PAGE_SIZE = 50
 # Where a page ended: when its last follow began, in microseconds, and the
@@ -199,6 +205,36 @@ def small_photo(jpeg: bytes) -> str:
     return base64.b64encode(out.getvalue()).decode("ascii")
 
 
+class SmallPhotos:
+    """The small pictures made, the latest used kept, each by a digest of
+    the picture it was made from: a new picture is a new digest, so the one
+    before is never shown. The digest of 20 KB costs microseconds, the
+    picture milliseconds."""
+
+    def __init__(self, size: int = SMALL_PHOTOS_KEPT) -> None:
+        self.size = size
+        self._kept: OrderedDict[bytes, str] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def of(self, jpeg: bytes) -> str:
+        """small_photo(jpeg), made once."""
+        key = hashlib.blake2b(jpeg, digest_size=16).digest()
+        with self._lock:
+            kept = self._kept.get(key)
+            if kept is not None:
+                self._kept.move_to_end(key)
+                return kept
+        small = small_photo(jpeg)
+        with self._lock:
+            self._kept[key] = small
+            while len(self._kept) > self.size:
+                self._kept.popitem(last=False)
+        return small
+
+
+SMALL_PHOTOS = SmallPhotos()
+
+
 def checked_query(q: str) -> str | None:
     """The part of a name to look for, in lower case; None when no name can
     hold it. 422 for less than MIN_QUERY_LENGTH characters."""
@@ -218,11 +254,12 @@ def like_itself(text: str) -> str:
 
 
 def _person(row: DictRow) -> PersonBody:
+    """A member of a list, from the PERSON_COLUMNS of its row."""
     jpeg = row["jpeg"]
     return PersonBody(
         public_id=row["public_id"],
         username=row["username"],
-        photo=None if jpeg is None else small_photo(jpeg),
+        photo=None if jpeg is None else SMALL_PHOTOS.of(bytes(jpeg)),
     )
 
 
