@@ -44,6 +44,13 @@ RUN pip install -r /tmp/requirements.txt
 COPY services/route-engine services/route-engine
 COPY services/ai services/ai
 COPY services/api services/api
+# Their bytecode, written once here: the API runs as a user who cannot write
+# next to the sources, and with PYTHONDONTWRITEBYTECODE, so without it every
+# process compiled them again, the nearby starts' `spawn` processes too, at
+# every route (TASK-289). The engine's fingerprint reads .py and .json only:
+# the routes already kept stay valid (route_store.engine_fingerprint).
+RUN python -m compileall -q services/route-engine/route_engine \
+    services/ai/shaperoute_ai services/api/shaperoute_api
 # The app's lists of lakes and beaches, where the repository has them: the
 # API keeps the Paddle shapes drawn from their points (TASK-246 part B).
 COPY apps/mobile/src/paddle/lakes.json apps/mobile/src/paddle/beaches.json apps/mobile/src/paddle/
