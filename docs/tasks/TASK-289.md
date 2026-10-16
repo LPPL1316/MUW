@@ -1,6 +1,7 @@
 # TASK-289 — I tempi per fase nel log dei percorsi
 
-**Stato**: In revisione (PR #515, aspetta «merge 515» dal Coordinatore)
+**Stato**: Done — parte A mergiata come #515 (`cd5a4a3f`) il 2026-10-16; la
+parte B si fa solo se la misura sul server la chiede
 **Fase**: 4 · **Branch**: `feat/TASK-289-phase-times`
 **Dipende da**: niente; prepara la misura della parte A di TASK-276
 **ADR**: ADR-0250
@@ -49,17 +50,29 @@ quindi tutte dall'API.
    telefono).
 5. Misura in locale, Trento, cuore da 5 km: qui sotto, in «Esito».
 
+### Le due parti (Coordinatore, 2026-10-16)
+
+- **Parte A**, mergiabile subito: solo lato API (`jobs.py`, `images.py`,
+  `job_times.py`, `Dockerfile`), con i tempi misurati attorno alle
+  chiamate al motore, senza toccare `route_engine`. È questo task.
+- **Parte B**, solo se la A non basta: due campi di tempo in
+  `NearbyPlan` (preparazione e attesa delle partenze vicine, separate).
+  È un cambio del motore: entra insieme a #489 e #497, dopo
+  l'approvazione di Apple, e porta con sé quello che chiede la regola 11
+  di `AGENTI.md` (`draw_examples` da rifare, `paddleExamples.json` ed
+  `engine.zip` da ricostruire).
+
 ## Criteri di accettazione
 
-- [ ] Un test controlla la riga intera con un orologio finto: ritaglio,
+- [x] Un test controlla la riga intera con un orologio finto: ritaglio,
       piano dalla partenza, tracce, convergenza, attesa, secondi di ogni
       partenza vicina, indicazioni, e nessuna posizione nel log.
-- [ ] Un test controlla il `Dockerfile` e che il bytecode non cambi
+- [x] Un test controlla il `Dockerfile` e che il bytecode non cambi
       l'impronta del motore.
-- [ ] Nessun file di `services/route-engine/` toccato: i percorsi e gli
+- [x] Nessun file di `services/route-engine/` toccato: i percorsi e gli
       esempi tenuti restano gli stessi.
-- [ ] Misura locale scritta in «Esito».
-- [ ] CI verde.
+- [x] Misura locale scritta in «Esito».
+- [x] CI verde.
 
 ## File toccati
 
@@ -133,3 +146,32 @@ si legge dal disco; le indicazioni 0,06–0,11 s.
   riga mostra `download=109.69 … wait=0.18 nearby=-,-`. Un primo download
   fallito dopo 39 s ora conta i suoi secondi (`download=`), invece di
   `loads=0`.
+
+### Chiusura, 2026-10-16
+
+- **Mergiato** come #515 (`cd5a4a3f`), CI 5/5 verde, compreso il job
+  `docker` che costruisce l'immagine con `compileall`.
+- **Il log non ha posizioni** (ADR-0092): la riga `times` ha solo secondi,
+  conteggi, `yes`/`no` e il numero della partenza scelta. Un test lo
+  controlla.
+- **`engine.zip` è stato ricostruito** nella #515, perché `jobs.py`,
+  `images.py` e il nuovo `job_times.py` sono nel motore del telefono.
+  Se prima della prossima pubblicazione entra un'altra PR che lo
+  ricostruisce (#489, #497), va rifatto al suo merge, come sempre.
+- **L'impronta del motore non cambia**: nessun file di
+  `services/route-engine/` è toccato, e `route_store.engine_fingerprint`
+  dà `9342c26d4006` sia prima della #515 (`85d8e21f`) sia dopo
+  (`cd5a4a3f`). Il bytecode di `compileall` non conta: l'impronta legge
+  solo `.py` e `.json`, e `test_compiled_image.py` lo controlla. Gli
+  esempi tenuti sul server restano validi; nessun `draw_examples` da
+  rifare.
+- **Test in locale**: verdi quelli toccati (`test_job_times`,
+  `test_compiled_image`, `test_jobs`, `test_images`, `test_route_jobs`,
+  `test_alternatives`, `tools/phone_engine`), ruff e black. La suite
+  intera dell'API non è arrivata in fondo sul Mac: i test del database
+  andavano in timeout di connessione con Docker carico. In CI il job
+  `api` l'ha fatta tutta, verde.
+- **Prossimo passo**: TASK-276 parte A, sul server, dopo l'approvazione di
+  Apple. Serve un'immagine nuova dell'API (con l'ok dell'utente), poi si
+  leggono le righe `times`, per esempio con
+  `docker compose logs api | grep ' times '`.

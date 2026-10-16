@@ -167,6 +167,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Motore non toccato: gli esempi tenuti sul server restano validi. Sul
   server serve un'immagine nuova, dopo Apple e con l'ok dell'utente.
   **PR #515**, aspetta «merge 515». File: `tasks/TASK-289.md`.
+  **Chiuso**: in `main` con la #515 (`cd5a4a3f`, 2026-10-16); vedi
+  «Completato».
 - **TASK-286 — Un'altra figura dalla mappa del risultato** (aggiunta ad
   ADR-0245; scelta dell'utente del 2026-10-15, seguito di TASK-281).
   Branch `feat/TASK-286-change-shape-on-result`. Sotto un percorso
@@ -888,6 +890,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **API** — TASK-289 (ADR-0250; dall'analisi della lentezza del
+  2026-10-16, prepara la parte A di TASK-276): ogni job di percorso scrive
+  nel log una riga `job <id>: times total=… crop=… loads=… download=…
+  start=… traces=… converged=… far=… wait=… nearby=… chosen=…
+  directions=…`, senza posizioni. Le chiavi sono spiegate in
+  `shaperoute_api/job_times.py`. L'immagine Docker porta il bytecode dei
+  tre pacchetti (`compileall`). Il motore non è toccato: l'impronta resta
+  `9342c26d4006` e gli esempi tenuti sul server valgono ancora;
+  `engine.zip` è ricostruito. Sul Mac un cuore da 5 km costa 1,1–2,9 s, e
+  il bytecode fa risparmiare solo 23 ms per processo `spawn`. Con il Mac
+  carico lo stesso cuore sale a 12–13 s: la CPU contesa è la prima ipotesi
+  da controllare sul server. Mergiato come #515 (`cd5a4a3f`). Prossimo
+  passo: TASK-276 parte A, con un'immagine nuova sul server, dopo Apple e
+  con l'ok dell'utente. La parte B (due tempi in `NearbyPlan`) si fa solo
+  se serve. `tasks/TASK-289.md`.
 - **App** — TASK-286 (aggiunta ad ADR-0245, punti 10–14; scelta
   dell'utente del 2026-10-15, «sì, dai la possibilità di cambiare figura
   dalla mappa»): sotto un percorso disegnato, da «Draw» o da «Draw on the
