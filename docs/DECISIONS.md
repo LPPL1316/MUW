@@ -14537,6 +14537,38 @@ sagoma nuova è una funzione in `tools/sample_pictures.py`, un nome in
 `samplePictures.ts` e le sue traduzioni. Un giro chiesto con «Bike» è
 quello di «Explore», a piedi, come in «Explore».
 
+**Aggiunta del 2026-10-16 (TASK-290, le sagome che vengono bene in
+città)**: richiesta dell'utente («le hai provate nelle varie città? …
+aggiungine altre che vengono bene e togli quelle più brutte»); quali
+tenere, togliere e aggiungere lo ha deciso l'agente su delega dell'utente,
+guardando i percorsi; i nomi nuovi li approva l'utente.
+
+8. **Una sagoma si sceglie dal percorso, non dal disegno.** Ogni sagoma è
+   stata pianificata come `POST /image-route-jobs` (lo stesso
+   `plan_request` dell'API, con le partenze vicine) in otto città con
+   strade diverse, Trento, Milano, Roma, Parigi, Barcellona, Londra,
+   Chicago e Torino, a 5 e a 10 km, sulle zone del server copiate in
+   locale. Si è guardato il disegno dei percorsi: la somiglianza del
+   motore (`similarity`) non distingue, è sopra 0,9 anche per un percorso
+   che non si riconosce.
+9. **Cosa viene bene**: il motore segue solo il contorno esterno, e a
+   5 km una parte stretta diventa una strada sola. Vengono le sagome
+   riconoscibili dal contorno, con due o tre parti larghe: dinosauro,
+   Torre Eiffel, aereo, chitarra, palloncino e, nuove, fungo, auto,
+   maglietta, paperella, stivale, casa, osso, coppa. Razzo, scarpa da
+   corsa e foglia vengono a 10 km, meno a 5: restano, in fondo alla riga.
+   **Tolte** bici (il contorno è quello delle due ruote insieme), cuore con
+   freccia (la freccia sparisce, e il cuore c'è già tra le forme), ancora
+   (un groviglio fuori da Barcellona e Chicago) e gelato (le palline e il
+   cono diventano un ovale). Provate e **scartate** anche balena, veliero,
+   castello, orsetto, elefante, mano, robot, tartaruga, pinguino, pupazzo
+   di neve, cactus, corona, pollice in su, guanto, fulmine, freccia, nota,
+   tazza, campana, diamante e fetta di pizza: dettagli persi, o percorsi
+   che si leggono solo in qualche città.
+10. **Sedici, le più chiare prima**: la riga di «Draw» e quella di
+    `FigureTiles` (ADR-0245) ne hanno sedici invece di dodici. Nessun
+    doppione delle forme di `SHAPES`.
+
 ## ADR-0247 — A fine corsa l'app ricorda lo stretching, con «Skip»
 **Stato**: Attiva · 2026-10-13 · chiesto dall'utente («Finito
 l'esercizio, puoi dire all'inizio "ricordati di fare stretching" e dai la

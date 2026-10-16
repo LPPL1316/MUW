@@ -4,7 +4,7 @@ Usage (from the repository root, with the route-engine installed):
 
     python tools/sample_pictures.py
 
-Twelve silhouettes, drawn here with Pillow from circles, lines and polygons:
+Sixteen silhouettes, drawn here with Pillow from circles, lines and polygons:
 no picture of anyone else, no licence. Each is one dark figure on a light
 background, what the engine traces best (ADR-0068). The PNGs go to
 ``apps/mobile/assets/pictures/``; the outline the engine traces from each
@@ -121,25 +121,6 @@ def turned(points: Sequence[Point], centre: Point, degrees: float) -> list[Point
     ]
 
 
-def bike(pen: Pen) -> None:
-    rear, front = (178, 405), (462, 405)
-    bracket, seat, head = (305, 410), (278, 248), (436, 252)
-    for hub in (rear, front):
-        pen.ring(hub, 108, 26)
-        pen.disc(hub, 15)
-    for stretch in (
-        (rear, bracket),
-        (bracket, seat),
-        (seat, rear),
-        (seat, head),
-        (bracket, head),
-        (head, front),
-    ):
-        pen.line(stretch, 20)
-    pen.line([head, (426, 200), (470, 192)], 18)
-    pen.box(236, 226, 316, 248, radius=11)
-
-
 def running_shoe(pen: Pen) -> None:
     outline = [
         *bezier((92, 452), (220, 470), (420, 472), (518, 462)),
@@ -235,80 +216,6 @@ def rocket(pen: Pen) -> None:
     pen.ring((axis, 262), 30, 12)
 
 
-def heart_with_arrow(pen: Pen) -> None:
-    def at(t: float) -> Point:
-        x = 16 * math.sin(t) ** 3
-        y = (
-            13 * math.cos(t)
-            - 5 * math.cos(2 * t)
-            - 2 * math.cos(3 * t)
-            - math.cos(4 * t)
-        )
-        return (320 + 11.5 * x, 300 - 11.5 * y)
-
-    pen.polygon([at(2 * math.pi * i / 240) for i in range(240)])
-    tail, tip = (96, 486), (548, 160)
-    pen.line([tail, tip], 18)
-    length = math.dist(tail, tip)
-    along = ((tip[0] - tail[0]) / length, (tip[1] - tail[1]) / length)
-    across = (-along[1], along[0])
-
-    def step(point: Point, forward: float, side: float) -> Point:
-        return (
-            point[0] + forward * along[0] + side * across[0],
-            point[1] + forward * along[1] + side * across[1],
-        )
-
-    head = step(tip, 30, 0)
-    pen.polygon([head, step(tip, -40, 34), step(tip, -40, -34)])
-    for back in (0, 26, 52):
-        feather = step(tail, back, 0)
-        pen.polygon(
-            [
-                feather,
-                step(feather, -30, 28),
-                step(feather, -12, 28),
-                step(feather, 18, 0),
-                step(feather, -12, -28),
-                step(feather, -30, -28),
-            ]
-        )
-
-
-def anchor(pen: Pen) -> None:
-    pen.ring((320, 96), 38, 22)
-    pen.box(212, 158, 428, 190, radius=14)
-    pen.box(302, 130, 338, 540)
-    centre, radius = (320, 352), 196
-    arc = [
-        (
-            centre[0] + radius * math.cos(math.radians(a)),
-            centre[1] + radius * math.sin(math.radians(a)),
-        )
-        for a in range(22, 159, 2)
-    ]
-    pen.line(arc, 36)
-    for degrees, onward in ((22, -1), (158, 1)):
-        a = math.radians(degrees)
-        end = (centre[0] + radius * math.cos(a), centre[1] + radius * math.sin(a))
-        # Along the arc, past its end, and across it.
-        tangent = (onward * -math.sin(a), onward * math.cos(a))
-        normal = (math.cos(a), math.sin(a))
-        pen.polygon(
-            [
-                (end[0] + 78 * tangent[0], end[1] + 78 * tangent[1]),
-                (
-                    end[0] + 40 * normal[0] - 12 * tangent[0],
-                    end[1] + 40 * normal[1] - 12 * tangent[1],
-                ),
-                (
-                    end[0] - 40 * normal[0] - 12 * tangent[0],
-                    end[1] - 40 * normal[1] - 12 * tangent[1],
-                ),
-            ]
-        )
-
-
 def plane(pen: Pen) -> None:
     axis = 320
     pen.box(axis - 28, 46, axis + 28, 590, radius=28)
@@ -318,21 +225,6 @@ def plane(pen: Pen) -> None:
     pen.polygon(mirrored(tail, axis))
     for x in (axis + 120, axis - 120):
         pen.box(x - 15, 268, x + 15, 338, radius=12)
-
-
-def ice_cream(pen: Pen) -> None:
-    # The scoop wider than the cone, so its edge shows in the outline.
-    pen.polygon([(236, 352), (404, 352), (320, 606)])
-    pen.disc((320, 316), 124)
-    for centre, radius in (((222, 380), 22), ((418, 374), 18)):
-        pen.disc(centre, radius)
-    pen.disc((320, 184), 82)
-    pen.disc((320, 88), 24)
-    pen.line([(322, 68), (346, 44)], 12)
-    for x, y in ((292, 450), (348, 450), (320, 496), (320, 540)):
-        pen.polygon(
-            [(x, y - 14), (x + 14, y), (x, y + 14), (x - 14, y)], fill=BACKGROUND
-        )
 
 
 def balloon(pen: Pen) -> None:
@@ -384,19 +276,151 @@ def leaf(pen: Pen) -> None:
             pen.line(turned(vein, centre, -42), 6, fill=BACKGROUND)
 
 
-# In the order of the row in «Draw»: the user's choice of 2026-10-13.
+def mushroom(pen: Pen) -> None:
+    axis = 320
+    right = [
+        *bezier((axis, 90), (axis + 150, 90), (axis + 250, 200), (axis + 260, 330)),
+        (axis + 70, 330),
+        *bezier((axis + 70, 330), (axis + 80, 420), (axis + 96, 500), (axis + 92, 560)),
+        *bezier((axis + 92, 560), (axis + 60, 580), (axis + 20, 584), (axis, 584)),
+    ]
+    pen.polygon(mirrored(right, axis))
+    # The spots: inside the cap, never on its edge.
+    for centre, radius in (((230, 210), 30), ((380, 170), 24), ((450, 270), 26)):
+        pen.disc(centre, radius, fill=BACKGROUND)
+
+
+def t_shirt(pen: Pen) -> None:
+    axis = 320
+    right = [
+        *bezier((axis, 140), (axis + 40, 140), (axis + 66, 120), (axis + 72, 96)),
+        (axis + 150, 112),
+        (axis + 270, 210),
+        (axis + 214, 296),
+        (axis + 160, 262),
+        (axis + 160, 560),
+    ]
+    pen.polygon(mirrored(right, axis))
+
+
+def car(pen: Pen) -> None:
+    pen.polygon(
+        [
+            (60, 470),
+            (60, 360),
+            *bezier((60, 360), (80, 330), (120, 320), (160, 316)),
+            *bezier((160, 316), (210, 220), (260, 196), (340, 196)),
+            *bezier((340, 196), (420, 196), (460, 240), (500, 316)),
+            *bezier((500, 316), (560, 320), (590, 340), (590, 400)),
+            (590, 470),
+        ]
+    )
+    # The wheels below the body, so their round shows in the outline.
+    for x in (176, 470):
+        pen.disc((x, 474), 66)
+        pen.disc((x, 474), 26, fill=BACKGROUND)
+    pen.polygon([(206, 310), (250, 236), (316, 230), (316, 310)], fill=BACKGROUND)
+    pen.polygon([(346, 310), (346, 230), (420, 236), (456, 310)], fill=BACKGROUND)
+
+
+def duck(pen: Pen) -> None:
+    pen.polygon(
+        [
+            *bezier((80, 380), (90, 300), (160, 290), (220, 330)),
+            *bezier((220, 330), (300, 330), (340, 320), (340, 280)),
+            *bezier((340, 280), (300, 230), (290, 120), (400, 100)),
+            *bezier((400, 100), (470, 90), (510, 140), (500, 200)),
+            (580, 210),
+            *bezier((580, 210), (590, 240), (560, 260), (500, 262)),
+            *bezier((500, 262), (480, 290), (470, 300), (480, 330)),
+            *bezier((480, 330), (580, 380), (570, 520), (420, 540)),
+            (220, 540),
+            *bezier((220, 540), (120, 530), (80, 470), (80, 380)),
+        ]
+    )
+    pen.disc((420, 170), 13, fill=BACKGROUND)
+
+
+def boot(pen: Pen) -> None:
+    pen.polygon(
+        [
+            (200, 60),
+            (400, 60),
+            (400, 360),
+            *bezier((400, 360), (500, 380), (580, 420), (590, 500)),
+            (590, 580),
+            (170, 580),
+            *bezier((170, 580), (180, 400), (200, 300), (200, 60)),
+        ]
+    )
+    pen.box(180, 40, 420, 90, radius=12)
+
+
+def house(pen: Pen) -> None:
+    pen.polygon(
+        [
+            (320, 70),
+            (590, 300),
+            (520, 300),
+            (520, 580),
+            (120, 580),
+            (120, 300),
+            (50, 300),
+        ]
+    )
+    pen.box(420, 110, 480, 230)
+    # The door, open at the bottom: it shows in the outline.
+    pen.polygon([(272, 430), (368, 430), (368, 580), (272, 580)], fill=BACKGROUND)
+
+
+def bone(pen: Pen) -> None:
+    # Drawn level, then turned: a bone lies at a slant.
+    centre, degrees = (320, 320), -30
+    pen.polygon(
+        turned([(170, 280), (470, 280), (470, 360), (170, 360)], centre, degrees)
+    )
+    for end in turned(
+        [(150, 270), (150, 370), (490, 270), (490, 370)], centre, degrees
+    ):
+        pen.disc(end, 62)
+
+
+def trophy(pen: Pen) -> None:
+    axis = 320
+    right = [
+        (axis + 160, 80),
+        *bezier(
+            (axis + 160, 80), (axis + 160, 260), (axis + 100, 330), (axis + 40, 360)
+        ),
+        (axis + 40, 440),
+        (axis + 120, 480),
+        (axis + 120, 560),
+        (axis, 560),
+    ]
+    # The handles first, so the cup covers their inner half.
+    for x in (130, 510):
+        pen.ring((x, 190), 70, 40)
+    pen.polygon(mirrored(right, axis))
+
+
+# In the order of the row in «Draw», the clearest first: the sixteen whose
+# routes came out recognisable in the cities tried by TASK-290 (2026-10-16).
 PICTURES: dict[str, Callable[[Pen], None]] = {
-    "bike": bike,
-    "running_shoe": running_shoe,
     "dinosaur": dinosaur,
-    "guitar": guitar,
+    "mushroom": mushroom,
+    "car": car,
     "eiffel_tower": eiffel_tower,
-    "rocket": rocket,
-    "heart_with_arrow": heart_with_arrow,
-    "anchor": anchor,
+    "t_shirt": t_shirt,
     "plane": plane,
-    "ice_cream": ice_cream,
+    "boot": boot,
+    "guitar": guitar,
+    "house": house,
     "balloon": balloon,
+    "duck": duck,
+    "trophy": trophy,
+    "bone": bone,
+    "rocket": rocket,
+    "running_shoe": running_shoe,
     "leaf": leaf,
 }
 

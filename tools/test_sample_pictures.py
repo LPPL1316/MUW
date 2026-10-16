@@ -31,21 +31,25 @@ def outlines() -> dict[str, dict[str, object]]:
     return json.loads(OUTLINES_FILE.read_text(encoding="utf-8"))
 
 
-def test_the_twelve_pictures_of_the_user_in_their_order(
+def test_the_sixteen_pictures_in_their_order(
     outlines: dict[str, dict[str, object]],
 ) -> None:
     assert list(PICTURES) == [
-        "bike",
-        "running_shoe",
         "dinosaur",
-        "guitar",
+        "mushroom",
+        "car",
         "eiffel_tower",
-        "rocket",
-        "heart_with_arrow",
-        "anchor",
+        "t_shirt",
         "plane",
-        "ice_cream",
+        "boot",
+        "guitar",
+        "house",
         "balloon",
+        "duck",
+        "trophy",
+        "bone",
+        "rocket",
+        "running_shoe",
         "leaf",
     ]
     assert list(outlines) == list(PICTURES)
