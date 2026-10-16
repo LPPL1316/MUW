@@ -157,6 +157,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-287 — La ricerca dei percorsi più veloce, lato app** (ADR-0248;
+  dall'analisi della lentezza del 2026-10-16, sessione «MUW app
+  performance e ricerca»; le parti del server sono TASK-288 e la misura
+  dei tempi per fase). Branch `feat/TASK-287-faster-route-search`: una
+  sola coda per le richieste di percorso (l'utente prima, poi gli esempi
+  sulla pagina di «Explore», poi le forme sull'acqua in anticipo; niente
+  in sottofondo mentre gira una richiesta dell'utente; al massimo 22 al
+  minuto, 8 sempre dell'utente); un «Draw» annullato sul telefono esce
+  dalla coda o fa ripartire la pagina di Python, e il prossimo non
+  aspetta; Python parte appena c'è una zona salvata intorno; il chip di
+  una città in evidenza non chiede più `/cities`; il campione di un
+  paese vicino è già un suo esempio; `city-examples.json` scritto una
+  volta per gruppo; `/places` lento lasciato stare 3 minuti. Solo app,
+  non nella 1.0. File: `tasks/TASK-287.md`.
 - **Prova sull'iPhone del 2026-10-15**: l'utente ha provato `preview`
   (gruppo `9dbc73d0`, da `main` `fd4ae341`) con TASK-278 A e B, 279 A,
   280, 281 e 285 A e B: «funziona tutto ok». Le foto di TASK-283 non si

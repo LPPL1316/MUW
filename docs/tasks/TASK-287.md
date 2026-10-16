@@ -1,6 +1,7 @@
 # TASK-287 — La ricerca dei percorsi più veloce, lato app
 
-**Stato**: In corso
+**Stato**: In corso · codice e test pronti nella PR, aspetta «merge» dal
+Coordinatore
 **Fase**: 4 · **Branch**: `feat/TASK-287-faster-route-search`
 **Dipende da**: niente · **ADR**: ADR-0248
 
@@ -36,9 +37,10 @@ occupato il telefono; Explore non chiede di nuovo quello che ha già.
    una richiesta dell'utente, quelle in sottofondo non partono.
 2. **Annullare davvero sul telefono**: un job in coda annullato esce
    dalla coda; quello che Python sta calcolando non si può interrompere
-   dalla pagina (Python gira sul solo thread della WebView), quindi la
-   pagina si rifà da capo e Python riparte subito, pronto per il
-   prossimo «Draw».
+   con un messaggio alla pagina (Python gira sul solo thread della
+   WebView: il messaggio arriverebbe a calcolo finito, ADR-0248 punto 3),
+   quindi la pagina si rifà da capo e Python riparte subito, pronto per
+   il prossimo «Draw». Per questo `page.ts` non cambia.
 3. **`warmUp()` prima**: appena una zona salvata copre la posizione, non
    dopo il download delle zone di tutte e due le reti.
 4. **Explore riusa ciò che ha**: il chip di una città in evidenza usa la
@@ -55,20 +57,20 @@ fino a 8 km a piedi resta com'è).
 
 ## Criteri di accettazione
 
-- [ ] Nessuna richiesta in sottofondo parte mentre gira una
+- [x] Nessuna richiesta in sottofondo parte mentre gira una
       dell'utente; in un minuto le richieste in sottofondo lasciano
       sempre posto a quelle dell'utente (test della coda).
-- [ ] Un esempio visibile passa davanti a un prefetch in attesa (test).
-- [ ] Un job annullato in coda non arriva alla pagina; uno annullato
+- [x] Un esempio visibile passa davanti a un prefetch in attesa (test).
+- [x] Un job annullato in coda non arriva alla pagina; uno annullato
       mentre calcola fa ripartire la pagina e il job dopo non aspetta il
       vecchio (test di `phoneEngine`).
-- [ ] `warmUp` parte prima del download quando una zona salvata copre la
+- [x] `warmUp` parte prima del download quando una zona salvata copre la
       posizione (test).
-- [ ] Il chip di una città in evidenza già tenuta non chiede `/cities`;
+- [x] Il chip di una città in evidenza già tenuta non chiede `/cities`;
       il tocco su un paese vicino già campionato non richiede le prime
       forme; il file degli esempi si scrive una volta per gruppo (test).
-- [ ] `useRouteRequest` e `placeFinder` come al punto 5 (test).
-- [ ] jest, tsc, lint e prettier verdi; provata nel simulatore.
+- [x] `useRouteRequest` e `placeFinder` come al punto 5 (test).
+- [x] jest, tsc, lint e prettier verdi; provata nel simulatore.
 
 ## File toccati
 
@@ -77,7 +79,6 @@ apps/mobile/src/api/routeQueue.ts            (nuovo)
 apps/mobile/src/api/routeQueue.test.ts       (nuovo)
 apps/mobile/src/engine/phoneEngine.ts
 apps/mobile/src/engine/phoneEngine.test.ts
-apps/mobile/src/engine/page.ts
 apps/mobile/src/engine/onPhone.ts
 apps/mobile/src/engine/onPhone.test.ts
 apps/mobile/src/engine/usePhoneZones.ts
@@ -86,8 +87,11 @@ apps/mobile/src/engine/aheadZones.ts
 apps/mobile/src/engine/aheadZones.test.ts
 apps/mobile/src/explore/exampleRoutes.ts
 apps/mobile/src/explore/exampleRoutes.test.ts
+apps/mobile/src/explore/exampleRoutesTurn.test.ts
+apps/mobile/src/explore/exampleWords.test.ts
 apps/mobile/src/explore/nearbySamples.ts
 apps/mobile/src/explore/nearbySamples.test.ts
+apps/mobile/src/explore/NearbyTowns.test.tsx
 apps/mobile/src/explore/ExploreTools.tsx
 apps/mobile/src/explore/ExploreTools.test.tsx
 apps/mobile/src/explore/useThemedRoute.ts
@@ -102,3 +106,20 @@ docs/tasks/TASK-287.md
 docs/STATUS.md
 docs/DECISIONS.md
 ```
+
+## Dove si è (2026-10-16)
+
+- Codice e test nel branch; in locale jest (3422 test: i quattro caduti
+  nella corsa intera erano timeout di avvio a freddo con la macchina
+  carica, rifatti da soli passano), `tsc`, `expo lint` e prettier verdi.
+- **Simulatore** (iPhone Air, Expo Go, API locale del worktree, log
+  temporanei della coda poi tolti): durante una richiesta dell'utente
+  di 43 s («Draw» di un'immagine, poi «Cancel») nessuna richiesta in
+  sottofondo è partita; il prefetch è ripartito appena finita. Il log è
+  nelle note della sessione che ha avviato questa.
+- **Non provato nel simulatore**: l'annullo del motore sul telefono.
+  L'API locale non ha zone per il telefono (`GET /phone-zones/*` 404),
+  quindi Python nella WebView non parte; coperto dai test. Da vedere
+  sull'iPhone vero: un «Draw» a piedi fino a 8 km annullato e rifatto
+  deve ripartire in pochi secondi (l'avvio di Python), non dopo il
+  vecchio.
