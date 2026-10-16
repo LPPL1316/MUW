@@ -1,6 +1,6 @@
 # TASK-288 — Le ricerche dell'API più veloci
 
-**Stato**: In corso
+**Stato**: In revisione (PR #518, aspetta «merge 518» dal Coordinatore)
 **Fase**: 4 · **Branch**: `feat/TASK-288-faster-api-searches`
 **ADR**: ADR-0249 · **Migrazione**: `0022_faster_searches.sql` (il numero
 è il primo libero in `main` al merge: con #502 prima, diventa 0023)

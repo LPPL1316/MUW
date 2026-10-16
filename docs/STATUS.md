@@ -172,7 +172,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   della sessione scritto una volta l'ora (90 giorni sempre garantiti).
   Stesse risposte, nessuna dipendenza nuova; il pool di connessioni
   (`psycopg_pool`) aspetta un sì dell'utente. Il server lo fa il
-  Coordinatore, con l'ok dell'utente. File: `tasks/TASK-288.md`.
+  Coordinatore, con l'ok dell'utente. **PR #518**, aspetta «merge 518».
+  File: `tasks/TASK-288.md`.
 - **TASK-286 — Un'altra figura dalla mappa del risultato** (aggiunta ad
   ADR-0245; scelta dell'utente del 2026-10-15, seguito di TASK-281).
   Branch `feat/TASK-286-change-shape-on-result`. Sotto un percorso
