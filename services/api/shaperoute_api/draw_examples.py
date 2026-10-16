@@ -62,6 +62,11 @@ POLL_S = 2.0
 MAX_WAIT_S = 300.0
 # 429 too_many_requests (access.py): the API says how long, at most this.
 MAX_RETRY_S = 90.0
+# The city search that did not answer (503, the service failed; 5xx from in
+# front of the API) is asked again, a moment later, as many times more
+# (TASK-288): a city it did not answer for is not one it did not find.
+CITY_SEARCH_RETRIES = 3
+CITY_SEARCH_WAIT_S = 10.0
 
 
 @dataclass
@@ -70,6 +75,8 @@ class Drawn:
 
     city: str
     label: str | None = None  # None: the city search did not find it
+    # The city search's status when it did not answer, every time: "http_503".
+    unanswered: str | None = None
     # For each shape: "kept" (already there), "drawn", or the error's code.
     shapes: dict[str, str] = field(default_factory=dict)
     seconds: float = 0.0
@@ -81,6 +88,8 @@ class Drawn:
         )
 
     def line(self) -> str:
+        if self.unanswered is not None:
+            return f"{self.city}: the city search did not answer ({self.unanswered})"
         if self.label is None:
             return f"{self.city}: not found by the city search"
         shapes = ", ".join(f"{shape} {said}" for shape, said in self.shapes.items())
@@ -120,7 +129,17 @@ def draw_city(
 ) -> Drawn:
     began = clock()
     drawn = Drawn(city)
-    status, found = call("GET", f"/cities?q={urllib.parse.quote(city)}", None)
+    path = f"/cities?q={urllib.parse.quote(city)}"
+    status, found = call("GET", path, None)
+    for _ in range(CITY_SEARCH_RETRIES):
+        if status < 500:
+            break
+        sleep(CITY_SEARCH_WAIT_S)
+        status, found = call("GET", path, None)
+    if status >= 500:
+        drawn.unanswered = f"http_{status}"
+        drawn.seconds = clock() - began
+        return drawn
     places = found.get("places") if status == 200 and isinstance(found, dict) else None
     if not places:
         return drawn

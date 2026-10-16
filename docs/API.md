@@ -15,6 +15,9 @@
   l'API può chiedere una chiave (`X-API-Key`, TASK-081); gli account, da
   TASK-114, hanno un token di sessione a parte (`Authorization: Bearer`).
   I percorsi restano aperti a tutti: si disegna anche senza account.
+- Da TASK-288 (ADR-0249) le risposte da 1 KB in su arrivano con gzip a
+  chi manda `Accept-Encoding: gzip` (il `fetch` di React Native lo fa da
+  sé); JPEG e file `application/gzip` restano come sono.
 
 ## Avvio
 

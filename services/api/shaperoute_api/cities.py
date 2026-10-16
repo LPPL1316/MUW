@@ -10,10 +10,11 @@ A place has one point, OpenStreetMap's own for it: its `place` node
 (TASK-249, ADR-0213). The geocoding of a village may give its municipality
 instead, an area whose point is the middle of it, 650 m from the church in
 Tenna. For each such area the Places API is asked for the place with the
-same label inside it, and that point is the city's: the one GET
-/city-suggestions and GET /nearby-cities give for the same place. When the
-Places API does not answer, the search still does, with the geocoding's
-points, and that answer is not kept: the next search asks again.
+same label inside it, all the areas side by side (TASK-288), and that point
+is the city's: the one GET /city-suggestions and GET /nearby-cities give for
+the same place. When the Places API does not answer, the search still does,
+with the geocoding's points, and that answer is not kept: the next search
+asks again. Neither is an answer without cities.
 
 GET /city-suggestions (TASK-134, TASK-138, ADR-0110) suggests cities and
 places in them while typing: "arena di ver" gives the Arena di Verona.
@@ -37,7 +38,9 @@ from shaperoute_api.places import (
     PlaceBody,
     PlacesBody,
     PlacesUnavailableError,
+    failure_of,
     fetch_json,
+    fetch_together,
 )
 
 log = logging.getLogger(__name__)
@@ -55,6 +58,9 @@ AREA = "administrative"
 # Places asked within an area, the nearest its point first: the service
 # takes the name as a part of theirs ("Milan" gives Novate Milanese too).
 MAX_NODES = 20
+# The areas' places asked side by side (TASK-288): with the geocoding, at
+# most five requests at once, the free plan's five a second.
+NODES_AT_ONCE = 4
 # Fewer letters say too little about which city.
 MIN_SUGGEST_LETTERS = 2
 MAX_CITIES = 5
@@ -280,8 +286,10 @@ class CitySearch:
             # The URL carries the key: no message, no chain.
             raise PlacesUnavailableError(SERVICE_FAILED) from None
         cities, at_their_nodes = self._at_their_nodes(body)
-        if not at_their_nodes:
-            return cities  # not kept: the next search asks the places again
+        if not at_their_nodes or not cities:
+            # Not kept: the next search asks the places again, and a name
+            # found nowhere is asked again too (TASK-288).
+            return cities
         with self._lock:
             self._cache[text] = (now, cities)
             while len(self._cache) > CACHE_SIZE:
@@ -290,22 +298,33 @@ class CitySearch:
 
     def _at_their_nodes(self, body: Any) -> tuple[list[PlaceBody], bool]:
         """The geocoding's cities, each at its place's own point when the
-        geocoding gave an area (TASK-249): one more request for each. False
-        when the Places API did not answer for one: that city and the areas
-        after it are at the geocoding's points, without another wait."""
+        geocoding gave an area (TASK-249): one more request for each, all of
+        them side by side (TASK-288). False when the Places API did not
+        answer for one: that city is at the geocoding's point."""
         assert self.key is not None
+        found = list(_cities(body))
+        urls = {
+            n: url
+            for n, (_, result) in enumerate(found)
+            if (url := node_url(self.key, result)) is not None
+        }
+        answers = dict(
+            zip(
+                urls,
+                fetch_together(self._fetch, list(urls.values()), NODES_AT_ONCE),
+                strict=True,
+            )
+        )
         cities: list[PlaceBody] = []
         answered = True
-        for city, result in _cities(body):
-            url = node_url(self.key, result) if answered else None
-            if url is not None:
-                try:
-                    point = node_point(city.label, self._fetch(url))
-                except Exception as exc:
-                    # The URL carries the key: the kind of failure only.
-                    log.warning("a city's place not asked: %s", type(exc).__name__)
-                    answered = False
-                    point = None
+        for n, (city, _) in enumerate(found):
+            answer = answers.get(n)
+            if isinstance(answer, Exception):
+                # The URL carries the key: the kind of failure only.
+                log.warning("a city's place not asked: %s", failure_of(answer))
+                answered = False
+            elif n in answers:
+                point = node_point(city.label, answer)
                 if point is not None:
                     city = PlaceBody(label=city.label, point=point)
             cities.append(city)

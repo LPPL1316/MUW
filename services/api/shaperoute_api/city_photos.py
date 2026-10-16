@@ -284,7 +284,11 @@ class CityPhotos:
         self._lock = threading.Lock()
         self._pictures: dict[str, threading.Lock] = {}
         self._asking: set[str] = set()
+        # Asking Wikimedia, which a list waits for, and taking the pictures,
+        # which nobody waits for, each in threads of its own: a slow picture
+        # never keeps a list from its photos (TASK-288).
         self._background = ThreadPoolExecutor(max_workers=2)
+        self._downloads = ThreadPoolExecutor(max_workers=2)
 
     def photos(self, items: Iterable[str]) -> dict[str, CityPhotoBody]:
         """The photos of `items` that have one, by item. Those not known are
@@ -352,7 +356,7 @@ class CityPhotos:
         if photos and self.folder is not None:
             fetch = functools.partial(self._fetch_pictures, photos)
             if self._later is None:
-                self._background.submit(fetch)
+                self._downloads.submit(fetch)
             else:
                 self._later(fetch)
         return found
