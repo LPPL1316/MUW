@@ -48,7 +48,9 @@ Con `SHAPEROUTE_DATABASE_URL` (un indirizzo `postgresql://…`) l'API usa il
 database degli account (TASK-114, `DATABASE.md`): all'avvio applica le
 migrazioni che mancano e lo scrive; se il database non risponde, non
 parte. Senza, gli account rispondono `503 accounts_unavailable` e il resto
-funziona come prima. Come accenderne uno sul PC: `SETUP.md`, 10.4.
+funziona come prima. Con tutte le connessioni del database occupate per
+10 s (TASK-288 B), `503 accounts_unavailable` con `Retry-After`. Come
+accenderne uno sul PC: `SETUP.md`, 10.4.
 
 Con `STRAVA_CLIENT_ID` e `STRAVA_CLIENT_SECRET` (l'app Strava di questo
 server, `DEPLOY.md`, «Strava») le corse salvate si possono mandare a Strava
