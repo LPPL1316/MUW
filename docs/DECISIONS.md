@@ -14431,6 +14431,47 @@ resta da provare. Una figura grande quanto lo schermo prende tutte le due
 dita: per lo zoom della mappa serve il margine fuori dalla figura, ed è
 per questo che la mappa si allontana quando la figura cresce oltre.
 
+**Aggiunta del 2026-10-16 (TASK-286, un'altra figura dalla mappa del
+risultato)**: la scelta di prodotto è dell'utente del 2026-10-15 («sì, dai
+la possibilità di cambiare figura dalla mappa», poi «SI»); il come è
+deciso dall'agente su delega dell'utente, con l'ok del Coordinatore ai
+file.
+
+10. **Una riga sola** (`src/mapdraw/FigureTiles.tsx`): le tessere della
+    tela (punto 7) diventano un componente, usato da `DrawOnMap.tsx` con
+    «+ photo» davanti e dal pannello del risultato senza. Le stesse
+    tessere per costruzione, nessun testo nuovo (VoiceOver legge i nomi
+    già tradotti delle forme e delle immagini).
+11. **Sopra «Start»**: `RouteOutcome` riceve la riga come `figures` e la
+    mette, a percorso arrivato, dopo «A · B · C», «Try 8 km» e gli avvisi:
+    prima cos'è il percorso, poi un'altra figura, poi le cose da fare;
+    «Start» resta in basso dov'era. Con «Paddle» solo le forme (in «Draw»
+    sull'acqua le immagini non si disegnano). Non sotto un errore: lì ci
+    sono già le vie d'uscita di TASK-031.
+12. **Da «Draw» la tessera diventa la scelta di «Draw»** (`App.tsx`,
+    `onChangeFigure`): una forma mette «Shape» e il suo nome nel campo,
+    un'immagine «Image» con `image.show` come «PICTURES»; la richiesta
+    (`changedRequest` in `resultFigure.ts`) tiene partenza, distanza e
+    sport del percorso sullo schermo, la penna alzata come `shapeAsked`,
+    gli stessi array del contorno dell'immagine e, sull'acqua, il `near`
+    di una forma spostata (ADR-0202). Così la richiesta che «Draw»
+    ricalcola al render dopo è uguale per `sameRequest`: il risultato
+    resta sullo schermo, «←» torna a «Draw» con la scelta nuova e «Draw
+    route» non lo chiede due volte. Scartato: chiedere il percorso con un
+    effetto quando la richiesta di «Draw» cambia (un giro in più, e un
+    effetto che disegna da sé).
+13. **Da «Draw on the map» la figura nuova prende il posto di quella sulla
+    tela** (`changeTo` di `useMapCanvas`): stesso centro, **la distanza
+    della richiesta sullo schermo** e non la grandezza (sulla tela una
+    tessera tiene la grandezza perché si guarda la figura; qui si guarda
+    un percorso di quei km), dentro i limiti come ogni figura. È un passo
+    «put» di «Undo»: tornati sulla tela, «Undo» rimette la figura di
+    prima com'era. La partenza è quella della figura nuova (punto 6).
+14. **La tessera segnata** è letta dalla richiesta per «Draw» (la forma,
+    o l'immagine pronta il cui contorno la richiesta manda tale e quale:
+    un contorno ritoccato con «Edit the outline» non è più lei) e dalla
+    figura per la tela; toccarla non chiede niente.
+
 ## ADR-0246 — Sotto «Draw» i giri a tema e dodici sagome pronte, col contorno già nell'app
 **Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente
 (chieste in chat con le opzioni, TASK-280): le dodici sagome col razzo al

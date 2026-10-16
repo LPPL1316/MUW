@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-286 — Un'altra figura dalla mappa del risultato** (aggiunta ad
+  ADR-0245; scelta dell'utente del 2026-10-15, seguito di TASK-281).
+  Branch `feat/TASK-286-change-shape-on-result`. Sotto un percorso
+  disegnato, da «Draw» o da «Draw on the map», sopra «Start» la stessa
+  riga di 17 forme e 12 immagini della tela (con «Paddle» solo le forme);
+  un tocco ridisegna dalla stessa partenza e con la stessa distanza. Da
+  «Draw» la figura diventa la scelta di «Draw»; dalla tela prende il posto
+  di quella sulla mappa (stesso centro, distanza del percorso) e «Undo» la
+  rimette. Solo app, nessun testo nuovo, non nella 1.0; file e ordine con
+  l'ok del Coordinatore. File: `tasks/TASK-286.md`.
 - **Risposte dell'utente del 2026-10-15** (sessione di riepilogo; dette
   anche al Coordinatore): la 1.0.0 (7) è **rimandata ad Apple** con video
   e Notes, in attesa del verdetto (`tasks/TASK-152.md`); i testi

@@ -1773,7 +1773,10 @@ al decimo («target 5.7 km»). Il motore la mette dove trova le strade e
 risultato è quello di «Draw»: tessere «A · B · C», avvisi, «Start»,
 «Export GPX», «Try 8 km» (che porta la figura a quella grandezza).
 **«←»** e «Cancel» tornano alla mappa con la figura com'era; «Draw route»
-sulla stessa figura mostra di nuovo lo stesso percorso.
+sulla stessa figura mostra di nuovo lo stesso percorso. Dal risultato la
+figura si cambia anche senza tornare indietro, con la riga sopra «Start»
+(TASK-286, sotto in «Il risultato», «Un'altra figura»): allora «←» torna
+alla mappa con la figura nuova, e «Undo» rimette quella di prima.
 
 Testi nuovi, **approvati dall'utente** il 2026-10-13 nelle cinque lingue:
 
@@ -1887,6 +1890,35 @@ lasciata, per lo stesso disegno dalla stessa partenza. «This shape» e non
 (`hint_taken` con `better_distance`, TASK-234 C) e, come ogni nuovo
 disegno, lascia subito il posto al pannello dell'attesa con la barra e
 «Cancel»: è il segno che il percorso nuovo si sta calcolando.
+
+**Un'altra figura** (TASK-286, aggiunta ad ADR-0245; scelta dell'utente
+del 2026-10-15, «sì, dai la possibilità di cambiare figura dalla mappa»).
+Sotto un percorso disegnato, da «Draw route» di «Draw» o di «Draw on the
+map», quando è arrivato: **sopra «Start»**, dopo le tessere «A · B · C»,
+«Try 8 km» e gli avvisi, la stessa riga di tessere della tela di «Draw on
+the map» (`src/mapdraw/FigureTiles.tsx`): le 17 forme del catalogo coi
+loro simboli e le 12 immagini pronte, senza «+ photo». La figura del
+percorso ha il bordo; un percorso di una parola o di una foto non ne segna
+nessuna. Con «Paddle» solo le forme, come in «Draw». Non c'è durante
+l'attesa, sotto un errore, sugli esempi di «Explore», sui giri, sul
+«Feed» e nei preferiti. Nessun testo nuovo: per VoiceOver le tessere hanno
+i nomi già tradotti.
+
+Un tocco chiede subito il percorso della figura nuova, con la barra e
+«Cancel» come ogni nuovo disegno; la tessera già segnata non fa niente.
+
+- **Da «Draw»**: stessa partenza, stessa distanza, stesso sport; una forma
+  con la penna alzata se «Draw» la chiede così. La scelta diventa quella
+  di «Draw» (una forma: «Shape» e il suo nome nel campo; un'immagine:
+  «Image», come una tessera di «PICTURES»), così «←» torna a «Draw» con
+  lei e «Draw route» mostra lo stesso percorso senza chiederlo di nuovo.
+  Sull'acqua una forma spostata con «Move the shape» resta dov'era: la
+  forma nuova si chiede con lo stesso `near`.
+- **Da «Draw on the map»**: la figura nuova prende il posto di quella
+  sulla mappa, con lo stesso centro e **la distanza del percorso** (una
+  tessera sulla tela tiene invece la grandezza): la partenza è il primo
+  punto della figura nuova. «←» torna alla mappa con lei; «Undo» rimette
+  la figura di prima, dov'era e grande com'era.
 
 **La mappa girata e la freccia del nord** (TASK-232 parte B, ADR-0195;
 la mappa girata, la freccia e i suoi due tocchi sono scelte dell'utente
