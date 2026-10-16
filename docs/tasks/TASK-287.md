@@ -1,7 +1,7 @@
 # TASK-287 — La ricerca dei percorsi più veloce, lato app
 
-**Stato**: In corso · codice e test pronti nella PR, aspetta «merge» dal
-Coordinatore
+**Stato**: Done · in `main` con la #517 (`2259a5df`, 2026-10-16); resta
+la prova sull'iPhone dell'annullo del motore sul telefono (vedi «Esito»)
 **Fase**: 4 · **Branch**: `feat/TASK-287-faster-route-search`
 **Dipende da**: niente · **ADR**: ADR-0248
 
@@ -123,3 +123,25 @@ docs/DECISIONS.md
   sull'iPhone vero: un «Draw» a piedi fino a 8 km annullato e rifatto
   deve ripartire in pochi secondi (l'avvio di Python), non dopo il
   vecchio.
+
+## Esito
+
+**Done il 2026-10-16.** PR #517, CI 5/5 verde, mergiata dal Coordinatore
+su richiesta esplicita dell'utente («mergia la 517»), sulla testa
+`e92f0eb4`: in `main` come `2259a5df`. Il `gh pr merge` della sessione
+del task era stato bloccato dal classificatore della modalità auto
+(«Merge Without Review»), come per la #509. La pubblicazione su
+`preview` la fa il Coordinatore.
+
+- In `main`: la coda unica delle richieste di percorso
+  (`src/api/routeQueue.ts`); l'annullo vero nel motore sul telefono (job
+  in coda tolti, pagina di Python rifatta per quello in calcolo); Python
+  avviato appena una zona salvata copre la posizione; il chip delle città
+  in evidenza da `ahead.json`; i campioni dei paesi vicini come esempi;
+  `city-examples.json` scritto una volta per gruppo; `useRouteRequest` e
+  `placeFinder` come al punto 5. Nessun testo nuovo, `engine.zip` e
+  `page.ts` non toccati.
+- **Resta da provare sull'iPhone**, dopo la pubblicazione su `preview`:
+  un «Draw» a piedi fino a 8 km, annullato e rifatto, deve ripartire in
+  pochi secondi (l'avvio di Python), non dopo il calcolo di prima. Nel
+  simulatore non si è potuto: l'API locale non ha zone per il telefono.
