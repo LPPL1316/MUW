@@ -180,6 +180,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   paese vicino è già un suo esempio; `city-examples.json` scritto una
   volta per gruppo; `/places` lento lasciato stare 3 minuti. Solo app,
   non nella 1.0. File: `tasks/TASK-287.md`.
+  **Chiuso il 2026-10-16**: #517 in `main` (`2259a5df`), mergiata dal
+  Coordinatore; vedi «Completato».
 - **TASK-289 — I tempi per fase nel log dei percorsi** (ADR-0250;
   dall'analisi della lentezza del 2026-10-16, prepara la misura di
   TASK-276). Branch `feat/TASK-289-phase-times`. Ogni job di percorso
@@ -913,6 +915,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-287 (ADR-0248; dall'analisi della lentezza del
+  2026-10-16): una sola coda per le richieste di percorso dell'app
+  (`src/api/routeQueue.ts`). Prima quelle dell'utente («Draw», spostare
+  la forma di un esempio, il percorso a tema), poi gli esempi della
+  pagina di «Explore», poi le forme sull'acqua in anticipo. Niente in
+  sottofondo mentre gira una richiesta dell'utente, al massimo 22 al
+  minuto (8 dei 30 sempre dell'utente), un minuto di pausa dopo un 429.
+  Sul telefono un «Draw» annullato esce dalla coda, o fa ripartire la
+  pagina di Python se è in calcolo, e il prossimo non aspetta il vecchio.
+  Python parte appena una zona salvata copre la posizione. Il chip delle
+  città in evidenza non chiede più `/cities`, i campioni dei paesi vicini
+  sono già esempi del paese, `city-examples.json` è scritto una volta per
+  gruppo, e dopo un `/places` lento si usa Photon per 3 minuti. Provato
+  nel simulatore per la coda; l'annullo sul telefono resta da provare
+  sull'iPhone (`tasks/TASK-287.md`, «Esito»). PR #517, `2259a5df`.
 - **API** — TASK-289 (ADR-0250; dall'analisi della lentezza del
   2026-10-16, prepara la parte A di TASK-276): ogni job di percorso scrive
   nel log una riga `job <id>: times total=… crop=… loads=… download=…
