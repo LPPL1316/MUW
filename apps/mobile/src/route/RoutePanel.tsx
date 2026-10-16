@@ -332,6 +332,9 @@ type OutcomeProps = {
    * again» under an error that may well not happen twice. Without it no
    * button is offered. */
   onRetry?: () => void;
+  /** Another figure for the route on screen (TASK-286): a row of tiles
+   * above «Start», once the route has come. */
+  figures?: ReactNode;
 };
 
 /** Under the map: the wait, the route, or why there is none. */
@@ -350,6 +353,7 @@ export function RouteOutcome({
   onChoose = () => {},
   onSignal = (signal) => void sendSignal(signal),
   onRetry,
+  figures,
 }: OutcomeProps) {
   // The distances are written in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -456,6 +460,7 @@ export function RouteOutcome({
               }}
             />
           )}
+          {figures}
           {/* Only with directions: a route traced without them has no turns.
               On the water there are none to follow: the line is the way. */}
           {(view.result.directions.length > 0 || onWater(view.request)) && (

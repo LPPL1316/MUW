@@ -10,7 +10,7 @@ Nato dall'analisi della lentezza della ricerca del 2026-10-16 (sessione
 sottofondo competono con il «Draw» dell'utente e possono superare il
 limite del server, il motore sul telefono non si ferma quando si
 annulla, Explore chiede cose che ha già. Le parti lato server sono in
-altre sessioni (TASK-288 e la misura dei tempi per fase). Solo app, non
+altre sessioni (TASK-288, e TASK-289 per i tempi per fase). Solo app, non
 nella 1.0.
 
 ## Obiettivo
