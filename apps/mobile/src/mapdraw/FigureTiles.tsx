@@ -30,8 +30,8 @@ type Props = {
 
 /**
  * The figures as a row of tiles that slides sideways (TASK-281, TASK-286):
- * the 17 shapes of the catalogue by their signs and the 12 ready-made
- * pictures of «Draw» (TASK-280). The same tiles on the map of «Draw on the
+ * the 17 shapes of the catalogue by their signs and the 16 ready-made
+ * pictures of «Draw» (TASK-280, TASK-290). The same tiles on the map of «Draw on the
  * map», where «+ photo» comes first, and under the route drawn.
  */
 export function FigureTiles({

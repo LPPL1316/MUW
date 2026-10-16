@@ -152,8 +152,8 @@ afterEach(() => {
 test("from «Draw» a shape of the row is drawn from the same start, as long; «←» finds it chosen", async () => {
   await startingAt(TRENTO);
   await drawRoute();
-  // The 17 shapes and the 12 pictures, the heart drawn marked.
-  expect(row().getAllByRole("button")).toHaveLength(29);
+  // The 17 shapes and the 16 pictures, the heart drawn marked.
+  expect(row().getAllByRole("button")).toHaveLength(33);
   expect(row().getByRole("button", { name: "heart" })).toBeSelected();
   expect(row().getByRole("button", { name: "Rocket" })).toBeOnTheScreen();
 
@@ -245,7 +245,7 @@ test("from «Draw on the map» the new figure takes the place of the old; «Undo
   await drawRoute();
   expect(row().getByRole("button", { name: "heart" })).toBeSelected();
   // The tiles of the map, without «+ photo».
-  expect(row().getAllByRole("button")).toHaveLength(29);
+  expect(row().getAllByRole("button")).toHaveLength(33);
   expect(row().queryByText("+ photo")).toBeNull();
 
   await change("star");

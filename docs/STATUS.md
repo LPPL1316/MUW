@@ -157,6 +157,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-290 — Le sagome di «PICTURES» che vengono bene in città**
+  (aggiunta ad ADR-0246; richiesta dell'utente del 2026-10-16). Branch
+  `feat/TASK-290-better-draw-pictures`. Le sagome provate come percorsi
+  veri in otto città, a 5 e a 10 km: tolte bici, cuore con freccia, ancora
+  e gelato (in città venivano macchie); aggiunte fungo, auto, maglietta,
+  paperella, stivale, casa, osso e coppa, scelte fra 29 provate. Sedici,
+  le più chiare prima, anche nelle righe di «Draw on the map» e del
+  risultato. Solo app e `tools/`; i nomi nuovi nelle cinque lingue
+  approvati dall'utente il 2026-10-16. **PR #520**. File: `tasks/TASK-290.md`.
 - **TASK-288 — Le ricerche dell'API più veloci** (ADR-0249, migrazione
   `0022_faster_searches.sql`; dall'analisi delle ricerche del 2026-10-16,
   sessione «MUW app performance e ricerca»). Branch

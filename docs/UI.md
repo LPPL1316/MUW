@@ -1677,11 +1677,15 @@ grigia in maiuscolo come «NEARBY TOWNS»:
   (ThemedCard), con «Start» ed «Export GPX»; la via del ritorno è
   **«Back to Draw»** al posto di «Back to Explore», e «←» torna a «Draw».
   Senza una partenza la riga non c'è.
-- **«PICTURES»**: dodici sagome disegnate da noi, una figura scura su
-  fondo chiaro: **bici, scarpa da corsa, dinosauro, chitarra, Torre Eiffel,
-  razzo, cuore con freccia, ancora, aereo, gelato, palloncino, foglia**
-  (il razzo al posto del Colosseo, che del contorno esterno avrebbe tenuto
-  solo un blocco col bordo rotto). Ogni tessera ha la sagoma e il nome
+- **«PICTURES»**: sedici sagome disegnate da noi, una figura scura su
+  fondo chiaro: **dinosauro, fungo, auto, Torre Eiffel, maglietta, aereo,
+  stivale, chitarra, casa, palloncino, paperella, coppa, osso, razzo,
+  scarpa da corsa, foglia**, prima le più chiare. Sono quelle il cui
+  percorso si riconosce in otto città, a 5 e a 10 km (TASK-290): il motore
+  disegna solo il **contorno esterno**, quindi una sagoma va bene se si
+  riconosce da quello, con parti larghe. Tolte bici, cuore con freccia,
+  ancora e gelato, che in città venivano macchie; razzo, scarpa e foglia
+  vengono meglio a 10 km che a 5. Ogni tessera ha la sagoma e il nome
   sotto; quella scelta ha il bordo chiaro, come le forme. Un tocco porta
   l'interruttore su «Image» con quella sagoma già scelta, il suo contorno
   giallo, «Hide the picture» ed «Edit the outline» come per una foto, e la
@@ -1699,16 +1703,21 @@ ci sono città né foto). I testi nuovi, nelle cinque lingue:
 | CITY TOURS | GIRI IN CITTÀ | STADTTOUREN | RUTAS POR LA CIUDAD | BALADES EN VILLE |
 | PICTURES | IMMAGINI | BILDER | IMÁGENES | IMAGES |
 | Back to Draw | Torna a Disegna | Zurück zu Zeichnen | Volver a Dibuja | Retour à Dessiner |
-| Running shoe | Scarpa da corsa | Laufschuh | Zapatilla | Basket |
 | Dinosaur | Dinosauro | Dinosaurier | Dinosaurio | Dinosaure |
-| Guitar | Chitarra | Gitarre | Guitarra | Guitare |
+| Mushroom | Fungo | Pilz | Seta | Champignon |
+| Car | Auto | Auto | Coche | Voiture |
 | Eiffel Tower | Torre Eiffel | Eiffelturm | Torre Eiffel | Tour Eiffel |
-| Rocket | Razzo | Rakete | Cohete | Fusée |
-| Heart with arrow | Cuore con freccia | Herz mit Pfeil | Corazón con flecha | Cœur et flèche |
-| Anchor | Ancora | Anker | Ancla | Ancre |
+| T-shirt | Maglietta | T-Shirt | Camiseta | T-shirt |
 | Plane | Aereo | Flugzeug | Avión | Avion |
-| Ice cream | Gelato | Eis | Helado | Glace |
+| Boot | Stivale | Stiefel | Bota | Botte |
+| Guitar | Chitarra | Gitarre | Guitarra | Guitare |
+| House | Casa | Haus | Casa | Maison |
 | Balloon | Palloncino | Luftballon | Globo | Ballon |
+| Duck | Paperella | Ente | Pato | Canard |
+| Trophy | Coppa | Pokal | Trofeo | Trophée |
+| Bone | Osso | Knochen | Hueso | Os |
+| Rocket | Razzo | Rakete | Cohete | Fusée |
+| Running shoe | Scarpa da corsa | Laufschuh | Zapatilla | Basket |
 | Leaf | Foglia | Blatt | Hoja | Feuille |
 
 «Bike», le quattro categorie, «near your start» e «near {place}» c'erano
@@ -1735,7 +1744,7 @@ della partenza resta. Sotto la mappa:
 - **Una riga di tessere** che scorre di lato: **«+ photo»** (una foto della
   libreria; mentre il motore ne traccia il contorno, *Tracing the
   outline…*, e i suoi rifiuti con le parole di «Image»), le 17 forme del
-  catalogo coi loro simboli, e le 12 immagini pronte (TASK-280). La
+  catalogo coi loro simboli, e le 16 immagini pronte (TASK-280, TASK-290). La
   prima figura va nel centro della mappa, lunga quanto la distanza di
   «Draw», e la mappa si inquadra su di lei; un'altra tessera la cambia
   dov'è, grande uguale sulla mappa. Dopo una tessera l'interruttore passa
@@ -1897,7 +1906,7 @@ Sotto un percorso disegnato, da «Draw route» di «Draw» o di «Draw on the
 map», quando è arrivato: **sopra «Start»**, dopo le tessere «A · B · C»,
 «Try 8 km» e gli avvisi, la stessa riga di tessere della tela di «Draw on
 the map» (`src/mapdraw/FigureTiles.tsx`): le 17 forme del catalogo coi
-loro simboli e le 12 immagini pronte, senza «+ photo». La figura del
+loro simboli e le 16 immagini pronte, senza «+ photo». La figura del
 percorso ha il bordo; un percorso di una parola o di una foto non ne segna
 nessuna. Con «Paddle» solo le forme, come in «Draw». Non c'è durante
 l'attesa, sotto un errore, sugli esempi di «Explore», sui giri, sul
