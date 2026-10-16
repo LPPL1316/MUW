@@ -157,6 +157,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-287 — La ricerca dei percorsi più veloce, lato app** (ADR-0248;
+  dall'analisi della lentezza del 2026-10-16, sessione «MUW app
+  performance e ricerca»; le parti del server sono TASK-288 e TASK-289,
+  i tempi per fase). Branch `feat/TASK-287-faster-route-search`: una
+  sola coda per le richieste di percorso (l'utente prima, poi gli esempi
+  sulla pagina di «Explore», poi le forme sull'acqua in anticipo; niente
+  in sottofondo mentre gira una richiesta dell'utente; al massimo 22 al
+  minuto, 8 sempre dell'utente); un «Draw» annullato sul telefono esce
+  dalla coda o fa ripartire la pagina di Python, e il prossimo non
+  aspetta; Python parte appena c'è una zona salvata intorno; il chip di
+  una città in evidenza non chiede più `/cities`; il campione di un
+  paese vicino è già un suo esempio; `city-examples.json` scritto una
+  volta per gruppo; `/places` lento lasciato stare 3 minuti. Solo app,
+  non nella 1.0. File: `tasks/TASK-287.md`.
 - **TASK-289 — I tempi per fase nel log dei percorsi** (ADR-0250;
   dall'analisi della lentezza del 2026-10-16, prepara la misura di
   TASK-276). Branch `feat/TASK-289-phase-times`. Ogni job di percorso

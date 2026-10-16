@@ -184,3 +184,84 @@ test("after Python stops for good, the next request gets a new page", async () =
   say({ type: "result", id: 2, json: "{}", ms: 1, memoryMb: 1 });
   await expect(second).resolves.toMatchObject({ kind: "done" });
 });
+
+describe("a request no longer wanted (TASK-287)", () => {
+  test("waiting, it leaves the queue: the page never gets it", async () => {
+    const { engine, sent, attach, say } = withPage();
+    const first = engine.plan("a", [ZONE]);
+    const controller = new AbortController();
+    const dropped = engine.plan("b", [ZONE], PLAN_TIMEOUT_MS, controller.signal);
+    const third = engine.plan("c", [ZONE]);
+    controller.abort();
+    await expect(dropped).resolves.toEqual({ kind: "cancelled" });
+    attach();
+    say({ type: "ready", ms: 1 });
+    say({ type: "result", id: 1, json: "{}", ms: 1, memoryMb: 1 });
+    await expect(first).resolves.toMatchObject({ kind: "done" });
+    // From «a» straight to «c».
+    expect(sent.filter((js) => js.includes("sgrava.plan"))).toHaveLength(2);
+    expect(sent[sent.length - 1]).toContain('"body":"c"');
+    say({ type: "result", id: 3, json: "{}", ms: 1, memoryMb: 1 });
+    await expect(third).resolves.toMatchObject({ kind: "done" });
+  });
+
+  test("being drawn, it is answered at once, and a new page starts", async () => {
+    const { engine, sent, attach, say } = withPage();
+    const controller = new AbortController();
+    const dropped = engine.plan("a", [ZONE], PLAN_TIMEOUT_MS, controller.signal);
+    attach();
+    say({ type: "ready", ms: 1 });
+    const key = engine.mountKey;
+    controller.abort();
+    await expect(dropped).resolves.toEqual({ kind: "cancelled" });
+    // Python cannot hear it while it works: its page goes, and a new one
+    // boots at once, ready for the next route.
+    expect(engine.mountKey).toBeGreaterThan(key);
+    expect(engine.available).toBe(true);
+    const next = engine.plan("b", [ZONE]);
+    attach();
+    say({ type: "ready", ms: 1 });
+    expect(sent[sent.length - 1]).toContain('"body":"b"');
+    // The old page's answer, late, is nobody's.
+    say({ type: "result", id: 1, json: "{}", ms: 1, memoryMb: 1 });
+    say({ type: "result", id: 2, json: '{"b":1}', ms: 1, memoryMb: 1 });
+    await expect(next).resolves.toMatchObject({ kind: "done", json: '{"b":1}' });
+  });
+
+  test("the next route does not wait for the one dropped, nor for its time-out", async () => {
+    const { engine, attach, say } = withPage();
+    const controller = new AbortController();
+    void engine.plan("a", [ZONE], PLAN_TIMEOUT_MS, controller.signal);
+    attach();
+    say({ type: "ready", ms: 1 });
+    controller.abort();
+    const next = engine.plan("b", [ZONE]);
+    attach();
+    say({ type: "ready", ms: 1 });
+    say({ type: "result", id: 2, json: "{}", ms: 1, memoryMb: 1 });
+    await expect(next).resolves.toMatchObject({ kind: "done" });
+    // The time-out of «a» went with it: nothing fails later.
+    jest.advanceTimersByTime(PLAN_TIMEOUT_MS);
+    expect(engine.available).toBe(true);
+    expect(engine.mountKey).toBeGreaterThan(0);
+  });
+
+  test("dropped before it is asked, it is never queued; a drop is no death", async () => {
+    const { engine, sent, attach, say } = withPage();
+    const controller = new AbortController();
+    controller.abort();
+    await expect(
+      engine.plan("a", [ZONE], PLAN_TIMEOUT_MS, controller.signal),
+    ).resolves.toEqual({ kind: "cancelled" });
+    expect(engine.mountKey).toBe(-1);
+    for (let i = 0; i < MAX_DEATHS + 1; i += 1) {
+      const again = new AbortController();
+      void engine.plan("b", [ZONE], PLAN_TIMEOUT_MS, again.signal);
+      attach();
+      say({ type: "ready", ms: 1 });
+      again.abort();
+    }
+    expect(engine.available).toBe(true);
+    expect(sent.some((js) => js.includes('"body":"a"'))).toBe(false);
+  });
+});

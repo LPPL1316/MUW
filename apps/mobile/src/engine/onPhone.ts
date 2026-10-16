@@ -99,12 +99,15 @@ export async function planOnPhone(
   }
   touchZone(zone.name);
   onStatus?.("computing");
+  // Cancelled, the engine lets it go at once (TASK-287): another request
+  // does not wait behind it.
   const answer = await engine.plan(
     JSON.stringify(request),
     [{ name: zone.name, uri: zoneUri(zone), version: zone.etag ?? String(zone.bytes) }],
     timeoutMs,
+    signal,
   );
-  if (signal?.aborted) {
+  if (signal?.aborted || answer.kind === "cancelled") {
     return { kind: "cancelled" };
   }
   if (answer.kind === "failed") {

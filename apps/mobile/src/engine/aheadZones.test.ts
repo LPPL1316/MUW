@@ -1,7 +1,14 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
 import type { Place } from "../places/photon";
-import { AHEAD_ROOM_BYTES, aheadPoints, downloadAhead, readAhead } from "./aheadZones";
+import {
+  AHEAD_ROOM_BYTES,
+  aheadPoints,
+  downloadAhead,
+  featuredPlace,
+  keepFeaturedPlace,
+  readAhead,
+} from "./aheadZones";
 import { files } from "./memoryFiles";
 import { DAY_MS, prefetchPausedUntil } from "./prefetch";
 import {
@@ -177,7 +184,37 @@ test("a round asks each city once, as a zone ahead, and keeps what it learnt", a
     [ROME, 0],
   ]);
   expect(search).toHaveBeenCalledTimes(14);
-  expect(readAhead()).toEqual({ centres: CENTRES, doneAt: 1_000 });
+  const labels = Object.fromEntries(Object.keys(CENTRES).map((name) => [name, name]));
+  expect(readAhead()).toEqual({ centres: CENTRES, labels, doneAt: 1_000 });
+  // «Explore» opens them from here (TASK-287).
+  expect(featuredPlace("Milan")).toEqual({ label: "Milan", point: CENTRES.Milan });
+  expect(featuredPlace("Tokyo")).toBeNull();
+});
+
+test("a centre kept before its label is asked once more; one kept by «Explore» is not", async () => {
+  aroundThePhone();
+  const { download } = server([TRENTO, MILAN, ROME]);
+  files.set(STATE, JSON.stringify({ centres: { Milan: CENTRES.Milan }, doneAt: 0 }));
+  expect(featuredPlace("Milan")).toBeNull();
+  keepFeaturedPlace("Rome", { label: "Roma, Lazio, Italia", point: CENTRES.Rome });
+  const search = cities();
+  expect(
+    await downloadAhead(API, HERE, "foot", {
+      now: at(1_000),
+      download,
+      search,
+      nearby: noNearby,
+      recent: () => [],
+    }),
+  ).toBe("done");
+  const asked = search.mock.calls.map((call) => call[1]);
+  expect(asked).toContain("Milan");
+  expect(asked).not.toContain("Rome");
+  expect(featuredPlace("Milan")).toEqual({ label: "Milan", point: CENTRES.Milan });
+  expect(featuredPlace("Rome")).toEqual({
+    label: "Roma, Lazio, Italia",
+    point: CENTRES.Rome,
+  });
 });
 
 test("after a whole round, the next waits a day, and asks only what is missing", async () => {
@@ -336,15 +373,20 @@ test("one round at a time", async () => {
 });
 
 test("a file that does not read is no centre and no round", () => {
-  expect(readAhead()).toEqual({ centres: {}, doneAt: 0 });
+  expect(readAhead()).toEqual({ centres: {}, labels: {}, doneAt: 0 });
   files.set(STATE, "{not json");
-  expect(readAhead()).toEqual({ centres: {}, doneAt: 0 });
+  expect(readAhead()).toEqual({ centres: {}, labels: {}, doneAt: 0 });
   files.set(
     STATE,
     JSON.stringify({
       centres: { Milan: [45.4, 9.1], Rome: ["x", 1], Paris: [1] },
+      labels: { Milan: "Milano, Lombardia, Italia", Rome: 3 },
       doneAt: "x",
     }),
   );
-  expect(readAhead()).toEqual({ centres: { Milan: [45.4, 9.1] }, doneAt: 0 });
+  expect(readAhead()).toEqual({
+    centres: { Milan: [45.4, 9.1] },
+    labels: { Milan: "Milano, Lombardia, Italia" },
+    doneAt: 0,
+  });
 });

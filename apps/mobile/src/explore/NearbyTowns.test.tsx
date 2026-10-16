@@ -6,7 +6,7 @@ import type { RouteOutcome } from "../api/routes";
 import { forgetFeedMaps } from "../feed/FeedMaps";
 import { saveLanguageChoice } from "../i18n/language";
 import { forgetNearby } from "./nearbyCities";
-import { forgetSamples } from "./nearbySamples";
+import { forgetSamples, SAMPLE_SHAPES } from "./nearbySamples";
 import { awayKm, NearbyTowns } from "./NearbyTowns";
 import { cardMapsCredit } from "./RouteCard";
 
@@ -119,8 +119,9 @@ test("a sample drawn is on its card, with the maps' credit", async () => {
     />,
   );
   expect(await screen.findByText("2.9 km away")).toBeOnTheScreen();
-  // The next shape waits for its turn: one asked so far.
-  expect(request).toHaveBeenCalledTimes(1);
+  // Its shapes one after the other, each in its turn in the app's queue
+  // (TASK-287): no more pause between them.
+  expect(request).toHaveBeenCalledTimes(SAMPLE_SHAPES.length);
   expect(screen.getByText(cardMapsCredit())).toBeOnTheScreen();
 });
 
@@ -134,7 +135,12 @@ const withPhotos = [
 ];
 
 test("a town's photo in the place of its drawing, with its credit (TASK-283)", async () => {
-  const request = jest.fn(() => Promise.resolve(done)) as never;
+  // Trento's samples are still being drawn.
+  const request = jest.fn((_api: string, body: { start: [number, number] }) =>
+    body.start[0] === towns[2].point[0]
+      ? new Promise<RouteOutcome>(() => {})
+      : Promise.resolve(done),
+  ) as never;
   await shown(
     <NearbyTowns
       apiUrl={API}

@@ -23,7 +23,8 @@ export const NOTICE_MIN_BYTES = 100_000;
  * phone around it: first the network of the sport of «Settings», then the
  * other (TASK-214, choice 4). Without asking, on any network, also on mobile
  * data (the user's choice of 2026-10-03); a zone the phone has costs a 304.
- * With a zone around the phone, Python starts ahead of the first route.
+ * With a zone around the phone, Python starts ahead of the first route: at
+ * once with one saved before, else with the first downloaded (TASK-287).
  * Then, slowly, the zones of the cities ahead (part B2, `aheadZones.ts`),
  * when the server gave a zone around the phone at this opening; and, beside
  * them, the shapes on the water of the places near the phone (TASK-246,
@@ -69,22 +70,33 @@ export function usePhoneZones(
       }
     };
     void (async () => {
-      let ready = false;
       let served = false;
       let answered = false;
       const networks = networksInOrder();
+      // Python starts as soon as a zone is around the phone (TASK-287): one
+      // saved before, while the zones are brought up to date; else the
+      // first downloaded, without waiting for the other network's.
+      let warm = false;
+      const warmUp = () => {
+        if (!warm) {
+          warm = true;
+          engine.warmUp();
+        }
+      };
+      const saved = savedZones();
+      if (networks.some((network) => coveringZone(saved, network, point) !== null)) {
+        warmUp();
+      }
       for (const network of networks) {
         const answer = await download(baseUrl, network, point, first ? { onSize } : {});
         served ||= answer.kind === "saved" || answer.kind === "unchanged";
         answered ||= answer.kind !== "failed";
-        ready ||= served;
         // Offline at the opening: the zone saved before still counts.
-        ready ||= coveringZone(savedZones(), network, point) !== null;
+        if (served || coveringZone(savedZones(), network, point) !== null) {
+          warmUp();
+        }
       }
       setFirstBytes(null);
-      if (ready) {
-        engine.warmUp();
-      }
       // After the maps around the phone, not with them: the first route
       // of the user is not behind these. From a server that answers now,
       // with a zone or without: the shapes are routes it draws.
