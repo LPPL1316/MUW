@@ -1,13 +1,11 @@
-import { type Shape, SHAPES } from "@shaperoute/shared-types";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import type { Shape } from "@shaperoute/shared-types";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { t, tLater } from "../i18n";
 import type { CanvasMode } from "../map/messages";
 import { imageProblemText } from "../route/problems";
 import { DrawButton } from "../route/RoutePanel";
-import { SAMPLE_PICTURES, type SamplePicture } from "../route/samplePictures";
-import { SHAPE_SIGNS } from "../route/ShapeTiles";
-import { shapeName } from "../route/shapeWords";
+import type { SamplePicture } from "../route/samplePictures";
 import type { ImageState } from "../route/useImageOutline";
 import { Segmented } from "../screens/Segmented";
 import {
@@ -21,6 +19,8 @@ import {
 import { distanceLabel } from "../units/format";
 import type { DrawingProblem } from "./drawing";
 import type { Placed } from "./figure";
+import { FigureTiles } from "./FigureTiles";
+import { placedTile } from "./resultFigure";
 
 // Translated where shown, with t().
 const MODES = [
@@ -80,8 +80,6 @@ export function DrawOnMap({
   problem,
   onDraw,
 }: Props) {
-  const chosen = placed?.figure.kind === "shape" ? placed.figure.shape : null;
-  const sample = placed?.figure.kind === "picture" ? placed.figure.sample : undefined;
   return (
     <View style={styles.panel}>
       <View style={styles.top}>
@@ -102,52 +100,19 @@ export function DrawOnMap({
         </Pressable>
       </View>
       <Note mode={mode} photo={photo} problem={problem} />
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.row}
-        keyboardShouldPersistTaps="handled"
+      <FigureTiles
+        chosen={placedTile(placed)}
+        onChoose={(choice) => {
+          if (choice.kind === "shape") {
+            onPick(choice.shape);
+          } else {
+            onSample(choice.sample);
+          }
+        }}
+        onPhoto={onPhoto}
+        photoBusy={photo.status === "tracing"}
         testID="map-tiles"
-      >
-        <Pressable
-          style={[styles.tile, styles.photo]}
-          onPress={onPhoto}
-          disabled={photo.status === "tracing"}
-          accessibilityRole="button"
-        >
-          <Text style={styles.photoText}>{t("+ photo")}</Text>
-        </Pressable>
-        {SHAPES.map((shape) => {
-          const selected = shape === chosen;
-          return (
-            <Pressable
-              key={shape}
-              style={[styles.tile, selected && styles.selected]}
-              onPress={() => onPick(shape)}
-              accessibilityRole="button"
-              accessibilityLabel={shapeName(shape)}
-              accessibilityState={{ selected }}
-            >
-              <Text style={styles.sign}>{SHAPE_SIGNS[shape]}</Text>
-            </Pressable>
-          );
-        })}
-        {SAMPLE_PICTURES.map((picture) => {
-          const selected = picture.id === sample;
-          return (
-            <Pressable
-              key={picture.id}
-              style={[styles.tile, selected && styles.selected]}
-              onPress={() => onSample(picture)}
-              accessibilityRole="button"
-              accessibilityLabel={t(picture.name)}
-              accessibilityState={{ selected }}
-            >
-              <Image source={picture.source} style={styles.picture} />
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      />
       <View style={styles.foot}>
         <Text style={styles.distance} testID="map-distance">
           {distanceM === null ? " " : `≈ ${distanceLabel(distanceM)}`}
@@ -189,7 +154,6 @@ function Note({
   return <Text style={styles.note}>{t(HINTS[mode])}</Text>;
 }
 
-const TILE = MIN_TAP_SIZE + space.md;
 /** Two lines of the note, kept whatever it says: «Draw» and «Move» do not
  * move the tiles up and down. */
 const NOTE_HEIGHT = Math.ceil(fontSize.small * 1.35) * 2;
@@ -231,41 +195,6 @@ const styles = StyleSheet.create({
     minHeight: NOTE_HEIGHT,
     color: color.error,
     fontSize: fontSize.small,
-  },
-  row: {
-    gap: space.sm,
-  },
-  tile: {
-    width: TILE,
-    height: TILE,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.border,
-    backgroundColor: color.surfaceRaised,
-  },
-  // Chosen is told by the border, not by yellow: that is the route's.
-  selected: {
-    borderColor: color.text,
-  },
-  photo: {
-    width: TILE + space.xl,
-    borderColor: color.borderStrong,
-  },
-  photoText: {
-    color: color.text,
-    fontSize: fontSize.small,
-    fontWeight: fontWeight.semibold,
-  },
-  sign: {
-    color: color.text,
-    fontSize: fontSize.title,
-  },
-  picture: {
-    width: TILE - space.md,
-    height: TILE - space.md,
-    borderRadius: radius.sm,
   },
   foot: {
     flexDirection: "row",

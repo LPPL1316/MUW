@@ -54,7 +54,16 @@ import { ZoneNotice } from "./src/engine/ZoneNotice";
 import { useLanguage } from "./src/i18n/useLanguage";
 import { CanvasTop } from "./src/mapdraw/CanvasTop";
 import { DrawOnMap } from "./src/mapdraw/DrawOnMap";
+import { FigureTiles } from "./src/mapdraw/FigureTiles";
 import { MapDrawButton } from "./src/mapdraw/MapDrawButton";
+import {
+  changedRequest,
+  drawnTile,
+  type FigureChoice,
+  isChosen,
+  NO_TILE,
+  placedTile,
+} from "./src/mapdraw/resultFigure";
 import { useMapCanvas } from "./src/mapdraw/useMapCanvas";
 import { MapView } from "./src/map/MapView";
 import { NorthArrow } from "./src/map/NorthArrow";
@@ -498,6 +507,13 @@ function MuW() {
   const chosen = choices[chosenIndex] ?? null;
   const shown: RouteState =
     view.status === "done" && chosen !== null ? { ...view, result: chosen } : view;
+  // The tile of the figure of the route drawn, under it (TASK-286).
+  const resultTile =
+    view.status !== "done"
+      ? NO_TILE
+      : fromCanvas
+        ? placedTile(mapDraw.placed)
+        : drawnTile(view.request);
   const others = useMemo(
     () =>
       choices.length < 2
@@ -848,6 +864,31 @@ function MuW() {
       draw(mapDraw.request);
     }
     setScreen("map");
+  }
+
+  /** A tile under the route drawn (TASK-286): its shape or picture in place
+   * of the figure, from the same start and as long, asked at once. From
+   * «Draw» it becomes the choice of «Draw»; from the map it takes the place
+   * of the figure there. */
+  function onChangeFigure(choice: FigureChoice) {
+    if (view.status !== "done" || isChosen(choice, resultTile)) {
+      return;
+    }
+    if (fromCanvas) {
+      const changed = mapDraw.changeTo(choice, view.request.distance_m);
+      if (changed) {
+        draw(changed);
+      }
+      return;
+    }
+    if (choice.kind === "shape") {
+      setKind("shape");
+      setShapeText(shapeName(choice.shape));
+    } else {
+      setKind("image");
+      image.show(samplePicture(choice.sample), choice.sample.outline);
+    }
+    draw(changedRequest(view.request, choice, penUp));
   }
 
   /** A run of «My activities» leaves the map for the list it came from. */
@@ -1241,6 +1282,15 @@ function MuW() {
             choices={choices}
             chosen={chosenIndex}
             onChoose={(index) => answer && setPicked({ of: answer, index })}
+            figures={
+              <FigureTiles
+                chosen={resultTile}
+                onChoose={onChangeFigure}
+                // On the water only the shapes, as in «Draw».
+                pictures={sportActivity !== "paddling"}
+                testID="result-figures"
+              />
+            }
           />
         )}
         {/* Under the card of a run that ended: «Save» or «Discard», with an

@@ -19,6 +19,7 @@ import {
   unitLimits,
   withinLimits,
 } from "./figure";
+import { type FigureChoice, figureOf } from "./resultFigure";
 
 /** What «Undo» takes back (TASK-281): a figure put on the map or drawn, in
  * place of what was there; a tile that changed the figure where it is; a
@@ -72,6 +73,10 @@ export type MapCanvasState = {
   /** «Try 8 km» on the route of the figure: the figure that size, and the
    * request for it, to draw at once. */
   sizeTo: (distanceM: number) => AnyRouteRequest | null;
+  /** A tile under the route of the figure (TASK-286): that figure in its
+   * place, with the same middle and as long as `distanceM`, and the request
+   * for it, to draw at once. «Undo» puts back the one of before. */
+  changeTo: (choice: FigureChoice, distanceM: number) => AnyRouteRequest | null;
 };
 
 /**
@@ -158,12 +163,7 @@ export function useMapCanvas({
       if (placed?.figure.kind === "picture" && placed.figure.sample === sample.id) {
         return;
       }
-      putFigure({
-        kind: "picture",
-        outline: sample.outline.points,
-        strokes: sample.outline.strokes ?? [],
-        sample: sample.id,
-      });
+      putFigure(figureOf({ kind: "picture", sample }));
     },
     [placed, putFigure],
   );
@@ -292,6 +292,21 @@ export function useMapCanvas({
     [placed, apart, within, penUp, activity, units],
   );
 
+  const changeTo = useCallback(
+    (choice: FigureChoice, metres: number) => {
+      if (placed === null) {
+        return null;
+      }
+      const figure = figureOf(choice);
+      const changed = within(placeAt(figure, placed.centre, metres, apartOf(figure)));
+      setSteps((now) => [...now, { kind: "put", before: placed }]);
+      setProblem(null);
+      setKept(changed);
+      return canvasRequest(changed, penUp, activity, units);
+    },
+    [placed, within, apartOf, penUp, activity, units],
+  );
+
   return {
     mode,
     setMode,
@@ -309,5 +324,6 @@ export function useMapCanvas({
     problem,
     open,
     sizeTo,
+    changeTo,
   };
 }
