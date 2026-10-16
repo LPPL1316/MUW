@@ -1,6 +1,7 @@
 import type { JobStatus, RouteResult } from "@shaperoute/shared-types";
 import { useCallback, useRef, useState } from "react";
 
+import { routeQueue } from "../api/routeQueue";
 import { type AnyRouteRequest, isImageRequest, type RouteOutcome } from "../api/routes";
 import { requestRouteOnPhoneFirst } from "../engine/onPhone";
 
@@ -49,13 +50,23 @@ export function useRouteRequest(baseUrl: string | null): {
       current.current = mine;
       last.current = request;
       setState({ status: "waiting", request, startedAt: Date.now(), phase: "sending" });
+      // Asked again at each poll: the same phase is the same state, and
+      // nothing is drawn again (TASK-287).
       const onStatus = (phase: JobStatus) => {
         if (current.current === mine) {
-          setState((now) => (now.status === "waiting" ? { ...now, phase } : now));
+          setState((now) =>
+            now.status === "waiting" && now.phase !== phase ? { ...now, phase } : now,
+          );
         }
       };
+      // The user's: first in the app's queue of route requests (TASK-287).
       const outcome: Promise<RouteOutcome | { kind: "no_api_url" }> = baseUrl
-        ? requestRouteOnPhoneFirst(baseUrl, request, { signal: mine.signal, onStatus })
+        ? routeQueue.user(() =>
+            requestRouteOnPhoneFirst(baseUrl, request, {
+              signal: mine.signal,
+              onStatus,
+            }),
+          )
         : Promise.resolve({ kind: "no_api_url" });
       void outcome.then((answer) => {
         if (current.current !== mine) {

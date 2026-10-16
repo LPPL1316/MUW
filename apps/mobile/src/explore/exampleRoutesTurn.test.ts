@@ -120,9 +120,11 @@ test("the file keeps the turn: the next time the card is turned, nothing asked",
   const first = api();
   const storage = memory();
   drawExamples("http://api", vercelli, { request: first.request, storage });
-  // The circle is asked first, then the heart.
+  // The circle is asked first, then the heart; the file is written once
+  // the star is drawn too (TASK-287).
   await act(async () => first.asked[0].answer({ kind: "route", result: upright }));
   await act(async () => first.asked[1].answer({ kind: "route", result: tilted }));
+  await act(async () => first.asked[2].answer({ kind: "route", result: upright }));
   expect(first.asked[1].shape).toBe("heart");
   forgetExamples(); // the app closed
 

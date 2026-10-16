@@ -2,6 +2,7 @@ import type { LatLon, RouteResult, Shape } from "@shaperoute/shared-types";
 import fixture from "@shaperoute/shared-types/fixtures/route-result.json";
 import { act, renderHook } from "@testing-library/react-native";
 
+import type { BackgroundPriority } from "../api/routeQueue";
 import type { requestRoute, RouteOutcome } from "../api/routes";
 import { files } from "../engine/memoryFiles";
 import {
@@ -14,8 +15,8 @@ import {
   useCityExamples,
 } from "../explore/exampleRoutes";
 import {
-  AHEAD_GAP_MS,
   drawShapesAhead,
+  IN_FRONT_CHECK_MS,
   LEFT_OUT_MS,
   MAX_PLACES_KEPT,
   PLACES_AHEAD,
@@ -84,16 +85,25 @@ function api(answers: (asked: Asked) => RouteOutcome | undefined = () => undefin
   return { request, asked };
 }
 
-/** A clock that moves only while the round waits. */
+/** A clock that moves only while the round waits, and the app's queue of
+ * route requests as the round sees it: each request in its turn, at once. */
 function clock(start = 1_000_000) {
   const waits: number[] = [];
+  const turns: BackgroundPriority[] = [];
   let at = start;
   return {
     waits,
+    turns,
     now: () => at,
     wait: async (ms: number) => {
       waits.push(ms);
       at += ms;
+    },
+    queue: {
+      background: (priority: BackgroundPriority, run: () => Promise<RouteOutcome>) => {
+        turns.push(priority);
+        return run();
+      },
     },
   };
 }
@@ -140,13 +150,14 @@ test("a beach is a place as a lake is: its shapes are asked from its shore", asy
 
 test("every shape of the three places is asked, the nearest first, and kept", async () => {
   const { request, asked } = api();
-  const { now, wait, waits } = clock();
+  const { now, wait, waits, queue, turns } = clock();
   const outcome = await drawShapesAhead("https://api", LEVICO_TERME, {
     request,
     storage: memory(),
     spots: SPOTS,
     now,
     wait,
+    queue,
   });
   expect(outcome).toBe("done");
   expect(asked.map((a) => a.start)).toEqual([
@@ -159,8 +170,10 @@ test("every shape of the three places is asked, the nearest first, and kept", as
   // A small lake at its own distance.
   expect(asked[0].distance_m).toBe(2000);
   expect(asked[23].distance_m).toBe(1000);
-  // Never faster than one each gap: the first at once.
-  expect(waits).toEqual(Array.from({ length: 23 }, () => AHEAD_GAP_MS));
+  // Each in its turn in the app's queue (TASK-287), after the user's and
+  // the page's: the queue keeps them to their share of the minute.
+  expect(turns).toEqual(Array.from({ length: 24 }, () => "prefetch"));
+  expect(waits).toEqual([]);
   const { examples } = readAheadFile();
   expect(Object.keys(examples).sort()).toEqual(
     [keyOf(LEVICO), keyOf(CALDONAZZO), keyOf(SMALL)].sort(),
@@ -369,6 +382,7 @@ test("in the background nothing is asked: the round waits for the app", async ()
   expect(outcome).toBe("done");
   expect(asked).toHaveLength(8);
   expect(seen.filter((n) => n === 3)).toHaveLength(3);
+  expect(time.waits).toEqual([IN_FRONT_CHECK_MS, IN_FRONT_CHECK_MS]);
 });
 
 test("one round at a time", async () => {
