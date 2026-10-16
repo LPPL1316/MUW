@@ -1,6 +1,6 @@
 # TASK-289 — I tempi per fase nel log dei percorsi
 
-**Stato**: In lavorazione
+**Stato**: In revisione (PR #515, aspetta «merge 515» dal Coordinatore)
 **Fase**: 4 · **Branch**: `feat/TASK-289-phase-times`
 **Dipende da**: niente; prepara la misura della parte A di TASK-276
 **ADR**: ADR-0250

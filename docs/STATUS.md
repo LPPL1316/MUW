@@ -166,7 +166,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   i processi `spawn` delle partenze vicine non ricompilano il motore.
   Motore non toccato: gli esempi tenuti sul server restano validi. Sul
   server serve un'immagine nuova, dopo Apple e con l'ok dell'utente.
-  File: `tasks/TASK-289.md`.
+  **PR #515**, aspetta «merge 515». File: `tasks/TASK-289.md`.
 - **TASK-286 — Un'altra figura dalla mappa del risultato** (aggiunta ad
   ADR-0245; scelta dell'utente del 2026-10-15, seguito di TASK-281).
   Branch `feat/TASK-286-change-shape-on-result`. Sotto un percorso
