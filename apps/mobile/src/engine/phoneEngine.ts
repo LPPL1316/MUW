@@ -10,11 +10,19 @@ import { type PageMessage, type PageZone, pageCall } from "./page";
  * The WebView is mounted the first time it is wanted (`warmUp` or `plan`),
  * and again after iOS closes it for memory. Requests run one at a time: the
  * page holds one zone set and one Python.
+ *
+ * A request no longer wanted (its `signal` aborts, TASK-287) leaves the
+ * queue at once. The one Python is working on cannot hear it: Python runs
+ * on the page's only thread, and a message waits until it is done, up to
+ * PLAN_TIMEOUT_MS. So the page is dropped and a new one started at once:
+ * a few seconds of boot instead of a route nobody waits for, and the next
+ * request does not wait behind it.
  */
 
 export type PlanAnswer =
   | { kind: "done"; json: string; ms: number; memoryMb: number }
-  | { kind: "failed"; why: string };
+  | { kind: "failed"; why: string }
+  | { kind: "cancelled" };
 
 /** The page, once loaded: what it is told goes through here. */
 export type PageLink = {
@@ -37,6 +45,7 @@ type Job = {
   body: string;
   zones: PageZone[];
   timeoutMs: number;
+  /** Answers once, and stops listening to the signal. */
   resolve: (answer: PlanAnswer) => void;
 };
 
@@ -83,12 +92,28 @@ export class PhoneEngine {
     body: string,
     zones: PageZone[],
     timeoutMs: number = PLAN_TIMEOUT_MS,
+    signal?: AbortSignal,
   ): Promise<PlanAnswer> {
     if (this.state === "broken") {
       return Promise.resolve({ kind: "failed", why: "the engine does not start" });
     }
-    return new Promise((resolve) => {
-      this.queue.push({ id: this.nextId++, body, zones, timeoutMs, resolve });
+    if (signal?.aborted) {
+      return Promise.resolve({ kind: "cancelled" });
+    }
+    return new Promise((answer) => {
+      const job: Job = {
+        id: this.nextId++,
+        body,
+        zones,
+        timeoutMs,
+        resolve: (outcome) => {
+          signal?.removeEventListener("abort", drop);
+          answer(outcome);
+        },
+      };
+      const drop = () => this.cancel(job);
+      signal?.addEventListener("abort", drop, { once: true });
+      this.queue.push(job);
       if (this.state === "off") {
         this.start();
       } else {
@@ -155,6 +180,21 @@ export class PhoneEngine {
       this.deaths += 1;
     }
     this.restart("the engine was closed");
+  }
+
+  /** `job` is no longer wanted: out of the queue, or, while Python works on
+   * it, a new page started at once with the requests that wait. */
+  private cancel(job: Job): void {
+    job.resolve({ kind: "cancelled" });
+    if (this.running?.job === job) {
+      clearTimeout(this.running.timer);
+      this.running = null;
+      this.clearBoot();
+      this.link = null;
+      this.start();
+      return;
+    }
+    this.queue = this.queue.filter((waiting) => waiting !== job);
   }
 
   private start(): void {

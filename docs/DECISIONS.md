@@ -14656,6 +14656,78 @@ bEND»; il come deciso dall'agente su delega dell'utente):
 8. **Nessun consiglio di salute** oltre «Stop if it hurts.», e nessun
    materiale di bEND: figure, animazioni, nomi e testi sono nostri.
 
+## ADR-0248 — Una sola coda per le richieste di percorso dell'app, e un annullo vero sul telefono
+**Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega
+dell'utente, dall'analisi della lentezza della ricerca (sessione «MUW app
+performance e ricerca»). TASK-287, solo app. Non tocca ADR-0177: il
+telefono prima fino a 8 km a piedi resta com'è.
+
+Tre parti dell'app chiedevano percorsi in sottofondo, ognuna col suo
+contatore: gli esempi della città scelta (18 al minuto, le prime forme
+fuori conto), i campioni dei paesi vicini (uno ogni 5 s, 12 al minuto),
+le forme sull'acqua dei posti vicini (uno ogni 6 s, 10 al minuto).
+Insieme superavano i 30 POST al minuto che l'API prende da un telefono
+(ADR-0076), e il «Draw» dell'utente poteva prendere un 429. Il motore sul
+telefono, annullato, finiva lo stesso il percorso (fino a 120 s) e il
+«Draw» dopo aspettava dietro.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Una coda sola** (`src/api/routeQueue.ts`) con tre livelli: le
+   richieste dell'utente («Draw», spostare la forma di un esempio, il
+   percorso a tema) partono sempre e subito; poi gli esempi sulla pagina
+   di «Explore» (della città scelta e dei paesi vicini, `visible`); poi
+   ciò che si disegna in anticipo (le forme sull'acqua, `prefetch`).
+   Mentre gira una richiesta dell'utente nessuna in sottofondo parte;
+   quelle già partite finiscono. Un solo conto delle richieste
+   dell'ultimo minuto, quelle dell'utente comprese: gli esempi della
+   pagina partono finché sono meno di 22, l'anticipo finché sono meno di
+   10. All'utente restano sempre almeno 8 dei 30 («Start», «Export GPX»,
+   una reazione). Dopo un 429, qualunque, niente in sottofondo per un
+   minuto. Spariscono le pause fisse fra un campione e l'altro: il passo
+   lo dà la coda.
+2. **Le prime forme di una città possono aspettare**: prima non
+   aspettavano mai. Succede solo se nell'ultimo minuto sono già partite
+   22 richieste (tre città con tutti gli esempi già pronti sul server);
+   la scheda mostra «Drawing…» finché tocca a lei.
+3. **Annullare sul telefono**: una richiesta annullata in coda esce dalla
+   coda e non arriva alla pagina. Quella che Python sta calcolando non si
+   può fermare con un messaggio: Python gira sull'unico thread della
+   pagina, e un messaggio aspetta che abbia finito. Interromperlo da fuori
+   vorrebbe un `SharedArrayBuffer` (Pyodide in un worker), che la WebView
+   di iOS dà solo a una pagina isolata con intestazioni che una pagina
+   letta da file non ha. Quindi la pagina si butta e se ne avvia subito
+   una nuova: qualche secondo di avvio di Python invece di un percorso
+   che nessuno aspetta, e il «Draw» dopo non aspetta il vecchio. Non conta
+   come una morte della WebView (ADR-0177).
+4. **Python parte prima**: appena una zona salvata copre la posizione,
+   prima ancora di aggiornare le zone; senza zone salvate, con la prima
+   scaricata e non dopo tutte e due le reti.
+5. **Explore riusa ciò che ha**: il centro e il nome delle città in
+   evidenza stanno in `engine/ahead.json` (accanto ai centri, i nomi:
+   un file di prima li chiede una volta in più a `GET /cities`), e il chip
+   apre la città senza chiederla; un campione di un paese vicino diventa
+   un esempio pronto del paese, intero, e toccare il paese non lo chiede
+   più (solo in memoria: il file resta delle città scelte);
+   `city-examples.json` si scrive una volta per gruppo (prime forme,
+   altre forme, parole) o quando un'altra città ferma quella in corso, e
+   si legge una volta sola.
+6. **Piccole cose**: `useRouteRequest` non crea uno stato nuovo se la
+   fase dell'API è la stessa; dopo un `/places` lento o fallito si va su
+   Photon per 3 minuti invece di aspettare 2,5 s a ogni lettera.
+
+**Alternative scartate**: interrompere gli esempi già partiti quando
+l'utente chiede un percorso (il lavoro del server andrebbe perso, e
+quasi sempre sono percorsi tenuti, che rispondono subito); lasciare
+finire il calcolo annullato e far partire la pagina nuova solo se arriva
+un altro «Draw» (si pagherebbe l'avvio proprio quando l'utente aspetta);
+la gara fra telefono e server (scelta di prodotto, fuori da qui).
+
+**Conseguenza**: chi sfoglia molte città in un minuto vede le schede
+arrivare un po' più piano, ma il suo «Draw» non prende più un 429 per
+colpa degli esempi. Un «Draw» annullato sul telefono costa un nuovo
+avvio di Python (~5 s sul Mac, da misurare sull'iPhone).
+
 ## ADR-0250 — Una riga di tempi per ogni job di percorso, e il bytecode nell'immagine
 **Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega dell'utente
 (TASK-289; prepara la misura di TASK-276, dove l'utente ha scelto il
