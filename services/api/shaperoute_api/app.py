@@ -20,6 +20,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from route_engine.export_gpx import route_name, to_gpx
 from route_engine.image_outline import InvalidImageError
@@ -140,6 +141,11 @@ SHAPE_READING_RESPONSES: dict[int | str, dict[str, Any]] = {
     422: {"model": ErrorBody, "description": "invalid_request"},
     503: {"model": ErrorBody, "description": "ai_unavailable"},
 }
+# Less than this is not worth the CPU. Level 6 is zlib's own: Starlette's 9
+# took five times as long for a page of the feed less than 1% smaller
+# (0.4 ms against 2.2 ms for 33 KB, 2026-10-16).
+GZIP_MIN_BYTES = 1024
+GZIP_LEVEL = 6
 AI_OFF = "This API was started without the AI that reads shape words."
 UNKNOWN_JOB = (
     "Unknown route job: cancelled, finished more than 10 minutes ago, "
@@ -286,6 +292,14 @@ def create_app(
         version="0.2.0",
         description="Generates real routes that draw a shape on the map.",
         lifespan=lifespan,
+    )
+    # Answers of a kilobyte or more compressed for a phone that takes gzip
+    # (TASK-288). Not the JPEGs and the zones' gzip files: Starlette leaves
+    # those as they are. Added before protect, so inside it: the answer of
+    # an endpoint comes whole, and its size is known; protect sends it on
+    # in pieces, and pieces would all be compressed, however small.
+    app.add_middleware(
+        GZipMiddleware, minimum_size=GZIP_MIN_BYTES, compresslevel=GZIP_LEVEL
     )
     protect(app)
     # Sign up, sign in, /me (TASK-114, ADR-0115); without a database, 503.

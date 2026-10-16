@@ -14623,3 +14623,99 @@ bEND»; il come deciso dall'agente su delega dell'utente):
    lingue; resta una scelta dell'utente.
 8. **Nessun consiglio di salute** oltre «Stop if it hurts.», e nessun
    materiale di bEND: figure, animazioni, nomi e testi sono nostri.
+
+## ADR-0249 — Le ricerche dell'API più veloci: gzip, Geoapify in parallelo, indici e anteprime nel database
+**Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega
+dell'utente (TASK-288, dall'analisi delle ricerche della sessione «MUW
+app performance e ricerca»). Nessuna scelta di prodotto: le risposte sono
+le stesse, arrivano prima. Nessuna dipendenza nuova.
+
+Le ricerche diverse dal percorso aspettavano cose evitabili, misurate in
+locale (`tasks/TASK-288.md`): `/feed` con la posizione del telefono
+calcolava la distanza geodetica dalla traccia intera di ogni disegno
+(15 s a pagina con 1 500 disegni da 2 000 punti, nell'immagine PostGIS
+emulata del Mac); `/cities` chiedeva a Geoapify un'area dopo l'altra (sei
+richieste in fila, fino a 8 s l'una); `/users?q=` leggeva ogni account e
+rifaceva la foto piccola di ognuno a ogni lettera; ogni richiesta con un
+token scriveva l'ultimo uso della sessione, anche una GET.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **gzip nell'API** (`app.py`): `GZipMiddleware` di Starlette da 1 KB in
+   su, livello 6 (il 9 di Starlette costa cinque volte tanto per un feed
+   meno dell'1% più piccolo). Sta **dentro** `protect` (aggiunto prima):
+   il middleware di `protect` manda le risposte a pezzi, e a pezzi gzip
+   le comprimerebbe tutte, anche le più piccole. JPEG e i `.gz` delle
+   zone restano come sono (esclusi da Starlette). Il Caddy del server
+   (`/etc/caddy/Caddyfile`, `DEPLOY.md` F.14) non ha `encode` per l'API,
+   solo per il sito: il telefono riceveva tutto in chiaro.
+2. **Geoapify** (`places.py`): `fetch_json` aspetta 3 s invece di 8 e
+   chiede **una seconda volta** su timeout, connessione caduta, 429 (dopo
+   1 s: il piano gratuito regge 5 richieste al secondo) e 5xx (dopo
+   0,5 s); mai su 4xx, che risponderebbe uguale. Logga il codice o il tipo
+   d'errore, mai l'URL, che contiene la chiave. `fetch_together` chiede più
+   URL insieme, ognuno con la sua risposta o il suo errore. `/cities` chiede
+   i Places delle aree tutti insieme (al più 4 alla volta, con la
+   geocodifica 5): un'area che non risponde resta al punto della
+   geocodifica, le altre vanno al loro paese (prima, dopo un errore, le
+   aree seguenti non si chiedevano più). Una risposta senza città non si
+   tiene 24 ore: la ricerca seguente chiede di nuovo. `/nearby-cities`
+   chiede insieme le tre categorie; la quarta (i paesi fino a 50 km) resta
+   dopo, solo quando serve.
+3. **`draw_examples`** distingue un 5xx della ricerca città da «non
+   trovata»: lo richiede tre volte, 10 s l'una dall'altra, e se non
+   risponde scrive «the city search did not answer (http_503)».
+4. **Le foto delle città** (`city_photos.py`): due pool di thread, uno per
+   chiedere Wikimedia (che una lista aspetta) e uno per scaricare le
+   immagini (che nessuno aspetta); prima, due download lenti tenevano
+   fuori la ricerca della lista seguente.
+5. **«Find friends»** (migrazione 0022): `pg_trgm` e un indice GIN su
+   `lower(username) gin_trgm_ops`, che risponde a `LIKE '%q%'` da tre
+   lettere in su (con due il piano resta la lettura di tutti). La foto
+   piccola (128 px) di una lista si fa una volta per ogni foto
+   (`follows.SmallPhotos`, 2 000 tenute in memoria, le ultime usate), con
+   chiave un'impronta BLAKE2 dei byte della foto: una foto nuova è
+   un'impronta nuova, e la vecchia non si vede mai. Scartata la colonna
+   della foto piccola nel database: vuole un'immagine fatta da Python per
+   le righe già lì.
+6. **L'anteprima del disegno nel database** (migrazione 0022): la funzione
+   SQL `drawing_preview(track)` sceglie i punti che sceglie
+   `recommended.preview` (64, per indice, primo e ultimo; lo stesso
+   arrotondamento `rint` di Python), e la colonna generata
+   `drawings.preview` la tiene aggiornata da sé a ogni scrittura della
+   traccia, anche per i disegni già lì. Il feed e i disegni di un profilo
+   leggono quella invece della traccia intera: stesso `track_preview`,
+   controllato da un test per molte lunghezze. Il feed chiede
+   all'anteprima se un disegno è vicino (entro 50 km): 64 punti invece di
+   migliaia, con un errore di poche centinaia di metri al bordo dei 50 km.
+   Da 23 s a 0,8 s per 1 500 disegni; `/feed` con la posizione da 15 s a
+   0,75 s a pagina, in locale. La funzione ha `search_path`
+   scritto: un ripristino di `pg_dump` la chiama con uno vuoto. Più un
+   indice parziale `drawings (published_at DESC, id DESC) WHERE visibility
+   <> 'only_me'`, che il feed può usare (la condizione è ripetuta nella
+   query); con l'ordine per gruppo (i propri, i seguiti, gli altri) oggi
+   PostgreSQL ordina comunque in memoria.
+7. **L'ultimo uso della sessione** (`accounts.user_of`) si scrive solo
+   quando quello scritto ha un'ora (`USE_WRITTEN_EVERY`): le altre
+   richieste leggono e basta, senza attendere il disco. Perché i 90 giorni
+   non si accorcino, una sessione vale 90 giorni **e un'ora** dall'ultimo
+   uso scritto: mai meno di 90 dall'ultimo vero. L'email di chi non apre
+   l'app da 14 giorni (TASK-284) legge lo stesso `last_used_at`: un'ora di
+   ritardo non cambia niente.
+
+**Alternative scartate**: un pool di connessioni (`psycopg_pool`,
+dipendenza nuova: va chiesto all'utente; oggi ogni chiamata apre una
+connessione, due per richiesta con un token, 40–70 ms in locale); `encode
+gzip` nel Caddy del server (lavoro sul server, e l'API resterebbe senza
+gzip dove gira senza Caddy); `ST_Simplify` al posto dei 64 punti
+(cambierebbe il disegno che si vede); un indice spaziale per «vicino»
+(la condizione sta in un OR col gruppo del disegno, e l'indice non si
+userebbe); riscrivere il feed in tre query unite (rischio alto per un
+guadagno che oggi, con pochi disegni, non si vede).
+
+**Conseguenze**: la migrazione 0022 va sul server con l'aggiornamento
+(numero al merge: se entra prima #502, che ha la sua 0022, questa diventa
+0023); crea `pg_trgm` (l'utente del database è il proprietario, ed è
+un'estensione «trusted»). Chi cambia il modo in cui `preview` sceglie i
+punti cambia anche `drawing_preview`, con una migrazione nuova: il test
+dell'anteprima lo ricorda.

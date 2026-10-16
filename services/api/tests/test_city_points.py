@@ -255,7 +255,9 @@ def test_places_that_do_not_answer_are_waited_for_once() -> None:
     service.places_down = True
     found = CitySearch("K", service).search("Trentino")
     assert [city.point for city in found] == [TENNA_AREA, LEVICO_POINT]
-    assert service.calls == ["cities Trentino", "places Tenna"]
+    # Both areas asked side by side (TASK-288): one wait, not one each.
+    assert service.calls[0] == "cities Trentino"
+    assert sorted(service.calls[1:]) == ["places Levico Terme", "places Tenna"]
 
 
 def test_a_geocoding_that_does_not_answer_fails_the_search() -> None:

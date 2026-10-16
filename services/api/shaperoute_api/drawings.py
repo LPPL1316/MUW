@@ -400,13 +400,17 @@ class DrawingDetailBody(SeenFields):
 
 # --- The drawings in the database ---
 
-SEEN_COLUMNS = (
+_SEEN_FIELDS = (
     "d.id, d.title, d.visibility, d.description, d.published_at,"
-    " ST_AsGeoJSON(d.track, 15) AS track,"
     " r.started_at, r.place, r.shape, r.word, r.style, r.title AS route_title,"
     " r.distance_m, r.duration_s, r.score, r.fidelity, r.activity,"
     " r.route_rotation_deg"
 )
+# One drawing, its cut track whole.
+SEEN_COLUMNS = f"{_SEEN_FIELDS}, ST_AsGeoJSON(d.track, 15) AS track"
+# A drawing in a list: as `track`, the preview PostgreSQL keeps of it
+# (migration 0022, TASK-288), the points `preview` would take of the whole.
+LISTED_COLUMNS = f"{_SEEN_FIELDS}, ST_AsGeoJSON(d.preview, 15) AS track"
 MINE_COLUMNS = (
     "r.key, r.activity, d.id, d.title, d.visibility, d.description, d.published_at"
 )
@@ -726,7 +730,7 @@ class Drawings:
                 where += " AND (r.started_at, d.id) < (%s, %s)"
                 values += _after_cursor(cursor)
             rows = conn.execute(
-                f"SELECT {SEEN_COLUMNS} FROM drawings d"
+                f"SELECT {LISTED_COLUMNS} FROM drawings d"
                 f" JOIN runs r ON r.id = d.run_id WHERE {where}"
                 " ORDER BY r.started_at DESC, d.id DESC LIMIT %s",
                 (*values, limit + 1),
