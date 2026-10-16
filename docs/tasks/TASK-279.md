@@ -1,7 +1,8 @@
 # TASK-279 — Parole e frasi con la penna alzata in «Explore»
 
-**Stato**: parte A In lavorazione (PR pronta, aspetta il «merge» del
-Coordinatore); parte B Todo
+**Stato**: parte A Done, in `main` con la #503 (`100aca2c`, 2026-10-13),
+su `preview` con il gruppo `9dbc73d0`; parte B (frasi) Todo e il punto 7
+(`draw_examples`) dopo l'approvazione di Apple
 **Fase**: 4 · **Branch**: parte A `feat/TASK-279-a-explore-words`,
 parte B `feat/TASK-279-b-phrases`
 
@@ -162,3 +163,5 @@ approvato dall'utente. `npm test` (397 suite, 3288 test), lint, tipi e
 `format:check` verdi. Resta da provare su un telefono una città nuova per
 l'API (la prima volta 30–50 s a parola). Restano il punto 7
 (`draw_examples`, dopo Apple) e la parte B.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A (#503); restano il punto 7 (`draw_examples`, dopo Apple) e la parte B.

@@ -1,6 +1,6 @@
 # TASK-285 — Lo stretching dopo la corsa: il promemoria (A) e i cinque esercizi animati (B)
 
-**Stato**: Parte A Done (in `main` con la #504, 8cdadf70, 2026-10-14) · Parte B In corso (#508, testi e scelte approvati dall'utente il 2026-10-14; aspetta «merge 508»)
+**Stato**: Done · Parte A in `main` con la #504 (8cdadf70, 2026-10-14) · Parte B in `main` con la #508 (8295312f, 2026-10-15)
 **Fase**: 4 · **Branch**: `feat/TASK-285-a-stretch-reminder` (A),
 `feat/TASK-285-b-stretch-exercises` (B)
 **Dipende da**: TASK-113 (la fine della corsa), TASK-172 («Save» e
@@ -285,3 +285,15 @@ dell'altra (`StretchReminder.*` è di A, `src/stretch/` è di B).
   con o senza percorso, prima di «Your run» c'è «Remember to stretch» con
   «Skip» e «Stretch», e la voce lo dice una volta nella sua lingua. «Stretch»
   chiude come «Skip» finché non c'è la parte B. Non provata nel simulatore.
+- **Parte B** (2026-10-15, #508, 8295312f): «Stretch» apre i cinque
+  esercizi animati, quadricipite, posteriore della coscia, polpaccio,
+  flessori dell'anca, gluteo, 20 s per lato, con la figura stilizzata
+  fatta di View girate, il conto alla rovescia, il «ding» nostro fra un
+  lato e l'altro, «Pause» e «Skip»/«Done» verso «Your run». Testi nelle
+  cinque lingue e le tre proposte approvati dall'utente il 2026-10-14; le
+  pose viste in Expo Go nel simulatore. Nessuna dipendenza nuova.
+  Rimandato: la voce che dice il nome dell'esercizio seguente (scartata
+  per ora); routine per sport e stretching prima della corsa restano fuori
+  scope. Entra nella versione dopo la 1.0.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A (#504) e per la parte B (#508).

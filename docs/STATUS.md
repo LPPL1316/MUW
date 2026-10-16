@@ -168,6 +168,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   rimette. Solo app, nessun testo nuovo, non nella 1.0; file e ordine con
   l'ok del Coordinatore; **PR #513**, aspetta «merge 513». File:
   `tasks/TASK-286.md`.
+- **Prova sull'iPhone del 2026-10-15**: l'utente ha provato `preview`
+  (gruppo `9dbc73d0`, da `main` `fd4ae341`) con TASK-278 A e B, 279 A,
+  280, 281 e 285 A e B: «funziona tutto ok». Le foto di TASK-283 non si
+  vedono ancora: aspettano il server, dopo Apple.
 - **Risposte dell'utente del 2026-10-15** (sessione di riepilogo; dette
   anche al Coordinatore): la 1.0.0 (7) è **rimandata ad Apple** con video
   e Notes, in attesa del verdetto (`tasks/TASK-152.md`); i testi
@@ -201,6 +205,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   figura stilizzata); le pose viste in Expo Go nel simulatore. **Aspetta
   «merge 508»** dal Coordinatore (ordine su `App.tsx` con 278 B). Non
   nella 1.0.
+  **Chiuso il 2026-10-15**: #508 in `main` (8295312f); vedi
+  «Completato». Pubblica il Coordinatore.
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
@@ -870,6 +876,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-285 parte B (ADR-0247, punti 5–8; chiesto dall'utente il
+  2026-10-13, «come sull'app bEND», scelte sue del 2026-10-14): «Stretch»
+  sulla scheda di fine corsa apre cinque esercizi uno dopo l'altro,
+  quadricipite, posteriore della coscia, polpaccio, flessori dell'anca e
+  gluteo, 20 s per lato (3 min 20 s), con una figura stilizzata vista di
+  lato che entra in ogni posa, una riga su come si fa, il conto alla
+  rovescia, un «ding» nostro fra un lato e l'altro, «Pause» e «Skip» (o
+  «Done») verso «Your run». File nuovi in `src/stretch/`, poche righe in
+  `App.tsx`, suono da `tools/stretch_chime.py`. Nessuna dipendenza nuova.
+  Le pose viste in Expo Go nel simulatore. Niente cambia nell'API né sul
+  server; pubblica il Coordinatore; non nella 1.0 in revisione.
 - **App** — TASK-278 parte B (aggiunta ad ADR-0124; scelte dell'utente del
   2026-10-13, «sì, portali tutti alla 4ª pagina»): gli altri ingressi al
   profilo portano alla **quarta pagina**. La lente di «Feed» senza account
