@@ -14648,7 +14648,8 @@ token scriveva l'ultimo uso della sessione, anche una GET.
    le comprimerebbe tutte, anche le più piccole. JPEG e i `.gz` delle
    zone restano come sono (esclusi da Starlette). Il Caddy del server
    (`/etc/caddy/Caddyfile`, `DEPLOY.md` F.14) non ha `encode` per l'API,
-   solo per il sito: il telefono riceveva tutto in chiaro.
+   solo per il sito (letto sul server dal Coordinatore il 2026-10-16): il
+   telefono riceveva tutto in chiaro.
 2. **Geoapify** (`places.py`): `fetch_json` aspetta 3 s invece di 8 e
    chiede **una seconda volta** su timeout, connessione caduta, 429 (dopo
    1 s: il piano gratuito regge 5 richieste al secondo) e 5xx (dopo
