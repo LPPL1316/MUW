@@ -168,6 +168,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   rimette. Solo app, nessun testo nuovo, non nella 1.0; file e ordine con
   l'ok del Coordinatore; **PR #513**, aspetta «merge 513». File:
   `tasks/TASK-286.md`.
+  **Chiuso il 2026-10-16**: #513 in `main` (`52b331f7`), mergiata dal
+  Coordinatore; vedi «Completato».
 - **Prova sull'iPhone del 2026-10-15**: l'utente ha provato `preview`
   (gruppo `9dbc73d0`, da `main` `fd4ae341`) con TASK-278 A e B, 279 A,
   280, 281 e 285 A e B: «funziona tutto ok». Le foto di TASK-283 non si
@@ -876,6 +878,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-286 (aggiunta ad ADR-0245, punti 10–14; scelta
+  dell'utente del 2026-10-15, «sì, dai la possibilità di cambiare figura
+  dalla mappa»): sotto un percorso disegnato, da «Draw» o da «Draw on the
+  map», sopra «Start» c'è la riga della tela, 17 forme e 12 immagini (con
+  «Paddle» solo le forme), con la figura del percorso segnata. Un tocco
+  ridisegna subito dalla stessa partenza e con la stessa distanza: da
+  «Draw» la figura diventa la scelta di «Draw» e «←» la ritrova; sull'acqua
+  una forma spostata resta dov'era; dalla tela la figura nuova prende il
+  posto della vecchia (stesso centro, distanza del percorso) e «Undo» la
+  rimette. Nessun testo nuovo né dipendenza; in `main` con la #513
+  (`52b331f7`). Solo app, pubblica il Coordinatore; non nella 1.0. Il tocco
+  vero sull'iPhone resta all'utente. `tasks/TASK-286.md`.
 - **App** — TASK-285 parte B (ADR-0247, punti 5–8; chiesto dall'utente il
   2026-10-13, «come sull'app bEND», scelte sue del 2026-10-14): «Stretch»
   sulla scheda di fine corsa apre cinque esercizi uno dopo l'altro,
