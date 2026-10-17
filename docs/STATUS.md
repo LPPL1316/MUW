@@ -939,6 +939,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — prova sull'iPhone dell'utente del 2026-10-17 («provato, funziona tutto») su `preview` dal gruppo `cd521a21` (`main` `ff786f67`): TASK-286 (cambiare figura dalla mappa del risultato), TASK-287 (ricerche in coda, annullo del motore sul telefono) e TASK-290 (le sedici sagome). Righe aggiunte nell'«Esito» dei tre task file.
 - **App** — TASK-290 (aggiunta ad ADR-0246, punti 8–10; richiesta
   dell'utente del 2026-10-16): le sagome di «PICTURES» scelte dal
   percorso, non dal disegno. 546 percorsi veri (le 12 sagome di TASK-280 e

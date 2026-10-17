@@ -132,3 +132,6 @@ cream».
 **Fatto il 2026-10-16**: mergiato come #520 (`ff786f67`) dal Coordinatore,
 sulla testa `57962a5a`. Le sedici sagome vanno su `preview` appena la CI
 di `main` è verde. Da provare sull'iPhone: qualche sagoma nuova a 5 km.
+
+
+**Provato sull'iPhone dall'utente il 2026-10-17** («provato, funziona tutto»), su `preview` dal gruppo `cd521a21` (`main` `ff786f67`).

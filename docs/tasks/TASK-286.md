@@ -137,3 +137,6 @@ Provato con i test (App intera compresa); non nel simulatore: il tocco
 vero su un iPhone resta all'utente, alla prima prova di `preview`.
 In `main` con la #513 (`52b331f7`), mergiata dal Coordinatore il
 2026-10-16, che la pubblica su `preview` dopo la CI di `main`.
+
+
+**Provato sull'iPhone dall'utente il 2026-10-17** («provato, funziona tutto»), su `preview` dal gruppo `cd521a21` (`main` `ff786f67`).
