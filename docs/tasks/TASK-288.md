@@ -134,7 +134,7 @@ docs/tasks/TASK-288.md                                    (nuovo)
 
 ## Parte B — Il pool di connessioni
 
-**Stato**: In revisione (PR da aprire). Come le altre PR dell'API, ferma
+**Stato**: In revisione (PR #524). Come le altre PR dell'API, ferma
 fino all'approvazione di Apple e all'ok dell'utente per il server
 **Branch**: `feat/TASK-288-b-connection-pool` · **ADR**: aggiunta ad
 ADR-0249 · **Migrazione**: nessuna · **Dipendenza nuova**:
