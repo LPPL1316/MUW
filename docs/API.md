@@ -1965,12 +1965,57 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   anche chi si è già bloccato.
 - **Nessun endpoint legge le segnalazioni**: restano nella tabella
   `reports` per chi gestisce l'app (ADR-0228: niente pannello e niente
-  endpoint `/admin` per ora).
+  endpoint `/admin` per ora). Una segnalazione **nuova** arriva anche per
+  email a chi gestisce MuW, con un link che nasconde (TASK-291, sotto);
+  la stessa persona che cambia il motivo non manda un'altra email.
 - **`DELETE /me`** cancella i blocchi dell'account, fatti e ricevuti, e le
   sue segnalazioni (`ON DELETE CASCADE`); le segnalazioni degli altri su
   di lui restano.
 - **Un'API precedente** non ha questi endpoint (`404 http_error`): l'app
   dice «This is not available any more.».
+
+#### Report emails (TASK-291, ADR-0251)
+
+A ogni segnalazione nuova l'API manda, fuori dalla richiesta e con
+Resend, un'email in inglese a `SHAPEROUTE_REPORTS_TO`: cosa (disegno,
+commento, profilo), il motivo, chi segnala, chi l'ha scritto, il testo
+(titolo e descrizione, commento, nome e bio), quante segnalazioni ha
+quella cosa, se è già nascosta, gli id, e il link «Hide it from everyone
+else». Il codice in `report_email.py`, l'invio in `send_email.py`. Spenta
+senza le quattro variabili di `DEPLOY.md`, «Email delle segnalazioni»:
+allora la segnalazione si salva come prima e non parte niente. Un errore
+di Resend non cambia mai la risposta di `POST /reports`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /report-link?t=…` | cosa farà il link, con un pulsante; **non cambia niente** | `200` una pagina HTML |
+| `POST /report-link?t=…` | il pulsante: nasconde o rimostra, una volta sola | `200` una pagina con «Undo» |
+
+- **Senza chiave né token**: come `/strava/callback`, il link si apre da
+  un browser (`access.OPEN_PATHS`). Lo protegge la firma.
+- **Il link** è firmato con `SHAPEROUTE_EMAIL_SECRET` e dice un'azione
+  (`hide` o `show`), una cosa (`drawing`, `comment`, `user`), il suo id,
+  la scadenza (**7 giorni**) e un numero a caso. Fa solo quella cosa, e
+  **una volta**: il numero va in `report_links_used`. Un link alterato o
+  di un altro segreto: `404` «This link does nothing»; scaduto: `404`;
+  già usato: `410`; la cosa non c'è più: `404`. Tutte le pagine hanno
+  `Cache-Control: no-store` e `Referrer-Policy: no-referrer`; il token
+  non va nei log (la query string non entra nel log, ADR-0096).
+- **Dopo «Hide»** la pagina ha «Undo», un link nuovo dello stesso tipo
+  (`show`, 7 giorni, una volta); dopo «Show again», «Hide again».
+- **Nascosto agli altri, non all'autore**, e niente si cancella:
+  - un **disegno** nascosto (`drawings.hidden_at`) non lo vede più
+    nessuno tranne chi l'ha fatto: feed, profilo e il suo conteggio,
+    `GET /drawings/{id}`, foto, commenti e reazioni rispondono come per
+    un id che non c'è (`drawing_seen_sql`, `shown_sql`);
+  - un **commento** nascosto (`comments.hidden_at`) lo legge solo chi
+    l'ha scritto, e non entra in `total` per gli altri
+    (`comments.NOT_APART`);
+  - un **iscritto** nascosto (`users.hidden_at`) è lontano da tutti come
+    dietro un blocco (`follows.apart_sql`): profilo, ricerca, disegni,
+    commenti, reazioni, follow, e niente notifiche push agli altri per
+    quello che fa. Lui vede tutto come prima.
+  Nessuno viene avvisato.
 
 ### Send to Strava (TASK-187, ADR-0156)
 

@@ -257,13 +257,15 @@ Blocked = Callable[[Connection[DictRow], int, int], bool]
 
 
 def blocked_between(conn: Connection[DictRow], a: int, b: int) -> bool:
-    """Whether either account blocked the other (TASK-121, ADR-0228)."""
+    """Whether either account blocked the other (TASK-121, ADR-0228), or
+    `a`, who acted, is hidden from `b` (TASK-291, ADR-0251): nothing tells
+    `b` of what it cannot see."""
     # Here, not at the top: follows.py calls this module's hooks.
     from shaperoute_api.follows import apart_sql
 
     row = conn.execute(
         f"SELECT {apart_sql('%s', 'u.id')} AS apart FROM users u WHERE u.id = %s",
-        (a, b),
+        (b, a),
     ).fetchone()
     return row is not None and bool(row["apart"])
 

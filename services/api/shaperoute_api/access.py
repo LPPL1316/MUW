@@ -38,7 +38,9 @@ WINDOW_S = 60.0
 # /health stays open: a check that the API is up needs no key. So does the
 # page Strava sends the browser back to (strava.py, TASK-187): a browser has
 # no key, and the page does nothing without the state the API gave the app.
-OPEN_PATHS = frozenset({"/health", "/strava/callback"})
+# So does the page of the link of a report's email (report_email.py,
+# TASK-291): it does nothing without the signed token of the email.
+OPEN_PATHS = frozenset({"/health", "/strava/callback", "/report-link"})
 LIMITED_METHODS = frozenset({"POST"})
 
 WRONG_KEY = f"Missing or wrong API key: send it in the {KEY_HEADER} header."

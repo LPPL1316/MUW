@@ -12,8 +12,10 @@ GET /me/blocked lists the members blocked, the last first, to unblock them.
 
 POST /reports keeps what a member reports, a drawing, a comment or a
 member, with a reason from a short list: one row for each reporter and
-thing, the latest reason kept. The reports stay in the table for whoever
-runs the app; no endpoint reads them (no admin panel yet, ADR-0228).
+thing, the latest reason kept. No endpoint reads them (ADR-0228): a new
+report is emailed to whoever runs the app, with a link that hides the
+thing (report_email.py, TASK-291, ADR-0251); the same member reporting it
+again with another reason sends nothing.
 
 Deleting an account deletes its blocks, both ways, and its reports
 (ON DELETE CASCADE).
@@ -27,7 +29,7 @@ from datetime import datetime
 from typing import Annotated, Any, Literal, get_args
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, FastAPI, Query, Response
+from fastapi import APIRouter, Depends, FastAPI, Query, Request, Response
 from psycopg import errors as pg_errors
 from pydantic import BaseModel, ConfigDict
 
@@ -52,6 +54,7 @@ from shaperoute_api.follows import (
     _account,
     _person,
 )
+from shaperoute_api.report_email import notify_report
 from shaperoute_api.schemas import ErrorBody
 
 ReportKind = Literal["drawing", "comment", "user"]
@@ -173,9 +176,10 @@ class Moderation:
             total=count["n"],
         )
 
-    def report(self, user_id: int, body: ReportRequestBody) -> None:
-        """The report kept, one for each reporter and thing; 404 for nothing
-        with this id, 422 for oneself or one's own."""
+    def report(self, user_id: int, body: ReportRequestBody) -> UUID | None:
+        """The report kept, one for each reporter and thing; its id when it
+        is new, None when the reporter had reported this thing already. 404
+        for nothing with this id, 422 for oneself or one's own."""
         try:
             with self.database.connect() as conn:
                 row = conn.execute(OWNER_OF[body.kind], (body.id,)).fetchone()
@@ -183,17 +187,22 @@ class Moderation:
                     raise AccountError(404, "http_error", NOTHING_TO_REPORT)
                 if row["owner"] == user_id:
                     raise AccountError(422, "invalid_request", NOT_YOURSELF_REPORT)
-                conn.execute(
+                kept = conn.execute(
                     "INSERT INTO reports (reporter_id, kind, target_id, reason,"
                     " created_at) VALUES (%s, %s, %s, %s, %s)"
                     " ON CONFLICT (reporter_id, kind, target_id)"
                     " DO UPDATE SET reason = EXCLUDED.reason,"
-                    " created_at = EXCLUDED.created_at",
+                    " created_at = EXCLUDED.created_at"
+                    # xmax is 0 on a row just inserted, not on one updated.
+                    " RETURNING id, (xmax = 0) AS new",
                     (user_id, body.kind, body.id, body.reason, self.now()),
-                )
+                ).fetchone()
         except pg_errors.ForeignKeyViolation:
             # The account was deleted while it was reporting.
             raise AccountError(401, "not_signed_in", NOT_SIGNED_IN) from None
+        assert kept is not None
+        report_id: UUID = kept["id"]
+        return report_id if kept["new"] else None
 
 
 def moderation_of(accounts: Annotated[Accounts, Depends(accounts_of)]) -> Moderation:
@@ -229,8 +238,13 @@ def moderation_routes() -> APIRouter:
         return moderation.blocked(user.id, limit, cursor)
 
     @router.post("/reports", status_code=204, responses=NOT_FOUND)
-    def report(body: ReportRequestBody, moderation: Them, user: Me) -> Response:
-        moderation.report(user.id, body)
+    def report(
+        body: ReportRequestBody, moderation: Them, user: Me, request: Request
+    ) -> Response:
+        new = moderation.report(user.id, body)
+        if new is not None:
+            # After the write, outside the request; never fails it.
+            notify_report(request, new)
         return Response(status_code=204)
 
     return router

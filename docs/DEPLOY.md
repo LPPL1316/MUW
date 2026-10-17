@@ -394,6 +394,48 @@ Il secret, come ogni chiave, mai in un file del repository o in una chat.
 Se finisce dove non deve, dalla pagina del punto 1 se ne genera uno nuovo
 e si riscrive la riga in `deploy/.env`: gli atleti collegati restano.
 
+## Email delle segnalazioni (TASK-291)
+
+Ogni segnalazione nuova arriva per email a chi gestisce MuW, con un link
+che nasconde la cosa segnalata (`API.md`, «Report emails»; ADR-0251).
+Spenta finché `deploy/.env` non ha `RESEND_API_KEY`,
+`SHAPEROUTE_EMAIL_SECRET`, `SHAPEROUTE_DOMAIN` e `SHAPEROUTE_REPORTS_TO`.
+**Prima di accenderla**: la privacy che nomina Resend (con la parte B di
+TASK-284) e l'ok del coordinatore per il server.
+
+1. Resend, la chiave e il segreto dei link sono gli stessi dell'email di
+   ritorno (sopra, «Email di ritorno», punti 1 e 2): se ci sono già, non
+   si rifanno. Senza, si fanno lì.
+2. L'indirizzo di chi gestisce lo scrive l'utente sul server, con un
+   comando che non lo mostra:
+
+   ```bash
+   cd /root/shaperoute/deploy
+   read -r -p "Reports to: " T && printf 'SHAPEROUTE_REPORTS_TO=%s\n' "$T" >> .env; unset T
+   ```
+
+   I link sono `https://<SHAPEROUTE_DOMAIN>/report-link?t=…`: si aprono
+   senza la chiave dell'API.
+3. L'API nuova, che al primo avvio applica la migrazione `0024` (o il
+   numero che ha preso al merge):
+
+   ```bash
+   cd /root/shaperoute && git pull
+   cd deploy && docker compose up -d --build
+   docker compose logs api | grep -E "Accounts|report"
+   ```
+
+   «Each new report is emailed» dice che è accesa; «Reports are not
+   emailed» che manca qualcosa.
+4. La prova: dall'app un account di prova segnala un disegno di un altro
+   account di prova. Arriva l'email; «Hide» apre la pagina che chiede,
+   il pulsante nasconde, «Undo» rimette com'era.
+
+Per spegnerla basta togliere `SHAPEROUTE_REPORTS_TO` e `docker compose up
+-d`: le segnalazioni restano nel database come prima. Il nascosto resta
+nascosto finché non si rimostra, dal link o a mano (`DATABASE.md`,
+migrazione `0024`).
+
 ## Il registro delle richieste e le posizioni
 
 L'API può scrivere ogni richiesta di percorso in un file, per rifarla

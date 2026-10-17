@@ -157,6 +157,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-291 — Ogni segnalazione arriva per email, con un link che
+  nasconde** (ADR-0251; chiesto dall'utente il 2026-10-17 dopo la mail di
+  Apple sulla regola 1.2). Solo API: a ogni segnalazione nuova un'email a
+  chi gestisce MuW con il link «Hide» (firmato, 7 giorni, una volta, con
+  «Undo»); disegni, commenti e iscritti nascosti agli altri, non
+  all'autore. Migrazione `0024_hidden_content.sql`. Entra **dopo la
+  #502**, poi usa il suo `resend_email.py`; server dopo Apple, con la
+  privacy della parte B di TASK-284. File: `tasks/TASK-291.md`.
 - **TASK-290 — Le sagome di «PICTURES» che vengono bene in città**
   (aggiunta ad ADR-0246; richiesta dell'utente del 2026-10-16). Branch
   `feat/TASK-290-better-draw-pictures`. Le sagome provate come percorsi

@@ -43,6 +43,13 @@ from shaperoute_api.places import KEY_VARIABLE as PLACES_KEY
 from shaperoute_api.places import PlaceSearch
 from shaperoute_api.recommended import DEFAULT_DIR as CATALOG_DIR
 from shaperoute_api.recommended import RecommendedCatalog
+from shaperoute_api.report_email import TO_VARIABLE as REPORTS_TO
+from shaperoute_api.report_email import (
+    ReportConfigError,
+    ReportEmails,
+    ReportSetup,
+    install_report_email,
+)
 from shaperoute_api.request_log import DEFAULT_DIR, ON_VARIABLE, RequestLog, wanted
 from shaperoute_api.route_store import STORE_FOLDER, RouteStore
 from shaperoute_api.themed import StopFinder, ThemedJobs
@@ -144,7 +151,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     try:
         access = Access.from_env()
-    except AccessConfigError as exc:
+        report_setup = ReportSetup.from_env()
+    except (AccessConfigError, ReportConfigError) as exc:
         raise SystemExit(str(exc)) from None
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(message)s")
     # GET /places carries the position: not in the access log (ADR-0096).
@@ -212,6 +220,14 @@ def main(argv: Sequence[str] | None = None) -> None:
     install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)
+    # Each new report emailed to whoever runs MuW, with a link that hides
+    # (TASK-291): off without the database, Resend and the address.
+    report_emails = (
+        None
+        if database is None or report_setup is None
+        else ReportEmails(database, report_setup)
+    )
+    install_report_email(app, report_emails)
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     here = f"http://127.0.0.1:{args.port}"
     print(f"API docs on this PC: {here}/docs")
@@ -239,6 +255,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     else:
         done = ", ".join(migrated) if migrated else "none, schema up to date"
         print(f"Accounts in PostgreSQL ({DATABASE_VARIABLE}); migrations: {done}")
+    if report_emails is None:
+        print(f"Reports are not emailed ({REPORTS_TO} and the rest not set)")
+    else:
+        print(f"Each new report is emailed ({REPORTS_TO})")
     if request_log is None:
         print("Route requests are not recorded (--request-log records them)")
     else:
