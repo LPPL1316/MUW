@@ -169,6 +169,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `/users?q=` da 141–185 a 8–54 ms. Nessuna migrazione, nessun cambio
   all'app né a `compose.yaml`. Merge e server dopo Apple, con l'ok
   dell'utente. **PR #524**. File: `tasks/TASK-288.md`, «Parte B».
+- **TASK-290 — Le sagome di «PICTURES» che vengono bene in città**
+  (aggiunta ad ADR-0246; richiesta dell'utente del 2026-10-16). Branch
+  `feat/TASK-290-better-draw-pictures`. Le sagome provate come percorsi
+  veri in otto città, a 5 e a 10 km: tolte bici, cuore con freccia, ancora
+  e gelato (in città venivano macchie); aggiunte fungo, auto, maglietta,
+  paperella, stivale, casa, osso e coppa, scelte fra 29 provate. Sedici,
+  le più chiare prima, anche nelle righe di «Draw on the map» e del
+  risultato. Solo app e `tools/`; i nomi nuovi nelle cinque lingue
+  approvati dall'utente il 2026-10-16. **PR #520**. File: `tasks/TASK-290.md`.
+  **Chiuso**: in `main` con la #520 (`ff786f67`, 2026-10-16); vedi
+  «Completato».
 - **TASK-288 — Le ricerche dell'API più veloci** (ADR-0249, migrazione
   `0022_faster_searches.sql`; dall'analisi delle ricerche del 2026-10-16,
   sessione «MUW app performance e ricerca»). Branch
@@ -189,6 +200,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   server non comprime l'API (controllato il 2026-10-16); la domanda sul
   pool la porta il Coordinatore all'utente.
   File: `tasks/TASK-288.md`.
+  **Chiuso**: in `main` con la #518 (`2d8b4562`, 2026-10-16), su
+  richiesta dell'utente e col via del Coordinatore; vedi «Completato».
 - **TASK-287 — La ricerca dei percorsi più veloce, lato app** (ADR-0248;
   dall'analisi della lentezza del 2026-10-16, sessione «MUW app
   performance e ricerca»; le parti del server sono TASK-288 e TASK-289,
@@ -938,6 +951,33 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-290 (aggiunta ad ADR-0246, punti 8–10; richiesta
+  dell'utente del 2026-10-16): le sagome di «PICTURES» scelte dal
+  percorso, non dal disegno. 546 percorsi veri (le 12 sagome di TASK-280 e
+  29 nuove, in otto città a 5 e a 10 km, sulle zone del server copiate in
+  sola lettura), nessun errore. Tolte bici, cuore con freccia, ancora e
+  gelato; aggiunte fungo, auto, maglietta, paperella, stivale, casa, osso
+  e coppa. Sedici, le più chiare prima, anche in «Draw on the map» e
+  sotto il risultato (33 tessere). La `similarity` del motore non basta
+  per giudicare: è sopra 0,9 anche per un percorso illeggibile. Nomi e
+  sagome tolte approvati dall'utente. Mergiato come #520 (`ff786f67`);
+  su `preview` appena la CI di `main` è verde. Da provare sull'iPhone:
+  qualche sagoma nuova a 5 km. `tasks/TASK-290.md`.
+- **API** — TASK-288 (ADR-0249, migrazione `0022_faster_searches.sql`;
+  dall'analisi delle ricerche del 2026-10-16): le ricerche diverse dal
+  percorso rispondono prima, con le stesse risposte. gzip nell'API da
+  1 KB in su (il Caddy del server non comprime l'API, controllato dal
+  Coordinatore); Geoapify chiesto insieme in `/cities` e
+  `/nearby-cities`, 3 s e un secondo tentativo su timeout, 429 e 5xx;
+  `draw_examples` richiede un 503 invece di dire «not found»; «Find
+  friends» con `pg_trgm` e la foto piccola fatta una volta; feed e
+  profili leggono l'anteprima di 64 punti in `drawings.preview` (feed con
+  la posizione da 15 s a 0,75 s a pagina in locale); l'uso della sessione
+  scritto una volta l'ora. In `main`, **non ancora sul server**: la
+  migrazione va con il prossimo aggiornamento, dopo Apple e con l'ok
+  dell'utente; la #502 prenderà la 0023. Il pool di connessioni
+  (`psycopg_pool`, approvato dall'utente) è un passo a parte
+  (`tasks/TASK-288.md`). PR #518, `2d8b4562`.
 - **App** — TASK-287 (ADR-0248; dall'analisi della lentezza del
   2026-10-16): una sola coda per le richieste di percorso dell'app
   (`src/api/routeQueue.ts`). Prima quelle dell'utente («Draw», spostare

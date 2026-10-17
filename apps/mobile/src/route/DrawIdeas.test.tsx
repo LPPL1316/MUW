@@ -62,22 +62,22 @@ test("without a start there are no tours, the pictures stay", async () => {
   expect(screen.getByText("PICTURES")).toBeOnTheScreen();
 });
 
-test("the twelve pictures, each by its name; a tap chooses it, the chosen one shows", async () => {
+test("the sixteen pictures, each by its name; a tap chooses it, the chosen one shows", async () => {
   const onPicture = jest.fn();
   await render(
     <DrawIdeas
       where="near your start"
       onTour={jest.fn()}
-      chosen="anchor"
+      chosen="boot"
       onPicture={onPicture}
     />,
   );
   const row = within(screen.getByTestId("pictures"));
-  expect(row.getAllByRole("button")).toHaveLength(12);
+  expect(row.getAllByRole("button")).toHaveLength(16);
   for (const picture of SAMPLE_PICTURES) {
     expect(row.getByRole("button", { name: picture.name })).toBeOnTheScreen();
   }
-  expect(row.getByRole("button", { name: "Anchor" })).toBeSelected();
+  expect(row.getByRole("button", { name: "Boot" })).toBeSelected();
   expect(row.getByRole("button", { name: "Rocket" })).not.toBeSelected();
   await fireEvent.press(row.getByRole("button", { name: "Rocket" }));
   expect(onPicture).toHaveBeenCalledWith(

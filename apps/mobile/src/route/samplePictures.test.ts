@@ -6,24 +6,28 @@ import { SAMPLE_PICTURES, sampleOf, samplePicture } from "./samplePictures";
 import { useImageOutline } from "./useImageOutline";
 
 /**
- * The ready-made pictures of «Draw» (TASK-280): the twelve the user chose,
- * each with an outline as the API checks one (ADR-0069) and as the image
- * panel draws it.
+ * The ready-made pictures of «Draw» (TASK-280): the sixteen whose routes
+ * came out recognisable in eight cities (TASK-290), each with an outline as
+ * the API checks one (ADR-0069) and as the image panel draws it.
  */
 
-test("twelve pictures, in the order the user chose them", () => {
+test("sixteen pictures, the clearest first", () => {
   expect(SAMPLE_PICTURES.map((picture) => picture.name)).toEqual([
-    "Bike",
-    "Running shoe",
     "Dinosaur",
-    "Guitar",
+    "Mushroom",
+    "Car",
     "Eiffel Tower",
-    "Rocket",
-    "Heart with arrow",
-    "Anchor",
+    "T-shirt",
     "Plane",
-    "Ice cream",
+    "Boot",
+    "Guitar",
+    "House",
     "Balloon",
+    "Duck",
+    "Trophy",
+    "Bone",
+    "Rocket",
+    "Running shoe",
     "Leaf",
   ]);
 });
@@ -56,10 +60,10 @@ test.each(SAMPLE_PICTURES.map((picture) => [picture.id, picture]))(
 );
 
 test("a picture shown is known again, a photo is none of them", () => {
-  const [bike, rocket] = ["bike", "rocket"].map((id) =>
+  const [duck, rocket] = ["duck", "rocket"].map((id) =>
     SAMPLE_PICTURES.find((picture) => picture.id === id)!,
   );
-  expect(sampleOf(samplePicture(bike))).toBe("bike");
+  expect(sampleOf(samplePicture(duck))).toBe("duck");
   expect(sampleOf(samplePicture(rocket))).toBe("rocket");
   expect(samplePicture(rocket)).toBe(samplePicture(rocket));
   expect(sampleOf({ ...samplePicture(rocket) })).toBeNull();

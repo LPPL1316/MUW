@@ -6,12 +6,12 @@ import type { Picture } from "./pickImage";
 import outlines from "./samplePictures.json";
 
 /**
- * The ready-made pictures of «Draw» (TASK-280): twelve silhouettes drawn by
- * us, the user's choice of 2026-10-13, no picture of anyone else. Each comes
- * with the outline the engine traced from it once, by
- * `tools/sample_pictures.py`, which also draws them: the app shows it at
- * once, without asking the API, and «Draw route» sends it as it sends the
- * outline of a photo (ADR-0069).
+ * The ready-made pictures of «Draw» (TASK-280): sixteen silhouettes drawn by
+ * us, no picture of anyone else, those whose routes came out recognisable in
+ * eight cities (TASK-290). Each comes with the outline the engine traced from
+ * it once, by `tools/sample_pictures.py`, which also draws them: the app shows
+ * it at once, without asking the API, and «Draw route» sends it as it sends
+ * the outline of a photo (ADR-0069).
  */
 
 export type SamplePictureId = keyof typeof outlines;
@@ -26,32 +26,40 @@ export type SamplePicture = {
 
 // In the order of the row, as the tool writes them.
 const SOURCES: Record<SamplePictureId, ImageSourcePropType> = {
-  bike: require("../../assets/pictures/bike.png"),
-  running_shoe: require("../../assets/pictures/running_shoe.png"),
   dinosaur: require("../../assets/pictures/dinosaur.png"),
-  guitar: require("../../assets/pictures/guitar.png"),
+  mushroom: require("../../assets/pictures/mushroom.png"),
+  car: require("../../assets/pictures/car.png"),
   eiffel_tower: require("../../assets/pictures/eiffel_tower.png"),
-  rocket: require("../../assets/pictures/rocket.png"),
-  heart_with_arrow: require("../../assets/pictures/heart_with_arrow.png"),
-  anchor: require("../../assets/pictures/anchor.png"),
+  t_shirt: require("../../assets/pictures/t_shirt.png"),
   plane: require("../../assets/pictures/plane.png"),
-  ice_cream: require("../../assets/pictures/ice_cream.png"),
+  boot: require("../../assets/pictures/boot.png"),
+  guitar: require("../../assets/pictures/guitar.png"),
+  house: require("../../assets/pictures/house.png"),
   balloon: require("../../assets/pictures/balloon.png"),
+  duck: require("../../assets/pictures/duck.png"),
+  trophy: require("../../assets/pictures/trophy.png"),
+  bone: require("../../assets/pictures/bone.png"),
+  rocket: require("../../assets/pictures/rocket.png"),
+  running_shoe: require("../../assets/pictures/running_shoe.png"),
   leaf: require("../../assets/pictures/leaf.png"),
 };
 
 const NAMES: Record<SamplePictureId, string> = {
-  bike: tLater("Bike"),
-  running_shoe: tLater("Running shoe"),
   dinosaur: tLater("Dinosaur"),
-  guitar: tLater("Guitar"),
+  mushroom: tLater("Mushroom"),
+  car: tLater("Car"),
   eiffel_tower: tLater("Eiffel Tower"),
-  rocket: tLater("Rocket"),
-  heart_with_arrow: tLater("Heart with arrow"),
-  anchor: tLater("Anchor"),
+  t_shirt: tLater("T-shirt"),
   plane: tLater("Plane"),
-  ice_cream: tLater("Ice cream"),
+  boot: tLater("Boot"),
+  guitar: tLater("Guitar"),
+  house: tLater("House"),
   balloon: tLater("Balloon"),
+  duck: tLater("Duck"),
+  trophy: tLater("Trophy"),
+  bone: tLater("Bone"),
+  rocket: tLater("Rocket"),
+  running_shoe: tLater("Running shoe"),
   leaf: tLater("Leaf"),
 };
 
