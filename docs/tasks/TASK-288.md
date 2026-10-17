@@ -239,6 +239,28 @@ Dopo l'aggiornamento, con l'ok dell'utente:
 3. `GET /me` e `GET /users?q=` prima e dopo, con lo stesso script di
    TASK-288 (sotto, i tempi in locale).
 
+### Tempi (parte B)
+
+Il 2026-10-17, con lo script della parte A («Come si è misurato», sotto):
+lo stesso database con gli stessi dati, un giro senza pool e uno col pool
+dell'API (2–10), mediane di 30 richieste (5 per il feed), dal codice di
+questo branch. Il database è l'immagine x86 emulata del Mac: sul server i
+tempi sono più bassi, il guadagno simile.
+
+| Richiesta | Senza pool | Col pool |
+|---|---|---|
+| `GET /me` (solo il token) | 63 ms | 4 ms |
+| `GET /users?q=ma` | 184 ms | 54 ms |
+| `GET /users?q=ro` | 185 ms | 53 ms |
+| `GET /users?q=mar` | 149 ms | 14 ms |
+| `GET /users?q=lia` | 184 ms | 28 ms |
+| `GET /users?q=an_1` | 146 ms | 10 ms |
+| `GET /users?q=zzz` (nessuno) | 141 ms | 8 ms |
+| `GET /feed` | 205 ms | 38 ms |
+
+Col pool, 445 richieste di connessione servite da 2 connessioni, nessuna
+in attesa. Quel che resta di `/users?q=` è la ricerca e le foto piccole.
+
 ### Test
 
 `services/api/tests/test_connection_pool.py`, con PostgreSQL vero:

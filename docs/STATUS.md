@@ -165,7 +165,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con un token); ognuna torna come una sessione nuova (`DISCARD ALL`),
   anche dopo un errore; tutte occupate per 10 s danno `503
   accounts_unavailable` con `Retry-After`, non un'attesa senza fine; il
-  pool si chiude quando l'API si ferma. Nessuna migrazione, nessun cambio
+  pool si chiude quando l'API si ferma. In locale `/me` da 63 a 4 ms,
+  `/users?q=` da 141–185 a 8–54 ms. Nessuna migrazione, nessun cambio
   all'app né a `compose.yaml`. Merge e server dopo Apple, con l'ok
   dell'utente. File: `tasks/TASK-288.md`, «Parte B».
 - **TASK-288 — Le ricerche dell'API più veloci** (ADR-0249, migrazione
