@@ -292,6 +292,21 @@ Ognuno di questi è stato provato contro il codice senza la sua difesa
 senza la chiusura nel `lifespan` o in `main`, senza la regola del blocco
 annidato): fallisce.
 
+### Seguiti
+
+- **`strava.py` senza un blocco dentro l'altro**, in un task a parte
+  (numero dal Coordinatore, che l'ha chiesto il 2026-10-17). Oggi `send`
+  tiene la corsa bloccata (`SELECT … FOR UPDATE`) per tutto l'invio, e
+  dentro quel blocco `_access_token` ne apre un secondo per leggere il
+  token, con un altro `FOR UPDATE`, e `disconnect` un terzo dopo un
+  rifiuto. Col pool funziona per la regola del blocco annidato (una
+  connessione fuori dal pool), ma ogni invio paga una connessione nuova,
+  e tiene una connessione del pool per tutta la chiamata a Strava. Da
+  togliere: il `FOR UPDATE` durante la lettura del token, con il token
+  letto prima del lock sulla corsa o nella stessa connessione, senza
+  perdere «un invio della stessa corsa alla volta». Poi la regola del
+  blocco annidato in `db.py` resta solo come difesa.
+
 ### File toccati (parte B)
 
 ```
