@@ -8,7 +8,8 @@ l'ok dell'utente
 al merge)
 **ADR**: ADR-0249 · **Migrazione**: `0022_faster_searches.sql`, entrata
 prima della #502 (che prende la 0023)
-**Parte B** (il pool di connessioni): In revisione, PR #524; vedi «Parte B»
+**Parte B** (il pool di connessioni): Done, in `main` con la #524
+(`42699af4`, 2026-10-18), **non ancora sul server**; vedi «Parte B»
 
 ## Obiettivo
 
@@ -137,9 +138,11 @@ docs/tasks/TASK-288.md                                    (nuovo)
 
 ## Parte B — Il pool di connessioni
 
-**Stato**: In revisione (PR #524). Come le altre PR dell'API, ferma
-fino all'approvazione di Apple e all'ok dell'utente per il server
-**Branch**: `feat/TASK-288-b-connection-pool` · **ADR**: aggiunta ad
+**Stato**: Done · in `main` con la #524 (`42699af4`, 2026-10-18),
+mergiata dal Coordinatore su richiesta dell'utente. **Non ancora sul
+server**: la dipendenza nuova va con l'aggiornamento dopo l'approvazione di
+Apple, con l'ok dell'utente
+**Branch**: `feat/TASK-288-b-connection-pool` (mergiato) · **ADR**: aggiunta ad
 ADR-0249 · **Migrazione**: nessuna · **Dipendenza nuova**:
 `psycopg[binary,pool]` (`psycopg_pool` 3.3)
 
@@ -321,6 +324,22 @@ docs/DECISIONS.md
 docs/STATUS.md
 docs/tasks/TASK-288.md
 ```
+
+### Esito (parte B)
+
+In `main` con la #524 (`42699af4`, 2026-10-18), sulla testa `6aed7b30` con
+la CI 5/5 verde. L'ha mergiata il Coordinatore su richiesta dell'utente.
+L'API presta da 2 a 10 connessioni tenute aperte; ognuna torna come una
+sessione nuova, anche dopo un errore. Tutte occupate per 10 s danno un 503
+pulito con `Retry-After`. Il pool si chiude quando l'API si ferma. Un blocco
+annidato (`strava.py`) ha una connessione sua. In locale `/me` passa da
+63 a 4 ms, `/users?q=` da 141–185 a 8–54 ms, `/feed` da 205 a 38 ms. In
+locale la suite intera dell'API, con PostgreSQL, è verde (1525). Ogni
+criterio del Coordinatore ha il suo test. **Non ancora sul server**: serve
+un'immagine nuova con la dipendenza, all'aggiornamento dopo Apple e con
+l'ok dell'utente; poi va guardato quel che dice «Cosa guardare sul
+server». Seguito aperto: `strava.py` senza blocco annidato, già nella
+sessione «strava.py: send a run without a nested DB block».
 
 ## Fuori scope
 
