@@ -22,6 +22,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from psycopg_pool import PoolTimeout
 from route_engine.export_gpx import route_name, to_gpx
 from route_engine.image_outline import InvalidImageError
 from route_engine.models import (
@@ -151,6 +152,9 @@ UNKNOWN_JOB = (
     "Unknown route job: cancelled, finished more than 10 minutes ago, "
     "or the API was restarted."
 )
+DATABASE_BUSY = "The server is busy: try again in a moment."
+# When to ask again after it: as long as the pool waited (db.POOL_WAIT_S).
+DATABASE_BUSY_RETRY_S = 10
 
 
 def error(status: int, code: ErrorCode, message: str) -> JSONResponse:
@@ -286,6 +290,10 @@ def create_app(
         route_jobs.shutdown()
         if themed is not None:
             themed.shutdown()
+        # The database's open connections closed (TASK-288 B): before
+        # uvicorn gives SIGTERM back to the process.
+        if accounts is not None:
+            accounts.database.close()
 
     app = FastAPI(
         title="ShapeRoute API",
@@ -691,6 +699,15 @@ def create_app(
         ModelUnavailableError,
     ):
         app.add_exception_handler(known, engine_answer)
+
+    # Every connection of the pool busy for db.POOL_WAIT_S (TASK-288 B): the
+    # phone says to try again later, as for a server without a database.
+    @app.exception_handler(PoolTimeout)
+    def database_busy(_: Request, exc: PoolTimeout) -> JSONResponse:
+        log.warning("database: %s", exc)
+        answer = error(503, "accounts_unavailable", DATABASE_BUSY)
+        answer.headers["Retry-After"] = str(DATABASE_BUSY_RETRY_S)
+        return answer
 
     @app.exception_handler(StarletteHTTPException)
     def http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:

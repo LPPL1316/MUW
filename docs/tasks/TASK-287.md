@@ -145,3 +145,6 @@ del task era stato bloccato dal classificatore della modalità auto
   un «Draw» a piedi fino a 8 km, annullato e rifatto, deve ripartire in
   pochi secondi (l'avvio di Python), non dopo il calcolo di prima. Nel
   simulatore non si è potuto: l'API locale non ha zone per il telefono.
+
+
+**Provato sull'iPhone dall'utente il 2026-10-17** («provato, funziona tutto»), su `preview` dal gruppo `cd521a21` (`main` `ff786f67`).

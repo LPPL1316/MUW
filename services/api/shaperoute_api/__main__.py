@@ -165,6 +165,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     if database is not None:
         try:
             migrated = database.migrate()
+            # The requests share a few open connections (TASK-288 B).
+            database = database.pooled()
         except (psycopg.Error, MigrationError) as exc:
             raise SystemExit(f"Database ({DATABASE_VARIABLE}): {exc}") from None
     accounts = None if database is None else Accounts(database)
@@ -275,7 +277,12 @@ def main(argv: Sequence[str] | None = None) -> None:
     if args.lan:
         address = lan_address() or "<this PC's address>"
         print(f"From the phone, same Wi-Fi: http://{address}:{args.port}/health")
-    uvicorn.run(app, host=host, port=args.port)
+    try:
+        uvicorn.run(app, host=host, port=args.port)
+    finally:
+        # The app's end closes the pool; this, when the app never started.
+        if database is not None:
+            database.close()
 
 
 if __name__ == "__main__":
