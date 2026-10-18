@@ -14825,6 +14825,55 @@ un'estensione «trusted»). Chi cambia il modo in cui `preview` sceglie i
 punti cambia anche `drawing_preview`, con una migrazione nuova: il test
 dell'anteprima lo ricorda.
 
+**Aggiunta del 2026-10-16 (TASK-288 parte B, il pool di connessioni)**:
+l'alternativa scartata sopra è presa. L'utente l'ha approvata scrivendo al
+Coordinatore: «sì, aggiungi il pool di connessioni». Le scelte tecniche
+sono dell'agente su delega dell'utente, con le condizioni e l'ok del
+Coordinatore; numeri e ragionamento in `tasks/TASK-288.md`, «Parte B».
+
+1. **`psycopg_pool`** (`psycopg[binary,pool]`, il pool ufficiale di
+   psycopg 3), dipendenza nuova. `Database.pooled()` apre il pool,
+   `Database.connect()` presta una connessione con lo stesso contratto di
+   prima (un blocco, una transazione); senza pool apre la sua, come
+   prima. L'API lo apre dopo le migrazioni.
+2. **2–10 connessioni, 10 s di attesa**, `max_idle` 10 min, `max_lifetime`
+   1 h: un processo, 40 thread, 4 vCPU divise col motore (oltre ~9 query
+   insieme PostgreSQL fa solo la fila), ~100 MB al più, un decimo di
+   `max_connections`. `draw_examples` passa dall'API in HTTP: anche con
+   lui PostgreSQL resta sotto 20 connessioni su 100.
+3. **Una sessione nuova a ogni prestito**: `DISCARD ALL` alla
+   riconsegna, dopo il commit o il rollback del blocco (il pool annulla
+   una transazione lasciata aperta). Per questo **niente prepared
+   statement** (`prepare_threshold=None`): dopo un secondo `DISCARD ALL`
+   psycopg userebbe istruzioni che PostgreSQL ha già tolto.
+4. **Controllo al prestito** (una query vuota): una connessione chiusa da
+   un riavvio di PostgreSQL si sostituisce senza far fallire la richiesta.
+5. **Un blocco dentro un altro nello stesso thread** (`strava.py`: la
+   corsa bloccata mentre si legge il token) apre una connessione sua,
+   fuori dal pool, come prima: dal pool, dieci invii insieme si
+   aspetterebbero a vicenda fino all'errore.
+6. **Tutte occupate per 10 s**: `503 accounts_unavailable` con
+   `Retry-After: 10` e una riga WARNING, non un 500 né un'attesa senza
+   fine. Codice che l'app conosce già: mostra il suo testo tradotto.
+7. **Chiusura** nel `lifespan` dell'app, prima che uvicorn restituisca il
+   SIGTERM, e nel `finally` di `main` se l'app non è partita.
+
+**Alternative scartate**: aprire il pool nel `lifespan` (chi non usa il
+`lifespan`, come i test con un uvicorn finto, non avrebbe connessioni; e
+l'API deve fermarsi subito se il database non risponde); tenere i prepared
+statement e togliere a mano solo SET e tabelle temporanee (`RESET ALL`,
+`DISCARD TEMP`, …: più comandi da tenere allineati a PostgreSQL, per un
+guadagno che con una o due esecuzioni per query non c'è); un codice
+d'errore nuovo per «occupato» (cambierebbe il contratto e l'app);
+riscrivere `strava.py` perché non apra un blocco dentro l'altro (il lock
+sulla corsa serve davvero: è un altro task, se mai); un pool asincrono
+(gli endpoint sono sincroni).
+
+**Conseguenze**: sul server serve un'immagine nuova (la dipendenza si
+installa da `pyproject.toml`, il `Dockerfile` non cambia); nessuna
+migrazione. Un codice nuovo che apre un blocco dentro un altro funziona
+come prima, ma paga la connessione nuova: meglio non farlo.
+
 ## ADR-0250 — Una riga di tempi per ogni job di percorso, e il bytecode nell'immagine
 **Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega dell'utente
 (TASK-289; prepara la misura di TASK-276, dove l'utente ha scelto il
