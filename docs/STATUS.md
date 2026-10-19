@@ -157,6 +157,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-292 — Scegliere la partenza sulla mappa** (ADR-0252; richiesta
+  dell'utente del 2026-10-18, che ha scelto il mirino fisso fra quattro
+  proposte). Branch `feat/TASK-292-start-on-map`. Sotto la ricerca di
+  «Draw» il link «Choose on the map» apre la mappa con il segnaposto
+  fermo al centro; «Start here» rende il punto la partenza (origine
+  `map`, senza nome), «←» non cambia niente. Solo app, non nella 1.0;
+  due testi nuovi nelle cinque lingue. File: `tasks/TASK-292.md`.
+
 - **TASK-290 — Le sagome di «PICTURES» che vengono bene in città**
   (aggiunta ad ADR-0246; richiesta dell'utente del 2026-10-16). Branch
   `feat/TASK-290-better-draw-pictures`. Le sagome provate come percorsi

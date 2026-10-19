@@ -32,3 +32,13 @@ test("the search shows for another place, or when the GPS cannot help", () => {
   expect(showsSearch("gps", { status: "denied" })).toBe(true);
   expect(showsSearch("gps", { status: "unavailable" })).toBe(true);
 });
+
+test("a point chosen on the map starts as a place does, with no name (TASK-292)", () => {
+  const pinned = { point: [46.07, 11.12] as [number, number], label: null };
+  expect(chooseStart("place", gps, pinned)).toEqual({
+    point: [46.07, 11.12],
+    source: "map",
+  });
+  expect(chooseStart("gps", { status: "denied" }, pinned)?.source).toBe("map");
+  expect(chooseStart("gps", gps, pinned)?.source).toBe("gps");
+});

@@ -14888,3 +14888,55 @@ mette insieme la preparazione e l'attesa delle partenze vicine. Sul
 server il bytecode arriva solo con un'immagine nuova (dopo Apple e con
 l'ok dell'utente). `engine.zip` è rifatto, perché `jobs.py` e `images.py`
 sono nel motore del telefono.
+
+## ADR-0252 — La partenza scelta sulla mappa, con il segnaposto fermo al centro
+
+**Stato**: Attiva · 2026-10-18 · il come lo ha scelto l'utente; i punti
+tecnici sono decisi dall'agente su delega dell'utente (TASK-292)
+
+**Contesto**: la partenza di «Draw» era il GPS («My position») o un luogo
+cercato per nome («Another place», ADR-0080, ADR-0095). Chi vuole partire
+da un punto senza indirizzo (un parco, un incrocio, l'altra riva) doveva
+indovinare una via vicina. L'utente il 2026-10-18: «scegliere dalla mappa
+un punto da cui partire, senza scrivere la via».
+
+**Decisione**:
+
+1. **Il come è dell'utente** (fra quattro proposte: mirino fisso, tocco
+   sul punto, terzo pulsante «Map», pressione lunga sul risultato): un
+   link **«Choose on the map»** sotto la ricerca di «Another place»
+   apre la mappa a tutto schermo con il **segnaposto fermo al centro**.
+   Un dito sposta la mappa sotto di lui, «Start here» prende il punto.
+   La riga di stato dice «Starting from a point on the map.».
+2. **Una terza origine della partenza**, `map`, accanto a `gps` e
+   `search` (`startMode.ts`). Il punto sta nello stesso posto del luogo
+   cercato (`ChosenPlace` con `label: null`), quindi vale come lui: resta
+   anche se il GPS risponde e lo cancella un nuovo luogo cercato o «My
+   position». Nessun nome viene chiesto in rete: dove serve un nome
+   («near {place}» nei giri, il nome sulla tela di «Draw on the map», il
+   nome di un preferito) un punto della mappa si comporta come il GPS.
+3. **La mappa è sempre la stessa** (`MapView`, mai una seconda WebView),
+   in uno schermo nuovo dell'app, `pickStart`, come la tela di TASK-281.
+   La pagina riceve `setPick`: nasconde il segnaposto della partenza e ne
+   mette uno uguale (`POSITION_COLOR`) al centro della mappa. Lo tiene lì
+   a ogni `move`, e a ogni `moveend` dice all'app il centro con il
+   messaggio `centre` che esisteva già (TASK-281). `MapView` lo passa a
+   `onCentre` mentre si sceglie, a `onCanvas` altrimenti.
+4. **Il segnaposto è un `Marker` di MapLibre e non una vista di React
+   Native sopra la mappa**: è identico a quello della partenza, la sua
+   punta è esattamente il centro della mappa, e la scheda sotto la mappa
+   non la copre.
+5. **Mentre si sceglie l'app non manda una partenza alla mappa**
+   (`start` nullo): un GPS che risponde in quel momento non sposta la
+   mappa sotto il dito. All'apertura la mappa si inquadra sulla partenza
+   di prima, a zoom 15 e a nord in su; senza partenza resta dov'è.
+   Anche il percorso di prima sparisce, come sulla tela.
+
+**Alternative scartate**: le altre tre dell'utente; un nome per il punto
+(geocodifica inversa con Geoapify o Photon: rete, una chiamata in più,
+un nome a volte sbagliato); un segnaposto di React Native sopra la
+WebView (la punta dipende dalla scheda sotto e dal bordo della mappa).
+
+**Conseguenza**: due testi nuovi nelle cinque lingue; la riga di stato
+resta in inglese come le sue vicine, che sono «il resto di `App.tsx`» di
+TASK-210. Solo app: nessun motore, API o migrazione; non entra nella 1.0.

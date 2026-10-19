@@ -1243,6 +1243,44 @@ export function buildMapPage(language: Language = appLanguage()): string {
       });
       map.getCanvasContainer().style.touchAction = "";
     }
+    // Choosing the start on the map (TASK-292, ADR-0252): the start's pin
+    // is hidden and one like it stays in the middle of the map, which the
+    // fingers move under it as always. The map is framed on the start,
+    // north up, and the app is told where the middle is each time it stops.
+    var picking = null;
+    function setPick(on) {
+      if (on && !picking) {
+        var target = marker ? marker.getLngLat() : map.getCenter();
+        if (marker) {
+          marker.getElement().style.visibility = "hidden";
+        }
+        picking = new maplibregl.Marker({ color: ${toScript(POSITION_COLOR)} })
+          .setLngLat(target)
+          .addTo(map);
+        // Without a start the map stays where it is.
+        if (marker) {
+          wanted = 0;
+          map.easeTo({ center: target, zoom: ${START_ZOOM}, bearing: 0, duration: 500 });
+        }
+        post({ type: "centre", lngLat: [target.lng, target.lat] });
+      } else if (!on && picking) {
+        picking.remove();
+        picking = null;
+        if (marker) {
+          marker.getElement().style.visibility = "";
+        }
+      }
+    }
+    map.on("move", function () {
+      if (picking) {
+        picking.setLngLat(map.getCenter());
+      }
+    });
+    map.on("moveend", function () {
+      if (picking) {
+        tellCentre();
+      }
+    });
     window.shaperoute = {
       receive: function (message) {
         if (message.type === "setPosition") {
@@ -1374,6 +1412,8 @@ export function buildMapPage(language: Language = appLanguage()): string {
           setCanvas(message);
         } else if (message.type === "clearCanvas") {
           clearCanvas();
+        } else if (message.type === "setPick") {
+          setPick(message.on);
         }
       },
     };

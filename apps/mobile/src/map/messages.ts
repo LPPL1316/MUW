@@ -62,7 +62,11 @@ export type ToPage =
   /** «Draw on the map» (TASK-281): what fingers do on the map, and the
    * figure on it (`setCanvas`). */
   | ({ type: "setCanvas" } & CanvasOnPage)
-  | { type: "clearCanvas" };
+  | { type: "clearCanvas" }
+  /** Choosing the start on the map (TASK-292): with `on`, the start's pin
+   * stays in the middle of the map, which moves under it, and the page
+   * tells where the middle is (`centre`). */
+  | { type: "setPick"; on: boolean };
 
 /** What fingers do on the map of «Draw on the map» (TASK-281): «Draw», one
  * finger draws and the map keeps still; «Move», one finger moves the
@@ -108,7 +112,8 @@ export type FromPage =
    * now, and how many times bigger. While two fingers still size it
    * `done` is false, for the distance on screen. */
   | { type: "figure"; centre: LngLat; factor: number; done: boolean }
-  /** The middle of the map, where a figure is put (TASK-281). */
+  /** The middle of the map, where a figure is put (TASK-281), or the
+   * point chosen as the start (TASK-292). */
   | { type: "centre"; lngLat: LngLat }
   | { type: "error"; message: string };
 
@@ -291,6 +296,16 @@ export function setCanvas(canvas: {
 /** The map is the map again: fingers move it, and no figure is on it. */
 export function clearCanvas(): ToPage {
   return { type: "clearCanvas" };
+}
+
+/**
+ * Choosing the start on the map (TASK-292): the map is framed on the start,
+ * north up, and the start's pin stays in its middle while fingers move the
+ * map under it; the page tells the app where the middle is each time the
+ * map stops (`centre`). `false` puts the pin back on the start.
+ */
+export function setPick(on: boolean): ToPage {
+  return { type: "setPick", on };
 }
 
 /** JavaScript that hands a message to the page (see `mapPage.ts`). */

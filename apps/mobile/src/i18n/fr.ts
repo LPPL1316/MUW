@@ -1219,4 +1219,9 @@ export const FR: Table = {
   "This line crosses itself. Draw it again without crossing it.":
     "Cette ligne se croise elle-même. Redessine-la sans la croiser.",
   "+ photo": "+ photo",
+
+  // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
+  "Choose on the map": "Choisir sur la carte",
+  "Move the map to put the pin where you want to start.":
+    "Déplace la carte pour mettre l'épingle là où tu veux partir.",
 };

@@ -19,7 +19,9 @@ import { ActivityCard } from "./src/activities/ActivityCard";
 import { type Drawn, sameLine } from "./src/activities/recordedRun";
 import { RunEnd } from "./src/activities/RunEnd";
 import { apiUrl } from "./src/api/apiUrl";
+import { PickStart } from "./src/location/PickStart";
 import {
+  type ChosenPlace,
   chooseStart,
   showsSearch,
   type Start,
@@ -157,8 +159,8 @@ const API_URL = apiUrl();
  * turn-by-turn along it (TASK-049), the run with its score (TASK-113), the
  * best routes near the start (TASK-126), a run without a route with its
  * end (TASK-149), what runners publish (TASK-154, then TASK-118), the
- * account's own profile (TASK-278), and the map to draw a figure on
- * (TASK-281). */
+ * account's own profile (TASK-278), the map to draw a figure on
+ * (TASK-281), and the map to choose the start on (TASK-292). */
 type Screen =
   | "choose"
   | "map"
@@ -169,7 +171,8 @@ type Screen =
   | "runFinish"
   | "feed"
   | "profile"
-  | "canvas";
+  | "canvas"
+  | "pickStart";
 
 /** The screens that are pages side by side, left to right, one swipe apart
  * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
@@ -379,7 +382,10 @@ function MuW() {
   // The size of the first maps of the phone while they download (TASK-214).
   const firstMaps = usePhoneZones(position, API_URL);
   const [startMode, setStartMode] = useState<StartMode>("gps");
-  const [place, setPlace] = useState<Place | null>(null);
+  // A place searched for, or a point chosen on the map (TASK-292).
+  const [place, setPlace] = useState<ChosenPlace | null>(null);
+  // While the start is chosen on the map: the point under the pin.
+  const [pickedCentre, setPickedCentre] = useState<LatLon | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   // «Retry» under «Draw» mounts the map again (TASK-259): its own «Retry»
   // is hidden there. If it fails again, it says so again.
@@ -623,8 +629,9 @@ function MuW() {
   // A route whose shape is turned turns the map, so the drawing is upright
   // (TASK-232): choosing it, running it and at its end.
   const canvasOn = screen === "canvas";
+  const pickOn = screen === "pickStart";
   const turned = useTurnedMap(
-    reviewing || running || freeFinishing || theming || canvasOn
+    reviewing || running || freeFinishing || theming || canvasOn || pickOn
       ? null
       : exploring
         ? explored.status === "done"
@@ -851,6 +858,22 @@ function MuW() {
     setScreen("canvas");
   }
 
+  /** «Choose on the map» (TASK-292): the map of the start, with the pin
+   * in its middle; the map says where the middle is. */
+  function onOpenPick() {
+    Keyboard.dismiss();
+    setPickedCentre(null);
+    setScreen("pickStart");
+  }
+
+  /** «Start here»: the point under the pin is the start, as a place
+   * searched for is, and «Draw» is back. */
+  function onPicked(point: LatLon) {
+    setPlace({ point, label: null });
+    setStartMode("place");
+    setScreen("choose");
+  }
+
   /** «Draw route» on the map: the route of the figure, shown as one of
    * «Draw»; «←» comes back to the figure as it was. */
   function onDrawCanvas() {
@@ -898,6 +921,11 @@ function MuW() {
   }
 
   function onBack() {
+    // The start chosen on the map stays as it was (TASK-292).
+    if (pickOn) {
+      setScreen("choose");
+      return;
+    }
     if (reviewing) {
       if (activity !== null) {
         onActivityList();
@@ -966,6 +994,7 @@ function MuW() {
         active={
           screen === "map" ||
           canvasOn ||
+          pickOn ||
           navigating ||
           finishing ||
           running ||
@@ -999,17 +1028,21 @@ function MuW() {
             key={mapTries}
             style={styles.map}
             start={
-              running
-                ? freeStart
-                : freeFinishing
-                  ? (freeFinished.line[0] ?? null)
-                  : theming
-                    ? themed.state.status === "done"
-                      ? themed.state.result.centre
-                      : null
-                    : exploring
-                      ? explored.route.start
-                      : (exploreRun?.points[0] ?? start?.point ?? null)
+              // While the start is chosen on the map the pin is the
+              // page's: a GPS that answers does not move the map (TASK-292).
+              pickOn
+                ? null
+                : running
+                  ? freeStart
+                  : freeFinishing
+                    ? (freeFinished.line[0] ?? null)
+                    : theming
+                      ? themed.state.status === "done"
+                        ? themed.state.result.centre
+                        : null
+                      : exploring
+                        ? explored.route.start
+                        : (exploreRun?.points[0] ?? start?.point ?? null)
             }
             stops={
               theming && themed.state.status === "done"
@@ -1029,7 +1062,7 @@ function MuW() {
                       ? explored.status === "done"
                         ? explored.detail.points
                         : null
-                      : canvasOn
+                      : canvasOn || pickOn
                         ? null
                         : // A shape left elsewhere stays there while it is drawn.
                           (followed?.points ?? move.left?.points ?? null)
@@ -1044,7 +1077,7 @@ function MuW() {
                       explored.status === "done"
                       ? (explored.result.walks ?? null)
                       : null
-                    : canvasOn
+                    : canvasOn || pickOn
                       ? null
                       : (followedWalks ?? move.left?.walks ?? null)
             }
@@ -1056,7 +1089,7 @@ function MuW() {
                     explored.status === "done"
                     ? (explored.result.on_foot ?? null)
                     : null
-                  : canvasOn
+                  : canvasOn || pickOn
                     ? null
                     : (followedOnFoot ?? move.left?.onFoot ?? null)
             }
@@ -1107,13 +1140,18 @@ function MuW() {
             // «Draw on the map» (TASK-281): the figure, and the fingers.
             canvas={canvasOn ? mapDraw.canvas : null}
             onCanvas={mapDraw.onCanvas}
+            // «Choose on the map» (TASK-292): the pin in the middle.
+            picking={pickOn}
+            onCentre={setPickedCentre}
             onError={setMapError}
             // A run of «My activities» takes the map from whatever was on it.
             {...(reviewing ? reviewed : null)}
           />
         }
       >
-        {canvasOn ? (
+        {pickOn ? (
+          <PickStart centre={pickedCentre} onStart={onPicked} />
+        ) : canvasOn ? (
           <DrawOnMap
             mode={mapDraw.mode}
             onMode={mapDraw.setMode}
@@ -1367,6 +1405,7 @@ function MuW() {
                   searchHint={
                     sportActivity === "paddling" ? SPOT_SEARCH_HINT : undefined
                   }
+                  onPickOnMap={onOpenPick}
                   mapError={mapError}
                   onMapRetry={() => {
                     setMapError(null);
@@ -1527,6 +1566,10 @@ function statusText(
   }
   if (start?.source === "search") {
     return `Starting from ${start.label}.`;
+  }
+  // No name for it: nothing is asked of the network (TASK-292).
+  if (start?.source === "map") {
+    return "Starting from a point on the map.";
   }
   if (mode === "place") {
     return "Search for a city or street to start from.";
