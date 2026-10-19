@@ -109,9 +109,33 @@ docs/STATUS.md
 docs/tasks/TASK-291.md
 ```
 
+## La privacy, approvata dall'utente
+
+Testo inglese approvato dall'utente il 2026-10-19 («sì privacy»). Entra
+nella privacy dell'app (`apps/mobile/src/about/content/*.ts`, poi `node
+site/tools/make_privacy.mjs`) con la **parte B di TASK-284**, tradotto
+nelle altre quattro lingue, **prima** di accendere l'email sul server.
+
+Una sezione nuova **«Reports»**:
+
+> When you report a drawing, a comment or a profile, we keep who reported
+> what, the reason and when. The person who runs MuW receives it by email
+> and may hide what was reported from the other members. Nothing is
+> deleted, and its author still sees it. Your report is never shown to
+> the author.
+
+Una riga nuova in **«Others who receive data»**:
+
+> Resend sends MuW's emails. For a report it carries to the person who
+> runs MuW what was reported, its text, the reason, and the usernames of
+> who reported it and who wrote it.
+
+Se la parte B di TASK-284 scrive già una riga su Resend per l'email di
+ritorno, le due si uniscono in una sola riga «Resend sends MuW's emails…».
+
 ## Fuori scope
 
-- La privacy: con la parte B di TASK-284 e il sì dell'utente sul testo.
+- Scrivere la privacy: la fa la parte B di TASK-284, con il testo sopra.
 - Un pannello per leggere le segnalazioni, o cancellare un account.
 - Avvisare l'autore che un suo contenuto è nascosto.
 - Testi nell'app: nessuno cambia.
