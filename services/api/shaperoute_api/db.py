@@ -53,10 +53,11 @@ POOL_WAIT_S = 10.0
 # is replaced after an hour.
 POOL_MAX_IDLE_S = 10 * 60.0
 POOL_MAX_LIFETIME_S = 60 * 60.0
-# The pools this thread holds a connection of (Database.connect). Sending a
-# run to Strava keeps the run locked while it reads the token, in a second
-# block: from the pool, ten such requests would each wait for a second
-# connection that none of them gives back.
+# The pools this thread holds a connection of (Database.connect). A block
+# opened inside another would, from the pool, wait for a second connection
+# while it holds the first: ten such requests would wait on each other. No
+# API code does it since TASK-293 (Strava did; test_strava.py watches it):
+# this stays as a defence.
 _holding = threading.local()
 
 DictConnection = psycopg.Connection[DictRow]

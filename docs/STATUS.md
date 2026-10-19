@@ -157,6 +157,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-293 — «Send to Strava» senza un blocco del database dentro
+  l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
+  Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
+  `send` legge la corsa senza lock, poi il token nel suo blocco (rinnovo
+  sempre uno alla volta), poi blocca la corsa per il caricamento come
+  prima; un token rifiutato si rinnova fuori dal blocco della corsa. Una
+  connessione del pool alla volta, nessuna fuori dal pool. Una sonda su
+  `Database.connect` in `test_strava.py` fa fallire ogni blocco annidato;
+  due invii della stessa corsa insieme caricano un solo file. Solo API,
+  nessuna migrazione; il server dopo Apple, con l'ok dell'utente. File:
+  `tasks/TASK-293.md`.
 - **TASK-292 — Scegliere la partenza sulla mappa** (ADR-0252; richiesta
   dell'utente del 2026-10-18, che ha scelto il mirino fisso fra quattro
   proposte). Branch `feat/TASK-292-start-on-map`. Sotto la ricerca di

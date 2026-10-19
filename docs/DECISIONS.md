@@ -14874,6 +14874,36 @@ installa da `pyproject.toml`, il `Dockerfile` non cambia); nessuna
 migrazione. Un codice nuovo che apre un blocco dentro un altro funziona
 come prima, ma paga la connessione nuova: meglio non farlo.
 
+**Aggiunta del 2026-10-18 (TASK-293, «Send to Strava» senza un blocco
+dentro l'altro)**: l'alternativa scartata «riscrivere `strava.py`» è
+presa, come task a sé chiesto dal Coordinatore; deciso dall'agente su
+delega dell'utente, con la condizione del Coordinatore che la stessa corsa
+non vada mai a Strava due volte. `StravaRuns.send` apre ora un blocco alla
+volta:
+
+1. **Lo stato della corsa, senza lock**: un 404 prima di un 409, e una
+   corsa già su Strava senza un post nuovo non chiede niente, come prima.
+2. **Il token nel suo blocco**: il rinnovo resta sotto `FOR UPDATE` su
+   `strava_accounts`, uno alla volta per account (ADR-0156).
+3. **La corsa nel suo blocco**, con `FOR UPDATE` come prima, per tutto il
+   caricamento: un invio della stessa corsa alla volta. Un token rifiutato
+   esce dal blocco senza aver scritto niente; il rinnovo, e dopo due
+   rifiuti `disconnect`, si fanno fuori, e l'invio ricomincia dalla corsa.
+
+Il punto 5 dell'aggiunta della parte B resta in `db.py` solo come difesa:
+nessun codice dell'API apre più un blocco dentro un altro, e
+`test_strava.py` lo guarda con una sonda su `Database.connect`.
+
+**Alternative scartate**: il token letto nella stessa connessione della
+corsa (un rinnovo cambia il refresh token di Strava e va confermato da
+solo, anche se il caricamento poi fallisce: nella transazione della corsa
+si perderebbe con il rollback); il token letto prima di tutto (una corsa
+che non c'è diventerebbe un 409 invece di un 404 per chi non ha collegato
+Strava); togliere il lock della corsa durante la chiamata a Strava (il
+lock tiene una connessione del pool per un caricamento, che è raro; senza,
+servirebbe uno stato «sto caricando» sulla corsa con una scadenza per chi
+cade a metà: una migrazione e un'altra scelta).
+
 ## ADR-0250 — Una riga di tempi per ogni job di percorso, e il bytecode nell'immagine
 **Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega dell'utente
 (TASK-289; prepara la misura di TASK-276, dove l'utente ha scelto il
