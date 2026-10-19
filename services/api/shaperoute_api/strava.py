@@ -465,7 +465,9 @@ class StravaRuns:
         raise AccountError(409, "http_error", NOT_CONNECTED)
 
     def _authorized(self, user_id: int, ask: Callable[[str], T]) -> T:
-        """`ask` with the account's token."""
+        """`ask` with the account's token. The token is read, and renewed,
+        in a block of its own before `ask` runs: `ask` may then open its
+        block, never one inside another (TASK-293)."""
         try:
             return ask(self._access_token(user_id))
         except StravaRefusedError:
@@ -482,8 +484,9 @@ class StravaRuns:
 
     # Sending a run
 
-    def sent(self, user_id: int, key: str) -> StravaActivityBody:
-        """What is known of a run on Strava; Strava is not asked."""
+    def _known(self, user_id: int, key: str) -> DictRow:
+        """A run's state on Strava, with no lock; 404 for a run the account
+        does not have."""
         with self.database.connect() as conn:
             run = conn.execute(
                 f"SELECT {RUN_STATE} FROM runs WHERE user_id = %s AND key = %s",
@@ -491,6 +494,11 @@ class StravaRuns:
             ).fetchone()
         if run is None:
             raise HTTPException(404, UNKNOWN_ACTIVITY)
+        return run
+
+    def sent(self, user_id: int, key: str) -> StravaActivityBody:
+        """What is known of a run on Strava; Strava is not asked."""
+        run = self._known(user_id, key)
         return _activity(run["strava_status"], run["strava_activity_id"])
 
     def send(
@@ -509,42 +517,73 @@ class StravaRuns:
         goes with the upload, and on a run already sent replaces the text
         under its name on Strava."""
         with self._answering():
-            first: Upload | None = None
-            with self.database.connect() as conn:
-                # One sending of a run at a time: a second one waits here,
-                # then finds what the first did.
-                run = conn.execute(
-                    f"SELECT {RUN_TO_SEND} FROM runs"
-                    " WHERE user_id = %s AND key = %s FOR UPDATE",
-                    (user_id, key),
-                ).fetchone()
-                if run is None:
-                    raise HTTPException(404, UNKNOWN_ACTIVITY)
-                if run["strava_status"] == "sent":
-                    posted = typed_description(post)
-                    if posted is not None and run["strava_activity_id"]:
-                        self._describe(user_id, run, description, posted)
-                    return _activity("sent", run["strava_activity_id"])
-                upload_id: int | None = run["strava_upload_id"]
-                if upload_id is None:
-                    first = self._upload(user_id, key, run, name, description, post)
-                    upload_id = first.id
-                    if upload_id is not None:
-                        conn.execute(
-                            "UPDATE runs SET strava_status = 'processing',"
-                            " strava_upload_id = %s WHERE id = %s",
-                            (upload_id, run["id"]),
-                        )
-            return self._follow(user_id, run["id"], upload_id, first)
+            # First with no lock: an unknown run is a 404 before the token
+            # is a 409, and a run on Strava with nothing new for it asks
+            # Strava nothing. A run sent stays sent.
+            known = self._known(user_id, key)
+            posted = typed_description(post)
+            if known["strava_status"] == "sent" and (
+                posted is None or not known["strava_activity_id"]
+            ):
+                return _activity("sent", known["strava_activity_id"])
+            # The token in its block, then the run in its own (TASK-293). A
+            # token Strava refuses is renewed once the run's block is left,
+            # and the sending starts again from the run.
+            return self._authorized(
+                user_id,
+                lambda token: self._send_with(
+                    token, user_id, key, name, description, posted
+                ),
+            )
+
+    def _send_with(
+        self,
+        token: str,
+        user_id: int,
+        key: str,
+        name: str | None,
+        description: str | None,
+        posted: str | None,
+    ) -> StravaActivityBody:
+        """The sending with `token`, the run locked. A refused token comes
+        out of the block as StravaRefusedError, with nothing written."""
+        first: Upload | None = None
+        with self.database.connect() as conn:
+            # One sending of a run at a time: a second one waits here, then
+            # finds what the first did.
+            run = conn.execute(
+                f"SELECT {RUN_TO_SEND} FROM runs"
+                " WHERE user_id = %s AND key = %s FOR UPDATE",
+                (user_id, key),
+            ).fetchone()
+            if run is None:
+                raise HTTPException(404, UNKNOWN_ACTIVITY)
+            if run["strava_status"] == "sent":
+                if posted is not None and run["strava_activity_id"]:
+                    self._describe(token, run, description, posted)
+                return _activity("sent", run["strava_activity_id"])
+            upload_id: int | None = run["strava_upload_id"]
+            if upload_id is None:
+                first = self._upload(token, key, run, name, description, posted)
+                upload_id = first.id
+                if upload_id is not None:
+                    conn.execute(
+                        "UPDATE runs SET strava_status = 'processing',"
+                        " strava_upload_id = %s WHERE id = %s",
+                        (upload_id, run["id"]),
+                    )
+        # The run's block is left: following the upload reads the token
+        # again, in a block of its own.
+        return self._follow(user_id, run["id"], upload_id, first)
 
     def _upload(
         self,
-        user_id: int,
+        token: str,
         key: str,
         run: DictRow,
         typed: str | None,
         typed_words: str | None,
-        post: str | None = None,
+        posted: str | None,
     ) -> Upload:
         name = typed_name(typed) or activity_name(run)
         gpx = run_gpx(
@@ -555,31 +594,20 @@ class StravaRuns:
         )
         # A run that followed no route drew nothing: it was only recorded.
         description = strava_description(
-            typed_description(typed_words) or run["described"],
-            run["drawn"],
-            typed_description(post),
+            typed_description(typed_words) or run["described"], run["drawn"], posted
         )
         sport_type = SPORT_TYPES[run["activity"]]
-        return self._authorized(
-            user_id,
-            lambda token: self.strava.upload(
-                token, gpx, key, name, description, sport_type
-            ),
-        )
+        return self.strava.upload(token, gpx, key, name, description, sport_type)
 
     def _describe(
-        self, user_id: int, run: DictRow, typed_words: str | None, posted: str
+        self, token: str, run: DictRow, typed_words: str | None, posted: str
     ) -> None:
         """The text under the name of a run already on Strava, made again
         with its post on top (TASK-231). 422 when Strava does not let it."""
         description = strava_description(
             typed_description(typed_words) or run["described"], run["drawn"], posted
         )
-        activity_id: int = run["strava_activity_id"]
-        if not self._authorized(
-            user_id,
-            lambda token: self.strava.describe(token, activity_id, description),
-        ):
+        if not self.strava.describe(token, run["strava_activity_id"], description):
             raise AccountError(422, "invalid_request", NOT_DESCRIBED)
 
     def _look(self, user_id: int, upload_id: int) -> Upload | None:
