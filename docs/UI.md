@@ -1296,8 +1296,8 @@ telefono dell'account: con un percorso o senza.
 
 ## La partenza
 
-È un punto `(lat, lon)` con la sua origine, `gps` o `search`, e diventa lo
-`start` del `RouteRequest`.
+È un punto `(lat, lon)` con la sua origine, `gps` o `search` (o `map`,
+dal TASK-292), e diventa lo `start` del `RouteRequest`.
 
 | Situazione | Riga di stato | Cosa c'è in più |
 |---|---|---|
@@ -1307,6 +1307,7 @@ telefono dell'account: con un percorso o senza.
 | GPS spento, errore, nessuna risposta in 15 s | «Your position is not available right now…» | ricerca |
 | «Another place», nessun luogo ancora | «Search for a city or street to start from.» | ricerca |
 | Luogo scelto dalla ricerca | «Starting from Via Rodolfo Belenzani, Trento.» | ricerca, per cambiarlo |
+| Punto scelto sulla mappa (TASK-292) | «Starting from a point on the map.» | ricerca, per cambiarlo |
 
 La partenza si sceglie con due pulsanti affiancati nella scheda «START»
 (TASK-054): **«My position»**, il GPS, e **«Another place»**, un luogo
@@ -1317,6 +1318,35 @@ permesso, se il telefono lo permette ancora; la ricerca sparisce. Senza GPS
 (permesso negato, nessuna risposta) la ricerca c'è comunque, e il luogo
 cercato fa da partenza finché il GPS non risponde. Ogni nuova partenza, anche nello stesso
 punto, ricentra la mappa.
+
+### Scegliere la partenza sulla mappa (TASK-292, ADR-0252)
+
+Scelta dell'utente del 2026-10-18: partire da un punto **senza scrivere
+la via**, con il segnaposto fermo al centro della mappa.
+
+- Ovunque ci sia la ricerca (con «Another place», o senza GPS), sotto di
+  lei c'è il link **«Choose on the map»**.
+- Apre a tutto schermo la mappa di «Draw», con «←» in alto e il tipo di
+  mappa come sempre. La mappa si inquadra sulla partenza di adesso, a
+  zoom 15 e a nord in su; senza partenza resta dov'è. Il percorso di
+  prima sparisce.
+- Il segnaposto della partenza, uguale a sempre, **sta fermo al centro**:
+  un dito sposta la mappa sotto di lui, due dita fanno lo zoom. Sotto la
+  mappa, in grigio: *Move the map to put the pin where you want to
+  start.* e il pulsante giallo **«Start here»**, spento finché la mappa
+  non dice dov'è il suo centro.
+- **«Start here»**: il punto sotto il segnaposto diventa la partenza,
+  l'interruttore va su «Another place» e si torna a «Draw». La riga dice
+  «Starting from a point on the map.»: il punto non ha nome, e non se ne
+  chiede uno in rete. Dove l'app scrive il nome della partenza (i giri
+  «near …», la tela di «Draw on the map») un punto della mappa fa come
+  il GPS.
+- **«←»** torna a «Draw» e lascia la partenza com'era.
+- Il punto vale come un luogo cercato: resta se il GPS risponde, e lo
+  cambiano un altro luogo cercato, un altro punto o «My position». Vale
+  con «Run», «Bike» e «Paddle»; sull'acqua come una via cercata (vedi
+  «Another place» di «Paddle»).
+- Mentre si sceglie, una risposta del GPS non sposta la mappa.
 
 ## Ricerca del luogo
 

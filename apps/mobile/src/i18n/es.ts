@@ -1224,4 +1224,9 @@ export const ES: Table = {
   "This line crosses itself. Draw it again without crossing it.":
     "Esta línea se cruza consigo misma. Dibújala de nuevo sin cruzarla.",
   "+ photo": "+ foto",
+
+  // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
+  "Choose on the map": "Elegir en el mapa",
+  "Move the map to put the pin where you want to start.":
+    "Mueve el mapa para poner el marcador donde quieres empezar.",
 };
