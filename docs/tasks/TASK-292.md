@@ -1,6 +1,6 @@
 # TASK-292 — Scegliere la partenza sulla mappa
 
-**Stato**: In corso
+**Stato**: Done (in `main` con la #527, `b35d461c`, 2026-10-19)
 **Fase**: 4 · **Branch**: `feat/TASK-292-start-on-map`
 **ADR**: ADR-0252
 
@@ -101,4 +101,23 @@ docs/STATUS.md                                       (righe nuove)
 
 ## Esito
 
-*(a fine task)*
+In `main` con la #527 (`b35d461c`, 2026-10-19), mergiata dal Coordinatore
+al verde e pubblicata da lui su `preview`. Sotto la ricerca di «Draw» il
+link «Choose on the map» apre la mappa con il segnaposto fermo al centro.
+«Start here» rende il punto la partenza (origine `map`, senza nome) e
+«←» non cambia niente. Diff = «File toccati» (19 file).
+
+I testi nuovi nelle cinque lingue sono stati approvati dall'utente il
+2026-10-19. In locale lint, typecheck e format:check erano verdi; jest
+aveva 415 suite su 421 verdi al primo giro e le altre 6, andate in
+timeout per il carico del Mac, erano verdi rilanciate da sole.
+
+**Resta da fare**: la prova sull'iPhone dalla `preview`. La segna il
+Coordinatore quando l'utente l'ha fatta. Nel simulatore non è stata
+provata: i test usano un MapLibre finto.
+
+**Rimandato**:
+- il nome della via del punto scelto (geocodifica inversa, «Fuori
+  scope»);
+- la traduzione della riga di stato, che resta in inglese come le sue
+  vicine: è «il resto di `App.tsx`» di TASK-210.

@@ -176,6 +176,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `map`, senza nome), «←» non cambia niente. Solo app, non nella 1.0;
   due testi nuovi nelle cinque lingue, approvati dall'utente il
   2026-10-19. File: `tasks/TASK-292.md`.
+  **Chiuso**: in `main` con la #527 (`b35d461c`, 2026-10-19), mergiata
+  dal Coordinatore; vedi «Completato».
 - **TASK-288 parte B — Il pool di connessioni** (aggiunta ad ADR-0249;
   sì dell'utente del 2026-10-16 al Coordinatore: «sì, aggiungi il pool di
   connessioni»). Branch `feat/TASK-288-b-connection-pool`. Dipendenza
@@ -972,6 +974,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-292 (ADR-0252; scelta dell'utente del 2026-10-18): la
+  partenza si sceglie anche sulla mappa, senza scrivere la via. Sotto la
+  ricerca di «Draw», «Choose on the map» apre la mappa con il segnaposto
+  fermo al centro. «Start here» rende il punto la partenza (origine
+  `map`, senza nome, nessuna chiamata in rete); «←» non cambia niente.
+  Testi nelle cinque lingue approvati il 2026-10-19. Pubblicata su
+  `preview` dal Coordinatore; **manca la prova sull'iPhone**, che segna
+  lui. PR #527, `b35d461c`.
 - **API** — TASK-288 parte B (aggiunta ad ADR-0249; sì dell'utente del
   2026-10-16): il pool di connessioni (`psycopg[binary,pool]`, dipendenza
   nuova). L'API presta da 2 a 10 connessioni tenute aperte; ognuna torna
