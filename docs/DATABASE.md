@@ -15,6 +15,8 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
   `schema_migrations`. Una migrazione già in `main` non si modifica mai:
   se ne scrive un'altra.
 - **Accesso dal codice**: psycopg 3, SQL scritto a mano, senza ORM.
+  L'API presta le connessioni da un pool (`psycopg_pool`, da 2 a 10,
+  TASK-288 B): ognuna torna come una sessione nuova (`DISCARD ALL`).
 - **Coordinate**: geometrie in WGS84 (SRID 4326), punti in `(lon, lat)`
   come vuole PostGIS; all'API e all'app escono `(lat, lon)` come sempre.
   Le distanze si misurano in metri con `geography`.

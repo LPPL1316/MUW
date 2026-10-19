@@ -8,6 +8,8 @@ l'ok dell'utente
 al merge)
 **ADR**: ADR-0249 · **Migrazione**: `0022_faster_searches.sql`, entrata
 prima della #502 (che prende la 0023)
+**Parte B** (il pool di connessioni): Done, in `main` con la #524
+(`42699af4`, 2026-10-18), **non ancora sul server**; vedi «Parte B»
 
 ## Obiettivo
 
@@ -133,6 +135,211 @@ docs/tasks/TASK-288.md                                    (nuovo)
    (`psycopg[binary,pool]` in `services/api/pyproject.toml`). Va bene
    aggiungerla? Con un sì è un task a sé (la sessione «API connection pool
    with psycopg_pool», proposta e ferma), da misurare con lo stesso script.
+
+## Parte B — Il pool di connessioni
+
+**Stato**: Done · in `main` con la #524 (`42699af4`, 2026-10-18),
+mergiata dal Coordinatore su richiesta dell'utente. **Non ancora sul
+server**: la dipendenza nuova va con l'aggiornamento dopo l'approvazione di
+Apple, con l'ok dell'utente
+**Branch**: `feat/TASK-288-b-connection-pool` (mergiato) · **ADR**: aggiunta ad
+ADR-0249 · **Migrazione**: nessuna · **Dipendenza nuova**:
+`psycopg[binary,pool]` (`psycopg_pool` 3.3)
+
+Il sì dell'utente, scritto al Coordinatore il 2026-10-16: «sì, aggiungi il
+pool di connessioni». Le cinque condizioni del Coordinatore: dimensione
+scelta da RAM e processi del server, chiusura pulita, nessuno stato da una
+richiesta all'altra (con un test), lo stesso dopo un errore, test
+deterministici. In più: una richiesta che aspetta oltre i 10 s riceve un
+errore pulito, non resta appesa.
+
+### Cosa fa
+
+- `Database.pooled()` (`db.py`) apre un `ConnectionPool` e
+  `Database.connect()` presta una sua connessione invece di aprirne una
+  nuova. Il contratto è lo stesso: un blocco è una transazione, confermata
+  se finisce, annullata se solleva. Senza pool (test, strumenti)
+  `connect()` apre la sua connessione come prima. `__main__.py` usa il
+  pool dopo le migrazioni.
+- **Ogni connessione torna come una sessione nuova**: il blocco chiude la
+  sua transazione (commit o rollback); il pool annulla una transazione
+  lasciata aperta; poi `DISCARD ALL` toglie SET, tabelle temporanee, lock
+  consultivi, cursori, prepared statement e LISTEN. Lo stesso dopo un
+  errore: l'eccezione esce, la connessione torna.
+- **Niente prepared statement** (`prepare_threshold=None`): psycopg
+  prepara una query eseguita cinque volte, e dopo un secondo `DISCARD ALL`
+  continuerebbe a usare un'istruzione che PostgreSQL ha già tolto
+  («prepared statement does not exist»: provato in locale). Una richiesta
+  di oggi esegue ogni query una o due volte: non perde niente.
+- **Controllo al prestito** (`ConnectionPool.check_connection`, una query
+  vuota): una connessione chiusa da PostgreSQL (un riavvio del servizio
+  `db`) si sostituisce, e la richiesta non fallisce.
+- **Un blocco aperto dentro un altro, nello stesso thread, ha una
+  connessione sua** fuori dal pool, come prima. Trovato con una sonda su
+  tutti i 610 test del database (ogni `connect()` aperto mentre lo stesso
+  thread ne tiene un altro): nel codice dell'API succede solo in
+  `strava.py`, che tiene la corsa bloccata (`FOR UPDATE`) mentre legge il
+  token e mentre manda la corsa a Strava, e chiama `disconnect` dopo un
+  rifiuto. Dal pool, dieci invii a Strava insieme aspetterebbero ognuno una
+  seconda connessione che nessuno restituisce, fino all'errore dopo 10 s.
+  Gli altri annidamenti trovati sono dei test stessi.
+- **Tutte occupate per 10 s**: `503 accounts_unavailable`, «The server is
+  busy: try again in a moment.», `Retry-After: 10`, e nel log una riga
+  `WARNING: database: couldn't get a connection after 10.00 sec`. Senza il
+  gestore sarebbe stato un 500 `engine_error` («The engine failed»).
+  Verificato nell'app, senza toccarla: per quel codice le schermate degli
+  account mostrano il loro testo tradotto («Accounts are not available
+  right now. Try again later.», in tutte le lingue), quelle dei percorsi
+  «Something went wrong on our side» (le parole del server solo nella build
+  di sviluppo), il feed lascia quel che c'era. Le parole del server
+  arrivano a chi usa l'app solo con `invalid_request`: **nessun seguito**.
+- **Chiusura**: nel `lifespan` dell'app (`app.py`), prima che uvicorn
+  restituisca il SIGTERM al processo; e nel `finally` di `main`, per
+  quando l'app non è mai partita. Dopo, nessuna connessione aperta.
+- Il pool scrive a INFO ogni connessione prestata, due righe a richiesta:
+  il suo logger (`psycopg.pool`) è portato a WARNING.
+
+### I numeri, e perché
+
+Il server: Hetzner CX33, 4 vCPU e 8 GB, PostgreSQL 16 nello stesso
+`compose.yaml` con la configurazione dell'immagine (`max_connections` 100,
+`shared_buffers` 128 MB). L'API è **un solo processo** (`python -m
+shaperoute_api`, `uvicorn.run` senza worker); gli endpoint girano nei
+thread di AnyIO, **al più 40 richieste insieme**, e le 4 vCPU le divide col
+motore dei percorsi. Una richiesta con un token usa due connessioni, ma
+**una dopo l'altra**: quella del token torna prima che l'endpoint prenda la
+sua (lo conferma la sonda; l'eccezione è Strava, sopra). Quindi 10
+connessioni servono 10 richieste nello stesso istante; l'undicesima aspetta
+che una torni, cioè i millisecondi di una query.
+
+| Valore | Scelto | Perché |
+|---|---|---|
+| `min_size` | 2 | Aperte sempre: bastano ai pochi telefoni di oggi, che chiedono una cosa alla volta. Due backend fermi sono ~10–20 MB. |
+| `max_size` | 10 | Oltre circa 2 × core + 1 = 9 query insieme PostgreSQL le mette solo in fila sulla CPU, che qui è anche del motore. 10 backend sono ~100 MB al più (~5–10 MB l'uno con PostGIS), l'1,2% degli 8 GB, e un decimo dei 100 di `max_connections`. |
+| `timeout` (attesa) | 10 s | Le query durano millisecondi: dieci secondi senza una connessione libera vogliono dire qualcosa di bloccato. Poi il 503, non un'attesa senza fine. |
+| `max_idle` | 10 min | Il valore di psycopg_pool: dopo un'ora di punta, le connessioni oltre le 2 si chiudono. |
+| `max_lifetime` | 1 h | Il valore di psycopg_pool: ogni connessione si rinnova, la memoria di un backend non cresce per giorni. |
+
+**PostgreSQL resta sotto `max_connections` anche con `draw_examples`**:
+`draw_examples` non apre connessioni, chiede i percorsi all'API in HTTP, e
+passa quindi dal suo pool. Gli altri client sono `backup` (un `pg_dump` alla
+notte, 1 connessione), le migrazioni all'avvio (1, chiusa prima che il pool
+apra), un `psql` a mano, e gli invii a Strava (1 in più ciascuno, fuori dal
+pool, rari). In tutto ~10 + 1 + 1 + pochi, sotto 20 contro 100: nessun
+cambio a PostgreSQL, a `compose.yaml` né a `DEPLOY.md`. Anche durante un
+aggiornamento: `docker compose up -d` ferma la vecchia API prima di
+avviare la nuova.
+
+### Cosa guardare sul server (per il Coordinatore)
+
+Dopo l'aggiornamento, con l'ok dell'utente:
+
+1. **Il numero da guardare**: le righe `couldn't get a connection` nel log
+   dell'API, `docker compose logs api | grep -c "couldn't get a
+   connection"`. Deve restare **0**: anche una sola vuol dire 10
+   connessioni occupate per 10 s e un telefono che ha ricevuto il 503.
+2. Le connessioni aperte: `docker compose exec db psql -U shaperoute -d
+   shaperoute -c "SELECT state, count(*) FROM pg_stat_activity WHERE
+   datname = 'shaperoute' AND pid <> pg_backend_pid() GROUP BY state"`.
+   A riposo 2 `idle`; mai più di 10 dell'API; mai `idle in transaction`.
+3. `GET /me` e `GET /users?q=` prima e dopo, con lo stesso script di
+   TASK-288 (sotto, i tempi in locale).
+
+### Tempi (parte B)
+
+Il 2026-10-17, con lo script della parte A («Come si è misurato», sotto):
+lo stesso database con gli stessi dati, un giro senza pool e uno col pool
+dell'API (2–10), mediane di 30 richieste (5 per il feed), dal codice di
+questo branch. Il database è l'immagine x86 emulata del Mac: sul server i
+tempi sono più bassi, il guadagno simile.
+
+| Richiesta | Senza pool | Col pool |
+|---|---|---|
+| `GET /me` (solo il token) | 63 ms | 4 ms |
+| `GET /users?q=ma` | 184 ms | 54 ms |
+| `GET /users?q=ro` | 185 ms | 53 ms |
+| `GET /users?q=mar` | 149 ms | 14 ms |
+| `GET /users?q=lia` | 184 ms | 28 ms |
+| `GET /users?q=an_1` | 146 ms | 10 ms |
+| `GET /users?q=zzz` (nessuno) | 141 ms | 8 ms |
+| `GET /feed` | 205 ms | 38 ms |
+
+Col pool, 445 richieste di connessione servite da 2 connessioni, nessuna
+in attesa. Quel che resta di `/users?q=` è la ricerca e le foto piccole.
+
+### Test
+
+`services/api/tests/test_connection_pool.py`, con PostgreSQL vero:
+
+- le richieste si danno il turno su poche connessioni (21 richieste, al
+  più 2 connessioni aperte);
+- una connessione torna come una sessione nuova: lo stesso processo di
+  PostgreSQL, senza SET, tabella temporanea, prepared statement, cursore,
+  LISTEN né lock;
+- una transazione lasciata aperta si annulla;
+- un blocco fallito (un'eccezione nostra, un errore di SQL) restituisce la
+  sua connessione, e quel che aveva scritto non resta;
+- una richiesta fallita (un 409 e un 500) restituisce la sua connessione;
+- tutte le connessioni occupate per 10 s: `503 accounts_unavailable` con
+  `Retry-After: 10` dopo i 10 s, la riga nel log, e la richiesta dopo
+  risponde 200 (questo test dura i suoi 10 s);
+- un blocco dentro un altro ha una connessione sua, subito;
+- una connessione chiusa da PostgreSQL si sostituisce;
+- la stessa query molte volte non si prepara mai;
+- senza pool, ogni blocco la sua connessione, come prima;
+- `main` apre il pool con 2, 10 e 10 s, e l'app lo chiude quando si ferma:
+  nessuna connessione resta; lo chiude anche se il server non parte.
+
+Ognuno di questi è stato provato contro il codice senza la sua difesa
+(senza `DISCARD ALL`, con i prepared statement, senza il gestore del 503,
+senza la chiusura nel `lifespan` o in `main`, senza la regola del blocco
+annidato): fallisce.
+
+### Seguiti
+
+- **`strava.py` senza un blocco dentro l'altro**, in un task a parte
+  (numero dal Coordinatore, che l'ha chiesto il 2026-10-17). Oggi `send`
+  tiene la corsa bloccata (`SELECT … FOR UPDATE`) per tutto l'invio, e
+  dentro quel blocco `_access_token` ne apre un secondo per leggere il
+  token, con un altro `FOR UPDATE`, e `disconnect` un terzo dopo un
+  rifiuto. Col pool funziona per la regola del blocco annidato (una
+  connessione fuori dal pool), ma ogni invio paga una connessione nuova,
+  e tiene una connessione del pool per tutta la chiamata a Strava. Da
+  togliere: il `FOR UPDATE` durante la lettura del token, con il token
+  letto prima del lock sulla corsa o nella stessa connessione, senza
+  perdere «un invio della stessa corsa alla volta». Poi la regola del
+  blocco annidato in `db.py` resta solo come difesa.
+
+### File toccati (parte B)
+
+```
+services/api/pyproject.toml
+services/api/shaperoute_api/db.py
+services/api/shaperoute_api/__main__.py
+services/api/shaperoute_api/app.py
+services/api/tests/test_connection_pool.py                (nuovo)
+docs/API.md
+docs/DATABASE.md
+docs/DECISIONS.md
+docs/STATUS.md
+docs/tasks/TASK-288.md
+```
+
+### Esito (parte B)
+
+In `main` con la #524 (`42699af4`, 2026-10-18), sulla testa `6aed7b30` con
+la CI 5/5 verde. L'ha mergiata il Coordinatore su richiesta dell'utente.
+L'API presta da 2 a 10 connessioni tenute aperte; ognuna torna come una
+sessione nuova, anche dopo un errore. Tutte occupate per 10 s danno un 503
+pulito con `Retry-After`. Il pool si chiude quando l'API si ferma. Un blocco
+annidato (`strava.py`) ha una connessione sua. In locale `/me` passa da
+63 a 4 ms, `/users?q=` da 141–185 a 8–54 ms, `/feed` da 205 a 38 ms. In
+locale la suite intera dell'API, con PostgreSQL, è verde (1525). Ogni
+criterio del Coordinatore ha il suo test. **Non ancora sul server**: serve
+un'immagine nuova con la dipendenza, all'aggiornamento dopo Apple e con
+l'ok dell'utente; poi va guardato quel che dice «Cosa guardare sul
+server». Seguito aperto: `strava.py` senza blocco annidato, già nella
+sessione «strava.py: send a run without a nested DB block».
 
 ## Fuori scope
 

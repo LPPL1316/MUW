@@ -163,8 +163,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Draw» il link «Choose on the map» apre la mappa con il segnaposto
   fermo al centro; «Start here» rende il punto la partenza (origine
   `map`, senza nome), «←» non cambia niente. Solo app, non nella 1.0;
-  due testi nuovi nelle cinque lingue. File: `tasks/TASK-292.md`.
-
+  due testi nuovi nelle cinque lingue, approvati dall'utente il
+  2026-10-19. File: `tasks/TASK-292.md`.
+- **TASK-288 parte B — Il pool di connessioni** (aggiunta ad ADR-0249;
+  sì dell'utente del 2026-10-16 al Coordinatore: «sì, aggiungi il pool di
+  connessioni»). Branch `feat/TASK-288-b-connection-pool`. Dipendenza
+  nuova `psycopg[binary,pool]`: l'API presta da 2 a 10 connessioni tenute
+  aperte invece di aprirne una nuova a ogni blocco (due a ogni richiesta
+  con un token); ognuna torna come una sessione nuova (`DISCARD ALL`),
+  anche dopo un errore; tutte occupate per 10 s danno `503
+  accounts_unavailable` con `Retry-After`, non un'attesa senza fine; il
+  pool si chiude quando l'API si ferma. In locale `/me` da 63 a 4 ms,
+  `/users?q=` da 141–185 a 8–54 ms. Nessuna migrazione, nessun cambio
+  all'app né a `compose.yaml`. Merge e server dopo Apple, con l'ok
+  dell'utente. **PR #524**. File: `tasks/TASK-288.md`, «Parte B».
+  **Chiuso**: in `main` con la #524 (`42699af4`, 2026-10-18), mergiata dal
+  Coordinatore su richiesta dell'utente; vedi «Completato».
 - **TASK-290 — Le sagome di «PICTURES» che vengono bene in città**
   (aggiunta ad ADR-0246; richiesta dell'utente del 2026-10-16). Branch
   `feat/TASK-290-better-draw-pictures`. Le sagome provate come percorsi
@@ -947,6 +961,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **API** — TASK-288 parte B (aggiunta ad ADR-0249; sì dell'utente del
+  2026-10-16): il pool di connessioni (`psycopg[binary,pool]`, dipendenza
+  nuova). L'API presta da 2 a 10 connessioni tenute aperte; ognuna torna
+  come una sessione nuova (`DISCARD ALL`, niente prepared statement),
+  anche dopo un errore; tutte occupate per 10 s danno `503
+  accounts_unavailable` con `Retry-After`; il pool si chiude quando l'API
+  si ferma; un blocco annidato (`strava.py`) ha una connessione sua. In
+  locale `/me` da 63 a 4 ms, `/users?q=` da 141–185 a 8–54 ms. In `main`,
+  **non ancora sul server**: un'immagine nuova all'aggiornamento dopo
+  Apple, con l'ok dell'utente; cosa guardare lì in `tasks/TASK-288.md`,
+  «Parte B». Seguito: `strava.py` senza blocco annidato, in una sessione
+  sua. PR #524, `42699af4`.
 - **App** — prova sull'iPhone dell'utente del 2026-10-17 («provato, funziona tutto») su `preview` dal gruppo `cd521a21` (`main` `ff786f67`): TASK-286 (cambiare figura dalla mappa del risultato), TASK-287 (ricerche in coda, annullo del motore sul telefono) e TASK-290 (le sedici sagome). Righe aggiunte nell'«Esito» dei tre task file.
 - **App** — TASK-290 (aggiunta ad ADR-0246, punti 8–10; richiesta
   dell'utente del 2026-10-16): le sagome di «PICTURES» scelte dal
