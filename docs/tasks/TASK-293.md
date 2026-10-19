@@ -1,6 +1,7 @@
 # TASK-293 — «Send to Strava» senza un blocco del database dentro l'altro
 
-**Stato**: In corso
+**Stato**: In revisione (PR #528), aspetta «merge 528»; il server dopo
+l'approvazione di Apple e l'ok dell'utente
 **Fase**: 4 · **Branch**: `feat/TASK-293-strava-one-block`
 **Dipende da**: TASK-288 parte B (il pool di connessioni, #524, in `main`
 `42699af4`)
@@ -62,25 +63,30 @@ a vicenda fino all'errore dopo 10 s.
 
 ## Criteri di accettazione
 
-- [ ] Nessun `Database.connect()` aperto mentre lo stesso thread ne tiene
+- [x] Nessun `Database.connect()` aperto mentre lo stesso thread ne tiene
       un altro, in nessun test di `test_strava.py`: una sonda autouse su
       `Database.connect` fa fallire il test e dice da dove. Contro lo
-      `strava.py` di prima fallisce.
-- [ ] Un test prova che la sonda vede un blocco dentro l'altro, e non
+      `strava.py` di `main` fallisce in 30 test, con i percorsi
+      `_access_token < _authorized < _upload` (o `_describe`) `< send`, e
+      `disconnect` dopo un rifiuto.
+- [x] Un test prova che la sonda vede un blocco dentro l'altro, e non
       quello di un altro thread.
-- [ ] Due invii della stessa corsa insieme: il secondo aspetta il lock
+- [x] Due invii della stessa corsa insieme: il secondo aspetta il lock
       della corsa mentre il primo è da Strava, poi trova quel che il primo
       ha fatto. Un solo file a Strava, tutti e due `sent`.
-- [ ] Un secondo invio della stessa corsa che passa fra la prima lettura
+- [x] Un secondo invio della stessa corsa che passa fra la prima lettura
       (senza lock) e il lock del primo, e la carica: il primo la trova
       sotto il lock e non la carica di nuovo, che Strava l'abbia già letta
       (`sent`) o no (`processing`). Un solo file (richiesta del
       Coordinatore del 2026-10-18).
-- [ ] Due invii di corse diverse con il token scaduto, insieme: il secondo
+- [x] Due invii di corse diverse con il token scaduto, insieme: il secondo
       aspetta il lock del token mentre il primo lo rinnova, poi prende il
       nuovo. Un solo rinnovo.
-- [ ] Tutti i test di `test_strava.py` verdi; ruff, black e la suite
-      dell'API con PostgreSQL verdi; CI verde.
+- [x] Tutti i test di `test_strava.py` verdi; ruff, black e la suite
+      dell'API con PostgreSQL verdi; CI verde. In locale il 2026-10-19:
+      `test_strava.py` 65, la suite dell'API 1530, ruff e black puliti;
+      CI 5/5 verde sulla head `9defe28b`, prima del riallineamento a
+      `main` dopo la #527 (solo app e documenti).
 
 ## File toccati
 
