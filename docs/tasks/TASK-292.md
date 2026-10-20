@@ -121,3 +121,5 @@ provata: i test usano un MapLibre finto.
   scope»);
 - la traduzione della riga di stato, che resta in inglese come le sue
   vicine: è «il resto di `App.tsx`» di TASK-210.
+
+**Provato sull'iPhone dall'utente il 2026-10-19** («provato, funziona tutto»), su `preview` dal gruppo `6dab601f` (`main` `b35d461c`).

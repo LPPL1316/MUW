@@ -974,6 +974,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — prova sull'iPhone dell'utente del 2026-10-19 («provato, funziona tutto») su `preview` dal gruppo `6dab601f` (`main` `b35d461c`): TASK-292 (scegliere la partenza sulla mappa). Riga aggiunta nell'«Esito» del task file.
 - **App** — TASK-292 (ADR-0252; scelta dell'utente del 2026-10-18): la
   partenza si sceglie anche sulla mappa, senza scrivere la via. Sotto la
   ricerca di «Draw», «Choose on the map» apre la mappa con il segnaposto
