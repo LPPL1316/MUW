@@ -168,6 +168,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   due invii della stessa corsa insieme caricano un solo file. Solo API,
   nessuna migrazione; il server dopo Apple, con l'ok dell'utente. File:
   `tasks/TASK-293.md`.
+  **Chiuso**: in `main` con la #528 (`aba94894`, 2026-10-19), mergiata
+  dal Coordinatore; vedi «Completato».
 - **TASK-292 — Scegliere la partenza sulla mappa** (ADR-0252; richiesta
   dell'utente del 2026-10-18, che ha scelto il mirino fisso fra quattro
   proposte). Branch `feat/TASK-292-start-on-map`. Sotto la ricerca di
@@ -975,6 +977,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 ## Completato
 
 - **App** — prova sull'iPhone dell'utente del 2026-10-19 («provato, funziona tutto») su `preview` dal gruppo `6dab601f` (`main` `b35d461c`): TASK-292 (scegliere la partenza sulla mappa). Riga aggiunta nell'«Esito» del task file.
+- **API** — TASK-293 (aggiunta ad ADR-0249; seguito di TASK-288 B): un
+  invio a Strava apre un blocco del database alla volta. La corsa letta
+  senza lock (un 404 resta prima di un 409), il token nel suo blocco
+  (rinnovo sempre uno alla volta per account), poi la corsa bloccata per
+  il caricamento come prima; un token rifiutato si rinnova fuori dal
+  blocco della corsa. Dal pool una connessione alla volta e nessuna fuori
+  dal pool. La stessa corsa va a Strava una volta sola anche con due
+  invii insieme o con uno fra la prima lettura e il lock (condizione del
+  Coordinatore, provata da un test); una sonda su `Database.connect` in
+  `test_strava.py` fa fallire ogni blocco annidato. In `main`, **non
+  ancora sul server**: va con il pool, dopo Apple e con l'ok
+  dell'utente; cosa guardare dopo l'aggiornamento è nel task file. PR
+  #528, `aba94894`. `tasks/TASK-293.md`.
 - **App** — TASK-292 (ADR-0252; scelta dell'utente del 2026-10-18): la
   partenza si sceglie anche sulla mappa, senza scrivere la via. Sotto la
   ricerca di «Draw», «Choose on the map» apre la mappa con il segnaposto
