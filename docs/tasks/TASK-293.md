@@ -1,7 +1,8 @@
 # TASK-293 — «Send to Strava» senza un blocco del database dentro l'altro
 
-**Stato**: In revisione (PR #528), aspetta «merge 528»; il server dopo
-l'approvazione di Apple e l'ok dell'utente
+**Stato**: Done — mergiato come #528 (`aba94894`) il 2026-10-19 dal
+Coordinatore; non ancora sul server (dopo l'approvazione di Apple e l'ok
+dell'utente, insieme al pool di TASK-288 B)
 **Fase**: 4 · **Branch**: `feat/TASK-293-strava-one-block`
 **Dipende da**: TASK-288 parte B (il pool di connessioni, #524, in `main`
 `42699af4`)
@@ -99,6 +100,30 @@ docs/STATUS.md
 docs/tasks/TASK-293.md                                    (nuovo)
 ```
 
+## Dopo l'aggiornamento del server (per il Coordinatore)
+
+Va sul server con il pool di TASK-288 B, nella stessa immagine, dopo
+l'approvazione di Apple e con l'ok dell'utente. Nessuna migrazione,
+nessun cambio a `compose.yaml`.
+
+1. **Un invio vero a Strava** dall'app, con l'atleta collegato
+   dell'utente: la corsa arriva su Strava una volta sola; un secondo tocco
+   su «Send to Strava» risponde `sent` e su Strava non compare un doppione.
+   Nel log dell'API nessun 5xx e nessuna riga `route failed` per
+   `POST /me/activities/…/strava`:
+   `docker compose logs api --since 30m | grep "/strava"`.
+2. **Le connessioni dell'API restano quelle del pool**: durante un invio,
+   `docker compose exec db psql -U shaperoute -d shaperoute -c "SELECT
+   state, count(*) FROM pg_stat_activity WHERE datname = 'shaperoute' AND
+   pid <> pg_backend_pid() GROUP BY state"` dà al più 10 connessioni
+   dell'API in tutto (prima ogni invio ne apriva una in più, fuori dal
+   pool). Durante il caricamento una connessione è `idle in transaction`
+   per qualche secondo: è il lock della corsa che aspetta Strava (al più
+   20 s a chiamata, `TIMEOUT_S` di `strava_client.py`), ed è previsto. Una
+   che resta così oltre un minuto vuol dire qualcosa di appeso.
+3. **`couldn't get a connection`** nel log resta a 0, come per TASK-288 B:
+   `docker compose logs api | grep -c "couldn't get a connection"`.
+
 ## Fuori scope
 
 - Il lock della corsa tiene ancora una connessione del pool per tutta la
@@ -115,4 +140,13 @@ docs/tasks/TASK-293.md                                    (nuovo)
 
 ## Esito
 
-*(a fine task)*
+Un invio a Strava apre un blocco del database alla volta: la corsa letta
+senza lock, il token nel suo blocco, poi la corsa bloccata per il
+caricamento. Dal pool prende una connessione alla volta e nessuna fuori
+dal pool; la regola del blocco annidato di `db.py` resta solo come
+difesa. La stessa corsa va a Strava una volta sola anche con due invii
+insieme, o con uno che passa fra la prima lettura e il lock; un rinnovo
+del token alla volta. La sonda su `Database.connect` in `test_strava.py`
+fallisce in 30 test contro il codice di prima. Mergiato come #528
+(`aba94894`), CI 5/5 verde; il server con il prossimo aggiornamento,
+dopo Apple (sopra, cosa guardare).
