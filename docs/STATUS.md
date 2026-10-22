@@ -976,6 +976,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — prova sull'iPhone dell'utente del 2026-10-19 («provato, funziona tutto») su `preview` dal gruppo `6dab601f` (`main` `b35d461c`): TASK-292 (scegliere la partenza sulla mappa). Riga aggiunta nell'«Esito» del task file.
 - **API** — TASK-293 (aggiunta ad ADR-0249; seguito di TASK-288 B): un
   invio a Strava apre un blocco del database alla volta. La corsa letta
   senza lock (un 404 resta prima di un 409), il token nel suo blocco
