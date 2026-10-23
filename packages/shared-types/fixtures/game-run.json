@@ -1,0 +1,7 @@
+{
+  "counted": true,
+  "reason": null,
+  "counted_m": 6000,
+  "best_s": { "1000": 333.3, "5000": 1666.7 },
+  "unlocked": ["triangle"]
+}

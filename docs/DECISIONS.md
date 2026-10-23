@@ -15195,3 +15195,40 @@ dell'utente)**:
   che le ha raggiunte, non il giorno del deploy.
 - **I nomi delle forme** stanno nel catalogo dell'API nelle cinque lingue,
   perché anche le forme vengono da lì: una forma nuova non chiede un'OTA.
+
+**Aggiunta (parte B, 2026-10-24, decisa dall'agente su delega
+dell'utente)**:
+
+- **«Play» sta fra «Explore» e il profilo**, con il suo nome in alto: la
+  «quarta pagina dopo Explore» del task file, con il profilo che scorre di
+  un posto (resta a un tocco sul suo cerchio). Quattro nomi
+  nell'intestazione: da provare su un iPhone da 390 pt.
+- **Il catalogo si chiede una volta all'avvio** (`refreshGameCatalog` in
+  `App`), per tutti, con o senza account, e la risposta si tiene sul
+  telefono (`game-catalog.json`): la pagina compare appena il server dice
+  200, anche a app aperta, e all'avvio dopo vale la risposta salvata.
+  Perché la pagina possa comparire senza buttare giù le altre, il `Pager`
+  tiene le pagine costruite **per titolo e non per indice**. È una
+  richiesta in più all'apertura, piccola e compressa: i test dell'app
+  intera che contavano «nessuna richiesta all'avvio» la tolgono dal conto.
+- **In B la pagina ha la sola collezione, senza `Segmented`**: la scheda
+  «Challenges» arriva con D. Una scheda vuota prometterebbe qualcosa che
+  non c'è ancora.
+- **La scheda «New shape unlocked» è un livello sopra l'app** (`Root`,
+  sotto il logo di «Save»), raccontato con lo stesso meccanismo del logo
+  (`showUnlocked`): la schermata di fine corsa non c'è più quando l'API
+  risponde. La chiede `activitiesDoor.send` dopo il PUT andato bene, con
+  `GET /game/runs/{key}`, e passa l'ora in cui «Save» ha tenuto la corsa:
+  la scheda aspetta `SAVED_TOTAL_MS` da lì. Per una corsa mandata più tardi
+  compare subito.
+- **Un tocco sulla push `shape_unlocked` apre «Play»** (`notificationTap`
+  guarda `kind` prima di `public_id`), e la push non si mostra con l'app
+  in primo piano (`shownWhileOpen`). «Play» da fuori (scheda, push) si
+  apre solo mentre una pagina è sullo schermo, mai sopra una corsa.
+- **Senza account la pagina mostra le forme grigie e il requisito**, con
+  «Sign in to collect shapes.» che porta alla pagina del profilo: il
+  catalogo non vuole l'account, e vedere che cosa c'è da collezionare è
+  un motivo per iscriversi.
+- **I tipi del gioco e tre esempi** stanno in `shared-types`
+  (`GameCatalog`, `GameMe`, `RunGame`; `fixtures/game-*.json`, piccoli,
+  non il catalogo intero). `PushKind` guadagna `shape_unlocked`.

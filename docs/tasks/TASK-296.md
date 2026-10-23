@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in PR
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in PR
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -140,6 +140,34 @@ al Coordinatore.
 6. Test: la griglia (sbloccate e bloccate con la percentuale), la pagina
    nascosta con 404, la scheda dopo «Save», senza account.
 
+**Com'è fatta** (2026-10-24, aggiunta ad ADR-0255; `UI.md`, «“Play”: la
+collezione delle forme»):
+
+- `src/game/`: `gameApi.ts` (i tre GET), `gameCatalog.ts` (il catalogo sul
+  telefono, `useGameCatalog`, `refreshGameCatalog`), `useGameMe.ts`,
+  `goalText.ts` (requisito e avanzamento nelle unità), `outlineSegments.ts`
+  e `ShapeOutline.tsx` (il contorno con View girate, anche animato),
+  `ShapeCard.tsx`, `PlayScreen.tsx`, `unlocks.ts` (`showUnlocked`,
+  `openPlay`), `unlockedRuns.ts`, `UnlockCard.tsx`, `UnlockLayer.tsx`.
+- **Diverso dal piano**: in B la pagina ha la **sola collezione, senza
+  `Segmented`** (la scheda «Challenges» arriva con D, così non promette
+  niente prima); la scheda «New shape unlocked» è un **livello in `Root`**
+  e non la schermata di fine corsa, che non c'è più quando l'API risponde;
+  il catalogo si chiede **all'avvio, per tutti**, e la pagina compare
+  appena il server risponde 200, con il `Pager` che tiene le pagine
+  costruite per titolo; «Play» sta **fra «Explore» e il profilo**, con il
+  suo nome in alto (quattro nomi).
+- La richiesta del catalogo all'avvio cambia cinque test dell'app intera
+  che contavano «nessuna richiesta» o le elencavano tutte (`AppPages`,
+  `AppFeed`, `App`, `AppPaddle`, `AppPaddleMove`, `Profile`,
+  `DrawDistanceApp`): tolgono `/game/catalog` dal conto o gli rispondono
+  404.
+- Impronta iOS: nel checkout principale `main` dà
+  `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`; nel worktree il valore è
+  diverso solo perché `node_modules` è fatto di link (cambiano le 34
+  sorgenti `dir:node_modules/…`, nessuna sorgente dell'app). Solo
+  JavaScript: l'impronta non cambia.
+
 ## Parte C — API: squadre e sfide
 
 Parte dopo A.
@@ -245,7 +273,28 @@ Entra dopo la #461 e TASK-284 B.
 Andrà aggiunto anche a «Where your data is and for how long», nella frase
 di ciò che si cancella con l'account: «… follows and game data».
 
-**Testi dell'app**: li propone B (e poi D), prima del merge.
+**Testi dell'app della parte B** (inglese / italiano; tedesco, spagnolo e
+francese in fondo alle tabelle `i18n`), **da approvare dall'utente prima del
+merge**:
+
+| Dove | Inglese | Italiano |
+|---|---|---|
+| il nome della pagina | Play | Gioca |
+| requisito per distanza | {distance} in total | {distance} in totale |
+| requisito per passo | {distance} under {pace} | {distance} sotto {pace} |
+| avanzamento di un passo | Best {best} · target {target} | Migliore {best} · obiettivo {target} |
+| senza quella distanza in una corsa | Longest run {distance} | Corsa più lunga {distance} |
+| forma sbloccata | Unlocked {date} | Sbloccata {date} |
+| senza account | Sign in to collect shapes. | Accedi per collezionare le forme. |
+| in alto, con l'account | {distance} counted so far | {distance} contati finora |
+| senza catalogo (non dovrebbe vedersi) | The game is not available right now. | Il gioco non è disponibile adesso. |
+| la scheda | New shape unlocked | Nuova forma sbloccata |
+| la scheda, per il lettore di schermo | New shape unlocked: {name} | Nuova forma sbloccata: {name} |
+| la scheda | It is in your collection. | È nella tua collezione. |
+| la scheda, pulsante | See collection | Vedi la collezione |
+
+«Close» e «Try again» c'erano già. I testi delle parti D ed E si
+propongono quando partono.
 
 ## Criteri di accettazione
 
@@ -269,11 +318,19 @@ Parte A:
 - [ ] pytest, ruff e black verdi (mypy non è nel progetto né nella CI).
 
 Parte B:
-- [ ] «Play» si vede con `/game/catalog` 200 ed è nascosta con 404.
-- [ ] La collezione mostra sbloccate e bloccate con requisito e percentuale.
-- [ ] Dopo «Save» una corsa che sblocca mostra «New shape unlocked».
-- [ ] L'impronta iOS è invariata (`83793e26…`).
-- [ ] lint, typecheck, test e format:check verdi.
+- [x] «Play» si vede con `/game/catalog` 200 ed è nascosta con 404
+      (`__tests__/AppPlay.test.tsx`, `AppPages.test.tsx`).
+- [x] La collezione mostra sbloccate e bloccate con requisito e percentuale
+      (`src/game/PlayScreen.test.tsx`), nelle unità scelte.
+- [x] Dopo «Save» una corsa che sblocca mostra «New shape unlocked»
+      (`activitiesDoorGame.test.tsx`, `UnlockLayer.test.tsx`).
+- [x] La push `shape_unlocked` non si mostra a app aperta e toccata apre
+      «Play» (`shownWhileOpen.test.ts`, `notificationTap.test.ts`,
+      `usePushNotifications.test.ts`).
+- [x] L'impronta iOS è invariata (`83793e26…`): solo JavaScript.
+- [x] lint, typecheck, test e format:check verdi in locale (3556 test,
+      2026-10-24).
+- [ ] I testi dell'app approvati dall'utente (tabella sopra).
 
 Parti C, D ed E: i criteri si scrivono qui quando partono, dalle regole
 di `GIOCO.md` §6 e §9.
@@ -310,7 +367,33 @@ docs/DECISIONS.md                                        (aggiunta ad ADR-0255)
 docs/STATUS.md, docs/tasks/TASK-296.md
 ```
 
-Parti B, C, D ed E: l'elenco si scrive qui, e va al Coordinatore, prima
+Parte B (elenco mandato al Coordinatore il 2026-10-24; i cinque test
+dell'app intera in fondo sono venuti fuori dalla suite completa):
+```
+apps/mobile/src/game/                                    (nuova: 13 moduli e i loro test)
+apps/mobile/__tests__/AppPlay.test.tsx                   (nuovo)
+apps/mobile/src/activities/activitiesDoorGame.test.tsx   (nuovo)
+apps/mobile/src/notifications/shownWhileOpen.test.ts     (nuovo)
+packages/shared-types/fixtures/game-catalog.json, game-me.json, game-run.json   (nuovi)
+packages/shared-types/test/game.test.ts                  (nuovo)
+packages/shared-types/src/index.ts                       (shape_unlocked in PushKind; i tipi del gioco in fondo)
+apps/mobile/App.tsx                                      («play», pagesOf, il catalogo all'avvio, la pagina, onOpenPlay)
+apps/mobile/src/screens/Pager.tsx, Pager.test.tsx        (pagine costruite per titolo)
+apps/mobile/src/screens/pageTitles.ts, pageTitles.test.ts
+apps/mobile/src/intro/Root.tsx                           (UnlockLayer)
+apps/mobile/src/activities/activitiesDoor.ts             (GET /game/runs/{key} dopo il PUT)
+apps/mobile/src/notifications/pushDevice.ts, notificationTap.ts, notificationTap.test.ts,
+  usePushNotifications.ts, usePushNotifications.test.ts
+apps/mobile/src/screens/ProfileLayer.tsx                 (openPlay, due righe)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts          (righe in fondo)
+apps/mobile/__tests__/AppPages.test.tsx, AppFeed.test.tsx, App.test.tsx,
+  AppPaddle.test.tsx, AppPaddleMove.test.tsx
+apps/mobile/src/account/Profile.test.tsx
+apps/mobile/src/units/DrawDistanceApp.test.tsx
+docs/UI.md, docs/GIOCO.md, docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
+```
+
+Parti C, D ed E: l'elenco si scrive qui, e va al Coordinatore, prima
 di partire.
 
 ## Fuori scope

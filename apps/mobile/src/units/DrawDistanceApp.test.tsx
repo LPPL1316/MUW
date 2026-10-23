@@ -66,5 +66,9 @@ test("with «Miles» «Draw» starts at 3 mi, and a new unit keeps the distance"
   expect(screen.getByLabelText("Distance in km").props.value).toBe("13");
   await act(async () => saveUnitsChoice("mi"));
   expect(screen.getByLabelText("Distance in miles").props.value).toBe("8");
-  expect(fetchSpy).not.toHaveBeenCalled();
+  // Nothing but the shape game's catalog, asked as the app opens to know
+  // whether to show «Play» (TASK-296).
+  expect(
+    fetchSpy.mock.calls.filter(([input]) => !String(input).endsWith("/game/catalog")),
+  ).toEqual([]);
 });

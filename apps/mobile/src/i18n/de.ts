@@ -1241,4 +1241,19 @@ export const DE: Table = {
   "This phone cannot make the video.": "Dieses Telefon kann das Video nicht erstellen.",
   "The video could not be made. Try again.":
     "Das Video konnte nicht erstellt werden. Versuch es noch einmal.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Spielen",
+  "{distance} in total": "{distance} insgesamt",
+  "{distance} under {pace}": "{distance} unter {pace}",
+  "Best {best} · target {target}": "Beste {best} · Ziel {target}",
+  "Longest run {distance}": "Längster Lauf {distance}",
+  "Unlocked {date}": "Freigeschaltet {date}",
+  "Sign in to collect shapes.": "Melde dich an, um Formen zu sammeln.",
+  "{distance} counted so far": "{distance} bisher gezählt",
+  "The game is not available right now.": "Das Spiel ist gerade nicht verfügbar.",
+  "New shape unlocked": "Neue Form freigeschaltet",
+  "New shape unlocked: {name}": "Neue Form freigeschaltet: {name}",
+  "It is in your collection.": "Sie ist in deiner Sammlung.",
+  "See collection": "Sammlung ansehen",
 };

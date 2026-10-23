@@ -1060,15 +1060,81 @@ export interface PushTokenRequest {
   language?: PushLanguage | null;
 }
 
-/** What a push notification tells of (TASK-262). */
+/** What a push notification tells of (TASK-262; a shape of the game
+ * unlocked, TASK-296). */
 export type PushKind =
-  "follow_request" | "follow_accepted" | "reaction" | "comment" | "tag";
+  | "follow_request"
+  | "follow_accepted"
+  | "reaction"
+  | "comment"
+  | "tag"
+  | "shape_unlocked";
 
 /**
  * The `data` of a push notification (TASK-262): what the app opens when it
  * is touched. A drawing for a reaction, a comment or a tag; the profile of
- * who acted for a follow request or a request accepted.
+ * who acted for a follow request or a request accepted. A shape unlocked
+ * (TASK-296) carries the runner's own profile: the app opens «Play».
  */
 export type PushData =
   | { kind: PushKind; drawing_id: string }
   | { kind: PushKind; public_id: string; username: string };
+
+// --- The shape game (TASK-296, ADR-0255; docs/GIOCO.md) ---
+
+/**
+ * What a shape of the game asks (GET /game/catalog): so many metres in
+ * all, or `distance_m` in one run at `pace_s` seconds a kilometre or
+ * better. The fields of the other kind are null.
+ */
+export type GameGoal =
+  | { kind: "distance"; total_m: number; distance_m: null; pace_s: null }
+  | { kind: "pace"; total_m: null; distance_m: number; pace_s: number };
+
+/** A shape to collect, as the API's catalog serves it. */
+export interface GameShape {
+  id: string;
+  /** Its name in each language of the app (en, de, it, es, fr). */
+  names: Record<PushLanguage, string>;
+  goal: GameGoal;
+  /** Closed (the last point is the first), from 0 to 1, y downwards as on
+   * a screen: a drawing, never a place. */
+  outline: [number, number][];
+}
+
+/** GET /game/catalog: the shapes of the game. Without an account; an API
+ * before the game answers 404, and the app shows no «Play» (ADR-0255). */
+export interface GameCatalog {
+  rules_version: number;
+  shapes: GameShape[];
+}
+
+/** One shape of the catalog, for the account: when it was unlocked, or how
+ * far along it is (1 once unlocked; before, at most 0.99). */
+export interface GameShapeState {
+  id: string;
+  unlocked_at: string | null;
+  progress: number;
+}
+
+/** GET /game/me: the game of the account. `best_s` has the best moving
+ * seconds by distance in metres, as text: {"1000": 287.4}. */
+export interface GameMe {
+  counted_m: number;
+  longest_m: number;
+  best_s: Record<string, number>;
+  shapes: GameShapeState[];
+}
+
+/** Why a run does not count for the game, or counts less (docs/GIOCO.md §4). */
+export type RunGameReason = "not_running" | "vehicle" | "overlap" | "daily_cap";
+
+/** GET /game/runs/{key}: what one saved run was worth, and the shapes it
+ * unlocked, in catalog order; 404 until the run is saved. */
+export interface RunGame {
+  counted: boolean;
+  reason: RunGameReason | null;
+  counted_m: number;
+  best_s: Record<string, number>;
+  unlocked: string[];
+}
