@@ -4,8 +4,34 @@ outline on the card, and every pace asks a distance the rules time."""
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+from route_engine.network import FileSource
+
+from shaperoute_api.app import create_app
 from shaperoute_api.game_catalog import BY_ID, CATALOG, LANGUAGES
 from shaperoute_api.game_rules import BEST_DISTANCES_M, DistanceGoal, PaceGoal
+
+API_KEY = "a-long-enough-test-key"
+
+
+def test_the_catalog_needs_the_app_key_but_no_session(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """«No account» is no session: the app's key is still asked (ADR-0255).
+    Without a database the catalog answers all the same."""
+    monkeypatch.setenv("SHAPEROUTE_API_KEY", API_KEY)
+    client = TestClient(create_app(FileSource(Path("unused.graphml"))))
+    refused = client.get("/game/catalog")
+    assert refused.status_code == 401
+    assert refused.json()["error"]["code"] == "unauthorized"
+    answer = client.get("/game/catalog", headers={"X-API-Key": API_KEY})
+    assert answer.status_code == 200
+    assert len(answer.json()["shapes"]) == len(CATALOG)
+    # The rest of the game wants a session too.
+    assert client.get("/game/me", headers={"X-API-Key": API_KEY}).status_code != 200
 
 
 def test_the_user_examples_are_in_the_catalog() -> None:
