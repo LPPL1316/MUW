@@ -157,6 +157,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-296 — Il gioco delle forme** (ADR-0255; chiesto dall'utente il
+  2026-10-23, numero dal Coordinatore). Le corse a piedi salvate sbloccano
+  forme da collezionare, per km totali e per passo su una distanza; in
+  squadra si ricrea una forma divisa in pezzi entro una scadenza. Sta in
+  una pagina nuova «Play», scelta dall'utente fra «Play», una riga nel
+  Profilo e un'app a sé. Il server conta, l'app mostra; «Play» si vede
+  solo se `GET /game/catalog` risponde 200. Le parti sono A (API,
+  collezione), B (app, collezione), C (API, squadre e sfide), D (app,
+  sfide) ed E (striscia in corsa). Regole in `GIOCO.md`. Prima i
+  documenti (branch `docs/TASK-296-shape-game`), poi A. Testi delle push e
+  paragrafo di privacy aspettano il sì dell'utente. Server solo dopo Apple.
+  File: `tasks/TASK-296.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
