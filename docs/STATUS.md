@@ -169,6 +169,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   documenti (branch `docs/TASK-296-shape-game`), poi A. Testi delle push e
   paragrafo di privacy aspettano il sì dell'utente. Server solo dopo Apple.
   File: `tasks/TASK-296.md`.
+  **Documenti** in `main` con la #532 (`f34ca6c5`, 2026-10-23).
+  **Parte A** (branch `feat/TASK-296-a-game-api`, migrazione `0025_game.sql`
+  da rinumerare al merge se serve): `game_runs` e `game_unlocks`, regole
+  pure in `game_rules.py`, 12 forme in `game_catalog.py`, `GET
+  /game/catalog`, `/game/me` e `/game/runs/{key}`, la push
+  `shape_unlocked`, `python -m shaperoute_api.game_backfill` per le corse
+  di prima. La risposta del salvataggio non cambia. Sul server, dopo
+  Apple: migrazione, deploy, backfill.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.

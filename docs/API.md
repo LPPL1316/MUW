@@ -1495,11 +1495,13 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `reaction` | una reazione a un disegno (il super like con l'inizio del suo commento) | il proprietario | il disegno |
   | `comment` | un commento a un disegno, con il suo inizio | il proprietario | il disegno |
   | `tag` | un tag in un disegno | chi è taggato | il disegno |
+  | `shape_unlocked` | una corsa salvata sblocca una forma del gioco (TASK-296) | chi ha corso | il proprio profilo; l'app di TASK-296 B apre «Play» |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
 - **Si manda solo se** il destinatario ha «Push notifications» acceso,
-  non è chi ha agito, nessuno dei due ha bloccato l'altro (TASK-121) e,
+  non è chi ha agito (tranne `shape_unlocked`, che è per chi ha corso:
+  `OWN_KINDS`), nessuno dei due ha bloccato l'altro (TASK-121) e,
   per un disegno, il destinatario lo vede (`drawing_seen_sql`). **Lo
   stesso evento** (stesso tipo, stesse due persone, stesso disegno; un
   commento è sempre nuovo) **al più una volta al giorno**: una richiesta
@@ -1508,7 +1510,8 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
 - **I testi** sono nella lingua mandata con il token, in inglese senza:
   «ada asked to follow you.», «ada accepted your follow request.», «ada
   reacted 🔥 to your post.», «ada gave your post a MuW heart: …», «ada
-  commented on your post: …», «ada tagged you in a post.». Un commento
+  commented on your post: …», «ada tagged you in a post.», «You unlocked a
+  new shape! Find it in your collection, in Play.». Un commento
   entra su una riga, al più 100 caratteri. Nessun titolo (iOS mostra il
   nome dell'app), suono quello del telefono.
 - **`data`** (`PushData`) dice all'app cosa aprire: `{ kind, drawing_id }`
@@ -1526,8 +1529,10 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   la risposta è `requested`), `POST /me/follow-requests/{public_id}/accept`,
   `PUT /drawings/{id}/reaction`, `POST /drawings/{id}/comments`, `PUT
   /me/activities/{key}/drawing` (solo i taggati nuovi rispetto a prima del
-  salvataggio). Un blocco (TASK-121, `follows.apart_sql`) in uno dei due
-  versi ferma ogni notifica fra i due.
+  salvataggio), `PUT /me/activities/{key}` (`shape_unlocked`, una per forma,
+  solo la prima volta che la corsa si salva: `game.notify_unlocked`). Un
+  blocco (TASK-121, `follows.apart_sql`) in uno dei due versi ferma ogni
+  notifica fra i due.
 
 ### Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170)
 
@@ -1973,6 +1978,43 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   di lui restano.
 - **Un'API precedente** non ha questi endpoint (`404 http_error`): l'app
   dice «This is not available any more.».
+
+### Shape game (TASK-296, ADR-0255)
+
+Il gioco delle forme, parte A: che cosa vale una corsa salvata e le forme
+della collezione. Le regole sono in `GIOCO.md`; il codice in
+`game_rules.py` (puro), `game_catalog.py`, `game.py` e `game_backfill.py`.
+
+| Endpoint | Account | Cosa | Risposta |
+|---|---|---|---|
+| `GET /game/catalog` | no | le forme del gioco: `rules_version` e `shapes`, ognuna con `id`, `names` (`en`, `de`, `it`, `es`, `fr`), `goal` e `outline` | `200` |
+| `GET /game/me` | sì | `counted_m`, `longest_m`, `best_s` (`{"1000": 287.4}`) e ogni forma del catalogo con `unlocked_at` e `progress` | `200` |
+| `GET /game/runs/{key}` | sì | che cosa ha valso la corsa `key`: `counted`, `reason`, `counted_m`, `best_s`, `unlocked` (gli id sbloccati da lei) | `200`, `404` |
+
+- **`goal`**: `{kind: "distance", total_m}` oppure `{kind: "pace",
+  distance_m, pace_s}` (secondi al km); i campi dell'altro tipo sono
+  `null`. **`outline`**: chiuso (l'ultimo punto è il primo), da 0 a 1, y
+  verso il basso come sullo schermo.
+- **`GET /game/catalog` accende «Play»** (ADR-0255): l'app mostra la
+  pagina solo se risponde `200`; un'API precedente risponde `404`. Non
+  vuole l'account ma, come ogni percorso, la chiave dell'app.
+- **Il gioco si calcola al salvataggio**: `PUT /me/activities/{key}`,
+  la prima volta, scrive la riga di `game_runs` nella stessa transazione
+  della corsa e sblocca le forme raggiunte; la sua risposta non cambia.
+  L'app chiede `GET /game/runs/{key}` dopo «Save»: risponde anche alle
+  volte dopo, con le stesse `unlocked`.
+- **`reason`**: `not_running` (bici, pagaia), `vehicle` (velocità da
+  veicolo), `overlap` (un'altra corsa salvata prima copre lo stesso
+  tempo), `daily_cap` (la corsa conta solo fino a 120 km nel giorno UTC;
+  `counted` resta `true`). Le soglie sono in `GIOCO.md` §4.
+- **`progress`**: `1` per una forma sbloccata, prima al più `0.99`.
+  `unlocked_at` resta anche se la corsa che l'ha sbloccata si cancella.
+- **`404`** su `GET /game/runs/{key}` per una corsa che l'account non ha,
+  o non ancora calcolata (salvata prima del gioco, prima del backfill).
+- Senza token, `401 not_signed_in`; senza database, `503
+  accounts_unavailable` (il catalogo risponde lo stesso).
+- **Le corse salvate prima**: `python -m shaperoute_api.game_backfill`,
+  una volta dopo il deploy e a ogni `RULES_VERSION` nuova; non manda push.
 
 ### Send to Strava (TASK-187, ADR-0156)
 

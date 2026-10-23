@@ -9,10 +9,12 @@ that sent its token last.
 
 Five events are notified, the same list for every channel (the user's
 choice of 2026-10-07): a follow request, a follow request accepted, a
-reaction, a comment, a tag. Each to one recipient, and only when:
+reaction, a comment, a tag. A sixth, a shape of the game unlocked (TASK-296,
+ADR-0255), is told to the runner who unlocked it. Each to one recipient, and
+only when:
 
 - the recipient has «Push notifications» on (users.notify_push);
-- the recipient is not the one who acted;
+- the recipient is not the one who acted, but for OWN_KINDS;
 - neither has blocked the other (TASK-121);
 - a drawing's event, the recipient sees the drawing.
 
@@ -67,7 +69,11 @@ log = logging.getLogger(__name__)
 
 Platform = Literal["ios", "android"]
 Language = Literal["en", "de", "it", "es", "fr"]
-Kind = Literal["follow_request", "follow_accepted", "reaction", "comment", "tag"]
+Kind = Literal[
+    "follow_request", "follow_accepted", "reaction", "comment", "tag", "shape_unlocked"
+]
+# The events of what one did oneself: told to oneself.
+OWN_KINDS: frozenset[str] = frozenset({"shape_unlocked"})
 
 # An Expo push token: "ExponentPushToken[…]", or "ExpoPushToken[…]".
 TOKEN_PATTERN = r"^Expo(nent)?PushToken\[[A-Za-z0-9_\-]{1,180}\]$"
@@ -218,6 +224,17 @@ TEXTS: dict[str, dict[str, str]] = {
         "es": "{name} te ha etiquetado en una publicación.",
         "fr": "{name} t'a identifié dans une publication.",
     },
+    # The shape game (TASK-296): no name, the runner is the one told.
+    "shape_unlocked": {
+        "en": "You unlocked a new shape! Find it in your collection, in Play.",
+        "de": "Du hast eine neue Form freigeschaltet! Du findest sie in deiner"
+        " Sammlung, unter Play.",
+        "it": "Hai sbloccato una nuova forma! La trovi nella tua collezione, in Play.",
+        "es": "¡Has desbloqueado una nueva forma! La encontrarás en tu colección,"
+        " en Play.",
+        "fr": "Tu as débloqué une nouvelle forme ! Tu la trouveras dans ta"
+        " collection, dans Play.",
+    },
 }
 
 
@@ -311,7 +328,8 @@ class Pusher:
     def notify(self, event: PushEvent) -> None:
         """Called after the write of the event. Never raises."""
         try:
-            if event.actor_id == event.recipient_id or not self._first(event):
+            own = event.actor_id == event.recipient_id
+            if (own and event.kind not in OWN_KINDS) or not self._first(event):
                 return
             messages = self.messages(event)
             if messages:

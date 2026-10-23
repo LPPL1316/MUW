@@ -445,6 +445,28 @@ primo libero in `main` al merge):
   DESC) WHERE visibility <> 'only_me'`: i disegni pubblicati, i più
   recenti prima, l'ordine del feed.
 
+Migrazione `0025_game.sql` (TASK-296 parte A, ADR-0255, `GIOCO.md`; il
+numero è il primo libero in `main` al merge):
+
+- `game_runs`: una riga per corsa salvata. `run_id` (chiave, `ON DELETE
+  CASCADE` su `runs`), `user_id` (`ON DELETE CASCADE` su `users`),
+  `rules_version`, `counted`, `reason` (`not_running`, `vehicle`,
+  `overlap`, `daily_cap`, o `NULL`), `counted_m`, `best_s` (jsonb: i
+  migliori secondi in movimento su 1000, 5000, 10000 e 21097 m, chiavi
+  testo), `started_at` ed `ended_at` (primo e ultimo punto). Indice su
+  `(user_id, started_at)`: i totali, le sovrapposizioni e il tetto del
+  giorno. La scrive `PUT /me/activities/{key}` nella transazione della
+  corsa, sotto il lock della riga di `users` che il salvataggio già
+  prende; `game_backfill` la rifà per le corse di prima e a ogni
+  `RULES_VERSION` nuova.
+- `game_unlocks`: le forme di un account, chiave `(user_id, shape_id,
+  edition)`. `edition` è `solo` o `team` (la sfida di squadra, parte C),
+  poi `unlocked_at` e `run_id` (`ON DELETE SET NULL`: la forma resta
+  quando si cancella la corsa che l'ha sbloccata).
+- **Con l'account si cancella tutto** (`ON DELETE CASCADE` su `users`),
+  con un test (`test_game_api.py`). Una corsa cancellata toglie la sua
+  riga di `game_runs`, e i suoi metri escono dai totali; le forme restano.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno
