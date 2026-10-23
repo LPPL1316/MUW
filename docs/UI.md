@@ -505,17 +505,6 @@ rifà ogni volta che torna sullo schermo (dopo uno swipe o un tocco, o
 chiusa una pagina che si era aperta sopra): gli elenchi di chi segue e i
 disegni si rileggono, come quando «Profile» si apriva.
 
-**Fra «Explore» e il profilo, «Play»** (TASK-296, ADR-0255), la pagina del
-gioco delle forme, con il suo nome in alto dopo «Explore»: quattro nomi.
-C'è **solo mentre il server ha il gioco**: all'avvio l'app chiede `GET
-/game/catalog` e tiene la risposta sul telefono; se risponde 200 la pagina
-compare (anche subito, mentre l'app è aperta: le pagine già costruite
-restano al loro posto), se risponde 404 sparisce, senza rete vale l'ultima
-risposta. Un telefono che non ha mai sentito il server non la mostra. Il
-profilo resta a un tocco sul suo cerchio da qualunque pagina; dallo swipe
-è a due pagine da «Explore» invece di una. La pagina è descritta sotto,
-«“Play”: la collezione delle forme».
-
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
 - **«Feed»** è la pagina dei disegni che gli iscritti pubblicano
@@ -1105,6 +1094,18 @@ La pagina del gioco delle forme (`GIOCO.md`). Nella parte B c'è la sola
 **collezione**; le squadre e le sfide arrivano con la parte D, che aggiunge
 le due schede. Codice in `apps/mobile/src/game/`.
 
+- **Dove sta**: fra «Explore» e il profilo, con il suo nome in alto dopo
+  «Explore»: quattro nomi nell'intestazione. Il profilo resta a un tocco
+  sul suo cerchio da qualunque pagina; con lo swipe è a due pagine da
+  «Explore» invece di una. Si costruisce la prima volta che ci si arriva,
+  come «Explore».
+- **Quando c'è**: solo mentre il server ha il gioco. All'avvio l'app
+  chiede `GET /game/catalog`, senza aspettarlo per mostrare «Draw», e
+  tiene la risposta sul telefono: se risponde 200 la pagina compare (anche
+  subito, mentre l'app è aperta: le pagine già costruite restano al loro
+  posto), se risponde 404 sparisce, senza rete vale l'ultima risposta e
+  non compare nessun errore. Un telefono che non ha mai sentito il server
+  non la mostra.
 - **La griglia**: le forme del catalogo dell'API, due per riga, nell'ordine
   del catalogo. Ogni scheda ha il contorno disegnato con View sottili
   girate (niente SVG, come il disegno della corsa), il nome nella lingua

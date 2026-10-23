@@ -376,7 +376,7 @@ apps/mobile/src/activities/activitiesDoorGame.test.tsx   (nuovo)
 apps/mobile/src/notifications/shownWhileOpen.test.ts     (nuovo)
 packages/shared-types/fixtures/game-catalog.json, game-me.json, game-run.json   (nuovi)
 packages/shared-types/test/game.test.ts                  (nuovo)
-packages/shared-types/src/index.ts                       (shape_unlocked in PushKind; i tipi del gioco in fondo)
+packages/shared-types/src/index.ts                       (solo in fondo: GamePushKind e i tipi del gioco; PushKind non cambia)
 apps/mobile/App.tsx                                      («play», pagesOf, il catalogo all'avvio, la pagina, onOpenPlay)
 apps/mobile/src/screens/Pager.tsx, Pager.test.tsx        (pagine costruite per titolo)
 apps/mobile/src/screens/pageTitles.ts, pageTitles.test.ts
@@ -390,8 +390,15 @@ apps/mobile/__tests__/AppPages.test.tsx, AppFeed.test.tsx, App.test.tsx,
   AppPaddle.test.tsx, AppPaddleMove.test.tsx
 apps/mobile/src/account/Profile.test.tsx
 apps/mobile/src/units/DrawDistanceApp.test.tsx
-docs/UI.md, docs/GIOCO.md, docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
+docs/UI.md (solo la sezione nuova «Play»), docs/GIOCO.md, docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
 ```
+
+Note del Coordinatore (2026-10-24): `index.ts`, `UI.md` e gli `i18n` sono
+anche della #461 e della #502, ferme: solo aggiunte in fondo o nella
+sezione nuova; `pushDevice.ts` e `notificationTap.ts` li toccherà TASK-294
+B (push Android) dopo: modifiche piccole, chiuse nel caso `shape_unlocked`.
+Su `preview` la B va con «Play» nascosta, perché il server risponde 404
+finché non ha la A: è la prova del gating.
 
 Parti C, D ed E: l'elenco si scrive qui, e va al Coordinatore, prima
 di partire.

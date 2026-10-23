@@ -1060,27 +1060,27 @@ export interface PushTokenRequest {
   language?: PushLanguage | null;
 }
 
-/** What a push notification tells of (TASK-262; a shape of the game
- * unlocked, TASK-296). */
+/** What a push notification tells of (TASK-262). */
 export type PushKind =
-  | "follow_request"
-  | "follow_accepted"
-  | "reaction"
-  | "comment"
-  | "tag"
-  | "shape_unlocked";
+  "follow_request" | "follow_accepted" | "reaction" | "comment" | "tag";
 
 /**
  * The `data` of a push notification (TASK-262): what the app opens when it
  * is touched. A drawing for a reaction, a comment or a tag; the profile of
- * who acted for a follow request or a request accepted. A shape unlocked
- * (TASK-296) carries the runner's own profile: the app opens «Play».
+ * who acted for a follow request or a request accepted.
  */
 export type PushData =
   | { kind: PushKind; drawing_id: string }
   | { kind: PushKind; public_id: string; username: string };
 
 // --- The shape game (TASK-296, ADR-0255; docs/GIOCO.md) ---
+
+/**
+ * The push notification of the game (TASK-296), beside `PushKind`: a shape
+ * unlocked. Its `data` carries the runner's own profile, as a follow
+ * event's would; the app opens «Play» instead.
+ */
+export type GamePushKind = "shape_unlocked";
 
 /**
  * What a shape of the game asks (GET /game/catalog): so many metres in

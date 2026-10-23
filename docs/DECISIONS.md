@@ -15211,6 +15211,10 @@ dell'utente)**:
   tiene le pagine costruite **per titolo e non per indice**. È una
   richiesta in più all'apertura, piccola e compressa: i test dell'app
   intera che contavano «nessuna richiesta all'avvio» la tolgono dal conto.
+  **Non ritarda la prima pagina**: «Draw» si mostra come prima, la
+  richiesta parte in un effetto e la risposta cambia solo l'elenco delle
+  pagine. **Senza rete non compare nessun errore**: un'API che non
+  risponde lascia la pagina com'era, in vista o nascosta.
 - **In B la pagina ha la sola collezione, senza `Segmented`**: la scheda
   «Challenges» arriva con D. Una scheda vuota prometterebbe qualcosa che
   non c'è ancora.
@@ -15231,4 +15235,6 @@ dell'utente)**:
   un motivo per iscriversi.
 - **I tipi del gioco e tre esempi** stanno in `shared-types`
   (`GameCatalog`, `GameMe`, `RunGame`; `fixtures/game-*.json`, piccoli,
-  non il catalogo intero). `PushKind` guadagna `shape_unlocked`.
+  non il catalogo intero), in fondo al file: `PushKind` non cambia, la
+  push del gioco è `GamePushKind` accanto a lui, perché `index.ts` è
+  anche di due PR ferme (#461, #502) e si aggiunge solo in coda.
