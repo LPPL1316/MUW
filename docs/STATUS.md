@@ -167,6 +167,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   di condivisione. Solo app: nessuna dipendenza nuova, niente di nativo,
   fingerprint iOS invariato. Provato nel simulatore (1,9 MB in circa
   10 s); la prova sull'iPhone è dell'utente. File: `tasks/TASK-295.md`.
+  **Chiuso**: in `main` con la #533 (`90691d47`, 2026-10-23), mergiata
+  dal Coordinatore, provato dall'utente sull'iPhone; vedi «Completato».
 - **TASK-296 — Il gioco delle forme** (ADR-0255; chiesto dall'utente il
   2026-10-23, numero dal Coordinatore). Le corse a piedi salvate sbloccano
   forme da collezionare, per km totali e per passo su una distanza; in
@@ -998,6 +1000,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
+  2026-10-23): il video della corsa da condividere. In «Share your run»,
+  «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
+  giallo del post: logo e titolo, la linea della corsa che si disegna
+  mentre distanza e tempo salgono, poi il post intero con le emoji, senza
+  musica; poi il foglio di condivisione («Save Video», Instagram). Il
+  telefono lo fa nel WebView con WebCodecs (H.264 Baseline) e l'app
+  scrive l'MP4: nessuna dipendenza nuova, niente di nativo, impronta iOS
+  `83793e26` invariata, quindi arriva anche alla 1.0 con un aggiornamento.
+  Limite fisso: 360 fotogrammi, al più 2000 punti sulla linea, al più
+  ~9 MB. Su `preview` dal gruppo `bed64fd5` (`main` `90691d47`); prova
+  sull'iPhone dell'utente del 2026-10-23: «provato, funziona tutto». PR
+  #533, `90691d47`. `tasks/TASK-295.md`.
 - **App** — prova sull'iPhone dell'utente del 2026-10-19 («provato, funziona tutto») su `preview` dal gruppo `6dab601f` (`main` `b35d461c`): TASK-292 (scegliere la partenza sulla mappa). Riga aggiunta nell'«Esito» del task file.
 - **API** — TASK-293 (aggiunta ad ADR-0249; seguito di TASK-288 B): un
   invio a Strava apre un blocco del database alla volta. La corsa letta
