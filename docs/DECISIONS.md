@@ -15020,6 +15020,86 @@ WebView (la punta dipende dalla scheda sotto e dal bordo della mappa).
 resta in inglese come le sue vicine, che sono «il resto di `App.tsx`» di
 TASK-210. Solo app: nessun motore, API o migrazione; non entra nella 1.0.
 
+## ADR-0254 — Il video di una corsa: fatto sul telefono nel WebView, H.264 con WebCodecs, MP4 scritto dall'app
+
+**Stato**: Attiva · 2026-10-23 · il contenuto e il pulsante li ha scelti
+l'utente; i punti tecnici sono decisi dall'agente su delega dell'utente
+(TASK-295)
+
+**Contesto**: l'utente il 2026-10-23: «creare il video in automatico
+finale di tutta la tua esperienza / corsa da poter postare sui social,
+tipo un pulsante con esporta». Il post di una corsa è già un'immagine
+fatta sul telefono (ADR-0194). Expo non ha un modulo che codifica video,
+ffmpeg-kit è ritirato, e un modulo nativo nuovo vorrebbe una build nuova:
+niente Expo Go, un fingerprint iOS diverso (la 1.0 non riceverebbe più
+gli aggiornamenti) e una 1.0.1 sull'App Store. Il WebView
+(`react-native-webview`) è già nella build per la mappa e il motore, e
+WebKit ha WebCodecs dal 16.4, il minimo di Expo SDK 57.
+
+**Decisione**:
+
+1. **Il contenuto è dell'utente** («Sì, così», fra «con la mappa sotto»
+   e «più lungo»): 9:16, 1080 × 1920, 30 fotogrammi al secondo, **12 s**,
+   sul giallo del post. 0–1 s il logo e il titolo entrano; 1–9 s la linea
+   della corsa si disegna (lenta all'inizio e alla fine) con la punta
+   della penna, distanza e tempo salgono con lei, il passo è quello della
+   corsa intera; 9–12 s il disegno intero, e le emoji del post entrano
+   una dopo l'altra. L'ultimo fotogramma è il post. **Niente musica**.
+   Nascosti i primi e gli ultimi 200 m (POST_CUT_M). Il pulsante è
+   **«Export video»**, accanto a «Instagram».
+2. **Il video si fa sul telefono, in un WebView nascosto**: canvas 2D e
+   `VideoEncoder` di WebCodecs. La pagina (`videoPage.ts`) è caricata con
+   `source.html` e `baseUrl` `https://video.muw.invalid/`: l'origine https
+   la rende un contesto sicuro, che WebCodecs vuole; non carica niente. Il
+   WebView sta **dentro il Modal** di «Share your run», dove iOS lo tiene
+   nella finestra.
+3. **Che cosa disegnare lo decide l'app** (`videoScene.ts`, testato): per
+   ogni fotogramma una lista di linee, punti, scritte ed emoji in pixel,
+   con le misure di `PostImage`. La pagina li disegna e basta.
+4. **H.264 Constrained Baseline, livello 4.0** (`avc1.42e028`, poi
+   `42e02a` e `420028`): Baseline non ha B-frames, così ogni fotogramma si
+   mostra nell'ordine in cui si decodifica e il file non ha bisogno di
+   tempi di composizione. High (`640028`) nel simulatore si dichiarava
+   supportato e poi non dava niente. `latencyMode: "realtime"` (nel
+   simulatore 17 ms a fotogramma contro più di 100), 6 Mbit/s, un
+   fotogramma chiave ogni 2 s, una coda di 3 fotogrammi al più.
+5. **Il file MP4 lo scrive l'app** (`mp4.ts`, testato), senza
+   dipendenze: `ftyp`, poi l'indice `moov` **prima** dei dati `mdat` (il
+   video parte prima di averlo letto tutto), una traccia video, tutti i
+   fotogrammi in un chunk, le durate dai tempi dell'encoder (`stts`), i
+   fotogrammi chiave (`stss`), la configurazione `avcC` dell'encoder.
+6. **I pezzi arrivano in base64** (`postMessage` porta solo testo), dieci
+   per messaggio; l'app li legge con un suo decoder. Senza una parola
+   della pagina per 20 s il video è dato per non riuscito.
+7. **Il file è `MuW-run.mp4` nella cache**, riscritto ogni volta, e va al
+   foglio di condivisione come `video/mp4` (`public.mpeg-4`): Instagram
+   (Reel, Storia), WhatsApp, «Save Video». Condiviso, il post resta con la
+   corsa salvata come per l'immagine (ADR-0222).
+8. **Un telefono senza WebCodecs** (o senza il codec) lo dice: «This
+   phone cannot make the video.». Il pulsante c'è sempre: lo si sa solo
+   dopo aver aperto la pagina.
+9. **Un limite che non dipende dalla corsa** (condizione del
+   Coordinatore): sempre 360 fotogrammi; la linea della corsa ha al più
+   2000 punti, mai più vicini di 2 pixel (`thinned`); per fotogramma al
+   più una ventina di cose da disegnare; a 6 Mbit/s il video pesa al più
+   circa 9 MB. Va anche su un telefono vecchio: l'encoder è quello
+   hardware dell'iPhone.
+
+**Alternative scartate**: il video sul server con ffmpeg (una dipendenza
+nuova nell'immagine, CPU del server condivisa, la rete, il server fermo
+fino ad Apple); un modulo nativo con AVAssetWriter e MediaCodec (build
+nuova, niente Expo Go, fingerprint diverso); `mp4-muxer`/`mediabunny`
+(una dipendenza per un file che sono 200 righe); registrare lo schermo con
+ReplayKit (nativo, un permesso in più); una GIF (Instagram non la prende
+come video); High o Main H.264 (B-frames: servirebbe `ctts`).
+
+**Conseguenza**: solo app; arriva con un aggiornamento normale su
+`preview` e su `production` (niente di nativo: il fingerprint iOS con
+`APP_VARIANT=production` resta `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`).
+Quattro testi nuovi nelle cinque lingue. Un video del cuore di 5 km pesa
+1,9 MB e si fa in circa 10 s nel simulatore. Android ha WebCodecs nel suo
+WebView, ma non è provato (TASK-294).
+
 ## ADR-0255 — Il gioco delle forme: regole sul server, pagina «Play» accesa dall'API
 
 **Stato**: Attiva · 2026-10-23 · il gioco e il suo posto in MuW li ha

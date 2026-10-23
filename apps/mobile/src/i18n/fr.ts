@@ -1224,4 +1224,11 @@ export const FR: Table = {
   "Choose on the map": "Choisir sur la carte",
   "Move the map to put the pin where you want to start.":
     "Déplace la carte pour mettre l'épingle là où tu veux partir.",
+
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Exporter la vidéo",
+  "Making the video… {percent}%": "Création de la vidéo… {percent} %",
+  "This phone cannot make the video.": "Ce téléphone ne peut pas créer la vidéo.",
+  "The video could not be made. Try again.":
+    "La vidéo n'a pas pu être créée. Réessaie.",
 };

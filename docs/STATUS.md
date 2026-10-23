@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-295 — Il video della corsa, da esportare per i social**
+  (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
+  Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
+  accanto a «Instagram»: un video di 12 s, 9:16, sul giallo del post, con
+  la linea della corsa che si disegna mentre distanza e tempo salgono, poi
+  il post intero con le emoji; niente musica. Si fa sul telefono nel
+  WebView (WebCodecs, H.264 Baseline) e l'app scrive l'MP4; poi il foglio
+  di condivisione. Solo app: nessuna dipendenza nuova, niente di nativo,
+  fingerprint iOS invariato. Provato nel simulatore (1,9 MB in circa
+  10 s); la prova sull'iPhone è dell'utente. File: `tasks/TASK-295.md`.
 - **TASK-296 — Il gioco delle forme** (ADR-0255; chiesto dall'utente il
   2026-10-23, numero dal Coordinatore). Le corse a piedi salvate sbloccano
   forme da collezionare, per km totali e per passo su una distanza; in

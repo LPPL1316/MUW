@@ -2730,6 +2730,16 @@ run», con «Close» in alto a sinistra:
   Instagram in the list: Story, Feed or Messages.». Errori: «This phone
   cannot open the share sheet.», «The picture could not be made. Try
   again.».
+- **«Export video»**, accanto a «Instagram» (TASK-295, ADR-0254; scelta
+  dell'utente): fa un video di 12 s, 9:16, del post che prende vita. Sul
+  giallo entrano il logo e il titolo; la linea della corsa si disegna da
+  sola, con la punta della penna, mentre distanza e tempo salgono; alla
+  fine il disegno intero, i risultati accesi e le emoji del post, che
+  entrano una dopo l'altra. Niente musica. Mentre lo fa il pulsante dice
+  «Making the video… 42%» e i due pulsanti non si toccano; poi si apre il
+  foglio di condivisione con il video («Save Video» lo tiene in Foto).
+  Errori: «This phone cannot make the video.», «The video could not be
+  made. Try again.», «This phone cannot open the share sheet.».
 - **Strava**, sotto, solo se l'API ha Strava: «Connect with Strava» se
   l'atleta non è collegato; a fine corsa, prima di «Save»: «To send this
   post to Strava, save the run, then share it from «My activities».». Su
@@ -3276,7 +3286,10 @@ c'è anche l'errore.
   Messaggi…). Non mostra i primi e gli ultimi 200 m della corsa, né la
   mappa sotto. A Strava, con «Send to Strava» o «Update on Strava» dal
   post, va in più il testo del post (emoji e risultati scelti), che
-  sull'attività già là sostituisce il testo di prima.
+  sull'attività già là sostituisce il testo di prima. **Il video del
+  post** (TASK-295) si fa anch'esso sul telefono, senza rete, ed esce
+  solo dal foglio di condivisione; nella cache resta l'ultimo,
+  `MuW-run.mp4`.
 - **Un disegno che altri vedono** (TASK-117, TASK-208): una corsa diventa
   visibile agli altri iscritti **solo con «Everyone» o «Followers»**
   scelto dall'utente, a fine corsa o su una corsa aperta; «Only me» a ogni

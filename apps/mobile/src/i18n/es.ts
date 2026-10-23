@@ -1229,4 +1229,11 @@ export const ES: Table = {
   "Choose on the map": "Elegir en el mapa",
   "Move the map to put the pin where you want to start.":
     "Mueve el mapa para poner el marcador donde quieres empezar.",
+
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Exportar vídeo",
+  "Making the video… {percent}%": "Creando el vídeo… {percent} %",
+  "This phone cannot make the video.": "Este teléfono no puede crear el vídeo.",
+  "The video could not be made. Try again.":
+    "No se pudo crear el vídeo. Inténtalo de nuevo.",
 };
