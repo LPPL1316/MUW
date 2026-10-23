@@ -1,6 +1,8 @@
 # TASK-295 — Il video della corsa, da esportare per i social
 
-**Stato**: In corso — PR aperta, aspetta la coda dei merge del Coordinatore
+**Stato**: Done — in `main` con la #533 (`90691d47`, 2026-10-23),
+mergiata dal Coordinatore; su `preview` dal gruppo `bed64fd5`; provato
+dall'utente sull'iPhone il 2026-10-23
 **Fase**: 4 · **Branch**: `feat/TASK-295-run-video`
 **ADR**: ADR-0254 · **Migrazione**: nessuna · **Solo app** (nessun server,
 nessuna build nativa, nessuna dipendenza nuova)
@@ -138,5 +140,19 @@ docs/STATUS.md
 
 ## Esito
 
-*(in corso)* Fatto e provato nel simulatore; manca la prova sull'iPhone,
-che è dell'utente, dopo il merge e la pubblicazione su `preview`.
+In `main` con la #533 (`90691d47`, 2026-10-23), mergiata dal
+Coordinatore, e su `preview` dal gruppo `bed64fd5` (runtime
+`exposdk:57.0.0`). «Export video» fa il video del post sul telefono, nel
+WebView con WebCodecs (H.264 Baseline), e l'app scrive l'MP4: nessuna
+dipendenza nuova, niente di nativo, impronta iOS
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` invariata, quindi arriva anche
+alla 1.0 con un aggiornamento. Nel simulatore: 1,9 MB in circa 10 s,
+360 fotogrammi letti da AVFoundation.
+
+Prova sull'iPhone dell'utente del 2026-10-23 su `preview` dal gruppo
+`bed64fd5` (`main` `90691d47`): «provato, funziona tutto».
+
+Emerso: nel simulatore H.264 High (`avc1.640028`) si dichiara supportato
+e poi non dà niente, Baseline sì (ADR-0254, punto 4). Restano fuori,
+come scritto in «Fuori scope»: la mappa sotto, la musica, un video più
+lungo, e la prova su Android (TASK-294).
