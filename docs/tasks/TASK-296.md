@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti (questa PR), poi parte A
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in PR
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -99,8 +99,10 @@ scelto **MuW, pagina «Play»**. Numero e ADR vengono dal Coordinatore (il
      giornaliero, `game_runs`, `game_unlocks`, push `shape_unlocked`;
    - `GET /game/catalog` senza account e `GET /game/me` con account.
 5. **`activities.py`**: dopo il salvataggio chiama `after_run_saved`
-   nella stessa transazione e aggiunge `game` alla risposta. Anche quando
-   cancelli una corsa, `game_runs` va via in cascata.
+   nella stessa transazione; dopo il commit, la push delle forme
+   sbloccate. La risposta di `PUT /me/activities/{key}` **non cambia**:
+   l'esito si legge con `GET /game/runs/{key}` (aggiunta ad ADR-0255).
+   Anche quando cancelli una corsa, `game_runs` va via in cascata.
 6. **`push.py`**: il `Kind` `shape_unlocked` e il suo testo (da
    approvare, sotto). **`app.py`**: la riga del router.
 7. **`game_backfill.py`**: il comando del §7, idempotente, senza push.
@@ -196,14 +198,34 @@ Coordinatore.
 
 ## Testi da approvare dall'utente
 
+**Approvati dall'utente il 2026-10-23** («sì, i testi vanno bene»): il
+testo della push `shape_unlocked` nelle cinque lingue, i nomi delle 12
+forme e il paragrafo di privacy «The shape game» qui sotto. Le altre tre
+push (`piece_done`, `challenge_done`, `challenge_ending`) sono della
+parte C e si riguardano quando parte.
+
 **Push** (inglese, poi tradotti nelle altre quattro lingue):
 
 | Kind | Testo | Italiano |
 |---|---|---|
-| `shape_unlocked` | New shape unlocked: {shape} is in your collection. | Nuova forma sbloccata: {shape} è nella tua collezione. |
+| `shape_unlocked` | You unlocked a new shape! Find it in your collection, in Play. | Hai sbloccato una nuova forma! La trovi nella tua collezione, in Play. |
 | `piece_done` | {name} finished piece {n} of the {shape}. | {name} ha finito il pezzo {n} di {shape}. |
 | `challenge_done` | {shape} complete! Your team drew it together. | {shape} completata! La squadra l'ha disegnata insieme. |
 | `challenge_ending` | 1 day left: {k} pieces of the {shape} are missing. | Manca 1 giorno: mancano {k} pezzi di {shape}. |
+
+`shape_unlocked` non ha il nome della forma: il testo segue la lingua di
+ogni telefono e l'evento non porta nomi (aggiunta ad ADR-0255). Nella parte
+A è scritto in `push.py` anche in tedesco («Du hast eine neue Form
+freigeschaltet! Du findest sie in deiner Sammlung, unter Play.»), spagnolo
+(«¡Has desbloqueado una nueva forma! La encontrarás en tu colección, en
+Play.») e francese («Tu as débloqué une nouvelle forme ! Tu la trouveras
+dans ta collection, dans Play.»).
+
+**Nomi delle forme** (parte A, `game_catalog.py`, serviti da `GET
+/game/catalog` nelle cinque lingue): Triangle/Triangolo, Square/Quadrato,
+Hexagon/Esagono, Circle/Cerchio, Star/Stella, Heart/Cuore, Moon/Luna,
+Sun/Sole, Lightning/Fulmine, Diamond/Diamante, Arrow/Freccia,
+Crown/Corona; tedesco, spagnolo e francese nel file.
 
 **Privacy**: un paragrafo nuovo in `site/privacy`, «The shape game».
 Entra dopo la #461 e TASK-284 B.
@@ -244,7 +266,7 @@ Parte A:
       (massimo 99 % sulle forme bloccate).
 - [ ] Le righe `game_*` dell'account cancellato spariscono (test).
 - [ ] Il backfill è idempotente e non manda push.
-- [ ] pytest, ruff, black e mypy verdi.
+- [ ] pytest, ruff e black verdi (mypy non è nel progetto né nella CI).
 
 Parte B:
 - [ ] «Play» si vede con `/game/catalog` 200 ed è nascosta con 404.
@@ -281,8 +303,10 @@ services/api/tests/test_game_rules.py                    (nuovo)
 services/api/tests/test_game_catalog.py                  (nuovo)
 services/api/tests/test_game_api.py                      (nuovo)
 services/api/tests/test_game_backfill.py                 (nuovo)
-docs/API.md                                              (sezione «Gioco»)
+docs/API.md                                              («Shape game» e la riga della push)
 docs/DATABASE.md                                         (game_runs, game_unlocks)
+docs/GIOCO.md                                            (il salvataggio è PUT, GET /game/runs/{key})
+docs/DECISIONS.md                                        (aggiunta ad ADR-0255)
 docs/STATUS.md, docs/tasks/TASK-296.md
 ```
 

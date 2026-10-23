@@ -196,7 +196,7 @@ altri iscritti, con il titolare del pezzo a `NULL`.
 | Tabella | Parte | Che cosa |
 |---|---|---|
 | `game_runs` | A | per ogni corsa: `rules_version`, `counted`, `reason`, `counted_m`, `best_s` (jsonb, secondi su 1000/5000/10000/21097), `started_at`, `ended_at` |
-| `game_unlocks` | A | `(user_id, shape_id, edition)`, `unlocked_at`, `run_id` (`SET NULL`), `challenge_id` (`SET NULL`) |
+| `game_unlocks` | A | `(user_id, shape_id, edition)`, `unlocked_at`, `run_id` (`SET NULL`); la parte C aggiunge `challenge_id` (`SET NULL`) |
 | `game_teams` | C | `id` uuid, `name`, `invite_code` unico, `owner_id` (`SET NULL`), `created_at` |
 | `game_team_members` | C | `(team_id, user_id)`, `joined_at` |
 | `game_challenges` | C | `id`, `team_id`, `shape_id`, `created_by` (`SET NULL`), `starts_at`, `ends_at`, `completed_at` |
@@ -212,7 +212,8 @@ dopo il deploy della parte A e di nuovo a ogni cambio di regole.
 
 | Metodo | Percorso | Account | Parte |
 |---|---|---|---|
-| — | `POST /activities` (c'è già) | sì | A: dopo il salvataggio, `game.after_run_saved`; la risposta aggiunge `game: {counted, reason, unlocked[]}` (C aggiunge `pieces_done[]`) |
+| — | `PUT /me/activities/{key}` (c'è già) | sì | A: nella transazione del salvataggio, `game.after_run_saved`; la risposta non cambia |
+| GET | `/game/runs/{key}` | sì | A: che cosa ha valso la corsa: `counted`, `reason`, `counted_m`, `best_s`, `unlocked[]` (C aggiunge i pezzi) |
 | GET | `/game/catalog` | no | A: il catalogo con i contorni. Se risponde 404, l'app nasconde «Play» (ADR-0255) |
 | GET | `/game/me` | sì | A: km contati, migliori tempi, sblocchi, avanzamento |
 | POST | `/game/teams` | sì | C |
@@ -244,8 +245,8 @@ nelle cinque lingue.
 - **La pagina si vede solo se il server ha il gioco**: `GET /game/catalog`
   risponde 200. Con 404 resta nascosta. Senza rete vale l'ultima risposta
   salvata sul telefono, e al primo avvio la pagina resta nascosta.
-- **Dopo «Save»**, se la risposta di `POST /activities` dice che la corsa
-  ha sbloccato qualcosa, compare la scheda «New shape unlocked» con il
+- **Dopo «Save»**, se `GET /game/runs/{key}` dice che la corsa ha
+  sbloccato qualcosa, compare la scheda «New shape unlocked» con il
   contorno che si disegna, dopo il logo di TASK-212. Una corsa mandata
   più tardi dalla coda (`outbox`) avvisa con la push.
 - **Durante la corsa** c'è una striscia sottile, per esempio «Hexagon

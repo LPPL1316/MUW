@@ -15177,3 +15177,21 @@ paragrafo di privacy aspettano il sì dell'utente (`tasks/TASK-296.md`). Le
 parti B, D ed E lasciano l'impronta iOS
 `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`. Il controllo periodico della
 push «1 day left» si decide in C, aggiungendolo qui.
+
+**Aggiunta (parte A, 2026-10-23, decisa dall'agente su delega
+dell'utente)**:
+
+- **La risposta del salvataggio non cambia.** `PUT /me/activities/{key}`
+  calcola il gioco nella sua transazione, ma risponde come prima;
+  l'esito si legge con `GET /game/runs/{key}`. Il contratto di «My
+  activities» e i suoi esempi in `shared-types` restano quelli. In più la
+  stessa domanda risponde anche alle volte dopo, quando l'app rimanda una
+  corsa già salvata. Costa all'app una richiesta piccola dopo «Save».
+- **La push `shape_unlocked` non porta il nome della forma.** Il testo si
+  sceglie per la lingua di ogni telefono, e un evento di `push.py` non ha
+  nomi tradotti. In `push.py` entrano solo il `Kind`, i suoi testi e
+  `OWN_KINDS`, gli eventi raccontati a chi li ha fatti.
+- **Le forme sbloccate dal backfill** hanno come data la fine della corsa
+  che le ha raggiunte, non il giorno del deploy.
+- **I nomi delle forme** stanno nel catalogo dell'API nelle cinque lingue,
+  perché anche le forme vengono da lì: una forma nuova non chiede un'OTA.

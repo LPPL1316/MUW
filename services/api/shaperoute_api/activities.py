@@ -66,6 +66,7 @@ from shaperoute_api.accounts import (
     now_utc,
 )
 from shaperoute_api.db import Database
+from shaperoute_api.game import after_run_saved, notify_unlocked
 from shaperoute_api.insights import Insights
 from shaperoute_api.places import KEY_VARIABLE, Fetch, fetch_json
 from shaperoute_api.recommended import preview
@@ -756,6 +757,18 @@ class Activities:
                 ),
             ).fetchone()
             assert row is not None
+            # What the run is worth to the shape game, in the same
+            # transaction (TASK-296, game.py).
+            after_run_saved(
+                conn,
+                user_id,
+                row["id"],
+                run.started_at,
+                run.track,
+                run.pauses,
+                body.activity,
+                self.now(),
+            )
             return _listed(row), True
 
     def keep_post(
@@ -830,6 +843,8 @@ def activity_routes() -> APIRouter:
                 # it went: nothing of who ran it, nor where.
                 insights: Insights = request.app.state.run_insights
                 insights.record("run_scored", quality=round(activity.score / 100, 3))
+            # The shapes the new run unlocked, told after its write (TASK-296).
+            notify_unlocked(request, user.id, key)
         return activity
 
     # The post, as shared: the last one wins (TASK-258).
