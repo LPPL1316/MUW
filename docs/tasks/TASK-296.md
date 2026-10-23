@@ -198,6 +198,12 @@ Coordinatore.
 
 ## Testi da approvare dall'utente
 
+**Approvati dall'utente il 2026-10-23** («sì, i testi vanno bene»): il
+testo della push `shape_unlocked` nelle cinque lingue, i nomi delle 12
+forme e il paragrafo di privacy «The shape game» qui sotto. Le altre tre
+push (`piece_done`, `challenge_done`, `challenge_ending`) sono della
+parte C e si riguardano quando parte.
+
 **Push** (inglese, poi tradotti nelle altre quattro lingue):
 
 | Kind | Testo | Italiano |
