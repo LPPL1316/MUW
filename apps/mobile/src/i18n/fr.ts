@@ -742,6 +742,8 @@ export const FR: Table = {
   "Pick Instagram in the list: Story, Feed or Messages.":
     "Choisis Instagram dans la liste : Story, Feed ou Messages.",
   Share: "Partager",
+  "Export video": "Exporter la vidéo",
+  "Making the video… {percent}%": "Création de la vidéo… {percent} %",
 
   // src/share/StravaPostRow.tsx
   "To send this post to Strava, save the run, then share it from «My activities».":
@@ -762,6 +764,11 @@ export const FR: Table = {
   // src/share/sharePicture.ts
   "The picture could not be made. Try again.":
     "L'image n'a pas pu être créée. Réessaie.",
+
+  // src/share/videoFile.ts
+  "This phone cannot make the video.": "Ce téléphone ne peut pas créer la vidéo.",
+  "The video could not be made. Try again.":
+    "La vidéo n'a pas pu être créée. Réessaie.",
 
   // src/social/DrawingCard.tsx
   "Back to the profile": "Retour au profil",

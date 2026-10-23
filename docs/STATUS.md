@@ -157,6 +157,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-295 — Il video della corsa, da esportare per i social**
+  (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
+  Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
+  accanto a «Instagram»: un video di 12 s, 9:16, sul giallo del post, con
+  la linea della corsa che si disegna mentre distanza e tempo salgono, poi
+  il post intero con le emoji; niente musica. Si fa sul telefono nel
+  WebView (WebCodecs, H.264 Baseline) e l'app scrive l'MP4; poi il foglio
+  di condivisione. Solo app: nessuna dipendenza nuova, niente di nativo,
+  fingerprint iOS invariato. Provato nel simulatore (1,9 MB in circa
+  10 s); la prova sull'iPhone è dell'utente. File: `tasks/TASK-295.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
