@@ -34,7 +34,13 @@ e «più lungo»:
 3. **Come**: il telefono lo fa in pochi secondi, poi si apre il foglio di
    condivisione (Instagram, WhatsApp, «Save Video»).
 
-Numeri dal Coordinatore il 2026-10-23: TASK-295, ADR-0254.
+Numeri dal Coordinatore il 2026-10-23: TASK-295, ADR-0254. Le sue
+condizioni: niente dipendenze né permessi nuovi (solo il foglio di
+condivisione); fingerprint iOS invariato; WebCodecs controllato, con un
+messaggio chiaro dove manca; test con un encoder finto e test del muxer
+sui byte; nel video niente che l'immagine non mostri; un limite di durata
+e memoria che non dipenda dalla corsa; le righe delle traduzioni solo in
+fondo alle tabelle.
 
 ## Contesto da leggere
 
@@ -77,8 +83,21 @@ Numeri dal Coordinatore il 2026-10-23: TASK-295, ADR-0254.
   «This phone cannot open the share sheet.».
 - [x] Condiviso, il post resta con la corsa salvata come per l'immagine
   (TASK-258).
-- [x] Nessuna dipendenza nuova, niente di nativo: il fingerprint iOS non
-  cambia.
+- [x] Nessuna dipendenza nuova, niente di nativo: il fingerprint iOS
+  (`APP_VARIANT=production`) resta `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`
+  prima e dopo, misurato su un clone con `node_modules` copiati (non
+  collegati).
+- [x] Durata e memoria non crescono con la corsa: sempre 360 fotogrammi,
+  al più 2000 punti sulla linea (`thinned`), al più una ventina di cose
+  da disegnare per fotogramma, 6 Mbit/s (al più ~9 MB di video).
+- [x] Lo script della pagina gira in un test con un `VideoEncoder` finto
+  (`videoPage.test.ts`): codec scelto, nessun WebCodecs, un errore a metà
+  che diventa «failed», 360 pezzi in ordine con un fotogramma chiave ogni
+  2 s, e l'MP4 fatto dai suoi pezzi.
+- [x] Nel video niente che l'immagine del post non mostri (condizione del
+  Coordinatore): le stesse parti, in più solo i numeri a metà strada e la
+  punta della penna, che rivela il verso della corsa ma non le sue
+  estremità.
 - [x] Provato nel simulatore iPhone Air (iOS 27) in Expo Go: video fatto
   in circa 10 s, 1,9 MB, foglio di condivisione con «Save Video».
 

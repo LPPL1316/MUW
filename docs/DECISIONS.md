@@ -15078,6 +15078,12 @@ WebKit ha WebCodecs dal 16.4, il minimo di Expo SDK 57.
 8. **Un telefono senza WebCodecs** (o senza il codec) lo dice: «This
    phone cannot make the video.». Il pulsante c'è sempre: lo si sa solo
    dopo aver aperto la pagina.
+9. **Un limite che non dipende dalla corsa** (condizione del
+   Coordinatore): sempre 360 fotogrammi; la linea della corsa ha al più
+   2000 punti, mai più vicini di 2 pixel (`thinned`); per fotogramma al
+   più una ventina di cose da disegnare; a 6 Mbit/s il video pesa al più
+   circa 9 MB. Va anche su un telefono vecchio: l'encoder è quello
+   hardware dell'iPhone.
 
 **Alternative scartate**: il video sul server con ffmpeg (una dipendenza
 nuova nell'immagine, CPU del server condivisa, la rete, il server fermo
@@ -15088,7 +15094,8 @@ ReplayKit (nativo, un permesso in più); una GIF (Instagram non la prende
 come video); High o Main H.264 (B-frames: servirebbe `ctts`).
 
 **Conseguenza**: solo app; arriva con un aggiornamento normale su
-`preview` e su `production` (niente di nativo, fingerprint iOS invariato).
+`preview` e su `production` (niente di nativo: il fingerprint iOS con
+`APP_VARIANT=production` resta `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`).
 Quattro testi nuovi nelle cinque lingue. Un video del cuore di 5 km pesa
 1,9 MB e si fa in circa 10 s nel simulatore. Android ha WebCodecs nel suo
 WebView, ma non è provato (TASK-294).

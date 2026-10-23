@@ -121,6 +121,10 @@ export type VideoScene = {
 const HEART_PATH = 0;
 const RUN_PATH = 1;
 
+/** The most points of the run's line, and the closest two may be. */
+export const MAX_POINTS = 2000;
+const MIN_STEP_PX = 2;
+
 /** One decimal: the scene goes to the WebView as text. */
 function round(value: number): number {
   return Math.round(value * 10) / 10;
@@ -156,6 +160,40 @@ export function pointsOf(segments: readonly Segment[]): [number, number][] {
     return [];
   }
   return [ends(segments[0], -1), ...segments.map((s) => ends(s, 1))];
+}
+
+/**
+ * The run's line with at most `most` points (and its two ends): the scene,
+ * and the page's work for each picture, stay the same size however long
+ * the run (a fix a second for hours). Points closer than `MIN_STEP_PX` are
+ * under the line's own width anyway.
+ */
+export function thinned(
+  points: readonly [number, number][],
+  most: number = MAX_POINTS,
+): [number, number][] {
+  if (points.length <= 2) {
+    return [...points];
+  }
+  let length = 0;
+  for (let i = 1; i < points.length; i += 1) {
+    length += Math.hypot(
+      points[i][0] - points[i - 1][0],
+      points[i][1] - points[i - 1][1],
+    );
+  }
+  // Each point kept is at least `step` from the one before, so at most
+  // length / step of them.
+  const step = Math.max(MIN_STEP_PX, length / most);
+  const kept: [number, number][] = [points[0]];
+  for (let i = 1; i < points.length - 1; i += 1) {
+    const [x, y] = kept[kept.length - 1];
+    if (Math.hypot(points[i][0] - x, points[i][1] - y) >= step) {
+      kept.push(points[i]);
+    }
+  }
+  kept.push(points[points.length - 1]);
+  return kept;
 }
 
 /** How long a path is, in pixels. */
@@ -229,7 +267,7 @@ function layoutOf(run: PostRun, shown: readonly PostResult[]) {
     line,
     bearingOf(run.rotationDeg),
   );
-  const track = pointsOf(segments).flatMap(([x, y]) => [
+  const track = thinned(pointsOf(segments)).flatMap(([x, y]) => [
     round(w * SIDE + x),
     round(h * DRAWING_TOP + y),
   ]);

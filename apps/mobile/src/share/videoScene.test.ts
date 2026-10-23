@@ -6,8 +6,10 @@ import { POST_RESULTS, type PostRun, resultValue } from "./postRun";
 import type { Sticker } from "./stickers";
 import {
   lengthOf,
+  MAX_POINTS,
   pointAlong,
   pointsOf,
+  thinned,
   VIDEO_FPS,
   VIDEO_HEIGHT,
   VIDEO_SECONDS,
@@ -189,6 +191,61 @@ describe("pointsOf", () => {
 
   it("is empty with no segments", () => {
     expect(pointsOf([])).toEqual([]);
+  });
+});
+
+describe("the size of a video, whatever the run", () => {
+  /** A zigzag of `count` fixes 20 m apart, east and back: a long, dense run. */
+  function zigzag(count: number): LatLon[] {
+    return Array.from({ length: count }, (_, i): LatLon => [
+      46.07 + (Math.floor(i / 50) * 20) / 111_195,
+      11.12 + (((i % 100 < 50 ? i % 50 : 49 - (i % 50)) * 20) / 111_195) * 1.44,
+    ]);
+  }
+
+  it("draws at most MAX_POINTS points of a run with a fix a second for hours", () => {
+    const long = videoScene(
+      { ...RUN, track: zigzag(20_000), distanceM: 400_000 },
+      POST_RESULTS,
+      [],
+    );
+    expect(long.paths[1].length / 2).toBeLessThanOrEqual(MAX_POINTS + 2);
+    expect(long.frames).toHaveLength(VIDEO_SECONDS * VIDEO_FPS);
+    expect(Math.max(...long.frames.map((frame) => frame.length))).toBeLessThan(20);
+  });
+
+  it("keeps the line's two ends, and points no closer than 2 pixels", () => {
+    const points = Array.from({ length: 1000 }, (_, i): [number, number] => [
+      i * 0.5,
+      0,
+    ]);
+    const kept = thinned(points);
+    expect(kept[0]).toEqual([0, 0]);
+    expect(kept[kept.length - 1]).toEqual([499.5, 0]);
+    expect(kept.length).toBeLessThanOrEqual(251);
+    for (let i = 1; i < kept.length - 1; i += 1) {
+      expect(kept[i][0] - kept[i - 1][0]).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it("thins a long line to the most points asked", () => {
+    const points = Array.from({ length: 50_000 }, (_, i): [number, number] => [
+      i * 3,
+      0,
+    ]);
+    expect(thinned(points, 100).length).toBeLessThanOrEqual(102);
+  });
+
+  it("leaves a line of two points as it is", () => {
+    expect(
+      thinned([
+        [0, 0],
+        [1, 1],
+      ]),
+    ).toEqual([
+      [0, 0],
+      [1, 1],
+    ]);
   });
 });
 
