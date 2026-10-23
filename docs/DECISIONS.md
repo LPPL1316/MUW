@@ -15099,3 +15099,81 @@ come video); High o Main H.264 (B-frames: servirebbe `ctts`).
 Quattro testi nuovi nelle cinque lingue. Un video del cuore di 5 km pesa
 1,9 MB e si fa in circa 10 s nel simulatore. Android ha WebCodecs nel suo
 WebView, ma non è provato (TASK-294).
+
+## ADR-0255 — Il gioco delle forme: regole sul server, pagina «Play» accesa dall'API
+
+**Stato**: Attiva · 2026-10-23 · il gioco e il suo posto in MuW li ha
+scelti l'utente; i punti tecnici sono decisi dall'agente su delega
+dell'utente (TASK-296)
+
+**Contesto**: l'utente ha chiesto un gioco di corsa. I km e il passo
+sbloccano forme da collezionare, e in squadra si ricrea una forma divisa
+in pezzi, entro una scadenza. Fra un'app a sé, una riga nel Profilo e una
+pagina nuova, ha scelto la **pagina «Play»** dentro MuW. Corse, tracce,
+coda offline, push, account e blocchi esistono già. Le regole sono in
+`docs/GIOCO.md`.
+
+**Decisione**:
+
+1. **Il server conta, l'app mostra.** Km, migliori tempi, sblocchi e pezzi
+   si calcolano solo sull'API, dalla traccia salvata in `runs`, dopo il
+   salvataggio di `POST /activities` e nella stessa transazione. Il
+   telefono mostra solo stime (la striscia in corsa) e quello che il
+   server risponde.
+2. **Le regole sono pure** (`game_rules.py`): traccia e pause in
+   ingresso, risultato in uscita, senza database né orologio. Hanno
+   soglie in costanti e una `RULES_VERSION`. Il route engine non cambia:
+   il gioco usa `clean_track` e i contorni di `route_engine/shapes/`.
+3. **Anti-imbroglio solo da posizioni e tempi**, perché la traccia
+   salvata non ha la precisione:
+   - tratti di almeno 200 m sopra 7 m/s scartati;
+   - corsa intera scartata oltre il 10 % di quei tratti, o con una media
+     sopra 6 m/s su più di 3 km;
+   - buchi oltre 30 s fuori dai tempi migliori;
+   - corse sovrapposte contate una volta;
+   - al massimo 120 km al giorno.
+
+   Limite dichiarato: una bici lenta non si riconosce senza
+   l'accelerometro, che sarebbe una dipendenza nativa.
+4. **Tabelle nuove, `runs` non cambia**: sette tabelle `game_*`, due con
+   la parte A e cinque con la C. Ogni riga di un account va via con
+   l'account (`CASCADE`). Le sfide e i pezzi della squadra restano agli
+   altri iscritti, senza il nome.
+5. **Il catalogo sta nel codice dell'API** (`game_catalog.py`) ed è
+   servito da `GET /game/catalog`, contorni compresi in coordinate del
+   disegno (0–1). Cambiare una forma o una soglia costa un deploy
+   dell'API e nessuna OTA.
+6. **«Play» si accende dall'API.** L'app mostra la pagina solo se `GET
+   /game/catalog`, che non chiede l'account, risponde 200. Con 404 la
+   pagina resta nascosta. Senza rete vale l'ultima risposta salvata, e al
+   primo avvio la pagina resta nascosta. Così un'OTA con B, D o E può
+   uscire prima che il server abbia A o C senza mostrare una pagina
+   rotta. L'ordine «prima l'API, poi l'app» resta quello buono, ma non è
+   più una condizione per non rompere niente.
+7. **Tempo reale = rilettura ogni 15 s più le push.** La sfida aperta si
+   rilegge ogni 15 s e al ritorno in primo piano. Le push sono `Kind`
+   nuovi di `push.py`, con gli interruttori di TASK-262 A e i blocchi.
+   Niente WebSocket: una connessione sempre aperta per una pagina letta
+   pochi minuti al giorno non vale l'infrastruttura.
+8. **Le corse di prima contano**: un comando idempotente
+   (`game_backfill`) le calcola una volta dopo il deploy, e di nuovo a
+   ogni `RULES_VERSION`, senza push.
+9. **Niente punteggio né classifiche** (TASK-241): collezione e barre di
+   avanzamento soltanto.
+
+**Alternative scartate**:
+- un'app a sé, scartata dall'utente, che avrebbe rifatto tracciamento,
+  account, server e push;
+- contare i km sul telefono, che un'app modificata falsifica;
+- colonne nuove in `runs`, una tabella che tocca mezzo progetto;
+- il catalogo nel database, che richiede un pannello per cambiarlo;
+- WebSocket o Server-Sent Events, infrastruttura nuova;
+- uscire l'app solo dopo l'API come unica difesa, perché basta un'OTA
+  fuori ordine a mostrare una pagina vuota.
+
+**Conseguenza**: cinque parti, A–E, ognuna con la sua PR. A e C vanno sul
+server solo dopo Apple e con l'ok dell'utente. I testi delle push e il
+paragrafo di privacy aspettano il sì dell'utente (`tasks/TASK-296.md`). Le
+parti B, D ed E lasciano l'impronta iOS
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`. Il controllo periodico della
+push «1 day left» si decide in C, aggiungendolo qui.
