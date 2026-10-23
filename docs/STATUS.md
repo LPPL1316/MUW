@@ -157,6 +157,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-294 — MuW su Google Play** (richiesta dell'utente del
+  2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
+  **A** (aggiunta ad ADR-0225), branch
+  `feat/TASK-294-a-android-background`: su Android la corsa registra a
+  schermo bloccato, in un servizio con la sua notifica, con «While using»
+  (scelta dell'utente: prima del test chiuso). Il conto alla rovescia e la
+  pausa per fermo si recuperano dalle posizioni, perché Android ferma i
+  timer JS; la linea non si taglia per lo schermo spento. L'impronta iOS
+  della build 7 non cambia (`fingerprint.config.js`, 83793e26 prima e
+  dopo). Solo app; testi della notifica approvati dall'utente il
+  2026-10-23. La prova su Android vero si fa con la B. **B** (ADR-0253): package,
+  Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
+  pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.

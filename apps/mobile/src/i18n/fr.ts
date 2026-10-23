@@ -1224,4 +1224,9 @@ export const FR: Table = {
   "Choose on the map": "Choisir sur la carte",
   "Move the map to put the pin where you want to start.":
     "Déplace la carte pour mettre l'épingle là où tu veux partir.",
+
+  // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
+  "MuW is recording your activity": "MuW enregistre ton activité",
+  "It keeps going with the screen locked, voice included.":
+    "Ça continue écran verrouillé, voix comprise.",
 };

@@ -15019,3 +15019,77 @@ WebView (la punta dipende dalla scheda sotto e dal bordo della mappa).
 **Conseguenza**: due testi nuovi nelle cinque lingue; la riga di stato
 resta in inglese come le sue vicine, che sono «il resto di `App.tsx`» di
 TASK-210. Solo app: nessun motore, API o migrazione; non entra nella 1.0.
+
+## ADR-0225, aggiunta — Su Android la corsa registra e parla a schermo bloccato, in un servizio con la sua notifica
+**Stato**: Proposta · 2026-10-23 · **scelte dell'utente** del 2026-10-23
+(GPS e voce a schermo bloccato su Android prima del test chiuso di Google
+Play; i testi della notifica); il modo deciso dall'agente su delega
+dell'utente (TASK-294 parte A). Aggiunta ad ADR-0225, senza numero nuovo
+(coordinatore).
+
+**Contesto**: ADR-0225 aveva lasciato Android «com'era» (scelta
+dell'utente del 2026-10-07): GPS solo in primo piano, e a schermo bloccato
+la corsa non registrava. Per Google Play l'utente vuole la corsa completa
+anche su Android. expo-location 57 su Android dà le posizioni in
+background con `startLocationUpdatesAsync` in un servizio in primo piano
+con notifica, senza il permesso «in background»; React Native 0.86 ferma
+però i timer JS con l'app dietro (`JavaTimerManager`), mentre le posizioni
+del task arrivano lo stesso.
+
+**Decisione**:
+
+1. **Il servizio con la notifica** (`runPosition.ts`): su Android, se il
+   modo background c'è, lo stesso task `muw-run-location` di ADR-0225 con
+   `foregroundService` (titolo e testo nelle cinque lingue, il giallo dei
+   token, `killServiceOnDestroy`: l'app chiusa a mano spegne il GPS, e la
+   corsa riapre in pausa, ADR-0240). Il permesso resta «While using»:
+   niente `ACCESS_BACKGROUND_LOCATION`, che Google Play fa dichiarare a
+   parte. `app.json`: `isAndroidForegroundServiceEnabled` (aggiunge
+   `FOREGROUND_SERVICE` e `FOREGROUND_SERVICE_LOCATION`) e l'icona della
+   notifica, la stessa delle push. Se il telefono rifiuta (app non
+   davanti, Expo Go), `watchPositionAsync` come prima.
+2. **Il taglio della linea** (`runAway.ts`): su Android col GPS in
+   background un battito in ritardo è lo schermo spento, non un
+   congelamento, e non taglia niente. Con il servizio acceso Android non
+   congela l'app; può solo chiuderla, e allora vale ADR-0240. In primo
+   piano, e su iOS, tutto come prima.
+3. **L'orologio recuperato dalle posizioni** (`runControl.ts`): su
+   Android, prima di ogni posizione, quello che i timer dovevano fare e
+   non hanno fatto. Il conto alla rovescia scaduto finisce lì (prima la
+   corsa non partiva finché lo schermo restava spento); un fermo di più di
+   `AUTO_PAUSE_AFTER_MS` diventa una pausa per fermo da quando spettava.
+   Se la posizione dice che il corridore è ripartito, la pausa si chiude
+   senza dire niente («Paused.» non l'ha sentito); se è ancora fermo, la
+   voce dice «Paused.» adesso. Su iOS niente cambia: lì il timer arriva
+   sempre prima.
+4. **La voce**: nessun codice. Le indicazioni e i km partono dalle
+   posizioni, e con il servizio acceso l'app resta viva e expo-speech
+   parla. La musica di un'altra app **non** si abbassa: expo-speech su
+   Android non chiede il focus audio, e farlo vorrebbe codice nativo o
+   una dipendenza nuova (fuori scope, si chiede all'utente se serve).
+5. **L'impronta iOS non si muove** (`fingerprint.config.js`): l'impronta
+   di ogni piattaforma legge tutta la configurazione, blocco `android`,
+   opzioni dei plugin e permessi che i plugin aggiungono; senza questo,
+   ogni impostazione solo Android avrebbe cambiato il runtime della build
+   iOS 7 e l'avrebbe tagliata fuori dagli update. Un `fileHookTransform`
+   toglie le impostazioni elencate in `ANDROID_ONLY` (`android.package`
+   per la parte B, le due opzioni di expo-location, i due permessi del
+   servizio) dalla sorgente `expoConfig` e le aggiunge in fondo a
+   `expoAutolinkingConfig:android`, che ha solo l'impronta Android. Una
+   voce nuova solo Android va aggiunta lì; una che cambia anche iOS no.
+
+**Alternative scartate**: `ACCESS_BACKGROUND_LOCATION` («Allow all the
+time»): un permesso in più da chiedere e una dichiarazione più dura su
+Google Play, senza vantaggi per una corsa avviata dall'app; tenere vivi i
+timer JS con un task Headless JS: codice nativo; posizioni a tempo
+(`timeInterval`) per fare da orologio: più fix, più batteria, e la
+navigazione tarata su un fix ogni 5 m; le impostazioni Android in
+`app.config.ts` solo con `EAS_BUILD_PLATFORM=android`: gli update Android
+calcolerebbero il runtime senza, e non arriverebbero mai; accettare
+l'impronta iOS nuova: ogni update della 1.0 dopo il merge vorrebbe una
+build iOS nuova e una revisione di Apple.
+
+**Conseguenze**: su Android, durante un'attività, la notifica di MuW
+resta finché la corsa non finisce; si vede solo in una build nativa
+(Expo Go non ha il servizio). Due testi nuovi nelle cinque lingue.
+L'impronta iOS di produzione resta quella della build 7.
