@@ -162,11 +162,13 @@ collezione delle forme»):
   `AppFeed`, `App`, `AppPaddle`, `AppPaddleMove`, `Profile`,
   `DrawDistanceApp`): tolgono `/game/catalog` dal conto o gli rispondono
   404.
-- Impronta iOS: nel checkout principale `main` dà
-  `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`; nel worktree il valore è
-  diverso solo perché `node_modules` è fatto di link (cambiano le 34
-  sorgenti `dir:node_modules/…`, nessuna sorgente dell'app). Solo
-  JavaScript: l'impronta non cambia.
+- Impronta iOS **invariata**: misurata dal Coordinatore su due copie
+  pulite con `npm ci` e `APP_VARIANT=production`, `main` e l'head
+  `414f960e` danno tutti e due `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`.
+  Nel worktree il valore era diverso solo perché `node_modules` è fatto
+  di link al checkout principale (cambiano le 34 sorgenti
+  `dir:node_modules/…`, nessuna sorgente dell'app): per misurarla da un
+  worktree serve una copia con `npm ci`, non i link.
 
 ## Parte C — API: squadre e sfide
 
