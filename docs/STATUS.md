@@ -157,6 +157,28 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
+  alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
+  dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
+  numeri e condizioni dal Coordinatore). Branch `docs/TASK-297-proposal`
+  (documenti), poi `feat/TASK-297-a-route-archive` (A) e
+  `feat/TASK-297-c-image-pieces` (C). **A**: ogni percorso disegnato
+  resta nel database senza chi l'ha chiesto; la stessa richiesta entro
+  100 m riceve il percorso pronto con l'avvicinamento (0–2 s invece dei
+  6–14 s del server: mediana 6,6 s a ottobre, e l'80 % delle richieste
+  ripeteva una già fatta nella stessa cella di 1 km); i più corsi e
+  preferiti davanti, gli altri come alternative; tetto e pulizia; testo
+  privacy all'utente. **B** (il motore riparte dai piazzamenti imparati
+  vicino): misurata a Trento su 36 richieste, peggiore in 28, scartata;
+  resta il ridisegno rapido dal piazzamento dopo un cambio del motore
+  (A2, dopo la #497). **C**: nelle immagini i soggetti staccati e i fori
+  diventano pezzi disegnati uno alla volta, camminando fra l'uno e
+  l'altro: «RC» leggibile, la ruota coi raggi, il logo MuW; nel
+  repository solo loghi sintetici e MuW. Proposta e prove in
+  `out/archivio-apprendimento/` del Mac (ignorato da git). Server dopo
+  Apple, con l'ok dell'utente. Seguito da aprire: fermarsi prima quando
+  la forma non entra nelle strade (19 ricerche su 36 bruciano i 30
+  tracciamenti). File: `tasks/TASK-297.md`.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
