@@ -189,6 +189,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `shape_unlocked`, `python -m shaperoute_api.game_backfill` per le corse
   di prima. La risposta del salvataggio non cambia. Sul server, dopo
   Apple: migrazione, deploy, backfill.
+  **Parte A** in `main` con la #534 (`abb593c5`, 2026-10-24).
+  **Parte B** (branch `feat/TASK-296-b-play-collection`): la pagina «Play»
+  fra «Explore» e il profilo, solo mentre `GET /game/catalog` risponde 200
+  (chiesto all'avvio, tenuto sul telefono); la collezione a griglia, in
+  giallo le forme sbloccate, in grigio le altre con requisito e
+  percentuale, nelle unità scelte; la scheda «New shape unlocked» dopo
+  che l'API ha preso la corsa; la push `shape_unlocked` che apre «Play» e
+  non si mostra a app aperta. Solo app, impronta iOS invariata; su
+  `preview` dopo che A è sul server (o prima: senza il gioco sul server la
+  pagina non si vede).
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.

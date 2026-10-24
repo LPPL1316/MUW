@@ -21,6 +21,7 @@ import {
   savePost,
 } from "../api/activities";
 import { type DrawingChoice, isSeen } from "../api/drawings";
+import { tellUnlocked } from "../game/unlockedRuns";
 import { t, tLater } from "../i18n";
 import { metresBetween } from "../map/coordinates";
 import type { SavedRun } from "../navigation/trackStore";
@@ -278,6 +279,9 @@ export function useActivitiesOf(
   const recount = useCallback(() => setCounted(waitingOf(owner)), [owner]);
   const sending = useRef(false);
   const again = useRef(false);
+  // When each run was kept by «Save» (`Date.now()`), until the API takes
+  // it: the card of the shapes it unlocked waits for the logo (TASK-296).
+  const justKept = useRef(new Map<string, number>());
   const send = useCallback(async () => {
     if (token === null || owner === null || baseUrl === null) {
       return;
@@ -318,6 +322,11 @@ export function useActivitiesOf(
               keepForDrawing({ owner, key: run.id, ...drawing });
             }
             stopWaiting(owner, run.id);
+            // The shape game (TASK-296): what the run unlocked, now that the
+            // API has counted it. Outside the loop's wait: the next run goes.
+            const keptAt = justKept.current.get(run.id) ?? null;
+            justKept.current.delete(run.id);
+            void tellUnlocked(baseUrl, token, run.id, keptAt, { fetchFn, key });
             saved = true;
             gone = true;
             continue;
@@ -446,6 +455,7 @@ export function useActivitiesOf(
       // phone will not write is a photo lost, not a run.
       keepPhotos(owner, recorded.id, photos);
       recount();
+      justKept.current.set(recorded.id, Date.now());
       void send();
       return true;
     },

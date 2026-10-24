@@ -1,0 +1,10 @@
+{
+  "counted_m": 14200,
+  "longest_m": 6000,
+  "best_s": { "1000": 322.0, "5000": 1666.7 },
+  "shapes": [
+    { "id": "triangle", "unlocked_at": "2026-10-23T12:00:00Z", "progress": 1.0 },
+    { "id": "hexagon", "unlocked_at": null, "progress": 0.71 },
+    { "id": "lightning", "unlocked_at": null, "progress": 0.9317 }
+  ]
+}

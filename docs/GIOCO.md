@@ -234,21 +234,32 @@ nelle cinque lingue.
 
 ## 9. App
 
-- **«Play»**, una quarta pagina da scorrere dopo Explore, con due schede
-  (`Segmented`):
-  - **Collection**: una griglia di forme. Le sbloccate sono a colori, con
-    la data. Le bloccate sono in grigio, con il requisito e la barra di
-    avanzamento. Senza account c'è «Sign in to collect shapes».
-  - **Challenges**: le mie squadre, «Create» e «Join» con il codice, e la
-    sfida aperta: la forma con i pezzi colorati per persona, chi ha dato
-    quanto, quanto manca e il conto alla rovescia.
-- **La pagina si vede solo se il server ha il gioco**: `GET /game/catalog`
-  risponde 200. Con 404 resta nascosta. Senza rete vale l'ultima risposta
-  salvata sul telefono, e al primo avvio la pagina resta nascosta.
-- **Dopo «Save»**, se `GET /game/runs/{key}` dice che la corsa ha
-  sbloccato qualcosa, compare la scheda «New shape unlocked» con il
-  contorno che si disegna, dopo il logo di TASK-212. Una corsa mandata
-  più tardi dalla coda (`outbox`) avvisa con la push.
+- **«Play»**, la quarta pagina da scorrere, fra Explore e il profilo, con
+  il suo nome in alto (parte B; `UI.md`, «“Play”: la collezione delle
+  forme»). Con la parte D avrà due schede (`Segmented`); in B c'è la sola
+  collezione:
+  - **Collection**: una griglia di forme. Le sbloccate sono in giallo, con
+    il giorno. Le bloccate sono in grigio, con il requisito, la barra di
+    avanzamento e quanto manca, nelle unità scelte. Senza account le forme
+    sono grigie con il requisito, e sopra «Sign in to collect shapes.»
+    porta al profilo.
+  - **Challenges** (parte D): le mie squadre, «Create» e «Join» con il
+    codice, e la sfida aperta: la forma con i pezzi colorati per persona,
+    chi ha dato quanto, quanto manca e il conto alla rovescia.
+- **La pagina si vede solo se il server ha il gioco**: all'avvio l'app
+  chiede `GET /game/catalog` e tiene la risposta sul telefono
+  (`game-catalog.json`). Con 200 la pagina compare, anche subito, mentre
+  l'app è aperta; con 404 sparisce. Senza rete vale l'ultima risposta
+  salvata, e un telefono che non ha mai sentito il server non la mostra.
+- **Dopo che l'API ha preso la corsa** (`activitiesDoor.send`, subito dopo
+  «Save» o più tardi dalla coda), l'app chiede `GET /game/runs/{key}`; se
+  la corsa ha sbloccato forme, sopra l'app compare la scheda «New shape
+  unlocked» con il contorno che si disegna in giallo. Per una corsa appena
+  salvata la scheda aspetta che il logo di TASK-212 sia sparito; per una
+  mandata più tardi compare subito. Più forme, una scheda dopo l'altra;
+  «See collection» apre «Play».
+- **La push `shape_unlocked`** non si mostra con l'app in primo piano; dal
+  centro notifiche apre «Play».
 - **Durante la corsa** c'è una striscia sottile, per esempio «Hexagon
   14.2 / 20 km», oppure, con un pezzo veloce in mano, il passo dell'ultimo
   km contro l'obiettivo. È una stima del telefono: il conto vero lo fa il

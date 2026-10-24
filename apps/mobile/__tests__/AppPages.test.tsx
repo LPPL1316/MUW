@@ -43,6 +43,14 @@ function listCalls(): number {
   ).length;
 }
 
+/** What the app asked the API, but for the shape game's catalog, which it
+ * asks as it opens to know whether to show «Play» (TASK-296). */
+function askedBesidesTheGame(): string[] {
+  return fetchSpy.mock.calls
+    .map(([url]) => String(url).replace(API, ""))
+    .filter((path) => path !== "/game/catalog");
+}
+
 /** A swipe that comes to rest on the page at `index`. */
 async function swipeTo(index: number) {
   const pager = screen.getByTestId("pager");
@@ -95,7 +103,9 @@ test("opens on «Draw», between «Feed» and «Explore», and asks the API noth
   expect(screen.getByText("Draw route")).toBeOnTheScreen();
   // «Explore» is one swipe away, and has not asked for its routes yet.
   expect(screen.queryByText("Best near you")).toBeNull();
-  expect(fetchSpy).not.toHaveBeenCalled();
+  expect(askedBesidesTheGame()).toEqual([]);
+  // An API without the shape game: no «Play» page (TASK-296).
+  expect(screen.queryByRole("tab", { name: "Play" })).toBeNull();
 });
 
 test("a swipe to the left goes to «Explore», which asks for its routes then", async () => {
@@ -128,7 +138,7 @@ test("a swipe to the right goes to «Feed», with its example drawings", async (
   expect(screen.getAllByTestId("feed-post").length).toBeGreaterThanOrEqual(2);
   expect(screen.queryByText("Draw route")).toBeNull();
   // «Explore» was never in view: it asked nothing.
-  expect(fetchSpy).not.toHaveBeenCalled();
+  expect(askedBesidesTheGame()).toEqual([]);
   await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.getByText("Draw route")).toBeOnTheScreen();
 });
