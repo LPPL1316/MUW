@@ -1,7 +1,7 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
 **Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in lavorazione
-(`feat/TASK-296-c-teams-api`) · prossime: D, E
+(`feat/TASK-296-c-teams-api`, #540) · prossime: D, E
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),

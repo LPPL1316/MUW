@@ -201,7 +201,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pagina non si vede).
   **Parte B** in `main` con la #536 (`145cf992`, 2026-10-24); testi
   dell'app approvati dall'utente lo stesso giorno. Restano C, D ed E.
-  **Parte C** (branch `feat/TASK-296-c-teams-api`, migrazione
+  **Parte C** (branch `feat/TASK-296-c-teams-api`, PR #540, migrazione
   `0027_game_teams.sql`, perché la 0026 è di TASK-297 A, #539; il numero
   si ricontrolla al merge): `game_teams`, `game_team_members`,
   `game_challenges`, `game_pieces`, `game_contributions` e `challenge_id`
