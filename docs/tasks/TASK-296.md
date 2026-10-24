@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in PR
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · prossime: C, D, E
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -276,8 +276,8 @@ Andrà aggiunto anche a «Where your data is and for how long», nella frase
 di ciò che si cancella con l'account: «… follows and game data».
 
 **Testi dell'app della parte B** (inglese / italiano; tedesco, spagnolo e
-francese in fondo alle tabelle `i18n`), **da approvare dall'utente prima del
-merge**:
+francese in fondo alle tabelle `i18n`), **approvati dall'utente il
+2026-10-24** («sì, i testi vanno bene»):
 
 | Dove | Inglese | Italiano |
 |---|---|---|
@@ -332,7 +332,8 @@ Parte B:
 - [x] L'impronta iOS è invariata (`83793e26…`): solo JavaScript.
 - [x] lint, typecheck, test e format:check verdi in locale (3556 test,
       2026-10-24).
-- [ ] I testi dell'app approvati dall'utente (tabella sopra).
+- [x] I testi dell'app approvati dall'utente (tabella sopra, 2026-10-24:
+      «sì, i testi vanno bene»).
 
 Parti C, D ed E: i criteri si scrivono qui quando partono, dalle regole
 di `GIOCO.md` §6 e §9.
@@ -417,4 +418,20 @@ di partire.
 
 ## Esito
 
-*(si scrive alla chiusura di ogni parte)*
+**Parte A** in `main` con la #534 (`abb593c5`, 2026-10-24), mergiata dal
+Coordinatore su richiesta dell'utente a CI verde: le due tabelle, le regole
+pure, il catalogo, i tre endpoint, la push `shape_unlocked`, il backfill.
+Sul server dopo Apple e con l'ok dell'utente (migrazione, deploy,
+`game_backfill` una volta).
+
+**Parte B** in `main` con la #536 (`145cf992`, 2026-10-24), mergiata dal
+Coordinatore a CI verde, impronta iOS invariata (misurata su copie pulite).
+I testi dell'app approvati dall'utente lo stesso giorno. Su `preview` la
+pagina «Play» resta nascosta finché il server non ha la A: è la prova del
+gating. **Da provare sull'iPhone** quando la A sarà sul server: i quattro
+nomi in alto su uno schermo da 390 pt, la collezione e la scheda dopo un
+«Save» vero.
+
+**Restano** le parti C (API: squadre e sfide), D (app: sfide) ed E (app:
+striscia in corsa), ognuna con il suo elenco di file al Coordinatore prima
+di partire.
