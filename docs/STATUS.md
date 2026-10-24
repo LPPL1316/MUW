@@ -199,6 +199,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   non si mostra a app aperta. Solo app, impronta iOS invariata; su
   `preview` dopo che A è sul server (o prima: senza il gioco sul server la
   pagina non si vede).
+  **Parte B** in `main` con la #536 (`145cf992`, 2026-10-24); testi
+  dell'app approvati dall'utente lo stesso giorno. Restano C, D ed E.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
