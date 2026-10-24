@@ -13,6 +13,12 @@ when it answers (ADR-0255). GET /game/me and GET /game/runs/{key} need one:
 an account reads only its own game. Deleting a run takes its row away
 (ON DELETE CASCADE), and its metres leave the totals; its shapes stay.
 Deleting the account deletes both tables' rows.
+
+Part C adds the teams and their challenges (game_teams.py,
+game_challenges.py): after_run_saved also puts the run into the pieces its
+runner holds, GET /game/runs/{key} says which pieces it finished, GET
+/game/me shows the team edition too, and install_game installs their
+endpoints, hooks and clock.
 """
 
 from __future__ import annotations
@@ -39,6 +45,14 @@ from shaperoute_api.accounts import (
 )
 from shaperoute_api.db import Database
 from shaperoute_api.game_catalog import CATALOG, GameShape
+from shaperoute_api.game_challenges import (
+    PieceDoneBody,
+    fill,
+    install_game_challenges,
+    notify_pieces,
+    pieces_done_bodies,
+    pieces_done_by,
+)
 from shaperoute_api.game_rules import (
     DAILY_CAP,
     OVERLAP,
@@ -109,6 +123,9 @@ class ShapeStateBody(BaseModel):
     id: str
     unlocked_at: datetime | None
     progress: float = Field(description="1 once unlocked; before, at most 0.99.")
+    team_unlocked_at: datetime | None = Field(
+        default=None, description="When a team's challenge gave the shape (part C)."
+    )
 
 
 class GameMeBody(BaseModel):
@@ -130,6 +147,10 @@ class RunGameBody(BaseModel):
     counted_m: int
     best_s: dict[str, float]
     unlocked: list[str]
+    pieces_done: list[PieceDoneBody] = Field(
+        default_factory=list,
+        description="The pieces of a team's challenge the run finished (part C).",
+    )
 
 
 def _goal(shape: GameShape) -> GoalBody:
@@ -167,13 +188,35 @@ def after_run_saved(
     activity: str,
     now: datetime,
 ) -> list[str]:
-    """In the transaction that saved the run, after its row: its game, and
-    the shapes it unlocked."""
+    """In the transaction that saved the run, after its row: its game, the
+    shapes it unlocked (returned), and the pieces of its teams' challenges
+    it filled (part C)."""
     fixes = [Fix(p.lat, p.lon, p.time_s or 0.0) for p in track]
     kept = [RunPause(p.from_s, p.to_s, p.auto) for p in pauses]
-    return record(
+    unlocked = record(
         conn, user_id, run_id, started_at, evaluate(fixes, kept, activity), now
     )
+    _fill_pieces(conn, user_id, run_id, started_at, now)
+    return unlocked
+
+
+def _fill_pieces(
+    conn: Connection[DictRow],
+    user_id: int,
+    run_id: int,
+    started_at: datetime,
+    now: datetime,
+) -> None:
+    """The run into the pieces its runner holds (game_challenges.fill), with
+    what it counted once the overlap and the day's cap are in: its row."""
+    row = conn.execute(
+        "SELECT counted, counted_m, best_s FROM game_runs WHERE run_id = %s",
+        (run_id,),
+    ).fetchone()
+    if row is None or not row["counted"]:
+        return
+    best = {int(d): float(s) for d, s in row["best_s"].items()}
+    fill(conn, user_id, run_id, started_at, int(row["counted_m"]), best, now)
 
 
 def record(
@@ -305,11 +348,14 @@ class Game:
         with self.database.connect() as conn:
             totals = _totals(conn, user_id)
             rows = conn.execute(
-                "SELECT shape_id, unlocked_at FROM game_unlocks"
-                " WHERE user_id = %s AND edition = 'solo'",
+                "SELECT shape_id, edition, unlocked_at FROM game_unlocks"
+                " WHERE user_id = %s",
                 (user_id,),
             ).fetchall()
-        unlocked = {row["shape_id"]: row["unlocked_at"] for row in rows}
+        unlocked = {
+            r["shape_id"]: r["unlocked_at"] for r in rows if r["edition"] == "solo"
+        }
+        team = {r["shape_id"]: r["unlocked_at"] for r in rows if r["edition"] == "team"}
         return GameMeBody(
             counted_m=totals.counted_m,
             longest_m=totals.longest_m,
@@ -321,6 +367,7 @@ class Game:
                     progress=(
                         1.0 if shape.id in unlocked else progress(shape.goal, totals)
                     ),
+                    team_unlocked_at=team.get(shape.id),
                 )
                 for shape in CATALOG
             ],
@@ -339,12 +386,14 @@ class Game:
             if row is None:
                 return None
             shapes = _unlocked_by(conn, user_id, row["run_id"])
+            pieces = pieces_done_by(conn, user_id, row["run_id"])
         return RunGameBody(
             counted=row["counted"],
             reason=row["reason"],
             counted_m=row["counted_m"],
             best_s=row["best_s"],
             unlocked=shapes,
+            pieces_done=pieces_done_bodies(pieces),
         )
 
 
@@ -361,7 +410,8 @@ def _unlocked_by(conn: Connection[DictRow], user_id: int, run_id: int) -> list[s
 
 def notify_unlocked(request: Request, user_id: int, key: str) -> None:
     """After a new run is saved, outside its transaction: a push for each
-    shape it unlocked (push.py; the app does not show it while open).
+    shape it unlocked (push.py; the app does not show it while open), then
+    the pushes of the teams' challenges it filled (game_challenges.py).
     Never raises."""
     accounts: Accounts | None = getattr(request.app.state, "accounts", None)
     if accounts is None:
@@ -370,9 +420,10 @@ def notify_unlocked(request: Request, user_id: int, key: str) -> None:
         game = Game(accounts.database, accounts.now).run(user_id, key)
     except Exception:
         log.exception("game: the shapes of a run were not read")
-        return
+        game = None
     for shape_id in game.unlocked if game is not None else []:
         notify(request, PushEvent("shape_unlocked", user_id, user_id, key=shape_id))
+    notify_pieces(request, user_id, key)
 
 
 # --- The endpoints ---
@@ -416,9 +467,17 @@ def game_routes() -> APIRouter:
 
 
 def install_game(app: FastAPI) -> None:
-    """The shape game; after install_accounts, which sets the database and
-    the errors."""
+    """The shape game: the collection (part A), the teams and their
+    challenges (part C). After install_accounts, which sets the database and
+    the errors, and after install_push and install_moderation, whose pusher
+    and hooks the teams use."""
+    # Here, not at the top: game_teams imports follows and comments, which
+    # import activities, which imports this module.
+    from shaperoute_api.game_teams import install_game_teams
+
     app.include_router(game_routes())
+    install_game_teams(app)
+    install_game_challenges(app)
 
 
 def kept_run(row: dict[str, Any]) -> tuple[list[Fix], list[RunPause]]:

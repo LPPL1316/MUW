@@ -21,14 +21,17 @@ Deleting an account deletes its blocks, both ways, and its reports
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import logging
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Annotated, Any, Literal, get_args
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, FastAPI, Query, Response
+from fastapi import APIRouter, Depends, FastAPI, Query, Request, Response
+from psycopg import Connection
 from psycopg import errors as pg_errors
+from psycopg.rows import DictRow
 from pydantic import BaseModel, ConfigDict
 
 from shaperoute_api.accounts import (
@@ -61,6 +64,13 @@ ReportReason = Literal["spam", "offensive", "harassment", "sexual", "other"]
 app says them in its language. The migration's CHECK holds the same list."""
 REPORT_KINDS: tuple[ReportKind, ...] = get_args(ReportKind)
 REPORT_REASONS: tuple[ReportReason, ...] = get_args(ReportReason)
+
+log = logging.getLogger(__name__)
+
+# After a block is written, in its transaction: the shape game takes one of
+# the two out of a team they share (TASK-296 C, game_teams.on_block). A hook
+# that fails is rolled back alone, and logged: the block stays.
+BlockHook = Callable[[Connection[DictRow], int, int], None]
 
 NOT_YOURSELF_BLOCK = "You cannot block yourself."
 NOT_YOURSELF_REPORT = "You cannot report yourself or what you wrote."
@@ -109,6 +119,7 @@ class Moderation:
 
     database: Database
     now: Callable[[], datetime]
+    on_block: Sequence[BlockHook] = ()
 
     def block(self, user_id: int, public_id: str) -> None:
         """`public_id` blocked by `user_id`, and every follow between the
@@ -130,6 +141,12 @@ class Moderation:
                     " OR (follower_id = %s AND followed_id = %s)",
                     (user_id, other, other, user_id),
                 )
+                for hook in self.on_block:
+                    try:
+                        with conn.transaction():
+                            hook(conn, user_id, other)
+                    except Exception:
+                        log.exception("moderation: a hook of the block failed")
         except pg_errors.ForeignKeyViolation:
             # One of the two accounts was deleted while this was written.
             raise AccountError(404, "http_error", NO_PROFILE) from None
@@ -196,9 +213,12 @@ class Moderation:
             raise AccountError(401, "not_signed_in", NOT_SIGNED_IN) from None
 
 
-def moderation_of(accounts: Annotated[Accounts, Depends(accounts_of)]) -> Moderation:
-    """In the database of the accounts, on the same clock."""
-    return Moderation(accounts.database, accounts.now)
+def moderation_of(
+    request: Request, accounts: Annotated[Accounts, Depends(accounts_of)]
+) -> Moderation:
+    """In the database of the accounts, on the same clock, with the hooks
+    the other modules put in app.state.on_block."""
+    return Moderation(accounts.database, accounts.now, request.app.state.on_block)
 
 
 Them = Annotated[Moderation, Depends(moderation_of)]
@@ -238,5 +258,7 @@ def moderation_routes() -> APIRouter:
 
 def install_moderation(app: FastAPI) -> None:
     """Blocking and reporting; after install_accounts, which sets the
-    database and the errors."""
+    database and the errors. The modules installed after add to
+    app.state.on_block what they do when a block is written."""
+    app.state.on_block = []
     app.include_router(moderation_routes())
