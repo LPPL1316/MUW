@@ -20,7 +20,9 @@ from route_engine.nearby_starts import Nearby, nearby_starts
 from route_engine.network import FileSource
 from route_engine.optimizer import GraphLoader, Plan, plan_route
 from route_engine.shapes.outline import parse_outline
+from test_favorites import FAST_HASHER, _load, signed_up
 
+from shaperoute_api.accounts import Accounts
 from shaperoute_api.app import create_app
 from shaperoute_api.best_routes import line_key
 from shaperoute_api.db import Database
@@ -31,6 +33,10 @@ from shaperoute_api.route_archive import (
     count_run,
 )
 from shaperoute_api.route_store import RouteStore
+
+# As the favorites' and the runs' tests name them: 8-40 letters and digits.
+FAVORITE_KEY = "3f9a1c0e7b2d4a65"
+RUN_KEY = "7c2e91a4b05d3f68"
 
 FIXTURE = (
     Path(__file__).resolve().parent.parent.parent
@@ -324,3 +330,39 @@ def test_a_second_phone_nearby_gets_the_route_through_the_api(
         assert again["status"] == "done" and again["result"] == drawn["result"]
         assert len(planned) == 1
         assert len(rows(database)) == 1  # the reached route is not kept again
+
+
+def test_a_favorite_and_a_run_saved_count_on_the_archived_line(
+    database: Database, clock: Clock
+) -> None:
+    """The counters come from the app's own requests: a favorite kept and
+    removed, a run saved along a route, each by the line's name."""
+    favorite = _load("favorite-request.json")
+    run = _load("activity-request.json")
+    assert favorite["points"] and run["points"]
+    kept = archive(database, clock=clock)
+    for body in (favorite, run):
+        points = [(float(lat), float(lon)) for lat, lon in body["points"]]
+        drawn = RouteResult(
+            points=points, distance_m=5000.0, similarity=0.9, shape="heart"
+        )
+        kept.put(RouteRequest(start=points[0], shape="heart", distance_m=5000), drawn)
+    kept_lines = {line_key(body["points"]) for body in (favorite, run)}
+    assert {r["line_key"] for r in rows(database)} == kept_lines
+
+    def counted() -> dict[str, tuple[int, int]]:
+        return {r["line_key"]: (r["runs"], r["favorites"]) for r in rows(database)}
+
+    accounts = Accounts(database, now=clock, hasher=FAST_HASHER)
+    client = TestClient(create_app(FileSource(FIXTURE), accounts=accounts))
+    me = signed_up(client)
+    kept_favorite = client.put(
+        f"/me/favorites/{FAVORITE_KEY}", json=favorite, headers=me
+    )
+    assert kept_favorite.status_code == 201, kept_favorite.text
+    assert counted()[line_key(favorite["points"])] == (0, 1)
+    assert client.delete(f"/me/favorites/{FAVORITE_KEY}", headers=me).status_code == 204
+    assert counted()[line_key(favorite["points"])] == (0, 0)
+    saved = client.put(f"/me/activities/{RUN_KEY}", json=run, headers=me)
+    assert saved.status_code == 201, saved.text
+    assert counted()[line_key(run["points"])] == (1, 0)

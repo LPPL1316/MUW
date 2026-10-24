@@ -226,24 +226,41 @@ Documenti (questa PR):
 - [ ] Questo file, ADR-0256, ADR-0257 e ADR-0258, le righe in
       `STATUS.md`.
 
-Parte A:
-- [ ] La stessa richiesta dallo stesso quadrato di 10 m riceve il job
-      `done` nella risposta al `POST` (test).
-- [ ] Una richiesta a 60 m da un percorso tenuto riceve quel percorso con
+Parte A (PR #539; i test sono in `tests/test_route_archive.py`, con
+PostgreSQL, e in `tests/test_jobs.py`):
+- [x] La stessa richiesta dallo stesso quadrato di 10 m riceve il job
+      `done` nella risposta al `POST`
+      (`test_the_same_start_answers_at_once_with_the_alternatives`,
+      `test_a_second_phone_nearby_gets_the_route_through_the_api`).
+- [x] Una richiesta a 50 m da un percorso tenuto riceve quel percorso con
       l'avvicinamento e il ritorno, i `walks` spostati, la distanza
-      aggiornata; a 300 m no (test sulla fixture).
-- [ ] Un motore diverso o 31 giorni: si ridisegna (test).
-- [ ] Con due righe buone, la prima è quella con più corse e preferiti;
-      la seconda è un'alternativa (test).
-- [ ] Nessuna riga ha chi l'ha chiesta; un'immagine e `near` non si
-      tengono (test).
-- [ ] Oltre il tetto si cancellano prima le righe senza corse né
-      preferiti (test).
-- [ ] Il salvataggio di una corsa e un preferito aggiornano i contatori
-      (test).
-- [ ] Senza database l'API si comporta come oggi.
-- [ ] pytest, ruff e black verdi; il server dopo Apple con l'ok
-      dell'utente, migrazione e testo privacy approvato.
+      aggiornata; a 300 m no
+      (`test_within_a_hundred_metres_the_route_is_reached_along_the_roads`,
+      `test_beyond_a_hundred_metres_the_engine_draws`, sulla fixture di
+      Levico).
+- [x] Un motore diverso o 31 giorni: si ridisegna
+      (`test_another_request_engine_or_an_old_route_is_drawn_again`).
+- [x] Con due righe buone, la prima è quella con più corse e preferiti;
+      la seconda è un'alternativa (`test_the_most_run_and_kept_goes_first`).
+- [x] Nessuna riga ha chi l'ha chiesta; un'immagine e `near` non si
+      tengono (`test_a_row_names_no_one`,
+      `test_an_image_and_a_shape_moved_by_hand_are_not_kept`).
+- [x] Oltre il tetto si cancellano prima le righe senza corse né
+      preferiti (`test_over_the_cap_the_oldest_never_run_go_first`).
+- [x] Il salvataggio di una corsa e un preferito aggiornano i contatori
+      (`test_a_favorite_and_a_run_saved_count_on_the_archived_line`, dal
+      `PUT` dell'app).
+- [x] Senza database l'API si comporta come oggi: `__main__` monta
+      l'archivio solo con il database; le suite senza database
+      (`test_route_jobs`, `test_jobs`, `test_route_store`, `test_main`)
+      girano come prima; uno store senza `nearby` non cambia `RouteJobs`
+      (`test_jobs.py`).
+- [x] pytest, ruff e black verdi (in locale il 2026-10-24: i test
+      dell'archivio, `test_jobs`, `test_route_jobs`, `test_route_store`,
+      `test_main`, `test_favorites` e `test_activities`).
+- [ ] **Dopo il merge**: il server dopo Apple con l'ok dell'utente, la
+      migrazione (0026, o il numero libero al merge) e il testo della
+      privacy approvato dall'utente.
 
 Parte C (motore):
 - [ ] Con `pen_up=False` le sedici immagini di `sample_pictures` danno
@@ -277,7 +294,8 @@ Parte A:
 ```
 services/api/migrations/00NN_drawn_routes.sql             (nuovo, numero al merge)
 services/api/shaperoute_api/route_archive.py              (nuovo)
-services/api/shaperoute_api/__main__.py                   (una riga: l'archivio al posto del solo RouteStore; file della #502/#525)
+services/api/shaperoute_api/jobs.py                       (il protocollo FindsNearby e RouteJobs._nearby)
+services/api/shaperoute_api/__main__.py                   (l'archivio davanti al RouteStore quando c'è il database: import, un'istruzione, l'argomento di create_app; file della #502/#525)
 services/api/shaperoute_api/activities.py                 (una chiamata dopo il salvataggio)
 services/api/shaperoute_api/favorites.py                  (una chiamata)
 services/api/tests/test_route_archive.py                  (nuovo)
