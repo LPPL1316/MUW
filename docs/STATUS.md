@@ -235,9 +235,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `after_run_saved` con i km in avanzo, pezzo veloce, edizione squadra,
   `ChallengeClock` per «1 day left»), il contorno dei pezzi in
   `game_rules.pieces_of`, gli otto endpoint, `pieces_done` in `GET
-  /game/runs/{key}`, i tre `Kind` in `push.py`. Aspettano il sì
-  dell'utente la regola del blocco fra iscritti e i testi delle tre
-  push. Server dopo Apple, con l'ok dell'utente.
+  /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
+  iscritti e i testi delle tre push sono approvati dall'utente
+  (2026-10-24). Server dopo Apple, con l'ok dell'utente.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.

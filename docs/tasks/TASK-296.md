@@ -217,7 +217,8 @@ day left», una volta per sfida grazie a `ending_told_at`.
   regola proposta»): esce chi blocca, tranne quando la squadra è sua,
   allora esce l'altro; è quello che fa `game_teams.on_block`.
 - (b) i testi delle tre push: proposta in «Testi da approvare».
-  Risposta: _in attesa_.
+  **Approvati dall'utente il 2026-10-24** («Sì, vanno bene i testi
+  proposti»): sono quelli in `push.py`.
 
 ## Parte D — App: sfide
 
@@ -264,8 +265,8 @@ parte C e si riguardano quando parte.
 | `challenge_done` | {shape} complete! Your team drew it together. | {shape} completata! La squadra l'ha disegnata insieme. |
 | `challenge_ending` | 1 day left: {k} pieces of the {shape} are missing. | Manca 1 giorno: mancano {k} pezzi di {shape}. |
 
-**Proposta della parte C (2026-10-24), da approvare**: il nome della
-forma in testa, nella lingua del telefono (l'evento porta i nomi del
+**Testi della parte C, approvati dall'utente il 2026-10-24** («Sì, vanno
+bene i testi proposti»): il nome della forma in testa, nella lingua del telefono (l'evento porta i nomi del
 catalogo), così nessuna lingua deve accordare articoli; `{n}` è il numero
 del pezzo, o dei pezzi che mancano. Sostituisce le tre righe della tabella.
 
@@ -407,8 +408,8 @@ Parte C:
       (`test_game_pieces.py`).
 - [ ] pytest, ruff e black verdi; la suite completa dell'API verde in
       locale.
-- [ ] La regola del blocco e i testi delle tre push approvati dall'utente,
-      con le sue parole in «Domande all'utente».
+- [x] La regola del blocco e i testi delle tre push approvati dall'utente
+      il 2026-10-24, con le sue parole in «Domande all'utente».
 
 Parti D ed E: i criteri si scrivono qui quando partono, dalle regole
 di `GIOCO.md` §6 e §9.
