@@ -15238,3 +15238,166 @@ dell'utente)**:
   non il catalogo intero), in fondo al file: `PushKind` non cambia, la
   push del gioco è `GamePushKind` accanto a lui, perché `index.ts` è
   anche di due PR ferme (#461, #502) e si aggiunge solo in coda.
+
+## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
+
+**Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
+dell'utente di ADR-0086 (2026-10-01), confermata il 2026-10-24 («sì
+grazie» alla proposta); il come deciso dall'agente su delega dell'utente
+(TASK-297 A). Allarga ADR-0136, che teneva solo i centri delle città e i
+punti dell'acqua.
+
+**Contesto**: dagli eventi del server di ottobre (20 giorni, celle di
+~1 km): 3 006 percorsi calcolati dal motore, mediana 6,6 s, p90 14,4 s;
+2 404 su 3 006 ripetevano una richiesta già fatta nella stessa cella,
+stessa forma e distanza (il cuore da 5 km a Trento calcolato 14 volte).
+L'API teneva un percorso solo dal centro di una città (ADR-0136): la
+scelta di ADR-0086 aspettava il database, che c'è dal 2026-10-02.
+
+**Decisione**:
+
+1. **Una tabella `drawn_routes`**: ogni percorso finito e ogni sua
+   alternativa, con la richiesta (`shape`/`word`, `style`, `distance_m`,
+   `activity`, `pen_up`), la partenza (`geography`, indice), la linea, il
+   `RouteResult` compatto (senza indicazioni né alternative), l'impronta
+   del motore, la `line_key` dei preferiti, i contatori `runs` e
+   `favorites`, e il piazzamento (rotazione, fase, scala, spostamento).
+   **Nessun `user_id`**: un percorso disegnato è di tutti, non dice chi
+   l'ha chiesto né chi l'ha corso; cancellare un account non lo tocca.
+   Le immagini e la forma spostata a mano (`near`) non si tengono mai,
+   come oggi.
+2. **La risposta** (`route_archive.py`, un `KeepsRoutes` davanti al
+   `RouteStore` dei file): stesso motore, stessa richiesta, meno di 30
+   giorni. Entro 10 m la riga risponde subito, job `done` nel `POST`.
+   Entro **100 m** (`NEARBY_MAX_M`, la distanza delle partenze vicine di
+   ADR-0071) il percorso si restituisce con l'**avvicinamento** lungo le
+   strade e il ritorno, se la via è entro 150 m (`APPROACH_MAX_M`), come
+   `with_approach` fa per un'alternativa: la zona si carica (0,3–2 s), il
+   motore non parte. Oltre, si calcola come oggi.
+3. **I più scelti davanti**: fra più righe buone, la prima è quella con
+   più corse salvate e preferiti (contate per `line_key` da
+   `activities.py` e `favorites.py`, senza chi), poi la più somigliante,
+   poi la più vicina; le altre sono le alternative A · B · C.
+4. **Le indicazioni non si tengono**: si ricavano dai punti come per
+   «Explore» (ADR-0117). Una riga pesa ~10 kB: ~150 percorsi al giorno
+   fanno ~0,5 GB l'anno. **Tetto** in una costante (circa 200 000 righe)
+   e pulizia a ogni scrittura oltre il tetto: via le righe più vecchie
+   senza corse né preferiti. Il Volume del server è di 70 GB.
+5. **Il contratto non cambia**: l'app legge già un job `done` alla prima
+   risposta (ADR-0136). Senza database l'API resta com'era.
+6. **Il ridisegno rapido** (parte A2, dopo la #497): quando la riga ha un
+   motore diverso o è vecchia, il motore riparte dal suo piazzamento
+   (`first` facoltativo in `optimizer.search`) e continua come oggi se il
+   risultato non è buono; senza `first` il risultato è quello di oggi,
+   con un test. Misurato: lo stesso piazzamento rifà lo stesso percorso
+   36 volte su 36 con 54 tracciamenti contro 736 (ADR-0257).
+7. **Privacy**: un paragrafo nella pagina della privacy, approvato
+   dall'utente, con l'aggiornamento che raccoglie le altre modifiche
+   (#461, 284 B, 291, 294, 296).
+
+**Alternative scartate**:
+- restare sui file di `route_store` per tutti: nessuna ricerca per
+  distanza, tetto di 3 000 file, nessun contatore;
+- una chiave per cella di 1 km: il percorso deve partire da dove sta
+  l'utente, e a 1 km non ci arriva a piedi;
+- un raggio oltre i 100 m: l'avvicinamento supererebbe i 150 m che oggi
+  si accettano per un'alternativa, e il percorso non sarebbe più «da qui»;
+- tenere le indicazioni e le alternative dentro la riga: nove volte lo
+  spazio, e le alternative sono percorsi loro;
+- contare `route_chosen` (A · B · C): 36 eventi in ottobre, e il segnale
+  non porta la `line_key`; da aprire quando le scelte saranno di più.
+
+## ADR-0257 — Il piazzamento imparato da una ricerca vicina: misurato e scartato
+
+**Stato**: Scartata (misurata) · 2026-10-24 · deciso dall'agente su delega
+dell'utente, con il Coordinatore; l'utente informato nella proposta
+(TASK-297 B). I numeri restano qui perché la via non si riprovi.
+
+**Contesto**: l'utente chiedeva «che l'app impari da sola a disegnare».
+La via più diretta: il motore ricorda, per forma e zona, il piazzamento
+che ha funzionato (partenza, rotazione, fase, scala) e lo prova per primo,
+da un `hint` facoltativo in `RouteRequest`.
+
+**Misura** (Mac, zone di Trento in cache, 2026-10-24; costo in
+tracciamenti, perché il Mac era carico; «buono» = distanza ±10 % e
+somiglianza ≥ 0,90; 36 richieste: cuore, stella, gatto, lumaca, luna da
+5 km e cuore da 2 km, da sei partenze a 300–700 m l'una dall'altra):
+
+| | tracciamenti | percorsi buoni |
+|---|---|---|
+| la ricerca di oggi | 736 | 17 su 36 |
+| lo stesso piazzamento, stessa partenza | 54, stesso percorso 36 su 36 | 17 su 36 |
+| il piazzamento imparato alla partenza più vicina (500–680 m) | 90 | 5 su 36; peggiore di 0,03 o più in 28 casi su 36 |
+
+Il gatto passa da 0,86 a 0,41, la lumaca da 0,88 a 0,19: a 500 m le
+strade sono altre, e il conteggio delle strade della ricerca di oggi
+(§5 di `ROUTE_ENGINE.md`) sceglie meglio di una memoria. Provare il
+piazzamento per primo e poi continuare risparmierebbe qualche
+tracciamento in 5 casi su 36 e ne costerebbe 1–3 negli altri.
+
+**Decisione**: nessun `hint` in `RouteRequest`, nessuna memoria dei
+piazzamenti per zona. Di «imparato» restano l'ordine dell'archivio
+(ADR-0256, punto 3) e il ridisegno rapido dal piazzamento dello stesso
+percorso dopo un cambio del motore (ADR-0256, punto 6), che è l'unico
+caso in cui la misura dice sì.
+
+**Dato collaterale, da aprire a parte**: in 19 casi su 36 la ricerca di
+oggi spende tutti i 30 tracciamenti senza un percorso buono (gatto 6 su
+6, lumaca 5 su 6, cuore da 2 km 6 su 6): sono i 6–14 s che l'utente
+aspetta per un disegno mediocre. Fermarsi prima quando la forma non entra
+nelle strade è il seguito scritto in `tasks/TASK-297.md`.
+
+## ADR-0258 — Le immagini con la penna alzata: i soggetti staccati e i fori sono pezzi
+
+**Stato**: Attiva · 2026-10-24 · chiesto dall'utente («gioca con il fatto
+di alzare la penna», loghi aziendali e di run club); il come deciso
+dall'agente su delega dell'utente (TASK-297 C). Allarga ADR-0079 (più
+soggetti in una linea sola) e ADR-0185 (le forme in pezzi).
+
+**Contesto**: un'immagine diventa una sola linea chiusa: il contorno
+esterno del soggetto più grande, gli altri soggetti (al massimo 4) appesi
+con un gambo andata-e-ritorno, i fori spariti, i soggetti vicini fusi.
+Provato su sette loghi sintetici e sul logo MuW da 5 km a Trento: le
+lettere «RC» una macchia (somiglianza 0,98), la ruota un cerchio, le tre
+barre un pettine, M u W appese al cuore. Con i pezzi e le camminate si
+legge «RC», si vede la ruota coi raggi e le tre barre, «MuW» sotto il
+cuore. L'anello con la stella da 5 km non viene (0,58: pezzi concentrici
+troppo piccoli per le strade), da 8 km sì. Immagini in
+`out/archivio-apprendimento/logos/` del Mac.
+
+**Decisione**:
+
+1. **Motore**: `outline_data(…, pen_up=True)` mette in `pieces` i
+   soggetti dopo il primo e i fori che valgono almeno il **3 %** del loro
+   soggetto (`HOLE_SHARE`), i più esterni prima; niente gambi. Un
+   soggetto dentro un altro è un pezzo suo. `parse_outline` non cambia: i
+   pezzi passano i controlli delle forme in pezzi (non si toccano, non si
+   incrociano). Con `pen_up=False` tutto come oggi.
+2. `ImageRequest.pen_up` è accettato: il contorno a pezzi si compone come
+   una forma in pezzi (`pieces.compose`) e la ricerca è quella delle
+   parole con la penna alzata (ADR-0157): la distanza chiesta è quella del
+   disegno, le camminate in più, `walks` nel risultato. Senza pezzi,
+   `pen_up` dà il contorno di oggi. CLI: `--image` con `--pen-up`.
+3. **API**: `POST /image-outlines` risponde anche `pieces` e
+   `image_pieces`; `POST /image-route-jobs` accetta `pen_up: true` con
+   `pieces` nel corpo. Aggiunte senza togliere niente.
+4. **App**: l'interruttore «Pen up» delle parole anche sulla foto,
+   proposto acceso quando il contorno ha pezzi; i pezzi sulla foto; i
+   tratti a piedi tratteggiati sulla mappa, la registrazione in pausa,
+   come per le parole.
+5. **La somiglianza** della penna alzata (per pezzo, con tolleranza) è
+   più severa di quella delle forme: 0,61 per «RC» leggibile contro 0,98
+   per la macchia. I numeri non si confrontano fra i due modi: si
+   guardano i disegni (lezione di TASK-290).
+6. **Nel repository solo loghi sintetici** (disegnati in codice) **e il
+   logo MuW**: niente marchi di aziende o di club.
+
+**Alternative scartate**:
+- i fori come tratti con la penna abbassata: i gambi si incrociano (è
+  l'errore trovato nella prova) e la linea del foro si farebbe due volte;
+- lasciare all'utente quali parti alzare, toccandole: più schermata, da
+  aprire se i pezzi automatici non bastano;
+- alzare `MAX_SUBJECTS` (4) insieme: da misurare a parte, con la penna
+  alzata un soggetto in più costa una camminata, non un gambo;
+- leggere le lettere come testo: una foto di una scritta resta un
+  disegno.
