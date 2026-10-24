@@ -44,6 +44,7 @@ from shaperoute_api.places import PlaceSearch
 from shaperoute_api.recommended import DEFAULT_DIR as CATALOG_DIR
 from shaperoute_api.recommended import RecommendedCatalog
 from shaperoute_api.request_log import DEFAULT_DIR, ON_VARIABLE, RequestLog, wanted
+from shaperoute_api.route_archive import RouteArchive
 from shaperoute_api.route_store import STORE_FOLDER, RouteStore
 from shaperoute_api.themed import StopFinder, ThemedJobs
 from shaperoute_api.water_spots import read_spots
@@ -180,6 +181,13 @@ def main(argv: Sequence[str] | None = None) -> None:
             water=[spot.point for spot in read_spots()],
         )
     )
+    # Every route drawn, kept in the database for whoever asks it nearby
+    # (ADR-0256), with the files behind it; without a database, the files.
+    archive = (
+        route_store
+        if database is None
+        else RouteArchive(database, graphs, behind=route_store)
+    )
     # Search events, on by default (the user's choice, ADR-0101), and the
     # learned vocabulary: tables, then it, then the AI.
     insights = Insights(
@@ -205,7 +213,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         cities=cities,
         insights=insights,
         accounts=accounts,
-        route_store=route_store,
+        route_store=archive,
     )
     # The towns near the user, under "Near me" in "Explore" (TASK-236), with
     # their photos beside the zones (TASK-283).

@@ -1,6 +1,6 @@
 # TASK-297 — Ricerche dall'archivio dei percorsi (A) e loghi con la penna alzata (C); il piazzamento imparato, misurato e scartato (B)
 
-**Stato**: In lavorazione · documenti (questa PR) · prossime: A, poi C
+**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in PR · poi C
 **Fase**: 4 · **Branch**: `docs/TASK-297-proposal` (documenti),
 `feat/TASK-297-a-route-archive` (A), `feat/TASK-297-a2-first-placement`
 (A2, dopo la #497), `feat/TASK-297-c-image-pieces` (C, motore),
@@ -325,16 +325,26 @@ docs/API.md, docs/UI.md, docs/STATUS.md, docs/tasks/TASK-297.md
   rivedere con una prova a parte.
 - Lettere lette come testo: una foto di una scritta resta un disegno.
 
-## Seguiti da aprire
+## Seguiti
 
-- **Fermarsi prima quando la forma non entra nelle strade**: in 19 casi
-  su 36 la ricerca spende tutti i 30 tracciamenti senza un percorso buono,
-  e sono i 6–14 s per un disegno mediocre. Per esempio: dopo N
-  tracciamenti senza miglioramento, o quando il conteggio delle strade
-  dice che nessun piazzamento copre abbastanza. Da misurare sul catalogo
-  e sugli esempi come ogni cambio del motore. Numero dal Coordinatore
-  quando l'utente lo vuole (l'utente ha detto «sì grazie» al paragrafo che
-  lo proponeva, 2026-10-24).
+- **TASK-298 — Fermarsi prima nella ricerca** (ADR-0259; sì dell'utente
+  al Coordinatore, «sì, apri anche quello per fermarsi prima», 2026-10-24):
+  in 19 casi su 36 la ricerca spende tutti i 30 tracciamenti senza un
+  percorso buono (gatto 6 su 6, lumaca 5 su 6, cuore da 2 km 6 su 6), e
+  sono i 6–14 s per un disegno mediocre. Per esempio: dopo N tracciamenti
+  senza miglioramento, o quando il conteggio delle strade dice che nessun
+  piazzamento copre abbastanza. Condizioni del Coordinatore: non si perde
+  nessun percorso buono (misurare su quale tracciamento si trova il primo
+  percorso buono, nelle 36 richieste e in più città; la regola tiene tutti
+  i 17 buoni di Trento o dice quale perde e perché, in una tabella
+  prima/dopo con buoni, tracciamenti e secondi); quando si ferma la
+  risposta resta quella di oggi per «nessun percorso» (TASK-256); la
+  regola sta nel motore, puro, così vale anche sul telefono; server dopo
+  Apple con l'ok dell'utente; riallineo su #489 e #497; `draw_examples`,
+  `engine.zip`, `paddleExamples.json` e `catalogueShapes.json` rifatti.
+  Il task file `TASK-298.md` lo crea chi lo fa, in un contesto nuovo, dopo
+  la parte C (o prima, se le misure lo dicono: `optimizer.py` è suo,
+  `image_outline.py` è di C).
 
 ## Esito
 

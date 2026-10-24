@@ -467,6 +467,32 @@ numero è il primo libero in `main` al merge):
   con un test (`test_game_api.py`). Una corsa cancellata toglie la sua
   riga di `game_runs`, e i suoi metri escono dai totali; le forme restano.
 
+Migrazione `0026_drawn_routes.sql` (TASK-297 parte A, ADR-0256; il numero
+è il primo libero in `main` al merge):
+
+- `drawn_routes`: una riga per ogni percorso che il motore finisce e per
+  ogni sua alternativa (`API.md`, «L'archivio dei percorsi»). `id`,
+  `drawn_at`, `engine` (l'impronta del motore: un motore cambiato
+  ridisegna), la richiesta (`shape` o `word`, `style`, `distance_m`,
+  `activity`, `pen_up`), `start` (`geography(Point, 4326)`, la partenza
+  chiesta, dove stava l'utente: il percorso comincia al nodo stradale più
+  vicino; indice GiST: «entro 100 m»), `route` (`geometry(LineString,
+  4326)`), `result` (`jsonb`: il `RouteResult` com'è, con le indicazioni,
+  senza le alternative, che sono righe loro), `similarity`, `line_key` (la
+  chiave della linea, come `favoriteKey` dell'app e `best_routes.line_key`),
+  `runs` e `favorites` (quante corse salvate lungo la linea, quanti
+  preferiti). Indici sulla chiave della richiesta, su `line_key` e su
+  `drawn_at`.
+- **Nessun `user_id`**: la riga non dice chi ha chiesto il percorso né chi
+  l'ha corso; cancellare un account non la tocca (test
+  `test_route_archive.py`). Una partenza è spesso la casa di qualcuno: per
+  questo (ADR-0256, scelta dell'utente di ADR-0086) i percorsi servono a
+  rispondere a chi chiede lo stesso disegno entro 100 m e a consigliarli,
+  mai a dire chi c'era. Il paragrafo della pagina privacy lo approva
+  l'utente. Le immagini e le forme spostate a mano non entrano mai.
+- Tetto di 50 000 righe nel codice (`MAX_ROUTES`): oltre, a ogni scrittura
+  vanno via le più vecchie con `runs` e `favorites` a zero.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

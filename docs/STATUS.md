@@ -179,6 +179,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Apple, con l'ok dell'utente. Seguito da aprire: fermarsi prima quando
   la forma non entra nelle strade (19 ricerche su 36 bruciano i 30
   tracciamenti). File: `tasks/TASK-297.md`.
+  **Documenti** in `main` con la #538 (`9391893c`, 2026-10-24).
+  **Parte A** (branch `feat/TASK-297-a-route-archive`, migrazione
+  `0026_drawn_routes.sql`, numero al merge): la tabella `drawn_routes`
+  senza `user_id`; `route_archive.py` davanti al `RouteStore` dei file
+  (`get` subito dallo stesso punto, `nearby` nel thread del job entro
+  100 m con l'avvicinamento lungo le strade, `put` di percorso e
+  alternative, tetto di 50 000 righe); `RouteJobs` chiede l'archivio
+  prima del motore (`FindsNearby`); le corse salvate e i preferiti contano
+  per `line_key`. Contratto invariato; senza database tutto come prima.
+  Server dopo Apple, con l'ok dell'utente e il paragrafo della privacy.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
