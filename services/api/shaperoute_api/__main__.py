@@ -184,9 +184,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     # Every route drawn, kept in the database for whoever asks it nearby
     # (ADR-0256), with the files behind it; without a database, the files.
     archive = (
-        route_store
-        if database is None
-        else RouteArchive(database, graphs, behind=route_store)
+        route_store if database is None else RouteArchive(database, behind=route_store)
     )
     # Search events, on by default (the user's choice, ADR-0101), and the
     # learned vocabulary: tables, then it, then the AI.

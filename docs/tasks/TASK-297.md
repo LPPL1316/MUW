@@ -255,6 +255,12 @@ PostgreSQL, e in `tests/test_jobs.py`):
       (`test_route_jobs`, `test_jobs`, `test_route_store`, `test_main`)
       girano come prima; uno store senza `nearby` non cambia `RouteJobs`
       (`test_jobs.py`).
+- [x] Il motore sul telefono (`engine.zip`, TASK-214) disegna come prima:
+      `jobs.py` viaggia con lui, rifatto; senza archivio e senza `nearby`
+      (`test_on_phone.py::test_the_phone_draws_without_the_archive`), e
+      lo zip non porta `route_archive` né psycopg
+      (`tools/phone_engine/test_phone_engine.py`). L'impronta iOS la
+      rimisura il Coordinatore su una copia pulita.
 - [x] pytest, ruff e black verdi (in locale il 2026-10-24: i test
       dell'archivio, `test_jobs`, `test_route_jobs`, `test_route_store`,
       `test_main`, `test_favorites` e `test_activities`).
@@ -300,6 +306,9 @@ services/api/shaperoute_api/activities.py                 (una chiamata dopo il 
 services/api/shaperoute_api/favorites.py                  (una chiamata)
 services/api/tests/test_route_archive.py                  (nuovo)
 services/api/tests/test_jobs.py                           (un test con un archivio finto, in coda)
+services/api/tests/test_on_phone.py                       (un test: il telefono senza archivio, in coda)
+apps/mobile/assets/engine/engine.zip                      (rifatto: jobs.py va anche sul telefono, TASK-214; da pubblicare su preview)
+tools/phone_engine/test_phone_engine.py                   (un test: il telefono non porta l'archivio né psycopg)
 docs/API.md, docs/DATABASE.md, docs/STATUS.md, docs/tasks/TASK-297.md
 ```
 

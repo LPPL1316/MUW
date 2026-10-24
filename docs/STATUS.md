@@ -188,6 +188,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   alternative, tetto di 50 000 righe); `RouteJobs` chiede l'archivio
   prima del motore (`FindsNearby`); le corse salvate e i preferiti contano
   per `line_key`. Contratto invariato; senza database tutto come prima.
+  `jobs.py` va anche sul telefono: `engine.zip` rifatto (da pubblicare su
+  `preview`), il telefono senza archivio disegna come prima (test).
   Server dopo Apple, con l'ok dell'utente e il paragrafo della privacy.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
