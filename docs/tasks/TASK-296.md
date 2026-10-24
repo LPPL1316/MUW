@@ -213,7 +213,9 @@ day left», una volta per sfida grazie a `ending_told_at`.
 
 **Domande all'utente** (una per volta, dal 2026-10-24):
 - (a) il blocco nato fra due iscritti della stessa squadra: proposta al
-  punto 5. Risposta: _in attesa_.
+  punto 5. **Approvata dall'utente il 2026-10-24** («Sì, va bene la
+  regola proposta»): esce chi blocca, tranne quando la squadra è sua,
+  allora esce l'altro; è quello che fa `game_teams.on_block`.
 - (b) i testi delle tre push: proposta in «Testi da approvare».
   Risposta: _in attesa_.
 
