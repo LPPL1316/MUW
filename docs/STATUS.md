@@ -222,7 +222,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   una scala già tracciata per lo stesso piazzamento non si traccia più
   (1,3 % dei tracciamenti; i 129 buoni identici, i mediocri mai peggiori).
   Il taglio vero costa percorsi buoni ed è una scelta di prodotto: numeri
-  in ADR-0259. `engine.zip` rifatto nella PR. File: `tasks/TASK-298.md`.
+  in ADR-0259. `engine.zip` rifatto nella PR. **PR #558** aperta il
+  2026-10-25, al merge del Coordinatore. File: `tasks/TASK-298.md`.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
