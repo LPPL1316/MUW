@@ -5,6 +5,7 @@ No network: the answers are cut from Geoapify's Places, as they came on
 from __future__ import annotations
 
 import urllib.parse
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,7 @@ from fastapi.testclient import TestClient
 from route_engine.network import FileSource
 
 from shaperoute_api.app import create_app
+from shaperoute_api.city_photos import CityPhotoBody, CityPhotos
 from shaperoute_api.nearby_cities import (
     CITIES,
     FAR_RADIUS_M,
@@ -127,12 +129,15 @@ def test_four_towns_within_20_km_and_the_two_nearest_villages() -> None:
         "Trento",
         "Borgo Valsugana",
     ]
-    # Four towns within 20 km: those further away are not asked for.
-    assert [(kind, radius) for kind, radius, _ in service.calls] == [
-        (CITIES, FAR_RADIUS_M),
-        (TOWNS, NEAR_RADIUS_M),
-        (VILLAGES, NEAR_RADIUS_M),
-    ]
+    # Four towns within 20 km: those further away are not asked for. The
+    # three are asked side by side (TASK-288), in no order.
+    assert sorted((kind, radius) for kind, radius, _ in service.calls) == sorted(
+        [
+            (CITIES, FAR_RADIUS_M),
+            (TOWNS, NEAR_RADIUS_M),
+            (VILLAGES, NEAR_RADIUS_M),
+        ]
+    )
 
 
 def test_fewer_than_four_are_filled_with_the_nearest_up_to_50_km() -> None:
@@ -297,6 +302,7 @@ def test_the_endpoint_gives_the_towns_and_how_far_they_are() -> None:
         "label": "Levico Terme, Trentino – Alto Adige/Südtirol, Italy",
         "point": [46.0091259, 11.3017774],
         "away_m": 2929,
+        "photo": None,
     }
 
 
@@ -330,3 +336,58 @@ def test_a_point_off_the_earth_is_refused() -> None:
     client = client_with(NearbyCities("K", around_caldonazzo()))
     assert client.get("/nearby-cities", params={"lat": 91, "lon": 0}).status_code == 422
     assert client.get("/nearby-cities").status_code == 422
+
+
+def test_a_town_s_wikidata_item_as_geoapify_gives_it() -> None:
+    levico = place("Levico Terme", 46.0091259, 11.3017774, 7915)
+    levico["properties"]["wiki_and_media"] = {"wikidata": "Q100"}
+    borgo = place("Borgo Valsugana", 46.0533463, 11.4566004, 6945)
+    borgo["properties"]["datasource"]["raw"]["wikidata"] = "Q200"
+    # Named twice: the item of the second, the point of the first.
+    tenna = place("Tenna", 46.0156, 11.2640, 850)
+    tenna_again = place("Tenna", 46.0200, 11.2700, 850)
+    tenna_again["properties"]["wiki_and_media"] = {"wikidata": "Q300"}
+    odd = place("Vela", 46.0823, 11.1017, 963)
+    odd["properties"]["wiki_and_media"] = {"wikidata": "not an item"}
+    towns = parse_towns({"features": [levico, borgo, tenna, tenna_again, odd]})
+    assert [(t.label.split(",")[0], t.item) for t in towns] == [
+        ("Levico Terme", "Q100"),
+        ("Borgo Valsugana", "Q200"),
+        ("Tenna", "Q300"),
+        ("Vela", None),
+    ]
+    assert towns[2].point == (46.0156, 11.2640)
+
+
+def test_the_endpoint_gives_the_photos_of_the_towns_that_have_one() -> None:
+    levico = place("Levico Terme", 46.0091259, 11.3017774, 7915)
+    levico["properties"]["wiki_and_media"] = {"wikidata": "Q100"}
+    tenna = place("Tenna", 46.0156, 11.2640, 850)
+    tenna["properties"]["wiki_and_media"] = {"wikidata": "Q300"}
+    service = Service(
+        {
+            (CITIES, FAR_RADIUS_M): [TRENTO, BOLZANO],
+            (TOWNS, NEAR_RADIUS_M): [levico, PERGINE, BORGO],
+            (VILLAGES, NEAR_RADIUS_M): [CALDONAZZO_VILLAGE, CALCERANICA, tenna],
+        }
+    )
+    asked: list[list[str]] = []
+
+    class Photos(CityPhotos):
+        def photos(self, items: Iterable[str]) -> dict[str, CityPhotoBody]:
+            asked.append(list(items))
+            credit = "© A · CC BY 4.0"
+            return {"Q100": CityPhotoBody(url="/city-photos/Q100.jpg", credit=credit)}
+
+    client = client_with(NearbyCities("K", service, photos=Photos(None)))
+    response = client.get("/nearby-cities", params={"lat": 46.0036, "lon": 11.2647})
+    places = {p["label"].split(",")[0]: p["photo"] for p in response.json()["places"]}
+    assert places["Levico Terme"] == {
+        "url": "/city-photos/Q100.jpg",
+        "credit": "© A · CC BY 4.0",
+    }
+    # An item without a photo, and a town without an item.
+    assert places["Tenna"] is None
+    assert places["Pergine Valsugana"] is None
+    # Only the items go to the photos, never the point.
+    assert sorted(asked[0]) == ["Q100", "Q300"]

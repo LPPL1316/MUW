@@ -122,6 +122,17 @@ export const DOUBLE_TAP_PX = 40;
  */
 export const MOVE_MIN_PX = 8;
 
+/**
+ * «Draw on the map» (TASK-281): the zoom of a town around the start, where
+ * a figure of a few km shows whole; a finger's step that adds a point to
+ * the line drawn; how far around the figure a finger takes it; and the
+ * room left around the figure when the map is framed on it.
+ */
+export const CANVAS_ZOOM = 13;
+export const INK_STEP_PX = 3;
+export const GRAB_PX = 24;
+export const FIGURE_PADDING_PX = 60;
+
 /** The run over its route (TASK-113). */
 export const TRACK_COLOR = track.color;
 export const TRACK_WIDTH = track.width;
@@ -242,6 +253,10 @@ export function buildMapPage(language: Language = appLanguage()): string {
     var track = noRoute;
     var stops = noRoute;
     var others = noRoute;
+    // «Draw on the map» (TASK-281): the figure as drawn, and the line a
+    // finger is drawing.
+    var figure = noRoute;
+    var ink = [];
     // The bearing the map keeps (TASK-232): the one of the route shown, so
     // its drawing is upright, until the app or two fingers turn the map.
     var wanted = 0;
@@ -395,6 +410,32 @@ export function buildMapPage(language: Language = appLanguage()): string {
           "line-color": ${toScript(TRACK_COLOR)},
           "line-width": ${TRACK_WIDTH},
           "line-opacity": ${TRACK_OPACITY},
+        },
+      });
+      // «Draw on the map» (TASK-281): the figure in the route's yellow, as
+      // the route will draw it, and the line a finger is drawing, over all.
+      map.addSource("canvas", { type: "geojson", data: figure });
+      map.addLayer({
+        id: "canvas",
+        type: "line",
+        source: "canvas",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": ${toScript(ROUTE_COLOR)},
+          "line-width": ${ROUTE_WIDTH},
+          "line-opacity": ${ROUTE_OPACITY},
+        },
+      });
+      map.addSource("ink", { type: "geojson", data: inkData() });
+      map.addLayer({
+        id: "ink",
+        type: "line",
+        source: "ink",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": ${toScript(ROUTE_COLOR)},
+          "line-width": ${ROUTE_WIDTH},
+          "line-opacity": ${ROUTE_OPACITY},
         },
       });
       // A kind told before the style was drawn shows now.
@@ -807,6 +848,439 @@ export function buildMapPage(language: Language = appLanguage()): string {
         }
       }
     }
+    // «Draw on the map» (TASK-281, ADR-0245): while the app asks, the
+    // fingers on the map are the page's own, and MapLibre's gestures are
+    // off. With «Draw» one finger draws a yellow line and the map keeps
+    // still. With «Move» one finger drags the figure, when it starts on it,
+    // or the map; two fingers size the figure, when their middle is on it,
+    // or zoom the map. The app is told of each line drawn (\`drawn\`), of the
+    // figure moved or sized (\`figure\`), and of where the map is
+    // (\`centre\`): a figure is put there.
+    var canvas = null;
+    var canvasListening = false;
+    var gesture = null;
+    var inkLast = null;
+    var GESTURES = ["dragPan", "touchZoomRotate", "doubleClickZoom", "dragRotate", "touchPitch"];
+    var gesturesBefore = null;
+    function inkData() {
+      return ink.length > 1
+        ? {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: ink },
+          }
+        : noRoute;
+    }
+    function drawInk() {
+      var source = map.getSource("ink");
+      if (source) {
+        source.setData(inkData());
+      }
+    }
+    function drawFigure(lines) {
+      figure = lines.length > 0
+        ? {
+            type: "Feature",
+            properties: {},
+            geometry: { type: "MultiLineString", coordinates: lines },
+          }
+        : noRoute;
+      var source = map.getSource("canvas");
+      if (source) {
+        source.setData(figure);
+      }
+    }
+    function pointOf(touch) {
+      return { x: touch.clientX, y: touch.clientY };
+    }
+    function lngLatAt(point) {
+      var at = map.unproject([point.x, point.y]);
+      return [at.lng, at.lat];
+    }
+    function apart(a, b) {
+      return Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+    }
+    function middleOf(a, b) {
+      return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    }
+    function eachPoint(lines, visit) {
+      lines.forEach(function (line) {
+        line.forEach(visit);
+      });
+    }
+    // The figure's box on the screen, with room for a finger around it.
+    function screenBox() {
+      var box = null;
+      eachPoint(canvas.lines, function (lngLat) {
+        var p = map.project(lngLat);
+        box = box
+          ? {
+              left: Math.min(box.left, p.x),
+              right: Math.max(box.right, p.x),
+              top: Math.min(box.top, p.y),
+              bottom: Math.max(box.bottom, p.y),
+            }
+          : { left: p.x, right: p.x, top: p.y, bottom: p.y };
+      });
+      return box;
+    }
+    function onFigure(point) {
+      if (!canvas || canvas.lines.length === 0) {
+        return false;
+      }
+      var box = screenBox();
+      return (
+        point.x >= box.left - ${GRAB_PX} &&
+        point.x <= box.right + ${GRAB_PX} &&
+        point.y >= box.top - ${GRAB_PX} &&
+        point.y <= box.bottom + ${GRAB_PX}
+      );
+    }
+    // The middle of the figure's box on the map: it grows from there.
+    function figureMiddle() {
+      var box = null;
+      eachPoint(canvas.lines, function (p) {
+        box = box
+          ? [Math.min(box[0], p[0]), Math.min(box[1], p[1]), Math.max(box[2], p[0]), Math.max(box[3], p[1])]
+          : [p[0], p[1], p[0], p[1]];
+      });
+      return [(box[0] + box[2]) / 2, (box[1] + box[3]) / 2];
+    }
+    function shiftedPoint(p, by) {
+      return [p[0] + by[0], p[1] + by[1]];
+    }
+    // Sized about \`anchor\` on the map: a similarity on the plane too, the
+    // same factor along both axes.
+    function sizedPoint(p, anchor, factor) {
+      return [anchor[0] + factor * (p[0] - anchor[0]), anchor[1] + factor * (p[1] - anchor[1])];
+    }
+    function mapLines(lines, change) {
+      return lines.map(function (line) {
+        return line.map(change);
+      });
+    }
+    function tellCentre() {
+      var centre = map.getCenter();
+      post({ type: "centre", lngLat: [centre.lng, centre.lat] });
+    }
+    // A move or a size kept: the page draws the figure there until the app
+    // sends it back, and the room to grow is what is left of it.
+    function keepFigure(lines, centre, factor) {
+      canvas.lines = lines;
+      canvas.centre = centre;
+      canvas.shrink /= factor;
+      canvas.grow /= factor;
+      drawFigure(lines);
+      if (centre) {
+        post({ type: "figure", centre: centre, factor: factor, done: true });
+      }
+      // Grown past the screen, the map steps back to show it whole: there
+      // is room again to zoom the map around it.
+      var surface = map.getCanvasContainer();
+      var box = factor > 1 && lines.length > 0 ? screenBox() : null;
+      if (
+        box &&
+        (box.left < 0 ||
+          box.top < 0 ||
+          box.right > surface.clientWidth ||
+          box.bottom > surface.clientHeight)
+      ) {
+        frameCanvas();
+      }
+    }
+    function startGesture(touches) {
+      // A finger on the map stops it where it is: a line drawn while the
+      // map still eases into place would not be where it was drawn.
+      if (map.stop) {
+        map.stop();
+      }
+      if (touches.length === 1) {
+        var at = pointOf(touches[0]);
+        if (canvas.mode === "draw") {
+          ink = [lngLatAt(at)];
+          inkLast = at;
+          gesture = { kind: "ink" };
+          drawInk();
+        } else if (onFigure(at)) {
+          gesture = { kind: "drag", from: at, by: null };
+        } else {
+          gesture = { kind: "pan", last: at };
+        }
+        return;
+      }
+      if (touches.length === 2 && canvas.mode === "move") {
+        var a = pointOf(touches[0]);
+        var b = pointOf(touches[1]);
+        var middle = middleOf(a, b);
+        gesture = onFigure(middle)
+          ? { kind: "size", from: apart(a, b), anchor: figureMiddle(), factor: 1, told: 1 }
+          : {
+              kind: "zoom",
+              from: apart(a, b),
+              zoom: map.getZoom(),
+              anchor: map.unproject([middle.x, middle.y]),
+            };
+        return;
+      }
+      // With «Draw», two fingers do nothing: the map keeps still.
+      gesture = { kind: "wait" };
+    }
+    // \`lifted\`: the fingers left the map; otherwise another one came, and
+    // a line half drawn is dropped.
+    function endGesture(lifted) {
+      var was = gesture;
+      gesture = null;
+      if (!was) {
+        return;
+      }
+      if (was.kind === "ink") {
+        if (lifted && ink.length >= 3) {
+          // Shown until the app answers with the figure.
+          post({ type: "drawn", line: ink });
+        } else {
+          ink = [];
+          drawInk();
+        }
+      } else if (was.kind === "drag") {
+        if (was.by) {
+          keepFigure(
+            mapLines(canvas.lines, function (p) {
+              return shiftedPoint(p, was.by);
+            }),
+            canvas.centre && shiftedPoint(canvas.centre, was.by),
+            1,
+          );
+        }
+      } else if (was.kind === "size") {
+        if (was.factor !== 1) {
+          keepFigure(
+            mapLines(canvas.lines, function (p) {
+              return sizedPoint(p, was.anchor, was.factor);
+            }),
+            canvas.centre && sizedPoint(canvas.centre, was.anchor, was.factor),
+            was.factor,
+          );
+        }
+      } else if (was.kind === "pan" || was.kind === "zoom") {
+        tellCentre();
+      }
+    }
+    function dropGesture() {
+      if (gesture && (gesture.kind === "drag" || gesture.kind === "size")) {
+        drawFigure(canvas.lines);
+      }
+      if (gesture && gesture.kind === "ink") {
+        ink = [];
+        drawInk();
+      }
+      gesture = null;
+    }
+    function moveGesture(touches) {
+      if (gesture.kind === "ink" && touches.length === 1) {
+        var at = pointOf(touches[0]);
+        if (Math.hypot(at.x - inkLast.x, at.y - inkLast.y) >= ${INK_STEP_PX}) {
+          ink.push(lngLatAt(at));
+          inkLast = at;
+          drawInk();
+        }
+      } else if (gesture.kind === "drag" && touches.length === 1) {
+        var now = pointOf(touches[0]);
+        var from = gesture.from;
+        var far =
+          Math.abs(now.x - from.x) >= ${MOVE_MIN_PX} ||
+          Math.abs(now.y - from.y) >= ${MOVE_MIN_PX};
+        if (!gesture.by && !far) {
+          return;
+        }
+        var a = map.unproject([from.x, from.y]);
+        var b = map.unproject([now.x, now.y]);
+        var by = [b.lng - a.lng, b.lat - a.lat];
+        gesture.by = by;
+        drawFigure(mapLines(canvas.lines, function (p) {
+          return shiftedPoint(p, by);
+        }));
+      } else if (gesture.kind === "pan" && touches.length === 1) {
+        var to = pointOf(touches[0]);
+        map.panBy([gesture.last.x - to.x, gesture.last.y - to.y], { animate: false });
+        gesture.last = to;
+      } else if ((gesture.kind === "size" || gesture.kind === "zoom") && touches.length === 2) {
+        var first = pointOf(touches[0]);
+        var second = pointOf(touches[1]);
+        var ratio = apart(first, second) / gesture.from;
+        if (gesture.kind === "size") {
+          var factor = Math.min(canvas.grow, Math.max(canvas.shrink, ratio));
+          var anchor = gesture.anchor;
+          gesture.factor = factor;
+          drawFigure(mapLines(canvas.lines, function (p) {
+            return sizedPoint(p, anchor, factor);
+          }));
+          // The distance on screen follows, a step at a time.
+          if (canvas.centre && Math.abs(factor / gesture.told - 1) >= 0.01) {
+            gesture.told = factor;
+            post({
+              type: "figure",
+              centre: sizedPoint(canvas.centre, anchor, factor),
+              factor: factor,
+              done: false,
+            });
+          }
+        } else {
+          var middle = middleOf(first, second);
+          map.jumpTo({ zoom: gesture.zoom + Math.log2(ratio) });
+          var held = map.project(gesture.anchor);
+          map.panBy([held.x - middle.x, held.y - middle.y], { animate: false });
+        }
+      }
+    }
+    function listenToCanvas() {
+      var surface = map.getCanvasContainer();
+      var passive = { passive: true };
+      surface.addEventListener("touchstart", function (event) {
+        if (!canvas) {
+          return;
+        }
+        // Another finger ends what one was doing.
+        endGesture(false);
+        startGesture(event.touches);
+      }, passive);
+      surface.addEventListener("touchmove", function (event) {
+        if (canvas && gesture) {
+          moveGesture(event.touches);
+        }
+      }, passive);
+      surface.addEventListener("touchend", function (event) {
+        if (!canvas || !gesture) {
+          return;
+        }
+        if (event.touches.length === 0) {
+          endGesture(true);
+        } else if (gesture.kind === "size" || gesture.kind === "zoom") {
+          // One of two fingers up: what they did is kept, and the one left
+          // does nothing until it is lifted too.
+          endGesture(true);
+          gesture = { kind: "wait" };
+        }
+      }, passive);
+      surface.addEventListener("touchcancel", function () {
+        if (canvas) {
+          dropGesture();
+        }
+      }, passive);
+      // Where the map is, once it stops: a figure is put in its middle.
+      map.on("moveend", function () {
+        if (canvas && !gesture) {
+          tellCentre();
+        }
+      });
+    }
+    // Framed on the figure, or on the start without one: north up, as the
+    // engine keeps a shape upright.
+    function frameCanvas() {
+      wanted = 0;
+      if (canvas.lines.length > 0) {
+        var first = canvas.lines[0][0];
+        var bounds = new maplibregl.LngLatBounds(first, first);
+        eachPoint(canvas.lines, function (p) {
+          bounds.extend(p);
+        });
+        map.fitBounds(bounds, { padding: ${FIGURE_PADDING_PX}, bearing: 0 });
+      } else {
+        map.easeTo({
+          center: marker ? marker.getLngLat() : map.getCenter(),
+          zoom: ${CANVAS_ZOOM},
+          bearing: 0,
+          duration: 500,
+        });
+      }
+    }
+    function setCanvas(message) {
+      if (!canvas) {
+        gesturesBefore = {};
+        GESTURES.forEach(function (name) {
+          var handler = map[name];
+          if (handler) {
+            gesturesBefore[name] = handler.isEnabled ? handler.isEnabled() : true;
+            handler.disable();
+          }
+        });
+        // The page must not take the finger for a scroll of its own.
+        map.getCanvasContainer().style.touchAction = "none";
+        if (!canvasListening) {
+          canvasListening = true;
+          listenToCanvas();
+        }
+      }
+      gesture = null;
+      canvas = {
+        mode: message.mode,
+        lines: message.lines,
+        centre: message.centre,
+        shrink: message.shrink,
+        grow: message.grow,
+      };
+      // The app has answered the line drawn: the figure takes its place.
+      ink = [];
+      drawInk();
+      drawFigure(message.lines);
+      if (message.frame) {
+        frameCanvas();
+      }
+    }
+    function clearCanvas() {
+      if (!canvas) {
+        return;
+      }
+      canvas = null;
+      gesture = null;
+      ink = [];
+      drawInk();
+      drawFigure([]);
+      GESTURES.forEach(function (name) {
+        var handler = map[name];
+        if (handler && gesturesBefore && gesturesBefore[name]) {
+          handler.enable();
+        }
+      });
+      map.getCanvasContainer().style.touchAction = "";
+    }
+    // Choosing the start on the map (TASK-292, ADR-0252): the start's pin
+    // is hidden and one like it stays in the middle of the map, which the
+    // fingers move under it as always. The map is framed on the start,
+    // north up, and the app is told where the middle is each time it stops.
+    var picking = null;
+    function setPick(on) {
+      if (on && !picking) {
+        var target = marker ? marker.getLngLat() : map.getCenter();
+        if (marker) {
+          marker.getElement().style.visibility = "hidden";
+        }
+        picking = new maplibregl.Marker({ color: ${toScript(POSITION_COLOR)} })
+          .setLngLat(target)
+          .addTo(map);
+        // Without a start the map stays where it is.
+        if (marker) {
+          wanted = 0;
+          map.easeTo({ center: target, zoom: ${START_ZOOM}, bearing: 0, duration: 500 });
+        }
+        post({ type: "centre", lngLat: [target.lng, target.lat] });
+      } else if (!on && picking) {
+        picking.remove();
+        picking = null;
+        if (marker) {
+          marker.getElement().style.visibility = "";
+        }
+      }
+    }
+    map.on("move", function () {
+      if (picking) {
+        picking.setLngLat(map.getCenter());
+      }
+    });
+    map.on("moveend", function () {
+      if (picking) {
+        tellCentre();
+      }
+    });
     window.shaperoute = {
       receive: function (message) {
         if (message.type === "setPosition") {
@@ -934,6 +1408,12 @@ export function buildMapPage(language: Language = appLanguage()): string {
           turnTo(message.bearing);
         } else if (message.type === "setKind") {
           setKind(message.kind);
+        } else if (message.type === "setCanvas") {
+          setCanvas(message);
+        } else if (message.type === "clearCanvas") {
+          clearCanvas();
+        } else if (message.type === "setPick") {
+          setPick(message.on);
         }
       },
     };

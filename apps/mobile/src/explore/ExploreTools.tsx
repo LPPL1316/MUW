@@ -12,6 +12,7 @@ import {
 import { t } from "../i18n";
 
 import { sendSignal } from "../api/signals";
+import { featuredPlace, keepFeaturedPlace } from "../engine/aheadZones";
 import type { Place } from "../places/photon";
 import {
   color,
@@ -40,7 +41,15 @@ type CityProps = {
   suggestDelayMs?: number;
   /** Tells the API the city chosen, and how (TASK-142); POST /signals. */
   onSignal?: (signal: Signal) => void;
+  /** The featured cities the phone has as GET /cities gave them
+   * (TASK-287): read before asking, kept after. Injected in tests. */
+  featured?: {
+    read: (name: string) => Place | null;
+    keep: (name: string, place: Place) => void;
+  };
 };
+
+const FEATURED_ON_PHONE = { read: featuredPlace, keep: keepFeaturedPlace };
 
 /**
  * "City" (TASK-129, TASK-134): "Near me" first, on until a city is chosen
@@ -57,6 +66,7 @@ export function CityPicker({
   fetchFn = fetch,
   suggestDelayMs = SUGGEST_DELAY_MS,
   onSignal = (signal) => void sendSignal(signal, { baseUrl: apiUrl, fetchFn }),
+  featured: featuredOnPhone = FEATURED_ON_PHONE,
 }: CityProps) {
   const [query, setQuery] = useState("");
   const [found, setFound] = useState<{ query: string; places: Place[] | null } | null>(
@@ -126,8 +136,14 @@ export function CityPicker({
     onCity(null);
   }
 
-  /** A city by name (a chip, or Enter): its centre from the API. */
+  /** A city by name (a chip, or Enter): its centre from the API. A featured
+   * city the phone has already opens at once, without asking (TASK-287). */
   async function open(name: string, via: "featured" | "typed") {
+    const kept = via === "featured" ? featuredOnPhone.read(name) : null;
+    if (kept !== null) {
+      choose(kept, via);
+      return;
+    }
     if (apiUrl === null) {
       setFailed(true);
       return;
@@ -142,6 +158,9 @@ export function CityPicker({
     }
     setOpening(null);
     if (cities !== null && cities.length > 0) {
+      if (via === "featured") {
+        featuredOnPhone.keep(name, cities[0]);
+      }
       choose(cities[0], via);
     } else {
       setFailed(true);

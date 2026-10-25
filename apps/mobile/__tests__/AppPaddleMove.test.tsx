@@ -105,12 +105,19 @@ function job(status: string) {
 /** The API accepts each route job, then answers each poll with the next
  * body (the last one repeats). */
 function apiAnswers(...polls: unknown[]) {
-  fetchSpy.mockImplementation(async (_input, init) => {
+  fetchSpy.mockImplementation(async (input, init) => {
     if ((init?.method ?? "GET") === "POST") {
       return Response.json(job("queued"), { status: 202 });
     }
     if (init?.method === "DELETE") {
       return new Response(null, { status: 204 });
+    }
+    if (String(input) === `${API}/game/catalog`) {
+      // An API without the shape game (TASK-296): no «Play» page.
+      return Response.json(
+        { error: { code: "http_error", message: "no game" } },
+        { status: 404 },
+      );
     }
     return Response.json(polls.length > 1 ? polls.shift() : polls[0]);
   });

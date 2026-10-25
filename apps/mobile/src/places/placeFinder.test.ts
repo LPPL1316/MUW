@@ -1,7 +1,7 @@
 import places from "@shaperoute/shared-types/fixtures/places.json";
 
 import photon from "./fixtures/photon-via-belenzani-trento.json";
-import { isPlaces, placeFinder, placesUrl } from "./placeFinder";
+import { API_PAUSE_MS, isPlaces, placeFinder, placesUrl } from "./placeFinder";
 
 const API = "http://100.84.99.112:8000";
 const NEAR: [number, number] = [46.07, 11.12];
@@ -64,7 +64,7 @@ test("an API without the key is not asked again", async () => {
   expect(asked(fetchFn).filter((url) => url.includes("photon"))).toHaveLength(2);
 });
 
-test("an API that fails or is slow gives Photon, and is asked again", async () => {
+test("an API that fails or is slow gives Photon, and is left alone a few minutes", async () => {
   jest.useFakeTimers();
   try {
     // The API never answers; the abort rejects, as fetch does.
@@ -76,13 +76,21 @@ test("an API that fails or is slow gives Photon, and is asked again", async () =
         : Promise.resolve(reply(200, photon)),
     ) as jest.Mock & typeof fetch;
     const find = placeFinder({ baseUrl: API, fetchFn, timeoutMs: 100 });
+    const fromApi = () => asked(fetchFn).filter((url) => url.startsWith(API));
     const found = find("via bel", NEAR);
     await jest.advanceTimersByTimeAsync(100);
     expect((await found)[0].label).toBe("Via Rodolfo Belenzani, Trento");
-    const again = find("via bele", NEAR);
+    // The next letters go to Photon at once (TASK-287): no wait for the API.
+    expect((await find("via bele", NEAR))[0].label).toBe(
+      "Via Rodolfo Belenzani, Trento",
+    );
+    expect(fromApi()).toHaveLength(1);
+    // A few minutes later the API is asked again.
+    await jest.advanceTimersByTimeAsync(API_PAUSE_MS);
+    const again = find("via belen", NEAR);
     await jest.advanceTimersByTimeAsync(100);
     await again;
-    expect(asked(fetchFn).filter((url) => url.startsWith(API))).toHaveLength(2);
+    expect(fromApi()).toHaveLength(2);
   } finally {
     jest.useRealTimers();
   }

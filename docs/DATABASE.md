@@ -15,6 +15,8 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
   `schema_migrations`. Una migrazione già in `main` non si modifica mai:
   se ne scrive un'altra.
 - **Accesso dal codice**: psycopg 3, SQL scritto a mano, senza ORM.
+  L'API presta le connessioni da un pool (`psycopg_pool`, da 2 a 10,
+  TASK-288 B): ognuna torna come una sessione nuova (`DISCARD ALL`).
 - **Coordinate**: geometrie in WGS84 (SRID 4326), punti in `(lon, lat)`
   come vuole PostGIS; all'API e all'app escono `(lat, lon)` come sempre.
   Le distanze si misurano in metri con `geography`.
@@ -61,7 +63,9 @@ Migrazione `0001_users_sessions.sql` (TASK-114, ADR-0120):
 - `sessions`: `token_hash` (SHA-256 del token, 32 byte, chiave),
   `user_id` (`ON DELETE CASCADE`), `created_at`, `last_used_at`. Valida
   finché `last_used_at` è più recente di 90 giorni; ogni uso la sposta.
-  Una sessione scaduta si cancella quando qualcuno la usa.
+  Una sessione scaduta si cancella quando qualcuno la usa. Da TASK-288
+  (ADR-0249) un uso si scrive solo quando quello scritto ha un'ora, e la
+  sessione vale 90 giorni e un'ora: mai meno di 90 dall'ultimo uso vero.
 - L'estensione PostGIS la crea la prima migrazione che usa una geometria:
   è la `0002` (`CREATE EXTENSION IF NOT EXISTS postgis`); l'immagine la ha
   già.
@@ -421,6 +425,80 @@ Migrazione `0021_push_tokens.sql` (TASK-262 parte A, ADR-0226; il numero
   (`DeviceNotRegistered`) e con l'account. È **l'unico dato che lascia il
   server per un terzo**: il token, con il testo della notifica, va al
   servizio push di Expo, che lo passa ad Apple o a Google.
+
+Migrazione `0022_faster_searches.sql` (TASK-288, ADR-0249; il numero è il
+primo libero in `main` al merge):
+
+- L'estensione **`pg_trgm`** (di PostgreSQL, nell'immagine PostGIS) e
+  l'indice GIN `users_username_trgm_idx` su `lower(username)
+  gin_trgm_ops`: «Find friends» (`lower(username) LIKE '%q%'`) lo usa da
+  tre lettere in su, senza leggere ogni account.
+- **`drawings.preview`**: colonna generata (`GENERATED ALWAYS AS …
+  STORED`) dalla funzione `drawing_preview(track)`, al più 64 punti della
+  traccia tagliata scelti per indice come `recommended.preview`, primo e
+  ultimo compresi; `NULL` senza traccia. PostgreSQL la rifà a ogni
+  scrittura di `track`. Il feed e i disegni di un profilo la leggono al
+  posto della traccia intera, e il feed le chiede se un disegno è vicino.
+  La funzione ha `search_path = public`: un ripristino la chiama con un
+  `search_path` vuoto.
+- L'indice parziale `drawings_published_idx` su `(published_at DESC, id
+  DESC) WHERE visibility <> 'only_me'`: i disegni pubblicati, i più
+  recenti prima, l'ordine del feed.
+
+Migrazione `0025_game.sql` (TASK-296 parte A, ADR-0255, `GIOCO.md`; il
+numero è il primo libero in `main` al merge):
+
+- `game_runs`: una riga per corsa salvata. `run_id` (chiave, `ON DELETE
+  CASCADE` su `runs`), `user_id` (`ON DELETE CASCADE` su `users`),
+  `rules_version`, `counted`, `reason` (`not_running`, `vehicle`,
+  `overlap`, `daily_cap`, o `NULL`), `counted_m`, `best_s` (jsonb: i
+  migliori secondi in movimento su 1000, 5000, 10000 e 21097 m, chiavi
+  testo), `started_at` ed `ended_at` (primo e ultimo punto). Indice su
+  `(user_id, started_at)`: i totali, le sovrapposizioni e il tetto del
+  giorno. La scrive `PUT /me/activities/{key}` nella transazione della
+  corsa, sotto il lock della riga di `users` che il salvataggio già
+  prende; `game_backfill` la rifà per le corse di prima e a ogni
+  `RULES_VERSION` nuova.
+- `game_unlocks`: le forme di un account, chiave `(user_id, shape_id,
+  edition)`. `edition` è `solo` o `team` (la sfida di squadra, parte C),
+  poi `unlocked_at` e `run_id` (`ON DELETE SET NULL`: la forma resta
+  quando si cancella la corsa che l'ha sbloccata).
+- **Con l'account si cancella tutto** (`ON DELETE CASCADE` su `users`),
+  con un test (`test_game_api.py`). Una corsa cancellata toglie la sua
+  riga di `game_runs`, e i suoi metri escono dai totali; le forme restano.
+
+Migrazione `0027_game_teams.sql` (TASK-296 parte C, ADR-0255, `GIOCO.md`
+§6–§7; il numero è il primo libero in `main` al merge: la 0026 è di
+TASK-297 A, #539):
+
+- `game_teams`: `id` (uuid), `name` (1–40), `invite_code` (unico, 6 di
+  `A–Z` e `2–9` senza `I O 0 1`), `owner_id` (`ON DELETE SET NULL`: prima
+  l'API passa la squadra all'iscritto più vecchio, `game_teams.py`),
+  `created_at`. Nessuna ricerca: si entra solo con il codice.
+- `game_team_members`: `(team_id, user_id)` con `joined_at`; `CASCADE`
+  dalla squadra e dall'account; indice su `user_id`.
+- `game_challenges`: `id`, `team_id` (`CASCADE`), `shape_id`, `created_by`
+  (`SET NULL`), `starts_at`, `ends_at`, `completed_at`, `ending_told_at`
+  (quando è partita la push «1 day left»: l'`UPDATE` condizionato su
+  questa colonna la manda una volta sola, anche con più processi). Una
+  sfida è attiva finché non è completa e non sono passate 3 ore da
+  `ends_at`: lo stato non si scrive. Indice su `(team_id, starts_at DESC)`.
+- `game_pieces`: `(challenge_id, idx)`; `required_m` **oppure**
+  `fast_distance_m` + `max_pace_s` (`CHECK`); `holder_id` (`SET NULL`),
+  `held_at`, `done_m`, `done_at`. Un pezzo lasciato ha `holder_id` e
+  `held_at` a `NULL` e tiene `done_m`. Indice su `holder_id`.
+- `game_contributions`: `id`, `(challenge_id, piece_idx)` (`CASCADE` dal
+  pezzo), `user_id` (`CASCADE`: con l'account spariscono i suoi
+  contributi, i metri restano nel pezzo), `run_id` (`SET NULL`: una corsa
+  cancellata lascia i metri che ha dato), `metres`, `at`. Indici sul
+  pezzo e su `run_id` (`GET /game/runs/{key}`).
+- `game_unlocks.challenge_id` (`SET NULL`): la sfida che ha dato
+  l'edizione squadra.
+- **Con l'account** vanno via iscrizioni e contributi, e prima
+  `before_account_delete` lo toglie dalle squadre (proprietà all'iscritto
+  più vecchio, squadra vuota cancellata, pezzi liberi); sfide e pezzi
+  restano alla squadra senza il nome (test in `test_game_teams.py` e
+  `test_game_challenges.py`).
 
 ## Come si memorizza una traccia
 

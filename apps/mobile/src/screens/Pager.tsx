@@ -32,6 +32,9 @@ export type PagerPage = {
   /** Built only when first reached: a page that asks the API as it opens
    * («Explore») asks nothing until someone goes to look. */
   lazy?: boolean;
+  /** Not named in the header: a control of `action` goes there, and shows
+   * when it is on screen (the profile's circle, TASK-278). */
+  unnamed?: boolean;
   render: () => ReactNode;
 };
 
@@ -41,7 +44,7 @@ type Props = {
   /** The one on screen. */
   page: number;
   onPage: (index: number) => void;
-  /** At the right of the names: the way to the profile. */
+  /** At the right of the names: the sport, and the way to the profile. */
   action?: ReactNode;
 };
 
@@ -73,8 +76,10 @@ export function pagesInView(x: number, width: number, count: number): number[] {
 /**
  * The pages of the app side by side (TASK-154, ADR-0124): a swipe to the
  * left or to the right goes to the next one, and so does touching its name
- * in the header, which shows all of them in the order they lie in. Made of
- * the paging scroll of React Native: no navigation library, as in TASK-051.
+ * in the header, which shows them in the order they lie in. A page without
+ * a name there (the profile, TASK-278) is reached by its control in
+ * `action`. Made of the paging scroll of React Native: no navigation
+ * library, as in TASK-051.
  */
 export function Pager({ pages, page, onPage, action }: Props) {
   const { width } = useWindowDimensions();
@@ -86,11 +91,15 @@ export function Pager({ pages, page, onPage, action }: Props) {
   const laidOut = useRef(width);
   // Where the scroll starts: one object, or each render would move it.
   const [start] = useState(() => ({ x: page * width, y: 0 }));
-  const [seen, setSeen] = useState<readonly number[]>(() =>
-    pages.flatMap((each, index) => (each.lazy && index !== page ? [] : [index])),
+  // By title, not by place: a page that joins the row later («Play» once the
+  // API says it has the game, TASK-296) moves the ones after it without
+  // taking them down.
+  const [seen, setSeen] = useState<readonly string[]>(() =>
+    pages.flatMap((each, index) => (each.lazy && index !== page ? [] : [each.title])),
   );
   // A page asked for from outside is built before the scroll gets there.
-  const built = seen.includes(page) ? seen : [...seen, page];
+  const asked = pages[page]?.title;
+  const built = asked === undefined || seen.includes(asked) ? seen : [...seen, asked];
   if (built !== seen) {
     setSeen(built);
   }
@@ -120,11 +129,9 @@ export function Pager({ pages, page, onPage, action }: Props) {
   }
 
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
-    const reached = pagesInView(
-      event.nativeEvent.contentOffset.x,
-      width,
-      pages.length,
-    ).filter((index) => !built.includes(index));
+    const reached = pagesInView(event.nativeEvent.contentOffset.x, width, pages.length)
+      .map((index) => pages[index].title)
+      .filter((title) => !built.includes(title));
     if (reached.length > 0) {
       setSeen([...built, ...reached]);
     }
@@ -154,6 +161,9 @@ export function Pager({ pages, page, onPage, action }: Props) {
       <View style={[styles.header, { paddingTop: insets.top + space.sm }]}>
         <View style={styles.names} accessibilityRole="tablist">
           {pages.map((each, index) => {
+            if (each.unnamed) {
+              return null;
+            }
             const selected = index === page;
             return (
               <Pressable
@@ -212,7 +222,7 @@ export function Pager({ pages, page, onPage, action }: Props) {
                 accessibilityElementsHidden={!onScreen}
                 importantForAccessibility={onScreen ? "auto" : "no-hide-descendants"}
               >
-                {built.includes(index) && each.render()}
+                {built.includes(each.title) && each.render()}
               </View>
             );
           })}

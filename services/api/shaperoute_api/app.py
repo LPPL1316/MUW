@@ -20,7 +20,9 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from psycopg_pool import PoolTimeout
 from route_engine.export_gpx import route_name, to_gpx
 from route_engine.image_outline import InvalidImageError
 from route_engine.models import (
@@ -59,6 +61,7 @@ from shaperoute_api.errors import error_of
 from shaperoute_api.favorites import install_favorites
 from shaperoute_api.feed import install_feed
 from shaperoute_api.follows import install_follows
+from shaperoute_api.game import install_game
 from shaperoute_api.graphs import MapDataUnavailableError
 from shaperoute_api.images import (
     AnyRequest,
@@ -141,11 +144,19 @@ SHAPE_READING_RESPONSES: dict[int | str, dict[str, Any]] = {
     422: {"model": ErrorBody, "description": "invalid_request"},
     503: {"model": ErrorBody, "description": "ai_unavailable"},
 }
+# Less than this is not worth the CPU. Level 6 is zlib's own: Starlette's 9
+# took five times as long for a page of the feed less than 1% smaller
+# (0.4 ms against 2.2 ms for 33 KB, 2026-10-16).
+GZIP_MIN_BYTES = 1024
+GZIP_LEVEL = 6
 AI_OFF = "This API was started without the AI that reads shape words."
 UNKNOWN_JOB = (
     "Unknown route job: cancelled, finished more than 10 minutes ago, "
     "or the API was restarted."
 )
+DATABASE_BUSY = "The server is busy: try again in a moment."
+# When to ask again after it: as long as the pool waited (db.POOL_WAIT_S).
+DATABASE_BUSY_RETRY_S = 10
 
 
 def error(status: int, code: ErrorCode, message: str) -> JSONResponse:
@@ -281,12 +292,24 @@ def create_app(
         route_jobs.shutdown()
         if themed is not None:
             themed.shutdown()
+        # The database's open connections closed (TASK-288 B): before
+        # uvicorn gives SIGTERM back to the process.
+        if accounts is not None:
+            accounts.database.close()
 
     app = FastAPI(
         title="ShapeRoute API",
         version="0.2.0",
         description="Generates real routes that draw a shape on the map.",
         lifespan=lifespan,
+    )
+    # Answers of a kilobyte or more compressed for a phone that takes gzip
+    # (TASK-288). Not the JPEGs and the zones' gzip files: Starlette leaves
+    # those as they are. Added before protect, so inside it: the answer of
+    # an endpoint comes whole, and its size is known; protect sends it on
+    # in pieces, and pieces would all be compressed, however small.
+    app.add_middleware(
+        GZipMiddleware, minimum_size=GZIP_MIN_BYTES, compresslevel=GZIP_LEVEL
     )
     protect(app)
     # Sign up, sign in, /me (TASK-114, ADR-0115); without a database, 503.
@@ -332,6 +355,8 @@ def create_app(
     install_feed(app)
     # Blocking and reporting (TASK-121); they need a token.
     install_moderation(app)
+    # The shape game (TASK-296): the catalog for anyone, the rest with a token.
+    install_game(app)
     # The members found from the phone's contacts, by the hashes of their
     # numbers (TASK-262 C); it needs a token.
     install_contact_people(app)
@@ -681,6 +706,15 @@ def create_app(
         ModelUnavailableError,
     ):
         app.add_exception_handler(known, engine_answer)
+
+    # Every connection of the pool busy for db.POOL_WAIT_S (TASK-288 B): the
+    # phone says to try again later, as for a server without a database.
+    @app.exception_handler(PoolTimeout)
+    def database_busy(_: Request, exc: PoolTimeout) -> JSONResponse:
+        log.warning("database: %s", exc)
+        answer = error(503, "accounts_unavailable", DATABASE_BUSY)
+        answer.headers["Retry-After"] = str(DATABASE_BUSY_RETRY_S)
+        return answer
 
     @app.exception_handler(StarletteHTTPException)
     def http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:

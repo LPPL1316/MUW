@@ -15,6 +15,9 @@
   l'API può chiedere una chiave (`X-API-Key`, TASK-081); gli account, da
   TASK-114, hanno un token di sessione a parte (`Authorization: Bearer`).
   I percorsi restano aperti a tutti: si disegna anche senza account.
+- Da TASK-288 (ADR-0249) le risposte da 1 KB in su arrivano con gzip a
+  chi manda `Accept-Encoding: gzip` (il `fetch` di React Native lo fa da
+  sé); JPEG e file `application/gzip` restano come sono.
 
 ## Avvio
 
@@ -45,7 +48,9 @@ Con `SHAPEROUTE_DATABASE_URL` (un indirizzo `postgresql://…`) l'API usa il
 database degli account (TASK-114, `DATABASE.md`): all'avvio applica le
 migrazioni che mancano e lo scrive; se il database non risponde, non
 parte. Senza, gli account rispondono `503 accounts_unavailable` e il resto
-funziona come prima. Come accenderne uno sul PC: `SETUP.md`, 10.4.
+funziona come prima. Con tutte le connessioni del database occupate per
+10 s (TASK-288 B), `503 accounts_unavailable` con `Retry-After`. Come
+accenderne uno sul PC: `SETUP.md`, 10.4.
 
 Con `STRAVA_CLIENT_ID` e `STRAVA_CLIENT_SECRET` (l'app Strava di questo
 server, `DEPLOY.md`, «Strava») le corse salvate si possono mandare a Strava
@@ -427,9 +432,35 @@ se il servizio non risponde; 422 per un punto fuori dalla Terra.
 ```json
 {"places": [
   {"label": "Levico Terme, Trentino – Alto Adige/Südtirol, Italy",
-   "point": [46.0091259, 11.3017774], "away_m": 2929}
+   "point": [46.0091259, 11.3017774], "away_m": 2929, "photo": null},
+  {"label": "Moreda de Álava / Moreda Araba, Autonomous Community of the Basque Country, Spain",
+   "point": [42.5246992, -2.4085108], "away_m": 1886,
+   "photo": {"url": "/city-photos/Q1442886.jpg", "credit": "© LBM1948 · CC BY-SA 4.0"}}
 ]}
 ```
+
+**`photo`** (TASK-283, ADR-0243): la foto del posto, quando il suo
+elemento Wikidata (che Geoapify dà da OpenStreetMap) ha un'immagine (P18)
+su Wikimedia Commons con una licenza che ne permette l'uso a chiunque (CC
+BY, CC BY-SA, CC0, pubblico dominio); altrimenti `null`. `url` è un
+percorso su questa API; `credit` è ciò che la licenza chiede di scrivere
+accanto alla foto, «© autore · licenza» o «Wikimedia Commons · licenza»
+senza autore, sempre con la licenza in fondo; `null` quando la licenza
+non chiede niente. A Wikidata e Commons vanno solo l'elemento e il nome
+del file, mai il punto. La risposta aspetta al più 2 s le foto di un posto
+nuovo per l'API: quelle che arrivano dopo sono tenute per la richiesta
+successiva. Un'API prima di TASK-283 non ha il campo: l'app mostra le
+schede di prima.
+
+### `GET /city-photos/{item}.jpg` (TASK-283, ADR-0243)
+
+La foto di un posto di `/nearby-cities`, `item` il suo elemento Wikidata
+(`Q1442886`): JPEG larga al più 500 pixel, presa da Commons la prima volta
+e tenuta nella cartella `city_photos/` della cache, senza i metadati del
+file. Cosa si sa di ogni elemento (la foto, o nessuna) è tenuto lì e
+richiesto di nuovo dopo 30 giorni. 404 per un elemento senza foto o mai
+nominato da `/nearby-cities` (non è un proxy di Commons); 503 se Commons
+non dà la foto. `Cache-Control: private, max-age=86400`.
 
 ### `GET /city-suggestions` (TASK-134, TASK-138, ADR-0110)
 
@@ -1464,11 +1495,16 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `reaction` | una reazione a un disegno (il super like con l'inizio del suo commento) | il proprietario | il disegno |
   | `comment` | un commento a un disegno, con il suo inizio | il proprietario | il disegno |
   | `tag` | un tag in un disegno | chi è taggato | il disegno |
+  | `shape_unlocked` | una corsa salvata sblocca una forma del gioco (TASK-296) | chi ha corso | il proprio profilo; l'app di TASK-296 B apre «Play» |
+  | `piece_done` | un compagno ha finito un pezzo della sfida (TASK-296 C) | gli altri iscritti | la sfida |
+  | `challenge_done` | la squadra ha completato la forma (TASK-296 C) | tutti gli iscritti, anche chi ha corso | la sfida |
+  | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
 - **Si manda solo se** il destinatario ha «Push notifications» acceso,
-  non è chi ha agito, nessuno dei due ha bloccato l'altro (TASK-121) e,
+  non è chi ha agito (tranne `shape_unlocked`, che è per chi ha corso:
+  `OWN_KINDS`), nessuno dei due ha bloccato l'altro (TASK-121) e,
   per un disegno, il destinatario lo vede (`drawing_seen_sql`). **Lo
   stesso evento** (stesso tipo, stesse due persone, stesso disegno; un
   commento è sempre nuovo) **al più una volta al giorno**: una richiesta
@@ -1477,7 +1513,8 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
 - **I testi** sono nella lingua mandata con il token, in inglese senza:
   «ada asked to follow you.», «ada accepted your follow request.», «ada
   reacted 🔥 to your post.», «ada gave your post a MuW heart: …», «ada
-  commented on your post: …», «ada tagged you in a post.». Un commento
+  commented on your post: …», «ada tagged you in a post.», «You unlocked a
+  new shape! Find it in your collection, in Play.». Un commento
   entra su una riga, al più 100 caratteri. Nessun titolo (iOS mostra il
   nome dell'app), suono quello del telefono.
 - **`data`** (`PushData`) dice all'app cosa aprire: `{ kind, drawing_id }`
@@ -1495,8 +1532,19 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   la risposta è `requested`), `POST /me/follow-requests/{public_id}/accept`,
   `PUT /drawings/{id}/reaction`, `POST /drawings/{id}/comments`, `PUT
   /me/activities/{key}/drawing` (solo i taggati nuovi rispetto a prima del
-  salvataggio). Un blocco (TASK-121, `follows.apart_sql`) in uno dei due
-  versi ferma ogni notifica fra i due.
+  salvataggio), `PUT /me/activities/{key}` (`shape_unlocked`, una per forma,
+  solo la prima volta che la corsa si salva: `game.notify_unlocked`). Un
+  blocco (TASK-121, `follows.apart_sql`) in uno dei due versi ferma ogni
+  notifica fra i due.
+- **Le push delle sfide** (TASK-296 C) portano in `data` `{ kind,
+  challenge_id }`; il testo comincia con il nome della forma nella lingua
+  del telefono («Heart: ada finished piece 2.», «Heart: the shape is
+  complete! Your team drew it together.», «Heart: 1 day left. Pieces
+  missing: 3.»). `challenge_done` e `challenge_ending` sono in `OWN_KINDS`.
+  `piece_done` e `challenge_done` partono dopo il salvataggio della corsa
+  (`game_challenges.notify_pieces`); `challenge_ending` la trova
+  `ChallengeClock` ogni 15 minuti, una volta per sfida, solo per le sfide
+  più lunghe di un giorno.
 
 ### Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170)
 
@@ -1991,6 +2039,94 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   di lui restano.
 - **Un'API precedente** non ha questi endpoint (`404 http_error`): l'app
   dice «This is not available any more.».
+
+### Shape game (TASK-296, ADR-0255)
+
+Il gioco delle forme, parte A: che cosa vale una corsa salvata e le forme
+della collezione. Le regole sono in `GIOCO.md`; il codice in
+`game_rules.py` (puro), `game_catalog.py`, `game.py` e `game_backfill.py`.
+
+| Endpoint | Account | Cosa | Risposta |
+|---|---|---|---|
+| `GET /game/catalog` | no | le forme del gioco: `rules_version` e `shapes`, ognuna con `id`, `names` (`en`, `de`, `it`, `es`, `fr`), `goal` e `outline` | `200` |
+| `GET /game/me` | sì | `counted_m`, `longest_m`, `best_s` (`{"1000": 287.4}`) e ogni forma del catalogo con `unlocked_at` e `progress` | `200` |
+| `GET /game/runs/{key}` | sì | che cosa ha valso la corsa `key`: `counted`, `reason`, `counted_m`, `best_s`, `unlocked` (gli id sbloccati da lei) | `200`, `404` |
+
+- **`goal`**: `{kind: "distance", total_m}` oppure `{kind: "pace",
+  distance_m, pace_s}` (secondi al km); i campi dell'altro tipo sono
+  `null`. **`outline`**: chiuso (l'ultimo punto è il primo), da 0 a 1, y
+  verso il basso come sullo schermo.
+- **`GET /game/catalog` accende «Play»** (ADR-0255): l'app mostra la
+  pagina solo se risponde `200`; un'API precedente risponde `404`. Non
+  vuole l'account ma, come ogni percorso, la chiave dell'app.
+- **Il gioco si calcola al salvataggio**: `PUT /me/activities/{key}`,
+  la prima volta, scrive la riga di `game_runs` nella stessa transazione
+  della corsa e sblocca le forme raggiunte; la sua risposta non cambia.
+  L'app chiede `GET /game/runs/{key}` dopo «Save»: risponde anche alle
+  volte dopo, con le stesse `unlocked`.
+- **`reason`**: `not_running` (bici, pagaia), `vehicle` (velocità da
+  veicolo), `overlap` (un'altra corsa salvata prima copre lo stesso
+  tempo), `daily_cap` (la corsa conta solo fino a 120 km nel giorno UTC;
+  `counted` resta `true`). Le soglie sono in `GIOCO.md` §4.
+- **`progress`**: `1` per una forma sbloccata, prima al più `0.99`.
+  `unlocked_at` resta anche se la corsa che l'ha sbloccata si cancella.
+- **`404`** su `GET /game/runs/{key}` per una corsa che l'account non ha,
+  o non ancora calcolata (salvata prima del gioco, prima del backfill).
+- Senza token, `401 not_signed_in`; senza database, `503
+  accounts_unavailable` (il catalogo risponde lo stesso).
+- **Le corse salvate prima**: `python -m shaperoute_api.game_backfill`,
+  una volta dopo il deploy e a ogni `RULES_VERSION` nuova; non manda push.
+
+**Parte C — squadre e sfide** (`game_teams.py`, `game_challenges.py`;
+regole in `GIOCO.md` §6). Tutti con l'account; i compagni vedono di un
+iscritto solo nome, foto, pezzi e metri: mai tracce, orari o luoghi.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /game/teams` | una squadra: `{name}`, da 1 a 40 caratteri su una riga, dal filtro delle parole di TASK-213 | `201` `Team`; `422 invalid_request` (vuoto, lungo, caratteri di controllo, già in 10 squadre), `422 comment_rejected` (negativo) |
+| `POST /game/teams/join` | entrare: `{code}`, 6 caratteri in qualunque maiuscola | `200` `Team` (anche se già dentro); `404` codice sconosciuto; `403 http_error` «You can't join this team.» con un blocco in mezzo, 20 iscritti o 10 squadre |
+| `GET /game/teams` | le mie squadre, nell'ordine in cui sono entrato, ognuna con la sfida più recente | `200` `{teams: [Team]}` |
+| `DELETE /game/teams/{id}/members/{public_id}` | esco (il mio `public_id`), o chi ha creato la squadra toglie un iscritto | `204`; `404` squadra o iscritto che non c'è; `422` se non sono il proprietario |
+| `POST /game/teams/{id}/challenges` | una sfida: `{shape_id, pieces (2–12), piece, days (1–14, default 7)}`; `piece` è `{kind: "distance", total_m}` (1 000–50 000) o `{kind: "pace", distance_m (1000 o 5000), pace_s (150–900)}` | `201` `Challenge`; `409` se ce n'è una in corso; `422` fuori dai limiti o forma non in catalogo |
+| `GET /game/challenges/{id}` | la sfida: pezzi, titolari, metri, contributi, tempo che resta | `200` `Challenge`; `404` se non sono della squadra |
+| `POST /game/challenges/{id}/pieces/{idx}/hold` | prendo il pezzo `idx` | `200` `Challenge`; `409` pezzo preso, fatto, un altro già in mano, o sfida finita |
+| `DELETE /game/challenges/{id}/pieces/{idx}/hold` | lascio il pezzo, che resta libero con i suoi metri | `200` `Challenge`; `409` se non è mio o è fatto |
+
+- **`Team`**: `id`, `name`, `code` (lo vedono tutti gli iscritti, per
+  condividerlo), `owner` (il `public_id` di chi toglie gli iscritti),
+  `members` (`public_id`, `username`, `photo`, nell'ordine d'ingresso),
+  `challenge` (la più recente, in qualunque stato, o `null`).
+- **`Challenge`**: `id`, `team_id`, `shape_id`, `status` (`active`,
+  `completed`, `expired`: finita quando sono passate 3 ore dalla
+  scadenza), `starts_at`, `ends_at`, `completed_at`, `seconds_left` (alla
+  scadenza; `0` dopo), `pieces` e `contributions`. Ogni pezzo ha `idx`,
+  `goal` (con le parole dei requisiti del catalogo), `holder`
+  (`public_id`, `username`, o `null`), `done_m`, `done` e `outline`, il
+  suo tratto del contorno da 0 a 1 (`game_rules.pieces_of`: N tratti di
+  lunghezza uguale, gli stessi che può calcolare il telefono). Le
+  `contributions` sommano i metri di ogni persona su ogni pezzo:
+  `public_id`, `username`, `idx`, `metres`.
+- **Le corse riempiono i pezzi**: `PUT /me/activities/{key}`, nella stessa
+  transazione del gioco, mette la corsa che conta nel pezzo che il
+  corridore tiene in ogni sfida in corso, se è iniziata dopo la presa e
+  prima della scadenza ed è salvata entro 3 ore dalla scadenza. I km in
+  avanzo passano al prossimo pezzo libero di distanza, che diventa suo;
+  senza, si perdono. Un pezzo veloce è fatto da una corsa con il miglior
+  tempo richiesto. L'ultimo pezzo completa la sfida e dà la forma in
+  **edizione squadra** a chi ha contribuito.
+- **`GET /game/runs/{key}`** ha in più `pieces_done`: i pezzi che la corsa
+  ha finito (`challenge_id`, `team_id`, `team_name`, `shape_id`, `idx`,
+  `pieces`, `challenge_completed`). **`GET /game/me`** ha in più, per ogni
+  forma, `team_unlocked_at` (`null` senza l'edizione squadra).
+- **Chi esce o viene tolto** lascia liberi i pezzi che teneva, con i
+  metri; la squadra passa all'iscritto più vecchio se se ne va il
+  proprietario, e sparisce senza iscritti. Con `DELETE /me` succede lo
+  stesso; sfide e pezzi restano alla squadra, i contributi dell'account
+  spariscono.
+- Chi ha bloccato un iscritto, o ne è bloccato, non entra. Un blocco nato
+  fra due iscritti della stessa squadra ne fa uscire uno, nella
+  transazione del blocco (`moderation.py`, `app.state.on_block`): la
+  regola è nel task file, parte C.
 
 ### Send to Strava (TASK-187, ADR-0156)
 

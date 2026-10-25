@@ -214,6 +214,9 @@ export const IT: Table = {
   "{mi} mi away": "a {mi} mi",
   "{town}, {mi} mi away": "{town}, a {mi} mi",
 
+  // src/explore/CityWords.tsx
+  WORDS: "PAROLE",
+
   // src/intro/AppBoundary.tsx
   "Something went wrong.": "Qualcosa è andato storto.",
 
@@ -915,6 +918,9 @@ export const IT: Table = {
   "Distance: {distance}": "Distanza: {distance}",
   "Distance: {distance} {units}": "Distanza: {distance} {units}",
   "Keep running": "Continua a correre",
+  "Remember to stretch": "Ricordati di fare stretching",
+  Stretch: "Stretching",
+  Skip: "Salta",
   Done: "Fatto",
   "Pocket mode": "Modalità tasca",
   Pocket: "Tasca",
@@ -1154,6 +1160,87 @@ export const IT: Table = {
   "Suggested near where you usually start": "Consigliati vicino a dove parti di solito",
   "Suggested near your start": "Consigliati vicino alla tua partenza",
 
+  // src/stretch (TASK-285 part B)
+  "Quad stretch": "Stretching del quadricipite",
+  "Stand tall. Pull one heel toward your glutes, knees together.":
+    "In piedi, dritto. Porta un tallone verso il gluteo, ginocchia unite.",
+  "Hamstring stretch": "Stretching del posteriore della coscia",
+  "Put one heel forward, toes up. Lean from the hips, back straight.":
+    "Un tallone avanti, punta in su. Piegati dalle anche, schiena dritta.",
+  "Calf stretch": "Stretching del polpaccio",
+  "Step back, heel down. Lean toward the wall until the calf pulls.":
+    "Un passo indietro, tallone a terra. Spingi verso il muro finché il polpaccio tira.",
+  "Hip flexor stretch": "Stretching dei flessori dell'anca",
+  "Kneel on one knee. Push your hips forward, chest up.":
+    "In ginocchio su una gamba. Spingi il bacino in avanti, petto in alto.",
+  "Glute stretch": "Stretching del gluteo",
+  "Cross one ankle over the other knee. Sit back as if into a chair.":
+    "Incrocia una caviglia sull'altro ginocchio. Siediti indietro come su una sedia.",
+  "{index} of {total}": "{index} di {total}",
+  "Right side": "Lato destro",
+  "Left side": "Lato sinistro",
+  "Switch sides": "Cambia lato",
+  "{seconds} seconds left": "Mancano {seconds} secondi",
+  "Stop if it hurts.": "Fermati se fa male.",
+  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
+  // src/explore/ThemedCard.tsx (TASK-280)
+  "CITY TOURS": "GIRI IN CITTÀ",
+  PICTURES: "IMMAGINI",
+  "Running shoe": "Scarpa da corsa",
+  Dinosaur: "Dinosauro",
+  Guitar: "Chitarra",
+  "Eiffel Tower": "Torre Eiffel",
+  Rocket: "Razzo",
+  Plane: "Aereo",
+  Balloon: "Palloncino",
+  Leaf: "Foglia",
+  Mushroom: "Fungo",
+  Car: "Auto",
+  "T-shirt": "Maglietta",
+  Boot: "Stivale",
+  House: "Casa",
+  Duck: "Paperella",
+  Trophy: "Coppa",
+  Bone: "Osso",
+  "Back to Draw": "Torna a Disegna",
+
+  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
+  "Draw on the map": "Disegna sulla mappa",
+  Move: "Sposta",
+  "Draw with one finger. Lines after the first are joined to it.":
+    "Disegna con un dito. Le linee dopo la prima vengono unite a lei.",
+  "Drag the figure or the map. Two fingers on the figure resize it.":
+    "Trascina la figura o la mappa. Con due dita sulla figura la ingrandisci o la rimpicciolisci.",
+  "This line crosses itself. Draw it again without crossing it.":
+    "Questa linea si incrocia. Ridisegnala senza incrociarla.",
+  "+ photo": "+ foto",
+
+  // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
+  "Choose on the map": "Scegli sulla mappa",
+  "Move the map to put the pin where you want to start.":
+    "Sposta la mappa per mettere il segnaposto dove vuoi partire.",
+
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Esporta video",
+  "Making the video… {percent}%": "Preparo il video… {percent}%",
+  "This phone cannot make the video.": "Questo telefono non riesce a creare il video.",
+  "The video could not be made. Try again.":
+    "Non è stato possibile creare il video. Riprova.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Gioca",
+  "{distance} in total": "{distance} in totale",
+  "{distance} under {pace}": "{distance} sotto {pace}",
+  "Best {best} · target {target}": "Migliore {best} · obiettivo {target}",
+  "Longest run {distance}": "Corsa più lunga {distance}",
+  "Unlocked {date}": "Sbloccata {date}",
+  "Sign in to collect shapes.": "Accedi per collezionare le forme.",
+  "{distance} counted so far": "{distance} contati finora",
+  "The game is not available right now.": "Il gioco non è disponibile adesso.",
+  "New shape unlocked": "Nuova forma sbloccata",
+  "New shape unlocked: {name}": "Nuova forma sbloccata: {name}",
+  "It is in your collection.": "È nella tua collezione.",
+  "See collection": "Vedi la collezione",
   // src/social/ContactsFriends.tsx (TASK-262 C)
   "FROM YOUR CONTACTS": "DALLA RUBRICA",
   "Find friends in your contacts": "Trova amici nella rubrica",

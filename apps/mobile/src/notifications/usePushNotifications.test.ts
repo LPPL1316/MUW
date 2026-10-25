@@ -33,6 +33,7 @@ const user = session.user as User;
 const ended = jest.fn();
 const openDrawing = jest.fn();
 const openProfile = jest.fn();
+const openPlay = jest.fn();
 
 function state(token: string | null, push: boolean): AccountState {
   if (token === null) {
@@ -54,7 +55,7 @@ async function hook(fetchFn: jest.Mock, initialProps: Props) {
       usePushNotifications(
         URL,
         { state: state(token, push), sessionEnded: ended },
-        { openDrawing, openProfile },
+        { openDrawing, openProfile, openPlay },
         { fetchFn, key: null },
       ),
     { initialProps },
@@ -74,6 +75,7 @@ beforeEach(() => {
   ended.mockReset();
   openDrawing.mockReset();
   openProfile.mockReset();
+  openPlay.mockReset();
 });
 
 afterEach(async () => {
@@ -151,6 +153,11 @@ test("a notification touched opens its drawing, or the profile of who acted", as
   // Data the app does not know opens nothing.
   await act(async () => phone.tap({ kind: "comment" }));
   expect(openDrawing).toHaveBeenCalledTimes(1);
+  expect(openProfile).toHaveBeenCalledTimes(1);
+  // A shape of the game unlocked opens «Play» (TASK-296), though its data
+  // names the runner.
+  await act(async () => phone.tap({ ...profile, kind: "shape_unlocked" }));
+  expect(openPlay).toHaveBeenCalledTimes(1);
   expect(openProfile).toHaveBeenCalledTimes(1);
 });
 

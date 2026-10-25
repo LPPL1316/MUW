@@ -93,8 +93,9 @@ test("keeps the attribution expanded", () => {
 
 test("has no zoom buttons: the fingers zoom the map", () => {
   expect(page).not.toContain("NavigationControl");
-  // MapLibre's pinch is on unless the page turns it off.
-  expect(page).not.toContain("touchZoomRotate");
+  // MapLibre's pinch is on unless the page turns it off: only «Draw on the
+  // map» does, and gives it back (TASK-281, mapPageCanvas.test.ts).
+  expect(page.match(/touchZoomRotate/g)).toHaveLength(1);
 });
 
 test("starts on Italy, with the bounds in MapLibre order", () => {

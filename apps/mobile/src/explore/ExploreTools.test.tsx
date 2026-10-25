@@ -30,6 +30,41 @@ test("a featured city is one tap: its centre comes from the API", async () => {
   expect(onCity).toHaveBeenCalledWith(newYork);
 });
 
+test("a featured city the phone has opens at once; one asked is kept (TASK-287)", async () => {
+  const fetchFn = answers([newYork]);
+  const onCity = jest.fn();
+  const kept = new Map<string, Place>([["Paris", paris]]);
+  const featured = {
+    read: (name: string) => kept.get(name) ?? null,
+    keep: jest.fn((name: string, place: Place) => kept.set(name, place)),
+  };
+  await render(
+    <CityPicker
+      apiUrl="http://api"
+      city={null}
+      onCity={onCity}
+      fetchFn={fetchFn}
+      featured={featured}
+    />,
+  );
+  await fireEvent.press(screen.getByText("Paris"));
+  expect(onCity).toHaveBeenCalledWith(paris);
+  // Told to the API all the same, but not asked for.
+  expect(fetchFn.mock.calls.map(([url]) => url)).toEqual(["http://api/signals"]);
+  expect(JSON.parse(fetchFn.mock.calls[0][1].body)).toMatchObject({
+    kind: "city_chosen",
+    label: paris.label,
+    via: "featured",
+  });
+
+  await fireEvent.press(screen.getByText("New York"));
+  expect(onCity).toHaveBeenLastCalledWith(newYork);
+  expect(featured.keep).toHaveBeenCalledWith("New York", newYork);
+  fetchFn.mockClear();
+  await fireEvent.press(screen.getByText("New York"));
+  expect(fetchFn.mock.calls.map(([url]) => url)).toEqual(["http://api/signals"]);
+});
+
 test("cities from around the world, and the recent ones first", async () => {
   await render(
     <CityPicker apiUrl="http://api" city={null} onCity={jest.fn()} recent={[parma]} />,

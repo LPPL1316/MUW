@@ -8,6 +8,7 @@ import {
   cardDrawingHeight,
   CardMapsCredit,
   cardWidth,
+  creditParts,
   framingName,
   RouteCard,
 } from "./RouteCard";
@@ -33,6 +34,32 @@ test("two cards stand side by side in the width they are given", () => {
   expect(2 * cardWidth(343) + 12).toBeLessThanOrEqual(343);
   expect(cardWidth(0)).toBe(0);
   expect(cardDrawingHeight(173)).toBe(114);
+});
+
+test("a photo takes the drawing's place, with its credit in two (TASK-283)", async () => {
+  await render(
+    <RouteCard
+      width={173}
+      line={SQUARE}
+      map
+      photo={{ source: { uri: "http://api.test/city-photos/Q1.jpg" }, credit: null }}
+      title="Viana"
+      detail="4.0 km away"
+    />,
+  );
+  expect(screen.getByTestId("route-card-photo").props.source).toEqual({
+    uri: "http://api.test/city-photos/Q1.jpg",
+  });
+  // No line, no map; a licence that asks for nothing, nothing written.
+  const drawing = screen.getByTestId("route-card-drawing");
+  expect(drawing.children).toHaveLength(1);
+  expect(screen.queryByTestId("route-card-map")).toBeNull();
+  expect(creditParts("© LBM1948 · CC BY-SA 4.0")).toEqual([
+    "© LBM1948 ·",
+    "CC BY-SA 4.0",
+  ]);
+  expect(creditParts("© A · B · CC BY 4.0")).toEqual(["© A · B ·", "CC BY 4.0"]);
+  expect(creditParts("Public domain")).toEqual(["Public domain"]);
 });
 
 test("shows the drawing, what the route is, where, and how much it looks like the shape", async () => {

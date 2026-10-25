@@ -46,8 +46,12 @@ let fetchSpy: jest.SpiedFunction<typeof fetch>;
 /** What the API has under the id of the post. */
 let underItsId: () => Response;
 
+/** What the app asked the API, but for the shape game's catalog, which it
+ * asks as it opens to know whether to show «Play» (TASK-296). */
 function asked(): string[] {
-  return fetchSpy.mock.calls.map(([url]) => String(url).replace(API, ""));
+  return fetchSpy.mock.calls
+    .map(([url]) => String(url).replace(API, ""))
+    .filter((path) => path !== "/game/catalog");
 }
 
 async function onFeed() {

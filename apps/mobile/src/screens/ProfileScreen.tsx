@@ -85,23 +85,29 @@ type Props = {
   /** Why «Profile» opened on its own, said over «Sign up»; null when it
    * was opened by hand. */
   hint: string | null;
-  /** Back to the app underneath, as it was left. */
-  onBack: () => void;
+  /** Back to the app underneath, as it was left. Left out, the first page
+   * is the fourth page of the pager (TASK-278): no «←» nor title there, as
+   * on the other pages. */
+  onBack?: () => void;
 };
 
 /**
  * «Profile» (TASK-115): sign up or log in; with an account, who it is, its
  * favorites (TASK-171), its runs (TASK-172) and «Settings», where it logs
  * out and deletes the account (TASK-177). Over the app, which stays as it
- * was; it opens from the header of the pages (TASK-154).
+ * was (TASK-154); its first page is also the fourth page of the pager,
+ * from where the others open over the app (TASK-278).
  */
 export function ProfileScreen({ account, page, onPage, hint, onBack }: Props) {
   const insets = useSafeAreaInsets();
   const { state } = account;
   const signedOut = state.status !== "signedIn";
   // Where «Help» was opened: its row in «Settings», or «Guide» on the first
-  // page, with an account or without (TASK-266).
-  const [helpFrom, setHelpFrom] = useState<"settings" | "account">("settings");
+  // page, with an account or without (TASK-266). Opened right on «Help»,
+  // it is «Guide» of the fourth page (TASK-278): back goes there.
+  const [helpFrom, setHelpFrom] = useState<"settings" | "account">(() =>
+    page === "help" ? "account" : "settings",
+  );
   // A text of «ABOUT» opens over the page it was opened from, which stays
   // under it as it was.
   const about = isAboutId(page) && (!signedOut || page === "help") ? page : null;
@@ -131,19 +137,21 @@ export function ProfileScreen({ account, page, onPage, hint, onBack }: Props) {
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.titleRow}>
-          <Pressable
-            style={styles.back}
-            onPress={inside ? () => onPage("account") : onBack}
-            accessibilityRole="button"
-            accessibilityLabel={t("Back")}
-          >
-            <Text style={styles.backText}>←</Text>
-          </Pressable>
-          <Text style={styles.title} accessibilityRole="header">
-            {t(TITLES[inside ? under : "account"])}
-          </Text>
-        </View>
+        {(inside || onBack !== undefined) && (
+          <View style={styles.titleRow}>
+            <Pressable
+              style={styles.back}
+              onPress={inside ? () => onPage("account") : onBack}
+              accessibilityRole="button"
+              accessibilityLabel={t("Back")}
+            >
+              <Text style={styles.backText}>←</Text>
+            </Pressable>
+            <Text style={styles.title} accessibilityRole="header">
+              {t(TITLES[inside ? under : "account"])}
+            </Text>
+          </View>
+        )}
         {inside ? (
           under === "activities" ? (
             <ActivitiesList />
@@ -221,7 +229,7 @@ export function ProfileScreen({ account, page, onPage, hint, onBack }: Props) {
           onTour={
             about === "help"
               ? () => {
-                  onBack();
+                  onBack?.();
                   askTour();
                 }
               : undefined

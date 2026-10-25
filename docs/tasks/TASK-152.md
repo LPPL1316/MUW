@@ -315,3 +315,10 @@ non cambia.
   l'approvazione. **Resta**: l'esito di Apple (si scrive qui), poi
   «Release This Version» dell'utente; nessun `eas update` sul canale
   `production` senza il via del Coordinatore.
+- **2026-10-11: Apple ha risposto «Guideline 2.1 – Information Needed»**
+  (account nuovo): video dall'iPhone, scopo, servizi esterni. Preparati
+  la build 7 (stessa impronta della 5), il video tagliato
+  (`out/MuW-review-video.mp4`) e la risposta (`out/apple-reply-text.txt`);
+  TASK-275 ha aggiunto la segnalazione dei commenti. **L'utente ha
+  rimandato la 1.0.0 (7) con video e Notes, entro il 2026-10-15, ed è
+  in attesa del verdetto.** Fino al verdetto: niente server né motore.

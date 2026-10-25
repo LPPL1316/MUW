@@ -157,6 +157,52 @@ test("with maps on the phone already, nothing is told", async () => {
   expect(result.current).toBeNull();
 });
 
+test("a zone saved before around the phone starts Python before the downloads end (TASK-287)", async () => {
+  const zone = { name: TRENTO, etag: null, bytes: 7_000_000, usedAt: 0 };
+  files.set("file:///documents/engine/zones.json", JSON.stringify({ zones: [zone] }));
+  files.set(zoneUri(zone), "zone");
+  const engine = new PhoneEngine();
+  const warmUp = jest.spyOn(engine, "warmUp").mockImplementation(() => undefined);
+  // The zone brought up to date takes its time.
+  const download = jest.fn(() => new Promise<ZoneDownload>(() => {}));
+  await act(async () => {
+    await renderHook(() =>
+      usePhoneZones(HERE, "https://api", {
+        engine,
+        download,
+        ahead: noAhead,
+        shapes: noShapes,
+      }),
+    );
+  });
+  expect(download).toHaveBeenCalledTimes(1);
+  expect(warmUp).toHaveBeenCalledTimes(1);
+});
+
+test("the first zone downloaded starts Python, not the last (TASK-287)", async () => {
+  const engine = new PhoneEngine();
+  const warmUp = jest.spyOn(engine, "warmUp").mockImplementation(() => undefined);
+  let second: (answer: ZoneDownload) => void = () => undefined;
+  const download = jest
+    .fn<Promise<ZoneDownload>, Parameters<typeof downloadZone>>()
+    .mockResolvedValueOnce(SAVED)
+    .mockImplementationOnce(() => new Promise((resolve) => (second = resolve)));
+  await act(async () => {
+    await renderHook(() =>
+      usePhoneZones(HERE, "https://api", {
+        engine,
+        download,
+        ahead: noAhead,
+        shapes: noShapes,
+      }),
+    );
+  });
+  expect(download).toHaveBeenCalledTimes(2);
+  expect(warmUp).toHaveBeenCalledTimes(1);
+  await act(async () => second(SAVED));
+  expect(warmUp).toHaveBeenCalledTimes(1);
+});
+
 test("offline, the zone saved before starts Python, and no city ahead is asked", async () => {
   const zone = { name: TRENTO, etag: null, bytes: 7_000_000, usedAt: 0 };
   files.set("file:///documents/engine/zones.json", JSON.stringify({ zones: [zone] }));

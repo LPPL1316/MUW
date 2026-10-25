@@ -169,6 +169,29 @@ export function continueTrack(track: Track, nowMs: number): Track {
   };
 }
 
+/**
+ * A track taken up again paused, after the app closed during the run
+ * (TASK-272, ADR-0240): the time since its last fix is a pause of the
+ * runner's, still open, that «Resume» ends. A pause open when the app
+ * closed goes on from where it began: the runner's as it was, and the
+ * pen's between two letters as it was, so the next letter still ends it;
+ * one by standing still, or of the app away, becomes the runner's.
+ */
+export function holdTrack(track: Track): Track {
+  const last = track.fixes[track.fixes.length - 1];
+  if (last === undefined) {
+    return emptyTrack();
+  }
+  const open = openPause(track);
+  if (open !== null && open.auto !== true && open.away !== true) {
+    return track;
+  }
+  const earlier =
+    open === null ? (track.pauses ?? []) : (track.pauses ?? []).slice(0, -1);
+  const fromMs = open === null ? last.timeMs : open.fromMs;
+  return { ...track, pauses: [...earlier, { fromMs, toMs: null }] };
+}
+
 /** Whether the next fix kept comes after a pause of the runner's, or of the
  * pen's: no metres from where it began, wherever the walk went. */
 function afterPause(track: Track, last: TrackFix): boolean {

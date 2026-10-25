@@ -31,6 +31,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Il sito web, il merch, le magliette | `SITO.md` |
 | Branch, PR, review, rilasci | `TEAM_WORKFLOW.md` |
 | Pubblicità, account AdMob, pagamenti | `PUBBLICITA.md`, `DECISIONS.md` ADR-0198 |
+| Il gioco delle forme, «Play», squadre e sfide | `GIOCO.md`, `tasks/TASK-296.md` |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti
