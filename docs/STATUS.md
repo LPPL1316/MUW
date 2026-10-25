@@ -1134,7 +1134,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `feat/TASK-214-e-wider-zone`. L'API dà con `margin_m=6000` una zona con
   6 km intorno al telefono, fino a 12 MB; l'app la chiede, passa al motore
   tutte le zone che contengono la partenza e legge la zona all'apertura.
-  Si pubblica prima il server (solo l'API, motore invariato), poi l'app.
+  App e server si pubblicano in qualunque ordine: con il server di prima
+  l'app scarica le stesse zone di oggi. I log del server (15 giorni):
+  più di metà delle richieste di zona hanno `404`, cioè lì il server non
+  ha una zona con 3 km intorno e il telefono non disegna.
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch

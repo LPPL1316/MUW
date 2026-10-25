@@ -8874,9 +8874,10 @@ deciso dall'agente su delega dell'utente:
    che i telefoni usano già (Trento in bici, 11,5 MB). Una zona letta
    costa circa 21 MB di memoria per MB di file. Oltre, o senza una zona
    con quel margine, il server dà la zona di 3 km.
-3. **Più ETag in `If-None-Match`**, come permette RFC 9110: il telefono
-   può avere lì la zona piccola e quella grande. Il server risponde `304`
-   per quella che sceglie, con il suo `ETag`.
+3. **Gli ETag di tutte le zone che il telefono ha lì**: quello della più
+   piccola in `If-None-Match`, come prima, gli altri nell'header nuovo
+   `X-Zone-ETags`. Il server risponde `304` per quella che sceglie, con il
+   suo `ETag`; accetta anche più ETag in `If-None-Match` (RFC 9110).
 4. **Al motore tutte le zone che contengono la partenza**, al massimo tre,
    dalla più piccola: sceglie Python (`PhoneZones.covering_path`) la più
    piccola che contiene il ritaglio, come fa il server. L'app non calcola
@@ -8887,9 +8888,12 @@ deciso dall'agente su delega dell'utente:
    legge non conta.
 6. **Le zone in più (B2) restano a 3 km**: la zona più larga è per il posto
    del telefono, e il tetto del traffico scelto dall'utente non cambia.
-7. **Prima il server, poi l'app**: con il server di prima, due ETag nella
-   stessa richiesta non sono riconosciuti, e la zona si riscarica a ogni
-   apertura.
+7. **App e server in qualunque ordine** (chiesto dal coordinatore): il
+   server di prima ignora `margin_m` e `X-Zone-ETags` e trova in
+   `If-None-Match` lo stesso ETag di oggi, quindi l'app nuova scarica le
+   stesse zone di oggi finché il server non si aggiorna. Con più ETag in
+   `If-None-Match` il server di prima non avrebbe riconosciuto niente e
+   avrebbe rimandato la zona a ogni apertura.
 
 **Scartato**: calcolare nell'app quanto chiede un percorso e scegliere una
 zona sola (copia della logica del motore in TypeScript); chiedere zone in

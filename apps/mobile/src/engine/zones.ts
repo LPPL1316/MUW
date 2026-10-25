@@ -88,6 +88,10 @@ export function zoneArea(name: string): ZoneArea | null {
  */
 export const AROUND_MARGIN_M = 6_000;
 
+/** The ETags of the other zones the phone has around the point, beside
+ * If-None-Match (part E). */
+export const ZONE_TAGS_HEADER = "X-Zone-ETags";
+
 /** The saved zones of `network` that hold `point`, the smallest first, as
  * the server picks its zones. */
 export function coveringZones(
@@ -350,9 +354,13 @@ export async function downloadZone(
     folder.create({ idempotent: true, intermediates: true });
     const zones = savedZones();
     // All the zones held there: the server may give any of them (part E).
-    const have = coveringZones(zones, network, [lat, lon]).filter(
-      (zone) => zone.etag !== null,
-    );
+    // The smallest one's ETag goes in If-None-Match, as before part E, and
+    // the others beside it: a server before part E reads only the first, and
+    // answers as it always did.
+    const near = coveringZones(zones, network, [lat, lon]);
+    const have = near.filter((zone) => zone.etag !== null);
+    const first = near[0]?.etag ? near[0] : undefined;
+    const others = have.filter((zone) => zone !== first);
     const partial = new File(folder, `.${network}.download`);
     const query = `lat=${lat}&lon=${lon}${prefetch ? "&prefetch=1" : ""}${
       marginM === undefined ? "" : `&margin_m=${marginM}`
@@ -363,8 +371,9 @@ export async function downloadZone(
       {
         headers: {
           ...keyHeaders(apiKey),
-          ...(have.length > 0
-            ? { "If-None-Match": have.map((zone) => zone.etag).join(", ") }
+          ...(first?.etag ? { "If-None-Match": first.etag } : {}),
+          ...(others.length > 0
+            ? { [ZONE_TAGS_HEADER]: others.map((zone) => zone.etag).join(", ") }
             : {}),
           ...(prefetch ? { [PHONE_HEADER]: phoneId() } : {}),
         },

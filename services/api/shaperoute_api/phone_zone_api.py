@@ -13,7 +13,8 @@ beyond it, 429 with Retry-After.
 The app of part E asks for more room around itself with `?margin_m=`: the
 smallest zone holding that much, when its file is small enough for the
 phone's memory, else the zone every phone gets. It sends the ETags of all
-the zones it has there, and gets 304 for any of them.
+the zones it has there (If-None-Match and X-Zone-ETags), and gets 304 for
+any of them.
 
 `python -m shaperoute_api.phone_zone_api` writes the file of every cached
 zone ahead, so no phone waits for it (with the user's OK, as draw_examples).
@@ -102,6 +103,7 @@ def phone_zone_routes(
             float, Query(ge=ZONE_MARGIN_M, le=MAX_MARGIN_M)
         ] = ZONE_MARGIN_M,
         if_none_match: Annotated[str | None, Header()] = None,
+        x_zone_etags: Annotated[str | None, Header()] = None,
     ) -> Response:
         if network not in FILTERS:
             raise HTTPException(404, UNKNOWN_NETWORK)
@@ -114,7 +116,7 @@ def phone_zone_routes(
             path = phone_file(source, zone)
         stat = path.stat()
         tag = f'"{stat.st_mtime_ns:x}-{stat.st_size:x}"'
-        if tag in tags_of(if_none_match):
+        if tag in tags_of(if_none_match) | tags_of(x_zone_etags):
             return Response(status_code=304, headers={"ETag": tag})
         if prefetch:
             wait = cap.take(phone_of(request), stat.st_size)
@@ -173,12 +175,15 @@ def covering_zones(source: OsmnxSource, bbox: BBox) -> list[Path]:
     return [path for _, _, path in sorted(found)]
 
 
-def tags_of(if_none_match: str | None) -> set[str]:
-    """The ETags of an If-None-Match header: the app sends those of every zone
-    it has around the point (part E), as RFC 9110 allows."""
-    if not if_none_match:
+def tags_of(header: str | None) -> set[str]:
+    """The ETags of a header that lists them, as If-None-Match may (RFC 9110).
+    The app of part E sends the ETag of its smallest zone around the point in
+    If-None-Match, as before, and those of its other zones there in
+    X-Zone-ETags: a server before part E reads the first only, and answers
+    as it always did."""
+    if not header:
         return set()
-    return {tag.strip().removeprefix("W/") for tag in if_none_match.split(",")}
+    return {tag.strip().removeprefix("W/") for tag in header.split(",")}
 
 
 def phone_file(source: OsmnxSource, zone: Path) -> Path:

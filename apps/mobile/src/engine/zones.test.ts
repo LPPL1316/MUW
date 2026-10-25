@@ -19,6 +19,7 @@ import {
   touchZone,
   watchZones,
   zoneArea,
+  ZONE_TAGS_HEADER,
   type ZoneEntry,
   zonesForEngine,
   zoneUri,
@@ -179,14 +180,30 @@ describe("more room around the phone (part E)", () => {
       download: again,
       marginM: AROUND_MARGIN_M,
     });
+    // The smallest one's where a server before part E looks, as before.
     expect(again.mock.calls[0][2]).toEqual({
-      headers: { "If-None-Match": '"c", "t"' },
+      headers: { "If-None-Match": '"c"', [ZONE_TAGS_HEADER]: '"t"' },
     });
     expect(answer).toMatchObject({ kind: "unchanged", zone: { name: TRENTO } });
     const used = Object.fromEntries(
       savedZones().map((zone) => [zone.name, zone.usedAt]),
     );
     expect(used).toEqual({ [CENTRE]: 1000, [TRENTO]: 3000 });
+  });
+
+  test("a server before part E answers as it always did", async () => {
+    await saved(CENTRE, '"c"', 1000);
+    await saved(TRENTO, '"t"', 1000);
+    // It ignores margin_m and X-Zone-ETags: the 3 km zone, the smallest.
+    const before = answering(304, { ETag: '"c"' });
+    const answer = await downloadZone(URL_BASE, "foot", HERE, {
+      apiKey: null,
+      now: () => 3000,
+      download: before,
+      marginM: AROUND_MARGIN_M,
+    });
+    expect(answer).toMatchObject({ kind: "unchanged", zone: { name: CENTRE } });
+    expect(savedZones().map((zone) => zone.name)).toEqual([CENTRE, TRENTO]);
   });
 
   test("the zones for the engine are all those holding the start, the smallest first", () => {

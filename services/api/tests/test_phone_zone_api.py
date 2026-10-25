@@ -162,6 +162,15 @@ def test_any_zone_the_phone_has_there_is_not_sent_again(cache: Path) -> None:
     )
     assert again.status_code == 304
     assert again.headers["etag"] == wide_tag
+    # As the app of part E asks: the smallest zone's ETag where a server
+    # before it looks, the others beside.
+    beside = client.get(
+        "/phone-zones/foot",
+        params=wide,
+        headers={"If-None-Match": small_tag, "X-Zone-ETags": wide_tag},
+    )
+    assert beside.status_code == 304
+    assert beside.headers["etag"] == wide_tag
     other = client.get(
         "/phone-zones/foot", params=wide, headers={"If-None-Match": small_tag}
     )

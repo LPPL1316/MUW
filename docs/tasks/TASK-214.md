@@ -739,6 +739,29 @@ dalle misure del miglioramento, nella parte che segue.
 - **I log del server non sono letti**: la lettura via `ssh` è stata
   bloccata dai permessi della sessione.
 
+**I log dell'API sul server** (letti dall'utente lo stesso giorno con lo
+script dell'agente, che dà solo conteggi e secondi; log Docker dal
+2026-10-10 al 2026-10-25, 15 giorni):
+
+- **Pochi percorsi**: 272 `POST /route-jobs`, da 1 a 41 al giorno. Per
+  distanza, fra quelli calcolati: fino a 3 km 55, fino a 5 km 79 (più 55
+  esempi già disegnati), fino a 8 km 66, oltre 23. Quindi 200 su 223
+  arrivano al server pur stando nei limiti del telefono (8 km).
+- **Tempi del server**: mediana 0,9 s fino a 3 km, 7,2 s fino a 5 km (p90
+  18,3 s), 5,5 s fino a 8 km, 10,9–15,7 s fino a 15 km. Le righe dei tempi
+  per fase (TASK-289) non ci sono: il server non ha ancora quel codice.
+- **Le zone del telefono**: 155 richieste in 15 giorni. A piedi 44 `404`, 19
+  `200`, 7 `304`; in bici 41 `404`, 1 `200`, 13 `304`. **Più di metà sono
+  `404`**: lì il server non ha una zona con 3 km intorno al punto, quindi il
+  telefono non ha mappa e manda tutto al server. Nessun `429`; un solo file
+  scritto al momento (5,5 s).
+- **Errori**: 40 `shape_not_drawable` (23 fino a 3 km), 5
+  `map_data_unavailable`, 12 `engine_error`, tutti «the shape collapses onto
+  a single road node» (TASK-277). 36 lavori annullati (15 mentre scaricavano
+  la zona, 16 mentre calcolavano).
+- **Le zone del server per i percorsi**: 118 dalla memoria, 92 dal disco, 21
+  scaricate al momento (ritaglio fino a 347 s).
+
 Proposte all'utente, in attesa della sua scelta: (1, raccomandata) una
 zona con 6 km intorno, sotto ~10 MB, letta all'apertura; (2) un segnale
 anonimo a ogni percorso, per avere i numeri degli iPhone; (3) le scadenze
@@ -757,9 +780,10 @@ aspetta la lettura della zona.
   `margin_m` (da 3000 a 10 000 m). Dà la zona più piccola che contiene
   quel margine intorno al punto, se il suo file pesa al massimo **12 MB**;
   altrimenti, o senza `margin_m`, quella di prima, con 3 km. Il file si
-  scrive se manca, come per la zona di 3 km. `If-None-Match` accetta più
-  ETag separati da virgole: `304` se la zona scelta è una di quelle, con
-  il suo `ETag`. Le app di prima chiedono e ricevono le stesse zone.
+  scrive se manca, come per la zona di 3 km. Il `304` arriva se l'`ETag`
+  della zona scelta è in `If-None-Match` (anche fra altri, separati da
+  virgole) o nell'header nuovo `X-Zone-ETags`, e porta il suo `ETag`. Le
+  app di prima chiedono e ricevono le stesse zone.
 - **12 MB e non i ~10 della proposta** (deciso dall'agente): è la zona più
   grande che i telefoni usano già, quella in bici di Trento (11,5 MB).
   Letta, una zona costa circa 21 MB di memoria per MB di file: 12 MB sono
@@ -767,7 +791,8 @@ aspetta la lettura della zona.
   fuori: lì il telefono tiene la zona di 3 km.
 - **L'app** (`src/engine/`):
   - chiede le zone intorno a sé con `margin_m=6000` (`AROUND_MARGIN_M`,
-    `usePhoneZones.ts`), con gli ETag di tutte le zone che ha lì, e al
+    `usePhoneZones.ts`). In `If-None-Match` va l'ETag della zona più
+    piccola che ha lì, come prima; quelli delle altre in `X-Zone-ETags`. Al
     `304` segna come usata quella che il server nomina (`zones.ts`). Le
     zone in più (parte B2) restano a 3 km: il tetto del traffico non
     cambia;
@@ -784,15 +809,19 @@ aspetta la lettura della zona.
     conta come morte.
 - **Misure** (Pyodide sul Mac, zona di Trento 2,7 MB): `warm` 0,7 s; il
   primo cuore da 3 km da 8,9 a 7,4 s, stesso percorso.
-- **Test**: 7 per l'endpoint e 2 per `warm` nell'API; 10 nell'app
+- **Test**: 7 per l'endpoint e 2 per `warm` nell'API; 11 nell'app
   (`zones`, `onPhone`, `phoneEngine`, `usePhoneZones`). `engine.zip`
   rifatto.
-- **Prima di pubblicare l'app**: il server con la parte E. Con il server di
-  prima un telefono che ha due zone intorno a sé manda due ETag, il server
-  non li riconosce e rimanda la zona a ogni apertura.
+- **App e server in qualunque ordine** (richiesto dal coordinatore il
+  2026-10-25, prima del merge): il server di prima ignora `margin_m` e
+  `X-Zone-ETags` e legge in `If-None-Match` lo stesso ETag di oggi, quindi
+  con lui l'app nuova scarica le stesse zone di oggi. La lettura all'apertura
+  e le zone date tutte al motore valgono subito; la zona più larga arriva con
+  l'aggiornamento del server.
 - **Non misurato**: quante zone del server bastano per i 6 km (la lista
   delle zone sul server non è letta); dove non ce n'è una, non cambia
-  niente.
+  niente. I log dicono che oggi più di metà delle richieste di zona hanno
+  `404`: lì la parte E non aiuta.
 
 **Seguito fuori dal task**: una scadenza per le partenze vicine anche senza
 processi, in `route_engine`, in un task suo. Il telefono disegnerebbe
