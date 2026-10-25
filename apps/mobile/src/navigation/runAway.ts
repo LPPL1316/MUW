@@ -1,4 +1,4 @@
-import { AppState } from "react-native";
+import { AppState, Platform } from "react-native";
 
 import type { RunRecorder } from "./trackStore";
 
@@ -25,16 +25,21 @@ export type RunAway = {
  * background (TASK-261) the fixes go on with the phone locked, and a runner
  * standing still at a light has none either: the GPS stopped only if iOS
  * froze the app, which a tick of the clock coming far too late tells.
- * The freeze counts in both cases.
+ * The freeze counts in both cases. On Android in the background
+ * (TASK-294) the clock of the app stops with the screen off while the
+ * service goes on with the GPS: a late tick means nothing there. While the
+ * service runs Android does not freeze the app; it may only end it, and the
+ * run then reopens paused (TASK-272).
  */
 export function watchAway(
   recorder: Pick<RunRecorder, "leave">,
   { background }: { background: boolean },
 ): RunAway {
+  const freezes = !(background && Platform.OS === "android");
   let tickMs = Date.now();
   function tick(): void {
     const nowMs = Date.now();
-    if (nowMs - tickMs > FROZEN_AFTER_MS) {
+    if (freezes && nowMs - tickMs > FROZEN_AFTER_MS) {
       // Frozen since the last tick: nothing after it was followed.
       recorder.leave(tickMs);
     }

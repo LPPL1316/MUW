@@ -1257,6 +1257,11 @@ export const DE: Table = {
   "It is in your collection.": "Sie ist in deiner Sammlung.",
   "See collection": "Sammlung ansehen",
 
+  // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
+  "MuW is recording your activity": "MuW zeichnet deine Aktivität auf",
+  "It keeps going with the screen locked, voice included.":
+    "Läuft auch bei gesperrtem Bildschirm weiter, mit Sprachansagen.",
+
   // src/location/startStatus.ts, src/screens/ChooseScreen.tsx,
   // src/explore/ExploreScreen.tsx, ThemedCard.tsx, src/screens/NavigateScreen.tsx,
   // RunPanel.tsx, src/navigation/runStats.ts, src/intro/SavedLogo.tsx

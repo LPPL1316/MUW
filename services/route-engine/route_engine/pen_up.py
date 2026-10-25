@@ -33,7 +33,7 @@ import networkx as nx
 import numpy as np
 
 from route_engine import detours
-from route_engine.errors import ShapeNotDrawableError
+from route_engine.errors import CollapsedShapeError, ShapeNotDrawableError
 from route_engine.geo import (
     LatLon,
     haversine_m,
@@ -295,13 +295,16 @@ def _trace_letter(
             retrace=retrace,
             closed=closed,
         )
+    except CollapsedShapeError:
+        pass  # the letter collapses onto a single road node
     except ShapeNotDrawableError:
         raise
-    except ValueError:  # the letter collapses onto a single road node
-        [node], _ = nearest_nodes(graph, letter[:1])
-        return NetworkRoute(
-            points=[_node_latlon(graph, node)], distance_m=0.0, nodes=[node]
-        )
+    except ValueError:  # any other, as when the collapse was one (TASK-277)
+        pass
+    [node], _ = nearest_nodes(graph, letter[:1])
+    return NetworkRoute(
+        points=[_node_latlon(graph, node)], distance_m=0.0, nodes=[node]
+    )
 
 
 def _named(word: Word, k: int, warnings: Sequence[str]) -> list[str]:
