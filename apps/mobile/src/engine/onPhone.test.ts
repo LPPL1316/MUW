@@ -85,6 +85,21 @@ test("with a zone around the start, the phone draws the route", async () => {
   );
 });
 
+test("every zone holding the start goes to the engine, the smallest first (part E)", async () => {
+  const centre = "foot_46.05000_11.10000_46.09000_11.14000.zone.json.gz";
+  const elsewhere = "foot_45.40000_9.10000_45.50000_9.30000.zone.json.gz";
+  const zones: ZoneEntry[] = [
+    ...ZONES,
+    { name: elsewhere, etag: '"m"', bytes: 9, usedAt: 0 },
+    { name: centre, etag: '"c"', bytes: 3, usedAt: 0 },
+  ];
+  const { engine, plan } = engineAnswering(
+    job({ status: "done", result: RESULT, error: null }),
+  );
+  await planOnPhone(HEART, { engine, zones: () => zones });
+  expect(plan.mock.calls[0][1].map((zone) => zone.name)).toEqual([centre, TRENTO]);
+});
+
 test("no zone, a photo, paddling: the phone does not try", async () => {
   const { engine, plan } = engineAnswering(
     job({ status: "done", result: RESULT, error: null }),

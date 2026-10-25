@@ -10,6 +10,12 @@ A zone the phone downloads ahead, not the one around it, comes with
 `?prefetch=1` and counts against the day's cap (phone_zone_cap.py, part A2):
 beyond it, 429 with Retry-After.
 
+The app of part E asks for more room around itself with `?margin_m=`: the
+smallest zone holding that much, when its file is small enough for the
+phone's memory, else the zone every phone gets. It sends the ETags of all
+the zones it has there (If-None-Match and X-Zone-ETags), and gets 304 for
+any of them.
+
 `python -m shaperoute_api.phone_zone_api` writes the file of every cached
 zone ahead, so no phone waits for it (with the user's OK, as draw_examples).
 """
@@ -25,8 +31,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.responses import FileResponse
+from route_engine.geo import LatLon
 from route_engine.network import (
     FILTERS,
+    BBox,
     OsmnxSource,
     area_around,
     read_graph,
@@ -42,22 +50,37 @@ log = logging.getLogger(__name__)
 # The zone must hold this much around the point: a route of a few km from
 # there fits in it (ROUTE_ENGINE.md §4); a longer one the phone checks.
 ZONE_MARGIN_M = 3000.0
+# How much an app may ask for with `margin_m` (part E). The app of part E
+# asks 6 km around itself: a route of up to 8 km crops at most 3.8 km around
+# its start, so it fits from 2 km away too.
+MAX_MARGIN_M = 10_000.0
+# A wider zone is given only up to this size of its file: the largest one
+# phones already draw on, Trento's bike zone (11.5 MB). Read, a zone takes
+# about 21 MB of the phone's memory for each MB of its file (part E).
+WIDE_MAX_BYTES = 12_000_000
 NO_ZONE = "No zone around this point on the server yet."
 UNKNOWN_NETWORK = f"Unknown network; one of: {', '.join(FILTERS)}."
 ENOUGH_TODAY = "Enough maps downloaded ahead today: try again tomorrow."
 
 
 def install_phone_zones(
-    app: FastAPI, cache_dir: Path, cap: TrafficCap | None = None
+    app: FastAPI,
+    cache_dir: Path,
+    cap: TrafficCap | None = None,
+    wide_max_bytes: int = WIDE_MAX_BYTES,
 ) -> None:
     """The zones of `cache_dir` for the phone; `cap` defaults to the user's
     300 MB a phone and 300 GB in all, a day."""
     app.include_router(
-        phone_zone_routes(cache_dir, cap if cap is not None else TrafficCap())
+        phone_zone_routes(
+            cache_dir, cap if cap is not None else TrafficCap(), wide_max_bytes
+        )
     )
 
 
-def phone_zone_routes(cache_dir: Path, cap: TrafficCap) -> APIRouter:
+def phone_zone_routes(
+    cache_dir: Path, cap: TrafficCap, wide_max_bytes: int = WIDE_MAX_BYTES
+) -> APIRouter:
     router = APIRouter()
 
     @router.get(
@@ -76,18 +99,24 @@ def phone_zone_routes(cache_dir: Path, cap: TrafficCap) -> APIRouter:
         lat: Annotated[float, Query(ge=-90, le=90)],
         lon: Annotated[float, Query(ge=-180, le=180)],
         prefetch: Annotated[bool, Query()] = False,
+        margin_m: Annotated[
+            float, Query(ge=ZONE_MARGIN_M, le=MAX_MARGIN_M)
+        ] = ZONE_MARGIN_M,
         if_none_match: Annotated[str | None, Header()] = None,
+        x_zone_etags: Annotated[str | None, Header()] = None,
     ) -> Response:
         if network not in FILTERS:
             raise HTTPException(404, UNKNOWN_NETWORK)
         source = OsmnxSource(cache_dir, network, FILTERS[network])
-        zone = source.covering_path(area_around([(lat, lon)], ZONE_MARGIN_M))
-        if zone is None:
-            raise HTTPException(404, NO_ZONE)
-        path = phone_file(source, zone)
+        path = wide_file(source, (lat, lon), margin_m, wide_max_bytes)
+        if path is None:
+            zone = source.covering_path(area_around([(lat, lon)], ZONE_MARGIN_M))
+            if zone is None:
+                raise HTTPException(404, NO_ZONE)
+            path = phone_file(source, zone)
         stat = path.stat()
         tag = f'"{stat.st_mtime_ns:x}-{stat.st_size:x}"'
-        if if_none_match == tag:
+        if tag in tags_of(if_none_match) | tags_of(x_zone_etags):
             return Response(status_code=304, headers={"ETag": tag})
         if prefetch:
             wait = cap.take(phone_of(request), stat.st_size)
@@ -107,6 +136,54 @@ def phone_zone_routes(cache_dir: Path, cap: TrafficCap) -> APIRouter:
         )
 
     return router
+
+
+def wide_file(
+    source: OsmnxSource, point: LatLon, margin_m: float, max_bytes: int
+) -> Path | None:
+    """The phone's file of the smallest cached zone holding `margin_m` around
+    `point`, of at most `max_bytes` (part E); None when there is none, or
+    when `margin_m` asks no more than every phone gets. A file is written
+    when missing, as for the zone of ZONE_MARGIN_M."""
+    if margin_m <= ZONE_MARGIN_M:
+        return None
+    for zone in covering_zones(source, area_around([point], margin_m)):
+        path = phone_file(source, zone)
+        if path.stat().st_size <= max_bytes:
+            return path
+    return None
+
+
+def covering_zones(source: OsmnxSource, bbox: BBox) -> list[Path]:
+    """Every cached zone of `source`'s network whose area contains `bbox`,
+    the smallest first: OsmnxSource.covering_path gives only that one."""
+    south, west, north, east = bbox
+    eps = 1e-5  # names are rounded to 5 decimals
+    found: list[tuple[float, str, Path]] = []
+    for path in source.cache_dir.glob(f"{source.network_name}_*.graphml"):
+        area = zone_bbox(path.with_name(f"{path.stem}{SUFFIX}"))
+        if area is None:
+            continue
+        s, w, n, e = area
+        if (
+            s <= south + eps
+            and w <= west + eps
+            and n >= north - eps
+            and e >= east - eps
+        ):
+            found.append(((n - s) * (e - w), path.name, path))
+    return [path for _, _, path in sorted(found)]
+
+
+def tags_of(header: str | None) -> set[str]:
+    """The ETags of a header that lists them, as If-None-Match may (RFC 9110).
+    The app of part E sends the ETag of its smallest zone around the point in
+    If-None-Match, as before, and those of its other zones there in
+    X-Zone-ETags: a server before part E reads the first only, and answers
+    as it always did."""
+    if not header:
+        return set()
+    return {tag.strip().removeprefix("W/") for tag in header.split(",")}
 
 
 def phone_file(source: OsmnxSource, zone: Path) -> Path:

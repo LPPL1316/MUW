@@ -11,8 +11,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 October 2026";
-/** «Privacy» is final since the user approved it on this day (TASK-237 D; without ads, TASK-267 B). */
-const PRIVACY_UPDATED = "10 October 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
+const PRIVACY_UPDATED = "25 October 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -286,8 +286,17 @@ const privacy: AboutDocument = {
       heading: "Your phone number (optional)",
       blocks: [
         "You can add a phone number in «Settings». It is optional: the app works the same without it.",
-        "It is private: only you see it. It is never on your profile, in the search or in any list. It is there so that friends who already have your number will be able to find your account, with a search from the phone's contacts that does not exist yet.",
+        "It is private: only you see it. It is never on your profile, in the search or in any list. It is there so that friends who have your number in their phone's contacts can find your account (see «Friends from your contacts»).",
         "We do not check the number and we send no messages to it. You can remove it at any time from «Settings»; it is deleted with the account.",
+      ],
+    },
+    {
+      heading: "Friends from your contacts",
+      blocks: [
+        "Under the lens at the top of «Feed», «Find friends in your contacts» looks for the members whose number is in your phone's contacts. The app asks the phone for the contacts only when you tap it, and reads only their phone numbers: never names, emails or pictures.",
+        "Each number leaves the phone coded: written with its country code and turned into a hash (SHA-256). Our server compares the codes with those of the numbers members added, answers with the members it found, and keeps nothing it received: not in the database, not in a log.",
+        "A hash of a phone number is not a secret: whoever had the codes could find the numbers again by trying every possible number. That is why the real protection is that our server keeps none of them; they travel only over the encrypted connection.",
+        "Your contacts' numbers are other people's data: they are compared once, to find accounts, and forgotten. To stop anyone from trying numbers one by one, the server counts the searches of each account in an hour, in memory only. Only members who added their number can be found, and never someone you blocked or who blocked you.",
       ],
     },
     {
@@ -384,7 +393,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "To give you the service you ask for (contract): your account, your profile, the routes you ask for, the runs, favorites, comments, reactions and follows you save.",
-            "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are.",
+            "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them.",
             "Your consent: the phone number you choose to add and the connection to Strava. You can take a consent back at any time; what was done before stays lawful.",
             "A legal obligation, when a law asks us to keep or hand over data.",
           ],

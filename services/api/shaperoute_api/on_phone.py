@@ -19,11 +19,11 @@ from typing import Any
 
 from route_engine.models import InvalidRequestError, RouteRequest
 from route_engine.nearby_starts import ShapeJob, plan_nearby
-from route_engine.network import NETWORKS
+from route_engine.network import NETWORKS, area_around
 from route_engine.optimizer import GraphLoader, Plan
 
 from shaperoute_api.activity_graphs import ROAD_ACTIVITIES, ActivityGraphs, Ground
-from shaperoute_api.graphs import ZoneGraphs
+from shaperoute_api.graphs import MapDataUnavailableError, ZoneGraphs
 from shaperoute_api.images import AnyRequest
 from shaperoute_api.jobs import RouteJobs
 from shaperoute_api.phone_zones import PhoneZones
@@ -33,6 +33,9 @@ from shaperoute_api.schemas import RouteJobBody, RouteRequestBody, RouteResultBo
 # server (docs/tasks/TASK-214.md, choice 3).
 ZONES_IN_MEMORY = 1
 ON_THE_SERVER = "only the server draws this route"
+# What `warm` reads ahead: the zone a route of 3-5 km from the phone is
+# drawn on, whose crop reaches 1.4-2.8 km around its start (part E).
+WARM_MARGIN_M = 2000.0
 
 
 def to_request(body: RouteRequestBody) -> RouteRequest:
@@ -67,6 +70,20 @@ def phone_graphs(directory: Path) -> ActivityGraphs:
         zones = PhoneZones(directory, NETWORKS[activity])
         graphs[activity] = ZoneGraphs(zones, max_zones=ZONES_IN_MEMORY, read=zones.read)
     return ActivityGraphs(graphs)
+
+
+def warm(graphs: ActivityGraphs, activity: str, lat: float, lon: float) -> bool:
+    """Reads into memory the zone a route of `activity` from (lat, lon) will
+    be drawn on, as the app opens, so the first route does not wait for it
+    (part E): 0.8 s and 57 MB for Trento's 2.7 MB in Pyodide on the Mac,
+    more for a wider zone. False when no zone on the phone holds the area."""
+    if activity not in ROAD_ACTIVITIES:
+        return False
+    try:
+        graphs.for_activity(activity).load(area_around([(lat, lon)], WARM_MARGIN_M))
+    except MapDataUnavailableError:
+        return False
+    return True
 
 
 class _Here:

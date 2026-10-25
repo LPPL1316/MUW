@@ -103,6 +103,86 @@ def test_wrong_requests(
     assert client.get(f"/phone-zones/{network}", params=params).status_code == status
 
 
+# Inside BBOX: 3.6-4 km around Levico, so 3 km but not 6 (part E).
+SMALL_BBOX = (45.98, 11.25, 46.045, 11.35)
+SMALL = f"{zone_name('foot', SMALL_BBOX)}{SUFFIX}"
+WIDE = f"{zone_name('foot', BBOX)}{SUFFIX}"
+
+
+def two_zones(cache: Path, wide_max_bytes: int = 12_000_000) -> TestClient:
+    """The Levico zone and a smaller one inside it, around the same point."""
+    shutil.copy(LEVICO_GRAPH, cache / f"{zone_name('foot', SMALL_BBOX)}.graphml")
+    app = create_app(FileSource(LEVICO_GRAPH))
+    install_phone_zones(app, cache, wide_max_bytes=wide_max_bytes)
+    return TestClient(app)
+
+
+def given(response: Any) -> str:
+    disposition: str = response.headers["content-disposition"]
+    return disposition.split("filename=")[1].strip('"')
+
+
+def test_without_a_margin_the_phone_gets_the_smallest_zone(cache: Path) -> None:
+    response = two_zones(cache).get("/phone-zones/foot", params=LEVICO)
+    assert response.status_code == 200
+    assert given(response) == SMALL
+
+
+def test_a_wider_margin_gets_the_zone_holding_it(cache: Path) -> None:
+    client = two_zones(cache)
+    response = client.get("/phone-zones/foot", params={**LEVICO, "margin_m": 6000})
+    assert response.status_code == 200
+    assert given(response) == WIDE
+
+
+def test_a_wider_zone_too_large_for_the_phone_is_not_given(cache: Path) -> None:
+    client = two_zones(cache, wide_max_bytes=1000)
+    response = client.get("/phone-zones/foot", params={**LEVICO, "margin_m": 6000})
+    assert response.status_code == 200
+    assert given(response) == SMALL
+
+
+def test_a_margin_no_zone_holds_gives_the_usual_zone(cache: Path) -> None:
+    client = two_zones(cache)
+    response = client.get("/phone-zones/foot", params={**LEVICO, "margin_m": 10000})
+    assert response.status_code == 200
+    assert given(response) == SMALL
+
+
+def test_any_zone_the_phone_has_there_is_not_sent_again(cache: Path) -> None:
+    client = two_zones(cache)
+    wide = {**LEVICO, "margin_m": 6000}
+    small_tag = client.get("/phone-zones/foot", params=LEVICO).headers["etag"]
+    wide_tag = client.get("/phone-zones/foot", params=wide).headers["etag"]
+    assert small_tag != wide_tag
+    again = client.get(
+        "/phone-zones/foot",
+        params=wide,
+        headers={"If-None-Match": f"{small_tag}, W/{wide_tag}"},
+    )
+    assert again.status_code == 304
+    assert again.headers["etag"] == wide_tag
+    # As the app of part E asks: the smallest zone's ETag where a server
+    # before it looks, the others beside.
+    beside = client.get(
+        "/phone-zones/foot",
+        params=wide,
+        headers={"If-None-Match": small_tag, "X-Zone-ETags": wide_tag},
+    )
+    assert beside.status_code == 304
+    assert beside.headers["etag"] == wide_tag
+    other = client.get(
+        "/phone-zones/foot", params=wide, headers={"If-None-Match": small_tag}
+    )
+    assert other.status_code == 200
+
+
+@pytest.mark.parametrize("margin_m", [2999, 10001])
+def test_a_margin_out_of_bounds_is_refused(client: TestClient, margin_m: int) -> None:
+    response = client.get("/phone-zones/foot", params={**LEVICO, "margin_m": margin_m})
+    assert response.status_code == 422
+
+
 def capped_client(cache: Path, zones: float, total: float = 100) -> TestClient:
     """`zones` of the Levico zone a day for each phone, `total` in all, at
     18:00 UTC."""
