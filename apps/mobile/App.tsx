@@ -24,13 +24,10 @@ import {
   type ChosenPlace,
   chooseStart,
   showsSearch,
-  type Start,
   type StartMode,
 } from "./src/location/startMode";
-import {
-  type PositionState,
-  useCurrentPosition,
-} from "./src/location/useCurrentPosition";
+import { startStatus } from "./src/location/startStatus";
+import { useCurrentPosition } from "./src/location/useCurrentPosition";
 import { ExploredCard } from "./src/explore/ExploredCard";
 import { useExplored } from "./src/explore/explored";
 import { ExploreScreen } from "./src/explore/ExploreScreen";
@@ -1416,7 +1413,7 @@ function MuW() {
               title: pageTitle("draw"),
               render: () => (
                 <ChooseScreen
-                  status={statusText(startMode, position, start)}
+                  status={startStatus(startMode, position, start)}
                   denied={startMode === "gps" && position.status === "denied"}
                   mode={startMode}
                   onMode={(mode) => {
@@ -1608,34 +1605,6 @@ function MuW() {
       />
     </View>
   );
-}
-
-function statusText(
-  mode: StartMode,
-  position: PositionState,
-  start: Start | null,
-): string {
-  if (start?.source === "gps") {
-    return "Starting from your position.";
-  }
-  if (start?.source === "search") {
-    return `Starting from ${start.label}.`;
-  }
-  // No name for it: nothing is asked of the network (TASK-292).
-  if (start?.source === "map") {
-    return "Starting from a point on the map.";
-  }
-  if (mode === "place") {
-    return "Search for a city or street to start from.";
-  }
-  switch (position.status) {
-    case "denied":
-      return "Location is off for MuW. Allow it in Settings, or search for a place to start from.";
-    case "unavailable":
-      return "Your position is not available right now. Search for a place to start from.";
-    default:
-      return "Finding your position…";
-  }
 }
 
 const styles = StyleSheet.create({

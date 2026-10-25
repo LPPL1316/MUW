@@ -56,6 +56,13 @@ from shaperoute_api.places import KEY_VARIABLE as PLACES_KEY
 from shaperoute_api.places import PlaceSearch
 from shaperoute_api.recommended import DEFAULT_DIR as CATALOG_DIR
 from shaperoute_api.recommended import RecommendedCatalog
+from shaperoute_api.report_email import TO_VARIABLE as REPORTS_TO
+from shaperoute_api.report_email import (
+    ReportConfigError,
+    ReportEmails,
+    ReportSetup,
+    install_report_email,
+)
 from shaperoute_api.request_log import DEFAULT_DIR, ON_VARIABLE, RequestLog, wanted
 from shaperoute_api.route_archive import RouteArchive
 from shaperoute_api.route_store import STORE_FOLDER, RouteStore
@@ -160,7 +167,8 @@ def main(argv: Sequence[str] | None = None) -> None:
         access = Access.from_env()
         away_setup = AwaySetup.from_env()
         notice_setup = NoticeSetup.from_env()
-    except (AccessConfigError, AwayConfigError) as exc:
+        report_setup = ReportSetup.from_env()
+    except (AccessConfigError, AwayConfigError, ReportConfigError) as exc:
         raise SystemExit(str(exc)) from None
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(message)s")
     # GET /places carries the position: not in the access log (ADR-0096).
@@ -253,6 +261,14 @@ def main(argv: Sequence[str] | None = None) -> None:
         else NoticeEmails(database, notice_setup)
     )
     install_notice_email(app, notices)
+    # Each new report emailed to whoever runs MuW, with a link that hides
+    # (TASK-291): off without the database, Resend and the address.
+    report_emails = (
+        None
+        if database is None or report_setup is None
+        else ReportEmails(database, report_setup)
+    )
+    install_report_email(app, report_emails)
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     here = f"http://127.0.0.1:{args.port}"
     print(f"API docs on this PC: {here}/docs")
@@ -288,6 +304,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     if notices is not None:
         at = notices.setup.at.strftime("%H:%M")
         print(f"Email of the notices: every day at {at} UTC, to who has it on")
+    if report_emails is None:
+        print(f"Reports are not emailed ({REPORTS_TO} and the rest not set)")
+    else:
+        print(f"Each new report is emailed ({REPORTS_TO})")
     if request_log is None:
         print("Route requests are not recorded (--request-log records them)")
     else:

@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import { color, fontSize, fontWeight, space } from "../theme/tokens";
-import { distanceLabel, withPoint } from "../units/format";
+import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { shownWords, type WordExample } from "./exampleRoutes";
 import { cityName, type RecommendedRoute } from "./recommendedRoutes";
@@ -53,7 +53,7 @@ export function CityWords({ words, width, onOpen, credit }: Props) {
             }
             const { route } = example;
             // With a point, as the examples' cards.
-            const distance = distanceLabel(route.route_m, units, withPoint);
+            const distance = distanceLabel(route.route_m, units);
             return (
               <RouteCard
                 key={example.word}

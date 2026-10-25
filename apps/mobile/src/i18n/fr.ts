@@ -1246,4 +1246,54 @@ export const FR: Table = {
   "New shape unlocked: {name}": "Nouvelle forme débloquée : {name}",
   "It is in your collection.": "Elle est dans ta collection.",
   "See collection": "Voir la collection",
+
+  // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
+  "MuW is recording your activity": "MuW enregistre ton activité",
+  "It keeps going with the screen locked, voice included.":
+    "Ça continue écran verrouillé, voix comprise.",
+
+  // src/location/startStatus.ts, src/screens/ChooseScreen.tsx,
+  // src/explore/ExploreScreen.tsx, ThemedCard.tsx, src/screens/NavigateScreen.tsx,
+  // RunPanel.tsx, src/navigation/runStats.ts, src/intro/SavedLogo.tsx
+  // (TASK-210, parte H)
+  "Starting from your position.": "Départ : ta position.",
+  "Starting from {place}.": "Départ : {place}.",
+  "Starting from a point on the map.": "Départ : un point sur la carte.",
+  "Search for a city or street to start from.":
+    "Cherche une ville ou une rue d'où partir.",
+  "Location is off for MuW. Allow it in Settings, or search for a place to start from.":
+    "La localisation est désactivée pour MuW. Autorise-la dans Réglages, ou cherche un lieu d'où partir.",
+  "Your position is not available right now. Search for a place to start from.":
+    "Ta position n'est pas disponible pour l'instant. Cherche un lieu d'où partir.",
+  START: "DÉPART",
+  "My position": "Ma position",
+  "Another place": "Autre lieu",
+  "No recommended routes near this start yet. Draw one: the best ones will show up here.":
+    "Pas encore de parcours recommandés près de ce départ. Dessines-en un : les meilleurs apparaîtront ici.",
+  "{distance} away": "à {distance}",
+  "Finding the places and drawing the shape through them… This can take a minute.":
+    "Recherche des lieux et dessin de la forme qui les traverse… Cela peut prendre une minute.",
+  "{percent}% drawn": "{percent} % dessiné",
+  N: "N",
+  NE: "NE",
+  E: "E",
+  SE: "SE",
+  S: "S",
+  SW: "SO",
+  W: "O",
+  NW: "NO",
+  "{distance} to go": "encore {distance}",
+  "Saved to My activities": "Enregistrée dans Mes activités",
+  // src/social/ContactsFriends.tsx (TASK-262 C)
+  "FROM YOUR CONTACTS": "DE TES CONTACTS",
+  "Find friends in your contacts": "Trouver des amis dans tes contacts",
+  "Only coded phone numbers leave the phone, never names. The server compares them with the numbers members saved and keeps none.":
+    "Seuls des numéros codés quittent le téléphone, jamais les noms. Le serveur les compare aux numéros enregistrés par les membres et n'en garde aucun.",
+  "Looking in your contacts…": "Recherche dans tes contacts…",
+  "MuW cannot see your contacts.": "MuW ne peut pas voir tes contacts.",
+  "No phone numbers in your contacts.": "Aucun numéro de téléphone dans tes contacts.",
+  "None of your contacts is on MuW yet.": "Aucun de tes contacts n'est encore sur MuW.",
+  "This server cannot look in your contacts yet.":
+    "Ce serveur ne peut pas encore chercher dans tes contacts.",
+  "The contacts could not be read.": "Impossible de lire les contacts.",
 };

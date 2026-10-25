@@ -1,0 +1,16 @@
+{
+  "people": [
+    {
+      "public_id": "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13",
+      "username": "Ada_runs",
+      "photo": null,
+      "follow": "none"
+    },
+    {
+      "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+      "username": "adam.trento",
+      "photo": null,
+      "follow": "requested"
+    }
+  ]
+}

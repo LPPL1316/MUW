@@ -45,6 +45,7 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `comments` | disegno, autore, testo (1–500), data | TASK-120 |
 | `reports` | chi segnala, cosa (disegno, commento, utente) e il suo id, motivo da un elenco corto, data; una riga per chi segnala e per cosa | TASK-121 |
 | `blocks` | chi blocca, chi è bloccato, data; una riga tiene lontani i due nei due sensi | TASK-121 |
+| `report_links_used` | i link delle email delle segnalazioni già usati: il loro numero a caso e quando | TASK-291 |
 
 Tutte le tabelle legate a un utente hanno `ON DELETE CASCADE`: cancellare
 la riga di `users` cancella tutto il resto, anche i suoi
@@ -405,6 +406,20 @@ libero in `main` al merge):
   spariscono. Indice su `(kind, target_id)` per leggere le segnalazioni
   di una cosa. Nessun endpoint le legge (ADR-0228): si leggono nel
   database.
+
+Migrazione `0024_hidden_content.sql` (TASK-291, ADR-0251; il numero è il
+primo libero in `main` al merge, dopo `0023` della #502):
+
+- `hidden_at timestamptz` su `drawings`, `comments` e `users`: quando chi
+  gestisce MuW l'ha nascosto dal link dell'email di una segnalazione;
+  `NULL` quando si vede. Nascosto agli altri, mai all'autore: le
+  condizioni sono in `drawings.drawing_seen_sql` e `shown_sql`,
+  `comments.NOT_APART` e `follows.apart_sql` (`API.md`, «Report
+  emails»). A mano: `UPDATE drawings SET hidden_at = now() WHERE id =
+  '…'`, e `NULL` per rimostrare; per un iscritto si usa `public_id`.
+- `report_links_used`: `nonce` (uuid, chiave) e `used_at`. Ogni link
+  agisce una volta; scade dopo 7 giorni, quindi una riga più vecchia si
+  può cancellare.
 - Cancellare un account cancella i suoi blocchi, fatti e ricevuti, e le
   sue segnalazioni; le segnalazioni degli altri su di lui restano.
 

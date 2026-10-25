@@ -158,8 +158,14 @@ class CommentsBody(BaseModel):
 # A drawing `viewer` may see, as drawings.py asks it (TASK-208): never one
 # whose owner a block keeps apart from `viewer` (TASK-121).
 SEEN_BY = f"d.id = %s AND {drawing_seen_sql('%s')}"
-# The comments `viewer` reads: none of a member a block keeps apart.
-NOT_APART = f"NOT {apart_sql('%s', 'c.user_id')}"
+# The comments `viewer` reads: none of a member a block keeps apart, nor of
+# one hidden; one hidden from a report's email only by its author (TASK-291,
+# ADR-0251). One placeholder: `viewer`.
+NOT_APART = (
+    "EXISTS (SELECT 1 FROM (SELECT %s::bigint AS id) reader"
+    f" WHERE NOT {apart_sql('reader.id', 'c.user_id')}"
+    " AND (c.hidden_at IS NULL OR c.user_id = reader.id))"
+)
 
 
 def _cursor(row: DictRow) -> str:

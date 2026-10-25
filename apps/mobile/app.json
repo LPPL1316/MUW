@@ -29,6 +29,7 @@
       "fr": "./locales/fr.json"
     },
     "android": {
+      "package": "app.getmuw.android",
       "adaptiveIcon": {
         "backgroundColor": "#FFD02B",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -55,7 +56,9 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "MuW uses your location to draw routes near you and to record your activities. During an activity it keeps recording with the phone locked, and iOS shows the blue bar.",
-          "isIosBackgroundLocationEnabled": true
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "androidForegroundServiceIcon": "./assets/android-icon-monochrome.png"
         }
       ],
       [
