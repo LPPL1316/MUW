@@ -13,7 +13,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
-import { distanceLabel, withPoint } from "../units/format";
+import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { ExploreStart } from "./ExploreStart";
 import type { ThemedResult } from "./themedRoutes";
@@ -102,7 +102,9 @@ export function ThemedCard({
     return (
       <View style={styles.panel}>
         <Text style={styles.body}>
-          Finding the places and drawing the shape through them… This can take a minute.
+          {t(
+            "Finding the places and drawing the shape through them… This can take a minute.",
+          )}
         </Text>
         <Pressable
           style={styles.secondary}
@@ -135,9 +137,7 @@ export function ThemedCard({
   return (
     <View style={styles.panel}>
       <View>
-        <Text style={styles.result}>
-          {distanceLabel(result.distance_m, units, withPoint)}
-        </Text>
+        <Text style={styles.result}>{distanceLabel(result.distance_m, units)}</Text>
         <Text style={styles.target}>
           {t("{title} · {city} · looks {percent}% like it", {
             title: shapeWord(result.shape),

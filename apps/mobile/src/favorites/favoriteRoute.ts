@@ -23,7 +23,7 @@ import {
   turnOf,
 } from "../explore/recommendedRoutes";
 import type { ThemedResult } from "../explore/themedRoutes";
-import { t } from "../i18n";
+import { t, tLater } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
 import { onFootOf } from "../route/onFoot";
 import { isPenUpShape } from "../route/penUpShapes";
@@ -44,6 +44,9 @@ const MAX_CITY = 80;
 const MAX_TITLE = 60;
 /** The points of the preview of a favorite just kept, before the API's. */
 const PREVIEW_POINTS = 64;
+/** The title kept for the outline of an image: data, in English; shown with
+ * `t(IMAGE_TITLE)`. */
+const IMAGE_TITLE = tLater("Image");
 
 /**
  * The walks of a word with the pen up, as a favorite keeps them (TASK-199):
@@ -114,7 +117,7 @@ export function drawnKeepable(
       word,
       style: word !== null && "style" in request ? (request.style ?? "round") : null,
       // Neither a shape nor a word: the outline of an image.
-      title: result.shape === null && word === null ? "Image" : null,
+      title: result.shape === null && word === null ? IMAGE_TITLE : null,
       distance_m: request.distance_m,
       route_m: Math.round(result.distance_m),
       points: result.points,
@@ -197,12 +200,17 @@ export function keptNow({ id, request }: Keepable, now: Date): Favorite {
   };
 }
 
-/** What a favorite draws, in a word or two: "CIAO", "Fountains", "Star". */
+/** What a favorite draws, in a word or two: "CIAO", "Fountains", "Star".
+ * The outline of an image is kept as "Image" and shown in the app's
+ * language, «Immagine» (TASK-210); a themed route keeps the API's title. */
 export function favoriteTitle(favorite: {
   shape: string | null;
   word: string | null;
   title: string | null;
 }): string {
+  if (favorite.word === null && favorite.title === IMAGE_TITLE) {
+    return t(IMAGE_TITLE);
+  }
   return (
     favorite.word ??
     favorite.title ??

@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "reac
 import { StyleSheet, View } from "react-native";
 import { WebView } from "react-native-webview";
 
+import { subscribeLanguage } from "../i18n/language";
+import { useLanguage } from "../i18n/useLanguage";
 import { color } from "../theme/tokens";
 import {
   buildFeedMapPage,
@@ -11,8 +13,6 @@ import {
   parseFeedMapMessage,
   type Shoot,
 } from "./feedMapPage";
-
-const FEED_MAP_PAGE = buildFeedMapPage();
 
 /** A picture that has not come by now is given up on: the next one is asked. */
 export const SHOT_TIMEOUT_MS = 20_000;
@@ -74,6 +74,8 @@ export function forgetFeedMaps() {
  * it. Without a map the drawing is as it was, a line on the dark. With a
  * `bearing` the map is turned (TASK-232): it lies under
  * `turnedLine(line, bearing)`, and is another picture than the one north up.
+ * In another language than English the places are named in it (TASK-210):
+ * another picture too.
  */
 export function useFeedMap(
   id: string,
@@ -83,7 +85,10 @@ export function useFeedMap(
   pad: number,
   bearing: number = 0,
 ): string | null {
-  const key = `${id}:${width}x${height}${bearing === 0 ? "" : `@${bearing}`}`;
+  const turned = bearing === 0 ? "" : `@${bearing}`;
+  const language = useLanguage();
+  const named = language === "en" ? "" : `/${language}`;
+  const key = `${id}:${width}x${height}${turned}${named}`;
   const camera = useMemo(
     () => lineCamera(line, width, height, pad, bearing),
     [line, width, height, pad, bearing],
@@ -108,6 +113,8 @@ type Props = {
  * and is there only while a picture is waited for.
  */
 export function FeedMapShooter({ width, height }: Props) {
+  // A new language: the pictures still to take are asked again in it.
+  useEffect(() => subscribeLanguage(giveUp), []);
   const next = useSyncExternalStore(subscribe, () => queue[0] ?? null);
   if (next === null) {
     return null;
@@ -118,6 +125,8 @@ export function FeedMapShooter({ width, height }: Props) {
 function Page({ next, width, height }: Props & { next: Want }) {
   const webView = useRef<WebView>(null);
   const [ready, setReady] = useState(false);
+  const language = useLanguage();
+  const page = useMemo(() => buildFeedMapPage(language), [language]);
 
   useEffect(() => {
     if (!ready) {
@@ -139,7 +148,7 @@ function Page({ next, width, height }: Props & { next: Want }) {
         ref={webView}
         testID="feed-map-page"
         style={styles.web}
-        source={{ html: FEED_MAP_PAGE }}
+        source={{ html: page }}
         originWhitelist={["*"]}
         scrollEnabled={false}
         onLoadStart={() => setReady(false)}

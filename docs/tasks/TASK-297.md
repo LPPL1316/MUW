@@ -1,6 +1,6 @@
 # TASK-297 — Ricerche dall'archivio dei percorsi (A) e loghi con la penna alzata (C); il piazzamento imparato, misurato e scartato (B)
 
-**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in PR · poi C
+**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · C e TASK-298 nelle loro sessioni · A2 dopo la #497 · poi C2
 **Fase**: 4 · **Branch**: `docs/TASK-297-proposal` (documenti),
 `feat/TASK-297-a-route-archive` (A), `feat/TASK-297-a2-first-placement`
 (A2, dopo la #497), `feat/TASK-297-c-image-pieces` (C, motore),
@@ -375,4 +375,15 @@ docs/API.md, docs/UI.md, docs/STATUS.md, docs/tasks/TASK-297.md
 
 ## Esito
 
-*(si compila a fine task)*
+**Parte A** (2026-10-25, #539 in `main` a `0c4ada00`): ogni percorso
+finito e ogni alternativa restano in `drawn_routes` senza chi li ha
+chiesti; la stessa richiesta dallo stesso punto riceve il job `done` nel
+`POST`, entro 100 m il percorso raggiunto lungo le strade nel thread del
+job, i più corsi e preferiti davanti. Contratto invariato; `engine.zip`
+rifatto perché `jobs.py` va sul telefono (impronta iOS invariata); su
+`preview` (gruppo `e0e4e126`). Emerso: la riga va chiave sulla partenza
+chiesta, non sul primo punto del percorso (il motore parte dal nodo più
+vicino, 20 m più in là); un job è `done` prima che `put` scriva la riga.
+Rimandato: il server dopo Apple con l'ok dell'utente e il paragrafo della
+privacy (lo raccoglie TASK-284 B); A2 (il ridisegno rapido dal
+piazzamento) dopo la #497. Il resto si compila a fine task.

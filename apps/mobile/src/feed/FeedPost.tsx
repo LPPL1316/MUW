@@ -68,9 +68,10 @@ export function shapeLabel(shape: string): string {
   return shapeName(shape);
 }
 
-/** The sports' names, as their buttons say them: the same in every language. */
-const PADDLE = SPORTS.find((sport) => sport.id === "paddle")?.name ?? "Paddle";
-const BIKE = SPORTS.find((sport) => sport.id === "bike")?.name ?? "Bike";
+/** The sports' names, as their buttons say them: shown with `t(name)`, in
+ * the app's language («Pagaia», «Bici»; TASK-210, part H). */
+const PADDLE = SPORTS.find((sport) => sport.id === "paddle")?.name ?? tLater("Paddle");
+const BIKE = SPORTS.find((sport) => sport.id === "bike")?.name ?? tLater("Bike");
 
 /**
  * "Moon · 4.9 km · 27 min": what was drawn, how far, how long. A drawing on
@@ -91,7 +92,7 @@ export function postFacts(post: SamplePost): string {
     .join(" · ");
   const sport =
     post.activity === "paddling" ? PADDLE : post.activity === "cycling" ? BIKE : null;
-  return sport === null ? facts : `${sport} · ${facts}`;
+  return sport === null ? facts : `${t(sport)} · ${facts}`;
 }
 
 /**

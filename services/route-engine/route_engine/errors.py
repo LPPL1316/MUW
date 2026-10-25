@@ -8,6 +8,7 @@ ShapeNotDrawableError under its old name.
 from __future__ import annotations
 
 NO_ROADS = "there are no roads to run on around here"
+COLLAPSED = "the shape collapses onto a single road node"
 
 
 class ShapeNotDrawableError(ValueError):
@@ -34,4 +35,18 @@ class NoRoadsError(ShapeNotDrawableError):
     """
 
     def __init__(self, message: str = NO_ROADS) -> None:
+        super().__init__(message)
+
+
+class CollapsedShapeError(ShapeNotDrawableError):
+    """Every point of an outline has the same nearest road node: the roads
+    around are too few to draw it there (TASK-277).
+
+    Raised for one placement of the shape, the search goes on with the
+    others and then farther away (ADR-0040). It was a plain ValueError,
+    which ended the whole request: `engine_error`, and no far search, on
+    the rural zones downloaded on demand.
+    """
+
+    def __init__(self, message: str = COLLAPSED) -> None:
         super().__init__(message)
