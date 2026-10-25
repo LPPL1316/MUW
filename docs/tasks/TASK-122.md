@@ -89,6 +89,17 @@ dell'utente, uno per volta (il Coordinatore, 2026-10-25). Non serve
 aspettare Apple: l'API, `db` e `backup` non si riavviano. Tutti i comandi
 partono da `~/shaperoute/deploy`.
 
+**Lo Storage Box c'è** (2026-10-25, verso le 02:45Z). Comprato dall'utente
+(«sì, compra»), con l'agente da Chrome nella Hetzner Console: `muw-backups`,
+BX11, Falkenstein, 3,20 €/mese IVA esclusa, nome utente **`u700709`**
+(indirizzo `u700709.your-storagebox.de`). Ha SSH acceso; Samba, WebDAV e
+«External Reachability» spenti; nessuna password scelta, la genera Hetzner.
+La chiave del server è nel progetto come `muw-server-backups` (senza il
+commento). Lo stesso giorno, su richiesta dell'utente, il server è stato
+rinominato `muw` (prima `ubuntu-8gb-fsn1-1`) e il progetto `MuW` (prima
+`Sgrava`): sono solo nomi nella console, il server non si è fermato. Nei
+passi 2 e 3, `u123456` diventa `u700709`.
+
 **Passo 1 — la copia più recente si ripristina.**
 
 ```bash
