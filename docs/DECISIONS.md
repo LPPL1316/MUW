@@ -15544,3 +15544,31 @@ troppo piccoli per le strade), da 8 km sì. Immagini in
   alzata un soggetto in più costa una camminata, non un gambo;
 - leggere le lettere come testo: una foto di una scritta resta un
   disegno.
+
+## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
+**Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
+(TASK-271), dalla prima recensione di un tester («quando devi tornare
+indietro non lo dice»). Aggiunta ad ADR-0045, senza numero nuovo.
+
+**Decisione**: su un nodo con meno di 3 strade (`MIN_BRANCHES`), un vicolo
+cieco (1) o un nodo in mezzo a una strada (2), si dà un'indicazione solo
+quando il percorso torna al nodo da cui è arrivato (`after == before`) e
+l'angolo è da `u-turn` (165° o più, `turn_of`): `"u-turn"`, col nome della
+via e `branches` vero (1 o 2). Ogni altro nodo così resta in silenzio come
+prima, anche una curva di 90°; agli incroci non cambia niente. Tornare al
+nodo di prima per un'altra strada senza girarsi (un anello di due strade a
+senso unico) non è tornare indietro: silenzio.
+
+**Motivo**: la regola «si parla solo agli incroci» doveva tacere le curve
+di una strada, non i ritorni: un percorso che va in fondo a una strada senza
+uscita e torna dalla stessa strada cambia verso proprio dove non c'è un
+incrocio, e la voce taceva. Nella fixture di Levico 70 nodi su
+303 sono vicoli ciechi e 22 hanno due strade. Il testo «u-turn» c'è già
+nelle 5 lingue dell'app; `branches` sotto 3 c'era già nella partenza, e né
+l'API né l'app lo leggono come soglia.
+
+**Conseguenza**: i percorsi nuovi dicono «Make a U-turn» anche in fondo a
+un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
+salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
+server, `draw_examples` e il motore sul telefono (TASK-214) vanno
+aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
