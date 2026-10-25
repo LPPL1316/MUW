@@ -6,8 +6,8 @@ Once a day, at AWAY_EMAIL_AT (UTC), a round looks for the accounts:
 - with «Email when I'm away» on (users.notify_away): on until its owner
   turns it off in «Settings», at sign-up or with the link of the email;
 - not using the app for AWAY_DAYS: the last use is the latest
-  sessions.last_used_at. An account signed out of every phone has no last
-  use, and gets nothing;
+  sessions.last_used_at, written at most once an hour (TASK-288). An
+  account signed out of every phone has no last use, and gets nothing;
 - not emailed since that last use: one email for one absence.
 
 It writes to each, in its language, how many drawings are new since then

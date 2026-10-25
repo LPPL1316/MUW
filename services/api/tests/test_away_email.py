@@ -31,6 +31,7 @@ from test_drawings import (
     wall,  # noqa: F401
 )
 
+from shaperoute_api.accounts import USE_WRITTEN_EVERY
 from shaperoute_api.away_email import (
     AWAY_DAYS,
     DEFAULT_AT,
@@ -57,6 +58,9 @@ BASE = "https://api.example.app"
 EMAIL = "runner@example.com"
 OTHER_EMAIL = "other@example.com"
 MINUTE = timedelta(minutes=1)
+# A session's use is written at most once an hour (TASK-288): a use this
+# long after sign-up is the account's last one.
+LATER = USE_WRITTEN_EVERY + MINUTE
 AWAY = timedelta(days=AWAY_DAYS)
 ENV = {
     "RESEND_API_KEY": "re_key",
@@ -272,10 +276,10 @@ def test_who_has_been_away_14_days_gets_one_email_with_what_is_new(
     t0 = wall.t
     me, friend, stranger = signed_up(client), other(client), third(client)
     follows(client, me, friend)
-    wall.t = t0 + MINUTE
+    wall.t = t0 + LATER
     published_by(client, friend, KEY)
     published_by(client, friend, OTHER_KEY)
-    wall.t = t0 + 2 * MINUTE
+    wall.t = t0 + LATER + MINUTE
     published_by(client, stranger, KEY)
 
     # Away for 14 days but a second: nothing yet.
@@ -435,7 +439,7 @@ def test_never_a_drawing_the_feed_would_not_show(
     assert client.put(
         f"/users/{public_id(client, blocked)}/block", headers=me
     ).status_code in (200, 204)
-    wall.t = t0 + MINUTE
+    wall.t = t0 + LATER
     published_by(client, blocked, KEY)
     published_by(client, private, KEY, visibility="only_me")
     published_by(client, private, OTHER_KEY, visibility="followers")
