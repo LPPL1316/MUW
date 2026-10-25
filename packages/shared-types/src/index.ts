@@ -593,8 +593,8 @@ export interface User {
 /**
  * What an account chose about being notified (TASK-185): both off until
  * turned on. With «Push notifications» on the API sends push notifications
- * to the phones of the account (TASK-262); no email of the news is sent
- * yet.
+ * to the phones of the account (TASK-262); with «Email notifications» on,
+ * one email a day at most with the same news (TASK-262 part B).
  */
 export interface Notifications {
   email: boolean;

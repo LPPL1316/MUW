@@ -157,6 +157,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-262 parte B — L'email delle notifiche, una al giorno**
+  (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
+  al giorno, la lingua come l'email di ritorno; conferma dell'email e
+  password dimenticata a parte, TASK-300). Branch `feat/TASK-262-b-email`,
+  solo API: le cinque notizie delle push tenute in `email_notices`
+  (migrazione `0028_email_notices.sql`, numero da controllare al merge)
+  per chi ha «Email notifications» acceso, un giro al giorno alle 18:00
+  UTC, una email al massimo per account e giorno, il link per spegnerla.
+  Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
+  «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
+  File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -851,6 +862,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Mancano il cerchio da 20 km, Levico e Padova, quando Overpass riapre. Il
   miglioramento delle forme in bici è TASK-206, qui sotto. Da dove
   riprendere: il task file, «Esito», «I campioni».
+  **Chiuso il 2026-10-25**: Levico, Padova e il cerchio da 20 km giudicati
+  dall'utente, la prova sul server del 2026-10-03 scritta nel task file;
+  la voce è in «Completato».
 - **TASK-232 — Forme inclinate fino a 45°, con la mappa girata**
   (ADR-0195; Todo, chiesto dall'utente il 2026-10-05): il motore inclina
   ogni forma fino a ±45° quando segue meglio le strade (oggi ±15°,
@@ -1201,6 +1215,27 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Motore, API e app** — TASK-190 (ADR-0153; chiuso il 2026-10-25): i
+  percorsi in bici, parti A, B e C in `main` dal 2026-10-02 (PR #214, #219,
+  #221). I campioni sono tutti giudicati dall'utente: oltre ai cinque di
+  Trento del 2026-10-03, il 2026-10-25 il cerchio da 20 km di Trento «sì»
+  (0,93), Levico cuore 10 «no», cerchio 10 «quasi», stella 10 «no», cuore
+  20 «quasi», cerchio 20 «quasi», stella 20 «no» (0,71–0,94; a 20 km un
+  terzo di sterrato, il cerchio da 10 km con 2,3 km di bici a mano per il
+  posto), Padova «sì» per cuori, cerchi e stella da 20 km, «quasi» la stella
+  da 10 (0,91–0,96: in pianura la bici disegna come la corsa). Zone
+  scaricate da Overpass sul Mac, una per luogo; motore di `main` `263e86d`,
+  1–5 s a campione. Nessuna correzione del motore: i difetti visti (stelle
+  in valle, gallerie, sterrato, metri a piedi dove il posto li chiede) sono
+  già noti in ADR-0167 e «Fuori scope». La prova vera sul server è quella
+  del coordinatore del 2026-10-03 (TASK-205 e TASK-206: zona di Trento
+  dall'estratto, 72 + 31 MB, 167 s, osmium 3,6 GB; cerchi 10/20/30 km in
+  22/28/39 s, 0,88/0,87/0,73), ora scritta nel task file. **Resta**: una
+  verifica leggera sul server (le zone `bike_*`, un cerchio da 10 km,
+  `docker stats`), pronta coi comandi nel task file, dopo l'approvazione di
+  Apple e con un sì dell'utente; la domanda 1 («Explore» e «Feed» con
+  «Bike»), che resta dell'utente. PR dei campioni sul branch
+  `chore/TASK-190-bike-samples-levico-padova`. `tasks/TASK-190.md`.
 - **API** — TASK-291 (ADR-0251; chiesto dall'utente il 2026-10-17): ogni
   segnalazione nuova arriva per email a chi gestisce MuW, con il link
   firmato «Hide» (7 giorni, una volta, con «Undo»); il nascosto sparisce
