@@ -4,7 +4,12 @@ import type { PositionState } from "../location/useCurrentPosition";
 import { PhoneEngine } from "./phoneEngine";
 import { files } from "./memoryFiles";
 import { networksInOrder, usePhoneZones } from "./usePhoneZones";
-import { type downloadZone, type ZoneDownload, zoneUri } from "./zones";
+import {
+  AROUND_MARGIN_M,
+  type downloadZone,
+  type ZoneDownload,
+  zoneUri,
+} from "./zones";
 
 jest.mock("expo-file-system", () => jest.requireActual("./memoryFiles"));
 jest.mock("expo-file-system/legacy", () => ({ createDownloadResumable: jest.fn() }));
@@ -23,6 +28,8 @@ beforeEach(() => {
 
 const HERE: PositionState = { status: "ok", point: [46.0679, 11.1211] };
 const TRENTO = "foot_45.98370_11.00140_46.15030_11.24160.zone.json.gz";
+const TRENTO_WIDE = "foot_45.90000_10.90000_46.25000_11.35000.zone.json.gz";
+const TRENTO_BIKE = "bike_45.94940_10.95710_46.18350_11.29440.zone.json.gz";
 const SAVED: ZoneDownload = {
   kind: "saved",
   zone: {
@@ -153,8 +160,53 @@ test("with maps on the phone already, nothing is told", async () => {
     }),
   );
   await act(async () => undefined);
-  expect(download.mock.calls.map((call) => call[3])).toEqual([{}, {}]);
+  expect(download.mock.calls.map((call) => call[3])).toEqual([
+    { marginM: AROUND_MARGIN_M },
+    { marginM: AROUND_MARGIN_M },
+  ]);
   expect(result.current).toBeNull();
+});
+
+test("the zone of the sport is read ahead once the zones are there (part E)", async () => {
+  const small = { name: TRENTO, etag: '"s"', bytes: 2_500_000, usedAt: 0 };
+  const wide = { name: TRENTO_WIDE, etag: '"w"', bytes: 7_000_000, usedAt: 0 };
+  const bike = { name: TRENTO_BIKE, etag: '"b"', bytes: 11_500_000, usedAt: 0 };
+  files.set(
+    "file:///documents/engine/zones.json",
+    JSON.stringify({ zones: [wide, bike, small] }),
+  );
+  for (const zone of [small, wide, bike]) {
+    files.set(zoneUri(zone), "zone");
+  }
+  const engine = new PhoneEngine();
+  jest.spyOn(engine, "warmUp").mockImplementation(() => undefined);
+  const prepare = jest.spyOn(engine, "prepare").mockImplementation(() => undefined);
+  const download = jest.fn(async (): Promise<ZoneDownload> => ({
+    kind: "unchanged",
+    zone: wide,
+  }));
+  await act(async () => {
+    await renderHook(() =>
+      usePhoneZones(HERE, "https://api", {
+        engine,
+        download,
+        ahead: noAhead,
+        shapes: noShapes,
+      }),
+    );
+  });
+  // On foot, the sport of «Settings» by default: the smaller zone first.
+  expect(prepare.mock.calls).toEqual([
+    [
+      [small, wide].map((zone) => ({
+        name: zone.name,
+        uri: zoneUri(zone),
+        version: zone.etag,
+      })),
+      "running",
+      HERE.point,
+    ],
+  ]);
 });
 
 test("a zone saved before around the phone starts Python before the downloads end (TASK-287)", async () => {

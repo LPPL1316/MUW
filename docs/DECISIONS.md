@@ -8862,6 +8862,46 @@ raddoppierebbe); richiedere ogni giorno con l'ETag le zone già salvate
 (i giri si inseguirebbero); aspettare qualche minuto dopo l'apertura (chi
 apre l'app per poco non scaricherebbe mai).
 
+**Decisione dell'agente** (parte E, la zona più larga intorno al telefono,
+2026-10-25; la zona più larga è la scelta dell'utente, «fai la 1», fra tre
+proposte fatte dopo le misure in `tasks/TASK-214.md`, «Le misure dopo D»),
+deciso dall'agente su delega dell'utente:
+1. **6 km intorno al telefono**, chiesti con `margin_m` (da 3 a 10 km):
+   il ritaglio di un percorso fino a 8 km arriva a 3,8 km dalla partenza,
+   quindi ci sta anche partendo 2 km più in là. Senza `margin_m` resta la
+   zona di 3 km: le app di prima non cambiano.
+2. **Al massimo 12 MB di file** per la zona più larga: la zona più grande
+   che i telefoni usano già (Trento in bici, 11,5 MB). Una zona letta
+   costa circa 21 MB di memoria per MB di file. Oltre, o senza una zona
+   con quel margine, il server dà la zona di 3 km.
+3. **Gli ETag di tutte le zone che il telefono ha lì**: quello della più
+   piccola in `If-None-Match`, come prima, gli altri nell'header nuovo
+   `X-Zone-ETags`. Il server risponde `304` per quella che sceglie, con il
+   suo `ETag`; accetta anche più ETag in `If-None-Match` (RFC 9110).
+4. **Al motore tutte le zone che contengono la partenza**, al massimo tre,
+   dalla più piccola: sceglie Python (`PhoneZones.covering_path`) la più
+   piccola che contiene il ritaglio, come fa il server. L'app non calcola
+   il ritaglio: sarebbe una copia del motore.
+5. **La zona letta all'apertura** (`on_phone.warm`, 2 km intorno al
+   telefono, quella di un percorso di 3–5 km), dietro ai percorsi già
+   chiesti, senza avviare Python da solo; una morte della WebView mentre
+   legge non conta.
+6. **Le zone in più (B2) restano a 3 km**: la zona più larga è per il posto
+   del telefono, e il tetto del traffico scelto dall'utente non cambia.
+7. **App e server in qualunque ordine** (chiesto dal coordinatore): il
+   server di prima ignora `margin_m` e `X-Zone-ETags` e trova in
+   `If-None-Match` lo stesso ETag di oggi, quindi l'app nuova scarica le
+   stesse zone di oggi finché il server non si aggiorna. Con più ETag in
+   `If-None-Match` il server di prima non avrebbe riconosciuto niente e
+   avrebbe rimandato la zona a ogni apertura.
+
+**Scartato**: calcolare nell'app quanto chiede un percorso e scegliere una
+zona sola (copia della logica del motore in TypeScript); chiedere zone in
+più punti intorno al telefono (zone piccole non si uniscono: il ritaglio
+deve stare in una sola); costruire sul server zone nuove più grandi (lavoro
+sul server con gli estratti, fuori dal task); i 10 MB della proposta
+(avrebbero escluso la zona in bici di Trento, già usata).
+
 ## ADR-0170 — Pubblicare come su Strava, l'API: chi lo vede in tre valori, una domanda sola per saperlo, foto in posti fissi, campi nuovi che un'app di prima non cancella
 **Stato**: Attiva · 2026-10-03 · deciso dall'agente su delega dell'utente
 (TASK-208, parte A), dentro le **scelte dell'utente** del 2026-10-03:
@@ -15147,6 +15187,70 @@ mette insieme la preparazione e l'attesa delle partenze vicine. Sul
 server il bytecode arriva solo con un'immagine nuova (dopo Apple e con
 l'ok dell'utente). `engine.zip` è rifatto, perché `jobs.py` e `images.py`
 sono nel motore del telefono.
+
+## ADR-0251 — Ogni segnalazione arriva per email, con un link firmato che nasconde
+**Stato**: Attiva · 2026-10-17 · **scelta dell'utente** del 2026-10-17
+(«SI FAI IL TASK DELLE SEGNALAZIONI»: email a ogni segnalazione e un link
+per nascondere); le tre note del Coordinatore (segreti solo in
+`deploy/.env`; link che scade, vale una volta e si annulla; privacy con la
+parte B di TASK-284); il resto deciso dall'agente su delega dell'utente
+(TASK-291). Rimanda ad ADR-0228, che resta valida.
+
+**Contesto**: ADR-0228 lascia le segnalazioni nel database, senza pannello.
+Il 2026-10-17 Apple ha aggiornato la regola 1.2: chi non mette tutele o non
+rimedia ai contenuti segnalati dopo un avviso viola il Developer Code of
+Conduct. La risposta ad Apple promette di guardare le segnalazioni entro 24
+ore, ma nessuno sa quando ne arriva una.
+
+**Decisione**:
+
+1. **Un'email per ogni segnalazione nuova**, in inglese, a
+   `SHAPEROUTE_REPORTS_TO`, con Resend, fuori dalla richiesta (un thread,
+   come le push di ADR-0226). Nuova vuol dire una riga nuova di `reports`
+   (`xmax = 0`): la stessa persona che cambia il motivo non manda niente.
+   Dice cosa, perché, chi segnala, chi ha scritto, il testo, quante
+   segnalazioni ha la cosa e se è già nascosta. Un errore di Resend non
+   cambia la risposta di `POST /reports`.
+2. **Il link è firmato** (HMAC-SHA256 con `SHAPEROUTE_EMAIL_SECRET`, lo
+   stesso dell'email di ritorno con un prefisso diverso) e porta azione,
+   tipo, id, scadenza a **7 giorni** e un numero a caso. **GET mostra e
+   chiede, POST fa**: un lettore di posta che apre i link per controllarli
+   non nasconde niente. **Una volta sola**: il numero entra in
+   `report_links_used` nella stessa transazione dell'azione. Dopo «Hide»
+   la pagina ha «Undo», un link nuovo `show` con le stesse regole.
+3. **Nascondere, mai cancellare**: `hidden_at` su `drawings`, `comments`
+   e `users`. Nascosto agli altri, **non all'autore**, che non si accorge
+   di niente.
+   - Disegno: dentro `drawing_seen_sql` e `shown_sql`, le due domande che
+     tutti i lettori di un disegno fanno già (ADR-0228).
+   - Commento: dentro `comments.NOT_APART`.
+   - Iscritto: dentro `follows.apart_sql`, che vale anche quando `other`
+     è nascosto e non è chi guarda. Così un iscritto nascosto sparisce
+     come dietro un blocco da ogni posto che ADR-0228 ha già coperto
+     (profilo, ricerca, feed, disegni, commenti, reazioni, follow), senza
+     toccarli uno per uno. Le push guardano dal lato di chi le riceve
+     (`push.blocked_between` chiede se chi agisce è lontano da chi riceve):
+     un nascosto non fa arrivare notifiche agli altri.
+4. **Spento** senza `RESEND_API_KEY`, `SHAPEROUTE_EMAIL_SECRET`,
+   `SHAPEROUTE_DOMAIN` e `SHAPEROUTE_REPORTS_TO`: le segnalazioni restano
+   come in ADR-0228. Indirizzo, chiave e token mai nei log.
+5. **Un modulo minimo per l'invio** (`send_email.py`): la #502 (TASK-284)
+   porta `resend_email.py`; dopo il suo merge `send_email` lo usa e
+   l'invio resta uno solo (indicazione del Coordinatore).
+
+**Alternative scartate**: cancellare il commento segnalato (non si
+annulla, nota 2 del Coordinatore); rendere il disegno «only_me» (si
+perderebbe la visibilità di prima, e l'autore vedrebbe il cambio); un
+pannello o un endpoint `/admin` (più grande, e vuole un login per chi
+gestisce); un link che agisce già al GET (i filtri antispam delle caselle
+di posta aprono i link).
+
+**Conseguenze**: `apart_sql` fa una sottoquery in più su `users` per la
+chiave primaria; trascurabile. Chi aggiunge una lettura di disegni o
+commenti deve passare da queste condizioni, come già per i blocchi.
+L'email porta a Resend (Stati Uniti) il contenuto segnalato e i nomi: la
+privacy lo dirà con la parte B di TASK-284, con il sì dell'utente sul
+testo, prima di accendere l'email sul server.
 
 ## ADR-0252 — La partenza scelta sulla mappa, con il segnaposto fermo al centro
 

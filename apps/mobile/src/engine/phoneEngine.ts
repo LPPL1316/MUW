@@ -1,3 +1,5 @@
+import type { Activity, LatLon } from "@shaperoute/shared-types";
+
 import { type PageMessage, type PageZone, pageCall } from "./page";
 
 /**
@@ -42,8 +44,12 @@ export const MAX_DEATHS = 2;
 
 type Job = {
   id: number;
+  /** A route, or the zone read ahead of the routes (`prepare`). */
+  call: "plan" | "warm";
   body: string;
   zones: PageZone[];
+  /** For "warm": the activity and the point of the routes to come. */
+  warm?: { activity: Activity; point: LatLon };
   timeoutMs: number;
   /** Answers once, and stops listening to the signal. */
   resolve: (answer: PlanAnswer) => void;
@@ -103,6 +109,7 @@ export class PhoneEngine {
     return new Promise((answer) => {
       const job: Job = {
         id: this.nextId++,
+        call: "plan",
         body,
         zones,
         timeoutMs,
@@ -120,6 +127,37 @@ export class PhoneEngine {
         this.next();
       }
     });
+  }
+
+  /**
+   * Reads into Python's memory the zone that routes of `activity` from
+   * `point` will be drawn on, behind the routes already asked (part E), so
+   * the first route does not wait for it: 0.8 s for Trento's zone in
+   * Pyodide on the Mac, more for a wider one. A newer call replaces one
+   * still waiting; nobody hears how it went. It does not start Python:
+   * `warmUp` or the first route does.
+   */
+  prepare(zones: PageZone[], activity: Activity, point: LatLon): void {
+    if (this.state === "broken" || zones.length === 0) {
+      return;
+    }
+    this.queue = this.queue.filter((waiting) => {
+      const stale = waiting.call === "warm";
+      if (stale) {
+        waiting.resolve({ kind: "cancelled" });
+      }
+      return !stale;
+    });
+    this.queue.push({
+      id: this.nextId++,
+      call: "warm",
+      body: "",
+      zones,
+      warm: { activity, point },
+      timeoutMs: PLAN_TIMEOUT_MS,
+      resolve: () => {},
+    });
+    this.next();
   }
 
   /** The page has loaded: Python starts. */
@@ -155,7 +193,9 @@ export class PhoneEngine {
       clearTimeout(timer);
       this.running = null;
       if (message.type === "result") {
-        this.last = { ...this.last, planMs: message.ms, memoryMb: message.memoryMb };
+        if (job.call === "plan") {
+          this.last = { ...this.last, planMs: message.ms, memoryMb: message.memoryMb };
+        }
         job.resolve({
           kind: "done",
           json: message.json,
@@ -174,9 +214,10 @@ export class PhoneEngine {
   }
 
   /** iOS closed the WebView's process, most likely for memory. Only a death
-   * during a route counts: an idle WebView is fair game for iOS. */
+   * during a route counts: an idle WebView is fair game for iOS, and so is
+   * one reading a zone ahead (`prepare`), which the next route reads again. */
   died(): void {
-    if (this.running !== null) {
+    if (this.running?.job.call === "plan") {
       this.deaths += 1;
     }
     this.restart("the engine was closed");
@@ -219,7 +260,16 @@ export class PhoneEngine {
       this.restart("the route took too long on the phone");
     }, job.timeoutMs);
     this.running = { job, timer };
-    this.link.send(pageCall("plan", { id: job.id, body: job.body, zones: job.zones }));
+    this.link.send(
+      job.warm === undefined
+        ? pageCall("plan", { id: job.id, body: job.body, zones: job.zones })
+        : pageCall("warm", {
+            id: job.id,
+            zones: job.zones,
+            activity: job.warm.activity,
+            point: [job.warm.point[0], job.warm.point[1]],
+          }),
+    );
   }
 
   /** Drops the WebView; the next request mounts a new one, unless it died
