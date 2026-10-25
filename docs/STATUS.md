@@ -1196,6 +1196,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   l'app scarica le stesse zone di oggi. I log del server (15 giorni):
   più di metà delle richieste di zona hanno `404`, cioè lì il server non
   ha una zona con 3 km intorno e il telefono non disegna.
+  **Parte E in `main` dalla #546** (`7da61107`, 2026-10-25, mergiata dal
+  coordinatore; la #541 della parte D è entrata con lei). La zona da 6 km
+  si accende quando il server si aggiorna (solo l'API, dopo Apple e con il
+  sì dell'utente); la lettura all'apertura vale già con il server di oggi.
+  Restano aperti: tempi e memoria su un iPhone vero, le impronte
+  telefono/server confrontate, il cuore senza rete sull'iPhone; e le zone
+  per i posti dove oggi il server risponde `404` (un seguito da proporre
+  all'utente). Da dove riprendere: `tasks/TASK-214.md`, «Esito».
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch
