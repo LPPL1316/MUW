@@ -19,12 +19,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
-import {
-  distanceLabel,
-  nearDistanceLabel,
-  wholeDistanceLabel,
-  withPoint,
-} from "../units/format";
+import { distanceLabel, nearDistanceLabel, wholeDistanceLabel } from "../units/format";
 import { type Units, appUnits } from "../units/units";
 import { useUnits } from "../units/useUnits";
 import {
@@ -99,10 +94,10 @@ export function kmLabel(distanceM: number): string {
   return wholeDistanceLabel(distanceM);
 }
 
-/** "640 m away", "1.4 km away"; with miles, "650 ft away", "0.9 mi away". */
+/** "640 m away", "1.4 km away"; with miles, "650 ft away", "0.9 mi away";
+ * in the app's language, with its comma: «a 1,4 km» (TASK-210, part H). */
 export function awayText(awayM: number): string {
-  // With a point, as the rest of this page: its texts are still in English.
-  return `${nearDistanceLabel(awayM, appUnits(), withPoint)} away`;
+  return t("{distance} away", { distance: nearDistanceLabel(awayM, appUnits()) });
 }
 
 /**
@@ -241,7 +236,7 @@ export function ExploreScreen({
       width={width}
       line={route.preview}
       rotationDeg={route.rotation_deg}
-      title={`${capitalised(routeTitle(route))} · ${distanceLabel(route.route_m, units, withPoint)}`}
+      title={`${capitalised(routeTitle(route))} · ${distanceLabel(route.route_m, units)}`}
       detail={`${cityName(route.city)} · ${awayText(route.away_m)}`}
       match={route.similarity}
       map
@@ -330,8 +325,9 @@ export function ExploreScreen({
         )}
         {list.status === "done" && routes.length === 0 && examplesCity === null && (
           <Text style={styles.note}>
-            No recommended routes near this start yet. Draw one: the best ones will show
-            up here.
+            {t(
+              "No recommended routes near this start yet. Draw one: the best ones will show up here.",
+            )}
           </Text>
         )}
         {/* Above the cards: there it is read without scrolling to their end. */}
@@ -384,7 +380,7 @@ export function ExploreScreen({
           (asking ? (
             <AskForRoute
               city={city}
-              where={city?.label ?? "your start"}
+              where={city?.label ?? t("your start")}
               onAsk={(text) => onAsk({ text, centre: near, city: city?.label ?? null })}
             />
           ) : (
@@ -481,7 +477,7 @@ const styles = StyleSheet.create({
 /** "5 km", "2.5 km" (with the language's comma); with miles, "3.1 mi". */
 export function kmOrMiles(metres: number, units: Units): string {
   if (units === "mi") {
-    return distanceLabel(metres, "mi", withPoint);
+    return distanceLabel(metres, "mi");
   }
   const km = metres / 1000;
   return `${decimal(km, Number.isInteger(km) ? 0 : 1)} km`;

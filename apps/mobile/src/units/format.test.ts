@@ -10,7 +10,6 @@ import {
   runDistanceLabel,
   shortDistanceLabel,
   wholeDistanceLabel,
-  withPoint,
 } from "./format";
 import { saveUnitsChoice } from "./units";
 
@@ -39,11 +38,6 @@ test("the languages with a comma write the distance with a comma", () => {
   expect(nearDistanceLabel(1440, "km")).toBe("1,4 km");
   saveLanguageChoice("de");
   expect(distanceLabel(21_097, "mi")).toBe("13,1 mi");
-  // A page still in English writes a point, as before the units.
-  expect(distanceLabel(21_097, "mi", withPoint)).toBe("13.1 mi");
-  expect(distanceLabel(5120, "km", withPoint)).toBe("5.1 km");
-  expect(nearDistanceLabel(1440, "km", withPoint)).toBe("1.4 km");
-  expect(nearDistanceLabel(640, "km", withPoint)).toBe("640 m");
   saveLanguageChoice("en");
   expect(distanceLabel(5200, "mi")).toBe("3.2 mi");
 });
