@@ -23,7 +23,11 @@ from typing import Any, Protocol
 import numpy as np
 
 from route_engine import pen_up, pieces
-from route_engine.errors import NoRoadsError, ShapeNotDrawableError
+from route_engine.errors import (
+    CollapsedShapeError,
+    NoRoadsError,
+    ShapeNotDrawableError,
+)
 from route_engine.geo import LatLon, latlon_to_local_array, local_to_latlon
 from route_engine.metrics import (
     CORNER_PENALTY,
@@ -416,7 +420,9 @@ class Search:
 
     @property
     def upright_best(self) -> Attempt:
-        """The best attempt of the upright stage of the search."""
+        """The best attempt of the upright stage of the search; the best of
+        all when that stage traced nothing, every outline on a single road
+        node (TASK-277)."""
         return self.upright or self.best
 
 
@@ -688,7 +694,9 @@ def search(
         bare = int((~mask.near_xy(corners, band)).sum()) if len(corners) else 0
         return fit - CORNER_PENALTY * bare - moved
 
-    def attempt(p: Placement, scale: float) -> Attempt:
+    def attempt(p: Placement, scale: float) -> Attempt | None:
+        """`p` traced at `scale`; None when its outline falls on a single
+        road node (TASK-277): no route, and no distance to rescale from."""
         shifts: tuple[tuple[float, float], ...] = ()
         if word is None:
             outline = placed(p, scale)
@@ -705,7 +713,10 @@ def search(
             place = pen_up.place_line if word.pen_up else project_shape
             outline = place(drawn, p.start, scale, p.rotation_deg)
             shifts = tuple((float(x), float(y)) for x, y in moved)
-        route = trace(outline)
+        try:
+            route = trace(outline)
+        except CollapsedShapeError:
+            return None
         if word is None:
             sim = similarity(route.points, outline)
         elif word.pen_up:
@@ -762,7 +773,10 @@ def search(
         for _ in range(MAX_RESCALES):
             if len(attempts) >= budget:
                 break
-            history.append(attempt(p, scale))
+            traced = attempt(p, scale)
+            if traced is None:
+                break  # on a single road node: no distance to aim from
+            history.append(traced)
             if abs(history[-1].ratio - 1) <= DISTANCE_TOLERANCE:
                 break
             new_scale = next_scale(history)
@@ -799,7 +813,10 @@ def search(
             scale = min(high, max(low, scale))
             if any(math.isclose(scale, a.scale_m, rel_tol=1e-3) for a in same):
                 return False
-            if good(attempt(p, scale)):
+            polished = attempt(p, scale)
+            if polished is None:
+                return False  # on a single road node at that scale
+            if good(polished):
                 return True
         return False
 
@@ -875,7 +892,8 @@ def search(
 
     if go(False, max_traces) or tilted_traces <= 0:
         return _done(attempts, good, distance_m)
-    upright = _done(list(attempts), good, distance_m).best
+    # None when every upright outline fell on a single road node.
+    upright = _done(list(attempts), good, distance_m).best if attempts else None
     upright_traces = len(attempts)
     go(True, max_traces + tilted_traces)
     found = _done(attempts, good, distance_m)
@@ -938,7 +956,11 @@ def _done(
     attempts: list[Attempt], good: Callable[[Attempt], bool], distance_m: float
 ) -> Search:
     """The cheapest attempt that meets both thresholds; failing that, the
-    cheapest within DISTANCE_FALLBACK_M of the target, if there is one."""
+    cheapest within DISTANCE_FALLBACK_M of the target, if there is one.
+    CollapsedShapeError when no outline was traced, each on a single road
+    node (TASK-277)."""
+    if not attempts:
+        raise CollapsedShapeError()
     good_ones = [a for a in attempts if good(a)]
     converged = bool(good_ones)
     within = [
@@ -1162,53 +1184,70 @@ def plan_shape(
     check_network(graph, activity)
     far: Search | None = None
     if optimize:
-        found = search(
-            graph,
-            shape,
-            start,
-            planned_m,
-            reuse_penalty=reuse_penalty,
-            max_tilt_deg=max_tilt_deg,
-            phases=phases,
-            word=word,
-            doubled=doubled_weight(name),
-        )
+        try:
+            found: Search | None = search(
+                graph,
+                shape,
+                start,
+                planned_m,
+                reuse_penalty=reuse_penalty,
+                max_tilt_deg=max_tilt_deg,
+                phases=phases,
+                word=word,
+                doubled=doubled_weight(name),
+            )
+        except CollapsedShapeError:
+            found = None  # every outline here on a single road node
+        looked_far = False
         # Only when nothing here can be drawn: look for a place farther away
         # (ADR-0040). A route here that is drawable but not good is kept
         # instead (ADR-0230): the far search took half the time of a long
         # request and gave a better route in a case out of six. Judged on
         # the upright search, as before TASK-232: a drawable route found
-        # tilted does not keep the far search out.
-        if not _drawable(found.upright_best, planned_m, kept):
+        # tilted does not keep the far search out. Nothing here at all
+        # when no outline could be traced (TASK-277).
+        if found is None or not _drawable(found.upright_best, planned_m, kept):
+            looked_far = True
             far_graph = source.load(
                 zone_area(shape, start, planned_m, FAR_OFFSET_M, word)
             )
             check_network(far_graph, activity)
-            far = search(
-                far_graph,
-                shape,
-                start,
-                planned_m,
-                max_traces=FAR_TRACES,
-                reuse_penalty=reuse_penalty,
-                max_tilt_deg=max_tilt_deg,
-                starts=far_starts(start),
-                phases=phases,
-                word=word,
-                doubled=doubled_weight(name),
-                # Upright only, as before TASK-232: tilting was tried
-                # where the user is, and the time stays within bounds.
-                tilted_traces=0,
-            )
+            try:
+                far = search(
+                    far_graph,
+                    shape,
+                    start,
+                    planned_m,
+                    max_traces=FAR_TRACES,
+                    reuse_penalty=reuse_penalty,
+                    max_tilt_deg=max_tilt_deg,
+                    starts=far_starts(start),
+                    phases=phases,
+                    word=word,
+                    doubled=doubled_weight(name),
+                    # Upright only, as before TASK-232: tilting was tried
+                    # where the user is, and the time stays within bounds.
+                    tilted_traces=0,
+                )
+            except CollapsedShapeError:
+                far = None  # nor there
             # The far route when it is good, or drawable where nothing
             # upright near the start was (a tilted one may have been: as
-            # before TASK-232, it does not keep the far one out).
-            if far.converged or _drawable(far.best, planned_m, kept):
+            # before TASK-232, it does not keep the far one out); any far
+            # route where nothing here was traced.
+            if far is not None and (
+                found is None or far.converged or _drawable(far.best, planned_m, kept)
+            ):
                 found, graph = far, far_graph
-        best = found.best
         what = f"a {distance_m / 1000:g} km {name} cannot be drawn here"
-        if far is not None:  # looked farther too
+        if looked_far:
             what += f", nor within {FAR_OFFSET_M / 1000:g} km"
+        if found is None:
+            raise CollapsedShapeError(
+                f"{what}: too few roads, the shape collapses onto a single "
+                "road node wherever it is placed"
+            )
+        best = found.best
         if best.similarity < MIN_SIMILARITY:
             raise ShapeNotDrawableError(
                 f"{what}: the best route scores "

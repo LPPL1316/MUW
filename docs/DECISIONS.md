@@ -8310,6 +8310,29 @@ entra qualche minuto prima dell'altra. (5) Quattro
 testi nuovi in fondo alle tabelle (dopo il merge della parte E):
 «{list} or {last}», «Start here», «NEAR {city}», «here».
 
+**Aggiunta** (2026-10-25, TASK-210 parte H, la chiusura; deciso
+dall'agente su delega dell'utente, testi approvati dall'utente il
+2026-10-25, «va bene procedi»): (1)
+**Le lettere dei punti cardinali** sul riquadro della corsa si traducono
+come i nomi (`tLater` in `runStats.ts`, `t()` dove si mostrano): «SO»,
+«O» in italiano, spagnolo e francese, «NO», «O», «SO» in tedesco; chi
+ascolta sente la parola («Direzione nord-est», anche in inglese «Heading
+north» invece di «Heading N»), come nella corsa senza percorso. (2)
+**Le mappe del Feed seguono la lingua**: `buildFeedMapPage(lingua)` con
+`mapStyle(lingua)`; la chiave di una foto prende `/it` (nulla in inglese,
+come `@bearing` per una mappa girata), così una foto in una lingua non
+sta per un'altra e tornando indietro quelle fatte restano; a un cambio
+di lingua la coda delle foto da fare si svuota e le schede le chiedono
+di nuovo. `MAP_STYLE` resta per i test e per le pagine fatte una volta.
+(3) **La virgola nelle schede**: tolto `withPoint`, che ADR-0182 teneva
+solo finché «Explore» e «Draw» erano in inglese. (4) **Un titolo salvato
+resta un dato**: «Image» dei preferiti si scrive in inglese e si mostra
+con `t()`; i titoli che dà l'API restano com'è. (5) **Restano in
+inglese** i titoli dei post d'esempio del Feed (testi di corridori
+inventati, come quelli degli iscritti), i nomi delle città nelle
+scorciatoie (parte C), i dettagli tecnici degli errori e i testi del
+server, che sono un seguito dell'API.
+
 ## ADR-0173 — Seguire con richiesta, l'API: una tabella `follows` con due stati, la ricerca per nome, gli elenchi solo propri
 **Stato**: Attiva · 2026-10-03 · deciso dall'agente su delega dell'utente
 (TASK-211, parte A), dentro due **scelte dell'utente** del 2026-10-03:
@@ -15624,6 +15647,61 @@ un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
 salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
 server, `draw_examples` e il motore sul telefono (TASK-214) vanno
 aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
+
+## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
+
+**Stato**: Attiva · 2026-10-11 · deciso dall'agente su delega dell'utente
+(TASK-277, un errore nei log dell'API del 2026-10-10). Aggiunta ad
+ADR-0040, con rimando ad ADR-0148, senza numero nuovo (Coordinatore).
+
+**Contesto**: due cerchi da 5 km su una zona di campagna appena scaricata
+da Overpass sono finiti `engine_error` in meno di un secondo. Tutti i punti
+di un contorno avevano lo stesso nodo stradale più vicino, e
+`snap_to_network` lo diceva con un `ValueError` qualunque: usciva dalla
+ricerca come un imprevisto, quindi niente altre posizioni, niente ricerca
+lontana, niente partenze vicine (`_start_tried` prende solo
+`ShapeNotDrawableError`), e l'app mostrava l'errore generico. Il motore del
+telefono ha lo stesso codice.
+
+**Decisione**:
+
+1. **È una forma che lì non si disegna.** `snap_to_network` lancia
+   `CollapsedShapeError` (`errors.py`), uno `ShapeNotDrawableError` con il
+   messaggio di prima: come `NoRoadsError` (ADR-0148), ogni chiamante la
+   tratta come «non si disegna» e l'API risponde `422
+   shape_not_drawable`. Resta un `ValueError`, per chi lo prendeva così.
+2. **Il tentativo non c'è.** In `search` un contorno che collassa non dà
+   né percorso né distanza da cui riscalare: si passa alla posizione dopo
+   (la rifinitura di quella posizione si ferma), senza consumare il budget
+   dei tracciamenti. Se nessun contorno si traccia, `search` lancia
+   `CollapsedShapeError`.
+3. **Poi la ricerca lontana.** Se vicino non si è tracciato niente,
+   `plan_shape` cerca entro 2 km come quando niente vicino è disegnabile;
+   lì vince qualunque percorso, perché vicino non ce n'era. Se nemmeno lì
+   si traccia niente: «a 5 km circle cannot be drawn here, nor within 2
+   km: too few roads, the shape collapses onto a single road node wherever
+   it is placed», senza distanza suggerita.
+4. **Dritta vuota, inclinata no.** Se la fase dritta (ADR-0195) non
+   traccia niente e quella inclinata sì, la ricerca è quella inclinata, e
+   un suo percorso disegnabile tiene fuori la ricerca lontana come un
+   percorso vicino qualunque (ADR-0230). La regola «si giudica la fase
+   dritta» serviva a tenere identici i percorsi di prima del TASK-232:
+   qui prima c'era solo l'errore.
+5. **Le lettere col pennello alzato non cambiano**: una lettera che cade
+   su un nodo solo resta quel nodo (`pen_up._trace_letter`).
+
+**Alternative scartate**: dare al tentativo collassato un percorso finto
+di un nodo, con somiglianza 0 (la distanza 0 rompe il passo di
+riscalatura, e quel percorso finirebbe fra i tentativi e negli avvisi);
+riconoscere l'errore dal testo del `ValueError` (fragile); prenderlo solo
+in `nearby_starts` (niente ricerca lontana, e `plan_route` fallirebbe
+ancora).
+
+**Conseguenze**: ogni altro percorso resta identico (test del motore,
+digest fissati, 16 richieste confrontate con `main`, esempi in canoa).
+La fingerprint del motore cambia: dopo l'aggiornamento del server va
+rifatto `draw_examples`; il telefono ha il motore nuovo con la prossima
+pubblicazione dell'app.
 
 ## ADR-0260 — Il primo concorso: il post con più reazioni vince un premio senza valore, deciso dal server
 

@@ -452,6 +452,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nella 1.0.
   **Chiuso il 2026-10-15**: #508 in `main` (8295312f); vedi
   «Completato». Pubblica il Coordinatore.
+- **TASK-277 — Un contorno che cade su un nodo solo non si disegna, e la
+  ricerca va avanti** (aggiunta ad ADR-0040, con rimando ad ADR-0148; da
+  un `engine_error` nei log dell'API del 2026-10-10: due cerchi da 5 km su
+  una zona di campagna scaricata al volo). Branch
+  `fix/TASK-277-collapsed-outline`. Il motore lancia `CollapsedShapeError`
+  (uno `ShapeNotDrawableError`) invece di un `ValueError`; la ricerca salta
+  quel tentativo, poi cerca entro 2 km, e se niente si traccia risponde
+  `shape_not_drawable` con un messaggio chiaro. Ogni altro percorso
+  identico; `engine.zip` e `paddleExamples.json` rifatti (solo la
+  fingerprint). **Ferma** fino all'approvazione Apple della 1.0 e agli ok
+  dell'utente; entra dopo la #489 (TASK-271), e allora i due file si
+  rifanno su `main`. Dopo il merge: server, `draw_examples`, pubblicazione
+  dell'app (Coordinatore). File: `tasks/TASK-277.md`, «File toccati».
+  **Chiuso**: in `main` con la #497 (2026-10-25, «finiscilo»
+  dell'utente), dopo la #489; server, `draw_examples` e motore sul
+  telefono restano al Coordinatore; vedi «Completato».
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
@@ -1076,6 +1092,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (2026-10-03), sapendo che fino all'ultima parte un telefono in italiano
   vede l'app mezza in italiano e mezza in inglese. Da dove riprendere:
   `tasks/TASK-210.md`.
+  **Chiuso** (2026-10-25) con la **parte H** (branch
+  `feat/TASK-210-h-last-texts`, PR #545): gli ultimi testi rimasti in inglese, il
+  Feed e la virgola delle schede; vedi «Completato».
 
 - **TASK-214 — Il motore dei percorsi sul telefono** (ADR-0177; chiesto
   dall'utente il 2026-10-03). Il telefono disegna da sé forme e parole su
@@ -1134,6 +1153,32 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-210 parte H, la chiusura della lingua dell'app (aggiunta
+  ad ADR-0172): letto tutto il codice dell'app in cerca di testi fuori da
+  `t()`, tradotti gli ultimi che si vedono o si sentono: la riga sotto la
+  partenza di «Draw» (`location/startStatus.ts`, prima in `App.tsx`),
+  «PARTENZA», «La mia posizione», «Un altro posto», la nota senza
+  percorsi consigliati e «a 1,4 km» in «Explore», l'attesa del percorso a
+  tema, «47% disegnato», le lettere della direzione («SO», «O») e
+  «mancano 3,2 km» nella corsa, «Pagaia ·» e «Bici ·» nel Feed,
+  «Immagine» fra i preferiti, VoiceOver dopo «Save». Le mappe del Feed
+  seguono un cambio di lingua; le schede di «Explore» e «Draw» scrivono
+  la virgola («5,2 km»). 23 testi nuovi. **TASK-210 è Done**; seguiti
+  fuori scope nel task file: le traduzioni dell'API (percorsi a tema,
+  errori, Strava, push, email), il francese fra «tu» e «vous».
+  `tasks/TASK-210.md`.
+- **Motore** — TASK-277 (aggiunta ad ADR-0040, con rimando ad ADR-0148;
+  da un `engine_error` nei log dell'API del 2026-10-10): un contorno che
+  cade su un solo nodo stradale dà `CollapsedShapeError` (uno
+  `ShapeNotDrawableError`) invece di un errore generico; la ricerca salta
+  quel tentativo, poi cerca entro 2 km, e se niente si traccia risponde
+  `shape_not_drawable` con un messaggio chiaro. Ogni altro percorso
+  identico. Mergiata il 2026-10-25 su «finiscilo» dell'utente, dopo la
+  #489, con `engine.zip` rifatto e `paddleExamples.json` ridisegnato
+  (cambia solo l'impronta `engine`, gli esempi sono identici). In `main`,
+  **non ancora sul server**: aggiornamento, `draw_examples` e motore sul
+  telefono restano al Coordinatore dopo Apple e con il sì dell'utente,
+  insieme a quelli di TASK-271. PR #497. `tasks/TASK-277.md`.
 - **Motore** — TASK-271 (aggiunta ad ADR-0045; dalla prima recensione di
   un tester del 2026-10-10): la voce dice «Make a U-turn» anche dove il
   percorso torna indietro fuori da un incrocio, in fondo a un vicolo cieco
