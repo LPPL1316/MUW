@@ -4,10 +4,12 @@
 PUT /me/notifications keeps «Email notifications», «Push notifications»
 and «Email when I'm away» of «Settings»: only what is sent changes. The
 first two are off until their owner turns them on. push.py reads «Push
-notifications» before sending a push (TASK-262); no email of the news is
-sent yet. «Email when I'm away» is on until its owner turns it off, here,
-at sign-up or with the link of the email: away_email.py reads it before
-the one email to who has not opened the app for two weeks (TASK-284).
+notifications» before sending a push (TASK-262); notice_email.py reads
+«Email notifications» before keeping an event for the daily email of the
+notices (TASK-262 B). «Email when I'm away» is on until its owner turns it
+off, here, at sign-up or with the link of the email: away_email.py reads
+it before the one email to who has not opened the app for two weeks
+(TASK-284).
 
 Only its owner reads them, in GET /me: never a profile, a search or a list.
 """

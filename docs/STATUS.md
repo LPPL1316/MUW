@@ -157,6 +157,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-262 parte B — L'email delle notifiche, una al giorno**
+  (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
+  al giorno, la lingua come l'email di ritorno; conferma dell'email e
+  password dimenticata a parte, TASK-300). Branch `feat/TASK-262-b-email`,
+  solo API: le cinque notizie delle push tenute in `email_notices`
+  (migrazione `0028_email_notices.sql`, numero da controllare al merge)
+  per chi ha «Email notifications» acceso, un giro al giorno alle 18:00
+  UTC, una email al massimo per account e giorno, il link per spegnerla.
+  Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
+  «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
+  File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -271,6 +282,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
   iscritti e i testi delle tre push sono approvati dall'utente
   (2026-10-24). Server dopo Apple, con l'ok dell'utente.
+  **Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
+  Coordinatore su richiesta dell'utente a CI verde. Restano D ed E.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
@@ -1137,7 +1150,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   vede l'app mezza in italiano e mezza in inglese. Da dove riprendere:
   `tasks/TASK-210.md`.
   **Chiuso** (2026-10-25) con la **parte H** (branch
-  `feat/TASK-210-h-last-texts`, PR #545): gli ultimi testi rimasti in inglese, il
+  `feat/TASK-210-h-last-texts`, PR #545, merge `52953c47`): gli ultimi testi rimasti in inglese, il
   Feed e la virgola delle schede; vedi «Completato».
 
 - **TASK-214 — Il motore dei percorsi sul telefono** (ADR-0177; chiesto
@@ -1200,6 +1213,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   l'app scarica le stesse zone di oggi. I log del server (15 giorni):
   più di metà delle richieste di zona hanno `404`, cioè lì il server non
   ha una zona con 3 km intorno e il telefono non disegna.
+  **Parte E in `main` dalla #546** (`7da61107`, 2026-10-25, mergiata dal
+  coordinatore; la #541 della parte D è entrata con lei). La zona da 6 km
+  si accende quando il server si aggiorna (solo l'API, dopo Apple e con il
+  sì dell'utente); la lettura all'apertura vale già con il server di oggi.
+  Restano aperti: tempi e memoria su un iPhone vero, le impronte
+  telefono/server confrontate, il cuore senza rete sull'iPhone; e le zone
+  per i posti dove oggi il server risponde `404` (un seguito da proporre
+  all'utente). Da dove riprendere: `tasks/TASK-214.md`, «Esito».
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch
