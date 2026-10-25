@@ -523,6 +523,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   merge, con l'ok dell'utente: server, `draw_examples`, motore sul
   telefono; i percorsi già in cache tengono le indicazioni vecchie. Non
   nella 1.0. File: `tasks/TASK-271.md`, «File toccati».
+  **Chiuso**: in `main` con la #489 (2026-10-25, «ok finiscilo»
+  dell'utente); server, `draw_examples` e motore sul telefono restano al
+  Coordinatore; vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -1097,6 +1100,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Motore** — TASK-271 (aggiunta ad ADR-0045; dalla prima recensione di
+  un tester del 2026-10-10): la voce dice «Make a U-turn» anche dove il
+  percorso torna indietro fuori da un incrocio, in fondo a un vicolo cieco
+  o su un nodo con due strade; le altre curve fuori dagli incroci restano
+  in silenzio. Nessun testo nuovo. Mergiata il 2026-10-25 su «ok
+  finiscilo» dell'utente, con `engine.zip` rifatto e `paddleExamples.json`
+  ridisegnato (cambia solo l'impronta `engine`, gli esempi sono
+  identici). In `main`, **non ancora sul server**: aggiornamento,
+  `draw_examples` e motore sul telefono (pubblicazione dell'app) restano al
+  Coordinatore dopo Apple e con il sì dell'utente; i percorsi già
+  calcolati tengono le indicazioni vecchie finché non si rifanno. PR #489.
+  `tasks/TASK-271.md`.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
