@@ -123,7 +123,8 @@ vedono la scheda.
 L'App Store (linea guida 5.3: i concorsi dentro un'app sono del
 developer, con il regolamento nell'app e la frase che Apple non è sponsor
 né coinvolta) e Google Play chiedono un regolamento visibile. Si apre da
-«How it works» e dice: chi organizza (MuW e il nome che l'utente sceglie),
+«How it works» e dice: chi organizza (MuW, Luca Pallaoro: il nome dato
+dall'utente il 2026-10-25),
 le date, chi partecipa e come, come si vince e i pari merito, che il
 premio non ha valore in denaro, che MuW può escludere un post che viola le
 regole, e che **Apple e Google non sponsorizzano il concorso e non vi sono

@@ -185,11 +185,13 @@ che li usa (A la push, B il resto) e vanno approvati con lei.
 |---|---|
 | You won the MuW contest! Your post got the most reactions. | Hai vinto il concorso MuW! Il tuo post ha avuto più reazioni di tutti. |
 
-**Il regolamento ufficiale** (parte B; `{organizer}` lo dice l'utente,
-`{start}` e `{end}` sono le date del concorso nella lingua del telefono):
+**Il regolamento ufficiale** (parte B; l'organizzatore lo ha dato
+l'utente il 2026-10-25: «L'organizzatore nel regolamento è Luca
+Pallaoro»; `{start}` e `{end}` sono le date del concorso nella lingua del
+telefono):
 
 > **MuW contest — official rules**
-> Organised by MuW ({organizer}). Runs from {start} to {end}.
+> Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.
 > Anyone with a MuW account can take part, for free, by publishing a run
 > for everyone in the app during the contest.
 > At the end, the post with the most reactions from other members wins.
@@ -202,7 +204,7 @@ che li usa (A la push, B il resto) e vanno approvati con lei.
 > in it in any way.
 
 > **Concorso MuW — regolamento**
-> Organizzato da MuW ({organizer}). Dal {start} al {end}.
+> Organizzato da MuW (Luca Pallaoro). Dal {start} al {end}.
 > Partecipa gratis chi ha un account MuW, pubblicando una corsa per tutti
 > nell'app durante il concorso.
 > Alla fine vince il post con più reazioni degli altri iscritti. Conta una
