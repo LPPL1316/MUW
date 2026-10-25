@@ -9,6 +9,6 @@
     "bio": "",
     "public_id": "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13",
     "phone": null,
-    "notifications": { "email": false, "push": false }
+    "notifications": { "email": false, "push": false, "away": true }
   }
 }

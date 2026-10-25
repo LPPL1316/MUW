@@ -538,6 +538,13 @@ export interface SignUpRequest {
   username: string;
   /** The "I am at least 16" box (ADR-0114): false is refused. */
   at_least_16: boolean;
+  /**
+   * The box «Don't send me these emails» (TASK-284): false when ticked.
+   * Without it, «Email when I'm away» is on.
+   */
+  away_email?: boolean;
+  /** The app's language, for the texts of the emails; English without it. */
+  language?: PushLanguage | null;
 }
 
 /** The limits of a password, checked by the API too. */
@@ -586,11 +593,18 @@ export interface User {
 /**
  * What an account chose about being notified (TASK-185): both off until
  * turned on. With «Push notifications» on the API sends push notifications
- * to the phones of the account (TASK-262); no email is sent yet.
+ * to the phones of the account (TASK-262); no email of the news is sent
+ * yet.
  */
 export interface Notifications {
   email: boolean;
   push: boolean;
+  /**
+   * «Email when I'm away» (TASK-284): one email after two weeks without
+   * opening the app, with what is new. On until turned off. Missing from
+   * an API older than TASK-284: on.
+   */
+  away?: boolean;
 }
 
 /**
@@ -600,6 +614,8 @@ export interface Notifications {
 export interface NotificationsRequest {
   email?: boolean;
   push?: boolean;
+  /** «Email when I'm away» (TASK-284). */
+  away?: boolean;
 }
 
 /**
@@ -1137,4 +1153,33 @@ export interface RunGame {
   counted_m: number;
   best_s: Record<string, number>;
   unlocked: string[];
+}
+
+/** The most hashes one POST /people/from-contacts takes (TASK-262 C). */
+export const CONTACT_HASHES_MAX = 500;
+
+/**
+ * POST /people/from-contacts (TASK-262 C, ADR-0226): the phone numbers of
+ * the phone's contacts, each written in E.164 and hashed with SHA-256, in
+ * lower-case hex. The server compares them with the SHA-256 of the numbers
+ * the members saved (TASK-183) and keeps none of them: neither in the
+ * database nor in a log.
+ */
+export interface ContactsPeopleRequest {
+  /** 1 to CONTACT_HASHES_MAX, each 64 lower-case hex digits. */
+  hashes: string[];
+}
+
+/** A member found from the contacts, and where the one who asks stands towards it. */
+export interface ContactPerson extends Person {
+  follow: FollowState;
+}
+
+/**
+ * The answer of POST /people/from-contacts: the members who saved one of
+ * the numbers, by name; never the one who asks, nor one it blocked or
+ * that blocked it.
+ */
+export interface ContactsPeople {
+  people: ContactPerson[];
 }

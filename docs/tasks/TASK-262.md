@@ -1,6 +1,6 @@
 # TASK-262 — Le notifiche inviate davvero: push, email, amici dalla rubrica
 
-**Stato**: Parte A Done (2026-10-10, PR #451) · B e C Todo
+**Stato**: Parte A Done (2026-10-10, PR #451) · C Done (2026-10-25, PR #461) · B Todo
 **Fase**: 4 · **Branch**: `feat/TASK-262-a-push` (parte A)
 **Dipende da**: TASK-185 (i due interruttori), TASK-211 (follow),
 TASK-119 (reazioni), TASK-120 (commenti), TASK-208 (tag), TASK-121
@@ -204,13 +204,218 @@ La chiave `RESEND_API_KEY` la scrive l'utente nel `.env` del server;
 `.env.example` ne ha il nome. Da decidere: la lingua delle email (l'API
 la sa solo dai token push), il mittente e il dominio (`getmuw.app`).
 
-## Parte C — amici dalla rubrica (Todo)
+## Parte C — amici dalla rubrica (Done)
 
-`expo-contacts`, i numeri in E.164 confrontati come hash con
-`users.phone` (TASK-183). Prima di cominciare serve un nuovo sì esplicito
-dell'utente.
+**Branch** `feat/TASK-262-c-contacts`, PR #461 · ADR-0226 (aggiunta).
+**Scelte dell'utente**: il 2026-10-07 l'ordine A push → B email → C
+rubrica, con `expo-contacts` e i numeri come hash; il **2026-10-08** ha
+scelto C (e non B per ora), che è il suo **sì esplicito alla dipendenza
+`expo-contacts` e alla ricerca dalla rubrica**; il **2026-10-09** «i
+testi vanno bene, interesse legittimo ok»: i nove testi nelle cinque
+lingue, la domanda di iOS solo in inglese e la privacy con il confronto
+dei numeri sotto l'interesse legittimo; il **2026-10-10** «sì, va bene il
+10 ottobre»: la privacy finale con la data del 10 ottobre 2026, unita ai
+testi di TASK-267 B, della parte A e di TASK-269. La **1.0 dello store esce senza
+rubrica** (scelta dell'utente del 2026-10-09): la PR entra dopo che la
+build 5 è partita, poi va su preview; su production con una 1.0.1.
+
+### Cosa fa
+
+- **App**: in «Find friends», sotto la ricerca per nome, «FROM YOUR
+  CONTACTS» con «Find friends in your contacts». Il permesso della
+  rubrica si chiede **solo a quel tocco**. L'app legge solo i numeri, li
+  scrive in E.164 con il prefisso della regione del telefono, ne fa lo
+  SHA-256 e li manda 500 per volta (al più 10 richieste); gli iscritti
+  trovati hanno foto, nome (apre il profilo) e «Follow». In un'app
+  costruita senza `expo-contacts` (la 1.0 dello store) la sezione non si
+  vede: il modulo si carica solo al primo uso e solo se il binario lo ha
+  (richiesta del coordinatore del 2026-10-10). `UI.md`.
+- **API**: `POST /people/from-contacts {hashes}` (`contact_people.py`):
+  confronto con lo SHA-256 di `users.phone`, mai chi chiede, mai fra
+  bloccati nei due versi, solo chi ha salvato un numero; 30 richieste
+  all'ora per account; **gli hash ricevuti non si tengono e non si
+  scrivono in nessun log**. `API.md`, «People from the contacts».
+- **Privacy** (cinque lingue, le pagine di `site/privacy/` rigenerate):
+  la sezione «Friends from your contacts» e la frase onesta che l'hash di
+  un numero si inverte provando tutti i numeri, quindi la protezione vera
+  è che il server non tiene niente. La data è quella del merge.
+
+### La prova
+
+- **jest**: SHA-256 contro lo standard e contro Node; E.164 in tanti modi
+  di scrivere (spazi, trattini, parentesi, «00», «+», interni, segni di
+  direzione) e paesi; gli hash che escono, ognuno una volta, mai il
+  numero; il permesso solo al tocco; «Follow» com'è; nessun numero, un no,
+  un no per sempre, un'API senza l'endpoint, la sessione finita.
+- **pytest** (database vero, `test_contact_people.py`, 11 test): un
+  numero salvato trova l'account (anche salvato come «0039 333 123
+  4567»), un numero di nessuno non trova niente, mai sé stessi, il blocco
+  nei due versi, **gli hash assenti da ogni tabella, dai log e dal
+  registro delle richieste**, il limite all'ora, `401` senza token.
+- **Nel simulatore** (2026-10-10, iPhone 17e, Expo Go SDK 57, l'API del
+  branch su un PostGIS usa e getta, tre contatti con `simctl addmedia`:
+  «333 123 4567», «0039 0461 123456», «+39 347 000 0000», più i sei di
+  esempio): aprendo «Find friends» nessuna domanda; la domanda solo al
+  tocco (il testo è quello di Expo Go: quello di MuW si vede solo in una
+  build nativa), poi «Share All / Select Contacts» di iOS 18; trovati
+  Ada_runs e Bea_trento con «Follow», il numero di nessuno niente;
+  «Follow» → «Requested»; nel log dell'API solo `POST
+  /people/from-contacts 200`, nessun hash, e nessuno nel `pg_dump`.
+  Visto: la tastiera del campo del nome resta aperta (il suo `autoFocus`
+  di TASK-215) e copre una lista lunga finché non si trascina.
+
+### Criteri di accettazione (parte C)
+
+- [x] Un contatto con il numero di un account lo trova, scritto con o
+      senza spazi e prefisso (jest, pytest, simulatore).
+- [x] Un numero di nessuno non trova niente.
+- [x] Gli hash ricevuti non sono nel database né nel log delle
+      richieste (test).
+- [x] Un account bloccato non compare mai, nei due versi (test).
+- [x] Il permesso si chiede solo al tocco (test, simulatore).
+- [x] Testi nuovi mostrati all'utente nelle cinque lingue e approvati
+      (2026-10-09).
+- [x] Test verdi in API e app (CI 6/6 del 2026-10-10).
+- [x] L'impronta iOS della 1.0 resta `83793e26`, misurata su una copia
+      pulita con `npm ci` (2026-10-25).
+
+### File toccati (parte C)
+
+```
+apps/mobile/package.json, package-lock.json         (expo-contacts)
+apps/mobile/app.json                                (plugin, contactsPermission)
+apps/mobile/__mocks__/expo-contacts.ts              (nuovo)
+apps/mobile/src/contacts/*                          (nuovi: sha256, phoneNumbers, contactHashes, phoneContacts, con i test)
+apps/mobile/src/api/contactsPeople.ts (+ test)      (nuovi)
+apps/mobile/src/social/ContactsFriends.tsx (+ test) (nuovi)
+apps/mobile/src/screens/PeopleScreen.tsx
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts     (righe in fondo)
+apps/mobile/src/about/content/*.ts                  (privacy)
+apps/mobile/src/about/AboutPage.test.tsx, documents.test.ts
+site/privacy/**/index.html                          (rigenerate da make_privacy.mjs)
+site/tests/privacy.test.mjs                         (la data; ok del coordinatore)
+packages/shared-types/src/index.ts
+packages/shared-types/fixtures/contacts-people.json, contacts-people-request.json   (nuovi)
+packages/shared-types/test/contactsPeople.test.ts   (nuovo)
+services/api/shaperoute_api/contact_people.py       (nuovo)
+services/api/shaperoute_api/app.py                  (install_contact_people)
+services/api/tests/test_contact_people.py           (nuovo)
+docs/API.md, docs/UI.md, docs/STATUS.md, docs/DECISIONS.md (ADR-0226, aggiunta)
+docs/tasks/TASK-262.md                              (questa sezione)
+```
+
+### Dove si è (2026-10-10)
+
+PR #461 **pronta** (CI 6/6, CLEAN, allineata a `main` dopo la #482), ma
+**ferma per scelta del coordinatore fino all'approvazione di Apple della
+1.0** (1–2 giorni): l'app chiamerebbe un endpoint che il server non ha
+ancora, e il server e la privacy pubblica non si toccano durante la
+revisione. Dopo l'approvazione: il coordinatore chiede all'utente l'ok
+per il server → «merge 461» → server (`contact_people.py`, nessuna
+migrazione), copia F.14 del sito, pubblicazione su preview; più avanti la
+1.0.1 nativa con `expo-contacts`.
+
+Per chi riprende:
+
+1. Se `main` mette la PR in conflitto: unire `origin/main` tenendo tutte
+   le voci (le righe nuove di `i18n/*` dopo quelle di `main`, le voci di
+   STATUS e DECISIONS di tutti), poi `node site/tools/make_privacy.mjs`.
+2. **La data della privacy** è quella del merge: l'utente ha approvato il
+   10 ottobre 2026. Se il merge è un altro giorno, cambiare le cinque
+   `PRIVACY_UPDATED` di `about/content/*.ts`, `AboutPage.test.tsx`,
+   `documents.test.ts` e `site/tests/privacy.test.mjs`, rigenerare
+   `site/privacy/` e **richiedere il sì dell'utente su quella data**.
+3. Merge solo dopo il «merge 461» del coordinatore, poi questa parte a
+   Done, la voce in «Completato» di STATUS e «TASK-262 C fatto».
+
+### Dove si è (2026-10-25)
+
+Il 2026-10-25 l'utente ha chiesto di portare la #461 in `main` («fallo»),
+salvo l'impronta della build. Fatto:
+
+- **`origin/main` unito** (`7a4bbef8`, 173 commit dal 2026-10-10):
+  conflitti solo in `i18n/de, es, fr, it` (le righe di `main` di TASK-280,
+  281, 285 B, 292, 295, 296, poi le nostre), `shared-types/src/index.ts`
+  (i tipi del gioco di TASK-296, poi i nostri), `app.py`
+  (`install_game`, poi `install_contact_people`) e `STATUS.md` (tutte e
+  due le voci). Privacy, `package.json`, `package-lock.json`, `app.json`,
+  `PeopleScreen.tsx` e `contact_people.py` uniti senza conflitti; in
+  `main` la privacy non era cambiata dal 10 ottobre, e «Find friends» si
+  apre ancora dalla lente di «Feed», come dice il testo.
+- **Data della privacy**: 25 ottobre 2026 nelle cinque `PRIVACY_UPDATED`,
+  in `AboutPage.test.tsx`, `documents.test.ts`, `site/tests/privacy.test.mjs`
+  e nelle pagine di `site/privacy/` rigenerate (`2556ba5e`). «Terms» resta
+  al 10 ottobre. Se il merge avviene un altro giorno, la data va spostata
+  di nuovo allo stesso modo.
+- In locale verdi: jest (443 suite, 3596 test), lint, typecheck,
+  `format:check`, i test del sito (43).
+- **L'impronta iOS cambia**, misurata in due worktree puliti con `npm ci`
+  (DEPLOY A.7): `main` (`88b63b6e`) dà `83793e26fc0d…` (quella della 1.0
+  in revisione), questo branch `9337973a0af4…`. Cambiano
+  `expoAutolinkingConfig:ios`, `expoConfig` (il plugin con
+  `contactsPermission`) e i file nativi di `expo-contacts`. Con questa PR
+  in `main`, un `eas update` di production da `main` non raggiungerebbe più
+  la 1.0. Quindi **niente merge**: domanda all'utente.
+- **Una terza strada, misurata**: con `expo-contacts` escluso dalla build
+  nativa (`"expo": {"autolinking": {"exclude": ["expo-contacts"]}}` in
+  `apps/mobile/package.json`) e senza il suo plugin in `app.json`,
+  l'impronta torna `83793e26`. Il pacchetto JS resta, quindi Metro lo
+  trova; nella 1.0 il modulo nativo manca e la sezione non si vede (come
+  già previsto, `phoneContacts.ts`); in Expo Go c'è. Alla build 1.0.1 si
+  toglie l'esclusione e si rimette il plugin. Non applicata: aspetta la
+  scelta dell'utente.
+- **Scelta dell'utente, 2026-10-25: «vai con la c»** (consigliata anche
+  dal coordinatore, con le due condizioni: la sezione nascosta senza il
+  modulo nativo, già provata da `ContactsFriends.test.tsx` e
+  `phoneContacts.test.ts`; il promemoria qui sotto). Applicata: esclusione
+  in `apps/mobile/package.json`, plugin tolto da `app.json` (ora uguale a
+  quello di `main`), `package-lock.json` invariato. ADR-0226, aggiunta del
+  2026-10-25. Le righe gemelle in `tasks/TASK-152.md` e `tasks/TASK-294.md`
+  le mettono il coordinatore e la sessione di Google Play, padroni di quei
+  file.
+
+### Alla prossima build nativa (promemoria)
+
+Finché `expo-contacts` è escluso, nessuna build lo contiene e la ricerca
+dalla rubrica non si vede. Prima della **1.0.1 iOS** e della **prima build
+Android di TASK-294 B**:
+
+1. in `apps/mobile/package.json` togliere il blocco
+   `"expo": {"autolinking": {"exclude": ["expo-contacts"]}}`;
+2. in `apps/mobile/app.json`, in fondo a `plugins`, rimettere:
+
+   ```json
+   [
+     "expo-contacts",
+     {
+       "contactsPermission": "MuW reads only the phone numbers of your contacts, when you tap «Find friends in your contacts», to find friends who are on MuW. The numbers leave the phone coded and the server keeps none."
+     }
+   ]
+   ```
+
+3. misurare l'impronta (DEPLOY A.7): cambia, ed è giusto così. Da quel
+   momento gli update di production arrivano solo alla build nuova, che
+   passa dalla revisione di Apple.
+
+### Fuori scope della parte C
+
+- La domanda di iOS nelle cinque lingue (oggi solo inglese, come le
+  altre).
+- Una colonna con l'hash in `users` per molti account.
+- La tastiera aperta di «Find friends» sopra la lista (comportamento di
+  TASK-215).
 
 ## Esito
+
+**Parte C fatta il 2026-10-25**: PR #461, in `main` con `expo-contacts`
+escluso dalla build nativa (scelta dell'utente), così l'impronta iOS
+resta `83793e26` e gli update arrivano ancora alla 1.0. Privacy datata 25
+ottobre 2026 nelle cinque lingue e sul sito; test verdi in app, sito,
+contratto e API. La ricerca dalla rubrica si vede su preview (Expo Go);
+nelle build dello store solo dopo il «promemoria» della parte C.
+**Restano** (del coordinatore, con l'ok dell'utente): il server con
+`contact_people.py` (nessuna migrazione), la copia del sito (F.14), la
+pubblicazione su preview.
 
 **Parte A fatta il 2026-10-10**: PR #451, in `main` con il merge
 `578c2f7e` (dopo TASK-121, #457, e #475). Le push partono: tabella

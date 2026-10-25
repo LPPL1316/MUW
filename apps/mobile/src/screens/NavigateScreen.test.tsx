@@ -99,7 +99,9 @@ test("under the turn: how much of the drawing is done, and the heading", async (
   expect(
     screen.getByText(`${Math.round((1900 / total) * 100)}% drawn`),
   ).toBeOnTheScreen();
-  expect(screen.getByLabelText("Heading N")).toBeOnTheScreen();
+  // The letter on the chip, the word to who listens, as on a free run.
+  expect(screen.getByLabelText("Heading north")).toBeOnTheScreen();
+  expect(screen.getByText("N")).toBeOnTheScreen();
   // The turn is still what it was.
   expect(
     screen.getByText("Turn left onto the footpath beside Via Rosmini"),

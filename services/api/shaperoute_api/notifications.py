@@ -1,10 +1,13 @@
-"""The two notification switches of an account, changed by their owner
+"""The notification switches of an account, changed by their owner
 (TASK-185, ADR-0206, docs/API.md, «Notifications»).
 
-PUT /me/notifications keeps «Email notifications» and «Push notifications»
-of «Settings»: only what is sent changes. Both are off until their owner
-turns them on. push.py reads «Push notifications» before sending a push
-(TASK-262); no email is sent yet: this server has no mail service.
+PUT /me/notifications keeps «Email notifications», «Push notifications»
+and «Email when I'm away» of «Settings»: only what is sent changes. The
+first two are off until their owner turns them on. push.py reads «Push
+notifications» before sending a push (TASK-262); no email of the news is
+sent yet. «Email when I'm away» is on until its owner turns it off, here,
+at sign-up or with the link of the email: away_email.py reads it before
+the one email to who has not opened the app for two weeks (TASK-284).
 
 Only its owner reads them, in GET /me: never a profile, a search or a list.
 """
@@ -41,6 +44,9 @@ class NotificationsRequestBody(BaseModel):
     push: StrictBool | None = Field(
         default=None, description="«Push notifications»: on or off."
     )
+    away: StrictBool | None = Field(
+        default=None, description="«Email when I'm away»: on or off."
+    )
 
 
 @dataclass
@@ -56,9 +62,10 @@ class Notifications:
             row = conn.execute(
                 "UPDATE users SET"
                 " notify_email = COALESCE(%s::boolean, notify_email),"
-                " notify_push = COALESCE(%s::boolean, notify_push)"
+                " notify_push = COALESCE(%s::boolean, notify_push),"
+                " notify_away = COALESCE(%s::boolean, notify_away)"
                 f" WHERE id = %s RETURNING {USER_COLUMNS}",
-                (body.email, body.push, user_id),
+                (body.email, body.push, body.away, user_id),
             ).fetchone()
         if row is None:
             # The account was deleted between its token and this change.

@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 octobre 2026";
-/** «Privacy» is final since the user approved it on this day (TASK-237 D; without ads, TASK-267 B). */
-const PRIVACY_UPDATED = "10 octobre 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
+const PRIVACY_UPDATED = "25 octobre 2026";
 
 const help: AboutDocument = {
   title: "Comment fonctionne MuW",
@@ -285,8 +285,17 @@ const privacy: AboutDocument = {
       heading: "Ton numéro de téléphone (facultatif)",
       blocks: [
         "Tu peux ajouter un numéro de téléphone dans «Réglages». Il est facultatif : l'app fonctionne de la même façon sans lui.",
-        "Il est privé : toi seul le vois. Il n'est jamais sur ton profil, dans la recherche ni dans aucune liste. Il sert à ce que les amis qui ont déjà ton numéro puissent trouver ton compte, avec une recherche depuis les contacts du téléphone qui n'existe pas encore.",
+        "Il est privé : toi seul le vois. Il n'est jamais sur ton profil, dans la recherche ni dans aucune liste. Il sert à ce que les amis qui ont ton numéro dans les contacts de leur téléphone puissent trouver ton compte (voir «Des amis dans tes contacts»).",
         "Nous ne vérifions pas le numéro et nous n'y envoyons aucun message. Tu peux le retirer à tout moment depuis «Réglages» ; il est supprimé avec le compte.",
+      ],
+    },
+    {
+      heading: "Des amis dans tes contacts",
+      blocks: [
+        "Sous la loupe en haut de «Feed», «Trouver des amis dans tes contacts» cherche les membres dont le numéro est dans les contacts de ton téléphone. L'app demande les contacts au téléphone seulement quand tu le touches, et n'en lit que les numéros de téléphone : jamais les noms, les e-mails ni les photos.",
+        "Chaque numéro quitte le téléphone codé : écrit avec l'indicatif du pays et transformé en hash (SHA-256). Notre serveur compare les codes à ceux des numéros ajoutés par les membres, répond avec les membres trouvés et ne garde rien de ce qu'il a reçu : ni dans la base de données ni dans un journal.",
+        "Le hash d'un numéro de téléphone n'est pas un secret : qui aurait les codes pourrait retrouver les numéros en essayant tous les numéros possibles. C'est pourquoi la vraie protection est que notre serveur n'en garde aucun ; ils ne passent que par la connexion chiffrée.",
+        "Les numéros de tes contacts sont les données d'autres personnes : ils sont comparés une fois, pour trouver des comptes, puis oubliés. Pour empêcher quiconque d'essayer les numéros un à un, le serveur compte les recherches de chaque compte sur une heure, en mémoire seulement. Seuls les membres qui ont ajouté leur numéro peuvent être trouvés, et jamais quelqu'un que tu as bloqué ou qui t'a bloqué.",
       ],
     },
     {
@@ -383,7 +392,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Pour te fournir le service que tu demandes (contrat) : ton compte, ton profil, les parcours que tu demandes, et les courses, favoris, commentaires, réactions et abonnements que tu enregistres.",
-            "Notre intérêt légitime à faire fonctionner MuW, à la garder sûre et à l'améliorer : les courts journaux du serveur, les comptages qui limitent les téléchargements de cartes et les événements de recherche, qui ne disent rien de qui tu es.",
+            "Notre intérêt légitime à faire fonctionner MuW, à la garder sûre et à l'améliorer : les courts journaux du serveur, les comptages qui limitent les téléchargements de cartes et les événements de recherche, qui ne disent rien de qui tu es ; la comparaison des numéros de tes contacts, dont aucun n'est gardé.",
             "Ton consentement : le numéro de téléphone que tu choisis d'ajouter et la connexion à Strava. Tu peux retirer un consentement à tout moment ; ce qui a été fait avant reste licite.",
             "Une obligation légale, quand une loi nous demande de conserver ou de remettre des données.",
           ],

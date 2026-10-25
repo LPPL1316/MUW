@@ -41,8 +41,10 @@ from shaperoute_api.accounts import (
     now_utc,
 )
 from shaperoute_api.activity_graphs import check_supported
+from shaperoute_api.best_routes import line_key
 from shaperoute_api.db import Database
 from shaperoute_api.recommended import preview
+from shaperoute_api.route_archive import count_favorite
 from shaperoute_api.schemas import (
     ACTIVITY_DESCRIPTION,
     MAX_ON_FOOT,
@@ -308,15 +310,21 @@ class Favorites:
                 ),
             ).fetchone()
             assert row is not None
+            # One more favorite of this line, for whoever asks it next
+            # (ADR-0256): the line's name only, never whose.
+            count_favorite(conn, line_key(body.points), 1)
             return _listed(row), True
 
     def remove(self, user_id: int, key: str) -> None:
         """Gone, or never there: the same."""
         with self.database.connect() as conn:
-            conn.execute(
-                "DELETE FROM favorites WHERE user_id = %s AND key = %s",
+            gone = conn.execute(
+                "DELETE FROM favorites WHERE user_id = %s AND key = %s"
+                " RETURNING ST_AsGeoJSON(line, 15) AS line",
                 (user_id, key),
-            )
+            ).fetchone()
+            if gone is not None:
+                count_favorite(conn, line_key(_points(gone)), -1)
 
 
 def favorites_of(accounts: Annotated[Accounts, Depends(accounts_of)]) -> Favorites:

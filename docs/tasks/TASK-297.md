@@ -1,6 +1,6 @@
 # TASK-297 — Ricerche dall'archivio dei percorsi (A) e loghi con la penna alzata (C); il piazzamento imparato, misurato e scartato (B)
 
-**Stato**: In lavorazione · documenti (questa PR) · prossime: A, poi C
+**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · C e TASK-298 nelle loro sessioni · A2 dopo la #497 · poi C2
 **Fase**: 4 · **Branch**: `docs/TASK-297-proposal` (documenti),
 `feat/TASK-297-a-route-archive` (A), `feat/TASK-297-a2-first-placement`
 (A2, dopo la #497), `feat/TASK-297-c-image-pieces` (C, motore),
@@ -226,24 +226,47 @@ Documenti (questa PR):
 - [ ] Questo file, ADR-0256, ADR-0257 e ADR-0258, le righe in
       `STATUS.md`.
 
-Parte A:
-- [ ] La stessa richiesta dallo stesso quadrato di 10 m riceve il job
-      `done` nella risposta al `POST` (test).
-- [ ] Una richiesta a 60 m da un percorso tenuto riceve quel percorso con
+Parte A (PR #539; i test sono in `tests/test_route_archive.py`, con
+PostgreSQL, e in `tests/test_jobs.py`):
+- [x] La stessa richiesta dallo stesso quadrato di 10 m riceve il job
+      `done` nella risposta al `POST`
+      (`test_the_same_start_answers_at_once_with_the_alternatives`,
+      `test_a_second_phone_nearby_gets_the_route_through_the_api`).
+- [x] Una richiesta a 50 m da un percorso tenuto riceve quel percorso con
       l'avvicinamento e il ritorno, i `walks` spostati, la distanza
-      aggiornata; a 300 m no (test sulla fixture).
-- [ ] Un motore diverso o 31 giorni: si ridisegna (test).
-- [ ] Con due righe buone, la prima è quella con più corse e preferiti;
-      la seconda è un'alternativa (test).
-- [ ] Nessuna riga ha chi l'ha chiesta; un'immagine e `near` non si
-      tengono (test).
-- [ ] Oltre il tetto si cancellano prima le righe senza corse né
-      preferiti (test).
-- [ ] Il salvataggio di una corsa e un preferito aggiornano i contatori
-      (test).
-- [ ] Senza database l'API si comporta come oggi.
-- [ ] pytest, ruff e black verdi; il server dopo Apple con l'ok
-      dell'utente, migrazione e testo privacy approvato.
+      aggiornata; a 300 m no
+      (`test_within_a_hundred_metres_the_route_is_reached_along_the_roads`,
+      `test_beyond_a_hundred_metres_the_engine_draws`, sulla fixture di
+      Levico).
+- [x] Un motore diverso o 31 giorni: si ridisegna
+      (`test_another_request_engine_or_an_old_route_is_drawn_again`).
+- [x] Con due righe buone, la prima è quella con più corse e preferiti;
+      la seconda è un'alternativa (`test_the_most_run_and_kept_goes_first`).
+- [x] Nessuna riga ha chi l'ha chiesta; un'immagine e `near` non si
+      tengono (`test_a_row_names_no_one`,
+      `test_an_image_and_a_shape_moved_by_hand_are_not_kept`).
+- [x] Oltre il tetto si cancellano prima le righe senza corse né
+      preferiti (`test_over_the_cap_the_oldest_never_run_go_first`).
+- [x] Il salvataggio di una corsa e un preferito aggiornano i contatori
+      (`test_a_favorite_and_a_run_saved_count_on_the_archived_line`, dal
+      `PUT` dell'app).
+- [x] Senza database l'API si comporta come oggi: `__main__` monta
+      l'archivio solo con il database; le suite senza database
+      (`test_route_jobs`, `test_jobs`, `test_route_store`, `test_main`)
+      girano come prima; uno store senza `nearby` non cambia `RouteJobs`
+      (`test_jobs.py`).
+- [x] Il motore sul telefono (`engine.zip`, TASK-214) disegna come prima:
+      `jobs.py` viaggia con lui, rifatto; senza archivio e senza `nearby`
+      (`test_on_phone.py::test_the_phone_draws_without_the_archive`), e
+      lo zip non porta `route_archive` né psycopg
+      (`tools/phone_engine/test_phone_engine.py`). L'impronta iOS la
+      rimisura il Coordinatore su una copia pulita.
+- [x] pytest, ruff e black verdi (in locale il 2026-10-24: i test
+      dell'archivio, `test_jobs`, `test_route_jobs`, `test_route_store`,
+      `test_main`, `test_favorites` e `test_activities`).
+- [ ] **Dopo il merge**: il server dopo Apple con l'ok dell'utente, la
+      migrazione (0026, o il numero libero al merge) e il testo della
+      privacy approvato dall'utente.
 
 Parte C (motore):
 - [ ] Con `pen_up=False` le sedici immagini di `sample_pictures` danno
@@ -277,11 +300,15 @@ Parte A:
 ```
 services/api/migrations/00NN_drawn_routes.sql             (nuovo, numero al merge)
 services/api/shaperoute_api/route_archive.py              (nuovo)
-services/api/shaperoute_api/__main__.py                   (una riga: l'archivio al posto del solo RouteStore; file della #502/#525)
+services/api/shaperoute_api/jobs.py                       (il protocollo FindsNearby e RouteJobs._nearby)
+services/api/shaperoute_api/__main__.py                   (l'archivio davanti al RouteStore quando c'è il database: import, un'istruzione, l'argomento di create_app; file della #502/#525)
 services/api/shaperoute_api/activities.py                 (una chiamata dopo il salvataggio)
 services/api/shaperoute_api/favorites.py                  (una chiamata)
 services/api/tests/test_route_archive.py                  (nuovo)
 services/api/tests/test_jobs.py                           (un test con un archivio finto, in coda)
+services/api/tests/test_on_phone.py                       (un test: il telefono senza archivio, in coda)
+apps/mobile/assets/engine/engine.zip                      (rifatto: jobs.py va anche sul telefono, TASK-214; da pubblicare su preview)
+tools/phone_engine/test_phone_engine.py                   (un test: il telefono non porta l'archivio né psycopg)
 docs/API.md, docs/DATABASE.md, docs/STATUS.md, docs/tasks/TASK-297.md
 ```
 
@@ -325,17 +352,38 @@ docs/API.md, docs/UI.md, docs/STATUS.md, docs/tasks/TASK-297.md
   rivedere con una prova a parte.
 - Lettere lette come testo: una foto di una scritta resta un disegno.
 
-## Seguiti da aprire
+## Seguiti
 
-- **Fermarsi prima quando la forma non entra nelle strade**: in 19 casi
-  su 36 la ricerca spende tutti i 30 tracciamenti senza un percorso buono,
-  e sono i 6–14 s per un disegno mediocre. Per esempio: dopo N
-  tracciamenti senza miglioramento, o quando il conteggio delle strade
-  dice che nessun piazzamento copre abbastanza. Da misurare sul catalogo
-  e sugli esempi come ogni cambio del motore. Numero dal Coordinatore
-  quando l'utente lo vuole (l'utente ha detto «sì grazie» al paragrafo che
-  lo proponeva, 2026-10-24).
+- **TASK-298 — Fermarsi prima nella ricerca** (ADR-0259; sì dell'utente
+  al Coordinatore, «sì, apri anche quello per fermarsi prima», 2026-10-24):
+  in 19 casi su 36 la ricerca spende tutti i 30 tracciamenti senza un
+  percorso buono (gatto 6 su 6, lumaca 5 su 6, cuore da 2 km 6 su 6), e
+  sono i 6–14 s per un disegno mediocre. Per esempio: dopo N tracciamenti
+  senza miglioramento, o quando il conteggio delle strade dice che nessun
+  piazzamento copre abbastanza. Condizioni del Coordinatore: non si perde
+  nessun percorso buono (misurare su quale tracciamento si trova il primo
+  percorso buono, nelle 36 richieste e in più città; la regola tiene tutti
+  i 17 buoni di Trento o dice quale perde e perché, in una tabella
+  prima/dopo con buoni, tracciamenti e secondi); quando si ferma la
+  risposta resta quella di oggi per «nessun percorso» (TASK-256); la
+  regola sta nel motore, puro, così vale anche sul telefono; server dopo
+  Apple con l'ok dell'utente; riallineo su #489 e #497; `draw_examples`,
+  `engine.zip`, `paddleExamples.json` e `catalogueShapes.json` rifatti.
+  Il task file `TASK-298.md` lo crea chi lo fa, in un contesto nuovo, dopo
+  la parte C (o prima, se le misure lo dicono: `optimizer.py` è suo,
+  `image_outline.py` è di C).
 
 ## Esito
 
-*(si compila a fine task)*
+**Parte A** (2026-10-25, #539 in `main` a `0c4ada00`): ogni percorso
+finito e ogni alternativa restano in `drawn_routes` senza chi li ha
+chiesti; la stessa richiesta dallo stesso punto riceve il job `done` nel
+`POST`, entro 100 m il percorso raggiunto lungo le strade nel thread del
+job, i più corsi e preferiti davanti. Contratto invariato; `engine.zip`
+rifatto perché `jobs.py` va sul telefono (impronta iOS invariata); su
+`preview` (gruppo `e0e4e126`). Emerso: la riga va chiave sulla partenza
+chiesta, non sul primo punto del percorso (il motore parte dal nodo più
+vicino, 20 m più in là); un job è `done` prima che `put` scriva la riga.
+Rimandato: il server dopo Apple con l'ok dell'utente e il paragrafo della
+privacy (lo raccoglie TASK-284 B); A2 (il ridisegno rapido dal
+piazzamento) dopo la #497. Il resto si compila a fine task.

@@ -590,6 +590,16 @@ motore rifiuta con `NoRoadsError` (`errors.py`), un `ShapeNotDrawableError`
 come ogni forma che lì non si disegna (TASK-180, ADR-0148; `MAPS.md`,
 «Warning»).
 
+**Un nodo solo.** Se tutti i punti di un contorno hanno lo stesso nodo più
+vicino (poche strade, lontane dalla forma: una zona di campagna), quel
+contorno non si aggancia: `snap_to_network` lancia `CollapsedShapeError`,
+anche lei uno `ShapeNotDrawableError`. La ricerca salta quel tentativo e
+prova le altre posizioni; se vicino non si traccia niente cerca entro 2 km
+(§5, «Trova dove la forma ci sta»), e se nemmeno lì rifiuta con «… nor
+within 2 km: too few roads, the shape collapses onto a single road node
+wherever it is placed» (TASK-277, aggiunta ad ADR-0040). Prima era un
+`ValueError` che finiva in `engine_error`.
+
 ### La rete della bici (TASK-190)
 
 Una richiesta `activity: "cycling"` (10–30 km, `DISTANCE_LIMITS_M` in

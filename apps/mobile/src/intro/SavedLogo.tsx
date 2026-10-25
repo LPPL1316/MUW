@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 
+import { t, tLater } from "../i18n";
 import { color } from "../theme/tokens";
 
 /**
@@ -22,8 +23,9 @@ export const SAVED_SHOWN_MS = SAVED_MS.in + SAVED_MS.hold;
 /** From «Save» to the app alone on screen. */
 export const SAVED_TOTAL_MS = SAVED_SHOWN_MS + SAVED_MS.fade;
 
-/** What a screen reader says as the logo comes up. */
-export const SAVED_SAID = "Saved to My activities";
+/** What a screen reader says as the logo comes up: in the app's language,
+ * with `t(SAVED_SAID)` (TASK-210). */
+export const SAVED_SAID = tLater("Saved to My activities");
 
 /** The logo across most of a phone, never huge on a tablet. */
 const LOGO_SHARE = 0.75;
@@ -106,7 +108,7 @@ export function SavedLogo({ onDone }: Props) {
       });
     };
     coming.start();
-    AccessibilityInfo.announceForAccessibility(SAVED_SAID);
+    AccessibilityInfo.announceForAccessibility(t(SAVED_SAID));
     // Held by a timer, not by the animation: with the phone's animations
     // switched off the yellow is up at once, and stays all the same.
     wait = setTimeout(() => leave.current(), SAVED_SHOWN_MS);
@@ -130,7 +132,7 @@ export function SavedLogo({ onDone }: Props) {
         onPress={() => leave.current()}
         accessible
         accessibilityRole="image"
-        accessibilityLabel={SAVED_SAID}
+        accessibilityLabel={t(SAVED_SAID)}
       >
         <Animated.View
           style={[

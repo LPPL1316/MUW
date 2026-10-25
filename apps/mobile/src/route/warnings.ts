@@ -18,8 +18,6 @@ import {
   METRES_PER_FOOT,
   shortBelowM,
   shortDistanceLabel,
-  withPoint,
-  type Written,
 } from "../units/format";
 import { appUnits } from "../units/units";
 
@@ -39,19 +37,19 @@ type Rule = {
 
 /**
  * With «Miles» (TASK-182): "800 ft", to 50 feet and at least 50, or "1.2
- * mi" from a thousand feet up.
+ * mi" from a thousand feet up, with the comma of the app's language.
  */
-function inMiles(m: number, written: Written): string {
+function inMiles(m: number): string {
   return m < shortBelowM("mi")
     ? shortDistanceLabel(Math.max(m, 50 * METRES_PER_FOOT), "mi")
-    : distanceLabel(m, "mi", written);
+    : distanceLabel(m, "mi");
 }
 
 /** "250 m", or "1.2 km" from a thousand metres up; in the app's units. */
 function metres(value: string): string {
   const m = Number(value);
   if (appUnits() === "mi") {
-    return inMiles(m, withPoint);
+    return inMiles(m);
   }
   return m < 1000 ? `${Math.round(m)} m` : `${decimal(m / 1000)} km`;
 }
@@ -65,7 +63,7 @@ function engineDistance(text: string): string {
     return text;
   }
   if (appUnits() === "mi") {
-    return inMiles(Number(match[1]) * (match[3] === "km" ? 1000 : 1), withPoint);
+    return inMiles(Number(match[1]) * (match[3] === "km" ? 1000 : 1));
   }
   return match[2] === undefined
     ? text
@@ -79,7 +77,7 @@ function engineDistance(text: string): string {
  */
 export function roughMetres(m: number): string {
   if (appUnits() === "mi") {
-    return inMiles(m, decimal);
+    return inMiles(m);
   }
   const tens = Math.max(10, Math.round(m / 10) * 10);
   return tens < 1000 ? `${tens} m` : `${decimal(m / 1000)} km`;

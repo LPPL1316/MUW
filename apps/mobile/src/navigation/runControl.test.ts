@@ -1,4 +1,5 @@
 import type { LatLon } from "@shaperoute/shared-types";
+import { Platform } from "react-native";
 
 import {
   AUTO_PAUSE_AFTER_MS,
@@ -237,4 +238,100 @@ test("with no run, the controls do nothing; the switches are kept for the next o
   expect(runControl()).toMatchObject({ voice: true, autoPause: false });
   session.end();
   expect(runControl().autoPause).toBe(false);
+});
+
+// On Android the app's clock stops with the screen off while the GPS goes
+// on in its service (TASK-294): the time jumps, no timer runs, and the
+// fixes keep coming.
+describe("on Android with the screen off", () => {
+  beforeEach(() => {
+    jest.replaceProperty(Platform, "OS", "android");
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("the countdown ends with the first fix after it was due", () => {
+    const { recorder, session } = begin();
+    session.onFix(fix(0, 1), false);
+    // The screen went off before 3, 2, 1 were over.
+    jest.setSystemTime(NOW + COUNTDOWN_MS + 2000);
+    session.onFix(fix(10, 5), false);
+    expect(runControl().phase).toBe("running");
+    expect(recorder.track().fixes).toHaveLength(2);
+    expect(recorder.track().distanceM).toBeCloseTo(10, 0);
+    session.end();
+  });
+
+  test("a fix before the countdown is over still waits for it", () => {
+    const { recorder, session } = begin();
+    jest.setSystemTime(NOW + COUNTDOWN_MS - 1000);
+    session.onFix(fix(0, 2), false);
+    expect(runControl().phase).toBe("countdown");
+    expect(recorder.track().fixes).toHaveLength(0);
+    session.end();
+  });
+
+  test("standing still is paused from when it was due, and moving on ends it in silence", () => {
+    const { recorder, session, say } = begin();
+    skipCountdown();
+    session.onFix(fix(0, 0), false);
+    session.onFix(fix(100, 30), false);
+    // Thirty seconds at a light with the screen off: no tick, no fix.
+    jest.setSystemTime(NOW + 60_000);
+    session.onFix(fix(110, 60), false);
+    expect(runControl()).toMatchObject({ phase: "running", auto: false });
+    expect(recorder.track().pauses).toEqual([
+      { fromMs: NOW + 40_000, toMs: NOW + 60_000, auto: true },
+    ]);
+    // Nothing was said of it: «Paused.» was never heard.
+    expect(say).not.toHaveBeenCalled();
+    // Thirty seconds running, ten standing before the pause, as in front.
+    expect(durationMs(recorder.track())).toBe(40_000);
+    session.end();
+  });
+
+  test("still standing at the fix, the run stays paused and says so", () => {
+    const { recorder, session, say, onChange } = begin();
+    skipCountdown();
+    session.onFix(fix(0, 0), false);
+    session.onFix(fix(100, 30), false);
+    jest.setSystemTime(NOW + 60_000);
+    // The GPS wandering is not moving.
+    session.onFix(fix(101, 60), false);
+    expect(runControl()).toMatchObject({ phase: "paused", auto: true });
+    expect(openPause(recorder.track())?.fromMs).toBe(NOW + 40_000);
+    expect(say).toHaveBeenLastCalledWith("Paused.");
+    expect(onChange).toHaveBeenCalledTimes(1);
+    jest.setSystemTime(NOW + 90_000);
+    session.onFix(fix(110, 90), false);
+    expect(runControl()).toMatchObject({ phase: "running", auto: false });
+    expect(say).toHaveBeenLastCalledWith("Resumed.");
+    expect(durationMs(recorder.track())).toBe(40_000);
+    session.end();
+  });
+
+  test("with Auto-pause off, standing still is caught up as nothing", () => {
+    setAutoPause(false);
+    const { recorder, session } = begin();
+    skipCountdown();
+    session.onFix(fix(0, 0), false);
+    jest.setSystemTime(NOW + 60_000);
+    session.onFix(fix(100, 60), false);
+    expect(recorder.track().pauses ?? []).toEqual([]);
+    session.end();
+  });
+});
+
+test("on iOS the clock is the timer's: a fix after a jump of time catches nothing up", () => {
+  const { recorder, session, say } = begin();
+  skipCountdown();
+  session.onFix(fix(0, 0), false);
+  session.onFix(fix(100, 30), false);
+  jest.setSystemTime(NOW + 60_000);
+  session.onFix(fix(110, 60), false);
+  expect(recorder.track().pauses ?? []).toEqual([]);
+  expect(say).not.toHaveBeenCalled();
+  session.end();
 });
