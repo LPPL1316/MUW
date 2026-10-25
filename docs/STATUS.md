@@ -850,6 +850,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Mancano il cerchio da 20 km, Levico e Padova, quando Overpass riapre. Il
   miglioramento delle forme in bici è TASK-206, qui sotto. Da dove
   riprendere: il task file, «Esito», «I campioni».
+  **Chiuso il 2026-10-25**: Levico, Padova e il cerchio da 20 km giudicati
+  dall'utente, la prova sul server del 2026-10-03 scritta nel task file;
+  la voce è in «Completato».
 - **TASK-232 — Forme inclinate fino a 45°, con la mappa girata**
   (ADR-0195; Todo, chiesto dall'utente il 2026-10-05): il motore inclina
   ogni forma fino a ±45° quando segue meglio le strade (oggi ±15°,
@@ -1169,6 +1172,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `7a9506a`: il telefono disegna da sé. **Resta D**, la prova
   sull'iPhone, che è dell'utente e fissa i limiti di distanza. Da dove
   riprendere: `tasks/TASK-214.md`, «Esito».
+  **Parte D fatta** il 2026-10-25: l'utente ha provato l'app sul suo
+  iPhone e ha scritto «funziona ma cerca di migliorarlo». Prossimo passo:
+  misurare (tempi telefono/server, richieste che ricadono sul server, zone,
+  memoria, errori nei log) e proporre all'utente un miglioramento, che
+  diventa una parte nuova di TASK-214.
+  Misure fatte lo stesso giorno (task file, «Le misure dopo D»): il
+  telefono disegna solo vicino a dove si è aperta l'app, perché la zona
+  ha 3 km intorno; i tempi sono quelli del server. Tre proposte
+  all'utente, in attesa della sua scelta.
+  L'utente ha scelto la zona più larga («fai la 1»): **parte E** in
+  `feat/TASK-214-e-wider-zone`. L'API dà con `margin_m=6000` una zona con
+  6 km intorno al telefono, fino a 12 MB; l'app la chiede, passa al motore
+  tutte le zone che contengono la partenza e legge la zona all'apertura.
+  App e server si pubblicano in qualunque ordine: con il server di prima
+  l'app scarica le stesse zone di oggi. I log del server (15 giorni):
+  più di metà delle richieste di zona hanno `404`, cioè lì il server non
+  ha una zona con 3 km intorno e il telefono non disegna.
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch
@@ -1193,6 +1213,27 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   server nella Console ora si chiama `muw`, il progetto `MuW`. L'iscrizione
   dall'iPhone la conferma l'utente. **TASK-122 è Done**; resta da guardare il
   2026-10-26 il primo invio notturno. `tasks/TASK-122.md`, `DEPLOY.md` F.13.
+- **Motore, API e app** — TASK-190 (ADR-0153; chiuso il 2026-10-25): i
+  percorsi in bici, parti A, B e C in `main` dal 2026-10-02 (PR #214, #219,
+  #221). I campioni sono tutti giudicati dall'utente: oltre ai cinque di
+  Trento del 2026-10-03, il 2026-10-25 il cerchio da 20 km di Trento «sì»
+  (0,93), Levico cuore 10 «no», cerchio 10 «quasi», stella 10 «no», cuore
+  20 «quasi», cerchio 20 «quasi», stella 20 «no» (0,71–0,94; a 20 km un
+  terzo di sterrato, il cerchio da 10 km con 2,3 km di bici a mano per il
+  posto), Padova «sì» per cuori, cerchi e stella da 20 km, «quasi» la stella
+  da 10 (0,91–0,96: in pianura la bici disegna come la corsa). Zone
+  scaricate da Overpass sul Mac, una per luogo; motore di `main` `263e86d`,
+  1–5 s a campione. Nessuna correzione del motore: i difetti visti (stelle
+  in valle, gallerie, sterrato, metri a piedi dove il posto li chiede) sono
+  già noti in ADR-0167 e «Fuori scope». La prova vera sul server è quella
+  del coordinatore del 2026-10-03 (TASK-205 e TASK-206: zona di Trento
+  dall'estratto, 72 + 31 MB, 167 s, osmium 3,6 GB; cerchi 10/20/30 km in
+  22/28/39 s, 0,88/0,87/0,73), ora scritta nel task file. **Resta**: una
+  verifica leggera sul server (le zone `bike_*`, un cerchio da 10 km,
+  `docker stats`), pronta coi comandi nel task file, dopo l'approvazione di
+  Apple e con un sì dell'utente; la domanda 1 («Explore» e «Feed» con
+  «Bike»), che resta dell'utente. PR dei campioni sul branch
+  `chore/TASK-190-bike-samples-levico-padova`. `tasks/TASK-190.md`.
 - **API** — TASK-291 (ADR-0251; chiesto dall'utente il 2026-10-17): ogni
   segnalazione nuova arriva per email a chi gestisce MuW, con il link
   firmato «Hide» (7 giorni, una volta, con «Undo»); il nascosto sparisce

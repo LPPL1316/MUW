@@ -27,6 +27,14 @@ export type PageZone = { name: string; uri: string; version: string };
 
 export type BootArgs = { pyodide: string; engine: string };
 export type PlanArgs = { id: number; body: string; zones: PageZone[] };
+/** The zone a route of `activity` from `point` will use, read into memory
+ * ahead (part E); answered as a result whose JSON is true or false. */
+export type WarmArgs = {
+  id: number;
+  zones: PageZone[];
+  activity: string;
+  point: [number, number];
+};
 
 /** Where Pyodide believes its files are; only the page answers there. */
 const BASE = "https://engine.sgrava.invalid/";
@@ -138,7 +146,8 @@ const SCRIPT = String.raw`
         "sys.path.insert(0, '/engine')",
         "from pathlib import Path",
         "from shaperoute_api import on_phone",
-        "JOBS = on_phone.PhoneJobs(on_phone.phone_graphs(Path('" + ZONES + "')))",
+        "GRAPHS = on_phone.phone_graphs(Path('" + ZONES + "'))",
+        "JOBS = on_phone.PhoneJobs(GRAPHS)",
       ].join("\n"),
     );
   }
@@ -198,13 +207,12 @@ const SCRIPT = String.raw`
     if (changed) setUp();
   }
 
-  async function plan(args) {
+  async function run(args, python) {
     var started = performance.now();
     try {
       if (!py) throw new Error("the engine is not ready");
       await placeZones(args.zones);
-      py.globals.set("BODY", args.body);
-      var json = py.runPython("on_phone.plan_json(BODY, JOBS)");
+      var json = python();
       post({
         type: "result",
         id: args.id,
@@ -219,7 +227,23 @@ const SCRIPT = String.raw`
     }
   }
 
-  window.sgrava = { boot: boot, plan: plan };
+  function plan(args) {
+    return run(args, function () {
+      py.globals.set("BODY", args.body);
+      return py.runPython("on_phone.plan_json(BODY, JOBS)");
+    });
+  }
+
+  function warm(args) {
+    return run(args, function () {
+      py.globals.set("ACTIVITY", args.activity);
+      py.globals.set("LAT", args.point[0]);
+      py.globals.set("LON", args.point[1]);
+      return JSON.stringify(Boolean(py.runPython("on_phone.warm(GRAPHS, ACTIVITY, LAT, LON)")));
+    });
+  }
+
+  window.sgrava = { boot: boot, plan: plan, warm: warm };
 })();
 `;
 
@@ -237,6 +261,9 @@ export const ENGINE_PAGE = `<!doctype html>
 `;
 
 /** The JavaScript that asks the page to do `call` with `args`. */
-export function pageCall(call: "boot" | "plan", args: BootArgs | PlanArgs): string {
+export function pageCall(
+  call: "boot" | "plan" | "warm",
+  args: BootArgs | PlanArgs | WarmArgs,
+): string {
   return `window.sgrava.${call}(${JSON.stringify(args)}); true;`;
 }
