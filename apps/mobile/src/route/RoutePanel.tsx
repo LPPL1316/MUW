@@ -23,7 +23,7 @@ import { drawnOf, sendSignal } from "../api/signals";
 import { decimal, t, tLater, tPlural } from "../i18n";
 import { Segmented } from "../screens/Segmented";
 import { milesAtLeast, tenthsToM, unitsNumber } from "../units/distanceInput";
-import { distanceLabel, inUnits, METRES_PER_MILE, withPoint } from "../units/format";
+import { distanceLabel, inUnits, METRES_PER_MILE } from "../units/format";
 import { appUnits, type Units } from "../units/units";
 import { useUnits } from "../units/useUnits";
 import {
@@ -420,7 +420,7 @@ export function RouteOutcome({
         <View style={styles.panel}>
           <View>
             <Text style={styles.result}>
-              {distanceLabel(view.result.distance_m, units, withPoint)}
+              {distanceLabel(view.result.distance_m, units)}
             </Text>
             <Text style={styles.target}>{targetLine(view.request, units)}</Text>
             <PenSplit
