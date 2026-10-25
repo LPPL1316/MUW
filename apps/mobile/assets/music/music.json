@@ -1,0 +1,20 @@
+{
+  "energy": {
+    "file": "energy.m4a",
+    "bytes": 185642,
+    "pcm_sha256": "0f64e1b29513ca0fb0b4efffd884cc0f63fa3a83d8cc08b2d986b53ffe077b0c",
+    "m4a_sha256": "fc1810532fd335cc39b4fc1cb66ba0b946e848164d6cd3ba8a336bcb4122e85a"
+  },
+  "chill": {
+    "file": "chill.m4a",
+    "bytes": 187840,
+    "pcm_sha256": "732fee50c27e95c908a84583383c9bce0dfd6e183c314616b265a7f9ce373642",
+    "m4a_sha256": "a744c294801b99ba5338e48c11089ef935ef8055871163a1599e9b1fda46f663"
+  },
+  "epic": {
+    "file": "epic.m4a",
+    "bytes": 187843,
+    "pcm_sha256": "0d2683429b13e111c8c6582f0977441fd735e797585f9a862548bcfe2aeaf245",
+    "m4a_sha256": "0981363623bf59f6c9e27241a145fb40d24b383ce04b0a7a4fdd2537a2b014a1"
+  }
+}
