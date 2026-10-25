@@ -5,7 +5,9 @@ one of two ways ahead at a fork, not where the track changes heading. A
 junction is a node with at least MIN_BRANCHES roads; on any other node
 nothing is said, whatever the angle: the graph is simplified (OSMnx keeps a
 road's bends in its edges), and the few nodes left with two roads are cut
-borders or ways joined end to end.
+borders or ways joined end to end. The one exception is turning back: at a
+dead end, or in the middle of a road, a route that goes back to the node it
+came from is told "u-turn" (TASK-271).
 
 Branches are counted on the roads, not with `graph.degree`: in a two-way
 MultiDiGraph a node in the middle of a road has degree 4, two edges in and
@@ -26,7 +28,7 @@ import networkx as nx
 from route_engine.geo import LatLon, latlon_to_local
 
 # A node is a junction from this many roads up: fewer is the middle of a road
-# (two) or its dead end (one).
+# (two) or its dead end (one), where only turning back is told.
 MIN_BRANCHES = 3
 # The heading of a road at a node is taken this far along it: far enough to
 # ignore how a way is drawn into the node, the few metres of a kerb or a
@@ -55,7 +57,7 @@ Turn = Literal[
 
 @dataclass(frozen=True)
 class Direction:
-    """What to do at one junction of the route.
+    """What to do at one junction of the route, or where it turns back.
 
     `angle_deg` is the turn, positive to the right, in (-180, 180]; `turn`
     names it (`turn_of`), except at a fork, where a turn of TURN_MIN_DEG or
@@ -118,8 +120,11 @@ def directions(graph: nx.MultiDiGraph, nodes: Sequence[Any]) -> list[Direction]:
     or goes on straight but either changes road (from one name to another,
     or between a named road and one without a name) or leaves another road
     as straight ahead as its own: at a fork "straight on" says nothing.
-    None on the first and last node. Between two nodes the route takes the
-    shortest edge, as the router does.
+    Off a junction, at a dead end or in the middle of a road, one only where
+    the route goes back to the node it came from and turns by U_TURN_MIN_DEG
+    or more: "u-turn", with the road's name. None on the first and last
+    node. Between two nodes the route takes the shortest edge, as the router
+    does.
     """
     result: list[Direction] = []
     along = 0.0
@@ -129,13 +134,15 @@ def directions(graph: nx.MultiDiGraph, nodes: Sequence[Any]) -> list[Direction]:
         leaving = _edge(graph, node, after)
         along += float(entering["length"])
         count = branch_count(graph, node)
-        if count < MIN_BRANCHES:
+        if count < MIN_BRANCHES and after != before:
             continue
         arrival = heading(graph, node, before, entering) + 180.0
         angle = _signed(heading(graph, node, after, leaving) - arrival)
         came, going = _road(entering), _road(leaving)
         changed = came != going and not came & going
         turn = turn_of(angle)
+        if count < MIN_BRANCHES and turn != "u-turn":
+            continue  # back by another road to the same node: round a loop
         if turn == "straight":
             taken = {_key(before, entering), _key(after, leaving)}
             fork = _straighter(graph, node, arrival, angle, taken)

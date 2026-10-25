@@ -4,6 +4,7 @@ from typing import get_args
 
 import networkx as nx
 import pytest
+from shapely.geometry import LineString
 
 from route_engine import directions as directions_module
 from route_engine.directions import (
@@ -18,6 +19,7 @@ from route_engine.directions import (
     guidance,
     turn_of,
 )
+from route_engine.geo import local_to_latlon, path_length_m
 from route_engine.network import FileSource
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -43,6 +45,53 @@ def test_the_middle_of_a_two_way_road_is_no_junction_whatever_its_degree(
 
 def test_a_change_of_name_off_a_junction_says_nothing(graph: nx.MultiDiGraph) -> None:
     assert directions(graph, [P, Q, R]) == []  # Via Verdi → Via Bianchi
+
+
+@pytest.mark.parametrize("route", [[T, P, Q], [Q, P, T], [P, Q, R], [R, Q, P]])
+def test_off_a_junction_going_on_says_nothing_round_a_bend_or_straight(
+    graph: nx.MultiDiGraph, route: list[int]
+) -> None:
+    assert directions(graph, route) == []
+
+
+def test_turning_back_at_a_dead_end_is_a_u_turn(graph: nx.MultiDiGraph) -> None:
+    # W is the end of Via Roma: one road, no junction (TASK-271).
+    [back] = directions(graph, [T, W, T])
+    assert (back.node, back.turn, back.angle_deg) == (W, "u-turn", 180.0)
+    assert (back.street, back.road_type, back.branches) == (
+        "Via Roma",
+        "residential",
+        1,
+    )
+    assert back.distance_m == pytest.approx(graph[T][W][0]["length"])
+
+
+def test_turning_back_in_the_middle_of_a_road_is_a_u_turn(
+    graph: nx.MultiDiGraph,
+) -> None:
+    # P has two roads, like a node left by a cut (TASK-271).
+    [back] = directions(graph, [T, P, T])
+    assert (back.node, back.turn, back.angle_deg) == (P, "u-turn", 180.0)
+    assert (back.street, back.branches) == ("Via Verdi", 2)
+    [back] = directions(graph, [P, Q, P])
+    assert (back.node, back.turn, back.street) == (Q, "u-turn", "Via Verdi")
+
+
+def test_back_to_the_node_it_came_from_round_a_loop_says_nothing() -> None:
+    # Two one-way roads between 0 and 1: north on a straight one, back
+    # leaving 0 eastwards on one that bends north. Round a loop, not back.
+    origin = (46.0, 11.0)
+    south, north = origin, local_to_latlon(origin, 0.0, 100.0)
+    bend = local_to_latlon(origin, 50.0, 0.0)
+    graph = nx.MultiDiGraph()
+    for node, (lat, lon) in enumerate([south, north]):
+        graph.add_node(node, y=lat, x=lon)
+    graph.add_edge(1, 0, length=100.0)
+    loop = [south, bend, north]
+    geometry = LineString([(lon, lat) for lat, lon in loop])
+    graph.add_edge(0, 1, length=path_length_m(loop), geometry=geometry)
+    assert branch_count(graph, 0) == 2
+    assert directions(graph, [1, 0, 1]) == []
 
 
 def test_straight_through_a_t_junction_on_the_same_road_says_nothing(
@@ -168,6 +217,7 @@ def test_turn_names(angle: float, turn: str) -> None:
 def test_on_a_real_graph_every_direction_is_at_a_real_junction() -> None:
     graph = FileSource(FIXTURES / "levico_walk_1km.graphml").load(ANYWHERE)
     # Nodes of the simplified graph with two roads: cut borders, ways joined.
+    # A shortest path never turns back, the one thing said off a junction.
     trap = {n for n in graph if graph.degree(n) == 4 and branch_count(graph, n) == 2}
     ends = sorted(graph)
     passed: set[int] = set()
@@ -185,6 +235,21 @@ def test_on_a_real_graph_every_direction_is_at_a_real_junction() -> None:
         assert d.branches >= MIN_BRANCHES
         # OSMnx's own count of the streets at the node, from OSM itself.
         assert graph.nodes[d.node]["street_count"] >= MIN_BRANCHES
+
+
+def test_on_a_real_graph_turning_back_off_a_junction_is_a_u_turn() -> None:
+    graph = FileSource(FIXTURES / "levico_walk_1km.graphml").load(ANYWHERE)
+    told = set()
+    for node in graph:
+        count = branch_count(graph, node)
+        if count >= MIN_BRANCHES:
+            continue
+        for other in set(graph.successors(node)) & set(graph.predecessors(node)):
+            [back] = directions(graph, [other, node, other])
+            assert (back.node, back.turn, back.branches) == (node, "u-turn", count)
+            assert abs(back.angle_deg) == pytest.approx(180.0)
+            told.add(count)
+    assert told == {1, 2}  # dead ends and nodes in the middle of a road
 
 
 def test_guidance_starts_with_the_road_the_route_starts_on(
