@@ -1048,6 +1048,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   misurare (tempi telefono/server, richieste che ricadono sul server, zone,
   memoria, errori nei log) e proporre all'utente un miglioramento, che
   diventa una parte nuova di TASK-214.
+  Misure fatte lo stesso giorno (task file, «Le misure dopo D»): il
+  telefono disegna solo vicino a dove si è aperta l'app, perché la zona
+  ha 3 km intorno; i tempi sono quelli del server. Tre proposte
+  all'utente, in attesa della sua scelta.
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch

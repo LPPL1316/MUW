@@ -712,6 +712,36 @@ disegna; i numeri dei criteri ancora aperti (tempi e memoria sull'iPhone,
 impronte confrontate, cuore senza rete) non li ha dati la prova: vengono
 dalle misure del miglioramento, nella parte che segue.
 
+**Le misure dopo D** (2026-10-25, dell'agente, sul Mac M4; dettagli in
+`out/task214-miglioramento/misure.md`, ignorata da git). Zona di Trento
+`foot` come quella che il server dà al telefono (7,4 × 7,4 km, 2,7 MB):
+
+- **La zona è piccola.** Il server dà la zona più piccola con 3 km intorno
+  al punto (`ZONE_MARGIN_M`). Il ritaglio del motore va da 1,4–2,1 km (3 km)
+  a 2,1–3,8 km (8 km, 6 forme su 17 oltre 3 km), e la ricerca «più lontano»
+  chiede 3,2–4,3 km. Sul codice del telefono, 8 richieste fino a 8 km:
+  dal centro della zona 7 disegnate sul telefono; da 1,5 km più in là 1;
+  da 2,5 km nessuna. Le altre vanno al server con `map_data_unavailable`,
+  in meno di 0,1 s. Da una partenza scelta sulla mappa, o senza rete
+  lontano da dove si è aperta l'app, il telefono non disegna.
+- **Tempi.** Stesso percorso dai tre. Cuore da 5 km: server sullo stesso Mac
+  2,4 s, telefono in CPython 5,2 s, in Pyodide 9,6 s (le altre: 2,6–8,9 s).
+  Pyodide è circa 1,8× CPython; le partenze vicine una dopo l'altra fanno
+  il 65% del lavoro. Il server vero ci mette 9–12 s per lo stesso cuore: il
+  telefono non è più veloce, ma lavora senza rete e senza il server.
+- **Le partenze vicine contano**: in 44 lavori su 76 il percorso scelto è
+  di una partenza vicina. Le scadenze del server applicate sul telefono non
+  fanno risparmiare niente in mediana a questa velocità.
+- **Memoria.** Python avviato 79 MB, 196–338 MB dopo i percorsi; la zona
+  costa circa 21 MB di memoria per MB di file (Trento 0,78 s e +57 MB).
+- **I log del server non sono letti**: la lettura via `ssh` è stata
+  bloccata dai permessi della sessione.
+
+Proposte all'utente, in attesa della sua scelta: (1, raccomandata) una
+zona con 6 km intorno, sotto ~10 MB, letta all'apertura; (2) un segnale
+anonimo a ogni percorso, per avere i numeri degli iPhone; (3) le scadenze
+del server sul telefono (tocca `route_engine`: un task suo).
+
 **Seguito fuori dal task**: una scadenza per le partenze vicine anche senza
 processi, in `route_engine`, in un task suo. Il telefono disegnerebbe
 percorsi più lunghi in meno tempo.
