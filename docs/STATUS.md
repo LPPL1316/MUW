@@ -32,6 +32,9 @@ molti download rifiuta per qualche ora (`MAPS.md`).
 
 ## Prossimo passo
 
+*(2026-10-25: TASK-122 è Done, lo Storage Box c'è e riceve le copie; il
+paragrafo qui sotto è superato per quella parte.)*
+
 **TASK-122 — le copie fuori dal server**: il server è spostato, manca lo
 Storage Box Hetzner, che crea l'utente (`DEPLOY.md` F.13, punto 2); poi
 il servizio `offsite` sul server. Dopo, la parte social (`ROADMAP.md`,
@@ -157,6 +160,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-299 — Il primo concorso: il post con più reazioni vince**
+  (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
+  proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
+  `docs/TASK-299-proposal` (documenti), poi `feat/TASK-299-a-contest-api`
+  (A) e `feat/TASK-299-b-contest-app` (B). L'utente ha scelto, fra tre
+  strade, il **premio senza valore**: il badge «Winner» sul profilo, il
+  post vincitore in cima al Feed per 7 giorni, una push a chi ha vinto; la
+  maglietta è un concorso a parte, quando ci sarà la ditta (DPR 430/2001).
+  Il server decide: partecipano i post per tutti pubblicati nel periodo;
+  conta una reazione per account, mai la propria, non attraverso un
+  blocco, non i post nascosti; pari merito per cuori MuW, poi il post più
+  vecchio. `GET /contests/current` anche senza account; i comandi `open`,
+  `standings` e `close` sul server (chi lo gestisce, con le date
+  dell'utente, dopo aver guardato i primi dieci); la scheda in cima al
+  Feed solo con un 200, il regolamento ufficiale da «How it works» (Apple
+  e Google non coinvolte). Regole in `CONCORSI.md`. Testi nelle cinque
+  lingue da approvare prima del merge; server dopo Apple con l'ok
+  dell'utente. File: `tasks/TASK-299.md`.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -224,6 +245,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Il taglio vero costa percorsi buoni ed è una scelta di prodotto: numeri
   in ADR-0259. `engine.zip` rifatto nella PR. **PR #558** aperta il
   2026-10-25, al merge del Coordinatore. File: `tasks/TASK-298.md`.
+
+  **Parte C, motore** (PR #547 aperta il 2026-10-25, branch
+  `feat/TASK-297-c-image-pieces`): `outline_data(…, pen_up=True)` mette
+  in `pieces` i soggetti dopo il primo e i fori che valgono il 3 % del
+  loro soggetto, dal più grande al più piccolo, niente gambi; con
+  `pen_up=False` le sedici immagini di «Draw» danno lo stesso contorno
+  byte per byte (impronte in `tools/test_sample_logos.py`);
+  `ImageRequest.pen_up` e `--image … --pen-up` compongono i pezzi come
+  una forma a pezzi e cercano come le parole con la penna alzata; il
+  contratto HTTP non cambia (C2). `tools/sample_logos.py` disegna sette
+  loghi sintetici e usa il marchio MuW del lancio (anello con stella 2
+  pezzi, ruota 4, «RC» la C e l'occhio della R). `engine.zip` rifatto;
+  `draw_examples`, `paddleExamples.json` e `catalogueShapes.json` da
+  rifare con gli altri cambi del motore, dopo Apple. Emerso: la ricerca
+  lontana (ADR-0040) su un grafo piccolo che ignora l'area cade in
+  `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
+  con la #497, che ha `optimizer.py`.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
@@ -847,6 +885,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `offsite` è in `main` dalla PR #167): manca che l'utente lo crei
   (`DEPLOY.md` F.13). Sessione «Sistema di auto-miglioramento ricerca»; da
   dove riprendere: il task file.
+  **Done** il 2026-10-25: vedi «Completato».
 - **TASK-190 — Percorsi in bici** (ADR-0153): **parte A, il motore**, in
   `main` (PR #214): la rete `bike` (ciclabili e strade fino alle
   `primary`, mai scale, `trunk` né vie vietate alle bici, sensi unici
@@ -1236,6 +1275,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Server** — TASK-122 (ADR-0123), le copie fuori dal server: lo Storage
+  Box Hetzner `muw-backups` (`u700709`, BX11, Falkenstein, 3,20 €/mese,
+  comprato dall'utente il 2026-10-25) riceve ogni notte alle 02:30 UTC le
+  13 copie del database e gli eventi delle ricerche. Primo invio a mano il
+  2026-10-25, 1,5 s; una copia ripresa da lì ha lo stesso SHA-256 e si
+  ripristina in `restore_check`, con 3 account e le migrazioni 0001–0021. È
+  stato ricreato solo `offsite`, senza riavvii di API e database. Il
+  server nella Console ora si chiama `muw`, il progetto `MuW`. L'iscrizione
+  dall'iPhone la conferma l'utente. **TASK-122 è Done**; resta da guardare il
+  2026-10-26 il primo invio notturno. `tasks/TASK-122.md`, `DEPLOY.md` F.13.
 - **Motore, API e app** — TASK-190 (ADR-0153; chiuso il 2026-10-25): i
   percorsi in bici, parti A, B e C in `main` dal 2026-10-02 (PR #214, #219,
   #221). I campioni sono tutti giudicati dall'utente: oltre ai cinque di

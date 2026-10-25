@@ -29,6 +29,12 @@ reason (InvalidImageError), never turned into a shape at random.
    and back and which crosses no line; the loop at its end is the subject.
    Left out: a piece inside another, one cut by the border, one that
    smoothing wears away. Subjects too close to stay apart become one.
+6. With the pen up (`pen_up`, TASK-297, ADR-0258) nothing is hung: the
+   other subjects, and the holes of every subject worth HOLE_SHARE of its
+   area, are the `pieces` of the outline, drawn one at a time with a walk
+   between them (pieces.py), the largest first so that a hole comes before
+   what sits inside it. A piece inside another is then a subject of its
+   own. Without `pen_up` the outline is the one of before, point for point.
 
 The result goes through parse_outline, the check every outline file passes.
 It lives outside `shapes/`, which reads outlines with the standard library
@@ -77,8 +83,13 @@ SMOOTH_SHARE = 0.01
 # share of the drawing's longer side.
 SIMPLIFY_SHARE = 0.01
 MAX_POINTS = 100
-# The points of the strokes of all the other subjects together.
+# The points of the strokes of all the other subjects together; with the
+# pen up, of all the pieces together.
 MAX_SUBJECT_POINTS = 150
+# With the pen up, a hole of a subject is a piece when it is at least this
+# share of the subject's area, its outside line filled (ADR-0258); a smaller
+# hole is not drawn, as with the pen down.
+HOLE_SHARE = 0.03
 # Subjects nearer than this share of the drawing's longer side become one:
 # simplified, their lines could touch.
 JOIN_SHARE = 0.025
@@ -99,23 +110,37 @@ class InvalidImageError(ValueError):
 
 
 def outline_from_image(
-    image: bytes | Path, name: str = "image", source: str = "an image"
+    image: bytes | Path,
+    name: str = "image",
+    source: str = "an image",
+    pen_up: bool = False,
 ) -> Outline:
     """The Outline of the subject of `image`, a PNG or JPEG file or its
-    bytes, named `name`; `source` says where the image comes from."""
-    return parse_outline(outline_data(image, name, source))
+    bytes, named `name`; `source` says where the image comes from. With
+    `pen_up`, with its pieces apart (ADR-0258)."""
+    return parse_outline(outline_data(image, name, source, pen_up))
 
 
 def outline_data(
-    image: bytes | Path, name: str = "image", source: str = "an image"
+    image: bytes | Path,
+    name: str = "image",
+    source: str = "an image",
+    pen_up: bool = False,
 ) -> dict[str, object]:
     """The outline of `image` as an outline file holds it (outline.py): the
     corners in pixels of the analysed image, x to the right and y upwards.
-    Written as JSON, it is read back by read_outline as the same Outline."""
+    Written as JSON, it is read back by read_outline as the same Outline.
+    With `pen_up` the other subjects and the holes are its `pieces`, each
+    drawn on its own with the pen up (ADR-0258); without, the other subjects
+    are `strokes` hung on the outline, and the holes are left out."""
     subject = _subject_mask(_load(image))
-    shapes = _subjects(subject)
+    shapes = _subjects(subject, pen_up)
     size = _size(shapes)
-    rings = [_corners(shape, size) for shape in shapes]
+    pieces: list[list[list[float]]] = []
+    if pen_up:
+        rings, pieces = _apart_lines(shapes, size)
+    else:
+        rings = [_corners(shape, size) for shape in shapes]
     if len(rings[0]) - 1 > MAX_POINTS:
         raise InvalidImageError(
             "jagged",
@@ -128,7 +153,17 @@ def outline_data(
         "license": "as the image",
         "points": rings[0],
     }
-    if len(rings) > 1:
+    if pen_up:
+        piece_points = sum(len(piece) for piece in pieces)
+        if piece_points > MAX_SUBJECT_POINTS:
+            raise InvalidImageError(
+                "jagged",
+                f"the pieces are too jagged to draw with roads: "
+                f"{piece_points} points, at most {MAX_SUBJECT_POINTS}",
+            )
+        if pieces:
+            data["pieces"] = pieces
+    elif len(rings) > 1:
         strokes = _hung(rings)
         stroke_points = sum(len(stroke) for stroke in strokes)
         if stroke_points > MAX_SUBJECT_POINTS:
@@ -139,8 +174,11 @@ def outline_data(
             )
         data["strokes"] = strokes
     try:
+        # A smoothed line is simple. With the pen up, a piece simplified
+        # may touch a line, and not every piece can be joined with the pen
+        # down (outline.py): refused, like a line too jagged to draw.
         parse_outline(data)
-    except InvalidOutlineError as exc:  # not seen: a smoothed line is simple
+    except InvalidOutlineError as exc:
         raise InvalidImageError("jagged", f"the outline is not usable: {exc}") from None
     return data
 
@@ -228,9 +266,11 @@ def _pieces(mask: np.ndarray) -> list[Polygon]:
     return sorted(pieces, key=lambda piece: (-piece.area, piece.bounds))
 
 
-def _subjects(mask: np.ndarray) -> list[Polygon]:
+def _subjects(mask: np.ndarray, pen_up: bool = False) -> list[Polygon]:
     """The subjects, largest first, each smoothed at the scale roads can
-    draw, without holes, in pixels with y upwards."""
+    draw, in pixels with y upwards: without holes, and without the pieces
+    inside another. With `pen_up` each keeps the holes worth HOLE_SHARE of
+    its area, and a piece inside another is a subject too (ADR-0258)."""
     height, width = mask.shape
     pieces = _pieces(mask)
     if not pieces or pieces[0].area < MIN_SUBJECT_PX:
@@ -256,20 +296,23 @@ def _subjects(mask: np.ndarray) -> list[Polygon]:
             f"the subject is too small: {max(right - left, bottom - top):.0f} "
             f"pixels across, at least {MIN_SUBJECT_PX} needed",
         )
-    filled = [Polygon(main.exterior)]
+    filled = [_filled(main, pen_up)]
     for piece in pieces[1:]:
         if piece.area < SPECK_SHARE * main.area:
             break  # largest first: the rest are specks
         # Cut by the border it is not a subject that can be drawn; inside
-        # another it is one of its inner lines.
-        if not on_edge(piece) and not any(f.contains(piece) for f in filled):
-            filled.append(Polygon(piece.exterior))
+        # another it is one of its inner lines, unless the pen is up.
+        if on_edge(piece) or (not pen_up and any(f.contains(piece) for f in filled)):
+            continue
+        filled.append(_filled(piece, pen_up))
     size = _size(filled)
     radius = SMOOTH_SHARE * size
-    shapes = [_smooth(piece, radius) for piece in filled]
+    shapes = [_smooth(piece, radius, pen_up) for piece in filled]
     if shapes[0] is None:  # not seen: the subject is at least MIN_SUBJECT_PX wide
         raise InvalidImageError("no_subject", "the subject is only thin lines")
-    kept = _apart([shape for shape in shapes if shape is not None], JOIN_SHARE * size)
+    kept = _apart(
+        [shape for shape in shapes if shape is not None], JOIN_SHARE * size, pen_up
+    )
     if len(kept) > MAX_SUBJECTS:
         raise InvalidImageError(
             "scattered",
@@ -279,15 +322,30 @@ def _subjects(mask: np.ndarray) -> list[Polygon]:
     return [affinity.scale(shape, yfact=-1, origin=(0, 0)) for shape in kept]
 
 
+def _filled(piece: Polygon, pen_up: bool) -> Polygon:
+    """The piece without its holes; with `pen_up`, with those worth drawing:
+    at least HOLE_SHARE of its area, the outside line filled."""
+    outside = Polygon(piece.exterior)
+    if not pen_up:
+        return outside
+    kept = [
+        hole
+        for hole in piece.interiors
+        if Polygon(hole).area >= HOLE_SHARE * outside.area
+    ]
+    return Polygon(piece.exterior, kept)
+
+
 def _size(shapes: list[Polygon]) -> float:
     """The longer side of the drawing: all the subjects together."""
     left, low, right, high = shapely.total_bounds(shapes)
     return float(max(right - left, high - low))
 
 
-def _smooth(filled: Polygon, radius: float) -> Polygon | None:
+def _smooth(filled: Polygon, radius: float, holes: bool = False) -> Polygon | None:
     """The piece without parts thinner than twice `radius`, and with gaps as
-    narrow closed; None when nothing is left of it."""
+    narrow closed; None when nothing is left of it. With `holes` its holes
+    stay, but those as narrow, which close."""
     # Opening drops thin parts, closing fills narrow gaps; mitred joins keep
     # the corners sharp.
     smooth = (
@@ -300,12 +358,13 @@ def _smooth(filled: Polygon, radius: float) -> Polygon | None:
     if not parts:
         return None
     best = max(parts, key=lambda p: (p.area, p.bounds))
-    return Polygon(best.exterior)
+    return best if holes else Polygon(best.exterior)
 
 
-def _apart(shapes: list[Polygon], gap: float) -> list[Polygon]:
+def _apart(shapes: list[Polygon], gap: float, holes: bool = False) -> list[Polygon]:
     """The subjects, those nearer than `gap` to each other made one, largest
-    first. Subjects already apart are returned as they are."""
+    first, with their holes when `holes`. Subjects already apart are
+    returned as they are."""
     near = any(
         a.distance(b) < gap for i, a in enumerate(shapes) for b in shapes[i + 1 :]
     )
@@ -314,7 +373,7 @@ def _apart(shapes: list[Polygon], gap: float) -> list[Polygon]:
     grown = shapely.union_all([s.buffer(gap / 2, join_style="mitre") for s in shapes])
     joined = grown.buffer(-gap / 2, join_style="mitre")
     parts = list(joined.geoms) if isinstance(joined, MultiPolygon) else [joined]
-    whole = [Polygon(p.exterior) for p in parts if not p.is_empty]
+    whole = [p if holes else Polygon(p.exterior) for p in parts if not p.is_empty]
     return sorted(whole, key=lambda p: (-p.area, p.bounds))
 
 
@@ -322,7 +381,37 @@ def _corners(polygon: Polygon, size: float) -> list[list[float]]:
     """The corners of a subject, closed, the first point repeated; `size` is
     the longer side of the drawing."""
     simple = polygon.simplify(SIMPLIFY_SHARE * size, preserve_topology=True)
-    return [[round(x, 2), round(y, 2)] for x, y in simple.exterior.coords]
+    return _rounded(simple.exterior)
+
+
+def _rounded(ring: LinearRing) -> list[list[float]]:
+    return [[round(x, 2), round(y, 2)] for x, y in ring.coords]
+
+
+def _apart_lines(
+    shapes: list[Polygon], size: float
+) -> tuple[list[list[list[float]]], list[list[list[float]]]]:
+    """With the pen up (ADR-0258): the corners of the outside line of each
+    subject, largest first, and the pieces: the subjects after the first and
+    the holes worth HOLE_SHARE of their subject, the largest first, so that
+    a hole comes before what sits inside it. A subject is simplified with
+    its holes at once, so that its lines keep apart."""
+    outlines: list[list[list[float]]] = []
+    holes: list[list[list[float]]] = []
+    for shape in shapes:
+        simple = shape.simplify(SIMPLIFY_SHARE * size, preserve_topology=True)
+        outlines.append(_rounded(simple.exterior))
+        full = Polygon(simple.exterior).area
+        holes.extend(
+            _rounded(hole)
+            for hole in simple.interiors
+            if Polygon(hole).area >= HOLE_SHARE * full
+        )
+    pieces = sorted(
+        [*outlines[1:], *holes],
+        key=lambda ring: (-Polygon(ring).area, Polygon(ring).bounds),
+    )
+    return outlines, pieces
 
 
 def _hung(rings: list[list[list[float]]]) -> list[list[list[float]]]:

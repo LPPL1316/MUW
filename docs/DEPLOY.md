@@ -1109,7 +1109,7 @@ Due minuti di API ferma. Sul server, come `root`:
    nome `sslip.io` di oggi e `COMPOSE_PROFILES=public`, e `docker compose
    up -d`.
 5. Dall'iPhone, un percorso: l'app non cambia indirizzo né chiave.
-6. Le copie fuori dal server: lo Storage Box (F.13), quando c'è.
+6. Le copie fuori dal server: lo Storage Box (F.13), collegato il 2026-10-25.
 
 Se qualcosa va storto si torna indietro: `docker compose down`, le tre
 cartelle di nuovo in `/srv/shaperoute/`, e il `docker run` di prima. Il
@@ -1149,8 +1149,11 @@ Lo Storage Box è un disco di Hetzner separato dal server. Ogni notte alle
 manda con `rsync`, sopra SSH sulla porta 23, le copie del database in
 `sgrava-db/` (le stesse del server: quelle
 con più di 13 giorni spariscono anche lì) e gli eventi delle ricerche in
-`sgrava-insights/` (che si aggiungono soltanto). Finché lo Storage Box non
-c'è, le copie restano sul server e `push` lo dice.
+`sgrava-insights/` (che si aggiungono soltanto). Lo Storage Box c'è dal
+2026-10-25: `muw-backups`, nome utente `u700709`
+(`u700709.your-storagebox.de`), BX11 a Falkenstein, nel progetto `MuW`
+della Hetzner Console. Senza `STORAGEBOX_HOST` e `STORAGEBOX_USER` in
+`deploy/.env` le copie restano sul server, e `push` lo dice.
 
 1. **La chiave, sul server** (una volta; fatto il 2026-10-02):
 
@@ -1168,21 +1171,53 @@ c'è, le copie restano sul server e `push` lo dice.
    riga del punto 1; accesso **SSH** acceso (Samba e WebDAV non servono).
    Nome utente e indirizzo (`u123456`, `u123456.your-storagebox.de`) sono
    nella pagina dello Storage Box: non sono segreti. Una password, se il
-   pannello la chiede, la tiene l'utente: alle copie non serve.
+   pannello la chiede, la tiene l'utente: alle copie non serve. Fatto il
+   2026-10-25: nella Console di adesso la chiave si aggiunge alla
+   creazione con *Add SSH key*, e con una chiave la password la genera
+   Hetzner. *External Reachability* resta spento, perché il server è
+   dentro Hetzner.
 3. **Sul server**, la chiave dello Storage Box fra quelle conosciute, le
-   due variabili in `deploy/.env` e il servizio ricostruito:
+   due variabili in `deploy/.env` e il servizio ricreato, da solo (fatto
+   il 2026-10-25):
 
    ```bash
-   ssh-keyscan -p 23 u123456.your-storagebox.de > /root/.ssh/storagebox/known_hosts
-   cd ~/shaperoute/deploy && nano .env    # STORAGEBOX_HOST=u123456.your-storagebox.de, STORAGEBOX_USER=u123456
-   docker compose up -d --build offsite
+   ssh-keyscan -p 23 u700709.your-storagebox.de > /root/.ssh/storagebox/known_hosts
+   ssh-keygen -lf /root/.ssh/storagebox/known_hosts
+   cd ~/shaperoute/deploy
+   printf '\nSTORAGEBOX_HOST=%s\nSTORAGEBOX_USER=%s\n' u700709.your-storagebox.de u700709 >> .env
+   docker compose up -d --no-deps --build offsite
    docker compose exec offsite bash /backup.sh push
    ```
 
-   `push` deve dire «… copies and the search events to
-   u123456.your-storagebox.de»; da lì ogni notte, dopo la copia. Un `push`
-   fallito resta nel log (`docker compose logs offsite`) e si riprova la
-   notte dopo, con le copie ancora sul server.
+   Le impronte di `ssh-keygen -lf` devono essere quelle che Hetzner
+   pubblica per gli Storage Box (docs.hetzner.com, «Storage Box», «SSH
+   host keys»); per ED25519 è
+   `SHA256:XqONwb1S0zuj5A1CDxpOSuD2hnAArV1A3wKY7Z3sdgM`. `--no-deps` ricrea
+   solo `offsite`: `api`, `db` e `backup` restano accesi. `push` deve dire
+   «… copies and the search events to u700709.your-storagebox.de»; da lì
+   ogni notte, dopo la copia. Un `push` fallito resta nel log
+   (`docker compose logs offsite`) e si riprova la notte dopo, con le copie
+   ancora sul server. Per staccare lo Storage Box:
+   `sed -i '/^STORAGEBOX_/d' .env` e di nuovo
+   `docker compose up -d --no-deps offsite`.
+
+**Provare una copia dello Storage Box** (fatto il 2026-10-25). Si
+riprende la copia più recente con un nome fuori da `shaperoute-*.dump`, così
+né la pulizia dei 13 giorni né `push` la toccano. Si confronta con quella
+del server, la si ripristina nel database di prova di `check` e la si
+cancella. Un `check` alla volta: due insieme si cancellano a vicenda
+`restore_check`.
+
+```bash
+cd ~/shaperoute/deploy
+k=/root/.ssh/storagebox
+f=$(ls ../data/backups | grep '^shaperoute-.*\.dump$' | sort | tail -n 1)
+rsync -a -e "ssh -p 23 -i $k/id_ed25519 -o UserKnownHostsFile=$k/known_hosts -o StrictHostKeyChecking=yes" \
+    "u700709@u700709.your-storagebox.de:sgrava-db/$f" "../data/backups/restore-test-$f"
+sha256sum "../data/backups/$f" "../data/backups/restore-test-$f"
+docker compose exec backup bash /backup.sh check "/backups/restore-test-$f"
+rm "../data/backups/restore-test-$f"
+```
 
 **Ripristinare davvero** (sostituisce il database di adesso):
 
@@ -1198,7 +1233,7 @@ docker compose start api
 
 La prima riga è la copia di adesso, per tornare indietro. Una copia che
 c'è solo nello Storage Box va prima nella cartella del server:
-`rsync -a -e "ssh -p 23 -i /root/.ssh/storagebox/id_ed25519" u123456@u123456.your-storagebox.de:sgrava-db/shaperoute-<data>.dump ~/shaperoute/data/backups/`.
+`rsync -a -e "ssh -p 23 -i /root/.ssh/storagebox/id_ed25519 -o UserKnownHostsFile=/root/.ssh/storagebox/known_hosts" u700709@u700709.your-storagebox.de:sgrava-db/shaperoute-<data>.dump ~/shaperoute/data/backups/`.
 All'avvio l'API riapplica le migrazioni più nuove della copia.
 
 ### F.14 Il dominio getmuw.app (TASK-265)
