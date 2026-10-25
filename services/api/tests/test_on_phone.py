@@ -27,15 +27,17 @@ from shaperoute_api.on_phone import (
     plan_json,
     plan_on_phone,
     to_request,
+    warm,
 )
-from shaperoute_api.phone_zones import SUFFIX, write_zone, zone_name
+from shaperoute_api.phone_zones import SUFFIX, PhoneZones, write_zone, zone_name
 from shaperoute_api.schemas import RouteRequestBody
 
 REPO = Path(__file__).resolve().parents[3]
 LEVICO_GRAPH = REPO / "services/route-engine/tests/fixtures/levico_walk_1km.graphml"
 # The name of a zone that holds the Levico graph and the area of its routes.
 BBOX = (45.95, 11.2, 46.07, 11.4)
-LEVICO_CIRCLE = {"start": [46.0122, 11.2986], "shape": "circle", "distance_m": 1500}
+LEVICO = (46.0122, 11.2986)
+LEVICO_CIRCLE = {"start": list(LEVICO), "shape": "circle", "distance_m": 1500}
 
 
 @pytest.fixture
@@ -141,6 +143,32 @@ def test_the_jobs_run_at_once_one_after_the_other(phone_dir: Path) -> None:
     second = json.loads(plan_json(json.dumps(LEVICO_CIRCLE), jobs))
     assert first["job_id"] != second["job_id"]
     assert first["result"] == second["result"]
+
+
+def test_the_zone_read_as_the_app_opens_is_not_read_again(
+    phone_dir: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reads: list[str] = []
+    read = PhoneZones.read
+
+    def counted(self: PhoneZones, path: Path) -> Any:
+        reads.append(path.name)
+        return read(self, path)
+
+    monkeypatch.setattr(PhoneZones, "read", counted)
+    graphs = phone_graphs(phone_dir)
+    assert warm(graphs, "running", *LEVICO)
+    assert reads == [f"{zone_name('foot', BBOX)}{SUFFIX}"]
+    answer = json.loads(plan_json(json.dumps(LEVICO_CIRCLE), PhoneJobs(graphs)))
+    assert answer["status"] == "done"
+    assert len(reads) == 1
+
+
+def test_nothing_to_read_ahead(tmp_path: Path, phone_dir: Path) -> None:
+    assert not warm(phone_graphs(tmp_path), "running", *LEVICO)
+    assert not warm(phone_graphs(phone_dir), "paddling", *LEVICO)
+    assert not warm(phone_graphs(phone_dir), "cycling", *LEVICO)
+    assert not warm(phone_graphs(phone_dir), "running", 45.4642, 9.19)
 
 
 def test_the_phone_draws_without_the_archive(phone_dir: Path) -> None:

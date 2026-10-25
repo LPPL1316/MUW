@@ -8,7 +8,12 @@ import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { LANGUAGES, folderOf, markedText, privacyPages } from "../tools/make_privacy.mjs";
+import {
+  LANGUAGES,
+  folderOf,
+  markedText,
+  privacyPages,
+} from "../tools/make_privacy.mjs";
 
 const SITE = join(dirname(fileURLToPath(import.meta.url)), "..");
 const pages = await privacyPages();
@@ -22,7 +27,11 @@ test("the pages say what the app says: run make_privacy.mjs after a change there
     "privacy/it/index.html",
   ]);
   for (const [path, html] of Object.entries(pages)) {
-    assert.equal(readFileSync(join(SITE, path), "utf8"), html, `${path} is out of date`);
+    assert.equal(
+      readFileSync(join(SITE, path), "utf8"),
+      html,
+      `${path} is out of date`,
+    );
   }
 });
 
@@ -34,7 +43,10 @@ test("each page is in its language and links to the others", () => {
     assert.match(html, /<title>[^<]+ — MuW<\/title>/);
     assert.match(html, new RegExp(`aria-current="page">${language.name}</span>`));
     for (const other of LANGUAGES.filter((item) => item !== language)) {
-      assert.ok(html.includes(`hreflang="${other.code}"`), `${language.code} → ${other.code}`);
+      assert.ok(
+        html.includes(`hreflang="${other.code}"`),
+        `${language.code} → ${other.code}`,
+      );
     }
   }
 });
@@ -42,7 +54,9 @@ test("each page is in its language and links to the others", () => {
 test("every page points at files that exist and loads nothing from elsewhere", () => {
   for (const [path, html] of Object.entries(pages)) {
     const folder = dirname(join(SITE, path));
-    const targets = [...html.matchAll(/\s(?:src|href)="([^"]+)"/g)].map((match) => match[1]);
+    const targets = [...html.matchAll(/\s(?:src|href)="([^"]+)"/g)].map(
+      (match) => match[1],
+    );
     assert.ok(targets.length > 5);
     for (const target of targets) {
       assert.doesNotMatch(target, /^[a-z]+:/i, `${path}: ${target}`);
@@ -53,16 +67,19 @@ test("every page points at files that exist and loads nothing from elsewhere", (
 
 test("the policy is final: its day, no draft notice, nothing left to fill (TASK-237 D, TASK-267 B)", () => {
   const days = {
-    "privacy/index.html": "Last updated: 10 October 2026",
-    "privacy/it/index.html": "Ultimo aggiornamento: 10 ottobre 2026",
-    "privacy/de/index.html": "Zuletzt aktualisiert: 10. Oktober 2026",
-    "privacy/fr/index.html": "Dernière mise à jour : 10 octobre 2026",
-    "privacy/es/index.html": "Última actualización: 10 de octubre de 2026",
+    "privacy/index.html": "Last updated: 25 October 2026",
+    "privacy/it/index.html": "Ultimo aggiornamento: 25 ottobre 2026",
+    "privacy/de/index.html": "Zuletzt aktualisiert: 25. Oktober 2026",
+    "privacy/fr/index.html": "Dernière mise à jour : 25 octobre 2026",
+    "privacy/es/index.html": "Última actualización: 25 de octubre de 2026",
   };
   for (const [path, html] of Object.entries(pages)) {
     assert.ok(html.includes(`<p class="legal__updated">${days[path]}</p>`), path);
     assert.doesNotMatch(html, /legal__draft|class="placeholder"/, path);
-    assert.ok(html.includes("Luca Pallaoro") && html.includes("muw2610@gmail.com"), path);
+    assert.ok(
+      html.includes("Luca Pallaoro") && html.includes("muw2610@gmail.com"),
+      path,
+    );
     assert.doesNotMatch(html.replace(/<!--[\s\S]*?-->/, ""), /\[[^\]]+\]/, path);
   }
 });
@@ -85,8 +102,13 @@ test("a draft would say so first, with its day, and mark what is left to fill", 
     },
     { draft: "Draft — not final yet.", updated: "Last updated: {date}" },
   );
-  assert.match(html, /<div class="legal__draft" role="note"><strong>Draft — not final yet\.<\/strong><span>Last updated: 1 May 2027<\/span><\/div>/);
-  assert.ok(html.includes('Write to <mark class="placeholder">[contact email]</mark>.'));
+  assert.match(
+    html,
+    /<div class="legal__draft" role="note"><strong>Draft — not final yet\.<\/strong><span>Last updated: 1 May 2027<\/span><\/div>/,
+  );
+  assert.ok(
+    html.includes('Write to <mark class="placeholder">[contact email]</mark>.'),
+  );
 });
 
 test("texts are escaped, places to fill marked", () => {
@@ -105,9 +127,15 @@ test("the server's copy (DEPLOY.md F.14) takes every file the pages load", () =>
   const deploy = readFileSync(join(SITE, "..", "docs", "DEPLOY.md"), "utf8");
   const line = deploy.match(/git archive origin\/main ((?:site\/\S+ ?)+)\|/);
   assert.ok(line, "DEPLOY.md F.14 has the git archive line");
-  const copied = line[1].trim().split(/\s+/).map((path) => path.replace(/^site\//, ""));
+  const copied = line[1]
+    .trim()
+    .split(/\s+/)
+    .map((path) => path.replace(/^site\//, ""));
   const loaded = new Set();
-  const pagesToCheck = { "index.html": readFileSync(join(SITE, "index.html"), "utf8"), ...pages };
+  const pagesToCheck = {
+    "index.html": readFileSync(join(SITE, "index.html"), "utf8"),
+    ...pages,
+  };
   for (const [path, html] of Object.entries(pagesToCheck)) {
     loaded.add(path);
     for (const [, target] of html.matchAll(/\s(?:src|href)="([^"#]+)"/g)) {
@@ -119,11 +147,18 @@ test("the server's copy (DEPLOY.md F.14) takes every file the pages load", () =>
     }
   }
   // The scripts the page imports, and what they import, are under the same names.
-  for (const file of ["main.js", "render.js", "content.js", "config.js", "data/drawings.js"]) {
+  for (const file of [
+    "main.js",
+    "render.js",
+    "content.js",
+    "config.js",
+    "data/drawings.js",
+  ]) {
     loaded.add(file);
   }
   for (const file of loaded) {
-    const normal = file === "./index.html" || file === "/index.html" ? "index.html" : file;
+    const normal =
+      file === "./index.html" || file === "/index.html" ? "index.html" : file;
     assert.ok(
       copied.some((path) => normal === path || normal.startsWith(`${path}/`)),
       `${normal} is not in the copy of DEPLOY.md F.14`,
