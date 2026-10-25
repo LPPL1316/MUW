@@ -113,6 +113,22 @@ richieste e stesse zone):
 I secondi non si confrontano (la stessa misura è durata 690 s e 171 s a
 Mac carico e scarico, con risultati identici).
 
+Per la scelta di prodotto (un tetto ai tracciamenti, sulle 252 richieste
+misurate; «tracciamenti» è il costo del motore, i secondi vanno in
+proporzione):
+
+| tetto | tracciamenti (oggi 4 627) | buoni persi su 129 |
+|---|---|---|
+| 28 | 4 431 (−4 %) | 2 (Rovereto stella, Bologna luna: al 30º) |
+| 25 | 4 098 (−11 %) | 5 (più Rovereto cuore al 27º, Milano lumaca al 27º, Chicago cuore 2 km al 28º) |
+| 22 | 3 713 (−20 %) | 9 (più Trento lumaca al 24º, Milano cuore 2 km al 23º e 25º, Roma stella al 23º) |
+| 20, cioè senza la fase inclinata | 3 443 (−26 %) | 12 (i 14 buoni della fase inclinata meno i 2 trovati entro il 20º, più nessun altro) |
+| 15 | 2 756 (−40 %) | 19 |
+
+Ogni percorso buono perso è un utente che oggi riceve un disegno buono e
+domani ne riceverebbe uno mediocre o nessuno, per risparmiare 6–14 s sui
+casi che oggi non trovano niente.
+
 ## Criteri di accettazione
 
 - [x] Le 129 richieste buone delle sette città danno lo stesso percorso,
