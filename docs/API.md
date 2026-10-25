@@ -257,6 +257,48 @@ Misurato sul Mac il 2026-10-02 (Trento, zona in cache, il Mac occupato da
 altri lavori): i tre esempi 10–14 s la prima volta, **0,0 s** la seconda,
 tutti e tre nella risposta al `POST`.
 
+### L'archivio dei percorsi (TASK-297 parte A, ADR-0256)
+
+Tenere **tutti** i percorsi è la scelta dell'utente di ADR-0086. Dal
+TASK-297 ogni percorso finito, e ogni sua alternativa, resta in una riga
+della tabella `drawn_routes` del database (`shaperoute_api/route_archive.py`,
+`DATABASE.md`), **senza chi l'ha chiesto**: un percorso disegnato è di
+tutti. L'archivio sta davanti ai file degli esempi: `RouteJobs` chiede
+prima a lui, poi ai file; scrive a tutti e due (i file tengono da soli ciò
+che parte da un centro o da un punto dell'acqua).
+
+La stessa richiesta (forma o parola, stile, distanza, attività, la penna
+alzata o no), lo stesso motore (l'impronta di `route_store`), meno di 30
+giorni:
+
+- **dallo stesso punto** (entro 10 m): la riga risponde subito, job `done`
+  nella risposta al `POST /route-jobs`, come un esempio tenuto;
+- **entro 100 m** (`NEARBY_MAX_M`, la distanza delle partenze vicine di
+  ADR-0071): il percorso tenuto si raggiunge **lungo le strade** dalla
+  partenza dell'utente e si lascia allo stesso modo, come `with_approach`
+  fa per un'alternativa, se la via è entro 150 m (`APPROACH_MAX_M`). La
+  zona si carica (0,3–2 s), il motore non parte: succede nel thread del
+  job (`RouteJobs._nearby`, `FindsNearby`), non nel `POST`, e il job passa
+  da `queued` a `done` come gli altri. Le indicazioni sono quelle della
+  linea intera; i `walks` si spostano con i punti. Non sull'acqua: non ci
+  sono strade;
+- più righe che vanno bene: per prima quella con più **corse salvate e
+  preferiti** lungo la sua linea (`runs`, `favorites`, contati per
+  `line_key` da `PUT /me/activities/{key}` e dai preferiti, mai per chi),
+  poi la più somigliante, poi la più vicina; le altre, fino a tre, sono le
+  alternative;
+- niente che vada bene: il motore calcola come oggi, e il risultato entra
+  nell'archivio.
+
+Il contratto non cambia. Nel log: `job …: kept route reached along the
+roads` e `kept route reached from 62 m away`; negli eventi la risposta
+compare come le altre, con i secondi della zona. Mai in archivio: il
+contorno di un'immagine (è dell'utente), una forma spostata a mano
+sull'acqua (`near`). Tetto di 50 000 righe (circa 50 kB l'una con le
+indicazioni): oltre, a ogni scrittura vanno via le più vecchie mai corse né
+preferite. Un archivio che non risponde (database fermo) lascia il motore
+fare come prima: avviso nel log, nessun errore all'app.
+
 ### Registro delle richieste (TASK-090, ADR-0085)
 
 Serve a rifare uguale un percorso visto nell'app, per capire un difetto:
