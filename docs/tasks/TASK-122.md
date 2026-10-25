@@ -66,6 +66,92 @@ la chiave pubblica (`DEPLOY.md` F.13, punto 2); poi, sul server, il
 punto 3 (`known_hosts`, le due variabili, `push`), e il criterio qui
 sopra.
 
+### Dove si è fermato (2026-10-25)
+
+**Il server, letto il 2026-10-25 alle 01:15Z** (solo letture): `main`
+55b990be; `backup` e `offsite` accesi da due settimane; in
+`data/backups` 13 copie notturne delle 02:00Z, circa 200 KB l'una,
+l'ultima del 2026-10-24; ogni notte `offsite` scrive «no Storage Box»,
+perché `STORAGEBOX_HOST` e `STORAGEBOX_USER` non sono in `deploy/.env`.
+La chiave `/root/.ssh/storagebox/id_ed25519` c'è, `known_hosts` no. Il
+primo invio vale circa 2,2 MB di copie e 0,7 MB di eventi.
+
+**Dall'iPhone**: l'entrata dall'iPhone vero sull'indirizzo pubblico, senza
+Tailscale, è nel video per Apple del 2026-10-13 (build 7 da TestFlight,
+l'account dell'utente e quello demo). L'iscrizione di un account nuovo
+nel video non c'è: la conferma il conto degli account del passo 1.
+
+**Adesso tocca all'utente**: crea lo Storage Box (`DEPLOY.md` F.13,
+punto 2, con la chiave pubblica di `/root/.ssh/storagebox/id_ed25519.pub`)
+e dà il nome utente, `u123456` qui sotto. Ogni passo sul server vuole il sì
+dell'utente, uno per volta (il Coordinatore, 2026-10-25). Non serve
+aspettare Apple: l'API, `db` e `backup` non si riavviano. Tutti i comandi
+partono da `~/shaperoute/deploy`.
+
+**Passo 1 — la copia più recente si ripristina.**
+
+```bash
+docker compose exec backup bash /backup.sh check
+```
+
+Ci si aspetta `check: shaperoute-<data>.dump restores; N accounts,
+migrations 0001_users_sessions,…,0021_push_tokens`. Lavora solo su
+`restore_check`, un database di prova che crea e poi cancella: quello vero
+non si tocca. Se si ferma a metà:
+`docker compose exec backup dropdb --if-exists restore_check`.
+
+**Passo 2 — lo Storage Box nel servizio `offsite`.**
+
+```bash
+ssh-keyscan -p 23 u123456.your-storagebox.de > /root/.ssh/storagebox/known_hosts
+ssh-keygen -lf /root/.ssh/storagebox/known_hosts
+grep -c '^STORAGEBOX_' .env    # 0: le righe non ci sono ancora
+printf '\nSTORAGEBOX_HOST=%s\nSTORAGEBOX_USER=%s\n' u123456.your-storagebox.de u123456 >> .env
+docker compose up -d --no-deps offsite
+docker compose logs --tail 3 offsite
+docker compose exec offsite bash /backup.sh push
+```
+
+Le impronte di `ssh-keygen -lf` si confrontano con quelle che Hetzner
+pubblica per gli Storage Box. Si ricrea solo `offsite`, con la stessa
+immagine e senza build. Il log dice `push: every day at 02:30 UTC to
+u123456.your-storagebox.de`, e `push` dice `push: 13 copies and the search
+events to u123456.your-storagebox.de`. Un `Permission denied (publickey)`
+vuol dire che la chiave non è nello Storage Box; un `Connection timed out`
+vuol dire che l'accesso SSH è spento. In tutti e due i casi le copie
+restano sul server: `offsite` le legge soltanto.
+
+Per tornare indietro:
+
+```bash
+sed -i '/^STORAGEBOX_/d' .env
+docker compose up -d --no-deps offsite
+rm /root/.ssh/storagebox/known_hosts
+```
+
+Dopo, `offsite` dice di nuovo «no Storage Box».
+
+**Passo 3 — una copia torna dallo Storage Box e si ripristina in un
+database di prova.**
+
+```bash
+f=$(ls ../data/backups | grep '^shaperoute-.*\.dump$' | sort | tail -n 1)
+rsync -a -e "ssh -p 23 -i /root/.ssh/storagebox/id_ed25519 -o UserKnownHostsFile=/root/.ssh/storagebox/known_hosts -o StrictHostKeyChecking=yes" \
+    "u123456@u123456.your-storagebox.de:sgrava-db/$f" "../data/backups/restore-test-$f"
+sha256sum "../data/backups/$f" "../data/backups/restore-test-$f"
+docker compose exec backup bash /backup.sh check "/backups/restore-test-$f"
+rm "../data/backups/restore-test-$f"
+```
+
+Le due somme devono essere uguali, e `check` deve dire come al passo 1.
+Il nome `restore-test-…` resta fuori da `shaperoute-*.dump`: non lo
+cancella la pulizia dei 13 giorni e `push` non lo manda. Se il passo si
+ferma a metà: `rm` del file e
+`docker compose exec backup dropdb --if-exists restore_check`.
+
+Dopo i tre passi: si spunta il criterio dello Storage Box, `DEPLOY.md`
+F.13 riceve la prova dallo Storage Box, e il task va a Done.
+
 ## File toccati
 
 ```
