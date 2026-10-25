@@ -3,7 +3,7 @@
  * leaving the front, where the GPS is followed there only; the phone
  * freezing the app, wherever it is followed.
  */
-import { AppState, type AppStateStatus } from "react-native";
+import { AppState, type AppStateStatus, Platform } from "react-native";
 
 import { FROZEN_AFTER_MS, TICK_MS, watchAway } from "./runAway";
 
@@ -107,4 +107,30 @@ test("once removed, nothing is told", () => {
   jest.setSystemTime(BEGAN + 200_000);
   jest.advanceTimersByTime(TICK_MS);
   expect(recorder.leave).not.toHaveBeenCalled();
+});
+
+test("on Android in the background a late tick is the screen off, not a freeze (TASK-294)", () => {
+  jest.replaceProperty(Platform, "OS", "android");
+  const recorder = { leave: jest.fn() };
+  const away = watchAway(recorder, { background: true });
+  // The screen off for three minutes: the app's clock stood still, the
+  // service went on with the GPS, and a runner at a light gave no fix.
+  jest.setSystemTime(BEGAN + 180_000);
+  away.beforeFix();
+  jest.advanceTimersByTime(TICK_MS);
+  expect(recorder.leave).not.toHaveBeenCalled();
+  expect(AppState.addEventListener).not.toHaveBeenCalled();
+  away.remove();
+});
+
+test("on Android with the GPS in front only, leaving the front and a freeze count as before", () => {
+  jest.replaceProperty(Platform, "OS", "android");
+  const recorder = { leave: jest.fn() };
+  const away = watchAway(recorder, { background: false });
+  appState("background");
+  expect(recorder.leave).toHaveBeenCalledWith(BEGAN);
+  jest.setSystemTime(BEGAN + 200_000);
+  away.beforeFix();
+  expect(recorder.leave).toHaveBeenCalledTimes(2);
+  away.remove();
 });
