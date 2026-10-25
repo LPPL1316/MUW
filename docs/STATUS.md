@@ -197,6 +197,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
   TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
   **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
+- **TASK-298 — Fermarsi prima nella ricerca quando la forma non entra
+  nelle strade** (ADR-0259; seguito di TASK-297, l'utente il 2026-10-24:
+  «sì, apri anche quello per fermarsi prima»; condizioni dal
+  Coordinatore). Branch `feat/TASK-298-stop-earlier`. **Misurato prima**
+  (`tests/measure_stop_earlier.py`, 252 richieste in sette città,
+  tracciamento per tracciamento): il primo percorso buono compare a
+  qualunque tracciamento, anche al 30º di 30 e dal 6º piazzamento
+  inclinato; «N piazzamenti senza miglioramento» perde da 10 a 38 buoni su
+  129; il conteggio delle strade è 1,00 in testa quasi ovunque. Il taglio
+  vero costa percorsi buoni ed è una scelta di prodotto: numeri in
+  ADR-0259. Quello che si salta senza perdere nulla è scritto lì e in
+  `tasks/TASK-298.md`; `engine.zip` rifatto nella PR.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»

@@ -15550,3 +15550,87 @@ un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
 salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
 server, `draw_examples` e il motore sul telefono (TASK-214) vanno
 aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
+
+## ADR-0259 — Fermarsi prima nella ricerca: misurato, si salta solo ciò che non ha mai dato un percorso buono
+
+**Stato**: Accettata · 2026-10-25 · deciso dall'agente su delega
+dell'utente («sì, apri anche quello per fermarsi prima», 2026-10-24), con
+le condizioni del Coordinatore (TASK-298); il taglio più audace è una
+scelta di prodotto lasciata all'utente, con i numeri qui sotto.
+
+**Contesto**: dove la forma non entra nelle strade la ricerca (§5 di
+`ROUTE_ENGINE.md`) spende tutti i 30 tracciamenti per un disegno mediocre:
+a Trento 19 richieste su 36 (ADR-0257), i 6–14 s che l'utente aspetta. La
+condizione: non perdere nessun percorso buono (distanza ±10 %, somiglianza
+≥ 0,90) che oggi la ricerca trova.
+
+**Misura** (Mac, 2026-10-24/25; tracciamenti, non secondi: la stessa misura
+è durata 690 s e 171 s a Mac carico e scarico, con risultati identici;
+`tests/measure_stop_earlier.py`): le 36 richieste di ADR-0257 — cuore,
+stella, gatto, lumaca, luna da 5 km e cuore da 2 km, sei partenze — in
+sette città, Trento, Rovereto, Levico, Bologna, Milano, Roma e Chicago, con
+la chiamata dell'API (`doubled`: a Trento i buoni sono 16, non 17).
+
+| | richieste | buone | tracciamenti |
+|---|---|---|---|
+| sette città | 252 | 129 | 4 627, di cui 3 581 (77 %) nelle 123 senza percorso buono |
+
+1. Il primo percorso buono compare a qualunque tracciamento: 13 casi dopo
+   il 20º, due al 30º di 30. 14 buoni vengono dalla fase inclinata, anche
+   dal suo 5º e 6º piazzamento; 5 dal 6º piazzamento dritto; 14 dalla
+   rifinitura della rotazione, 1 dalla lucidatura. Un tetto più basso o un
+   piazzamento in meno perde percorsi buoni.
+2. «N piazzamenti senza miglioramento» del costo o della somiglianza perde
+   da 10 buoni (N = 4) a 38 (N = 1) su 129.
+3. La somiglianza del primo tracciamento di un piazzamento non dice nulla
+   del suo esito: cambiando scala sale anche da 0,42 a 0,91; un taglio
+   dentro un piazzamento (distanza entro il 15 % e somiglianza sotto 0,80)
+   perde 2 buoni.
+4. Il conteggio delle strade è 1,00 in testa alla classifica in quasi tutte
+   le richieste di città: non distingue dove la forma entra.
+5. Resa per posto (buoni ogni 100 tracciamenti): 1º e 2º piazzamento
+   dritto 5,5; 3º e 4º 3–4; 5º 0,8; 6º 2,5; rifinitura 3,1; inclinati
+   0–3, il primo inclinato 0 su 413 ma prepara gli altri.
+6. Saltare la fase inclinata quando da dritta la somiglianza migliore è
+   sotto 0,85 perde 1 buono (Rovereto, luna: dritta 0,81, buona al 6º
+   piazzamento inclinato); sotto 0,80 non ne perde ma con margine 0,009;
+   sotto 0,75 non ne perde, margine 0,06, vale 209 tracciamenti (4,5 %).
+7. La rifinitura della rotazione ha dato un percorso buono solo dove la
+   fase aveva già un piazzamento a 0,86 o più: saltarla sotto 0,80 non
+   perde nulla e vale circa il 4 %.
+8. 62 tracciamenti (1,3 %) erano duplicati esatti: la secante della scala
+   rimanda al bordo di `SCALE_RANGE` già tracciato per lo stesso
+   piazzamento.
+
+**Decisione**: in `optimizer.search`, per tutte le ricerche (anche sul
+telefono e nelle partenze vicine):
+
+- la rifinitura della rotazione di una fase parte solo se la forma vi è
+  arrivata almeno a **0,80** (`WORTH_REFINING`); la lucidatura della
+  distanza resta sempre, così il percorso mediocre torna della lunghezza
+  chiesta; le parole non cambiano, non misurate;
+- una scala già tracciata per lo stesso piazzamento non si traccia più: il
+  tracciato noto vale per quel passo della secante, il budget non si spende.
+
+Nessun piazzamento in meno, nessun tetto più basso, nessun messaggio nuovo:
+dove la ricerca si ferma l'utente riceve la risposta di oggi (il percorso
+mediocre con gli avvisi, o `ShapeNotDrawableError`). **Non adottato** il
+salto della fase inclinata: le sette città hanno griglie quasi nord-sud, e
+dove le strade disegnano la forma solo inclinata (`tests/test_tilt.py`, da
+dritta 0,29; una città a griglia diagonale) la fase dritta non la vede; sulla
+città finta spegneva anche percorsi mediocri ma decenti (una stella 0,87
+fra le alternative, un cuore 0,80 da una partenza vicina).
+
+**Conseguenze**: i 129 percorsi buoni restano identici, punto per punto e
+con gli stessi tracciamenti. Dove la ricerca non converge il percorso può
+cambiare: il budget liberato va in fondo alla fase e di solito migliora il
+risultato (nella città finta il cuore da 8 km passa da 0,69 a 0,79, la
+parola CIAO guadagna un'alternativa); la rifinitura saltata può peggiorare
+un'alternativa da una partenza vicina (Levico, cuore da 2 km: 2
+alternative mediocri invece di 1; stella della città finta 0,87 → 0,85).
+Le impronte di `test_kept_per_graph.py` dei casi che non convergono
+cambiano (anche solo per «after 27 attempts» nell'avviso). Il risparmio è
+piccolo: la tabella prima/dopo è in `tasks/TASK-298.md`. Il taglio vero
+(un tetto, i piazzamenti inclinati 5–6, la fase inclinata sotto 0,80)
+costa percorsi buoni o città non misurate: se l'utente vuole scambiarli per
+la velocità, si decide con questi numeri, in un task suo.

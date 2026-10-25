@@ -117,6 +117,20 @@ MAX_RESCALES = 4
 REFINE_SPAN_DEG = 15.0
 REFINE_STEP_DEG = 5.0
 MAX_TRACES = 20
+# Where the search gives up sooner (TASK-298, ADR-0259). Measured trace by
+# trace on 252 requests in seven cities: a good route can come from any
+# placement, the sixth tilted one too, and as late as the 30th trace, so no
+# placement is skipped and no cap is lower; the road count is 1.0 at the
+# top almost everywhere and tells nothing. What the search skips, with none
+# of the 129 good routes changed: the rotation refinement of a stage whose
+# best shape stayed under WORTH_REFINING (the good routes a refinement gave
+# followed a 0.86 or better), and a trace at a scale already traced for the
+# same placement, which the secant asks for again at a bound of
+# SCALE_RANGE. Skipping the tilted stage after a poor upright one was
+# measured too and not taken: the seven cities have grids near north-south,
+# and where the roads draw the shape tilted only (tests/test_tilt.py) the
+# upright stage sees nothing of it.
+WORTH_REFINING = 0.80
 # Stop when both hold (ROUTE_ENGINE.md §5). Metric and threshold come from
 # the eye judgement of the first results (TASK-015, docs/MAPS.md): the
 # routes judged good covered 90% of the outline or more, the others less.
@@ -757,12 +771,18 @@ def search(
     def rescale(
         p: Placement, scale: float, budget: int
     ) -> tuple[Attempt | None, float]:
-        """Trace, rescale towards the target, repeat; returns the next scale."""
+        """Trace, rescale towards the target, repeat; returns the next scale.
+
+        A scale already traced for this placement is not traced again: the
+        secant asks for it when it points beyond a bound of SCALE_RANGE
+        twice. The trace it gave stands in, and the budget is not spent.
+        """
         history: list[Attempt] = []
         for _ in range(MAX_RESCALES):
             if len(attempts) >= budget:
                 break
-            history.append(attempt(p, scale))
+            known = next((a for a in history if math.isclose(a.scale_m, scale)), None)
+            history.append(known or attempt(p, scale))
             if abs(history[-1].ratio - 1) <= DISTANCE_TOLERANCE:
                 break
             new_scale = next_scale(history)
@@ -851,25 +871,32 @@ def search(
         if len(attempts) == first:
             return False  # nothing to try: no rotation, or no budget
         best = min(attempts[first:], key=lambda a: a.cost)
-        turns = np.arange(-REFINE_SPAN_DEG, REFINE_SPAN_DEG + 1e-9, REFINE_STEP_DEG)
-        traced = {a.placement for a in attempts}
-        around = [
-            Placement(
-                best.placement.start,
-                best.offset_m,
-                float((best.rotation_deg + t) % 360),
-                best.phase,
+        # Turning the best placement a little is worth it only where the
+        # shape came within reach; its distance is polished either way, so
+        # the route given back is the right length (ADR-0259). A word is
+        # not measured: its letters move to the roads, and it keeps the
+        # whole search.
+        seen = max(a.similarity for a in attempts[first:])
+        if word is not None or seen >= WORTH_REFINING:
+            turns = np.arange(-REFINE_SPAN_DEG, REFINE_SPAN_DEG + 1e-9, REFINE_STEP_DEG)
+            traced = {a.placement for a in attempts}
+            around = [
+                Placement(
+                    best.placement.start,
+                    best.offset_m,
+                    float((best.rotation_deg + t) % 360),
+                    best.phase,
+                )
+                for t in turns
+            ]
+            refined = sorted(
+                (p for p in around if p not in traced and may_turn(p, tilted)),
+                key=lambda p: (-road_fit(p, best.scale_m), p.rotation_deg),
             )
-            for t in turns
-        ]
-        refined = sorted(
-            (p for p in around if p not in traced and may_turn(p, tilted)),
-            key=lambda p: (-road_fit(p, best.scale_m), p.rotation_deg),
-        )
-        if refined and len(attempts) < budget:
-            last, _ = rescale(refined[0], best.scale_m, budget)
-            if last is not None and good(last):
-                return True
+            if refined and len(attempts) < budget:
+                last, _ = rescale(refined[0], best.scale_m, budget)
+                if last is not None and good(last):
+                    return True
         polish(min(attempts[first:], key=lambda a: a.cost), budget)
         return any(good(a) for a in attempts[first:])
 

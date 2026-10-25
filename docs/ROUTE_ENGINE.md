@@ -725,6 +725,42 @@ o inclinato, entro
 migliore è sotto **0,60**, o nessun tentativo sta entro ±2 km, nessun
 percorso: la forma lì non è disponibile (ADR-0025).
 
+### Fermarsi prima (TASK-298)
+
+Dove la forma non entra nelle strade la ricerca spende tutto il budget per
+un disegno mediocre: a Trento 19 richieste su 36 (ADR-0257). Misurata
+tracciamento per tracciamento su 252 richieste in sette città (ADR-0259),
+la ricerca non si lascia accorciare quasi mai senza perdere percorsi buoni:
+il primo percorso buono compare a qualunque tracciamento, anche al 30º di
+30 e dal sesto piazzamento inclinato; «N piazzamenti senza miglioramento»
+perde da 10 a 38 buoni su 129; la somiglianza del primo tracciamento di un
+piazzamento non predice nulla (sale anche da 0,42 a 0,91 cambiando scala);
+il conteggio delle strade è 1,00 in testa quasi ovunque. Quello che si
+salta, senza che nessuno dei 129 percorsi buoni cambi di un punto:
+
+1. **La rifinitura della rotazione** (passo 4, ±5° attorno al piazzamento
+   migliore) parte solo se in quella fase la forma è arrivata almeno a
+   **0,80** di somiglianza (`WORTH_REFINING`): i percorsi buoni nati da una
+   rifinitura seguivano sempre un piazzamento a 0,86 o più. La lucidatura
+   della distanza (passo 5) resta sempre: è lei che riporta il percorso
+   mediocre alla lunghezza chiesta. Le parole non cambiano: le loro lettere
+   si spostano sulle strade e non sono state misurate.
+2. **Nessun tracciamento ripetuto**: quando la secante della scala rimanda
+   a una scala già tracciata per lo stesso piazzamento (succede al bordo
+   dell'intervallo 0,4–1,1), il tracciato noto vale per quel passo e il
+   budget non si spende. Era l'1,3 % dei tracciamenti.
+
+Dove la ricerca non converge il percorso restituito può cambiare: il budget
+liberato va in fondo alla fase e di solito lo migliora; la rifinitura
+saltata può togliere un'alternativa mediocre da una partenza vicina. Saltare
+la fase inclinata quando quella dritta è andata male (sotto 0,75) non perde
+nessun buono nelle sette città ma è stato **scartato**: le loro griglie sono
+quasi nord-sud, e dove le strade disegnano la forma solo inclinata (il caso
+di `test_tilt.py`, e una città a griglia diagonale) la fase dritta non la
+vede affatto. Il resto delle misure, e che cosa perderebbe un tetto più
+basso, in ADR-0259; lo script che le rifà è
+`tests/measure_stop_earlier.py`.
+
 ### Forme inclinate (TASK-232)
 
 L'app gira la mappa di quanto è girata la forma (`RouteResult.rotation_deg`,

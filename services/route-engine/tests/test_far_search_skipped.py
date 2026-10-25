@@ -70,11 +70,14 @@ def test_the_far_search_still_runs_where_nothing_near_can_be_drawn() -> None:
 # 1-2 km away: the start's own route now, drawable but not good, or a nearby
 # start's. `_digest` of plan_nearby as the API plans it (processes=False):
 # the chosen route, its alternatives and every start's score and note.
+# The digests are those of test_kept_per_graph.BEFORE: since TASK-298 the
+# alternatives of the two plans come out otherwise (ADR-0259), the chosen
+# route and its start do not.
 AFTER: dict[str, tuple[str, int, float]] = {
     # Before: 9441bb1743c10811, 0.912 from the start moved by the far search.
-    "town heart 8000": ("dc04f92323c0ab6f", 1, 0.819),
+    "town heart 8000": ("75d03ac7576dc1cd", 1, 0.819),
     # Before: 7f7106f7b85e4a4a, 0.935 from the start moved by the far search.
-    "town star 5000": ("7f04b4996a3ec2d2", 0, 0.831),
+    "town star 5000": ("503c08c226103dce", 0, 0.831),
 }
 
 
