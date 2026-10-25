@@ -1,5 +1,6 @@
 import type { Direction, LatLon, Turn } from "@shaperoute/shared-types";
 
+import levico from "./fixtures/levico-dead-end-u-turn.json";
 import trento from "./fixtures/trento-fiere-crossings.json";
 import { MERGE_M, simplifyDirections } from "./simplifyDirections";
 
@@ -252,5 +253,74 @@ describe("a real walk in Trento, from Trento Fiere (OSM, the engine's directions
     ]);
     // Only the turn just after the start is read with the departure.
     expect(simplified.filter((d) => d.joined).map((d) => d.distance_m)).toEqual([11.2]);
+  });
+});
+
+describe("a real walk in Levico into a dead end (TASK-271's graph)", () => {
+  // `levico_walk_1km.graphml` of the engine's tests: left onto Viale Lido,
+  // left into a footway that ends 3.8 m on, back, and left again, all in
+  // 25 m.
+  const points = levico.points as LatLon[];
+  const directions = levico.directions as Direction[];
+  const simplified = simplifyDirections(points, directions);
+  const near = (list: Direction[]) =>
+    list.filter((d) => d.distance_m >= 400 && d.distance_m <= 430);
+
+  test("the U-turn, and the turns too close to it, are said as today", () => {
+    expect(near(directions).map((d) => d.turn)).toEqual([
+      "left",
+      "left",
+      "u-turn",
+      "left",
+    ]);
+    expect(near(simplified)).toEqual(near(directions));
+  });
+
+  test("the U-turn is never part of a manoeuvre, nor a turn of another kind", () => {
+    const uTurns = (list: Direction[]) => list.filter((d) => d.turn === "u-turn");
+    expect(uTurns(directions)).toHaveLength(1);
+    expect(uTurns(simplified)).toEqual(uTurns(directions));
+  });
+});
+
+test("the arrival is never part of a manoeuvre, nor the turns too close to it", () => {
+  // The junction of «a junction crossed on foot», 24 m from the end: its
+  // last turn is within ARRIVE_M of it, though the way on is long enough to
+  // read the turn.
+  const points = [at(0, 0), at(0, 270), at(10, 270), at(10, 280), at(-14, 280)];
+  const directions = joinedAsEngine([
+    DEPART,
+    direction("right", 90, 270, [0, 270]),
+    direction("left", -90, 280, [10, 270]),
+    direction("left", -90, 290, [10, 280], "Via Verdi"),
+  ]);
+  expect(simplifyDirections(points, directions)).toEqual(directions);
+});
+
+describe.each([
+  ["Trento", trento],
+  ["Levico", levico],
+])("all along the real walk in %s", (_, walk) => {
+  const points = walk.points as LatLon[];
+  const directions = walk.directions as Direction[];
+
+  test("every direction further than MERGE_M from the ones beside it is as today", () => {
+    const apart = directions.filter((d, i) => {
+      const before = directions[i - 1];
+      const after = directions[i + 1];
+      return (
+        (before === undefined || d.distance_m - before.distance_m > MERGE_M) &&
+        (after === undefined || after.distance_m - d.distance_m > MERGE_M)
+      );
+    });
+    expect(apart.length).toBeGreaterThanOrEqual(4);
+    const simplified = simplifyDirections(points, directions);
+    for (const direction of apart) {
+      expect(simplified).toContainEqual(direction);
+    }
+  });
+
+  test("with nothing closer than mergeM, nothing changes", () => {
+    expect(simplifyDirections(points, directions, { mergeM: 0 })).toEqual(directions);
   });
 });

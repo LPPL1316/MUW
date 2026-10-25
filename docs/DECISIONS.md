@@ -16079,9 +16079,14 @@ lasciata «per ora».
    comincia, sulla strada dove finisce.
 4. **Le micro-deviazioni tacciono**: una manovra che non gira non si dice,
    a meno che finisca su una via di un altro nome («Prosegui dritto su …»).
-5. **Mai fuse** (condizione del Coordinatore): la partenza e la «u-turn»
-   (ADR-0045, aggiunta di TASK-271). Un'indicazione da sola resta quella del
-   motore, anche un bivio.
+5. **Mai fuse** (condizione del Coordinatore): la partenza, la «u-turn»
+   (ADR-0045, aggiunta di TASK-271) e le indicazioni dell'arrivo, negli
+   ultimi `ARRIVE_M` = 25 m. Le indicazioni troppo vicine a loro, o
+   all'inizio e alla fine del percorso, per leggere i 20 m prima e dopo
+   restano come le dà il motore. Un'indicazione da sola resta quella del
+   motore, anche un bivio. Le indicazioni a più di 25 m dalle vicine
+   escono identiche (test di non regressione su due percorsi interi, Trento
+   e Levico).
 
 **Motivo**: nell'app vale subito per ogni percorso, anche quelli già in
 cache, gli esempi di «Explore» e le corse salvate, con un aggiornamento
@@ -16095,7 +16100,9 @@ ADR-0047 scartava 25 m perché a Milano le catene arrivavano a 7, troppe
 
 **Alternative scartate**: unire nel motore (i percorsi già calcolati
 sarebbero rimasti come prima, e il server e il motore sul telefono da
-aggiornare); sommare gli angoli delle indicazioni (vedi sopra); una
+aggiornare); sommare gli angoli delle indicazioni (vedi sopra: a Levico,
+due sinistre a 8 m l'una dall'altra davanti a un vicolo cieco sommavano
+196° e diventavano un'inversione falsa); una
 soglia d'angolo sulle indicazioni da sole (perderebbe i bivi, che il
 motore dice proprio sotto i 30°).
 

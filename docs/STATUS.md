@@ -1215,7 +1215,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   25 m o meno l'una dall'altra, si dicono e si mostrano come una, con la
   direzione che si vede sul posto (il percorso 20 m prima contro 20 m
   dopo); una manovra che non gira tace, salvo su una via di un altro nome
-  («Prosegui dritto su …»). Partenza e «u-turn» mai fuse. Su una camminata
+  («Prosegui dritto su …»). Partenza, «u-turn» e arrivo mai fusi, e le
+  indicazioni a più di 25 m dalle vicine identiche a prima (test su Trento
+  e sul grafo di Levico di TASK-271). Su una camminata
   vera da Trento Fiere da 30 a 13 indicazioni. Solo app
   (`navigation/simplifyDirections.ts`), nessun testo nuovo; motore, API e
   file della corsa invariati, quindi vale anche per i percorsi già in

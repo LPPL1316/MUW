@@ -1,5 +1,6 @@
 import { type Direction, GROUP_M, type LatLon } from "@shaperoute/shared-types";
 
+import { ARRIVE_M } from "./navigator";
 import { cumulative, nearest } from "./progress";
 
 /**
@@ -31,9 +32,6 @@ const HEADING_PROBE_M = 20;
 const TURN_MIN_DEG = 30;
 const SHARP_MIN_DEG = 135;
 const U_TURN_MIN_DEG = 165;
-/** A heading read over less of the line than this is no heading: the
- * turn of the manoeuvre is then the sum of its directions' turns. */
-const MIN_PROBE_M = 5;
 /** A direction is looked for on the line this far either side of where the
  * engine says it is: the engine measures the roads, the app the points. */
 const FIND_M = 50;
@@ -50,10 +48,12 @@ export type MergeOptions = {
  * `mergeM` or less apart said as one: where it starts, the turn it makes as
  * a whole, onto the road it ends on. A manoeuvre that makes no turn is left
  * out, unless it ends on a road of another name, which is then said
- * («straight on onto …»). The departure and a U-turn are never part of a
- * manoeuvre: they are said as the engine gives them. Directions closer than
- * GROUP_M after the end of the one before are read with it, as the engine
- * reads them (`joined`).
+ * («straight on onto …»). The departure, a U-turn (TASK-271) and the
+ * directions at the arrival, within ARRIVE_M of the route's end, are never
+ * part of a manoeuvre: they are said as the engine gives them, and so are
+ * the directions too close to them to read the turn they make. Directions
+ * closer than GROUP_M after the end of the one before are read with it, as
+ * the engine reads them (`joined`).
  */
 export function simplifyDirections(
   points: LatLon[],
@@ -75,21 +75,24 @@ export function simplifyDirections(
         direction.distance_m + FIND_M,
       ).alongM,
   );
+  const arrivalM = (along[along.length - 1] ?? 0) - ARRIVE_M;
+  // Said apart from any manoeuvre, as the engine gives them.
+  const apart = directions.map(
+    (direction, i) =>
+      direction.turn === "depart" || direction.turn === "u-turn" || at[i] >= arrivalM,
+  );
   const said: Said[] = [];
   let group: number[] = [];
 
   function flush(): void {
-    if (group.length > 0) {
-      const made = manoeuvre(points, along, at, directions, group, said.at(-1) ?? null);
-      if (made !== null) {
-        said.push(made);
-      }
-    }
+    said.push(
+      ...manoeuvre(points, along, at, apart, directions, group, said.at(-1) ?? null),
+    );
     group = [];
   }
 
   directions.forEach((direction, i) => {
-    if (direction.turn === "depart" || direction.turn === "u-turn") {
+    if (apart[i]) {
       flush();
       said.push({ direction, endM: direction.distance_m });
       return;
@@ -123,70 +126,78 @@ export function simplifyDirections(
 type Said = { direction: Direction; endM: number };
 
 /**
- * The manoeuvre of the directions at `group` (indices, in order), or null
- * when it says nothing: one direction alone is the engine's, as it is.
- * `before` is the direction said before it, whose road the runner is on.
+ * What is said of the directions at `group` (indices, in order): the
+ * manoeuvre they make, or nothing when it makes none. One direction alone is
+ * the engine's, as it is. The turn is read HEADING_PROBE_M either side: where
+ * the route starts or ends within that, or a direction said `apart` comes
+ * first (the departure, a U-turn, the arrival), it cannot be, and the
+ * directions are said as the engine gives them, as before TASK-302. `before`
+ * is the direction said before them, whose road the runner is on.
  */
 function manoeuvre(
   points: LatLon[],
   along: number[],
   at: number[],
+  apart: boolean[],
   directions: Direction[],
   group: number[],
   before: Said | null,
-): Said | null {
+): Said[] {
+  const asGiven = group.map((i) => ({
+    direction: directions[i],
+    endM: directions[i].distance_m,
+  }));
+  if (group.length < 2) {
+    return asGiven;
+  }
   const firstIndex = group[0];
   const lastIndex = group[group.length - 1];
   const first = directions[firstIndex];
   const last = directions[lastIndex];
-  if (group.length === 1) {
-    return { direction: first, endM: first.distance_m };
-  }
   const totalM = along[along.length - 1] ?? 0;
-  // The headings either side, not across the directions next to it.
-  const inFromM = Math.max(
-    at[firstIndex] - HEADING_PROBE_M,
-    firstIndex > 0 ? at[firstIndex - 1] : 0,
-  );
-  const outToM = Math.min(
-    at[lastIndex] + HEADING_PROBE_M,
-    lastIndex + 1 < at.length ? at[lastIndex + 1] : totalM,
-  );
-  const summed = group.reduce((sum, i) => sum + directions[i].angle_deg, 0);
-  let angle = summed;
+  const inFromM = at[firstIndex] - HEADING_PROBE_M;
+  const outToM = at[lastIndex] + HEADING_PROBE_M;
+  const previous = firstIndex - 1;
+  const next = lastIndex + 1;
   if (
-    at[firstIndex] - inFromM >= MIN_PROBE_M &&
-    outToM - at[lastIndex] >= MIN_PROBE_M
+    inFromM < 0 ||
+    outToM > totalM ||
+    (previous >= 0 && apart[previous] && at[previous] > inFromM) ||
+    (next < at.length && apart[next] && at[next] < outToM)
   ) {
-    const heading = bearing(
-      pointAt(points, along, inFromM),
-      pointAt(points, along, at[firstIndex]),
-    );
-    const leaving = bearing(
-      pointAt(points, along, at[lastIndex]),
-      pointAt(points, along, outToM),
-    );
-    // Round the way the directions turn: two rights of 100° are a
-    // U-turn, not a sharp left.
-    angle = nearestTurn(signed(leaving - heading), summed);
+    return asGiven;
   }
+  const heading = bearing(
+    pointAt(points, along, inFromM),
+    pointAt(points, along, at[firstIndex]),
+  );
+  const leaving = bearing(
+    pointAt(points, along, at[lastIndex]),
+    pointAt(points, along, outToM),
+  );
+  // Round the way the directions turn: two rights of 100° are a U-turn,
+  // not a sharp left.
+  const summed = group.reduce((sum, i) => sum + directions[i].angle_deg, 0);
+  const angle = nearestTurn(signed(leaving - heading), summed);
   const turn = turnOf(angle);
   if (turn === "straight" && !renamed(before?.direction.street ?? null, last.street)) {
-    return null;
+    return [];
   }
-  return {
-    direction: {
-      ...first,
-      turn,
-      // In (-180, 180], as the engine's: a U-turn either way is one.
-      angle_deg: Math.round(signed(angle) * 10) / 10,
-      street: last.street,
-      road_type: last.road_type,
-      along: last.along,
-      joined: false,
+  return [
+    {
+      direction: {
+        ...first,
+        turn,
+        // In (-180, 180], as the engine's: a U-turn either way is one.
+        angle_deg: Math.round(signed(angle) * 10) / 10,
+        street: last.street,
+        road_type: last.road_type,
+        along: last.along,
+        joined: false,
+      },
+      endM: last.distance_m,
     },
-    endM: last.distance_m,
-  };
+  ];
 }
 
 /** Whether a manoeuvre straight on ends on a road the runner sees is

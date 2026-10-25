@@ -28,8 +28,12 @@ sinistra». La richiesta:
   geometria esatta della traccia.
 
 Il piano è stato approvato dall'utente in chat («Ok, procedi con i tre
-piani»); numero dal Coordinatore, che ha posto due condizioni: la «u-turn»
-non si fonde mai, e niente cambia la build dell'iPhone.
+piani»); numero dal Coordinatore, che ha posto queste condizioni: la
+«u-turn» di TASK-271 e l'arrivo non si fondono mai e non diventano una
+svolta normale (con un test sulla fixture di TASK-271 accanto a quella di
+Trento); le indicazioni più lontane di 25 m restano identiche a oggi (con
+un test di non regressione su un percorso intero); niente cambia la build
+dell'iPhone.
 
 Perché succedeva: il motore dà un'indicazione a ogni incrocio del grafo
 con almeno 3 strade (ADR-0045), e OSM in città disegna marciapiedi e
@@ -67,8 +71,14 @@ chiude.
    - Una manovra che **non gira** non si dice, a meno che finisca su una
      strada di un altro nome: allora «Prosegui dritto su …». Sulla stessa
      strada, o su un marciapiede senza nome, silenzio.
-   - Un'indicazione da sola resta com'è (anche i bivi). La **partenza** e
-     l'**inversione** («u-turn», TASK-271) non entrano mai in una manovra.
+   - Un'indicazione da sola resta com'è (anche i bivi). La **partenza**,
+     l'**inversione** («u-turn», TASK-271) e le indicazioni dell'**arrivo**
+     (negli ultimi `ARRIVE_M` = 25 m del percorso) non entrano mai in una
+     manovra. Nemmeno le indicazioni troppo vicine a loro (o all'inizio e
+     alla fine del percorso) per leggere i 20 m prima e dopo: restano come
+     le dà il motore, come prima di questo task. Senza questa regola, a
+     Levico due sinistre prima di un vicolo cieco di 3,8 m diventavano una
+     falsa inversione.
    - `joined` si ricalcola con `GROUP_M` (15 m) dalla fine della manovra
      precedente.
 2. `useNavigation.ts`: la navigazione parte da
@@ -98,6 +108,16 @@ le sue indicazioni; l'app decide come dirle.
       tutto resta com'era.
 - [x] «u-turn» e partenza non si fondono mai; `joined` resta quello del
       motore attorno a loro.
+- [x] Una camminata vera di Levico sul grafo di TASK-271
+      (`levico_walk_1km.graphml`) che entra in un vicolo cieco di 3,8 m:
+      la «u-turn» e le tre svolte entro 25 m da lei (403,5–427,2 m) restano
+      identiche a quelle del motore. Senza la regola i due test falliscono.
+- [x] L'arrivo: una svolta negli ultimi 25 m e quelle troppo vicine a lei
+      restano come oggi, anche quando i 20 m dopo ci stanno. Senza la regola
+      il test fallisce.
+- [x] Non regressione sui due percorsi interi (Trento e Levico): ogni
+      indicazione a più di 25 m dalle vicine esce identica; con
+      `mergeM: 0` non cambia niente.
 - [x] Un sentiero che gira di 45° ogni 20 m per 120 m non diventa una
       svolta sola.
 - [x] Due destre da 100° in 15 m sono un'inversione.
@@ -117,7 +137,10 @@ le sue indicazioni; l'app decide come dirle.
   (`src/navigation/fixtures/trento-fiere-crossings.json`: un percorso a
   piedi fra Trento Fiere e Viale Rovereto calcolato sul grafo in cache
   `foot_46.03390_11.07360_46.10030_11.16920`, con le indicazioni di
-  `directions.guidance`).
+  `directions.guidance`), più la camminata di Levico
+  (`src/navigation/fixtures/levico-dead-end-u-turn.json`, dal grafo
+  `services/route-engine/tests/fixtures/levico_walk_1km.graphml` di
+  TASK-271, con un vicolo cieco di 3,8 m).
 - Sul campo: lo stesso giro in città, dopo la pubblicazione su `preview`.
 
 ## File toccati
@@ -127,6 +150,7 @@ apps/mobile/src/navigation/simplifyDirections.ts            (nuovo)
 apps/mobile/src/navigation/simplifyDirections.test.ts       (nuovo)
 apps/mobile/src/navigation/simplifyDirectionsRun.test.ts    (nuovo)
 apps/mobile/src/navigation/fixtures/trento-fiere-crossings.json (nuovo)
+apps/mobile/src/navigation/fixtures/levico-dead-end-u-turn.json (nuovo)
 apps/mobile/src/navigation/useNavigation.ts
 docs/tasks/TASK-302.md                                      (nuovo)
 docs/DECISIONS.md
