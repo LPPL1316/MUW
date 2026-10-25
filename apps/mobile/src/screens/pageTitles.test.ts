@@ -35,17 +35,22 @@ afterEach(() => {
   saveLanguageChoice("phone");
 });
 
-const titles = () => [pageTitle("feed"), pageTitle("draw"), pageTitle("explore")];
+const titles = () => [
+  pageTitle("feed"),
+  pageTitle("draw"),
+  pageTitle("explore"),
+  pageTitle("play"),
+];
 
-test("in English the pages are named as before", () => {
-  expect(titles()).toEqual(["Feed", "Draw", "Explore"]);
+test("in English the pages are named as before, «Play» with them (TASK-296)", () => {
+  expect(titles()).toEqual(["Feed", "Draw", "Explore", "Play"]);
 });
 
 test.each([
-  ["it", ["Feed", "Disegna", "Esplora"]],
-  ["de", ["Feed", "Zeichnen", "Entdecken"]],
-  ["es", ["Feed", "Dibuja", "Explora"]],
-  ["fr", ["Fil", "Dessiner", "Explorer"]],
+  ["it", ["Feed", "Disegna", "Esplora", "Gioca"]],
+  ["de", ["Feed", "Zeichnen", "Entdecken", "Spielen"]],
+  ["es", ["Feed", "Dibuja", "Explora", "Juega"]],
+  ["fr", ["Fil", "Dessiner", "Explorer", "Jouer"]],
 ] as const)("in «%s» the pages are named in the language", (language, expected) => {
   saveLanguageChoice(language);
   expect(titles()).toEqual([...expected]);

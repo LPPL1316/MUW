@@ -50,6 +50,7 @@ export const DE: Phrasebook = {
   arrived: "Ziel erreicht.",
   paused: "Pausiert.",
   resumed: "Weiter geht's.",
+  stretch: "Denk ans Dehnen.",
   penUp: (letter) =>
     `Buchstabe fertig. ${letter === null ? "Zum nächsten Buchstaben" : `Zum ${letter}`} gehen: die Zeichnung ist pausiert.`,
   penDown: (letter) =>

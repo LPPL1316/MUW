@@ -250,6 +250,8 @@ test("the run the app was closed during opens again, paused, on its route", asyn
   // «Stop» held, from the pause, ends it as any run.
   await fireEvent.press(screen.getByLabelText("Pause"));
   await fireEvent(screen.getByLabelText("Stop"), "longPress");
+  // The stretching is asked first (TASK-285): skipped here.
+  await fireEvent.press(await screen.findByText("Skip"));
   expect(await screen.findByText("Your run")).toBeOnTheScreen();
   expect(screen.getByText("Keep running")).toBeOnTheScreen();
   // Done, without an account: to the first screen, not to a route card.
@@ -262,6 +264,8 @@ test("Keep running after Stop goes on at once, no longer paused", async () => {
   saveRun(closedRun(CLOSED));
   await openApp();
   await fireEvent(await screen.findByLabelText("Stop"), "longPress");
+  // The stretching is asked first (TASK-285): skipped here.
+  await fireEvent.press(await screen.findByText("Skip"));
   await fireEvent.press(await screen.findByText("Keep running"));
   expect(await screen.findByLabelText("Pause")).toBeOnTheScreen();
   expect(screen.queryByText("Paused")).toBeNull();
@@ -286,6 +290,8 @@ test("a run closed longer ago than REOPEN_WITHIN_MS opens on its end, to be save
   await render(<App />);
   expect(await screen.findByText("Your run")).toBeOnTheScreen();
   expect(screen.queryByText("Paused")).toBeNull();
+  // Not asked for the stretching: it ended long ago (TASK-285).
+  expect(screen.queryByText("Remember to stretch")).toBeNull();
   // Its route is not in memory: there is nothing to keep running along.
   expect(screen.queryByText("Keep running")).toBeNull();
   expect(loadRun()?.status).toBe("running");

@@ -321,6 +321,34 @@ def test_a_slow_answer_is_there_for_the_next_to_ask() -> None:
     assert sum(MOREDA in url for url in wiki.urls) == 1
 
 
+def test_pictures_being_taken_never_keep_a_list_from_its_photos(
+    tmp_path: Path,
+) -> None:
+    """TASK-288: the pictures are taken in threads of their own, not in
+    those that ask Wikimedia for a list."""
+    files = {f"Q{n}": f"Town {n}.jpg" for n in (11, 12, 13)}
+    wiki = Wiki(
+        {item: [claim(file)] for item, file in files.items()},
+        {file: PUBLIC_DOMAIN for file in files.values()},
+        {thumb(file): jpeg(500, 300) for file in files.values()},
+    )
+    go = threading.Event()
+
+    def slow_picture(url: str) -> bytes:
+        go.wait(timeout=30)
+        return wiki.get_bytes(url)
+
+    photos = CityPhotos(tmp_path, wiki.get_json, slow_picture, wait_s=10.0)
+    try:
+        # Two lists whose pictures are being taken, and wait.
+        assert set(photos.photos(["Q11"])) == {"Q11"}
+        assert set(photos.photos(["Q12"])) == {"Q12"}
+        # The next list has its photo all the same.
+        assert set(photos.photos(["Q13"])) == {"Q13"}
+    finally:
+        go.set()
+
+
 def test_the_preferred_image_and_never_a_deprecated_one() -> None:
     body = {
         "claims": {

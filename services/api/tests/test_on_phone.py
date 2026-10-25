@@ -20,6 +20,7 @@ from shaperoute_api.activity_graphs import ActivityGraphs
 from shaperoute_api.app import create_app
 from shaperoute_api.app import to_request as api_to_request
 from shaperoute_api.graphs import ZoneGraphs
+from shaperoute_api.jobs import Job
 from shaperoute_api.on_phone import (
     PhoneJobs,
     phone_graphs,
@@ -140,3 +141,17 @@ def test_the_jobs_run_at_once_one_after_the_other(phone_dir: Path) -> None:
     second = json.loads(plan_json(json.dumps(LEVICO_CIRCLE), jobs))
     assert first["job_id"] != second["job_id"]
     assert first["result"] == second["result"]
+
+
+def test_the_phone_draws_without_the_archive(phone_dir: Path) -> None:
+    """The archive of the drawn routes (TASK-297, ADR-0256) is the server's:
+    the phone's jobs have no store, look nothing up nearby, and draw as
+    before."""
+    graphs = phone_graphs(phone_dir)
+    jobs = PhoneJobs(graphs)
+    assert jobs._store is None
+    request = to_request(RouteRequestBody(**LEVICO_CIRCLE))
+    job = Job(job_id="on-the-phone", request=request)
+    assert jobs._nearby(job, graphs.for_activity("running"), None) is None
+    answer = json.loads(plan_json(json.dumps(LEVICO_CIRCLE), jobs))
+    assert answer["status"] == "done" and answer["result"]["points"]

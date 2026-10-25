@@ -25,10 +25,12 @@ import {
   radius,
   space,
 } from "../theme/tokens";
-import type { LngLat } from "./coordinates";
+import { fromLngLat, type LngLat } from "./coordinates";
 import { type MapKind, useMapKind } from "./mapKind";
 import { buildMapPage, isExternalUrl } from "./mapPage";
 import {
+  type CanvasMode,
+  clearCanvas,
   clearProgress,
   clearRoute,
   clearStops,
@@ -36,9 +38,11 @@ import {
   follow,
   pageScript,
   parsePageMessage,
+  setCanvas,
   setDoubleTap,
   setKind,
   setMove,
+  setPick,
   setPosition,
   showOthers,
   showProgress,
@@ -53,6 +57,25 @@ import type { Turn } from "./turnedMap";
 
 /** One empty list, so the map is not told again and again of no routes. */
 const NO_OTHERS: LatLon[][] = [];
+
+/** The figure of «Draw on the map» as the map shows it (TASK-281). */
+export type MapCanvas = {
+  mode: CanvasMode;
+  lines: LatLon[][];
+  centre: LatLon | null;
+  /** How much two fingers may shrink and grow the figure. */
+  shrink: number;
+  grow: number;
+  /** A new number frames the map on the figure, or on the start without
+   * one; the same one does not frame it again. */
+  framing: number;
+};
+
+/** What the page of «Draw on the map» tells the app (TASK-281). */
+export type CanvasEvent =
+  | { type: "drawn"; line: LatLon[] }
+  | { type: "figure"; centre: LatLon; factor: number; done: boolean }
+  | { type: "centre"; point: LatLon };
 
 type Props = {
   /** Where the route will start; the map centres on it with a marker. */
@@ -107,6 +130,16 @@ type Props = {
   /** The map turned, by the app or by two fingers: its bearing now, in
    * whole degrees clockwise from north. */
   onTurned?: (bearing: number) => void;
+  /** «Draw on the map» (TASK-281): the figure on the map and what fingers
+   * do there. None gives the map its own gestures back. */
+  canvas?: MapCanvas | null;
+  /** A line drawn, the figure moved or sized, the map moved (TASK-281). */
+  onCanvas?: (event: CanvasEvent) => void;
+  /** Choosing the start on the map (TASK-292): the map framed on `start`,
+   * and a pin in its middle that stays there while fingers move the map. */
+  picking?: boolean;
+  /** While picking: the middle of the map, each time it stops. */
+  onCentre?: (point: LatLon) => void;
   /** Called when the map cannot be shown, with a reason for the log; with
    * null once the map loads after that (TASK-256), so the screen's note
    * goes away. The map itself says it could not load and offers «Retry». */
@@ -131,6 +164,10 @@ export function MapView({
   bearing = 0,
   turn = null,
   onTurned,
+  canvas = null,
+  onCanvas,
+  picking = false,
+  onCentre,
   onError,
   style,
 }: Props) {
@@ -157,6 +194,10 @@ export function MapView({
   const doubleTapAsked = useRef(false);
   const moveAsked = useRef(false);
   const turnAsked = useRef<Turn | null>(null);
+  // The figure the page was told of last, and the framing it was asked.
+  const canvasShown = useRef(false);
+  const framed = useRef<number | null>(null);
+  const pickAsked = useRef(false);
   // The map's kind, chosen with its button (TASK-264), and the last one the
   // page was told.
   const kind = useMapKind();
@@ -336,6 +377,49 @@ export function MapView({
     turnAsked.current = turn;
   }, [ready, turn]);
 
+  // After the route, which a figure takes the place of: told each new
+  // figure, framed once for each new `framing`, and again when the page
+  // loads again.
+  useEffect(() => {
+    if (!ready) {
+      framed.current = null;
+      return;
+    }
+    if (canvas) {
+      webView.current?.injectJavaScript(
+        pageScript(
+          setCanvas({
+            mode: canvas.mode,
+            lines: canvas.lines,
+            centre: canvas.centre,
+            shrink: canvas.shrink,
+            grow: canvas.grow,
+            frame: canvas.framing !== framed.current,
+          }),
+        ),
+      );
+      framed.current = canvas.framing;
+      canvasShown.current = true;
+    } else if (canvasShown.current) {
+      webView.current?.injectJavaScript(pageScript(clearCanvas()));
+      canvasShown.current = false;
+      framed.current = null;
+    }
+  }, [ready, canvas]);
+
+  // After the start, which the map is framed on: asked for only while the
+  // start is chosen on the map (TASK-292), and again when the page loads
+  // again.
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+    if (picking || pickAsked.current) {
+      webView.current?.injectJavaScript(pageScript(setPick(picking)));
+      pickAsked.current = picking;
+    }
+  }, [ready, picking]);
+
   // A page that loads is standard: told the kind when it is another, and
   // each new kind after. The camera and the route stay as they are.
   useEffect(() => {
@@ -376,6 +460,22 @@ export function MapView({
             onMoved?.(message.by);
           } else if (message?.type === "turned") {
             onTurned?.(message.bearing);
+          } else if (message?.type === "drawn") {
+            onCanvas?.({ type: "drawn", line: message.line.map(fromLngLat) });
+          } else if (message?.type === "figure") {
+            onCanvas?.({
+              type: "figure",
+              centre: fromLngLat(message.centre),
+              factor: message.factor,
+              done: message.done,
+            });
+          } else if (message?.type === "centre") {
+            const point = fromLngLat(message.lngLat);
+            if (picking) {
+              onCentre?.(point);
+            } else {
+              onCanvas?.({ type: "centre", point });
+            }
           } else if (message?.type === "error") {
             fail(message.message);
           }

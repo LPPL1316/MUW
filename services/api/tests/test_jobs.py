@@ -6,6 +6,7 @@ from __future__ import annotations
 import threading
 import time
 from collections.abc import Callable, Iterator
+from dataclasses import replace
 
 import pytest
 from route_engine.models import RouteRequest, RouteResult
@@ -304,3 +305,44 @@ def test_a_route_cancelled_while_drawn_is_kept_for_the_next(
     gate.open()
     wait_until(lambda: kept.routes == {"heart": RESULT})
     assert jobs.submit(REQUEST).status == "done"
+
+
+class Archive(Kept):
+    """A store that also answers from a route kept a few metres away
+    (jobs.FindsNearby, ADR-0256): here, from any start but the request's."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.asked: list[RouteRequest] = []
+
+    def nearby(
+        self, request: object, source: GraphLoader, named_roads: object = None
+    ) -> RouteResult | None:
+        assert isinstance(request, RouteRequest)
+        self.asked.append(request)
+        source.load((46.0, 11.0, 46.1, 11.1))
+        return None if request.start == REQUEST.start else RESULT
+
+
+def test_a_route_kept_nearby_is_reached_without_the_engine(
+    made: list[RouteJobs],
+) -> None:
+    gate = Gate()
+    kept = Archive()
+    jobs = RouteJobs(Graphs(), gate, clock=Clock(), store=kept)
+    made.append(jobs)
+    nearby = replace(REQUEST, start=(46.0675, 11.1214))
+    job = jobs.submit(nearby)
+    assert job.status == "queued"  # the roads are needed: not in the POST
+    wait_until(lambda: status(jobs, job.job_id) == "done")
+    done = jobs.get(job.job_id)
+    assert done is not None and done.result == RESULT
+    # The engine did not run, and the route is not kept again.
+    assert gate.calls == 0 and kept.asked == [nearby] and kept.routes == {}
+
+    # From the request's own start the archive has nothing: the engine
+    # draws, and the route is kept.
+    job = jobs.submit(REQUEST)
+    gate.open()
+    wait_until(lambda: status(jobs, job.job_id) == "done")
+    assert gate.calls == 1 and kept.routes == {"heart": RESULT}

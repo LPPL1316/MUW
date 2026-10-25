@@ -81,6 +81,7 @@ test("with a zone around the start, the phone draws the route", async () => {
       },
     ],
     PLAN_TIMEOUT_MS,
+    undefined,
   );
 });
 
@@ -170,6 +171,21 @@ test("a request cancelled while the phone worked stays cancelled", async () => {
   ).resolves.toEqual({ kind: "cancelled" });
 });
 
+test("the engine is told of a cancel, and nothing goes to the server (TASK-287)", async () => {
+  const controller = new AbortController();
+  const { engine, plan } = engineAnswering({ kind: "cancelled" });
+  files.set("file:///documents/engine/zones.json", JSON.stringify({ zones: ZONES }));
+  files.set(`file:///documents/engine/zones/${TRENTO}`, "zone");
+  await expect(
+    requestRouteOnPhoneFirst("https://api", HEART, {
+      engine,
+      signal: controller.signal,
+    }),
+  ).resolves.toEqual({ kind: "cancelled" });
+  expect(plan.mock.calls[0][3]).toBe(controller.signal);
+  expect(requestRoute).not.toHaveBeenCalled();
+});
+
 test("the server draws only what the phone did not", async () => {
   const drawn = engineAnswering(job({ status: "done", result: RESULT, error: null }));
   files.set("file:///documents/engine/zones.json", JSON.stringify({ zones: ZONES }));
@@ -223,6 +239,7 @@ test("a long route with no server to ask is drawn on the phone, with time", asyn
     JSON.stringify(LONG),
     expect.any(Array),
     OFFLINE_TIMEOUT_MS,
+    undefined,
   );
 
   const closed = engineAnswering({ kind: "failed", why: "closed" });

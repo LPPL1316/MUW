@@ -47,7 +47,7 @@ from shaperoute_api.accounts import (
 from shaperoute_api.activities import EPOCH, MICROSECOND
 from shaperoute_api.db import Database
 from shaperoute_api.drawings import (
-    SEEN_COLUMNS,
+    LISTED_COLUMNS,
     AuthorBody,
     DrawingBody,
     _details,
@@ -102,13 +102,16 @@ def _after_cursor(cursor: str) -> tuple[int, datetime, UUID]:
 
 
 def near_sql(point: LatLon | None) -> str:
-    """An SQL condition: the cut track of the drawing `d` passes within
-    NEAR_M of `point`; always true without one. The point is read from the
-    placeholders `lat`, `lon` and `near_m`."""
+    """An SQL condition: the preview of the cut track of the drawing `d`
+    passes within NEAR_M of `point`; always true without one. The preview's
+    64 points cost a fraction of the whole track's thousands, and they are
+    as near, give or take the few hundred metres between two of them
+    (TASK-288). The point is read from the placeholders `lat`, `lon` and
+    `near_m`."""
     if point is None:
         return "TRUE"
     return (
-        "ST_DWithin(d.track::geography,"
+        "ST_DWithin(d.preview::geography,"
         " ST_SetSRID(ST_MakePoint(%(lon)s, %(lat)s), 4326)::geography, %(near_m)s)"
     )
 
@@ -156,11 +159,14 @@ class Feed:
         with self.database.connect() as conn:
             rows = conn.execute(
                 "SELECT * FROM ("
-                f"SELECT {SEEN_COLUMNS}, u.public_id, u.username,"
+                f"SELECT {LISTED_COLUMNS}, u.public_id, u.username,"
                 f" {tier_sql('%(viewer)s')} AS tier, {near_sql(point)} AS nearby"
                 " FROM drawings d JOIN runs r ON r.id = d.run_id"
                 " JOIN users u ON u.id = r.user_id"
-                f" WHERE {shown_sql('%(viewer)s')}) feed"
+                # Implied by shown_sql, and said for the index of the
+                # published drawings (migration 0022).
+                " WHERE d.visibility <> 'only_me'"
+                f" AND {shown_sql('%(viewer)s')}) feed"
                 f" WHERE {where}"
                 " ORDER BY tier, published_at DESC, id DESC LIMIT %(limit)s",
                 values,

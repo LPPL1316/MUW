@@ -129,12 +129,15 @@ def test_four_towns_within_20_km_and_the_two_nearest_villages() -> None:
         "Trento",
         "Borgo Valsugana",
     ]
-    # Four towns within 20 km: those further away are not asked for.
-    assert [(kind, radius) for kind, radius, _ in service.calls] == [
-        (CITIES, FAR_RADIUS_M),
-        (TOWNS, NEAR_RADIUS_M),
-        (VILLAGES, NEAR_RADIUS_M),
-    ]
+    # Four towns within 20 km: those further away are not asked for. The
+    # three are asked side by side (TASK-288), in no order.
+    assert sorted((kind, radius) for kind, radius, _ in service.calls) == sorted(
+        [
+            (CITIES, FAR_RADIUS_M),
+            (TOWNS, NEAR_RADIUS_M),
+            (VILLAGES, NEAR_RADIUS_M),
+        ]
+    )
 
 
 def test_fewer_than_four_are_filled_with_the_nearest_up_to_50_km() -> None:

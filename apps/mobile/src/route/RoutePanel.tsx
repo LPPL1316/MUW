@@ -7,7 +7,7 @@ import {
   SHAPES,
 } from "@shaperoute/shared-types";
 import type { Signal } from "@shaperoute/shared-types/src/signals";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import {
@@ -116,6 +116,8 @@ type ChoiceProps = {
   /** Whose distances the field offers (TASK-190): a run's unless said. On
    * the water only shapes are drawn (TASK-191): no word, no picture. */
   activity?: Activity;
+  /** Under the switch, off the water: «Draw on the map» (TASK-281). */
+  underKinds?: ReactNode;
 };
 
 /**
@@ -145,6 +147,7 @@ export function RouteChoice({
   distanceM,
   onDistanceText,
   activity = "running",
+  underKinds,
 }: ChoiceProps) {
   // The distance is asked in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -165,12 +168,15 @@ export function RouteChoice({
       {shapesOnly ? (
         <Text style={styles.note}>{t("On the water, a shape of the catalogue.")}</Text>
       ) : (
-        <Segmented
-          options={translated(DRAW_KINDS)}
-          value={kind}
-          onChange={onKind}
-          style={styles.kinds}
-        />
+        <>
+          <Segmented
+            options={translated(DRAW_KINDS)}
+            value={kind}
+            onChange={onKind}
+            style={styles.kinds}
+          />
+          {underKinds}
+        </>
       )}
       {kind === "shape" || shapesOnly ? (
         <>
@@ -326,6 +332,9 @@ type OutcomeProps = {
    * again» under an error that may well not happen twice. Without it no
    * button is offered. */
   onRetry?: () => void;
+  /** Another figure for the route on screen (TASK-286): a row of tiles
+   * above «Start», once the route has come. */
+  figures?: ReactNode;
 };
 
 /** Under the map: the wait, the route, or why there is none. */
@@ -344,6 +353,7 @@ export function RouteOutcome({
   onChoose = () => {},
   onSignal = (signal) => void sendSignal(signal),
   onRetry,
+  figures,
 }: OutcomeProps) {
   // The distances are written in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -450,6 +460,7 @@ export function RouteOutcome({
               }}
             />
           )}
+          {figures}
           {/* Only with directions: a route traced without them has no turns.
               On the water there are none to follow: the line is the way. */}
           {(view.result.directions.length > 0 || onWater(view.request)) && (
@@ -549,9 +560,9 @@ function PenSwitch({
  * records, apart from the km walked between them; on a bike, ridden
  * (TASK-216). So a shape in pieces, between its parts (TASK-223). Nothing
  * for any other route, nor from an API that sends no walks. With «Miles»
- * the same in miles (TASK-182).
+ * the same in miles (TASK-182). Also under a word of «Explore» (TASK-279).
  */
-function PenSplit({
+export function PenSplit({
   result,
   activity,
   units,

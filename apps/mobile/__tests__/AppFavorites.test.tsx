@@ -178,7 +178,7 @@ test("a heart the API refuses goes back, and says why", async () => {
   expect(screen.getByRole("button", { name: "Add to favorites" })).toBeOnTheScreen();
 });
 
-test("without an account the heart opens «Profile», and the route is kept once signed up", async () => {
+test("without an account the heart goes to the page of the profile, and the route is kept once signed up", async () => {
   api({
     "POST /accounts": () => Response.json(session, { status: 201 }),
     "GET /me/favorites": () => Response.json({ favorites: [] }),
@@ -188,6 +188,8 @@ test("without an account the heart opens «Profile», and the route is kept once
   await open();
   await openStar();
   await fireEvent.press(screen.getByRole("button", { name: "Add to favorites" }));
+  // The fourth page (TASK-278 part B), saying why.
+  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
   expect(screen.getByText(SIGN_IN_TO_KEEP)).toBeOnTheScreen();
   expect(calls("PUT", `/me/favorites/${STAR}`)).toHaveLength(0);
 
@@ -197,8 +199,8 @@ test("without an account the heart opens «Profile», and the route is kept once
   await fireEvent.press(screen.getByRole("checkbox", { name: "I am at least 16" }));
   await fireEvent.press(screen.getByTestId("account-submit"));
   await waitFor(() => expect(calls("PUT", `/me/favorites/${STAR}`)).toHaveLength(1));
-  // Back on the map, the heart is full.
-  await fireEvent.press(screen.getByRole("button", { name: "Back" }));
+  // Back on the map by itself, the heart full.
+  expect(screen.queryByRole("tab")).toBeNull();
   expect(
     screen.getByRole("button", { name: "Remove from favorites" }),
   ).toBeOnTheScreen();
@@ -258,9 +260,13 @@ test("«Favorites» in «Profile» lists them, and one opens on the map", async 
   // Back: the list it came from, over the page left under it.
   await fireEvent.press(screen.getByText("Back to the list"));
   expect(screen.getByRole("header", { name: "Favorites" })).toBeOnTheScreen();
+  // Then the page of the profile, under it (TASK-278).
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
-  expect(screen.getByRole("header", { name: "Profile" })).toBeOnTheScreen();
-  await fireEvent.press(screen.getByRole("button", { name: "Back" }));
+  expect(screen.queryByRole("header", { name: "Favorites" })).toBeNull();
+  expect(
+    screen.getByRole("button", { name: /^Profile/, selected: true }),
+  ).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   expect(screen.queryByRole("button", { name: /favorites/ })).toBeNull();
 });

@@ -25,7 +25,26 @@ function threePages(built: jest.Mock): PagerPage[] {
   ];
 }
 
-function pager(page: number, onPage: (index: number) => void, built = jest.fn()) {
+/** And the account's profile after «Explore», not named in the header
+ * (TASK-278). */
+function fourPages(built: jest.Mock): PagerPage[] {
+  return [
+    ...threePages(built),
+    {
+      title: "Profile",
+      unnamed: true,
+      lazy: true,
+      render: () => <Body name="Profile" built={built} />,
+    },
+  ];
+}
+
+function pager(
+  page: number,
+  onPage: (index: number) => void,
+  built = jest.fn(),
+  pages = threePages,
+) {
   return (
     <SafeAreaProvider
       initialMetrics={{
@@ -33,7 +52,7 @@ function pager(page: number, onPage: (index: number) => void, built = jest.fn())
         insets: { top: 47, left: 0, right: 0, bottom: 34 },
       }}
     >
-      <Pager pages={threePages(built)} page={page} onPage={onPage} />
+      <Pager pages={pages(built)} page={page} onPage={onPage} />
     </SafeAreaProvider>
   );
 }
@@ -97,6 +116,26 @@ test("a page that asks as it opens is not built until someone goes there", async
   expect(names(built)).toEqual(["Feed", "Draw", "Explore"]);
 });
 
+test("a page that joins the row later leaves the pages built in place (TASK-296)", async () => {
+  const built = jest.fn();
+  const { rerender } = await render(pager(3, jest.fn(), built, fourPages));
+  expect(names(built)).toEqual(["Feed", "Draw", "Profile"]);
+  // «Play» comes between «Explore» and the profile, which moves one place.
+  const withPlay = (b: jest.Mock): PagerPage[] => [
+    ...threePages(b),
+    { title: "Play", lazy: true, render: () => <Body name="Play" built={b} /> },
+    ...fourPages(b).slice(3),
+  ];
+  built.mockClear();
+  await rerender(pager(4, jest.fn(), built, withPlay));
+  // The profile is still there, «Play» not built until someone goes there.
+  expect(names(built)).toEqual(["Feed", "Draw", "Profile"]);
+  expect(screen.getByText("Profile body, top inset 0")).toBeOnTheScreen();
+  expect(screen.getAllByRole("tab").map((tab) => tab.props.accessibilityLabel)).toEqual(
+    ["Feed", "Draw", "Explore", "Play"],
+  );
+});
+
 test("a swipe that comes to rest on another page says which", async () => {
   const onPage = jest.fn();
   await render(pager(1, onPage));
@@ -132,4 +171,46 @@ test("touching a name asks for its page, which is built before it slides in", as
   ).toBeOnTheScreen();
   expect(screen.getByText(/^Explore body/)).toBeOnTheScreen();
   expect(screen.queryByText(/^Draw body/)).toBeNull();
+});
+
+test("a fourth page without a name: a swipe to the left from «Explore» shows it, one to the right goes back", async () => {
+  const built = jest.fn();
+  const onPage = jest.fn();
+  const shown = await render(pager(2, onPage, built, fourPages));
+  // Three names in the header, as before.
+  expect(screen.getAllByRole("tab").map((tab) => tab.props.accessibilityLabel)).toEqual(
+    ["Feed", "Draw", "Explore"],
+  );
+  expect(names(built)).toEqual(["Feed", "Draw", "Explore"]);
+  // The first pixels toward it build it, and it comes to rest on screen.
+  await fireEvent.scroll(screen.getByTestId("pager"), at(2 * WIDTH + 12));
+  expect(names(built)).toEqual(["Feed", "Draw", "Explore", "Profile"]);
+  await fireEvent(screen.getByTestId("pager"), "momentumScrollEnd", at(3 * WIDTH));
+  expect(onPage).toHaveBeenCalledWith(3);
+  await shown.rerender(pager(3, onPage, built, fourPages));
+  expect(screen.getByText(/^Profile body/)).toBeOnTheScreen();
+  expect(screen.queryByText(/^Explore body/)).toBeNull();
+  // No name is lit: the page has none.
+  expect(screen.getAllByRole("tab")).toHaveLength(3);
+  expect(screen.queryByRole("tab", { selected: true })).toBeNull();
+
+  onPage.mockClear();
+  await fireEvent(screen.getByTestId("pager"), "momentumScrollEnd", at(2 * WIDTH));
+  expect(onPage).toHaveBeenCalledWith(2);
+  await shown.rerender(pager(2, onPage, built, fourPages));
+  expect(
+    screen.getByRole("tab", { name: "Explore", selected: true }),
+  ).toBeOnTheScreen();
+  // Out of sight, out of the screen reader's too.
+  expect(screen.queryByText(/^Profile body/)).toBeNull();
+  expect(
+    screen.getByText(/^Profile body/, { includeHiddenElements: true }),
+  ).toBeTruthy();
+});
+
+test("the last page is the last: a swipe beyond it rests on it", async () => {
+  const onPage = jest.fn();
+  await render(pager(3, onPage, jest.fn(), fourPages));
+  await fireEvent(screen.getByTestId("pager"), "momentumScrollEnd", at(4 * WIDTH));
+  expect(onPage).not.toHaveBeenCalled();
 });

@@ -40,12 +40,23 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from psycopg import errors as pg_errors
 from psycopg.rows import DictRow
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictBool,
+    field_validator,
+    model_validator,
+)
 
 from shaperoute_api.db import Database
 from shaperoute_api.schemas import ErrorBody, ErrorCode, ErrorDetail
 
 SESSION_DAYS = 90
+# A session's last use is written at most this often: most requests of an
+# account only read it (TASK-288). A session lasts as much longer, so it
+# never ends sooner than SESSION_DAYS after its real last use.
+USE_WRITTEN_EVERY = timedelta(hours=1)
 TOKEN_BYTES = 32
 MIN_PASSWORD_LENGTH = 8
 # Argon2 reads it all: a cap keeps a megabyte "password" from costing time.
@@ -57,6 +68,8 @@ MAX_FAILED_SIGN_INS = 5
 FAILED_WINDOW_S = 15 * 60
 
 Role = Literal["user", "admin"]
+# The languages of the app (TASK-210), for the texts of the emails (TASK-284).
+Language = Literal["en", "de", "it", "es", "fr"]
 
 NO_DATABASE = "Accounts are not set up on this server."
 EMAIL_TAKEN = "An account with this email already exists: sign in instead."
@@ -91,6 +104,11 @@ class SignUpRequestBody(BaseModel):
     username: str = Field(pattern=USERNAME_PATTERN)
     # The "I am at least 16" box (ADR-0114, point 6): false is refused.
     at_least_16: bool
+    # The box «Don't send me these emails» (TASK-284): false when it is
+    # ticked; without it, «Email when I'm away» is on.
+    away_email: StrictBool = True
+    # The app's language, for the texts of the emails; English without it.
+    language: Language | None = None
 
     @field_validator("email", mode="before")
     @classmethod
@@ -113,17 +131,19 @@ class SignInRequestBody(BaseModel):
 # What the API reads of an account for its owner, in the order of UserBody.
 USER_COLUMNS = (
     "id, email, username, role, created_at, bio, public_id, phone,"
-    " notify_email, notify_push"
+    " notify_email, notify_push, notify_away"
 )
 
 
 class NotificationsBody(BaseModel):
-    """The two notification switches of «Settings» (TASK-185), off until
-    their owner turns them on. Nothing is sent yet: they are a choice kept
-    for when Sgrava does (notifications.py)."""
+    """The notification switches of «Settings»: «Email notifications» and
+    «Push notifications» (TASK-185), off until their owner turns them on,
+    and «Email when I'm away» (TASK-284), on until their owner turns it off
+    (notifications.py)."""
 
     email: bool
     push: bool
+    away: bool
 
 
 class UserBody(BaseModel):
@@ -148,13 +168,14 @@ class UserBody(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def switches_of_a_row(cls, value: Any) -> Any:
-        """A row of `users` keeps the switches in two columns
+        """A row of `users` keeps the switches in three columns
         (USER_COLUMNS): here they become the object the app reads."""
         if isinstance(value, Mapping) and "notify_email" in value:
             row = dict(value)
             row["notifications"] = {
                 "email": row.pop("notify_email"),
                 "push": row.pop("notify_push"),
+                "away": row.pop("notify_away"),
             }
             return row
         return value
@@ -245,10 +266,19 @@ class Accounts:
             try:
                 row = conn.execute(
                     "INSERT INTO users"
-                    " (email, password_hash, username, confirmed_16_at, created_at)"
-                    " VALUES (%s, %s, %s, %s, %s)"
+                    " (email, password_hash, username, confirmed_16_at, created_at,"
+                    " notify_away, language)"
+                    " VALUES (%s, %s, %s, %s, %s, %s, %s)"
                     f" RETURNING {USER_COLUMNS}",
-                    (body.email, password_hash, body.username, now, now),
+                    (
+                        body.email,
+                        password_hash,
+                        body.username,
+                        now,
+                        now,
+                        body.away_email,
+                        body.language,
+                    ),
                 ).fetchone()
             except pg_errors.UniqueViolation as exc:
                 if exc.diag.constraint_name == "users_email_key":
@@ -284,17 +314,27 @@ class Accounts:
         return SessionBody(token=token, user=UserBody.model_validate(row))
 
     def user_of(self, token: str) -> UserBody:
-        """The account of a token, and its session used now; 401 if none."""
+        """The account of a token, and its session used now; 401 if none.
+        The use is written when the one written is USE_WRITTEN_EVERY old:
+        otherwise nothing is written, and nothing waits for the disk."""
         now = self.now()
         with self.database.connect() as conn:
             row = conn.execute(
-                "WITH used AS ("
-                " UPDATE sessions SET last_used_at = %s"
-                " WHERE token_hash = %s AND last_used_at > %s"
-                " RETURNING user_id)"
+                "WITH valid AS ("
+                " SELECT user_id FROM sessions"
+                " WHERE token_hash = %(token)s AND last_used_at > %(ended)s),"
+                " used AS ("
+                " UPDATE sessions SET last_used_at = %(now)s"
+                " WHERE token_hash = %(token)s AND last_used_at > %(ended)s"
+                " AND last_used_at <= %(written)s)"
                 f" SELECT {USER_COLUMNS}"
-                " FROM users JOIN used ON users.id = used.user_id",
-                (now, token_hash(token), now - timedelta(days=SESSION_DAYS)),
+                " FROM users JOIN valid ON users.id = valid.user_id",
+                {
+                    "token": token_hash(token),
+                    "now": now,
+                    "ended": now - timedelta(days=SESSION_DAYS) - USE_WRITTEN_EVERY,
+                    "written": now - USE_WRITTEN_EVERY,
+                },
             ).fetchone()
             if row is not None:
                 return UserBody.model_validate(row)

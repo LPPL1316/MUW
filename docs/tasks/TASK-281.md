@@ -1,7 +1,7 @@
 # TASK-281 — «Draw on the map»: disegnare e spostare la figura sulla mappa della città
 
-**Stato**: Todo
-**Fase**: 4 · **Branch**: `feat/TASK-281-draw-on-map`
+**Stato**: Done
+**Fase**: 4 · **Branch**: `feat/TASK-281-draw-on-map` · **ADR**: ADR-0245
 
 ## Obiettivo
 
@@ -86,9 +86,9 @@ le richieste che esistono.
    si porta su un piano in metri attorno al suo centro.
 5. Il risultato si apre come un percorso di «Draw», con i suoi «Start»,
    GPX e alternative; «←» torna alla schermata con la figura com'era,
-   così cambiarla non vuol dire ricominciare. Se l'utente vuole cambiare
-   figura anche dalla mappa del risultato, è una domanda da fargli, non
-   da decidere qui.
+   così cambiarla non vuol dire ricominciare. **Risposto dall'utente il
+   2026-10-15: sì, si deve poter cambiare figura anche dalla mappa del
+   risultato.** È un seguito (sotto, «Esito»), con numero dal Coordinatore.
 6. Il tocco sulla mappa si legge nella pagina MapLibre (messaggi nuovi in
    `messages.ts`, come `setMove`/`moved` di TASK-238): la pagina dà i
    punti già in lat/lon.
@@ -99,42 +99,55 @@ le richieste che esistono.
 
 ## Criteri di accettazione
 
-- [ ] Con «Draw» un dito traccia una linea sulla mappa ferma; con «Move»
-      la mappa si sposta e si ingrandisce (test della logica dei gesti).
-- [ ] Una tessera mette la figura al centro; un'altra la sostituisce lì
-      dov'è con la stessa grandezza; «Undo» toglie l'ultima cosa (test).
-- [ ] La figura si trascina col dito e si ingrandisce con due dita, e la
+- [x] Con «Draw» un dito traccia una linea sulla mappa ferma; con «Move»
+      la mappa si sposta e si ingrandisce (test della logica dei gesti:
+      `mapdraw/mapPageCanvas.test.ts`).
+- [x] Una tessera mette la figura al centro; un'altra la sostituisce lì
+      dov'è con la stessa grandezza; «Undo» toglie l'ultima cosa (test:
+      `mapdraw/useMapCanvas.test.ts`).
+- [x] La figura si trascina col dito e si ingrandisce con due dita, e la
       distanza mostrata segue la grandezza (test).
-- [ ] «Draw route» manda per la linea e per l'immagine un
+- [x] «Draw route» manda per la linea e per l'immagine un
       `ImageRouteRequest` valido (contorno chiuso in [-1, 1], `start`,
-      `distance_m` in metri interi) e per una forma un `RouteRequest`
-      (test sulle richieste).
-- [ ] Il risultato si apre come in «Draw» e «←» torna alla figura com'era
-      (test).
-- [ ] Provato nel simulatore iOS con screenshot in `out/task-281/`;
-      il dito vero sull'iPhone resta all'utente.
-- [ ] Nessuna dipendenza nuova; testi approvati; `npm test`, `expo lint`,
-      `format:check` verdi.
+      `distance_m` in metri interi, al decimo di km o di miglio) e per una
+      forma un `RouteRequest` (test: `mapdraw/canvasRequest.test.ts`).
+- [x] Il risultato si apre come in «Draw» e «←» torna alla figura com'era
+      (test: `mapdraw/DrawOnMapApp.test.tsx`).
+- [x] Provato nel simulatore iOS (iPhone 17e, Expo Go, API locale) con
+      screenshot in `out/task-281/`; il dito vero sull'iPhone resta
+      all'utente.
+- [x] Nessuna dipendenza nuova; testi approvati dall'utente il 2026-10-13;
+      `npm test` (3367), `expo lint`, `format:check` e `pytest tools` verdi.
 
 ## File toccati
 
-Previsti; la sessione li conferma all'inizio. Il grosso in file nuovi
-(cartella `src/mapdraw/`). `App.tsx` e `ChooseScreen.tsx` li tocca anche
-TASK-280: l'ordine dei merge lo dà il Coordinatore.
+Confermati dalla sessione; i file in più rispetto alla previsione hanno
+l'ok del Coordinatore del 2026-10-13. `ChooseScreen.tsx` non è cambiato:
+il tasto sta in `RouteChoice`, sotto l'interruttore.
 
 ```
-apps/mobile/src/mapdraw/*                 (nuovi)
+apps/mobile/src/mapdraw/*                 (nuovi, con i test)
 apps/mobile/src/map/MapView.tsx
 apps/mobile/src/map/mapPage.ts
+apps/mobile/src/map/mapPage.test.ts       (un'asserzione: il pinch si spegne solo sulla tela)
 apps/mobile/src/map/messages.ts
-apps/mobile/src/screens/ChooseScreen.tsx
+apps/mobile/src/route/RoutePanel.tsx      (solo il posto del tasto, `underKinds`)
 apps/mobile/App.tsx
-apps/mobile/src/i18n/*                    (solo le stringhe nuove)
+apps/mobile/src/i18n/{it,de,es,fr}.ts     (solo le stringhe nuove)
+tools/catalogue_shapes.py                 (nuovo)
+tools/test_catalogue_shapes.py            (nuovo)
 docs/UI.md
 docs/DECISIONS.md
 docs/STATUS.md
 docs/tasks/TASK-281.md
 ```
+
+**Chi cambia il motore**: `apps/mobile/src/mapdraw/catalogueShapes.json`
+sono le forme del catalogo prese dal motore. Se cambia una forma (un file
+di `route_engine/shapes/outlines/`, `SHAPE_POINTS`, `SHAPES`), il test
+`tools/test_catalogue_shapes.py` fallisce: si rigenera con
+`PYTHONPATH=services/route-engine python tools/catalogue_shapes.py`, come
+`engine.zip` e `paddleExamples.json`.
 
 ## Fuori scope
 
@@ -146,4 +159,21 @@ docs/tasks/TASK-281.md
 
 ## Esito
 
-*(a fine task)*
+2026-10-13/14: in «Draw», sotto «Shape | Word | Image», «Draw on the
+map» apre la mappa della partenza. Ci si disegna col dito (la linea si
+chiude da sola, le linee dopo si appendono), o si mette una delle 17
+forme, delle 12 immagini pronte o una foto; con «Move» la figura si
+trascina e si ridimensiona con due dita, la distanza segue, una tessera
+la cambia dov'è, «Undo» toglie l'ultima cosa. «Draw route» chiede il
+percorso della figura con le richieste di sempre (ADR-0245); il risultato
+è quello di «Draw», e «←» torna alla figura. Il motore può spostare la
+figura (a Trento la stella da 5,7 km è venuta 1–2 km più in là): il posto
+esatto è TASK-282. Nel simulatore: disegno, trascinamento, due dita,
+cambio di tessera, percorso e ritorno; «+ photo» provata solo nei test.
+Resta all'utente il dito vero sull'iPhone.
+
+**Seguito (scelta dell'utente del 2026-10-15)**: cambiare figura anche
+dalla mappa del risultato, senza tornare con «←» («sì, dai la possibilità
+di cambiare figura dalla mappa»). Task a parte, numero dal Coordinatore.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». È la prova col dito vero che restava all'utente.

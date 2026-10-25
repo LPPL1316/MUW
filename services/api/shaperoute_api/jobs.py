@@ -19,6 +19,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from route_engine.directions import guidance
 from route_engine.models import WATER_ACTIVITIES, RouteResult
+from route_engine.nearby_starts import NearbyPlan
 from route_engine.network import BBox, Graph
 from route_engine.optimizer import GraphLoader, Plan
 from route_engine.sidewalks import NamedRoad
@@ -27,7 +28,9 @@ from route_engine.water import Element, WaterSource
 from shaperoute_api.activity_graphs import Graphs, Ground, source_for, water_for
 from shaperoute_api.alongs import NamedRoads, with_alongs
 from shaperoute_api.errors import error_of
+from shaperoute_api.graphs import MapDataUnavailableError
 from shaperoute_api.images import AnyRequest
+from shaperoute_api.job_times import JobTimes, line
 from shaperoute_api.schemas import ErrorDetail, JobStatus
 
 log = logging.getLogger(__name__)
@@ -64,6 +67,18 @@ class KeepsRoutes(Protocol):
 
     def get(self, request: object) -> RouteResult | None: ...
     def put(self, request: object, result: RouteResult) -> bool: ...
+
+
+@runtime_checkable
+class FindsNearby(Protocol):
+    """A store that also answers a request from a route kept a few metres
+    away, reached along the roads (route_archive.RouteArchive, ADR-0256).
+    It loads the zone, which takes seconds: asked in the job's thread, not
+    in `submit`."""
+
+    def nearby(
+        self, request: object, source: GraphLoader, named_roads: NamedRoads | None
+    ) -> RouteResult | None: ...
 
 
 class _Dropped(Exception):
@@ -153,6 +168,7 @@ class RouteJobs:
             return
         started = self._clock()
         activity = job.request.activity
+        times = JobTimes()
 
         def report(status: JobStatus) -> bool:
             return self._set(job, status)
@@ -160,24 +176,39 @@ class RouteJobs:
         def wanted() -> bool:
             return self._wanted(job)
 
+        # Answered from a route kept nearby (ADR-0256): not kept again.
+        from_archive = False
         try:
             if activity in WATER_ACTIVITIES:
                 # On the water (TASK-191): no graph, so no directions.
                 water = _ReportingWater(
-                    water_for(self._source, activity), report, wanted
+                    water_for(self._source, activity),
+                    report,
+                    wanted,
+                    times,
+                    self._clock,
                 )
-                result = with_choices(self._planner(job.request, water), [])
+                result = with_choices(self._plan(job, water, times), [])
             else:
                 # The zones of the network of the request's activity (TASK-190).
                 graphs = source_for(self._source, activity)
-                source = _Reporting(graphs, report, wanted)
-                plan = self._planner(job.request, source)
+                source = _Reporting(graphs, report, wanted, times, self._clock)
                 names = graphs if isinstance(graphs, KnowsNames) else None
-                result = with_choices(
-                    plan, source.graphs, None if names is None else names.named_roads
-                )
+                named = None if names is None else names.named_roads
+                # A route kept within a few metres of the start, reached
+                # along the roads (ADR-0256): the zone is loaded, the
+                # engine does not run.
+                kept = self._nearby(job, source, named)
+                if kept is not None:
+                    result, from_archive = kept, True
+                else:
+                    plan = self._plan(job, source, times)
+                    began = self._clock()
+                    result = with_choices(plan, source.graphs, named)
+                    times.directions_s = self._clock() - began
         except _Dropped:
             log.info("job %s: dropped before computing", job.job_id)
+            self._log_times(job, times, self._clock() - started)
             self._tell(job, None, None, self._clock() - started)
             return
         except Exception as exc:
@@ -191,6 +222,7 @@ class RouteJobs:
                 error.code,
                 self._clock() - started,
             )
+            self._log_times(job, times, self._clock() - started)
             self._tell(job, None, error, self._clock() - started)
             return
         self._set(job, status="done", result=result)
@@ -201,10 +233,49 @@ class RouteJobs:
             result.similarity,
             self._clock() - started,
         )
+        self._log_times(job, times, self._clock() - started)
         # Also when cancelled meanwhile: the next to ask does not wait.
-        if self._store is not None and self._store.put(job.request, result):
+        if (
+            not from_archive
+            and self._store is not None
+            and self._store.put(job.request, result)
+        ):
             log.info("job %s: kept for the next to ask", job.job_id)
         self._tell(job, result, None, self._clock() - started)
+
+    def _nearby(
+        self, job: Job, source: GraphLoader, named_roads: NamedRoads | None
+    ) -> RouteResult | None:
+        """The route the store keeps a few metres from the start, reached
+        along the roads (FindsNearby); None when the store has none, or is
+        not one that looks nearby. A store that fails leaves the job to the
+        engine: its failure is logged, the job goes on."""
+        if not isinstance(self._store, FindsNearby):
+            return None
+        try:
+            found = self._store.nearby(job.request, source, named_roads)
+        except _Dropped:
+            raise
+        except MapDataUnavailableError:
+            return None  # the engine says so, as for any request
+        except Exception:
+            log.exception("job %s: the archive failed; drawn instead", job.job_id)
+            return None
+        if found is not None:
+            log.info("job %s: kept route reached along the roads", job.job_id)
+        return found
+
+    def _plan(self, job: Job, ground: Ground, times: JobTimes) -> Plan:
+        """The planner's plan, its seconds kept also when it fails."""
+        began = self._clock()
+        try:
+            return self._planner(job.request, ground)
+        finally:
+            times.planner_s = self._clock() - began
+
+    def _log_times(self, job: Job, times: JobTimes, elapsed_s: float) -> None:
+        """One line with the job's phases (TASK-289, job_times)."""
+        log.info("job %s: times %s", job.job_id, line(times, elapsed_s))
 
     def _tell(
         self,
@@ -257,18 +328,27 @@ class _Reporting:
     stops the job if it was cancelled meanwhile. The engine loads its graph
     before computing, so a cancelled job spares the computing; when the
     shape does not fit near the start it loads a larger one and computes
-    again (ADR-0040), and a download then shows between two computings."""
+    again (ADR-0040), and a download then shows between two computings.
+    It also keeps the job's times: each load's, and how the nearby starts
+    went (job_times.NotesNearby)."""
 
     def __init__(
         self,
         source: GraphLoader,
         report: Callable[[JobStatus], object],
         wanted: Callable[[], bool],
+        times: JobTimes | None = None,
+        clock: Callable[[], float] = time.monotonic,
     ):
         self._source = source
         self._report = report
         self._wanted = wanted
+        self._times = JobTimes() if times is None else times
+        self._clock = clock
         self.graphs: list[Graph] = []  # as loaded, for the directions
+
+    def note_nearby(self, nearby: NearbyPlan) -> None:
+        self._times.nearby = nearby
 
     def load(self, bbox: BBox) -> Graph:
         downloading = isinstance(self._source, KnowsDownloads) and (
@@ -276,7 +356,11 @@ class _Reporting:
         )
         if downloading:
             self._report("downloading_map")
-        graph = self._source.load(bbox)
+        began = self._clock()
+        try:
+            graph = self._source.load(bbox)
+        finally:  # a download that fails took its time too
+            self._times.loaded(self._clock() - began, downloading)
         if not self._wanted():
             raise _Dropped
         if downloading:
@@ -288,17 +372,22 @@ class _Reporting:
 class _ReportingWater:
     """The job's water (TASK-191), as _Reporting for the graphs: says when a
     download starts and ends, and stops the job if it was cancelled
-    meanwhile. The engine reads the water once, before placing the shape."""
+    meanwhile. The engine reads the water once, before placing the shape;
+    the job's times count the reading as a load."""
 
     def __init__(
         self,
         source: WaterSource,
         report: Callable[[JobStatus], object],
         wanted: Callable[[], bool],
+        times: JobTimes | None = None,
+        clock: Callable[[], float] = time.monotonic,
     ):
         self._source = source
         self._report = report
         self._wanted = wanted
+        self._times = JobTimes() if times is None else times
+        self._clock = clock
 
     def elements(self, bbox: BBox) -> list[Element]:
         downloading = isinstance(self._source, KnowsDownloads) and (
@@ -306,7 +395,11 @@ class _ReportingWater:
         )
         if downloading:
             self._report("downloading_map")
-        elements = self._source.elements(bbox)
+        began = self._clock()
+        try:
+            elements = self._source.elements(bbox)
+        finally:
+            self._times.loaded(self._clock() - began, downloading)
         if not self._wanted():
             raise _Dropped
         if downloading:

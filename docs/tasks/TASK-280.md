@@ -1,6 +1,6 @@
 # TASK-280 — Sotto «Draw»: i tour della città e le immagini pronte
 
-**Stato**: Todo
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-280-draw-tours-pictures`
 
 ## Obiettivo
@@ -28,6 +28,19 @@ Le due cose esistono già altrove, e qui si riusano:
   (`POST /image-outlines`, `POST /image-route-jobs`). API già sul server.
 
 Solo app. Può partire mentre Apple prova la 1.0; va su `preview`.
+
+**Scelte dell'utente del 2026-10-13** (chieste in chat con le opzioni):
+- sagome: «Dodici, razzo»: bici, scarpa da corsa, dinosauro, chitarra,
+  Torre Eiffel, razzo, cuore con freccia, ancora, aereo, gelato,
+  palloncino, foglia (il razzo al posto del Colosseo). Scartati: le dodici
+  col Colosseo; otto;
+- giri: «Quattro»: Famous Places, Best Views, Hidden Gems, Romantic.
+  Scartati: cinque con Food; tutte e tredici;
+- il nome della città: con la partenza dal GPS l'app non lo sa e nessuna
+  API lo dice. Scelta «Sempre, near your start»: etichetta «CITY TOURS»,
+  sotto ogni categoria «near your start» (o «near Trento» da un luogo
+  cercato). Scartati: la riga solo con un luogo cercato; un indirizzo
+  nuovo dell'API (server, fuori da questo task).
 
 ## Contesto da leggere
 
@@ -69,31 +82,40 @@ Solo app. Può partire mentre Apple prova la 1.0; va su `preview`.
 
 ## Criteri di accettazione
 
-- [ ] La riga dei giri mostra le categorie scelte con il nome della città
-      di partenza; un tocco chiede il giro a tema e apre la mappa (test).
-- [ ] La riga delle sagome ne mostra quante l'utente ha scelto; un tocco
+- [x] La riga dei giri mostra le categorie scelte con da dove partono
+      («near your start»: il nome della città dal GPS non si sa, scelta
+      dell'utente); un tocco chiede il giro a tema e apre la mappa (test).
+- [x] La riga delle sagome ne mostra quante l'utente ha scelto; un tocco
       passa a «Image» con la sagoma e il suo contorno (test).
-- [ ] «Draw route» con una sagoma manda `POST /image-route-jobs` con il
+- [x] «Draw route» con una sagoma manda `POST /image-route-jobs` con il
       contorno della sagoma (test).
-- [ ] Con «Paddle» le due righe non ci sono (test).
-- [ ] Le sagome sono file dell'app disegnati da noi, senza licenze di
+- [x] Con «Paddle» le due righe non ci sono (test).
+- [x] Le sagome sono file dell'app disegnati da noi, senza licenze di
       altri; nessuna dipendenza nuova.
-- [ ] Testi approvati; `npm test`, `expo lint`, `format:check` verdi.
+- [x] Testi approvati dall'utente il 2026-10-13; `npm test` (398 suite,
+      3302 test), `expo lint`, `tsc`, `format:check` e i test di `tools/`
+      verdi.
 
 ## File toccati
 
-Previsti; la sessione li conferma all'inizio. I componenti nuovi stanno in
-file nuovi, così `ChooseScreen.tsx` cambia il meno possibile.
+Confermati dalla sessione (2026-10-13). `ChooseScreen.tsx` non cambia: le
+due righe sono figlie della pagina, messe da `App.tsx`. In più, con l'ok del
+Coordinatore, `ThemedCard.tsx` per «Back to Draw».
 
 ```
-apps/mobile/src/screens/ChooseScreen.tsx
 apps/mobile/App.tsx
-apps/mobile/src/route/DrawIdeas.tsx          (nuovo, nome indicativo)
+apps/mobile/src/explore/ThemedCard.tsx       (solo «Back to Draw»)
+apps/mobile/src/route/DrawIdeas.tsx          (nuovo)
+apps/mobile/src/route/DrawIdeas.test.tsx     (nuovo)
 apps/mobile/src/route/samplePictures.ts      (nuovo)
+apps/mobile/src/route/samplePictures.json    (nuovo, scritto dallo strumento)
+apps/mobile/src/route/samplePictures.test.ts (nuovo)
 apps/mobile/src/route/useImageOutline.ts
-apps/mobile/assets/pictures/*.png            (nuovi)
-apps/mobile/src/i18n/*                       (solo le stringhe nuove)
-tools/sample_pictures.py                     (nuovo, se il contorno sta nell'app)
+apps/mobile/__tests__/AppDrawIdeas.test.tsx  (nuovo)
+apps/mobile/assets/pictures/*.png            (nuovi, dodici)
+apps/mobile/src/i18n/{it,de,es,fr}.ts        (solo le stringhe nuove)
+tools/sample_pictures.py                     (nuovo)
+tools/test_sample_pictures.py                (nuovo)
 docs/UI.md
 docs/DECISIONS.md
 docs/STATUS.md
@@ -109,4 +131,19 @@ docs/tasks/TASK-280.md
 
 ## Esito
 
-*(a fine task)*
+Fatto il 2026-10-13 (ADR-0246). In fondo a «Draw», sotto la distanza:
+«CITY TOURS», quattro giri a tema (Famous Places, Best Views, Hidden Gems,
+Romantic) intorno alla partenza, che si aprono sulla mappa coi luoghi e
+tornano a «Draw» con «Back to Draw» o «←»; «PICTURES», dodici sagome
+disegnate da `tools/sample_pictures.py`, che un tocco mette in «Image» col
+contorno già calcolato dal motore, pronto per «Draw route». Con «Paddle»
+nessuna delle due righe. Sagome e testi approvati dall'utente. Solo app,
+non nella 1.0; la pubblica il Coordinatore. Da provare sull'iPhone: un
+giro e una sagoma a 5 km.
+
+**Licenza delle immagini**: i dodici PNG di `apps/mobile/assets/pictures/`
+li abbiamo disegnati noi, con codice (`tools/sample_pictures.py`, da
+cerchi, linee e poligoni): sono nostri e vanno con la licenza del progetto.
+Nessuna immagine d'altri, nessun credito da dare.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok».

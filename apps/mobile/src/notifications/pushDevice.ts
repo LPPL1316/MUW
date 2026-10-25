@@ -95,16 +95,32 @@ export function pushPlatform(): PushPlatform {
   return Platform.OS === "android" ? "android" : "ios";
 }
 
+/** The kinds not shown while the app is open: a shape of the game unlocked
+ * (TASK-296) has its card after «Save» already. */
+const QUIET_WHILE_OPEN: readonly string[] = ["shape_unlocked"];
+
+/** Whether a notification arriving with the app open is shown. */
+export function shownWhileOpen(data: unknown): boolean {
+  const kind: unknown =
+    typeof data === "object" && data !== null
+      ? (data as Record<string, unknown>).kind
+      : undefined;
+  return typeof kind !== "string" || !QUIET_WHILE_OPEN.includes(kind);
+}
+
 /** A notification that arrives while the app is open shows as a banner,
- * silent, as it would with the app closed. */
+ * silent, as it would with the app closed; but for the quiet kinds. */
 export function showWhileOpen(): void {
   Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
-    }),
+    handleNotification: async (notification) => {
+      const shown = shownWhileOpen(notification.request.content.data);
+      return {
+        shouldShowBanner: shown,
+        shouldShowList: shown,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      };
+    },
   });
 }
 

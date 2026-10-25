@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t, tLater } from "../i18n";
 
+import { routeQueue } from "../api/routeQueue";
 import { MAX_POLL_FAILURES } from "../api/routes";
 import {
   getThemed,
@@ -54,7 +55,8 @@ export function useThemedRoute(
         return;
       }
       setState({ status: "waiting", request });
-      void (async () => {
+      // The user's: first in the app's queue of route requests (TASK-287).
+      void routeQueue.user(async () => {
         const began = Date.now();
         let job = await postThemed(apiUrl, request, { fetchFn, signal });
         // Asks that fail in a row (TASK-254): forgiven as requestRoute
@@ -92,7 +94,7 @@ export function useThemedRoute(
             message: job?.error?.message ?? t(UNREACHABLE),
           });
         }
-      })();
+      });
     },
     [apiUrl, fetchFn, pollMs],
   );

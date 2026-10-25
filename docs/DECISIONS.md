@@ -4634,6 +4634,98 @@ stato provato niente. Il nome «Sgrava» resta in
 cima a «Draw» e «Best near you» in cima a «Explore»: toglierli o no è
 parte del ridisegno delle due pagine, non ancora scelto.
 
+**Aggiunta del 2026-10-13 (TASK-278): il proprio profilo come quarta
+pagina.** **Deciso dall'utente il 2026-10-11** il cosa («Dopo explore metti
+il mio profilo personale facendo uno swipe a sinistra»; in alto tre nomi
+più il cerchio, che si illumina; scartati quattro nomi in alto, che accanto
+allo sport non ci stanno su un iPhone da 390 pt né in tedesco); dall'utente
+il 2026-10-13 la pagina senza titolo e il testo nuovo di «Help»; il come
+deciso dall'agente su delega dell'utente.
+
+- **Quattro pagine**: «Feed», «Draw», «Explore» e, a destra, il profilo
+  (`profile` in `PAGES` di `App.tsx`). La quarta pagina non ha un nome in
+  alto (`unnamed` in `Pager.tsx`): ci porta il cerchio di «Profile», che ha
+  la lineetta della pagina accesa quando è lì e per VoiceOver è
+  «selezionato» (`ProfileButton` con `selected` e `onPress`). La lineetta
+  sta sotto il cerchio, nello spazio in fondo all'intestazione, che resta
+  alta com'era. Si monta alla prima visita (`lazy`), come «Explore».
+- **La pagina è la prima di «Profile»** (`OwnProfile` in
+  `ProfileLayer.tsx`, che mostra `ProfileScreen` senza `onBack`: niente «←»
+  né titolo, come le altre pagine). Si rifà ogni volta che torna sullo
+  schermo (una `key` che cresce): gli elenchi di chi segue e i disegni si
+  rileggono come quando «Profile» si apriva sopra l'app, e il numero rosso
+  delle richieste apre ancora «Requests».
+- **Le pagine che apre restano sopra l'app** («Settings», «Favorites», «My
+  activities», «Edit profile», «Guide», il profilo di un altro), con lo
+  strato e i contesti dove erano: `ProfileLayer` ricorda da dove si è
+  partiti (`home`, la quarta pagina o lo strato) e «←» verso la prima
+  pagina chiude lo strato quando si era partiti dalla quarta. Un disegno
+  aperto dalla pagina torna alla pagina sotto la mappa, come da «Feed».
+  «Guide» aperto da lì torna lì, non a «Settings».
+- **Gli altri ingressi restano come prima**: il cuore e «Save» senza
+  account, la lente di «Feed» senza account, un nome taggato, una notifica
+  aprono «Profile» sopra l'app. Portarli alla quarta pagina è una scelta
+  dell'utente, da chiedere.
+- Il giro di benvenuto (ADR-0235) regge con quattro pagine: non nomina il
+  loro numero, e il passo dell'intestazione dice già «In your profile…».
+  «Help» lo diceva («three pages»): cambiato nelle cinque lingue.
+
+**Scartate**: aprire anche le pagine del profilo dentro la quarta pagina
+(cambierebbe dove sono, fuori dal task); tenere «Profile» sopra l'app e
+aggiungere solo lo swipe (due posti per la stessa pagina); una pagina che
+non si rifà mai (elenchi e richieste vecchi fino alla riapertura dell'app).
+
+**Conseguenze**: uno swipe che arriva sul profilo mostra per un attimo
+gli elenchi di prima, poi i trattini mentre si rileggono; un tocco sul
+cerchio no, perché la pagina si rifà prima di scorrere.
+
+**Aggiunta del 2026-10-13 (TASK-278 parte B): gli altri ingressi alla
+quarta pagina.** **Deciso dall'utente il 2026-10-13** il cosa («sì, portali
+tutti alla 4ª pagina»; poi, alle due domande della sessione: «4ª pagina, poi
+torni» per il cuore e «Save», «Torna dov'eri» per il profilo di un altro);
+il come deciso dall'agente su delega dell'utente.
+
+- **Cuore e «Save» senza account** stanno sulla mappa e sulla fine della
+  corsa, che prendono tutto lo schermo: portano alla quarta pagina con la
+  loro riga sopra «Sign up» e, solo finché nessuno entra, con «←» e il
+  titolo «Profile» (`OwnProfile` con `onBack`), che tornano lì senza
+  tenere niente. Appena si entra l'app torna da sola dov'era: il percorso
+  è tenuto (come prima, quando arriva l'elenco dei preferiti), la fine
+  della corsa ha «Save» e «Discard». Uno swipe o un nome lasciano la mappa
+  o la fine della corsa: il percorso non si tiene (`forgetWaiting`, come
+  il vecchio «←»), la corsa resta sul telefono e torna alla prossima
+  apertura.
+- **La lente di «Feed» senza account** porta alla quarta pagina con «Log
+  in to find your friends.», senza «←»: si parte da una pagina.
+- **Il profilo di un altro** (nome taggato, notifica) resta sopra l'app;
+  «←» chiude e mostra l'app com'era (`home` = `app`), non più «Profile».
+  **Il proprio nome** chiude il disegno e porta alla quarta pagina; una
+  notifica non lo porta mai (l'API non avvisa l'account di quello che fa
+  lui), ma passa dalla stessa porta. Durante una corsa nessuna richiesta
+  la toglie dallo schermo.
+- **Un disegno di una notifica** toccata mentre una pagina del profilo è
+  sopra la quarta pagina torna, con «Back to the profile», alla quarta
+  pagina invece di aprire «Profile» sopra l'app.
+- **Come**: `ProfileLayer` chiude ciò che è sopra l'app e conta la
+  richiesta con la riga del perché (`OwnAsk`, letto con `useOwnPage`);
+  `App.tsx` va alla quarta pagina a ogni richiesta nuova e ricorda da dove
+  (`profileFrom`, solo dalla mappa o dalla fine della corsa senza account)
+  per «←» e per il ritorno dopo l'ingresso. Uscendo dalla quarta pagina
+  (`leave`) la riga va via. Le liste di «Profile» aperto sopra l'app dal
+  cerchio fuori dal pager (oggi solo nei test) tornano lì come prima
+  (`home` = `layer`).
+
+**Scartate** (dall'utente): la quarta pagina senza «←» anche da mappa e
+fine corsa (chi non entra perde la fine della corsa fino alla prossima
+apertura); cuore e «Save» ancora sopra l'app; «←» dal profilo di un altro
+alla quarta pagina. (Dall'agente): far decidere a ogni porta se c'è «←»
+invece che dallo schermo di partenza; un'attesa dell'ingresso in un
+`useEffect`, che il lint di React rifiuta.
+
+**Conseguenze**: dalla mappa e dalla fine della corsa la quarta pagina
+ha, per poco, sia lo swipe sia «←»; chi entra non vede il proprio profilo
+ma torna subito dov'era. Nessun testo nuovo.
+
 ## ADR-0127 — «Feed» con quindici esempi dal catalogo, finché non pubblicano gli iscritti
 **Stato**: Attiva · 2026-10-02 · **scelta dell'utente** per il cosa («nella
 sezione feed crea già in automatico 15 attività con nomi inventati, utenti
@@ -14163,6 +14255,1301 @@ ha scelto di tenere).
 elemento e di una JPEG per foto vista: con mille paesi, circa 60 MB. Una
 foto di Commons può mostrare un monumento invece del paese (Laguardia: un
 dolmen); la sceglie chi cura Wikidata.
+
+## ADR-0144, aggiunta — Le parole di una città, dopo le sue forme
+
+**Stato**: Attiva · 2026-10-13 · **scelte dell'utente** il cosa (il
+2026-10-11 «prima parole, poi frasi»; il 2026-10-13 le sei parole e la
+distanza minima di ognuna); il come deciso dall'agente su delega
+dell'utente (TASK-279 parte A). Aggiunta ad ADR-0144, senza numero nuovo.
+
+**Contesto**: in «Explore» una città scelta disegna otto forme da 5 km dal
+centro, una alla volta (ADR-0144). L'utente vuole anche parole con la penna
+alzata (ADR-0157). L'API tiene già ogni percorso chiesto da un centro,
+parole comprese (ADR-0136): basta l'app. Il task diceva «5 km come le
+forme», ma il contratto vuole almeno `LETTER_DISTANCE_M` (3 km) per
+lettera: a 5 km l'API rifiuta ogni parola (`check_word`).
+
+**Decisione**:
+- **Sei parole**, scelte dall'utente: CIAO, LOVE, AMORE, RUN, HELLO, MUW
+  (`EXAMPLE_WORDS` in `exampleRoutes.ts`), lettere tonde, `pen_up: true`.
+  **Ognuna alla distanza minima** (scelta dell'utente): 3 km a lettera,
+  come «Use 12 km» in «Draw». RUN e MUW 9 km, CIAO e LOVE 12, AMORE e
+  HELLO 15.
+- **Dopo le otto forme**, nello stesso giro e con le stesse regole delle
+  forme in più: una alla volta, dentro `EXAMPLES_PER_MINUTE`, una scheda
+  solo quando tocca a lei, nessuna scheda né messaggio per una che non
+  riesce. `shape_not_drawable` la lascia fuori finché l'app resta aperta;
+  un guaio che non è della parola (rete, troppe richieste) ferma in
+  silenzio anche le parole, che si richiedono alla prossima scelta della
+  città. Sull'acqua niente parole.
+- **La più lunga per prima** (`wordOrder`): AMORE, HELLO, CIAO, LOVE, RUN,
+  MUW. Ogni lettera ha la stessa distanza, quindi una parola più lunga va
+  più lontano dal centro e la zona che l'API scarica per lei contiene
+  quelle delle più corte, come il cerchio fra le forme. Le schede restano
+  nell'ordine dell'utente.
+- **Una lista accanto alle forme**, non dentro: `Example` ha `shape`, e lo
+  leggono anche «Paddle», «WhileDrawing» e le schede degli esempi.
+  `WordExample` ha `word` e gli stessi stati; il giro chiede le forme e
+  poi le parole con la stessa funzione (`Ask`). Gli id sono
+  `example:word:CIAO:<chiave>`.
+- **Nello stesso file degli esempi**, con le forme della città: una parola
+  tenuta a un'altra distanza o senza `walks` si ridisegna. Un'app più
+  vecchia legge il file come prima (cerca le forme per `shape`).
+- **Anche una città con percorsi consigliati** riceve le parole, meno
+  quelle che ha già fra i suoi percorsi (`wordsOf`, nel catalogo c'è un
+  CIAO); la riga sta sotto le sue schede, con il nome della città del
+  catalogo.
+- **La riga**: «WORDS», schede come «NEARBY TOWNS» (42% della pagina), la
+  parola e i km, la città, la somiglianza, la mappa; i tratti a piedi non
+  si disegnano (`gaps`). Il credito delle mappe sotto la riga solo se
+  sopra non c'è. Aperta, la scheda del percorso dice anche «6.0 km of
+  letters + 0.4 km walking between them», come «Draw» (`PenSplit`, ora
+  esportato da `RoutePanel.tsx`), solo per le parole.
+
+**Motivo**: le parole sono richieste uguali per tutti i telefoni, che
+l'API tiene; seguire le regole delle forme in più non tocca il limite
+dell'API (ADR-0076) né i primi tre esempi, che non aspettano mai.
+
+**Alternative scartate**: le parole a 5 km (rifiutate dal contratto); tutte
+a 15 km (scartata dall'utente); un `Example` con `shape` o `word` (cambia
+i file di «Paddle» e degli esempi); una seconda coda di richieste per le
+parole (due giri insieme supererebbero il limite al minuto); farle
+disegnare prima dal server con `draw_examples` (TASK-279 punto 7, dopo
+l'approvazione di Apple e con l'ok dell'utente).
+
+**Conseguenza**: il primo telefono in una città aspetta, dopo le forme,
+30–50 s per parola sul server (15 km); gli altri le ricevono subito. Fra
+due città sfogliate in un minuto le parole della seconda aspettano il
+minuto dopo. Una città senza zona sul server può scaricarne una più
+grande per la parola più lunga.
+
+## ADR-0244 — L'email di ritorno a chi non apre l'app da 14 giorni
+**Stato**: Attiva · 2026-10-11 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-284): «a tutti gli iscritti» e
+«un interruttore suo, acceso», con la proposta di testo e di ritmo
+accettata; il come deciso dall'agente su delega dell'utente. Note del
+coordinatore: rispettare gli interruttori, informare e lasciar rifiutare
+già all'iscrizione (il «soft opt-in» europeo; non è una consulenza
+legale), chiave e DNS di Resend all'utente.
+
+Chi si iscrive e poi non apre più MuW non sa che chi segue ha pubblicato.
+Una email lo dice: quanti disegni nuovi, di chi, e un pulsante per tornare.
+
+**Decisione**:
+
+1. **A tutti gli iscritti**, con un interruttore suo, «Email when I'm
+   away» (`users.notify_away`, `notifications.away`), **acceso** di
+   default anche per gli account di prima; lo spengono la casella non
+   spuntata «Don't send me these emails» all'iscrizione (`away_email`),
+   «Settings» e il link di ogni email. «Email notifications» resta per le
+   notizie di TASK-262 B.
+2. **Una email per assenza**: ultimo uso (il `last_used_at` più recente
+   delle sessioni) più vecchio di 14 giorni e nessuna email di ritorno
+   dopo; un account uscito da ogni telefono non ha un ultimo uso e non la
+   riceve. **Solo con qualcosa di nuovo**, cioè disegni che il Feed gli
+   mostrerebbe (`shown_sql`, mai attraverso un blocco), i suoi esclusi:
+   senza, il giro del giorno dopo richiede.
+3. **Un giro al giorno** alle 17:00 UTC, in un thread dell'API avviato da
+   `__main__.py`: nessun servizio nuovo in `compose.yaml`, nessun cron.
+   L'account è preso (`away_emailed_at`, con un `UPDATE` che vale solo se
+   niente è cambiato) prima di mandare e restituito se Resend rifiuta;
+   500 per giro, mezzo secondo fra due, fermo dopo 3 rifiuti di fila.
+4. **Resend** con la libreria standard (`resend_email.py`, come
+   `expo_push.py`): nessuna dipendenza nuova, un `User-Agent` suo, una
+   `Idempotency-Key` per assenza; la chiave e l'indirizzo mai nei log.
+5. **Il link per disiscriversi** è un HMAC del `public_id` con
+   `SHAPEROUTE_EMAIL_SECRET`: niente nel database. Il `GET` mostra una
+   pagina con un pulsante, solo il `POST` spegne (i filtri antispam aprono
+   i link); `List-Unsubscribe` e `List-Unsubscribe-Post` (RFC 8058) per il
+   «disiscriviti» del programma di posta. La pagina non vuole
+   `X-API-Key`, come `/strava/callback`.
+6. **Lingua**: quella dell'app all'iscrizione (`users.language`, nuova),
+   poi quella del telefono con le push, poi l'inglese.
+7. **«Open MuW»** porta alla pagina App Store dell'app: l'app non ha link
+   universali né uno schema suo, che vorrebbero una build nativa.
+
+**Alternative scartate**: legarla a «Email notifications» (spento di
+default: non la riceverebbe quasi nessuno, scelta dell'utente); solo il
+link nella email (il soft opt-in vuole il rifiuto già all'iscrizione); un
+servizio o un cron a parte sul server (una cosa in più da tenere accesa);
+un token per account nel database (il segreto basta e non va copiato);
+spegnere al solo `GET` del link; il pacchetto Python di Resend (una
+dipendenza per una chiamata).
+
+**Conseguenza**: l'indirizzo email lascia il server per Resend (negli
+Stati Uniti): la privacy cambia nella parte B, dopo #461, con il sì
+dell'utente al testo e alla data. Nessuna email parte prima che ci siano
+la parte B in `main`, l'app pubblicata con la casella, la chiave e il
+dominio verificato su Resend (`DEPLOY.md`, «Email di ritorno»). I testi
+dell'email, in cinque lingue, aspettano anche loro il sì dell'utente.
+Cambiare il segreto spegne i link già mandati.
+
+## ADR-0245 — «Draw on the map»: la figura sulla mappa la misura l'app, il percorso lo fa il motore
+**Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente:
+una schermata sola con «Draw | Move», una riga di forme e immagini che
+cambia la figura dove sta, la figura trascinata col dito, e «in due
+passi» (il motore può spostare la figura; il posto esatto è TASK-282),
+il 2026-10-11; il tasto «Draw on the map» sotto «Shape | Word | Image» e
+i sei testi nuovi nelle cinque lingue, il 2026-10-13. Il come è deciso
+dall'agente su delega dell'utente (TASK-281).
+
+**Decisione** (tecnica, dell'agente):
+
+1. **La stessa mappa, una schermata nuova** (`screen: "canvas"` in
+   `App.tsx`): la WebView di MapLibre resta una sola, come per il
+   percorso. In alto «←» e il luogo cercato in «Draw» (la posizione del
+   GPS non ha un nome nell'app); sotto la mappa il pannello
+   `src/mapdraw/DrawOnMap.tsx`. Con «Paddle» il tasto non c'è: sull'acqua
+   la forma si sposta già (ADR-0202).
+2. **I gesti sono della pagina della mappa.** Sulla tela la pagina spegne
+   i gesti di MapLibre (`dragPan`, `touchZoomRotate`, `doubleClickZoom`,
+   `dragRotate`, `touchPitch`) e li fa da sé, come il trascinamento di
+   ADR-0202: con «Draw» un dito disegna una linea gialla e la mappa sta
+   ferma, due dita non fanno niente; con «Move» un dito che parte sulla
+   figura (il suo riquadro sullo schermo, più 24 px) la trascina, altrove
+   sposta la mappa; due dita col punto di mezzo sulla figura la
+   ingrandiscono o rimpiccioliscono dal suo centro, altrove fanno lo zoom
+   della mappa. Un dito ferma la mappa che si sta ancora muovendo (nel
+   simulatore una linea disegnata durante l'inquadratura veniva storta).
+   Una figura cresciuta oltre lo schermo fa allontanare la mappa, così
+   resta posto per lo zoom fuori dalla figura. Uscendo, i gesti di
+   MapLibre tornano com'erano. Messaggi nuovi in `messages.ts`:
+   `setCanvas`/`clearCanvas` verso la pagina; `drawn` (la linea, in
+   lat/lon), `figure` (il centro nuovo e il fattore; `done: false` mentre
+   due dita la ridimensionano, per la distanza che segue) e `centre` (il
+   centro della mappa) verso l'app.
+3. **La figura nell'app** (`figure.ts`): la figura nella sua cornice, con
+   x a destra e y in alto, più il centro sulla mappa e i metri di
+   un'unità. La distanza è la lunghezza nella cornice per i metri
+   dell'unità; la lunghezza è quella su cui il motore scala (§3): il
+   perimetro della linea a 64 punti per una forma, `drawn_length` con la
+   penna alzata, e per un disegno o una foto il contorno più i dettagli
+   andata e ritorno (un anello una volta). I conti sono sul piano
+   tangente, in metri, con la proiezione del motore (`plane.ts`).
+4. **Le forme del catalogo le dà il motore**: `tools/catalogue_shapes.py`
+   scrive `src/mapdraw/catalogueShapes.json` (le linee, la lunghezza e la
+   partenza di ogni forma, con la penna giù e, se ha pezzi, alzata), come
+   lo scrive Prettier (`as_prettier` di ADR-0246).
+   `tools/test_catalogue_shapes.py` fallisce quando il motore cambia una
+   forma: chi cambia il motore lo rigenera.
+5. **La linea a dito** (`drawing.ts`): la prima diventa il contorno,
+   semplificata all'1% (Douglas–Peucker, al più 100 angoli) e chiusa
+   dall'app: una fine entro il 5% dall'inizio finisce lì. Se si incrocia,
+   resta l'anello più grande chiuso dove si incrocia (una linea che passa
+   oltre l'inizio, un otto), o si accorcia la coda; se così si perde più
+   del 40% del disegno, «This line crosses itself…» e niente cambia. Le
+   linee dopo sono **dettagli appesi**, come «Add a detail» (ADR-0074),
+   ma calcolati dall'app: dal punto più vicino della figura, col capo
+   più vicino, agganciati entro il 6% o con un trattino dritto; un capo
+   che torna entro il 3% su un suo punto chiude un anello. Oltre
+   `MAX_DETAIL_POINTS` il testo già approvato «That is too much for one
+   route…». Una linea su una forma o su una foto ne prende il posto.
+6. **Il contratto non cambia**: una forma va a `POST /route-jobs` con
+   `shape` (e la penna alzata come la chiede «Draw», `shapeAsked`), un
+   disegno o una foto a `POST /image-route-jobs` col contorno ricentrato
+   e portato in [-1, 1] insieme ai dettagli (`strokes`). `start` è il
+   primo punto della figura sulla mappa (la fase 0); `distance_m` la sua
+   distanza al decimo di km o di miglio, come una distanza scritta in
+   «Draw» (il risultato dice «target 5.7 km»), dentro i limiti di «Draw»
+   per lo sport. Il motore cerca come sempre (fasi, rotazioni, partenze
+   vicine e lontane).
+7. **La riga delle tessere**: «+ photo» per prima (una foto della libreria,
+   tracciata dal motore con un `useImageOutline` suo), poi le 17 forme e
+   le 12 sagome di ADR-0246, col loro contorno già nell'app. La prima
+   figura va nel centro della mappa, lunga quanto la distanza di «Draw»,
+   e la mappa si inquadra su di lei; una tessera dopo la cambia dov'è,
+   grande uguale sulla mappa (la distanza cambia con la forma). Dopo una
+   tessera l'interruttore passa a «Move», che è la cosa da fare dopo.
+8. **«Undo»** toglie l'ultima figura messa o disegnata (torna quella di
+   prima, dov'era), l'ultimo cambio di tessera (torna la forma di prima,
+   dove sta ora) o l'ultimo dettaglio. Spostare e ridimensionare non si
+   annullano.
+9. **Il risultato è quello di «Draw»**: lo stesso `useRouteRequest`, e
+   `fromCanvas` dice che la richiesta è della figura. «←» e «Cancel»
+   tornano alla figura com'era; «Try 8 km» porta la figura a quella
+   grandezza e la richiede. Le richieste della stessa figura, spostata o
+   ridimensionata, hanno gli stessi array del contorno, così l'app
+   riconosce il risultato e non lo chiede due volte.
+
+**Motivo**: la richiesta dell'utente in due passi si fa senza toccare
+contratto, API e motore: la figura sulla mappa diventa le richieste che
+esistono, con la grandezza disegnata e la partenza dove la figura
+comincia. I gesti nella pagina sono la sola parte che sa dove sta la
+figura sullo schermo; la geometria nell'app si prova coi test.
+
+**Alternative scartate**: una seconda WebView solo per la tela (il doppio
+della memoria di MapLibre, che iOS chiude quando manca); tenere i gesti di
+MapLibre con delle eccezioni (dalla pagina non si sceglie chi riceve il
+dito per primo); mandare ogni tratto a `POST /image-outline-edits`
+(vuole un contorno di una foto, e una chiamata per tratto); `near` su
+strada (rifiutato dal motore, ADR-0202 punto 4: è TASK-282).
+
+**Conseguenza**: la figura non è ancora il percorso. Provato nel
+simulatore a Trento: la stella da 5,7 km messa a nord del centro è venuta
+5,4 km, 1–2 km più in là, con «Start here». Il dito vero sull'iPhone
+resta da provare. Una figura grande quanto lo schermo prende tutte le due
+dita: per lo zoom della mappa serve il margine fuori dalla figura, ed è
+per questo che la mappa si allontana quando la figura cresce oltre.
+
+**Aggiunta del 2026-10-16 (TASK-286, un'altra figura dalla mappa del
+risultato)**: la scelta di prodotto è dell'utente del 2026-10-15 («sì, dai
+la possibilità di cambiare figura dalla mappa», poi «SI»); il come è
+deciso dall'agente su delega dell'utente, con l'ok del Coordinatore ai
+file.
+
+10. **Una riga sola** (`src/mapdraw/FigureTiles.tsx`): le tessere della
+    tela (punto 7) diventano un componente, usato da `DrawOnMap.tsx` con
+    «+ photo» davanti e dal pannello del risultato senza. Le stesse
+    tessere per costruzione, nessun testo nuovo (VoiceOver legge i nomi
+    già tradotti delle forme e delle immagini).
+11. **Sopra «Start»**: `RouteOutcome` riceve la riga come `figures` e la
+    mette, a percorso arrivato, dopo «A · B · C», «Try 8 km» e gli avvisi:
+    prima cos'è il percorso, poi un'altra figura, poi le cose da fare;
+    «Start» resta in basso dov'era. Con «Paddle» solo le forme (in «Draw»
+    sull'acqua le immagini non si disegnano). Non sotto un errore: lì ci
+    sono già le vie d'uscita di TASK-031.
+12. **Da «Draw» la tessera diventa la scelta di «Draw»** (`App.tsx`,
+    `onChangeFigure`): una forma mette «Shape» e il suo nome nel campo,
+    un'immagine «Image» con `image.show` come «PICTURES»; la richiesta
+    (`changedRequest` in `resultFigure.ts`) tiene partenza, distanza e
+    sport del percorso sullo schermo, la penna alzata come `shapeAsked`,
+    gli stessi array del contorno dell'immagine e, sull'acqua, il `near`
+    di una forma spostata (ADR-0202). Così la richiesta che «Draw»
+    ricalcola al render dopo è uguale per `sameRequest`: il risultato
+    resta sullo schermo, «←» torna a «Draw» con la scelta nuova e «Draw
+    route» non lo chiede due volte. Scartato: chiedere il percorso con un
+    effetto quando la richiesta di «Draw» cambia (un giro in più, e un
+    effetto che disegna da sé).
+13. **Da «Draw on the map» la figura nuova prende il posto di quella sulla
+    tela** (`changeTo` di `useMapCanvas`): stesso centro, **la distanza
+    della richiesta sullo schermo** e non la grandezza (sulla tela una
+    tessera tiene la grandezza perché si guarda la figura; qui si guarda
+    un percorso di quei km), dentro i limiti come ogni figura. È un passo
+    «put» di «Undo»: tornati sulla tela, «Undo» rimette la figura di
+    prima com'era. La partenza è quella della figura nuova (punto 6).
+14. **La tessera segnata** è letta dalla richiesta per «Draw» (la forma,
+    o l'immagine pronta il cui contorno la richiesta manda tale e quale:
+    un contorno ritoccato con «Edit the outline» non è più lei) e dalla
+    figura per la tela; toccarla non chiede niente.
+
+## ADR-0246 — Sotto «Draw» i giri a tema e dodici sagome pronte, col contorno già nell'app
+**Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-280): le dodici sagome col razzo al
+posto del Colosseo, i quattro giri, «near your start» al posto del nome
+della città; il come deciso dall'agente su delega dell'utente. Dalla
+richiesta del 2026-10-11 «Sotto draw nella sezione draw inserisci i tour
+delle città o immagini varie» (scelta «Tour e immagini»).
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Due righe nuove in un file nuovo**, `src/route/DrawIdeas.tsx`, messe
+   da `App.tsx` sotto `RouteChoice` dentro la pagina che scorre:
+   `ChooseScreen.tsx` non cambia. Nessuna con «Paddle».
+2. **I giri sono quelli di «Explore»** (ADR-0099), senza niente di nuovo
+   sul server: `useThemedRoute.ask` con la categoria da sola, `centre` la
+   partenza di «Draw» e `city` nullo, come «Near me» in «Explore». La mappa
+   e la scheda (ThemedCard) sono le stesse; `routeList` ricorda «Draw»
+   (`"choose"`), così «←» e «Back to Draw» tornano lì.
+3. **Il nome della città non c'è**: con la partenza dal GPS l'app non lo
+   sa e nessuna API lo dice (`/nearby-cities` esclude il paese entro
+   1,5 km, ADR-0200; il nome di una corsa lo cerca solo il server per le
+   attività). Le tessere dicono «near your start», o «near {posto}» per un
+   luogo cercato, testi già tradotti (scelta dell'utente). Un indirizzo
+   nuovo per il nome sarebbe lavoro di server, fuori da un task solo app.
+4. **Le sagome le disegna uno strumento**, `tools/sample_pictures.py`, con
+   Pillow da cerchi, linee e poligoni: dodici PNG 640 × 640 (il lato che
+   il motore analizza, `ANALYSIS_SIDE`), figura scura su fondo chiaro,
+   12–27 kB l'una, in `assets/pictures/`. Nessuna immagine d'altri, nessuna
+   licenza, nessuna dipendenza nuova (Pillow è già del motore).
+5. **Il contorno lo calcola il motore una volta**, con lo stesso
+   `outline_data` di `POST /image-outlines`, girato nella risposta
+   dell'API come fa `images.trace` (senza importare l'API, così lo
+   strumento gira col solo motore, come il job «Tools» della CI), e sta in
+   `src/route/samplePictures.json`: 17–46 angoli, un soggetto ciascuna.
+   L'app lo mostra subito, senza aspettare il tracciato (meno di 2 s, ma
+   con la rete) e senza mandare l'immagine. «Draw route» manda quel
+   contorno a `POST /image-route-jobs`, che lo ricontrolla come ogni
+   contorno che arriva dal telefono (ADR-0069).
+6. **`useImageOutline.show(picture, outline)`**: mette la sagoma come una
+   foto già tracciata, toglie le modifiche e lascia perdere un tracciato
+   in corso. Il `Picture` di una sagoma è fatto una volta
+   (`Image.resolveAssetSource`) e si riconosce perché è lo stesso oggetto:
+   così la tessera scelta ha il bordo chiaro, e una foto scelta dopo no.
+7. **I test di `tools/`** controllano che i PNG dell'app siano quelli
+   disegnati, che il contorno nel JSON sia quello che il motore traccia dai
+   PNG (entro 0,02 nel quadrato [-1, 1]: un'altra versione di shapely può
+   spostare un angolo) e che il JSON sia scritto come lo scrive Prettier.
+
+**Motivo**: le due cose esistevano già, giri a tema e immagini; qui si
+riusano dove l'utente le vuole, senza toccare server, motore e schermate
+degli altri task. Il contorno nell'app toglie l'unica attesa di una
+sagoma.
+
+**Alternative scartate**: tracciare la sagoma con `POST /image-outlines` a
+ogni tocco (attesa e immagine mandata per niente); disegnare le sagome a
+mano in un programma di grafica (non si rifanno uguali, e lo strumento le
+prova); il Colosseo (del contorno esterno resterebbe un blocco largo col
+bordo rotto, scelta dell'utente); «CITY TOURS · {città}» solo con un luogo
+cercato (la riga mancherebbe nel caso più comune, il GPS).
+
+**Conseguenza**: quindici file nuovi nell'app, oltre ai test, con circa 220 kB di PNG. Una
+sagoma nuova è una funzione in `tools/sample_pictures.py`, un nome in
+`samplePictures.ts` e le sue traduzioni. Un giro chiesto con «Bike» è
+quello di «Explore», a piedi, come in «Explore».
+
+**Aggiunta del 2026-10-16 (TASK-290, le sagome che vengono bene in
+città)**: richiesta dell'utente («le hai provate nelle varie città? …
+aggiungine altre che vengono bene e togli quelle più brutte»); quali
+tenere, togliere e aggiungere lo ha deciso l'agente su delega dell'utente,
+guardando i percorsi; i nomi nuovi li approva l'utente.
+
+8. **Una sagoma si sceglie dal percorso, non dal disegno.** Ogni sagoma è
+   stata pianificata come `POST /image-route-jobs` (lo stesso
+   `plan_request` dell'API, con le partenze vicine) in otto città con
+   strade diverse, Trento, Milano, Roma, Parigi, Barcellona, Londra,
+   Chicago e Torino, a 5 e a 10 km, sulle zone del server copiate in
+   locale. Si è guardato il disegno dei percorsi: la somiglianza del
+   motore (`similarity`) non distingue, è sopra 0,9 anche per un percorso
+   che non si riconosce.
+9. **Cosa viene bene**: il motore segue solo il contorno esterno, e a
+   5 km una parte stretta diventa una strada sola. Vengono le sagome
+   riconoscibili dal contorno, con due o tre parti larghe: dinosauro,
+   Torre Eiffel, aereo, chitarra, palloncino e, nuove, fungo, auto,
+   maglietta, paperella, stivale, casa, osso, coppa. Razzo, scarpa da
+   corsa e foglia vengono a 10 km, meno a 5: restano, in fondo alla riga.
+   **Tolte** bici (il contorno è quello delle due ruote insieme), cuore con
+   freccia (la freccia sparisce, e il cuore c'è già tra le forme), ancora
+   (un groviglio fuori da Barcellona e Chicago) e gelato (le palline e il
+   cono diventano un ovale). Provate e **scartate** anche balena, veliero,
+   castello, orsetto, elefante, mano, robot, tartaruga, pinguino, pupazzo
+   di neve, cactus, corona, pollice in su, guanto, fulmine, freccia, nota,
+   tazza, campana, diamante e fetta di pizza: dettagli persi, o percorsi
+   che si leggono solo in qualche città.
+10. **Sedici, le più chiare prima**: la riga di «Draw» e quella di
+    `FigureTiles` (ADR-0245) ne hanno sedici invece di dodici. Nessun
+    doppione delle forme di `SHAPES`.
+
+## ADR-0247 — A fine corsa l'app ricorda lo stretching, con «Skip»
+**Stato**: Attiva · 2026-10-13 · chiesto dall'utente («Finito
+l'esercizio, puoi dire all'inizio "ricordati di fare stretching" e dai la
+possibilità di skipparlo»); il come deciso dall'agente su delega
+dell'utente. TASK-285 in due parti: A il bivio (questa voce), B gli
+esercizi animati (sessione «Animazione esercizi stretching post-corsa»).
+
+«Stop» tenuto premuto, o «Finish» all'arrivo, apriva subito «Your run»:
+nessuno ricordava lo stretching.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Un bivio prima di «Your run»**: con una traccia da mostrare, al posto
+   della scheda di fine corsa compare «Remember to stretch» con due
+   pulsanti, «Skip» e «Stretch» (`src/screens/StretchReminder.tsx`).
+   «Skip» mostra la scheda di oggi, intatta («Keep running», «Save» e
+   «Discard», «Done»). «Stretch» apre gli esercizi della parte B; finché
+   la parte B non è in `main`, chiude la scheda come «Skip». Nessun colore
+   nuovo e niente giallo: il giallo resta del percorso (ADR-0183), e
+   nessuno dei due pulsanti è «quello giusto».
+2. **La voce la dice una volta**, all'apertura della scheda, nella lingua e
+   con la voce scelte per la corsa (ADR-0171): la frase sta nel frasario
+   della voce (`stretch` in `src/voice/*.ts`), non nei testi dell'app,
+   come ogni altra cosa detta. Con «Voice» spento non si sente niente.
+   Mentre la scheda è sullo schermo l'app tiene il suono della corsa
+   (`startRunAudio`/`endRunAudio` di TASK-261 B): la frase passa sopra
+   l'interruttore silenzioso e abbassa la musica come le altre; alla
+   chiusura della scheda il suono torna com'è fuori da una corsa.
+3. **Quando si chiede**: ogni volta che una corsa finisce dalle sue mani
+   (`onEndRun`, `onStopFreeRun`), con o senza percorso; mai per uno «Stop»
+   prima della prima posizione (torna alla prima schermata) né per la
+   corsa riaperta dopo due ore (TASK-272, ADR-0240), che non è appena
+   finita. «Keep running» e poi un nuovo «Stop» lo chiedono di nuovo: è
+   una nuova fine.
+4. **Nessuna memoria della scelta**: il promemoria torna a ogni corsa; un
+   «non chiedermelo più» non è stato chiesto.
+
+**Motivo**: lo stretching va fatto subito dopo la corsa, quando la
+schermata di fine è la prima cosa che si vede; chi non vuole ha «Skip» a
+un tocco, senza niente da leggere prima di salvare.
+
+**Alternative scartate**: una riga nella scheda «Your run» invece del
+bivio (si perde fra «Save» e «Discard»); dirlo solo con la voce (chi corre
+con la voce spenta non lo saprebbe); un promemoria anche prima del conto
+alla rovescia (non chiesto).
+
+**Conseguenza**: la fine della corsa ha un tocco in più per chi non fa
+stretching. Lo screenshot della fine corsa nei materiali per lo store
+mostra «Your run» dopo «Skip».
+
+**Aggiunta del 2026-10-14, parte B (sessione «Animazione esercizi
+stretching post-corsa»; chiesto dall'utente il 2026-10-13: «Dopo la
+corsa, metti l'animazione di cinque esercizi di stretching come sull'app
+bEND»; il come deciso dall'agente su delega dell'utente):
+
+5. **Cinque esercizi in una schermata sola** (`src/stretch/StretchScreen.tsx`,
+   un `Modal` a tutto schermo sopra «Your run», montato da `App.tsx` da
+   `onStretch` della scheda): i classici del dopo corsa, quadricipite,
+   posteriore della coscia, polpaccio, flessori dell'anca, gluteo, 20 s
+   per lato, 3 min 20 s in tutto (`exercises.ts`: nomi, righe e tempi
+   sono dati, facili da cambiare con le scelte dell'utente). Il tempo lo
+   tiene un `setInterval` di un secondo che porta avanti da sé il proprio
+   passo in un ref: sotto jest due tick possono scattare prima di un
+   render, e il secondo deve contare dal primo.
+6. **La figura senza dipendenze nuove** (`Figure.tsx`, `poses.ts`): una
+   persona vista di lato fatta di dodici segmenti, ognuno una View a
+   dimensione zero sul suo snodo, girata del suo angolo, che contiene la
+   barra e i segmenti che le pendono: un arto non cambia mai lunghezza
+   mentre gira. Una posa è l'angolo assoluto di ogni segmento (0 in giù,
+   90 avanti, 180 su); il passaggio da una posa all'altra è un solo
+   `Animated.timing` di 0,8 s, ogni snodo per la via più corta; il bacino
+   sale e scende con la posa (`grounding`: il punto più basso tocca il
+   pavimento). I test controllano la geometria pura: le pose stanno in
+   piedi, la testa sopra il bacino, il ginocchio a terra nell'affondo.
+   Scartati: Lottie e `react-native-svg` (dipendenze nuove, come per
+   ADR-0147), disegni PNG per posa (niente movimento fra le pose), una
+   WebView (parte tardi).
+7. **Il suono** fra un lato e l'altro e fra due esercizi è un «ding» di
+   0,35 s nostro, scritto da `tools/stretch_chime.py` con la sola
+   libreria standard (`assets/stretch/ding.wav`), suonato con
+   `expo-audio` (già in app per la voce in sottofondo) e mai bloccante:
+   senza suono si va avanti lo stesso. Scartato per ora dire a voce il
+   nome dell'esercizio seguente: vorrebbe il frasario nelle cinque
+   lingue; resta una scelta dell'utente.
+8. **Nessun consiglio di salute** oltre «Stop if it hurts.», e nessun
+   materiale di bEND: figure, animazioni, nomi e testi sono nostri.
+
+## ADR-0248 — Una sola coda per le richieste di percorso dell'app, e un annullo vero sul telefono
+**Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega
+dell'utente, dall'analisi della lentezza della ricerca (sessione «MUW app
+performance e ricerca»). TASK-287, solo app. Non tocca ADR-0177: il
+telefono prima fino a 8 km a piedi resta com'è.
+
+Tre parti dell'app chiedevano percorsi in sottofondo, ognuna col suo
+contatore: gli esempi della città scelta (18 al minuto, le prime forme
+fuori conto), i campioni dei paesi vicini (uno ogni 5 s, 12 al minuto),
+le forme sull'acqua dei posti vicini (uno ogni 6 s, 10 al minuto).
+Insieme superavano i 30 POST al minuto che l'API prende da un telefono
+(ADR-0076), e il «Draw» dell'utente poteva prendere un 429. Il motore sul
+telefono, annullato, finiva lo stesso il percorso (fino a 120 s) e il
+«Draw» dopo aspettava dietro.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Una coda sola** (`src/api/routeQueue.ts`) con tre livelli: le
+   richieste dell'utente («Draw», spostare la forma di un esempio, il
+   percorso a tema) partono sempre e subito; poi gli esempi sulla pagina
+   di «Explore» (della città scelta e dei paesi vicini, `visible`); poi
+   ciò che si disegna in anticipo (le forme sull'acqua, `prefetch`).
+   Mentre gira una richiesta dell'utente nessuna in sottofondo parte;
+   quelle già partite finiscono. Un solo conto delle richieste
+   dell'ultimo minuto, quelle dell'utente comprese: gli esempi della
+   pagina partono finché sono meno di 22, l'anticipo finché sono meno di
+   10. All'utente restano sempre almeno 8 dei 30 («Start», «Export GPX»,
+   una reazione). Dopo un 429, qualunque, niente in sottofondo per un
+   minuto. Spariscono le pause fisse fra un campione e l'altro: il passo
+   lo dà la coda.
+2. **Le prime forme di una città possono aspettare**: prima non
+   aspettavano mai. Succede solo se nell'ultimo minuto sono già partite
+   22 richieste (tre città con tutti gli esempi già pronti sul server);
+   la scheda mostra «Drawing…» finché tocca a lei.
+3. **Annullare sul telefono**: una richiesta annullata in coda esce dalla
+   coda e non arriva alla pagina. Quella che Python sta calcolando non si
+   può fermare con un messaggio: Python gira sull'unico thread della
+   pagina, e un messaggio aspetta che abbia finito. Interromperlo da fuori
+   vorrebbe un `SharedArrayBuffer` (Pyodide in un worker), che la WebView
+   di iOS dà solo a una pagina isolata con intestazioni che una pagina
+   letta da file non ha. Quindi la pagina si butta e se ne avvia subito
+   una nuova: qualche secondo di avvio di Python invece di un percorso
+   che nessuno aspetta, e il «Draw» dopo non aspetta il vecchio. Non conta
+   come una morte della WebView (ADR-0177).
+4. **Python parte prima**: appena una zona salvata copre la posizione,
+   prima ancora di aggiornare le zone; senza zone salvate, con la prima
+   scaricata e non dopo tutte e due le reti.
+5. **Explore riusa ciò che ha**: il centro e il nome delle città in
+   evidenza stanno in `engine/ahead.json` (accanto ai centri, i nomi:
+   un file di prima li chiede una volta in più a `GET /cities`), e il chip
+   apre la città senza chiederla; un campione di un paese vicino diventa
+   un esempio pronto del paese, intero, e toccare il paese non lo chiede
+   più (solo in memoria: il file resta delle città scelte);
+   `city-examples.json` si scrive una volta per gruppo (prime forme,
+   altre forme, parole) o quando un'altra città ferma quella in corso, e
+   si legge una volta sola.
+6. **Piccole cose**: `useRouteRequest` non crea uno stato nuovo se la
+   fase dell'API è la stessa; dopo un `/places` lento o fallito si va su
+   Photon per 3 minuti invece di aspettare 2,5 s a ogni lettera.
+
+**Alternative scartate**: interrompere gli esempi già partiti quando
+l'utente chiede un percorso (il lavoro del server andrebbe perso, e
+quasi sempre sono percorsi tenuti, che rispondono subito); lasciare
+finire il calcolo annullato e far partire la pagina nuova solo se arriva
+un altro «Draw» (si pagherebbe l'avvio proprio quando l'utente aspetta);
+la gara fra telefono e server (scelta di prodotto, fuori da qui).
+
+**Conseguenza**: chi sfoglia molte città in un minuto vede le schede
+arrivare un po' più piano, ma il suo «Draw» non prende più un 429 per
+colpa degli esempi. Un «Draw» annullato sul telefono costa un nuovo
+avvio di Python (~5 s sul Mac, da misurare sull'iPhone).
+
+## ADR-0249 — Le ricerche dell'API più veloci: gzip, Geoapify in parallelo, indici e anteprime nel database
+**Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega
+dell'utente (TASK-288, dall'analisi delle ricerche della sessione «MUW
+app performance e ricerca»). Nessuna scelta di prodotto: le risposte sono
+le stesse, arrivano prima. Nessuna dipendenza nuova.
+
+Le ricerche diverse dal percorso aspettavano cose evitabili, misurate in
+locale (`tasks/TASK-288.md`): `/feed` con la posizione del telefono
+calcolava la distanza geodetica dalla traccia intera di ogni disegno
+(15 s a pagina con 1 500 disegni da 2 000 punti, nell'immagine PostGIS
+emulata del Mac); `/cities` chiedeva a Geoapify un'area dopo l'altra (sei
+richieste in fila, fino a 8 s l'una); `/users?q=` leggeva ogni account e
+rifaceva la foto piccola di ognuno a ogni lettera; ogni richiesta con un
+token scriveva l'ultimo uso della sessione, anche una GET.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **gzip nell'API** (`app.py`): `GZipMiddleware` di Starlette da 1 KB in
+   su, livello 6 (il 9 di Starlette costa cinque volte tanto per un feed
+   meno dell'1% più piccolo). Sta **dentro** `protect` (aggiunto prima):
+   il middleware di `protect` manda le risposte a pezzi, e a pezzi gzip
+   le comprimerebbe tutte, anche le più piccole. JPEG e i `.gz` delle
+   zone restano come sono (esclusi da Starlette). Il Caddy del server
+   (`/etc/caddy/Caddyfile`, `DEPLOY.md` F.14) non ha `encode` per l'API,
+   solo per il sito (letto sul server dal Coordinatore il 2026-10-16): il
+   telefono riceveva tutto in chiaro.
+2. **Geoapify** (`places.py`): `fetch_json` aspetta 3 s invece di 8 e
+   chiede **una seconda volta** su timeout, connessione caduta, 429 (dopo
+   1 s: il piano gratuito regge 5 richieste al secondo) e 5xx (dopo
+   0,5 s); mai su 4xx, che risponderebbe uguale. Logga il codice o il tipo
+   d'errore, mai l'URL, che contiene la chiave. `fetch_together` chiede più
+   URL insieme, ognuno con la sua risposta o il suo errore. `/cities` chiede
+   i Places delle aree tutti insieme (al più 4 alla volta, con la
+   geocodifica 5): un'area che non risponde resta al punto della
+   geocodifica, le altre vanno al loro paese (prima, dopo un errore, le
+   aree seguenti non si chiedevano più). Una risposta senza città non si
+   tiene 24 ore: la ricerca seguente chiede di nuovo. `/nearby-cities`
+   chiede insieme le tre categorie; la quarta (i paesi fino a 50 km) resta
+   dopo, solo quando serve.
+3. **`draw_examples`** distingue un 5xx della ricerca città da «non
+   trovata»: lo richiede tre volte, 10 s l'una dall'altra, e se non
+   risponde scrive «the city search did not answer (http_503)».
+4. **Le foto delle città** (`city_photos.py`): due pool di thread, uno per
+   chiedere Wikimedia (che una lista aspetta) e uno per scaricare le
+   immagini (che nessuno aspetta); prima, due download lenti tenevano
+   fuori la ricerca della lista seguente.
+5. **«Find friends»** (migrazione 0022): `pg_trgm` e un indice GIN su
+   `lower(username) gin_trgm_ops`, che risponde a `LIKE '%q%'` da tre
+   lettere in su (con due il piano resta la lettura di tutti). La foto
+   piccola (128 px) di una lista si fa una volta per ogni foto
+   (`follows.SmallPhotos`, 2 000 tenute in memoria, le ultime usate), con
+   chiave un'impronta BLAKE2 dei byte della foto: una foto nuova è
+   un'impronta nuova, e la vecchia non si vede mai. Scartata la colonna
+   della foto piccola nel database: vuole un'immagine fatta da Python per
+   le righe già lì.
+6. **L'anteprima del disegno nel database** (migrazione 0022): la funzione
+   SQL `drawing_preview(track)` sceglie i punti che sceglie
+   `recommended.preview` (64, per indice, primo e ultimo; lo stesso
+   arrotondamento `rint` di Python), e la colonna generata
+   `drawings.preview` la tiene aggiornata da sé a ogni scrittura della
+   traccia, anche per i disegni già lì. Il feed e i disegni di un profilo
+   leggono quella invece della traccia intera: stesso `track_preview`,
+   controllato da un test per molte lunghezze. Il feed chiede
+   all'anteprima se un disegno è vicino (entro 50 km): 64 punti invece di
+   migliaia, con un errore di poche centinaia di metri al bordo dei 50 km.
+   Da 23 s a 0,8 s per 1 500 disegni; `/feed` con la posizione da 15 s a
+   0,75 s a pagina, in locale. La funzione ha `search_path`
+   scritto: un ripristino di `pg_dump` la chiama con uno vuoto. Più un
+   indice parziale `drawings (published_at DESC, id DESC) WHERE visibility
+   <> 'only_me'`, che il feed può usare (la condizione è ripetuta nella
+   query); con l'ordine per gruppo (i propri, i seguiti, gli altri) oggi
+   PostgreSQL ordina comunque in memoria.
+7. **L'ultimo uso della sessione** (`accounts.user_of`) si scrive solo
+   quando quello scritto ha un'ora (`USE_WRITTEN_EVERY`): le altre
+   richieste leggono e basta, senza attendere il disco. Perché i 90 giorni
+   non si accorcino, una sessione vale 90 giorni **e un'ora** dall'ultimo
+   uso scritto: mai meno di 90 dall'ultimo vero. L'email di chi non apre
+   l'app da 14 giorni (TASK-284) legge lo stesso `last_used_at`: un'ora di
+   ritardo non cambia niente.
+
+**Alternative scartate**: un pool di connessioni (`psycopg_pool`,
+dipendenza nuova: va chiesto all'utente; oggi ogni chiamata apre una
+connessione, due per richiesta con un token, 40–70 ms in locale); `encode
+gzip` nel Caddy del server (lavoro sul server, e l'API resterebbe senza
+gzip dove gira senza Caddy); `ST_Simplify` al posto dei 64 punti
+(cambierebbe il disegno che si vede); un indice spaziale per «vicino»
+(la condizione sta in un OR col gruppo del disegno, e l'indice non si
+userebbe); riscrivere il feed in tre query unite (rischio alto per un
+guadagno che oggi, con pochi disegni, non si vede).
+
+**Conseguenze**: la migrazione 0022 va sul server con l'aggiornamento
+(numero al merge: se entra prima #502, che ha la sua 0022, questa diventa
+0023); crea `pg_trgm` (l'utente del database è il proprietario, ed è
+un'estensione «trusted»). Chi cambia il modo in cui `preview` sceglie i
+punti cambia anche `drawing_preview`, con una migrazione nuova: il test
+dell'anteprima lo ricorda.
+
+**Aggiunta del 2026-10-16 (TASK-288 parte B, il pool di connessioni)**:
+l'alternativa scartata sopra è presa. L'utente l'ha approvata scrivendo al
+Coordinatore: «sì, aggiungi il pool di connessioni». Le scelte tecniche
+sono dell'agente su delega dell'utente, con le condizioni e l'ok del
+Coordinatore; numeri e ragionamento in `tasks/TASK-288.md`, «Parte B».
+
+1. **`psycopg_pool`** (`psycopg[binary,pool]`, il pool ufficiale di
+   psycopg 3), dipendenza nuova. `Database.pooled()` apre il pool,
+   `Database.connect()` presta una connessione con lo stesso contratto di
+   prima (un blocco, una transazione); senza pool apre la sua, come
+   prima. L'API lo apre dopo le migrazioni.
+2. **2–10 connessioni, 10 s di attesa**, `max_idle` 10 min, `max_lifetime`
+   1 h: un processo, 40 thread, 4 vCPU divise col motore (oltre ~9 query
+   insieme PostgreSQL fa solo la fila), ~100 MB al più, un decimo di
+   `max_connections`. `draw_examples` passa dall'API in HTTP: anche con
+   lui PostgreSQL resta sotto 20 connessioni su 100.
+3. **Una sessione nuova a ogni prestito**: `DISCARD ALL` alla
+   riconsegna, dopo il commit o il rollback del blocco (il pool annulla
+   una transazione lasciata aperta). Per questo **niente prepared
+   statement** (`prepare_threshold=None`): dopo un secondo `DISCARD ALL`
+   psycopg userebbe istruzioni che PostgreSQL ha già tolto.
+4. **Controllo al prestito** (una query vuota): una connessione chiusa da
+   un riavvio di PostgreSQL si sostituisce senza far fallire la richiesta.
+5. **Un blocco dentro un altro nello stesso thread** (`strava.py`: la
+   corsa bloccata mentre si legge il token) apre una connessione sua,
+   fuori dal pool, come prima: dal pool, dieci invii insieme si
+   aspetterebbero a vicenda fino all'errore.
+6. **Tutte occupate per 10 s**: `503 accounts_unavailable` con
+   `Retry-After: 10` e una riga WARNING, non un 500 né un'attesa senza
+   fine. Codice che l'app conosce già: mostra il suo testo tradotto.
+7. **Chiusura** nel `lifespan` dell'app, prima che uvicorn restituisca il
+   SIGTERM, e nel `finally` di `main` se l'app non è partita.
+
+**Alternative scartate**: aprire il pool nel `lifespan` (chi non usa il
+`lifespan`, come i test con un uvicorn finto, non avrebbe connessioni; e
+l'API deve fermarsi subito se il database non risponde); tenere i prepared
+statement e togliere a mano solo SET e tabelle temporanee (`RESET ALL`,
+`DISCARD TEMP`, …: più comandi da tenere allineati a PostgreSQL, per un
+guadagno che con una o due esecuzioni per query non c'è); un codice
+d'errore nuovo per «occupato» (cambierebbe il contratto e l'app);
+riscrivere `strava.py` perché non apra un blocco dentro l'altro (il lock
+sulla corsa serve davvero: è un altro task, se mai); un pool asincrono
+(gli endpoint sono sincroni).
+
+**Conseguenze**: sul server serve un'immagine nuova (la dipendenza si
+installa da `pyproject.toml`, il `Dockerfile` non cambia); nessuna
+migrazione. Un codice nuovo che apre un blocco dentro un altro funziona
+come prima, ma paga la connessione nuova: meglio non farlo.
+
+**Aggiunta del 2026-10-18 (TASK-293, «Send to Strava» senza un blocco
+dentro l'altro)**: l'alternativa scartata «riscrivere `strava.py`» è
+presa, come task a sé chiesto dal Coordinatore; deciso dall'agente su
+delega dell'utente, con la condizione del Coordinatore che la stessa corsa
+non vada mai a Strava due volte. `StravaRuns.send` apre ora un blocco alla
+volta:
+
+1. **Lo stato della corsa, senza lock**: un 404 prima di un 409, e una
+   corsa già su Strava senza un post nuovo non chiede niente, come prima.
+2. **Il token nel suo blocco**: il rinnovo resta sotto `FOR UPDATE` su
+   `strava_accounts`, uno alla volta per account (ADR-0156).
+3. **La corsa nel suo blocco**, con `FOR UPDATE` come prima, per tutto il
+   caricamento: un invio della stessa corsa alla volta. Un token rifiutato
+   esce dal blocco senza aver scritto niente; il rinnovo, e dopo due
+   rifiuti `disconnect`, si fanno fuori, e l'invio ricomincia dalla corsa.
+
+Il punto 5 dell'aggiunta della parte B resta in `db.py` solo come difesa:
+nessun codice dell'API apre più un blocco dentro un altro, e
+`test_strava.py` lo guarda con una sonda su `Database.connect`.
+
+**Alternative scartate**: il token letto nella stessa connessione della
+corsa (un rinnovo cambia il refresh token di Strava e va confermato da
+solo, anche se il caricamento poi fallisce: nella transazione della corsa
+si perderebbe con il rollback); il token letto prima di tutto (una corsa
+che non c'è diventerebbe un 409 invece di un 404 per chi non ha collegato
+Strava); togliere il lock della corsa durante la chiamata a Strava (il
+lock tiene una connessione del pool per un caricamento, che è raro; senza,
+servirebbe uno stato «sto caricando» sulla corsa con una scadenza per chi
+cade a metà: una migrazione e un'altra scelta).
+
+## ADR-0250 — Una riga di tempi per ogni job di percorso, e il bytecode nell'immagine
+**Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega dell'utente
+(TASK-289; prepara la misura di TASK-276, dove l'utente ha scelto il
+2026-10-11 di misurare prima di decidere)
+
+**Contesto**: sul server un cuore da 5 km a Trento risponde in 9–18 s,
+sul Mac in meno di 2 (TASK-276). Il log del job diceva solo il tempo
+totale. Il motore misura i secondi di ogni partenza (`Tried.seconds`), ma
+non li scrive. Ogni processo `spawn` delle partenze vicine importa il
+motore: nell'immagine Docker non c'è bytecode (`.dockerignore` toglie
+`__pycache__`), e l'API gira con `PYTHONDONTWRITEBYTECODE` e un utente
+che non può scrivere accanto ai sorgenti. Quindi ogni processo ricompila
+il motore, a ogni percorso.
+
+**Decisione** (tecnica, dell'agente):
+
+1. **Una riga per job** in `jobs.py`, dopo quella di fine, anche per i
+   job falliti e per quelli lasciati: `job <id>: times total=… crop=…
+   loads=… download=… start=… traces=… converged=… far=… wait=… nearby=…
+   chosen=… directions=…`. Sono coppie `chiave=valore` con i secondi a
+   due decimali e `-` per ciò che il job non sa, così la misura di
+   TASK-276 le legge con `grep` e `awk`. Le chiavi sono spiegate in
+   `shaperoute_api/job_times.py`. Ci sono solo secondi e conteggi, nessuna
+   posizione (ADR-0092).
+2. **Tutto si misura dall'API, il motore non si tocca.** Il ritaglio si
+   misura in `_Reporting.load`, contando anche un download fallito. Le
+   indicazioni si misurano intorno a `with_choices`, il planner intorno a
+   sé stesso. Il piano dalla partenza con le sue tracce e la convergenza,
+   e i secondi di ogni partenza vicina, vengono dal `NearbyPlan`:
+   `images.plan_request` lo passa al source del job (`job_times.noted`,
+   protocollo `NotesNearby`, come `KnowsDownloads` e `KnowsNames`) e poi
+   restituisce il piano come prima. `wait` è il tempo del planner meno il
+   primo ritaglio e il piano dalla partenza: grafo in pickle e processi
+   avviati prima, attesa e arresto dopo, scelta fra i piani.
+3. **Il bytecode nell'immagine**: `RUN python -m compileall -q` sui tre
+   pacchetti, dopo la copia dei sorgenti e prima di `USER`. L'impronta del
+   motore legge solo `.py` e `.json` (`route_store.engine_fingerprint`):
+   i percorsi già tenuti restano validi, e un test lo controlla.
+
+**Motivo**: la scelta di TASK-276 (pool di processi, meno partenze vicine
+quando il server è carico, server più grande) dipende da quale fase pesa.
+Una riga per job, con le stesse chiavi, si legge su ore di traffico vero
+e non solo nei 10 minuti della misura.
+
+**Alternative scartate**:
+
+- Due campi di tempo in `NearbyPlan`, per separare esattamente la
+  preparazione dall'attesa: cambiano l'impronta del motore, e gli esempi
+  tenuti sul server andrebbero rifatti (Coordinatore, 2026-10-16). Si
+  potranno aggiungere con i prossimi cambi del motore, dopo Apple.
+- Una riga per fase: le righe di job diversi si mescolano, perché i job
+  girano su due thread (ADR-0032).
+- Un `ContextVar` al posto del source per passare il `NearbyPlan`: è un
+  canale nascosto; il source è già l'oggetto che il job dà al planner.
+- `--invalidation-mode unchecked-hash`: risparmia solo uno `stat` per
+  modulo, e un sorgente cambiato a mano nel container userebbe il
+  bytecode vecchio.
+
+**Conseguenza**: il log dell'API ha una riga in più per percorso. `wait`
+mette insieme la preparazione e l'attesa delle partenze vicine. Sul
+server il bytecode arriva solo con un'immagine nuova (dopo Apple e con
+l'ok dell'utente). `engine.zip` è rifatto, perché `jobs.py` e `images.py`
+sono nel motore del telefono.
+
+## ADR-0252 — La partenza scelta sulla mappa, con il segnaposto fermo al centro
+
+**Stato**: Attiva · 2026-10-18 · il come lo ha scelto l'utente; i punti
+tecnici sono decisi dall'agente su delega dell'utente (TASK-292)
+
+**Contesto**: la partenza di «Draw» era il GPS («My position») o un luogo
+cercato per nome («Another place», ADR-0080, ADR-0095). Chi vuole partire
+da un punto senza indirizzo (un parco, un incrocio, l'altra riva) doveva
+indovinare una via vicina. L'utente il 2026-10-18: «scegliere dalla mappa
+un punto da cui partire, senza scrivere la via».
+
+**Decisione**:
+
+1. **Il come è dell'utente** (fra quattro proposte: mirino fisso, tocco
+   sul punto, terzo pulsante «Map», pressione lunga sul risultato): un
+   link **«Choose on the map»** sotto la ricerca di «Another place»
+   apre la mappa a tutto schermo con il **segnaposto fermo al centro**.
+   Un dito sposta la mappa sotto di lui, «Start here» prende il punto.
+   La riga di stato dice «Starting from a point on the map.».
+2. **Una terza origine della partenza**, `map`, accanto a `gps` e
+   `search` (`startMode.ts`). Il punto sta nello stesso posto del luogo
+   cercato (`ChosenPlace` con `label: null`), quindi vale come lui: resta
+   anche se il GPS risponde e lo cancella un nuovo luogo cercato o «My
+   position». Nessun nome viene chiesto in rete: dove serve un nome
+   («near {place}» nei giri, il nome sulla tela di «Draw on the map», il
+   nome di un preferito) un punto della mappa si comporta come il GPS.
+3. **La mappa è sempre la stessa** (`MapView`, mai una seconda WebView),
+   in uno schermo nuovo dell'app, `pickStart`, come la tela di TASK-281.
+   La pagina riceve `setPick`: nasconde il segnaposto della partenza e ne
+   mette uno uguale (`POSITION_COLOR`) al centro della mappa. Lo tiene lì
+   a ogni `move`, e a ogni `moveend` dice all'app il centro con il
+   messaggio `centre` che esisteva già (TASK-281). `MapView` lo passa a
+   `onCentre` mentre si sceglie, a `onCanvas` altrimenti.
+4. **Il segnaposto è un `Marker` di MapLibre e non una vista di React
+   Native sopra la mappa**: è identico a quello della partenza, la sua
+   punta è esattamente il centro della mappa, e la scheda sotto la mappa
+   non la copre.
+5. **Mentre si sceglie l'app non manda una partenza alla mappa**
+   (`start` nullo): un GPS che risponde in quel momento non sposta la
+   mappa sotto il dito. All'apertura la mappa si inquadra sulla partenza
+   di prima, a zoom 15 e a nord in su; senza partenza resta dov'è.
+   Anche il percorso di prima sparisce, come sulla tela.
+
+**Alternative scartate**: le altre tre dell'utente; un nome per il punto
+(geocodifica inversa con Geoapify o Photon: rete, una chiamata in più,
+un nome a volte sbagliato); un segnaposto di React Native sopra la
+WebView (la punta dipende dalla scheda sotto e dal bordo della mappa).
+
+**Conseguenza**: due testi nuovi nelle cinque lingue; la riga di stato
+resta in inglese come le sue vicine, che sono «il resto di `App.tsx`» di
+TASK-210. Solo app: nessun motore, API o migrazione; non entra nella 1.0.
+
+## ADR-0254 — Il video di una corsa: fatto sul telefono nel WebView, H.264 con WebCodecs, MP4 scritto dall'app
+
+**Stato**: Attiva · 2026-10-23 · il contenuto e il pulsante li ha scelti
+l'utente; i punti tecnici sono decisi dall'agente su delega dell'utente
+(TASK-295)
+
+**Contesto**: l'utente il 2026-10-23: «creare il video in automatico
+finale di tutta la tua esperienza / corsa da poter postare sui social,
+tipo un pulsante con esporta». Il post di una corsa è già un'immagine
+fatta sul telefono (ADR-0194). Expo non ha un modulo che codifica video,
+ffmpeg-kit è ritirato, e un modulo nativo nuovo vorrebbe una build nuova:
+niente Expo Go, un fingerprint iOS diverso (la 1.0 non riceverebbe più
+gli aggiornamenti) e una 1.0.1 sull'App Store. Il WebView
+(`react-native-webview`) è già nella build per la mappa e il motore, e
+WebKit ha WebCodecs dal 16.4, il minimo di Expo SDK 57.
+
+**Decisione**:
+
+1. **Il contenuto è dell'utente** («Sì, così», fra «con la mappa sotto»
+   e «più lungo»): 9:16, 1080 × 1920, 30 fotogrammi al secondo, **12 s**,
+   sul giallo del post. 0–1 s il logo e il titolo entrano; 1–9 s la linea
+   della corsa si disegna (lenta all'inizio e alla fine) con la punta
+   della penna, distanza e tempo salgono con lei, il passo è quello della
+   corsa intera; 9–12 s il disegno intero, e le emoji del post entrano
+   una dopo l'altra. L'ultimo fotogramma è il post. **Niente musica**.
+   Nascosti i primi e gli ultimi 200 m (POST_CUT_M). Il pulsante è
+   **«Export video»**, accanto a «Instagram».
+2. **Il video si fa sul telefono, in un WebView nascosto**: canvas 2D e
+   `VideoEncoder` di WebCodecs. La pagina (`videoPage.ts`) è caricata con
+   `source.html` e `baseUrl` `https://video.muw.invalid/`: l'origine https
+   la rende un contesto sicuro, che WebCodecs vuole; non carica niente. Il
+   WebView sta **dentro il Modal** di «Share your run», dove iOS lo tiene
+   nella finestra.
+3. **Che cosa disegnare lo decide l'app** (`videoScene.ts`, testato): per
+   ogni fotogramma una lista di linee, punti, scritte ed emoji in pixel,
+   con le misure di `PostImage`. La pagina li disegna e basta.
+4. **H.264 Constrained Baseline, livello 4.0** (`avc1.42e028`, poi
+   `42e02a` e `420028`): Baseline non ha B-frames, così ogni fotogramma si
+   mostra nell'ordine in cui si decodifica e il file non ha bisogno di
+   tempi di composizione. High (`640028`) nel simulatore si dichiarava
+   supportato e poi non dava niente. `latencyMode: "realtime"` (nel
+   simulatore 17 ms a fotogramma contro più di 100), 6 Mbit/s, un
+   fotogramma chiave ogni 2 s, una coda di 3 fotogrammi al più.
+5. **Il file MP4 lo scrive l'app** (`mp4.ts`, testato), senza
+   dipendenze: `ftyp`, poi l'indice `moov` **prima** dei dati `mdat` (il
+   video parte prima di averlo letto tutto), una traccia video, tutti i
+   fotogrammi in un chunk, le durate dai tempi dell'encoder (`stts`), i
+   fotogrammi chiave (`stss`), la configurazione `avcC` dell'encoder.
+6. **I pezzi arrivano in base64** (`postMessage` porta solo testo), dieci
+   per messaggio; l'app li legge con un suo decoder. Senza una parola
+   della pagina per 20 s il video è dato per non riuscito.
+7. **Il file è `MuW-run.mp4` nella cache**, riscritto ogni volta, e va al
+   foglio di condivisione come `video/mp4` (`public.mpeg-4`): Instagram
+   (Reel, Storia), WhatsApp, «Save Video». Condiviso, il post resta con la
+   corsa salvata come per l'immagine (ADR-0222).
+8. **Un telefono senza WebCodecs** (o senza il codec) lo dice: «This
+   phone cannot make the video.». Il pulsante c'è sempre: lo si sa solo
+   dopo aver aperto la pagina.
+9. **Un limite che non dipende dalla corsa** (condizione del
+   Coordinatore): sempre 360 fotogrammi; la linea della corsa ha al più
+   2000 punti, mai più vicini di 2 pixel (`thinned`); per fotogramma al
+   più una ventina di cose da disegnare; a 6 Mbit/s il video pesa al più
+   circa 9 MB. Va anche su un telefono vecchio: l'encoder è quello
+   hardware dell'iPhone.
+
+**Alternative scartate**: il video sul server con ffmpeg (una dipendenza
+nuova nell'immagine, CPU del server condivisa, la rete, il server fermo
+fino ad Apple); un modulo nativo con AVAssetWriter e MediaCodec (build
+nuova, niente Expo Go, fingerprint diverso); `mp4-muxer`/`mediabunny`
+(una dipendenza per un file che sono 200 righe); registrare lo schermo con
+ReplayKit (nativo, un permesso in più); una GIF (Instagram non la prende
+come video); High o Main H.264 (B-frames: servirebbe `ctts`).
+
+**Conseguenza**: solo app; arriva con un aggiornamento normale su
+`preview` e su `production` (niente di nativo: il fingerprint iOS con
+`APP_VARIANT=production` resta `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`).
+Quattro testi nuovi nelle cinque lingue. Un video del cuore di 5 km pesa
+1,9 MB e si fa in circa 10 s nel simulatore. Android ha WebCodecs nel suo
+WebView, ma non è provato (TASK-294).
+
+## ADR-0255 — Il gioco delle forme: regole sul server, pagina «Play» accesa dall'API
+
+**Stato**: Attiva · 2026-10-23 · il gioco e il suo posto in MuW li ha
+scelti l'utente; i punti tecnici sono decisi dall'agente su delega
+dell'utente (TASK-296)
+
+**Contesto**: l'utente ha chiesto un gioco di corsa. I km e il passo
+sbloccano forme da collezionare, e in squadra si ricrea una forma divisa
+in pezzi, entro una scadenza. Fra un'app a sé, una riga nel Profilo e una
+pagina nuova, ha scelto la **pagina «Play»** dentro MuW. Corse, tracce,
+coda offline, push, account e blocchi esistono già. Le regole sono in
+`docs/GIOCO.md`.
+
+**Decisione**:
+
+1. **Il server conta, l'app mostra.** Km, migliori tempi, sblocchi e pezzi
+   si calcolano solo sull'API, dalla traccia salvata in `runs`, dopo il
+   salvataggio di `POST /activities` e nella stessa transazione. Il
+   telefono mostra solo stime (la striscia in corsa) e quello che il
+   server risponde.
+2. **Le regole sono pure** (`game_rules.py`): traccia e pause in
+   ingresso, risultato in uscita, senza database né orologio. Hanno
+   soglie in costanti e una `RULES_VERSION`. Il route engine non cambia:
+   il gioco usa `clean_track` e i contorni di `route_engine/shapes/`.
+3. **Anti-imbroglio solo da posizioni e tempi**, perché la traccia
+   salvata non ha la precisione:
+   - tratti di almeno 200 m sopra 7 m/s scartati;
+   - corsa intera scartata oltre il 10 % di quei tratti, o con una media
+     sopra 6 m/s su più di 3 km;
+   - buchi oltre 30 s fuori dai tempi migliori;
+   - corse sovrapposte contate una volta;
+   - al massimo 120 km al giorno.
+
+   Limite dichiarato: una bici lenta non si riconosce senza
+   l'accelerometro, che sarebbe una dipendenza nativa.
+4. **Tabelle nuove, `runs` non cambia**: sette tabelle `game_*`, due con
+   la parte A e cinque con la C. Ogni riga di un account va via con
+   l'account (`CASCADE`). Le sfide e i pezzi della squadra restano agli
+   altri iscritti, senza il nome.
+5. **Il catalogo sta nel codice dell'API** (`game_catalog.py`) ed è
+   servito da `GET /game/catalog`, contorni compresi in coordinate del
+   disegno (0–1). Cambiare una forma o una soglia costa un deploy
+   dell'API e nessuna OTA.
+6. **«Play» si accende dall'API.** L'app mostra la pagina solo se `GET
+   /game/catalog`, che non chiede l'account, risponde 200. Con 404 la
+   pagina resta nascosta. Senza rete vale l'ultima risposta salvata, e al
+   primo avvio la pagina resta nascosta. Così un'OTA con B, D o E può
+   uscire prima che il server abbia A o C senza mostrare una pagina
+   rotta. L'ordine «prima l'API, poi l'app» resta quello buono, ma non è
+   più una condizione per non rompere niente.
+7. **Tempo reale = rilettura ogni 15 s più le push.** La sfida aperta si
+   rilegge ogni 15 s e al ritorno in primo piano. Le push sono `Kind`
+   nuovi di `push.py`, con gli interruttori di TASK-262 A e i blocchi.
+   Niente WebSocket: una connessione sempre aperta per una pagina letta
+   pochi minuti al giorno non vale l'infrastruttura.
+8. **Le corse di prima contano**: un comando idempotente
+   (`game_backfill`) le calcola una volta dopo il deploy, e di nuovo a
+   ogni `RULES_VERSION`, senza push.
+9. **Niente punteggio né classifiche** (TASK-241): collezione e barre di
+   avanzamento soltanto.
+
+**Alternative scartate**:
+- un'app a sé, scartata dall'utente, che avrebbe rifatto tracciamento,
+  account, server e push;
+- contare i km sul telefono, che un'app modificata falsifica;
+- colonne nuove in `runs`, una tabella che tocca mezzo progetto;
+- il catalogo nel database, che richiede un pannello per cambiarlo;
+- WebSocket o Server-Sent Events, infrastruttura nuova;
+- uscire l'app solo dopo l'API come unica difesa, perché basta un'OTA
+  fuori ordine a mostrare una pagina vuota.
+
+**Conseguenza**: cinque parti, A–E, ognuna con la sua PR. A e C vanno sul
+server solo dopo Apple e con l'ok dell'utente. I testi delle push e il
+paragrafo di privacy aspettano il sì dell'utente (`tasks/TASK-296.md`). Le
+parti B, D ed E lasciano l'impronta iOS
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`. Il controllo periodico della
+push «1 day left» si decide in C, aggiungendolo qui.
+
+**Aggiunta (parte A, 2026-10-23, decisa dall'agente su delega
+dell'utente)**:
+
+- **La risposta del salvataggio non cambia.** `PUT /me/activities/{key}`
+  calcola il gioco nella sua transazione, ma risponde come prima;
+  l'esito si legge con `GET /game/runs/{key}`. Il contratto di «My
+  activities» e i suoi esempi in `shared-types` restano quelli. In più la
+  stessa domanda risponde anche alle volte dopo, quando l'app rimanda una
+  corsa già salvata. Costa all'app una richiesta piccola dopo «Save».
+- **La push `shape_unlocked` non porta il nome della forma.** Il testo si
+  sceglie per la lingua di ogni telefono, e un evento di `push.py` non ha
+  nomi tradotti. In `push.py` entrano solo il `Kind`, i suoi testi e
+  `OWN_KINDS`, gli eventi raccontati a chi li ha fatti.
+- **Le forme sbloccate dal backfill** hanno come data la fine della corsa
+  che le ha raggiunte, non il giorno del deploy.
+- **I nomi delle forme** stanno nel catalogo dell'API nelle cinque lingue,
+  perché anche le forme vengono da lì: una forma nuova non chiede un'OTA.
+
+**Aggiunta (parte B, 2026-10-24, decisa dall'agente su delega
+dell'utente)**:
+
+- **«Play» sta fra «Explore» e il profilo**, con il suo nome in alto: la
+  «quarta pagina dopo Explore» del task file, con il profilo che scorre di
+  un posto (resta a un tocco sul suo cerchio). Quattro nomi
+  nell'intestazione: da provare su un iPhone da 390 pt.
+- **Il catalogo si chiede una volta all'avvio** (`refreshGameCatalog` in
+  `App`), per tutti, con o senza account, e la risposta si tiene sul
+  telefono (`game-catalog.json`): la pagina compare appena il server dice
+  200, anche a app aperta, e all'avvio dopo vale la risposta salvata.
+  Perché la pagina possa comparire senza buttare giù le altre, il `Pager`
+  tiene le pagine costruite **per titolo e non per indice**. È una
+  richiesta in più all'apertura, piccola e compressa: i test dell'app
+  intera che contavano «nessuna richiesta all'avvio» la tolgono dal conto.
+  **Non ritarda la prima pagina**: «Draw» si mostra come prima, la
+  richiesta parte in un effetto e la risposta cambia solo l'elenco delle
+  pagine. **Senza rete non compare nessun errore**: un'API che non
+  risponde lascia la pagina com'era, in vista o nascosta.
+- **In B la pagina ha la sola collezione, senza `Segmented`**: la scheda
+  «Challenges» arriva con D. Una scheda vuota prometterebbe qualcosa che
+  non c'è ancora.
+- **La scheda «New shape unlocked» è un livello sopra l'app** (`Root`,
+  sotto il logo di «Save»), raccontato con lo stesso meccanismo del logo
+  (`showUnlocked`): la schermata di fine corsa non c'è più quando l'API
+  risponde. La chiede `activitiesDoor.send` dopo il PUT andato bene, con
+  `GET /game/runs/{key}`, e passa l'ora in cui «Save» ha tenuto la corsa:
+  la scheda aspetta `SAVED_TOTAL_MS` da lì. Per una corsa mandata più tardi
+  compare subito.
+- **Un tocco sulla push `shape_unlocked` apre «Play»** (`notificationTap`
+  guarda `kind` prima di `public_id`), e la push non si mostra con l'app
+  in primo piano (`shownWhileOpen`). «Play» da fuori (scheda, push) si
+  apre solo mentre una pagina è sullo schermo, mai sopra una corsa.
+- **Senza account la pagina mostra le forme grigie e il requisito**, con
+  «Sign in to collect shapes.» che porta alla pagina del profilo: il
+  catalogo non vuole l'account, e vedere che cosa c'è da collezionare è
+  un motivo per iscriversi.
+- **I tipi del gioco e tre esempi** stanno in `shared-types`
+  (`GameCatalog`, `GameMe`, `RunGame`; `fixtures/game-*.json`, piccoli,
+  non il catalogo intero), in fondo al file: `PushKind` non cambia, la
+  push del gioco è `GamePushKind` accanto a lui, perché `index.ts` è
+  anche di due PR ferme (#461, #502) e si aggiunge solo in coda.
+
+**Aggiunta (parte C, 2026-10-24, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **Un pezzo in corso per persona e per sfida.** «Ognuno tiene un solo
+  pezzo in corso alla volta» vale dentro una sfida: chi sta in due squadre
+  tiene un pezzo in ognuna, e una corsa che conta riempie tutti e due.
+  Prendere un secondo pezzo della stessa sfida risponde `409` («leave it
+  first»): nessun pezzo si lascia per sbaglio con un tocco.
+- **Tutti i pezzi di una sfida chiedono la stessa cosa** (`pieces` e un
+  solo `piece`: X km, oppure 1 o 5 km sotto un passo); la tabella li tiene
+  per pezzo, così un seguito può mischiarli senza migrazione. I km in
+  avanzo passano solo a pezzi di distanza liberi, in ordine di numero.
+- **Il contorno dei pezzi lo serve anche l'API** (`outline` in ogni pezzo
+  di `GET /game/challenges/{id}`), oltre a poterlo rifare il telefono con
+  la stessa funzione: `pieces_of` misura il contorno chiuso segmento per
+  segmento (`sqrt(dx²+dy²)`), lo taglia a `k·L/n`, interpola gli estremi
+  sul segmento in cui cadono e arrotonda a 4 decimali; l'ultimo pezzo
+  finisce esattamente in `L`.
+- **Il riempimento sta in `game.after_run_saved`**, nella transazione del
+  salvataggio, dopo la riga di `game_runs`: i km che valgono sono quelli
+  dopo sovrapposizione e tetto. Il backfill non riempie pezzi: le corse di
+  prima del gioco non erano di nessuna sfida.
+- **La chiusura non scrive niente**: una sfida è `active` finché non è
+  completa e non sono passate 3 h dalla scadenza; poi è `expired`. Lo stato
+  si calcola dall'orologio, così nessun processo deve «chiudere» le sfide,
+  e la squadra ne crea un'altra appena la prima non è più attiva.
+- **«1 day left» lo trova un timer dell'API** (`ChallengeClock`, ogni 15
+  minuti, thread daemon come i receipts del Pusher), acceso e spento nel
+  lifespan dell'app: `install_game` avvolge `app.router.lifespan_context`
+  per non toccare `app.py` (della #461), e lo spegnimento aspetta un
+  controllo in corso prima che `app.py` chiuda il pool (TASK-288 B). Una
+  sola push per sfida anche con più processi o dopo un riavvio: la riga si
+  marca con `UPDATE … WHERE ending_told_at IS NULL … RETURNING`, non in
+  memoria. Si dice solo per le sfide più lunghe di un giorno (una da un
+  giorno la riceverebbe appena creata).
+- **Le push delle sfide portano `challenge_id`** in `data`, e il testo
+  comincia con il nome della forma nella lingua del telefono: `PushEvent`
+  ha tre campi facoltativi (`challenge_id`, `number`, `names`), letti da
+  `text_of` e `data_of`; gli eventi di prima danno gli stessi testi e
+  `data` (test). `challenge_done` e `challenge_ending` stanno in
+  `OWN_KINDS`: la prima è anche per chi ha chiuso la forma, la seconda non
+  ha un autore.
+- **Il blocco nato fra due iscritti** si risolve nella transazione del
+  blocco: `moderation.py` chiama i ganci di `app.state.on_block` dentro un
+  savepoint, così un gancio che fallisce non perde il blocco. La regola
+  (chi blocca esce, tranne dalla sua squadra) aspetta il sì dell'utente.
+- **La cancellazione dell'account** passa da `before_account_delete`
+  (come Strava): le squadre vanno all'iscritto più vecchio o spariscono, i
+  pezzi tenuti tornano liberi con i loro metri; poi il `CASCADE` porta via
+  iscrizioni e contributi, e `SET NULL` lascia sfide e pezzi alla squadra.
+  Se il gancio fallisse, `_owner_of` legge comunque l'iscritto più vecchio
+  di una squadra senza proprietario.
+- **I rifiuti del join** (pieno, troppe squadre, blocco) sono tutti `403
+  http_error` «You can't join this team.»; un codice sconosciuto è `404`.
+  Nessun codice d'errore nuovo nel contratto; il nome negativo è `422
+  comment_rejected` come un commento.
+- **`GET /game/me`** dice anche `team_unlocked_at` per forma (campo in più,
+  `null` prima); i tipi di `shared-types` li aggiorna la parte D, che è
+  anche la prima a leggerli.
+
+## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
+
+**Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
+dell'utente di ADR-0086 (2026-10-01), confermata il 2026-10-24 («sì
+grazie» alla proposta); il come deciso dall'agente su delega dell'utente
+(TASK-297 A). Allarga ADR-0136, che teneva solo i centri delle città e i
+punti dell'acqua.
+
+**Contesto**: dagli eventi del server di ottobre (20 giorni, celle di
+~1 km): 3 006 percorsi calcolati dal motore, mediana 6,6 s, p90 14,4 s;
+2 404 su 3 006 ripetevano una richiesta già fatta nella stessa cella,
+stessa forma e distanza (il cuore da 5 km a Trento calcolato 14 volte).
+L'API teneva un percorso solo dal centro di una città (ADR-0136): la
+scelta di ADR-0086 aspettava il database, che c'è dal 2026-10-02.
+
+**Decisione**:
+
+1. **Una tabella `drawn_routes`**: ogni percorso finito e ogni sua
+   alternativa, con la richiesta (`shape`/`word`, `style`, `distance_m`,
+   `activity`, `pen_up`), la partenza (`geography`, indice), la linea, il
+   `RouteResult` compatto (senza indicazioni né alternative), l'impronta
+   del motore, la `line_key` dei preferiti, i contatori `runs` e
+   `favorites`, e il piazzamento (rotazione, fase, scala, spostamento).
+   **Nessun `user_id`**: un percorso disegnato è di tutti, non dice chi
+   l'ha chiesto né chi l'ha corso; cancellare un account non lo tocca.
+   Le immagini e la forma spostata a mano (`near`) non si tengono mai,
+   come oggi.
+2. **La risposta** (`route_archive.py`, un `KeepsRoutes` davanti al
+   `RouteStore` dei file): stesso motore, stessa richiesta, meno di 30
+   giorni. Entro 10 m la riga risponde subito, job `done` nel `POST`.
+   Entro **100 m** (`NEARBY_MAX_M`, la distanza delle partenze vicine di
+   ADR-0071) il percorso si restituisce con l'**avvicinamento** lungo le
+   strade e il ritorno, se la via è entro 150 m (`APPROACH_MAX_M`), come
+   `with_approach` fa per un'alternativa: la zona si carica (0,3–2 s), il
+   motore non parte. Oltre, si calcola come oggi.
+3. **I più scelti davanti**: fra più righe buone, la prima è quella con
+   più corse salvate e preferiti (contate per `line_key` da
+   `activities.py` e `favorites.py`, senza chi), poi la più somigliante,
+   poi la più vicina; le altre sono le alternative A · B · C.
+4. **Le indicazioni non si tengono**: si ricavano dai punti come per
+   «Explore» (ADR-0117). Una riga pesa ~10 kB: ~150 percorsi al giorno
+   fanno ~0,5 GB l'anno. **Tetto** in una costante (circa 200 000 righe)
+   e pulizia a ogni scrittura oltre il tetto: via le righe più vecchie
+   senza corse né preferiti. Il Volume del server è di 70 GB.
+5. **Il contratto non cambia**: l'app legge già un job `done` alla prima
+   risposta (ADR-0136). Senza database l'API resta com'era.
+6. **Il ridisegno rapido** (parte A2, dopo la #497): quando la riga ha un
+   motore diverso o è vecchia, il motore riparte dal suo piazzamento
+   (`first` facoltativo in `optimizer.search`) e continua come oggi se il
+   risultato non è buono; senza `first` il risultato è quello di oggi,
+   con un test. Misurato: lo stesso piazzamento rifà lo stesso percorso
+   36 volte su 36 con 54 tracciamenti contro 736 (ADR-0257).
+7. **Privacy**: un paragrafo nella pagina della privacy, approvato
+   dall'utente, con l'aggiornamento che raccoglie le altre modifiche
+   (#461, 284 B, 291, 294, 296).
+
+**Alternative scartate**:
+- restare sui file di `route_store` per tutti: nessuna ricerca per
+  distanza, tetto di 3 000 file, nessun contatore;
+- una chiave per cella di 1 km: il percorso deve partire da dove sta
+  l'utente, e a 1 km non ci arriva a piedi;
+- un raggio oltre i 100 m: l'avvicinamento supererebbe i 150 m che oggi
+  si accettano per un'alternativa, e il percorso non sarebbe più «da qui»;
+- tenere le indicazioni e le alternative dentro la riga: nove volte lo
+  spazio, e le alternative sono percorsi loro;
+- contare `route_chosen` (A · B · C): 36 eventi in ottobre, e il segnale
+  non porta la `line_key`; da aprire quando le scelte saranno di più.
+
+## ADR-0257 — Il piazzamento imparato da una ricerca vicina: misurato e scartato
+
+**Stato**: Scartata (misurata) · 2026-10-24 · deciso dall'agente su delega
+dell'utente, con il Coordinatore; l'utente informato nella proposta
+(TASK-297 B). I numeri restano qui perché la via non si riprovi.
+
+**Contesto**: l'utente chiedeva «che l'app impari da sola a disegnare».
+La via più diretta: il motore ricorda, per forma e zona, il piazzamento
+che ha funzionato (partenza, rotazione, fase, scala) e lo prova per primo,
+da un `hint` facoltativo in `RouteRequest`.
+
+**Misura** (Mac, zone di Trento in cache, 2026-10-24; costo in
+tracciamenti, perché il Mac era carico; «buono» = distanza ±10 % e
+somiglianza ≥ 0,90; 36 richieste: cuore, stella, gatto, lumaca, luna da
+5 km e cuore da 2 km, da sei partenze a 300–700 m l'una dall'altra):
+
+| | tracciamenti | percorsi buoni |
+|---|---|---|
+| la ricerca di oggi | 736 | 17 su 36 |
+| lo stesso piazzamento, stessa partenza | 54, stesso percorso 36 su 36 | 17 su 36 |
+| il piazzamento imparato alla partenza più vicina (500–680 m) | 90 | 5 su 36; peggiore di 0,03 o più in 28 casi su 36 |
+
+Il gatto passa da 0,86 a 0,41, la lumaca da 0,88 a 0,19: a 500 m le
+strade sono altre, e il conteggio delle strade della ricerca di oggi
+(§5 di `ROUTE_ENGINE.md`) sceglie meglio di una memoria. Provare il
+piazzamento per primo e poi continuare risparmierebbe qualche
+tracciamento in 5 casi su 36 e ne costerebbe 1–3 negli altri.
+
+**Decisione**: nessun `hint` in `RouteRequest`, nessuna memoria dei
+piazzamenti per zona. Di «imparato» restano l'ordine dell'archivio
+(ADR-0256, punto 3) e il ridisegno rapido dal piazzamento dello stesso
+percorso dopo un cambio del motore (ADR-0256, punto 6), che è l'unico
+caso in cui la misura dice sì.
+
+**Dato collaterale, da aprire a parte**: in 19 casi su 36 la ricerca di
+oggi spende tutti i 30 tracciamenti senza un percorso buono (gatto 6 su
+6, lumaca 5 su 6, cuore da 2 km 6 su 6): sono i 6–14 s che l'utente
+aspetta per un disegno mediocre. Fermarsi prima quando la forma non entra
+nelle strade è il seguito scritto in `tasks/TASK-297.md`.
+
+## ADR-0258 — Le immagini con la penna alzata: i soggetti staccati e i fori sono pezzi
+
+**Stato**: Attiva · 2026-10-24 · chiesto dall'utente («gioca con il fatto
+di alzare la penna», loghi aziendali e di run club); il come deciso
+dall'agente su delega dell'utente (TASK-297 C). Allarga ADR-0079 (più
+soggetti in una linea sola) e ADR-0185 (le forme in pezzi).
+
+**Contesto**: un'immagine diventa una sola linea chiusa: il contorno
+esterno del soggetto più grande, gli altri soggetti (al massimo 4) appesi
+con un gambo andata-e-ritorno, i fori spariti, i soggetti vicini fusi.
+Provato su sette loghi sintetici e sul logo MuW da 5 km a Trento: le
+lettere «RC» una macchia (somiglianza 0,98), la ruota un cerchio, le tre
+barre un pettine, M u W appese al cuore. Con i pezzi e le camminate si
+legge «RC», si vede la ruota coi raggi e le tre barre, «MuW» sotto il
+cuore. L'anello con la stella da 5 km non viene (0,58: pezzi concentrici
+troppo piccoli per le strade), da 8 km sì. Immagini in
+`out/archivio-apprendimento/logos/` del Mac.
+
+**Decisione**:
+
+1. **Motore**: `outline_data(…, pen_up=True)` mette in `pieces` i
+   soggetti dopo il primo e i fori che valgono almeno il **3 %** del loro
+   soggetto (`HOLE_SHARE`), i più esterni prima; niente gambi. Un
+   soggetto dentro un altro è un pezzo suo. `parse_outline` non cambia: i
+   pezzi passano i controlli delle forme in pezzi (non si toccano, non si
+   incrociano). Con `pen_up=False` tutto come oggi.
+2. `ImageRequest.pen_up` è accettato: il contorno a pezzi si compone come
+   una forma in pezzi (`pieces.compose`) e la ricerca è quella delle
+   parole con la penna alzata (ADR-0157): la distanza chiesta è quella del
+   disegno, le camminate in più, `walks` nel risultato. Senza pezzi,
+   `pen_up` dà il contorno di oggi. CLI: `--image` con `--pen-up`.
+3. **API**: `POST /image-outlines` risponde anche `pieces` e
+   `image_pieces`; `POST /image-route-jobs` accetta `pen_up: true` con
+   `pieces` nel corpo. Aggiunte senza togliere niente.
+4. **App**: l'interruttore «Pen up» delle parole anche sulla foto,
+   proposto acceso quando il contorno ha pezzi; i pezzi sulla foto; i
+   tratti a piedi tratteggiati sulla mappa, la registrazione in pausa,
+   come per le parole.
+5. **La somiglianza** della penna alzata (per pezzo, con tolleranza) è
+   più severa di quella delle forme: 0,61 per «RC» leggibile contro 0,98
+   per la macchia. I numeri non si confrontano fra i due modi: si
+   guardano i disegni (lezione di TASK-290).
+6. **Nel repository solo loghi sintetici** (disegnati in codice) **e il
+   logo MuW**: niente marchi di aziende o di club.
+
+**Alternative scartate**:
+- i fori come tratti con la penna abbassata: i gambi si incrociano (è
+  l'errore trovato nella prova) e la linea del foro si farebbe due volte;
+- lasciare all'utente quali parti alzare, toccandole: più schermata, da
+  aprire se i pezzi automatici non bastano;
+- alzare `MAX_SUBJECTS` (4) insieme: da misurare a parte, con la penna
+  alzata un soggetto in più costa una camminata, non un gambo;
+- leggere le lettere come testo: una foto di una scritta resta un
+  disegno.
+
+## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
+**Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
+(TASK-271), dalla prima recensione di un tester («quando devi tornare
+indietro non lo dice»). Aggiunta ad ADR-0045, senza numero nuovo.
+
+**Decisione**: su un nodo con meno di 3 strade (`MIN_BRANCHES`), un vicolo
+cieco (1) o un nodo in mezzo a una strada (2), si dà un'indicazione solo
+quando il percorso torna al nodo da cui è arrivato (`after == before`) e
+l'angolo è da `u-turn` (165° o più, `turn_of`): `"u-turn"`, col nome della
+via e `branches` vero (1 o 2). Ogni altro nodo così resta in silenzio come
+prima, anche una curva di 90°; agli incroci non cambia niente. Tornare al
+nodo di prima per un'altra strada senza girarsi (un anello di due strade a
+senso unico) non è tornare indietro: silenzio.
+
+**Motivo**: la regola «si parla solo agli incroci» doveva tacere le curve
+di una strada, non i ritorni: un percorso che va in fondo a una strada senza
+uscita e torna dalla stessa strada cambia verso proprio dove non c'è un
+incrocio, e la voce taceva. Nella fixture di Levico 70 nodi su
+303 sono vicoli ciechi e 22 hanno due strade. Il testo «u-turn» c'è già
+nelle 5 lingue dell'app; `branches` sotto 3 c'era già nella partenza, e né
+l'API né l'app lo leggono come soglia.
+
+**Conseguenza**: i percorsi nuovi dicono «Make a U-turn» anche in fondo a
+un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
+salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
+server, `draw_examples` e il motore sul telefono (TASK-214) vanno
+aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
 
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 

@@ -11,6 +11,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { PenSplit } from "../route/RoutePanel";
 import { RouteTiles } from "../route/RouteTiles";
 import type { ExportState } from "../route/useGpxExport";
 import { distanceLabel, withPoint } from "../units/format";
@@ -68,6 +69,15 @@ export function ExploredCard({
             percent: Math.round(route.similarity * 100),
           })}
         </Text>
+        {/* A word with the pen up: its letters and the walks between them,
+            as «Draw» says it (TASK-279). */}
+        {open !== null && open.result.word != null && (
+          <PenSplit
+            result={open.result}
+            activity={open.request.activity}
+            units={units}
+          />
+        )}
       </View>
       {explored.status === "loading" && (
         <Text style={styles.target}>{t("Loading the route…")}</Text>

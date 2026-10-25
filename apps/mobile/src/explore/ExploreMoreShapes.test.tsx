@@ -8,8 +8,10 @@ import type { Place } from "../places/photon";
 import {
   DRAW_ORDER,
   EXAMPLE_SHAPES,
+  EXAMPLE_WORDS,
   forgetExamples,
   MORE_SHAPES,
+  wordOrder,
 } from "./exampleRoutes";
 import { ExploreScreen, ownCityName } from "./ExploreScreen";
 import type { RecommendedRoute } from "./recommendedRoutes";
@@ -30,6 +32,8 @@ const fetchMock = jest.spyOn(globalThis, "fetch");
 const routes = list.routes as RecommendedRoute[];
 /** The last shape drawn for a city: when its card is there, all are. */
 const LAST = MORE_SHAPES[MORE_SHAPES.length - 1];
+/** The last word written after them (TASK-279): the same for the words. */
+const LAST_WORD = wordOrder(EXAMPLE_WORDS).at(-1);
 
 beforeEach(() => {
   fetchMock.mockReset();
@@ -56,10 +60,14 @@ function emptyCatalog(input: RequestInfo | URL): Promise<Response> {
   );
 }
 
+/** The shapes asked, and the words after them (TASK-279). */
 function routeJobShapes(): (string | undefined)[] {
   return fetchMock.mock.calls
     .filter(([url]) => String(url).endsWith("/route-jobs"))
-    .map(([, init]) => JSON.parse(String(init?.body)).shape);
+    .map(([, init]) => {
+      const body = JSON.parse(String(init?.body));
+      return body.shape ?? body.word;
+    });
 }
 
 /** Every text on the screen, top to bottom. */
@@ -80,9 +88,12 @@ test("after the first three examples, other shapes while they are looked at", as
     />,
   );
   const card = await screen.findByLabelText(new RegExp(`^${shapeLabel(LAST)}, `));
-  expect(routeJobShapes()).toEqual([...DRAW_ORDER]);
+  // Then the words, in their row (TASK-279).
+  expect(await screen.findByLabelText(new RegExp(`^${LAST_WORD}, `))).toBeOnTheScreen();
+  expect(routeJobShapes()).toEqual([...DRAW_ORDER, ...wordOrder(EXAMPLE_WORDS)]);
+  expect(screen.getByText("WORDS")).toBeOnTheScreen();
   expect(screen.getAllByTestId("route-card")).toHaveLength(
-    EXAMPLE_SHAPES.length + MORE_SHAPES.length,
+    EXAMPLE_SHAPES.length + MORE_SHAPES.length + EXAMPLE_WORDS.length,
   );
   await fireEvent.press(card);
   expect(onOpen.mock.calls[0][0]).toMatchObject({ shape: LAST, city: "Vercelli" });
@@ -114,11 +125,18 @@ test("a city with recommended routes: the shapes it lacks join its cards", async
   const card = await screen.findByLabelText(
     new RegExp(`^${LAST.replace(/_/g, " ")}, `),
   );
-  // The catalog has a star and hearts: asked are the circle, then the others.
-  expect(routeJobShapes()).toEqual(["circle", ...MORE_SHAPES]);
-  // One grid: the city's routes first, then what was drawn now.
+  expect(await screen.findByLabelText(new RegExp(`^${LAST_WORD}, `))).toBeOnTheScreen();
+  // The catalog has a star and hearts: asked are the circle, then the others;
+  // and it has CIAO, so the words but that one (TASK-279).
+  const written = wordOrder(EXAMPLE_WORDS).filter((word) => word !== "CIAO");
+  expect(routeJobShapes()).toEqual(["circle", ...MORE_SHAPES, ...written]);
+  // One grid: the city's routes first, then what was drawn now; under it
+  // the row of the words.
   expect(screen.getAllByTestId("route-card")).toHaveLength(
-    routes.length + 1 + MORE_SHAPES.length,
+    routes.length + 1 + MORE_SHAPES.length + written.length,
+  );
+  expect(texts().indexOf("WORDS")).toBeGreaterThan(
+    texts().findIndex((text) => text.startsWith("Circle · ")),
   );
   const order = texts();
   expect(order.findIndex((text) => text.startsWith("Circle · "))).toBeGreaterThan(
@@ -197,8 +215,13 @@ test("a city's shapes that fail say nothing when it has routes of its own", asyn
     />,
   );
   await screen.findByText("Star · 5.1 km");
-  await waitFor(() => expect(routeJobShapes()).toEqual(["circle", ...MORE_SHAPES]));
+  // The words too, but CIAO, the catalog's (TASK-279): none, and no row.
+  const words = wordOrder(EXAMPLE_WORDS).filter((word) => word !== "CIAO");
+  await waitFor(() =>
+    expect(routeJobShapes()).toEqual(["circle", ...MORE_SHAPES, ...words]),
+  );
   expect(screen.getAllByTestId("route-card")).toHaveLength(routes.length);
+  expect(screen.queryByText("WORDS")).toBeNull();
   expect(screen.queryByText("Try again")).toBeNull();
   expect(screen.queryByText("Not drawn")).toBeNull();
 });

@@ -38,7 +38,8 @@ FAST_HASHER = PasswordHasher(time_cost=1, memory_cost=1024, parallelism=1)
 EMAIL = "runner@example.com"
 OTHER_EMAIL = "other@example.com"
 PASSWORD = "correct horse battery"
-OFF = {"email": False, "push": False}
+# Both off; «Email when I'm away» is on until turned off (TASK-284).
+OFF = {"email": False, "push": False, "away": True}
 
 
 def _load(name: str) -> Any:
@@ -124,16 +125,17 @@ def test_the_examples_of_shared_types_are_the_contract() -> None:
 
 def test_a_row_of_the_database_reads_as_the_object_of_the_contract() -> None:
     columns = [name.strip() for name in USER_COLUMNS.split(",")]
-    assert columns[-2:] == ["notify_email", "notify_push"]
+    assert columns[-3:] == ["notify_email", "notify_push", "notify_away"]
     row = {
         **_load("session.json")["user"],
         "notify_email": True,
         "notify_push": False,
+        "notify_away": False,
     }
     del row["notifications"]
     assert set(row) == set(columns)
     user = UserBody.model_validate(row)
-    assert user.notifications == NotificationsBody(email=True, push=False)
+    assert user.notifications == NotificationsBody(email=True, push=False, away=False)
     assert "notify_email" not in user.model_dump()
 
 
@@ -181,12 +183,20 @@ def test_each_switch_turns_on_and_off_on_its_own(client: TestClient) -> None:
     assert answer.status_code == 200
     # The answer is the account as it is now, as GET /me gives it.
     assert answer.json() == me(client, headers)
-    assert answer.json()["notifications"] == {"email": False, "push": True}
+    assert answer.json()["notifications"] == {
+        "email": False,
+        "push": True,
+        "away": True,
+    }
     # The other one: what was not sent stays as it is.
     answer = put(client, headers, {"email": True})
-    assert answer.json()["notifications"] == {"email": True, "push": True}
+    assert answer.json()["notifications"] == {"email": True, "push": True, "away": True}
     answer = put(client, headers, {"push": False})
-    assert answer.json()["notifications"] == {"email": True, "push": False}
+    assert answer.json()["notifications"] == {
+        "email": True,
+        "push": False,
+        "away": True,
+    }
     answer = put(client, headers, {"email": False})
     assert answer.json()["notifications"] == OFF
     assert switches(client, headers) == OFF
@@ -196,11 +206,18 @@ def test_both_switches_change_in_one_request(client: TestClient) -> None:
     headers = signed_up(client)
     answer = put(client, headers, {"email": True, "push": True})
     assert answer.status_code == 200
-    assert switches(client, headers) == {"email": True, "push": True}
+    assert switches(client, headers) == {"email": True, "push": True, "away": True}
     # The same again is no change, and no mistake.
-    assert put(client, headers, {"email": True, "push": True}).status_code == 200
+    assert (
+        put(client, headers, {"email": True, "push": True, "away": True}).status_code
+        == 200
+    )
     answer = put(client, headers, {"email": False, "push": True})
-    assert answer.json()["notifications"] == {"email": False, "push": True}
+    assert answer.json()["notifications"] == {
+        "email": False,
+        "push": True,
+        "away": True,
+    }
 
 
 def test_nothing_sent_changes_nothing_and_answers_the_account(
@@ -215,7 +232,7 @@ def test_nothing_sent_changes_nothing_and_answers_the_account(
     # A switch sent as null is a switch not sent.
     answer = put(client, headers, {"email": None, "push": True})
     assert answer.status_code == 200
-    assert answer.json()["notifications"] == {"email": True, "push": True}
+    assert answer.json()["notifications"] == {"email": True, "push": True, "away": True}
 
 
 @pytest.mark.parametrize(
@@ -246,7 +263,7 @@ def test_the_switches_of_one_account_are_not_those_of_another(
 ) -> None:
     mine, theirs = signed_up(client), other(client)
     put(client, mine, {"email": True, "push": True})
-    assert switches(client, mine) == {"email": True, "push": True}
+    assert switches(client, mine) == {"email": True, "push": True, "away": True}
     assert switches(client, theirs) == OFF
 
 
@@ -256,7 +273,7 @@ def test_the_other_changes_of_the_account_keep_the_switches(
     # PATCH /me, PUT /me/phone and PUT /me/email read the same columns.
     headers = signed_up(client)
     put(client, headers, {"push": True})
-    on = {"email": False, "push": True}
+    on = {"email": False, "push": True, "away": True}
     edited = client.patch("/me", json={"bio": "Runs hearts."}, headers=headers)
     assert edited.status_code == 200
     assert edited.json()["notifications"] == on
@@ -358,8 +375,9 @@ def test_accounts_made_before_the_switches_have_both_off(
     ]
     new = api(database, wall)
     # The session of before still opens, with both switches off: nobody is
-    # signed up to anything by the migration. Then they turn on as any.
+    # signed up to anything by the migration (but the email to who is away,
+    # TASK-284: the user's choice). Then they turn on as any.
     assert switches(new, headers) == OFF
     answer = put(new, headers, {"email": True})
     assert answer.status_code == 200
-    assert switches(new, headers) == {"email": True, "push": False}
+    assert switches(new, headers) == {"email": True, "push": False, "away": True}
