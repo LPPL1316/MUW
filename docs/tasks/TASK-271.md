@@ -1,6 +1,7 @@
 # TASK-271 — «Make a U-turn» anche dove non c'è un incrocio
 
-**Stato**: In corso
+**Stato**: Done (in `main` con la #489, 2026-10-25; server, `draw_examples`
+e motore sul telefono ancora da fare, vedi «Cosa resta per il server»)
 **Fase**: 4 · **Branch**: `fix/TASK-271-dead-end-u-turn`
 
 Numero dato dal Coordinatore (sessione `local_e57a8224`) il 2026-10-10.
@@ -123,6 +124,39 @@ del server copiata in sola lettura sul Mac (292 file): cambia solo
 l'impronta `engine` (`15bb981f9359` → `bf3ab4e15853`), i 32 esempi sono
 identici.
 
+2026-10-25: l'utente ha scritto «ok finiscilo» per la #489 (nella sessione
+«Task ancora da completare»), che vale come via al merge anche prima
+dell'approvazione di Apple. Riallineata a `main` `88b63b6e` (conflitti
+solo in `STATUS.md` e `DECISIONS.md`, tenute tutte le voci; la voce di
+DECISIONS in fondo, dopo quelle entrate nel frattempo); `engine.zip`
+rifatto da `main` (dentro cambia ancora solo `route_engine/directions.py`);
+`paddleExamples.json` ridisegnato su una nuova copia in sola lettura
+dell'acqua del server (297 file): di nuovo cambia solo l'impronta
+`engine` (`15bb981f9359` → `bf3ab4e15853`), i 32 esempi identici.
+
 ## Esito
 
-*(si compila a fine task)*
+In `main` con la #489 (2026-10-25). Dove il percorso torna indietro su un
+vicolo cieco o su un nodo con due strade, `directions()` dà `"u-turn"` col
+nome della via; le altre curve fuori dagli incroci restano in silenzio,
+agli incroci niente cambia. Nessun testo nuovo nell'app. Test del motore
+verdi, ruff e black puliti, CI verde.
+
+## Cosa resta per il server
+
+Il merge non tocca il server: le indicazioni nuove arrivano solo dopo
+questi passi, del Coordinatore (`local_e57a8224`), dopo l'approvazione di
+Apple della 1.0 e con il sì dell'utente.
+
+1. **Aggiornare il server** a un `main` che contiene la #489 (insieme agli
+   altri cambi in coda per il server).
+2. **`draw_examples`**: l'impronta del motore cambia, quindi gli esempi di
+   «Explore» tenuti sul server vanno ridisegnati (`AGENTI.md`, regola 11).
+   Finché non si rifanno, e per i percorsi già salvati, restano le
+   indicazioni vecchie.
+3. **Motore sul telefono** (TASK-214): `engine.zip` in `main` è già quello
+   nuovo, ma arriva sui telefoni solo con una pubblicazione dell'app
+   (`eas update`), con il via del Coordinatore.
+
+Gli esempi in canoa dentro l'app (`paddleExamples.json`) non cambiano: è
+cambiata solo l'impronta.
