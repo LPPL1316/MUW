@@ -27,6 +27,14 @@ from shaperoute_api.access_log import hide_query_strings
 from shaperoute_api.accounts import Accounts
 from shaperoute_api.activity_graphs import ActivityGraphs
 from shaperoute_api.app import create_app
+from shaperoute_api.away_email import KEY_VARIABLE as RESEND_KEY
+from shaperoute_api.away_email import (
+    AwayConfigError,
+    AwayEmails,
+    AwaySetup,
+    DailyRound,
+    install_away_email,
+)
 from shaperoute_api.cities import CitySearch
 from shaperoute_api.city_photos import PHOTOS_FOLDER, CityPhotos, install_city_photos
 from shaperoute_api.db import DATABASE_VARIABLE, Database, MigrationError
@@ -145,7 +153,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     try:
         access = Access.from_env()
-    except AccessConfigError as exc:
+        away_setup = AwaySetup.from_env()
+    except (AccessConfigError, AwayConfigError) as exc:
         raise SystemExit(str(exc)) from None
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(message)s")
     # GET /places carries the position: not in the access log (ADR-0096).
@@ -220,6 +229,16 @@ def main(argv: Sequence[str] | None = None) -> None:
     install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)
+    # The email to who has not opened the app for two weeks (TASK-284): off
+    # without the database, Resend's key, the links' secret and the domain.
+    away = (
+        None
+        if database is None or away_setup is None
+        else AwayEmails(database, away_setup)
+    )
+    install_away_email(app, away)
+    if away is not None:
+        DailyRound(away).start()
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     here = f"http://127.0.0.1:{args.port}"
     print(f"API docs on this PC: {here}/docs")
@@ -247,6 +266,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     else:
         done = ", ".join(migrated) if migrated else "none, schema up to date"
         print(f"Accounts in PostgreSQL ({DATABASE_VARIABLE}); migrations: {done}")
+    if away is None:
+        print(f"No email to who is away ({RESEND_KEY} and the rest not set)")
+    else:
+        at = away.setup.at.strftime("%H:%M")
+        print(f"Email to who is away for 14 days: every day at {at} UTC")
     if request_log is None:
         print("Route requests are not recorded (--request-log records them)")
     else:

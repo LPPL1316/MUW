@@ -2,8 +2,9 @@
 
 At home the API answers anyone on the Wi-Fi, as before. Reached from outside
 (Tailscale, a Cloudflare Tunnel, a server) it can ask for a key: when
-SHAPEROUTE_API_KEY is set, every request but /health (and the page a browser
-comes back to from Strava) must carry it in the X-API-Key header, or gets
+SHAPEROUTE_API_KEY is set, every request but /health (and the pages a browser
+opens: back from Strava, and the link of an email) must carry it in the
+X-API-Key header, or gets
 401 unauthorized. A simple limit in memory keeps
 a leaked key, or an app stuck in a loop, from filling the PC: each client
 gets at most SHAPEROUTE_RATE_LIMIT POSTs a minute (the requests that make
@@ -38,7 +39,9 @@ WINDOW_S = 60.0
 # /health stays open: a check that the API is up needs no key. So does the
 # page Strava sends the browser back to (strava.py, TASK-187): a browser has
 # no key, and the page does nothing without the state the API gave the app.
-OPEN_PATHS = frozenset({"/health", "/strava/callback"})
+# So does the page of the link «Don't send me these emails» (away_email.py,
+# TASK-284): it does nothing without the token of the email.
+OPEN_PATHS = frozenset({"/health", "/strava/callback", "/away-email/stop"})
 LIMITED_METHODS = frozenset({"POST"})
 
 WRONG_KEY = f"Missing or wrong API key: send it in the {KEY_HEADER} header."
