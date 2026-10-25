@@ -65,11 +65,13 @@ from shaperoute_api.accounts import (
     current_user,
     now_utc,
 )
+from shaperoute_api.best_routes import line_key
 from shaperoute_api.db import Database
 from shaperoute_api.game import after_run_saved, notify_unlocked
 from shaperoute_api.insights import Insights
 from shaperoute_api.places import KEY_VARIABLE, Fetch, fetch_json
 from shaperoute_api.recommended import preview
+from shaperoute_api.route_archive import count_run
 from shaperoute_api.schemas import (
     MAX_ROUTE_POINTS,
     MAX_TRACK_FIXES,
@@ -769,6 +771,10 @@ class Activities:
                 body.activity,
                 self.now(),
             )
+            # One more run along this line, for whoever asks it next
+            # (ADR-0256): the line's name only, never who ran it.
+            if body.points is not None:
+                count_run(conn, line_key(body.points))
             return _listed(row), True
 
     def keep_post(

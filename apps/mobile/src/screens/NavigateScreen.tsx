@@ -8,7 +8,7 @@ import { useLanguage } from "../i18n/useLanguage";
 import { LocationOff } from "../location/LocationOff";
 import { ARROWS, distanceLabel } from "../navigation/phrases";
 import { wordsOf } from "../voice/words";
-import { compassPoint, headingDeg, share } from "../navigation/runStats";
+import { compassPoint, compassWords, headingDeg, share } from "../navigation/runStats";
 import { emptyTrack, type Track } from "../navigation/trackRecorder";
 import type { NavigationState } from "../navigation/useNavigation";
 import {
@@ -63,15 +63,17 @@ export function NavigationBanner({ state }: { state: NavigationState }) {
       <NextTurn navigation={navigation} />
       {/* How much of the drawing is done, and which way the runner heads. */}
       <View style={styles.chips}>
-        <Text
-          style={styles.chip}
-        >{`${Math.round(doneOf(navigation) * 100)}% drawn`}</Text>
+        <Text style={styles.chip}>
+          {t("{percent}% drawn", { percent: Math.round(doneOf(navigation) * 100) })}
+        </Text>
         {heading !== null && (
           <Text
             style={styles.chip}
-            accessibilityLabel={`Heading ${compassPoint(heading)}`}
+            accessibilityLabel={t("Heading {direction}", {
+              direction: t(compassWords(heading)),
+            })}
           >
-            {compassPoint(heading)}
+            {t(compassPoint(heading))}
           </Text>
         )}
       </View>

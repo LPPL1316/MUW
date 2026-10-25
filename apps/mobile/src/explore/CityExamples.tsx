@@ -11,7 +11,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
-import { distanceLabel, withPoint } from "../units/format";
+import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { EXAMPLE_DISTANCE_M, type Example, shownExamples } from "./exampleRoutes";
 import { cityShort } from "./presets";
@@ -51,7 +51,7 @@ export function CityExamples({ city, examples, onOpen, onRetry, width }: Props) 
   // The distance the examples are asked at: "5 km"; with «Miles», "3.1 mi".
   const asked =
     units === "mi"
-      ? distanceLabel(EXAMPLE_DISTANCE_M, "mi", withPoint)
+      ? distanceLabel(EXAMPLE_DISTANCE_M, "mi")
       : `${EXAMPLE_DISTANCE_M / 1000} km`;
   return (
     <View style={styles.section}>
@@ -72,8 +72,7 @@ export function CityExamples({ city, examples, onOpen, onRetry, width }: Props) 
           const name = shapeName(example.shape);
           if (example.status === "ready") {
             const { route } = example;
-            // With a point: the texts here are still in English.
-            const distance = distanceLabel(route.route_m, units, withPoint);
+            const distance = distanceLabel(route.route_m, units);
             return (
               <RouteCard
                 key={example.shape}

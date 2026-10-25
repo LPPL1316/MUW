@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { t } from "../i18n";
+import { t, tLater } from "../i18n";
 import { HeartBadge } from "../intro/HeartBadge";
 import { OpenSettings } from "../permissions/OpenSettings";
 import { PlaceSearch, type SuggestPlaces } from "../places/PlaceSearch";
@@ -31,10 +31,11 @@ import { TOUR_PART } from "../tour/tourSteps";
 import { Segmented } from "./Segmented";
 
 /** "My position" also asks the GPS again, as the old button did, so it works
- * after the permission is given in Settings. */
+ * after the permission is given in Settings. Translated where shown, with
+ * t() (TASK-210). */
 const START_MODES = [
-  { value: "gps", label: "My position" },
-  { value: "place", label: "Another place" },
+  { value: "gps", label: tLater("My position") },
+  { value: "place", label: tLater("Another place") },
 ] as const;
 
 /** The heart beside the name: as tall as the title's letters and a little more. */
@@ -94,7 +95,7 @@ export function ChooseScreen({
   children,
   footer,
   onRun,
-  runLabel = "Run without a route",
+  runLabel = t("Run without a route"),
 }: Props) {
   const insets = useSafeAreaInsets();
   return (
@@ -131,8 +132,15 @@ export function ChooseScreen({
           </View>
         </View>
         <TourPartView name={TOUR_PART.start} style={styles.startCard}>
-          <Text style={styles.label}>START</Text>
-          <Segmented options={START_MODES} value={mode} onChange={onMode} />
+          <Text style={styles.label}>{t("START")}</Text>
+          <Segmented
+            options={START_MODES.map((option) => ({
+              ...option,
+              label: t(option.label),
+            }))}
+            value={mode}
+            onChange={onMode}
+          />
           <Text style={styles.status}>{status}</Text>
           {denied && <OpenSettings />}
           {searching && (

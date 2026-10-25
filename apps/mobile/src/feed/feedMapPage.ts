@@ -1,11 +1,13 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
+import { appLanguage } from "../i18n/language";
+import type { Language } from "../i18n/languages";
 import { type LngLat, toLngLat } from "../map/coordinates";
 import {
   MAP_BACKGROUND,
-  MAP_STYLE,
   MAPLIBRE_JS_SRI,
   MAPLIBRE_JS_URL,
+  mapStyle,
 } from "../map/mapPage";
 import { turnedLine, unturnedPoint } from "./turnedLine";
 
@@ -148,9 +150,10 @@ function toScript(value: unknown): string {
 /**
  * The page that takes the pictures: MapLibre GL JS as in `mapPage`, the same
  * style, nothing to touch and no controls. The map is made at the first
- * picture asked for, so it never loads a place nobody looks at.
+ * picture asked for, so it never loads a place nobody looks at. The places
+ * are named in `language`, as on the app's map (TASK-210, part H).
  */
-export function buildFeedMapPage(): string {
+export function buildFeedMapPage(language: Language = appLanguage()): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -196,7 +199,7 @@ export function buildFeedMapPage(): string {
       } else {
         map = new maplibregl.Map({
           container: "map",
-          style: ${toScript(MAP_STYLE)},
+          style: ${toScript(mapStyle(language))},
           center: message.center,
           zoom: message.zoom,
           bearing: bearing,

@@ -445,6 +445,25 @@ primo libero in `main` al merge):
   DESC) WHERE visibility <> 'only_me'`: i disegni pubblicati, i più
   recenti prima, l'ordine del feed.
 
+Migrazione `0023_away_email.sql` (TASK-284, ADR-0244; il numero è il primo
+libero in `main` al merge):
+
+- `users.notify_away` (`boolean NOT NULL DEFAULT true`): «Email when I'm
+  away» di «Settings». **Acceso** per ogni account, quelli di prima
+  compresi (scelta dell'utente: tutti gli iscritti); lo spengono
+  `away_email: false` all'iscrizione, `PUT /me/notifications` e il link
+  della email. In `GET /me` è `notifications.away`.
+- `users.away_emailed_at` (`timestamptz`, facoltativa): l'ultima email di
+  ritorno. Un account la riceve di nuovo solo quando l'app è stata usata
+  dopo (`sessions.last_used_at` più recente di questa data).
+- `users.language` (`en`, `de`, `it`, `es`, `fr`, o `NULL`): la lingua
+  dell'app all'iscrizione, per i testi delle email; `NULL` per gli account
+  di prima, e allora vale quella del telefono (`push_tokens.language`) o
+  l'inglese.
+- Nessun indice: il giro di ogni giorno legge tutti gli account con
+  `notify_away` una volta. **L'indirizzo email lascia il server per un
+  terzo**, Resend, solo dentro un'email di ritorno (ADR-0244).
+
 Migrazione `0025_game.sql` (TASK-296 parte A, ADR-0255, `GIOCO.md`; il
 numero è il primo libero in `main` al merge):
 
@@ -466,6 +485,32 @@ numero è il primo libero in `main` al merge):
 - **Con l'account si cancella tutto** (`ON DELETE CASCADE` su `users`),
   con un test (`test_game_api.py`). Una corsa cancellata toglie la sua
   riga di `game_runs`, e i suoi metri escono dai totali; le forme restano.
+
+Migrazione `0026_drawn_routes.sql` (TASK-297 parte A, ADR-0256; il numero
+è il primo libero in `main` al merge):
+
+- `drawn_routes`: una riga per ogni percorso che il motore finisce e per
+  ogni sua alternativa (`API.md`, «L'archivio dei percorsi»). `id`,
+  `drawn_at`, `engine` (l'impronta del motore: un motore cambiato
+  ridisegna), la richiesta (`shape` o `word`, `style`, `distance_m`,
+  `activity`, `pen_up`), `start` (`geography(Point, 4326)`, la partenza
+  chiesta, dove stava l'utente: il percorso comincia al nodo stradale più
+  vicino; indice GiST: «entro 100 m»), `route` (`geometry(LineString,
+  4326)`), `result` (`jsonb`: il `RouteResult` com'è, con le indicazioni,
+  senza le alternative, che sono righe loro), `similarity`, `line_key` (la
+  chiave della linea, come `favoriteKey` dell'app e `best_routes.line_key`),
+  `runs` e `favorites` (quante corse salvate lungo la linea, quanti
+  preferiti). Indici sulla chiave della richiesta, su `line_key` e su
+  `drawn_at`.
+- **Nessun `user_id`**: la riga non dice chi ha chiesto il percorso né chi
+  l'ha corso; cancellare un account non la tocca (test
+  `test_route_archive.py`). Una partenza è spesso la casa di qualcuno: per
+  questo (ADR-0256, scelta dell'utente di ADR-0086) i percorsi servono a
+  rispondere a chi chiede lo stesso disegno entro 100 m e a consigliarli,
+  mai a dire chi c'era. Il paragrafo della pagina privacy lo approva
+  l'utente. Le immagini e le forme spostate a mano non entrano mai.
+- Tetto di 50 000 righe nel codice (`MAX_ROUTES`): oltre, a ogni scrittura
+  vanno via le più vecchie con `runs` e `favorites` a zero.
 
 Migrazione `0027_game_teams.sql` (TASK-296 parte C, ADR-0255, `GIOCO.md`
 §6–§7; il numero è il primo libero in `main` al merge: la 0026 è di
