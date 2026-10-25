@@ -257,6 +257,48 @@ Misurato sul Mac il 2026-10-02 (Trento, zona in cache, il Mac occupato da
 altri lavori): i tre esempi 10–14 s la prima volta, **0,0 s** la seconda,
 tutti e tre nella risposta al `POST`.
 
+### L'archivio dei percorsi (TASK-297 parte A, ADR-0256)
+
+Tenere **tutti** i percorsi è la scelta dell'utente di ADR-0086. Dal
+TASK-297 ogni percorso finito, e ogni sua alternativa, resta in una riga
+della tabella `drawn_routes` del database (`shaperoute_api/route_archive.py`,
+`DATABASE.md`), **senza chi l'ha chiesto**: un percorso disegnato è di
+tutti. L'archivio sta davanti ai file degli esempi: `RouteJobs` chiede
+prima a lui, poi ai file; scrive a tutti e due (i file tengono da soli ciò
+che parte da un centro o da un punto dell'acqua).
+
+La stessa richiesta (forma o parola, stile, distanza, attività, la penna
+alzata o no), lo stesso motore (l'impronta di `route_store`), meno di 30
+giorni:
+
+- **dallo stesso punto** (entro 10 m): la riga risponde subito, job `done`
+  nella risposta al `POST /route-jobs`, come un esempio tenuto;
+- **entro 100 m** (`NEARBY_MAX_M`, la distanza delle partenze vicine di
+  ADR-0071): il percorso tenuto si raggiunge **lungo le strade** dalla
+  partenza dell'utente e si lascia allo stesso modo, come `with_approach`
+  fa per un'alternativa, se la via è entro 150 m (`APPROACH_MAX_M`). La
+  zona si carica (0,3–2 s), il motore non parte: succede nel thread del
+  job (`RouteJobs._nearby`, `FindsNearby`), non nel `POST`, e il job passa
+  da `queued` a `done` come gli altri. Le indicazioni sono quelle della
+  linea intera; i `walks` si spostano con i punti. Non sull'acqua: non ci
+  sono strade;
+- più righe che vanno bene: per prima quella con più **corse salvate e
+  preferiti** lungo la sua linea (`runs`, `favorites`, contati per
+  `line_key` da `PUT /me/activities/{key}` e dai preferiti, mai per chi),
+  poi la più somigliante, poi la più vicina; le altre, fino a tre, sono le
+  alternative;
+- niente che vada bene: il motore calcola come oggi, e il risultato entra
+  nell'archivio.
+
+Il contratto non cambia. Nel log: `job …: kept route reached along the
+roads` e `kept route reached from 62 m away`; negli eventi la risposta
+compare come le altre, con i secondi della zona. Mai in archivio: il
+contorno di un'immagine (è dell'utente), una forma spostata a mano
+sull'acqua (`near`). Tetto di 50 000 righe (circa 50 kB l'una con le
+indicazioni): oltre, a ogni scrittura vanno via le più vecchie mai corse né
+preferite. Un archivio che non risponde (database fermo) lascia il motore
+fare come prima: avviso nel log, nessun errore all'app.
+
 ### Registro delle richieste (TASK-090, ADR-0085)
 
 Serve a rifare uguale un percorso visto nell'app, per capire un difetto:
@@ -1044,7 +1086,7 @@ Tipi e esempi in `shared-types` (`SignUpRequest`, `SignInRequest`,
 
 | Endpoint | Cosa | Risposta |
 |---|---|---|
-| `POST /accounts` | iscriversi: `email`, `password`, `username`, `at_least_16` | `201` `Session`: iscriversi fa anche entrare |
+| `POST /accounts` | iscriversi: `email`, `password`, `username`, `at_least_16`; facoltativi `away_email` e `language` (TASK-284) | `201` `Session`: iscriversi fa anche entrare |
 | `POST /session` | entrare: `email`, `password` | `200` `Session` |
 | `DELETE /session` | uscire, solo da questo telefono | `204` |
 | `GET /me` | chi sono | `200` `User` |
@@ -1064,6 +1106,11 @@ Tipi e esempi in `shared-types` (`SignUpRequest`, `SignInRequest`,
   da 3 a 20 fra lettere, cifre, `_` e `.`, unico senza badare alle
   maiuscole. `at_least_16` falso è `422 invalid_request` (ADR-0114, punto
   6). Campi in più, come `role`, sono `invalid_request`.
+- `away_email` (TASK-284) è la casella «Don't send me these emails»:
+  `false` quando è spuntata spegne «Email when I'm away»; senza, resta
+  acceso. Solo `true` o `false`. `language` (`en`, `de`, `it`, `es`, `fr`,
+  o `null`) è la lingua dell'app, per i testi delle email; un'altra è
+  `422 invalid_request`. L'app di prima non li manda: vale com'è senza.
 - La password resta solo come hash Argon2id; del token il database tiene
   solo lo SHA-256. Né l'una né l'altro finiscono nei log.
 - Una sessione finisce 90 giorni dopo l'ultimo uso (`session_expired`, una
@@ -1443,12 +1490,15 @@ accounts_unavailable`. Tipi in `shared-types` (`Notifications`,
 
 | Endpoint | Cosa | Risposta |
 |---|---|---|
-| `PUT /me/notifications` | accendere o spegnere un interruttore, o tutti e due: `email`, `push` | `200` `User`, com'è adesso |
+| `PUT /me/notifications` | accendere o spegnere uno o più interruttori: `email`, `push`, `away` | `200` `User`, com'è adesso |
 
 - **`User`** (anche in `Session` e `GET /me`) ha in più `notifications`:
-  `{ "email": false, "push": false }`. **Tutti e due spenti** finché il
-  proprietario non li accende, anche per gli account di prima (scelta
-  dell'utente). Solo il proprietario li legge: non sono in
+  `{ "email": false, "push": false, "away": true }`. **`email` e `push`
+  spenti** finché il proprietario non li accende, anche per gli account di
+  prima (scelta dell'utente). **`away`**, «Email when I'm away» (TASK-284,
+  sotto), è **acceso** finché il proprietario non lo spegne, anche per gli
+  account di prima (scelta dell'utente del 2026-10-11); un'API più vecchia
+  non lo manda, e l'app lo legge acceso. Solo il proprietario li legge: non sono in
   `PublicProfile`, nella ricerca né negli elenchi (un test lo prova).
   `DELETE /me` li cancella con l'account.
 - **`PUT /me/notifications`** porta **solo quello che cambia**: `{ "push":
@@ -1496,6 +1546,9 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `comment` | un commento a un disegno, con il suo inizio | il proprietario | il disegno |
   | `tag` | un tag in un disegno | chi è taggato | il disegno |
   | `shape_unlocked` | una corsa salvata sblocca una forma del gioco (TASK-296) | chi ha corso | il proprio profilo; l'app di TASK-296 B apre «Play» |
+  | `piece_done` | un compagno ha finito un pezzo della sfida (TASK-296 C) | gli altri iscritti | la sfida |
+  | `challenge_done` | la squadra ha completato la forma (TASK-296 C) | tutti gli iscritti, anche chi ha corso | la sfida |
+  | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
@@ -1533,6 +1586,67 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   solo la prima volta che la corsa si salva: `game.notify_unlocked`). Un
   blocco (TASK-121, `follows.apart_sql`) in uno dei due versi ferma ogni
   notifica fra i due.
+- **Le push delle sfide** (TASK-296 C) portano in `data` `{ kind,
+  challenge_id }`; il testo comincia con il nome della forma nella lingua
+  del telefono («Heart: ada finished piece 2.», «Heart: the shape is
+  complete! Your team drew it together.», «Heart: 1 day left. Pieces
+  missing: 3.»). `challenge_done` e `challenge_ending` sono in `OWN_KINDS`.
+  `piece_done` e `challenge_done` partono dopo il salvataggio della corsa
+  (`game_challenges.notify_pieces`); `challenge_ending` la trova
+  `ChallengeClock` ogni 15 minuti, una volta per sfida, solo per le sfide
+  più lunghe di un giorno.
+
+### Email when I'm away (TASK-284, ADR-0244)
+
+Una email a chi non apre l'app da 14 giorni, con quello che c'è di nuovo,
+attraverso Resend. Scelte dell'utente del 2026-10-11: **a tutti gli
+iscritti**, con un interruttore suo acceso di default (`notifications.away`,
+sopra), una casella non spuntata all'iscrizione (`away_email` di `POST
+/accounts`) e il link per disiscriversi in ogni email. Il codice in
+`away_email.py` (chi, quando, la pagina), `away_texts.py` (le parole) e
+`resend_email.py` (il filo verso Resend).
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /away-email/stop?t=…` | la pagina del link «Don't send me these emails»: la domanda e il pulsante | `200` HTML; `404` HTML con un link che non è nostro |
+| `POST /away-email/stop?t=…` | il pulsante della pagina, e il «disiscriviti» del programma di posta (RFC 8058): spegne `away` | `200` HTML; `404` HTML come sopra |
+
+- **Chi la riceve**, in un giro al giorno alle `AWAY_EMAIL_AT` UTC (17:00
+  di default): `away` acceso; l'ultimo uso dell'app (il `last_used_at`
+  più recente delle sue sessioni) più vecchio di 14 giorni; nessuna email
+  di ritorno dopo quell'ultimo uso. **Una email per assenza**: la
+  seguente solo se torna e poi sta via altri 14 giorni. Uscito da ogni
+  telefono (`DELETE /session` dappertutto), un account non ha un ultimo
+  uso e non la riceve.
+- **Solo se c'è qualcosa di nuovo**: i disegni pubblicati dopo l'ultimo
+  uso che il Feed gli mostrerebbe (`shown_sql`: mai «only me», «followers»
+  solo se segue, mai attraverso un blocco), i suoi esclusi. Senza niente
+  di nuovo, niente email: il giro del giorno dopo richiede.
+- **Cosa dice**: con disegni nuovi di chi segue, quanti e fino a tre nomi
+  («ada, bea, cleo +2»): «2 new drawings from people you follow»; senza,
+  quanti nel Feed: «3 new drawings on MuW». Il pulsante «Open MuW» porta
+  alla pagina App Store dell'app (su un iPhone che l'ha, dice «Apri»). In
+  fondo perché la riceve, il link e dove spegnerla in «Settings». Testo e
+  HTML; nella lingua dell'iscrizione, poi in quella del telefono con le
+  push, poi in inglese.
+- **Il link** porta un token: l'HMAC del `public_id` con
+  `SHAPEROUTE_EMAIL_SECRET`, niente nel database. Il `GET` non spegne
+  niente (i filtri antispam aprono i link): solo il `POST`. La pagina non
+  vuole `X-API-Key` (`access.py`), è `no-store` e senza referrer; il
+  token non va nel log degli accessi. Le email portano anche
+  `List-Unsubscribe` e `List-Unsubscribe-Post`.
+- **L'invio**: ogni account è preso (`away_emailed_at`) prima di mandare,
+  solo se niente è cambiato da quando è stato letto, e restituito se
+  Resend rifiuta: due giri insieme non mandano mai due email, e una
+  rifiutata si riprova il giorno dopo. Al più 500 per giro, mezzo secondo
+  fra due; dopo 3 rifiuti di fila il giro si ferma. Resend riceve una
+  `Idempotency-Key` per assenza. La chiave e l'indirizzo non vanno mai nel
+  log.
+- **Spenta** senza `RESEND_API_KEY`, `SHAPEROUTE_EMAIL_SECRET` (almeno 32
+  caratteri) e `SHAPEROUTE_DOMAIN`: niente giro e niente pagina, e l'API
+  lo dice all'avvio (`docs/DEPLOY.md`, «Email di ritorno»). A mano:
+  `python -m shaperoute_api.away_email` conta chi la riceverebbe adesso,
+  `--send` fa un giro.
 
 ### Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170)
 
@@ -2015,6 +2129,57 @@ della collezione. Le regole sono in `GIOCO.md`; il codice in
   accounts_unavailable` (il catalogo risponde lo stesso).
 - **Le corse salvate prima**: `python -m shaperoute_api.game_backfill`,
   una volta dopo il deploy e a ogni `RULES_VERSION` nuova; non manda push.
+
+**Parte C — squadre e sfide** (`game_teams.py`, `game_challenges.py`;
+regole in `GIOCO.md` §6). Tutti con l'account; i compagni vedono di un
+iscritto solo nome, foto, pezzi e metri: mai tracce, orari o luoghi.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /game/teams` | una squadra: `{name}`, da 1 a 40 caratteri su una riga, dal filtro delle parole di TASK-213 | `201` `Team`; `422 invalid_request` (vuoto, lungo, caratteri di controllo, già in 10 squadre), `422 comment_rejected` (negativo) |
+| `POST /game/teams/join` | entrare: `{code}`, 6 caratteri in qualunque maiuscola | `200` `Team` (anche se già dentro); `404` codice sconosciuto; `403 http_error` «You can't join this team.» con un blocco in mezzo, 20 iscritti o 10 squadre |
+| `GET /game/teams` | le mie squadre, nell'ordine in cui sono entrato, ognuna con la sfida più recente | `200` `{teams: [Team]}` |
+| `DELETE /game/teams/{id}/members/{public_id}` | esco (il mio `public_id`), o chi ha creato la squadra toglie un iscritto | `204`; `404` squadra o iscritto che non c'è; `422` se non sono il proprietario |
+| `POST /game/teams/{id}/challenges` | una sfida: `{shape_id, pieces (2–12), piece, days (1–14, default 7)}`; `piece` è `{kind: "distance", total_m}` (1 000–50 000) o `{kind: "pace", distance_m (1000 o 5000), pace_s (150–900)}` | `201` `Challenge`; `409` se ce n'è una in corso; `422` fuori dai limiti o forma non in catalogo |
+| `GET /game/challenges/{id}` | la sfida: pezzi, titolari, metri, contributi, tempo che resta | `200` `Challenge`; `404` se non sono della squadra |
+| `POST /game/challenges/{id}/pieces/{idx}/hold` | prendo il pezzo `idx` | `200` `Challenge`; `409` pezzo preso, fatto, un altro già in mano, o sfida finita |
+| `DELETE /game/challenges/{id}/pieces/{idx}/hold` | lascio il pezzo, che resta libero con i suoi metri | `200` `Challenge`; `409` se non è mio o è fatto |
+
+- **`Team`**: `id`, `name`, `code` (lo vedono tutti gli iscritti, per
+  condividerlo), `owner` (il `public_id` di chi toglie gli iscritti),
+  `members` (`public_id`, `username`, `photo`, nell'ordine d'ingresso),
+  `challenge` (la più recente, in qualunque stato, o `null`).
+- **`Challenge`**: `id`, `team_id`, `shape_id`, `status` (`active`,
+  `completed`, `expired`: finita quando sono passate 3 ore dalla
+  scadenza), `starts_at`, `ends_at`, `completed_at`, `seconds_left` (alla
+  scadenza; `0` dopo), `pieces` e `contributions`. Ogni pezzo ha `idx`,
+  `goal` (con le parole dei requisiti del catalogo), `holder`
+  (`public_id`, `username`, o `null`), `done_m`, `done` e `outline`, il
+  suo tratto del contorno da 0 a 1 (`game_rules.pieces_of`: N tratti di
+  lunghezza uguale, gli stessi che può calcolare il telefono). Le
+  `contributions` sommano i metri di ogni persona su ogni pezzo:
+  `public_id`, `username`, `idx`, `metres`.
+- **Le corse riempiono i pezzi**: `PUT /me/activities/{key}`, nella stessa
+  transazione del gioco, mette la corsa che conta nel pezzo che il
+  corridore tiene in ogni sfida in corso, se è iniziata dopo la presa e
+  prima della scadenza ed è salvata entro 3 ore dalla scadenza. I km in
+  avanzo passano al prossimo pezzo libero di distanza, che diventa suo;
+  senza, si perdono. Un pezzo veloce è fatto da una corsa con il miglior
+  tempo richiesto. L'ultimo pezzo completa la sfida e dà la forma in
+  **edizione squadra** a chi ha contribuito.
+- **`GET /game/runs/{key}`** ha in più `pieces_done`: i pezzi che la corsa
+  ha finito (`challenge_id`, `team_id`, `team_name`, `shape_id`, `idx`,
+  `pieces`, `challenge_completed`). **`GET /game/me`** ha in più, per ogni
+  forma, `team_unlocked_at` (`null` senza l'edizione squadra).
+- **Chi esce o viene tolto** lascia liberi i pezzi che teneva, con i
+  metri; la squadra passa all'iscritto più vecchio se se ne va il
+  proprietario, e sparisce senza iscritti. Con `DELETE /me` succede lo
+  stesso; sfide e pezzi restano alla squadra, i contributi dell'account
+  spariscono.
+- Chi ha bloccato un iscritto, o ne è bloccato, non entra. Un blocco nato
+  fra due iscritti della stessa squadra ne fa uscire uno, nella
+  transazione del blocco (`moderation.py`, `app.state.on_block`): la
+  regola è nel task file, parte C.
 
 ### Send to Strava (TASK-187, ADR-0156)
 

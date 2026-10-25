@@ -22,7 +22,8 @@ function refused(code: "http_error" | "session_expired" | "accounts_unavailable"
 }
 
 test("the switches of an account are what the API tells", () => {
-  expect(notificationsOf(user)).toEqual({ email: false, push: false });
+  // «Email when I'm away» is on until turned off (TASK-284).
+  expect(notificationsOf(user)).toEqual({ email: false, push: false, away: true });
   const on = { email: true, push: true };
   expect(notificationsOf({ ...user, notifications: on })).toEqual(on);
 });

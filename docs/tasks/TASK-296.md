@@ -1,6 +1,7 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · prossime: C, D, E
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in lavorazione
+(`feat/TASK-296-c-teams-api`, #540) · prossime: D, E
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -198,6 +199,27 @@ Parte dopo A.
 6. Test deterministici per ogni regola di `GIOCO.md` §6, per le
    cancellazioni in cascata e per i blocchi.
 
+**Com'è fatta** (2026-10-24; i dettagli in `GIOCO.md` §6.5 e
+nell'aggiunta ad ADR-0255): migrazione `0027_game_teams.sql` (la 0026 è
+di TASK-297 A, #539; il numero si ricontrolla al merge);
+`game_teams.py` e `game_challenges.py` con i loro router installati da
+`game.install_game`, così `app.py` non si tocca; il riempimento dei pezzi
+dentro `game.after_run_saved`; `pieces_of` in `game_rules.py`; in
+`push.py` i tre `Kind`, i testi e tre campi facoltativi di `PushEvent`;
+in `moderation.py` i ganci di `app.state.on_block` in un savepoint;
+`ChallengeClock` (ogni 15 minuti, nel lifespan avvolto da
+`install_game_challenges`, fermato prima che si chiuda il pool) per «1
+day left», una volta per sfida grazie a `ending_told_at`.
+
+**Domande all'utente** (una per volta, dal 2026-10-24):
+- (a) il blocco nato fra due iscritti della stessa squadra: proposta al
+  punto 5. **Approvata dall'utente il 2026-10-24** («Sì, va bene la
+  regola proposta»): esce chi blocca, tranne quando la squadra è sua,
+  allora esce l'altro; è quello che fa `game_teams.on_block`.
+- (b) i testi delle tre push: proposta in «Testi da approvare».
+  **Approvati dall'utente il 2026-10-24** («Sì, vanno bene i testi
+  proposti»): sono quelli in `push.py`.
+
 ## Parte D — App: sfide
 
 Parte dopo C, e dopo aver ricontrollato `src/share/` con il Coordinatore
@@ -242,6 +264,26 @@ parte C e si riguardano quando parte.
 | `piece_done` | {name} finished piece {n} of the {shape}. | {name} ha finito il pezzo {n} di {shape}. |
 | `challenge_done` | {shape} complete! Your team drew it together. | {shape} completata! La squadra l'ha disegnata insieme. |
 | `challenge_ending` | 1 day left: {k} pieces of the {shape} are missing. | Manca 1 giorno: mancano {k} pezzi di {shape}. |
+
+**Testi della parte C, approvati dall'utente il 2026-10-24** («Sì, vanno
+bene i testi proposti»): il nome della forma in testa, nella lingua del telefono (l'evento porta i nomi del
+catalogo), così nessuna lingua deve accordare articoli; `{n}` è il numero
+del pezzo, o dei pezzi che mancano. Sostituisce le tre righe della tabella.
+
+| Kind | Inglese | Italiano |
+|---|---|---|
+| `piece_done` | {shape}: {name} finished piece {n}. | {shape}: {name} ha finito il pezzo {n}. |
+| `challenge_done` | {shape}: the shape is complete! Your team drew it together. | {shape}: la forma è completa! La squadra l'ha disegnata insieme. |
+| `challenge_ending` | {shape}: 1 day left. Pieces missing: {n}. | {shape}: manca 1 giorno. Pezzi da fare: {n}. |
+
+Tedesco: «{shape}: {name} hat Teil {n} geschafft.», «{shape}: die Form ist
+fertig! Euer Team hat sie zusammen gezeichnet.», «{shape}: noch 1 Tag.
+Fehlende Teile: {n}.». Spagnolo: «{shape}: {name} ha terminado la pieza
+{n}.», «{shape}: ¡la forma está completa! Vuestro equipo la ha dibujado
+juntos.», «{shape}: queda 1 día. Piezas que faltan: {n}.». Francese:
+«{shape} : {name} a terminé la pièce {n}.», «{shape} : la forme est
+complète ! Ton équipe l'a dessinée ensemble.», «{shape} : plus qu'1 jour.
+Pièces manquantes : {n}.».
 
 `shape_unlocked` non ha il nome della forma: il testo segue la lingua di
 ogni telefono e l'evento non porta nomi (aggiunta ad ADR-0255). Nella parte
@@ -335,7 +377,41 @@ Parte B:
 - [x] I testi dell'app approvati dall'utente (tabella sopra, 2026-10-24:
       «sì, i testi vanno bene»).
 
-Parti C, D ed E: i criteri si scrivono qui quando partono, dalle regole
+Parte C:
+- [ ] Una squadra si crea con un nome dal filtro di TASK-213 e un codice
+      di 6; si entra con il codice in qualunque maiuscola; oltre 20
+      iscritti, oltre 10 squadre o con un blocco in mezzo la risposta è la
+      stessa, «You can't join this team.» (`test_game_teams.py`).
+- [ ] Chi esce lascia liberi i suoi pezzi; il proprietario toglie; la
+      squadra passa all'iscritto più vecchio e sparisce senza iscritti;
+      `DELETE /me` fa lo stesso e porta via iscrizioni e contributi, non
+      sfide e pezzi.
+- [ ] Una sfida per squadra; pezzi 2–12, X km 1–50 oppure veloce 1 o 5 km
+      sotto un passo; scadenza 1–14 giorni, 7 di default.
+- [ ] Un pezzo in mano per persona e per sfida; le corse che contano
+      iniziate dopo la presa e prima della scadenza lo riempiono, i km in
+      avanzo passano al pezzo libero successivo, un pezzo lasciato tiene i
+      metri, il pezzo veloce è fatto da un miglior tempo; fuori dalla
+      finestra (prima della presa, dopo la scadenza, salvata oltre 3 h)
+      niente (`test_game_challenges.py`).
+- [ ] L'ultimo pezzo completa la sfida e dà l'edizione squadra a chi ha
+      contribuito; dopo 3 h dalla scadenza è `expired` e se ne crea
+      un'altra.
+- [ ] Le push `piece_done` (agli altri), `challenge_done` (a tutti) e
+      `challenge_ending` (una volta per sfida, anche con due controlli
+      insieme) portano `challenge_id`; gli eventi di prima non cambiano.
+- [ ] Il timer parte e si ferma con l'app, e si ferma prima che si chiuda
+      il database.
+- [ ] Un gancio del blocco che fallisce non perde il blocco; il blocco nato
+      fra due iscritti ne fa uscire uno secondo la regola approvata.
+- [ ] I pezzi del contorno sono N tratti uguali che si chiudono
+      (`test_game_pieces.py`).
+- [ ] pytest, ruff e black verdi; la suite completa dell'API verde in
+      locale.
+- [x] La regola del blocco e i testi delle tre push approvati dall'utente
+      il 2026-10-24, con le sue parole in «Domande all'utente».
+
+Parti D ed E: i criteri si scrivono qui quando partono, dalle regole
 di `GIOCO.md` §6 e §9.
 
 ## File toccati
@@ -403,7 +479,24 @@ B (push Android) dopo: modifiche piccole, chiuse nel caso `shape_unlocked`.
 Su `preview` la B va con «Play» nascosta, perché il server risponde 404
 finché non ha la A: è la prova del gating.
 
-Parti C, D ed E: l'elenco si scrive qui, e va al Coordinatore, prima
+Parte C (elenco approvato dal Coordinatore il 2026-10-24):
+```
+services/api/migrations/0027_game_teams.sql              (nuovo, numero al merge)
+services/api/shaperoute_api/game_teams.py                (nuovo)
+services/api/shaperoute_api/game_challenges.py           (nuovo)
+services/api/shaperoute_api/game_rules.py                (pieces_of)
+services/api/shaperoute_api/game.py                      (riempimento, pieces_done, team_unlocked_at, install)
+services/api/shaperoute_api/push.py                      (i tre Kind, i testi, OWN_KINDS, tre campi facoltativi di PushEvent)
+services/api/shaperoute_api/moderation.py                (i ganci di app.state.on_block in un savepoint)
+services/api/tests/test_game_pieces.py                   (nuovo)
+services/api/tests/test_game_teams.py                    (nuovo)
+services/api/tests/test_game_challenges.py               (nuovo)
+services/api/tests/test_game_api.py                      (i campi nuovi nelle uguaglianze)
+docs/API.md («Shape game» parte C, le push), docs/DATABASE.md (0026), docs/GIOCO.md (§6.5, §7, §8),
+docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
+```
+
+Parti D ed E: l'elenco si scrive qui, e va al Coordinatore, prima
 di partire.
 
 ## Fuori scope

@@ -185,6 +185,34 @@ vuole, perché costa solo un deploy dell'API.
 - Chi ha dato km o ha finito un pezzo veloce in una sfida completa
   riceve la forma in **edizione squadra** (`edition = 'team'`).
 
+### 6.5 Com'è fatta (parte C)
+
+Scelte dell'agente su delega dell'utente, registrate in ADR-0255:
+
+- «Un solo pezzo in corso alla volta» vale **dentro una sfida**: chi sta
+  in due squadre tiene un pezzo in ognuna, e una corsa che conta riempie
+  tutti e due. Prendere un secondo pezzo della stessa sfida è rifiutato:
+  prima si lascia il primo.
+- Tutti i pezzi di una sfida chiedono la stessa cosa; i km in avanzo
+  passano solo a pezzi di distanza liberi, in ordine di numero.
+- Una corsa riempie il pezzo nella transazione del salvataggio, con i km
+  già tolti di sovrapposizioni e tetto; le corse del backfill non toccano
+  le sfide.
+- La chiusura non scrive niente: la sfida è `active` finché non è completa
+  e non sono passate 3 ore dalla scadenza, poi `expired`. Una nuova si
+  può creare solo dopo.
+- «1 day left» parte una volta per sfida, dal timer dell'API (ogni 15
+  minuti), solo per le sfide più lunghe di un giorno.
+- Il contorno dei pezzi: `pieces_of(outline, n)` misura il contorno chiuso
+  segmento per segmento (`sqrt(dx²+dy²)`), lo taglia a `k·L/n`, interpola
+  gli estremi sul segmento in cui cadono e arrotonda a 4 decimali;
+  l'ultimo pezzo finisce esattamente in `L`. L'API lo serve in ogni pezzo
+  (`outline`), e il telefono può rifarlo uguale.
+- La squadra mostra la sfida più recente in qualunque stato; i contributi
+  sono sommati per persona e pezzo, senza orari.
+- Con l'account spariscono iscrizioni e contributi; i metri restano nei
+  pezzi, che tornano liberi; la squadra passa all'iscritto più vecchio.
+
 ## 7. Dati
 
 Una migrazione nuova per la parte A e una per la parte C. Il numero è
@@ -199,7 +227,7 @@ altri iscritti, con il titolare del pezzo a `NULL`.
 | `game_unlocks` | A | `(user_id, shape_id, edition)`, `unlocked_at`, `run_id` (`SET NULL`); la parte C aggiunge `challenge_id` (`SET NULL`) |
 | `game_teams` | C | `id` uuid, `name`, `invite_code` unico, `owner_id` (`SET NULL`), `created_at` |
 | `game_team_members` | C | `(team_id, user_id)`, `joined_at` |
-| `game_challenges` | C | `id`, `team_id`, `shape_id`, `created_by` (`SET NULL`), `starts_at`, `ends_at`, `completed_at` |
+| `game_challenges` | C | `id`, `team_id`, `shape_id`, `created_by` (`SET NULL`), `starts_at`, `ends_at`, `completed_at`, `ending_told_at` (la push «1 day left», una volta) |
 | `game_pieces` | C | `(challenge_id, idx)`, `required_m` oppure `fast_distance_m` + `max_pace_s`, `holder_id` (`SET NULL`), `held_at`, `done_m`, `done_at` |
 | `game_contributions` | C | `challenge_id`, `piece_idx`, `user_id` (`CASCADE`), `run_id` (`SET NULL`), `metres`, `at` |
 
@@ -231,6 +259,13 @@ push. La push di una forma sbloccata parte sempre, ma con l'app aperta
 il telefono non la mostra, perché c'è già la scheda dopo «Save». Serve
 per le corse mandate più tardi dalla coda del telefono. I testi delle push li approva l'utente
 nelle cinque lingue.
+
+Dalla parte C `GET /game/runs/{key}` ha anche `pieces_done` (i pezzi che
+la corsa ha finito, con squadra e forma) e `GET /game/me` ha per ogni
+forma `team_unlocked_at`. Le push delle sfide portano `{kind,
+challenge_id}` e cominciano con il nome della forma nella lingua del
+telefono; `challenge_ending` la trova un timer dell'API ogni 15 minuti,
+una volta per sfida.
 
 ## 9. App
 

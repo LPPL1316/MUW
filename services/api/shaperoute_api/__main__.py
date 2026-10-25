@@ -27,6 +27,14 @@ from shaperoute_api.access_log import hide_query_strings
 from shaperoute_api.accounts import Accounts
 from shaperoute_api.activity_graphs import ActivityGraphs
 from shaperoute_api.app import create_app
+from shaperoute_api.away_email import KEY_VARIABLE as RESEND_KEY
+from shaperoute_api.away_email import (
+    AwayConfigError,
+    AwayEmails,
+    AwaySetup,
+    DailyRound,
+    install_away_email,
+)
 from shaperoute_api.cities import CitySearch
 from shaperoute_api.city_photos import PHOTOS_FOLDER, CityPhotos, install_city_photos
 from shaperoute_api.db import DATABASE_VARIABLE, Database, MigrationError
@@ -44,6 +52,7 @@ from shaperoute_api.places import PlaceSearch
 from shaperoute_api.recommended import DEFAULT_DIR as CATALOG_DIR
 from shaperoute_api.recommended import RecommendedCatalog
 from shaperoute_api.request_log import DEFAULT_DIR, ON_VARIABLE, RequestLog, wanted
+from shaperoute_api.route_archive import RouteArchive
 from shaperoute_api.route_store import STORE_FOLDER, RouteStore
 from shaperoute_api.themed import StopFinder, ThemedJobs
 from shaperoute_api.water_spots import read_spots
@@ -144,7 +153,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     try:
         access = Access.from_env()
-    except AccessConfigError as exc:
+        away_setup = AwaySetup.from_env()
+    except (AccessConfigError, AwayConfigError) as exc:
         raise SystemExit(str(exc)) from None
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(message)s")
     # GET /places carries the position: not in the access log (ADR-0096).
@@ -180,6 +190,11 @@ def main(argv: Sequence[str] | None = None) -> None:
             water=[spot.point for spot in read_spots()],
         )
     )
+    # Every route drawn, kept in the database for whoever asks it nearby
+    # (ADR-0256), with the files behind it; without a database, the files.
+    archive = (
+        route_store if database is None else RouteArchive(database, behind=route_store)
+    )
     # Search events, on by default (the user's choice, ADR-0101), and the
     # learned vocabulary: tables, then it, then the AI.
     insights = Insights(
@@ -205,7 +220,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         cities=cities,
         insights=insights,
         accounts=accounts,
-        route_store=route_store,
+        route_store=archive,
     )
     # The towns near the user, under "Near me" in "Explore" (TASK-236), with
     # their photos beside the zones (TASK-283).
@@ -214,6 +229,16 @@ def main(argv: Sequence[str] | None = None) -> None:
     install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)
+    # The email to who has not opened the app for two weeks (TASK-284): off
+    # without the database, Resend's key, the links' secret and the domain.
+    away = (
+        None
+        if database is None or away_setup is None
+        else AwayEmails(database, away_setup)
+    )
+    install_away_email(app, away)
+    if away is not None:
+        DailyRound(away).start()
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     here = f"http://127.0.0.1:{args.port}"
     print(f"API docs on this PC: {here}/docs")
@@ -241,6 +266,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     else:
         done = ", ".join(migrated) if migrated else "none, schema up to date"
         print(f"Accounts in PostgreSQL ({DATABASE_VARIABLE}); migrations: {done}")
+    if away is None:
+        print(f"No email to who is away ({RESEND_KEY} and the rest not set)")
+    else:
+        at = away.setup.at.strftime("%H:%M")
+        print(f"Email to who is away for 14 days: every day at {at} UTC")
     if request_log is None:
         print("Route requests are not recorded (--request-log records them)")
     else:

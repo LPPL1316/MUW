@@ -179,6 +179,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Apple, con l'ok dell'utente. Seguito da aprire: fermarsi prima quando
   la forma non entra nelle strade (19 ricerche su 36 bruciano i 30
   tracciamenti). File: `tasks/TASK-297.md`.
+  **Documenti** in `main` con la #538 (`9391893c`, 2026-10-24).
+  **Parte A** (branch `feat/TASK-297-a-route-archive`, migrazione
+  `0026_drawn_routes.sql`, numero al merge): la tabella `drawn_routes`
+  senza `user_id`; `route_archive.py` davanti al `RouteStore` dei file
+  (`get` subito dallo stesso punto, `nearby` nel thread del job entro
+  100 m con l'avvicinamento lungo le strade, `put` di percorso e
+  alternative, tetto di 50 000 righe); `RouteJobs` chiede l'archivio
+  prima del motore (`FindsNearby`); le corse salvate e i preferiti contano
+  per `line_key`. Contratto invariato; senza database tutto come prima.
+  `jobs.py` va anche sul telefono: `engine.zip` rifatto (da pubblicare su
+  `preview`), il telefono senza archivio disegna come prima (test).
+  Server dopo Apple, con l'ok dell'utente e il paragrafo della privacy.
+  **Parte A** in `main` con la #539 (`0c4ada00`, 2026-10-25), mergiata dal
+  Coordinatore: impronta iOS invariata (`83793e26`), su `preview` (gruppo
+  `e0e4e126`) con l'`engine.zip` nuovo. L'archivio lavora solo sul server:
+  dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
+  TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
+  **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
@@ -223,6 +241,37 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pagina non si vede).
   **Parte B** in `main` con la #536 (`145cf992`, 2026-10-24); testi
   dell'app approvati dall'utente lo stesso giorno. Restano C, D ed E.
+  **Parte C** (branch `feat/TASK-296-c-teams-api`, PR #540, migrazione
+  `0027_game_teams.sql`, perché la 0026 è di TASK-297 A, #539; il numero
+  si ricontrolla al merge): `game_teams`, `game_team_members`,
+  `game_challenges`, `game_pieces`, `game_contributions` e `challenge_id`
+  in `game_unlocks`; `game_teams.py` (nome dal filtro di TASK-213, codice
+  di 6, join rifiutato senza motivo con un blocco, oltre 20 iscritti o 10
+  squadre, uscita, rimozione, passaggio di proprietà, ganci alla
+  cancellazione dell'account e al blocco), `game_challenges.py` (una
+  sfida per squadra, un pezzo in mano per persona, riempimento da
+  `after_run_saved` con i km in avanzo, pezzo veloce, edizione squadra,
+  `ChallengeClock` per «1 day left»), il contorno dei pezzi in
+  `game_rules.pieces_of`, gli otto endpoint, `pieces_done` in `GET
+  /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
+  iscritti e i testi delle tre push sono approvati dall'utente
+  (2026-10-24). Server dopo Apple, con l'ok dell'utente.
+
+- **TASK-294 — MuW su Google Play** (richiesta dell'utente del
+  2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
+  **A** (aggiunta ad ADR-0225), branch
+  `feat/TASK-294-a-android-background`: su Android la corsa registra a
+  schermo bloccato, in un servizio con la sua notifica, con «While using»
+  (scelta dell'utente: prima del test chiuso). Il conto alla rovescia e la
+  pausa per fermo si recuperano dalle posizioni, perché Android ferma i
+  timer JS; la linea non si taglia per lo schermo spento. L'impronta iOS
+  della build 7 non cambia (`fingerprint.config.js`, 83793e26 prima e
+  dopo). Solo app; testi della notifica approvati dall'utente il
+  2026-10-23. **PR #543**. La prova su Android vero si fa con la B. Account
+  Google Play personale creato dall'utente il 2026-10-25 («Luca
+  Pallaoro»), in attesa delle verifiche di Google. **B** (ADR-0253): package,
+  Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
+  pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
@@ -347,6 +396,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   anche dalla mappa del risultato** (numero dal Coordinatore); **ok a
   pubblicare su `preview` tutto `main`** (278 A+B, 279 A, 280, 281, 283
   lato app, 285 A+B), lo fa il Coordinatore. TASK-276 va rispiegato.
+- **TASK-284 — L'email di ritorno a chi non apre l'app da 14 giorni**
+  (ADR-0244; chiesto dall'utente il 2026-10-11; scelte sue: «a tutti gli
+  iscritti», «un interruttore suo, acceso», con la casella non spuntata
+  all'iscrizione e il link in ogni email). **Parte A** (API, migrazione
+  `0023_away_email.sql`, Resend, pagina per disiscriversi, giro di ogni
+  giorno): PR da `feat/TASK-284-return-email`, spenta finché il server non
+  ha chiave, segreto e dominio. **Parte B** (Todo, dopo #461): la casella
+  all'iscrizione, l'interruttore in «Settings», la privacy nuova e i testi,
+  tutti col sì dell'utente. Nessuna email prima di A e B in `main`, app
+  pubblicata, approvazione di Apple e chiave di Resend con il dominio
+  verificato (lo fa l'utente, `DEPLOY.md` «Email di ritorno»). File:
+  `tasks/TASK-284.md`.
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
@@ -468,6 +529,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `useNavigation.ts` come TASK-272: l'ordine lo dà il Coordinatore.
   File: `tasks/TASK-273.md`, «File toccati».
   **Chiuso con la #493** (dopo la #492); vedi «Completato».
+- **TASK-271 — «Make a U-turn» anche fuori dagli incroci** (aggiunta ad
+  ADR-0045; dalla prima recensione di un tester del 2026-10-10). Branch
+  `fix/TASK-271-dead-end-u-turn`. Prima, tornando indietro in fondo a un
+  vicolo cieco o su un nodo con due strade, la voce taceva: `directions()`
+  saltava ogni nodo con meno di 3 strade. Ora lì si dice `"u-turn"` quando
+  il percorso torna al nodo da cui è arrivato; le altre curve fuori dagli
+  incroci restano in silenzio. Solo motore, nessun testo nuovo. Dopo il
+  merge, con l'ok dell'utente: server, `draw_examples`, motore sul
+  telefono; i percorsi già in cache tengono le indicazioni vecchie. Non
+  nella 1.0. File: `tasks/TASK-271.md`, «File toccati».
+  **Chiuso**: in `main` con la #489 (2026-10-25, «ok finiscilo»
+  dell'utente); server, `draw_examples` e motore sul telefono restano al
+  Coordinatore; vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -1042,6 +1116,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Motore** — TASK-271 (aggiunta ad ADR-0045; dalla prima recensione di
+  un tester del 2026-10-10): la voce dice «Make a U-turn» anche dove il
+  percorso torna indietro fuori da un incrocio, in fondo a un vicolo cieco
+  o su un nodo con due strade; le altre curve fuori dagli incroci restano
+  in silenzio. Nessun testo nuovo. Mergiata il 2026-10-25 su «ok
+  finiscilo» dell'utente, con `engine.zip` rifatto e `paddleExamples.json`
+  ridisegnato (cambia solo l'impronta `engine`, gli esempi sono
+  identici). In `main`, **non ancora sul server**: aggiornamento,
+  `draw_examples` e motore sul telefono (pubblicazione dell'app) restano al
+  Coordinatore dopo Apple e con il sì dell'utente; i percorsi già
+  calcolati tengono le indicazioni vecchie finché non si rifanno. PR #489.
+  `tasks/TASK-271.md`.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul

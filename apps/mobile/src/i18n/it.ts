@@ -1241,4 +1241,9 @@ export const IT: Table = {
   "New shape unlocked: {name}": "Nuova forma sbloccata: {name}",
   "It is in your collection.": "È nella tua collezione.",
   "See collection": "Vedi la collezione",
+
+  // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
+  "MuW is recording your activity": "MuW sta registrando la tua attività",
+  "It keeps going with the screen locked, voice included.":
+    "Continua anche a schermo bloccato, voce compresa.",
 };

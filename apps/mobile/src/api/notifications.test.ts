@@ -11,7 +11,7 @@ const AUTH = { Authorization: `Bearer ${TOKEN}` };
 
 test("a user reads with its switches, and from an API of before without them", () => {
   expect(isUser(session.user)).toBe(true);
-  expect(session.user.notifications).toEqual({ email: false, push: false });
+  expect(session.user.notifications).toEqual({ email: false, push: false, away: true });
   const { notifications: _notifications, ...before } = session.user;
   expect(isUser(before)).toBe(true);
 });

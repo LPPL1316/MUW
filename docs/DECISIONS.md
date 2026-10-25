@@ -14324,6 +14324,67 @@ due città sfogliate in un minuto le parole della seconda aspettano il
 minuto dopo. Una città senza zona sul server può scaricarne una più
 grande per la parola più lunga.
 
+## ADR-0244 — L'email di ritorno a chi non apre l'app da 14 giorni
+**Stato**: Attiva · 2026-10-11 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-284): «a tutti gli iscritti» e
+«un interruttore suo, acceso», con la proposta di testo e di ritmo
+accettata; il come deciso dall'agente su delega dell'utente. Note del
+coordinatore: rispettare gli interruttori, informare e lasciar rifiutare
+già all'iscrizione (il «soft opt-in» europeo; non è una consulenza
+legale), chiave e DNS di Resend all'utente.
+
+Chi si iscrive e poi non apre più MuW non sa che chi segue ha pubblicato.
+Una email lo dice: quanti disegni nuovi, di chi, e un pulsante per tornare.
+
+**Decisione**:
+
+1. **A tutti gli iscritti**, con un interruttore suo, «Email when I'm
+   away» (`users.notify_away`, `notifications.away`), **acceso** di
+   default anche per gli account di prima; lo spengono la casella non
+   spuntata «Don't send me these emails» all'iscrizione (`away_email`),
+   «Settings» e il link di ogni email. «Email notifications» resta per le
+   notizie di TASK-262 B.
+2. **Una email per assenza**: ultimo uso (il `last_used_at` più recente
+   delle sessioni) più vecchio di 14 giorni e nessuna email di ritorno
+   dopo; un account uscito da ogni telefono non ha un ultimo uso e non la
+   riceve. **Solo con qualcosa di nuovo**, cioè disegni che il Feed gli
+   mostrerebbe (`shown_sql`, mai attraverso un blocco), i suoi esclusi:
+   senza, il giro del giorno dopo richiede.
+3. **Un giro al giorno** alle 17:00 UTC, in un thread dell'API avviato da
+   `__main__.py`: nessun servizio nuovo in `compose.yaml`, nessun cron.
+   L'account è preso (`away_emailed_at`, con un `UPDATE` che vale solo se
+   niente è cambiato) prima di mandare e restituito se Resend rifiuta;
+   500 per giro, mezzo secondo fra due, fermo dopo 3 rifiuti di fila.
+4. **Resend** con la libreria standard (`resend_email.py`, come
+   `expo_push.py`): nessuna dipendenza nuova, un `User-Agent` suo, una
+   `Idempotency-Key` per assenza; la chiave e l'indirizzo mai nei log.
+5. **Il link per disiscriversi** è un HMAC del `public_id` con
+   `SHAPEROUTE_EMAIL_SECRET`: niente nel database. Il `GET` mostra una
+   pagina con un pulsante, solo il `POST` spegne (i filtri antispam aprono
+   i link); `List-Unsubscribe` e `List-Unsubscribe-Post` (RFC 8058) per il
+   «disiscriviti» del programma di posta. La pagina non vuole
+   `X-API-Key`, come `/strava/callback`.
+6. **Lingua**: quella dell'app all'iscrizione (`users.language`, nuova),
+   poi quella del telefono con le push, poi l'inglese.
+7. **«Open MuW»** porta alla pagina App Store dell'app: l'app non ha link
+   universali né uno schema suo, che vorrebbero una build nativa.
+
+**Alternative scartate**: legarla a «Email notifications» (spento di
+default: non la riceverebbe quasi nessuno, scelta dell'utente); solo il
+link nella email (il soft opt-in vuole il rifiuto già all'iscrizione); un
+servizio o un cron a parte sul server (una cosa in più da tenere accesa);
+un token per account nel database (il segreto basta e non va copiato);
+spegnere al solo `GET` del link; il pacchetto Python di Resend (una
+dipendenza per una chiamata).
+
+**Conseguenza**: l'indirizzo email lascia il server per Resend (negli
+Stati Uniti): la privacy cambia nella parte B, dopo #461, con il sì
+dell'utente al testo e alla data. Nessuna email parte prima che ci siano
+la parte B in `main`, l'app pubblicata con la casella, la chiave e il
+dominio verificato su Resend (`DEPLOY.md`, «Email di ritorno»). I testi
+dell'email, in cinque lingue, aspettano anche loro il sì dell'utente.
+Cambiare il segreto spegne i link già mandati.
+
 ## ADR-0245 — «Draw on the map»: la figura sulla mappa la misura l'app, il percorso lo fa il motore
 **Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente:
 una schermata sola con «Draw | Move», una riga di forme e immagini che
@@ -15020,6 +15081,80 @@ WebView (la punta dipende dalla scheda sotto e dal bordo della mappa).
 resta in inglese come le sue vicine, che sono «il resto di `App.tsx`» di
 TASK-210. Solo app: nessun motore, API o migrazione; non entra nella 1.0.
 
+## ADR-0225, aggiunta — Su Android la corsa registra e parla a schermo bloccato, in un servizio con la sua notifica
+**Stato**: Proposta · 2026-10-23 · **scelte dell'utente** del 2026-10-23
+(GPS e voce a schermo bloccato su Android prima del test chiuso di Google
+Play; i testi della notifica); il modo deciso dall'agente su delega
+dell'utente (TASK-294 parte A). Aggiunta ad ADR-0225, senza numero nuovo
+(coordinatore).
+
+**Contesto**: ADR-0225 aveva lasciato Android «com'era» (scelta
+dell'utente del 2026-10-07): GPS solo in primo piano, e a schermo bloccato
+la corsa non registrava. Per Google Play l'utente vuole la corsa completa
+anche su Android. expo-location 57 su Android dà le posizioni in
+background con `startLocationUpdatesAsync` in un servizio in primo piano
+con notifica, senza il permesso «in background»; React Native 0.86 ferma
+però i timer JS con l'app dietro (`JavaTimerManager`), mentre le posizioni
+del task arrivano lo stesso.
+
+**Decisione**:
+
+1. **Il servizio con la notifica** (`runPosition.ts`): su Android, se il
+   modo background c'è, lo stesso task `muw-run-location` di ADR-0225 con
+   `foregroundService` (titolo e testo nelle cinque lingue, il giallo dei
+   token, `killServiceOnDestroy`: l'app chiusa a mano spegne il GPS, e la
+   corsa riapre in pausa, ADR-0240). Il permesso resta «While using»:
+   niente `ACCESS_BACKGROUND_LOCATION`, che Google Play fa dichiarare a
+   parte. `app.json`: `isAndroidForegroundServiceEnabled` (aggiunge
+   `FOREGROUND_SERVICE` e `FOREGROUND_SERVICE_LOCATION`) e l'icona della
+   notifica, la stessa delle push. Se il telefono rifiuta (app non
+   davanti, Expo Go), `watchPositionAsync` come prima.
+2. **Il taglio della linea** (`runAway.ts`): su Android col GPS in
+   background un battito in ritardo è lo schermo spento, non un
+   congelamento, e non taglia niente. Con il servizio acceso Android non
+   congela l'app; può solo chiuderla, e allora vale ADR-0240. In primo
+   piano, e su iOS, tutto come prima.
+3. **L'orologio recuperato dalle posizioni** (`runControl.ts`): su
+   Android, prima di ogni posizione, quello che i timer dovevano fare e
+   non hanno fatto. Il conto alla rovescia scaduto finisce lì (prima la
+   corsa non partiva finché lo schermo restava spento); un fermo di più di
+   `AUTO_PAUSE_AFTER_MS` diventa una pausa per fermo da quando spettava.
+   Se la posizione dice che il corridore è ripartito, la pausa si chiude
+   senza dire niente («Paused.» non l'ha sentito); se è ancora fermo, la
+   voce dice «Paused.» adesso. Su iOS niente cambia: lì il timer arriva
+   sempre prima.
+4. **La voce**: nessun codice. Le indicazioni e i km partono dalle
+   posizioni, e con il servizio acceso l'app resta viva e expo-speech
+   parla. La musica di un'altra app **non** si abbassa: expo-speech su
+   Android non chiede il focus audio, e farlo vorrebbe codice nativo o
+   una dipendenza nuova (fuori scope, si chiede all'utente se serve).
+5. **L'impronta iOS non si muove** (`fingerprint.config.js`): l'impronta
+   di ogni piattaforma legge tutta la configurazione, blocco `android`,
+   opzioni dei plugin e permessi che i plugin aggiungono; senza questo,
+   ogni impostazione solo Android avrebbe cambiato il runtime della build
+   iOS 7 e l'avrebbe tagliata fuori dagli update. Un `fileHookTransform`
+   toglie le impostazioni elencate in `ANDROID_ONLY` (`android.package`
+   per la parte B, le due opzioni di expo-location, i due permessi del
+   servizio) dalla sorgente `expoConfig` e le aggiunge in fondo a
+   `expoAutolinkingConfig:android`, che ha solo l'impronta Android. Una
+   voce nuova solo Android va aggiunta lì; una che cambia anche iOS no.
+
+**Alternative scartate**: `ACCESS_BACKGROUND_LOCATION` («Allow all the
+time»): un permesso in più da chiedere e una dichiarazione più dura su
+Google Play, senza vantaggi per una corsa avviata dall'app; tenere vivi i
+timer JS con un task Headless JS: codice nativo; posizioni a tempo
+(`timeInterval`) per fare da orologio: più fix, più batteria, e la
+navigazione tarata su un fix ogni 5 m; le impostazioni Android in
+`app.config.ts` solo con `EAS_BUILD_PLATFORM=android`: gli update Android
+calcolerebbero il runtime senza, e non arriverebbero mai; accettare
+l'impronta iOS nuova: ogni update della 1.0 dopo il merge vorrebbe una
+build iOS nuova e una revisione di Apple.
+
+**Conseguenze**: su Android, durante un'attività, la notifica di MuW
+resta finché la corsa non finisce; si vede solo in una build nativa
+(Expo Go non ha il servizio). Due testi nuovi nelle cinque lingue.
+L'impronta iOS di produzione resta quella della build 7.
+
 ## ADR-0254 — Il video di una corsa: fatto sul telefono nel WebView, H.264 con WebCodecs, MP4 scritto dall'app
 
 **Stato**: Attiva · 2026-10-23 · il contenuto e il pulsante li ha scelti
@@ -15239,6 +15374,66 @@ dell'utente)**:
   push del gioco è `GamePushKind` accanto a lui, perché `index.ts` è
   anche di due PR ferme (#461, #502) e si aggiunge solo in coda.
 
+**Aggiunta (parte C, 2026-10-24, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **Un pezzo in corso per persona e per sfida.** «Ognuno tiene un solo
+  pezzo in corso alla volta» vale dentro una sfida: chi sta in due squadre
+  tiene un pezzo in ognuna, e una corsa che conta riempie tutti e due.
+  Prendere un secondo pezzo della stessa sfida risponde `409` («leave it
+  first»): nessun pezzo si lascia per sbaglio con un tocco.
+- **Tutti i pezzi di una sfida chiedono la stessa cosa** (`pieces` e un
+  solo `piece`: X km, oppure 1 o 5 km sotto un passo); la tabella li tiene
+  per pezzo, così un seguito può mischiarli senza migrazione. I km in
+  avanzo passano solo a pezzi di distanza liberi, in ordine di numero.
+- **Il contorno dei pezzi lo serve anche l'API** (`outline` in ogni pezzo
+  di `GET /game/challenges/{id}`), oltre a poterlo rifare il telefono con
+  la stessa funzione: `pieces_of` misura il contorno chiuso segmento per
+  segmento (`sqrt(dx²+dy²)`), lo taglia a `k·L/n`, interpola gli estremi
+  sul segmento in cui cadono e arrotonda a 4 decimali; l'ultimo pezzo
+  finisce esattamente in `L`.
+- **Il riempimento sta in `game.after_run_saved`**, nella transazione del
+  salvataggio, dopo la riga di `game_runs`: i km che valgono sono quelli
+  dopo sovrapposizione e tetto. Il backfill non riempie pezzi: le corse di
+  prima del gioco non erano di nessuna sfida.
+- **La chiusura non scrive niente**: una sfida è `active` finché non è
+  completa e non sono passate 3 h dalla scadenza; poi è `expired`. Lo stato
+  si calcola dall'orologio, così nessun processo deve «chiudere» le sfide,
+  e la squadra ne crea un'altra appena la prima non è più attiva.
+- **«1 day left» lo trova un timer dell'API** (`ChallengeClock`, ogni 15
+  minuti, thread daemon come i receipts del Pusher), acceso e spento nel
+  lifespan dell'app: `install_game` avvolge `app.router.lifespan_context`
+  per non toccare `app.py` (della #461), e lo spegnimento aspetta un
+  controllo in corso prima che `app.py` chiuda il pool (TASK-288 B). Una
+  sola push per sfida anche con più processi o dopo un riavvio: la riga si
+  marca con `UPDATE … WHERE ending_told_at IS NULL … RETURNING`, non in
+  memoria. Si dice solo per le sfide più lunghe di un giorno (una da un
+  giorno la riceverebbe appena creata).
+- **Le push delle sfide portano `challenge_id`** in `data`, e il testo
+  comincia con il nome della forma nella lingua del telefono: `PushEvent`
+  ha tre campi facoltativi (`challenge_id`, `number`, `names`), letti da
+  `text_of` e `data_of`; gli eventi di prima danno gli stessi testi e
+  `data` (test). `challenge_done` e `challenge_ending` stanno in
+  `OWN_KINDS`: la prima è anche per chi ha chiuso la forma, la seconda non
+  ha un autore.
+- **Il blocco nato fra due iscritti** si risolve nella transazione del
+  blocco: `moderation.py` chiama i ganci di `app.state.on_block` dentro un
+  savepoint, così un gancio che fallisce non perde il blocco. La regola
+  (chi blocca esce, tranne dalla sua squadra) aspetta il sì dell'utente.
+- **La cancellazione dell'account** passa da `before_account_delete`
+  (come Strava): le squadre vanno all'iscritto più vecchio o spariscono, i
+  pezzi tenuti tornano liberi con i loro metri; poi il `CASCADE` porta via
+  iscrizioni e contributi, e `SET NULL` lascia sfide e pezzi alla squadra.
+  Se il gancio fallisse, `_owner_of` legge comunque l'iscritto più vecchio
+  di una squadra senza proprietario.
+- **I rifiuti del join** (pieno, troppe squadre, blocco) sono tutti `403
+  http_error` «You can't join this team.»; un codice sconosciuto è `404`.
+  Nessun codice d'errore nuovo nel contratto; il nome negativo è `422
+  comment_rejected` come un commento.
+- **`GET /game/me`** dice anche `team_unlocked_at` per forma (campo in più,
+  `null` prima); i tipi di `shared-types` li aggiorna la parte D, che è
+  anche la prima a leggerli.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
@@ -15418,3 +15613,31 @@ pezzi); il logo del kit con il cuore resta fuori dal repository, come le
 prove del 24. Dalla CLI `--image … --pen-up` su un'immagine senza pezzi
 disegna una linea sola con un avviso, invece di rifiutare come per una
 forma senza pezzi: chi manda una foto non sa prima se ha pezzi.
+
+## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
+**Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
+(TASK-271), dalla prima recensione di un tester («quando devi tornare
+indietro non lo dice»). Aggiunta ad ADR-0045, senza numero nuovo.
+
+**Decisione**: su un nodo con meno di 3 strade (`MIN_BRANCHES`), un vicolo
+cieco (1) o un nodo in mezzo a una strada (2), si dà un'indicazione solo
+quando il percorso torna al nodo da cui è arrivato (`after == before`) e
+l'angolo è da `u-turn` (165° o più, `turn_of`): `"u-turn"`, col nome della
+via e `branches` vero (1 o 2). Ogni altro nodo così resta in silenzio come
+prima, anche una curva di 90°; agli incroci non cambia niente. Tornare al
+nodo di prima per un'altra strada senza girarsi (un anello di due strade a
+senso unico) non è tornare indietro: silenzio.
+
+**Motivo**: la regola «si parla solo agli incroci» doveva tacere le curve
+di una strada, non i ritorni: un percorso che va in fondo a una strada senza
+uscita e torna dalla stessa strada cambia verso proprio dove non c'è un
+incrocio, e la voce taceva. Nella fixture di Levico 70 nodi su
+303 sono vicoli ciechi e 22 hanno due strade. Il testo «u-turn» c'è già
+nelle 5 lingue dell'app; `branches` sotto 3 c'era già nella partenza, e né
+l'API né l'app lo leggono come soglia.
+
+**Conseguenza**: i percorsi nuovi dicono «Make a U-turn» anche in fondo a
+un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
+salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
+server, `draw_examples` e il motore sul telefono (TASK-214) vanno
+aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
