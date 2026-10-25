@@ -426,8 +426,8 @@ l'ok del coordinatore per il server.
    (`https://<dominio>/away-email/stop?t=…`): `api.getmuw.app`. Il mittente
    è `MuW <hello@getmuw.app>` (`SHAPEROUTE_EMAIL_FROM` lo cambia); il giro
    è alle 17:00 UTC (`AWAY_EMAIL_AT` lo cambia).
-3. L'API nuova, che al primo avvio applica la migrazione `0022` (o il
-   numero che ha preso al merge), come ogni aggiornamento del server:
+3. L'API nuova, che al primo avvio applica la migrazione
+   `0023_away_email.sql`, come ogni aggiornamento del server:
 
    ```bash
    cd /root/shaperoute && git pull

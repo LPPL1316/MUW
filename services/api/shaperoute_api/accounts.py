@@ -53,6 +53,10 @@ from shaperoute_api.db import Database
 from shaperoute_api.schemas import ErrorBody, ErrorCode, ErrorDetail
 
 SESSION_DAYS = 90
+# A session's last use is written at most this often: most requests of an
+# account only read it (TASK-288). A session lasts as much longer, so it
+# never ends sooner than SESSION_DAYS after its real last use.
+USE_WRITTEN_EVERY = timedelta(hours=1)
 TOKEN_BYTES = 32
 MIN_PASSWORD_LENGTH = 8
 # Argon2 reads it all: a cap keeps a megabyte "password" from costing time.
@@ -310,17 +314,27 @@ class Accounts:
         return SessionBody(token=token, user=UserBody.model_validate(row))
 
     def user_of(self, token: str) -> UserBody:
-        """The account of a token, and its session used now; 401 if none."""
+        """The account of a token, and its session used now; 401 if none.
+        The use is written when the one written is USE_WRITTEN_EVERY old:
+        otherwise nothing is written, and nothing waits for the disk."""
         now = self.now()
         with self.database.connect() as conn:
             row = conn.execute(
-                "WITH used AS ("
-                " UPDATE sessions SET last_used_at = %s"
-                " WHERE token_hash = %s AND last_used_at > %s"
-                " RETURNING user_id)"
+                "WITH valid AS ("
+                " SELECT user_id FROM sessions"
+                " WHERE token_hash = %(token)s AND last_used_at > %(ended)s),"
+                " used AS ("
+                " UPDATE sessions SET last_used_at = %(now)s"
+                " WHERE token_hash = %(token)s AND last_used_at > %(ended)s"
+                " AND last_used_at <= %(written)s)"
                 f" SELECT {USER_COLUMNS}"
-                " FROM users JOIN used ON users.id = used.user_id",
-                (now, token_hash(token), now - timedelta(days=SESSION_DAYS)),
+                " FROM users JOIN valid ON users.id = valid.user_id",
+                {
+                    "token": token_hash(token),
+                    "now": now,
+                    "ended": now - timedelta(days=SESSION_DAYS) - USE_WRITTEN_EVERY,
+                    "written": now - USE_WRITTEN_EVERY,
+                },
             ).fetchone()
             if row is not None:
                 return UserBody.model_validate(row)

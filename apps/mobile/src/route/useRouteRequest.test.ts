@@ -6,6 +6,7 @@ import request from "@shaperoute/shared-types/fixtures/route-request.json";
 import result from "@shaperoute/shared-types/fixtures/route-result.json";
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 
+import { routeQueue } from "../api/routeQueue";
 import { type AnyRouteRequest, sameRequest, useRouteRequest } from "./useRouteRequest";
 
 const REQUEST = request as RouteRequest;
@@ -13,6 +14,7 @@ const fetchSpy = jest.spyOn(globalThis, "fetch");
 
 afterEach(() => {
   fetchSpy.mockReset();
+  routeQueue.forget();
 });
 
 afterAll(() => {
@@ -32,6 +34,42 @@ test("waits with the API's phase, then keeps the route with its request", async 
   await act(() => jest.advanceTimersByTimeAsync(2000));
   expect(hook.current.state).toEqual({ status: "done", request: REQUEST, result });
   jest.useRealTimers();
+});
+
+test("the same phase told again is the same state: nothing to draw again (TASK-287)", async () => {
+  jest.useFakeTimers();
+  const computing = { ...jobDone, status: "computing", result: null };
+  fetchSpy
+    .mockResolvedValueOnce(Response.json(computing, { status: 202 }))
+    .mockResolvedValueOnce(Response.json(computing))
+    .mockResolvedValueOnce(Response.json(jobDone));
+  const { result: hook } = await renderHook(() => useRouteRequest("http://pc:8000"));
+  await act(() => hook.current.draw(REQUEST));
+  const waiting = hook.current.state;
+  expect(waiting).toMatchObject({ status: "waiting", phase: "computing" });
+  await act(() => jest.advanceTimersByTimeAsync(500));
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
+  expect(hook.current.state).toBe(waiting);
+  await act(() => jest.advanceTimersByTimeAsync(500));
+  expect(hook.current.state).toEqual({ status: "done", request: REQUEST, result });
+  jest.useRealTimers();
+});
+
+test("while the user's route is asked, the examples in the background wait (TASK-287)", async () => {
+  let answer: (response: Response) => void = () => undefined;
+  fetchSpy.mockImplementationOnce(
+    () => new Promise<Response>((resolve) => (answer = resolve)),
+  );
+  const { result: hook } = await renderHook(() => useRouteRequest("http://pc:8000"));
+  await act(() => hook.current.draw(REQUEST));
+  const example = jest.fn(() => Promise.resolve({ kind: "lost" } as const));
+  const asked = routeQueue.background("visible", example);
+  await act(async () => undefined);
+  expect(example).not.toHaveBeenCalled();
+  await act(async () => answer(Response.json(jobDone)));
+  await waitFor(() => expect(hook.current.state.status).toBe("done"));
+  await expect(asked).resolves.toEqual({ kind: "lost" });
+  expect(example).toHaveBeenCalledTimes(1);
 });
 
 test("without an API address it fails without asking anyone", async () => {

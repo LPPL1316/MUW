@@ -1,6 +1,6 @@
 # TASK-285 — Lo stretching dopo la corsa: il promemoria (A) e i cinque esercizi animati (B)
 
-**Stato**: Parte A Todo · Parte B Todo
+**Stato**: Done · Parte A in `main` con la #504 (8cdadf70, 2026-10-14) · Parte B in `main` con la #508 (8295312f, 2026-10-15)
 **Fase**: 4 · **Branch**: `feat/TASK-285-a-stretch-reminder` (A),
 `feat/TASK-285-b-stretch-exercises` (B)
 **Dipende da**: TASK-113 (la fine della corsa), TASK-172 («Save» e
@@ -109,7 +109,7 @@ cinque lingue (it «Ricordati di fare stretching» / «Stretching» /
 estirar» / «Estirar» / «Omitir», fr «Pensez à vous étirer» / «S'étirer»
 / «Passer») e la frase della voce, la stessa col punto. La frase detta
 dalla voce sta nel frasario (`src/voice/`), non nei testi dell'app.
-PR di A: #504 (dopo la #500).
+PR di A: #504, in `main` il 2026-10-14 (8cdadf70).
 
 ## Parte B — I cinque esercizi animati
 
@@ -130,9 +130,13 @@ PR di A: #504 (dopo la #500).
 3. Sotto la figura il **conto alla rovescia** grande («0:30»), una barra
    che si svuota e, piccolo, «2 of 5». Il tempo lo tiene un timer, non
    l'animazione (sotto jest le animazioni finiscono all'istante).
-4. Alla fine del tempo un **suono breve** (un «ding» con `expo-audio`,
-   file nostro, oppure la voce che dice il nome dell'esercizio seguente:
-   da decidere con l'utente, vedi sotto) e si passa da sé al prossimo. Gli
+4. Alla fine del tempo un **suono breve** e si passa da sé al prossimo.
+   Il suono è **nostro**: `assets/stretch/ding.wav`, un «ding» di 0,35 s
+   scritto da `tools/stretch_chime.py` con la sola libreria standard di
+   Python (due sinusoidi che si spengono), suonato con `expo-audio`;
+   niente preso da bEND né da librerie di suoni. L'alternativa, la voce
+   che dice il nome dell'esercizio seguente, è da decidere con l'utente
+   (vedi sotto). Gli
    esercizi su un lato solo hanno due tempi: a metà la voce dice «Switch
    sides» e la figura si gira.
 5. In fondo **«Skip»** (va a «Your run») e, nell'ultimo esercizio,
@@ -181,7 +185,16 @@ nell'interfaccia, tradotti nelle cinque lingue con il sì dell'utente.
 7. `docs/UI.md` «La fine della corsa»: la sottosezione «Lo stretching»;
    la riga di B nella ADR-0247 scritta da A; `STATUS.md`.
 
-### Da chiedere all'utente (una per volta, con la proposta pronta)
+### Scelte dell'utente (2026-10-14)
+
+«Sì, i testi vanno bene e confermo le tre proposte»: i cinque esercizi
+della tabella a 20 s per lato, il «ding» nostro fra un lato e l'altro e
+fra due esercizi, la figura stilizzata fatta dall'app. Approvati i testi
+nelle cinque lingue: i cinque nomi e le cinque righe «come si fa», «{index}
+of {total}», «Right side» / «Left side», «Switch sides», «{seconds}
+seconds left», «Stop if it hurts.» (le traduzioni sono nei quattro
+`i18n`). Le proposte, com'erano state fatte:
+
 
 - **Quali cinque esercizi** e quanto tempo l'uno: proposta la tabella
   sopra (20 s per lato, 3 min 20 s in tutto).
@@ -268,4 +281,19 @@ dell'altra (`StretchReminder.*` è di A, `src/stretch/` è di B).
 
 ## Esito
 
-*(si compila a fine task)*
+- **Parte A** (2026-10-14, #504, 8cdadf70): dopo «Stop» tenuto o «Finish»,
+  con o senza percorso, prima di «Your run» c'è «Remember to stretch» con
+  «Skip» e «Stretch», e la voce lo dice una volta nella sua lingua. «Stretch»
+  chiude come «Skip» finché non c'è la parte B. Non provata nel simulatore.
+- **Parte B** (2026-10-15, #508, 8295312f): «Stretch» apre i cinque
+  esercizi animati, quadricipite, posteriore della coscia, polpaccio,
+  flessori dell'anca, gluteo, 20 s per lato, con la figura stilizzata
+  fatta di View girate, il conto alla rovescia, il «ding» nostro fra un
+  lato e l'altro, «Pause» e «Skip»/«Done» verso «Your run». Testi nelle
+  cinque lingue e le tre proposte approvati dall'utente il 2026-10-14; le
+  pose viste in Expo Go nel simulatore. Nessuna dipendenza nuova.
+  Rimandato: la voce che dice il nome dell'esercizio seguente (scartata
+  per ora); routine per sport e stretching prima della corsa restano fuori
+  scope. Entra nella versione dopo la 1.0.
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A (#504) e per la parte B (#508).

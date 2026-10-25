@@ -48,6 +48,7 @@ export const ES: Phrasebook = {
   arrived: "Has llegado.",
   paused: "En pausa.",
   resumed: "Reanudamos.",
+  stretch: "Recuerda estirar.",
   penUp: (letter) =>
     `Letra terminada. Camina hasta ${letter === null ? "la siguiente letra" : `la ${letter}`}: el dibujo está en pausa.`,
   penDown: (letter) =>

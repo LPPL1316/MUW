@@ -11,8 +11,14 @@ import base64
 import itertools
 import json
 import logging
+import threading
+import time
+import traceback
 import urllib.parse
 import xml.etree.ElementTree as ET
+from collections.abc import Callable, Iterator
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from email import message_from_bytes
 from pathlib import Path
@@ -30,7 +36,7 @@ from shaperoute_api.access import OPEN_PATHS
 from shaperoute_api.accounts import Accounts
 from shaperoute_api.activities import PlaceNames
 from shaperoute_api.app import create_app
-from shaperoute_api.db import Database, migrations
+from shaperoute_api.db import Database, DictConnection, migrations
 from shaperoute_api.drawings import MAX_DESCRIPTION_LENGTH
 from shaperoute_api.strava import (
     MAX_NAME,
@@ -38,6 +44,7 @@ from shaperoute_api.strava import (
     SPORT_TYPES,
     StravaActivityBody,
     StravaConnectBody,
+    StravaRuns,
     StravaSendBody,
     StravaStatusBody,
     activity_name,
@@ -75,6 +82,9 @@ ADA = 7001
 GRACE = 7002
 GPX = "{http://www.topografix.com/GPX/1/1}"
 GRANTED = "read,activity:write"
+# Long enough for a slow CI; a sending that should have waited fails the test
+# instead of hanging it.
+WAIT_S = 10.0
 
 
 def _load(name: str) -> Any:
@@ -335,6 +345,23 @@ class FakeStrava:
         }
 
 
+class HeldStrava(FakeStrava):
+    """The fake Strava holding the first call to one address, once armed,
+    until the test lets it go: a sending caught halfway, at Strava."""
+
+    def __init__(self, wall: WallClock) -> None:
+        super().__init__(wall)
+        self.held: tuple[str, str] | None = None
+        self.arrived = threading.Event()
+        self.go = threading.Event()
+
+    def __call__(self, call: Call) -> Reply:
+        if (call.method, call.url) == self.held and not self.arrived.is_set():
+            self.arrived.set()
+            assert self.go.wait(WAIT_S)
+        return super().__call__(call)
+
+
 @pytest.fixture
 def wall() -> WallClock:
     return WallClock()
@@ -350,6 +377,34 @@ def database(database_url: str) -> Database:
     database = Database(database_url)
     database.migrate()
     return database
+
+
+@pytest.fixture(autouse=True)
+def blocks(monkeypatch: pytest.MonkeyPatch) -> Iterator[list[str]]:
+    """Every database block watched: none opens while the same thread holds
+    another (TASK-293). From the API's pool such a block would hold one
+    connection while it waits for a second. The test fails if one did,
+    with where it was opened."""
+    nested: list[str] = []
+    held = threading.local()
+    plain = Database.connect
+
+    @contextmanager
+    def connect(self: Database) -> Iterator[DictConnection]:
+        depth: int = getattr(held, "depth", 0)
+        if depth:
+            stack = traceback.extract_stack(limit=8)[:-2]
+            nested.append(" < ".join(f"{f.name}:{f.lineno}" for f in stack[::-1]))
+        held.depth = depth + 1
+        try:
+            with plain(self) as conn:
+                yield conn
+        finally:
+            held.depth = depth
+
+    monkeypatch.setattr(Database, "connect", connect)
+    yield nested
+    assert nested == [], "a database block inside another: " + "; ".join(nested)
 
 
 def api(
@@ -441,6 +496,47 @@ def status(client: TestClient, headers: dict[str, str]) -> dict[str, Any]:
 
 def message(answer: Any) -> str:
     return str(answer.json()["error"]["message"])
+
+
+RUNS = "SELECT strava_status, strava_upload_id FROM runs"
+
+
+def until(condition: Callable[[], bool]) -> None:
+    deadline = time.monotonic() + WAIT_S
+    while not condition():
+        assert time.monotonic() < deadline, "waited too long"
+        time.sleep(0.02)
+
+
+def waiting_for_a_lock(database: Database) -> bool:
+    """Some transaction of this test's database waits for a row another
+    holds."""
+    return bool(
+        rows(
+            database,
+            "SELECT 1 FROM pg_stat_activity WHERE datname = current_database()"
+            " AND wait_event_type = 'Lock'",
+        )
+    )
+
+
+def at_once(
+    fake: HeldStrava,
+    database: Database,
+    first: Callable[[], Any],
+    then: Callable[[], Any],
+) -> list[Any]:
+    """`first` until Strava holds it, then `then` until it waits for a lock;
+    then Strava lets the first go. Both answers."""
+    with ThreadPoolExecutor(2) as pool:
+        try:
+            ahead = pool.submit(first)
+            assert fake.arrived.wait(WAIT_S)
+            behind = pool.submit(then)
+            until(lambda: waiting_for_a_lock(database))
+        finally:
+            fake.go.set()
+        return [ahead.result(WAIT_S), behind.result(WAIT_S)]
 
 
 # --- The migration and the contract ---
@@ -1293,6 +1389,133 @@ def test_a_wrong_client_secret_disconnects_nobody(
     answer = wrong.post(f"/me/activities/{KEY}/strava", headers=headers)
     assert answer.status_code == 502
     assert len(rows(database, "SELECT * FROM strava_accounts")) == 1
+
+
+# --- One block at a time (TASK-293) ---
+
+
+def test_the_watch_sees_a_block_inside_another(
+    database: Database, blocks: list[str]
+) -> None:
+    def block() -> None:
+        with database.connect():
+            pass
+
+    block()
+    block()
+    # Another thread's block is not inside this one's.
+    with database.connect():
+        with ThreadPoolExecutor(1) as pool:
+            pool.submit(block).result()
+    assert blocks == []
+
+    with database.connect():
+        with database.connect():
+            pass
+    assert len(blocks) == 1
+    assert "test_the_watch_sees_a_block_inside_another" in blocks[0]
+    blocks.clear()
+
+
+def test_a_run_sent_twice_at_once_is_uploaded_once(
+    database: Database, wall: WallClock
+) -> None:
+    """One sending of a run at a time: the second waits for the run while
+    the first is at Strava, then finds what the first did."""
+    fake = HeldStrava(wall)
+    client = api(database, wall, fake)
+    headers = signed_up(client)
+    connected(client, fake, headers)
+    saved(client, headers)
+    fake.held = ("POST", UPLOADS_URL)
+
+    def send() -> Any:
+        return client.post(f"/me/activities/{KEY}/strava", headers=headers)
+
+    answers = at_once(fake, database, send, send)
+
+    assert [answer.status_code for answer in answers] == [200, 200]
+    assert answers[0].json() == answers[1].json()
+    assert answers[0].json()["status"] == "sent"
+    assert len(fake.files) == 1
+    [run] = rows(database, RUNS)
+    assert run["strava_status"] == "sent"
+
+
+@pytest.mark.parametrize("looks", [1, POLLS + 1], ids=["sent", "processing"])
+def test_a_sending_between_the_first_look_and_the_lock_is_found(
+    database: Database,
+    wall: WallClock,
+    fake: FakeStrava,
+    monkeypatch: pytest.MonkeyPatch,
+    looks: int,
+) -> None:
+    """The first sending reads the run with no lock, then locks it: a second
+    one that slips in between and uploads the run is found under the lock,
+    whether Strava has read the file by then or not. Strava gets one file."""
+    client = api(database, wall, fake)
+    headers = signed_up(client)
+    connected(client, fake, headers)
+    saved(client, headers)
+    fake.slow_looks = looks
+    arrived, go = threading.Event(), threading.Event()
+    locked = StravaRuns._send_with
+
+    def held(runs: StravaRuns, *args: Any) -> StravaActivityBody:
+        # Only the first sending stops, after its first look, before the lock.
+        if not arrived.is_set():
+            arrived.set()
+            assert go.wait(WAIT_S)
+        return locked(runs, *args)
+
+    monkeypatch.setattr(StravaRuns, "_send_with", held)
+
+    def send() -> Any:
+        return client.post(f"/me/activities/{KEY}/strava", headers=headers)
+
+    with ThreadPoolExecutor(1) as pool:
+        try:
+            first = pool.submit(send)
+            assert arrived.wait(WAIT_S)
+            assert [run["strava_status"] for run in rows(database, RUNS)] == [None]
+            second = send()
+        finally:
+            go.set()
+        first_answer = first.result(WAIT_S)
+
+    assert second.json()["status"] == ("sent" if looks == 1 else "processing")
+    assert first_answer.status_code == 200
+    assert first_answer.json()["status"] == "sent"
+    assert len(fake.files) == 1
+    [run] = rows(database, RUNS)
+    assert run["strava_status"] == "sent"
+
+
+def test_two_runs_sent_at_once_renew_an_expired_token_once(
+    database: Database, wall: WallClock
+) -> None:
+    """One renewal at a time: the second sending waits for the token while
+    the first renews it, then takes the new one."""
+    fake = HeldStrava(wall)
+    client = api(database, wall, fake)
+    headers = signed_up(client)
+    connected(client, fake, headers)
+    saved(client, headers)
+    saved(client, headers, OTHER_KEY)
+    wall.t += timedelta(hours=7)
+    fake.held = ("POST", TOKEN_URL)
+
+    answers = at_once(
+        fake,
+        database,
+        lambda: client.post(f"/me/activities/{KEY}/strava", headers=headers),
+        lambda: client.post(f"/me/activities/{OTHER_KEY}/strava", headers=headers),
+    )
+
+    assert [answer.json()["status"] for answer in answers] == ["sent", "sent"]
+    # Exchanged once, renewed once.
+    assert len(fake.made("POST", TOKEN_URL)) == 2
+    assert len(fake.files) == 2
 
 
 # --- Strava's troubles ---

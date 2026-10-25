@@ -22,6 +22,7 @@ from shaperoute_api.accounts import (
     FAILED_WINDOW_S,
     MAX_FAILED_SIGN_INS,
     SESSION_DAYS,
+    USE_WRITTEN_EVERY,
     Accounts,
     FailedSignIns,
     SessionBody,
@@ -317,7 +318,8 @@ def test_a_session_ends_90_days_after_its_last_use(
     # Used yesterday: another 89 days are fine.
     wall.t += timedelta(days=SESSION_DAYS - 1)
     assert client.get("/me", headers=bearer(token)).status_code == 200
-    wall.t += timedelta(days=SESSION_DAYS, seconds=1)
+    # And the hour within which a use is written (TASK-288).
+    wall.t += timedelta(days=SESSION_DAYS, seconds=1) + USE_WRITTEN_EVERY
     expired = client.get("/me", headers=bearer(token))
     assert (expired.status_code, code(expired)) == (401, "session_expired")
     # Said once: the session is gone.

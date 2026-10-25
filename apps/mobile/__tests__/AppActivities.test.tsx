@@ -11,6 +11,7 @@ import explored from "@shaperoute/shared-types/fixtures/recommended-route.json";
 import exploreList from "@shaperoute/shared-types/fixtures/recommended-routes.json";
 import directions from "@shaperoute/shared-types/fixtures/route-directions.json";
 import session from "@shaperoute/shared-types/fixtures/session.json";
+import signUpRequest from "@shaperoute/shared-types/fixtures/sign-up-request.json";
 import trackScore from "@shaperoute/shared-types/fixtures/track-score.json";
 import type { LatLon } from "@shaperoute/shared-types";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
@@ -814,8 +815,10 @@ test("without an account the run ends with «Done», as before, and a line invit
   await openOnRun(FREE_ENDED);
   expect(screen.queryByRole("button", { name: "Save to My activities" })).toBeNull();
   expect(screen.queryByRole("button", { name: "Discard" })).toBeNull();
-  // The line opens «Profile», which says why.
+  // The line goes to the page of the profile (TASK-278 part B), which says
+  // why, with «←» back to the run.
   await fireEvent.press(screen.getByRole("button", { name: SIGN_IN_TO_KEEP_RUNS }));
+  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
   expect(screen.getByRole("header", { name: "Profile" })).toBeOnTheScreen();
   expect(screen.getByText(SIGN_IN_TO_KEEP_RUNS)).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
@@ -824,6 +827,33 @@ test("without an account the run ends with «Done», as before, and a line invit
   expect(await screen.findByText("Starting from your position.")).toBeOnTheScreen();
   expect(loadRun()).toBeNull();
   expect(loadOutbox()).toEqual([]);
+  expect(calls("PUT", `/me/activities/${KEY}`)).toHaveLength(0);
+});
+
+test("signed up from that line, the end of the run comes back with «Save» and «Discard»", async () => {
+  api({
+    "POST /accounts": () => Response.json(session, { status: 201 }),
+    "GET /me/favorites": () => Response.json({ favorites: [] }),
+  });
+  await openOnRun(FREE_ENDED);
+  await fireEvent.press(screen.getByRole("button", { name: SIGN_IN_TO_KEEP_RUNS }));
+  // The page of the profile (TASK-278 part B); the run waits under it.
+  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
+  expect(screen.queryByText("Your run")).toBeNull();
+
+  await fireEvent.changeText(screen.getByLabelText("email"), signUpRequest.email);
+  await fireEvent.changeText(screen.getByLabelText("username"), signUpRequest.username);
+  await fireEvent.changeText(screen.getByLabelText("password"), signUpRequest.password);
+  await fireEvent.press(screen.getByRole("checkbox", { name: "I am at least 16" }));
+  await fireEvent.press(screen.getByTestId("account-submit"));
+  // Back by itself, with the run to save.
+  expect(
+    await screen.findByRole("button", { name: "Save to My activities" }),
+  ).toBeOnTheScreen();
+  expect(screen.getByRole("button", { name: "Discard" })).toBeOnTheScreen();
+  expect(screen.getByText("Your run")).toBeOnTheScreen();
+  expect(screen.queryByTestId("profile-page-mark")).toBeNull();
+  expect(loadRun()).not.toBeNull();
   expect(calls("PUT", `/me/activities/${KEY}`)).toHaveLength(0);
 });
 

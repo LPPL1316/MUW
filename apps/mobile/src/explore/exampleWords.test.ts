@@ -3,6 +3,7 @@ import fixture from "@shaperoute/shared-types/fixtures/route-result.json";
 import penUpFixture from "@shaperoute/shared-types/fixtures/route-result-pen-up.json";
 import { act, renderHook } from "@testing-library/react-native";
 
+import { BACKGROUND_SHARE, MINUTE_MS } from "../api/routeQueue";
 import type { requestRoute, RouteOutcome } from "../api/routes";
 import type { Place } from "../places/photon";
 import { MAX_APP_WORD_LETTERS } from "../route/wordInput";
@@ -14,13 +15,11 @@ import {
   EXAMPLE_DISTANCE_M,
   EXAMPLE_SHAPES,
   EXAMPLE_WORDS,
-  EXAMPLES_PER_MINUTE,
   exampleDetail,
   exampleRequest,
   type ExampleDetail,
   forgetExamples,
   MORE_SHAPES,
-  moreWaitMs,
   PADDLE_EXAMPLES,
   shownWords,
   type Storage,
@@ -269,29 +268,32 @@ test("a word kept at another distance, or without its walks, is written again", 
   expect(wordsNow(() => hook.current.words)).toContain("RUN:drawing");
 });
 
-test("the words keep to the minute's allowance, as the other shapes", async () => {
+test("the words keep to the share of the minute, as the other shapes", async () => {
   jest.useFakeTimers();
   try {
     const { request, asked } = api();
     const storage = memory();
-    const [first, second] = [0, 1].map((i): Place => ({
+    const [first, second, third] = [0, 1, 2].map((i): Place => ({
       label: `City ${i}`,
       point: [45 + i / 10, 8],
     }));
     drawExamples("http://api", first, { request, storage });
     await answerAll(asked, 0, EVERY_EXAMPLE);
-    // A city with every shape of its own: only its words to write.
+    // Cities with every shape of their own: only their words to write.
     const has = [...EXAMPLE_SHAPES, ...MORE_SHAPES];
     drawExamples("http://api", second, { request, storage, has });
-    const allowed = EXAMPLES_PER_MINUTE - EVERY_EXAMPLE;
-    await answerAll(asked, EVERY_EXAMPLE, EVERY_EXAMPLE + allowed);
-    expect(asked).toHaveLength(EXAMPLES_PER_MINUTE);
-    expect(moreWaitMs(Date.now())).toBe(60_000);
+    const both = EVERY_EXAMPLE + EXAMPLE_WORDS.length;
+    await answerAll(asked, EVERY_EXAMPLE, both);
+    drawExamples("http://api", third, { request, storage, has });
+    const share = BACKGROUND_SHARE.visible;
+    const allowed = share - both;
+    await answerAll(asked, both, share);
+    expect(asked).toHaveLength(share);
 
     await act(async () => {
-      jest.advanceTimersByTime(60_000);
+      jest.advanceTimersByTime(MINUTE_MS);
     });
-    expect(asked).toHaveLength(EXAMPLES_PER_MINUTE + 1);
+    expect(asked).toHaveLength(share + 1);
     expect(asked.at(-1)?.word).toBe(wordOrder(EXAMPLE_WORDS)[allowed]);
   } finally {
     jest.useRealTimers();

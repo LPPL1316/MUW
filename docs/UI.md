@@ -195,7 +195,9 @@ pagine»):
    con, quando servono, il rimando alle Impostazioni e la ricerca del
    luogo; l'errore della mappa; le forme del catalogo come tessere, con un
    simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +. In fondo, fermo mentre
+   un'altra parola; la distanza, grande, fra − e +; sotto la distanza, due
+   righe da scorrere di lato, «CITY TOURS» e «PICTURES» (TASK-280, sotto
+   «I giri e le immagini pronte»). In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -584,8 +586,9 @@ disegni si rileggono, come quando «Profile» si apriva.
   profilo (sotto, «Il profilo di un altro iscritto») con il titolo
   «Profile»; «←» torna ai nomi trovati, con il campo com'era, e un altro «←»
   a «Feed». Un disegno aperto da quel profilo, chiuso, torna al profilo.
-  **Senza account** il tasto apre «Profile» con «Log in to find your
-  friends.» sopra «Sign up». Un server senza la ricerca (prima della
+  **Senza account** il tasto porta alla quarta pagina, il profilo, con «Log
+  in to find your friends.» sopra «Sign up» (TASK-278 parte B); senza «←»:
+  si torna con lo swipe o con «Feed». Un server senza la ricerca (prima della
   migrazione `0011`) fa dire «This server cannot look for members yet.».
   Sul profilo c'è il tasto «Follow» (TASK-211, sotto).
   **Sotto ogni linea c'è la mappa** della zona (TASK-162, ADR-0131,
@@ -620,14 +623,19 @@ TASK-278 la prima pagina di «Profile» è **la quarta pagina**, dopo
 Le pagine che si aprono da lì («Settings», «Favorites», «My activities»,
 «Edit profile», «Guide», il profilo di un altro, un disegno) si aprono
 sopra l'app come prima, e «←» (o «Back to the profile») torna alla quarta
-pagina. Aperto da un'altra parte dell'app (il cuore sulla mappa senza
-account, la lente di «Feed» senza account, «Save» a fine corsa senza
-account), «Profile» si apre ancora sopra l'app e si chiude con «←»:
-sotto, forma, distanza e mappa restano come erano; il profilo di un altro
-aperto da un nome taggato o da una notifica torna, con «←», a «Profile»
-sopra l'app, come prima. Portare questi ingressi alla quarta pagina è una
-scelta dell'utente non ancora fatta (`tasks/TASK-278.md`). Sulla mappa e
-durante la corsa il pulsante non c'è.
+pagina. **Anche le altre parti dell'app portano alla quarta pagina**
+(TASK-278 parte B, scelte dell'utente del 2026-10-13): la lente di «Feed»
+senza account, e il cuore sulla mappa e la riga sotto la fine della corsa
+senza account, ognuno con la sua riga sopra «Sign up». Dalla mappa e dalla
+fine della corsa, che prendono tutto lo schermo, la pagina ha anche «←» e
+il titolo «Profile» finché nessuno entra: «←» torna lì senza tenere niente,
+e appena si entra l'app torna lì da sola, con il percorso tenuto o con
+«Save» e «Discard» sotto la corsa. Uno swipe o un nome lasciano invece la
+mappa o la fine della corsa (la corsa torna alla prossima apertura). **Il
+profilo di un altro**, da un nome taggato o da una notifica, si apre sopra
+l'app come prima, e «←» mostra l'app com'era (il disegno, la pagina, la
+mappa): non apre più «Profile». Il proprio nome taggato porta alla quarta
+pagina. Sulla mappa e durante la corsa il pulsante non c'è.
 
 **Lo sport** (TASK-205, ADR-0165, chiesto dall'utente): a sinistra del
 profilo un pulsante tondo uguale mostra l'emoji dello sport scelto (🏃‍♂️
@@ -679,7 +687,9 @@ giorno), il giorno, l'attività e i km («Run · 4.0 km»), mai il punteggio
 né l'ora; poi, da TASK-208, **le foto** (alte 160 punti, da scorrere di
 lato, lette dall'API con il token), **com'è andata** (la descrizione) e
 **i nomi taggati** in pillole, ognuna delle quali apre il profilo di quella
-persona sopra l'app; un disegno di un'API senza questi campi si vede come
+persona sopra l'app, e «←» torna al disegno (TASK-278 parte B); il proprio
+nome chiude il disegno e porta alla quarta pagina, il profilo. Un disegno
+di un'API senza questi campi si vede come
 prima. **«Back to the profile»** e «←» tornano a «Profile». Se nel
 frattempo è tornato privato: «This drawing is no longer public.» sopra la
 griglia.
@@ -840,7 +850,10 @@ TASK-262).
 - **Toccare una notifica** apre il disegno (una reazione, un commento, un
   tag) sulla mappa, come dal «Feed», o il profilo di chi ha chiesto o
   accettato di seguire, come da «Find friends»; anche quando è la
-  notifica ad aprire l'app. Senza account non apre niente. Con l'app
+  notifica ad aprire l'app. Da quel profilo «←» mostra l'app com'era,
+  la pagina, la mappa o la corsa (TASK-278 parte B); da quel disegno, se
+  era aperta una pagina del profilo, «Back to the profile» torna alla
+  quarta pagina. Senza account non apre niente. Con l'app
   aperta una notifica arriva come banner, senza suono.
 - **In Expo Go le push non arrivano** (dall'SDK 53): l'interruttore si
   accende, il token non viene e niente lo dice. Si provano con una build
@@ -1075,6 +1088,62 @@ torna. Un profilo bloccato non si apre dall'elenco.
 - **Senza account** si disegna, si esplora e si corre come prima: il token
   lo vogliono solo l'account, i preferiti e le corse salvate.
 
+## «Play»: la collezione delle forme (TASK-296 parte B, ADR-0255)
+
+La pagina del gioco delle forme (`GIOCO.md`). Nella parte B c'è la sola
+**collezione**; le squadre e le sfide arrivano con la parte D, che aggiunge
+le due schede. Codice in `apps/mobile/src/game/`.
+
+- **Dove sta**: fra «Explore» e il profilo, con il suo nome in alto dopo
+  «Explore»: quattro nomi nell'intestazione. Il profilo resta a un tocco
+  sul suo cerchio da qualunque pagina; con lo swipe è a due pagine da
+  «Explore» invece di una. Si costruisce la prima volta che ci si arriva,
+  come «Explore».
+- **Quando c'è**: solo mentre il server ha il gioco. All'avvio l'app
+  chiede `GET /game/catalog`, senza aspettarlo per mostrare «Draw», e
+  tiene la risposta sul telefono: se risponde 200 la pagina compare (anche
+  subito, mentre l'app è aperta: le pagine già costruite restano al loro
+  posto), se risponde 404 sparisce, senza rete vale l'ultima risposta e
+  non compare nessun errore. Un telefono che non ha mai sentito il server
+  non la mostra.
+- **La griglia**: le forme del catalogo dell'API, due per riga, nell'ordine
+  del catalogo. Ogni scheda ha il contorno disegnato con View sottili
+  girate (niente SVG, come il disegno della corsa), il nome nella lingua
+  dell'app (lo dà il catalogo nelle cinque lingue) e:
+  - **sbloccata**: contorno in giallo `accent`, sotto «Unlocked Fri 23 Oct
+    2026», il giorno come lo scrive «My activities»;
+  - **bloccata**: contorno grigio `textFaint`, il requisito («5 km in
+    total», «1 km under 5:00 /km»), la barra con la percentuale dell'API
+    (al più 99 %) e, sotto, quanto manca: «14.2 / 20 km» per una distanza,
+    «Best 5:22 /km · target 5:00 /km» per un passo già corso su quella
+    distanza, altrimenti «Longest run 3.2 km».
+  Tutto nelle unità scelte (TASK-182): «3.1 mi in total», «0.6 mi under
+  8:03 /mi». Il lettore di schermo legge la scheda in una frase.
+- **In alto**, con l'account, «14.2 km counted so far»; mentre l'API
+  risponde una rotella; se non risponde, il testo dell'account («No
+  connection…», «Your session has ended…») e «Try again». La collezione
+  si rilegge ogni volta che la pagina torna sullo schermo, mostrando
+  intanto l'ultima risposta.
+- **Senza account** le forme sono tutte grigie, con il requisito e senza
+  percentuali, e sopra «Sign in to collect shapes.»: un tocco porta alla
+  pagina del profilo, dove si entra.
+- **La scheda «New shape unlocked»** (`UnlockLayer`, in `Root` sotto il
+  logo di «Save»): quando l'API prende una corsa (`activitiesDoor.send`,
+  subito o dalla coda), l'app le chiede `GET /game/runs/{key}`; se ha
+  sbloccato forme, sopra l'app compare una scheda con «NEW SHAPE
+  UNLOCKED», il contorno che **si disegna** in giallo in 1,2 s tratto
+  dopo tratto, il nome, «It is in your collection.», «Close» e «See
+  collection», che apre «Play». Per una corsa appena salvata la scheda
+  aspetta che il logo di TASK-212 sia sparito (1,65 s dal «Save»); per
+  una corsa mandata più tardi compare subito. Più forme in una corsa: una
+  scheda dopo l'altra. Un tocco fuori chiude. Il lettore di schermo sente
+  «New shape unlocked: Triangle».
+- **La push `shape_unlocked`** non si mostra con l'app in primo piano
+  (`pushDevice.shownWhileOpen`); toccata dal centro notifiche apre «Play»
+  (`notificationTap`), mai il profilo che i suoi dati nominano.
+- **Da provare sull'iPhone**: i quattro nomi nell'intestazione su uno
+  schermo da 390 pt, e la scheda dopo un «Save» vero.
+
 ## «Favorites» (TASK-171, ADR-0139)
 
 Un percorso che piace si tiene, e si ritrova in «Profile» da ogni telefono
@@ -1089,9 +1158,11 @@ dell'account.
   corsa e la fine della corsa il cuore non c'è.
 - **Fra tre percorsi (A · B · C)** il cuore è di quello scelto: ognuno è un
   preferito a sé.
-- **Senza account** il tocco apre «Profile» con la riga «Sign up or log in
-  to keep your favorite routes.» sopra il modulo; appena si entra il
-  percorso è tenuto. Chiuso «Profile» senza entrare, non si tiene niente.
+- **Senza account** il tocco porta alla quarta pagina, il profilo, con la
+  riga «Sign up or log in to keep your favorite routes.» sopra il modulo,
+  «←» e il titolo «Profile» (TASK-278 parte B); appena si entra l'app torna
+  da sola sulla mappa e il percorso è tenuto. Tornati con «←», o andati
+  altrove con uno swipe o un nome, senza entrare, non si tiene niente.
 - **La pagina «Favorites»**, da «Profile»: i preferiti come le schede di
   «Explore», due per riga, dal più recente: il disegno, «Star · 5.1 km», la
   somiglianza in un angolo, e sotto la città («Trento») o, per un percorso
@@ -1182,9 +1253,10 @@ telefono dell'account: con un percorso o senza.
   when there is a connection; then save this one.».
 - **Senza account** non si salva niente, com'era: sotto la scheda di fine
   corsa la riga «Sign up or log in to keep your runs and share them as
-  drawings.» (TASK-117) apre «Profile» con la stessa frase sopra il
-  modulo. Chi entra da lì e
-  torna alla scheda trova «Save» e «Discard» al posto di «Done».
+  drawings.» (TASK-117) porta alla quarta pagina, il profilo, con la
+  stessa frase sopra il modulo, «←» e il titolo «Profile» (TASK-278 parte
+  B). Chi entra da lì torna da solo alla scheda e trova «Save» e «Discard»
+  al posto di «Done»; «←» torna alla scheda senza entrare.
 - **La pagina «My activities»**, da «Profile»: una scheda per corsa, dalla
   più recente. A sinistra il disegno, come a fine corsa: il percorso
   giallo e sopra, sottile e chiara, la linea corsa; una corsa senza
@@ -1280,8 +1352,8 @@ telefono dell'account: con un percorso o senza.
 
 ## La partenza
 
-È un punto `(lat, lon)` con la sua origine, `gps` o `search`, e diventa lo
-`start` del `RouteRequest`.
+È un punto `(lat, lon)` con la sua origine, `gps` o `search` (o `map`,
+dal TASK-292), e diventa lo `start` del `RouteRequest`.
 
 | Situazione | Riga di stato | Cosa c'è in più |
 |---|---|---|
@@ -1291,6 +1363,7 @@ telefono dell'account: con un percorso o senza.
 | GPS spento, errore, nessuna risposta in 15 s | «Your position is not available right now…» | ricerca |
 | «Another place», nessun luogo ancora | «Search for a city or street to start from.» | ricerca |
 | Luogo scelto dalla ricerca | «Starting from Via Rodolfo Belenzani, Trento.» | ricerca, per cambiarlo |
+| Punto scelto sulla mappa (TASK-292) | «Starting from a point on the map.» | ricerca, per cambiarlo |
 
 La partenza si sceglie con due pulsanti affiancati nella scheda «START»
 (TASK-054): **«My position»**, il GPS, e **«Another place»**, un luogo
@@ -1301,6 +1374,35 @@ permesso, se il telefono lo permette ancora; la ricerca sparisce. Senza GPS
 (permesso negato, nessuna risposta) la ricerca c'è comunque, e il luogo
 cercato fa da partenza finché il GPS non risponde. Ogni nuova partenza, anche nello stesso
 punto, ricentra la mappa.
+
+### Scegliere la partenza sulla mappa (TASK-292, ADR-0252)
+
+Scelta dell'utente del 2026-10-18: partire da un punto **senza scrivere
+la via**, con il segnaposto fermo al centro della mappa.
+
+- Ovunque ci sia la ricerca (con «Another place», o senza GPS), sotto di
+  lei c'è il link **«Choose on the map»**.
+- Apre a tutto schermo la mappa di «Draw», con «←» in alto e il tipo di
+  mappa come sempre. La mappa si inquadra sulla partenza di adesso, a
+  zoom 15 e a nord in su; senza partenza resta dov'è. Il percorso di
+  prima sparisce.
+- Il segnaposto della partenza, uguale a sempre, **sta fermo al centro**:
+  un dito sposta la mappa sotto di lui, due dita fanno lo zoom. Sotto la
+  mappa, in grigio: *Move the map to put the pin where you want to
+  start.* e il pulsante giallo **«Start here»**, spento finché la mappa
+  non dice dov'è il suo centro.
+- **«Start here»**: il punto sotto il segnaposto diventa la partenza,
+  l'interruttore va su «Another place» e si torna a «Draw». La riga dice
+  «Starting from a point on the map.»: il punto non ha nome, e non se ne
+  chiede uno in rete. Dove l'app scrive il nome della partenza (i giri
+  «near …», la tela di «Draw on the map») un punto della mappa fa come
+  il GPS.
+- **«←»** torna a «Draw» e lascia la partenza com'era.
+- Il punto vale come un luogo cercato: resta se il GPS risponde, e lo
+  cambiano un altro luogo cercato, un altro punto o «My position». Vale
+  con «Run», «Bike» e «Paddle»; sull'acqua come una via cercata (vedi
+  «Another place» di «Paddle»).
+- Mentre si sceglie, una risposta del GPS non sposta la mappa.
 
 ## Ricerca del luogo
 
@@ -1639,6 +1741,152 @@ semplici, con sotto il testo del motore:
 | fotocamera negata | The camera is off for this app. Allow it in Settings, or choose a picture instead. + «Open Settings» (TASK-259) |
 | oltre 10 MB | This picture is too large: 12.3 MB, at most 10 MB. Choose a smaller one. |
 
+### I giri e le immagini pronte (TASK-280, ADR-0246)
+
+Chiesto dall'utente il 2026-10-11 («Sotto draw nella sezione draw
+inserisci i tour delle città o immagini varie»); le scelte sono sue, del
+2026-10-13. Sotto la distanza, nella parte che scorre, sopra «Draw route»
+che resta fermo in fondo, due righe da scorrere di lato, con l'etichetta
+grigia in maiuscolo come «NEARBY TOWNS»:
+
+- **«CITY TOURS»**: quattro tessere, le categorie di «Ask for a route»
+  (sopra, «Explore»): **Famous Places, Best Views, Hidden Gems, Romantic**.
+  Sotto il nome, da dove parte il giro: **«near your start»** con la
+  partenza dal GPS, «near Trento» con un luogo cercato (il primo pezzo del
+  suo nome). L'app non sa il paese di una posizione GPS e nessuna API lo
+  dice (`/nearby-cities` esclude apposta il paese dove si è): per questo
+  l'etichetta è «CITY TOURS» da sola, non «CITY TOURS · Trento» come
+  proponeva il task, scelta dell'utente. Un tocco chiede il giro come una
+  categoria di «Explore» con «Near me»: la categoria da sola, dalla
+  partenza (`POST /themed-route-jobs` con `text`, `centre` = la partenza,
+  `city` nullo). Si apre la mappa coi luoghi e la scheda di sempre
+  (ThemedCard), con «Start» ed «Export GPX»; la via del ritorno è
+  **«Back to Draw»** al posto di «Back to Explore», e «←» torna a «Draw».
+  Senza una partenza la riga non c'è.
+- **«PICTURES»**: sedici sagome disegnate da noi, una figura scura su
+  fondo chiaro: **dinosauro, fungo, auto, Torre Eiffel, maglietta, aereo,
+  stivale, chitarra, casa, palloncino, paperella, coppa, osso, razzo,
+  scarpa da corsa, foglia**, prima le più chiare. Sono quelle il cui
+  percorso si riconosce in otto città, a 5 e a 10 km (TASK-290): il motore
+  disegna solo il **contorno esterno**, quindi una sagoma va bene se si
+  riconosce da quello, con parti larghe. Tolte bici, cuore con freccia,
+  ancora e gelato, che in città venivano macchie; razzo, scarpa e foglia
+  vengono meglio a 10 km che a 5. Ogni tessera ha la sagoma e il nome
+  sotto; quella scelta ha il bordo chiaro, come le forme. Un tocco porta
+  l'interruttore su «Image» con quella sagoma già scelta, il suo contorno
+  giallo, «Hide the picture» ed «Edit the outline» come per una foto, e la
+  pagina torna in cima, dove si vede l'anteprima. Il contorno è già
+  nell'app (`samplePictures.json`): niente attesa e niente
+  `POST /image-outlines`. «Draw route» manda quel contorno a
+  `POST /image-route-jobs`, come per una foto. «Choose picture» o «Take
+  photo» la sostituiscono.
+
+Con «Bike» le righe sono uguali; con «Paddle» non ci sono (sull'acqua non
+ci sono città né foto). I testi nuovi, nelle cinque lingue:
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| CITY TOURS | GIRI IN CITTÀ | STADTTOUREN | RUTAS POR LA CIUDAD | BALADES EN VILLE |
+| PICTURES | IMMAGINI | BILDER | IMÁGENES | IMAGES |
+| Back to Draw | Torna a Disegna | Zurück zu Zeichnen | Volver a Dibuja | Retour à Dessiner |
+| Dinosaur | Dinosauro | Dinosaurier | Dinosaurio | Dinosaure |
+| Mushroom | Fungo | Pilz | Seta | Champignon |
+| Car | Auto | Auto | Coche | Voiture |
+| Eiffel Tower | Torre Eiffel | Eiffelturm | Torre Eiffel | Tour Eiffel |
+| T-shirt | Maglietta | T-Shirt | Camiseta | T-shirt |
+| Plane | Aereo | Flugzeug | Avión | Avion |
+| Boot | Stivale | Stiefel | Bota | Botte |
+| Guitar | Chitarra | Gitarre | Guitarra | Guitare |
+| House | Casa | Haus | Casa | Maison |
+| Balloon | Palloncino | Luftballon | Globo | Ballon |
+| Duck | Paperella | Ente | Pato | Canard |
+| Trophy | Coppa | Pokal | Trofeo | Trophée |
+| Bone | Osso | Knochen | Hueso | Os |
+| Rocket | Razzo | Rakete | Cohete | Fusée |
+| Running shoe | Scarpa da corsa | Laufschuh | Zapatilla | Basket |
+| Leaf | Foglia | Blatt | Hoja | Feuille |
+
+«Bike», le quattro categorie, «near your start» e «near {place}» c'erano
+già.
+
+### Disegnare sulla mappa: «Draw on the map» (TASK-281, ADR-0245)
+
+Sotto «Shape | Word | Image», largo quanto l'interruttore, il tasto
+**«Draw on the map»** (scelta dell'utente del 2026-10-13; con «Paddle»
+non c'è). Apre a tutto schermo la mappa della partenza di «Draw»,
+inquadrata sul paese intorno (zoom 13): in alto «←», che torna a «Draw»,
+e il nome del luogo se la partenza è un luogo cercato; il segnaposto
+della partenza resta. Sotto la mappa:
+
+- **«Draw | Move»** e **«Undo»** sulla stessa riga. Con «Draw» un dito
+  traccia una linea gialla e la mappa sta ferma; due dita non fanno
+  niente. Con «Move» un dito che parte sulla figura (il suo riquadro, con
+  un margine per il dito) la trascina, altrove sposta la mappa; due dita
+  col punto di mezzo sulla figura la ingrandiscono o la rimpiccioliscono,
+  altrove fanno lo zoom della mappa. Sotto, in grigio: *Draw with one
+  finger. Lines after the first are joined to it.* · *Drag the figure or
+  the map. Two fingers on the figure resize it.* (sempre due righe di
+  posto, così le tessere non saltano).
+- **Una riga di tessere** che scorre di lato: **«+ photo»** (una foto della
+  libreria; mentre il motore ne traccia il contorno, *Tracing the
+  outline…*, e i suoi rifiuti con le parole di «Image»), le 17 forme del
+  catalogo coi loro simboli, e le 16 immagini pronte (TASK-280, TASK-290). La
+  prima figura va nel centro della mappa, lunga quanto la distanza di
+  «Draw», e la mappa si inquadra su di lei; un'altra tessera la cambia
+  dov'è, grande uguale sulla mappa. Dopo una tessera l'interruttore passa
+  a «Move».
+- **La distanza** che la figura farebbe, «≈ 6.2 km» (in miglia con
+  «Miles»), che segue le due dita mentre la ridimensionano, e **«Draw
+  route»**, acceso con una figura.
+
+**La linea a dito**: la prima diventa la figura, chiusa dall'app (l'ultimo
+punto torna al primo); una linea che passa oltre l'inizio si chiude dove
+si incrocia. Le linee dopo la prima sono appese alla figura come «Add a
+detail» dell'immagine: un trattino dritto dal punto più vicino, e il
+percorso le fa andata e ritorno; una linea che torna su se stessa fa un
+anello, come un occhio. Una linea su una forma o su una foto ne prende il
+posto. In rosso, al posto della riga grigia: *This line crosses itself.
+Draw it again without crossing it.* quando non si può chiudere, e *That
+is too much for one route. Undo something, or draw simpler lines.* oltre
+i dettagli che un percorso fa.
+
+**Grandezza**: dentro i limiti di «Draw» per lo sport (1–21 km a piedi,
+10–30 in bici): oltre, la figura non cresce e non cala più. Una figura
+cresciuta oltre lo schermo fa allontanare la mappa, che la mostra intera.
+
+**«Undo»** toglie l'ultima figura messa o disegnata (torna quella di
+prima, dov'era), l'ultimo cambio di tessera o l'ultimo tratto appeso.
+Spostare e ridimensionare non si annullano. Spento finché non c'è niente.
+
+**«Draw route»** chiede il percorso della figura dov'è, senza niente di
+nuovo nel contratto: una forma come in «Draw» (con la penna alzata se
+«Draw» la chiede così), un disegno o una foto come un contorno di
+«Image»; la partenza è il primo punto della figura, la distanza la sua,
+al decimo («target 5.7 km»). Il motore la mette dove trova le strade e
+**può spostarla** di qualche centinaio di metri o più, con «Start here»
+(scelta dell'utente «in due passi»; il posto esatto è TASK-282). Il
+risultato è quello di «Draw»: tessere «A · B · C», avvisi, «Start»,
+«Export GPX», «Try 8 km» (che porta la figura a quella grandezza).
+**«←»** e «Cancel» tornano alla mappa con la figura com'era; «Draw route»
+sulla stessa figura mostra di nuovo lo stesso percorso. Dal risultato la
+figura si cambia anche senza tornare indietro, con la riga sopra «Start»
+(TASK-286, sotto in «Il risultato», «Un'altra figura»): allora «←» torna
+alla mappa con la figura nuova, e «Undo» rimette quella di prima.
+
+Testi nuovi, **approvati dall'utente** il 2026-10-13 nelle cinque lingue:
+
+| English | Italiano | Deutsch | Español | Français |
+|---|---|---|---|---|
+| Draw on the map | Disegna sulla mappa | Auf der Karte zeichnen | Dibujar en el mapa | Dessiner sur la carte |
+| Move | Sposta | Verschieben | Mover | Déplacer |
+| Draw with one finger. Lines after the first are joined to it. | Disegna con un dito. Le linee dopo la prima vengono unite a lei. | Zeichne mit einem Finger. Linien nach der ersten werden mit ihr verbunden. | Dibuja con un dedo. Las líneas después de la primera se unen a ella. | Dessine avec un doigt. Les lignes après la première y sont reliées. |
+| Drag the figure or the map. Two fingers on the figure resize it. | Trascina la figura o la mappa. Con due dita sulla figura la ingrandisci o la rimpicciolisci. | Ziehe die Figur oder die Karte. Zwei Finger auf der Figur ändern ihre Größe. | Arrastra la figura o el mapa. Dos dedos sobre la figura cambian su tamaño. | Fais glisser la figure ou la carte. Deux doigts sur la figure changent sa taille. |
+| This line crosses itself. Draw it again without crossing it. | Questa linea si incrocia. Ridisegnala senza incrociarla. | Diese Linie kreuzt sich selbst. Zeichne sie ohne Kreuzung neu. | Esta línea se cruza consigo misma. Dibújala de nuevo sin cruzarla. | Cette ligne se croise elle-même. Redessine-la sans la croiser. |
+| + photo | + foto | + Foto | + foto | + photo |
+
+«Draw», «Undo», «Draw route», *Tracing the outline…* e le parole dei
+rifiuti c'erano già.
+
 ## Chiedere un percorso
 
 «Draw route» è spento finché non c'è una partenza. Toccato, la richiesta va
@@ -1737,6 +1985,35 @@ lasciata, per lo stesso disegno dalla stessa partenza. «This shape» e non
 (`hint_taken` con `better_distance`, TASK-234 C) e, come ogni nuovo
 disegno, lascia subito il posto al pannello dell'attesa con la barra e
 «Cancel»: è il segno che il percorso nuovo si sta calcolando.
+
+**Un'altra figura** (TASK-286, aggiunta ad ADR-0245; scelta dell'utente
+del 2026-10-15, «sì, dai la possibilità di cambiare figura dalla mappa»).
+Sotto un percorso disegnato, da «Draw route» di «Draw» o di «Draw on the
+map», quando è arrivato: **sopra «Start»**, dopo le tessere «A · B · C»,
+«Try 8 km» e gli avvisi, la stessa riga di tessere della tela di «Draw on
+the map» (`src/mapdraw/FigureTiles.tsx`): le 17 forme del catalogo coi
+loro simboli e le 16 immagini pronte, senza «+ photo». La figura del
+percorso ha il bordo; un percorso di una parola o di una foto non ne segna
+nessuna. Con «Paddle» solo le forme, come in «Draw». Non c'è durante
+l'attesa, sotto un errore, sugli esempi di «Explore», sui giri, sul
+«Feed» e nei preferiti. Nessun testo nuovo: per VoiceOver le tessere hanno
+i nomi già tradotti.
+
+Un tocco chiede subito il percorso della figura nuova, con la barra e
+«Cancel» come ogni nuovo disegno; la tessera già segnata non fa niente.
+
+- **Da «Draw»**: stessa partenza, stessa distanza, stesso sport; una forma
+  con la penna alzata se «Draw» la chiede così. La scelta diventa quella
+  di «Draw» (una forma: «Shape» e il suo nome nel campo; un'immagine:
+  «Image», come una tessera di «PICTURES»), così «←» torna a «Draw» con
+  lei e «Draw route» mostra lo stesso percorso senza chiederlo di nuovo.
+  Sull'acqua una forma spostata con «Move the shape» resta dov'era: la
+  forma nuova si chiede con lo stesso `near`.
+- **Da «Draw on the map»**: la figura nuova prende il posto di quella
+  sulla mappa, con lo stesso centro e **la distanza del percorso** (una
+  tessera sulla tela tiene invece la grandezza): la partenza è il primo
+  punto della figura nuova. «←» torna alla mappa con lei; «Undo» rimette
+  la figura di prima, dov'era e grande com'era.
 
 **La mappa girata e la freccia del nord** (TASK-232 parte B, ADR-0195;
 la mappa girata, la freccia e i suoi due tocchi sono scelte dell'utente
@@ -2359,6 +2636,35 @@ corsa riaperta da lì ha i tratti a piedi tratteggiati («My activities»).
 Il GPX per Strava (TASK-187) apre un segmento nuovo a ogni pausa: Strava
 mostra le lettere unite da linee dritte sulla base.
 
+- **«Remember to stretch»** prima di tutto (TASK-285 parte A, ADR-0247;
+  chiesto dall'utente il 2026-10-13): appena la corsa finisce, con o
+  senza percorso, al posto della scheda c'è il promemoria con **«Skip»**
+  e **«Stretch»**, e la voce lo dice una volta nella sua lingua («Remember
+  to stretch.»; niente con «Voice» spento). «Skip» mostra la scheda di
+  sotto com'è; «Stretch» apre gli esercizi (parte B; finché non c'è,
+  chiude come «Skip»). Nessuno dei due è giallo. Non si chiede per uno
+  «Stop» prima della prima posizione né per la corsa riaperta dopo due
+  ore (TASK-272).
+- **Lo stretching** (TASK-285 parte B, ADR-0247; chiesto dall'utente il
+  2026-10-13, «come sull'app bEND»): «Stretch» apre una schermata a tutto
+  schermo, sopra «Your run», con cinque esercizi uno dopo l'altro:
+  quadricipite, posteriore della coscia, polpaccio, flessori dell'anca,
+  gluteo (`src/stretch/exercises.ts`). In alto «1 of 5», il nome
+  («Quad stretch») e una riga su come si fa; al centro una **figura
+  stilizzata** vista di lato, fatta di segmenti sottili come il cuore
+  dell'avvio, che dalla posizione in piedi entra in quella dell'esercizio
+  in 0,8 s e la tiene; sotto il conto alla rovescia («0:20»), una barra
+  gialla che si svuota, **«Pause»/«Resume»** e **«Skip»** (**«Done»**
+  nell'ultimo), e in fondo, piccolo, «Stop if it hurts.». Ogni esercizio
+  si tiene **20 s per lato**: a metà un suono breve
+  (`assets/stretch/ding.wav`, nostro), «Left side» al posto di «Right
+  side», la figura si rialza, si gira e torna giù; finito il lato
+  sinistro, il suono e l'esercizio seguente da sé. In tutto 3 min 20 s.
+  «Skip» e «Done» portano a «Your run» com'è, con «Save» e «Discard»;
+  anche la fine del quinto. Lo schermo resta acceso. Al lettore di
+  schermo: il nome dell'esercizio a ogni cambio, «Switch sides», e i
+  secondi che restano ogni dieci; la figura non è un elemento. Nessuna
+  dipendenza nuova; disegni, nomi e testi sono nostri, non di bEND.
 - **Senza rete o senza API** la schermata è la stessa: non chiede niente
   a nessuno.
 - **«Keep running»**, dopo uno «Stop» e con il percorso ancora sullo
@@ -2448,7 +2754,8 @@ mostra le lettere unite da linee dritte sulla base.
   alla prossima apertura con la rete, una volta sola (sotto, «Cosa esce dal
   telefono»).
 - **Senza account**, sotto la scheda, la riga «Sign up or log in to keep
-  your runs and share them as drawings.» (TASK-117), che apre «Profile».
+  your runs and share them as drawings.» (TASK-117), che porta alla quarta
+  pagina, il profilo (TASK-278 parte B).
 
 Niente nella scheda è giallo: il giallo resta del percorso e dell'azione
 principale.
@@ -2479,6 +2786,16 @@ run», con «Close» in alto a sinistra:
   Instagram in the list: Story, Feed or Messages.». Errori: «This phone
   cannot open the share sheet.», «The picture could not be made. Try
   again.».
+- **«Export video»**, accanto a «Instagram» (TASK-295, ADR-0254; scelta
+  dell'utente): fa un video di 12 s, 9:16, del post che prende vita. Sul
+  giallo entrano il logo e il titolo; la linea della corsa si disegna da
+  sola, con la punta della penna, mentre distanza e tempo salgono; alla
+  fine il disegno intero, i risultati accesi e le emoji del post, che
+  entrano una dopo l'altra. Niente musica. Mentre lo fa il pulsante dice
+  «Making the video… 42%» e i due pulsanti non si toccano; poi si apre il
+  foglio di condivisione con il video («Save Video» lo tiene in Foto).
+  Errori: «This phone cannot make the video.», «The video could not be
+  made. Try again.», «This phone cannot open the share sheet.».
 - **Strava**, sotto, solo se l'API ha Strava: «Connect with Strava» se
   l'atleta non è collegato; a fine corsa, prima di «Save»: «To send this
   post to Strava, save the run, then share it from «My activities».». Su
@@ -3025,7 +3342,10 @@ c'è anche l'errore.
   Messaggi…). Non mostra i primi e gli ultimi 200 m della corsa, né la
   mappa sotto. A Strava, con «Send to Strava» o «Update on Strava» dal
   post, va in più il testo del post (emoji e risultati scelti), che
-  sull'attività già là sostituisce il testo di prima.
+  sull'attività già là sostituisce il testo di prima. **Il video del
+  post** (TASK-295) si fa anch'esso sul telefono, senza rete, ed esce
+  solo dal foglio di condivisione; nella cache resta l'ultimo,
+  `MuW-run.mp4`.
 - **Un disegno che altri vedono** (TASK-117, TASK-208): una corsa diventa
   visibile agli altri iscritti **solo con «Everyone» o «Followers»**
   scelto dall'utente, a fine corsa o su una corsa aperta; «Only me» a ogni

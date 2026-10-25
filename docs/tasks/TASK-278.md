@@ -130,6 +130,111 @@ simulatore (iPhone 17e): tocco sul cerchio, «Settings» e «←», «Guide» e
 - **Resta da chiedere all'utente** (punto 4): se gli altri ingressi (il
   cuore e «Save» senza account, la lente di «Feed» senza account, un nome
   taggato, una notifica) debbano portare alla quarta pagina invece di
-  aprire «Profile» sopra l'app. Oggi restano come prima.
+  aprire «Profile» sopra l'app. Oggi restano come prima. Chiesto il
+  2026-10-13: «sì, portali tutti alla 4ª pagina», fatto nella parte B,
+  sotto.
 - **Da guardare**: il sito (`site/`) non dice «three pages»; se la guida
   del sito lo dicesse altrove, è un seguito del Coordinatore.
+
+## Parte B — Gli altri ingressi alla quarta pagina
+
+**Stato**: Done, in `main` con la #509 (`8b02165e`, 2026-10-15), su
+`preview` con il gruppo `9dbc73d0` · **Branch**: `feat/TASK-278-b-profile-entry-points`
+(da `main` con la #500, la #504 e la #505), aggiunta ad ADR-0124, solo app.
+
+### Scelte dell'utente
+
+- **2026-10-13**, al punto 4 della parte A: «sì, portali tutti alla 4ª
+  pagina».
+- **2026-10-13**, alle due domande della sessione «TASK-278 B»:
+  - **Cuore e «Save» senza account** («4ª pagina, poi torni»): portano
+    alla quarta pagina con la stessa riga sopra «Sign up»; appena si entra
+    l'app torna da sola dov'era, la mappa con il percorso tenuto o la fine
+    della corsa con «Save» e «Discard». Finché non si entra, solo in questo
+    caso la pagina ha «←» e il titolo «Profile», che tornano lì senza
+    tenere niente, come prima. Scartati: la quarta pagina senza «←» (chi
+    non entra perde la fine della corsa fino alla prossima apertura) e
+    lasciare questi due sopra l'app.
+  - **Il profilo di un altro** (nome taggato, notifica) («Torna dov'eri»):
+    resta sopra l'app, come prima; «←» chiude e mostra l'app com'era (il
+    disegno sulla mappa, la pagina, la mappa o la corsa su cui è arrivata
+    la notifica). Prima «←» apriva «Profile» sopra l'app. Il proprio nome
+    taggato porta alla quarta pagina. Scartato: «←» alla quarta pagina.
+
+### Cosa fa
+
+- **La lente di «Feed» senza account** porta alla quarta pagina con «Log
+  in to find your friends.» (testo che c'era già, nelle cinque lingue).
+  Senza «←»: si torna con lo swipe o con «Feed», come dal cerchio.
+- **Il cuore sulla mappa** e **la riga «Sign up or log in to keep your
+  runs…»** sotto la fine della corsa portano alla quarta pagina con la loro
+  riga, «←» e il titolo; entrati, l'app torna da sola alla mappa o alla
+  fine della corsa. Uno swipe o un nome lasciano invece la mappa o la fine
+  della corsa: il percorso non si tiene, e la fine della corsa torna solo
+  alla prossima apertura dell'app (la corsa resta sul telefono, come prima
+  di «Done»).
+- **Un nome taggato** o **una notifica** di un altro: il suo profilo sopra
+  l'app, «←» torna dov'era. Il proprio nome (un tag; una notifica non lo
+  porta mai: l'API non avvisa di quello che fa l'account stesso) chiude il
+  disegno e porta alla quarta pagina. Durante una corsa la corsa tiene il
+  suo schermo.
+- **Un disegno di una notifica** toccata con «Settings» (o un'altra pagina)
+  aperto sopra la quarta pagina: «Back to the profile» torna alla quarta
+  pagina, non più a «Profile» sopra l'app.
+- **Resta sopra l'app** solo «Profile» aperto dal cerchio fuori dal pager
+  (`ProfileButton` senza `onPress`), che oggi usano solo i test.
+
+Come: `ProfileLayer` tiene la richiesta (`OwnAsk`: un contatore e la riga
+del perché, `useOwnPage`), `App.tsx` la segue e ricorda da dove si è
+partiti (`profileFrom`) per «←» e per il ritorno dopo l'ingresso.
+
+### Criteri di accettazione
+
+- [x] Cuore senza account: quarta pagina con la riga, «←» e titolo; «←»
+      torna alla mappa con il percorso; entrati, di nuovo sulla mappa con il
+      cuore pieno (test).
+- [x] «Save» senza account: quarta pagina; entrati, la fine della corsa con
+      «Save» e «Discard»; «←» torna alla fine della corsa e «Done» (test).
+- [x] Lente di «Feed» senza account: quarta pagina con «Log in to find your
+      friends.», senza «←» (test).
+- [x] Nome taggato di un altro: il suo profilo, «←» torna al disegno; il
+      proprio: quarta pagina, disegno chiuso (test).
+- [x] Notifica di un altro: il suo profilo, «←» torna alla pagina; disegno
+      di una notifica sopra «Settings»: «Back to the profile» alla quarta
+      pagina (test).
+- [x] Lasciata la quarta pagina con un nome, la riga del perché non c'è più
+      (test).
+- [x] Nessun testo nuovo; `tsc`, `expo lint`, `format:check`, `npm test`
+      verdi.
+
+### File toccati
+
+```
+apps/mobile/App.tsx
+apps/mobile/src/screens/ProfileLayer.tsx
+apps/mobile/src/screens/ProfileLayer.test.tsx
+apps/mobile/src/screens/ProfileEntryPoints.test.tsx   (nuovo)
+apps/mobile/__tests__/AppFavorites.test.tsx
+apps/mobile/__tests__/AppActivities.test.tsx
+apps/mobile/src/social/FindFriendsFlow.test.tsx
+docs/UI.md
+docs/DECISIONS.md
+docs/STATUS.md
+docs/tasks/TASK-278.md
+```
+
+Elenco mandato al Coordinatore prima di cominciare, con il suo ok
+(ordine dei merge su `App.tsx`: 280 → 285 A → questa → 281).
+
+### Esito
+
+In `main` con la #509 (`8b02165e`, 2026-10-15), aggiunta ad ADR-0124, solo
+app, nessun testo nuovo. Tutti gli ingressi al proprio profilo portano
+alla quarta pagina: la lente di «Feed» senza account, il cuore e «Save»
+senza account (con «←» e il ritorno da soli alla mappa o alla fine della
+corsa dopo l'ingresso), il proprio nome taggato. Il profilo di un altro,
+da un tag o da una notifica, resta sopra l'app e «←» torna dov'era. Tutti
+i criteri provati con i test. Pubblicato su `preview` il 2026-10-15
+(gruppo `9dbc73d0`, da `main` `fd4ae341`).
+
+**Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A e per la parte B (#509).

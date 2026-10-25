@@ -1,14 +1,17 @@
 import type { Shape } from "@shaperoute/shared-types";
 import { useEffect, useSyncExternalStore } from "react";
 
+import { type RouteQueue, routeQueue } from "../api/routeQueue";
 import { requestRoute, type RouteOutcome } from "../api/routes";
 import type { Place } from "../places/photon";
 import {
-  asRecommended,
   cityKey,
+  DRAW_ORDER,
   EXAMPLE_DISTANCE_M,
   EXAMPLE_SHAPES,
-  DRAW_ORDER,
+  forgetExamples,
+  keepSample,
+  readyExample,
 } from "./exampleRoutes";
 import type { RecommendedRoute } from "./recommendedRoutes";
 
@@ -19,22 +22,17 @@ import type { RecommendedRoute } from "./recommendedRoutes";
  * the first and keeps each route (its ADR-0136): the town opens with its
  * first cards ready, and its card here shows one of them meanwhile.
  *
- * Apart from the examples of a chosen city (exampleRoutes.ts): those are
- * one city at a time, and a town's samples would stop them. Kept for this
- * run of the app only: asked again, the API answers at once.
+ * Apart from the drawing of a chosen city's examples (exampleRoutes.ts):
+ * that is one city at a time, and a town's samples would stop it. But each
+ * sample drawn is one of the town's examples from then on (TASK-287), and
+ * one the town has already is not asked: choosing the town opens its first
+ * cards without asking again.
  */
 export const SAMPLE_SHAPES: readonly Shape[] = DRAW_ORDER.filter((shape) =>
   EXAMPLE_SHAPES.includes(shape),
 );
 /** The one a town's card shows, when it is drawn; else the first that is. */
 export const SHOWN_SHAPE: Shape = "heart";
-/**
- * From one sample asked to the next, at least: twelve a minute, so the
- * eighteen of six towns take a minute and a half. The API
- * takes 30 POSTs a minute from a phone, and a city's examples use up to 18
- * of them (EXAMPLES_PER_MINUTE): «Start» and «Export GPX» keep their room.
- */
-export const SAMPLE_GAP_MS = 5000;
 /** Before a sample the API did not get is asked once more. */
 export const RETRY_MS = 1000;
 
@@ -52,7 +50,6 @@ const drawn = new Map<string, Drawn>();
 const samples = new Map<string, TownSample>();
 const listeners = new Set<() => void>();
 let running: AbortController | null = null;
-let lastAsked = 0;
 // Counts the changes: what the screen reads to know there is one.
 let version = 0;
 
@@ -67,13 +64,14 @@ function subscribe(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-/** For tests: forgets every town, stops what is drawing. */
+/** For tests: forgets every town, and the examples they drew; stops what is
+ * drawing. */
 export function forgetSamples(): void {
   running?.abort();
   running = null;
   drawn.clear();
   samples.clear();
-  lastAsked = 0;
+  forgetExamples();
   version += 1;
 }
 
@@ -112,24 +110,26 @@ function pause(ms: number, signal: AbortSignal): Promise<void> {
 
 export type SampleOptions = {
   request?: typeof requestRoute;
-  gapMs?: number;
   retryMs?: number;
+  /** The app's one queue of route requests (TASK-287). */
+  queue?: Pick<RouteQueue, "background">;
 };
 
 /**
- * Draws what `towns` miss, a town after the other, each shape in its turn.
- * It goes on until `stop` is called: the shapes drawn stay, and the next
- * call goes on from them. Trouble that is not a shape's (no network, the
- * zone not downloaded, too many requests) ends it for every town: the
- * cards stay without a drawing, and the next call tries again.
+ * Draws what `towns` miss, a town after the other, each shape in its turn
+ * in the app's queue of route requests, as an example on the page. It goes
+ * on until `stop` is called: the shapes drawn stay, and the next call goes
+ * on from them. Trouble that is not a shape's (no network, the zone not
+ * downloaded, too many requests) ends it for every town: the cards stay
+ * without a drawing, and the next call tries again.
  */
 export function drawSamples(
   apiUrl: string,
   towns: readonly Place[],
   {
     request = requestRoute,
-    gapMs = SAMPLE_GAP_MS,
     retryMs = RETRY_MS,
+    queue = routeQueue,
   }: SampleOptions = {},
 ): () => void {
   running?.abort();
@@ -140,41 +140,50 @@ export function drawSamples(
     SAMPLE_SHAPES.filter((shape) => drawn.get(key)?.[shape] === undefined);
   for (const town of towns) {
     const key = cityKey(town.point);
+    // What the town has among its examples already: chosen before, or kept.
+    for (const shape of missing(key)) {
+      const ready = readyExample(town, shape);
+      if (ready !== null) {
+        drawn.set(key, { ...drawn.get(key), [shape]: ready });
+      }
+    }
     const route = shownRoute(drawn.get(key) ?? {});
     if (missing(key).length > 0) {
       show(key, route === null ? { status: "waiting" } : { status: "drawing", route });
+    } else if (route !== null && samples.get(key)?.status !== "ready") {
+      show(key, { status: "ready", route });
     }
   }
   void (async () => {
     for (const town of towns) {
       const key = cityKey(town.point);
       for (const shape of missing(key)) {
-        const wait = lastAsked + gapMs - Date.now();
-        if (wait > 0) {
-          await pause(wait, signal);
-        }
         if (signal.aborted) {
           return;
         }
-        lastAsked = Date.now();
         show(key, { status: "drawing", route: shownRoute(drawn.get(key) ?? {}) });
         const ask = () =>
-          request(
-            apiUrl,
-            // As a city's examples ask it: the API keeps one answer for both.
-            {
-              shape,
-              distance_m: EXAMPLE_DISTANCE_M,
-              start: town.point,
-              activity: "running",
-            },
+          queue.background(
+            "visible",
+            () =>
+              request(
+                apiUrl,
+                // As a city's examples ask it: the API keeps one answer for both.
+                {
+                  shape,
+                  distance_m: EXAMPLE_DISTANCE_M,
+                  start: town.point,
+                  activity: "running",
+                },
+                { signal },
+              ),
             { signal },
           );
         let outcome = await ask();
         if (outcome.kind === "unreachable" && !signal.aborted) {
-          // Once more: the API closes a connection left idle for 5 s, which
-          // is the gap between two samples, and a request sent on it as it
-          // closes is lost (seen in the simulator: every sixth).
+          // Once more: the API closes a connection left idle for 5 s, and a
+          // request sent on it as it closes is lost (seen in the simulator,
+          // every sixth when the samples went 5 s apart).
           await pause(retryMs, signal);
           if (signal.aborted) {
             return;
@@ -200,9 +209,7 @@ export function drawSamples(
         drawn.set(key, {
           ...drawn.get(key),
           [shape]:
-            outcome.kind === "route"
-              ? asRecommended(town, shape, outcome.result).route
-              : null,
+            outcome.kind === "route" ? keepSample(town, shape, outcome.result) : null,
         });
         // On the card at once: the next shape may wait for its turn.
         show(key, { status: "drawing", route: shownRoute(drawn.get(key) ?? {}) });
@@ -223,16 +230,16 @@ export function useNearbySamples(
   towns: readonly Place[],
   options: SampleOptions = {},
 ): TownSample[] {
-  const { request, gapMs } = options;
+  const { request } = options;
   const keys = towns.map((town) => cityKey(town.point)).join(" ");
   useEffect(() => {
     if (apiUrl === null || towns.length === 0) {
       return;
     }
-    return drawSamples(apiUrl, towns, { request, gapMs });
+    return drawSamples(apiUrl, towns, { request });
     // The towns' points are the key: a new array of the same towns is the same.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiUrl, keys, request, gapMs]);
+  }, [apiUrl, keys, request]);
   useSyncExternalStore(subscribe, () => version);
   return towns.map(townSample);
 }

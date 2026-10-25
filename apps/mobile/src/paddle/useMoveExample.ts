@@ -1,6 +1,7 @@
 import type { RouteResult } from "@shaperoute/shared-types";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { routeQueue } from "../api/routeQueue";
 import { requestRoute } from "../api/routes";
 import {
   type ExampleDetail,
@@ -96,7 +97,11 @@ export function useMoveExample(
       setLeft(result);
       const controller = new AbortController();
       flight.current = controller;
-      void request(apiUrl, wanted, { signal: controller.signal }).then((outcome) => {
+      // The user's: first in the app's queue of route requests (TASK-287).
+      const asking = routeQueue.user(() =>
+        request(apiUrl, wanted, { signal: controller.signal }),
+      );
+      void asking.then((outcome) => {
         if (controller.signal.aborted || outcome.kind === "cancelled") {
           return;
         }

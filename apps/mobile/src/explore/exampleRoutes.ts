@@ -9,6 +9,7 @@ import {
 import { File, Paths } from "expo-file-system";
 import { useEffect, useSyncExternalStore } from "react";
 
+import { type RouteQueue, routeQueue } from "../api/routeQueue";
 import { requestRoute, type RouteOutcome } from "../api/routes";
 import { metresBetween } from "../map/coordinates";
 import { readAheadFile } from "../paddle/aheadStore";
@@ -190,16 +191,6 @@ function comesWithTheApp(set: ExampleSet, key: string): boolean {
 export function drawOrderOf(set: ExampleSet): readonly Shape[] {
   return DRAW_ORDER.filter((shape) => !isMore(shape) || set.more.includes(shape));
 }
-/**
- * The API takes 30 POSTs a minute from a phone (ADR-0076), and a city it
- * has already drawn answers its eight at once: three such cities in a
- * minute would use them all, and "Start" or "Export GPX" would be refused.
- * So the other shapes are asked only while fewer example requests than this
- * went out in the last minute, the first shapes counted; past that they
- * wait. The first shapes never wait: they cost what they always did.
- */
-export const EXAMPLES_PER_MINUTE = 18;
-const MINUTE_MS = 60_000;
 /** The cities whose examples the file keeps, the last first. */
 export const MAX_KEPT_CITIES = 8;
 export const EXAMPLES_FILE = "city-examples.json";
@@ -492,32 +483,9 @@ const listeners = new Set<() => void>();
 // run of the app: asked again they would fail the same, at the cost of a
 // whole search.
 const leftOut = new Set<string>();
-// When each example of the last minute was asked, the oldest first.
-const sent: number[] = [];
-
-/** How long before another of the other shapes may be asked; 0 when now. */
-export function moreWaitMs(now: number): number {
-  while (sent.length > 0 && sent[0] <= now - MINUTE_MS) {
-    sent.shift();
-  }
-  return sent.length < EXAMPLES_PER_MINUTE
-    ? 0
-    : sent[sent.length - EXAMPLES_PER_MINUTE] + MINUTE_MS - now;
-}
-
-/** Waits `ms`, or until `signal` aborts: it never rejects. */
-function pause(ms: number, signal: AbortSignal): Promise<void> {
-  return new Promise((resolve) => {
-    const done = () => {
-      clearTimeout(timer);
-      signal.removeEventListener("abort", done);
-      resolve();
-    };
-    const timer = setTimeout(done, ms);
-    signal.addEventListener("abort", done, { once: true });
-  });
-}
-let running: { key: string; controller: AbortController } | null = null;
+// The city drawing now; `save` writes what it drew since the last write.
+let running: { key: string; controller: AbortController; save: () => void } | null =
+  null;
 
 function show(key: string, list: Example[]): void {
   examples.set(key, list);
@@ -559,6 +527,50 @@ function subscribe(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
+/** A run's examples of `city` as they are now: in memory, else the file's. */
+function runExamplesOf(city: Place, storage: Storage): Example[] {
+  const key = examplesKey(city.point);
+  return (
+    examples.get(key) ??
+    fromFile(savedOf(storage, key, RUN_EXAMPLES), city, RUN_EXAMPLES)
+  );
+}
+
+/**
+ * A shape of `city` drawn as a sample of the towns near (TASK-236): a ready
+ * example of the city from now on, whole, so that choosing the town opens
+ * it without asking the API again (TASK-287). In memory only: the file is
+ * for the cities chosen, and gets it if the town is.
+ */
+export function keepSample(
+  city: Place,
+  shape: Shape,
+  result: RouteResult,
+  storage: Storage = fileStorage,
+): RecommendedRoute {
+  const { route, detail } = asRecommended(city, shape, result);
+  details.set(detail.id, detail);
+  asked.set(detail.id, requestOf(city, shape, RUN_EXAMPLES));
+  show(
+    examplesKey(city.point),
+    runExamplesOf(city, storage).map((e) =>
+      e.shape === shape && e.status !== "ready" ? { shape, status: "ready", route } : e,
+    ),
+  );
+  return route;
+}
+
+/** A run's example of `shape` from `city` already ready, in memory or in the
+ * file: a sample of it needs no request (TASK-287). */
+export function readyExample(
+  city: Place,
+  shape: Shape,
+  storage: Storage = fileStorage,
+): RecommendedRoute | null {
+  const example = runExamplesOf(city, storage).find((e) => e.shape === shape);
+  return example?.status === "ready" ? example.route : null;
+}
+
 /** The route whole of a ready example, to open without asking the API. */
 export function exampleDetail(id: string): ExampleDetail | undefined {
   return details.get(id);
@@ -577,16 +589,25 @@ export type Storage = {
   save: (kept: Record<string, ExampleDetail[]>) => void;
 };
 
+// The file as last read or written (TASK-287): it holds whole routes of
+// eight cities, too much to read again for each one asked. Only this
+// module writes it.
+let fileRead: Record<string, ExampleDetail[]> | null = null;
+
 /** The file in the app's documents, as the recent cities (recentCities.ts). */
 export const fileStorage: Storage = {
   load() {
+    if (fileRead !== null) {
+      return { ...fileRead };
+    }
     try {
       const file = new File(Paths.document, EXAMPLES_FILE);
       if (!file.exists) {
         return {};
       }
       const data: unknown = JSON.parse(file.textSync());
-      return readKept(data);
+      fileRead = readKept(data);
+      return { ...fileRead };
     } catch {
       return {};
     }
@@ -596,8 +617,10 @@ export const fileStorage: Storage = {
       const file = new File(Paths.document, EXAMPLES_FILE);
       file.create({ overwrite: true });
       file.write(JSON.stringify(kept));
+      fileRead = { ...kept };
     } catch {
       // A convenience: without the file the examples are drawn again.
+      fileRead = null;
     }
   },
 };
@@ -660,8 +683,12 @@ function isPoint(value: unknown): value is LatLon {
   );
 }
 
-/** `city`'s routes first in the file, its words too, the oldest cities out. */
+/** `city`'s routes first in the file, its words too, the oldest cities out.
+ * Nothing for a city forgotten meanwhile. */
 function keep(storage: Storage, key: string): void {
+  if (!examples.has(key) && !words.has(key)) {
+    return;
+  }
   const all = [...(examples.get(key) ?? []), ...(words.get(key) ?? [])];
   const ready = all.flatMap((e) => {
     const detail = e.status === "ready" ? details.get(e.route.id) : undefined;
@@ -768,6 +795,9 @@ function cardOf(city: Place, detail: ExampleDetail): RecommendedRoute {
 type Ask = {
   /** As `leftOut` knows it, after the place's key. */
   name: string;
+  /** The file is written once a group is drawn (TASK-287): the first
+   * shapes, the others, the words. */
+  group: "first" | "more" | "words";
   /** Nobody waits for it: it fails without a card or a word. */
   quiet: boolean;
   request: RouteRequest;
@@ -790,6 +820,8 @@ type Options = {
   has?: readonly string[];
   /** What the examples are for: a run's unless said (TASK-191). */
   set?: ExampleSet;
+  /** The app's one queue of route requests (TASK-287). */
+  queue?: Pick<RouteQueue, "background">;
 };
 
 /**
@@ -806,6 +838,7 @@ export function drawExamples(
     storage = fileStorage,
     has,
     set = RUN_EXAMPLES,
+    queue = routeQueue,
   }: Options = {},
 ): void {
   const key = examplesKey(city.point, set);
@@ -856,6 +889,7 @@ export function drawExamples(
   }
   if (running !== null) {
     const stopped = running.key;
+    running.save();
     running.controller.abort();
     show(
       stopped,
@@ -872,6 +906,7 @@ export function drawExamples(
   }
   const shapeAsk = (shape: Shape): Ask => ({
     name: shape,
+    group: isMore(shape) ? "more" : "first",
     quiet: quiet(shape),
     request: requestOf(city, shape, set),
     status: () => examples.get(key)?.find((e) => e.shape === shape)?.status,
@@ -886,6 +921,7 @@ export function drawExamples(
   });
   const wordAsk = (word: string): Ask => ({
     name: word,
+    group: "words",
     quiet: true,
     request: wordRequestOf(city, word, set),
     status: () => words.get(key)?.find((e) => e.word === word)?.status,
@@ -903,31 +939,39 @@ export function drawExamples(
     ...wordOrder(set.words ?? []).map(wordAsk),
   ];
   const controller = new AbortController();
-  running = { key, controller };
+  const { signal } = controller;
+  // Examples ready since the file was last written: it is written once a
+  // group is drawn (TASK-287), or when another city stops this one.
+  let unsaved = false;
+  const save = () => {
+    if (unsaved) {
+      unsaved = false;
+      keep(storage, key);
+    }
+  };
+  running = { key, controller, save };
   void (async () => {
-    for (const ask of asks) {
+    for (const [i, ask] of asks.entries()) {
+      if (i > 0 && asks[i - 1].group !== ask.group) {
+        save();
+      }
       if (ask.status() !== "waiting") {
         continue;
       }
-      if (ask.quiet) {
-        // No card yet while it waits for the minute's allowance.
-        for (
-          let wait = moreWaitMs(Date.now());
-          wait > 0;
-          wait = moreWaitMs(Date.now())
-        ) {
-          await pause(wait, controller.signal);
-          if (controller.signal.aborted) {
-            return;
-          }
-        }
+      // A first card shows at once; another only from its turn in the
+      // app's queue of route requests (routeQueue.ts).
+      if (!ask.quiet) {
+        ask.put({ status: "drawing" });
       }
-      sent.push(Date.now());
-      ask.put({ status: "drawing" });
-      const outcome = await request(apiUrl, ask.request, {
-        signal: controller.signal,
-      });
-      if (controller.signal.aborted || outcome.kind === "cancelled") {
+      const outcome = await queue.background(
+        "visible",
+        () => request(apiUrl, ask.request, { signal }),
+        {
+          signal,
+          onTurn: ask.quiet ? () => ask.put({ status: "drawing" }) : undefined,
+        },
+      );
+      if (signal.aborted || outcome.kind === "cancelled") {
         return;
       }
       if (outcome.kind === "route") {
@@ -935,7 +979,7 @@ export function drawExamples(
         details.set(detail.id, detail);
         asked.set(detail.id, ask.request);
         ask.put({ status: "ready", route });
-        keep(storage, key);
+        unsaved = true;
         continue;
       }
       const message = failureText(outcome, set.activity);
@@ -960,10 +1004,11 @@ export function drawExamples(
     if (running?.key === key) {
       running = null;
     }
-  })();
+  })().finally(save);
 }
 
-/** For tests: forgets every city, stops what is drawing. */
+/** For tests: forgets every city, stops what is drawing, empties the
+ * minute of the route requests (as each kind's own count did before). */
 export function forgetExamples(): void {
   running?.controller.abort();
   running = null;
@@ -972,7 +1017,8 @@ export function forgetExamples(): void {
   details.clear();
   asked.clear();
   leftOut.clear();
-  sent.length = 0;
+  fileRead = null;
+  routeQueue.forget();
 }
 
 /**

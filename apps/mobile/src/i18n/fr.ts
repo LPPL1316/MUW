@@ -920,6 +920,9 @@ export const FR: Table = {
   "Distance: {distance}": "Distance : {distance}",
   "Distance: {distance} {units}": "Distance : {distance} {units}",
   "Keep running": "Continuer à courir",
+  "Remember to stretch": "Pensez à vous étirer",
+  Stretch: "S'étirer",
+  Skip: "Passer",
   Done: "Terminé",
   "Pocket mode": "Mode poche",
   Pocket: "Poche",
@@ -1161,4 +1164,86 @@ export const FR: Table = {
   "Suggested near {place}": "Suggérés près de {place}",
   "Suggested near where you usually start": "Suggérés près de ton départ habituel",
   "Suggested near your start": "Suggérés près de ton départ",
+
+  // src/stretch (TASK-285 part B)
+  "Quad stretch": "Étirement du quadriceps",
+  "Stand tall. Pull one heel toward your glutes, knees together.":
+    "Debout, bien droit. Ramenez un talon vers la fesse, genoux serrés.",
+  "Hamstring stretch": "Étirement des ischio-jambiers",
+  "Put one heel forward, toes up. Lean from the hips, back straight.":
+    "Un talon devant, pointe vers le haut. Penchez-vous depuis les hanches, dos droit.",
+  "Calf stretch": "Étirement du mollet",
+  "Step back, heel down. Lean toward the wall until the calf pulls.":
+    "Un pas en arrière, talon au sol. Penchez-vous vers le mur jusqu'à sentir le mollet.",
+  "Hip flexor stretch": "Étirement des fléchisseurs de hanche",
+  "Kneel on one knee. Push your hips forward, chest up.":
+    "Un genou au sol. Poussez le bassin vers l'avant, poitrine haute.",
+  "Glute stretch": "Étirement du fessier",
+  "Cross one ankle over the other knee. Sit back as if into a chair.":
+    "Croisez une cheville sur l'autre genou. Asseyez-vous en arrière comme sur une chaise.",
+  "{index} of {total}": "{index} sur {total}",
+  "Right side": "Côté droit",
+  "Left side": "Côté gauche",
+  "Switch sides": "Changez de côté",
+  "{seconds} seconds left": "{seconds} secondes restantes",
+  "Stop if it hurts.": "Arrêtez si ça fait mal.",
+  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
+  // src/explore/ThemedCard.tsx (TASK-280)
+  "CITY TOURS": "BALADES EN VILLE",
+  PICTURES: "IMAGES",
+  "Running shoe": "Basket",
+  Dinosaur: "Dinosaure",
+  Guitar: "Guitare",
+  "Eiffel Tower": "Tour Eiffel",
+  Rocket: "Fusée",
+  Plane: "Avion",
+  Balloon: "Ballon",
+  Leaf: "Feuille",
+  Mushroom: "Champignon",
+  Car: "Voiture",
+  "T-shirt": "T-shirt",
+  Boot: "Botte",
+  House: "Maison",
+  Duck: "Canard",
+  Trophy: "Trophée",
+  Bone: "Os",
+  "Back to Draw": "Retour à Dessiner",
+
+  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
+  "Draw on the map": "Dessiner sur la carte",
+  Move: "Déplacer",
+  "Draw with one finger. Lines after the first are joined to it.":
+    "Dessine avec un doigt. Les lignes après la première y sont reliées.",
+  "Drag the figure or the map. Two fingers on the figure resize it.":
+    "Fais glisser la figure ou la carte. Deux doigts sur la figure changent sa taille.",
+  "This line crosses itself. Draw it again without crossing it.":
+    "Cette ligne se croise elle-même. Redessine-la sans la croiser.",
+  "+ photo": "+ photo",
+
+  // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
+  "Choose on the map": "Choisir sur la carte",
+  "Move the map to put the pin where you want to start.":
+    "Déplace la carte pour mettre l'épingle là où tu veux partir.",
+
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Exporter la vidéo",
+  "Making the video… {percent}%": "Création de la vidéo… {percent} %",
+  "This phone cannot make the video.": "Ce téléphone ne peut pas créer la vidéo.",
+  "The video could not be made. Try again.":
+    "La vidéo n'a pas pu être créée. Réessaie.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Jouer",
+  "{distance} in total": "{distance} au total",
+  "{distance} under {pace}": "{distance} sous {pace}",
+  "Best {best} · target {target}": "Meilleur {best} · objectif {target}",
+  "Longest run {distance}": "Plus longue course {distance}",
+  "Unlocked {date}": "Débloquée {date}",
+  "Sign in to collect shapes.": "Connecte-toi pour collectionner des formes.",
+  "{distance} counted so far": "{distance} comptés jusqu'ici",
+  "The game is not available right now.": "Le jeu n'est pas disponible pour le moment.",
+  "New shape unlocked": "Nouvelle forme débloquée",
+  "New shape unlocked: {name}": "Nouvelle forme débloquée : {name}",
+  "It is in your collection.": "Elle est dans ta collection.",
+  "See collection": "Voir la collection",
 };

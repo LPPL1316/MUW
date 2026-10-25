@@ -175,6 +175,9 @@ docs/tasks/TASK-284.md                                 (nuovo)
   segreto e dominio: entrare in `main` non manda niente. La migrazione è
   `0022_away_email.sql`: se al merge `0022` è già presa, rinominarla al
   primo numero libero (nessun test la cerca per numero).
+  **2026-10-25**: `0022` è di TASK-288 in `main`, la migrazione è
+  diventata `0023_away_email.sql` (il numero riservato a #502; `0025` e
+  `0027` sono del gioco, `0026` di TASK-297 A).
 - **I testi dell'email e della pagina** sono in
   `services/api/shaperoute_api/away_texts.py` (en, it, de, es, fr; de, es,
   fr tradotti dall'agente). **Aspettano il sì dell'utente** prima della

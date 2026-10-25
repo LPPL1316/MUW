@@ -928,6 +928,9 @@ export const DE: Table = {
   "Distance: {distance}": "Distanz: {distance}",
   "Distance: {distance} {units}": "Distanz: {distance} {units}",
   "Keep running": "Weiterlaufen",
+  "Remember to stretch": "Denk ans Dehnen",
+  Stretch: "Dehnen",
+  Skip: "Überspringen",
   Done: "Fertig",
   "Pocket mode": "Taschenmodus",
   Pocket: "Tasche",
@@ -1171,4 +1174,86 @@ export const DE: Table = {
   "Suggested near where you usually start":
     "Vorschläge in der Nähe deines üblichen Starts",
   "Suggested near your start": "Vorschläge in der Nähe deines Starts",
+
+  // src/stretch (TASK-285 part B)
+  "Quad stretch": "Quadrizeps dehnen",
+  "Stand tall. Pull one heel toward your glutes, knees together.":
+    "Aufrecht stehen. Eine Ferse zum Gesäß ziehen, Knie zusammen.",
+  "Hamstring stretch": "Hintere Oberschenkel dehnen",
+  "Put one heel forward, toes up. Lean from the hips, back straight.":
+    "Eine Ferse nach vorn, Zehen hoch. Aus der Hüfte beugen, Rücken gerade.",
+  "Calf stretch": "Wade dehnen",
+  "Step back, heel down. Lean toward the wall until the calf pulls.":
+    "Einen Schritt zurück, Ferse am Boden. Zur Wand lehnen, bis die Wade zieht.",
+  "Hip flexor stretch": "Hüftbeuger dehnen",
+  "Kneel on one knee. Push your hips forward, chest up.":
+    "Auf ein Knie gehen. Hüfte nach vorn schieben, Brust hoch.",
+  "Glute stretch": "Gesäß dehnen",
+  "Cross one ankle over the other knee. Sit back as if into a chair.":
+    "Einen Knöchel aufs andere Knie legen. Zurücksetzen wie auf einen Stuhl.",
+  "{index} of {total}": "{index} von {total}",
+  "Right side": "Rechte Seite",
+  "Left side": "Linke Seite",
+  "Switch sides": "Seite wechseln",
+  "{seconds} seconds left": "Noch {seconds} Sekunden",
+  "Stop if it hurts.": "Hör auf, wenn es wehtut.",
+  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
+  // src/explore/ThemedCard.tsx (TASK-280)
+  "CITY TOURS": "STADTTOUREN",
+  PICTURES: "BILDER",
+  "Running shoe": "Laufschuh",
+  Dinosaur: "Dinosaurier",
+  Guitar: "Gitarre",
+  "Eiffel Tower": "Eiffelturm",
+  Rocket: "Rakete",
+  Plane: "Flugzeug",
+  Balloon: "Luftballon",
+  Leaf: "Blatt",
+  Mushroom: "Pilz",
+  Car: "Auto",
+  "T-shirt": "T-Shirt",
+  Boot: "Stiefel",
+  House: "Haus",
+  Duck: "Ente",
+  Trophy: "Pokal",
+  Bone: "Knochen",
+  "Back to Draw": "Zurück zu Zeichnen",
+
+  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
+  "Draw on the map": "Auf der Karte zeichnen",
+  Move: "Verschieben",
+  "Draw with one finger. Lines after the first are joined to it.":
+    "Zeichne mit einem Finger. Linien nach der ersten werden mit ihr verbunden.",
+  "Drag the figure or the map. Two fingers on the figure resize it.":
+    "Ziehe die Figur oder die Karte. Zwei Finger auf der Figur ändern ihre Größe.",
+  "This line crosses itself. Draw it again without crossing it.":
+    "Diese Linie kreuzt sich selbst. Zeichne sie ohne Kreuzung neu.",
+  "+ photo": "+ Foto",
+
+  // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
+  "Choose on the map": "Auf der Karte wählen",
+  "Move the map to put the pin where you want to start.":
+    "Verschiebe die Karte, bis die Nadel dort ist, wo du starten willst.",
+
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Video exportieren",
+  "Making the video… {percent}%": "Video wird erstellt… {percent} %",
+  "This phone cannot make the video.": "Dieses Telefon kann das Video nicht erstellen.",
+  "The video could not be made. Try again.":
+    "Das Video konnte nicht erstellt werden. Versuch es noch einmal.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Spielen",
+  "{distance} in total": "{distance} insgesamt",
+  "{distance} under {pace}": "{distance} unter {pace}",
+  "Best {best} · target {target}": "Beste {best} · Ziel {target}",
+  "Longest run {distance}": "Längster Lauf {distance}",
+  "Unlocked {date}": "Freigeschaltet {date}",
+  "Sign in to collect shapes.": "Melde dich an, um Formen zu sammeln.",
+  "{distance} counted so far": "{distance} bisher gezählt",
+  "The game is not available right now.": "Das Spiel ist gerade nicht verfügbar.",
+  "New shape unlocked": "Neue Form freigeschaltet",
+  "New shape unlocked: {name}": "Neue Form freigeschaltet: {name}",
+  "It is in your collection.": "Sie ist in deiner Sammlung.",
+  "See collection": "Sammlung ansehen",
 };

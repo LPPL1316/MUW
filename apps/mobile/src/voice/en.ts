@@ -49,6 +49,7 @@ export const EN: Phrasebook = {
   arrived: "You have arrived.",
   paused: "Paused.",
   resumed: "Resumed.",
+  stretch: "Remember to stretch.",
   penUp: (letter) =>
     `Letter done. Walk to ${letterWords(letter)}: the drawing is paused.`,
   penDown: (letter) => `Pen down: draw ${letterWords(letter)}.`,
