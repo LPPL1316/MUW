@@ -52,6 +52,16 @@ def test_the_phone_gets_the_job_of_the_api_without_fastapi() -> None:
     assert "shaperoute_api.app" not in modules
 
 
+def test_the_phone_draws_without_the_archive() -> None:
+    # The archive of the drawn routes (TASK-297, ADR-0256) is the server's:
+    # it needs PostgreSQL, which Pyodide has not. The phone's job must not
+    # pull it in, nor psycopg, and jobs.py keeps working without a store.
+    modules = closure(ENTRY)
+    assert "shaperoute_api.route_archive" not in modules
+    for module, path in modules.items():
+        assert "psycopg" not in imported(module, path), module
+
+
 def test_the_whole_engine_goes_with_its_data() -> None:
     names = engine_files()
     assert "route_engine/letters.json" in names

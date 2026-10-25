@@ -91,11 +91,15 @@ export function Pager({ pages, page, onPage, action }: Props) {
   const laidOut = useRef(width);
   // Where the scroll starts: one object, or each render would move it.
   const [start] = useState(() => ({ x: page * width, y: 0 }));
-  const [seen, setSeen] = useState<readonly number[]>(() =>
-    pages.flatMap((each, index) => (each.lazy && index !== page ? [] : [index])),
+  // By title, not by place: a page that joins the row later («Play» once the
+  // API says it has the game, TASK-296) moves the ones after it without
+  // taking them down.
+  const [seen, setSeen] = useState<readonly string[]>(() =>
+    pages.flatMap((each, index) => (each.lazy && index !== page ? [] : [each.title])),
   );
   // A page asked for from outside is built before the scroll gets there.
-  const built = seen.includes(page) ? seen : [...seen, page];
+  const asked = pages[page]?.title;
+  const built = asked === undefined || seen.includes(asked) ? seen : [...seen, asked];
   if (built !== seen) {
     setSeen(built);
   }
@@ -125,11 +129,9 @@ export function Pager({ pages, page, onPage, action }: Props) {
   }
 
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
-    const reached = pagesInView(
-      event.nativeEvent.contentOffset.x,
-      width,
-      pages.length,
-    ).filter((index) => !built.includes(index));
+    const reached = pagesInView(event.nativeEvent.contentOffset.x, width, pages.length)
+      .map((index) => pages[index].title)
+      .filter((title) => !built.includes(title));
     if (reached.length > 0) {
       setSeen([...built, ...reached]);
     }
@@ -220,7 +222,7 @@ export function Pager({ pages, page, onPage, action }: Props) {
                 accessibilityElementsHidden={!onScreen}
                 importantForAccessibility={onScreen ? "auto" : "no-hide-descendants"}
               >
-                {built.includes(index) && each.render()}
+                {built.includes(each.title) && each.render()}
               </View>
             );
           })}

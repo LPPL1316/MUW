@@ -60,6 +60,7 @@ from shaperoute_api.errors import error_of
 from shaperoute_api.favorites import install_favorites
 from shaperoute_api.feed import install_feed
 from shaperoute_api.follows import install_follows
+from shaperoute_api.game import install_game
 from shaperoute_api.graphs import MapDataUnavailableError
 from shaperoute_api.images import (
     AnyRequest,
@@ -353,6 +354,8 @@ def create_app(
     install_feed(app)
     # Blocking and reporting (TASK-121); they need a token.
     install_moderation(app)
+    # The shape game (TASK-296): the catalog for anyone, the rest with a token.
+    install_game(app)
 
     @app.get("/health")
     def health() -> dict[str, str]:

@@ -538,6 +538,13 @@ export interface SignUpRequest {
   username: string;
   /** The "I am at least 16" box (ADR-0114): false is refused. */
   at_least_16: boolean;
+  /**
+   * The box «Don't send me these emails» (TASK-284): false when ticked.
+   * Without it, «Email when I'm away» is on.
+   */
+  away_email?: boolean;
+  /** The app's language, for the texts of the emails; English without it. */
+  language?: PushLanguage | null;
 }
 
 /** The limits of a password, checked by the API too. */
@@ -586,11 +593,18 @@ export interface User {
 /**
  * What an account chose about being notified (TASK-185): both off until
  * turned on. With «Push notifications» on the API sends push notifications
- * to the phones of the account (TASK-262); no email is sent yet.
+ * to the phones of the account (TASK-262); no email of the news is sent
+ * yet.
  */
 export interface Notifications {
   email: boolean;
   push: boolean;
+  /**
+   * «Email when I'm away» (TASK-284): one email after two weeks without
+   * opening the app, with what is new. On until turned off. Missing from
+   * an API older than TASK-284: on.
+   */
+  away?: boolean;
 }
 
 /**
@@ -600,6 +614,8 @@ export interface Notifications {
 export interface NotificationsRequest {
   email?: boolean;
   push?: boolean;
+  /** «Email when I'm away» (TASK-284). */
+  away?: boolean;
 }
 
 /**
@@ -1072,3 +1088,69 @@ export type PushKind =
 export type PushData =
   | { kind: PushKind; drawing_id: string }
   | { kind: PushKind; public_id: string; username: string };
+
+// --- The shape game (TASK-296, ADR-0255; docs/GIOCO.md) ---
+
+/**
+ * The push notification of the game (TASK-296), beside `PushKind`: a shape
+ * unlocked. Its `data` carries the runner's own profile, as a follow
+ * event's would; the app opens «Play» instead.
+ */
+export type GamePushKind = "shape_unlocked";
+
+/**
+ * What a shape of the game asks (GET /game/catalog): so many metres in
+ * all, or `distance_m` in one run at `pace_s` seconds a kilometre or
+ * better. The fields of the other kind are null.
+ */
+export type GameGoal =
+  | { kind: "distance"; total_m: number; distance_m: null; pace_s: null }
+  | { kind: "pace"; total_m: null; distance_m: number; pace_s: number };
+
+/** A shape to collect, as the API's catalog serves it. */
+export interface GameShape {
+  id: string;
+  /** Its name in each language of the app (en, de, it, es, fr). */
+  names: Record<PushLanguage, string>;
+  goal: GameGoal;
+  /** Closed (the last point is the first), from 0 to 1, y downwards as on
+   * a screen: a drawing, never a place. */
+  outline: [number, number][];
+}
+
+/** GET /game/catalog: the shapes of the game. Without an account; an API
+ * before the game answers 404, and the app shows no «Play» (ADR-0255). */
+export interface GameCatalog {
+  rules_version: number;
+  shapes: GameShape[];
+}
+
+/** One shape of the catalog, for the account: when it was unlocked, or how
+ * far along it is (1 once unlocked; before, at most 0.99). */
+export interface GameShapeState {
+  id: string;
+  unlocked_at: string | null;
+  progress: number;
+}
+
+/** GET /game/me: the game of the account. `best_s` has the best moving
+ * seconds by distance in metres, as text: {"1000": 287.4}. */
+export interface GameMe {
+  counted_m: number;
+  longest_m: number;
+  best_s: Record<string, number>;
+  shapes: GameShapeState[];
+}
+
+/** Why a run does not count for the game, or counts less (docs/GIOCO.md §4). */
+export type RunGameReason = "not_running" | "vehicle" | "overlap" | "daily_cap";
+
+/** GET /game/runs/{key}: what one saved run was worth, and the shapes it
+ * unlocked, in catalog order; 404 until the run is saved. */
+export interface RunGame {
+  counted: boolean;
+  reason: RunGameReason | null;
+  counted_m: number;
+  best_s: Record<string, number>;
+  unlocked: string[];
+}

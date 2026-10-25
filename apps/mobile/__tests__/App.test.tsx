@@ -84,6 +84,13 @@ function apiAnswers(...polls: unknown[]) {
     if (method === "DELETE") {
       return new Response(null, { status: 204 });
     }
+    if (String(input) === `${API}/game/catalog`) {
+      // An API without the shape game (TASK-296): no «Play» page.
+      return Response.json(
+        { error: { code: "http_error", message: "no game" } },
+        { status: 404 },
+      );
+    }
     if (String(input) === `${API}/gpx`) {
       return new Response(GPX, {
         headers: { "Content-Disposition": `attachment; filename="${GPX_FILE}"` },

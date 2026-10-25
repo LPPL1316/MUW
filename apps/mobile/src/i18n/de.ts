@@ -1235,6 +1235,28 @@ export const DE: Table = {
   "Move the map to put the pin where you want to start.":
     "Verschiebe die Karte, bis die Nadel dort ist, wo du starten willst.",
 
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Video exportieren",
+  "Making the video… {percent}%": "Video wird erstellt… {percent} %",
+  "This phone cannot make the video.": "Dieses Telefon kann das Video nicht erstellen.",
+  "The video could not be made. Try again.":
+    "Das Video konnte nicht erstellt werden. Versuch es noch einmal.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Spielen",
+  "{distance} in total": "{distance} insgesamt",
+  "{distance} under {pace}": "{distance} unter {pace}",
+  "Best {best} · target {target}": "Beste {best} · Ziel {target}",
+  "Longest run {distance}": "Längster Lauf {distance}",
+  "Unlocked {date}": "Freigeschaltet {date}",
+  "Sign in to collect shapes.": "Melde dich an, um Formen zu sammeln.",
+  "{distance} counted so far": "{distance} bisher gezählt",
+  "The game is not available right now.": "Das Spiel ist gerade nicht verfügbar.",
+  "New shape unlocked": "Neue Form freigeschaltet",
+  "New shape unlocked: {name}": "Neue Form freigeschaltet: {name}",
+  "It is in your collection.": "Sie ist in deiner Sammlung.",
+  "See collection": "Sammlung ansehen",
+
   // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
   "MuW is recording your activity": "MuW zeichnet deine Aktivität auf",
   "It keeps going with the screen locked, voice included.":

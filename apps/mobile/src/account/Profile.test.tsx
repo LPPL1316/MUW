@@ -91,7 +91,11 @@ test("without an account the app opens on «Draw» as before, and asks the API n
   await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.queryByTestId("account-submit")).toBeNull();
   expect(screen.getByText("Draw route")).toBeTruthy();
-  expect(fetchSpy).not.toHaveBeenCalled();
+  // Nothing but the shape game's catalog, asked as the app opens to know
+  // whether to show «Play» (TASK-296).
+  expect(
+    fetchSpy.mock.calls.filter(([input]) => !String(input).endsWith("/game/catalog")),
+  ).toEqual([]);
 });
 
 test("sign up in «Profile», and the app remembers who when reopened", async () => {

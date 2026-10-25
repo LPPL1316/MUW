@@ -445,6 +445,106 @@ primo libero in `main` al merge):
   DESC) WHERE visibility <> 'only_me'`: i disegni pubblicati, i più
   recenti prima, l'ordine del feed.
 
+Migrazione `0023_away_email.sql` (TASK-284, ADR-0244; il numero è il primo
+libero in `main` al merge):
+
+- `users.notify_away` (`boolean NOT NULL DEFAULT true`): «Email when I'm
+  away» di «Settings». **Acceso** per ogni account, quelli di prima
+  compresi (scelta dell'utente: tutti gli iscritti); lo spengono
+  `away_email: false` all'iscrizione, `PUT /me/notifications` e il link
+  della email. In `GET /me` è `notifications.away`.
+- `users.away_emailed_at` (`timestamptz`, facoltativa): l'ultima email di
+  ritorno. Un account la riceve di nuovo solo quando l'app è stata usata
+  dopo (`sessions.last_used_at` più recente di questa data).
+- `users.language` (`en`, `de`, `it`, `es`, `fr`, o `NULL`): la lingua
+  dell'app all'iscrizione, per i testi delle email; `NULL` per gli account
+  di prima, e allora vale quella del telefono (`push_tokens.language`) o
+  l'inglese.
+- Nessun indice: il giro di ogni giorno legge tutti gli account con
+  `notify_away` una volta. **L'indirizzo email lascia il server per un
+  terzo**, Resend, solo dentro un'email di ritorno (ADR-0244).
+
+Migrazione `0025_game.sql` (TASK-296 parte A, ADR-0255, `GIOCO.md`; il
+numero è il primo libero in `main` al merge):
+
+- `game_runs`: una riga per corsa salvata. `run_id` (chiave, `ON DELETE
+  CASCADE` su `runs`), `user_id` (`ON DELETE CASCADE` su `users`),
+  `rules_version`, `counted`, `reason` (`not_running`, `vehicle`,
+  `overlap`, `daily_cap`, o `NULL`), `counted_m`, `best_s` (jsonb: i
+  migliori secondi in movimento su 1000, 5000, 10000 e 21097 m, chiavi
+  testo), `started_at` ed `ended_at` (primo e ultimo punto). Indice su
+  `(user_id, started_at)`: i totali, le sovrapposizioni e il tetto del
+  giorno. La scrive `PUT /me/activities/{key}` nella transazione della
+  corsa, sotto il lock della riga di `users` che il salvataggio già
+  prende; `game_backfill` la rifà per le corse di prima e a ogni
+  `RULES_VERSION` nuova.
+- `game_unlocks`: le forme di un account, chiave `(user_id, shape_id,
+  edition)`. `edition` è `solo` o `team` (la sfida di squadra, parte C),
+  poi `unlocked_at` e `run_id` (`ON DELETE SET NULL`: la forma resta
+  quando si cancella la corsa che l'ha sbloccata).
+- **Con l'account si cancella tutto** (`ON DELETE CASCADE` su `users`),
+  con un test (`test_game_api.py`). Una corsa cancellata toglie la sua
+  riga di `game_runs`, e i suoi metri escono dai totali; le forme restano.
+
+Migrazione `0026_drawn_routes.sql` (TASK-297 parte A, ADR-0256; il numero
+è il primo libero in `main` al merge):
+
+- `drawn_routes`: una riga per ogni percorso che il motore finisce e per
+  ogni sua alternativa (`API.md`, «L'archivio dei percorsi»). `id`,
+  `drawn_at`, `engine` (l'impronta del motore: un motore cambiato
+  ridisegna), la richiesta (`shape` o `word`, `style`, `distance_m`,
+  `activity`, `pen_up`), `start` (`geography(Point, 4326)`, la partenza
+  chiesta, dove stava l'utente: il percorso comincia al nodo stradale più
+  vicino; indice GiST: «entro 100 m»), `route` (`geometry(LineString,
+  4326)`), `result` (`jsonb`: il `RouteResult` com'è, con le indicazioni,
+  senza le alternative, che sono righe loro), `similarity`, `line_key` (la
+  chiave della linea, come `favoriteKey` dell'app e `best_routes.line_key`),
+  `runs` e `favorites` (quante corse salvate lungo la linea, quanti
+  preferiti). Indici sulla chiave della richiesta, su `line_key` e su
+  `drawn_at`.
+- **Nessun `user_id`**: la riga non dice chi ha chiesto il percorso né chi
+  l'ha corso; cancellare un account non la tocca (test
+  `test_route_archive.py`). Una partenza è spesso la casa di qualcuno: per
+  questo (ADR-0256, scelta dell'utente di ADR-0086) i percorsi servono a
+  rispondere a chi chiede lo stesso disegno entro 100 m e a consigliarli,
+  mai a dire chi c'era. Il paragrafo della pagina privacy lo approva
+  l'utente. Le immagini e le forme spostate a mano non entrano mai.
+- Tetto di 50 000 righe nel codice (`MAX_ROUTES`): oltre, a ogni scrittura
+  vanno via le più vecchie con `runs` e `favorites` a zero.
+
+Migrazione `0027_game_teams.sql` (TASK-296 parte C, ADR-0255, `GIOCO.md`
+§6–§7; il numero è il primo libero in `main` al merge: la 0026 è di
+TASK-297 A, #539):
+
+- `game_teams`: `id` (uuid), `name` (1–40), `invite_code` (unico, 6 di
+  `A–Z` e `2–9` senza `I O 0 1`), `owner_id` (`ON DELETE SET NULL`: prima
+  l'API passa la squadra all'iscritto più vecchio, `game_teams.py`),
+  `created_at`. Nessuna ricerca: si entra solo con il codice.
+- `game_team_members`: `(team_id, user_id)` con `joined_at`; `CASCADE`
+  dalla squadra e dall'account; indice su `user_id`.
+- `game_challenges`: `id`, `team_id` (`CASCADE`), `shape_id`, `created_by`
+  (`SET NULL`), `starts_at`, `ends_at`, `completed_at`, `ending_told_at`
+  (quando è partita la push «1 day left»: l'`UPDATE` condizionato su
+  questa colonna la manda una volta sola, anche con più processi). Una
+  sfida è attiva finché non è completa e non sono passate 3 ore da
+  `ends_at`: lo stato non si scrive. Indice su `(team_id, starts_at DESC)`.
+- `game_pieces`: `(challenge_id, idx)`; `required_m` **oppure**
+  `fast_distance_m` + `max_pace_s` (`CHECK`); `holder_id` (`SET NULL`),
+  `held_at`, `done_m`, `done_at`. Un pezzo lasciato ha `holder_id` e
+  `held_at` a `NULL` e tiene `done_m`. Indice su `holder_id`.
+- `game_contributions`: `id`, `(challenge_id, piece_idx)` (`CASCADE` dal
+  pezzo), `user_id` (`CASCADE`: con l'account spariscono i suoi
+  contributi, i metri restano nel pezzo), `run_id` (`SET NULL`: una corsa
+  cancellata lascia i metri che ha dato), `metres`, `at`. Indici sul
+  pezzo e su `run_id` (`GET /game/runs/{key}`).
+- `game_unlocks.challenge_id` (`SET NULL`): la sfida che ha dato
+  l'edizione squadra.
+- **Con l'account** vanno via iscrizioni e contributi, e prima
+  `before_account_delete` lo toglie dalle squadre (proprietà all'iscritto
+  più vecchio, squadra vuota cancellata, pezzi liberi); sfide e pezzi
+  restano alla squadra senza il nome (test in `test_game_teams.py` e
+  `test_game_challenges.py`).
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

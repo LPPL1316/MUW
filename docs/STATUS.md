@@ -157,6 +157,106 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
+  alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
+  dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
+  numeri e condizioni dal Coordinatore). Branch `docs/TASK-297-proposal`
+  (documenti), poi `feat/TASK-297-a-route-archive` (A) e
+  `feat/TASK-297-c-image-pieces` (C). **A**: ogni percorso disegnato
+  resta nel database senza chi l'ha chiesto; la stessa richiesta entro
+  100 m riceve il percorso pronto con l'avvicinamento (0–2 s invece dei
+  6–14 s del server: mediana 6,6 s a ottobre, e l'80 % delle richieste
+  ripeteva una già fatta nella stessa cella di 1 km); i più corsi e
+  preferiti davanti, gli altri come alternative; tetto e pulizia; testo
+  privacy all'utente. **B** (il motore riparte dai piazzamenti imparati
+  vicino): misurata a Trento su 36 richieste, peggiore in 28, scartata;
+  resta il ridisegno rapido dal piazzamento dopo un cambio del motore
+  (A2, dopo la #497). **C**: nelle immagini i soggetti staccati e i fori
+  diventano pezzi disegnati uno alla volta, camminando fra l'uno e
+  l'altro: «RC» leggibile, la ruota coi raggi, il logo MuW; nel
+  repository solo loghi sintetici e MuW. Proposta e prove in
+  `out/archivio-apprendimento/` del Mac (ignorato da git). Server dopo
+  Apple, con l'ok dell'utente. Seguito da aprire: fermarsi prima quando
+  la forma non entra nelle strade (19 ricerche su 36 bruciano i 30
+  tracciamenti). File: `tasks/TASK-297.md`.
+  **Documenti** in `main` con la #538 (`9391893c`, 2026-10-24).
+  **Parte A** (branch `feat/TASK-297-a-route-archive`, migrazione
+  `0026_drawn_routes.sql`, numero al merge): la tabella `drawn_routes`
+  senza `user_id`; `route_archive.py` davanti al `RouteStore` dei file
+  (`get` subito dallo stesso punto, `nearby` nel thread del job entro
+  100 m con l'avvicinamento lungo le strade, `put` di percorso e
+  alternative, tetto di 50 000 righe); `RouteJobs` chiede l'archivio
+  prima del motore (`FindsNearby`); le corse salvate e i preferiti contano
+  per `line_key`. Contratto invariato; senza database tutto come prima.
+  `jobs.py` va anche sul telefono: `engine.zip` rifatto (da pubblicare su
+  `preview`), il telefono senza archivio disegna come prima (test).
+  Server dopo Apple, con l'ok dell'utente e il paragrafo della privacy.
+  **Parte A** in `main` con la #539 (`0c4ada00`, 2026-10-25), mergiata dal
+  Coordinatore: impronta iOS invariata (`83793e26`), su `preview` (gruppo
+  `e0e4e126`) con l'`engine.zip` nuovo. L'archivio lavora solo sul server:
+  dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
+  TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
+  **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
+- **TASK-295 — Il video della corsa, da esportare per i social**
+  (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
+  Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
+  accanto a «Instagram»: un video di 12 s, 9:16, sul giallo del post, con
+  la linea della corsa che si disegna mentre distanza e tempo salgono, poi
+  il post intero con le emoji; niente musica. Si fa sul telefono nel
+  WebView (WebCodecs, H.264 Baseline) e l'app scrive l'MP4; poi il foglio
+  di condivisione. Solo app: nessuna dipendenza nuova, niente di nativo,
+  fingerprint iOS invariato. Provato nel simulatore (1,9 MB in circa
+  10 s); la prova sull'iPhone è dell'utente. File: `tasks/TASK-295.md`.
+  **Chiuso**: in `main` con la #533 (`90691d47`, 2026-10-23), mergiata
+  dal Coordinatore, provato dall'utente sull'iPhone; vedi «Completato».
+- **TASK-296 — Il gioco delle forme** (ADR-0255; chiesto dall'utente il
+  2026-10-23, numero dal Coordinatore). Le corse a piedi salvate sbloccano
+  forme da collezionare, per km totali e per passo su una distanza; in
+  squadra si ricrea una forma divisa in pezzi entro una scadenza. Sta in
+  una pagina nuova «Play», scelta dall'utente fra «Play», una riga nel
+  Profilo e un'app a sé. Il server conta, l'app mostra; «Play» si vede
+  solo se `GET /game/catalog` risponde 200. Le parti sono A (API,
+  collezione), B (app, collezione), C (API, squadre e sfide), D (app,
+  sfide) ed E (striscia in corsa). Regole in `GIOCO.md`. Prima i
+  documenti (branch `docs/TASK-296-shape-game`), poi A. Testi delle push e
+  paragrafo di privacy aspettano il sì dell'utente. Server solo dopo Apple.
+  File: `tasks/TASK-296.md`.
+  **Documenti** in `main` con la #532 (`f34ca6c5`, 2026-10-23).
+  **Parte A** (branch `feat/TASK-296-a-game-api`, migrazione `0025_game.sql`
+  da rinumerare al merge se serve): `game_runs` e `game_unlocks`, regole
+  pure in `game_rules.py`, 12 forme in `game_catalog.py`, `GET
+  /game/catalog`, `/game/me` e `/game/runs/{key}`, la push
+  `shape_unlocked`, `python -m shaperoute_api.game_backfill` per le corse
+  di prima. La risposta del salvataggio non cambia. Sul server, dopo
+  Apple: migrazione, deploy, backfill.
+  **Parte A** in `main` con la #534 (`abb593c5`, 2026-10-24).
+  **Parte B** (branch `feat/TASK-296-b-play-collection`): la pagina «Play»
+  fra «Explore» e il profilo, solo mentre `GET /game/catalog` risponde 200
+  (chiesto all'avvio, tenuto sul telefono); la collezione a griglia, in
+  giallo le forme sbloccate, in grigio le altre con requisito e
+  percentuale, nelle unità scelte; la scheda «New shape unlocked» dopo
+  che l'API ha preso la corsa; la push `shape_unlocked` che apre «Play» e
+  non si mostra a app aperta. Solo app, impronta iOS invariata; su
+  `preview` dopo che A è sul server (o prima: senza il gioco sul server la
+  pagina non si vede).
+  **Parte B** in `main` con la #536 (`145cf992`, 2026-10-24); testi
+  dell'app approvati dall'utente lo stesso giorno. Restano C, D ed E.
+  **Parte C** (branch `feat/TASK-296-c-teams-api`, PR #540, migrazione
+  `0027_game_teams.sql`, perché la 0026 è di TASK-297 A, #539; il numero
+  si ricontrolla al merge): `game_teams`, `game_team_members`,
+  `game_challenges`, `game_pieces`, `game_contributions` e `challenge_id`
+  in `game_unlocks`; `game_teams.py` (nome dal filtro di TASK-213, codice
+  di 6, join rifiutato senza motivo con un blocco, oltre 20 iscritti o 10
+  squadre, uscita, rimozione, passaggio di proprietà, ganci alla
+  cancellazione dell'account e al blocco), `game_challenges.py` (una
+  sfida per squadra, un pezzo in mano per persona, riempimento da
+  `after_run_saved` con i km in avanzo, pezzo veloce, edizione squadra,
+  `ChallengeClock` per «1 day left»), il contorno dei pezzi in
+  `game_rules.pieces_of`, gli otto endpoint, `pieces_done` in `GET
+  /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
+  iscritti e i testi delle tre push sono approvati dall'utente
+  (2026-10-24). Server dopo Apple, con l'ok dell'utente.
+
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
   **A** (aggiunta ad ADR-0225), branch
@@ -296,6 +396,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   anche dalla mappa del risultato** (numero dal Coordinatore); **ok a
   pubblicare su `preview` tutto `main`** (278 A+B, 279 A, 280, 281, 283
   lato app, 285 A+B), lo fa il Coordinatore. TASK-276 va rispiegato.
+- **TASK-284 — L'email di ritorno a chi non apre l'app da 14 giorni**
+  (ADR-0244; chiesto dall'utente il 2026-10-11; scelte sue: «a tutti gli
+  iscritti», «un interruttore suo, acceso», con la casella non spuntata
+  all'iscrizione e il link in ogni email). **Parte A** (API, migrazione
+  `0023_away_email.sql`, Resend, pagina per disiscriversi, giro di ogni
+  giorno): PR da `feat/TASK-284-return-email`, spenta finché il server non
+  ha chiave, segreto e dominio. **Parte B** (Todo, dopo #461): la casella
+  all'iscrizione, l'interruttore in «Settings», la privacy nuova e i testi,
+  tutti col sì dell'utente. Nessuna email prima di A e B in `main`, app
+  pubblicata, approvazione di Apple e chiave di Resend con il dominio
+  verificato (lo fa l'utente, `DEPLOY.md` «Email di ritorno»). File:
+  `tasks/TASK-284.md`.
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
@@ -991,6 +1103,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
+  2026-10-23): il video della corsa da condividere. In «Share your run»,
+  «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
+  giallo del post: logo e titolo, la linea della corsa che si disegna
+  mentre distanza e tempo salgono, poi il post intero con le emoji, senza
+  musica; poi il foglio di condivisione («Save Video», Instagram). Il
+  telefono lo fa nel WebView con WebCodecs (H.264 Baseline) e l'app
+  scrive l'MP4: nessuna dipendenza nuova, niente di nativo, impronta iOS
+  `83793e26` invariata, quindi arriva anche alla 1.0 con un aggiornamento.
+  Limite fisso: 360 fotogrammi, al più 2000 punti sulla linea, al più
+  ~9 MB. Su `preview` dal gruppo `bed64fd5` (`main` `90691d47`); prova
+  sull'iPhone dell'utente del 2026-10-23: «provato, funziona tutto». PR
+  #533, `90691d47`. `tasks/TASK-295.md`.
 - **App** — prova sull'iPhone dell'utente del 2026-10-19 («provato, funziona tutto») su `preview` dal gruppo `6dab601f` (`main` `b35d461c`): TASK-292 (scegliere la partenza sulla mappa). Riga aggiunta nell'«Esito» del task file.
 - **API** — TASK-293 (aggiunta ad ADR-0249; seguito di TASK-288 B): un
   invio a Strava apre un blocco del database alla volta. La corsa letta

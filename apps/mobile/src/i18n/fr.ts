@@ -1225,6 +1225,28 @@ export const FR: Table = {
   "Move the map to put the pin where you want to start.":
     "Déplace la carte pour mettre l'épingle là où tu veux partir.",
 
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Exporter la vidéo",
+  "Making the video… {percent}%": "Création de la vidéo… {percent} %",
+  "This phone cannot make the video.": "Ce téléphone ne peut pas créer la vidéo.",
+  "The video could not be made. Try again.":
+    "La vidéo n'a pas pu être créée. Réessaie.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Jouer",
+  "{distance} in total": "{distance} au total",
+  "{distance} under {pace}": "{distance} sous {pace}",
+  "Best {best} · target {target}": "Meilleur {best} · objectif {target}",
+  "Longest run {distance}": "Plus longue course {distance}",
+  "Unlocked {date}": "Débloquée {date}",
+  "Sign in to collect shapes.": "Connecte-toi pour collectionner des formes.",
+  "{distance} counted so far": "{distance} comptés jusqu'ici",
+  "The game is not available right now.": "Le jeu n'est pas disponible pour le moment.",
+  "New shape unlocked": "Nouvelle forme débloquée",
+  "New shape unlocked: {name}": "Nouvelle forme débloquée : {name}",
+  "It is in your collection.": "Elle est dans ta collection.",
+  "See collection": "Voir la collection",
+
   // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
   "MuW is recording your activity": "MuW enregistre ton activité",
   "It keeps going with the screen locked, voice included.":

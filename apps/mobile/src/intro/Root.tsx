@@ -2,6 +2,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import App from "../../App";
+import { UnlockLayer } from "../game/UnlockLayer";
 import { color } from "../theme/tokens";
 import { Tour } from "../tour/Tour";
 import { useTour } from "../tour/useTour";
@@ -16,7 +17,9 @@ import { SavedLogoLayer } from "./SavedLogo";
  * the logo that comes up after «Save» (TASK-212). Around it all, the screen
  * for a component that throws (TASK-256): «Try again» there starts the app
  * anew, without the animation again. After the animation, the first time
- * and whenever the guide asks, the tour of the app (TASK-266).
+ * and whenever the guide asks, the tour of the app (TASK-266). Under the
+ * logo after «Save», the card of a shape the run unlocked (TASK-296): it
+ * waits for the logo to go.
  */
 export function Root() {
   const [intro, setIntro] = useState(true);
@@ -25,6 +28,7 @@ export function Root() {
     <View style={styles.root}>
       <AppBoundary>
         <App />
+        <UnlockLayer />
         <SavedLogoLayer />
         {!intro && tour.on !== null ? (
           <Tour key={tour.on.key} lockSeconds={tour.on.lockSeconds} onEnd={tour.end} />

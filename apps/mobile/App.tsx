@@ -10,7 +10,7 @@ import type {
   Walk,
 } from "@shaperoute/shared-types";
 import { StatusBar } from "expo-status-bar";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -34,6 +34,13 @@ import {
 import { ExploredCard } from "./src/explore/ExploredCard";
 import { useExplored } from "./src/explore/explored";
 import { ExploreScreen } from "./src/explore/ExploreScreen";
+import {
+  gameCatalog,
+  refreshGameCatalog,
+  useGameCatalog,
+} from "./src/game/gameCatalog";
+import { PlayScreen } from "./src/game/PlayScreen";
+import { onOpenPlay } from "./src/game/unlocks";
 import {
   loadRecentCities,
   remember,
@@ -172,12 +179,18 @@ type Screen =
   | "feed"
   | "profile"
   | "canvas"
-  | "pickStart";
+  | "pickStart"
+  | "play";
 
 /** The screens that are pages side by side, left to right, one swipe apart
  * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
- * take the whole screen. */
-const PAGES: readonly Screen[] = ["feed", "choose", "explore", "profile"];
+ * take the whole screen. «Play», the shape game (TASK-296, ADR-0255), is
+ * among them only while the API has the game. */
+function pagesOf(playOn: boolean): readonly Screen[] {
+  return playOn
+    ? ["feed", "choose", "explore", "play", "profile"]
+    : ["feed", "choose", "explore", "profile"];
+}
 
 /** A run that ended, shown on the finish screen. */
 type Finished = {
@@ -328,7 +341,18 @@ function MuW() {
   } = useActivitiesDoor();
   // And so does a drawing opened from a profile (TASK-117).
   const { opened: drawing, back: backFromDrawing } = useDrawingsDoor();
-  const onPage = PAGES.includes(screenNow);
+  // «Play» is a page while the API has the shape game (TASK-296): asked
+  // once as the app opens, kept on the phone for the next opening.
+  const playOn = useGameCatalog() !== null;
+  const pages = pagesOf(playOn);
+  useEffect(() => {
+    void refreshGameCatalog(API_URL);
+  }, []);
+  if (screenNow === "play" && !playOn) {
+    // The API said it has no game while the page was on screen.
+    setScreen("choose");
+  }
+  const onPage = pages.includes(screenNow);
   const screen: Screen =
     (favorite !== null || activity !== null || drawing !== null) && onPage
       ? "map"
@@ -962,7 +986,21 @@ function MuW() {
   }
 
   // The page on screen; -1 while the map or a run takes the whole screen.
-  const page = PAGES.indexOf(screen);
+  const page = pages.indexOf(screen);
+
+  // The card of a shape unlocked, or its notification, asks for «Play»
+  // (TASK-296): only while a page is on screen, never over a run.
+  const latestPage = useRef({ onPage, showPage });
+  latestPage.current = { onPage, showPage };
+  useEffect(
+    () =>
+      onOpenPlay(() => {
+        if (latestPage.current.onPage && gameCatalog() !== null) {
+          latestPage.current.showPage("play");
+        }
+      }),
+    [],
+  );
 
   /** Another page, by a swipe, its name or the profile's circle. */
   function showPage(next: Screen) {
@@ -1345,7 +1383,7 @@ function MuW() {
       {page !== -1 && (
         <Pager
           page={page}
-          onPage={(index) => showPage(PAGES[index])}
+          onPage={(index) => showPage(pages[index])}
           action={
             // The sport at the left of the way to «Profile» (TASK-205),
             // whose circle is the name of the profile's page (TASK-278).
@@ -1530,6 +1568,22 @@ function MuW() {
                   />
                 ),
             },
+            // The shape game (TASK-296, ADR-0255), while the API has it: it
+            // asks for the account's collection as it opens.
+            ...(playOn
+              ? [
+                  {
+                    title: pageTitle("play"),
+                    lazy: true,
+                    render: () => (
+                      <PlayScreen
+                        active={screen === "play"}
+                        onSignIn={() => showPage("profile")}
+                      />
+                    ),
+                  },
+                ]
+              : []),
             {
               // The account's own profile, after «Explore» (TASK-278): no
               // name in the header, where its circle is.

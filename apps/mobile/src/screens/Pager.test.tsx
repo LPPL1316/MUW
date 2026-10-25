@@ -116,6 +116,26 @@ test("a page that asks as it opens is not built until someone goes there", async
   expect(names(built)).toEqual(["Feed", "Draw", "Explore"]);
 });
 
+test("a page that joins the row later leaves the pages built in place (TASK-296)", async () => {
+  const built = jest.fn();
+  const { rerender } = await render(pager(3, jest.fn(), built, fourPages));
+  expect(names(built)).toEqual(["Feed", "Draw", "Profile"]);
+  // «Play» comes between «Explore» and the profile, which moves one place.
+  const withPlay = (b: jest.Mock): PagerPage[] => [
+    ...threePages(b),
+    { title: "Play", lazy: true, render: () => <Body name="Play" built={b} /> },
+    ...fourPages(b).slice(3),
+  ];
+  built.mockClear();
+  await rerender(pager(4, jest.fn(), built, withPlay));
+  // The profile is still there, «Play» not built until someone goes there.
+  expect(names(built)).toEqual(["Feed", "Draw", "Profile"]);
+  expect(screen.getByText("Profile body, top inset 0")).toBeOnTheScreen();
+  expect(screen.getAllByRole("tab").map((tab) => tab.props.accessibilityLabel)).toEqual(
+    ["Feed", "Draw", "Explore", "Play"],
+  );
+});
+
 test("a swipe that comes to rest on another page says which", async () => {
   const onPage = jest.fn();
   await render(pager(1, onPage));

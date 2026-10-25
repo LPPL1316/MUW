@@ -98,7 +98,12 @@ test("a phone number is written with its country code", () => {
 const switches: NotificationsRequest = notifications;
 
 test("the notification switches are off until turned on, one at a time", () => {
-  assert.deepEqual(signedIn.user.notifications, { email: false, push: false });
+  // «Email when I'm away» (TASK-284) is on until turned off.
+  assert.deepEqual(signedIn.user.notifications, {
+    email: false,
+    push: false,
+    away: true,
+  });
   // Only what changes is sent: the other switch stays as it is.
   assert.deepEqual(switches, { push: true });
   // A User of an API older than TASK-185 has none.
