@@ -32,6 +32,9 @@ molti download rifiuta per qualche ora (`MAPS.md`).
 
 ## Prossimo passo
 
+*(2026-10-25: TASK-122 è Done, lo Storage Box c'è e riceve le copie; il
+paragrafo qui sotto è superato per quella parte.)*
+
 **TASK-122 — le copie fuori dal server**: il server è spostato, manca lo
 Storage Box Hetzner, che crea l'utente (`DEPLOY.md` F.13, punto 2); poi
 il servizio `offsite` sul server. Dopo, la parte social (`ROADMAP.md`,
@@ -865,6 +868,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `offsite` è in `main` dalla PR #167): manca che l'utente lo crei
   (`DEPLOY.md` F.13). Sessione «Sistema di auto-miglioramento ricerca»; da
   dove riprendere: il task file.
+  **Done** il 2026-10-25: vedi «Completato».
 - **TASK-190 — Percorsi in bici** (ADR-0153): **parte A, il motore**, in
   `main` (PR #214): la rete `bike` (ciclabili e strade fino alle
   `primary`, mai scale, `trunk` né vie vietate alle bici, sensi unici
@@ -1254,6 +1258,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Server** — TASK-122 (ADR-0123), le copie fuori dal server: lo Storage
+  Box Hetzner `muw-backups` (`u700709`, BX11, Falkenstein, 3,20 €/mese,
+  comprato dall'utente il 2026-10-25) riceve ogni notte alle 02:30 UTC le
+  13 copie del database e gli eventi delle ricerche. Primo invio a mano il
+  2026-10-25, 1,5 s; una copia ripresa da lì ha lo stesso SHA-256 e si
+  ripristina in `restore_check`, con 3 account e le migrazioni 0001–0021. È
+  stato ricreato solo `offsite`, senza riavvii di API e database. Il
+  server nella Console ora si chiama `muw`, il progetto `MuW`. L'iscrizione
+  dall'iPhone la conferma l'utente. **TASK-122 è Done**; resta da guardare il
+  2026-10-26 il primo invio notturno. `tasks/TASK-122.md`, `DEPLOY.md` F.13.
 - **Motore, API e app** — TASK-190 (ADR-0153; chiuso il 2026-10-25): i
   percorsi in bici, parti A, B e C in `main` dal 2026-10-02 (PR #214, #219,
   #221). I campioni sono tutti giudicati dall'utente: oltre ai cinque di
