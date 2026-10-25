@@ -17,20 +17,23 @@ type Props = {
 
 type Which = keyof Notifications;
 
-/** The two switches, in the order of the page; the names shown with `t()`. */
+/** The switches, in the order of the page; the names shown with `t()`. */
 const SWITCHES: { which: Which; emoji: string; name: string }[] = [
   { which: "email", emoji: "📧", name: tLater("Email notifications") },
   { which: "push", emoji: "🔔", name: tLater("Push notifications") },
+  { which: "away", emoji: "👋", name: tLater("Email when I'm away") },
 ];
 
 /**
  * «NOTIFICATIONS» in «Settings» (TASK-185, ADR-0206): «Email notifications»
  * and «Push notifications», each a switch kept in the account, both off
- * until turned on. Turning «Push notifications» on asks the phone for its
+ * until turned on, and «Email when I'm away» (TASK-284, ADR-0244), on until
+ * turned off. Turning «Push notifications» on asks the phone for its
  * permission, here and nowhere else (TASK-262, ADR-0226); refused, the
  * switch stays off and says where to allow it. With the switch on the phone
- * gets push notifications (`../notifications/usePushNotifications`); no
- * email is sent yet, and the note under the rows says so. A switch shows
+ * gets push notifications (`../notifications/usePushNotifications`); the
+ * emails come from the API, and the note under the rows says what each
+ * sends. A switch shows
  * its new value at once and goes back if the phone or the API refuses, with
  * the reason under the rows; while one answer is on its way, a second tap
  * sends nothing.
@@ -63,9 +66,13 @@ export function NotificationsSetting({ user, account }: Props) {
       setRefused(true);
       return;
     }
-    // Only the switch that changes: the other stays as the API has it.
+    // Only the switch that changes: the others stay as the API has them.
     const failed = await account.changeNotifications(
-      which === "email" ? { email: on } : { push: on },
+      which === "email"
+        ? { email: on }
+        : which === "push"
+          ? { push: on }
+          : { away: on },
     );
     busyNow.current = false;
     // Kept, the account has it by now; refused, the switch goes back.
@@ -104,7 +111,7 @@ export function NotificationsSetting({ user, account }: Props) {
       </View>
       <Text style={styles.note}>
         {t(
-          "Push notifications tell you about follow requests, reactions, comments and tags. MuW does not send emails yet: your choice is kept for when it does.",
+          "Push notifications tell you at once about follow requests, reactions, comments and tags. Email notifications sends the same news in one email a day at most. Email when I'm away: one email if you don't open MuW for 2 weeks.",
         )}
       </Text>
       {problem !== null && <Text style={styles.problem}>{problem}</Text>}

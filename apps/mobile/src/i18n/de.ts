@@ -1162,8 +1162,8 @@ export const DE: Table = {
     "Du hast {user} blockiert. Freigeben kannst du unter Blockierte Personen in deinem Profil.",
 
   // src/settings/NotificationsSetting.tsx, notificationFields.ts (TASK-262: push sent)
-  "Push notifications tell you about follow requests, reactions, comments and tags. MuW does not send emails yet: your choice is kept for when it does.":
-    "Push-Benachrichtigungen melden dir Folgeanfragen, Reaktionen, Kommentare und Markierungen. MuW verschickt noch keine E-Mails: Deine Auswahl bleibt gespeichert, bis es so weit ist.",
+  "Push notifications tell you at once about follow requests, reactions, comments and tags. Email notifications sends the same news in one email a day at most. Email when I'm away: one email if you don't open MuW for 2 weeks.":
+    "Push-Benachrichtigungen melden dir Folgeanfragen, Reaktionen, Kommentare und Markierungen sofort. E-Mail-Benachrichtigungen schicken dieselben Neuigkeiten in höchstens einer E-Mail am Tag. E-Mail, wenn ich weg bin: eine E-Mail, wenn du MuW 2 Wochen lang nicht öffnest.",
   "Notifications are off for MuW on this phone. Allow them in Settings to turn this on.":
     "Mitteilungen für MuW sind auf diesem Telefon aus. Erlaube sie in den Einstellungen, um sie einzuschalten.",
 
@@ -1307,4 +1307,10 @@ export const DE: Table = {
   "This server cannot look in your contacts yet.":
     "Dieser Server kann noch nicht in deinen Kontakten suchen.",
   "The contacts could not be read.": "Die Kontakte konnten nicht gelesen werden.",
+  // src/screens/SignInScreen.tsx, src/settings/NotificationsSetting.tsx
+  // (TASK-284 B: the email when away; the names as in its email)
+  "If you don't open MuW for 2 weeks, we email you once with what's new.":
+    "Wenn du MuW 2 Wochen lang nicht öffnest, schicken wir dir einmal eine E-Mail mit den Neuigkeiten.",
+  "Don't send me these emails": "Schickt mir diese E-Mails nicht mehr",
+  "Email when I'm away": "E-Mail, wenn ich weg bin",
 };
