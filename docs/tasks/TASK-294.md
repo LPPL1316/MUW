@@ -117,7 +117,10 @@ non è in `app.json` (scelta dell'utente del 2026-10-25), così l'impronta
 iOS resta `83793e26`. Nella prima build Android i contatti restano
 nascosti (`contactsAvailable()` falso), a meno di togliere l'esclusione
 solo per Android e rimettere il plugin. **Va chiesto all'utente** se li
-vuole già nella prima build Android. Se sì: l'esclusione solo per iOS
+vuole già nella prima build Android. **Risposta dell'utente del
+2026-10-25: «No, più avanti»**: la prima build Android resta senza
+rubrica, che arriva poi con un aggiornamento insieme a quella dell'iPhone.
+Quando entrerà: l'esclusione solo per iOS
 (`expo.autolinking.ios.exclude`), il plugin e `READ_CONTACTS` fra le voci
 di `ANDROID_ONLY` in `fingerprint.config.js`; attenzione, anche i file del
 plugin caricato entrano nell'impronta di ogni piattaforma
