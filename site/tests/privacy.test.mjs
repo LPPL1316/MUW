@@ -67,11 +67,11 @@ test("every page points at files that exist and loads nothing from elsewhere", (
 
 test("the policy is final: its day, no draft notice, nothing left to fill (TASK-237 D, TASK-267 B)", () => {
   const days = {
-    "privacy/index.html": "Last updated: 10 October 2026",
-    "privacy/it/index.html": "Ultimo aggiornamento: 10 ottobre 2026",
-    "privacy/de/index.html": "Zuletzt aktualisiert: 10. Oktober 2026",
-    "privacy/fr/index.html": "Dernière mise à jour : 10 octobre 2026",
-    "privacy/es/index.html": "Última actualización: 10 de octubre de 2026",
+    "privacy/index.html": "Last updated: 25 October 2026",
+    "privacy/it/index.html": "Ultimo aggiornamento: 25 ottobre 2026",
+    "privacy/de/index.html": "Zuletzt aktualisiert: 25. Oktober 2026",
+    "privacy/fr/index.html": "Dernière mise à jour : 25 octobre 2026",
+    "privacy/es/index.html": "Última actualización: 25 de octubre de 2026",
   };
   for (const [path, html] of Object.entries(pages)) {
     assert.ok(html.includes(`<p class="legal__updated">${days[path]}</p>`), path);
