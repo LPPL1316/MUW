@@ -337,6 +337,7 @@ services/route-engine/route_engine/__main__.py            (`--image` con `--pen-
 services/api/shaperoute_api/images.py                     (`ImageRequest.pen_up`, `image_job` con i pezzi; contratto HTTP invariato)
 services/route-engine/tests/test_image_pieces.py          (nuovo)
 services/api/tests/test_image_pen_up.py                   (nuovo; `test_images.py` resta a C2)
+services/route-engine/tests/test_pen_up.py                (il vecchio test che rifiutava `--pen-up` con `--image`)
 tools/sample_logos.py, tools/test_sample_logos.py         (nuovi)
 apps/mobile/assets/engine/engine.zip                      (rifatto: `test_phone_engine.py` lo vuole al passo col motore)
 docs/ROUTE_ENGINE.md §2, docs/DECISIONS.md (aggiunta ad ADR-0258), docs/STATUS.md, docs/tasks/TASK-297.md
