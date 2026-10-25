@@ -106,7 +106,7 @@ const help: AboutDocument = {
             "Idioma: English, Deutsch, Italiano, Español o Français. La voz lo sigue.",
             "Mapas sin conexión: el teléfono guarda los mapas de tu alrededor y dibuja las rutas por sí mismo; «Eliminar» libera el espacio.",
             "Unidades: las de tu teléfono, kilómetros o millas. Con millas cambian las distancias, el ritmo y la voz: un aviso en cada milla, los giros en pies.",
-            "Notificaciones: dos interruptores, correo y push, apagados hasta que los enciendas. Con push encendido, y en cuanto tu teléfono lo permita, MuW te avisa de solicitudes para seguirte, solicitudes aceptadas, reacciones, comentarios y etiquetas; al tocar una se abre la publicación o el perfil. MuW aún no envía correos: esa elección se guarda en tu cuenta para cuando lo haga.",
+            "Notificaciones: tres interruptores. «Notificaciones por correo» y «Notificaciones push» están apagados hasta que los enciendas; «Correo cuando no estoy» está encendido hasta que lo apagues. Con push encendido, y en cuanto tu teléfono lo permita, MuW te avisa al momento de solicitudes para seguirte, solicitudes aceptadas, reacciones, comentarios y etiquetas; al tocar una se abre la publicación o el perfil. Con el correo encendido, las mismas novedades llegan en un correo al día como mucho. «Correo cuando no estoy»: si no abres MuW durante 2 semanas, un correo con las novedades.",
           ],
         },
       ],
@@ -275,10 +275,23 @@ const privacy: AboutDocument = {
             "Tu contraseña, guardada solo como hash (Argon2id): nunca guardamos ni vemos la contraseña en sí.",
             "El día en que te registraste y cuándo confirmaste que tienes al menos 16 años.",
             "La sesión de cada teléfono desde el que entraste: el teléfono guarda un token en su almacenamiento seguro, el servidor solo un hash de él. Una sesión termina 90 días después de su último uso, o cuando cierras sesión.",
-            "Tus dos elecciones de notificaciones en «Ajustes», correo y push: las dos están apagadas hasta que las enciendas. Con push encendido, el token push de tu teléfono, si es un iPhone o un Android y el idioma de la app, para enviarte notificaciones a través del servicio push de Expo, que las pasa a Apple o a Google. Una notificación dice quién hizo qué, con el principio de un comentario. El token se borra cuando apagas push, cierras sesión o borras tu cuenta. MuW aún no envía correos.",
+            "Tus tres elecciones de notificaciones en «Ajustes»: «Notificaciones por correo» y «Notificaciones push», apagadas hasta que las enciendas, y «Correo cuando no estoy», encendida hasta que la apagues. Con push encendido, el token push de tu teléfono, si es un iPhone o un Android y el idioma de la app, para enviarte notificaciones a través del servicio push de Expo, que las pasa a Apple o a Google. Una notificación dice quién hizo qué, con el principio de un comentario. El token se borra cuando apagas push, cierras sesión o borras tu cuenta.",
+            "El idioma de la app cuando te registraste, para escribirte nuestros correos en él.",
           ],
         },
         "Tu dirección de correo electrónico nunca se muestra a los demás miembros.",
+      ],
+    },
+    {
+      heading: "Los correos de MuW",
+      blocks: [
+        {
+          bullets: [
+            "Con «Notificaciones por correo» encendidas, como mucho un correo al día, solo los días con novedades: las solicitudes para seguirte, las solicitudes aceptadas, las reacciones, los comentarios y las etiquetas del día, como las dicen las notificaciones push. Hasta que se envía, nuestro servidor guarda quién hizo qué y en qué publicación, como mucho 7 días; lo que ya no es verdad cuando se escribe queda fuera.",
+            "«Correo cuando no estoy»: si no abres MuW durante 2 semanas, un correo con cuántos dibujos nuevos hay de las personas que sigues, con hasta tres de sus nombres de usuario, o si no en el Feed. Uno por ausencia: el siguiente solo después de que vuelvas y te vayas otra vez. Está encendido para cada miembro, también para quienes se registraron antes de este texto; puedes decir que no al registrarte, en «Ajustes» o con el enlace del correo.",
+            "Cada correo tiene el enlace «No me envíes más estos correos», que apaga ese correo. Los enviamos a través de Resend, desde una dirección de getmuw.app.",
+          ],
+        },
       ],
     },
     {
@@ -325,9 +338,22 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Denuncias",
+      blocks: [
+        "Cuando denuncias un dibujo, un comentario o un perfil, guardamos quién denunció qué, el motivo y cuándo. Quien gestiona MuW la recibe por correo y puede ocultar lo denunciado a los demás miembros. No se borra nada, y su autor lo sigue viendo. Tu denuncia nunca se muestra al autor.",
+      ],
+    },
+    {
+      heading: "El juego de las formas",
+      blocks: [
+        "Con una cuenta, nuestro servidor calcula a partir de tus carreras a pie guardadas cuántos kilómetros cuentan para el juego, tus mejores tiempos en 1, 5, 10 y 21,1 km y las formas que has coleccionado. Solo tú ves tu colección y tus mejores tiempos. Si te unes a un equipo, sus miembros ven tu nombre de usuario, tu foto, las piezas de un reto que tomaste y los kilómetros que diste a cada una, nunca tus trazados, los tiempos de tus carreras ni dónde corriste. A un equipo solo se llega con su código: nunca está en una búsqueda. Borrar una carrera quita sus kilómetros del recuento, y las formas que ya coleccionaste se quedan. Cuando eliminas tu cuenta, tus datos del juego se eliminan con ella; en los retos de un equipo, las piezas que corriste se quedan para los demás, sin tu nombre.",
+      ],
+    },
+    {
       heading: "Rutas que pides",
       blocks: [
         "Para dibujar una ruta, la app envía a nuestro servidor el inicio, la forma o la palabra y la distancia. Cuando el teléfono tiene el mapa sin conexión de la zona, dibuja la ruta por sí mismo.",
+        "Las rutas que dibuja nuestro motor se quedan en nuestro servidor sin quién las pidió, para responder al momento a quien pida el mismo dibujo cerca y para recomendarlas; contamos cuántas carreras y favoritos sigue cada una. Una ruta empieza donde se pidió, a menudo cerca de la casa de alguien, pero nunca dice quién la pidió ni quién la corrió.",
         "Los mapas sin conexión vienen de nuestro servidor: el de tu alrededor y, con antelación, los de los pueblos cercanos. Para limitar estas descargas, el servidor las cuenta por día, según un número anónimo que la app crea para el teléfono; la cuenta se guarda solo en memoria.",
         "Las palabras que describen una forma se leen en nuestro servidor y no se envían a ningún servicio de IA externo.",
         "Una foto que eliges para un dibujo va una vez a nuestro servidor, para encontrar su contorno: el servidor no la guarda ni la registra.",
@@ -366,6 +392,8 @@ const privacy: AboutDocument = {
             "Nuestro servidor pide al servicio Overpass de datos de OpenStreetMap el mapa de una zona que aún no tiene: ve qué zona, no quién la pidió.",
             "unpkg sirve la biblioteca del mapa cuando arranca la app.",
             "Expo sirve las actualizaciones de la app.",
+            "Google Ireland Limited (Firebase Cloud Messaging), para entregar las notificaciones push a los teléfonos Android. Cuando enciendes push, la app pide a Firebase un token de registro para tu teléfono; el servicio push de Expo pasa cada notificación (quién hizo qué, y el principio de un comentario) a Google, que la entrega a tu teléfono. Google ve el token y el contenido de cada notificación, no tu cuenta ni tu posición. El token se quita de nuestro servidor cuando apagas push, cierras sesión o borras tu cuenta; el del teléfono se va cuando desinstalas la app.",
+            "Resend, en Estados Unidos, envía los correos de MuW: tu dirección de correo con el correo mismo. En una denuncia lleva a quien gestiona MuW lo denunciado, su texto, el motivo y los nombres de usuario de quien lo denunció y de quien lo escribió.",
             "Strava, como se ha dicho arriba.",
           ],
         },
@@ -378,7 +406,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "En nuestro servidor en Alemania, mientras tengas la cuenta.",
-            "Cuando eliminas tu cuenta, todo lo que es tuyo se elimina al momento: perfil, foto, número de teléfono, carreras, dibujos, favoritos, comentarios, reacciones y seguimientos.",
+            "Cuando eliminas tu cuenta, todo lo que es tuyo se elimina al momento: perfil, foto, número de teléfono, carreras, dibujos, favoritos, comentarios, reacciones, seguimientos, datos del juego y las novedades que esperan tu correo. Las rutas que dibujó nuestro motor se quedan: no dicen nada de quién las pidió.",
             "Cada noche se hace una copia de seguridad de la base de datos y se guarda 13 días: una cuenta eliminada sale de todas las copias en 14 días como máximo.",
             "En tu teléfono: la sesión, tus elecciones (idioma, deporte, lagos o mar), los mapas sin conexión, las carreras que aún esperan para enviarse y, con una cuenta, la zona desde la que suelen empezar tus actividades, para sugerirte lagos y mar cerca; se borra al cerrar sesión.",
           ],
@@ -391,8 +419,8 @@ const privacy: AboutDocument = {
       blocks: [
         {
           bullets: [
-            "Para darte el servicio que pides (contrato): tu cuenta, tu perfil, las rutas que pides, y las carreras, favoritos, comentarios, reacciones y seguimientos que guardas.",
-            "Nuestro interés legítimo en que MuW funcione, sea segura y mejore: los registros breves del servidor, los recuentos que limitan las descargas de mapas y los eventos de búsqueda, que no dicen nada de quién eres; la comparación de los números de tus contactos, que no conserva ninguno.",
+            "Para darte el servicio que pides (contrato): tu cuenta, tu perfil, las rutas que pides, y las carreras, favoritos, comentarios, reacciones y seguimientos que guardas, los correos de las notificaciones que encendiste, y el juego de las formas.",
+            "Nuestro interés legítimo en que MuW funcione, sea segura y mejore: los registros breves del servidor, los recuentos que limitan las descargas de mapas y los eventos de búsqueda, que no dicen nada de quién eres; la comparación de los números de tus contactos, que no conserva ninguno; el correo cuando no estás, que puedes rechazar al registrarte, en «Ajustes» o en cada correo; los correos de las denuncias, para que MuW sea segura; el archivo de las rutas dibujadas, que no dice nada de quién eres.",
             "Tu consentimiento: el número de teléfono que decides añadir y la conexión con Strava. Puedes retirar un consentimiento en cualquier momento; lo que se hizo antes sigue siendo lícito.",
             "Una obligación legal, cuando una ley nos pide conservar o entregar datos.",
           ],
@@ -409,6 +437,7 @@ const privacy: AboutDocument = {
             "eliminar una carrera de «Mis actividades», un favorito, un comentario o la cuenta entera desde «Ajustes», «Eliminar cuenta»;",
             "pedirnos una copia de tus datos, o que dejemos de usarlos o limitemos un uso;",
             "retirar un consentimiento que hayas dado;",
+            "apagar cualquier correo en «Ajustes» o con su enlace;",
             "presentar una reclamación ante la autoridad de protección de datos de tu país (en Italia, el Garante per la protezione dei dati personali).",
           ],
         },

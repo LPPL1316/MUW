@@ -424,6 +424,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte A in `main`** con la #502 (`263e86db`, 2026-10-25, sul
   «finiscila» dell'utente), migrazione `0023_away_email.sql`; spenta finché
   il server non ha chiave, segreto e dominio. Resta la parte B, dopo #461.
+  **Parte B** (2026-10-25, branch `feat/TASK-284-b-app-privacy`): la
+  casella non spuntata all'iscrizione, «Email when I'm away» in
+  «Settings» e la **privacy unica** (email di ritorno, email delle
+  notifiche, segnalazioni, gioco, archivio dei percorsi, push Android,
+  Resend), approvata dall'utente («sì alla privacy, va bene così»).
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a

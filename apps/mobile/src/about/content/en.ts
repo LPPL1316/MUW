@@ -107,7 +107,7 @@ const help: AboutDocument = {
             "Language: English, Deutsch, Italiano, Español or Français. The voice follows it.",
             "Offline maps: the phone keeps the maps around you and draws routes by itself; «Delete» frees the space.",
             "Units: your phone's own, kilometres or miles. With miles the distances, the pace and the voice follow: a call at every mile, the turns in feet.",
-            "Notifications: two switches, email and push, off until you turn them on. With push on, and once your phone allows it, MuW tells you of follow requests, accepted requests, reactions, comments and tags; touching one opens the post or the profile. MuW sends no emails yet: that choice is kept with your account for when it does.",
+            "Notifications: three switches. «Email notifications» and «Push notifications» are off until you turn them on; «Email when I'm away» is on until you turn it off. With push on, and once your phone allows it, MuW tells you at once of follow requests, accepted requests, reactions, comments and tags; touching one opens the post or the profile. With email on, the same news comes in one email a day at most. «Email when I'm away»: if you do not open MuW for 2 weeks, one email with what is new.",
           ],
         },
       ],
@@ -276,10 +276,23 @@ const privacy: AboutDocument = {
             "Your password, kept only as a hash (Argon2id): we never keep or see the password itself.",
             "The day you signed up and when you confirmed that you are at least 16.",
             "The session of each phone you logged in from: the phone keeps a token in its secure storage, the server keeps only a hash of it. A session ends 90 days after its last use, or when you log out.",
-            "Your two notification choices in «Settings», email and push: both are off until you turn them on. With push on, your phone's push token, whether it is an iPhone or Android and the app's language, to send you notifications through Expo's push service, which hands them to Apple or Google. A notification says who did what, with the beginning of a comment. The token goes when you turn push off, log out or delete your account. MuW sends no emails yet.",
+            "Your three notification choices in «Settings»: «Email notifications» and «Push notifications», off until you turn them on, and «Email when I'm away», on until you turn it off. With push on, your phone's push token, whether it is an iPhone or Android and the app's language, to send you notifications through Expo's push service, which hands them to Apple or Google. A notification says who did what, with the beginning of a comment. The token goes when you turn push off, log out or delete your account.",
+            "The app's language when you signed up, to write our emails in it.",
           ],
         },
         "Your email address is never shown to the other members.",
+      ],
+    },
+    {
+      heading: "Emails from MuW",
+      blocks: [
+        {
+          bullets: [
+            "With «Email notifications» on, one email a day at most, only on days with news: the follow requests, accepted requests, reactions, comments and tags of the day, as the push notifications say them. Until it is sent our server keeps who did what and on which post, for at most 7 days; what is no longer true when it is written is left out.",
+            "«Email when I'm away»: if you do not open MuW for 2 weeks, one email with how many new drawings there are from the people you follow, with up to three of their usernames, or else in the Feed. One per absence: the next only after you are back and away again. It is on for every member, those who signed up before this text too; you can say no at sign-up, in «Settings» or with the link in the email.",
+            "Each email has the link «Don't send me these emails», which turns that email off. We send them through Resend, from an address of getmuw.app.",
+          ],
+        },
       ],
     },
     {
@@ -326,9 +339,22 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Reports",
+      blocks: [
+        "When you report a drawing, a comment or a profile, we keep who reported what, the reason and when. The person who runs MuW receives it by email and may hide what was reported from the other members. Nothing is deleted, and its author still sees it. Your report is never shown to the author.",
+      ],
+    },
+    {
+      heading: "The shape game",
+      blocks: [
+        "With an account, our server works out from your saved runs on foot how many kilometres count for the game, your best times over 1, 5, 10 and 21.1 km, and the shapes you collected. Only you see your collection and your best times. If you join a team, its members see your username, your picture, the pieces of a challenge you took and the kilometres you gave to each, never your tracks, the times of your runs or where you ran. A team is found only with its code: it is never in a search. Deleting a run takes its kilometres out of the count, and the shapes you already collected stay. When you delete your account, your game data is deleted with it; in a team's challenges the pieces you ran stay for the others, without your name.",
+      ],
+    },
+    {
       heading: "Routes you ask for",
       blocks: [
         "To draw a route the app sends our server the start, the shape or the word and the distance. When the phone has the offline map of the area it draws the route by itself.",
+        "The routes our engine draws stay on our server without who asked for them, to answer at once whoever asks for the same drawing nearby and to suggest them; we count how many runs and favorites follow each. A route starts where it was asked from, often near someone's home, but never says who asked for it or ran it.",
         "The offline maps come from our server: the one around you and, ahead of time, those of towns nearby. To cap these downloads the server counts them, per day, by an anonymous number the app makes for the phone; the count is kept in memory only.",
         "Words that describe a shape are read on our server and are not sent to an outside AI service.",
         "A photo you choose for a drawing goes to our server once, to find its outline: the server does not save it and does not log it.",
@@ -367,6 +393,8 @@ const privacy: AboutDocument = {
             "The Overpass service of OpenStreetMap data is asked by our server for the map of an area it does not have yet: it sees which area, not who asked.",
             "unpkg serves the map library when the app starts.",
             "Expo serves the app's updates.",
+            "Google Ireland Limited (Firebase Cloud Messaging), to deliver push notifications to Android phones. When you turn push on, the app asks Firebase for a registration token for your phone; Expo's push service hands each notification (who did what, and the beginning of a comment) to Google, which delivers it to your phone. Google sees the token and the content of each notification, not your account or your position. The token is dropped from our server when you turn push off, log out or delete your account; the one on the phone goes when you uninstall the app.",
+            "Resend, in the United States, sends MuW's emails: your email address with the email itself. For a report it carries to the person who runs MuW what was reported, its text, the reason, and the usernames of who reported it and who wrote it.",
             "Strava, as said above.",
           ],
         },
@@ -379,7 +407,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "On our server in Germany, for as long as you have the account.",
-            "When you delete your account, everything that is yours is deleted at once: profile, picture, phone number, runs, drawings, favorites, comments, reactions and follows.",
+            "When you delete your account, everything that is yours is deleted at once: profile, picture, phone number, runs, drawings, favorites, comments, reactions, follows, game data and the news waiting for your email. The routes our engine drew stay: they say nothing about who asked for them.",
             "A backup of the database is made every night and kept for 13 days: a deleted account is out of every backup within 14 days.",
             "On your phone: the session, your choices (language, sport, lakes or sea), the offline maps, the runs still waiting to be sent and, with an account, the area your activities usually start from, to suggest lakes and the sea near it; it is deleted when you log out.",
           ],
@@ -392,8 +420,8 @@ const privacy: AboutDocument = {
       blocks: [
         {
           bullets: [
-            "To give you the service you ask for (contract): your account, your profile, the routes you ask for, the runs, favorites, comments, reactions and follows you save.",
-            "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them.",
+            "To give you the service you ask for (contract): your account, your profile, the routes you ask for, the runs, favorites, comments, reactions and follows you save, the emails of the notifications you turned on, and the shape game.",
+            "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them; the email when you are away, which you can refuse at sign-up, in «Settings» or in each email; the reports' emails, to keep MuW safe; the archive of drawn routes, which says nothing about who you are.",
             "Your consent: the phone number you choose to add and the connection to Strava. You can take a consent back at any time; what was done before stays lawful.",
             "A legal obligation, when a law asks us to keep or hand over data.",
           ],
@@ -410,6 +438,7 @@ const privacy: AboutDocument = {
             "delete a run from «My activities», a favorite, a comment, or the whole account from «Settings», «Delete account»;",
             "ask us for a copy of your data, or to stop or limit a use of it;",
             "take back a consent you gave;",
+            "turn off any email in «Settings» or with the link in it;",
             "complain to the data protection authority of your country (in Italy, the Garante per la protezione dei dati personali).",
           ],
         },
