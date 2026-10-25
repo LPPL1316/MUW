@@ -2,14 +2,19 @@ import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import { Platform } from "react-native";
 
+import { t } from "../i18n";
+import { color } from "../theme/tokens";
+
 /**
  * The phone's position during a run, also with the app in the background
  * (TASK-261, ADR-0225). On iOS the positions go to a task of
  * expo-task-manager, started while the app is in front: Core Location then
  * goes on with the phone locked or another app over MuW, with the permission
- * «While using» only, and iOS shows its blue bar. Where that cannot be (Expo
- * Go, Android, an app built without the background mode) the GPS is followed
- * in the foreground only, as before TASK-261.
+ * «While using» only, and iOS shows its blue bar. On Android the same task
+ * runs in a foreground service (TASK-294): with «While using» too, and
+ * Android shows its notification for as long as the run is on. Where that
+ * cannot be (Expo Go, an app built without the background mode or the
+ * service) the GPS is followed in the foreground only, as before TASK-261.
  */
 
 /** The task iOS hands the run's positions to. */
@@ -71,7 +76,7 @@ TaskManager.defineTask<{ locations?: Location.LocationObject[] }>(
 
 /** Whether this app can follow the GPS in the background. */
 async function backgroundAvailable(): Promise<boolean> {
-  if (Platform.OS !== "ios") {
+  if (Platform.OS !== "ios" && Platform.OS !== "android") {
     return false;
   }
   try {
@@ -82,6 +87,32 @@ async function backgroundAvailable(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/** How the task follows the GPS, on top of the run's `options`. */
+function backgroundOptions(): Location.LocationTaskOptions {
+  if (Platform.OS === "android") {
+    return {
+      // Android follows the GPS with the app behind only from a service of
+      // its own, shown as a notification: no «Allow all the time» needed.
+      foregroundService: {
+        notificationTitle: t("MuW is recording your activity"),
+        notificationBody: t("It keeps going with the screen locked, voice included."),
+        notificationColor: color.accent,
+        // The app closed by hand ends the GPS with it: the run reopens
+        // paused when the app comes back (TASK-272).
+        killServiceOnDestroy: true,
+      },
+    };
+  }
+  return {
+    // A run, a ride or a paddle: the phone keeps the GPS on for it.
+    activityType: Location.ActivityType.Fitness,
+    // Standing still at a light is still the run: iOS must not stop the GPS
+    // by itself, or it would not start it again in the background.
+    pausesUpdatesAutomatically: false,
+    showsBackgroundLocationIndicator: true,
+  };
 }
 
 /**
@@ -104,13 +135,7 @@ export async function watchRunPosition(
       try {
         await Location.startLocationUpdatesAsync(RUN_LOCATION_TASK, {
           ...options,
-          // A run, a ride or a paddle: the phone keeps the GPS on for it.
-          activityType: Location.ActivityType.Fitness,
-          // Standing still at a light is still the run: iOS must not stop
-          // the GPS by itself, or it would not start it again in the
-          // background.
-          pausesUpdatesAutomatically: false,
-          showsBackgroundLocationIndicator: true,
+          ...backgroundOptions(),
         });
         return true;
       } catch {

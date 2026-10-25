@@ -1256,6 +1256,11 @@ export const DE: Table = {
   "New shape unlocked: {name}": "Neue Form freigeschaltet: {name}",
   "It is in your collection.": "Sie ist in deiner Sammlung.",
   "See collection": "Sammlung ansehen",
+
+  // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
+  "MuW is recording your activity": "MuW zeichnet deine Aktivität auf",
+  "It keeps going with the screen locked, voice included.":
+    "Läuft auch bei gesperrtem Bildschirm weiter, mit Sprachansagen.",
   // src/social/ContactsFriends.tsx (TASK-262 C)
   "FROM YOUR CONTACTS": "AUS DEINEN KONTAKTEN",
   "Find friends in your contacts": "Freunde in deinen Kontakten finden",
