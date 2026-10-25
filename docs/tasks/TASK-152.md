@@ -322,3 +322,15 @@ non cambia.
   TASK-275 ha aggiunto la segnalazione dei commenti. **L'utente ha
   rimandato la 1.0.0 (7) con video e Notes, entro il 2026-10-15, ed è
   in attesa del verdetto.** Fino al verdetto: niente server né motore.
+- **2026-10-25: promemoria per la prossima build iOS (1.0.1)**. Con la
+  #461 (TASK-262 C, scelta «c» dell'utente) i contatti sono in `main`
+  ma **fuori dalle build native**: `expo-contacts` sta in
+  `expo.autolinking.exclude` di `apps/mobile/package.json` e il suo
+  plugin non è in `app.json`, così l'impronta iOS resta `83793e26…` e la
+  1.0.0 (7) riceve ancora gli `eas update`; nella 1.0 «Find friends from
+  contacts» non si vede (`contactsAvailable()` è falso). **Alla build
+  1.0.1**: togliere `expo-contacts` dall'esclusione, rimettere il plugin
+  e il testo del permesso in `app.json` (vedi `tasks/TASK-262.md`),
+  misurare l'impronta nuova e provare la rubrica sull'iPhone prima
+  dell'invio ad Apple. Per Android la stessa riga è in `tasks/TASK-294.md`
+  (prima build senza contatti, scelta dell'utente «No, più avanti»).
