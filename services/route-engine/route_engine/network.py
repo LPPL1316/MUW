@@ -25,7 +25,7 @@ from typing import Any, Protocol, TypeVar
 import networkx as nx
 import numpy as np
 
-from route_engine.errors import NoRoadsError
+from route_engine.errors import CollapsedShapeError, NoRoadsError
 from route_engine.geo import (
     LatLon,
     latlon_to_local,
@@ -1334,11 +1334,14 @@ def snap_to_network(
     Not `closed`, the points are an open line, like a letter written with
     the pen up (TASK-197): the route ends in the zone of the last point
     instead of coming back, and the perimeter is the line's own length.
+
+    When every point has the same nearest node there is nothing to draw:
+    CollapsedShapeError, a ShapeNotDrawableError (TASK-277).
     """
     warnings: list[str] = []
     nodes, distances = nearest_nodes(graph, shape_points)
     if len(set(nodes)) < 2:
-        raise ValueError("the shape collapses onto a single road node")
+        raise CollapsedShapeError()
 
     mean_distance = sum(distances) / len(distances)
     if mean_distance > sparse_threshold_m:
