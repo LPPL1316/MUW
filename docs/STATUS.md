@@ -1133,7 +1133,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   vede l'app mezza in italiano e mezza in inglese. Da dove riprendere:
   `tasks/TASK-210.md`.
   **Chiuso** (2026-10-25) con la **parte H** (branch
-  `feat/TASK-210-h-last-texts`, PR #545): gli ultimi testi rimasti in inglese, il
+  `feat/TASK-210-h-last-texts`, PR #545, merge `52953c47`): gli ultimi testi rimasti in inglese, il
   Feed e la virgola delle schede; vedi «Completato».
 
 - **TASK-214 — Il motore dei percorsi sul telefono** (ADR-0177; chiesto
