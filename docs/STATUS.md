@@ -504,6 +504,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   coordinatore fino all'approvazione di Apple della 1.0; poi «merge 461»,
   server, sito, preview, e la 1.0.1 nativa. Come riprendere: «Dove si è»
   in `tasks/TASK-262.md`, parte C.
+  **Aggiornamento 2026-10-25**: `main` unito di nuovo, privacy datata 25
+  ottobre 2026, test verdi. **Ferma sull'impronta**: `expo-contacts` porta
+  l'impronta iOS da `83793e26` (la 1.0) a `9337973a`; l'utente sceglie
+  quando unirla (con la 1.0.1, subito, o subito con `expo-contacts` escluso
+  dalla build nativa, che tiene `83793e26`). «Dove si è (2026-10-25)» nel
+  task file.
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app

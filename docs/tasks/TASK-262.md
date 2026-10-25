@@ -326,6 +326,43 @@ Per chi riprende:
 3. Merge solo dopo il «merge 461» del coordinatore, poi questa parte a
    Done, la voce in «Completato» di STATUS e «TASK-262 C fatto».
 
+### Dove si è (2026-10-25)
+
+Il 2026-10-25 l'utente ha chiesto di portare la #461 in `main` («fallo»),
+salvo l'impronta della build. Fatto:
+
+- **`origin/main` unito** (`7a4bbef8`, 173 commit dal 2026-10-10):
+  conflitti solo in `i18n/de, es, fr, it` (le righe di `main` di TASK-280,
+  281, 285 B, 292, 295, 296, poi le nostre), `shared-types/src/index.ts`
+  (i tipi del gioco di TASK-296, poi i nostri), `app.py`
+  (`install_game`, poi `install_contact_people`) e `STATUS.md` (tutte e
+  due le voci). Privacy, `package.json`, `package-lock.json`, `app.json`,
+  `PeopleScreen.tsx` e `contact_people.py` uniti senza conflitti; in
+  `main` la privacy non era cambiata dal 10 ottobre, e «Find friends» si
+  apre ancora dalla lente di «Feed», come dice il testo.
+- **Data della privacy**: 25 ottobre 2026 nelle cinque `PRIVACY_UPDATED`,
+  in `AboutPage.test.tsx`, `documents.test.ts`, `site/tests/privacy.test.mjs`
+  e nelle pagine di `site/privacy/` rigenerate (`2556ba5e`). «Terms» resta
+  al 10 ottobre. Se il merge avviene un altro giorno, la data va spostata
+  di nuovo allo stesso modo.
+- In locale verdi: jest (443 suite, 3596 test), lint, typecheck,
+  `format:check`, i test del sito (43).
+- **L'impronta iOS cambia**, misurata in due worktree puliti con `npm ci`
+  (DEPLOY A.7): `main` (`88b63b6e`) dà `83793e26fc0d…` (quella della 1.0
+  in revisione), questo branch `9337973a0af4…`. Cambiano
+  `expoAutolinkingConfig:ios`, `expoConfig` (il plugin con
+  `contactsPermission`) e i file nativi di `expo-contacts`. Con questa PR
+  in `main`, un `eas update` di production da `main` non raggiungerebbe più
+  la 1.0. Quindi **niente merge**: domanda all'utente.
+- **Una terza strada, misurata**: con `expo-contacts` escluso dalla build
+  nativa (`"expo": {"autolinking": {"exclude": ["expo-contacts"]}}` in
+  `apps/mobile/package.json`) e senza il suo plugin in `app.json`,
+  l'impronta torna `83793e26`. Il pacchetto JS resta, quindi Metro lo
+  trova; nella 1.0 il modulo nativo manca e la sezione non si vede (come
+  già previsto, `phoneContacts.ts`); in Expo Go c'è. Alla build 1.0.1 si
+  toglie l'esclusione e si rimette il plugin. Non applicata: aspetta la
+  scelta dell'utente.
+
 ### Fuori scope della parte C
 
 - La domanda di iOS nelle cinque lingue (oggi solo inglese, come le
@@ -335,6 +372,14 @@ Per chi riprende:
   TASK-215).
 
 ## Esito
+
+**Parte C pronta il 2026-10-25, non ancora in `main`**: PR #461 allineata
+a `main`, privacy datata 25 ottobre 2026, test verdi; ferma perché
+`expo-contacts` cambia l'impronta iOS della 1.0 (`83793e26` →
+`9337973a`). L'utente sceglie fra: unirla con la build 1.0.1, unirla
+subito accettando che gli update di production non arrivino più alla
+1.0, oppure unirla subito con `expo-contacts` escluso dalla build nativa
+(impronta invariata, misurata). Dettagli in «Dove si è (2026-10-25)».
 
 **Parte A fatta il 2026-10-10**: PR #451, in `main` con il merge
 `578c2f7e` (dopo TASK-121, #457, e #475). Le push partono: tabella
