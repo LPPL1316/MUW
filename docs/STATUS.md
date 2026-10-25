@@ -269,7 +269,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo). Solo app; testi della notifica approvati dall'utente il
   2026-10-23. **PR #543**. La prova su Android vero si fa con la B. Account
   Google Play personale creato dall'utente il 2026-10-25 («Luca
-  Pallaoro»), in attesa delle verifiche di Google. **B** (ADR-0253): package,
+  Pallaoro»), in attesa delle verifiche di Google. **A in `main`** con la
+  #543 (`1dfc440e`, 2026-10-25, merge su via dell'utente). Pacchetto
+  Android `app.getmuw.android` (scelta dell'utente del 2026-10-25).
+  **B** (ADR-0253), branch `feat/TASK-294-b-play-build`: package,
   Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
   pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro

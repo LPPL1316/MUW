@@ -29,6 +29,7 @@
       "fr": "./locales/fr.json"
     },
     "android": {
+      "package": "app.getmuw.android",
       "adaptiveIcon": {
         "backgroundColor": "#FFD02B",
         "foregroundImage": "./assets/android-icon-foreground.png",
