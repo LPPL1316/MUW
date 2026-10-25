@@ -5,7 +5,9 @@
 («Settings» e l'avviso) dalla #295, la parte A2 (il tetto del traffico)
 dalla #330, la parte B2 (le zone in più) dalla #337, le città vicine
 (B2b) dalla #341. Le zone del telefono sono sul server e B2/B2b su
-«preview» dal 2026-10-05: resta D, la prova sull'iPhone.
+«preview» dal 2026-10-05. La parte D, la prova sull'iPhone, l'ha fatta
+l'utente il 2026-10-25: «funziona ma cerca di migliorarlo». Segue un
+miglioramento, da misurare e proporre all'utente (parte nuova).
 **Fase**: 4 · **Branch**: il task file con la #258; il codice in
 `feat/TASK-214-…`, una PR per parte · **ADR**: ADR-0177
 
@@ -701,7 +703,14 @@ pulito, tutte sotto TASK-214 e ADR-0177):
    dopo la #323 (TASK-236).
 4. **D**, la prova sull'iPhone: fissa i limiti di distanza. Le zone del
    telefono sono sul server dal 2026-10-05 (sotto): la prova è
-   dell'utente, con l'app di «preview».
+   dell'utente, con l'app di «preview». Fatta il 2026-10-25, sopra.
+
+**Parte D, la prova sull'iPhone** (2026-10-25). L'ha fatta l'utente, sul
+suo iPhone, con l'app che usa le zone del server dal 2026-10-05. Le sue
+parole: «funziona ma cerca di migliorarlo». La prova dice che il telefono
+disegna; i numeri dei criteri ancora aperti (tempi e memoria sull'iPhone,
+impronte confrontate, cuore senza rete) non li ha dati la prova: vengono
+dalle misure del miglioramento, nella parte che segue.
 
 **Seguito fuori dal task**: una scadenza per le partenze vicine anche senza
 processi, in `route_engine`, in un task suo. Il telefono disegnerebbe
