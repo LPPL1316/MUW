@@ -1,6 +1,6 @@
 # TASK-122 — L'API e il database sempre accesi
 
-**Stato**: In corso
+**Stato**: Done
 **Fase**: 4 · **Branch**: `chore/TASK-122-hosting`
 **Dipende da**: TASK-110, TASK-114 · **Serve prima di** invitare altre persone
 
@@ -34,13 +34,16 @@ Creare account su servizi esterni, pagare e inserire chiavi lo fa
 
 - [x] `GET /health` risponde in HTTPS da una rete diversa da quella di casa.
 - [x] Un cuore da 5 km a Trento si genera dal server nei tempi di `API.md`.
-- [ ] Iscrizione ed entrata funzionano dall'iPhone senza Tailscale
+- [x] Iscrizione ed entrata funzionano dall'iPhone senza Tailscale
       (sull'indirizzo pubblico sì, provato con `curl`; dall'iPhone, con
-      le schermate di TASK-115, è la prova dell'utente).
+      le schermate di TASK-115, è la prova dell'utente). L'entrata è nel
+      video per Apple del 2026-10-13; un account nuovo creato dall'app
+      sull'iPhone lo conferma l'utente il 2026-10-25.
 - [x] Un ripristino della copia di sicurezza è stato provato e annotato.
 - [x] Nessun segreto nel repository.
-- [ ] Le copie arrivano nello Storage Box (aggiunto il 2026-10-02, scelta
-      dell'utente): dopo che l'utente lo ha creato.
+- [x] Le copie arrivano nello Storage Box (aggiunto il 2026-10-02, scelta
+      dell'utente): dopo che l'utente lo ha creato. Dal 2026-10-25, e
+      una copia ripresa da lì si ripristina (passi 2 e 3 qui sotto).
 
 ### Dove si è fermato (2026-10-02)
 
@@ -183,8 +186,12 @@ cancella la pulizia dei 13 giorni e `push` non lo manda. Se il passo si
 ferma a metà: `rm` del file e
 `docker compose exec backup dropdb --if-exists restore_check`.
 
-Dopo i tre passi: si spunta il criterio dello Storage Box, `DEPLOY.md`
-F.13 riceve la prova dallo Storage Box, e il task va a Done.
+*Esito (2026-10-25, 03:08Z, «sì, fai la prova» dell'utente):* prima
+`restore_check` non c'era. La copia `shaperoute-2026-10-25T0200Z.dump`,
+ripresa dallo Storage Box, ha lo stesso SHA-256 di quella del server
+(`8b2d4124…`). `check` la ripristina con 3 account e le migrazioni da 0001
+a 0021; con la ripresa, 2,9 s in tutto. Poi il file di prova è cancellato e
+`restore_check` non c'è più. Nessun servizio riavviato.
 
 ## File toccati
 
@@ -227,3 +234,12 @@ All'avvio l'API scrive la chiave, Geoapify, 159 percorsi consigliati e
 vero di F.13 è provato in locale, con Colima: dopo, l'account della copia
 entra, quello creato dopo la copia no. Restano lo Storage Box (dell'utente)
 e la prova dall'iPhone.
+
+**Done il 2026-10-25.** Le copie del database escono dal server: ogni
+notte alle 02:30 UTC il servizio `offsite` manda le 13 copie e gli eventi
+delle ricerche nello Storage Box `muw-backups` (`u700709`, BX11,
+Falkenstein, comprato dall'utente), e una copia ripresa da lì si
+ripristina identica in un database di prova. L'iscrizione e l'entrata
+dall'iPhone sull'indirizzo pubblico le conferma l'utente. Tutto è in
+«Dove si è fermato (2026-10-25)». Seguito, senza numero: guardare il
+2026-10-26 che nel log di `offsite` ci sia il primo invio notturno.
