@@ -1,6 +1,6 @@
 # TASK-291 — Ogni segnalazione arriva per email, con un link che nasconde
 
-**Stato**: In revisione (PR aperta, entra dopo la #502)
+**Stato**: Done (2026-10-25, PR #525, dopo la #502)
 **Fase**: 4 · **Branch**: `feat/TASK-291-report-email`
 **ADR**: ADR-0251 (rimanda ad ADR-0228) · numeri dal Coordinatore
 **Dipende da**: TASK-121 e TASK-275 (le segnalazioni), TASK-284 parte A
@@ -71,20 +71,20 @@ Note del Coordinatore (2026-10-17):
 
 ## Criteri di accettazione
 
-- [ ] Una segnalazione nuova manda un'email con il link; la stessa
+- [x] Una segnalazione nuova manda un'email con il link; la stessa
       segnalazione ripetuta no (test).
-- [ ] Senza le quattro variabili nessuna email, la segnalazione resta (test).
-- [ ] Un link alterato, scaduto o già usato non fa niente (test).
-- [ ] Il GET del link non cambia niente; il POST nasconde, e «Undo»
+- [x] Senza le quattro variabili nessuna email, la segnalazione resta (test).
+- [x] Un link alterato, scaduto o già usato non fa niente (test).
+- [x] Il GET del link non cambia niente; il POST nasconde, e «Undo»
       rimette com'era (test).
-- [ ] Disegno nascosto: sparisce da feed, profilo, apertura per id,
+- [x] Disegno nascosto: sparisce da feed, profilo, apertura per id,
       commenti e reazioni per gli altri, l'autore lo vede (test).
-- [ ] Commento nascosto: sparisce agli altri e dal conteggio, l'autore lo
+- [x] Commento nascosto: sparisce agli altri e dal conteggio, l'autore lo
       vede (test).
-- [ ] Profilo nascosto: profilo, ricerca, disegni e commenti spariscono
+- [x] Profilo nascosto: profilo, ricerca, disegni e commenti spariscono
       agli altri; chi è nascosto vede tutto (test).
-- [ ] Nessun indirizzo, chiave o token nei log.
-- [ ] Suite dell'API, `ruff` e `black` verdi.
+- [x] Nessun indirizzo, chiave o token nei log.
+- [x] Suite dell'API, `ruff` e `black` verdi.
 
 ## File toccati
 
@@ -143,4 +143,19 @@ ritorno, le due si uniscono in una sola riga «Resend sends MuW's emails…».
 
 ## Esito
 
-*(a fine task)*
+**Fatto il 2026-10-25**: PR #525, in `main` dopo la #502 (TASK-284 A).
+Riallineata su `main` `263e86db`: `send_email.py` è ora una chiamata al
+`Resend` di `resend_email.py` (un solo codice parla con Resend);
+`.env.example` ha `RESEND_API_KEY`, `SHAPEROUTE_EMAIL_SECRET` e
+`SHAPEROUTE_EMAIL_FROM` una volta sola, condivise con l'email di ritorno,
+più `SHAPEROUTE_REPORTS_TO`; in `access.py` sono aperte tutte e due le
+pagine (`/away-email/stop`, `/report-link`); `__main__.py` prepara e
+installa tutte e due le email. Migrazione `0024_hidden_content.sql`
+(numero confermato dal Coordinatore). Test: `test_report_email.py`,
+`test_resend_email.py`, `test_away_email.py`, `test_moderation.py`,
+`test_main.py` in locale, la suite intera in CI.
+**Resta** (del Coordinatore, dopo l'approvazione di Apple e il sì
+dell'utente): la privacy che nomina Resend, con la parte B di TASK-284
+(il testo approvato è sopra); poi il server con la `0024` e
+`SHAPEROUTE_REPORTS_TO` in `deploy/.env` (`DEPLOY.md`, «Email delle
+segnalazioni»).

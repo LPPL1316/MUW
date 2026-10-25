@@ -281,6 +281,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   all'autore. Migrazione `0024_hidden_content.sql`. Entra **dopo la
   #502**, poi usa il suo `resend_email.py`; server dopo Apple, con la
   privacy della parte B di TASK-284. File: `tasks/TASK-291.md`.
+  **Chiuso**: in `main` con la #525 (2026-10-25, dopo la #502), sul
+  «mergia» dell'utente; vedi «Completato».
 - **TASK-288 parte B — Il pool di connessioni** (aggiunta ad ADR-0249;
   sì dell'utente del 2026-10-16 al Coordinatore: «sì, aggiungi il pool di
   connessioni»). Branch `feat/TASK-288-b-connection-pool`. Dipendenza
@@ -394,6 +396,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pubblicata, approvazione di Apple e chiave di Resend con il dominio
   verificato (lo fa l'utente, `DEPLOY.md` «Email di ritorno»). File:
   `tasks/TASK-284.md`.
+  **Parte A in `main`** con la #502 (`263e86db`, 2026-10-25, sul
+  «finiscila» dell'utente), migrazione `0023_away_email.sql`; spenta finché
+  il server non ha chiave, segreto e dominio. Resta la parte B, dopo #461.
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
@@ -1089,6 +1094,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **API** — TASK-291 (ADR-0251; chiesto dall'utente il 2026-10-17): ogni
+  segnalazione nuova arriva per email a chi gestisce MuW, con il link
+  firmato «Hide» (7 giorni, una volta, con «Undo»); il nascosto sparisce
+  agli altri, non all'autore. Migrazione `0024_hidden_content.sql`. Invia
+  con `resend_email.py` di TASK-284 A (#502): un solo codice parla con
+  Resend, le stesse `RESEND_API_KEY` e `SHAPEROUTE_EMAIL_SECRET`. In
+  `main` con la #525 (2026-10-25). **Spenta** finché il server non ha
+  anche `SHAPEROUTE_REPORTS_TO`; prima la privacy che nomina Resend (parte
+  B di TASK-284), poi il server dal Coordinatore dopo Apple e col sì
+  dell'utente. `tasks/TASK-291.md`.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
