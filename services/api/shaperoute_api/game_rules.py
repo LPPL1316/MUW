@@ -14,6 +14,7 @@ pauses only. What they catch and what they cannot is in docs/GIOCO.md, §4.
 
 from __future__ import annotations
 
+import bisect
 import math
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -332,3 +333,56 @@ def capped_m(counted_m: int, counted_today_m: int) -> int:
     """The metres of a run that still count on a day the account already
     counted `counted_today_m`."""
     return max(0, min(counted_m, DAILY_CAP_M - counted_today_m))
+
+
+# --- The pieces of a challenge: the outline cut for a team (part C) ---
+
+Point = tuple[float, float]
+# The points of a piece are rounded to this many decimals, like the
+# catalog's: the phone cutting the same shape gets the same numbers.
+OUTLINE_DECIMALS = 4
+
+
+def pieces_of(outline: Sequence[Point], n: int) -> list[list[Point]]:
+    """The closed outline cut into `n` pieces of equal length along it, from
+    its first point on: piece k runs from k·L/n to (k+1)·L/n, L the length of
+    the outline with each segment measured as sqrt(dx² + dy²); the last piece
+    ends at L itself. A piece has its two ends, read in a straight line on
+    the segment they fall in, and the outline's points strictly between them,
+    all rounded to OUTLINE_DECIMALS. The phone cuts the same way
+    (docs/GIOCO.md §6.2)."""
+    if n < 1:
+        raise ValueError("a shape is cut into at least one piece")
+    points = list(outline)
+    if not points:
+        return [[] for _ in range(n)]
+    along = [0.0]
+    for (x0, y0), (x1, y1) in zip(points, points[1:], strict=False):
+        along.append(along[-1] + math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2))
+    length = along[-1]
+    pieces: list[list[Point]] = []
+    for k in range(n):
+        start = length * k / n
+        end = length if k == n - 1 else length * (k + 1) / n
+        piece = [_point_at(points, along, start)]
+        piece += [p for p, d in zip(points, along, strict=True) if start < d < end]
+        piece.append(_point_at(points, along, end))
+        pieces.append(
+            [(round(x, OUTLINE_DECIMALS), round(y, OUTLINE_DECIMALS)) for x, y in piece]
+        )
+    return pieces
+
+
+def _point_at(
+    points: Sequence[Point], along: Sequence[float], distance: float
+) -> Point:
+    """The point `distance` along the outline, between two of its points."""
+    if distance <= 0:
+        return points[0]
+    if distance >= along[-1]:
+        return points[-1]
+    i = bisect.bisect_right(along, distance) - 1
+    side = along[i + 1] - along[i]
+    share = (distance - along[i]) / side if side > 0 else 0.0
+    (x0, y0), (x1, y1) = points[i], points[i + 1]
+    return (x0 + (x1 - x0) * share, y0 + (y1 - y0) * share)

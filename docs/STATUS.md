@@ -223,6 +223,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pagina non si vede).
   **Parte B** in `main` con la #536 (`145cf992`, 2026-10-24); testi
   dell'app approvati dall'utente lo stesso giorno. Restano C, D ed E.
+  **Parte C** (branch `feat/TASK-296-c-teams-api`, PR #540, migrazione
+  `0027_game_teams.sql`, perché la 0026 è di TASK-297 A, #539; il numero
+  si ricontrolla al merge): `game_teams`, `game_team_members`,
+  `game_challenges`, `game_pieces`, `game_contributions` e `challenge_id`
+  in `game_unlocks`; `game_teams.py` (nome dal filtro di TASK-213, codice
+  di 6, join rifiutato senza motivo con un blocco, oltre 20 iscritti o 10
+  squadre, uscita, rimozione, passaggio di proprietà, ganci alla
+  cancellazione dell'account e al blocco), `game_challenges.py` (una
+  sfida per squadra, un pezzo in mano per persona, riempimento da
+  `after_run_saved` con i km in avanzo, pezzo veloce, edizione squadra,
+  `ChallengeClock` per «1 day left»), il contorno dei pezzi in
+  `game_rules.pieces_of`, gli otto endpoint, `pieces_done` in `GET
+  /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
+  iscritti e i testi delle tre push sono approvati dall'utente
+  (2026-10-24). Server dopo Apple, con l'ok dell'utente.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.

@@ -467,6 +467,39 @@ numero è il primo libero in `main` al merge):
   con un test (`test_game_api.py`). Una corsa cancellata toglie la sua
   riga di `game_runs`, e i suoi metri escono dai totali; le forme restano.
 
+Migrazione `0027_game_teams.sql` (TASK-296 parte C, ADR-0255, `GIOCO.md`
+§6–§7; il numero è il primo libero in `main` al merge: la 0026 è di
+TASK-297 A, #539):
+
+- `game_teams`: `id` (uuid), `name` (1–40), `invite_code` (unico, 6 di
+  `A–Z` e `2–9` senza `I O 0 1`), `owner_id` (`ON DELETE SET NULL`: prima
+  l'API passa la squadra all'iscritto più vecchio, `game_teams.py`),
+  `created_at`. Nessuna ricerca: si entra solo con il codice.
+- `game_team_members`: `(team_id, user_id)` con `joined_at`; `CASCADE`
+  dalla squadra e dall'account; indice su `user_id`.
+- `game_challenges`: `id`, `team_id` (`CASCADE`), `shape_id`, `created_by`
+  (`SET NULL`), `starts_at`, `ends_at`, `completed_at`, `ending_told_at`
+  (quando è partita la push «1 day left»: l'`UPDATE` condizionato su
+  questa colonna la manda una volta sola, anche con più processi). Una
+  sfida è attiva finché non è completa e non sono passate 3 ore da
+  `ends_at`: lo stato non si scrive. Indice su `(team_id, starts_at DESC)`.
+- `game_pieces`: `(challenge_id, idx)`; `required_m` **oppure**
+  `fast_distance_m` + `max_pace_s` (`CHECK`); `holder_id` (`SET NULL`),
+  `held_at`, `done_m`, `done_at`. Un pezzo lasciato ha `holder_id` e
+  `held_at` a `NULL` e tiene `done_m`. Indice su `holder_id`.
+- `game_contributions`: `id`, `(challenge_id, piece_idx)` (`CASCADE` dal
+  pezzo), `user_id` (`CASCADE`: con l'account spariscono i suoi
+  contributi, i metri restano nel pezzo), `run_id` (`SET NULL`: una corsa
+  cancellata lascia i metri che ha dato), `metres`, `at`. Indici sul
+  pezzo e su `run_id` (`GET /game/runs/{key}`).
+- `game_unlocks.challenge_id` (`SET NULL`): la sfida che ha dato
+  l'edizione squadra.
+- **Con l'account** vanno via iscrizioni e contributi, e prima
+  `before_account_delete` lo toglie dalle squadre (proprietà all'iscritto
+  più vecchio, squadra vuota cancellata, pezzi liberi); sfide e pezzi
+  restano alla squadra senza il nome (test in `test_game_teams.py` e
+  `test_game_challenges.py`).
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

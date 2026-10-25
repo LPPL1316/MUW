@@ -151,6 +151,7 @@ def test_six_km_unlock_the_triangle(client: TestClient) -> None:
         "counted_m": 6_000,
         "best_s": {"1000": 333.3, "5000": 1666.7},
         "unlocked": ["triangle"],
+        "pieces_done": [],
     }
     answer = client.get("/game/me", headers=me).json()
     assert answer["counted_m"] == 6_000 and answer["longest_m"] == 6_000
@@ -160,6 +161,7 @@ def test_six_km_unlock_the_triangle(client: TestClient) -> None:
         "id": "triangle",
         "unlocked_at": "2026-10-23T12:00:00Z",
         "progress": 1.0,
+        "team_unlocked_at": None,
     }
     assert shapes["square"]["unlocked_at"] is None
     assert shapes["square"]["progress"] == 0.6
@@ -202,6 +204,7 @@ def test_a_run_sharing_time_with_one_saved_before_does_not_count(
         "counted_m": 0,
         "best_s": {},
         "unlocked": [],
+        "pieces_done": [],
     }
     assert client.get("/game/me", headers=me).json()["counted_m"] == 6_000
 

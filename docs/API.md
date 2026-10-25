@@ -1496,6 +1496,9 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `comment` | un commento a un disegno, con il suo inizio | il proprietario | il disegno |
   | `tag` | un tag in un disegno | chi è taggato | il disegno |
   | `shape_unlocked` | una corsa salvata sblocca una forma del gioco (TASK-296) | chi ha corso | il proprio profilo; l'app di TASK-296 B apre «Play» |
+  | `piece_done` | un compagno ha finito un pezzo della sfida (TASK-296 C) | gli altri iscritti | la sfida |
+  | `challenge_done` | la squadra ha completato la forma (TASK-296 C) | tutti gli iscritti, anche chi ha corso | la sfida |
+  | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
@@ -1533,6 +1536,15 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   solo la prima volta che la corsa si salva: `game.notify_unlocked`). Un
   blocco (TASK-121, `follows.apart_sql`) in uno dei due versi ferma ogni
   notifica fra i due.
+- **Le push delle sfide** (TASK-296 C) portano in `data` `{ kind,
+  challenge_id }`; il testo comincia con il nome della forma nella lingua
+  del telefono («Heart: ada finished piece 2.», «Heart: the shape is
+  complete! Your team drew it together.», «Heart: 1 day left. Pieces
+  missing: 3.»). `challenge_done` e `challenge_ending` sono in `OWN_KINDS`.
+  `piece_done` e `challenge_done` partono dopo il salvataggio della corsa
+  (`game_challenges.notify_pieces`); `challenge_ending` la trova
+  `ChallengeClock` ogni 15 minuti, una volta per sfida, solo per le sfide
+  più lunghe di un giorno.
 
 ### Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170)
 
@@ -2015,6 +2027,57 @@ della collezione. Le regole sono in `GIOCO.md`; il codice in
   accounts_unavailable` (il catalogo risponde lo stesso).
 - **Le corse salvate prima**: `python -m shaperoute_api.game_backfill`,
   una volta dopo il deploy e a ogni `RULES_VERSION` nuova; non manda push.
+
+**Parte C — squadre e sfide** (`game_teams.py`, `game_challenges.py`;
+regole in `GIOCO.md` §6). Tutti con l'account; i compagni vedono di un
+iscritto solo nome, foto, pezzi e metri: mai tracce, orari o luoghi.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /game/teams` | una squadra: `{name}`, da 1 a 40 caratteri su una riga, dal filtro delle parole di TASK-213 | `201` `Team`; `422 invalid_request` (vuoto, lungo, caratteri di controllo, già in 10 squadre), `422 comment_rejected` (negativo) |
+| `POST /game/teams/join` | entrare: `{code}`, 6 caratteri in qualunque maiuscola | `200` `Team` (anche se già dentro); `404` codice sconosciuto; `403 http_error` «You can't join this team.» con un blocco in mezzo, 20 iscritti o 10 squadre |
+| `GET /game/teams` | le mie squadre, nell'ordine in cui sono entrato, ognuna con la sfida più recente | `200` `{teams: [Team]}` |
+| `DELETE /game/teams/{id}/members/{public_id}` | esco (il mio `public_id`), o chi ha creato la squadra toglie un iscritto | `204`; `404` squadra o iscritto che non c'è; `422` se non sono il proprietario |
+| `POST /game/teams/{id}/challenges` | una sfida: `{shape_id, pieces (2–12), piece, days (1–14, default 7)}`; `piece` è `{kind: "distance", total_m}` (1 000–50 000) o `{kind: "pace", distance_m (1000 o 5000), pace_s (150–900)}` | `201` `Challenge`; `409` se ce n'è una in corso; `422` fuori dai limiti o forma non in catalogo |
+| `GET /game/challenges/{id}` | la sfida: pezzi, titolari, metri, contributi, tempo che resta | `200` `Challenge`; `404` se non sono della squadra |
+| `POST /game/challenges/{id}/pieces/{idx}/hold` | prendo il pezzo `idx` | `200` `Challenge`; `409` pezzo preso, fatto, un altro già in mano, o sfida finita |
+| `DELETE /game/challenges/{id}/pieces/{idx}/hold` | lascio il pezzo, che resta libero con i suoi metri | `200` `Challenge`; `409` se non è mio o è fatto |
+
+- **`Team`**: `id`, `name`, `code` (lo vedono tutti gli iscritti, per
+  condividerlo), `owner` (il `public_id` di chi toglie gli iscritti),
+  `members` (`public_id`, `username`, `photo`, nell'ordine d'ingresso),
+  `challenge` (la più recente, in qualunque stato, o `null`).
+- **`Challenge`**: `id`, `team_id`, `shape_id`, `status` (`active`,
+  `completed`, `expired`: finita quando sono passate 3 ore dalla
+  scadenza), `starts_at`, `ends_at`, `completed_at`, `seconds_left` (alla
+  scadenza; `0` dopo), `pieces` e `contributions`. Ogni pezzo ha `idx`,
+  `goal` (con le parole dei requisiti del catalogo), `holder`
+  (`public_id`, `username`, o `null`), `done_m`, `done` e `outline`, il
+  suo tratto del contorno da 0 a 1 (`game_rules.pieces_of`: N tratti di
+  lunghezza uguale, gli stessi che può calcolare il telefono). Le
+  `contributions` sommano i metri di ogni persona su ogni pezzo:
+  `public_id`, `username`, `idx`, `metres`.
+- **Le corse riempiono i pezzi**: `PUT /me/activities/{key}`, nella stessa
+  transazione del gioco, mette la corsa che conta nel pezzo che il
+  corridore tiene in ogni sfida in corso, se è iniziata dopo la presa e
+  prima della scadenza ed è salvata entro 3 ore dalla scadenza. I km in
+  avanzo passano al prossimo pezzo libero di distanza, che diventa suo;
+  senza, si perdono. Un pezzo veloce è fatto da una corsa con il miglior
+  tempo richiesto. L'ultimo pezzo completa la sfida e dà la forma in
+  **edizione squadra** a chi ha contribuito.
+- **`GET /game/runs/{key}`** ha in più `pieces_done`: i pezzi che la corsa
+  ha finito (`challenge_id`, `team_id`, `team_name`, `shape_id`, `idx`,
+  `pieces`, `challenge_completed`). **`GET /game/me`** ha in più, per ogni
+  forma, `team_unlocked_at` (`null` senza l'edizione squadra).
+- **Chi esce o viene tolto** lascia liberi i pezzi che teneva, con i
+  metri; la squadra passa all'iscritto più vecchio se se ne va il
+  proprietario, e sparisce senza iscritti. Con `DELETE /me` succede lo
+  stesso; sfide e pezzi restano alla squadra, i contributi dell'account
+  spariscono.
+- Chi ha bloccato un iscritto, o ne è bloccato, non entra. Un blocco nato
+  fra due iscritti della stessa squadra ne fa uscire uno, nella
+  transazione del blocco (`moderation.py`, `app.state.on_block`): la
+  regola è nel task file, parte C.
 
 ### Send to Strava (TASK-187, ADR-0156)
 
