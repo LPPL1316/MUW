@@ -11,7 +11,8 @@ email_notices, only for an account with «Email notifications» on
 Once a day, at NOTICE_EMAIL_AT (UTC), a round writes to each account with
 rows one email: the events still true when it is written (a request still
 waiting, a follow still there, the reaction, comment or tag still there),
-never across a block, a drawing only if the account still sees it. The
+never across a block nor from what was hidden from a report (TASK-291), a
+drawing only if the account still sees it. The
 lines are the push's, in the account's language as for the away email
 (the sign-up's, then the phone's, then English), the newest first.
 
@@ -158,6 +159,7 @@ LINES_SQL = (
     " LEFT JOIN LATERAL (SELECT h.text FROM comments h"
     " WHERE re.kind = 'super_like' AND h.drawing_id = re.drawing_id"
     " AND h.user_id = re.user_id AND h.created_at = re.created_at"
+    " AND h.hidden_at IS NULL"
     " LIMIT 1) heart ON true"
     " WHERE n.recipient_id = %(reader)s AND n.at <= %(until)s"
     f" AND NOT {apart_sql('%(reader)s', 'n.actor_id')}"
@@ -169,7 +171,7 @@ LINES_SQL = (
     " WHERE f.follower_id = n.recipient_id AND f.followed_id = n.actor_id"
     " AND f.status = 'accepted')"
     " WHEN 'reaction' THEN re.user_id IS NOT NULL"
-    " WHEN 'comment' THEN c.id IS NOT NULL"
+    " WHEN 'comment' THEN c.id IS NOT NULL AND c.hidden_at IS NULL"
     " ELSE EXISTS (SELECT 1 FROM drawing_tags t"
     " WHERE t.drawing_id = n.drawing_id AND t.user_id = n.recipient_id)"
     " END"

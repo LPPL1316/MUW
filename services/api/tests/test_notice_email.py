@@ -339,6 +339,50 @@ def test_a_super_like_says_its_words(
     assert email["subject"] == "other_runner gave your post a MuW heart: What a heart"
 
 
+def hide(database: Database, table: str, **where: Any) -> None:  # noqa: F811
+    """As «Hide» does from a report's email (TASK-291)."""
+    ((column, value),) = where.items()
+    with database.connect() as conn:
+        conn.execute(
+            f"UPDATE {table} SET hidden_at = now() WHERE {column} = %s", (value,)
+        )
+
+
+def test_what_was_hidden_from_a_report_is_left_out(
+    client: TestClient,  # noqa: F811
+    database: Database,  # noqa: F811
+    notices: NoticeEmails,
+    outbox: Outbox,
+) -> None:
+    me, bob, cleo = signed_up(client), other(client), third(client)
+    email_on(client, me)
+    mine = posted(client, me)
+    said = client.post(f"/drawings/{mine}/comments", json={"text": "x"}, headers=bob)
+    client.post(f"/users/{public_id(client, me)}/follow", headers=cleo)
+    hide(database, "comments", id=said.json()["id"])
+    hide(database, "users", email=THIRD_EMAIL)
+    report = notices.round()
+    assert (report.sent, report.nothing_left) == (0, 1)
+    assert outbox.sent == []
+
+
+def test_a_super_like_whose_words_were_hidden_keeps_the_heart(
+    client: TestClient,  # noqa: F811
+    database: Database,  # noqa: F811
+    notices: NoticeEmails,
+    outbox: Outbox,
+) -> None:
+    me, bob = signed_up(client), other(client)
+    email_on(client, me)
+    mine = posted(client, me)
+    body = {"kind": "super_like", "comment": "Rude words"}
+    client.put(f"/drawings/{mine}/reaction", json=body, headers=bob)
+    hide(database, "comments", drawing_id=mine)
+    notices.round()
+    (email,) = outbox.to(EMAIL)
+    assert email["subject"] == "other_runner gave your post a MuW heart."
+
+
 def test_one_email_a_day_even_with_two_rounds_at_once_or_a_restart(
     client: TestClient,  # noqa: F811
     wall: WallClock,  # noqa: F811
