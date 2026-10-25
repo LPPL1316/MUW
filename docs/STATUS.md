@@ -179,6 +179,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Apple, con l'ok dell'utente. Seguito da aprire: fermarsi prima quando
   la forma non entra nelle strade (19 ricerche su 36 bruciano i 30
   tracciamenti). File: `tasks/TASK-297.md`.
+  **Documenti** in `main` con la #538 (`9391893c`, 2026-10-24).
+  **Parte A** (branch `feat/TASK-297-a-route-archive`, migrazione
+  `0026_drawn_routes.sql`, numero al merge): la tabella `drawn_routes`
+  senza `user_id`; `route_archive.py` davanti al `RouteStore` dei file
+  (`get` subito dallo stesso punto, `nearby` nel thread del job entro
+  100 m con l'avvicinamento lungo le strade, `put` di percorso e
+  alternative, tetto di 50 000 righe); `RouteJobs` chiede l'archivio
+  prima del motore (`FindsNearby`); le corse salvate e i preferiti contano
+  per `line_key`. Contratto invariato; senza database tutto come prima.
+  `jobs.py` va anche sul telefono: `engine.zip` rifatto (da pubblicare su
+  `preview`), il telefono senza archivio disegna come prima (test).
+  Server dopo Apple, con l'ok dell'utente e il paragrafo della privacy.
+  **Parte A** in `main` con la #539 (`0c4ada00`, 2026-10-25), mergiata dal
+  Coordinatore: impronta iOS invariata (`83793e26`), su `preview` (gruppo
+  `e0e4e126`) con l'`engine.zip` nuovo. L'archivio lavora solo sul server:
+  dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
+  TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
+  **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
@@ -362,6 +380,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   anche dalla mappa del risultato** (numero dal Coordinatore); **ok a
   pubblicare su `preview` tutto `main`** (278 A+B, 279 A, 280, 281, 283
   lato app, 285 A+B), lo fa il Coordinatore. TASK-276 va rispiegato.
+- **TASK-284 — L'email di ritorno a chi non apre l'app da 14 giorni**
+  (ADR-0244; chiesto dall'utente il 2026-10-11; scelte sue: «a tutti gli
+  iscritti», «un interruttore suo, acceso», con la casella non spuntata
+  all'iscrizione e il link in ogni email). **Parte A** (API, migrazione
+  `0023_away_email.sql`, Resend, pagina per disiscriversi, giro di ogni
+  giorno): PR da `feat/TASK-284-return-email`, spenta finché il server non
+  ha chiave, segreto e dominio. **Parte B** (Todo, dopo #461): la casella
+  all'iscrizione, l'interruttore in «Settings», la privacy nuova e i testi,
+  tutti col sì dell'utente. Nessuna email prima di A e B in `main`, app
+  pubblicata, approvazione di Apple e chiave di Resend con il dominio
+  verificato (lo fa l'utente, `DEPLOY.md` «Email di ritorno»). File:
+  `tasks/TASK-284.md`.
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
