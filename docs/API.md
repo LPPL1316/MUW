@@ -2307,7 +2307,7 @@ codice è in `phone_zone_api.py` e `phone_zones.py`.
 
 | Endpoint | Cosa | Risposta |
 |---|---|---|
-| `GET /phone-zones/{network}?lat=&lon=` | la zona della rete `foot` o `bike` che contiene 3 km intorno al punto; con `&prefetch=1` è una zona scaricata in anticipo, contata nel tetto del giorno | `200` `application/gzip`, il file della zona; `304` con `If-None-Match` uguale all'`ETag`; `404 http_error` senza zona o con un'altra rete; `422 invalid_request` con `lat` o `lon` fuori dai limiti; `429 too_many_requests` con `Retry-After`, solo con `prefetch=1`, oltre il tetto |
+| `GET /phone-zones/{network}?lat=&lon=` | la zona della rete `foot` o `bike` che contiene 3 km intorno al punto; con `&margin_m=` (3000–10 000) la più piccola che ne contiene tanti, se il suo file pesa al massimo 12 MB, se no quella di 3 km (parte E); con `&prefetch=1` è una zona scaricata in anticipo, contata nel tetto del giorno | `200` `application/gzip`, il file della zona; `304` con `If-None-Match` che contiene l'`ETag` della zona scelta (anche fra altri, separati da virgole); `404 http_error` senza zona o con un'altra rete; `422 invalid_request` con `lat`, `lon` o `margin_m` fuori dai limiti; `429 too_many_requests` con `Retry-After`, solo con `prefetch=1`, oltre il tetto |
 
 - **Il file** si chiama come la zona, `foot_<s>_<w>_<n>_<e>.zone.json.gz`
   (`Content-Disposition`). È JSON con gzip: `format` `"sgrava-zone"`,
@@ -2316,6 +2316,9 @@ codice è in `phone_zone_api.py` e `phone_zones.py`.
   arriva.
 - **L'`ETag`** cambia quando la zona sul server cambia; il telefono lo
   rimanda in `If-None-Match` e, se ce l'ha già, riceve `304` senza corpo.
+  L'app della parte E manda gli `ETag` di tutte le zone che ha intorno al
+  punto e chiede `margin_m=6000` per la zona intorno a sé: il `304` porta
+  l'`ETag` della zona che il server ha scelto.
 - **Nessun download**: senza una zona in cache intorno al punto la
   risposta è `404`, e il percorso lo disegna il server, che scarica la
   zona alla prima richiesta lì.

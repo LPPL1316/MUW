@@ -7,7 +7,9 @@ dalla #330, la parte B2 (le zone in più) dalla #337, le città vicine
 (B2b) dalla #341. Le zone del telefono sono sul server e B2/B2b su
 «preview» dal 2026-10-05. La parte D, la prova sull'iPhone, l'ha fatta
 l'utente il 2026-10-25: «funziona ma cerca di migliorarlo». Segue un
-miglioramento, da misurare e proporre all'utente (parte nuova).
+miglioramento, da misurare e proporre all'utente (parte nuova). Scelto
+dall'utente lo stesso giorno: la parte E, la zona più larga intorno al
+telefono, in `feat/TASK-214-e-wider-zone`.
 **Fase**: 4 · **Branch**: il task file con la #258; il codice in
 `feat/TASK-214-…`, una PR per parte · **ADR**: ADR-0177
 
@@ -741,6 +743,56 @@ Proposte all'utente, in attesa della sua scelta: (1, raccomandata) una
 zona con 6 km intorno, sotto ~10 MB, letta all'apertura; (2) un segnale
 anonimo a ogni percorso, per avere i numeri degli iPhone; (3) le scadenze
 del server sul telefono (tocca `route_engine`: un task suo).
+
+**Risposta dell'utente** (2026-10-25): «fai la 1».
+
+**Parte E, la zona più larga intorno al telefono** (branch
+`feat/TASK-214-e-wider-zone`; ADR-0177, «Decisione dell'agente, parte E»).
+Per chi corre: il telefono disegna fino a 8 km anche da una partenza
+scelta sulla mappa o a 2 km da dove si è aperta l'app, anche senza rete,
+dove il server ha una zona abbastanza grande; e il primo percorso non
+aspetta la lettura della zona.
+
+- **L'API** (`phone_zone_api.py`): `GET /phone-zones/{network}` accetta
+  `margin_m` (da 3000 a 10 000 m). Dà la zona più piccola che contiene
+  quel margine intorno al punto, se il suo file pesa al massimo **12 MB**;
+  altrimenti, o senza `margin_m`, quella di prima, con 3 km. Il file si
+  scrive se manca, come per la zona di 3 km. `If-None-Match` accetta più
+  ETag separati da virgole: `304` se la zona scelta è una di quelle, con
+  il suo `ETag`. Le app di prima chiedono e ricevono le stesse zone.
+- **12 MB e non i ~10 della proposta** (deciso dall'agente): è la zona più
+  grande che i telefoni usano già, quella in bici di Trento (11,5 MB).
+  Letta, una zona costa circa 21 MB di memoria per MB di file: 12 MB sono
+  circa 250 MB, più Python e i percorsi. Milano intera (25 MB) resta
+  fuori: lì il telefono tiene la zona di 3 km.
+- **L'app** (`src/engine/`):
+  - chiede le zone intorno a sé con `margin_m=6000` (`AROUND_MARGIN_M`,
+    `usePhoneZones.ts`), con gli ETag di tutte le zone che ha lì, e al
+    `304` segna come usata quella che il server nomina (`zones.ts`). Le
+    zone in più (parte B2) restano a 3 km: il tetto del traffico non
+    cambia;
+  - per un percorso dà al motore tutte le zone che contengono la partenza,
+    al massimo tre, dalla più piccola (`zonesForEngine`, `onPhone.ts`):
+    Python disegna sulla più piccola che contiene tutto il percorso
+    (`PhoneZones`), quindi un percorso troppo largo per la zona piccola
+    trova quella grande;
+  - quando le zone intorno ci sono (o, senza rete, quelle salvate), legge
+    in memoria la zona dello sport (`PhoneEngine.prepare`, la pagina
+    `warm`, `on_phone.warm`): quella di un percorso di 3–5 km da lì (2 km
+    intorno). Va dietro ai percorsi già chiesti, uno nuovo la sostituisce,
+    non avvia Python da solo; se iOS chiude la WebView mentre legge, non
+    conta come morte.
+- **Misure** (Pyodide sul Mac, zona di Trento 2,7 MB): `warm` 0,7 s; il
+  primo cuore da 3 km da 8,9 a 7,4 s, stesso percorso.
+- **Test**: 7 per l'endpoint e 2 per `warm` nell'API; 10 nell'app
+  (`zones`, `onPhone`, `phoneEngine`, `usePhoneZones`). `engine.zip`
+  rifatto.
+- **Prima di pubblicare l'app**: il server con la parte E. Con il server di
+  prima un telefono che ha due zone intorno a sé manda due ETag, il server
+  non li riconosce e rimanda la zona a ogni apertura.
+- **Non misurato**: quante zone del server bastano per i 6 km (la lista
+  delle zone sul server non è letta); dove non ce n'è una, non cambia
+  niente.
 
 **Seguito fuori dal task**: una scadenza per le partenze vicine anche senza
 processi, in `route_engine`, in un task suo. Il telefono disegnerebbe

@@ -8839,6 +8839,42 @@ raddoppierebbe); richiedere ogni giorno con l'ETag le zone già salvate
 (i giri si inseguirebbero); aspettare qualche minuto dopo l'apertura (chi
 apre l'app per poco non scaricherebbe mai).
 
+**Decisione dell'agente** (parte E, la zona più larga intorno al telefono,
+2026-10-25; la zona più larga è la scelta dell'utente, «fai la 1», fra tre
+proposte fatte dopo le misure in `tasks/TASK-214.md`, «Le misure dopo D»),
+deciso dall'agente su delega dell'utente:
+1. **6 km intorno al telefono**, chiesti con `margin_m` (da 3 a 10 km):
+   il ritaglio di un percorso fino a 8 km arriva a 3,8 km dalla partenza,
+   quindi ci sta anche partendo 2 km più in là. Senza `margin_m` resta la
+   zona di 3 km: le app di prima non cambiano.
+2. **Al massimo 12 MB di file** per la zona più larga: la zona più grande
+   che i telefoni usano già (Trento in bici, 11,5 MB). Una zona letta
+   costa circa 21 MB di memoria per MB di file. Oltre, o senza una zona
+   con quel margine, il server dà la zona di 3 km.
+3. **Più ETag in `If-None-Match`**, come permette RFC 9110: il telefono
+   può avere lì la zona piccola e quella grande. Il server risponde `304`
+   per quella che sceglie, con il suo `ETag`.
+4. **Al motore tutte le zone che contengono la partenza**, al massimo tre,
+   dalla più piccola: sceglie Python (`PhoneZones.covering_path`) la più
+   piccola che contiene il ritaglio, come fa il server. L'app non calcola
+   il ritaglio: sarebbe una copia del motore.
+5. **La zona letta all'apertura** (`on_phone.warm`, 2 km intorno al
+   telefono, quella di un percorso di 3–5 km), dietro ai percorsi già
+   chiesti, senza avviare Python da solo; una morte della WebView mentre
+   legge non conta.
+6. **Le zone in più (B2) restano a 3 km**: la zona più larga è per il posto
+   del telefono, e il tetto del traffico scelto dall'utente non cambia.
+7. **Prima il server, poi l'app**: con il server di prima, due ETag nella
+   stessa richiesta non sono riconosciuti, e la zona si riscarica a ogni
+   apertura.
+
+**Scartato**: calcolare nell'app quanto chiede un percorso e scegliere una
+zona sola (copia della logica del motore in TypeScript); chiedere zone in
+più punti intorno al telefono (zone piccole non si uniscono: il ritaglio
+deve stare in una sola); costruire sul server zone nuove più grandi (lavoro
+sul server con gli estratti, fuori dal task); i 10 MB della proposta
+(avrebbero escluso la zona in bici di Trento, già usata).
+
 ## ADR-0170 — Pubblicare come su Strava, l'API: chi lo vede in tre valori, una domanda sola per saperlo, foto in posti fissi, campi nuovi che un'app di prima non cancella
 **Stato**: Attiva · 2026-10-03 · deciso dall'agente su delega dell'utente
 (TASK-208, parte A), dentro le **scelte dell'utente** del 2026-10-03:

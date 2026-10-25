@@ -1095,6 +1095,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   telefono disegna solo vicino a dove si è aperta l'app, perché la zona
   ha 3 km intorno; i tempi sono quelli del server. Tre proposte
   all'utente, in attesa della sua scelta.
+  L'utente ha scelto la zona più larga («fai la 1»): **parte E** in
+  `feat/TASK-214-e-wider-zone`. L'API dà con `margin_m=6000` una zona con
+  6 km intorno al telefono, fino a 12 MB; l'app la chiede, passa al motore
+  tutte le zone che contengono la partenza e legge la zona all'apertura.
+  Si pubblica prima il server (solo l'API, motore invariato), poi l'app.
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch
