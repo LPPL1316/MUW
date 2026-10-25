@@ -153,6 +153,18 @@ rm /root/.ssh/storagebox/known_hosts
 
 Dopo, `offsite` dice di nuovo «no Storage Box».
 
+*Esito (2026-10-25, 03:07Z, «sì, collega lo Storage Box» dell'utente):*
+`ssh-keyscan` ha dato tre chiavi, con le stesse impronte che Hetzner
+pubblica per gli Storage Box (ED25519 `XqONwb1S…`, ECDSA `oDHZqKXn…`, RSA
+`EMlfI8Gs…`). In `.env` prima non c'erano righe `STORAGEBOX_`, ora ce ne sono
+due. `offsite` ricreato da solo; il log dice
+`push: every day at 02:30 UTC to u700709.your-storagebox.de`. Il primo `push`:
+`push: 13 copies and the search events to u700709.your-storagebox.de`, in
+1,5 s. Nello Storage Box `sgrava-db/` ha le 13 copie, dal 2026-10-13 al
+2026-10-25 (quella delle 02:00Z di oggi compresa), e `sgrava-insights/` ha
+`events-2026-10.jsonl` (0,7 MB). `api`, `db` e `backup` sono rimasti accesi
+senza riavvii. Il primo invio notturno è il 2026-10-26 alle 02:30Z.
+
 **Passo 3 — una copia torna dallo Storage Box e si ripristina in un
 database di prova.**
 
