@@ -14033,6 +14033,31 @@ ADR-0226, senza numero nuovo.
 - Seguiti: la colonna con l'hash quando gli account crescono; la domanda
   di iOS solo in inglese (come quelle di posizione e foto).
 
+**Aggiunta del 2026-10-25 — In `main` senza toccare l'impronta della 1.0**
+(scelta dell'utente del 2026-10-25, «vai con la c», consigliata anche dal
+coordinatore). Con `expo-contacts` collegato, l'impronta iOS passava da
+`83793e26` (la 1.0 in revisione) a `9337973a`, e da quel momento gli
+`eas update` di production da `main` non sarebbero più arrivati alla 1.0.
+Quindi, finché non c'è una build nativa nuova:
+
+- `expo-contacts` resta fra le dipendenze (Metro lo trova, Expo Go lo
+  usa), ma è **escluso dal collegamento nativo**:
+  `"expo": {"autolinking": {"exclude": ["expo-contacts"]}}` in
+  `apps/mobile/package.json`;
+- il suo plugin non è in `app.json`, quindi nessun `contactsPermission`
+  nell'`Info.plist`;
+- l'impronta resta `83793e26`, misurata su una copia pulita con `npm ci`.
+
+Effetto: nella 1.0, e in ogni build fatta così, «FROM YOUR CONTACTS» non
+si vede (punto 7); su preview, in Expo Go, sì. **Alla prossima build
+nativa** (la 1.0.1 iOS, la prima Android di TASK-294 B) si toglie
+l'esclusione e si rimette il plugin, con il testo scritto in
+`tasks/TASK-262.md`, parte C; poi la build passa dalla revisione di Apple.
+Scartate: unirla con la 1.0.1, perché la PR sarebbe rimasta ferma e in
+conflitto per settimane e la sessione delle email la aspettava; unirla con
+il modulo collegato, perché tagliava fuori la 1.0 dagli update proprio
+all'uscita.
+
 ## ADR-0120, aggiunta — Il database dei test se ne va col suo volume
 
 **Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente

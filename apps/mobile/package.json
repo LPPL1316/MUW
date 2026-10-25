@@ -53,5 +53,12 @@
   "jest": {
     "preset": "jest-expo",
     "testTimeout": 30000
+  },
+  "expo": {
+    "autolinking": {
+      "exclude": [
+        "expo-contacts"
+      ]
+    }
   }
 }

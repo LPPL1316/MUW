@@ -87,12 +87,6 @@
           "icon": "./assets/android-icon-monochrome.png",
           "color": "#FFD02B"
         }
-      ],
-      [
-        "expo-contacts",
-        {
-          "contactsPermission": "MuW reads only the phone numbers of your contacts, when you tap «Find friends in your contacts», to find friends who are on MuW. The numbers leave the phone coded and the server keeps none."
-        }
       ]
     ],
     "extra": {

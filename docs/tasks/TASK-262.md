@@ -1,6 +1,6 @@
 # TASK-262 — Le notifiche inviate davvero: push, email, amici dalla rubrica
 
-**Stato**: Parte A Done (2026-10-10, PR #451) · B e C Todo
+**Stato**: Parte A Done (2026-10-10, PR #451) · C Done (2026-10-25, PR #461) · B Todo
 **Fase**: 4 · **Branch**: `feat/TASK-262-a-push` (parte A)
 **Dipende da**: TASK-185 (i due interruttori), TASK-211 (follow),
 TASK-119 (reazioni), TASK-120 (commenti), TASK-208 (tag), TASK-121
@@ -204,7 +204,7 @@ La chiave `RESEND_API_KEY` la scrive l'utente nel `.env` del server;
 `.env.example` ne ha il nome. Da decidere: la lingua delle email (l'API
 la sa solo dai token push), il mittente e il dominio (`getmuw.app`).
 
-## Parte C — amici dalla rubrica (in lavorazione)
+## Parte C — amici dalla rubrica (Done)
 
 **Branch** `feat/TASK-262-c-contacts`, PR #461 · ADR-0226 (aggiunta).
 **Scelte dell'utente**: il 2026-10-07 l'ordine A push → B email → C
@@ -276,6 +276,8 @@ build 5 è partita, poi va su preview; su production con una 1.0.1.
 - [x] Testi nuovi mostrati all'utente nelle cinque lingue e approvati
       (2026-10-09).
 - [x] Test verdi in API e app (CI 6/6 del 2026-10-10).
+- [x] L'impronta iOS della 1.0 resta `83793e26`, misurata su una copia
+      pulita con `npm ci` (2026-10-25).
 
 ### File toccati (parte C)
 
@@ -362,6 +364,38 @@ salvo l'impronta della build. Fatto:
   già previsto, `phoneContacts.ts`); in Expo Go c'è. Alla build 1.0.1 si
   toglie l'esclusione e si rimette il plugin. Non applicata: aspetta la
   scelta dell'utente.
+- **Scelta dell'utente, 2026-10-25: «vai con la c»** (consigliata anche
+  dal coordinatore, con le due condizioni: la sezione nascosta senza il
+  modulo nativo, già provata da `ContactsFriends.test.tsx` e
+  `phoneContacts.test.ts`; il promemoria qui sotto). Applicata: esclusione
+  in `apps/mobile/package.json`, plugin tolto da `app.json` (ora uguale a
+  quello di `main`), `package-lock.json` invariato. ADR-0226, aggiunta del
+  2026-10-25. Le righe gemelle in `tasks/TASK-152.md` e `tasks/TASK-294.md`
+  le mettono il coordinatore e la sessione di Google Play, padroni di quei
+  file.
+
+### Alla prossima build nativa (promemoria)
+
+Finché `expo-contacts` è escluso, nessuna build lo contiene e la ricerca
+dalla rubrica non si vede. Prima della **1.0.1 iOS** e della **prima build
+Android di TASK-294 B**:
+
+1. in `apps/mobile/package.json` togliere il blocco
+   `"expo": {"autolinking": {"exclude": ["expo-contacts"]}}`;
+2. in `apps/mobile/app.json`, in fondo a `plugins`, rimettere:
+
+   ```json
+   [
+     "expo-contacts",
+     {
+       "contactsPermission": "MuW reads only the phone numbers of your contacts, when you tap «Find friends in your contacts», to find friends who are on MuW. The numbers leave the phone coded and the server keeps none."
+     }
+   ]
+   ```
+
+3. misurare l'impronta (DEPLOY A.7): cambia, ed è giusto così. Da quel
+   momento gli update di production arrivano solo alla build nuova, che
+   passa dalla revisione di Apple.
 
 ### Fuori scope della parte C
 
@@ -373,13 +407,15 @@ salvo l'impronta della build. Fatto:
 
 ## Esito
 
-**Parte C pronta il 2026-10-25, non ancora in `main`**: PR #461 allineata
-a `main`, privacy datata 25 ottobre 2026, test verdi; ferma perché
-`expo-contacts` cambia l'impronta iOS della 1.0 (`83793e26` →
-`9337973a`). L'utente sceglie fra: unirla con la build 1.0.1, unirla
-subito accettando che gli update di production non arrivino più alla
-1.0, oppure unirla subito con `expo-contacts` escluso dalla build nativa
-(impronta invariata, misurata). Dettagli in «Dove si è (2026-10-25)».
+**Parte C fatta il 2026-10-25**: PR #461, in `main` con `expo-contacts`
+escluso dalla build nativa (scelta dell'utente), così l'impronta iOS
+resta `83793e26` e gli update arrivano ancora alla 1.0. Privacy datata 25
+ottobre 2026 nelle cinque lingue e sul sito; test verdi in app, sito,
+contratto e API. La ricerca dalla rubrica si vede su preview (Expo Go);
+nelle build dello store solo dopo il «promemoria» della parte C.
+**Restano** (del coordinatore, con l'ok dell'utente): il server con
+`contact_people.py` (nessuna migrazione), la copia del sito (F.14), la
+pubblicazione su preview.
 
 **Parte A fatta il 2026-10-10**: PR #451, in `main` con il merge
 `578c2f7e` (dopo TASK-121, #457, e #475). Le push partono: tabella
