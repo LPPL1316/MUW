@@ -15239,6 +15239,66 @@ dell'utente)**:
   push del gioco è `GamePushKind` accanto a lui, perché `index.ts` è
   anche di due PR ferme (#461, #502) e si aggiunge solo in coda.
 
+**Aggiunta (parte C, 2026-10-24, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **Un pezzo in corso per persona e per sfida.** «Ognuno tiene un solo
+  pezzo in corso alla volta» vale dentro una sfida: chi sta in due squadre
+  tiene un pezzo in ognuna, e una corsa che conta riempie tutti e due.
+  Prendere un secondo pezzo della stessa sfida risponde `409` («leave it
+  first»): nessun pezzo si lascia per sbaglio con un tocco.
+- **Tutti i pezzi di una sfida chiedono la stessa cosa** (`pieces` e un
+  solo `piece`: X km, oppure 1 o 5 km sotto un passo); la tabella li tiene
+  per pezzo, così un seguito può mischiarli senza migrazione. I km in
+  avanzo passano solo a pezzi di distanza liberi, in ordine di numero.
+- **Il contorno dei pezzi lo serve anche l'API** (`outline` in ogni pezzo
+  di `GET /game/challenges/{id}`), oltre a poterlo rifare il telefono con
+  la stessa funzione: `pieces_of` misura il contorno chiuso segmento per
+  segmento (`sqrt(dx²+dy²)`), lo taglia a `k·L/n`, interpola gli estremi
+  sul segmento in cui cadono e arrotonda a 4 decimali; l'ultimo pezzo
+  finisce esattamente in `L`.
+- **Il riempimento sta in `game.after_run_saved`**, nella transazione del
+  salvataggio, dopo la riga di `game_runs`: i km che valgono sono quelli
+  dopo sovrapposizione e tetto. Il backfill non riempie pezzi: le corse di
+  prima del gioco non erano di nessuna sfida.
+- **La chiusura non scrive niente**: una sfida è `active` finché non è
+  completa e non sono passate 3 h dalla scadenza; poi è `expired`. Lo stato
+  si calcola dall'orologio, così nessun processo deve «chiudere» le sfide,
+  e la squadra ne crea un'altra appena la prima non è più attiva.
+- **«1 day left» lo trova un timer dell'API** (`ChallengeClock`, ogni 15
+  minuti, thread daemon come i receipts del Pusher), acceso e spento nel
+  lifespan dell'app: `install_game` avvolge `app.router.lifespan_context`
+  per non toccare `app.py` (della #461), e lo spegnimento aspetta un
+  controllo in corso prima che `app.py` chiuda il pool (TASK-288 B). Una
+  sola push per sfida anche con più processi o dopo un riavvio: la riga si
+  marca con `UPDATE … WHERE ending_told_at IS NULL … RETURNING`, non in
+  memoria. Si dice solo per le sfide più lunghe di un giorno (una da un
+  giorno la riceverebbe appena creata).
+- **Le push delle sfide portano `challenge_id`** in `data`, e il testo
+  comincia con il nome della forma nella lingua del telefono: `PushEvent`
+  ha tre campi facoltativi (`challenge_id`, `number`, `names`), letti da
+  `text_of` e `data_of`; gli eventi di prima danno gli stessi testi e
+  `data` (test). `challenge_done` e `challenge_ending` stanno in
+  `OWN_KINDS`: la prima è anche per chi ha chiuso la forma, la seconda non
+  ha un autore.
+- **Il blocco nato fra due iscritti** si risolve nella transazione del
+  blocco: `moderation.py` chiama i ganci di `app.state.on_block` dentro un
+  savepoint, così un gancio che fallisce non perde il blocco. La regola
+  (chi blocca esce, tranne dalla sua squadra) aspetta il sì dell'utente.
+- **La cancellazione dell'account** passa da `before_account_delete`
+  (come Strava): le squadre vanno all'iscritto più vecchio o spariscono, i
+  pezzi tenuti tornano liberi con i loro metri; poi il `CASCADE` porta via
+  iscrizioni e contributi, e `SET NULL` lascia sfide e pezzi alla squadra.
+  Se il gancio fallisse, `_owner_of` legge comunque l'iscritto più vecchio
+  di una squadra senza proprietario.
+- **I rifiuti del join** (pieno, troppe squadre, blocco) sono tutti `403
+  http_error` «You can't join this team.»; un codice sconosciuto è `404`.
+  Nessun codice d'errore nuovo nel contratto; il nome negativo è `422
+  comment_rejected` come un commento.
+- **`GET /game/me`** dice anche `team_unlocked_at` per forma (campo in più,
+  `null` prima); i tipi di `shared-types` li aggiorna la parte D, che è
+  anche la prima a leggerli.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
