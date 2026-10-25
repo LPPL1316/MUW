@@ -24,6 +24,11 @@ from shaperoute_ai.theme_reading import ThemeReader
 
 from shaperoute_api.access import KEY_HEADER, KEY_VARIABLE, Access, AccessConfigError
 from shaperoute_api.access_log import hide_query_strings
+from shaperoute_api.account_email import (
+    AccountEmails,
+    AccountLinks,
+    install_account_email,
+)
 from shaperoute_api.accounts import Accounts
 from shaperoute_api.activity_graphs import ActivityGraphs
 from shaperoute_api.app import create_app
@@ -269,6 +274,18 @@ def main(argv: Sequence[str] | None = None) -> None:
         else ReportEmails(database, report_setup)
     )
     install_report_email(app, report_emails)
+    # The emails of the accounts (TASK-300): the link that confirms an
+    # address and the one that chooses a new password. Off as the one above.
+    account_emails = (
+        None
+        if accounts is None or away_setup is None
+        else AccountEmails(
+            accounts,
+            away_setup.resend,
+            AccountLinks(away_setup.links.secret, away_setup.links.base_url),
+        )
+    )
+    install_account_email(app, account_emails)
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     here = f"http://127.0.0.1:{args.port}"
     print(f"API docs on this PC: {here}/docs")
@@ -308,6 +325,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         print(f"Reports are not emailed ({REPORTS_TO} and the rest not set)")
     else:
         print(f"Each new report is emailed ({REPORTS_TO})")
+    if account_emails is None:
+        print("Addresses are not confirmed and no password is reset by email")
+    else:
+        print("Addresses confirmed and passwords reset by email (Resend)")
     if request_log is None:
         print("Route requests are not recorded (--request-log records them)")
     else:

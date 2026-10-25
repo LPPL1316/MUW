@@ -1,15 +1,16 @@
 import type { User } from "@shaperoute/shared-types";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, Text, type TextInput, View } from "react-native";
 
 import type { Account } from "../account/useAccount";
 import { t } from "../i18n";
 import { ContactField, contactStyles as styles } from "./ContactField";
 import { checkEmailChange } from "./contactFields";
+import { EmailConfirmation } from "./EmailConfirmation";
 
 type Props = {
   user: User;
-  account: Pick<Account, "changeEmail">;
+  account: Pick<Account, "changeEmail" | "email">;
 };
 
 /**
@@ -17,7 +18,9 @@ type Props = {
  * under the row, as «Profile picture» opens its choices: the new address
  * and the password of the account. Saved, the form closes and the account
  * above shows the new address; what goes wrong is said under «Save», and
- * the fields keep what was written.
+ * the fields keep what was written. From a server that sends email
+ * (TASK-300) the new address waits for its link instead, and under the row
+ * `EmailConfirmation` says so, as it says an address not confirmed yet.
  */
 export function EmailSetting({ user, account }: Props) {
   const [open, setOpen] = useState(false);
@@ -28,6 +31,12 @@ export function EmailSetting({ user, account }: Props) {
   // A second tap while the first is on its way sends nothing.
   const savingNow = useRef(false);
   const passwordField = useRef<TextInput>(null);
+  // The address just asked for in this form, while it waits.
+  const [asked, setAsked] = useState<string | null>(null);
+  const checkEmail = account.email?.check;
+  useEffect(() => {
+    checkEmail?.();
+  }, [checkEmail]);
 
   function close() {
     setOpen(false);
@@ -53,6 +62,7 @@ export function EmailSetting({ user, account }: Props) {
     savingNow.current = false;
     setSaving(false);
     if (failed === null) {
+      setAsked(checked.request.email.toLowerCase());
       close();
     } else {
       setProblem(failed);
@@ -73,6 +83,13 @@ export function EmailSetting({ user, account }: Props) {
         <Text style={styles.emoji}>✉️</Text>
         <Text style={styles.rowText}>{t("Change email")}</Text>
       </Pressable>
+      {account.email !== undefined && (
+        <EmailConfirmation
+          user={user}
+          email={account.email}
+          justChanged={asked !== null && asked === user.pending_email}
+        />
+      )}
       {open && (
         <View>
           <View style={styles.divider} />

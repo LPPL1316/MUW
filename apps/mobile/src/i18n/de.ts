@@ -340,6 +340,28 @@ export const DE: Table = {
   "Wrong password.": "Falsches Passwort.",
   "Another account has this email.": "Ein anderes Konto hat diese E-Mail.",
 
+  // src/screens/SignInScreen.tsx, ForgotPassword.tsx, src/settings/EmailConfirmation.tsx,
+  // src/account/accountEmail.ts (TASK-300: the emails of the account)
+  "Forgot password?": "Passwort vergessen?",
+  "Write the email of your account: we send it a link to choose a new password.":
+    "Schreib die E-Mail deines Kontos: Wir schicken einen Link dorthin, um ein neues Passwort zu wählen.",
+  "Send the link": "Link senden",
+  "If an account has this email, a link is on its way. It works for 1 hour; look in spam too.":
+    "Wenn ein Konto diese E-Mail hat, ist ein Link unterwegs. Er gilt 1 Stunde; schau auch im Spam nach.",
+  "Back to Log in": "Zurück zu Anmelden",
+  "Too many emails asked: wait a few minutes and try again.":
+    "Zu viele E-Mails angefordert: Warte ein paar Minuten und versuche es noch einmal.",
+  "Email not confirmed": "E-Mail nicht bestätigt",
+  "Send the link again": "Link erneut senden",
+  "Send again": "Erneut senden",
+  "Cancel change": "Änderung abbrechen",
+  "Link sent to {email}. Look in spam too.":
+    "Link an {email} gesendet. Schau auch im Spam nach.",
+  "We sent a link to {email}. Your email changes when you open it.":
+    "Wir haben einen Link an {email} gesendet. Deine E-Mail ändert sich, wenn du ihn öffnest.",
+  "Waiting for {email}: open the link we sent there.":
+    "Warten auf {email}: Öffne den Link, den wir dorthin geschickt haben.",
+
   // src/settings/NotificationsSetting.tsx, notificationFields.ts
   "Notifications are not available on this API yet.":
     "Benachrichtigungen gibt es auf dieser API noch nicht.",

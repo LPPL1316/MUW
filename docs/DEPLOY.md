@@ -509,6 +509,23 @@ Per spegnerla basta togliere `SHAPEROUTE_REPORTS_TO` e `docker compose up
 nascosto finché non si rimostra, dal link o a mano (`DATABASE.md`,
 migrazione `0024`).
 
+## Email confermata e password dimenticata (TASK-300)
+
+La conferma dell'indirizzo e «Forgot password?» (ADR-0261; `API.md`,
+«Confirmed email and forgotten password») si accendono con **le stesse tre
+variabili dell'email di ritorno** (sopra), niente di nuovo in
+`deploy/.env`. All'avvio la riga
+«Addresses confirmed and passwords reset by email (Resend)» dice che sono
+accese; «Addresses are not confirmed…» che manca qualcosa, e allora il
+cambio d'indirizzo in «Settings» vale subito come prima. Al primo avvio
+l'API applica `0029_email_confirmation.sql`: gli account di prima restano
+non confermati e non ricevono niente da soli. I link aprono
+`https://api.getmuw.app/email/confirm?t=…` e `/password/reset?t=…`, pagine
+senza `X-API-Key`. Cambiare il segreto spegne anche questi link (al più 7
+giorni per una conferma, 1 ora per un reset). Pubblicare l'app della parte
+B prima o insieme al server: l'app di prima, a un cambio in attesa, mostra
+ancora il vecchio indirizzo.
+
 ## Il registro delle richieste e le posizioni
 
 L'API può scrivere ogni richiesta di percorso in un file, per rifarla
