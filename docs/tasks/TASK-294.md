@@ -1,8 +1,9 @@
 # TASK-294 — MuW su Google Play
 
-**Stato**: In corso (parte A)
-**Fase**: 4 · **Branch**: `feat/TASK-294-a-android-background` (parte A),
-`feat/TASK-294-b-play-build` (parte B), la parte C ne avrà uno suo
+**Stato**: In corso (parte A in PR #543)
+**Fase**: 4 · **Branch**: `feat/TASK-294-a-android-background` (parte A,
+PR #543), `feat/TASK-294-b-play-build` (parte B), la parte C ne avrà uno
+suo
 
 ## Obiettivo
 

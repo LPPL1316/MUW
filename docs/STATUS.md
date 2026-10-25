@@ -167,7 +167,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   timer JS; la linea non si taglia per lo schermo spento. L'impronta iOS
   della build 7 non cambia (`fingerprint.config.js`, 83793e26 prima e
   dopo). Solo app; testi della notifica approvati dall'utente il
-  2026-10-23. La prova su Android vero si fa con la B. **B** (ADR-0253): package,
+  2026-10-23. **PR #543**. La prova su Android vero si fa con la B. Account
+  Google Play personale creato dall'utente il 2026-10-25 («Luca
+  Pallaoro»), in attesa delle verifiche di Google. **B** (ADR-0253): package,
   Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
   pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
