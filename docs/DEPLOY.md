@@ -446,6 +446,18 @@ l'ok del coordinatore per il server.
    `--send` fa un giro subito invece di aspettare le 17:00. Il log dice
    quanti erano via, quante email sono partite e quante Resend ne ha
    rifiutate (mai gli indirizzi).
+5. **Email delle notifiche** (TASK-262 parte B, `API.md`, «Notice
+   emails»): si accende **insieme** a questa, con le stesse tre righe, e
+   applica la migrazione `0028_email_notices.sql` (o il numero preso al
+   merge). Va solo a chi ha «Email notifications» acceso, una al giorno
+   alle 18:00 UTC (`NOTICE_EMAIL_AT` la sposta). Prima di accenderla, come
+   per questa: la parte B di TASK-284 in `main` con la privacy che la
+   nomina e la nota di «Settings» nuova. Il log dice «Email of the
+   notices: every day at 18:00 UTC». La prova, senza mandare niente:
+
+   ```bash
+   docker compose exec api python -m shaperoute_api.notice_email
+   ```
 
 Per spegnerla basta togliere `RESEND_API_KEY` da `deploy/.env` e
 `docker compose up -d`: anche la pagina del link sparisce. **Il segreto

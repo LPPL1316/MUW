@@ -545,6 +545,24 @@ TASK-297 A, #539):
   restano alla squadra senza il nome (test in `test_game_teams.py` e
   `test_game_challenges.py`).
 
+Migrazione `0028_email_notices.sql` (TASK-262 parte B, ADR-0226; nome
+provvisorio, il numero si controlla al merge con il Coordinatore):
+
+- `email_notices`: le notizie tenute per l'email del giorno, **solo** per
+  chi ha «Email notifications» acceso. `id`, `recipient_id` e `actor_id`
+  (`ON DELETE CASCADE` su `users`), `kind` (le cinque delle push:
+  `follow_request`, `follow_accepted`, `reaction`, `comment`, `tag`),
+  `drawing_id` (`CASCADE` su `drawings`; vuoto solo per i due del follow),
+  `comment_id` (`CASCADE` su `comments`; solo per un commento), `at`.
+  `UNIQUE NULLS NOT DISTINCT` su chi, cosa e dove: la stessa notizia una
+  volta (una reazione cambiata, una richiesta rifatta). Nessun testo:
+  commento, reazione e nomi si leggono quando si scrive l'email, e quello
+  che non è più vero resta fuori. Le righe vanno via con l'email mandata,
+  dopo 7 giorni, o quando l'interruttore si spegne. Indice su
+  `actor_id` per la cancellazione di un account.
+- `users.notices_emailed_at` (`timestamptz`, facoltativa): l'ultima email
+  delle notizie; un'altra solo in un altro giorno (UTC).
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

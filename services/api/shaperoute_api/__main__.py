@@ -46,6 +46,11 @@ from shaperoute_api.insights.events import wanted as insights_wanted
 from shaperoute_api.insights.vocabulary import DEFAULT_PATH as VOCABULARY
 from shaperoute_api.insights.vocabulary import Vocabulary
 from shaperoute_api.nearby_cities import NearbyCities, install_nearby_cities
+from shaperoute_api.notice_email import (
+    NoticeEmails,
+    NoticeSetup,
+    install_notice_email,
+)
 from shaperoute_api.phone_zone_api import install_phone_zones
 from shaperoute_api.places import KEY_VARIABLE as PLACES_KEY
 from shaperoute_api.places import PlaceSearch
@@ -154,6 +159,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     try:
         access = Access.from_env()
         away_setup = AwaySetup.from_env()
+        notice_setup = NoticeSetup.from_env()
     except (AccessConfigError, AwayConfigError) as exc:
         raise SystemExit(str(exc)) from None
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(message)s")
@@ -239,6 +245,14 @@ def main(argv: Sequence[str] | None = None) -> None:
     install_away_email(app, away)
     if away is not None:
         DailyRound(away).start()
+    # The daily email of the notices (TASK-262 B): on with the away email;
+    # its round lives with the app.
+    notices = (
+        None
+        if database is None or notice_setup is None
+        else NoticeEmails(database, notice_setup)
+    )
+    install_notice_email(app, notices)
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     here = f"http://127.0.0.1:{args.port}"
     print(f"API docs on this PC: {here}/docs")
@@ -271,6 +285,9 @@ def main(argv: Sequence[str] | None = None) -> None:
     else:
         at = away.setup.at.strftime("%H:%M")
         print(f"Email to who is away for 14 days: every day at {at} UTC")
+    if notices is not None:
+        at = notices.setup.at.strftime("%H:%M")
+        print(f"Email of the notices: every day at {at} UTC, to who has it on")
     if request_log is None:
         print("Route requests are not recorded (--request-log records them)")
     else:

@@ -109,21 +109,25 @@ class AwayConfigError(ValueError):
 
 @dataclass(frozen=True)
 class StopLinks:
-    """One link per account, made and checked with the same secret."""
+    """One link per account, made and checked with the same secret. The
+    purpose is in the HMAC: a link of one email never stops another
+    (notice_email.py has its own, TASK-262 B)."""
 
     secret: bytes = field(repr=False)
     # "https://api.getmuw.app": where the API answers from outside.
     base_url: str
+    purpose: bytes = b"away-email-stop"
+    path: str = STOP_PATH
 
     def _tag(self, public_id: UUID) -> str:
-        message = b"away-email-stop:" + public_id.bytes
+        message = self.purpose + b":" + public_id.bytes
         return hmac.new(self.secret, message, hashlib.sha256).hexdigest()[:TAG_HEX]
 
     def token(self, public_id: UUID) -> str:
         return f"{public_id.hex}.{self._tag(public_id)}"
 
     def url(self, public_id: UUID) -> str:
-        return f"{self.base_url}{STOP_PATH}?t={self.token(public_id)}"
+        return f"{self.base_url}{self.path}?t={self.token(public_id)}"
 
     def public_id_of(self, token: str) -> UUID | None:
         """The account of a token, or None when it is not one of ours."""
@@ -143,10 +147,12 @@ class StopLinks:
 # --- What the environment says ---
 
 
-def _at(text: str) -> clock_time:
-    """ "17:00" as a time of day; DEFAULT_AT when empty."""
+def time_of_day(
+    text: str, variable: str = AT_VARIABLE, default: clock_time = DEFAULT_AT
+) -> clock_time:
+    """ "17:00" as a time of day; `default` when empty."""
     if not text:
-        return DEFAULT_AT
+        return default
     hours, colon, minutes = text.partition(":")
     try:
         if not colon:
@@ -154,7 +160,7 @@ def _at(text: str) -> clock_time:
         return clock_time(int(hours), int(minutes))
     except ValueError:
         raise AwayConfigError(
-            f"{AT_VARIABLE} is a time of day in UTC, such as 17:00"
+            f"{variable} is a time of day in UTC, such as 17:00"
         ) from None
 
 
@@ -184,7 +190,7 @@ class AwaySetup:
         return cls(
             Resend(key, sender),
             StopLinks(secret.encode(), base.rstrip("/")),
-            _at(environ.get(AT_VARIABLE, "").strip()),
+            time_of_day(environ.get(AT_VARIABLE, "").strip()),
         )
 
 

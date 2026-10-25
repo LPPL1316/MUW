@@ -1481,8 +1481,9 @@ il codice in `contact.py`.
 I due interruttori delle notifiche di un account, «Email notifications» e
 «Push notifications», cambiati dal proprietario. Con «Push notifications»
 acceso l'API manda le push ai telefoni dell'account (TASK-262, sotto,
-«Push notifications»); **l'email non parte ancora** (TASK-262, parte B):
-quell'interruttore resta una scelta tenuta per quando ci sarà.
+«Push notifications»); con «Email notifications» acceso, **una email al
+giorno al massimo** con le stesse notizie (TASK-262 parte B, sotto,
+«Notice emails»), spenta finché il server non ha Resend.
 Vuole il token: senza, `401 not_signed_in`; senza database, `503
 accounts_unavailable`. Tipi in `shared-types` (`Notifications`,
 `NotificationsRequest`, `User.notifications`), esempio in
@@ -1647,6 +1648,56 @@ sopra), una casella non spuntata all'iscrizione (`away_email` di `POST
   lo dice all'avvio (`docs/DEPLOY.md`, «Email di ritorno»). A mano:
   `python -m shaperoute_api.away_email` conta chi la riceverebbe adesso,
   `--send` fa un giro.
+
+### Notice emails (TASK-262 parte B, ADR-0226)
+
+Con «Email notifications» acceso (`notifications.email`, sopra), **una
+email al giorno al massimo**, solo nei giorni con qualcosa: le cinque
+notizie delle push (una richiesta di follow, una richiesta accettata, una
+reazione, un commento, un tag). Scelte dell'utente del 2026-10-25: un
+riassunto al giorno, non un'email per evento (le push restano l'avviso
+subito); la lingua come l'email di ritorno. Il codice in
+`notice_email.py` (cosa si tiene, il giro, la pagina) e `notice_texts.py`
+(le parole); invia con `resend_email.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /notice-email/stop?t=…` | la pagina del link «Don't send me these emails»: la domanda e il pulsante | `200` HTML; `404` HTML con un link che non è nostro |
+| `POST /notice-email/stop?t=…` | il pulsante, e il «disiscriviti» del programma di posta (RFC 8058): spegne `email` e toglie le notizie tenute | `200` HTML; `404` HTML come sopra |
+
+- **Cosa si tiene**: ogni evento che `push.py` lascia passare (non il
+  proprio, una volta al giorno) arriva a `notice_email.py` (i
+  «listener» del `Pusher`), che lo scrive in `email_notices` solo se il
+  destinatario ha `email` acceso. Per gli altri non si tiene niente.
+- **Il giro**, ogni giorno alle `NOTICE_EMAIL_AT` UTC (18:00 di default,
+  un'ora dopo quello dell'email di ritorno): a ogni account con notizie
+  tenute e `email` acceso, una email con quelle **ancora vere** quando si
+  scrive (la richiesta ancora in attesa, il follow ancora lì, la reazione,
+  il commento o il tag ancora lì), mai attraverso un blocco, un disegno
+  solo se lo vede ancora. Senza niente di vero, nessuna email.
+- **Cosa dice**: le righe sono le push, nella lingua dell'iscrizione, poi
+  del telefono, poi in inglese; le più recenti prima, al più 10, poi
+  «…and 3 more in the app.». Oggetto: la riga, se è una; se no «5 new
+  notifications on MuW». Poi «Open MuW» (la pagina App Store), perché la
+  riceve, il link e dove spegnerla («Settings › Email notifications»).
+- **Una al giorno**: l'account è preso (`notices_emailed_at`) prima di
+  mandare, solo se niente è cambiato da quando è stato letto e non è già
+  stato preso oggi (UTC): due giri insieme o un giro dopo un riavvio non
+  mandano mai la seconda. Resend che rifiuta restituisce il giorno e le
+  notizie: si riprova al giro dopo. Mandata, le sue notizie si cancellano;
+  le altre dopo 7 giorni, o quando `email` si spegne. `Idempotency-Key`
+  per account e giorno; al più 500 per giro, mezzo secondo fra due, il
+  giro si ferma dopo 3 rifiuti di fila.
+- **Il link** ha un token come quello dell'email di ritorno, con uno scopo
+  suo nell'HMAC: il link di un'email non spegne l'altra. Stesse regole
+  della pagina (`no-store`, senza `X-API-Key`).
+- **Il thread** del giro parte con l'app e si ferma, anche a metà giro fra
+  due email, prima che la fine dell'app chiuda il pool del database
+  (TASK-288 B).
+- **Spenta** quando è spenta l'email di ritorno (`RESEND_API_KEY`,
+  `SHAPEROUTE_EMAIL_SECRET`, `SHAPEROUTE_DOMAIN`). A mano: `python -m
+  shaperoute_api.notice_email` conta chi la riceverebbe adesso, `--send`
+  fa un giro.
 
 ### Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170)
 

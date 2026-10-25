@@ -157,6 +157,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-262 parte B — L'email delle notifiche, una al giorno**
+  (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
+  al giorno, la lingua come l'email di ritorno; conferma dell'email e
+  password dimenticata a parte, TASK-300). Branch `feat/TASK-262-b-email`,
+  solo API: le cinque notizie delle push tenute in `email_notices`
+  (migrazione `0028_email_notices.sql`, numero da controllare al merge)
+  per chi ha «Email notifications» acceso, un giro al giorno alle 18:00
+  UTC, una email al massimo per account e giorno, il link per spegnerla.
+  Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
+  «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
+  File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;

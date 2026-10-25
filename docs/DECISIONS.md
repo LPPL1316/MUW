@@ -15550,3 +15550,56 @@ un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
 salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
 server, `draw_examples` e il motore sul telefono (TASK-214) vanno
 aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
+
+## ADR-0226, aggiunta — L'email delle notifiche: un riassunto al giorno
+
+**Stato**: Attiva · 2026-10-25 · **scelte dell'utente** del 2026-10-25
+(TASK-262 parte B): un riassunto al giorno al massimo, solo nei giorni con
+qualcosa, non un'email per evento («usa il metodo A», dopo aver risposto
+prima «B»); la lingua come l'email di ritorno («A»); la conferma
+dell'email e la password dimenticata in un task a parte («a parte
+SUBITO», TASK-300). Il modo deciso dall'agente su delega dell'utente, con
+le note del Coordinatore. Aggiunta ad ADR-0226, senza numero nuovo.
+
+**Contesto**: dalla parte A l'interruttore «Email notifications» c'era ma
+non mandava niente («MuW does not send emails yet»). La parte A di
+TASK-284 (#502) ha portato Resend, il mittente `MuW <hello@getmuw.app>`,
+i link firmati e la pagina senza chiave dell'API.
+
+**Decisione**:
+
+1. **Le notizie sono quelle delle push**: `push.py` passa ogni evento che
+   lascia passare (non il proprio, una volta al giorno) ai suoi listener;
+   `notice_email.py` tiene i cinque della lista dell'utente in
+   `email_notices`, solo per chi ha «Email notifications» acceso. Le
+   regole delle push non cambiano (nota del Coordinatore, con un test).
+2. **Nessun testo nel database**: la riga dice chi, cosa e dove. Quando si
+   scrive l'email si rilegge tutto, e resta fuori quello che non è più
+   vero: richiesta ritirata, reazione tolta, commento cancellato, blocco,
+   disegno non più visibile.
+3. **Le righe sono le push** (`push.TEXTS`, già approvate nelle cinque
+   lingue); nuovi solo oggetto, titolo, «…and N more», il perché in fondo
+   e la pagina del link (`notice_texts.py`), da approvare dall'utente.
+4. **Una al giorno davvero**: l'account si prende con un `UPDATE` di
+   `users.notices_emailed_at` condizionato (niente cambiato, non oggi in
+   UTC), come il giro dell'email di ritorno; Resend che rifiuta
+   restituisce il giorno e le notizie. Test con due giri insieme e con un
+   riavvio (nota del Coordinatore).
+5. **Il thread vive con l'app**: parte con il lifespan e si ferma, anche
+   fra due email, prima che la fine dell'app chiuda il pool di TASK-288 B
+   (nota del Coordinatore, con un test). Il giro alle 18:00 UTC, un'ora
+   dopo quello dell'email di ritorno, perché Resend prende due email al
+   secondo.
+6. **Si accende con l'email di ritorno** (le stesse tre variabili) e con
+   la parte B di TASK-284: la nota di «Settings», l'help e la privacy che
+   nomina Resend cambiano lì, una volta sola per le tre email.
+
+**Alternative scartate**: un'email per evento (scelta dell'utente: un
+riassunto); leggere le notizie dalle tabelle di follow, reazioni, commenti
+e tag senza tenerne niente (i tag non hanno un'ora, e le regole delle push
+si sarebbero dovute riscrivere una seconda volta); un link per spegnere le
+due email insieme (ognuna ha il suo interruttore).
+
+**Conseguenza**: chi aveva acceso «Email notifications» prima riceverà
+queste email quando il server avrà Resend. Il link di un'email non spegne
+l'altra: lo scopo è nell'HMAC (`StopLinks.purpose`).
