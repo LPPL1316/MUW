@@ -445,6 +445,25 @@ primo libero in `main` al merge):
   DESC) WHERE visibility <> 'only_me'`: i disegni pubblicati, i più
   recenti prima, l'ordine del feed.
 
+Migrazione `0023_away_email.sql` (TASK-284, ADR-0244; il numero è il primo
+libero in `main` al merge):
+
+- `users.notify_away` (`boolean NOT NULL DEFAULT true`): «Email when I'm
+  away» di «Settings». **Acceso** per ogni account, quelli di prima
+  compresi (scelta dell'utente: tutti gli iscritti); lo spengono
+  `away_email: false` all'iscrizione, `PUT /me/notifications` e il link
+  della email. In `GET /me` è `notifications.away`.
+- `users.away_emailed_at` (`timestamptz`, facoltativa): l'ultima email di
+  ritorno. Un account la riceve di nuovo solo quando l'app è stata usata
+  dopo (`sessions.last_used_at` più recente di questa data).
+- `users.language` (`en`, `de`, `it`, `es`, `fr`, o `NULL`): la lingua
+  dell'app all'iscrizione, per i testi delle email; `NULL` per gli account
+  di prima, e allora vale quella del telefono (`push_tokens.language`) o
+  l'inglese.
+- Nessun indice: il giro di ogni giorno legge tutti gli account con
+  `notify_away` una volta. **L'indirizzo email lascia il server per un
+  terzo**, Resend, solo dentro un'email di ritorno (ADR-0244).
+
 Migrazione `0025_game.sql` (TASK-296 parte A, ADR-0255, `GIOCO.md`; il
 numero è il primo libero in `main` al merge):
 

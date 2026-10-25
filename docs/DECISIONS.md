@@ -14324,6 +14324,67 @@ due città sfogliate in un minuto le parole della seconda aspettano il
 minuto dopo. Una città senza zona sul server può scaricarne una più
 grande per la parola più lunga.
 
+## ADR-0244 — L'email di ritorno a chi non apre l'app da 14 giorni
+**Stato**: Attiva · 2026-10-11 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-284): «a tutti gli iscritti» e
+«un interruttore suo, acceso», con la proposta di testo e di ritmo
+accettata; il come deciso dall'agente su delega dell'utente. Note del
+coordinatore: rispettare gli interruttori, informare e lasciar rifiutare
+già all'iscrizione (il «soft opt-in» europeo; non è una consulenza
+legale), chiave e DNS di Resend all'utente.
+
+Chi si iscrive e poi non apre più MuW non sa che chi segue ha pubblicato.
+Una email lo dice: quanti disegni nuovi, di chi, e un pulsante per tornare.
+
+**Decisione**:
+
+1. **A tutti gli iscritti**, con un interruttore suo, «Email when I'm
+   away» (`users.notify_away`, `notifications.away`), **acceso** di
+   default anche per gli account di prima; lo spengono la casella non
+   spuntata «Don't send me these emails» all'iscrizione (`away_email`),
+   «Settings» e il link di ogni email. «Email notifications» resta per le
+   notizie di TASK-262 B.
+2. **Una email per assenza**: ultimo uso (il `last_used_at` più recente
+   delle sessioni) più vecchio di 14 giorni e nessuna email di ritorno
+   dopo; un account uscito da ogni telefono non ha un ultimo uso e non la
+   riceve. **Solo con qualcosa di nuovo**, cioè disegni che il Feed gli
+   mostrerebbe (`shown_sql`, mai attraverso un blocco), i suoi esclusi:
+   senza, il giro del giorno dopo richiede.
+3. **Un giro al giorno** alle 17:00 UTC, in un thread dell'API avviato da
+   `__main__.py`: nessun servizio nuovo in `compose.yaml`, nessun cron.
+   L'account è preso (`away_emailed_at`, con un `UPDATE` che vale solo se
+   niente è cambiato) prima di mandare e restituito se Resend rifiuta;
+   500 per giro, mezzo secondo fra due, fermo dopo 3 rifiuti di fila.
+4. **Resend** con la libreria standard (`resend_email.py`, come
+   `expo_push.py`): nessuna dipendenza nuova, un `User-Agent` suo, una
+   `Idempotency-Key` per assenza; la chiave e l'indirizzo mai nei log.
+5. **Il link per disiscriversi** è un HMAC del `public_id` con
+   `SHAPEROUTE_EMAIL_SECRET`: niente nel database. Il `GET` mostra una
+   pagina con un pulsante, solo il `POST` spegne (i filtri antispam aprono
+   i link); `List-Unsubscribe` e `List-Unsubscribe-Post` (RFC 8058) per il
+   «disiscriviti» del programma di posta. La pagina non vuole
+   `X-API-Key`, come `/strava/callback`.
+6. **Lingua**: quella dell'app all'iscrizione (`users.language`, nuova),
+   poi quella del telefono con le push, poi l'inglese.
+7. **«Open MuW»** porta alla pagina App Store dell'app: l'app non ha link
+   universali né uno schema suo, che vorrebbero una build nativa.
+
+**Alternative scartate**: legarla a «Email notifications» (spento di
+default: non la riceverebbe quasi nessuno, scelta dell'utente); solo il
+link nella email (il soft opt-in vuole il rifiuto già all'iscrizione); un
+servizio o un cron a parte sul server (una cosa in più da tenere accesa);
+un token per account nel database (il segreto basta e non va copiato);
+spegnere al solo `GET` del link; il pacchetto Python di Resend (una
+dipendenza per una chiamata).
+
+**Conseguenza**: l'indirizzo email lascia il server per Resend (negli
+Stati Uniti): la privacy cambia nella parte B, dopo #461, con il sì
+dell'utente al testo e alla data. Nessuna email parte prima che ci siano
+la parte B in `main`, l'app pubblicata con la casella, la chiave e il
+dominio verificato su Resend (`DEPLOY.md`, «Email di ritorno»). I testi
+dell'email, in cinque lingue, aspettano anche loro il sì dell'utente.
+Cambiare il segreto spegne i link già mandati.
+
 ## ADR-0245 — «Draw on the map»: la figura sulla mappa la misura l'app, il percorso lo fa il motore
 **Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente:
 una schermata sola con «Draw | Move», una riga di forme e immagini che
