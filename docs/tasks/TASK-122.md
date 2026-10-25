@@ -79,7 +79,8 @@ primo invio vale circa 2,2 MB di copie e 0,7 MB di eventi.
 **Dall'iPhone**: l'entrata dall'iPhone vero sull'indirizzo pubblico, senza
 Tailscale, è nel video per Apple del 2026-10-13 (build 7 da TestFlight,
 l'account dell'utente e quello demo). L'iscrizione di un account nuovo
-nel video non c'è: la conferma il conto degli account del passo 1.
+nel video non c'è. I 3 account del database (passo 1) non dicono da dove
+sono nati: l'iscrizione dall'iPhone la conferma l'utente.
 
 **Adesso tocca all'utente**: crea lo Storage Box (`DEPLOY.md` F.13,
 punto 2, con la chiave pubblica di `/root/.ssh/storagebox/id_ed25519.pub`)
@@ -99,6 +100,16 @@ migrations 0001_users_sessions,…,0021_push_tokens`. Lavora solo su
 `restore_check`, un database di prova che crea e poi cancella: quello vero
 non si tocca. Se si ferma a metà:
 `docker compose exec backup dropdb --if-exists restore_check`.
+
+*Esito (2026-10-25, 01:38Z, «sì 1» dell'utente):* la copia
+`shaperoute-2026-10-24T0200Z.dump` si ripristina, con 3 account e le
+migrazioni da 0001 a 0021, in 2,6 s. Alla fine `restore_check` non c'è
+più; `api`, `db`, `backup` e `offsite` sono rimasti accesi senza
+riavvii. Il comando è partito due volte nello stesso secondo, dal
+terminale dell'utente e da questa sessione, con lo stesso risultato: il
+`dropdb` finale dell'utente ha trovato il database di prova già
+cancellato dall'altro `check`. Due `check` insieme si pestano i piedi su
+`restore_check`, quindi se ne lancia uno per volta.
 
 **Passo 2 — lo Storage Box nel servizio `offsite`.**
 
