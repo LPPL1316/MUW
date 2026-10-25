@@ -110,6 +110,21 @@ su un telefono Android. Il testo della privacy su FCM (Google è un
 destinatario nuovo dei dati) si scrive qui per il sì dell'utente; i file
 di `site/privacy/` entrano dopo la #461, insieme a TASK-284 B.
 
+**Promemoria (Coordinatore, 2026-10-25)**: i contatti della #461
+(TASK-262 C) entrano **senza** il modulo nativo: `expo-contacts` sta in
+`expo.autolinking.exclude` di `apps/mobile/package.json` e il suo plugin
+non è in `app.json` (scelta dell'utente del 2026-10-25), così l'impronta
+iOS resta `83793e26`. Nella prima build Android i contatti restano
+nascosti (`contactsAvailable()` falso), a meno di togliere l'esclusione
+solo per Android e rimettere il plugin. **Va chiesto all'utente** se li
+vuole già nella prima build Android. Se sì: l'esclusione solo per iOS
+(`expo.autolinking.ios.exclude`), il plugin e `READ_CONTACTS` fra le voci
+di `ANDROID_ONLY` in `fingerprint.config.js`; attenzione, anche i file del
+plugin caricato entrano nell'impronta di ogni piattaforma
+(`expoConfigPlugins`), quindi l'impronta iOS va rimisurata prima della PR,
+e i contatti vanno dichiarati in «Sicurezza dei dati» con l'avviso in app
+che Google chiede.
+
 ### Parte C — La pagina per cancellare l'account (ADR-0253)
 
 Dopo la B. Solo file nuovi, `site/account-deletion/` nelle cinque lingue
