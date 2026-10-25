@@ -539,5 +539,5 @@ crediti delle mappe, i dettagli tecnici degli errori (`devDetail`).
 
 **Esito** (2026-10-25): **Done.** L'app è nella lingua scelta in ogni
 pagina: le parti A–H sono in `main` (A #254, B #414, C #420, D #421, E #433, F
-#438, G #437, H in questa PR). Restano fuori, come seguiti, i testi del
+#438, G #437, H #545). Restano fuori, come seguiti, i testi del
 server e la scelta fra «tu» e «vous» in francese.
