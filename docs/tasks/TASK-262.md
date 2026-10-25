@@ -1,6 +1,6 @@
 # TASK-262 — Le notifiche inviate davvero: push, email, amici dalla rubrica
 
-**Stato**: Parte A Done (2026-10-10, PR #451) · C Done (2026-10-25, PR #461) · B Todo
+**Stato**: Parte A Done (2026-10-10, PR #451) · C Done (2026-10-25, PR #461) · B In revisione (PR #550)
 **Fase**: 4 · **Branch**: `feat/TASK-262-a-push` (parte A)
 **Dipende da**: TASK-185 (i due interruttori), TASK-211 (follow),
 TASK-119 (reazioni), TASK-120 (commenti), TASK-208 (tag), TASK-121
@@ -196,13 +196,94 @@ docs/tasks/TASK-262.md                            (nuovo)
 - Ritentare un invio che Expo non ha preso (rete giù, `5xx`): si scrive
   nel log e si perde.
 
-## Parte B — email (Todo)
+## Parte B — email (In revisione, PR #550)
 
-Resend per le stesse cinque notizie con «Email notifications» acceso, e
-poi la conferma dell'email e la password dimenticata (TASK-114, TASK-183).
-La chiave `RESEND_API_KEY` la scrive l'utente nel `.env` del server;
-`.env.example` ne ha il nome. Da decidere: la lingua delle email (l'API
-la sa solo dai token push), il mittente e il dominio (`getmuw.app`).
+Resend per le stesse cinque notizie con «Email notifications» acceso.
+All'inizio c'erano anche la conferma dell'email e la password dimenticata
+(TASK-114, TASK-183); la lingua, il mittente e il dominio erano da
+decidere.
+
+### Le scelte dell'utente (2026-10-25)
+
+- **La conferma dell'email e la password dimenticata vanno in un task a
+  parte**, subito («a parte SUBITO»): **TASK-300**, sessione «Email
+  confirmation and forgotten password».
+- **Un riassunto al giorno**, non un'email per evento: al massimo una email
+  al giorno per account, solo nei giorni con qualcosa. La push resta
+  l'avviso subito. L'utente aveva risposto prima «B» (un'email per evento),
+  poi ha corretto: «ho sbagliato anche alla precedente domanda usa il
+  metodo A».
+- **La lingua come l'email di ritorno** («A»): quella dell'iscrizione
+  (`users.language`, TASK-284 A), poi quella del telefono con le push,
+  poi l'inglese.
+- Il mittente e il dominio sono quelli di TASK-284: `MuW <hello@getmuw.app>`.
+- **I testi nuovi**, nelle cinque lingue (oggetto, titolo, «…and N more»,
+  il perché in fondo, la pagina del link), **approvati**: «sì vanno bene»
+  (2026-10-25). Le righe delle notizie sono le push della parte A, già
+  approvate.
+
+### Cosa fa (API, PR #550)
+
+- `push.py`: il `Pusher` ha dei listener, chiamati per ogni evento che
+  lascia passare (non il proprio, una volta al giorno). Le push non
+  cambiano (test).
+- `notice_email.py` (nuovo): tiene i cinque eventi in `email_notices`
+  (migrazione `0028_email_notices.sql`, numero da controllare al merge)
+  solo per chi ha l'interruttore acceso. Ogni giorno alle 18:00 UTC
+  (`NOTICE_EMAIL_AT`) un giro manda a ogni account una email con quello che
+  è ancora vero, mai attraverso un blocco né da ciò che è stato nascosto
+  da una segnalazione (TASK-291). Una email al giorno al massimo anche con
+  due giri insieme o dopo un riavvio (presa con `users.notices_emailed_at`).
+  Resend che rifiuta restituisce il giorno. Le righe vanno via con l'email,
+  dopo 7 giorni o con l'interruttore spento. Il thread si ferma prima che
+  la fine dell'app chiuda il pool.
+- `notice_texts.py` (nuovo): le parole. `away_email.StopLinks` ha uno scopo
+  nell'HMAC, così il link di un'email non spegne l'altra. Pagina
+  `/notice-email/stop` senza chiave dell'API.
+
+### Criteri di accettazione (parte B)
+
+- [x] Le cinque notizie di un giorno arrivano in una email sola, le più
+      recenti prima, nella lingua dell'account (`test_notice_email.py`).
+- [x] Con l'interruttore spento non si tiene niente; ciò che non è più vero
+      (richiesta ritirata, reazione tolta, commento cancellato, blocco,
+      disegno non più visibile, contenuto nascosto) resta fuori.
+- [x] Una email al giorno al massimo, anche con due giri insieme e dopo un
+      riavvio; una rifiutata si riprova; le righe vecchie vanno via.
+- [x] Il link chiede prima e spegne solo col pulsante; il link dell'email
+      di ritorno non spegne questa.
+- [x] Il giro si ferma fra due email quando l'app finisce, prima della
+      chiusura del pool.
+- [x] Le push senza listener come prima.
+- [x] Testi nuovi approvati dall'utente nelle cinque lingue.
+- [ ] Test verdi in CI.
+
+### File toccati (parte B)
+
+```
+services/api/migrations/0028_email_notices.sql   (nuovo; numero al merge)
+services/api/shaperoute_api/notice_email.py      (nuovo)
+services/api/shaperoute_api/notice_texts.py      (nuovo)
+services/api/shaperoute_api/push.py              (i listener)
+services/api/shaperoute_api/away_email.py        (StopLinks con lo scopo; time_of_day)
+services/api/shaperoute_api/access.py            (OPEN_PATHS)
+services/api/shaperoute_api/__main__.py          (crea, installa, avvia)
+services/api/shaperoute_api/notifications.py     (docstring)
+services/api/tests/test_notice_email.py          (nuovo)
+packages/shared-types/src/index.ts               (il commento di Notifications)
+.env.example                                     (NOTICE_EMAIL_AT)
+docs/API.md, docs/DATABASE.md, docs/DEPLOY.md
+docs/DECISIONS.md (aggiunta ad ADR-0226), docs/STATUS.md
+docs/tasks/TASK-262.md
+```
+
+### Prima di accenderla
+
+La nota di «Settings» («MuW does not send emails yet»), l'help e la
+privacy che nomina Resend cambiano con la **parte B di TASK-284**, una
+volta sola per le tre email (ritorno, segnalazioni, notizie). Poi il
+server, dal Coordinatore dopo l'approvazione di Apple e col sì
+dell'utente: si accende con l'email di ritorno (`DEPLOY.md`).
 
 ## Parte C — amici dalla rubrica (Done)
 
