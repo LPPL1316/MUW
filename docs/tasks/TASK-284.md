@@ -203,6 +203,7 @@ apps/mobile/src/about/content/en.ts, it.ts, de.ts, es.ts, fr.ts
 apps/mobile/src/about/documents.test.ts
 site/privacy/index.html, it/, de/, es/, fr/index.html
 docs/UI.md, docs/STATUS.md, docs/tasks/TASK-284.md
+docs/tasks/TASK-262.md                                      (la chiusura della parte B; ok del Coordinatore)
 ```
 
 `AboutPage.test.tsx`, `api/accounts.test.ts`, `account/Profile.test.tsx`

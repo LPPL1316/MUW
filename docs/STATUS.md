@@ -168,6 +168,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
   «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
   File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
+  **Chiuso**: in `main` con la #550 (`ef5021f4`, 2026-10-25); nota di
+  «Settings», help e privacy con TASK-284 B (#556); server dal
+  Coordinatore dopo Apple.
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
