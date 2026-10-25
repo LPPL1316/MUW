@@ -1,7 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in lavorazione
-(`feat/TASK-296-c-teams-api`, #540) · prossime: D, E
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · prossime: D, E
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -378,36 +377,38 @@ Parte B:
       «sì, i testi vanno bene»).
 
 Parte C:
-- [ ] Una squadra si crea con un nome dal filtro di TASK-213 e un codice
+- [x] Una squadra si crea con un nome dal filtro di TASK-213 e un codice
       di 6; si entra con il codice in qualunque maiuscola; oltre 20
       iscritti, oltre 10 squadre o con un blocco in mezzo la risposta è la
       stessa, «You can't join this team.» (`test_game_teams.py`).
-- [ ] Chi esce lascia liberi i suoi pezzi; il proprietario toglie; la
+- [x] Chi esce lascia liberi i suoi pezzi; il proprietario toglie; la
       squadra passa all'iscritto più vecchio e sparisce senza iscritti;
       `DELETE /me` fa lo stesso e porta via iscrizioni e contributi, non
       sfide e pezzi.
-- [ ] Una sfida per squadra; pezzi 2–12, X km 1–50 oppure veloce 1 o 5 km
+- [x] Una sfida per squadra; pezzi 2–12, X km 1–50 oppure veloce 1 o 5 km
       sotto un passo; scadenza 1–14 giorni, 7 di default.
-- [ ] Un pezzo in mano per persona e per sfida; le corse che contano
+- [x] Un pezzo in mano per persona e per sfida; le corse che contano
       iniziate dopo la presa e prima della scadenza lo riempiono, i km in
       avanzo passano al pezzo libero successivo, un pezzo lasciato tiene i
       metri, il pezzo veloce è fatto da un miglior tempo; fuori dalla
       finestra (prima della presa, dopo la scadenza, salvata oltre 3 h)
       niente (`test_game_challenges.py`).
-- [ ] L'ultimo pezzo completa la sfida e dà l'edizione squadra a chi ha
+- [x] L'ultimo pezzo completa la sfida e dà l'edizione squadra a chi ha
       contribuito; dopo 3 h dalla scadenza è `expired` e se ne crea
       un'altra.
-- [ ] Le push `piece_done` (agli altri), `challenge_done` (a tutti) e
+- [x] Le push `piece_done` (agli altri), `challenge_done` (a tutti) e
       `challenge_ending` (una volta per sfida, anche con due controlli
       insieme) portano `challenge_id`; gli eventi di prima non cambiano.
-- [ ] Il timer parte e si ferma con l'app, e si ferma prima che si chiuda
+- [x] Il timer parte e si ferma con l'app, e si ferma prima che si chiuda
       il database.
-- [ ] Un gancio del blocco che fallisce non perde il blocco; il blocco nato
+- [x] Un gancio del blocco che fallisce non perde il blocco; il blocco nato
       fra due iscritti ne fa uscire uno secondo la regola approvata.
-- [ ] I pezzi del contorno sono N tratti uguali che si chiudono
+- [x] I pezzi del contorno sono N tratti uguali che si chiudono
       (`test_game_pieces.py`).
-- [ ] pytest, ruff e black verdi; la suite completa dell'API verde in
-      locale.
+- [x] pytest, ruff e black verdi; la suite completa dell'API in locale il
+      2026-10-25: 1631 verdi e un `ConnectionTimeout` in `test_moderation`
+      perché colima si è fermata a fine run (non il codice); `test_moderation`
+      ripetuto da solo, 27 verdi.
 - [x] La regola del blocco e i testi delle tre push approvati dall'utente
       il 2026-10-24, con le sue parole in «Domande all'utente».
 
@@ -525,6 +526,16 @@ gating. **Da provare sull'iPhone** quando la A sarà sul server: i quattro
 nomi in alto su uno schermo da 390 pt, la collezione e la scheda dopo un
 «Save» vero.
 
-**Restano** le parti C (API: squadre e sfide), D (app: sfide) ed E (app:
-striscia in corsa), ognuna con il suo elenco di file al Coordinatore prima
-di partire.
+**Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
+Coordinatore su richiesta dell'utente a CI verde: la migrazione
+`0027_game_teams.sql`, `game_teams.py`, `game_challenges.py`, `pieces_of`,
+gli otto endpoint, `pieces_done` e `team_unlocked_at`, le tre push, i ganci
+del blocco e della cancellazione, `ChallengeClock`. La regola del blocco
+fra iscritti e i testi delle push approvati dall'utente il 2026-10-24.
+Sul server dopo Apple e con l'ok dell'utente (migrazione 0027 e deploy:
+il timer «1 day left» parte con l'API, niente da lanciare a mano). La CI
+non ha PostgreSQL: i test del database valgono in locale.
+
+**Restano** le parti D (app: sfide) ed E (app: striscia in corsa), ognuna
+con il suo elenco di file al Coordinatore prima di partire; D rilegge
+`src/share/`, che ora ha anche il video di TASK-295.
