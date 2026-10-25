@@ -2,28 +2,23 @@
 
 Measured trace by trace on 252 requests in seven cities, a good route can
 come from any placement and as late as the last trace, so the search skips
-no placement and keeps its budget. It skips two things that never gave a
-good route: the refinement of the rotation in a stage whose best shape
-stayed under WORTH_REFINING, and a trace at a scale already traced for the
-same placement. A search that converges gives the route of before, point
-for point. On the fake town of test_kept_per_graph, which fits the shapes
-badly, no road graph is read.
+no placement and keeps its budget. What it no longer does is trace a
+placement twice at the same scale, which the secant asks for at a bound of
+SCALE_RANGE: the known trace stands in, and the budget buys another one. A
+search that converges gives the route of before, point for point. On the
+fake town of test_kept_per_graph, which fits the shapes badly, no road
+graph is read.
 """
 
 import hashlib
-import math
 from collections.abc import Sequence
 
 import pytest
 from test_kept_per_graph import TRENTO, _grid, _town
 
-from route_engine import optimizer
 from route_engine.geo import LatLon
 from route_engine.optimizer import (
-    REFINE_STEP_DEG,
-    ROTATION_STEP_DEG,
     SHAPE_POINTS,
-    WORTH_REFINING,
     Attempt,
     Search,
     doubled_weight,
@@ -51,19 +46,6 @@ def _digest(points: Sequence[LatLon]) -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
-def _refined(attempts: Sequence[Attempt]) -> list[Attempt]:
-    """The attempts of a refinement: turned off the rotation steps, by one
-    or two refinement steps."""
-    return [
-        a
-        for a in attempts
-        if not math.isclose(a.rotation_deg % ROTATION_STEP_DEG, 0.0, abs_tol=1e-6)
-        and not math.isclose(
-            a.rotation_deg % ROTATION_STEP_DEG, ROTATION_STEP_DEG, abs_tol=1e-6
-        )
-    ]
-
-
 def _repeated(attempts: Sequence[Attempt]) -> list[tuple[object, float]]:
     seen: set[tuple[object, float]] = set()
     twice = []
@@ -73,44 +55,6 @@ def _repeated(attempts: Sequence[Attempt]) -> list[tuple[object, float]]:
             twice.append(key)
         seen.add(key)
     return twice
-
-
-# --- The refinement is skipped where the shape stayed far ---
-
-
-def test_a_stage_far_from_the_shape_does_not_refine_the_rotation() -> None:
-    # The circle at 3 km in the town: the best shape stays under 0.70.
-    found = _search(_town(TRENTO), "circle", 3000.0)
-    assert not found.converged
-    assert max(a.similarity for a in found.attempts) < WORTH_REFINING
-    assert _refined(found.attempts) == []
-    assert all(
-        math.isclose(a.rotation_deg % REFINE_STEP_DEG, 0.0) for a in found.attempts
-    )
-
-
-def test_without_the_rule_the_same_stage_refines(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(optimizer, "WORTH_REFINING", 0.0)
-    found = _search(_town(TRENTO), "circle", 3000.0)
-    assert _refined(found.attempts)  # the refinement of before TASK-298
-
-
-def test_the_refinement_still_runs_where_the_shape_came_within_reach() -> None:
-    # The star at 5 km: the upright stage reaches 0.89, the refinement runs.
-    found = _search(_town(TRENTO), "star", 5000.0)
-    assert not found.converged
-    assert max(a.similarity for a in found.attempts) >= WORTH_REFINING
-    assert _refined(found.attempts)
-
-
-def test_the_distance_is_still_polished_without_a_refinement() -> None:
-    # The route given back is the right length even where the shape is
-    # poor: the polish of the best placement is not skipped.
-    found = _search(_town(TRENTO), "circle", 3000.0)
-    best = found.best.placement
-    assert sum(1 for a in found.attempts if a.placement == best) >= 2
 
 
 # --- No trace is repeated ---

@@ -15848,12 +15848,13 @@ salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
 server, `draw_examples` e il motore sul telefono (TASK-214) vanno
 aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
 
-## ADR-0259 — Fermarsi prima nella ricerca: misurato, si salta solo ciò che non ha mai dato un percorso buono
+## ADR-0259 — Fermarsi prima nella ricerca: misurato e scartato; resta solo il tracciamento mai ripetuto
 
-**Stato**: Accettata · 2026-10-25 · deciso dall'agente su delega
-dell'utente («sì, apri anche quello per fermarsi prima», 2026-10-24), con
-le condizioni del Coordinatore (TASK-298); il taglio più audace è una
-scelta di prodotto lasciata all'utente, con i numeri qui sotto.
+**Stato**: Scartata (misurata), tranne una regola piccola · 2026-10-25 ·
+deciso dall'agente su delega dell'utente («sì, apri anche quello per
+fermarsi prima», 2026-10-24), con le condizioni del Coordinatore
+(TASK-298); il taglio vero è una scelta di prodotto lasciata all'utente,
+con i numeri qui sotto.
 
 **Contesto**: dove la forma non entra nelle strade la ricerca (§5 di
 `ROUTE_ENGINE.md`) spende tutti i 30 tracciamenti per un disegno mediocre:
@@ -15900,37 +15901,42 @@ la chiamata dell'API (`doubled`: a Trento i buoni sono 16, non 17).
    piazzamento.
 
 **Decisione**: in `optimizer.search`, per tutte le ricerche (anche sul
-telefono e nelle partenze vicine):
+telefono, nelle partenze vicine e nella ricerca lontana), una scala già
+tracciata per lo stesso piazzamento non si traccia più: il tracciato noto
+vale per quel passo della secante e il budget compra un altro tracciamento.
+Nient'altro: nessun piazzamento in meno, nessun tetto più basso, nessuna
+fase saltata, nessun messaggio nuovo. Questa regola ha una proprietà
+pulita: la ricerca fa gli stessi tentativi di oggi più qualcuno in coda alla
+fase, quindi il percorso restituito non costa mai di più nel costo del
+motore, e dove oggi converge è identico.
 
-- la rifinitura della rotazione di una fase parte solo se la forma vi è
-  arrivata almeno a **0,80** (`WORTH_REFINING`); la lucidatura della
-  distanza resta sempre, così il percorso mediocre torna della lunghezza
-  chiesta; le parole non cambiano, non misurate;
-- una scala già tracciata per lo stesso piazzamento non si traccia più: il
-  tracciato noto vale per quel passo della secante, il budget non si spende.
+Misurato e **scartato**, pur senza perdere buoni nelle 252:
 
-Nessun piazzamento in meno, nessun tetto più basso, nessun messaggio nuovo:
-dove la ricerca si ferma l'utente riceve la risposta di oggi (il percorso
-mediocre con gli avvisi, o `ShapeNotDrawableError`). **Non adottato** il
-salto della fase inclinata: le sette città hanno griglie quasi nord-sud, e
-dove le strade disegnano la forma solo inclinata (`tests/test_tilt.py`, da
-dritta 0,29; una città a griglia diagonale) la fase dritta non la vede; sulla
-città finta spegneva anche percorsi mediocri ma decenti (una stella 0,87
-fra le alternative, un cuore 0,80 da una partenza vicina).
+- **la fase inclinata saltata** quando da dritta il meglio è sotto 0,75
+  (4,5 % dei tracciamenti): le sette città hanno griglie quasi nord-sud, e
+  dove le strade disegnano la forma solo inclinata (`tests/test_tilt.py`,
+  da dritta 0,29; una città a griglia diagonale) la fase dritta non la
+  vede; sulla città finta spegneva una stella 0,87 fra le alternative e un
+  cuore 0,80 da una partenza vicina;
+- **la rifinitura della rotazione saltata** quando il meglio della fase è
+  sotto 0,80 (misurata insieme ai duplicati): tracciamenti 4 627 → 4 566
+  (−1,3 %; −1,6 % nei 123 casi senza buono: il budget liberato lo spende
+  la fase inclinata, il tempo non scende), ma 6 risultati mediocri su 123
+  peggiorano, fino a −0,13, e uno scende sotto 0,60 (Levico, gatto da
+  5 km: da percorso mediocre a «nessun percorso»); nella città finta la
+  stella da 3 km passa da 0,73 a 0,59.
 
-**Conseguenze**: i 129 percorsi buoni restano identici, punto per punto e
-con gli stessi tracciamenti. Dove la ricerca non converge il percorso può
-cambiare: il budget liberato va in fondo alla fase e di solito migliora il
-risultato (nella città finta il cuore da 8 km passa da 0,69 a 0,79, la
-parola CIAO guadagna un'alternativa); la rifinitura saltata può peggiorare
-un'alternativa da una partenza vicina (Levico, cuore da 2 km: 2
-alternative mediocri invece di 1; stella della città finta 0,87 → 0,85).
-Le impronte di `test_kept_per_graph.py` dei casi che non convergono
-cambiano (anche solo per «after 27 attempts» nell'avviso). Il risparmio è
-piccolo: la tabella prima/dopo è in `tasks/TASK-298.md`. Il taglio vero
-(un tetto, i piazzamenti inclinati 5–6, la fase inclinata sotto 0,80)
-costa percorsi buoni o città non misurate: se l'utente vuole scambiarli per
-la velocità, si decide con questi numeri, in un task suo.
+**Conseguenze**: i 129 percorsi buoni restano identici punto per punto, tre
+con un tracciamento in meno (il duplicato); nelle 252 richieste i tracciamenti passano da 4 627 a 4619, e dei 123 risultati mediocri 122 sono identici e uno migliora (Roma, cuore da 2 km: da 0,56 a 0,60, da «nessun percorso» a percorso mediocre), nessuno peggiora. Tre impronte di
+`test_kept_per_graph.py` cambiano, tutte di casi che non convergono (il
+cuore da 8 km e le due CIAO della città finta: stesso percorso scelto,
+alternative trovate altrimenti dal budget in più). Il tempo risparmiato è
+nullo o quasi: la conclusione del task è che con questa ricerca **fermarsi
+prima senza perdere percorsi buoni non si può**; il taglio vero (un tetto,
+i piazzamenti inclinati 5–6, la fase inclinata sotto 0,80) costa percorsi
+buoni o città non misurate, e se l'utente vuole scambiarli per la velocità
+si decide con questi numeri, in un task suo. Le misure si rifanno con
+`tests/measure_stop_earlier.py`.
 
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 

@@ -114,28 +114,22 @@ class _Source:
 # Since TASK-203 B the far search starts only where nothing near the start
 # can be drawn (ADR-0230): the town's heart and star, drawable near the
 # start, no longer move 1-2 km away (tests/test_far_search_skipped.py).
-# Since TASK-298 a stage whose best shape stays under 0.80 does not refine
-# its rotation, and a scale already traced for a placement is not traced
-# again (ADR-0259): the searches that converge are the same, trace for
-# trace (the grid heart, the town circle, the CIAO with the pen up from the
-# start); those that do not can end otherwise. The Levico heart's own route
-# is the one of before after 27 traces instead of 30 (its warning says so)
-# and one of its two nearby alternatives, 0.77, is gone; the town's heart
-# at 8 km is the same route from the same nearby start, its alternative from
-# the start is 0.79 instead of 0.74; the town's star is the same route, its
-# second alternative 0.85 instead of 0.87; the CIAO gains an alternative,
-# 0.71, from a nearby start that had 0.65; the CIAO with the pen up has the
-# same route and alternatives, found otherwise from the nearby starts.
+# Since TASK-298 a scale already traced for a placement is not traced again
+# (ADR-0259): the searches that converge are the same, trace for trace, and
+# those that do not get the trace back at the end of their stage. The town's
+# heart at 8 km is the same route from the same nearby start, its
+# alternative from the start 0.79 instead of 0.74; the CIAO is the same
+# route and gains an alternative, 0.71, from a nearby start that had 0.65;
+# the CIAO with the pen up has the same route and alternatives, found
+# otherwise from the nearby starts.
 BEFORE: dict[str, str | tuple[str, ...]] = {
     "grid heart 5000": "3df8155c69e599f7",
-    # Mac; the CI's digest (another route of before, see above) is added
-    # from its first run.
-    "levico heart 2000": ("942383944e56e20c",),
+    "levico heart 2000": ("60333137c30f1143", "b9ea27acaea65287"),  # CI, Mac
     "town CIAO 12000": "996dd61ff0eeaf94",
     "town CIAO pen up 12000": "7e88ef490a83b5e3",
     "town circle 10000": "96eb22388f95078e",
-    "town heart 8000": "75d03ac7576dc1cd",
-    "town star 5000": "503c08c226103dce",
+    "town heart 8000": "119e273752d00e31",
+    "town star 5000": "7f04b4996a3ec2d2",
 }
 
 

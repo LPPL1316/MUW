@@ -1,6 +1,6 @@
 # TASK-298 — Fermarsi prima nella ricerca quando la forma non entra nelle strade
 
-**Stato**: In corso
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-298-stop-earlier`
 **Dipende da**: TASK-297 (la misura di ADR-0257 che l'ha aperto), TASK-232
 (le fasi dritta e inclinata della ricerca), TASK-203 B (la ricerca lontana
@@ -90,26 +90,38 @@ terza partenza sta a 0,86).
   0,87 fra le alternative, un cuore 0,80 da una partenza vicina).
 - La rifinitura della rotazione (±5–15° attorno al piazzamento migliore)
   ha dato percorsi buoni solo dove la fase aveva già un piazzamento a 0,86
-  o più; saltarla quando il migliore è sotto 0,80 non perde nulla e vale
-  circa 180 tracciamenti (4 %). La lucidatura della distanza resta sempre:
-  è lei che fa tornare il percorso mediocre della lunghezza chiesta.
+  o più; saltarla quando il migliore è sotto 0,80 non perde buoni. Provata
+  sulle 252 insieme ai duplicati: tracciamenti 4 627 → 4 566 (−1,3 %; nei
+  123 casi senza buono −1,6 %, perché il budget liberato lo spende la fase
+  inclinata), ma 6 risultati mediocri su 123 peggiorano fino a −0,13 e uno
+  scende sotto 0,60 (Levico, gatto: da percorso mediocre a «nessun
+  percorso»); nella città finta la stella da 3 km da 0,73 a 0,59.
+  **Scartata.**
 - 62 tracciamenti su 4 627 (1,3 %) sono **duplicati esatti**: la secante
   rimanda alla scala al bordo di `SCALE_RANGE` già tracciata per lo stesso
-  piazzamento, e il tracciato era già noto.
+  piazzamento, e il tracciato era già noto. **Adottata**, l'unica: la
+  ricerca fa gli stessi tentativi di oggi più qualcuno in coda alla fase.
 
-Prima/dopo con la regola adottata: nella PR e in ADR-0259.
+Prima/dopo con la regola adottata (sette città, 252 richieste, stesse
+richieste e stesse zone):
+
+| | buone | tracciamenti | di cui senza percorso buono | mediocri cambiati |
+|---|---|---|---|---|
+| prima (`main`, #497 compreso) | 129 | 4 627 | 3 581 | — |
+| dopo | 129, identiche | 4619 | 3576 | 1 migliore (Roma, cuore da 2 km: da 0,56 a 0,60), 0 peggiori |
+
+I secondi non si confrontano (la stessa misura è durata 690 s e 171 s a
+Mac carico e scarico, con risultati identici).
 
 ## Criteri di accettazione
 
-- [ ] Le 129 richieste buone delle sette città danno lo stesso percorso,
-      punto per punto, con lo stesso numero di tracciamenti.
-- [ ] Nessun tracciamento ripete piazzamento e scala di uno già fatto.
-- [ ] La rifinitura della rotazione non parte in una fase il cui
-      piazzamento migliore sta sotto `WORTH_REFINING`; parte come prima
-      altrove; le parole non cambiano.
-- [ ] Le impronte di `test_kept_per_graph.py` che cambiano sono tutte di
+- [x] Le 129 richieste buone delle sette città danno lo stesso percorso,
+      punto per punto (tre con un tracciamento in meno: il duplicato).
+- [x] Nessun tracciamento ripete piazzamento e scala di uno già fatto; dove
+      la ricerca non converge il costo del percorso restituito non sale.
+- [x] Le impronte di `test_kept_per_graph.py` che cambiano sono tutte di
       casi che oggi non convergono, e la PR dice come cambiano.
-- [ ] `pytest -m "not network"`, `ruff`, `black` e `pytest tools` verdi;
+- [x] `pytest -m "not network"`, `ruff`, `black` e `pytest tools` verdi;
       `engine.zip` rifatto.
 
 ## File toccati
@@ -146,4 +158,12 @@ docs/STATUS.md
 
 ## Esito
 
-*(a fine task)*
+Misurato su 252 richieste in sette città: con questa ricerca fermarsi prima
+senza perdere percorsi buoni non si può (il primo buono compare anche al 30º
+tracciamento, dal 6º piazzamento inclinato), e le due regole che tengono i
+buoni (fase inclinata e rifinitura saltate dopo una fase andata male)
+peggiorano i risultati mediocri senza abbreviare: scartate, con i numeri in
+ADR-0259. Resta la regola che non ripete un tracciamento (1,3 %): i buoni
+identici, i mediocri mai peggiori. Il taglio vero è una scelta di prodotto
+da fare con quei numeri, in un task suo. `tests/measure_stop_earlier.py`
+rifà la misura. PR #NNN.
