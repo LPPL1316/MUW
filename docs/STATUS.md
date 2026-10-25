@@ -1029,6 +1029,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (2026-10-03), sapendo che fino all'ultima parte un telefono in italiano
   vede l'app mezza in italiano e mezza in inglese. Da dove riprendere:
   `tasks/TASK-210.md`.
+  **Chiuso** (2026-10-25) con la **parte H** (branch
+  `feat/TASK-210-h-last-texts`): gli ultimi testi rimasti in inglese, il
+  Feed e la virgola delle schede; vedi «Completato».
 
 - **TASK-214 — Il motore dei percorsi sul telefono** (ADR-0177; chiesto
   dall'utente il 2026-10-03). Il telefono disegna da sé forme e parole su
@@ -1087,6 +1090,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-210 parte H, la chiusura della lingua dell'app (aggiunta
+  ad ADR-0172): letto tutto il codice dell'app in cerca di testi fuori da
+  `t()`, tradotti gli ultimi che si vedono o si sentono: la riga sotto la
+  partenza di «Draw» (`location/startStatus.ts`, prima in `App.tsx`),
+  «PARTENZA», «La mia posizione», «Un altro posto», la nota senza
+  percorsi consigliati e «a 1,4 km» in «Explore», l'attesa del percorso a
+  tema, «47% disegnato», le lettere della direzione («SO», «O») e
+  «mancano 3,2 km» nella corsa, «Pagaia ·» e «Bici ·» nel Feed,
+  «Immagine» fra i preferiti, VoiceOver dopo «Save». Le mappe del Feed
+  seguono un cambio di lingua; le schede di «Explore» e «Draw» scrivono
+  la virgola («5,2 km»). 23 testi nuovi. **TASK-210 è Done**; seguiti
+  fuori scope nel task file: le traduzioni dell'API (percorsi a tema,
+  errori, Strava, push, email), il francese fra «tu» e «vous».
+  `tasks/TASK-210.md`.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul

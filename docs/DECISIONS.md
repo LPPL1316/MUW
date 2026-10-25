@@ -8310,6 +8310,28 @@ entra qualche minuto prima dell'altra. (5) Quattro
 testi nuovi in fondo alle tabelle (dopo il merge della parte E):
 «{list} or {last}», «Start here», «NEAR {city}», «here».
 
+**Aggiunta** (2026-10-25, TASK-210 parte H, la chiusura; deciso
+dall'agente su delega dell'utente, testi da far approvare all'utente): (1)
+**Le lettere dei punti cardinali** sul riquadro della corsa si traducono
+come i nomi (`tLater` in `runStats.ts`, `t()` dove si mostrano): «SO»,
+«O» in italiano, spagnolo e francese, «NO», «O», «SO» in tedesco; chi
+ascolta sente la parola («Direzione nord-est», anche in inglese «Heading
+north» invece di «Heading N»), come nella corsa senza percorso. (2)
+**Le mappe del Feed seguono la lingua**: `buildFeedMapPage(lingua)` con
+`mapStyle(lingua)`; la chiave di una foto prende `/it` (nulla in inglese,
+come `@bearing` per una mappa girata), così una foto in una lingua non
+sta per un'altra e tornando indietro quelle fatte restano; a un cambio
+di lingua la coda delle foto da fare si svuota e le schede le chiedono
+di nuovo. `MAP_STYLE` resta per i test e per le pagine fatte una volta.
+(3) **La virgola nelle schede**: tolto `withPoint`, che ADR-0182 teneva
+solo finché «Explore» e «Draw» erano in inglese. (4) **Un titolo salvato
+resta un dato**: «Image» dei preferiti si scrive in inglese e si mostra
+con `t()`; i titoli che dà l'API restano com'è. (5) **Restano in
+inglese** i titoli dei post d'esempio del Feed (testi di corridori
+inventati, come quelli degli iscritti), i nomi delle città nelle
+scorciatoie (parte C), i dettagli tecnici degli errori e i testi del
+server, che sono un seguito dell'API.
+
 ## ADR-0173 — Seguire con richiesta, l'API: una tabella `follows` con due stati, la ricerca per nome, gli elenchi solo propri
 **Stato**: Attiva · 2026-10-03 · deciso dall'agente su delega dell'utente
 (TASK-211, parte A), dentro due **scelte dell'utente** del 2026-10-03:

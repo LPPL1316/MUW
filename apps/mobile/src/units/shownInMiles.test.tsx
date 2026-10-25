@@ -99,12 +99,12 @@ test("in kilometres every page reads as before the units, in Italian too", () =>
   expect(runFacts(STAR)).toBe("4.01 km · 19:00 · 4:45 /km");
   // The favorites already wrote the comma.
   expect(favoriteHeading(KEPT_STAR)).toBe("Stella · 5,1 km");
-  // «Explore» is still in English, point and all, in miles too.
-  expect(awayText(1440)).toBe("1.4 km away");
-  expect(awayText(640)).toBe("640 m away");
+  // «Explore» is in Italian, with the comma, in miles too (TASK-210, part H).
+  expect(awayText(1440)).toBe("a 1,4 km");
+  expect(awayText(640)).toBe("a 640 m");
   expect(kmLabel(21_000)).toBe("21 km");
   saveUnitsChoice("mi");
-  expect(awayText(1440)).toBe("0.9 mi away");
+  expect(awayText(1440)).toBe("a 0,9 mi");
 });
 
 test("the towns nearby turn to miles at once, and back", async () => {
