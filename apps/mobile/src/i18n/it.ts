@@ -1279,4 +1279,16 @@ export const IT: Table = {
   NW: "NO",
   "{distance} to go": "mancano {distance}",
   "Saved to My activities": "Salvata nelle mie attività",
+  // src/social/ContactsFriends.tsx (TASK-262 C)
+  "FROM YOUR CONTACTS": "DALLA RUBRICA",
+  "Find friends in your contacts": "Trova amici nella rubrica",
+  "Only coded phone numbers leave the phone, never names. The server compares them with the numbers members saved and keeps none.":
+    "Dal telefono escono solo i numeri in codice, mai i nomi. Il server li confronta con i numeri salvati dagli iscritti e non ne tiene nessuno.",
+  "Looking in your contacts…": "Cerco nella rubrica…",
+  "MuW cannot see your contacts.": "MuW non può vedere la rubrica.",
+  "No phone numbers in your contacts.": "Nella rubrica non ci sono numeri di telefono.",
+  "None of your contacts is on MuW yet.": "Nessuno dei tuoi contatti è ancora su MuW.",
+  "This server cannot look in your contacts yet.":
+    "Questo server non sa ancora cercare nella rubrica.",
+  "The contacts could not be read.": "Non è stato possibile leggere la rubrica.",
 };

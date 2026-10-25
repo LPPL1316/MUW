@@ -9,13 +9,12 @@ import {
 } from "../api/routes";
 import { type PhoneEngine, phoneEngine, PLAN_TIMEOUT_MS } from "./phoneEngine";
 import {
-  coveringZone,
   type Network,
   NETWORKS,
   savedZones,
   touchZone,
   type ZoneEntry,
-  zoneUri,
+  zonesForEngine,
 } from "./zones";
 
 /**
@@ -93,20 +92,19 @@ export async function planOnPhone(
   if (!engine.available) {
     return { kind: "skipped", why: "the engine does not run on this phone" };
   }
-  const zone = coveringZone(zones(), network, request.start);
-  if (zone === null) {
+  // Every zone that holds the start, not only the smallest (part E): the
+  // engine picks the one that holds the whole route.
+  const near = zonesForEngine(zones(), network, request.start);
+  if (near.length === 0) {
     return { kind: "skipped", why: "no zone saved around the start" };
   }
-  touchZone(zone.name);
+  for (const zone of near) {
+    touchZone(zone.name);
+  }
   onStatus?.("computing");
   // Cancelled, the engine lets it go at once (TASK-287): another request
   // does not wait behind it.
-  const answer = await engine.plan(
-    JSON.stringify(request),
-    [{ name: zone.name, uri: zoneUri(zone), version: zone.etag ?? String(zone.bytes) }],
-    timeoutMs,
-    signal,
-  );
+  const answer = await engine.plan(JSON.stringify(request), near, timeoutMs, signal);
   if (signal?.aborted || answer.kind === "cancelled") {
     return { kind: "cancelled" };
   }

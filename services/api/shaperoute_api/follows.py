@@ -101,17 +101,23 @@ def follows_sql(follower: str, followed: str) -> str:
 
 
 def apart_sql(viewer: str, other: str) -> str:
-    """An SQL condition: a block stands between `viewer` and `other`, made
-    by either (TASK-121, ADR-0228): then neither sees the other. `viewer`
-    is a column or a placeholder holding a users.id, read once; `other` is
-    a column."""
+    """An SQL condition: `viewer` and `other` are kept apart. A block stands
+    between them, made by either (TASK-121, ADR-0228): then neither sees the
+    other. Or `other` was hidden by whoever runs MuW, from a report's email
+    (TASK-291, ADR-0251): then nobody but `other` itself sees it, and it
+    sees everyone as before. `viewer` is a column or a placeholder holding a
+    users.id, read once; `other` is a column."""
     return (
         "EXISTS (SELECT 1 FROM (SELECT "
-        f"{viewer}::bigint AS id) apart_viewer, blocks block_row"
+        f"{viewer}::bigint AS id) apart_viewer"
+        " WHERE EXISTS (SELECT 1 FROM blocks block_row"
         " WHERE (block_row.blocker_id = apart_viewer.id"
         f" AND block_row.blocked_id = {other})"
         f" OR (block_row.blocker_id = {other}"
         " AND block_row.blocked_id = apart_viewer.id))"
+        " OR EXISTS (SELECT 1 FROM users hidden_row"
+        f" WHERE hidden_row.id = {other} AND hidden_row.hidden_at IS NOT NULL"
+        " AND hidden_row.id <> apart_viewer.id))"
     )
 
 

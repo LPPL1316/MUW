@@ -128,12 +128,13 @@ def drawing_seen_sql(viewer: str) -> str:
 
     The question every reader of a drawing asks: its photos, and its
     comments (TASK-120), are seen by whoever sees it. Never across a block,
-    either way (TASK-121, ADR-0228): as for an id that is not there."""
+    either way (TASK-121, ADR-0228): as for an id that is not there. Hidden
+    from a report's email (TASK-291, ADR-0251), only its owner sees it."""
     return (
         f"EXISTS (SELECT 1 FROM (SELECT {viewer}::bigint AS id) seer"
-        " WHERE (seer.id = r.user_id OR d.visibility = 'everyone'"
-        " OR (d.visibility = 'followers'"
-        f" AND {follows_sql('seer.id', 'r.user_id')}))"
+        " WHERE (seer.id = r.user_id OR (d.hidden_at IS NULL"
+        " AND (d.visibility = 'everyone' OR (d.visibility = 'followers'"
+        f" AND {follows_sql('seer.id', 'r.user_id')}))))"
         f" AND NOT {apart_sql('seer.id', 'r.user_id')})"
     )
 
@@ -143,11 +144,13 @@ def shown_sql(viewer: str) -> str:
     owner's profile for `viewer`. Only the published ones, also to the owner
     (ADR-0159, point 8): for everyone, or for the followers and `viewer` is
     one of them or the owner. Never across a block (TASK-121): the feed and
-    the profiles leave those drawings out."""
+    the profiles leave those drawings out. Hidden from a report's email
+    (TASK-291), only on its owner's own view of its profile."""
     return (
         f"EXISTS (SELECT 1 FROM (SELECT {viewer}::bigint AS id) seer"
         " WHERE (d.visibility = 'everyone' OR (d.visibility = 'followers'"
         f" AND (seer.id = r.user_id OR {follows_sql('seer.id', 'r.user_id')})))"
+        " AND (d.hidden_at IS NULL OR seer.id = r.user_id)"
         f" AND NOT {apart_sql('seer.id', 'r.user_id')})"
     )
 
@@ -155,8 +158,13 @@ def shown_sql(viewer: str) -> str:
 def published_count_sql(user_column: str, viewer: str | None = None) -> str:
     """How many drawings of the account in `user_column` are on its profile
     for `viewer`, as a subquery: the number on its profile (profiles.py).
-    Without `viewer`, those every member sees."""
-    shown = "d.visibility = 'everyone'" if viewer is None else shown_sql(viewer)
+    Without `viewer`, those every member sees: not those hidden (TASK-291).
+    """
+    shown = (
+        "d.visibility = 'everyone' AND d.hidden_at IS NULL"
+        if viewer is None
+        else shown_sql(viewer)
+    )
     return (
         "(SELECT count(*) FROM drawings d JOIN runs r ON r.id = d.run_id"
         f" WHERE r.user_id = {user_column} AND {shown})"

@@ -8862,6 +8862,46 @@ raddoppierebbe); richiedere ogni giorno con l'ETag le zone già salvate
 (i giri si inseguirebbero); aspettare qualche minuto dopo l'apertura (chi
 apre l'app per poco non scaricherebbe mai).
 
+**Decisione dell'agente** (parte E, la zona più larga intorno al telefono,
+2026-10-25; la zona più larga è la scelta dell'utente, «fai la 1», fra tre
+proposte fatte dopo le misure in `tasks/TASK-214.md`, «Le misure dopo D»),
+deciso dall'agente su delega dell'utente:
+1. **6 km intorno al telefono**, chiesti con `margin_m` (da 3 a 10 km):
+   il ritaglio di un percorso fino a 8 km arriva a 3,8 km dalla partenza,
+   quindi ci sta anche partendo 2 km più in là. Senza `margin_m` resta la
+   zona di 3 km: le app di prima non cambiano.
+2. **Al massimo 12 MB di file** per la zona più larga: la zona più grande
+   che i telefoni usano già (Trento in bici, 11,5 MB). Una zona letta
+   costa circa 21 MB di memoria per MB di file. Oltre, o senza una zona
+   con quel margine, il server dà la zona di 3 km.
+3. **Gli ETag di tutte le zone che il telefono ha lì**: quello della più
+   piccola in `If-None-Match`, come prima, gli altri nell'header nuovo
+   `X-Zone-ETags`. Il server risponde `304` per quella che sceglie, con il
+   suo `ETag`; accetta anche più ETag in `If-None-Match` (RFC 9110).
+4. **Al motore tutte le zone che contengono la partenza**, al massimo tre,
+   dalla più piccola: sceglie Python (`PhoneZones.covering_path`) la più
+   piccola che contiene il ritaglio, come fa il server. L'app non calcola
+   il ritaglio: sarebbe una copia del motore.
+5. **La zona letta all'apertura** (`on_phone.warm`, 2 km intorno al
+   telefono, quella di un percorso di 3–5 km), dietro ai percorsi già
+   chiesti, senza avviare Python da solo; una morte della WebView mentre
+   legge non conta.
+6. **Le zone in più (B2) restano a 3 km**: la zona più larga è per il posto
+   del telefono, e il tetto del traffico scelto dall'utente non cambia.
+7. **App e server in qualunque ordine** (chiesto dal coordinatore): il
+   server di prima ignora `margin_m` e `X-Zone-ETags` e trova in
+   `If-None-Match` lo stesso ETag di oggi, quindi l'app nuova scarica le
+   stesse zone di oggi finché il server non si aggiorna. Con più ETag in
+   `If-None-Match` il server di prima non avrebbe riconosciuto niente e
+   avrebbe rimandato la zona a ogni apertura.
+
+**Scartato**: calcolare nell'app quanto chiede un percorso e scegliere una
+zona sola (copia della logica del motore in TypeScript); chiedere zone in
+più punti intorno al telefono (zone piccole non si uniscono: il ritaglio
+deve stare in una sola); costruire sul server zone nuove più grandi (lavoro
+sul server con gli estratti, fuori dal task); i 10 MB della proposta
+(avrebbero escluso la zona in bici di Trento, già usata).
+
 ## ADR-0170 — Pubblicare come su Strava, l'API: chi lo vede in tre valori, una domanda sola per saperlo, foto in posti fissi, campi nuovi che un'app di prima non cancella
 **Stato**: Attiva · 2026-10-03 · deciso dall'agente su delega dell'utente
 (TASK-208, parte A), dentro le **scelte dell'utente** del 2026-10-03:
@@ -13985,6 +14025,102 @@ il lago del viaggio; chi non ha attività vede la fila di prima. Un seguito
 possibile, fuori da questo task: la stessa zona di casa in «Explore» della
 corsa.
 
+## ADR-0226, aggiunta — Gli amici dalla rubrica: hash dei numeri, confrontati e mai tenuti
+**Stato**: Attiva · 2026-10-10 · **scelte dell'utente**: la parte C con
+`expo-contacts` e i numeri confrontati come hash (2026-10-07), il sì alla
+dipendenza e alla ricerca (2026-10-08), i testi e la privacy con il
+confronto sotto l'interesse legittimo (2026-10-09). Il resto deciso
+dall'agente su delega dell'utente (TASK-262 parte C). Aggiunta ad
+ADR-0226, senza numero nuovo.
+
+**Decisione** (parte C):
+
+1. **Il permesso della rubrica solo al tocco** di «Find friends in your
+   contacts», in «Find friends» sotto la ricerca per nome; mai
+   all'apertura. iOS 18 «limitato» vale come sì. Negato per sempre:
+   «Open Settings» (TASK-259).
+2. **Dal telefono escono solo hash**: l'app legge solo i numeri dei
+   contatti (mai nomi, email, foto), li scrive in E.164 e ne fa lo
+   SHA-256 in esadecimale minuscolo, ognuno una volta. Un numero senza
+   prefisso prende quello della **regione del telefono** (`AppleLocale`,
+   poi il locale): l'Italia tiene lo 0 dei fissi, altrove si toglie il
+   prefisso nazionale («0», «1», «8», «06»); in una regione che l'app non
+   conosce si leggono solo i numeri con «+» o «00».
+3. **E.164 e SHA-256 scritti nell'app**, senza `libphonenumber` né
+   `expo-crypto`: l'utente ha detto sì a una dipendenza sola. Lo SHA-256
+   è provato con i valori dello standard e contro quello di Node.
+4. **500 hash per richiesta, al più 10 richieste a tocco** (5000
+   numeri); l'API ne accetta **30 all'ora per account**, contate in
+   memoria, oltre al limite di tutti i `POST`.
+5. **Il server confronta in una query** `sha256(users.phone)` con gli
+   hash ricevuti e **non scrive niente di ciò che riceve**: né tabella,
+   né log, né registro delle richieste, né messaggio di errore (un test
+   lo prova sul database vero e sui log). Mai chi chiede, mai fra
+   bloccati nei due versi (`follows.apart_sql`, TASK-121), solo account
+   che hanno salvato un numero.
+6. **La risposta porta `follow`** di chi chiede verso ognuno: la lista
+   ha «Follow» come un profilo, senza una richiesta per persona.
+7. **Solo in un'app costruita con `expo-contacts`**: il modulo si carica
+   al primo uso, dopo `requireOptionalNativeModule("ExpoContactsNext")`,
+   come AdMob (`ads/admob.ts`); senza il modulo nativo (la 1.0 dello
+   store) «FROM YOUR CONTACTS» non si vede e niente si rompe. Expo Go lo
+   ha.
+
+**Alternative scartate**:
+
+- *Il numero in chiaro*: più semplice, ma il server vedrebbe i numeri di
+  persone che non sono iscritte.
+- *Un hash con sale o un protocollo di intersezione privata*: con un
+  sale segreto del server il telefono non sa fare l'hash; un sale
+  pubblico non cambia niente contro chi prova tutti i numeri; un PSI vero
+  è una dipendenza e un protocollo per un caso che il «non tenere niente»
+  copre già.
+- *`libphonenumber-js`*: più esatto per ogni paese, ma una dipendenza in
+  più che l'utente non ha approvato.
+- *Una colonna con l'hash in `users`*: veloce con molti account, ma una
+  migrazione; oggi la query fa lo SHA-256 di ogni numero salvato a ogni
+  richiesta, e va bene finché gli account sono pochi.
+
+**Conseguenze**:
+
+- **L'hash da solo protegge poco**: un numero ha al più 15 cifre e si
+  ritrova provando tutti i numeri. La garanzia è che il server non tiene
+  niente e che gli hash viaggiano solo in HTTPS; la privacy lo dice così
+  nelle cinque lingue.
+- I limiti rallentano chi provasse i numeri uno a uno per sapere chi ha
+  un account, non lo impediscono: la risposta è un nome, già visibile
+  nella ricerca per nome.
+- `expo-contacts` cambia l'impronta nativa: la rubrica non arriva agli
+  iPhone con la 1.0 per aggiornamento, serve una 1.0.1 con la revisione
+  di Apple (la 1.0 esce senza, scelta dell'utente del 2026-10-09).
+- Seguiti: la colonna con l'hash quando gli account crescono; la domanda
+  di iOS solo in inglese (come quelle di posizione e foto).
+
+**Aggiunta del 2026-10-25 — In `main` senza toccare l'impronta della 1.0**
+(scelta dell'utente del 2026-10-25, «vai con la c», consigliata anche dal
+coordinatore). Con `expo-contacts` collegato, l'impronta iOS passava da
+`83793e26` (la 1.0 in revisione) a `9337973a`, e da quel momento gli
+`eas update` di production da `main` non sarebbero più arrivati alla 1.0.
+Quindi, finché non c'è una build nativa nuova:
+
+- `expo-contacts` resta fra le dipendenze (Metro lo trova, Expo Go lo
+  usa), ma è **escluso dal collegamento nativo**:
+  `"expo": {"autolinking": {"exclude": ["expo-contacts"]}}` in
+  `apps/mobile/package.json`;
+- il suo plugin non è in `app.json`, quindi nessun `contactsPermission`
+  nell'`Info.plist`;
+- l'impronta resta `83793e26`, misurata su una copia pulita con `npm ci`.
+
+Effetto: nella 1.0, e in ogni build fatta così, «FROM YOUR CONTACTS» non
+si vede (punto 7); su preview, in Expo Go, sì. **Alla prossima build
+nativa** (la 1.0.1 iOS, la prima Android di TASK-294 B) si toglie
+l'esclusione e si rimette il plugin, con il testo scritto in
+`tasks/TASK-262.md`, parte C; poi la build passa dalla revisione di Apple.
+Scartate: unirla con la 1.0.1, perché la PR sarebbe rimasta ferma e in
+conflitto per settimane e la sessione delle email la aspettava; unirla con
+il modulo collegato, perché tagliava fuori la 1.0 dagli update proprio
+all'uscita.
+
 ## ADR-0120, aggiunta — Il database dei test se ne va col suo volume
 
 **Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
@@ -15052,6 +15188,70 @@ server il bytecode arriva solo con un'immagine nuova (dopo Apple e con
 l'ok dell'utente). `engine.zip` è rifatto, perché `jobs.py` e `images.py`
 sono nel motore del telefono.
 
+## ADR-0251 — Ogni segnalazione arriva per email, con un link firmato che nasconde
+**Stato**: Attiva · 2026-10-17 · **scelta dell'utente** del 2026-10-17
+(«SI FAI IL TASK DELLE SEGNALAZIONI»: email a ogni segnalazione e un link
+per nascondere); le tre note del Coordinatore (segreti solo in
+`deploy/.env`; link che scade, vale una volta e si annulla; privacy con la
+parte B di TASK-284); il resto deciso dall'agente su delega dell'utente
+(TASK-291). Rimanda ad ADR-0228, che resta valida.
+
+**Contesto**: ADR-0228 lascia le segnalazioni nel database, senza pannello.
+Il 2026-10-17 Apple ha aggiornato la regola 1.2: chi non mette tutele o non
+rimedia ai contenuti segnalati dopo un avviso viola il Developer Code of
+Conduct. La risposta ad Apple promette di guardare le segnalazioni entro 24
+ore, ma nessuno sa quando ne arriva una.
+
+**Decisione**:
+
+1. **Un'email per ogni segnalazione nuova**, in inglese, a
+   `SHAPEROUTE_REPORTS_TO`, con Resend, fuori dalla richiesta (un thread,
+   come le push di ADR-0226). Nuova vuol dire una riga nuova di `reports`
+   (`xmax = 0`): la stessa persona che cambia il motivo non manda niente.
+   Dice cosa, perché, chi segnala, chi ha scritto, il testo, quante
+   segnalazioni ha la cosa e se è già nascosta. Un errore di Resend non
+   cambia la risposta di `POST /reports`.
+2. **Il link è firmato** (HMAC-SHA256 con `SHAPEROUTE_EMAIL_SECRET`, lo
+   stesso dell'email di ritorno con un prefisso diverso) e porta azione,
+   tipo, id, scadenza a **7 giorni** e un numero a caso. **GET mostra e
+   chiede, POST fa**: un lettore di posta che apre i link per controllarli
+   non nasconde niente. **Una volta sola**: il numero entra in
+   `report_links_used` nella stessa transazione dell'azione. Dopo «Hide»
+   la pagina ha «Undo», un link nuovo `show` con le stesse regole.
+3. **Nascondere, mai cancellare**: `hidden_at` su `drawings`, `comments`
+   e `users`. Nascosto agli altri, **non all'autore**, che non si accorge
+   di niente.
+   - Disegno: dentro `drawing_seen_sql` e `shown_sql`, le due domande che
+     tutti i lettori di un disegno fanno già (ADR-0228).
+   - Commento: dentro `comments.NOT_APART`.
+   - Iscritto: dentro `follows.apart_sql`, che vale anche quando `other`
+     è nascosto e non è chi guarda. Così un iscritto nascosto sparisce
+     come dietro un blocco da ogni posto che ADR-0228 ha già coperto
+     (profilo, ricerca, feed, disegni, commenti, reazioni, follow), senza
+     toccarli uno per uno. Le push guardano dal lato di chi le riceve
+     (`push.blocked_between` chiede se chi agisce è lontano da chi riceve):
+     un nascosto non fa arrivare notifiche agli altri.
+4. **Spento** senza `RESEND_API_KEY`, `SHAPEROUTE_EMAIL_SECRET`,
+   `SHAPEROUTE_DOMAIN` e `SHAPEROUTE_REPORTS_TO`: le segnalazioni restano
+   come in ADR-0228. Indirizzo, chiave e token mai nei log.
+5. **Un modulo minimo per l'invio** (`send_email.py`): la #502 (TASK-284)
+   porta `resend_email.py`; dopo il suo merge `send_email` lo usa e
+   l'invio resta uno solo (indicazione del Coordinatore).
+
+**Alternative scartate**: cancellare il commento segnalato (non si
+annulla, nota 2 del Coordinatore); rendere il disegno «only_me» (si
+perderebbe la visibilità di prima, e l'autore vedrebbe il cambio); un
+pannello o un endpoint `/admin` (più grande, e vuole un login per chi
+gestisce); un link che agisce già al GET (i filtri antispam delle caselle
+di posta aprono i link).
+
+**Conseguenze**: `apart_sql` fa una sottoquery in più su `users` per la
+chiave primaria; trascurabile. Chi aggiunge una lettura di disegni o
+commenti deve passare da queste condizioni, come già per i blocchi.
+L'email porta a Resend (Stati Uniti) il contenuto segnalato e i nomi: la
+privacy lo dirà con la parte B di TASK-284, con il sì dell'utente sul
+testo, prima di accendere l'email sul server.
+
 ## ADR-0252 — La partenza scelta sulla mappa, con il segnaposto fermo al centro
 
 **Stato**: Attiva · 2026-10-18 · il come lo ha scelto l'utente; i punti
@@ -15702,6 +15902,98 @@ digest fissati, 16 richieste confrontate con `main`, esempi in canoa).
 La fingerprint del motore cambia: dopo l'aggiornamento del server va
 rifatto `draw_examples`; il telefono ha il motore nuovo con la prossima
 pubblicazione dell'app.
+
+## ADR-0253 — MuW su Google Play: un pacchetto sul dominio, le push con Firebase, il test chiuso prima della pubblicazione
+**Stato**: Proposta · 2026-10-25 · **scelte dell'utente** del 2026-10-23 e
+del 2026-10-25 (Android dopo l'iPhone, GPS a schermo bloccato prima del
+test, il nome del pacchetto, niente rubrica nella prima build, account
+personale); il resto deciso dall'agente su delega dell'utente (TASK-294
+parti B e C). Numero assegnato dal coordinatore.
+
+**Contesto**: TASK-152 ha portato MuW sull'App Store; Android non è mai
+stato costruito (TASK-152, domanda 5: «per ora per iPhone, poi
+pubblichiamo per Google»). Il 2026-10-25 l'utente ha creato l'account
+Google Play **personale** «Luca Pallaoro» (`muw2610@gmail.com`): per un
+account personale nuovo Google chiede un **test chiuso con almeno 12
+tester per 14 giorni di fila** prima della produzione, una pagina web
+per chiedere la cancellazione dell'account, e la dichiarazione del
+servizio in primo piano di tipo «location» (parte A, aggiunta ad
+ADR-0225). Le push partono già dal servizio push di Expo (ADR-0226), che
+su Android consegna tramite **Firebase Cloud Messaging** (FCM V1): serve
+un progetto Firebase con la sua chiave. La build dello store è senza
+pubblicità anche su Android (ADR-0237, `react-native.config.js`).
+
+**Decisione**:
+
+1. **`android.package` = `app.getmuw.android`** (**scelta dell'utente**
+   del 2026-10-25, fra questo e il bundle iOS `com.lppl1316.sgrava`): un
+   nome nuovo sul dominio dell'app, senza il vecchio nome «Sgrava». È
+   definitivo. Sta in `ANDROID_ONLY` di `fingerprint.config.js` (parte
+   A), quindi non sposta l'impronta iOS della build 7. L'identificativo
+   iOS resta quello che è: su App Store non si cambia.
+2. **Stessa build dello store** (`eas.json`, profilo `production` con
+   `APP_VARIANT=production`): il runtime è l'impronta del codice nativo
+   di ciascuna piattaforma (ADR-0233), il `versionCode` lo alza EAS
+   (`autoIncrement`, versioni su EAS). L'invio a Play, profilo
+   `submit.production.android`: traccia **`alpha`** (il test chiuso che
+   conta per i 14 giorni; `internal` non conta) con `releaseStatus`
+   `completed`, così ogni build nuova arriva ai tester senza un clic in
+   console. La chiave del service account di Google Play sta **su EAS**
+   (`eas credentials`), mai nel repository. **La prima build la carica
+   l'utente a mano** nella Play Console: Google non accetta il primo
+   caricamento di un'app dall'API.
+3. **Le push con Firebase**: un progetto Firebase «MuW» (account
+   `muw2610@gmail.com`) con l'app Android `app.getmuw.android`. Il file
+   `google-services.json` è una **variabile file di EAS**
+   (`GOOGLE_SERVICES_JSON`, visibilità `secret`, ambienti `production` e
+   `preview`); `app.config.ts` lo mette in `android.googleServicesFile`
+   solo quando la variabile c'è, così `app.json`, Expo Go e i test non
+   cambiano. La chiave FCM V1 (service account di Firebase) va su EAS con
+   `eas credentials` → «Google Service Account Key for Push Notifications
+   (FCM V1)»: è quella che il servizio push di Expo usa per Android.
+   **Il server non cambia**: l'API manda già a Expo (ADR-0226). L'impronta
+   conta `googleServicesFile` solo per Android (`@expo/fingerprint` lo
+   toglie dalla configurazione e lo legge come file esterno della sola
+   piattaforma Android): l'impronta iOS non si muove.
+4. **Una build `preview` Android (APK, distribuzione interna) prima del
+   test chiuso**, per il telefono Android dell'utente: stesso pacchetto,
+   canale `preview` (runtime `exposdk:57.0.0`, come Expo Go), per provare
+   la corsa a schermo bloccato (parte A) prima di coinvolgere i tester.
+5. **Niente rubrica nella prima build Android** (**scelta dell'utente**
+   del 2026-10-25): `expo-contacts` resta escluso come nella #461; arriva
+   con un aggiornamento insieme a quella dell'iPhone.
+6. **La scheda e i moduli di Google Play**: gli stessi testi della scheda
+   Apple (`store.config.json`, TASK-152), tradotti dall'agente quando
+   serve; grafica dai file del marchio (`docs/brand`, approvata
+   dall'utente il 2026-10-25); «Sicurezza dei dati» dalla privacy
+   (`site/privacy`): posizione precisa in primo piano e, durante
+   un'attività, in secondo piano; account (email, nome utente); foto
+   scelte per un disegno; nessun SDK pubblicitario; niente contatti.
+   «Non commerciante» (scelta dell'utente del 2026-10-09). Le decisioni
+   sulla scheda che sono scelte di prodotto (testi, prezzo, Paesi) le
+   conferma l'utente prima dell'invio.
+7. **La pagina per cancellare l'account** (parte C): `site/account-deletion/`
+   nelle cinque lingue, solo file nuovi, con il percorso dall'app
+   («Settings» › «Delete account») e l'email per chi non entra più;
+   l'indirizzo va nel modulo «Eliminazione dati» di Google Play.
+
+**Alternative scartate**: lo stesso identificativo dell'iPhone
+(`com.lppl1316.sgrava`, un nome solo da ricordare): l'utente ha
+preferito il nome pulito sul dominio; `releaseStatus` `draft`: ogni build del test vorrebbe un clic in
+console; `serviceAccountKeyPath` in `eas.json`: una chiave in un file
+del repository; `google-services.json` nel repository: non è un segreto
+in senso stretto, ma Expo e Google chiedono di trattarlo come tale e lega
+il repository all'account; FCM legacy: spento da Google; cominciare dal
+test chiuso senza la build `preview`: i 14 giorni partirebbero su una
+build mai provata su un Android.
+
+**Conseguenze**: una prima impronta Android (`8e141f2d…` dopo la parte
+A, poi quella della build vera con `googleServicesFile`); l'iPhone non
+cambia. Un progetto Firebase dell'utente. Un `google-services.json` e due
+chiavi fuori dal repository, su EAS. Dopo i 14 giorni l'utente chiede
+l'accesso alla produzione dalla console; fino ad allora MuW su Android si
+installa solo dal link del test chiuso. Google può chiedere un video del
+servizio in primo piano: la corsa a schermo bloccato con la notifica.
 
 ## ADR-0260 — Il primo concorso: il post con più reazioni vince un premio senza valore, deciso dal server
 
