@@ -28,6 +28,7 @@ from route_engine.water import Element, WaterSource
 from shaperoute_api.activity_graphs import Graphs, Ground, source_for, water_for
 from shaperoute_api.alongs import NamedRoads, with_alongs
 from shaperoute_api.errors import error_of
+from shaperoute_api.graphs import MapDataUnavailableError
 from shaperoute_api.images import AnyRequest
 from shaperoute_api.job_times import JobTimes, line
 from shaperoute_api.schemas import ErrorDetail, JobStatus
@@ -66,6 +67,18 @@ class KeepsRoutes(Protocol):
 
     def get(self, request: object) -> RouteResult | None: ...
     def put(self, request: object, result: RouteResult) -> bool: ...
+
+
+@runtime_checkable
+class FindsNearby(Protocol):
+    """A store that also answers a request from a route kept a few metres
+    away, reached along the roads (route_archive.RouteArchive, ADR-0256).
+    It loads the zone, which takes seconds: asked in the job's thread, not
+    in `submit`."""
+
+    def nearby(
+        self, request: object, source: GraphLoader, named_roads: NamedRoads | None
+    ) -> RouteResult | None: ...
 
 
 class _Dropped(Exception):
@@ -163,6 +176,8 @@ class RouteJobs:
         def wanted() -> bool:
             return self._wanted(job)
 
+        # Answered from a route kept nearby (ADR-0256): not kept again.
+        from_archive = False
         try:
             if activity in WATER_ACTIVITIES:
                 # On the water (TASK-191): no graph, so no directions.
@@ -178,13 +193,19 @@ class RouteJobs:
                 # The zones of the network of the request's activity (TASK-190).
                 graphs = source_for(self._source, activity)
                 source = _Reporting(graphs, report, wanted, times, self._clock)
-                plan = self._plan(job, source, times)
                 names = graphs if isinstance(graphs, KnowsNames) else None
-                began = self._clock()
-                result = with_choices(
-                    plan, source.graphs, None if names is None else names.named_roads
-                )
-                times.directions_s = self._clock() - began
+                named = None if names is None else names.named_roads
+                # A route kept within a few metres of the start, reached
+                # along the roads (ADR-0256): the zone is loaded, the
+                # engine does not run.
+                kept = self._nearby(job, source, named)
+                if kept is not None:
+                    result, from_archive = kept, True
+                else:
+                    plan = self._plan(job, source, times)
+                    began = self._clock()
+                    result = with_choices(plan, source.graphs, named)
+                    times.directions_s = self._clock() - began
         except _Dropped:
             log.info("job %s: dropped before computing", job.job_id)
             self._log_times(job, times, self._clock() - started)
@@ -214,9 +235,35 @@ class RouteJobs:
         )
         self._log_times(job, times, self._clock() - started)
         # Also when cancelled meanwhile: the next to ask does not wait.
-        if self._store is not None and self._store.put(job.request, result):
+        if (
+            not from_archive
+            and self._store is not None
+            and self._store.put(job.request, result)
+        ):
             log.info("job %s: kept for the next to ask", job.job_id)
         self._tell(job, result, None, self._clock() - started)
+
+    def _nearby(
+        self, job: Job, source: GraphLoader, named_roads: NamedRoads | None
+    ) -> RouteResult | None:
+        """The route the store keeps a few metres from the start, reached
+        along the roads (FindsNearby); None when the store has none, or is
+        not one that looks nearby. A store that fails leaves the job to the
+        engine: its failure is logged, the job goes on."""
+        if not isinstance(self._store, FindsNearby):
+            return None
+        try:
+            found = self._store.nearby(job.request, source, named_roads)
+        except _Dropped:
+            raise
+        except MapDataUnavailableError:
+            return None  # the engine says so, as for any request
+        except Exception:
+            log.exception("job %s: the archive failed; drawn instead", job.job_id)
+            return None
+        if found is not None:
+            log.info("job %s: kept route reached along the roads", job.job_id)
+        return found
 
     def _plan(self, job: Job, ground: Ground, times: JobTimes) -> Plan:
         """The planner's plan, its seconds kept also when it fails."""

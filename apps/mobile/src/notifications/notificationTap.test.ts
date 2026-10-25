@@ -11,6 +11,12 @@ test("the API's examples open a drawing and a profile", () => {
   });
 });
 
+test("a shape of the game unlocked opens «Play», whoever the data names (TASK-296)", () => {
+  const [, profile] = examples;
+  expect(tapTarget({ ...profile, kind: "shape_unlocked" })).toEqual({ kind: "play" });
+  expect(tapTarget({ kind: "shape_unlocked" })).toEqual({ kind: "play" });
+});
+
 test("anything else opens nothing", () => {
   for (const data of [
     null,

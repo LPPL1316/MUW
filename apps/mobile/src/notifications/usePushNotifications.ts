@@ -21,6 +21,8 @@ type Opens = {
   openDrawing: (id: string) => void;
   /** Shows the profile of `person`. */
   openProfile: (person: Person) => void;
+  /** Shows the «Play» page: a shape of the game unlocked (TASK-296). */
+  openPlay: () => void;
 };
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
@@ -95,8 +97,10 @@ export function usePushNotifications(
       }
       if (target.kind === "drawing") {
         latest.current.opens.openDrawing(target.id);
-      } else {
+      } else if (target.kind === "profile") {
         latest.current.opens.openProfile(target.person);
+      } else {
+        latest.current.opens.openPlay();
       }
     });
   }, []);

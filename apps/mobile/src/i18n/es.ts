@@ -1224,4 +1224,31 @@ export const ES: Table = {
   "This line crosses itself. Draw it again without crossing it.":
     "Esta línea se cruza consigo misma. Dibújala de nuevo sin cruzarla.",
   "+ photo": "+ foto",
+
+  // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
+  "Choose on the map": "Elegir en el mapa",
+  "Move the map to put the pin where you want to start.":
+    "Mueve el mapa para poner el marcador donde quieres empezar.",
+
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Exportar vídeo",
+  "Making the video… {percent}%": "Creando el vídeo… {percent} %",
+  "This phone cannot make the video.": "Este teléfono no puede crear el vídeo.",
+  "The video could not be made. Try again.":
+    "No se pudo crear el vídeo. Inténtalo de nuevo.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Juega",
+  "{distance} in total": "{distance} en total",
+  "{distance} under {pace}": "{distance} por debajo de {pace}",
+  "Best {best} · target {target}": "Mejor {best} · objetivo {target}",
+  "Longest run {distance}": "Carrera más larga {distance}",
+  "Unlocked {date}": "Desbloqueada {date}",
+  "Sign in to collect shapes.": "Inicia sesión para coleccionar formas.",
+  "{distance} counted so far": "{distance} contados hasta ahora",
+  "The game is not available right now.": "El juego no está disponible ahora.",
+  "New shape unlocked": "Nueva forma desbloqueada",
+  "New shape unlocked: {name}": "Nueva forma desbloqueada: {name}",
+  "It is in your collection.": "Está en tu colección.",
+  "See collection": "Ver la colección",
 };

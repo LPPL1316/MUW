@@ -14324,6 +14324,67 @@ due città sfogliate in un minuto le parole della seconda aspettano il
 minuto dopo. Una città senza zona sul server può scaricarne una più
 grande per la parola più lunga.
 
+## ADR-0244 — L'email di ritorno a chi non apre l'app da 14 giorni
+**Stato**: Attiva · 2026-10-11 · le scelte di prodotto sono dell'utente
+(chieste in chat con le opzioni, TASK-284): «a tutti gli iscritti» e
+«un interruttore suo, acceso», con la proposta di testo e di ritmo
+accettata; il come deciso dall'agente su delega dell'utente. Note del
+coordinatore: rispettare gli interruttori, informare e lasciar rifiutare
+già all'iscrizione (il «soft opt-in» europeo; non è una consulenza
+legale), chiave e DNS di Resend all'utente.
+
+Chi si iscrive e poi non apre più MuW non sa che chi segue ha pubblicato.
+Una email lo dice: quanti disegni nuovi, di chi, e un pulsante per tornare.
+
+**Decisione**:
+
+1. **A tutti gli iscritti**, con un interruttore suo, «Email when I'm
+   away» (`users.notify_away`, `notifications.away`), **acceso** di
+   default anche per gli account di prima; lo spengono la casella non
+   spuntata «Don't send me these emails» all'iscrizione (`away_email`),
+   «Settings» e il link di ogni email. «Email notifications» resta per le
+   notizie di TASK-262 B.
+2. **Una email per assenza**: ultimo uso (il `last_used_at` più recente
+   delle sessioni) più vecchio di 14 giorni e nessuna email di ritorno
+   dopo; un account uscito da ogni telefono non ha un ultimo uso e non la
+   riceve. **Solo con qualcosa di nuovo**, cioè disegni che il Feed gli
+   mostrerebbe (`shown_sql`, mai attraverso un blocco), i suoi esclusi:
+   senza, il giro del giorno dopo richiede.
+3. **Un giro al giorno** alle 17:00 UTC, in un thread dell'API avviato da
+   `__main__.py`: nessun servizio nuovo in `compose.yaml`, nessun cron.
+   L'account è preso (`away_emailed_at`, con un `UPDATE` che vale solo se
+   niente è cambiato) prima di mandare e restituito se Resend rifiuta;
+   500 per giro, mezzo secondo fra due, fermo dopo 3 rifiuti di fila.
+4. **Resend** con la libreria standard (`resend_email.py`, come
+   `expo_push.py`): nessuna dipendenza nuova, un `User-Agent` suo, una
+   `Idempotency-Key` per assenza; la chiave e l'indirizzo mai nei log.
+5. **Il link per disiscriversi** è un HMAC del `public_id` con
+   `SHAPEROUTE_EMAIL_SECRET`: niente nel database. Il `GET` mostra una
+   pagina con un pulsante, solo il `POST` spegne (i filtri antispam aprono
+   i link); `List-Unsubscribe` e `List-Unsubscribe-Post` (RFC 8058) per il
+   «disiscriviti» del programma di posta. La pagina non vuole
+   `X-API-Key`, come `/strava/callback`.
+6. **Lingua**: quella dell'app all'iscrizione (`users.language`, nuova),
+   poi quella del telefono con le push, poi l'inglese.
+7. **«Open MuW»** porta alla pagina App Store dell'app: l'app non ha link
+   universali né uno schema suo, che vorrebbero una build nativa.
+
+**Alternative scartate**: legarla a «Email notifications» (spento di
+default: non la riceverebbe quasi nessuno, scelta dell'utente); solo il
+link nella email (il soft opt-in vuole il rifiuto già all'iscrizione); un
+servizio o un cron a parte sul server (una cosa in più da tenere accesa);
+un token per account nel database (il segreto basta e non va copiato);
+spegnere al solo `GET` del link; il pacchetto Python di Resend (una
+dipendenza per una chiamata).
+
+**Conseguenza**: l'indirizzo email lascia il server per Resend (negli
+Stati Uniti): la privacy cambia nella parte B, dopo #461, con il sì
+dell'utente al testo e alla data. Nessuna email parte prima che ci siano
+la parte B in `main`, l'app pubblicata con la casella, la chiave e il
+dominio verificato su Resend (`DEPLOY.md`, «Email di ritorno»). I testi
+dell'email, in cinque lingue, aspettano anche loro il sì dell'utente.
+Cambiare il segreto spegne i link già mandati.
+
 ## ADR-0245 — «Draw on the map»: la figura sulla mappa la misura l'app, il percorso lo fa il motore
 **Stato**: Attiva · 2026-10-13 · le scelte di prodotto sono dell'utente:
 una schermata sola con «Draw | Move», una riga di forme e immagini che
@@ -14874,6 +14935,36 @@ installa da `pyproject.toml`, il `Dockerfile` non cambia); nessuna
 migrazione. Un codice nuovo che apre un blocco dentro un altro funziona
 come prima, ma paga la connessione nuova: meglio non farlo.
 
+**Aggiunta del 2026-10-18 (TASK-293, «Send to Strava» senza un blocco
+dentro l'altro)**: l'alternativa scartata «riscrivere `strava.py`» è
+presa, come task a sé chiesto dal Coordinatore; deciso dall'agente su
+delega dell'utente, con la condizione del Coordinatore che la stessa corsa
+non vada mai a Strava due volte. `StravaRuns.send` apre ora un blocco alla
+volta:
+
+1. **Lo stato della corsa, senza lock**: un 404 prima di un 409, e una
+   corsa già su Strava senza un post nuovo non chiede niente, come prima.
+2. **Il token nel suo blocco**: il rinnovo resta sotto `FOR UPDATE` su
+   `strava_accounts`, uno alla volta per account (ADR-0156).
+3. **La corsa nel suo blocco**, con `FOR UPDATE` come prima, per tutto il
+   caricamento: un invio della stessa corsa alla volta. Un token rifiutato
+   esce dal blocco senza aver scritto niente; il rinnovo, e dopo due
+   rifiuti `disconnect`, si fanno fuori, e l'invio ricomincia dalla corsa.
+
+Il punto 5 dell'aggiunta della parte B resta in `db.py` solo come difesa:
+nessun codice dell'API apre più un blocco dentro un altro, e
+`test_strava.py` lo guarda con una sonda su `Database.connect`.
+
+**Alternative scartate**: il token letto nella stessa connessione della
+corsa (un rinnovo cambia il refresh token di Strava e va confermato da
+solo, anche se il caricamento poi fallisce: nella transazione della corsa
+si perderebbe con il rollback); il token letto prima di tutto (una corsa
+che non c'è diventerebbe un 409 invece di un 404 per chi non ha collegato
+Strava); togliere il lock della corsa durante la chiamata a Strava (il
+lock tiene una connessione del pool per un caricamento, che è raro; senza,
+servirebbe uno stato «sto caricando» sulla corsa con una scadenza per chi
+cade a metà: una migrazione e un'altra scelta).
+
 ## ADR-0250 — Una riga di tempi per ogni job di percorso, e il bytecode nell'immagine
 **Stato**: Attiva · 2026-10-16 · deciso dall'agente su delega dell'utente
 (TASK-289; prepara la misura di TASK-276, dove l'utente ha scelto il
@@ -15001,3 +15092,497 @@ commenti deve passare da queste condizioni, come già per i blocchi.
 L'email porta a Resend (Stati Uniti) il contenuto segnalato e i nomi: la
 privacy lo dirà con la parte B di TASK-284, con il sì dell'utente sul
 testo, prima di accendere l'email sul server.
+
+## ADR-0252 — La partenza scelta sulla mappa, con il segnaposto fermo al centro
+
+**Stato**: Attiva · 2026-10-18 · il come lo ha scelto l'utente; i punti
+tecnici sono decisi dall'agente su delega dell'utente (TASK-292)
+
+**Contesto**: la partenza di «Draw» era il GPS («My position») o un luogo
+cercato per nome («Another place», ADR-0080, ADR-0095). Chi vuole partire
+da un punto senza indirizzo (un parco, un incrocio, l'altra riva) doveva
+indovinare una via vicina. L'utente il 2026-10-18: «scegliere dalla mappa
+un punto da cui partire, senza scrivere la via».
+
+**Decisione**:
+
+1. **Il come è dell'utente** (fra quattro proposte: mirino fisso, tocco
+   sul punto, terzo pulsante «Map», pressione lunga sul risultato): un
+   link **«Choose on the map»** sotto la ricerca di «Another place»
+   apre la mappa a tutto schermo con il **segnaposto fermo al centro**.
+   Un dito sposta la mappa sotto di lui, «Start here» prende il punto.
+   La riga di stato dice «Starting from a point on the map.».
+2. **Una terza origine della partenza**, `map`, accanto a `gps` e
+   `search` (`startMode.ts`). Il punto sta nello stesso posto del luogo
+   cercato (`ChosenPlace` con `label: null`), quindi vale come lui: resta
+   anche se il GPS risponde e lo cancella un nuovo luogo cercato o «My
+   position». Nessun nome viene chiesto in rete: dove serve un nome
+   («near {place}» nei giri, il nome sulla tela di «Draw on the map», il
+   nome di un preferito) un punto della mappa si comporta come il GPS.
+3. **La mappa è sempre la stessa** (`MapView`, mai una seconda WebView),
+   in uno schermo nuovo dell'app, `pickStart`, come la tela di TASK-281.
+   La pagina riceve `setPick`: nasconde il segnaposto della partenza e ne
+   mette uno uguale (`POSITION_COLOR`) al centro della mappa. Lo tiene lì
+   a ogni `move`, e a ogni `moveend` dice all'app il centro con il
+   messaggio `centre` che esisteva già (TASK-281). `MapView` lo passa a
+   `onCentre` mentre si sceglie, a `onCanvas` altrimenti.
+4. **Il segnaposto è un `Marker` di MapLibre e non una vista di React
+   Native sopra la mappa**: è identico a quello della partenza, la sua
+   punta è esattamente il centro della mappa, e la scheda sotto la mappa
+   non la copre.
+5. **Mentre si sceglie l'app non manda una partenza alla mappa**
+   (`start` nullo): un GPS che risponde in quel momento non sposta la
+   mappa sotto il dito. All'apertura la mappa si inquadra sulla partenza
+   di prima, a zoom 15 e a nord in su; senza partenza resta dov'è.
+   Anche il percorso di prima sparisce, come sulla tela.
+
+**Alternative scartate**: le altre tre dell'utente; un nome per il punto
+(geocodifica inversa con Geoapify o Photon: rete, una chiamata in più,
+un nome a volte sbagliato); un segnaposto di React Native sopra la
+WebView (la punta dipende dalla scheda sotto e dal bordo della mappa).
+
+**Conseguenza**: due testi nuovi nelle cinque lingue; la riga di stato
+resta in inglese come le sue vicine, che sono «il resto di `App.tsx`» di
+TASK-210. Solo app: nessun motore, API o migrazione; non entra nella 1.0.
+
+## ADR-0254 — Il video di una corsa: fatto sul telefono nel WebView, H.264 con WebCodecs, MP4 scritto dall'app
+
+**Stato**: Attiva · 2026-10-23 · il contenuto e il pulsante li ha scelti
+l'utente; i punti tecnici sono decisi dall'agente su delega dell'utente
+(TASK-295)
+
+**Contesto**: l'utente il 2026-10-23: «creare il video in automatico
+finale di tutta la tua esperienza / corsa da poter postare sui social,
+tipo un pulsante con esporta». Il post di una corsa è già un'immagine
+fatta sul telefono (ADR-0194). Expo non ha un modulo che codifica video,
+ffmpeg-kit è ritirato, e un modulo nativo nuovo vorrebbe una build nuova:
+niente Expo Go, un fingerprint iOS diverso (la 1.0 non riceverebbe più
+gli aggiornamenti) e una 1.0.1 sull'App Store. Il WebView
+(`react-native-webview`) è già nella build per la mappa e il motore, e
+WebKit ha WebCodecs dal 16.4, il minimo di Expo SDK 57.
+
+**Decisione**:
+
+1. **Il contenuto è dell'utente** («Sì, così», fra «con la mappa sotto»
+   e «più lungo»): 9:16, 1080 × 1920, 30 fotogrammi al secondo, **12 s**,
+   sul giallo del post. 0–1 s il logo e il titolo entrano; 1–9 s la linea
+   della corsa si disegna (lenta all'inizio e alla fine) con la punta
+   della penna, distanza e tempo salgono con lei, il passo è quello della
+   corsa intera; 9–12 s il disegno intero, e le emoji del post entrano
+   una dopo l'altra. L'ultimo fotogramma è il post. **Niente musica**.
+   Nascosti i primi e gli ultimi 200 m (POST_CUT_M). Il pulsante è
+   **«Export video»**, accanto a «Instagram».
+2. **Il video si fa sul telefono, in un WebView nascosto**: canvas 2D e
+   `VideoEncoder` di WebCodecs. La pagina (`videoPage.ts`) è caricata con
+   `source.html` e `baseUrl` `https://video.muw.invalid/`: l'origine https
+   la rende un contesto sicuro, che WebCodecs vuole; non carica niente. Il
+   WebView sta **dentro il Modal** di «Share your run», dove iOS lo tiene
+   nella finestra.
+3. **Che cosa disegnare lo decide l'app** (`videoScene.ts`, testato): per
+   ogni fotogramma una lista di linee, punti, scritte ed emoji in pixel,
+   con le misure di `PostImage`. La pagina li disegna e basta.
+4. **H.264 Constrained Baseline, livello 4.0** (`avc1.42e028`, poi
+   `42e02a` e `420028`): Baseline non ha B-frames, così ogni fotogramma si
+   mostra nell'ordine in cui si decodifica e il file non ha bisogno di
+   tempi di composizione. High (`640028`) nel simulatore si dichiarava
+   supportato e poi non dava niente. `latencyMode: "realtime"` (nel
+   simulatore 17 ms a fotogramma contro più di 100), 6 Mbit/s, un
+   fotogramma chiave ogni 2 s, una coda di 3 fotogrammi al più.
+5. **Il file MP4 lo scrive l'app** (`mp4.ts`, testato), senza
+   dipendenze: `ftyp`, poi l'indice `moov` **prima** dei dati `mdat` (il
+   video parte prima di averlo letto tutto), una traccia video, tutti i
+   fotogrammi in un chunk, le durate dai tempi dell'encoder (`stts`), i
+   fotogrammi chiave (`stss`), la configurazione `avcC` dell'encoder.
+6. **I pezzi arrivano in base64** (`postMessage` porta solo testo), dieci
+   per messaggio; l'app li legge con un suo decoder. Senza una parola
+   della pagina per 20 s il video è dato per non riuscito.
+7. **Il file è `MuW-run.mp4` nella cache**, riscritto ogni volta, e va al
+   foglio di condivisione come `video/mp4` (`public.mpeg-4`): Instagram
+   (Reel, Storia), WhatsApp, «Save Video». Condiviso, il post resta con la
+   corsa salvata come per l'immagine (ADR-0222).
+8. **Un telefono senza WebCodecs** (o senza il codec) lo dice: «This
+   phone cannot make the video.». Il pulsante c'è sempre: lo si sa solo
+   dopo aver aperto la pagina.
+9. **Un limite che non dipende dalla corsa** (condizione del
+   Coordinatore): sempre 360 fotogrammi; la linea della corsa ha al più
+   2000 punti, mai più vicini di 2 pixel (`thinned`); per fotogramma al
+   più una ventina di cose da disegnare; a 6 Mbit/s il video pesa al più
+   circa 9 MB. Va anche su un telefono vecchio: l'encoder è quello
+   hardware dell'iPhone.
+
+**Alternative scartate**: il video sul server con ffmpeg (una dipendenza
+nuova nell'immagine, CPU del server condivisa, la rete, il server fermo
+fino ad Apple); un modulo nativo con AVAssetWriter e MediaCodec (build
+nuova, niente Expo Go, fingerprint diverso); `mp4-muxer`/`mediabunny`
+(una dipendenza per un file che sono 200 righe); registrare lo schermo con
+ReplayKit (nativo, un permesso in più); una GIF (Instagram non la prende
+come video); High o Main H.264 (B-frames: servirebbe `ctts`).
+
+**Conseguenza**: solo app; arriva con un aggiornamento normale su
+`preview` e su `production` (niente di nativo: il fingerprint iOS con
+`APP_VARIANT=production` resta `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`).
+Quattro testi nuovi nelle cinque lingue. Un video del cuore di 5 km pesa
+1,9 MB e si fa in circa 10 s nel simulatore. Android ha WebCodecs nel suo
+WebView, ma non è provato (TASK-294).
+
+## ADR-0255 — Il gioco delle forme: regole sul server, pagina «Play» accesa dall'API
+
+**Stato**: Attiva · 2026-10-23 · il gioco e il suo posto in MuW li ha
+scelti l'utente; i punti tecnici sono decisi dall'agente su delega
+dell'utente (TASK-296)
+
+**Contesto**: l'utente ha chiesto un gioco di corsa. I km e il passo
+sbloccano forme da collezionare, e in squadra si ricrea una forma divisa
+in pezzi, entro una scadenza. Fra un'app a sé, una riga nel Profilo e una
+pagina nuova, ha scelto la **pagina «Play»** dentro MuW. Corse, tracce,
+coda offline, push, account e blocchi esistono già. Le regole sono in
+`docs/GIOCO.md`.
+
+**Decisione**:
+
+1. **Il server conta, l'app mostra.** Km, migliori tempi, sblocchi e pezzi
+   si calcolano solo sull'API, dalla traccia salvata in `runs`, dopo il
+   salvataggio di `POST /activities` e nella stessa transazione. Il
+   telefono mostra solo stime (la striscia in corsa) e quello che il
+   server risponde.
+2. **Le regole sono pure** (`game_rules.py`): traccia e pause in
+   ingresso, risultato in uscita, senza database né orologio. Hanno
+   soglie in costanti e una `RULES_VERSION`. Il route engine non cambia:
+   il gioco usa `clean_track` e i contorni di `route_engine/shapes/`.
+3. **Anti-imbroglio solo da posizioni e tempi**, perché la traccia
+   salvata non ha la precisione:
+   - tratti di almeno 200 m sopra 7 m/s scartati;
+   - corsa intera scartata oltre il 10 % di quei tratti, o con una media
+     sopra 6 m/s su più di 3 km;
+   - buchi oltre 30 s fuori dai tempi migliori;
+   - corse sovrapposte contate una volta;
+   - al massimo 120 km al giorno.
+
+   Limite dichiarato: una bici lenta non si riconosce senza
+   l'accelerometro, che sarebbe una dipendenza nativa.
+4. **Tabelle nuove, `runs` non cambia**: sette tabelle `game_*`, due con
+   la parte A e cinque con la C. Ogni riga di un account va via con
+   l'account (`CASCADE`). Le sfide e i pezzi della squadra restano agli
+   altri iscritti, senza il nome.
+5. **Il catalogo sta nel codice dell'API** (`game_catalog.py`) ed è
+   servito da `GET /game/catalog`, contorni compresi in coordinate del
+   disegno (0–1). Cambiare una forma o una soglia costa un deploy
+   dell'API e nessuna OTA.
+6. **«Play» si accende dall'API.** L'app mostra la pagina solo se `GET
+   /game/catalog`, che non chiede l'account, risponde 200. Con 404 la
+   pagina resta nascosta. Senza rete vale l'ultima risposta salvata, e al
+   primo avvio la pagina resta nascosta. Così un'OTA con B, D o E può
+   uscire prima che il server abbia A o C senza mostrare una pagina
+   rotta. L'ordine «prima l'API, poi l'app» resta quello buono, ma non è
+   più una condizione per non rompere niente.
+7. **Tempo reale = rilettura ogni 15 s più le push.** La sfida aperta si
+   rilegge ogni 15 s e al ritorno in primo piano. Le push sono `Kind`
+   nuovi di `push.py`, con gli interruttori di TASK-262 A e i blocchi.
+   Niente WebSocket: una connessione sempre aperta per una pagina letta
+   pochi minuti al giorno non vale l'infrastruttura.
+8. **Le corse di prima contano**: un comando idempotente
+   (`game_backfill`) le calcola una volta dopo il deploy, e di nuovo a
+   ogni `RULES_VERSION`, senza push.
+9. **Niente punteggio né classifiche** (TASK-241): collezione e barre di
+   avanzamento soltanto.
+
+**Alternative scartate**:
+- un'app a sé, scartata dall'utente, che avrebbe rifatto tracciamento,
+  account, server e push;
+- contare i km sul telefono, che un'app modificata falsifica;
+- colonne nuove in `runs`, una tabella che tocca mezzo progetto;
+- il catalogo nel database, che richiede un pannello per cambiarlo;
+- WebSocket o Server-Sent Events, infrastruttura nuova;
+- uscire l'app solo dopo l'API come unica difesa, perché basta un'OTA
+  fuori ordine a mostrare una pagina vuota.
+
+**Conseguenza**: cinque parti, A–E, ognuna con la sua PR. A e C vanno sul
+server solo dopo Apple e con l'ok dell'utente. I testi delle push e il
+paragrafo di privacy aspettano il sì dell'utente (`tasks/TASK-296.md`). Le
+parti B, D ed E lasciano l'impronta iOS
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`. Il controllo periodico della
+push «1 day left» si decide in C, aggiungendolo qui.
+
+**Aggiunta (parte A, 2026-10-23, decisa dall'agente su delega
+dell'utente)**:
+
+- **La risposta del salvataggio non cambia.** `PUT /me/activities/{key}`
+  calcola il gioco nella sua transazione, ma risponde come prima;
+  l'esito si legge con `GET /game/runs/{key}`. Il contratto di «My
+  activities» e i suoi esempi in `shared-types` restano quelli. In più la
+  stessa domanda risponde anche alle volte dopo, quando l'app rimanda una
+  corsa già salvata. Costa all'app una richiesta piccola dopo «Save».
+- **La push `shape_unlocked` non porta il nome della forma.** Il testo si
+  sceglie per la lingua di ogni telefono, e un evento di `push.py` non ha
+  nomi tradotti. In `push.py` entrano solo il `Kind`, i suoi testi e
+  `OWN_KINDS`, gli eventi raccontati a chi li ha fatti.
+- **Le forme sbloccate dal backfill** hanno come data la fine della corsa
+  che le ha raggiunte, non il giorno del deploy.
+- **I nomi delle forme** stanno nel catalogo dell'API nelle cinque lingue,
+  perché anche le forme vengono da lì: una forma nuova non chiede un'OTA.
+
+**Aggiunta (parte B, 2026-10-24, decisa dall'agente su delega
+dell'utente)**:
+
+- **«Play» sta fra «Explore» e il profilo**, con il suo nome in alto: la
+  «quarta pagina dopo Explore» del task file, con il profilo che scorre di
+  un posto (resta a un tocco sul suo cerchio). Quattro nomi
+  nell'intestazione: da provare su un iPhone da 390 pt.
+- **Il catalogo si chiede una volta all'avvio** (`refreshGameCatalog` in
+  `App`), per tutti, con o senza account, e la risposta si tiene sul
+  telefono (`game-catalog.json`): la pagina compare appena il server dice
+  200, anche a app aperta, e all'avvio dopo vale la risposta salvata.
+  Perché la pagina possa comparire senza buttare giù le altre, il `Pager`
+  tiene le pagine costruite **per titolo e non per indice**. È una
+  richiesta in più all'apertura, piccola e compressa: i test dell'app
+  intera che contavano «nessuna richiesta all'avvio» la tolgono dal conto.
+  **Non ritarda la prima pagina**: «Draw» si mostra come prima, la
+  richiesta parte in un effetto e la risposta cambia solo l'elenco delle
+  pagine. **Senza rete non compare nessun errore**: un'API che non
+  risponde lascia la pagina com'era, in vista o nascosta.
+- **In B la pagina ha la sola collezione, senza `Segmented`**: la scheda
+  «Challenges» arriva con D. Una scheda vuota prometterebbe qualcosa che
+  non c'è ancora.
+- **La scheda «New shape unlocked» è un livello sopra l'app** (`Root`,
+  sotto il logo di «Save»), raccontato con lo stesso meccanismo del logo
+  (`showUnlocked`): la schermata di fine corsa non c'è più quando l'API
+  risponde. La chiede `activitiesDoor.send` dopo il PUT andato bene, con
+  `GET /game/runs/{key}`, e passa l'ora in cui «Save» ha tenuto la corsa:
+  la scheda aspetta `SAVED_TOTAL_MS` da lì. Per una corsa mandata più tardi
+  compare subito.
+- **Un tocco sulla push `shape_unlocked` apre «Play»** (`notificationTap`
+  guarda `kind` prima di `public_id`), e la push non si mostra con l'app
+  in primo piano (`shownWhileOpen`). «Play» da fuori (scheda, push) si
+  apre solo mentre una pagina è sullo schermo, mai sopra una corsa.
+- **Senza account la pagina mostra le forme grigie e il requisito**, con
+  «Sign in to collect shapes.» che porta alla pagina del profilo: il
+  catalogo non vuole l'account, e vedere che cosa c'è da collezionare è
+  un motivo per iscriversi.
+- **I tipi del gioco e tre esempi** stanno in `shared-types`
+  (`GameCatalog`, `GameMe`, `RunGame`; `fixtures/game-*.json`, piccoli,
+  non il catalogo intero), in fondo al file: `PushKind` non cambia, la
+  push del gioco è `GamePushKind` accanto a lui, perché `index.ts` è
+  anche di due PR ferme (#461, #502) e si aggiunge solo in coda.
+
+**Aggiunta (parte C, 2026-10-24, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **Un pezzo in corso per persona e per sfida.** «Ognuno tiene un solo
+  pezzo in corso alla volta» vale dentro una sfida: chi sta in due squadre
+  tiene un pezzo in ognuna, e una corsa che conta riempie tutti e due.
+  Prendere un secondo pezzo della stessa sfida risponde `409` («leave it
+  first»): nessun pezzo si lascia per sbaglio con un tocco.
+- **Tutti i pezzi di una sfida chiedono la stessa cosa** (`pieces` e un
+  solo `piece`: X km, oppure 1 o 5 km sotto un passo); la tabella li tiene
+  per pezzo, così un seguito può mischiarli senza migrazione. I km in
+  avanzo passano solo a pezzi di distanza liberi, in ordine di numero.
+- **Il contorno dei pezzi lo serve anche l'API** (`outline` in ogni pezzo
+  di `GET /game/challenges/{id}`), oltre a poterlo rifare il telefono con
+  la stessa funzione: `pieces_of` misura il contorno chiuso segmento per
+  segmento (`sqrt(dx²+dy²)`), lo taglia a `k·L/n`, interpola gli estremi
+  sul segmento in cui cadono e arrotonda a 4 decimali; l'ultimo pezzo
+  finisce esattamente in `L`.
+- **Il riempimento sta in `game.after_run_saved`**, nella transazione del
+  salvataggio, dopo la riga di `game_runs`: i km che valgono sono quelli
+  dopo sovrapposizione e tetto. Il backfill non riempie pezzi: le corse di
+  prima del gioco non erano di nessuna sfida.
+- **La chiusura non scrive niente**: una sfida è `active` finché non è
+  completa e non sono passate 3 h dalla scadenza; poi è `expired`. Lo stato
+  si calcola dall'orologio, così nessun processo deve «chiudere» le sfide,
+  e la squadra ne crea un'altra appena la prima non è più attiva.
+- **«1 day left» lo trova un timer dell'API** (`ChallengeClock`, ogni 15
+  minuti, thread daemon come i receipts del Pusher), acceso e spento nel
+  lifespan dell'app: `install_game` avvolge `app.router.lifespan_context`
+  per non toccare `app.py` (della #461), e lo spegnimento aspetta un
+  controllo in corso prima che `app.py` chiuda il pool (TASK-288 B). Una
+  sola push per sfida anche con più processi o dopo un riavvio: la riga si
+  marca con `UPDATE … WHERE ending_told_at IS NULL … RETURNING`, non in
+  memoria. Si dice solo per le sfide più lunghe di un giorno (una da un
+  giorno la riceverebbe appena creata).
+- **Le push delle sfide portano `challenge_id`** in `data`, e il testo
+  comincia con il nome della forma nella lingua del telefono: `PushEvent`
+  ha tre campi facoltativi (`challenge_id`, `number`, `names`), letti da
+  `text_of` e `data_of`; gli eventi di prima danno gli stessi testi e
+  `data` (test). `challenge_done` e `challenge_ending` stanno in
+  `OWN_KINDS`: la prima è anche per chi ha chiuso la forma, la seconda non
+  ha un autore.
+- **Il blocco nato fra due iscritti** si risolve nella transazione del
+  blocco: `moderation.py` chiama i ganci di `app.state.on_block` dentro un
+  savepoint, così un gancio che fallisce non perde il blocco. La regola
+  (chi blocca esce, tranne dalla sua squadra) aspetta il sì dell'utente.
+- **La cancellazione dell'account** passa da `before_account_delete`
+  (come Strava): le squadre vanno all'iscritto più vecchio o spariscono, i
+  pezzi tenuti tornano liberi con i loro metri; poi il `CASCADE` porta via
+  iscrizioni e contributi, e `SET NULL` lascia sfide e pezzi alla squadra.
+  Se il gancio fallisse, `_owner_of` legge comunque l'iscritto più vecchio
+  di una squadra senza proprietario.
+- **I rifiuti del join** (pieno, troppe squadre, blocco) sono tutti `403
+  http_error` «You can't join this team.»; un codice sconosciuto è `404`.
+  Nessun codice d'errore nuovo nel contratto; il nome negativo è `422
+  comment_rejected` come un commento.
+- **`GET /game/me`** dice anche `team_unlocked_at` per forma (campo in più,
+  `null` prima); i tipi di `shared-types` li aggiorna la parte D, che è
+  anche la prima a leggerli.
+
+## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
+
+**Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
+dell'utente di ADR-0086 (2026-10-01), confermata il 2026-10-24 («sì
+grazie» alla proposta); il come deciso dall'agente su delega dell'utente
+(TASK-297 A). Allarga ADR-0136, che teneva solo i centri delle città e i
+punti dell'acqua.
+
+**Contesto**: dagli eventi del server di ottobre (20 giorni, celle di
+~1 km): 3 006 percorsi calcolati dal motore, mediana 6,6 s, p90 14,4 s;
+2 404 su 3 006 ripetevano una richiesta già fatta nella stessa cella,
+stessa forma e distanza (il cuore da 5 km a Trento calcolato 14 volte).
+L'API teneva un percorso solo dal centro di una città (ADR-0136): la
+scelta di ADR-0086 aspettava il database, che c'è dal 2026-10-02.
+
+**Decisione**:
+
+1. **Una tabella `drawn_routes`**: ogni percorso finito e ogni sua
+   alternativa, con la richiesta (`shape`/`word`, `style`, `distance_m`,
+   `activity`, `pen_up`), la partenza (`geography`, indice), la linea, il
+   `RouteResult` compatto (senza indicazioni né alternative), l'impronta
+   del motore, la `line_key` dei preferiti, i contatori `runs` e
+   `favorites`, e il piazzamento (rotazione, fase, scala, spostamento).
+   **Nessun `user_id`**: un percorso disegnato è di tutti, non dice chi
+   l'ha chiesto né chi l'ha corso; cancellare un account non lo tocca.
+   Le immagini e la forma spostata a mano (`near`) non si tengono mai,
+   come oggi.
+2. **La risposta** (`route_archive.py`, un `KeepsRoutes` davanti al
+   `RouteStore` dei file): stesso motore, stessa richiesta, meno di 30
+   giorni. Entro 10 m la riga risponde subito, job `done` nel `POST`.
+   Entro **100 m** (`NEARBY_MAX_M`, la distanza delle partenze vicine di
+   ADR-0071) il percorso si restituisce con l'**avvicinamento** lungo le
+   strade e il ritorno, se la via è entro 150 m (`APPROACH_MAX_M`), come
+   `with_approach` fa per un'alternativa: la zona si carica (0,3–2 s), il
+   motore non parte. Oltre, si calcola come oggi.
+3. **I più scelti davanti**: fra più righe buone, la prima è quella con
+   più corse salvate e preferiti (contate per `line_key` da
+   `activities.py` e `favorites.py`, senza chi), poi la più somigliante,
+   poi la più vicina; le altre sono le alternative A · B · C.
+4. **Le indicazioni non si tengono**: si ricavano dai punti come per
+   «Explore» (ADR-0117). Una riga pesa ~10 kB: ~150 percorsi al giorno
+   fanno ~0,5 GB l'anno. **Tetto** in una costante (circa 200 000 righe)
+   e pulizia a ogni scrittura oltre il tetto: via le righe più vecchie
+   senza corse né preferiti. Il Volume del server è di 70 GB.
+5. **Il contratto non cambia**: l'app legge già un job `done` alla prima
+   risposta (ADR-0136). Senza database l'API resta com'era.
+6. **Il ridisegno rapido** (parte A2, dopo la #497): quando la riga ha un
+   motore diverso o è vecchia, il motore riparte dal suo piazzamento
+   (`first` facoltativo in `optimizer.search`) e continua come oggi se il
+   risultato non è buono; senza `first` il risultato è quello di oggi,
+   con un test. Misurato: lo stesso piazzamento rifà lo stesso percorso
+   36 volte su 36 con 54 tracciamenti contro 736 (ADR-0257).
+7. **Privacy**: un paragrafo nella pagina della privacy, approvato
+   dall'utente, con l'aggiornamento che raccoglie le altre modifiche
+   (#461, 284 B, 291, 294, 296).
+
+**Alternative scartate**:
+- restare sui file di `route_store` per tutti: nessuna ricerca per
+  distanza, tetto di 3 000 file, nessun contatore;
+- una chiave per cella di 1 km: il percorso deve partire da dove sta
+  l'utente, e a 1 km non ci arriva a piedi;
+- un raggio oltre i 100 m: l'avvicinamento supererebbe i 150 m che oggi
+  si accettano per un'alternativa, e il percorso non sarebbe più «da qui»;
+- tenere le indicazioni e le alternative dentro la riga: nove volte lo
+  spazio, e le alternative sono percorsi loro;
+- contare `route_chosen` (A · B · C): 36 eventi in ottobre, e il segnale
+  non porta la `line_key`; da aprire quando le scelte saranno di più.
+
+## ADR-0257 — Il piazzamento imparato da una ricerca vicina: misurato e scartato
+
+**Stato**: Scartata (misurata) · 2026-10-24 · deciso dall'agente su delega
+dell'utente, con il Coordinatore; l'utente informato nella proposta
+(TASK-297 B). I numeri restano qui perché la via non si riprovi.
+
+**Contesto**: l'utente chiedeva «che l'app impari da sola a disegnare».
+La via più diretta: il motore ricorda, per forma e zona, il piazzamento
+che ha funzionato (partenza, rotazione, fase, scala) e lo prova per primo,
+da un `hint` facoltativo in `RouteRequest`.
+
+**Misura** (Mac, zone di Trento in cache, 2026-10-24; costo in
+tracciamenti, perché il Mac era carico; «buono» = distanza ±10 % e
+somiglianza ≥ 0,90; 36 richieste: cuore, stella, gatto, lumaca, luna da
+5 km e cuore da 2 km, da sei partenze a 300–700 m l'una dall'altra):
+
+| | tracciamenti | percorsi buoni |
+|---|---|---|
+| la ricerca di oggi | 736 | 17 su 36 |
+| lo stesso piazzamento, stessa partenza | 54, stesso percorso 36 su 36 | 17 su 36 |
+| il piazzamento imparato alla partenza più vicina (500–680 m) | 90 | 5 su 36; peggiore di 0,03 o più in 28 casi su 36 |
+
+Il gatto passa da 0,86 a 0,41, la lumaca da 0,88 a 0,19: a 500 m le
+strade sono altre, e il conteggio delle strade della ricerca di oggi
+(§5 di `ROUTE_ENGINE.md`) sceglie meglio di una memoria. Provare il
+piazzamento per primo e poi continuare risparmierebbe qualche
+tracciamento in 5 casi su 36 e ne costerebbe 1–3 negli altri.
+
+**Decisione**: nessun `hint` in `RouteRequest`, nessuna memoria dei
+piazzamenti per zona. Di «imparato» restano l'ordine dell'archivio
+(ADR-0256, punto 3) e il ridisegno rapido dal piazzamento dello stesso
+percorso dopo un cambio del motore (ADR-0256, punto 6), che è l'unico
+caso in cui la misura dice sì.
+
+**Dato collaterale, da aprire a parte**: in 19 casi su 36 la ricerca di
+oggi spende tutti i 30 tracciamenti senza un percorso buono (gatto 6 su
+6, lumaca 5 su 6, cuore da 2 km 6 su 6): sono i 6–14 s che l'utente
+aspetta per un disegno mediocre. Fermarsi prima quando la forma non entra
+nelle strade è il seguito scritto in `tasks/TASK-297.md`.
+
+## ADR-0258 — Le immagini con la penna alzata: i soggetti staccati e i fori sono pezzi
+
+**Stato**: Attiva · 2026-10-24 · chiesto dall'utente («gioca con il fatto
+di alzare la penna», loghi aziendali e di run club); il come deciso
+dall'agente su delega dell'utente (TASK-297 C). Allarga ADR-0079 (più
+soggetti in una linea sola) e ADR-0185 (le forme in pezzi).
+
+**Contesto**: un'immagine diventa una sola linea chiusa: il contorno
+esterno del soggetto più grande, gli altri soggetti (al massimo 4) appesi
+con un gambo andata-e-ritorno, i fori spariti, i soggetti vicini fusi.
+Provato su sette loghi sintetici e sul logo MuW da 5 km a Trento: le
+lettere «RC» una macchia (somiglianza 0,98), la ruota un cerchio, le tre
+barre un pettine, M u W appese al cuore. Con i pezzi e le camminate si
+legge «RC», si vede la ruota coi raggi e le tre barre, «MuW» sotto il
+cuore. L'anello con la stella da 5 km non viene (0,58: pezzi concentrici
+troppo piccoli per le strade), da 8 km sì. Immagini in
+`out/archivio-apprendimento/logos/` del Mac.
+
+**Decisione**:
+
+1. **Motore**: `outline_data(…, pen_up=True)` mette in `pieces` i
+   soggetti dopo il primo e i fori che valgono almeno il **3 %** del loro
+   soggetto (`HOLE_SHARE`), i più esterni prima; niente gambi. Un
+   soggetto dentro un altro è un pezzo suo. `parse_outline` non cambia: i
+   pezzi passano i controlli delle forme in pezzi (non si toccano, non si
+   incrociano). Con `pen_up=False` tutto come oggi.
+2. `ImageRequest.pen_up` è accettato: il contorno a pezzi si compone come
+   una forma in pezzi (`pieces.compose`) e la ricerca è quella delle
+   parole con la penna alzata (ADR-0157): la distanza chiesta è quella del
+   disegno, le camminate in più, `walks` nel risultato. Senza pezzi,
+   `pen_up` dà il contorno di oggi. CLI: `--image` con `--pen-up`.
+3. **API**: `POST /image-outlines` risponde anche `pieces` e
+   `image_pieces`; `POST /image-route-jobs` accetta `pen_up: true` con
+   `pieces` nel corpo. Aggiunte senza togliere niente.
+4. **App**: l'interruttore «Pen up» delle parole anche sulla foto,
+   proposto acceso quando il contorno ha pezzi; i pezzi sulla foto; i
+   tratti a piedi tratteggiati sulla mappa, la registrazione in pausa,
+   come per le parole.
+5. **La somiglianza** della penna alzata (per pezzo, con tolleranza) è
+   più severa di quella delle forme: 0,61 per «RC» leggibile contro 0,98
+   per la macchia. I numeri non si confrontano fra i due modi: si
+   guardano i disegni (lezione di TASK-290).
+6. **Nel repository solo loghi sintetici** (disegnati in codice) **e il
+   logo MuW**: niente marchi di aziende o di club.
+
+**Alternative scartate**:
+- i fori come tratti con la penna abbassata: i gambi si incrociano (è
+  l'errore trovato nella prova) e la linea del foro si farebbe due volte;
+- lasciare all'utente quali parti alzare, toccandole: più schermata, da
+  aprire se i pezzi automatici non bastano;
+- alzare `MAX_SUBJECTS` (4) insieme: da misurare a parte, con la penna
+  alzata un soggetto in più costa una camminata, non un gambo;
+- leggere le lettere come testo: una foto di una scritta resta un
+  disegno.

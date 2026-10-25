@@ -1214,4 +1214,31 @@ export const IT: Table = {
   "This line crosses itself. Draw it again without crossing it.":
     "Questa linea si incrocia. Ridisegnala senza incrociarla.",
   "+ photo": "+ foto",
+
+  // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
+  "Choose on the map": "Scegli sulla mappa",
+  "Move the map to put the pin where you want to start.":
+    "Sposta la mappa per mettere il segnaposto dove vuoi partire.",
+
+  // src/share/SharePost.tsx, src/share/videoFile.ts (TASK-295)
+  "Export video": "Esporta video",
+  "Making the video… {percent}%": "Preparo il video… {percent}%",
+  "This phone cannot make the video.": "Questo telefono non riesce a creare il video.",
+  "The video could not be made. Try again.":
+    "Non è stato possibile creare il video. Riprova.",
+
+  // src/screens/pageTitles.ts, src/game/ (TASK-296: the shape game, «Play»)
+  Play: "Gioca",
+  "{distance} in total": "{distance} in totale",
+  "{distance} under {pace}": "{distance} sotto {pace}",
+  "Best {best} · target {target}": "Migliore {best} · obiettivo {target}",
+  "Longest run {distance}": "Corsa più lunga {distance}",
+  "Unlocked {date}": "Sbloccata {date}",
+  "Sign in to collect shapes.": "Accedi per collezionare le forme.",
+  "{distance} counted so far": "{distance} contati finora",
+  "The game is not available right now.": "Il gioco non è disponibile adesso.",
+  "New shape unlocked": "Nuova forma sbloccata",
+  "New shape unlocked: {name}": "Nuova forma sbloccata: {name}",
+  "It is in your collection.": "È nella tua collezione.",
+  "See collection": "Vedi la collezione",
 };

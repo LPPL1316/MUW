@@ -42,6 +42,7 @@ import {
   setDoubleTap,
   setKind,
   setMove,
+  setPick,
   setPosition,
   showOthers,
   showProgress,
@@ -134,6 +135,11 @@ type Props = {
   canvas?: MapCanvas | null;
   /** A line drawn, the figure moved or sized, the map moved (TASK-281). */
   onCanvas?: (event: CanvasEvent) => void;
+  /** Choosing the start on the map (TASK-292): the map framed on `start`,
+   * and a pin in its middle that stays there while fingers move the map. */
+  picking?: boolean;
+  /** While picking: the middle of the map, each time it stops. */
+  onCentre?: (point: LatLon) => void;
   /** Called when the map cannot be shown, with a reason for the log; with
    * null once the map loads after that (TASK-256), so the screen's note
    * goes away. The map itself says it could not load and offers «Retry». */
@@ -160,6 +166,8 @@ export function MapView({
   onTurned,
   canvas = null,
   onCanvas,
+  picking = false,
+  onCentre,
   onError,
   style,
 }: Props) {
@@ -189,6 +197,7 @@ export function MapView({
   // The figure the page was told of last, and the framing it was asked.
   const canvasShown = useRef(false);
   const framed = useRef<number | null>(null);
+  const pickAsked = useRef(false);
   // The map's kind, chosen with its button (TASK-264), and the last one the
   // page was told.
   const kind = useMapKind();
@@ -398,6 +407,19 @@ export function MapView({
     }
   }, [ready, canvas]);
 
+  // After the start, which the map is framed on: asked for only while the
+  // start is chosen on the map (TASK-292), and again when the page loads
+  // again.
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+    if (picking || pickAsked.current) {
+      webView.current?.injectJavaScript(pageScript(setPick(picking)));
+      pickAsked.current = picking;
+    }
+  }, [ready, picking]);
+
   // A page that loads is standard: told the kind when it is another, and
   // each new kind after. The camera and the route stay as they are.
   useEffect(() => {
@@ -448,7 +470,12 @@ export function MapView({
               done: message.done,
             });
           } else if (message?.type === "centre") {
-            onCanvas?.({ type: "centre", point: fromLngLat(message.lngLat) });
+            const point = fromLngLat(message.lngLat);
+            if (picking) {
+              onCentre?.(point);
+            } else {
+              onCanvas?.({ type: "centre", point });
+            }
           } else if (message?.type === "error") {
             fail(message.message);
           }

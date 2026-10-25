@@ -9,10 +9,13 @@ that sent its token last.
 
 Five events are notified, the same list for every channel (the user's
 choice of 2026-10-07): a follow request, a follow request accepted, a
-reaction, a comment, a tag. Each to one recipient, and only when:
+reaction, a comment, a tag. A sixth, a shape of the game unlocked (TASK-296,
+ADR-0255), is told to the runner who unlocked it; three more are the game's
+teams' (part C): a piece finished, a challenge complete, a day left. Each to
+one recipient, and only when:
 
 - the recipient has «Push notifications» on (users.notify_push);
-- the recipient is not the one who acted;
+- the recipient is not the one who acted, but for OWN_KINDS;
 - neither has blocked the other (TASK-121);
 - a drawing's event, the recipient sees the drawing.
 
@@ -35,7 +38,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -67,7 +70,22 @@ log = logging.getLogger(__name__)
 
 Platform = Literal["ios", "android"]
 Language = Literal["en", "de", "it", "es", "fr"]
-Kind = Literal["follow_request", "follow_accepted", "reaction", "comment", "tag"]
+Kind = Literal[
+    "follow_request",
+    "follow_accepted",
+    "reaction",
+    "comment",
+    "tag",
+    "shape_unlocked",
+    "piece_done",
+    "challenge_done",
+    "challenge_ending",
+]
+# The events of what one did oneself, or of nobody's doing: told to
+# oneself too (the shape game, TASK-296).
+OWN_KINDS: frozenset[str] = frozenset(
+    {"shape_unlocked", "challenge_done", "challenge_ending"}
+)
 
 # An Expo push token: "ExponentPushToken[…]", or "ExpoPushToken[…]".
 TOKEN_PATTERN = r"^Expo(nent)?PushToken\[[A-Za-z0-9_\-]{1,180}\]$"
@@ -154,6 +172,12 @@ class PushEvent:
     # What tells two events of the same kind apart: a comment's id. Two
     # reactions of one person to one drawing are the same event.
     key: str = ""
+    # A challenge of the shape game (TASK-296 C): the app opens it; its text
+    # has a number (a piece's, or the pieces missing) and the shape's name
+    # in the phone's language.
+    challenge_id: UUID | None = None
+    number: int | None = None
+    names: Mapping[str, str] | None = None
 
     def same(self) -> tuple[str, int, int, str, str]:
         return (
@@ -218,6 +242,41 @@ TEXTS: dict[str, dict[str, str]] = {
         "es": "{name} te ha etiquetado en una publicación.",
         "fr": "{name} t'a identifié dans une publication.",
     },
+    # The shape game (TASK-296): no name, the runner is the one told.
+    "shape_unlocked": {
+        "en": "You unlocked a new shape! Find it in your collection, in Play.",
+        "de": "Du hast eine neue Form freigeschaltet! Du findest sie in deiner"
+        " Sammlung, unter Play.",
+        "it": "Hai sbloccato una nuova forma! La trovi nella tua collezione, in Play.",
+        "es": "¡Has desbloqueado una nueva forma! La encontrarás en tu colección,"
+        " en Play.",
+        "fr": "Tu as débloqué une nouvelle forme ! Tu la trouveras dans ta"
+        " collection, dans Play.",
+    },
+    # The game's teams (TASK-296 C): the shape's name first, in the phone's
+    # language, then the news; {n} is the piece, or the pieces missing.
+    "piece_done": {
+        "en": "{shape}: {name} finished piece {n}.",
+        "de": "{shape}: {name} hat Teil {n} geschafft.",
+        "it": "{shape}: {name} ha finito il pezzo {n}.",
+        "es": "{shape}: {name} ha terminado la pieza {n}.",
+        "fr": "{shape} : {name} a terminé la pièce {n}.",
+    },
+    "challenge_done": {
+        "en": "{shape}: the shape is complete! Your team drew it together.",
+        "de": "{shape}: die Form ist fertig! Euer Team hat sie zusammen gezeichnet.",
+        "it": "{shape}: la forma è completa! La squadra l'ha disegnata insieme.",
+        "es": "{shape}: ¡la forma está completa! Vuestro equipo la ha dibujado"
+        " juntos.",
+        "fr": "{shape} : la forme est complète ! Ton équipe l'a dessinée ensemble.",
+    },
+    "challenge_ending": {
+        "en": "{shape}: 1 day left. Pieces missing: {n}.",
+        "de": "{shape}: noch 1 Tag. Fehlende Teile: {n}.",
+        "it": "{shape}: manca 1 giorno. Pezzi da fare: {n}.",
+        "es": "{shape}: queda 1 día. Piezas que faltan: {n}.",
+        "fr": "{shape} : plus qu'1 jour. Pièces manquantes : {n}.",
+    },
 }
 
 
@@ -234,16 +293,21 @@ def text_of(event: PushEvent, name: str, language: str | None) -> str:
         which = "super_like"
     texts = TEXTS[which]
     template = texts.get(language or "en", texts["en"])
+    names = event.names or {}
     return template.format(
         name=name,
         emoji=REACTION_EMOJI.get(event.reaction or "", ""),
         text=quoted(event.text),
+        shape=names.get(language or "en") or names.get("en", ""),
+        n="" if event.number is None else event.number,
     )
 
 
 def data_of(event: PushEvent, actor_public_id: UUID, actor_name: str) -> dict[str, str]:
-    """What the app opens when the notification is touched: the drawing, or
-    the profile of who acted."""
+    """What the app opens when the notification is touched: the challenge,
+    the drawing, or the profile of who acted."""
+    if event.challenge_id is not None:
+        return {"kind": event.kind, "challenge_id": str(event.challenge_id)}
     if event.drawing_id is not None:
         return {"kind": event.kind, "drawing_id": str(event.drawing_id)}
     return {
@@ -313,7 +377,8 @@ class Pusher:
     def notify(self, event: PushEvent) -> None:
         """Called after the write of the event. Never raises."""
         try:
-            if event.actor_id == event.recipient_id or not self._first(event):
+            own = event.actor_id == event.recipient_id
+            if (own and event.kind not in OWN_KINDS) or not self._first(event):
                 return
             messages = self.messages(event)
             if messages:

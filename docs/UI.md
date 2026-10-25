@@ -1088,6 +1088,62 @@ torna. Un profilo bloccato non si apre dall'elenco.
 - **Senza account** si disegna, si esplora e si corre come prima: il token
   lo vogliono solo l'account, i preferiti e le corse salvate.
 
+## «Play»: la collezione delle forme (TASK-296 parte B, ADR-0255)
+
+La pagina del gioco delle forme (`GIOCO.md`). Nella parte B c'è la sola
+**collezione**; le squadre e le sfide arrivano con la parte D, che aggiunge
+le due schede. Codice in `apps/mobile/src/game/`.
+
+- **Dove sta**: fra «Explore» e il profilo, con il suo nome in alto dopo
+  «Explore»: quattro nomi nell'intestazione. Il profilo resta a un tocco
+  sul suo cerchio da qualunque pagina; con lo swipe è a due pagine da
+  «Explore» invece di una. Si costruisce la prima volta che ci si arriva,
+  come «Explore».
+- **Quando c'è**: solo mentre il server ha il gioco. All'avvio l'app
+  chiede `GET /game/catalog`, senza aspettarlo per mostrare «Draw», e
+  tiene la risposta sul telefono: se risponde 200 la pagina compare (anche
+  subito, mentre l'app è aperta: le pagine già costruite restano al loro
+  posto), se risponde 404 sparisce, senza rete vale l'ultima risposta e
+  non compare nessun errore. Un telefono che non ha mai sentito il server
+  non la mostra.
+- **La griglia**: le forme del catalogo dell'API, due per riga, nell'ordine
+  del catalogo. Ogni scheda ha il contorno disegnato con View sottili
+  girate (niente SVG, come il disegno della corsa), il nome nella lingua
+  dell'app (lo dà il catalogo nelle cinque lingue) e:
+  - **sbloccata**: contorno in giallo `accent`, sotto «Unlocked Fri 23 Oct
+    2026», il giorno come lo scrive «My activities»;
+  - **bloccata**: contorno grigio `textFaint`, il requisito («5 km in
+    total», «1 km under 5:00 /km»), la barra con la percentuale dell'API
+    (al più 99 %) e, sotto, quanto manca: «14.2 / 20 km» per una distanza,
+    «Best 5:22 /km · target 5:00 /km» per un passo già corso su quella
+    distanza, altrimenti «Longest run 3.2 km».
+  Tutto nelle unità scelte (TASK-182): «3.1 mi in total», «0.6 mi under
+  8:03 /mi». Il lettore di schermo legge la scheda in una frase.
+- **In alto**, con l'account, «14.2 km counted so far»; mentre l'API
+  risponde una rotella; se non risponde, il testo dell'account («No
+  connection…», «Your session has ended…») e «Try again». La collezione
+  si rilegge ogni volta che la pagina torna sullo schermo, mostrando
+  intanto l'ultima risposta.
+- **Senza account** le forme sono tutte grigie, con il requisito e senza
+  percentuali, e sopra «Sign in to collect shapes.»: un tocco porta alla
+  pagina del profilo, dove si entra.
+- **La scheda «New shape unlocked»** (`UnlockLayer`, in `Root` sotto il
+  logo di «Save»): quando l'API prende una corsa (`activitiesDoor.send`,
+  subito o dalla coda), l'app le chiede `GET /game/runs/{key}`; se ha
+  sbloccato forme, sopra l'app compare una scheda con «NEW SHAPE
+  UNLOCKED», il contorno che **si disegna** in giallo in 1,2 s tratto
+  dopo tratto, il nome, «It is in your collection.», «Close» e «See
+  collection», che apre «Play». Per una corsa appena salvata la scheda
+  aspetta che il logo di TASK-212 sia sparito (1,65 s dal «Save»); per
+  una corsa mandata più tardi compare subito. Più forme in una corsa: una
+  scheda dopo l'altra. Un tocco fuori chiude. Il lettore di schermo sente
+  «New shape unlocked: Triangle».
+- **La push `shape_unlocked`** non si mostra con l'app in primo piano
+  (`pushDevice.shownWhileOpen`); toccata dal centro notifiche apre «Play»
+  (`notificationTap`), mai il profilo che i suoi dati nominano.
+- **Da provare sull'iPhone**: i quattro nomi nell'intestazione su uno
+  schermo da 390 pt, e la scheda dopo un «Save» vero.
+
 ## «Favorites» (TASK-171, ADR-0139)
 
 Un percorso che piace si tiene, e si ritrova in «Profile» da ogni telefono
@@ -1296,8 +1352,8 @@ telefono dell'account: con un percorso o senza.
 
 ## La partenza
 
-È un punto `(lat, lon)` con la sua origine, `gps` o `search`, e diventa lo
-`start` del `RouteRequest`.
+È un punto `(lat, lon)` con la sua origine, `gps` o `search` (o `map`,
+dal TASK-292), e diventa lo `start` del `RouteRequest`.
 
 | Situazione | Riga di stato | Cosa c'è in più |
 |---|---|---|
@@ -1307,6 +1363,7 @@ telefono dell'account: con un percorso o senza.
 | GPS spento, errore, nessuna risposta in 15 s | «Your position is not available right now…» | ricerca |
 | «Another place», nessun luogo ancora | «Search for a city or street to start from.» | ricerca |
 | Luogo scelto dalla ricerca | «Starting from Via Rodolfo Belenzani, Trento.» | ricerca, per cambiarlo |
+| Punto scelto sulla mappa (TASK-292) | «Starting from a point on the map.» | ricerca, per cambiarlo |
 
 La partenza si sceglie con due pulsanti affiancati nella scheda «START»
 (TASK-054): **«My position»**, il GPS, e **«Another place»**, un luogo
@@ -1317,6 +1374,35 @@ permesso, se il telefono lo permette ancora; la ricerca sparisce. Senza GPS
 (permesso negato, nessuna risposta) la ricerca c'è comunque, e il luogo
 cercato fa da partenza finché il GPS non risponde. Ogni nuova partenza, anche nello stesso
 punto, ricentra la mappa.
+
+### Scegliere la partenza sulla mappa (TASK-292, ADR-0252)
+
+Scelta dell'utente del 2026-10-18: partire da un punto **senza scrivere
+la via**, con il segnaposto fermo al centro della mappa.
+
+- Ovunque ci sia la ricerca (con «Another place», o senza GPS), sotto di
+  lei c'è il link **«Choose on the map»**.
+- Apre a tutto schermo la mappa di «Draw», con «←» in alto e il tipo di
+  mappa come sempre. La mappa si inquadra sulla partenza di adesso, a
+  zoom 15 e a nord in su; senza partenza resta dov'è. Il percorso di
+  prima sparisce.
+- Il segnaposto della partenza, uguale a sempre, **sta fermo al centro**:
+  un dito sposta la mappa sotto di lui, due dita fanno lo zoom. Sotto la
+  mappa, in grigio: *Move the map to put the pin where you want to
+  start.* e il pulsante giallo **«Start here»**, spento finché la mappa
+  non dice dov'è il suo centro.
+- **«Start here»**: il punto sotto il segnaposto diventa la partenza,
+  l'interruttore va su «Another place» e si torna a «Draw». La riga dice
+  «Starting from a point on the map.»: il punto non ha nome, e non se ne
+  chiede uno in rete. Dove l'app scrive il nome della partenza (i giri
+  «near …», la tela di «Draw on the map») un punto della mappa fa come
+  il GPS.
+- **«←»** torna a «Draw» e lascia la partenza com'era.
+- Il punto vale come un luogo cercato: resta se il GPS risponde, e lo
+  cambiano un altro luogo cercato, un altro punto o «My position». Vale
+  con «Run», «Bike» e «Paddle»; sull'acqua come una via cercata (vedi
+  «Another place» di «Paddle»).
+- Mentre si sceglie, una risposta del GPS non sposta la mappa.
 
 ## Ricerca del luogo
 
@@ -2700,6 +2786,16 @@ run», con «Close» in alto a sinistra:
   Instagram in the list: Story, Feed or Messages.». Errori: «This phone
   cannot open the share sheet.», «The picture could not be made. Try
   again.».
+- **«Export video»**, accanto a «Instagram» (TASK-295, ADR-0254; scelta
+  dell'utente): fa un video di 12 s, 9:16, del post che prende vita. Sul
+  giallo entrano il logo e il titolo; la linea della corsa si disegna da
+  sola, con la punta della penna, mentre distanza e tempo salgono; alla
+  fine il disegno intero, i risultati accesi e le emoji del post, che
+  entrano una dopo l'altra. Niente musica. Mentre lo fa il pulsante dice
+  «Making the video… 42%» e i due pulsanti non si toccano; poi si apre il
+  foglio di condivisione con il video («Save Video» lo tiene in Foto).
+  Errori: «This phone cannot make the video.», «The video could not be
+  made. Try again.», «This phone cannot open the share sheet.».
 - **Strava**, sotto, solo se l'API ha Strava: «Connect with Strava» se
   l'atleta non è collegato; a fine corsa, prima di «Save»: «To send this
   post to Strava, save the run, then share it from «My activities».». Su
@@ -3246,7 +3342,10 @@ c'è anche l'errore.
   Messaggi…). Non mostra i primi e gli ultimi 200 m della corsa, né la
   mappa sotto. A Strava, con «Send to Strava» o «Update on Strava» dal
   post, va in più il testo del post (emoji e risultati scelti), che
-  sull'attività già là sostituisce il testo di prima.
+  sull'attività già là sostituisce il testo di prima. **Il video del
+  post** (TASK-295) si fa anch'esso sul telefono, senza rete, ed esce
+  solo dal foglio di condivisione; nella cache resta l'ultimo,
+  `MuW-run.mp4`.
 - **Un disegno che altri vedono** (TASK-117, TASK-208): una corsa diventa
   visibile agli altri iscritti **solo con «Everyone» o «Followers»**
   scelto dall'utente, a fine corsa o su una corsa aperta; «Only me» a ogni
