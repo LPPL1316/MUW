@@ -45,8 +45,8 @@ function locationOptions(config: Record<string, any>): Record<string, unknown> {
 
 it("the iPhone fingerprint reads the config as build 7 had it", () => {
   const config = expoConfig();
-  // The package name comes with part B: taken out as well.
-  config.android.package = "com.lppl1316.sgrava";
+  // The package name of part B is in app.json: taken out as well.
+  expect(config.android.package).toBe("app.getmuw.android");
   const read = JSON.parse(transform("expoConfig", stringifyJsonSorted(config))!);
 
   // The options and the Android permissions of the 1.0 build, no more.
@@ -68,6 +68,7 @@ it("the iPhone fingerprint reads the config as build 7 had it", () => {
 
 it("a config without the Android settings is read as it is", () => {
   const config = expoConfig();
+  delete config.android.package;
   delete locationOptions(config).isAndroidForegroundServiceEnabled;
   delete locationOptions(config).androidForegroundServiceIcon;
   config.android.permissions = config.android.permissions.filter(
@@ -81,6 +82,7 @@ it("the Android fingerprint keeps the Android settings", () => {
   const read = transform("expoAutolinkingConfig:android", "modules")!;
   expect(read.startsWith("modules\n")).toBe(true);
   const settings = JSON.parse(read.slice("modules\n".length));
+  expect(settings.android).toEqual({ package: "app.getmuw.android" });
   expect(settings.plugins["expo-location"]).toEqual({
     isAndroidForegroundServiceEnabled: true,
     androidForegroundServiceIcon: "./assets/android-icon-monochrome.png",

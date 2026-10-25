@@ -1869,6 +1869,55 @@ in `fixtures/people.json`, `people-page.json`, `follow.json`; il codice in
   /users` senza id è `404` anche lui) e il suo `PublicProfile` non ha
   `followers`, `following` né `follow`.
 
+### People from the contacts (TASK-262 C, ADR-0226)
+
+Gli iscritti il cui numero di telefono (`users.phone`, TASK-183, sempre in
+E.164) è nella rubrica di chi chiede. Vuole il token: senza, `401
+not_signed_in`. Tipi in `shared-types` (`ContactsPeopleRequest`,
+`ContactsPeople`, `ContactPerson`, `CONTACT_HASHES_MAX`), esempi in
+`fixtures/contacts-people-request.json` e `contacts-people.json`; il codice
+in `contact_people.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /people/from-contacts` | gli iscritti con uno di quei numeri | `200` `{ "people": [ContactPerson, …] }` |
+
+- **La richiesta** è `{ "hashes": [...] }`: da 1 a **500** hash
+  (`CONTACT_HASHES_MAX`), ognuno lo **SHA-256 del numero in E.164**
+  (`+393331234567`) in UTF-8, in esadecimale minuscolo (64 cifre). Il
+  numero lo normalizza **il telefono**, con il prefisso del paese della
+  regione del telefono per chi è scritto senza; l'API non riceve mai un
+  numero in chiaro, né un nome. Altro, di più, di meno o un hash scritto
+  male: `422 invalid_request`, e il messaggio non ripete ciò che è
+  arrivato.
+- **Il confronto**: con `encode(sha256(convert_to(phone, 'UTF8')), 'hex')`
+  di ogni account che ha salvato un numero, in una query sola. **Mai chi
+  chiede**; **mai chi ha bloccato chi chiede né chi è bloccato da lui**
+  (TASK-121, nei due versi); un account senza numero non si trova mai. Un
+  numero non è unico (TASK-183): si trovano tutti gli account che l'hanno
+  salvato. In ordine di nome, senza limite oltre a quello degli hash.
+- **`ContactPerson`** è `Person` (`public_id`, `username`, `photo`) più
+  `follow`, dove sta chi chiede verso di lui (`none`, `requested`,
+  `following`): l'app ci mette il tasto «Follow». Mai il numero, mai
+  l'email.
+- **Niente di ciò che arriva si tiene**: gli hash sono solo un parametro
+  della query, non si scrivono in nessuna tabella, in nessuna riga di log,
+  nel registro delle richieste (che tiene solo le richieste di percorso) né
+  in un messaggio di errore. Un test lo prova sul database vero e sui log.
+  **L'hash non protegge da solo**: un numero ha al più 15 cifre, quindi lo
+  SHA-256 di un numero si inverte provando tutti i numeri. La protezione
+  vera è che il server non tiene nulla, e che gli hash viaggiano solo in
+  HTTPS.
+- **Limiti**: **30 richieste all'ora per account** (`429
+  too_many_requests` «Too many looks in the contacts. Try again later.»,
+  con `Retry-After`), contate solo in memoria, oltre al limite di tutti i
+  `POST` (`SHAPEROUTE_RATE_LIMIT`). L'app ne fa al più 10 per volta
+  (5000 numeri). Rallentano chi provasse i numeri uno a uno per sapere chi
+  ha un account, non lo impediscono: la risposta è un nome, già visibile
+  nella ricerca per nome.
+- **Un'API precedente** non ha l'endpoint: `404 http_error`, e l'app dice
+  «This server cannot look in your contacts yet.».
+
 ### Comments (TASK-120, ADR-0175)
 
 Sotto un disegno gli iscritti scrivono commenti. Li legge e li scrive **chi
@@ -2086,12 +2135,57 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   anche chi si è già bloccato.
 - **Nessun endpoint legge le segnalazioni**: restano nella tabella
   `reports` per chi gestisce l'app (ADR-0228: niente pannello e niente
-  endpoint `/admin` per ora).
+  endpoint `/admin` per ora). Una segnalazione **nuova** arriva anche per
+  email a chi gestisce MuW, con un link che nasconde (TASK-291, sotto);
+  la stessa persona che cambia il motivo non manda un'altra email.
 - **`DELETE /me`** cancella i blocchi dell'account, fatti e ricevuti, e le
   sue segnalazioni (`ON DELETE CASCADE`); le segnalazioni degli altri su
   di lui restano.
 - **Un'API precedente** non ha questi endpoint (`404 http_error`): l'app
   dice «This is not available any more.».
+
+#### Report emails (TASK-291, ADR-0251)
+
+A ogni segnalazione nuova l'API manda, fuori dalla richiesta e con
+Resend, un'email in inglese a `SHAPEROUTE_REPORTS_TO`: cosa (disegno,
+commento, profilo), il motivo, chi segnala, chi l'ha scritto, il testo
+(titolo e descrizione, commento, nome e bio), quante segnalazioni ha
+quella cosa, se è già nascosta, gli id, e il link «Hide it from everyone
+else». Il codice in `report_email.py`, l'invio in `send_email.py`. Spenta
+senza le quattro variabili di `DEPLOY.md`, «Email delle segnalazioni»:
+allora la segnalazione si salva come prima e non parte niente. Un errore
+di Resend non cambia mai la risposta di `POST /reports`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /report-link?t=…` | cosa farà il link, con un pulsante; **non cambia niente** | `200` una pagina HTML |
+| `POST /report-link?t=…` | il pulsante: nasconde o rimostra, una volta sola | `200` una pagina con «Undo» |
+
+- **Senza chiave né token**: come `/strava/callback`, il link si apre da
+  un browser (`access.OPEN_PATHS`). Lo protegge la firma.
+- **Il link** è firmato con `SHAPEROUTE_EMAIL_SECRET` e dice un'azione
+  (`hide` o `show`), una cosa (`drawing`, `comment`, `user`), il suo id,
+  la scadenza (**7 giorni**) e un numero a caso. Fa solo quella cosa, e
+  **una volta**: il numero va in `report_links_used`. Un link alterato o
+  di un altro segreto: `404` «This link does nothing»; scaduto: `404`;
+  già usato: `410`; la cosa non c'è più: `404`. Tutte le pagine hanno
+  `Cache-Control: no-store` e `Referrer-Policy: no-referrer`; il token
+  non va nei log (la query string non entra nel log, ADR-0096).
+- **Dopo «Hide»** la pagina ha «Undo», un link nuovo dello stesso tipo
+  (`show`, 7 giorni, una volta); dopo «Show again», «Hide again».
+- **Nascosto agli altri, non all'autore**, e niente si cancella:
+  - un **disegno** nascosto (`drawings.hidden_at`) non lo vede più
+    nessuno tranne chi l'ha fatto: feed, profilo e il suo conteggio,
+    `GET /drawings/{id}`, foto, commenti e reazioni rispondono come per
+    un id che non c'è (`drawing_seen_sql`, `shown_sql`);
+  - un **commento** nascosto (`comments.hidden_at`) lo legge solo chi
+    l'ha scritto, e non entra in `total` per gli altri
+    (`comments.NOT_APART`);
+  - un **iscritto** nascosto (`users.hidden_at`) è lontano da tutti come
+    dietro un blocco (`follows.apart_sql`): profilo, ricerca, disegni,
+    commenti, reazioni, follow, e niente notifiche push agli altri per
+    quello che fa. Lui vede tutto come prima.
+  Nessuno viene avvisato.
 
 ### Shape game (TASK-296, ADR-0255)
 
@@ -2307,7 +2401,7 @@ codice è in `phone_zone_api.py` e `phone_zones.py`.
 
 | Endpoint | Cosa | Risposta |
 |---|---|---|
-| `GET /phone-zones/{network}?lat=&lon=` | la zona della rete `foot` o `bike` che contiene 3 km intorno al punto; con `&prefetch=1` è una zona scaricata in anticipo, contata nel tetto del giorno | `200` `application/gzip`, il file della zona; `304` con `If-None-Match` uguale all'`ETag`; `404 http_error` senza zona o con un'altra rete; `422 invalid_request` con `lat` o `lon` fuori dai limiti; `429 too_many_requests` con `Retry-After`, solo con `prefetch=1`, oltre il tetto |
+| `GET /phone-zones/{network}?lat=&lon=` | la zona della rete `foot` o `bike` che contiene 3 km intorno al punto; con `&margin_m=` (3000–10 000) la più piccola che ne contiene tanti, se il suo file pesa al massimo 12 MB, se no quella di 3 km (parte E); con `&prefetch=1` è una zona scaricata in anticipo, contata nel tetto del giorno | `200` `application/gzip`, il file della zona; `304` quando l'`ETag` della zona scelta è in `If-None-Match` (anche fra altri, separati da virgole) o in `X-Zone-ETags`; `404 http_error` senza zona o con un'altra rete; `422 invalid_request` con `lat`, `lon` o `margin_m` fuori dai limiti; `429 too_many_requests` con `Retry-After`, solo con `prefetch=1`, oltre il tetto |
 
 - **Il file** si chiama come la zona, `foot_<s>_<w>_<n>_<e>.zone.json.gz`
   (`Content-Disposition`). È JSON con gzip: `format` `"sgrava-zone"`,
@@ -2316,6 +2410,11 @@ codice è in `phone_zone_api.py` e `phone_zones.py`.
   arriva.
 - **L'`ETag`** cambia quando la zona sul server cambia; il telefono lo
   rimanda in `If-None-Match` e, se ce l'ha già, riceve `304` senza corpo.
+  L'app della parte E chiede `margin_m=6000` per la zona intorno a sé e
+  manda l'`ETag` della sua zona più piccola lì in `If-None-Match`, come
+  prima, e quelli delle altre in `X-Zone-ETags`: il `304` porta l'`ETag`
+  della zona che il server ha scelto. Un server di prima ignora i due
+  campi nuovi e risponde come prima.
 - **Nessun download**: senza una zona in cache intorno al punto la
   risposta è `404`, e il percorso lo disegna il server, che scarica la
   zona alla prima richiesta lì.

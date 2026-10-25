@@ -591,6 +591,27 @@ disegni si rileggono, come quando «Profile» si apriva.
   si torna con lo swipe o con «Feed». Un server senza la ricerca (prima della
   migrazione `0011`) fa dire «This server cannot look for members yet.».
   Sul profilo c'è il tasto «Follow» (TASK-211, sotto).
+  **Sotto la ricerca per nome, «FROM YOUR CONTACTS»** (TASK-262 C,
+  ADR-0226; scelta dell'utente del 2026-10-08): il tasto neutro «Find
+  friends in your contacts» e sotto la nota «Only coded phone numbers leave
+  the phone, never names. The server compares them with the numbers
+  members saved and keeps none.». **Il permesso della rubrica si chiede
+  solo a quel tocco**, mai all'apertura. Dato il permesso (anche «limitato»
+  di iOS 18), l'app legge solo i numeri dei contatti, li scrive in E.164
+  con il prefisso del paese della regione del telefono, ne fa lo SHA-256 e
+  li manda a `POST /people/from-contacts` (`API.md`, «People from the
+  contacts»), 500 per volta. Mentre cerca: «Looking in your contacts…».
+  Trovati: le righe come quelle della ricerca (foto, nome che apre il
+  profilo) con a destra il tasto «Follow» / «Requested» / «Following» di
+  `FollowButton`; nessuno: «None of your contacts is on MuW yet.»; nessun
+  numero leggibile: «No phone numbers in your contacts.», senza chiamare
+  l'API. Permesso negato: «MuW cannot see your contacts.» in rosso e il
+  tasto resta per riprovare; negato per sempre: al posto del tasto «Open
+  Settings» (TASK-259). Un server senza l'endpoint: «This server cannot
+  look in your contacts yet.»; un errore di lettura della rubrica: «The
+  contacts could not be read.». Senza account non si vede: la ricerca
+  sopra dice già «Log in to find your friends.». In un'app costruita senza
+  `expo-contacts` (la 1.0 dello store) la sezione non c'è.
   **Sotto ogni linea c'è la mappa** della zona (TASK-162, ADR-0131,
   chiesto dall'utente): strade, acqua, verde e nomi dei paesi, con lo
   stile dell'app. È una foto, non una mappa da muovere: la fa una pagina

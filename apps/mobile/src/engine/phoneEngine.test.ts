@@ -185,6 +185,70 @@ test("after Python stops for good, the next request gets a new page", async () =
   await expect(second).resolves.toMatchObject({ kind: "done" });
 });
 
+describe("the zone read ahead (part E)", () => {
+  const HERE: [number, number] = [46.0679, 11.1211];
+
+  test("waits for Python without starting it, then reads the zone", () => {
+    const { engine, sent, attach, say } = withPage();
+    engine.prepare([ZONE], "running", HERE);
+    expect(engine.mountKey).toBe(-1);
+    engine.warmUp();
+    attach();
+    say({ type: "ready", ms: 1 });
+    expect(sent[1]).toBe(
+      pageCall("warm", { id: 1, zones: [ZONE], activity: "running", point: HERE }),
+    );
+    say({ type: "result", id: 1, json: "true", ms: 800, memoryMb: 136 });
+    // The times kept are the routes', not the reading's.
+    expect(engine.last).toEqual({ bootMs: 1 });
+  });
+
+  test("goes behind the routes asked before it, and the newest replaces it", async () => {
+    const { engine, sent, attach, say } = withPage();
+    const route = engine.plan("a", [ZONE]);
+    engine.prepare([ZONE], "running", HERE);
+    engine.prepare([ZONE], "cycling", HERE);
+    attach();
+    say({ type: "ready", ms: 1 });
+    expect(sent[1]).toContain('"body":"a"');
+    say({ type: "result", id: 1, json: "{}", ms: 1, memoryMb: 1 });
+    await expect(route).resolves.toMatchObject({ kind: "done" });
+    expect(sent.slice(2)).toEqual([
+      pageCall("warm", { id: 3, zones: [ZONE], activity: "cycling", point: HERE }),
+    ]);
+  });
+
+  test("a route asked meanwhile waits for it, then runs", async () => {
+    const { engine, sent, attach, say } = withPage();
+    engine.warmUp();
+    attach();
+    say({ type: "ready", ms: 1 });
+    engine.prepare([ZONE], "running", HERE);
+    const route = engine.plan("a", [ZONE]);
+    expect(sent).toHaveLength(2);
+    say({ type: "result", id: 1, json: "true", ms: 1, memoryMb: 1 });
+    expect(sent[2]).toContain('"body":"a"');
+    say({ type: "result", id: 2, json: "{}", ms: 1, memoryMb: 1 });
+    await expect(route).resolves.toMatchObject({ kind: "done" });
+  });
+
+  test("without zones nothing is asked, and iOS closing it is no death", () => {
+    const { engine, sent, attach, say } = withPage();
+    engine.prepare([], "running", HERE);
+    for (let i = 0; i < MAX_DEATHS + 1; i += 1) {
+      engine.warmUp();
+      attach();
+      say({ type: "ready", ms: 1 });
+      engine.prepare([ZONE], "running", HERE);
+      engine.died();
+    }
+    expect(engine.available).toBe(true);
+    expect(sent.filter((js) => js.includes("sgrava.warm"))).toHaveLength(
+      MAX_DEATHS + 1,
+    );
+  });
+});
+
 describe("a request no longer wanted (TASK-287)", () => {
   test("waiting, it leaves the queue: the page never gets it", async () => {
     const { engine, sent, attach, say } = withPage();

@@ -1289,4 +1289,17 @@ export const ES: Table = {
   NW: "NO",
   "{distance} to go": "faltan {distance}",
   "Saved to My activities": "Guardada en Mis actividades",
+  // src/social/ContactsFriends.tsx (TASK-262 C)
+  "FROM YOUR CONTACTS": "DE TUS CONTACTOS",
+  "Find friends in your contacts": "Buscar amigos en tus contactos",
+  "Only coded phone numbers leave the phone, never names. The server compares them with the numbers members saved and keeps none.":
+    "Del teléfono solo salen los números cifrados, nunca los nombres. El servidor los compara con los números que guardaron los miembros y no conserva ninguno.",
+  "Looking in your contacts…": "Buscando en tus contactos…",
+  "MuW cannot see your contacts.": "MuW no puede ver tus contactos.",
+  "No phone numbers in your contacts.": "No hay números de teléfono en tus contactos.",
+  "None of your contacts is on MuW yet.":
+    "Ninguno de tus contactos está todavía en MuW.",
+  "This server cannot look in your contacts yet.":
+    "Este servidor todavía no puede buscar en tus contactos.",
+  "The contacts could not be read.": "No se han podido leer los contactos.",
 };

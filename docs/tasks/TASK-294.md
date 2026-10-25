@@ -1,6 +1,6 @@
 # TASK-294 — MuW su Google Play
 
-**Stato**: In corso (parte A in PR #543)
+**Stato**: In corso (parte A in `main` con la #543, `1dfc440e`; parte B)
 **Fase**: 4 · **Branch**: `feat/TASK-294-a-android-background` (parte A,
 PR #543), `feat/TASK-294-b-play-build` (parte B), la parte C ne avrà uno
 suo
@@ -102,8 +102,9 @@ l'impronta iOS (misurato nel worktree della parte A).
 
 ### Parte B — Build e invio a Google Play (ADR-0253)
 
-Dopo la A. `android.package` (proposta `com.lppl1316.sgrava`, uguale a
-iOS: **scelta dell'utente**, definitiva), `eas.json` con
+Dopo la A. `android.package` = **`app.getmuw.android`** (**scelta
+dell'utente** del 2026-10-25, fra questo e il bundle iOS
+`com.lppl1316.sgrava`; definitivo), `eas.json` con
 `submit.production.android`, Firebase per le push (`google-services.json`
 e la chiave FCM V1 solo su EAS, mai nel repository), una sezione Android
 in fondo a `DEPLOY.md`, la scheda dello store, la prova in un emulatore o
@@ -176,10 +177,21 @@ docs/DECISIONS.md                          (aggiunta ad ADR-0225)
 docs/STATUS.md                             (righe aggiunte)
 ```
 
-Parte B (prevista): `apps/mobile/app.json` (blocco `android`),
-`apps/mobile/eas.json`, `docs/DEPLOY.md` (sezione nuova in fondo),
-`docs/DECISIONS.md` (ADR-0253), questo file. Parte C: `site/account-deletion/`
-(nuova), questo file.
+Parte B:
+
+```
+apps/mobile/app.json                       (solo `android.package`)
+apps/mobile/app.config.ts                  (googleServicesFile da EAS)
+apps/mobile/eas.json                       (submit.production.android)
+apps/mobile/__tests__/androidPlayConfig.test.ts    (nuovo)
+apps/mobile/__tests__/androidFingerprint.test.ts   (il package c'è davvero)
+docs/DEPLOY.md                             (sezione G in fondo)
+docs/DECISIONS.md                          (ADR-0253)
+docs/STATUS.md                             (righe aggiunte)
+docs/tasks/TASK-294.md
+```
+
+Parte C: `site/account-deletion/` (nuova), questo file.
 
 ## Fuori scope
 

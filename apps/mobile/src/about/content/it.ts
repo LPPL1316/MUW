@@ -8,8 +8,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 ottobre 2026";
-/** «Privacy» is final since the user approved it on this day (TASK-237 D; without ads, TASK-267 B). */
-const PRIVACY_UPDATED = "10 ottobre 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
+const PRIVACY_UPDATED = "25 ottobre 2026";
 
 const help: AboutDocument = {
   title: "Come funziona MuW",
@@ -283,8 +283,17 @@ const privacy: AboutDocument = {
       heading: "Il tuo numero di telefono (facoltativo)",
       blocks: [
         "Puoi aggiungere un numero di telefono in «Impostazioni». È facoltativo: l'app funziona allo stesso modo senza.",
-        "È privato: lo vedi solo tu. Non compare mai sul tuo profilo, nella ricerca o in un elenco. Serve perché gli amici che hanno già il tuo numero possano trovare il tuo account, con una ricerca dalla rubrica del telefono che ancora non esiste.",
+        "È privato: lo vedi solo tu. Non compare mai sul tuo profilo, nella ricerca o in un elenco. Serve perché gli amici che hanno il tuo numero nella rubrica del telefono possano trovare il tuo account (vedi «Amici dalla rubrica»).",
         "Non verifichiamo il numero e non gli mandiamo messaggi. Puoi toglierlo in ogni momento da «Impostazioni»; si cancella con l'account.",
+      ],
+    },
+    {
+      heading: "Amici dalla rubrica",
+      blocks: [
+        "Sotto la lente in cima a «Feed», «Trova amici nella rubrica» cerca gli iscritti il cui numero è nella rubrica del tuo telefono. L'app chiede la rubrica al telefono solo quando lo tocchi, e ne legge solo i numeri di telefono: mai nomi, email o foto.",
+        "Ogni numero esce dal telefono in codice: scritto con il prefisso del paese e trasformato in un hash (SHA-256). Il nostro server confronta i codici con quelli dei numeri aggiunti dagli iscritti, risponde con gli iscritti trovati e non tiene nulla di ciò che ha ricevuto: né nel database né in un registro.",
+        "L'hash di un numero di telefono non è un segreto: chi avesse i codici potrebbe ritrovare i numeri provando tutti i numeri possibili. Per questo la vera protezione è che il nostro server non ne tiene nessuno; viaggiano solo sulla connessione cifrata.",
+        "I numeri della tua rubrica sono dati di altre persone: si confrontano una volta, per trovare gli account, e si dimenticano. Per impedire a chiunque di provare i numeri uno a uno, il server conta le ricerche di ogni account in un'ora, solo in memoria. Si trova solo chi ha aggiunto il proprio numero, e mai chi hai bloccato o chi ti ha bloccato.",
       ],
     },
     {
@@ -381,7 +390,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Per darti il servizio che chiedi (contratto): il tuo account, il tuo profilo, i percorsi che chiedi, e le corse, i preferiti, i commenti, le reazioni e i follow che salvi.",
-            "Il nostro legittimo interesse a far funzionare MuW, a tenerla sicura e a migliorarla: i brevi registri del server, i conteggi che limitano gli scaricamenti delle mappe e gli eventi delle ricerche, che non dicono nulla di chi sei.",
+            "Il nostro legittimo interesse a far funzionare MuW, a tenerla sicura e a migliorarla: i brevi registri del server, i conteggi che limitano gli scaricamenti delle mappe e gli eventi delle ricerche, che non dicono nulla di chi sei; il confronto dei numeri della tua rubrica, che non ne tiene nessuno.",
             "Il tuo consenso: il numero di telefono che scegli di aggiungere e il collegamento a Strava. Puoi ritirare un consenso in qualsiasi momento; quello che è stato fatto prima resta lecito.",
             "Un obbligo di legge, quando una legge ci chiede di conservare o di consegnare dei dati.",
           ],

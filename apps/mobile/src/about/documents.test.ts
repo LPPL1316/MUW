@@ -127,7 +127,7 @@ describe("«Privacy» is final, approved by the user (TASK-237 D)", () => {
   test.each(CONTENTS)("in «%s», with the day of the approval", (_, content) => {
     expect(content.privacy.draft).toBe(false);
     expect(content.privacy.updated).toMatch(
-      /^10 (October|ottobre) 2026$|^10\. Oktober 2026$|^10 de octubre de 2026$|^10 octobre 2026$/,
+      /^25 (October|ottobre) 2026$|^25\. Oktober 2026$|^25 de octubre de 2026$|^25 octobre 2026$/,
     );
   });
 
@@ -189,19 +189,62 @@ test("the places to fill are found by the page's pattern", () => {
   }
 });
 
-test("«Privacy» says what the phone number is for (ADR-0150)", () => {
+test("«Privacy» says what the phone number is for (ADR-0150, TASK-262 C)", () => {
   const english = all(EN.privacy);
   expect(english).toMatch(/It is optional/);
   expect(english).toMatch(/only you see it/);
-  expect(english).toMatch(/friends who already have your number will be able to find/);
-  expect(english).toMatch(/does not exist yet/);
+  expect(english).toMatch(
+    /friends who have your number in their phone's contacts can find/,
+  );
+  expect(english).not.toMatch(/does not exist yet/);
   expect(english).toMatch(/remove it at any time from «Settings»/);
   const italian = all(IT.privacy);
   expect(italian).toMatch(/È facoltativo/);
   expect(italian).toMatch(/lo vedi solo tu/);
-  expect(italian).toMatch(/gli amici che hanno già il tuo numero possano trovare/);
-  expect(italian).toMatch(/ancora non esiste/);
+  expect(italian).toMatch(/gli amici che hanno il tuo numero nella rubrica/);
+  expect(italian).not.toMatch(/ancora non esiste/);
   expect(italian).toMatch(/toglierlo in ogni momento da «Impostazioni»/);
+});
+
+describe("«Privacy» says honestly what the search from the contacts sends (TASK-262 C)", () => {
+  const sections: Record<string, string> = {
+    en: "Friends from your contacts",
+    it: "Amici dalla rubrica",
+    de: "Freunde aus deinen Kontakten",
+    fr: "Des amis dans tes contacts",
+    es: "Amigos de tus contactos",
+  };
+  // The hash can be undone by trying every number: the protection is the server keeping none.
+  const honest: Record<string, RegExp[]> = {
+    en: [/trying every possible number/, /keeps none of them/, /only when you tap it/],
+    it: [
+      /provando tutti i numeri possibili/,
+      /non ne tiene nessuno/,
+      /solo quando lo tocchi/,
+    ],
+    de: [
+      /alle möglichen Nummern ausprobiert/,
+      /keinen davon behält/,
+      /wenn du darauf tippst/,
+    ],
+    fr: [
+      /tous les numéros possibles/,
+      /n'en garde aucun/,
+      /seulement quand tu le touches/,
+    ],
+    es: [/todos los números posibles/, /no conserva ninguno/, /solo cuando lo tocas/],
+  };
+  test.each(CONTENTS)("in «%s»", (language, content) => {
+    const section = content.privacy.sections.find(
+      (one) => one.heading === sections[language],
+    );
+    expect(section).toBeDefined();
+    const text = all({ ...content.privacy, sections: section ? [section] : [] });
+    expect(text).toMatch(/SHA-256/);
+    for (const words of honest[language]) {
+      expect(text).toMatch(words);
+    }
+  });
 });
 
 test("«Help» and «Privacy» say what push sends, and that no email is sent (ADR-0206, ADR-0226)", () => {
