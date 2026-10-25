@@ -1,4 +1,4 @@
-import type { LatLon } from "@shaperoute/shared-types";
+import type { Activity, LatLon } from "@shaperoute/shared-types";
 import { useEffect, useRef, useState } from "react";
 
 import type { PositionState } from "../location/useCurrentPosition";
@@ -7,12 +7,20 @@ import { activityOf, loadSport } from "../settings/sport";
 import { downloadAhead } from "./aheadZones";
 import { type PhoneEngine, phoneEngine } from "./phoneEngine";
 import {
+  AROUND_MARGIN_M,
   coveringZone,
   downloadZone,
   NETWORKS,
   type Network,
   savedZones,
+  zonesForEngine,
 } from "./zones";
+
+/** The activity whose routes a network's zone is read ahead for. */
+const ACTIVITIES: Readonly<Record<Network, Activity>> = {
+  foot: "running",
+  bike: "cycling",
+};
 
 /** Smaller than any zone, larger than an error the server sends: what is
  * told under it is not a map. */
@@ -25,6 +33,8 @@ export const NOTICE_MIN_BYTES = 100_000;
  * data (the user's choice of 2026-10-03); a zone the phone has costs a 304.
  * With a zone around the phone, Python starts ahead of the first route: at
  * once with one saved before, else with the first downloaded (TASK-287).
+ * The zones around are asked with AROUND_MARGIN_M of room (part E), and
+ * once they are there, the one of the sport is read into Python's memory.
  * Then, slowly, the zones of the cities ahead (part B2, `aheadZones.ts`),
  * when the server gave a zone around the phone at this opening; and, beside
  * them, the shapes on the water of the places near the phone (TASK-246,
@@ -88,7 +98,10 @@ export function usePhoneZones(
         warmUp();
       }
       for (const network of networks) {
-        const answer = await download(baseUrl, network, point, first ? { onSize } : {});
+        const answer = await download(baseUrl, network, point, {
+          ...(first ? { onSize } : {}),
+          marginM: AROUND_MARGIN_M,
+        });
         served ||= answer.kind === "saved" || answer.kind === "unchanged";
         answered ||= answer.kind !== "failed";
         // Offline at the opening: the zone saved before still counts.
@@ -97,6 +110,10 @@ export function usePhoneZones(
         }
       }
       setFirstBytes(null);
+      // The zone of the first route read ahead, of the sport's network
+      // (part E); offline, the one saved before.
+      const activity = ACTIVITIES[networks[0]];
+      engine.prepare(zonesForEngine(savedZones(), networks[0], point), activity, point);
       // After the maps around the phone, not with them: the first route
       // of the user is not behind these. From a server that answers now,
       // with a zone or without: the shapes are routes it draws.

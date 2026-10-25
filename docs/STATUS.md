@@ -1165,6 +1165,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `7a9506a`: il telefono disegna da sé. **Resta D**, la prova
   sull'iPhone, che è dell'utente e fissa i limiti di distanza. Da dove
   riprendere: `tasks/TASK-214.md`, «Esito».
+  **Parte D fatta** il 2026-10-25: l'utente ha provato l'app sul suo
+  iPhone e ha scritto «funziona ma cerca di migliorarlo». Prossimo passo:
+  misurare (tempi telefono/server, richieste che ricadono sul server, zone,
+  memoria, errori nei log) e proporre all'utente un miglioramento, che
+  diventa una parte nuova di TASK-214.
+  Misure fatte lo stesso giorno (task file, «Le misure dopo D»): il
+  telefono disegna solo vicino a dove si è aperta l'app, perché la zona
+  ha 3 km intorno; i tempi sono quelli del server. Tre proposte
+  all'utente, in attesa della sua scelta.
+  L'utente ha scelto la zona più larga («fai la 1»): **parte E** in
+  `feat/TASK-214-e-wider-zone`. L'API dà con `margin_m=6000` una zona con
+  6 km intorno al telefono, fino a 12 MB; l'app la chiede, passa al motore
+  tutte le zone che contengono la partenza e legge la zona all'apertura.
+  App e server si pubblicano in qualunque ordine: con il server di prima
+  l'app scarica le stesse zone di oggi. I log del server (15 giorni):
+  più di metà delle richieste di zona hanno `404`, cioè lì il server non
+  ha una zona con 3 km intorno e il telefono non disegna.
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch
