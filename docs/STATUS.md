@@ -191,6 +191,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `jobs.py` va anche sul telefono: `engine.zip` rifatto (da pubblicare su
   `preview`), il telefono senza archivio disegna come prima (test).
   Server dopo Apple, con l'ok dell'utente e il paragrafo della privacy.
+  **Parte A** in `main` con la #539 (`0c4ada00`, 2026-10-25), mergiata dal
+  Coordinatore: impronta iOS invariata (`83793e26`), su `preview` (gruppo
+  `e0e4e126`) con l'`engine.zip` nuovo. L'archivio lavora solo sul server:
+  dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
+  TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
+  **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
