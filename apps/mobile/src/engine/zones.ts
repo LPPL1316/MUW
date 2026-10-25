@@ -7,6 +7,7 @@ import {
 } from "expo-file-system/legacy";
 
 import { apiKey as configuredKey, keyHeaders } from "../api/apiUrl";
+import type { PageZone } from "./page";
 import {
   PHONE_HEADER,
   pausePrefetch,
@@ -77,15 +78,24 @@ export function zoneArea(name: string): ZoneArea | null {
   return { network: match[1] as Network, south, west, north, east };
 }
 
-/** The smallest saved zone of `network` that holds `point`, as the server
- * picks its zones; null when none does. A route too long for it fails on
- * the phone with map_data_unavailable, and the server draws it. */
-export function coveringZone(
+/**
+ * How much room the phone asks for around itself (part E): the zone the
+ * server has with 6 km around the point, when it is small enough for the
+ * phone, else the one with 3 km every phone gets. A route of up to 8 km
+ * crops at most 3.8 km around its start: with 6 km it fits also from a
+ * start 2 km away, chosen on the map; with 3 km, only from where the app
+ * opened.
+ */
+export const AROUND_MARGIN_M = 6_000;
+
+/** The saved zones of `network` that hold `point`, the smallest first, as
+ * the server picks its zones. */
+export function coveringZones(
   zones: readonly ZoneEntry[],
   network: Network,
   [lat, lon]: LatLon,
-): ZoneEntry | null {
-  let best: { size: number; zone: ZoneEntry } | null = null;
+): ZoneEntry[] {
+  const found: { size: number; zone: ZoneEntry }[] = [];
   for (const zone of zones) {
     const area = zoneArea(zone.name);
     if (
@@ -96,13 +106,41 @@ export function coveringZone(
       area.west <= lon &&
       lon <= area.east
     ) {
-      const size = (area.north - area.south) * (area.east - area.west);
-      if (best === null || size < best.size) {
-        best = { size, zone };
-      }
+      found.push({ size: (area.north - area.south) * (area.east - area.west), zone });
     }
   }
-  return best?.zone ?? null;
+  return found.sort((a, b) => a.size - b.size).map(({ zone }) => zone);
+}
+
+/** At most this many zones go to the engine for a route: the page keeps
+ * their files in its memory, 12 MB at most each (part E). */
+export const ENGINE_ZONES = 3;
+
+/** The zones for the engine around `point`, the smallest first: Python
+ * draws on the smallest that holds the whole route (PhoneZones), so a
+ * route too wide for the zone around the phone may fit in a wider one. */
+export function zonesForEngine(
+  zones: readonly ZoneEntry[],
+  network: Network,
+  point: LatLon,
+): PageZone[] {
+  return coveringZones(zones, network, point)
+    .slice(0, ENGINE_ZONES)
+    .map((zone) => ({
+      name: zone.name,
+      uri: zoneUri(zone),
+      version: zone.etag ?? String(zone.bytes),
+    }));
+}
+
+/** The smallest saved zone of `network` that holds `point`; null when none
+ * does. */
+export function coveringZone(
+  zones: readonly ZoneEntry[],
+  network: Network,
+  point: LatLon,
+): ZoneEntry | null {
+  return coveringZones(zones, network, point)[0] ?? null;
 }
 
 /** The zones to delete so the rest fits in `limit`: those used longest ago
@@ -289,12 +327,16 @@ export async function downloadZone(
     download = downloadTelling,
     onSize,
     prefetch = false,
+    marginM,
   }: {
     apiKey?: string | null;
     now?: () => number;
     download?: Download;
     onSize?: (bytes: number) => void;
     prefetch?: boolean;
+    /** The room asked for around the point (AROUND_MARGIN_M); the server's
+     * 3 km when not given. */
+    marginM?: number;
   } = {},
 ): Promise<ZoneDownload> {
   try {
@@ -307,15 +349,23 @@ export async function downloadZone(
     const folder = zonesDirectory();
     folder.create({ idempotent: true, intermediates: true });
     const zones = savedZones();
-    const have = coveringZone(zones, network, [lat, lon]);
+    // All the zones held there: the server may give any of them (part E).
+    const have = coveringZones(zones, network, [lat, lon]).filter(
+      (zone) => zone.etag !== null,
+    );
     const partial = new File(folder, `.${network}.download`);
+    const query = `lat=${lat}&lon=${lon}${prefetch ? "&prefetch=1" : ""}${
+      marginM === undefined ? "" : `&margin_m=${marginM}`
+    }`;
     const answer = await download(
-      `${baseUrl}/phone-zones/${network}?lat=${lat}&lon=${lon}${prefetch ? "&prefetch=1" : ""}`,
+      `${baseUrl}/phone-zones/${network}?${query}`,
       partial.uri,
       {
         headers: {
           ...keyHeaders(apiKey),
-          ...(have?.etag ? { "If-None-Match": have.etag } : {}),
+          ...(have.length > 0
+            ? { "If-None-Match": have.map((zone) => zone.etag).join(", ") }
+            : {}),
           ...(prefetch ? { [PHONE_HEADER]: phoneId() } : {}),
         },
       },
@@ -325,10 +375,12 @@ export async function downloadZone(
       deleteQuietly(partial);
       return { kind: "failed", why: "the download stopped" };
     }
-    if (answer.status === 304 && have !== null) {
-      touchZone(have.name, now());
+    if (answer.status === 304 && have.length > 0) {
+      const tag = header(answer.headers, "etag");
+      const same = have.find((zone) => zone.etag === tag) ?? have[0];
+      touchZone(same.name, now());
       deleteQuietly(partial);
-      return { kind: "unchanged", zone: have };
+      return { kind: "unchanged", zone: same };
     }
     if (answer.status === 429 && prefetch) {
       deleteQuietly(partial);

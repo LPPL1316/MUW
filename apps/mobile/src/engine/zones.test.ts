@@ -3,11 +3,14 @@ import { createDownloadResumable } from "expo-file-system/legacy";
 import { files } from "./memoryFiles";
 import { phoneId, prefetchPausedUntil } from "./prefetch";
 import {
+  AROUND_MARGIN_M,
   coveringZone,
+  coveringZones,
   deleteZones,
   type Download,
   downloadTelling,
   downloadZone,
+  ENGINE_ZONES,
   fileNameOf,
   overLimit,
   savedBytes,
@@ -17,6 +20,7 @@ import {
   watchZones,
   zoneArea,
   type ZoneEntry,
+  zonesForEngine,
   zoneUri,
 } from "./zones";
 
@@ -138,6 +142,80 @@ test("a zone the phone has is asked with its ETag, and a 304 keeps it", async ()
   expect(again.mock.calls[0][2]).toEqual({ headers: { "If-None-Match": '"1-2"' } });
   expect(answer).toMatchObject({ kind: "unchanged", zone: { name: TRENTO } });
   expect(savedZones()[0].usedAt).toBe(2000);
+});
+
+describe("more room around the phone (part E)", () => {
+  async function saved(name: string, etag: string, at: number) {
+    await downloadZone(URL_BASE, "foot", HERE, {
+      apiKey: null,
+      now: () => at,
+      download: answering(200, zipHeaders(name, etag)),
+    });
+  }
+
+  test("the room is asked for, and the zone held is kept beside the smaller", async () => {
+    await saved(CENTRE, '"c"', 1000);
+    const download = answering(200, zipHeaders(TRENTO, '"t"'));
+    const answer = await downloadZone(URL_BASE, "foot", HERE, {
+      apiKey: null,
+      now: () => 2000,
+      download,
+      marginM: AROUND_MARGIN_M,
+    });
+    expect(download.mock.calls[0][0]).toBe(
+      `${URL_BASE}/phone-zones/foot?lat=46.0679&lon=11.1211&margin_m=6000`,
+    );
+    expect(answer).toMatchObject({ kind: "saved", zone: { name: TRENTO } });
+    expect(savedZones().map((zone) => zone.name)).toEqual([CENTRE, TRENTO]);
+  });
+
+  test("every zone held is asked with its ETag, and the 304 keeps the one it names", async () => {
+    await saved(CENTRE, '"c"', 1000);
+    await saved(TRENTO, '"t"', 1000);
+    const again = answering(304, { ETag: '"t"' });
+    const answer = await downloadZone(URL_BASE, "foot", HERE, {
+      apiKey: null,
+      now: () => 3000,
+      download: again,
+      marginM: AROUND_MARGIN_M,
+    });
+    expect(again.mock.calls[0][2]).toEqual({
+      headers: { "If-None-Match": '"c", "t"' },
+    });
+    expect(answer).toMatchObject({ kind: "unchanged", zone: { name: TRENTO } });
+    const used = Object.fromEntries(
+      savedZones().map((zone) => [zone.name, zone.usedAt]),
+    );
+    expect(used).toEqual({ [CENTRE]: 1000, [TRENTO]: 3000 });
+  });
+
+  test("the zones for the engine are all those holding the start, the smallest first", () => {
+    const zones = [entry(TRENTO), entry(TRENTO_BIKE), entry(CENTRE)];
+    expect(coveringZones(zones, "foot", HERE).map((zone) => zone.name)).toEqual([
+      CENTRE,
+      TRENTO,
+    ]);
+    expect(zonesForEngine(zones, "foot", HERE)).toEqual([
+      { name: CENTRE, uri: zoneUri(entry(CENTRE)), version: "10" },
+      { name: TRENTO, uri: zoneUri(entry(TRENTO)), version: "10" },
+    ]);
+    expect(zonesForEngine(zones, "foot", [45.4642, 9.19])).toEqual([]);
+  });
+
+  test(`at most ${ENGINE_ZONES} zones go to the engine`, () => {
+    const nested = [0, 1, 2, 3].map((i) =>
+      entry(
+        `foot_${(46.0 - i * 0.01).toFixed(5)}_${(11.1 - i * 0.01).toFixed(5)}_${(
+          46.1 +
+          i * 0.01
+        ).toFixed(5)}_${(11.2 + i * 0.01).toFixed(5)}.zone.json.gz`,
+      ),
+    );
+    const given = zonesForEngine(nested, "foot", [46.05, 11.15]);
+    expect(given.map((zone) => zone.name)).toEqual(
+      nested.slice(0, ENGINE_ZONES).map((zone) => zone.name),
+    );
+  });
 });
 
 test("no zone on the server, or a refusal, saves nothing", async () => {
