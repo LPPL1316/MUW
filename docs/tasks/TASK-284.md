@@ -201,6 +201,7 @@ services/api/tests/test_away_email.py                       (ok del Coordinatore
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
 apps/mobile/src/about/content/en.ts, it.ts, de.ts, es.ts, fr.ts
 apps/mobile/src/about/documents.test.ts
+apps/mobile/src/profile/SettingsPage.test.tsx               (tre interruttori e la nota; ok del Coordinatore)
 site/privacy/index.html, it/, de/, es/, fr/index.html
 docs/UI.md, docs/STATUS.md, docs/tasks/TASK-284.md
 docs/tasks/TASK-262.md                                      (la chiusura della parte B; ok del Coordinatore)
