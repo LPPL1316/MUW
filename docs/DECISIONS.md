@@ -15702,3 +15702,95 @@ digest fissati, 16 richieste confrontate con `main`, esempi in canoa).
 La fingerprint del motore cambia: dopo l'aggiornamento del server va
 rifatto `draw_examples`; il telefono ha il motore nuovo con la prossima
 pubblicazione dell'app.
+
+## ADR-0253 — MuW su Google Play: un pacchetto sul dominio, le push con Firebase, il test chiuso prima della pubblicazione
+**Stato**: Proposta · 2026-10-25 · **scelte dell'utente** del 2026-10-23 e
+del 2026-10-25 (Android dopo l'iPhone, GPS a schermo bloccato prima del
+test, il nome del pacchetto, niente rubrica nella prima build, account
+personale); il resto deciso dall'agente su delega dell'utente (TASK-294
+parti B e C). Numero assegnato dal coordinatore.
+
+**Contesto**: TASK-152 ha portato MuW sull'App Store; Android non è mai
+stato costruito (TASK-152, domanda 5: «per ora per iPhone, poi
+pubblichiamo per Google»). Il 2026-10-25 l'utente ha creato l'account
+Google Play **personale** «Luca Pallaoro» (`muw2610@gmail.com`): per un
+account personale nuovo Google chiede un **test chiuso con almeno 12
+tester per 14 giorni di fila** prima della produzione, una pagina web
+per chiedere la cancellazione dell'account, e la dichiarazione del
+servizio in primo piano di tipo «location» (parte A, aggiunta ad
+ADR-0225). Le push partono già dal servizio push di Expo (ADR-0226), che
+su Android consegna tramite **Firebase Cloud Messaging** (FCM V1): serve
+un progetto Firebase con la sua chiave. La build dello store è senza
+pubblicità anche su Android (ADR-0237, `react-native.config.js`).
+
+**Decisione**:
+
+1. **`android.package` = `app.getmuw.android`** (**scelta dell'utente**
+   del 2026-10-25, fra questo e il bundle iOS `com.lppl1316.sgrava`): un
+   nome nuovo sul dominio dell'app, senza il vecchio nome «Sgrava». È
+   definitivo. Sta in `ANDROID_ONLY` di `fingerprint.config.js` (parte
+   A), quindi non sposta l'impronta iOS della build 7. L'identificativo
+   iOS resta quello che è: su App Store non si cambia.
+2. **Stessa build dello store** (`eas.json`, profilo `production` con
+   `APP_VARIANT=production`): il runtime è l'impronta del codice nativo
+   di ciascuna piattaforma (ADR-0233), il `versionCode` lo alza EAS
+   (`autoIncrement`, versioni su EAS). L'invio a Play, profilo
+   `submit.production.android`: traccia **`alpha`** (il test chiuso che
+   conta per i 14 giorni; `internal` non conta) con `releaseStatus`
+   `completed`, così ogni build nuova arriva ai tester senza un clic in
+   console. La chiave del service account di Google Play sta **su EAS**
+   (`eas credentials`), mai nel repository. **La prima build la carica
+   l'utente a mano** nella Play Console: Google non accetta il primo
+   caricamento di un'app dall'API.
+3. **Le push con Firebase**: un progetto Firebase «MuW» (account
+   `muw2610@gmail.com`) con l'app Android `app.getmuw.android`. Il file
+   `google-services.json` è una **variabile file di EAS**
+   (`GOOGLE_SERVICES_JSON`, visibilità `secret`, ambienti `production` e
+   `preview`); `app.config.ts` lo mette in `android.googleServicesFile`
+   solo quando la variabile c'è, così `app.json`, Expo Go e i test non
+   cambiano. La chiave FCM V1 (service account di Firebase) va su EAS con
+   `eas credentials` → «Google Service Account Key for Push Notifications
+   (FCM V1)»: è quella che il servizio push di Expo usa per Android.
+   **Il server non cambia**: l'API manda già a Expo (ADR-0226). L'impronta
+   conta `googleServicesFile` solo per Android (`@expo/fingerprint` lo
+   toglie dalla configurazione e lo legge come file esterno della sola
+   piattaforma Android): l'impronta iOS non si muove.
+4. **Una build `preview` Android (APK, distribuzione interna) prima del
+   test chiuso**, per il telefono Android dell'utente: stesso pacchetto,
+   canale `preview` (runtime `exposdk:57.0.0`, come Expo Go), per provare
+   la corsa a schermo bloccato (parte A) prima di coinvolgere i tester.
+5. **Niente rubrica nella prima build Android** (**scelta dell'utente**
+   del 2026-10-25): `expo-contacts` resta escluso come nella #461; arriva
+   con un aggiornamento insieme a quella dell'iPhone.
+6. **La scheda e i moduli di Google Play**: gli stessi testi della scheda
+   Apple (`store.config.json`, TASK-152), tradotti dall'agente quando
+   serve; grafica dai file del marchio (`docs/brand`, approvata
+   dall'utente il 2026-10-25); «Sicurezza dei dati» dalla privacy
+   (`site/privacy`): posizione precisa in primo piano e, durante
+   un'attività, in secondo piano; account (email, nome utente); foto
+   scelte per un disegno; nessun SDK pubblicitario; niente contatti.
+   «Non commerciante» (scelta dell'utente del 2026-10-09). Le decisioni
+   sulla scheda che sono scelte di prodotto (testi, prezzo, Paesi) le
+   conferma l'utente prima dell'invio.
+7. **La pagina per cancellare l'account** (parte C): `site/account-deletion/`
+   nelle cinque lingue, solo file nuovi, con il percorso dall'app
+   («Settings» › «Delete account») e l'email per chi non entra più;
+   l'indirizzo va nel modulo «Eliminazione dati» di Google Play.
+
+**Alternative scartate**: lo stesso identificativo dell'iPhone
+(`com.lppl1316.sgrava`, un nome solo da ricordare): l'utente ha
+preferito il nome pulito sul dominio; `releaseStatus` `draft`: ogni build del test vorrebbe un clic in
+console; `serviceAccountKeyPath` in `eas.json`: una chiave in un file
+del repository; `google-services.json` nel repository: non è un segreto
+in senso stretto, ma Expo e Google chiedono di trattarlo come tale e lega
+il repository all'account; FCM legacy: spento da Google; cominciare dal
+test chiuso senza la build `preview`: i 14 giorni partirebbero su una
+build mai provata su un Android.
+
+**Conseguenze**: una prima impronta Android (`8e141f2d…` dopo la parte
+A, poi quella della build vera con `googleServicesFile`); l'iPhone non
+cambia. Un progetto Firebase dell'utente. Un `google-services.json` e due
+chiavi fuori dal repository, su EAS. Dopo i 14 giorni l'utente chiede
+l'accesso alla produzione dalla console; fino ad allora MuW su Android si
+installa solo dal link del test chiuso. Google può chiedere un video del
+servizio in primo piano: la corsa a schermo bloccato con la notifica.
