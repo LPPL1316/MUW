@@ -15820,6 +15820,23 @@ troppo piccoli per le strade), da 8 km sì. Immagini in
 - leggere le lettere come testo: una foto di una scritta resta un
   disegno.
 
+**Aggiunta (parte C, motore, 2026-10-25; deciso dall'agente su delega
+dell'utente)**: il 3 % di un foro si misura sull'area del contorno esterno
+pieno del suo soggetto, prima della lisciatura (così un'immagine senza
+fori veri dà con la penna alzata lo stesso contorno esterno di oggi) e di
+nuovo dopo (un foro che la lisciatura consuma sparisce); un soggetto si
+semplifica insieme ai suoi fori (`simplify` con la topologia), così le sue
+linee restano staccate; i punti di tutti i pezzi insieme sono al più
+`MAX_SUBJECT_POINTS` (150), come i tratti; un contorno a pezzi che non
+passa `parse_outline` (un pezzo che tocca una linea, o che con la penna giù
+non si attacca senza incroci, come sette fori a corona) è rifiutato come
+`jagged`. Il logo MuW del repository è il marchio del lancio
+(`apps/mobile/assets/splash-logo-dark.png`: tre lettere staccate, due
+pezzi); il logo del kit con il cuore resta fuori dal repository, come le
+prove del 24. Dalla CLI `--image … --pen-up` su un'immagine senza pezzi
+disegna una linea sola con un avviso, invece di rifiutare come per una
+forma senza pezzi: chi manda una foto non sa prima se ha pezzi.
+
 ## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
 **Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
 (TASK-271), dalla prima recensione di un tester («quando devi tornare
