@@ -1,7 +1,8 @@
 # TASK-277 — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 
-**Stato**: In review (PR pronta, ferma fino all'approvazione Apple della 1.0
-e agli ok dell'utente; il merge lo dà il Coordinatore)
+**Stato**: Done (in `main` con la #497, 2026-10-25, dopo la #489; server,
+`draw_examples` e motore sul telefono ancora da fare, vedi «Cosa resta per
+il server»)
 **Fase**: 4 · **Branch**: `fix/TASK-277-collapsed-outline`
 
 ## Obiettivo
@@ -114,3 +115,33 @@ fingerprint del motore cambia: dopo l'aggiornamento del server va rifatto
 `draw_examples` (`AGENTI.md`, regola 11); il telefono ha il motore nuovo
 solo con una pubblicazione dell'app. Fingerprint dell'acqua
 `15bb981f9359` → `2693d5eb0b18`, i 32 esempi identici.
+
+2026-10-25: l'utente ha scritto «finiscilo» per la #497 (nella sessione
+«Task ancora da completare»), che vale come via al merge anche prima
+dell'approvazione di Apple. Dopo la #489 in `main` (`bd4ccafc`), la PR è
+stata riallineata (conflitti solo in `STATUS.md` e `DECISIONS.md`, tenute
+tutte le voci; nessun file del motore cambiato in `main` dalla base della
+PR, `optimizer.py` compreso). `engine.zip` rifatto su `main`: rispetto a
+quello della #489 cambiano solo i quattro file del motore di questo task.
+`paddleExamples.json` ridisegnato su una copia in sola lettura dell'acqua
+del server (297 file): cambia solo l'impronta `engine` (`bf3ab4e15853`,
+quella della #489, → `1b6759cb3cc4`), i 32 esempi identici. In `main`
+con la #497: test del motore verdi, ruff e black puliti, CI verde.
+
+## Cosa resta per il server
+
+Il merge non tocca il server: la correzione arriva solo dopo questi passi,
+del Coordinatore (`local_e57a8224`), dopo l'approvazione di Apple della
+1.0 e con il sì dell'utente; si fanno una volta sola insieme a quelli di
+TASK-271 (#489).
+
+1. **Aggiornare il server** a un `main` che contiene la #497: fino ad
+   allora il caso del 2026-10-10 (cerchio 5 km su una zona di campagna)
+   risponde ancora `engine_error`.
+2. **`draw_examples`**: l'impronta del motore cambia, quindi gli esempi di
+   «Explore» tenuti sul server vanno ridisegnati (`AGENTI.md`, regola 11).
+3. **Motore sul telefono** (TASK-214): `engine.zip` in `main` è già quello
+   nuovo, ma arriva sui telefoni solo con una pubblicazione dell'app
+   (`eas update`), con il via del Coordinatore.
+
+Gli esempi in canoa dentro l'app non cambiano: è cambiata solo l'impronta.
