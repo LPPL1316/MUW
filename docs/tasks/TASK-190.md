@@ -1,10 +1,14 @@
 # TASK-190 — Percorsi in bici
 
-**Stato**: In corso (parti A, B e C fatte nel codice; cinque campioni di
-Trento giudicati dall'utente il 2026-10-03; mancano Levico, Padova e il
-cerchio da 20 km, e la prova vera di una zona della bici sul server)
+**Stato**: Done (2026-10-25) — parti A, B e C in `main` (PR #214, #219,
+#221); i campioni giudicati dall'utente a Trento (2026-10-03 e 2026-10-25),
+Levico e Padova (2026-10-25), nessuna correzione del motore; la prova vera
+sul server fatta dal coordinatore il 2026-10-03 (TASK-205 e TASK-206). Resta
+una verifica leggera sul server, pronta qui sotto, dopo l'approvazione di
+Apple e con un sì dell'utente («Esito», «La prova sul server»).
 **Fase**: 4 · **Branch**: `feat/TASK-190-bike-routes` (parte A),
-`feat/TASK-190-bike-api` (parte B), `feat/TASK-190-bike-app` (parte C)
+`feat/TASK-190-bike-api` (parte B), `feat/TASK-190-bike-app` (parte C),
+`chore/TASK-190-bike-samples-levico-padova` (i campioni del 2026-10-25)
 **Dipende da**: TASK-189 («Sport» in «Settings»: la riga «Bike» da
 accendere), TASK-177 (la pagina «Settings»)
 
@@ -96,8 +100,10 @@ preferisce, tre task: i numeri li dà lui).
       restano verdi senza modifiche ai valori attesi). *(Parte A, nel
       motore e quindi nell'API, che usa `RouteRequest`.)*
 - [x] La cache a piedi di una zona non viene usata per la bici.
-- [ ] Campioni in `samples/` giudicati dall'utente. *(2026-10-03: cinque
-      a Trento giudicati, sotto «I campioni»; Levico e Padova mancano. Non fatti nella
+- [x] Campioni in `samples/` giudicati dall'utente. *(2026-10-25: i
+      dodici di Levico e Padova e il cerchio da 20 km di Trento, sotto «I
+      campioni di Levico e Padova». 2026-10-03: cinque
+      a Trento giudicati, sotto «I campioni»; Levico e Padova mancavano. Non fatti nella
       parte A: Overpass rifiuta le connessioni dal Mac, e nessuna zona
       della bici è stata scaricata; nemmeno nella parte B: la prima zona
       vera si fa dall'estratto sul server, con l'ok dell'utente; vedi
@@ -216,6 +222,27 @@ e `SettingsPage.test.tsx` (dicevano che «Bike» era «Soon»);
 dell'app che l'ADR non copriva). `useRouteRequest.ts` non è cambiato: la
 richiesta porta già `activity`, e `sameRequest` la confronta già.
 
+**I campioni di Levico e Padova** (2026-10-25, sola documentazione e GPX):
+
+```
+samples/TASK-190_heart_10km_levico_v1.gpx              (nuovo)
+samples/TASK-190_circle_10km_levico_v1.gpx             (nuovo)
+samples/TASK-190_star_10km_levico_v1.gpx               (nuovo)
+samples/TASK-190_heart_20km_levico_v1.gpx              (nuovo)
+samples/TASK-190_circle_20km_levico_v1.gpx             (nuovo)
+samples/TASK-190_star_20km_levico_v1.gpx               (nuovo)
+samples/TASK-190_heart_10km_padova_v1.gpx              (nuovo)
+samples/TASK-190_circle_10km_padova_v1.gpx             (nuovo)
+samples/TASK-190_star_10km_padova_v1.gpx               (nuovo)
+samples/TASK-190_heart_20km_padova_v1.gpx              (nuovo)
+samples/TASK-190_circle_20km_padova_v1.gpx             (nuovo)
+samples/TASK-190_star_20km_padova_v1.gpx               (nuovo)
+samples/TASK-190_circle_20km_trento_v1.gpx             (nuovo)
+samples/LOG.md
+docs/STATUS.md
+docs/tasks/TASK-190.md
+```
+
 ## Fuori scope
 
 - Distanze oltre i 30 km.
@@ -238,6 +265,11 @@ oggi). Aspettano l'utente:
    o tutti con un segno dello sport? (Oggi il catalogo ha solo corse.)
 2. Durante un giro in bici, la schermata della corsa resta uguale (ritmo
    al km) o mostra la velocità in km/h?
+
+**Al 2026-10-25**: la domanda 2 è decisa da TASK-216 (la navigazione in
+bici, in km/h). La domanda 1 resta dell'utente: «Explore» e «Feed» con
+«Bike» sono ancora quelli della corsa (TASK-227: «Con "Run" e "Bike"
+"Explore" è quello di prima»). Se la vuole, è un task nuovo.
 
 ## Esito
 
@@ -542,6 +574,142 @@ in bici è molto più lunga del contorno), le stelle non si leggono anche
 con un punteggio alto, e i 20 km passano per circa 1 km di gallerie e fino
 a 1,8 km di sterrato. Il miglioramento è un task nuovo. Mancano il cerchio
 da 20 km, Levico e Padova: quando Overpass riapre, una zona per luogo.
+
+**I campioni di Levico e Padova (2026-10-25)**, branch
+`chore/TASK-190-bike-samples-levico-padova`. Overpass ha risposto dal Mac
+(dall'indirizzo che accetta la connessione, `reachable`, con lo
+User-Agent di OSMnx). Una zona della bici per luogo, scaricata una volta
+sola col riquadro della ricerca lontana (`zone_area(..., FAR_OFFSET_M)`)
+di cuore, cerchio e stella a 20 km, dalla partenza e da punti a 200 m
+attorno (le partenze vicine sono a 25–100 m): 19,4 × 19,4 km per luogo,
+Trento 35.761 nodi in 421 s, Levico 13.324 in 113 s, Padova 61.143 in
+148 s (pickle 22, 10 e 32 MB), nessun rifiuto. Le zone hanno la bici a
+mano di TASK-206. Poi la CLI come l'API (`--activity cycling --nearby 3`)
+col motore di `main` `263e86d`: 1–5 s a campione (il 2026-10-03 erano
+2–34 s; la ricerca è più veloce da TASK-287). Partenze: Levico
+46.0122, 11.2986 (`TESTING.md`), Padova 45.3984, 11.8767 (Prato della
+Valle, il centro del catalogo di Padova), Trento Piazza Duomo.
+
+Giudicati dall'utente il 2026-10-25, un luogo per volta, con le immagini
+e i GPX: ha confermato ogni proposta dell'agente. Righe in
+`samples/LOG.md`. Con quelli di Trento del 2026-10-03:
+
+| Luogo | Cuore 10 | Cerchio 10 | Stella 10 | Cuore 20 | Cerchio 20 | Stella 20 |
+|---|---|---|---|---|---|---|
+| Trento | quasi (0,80) | quasi (0,77) | no (0,95) | quasi (0,85) | **sì (0,93)**, 2026-10-25 | no (0,93) |
+| Levico | no (0,82) | quasi (0,85) | no (0,94) | quasi (0,88) | quasi (0,71) | no (0,94) |
+| Padova | sì (0,95) | sì (0,95) | quasi (0,96) | sì (0,92) | sì (0,91) | sì (0,96) |
+
+Cosa si vede:
+
+- **In pianura la bici disegna come la corsa.** Padova: 0,91–0,96, fra 0,5
+  e 0,9 km con la bici a mano, nessuna strada principale né galleria; la
+  stella da 20 km è la prima stella in bici che si legge.
+- **In valle la rete è rada.** Levico: cuori e cerchi «quasi» (il cuore da
+  10 km «no»), le stelle «no» come a Trento. A 20 km un terzo del giro è
+  sterrato (6–7 km: le strade di campagna, `track`, che ADR-0153 tiene).
+  Il cerchio da 10 km ha 2,3 km con la bici a mano, più del «poco» di
+  ADR-0167: tutte e quattro le partenze provate ne hanno 1,9–2,3 km, quindi
+  dipende dal posto, non dalla scelta fra le partenze.
+- **Il cerchio da 20 km di Trento** è lo stesso percorso di
+  `TASK-206_circle_20km_trento_v1.gpx` (0,93, 18,2 km, 659 m a mano), ora
+  su una zona vera e col motore di oggi; restano 475 m di galleria e 1,1 km
+  di strade principali.
+- La forma resta rimpicciolita, al 53–81% della scala iniziale.
+
+**Nessuna correzione del motore né della rete della bici** (deciso
+dall'agente su delega dell'utente): i campioni non mostrano difetti nuovi.
+Quello che non va è già noto e deciso altrove: le stelle sulle reti rade
+(ADR-0167 ha misurato le leve, nessuna le aiuta), le gallerie stradali
+(seguito di ADR-0167), lo sterrato (una rete sola per bici da corsa e
+mountain bike, «Fuori scope»), i metri a piedi dove il posto li chiede
+(ADR-0167 ha scartato un tetto rigido). Se l'utente li vuole, sono task
+nuovi: la scelta della superficie, le gallerie fuori dalla rete della
+bici, un tetto ai metri con la bici a mano.
+
+**I 30 km** non sono stati fatti sul Mac: una zona di 26 km vuole due
+richieste grandi a Overpass per luogo. Il cerchio da 30 km è stato provato
+sul server il 2026-10-03 (qui sotto, 0,73). Le immagini dei campioni non
+sono nel repository: si rifanno dai GPX (`tools/preview_samples.py`).
+
+**La prova sul server.** Fatta dal coordinatore il **2026-10-03**, durante
+gli aggiornamenti di TASK-205 e TASK-206 (numeri dalla sua sessione,
+riportati qui il 2026-10-25):
+
+- 10:00Z, `main` `4b236f9`: la prima zona della bici, Trento,
+  dall'estratto: `bike_45.94940_10.95710_46.18350_11.29440`, 41 MB, 120 s,
+  picco di osmium 3,6 GB sotto `-m 4g` (vicino al limite per le città più
+  grandi); cerchi in bici da 10, 20 e 30 km in 22, 28 e 39 s, somiglianza
+  0,88, 0,87 e 0,73.
+- 12:39Z, `main` `7098cb9`: la zona rifatta con la bici a mano (TASK-206):
+  GraphML 72 MB e pickle 31 MB, 167 s, picco di Python 1,8 GB, di osmium
+  3,6 GB; un cerchio da 10 km con 6 tratti a mano (378 m). La zona di prima
+  è in `data/cache/before-task206/`.
+- Non misurata allora: la memoria dell'API con la zona della bici
+  caricata (`docker stats` dopo una richiesta in bici; stima di TASK-206
+  circa 0,3 GB in più).
+- La rete della bici (`network.py`) non è cambiata da allora (ultimo
+  commit `5fabeaa`, 2026-10-03): la zona sul server è ancora quella giusta.
+
+**La verifica leggera, pronta e non fatta** (2026-10-25). Apple sta
+rivedendo la 1.0 e il revisore usa il server. Il coordinatore ha permesso
+adesso solo le letture (`ls`, `docker stats`), e anche quelle, da questa
+sessione, il controllo dei permessi della modalità automatica le ha
+rifiutate («Production Reads»). Il cerchio da 10 km è un calcolo sull'API
+di produzione e scrive il percorso tenuto (`data/cache/routes/`): **dopo
+l'approvazione di Apple e con un sì dell'utente su questa verifica**, dato
+nella sessione che lancia i comandi (un ok passato da un'altra sessione la
+modalità automatica non lo accetta, TASK-122 il 2026-10-25). Come `root`:
+
+```bash
+# 1. Le zone della bici sul disco e la memoria prima (sole letture).
+ls -la /root/shaperoute/data/cache/ | grep bike_
+cd /root/shaperoute/deploy && docker stats --no-stream --format "{{.Name}} {{.CPUPerc}} {{.MemUsage}}"
+
+# 2. Un cerchio in bici da 10 km dal centro di Trento, nel container
+#    dell'API (la chiave resta sul server).
+docker compose exec -T api python - <<'EOF'
+import json, os, time, urllib.error, urllib.request
+HEADERS = {"Content-Type": "application/json",
+           "X-API-Key": os.environ.get("SHAPEROUTE_API_KEY", "")}
+def call(method, path, body=None):
+    data = None if body is None else json.dumps(body).encode()
+    request = urllib.request.Request("http://127.0.0.1:8000" + path, data=data,
+                                     method=method, headers=HEADERS)
+    try:
+        with urllib.request.urlopen(request, timeout=60) as answer:
+            return json.loads(answer.read())
+    except urllib.error.HTTPError as exc:
+        return json.loads(exc.read())
+began = time.time()
+job = call("POST", "/route-jobs", {"start": [46.0671, 11.1214],
+           "shape": "circle", "distance_m": 10_000, "activity": "cycling"})
+while job.get("status") not in ("done", "failed", None):
+    time.sleep(2)
+    job = call("GET", "/route-jobs/" + job["job_id"])
+result = job.get("result") or {}
+print(job.get("status"), (job.get("error") or {}).get("code"),
+      f"{time.time() - began:.0f} s", result.get("distance_m"),
+      result.get("similarity"), len(result.get("on_foot") or []),
+      result.get("warnings"))
+EOF
+
+# 3. La memoria dopo, e il log.
+docker stats --no-stream --format "{{.Name}} {{.CPUPerc}} {{.MemUsage}}"
+docker compose logs --since 10m api | grep -E "graph from|job "
+```
+
+`start` è `[lat, lon]`, come in
+`packages/shared-types/fixtures/route-request-cycling.json`. Cosa ci si
+aspetta: un `bike_45.94940_10.95710_46.18350_11.29440`
+(GraphML circa 72 MB, pickle circa 31 MB) e la cartella `before-task206/`;
+il cerchio `done` in meno dei 22 s del 2026-10-03 (la ricerca è più veloce
+da TASK-287; la prima richiesta legge la zona dal disco), somiglianza
+circa 0,85–0,9, circa 10 km, qualche tratto `on_foot`; nel log `graph from
+disk (bike_…)` e nessun `downloading_map`; l'API circa 0,3 GB più grande
+dopo la richiesta, mai oltre 1,1 GB (la forbice di TASK-206). Niente da
+annullare: la richiesta scrive solo il suo percorso tenuto, come ogni
+richiesta.
 
 ## Note per il deploy
 

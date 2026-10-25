@@ -751,6 +751,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Mancano il cerchio da 20 km, Levico e Padova, quando Overpass riapre. Il
   miglioramento delle forme in bici è TASK-206, qui sotto. Da dove
   riprendere: il task file, «Esito», «I campioni».
+  **Chiuso il 2026-10-25**: Levico, Padova e il cerchio da 20 km giudicati
+  dall'utente, la prova sul server del 2026-10-03 scritta nel task file;
+  la voce è in «Completato».
 - **TASK-232 — Forme inclinate fino a 45°, con la mappa girata**
   (ADR-0195; Todo, chiesto dall'utente il 2026-10-05): il motore inclina
   ogni forma fino a ±45° quando segue meglio le strade (oggi ±15°,
@@ -1081,6 +1084,27 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Motore, API e app** — TASK-190 (ADR-0153; chiuso il 2026-10-25): i
+  percorsi in bici, parti A, B e C in `main` dal 2026-10-02 (PR #214, #219,
+  #221). I campioni sono tutti giudicati dall'utente: oltre ai cinque di
+  Trento del 2026-10-03, il 2026-10-25 il cerchio da 20 km di Trento «sì»
+  (0,93), Levico cuore 10 «no», cerchio 10 «quasi», stella 10 «no», cuore
+  20 «quasi», cerchio 20 «quasi», stella 20 «no» (0,71–0,94; a 20 km un
+  terzo di sterrato, il cerchio da 10 km con 2,3 km di bici a mano per il
+  posto), Padova «sì» per cuori, cerchi e stella da 20 km, «quasi» la stella
+  da 10 (0,91–0,96: in pianura la bici disegna come la corsa). Zone
+  scaricate da Overpass sul Mac, una per luogo; motore di `main` `263e86d`,
+  1–5 s a campione. Nessuna correzione del motore: i difetti visti (stelle
+  in valle, gallerie, sterrato, metri a piedi dove il posto li chiede) sono
+  già noti in ADR-0167 e «Fuori scope». La prova vera sul server è quella
+  del coordinatore del 2026-10-03 (TASK-205 e TASK-206: zona di Trento
+  dall'estratto, 72 + 31 MB, 167 s, osmium 3,6 GB; cerchi 10/20/30 km in
+  22/28/39 s, 0,88/0,87/0,73), ora scritta nel task file. **Resta**: una
+  verifica leggera sul server (le zone `bike_*`, un cerchio da 10 km,
+  `docker stats`), pronta coi comandi nel task file, dopo l'approvazione di
+  Apple e con un sì dell'utente; la domanda 1 («Explore» e «Feed» con
+  «Bike»), che resta dell'utente. PR dei campioni sul branch
+  `chore/TASK-190-bike-samples-levico-padova`. `tasks/TASK-190.md`.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
