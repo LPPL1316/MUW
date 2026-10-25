@@ -272,7 +272,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo). Solo app; testi della notifica approvati dall'utente il
   2026-10-23. **PR #543**. La prova su Android vero si fa con la B. Account
   Google Play personale creato dall'utente il 2026-10-25 («Luca
-  Pallaoro»), in attesa delle verifiche di Google. **B** (ADR-0253): package,
+  Pallaoro»), in attesa delle verifiche di Google. **A in `main`** con la
+  #543 (`1dfc440e`, 2026-10-25, merge su via dell'utente). Pacchetto
+  Android `app.getmuw.android` (scelta dell'utente del 2026-10-25).
+  **B** (ADR-0253), branch `feat/TASK-294-b-play-build`: package,
   Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
   pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
@@ -298,6 +301,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-19. File: `tasks/TASK-292.md`.
   **Chiuso**: in `main` con la #527 (`b35d461c`, 2026-10-19), mergiata
   dal Coordinatore; vedi «Completato».
+- **TASK-291 — Ogni segnalazione arriva per email, con un link che
+  nasconde** (ADR-0251; chiesto dall'utente il 2026-10-17 dopo la mail di
+  Apple sulla regola 1.2). Solo API: a ogni segnalazione nuova un'email a
+  chi gestisce MuW con il link «Hide» (firmato, 7 giorni, una volta, con
+  «Undo»); disegni, commenti e iscritti nascosti agli altri, non
+  all'autore. Migrazione `0024_hidden_content.sql`. Entra **dopo la
+  #502**, poi usa il suo `resend_email.py`; server dopo Apple, con la
+  privacy della parte B di TASK-284. File: `tasks/TASK-291.md`.
+  **Chiuso**: in `main` con la #525 (2026-10-25, dopo la #502), sul
+  «mergia» dell'utente; vedi «Completato».
 - **TASK-288 parte B — Il pool di connessioni** (aggiunta ad ADR-0249;
   sì dell'utente del 2026-10-16 al Coordinatore: «sì, aggiungi il pool di
   connessioni»). Branch `feat/TASK-288-b-connection-pool`. Dipendenza
@@ -411,6 +424,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pubblicata, approvazione di Apple e chiave di Resend con il dominio
   verificato (lo fa l'utente, `DEPLOY.md` «Email di ritorno»). File:
   `tasks/TASK-284.md`.
+  **Parte A in `main`** con la #502 (`263e86db`, 2026-10-25, sul
+  «finiscila» dell'utente), migrazione `0023_away_email.sql`; spenta finché
+  il server non ha chiave, segreto e dominio. Resta la parte B, dopo #461.
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
@@ -561,6 +577,34 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso**: in `main` con la #489 (2026-10-25, «ok finiscilo»
   dell'utente); server, `draw_examples` e motore sul telefono restano al
   Coordinatore; vedi «Completato».
+- **TASK-262 C — Amici dalla rubrica** (ADR-0226; scelta dell'utente del
+  2026-10-08, che è il suo sì a `expo-contacts` e alla ricerca per hash).
+  Branch `feat/TASK-262-c-contacts`. **App fatta**: in «Find friends»,
+  sotto la ricerca per nome, «Find friends in your contacts»; il permesso
+  solo al tocco, i numeri in E.164 con la regione del telefono, SHA-256,
+  500 per richiesta, e gli iscritti trovati con «Follow». **API scritta**
+  (`contact_people.py`, `POST /people/from-contacts`; gli hash non si
+  tengono, provato da un test su database e log; 30 richieste all'ora per
+  account; i bloccati mai, nei due versi): **entra dopo TASK-121**, di cui
+  usa `apart_sql`. Privacy nuova del 9 ottobre 2026 nelle cinque lingue,
+  con le pagine del sito rigenerate. **Aspetta**: «121 in main», poi il
+  merge di #451 (262 A), poi il sì dell'utente su testi e privacy, poi
+  «merge NNN»; il server con l'ok dell'utente, dal coordinatore.
+  File: la PR, «File toccati» (la sezione C di `tasks/TASK-262.md` dopo
+  il merge di A).
+  **Aggiornamento 2026-10-10**: API in (dopo 121), provata nel simulatore,
+  ADR-0226 aggiunta e sezione C del task file scritte, privacy del 10
+  ottobre approvata dall'utente. **PR #461 pronta e ferma** per scelta del
+  coordinatore fino all'approvazione di Apple della 1.0; poi «merge 461»,
+  server, sito, preview, e la 1.0.1 nativa. Come riprendere: «Dove si è»
+  in `tasks/TASK-262.md`, parte C.
+  **Aggiornamento 2026-10-25**: `main` unito di nuovo, privacy datata 25
+  ottobre 2026, test verdi. **Ferma sull'impronta**: `expo-contacts` porta
+  l'impronta iOS da `83793e26` (la 1.0) a `9337973a`; l'utente sceglie
+  quando unirla (con la 1.0.1, subito, o subito con `expo-contacts` escluso
+  dalla build nativa, che tiene `83793e26`). «Dove si è (2026-10-25)» nel
+  task file.
+  **Chiuso con la #461** (scelta dell'utente: la terza); vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -1149,6 +1193,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   server nella Console ora si chiama `muw`, il progetto `MuW`. L'iscrizione
   dall'iPhone la conferma l'utente. **TASK-122 è Done**; resta da guardare il
   2026-10-26 il primo invio notturno. `tasks/TASK-122.md`, `DEPLOY.md` F.13.
+- **API** — TASK-291 (ADR-0251; chiesto dall'utente il 2026-10-17): ogni
+  segnalazione nuova arriva per email a chi gestisce MuW, con il link
+  firmato «Hide» (7 giorni, una volta, con «Undo»); il nascosto sparisce
+  agli altri, non all'autore. Migrazione `0024_hidden_content.sql`. Invia
+  con `resend_email.py` di TASK-284 A (#502): un solo codice parla con
+  Resend, le stesse `RESEND_API_KEY` e `SHAPEROUTE_EMAIL_SECRET`. In
+  `main` con la #525 (2026-10-25). **Spenta** finché il server non ha
+  anche `SHAPEROUTE_REPORTS_TO`; prima la privacy che nomina Resend (parte
+  B di TASK-284), poi il server dal Coordinatore dopo Apple e col sì
+  dell'utente. `tasks/TASK-291.md`.
 - **App** — TASK-210 parte H, la chiusura della lingua dell'app (aggiunta
   ad ADR-0172): letto tutto il codice dell'app in cerca di testi fuori da
   `t()`, tradotti gli ultimi che si vedono o si sentono: la riga sotto la
@@ -1187,6 +1241,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Coordinatore dopo Apple e con il sì dell'utente; i percorsi già
   calcolati tengono le indicazioni vecchie finché non si rifanno. PR #489.
   `tasks/TASK-271.md`.
+- **App + API** — TASK-262 C (ADR-0226, aggiunte del 2026-10-10 e del
+  2026-10-25): gli amici dalla rubrica. In «Find friends», sotto la
+  ricerca per nome, «Find friends in your contacts»: il permesso solo al
+  tocco, dal telefono escono solo gli SHA-256 dei numeri in E.164, il
+  server (`POST /people/from-contacts`) li confronta con i numeri salvati
+  e non ne tiene nessuno; mai i bloccati, 30 ricerche all'ora per account.
+  Privacy del 25 ottobre 2026 nelle cinque lingue e in `site/privacy/`.
+  **`expo-contacts` è escluso dalla build nativa** (scelta dell'utente del
+  2026-10-25): l'impronta iOS resta `83793e26` e gli update arrivano
+  ancora alla 1.0, dove la sezione non si vede; su preview (Expo Go) sì.
+  Alla prossima build nativa (1.0.1 iOS, prima Android di TASK-294 B) si
+  toglie l'esclusione e si rimette il plugin: «Alla prossima build
+  nativa» in `tasks/TASK-262.md`. PR #461. **Restano**, del coordinatore
+  con l'ok dell'utente: il server (nessuna migrazione), la copia del sito
+  (F.14), preview.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul

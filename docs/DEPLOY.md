@@ -455,6 +455,48 @@ link does not work» e può spegnerla in «Settings»). La chiave, come ogni
 chiave, mai in un file del repository o in una chat; se finisce dove non
 deve, da Resend se ne crea una nuova e si cancella la vecchia.
 
+## Email delle segnalazioni (TASK-291)
+
+Ogni segnalazione nuova arriva per email a chi gestisce MuW, con un link
+che nasconde la cosa segnalata (`API.md`, «Report emails»; ADR-0251).
+Spenta finché `deploy/.env` non ha `RESEND_API_KEY`,
+`SHAPEROUTE_EMAIL_SECRET`, `SHAPEROUTE_DOMAIN` e `SHAPEROUTE_REPORTS_TO`.
+**Prima di accenderla**: la privacy che nomina Resend (con la parte B di
+TASK-284) e l'ok del coordinatore per il server.
+
+1. Resend, la chiave e il segreto dei link sono gli stessi dell'email di
+   ritorno (sopra, «Email di ritorno», punti 1 e 2): se ci sono già, non
+   si rifanno. Senza, si fanno lì.
+2. L'indirizzo di chi gestisce lo scrive l'utente sul server, con un
+   comando che non lo mostra:
+
+   ```bash
+   cd /root/shaperoute/deploy
+   read -r -p "Reports to: " T && printf 'SHAPEROUTE_REPORTS_TO=%s\n' "$T" >> .env; unset T
+   ```
+
+   I link sono `https://<SHAPEROUTE_DOMAIN>/report-link?t=…`: si aprono
+   senza la chiave dell'API.
+3. L'API nuova, che al primo avvio applica la migrazione
+   `0024_hidden_content.sql`, come ogni aggiornamento del server:
+
+   ```bash
+   cd /root/shaperoute && git pull
+   cd deploy && docker compose up -d --build
+   docker compose logs api | grep -E "Accounts|report"
+   ```
+
+   «Each new report is emailed» dice che è accesa; «Reports are not
+   emailed» che manca qualcosa.
+4. La prova: dall'app un account di prova segnala un disegno di un altro
+   account di prova. Arriva l'email; «Hide» apre la pagina che chiede,
+   il pulsante nasconde, «Undo» rimette com'era.
+
+Per spegnerla basta togliere `SHAPEROUTE_REPORTS_TO` e `docker compose up
+-d`: le segnalazioni restano nel database come prima. Il nascosto resta
+nascosto finché non si rimostra, dal link o a mano (`DATABASE.md`,
+migrazione `0024`).
+
 ## Il registro delle richieste e le posizioni
 
 L'API può scrivere ogni richiesta di percorso in un file, per rifarla
@@ -1343,3 +1385,174 @@ vanno cambiati tutti e due insieme (l'utente su
 Hugging Face Spaces (Docker ora a pagamento), Render e Koyeb gratis
 (512 MB di RAM, niente disco permanente), Cloudflare Workers (troppo poca
 memoria). Il perché è in ADR-0076.
+
+## G — Android e Google Play (TASK-294)
+
+La stessa app dell'iPhone, costruita per Android da EAS e distribuita da
+Google Play (ADR-0253). Il pacchetto è `app.getmuw.android`
+(`android.package` in `app.json`): è definitivo. Le parti che toccano
+account, chiavi e caricamenti le fa l'utente; i comandi sono qui. Le
+impostazioni solo Android non cambiano il runtime della build iPhone
+(`fingerprint.config.js`, `ANDROID_ONLY`): prima di una PR che le tocca
+si rimisura l'impronta iOS come in A.7, punto 4.
+
+### G.1 L'account (lo fa l'utente)
+
+Account **personale** Google Play Console (25 $ una volta), con
+`muw2610@gmail.com`. Dopo il pagamento Google verifica l'identità (un
+documento, qualche giorno), chiede di entrare nell'app **Google Play
+Console** da un telefono Android vero e di confermare il telefono di
+contatto. Finché le tre verifiche non sono chiuse «Crea app» è bloccato.
+Un account personale nuovo pubblica solo dopo un **test chiuso con
+almeno 12 tester per 14 giorni di fila** (G.5).
+
+### G.2 Firebase, per le push (lo fa l'utente)
+
+Su Android il servizio push di Expo consegna tramite Firebase Cloud
+Messaging. Una volta sola:
+
+1. Su <https://console.firebase.google.com>, con `muw2610@gmail.com`, un
+   progetto «MuW» (Google Analytics spento). **Aggiungi app › Android**
+   con il pacchetto `app.getmuw.android`; scarica `google-services.json`.
+2. Il file va su EAS come variabile **file**, mai nel repository
+   (`app.config.ts` lo legge solo quando c'è). Da `apps/mobile`, con il
+   file scaricato in `~/Downloads`:
+
+   ```
+   npx eas-cli env:create --environment production --name GOOGLE_SERVICES_JSON --type file --value ~/Downloads/google-services.json --visibility secret --scope project
+   npx eas-cli env:create --environment preview --name GOOGLE_SERVICES_JSON --type file --value ~/Downloads/google-services.json --visibility secret --scope project
+   ```
+
+3. La chiave che il servizio push di Expo usa per Android: in Firebase,
+   **Impostazioni progetto › Account di servizio › Genera nuova chiave
+   privata** (un file JSON), poi:
+
+   ```
+   npx eas-cli credentials --platform android
+   ```
+
+   profilo `production` › **Google Service Account** › «Manage your Google
+   Service Account Key for Push Notifications (FCM V1)» › carica il file.
+4. Cancella i due file da `~/Downloads`. Il server non cambia: l'API manda
+   già le notifiche a Expo (ADR-0226).
+
+### G.3 La build
+
+- **Per il telefono dell'utente**, prima dei tester: un APK del profilo
+  `preview` (canale `preview`, runtime `exposdk:57.0.0` come Expo Go),
+  da installare dal link che EAS mostra a build finita:
+
+  ```
+  npx eas-cli build --platform android --profile preview
+  ```
+
+- **Per Google Play**: un AAB del profilo `production` (`APP_VARIANT`,
+  runtime dall'impronta Android, `versionCode` da EAS):
+
+  ```
+  npx eas-cli build --platform android --profile production
+  ```
+
+  La prima build **si carica a mano** (G.4): Google non accetta il primo
+  caricamento di un'app dall'API. Dalla seconda in poi, con la chiave di
+  G.6, `--auto-submit` la manda da solo alla traccia del test chiuso
+  (`submit.production.android` in `eas.json`).
+
+La chiave di firma la crea e la tiene EAS (`eas credentials`); Google
+Play la avvolge con la sua (Play App Signing) al primo caricamento.
+
+### G.4 L'app nella console e il primo caricamento
+
+Nella Play Console, **Crea app**: nome «MuW», lingua predefinita inglese
+(Stati Uniti) come su App Store, app (non gioco), **gratuita** (non si
+può più rendere a pagamento). Poi, nell'ordine della pagina «Dashboard»:
+
+1. **Scheda dello store**: i testi di `apps/mobile/store.config.json`
+   (titolo, descrizione breve fino a 80 caratteri, descrizione), l'icona
+   512×512 e l'immagine in evidenza 1024×500 (`docs/brand`, generate con
+   lo script in `out/play/`), gli screenshot del telefono (quelli
+   dell'iPhone vanno bene: almeno due, da 320 a 3840 px, rapporto 16:9 o
+   9:16), email di contatto `muw2610@gmail.com`, sito `https://getmuw.app`,
+   privacy `https://getmuw.app/privacy/`.
+2. **Contenuti dell'app**: norme sulla privacy; «Annunci»: no; «Accesso
+   all'app»: le credenziali dell'account di prova della revisione Apple;
+   «Classificazione dei contenuti»: il questionario (nessuna violenza,
+   contenuti generati dagli utenti: sì, con segnalazione e blocco);
+   «Pubblico di destinazione»: dai 18 anni (l'app chiede di avere almeno
+   16 anni; scegliendo 13–17 Google chiede di più); «App di notizie»: no;
+   «Funzionalità di sicurezza dei dati» (G.7); «App governative»: no;
+   «Funzionalità finanziarie»: nessuna; «Salute»: app per fitness, senza
+   dati sanitari; «Eliminazione dell'account»: l'indirizzo di
+   `https://getmuw.app/account-deletion/` (parte C) e il percorso in app
+   «Settings › Delete account»; **servizio in primo piano**: tipo
+   «location», motivo «registra un'attività sportiva avviata
+   dall'utente, a schermo bloccato», con un video della corsa con la
+   notifica.
+3. **Test › Test chiuso › Alpha**: una release nuova, l'AAB di G.3
+   caricato dal Mac, note di rilascio; i tester in un elenco di email
+   (fino a 100) o un gruppo Google; i Paesi; **Avvia il rollout**. La
+   console dà il link da mandare ai tester, che devono **accettare
+   l'invito** e installare l'app.
+
+### G.5 I 14 giorni e la produzione
+
+Il conteggio parte quando almeno 12 tester hanno accettato e installato
+l'app, e vale solo per i giorni in cui restano almeno 12: un tester che
+esce azzera il conto. Le build nuove nel frattempo vanno sulla stessa
+traccia (G.3, `--auto-submit`). Dopo i 14 giorni, nella console
+«Richiedi l'accesso alla produzione»: Google fa qualche domanda sul test
+(cosa hanno trovato i tester, cosa è cambiato) e risponde in qualche
+giorno. Poi **Produzione › Crea release** con la stessa build, e la
+revisione di Google (da ore a giorni per la prima).
+
+### G.6 L'invio dall'API, dalla seconda build (lo fa l'utente)
+
+1. Nella Play Console, **Utenti e autorizzazioni › Invita nuovi utenti**,
+   oppure da Google Cloud: un **service account** nel progetto Firebase
+   (Google Cloud › IAM › Service accounts › Crea), con una chiave JSON;
+   nella Play Console si invita la sua email con i permessi «Rilascia app
+   nelle tracce di test» e «Gestisci le release di produzione».
+2. La chiave su EAS, mai nel repository:
+
+   ```
+   npx eas-cli credentials --platform android
+   ```
+
+   profilo `production` › **Google Service Account** › «Manage your Google
+   Service Account Key for Play Store Submissions» › carica il JSON, poi
+   cancella il file.
+3. Da allora `npx eas-cli build --platform android --profile production
+   --auto-submit`, o per una build già fatta
+   `npx eas-cli submit --platform android --id ID-DELLA-BUILD`.
+
+### G.7 Sicurezza dei dati: cosa dichiarare
+
+Dalla privacy (`site/privacy`), per il modulo di Google Play:
+
+| Dato | Raccolto | Condiviso | Perché |
+|---|---|---|---|
+| Posizione precisa | sì, in primo piano e, durante un'attività, in secondo piano | no | tracciare il percorso, la partenza di un disegno |
+| Email, nome utente | sì | no | l'account |
+| Numero di telefono | facoltativo | no | l'account |
+| Foto scelte dall'utente | sì, una volta, non conservate | no | il contorno di un disegno |
+| Contenuti degli utenti (disegni, commenti, corse) | sì | no (visibili agli altri iscritti se pubblicati) | la parte social |
+| ID del dispositivo per le push | sì, solo con le push accese | con Expo e Google (FCM) | le notifiche |
+| Registri delle ricerche | sì, senza identità | no | migliorare la ricerca |
+
+Nessun dato per pubblicità; nessun SDK pubblicitario nella build dello
+store (ADR-0237); i dati si cancellano con l'account; i dati in transito
+sono cifrati (HTTPS). Niente contatti nella prima build (ADR-0253).
+
+### G.8 Gli update
+
+Un update del canale `production` (A.7, punto 3) arriva alla build
+Android con la stessa impronta Android:
+
+```
+APP_VARIANT=production npx expo-updates runtimeversion:resolve --platform android --workflow managed
+```
+
+da confrontare con quello della build su expo.dev, come per iOS. Una
+modifica solo Android (il pacchetto, le opzioni del plugin, i permessi
+del servizio, `google-services.json`) cambia l'impronta Android e non
+quella iOS; una libreria nuova le cambia tutte e due.
