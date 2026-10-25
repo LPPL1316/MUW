@@ -1251,4 +1251,42 @@ export const ES: Table = {
   "New shape unlocked: {name}": "Nueva forma desbloqueada: {name}",
   "It is in your collection.": "Está en tu colección.",
   "See collection": "Ver la colección",
+
+  // src/navigation/runPosition.ts, the Android notification of a run (TASK-294)
+  "MuW is recording your activity": "MuW está registrando tu actividad",
+  "It keeps going with the screen locked, voice included.":
+    "Sigue con la pantalla bloqueada, voz incluida.",
+
+  // src/location/startStatus.ts, src/screens/ChooseScreen.tsx,
+  // src/explore/ExploreScreen.tsx, ThemedCard.tsx, src/screens/NavigateScreen.tsx,
+  // RunPanel.tsx, src/navigation/runStats.ts, src/intro/SavedLogo.tsx
+  // (TASK-210, parte H)
+  "Starting from your position.": "Sales desde tu posición.",
+  "Starting from {place}.": "Sales desde {place}.",
+  "Starting from a point on the map.": "Sales desde un punto del mapa.",
+  "Search for a city or street to start from.":
+    "Busca una ciudad o una calle desde donde salir.",
+  "Location is off for MuW. Allow it in Settings, or search for a place to start from.":
+    "La ubicación está desactivada para MuW. Permítela en Ajustes o busca un lugar desde donde salir.",
+  "Your position is not available right now. Search for a place to start from.":
+    "Tu posición no está disponible ahora. Busca un lugar desde donde salir.",
+  START: "SALIDA",
+  "My position": "Mi posición",
+  "Another place": "Otro lugar",
+  "No recommended routes near this start yet. Draw one: the best ones will show up here.":
+    "Aún no hay rutas recomendadas cerca de esta salida. Dibuja una: las mejores aparecerán aquí.",
+  "{distance} away": "a {distance}",
+  "Finding the places and drawing the shape through them… This can take a minute.":
+    "Buscando los lugares y dibujando la forma que pasa por ellos… Puede tardar un minuto.",
+  "{percent}% drawn": "{percent}% dibujado",
+  N: "N",
+  NE: "NE",
+  E: "E",
+  SE: "SE",
+  S: "S",
+  SW: "SO",
+  W: "O",
+  NW: "NO",
+  "{distance} to go": "faltan {distance}",
+  "Saved to My activities": "Guardada en Mis actividades",
 };

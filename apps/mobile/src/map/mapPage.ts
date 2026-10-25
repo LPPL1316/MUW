@@ -44,9 +44,9 @@ export function mapStyle(language: Language) {
 }
 
 /**
- * The style of the Feed's maps (`feed/feedMapPage.ts`), in the app's
- * language when the app opened: the Feed follows a new language with
- * TASK-210's part G.
+ * The style in the app's language when the app opened. The Feed's maps
+ * (`feed/feedMapPage.ts`) take `mapStyle(language)` instead, and follow a
+ * new language (TASK-210, part H).
  */
 export const MAP_STYLE = mapStyle(appLanguage());
 

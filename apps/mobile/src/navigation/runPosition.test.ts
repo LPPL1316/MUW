@@ -1,12 +1,14 @@
 /**
  * The run's positions with the app in the background (TASK-261, ADR-0225):
- * a task of expo-task-manager on iOS when the app can have it, the GPS in
- * the foreground only otherwise, as before.
+ * a task of expo-task-manager on iOS, and on Android in a service with its
+ * notification (TASK-294), when the app can have it; the GPS in the
+ * foreground only otherwise, as before.
  */
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import { Platform } from "react-native";
 
+import { color } from "../theme/tokens";
 import { RUN_LOCATION_TASK, watchRunPosition } from "./runPosition";
 
 jest.mock("expo-location", () => ({
@@ -226,8 +228,53 @@ test("a task manager that cannot work, or fails to say, means the front only", a
   expect(Location.startLocationUpdatesAsync).not.toHaveBeenCalled();
 });
 
-test("on Android the GPS is followed in front, as before", async () => {
+test("on Android the positions come from the task, in a service with its notification (TASK-294)", async () => {
   jest.replaceProperty(Platform, "OS", "android");
+  const positions: number[] = [];
+  const watch = await watchRunPosition(OPTIONS, (position) => {
+    positions.push(position.timestamp);
+  });
+
+  expect(watch.background).toBe(true);
+  expect(Location.startLocationUpdatesAsync).toHaveBeenCalledWith(RUN_LOCATION_TASK, {
+    accuracy: Location.Accuracy.BestForNavigation,
+    distanceInterval: 5,
+    // «While using» is enough: Android shows the run as a notification.
+    foregroundService: {
+      notificationTitle: "MuW is recording your activity",
+      notificationBody: "It keeps going with the screen locked, voice included.",
+      notificationColor: color.accent,
+      // Closing the app ends the GPS; the run reopens paused (TASK-272).
+      killServiceOnDestroy: true,
+    },
+  });
+  expect(Location.watchPositionAsync).not.toHaveBeenCalled();
+
+  await deliver([at(1), at(2)]);
+  expect(positions).toEqual([1000, 2000]);
+  watch.remove();
+  await settle();
+  expect(Location.stopLocationUpdatesAsync).toHaveBeenCalledWith(RUN_LOCATION_TASK);
+  jest.restoreAllMocks();
+});
+
+test("on Android a service the phone refuses (the app not in front) means the front only", async () => {
+  jest.replaceProperty(Platform, "OS", "android");
+  jest
+    .mocked(Location.startLocationUpdatesAsync)
+    .mockRejectedValue(new Error("Couldn't start the foreground service"));
+  const onPosition = jest.fn();
+
+  const watch = await watchRunPosition(OPTIONS, onPosition);
+
+  expect(watch.background).toBe(false);
+  expect(Location.watchPositionAsync).toHaveBeenCalledWith(OPTIONS, onPosition);
+  watch.remove();
+  jest.restoreAllMocks();
+});
+
+test("elsewhere than iOS and Android (the web) the GPS is followed in front", async () => {
+  jest.replaceProperty(Platform, "OS", "web");
   jest.mocked(Location.isBackgroundLocationAvailableAsync).mockClear();
   const watch = await watchRunPosition(OPTIONS, jest.fn());
   expect(watch.background).toBe(false);
