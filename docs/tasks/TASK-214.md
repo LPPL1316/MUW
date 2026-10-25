@@ -5,7 +5,9 @@
 («Settings» e l'avviso) dalla #295, la parte A2 (il tetto del traffico)
 dalla #330, la parte B2 (le zone in più) dalla #337, le città vicine
 (B2b) dalla #341. Le zone del telefono sono sul server e B2/B2b su
-«preview» dal 2026-10-05: resta D, la prova sull'iPhone.
+«preview» dal 2026-10-05. La parte D, la prova sull'iPhone, l'ha fatta
+l'utente il 2026-10-25: «funziona ma cerca di migliorarlo». Segue un
+miglioramento, da misurare e proporre all'utente (parte nuova).
 **Fase**: 4 · **Branch**: il task file con la #258; il codice in
 `feat/TASK-214-…`, una PR per parte · **ADR**: ADR-0177
 
@@ -701,7 +703,44 @@ pulito, tutte sotto TASK-214 e ADR-0177):
    dopo la #323 (TASK-236).
 4. **D**, la prova sull'iPhone: fissa i limiti di distanza. Le zone del
    telefono sono sul server dal 2026-10-05 (sotto): la prova è
-   dell'utente, con l'app di «preview».
+   dell'utente, con l'app di «preview». Fatta il 2026-10-25, sopra.
+
+**Parte D, la prova sull'iPhone** (2026-10-25). L'ha fatta l'utente, sul
+suo iPhone, con l'app che usa le zone del server dal 2026-10-05. Le sue
+parole: «funziona ma cerca di migliorarlo». La prova dice che il telefono
+disegna; i numeri dei criteri ancora aperti (tempi e memoria sull'iPhone,
+impronte confrontate, cuore senza rete) non li ha dati la prova: vengono
+dalle misure del miglioramento, nella parte che segue.
+
+**Le misure dopo D** (2026-10-25, dell'agente, sul Mac M4; dettagli in
+`out/task214-miglioramento/misure.md`, ignorata da git). Zona di Trento
+`foot` come quella che il server dà al telefono (7,4 × 7,4 km, 2,7 MB):
+
+- **La zona è piccola.** Il server dà la zona più piccola con 3 km intorno
+  al punto (`ZONE_MARGIN_M`). Il ritaglio del motore va da 1,4–2,1 km (3 km)
+  a 2,1–3,8 km (8 km, 6 forme su 17 oltre 3 km), e la ricerca «più lontano»
+  chiede 3,2–4,3 km. Sul codice del telefono, 8 richieste fino a 8 km:
+  dal centro della zona 7 disegnate sul telefono; da 1,5 km più in là 1;
+  da 2,5 km nessuna. Le altre vanno al server con `map_data_unavailable`,
+  in meno di 0,1 s. Da una partenza scelta sulla mappa, o senza rete
+  lontano da dove si è aperta l'app, il telefono non disegna.
+- **Tempi.** Stesso percorso dai tre. Cuore da 5 km: server sullo stesso Mac
+  2,4 s, telefono in CPython 5,2 s, in Pyodide 9,6 s (le altre: 2,6–8,9 s).
+  Pyodide è circa 1,8× CPython; le partenze vicine una dopo l'altra fanno
+  il 65% del lavoro. Il server vero ci mette 9–12 s per lo stesso cuore: il
+  telefono non è più veloce, ma lavora senza rete e senza il server.
+- **Le partenze vicine contano**: in 44 lavori su 76 il percorso scelto è
+  di una partenza vicina. Le scadenze del server applicate sul telefono non
+  fanno risparmiare niente in mediana a questa velocità.
+- **Memoria.** Python avviato 79 MB, 196–338 MB dopo i percorsi; la zona
+  costa circa 21 MB di memoria per MB di file (Trento 0,78 s e +57 MB).
+- **I log del server non sono letti**: la lettura via `ssh` è stata
+  bloccata dai permessi della sessione.
+
+Proposte all'utente, in attesa della sua scelta: (1, raccomandata) una
+zona con 6 km intorno, sotto ~10 MB, letta all'apertura; (2) un segnale
+anonimo a ogni percorso, per avere i numeri degli iPhone; (3) le scadenze
+del server sul telefono (tocca `route_engine`: un task suo).
 
 **Seguito fuori dal task**: una scadenza per le partenze vicine anche senza
 processi, in `route_engine`, in un task suo. Il telefono disegnerebbe
