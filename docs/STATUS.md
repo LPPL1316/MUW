@@ -267,6 +267,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
   iscritti e i testi delle tre push sono approvati dall'utente
   (2026-10-24). Server dopo Apple, con l'ok dell'utente.
+  **Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
+  Coordinatore su richiesta dell'utente a CI verde. Restano D ed E.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
