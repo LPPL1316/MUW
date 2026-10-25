@@ -8311,7 +8311,8 @@ testi nuovi in fondo alle tabelle (dopo il merge della parte E):
 «{list} or {last}», «Start here», «NEAR {city}», «here».
 
 **Aggiunta** (2026-10-25, TASK-210 parte H, la chiusura; deciso
-dall'agente su delega dell'utente, testi da far approvare all'utente): (1)
+dall'agente su delega dell'utente, testi approvati dall'utente il
+2026-10-25, «va bene procedi»): (1)
 **Le lettere dei punti cardinali** sul riquadro della corsa si traducono
 come i nomi (`tLater` in `runStats.ts`, `t()` dove si mostrano): «SO»,
 «O» in italiano, spagnolo e francese, «NO», «O», «SO» in tedesco; chi

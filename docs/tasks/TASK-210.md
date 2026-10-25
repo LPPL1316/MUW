@@ -113,7 +113,8 @@ Parte H (la chiusura):
 - [x] In inglese i testi restano quelli di prima; cambia solo quello che
       VoiceOver dice sulla direzione della corsa («Heading north», come
       nella corsa senza percorso, invece di «Heading N»).
-- [ ] I testi nuovi approvati dall'utente (`out/task-210-h-testi.md`).
+- [x] I testi nuovi approvati dall'utente il 2026-10-25 («va bene
+      procedi», su `out/task-210-h-testi.md`).
 
 ## File toccati
 
@@ -512,7 +513,9 @@ position…», «your start», «Heading {direction}», «Paddle», «Bike» e
 «Image» erano già tradotti. Test: `i18n/LastTextsItalian.test.tsx`,
 `feed/FeedMapsLanguage.test.tsx`; in `NavigateScreen.test.tsx`
 «Heading north» al posto di «Heading N», in `shownInMiles.test.tsx`
-«Explore» in italiano con la virgola («a 1,4 km»). **Lasciati in inglese, di
+«Explore» in italiano con la virgola («a 1,4 km»). **Testi approvati
+dall'utente** il 2026-10-25 («va bene procedi»), con i titoli dei post
+d'esempio lasciati in inglese. **Lasciati in inglese, di
 proposito**: i titoli dei post d'esempio del Feed (sono i titoli di
 corridori inventati, come quelli che scrive un iscritto), i nomi delle
 città nelle scorciatoie di «Explore» (parte C), «STRAVA», «MuW», i
