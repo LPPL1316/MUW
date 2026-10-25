@@ -191,6 +191,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `jobs.py` va anche sul telefono: `engine.zip` rifatto (da pubblicare su
   `preview`), il telefono senza archivio disegna come prima (test).
   Server dopo Apple, con l'ok dell'utente e il paragrafo della privacy.
+  **Parte A** in `main` con la #539 (`0c4ada00`, 2026-10-25), mergiata dal
+  Coordinatore: impronta iOS invariata (`83793e26`), su `preview` (gruppo
+  `e0e4e126`) con l'`engine.zip` nuovo. L'archivio lavora solo sul server:
+  dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
+  TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
+  **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
@@ -507,6 +513,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `useNavigation.ts` come TASK-272: l'ordine lo dà il Coordinatore.
   File: `tasks/TASK-273.md`, «File toccati».
   **Chiuso con la #493** (dopo la #492); vedi «Completato».
+- **TASK-271 — «Make a U-turn» anche fuori dagli incroci** (aggiunta ad
+  ADR-0045; dalla prima recensione di un tester del 2026-10-10). Branch
+  `fix/TASK-271-dead-end-u-turn`. Prima, tornando indietro in fondo a un
+  vicolo cieco o su un nodo con due strade, la voce taceva: `directions()`
+  saltava ogni nodo con meno di 3 strade. Ora lì si dice `"u-turn"` quando
+  il percorso torna al nodo da cui è arrivato; le altre curve fuori dagli
+  incroci restano in silenzio. Solo motore, nessun testo nuovo. Dopo il
+  merge, con l'ok dell'utente: server, `draw_examples`, motore sul
+  telefono; i percorsi già in cache tengono le indicazioni vecchie. Non
+  nella 1.0. File: `tasks/TASK-271.md`, «File toccati».
+  **Chiuso**: in `main` con la #489 (2026-10-25, «ok finiscilo»
+  dell'utente); server, `draw_examples` e motore sul telefono restano al
+  Coordinatore; vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -1105,6 +1124,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Apple e con un sì dell'utente; la domanda 1 («Explore» e «Feed» con
   «Bike»), che resta dell'utente. PR dei campioni sul branch
   `chore/TASK-190-bike-samples-levico-padova`. `tasks/TASK-190.md`.
+- **Motore** — TASK-271 (aggiunta ad ADR-0045; dalla prima recensione di
+  un tester del 2026-10-10): la voce dice «Make a U-turn» anche dove il
+  percorso torna indietro fuori da un incrocio, in fondo a un vicolo cieco
+  o su un nodo con due strade; le altre curve fuori dagli incroci restano
+  in silenzio. Nessun testo nuovo. Mergiata il 2026-10-25 su «ok
+  finiscilo» dell'utente, con `engine.zip` rifatto e `paddleExamples.json`
+  ridisegnato (cambia solo l'impronta `engine`, gli esempi sono
+  identici). In `main`, **non ancora sul server**: aggiornamento,
+  `draw_examples` e motore sul telefono (pubblicazione dell'app) restano al
+  Coordinatore dopo Apple e con il sì dell'utente; i percorsi già
+  calcolati tengono le indicazioni vecchie finché non si rifanno. PR #489.
+  `tasks/TASK-271.md`.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
