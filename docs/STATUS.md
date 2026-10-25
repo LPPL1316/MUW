@@ -157,6 +157,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-299 — Il primo concorso: il post con più reazioni vince**
+  (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
+  proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
+  `docs/TASK-299-proposal` (documenti), poi `feat/TASK-299-a-contest-api`
+  (A) e `feat/TASK-299-b-contest-app` (B). L'utente ha scelto, fra tre
+  strade, il **premio senza valore**: il badge «Winner» sul profilo, il
+  post vincitore in cima al Feed per 7 giorni, una push a chi ha vinto; la
+  maglietta è un concorso a parte, quando ci sarà la ditta (DPR 430/2001).
+  Il server decide: partecipano i post per tutti pubblicati nel periodo;
+  conta una reazione per account, mai la propria, non attraverso un
+  blocco, non i post nascosti; pari merito per cuori MuW, poi il post più
+  vecchio. `GET /contests/current` anche senza account; i comandi `open`,
+  `standings` e `close` sul server (chi lo gestisce, con le date
+  dell'utente, dopo aver guardato i primi dieci); la scheda in cima al
+  Feed solo con un 200, il regolamento ufficiale da «How it works» (Apple
+  e Google non coinvolte). Regole in `CONCORSI.md`. Testi nelle cinque
+  lingue da approvare prima del merge; server dopo Apple con l'ok
+  dell'utente. File: `tasks/TASK-299.md`.
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
