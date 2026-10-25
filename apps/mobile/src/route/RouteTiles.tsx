@@ -10,7 +10,7 @@ import {
   space,
 } from "../theme/tokens";
 import { t } from "../i18n";
-import { distanceLabel, withPoint } from "../units/format";
+import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { choiceLabel, likeness } from "./choices";
 
@@ -35,7 +35,7 @@ export function RouteTiles({ choices, chosen, onChoose }: Props) {
   return (
     <View style={styles.row} accessibilityRole="radiogroup">
       {choices.map((result, index) => {
-        const km = distanceLabel(result.distance_m, units, withPoint);
+        const km = distanceLabel(result.distance_m, units);
         const selected = index === chosen;
         return (
           <Pressable

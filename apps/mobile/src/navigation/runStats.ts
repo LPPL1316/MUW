@@ -50,8 +50,17 @@ export function headingDeg(track: Track): number | null {
   return null;
 }
 
-const POINTS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"] as const;
-// Translated where shown, with t() (TASK-210).
+// Both translated where shown, with t() (TASK-210): «SO», «O» in Italian.
+const POINTS = [
+  tLater("N"),
+  tLater("NE"),
+  tLater("E"),
+  tLater("SE"),
+  tLater("S"),
+  tLater("SW"),
+  tLater("W"),
+  tLater("NW"),
+] as const;
 const WORDS = [
   tLater("north"),
   tLater("north-east"),

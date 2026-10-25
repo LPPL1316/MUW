@@ -1261,6 +1261,39 @@ export const DE: Table = {
   "MuW is recording your activity": "MuW zeichnet deine Aktivität auf",
   "It keeps going with the screen locked, voice included.":
     "Läuft auch bei gesperrtem Bildschirm weiter, mit Sprachansagen.",
+
+  // src/location/startStatus.ts, src/screens/ChooseScreen.tsx,
+  // src/explore/ExploreScreen.tsx, ThemedCard.tsx, src/screens/NavigateScreen.tsx,
+  // RunPanel.tsx, src/navigation/runStats.ts, src/intro/SavedLogo.tsx
+  // (TASK-210, parte H)
+  "Starting from your position.": "Start: deine Position.",
+  "Starting from {place}.": "Start: {place}.",
+  "Starting from a point on the map.": "Start: ein Punkt auf der Karte.",
+  "Search for a city or street to start from.":
+    "Suche eine Stadt oder Straße als Start.",
+  "Location is off for MuW. Allow it in Settings, or search for a place to start from.":
+    "Der Standort ist für MuW aus. Erlaube ihn in den Einstellungen oder suche einen Ort als Start.",
+  "Your position is not available right now. Search for a place to start from.":
+    "Deine Position ist gerade nicht verfügbar. Suche einen Ort als Start.",
+  START: "START",
+  "My position": "Meine Position",
+  "Another place": "Anderer Ort",
+  "No recommended routes near this start yet. Draw one: the best ones will show up here.":
+    "In der Nähe dieses Starts gibt es noch keine empfohlenen Routen. Zeichne eine: Die besten erscheinen hier.",
+  "{distance} away": "{distance} entfernt",
+  "Finding the places and drawing the shape through them… This can take a minute.":
+    "Die Orte werden gesucht und die Form durch sie gezeichnet… Das kann eine Minute dauern.",
+  "{percent}% drawn": "{percent} % gezeichnet",
+  N: "N",
+  NE: "NO",
+  E: "O",
+  SE: "SO",
+  S: "S",
+  SW: "SW",
+  W: "W",
+  NW: "NW",
+  "{distance} to go": "noch {distance}",
+  "Saved to My activities": "In Meine Aktivitäten gespeichert",
   // src/social/ContactsFriends.tsx (TASK-262 C)
   "FROM YOUR CONTACTS": "AUS DEINEN KONTAKTEN",
   "Find friends in your contacts": "Freunde in deinen Kontakten finden",

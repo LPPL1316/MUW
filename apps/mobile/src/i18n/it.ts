@@ -1246,6 +1246,39 @@ export const IT: Table = {
   "MuW is recording your activity": "MuW sta registrando la tua attività",
   "It keeps going with the screen locked, voice included.":
     "Continua anche a schermo bloccato, voce compresa.",
+
+  // src/location/startStatus.ts, src/screens/ChooseScreen.tsx,
+  // src/explore/ExploreScreen.tsx, ThemedCard.tsx, src/screens/NavigateScreen.tsx,
+  // RunPanel.tsx, src/navigation/runStats.ts, src/intro/SavedLogo.tsx
+  // (TASK-210, parte H)
+  "Starting from your position.": "Parti dalla tua posizione.",
+  "Starting from {place}.": "Parti da {place}.",
+  "Starting from a point on the map.": "Parti da un punto sulla mappa.",
+  "Search for a city or street to start from.":
+    "Cerca una città o una via da cui partire.",
+  "Location is off for MuW. Allow it in Settings, or search for a place to start from.":
+    "La posizione è disattivata per MuW. Consentila nelle Impostazioni, oppure cerca un posto da cui partire.",
+  "Your position is not available right now. Search for a place to start from.":
+    "La tua posizione adesso non è disponibile. Cerca un posto da cui partire.",
+  START: "PARTENZA",
+  "My position": "La mia posizione",
+  "Another place": "Un altro posto",
+  "No recommended routes near this start yet. Draw one: the best ones will show up here.":
+    "Non ci sono ancora percorsi consigliati vicino a questa partenza. Disegnane uno: i migliori compariranno qui.",
+  "{distance} away": "a {distance}",
+  "Finding the places and drawing the shape through them… This can take a minute.":
+    "Cerco i luoghi e disegno la forma che li attraversa… Può volerci un minuto.",
+  "{percent}% drawn": "{percent}% disegnato",
+  N: "N",
+  NE: "NE",
+  E: "E",
+  SE: "SE",
+  S: "S",
+  SW: "SO",
+  W: "O",
+  NW: "NO",
+  "{distance} to go": "mancano {distance}",
+  "Saved to My activities": "Salvata nelle mie attività",
   // src/social/ContactsFriends.tsx (TASK-262 C)
   "FROM YOUR CONTACTS": "DALLA RUBRICA",
   "Find friends in your contacts": "Trova amici nella rubrica",
