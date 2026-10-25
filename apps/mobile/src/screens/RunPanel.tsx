@@ -156,7 +156,9 @@ export function useRunNumbers(
     time: clockLabel(ms),
     climb: climbed === null ? NO_NUMBER : String(Math.round(climbed)),
     energy: String(kcal(track.distanceM)),
-    toGo: route ? `${distanceLabel(route.remainingM, units)} to go` : null,
+    toGo: route
+      ? t("{distance} to go", { distance: distanceLabel(route.remainingM, units) })
+      : null,
     eta: eta === null ? null : aboutMinutes(eta),
   };
 }

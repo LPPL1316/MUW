@@ -14,7 +14,7 @@ import {
 import { PenSplit } from "../route/RoutePanel";
 import { RouteTiles } from "../route/RouteTiles";
 import type { ExportState } from "../route/useGpxExport";
-import { distanceLabel, withPoint } from "../units/format";
+import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import type { Explored } from "./explored";
 import { kmOrMiles } from "./ExploreScreen";
@@ -59,9 +59,7 @@ export function ExploredCard({
   return (
     <View style={styles.panel}>
       <View>
-        <Text style={styles.result}>
-          {distanceLabel(route.route_m, units, withPoint)}
-        </Text>
+        <Text style={styles.result}>{distanceLabel(route.route_m, units)}</Text>
         <Text style={styles.target}>
           {t("{title} · {city} · looks {percent}% like it", {
             title,

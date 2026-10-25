@@ -1256,4 +1256,50 @@ export const ES: Table = {
   "MuW is recording your activity": "MuW está registrando tu actividad",
   "It keeps going with the screen locked, voice included.":
     "Sigue con la pantalla bloqueada, voz incluida.",
+
+  // src/location/startStatus.ts, src/screens/ChooseScreen.tsx,
+  // src/explore/ExploreScreen.tsx, ThemedCard.tsx, src/screens/NavigateScreen.tsx,
+  // RunPanel.tsx, src/navigation/runStats.ts, src/intro/SavedLogo.tsx
+  // (TASK-210, parte H)
+  "Starting from your position.": "Sales desde tu posición.",
+  "Starting from {place}.": "Sales desde {place}.",
+  "Starting from a point on the map.": "Sales desde un punto del mapa.",
+  "Search for a city or street to start from.":
+    "Busca una ciudad o una calle desde donde salir.",
+  "Location is off for MuW. Allow it in Settings, or search for a place to start from.":
+    "La ubicación está desactivada para MuW. Permítela en Ajustes o busca un lugar desde donde salir.",
+  "Your position is not available right now. Search for a place to start from.":
+    "Tu posición no está disponible ahora. Busca un lugar desde donde salir.",
+  START: "SALIDA",
+  "My position": "Mi posición",
+  "Another place": "Otro lugar",
+  "No recommended routes near this start yet. Draw one: the best ones will show up here.":
+    "Aún no hay rutas recomendadas cerca de esta salida. Dibuja una: las mejores aparecerán aquí.",
+  "{distance} away": "a {distance}",
+  "Finding the places and drawing the shape through them… This can take a minute.":
+    "Buscando los lugares y dibujando la forma que pasa por ellos… Puede tardar un minuto.",
+  "{percent}% drawn": "{percent}% dibujado",
+  N: "N",
+  NE: "NE",
+  E: "E",
+  SE: "SE",
+  S: "S",
+  SW: "SO",
+  W: "O",
+  NW: "NO",
+  "{distance} to go": "faltan {distance}",
+  "Saved to My activities": "Guardada en Mis actividades",
+  // src/social/ContactsFriends.tsx (TASK-262 C)
+  "FROM YOUR CONTACTS": "DE TUS CONTACTOS",
+  "Find friends in your contacts": "Buscar amigos en tus contactos",
+  "Only coded phone numbers leave the phone, never names. The server compares them with the numbers members saved and keeps none.":
+    "Del teléfono solo salen los números cifrados, nunca los nombres. El servidor los compara con los números que guardaron los miembros y no conserva ninguno.",
+  "Looking in your contacts…": "Buscando en tus contactos…",
+  "MuW cannot see your contacts.": "MuW no puede ver tus contactos.",
+  "No phone numbers in your contacts.": "No hay números de teléfono en tus contactos.",
+  "None of your contacts is on MuW yet.":
+    "Ninguno de tus contactos está todavía en MuW.",
+  "This server cannot look in your contacts yet.":
+    "Este servidor todavía no puede buscar en tus contactos.",
+  "The contacts could not be read.": "No se han podido leer los contactos.",
 };
