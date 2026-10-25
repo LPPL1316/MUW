@@ -1,6 +1,7 @@
 import type { LatLon, Shape } from "@shaperoute/shared-types";
 import { AppState } from "react-native";
 
+import { type RouteQueue, routeQueue } from "../api/routeQueue";
 import { requestRoute } from "../api/routes";
 import {
   asRecommended,
@@ -42,11 +43,12 @@ import {
 /** The places whose shapes are drawn ahead, the nearest first. */
 export const PLACES_AHEAD = 3;
 /**
- * From one request to the next, at least. The API takes 30 POSTs a minute
- * from a phone (ADR-0076) and the examples of the page use up to 18
- * (EXAMPLES_PER_MINUTE): ten a minute here leave room for «Start».
+ * How often a round looks again whether the app is back in front. Each
+ * request waits for its turn in the app's queue of route requests
+ * (TASK-287, routeQueue.ts), after the user's and the page's: at most ten
+ * a minute, as before, all of the app's counted.
  */
-export const AHEAD_GAP_MS = 6000;
+export const IN_FRONT_CHECK_MS = 6000;
 /** A shape the API could not draw in a place is asked again after this:
  * the engine or the water may be newer. */
 export const LEFT_OUT_MS = 7 * 24 * 3600 * 1000;
@@ -129,6 +131,7 @@ export async function drawShapesAhead(
     now = Date.now,
     wait = pause,
     active = inFront,
+    queue = routeQueue,
   }: {
     request?: typeof requestRoute;
     storage?: Storage;
@@ -137,6 +140,7 @@ export async function drawShapesAhead(
     now?: () => number;
     wait?: (ms: number) => Promise<void>;
     active?: () => boolean;
+    queue?: Pick<RouteQueue, "background">;
   } = {},
 ): Promise<ShapesOutcome> {
   if (running) {
@@ -144,7 +148,6 @@ export async function drawShapesAhead(
   }
   running = true;
   try {
-    let lastAsked: number | null = null;
     const from = home()?.point ?? here;
     for (const spot of placesAhead(from, spots)) {
       const set = examplesAt(spot.distance_m);
@@ -170,17 +173,12 @@ export async function drawShapesAhead(
         if (leftAt !== undefined && now() - leftAt < LEFT_OUT_MS && now() >= leftAt) {
           continue;
         }
-        if (lastAsked !== null) {
-          const early = lastAsked + AHEAD_GAP_MS - now();
-          if (early > 0) {
-            await wait(early);
-          }
-        }
         while (!active()) {
-          await wait(AHEAD_GAP_MS);
+          await wait(IN_FRONT_CHECK_MS);
         }
-        lastAsked = now();
-        const outcome = await request(apiUrl, asked);
+        const outcome = await queue.background("prefetch", () =>
+          request(apiUrl, asked),
+        );
         if (outcome.kind === "route") {
           keepAhead(key, asRecommended(place, shape, outcome.result, set).detail);
         } else if (

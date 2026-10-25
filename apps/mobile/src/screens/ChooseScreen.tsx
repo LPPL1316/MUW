@@ -58,6 +58,9 @@ type Props = {
   suggest?: SuggestPlaces;
   /** What the empty search field says, when not «City or street». */
   searchHint?: string;
+  /** «Choose on the map», under the search (TASK-292): the start chosen
+   * on the map, without writing a street. */
+  onPickOnMap?: () => void;
   mapError: string | null;
   /** Loads the map that could not load again (TASK-259). */
   onMapRetry?: () => void;
@@ -85,6 +88,7 @@ export function ChooseScreen({
   near,
   suggest,
   searchHint,
+  onPickOnMap,
   mapError,
   onMapRetry,
   children,
@@ -138,6 +142,16 @@ export function ChooseScreen({
               suggest={suggest}
               placeholder={searchHint}
             />
+          )}
+          {/* No street to write: the start chosen on the map (TASK-292). */}
+          {searching && onPickOnMap && (
+            <Pressable
+              style={styles.linkButton}
+              onPress={onPickOnMap}
+              accessibilityRole="button"
+            >
+              <Text style={styles.link}>{t("Choose on the map")}</Text>
+            </Pressable>
           )}
         </TourPartView>
         {mapError && <MapError onRetry={onMapRetry} />}

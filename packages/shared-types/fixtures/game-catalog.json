@@ -1,0 +1,73 @@
+{
+  "rules_version": 1,
+  "shapes": [
+    {
+      "id": "triangle",
+      "names": {
+        "en": "Triangle",
+        "de": "Dreieck",
+        "it": "Triangolo",
+        "es": "Triángulo",
+        "fr": "Triangle"
+      },
+      "goal": {
+        "kind": "distance",
+        "total_m": 5000,
+        "distance_m": null,
+        "pace_s": null
+      },
+      "outline": [
+        [0.5, 0.0],
+        [0.067, 0.75],
+        [0.933, 0.75],
+        [0.5, 0.0]
+      ]
+    },
+    {
+      "id": "hexagon",
+      "names": {
+        "en": "Hexagon",
+        "de": "Sechseck",
+        "it": "Esagono",
+        "es": "Hexágono",
+        "fr": "Hexagone"
+      },
+      "goal": {
+        "kind": "distance",
+        "total_m": 20000,
+        "distance_m": null,
+        "pace_s": null
+      },
+      "outline": [
+        [0.5, 0.0],
+        [0.067, 0.25],
+        [0.067, 0.75],
+        [0.5, 1.0],
+        [0.933, 0.75],
+        [0.933, 0.25],
+        [0.5, 0.0]
+      ]
+    },
+    {
+      "id": "lightning",
+      "names": {
+        "en": "Lightning",
+        "de": "Blitz",
+        "it": "Fulmine",
+        "es": "Rayo",
+        "fr": "Éclair"
+      },
+      "goal": { "kind": "pace", "total_m": null, "distance_m": 1000, "pace_s": 300 },
+      "outline": [
+        [0.55, 0.0],
+        [0.2, 0.55],
+        [0.45, 0.55],
+        [0.35, 1.0],
+        [0.8, 0.4],
+        [0.55, 0.4],
+        [0.7, 0.0],
+        [0.55, 0.0]
+      ]
+    }
+  ]
+}

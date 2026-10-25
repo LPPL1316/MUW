@@ -53,9 +53,16 @@ function calls(method: string, path: string) {
   );
 }
 
-/** «Profile» opens from the button in the header of the pages (TASK-154). */
+/** «Profile» is the page after «Explore», where the circle in the header of
+ * the pages goes (TASK-154, TASK-278). */
 async function openProfile() {
   await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+}
+
+/** The profile is the page on screen: its circle has the page's mark. */
+function onProfilePage() {
+  expect(screen.getByRole("button", { name: /^Profile/, selected: true })).toBeTruthy();
+  expect(screen.getByTestId("profile-page-mark")).toBeTruthy();
 }
 
 beforeEach(() => {
@@ -77,13 +84,18 @@ test("without an account the app opens on «Draw» as before, and asks the API n
   expect(screen.getByText("Draw route")).toBeTruthy();
   await openProfile();
   expect(screen.getByTestId("account-submit")).toBeTruthy();
-  // The app is underneath, as it was left, and out of reach.
+  onProfilePage();
+  // «Draw» is two pages away, as it was left, and out of reach.
   expect(screen.queryByText("Draw route")).toBeNull();
   expect(screen.getByText("Draw route", { includeHiddenElements: true })).toBeTruthy();
-  await fireEvent.press(screen.getByRole("button", { name: "Back" }));
+  await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.queryByTestId("account-submit")).toBeNull();
   expect(screen.getByText("Draw route")).toBeTruthy();
-  expect(fetchSpy).not.toHaveBeenCalled();
+  // Nothing but the shape game's catalog, asked as the app opens to know
+  // whether to show «Play» (TASK-296).
+  expect(
+    fetchSpy.mock.calls.filter(([input]) => !String(input).endsWith("/game/catalog")),
+  ).toEqual([]);
 });
 
 test("sign up in «Profile», and the app remembers who when reopened", async () => {
@@ -151,8 +163,10 @@ test("«Settings» opens from «Profile», and «←» goes back to it", async (
   await fireEvent.press(screen.getByRole("button", { name: "Settings" }));
   expect(screen.getByRole("header", { name: "Settings" })).toBeTruthy();
   expect(screen.getByRole("button", { name: "Log out" })).toBeTruthy();
+  // Back on the page of the profile, under it.
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
-  expect(screen.getByRole("header", { name: "Profile" })).toBeTruthy();
+  expect(screen.queryByRole("header", { name: "Settings" })).toBeNull();
+  onProfilePage();
   expect(screen.getByRole("button", { name: "Settings" })).toBeTruthy();
 });
 
@@ -168,7 +182,7 @@ test("log out, and the phone forgets the token", async () => {
   await fireEvent.press(screen.getByRole("button", { name: "Log out" }));
   expect(screen.getByText("You are logged out on this phone.")).toBeTruthy();
   expect(screen.getByRole("button", { name: "Log in", selected: true })).toBeTruthy();
-  expect(screen.getByRole("header", { name: "Profile" })).toBeTruthy();
+  onProfilePage();
   expect(calls("DELETE", "/session")).toHaveLength(1);
   expect(store.kept.has(KEY)).toBe(false);
 
@@ -177,7 +191,7 @@ test("log out, and the phone forgets the token", async () => {
   await fireEvent.changeText(screen.getByLabelText("password"), signUpRequest.password);
   await fireEvent.press(screen.getByTestId("account-submit"));
   expect(await screen.findByRole("button", { name: "Settings" })).toBeTruthy();
-  expect(screen.getByRole("header", { name: "Profile" })).toBeTruthy();
+  onProfilePage();
   expect(screen.queryByRole("button", { name: "Log out" })).toBeNull();
 });
 

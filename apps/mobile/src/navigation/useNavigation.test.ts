@@ -395,3 +395,105 @@ test("a run that goes on does not head out again, and says the turn ahead (TASK-
   expect(saidAfter).not.toContainEqual("You are off the route. Head back to it.");
   await again.unmount();
 });
+
+test("a closed shape starts where it is reached, and goes on from there (TASK-273)", async () => {
+  // A block 400 m a side, clockwise from its south-west corner: north on
+  // Via Roma, east on Via Verdi, south on Via Bianchi, west on Via Neri.
+  const corner: LatLon = [46.0122, 11.2986];
+  const metreLat = 1 / 111_195;
+  const metreLon = metreLat / Math.cos((corner[0] * Math.PI) / 180);
+  const at = (x: number, y: number): LatLon => [
+    corner[0] + y * metreLat,
+    corner[1] + x * metreLon,
+  ];
+  const onBlock = (m: number): LatLon => {
+    const s = ((m % 1600) + 1600) % 1600;
+    if (s <= 400) return at(0, s);
+    if (s <= 800) return at(s - 400, 400);
+    if (s <= 1200) return at(400, 1200 - s);
+    return at(1600 - s, 0);
+  };
+  const route: LatLon[] = Array.from({ length: 17 }, (_, i) => onBlock(100 * i));
+  route[16] = route[0];
+  const turn = (distance_m: number, street: string): Direction => ({
+    ...DEPART,
+    point: onBlock(distance_m),
+    distance_m,
+    node: distance_m,
+    turn: "right",
+    angle_deg: 90,
+    street,
+  });
+  const directions: Direction[] = [
+    { ...DEPART, point: corner },
+    turn(400, "Via Verdi"),
+    turn(800, "Via Bianchi"),
+    turn(1200, "Via Neri"),
+  ];
+  let onPosition: (position: Location.LocationObject) => void = () => {};
+  jest
+    .mocked(Location.requestForegroundPermissionsAsync)
+    .mockResolvedValue({ granted: true } as Location.LocationPermissionResponse);
+  jest
+    .mocked(Location.watchPositionAsync)
+    .mockImplementation(async (_options, callback) => {
+      onPosition = callback;
+      return { remove: jest.fn() };
+    });
+  const began = Date.now();
+  const position = (m: number, seconds: number) => {
+    const [latitude, longitude] = onBlock(m);
+    return {
+      coords: { latitude, longitude, accuracy: 5 },
+      timestamp: began + seconds * 1000,
+    } as Location.LocationObject;
+  };
+  jest.mocked(Speech.speak).mockClear();
+  clearRun();
+
+  // «Start» half-way down Via Bianchi, at 1000 m; on to 1300 m, then «Stop».
+  const first = await renderHook(() => useNavigation(route, directions, true));
+  await act(async () => {
+    skipCountdown();
+  });
+  expect(Speech.speak).not.toHaveBeenCalled();
+  await act(async () => {
+    for (let m = 1000; m <= 1300; m += 20) {
+      onPosition(position(m, m / 3));
+    }
+  });
+  const running = first.result.current;
+  expect(running.status).toBe("following");
+  if (running.status === "following") {
+    expect(running.navigation.joinedAtM).toBeCloseTo(1000, -1);
+    expect(running.navigation.alongM).toBeCloseTo(300, -1);
+  }
+  await first.unmount();
+  const saidBefore = jest.mocked(Speech.speak).mock.calls.map(([words]) => words);
+  expect(saidBefore[0]).toBe("Head out on Via Bianchi");
+  expect(saidBefore).toContainEqual(expect.stringMatching(/turn right onto Via Neri/));
+
+  // «Keep running»: from where it joined, past the route's start.
+  jest.mocked(Speech.speak).mockClear();
+  const again = await renderHook(() => useNavigation(route, directions, true));
+  await act(async () => {
+    skipCountdown();
+    for (let m = 1320; m <= 1700; m += 20) {
+      onPosition(position(m, 60 + m / 3));
+    }
+  });
+  const state = again.result.current;
+  expect(state.status).toBe("following");
+  if (state.status === "following") {
+    expect(state.navigation.joinedAtM).toBeCloseTo(1000, -1);
+    expect(state.navigation.alongM).toBeCloseTo(700, -1);
+    expect(state.navigation.arrived).toBe(false);
+  }
+  const saidAfter = jest.mocked(Speech.speak).mock.calls.map(([words]) => words);
+  expect(saidAfter).not.toContainEqual(expect.stringMatching(/Head out/));
+  expect(saidAfter).not.toContainEqual(expect.stringMatching(/Via Neri/));
+  // The turn at the route's own start, of which the engine says nothing.
+  expect(saidAfter).toContainEqual(expect.stringMatching(/turn right onto Via Roma/));
+  expect(saidAfter).not.toContainEqual("You are off the route. Head back to it.");
+  await again.unmount();
+});

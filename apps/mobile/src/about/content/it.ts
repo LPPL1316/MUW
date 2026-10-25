@@ -20,7 +20,7 @@ const help: AboutDocument = {
       heading: "Che cos'è MuW",
       blocks: [
         "MuW disegna percorsi veri che sulla mappa tracciano una forma. Scegli la forma, la distanza e da dove partire: ottieni un percorso su strade vere, con il suo file GPX.",
-        "L'app ha tre pagine affiancate, «Feed», «Disegna» ed «Esplora»: scorri a destra o a sinistra, oppure tocca un nome in alto. «Profilo» si apre dal cerchio in alto.",
+        "L'app ha quattro pagine affiancate, «Feed», «Disegna», «Esplora» e il tuo profilo: scorri a destra o a sinistra, oppure tocca un nome in alto. Il cerchio in alto porta al tuo profilo.",
       ],
     },
     {

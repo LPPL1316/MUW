@@ -66,6 +66,9 @@ export type Phrasebook = {
   /** The pause by standing still, and the run going on (TASK-169). */
   paused: string;
   resumed: string;
+  /** At the end of the run, before «Your run» (TASK-285): "Remember to
+   * stretch." */
+  stretch: string;
   /** The end of a letter with the pen up, and the start of the next
    * (TASK-198); `letter` is null when the word does not say which. */
   penUp(letter: string | null): string;
@@ -174,6 +177,7 @@ export type VoiceWords = {
   arrived: string;
   paused: string;
   resumed: string;
+  stretch: string;
   penUp(letter: string | null): string;
   penDown(letter: string | null): string;
   /** The end of a letter with the pen up, on a bike (TASK-216). */
@@ -306,6 +310,7 @@ export function voiceWords(book: Phrasebook, units: Units = "km"): VoiceWords {
     arrived: book.arrived,
     paused: book.paused,
     resumed: book.resumed,
+    stretch: book.stretch,
     penUp: book.penUp,
     penDown: book.penDown,
     rideTo: book.rideTo,

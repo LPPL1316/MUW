@@ -1,3 +1,4 @@
+import * as Sharing from "expo-sharing";
 import { useMemo, useRef, useState } from "react";
 import {
   Modal,
@@ -30,6 +31,7 @@ import {
   resultName,
   resultsOf,
 } from "./postRun";
+import { RunVideo } from "./RunVideo";
 import { pictureProblem, sharePicture } from "./sharePicture";
 import {
   addSticker,
@@ -42,6 +44,8 @@ import {
   stickersOf,
 } from "./stickers";
 import { StravaPostRow } from "./StravaPostRow";
+import { type VideoOutcome, videoProblem } from "./videoFile";
+import { type VideoScene, videoScene } from "./videoScene";
 
 /** The share of the screen's height the post takes: the choices fit under it. */
 const POST_HEIGHT_SHARE = 0.5;
@@ -57,7 +61,8 @@ type Props = {
  * (the share sheet, where Instagram has Story, Feed and Messages) and
  * Strava, where the emoji and the results go as the activity's text. Once
  * shared, the post goes to the API with its saved run (TASK-258), and
- * opens as it was the next time.
+ * opens as it was the next time. «Export video» shares the same post as a
+ * short video of the run drawing itself (TASK-295).
  */
 export function SharePost({ run, onClose }: Props) {
   const insets = useSafeAreaInsets();
@@ -79,6 +84,9 @@ export function SharePost({ run, onClose }: Props) {
   );
   const [sharing, setSharing] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  // The video being made, and how much of it is (TASK-295).
+  const [video, setVideo] = useState<VideoScene | null>(null);
+  const [made, setMade] = useState(0);
   const post = useRef<View>(null);
   const caption = postCaption(
     run,
@@ -109,6 +117,27 @@ export function SharePost({ run, onClose }: Props) {
       keep();
     }
   }
+
+  /** The post as it is now, as a video: made, then shared (TASK-295). */
+  async function exportVideo() {
+    setProblem(null);
+    if (!(await Sharing.isAvailableAsync())) {
+      setProblem(videoProblem("no_sharing"));
+      return;
+    }
+    setMade(0);
+    setVideo(videoScene(run, shown, stickers));
+  }
+
+  function videoEnded(outcome: VideoOutcome) {
+    setVideo(null);
+    setProblem(videoProblem(outcome));
+    if (outcome === "shared") {
+      keep();
+    }
+  }
+
+  const busy = sharing || video !== null;
 
   return (
     <Modal
@@ -198,12 +227,25 @@ export function SharePost({ run, onClose }: Props) {
           )}
 
           <View style={styles.actions}>
-            <PostButton
-              text={sharing ? t("Making the picture…") : "Instagram"}
-              onPress={() => void share()}
-              busy={sharing}
-              main
-            />
+            <View style={styles.buttons}>
+              <PostButton
+                text={sharing ? t("Making the picture…") : "Instagram"}
+                onPress={() => void share()}
+                busy={busy}
+                main
+              />
+              <PostButton
+                text={
+                  video === null
+                    ? t("Export video")
+                    : t("Making the video… {percent}%", {
+                        percent: Math.round(made * 100),
+                      })
+                }
+                onPress={() => void exportVideo()}
+                busy={busy}
+              />
+            </View>
             <Text style={styles.hint}>
               {t("Pick Instagram in the list: Story, Feed or Messages.")}
             </Text>
@@ -215,6 +257,9 @@ export function SharePost({ run, onClose }: Props) {
             <StravaPostRow runKey={run.key} caption={caption} onSent={keep} />
           </View>
         </ScrollView>
+        {video !== null && (
+          <RunVideo scene={video} onProgress={setMade} onEnd={videoEnded} />
+        )}
       </View>
     </Modal>
   );
@@ -334,6 +379,10 @@ const styles = StyleSheet.create({
   actions: {
     gap: space.sm,
     paddingTop: space.sm,
+  },
+  buttons: {
+    flexDirection: "row",
+    gap: space.sm,
   },
   shareButton: {
     minHeight: MIN_TAP_SIZE,

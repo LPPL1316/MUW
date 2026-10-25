@@ -157,6 +157,332 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
+  alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
+  dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
+  numeri e condizioni dal Coordinatore). Branch `docs/TASK-297-proposal`
+  (documenti), poi `feat/TASK-297-a-route-archive` (A) e
+  `feat/TASK-297-c-image-pieces` (C). **A**: ogni percorso disegnato
+  resta nel database senza chi l'ha chiesto; la stessa richiesta entro
+  100 m riceve il percorso pronto con l'avvicinamento (0–2 s invece dei
+  6–14 s del server: mediana 6,6 s a ottobre, e l'80 % delle richieste
+  ripeteva una già fatta nella stessa cella di 1 km); i più corsi e
+  preferiti davanti, gli altri come alternative; tetto e pulizia; testo
+  privacy all'utente. **B** (il motore riparte dai piazzamenti imparati
+  vicino): misurata a Trento su 36 richieste, peggiore in 28, scartata;
+  resta il ridisegno rapido dal piazzamento dopo un cambio del motore
+  (A2, dopo la #497). **C**: nelle immagini i soggetti staccati e i fori
+  diventano pezzi disegnati uno alla volta, camminando fra l'uno e
+  l'altro: «RC» leggibile, la ruota coi raggi, il logo MuW; nel
+  repository solo loghi sintetici e MuW. Proposta e prove in
+  `out/archivio-apprendimento/` del Mac (ignorato da git). Server dopo
+  Apple, con l'ok dell'utente. Seguito da aprire: fermarsi prima quando
+  la forma non entra nelle strade (19 ricerche su 36 bruciano i 30
+  tracciamenti). File: `tasks/TASK-297.md`.
+- **TASK-295 — Il video della corsa, da esportare per i social**
+  (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
+  Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
+  accanto a «Instagram»: un video di 12 s, 9:16, sul giallo del post, con
+  la linea della corsa che si disegna mentre distanza e tempo salgono, poi
+  il post intero con le emoji; niente musica. Si fa sul telefono nel
+  WebView (WebCodecs, H.264 Baseline) e l'app scrive l'MP4; poi il foglio
+  di condivisione. Solo app: nessuna dipendenza nuova, niente di nativo,
+  fingerprint iOS invariato. Provato nel simulatore (1,9 MB in circa
+  10 s); la prova sull'iPhone è dell'utente. File: `tasks/TASK-295.md`.
+  **Chiuso**: in `main` con la #533 (`90691d47`, 2026-10-23), mergiata
+  dal Coordinatore, provato dall'utente sull'iPhone; vedi «Completato».
+- **TASK-296 — Il gioco delle forme** (ADR-0255; chiesto dall'utente il
+  2026-10-23, numero dal Coordinatore). Le corse a piedi salvate sbloccano
+  forme da collezionare, per km totali e per passo su una distanza; in
+  squadra si ricrea una forma divisa in pezzi entro una scadenza. Sta in
+  una pagina nuova «Play», scelta dall'utente fra «Play», una riga nel
+  Profilo e un'app a sé. Il server conta, l'app mostra; «Play» si vede
+  solo se `GET /game/catalog` risponde 200. Le parti sono A (API,
+  collezione), B (app, collezione), C (API, squadre e sfide), D (app,
+  sfide) ed E (striscia in corsa). Regole in `GIOCO.md`. Prima i
+  documenti (branch `docs/TASK-296-shape-game`), poi A. Testi delle push e
+  paragrafo di privacy aspettano il sì dell'utente. Server solo dopo Apple.
+  File: `tasks/TASK-296.md`.
+  **Documenti** in `main` con la #532 (`f34ca6c5`, 2026-10-23).
+  **Parte A** (branch `feat/TASK-296-a-game-api`, migrazione `0025_game.sql`
+  da rinumerare al merge se serve): `game_runs` e `game_unlocks`, regole
+  pure in `game_rules.py`, 12 forme in `game_catalog.py`, `GET
+  /game/catalog`, `/game/me` e `/game/runs/{key}`, la push
+  `shape_unlocked`, `python -m shaperoute_api.game_backfill` per le corse
+  di prima. La risposta del salvataggio non cambia. Sul server, dopo
+  Apple: migrazione, deploy, backfill.
+  **Parte A** in `main` con la #534 (`abb593c5`, 2026-10-24).
+  **Parte B** (branch `feat/TASK-296-b-play-collection`): la pagina «Play»
+  fra «Explore» e il profilo, solo mentre `GET /game/catalog` risponde 200
+  (chiesto all'avvio, tenuto sul telefono); la collezione a griglia, in
+  giallo le forme sbloccate, in grigio le altre con requisito e
+  percentuale, nelle unità scelte; la scheda «New shape unlocked» dopo
+  che l'API ha preso la corsa; la push `shape_unlocked` che apre «Play» e
+  non si mostra a app aperta. Solo app, impronta iOS invariata; su
+  `preview` dopo che A è sul server (o prima: senza il gioco sul server la
+  pagina non si vede).
+  **Parte B** in `main` con la #536 (`145cf992`, 2026-10-24); testi
+  dell'app approvati dall'utente lo stesso giorno. Restano C, D ed E.
+  **Parte C** (branch `feat/TASK-296-c-teams-api`, PR #540, migrazione
+  `0027_game_teams.sql`, perché la 0026 è di TASK-297 A, #539; il numero
+  si ricontrolla al merge): `game_teams`, `game_team_members`,
+  `game_challenges`, `game_pieces`, `game_contributions` e `challenge_id`
+  in `game_unlocks`; `game_teams.py` (nome dal filtro di TASK-213, codice
+  di 6, join rifiutato senza motivo con un blocco, oltre 20 iscritti o 10
+  squadre, uscita, rimozione, passaggio di proprietà, ganci alla
+  cancellazione dell'account e al blocco), `game_challenges.py` (una
+  sfida per squadra, un pezzo in mano per persona, riempimento da
+  `after_run_saved` con i km in avanzo, pezzo veloce, edizione squadra,
+  `ChallengeClock` per «1 day left»), il contorno dei pezzi in
+  `game_rules.pieces_of`, gli otto endpoint, `pieces_done` in `GET
+  /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
+  iscritti e i testi delle tre push sono approvati dall'utente
+  (2026-10-24). Server dopo Apple, con l'ok dell'utente.
+- **TASK-293 — «Send to Strava» senza un blocco del database dentro
+  l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
+  Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
+  `send` legge la corsa senza lock, poi il token nel suo blocco (rinnovo
+  sempre uno alla volta), poi blocca la corsa per il caricamento come
+  prima; un token rifiutato si rinnova fuori dal blocco della corsa. Una
+  connessione del pool alla volta, nessuna fuori dal pool. Una sonda su
+  `Database.connect` in `test_strava.py` fa fallire ogni blocco annidato;
+  due invii della stessa corsa insieme caricano un solo file. Solo API,
+  nessuna migrazione; il server dopo Apple, con l'ok dell'utente. File:
+  `tasks/TASK-293.md`.
+  **Chiuso**: in `main` con la #528 (`aba94894`, 2026-10-19), mergiata
+  dal Coordinatore; vedi «Completato».
+- **TASK-292 — Scegliere la partenza sulla mappa** (ADR-0252; richiesta
+  dell'utente del 2026-10-18, che ha scelto il mirino fisso fra quattro
+  proposte). Branch `feat/TASK-292-start-on-map`. Sotto la ricerca di
+  «Draw» il link «Choose on the map» apre la mappa con il segnaposto
+  fermo al centro; «Start here» rende il punto la partenza (origine
+  `map`, senza nome), «←» non cambia niente. Solo app, non nella 1.0;
+  due testi nuovi nelle cinque lingue, approvati dall'utente il
+  2026-10-19. File: `tasks/TASK-292.md`.
+  **Chiuso**: in `main` con la #527 (`b35d461c`, 2026-10-19), mergiata
+  dal Coordinatore; vedi «Completato».
+- **TASK-288 parte B — Il pool di connessioni** (aggiunta ad ADR-0249;
+  sì dell'utente del 2026-10-16 al Coordinatore: «sì, aggiungi il pool di
+  connessioni»). Branch `feat/TASK-288-b-connection-pool`. Dipendenza
+  nuova `psycopg[binary,pool]`: l'API presta da 2 a 10 connessioni tenute
+  aperte invece di aprirne una nuova a ogni blocco (due a ogni richiesta
+  con un token); ognuna torna come una sessione nuova (`DISCARD ALL`),
+  anche dopo un errore; tutte occupate per 10 s danno `503
+  accounts_unavailable` con `Retry-After`, non un'attesa senza fine; il
+  pool si chiude quando l'API si ferma. In locale `/me` da 63 a 4 ms,
+  `/users?q=` da 141–185 a 8–54 ms. Nessuna migrazione, nessun cambio
+  all'app né a `compose.yaml`. Merge e server dopo Apple, con l'ok
+  dell'utente. **PR #524**. File: `tasks/TASK-288.md`, «Parte B».
+  **Chiuso**: in `main` con la #524 (`42699af4`, 2026-10-18), mergiata dal
+  Coordinatore su richiesta dell'utente; vedi «Completato».
+- **TASK-290 — Le sagome di «PICTURES» che vengono bene in città**
+  (aggiunta ad ADR-0246; richiesta dell'utente del 2026-10-16). Branch
+  `feat/TASK-290-better-draw-pictures`. Le sagome provate come percorsi
+  veri in otto città, a 5 e a 10 km: tolte bici, cuore con freccia, ancora
+  e gelato (in città venivano macchie); aggiunte fungo, auto, maglietta,
+  paperella, stivale, casa, osso e coppa, scelte fra 29 provate. Sedici,
+  le più chiare prima, anche nelle righe di «Draw on the map» e del
+  risultato. Solo app e `tools/`; i nomi nuovi nelle cinque lingue
+  approvati dall'utente il 2026-10-16. **PR #520**. File: `tasks/TASK-290.md`.
+  **Chiuso**: in `main` con la #520 (`ff786f67`, 2026-10-16); vedi
+  «Completato».
+- **TASK-288 — Le ricerche dell'API più veloci** (ADR-0249, migrazione
+  `0022_faster_searches.sql`; dall'analisi delle ricerche del 2026-10-16,
+  sessione «MUW app performance e ricerca»). Branch
+  `feat/TASK-288-faster-api-searches`. gzip nell'API da 1 KB in su;
+  Geoapify chiesto insieme (aree di `/cities`, categorie di
+  `/nearby-cities`), 3 s e un secondo tentativo su timeout/429/5xx, mai
+  la chiave nei log, nessuna cache per le risposte vuote;
+  `draw_examples` richiede un 503 invece di dire «not found»; i download
+  delle foto delle città in un pool loro; «Find friends» con `pg_trgm` e
+  la foto piccola fatta una volta; il feed e i profili leggono
+  l'anteprima di 64 punti che PostgreSQL tiene in `drawings.preview`
+  (feed con la posizione da 15 s a 0,75 s a pagina in locale); l'uso
+  della sessione scritto una volta l'ora (90 giorni sempre garantiti).
+  Stesse risposte, nessuna dipendenza nuova; il pool di connessioni
+  (`psycopg_pool`) aspetta un sì dell'utente. Il server lo fa il
+  Coordinatore, con l'ok dell'utente. **PR #518**: porta una migrazione,
+  ferma come la #502 fino ad Apple e all'ok dell'utente. Il Caddy del
+  server non comprime l'API (controllato il 2026-10-16); la domanda sul
+  pool la porta il Coordinatore all'utente.
+  File: `tasks/TASK-288.md`.
+  **Chiuso**: in `main` con la #518 (`2d8b4562`, 2026-10-16), su
+  richiesta dell'utente e col via del Coordinatore; vedi «Completato».
+- **TASK-287 — La ricerca dei percorsi più veloce, lato app** (ADR-0248;
+  dall'analisi della lentezza del 2026-10-16, sessione «MUW app
+  performance e ricerca»; le parti del server sono TASK-288 e TASK-289,
+  i tempi per fase). Branch `feat/TASK-287-faster-route-search`: una
+  sola coda per le richieste di percorso (l'utente prima, poi gli esempi
+  sulla pagina di «Explore», poi le forme sull'acqua in anticipo; niente
+  in sottofondo mentre gira una richiesta dell'utente; al massimo 22 al
+  minuto, 8 sempre dell'utente); un «Draw» annullato sul telefono esce
+  dalla coda o fa ripartire la pagina di Python, e il prossimo non
+  aspetta; Python parte appena c'è una zona salvata intorno; il chip di
+  una città in evidenza non chiede più `/cities`; il campione di un
+  paese vicino è già un suo esempio; `city-examples.json` scritto una
+  volta per gruppo; `/places` lento lasciato stare 3 minuti. Solo app,
+  non nella 1.0. File: `tasks/TASK-287.md`.
+  **Chiuso il 2026-10-16**: #517 in `main` (`2259a5df`), mergiata dal
+  Coordinatore; vedi «Completato».
+- **TASK-289 — I tempi per fase nel log dei percorsi** (ADR-0250;
+  dall'analisi della lentezza del 2026-10-16, prepara la misura di
+  TASK-276). Branch `feat/TASK-289-phase-times`. Ogni job di percorso
+  dell'API scrive una riga `job <id>: times total=… crop=… start=…
+  traces=… converged=… wait=… nearby=… directions=…`, senza posizioni.
+  L'immagine Docker porta il bytecode dei pacchetti (`compileall`), così
+  i processi `spawn` delle partenze vicine non ricompilano il motore.
+  Motore non toccato: gli esempi tenuti sul server restano validi. Sul
+  server serve un'immagine nuova, dopo Apple e con l'ok dell'utente.
+  **PR #515**, aspetta «merge 515». File: `tasks/TASK-289.md`.
+  **Chiuso**: in `main` con la #515 (`cd5a4a3f`, 2026-10-16); vedi
+  «Completato».
+- **TASK-286 — Un'altra figura dalla mappa del risultato** (aggiunta ad
+  ADR-0245; scelta dell'utente del 2026-10-15, seguito di TASK-281).
+  Branch `feat/TASK-286-change-shape-on-result`. Sotto un percorso
+  disegnato, da «Draw» o da «Draw on the map», sopra «Start» la stessa
+  riga di 17 forme e 12 immagini della tela (con «Paddle» solo le forme);
+  un tocco ridisegna dalla stessa partenza e con la stessa distanza. Da
+  «Draw» la figura diventa la scelta di «Draw»; dalla tela prende il posto
+  di quella sulla mappa (stesso centro, distanza del percorso) e «Undo» la
+  rimette. Solo app, nessun testo nuovo, non nella 1.0; file e ordine con
+  l'ok del Coordinatore; **PR #513**, aspetta «merge 513». File:
+  `tasks/TASK-286.md`.
+  **Chiuso il 2026-10-16**: #513 in `main` (`52b331f7`), mergiata dal
+  Coordinatore; vedi «Completato».
+- **Prova sull'iPhone del 2026-10-15**: l'utente ha provato `preview`
+  (gruppo `9dbc73d0`, da `main` `fd4ae341`) con TASK-278 A e B, 279 A,
+  280, 281 e 285 A e B: «funziona tutto ok». Le foto di TASK-283 non si
+  vedono ancora: aspettano il server, dopo Apple.
+- **Risposte dell'utente del 2026-10-15** (sessione di riepilogo; dette
+  anche al Coordinatore): la 1.0.0 (7) è **rimandata ad Apple** con video
+  e Notes, in attesa del verdetto (`tasks/TASK-152.md`); i testi
+  dell'email di TASK-284 e la privacy **vanno bene** (la parte B può
+  partire dopo #461); in TASK-282 la figura messa sulla mappa **può
+  essere inclinata** come oggi; seguito di TASK-281: **cambiare figura
+  anche dalla mappa del risultato** (numero dal Coordinatore); **ok a
+  pubblicare su `preview` tutto `main`** (278 A+B, 279 A, 280, 281, 283
+  lato app, 285 A+B), lo fa il Coordinatore. TASK-276 va rispiegato.
+- **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
+  dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
+  ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
+  fine corsa «Remember to stretch» a schermo e a voce, «Skip» verso «Your
+  run» o l'uscita verso lo stretching. **Parte B**, sessione «Animazione
+  esercizi stretching post-corsa»: cinque esercizi animati uno dopo
+  l'altro, con il conto alla rovescia e il passaggio da sé, «come
+  sull'app bEND»; figura e testi nostri, nessuna dipendenza nuova. Solo
+  app; A entra prima di B; non nella 1.0. Testi e voce nelle cinque
+  lingue con il sì dell'utente. File: `tasks/TASK-285.md`.
+- **TASK-285 parte B — I cinque esercizi animati** (ADR-0247, punti
+  5–8; sessione «Animazione esercizi stretching post-corsa»). Branch
+  `feat/TASK-285-b-stretch-exercises`: da «Stretch» della scheda di A si
+  apre la schermata con i cinque esercizi (quadricipite, posteriore
+  coscia, polpaccio, flessori dell'anca, gluteo), la figura stilizzata
+  che entra in ogni posa, il conto alla rovescia di 20 s per lato, il
+  «ding» fra un lato e l'altro, «Pause», «Skip»/«Done»; poi «Your run».
+  File nuovi in `src/stretch/`, poche righe in `App.tsx`, le voci nei
+  quattro `i18n`, `tools/stretch_chime.py` e `assets/stretch/ding.wav`.
+  Il 2026-10-14 l'utente ha approvato i testi nelle cinque lingue e le
+  tre proposte (i cinque esercizi a 20 s per lato, il «ding» nostro, la
+  figura stilizzata); le pose viste in Expo Go nel simulatore. **Aspetta
+  «merge 508»** dal Coordinatore (ordine su `App.tsx` con 278 B). Non
+  nella 1.0.
+  **Chiuso il 2026-10-15**: #508 in `main` (8295312f); vedi
+  «Completato». Pubblica il Coordinatore.
+- **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
+  dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
+  «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
+  foto»). Codice in `main` con la #499. Ogni paese che ha
+  un'immagine su Wikidata con licenza libera mostra la foto al posto di
+  mappa e cuore, con «© autore · licenza» in piccolo; senza foto la scheda
+  di prima. Le foto le prende e le tiene l'API (`GET /city-photos/…`): a
+  Wikimedia vanno solo gli elementi, mai la posizione, e il telefono non
+  chiede niente a Wikimedia. Provato nel simulatore intorno a Moreda: sei
+  paesi su sei con la foto. **Resta: server** (lo aggiorna il
+  Coordinatore dopo l'approvazione di Apple e con l'ok dell'utente, e
+  controlla che `data/cache/city_photos/` stia sul volume); fino ad
+  allora l'app mostra le schede di prima. File: `tasks/TASK-283.md`.
+- **TASK-285 parte A — «Remember to stretch» a fine corsa, con «Skip»**
+  (ADR-0247; chiesto dall'utente il 2026-10-13: «Finito l'esercizio, puoi
+  dire all'inizio "ricordati di fare stretching" e dai la possibilità di
+  skipparlo»). Branch `feat/TASK-285-a-stretch-reminder`: la scheda
+  `StretchReminder.tsx` con la frase della voce nelle cinque lingue è
+  scritta e testata, `App.tsx` collegato (ok del Coordinatore), i test
+  dell'app della corsa libera e della corsa riaperta premono «Skip» dopo
+  «Stop». Testi approvati dall'utente il 2026-10-13; **in `main` con la
+  #504 (8cdadf70, 2026-10-14)**. Non provata nel simulatore (nessun tocco
+  possibile): da vedere alla prima corsa vera. «Stretch» per ora chiude
+  come «Skip», finché non c'è la parte B. La parte B (gli
+  esercizi animati) è della sessione «Animazione esercizi stretching
+  post-corsa», che scrive `tasks/TASK-285.md`.
+- **TASK-278…282 — Cinque richieste dell'utente del 2026-10-11 su
+  «Explore» e «Draw»** (numeri dal Coordinatore; task file scritti dalla
+  sessione «Explore e Draw: profilo e disegno mappa», nessun codice
+  ancora). Ognuno parte nella sua sessione, col via del Coordinatore;
+  le scelte dell'utente già fatte sono nei task file.
+  - **TASK-278** — il proprio profilo come quarta pagina dopo «Explore»;
+    in alto tre nomi più il cerchio, che si illumina (scelta
+    dell'utente). Solo app: può partire subito.
+    **Fatto il 2026-10-13**, branch `feat/TASK-278-profile-page`; vedi
+    «Completato».
+    **Parte B** (scelte dell'utente del 2026-10-13): cuore, «Save» e lente
+    senza account e il proprio nome taggato portano alla quarta pagina; il
+    profilo di un altro torna con «←» dov'era. Branch
+    `feat/TASK-278-b-profile-entry-points`; vedi «Completato».
+  - **TASK-279** — parole con la penna alzata negli esempi di una città
+    in «Explore» (parte A, solo app: l'API tiene già le parole chieste
+    dal centro), poi frasi con lo spazio (parte B, motore, dopo Apple).
+    **Parte A: PR #503** (2026-10-13, aggiunta ad ADR-0144), branch
+    `feat/TASK-279-a-explore-words`. Dopo le otto forme una città scrive
+    CIAO, LOVE, AMORE, RUN, HELLO, MUW (scelte dell'utente) con la penna
+    alzata, ognuna alla distanza minima, 3 km a lettera (scelta
+    dell'utente: a 5 km l'API rifiuta le parole), nella riga «WORDS»
+    (testo approvato nelle cinque lingue). Aspetta il «merge 503» del
+    Coordinatore; non nella 1.0; pubblica il Coordinatore. Resta la parte
+    B e, facoltativo, `draw_examples` con le parole (punto 7, dopo Apple).
+  - **TASK-280** — sotto «Draw», le righe «CITY TOURS» (i giri a tema) e
+    «PICTURES» (sagome pronte). Solo app: può partire subito.
+    **Fatto il 2026-10-13** (ADR-0246), PR in attesa del merge del
+    Coordinatore dopo la #500; vedi «Completato».
+  - **TASK-281** — «Draw on the map»: disegnare, mettere e trascinare
+    forme e immagini sulla mappa della città, e cambiarle senza uscire.
+    Solo app; il motore parte da dove è stata messa la figura.
+    **Fatto il 2026-10-14** (ADR-0245), PR in attesa del merge del
+    Coordinatore dopo la #504 e 278 B; vedi «Completato».
+  - **TASK-282** — il percorso proprio dove la figura è stata messa
+    (`near` a piedi): motore, dopo l'approvazione di Apple e TASK-281.
+  278, 280 e 281 toccano `App.tsx`, 280 e 281 anche `ChooseScreen.tsx`:
+  l'ordine lo dà il Coordinatore. File: `tasks/TASK-278.md` … `TASK-282.md`.
+- **TASK-276 — Più percorsi all'ora sullo stesso server** (ADR-0242
+  riservato; chiesto dall'utente il 2026-10-11). **Aspetta
+  l'approvazione di Apple della 1.0**. Poi, con l'ok dell'utente e il via
+  del coordinatore, circa 10 minuti di misura sul server: CPU per
+  percorso, percorsi al minuto con più richieste insieme, RAM per
+  processo. Con quei numeri l'utente sceglie se e come farne di più.
+  Sul Mac ogni percorso usa già altri core per le partenze vicine
+  (ADR-0071): i loro processi consumano circa il doppio della CPU del
+  job. Un pool di processi da solo darebbe quindi al massimo +33%.
+  File: `tasks/TASK-276.md`.
+- **TASK-272 — La corsa interrotta si riapre in pausa** (ADR-0240; dalla
+  prima recensione di un tester del 2026-10-10, scelta dell'utente «Riapre
+  la corsa in pausa»). Branch `feat/TASK-272-reopen-interrupted-run`. Se
+  l'app si chiude durante una corsa, riaprendola entro 2 ore si apre la
+  corsa in pausa, sullo stesso percorso con la traccia fin lì: «Resume» o
+  «Stop» tenuto; il tempo chiusa è una pausa. Il file della corsa tiene
+  ora anche indicazioni, parola e tratti a piedi. Anche la corsa senza
+  percorso. Più vecchia di 2 ore, la fine della corsa come prima. Solo
+  app, nessun testo nuovo; pubblica il coordinatore.
+  File: `tasks/TASK-272.md`, «File toccati».
+  **Chiuso con la #492** (dopo il taglio della build 6); vedi «Completato».
+- **TASK-273 — Una forma chiusa si comincia da qualunque punto** (ADR-0241;
+  dalla prima recensione di un tester del 2026-10-10, scelta dell'utente
+  «Automatico, dove la tocchi»). Branch `feat/TASK-273-start-anywhere`, da
+  `main` con la #486. Lungo una forma chiusa la corsa comincia dove il
+  corridore raggiunge la forma, fa tutto il giro e finisce lì; la voce dà
+  le svolte da quel punto. Parole e forme aperte come prima. Solo app,
+  nessun testo nuovo, non nella 1.0; tocca `navigator.ts`, `progress.ts`,
+  `useNavigation.ts` come TASK-272: l'ordine lo dà il Coordinatore.
+  File: `tasks/TASK-273.md`, «File toccati».
+  **Chiuso con la #493** (dopo la #492); vedi «Completato».
 - **TASK-271 — «Make a U-turn» anche fuori dagli incroci** (aggiunta ad
   ADR-0045; dalla prima recensione di un tester del 2026-10-10). Branch
   `fix/TASK-271-dead-end-u-turn`. Prima, tornando indietro in fondo a un
@@ -741,6 +1067,220 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
+  2026-10-23): il video della corsa da condividere. In «Share your run»,
+  «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
+  giallo del post: logo e titolo, la linea della corsa che si disegna
+  mentre distanza e tempo salgono, poi il post intero con le emoji, senza
+  musica; poi il foglio di condivisione («Save Video», Instagram). Il
+  telefono lo fa nel WebView con WebCodecs (H.264 Baseline) e l'app
+  scrive l'MP4: nessuna dipendenza nuova, niente di nativo, impronta iOS
+  `83793e26` invariata, quindi arriva anche alla 1.0 con un aggiornamento.
+  Limite fisso: 360 fotogrammi, al più 2000 punti sulla linea, al più
+  ~9 MB. Su `preview` dal gruppo `bed64fd5` (`main` `90691d47`); prova
+  sull'iPhone dell'utente del 2026-10-23: «provato, funziona tutto». PR
+  #533, `90691d47`. `tasks/TASK-295.md`.
+- **App** — prova sull'iPhone dell'utente del 2026-10-19 («provato, funziona tutto») su `preview` dal gruppo `6dab601f` (`main` `b35d461c`): TASK-292 (scegliere la partenza sulla mappa). Riga aggiunta nell'«Esito» del task file.
+- **API** — TASK-293 (aggiunta ad ADR-0249; seguito di TASK-288 B): un
+  invio a Strava apre un blocco del database alla volta. La corsa letta
+  senza lock (un 404 resta prima di un 409), il token nel suo blocco
+  (rinnovo sempre uno alla volta per account), poi la corsa bloccata per
+  il caricamento come prima; un token rifiutato si rinnova fuori dal
+  blocco della corsa. Dal pool una connessione alla volta e nessuna fuori
+  dal pool. La stessa corsa va a Strava una volta sola anche con due
+  invii insieme o con uno fra la prima lettura e il lock (condizione del
+  Coordinatore, provata da un test); una sonda su `Database.connect` in
+  `test_strava.py` fa fallire ogni blocco annidato. In `main`, **non
+  ancora sul server**: va con il pool, dopo Apple e con l'ok
+  dell'utente; cosa guardare dopo l'aggiornamento è nel task file. PR
+  #528, `aba94894`. `tasks/TASK-293.md`.
+- **App** — TASK-292 (ADR-0252; scelta dell'utente del 2026-10-18): la
+  partenza si sceglie anche sulla mappa, senza scrivere la via. Sotto la
+  ricerca di «Draw», «Choose on the map» apre la mappa con il segnaposto
+  fermo al centro. «Start here» rende il punto la partenza (origine
+  `map`, senza nome, nessuna chiamata in rete); «←» non cambia niente.
+  Testi nelle cinque lingue approvati il 2026-10-19. Pubblicata su
+  `preview` dal Coordinatore; **manca la prova sull'iPhone**, che segna
+  lui. PR #527, `b35d461c`.
+- **API** — TASK-288 parte B (aggiunta ad ADR-0249; sì dell'utente del
+  2026-10-16): il pool di connessioni (`psycopg[binary,pool]`, dipendenza
+  nuova). L'API presta da 2 a 10 connessioni tenute aperte; ognuna torna
+  come una sessione nuova (`DISCARD ALL`, niente prepared statement),
+  anche dopo un errore; tutte occupate per 10 s danno `503
+  accounts_unavailable` con `Retry-After`; il pool si chiude quando l'API
+  si ferma; un blocco annidato (`strava.py`) ha una connessione sua. In
+  locale `/me` da 63 a 4 ms, `/users?q=` da 141–185 a 8–54 ms. In `main`,
+  **non ancora sul server**: un'immagine nuova all'aggiornamento dopo
+  Apple, con l'ok dell'utente; cosa guardare lì in `tasks/TASK-288.md`,
+  «Parte B». Seguito: `strava.py` senza blocco annidato, in una sessione
+  sua. PR #524, `42699af4`.
+- **App** — prova sull'iPhone dell'utente del 2026-10-17 («provato, funziona tutto») su `preview` dal gruppo `cd521a21` (`main` `ff786f67`): TASK-286 (cambiare figura dalla mappa del risultato), TASK-287 (ricerche in coda, annullo del motore sul telefono) e TASK-290 (le sedici sagome). Righe aggiunte nell'«Esito» dei tre task file.
+- **App** — TASK-290 (aggiunta ad ADR-0246, punti 8–10; richiesta
+  dell'utente del 2026-10-16): le sagome di «PICTURES» scelte dal
+  percorso, non dal disegno. 546 percorsi veri (le 12 sagome di TASK-280 e
+  29 nuove, in otto città a 5 e a 10 km, sulle zone del server copiate in
+  sola lettura), nessun errore. Tolte bici, cuore con freccia, ancora e
+  gelato; aggiunte fungo, auto, maglietta, paperella, stivale, casa, osso
+  e coppa. Sedici, le più chiare prima, anche in «Draw on the map» e
+  sotto il risultato (33 tessere). La `similarity` del motore non basta
+  per giudicare: è sopra 0,9 anche per un percorso illeggibile. Nomi e
+  sagome tolte approvati dall'utente. Mergiato come #520 (`ff786f67`);
+  su `preview` appena la CI di `main` è verde. Da provare sull'iPhone:
+  qualche sagoma nuova a 5 km. `tasks/TASK-290.md`.
+- **API** — TASK-288 (ADR-0249, migrazione `0022_faster_searches.sql`;
+  dall'analisi delle ricerche del 2026-10-16): le ricerche diverse dal
+  percorso rispondono prima, con le stesse risposte. gzip nell'API da
+  1 KB in su (il Caddy del server non comprime l'API, controllato dal
+  Coordinatore); Geoapify chiesto insieme in `/cities` e
+  `/nearby-cities`, 3 s e un secondo tentativo su timeout, 429 e 5xx;
+  `draw_examples` richiede un 503 invece di dire «not found»; «Find
+  friends» con `pg_trgm` e la foto piccola fatta una volta; feed e
+  profili leggono l'anteprima di 64 punti in `drawings.preview` (feed con
+  la posizione da 15 s a 0,75 s a pagina in locale); l'uso della sessione
+  scritto una volta l'ora. In `main`, **non ancora sul server**: la
+  migrazione va con il prossimo aggiornamento, dopo Apple e con l'ok
+  dell'utente; la #502 prenderà la 0023. Il pool di connessioni
+  (`psycopg_pool`, approvato dall'utente) è un passo a parte
+  (`tasks/TASK-288.md`). PR #518, `2d8b4562`.
+- **App** — TASK-287 (ADR-0248; dall'analisi della lentezza del
+  2026-10-16): una sola coda per le richieste di percorso dell'app
+  (`src/api/routeQueue.ts`). Prima quelle dell'utente («Draw», spostare
+  la forma di un esempio, il percorso a tema), poi gli esempi della
+  pagina di «Explore», poi le forme sull'acqua in anticipo. Niente in
+  sottofondo mentre gira una richiesta dell'utente, al massimo 22 al
+  minuto (8 dei 30 sempre dell'utente), un minuto di pausa dopo un 429.
+  Sul telefono un «Draw» annullato esce dalla coda, o fa ripartire la
+  pagina di Python se è in calcolo, e il prossimo non aspetta il vecchio.
+  Python parte appena una zona salvata copre la posizione. Il chip delle
+  città in evidenza non chiede più `/cities`, i campioni dei paesi vicini
+  sono già esempi del paese, `city-examples.json` è scritto una volta per
+  gruppo, e dopo un `/places` lento si usa Photon per 3 minuti. Provato
+  nel simulatore per la coda; l'annullo sul telefono resta da provare
+  sull'iPhone (`tasks/TASK-287.md`, «Esito»). PR #517, `2259a5df`.
+- **API** — TASK-289 (ADR-0250; dall'analisi della lentezza del
+  2026-10-16, prepara la parte A di TASK-276): ogni job di percorso scrive
+  nel log una riga `job <id>: times total=… crop=… loads=… download=…
+  start=… traces=… converged=… far=… wait=… nearby=… chosen=…
+  directions=…`, senza posizioni. Le chiavi sono spiegate in
+  `shaperoute_api/job_times.py`. L'immagine Docker porta il bytecode dei
+  tre pacchetti (`compileall`). Il motore non è toccato: l'impronta resta
+  `9342c26d4006` e gli esempi tenuti sul server valgono ancora;
+  `engine.zip` è ricostruito. Sul Mac un cuore da 5 km costa 1,1–2,9 s, e
+  il bytecode fa risparmiare solo 23 ms per processo `spawn`. Con il Mac
+  carico lo stesso cuore sale a 12–13 s: la CPU contesa è la prima ipotesi
+  da controllare sul server. Mergiato come #515 (`cd5a4a3f`). Prossimo
+  passo: TASK-276 parte A, con un'immagine nuova sul server, dopo Apple e
+  con l'ok dell'utente. La parte B (due tempi in `NearbyPlan`) si fa solo
+  se serve. `tasks/TASK-289.md`.
+- **App** — TASK-286 (aggiunta ad ADR-0245, punti 10–14; scelta
+  dell'utente del 2026-10-15, «sì, dai la possibilità di cambiare figura
+  dalla mappa»): sotto un percorso disegnato, da «Draw» o da «Draw on the
+  map», sopra «Start» c'è la riga della tela, 17 forme e 12 immagini (con
+  «Paddle» solo le forme), con la figura del percorso segnata. Un tocco
+  ridisegna subito dalla stessa partenza e con la stessa distanza: da
+  «Draw» la figura diventa la scelta di «Draw» e «←» la ritrova; sull'acqua
+  una forma spostata resta dov'era; dalla tela la figura nuova prende il
+  posto della vecchia (stesso centro, distanza del percorso) e «Undo» la
+  rimette. Nessun testo nuovo né dipendenza; in `main` con la #513
+  (`52b331f7`). Solo app, pubblica il Coordinatore; non nella 1.0. Il tocco
+  vero sull'iPhone resta all'utente. `tasks/TASK-286.md`.
+- **App** — TASK-285 parte B (ADR-0247, punti 5–8; chiesto dall'utente il
+  2026-10-13, «come sull'app bEND», scelte sue del 2026-10-14): «Stretch»
+  sulla scheda di fine corsa apre cinque esercizi uno dopo l'altro,
+  quadricipite, posteriore della coscia, polpaccio, flessori dell'anca e
+  gluteo, 20 s per lato (3 min 20 s), con una figura stilizzata vista di
+  lato che entra in ogni posa, una riga su come si fa, il conto alla
+  rovescia, un «ding» nostro fra un lato e l'altro, «Pause» e «Skip» (o
+  «Done») verso «Your run». File nuovi in `src/stretch/`, poche righe in
+  `App.tsx`, suono da `tools/stretch_chime.py`. Nessuna dipendenza nuova.
+  Le pose viste in Expo Go nel simulatore. Niente cambia nell'API né sul
+  server; pubblica il Coordinatore; non nella 1.0 in revisione.
+- **App** — TASK-278 parte B (aggiunta ad ADR-0124; scelte dell'utente del
+  2026-10-13, «sì, portali tutti alla 4ª pagina»): gli altri ingressi al
+  profilo portano alla **quarta pagina**. La lente di «Feed» senza account
+  ci arriva con «Log in to find your friends.»; il cuore sulla mappa e la
+  riga sotto la fine della corsa senza account con la loro riga, «←» e il
+  titolo finché nessuno entra, e appena si entra l'app torna da sola dove
+  era (percorso tenuto, «Save» e «Discard» sotto la corsa). Il profilo di
+  un altro, da un nome taggato o da una notifica, si apre sopra l'app e «←»
+  mostra l'app com'era, non più «Profile»; il proprio nome taggato porta
+  alla quarta pagina. Nessun testo nuovo. Solo app, non nella 1.0: la
+  pubblica il coordinatore. `tasks/TASK-278.md`, «Parte B».
+- **App** — TASK-281 (ADR-0245; chiesto dall'utente il 2026-10-11, scelte
+  sue del 2026-10-11 e del 2026-10-13): in «Draw», sotto «Shape | Word |
+  Image», «Draw on the map» apre la mappa della partenza. Un dito disegna
+  (la linea si chiude da sola, le linee dopo si appendono come dettagli),
+  oppure una tessera mette una delle 17 forme, delle 12 immagini pronte
+  di TASK-280 o una foto («+ photo»); con «Move» la figura si trascina e
+  si ridimensiona con due dita, con la distanza che segue, una tessera la
+  cambia dov'è e «Undo» toglie l'ultima cosa. «Draw route» chiede il
+  percorso con le richieste di sempre (forma, o contorno come «Image»),
+  dal primo punto della figura e con la sua distanza: il motore può
+  spostarla, il posto esatto è TASK-282. Il risultato è quello di «Draw»
+  e «←» torna alla figura. Le forme per l'app le scrive
+  `tools/catalogue_shapes.py` dal motore: chi cambia una forma lo
+  rigenera (il test di `tools/` lo dice). Provato nel simulatore; resta
+  all'utente il dito vero sull'iPhone. Niente cambia nell'API né sul
+  server; pubblica il Coordinatore.
+- **App** — TASK-280 (ADR-0246; chiesto dall'utente il 2026-10-11, scelte
+  sue del 2026-10-13): in fondo a «Draw», sotto la distanza, due righe da
+  scorrere. «CITY TOURS»: Famous Places, Best Views, Hidden Gems e Romantic
+  «near your start» (l'app non sa il nome del paese di una posizione GPS),
+  chiesti come «Ask for a route» con «Near me»; si aprono sulla mappa coi
+  luoghi, e «Back to Draw» o «←» tornano a «Draw». «PICTURES»: dodici
+  sagome disegnate da `tools/sample_pictures.py` (bici, scarpa, dinosauro,
+  chitarra, Torre Eiffel, razzo, cuore con freccia, ancora, aereo, gelato,
+  palloncino, foglia), col contorno del motore già nell'app: un tocco le
+  mette in «Image», «Draw route» manda quel contorno. Con «Paddle» nessuna
+  delle due. Solo app, non nella 1.0; la pubblica il Coordinatore. Da
+  provare sull'iPhone. File: `tasks/TASK-280.md`.
+- **App** — TASK-278 (aggiunta ad ADR-0124; chiesto dall'utente il
+  2026-10-11, scelte sue): il proprio profilo è **la quarta pagina**, dopo
+  «Explore», a uno swipe a sinistra. In alto restano tre nomi; il cerchio
+  della foto ha la lineetta quando il profilo è sullo schermo e ci porta
+  con un tocco, da qualunque pagina (non apre più un foglio sopra l'app).
+  La pagina non ha «←» né titolo (scelta dell'utente del 2026-10-13); si
+  rifà a ogni ritorno, così elenchi e richieste sono nuovi. «Settings»,
+  «Favorites», «My activities», «Edit profile», «Guide», il profilo di un
+  altro e un disegno si aprono sopra l'app come prima, e «←» torna alla
+  quarta pagina. Il cuore e «Save» senza account, la lente di «Feed» senza
+  account, i nomi taggati e le notifiche aprono «Profile» sopra l'app come
+  prima: portarli alla quarta pagina è da chiedere all'utente. «Help» dice
+  ora «four pages» nelle cinque lingue (sì dell'utente). Solo app, non
+  nella 1.0: la pubblica il coordinatore. `tasks/TASK-278.md`.
+  Chiesto il 2026-10-13: ci portano, con la parte B (sopra).
+- **App** — TASK-273 (ADR-0241; dalla prima recensione di un tester del
+  2026-10-10, scelta dell'utente «Automatico, dove la tocchi»): lungo una
+  forma chiusa la corsa comincia dove il corridore raggiunge la forma (3
+  posizioni di fila, 20 m lungo la forma, il passaggio percorso nel verso
+  del percorso), fa tutto il giro e finisce lì; la voce dà le svolte da quel
+  punto, compresa quella alla vecchia partenza, ricavata sul telefono con la
+  regola del motore. Parole e forme aperte come prima; anche una corsa
+  riaperta (TASK-272) rientra nello stesso punto, e una parola riaperta
+  resta una parola. PR #493, merge `f7ddfe81`, dopo la #492 e il taglio
+  della build 6. Solo app, nessun testo nuovo, non nella 1.0: la pubblica
+  il coordinatore. Provata nel simulatore con un cuore vero di 3,9 km a
+  Trento; resta la prova correndo. `tasks/TASK-273.md`.
+- **App** — TASK-272 (ADR-0240; dalla prima recensione di un tester del
+  2026-10-10, scelta dell'utente «Riapre la corsa in pausa»): se l'app si
+  chiude durante una corsa, riaprendola entro 2 ore si apre la corsa **in
+  pausa**, lungo lo stesso percorso (indicazioni, parola, tratti a piedi e
+  rotazione presi dal file della corsa) o senza percorso: «Resume» o
+  «Stop» tenuto, il tempo chiusa è una pausa, e dopo «Resume» il
+  navigatore ritrova chi corre anche più avanti (TASK-270). Più vecchia di
+  2 ore, la fine della corsa come prima. PR #492, entrata dopo il taglio
+  della build 6. Solo app, nessun testo nuovo; la pubblica il
+  coordinatore. Provata nel simulatore (Expo Go); resta la prova correndo.
+  TASK-273 (#493) tocca gli stessi file ed entra dopo. `tasks/TASK-272.md`.
+- **App** — TASK-275 (aggiunta ad ADR-0228, per la risposta ad Apple del
+  2026-10-11, «Guideline 2.1 – Information Needed»): tenendo premuto il
+  commento di un altro, «Report» (i cinque motivi) e «Block» chi l'ha
+  scritto; sotto il proprio disegno anche «Delete», il proprio commento
+  solo «Delete». Alert nativi, le stesse scelte come azioni di VoiceOver.
+  Nessun testo nuovo, niente server (l'API accettava già
+  `kind: "comment"`). Entra nella **build 6**, quella su cui l'utente
+  registra il video chiesto da Apple; via della build dal Coordinatore.
+  `tasks/TASK-275.md`.
 - **App** — TASK-270 (aggiunta ad ADR-0052, dalla prima recensione di un
   tester del 2026-10-10): dopo 20 s senza posizioni (app dietro un'altra,
   congelata da iOS, corsa ripresa) il navigatore cerca il corridore su

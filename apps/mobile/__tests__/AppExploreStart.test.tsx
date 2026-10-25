@@ -112,16 +112,44 @@ async function openedFromExplore() {
 }
 
 test("Start asks for the route's directions, then follows its line", async () => {
+  let onPosition: (position: Location.LocationObject) => void = () => {};
+  jest
+    .mocked(Location.watchPositionAsync)
+    .mockImplementation(async (_options, callback) => {
+      onPosition = callback;
+      return { remove: jest.fn() };
+    });
+  jest.mocked(Speech.speak).mockClear();
   await openedFromExplore();
   await fireEvent.press(screen.getByText("Start"));
 
   const [init] = directionCalls();
   expect(init.method).toBe("POST");
   expect(JSON.parse(String(init.body))).toEqual({ points: detail.points });
-  // The banner has the next turn; the voice says where it starts.
+  // The banner has the next turn.
   expect(
     await screen.findByText("Continue straight onto Corso Italia"),
   ).toBeOnTheScreen();
+  // The star is closed: the voice says where it heads out once the runner
+  // is on it (TASK-273), here from its start.
+  expect(Speech.speak).not.toHaveBeenCalledWith(
+    expect.stringContaining("Head out"),
+    expect.anything(),
+  );
+  const [[lat0, lon0], [lat1, lon1]] = detail.points;
+  await act(async () => {
+    for (let i = 0; i <= 4; i += 1) {
+      const t = (i * 8) / 353;
+      onPosition({
+        coords: {
+          latitude: lat0 + t * (lat1 - lat0),
+          longitude: lon0 + t * (lon1 - lon0),
+          accuracy: 5,
+        },
+        timestamp: Date.now() + i * 1000,
+      } as Location.LocationObject);
+    }
+  });
   expect(Speech.speak).toHaveBeenCalledWith(
     expect.stringContaining("Head out on Via Roma"),
     expect.anything(),

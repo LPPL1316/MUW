@@ -92,6 +92,48 @@ def test_a_city_not_found_and_a_zone_not_there_say_so(tmp_path: Path) -> None:
     assert not bolzano.ready
 
 
+def test_a_city_search_that_did_not_answer_is_asked_again(tmp_path: Path) -> None:
+    """TASK-288: a 503 of GET /cities is the service failing, not a city it
+    did not find: asked again a moment later."""
+    answers = iter([OSError("slow"), OSError("slow"), {"results": [ROVERETO]}])
+
+    def geoapify(url: str) -> Any:
+        answer = next(answers)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+    slept: list[float] = []
+    client = TestClient(
+        create_app(
+            FileSource(Path("unused.graphml")),
+            planner=planner,
+            cities=CitySearch("K", fetch=geoapify),
+            route_store=RouteStore(tmp_path / "routes", engine="engine-a"),
+        )
+    )
+    with client:
+        drawn = draw_city("Rovereto", over(client), sleep=slept.append)
+    assert drawn.label == "Rovereto, Trentino-Alto Adige, Italy" and drawn.ready
+    assert slept[:2] == [draw_examples.CITY_SEARCH_WAIT_S] * 2
+
+
+def test_a_city_search_that_never_answers_says_so_not_not_found() -> None:
+    asked: list[str] = []
+
+    def call(method: str, path: str, body: dict[str, Any] | None) -> tuple[int, Any]:
+        asked.append(f"{method} {path}")
+        return 503, {"error": {"code": "http_error", "message": "try again"}}
+
+    slept: list[float] = []
+    drawn = draw_city("Rovereto", call, sleep=slept.append)
+    retries = draw_examples.CITY_SEARCH_RETRIES
+    assert asked == ["GET /cities?q=Rovereto"] * (1 + retries)
+    assert slept == [draw_examples.CITY_SEARCH_WAIT_S] * retries
+    assert drawn.label is None and not drawn.ready
+    assert drawn.line() == "Rovereto: the city search did not answer (http_503)"
+
+
 def test_too_many_requests_waits_as_long_as_the_api_says() -> None:
     slept: list[float] = []
     posts = iter(

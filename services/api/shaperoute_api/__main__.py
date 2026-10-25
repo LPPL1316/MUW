@@ -28,6 +28,7 @@ from shaperoute_api.accounts import Accounts
 from shaperoute_api.activity_graphs import ActivityGraphs
 from shaperoute_api.app import create_app
 from shaperoute_api.cities import CitySearch
+from shaperoute_api.city_photos import PHOTOS_FOLDER, CityPhotos, install_city_photos
 from shaperoute_api.db import DATABASE_VARIABLE, Database, MigrationError
 from shaperoute_api.insights import Insights
 from shaperoute_api.insights.events import DEFAULT_DIR as INSIGHTS_DIR
@@ -156,6 +157,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     if database is not None:
         try:
             migrated = database.migrate()
+            # The requests share a few open connections (TASK-288 B).
+            database = database.pooled()
         except (psycopg.Error, MigrationError) as exc:
             raise SystemExit(f"Database ({DATABASE_VARIABLE}): {exc}") from None
     accounts = None if database is None else Accounts(database)
@@ -204,8 +207,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         accounts=accounts,
         route_store=route_store,
     )
-    # The towns near the user, under "Near me" in "Explore" (TASK-236).
-    install_nearby_cities(app, NearbyCities(places.key), route_store)
+    # The towns near the user, under "Near me" in "Explore" (TASK-236), with
+    # their photos beside the zones (TASK-283).
+    photos = CityPhotos(args.cache_dir / PHOTOS_FOLDER)
+    install_nearby_cities(app, NearbyCities(places.key, photos=photos), route_store)
+    install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)
     host = "0.0.0.0" if args.lan else "127.0.0.1"
@@ -251,7 +257,12 @@ def main(argv: Sequence[str] | None = None) -> None:
     if args.lan:
         address = lan_address() or "<this PC's address>"
         print(f"From the phone, same Wi-Fi: http://{address}:{args.port}/health")
-    uvicorn.run(app, host=host, port=args.port)
+    try:
+        uvicorn.run(app, host=host, port=args.port)
+    finally:
+        # The app's end closes the pool; this, when the app never started.
+        if database is not None:
+            database.close()
 
 
 if __name__ == "__main__":

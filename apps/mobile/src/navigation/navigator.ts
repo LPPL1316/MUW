@@ -2,7 +2,15 @@ import type { Direction, LatLon } from "@shaperoute/shared-types";
 
 import { BASE_LANGUAGE, type Language } from "../i18n/languages";
 import { wordsOf } from "../voice/words";
-import { cumulative, locate, OFF_ROUTE_M } from "./progress";
+import {
+  BACK_M,
+  cumulative,
+  locate,
+  nearest,
+  OFF_ROUTE_M,
+  passesNear,
+} from "./progress";
+import { joinRoute, type Loop, loopOf } from "./startAnywhere";
 
 /**
  * Turn-by-turn along a route that is already drawn (TASK-049, ADR-0052):
@@ -42,6 +50,16 @@ export const POOR_FIX_M = 40;
  * gives no fixes either: the runner is then found where they stopped.
  */
 export const GAP_MS = 20_000;
+/**
+ * A closed route is joined wherever the runner reaches it (TASK-273,
+ * ADR-0241), after this many fixes in a row on it, each near the one
+ * before: one stray fix near a pass of the shape further on, or a fix the
+ * phone kept from before, does not choose where the run starts.
+ */
+export const JOIN_FIXES = 3;
+/** And once those fixes have gone this far along the route, either way:
+ * crossing the shape on the way to another part of it is not joining it. */
+export const JOIN_M = 20;
 
 /** What the phone says about a fix besides where it is. */
 export type Reading = {
@@ -57,6 +75,10 @@ type OffStreak = { fixes: number; sinceMs: number | null };
 /** After a gap, where on the route ahead the fixes were placed, and how
  * many in a row. */
 type Found = { alongM: number; fixes: number };
+
+/** Before a run joins a closed route, the fixes in a row on one pass of
+ * it: where the first and the last were placed, in metres along its loop. */
+type Pass = { firstM: number; lastM: number; fixes: number };
 
 export type Navigation = {
   points: LatLon[];
@@ -88,21 +110,40 @@ export type Navigation = {
   /** How far ahead a turn is said: ANNOUNCE_M when absent, further on a
    * bike (TASK-216, `ride.ts`). */
   announceM?: number;
+  /** A closed route that the run joins wherever it reaches it (TASK-273):
+   * the route twice round, until the run joins it; null after. Absent
+   * along any other route, which starts at its start. */
+  loop?: Loop | null;
+  /** Fixes on the route in a row before the run joins it, on each pass of
+   * the route near them; null when none. */
+  joining?: Pass[] | null;
+  /** Where the run joined a closed route, in metres along the route as
+   * drawn: `points`, `along` and `directions` are then the route from there
+   * round to there. 0 when it joined at the route's start. Absent before it
+   * joins, and along any other route. */
+  joinedAtM?: number;
 };
 
 /** What to do after a fix: words to say, and whether to vibrate. */
 export type Cue = { say: string; vibrate: boolean };
 
+/**
+ * The navigation at the start of a route. `anywhere`, for a closed route
+ * (`startsAnywhere`), starts the run where the runner reaches the route
+ * (TASK-273): the road it heads out on is said then, once it is known.
+ */
 export function startNavigation(
   points: LatLon[],
   directions: Direction[],
   language: Language = BASE_LANGUAGE,
   announceM: number = ANNOUNCE_M,
+  anywhere = false,
 ): { navigation: Navigation; cues: Cue[] } {
   const departure = directions[0]?.turn === "depart" ? directions[0] : null;
+  const along = cumulative(points);
   const navigation: Navigation = {
     points,
-    along: cumulative(points),
+    along,
     directions,
     alongM: 0,
     next: departure ? 1 : 0,
@@ -112,13 +153,21 @@ export function startNavigation(
     backFixes: 0,
     arrived: false,
     announceM,
+    ...(anywhere ? { loop: loopOf(points, along), joining: null } : {}),
   };
   return {
     navigation,
-    cues: departure
-      ? [{ say: wordsOf(language).direction(departure), vibrate: false }]
-      : [],
+    cues:
+      departure && !anywhere
+        ? [{ say: wordsOf(language).direction(departure), vibrate: false }]
+        : [],
   };
+}
+
+/** Whether the run is still to join a closed route (TASK-273): until then
+ * it is nowhere along it. */
+export function waitingToJoin(navigation: Navigation): boolean {
+  return navigation.loop !== undefined && navigation.loop !== null;
 }
 
 export function onFix(
@@ -126,6 +175,139 @@ export function onFix(
   fix: LatLon,
   reading: Reading = {},
   language: Language = BASE_LANGUAGE,
+): { navigation: Navigation; cues: Cue[] } {
+  const { loop } = navigation;
+  if (loop !== undefined && loop !== null && !navigation.arrived) {
+    return towardsJoin(navigation, loop, fix, reading, language);
+  }
+  return follow(navigation, fix, reading, language);
+}
+
+/**
+ * A fix before the run has joined a closed route (TASK-273). Away from the
+ * route, it is followed as on the way to a route's start: «Off the route»
+ * after OFF_FIXES. On it, nothing is said until JOIN_FIXES fixes in a row
+ * on a pass of it have gone JOIN_M along it; then the route is the one from
+ * the first of them round to there, the road it heads out on is said (after
+ * «Back on the route» if it was off), and the fix is followed on it. A poor
+ * fix neither counts nor ends the fixes on the route.
+ */
+function towardsJoin(
+  navigation: Navigation,
+  loop: Loop,
+  fix: LatLon,
+  reading: Reading,
+  language: Language,
+): { navigation: Navigation; cues: Cue[] } {
+  const accuracyM = reading.accuracyM ?? null;
+  const timeMs = reading.timeMs ?? null;
+  const seen: Navigation = {
+    ...navigation,
+    lastFixMs: timeMs ?? navigation.lastFixMs ?? null,
+  };
+  if (accuracyM !== null && accuracyM > POOR_FIX_M) {
+    return { navigation: seen, cues: [] };
+  }
+  const joining = joiningWith(navigation, loop, fix);
+  if (joining === null) {
+    // Farther than OFF_ROUTE_M from all the route: off it, from its start.
+    return follow({ ...navigation, joining: null }, fix, reading, language);
+  }
+  const pass = joinedPass(joining);
+  if (pass === null) {
+    return { navigation: { ...seen, joining, offStreak: null }, cues: [] };
+  }
+  const route = joinRoute(
+    navigation.points,
+    navigation.along,
+    navigation.directions,
+    loop,
+    pass.firstM % loop.lengthM,
+  );
+  const departure = route.directions[0]?.turn === "depart" ? route.directions[0] : null;
+  const joined: Navigation = {
+    ...seen,
+    points: route.points,
+    along: route.along,
+    directions: route.directions,
+    alongM: 0,
+    next: departure ? 1 : 0,
+    saidUpTo: departure ? 0 : -1,
+    offRoute: false,
+    offStreak: null,
+    backFixes: 0,
+    loop: null,
+    joining: null,
+    joinedAtM: route.joinedAtM,
+  };
+  const words = wordsOf(language);
+  const cues: Cue[] = [
+    ...(navigation.offRoute ? [{ say: words.backOnRoute, vibrate: false }] : []),
+    ...(departure ? [{ say: words.direction(departure), vibrate: false }] : []),
+  ];
+  const followed = follow(joined, fix, reading, language);
+  return { navigation: followed.navigation, cues: [...cues, ...followed.cues] };
+}
+
+/**
+ * The fixes on a closed route in a row with `fix`, on each pass of it that
+ * they stay on, or null when it is off the route. The next of a row is
+ * looked for BACK_M either way from the last, so a runner going the route's
+ * way or the other is followed alike. A row starts on every pass near its
+ * first fix (`passesNear`), placed on the loop's second round when it is in
+ * the first half, so that it goes on across the route's start either way.
+ */
+function joiningWith(navigation: Navigation, loop: Loop, fix: LatLon): Pass[] | null {
+  const going = (navigation.joining ?? []).flatMap((pass) => {
+    const near = nearest(
+      loop.points,
+      loop.along,
+      fix,
+      pass.lastM - BACK_M,
+      pass.lastM + BACK_M,
+    );
+    return near.offM <= OFF_ROUTE_M
+      ? [{ firstM: pass.firstM, lastM: near.alongM, fixes: pass.fixes + 1 }]
+      : [];
+  });
+  if (going.length > 0) {
+    return going;
+  }
+  const passes = passesNear(navigation.points, navigation.along, fix).map(
+    ({ alongM }): Pass => {
+      const atM = alongM < loop.lengthM / 2 ? alongM + loop.lengthM : alongM;
+      return { firstM: atM, lastM: atM, fixes: 1 };
+    },
+  );
+  return passes.length > 0 ? passes : null;
+}
+
+/**
+ * The pass the run joins, once JOIN_FIXES fixes on it have gone JOIN_M
+ * along it, or null. The route's way wins: on a street the shape runs
+ * twice, the pass the runner goes along. Going the other way on every pass,
+ * the run joins all the same, and «Off the route» says so soon after.
+ */
+function joinedPass(passes: Pass[]): Pass | null {
+  const gone = (pass: Pass) => pass.lastM - pass.firstM;
+  const ready = passes.filter(
+    (pass) => pass.fixes >= JOIN_FIXES && Math.abs(gone(pass)) >= JOIN_M,
+  );
+  const ahead = ready.filter((pass) => gone(pass) > 0);
+  if (ahead.length > 0) {
+    return ahead.reduce((best, pass) => (gone(pass) > gone(best) ? pass : best));
+  }
+  // Another pass may be the route's way, still short of JOIN_M.
+  return passes.some((pass) => gone(pass) > 0) ? null : (ready[0] ?? null);
+}
+
+/** A fix along the route followed from its start, or from where the run
+ * joined a closed route. */
+function follow(
+  navigation: Navigation,
+  fix: LatLon,
+  reading: Reading,
+  language: Language,
 ): { navigation: Navigation; cues: Cue[] } {
   const words = wordsOf(language);
   if (navigation.arrived) {

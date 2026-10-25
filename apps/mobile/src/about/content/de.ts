@@ -22,7 +22,7 @@ const help: AboutDocument = {
       heading: "Was MuW ist",
       blocks: [
         "MuW zeichnet echte Routen, die auf der Karte eine Form ergeben. Du wählst die Form, die Distanz und den Start; du bekommst eine Route auf echten Straßen, mit ihrer GPX-Datei.",
-        "Die App hat drei Seiten nebeneinander, «Feed», «Zeichnen» und «Entdecken»: Wische nach links oder rechts oder tippe oben auf einen Namen. «Profil» öffnet sich über den Kreis oben.",
+        "Die App hat vier Seiten nebeneinander, «Feed», «Zeichnen», «Entdecken» und dein Profil: Wische nach links oder rechts oder tippe oben auf einen Namen. Der Kreis oben bringt dich zu deinem Profil.",
       ],
     },
     {

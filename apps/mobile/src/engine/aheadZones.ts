@@ -37,9 +37,14 @@ import {
  * last of the 2 GB, the largest zones are ~30 MB. */
 export const AHEAD_ROOM_BYTES = 100_000_000;
 
-/** The featured cities' centres, as GET /cities gave them (they do not
- * move), and when the last whole round ended, in ms since 1970. */
-export type AheadState = { centres: Record<string, LatLon>; doneAt: number };
+/** The featured cities' centres and labels, as GET /cities gave them
+ * (they do not move), and when the last whole round ended, in ms since
+ * 1970. «Explore» opens a featured city from here too (TASK-287). */
+export type AheadState = {
+  centres: Record<string, LatLon>;
+  labels: Record<string, string>;
+  doneAt: number;
+};
 
 export type AheadOutcome =
   /** Every city asked, or held by a saved zone: nothing until tomorrow. */
@@ -73,7 +78,7 @@ export function readAhead(): AheadState {
   try {
     const file = stateFile();
     if (!file.exists) {
-      return { centres: {}, doneAt: 0 };
+      return { centres: {}, labels: {}, doneAt: 0 };
     }
     const data: unknown = JSON.parse(file.textSync());
     const state = typeof data === "object" && data !== null ? data : {};
@@ -89,11 +94,23 @@ export function readAhead(): AheadState {
         }
       }
     }
+    const labels: Record<string, string> = {};
+    if (
+      "labels" in state &&
+      typeof state.labels === "object" &&
+      state.labels !== null
+    ) {
+      for (const [name, label] of Object.entries(state.labels)) {
+        if (typeof label === "string") {
+          labels[name] = label;
+        }
+      }
+    }
     const doneAt =
       "doneAt" in state && typeof state.doneAt === "number" ? state.doneAt : 0;
-    return { centres, doneAt };
+    return { centres, labels, doneAt };
   } catch {
-    return { centres: {}, doneAt: 0 };
+    return { centres: {}, labels: {}, doneAt: 0 };
   }
 }
 
@@ -105,6 +122,27 @@ function saveAhead(state: AheadState): void {
   } catch {
     // The centres are asked again, the round runs again: nothing breaks.
   }
+}
+
+/**
+ * A featured city as GET /cities gave it, when the phone has it: «Explore»
+ * opens its chip at once, without asking again (TASK-287). Null for a city
+ * never asked, or kept before its label was.
+ */
+export function featuredPlace(name: string): Place | null {
+  const { centres, labels } = readAhead();
+  const point = centres[name];
+  const label = labels[name];
+  return point === undefined || label === undefined ? null : { label, point };
+}
+
+/** Keeps a featured city as GET /cities gave it, for the round of zones
+ * ahead and for its chip in «Explore». */
+export function keepFeaturedPlace(name: string, place: Place): void {
+  const state = readAhead();
+  state.centres[name] = place.point;
+  state.labels[name] = place.label;
+  saveAhead(state);
 }
 
 /** Where to download ahead, in order: the towns near `here`, nearest first
@@ -130,8 +168,8 @@ let running = false;
 
 /**
  * One round of zones ahead of `network`, from `here`; never throws. The
- * centres of the featured cities come from GET /cities the first time, as
- * a tap on their chip in «Explore», then from the phone. Without an answer
+ * centres of the featured cities come from GET /cities the first time, or
+ * from a tap on their chip in «Explore», then from the phone. Without an answer
  * from GET /nearby-cities (a server before TASK-236, no Geoapify) the round
  * goes on without the towns near: they come with tomorrow's round.
  */
@@ -169,13 +207,16 @@ export async function downloadAhead(
     const near = (await nearby(baseUrl, here)) ?? [];
     let whole = true;
     for (const name of FEATURED_CITIES) {
-      if (state.centres[name] === undefined) {
+      // A centre kept before the labels is asked again, once: its chip in
+      // «Explore» needs the label too.
+      if (state.centres[name] === undefined || state.labels[name] === undefined) {
         const found = await search(baseUrl, name);
         if (found === null) {
           whole = false;
         } else if (found.length > 0) {
           state.centres[name] = found[0].point;
-          saveAhead(state);
+          state.labels[name] = found[0].label;
+          keepFeaturedPlace(name, found[0]);
         }
       }
     }
@@ -201,7 +242,8 @@ export async function downloadAhead(
     if (!whole) {
       return "stopped";
     }
-    saveAhead({ ...state, doneAt: now() });
+    // As the file is now: «Explore» may have kept a city meanwhile.
+    saveAhead({ ...readAhead(), doneAt: now() });
     return "done";
   } catch {
     return "stopped";

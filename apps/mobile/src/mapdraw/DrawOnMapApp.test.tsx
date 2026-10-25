@@ -1,0 +1,168 @@
+import jobDone from "@shaperoute/shared-types/fixtures/route-job-done.json";
+import type { RouteResult } from "@shaperoute/shared-types";
+import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import * as Location from "expo-location";
+
+import App from "../../App";
+import type { MemorySecureStore } from "../account/testing";
+import { requestRouteOnPhoneFirst } from "../engine/onPhone";
+import { RouteChoice } from "../route/RoutePanel";
+import { checkWord } from "../route/wordInput";
+import { saveUnitsChoice } from "../units/units";
+import { MapDrawButton } from "./MapDrawButton";
+
+// «Draw on the map» in the app itself (TASK-281): the button under the
+// switch of «Draw», the figure on the map, its route shown as one of
+// «Draw», and «←» back to the figure as it was. The setup is
+// `Profile.test.tsx`'s: no GPS, no account; the route comes from a stand-in.
+
+jest.mock("react-native-webview");
+jest.mock(
+  "react-native-safe-area-context",
+  () => jest.requireActual("react-native-safe-area-context/jest/mock").default,
+);
+jest.mock("expo-constants", () => ({
+  __esModule: true,
+  default: { expoConfig: { hostUri: "192.168.1.23:8081" } },
+}));
+jest.mock("expo-file-system");
+jest.mock("expo-location", () => ({
+  Accuracy: { Balanced: 3 },
+  requestForegroundPermissionsAsync: jest.fn(),
+  getCurrentPositionAsync: jest.fn(),
+}));
+jest.mock("expo-secure-store", () =>
+  jest
+    .requireActual<typeof import("../account/testing")>("../account/testing")
+    .memorySecureStore(),
+);
+jest.mock("../engine/onPhone", () => ({
+  ...jest.requireActual<typeof import("../engine/onPhone")>("../engine/onPhone"),
+  requestRouteOnPhoneFirst: jest.fn(),
+}));
+
+const { injectJavaScript } =
+  jest.requireMock<typeof import("../../__mocks__/react-native-webview")>(
+    "react-native-webview",
+  );
+const store = jest.requireMock<MemorySecureStore>("expo-secure-store");
+const ROUTE = jobDone.result as unknown as RouteResult;
+let fetchSpy: jest.SpiedFunction<typeof fetch>;
+
+beforeEach(() => {
+  store.kept.clear();
+  injectJavaScript.mockClear();
+  jest.mocked(requestRouteOnPhoneFirst).mockReset();
+  jest
+    .mocked(requestRouteOnPhoneFirst)
+    .mockResolvedValue({ kind: "route", result: ROUTE });
+  fetchSpy = jest.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+    throw new Error(`Not in this test: ${String(input)}`);
+  });
+  jest
+    .mocked(Location.requestForegroundPermissionsAsync)
+    .mockResolvedValue({ granted: false } as never);
+  saveUnitsChoice("km");
+});
+
+afterEach(async () => {
+  fetchSpy.mockRestore();
+  await act(async () => saveUnitsChoice("phone"));
+});
+
+function pagePosts(data: string) {
+  return fireEvent(screen.getByTestId("map"), "message", { nativeEvent: { data } });
+}
+
+/** The messages of a type the map page was sent, in order. */
+function sent(type: string): Record<string, unknown>[] {
+  return injectJavaScript.mock.calls
+    .map(([script]: [string]) => script.match(/receive\((.*)\); true;$/)?.[1])
+    .filter((json): json is string => json !== undefined)
+    .map((json) => JSON.parse(json) as Record<string, unknown>)
+    .filter((message) => message.type === type);
+}
+
+test("the figure's route opens as one of «Draw», and «←» comes back to the figure", async () => {
+  await render(<App />);
+  await pagePosts('{"type":"ready"}');
+  // Where the map is: the figure goes there.
+  await pagePosts('{"type":"centre","lngLat":[11.13,46.07]}');
+
+  await fireEvent.press(screen.getByText("Draw on the map"));
+  expect(screen.getByText("Undo")).toBeOnTheScreen();
+  // Framed as it opens, with no figure yet.
+  expect(sent("setCanvas").at(-1)).toMatchObject({
+    mode: "draw",
+    lines: [],
+    frame: true,
+  });
+
+  await fireEvent.press(screen.getByLabelText("heart"));
+  expect(screen.getByText("≈ 5.0 km")).toBeOnTheScreen();
+  const shown = sent("setCanvas").at(-1);
+  expect(shown).toMatchObject({ mode: "move", frame: true, centre: [11.13, 46.07] });
+  expect((shown?.lines as unknown[]).length).toBe(1);
+
+  await act(async () => fireEvent.press(screen.getByText("Draw route")));
+  expect(requestRouteOnPhoneFirst).toHaveBeenCalledTimes(1);
+  const [, asked] = jest.mocked(requestRouteOnPhoneFirst).mock.calls[0];
+  expect(asked).toMatchObject({
+    shape: "heart",
+    distance_m: 5000,
+    activity: "running",
+  });
+  // The result, as for «Draw»: the figure leaves the map for the route.
+  expect(screen.getByText("Export GPX")).toBeOnTheScreen();
+  expect(screen.queryByText("Undo")).toBeNull();
+  expect(sent("clearCanvas")).toHaveLength(1);
+  expect(sent("showRoute")).toHaveLength(1);
+
+  // «←»: the figure as it was, the map framed on it again.
+  await fireEvent.press(screen.getByLabelText("Back"));
+  expect(screen.getByText("Undo")).toBeOnTheScreen();
+  expect(screen.getByText("≈ 5.0 km")).toBeOnTheScreen();
+  const back = sent("setCanvas").at(-1);
+  expect(back).toMatchObject({
+    frame: true,
+    lines: shown?.lines,
+    centre: shown?.centre,
+  });
+
+  // The same figure is shown again, not asked for again.
+  await act(async () => fireEvent.press(screen.getByText("Draw route")));
+  expect(requestRouteOnPhoneFirst).toHaveBeenCalledTimes(1);
+  expect(screen.getByText("Export GPX")).toBeOnTheScreen();
+
+  // From the figure, «←» goes back to «Draw».
+  await fireEvent.press(screen.getByLabelText("Back"));
+  await fireEvent.press(screen.getByLabelText("Back"));
+  expect(screen.getByText("Draw on the map")).toBeOnTheScreen();
+});
+
+test("on the water «Draw» has no «Draw on the map»", async () => {
+  const props = {
+    kind: "shape" as const,
+    onKind: jest.fn(),
+    shapeText: "heart",
+    shape: "heart" as const,
+    onShapeText: jest.fn(),
+    reading: null,
+    onShapeDone: jest.fn(),
+    wordText: "",
+    onWordText: jest.fn(),
+    wordCheck: checkWord("", 2000, "paddling"),
+    letterStyle: "round" as const,
+    onLetterStyle: jest.fn(),
+    distanceText: "2",
+    distanceM: 2000,
+    image: { status: "none" as const },
+    onChooseImage: jest.fn(),
+    onDistanceText: jest.fn(),
+    underKinds: <MapDrawButton onPress={jest.fn()} />,
+  };
+  const { rerender } = await render(<RouteChoice {...props} activity="paddling" />);
+  expect(screen.queryByText("Draw on the map")).toBeNull();
+  await rerender(<RouteChoice {...props} activity="running" />);
+  expect(screen.getByText("Draw on the map")).toBeOnTheScreen();
+});
