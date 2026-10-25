@@ -197,6 +197,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
   TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
   **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
+  **Parte C, motore** (PR #547 aperta il 2026-10-25, branch
+  `feat/TASK-297-c-image-pieces`): `outline_data(…, pen_up=True)` mette
+  in `pieces` i soggetti dopo il primo e i fori che valgono il 3 % del
+  loro soggetto, dal più grande al più piccolo, niente gambi; con
+  `pen_up=False` le sedici immagini di «Draw» danno lo stesso contorno
+  byte per byte (impronte in `tools/test_sample_logos.py`);
+  `ImageRequest.pen_up` e `--image … --pen-up` compongono i pezzi come
+  una forma a pezzi e cercano come le parole con la penna alzata; il
+  contratto HTTP non cambia (C2). `tools/sample_logos.py` disegna sette
+  loghi sintetici e usa il marchio MuW del lancio (anello con stella 2
+  pezzi, ruota 4, «RC» la C e l'occhio della R). `engine.zip` rifatto;
+  `draw_examples`, `paddleExamples.json` e `catalogueShapes.json` da
+  rifare con gli altri cambi del motore, dopo Apple. Emerso: la ricerca
+  lontana (ADR-0040) su un grafo piccolo che ignora l'area cade in
+  `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
+  con la #497, che ha `optimizer.py`.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»

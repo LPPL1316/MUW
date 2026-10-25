@@ -1,6 +1,6 @@
 # TASK-297 — Ricerche dall'archivio dei percorsi (A) e loghi con la penna alzata (C); il piazzamento imparato, misurato e scartato (B)
 
-**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · C e TASK-298 nelle loro sessioni · A2 dopo la #497 · poi C2
+**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · **C, motore: PR #547 aperta (2026-10-25)** · TASK-298 nella sua sessione · A2 dopo la #497 · poi C2
 **Fase**: 4 · **Branch**: `docs/TASK-297-proposal` (documenti),
 `feat/TASK-297-a-route-archive` (A), `feat/TASK-297-a2-first-placement`
 (A2, dopo la #497), `feat/TASK-297-c-image-pieces` (C, motore),
@@ -269,16 +269,25 @@ PostgreSQL, e in `tests/test_jobs.py`):
       privacy approvato dall'utente.
 
 Parte C (motore):
-- [ ] Con `pen_up=False` le sedici immagini di `sample_pictures` danno
-      lo stesso contorno di oggi (test).
-- [ ] L'anello con la stella dà un contorno, due pezzi (il cerchio
+- [x] Con `pen_up=False` le sedici immagini di `sample_pictures` danno
+      lo stesso contorno di oggi (test): `tools/test_sample_logos.py`,
+      impronte sha256 calcolate su `main` 9391893c prima del cambio.
+- [x] L'anello con la stella dà un contorno, due pezzi (il cerchio
       interno, la stella) nell'ordine esterno→interno; la ruota quattro
       pezzi; le lettere RC un contorno e due pezzi (la C, l'occhio
-      della R); un foro sotto il 3 % non c'è (test).
-- [ ] `--image … --pen-up` dalla CLI produce un percorso con `walks`,
-      senza rete, sulla fixture (test).
-- [ ] Catalogo ed esempi tenuti misurati prima e dopo: nessuna forma
-      peggiora; nella PR l'elenco di cosa rifare (condizione 4).
+      della R); un foro sotto il 3 % non c'è (test):
+      `tools/test_sample_logos.py`, `tests/test_image_pieces.py` (2 % no,
+      4 % sì).
+- [x] `--image … --pen-up` dalla CLI produce un percorso con `walks`,
+      senza rete (test): `tests/test_image_pieces.py`, sulla griglia di
+      `test_cli._GridSource` come `test_cli_image.py`, non sulla fixture
+      di Levico: lì un'immagine a pezzi da 1–2 km manda la ricerca
+      lontano, che su un grafo che ignora l'area cade in
+      `optimizer.next_scale` (`ZeroDivisionError`; seguito, con la #497).
+- [x] Catalogo ed esempi tenuti misurati prima e dopo: nessuna forma
+      peggiora (`tests/test_kept_per_graph.py` invariato: il catalogo non
+      passa da `image_outline.py`); nella PR #547 l'elenco di cosa
+      rifare (condizione 4).
 
 Parte C2 (API e app):
 - [ ] `POST /image-outlines` e `POST /image-route-jobs` con i pezzi
@@ -320,14 +329,17 @@ services/api/shaperoute_api/route_archive.py              (il ridisegno da lì)
 docs/ROUTE_ENGINE.md §5, docs/DECISIONS.md (aggiunta ad ADR-0256), docs/STATUS.md, docs/tasks/TASK-297.md
 ```
 
-Parte C (motore):
+Parte C (motore), come fatta nella #547 (`models.py` non serve:
+`ImageRequest` vive in `images.py` dell'API):
 ```
 services/route-engine/route_engine/image_outline.py       (`pen_up`, i pezzi e i fori)
-services/route-engine/route_engine/models.py              (`ImageRequest.pen_up` accettato) — o `images.py` dell'API, dove vive `ImageRequest`
 services/route-engine/route_engine/__main__.py            (`--image` con `--pen-up`)
+services/api/shaperoute_api/images.py                     (`ImageRequest.pen_up`, `image_job` con i pezzi; contratto HTTP invariato)
 services/route-engine/tests/test_image_pieces.py          (nuovo)
+services/api/tests/test_image_pen_up.py                   (nuovo; `test_images.py` resta a C2)
 tools/sample_logos.py, tools/test_sample_logos.py         (nuovi)
-docs/ROUTE_ENGINE.md §2, docs/STATUS.md, docs/tasks/TASK-297.md
+apps/mobile/assets/engine/engine.zip                      (rifatto: `test_phone_engine.py` lo vuole al passo col motore)
+docs/ROUTE_ENGINE.md §2, docs/DECISIONS.md (aggiunta ad ADR-0258), docs/STATUS.md, docs/tasks/TASK-297.md
 ```
 
 Parte C2 (API e app):
@@ -387,3 +399,20 @@ vicino, 20 m più in là); un job è `done` prima che `put` scriva la riga.
 Rimandato: il server dopo Apple con l'ok dell'utente e il paragrafo della
 privacy (lo raccoglie TASK-284 B); A2 (il ridisegno rapido dal
 piazzamento) dopo la #497. Il resto si compila a fine task.
+
+**Parte C, motore** (2026-10-25, PR #547 aperta): `outline_data(…,
+pen_up=True)` mette in `pieces` i soggetti dopo il primo e i fori che
+valgono almeno il 3 % del loro soggetto (`HOLE_SHARE`), dal più grande al
+più piccolo, senza gambi; un soggetto dentro un foro è un pezzo suo; i
+pezzi passano `parse_outline` e `pieces.compose`; con `pen_up=False` le
+sedici immagini di «Draw» danno lo stesso contorno byte per byte.
+`ImageRequest.pen_up` e `--image … --pen-up` cercano come una forma a
+pezzi; senza pezzi il contorno di oggi (dalla CLI con un avviso). Sette
+loghi sintetici e il marchio MuW del lancio in `tools/sample_logos.py`:
+anello con stella 2 pezzi (il cerchio interno, poi la stella), scudo 1,
+montagne e sole 1, «RC» 2 (la C, l'occhio della R), tre barre 2, scarpa
+1, ruota 4, MuW 2. `engine.zip` rifatto dopo l'allineamento alla #489; da
+rifare ancora dopo la #497. Emerso: la ricerca lontana su un grafo
+piccolo che ignora l'area (`FileSource`) cade in `optimizer.next_scale`
+con `ZeroDivisionError`; il test della CLI usa la griglia. Rimandato: C2
+(API e app), `draw_examples` e gli altri file derivati dopo Apple.
