@@ -271,16 +271,23 @@ una volta per sfida.
 
 - **«Play»**, la quarta pagina da scorrere, fra Explore e il profilo, con
   il suo nome in alto (parte B; `UI.md`, «“Play”: la collezione delle
-  forme»). Con la parte D avrà due schede (`Segmented`); in B c'è la sola
-  collezione:
+  forme»). Dalla parte D ha due schede (`Segmented`):
   - **Collection**: una griglia di forme. Le sbloccate sono in giallo, con
     il giorno. Le bloccate sono in grigio, con il requisito, la barra di
     avanzamento e quanto manca, nelle unità scelte. Senza account le forme
     sono grigie con il requisito, e sopra «Sign in to collect shapes.»
     porta al profilo.
-  - **Challenges** (parte D): le mie squadre, «Create» e «Join» con il
-    codice, e la sfida aperta: la forma con i pezzi colorati per persona,
-    chi ha dato quanto, quanto manca e il conto alla rovescia.
+  - **Challenges** (parte D): le mie squadre, «Create» con il nome e «Join»
+    con il codice; la squadra aperta con il codice, «Share code» (il foglio
+    di condivisione con una frase), gli iscritti, «Leave team» e, per chi
+    l'ha creata, «Remove»; la sfida: la forma con i pezzi colorati per
+    persona per quanto è corsa, chi ha dato quanto, i pezzi liberi, presi
+    e fatti con «Take this piece» e «Leave», quanto manca e il conto alla
+    rovescia; «New challenge» (forma, pezzi, km o pezzo veloce, giorni)
+    quando non ce n'è una in corso. La sfida si rilegge ogni 15 s mentre è
+    sullo schermo e in corso, e quando l'app torna in primo piano. Su un
+    server senza la parte C la scheda dice solo che le squadre non ci sono
+    ancora. Senza account, «Sign in to play with a team.».
 - **La pagina si vede solo se il server ha il gioco**: all'avvio l'app
   chiede `GET /game/catalog` e tiene la risposta sul telefono
   (`game-catalog.json`). Con 200 la pagina compare, anche subito, mentre
@@ -294,7 +301,10 @@ una volta per sfida.
   mandata più tardi compare subito. Più forme, una scheda dopo l'altra;
   «See collection» apre «Play».
 - **La push `shape_unlocked`** non si mostra con l'app in primo piano; dal
-  centro notifiche apre «Play».
+  centro notifiche apre «Play». **Le push delle sfide** (`piece_done`,
+  `challenge_done`, `challenge_ending`) si mostrano anche con l'app
+  aperta, e toccate aprono la sfida che nominano, nella scheda
+  «Challenges».
 - **Durante la corsa** c'è una striscia sottile, per esempio «Hexagon
   14.2 / 20 km», oppure, con un pezzo veloce in mano, il passo dell'ultimo
   km contro l'obiettivo. È una stima del telefono: il conto vero lo fa il

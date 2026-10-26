@@ -1,0 +1,85 @@
+{
+  "id": "6d0e5c4a-2b1f-4a3e-9c8d-7e6f5a4b3c2d",
+  "team_id": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "shape_id": "hexagon",
+  "status": "active",
+  "starts_at": "2026-10-25T08:00:00Z",
+  "ends_at": "2026-11-01T08:00:00Z",
+  "completed_at": null,
+  "seconds_left": 518400,
+  "pieces": [
+    {
+      "idx": 0,
+      "goal": {
+        "kind": "distance",
+        "total_m": 5000,
+        "distance_m": null,
+        "pace_s": null
+      },
+      "holder": {
+        "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+        "username": "adam.trento"
+      },
+      "done_m": 5000,
+      "done": true,
+      "outline": [
+        [0.5, 0.0],
+        [0.067, 0.25],
+        [0.067, 0.75]
+      ]
+    },
+    {
+      "idx": 1,
+      "goal": {
+        "kind": "distance",
+        "total_m": 5000,
+        "distance_m": null,
+        "pace_s": null
+      },
+      "holder": {
+        "public_id": "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13",
+        "username": "Runner_42"
+      },
+      "done_m": 2400,
+      "done": false,
+      "outline": [
+        [0.067, 0.75],
+        [0.067, 0.75],
+        [0.5, 1.0],
+        [0.933, 0.75],
+        [0.933, 0.75]
+      ]
+    },
+    {
+      "idx": 2,
+      "goal": {
+        "kind": "distance",
+        "total_m": 5000,
+        "distance_m": null,
+        "pace_s": null
+      },
+      "holder": null,
+      "done_m": 0,
+      "done": false,
+      "outline": [
+        [0.933, 0.75],
+        [0.933, 0.25],
+        [0.5, 0.0]
+      ]
+    }
+  ],
+  "contributions": [
+    {
+      "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+      "username": "adam.trento",
+      "idx": 0,
+      "metres": 5000
+    },
+    {
+      "public_id": "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13",
+      "username": "Runner_42",
+      "idx": 1,
+      "metres": 2400
+    }
+  ]
+}
