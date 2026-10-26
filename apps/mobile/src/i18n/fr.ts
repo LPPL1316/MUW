@@ -1401,4 +1401,7 @@ export const FR: Table = {
     "Si tu n'ouvres pas MuW pendant 2 semaines, on t'envoie un seul e-mail avec les nouveautés.",
   "Don't send me these emails": "Ne plus m'envoyer ces e-mails",
   "Email when I'm away": "E-mail en cas d'absence",
+  // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
+  "NEAR YOU": "PRÈS DE VOUS",
+  "SHAPES TO TRY": "FORMES À ESSAYER",
 };
