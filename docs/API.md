@@ -1095,8 +1095,10 @@ Tipi e esempi in `shared-types` (`SignUpRequest`, `SignInRequest`,
 - `Session` è `{ "token": "…", "user": User }`; `User` è `id`, `email`,
   `username`, `role` (`user` o `admin`) e `created_at`, più `bio` e
   `public_id` da TASK-116 («Profile», sotto), `phone` da TASK-183
-  («Email and phone number», sotto) e `notifications` da TASK-185
-  («Notifications», sotto). Il token è l'unica
+  («Email and phone number», sotto), `notifications` da TASK-185
+  («Notifications», sotto) ed `email_confirmed` e `pending_email` da
+  TASK-300 («Confirmed email and forgotten password», sotto). Il token è
+  l'unica
   cosa segreta che l'API dà, e solo qui: l'app lo tiene in
   `expo-secure-store` e lo rimanda come `Authorization: Bearer <token>` a
   `GET /me`, `DELETE /session`, `DELETE /me`, ai preferiti e alle corse
@@ -1445,18 +1447,23 @@ il codice in `contact.py`.
   non è in `PublicProfile`, nella ricerca né negli elenchi (un test lo
   prova).
 - **`PUT /me/email`**: il nuovo indirizzo (stessa regola dell'iscrizione,
-  salvato in minuscolo) e la **password dell'account**. Vale subito: l'API
-  non manda mail di conferma (ADR-0150). Il telefono resta dentro, le
-  altre sessioni anche; da lì in poi si entra con il nuovo indirizzo. La
-  propria email di adesso è accettata e non cambia niente.
+  salvato in minuscolo) e la **password dell'account**. Su un server che
+  manda le email (TASK-300, sotto) **aspetta il suo link** in
+  `pending_email`: `email` resta quello di adesso, con cui si entra, finché
+  il link non è aperto; al vecchio indirizzo arriva un avviso. Senza email
+  vale subito, come con ADR-0150, e il nuovo indirizzo non è confermato. Il
+  telefono resta dentro, le altre sessioni anche. La propria email di
+  adesso è accettata e non cambia niente (toglie quella in attesa).
 - **Errori di `PUT /me/email`**: password sbagliata, `403
   wrong_credentials` «Wrong password.» (non `401`: la sessione vale
   ancora); le password sbagliate contano con quelle di `POST /session`
   per l'email di adesso, e dopo 5 in 15 minuti è `429 too_many_requests`
   con `Retry-After`, qui e all'accesso; l'email di un altro account, `409
-  email_taken` «Another account has this email.»; un indirizzo fuori
-  regola, un campo mancante o in più, `422 invalid_request`. Con un errore
-  non cambia niente. La password non torna mai in una risposta né nei log.
+  email_taken` «Another account has this email.»; con le email accese,
+  dopo 3 email chieste in un'ora dall'account, `429 too_many_requests`
+  «Too many emails asked: wait a few minutes and try again.» con
+  `Retry-After`; un indirizzo fuori regola, un campo mancante o in più,
+  `422 invalid_request`. Con un errore non cambia niente. La password non torna mai in una risposta né nei log.
 - **`PUT /me/phone`**: `phone` è il numero **con il prefisso del paese**,
   comunque sia spaziato (`"+39 333 123 4567"`, `"0039 333-123-4567"`,
   `"+39 (333) 123.4567"`): spazi, trattini, punti, barre e parentesi si
@@ -1701,6 +1708,78 @@ subito); la lingua come l'email di ritorno. Il codice in
   `SHAPEROUTE_EMAIL_SECRET`, `SHAPEROUTE_DOMAIN`). A mano: `python -m
   shaperoute_api.notice_email` conta chi la riceverebbe adesso, `--send`
   fa un giro.
+
+### Confirmed email and forgotten password (TASK-300, ADR-0261)
+
+La email che conferma l'indirizzo, all'iscrizione e al cambio in
+«Settings», l'avviso al vecchio indirizzo, e la email con il link per
+scegliere una nuova password. Scelte dell'utente del 2026-10-25: un
+indirizzo non confermato **non blocca niente**; gli account di prima
+restano non confermati e non ricevono niente da soli. Il codice in
+`account_email.py`, le parole in `account_email_texts.py`; Resend con
+`resend_email.py`. Tipi in `shared-types` (`AccountEmailService`,
+`PasswordResetRequest`, `User.email_confirmed`, `User.pending_email`),
+esempio in `fixtures/password-reset-request.json`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /account-email` | il server manda queste email? | `200` `{"on": true}`; `404` da un server senza email o di prima |
+| `POST /password-reset` | una nuova password, senza account: `email`, facoltativo `language` | `202`, vuota, chiunque abbia l'indirizzo |
+| `POST /me/email/confirmation` | il link di conferma, di nuovo | `202`; `204` con niente da confermare |
+| `DELETE /me/email/pending` | annullare il cambio d'indirizzo in attesa | `200` `User` |
+| `GET /email/confirm?t=…` | la pagina del link di conferma: la domanda e il pulsante | `200` HTML; `404` HTML con un link che non vale |
+| `POST /email/confirm?t=…` | il pulsante: l'indirizzo è dell'account, confermato | `200` HTML; `409` HTML se un altro account l'ha preso nel frattempo; `404` |
+| `GET /password/reset?t=…` | la pagina del link di reset: due campi per la password | `200` HTML; `404` |
+| `POST /password/reset?t=…` | il modulo (`password`, `repeat`, form-urlencoded) | `200` HTML; `422` HTML con il problema; `404` |
+
+- **`User`** ha in più `email_confirmed` (vero quando il proprietario ha
+  aperto il link mandato a `email`) e `pending_email` (l'indirizzo chiesto
+  in «Settings» che aspetta il suo link, o `null`). Solo al proprietario.
+- **Iscriversi** (`POST /accounts`) manda il link a `email` nella lingua
+  dell'app (`language`, se no inglese); l'account è subito usabile.
+- **Il cambio** (`PUT /me/email`, sopra) mette il nuovo indirizzo in
+  `pending_email`, manda il link al nuovo e al vecchio l'avviso con il
+  nuovo coperto (`r•••@example.com`), senza link: «se non sei stato tu»
+  rimanda a «Forgot password?». Aperto il link, `email` è il nuovo,
+  confermato, e `pending_email` torna `null`; si entra con il nuovo. Un
+  altro cambio sostituisce quello in attesa e spegne il suo link.
+- **Il reset**: `POST /password-reset` risponde `202` vuoto sia che
+  l'indirizzo sia di un account sia di no; l'account si cerca e l'email
+  parte dopo la risposta, così neppure il tempo dice chi è iscritto. La
+  email va solo a un account con quell'`email` (non a un indirizzo in
+  attesa), nella lingua `language`, poi in quella dell'account. La pagina
+  chiede la password due volte, con le regole dell'iscrizione (8–128
+  caratteri; «A password is at least 8 characters.», «The two passwords
+  are not the same.»; niente torna nei campi). Salvata: hash nuovo, **tutte
+  le sessioni chiuse** (`401` su ogni telefono), il cambio in attesa
+  annullato, il conto delle password sbagliate azzerato, l'indirizzo
+  confermato.
+- **Il token** dei link è `public_id.scadenza.tag`: il tag è un HMAC con
+  `SHAPEROUTE_EMAIL_SECRET` dell'uso (conferma o reset), dell'account,
+  della scadenza e dello stato che il link cambia: l'indirizzo per la
+  conferma, indirizzo e hash della password per il reset. Così un link
+  **vale una volta** (dopo l'indirizzo è confermato, o la password è
+  un'altra) e muore se l'indirizzo cambia; niente nel database. Conferma:
+  7 giorni; reset: 1 ora. Una conferma già usata mostra «Done» senza
+  pulsante.
+- **Le pagine** non vogliono `X-API-Key` (`access.py`), sono `no-store`,
+  senza referrer, fuori dai frame (`X-Frame-Options: DENY`, CSP), nella
+  lingua dell'account; un link che non è nostro, in inglese. Il `GET` non
+  cambia niente (i filtri antispam aprono i link): solo il `POST`.
+- **Limiti** (in memoria): 3 `POST /password-reset` all'ora per indirizzo,
+  di un account o no, poi `429 too_many_requests` «Too many emails asked:
+  wait a few minutes and try again.»; 3 email all'ora per account fra
+  `POST /me/email/confirmation` e `PUT /me/email`, poi `429` con
+  `Retry-After`; 300 email all'ora in tutto, oltre le quali non parte
+  niente (nel log). Il limite dei `POST` di `SHAPEROUTE_RATE_LIMIT` vale
+  in più.
+- **Spente** senza le tre variabili dell'email di ritorno (sopra): nessuna
+  di queste strade c'è (`404 http_error`), l'iscrizione non manda niente e
+  il cambio vale subito. Indirizzi, token e chiave mai nei log.
+- **L'app** mostra «Forgot password?» e «Email not confirmed» solo se
+  `GET /account-email` risponde `200` (parte B). L'app di prima ignora i
+  campi nuovi; a un cambio in attesa chiude il modulo e mostra ancora
+  l'indirizzo di adesso.
 
 ### Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170)
 

@@ -1,4 +1,4 @@
-import { type Ref, useRef, useState } from "react";
+import { type Ref, useEffect, useRef, useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 
+import type { AccountEmail } from "../account/accountEmail";
 import type { SignInFields, SignUpFields } from "../account/fields";
 import { t, tLater } from "../i18n";
 import {
@@ -18,6 +19,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { ForgotPassword } from "./ForgotPassword";
 import { Segmented } from "./Segmented";
 
 export type SignInMode = "signUp" | "logIn";
@@ -41,6 +43,12 @@ type Props = {
   onLogIn: (fields: SignInFields) => void;
   /** Another form: the last problem was the other one's. */
   onMode: () => void;
+  /**
+   * «Forgot password?» under «Log in» (TASK-300): the server is asked
+   * whether it sends the email the first time «Log in» shows, and the link
+   * is there only if it does.
+   */
+  email?: AccountEmail;
 };
 
 /**
@@ -56,6 +64,7 @@ export function SignInScreen({
   onSignUp,
   onLogIn,
   onMode,
+  email: emails,
 }: Props) {
   const [mode, setMode] = useState<SignInMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -65,6 +74,14 @@ export function SignInScreen({
   const usernameField = useRef<TextInput>(null);
   const passwordField = useRef<TextInput>(null);
   const signingUp = mode === "signUp";
+  const [forgot, setForgot] = useState(false);
+  const check = emails?.check;
+  useEffect(() => {
+    if (!signingUp) {
+      check?.();
+    }
+  }, [signingUp, check]);
+  const askReset = emails?.on ? emails.askReset : undefined;
 
   function submit() {
     if (busy) {
@@ -75,6 +92,16 @@ export function SignInScreen({
     } else {
       onLogIn({ email, password });
     }
+  }
+
+  if (forgot && askReset !== undefined) {
+    return (
+      <ForgotPassword
+        email={email}
+        askReset={askReset}
+        onBack={() => setForgot(false)}
+      />
+    );
   }
 
   return (
@@ -165,6 +192,18 @@ export function SignInScreen({
         </Text>
       </Pressable>
       {problem && <Text style={styles.problem}>{problem}</Text>}
+      {!signingUp && askReset !== undefined && (
+        <Pressable
+          style={({ pressed }) => [styles.forgot, pressed && styles.forgotPressed]}
+          onPress={() => {
+            setForgot(true);
+            onMode();
+          }}
+          accessibilityRole="button"
+        >
+          <Text style={styles.forgotText}>{t("Forgot password?")}</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -279,5 +318,18 @@ const styles = StyleSheet.create({
   problem: {
     color: color.error,
     fontSize: fontSize.body,
+  },
+  forgot: {
+    minHeight: MIN_TAP_SIZE,
+    alignSelf: "flex-start",
+    justifyContent: "center",
+  },
+  forgotPressed: {
+    opacity: 0.6,
+  },
+  forgotText: {
+    color: color.textMuted,
+    fontSize: fontSize.body,
+    textDecorationLine: "underline",
   },
 });

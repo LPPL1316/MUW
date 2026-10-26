@@ -32,6 +32,9 @@ molti download rifiuta per qualche ora (`MAPS.md`).
 
 ## Prossimo passo
 
+*(2026-10-25: TASK-122 è Done, lo Storage Box c'è e riceve le copie; il
+paragrafo qui sotto è superato per quella parte.)*
+
 **TASK-122 — le copie fuori dal server**: il server è spostato, manca lo
 Storage Box Hetzner, che crea l'utente (`DEPLOY.md` F.13, punto 2); poi
 il servizio `offsite` sul server. Dopo, la parte social (`ROADMAP.md`,
@@ -201,6 +204,27 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
   «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
   File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
+- **TASK-300 — Email confermata e «Forgot password?»** (ADR-0261; scelta
+  dell'utente del 2026-10-25, «a parte SUBITO»; numero e regole dal
+  Coordinatore). All'iscrizione e al cambio in «Settings» un link conferma
+  l'indirizzo; il nuovo vale solo confermato e il vecchio riceve un
+  avviso; da «Log in», «Forgot password?» manda un link per scegliere una
+  nuova password, che chiude ogni sessione. Scelte dell'utente: un
+  indirizzo non confermato non blocca niente; i 3 account di prima restano
+  non confermati, senza email partite da sole; testi approvati. Parti A e
+  B in una PR (branch `feat/TASK-300-account-emails`). **Parte A** (migrazione
+  `0029_email_confirmation.sql`, numero al merge: la 0028 è di #550):
+  `account_email.py` e `account_email_texts.py`, link firmati senza
+  tabella, pagine `/email/confirm` e `/password/reset` senza chiave,
+  `GET /account-email`, `POST /password-reset`, `POST
+  /me/email/confirmation`, `DELETE /me/email/pending`; `User` con
+  `email_confirmed` e `pending_email`. Spenta senza le variabili di
+  Resend, come l'email di ritorno. **Parte B** (app, solo JS): «Forgot
+  password?» sotto «Log in» e le righe sotto «Change email», solo se
+  `GET /account-email` risponde 200 (chiesto quando quelle pagine si
+  vedono). TASK-284 B tocca le stesse schermate in righe diverse. Server
+  dopo Apple, con l'ok dell'utente; l'app prima o insieme. File:
+  `tasks/TASK-300.md`.
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -241,6 +265,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
   TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
   **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
+- **TASK-298 — Fermarsi prima nella ricerca quando la forma non entra
+  nelle strade** (ADR-0259; seguito di TASK-297, l'utente il 2026-10-24:
+  «sì, apri anche quello per fermarsi prima»; condizioni dal
+  Coordinatore). Branch `feat/TASK-298-stop-earlier`. **Misurato**
+  (`tests/measure_stop_earlier.py`, 252 richieste in sette città,
+  tracciamento per tracciamento) e **scartato**: il primo percorso buono
+  compare a qualunque tracciamento, anche al 30º di 30 e dal 6º
+  piazzamento inclinato; «N piazzamenti senza miglioramento» perde da 10 a
+  38 buoni su 129; il conteggio delle strade è 1,00 in testa quasi ovunque;
+  saltare la fase inclinata o la rifinitura dopo una fase andata male tiene
+  i buoni ma peggiora i mediocri e non abbrevia. Resta una regola piccola:
+  una scala già tracciata per lo stesso piazzamento non si traccia più
+  (1,3 % dei tracciamenti; i 129 buoni identici, i mediocri mai peggiori).
+  Il taglio vero costa percorsi buoni ed è una scelta di prodotto: numeri
+  in ADR-0259. `engine.zip` rifatto nella PR. **PR #558** aperta il
+  2026-10-25, al merge del Coordinatore. File: `tasks/TASK-298.md`.
+  **Chiuso**: in `main` con la #558 (`61932179`, 2026-10-26), mergiata dal
+  Coordinatore; scelta dell'utente del 2026-10-26: **tetto 30, invariato**,
+  nessun percorso buono perso. Vedi «Completato».
+
   **Parte C, motore** (PR #547 aperta il 2026-10-25, branch
   `feat/TASK-297-c-image-pieces`): `outline_data(…, pen_up=True)` mette
   in `pieces` i soggetti dopo il primo e i fori che valgono il 3 % del
@@ -880,6 +924,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `offsite` è in `main` dalla PR #167): manca che l'utente lo crei
   (`DEPLOY.md` F.13). Sessione «Sistema di auto-miglioramento ricerca»; da
   dove riprendere: il task file.
+  **Done** il 2026-10-25: vedi «Completato».
 - **TASK-190 — Percorsi in bici** (ADR-0153): **parte A, il motore**, in
   `main` (PR #214): la rete `bike` (ciclabili e strade fino alle
   `primary`, mai scale, `trunk` né vie vietate alle bici, sensi unici
@@ -1269,6 +1314,44 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
+  2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
+  dove la forma non entra nelle strade, **misurato e scartato**. Su 252
+  richieste in sette città (`tests/measure_stop_earlier.py`, tracciamento
+  per tracciamento) il primo percorso buono compare a qualunque
+  tracciamento, anche al 30º di 30 e dal 6º piazzamento inclinato; ogni
+  tetto o piazzamento in meno perde buoni (28: 2; 25: 5; 20: 12); le regole
+  che li tengono (fase inclinata o rifinitura saltate dopo una fase andata
+  male) peggiorano i mediocri senza abbreviare. Resta: una scala già
+  tracciata per lo stesso piazzamento non si traccia più (1,3 %; i 129
+  buoni identici, i mediocri mai peggiori). **Scelta dell'utente del
+  2026-10-26: tetto 30, invariato.** `engine.zip` rifatto, impronta iOS
+  `83793e26` invariata. PR #558, `61932179`. `tasks/TASK-298.md`.
+- **App** — TASK-302 (aggiunta ad ADR-0047; prova sul campo dell'utente a
+  Trento del 2026-10-25): le svolte di un incrocio attraversato a piedi, a
+  25 m o meno l'una dall'altra, si dicono e si mostrano come una, con la
+  direzione che si vede sul posto (il percorso 20 m prima contro 20 m
+  dopo); una manovra che non gira tace, salvo su una via di un altro nome
+  («Prosegui dritto su …»). Partenza, «u-turn» e arrivo mai fusi, e le
+  indicazioni a più di 25 m dalle vicine identiche a prima (test su Trento
+  e sul grafo di Levico di TASK-271). Su una camminata
+  vera da Trento Fiere da 30 a 13 indicazioni. Solo app
+  (`navigation/simplifyDirections.ts`), nessun testo nuovo; motore, API e
+  file della corsa invariati, quindi vale anche per i percorsi già in
+  cache. Entra col merge del Coordinatore, poi su `preview` da provare
+  sul campo. Seguono **TASK-303** (il rientro dopo una deviazione, testi
+  nuovi) e **TASK-304** (l'attività persa uscendo dall'app: prima la
+  domanda all'utente sulla build della prova). `tasks/TASK-302.md`.
+- **Server** — TASK-122 (ADR-0123), le copie fuori dal server: lo Storage
+  Box Hetzner `muw-backups` (`u700709`, BX11, Falkenstein, 3,20 €/mese,
+  comprato dall'utente il 2026-10-25) riceve ogni notte alle 02:30 UTC le
+  13 copie del database e gli eventi delle ricerche. Primo invio a mano il
+  2026-10-25, 1,5 s; una copia ripresa da lì ha lo stesso SHA-256 e si
+  ripristina in `restore_check`, con 3 account e le migrazioni 0001–0021. È
+  stato ricreato solo `offsite`, senza riavvii di API e database. Il
+  server nella Console ora si chiama `muw`, il progetto `MuW`. L'iscrizione
+  dall'iPhone la conferma l'utente. **TASK-122 è Done**; resta da guardare il
+  2026-10-26 il primo invio notturno. `tasks/TASK-122.md`, `DEPLOY.md` F.13.
 - **Motore, API e app** — TASK-190 (ADR-0153; chiuso il 2026-10-25): i
   percorsi in bici, parti A, B e C in `main` dal 2026-10-02 (PR #214, #219,
   #221). I campioni sono tutti giudicati dall'utente: oltre ai cinque di
