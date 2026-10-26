@@ -361,6 +361,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dice che le squadre non ci sono ancora, senza errore. Solo app, nessuna
   dipendenza nuova; i testi nelle cinque lingue aspettano il sì
   dell'utente (task file, «Testi da approvare»). Resta la E.
+  **Parte E** (branch `feat/TASK-296-e-run-strip`, PR #564, 2026-10-26): la
+  riga del gioco nella scheda della corsa, sotto i numeri di «Map» e di
+  «Data», per la corsa a piedi con l'account: la prossima forma per
+  distanza con i km del server più quelli della corsa («Hexagon 14.2 / 20
+  km»; oltre la soglia la forma dopo, mai «unlocked»), o con un pezzo
+  veloce in mano il passo dell'ultimo km contro l'obiettivo («Last km 5:12
+  · target 5:00 /km»); `GET /game/me` e `GET /game/teams` una volta
+  all'inizio della corsa, mai durante; niente riga e nessun errore in bici,
+  in canoa, senza account, senza rete o senza il gioco sul server. Le
+  squadre lette con `fetchTeams` e i tipi della D. Solo app, nessuna
+  dipendenza nuova; i due testi aspettano il sì dell'utente (task file,
+  «Testi da approvare»); il posto della riga lo conferma l'utente su
+  `preview`. Con la E il task è completo: dopo il merge, chiusura e
+  server (A e C) dopo Apple.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
