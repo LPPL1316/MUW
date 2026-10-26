@@ -189,6 +189,27 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
   «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
   File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
+- **TASK-300 — Email confermata e «Forgot password?»** (ADR-0261; scelta
+  dell'utente del 2026-10-25, «a parte SUBITO»; numero e regole dal
+  Coordinatore). All'iscrizione e al cambio in «Settings» un link conferma
+  l'indirizzo; il nuovo vale solo confermato e il vecchio riceve un
+  avviso; da «Log in», «Forgot password?» manda un link per scegliere una
+  nuova password, che chiude ogni sessione. Scelte dell'utente: un
+  indirizzo non confermato non blocca niente; i 3 account di prima restano
+  non confermati, senza email partite da sole; testi approvati. Parti A e
+  B in una PR (branch `feat/TASK-300-account-emails`). **Parte A** (migrazione
+  `0029_email_confirmation.sql`, numero al merge: la 0028 è di #550):
+  `account_email.py` e `account_email_texts.py`, link firmati senza
+  tabella, pagine `/email/confirm` e `/password/reset` senza chiave,
+  `GET /account-email`, `POST /password-reset`, `POST
+  /me/email/confirmation`, `DELETE /me/email/pending`; `User` con
+  `email_confirmed` e `pending_email`. Spenta senza le variabili di
+  Resend, come l'email di ritorno. **Parte B** (app, solo JS): «Forgot
+  password?» sotto «Log in» e le righe sotto «Change email», solo se
+  `GET /account-email` risponde 200 (chiesto quando quelle pagine si
+  vedono). TASK-284 B tocca le stesse schermate in righe diverse. Server
+  dopo Apple, con l'ok dell'utente; l'app prima o insieme. File:
+  `tasks/TASK-300.md`.
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;

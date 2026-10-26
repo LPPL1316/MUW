@@ -588,6 +588,17 @@ export interface User {
    * owner only. Missing from an API older than TASK-185: both off.
    */
   notifications?: Notifications;
+  /**
+   * Whether the owner opened the link sent to `email` (TASK-300). Missing
+   * from an API older than TASK-300.
+   */
+  email_confirmed?: boolean;
+  /**
+   * The address asked for in «Settings» that waits for its link, or null
+   * (TASK-300): `email` stays the one to log in with until then. Missing
+   * from an API older than TASK-300.
+   */
+  pending_email?: string | null;
 }
 
 /**
@@ -620,11 +631,34 @@ export interface NotificationsRequest {
 
 /**
  * PUT /me/email (TASK-183): the new address, and the password of the
- * account. It holds at once; the answer is the User.
+ * account; the answer is the User. On a server that sends email (TASK-300)
+ * the new address waits in `pending_email` for its link, and the answer is
+ * 429 after too many emails asked; otherwise it holds at once.
  */
 export interface ChangeEmailRequest {
   email: string;
   password: string;
+}
+
+/**
+ * GET /account-email (TASK-300): 200 when the server confirms addresses
+ * and resets passwords by email, 404 otherwise.
+ */
+export interface AccountEmailService {
+  on: true;
+}
+
+/**
+ * POST /password-reset (TASK-300), without an account: 202 whoever has the
+ * address, and an email with a link when an account has it; 429 after
+ * three in an hour for one address. `language` is the app's, for the email.
+ * POST /me/email/confirmation sends the link again (202, or 204 with
+ * nothing to confirm); DELETE /me/email/pending drops the address that
+ * waits and answers the User.
+ */
+export interface PasswordResetRequest {
+  email: string;
+  language?: PushLanguage;
 }
 
 /**

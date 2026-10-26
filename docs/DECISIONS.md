@@ -16210,3 +16210,76 @@ e tocca tre componenti. Chi gestisce il server apre e chiude i concorsi
 con le date dell'utente, dopo l'approvazione di Apple e con il suo ok.
 Instagram e il sito li fa l'utente a mano. Il concorso con la maglietta è
 un task a sé, con la ditta e il commercialista (`CONCORSI.md` §12).
+
+## ADR-0261 — Email confermata e «Forgot password?», con link firmati
+**Stato**: Attiva · 2026-10-25 · TASK-300. Le scelte di prodotto sono
+dell'utente, chieste una alla volta con una proposta: un task a parte e
+subito; **un indirizzo non confermato non blocca niente**; **gli account
+di prima restano non confermati**, senza email partite da sole; i testi
+inglesi del task file approvati così (de, es, fr, it dell'agente). Del
+Coordinatore, nel dare il numero: link che valgono una volta e scadono, il
+reset che fa uscire da ogni telefono, «Forgot password?» che risponde
+sempre allo stesso modo con un limite, nessuna modifica nativa, **il nuovo
+indirizzo vale solo confermato** e il vecchio riceve un avviso. Il come è
+deciso dall'agente su delega dell'utente.
+
+TASK-183 aveva il cambio d'indirizzo subito e senza conferma, TASK-114
+nessun modo di riavere una password: mancava un servizio di posta, che ora
+c'è (Resend, ADR-0244).
+
+**Decisione**:
+
+1. **I link aprono pagine dell'API** (`/email/confirm`, `/password/reset`),
+   come `/away-email/stop`: senza una build nativa non ci sono link
+   universali. Il `GET` mostra la domanda o il modulo, solo il `POST`
+   cambia (i filtri antispam aprono i link). Pagine senza `X-API-Key`,
+   `no-store`, senza referrer, fuori dai frame (CSP `frame-ancestors
+   'none'`, `form-action 'self'`), nella lingua dell'account. Il modulo
+   si legge dal corpo con `urllib.parse`: nessuna dipendenza nuova.
+2. **Token senza tabella**: `public_id.scadenza.tag`, il tag un HMAC con
+   `SHAPEROUTE_EMAIL_SECRET` dell'uso (prefisso suo: mai valido per un
+   altro link), dell'account, della scadenza e dello **stato che il link
+   cambia**, riletto dal database: l'indirizzo per la conferma; indirizzo
+   e hash della password per il reset. Così il link vale una volta (dopo,
+   indirizzo confermato o password diversa) e muore se l'indirizzo cambia
+   nel frattempo. Conferma 7 giorni, reset 1 ora.
+3. **Il cambio aspetta il link** in `users.pending_email` (non unico: il
+   vincolo su `email` decide alla conferma). Avviso al vecchio indirizzo
+   con il nuovo coperto, senza link: la via d'uscita è «Forgot password?»,
+   che annulla il cambio in attesa. Con le email spente il cambio vale
+   subito come con ADR-0150, non confermato. `PUT /me/email` non cambia
+   forma: la risposta è sempre il `User`.
+4. **Il reset**: `POST /password-reset` risponde `202` vuoto per
+   chiunque; la ricerca dell'account e l'invio stanno dopo la risposta, in
+   un thread che manda una email ogni mezzo secondo (`Outbox`), così
+   neanche il tempo dice chi è iscritto. Salvata la password: tutte le
+   sessioni chiuse, il cambio in attesa annullato, il conto delle password
+   sbagliate azzerato, l'indirizzo confermato (il link lo prova).
+5. **Limiti in memoria**, come le password sbagliate: 3 reset all'ora per
+   indirizzo, di un account o no; 3 email all'ora per account fra «Send
+   the link again» e cambi; 300 email all'ora in tutto.
+6. **Ganci, non intrecci**: `accounts.py` chiama `after_sign_up` (come
+   `before_account_delete`), `contact.py` un `ChangeConfirmation` se c'è;
+   `account_email.py` li registra solo con le email accese. Le stesse tre
+   variabili dell'email di ritorno: niente di nuovo da configurare.
+7. **L'app chiede `GET /account-email`** prima di mostrare «Forgot
+   password?» e «Email not confirmed»: `404` da un server spento o di
+   prima, come «Play» con `GET /game/catalog`.
+
+**Alternative scartate**: una tabella di token (più stato da pulire,
+quando lo stato dell'account basta a renderli usa-e-getta); un codice di 6
+cifre da scrivere nell'app (servono tentativi contati, e un link funziona
+anche dal computer); confermare al solo `GET` (un filtro antispam
+confermerebbe l'indirizzo di chi non si è mai iscritto); il cambio subito
+con la conferma dopo (scelta del Coordinatore: il nuovo vale confermato);
+un link «non sono stato io» nell'avviso (un terzo tipo di token per quello
+che «Forgot password?» già fa); bloccare qualcosa senza conferma (scelta
+dell'utente).
+
+**Conseguenza**: l'indirizzo va a Resend anche per queste email (la
+privacy di TASK-284 B dice già di Resend; queste servono all'account).
+Cambiare il segreto spegne i link già mandati. Mandare le email di
+ritorno (TASK-284) e le notizie (TASK-262 B) solo a indirizzi confermati è
+una scelta di quei task. L'app di prima, a un cambio in attesa, mostra
+ancora il vecchio indirizzo: la parte B va pubblicata prima o con il
+server.

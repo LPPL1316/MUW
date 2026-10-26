@@ -39,6 +39,7 @@ import {
   type SignUpFields,
 } from "./fields";
 import { accountProblem, NO_API, SESSION_ENDED, sessionEnded } from "./messages";
+import { type AccountEmail, useAccountEmail } from "./accountEmail";
 import { forgetSession, loadSession, saveSession } from "./sessionStore";
 
 /**
@@ -92,6 +93,12 @@ export type Account = {
    * answered «the session is over»: the account signs out here too.
    */
   sessionEnded: (token: string) => void;
+  /**
+   * The emails of the account (TASK-300): «Forgot password?», the link of
+   * confirmation again, the change of address dropped. Left out by the
+   * pages' tests that build an Account by hand: then none of it shows.
+   */
+  email?: AccountEmail;
 };
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
@@ -346,6 +353,16 @@ export function useAccount(baseUrl: string | null, options: Options = {}): Accou
 
   const clearProblem = useCallback(() => setProblem(null), []);
 
+  const sessionNow = useCallback(() => {
+    const now = current.current;
+    return now.status === "signedIn" ? now.session : null;
+  }, []);
+  const email = useAccountEmail(
+    baseUrl,
+    { session: sessionNow, change, ended },
+    { fetchFn, key },
+  );
+
   return {
     state,
     busy,
@@ -360,5 +377,6 @@ export function useAccount(baseUrl: string | null, options: Options = {}): Accou
     changeNotifications,
     clearProblem,
     sessionEnded: ended,
+    email,
   };
 }
