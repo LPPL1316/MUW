@@ -250,6 +250,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
   TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
   **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
+- **TASK-298 — Fermarsi prima nella ricerca quando la forma non entra
+  nelle strade** (ADR-0259; seguito di TASK-297, l'utente il 2026-10-24:
+  «sì, apri anche quello per fermarsi prima»; condizioni dal
+  Coordinatore). Branch `feat/TASK-298-stop-earlier`. **Misurato**
+  (`tests/measure_stop_earlier.py`, 252 richieste in sette città,
+  tracciamento per tracciamento) e **scartato**: il primo percorso buono
+  compare a qualunque tracciamento, anche al 30º di 30 e dal 6º
+  piazzamento inclinato; «N piazzamenti senza miglioramento» perde da 10 a
+  38 buoni su 129; il conteggio delle strade è 1,00 in testa quasi ovunque;
+  saltare la fase inclinata o la rifinitura dopo una fase andata male tiene
+  i buoni ma peggiora i mediocri e non abbrevia. Resta una regola piccola:
+  una scala già tracciata per lo stesso piazzamento non si traccia più
+  (1,3 % dei tracciamenti; i 129 buoni identici, i mediocri mai peggiori).
+  Il taglio vero costa percorsi buoni ed è una scelta di prodotto: numeri
+  in ADR-0259. `engine.zip` rifatto nella PR. **PR #558** aperta il
+  2026-10-25, al merge del Coordinatore. File: `tasks/TASK-298.md`.
+
   **Parte C, motore** (PR #547 aperta il 2026-10-25, branch
   `feat/TASK-297-c-image-pieces`): `outline_data(…, pen_up=True)` mette
   in `pieces` i soggetti dopo il primo e i fori che valgono il 3 % del
