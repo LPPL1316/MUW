@@ -1,0 +1,32 @@
+{
+  "photos": [
+    {
+      "drawing_id": "3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815",
+      "n": 1,
+      "url": "/drawings/3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815/photos/1?v=1790027100000000",
+      "width": 1080,
+      "height": 810,
+      "title": "Sunday heart by the river",
+      "started_at": "2026-09-20T07:13:20Z"
+    },
+    {
+      "drawing_id": "3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815",
+      "n": 3,
+      "url": "/drawings/3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815/photos/3?v=1790027160000000",
+      "width": 810,
+      "height": 1080,
+      "title": "Sunday heart by the river",
+      "started_at": "2026-09-20T07:13:20Z"
+    },
+    {
+      "drawing_id": "a51c0e94-2d7f-4b38-9e60-1f8b3c2d7e05",
+      "n": 1,
+      "url": "/drawings/a51c0e94-2d7f-4b38-9e60-1f8b3c2d7e05/photos/1?v=1789640400000000",
+      "width": 1080,
+      "height": 1080,
+      "title": null,
+      "started_at": "2026-09-14T06:40:00Z"
+    }
+  ],
+  "next": "1789368000000000-a51c0e942d7f4b389e601f8b3c2d7e05-1"
+}

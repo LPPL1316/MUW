@@ -42,6 +42,9 @@ type Props = {
   publicId: string | null;
   /** The account's own profile: its empty grid says how to fill it. */
   own: boolean;
+  /** «Drawings» over the grid; left out, it is. Under the tabs of a
+   * profile (TASK-305) the tab says it. */
+  titled?: boolean;
 };
 
 /**
@@ -50,7 +53,7 @@ type Props = {
  * others see it, small and without its first and last 200 m; a tap opens
  * it on the map. Never its score (TASK-241).
  */
-export function DrawingsGrid({ publicId, own }: Props) {
+export function DrawingsGrid({ publicId, own, titled = true }: Props) {
   const { pageOf, open, opening, openProblem } = useDrawingsDoor();
   // The answer for one profile: another's is not this one's.
   const [answer, setAnswer] = useState<{ asked: string; shown: Shown } | null>(null);
@@ -132,9 +135,11 @@ export function DrawingsGrid({ publicId, own }: Props) {
     width > 0 ? Math.floor((width - space.sm * (COLUMNS - 1)) / COLUMNS) : FIRST_CELL;
   return (
     <View style={styles.section} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-      <Text style={styles.title} accessibilityRole="header">
-        {t("Drawings")}
-      </Text>
+      {titled && (
+        <Text style={styles.title} accessibilityRole="header">
+          {t("Drawings")}
+        </Text>
+      )}
       {openProblem !== null && (
         <Text style={styles.problem} accessibilityRole="alert">
           {openProblem}

@@ -14,10 +14,12 @@ import {
 import { tourTexts } from "../tour/tourTexts";
 import { BlockedPeople } from "../social/BlockedPeople";
 import { useBlocksVersion } from "../social/blockedNow";
-import { DrawingsGrid } from "../social/DrawingsGrid";
 import { FollowLists } from "../social/FollowLists";
+import { useFollowsDoor } from "../social/followsDoor";
 import { photoBusyText, PhotoChoices } from "./PhotoChoices";
+import { ProfileGallery } from "./ProfileGallery";
 import { ProfileHeader } from "./ProfileHeader";
+import { ProfileStats, useOwnTotals } from "./ProfileStats";
 import { bioOf } from "./profileFields";
 import { useProfilePhoto } from "./useProfilePhoto";
 
@@ -53,7 +55,8 @@ type Props = {
  * to change the picture under it, as the row of «Settings» (TASK-207).
  * Under «Settings», «Guide» (TASK-266), then «Blocked people», to unblock
  * (TASK-121); after a block the lists of who follows are read again: a
- * block ends every follow.
+ * block ends every follow. Its totals under «Edit profile», and its
+ * drawings and photos at the bottom, as the others see them (TASK-305).
  */
 export function ProfileHome({
   user,
@@ -65,6 +68,10 @@ export function ProfileHome({
 }: Props) {
   const photo = useProfilePhoto();
   const blocks = useBlocksVersion();
+  const { apiUrl, account } = useFollowsDoor();
+  const publicId = user.public_id ?? null;
+  // Null while they come, and from an API older than TASK-305.
+  const totals = useOwnTotals(publicId);
   const [photoOpen, setPhotoOpen] = useState(false);
   const busyText = photoBusyText(photo.busy);
   return (
@@ -99,6 +106,7 @@ export function ProfileHome({
         >
           <Text style={styles.editText}>{t("Edit profile")}</Text>
         </Pressable>
+        {totals !== null && <ProfileStats totals={totals} />}
       </View>
       {/* Built again at every block and unblock: it reads its lists anew. */}
       <FollowLists key={blocks} />
@@ -123,7 +131,14 @@ export function ProfileHome({
       />
       {onGuide && <SectionRow emoji="❓" name={tourTexts().guide} onPress={onGuide} />}
       <BlockedPeople />
-      <DrawingsGrid publicId={user.public_id ?? null} own />
+      <ProfileGallery
+        publicId={publicId}
+        own
+        photos={totals !== null}
+        apiUrl={apiUrl}
+        token={account.state.status === "signedIn" ? account.state.session.token : null}
+        onSessionEnded={account.sessionEnded}
+      />
     </View>
   );
 }

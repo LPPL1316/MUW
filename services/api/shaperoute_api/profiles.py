@@ -8,7 +8,8 @@ app to show as it is.
 GET /users/{public_id} is the profile as every member sees it: username,
 bio, picture (profile_photos.py), number of drawings published
 (drawings.py), how many it follows and how many follow it, and where the one
-who asks stands towards it (follows.py). Never the email, the role, the
+who asks stands towards it (follows.py); since TASK-305 its totals: metres,
+climb and reactions received (profile_totals.py). Never the email, the role, the
 internal id or when the account was made. It needs the token of an account:
 what members share is for members, as the feed (ADR-0114, point 4). The id
 is the random `public_id` of the account, not `id`: a sequence would let
@@ -50,6 +51,11 @@ from shaperoute_api.follows import (
     follow_state_sql,
     followers_count_sql,
     following_count_sql,
+)
+from shaperoute_api.profile_totals import (
+    climb_total_sql,
+    distance_total_sql,
+    reactions_received_sql,
 )
 from shaperoute_api.schemas import ErrorBody
 
@@ -95,6 +101,13 @@ class PublicProfileBody(BaseModel):
     )
     contest_wins: int = Field(
         description="The contests it won (TASK-299): the «Winner» badge."
+    )
+    # The totals (TASK-305, ADR-0265): of every run, private ones too, the
+    # user's choice; only the sums, never a run.
+    distance_m: int = Field(description="The metres of all its runs.")
+    climb_m: int = Field(description="The metres climbed in all its runs that know it.")
+    reactions: int = Field(
+        description="The reactions others left on its drawings the one who asks sees."
     )
 
 
@@ -159,12 +172,15 @@ class Profiles:
                 f" {followers_count_sql('u.id')} AS followers,"
                 f" {following_count_sql('u.id')} AS following,"
                 f" {follow_state_sql('%s', 'u.id')} AS follow,"
-                f" {contest_wins_sql('u.id')} AS contest_wins"
+                f" {contest_wins_sql('u.id')} AS contest_wins,"
+                f" {distance_total_sql('u.id')} AS distance_m,"
+                f" {climb_total_sql('u.id')} AS climb_m,"
+                f" {reactions_received_sql('u.id', '%s')} AS reactions"
                 " FROM users u LEFT JOIN profile_photos p ON p.user_id = u.id"
                 " WHERE u.public_id = %s"
                 # Across a block the profile is not there (TASK-121).
                 f" AND NOT {apart_sql('%s', 'u.id')}",
-                (viewer_id, viewer_id, wanted, viewer_id),
+                (viewer_id, viewer_id, viewer_id, viewer_id, wanted, viewer_id),
             ).fetchone()
         if row is None:
             return None
@@ -179,6 +195,9 @@ class Profiles:
             following=row["following"],
             follow=row["follow"],
             contest_wins=row["contest_wins"],
+            distance_m=row["distance_m"],
+            climb_m=row["climb_m"],
+            reactions=row["reactions"],
         )
 
 

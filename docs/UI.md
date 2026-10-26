@@ -730,6 +730,23 @@ prima. **«Back to the profile»** e «←» tornano a «Profile». Se nel
 frattempo è tornato privato: «This drawing is no longer public.» sopra la
 griglia.
 
+**I totali e le foto** (TASK-305, ADR-0265, chiesti dall'utente il
+2026-10-26; testi **da confermare**). Sotto «Edit profile», e sul profilo
+di un altro sotto il tasto «Follow», tre riquadri affiancati: **«Distance»**,
+i km (o le miglia, «Units») di tutte le corse salvate, anche private
+(scelta dell'utente), con un decimale sotto 100 e interi da lì;
+**«Elev. gain»**, i metri saliti, in metri come nella corsa; **«Likes»**,
+le reazioni lasciate dagli altri sui disegni che chi guarda vede. Follower,
+seguiti e disegni non si ripetono: restano sotto il nome (di un altro) o
+negli elenchi (il proprio). Al posto del titolo «Drawings» due schede,
+**«Drawings» | «Photos»**: «Drawings» è la griglia di sopra; «Photos» le
+foto dei disegni, tre per riga e quadrate, dalla corsa più recente, trenta
+per volta con «Show more»; un tocco apre il disegno sulla mappa come dalla
+griglia. Le foto si chiedono la prima volta che si tocca «Photos» («Loading…»);
+vuota «No photos yet.», sul proprio «No photos yet. Add some to a public
+drawing in My activities.»; non arrivate, il motivo e «Try again». Con
+un'API senza i totali niente riquadri né schede, come prima.
+
 **I commenti di un disegno** (TASK-120, ADR-0175, scelta dell'utente del
 2026-10-03: subito sotto le corse vere, non sugli esempi di «Feed»): nella
 scheda di un disegno aperto, fra i numeri e «Back to the profile», un

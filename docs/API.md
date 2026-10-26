@@ -1240,8 +1240,12 @@ tipi dell'app in `apps/mobile/src/api/activities.ts`; il codice in
   resto, conta solo al primo `PUT`; dopo si cambia dal disegno
   («Drawings», sotto), e lì si legge (`MyDrawing.activity`): l'elenco e la
   corsa intera di questa sezione non lo hanno.
-- **Km, tempo e punteggio li conta l'API**, e l'app non li può mandare
-  (`distance_m`, `duration_s`, `score` nel corpo sono `422`):
+- **L'altezza** (TASK-305, ADR-0265): ogni posizione può avere
+  `altitude_m` (metri sul mare, fra −1000 e 10 000, altrimenti `422`;
+  `POST /track-scores` non la prende). Assente da un'app di prima: la
+  corsa non ha dislivello. Rifiutata, l'app rimanda la corsa senza.
+- **Km, tempo, dislivello e punteggio li conta l'API**, e l'app non li
+  può mandare (`distance_m`, `duration_s`, `score` nel corpo sono `422`):
   - la traccia tenuta è quella **pulita dal motore** (`clean_track`,
     ADR-0090): senza le posizioni troppo incerte, ripetute o che nessun
     corridore raggiunge. Con meno di 2 posizioni buone la corsa non si
@@ -1255,7 +1259,12 @@ tipi dell'app in `apps/mobile/src/api/activities.ts`; il codice in
     come `POST /track-scores`; `null` senza percorso, e `null` anche quando
     la corsa è troppo corta per essere giudicata (si salva lo stesso);
   - `started_at` è l'orario della prima posizione tenuta. Un orario prima
-    del 2020 o oltre domani non è un orologio: `422 invalid_request`.
+    del 2020 o oltre domani non è un orologio: `422 invalid_request`;
+  - il dislivello (`runs.climb_m`, per i totali del profilo; l'elenco non
+    lo manda) è la somma delle salite di almeno 3 m dall'ultima altezza
+    contata, sulle posizioni tenute, niente a cavallo di una pausa chiesta
+    dal corridore (`run_climb.py`, la regola di `runMetrics.climbM`);
+    `null` senza altezze.
 - **`place`** è il nome del paese da cui la corsa parte («Trento»), o
   `null`. L'API lo chiede al geocoding inverso di Geoapify, con la chiave
   della ricerca dei luoghi (`GEOAPIFY_API_KEY`), per la partenza
@@ -1389,6 +1398,7 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
 |---|---|---|
 | `PATCH /me` | cambiare nome utente e bio | `200` `User`, com'è adesso |
 | `GET /users/{public_id}` | il profilo di un iscritto | `200` `PublicProfile`, o `404 http_error` |
+| `GET /users/{public_id}/photos` | le foto dei suoi disegni (TASK-305) | `200` `UserPhotosPage`, o `404 http_error` |
 
 - **`User`** (anche in `Session` e `GET /me`) ha in più `bio` (`""` senza)
   e `public_id`, un UUID casuale dato a ogni account dalla migrazione
@@ -1419,6 +1429,22 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   `follow`, dove sta chi guarda verso quel profilo: `none`, `requested` o
   `following` (il proprio profilo: `none`; «Follow», sotto). **Mai
   l'email**, né `role`, `id` o la data d'iscrizione (un test lo prova).
+- **I totali** (TASK-305, ADR-0265): `distance_m`, i metri di **tutte** le
+  corse dell'account, private comprese (scelta dell'utente); `climb_m`, i
+  metri saliti delle corse che lo sanno (salvate da un'app con le altezze,
+  «My activities»); `reactions`, le reazioni lasciate dagli altri sui
+  disegni che chi guarda vede: mai quelle del proprietario, mai di chi un
+  blocco tiene lontano da chi guarda. Solo le somme, mai una corsa.
+  `profile_totals.py`; un'API precedente non li ha.
+- **`GET /users/{public_id}/photos`** (TASK-305): le foto dei disegni che
+  chi guarda vede sul profilo, dalla corsa più recente e nello stesso
+  disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima
+  (`next`, `null` sull'ultima). Ogni `UserPhoto` è una `DrawingPhoto`
+  (`n`, `url`, `width`, `height`, letta da `url` con il token come le
+  altre) con `drawing_id`, `title` e `started_at` del suo disegno, che
+  l'app apre. Esempio `fixtures/user-photos.json`; `404` come i disegni
+  del profilo (che non c'è, non un UUID, bloccato); `cursor` fuori forma
+  `422`. `user_photos.py`.
 - Un `public_id` che non c'è, di un account cancellato, o che non è un
   UUID (un `id` numerico, un nome): `404 http_error` «No profile with this
   id.». Il proprio profilo si legge come gli altri.

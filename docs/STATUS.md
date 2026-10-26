@@ -160,6 +160,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-305 — I totali e le foto di un profilo** (ADR-0265; richiesta
+  dell'utente del 2026-10-26; numero preso senza coordinatore, nessuna
+  sessione raggiungibile). Branch `claude/wonderful-dijkstra-oi568i` (il
+  branch della sessione cloud), migrazione `0031_run_climb.sql` (numero al
+  merge). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
+  «Elev. gain» e «Likes», e le schede «Drawings» | «Photos». **Scelta
+  dell'utente: km e dislivello di tutte le corse, anche private**; «Likes»
+  sono le reazioni degli altri sui disegni che chi guarda vede. Il
+  dislivello lo conta l'API dalle altezze che l'app manda ora con la corsa
+  (`runs.climb_m`; le corse di prima non lo hanno). `GET
+  /users/{id}/photos` nuovo. Codice e test fatti (API con PostgreSQL vero,
+  `shared-types`, app). **Aperto**: l'informativa privacy (app e sito)
+  dice «A saved run is private: only you see it»: testo nuovo da far
+  approvare all'utente prima del server; il server va aggiornato prima
+  dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
+  TASK-299 B: poche righe qui, chi entra secondo unisce. File:
+  `tasks/TASK-305.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch

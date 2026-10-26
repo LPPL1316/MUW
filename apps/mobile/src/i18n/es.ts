@@ -820,6 +820,13 @@ export const ES: Table = {
     "Aún no hay dibujos públicos. Haz pública una carrera en Mis actividades.",
   "No drawings yet.": "Aún no hay dibujos.",
 
+  // src/profile/ProfileStats.tsx, src/profile/ProfileGallery.tsx (TASK-305)
+  Likes: "Me gusta",
+  Photos: "Fotos",
+  "No photos yet.": "Aún no hay fotos.",
+  "No photos yet. Add some to a public drawing in My activities.":
+    "Aún no hay fotos. Añade algunas a un dibujo público en Mis actividades.",
+
   // src/social/SuperLikeSheet.tsx
   "Super like": "Super like",
   "Write a comment to send your super like":

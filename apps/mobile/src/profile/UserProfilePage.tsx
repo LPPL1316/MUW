@@ -7,11 +7,12 @@ import type { Account } from "../account/useAccount";
 import type { AccountOutcome } from "../api/accounts";
 import { fetchProfile, profilePhotoUri } from "../api/profiles";
 import { t, tLater, tPlural } from "../i18n";
-import { DrawingsGrid } from "../social/DrawingsGrid";
 import { FollowButton } from "../social/FollowButton";
 import { ReportMenu } from "../social/ReportMenu";
 import { color, fontSize, space } from "../theme/tokens";
+import { ProfileGallery } from "./ProfileGallery";
 import { ProfileHeader } from "./ProfileHeader";
+import { ProfileStats, totalsOf } from "./ProfileStats";
 
 type Failed = Exclude<AccountOutcome<unknown>, { kind: "ok" }>;
 
@@ -77,7 +78,8 @@ export function profileViewProblem(failed: Failed): string {
  * follows (TASK-211). Under the name, how many follow it and the button to
  * follow it, which asks: the other accepts or declines (ADR-0173). Its
  * «…» reports the member or blocks it (TASK-121, ADR-0228); blocked, the
- * page says so and shows the profile no more.
+ * page says so and shows the profile no more. Under the top, its totals
+ * and its drawings and photos (TASK-305).
  */
 export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: Props) {
   const { state, sessionEnded: onSessionEnded } = account;
@@ -148,6 +150,8 @@ export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: 
   const left = profile.follow === "following" && follow !== "following" ? 1 : 0;
   const own =
     state.status === "signedIn" && state.session.user.public_id === profile.public_id;
+  // An API older than TASK-305 has no totals: no row.
+  const totals = totalsOf(profile);
   return (
     <View style={styles.page}>
       <View style={styles.top}>
@@ -193,7 +197,17 @@ export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: 
           </View>
         )}
       </View>
-      <DrawingsGrid publicId={profile.public_id} own={false} />
+      {totals !== null && <ProfileStats totals={totals} />}
+      <ProfileGallery
+        publicId={profile.public_id}
+        own={false}
+        photos={totals !== null}
+        apiUrl={apiUrl}
+        token={token}
+        onSessionEnded={onSessionEnded}
+        fetchFn={fetchFn}
+        apiKey={apiKey}
+      />
     </View>
   );
 }

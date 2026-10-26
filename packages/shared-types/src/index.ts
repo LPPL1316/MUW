@@ -716,6 +716,15 @@ export interface PublicProfile {
    * Missing from an API older than TASK-299.
    */
   contest_wins?: number;
+  /**
+   * The totals (TASK-305, ADR-0265): the metres of all its runs and the
+   * metres climbed in those that know it, private runs too (the user's
+   * choice), and the reactions others left on its drawings the one who asks
+   * sees. All three missing from an API older than TASK-305.
+   */
+  distance_m?: number;
+  climb_m?: number;
+  reactions?: number;
 }
 
 /**
@@ -1429,4 +1438,23 @@ export interface Contest {
   top: ContestEntry[];
   mine?: ContestMine | null;
   winner: ContestWinner | null;
+}
+
+/**
+ * A photo of a drawing on a profile (TASK-305): GET /users/{public_id}/photos.
+ * Read as DrawingPhoto from `url`; a tap opens its drawing.
+ */
+export interface UserPhoto extends DrawingPhoto {
+  drawing_id: string;
+  /** The drawing's; null: none, named by its day. */
+  title: string | null;
+  /** When the drawing's run began, ISO 8601. */
+  started_at: string;
+}
+
+/** A page of a profile's photos, the latest run first (TASK-305). */
+export interface UserPhotosPage {
+  photos: UserPhoto[];
+  /** The `cursor` of the next page; null on the last one. */
+  next: string | null;
 }

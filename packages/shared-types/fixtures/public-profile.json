@@ -7,5 +7,8 @@
   "followers": 12,
   "following": 9,
   "follow": "following",
-  "contest_wins": 1
+  "contest_wins": 1,
+  "distance_m": 412870,
+  "climb_m": 3215,
+  "reactions": 0
 }
