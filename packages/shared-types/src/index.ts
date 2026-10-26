@@ -1381,6 +1381,7 @@ export interface RunGameWithPieces extends RunGame {
  * its team edition, in a completed challenge; null without. */
 export interface GameShapeStateWithTeam extends GameShapeState {
   team_unlocked_at: string | null;
+}
 
 // --- The first contest (TASK-299, ADR-0260; docs/CONCORSI.md) ---
 
