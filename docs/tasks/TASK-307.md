@@ -56,6 +56,16 @@ poterla iniziare pure tu». Numero e regole dal Coordinatore (ADR-0267).
 - [ ] Il testo nuovo approvato dall'utente nelle cinque lingue.
 - [ ] La scelta dell'utente: chi pubblica può dire di no ai download?
       (sotto, «Domande aperte»).
+- [x] Le quattro regole fisse del Coordinatore, un test ciascuna su
+      `GET /drawings/{id}`, l'unica fonte di «Start» e del GPX
+      (`services/api/tests/test_drawing_download.py`): solo un disegno che
+      chi legge può già vedere; mai attraverso un blocco; mai un disegno
+      nascosto (TASK-121/291); sempre la traccia tagliata, senza i primi e
+      gli ultimi 200 m e senza tempi. Nell'app, il GPX senza `<time>` né
+      nome (`drawingRoute.test.ts`).
+- [x] Impronta iOS invariata, `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`,
+      su una copia pulita con `npm ci`; nessuna dipendenza nuova; i testi
+      nuovi in fondo alle tabelle.
 - [x] Test deterministici verdi in locale (`npm run test`: 469 file).
 
 ## File toccati
@@ -73,6 +83,7 @@ apps/mobile/src/i18n/it.ts
 apps/mobile/src/i18n/de.ts
 apps/mobile/src/i18n/fr.ts
 apps/mobile/src/i18n/es.ts
+services/api/tests/test_drawing_download.py           (nuovo)
 docs/tasks/TASK-307.md                                (nuovo)
 docs/STATUS.md
 docs/DECISIONS.md
@@ -87,8 +98,10 @@ docs/GPX.md
   `/route-directions`. Un task a parte, se l'utente lo vuole.
 - **Un «no» di chi pubblica ai download** (interruttore per post o in
   «Settings»): API, migrazione e app. Solo se l'utente lo sceglie.
-- La riga della pagina «Privacy»: è un testo legale, lo decide l'utente
-  (proposta sotto).
+- La riga della pagina «Privacy» (`site/privacy/` e
+  `apps/mobile/src/about/content/`): è un testo legale, lo decide
+  l'utente (proposta sotto); entra qui solo dopo il suo sì, aggiungendo
+  quei file all'elenco.
 - «Start» ed «Export GPX» sulle schede del «Feed» senza aprirle.
 
 ## Domande aperte (per l'utente)
@@ -96,10 +109,15 @@ docs/GPX.md
 1. **Il «no» ai download.** Oggi chi pubblica sa che gli altri *vedono*
    la traccia tagliata; non che la possono *scaricare*. Proposta: nessun
    interruttore per ora, perché il file ha esattamente ciò che la mappa
-   già mostra (senza i 200 m di casa, senza orari); una riga nella pagina
-   «Privacy»: «Who can see a drawing of yours can also run it and save
-   its line as a GPX file: the same line the map shows, without its first
-   and last 200 m and without times.»
+   già mostra (senza i 200 m di casa, senza orari); una frase in più nel
+   paragrafo «Your runs and their GPS tracks» della pagina «Privacy», in
+   app e sul sito, nelle cinque lingue: «Whoever can see one of your runs
+   can also follow it with «Start» and save that same track as a GPX
+   file: still without its first and last 200 m and without times.» — it
+   «Chi può vedere una tua corsa può anche seguirla con «Start» e salvarne
+   la stessa traccia come file GPX: sempre senza i primi e gli ultimi
+   200 m e senza orari.» Se l'utente sceglie un interruttore (per post o
+   in «Settings») serve l'API: il task si ferma e torna al Coordinatore.
 2. **Il testo nuovo** sotto «Start»: «This route has no turn directions:
    follow the line on the map.» — it «Questo percorso non ha le
    indicazioni delle svolte: segui la linea sulla mappa.», de, fr, es nel
