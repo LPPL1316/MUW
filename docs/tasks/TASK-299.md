@@ -294,6 +294,7 @@ services/api/tests/test_profiles.py, test_accounts.py    (il campo nuovo nelle u
 services/api/tests/test_notifications.py                 (una riga: legge l'alias della sottoquery di contest_wins in USER_COLUMNS; ok del Coordinatore 2026-10-26, con l'indice sul vincitore e il tempo di GET /me nella PR)
 services/api/shaperoute_api/schemas.py                   (una riga: no_contest in ErrorCode; ok del Coordinatore 2026-10-25)
 packages/shared-types/fixtures/api-error-codes.json      (una riga: no_contest; ok del Coordinatore 2026-10-25)
+apps/mobile/assets/engine/engine.zip                     (rifatto: schemas.py viaggia nel motore sul telefono, TASK-214; chiesto al Coordinatore 2026-10-26)
 packages/shared-types/src/index.ts                       (in fondo: Contest, ContestEntry, ContestMine, ContestWinner; PushKind +contest_won; API_ERROR_CODES +no_contest; contest_wins in User e PublicProfile)
 packages/shared-types/fixtures/contest.json, contest-closed.json   (nuovi)
 packages/shared-types/fixtures/public-profile.json, session.json   (contest_wins: user.json non esiste, l'utente d'esempio è in session.json)
