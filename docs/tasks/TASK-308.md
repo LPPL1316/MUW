@@ -192,9 +192,15 @@ site/privacy/fr/index.html
 
 ## Dove si è (2026-10-26)
 
-Codice, test e documenti fatti nel worktree `.claude/worktrees/TASK-308`.
-Test locali: API `test_feedback.py`, `test_resend_email.py`,
-`test_main.py`, `test_contract.py`, `test_access.py`, `test_moderation.py`,
-`test_report_email.py` verdi; app jest intera verde (469 suite);
-`shared-types` e `site` verdi; ruff, black, prettier, lint puliti; `tsc`
-pulito tranne `expo-contacts`, che manca solo nei `node_modules` del Mac.
+PR #576, head dopo `865af5db`, `main` già dentro. Le note del Coordinatore
+applicate: testi in fondo alle tabelle, limite per indirizzo, la sonda
+`GET /feedback` (con il server di oggi la sezione non c'è), un test per il
+testo mai nei log. Test locali: API `test_feedback.py` (26),
+`test_resend_email.py`, `test_main.py`, `test_access.py`,
+`test_contract.py`, `test_moderation.py`, `test_report_email.py` verdi; app
+jest intera verde (469 suite, 3826 test); `shared-types` e `site` verdi;
+ruff, black, prettier, lint puliti; `tsc` pulito tranne `expo-contacts`,
+che manca solo nei `node_modules` del Mac. **Impronta iOS** su una copia
+pulita con `npm ci` a `865af5db`: `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`,
+invariata. Aspetta il sì dell'utente su testi e privacy; al merge la data
+della privacy (sopra, «Al merge»).
