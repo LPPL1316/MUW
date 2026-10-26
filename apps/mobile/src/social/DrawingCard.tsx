@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { dayLabel } from "../activities/activityText";
+import { useWinnerDrawingId } from "../contest/contestKept";
+import { WinnerBadge } from "../contest/WinnerBadge";
 import { ExploreStart } from "../explore/ExploreStart";
 import type { StartView } from "../explore/useStartDirections";
 import { t } from "../i18n";
@@ -47,7 +49,9 @@ export const PHOTO_HEIGHT = 160;
  * others see the drawing, not when somebody runs. Its comments open from
  * a button (TASK-120), and next to it are its reactions (TASK-119). Under
  * them «Start», to run the track as the map shows it, without turn
- * directions, and «Export GPX», the same track as a file (TASK-307).
+ * directions, and «Export GPX», the same track as a file (TASK-307). The
+ * drawing that won the contest kept on the phone has the «Winner» band on
+ * top (TASK-299).
  */
 export function DrawingCard({ drawing, onBack, onStart }: Props) {
   const day = dayLabel(drawing.started_at);
@@ -56,6 +60,7 @@ export function DrawingCard({ drawing, onBack, onStart }: Props) {
   const { openProfile } = useFollowsDoor();
   const { exporting, exportGpx } = useDrawingGpx();
   const exported = exporting(drawing.id);
+  const won = useWinnerDrawingId() === drawing.id;
   // A super like goes with a comment: the comments are asked for again.
   const [superLikes, setSuperLikes] = useState(0);
   const photos = drawing.photos ?? [];
@@ -66,6 +71,7 @@ export function DrawingCard({ drawing, onBack, onStart }: Props) {
   ].join(" · ");
   return (
     <View style={styles.card}>
+      {won && <WinnerBadge band />}
       <View style={styles.row}>
         <View style={styles.words}>
           <Text style={styles.title}>{drawing.title ?? day}</Text>
