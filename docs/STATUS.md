@@ -1098,6 +1098,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso**: in `main` con la #479 (`1f64621e`, 2026-10-10); vedi
   «Completato».
 
+- **TASK-301 — La musica nel video della corsa** (ADR-0262; richiesta
+  dell'utente del 2026-10-25 «aggiungi la musica al video», scelte con le
+  proposte lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
+  `feat/TASK-301-video-music`. In «Share your run» la riga «Music»: «None»
+  all'inizio e dieci brani nostri, scritti da `tools/video_music.py` sui
+  tempi del video e uguali byte per byte su ogni computer; un tocco li fa
+  sentire, il brano acceso va nel video come seconda traccia AAC. Senza
+  musica il video resta identico. 1,88 MB di brani nell'app. Solo app,
+  impronta iOS invariata. File: `tasks/TASK-301.md`.
+
 ## Completato
 
 - **Motore** — TASK-271 (aggiunta ad ADR-0045; dalla prima recensione di
