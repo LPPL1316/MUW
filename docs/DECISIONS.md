@@ -15870,8 +15870,8 @@ aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
 **Stato**: Scartata (misurata), tranne una regola piccola · 2026-10-25 ·
 deciso dall'agente su delega dell'utente («sì, apri anche quello per
 fermarsi prima», 2026-10-24), con le condizioni del Coordinatore
-(TASK-298); il taglio vero è una scelta di prodotto lasciata all'utente,
-con i numeri qui sotto.
+(TASK-298); il taglio vero, scelta di prodotto, l'ha deciso l'utente il
+2026-10-26 con i numeri qui sotto: **tetto 30, invariato**.
 
 **Contesto**: dove la forma non entra nelle strade la ricerca (§5 di
 `ROUTE_ENGINE.md`) spende tutti i 30 tracciamenti per un disegno mediocre:
@@ -15970,6 +15970,10 @@ proporzione):
 Ogni percorso buono perso è un utente che oggi riceve un disegno buono e
 domani ne riceverebbe uno mediocre o nessuno, per risparmiare 6–14 s sui
 casi che oggi non trovano niente.
+
+**Scelta dell'utente del 2026-10-26**: tetto 30, invariato. Nessun percorso
+buono si perde; chi chiede una forma che non entra nelle strade aspetta i
+30 tracciamenti di oggi. In `main` con la #558 (`61932179`).
 
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 
