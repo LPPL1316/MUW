@@ -131,7 +131,7 @@ class SignInRequestBody(BaseModel):
 # What the API reads of an account for its owner, in the order of UserBody.
 USER_COLUMNS = (
     "id, email, username, role, created_at, bio, public_id, phone,"
-    " notify_email, notify_push, notify_away"
+    " email_confirmed, pending_email, notify_email, notify_push, notify_away"
 )
 
 
@@ -162,6 +162,11 @@ class UserBody(BaseModel):
     # The phone number (TASK-183), in E.164, or None without one: told to its
     # owner only, never part of a profile (contact.py).
     phone: str | None
+    # Whether the owner opened the link sent to `email` (TASK-300), and
+    # the address asked for in «Settings» that waits for its link, if any
+    # (account_email.py): told to their owner only.
+    email_confirmed: bool
+    pending_email: str | None
     # The notification switches (TASK-185): told to their owner only.
     notifications: NotificationsBody
 
@@ -414,10 +419,19 @@ def account_routes() -> APIRouter:
     # Signing up signs in: the answer is the same as POST /session.
     @router.post("/accounts", status_code=201)
     def sign_up(
+        request: Request,
         body: SignUpRequestBody,
         accounts: Annotated[Accounts, Depends(accounts_of)],
     ) -> SessionBody:
-        return accounts.sign_up(body)
+        session = accounts.sign_up(body)
+        # What follows a new account: the email that confirms its address
+        # (account_email.py). None of them keeps the account from being made.
+        welcoming: list[Callable[[UserBody, Language | None], None]] = (
+            request.app.state.after_sign_up
+        )
+        for welcome in welcoming:
+            welcome(session.user, body.language)
+        return session
 
     @router.post("/session")
     def sign_in(
@@ -473,5 +487,6 @@ def install_accounts(app: FastAPI, accounts: Accounts | None) -> None:
     """The account endpoints and their errors; `accounts` None: 503."""
     app.state.accounts = accounts
     app.state.before_account_delete = []
+    app.state.after_sign_up = []
     app.add_exception_handler(AccountError, account_answer)
     app.include_router(account_routes())

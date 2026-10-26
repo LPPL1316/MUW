@@ -19,7 +19,7 @@
   senza traduzione si mostra in inglese. Tradotti a pezzi: con la parte A
   «Settings», «Profile», l'accesso, «My activities», i preferiti, i
   disegni, il feed, Strava e la ricerca del luogo; i testi della canoa con
-  TASK-191 C; «Draw», «Explore» e la corsa con le parti successive. Le traduzioni le ha riviste l'agente su
+  TASK-191 C; «Draw», «Explore», la corsa, i nomi delle forme, la mappa e «Help» con le parti B–G, gli ultimi testi con la parte H (2026-10-25): l'app è tutta nella lingua scelta, tranne i testi che manda il server. Le traduzioni le ha riviste l'agente su
   delega dell'utente («controlla te, mi fido», 2026-10-03); chi parla
   tedesco, spagnolo o francese può ancora migliorarle in `src/i18n/`.
 
@@ -676,6 +676,17 @@ regole dell'API, e l'errore si dice in parole sotto il pulsante (sotto,
 «Quando non va»). Si apre su «Sign up»; dopo «Log out» o una sessione
 finita, su «Log in».
 
+**«Forgot password?»** (TASK-300, ADR-0261): sotto «Log in», sottolineato,
+solo se il server manda le email (`GET /account-email` risponde 200, chiesto
+la prima volta che «Log in» si vede). Apre al posto del modulo «Forgot
+password?», la frase «Write the email of your account: we send it a link to
+choose a new password.», «EMAIL» con quello che era scritto in «Log in» e
+«Send the link» («Sending…»). Mandato: «If an account has this email, a link
+is on its way. It works for 1 hour; look in spam too.», la stessa frase che
+l'account esista o no. «Back to Log in» torna al modulo com'era. Il link
+apre nel browser una pagina dell'API con due campi per la password; salvata,
+ogni telefono è uscito e si entra con la nuova.
+
 **«Profile» con l'account** (TASK-177, ADR-0145): in alto un cerchio con
 la foto o l'iniziale, il nome, l'email e, se c'è, la bio (TASK-116); poi
 il pulsante **«Edit profile»** (sotto). Il cerchio ha in basso a destra un
@@ -918,10 +929,10 @@ Per VoiceOver i titoli sono intestazioni.
   `[governing law]` in «Terms», le basi giuridiche in «Privacy». Uguali in
   tutte le lingue. Li riempie l'utente; nel codice non c'è nessun nome né
   indirizzo vero.
-- **Le lingue**: i testi sono in inglese e in italiano, e seguono la
-  lingua dell'app; con tedesco, spagnolo e francese sono in inglese (e
-  VoiceOver li legge in inglese), mentre il titolo della riga e il
-  riquadro della bozza sono nella lingua dell'app. Nel testo italiano i
+- **Le lingue**: i testi sono in tutte e cinque le lingue e seguono la
+  lingua dell'app, e VoiceOver li legge in quella lingua; tedesco,
+  spagnolo e francese sono arrivati con TASK-210 parte F (prima erano in
+  inglese), anche per «Terms» e «Privacy», che restano bozze. Nel testo italiano i
   nomi di pagine e pulsanti sono quelli che l'app in italiano mostra oggi.
 - «Privacy» dice solo quello che fa l'app oggi («Cosa esce dal telefono»,
   sotto, e `DATABASE.md`): quando cambia cosa l'app manda o tiene, cambia
@@ -939,7 +950,15 @@ Per VoiceOver i titoli sono intestazioni.
 altro tocco richiude e dimentica quello che era scritto. Salvata, la riga
 si chiude e il riquadro del nome in cima mostra il nuovo indirizzo: vale
 subito, senza mail di conferma, e da lì in poi si entra con quello. Il
-telefono resta dentro.
+telefono resta dentro. Da un server che manda le email (TASK-300) il nuovo
+indirizzo aspetta invece il suo link: sotto la riga, in arancione, «We sent
+a link to {email}. Your email changes when you open it.», poi, alle aperture
+seguenti, «Waiting for {email}: open the link we sent there.», con «Send
+again» e «Cancel change»; il riquadro in cima mostra l'indirizzo di adesso
+finché il link non è aperto. Un indirizzo non confermato dice «Email not
+confirmed» con «Send the link again»; mandato, «Link sent to {email}. Look
+in spam too.». Non blocca niente (scelta dell'utente). Troppe richieste:
+«Too many emails asked: wait a few minutes and try again.».
 
 **«Phone number»** (📱, TASK-183): in fondo alla riga il numero
 dell'account, come lo tiene l'API («+393331234567»), o «Add». Un tocco
