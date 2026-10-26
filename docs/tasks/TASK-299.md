@@ -291,7 +291,7 @@ services/api/shaperoute_api/profiles.py                  (contest_wins in Public
 services/api/shaperoute_api/accounts.py                  (contest_wins in UserBody, in aggiunta)
 services/api/tests/test_contests.py                      (nuovo)
 services/api/tests/test_profiles.py, test_accounts.py    (il campo nuovo nelle uguaglianze, se le fanno)
-services/api/tests/test_notifications.py                 (una riga: legge l'alias della sottoquery di contest_wins in USER_COLUMNS; chiesto al Coordinatore 2026-10-26)
+services/api/tests/test_notifications.py                 (una riga: legge l'alias della sottoquery di contest_wins in USER_COLUMNS; ok del Coordinatore 2026-10-26, con l'indice sul vincitore e il tempo di GET /me nella PR)
 services/api/shaperoute_api/schemas.py                   (una riga: no_contest in ErrorCode; ok del Coordinatore 2026-10-25)
 packages/shared-types/fixtures/api-error-codes.json      (una riga: no_contest; ok del Coordinatore 2026-10-25)
 packages/shared-types/src/index.ts                       (in fondo: Contest, ContestEntry, ContestMine, ContestWinner; PushKind +contest_won; API_ERROR_CODES +no_contest; contest_wins in User e PublicProfile)
