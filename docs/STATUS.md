@@ -168,10 +168,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   tagliata, subito e **senza svolte a voce** (una traccia GPS non sta sul
   grafo, `/route-directions` la rifiuta; la scheda lo dice), ed «Export
   GPX» scritto sul telefono, senza tempi né nome. La corsa salvata dice ciò
-  che il disegno disegna; a fine corsa si torna al disegno. Aspetta il sì
-  dell'utente sul testo nuovo e la sua scelta sul «no» ai download di chi
-  pubblica (proposta: nessun interruttore, una riga in «Privacy»). Le
-  svolte a voce (map-matching nell'engine) sarebbero un task a parte.
+  che il disegno disegna; a fine corsa si torna al disegno. L'utente il
+  2026-10-26 ha approvato il testo nuovo e scelto **nessun interruttore**
+  per chi pubblica: una frase nuova nella «Privacy», in app e sul sito.
+  Le svolte a voce (map-matching nell'engine) sarebbero un task a parte.
   File: `tasks/TASK-307.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla

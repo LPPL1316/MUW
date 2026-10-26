@@ -16563,11 +16563,11 @@ loro test in CI circa 15 s.
 
 ## ADR-0267 — Correre il disegno di un altro: la traccia tagliata come percorso, senza svolte, e il GPX scritto sul telefono
 
-**Stato**: Proposta · 2026-10-26 · la richiesta («scaricare la traccia e
-poterla iniziare») è dell'utente; chi può scaricare, che cosa e la scritta
-senza svolte vengono dal Coordinatore; i punti tecnici sono decisi
-dall'agente su delega dell'utente (TASK-307). Aspetta la scelta
-dell'utente sul «no» ai download (TASK-307, «Domande aperte»).
+**Stato**: Attiva · 2026-10-26 · la richiesta («scaricare la traccia e
+poterla iniziare»), il «no» a un interruttore per chi pubblica, la frase
+della «Privacy» e il testo sotto «Start» sono dell'utente; chi può
+scaricare, che cosa e la scritta senza svolte vengono dal Coordinatore; i
+punti tecnici sono decisi dall'agente su delega dell'utente (TASK-307).
 
 **Contesto**: l'utente il 2026-10-26: «quando entri in un'attività di un
 tuo amico, nei suoi disegni e nel feed, poter scaricare la traccia e
@@ -16614,6 +16614,14 @@ se l'utente vuole le svolte a voce); `GET /drawings/{id}/gpx` nell'API
 (un endpoint nuovo per un file che il telefono ha già); chiudere il disegno
 alla partenza (alla fine della corsa non ci sarebbe niente a cui tornare).
 
+6. **Nessun interruttore per chi pubblica** (scelta dell'utente del
+   2026-10-26): il file ha solo ciò che la mappa già mostra. La pagina
+   «Privacy», in app e sul sito, lo dice in un paragrafo nuovo dopo
+   quello dei 200 m: «Whoever can see one of your runs can also follow it
+   with «Start» and save that same track as a GPX file: still without its
+   first and last 200 m and without times.»
+
 **Conseguenza**: solo app, nessun contratto né dipendenza nuovi, arriva
-con un aggiornamento OTA. Un testo nuovo nelle cinque lingue. Chi pubblica
-non può dire di no ai download finché l'utente non lo sceglie.
+con un aggiornamento OTA (impronta iOS invariata). Un testo nuovo nelle
+cinque lingue e una frase nuova nella «Privacy». Se un giorno servisse il
+«no» di chi pubblica, servono l'API e una migrazione.

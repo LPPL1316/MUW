@@ -53,9 +53,11 @@ poterla iniziare pure tu». Numero e regole dal Coordinatore (ADR-0267).
 - [x] La corsa salvata manda `shape`, `word`, `points` = traccia,
       `similarity` = punteggio / 100.
 - [x] Fine corsa → di nuovo il disegno → «←» → «Feed».
-- [ ] Il testo nuovo approvato dall'utente nelle cinque lingue.
-- [ ] La scelta dell'utente: chi pubblica può dire di no ai download?
-      (sotto, «Domande aperte»).
+- [x] Il testo nuovo approvato dall'utente nelle cinque lingue
+      (2026-10-26).
+- [x] La scelta dell'utente (2026-10-26): **nessun interruttore**; la
+      frase nuova nella pagina «Privacy», in app e sul sito, nelle cinque
+      lingue (sotto, «Domande aperte»).
 - [x] Le quattro regole fisse del Coordinatore, un test ciascuna su
       `GET /drawings/{id}`, l'unica fonte di «Start» e del GPX
       (`services/api/tests/test_drawing_download.py`): solo un disegno che
@@ -84,6 +86,16 @@ apps/mobile/src/i18n/de.ts
 apps/mobile/src/i18n/fr.ts
 apps/mobile/src/i18n/es.ts
 services/api/tests/test_drawing_download.py           (nuovo)
+apps/mobile/src/about/content/en.ts
+apps/mobile/src/about/content/it.ts
+apps/mobile/src/about/content/de.ts
+apps/mobile/src/about/content/fr.ts
+apps/mobile/src/about/content/es.ts
+site/privacy/index.html                               (da make_privacy.mjs)
+site/privacy/it/index.html
+site/privacy/de/index.html
+site/privacy/fr/index.html
+site/privacy/es/index.html
 docs/tasks/TASK-307.md                                (nuovo)
 docs/STATUS.md
 docs/DECISIONS.md
@@ -97,14 +109,17 @@ docs/GPX.md
   la traccia GPS alle strade (map-matching) nell'engine e in
   `/route-directions`. Un task a parte, se l'utente lo vuole.
 - **Un «no» di chi pubblica ai download** (interruttore per post o in
-  «Settings»): API, migrazione e app. Solo se l'utente lo sceglie.
-- La riga della pagina «Privacy» (`site/privacy/` e
-  `apps/mobile/src/about/content/`): è un testo legale, lo decide
-  l'utente (proposta sotto); entra qui solo dopo il suo sì, aggiungendo
-  quei file all'elenco.
+  «Settings»): l'utente il 2026-10-26 ha scelto di non farlo.
 - «Start» ed «Export GPX» sulle schede del «Feed» senza aprirle.
 
-## Domande aperte (per l'utente)
+## Domande aperte (per l'utente) — risposte del 2026-10-26
+
+L'utente: «Nessun interruttore: aggiungi la frase nella pagina Privacy
+(app e sito) come proponi. Il testo nuovo sotto «Start» va bene nelle
+cinque lingue.» La frase è un paragrafo nuovo subito dopo quello dei
+200 m, con il nome del pulsante di ogni lingua («Parti», «Start»,
+«Démarrer», «Empezar»); il sito è riscritto da `site/tools/make_privacy.mjs`.
+TASK-308 (#576) tocca altri paragrafi degli stessi file: righe diverse.
 
 1. **Il «no» ai download.** Oggi chi pubblica sa che gli altri *vedono*
    la traccia tagliata; non che la possono *scaricare*. Proposta: nessun

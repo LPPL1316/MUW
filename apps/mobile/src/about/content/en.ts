@@ -325,6 +325,7 @@ const privacy: AboutDocument = {
         "With an account, when you tap «Save» at the end of a run the whole run goes to our server: every position with its time, the pauses, the route you followed, distance, duration, a score of how closely the track follows the route (worked out by our server and not shown in the app) and the name of the place. With «Discard», nothing is sent.",
         "A saved run is private: only your account sees it. It stays until you delete it from «My activities» or delete your account.",
         "A run often starts and ends at your door. This is why a run becomes visible to the other members only when you turn on «Public», and then they see the track without its first and last 200 m, with the title you gave it, and without times, pauses or the planned route.",
+        "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file: still without its first and last 200 m and without times.",
       ],
     },
     {
