@@ -11,6 +11,7 @@
     "phone": null,
     "email_confirmed": false,
     "pending_email": null,
-    "notifications": { "email": false, "push": false, "away": true }
+    "notifications": { "email": false, "push": false, "away": true },
+    "contest_wins": 0
   }
 }

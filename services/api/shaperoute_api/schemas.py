@@ -285,6 +285,8 @@ ErrorCode = Literal[
     "accounts_unavailable",
     # A comment the filter refuses (TASK-120, ADR-0176): `reason` says why.
     "comment_rejected",
+    # No contest open, nor one closed less than a week ago (TASK-299).
+    "no_contest",
 ]
 
 # Why an image gives no outline: InvalidImageError.reason in

@@ -1,9 +1,10 @@
 # TASK-294 — MuW su Google Play
 
-**Stato**: In corso (parte A in `main` con la #543, `1dfc440e`; parte B)
+**Stato**: In corso (parte A in `main` con la #543, `1dfc440e`; parte B in
+`main` con la #548, `049102c5`; parte C in PR)
 **Fase**: 4 · **Branch**: `feat/TASK-294-a-android-background` (parte A,
-PR #543), `feat/TASK-294-b-play-build` (parte B), la parte C ne avrà uno
-suo
+PR #543), `feat/TASK-294-b-play-build` (parte B, PR #548),
+`feat/TASK-294-c-account-deletion` (parte C)
 
 ## Obiettivo
 
@@ -146,6 +147,36 @@ che Google chiede.
 Dopo la B. Solo file nuovi, `site/account-deletion/` nelle cinque lingue
 con un test; testi approvati dall'utente; la pubblicazione su getmuw.app è
 un intervento sul server, con il sì dell'utente.
+
+**Fatto il 2026-10-26**: `site/tools/account_deletion_text.mjs` (i testi,
+cinque lingue), `site/tools/make_account_deletion.mjs` (il generatore,
+sul modello di `make_support.mjs`), le pagine generate in
+`site/account-deletion/` e `site/tests/account-deletion.test.mjs`. La
+pagina nomina l'app e lo sviluppatore, dà i passi nell'app («Profile» ›
+«Settings» › «Delete account», con i nomi dei bottoni di ogni lingua), la
+via senza app (email a muw2610@gmail.com dall'indirizzo dell'account,
+**entro 30 giorni**: promessa nuova, **confermata dall'utente** il
+2026-10-26 insieme ai testi della pagina), cosa
+si cancella, i 13/14 giorni delle copie, cosa resta e come cancellare solo
+una parte: tutto dalla privacy. `docs/DEPLOY.md` F.14: la riga del
+`git archive` copia anche `site/account-deletion` (la #502 e la #525 sono
+in `main`). Nella Play Console l'URL di cancellazione è per ora la privacy
+(Google controlla che risponda): da cambiare in
+`https://getmuw.app/account-deletion/` appena la pagina è online.
+
+**Nella Play Console il 2026-10-26** (dall'agente in Chrome, salvo dove
+detto): app creata (id `4972971737368438830`, l'utente ha spuntato le
+dichiarazioni e premuto «Crea app»); privacy; annunci: no; categoria
+Salute e fitness; contatti; scheda dello store (testi di Apple, icona,
+immagine in evidenza, cinque screenshot 1320×2640, asset non etichettati
+AI); App governative: no; Funzionalità finanziarie: nessuna; ID
+pubblicità: no; Salute: attività fisica; Dettagli di accesso (credenziali
+dell'utente); Sicurezza dei dati (nessun dato condiviso; posizione, email,
+ID utente, telefono, bio, foto, fitness, interazioni, ricerche, contenuti
+degli utenti, ID dispositivo; corretta la posizione che l'utente aveva
+messo come temporanea e con tutti gli scopi); pubblico di destinazione e
+classificazione dei contenuti compilati dall'utente. «Contenuti app» non
+ha più niente in sospeso.
 
 ## Criteri di accettazione
 
