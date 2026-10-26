@@ -360,7 +360,7 @@ export function ProfileLayer({ apiUrl, children }: Props) {
   const onProfilePage = useCallback((to: ProfilePage) => {
     setPage(to === "account" && home.current === "page" ? null : to);
   }, []);
-  // The private messages (TASK-305): «Messages» and the conversations over
+  // The private messages (TASK-310): «Messages» and the conversations over
   // everything else, and the numbers of the dot.
   const messages = useMessagesOf(apiUrl, account);
   // Push notifications (TASK-262): this phone's token on the API while the
@@ -456,7 +456,7 @@ export function ProfileLayer({ apiUrl, children }: Props) {
                         </FollowsContext.Provider>
                       )}
                       {/* Over everything: opened from a profile, «Profile» or a
-                        notification, and closed back to it (TASK-305). */}
+                        notification, and closed back to it (TASK-310). */}
                       <MessagesOverlay />
                     </View>
                   </MessagesContext.Provider>

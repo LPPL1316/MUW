@@ -1,7 +1,7 @@
 import { tapTarget } from "./notificationTap";
 
 // A private message's notification opens the conversation with who wrote
-// (TASK-305); the data is a follow event's, a profile.
+// (TASK-310); the data is a follow event's, a profile.
 
 const ada = { public_id: "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13", username: "Ada_runs" };
 

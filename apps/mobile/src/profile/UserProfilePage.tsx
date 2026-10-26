@@ -79,7 +79,7 @@ export function profileViewProblem(failed: Failed): string {
  * follow it, which asks: the other accepts or declines (ADR-0173). Its
  * «…» reports the member or blocks it (TASK-121, ADR-0228); blocked, the
  * page says so and shows the profile no more. «Message» opens the
- * conversation with them (TASK-305).
+ * conversation with them (TASK-310).
  */
 export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: Props) {
   const { state, sessionEnded: onSessionEnded } = account;

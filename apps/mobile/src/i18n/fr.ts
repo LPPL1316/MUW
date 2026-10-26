@@ -1414,7 +1414,7 @@ export const FR: Table = {
   Fiesta: "Fiesta",
   "Tap a track to hear it.": "Touche un morceau pour l'écouter.",
 
-  // src/api/messages.ts (TASK-305: private messages)
+  // src/api/messages.ts (TASK-310: private messages)
   "A message needs some words.": "Un message a besoin de quelques mots.",
   "A message is at most {max} characters.": "Un message fait au plus {max} caractères.",
   "Too many messages in a minute. Wait a moment and try again.":
@@ -1423,7 +1423,7 @@ export const FR: Table = {
     "Dans cette app, tu ne peux pas envoyer de messages négatifs.",
   "This conversation is not available.": "Cette conversation n'est pas disponible.",
 
-  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-305)
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-310)
   Messages: "Messages",
   "Messages, {count} waiting": "Messages, {count} en attente",
   "Message requests": "Demandes de message",
@@ -1436,7 +1436,7 @@ export const FR: Table = {
   Message: "Message",
   "Message {name}": "Écrire à {name}",
 
-  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-305)
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-310)
   "No messages yet.": "Pas encore de messages.",
   "Show earlier messages": "Afficher les messages précédents",
   "Touch and hold to delete it": "Maintiens appuyé pour le supprimer",

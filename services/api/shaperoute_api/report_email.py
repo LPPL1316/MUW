@@ -18,7 +18,7 @@ Hidden is from the others only: the author still sees it. A hidden drawing
 is out of drawings.drawing_seen_sql and shown_sql, a hidden comment out of
 comments.NOT_APART, a hidden message out of messages.SEEN, and a hidden
 member is kept apart from everyone as across a block (follows.apart_sql).
-Nothing is deleted. Of a private message (TASK-305) the email holds that
+Nothing is deleted. Of a private message (TASK-310) the email holds that
 message only, never the rest of its conversation.
 
 Off unless the environment has RESEND_API_KEY, SHAPEROUTE_EMAIL_SECRET,

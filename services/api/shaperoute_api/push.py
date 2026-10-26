@@ -12,7 +12,7 @@ choice of 2026-10-07): a follow request, a follow request accepted, a
 reaction, a comment, a tag. A sixth, a shape of the game unlocked (TASK-296,
 ADR-0255), is told to the runner who unlocked it; three more are the game's
 teams' (part C): a piece finished, a challenge complete, a day left. Two
-are the private messages' (TASK-305, messages.py): a message, and a message
+are the private messages' (TASK-310, messages.py): a message, and a message
 request once a day for each writer. Each to one recipient, and only when:
 
 - the recipient has «Push notifications» on (users.notify_push);
@@ -298,7 +298,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "fr": "Tu as gagné le concours MuW ! Ta publication a reçu le plus de"
         " réactions.",
     },
-    # The private messages (TASK-305): a message with its beginning; a
+    # The private messages (TASK-310): a message with its beginning; a
     # request without it, which may come from anyone.
     "message": {
         "en": "{name}: {text}",

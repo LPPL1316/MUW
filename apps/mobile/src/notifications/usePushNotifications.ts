@@ -27,7 +27,7 @@ type Opens = {
    * a shape completed, a day left. */
   openChallenge: (id: string) => void;
   /** Shows the conversation with `person`: a message, a message request
-   * (TASK-305). Without it, their profile. */
+   * (TASK-310). Without it, their profile. */
   openConversation?: (person: Person) => void;
 };
 

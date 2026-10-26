@@ -1,14 +1,17 @@
-# TASK-305 — I messaggi privati, con le richieste
+# TASK-310 — I messaggi privati, con le richieste
 
 **Stato**: In corso (parti A e B nella stessa PR)
 **Fase**: 4 · **Branch**: `claude/epic-gauss-k87m6o` (il branch assegnato
-alla sessione cloud; parte da `main` `7af6805`)
-**ADR**: ADR-0265 · **Migrazione**: `0031_messages.sql` (il numero si
+alla sessione cloud; parte da `main`)
+**ADR**: ADR-0270 · **Migrazione**: `0032_messages.sql` (il numero si
 ricontrolla al merge)
-**Numeri**: TASK-305 e ADR-0265 presi come primi liberi anche nei branch
-remoti (TASK-303 e 304 e ADR-0263 e 0264 sono su `feat/TASK-303-…` e
-`feat/TASK-304-…`): il Coordinatore non era raggiungibile dalla sessione
-cloud. **Da confermare col Coordinatore.**
+**Numeri**: TASK-310 e ADR-0270 presi come primi liberi anche nei branch
+remoti, il 2026-10-26 sera: il Coordinatore non era raggiungibile dalla
+sessione cloud. Il lavoro era nato come TASK-305 / ADR-0265, ma prima del
+push quei numeri li aveva presi `docs/TASK-305-paragliding-proposal`
+(306–309 e ADR-0266–0269 sono di TASK-306–309); la migrazione è `0032`
+perché `0031_feedback.sql` è di TASK-308. **Da confermare col
+Coordinatore.**
 
 ## Obiettivo
 
@@ -50,7 +53,7 @@ Chieste una alla volta, con una proposta:
 
 ## Il disegno (deciso dall'agente su delega dell'utente)
 
-In ADR-0265 e in `API.md` «Messages»: una conversazione per coppia, lo
+In ADR-0270 e in `API.md` «Messages»: una conversazione per coppia, lo
 stato della richiesta su chi riceve (`conversation_members.accepted_at`),
 la conversazione chiesta col `public_id` dell'altro, lo `state` della
 pagina (`open`, `first`, `waiting`, `request`), «Delete» che toglie dalla
@@ -73,14 +76,14 @@ del merge.
 ## Contesto da leggere
 
 - `docs/API.md` «Follow», «Comments», «Block and report», «Push
-  notifications», «Messages»; `docs/DATABASE.md` `0020`, `0024`, `0031`
-- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0265
+  notifications», «Messages»; `docs/DATABASE.md` `0020`, `0024`, `0032`
+- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0270
 - `services/api/shaperoute_api/follows.py` (`apart_sql`, `follows_sql`),
   `comments.py`, `moderation.py`, `report_email.py`, `push.py`
 
 ## Parte A — API
 
-1. Migrazione `0031_messages.sql`: `conversations`, `conversation_members`,
+1. Migrazione `0032_messages.sql`: `conversations`, `conversation_members`,
    `messages`; `reports.kind` con `message`.
 2. `messages.py` (nuovo): gli otto endpoint, lo stato, il filtro sulla
    richiesta, il limite per minuto, «Delete», il gancio del blocco, le
@@ -124,14 +127,14 @@ del merge.
 ### File toccati (parte A)
 
 ```
-services/api/migrations/0031_messages.sql               (nuovo)
+services/api/migrations/0032_messages.sql               (nuovo)
 services/api/shaperoute_api/messages.py                 (nuovo)
 services/api/shaperoute_api/push.py
 services/api/shaperoute_api/moderation.py
 services/api/shaperoute_api/report_email.py
 services/api/shaperoute_api/app.py
 services/api/tests/test_messages.py                     (nuovo)
-services/api/tests/test_moderation.py                   (l'elenco dei tipi è anche nella 0031)
+services/api/tests/test_moderation.py                   (l'elenco dei tipi è anche nella 0032)
 packages/shared-types/src/index.ts
 packages/shared-types/test/messages.test.ts             (nuovo)
 packages/shared-types/test/moderation.test.ts           (REPORT_KINDS con message)
@@ -144,7 +147,7 @@ docs/API.md
 docs/DATABASE.md
 docs/DECISIONS.md
 docs/STATUS.md
-docs/tasks/TASK-305.md                                  (nuovo)
+docs/tasks/TASK-310.md                                  (nuovo)
 ```
 
 ## Parte B — L'app

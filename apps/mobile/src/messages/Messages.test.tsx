@@ -23,7 +23,7 @@ jest.mock(
   () => jest.requireActual("react-native-safe-area-context/jest/mock").default,
 );
 
-// The private messages in the app (TASK-305, ADR-0265): «Messages» in
+// The private messages in the app (TASK-310, ADR-0270): «Messages» in
 // «Profile», the list, «Message» on a profile, one conversation and what
 // its `state` lets one do.
 

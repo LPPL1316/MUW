@@ -46,8 +46,8 @@ export function previewOf(conversation: Conversation): string {
 }
 
 /**
- * The conversations of «Messages», or the message requests (TASK-305,
- * ADR-0265), the latest message first, each with the other's picture and
+ * The conversations of «Messages», or the message requests (TASK-310,
+ * ADR-0270), the latest message first, each with the other's picture and
  * name, the latest message on one line and a dot when the other wrote since
  * it was read. In «Messages», «Message requests» at the top, with their
  * number. Read when it opens, and again when it comes back to the screen.

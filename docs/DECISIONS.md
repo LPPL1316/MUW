@@ -16561,14 +16561,14 @@ pesa 1,88 MB in più la prima volta. Dodici testi nuovi in fondo alle
 tabelle («Music» c'era già). Rifare i brani costa circa 17 s di CPU, il
 loro test in CI circa 15 s.
 
-## ADR-0265 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
+## ADR-0270 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
 
 **Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
 richieste e il resto della proposta sono **scelte dell'utente** del
 2026-10-26 («Chiunque, con richiesta», poi «Sì, così»); i punti tecnici
-sono decisi dall'agente su delega dell'utente (TASK-305). Numero preso
-come primo libero anche nei branch remoti (0263 e 0264 sono di TASK-303 e
-TASK-304): il Coordinatore non rispondeva.
+sono decisi dall'agente su delega dell'utente (TASK-310). Numero preso
+come primo libero anche nei branch remoti (0263–0269 sono di TASK-303–309,
+0265 della proposta del parapendio): il Coordinatore non rispondeva.
 
 **Contesto**: l'utente il 2026-10-26: «aggiungi anche la possibilità di
 mandarsi messaggi privati». Il social di MuW aveva profili, follow con
@@ -16592,7 +16592,7 @@ richiesta (ADR-0173), commenti, reazioni, blocchi e segnalazioni
    messaggio lo cancella per tutti e due. Niente crittografia end-to-end,
    e la privacy lo dice. Un interruttore per non ricevere richieste è un
    seguito possibile, non ora.
-2. **Tre tabelle** (`0031_messages.sql`): `conversations`, una per coppia
+2. **Tre tabelle** (`0032_messages.sql`): `conversations`, una per coppia
    con i due id in ordine (`low_id < high_id`, unica), `ON DELETE
    CASCADE` su tutti e due gli account; `conversation_members`, due righe
    con `accepted_at`, `cleared_at`, `read_at` di ognuno; `messages`. Lo
@@ -16620,7 +16620,7 @@ richiesta (ADR-0173), commenti, reazioni, blocchi e segnalazioni
    nuovo una richiesta. Un iscritto nascosto (ADR-0251) e chiunque dietro
    un blocco sono fuori con `follows.apart_sql`, come altrove: `404`.
 7. **Le segnalazioni**: `reports.kind` ammette `message` (vincolo rifatto
-   nella 0031); solo l'altro membro della conversazione segnala, chiunque
+   nella 0032); solo l'altro membro della conversazione segnala, chiunque
    altro ha `404`. «Hide» dall'email mette `messages.hidden_at`: chi l'ha
    ricevuto non lo vede più, chi l'ha scritto sì, come per i commenti.
 8. **Le push** sono due `Kind` nuovi in `push.py`, `message` (la chiave è

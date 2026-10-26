@@ -84,7 +84,7 @@ export function merged(held: Message[], page: Message[]): Message[] {
 }
 
 /**
- * One conversation (TASK-305, ADR-0265): the messages from the bottom up,
+ * One conversation (TASK-310, ADR-0270): the messages from the bottom up,
  * and under them what who reads may do, as the API's `state` says: write
  * («open»); write one message, which the other gets as a request
  * («first»); wait for the other to accept («waiting»); or answer the

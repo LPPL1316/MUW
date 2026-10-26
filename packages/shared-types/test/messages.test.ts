@@ -17,7 +17,7 @@ import {
   type MessagesPage,
 } from "../src/index.ts";
 
-// The same JSON is validated by the API's test_messages.py (TASK-305).
+// The same JSON is validated by the API's test_messages.py (TASK-310).
 const asked: MessageRequest = messageRequest;
 const one: Message = messageExample;
 const page = messagesExample as MessagesPage;
