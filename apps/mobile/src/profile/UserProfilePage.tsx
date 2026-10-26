@@ -7,6 +7,7 @@ import type { Account } from "../account/useAccount";
 import type { AccountOutcome } from "../api/accounts";
 import { fetchProfile, profilePhotoUri } from "../api/profiles";
 import { t, tLater, tPlural } from "../i18n";
+import { MessageButton } from "../messages/MessageButton";
 import { DrawingsGrid } from "../social/DrawingsGrid";
 import { FollowButton } from "../social/FollowButton";
 import { ReportMenu } from "../social/ReportMenu";
@@ -77,7 +78,8 @@ export function profileViewProblem(failed: Failed): string {
  * follows (TASK-211). Under the name, how many follow it and the button to
  * follow it, which asks: the other accepts or declines (ADR-0173). Its
  * «…» reports the member or blocks it (TASK-121, ADR-0228); blocked, the
- * page says so and shows the profile no more.
+ * page says so and shows the profile no more. «Message» opens the
+ * conversation with them (TASK-305).
  */
 export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: Props) {
   const { state, sessionEnded: onSessionEnded } = account;
@@ -175,6 +177,15 @@ export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: 
             onSessionEnded={onSessionEnded}
             fetchFn={fetchFn}
             apiKey={apiKey}
+          />
+        )}
+        {!own && (
+          <MessageButton
+            person={{
+              public_id: profile.public_id,
+              username: profile.username,
+              photo: null,
+            }}
           />
         )}
         {/* An API older than following is older than blocking too. */}

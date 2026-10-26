@@ -1,4 +1,8 @@
-import type { ChallengePushKind, Person } from "@shaperoute/shared-types";
+import type {
+  ChallengePushKind,
+  MessagePushKind,
+  Person,
+} from "@shaperoute/shared-types";
 
 /**
  * What a touched notification opens (TASK-262): the `data` the API put in
@@ -8,11 +12,13 @@ import type { ChallengePushKind, Person } from "@shaperoute/shared-types";
  * the game unlocked (TASK-296): its data names the runner, but the shape is
  * in the collection. The challenge for a piece done, a shape completed or
  * a day left (TASK-296 part C): its data names the challenge; without a
- * good id, «Play» on its «Challenges» tab. Anything else: nothing.
+ * good id, «Play» on its «Challenges» tab. The conversation with who wrote
+ * for a message or a message request (TASK-305). Anything else: nothing.
  */
 export type TapTarget =
   | { kind: "drawing"; id: string }
   | { kind: "profile"; person: Person }
+  | { kind: "conversation"; person: Person }
   | { kind: "play" }
   | { kind: "challenge"; id: string };
 
@@ -24,6 +30,9 @@ const CHALLENGE_KINDS: readonly ChallengePushKind[] = [
   "challenge_done",
   "challenge_ending",
 ];
+
+/** The kinds of a private message's notifications (TASK-305). */
+const MESSAGE_KINDS: readonly MessagePushKind[] = ["message", "message_request"];
 
 function field(data: object, name: string): string | null {
   const value: unknown = (data as Record<string, unknown>)[name];
@@ -51,7 +60,10 @@ export function tapTarget(data: unknown): TapTarget | null {
   const publicId = field(data, "public_id");
   const username = field(data, "username");
   if (publicId !== null && ID.test(publicId) && username !== null && username !== "") {
-    return { kind: "profile", person: { public_id: publicId, username, photo: null } };
+    const person = { public_id: publicId, username, photo: null };
+    return kind !== null && (MESSAGE_KINDS as readonly string[]).includes(kind)
+      ? { kind: "conversation", person }
+      : { kind: "profile", person };
   }
   return null;
 }

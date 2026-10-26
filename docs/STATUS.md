@@ -170,10 +170,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   commenti; «Accept», «Delete», «Block»; il blocco cancella la
   conversazione; nessuna conferma di lettura; push per ogni messaggio, una
   al giorno per una richiesta. **Parte A** (API, migrazione
-  `0031_messages.sql`, numero al merge) scritta e verde in locale;
-  **parte B** (l'app) da fare, testi da approvare prima del merge; server e
-  app dopo il merge, con l'ok dell'utente; «Messaging and Chat» su App
-  Store Connect la cambia l'utente. File: `tasks/TASK-305.md`.
+  `0031_messages.sql`, numero al merge) e **parte B** (l'app: «Messages»
+  in «Profile», «Message» sul profilo, la conversazione, «Help» e una
+  sezione nuova della privacy, anche sul sito) scritte e verdi in locale;
+  **aspettano l'ok dell'utente sui testi e sulla privacy** prima del
+  merge; server, sito e app dopo il merge, con l'ok dell'utente;
+  «Messaging and Chat» su App Store Connect la cambia l'utente. File:
+  `tasks/TASK-305.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch

@@ -85,6 +85,14 @@ const help: AboutDocument = {
       ],
     },
     {
+      heading: "Messages",
+      blocks: [
+        "«Message» on a member's profile writes to them. If they follow you, your message arrives in their «Messages»; if not, it arrives as a request, and you can send one message until they accept it.",
+        "Your conversations are in «Profile», «Messages», with «Message requests» at the top. Accept a request and you both write freely; delete it (who wrote is not told), or block who wrote.",
+        "Hold a message to delete yours, for both of you, or to report one you received. Nobody sees whether you read a message. With push on, MuW tells you of each message and of each request.",
+      ],
+    },
+    {
       heading: "Run, Bike, Paddle",
       blocks: [
         "Choose your sport with the button next to your profile, or in «Settings».",
@@ -337,6 +345,15 @@ const privacy: AboutDocument = {
             "Who you follow, who follows you and the requests to follow are kept with your account.",
           ],
         },
+      ],
+    },
+    {
+      heading: "Private messages",
+      blocks: [
+        "Your private messages are kept on our server: who wrote, to whom, the text and when, and for each of the two whether they accepted the conversation, when they last read it and up to when they deleted it from their view. They are not end-to-end encrypted. In the app only the two members of a conversation see it, and nobody is told whether a message was read. We keep them to give you the service you ask for (contract).",
+        "A message to someone who does not follow you arrives as a request; the first message of a request goes through the same word filter as comments.",
+        "You can delete your own messages, for both of you. Deleting a conversation takes it out of your view; a message that neither of you sees any more is deleted. A block deletes the conversation; deleting your account deletes all your conversations, with the messages of both.",
+        "When you report a message, the email to the person who runs MuW holds that message only, never the rest of the conversation. With push on, the notification of a message carries its beginning, through Expo's push service and Apple or Google, as for comments.",
       ],
     },
     {

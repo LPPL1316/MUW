@@ -1106,7 +1106,7 @@ foglio con due tasti e «Cancel»:
 | Tasto | Cosa fa |
 |---|---|
 | «Report» | chiede «Why are you reporting this?» con cinque tasti: «Spam», «Offensive or hateful», «Harassment or bullying», «Nudity or sexual content», «Something else»; toccato uno, «Sending…», poi «Thanks for telling us. We will look at it.» e «Close». Dal feed segnala il disegno, dal profilo la persona |
-| «Block {name}», rosso | chiede «Block {name}?» con «You will not see each other's drawings, comments or profile, and any follow between you ends. They are not told.», il tasto rosso «Block» e «Cancel» |
+| «Block {name}», rosso | chiede «Block {name}?» con «You will not see each other's drawings, comments, messages or profile, any follow between you ends and your conversation is deleted. They are not told.», il tasto rosso «Block» e «Cancel» |
 
 Bloccato, il foglio si chiude da solo: **le schede di quella persona
 spariscono subito da «Feed»**, e alla lettura dopo l'API non le manda più;
@@ -1120,6 +1120,47 @@ nome e il tasto **«Unblock»** (VoiceOver: «Unblock {name}»); vuoto, «You
 have not blocked anyone.»; venti per volta, poi «Show more». Sbloccato,
 esce dall'elenco e torna in «Feed» alla lettura dopo; il follow non
 torna. Un profilo bloccato non si apre dall'elenco.
+
+**I messaggi privati** (TASK-305, ADR-0265; testi **da approvare**
+dall'utente). In «Profile», sopra «Settings», la riga **«✉️ Messages»** con
+un numero rosso (le conversazioni con novità più le richieste in attesa;
+VoiceOver «Messages, {count} waiting»); sul profilo di un altro, sotto
+«Follow», il tasto neutro **«Message»** (VoiceOver «Message {name}»). Con
+un'API senza messaggi non c'è né l'una né l'altro. Tutto si apre sopra
+l'app, come «Find friends»:
+
+- **«Messages»**: in cima la riga «Message requests» con il loro numero;
+  sotto le conversazioni, l'ultimo messaggio per prima, con foto, nome,
+  l'ultimo messaggio su una riga («You: …» se è proprio) e un pallino rosso
+  se l'altro ha scritto dopo l'ultima lettura. Vuota: «No messages yet. Open
+  someone's profile and tap Message to write to them.»; le richieste vuote:
+  «No message requests.». Venti per volta, poi «Show more».
+- **La conversazione**: titolo con foto e nome e il «…» di «Report or
+  block» della persona; i messaggi dal basso, i propri a destra su
+  `surfaceRaised`, quelli dell'altro a sinistra su `surface` con il bordo
+  (il giallo resta del percorso); «Show earlier messages» in cima. Sotto,
+  secondo lo `state` dell'API: la casella «Write a message…» con «Send»
+  («Sending…»); per il primo messaggio a chi non ci segue, sopra la
+  casella «{name} gets this as a message request. You can send one message
+  until they accept it.»; dopo, al posto della casella, «Message request
+  sent. You can write again when {name} accepts it.»; per una richiesta
+  ricevuta, «{name} wants to send you a message.» e i tre tasti «Accept»,
+  «Delete», «Block» (rosso; chiede prima, con il testo del blocco).
+  «Delete» chiude la conversazione. Si rilegge ogni 5 secondi mentre è
+  aperta, e quando l'app torna sullo schermo; l'altro che scrive la segna
+  letta (nessuna conferma all'altro).
+- **Un tocco lungo su un messaggio** (VoiceOver: «Touch and hold to delete
+  it» / «… to report it») apre il foglio: il proprio, «Delete this message
+  for both of you?» e «Delete»; dell'altro, «Report this message», poi i
+  cinque motivi di «Report» e il grazie.
+- **Gli errori** in parole sotto i messaggi: «You can't send negative
+  messages in this app.» (il filtro sul primo messaggio di una richiesta),
+  «Too many messages in a minute. Wait a moment and try again.», «This
+  conversation is not available.» (un blocco, una persona sparita).
+- **Una push** di un messaggio o di una richiesta, toccata, apre la
+  conversazione; «←» chiude e lascia l'app com'era. Il numero di «Messages»
+  si chiede ogni minuto mentre l'app è aperta, come quello delle richieste
+  di follow.
 
 - **Chiusa e riaperta**, l'app è già dentro: la sessione sta nel
   portachiavi del telefono. All'apertura chiede all'API (`GET /me`) se vale

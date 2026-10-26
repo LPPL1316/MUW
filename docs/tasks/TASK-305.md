@@ -149,41 +149,116 @@ docs/tasks/TASK-305.md                                  (nuovo)
 
 ## Parte B — L'app
 
-Da fare dopo la parte A, nella stessa PR; i file si precisano quando si
-comincia (le tabelle `i18n/*.ts` le toccano anche TASK-296 E e TASK-303:
-righe diverse, chi arriva secondo unisce).
+Nella stessa PR. Le tabelle `i18n/*.ts` e `docs/UI.md` le toccano anche
+TASK-296 E, TASK-303 e TASK-304 (righe diverse: chi arriva secondo
+unisce).
 
-1. `api/messages.ts` (nuovo): le chiamate, come `api/comments.ts`.
-2. «Messages» in «Profile», con il numero delle non lette e delle
-   richieste (`GET /me/conversations/unread`); la pagina con le
-   conversazioni e, in cima, «Message requests (N)».
-3. La conversazione: i messaggi dal basso, la casella e «Send»; secondo
-   `state` il suggerimento della richiesta, l'attesa, o «Accept · Delete ·
-   Block»; si rilegge ogni pochi secondi mentre è aperta, e segna letto.
-4. «Message» sul profilo di un altro (`UserProfilePage.tsx`).
-5. Un tocco lungo su un messaggio: «Delete» (proprio) o «Report» (dell'altro,
-   con i motivi di `ReportMenu`).
-6. Il tocco di una push `message` o `message_request` apre la
-   conversazione (`notifications/notificationTap.ts`).
-7. «Help» e «Privacy»: i messaggi, che non sono cifrati end-to-end, e che
-   l'inizio va nelle push.
-8. Testi nelle cinque lingue; test con jest.
+1. `api/messages.ts` (nuovo): le otto chiamate, come `api/comments.ts`, e
+   i problemi in parole.
+2. `messages/messagesDoor.ts` (nuovo): cosa è aperto sopra l'app (la
+   lista, le richieste, una conversazione) e i numeri del pallino, chiesti
+   ogni minuto come le richieste di follow; con un'API senza messaggi
+   (`404`) niente «Messages». `ProfileLayer.tsx` lo tiene, mette
+   `MessagesOverlay` sopra tutto e gli passa il tocco delle push.
+3. «✉️ Messages» in «Profile» (`MessagesRow`, sopra «Settings») con il
+   numero rosso; la lista (`ConversationList`) con «Message requests» in
+   cima, il pallino delle non lette, «Show more».
+4. La conversazione (`ConversationScreen`): i messaggi dal basso (lista
+   capovolta), «Show earlier messages»; secondo `state` la casella, il
+   suggerimento della richiesta, l'attesa, o «Accept · Delete · Block»; si
+   rilegge ogni 5 s mentre è aperta (una lettura alla volta, e una lettura
+   chiesta prima di un invio non lo cancella), segna letto, il «…» della
+   persona.
+5. «Message» sul profilo di un altro (`MessageButton`, in
+   `UserProfilePage.tsx`).
+6. Un tocco lungo su un messaggio (`MessageSheet`): «Delete» (proprio) o
+   «Report this message» con i motivi di `ReportMenu`; «Block» di una
+   richiesta chiede prima.
+7. Il tocco di una push `message` o `message_request` apre la
+   conversazione (`notificationTap.ts`, `usePushNotifications.ts`).
+8. Il testo del blocco (`BLOCK_EXPLAINED`) dice anche che la conversazione
+   si cancella; «Help» e «Privacy» hanno una sezione nuova sui messaggi
+   (niente frasi già approvate cambiate); le pagine della privacy del sito
+   rifatte con `make_privacy.mjs`.
+
+### I testi da approvare (parte B)
+
+Inglese; le traduzioni in tedesco, italiano, spagnolo e francese sono
+dell'agente (`i18n/*.ts`, `about/content/*.ts`).
+
+- **Profilo**: «Messages» (VoiceOver «Messages, {count} waiting»);
+  «Message» (VoiceOver «Message {name}»).
+- **Lista**: «Messages», «Message requests» («Message requests, {count}
+  waiting»), «You: {text}», «{name}, new message: {text}» (VoiceOver), «No
+  messages yet. Open someone's profile and tap Message to write to them.»,
+  «No message requests.».
+- **Conversazione**: «Write a message…», «Send», «No messages yet.», «Show
+  earlier messages», «{name} gets this as a message request. You can send
+  one message until they accept it.», «Message request sent. You can write
+  again when {name} accepts it.», «{name} wants to send you a message.»,
+  «Accept», «Delete», «Block»; VoiceOver «Touch and hold to delete it»,
+  «Touch and hold to report it».
+- **Foglio**: «Delete this message for both of you?» [Delete]; «Report
+  this message», poi i motivi e il grazie di sempre.
+- **Errori**: «A message needs some words.», «A message is at most {max}
+  characters.», «Too many messages in a minute. Wait a moment and try
+  again.», «You can't send negative messages in this app.», «This
+  conversation is not available.».
+- **Il blocco** (cambiato, era approvato il 2026-10-09): «You will not see
+  each other's drawings, comments, messages or profile, any follow between
+  you ends and your conversation is deleted. They are not told.»
+- **Help**, sezione nuova «Messages» dopo «Feed and friends»: tre
+  paragrafi (`about/content/en.ts`).
+- **Privacy**, sezione nuova «Private messages» prima di «Reports»: cosa
+  si tiene, niente end-to-end, la richiesta e il filtro, cancellare e
+  bloccare, l'email di una segnalazione con quel messaggio soltanto, le
+  push con l'inizio. La data resta «26 October 2026» (già di oggi); se la
+  PR entra dopo, va rifatta con l'ok dell'utente. **Testo legale: lo
+  approva l'utente.**
 
 ### Criteri di accettazione (parte B)
 
-- [ ] Dal profilo di un altro «Message» apre la conversazione; il primo
+- [x] Dal profilo di un altro «Message» apre la conversazione; il primo
       messaggio a chi non ci segue dice che arriva come richiesta, poi
       l'attesa.
-- [ ] «Messages» in «Profile» elenca le conversazioni dall'ultima, con il
+- [x] «Messages» in «Profile» elenca le conversazioni dall'ultima, con il
       pallino delle non lette; «Message requests» con il numero.
-- [ ] Una richiesta mostra «Accept», «Delete» e «Block», che fanno quello
+- [x] Una richiesta mostra «Accept», «Delete» e «Block», che fanno quello
       che dicono.
-- [ ] Un messaggio proprio si cancella, uno dell'altro si segnala.
-- [ ] La conversazione aperta si aggiorna da sola; aprirla toglie il
+- [x] Un messaggio proprio si cancella, uno dell'altro si segnala.
+- [x] La conversazione aperta si aggiorna da sola; aprirla toglie il
       pallino.
-- [ ] Con un'API senza messaggi «Messages» non si vede.
+- [x] Con un'API senza messaggi «Messages» e «Message» non si vedono.
 - [ ] Testi approvati dall'utente, nelle cinque lingue.
-- [ ] Test, lint, typecheck e prettier verdi.
+- [ ] Test, lint, typecheck e prettier verdi in CI.
+
+### File toccati (parte B)
+
+```
+apps/mobile/src/api/messages.ts                          (nuovo)
+apps/mobile/src/api/messages.test.ts                     (nuovo)
+apps/mobile/src/messages/messagesDoor.ts                 (nuovo)
+apps/mobile/src/messages/MessagesOverlay.tsx             (nuovo)
+apps/mobile/src/messages/MessagesRow.tsx                 (nuovo)
+apps/mobile/src/messages/MessageButton.tsx               (nuovo)
+apps/mobile/src/messages/ConversationList.tsx            (nuovo)
+apps/mobile/src/messages/ConversationScreen.tsx          (nuovo)
+apps/mobile/src/messages/MessageSheet.tsx                (nuovo)
+apps/mobile/src/messages/Messages.test.tsx               (nuovo)
+apps/mobile/src/messages/ConversationScreen.test.tsx     (nuovo)
+apps/mobile/src/notifications/notificationTapMessages.test.ts (nuovo)
+apps/mobile/src/notifications/notificationTap.ts
+apps/mobile/src/notifications/usePushNotifications.ts
+apps/mobile/src/screens/ProfileLayer.tsx
+apps/mobile/src/profile/ProfileHome.tsx
+apps/mobile/src/profile/UserProfilePage.tsx
+apps/mobile/src/social/ReportMenu.tsx                    (il testo del blocco)
+apps/mobile/src/social/DrawingComments.test.tsx          (il testo del blocco)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/src/about/content/de.ts, en.ts, es.ts, fr.ts, it.ts
+site/privacy/index.html, de/, es/, fr/, it/              (rifatte da make_privacy.mjs)
+docs/UI.md
+```
 
 ## Fuori scope
 
@@ -192,12 +267,22 @@ righe diverse, chi arriva secondo unisce).
 - Conferme di lettura, «sta scrivendo…», WebSocket.
 - Il server, `preview` e la build dello store: con l'ok dell'utente, dopo
   il merge.
+- Il numero dei messaggi anche sul pulsante di «Profile» in alto (oggi è
+  solo delle richieste di follow, TASK-239): seguito possibile, da
+  chiedere all'utente. Senza push (Expo Go) i messaggi nuovi si vedono
+  solo aprendo «Profile».
 
 ## Dove si è
 
 - 2026-10-26: parte A scritta, `test_messages.py` verde (24 test) con i
   test vicini (moderazione, email delle segnalazioni, push, contratto,
-  account). Prossimo: la parte B.
+  account). La suite intera dell'API in locale: 1855 verdi e 1 rosso,
+  `test_strava.py::test_no_secret_is_answered_or_logged`, rosso anche su
+  `main` pulito nel container cloud (c'è `httpx2`, che scrive nel log
+  l'indirizzo con il `code`): non è di questa PR.
+- 2026-10-26: parte B scritta; test jest dei messaggi verdi, lint,
+  typecheck e prettier verdi. **Aspetta l'ok dell'utente sui testi** (qui
+  sopra) e sulla privacy, poi il Coordinatore per la coda dei merge.
 
 ## Esito
 
