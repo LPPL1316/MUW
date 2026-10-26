@@ -31,6 +31,10 @@ follow twice, or changing a reaction, does not notify again. Kept in
 memory: a restart forgets it, and the receipts not read yet.
 
 The texts are in the language the app said with the token, else English.
+
+An event let through (not one's own, the first of the day) also goes to
+the listeners, before the push: the email of the notices keeps the five
+events of the people for its daily email (notice_email.py, TASK-262 B).
 """
 
 from __future__ import annotations
@@ -318,16 +322,22 @@ def data_of(event: PushEvent, actor_public_id: UUID, actor_name: str) -> dict[st
 
 
 Blocked = Callable[[Connection[DictRow], int, int], bool]
+# Who else hears of an event once push.py has let it through (the one who
+# acted, once a day): the email of the notices (notice_email.py, TASK-262
+# part B). Each listener picks its own kinds.
+Listener = Callable[[PushEvent], None]
 
 
 def blocked_between(conn: Connection[DictRow], a: int, b: int) -> bool:
-    """Whether either account blocked the other (TASK-121, ADR-0228)."""
+    """Whether either account blocked the other (TASK-121, ADR-0228), or
+    `a`, who acted, is hidden from `b` (TASK-291, ADR-0251): nothing tells
+    `b` of what it cannot see."""
     # Here, not at the top: follows.py calls this module's hooks.
     from shaperoute_api.follows import apart_sql
 
     row = conn.execute(
         f"SELECT {apart_sql('%s', 'u.id')} AS apart FROM users u WHERE u.id = %s",
-        (a, b),
+        (b, a),
     ).fetchone()
     return row is not None and bool(row["apart"])
 
@@ -362,6 +372,7 @@ class Pusher:
     later: Later = _later
     clock: Callable[[], float] = time.monotonic
     blocked: Blocked = blocked_between
+    listeners: list[Listener] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self._lock = threading.Lock()
@@ -378,12 +389,22 @@ class Pusher:
             own = event.actor_id == event.recipient_id
             if (own and event.kind not in OWN_KINDS) or not self._first(event):
                 return
+            self._tell(event)
             messages = self.messages(event)
             if messages:
                 assert self.run is not None
                 self.run(lambda: self._send(messages))
         except Exception:
             log.exception("push: %s not notified", event.kind)
+
+    def _tell(self, event: PushEvent) -> None:
+        """The listeners, each on its own: one that fails stops neither the
+        others nor the push."""
+        for listener in self.listeners:
+            try:
+                listener(event)
+            except Exception:
+                log.exception("push: a listener of %s failed", event.kind)
 
     def _first(self, event: PushEvent) -> bool:
         """Whether the event was not notified in the last SAME_EVENT_S."""

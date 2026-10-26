@@ -383,7 +383,8 @@ stesso contorno, e l'AI non c'entra (ADR-0068). Vale per **un soggetto
 chiaro su sfondo uniforme**: un disegno, un logo, una sagoma, un oggetto
 fotografato su un tavolo bianco. Del soggetto si tiene **solo il contorno
 esterno**: buchi e linee interne si perdono. Con **più soggetti staccati,
-fino a 4**, il contorno resta una linea sola (ADR-0079, punto 5).
+fino a 4**, il contorno resta una linea sola (ADR-0079, punto 5). Con la
+penna alzata, invece, fori e soggetti staccati sono pezzi (punto 6).
 
 1. L'immagine si raddrizza secondo l'EXIF (le foto del telefono) e si
    riduce a 640 pixel di lato al più.
@@ -414,6 +415,35 @@ fino a 4**, il contorno resta una linea sola (ADR-0079, punto 5).
    Due soggetti più vicini del 2,5% del disegno diventano uno solo:
    semplificati, le loro linee potrebbero toccarsi. Gli `strokes` di tutti
    i soggetti insieme hanno al più 150 punti (`MAX_SUBJECT_POINTS`).
+6. **Con la penna alzata** (`outline_data(…, pen_up=True)`, TASK-297 C,
+   ADR-0258) niente gambi: gli altri soggetti, e i **fori** di ogni
+   soggetto che valgono almeno il **3 %** della sua area (`HOLE_SHARE`,
+   l'area del suo contorno esterno pieno), diventano i `pieces` del
+   contorno (ADR-0185), da disegnare uno alla volta camminando dall'uno
+   all'altro (`pieces.compose`, «Pezzi staccati dal contorno»). I pezzi
+   vanno dal più grande al più piccolo: un foro prima di ciò che gli sta
+   dentro, così con la penna giù ogni pezzo si attacca alla linea più
+   vicina senza incrociare. Un pezzo dentro un altro è un soggetto suo
+   (con la penna giù è una linea interna, e si perde); un soggetto si
+   semplifica insieme ai suoi fori, così le sue linee restano staccate. I
+   fori sotto il 3 % si perdono come prima. I punti di tutti i pezzi
+   insieme sono al più 150 (`MAX_SUBJECT_POINTS`), e i pezzi passano i
+   controlli di `parse_outline` come le forme a pezzi del catalogo (non si
+   toccano, non si incrociano, con la penna giù si attaccano senza
+   incroci): un'immagine che non li passa è rifiutata (`jagged`). Senza
+   `pen_up` il contorno è quello di prima, punto per punto
+   (`tools/test_sample_logos.py` lo verifica sulle sedici immagini di
+   `tools/sample_pictures.py`). `ImageRequest.pen_up` nell'API e
+   `--image … --pen-up` dalla CLI compongono il contorno a pezzi come una
+   forma a pezzi e cercano come per le parole con la penna alzata (§5,
+   «La penna alzata»): la distanza chiesta è quella del disegno, `walks`
+   nel risultato; un'immagine senza pezzi si disegna come una linea sola.
+   Le prove stanno in `tools/sample_logos.py`, sette loghi sintetici e il
+   marchio MuW del lancio (nel repository nessun logo di aziende o club):
+   l'anello con la stella dà due pezzi, il cerchio interno e poi la
+   stella; la ruota i quattro fori fra i raggi; «RC» la C e l'occhio
+   della R; la somiglianza della penna alzata è un'altra misura, più
+   severa: si guardano i disegni, non i numeri.
 
 Il risultato è un contorno come quelli dei file (`name`, `source`,
 `license`, `points` e `strokes` in pixel, y verso l'alto) e passa lo stesso
@@ -433,8 +463,9 @@ una parola che l'API potrà tradurre (`InvalidImageError.reason`):
 | `jagged` | più di 100 angoli anche dopo la semplificazione, o più di 150 punti per gli altri soggetti |
 
 Dalla CLI, `--image` al posto di `--shape`; il nome della forma è quello
-del file. `--save-outline` scrive il contorno in JSON per guardarlo, e si
-rilegge con `--outline`:
+del file; con `--pen-up` i pezzi dell'immagine si disegnano uno alla volta
+(punto 6). `--save-outline` scrive il contorno in JSON per guardarlo, anche
+con i pezzi, e si rilegge con `--outline`:
 
 ```
 python -m route_engine --image mela.png --save-outline mela.json     --distance 15000 --start 46.0671,11.1214 --out mela_trento.gpx
@@ -590,6 +621,16 @@ motore rifiuta con `NoRoadsError` (`errors.py`), un `ShapeNotDrawableError`
 come ogni forma che lì non si disegna (TASK-180, ADR-0148; `MAPS.md`,
 «Warning»).
 
+**Un nodo solo.** Se tutti i punti di un contorno hanno lo stesso nodo più
+vicino (poche strade, lontane dalla forma: una zona di campagna), quel
+contorno non si aggancia: `snap_to_network` lancia `CollapsedShapeError`,
+anche lei uno `ShapeNotDrawableError`. La ricerca salta quel tentativo e
+prova le altre posizioni; se vicino non si traccia niente cerca entro 2 km
+(§5, «Trova dove la forma ci sta»), e se nemmeno lì rifiuta con «… nor
+within 2 km: too few roads, the shape collapses onto a single road node
+wherever it is placed» (TASK-277, aggiunta ad ADR-0040). Prima era un
+`ValueError` che finiva in `engine_error`.
+
 ### La rete della bici (TASK-190)
 
 Una richiesta `activity: "cycling"` (10–30 km, `DISTANCE_LIMITS_M` in
@@ -724,6 +765,31 @@ o inclinato, entro
 **±2 km** dal target, con un warning che dice cosa manca. Se la somiglianza
 migliore è sotto **0,60**, o nessun tentativo sta entro ±2 km, nessun
 percorso: la forma lì non è disponibile (ADR-0025).
+
+### Fermarsi prima (TASK-298)
+
+Dove la forma non entra nelle strade la ricerca spende tutto il budget per
+un disegno mediocre: a Trento 19 richieste su 36 (ADR-0257). Misurata
+tracciamento per tracciamento su 252 richieste in sette città (ADR-0259),
+la ricerca **non si lascia accorciare senza perdere percorsi buoni**: il
+primo percorso buono compare a qualunque tracciamento, anche al 30º di 30 e
+dal sesto piazzamento inclinato; «N piazzamenti senza miglioramento» perde
+da 10 a 38 buoni su 129; la somiglianza del primo tracciamento di un
+piazzamento non predice nulla (sale anche da 0,42 a 0,91 cambiando scala);
+il conteggio delle strade è 1,00 in testa quasi ovunque. Saltare la fase
+inclinata dopo una fase dritta andata male, o la rifinitura della rotazione
+di una fase andata male, tiene i buoni ma peggiora i risultati mediocri
+(uno su 123 scende sotto 0,60, da percorso mediocre a «nessun percorso»)
+e non abbrevia: il budget liberato lo spende la fase dopo. Tutte e due
+misurate e scartate.
+
+Quello che resta: **nessun tracciamento ripetuto**. Quando la secante della
+scala rimanda a una scala già tracciata per lo stesso piazzamento (succede
+al bordo dell'intervallo 0,4–1,1), il tracciato noto vale per quel passo e
+il budget compra un altro tracciamento: era l'1,3 % dei tracciamenti. La
+ricerca fa gli stessi tentativi di oggi più qualcuno in coda alla fase: dove
+converge è identica, dove non converge non peggiora. Lo script che rifà le
+misure è `tests/measure_stop_earlier.py`.
 
 ### Forme inclinate (TASK-232)
 

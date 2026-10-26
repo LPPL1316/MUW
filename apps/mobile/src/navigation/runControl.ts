@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { Platform } from "react-native";
 
 import { spokenWords } from "../voice/voiceChoice";
 import { openPause, type TrackFix } from "./trackRecorder";
@@ -162,6 +163,39 @@ function watchStanding(): void {
   session.onChange();
 }
 
+/** On Android the app's clock stops with the screen off, and the GPS goes
+ * on in its service (TASK-294): the countdown and the pause by standing
+ * still wait for a clock that does not come. */
+function clockStopsWithScreen(): boolean {
+  return Platform.OS === "android";
+}
+
+/**
+ * Before a fix, what the clock should have done by now and did not: the end
+ * of the countdown, or the pause by standing still, from when it was due.
+ * Whether that pause was made here: the fix that follows ends it if the
+ * runner moved on, and then nothing was said of it.
+ */
+function catchUpClock(mine: Session): boolean {
+  const now = Date.now();
+  if (state.phase === "countdown") {
+    if (state.startsAtMs !== null && now >= state.startsAtMs) {
+      skipCountdown();
+    }
+    return false;
+  }
+  if (mine.arrived || !state.autoPause || state.phase !== "running") {
+    return false;
+  }
+  const since = stillSinceMs(mine.recorder);
+  if (since === null || now - since < AUTO_PAUSE_AFTER_MS) {
+    return false;
+  }
+  mine.recorder.pause(since + AUTO_PAUSE_AFTER_MS, true);
+  set({ phase: "paused", auto: true });
+  return true;
+}
+
 export type RunSession = {
   /** A fix from the GPS, for the track. During the countdown only the last
    * one is kept, and it becomes the run's first when the countdown ends. */
@@ -220,6 +254,7 @@ export function controlRun(
       if (session !== mine) {
         return;
       }
+      const caughtUp = clockStopsWithScreen() && catchUpClock(mine);
       if (state.phase === "countdown") {
         mine.waiting = fix;
         return;
@@ -229,7 +264,13 @@ export function controlRun(
       // Moving again ended the pause that standing still began.
       if (state.phase === "paused" && state.auto && !openPause(recorder.track())) {
         set({ phase: "running", auto: false });
-        say(spokenWords().resumed);
+        if (!caughtUp) {
+          say(spokenWords().resumed);
+        }
+      } else if (caughtUp) {
+        // Still standing: the word the clock would have said, now.
+        say(spokenWords().paused);
+        onChange();
       }
     },
     liftPen(atMs) {

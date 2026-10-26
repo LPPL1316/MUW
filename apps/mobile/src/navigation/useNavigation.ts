@@ -28,6 +28,7 @@ import { announceMOf, isRide, rideAnnouncement, saidKmOf } from "./ride";
 import { type RunAway, watchAway } from "./runAway";
 import { controlRun, runControl, type RunSession } from "./runControl";
 import { type RunWatch, watchRunPosition } from "./runPosition";
+import { simplifyDirections } from "./simplifyDirections";
 import { startsAnywhere } from "./startAnywhere";
 import { emptyTrack, type Track } from "./trackRecorder";
 import { startRun } from "./trackStore";
@@ -144,9 +145,10 @@ export function useNavigation(
         }
         const walked = walksOf(points, walks);
         // A closed shape starts wherever the runner reaches it (TASK-273).
+        // The turns of a junction crossed on foot are said as one (TASK-302).
         const started = startNavigation(
           points,
-          directions,
+          simplifyDirections(points, directions),
           speaking().language,
           announceMOf(activity),
           startsAnywhere(points, { word, walks: walked }),

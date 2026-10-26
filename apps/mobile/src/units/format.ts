@@ -28,13 +28,6 @@ export function inUnits(metres: number, units: Units = appUnits()): number {
 /** How a number with decimals is written. */
 export type Written = (value: number, digits: number) => string;
 
-/**
- * With a point in every language: how the pages still shown in English
- * write a distance («Explore», until its texts are translated), so they
- * read as before.
- */
-export const withPoint: Written = (value, digits) => value.toFixed(digits);
-
 /** "5.2 km", "3.2 mi": the distance of a route, with the comma where the
  * app's language writes one. */
 export function distanceLabel(

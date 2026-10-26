@@ -5,7 +5,12 @@
 («Settings» e l'avviso) dalla #295, la parte A2 (il tetto del traffico)
 dalla #330, la parte B2 (le zone in più) dalla #337, le città vicine
 (B2b) dalla #341. Le zone del telefono sono sul server e B2/B2b su
-«preview» dal 2026-10-05: resta D, la prova sull'iPhone.
+«preview» dal 2026-10-05. La parte D, la prova sull'iPhone, l'ha fatta
+l'utente il 2026-10-25: «funziona ma cerca di migliorarlo». Segue un
+miglioramento, da misurare e proporre all'utente (parte nuova). Scelto
+dall'utente lo stesso giorno: la parte E, la zona più larga intorno al
+telefono, in `main` dalla #546 (`7da61107`, 2026-10-25). Restano i criteri
+ancora aperti qui sotto e le zone dove il server risponde `404`.
 **Fase**: 4 · **Branch**: il task file con la #258; il codice in
 `feat/TASK-214-…`, una PR per parte · **ADR**: ADR-0177
 
@@ -701,7 +706,124 @@ pulito, tutte sotto TASK-214 e ADR-0177):
    dopo la #323 (TASK-236).
 4. **D**, la prova sull'iPhone: fissa i limiti di distanza. Le zone del
    telefono sono sul server dal 2026-10-05 (sotto): la prova è
-   dell'utente, con l'app di «preview».
+   dell'utente, con l'app di «preview». Fatta il 2026-10-25, sopra.
+
+**Parte D, la prova sull'iPhone** (2026-10-25). L'ha fatta l'utente, sul
+suo iPhone, con l'app che usa le zone del server dal 2026-10-05. Le sue
+parole: «funziona ma cerca di migliorarlo». La prova dice che il telefono
+disegna; i numeri dei criteri ancora aperti (tempi e memoria sull'iPhone,
+impronte confrontate, cuore senza rete) non li ha dati la prova: vengono
+dalle misure del miglioramento, nella parte che segue.
+
+**Le misure dopo D** (2026-10-25, dell'agente, sul Mac M4; dettagli in
+`out/task214-miglioramento/misure.md`, ignorata da git). Zona di Trento
+`foot` come quella che il server dà al telefono (7,4 × 7,4 km, 2,7 MB):
+
+- **La zona è piccola.** Il server dà la zona più piccola con 3 km intorno
+  al punto (`ZONE_MARGIN_M`). Il ritaglio del motore va da 1,4–2,1 km (3 km)
+  a 2,1–3,8 km (8 km, 6 forme su 17 oltre 3 km), e la ricerca «più lontano»
+  chiede 3,2–4,3 km. Sul codice del telefono, 8 richieste fino a 8 km:
+  dal centro della zona 7 disegnate sul telefono; da 1,5 km più in là 1;
+  da 2,5 km nessuna. Le altre vanno al server con `map_data_unavailable`,
+  in meno di 0,1 s. Da una partenza scelta sulla mappa, o senza rete
+  lontano da dove si è aperta l'app, il telefono non disegna.
+- **Tempi.** Stesso percorso dai tre. Cuore da 5 km: server sullo stesso Mac
+  2,4 s, telefono in CPython 5,2 s, in Pyodide 9,6 s (le altre: 2,6–8,9 s).
+  Pyodide è circa 1,8× CPython; le partenze vicine una dopo l'altra fanno
+  il 65% del lavoro. Il server vero ci mette 9–12 s per lo stesso cuore: il
+  telefono non è più veloce, ma lavora senza rete e senza il server.
+- **Le partenze vicine contano**: in 44 lavori su 76 il percorso scelto è
+  di una partenza vicina. Le scadenze del server applicate sul telefono non
+  fanno risparmiare niente in mediana a questa velocità.
+- **Memoria.** Python avviato 79 MB, 196–338 MB dopo i percorsi; la zona
+  costa circa 21 MB di memoria per MB di file (Trento 0,78 s e +57 MB).
+- **I log del server non sono letti**: la lettura via `ssh` è stata
+  bloccata dai permessi della sessione.
+
+**I log dell'API sul server** (letti dall'utente lo stesso giorno con lo
+script dell'agente, che dà solo conteggi e secondi; log Docker dal
+2026-10-10 al 2026-10-25, 15 giorni):
+
+- **Pochi percorsi**: 272 `POST /route-jobs`, da 1 a 41 al giorno. Per
+  distanza, fra quelli calcolati: fino a 3 km 55, fino a 5 km 79 (più 55
+  esempi già disegnati), fino a 8 km 66, oltre 23. Quindi 200 su 223
+  arrivano al server pur stando nei limiti del telefono (8 km).
+- **Tempi del server**: mediana 0,9 s fino a 3 km, 7,2 s fino a 5 km (p90
+  18,3 s), 5,5 s fino a 8 km, 10,9–15,7 s fino a 15 km. Le righe dei tempi
+  per fase (TASK-289) non ci sono: il server non ha ancora quel codice.
+- **Le zone del telefono**: 155 richieste in 15 giorni. A piedi 44 `404`, 19
+  `200`, 7 `304`; in bici 41 `404`, 1 `200`, 13 `304`. **Più di metà sono
+  `404`**: lì il server non ha una zona con 3 km intorno al punto, quindi il
+  telefono non ha mappa e manda tutto al server. Nessun `429`; un solo file
+  scritto al momento (5,5 s).
+- **Errori**: 40 `shape_not_drawable` (23 fino a 3 km), 5
+  `map_data_unavailable`, 12 `engine_error`, tutti «the shape collapses onto
+  a single road node» (TASK-277). 36 lavori annullati (15 mentre scaricavano
+  la zona, 16 mentre calcolavano).
+- **Le zone del server per i percorsi**: 118 dalla memoria, 92 dal disco, 21
+  scaricate al momento (ritaglio fino a 347 s).
+
+Proposte all'utente, in attesa della sua scelta: (1, raccomandata) una
+zona con 6 km intorno, sotto ~10 MB, letta all'apertura; (2) un segnale
+anonimo a ogni percorso, per avere i numeri degli iPhone; (3) le scadenze
+del server sul telefono (tocca `route_engine`: un task suo).
+
+**Risposta dell'utente** (2026-10-25): «fai la 1».
+
+**Parte E, la zona più larga intorno al telefono** (#546, in `main` come
+`7da61107` il 2026-10-25, mergiata dal coordinatore insieme ai documenti
+della parte D della #541; ADR-0177, «Decisione dell'agente, parte E»).
+Per chi corre: il telefono disegna fino a 8 km anche da una partenza
+scelta sulla mappa o a 2 km da dove si è aperta l'app, anche senza rete,
+dove il server ha una zona abbastanza grande; e il primo percorso non
+aspetta la lettura della zona.
+
+- **L'API** (`phone_zone_api.py`): `GET /phone-zones/{network}` accetta
+  `margin_m` (da 3000 a 10 000 m). Dà la zona più piccola che contiene
+  quel margine intorno al punto, se il suo file pesa al massimo **12 MB**;
+  altrimenti, o senza `margin_m`, quella di prima, con 3 km. Il file si
+  scrive se manca, come per la zona di 3 km. Il `304` arriva se l'`ETag`
+  della zona scelta è in `If-None-Match` (anche fra altri, separati da
+  virgole) o nell'header nuovo `X-Zone-ETags`, e porta il suo `ETag`. Le
+  app di prima chiedono e ricevono le stesse zone.
+- **12 MB e non i ~10 della proposta** (deciso dall'agente): è la zona più
+  grande che i telefoni usano già, quella in bici di Trento (11,5 MB).
+  Letta, una zona costa circa 21 MB di memoria per MB di file: 12 MB sono
+  circa 250 MB, più Python e i percorsi. Milano intera (25 MB) resta
+  fuori: lì il telefono tiene la zona di 3 km.
+- **L'app** (`src/engine/`):
+  - chiede le zone intorno a sé con `margin_m=6000` (`AROUND_MARGIN_M`,
+    `usePhoneZones.ts`). In `If-None-Match` va l'ETag della zona più
+    piccola che ha lì, come prima; quelli delle altre in `X-Zone-ETags`. Al
+    `304` segna come usata quella che il server nomina (`zones.ts`). Le
+    zone in più (parte B2) restano a 3 km: il tetto del traffico non
+    cambia;
+  - per un percorso dà al motore tutte le zone che contengono la partenza,
+    al massimo tre, dalla più piccola (`zonesForEngine`, `onPhone.ts`):
+    Python disegna sulla più piccola che contiene tutto il percorso
+    (`PhoneZones`), quindi un percorso troppo largo per la zona piccola
+    trova quella grande;
+  - quando le zone intorno ci sono (o, senza rete, quelle salvate), legge
+    in memoria la zona dello sport (`PhoneEngine.prepare`, la pagina
+    `warm`, `on_phone.warm`): quella di un percorso di 3–5 km da lì (2 km
+    intorno). Va dietro ai percorsi già chiesti, uno nuovo la sostituisce,
+    non avvia Python da solo; se iOS chiude la WebView mentre legge, non
+    conta come morte.
+- **Misure** (Pyodide sul Mac, zona di Trento 2,7 MB): `warm` 0,7 s; il
+  primo cuore da 3 km da 8,9 a 7,4 s, stesso percorso.
+- **Test**: 7 per l'endpoint e 2 per `warm` nell'API; 11 nell'app
+  (`zones`, `onPhone`, `phoneEngine`, `usePhoneZones`). `engine.zip`
+  rifatto.
+- **App e server in qualunque ordine** (richiesto dal coordinatore il
+  2026-10-25, prima del merge): il server di prima ignora `margin_m` e
+  `X-Zone-ETags` e legge in `If-None-Match` lo stesso ETag di oggi, quindi
+  con lui l'app nuova scarica le stesse zone di oggi. La lettura all'apertura
+  e le zone date tutte al motore valgono subito; la zona più larga arriva con
+  l'aggiornamento del server.
+- **Non misurato**: quante zone del server bastano per i 6 km (la lista
+  delle zone sul server non è letta); dove non ce n'è una, non cambia
+  niente. I log dicono che oggi più di metà delle richieste di zona hanno
+  `404`: lì la parte E non aiuta.
 
 **Seguito fuori dal task**: una scadenza per le partenze vicine anche senza
 processi, in `route_engine`, in un task suo. Il telefono disegnerebbe

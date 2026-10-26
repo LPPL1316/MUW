@@ -24,6 +24,11 @@ from shaperoute_ai.theme_reading import ThemeReader
 
 from shaperoute_api.access import KEY_HEADER, KEY_VARIABLE, Access, AccessConfigError
 from shaperoute_api.access_log import hide_query_strings
+from shaperoute_api.account_email import (
+    AccountEmails,
+    AccountLinks,
+    install_account_email,
+)
 from shaperoute_api.accounts import Accounts
 from shaperoute_api.activity_graphs import ActivityGraphs
 from shaperoute_api.app import create_app
@@ -46,11 +51,23 @@ from shaperoute_api.insights.events import wanted as insights_wanted
 from shaperoute_api.insights.vocabulary import DEFAULT_PATH as VOCABULARY
 from shaperoute_api.insights.vocabulary import Vocabulary
 from shaperoute_api.nearby_cities import NearbyCities, install_nearby_cities
+from shaperoute_api.notice_email import (
+    NoticeEmails,
+    NoticeSetup,
+    install_notice_email,
+)
 from shaperoute_api.phone_zone_api import install_phone_zones
 from shaperoute_api.places import KEY_VARIABLE as PLACES_KEY
 from shaperoute_api.places import PlaceSearch
 from shaperoute_api.recommended import DEFAULT_DIR as CATALOG_DIR
 from shaperoute_api.recommended import RecommendedCatalog
+from shaperoute_api.report_email import TO_VARIABLE as REPORTS_TO
+from shaperoute_api.report_email import (
+    ReportConfigError,
+    ReportEmails,
+    ReportSetup,
+    install_report_email,
+)
 from shaperoute_api.request_log import DEFAULT_DIR, ON_VARIABLE, RequestLog, wanted
 from shaperoute_api.route_archive import RouteArchive
 from shaperoute_api.route_store import STORE_FOLDER, RouteStore
@@ -154,7 +171,9 @@ def main(argv: Sequence[str] | None = None) -> None:
     try:
         access = Access.from_env()
         away_setup = AwaySetup.from_env()
-    except (AccessConfigError, AwayConfigError) as exc:
+        notice_setup = NoticeSetup.from_env()
+        report_setup = ReportSetup.from_env()
+    except (AccessConfigError, AwayConfigError, ReportConfigError) as exc:
         raise SystemExit(str(exc)) from None
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(message)s")
     # GET /places carries the position: not in the access log (ADR-0096).
@@ -239,6 +258,34 @@ def main(argv: Sequence[str] | None = None) -> None:
     install_away_email(app, away)
     if away is not None:
         DailyRound(away).start()
+    # The daily email of the notices (TASK-262 B): on with the away email;
+    # its round lives with the app.
+    notices = (
+        None
+        if database is None or notice_setup is None
+        else NoticeEmails(database, notice_setup)
+    )
+    install_notice_email(app, notices)
+    # Each new report emailed to whoever runs MuW, with a link that hides
+    # (TASK-291): off without the database, Resend and the address.
+    report_emails = (
+        None
+        if database is None or report_setup is None
+        else ReportEmails(database, report_setup)
+    )
+    install_report_email(app, report_emails)
+    # The emails of the accounts (TASK-300): the link that confirms an
+    # address and the one that chooses a new password. Off as the one above.
+    account_emails = (
+        None
+        if accounts is None or away_setup is None
+        else AccountEmails(
+            accounts,
+            away_setup.resend,
+            AccountLinks(away_setup.links.secret, away_setup.links.base_url),
+        )
+    )
+    install_account_email(app, account_emails)
     host = "0.0.0.0" if args.lan else "127.0.0.1"
     here = f"http://127.0.0.1:{args.port}"
     print(f"API docs on this PC: {here}/docs")
@@ -271,6 +318,17 @@ def main(argv: Sequence[str] | None = None) -> None:
     else:
         at = away.setup.at.strftime("%H:%M")
         print(f"Email to who is away for 14 days: every day at {at} UTC")
+    if notices is not None:
+        at = notices.setup.at.strftime("%H:%M")
+        print(f"Email of the notices: every day at {at} UTC, to who has it on")
+    if report_emails is None:
+        print(f"Reports are not emailed ({REPORTS_TO} and the rest not set)")
+    else:
+        print(f"Each new report is emailed ({REPORTS_TO})")
+    if account_emails is None:
+        print("Addresses are not confirmed and no password is reset by email")
+    else:
+        print("Addresses confirmed and passwords reset by email (Resend)")
     if request_log is None:
         print("Route requests are not recorded (--request-log records them)")
     else:

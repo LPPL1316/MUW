@@ -45,6 +45,7 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `comments` | disegno, autore, testo (1–500), data | TASK-120 |
 | `reports` | chi segnala, cosa (disegno, commento, utente) e il suo id, motivo da un elenco corto, data; una riga per chi segnala e per cosa | TASK-121 |
 | `blocks` | chi blocca, chi è bloccato, data; una riga tiene lontani i due nei due sensi | TASK-121 |
+| `report_links_used` | i link delle email delle segnalazioni già usati: il loro numero a caso e quando | TASK-291 |
 
 Tutte le tabelle legate a un utente hanno `ON DELETE CASCADE`: cancellare
 la riga di `users` cancella tutto il resto, anche i suoi
@@ -405,6 +406,20 @@ libero in `main` al merge):
   spariscono. Indice su `(kind, target_id)` per leggere le segnalazioni
   di una cosa. Nessun endpoint le legge (ADR-0228): si leggono nel
   database.
+
+Migrazione `0024_hidden_content.sql` (TASK-291, ADR-0251; il numero è il
+primo libero in `main` al merge, dopo `0023` della #502):
+
+- `hidden_at timestamptz` su `drawings`, `comments` e `users`: quando chi
+  gestisce MuW l'ha nascosto dal link dell'email di una segnalazione;
+  `NULL` quando si vede. Nascosto agli altri, mai all'autore: le
+  condizioni sono in `drawings.drawing_seen_sql` e `shown_sql`,
+  `comments.NOT_APART` e `follows.apart_sql` (`API.md`, «Report
+  emails»). A mano: `UPDATE drawings SET hidden_at = now() WHERE id =
+  '…'`, e `NULL` per rimostrare; per un iscritto si usa `public_id`.
+- `report_links_used`: `nonce` (uuid, chiave) e `used_at`. Ogni link
+  agisce una volta; scade dopo 7 giorni, quindi una riga più vecchia si
+  può cancellare.
 - Cancellare un account cancella i suoi blocchi, fatti e ricevuti, e le
   sue segnalazioni; le segnalazioni degli altri su di lui restano.
 
@@ -544,6 +559,39 @@ TASK-297 A, #539):
   più vecchio, squadra vuota cancellata, pezzi liberi); sfide e pezzi
   restano alla squadra senza il nome (test in `test_game_teams.py` e
   `test_game_challenges.py`).
+
+Migrazione `0028_email_notices.sql` (TASK-262 parte B, ADR-0226; nome
+provvisorio, il numero si controlla al merge con il Coordinatore):
+
+- `email_notices`: le notizie tenute per l'email del giorno, **solo** per
+  chi ha «Email notifications» acceso. `id`, `recipient_id` e `actor_id`
+  (`ON DELETE CASCADE` su `users`), `kind` (le cinque delle push:
+  `follow_request`, `follow_accepted`, `reaction`, `comment`, `tag`),
+  `drawing_id` (`CASCADE` su `drawings`; vuoto solo per i due del follow),
+  `comment_id` (`CASCADE` su `comments`; solo per un commento), `at`.
+  `UNIQUE NULLS NOT DISTINCT` su chi, cosa e dove: la stessa notizia una
+  volta (una reazione cambiata, una richiesta rifatta). Nessun testo:
+  commento, reazione e nomi si leggono quando si scrive l'email, e quello
+  che non è più vero resta fuori. Le righe vanno via con l'email mandata,
+  dopo 7 giorni, o quando l'interruttore si spegne. Indice su
+  `actor_id` per la cancellazione di un account.
+- `users.notices_emailed_at` (`timestamptz`, facoltativa): l'ultima email
+  delle notizie; un'altra solo in un altro giorno (UTC).
+
+Migrazione `0029_email_confirmation.sql` (TASK-300, ADR-0261; il numero è
+il primo libero in `main` al merge: la 0028 è di TASK-262 B, #550; i test
+la trovano dal nome):
+
+- `users.email_confirmed` (`boolean NOT NULL DEFAULT false`): il
+  proprietario ha aperto il link mandato all'indirizzo che ha adesso; un
+  indirizzo nuovo torna falso. **Falso per gli account di prima** (scelta
+  dell'utente): non confermati, e nessuna email parte da sola.
+- `users.pending_email` (`text`, facoltativa): l'indirizzo chiesto in
+  «Settings» che aspetta il suo link; si entra con `email` finché non è
+  aperto. **Non unico**: lo prende chi lo conferma per primo, e il vincolo
+  `users_email_key` decide al momento della conferma.
+- Nessun token nel database: i link sono firmati (ADR-0261). Con
+  l'account se ne vanno le due colonne; nessuna tabella nuova.
 
 ## Come si memorizza una traccia
 

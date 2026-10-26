@@ -1,12 +1,13 @@
 # TASK-210 — La lingua dell'app
 
-**Stato**: In corso
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-210-app-language` (parte A),
 `feat/TASK-210-run-screens` (parte B, la corsa), `feat/TASK-210-explore`
 (parte C, «Explore»), `feat/TASK-210-draw` (parte D, «Draw»),
 `feat/TASK-210-e-run-end-sport` (parte E, la fine corsa, «Sport» e la
 voce), `feat/TASK-210-f-shape-names` (parte F, i nomi delle forme, la
-mappa e «Help»)
+mappa e «Help»), `feat/TASK-210-g-page-titles` (parte G, i titoli),
+`feat/TASK-210-h-last-texts` (parte H, gli ultimi testi)
 
 ## Obiettivo
 
@@ -96,6 +97,24 @@ Parte A:
 - [x] Le traduzioni riviste: l'utente ha delegato il controllo
       all'agente («controlla te, mi fido», 2026-10-03), che le ha rilette
       e corrette nelle quattro lingue.
+
+Parte H (la chiusura):
+
+- [x] Letto tutto il codice dell'app in `main` (`App.tsx` e `src/`) in
+      cerca di testi fuori da `t()`: quelli che si vedono o si sentono
+      sono tradotti, gli altri sono dati, nomi propri o testi del server
+      (elenco nell'esito).
+- [x] Con l'app in italiano la partenza di «Draw», le note e le distanze
+      di «Explore», i riquadri e «mancano» della corsa, lo sport dei post,
+      l'immagine fra i preferiti e il logo dopo «Save» sono in italiano
+      (test `i18n/LastTextsItalian.test.tsx`).
+- [x] Le mappe del Feed seguono un cambio di lingua (test
+      `feed/FeedMapsLanguage.test.tsx`).
+- [x] In inglese i testi restano quelli di prima; cambia solo quello che
+      VoiceOver dice sulla direzione della corsa («Heading north», come
+      nella corsa senza percorso, invece di «Heading N»).
+- [x] I testi nuovi approvati dall'utente il 2026-10-25 («va bene
+      procedi», su `out/task-210-h-testi.md`).
 
 ## File toccati
 
@@ -213,6 +232,41 @@ apps/mobile/src/about/AboutPage.tsx
 apps/mobile/src/about/AboutPage.test.tsx
 apps/mobile/src/about/content/it.ts
 apps/mobile/src/about/content/de.ts, es.ts, fr.ts   (nuovi)
+docs/tasks/TASK-210.md
+docs/DECISIONS.md
+docs/STATUS.md
+```
+
+Parte H (gli ultimi testi rimasti in inglese, il Feed, la virgola; 2026-10-25):
+
+```
+apps/mobile/App.tsx                               (solo startStatus)
+apps/mobile/src/i18n/de.ts, it.ts, es.ts, fr.ts   (voci aggiunte in fondo)
+apps/mobile/src/i18n/LastTextsItalian.test.tsx    (nuovo)
+apps/mobile/src/location/startStatus.ts           (nuovo)
+apps/mobile/src/screens/ChooseScreen.tsx
+apps/mobile/src/screens/NavigateScreen.tsx
+apps/mobile/src/screens/NavigateScreen.test.tsx
+apps/mobile/src/screens/RunPanel.tsx
+apps/mobile/src/navigation/runStats.ts
+apps/mobile/src/intro/SavedLogo.tsx
+apps/mobile/src/explore/ExploreScreen.tsx
+apps/mobile/src/explore/ThemedCard.tsx
+apps/mobile/src/explore/CityExamples.tsx
+apps/mobile/src/explore/CityWords.tsx
+apps/mobile/src/explore/ExploredCard.tsx
+apps/mobile/src/route/RoutePanel.tsx
+apps/mobile/src/route/RouteTiles.tsx
+apps/mobile/src/route/warnings.ts
+apps/mobile/src/units/format.ts
+apps/mobile/src/units/format.test.ts
+apps/mobile/src/units/shownInMiles.test.tsx
+apps/mobile/src/favorites/favoriteRoute.ts
+apps/mobile/src/feed/FeedPost.tsx
+apps/mobile/src/feed/FeedMaps.tsx
+apps/mobile/src/feed/feedMapPage.ts
+apps/mobile/src/feed/FeedMapsLanguage.test.tsx    (nuovo)
+apps/mobile/src/map/mapPage.ts                    (solo il commento di MAP_STYLE)
 docs/tasks/TASK-210.md
 docs/DECISIONS.md
 docs/STATUS.md
@@ -423,3 +477,70 @@ START» della canoa è già tradotto (`t("Near your start")` in maiuscolo).
 **Dopo le parti F e G restano**: il nome della forma e «Paddle ·» nel
 Feed (`feed/*`, ora che TASK-118 è in `main` con la #439), le mappe del
 Feed che seguono un cambio di lingua.
+
+**Parte H — gli ultimi testi** (2026-10-25, branch
+`feat/TASK-210-h-last-texts` da `main` `db3d2a79`; chiesta dalla sessione
+«Attività rimanenti» sulla revisione dei task aperti fatta dall'utente).
+Prima un controllo di tutto il codice dell'app (`App.tsx` e `src/`, con un
+lettore TypeScript dei testi fuori da `t()`, come `tables.test.ts`): i
+testi rimasti in inglese erano scritti prima delle parti B–D o in file
+che le parti non elencavano. **«Draw»**: la riga sotto la partenza
+(«Parti dalla tua posizione.», «Parti da {place}.», il GPS spento, la
+posizione che non arriva) esce da un file nuovo,
+`location/startStatus.ts`, al posto di `statusText` di `App.tsx`;
+«PARTENZA», «La mia posizione», «Un altro posto» in `ChooseScreen`.
+**«Explore»**: la nota senza percorsi consigliati, «a 1,4 km» sotto le
+schede (`awayText`), «dove sei» nella richiesta, l'attesa del percorso a
+tema. **La corsa con il percorso**: «47% disegnato», la direzione in
+lettere della lingua («SO», «O»; in tedesco «NO», «O»), «mancano 3,2 km»;
+VoiceOver sulla direzione dice la parola, «Direzione nord-est», come la
+corsa senza percorso. **Il Feed**: «Pagaia ·», «Bici ·» davanti ai fatti
+del post (`t()` sul nome di `SPORTS`, parte E); il nome della forma era
+già tradotto dalla parte F. Le mappe del Feed seguono un cambio di lingua:
+la pagina delle foto si rifà con `mapStyle(lingua)` e una foto in un'altra
+lingua è un'altra foto (`…/it` nella chiave, come `@bearing` per una mappa
+girata); tornando alla lingua di prima le foto già fatte restano. **Altro**:
+un'immagine fra i preferiti si chiama «Immagine» (il titolo salvato resta
+«Image», è un dato); VoiceOver dopo «Save» dice «Salvata nelle mie
+attività». **La virgola**: le schede di «Explore» e i risultati di
+«Draw» passavano `withPoint` finché i loro testi erano in inglese
+(ADR-0182, TASK-182); ora sono tradotti e scrivono «5,2 km», anche in
+miglia; `withPoint` non serve più ed è tolto. La distanza di una corsa
+a due decimali resta col punto, come deciso in TASK-182. **23 testi
+nuovi** in fondo alle quattro tabelle (`out/task-210-h-testi.md` sul Mac
+per l'occhio dell'utente); «Run without a route», «Finding your
+position…», «your start», «Heading {direction}», «Paddle», «Bike» e
+«Image» erano già tradotti. Test: `i18n/LastTextsItalian.test.tsx`,
+`feed/FeedMapsLanguage.test.tsx`; in `NavigateScreen.test.tsx`
+«Heading north» al posto di «Heading N», in `shownInMiles.test.tsx`
+«Explore» in italiano con la virgola («a 1,4 km»). **Testi approvati
+dall'utente** il 2026-10-25 («va bene procedi»), con i titoli dei post
+d'esempio lasciati in inglese. **Lasciati in inglese, di
+proposito**: i titoli dei post d'esempio del Feed (sono i titoli di
+corridori inventati, come quelli che scrive un iscritto), i nomi delle
+città nelle scorciatoie di «Explore» (parte C), «STRAVA», «MuW», i
+crediti delle mappe, i dettagli tecnici degli errori (`devDetail`).
+
+**Seguiti, fuori da TASK-210** (da aprire come task propri se serve):
+
+- **Le traduzioni dell'API**: i nomi dei percorsi a tema e dei titoli
+  degli esempi, i messaggi d'errore del server (`invalid_request` e gli
+  altri `message`), il nome che il server dà all'attività su Strava
+  (`strava.py` `activity_name`, che l'app mostra anche come suggerimento),
+  i testi delle notifiche push e delle email (TASK-262, 284, 291). Serve
+  che l'app mandi la sua lingua (per esempio `Accept-Language`) e che il
+  server abbia le sue tabelle: è un task dell'API, come dice «Fuori
+  scope».
+- **Il francese dà del «tu» e del «vous»**: 51 righe di `fr.ts` col
+  «tu», 36 col «vous» («Recherche de votre position…», «près de vous»,
+  lo stretching). Scegliere uno dei due è una scelta di prodotto
+  dell'utente; poi un passaggio su `fr.ts`.
+- **La bozza italiana di «Privacy»** cita ancora «Discard» (testo legale,
+  dell'utente; dalla parte F).
+- I titoli dei post d'esempio del Feed, se l'utente li vuole tradotti
+  (19 titoli in quattro lingue).
+
+**Esito** (2026-10-25): **Done.** L'app è nella lingua scelta in ogni
+pagina: le parti A–H sono in `main` (A #254, B #414, C #420, D #421, E #433, F
+#438, G #437, H #545, merge `52953c47`). Restano fuori, come seguiti, i testi del
+server e la scelta fra «tu» e «vous» in francese.

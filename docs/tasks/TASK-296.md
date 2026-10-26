@@ -1,7 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in lavorazione
-(`feat/TASK-296-c-teams-api`, #540) · prossime: D, E
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in lavorazione (`feat/TASK-296-d-challenges-app`, #561, testi approvati dall'utente il 2026-10-26) · prossima: E
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -236,6 +235,38 @@ Parte dopo C, e dopo aver ricontrollato `src/share/` con il Coordinatore
 - La push di una sfida apre la sfida (`notificationTap`).
 - Test con orologio e API finti.
 
+**Com'è fatta** (2026-10-26, aggiunta ad ADR-0255; `UI.md`, la scheda
+«Challenges» in «“Play”: la collezione delle forme»; elenco dei file
+approvato dal Coordinatore il 2026-10-25):
+
+- `src/game/`: `teamsApi.ts` (le otto chiamate con `ask`, i type guard, i
+  rifiuti dell'API in parole), `useTeams.ts` (le squadre: off, loading,
+  ready, none per un server senza la C, failed; crea, entra, esci/togli),
+  `useChallenge.ts` (la sfida: rilettura ogni 15 s mentre è in corso e in
+  vista, al ritorno in primo piano con `AppState`, prendi e lascia un pezzo,
+  l'ultima risposta tenuta), `pieceSegments.ts` (`piecesOf`, lo stesso
+  taglio di `game_rules.pieces_of`, e il piazzamento dei pezzi insieme),
+  `personColors.ts` (cinque token a turno), `timeLeft.ts` (il conto alla
+  rovescia), `shareCode.ts` (`Share.share` con la frase), `challengeDoor.ts`
+  (la sfida chiesta da una push, presa dalla pagina), `ChallengesTab.tsx`,
+  `TeamView.tsx`, `ChallengeView.tsx`, `NewChallenge.tsx`, e i loro test;
+  `PlayScreen.tsx` con il `Segmented`; `piecesOfApi.json` con i numeri
+  della funzione dell'API per il test di parità.
+- `notificationTap.ts` dà `{kind: "challenge", id}` per i tre `Kind` della
+  C (senza un id buono, «Play»); `usePushNotifications.ts` ha
+  `openChallenge`; `ProfileLayer.tsx` lo passa. Le push delle sfide si
+  mostrano anche con l'app aperta. `App.tsx` e `src/share/` non cambiano.
+- `shared-types`: i tipi in fondo a `index.ts`, `fixtures/game-team.json` e
+  `game-challenge.json`, `test/gameTeams.test.ts`.
+- **Diverso dal piano**: «Share code» è una frase di testo nel foglio del
+  telefono, non il foglio delle immagini; la squadra ha anche «Remove» per
+  chi l'ha creata e «Leave team» con conferma, perché la regola di
+  `GIOCO.md` §6.1 non avrebbe avuto una via sullo schermo.
+- Suite completa dell'app in locale il 2026-10-26: 3 756 test verdi (464
+  file); lint, typecheck e `format:check` verdi; `shared-types` 71 test.
+  L'impronta iOS si misura su copie pulite con `npm ci` (nel worktree i
+  `node_modules` sono link): il Coordinatore la scrive nella PR.
+
 ## Parte E — App: striscia nella schermata di corsa
 
 Parte dopo B e dopo aver ricontrollato `RunDashboard.tsx` con il
@@ -337,8 +368,62 @@ francese in fondo alle tabelle `i18n`), **approvati dall'utente il
 | la scheda | It is in your collection. | È nella tua collezione. |
 | la scheda, pulsante | See collection | Vedi la collezione |
 
-«Close» e «Try again» c'erano già. I testi delle parti D ed E si
-propongono quando partono.
+«Close» e «Try again» c'erano già. I testi della parte E si propongono
+quando parte.
+
+**Testi dell'app della parte D** (inglese / italiano; tedesco, spagnolo e
+francese in fondo alle tabelle `i18n`), **approvati dall'utente il
+2026-10-26** («I testi vanno bene, mergiate pure la #561»). «Shape»,
+«Distance», «Pace», «Shorter», «Longer», «Cancel», «Remove», «Back», «Done»
+e «Try again» c'erano già.
+
+| Dove | Inglese | Italiano |
+|---|---|---|
+| le due schede | Collection · Challenges | Collezione · Sfide |
+| senza account | Sign in to play with a team. | Accedi per giocare in squadra. |
+| server senza la C | Teams are not on this server yet. | Le squadre non sono ancora su questo server. |
+| titolo | YOUR TEAMS | LE TUE SQUADRE |
+| senza squadre | No team yet. Create one, or join one with its code. | Nessuna squadra ancora. Creane una, o entra in una con il suo codice. |
+| il campo e il pulsante | Team name · Create | Nome della squadra · Crea |
+| il campo e il pulsante | Team code · Join | Codice della squadra · Entra |
+| la scheda della squadra | {count} member / {count} members | {count} iscritto / {count} iscritti |
+| la scheda della squadra | No challenge yet | Nessuna sfida ancora |
+| avanzamento | {done} of {total} pieces done | {done} pezzi su {total} fatti |
+| la squadra aperta | Code {code} · Share code | Codice {code} · Condividi il codice |
+| la frase condivisa | Join my team «{name}» on MuW: open Play, Challenges, and enter the code {code}. | Entra nella mia squadra «{name}» su MuW: apri Play, Sfide, e inserisci il codice {code}. |
+| titolo | MEMBERS | ISCRITTI |
+| chi ha creato la squadra | Owner | Proprietario |
+| uscire | Leave team · Leave this team? | Esci dalla squadra · Esci da questa squadra? |
+| il pulsante e il titolo | New challenge | Nuova sfida |
+| il modulo | Pieces · Fewer pieces · More pieces | Pezzi · Meno pezzi · Più pezzi |
+| il modulo | Each piece · Fast | Ogni pezzo · Veloce |
+| il modulo | Slower pace · Faster pace | Passo più lento · Passo più veloce |
+| il modulo | Days · Fewer days · More days | Giorni · Meno giorni · Più giorni |
+| il modulo | Start the challenge | Avvia la sfida |
+| riepilogo | {count} pieces · {goal} each | {count} pezzi · {goal} ciascuno |
+| i pezzi | Piece {n} · Free · Yours | Pezzo {n} · Libero · Tuo |
+| i pezzi | Taken by {name} · Done by {name} | Preso da {name} · Fatto da {name} |
+| i pulsanti | Take this piece · Leave | Prendi questo pezzo · Lascia |
+| titoli | WHO GAVE WHAT · PIECES | CHI HA DATO QUANTO · PEZZI |
+| legenda vuota | Nobody has run yet. | Nessuno ha ancora corso. |
+| sfida completa | Complete! Your team drew it together. | Completa! La squadra l'ha disegnata insieme. |
+| sfida scaduta | Time ran out: {count} piece was missing. / … pieces were missing. | Tempo scaduto: mancava {count} pezzo. / mancavano {count} pezzi. |
+| conto alla rovescia | {count} day {hours} h left / {count} days {hours} h left | Manca {count} giorno e {hours} h / Mancano {count} giorni e {hours} h |
+| conto alla rovescia | {hours} h {minutes} min left · {minutes} min {seconds} s left | Mancano {hours} h {minutes} min · Mancano {minutes} min {seconds} s |
+| conto alla rovescia | Time is up | Tempo scaduto |
+| rifiuto dell'API | No team with this code. | Nessuna squadra con questo codice. |
+| rifiuto dell'API | You can't join this team. | Non puoi entrare in questa squadra. |
+| rifiuto dell'API | You are in 10 teams already: leave one first. | Sei già in 10 squadre: esci da una prima. |
+| rifiuto dell'API | This team is not available any more. | Questa squadra non è più disponibile. |
+| rifiuto dell'API | This challenge is not available any more. | Questa sfida non è più disponibile. |
+| rifiuto dell'API | The team has a challenge going already: wait for it to end. | La squadra ha già una sfida in corso: aspetta che finisca. |
+| rifiuto dell'API | This challenge is over. | Questa sfida è finita. |
+| rifiuto dell'API | This piece is not there any more. | Questo pezzo non c'è più. |
+| rifiuto dell'API | This piece is done already. | Questo pezzo è già fatto. |
+| rifiuto dell'API | Someone holds this piece already. | Qualcuno ha già questo pezzo. |
+| rifiuto dell'API | You hold a piece of this challenge already: leave it first. | Hai già un pezzo di questa sfida: lascialo prima. |
+| rifiuto dell'API | You don't hold this piece. | Questo pezzo non è tuo. |
+| nome rifiutato dal filtro | This name is not allowed. Choose another one. | Questo nome non va bene. Scegline un altro. |
 
 ## Criteri di accettazione
 
@@ -378,41 +463,79 @@ Parte B:
       «sì, i testi vanno bene»).
 
 Parte C:
-- [ ] Una squadra si crea con un nome dal filtro di TASK-213 e un codice
+- [x] Una squadra si crea con un nome dal filtro di TASK-213 e un codice
       di 6; si entra con il codice in qualunque maiuscola; oltre 20
       iscritti, oltre 10 squadre o con un blocco in mezzo la risposta è la
       stessa, «You can't join this team.» (`test_game_teams.py`).
-- [ ] Chi esce lascia liberi i suoi pezzi; il proprietario toglie; la
+- [x] Chi esce lascia liberi i suoi pezzi; il proprietario toglie; la
       squadra passa all'iscritto più vecchio e sparisce senza iscritti;
       `DELETE /me` fa lo stesso e porta via iscrizioni e contributi, non
       sfide e pezzi.
-- [ ] Una sfida per squadra; pezzi 2–12, X km 1–50 oppure veloce 1 o 5 km
+- [x] Una sfida per squadra; pezzi 2–12, X km 1–50 oppure veloce 1 o 5 km
       sotto un passo; scadenza 1–14 giorni, 7 di default.
-- [ ] Un pezzo in mano per persona e per sfida; le corse che contano
+- [x] Un pezzo in mano per persona e per sfida; le corse che contano
       iniziate dopo la presa e prima della scadenza lo riempiono, i km in
       avanzo passano al pezzo libero successivo, un pezzo lasciato tiene i
       metri, il pezzo veloce è fatto da un miglior tempo; fuori dalla
       finestra (prima della presa, dopo la scadenza, salvata oltre 3 h)
       niente (`test_game_challenges.py`).
-- [ ] L'ultimo pezzo completa la sfida e dà l'edizione squadra a chi ha
+- [x] L'ultimo pezzo completa la sfida e dà l'edizione squadra a chi ha
       contribuito; dopo 3 h dalla scadenza è `expired` e se ne crea
       un'altra.
-- [ ] Le push `piece_done` (agli altri), `challenge_done` (a tutti) e
+- [x] Le push `piece_done` (agli altri), `challenge_done` (a tutti) e
       `challenge_ending` (una volta per sfida, anche con due controlli
       insieme) portano `challenge_id`; gli eventi di prima non cambiano.
-- [ ] Il timer parte e si ferma con l'app, e si ferma prima che si chiuda
+- [x] Il timer parte e si ferma con l'app, e si ferma prima che si chiuda
       il database.
-- [ ] Un gancio del blocco che fallisce non perde il blocco; il blocco nato
+- [x] Un gancio del blocco che fallisce non perde il blocco; il blocco nato
       fra due iscritti ne fa uscire uno secondo la regola approvata.
-- [ ] I pezzi del contorno sono N tratti uguali che si chiudono
+- [x] I pezzi del contorno sono N tratti uguali che si chiudono
       (`test_game_pieces.py`).
-- [ ] pytest, ruff e black verdi; la suite completa dell'API verde in
-      locale.
+- [x] pytest, ruff e black verdi; la suite completa dell'API in locale il
+      2026-10-25: 1631 verdi e un `ConnectionTimeout` in `test_moderation`
+      perché colima si è fermata a fine run (non il codice); `test_moderation`
+      ripetuto da solo, 27 verdi.
 - [x] La regola del blocco e i testi delle tre push approvati dall'utente
       il 2026-10-24, con le sue parole in «Domande all'utente».
 
-Parti D ed E: i criteri si scrivono qui quando partono, dalle regole
-di `GIOCO.md` §6 e §9.
+Parte D:
+- [x] «Play» ha le schede «Collection» e «Challenges»; la collezione resta
+      com'era e si chiede solo con la sua scheda in vista
+      (`PlayScreenTabs.test.tsx`, `PlayScreen.test.tsx`).
+- [x] Le squadre: crea con il nome, entra con il codice, un codice che
+      nessuno ha dice «No team with this code.», un blocco (o squadra piena,
+      troppe squadre) dice «You can't join this team.» senza il perché,
+      esci con conferma, il proprietario toglie (`useTeams.test.tsx`,
+      `ChallengesTab.test.tsx`).
+- [x] La sfida: i pezzi colorati per persona per quanto sono corsi, la
+      legenda di chi ha dato quanto, «Take this piece» solo su un pezzo
+      libero e senza un pezzo in mano, «Leave» sul proprio, il conto alla
+      rovescia che batte, completa e scaduta (`ChallengeView.test.tsx`).
+- [x] La sfida si rilegge ogni 15 s mentre è in corso, non in background,
+      subito al ritorno in primo piano, e un rifiuto la rilegge
+      (`useChallenge.test.tsx`, con orologio e `AppState` finti).
+- [x] «New challenge» resta nei limiti dell'API e manda metri e secondi al
+      km interi, anche in miglia (`NewChallenge.test.tsx`).
+- [x] I pezzi del contorno del telefono sono uguali a quelli dell'API, a
+      4 decimali, per ogni forma del catalogo e 2, 3, 5, 7, 12 pezzi
+      (`pieceSegments.test.ts` con `piecesOfApi.json`).
+- [x] Le push `piece_done`, `challenge_done`, `challenge_ending` toccate
+      aprono la sfida, anche con la pagina non ancora costruita; senza id
+      «Play» (`notificationTap.test.ts`, `usePushNotifications.test.ts`,
+      `challengeDoor.test.ts`, `PlayScreenTabs.test.tsx`).
+- [x] Su un server senza la C (404) la scheda non mostra errori; senza
+      rete resta l'ultima risposta (`useTeams.test.tsx`,
+      `ChallengesTab.test.tsx`).
+- [x] «Share code» apre il foglio con nome e codice (`shareCode.test.ts`).
+- [x] lint, typecheck, `format:check` e la suite completa verdi in locale
+      (3 756 test, 2026-10-26); `shared-types` 71 test.
+- [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
+      Coordinatore su copie pulite.
+- [x] I testi dell'app approvati dall'utente (tabella sopra, 2026-10-26:
+      «I testi vanno bene, mergiate pure la #561»).
+
+Parte E: i criteri si scrivono qui quando parte, dalle regole di
+`GIOCO.md` §9.
 
 ## File toccati
 
@@ -496,8 +619,27 @@ docs/API.md («Shape game» parte C, le push), docs/DATABASE.md (0026), docs/GIO
 docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
 ```
 
-Parti D ed E: l'elenco si scrive qui, e va al Coordinatore, prima
-di partire.
+Parte D (elenco approvato dal Coordinatore il 2026-10-25):
+```
+apps/mobile/src/game/teamsApi.ts, useTeams.ts, useChallenge.ts, pieceSegments.ts,
+  personColors.ts, timeLeft.ts, shareCode.ts, challengeDoor.ts, ChallengesTab.tsx,
+  TeamView.tsx, ChallengeView.tsx, NewChallenge.tsx, piecesOfApi.json e i test
+  (teamsApi, useTeams, useChallenge, pieceSegments, timeLeft, shareCode,
+  challengeDoor, ChallengesTab, ChallengeView, NewChallenge, PlayScreenTabs)   (nuovi)
+apps/mobile/src/game/PlayScreen.tsx                      (il Segmented: Collection / Challenges)
+apps/mobile/src/notifications/notificationTap.ts, notificationTap.test.ts   (i tre Kind delle sfide)
+apps/mobile/src/notifications/usePushNotifications.ts, usePushNotifications.test.ts   (openChallenge)
+apps/mobile/src/screens/ProfileLayer.tsx                 (openChallenge, due righe)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts          (righe in fondo)
+packages/shared-types/src/index.ts                       (solo in fondo)
+packages/shared-types/fixtures/game-team.json, game-challenge.json   (nuovi)
+packages/shared-types/test/gameTeams.test.ts             (nuovo)
+docs/UI.md (la scheda «Challenges» nella sezione «Play»), docs/GIOCO.md (§9),
+docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
+```
+Non toccati: `App.tsx`, `src/share/`, `pushDevice.ts`, `unlocks.ts`.
+
+Parte E: l'elenco si scrive qui, e va al Coordinatore, prima di partire.
 
 ## Fuori scope
 
@@ -525,6 +667,27 @@ gating. **Da provare sull'iPhone** quando la A sarà sul server: i quattro
 nomi in alto su uno schermo da 390 pt, la collezione e la scheda dopo un
 «Save» vero.
 
-**Restano** le parti C (API: squadre e sfide), D (app: sfide) ed E (app:
-striscia in corsa), ognuna con il suo elenco di file al Coordinatore prima
-di partire.
+**Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
+Coordinatore su richiesta dell'utente a CI verde: la migrazione
+`0027_game_teams.sql`, `game_teams.py`, `game_challenges.py`, `pieces_of`,
+gli otto endpoint, `pieces_done` e `team_unlocked_at`, le tre push, i ganci
+del blocco e della cancellazione, `ChallengeClock`. La regola del blocco
+fra iscritti e i testi delle push approvati dall'utente il 2026-10-24.
+Sul server dopo Apple e con l'ok dell'utente (migrazione 0027 e deploy:
+il timer «1 day left» parte con l'API, niente da lanciare a mano). La CI
+non ha PostgreSQL: i test del database valgono in locale.
+
+**Parte D**: PR #561 aperta il 2026-10-26 dal branch
+`feat/TASK-296-d-challenges-app` (worktree `.claude/worktrees/TASK-296-d`):
+la scheda «Challenges» con squadre e sfide, le push che aprono la sfida,
+il taglio dei pezzi uguale all'API. Solo app, nessuna dipendenza nuova,
+`src/share/` non toccato. I testi nelle cinque lingue approvati
+dall'utente il 2026-10-26 («I testi vanno bene, mergiate pure la #561»),
+che ha chiesto il merge al verde.
+Su `preview` la scheda resta nascosta con «Play» finché il server non ha
+A e C. **Da provare sull'iPhone** quando A e C saranno sul server, con due
+telefoni: una sfida vera, il foglio di condivisione del codice, le push.
+
+**Resta** la parte E (app: striscia in corsa), con il suo elenco di file
+al Coordinatore prima di partire (`RunDashboard.tsx` da ricontrollare);
+può usare `piecesOf` di `src/game/pieceSegments.ts` per il pezzo in mano.

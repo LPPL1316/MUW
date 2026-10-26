@@ -36,6 +36,7 @@ from route_engine.optimizer import (
     tilt_limit,
 )
 from route_engine.outline_edits import MAX_DETAIL_POINTS, travelled_points
+from route_engine.pieces import compose
 from route_engine.shapes.outline import InvalidOutlineError, Outline, parse_outline
 from route_engine.water import WaterSource
 
@@ -63,6 +64,10 @@ class ImageRequest:
     outline: Outline
     distance_m: int
     activity: str = "running"
+    # Draw the pieces of the outline, the other subjects and the holes of
+    # the image, one at a time, walking between them (TASK-297, ADR-0258);
+    # an outline without pieces is drawn as without it.
+    pen_up: bool = False
 
     def __post_init__(self) -> None:
         check_start(self.start)
@@ -182,7 +187,20 @@ def image_job(request: ImageRequest) -> ShapeJob:
     upright (ADR-0038), from any start. The nearby starts give an image its
     alternatives too (TASK-093, the user's choice), and may find a better
     route than the start's own, as for a shape (ADR-0071). On the network
-    of its activity (TASK-190)."""
+    of its activity (TASK-190). With the pen up and pieces apart, the
+    outline is composed as a shape in pieces (pieces.compose) and searched
+    as a word with the pen up: the distance asked for is the drawing's, and
+    the result says the walks (ADR-0258)."""
+    if request.pen_up and request.outline.in_pieces:
+        pieces = compose(request.outline, IMAGE_NAME)
+        return ShapeJob(
+            tuple(pieces.points),
+            IMAGE_NAME,
+            request.distance_m,
+            max_tilt_deg=tilt_limit(IMAGE_NAME),
+            word=pieces,
+            activity=request.activity,
+        )
     return ShapeJob(
         tuple(request.outline(SHAPE_POINTS)),
         IMAGE_NAME,

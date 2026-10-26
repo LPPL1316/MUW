@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Account } from "../account/useAccount";
 import { t } from "../i18n";
 import { UserProfilePage } from "../profile/UserProfilePage";
+import { ContactsFriends } from "../social/ContactsFriends";
 import { PeopleSearch } from "../social/PeopleSearch";
 import {
   color,
@@ -95,8 +96,16 @@ export function PeopleScreen({
         </View>
         {/* Kept while a profile is open: back finds the names as they were. */}
         {first === null && (
-          <View style={person !== null && styles.hidden}>
+          <View style={[styles.finds, person !== null && styles.hidden]}>
             <PeopleSearch
+              apiUrl={apiUrl}
+              account={account}
+              onPick={setPerson}
+              fetchFn={fetchFn}
+              apiKey={apiKey}
+            />
+            {/* TASK-262 C: the friends whose number is in the contacts. */}
+            <ContactsFriends
               apiUrl={apiUrl}
               account={account}
               onPick={setPerson}
@@ -125,6 +134,9 @@ const styles = StyleSheet.create({
   },
   hidden: {
     display: "none",
+  },
+  finds: {
+    gap: space.xl,
   },
   content: {
     paddingHorizontal: space.lg,

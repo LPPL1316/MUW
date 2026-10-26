@@ -32,6 +32,9 @@ molti download rifiuta per qualche ora (`MAPS.md`).
 
 ## Prossimo passo
 
+*(2026-10-25: TASK-122 è Done, lo Storage Box c'è e riceve le copie; il
+paragrafo qui sotto è superato per quella parte.)*
+
 **TASK-122 — le copie fuori dal server**: il server è spostato, manca lo
 Storage Box Hetzner, che crea l'utente (`DEPLOY.md` F.13, punto 2); poi
 il servizio `offsite` sul server. Dopo, la parte social (`ROADMAP.md`,
@@ -157,6 +160,56 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-299 — Il primo concorso: il post con più reazioni vince**
+  (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
+  proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
+  `docs/TASK-299-proposal` (documenti), poi `feat/TASK-299-a-contest-api`
+  (A) e `feat/TASK-299-b-contest-app` (B). L'utente ha scelto, fra tre
+  strade, il **premio senza valore**: il badge «Winner» sul profilo, il
+  post vincitore in cima al Feed per 7 giorni, una push a chi ha vinto; la
+  maglietta è un concorso a parte, quando ci sarà la ditta (DPR 430/2001).
+  Il server decide: partecipano i post per tutti pubblicati nel periodo;
+  conta una reazione per account, mai la propria, non attraverso un
+  blocco, non i post nascosti; pari merito per cuori MuW, poi il post più
+  vecchio. `GET /contests/current` anche senza account; i comandi `open`,
+  `standings` e `close` sul server (chi lo gestisce, con le date
+  dell'utente, dopo aver guardato i primi dieci); la scheda in cima al
+  Feed solo con un 200, il regolamento ufficiale da «How it works» (Apple
+  e Google non coinvolte). Regole in `CONCORSI.md`. Testi nelle cinque
+  lingue da approvare prima del merge; server dopo Apple con l'ok
+  dell'utente. File: `tasks/TASK-299.md`.
+- **TASK-262 parte B — L'email delle notifiche, una al giorno**
+  (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
+  al giorno, la lingua come l'email di ritorno; conferma dell'email e
+  password dimenticata a parte, TASK-300). Branch `feat/TASK-262-b-email`,
+  solo API: le cinque notizie delle push tenute in `email_notices`
+  (migrazione `0028_email_notices.sql`, numero da controllare al merge)
+  per chi ha «Email notifications» acceso, un giro al giorno alle 18:00
+  UTC, una email al massimo per account e giorno, il link per spegnerla.
+  Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
+  «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
+  File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
+- **TASK-300 — Email confermata e «Forgot password?»** (ADR-0261; scelta
+  dell'utente del 2026-10-25, «a parte SUBITO»; numero e regole dal
+  Coordinatore). All'iscrizione e al cambio in «Settings» un link conferma
+  l'indirizzo; il nuovo vale solo confermato e il vecchio riceve un
+  avviso; da «Log in», «Forgot password?» manda un link per scegliere una
+  nuova password, che chiude ogni sessione. Scelte dell'utente: un
+  indirizzo non confermato non blocca niente; i 3 account di prima restano
+  non confermati, senza email partite da sole; testi approvati. Parti A e
+  B in una PR (branch `feat/TASK-300-account-emails`). **Parte A** (migrazione
+  `0029_email_confirmation.sql`, numero al merge: la 0028 è di #550):
+  `account_email.py` e `account_email_texts.py`, link firmati senza
+  tabella, pagine `/email/confirm` e `/password/reset` senza chiave,
+  `GET /account-email`, `POST /password-reset`, `POST
+  /me/email/confirmation`, `DELETE /me/email/pending`; `User` con
+  `email_confirmed` e `pending_email`. Spenta senza le variabili di
+  Resend, come l'email di ritorno. **Parte B** (app, solo JS): «Forgot
+  password?» sotto «Log in» e le righe sotto «Change email», solo se
+  `GET /account-email` risponde 200 (chiesto quando quelle pagine si
+  vedono). TASK-284 B tocca le stesse schermate in righe diverse. Server
+  dopo Apple, con l'ok dell'utente; l'app prima o insieme. File:
+  `tasks/TASK-300.md`.
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -197,6 +250,42 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo Apple, con l'ok dell'utente; il paragrafo della privacy lo raccoglie
   TASK-284 B. Le parti **C** (motore, sessione sua) e il seguito
   **TASK-298** (ADR-0259, sessione sua) sono partiti il 2026-10-25.
+- **TASK-298 — Fermarsi prima nella ricerca quando la forma non entra
+  nelle strade** (ADR-0259; seguito di TASK-297, l'utente il 2026-10-24:
+  «sì, apri anche quello per fermarsi prima»; condizioni dal
+  Coordinatore). Branch `feat/TASK-298-stop-earlier`. **Misurato**
+  (`tests/measure_stop_earlier.py`, 252 richieste in sette città,
+  tracciamento per tracciamento) e **scartato**: il primo percorso buono
+  compare a qualunque tracciamento, anche al 30º di 30 e dal 6º
+  piazzamento inclinato; «N piazzamenti senza miglioramento» perde da 10 a
+  38 buoni su 129; il conteggio delle strade è 1,00 in testa quasi ovunque;
+  saltare la fase inclinata o la rifinitura dopo una fase andata male tiene
+  i buoni ma peggiora i mediocri e non abbrevia. Resta una regola piccola:
+  una scala già tracciata per lo stesso piazzamento non si traccia più
+  (1,3 % dei tracciamenti; i 129 buoni identici, i mediocri mai peggiori).
+  Il taglio vero costa percorsi buoni ed è una scelta di prodotto: numeri
+  in ADR-0259. `engine.zip` rifatto nella PR. **PR #558** aperta il
+  2026-10-25, al merge del Coordinatore. File: `tasks/TASK-298.md`.
+  **Chiuso**: in `main` con la #558 (`61932179`, 2026-10-26), mergiata dal
+  Coordinatore; scelta dell'utente del 2026-10-26: **tetto 30, invariato**,
+  nessun percorso buono perso. Vedi «Completato».
+
+  **Parte C, motore** (PR #547 aperta il 2026-10-25, branch
+  `feat/TASK-297-c-image-pieces`): `outline_data(…, pen_up=True)` mette
+  in `pieces` i soggetti dopo il primo e i fori che valgono il 3 % del
+  loro soggetto, dal più grande al più piccolo, niente gambi; con
+  `pen_up=False` le sedici immagini di «Draw» danno lo stesso contorno
+  byte per byte (impronte in `tools/test_sample_logos.py`);
+  `ImageRequest.pen_up` e `--image … --pen-up` compongono i pezzi come
+  una forma a pezzi e cercano come le parole con la penna alzata; il
+  contratto HTTP non cambia (C2). `tools/sample_logos.py` disegna sette
+  loghi sintetici e usa il marchio MuW del lancio (anello con stella 2
+  pezzi, ruota 4, «RC» la C e l'occhio della R). `engine.zip` rifatto;
+  `draw_examples`, `paddleExamples.json` e `catalogueShapes.json` da
+  rifare con gli altri cambi del motore, dopo Apple. Emerso: la ricerca
+  lontana (ADR-0040) su un grafo piccolo che ignora l'area cade in
+  `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
+  con la #497, che ha `optimizer.py`.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
@@ -256,6 +345,41 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   /game/runs/{key}`, i tre `Kind` in `push.py`. La regola del blocco fra
   iscritti e i testi delle tre push sono approvati dall'utente
   (2026-10-24). Server dopo Apple, con l'ok dell'utente.
+  **Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
+  Coordinatore su richiesta dell'utente a CI verde. Restano D ed E.
+  **Parte D** (branch `feat/TASK-296-d-challenges-app`, PR #561, 2026-10-26):
+  «Play» ha due schede, «Collection» e «Challenges»; la seconda ha le
+  squadre («Create» con il nome, «Join» con il codice, la squadra con il
+  codice, «Share code» con una frase nel foglio di condivisione, gli
+  iscritti, «Remove» per chi l'ha creata, «Leave team») e la sfida (la
+  forma a pezzi colorati per persona per quanto è corsa, chi ha dato
+  quanto, i pezzi con «Take this piece» e «Leave», quanto manca e il conto
+  alla rovescia, completa e scaduta, «New challenge»); la sfida si rilegge
+  ogni 15 s e al ritorno in primo piano; le tre push della C aprono la
+  sfida. Il contorno dei pezzi del telefono è uguale a quello dell'API
+  (test di parità con i suoi numeri). Su un server senza la C la scheda
+  dice che le squadre non ci sono ancora, senza errore. Solo app, nessuna
+  dipendenza nuova; i testi nelle cinque lingue aspettano il sì
+  dell'utente (task file, «Testi da approvare»). Resta la E.
+
+- **TASK-294 — MuW su Google Play** (richiesta dell'utente del
+  2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
+  **A** (aggiunta ad ADR-0225), branch
+  `feat/TASK-294-a-android-background`: su Android la corsa registra a
+  schermo bloccato, in un servizio con la sua notifica, con «While using»
+  (scelta dell'utente: prima del test chiuso). Il conto alla rovescia e la
+  pausa per fermo si recuperano dalle posizioni, perché Android ferma i
+  timer JS; la linea non si taglia per lo schermo spento. L'impronta iOS
+  della build 7 non cambia (`fingerprint.config.js`, 83793e26 prima e
+  dopo). Solo app; testi della notifica approvati dall'utente il
+  2026-10-23. **PR #543**. La prova su Android vero si fa con la B. Account
+  Google Play personale creato dall'utente il 2026-10-25 («Luca
+  Pallaoro»), in attesa delle verifiche di Google. **A in `main`** con la
+  #543 (`1dfc440e`, 2026-10-25, merge su via dell'utente). Pacchetto
+  Android `app.getmuw.android` (scelta dell'utente del 2026-10-25).
+  **B** (ADR-0253), branch `feat/TASK-294-b-play-build`: package,
+  Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
+  pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
@@ -279,6 +403,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-19. File: `tasks/TASK-292.md`.
   **Chiuso**: in `main` con la #527 (`b35d461c`, 2026-10-19), mergiata
   dal Coordinatore; vedi «Completato».
+- **TASK-291 — Ogni segnalazione arriva per email, con un link che
+  nasconde** (ADR-0251; chiesto dall'utente il 2026-10-17 dopo la mail di
+  Apple sulla regola 1.2). Solo API: a ogni segnalazione nuova un'email a
+  chi gestisce MuW con il link «Hide» (firmato, 7 giorni, una volta, con
+  «Undo»); disegni, commenti e iscritti nascosti agli altri, non
+  all'autore. Migrazione `0024_hidden_content.sql`. Entra **dopo la
+  #502**, poi usa il suo `resend_email.py`; server dopo Apple, con la
+  privacy della parte B di TASK-284. File: `tasks/TASK-291.md`.
+  **Chiuso**: in `main` con la #525 (2026-10-25, dopo la #502), sul
+  «mergia» dell'utente; vedi «Completato».
 - **TASK-288 parte B — Il pool di connessioni** (aggiunta ad ADR-0249;
   sì dell'utente del 2026-10-16 al Coordinatore: «sì, aggiungi il pool di
   connessioni»). Branch `feat/TASK-288-b-connection-pool`. Dipendenza
@@ -392,6 +526,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pubblicata, approvazione di Apple e chiave di Resend con il dominio
   verificato (lo fa l'utente, `DEPLOY.md` «Email di ritorno»). File:
   `tasks/TASK-284.md`.
+  **Parte A in `main`** con la #502 (`263e86db`, 2026-10-25, sul
+  «finiscila» dell'utente), migrazione `0023_away_email.sql`; spenta finché
+  il server non ha chiave, segreto e dominio. Resta la parte B, dopo #461.
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
@@ -418,6 +555,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nella 1.0.
   **Chiuso il 2026-10-15**: #508 in `main` (8295312f); vedi
   «Completato». Pubblica il Coordinatore.
+- **TASK-277 — Un contorno che cade su un nodo solo non si disegna, e la
+  ricerca va avanti** (aggiunta ad ADR-0040, con rimando ad ADR-0148; da
+  un `engine_error` nei log dell'API del 2026-10-10: due cerchi da 5 km su
+  una zona di campagna scaricata al volo). Branch
+  `fix/TASK-277-collapsed-outline`. Il motore lancia `CollapsedShapeError`
+  (uno `ShapeNotDrawableError`) invece di un `ValueError`; la ricerca salta
+  quel tentativo, poi cerca entro 2 km, e se niente si traccia risponde
+  `shape_not_drawable` con un messaggio chiaro. Ogni altro percorso
+  identico; `engine.zip` e `paddleExamples.json` rifatti (solo la
+  fingerprint). **Ferma** fino all'approvazione Apple della 1.0 e agli ok
+  dell'utente; entra dopo la #489 (TASK-271), e allora i due file si
+  rifanno su `main`. Dopo il merge: server, `draw_examples`, pubblicazione
+  dell'app (Coordinatore). File: `tasks/TASK-277.md`, «File toccati».
+  **Chiuso**: in `main` con la #497 (2026-10-25, «finiscilo»
+  dell'utente), dopo la #489; server, `draw_examples` e motore sul
+  telefono restano al Coordinatore; vedi «Completato».
 - **TASK-283 — Le foto dei paesi in «NEARBY TOWNS»** (ADR-0243; chiesto
   dall'utente il 2026-10-11, «Aggiungere foto delle città»; scelte sue:
   «Solo foto», «Scheda di oggi» senza foto, credito «Piccolo sulla
@@ -526,6 +679,34 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso**: in `main` con la #489 (2026-10-25, «ok finiscilo»
   dell'utente); server, `draw_examples` e motore sul telefono restano al
   Coordinatore; vedi «Completato».
+- **TASK-262 C — Amici dalla rubrica** (ADR-0226; scelta dell'utente del
+  2026-10-08, che è il suo sì a `expo-contacts` e alla ricerca per hash).
+  Branch `feat/TASK-262-c-contacts`. **App fatta**: in «Find friends»,
+  sotto la ricerca per nome, «Find friends in your contacts»; il permesso
+  solo al tocco, i numeri in E.164 con la regione del telefono, SHA-256,
+  500 per richiesta, e gli iscritti trovati con «Follow». **API scritta**
+  (`contact_people.py`, `POST /people/from-contacts`; gli hash non si
+  tengono, provato da un test su database e log; 30 richieste all'ora per
+  account; i bloccati mai, nei due versi): **entra dopo TASK-121**, di cui
+  usa `apart_sql`. Privacy nuova del 9 ottobre 2026 nelle cinque lingue,
+  con le pagine del sito rigenerate. **Aspetta**: «121 in main», poi il
+  merge di #451 (262 A), poi il sì dell'utente su testi e privacy, poi
+  «merge NNN»; il server con l'ok dell'utente, dal coordinatore.
+  File: la PR, «File toccati» (la sezione C di `tasks/TASK-262.md` dopo
+  il merge di A).
+  **Aggiornamento 2026-10-10**: API in (dopo 121), provata nel simulatore,
+  ADR-0226 aggiunta e sezione C del task file scritte, privacy del 10
+  ottobre approvata dall'utente. **PR #461 pronta e ferma** per scelta del
+  coordinatore fino all'approvazione di Apple della 1.0; poi «merge 461»,
+  server, sito, preview, e la 1.0.1 nativa. Come riprendere: «Dove si è»
+  in `tasks/TASK-262.md`, parte C.
+  **Aggiornamento 2026-10-25**: `main` unito di nuovo, privacy datata 25
+  ottobre 2026, test verdi. **Ferma sull'impronta**: `expo-contacts` porta
+  l'impronta iOS da `83793e26` (la 1.0) a `9337973a`; l'utente sceglie
+  quando unirla (con la 1.0.1, subito, o subito con `expo-contacts` escluso
+  dalla build nativa, che tiene `83793e26`). «Dove si è (2026-10-25)» nel
+  task file.
+  **Chiuso con la #461** (scelta dell'utente: la terza); vedi «Completato».
 - **TASK-270 — Dopo un'assenza del GPS il navigatore ritrova il percorso**
   (aggiunta ad ADR-0052; dalla prima recensione di un tester del
   2026-10-10). Branch `fix/TASK-270-navigator-rejoin`. Prima, con l'app
@@ -742,6 +923,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `offsite` è in `main` dalla PR #167): manca che l'utente lo crei
   (`DEPLOY.md` F.13). Sessione «Sistema di auto-miglioramento ricerca»; da
   dove riprendere: il task file.
+  **Done** il 2026-10-25: vedi «Completato».
 - **TASK-190 — Percorsi in bici** (ADR-0153): **parte A, il motore**, in
   `main` (PR #214): la rete `bike` (ciclabili e strade fino alle
   `primary`, mai scale, `trunk` né vie vietate alle bici, sensi unici
@@ -770,6 +952,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Mancano il cerchio da 20 km, Levico e Padova, quando Overpass riapre. Il
   miglioramento delle forme in bici è TASK-206, qui sotto. Da dove
   riprendere: il task file, «Esito», «I campioni».
+  **Chiuso il 2026-10-25**: Levico, Padova e il cerchio da 20 km giudicati
+  dall'utente, la prova sul server del 2026-10-03 scritta nel task file;
+  la voce è in «Completato».
 - **TASK-232 — Forme inclinate fino a 45°, con la mappa girata**
   (ADR-0195; Todo, chiesto dall'utente il 2026-10-05): il motore inclina
   ogni forma fino a ±45° quando segue meglio le strade (oggi ±15°,
@@ -1042,6 +1227,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (2026-10-03), sapendo che fino all'ultima parte un telefono in italiano
   vede l'app mezza in italiano e mezza in inglese. Da dove riprendere:
   `tasks/TASK-210.md`.
+  **Chiuso** (2026-10-25) con la **parte H** (branch
+  `feat/TASK-210-h-last-texts`, PR #545, merge `52953c47`): gli ultimi testi rimasti in inglese, il
+  Feed e la virgola delle schede; vedi «Completato».
 
 - **TASK-214 — Il motore dei percorsi sul telefono** (ADR-0177; chiesto
   dall'utente il 2026-10-03). Il telefono disegna da sé forme e parole su
@@ -1086,6 +1274,31 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `7a9506a`: il telefono disegna da sé. **Resta D**, la prova
   sull'iPhone, che è dell'utente e fissa i limiti di distanza. Da dove
   riprendere: `tasks/TASK-214.md`, «Esito».
+  **Parte D fatta** il 2026-10-25: l'utente ha provato l'app sul suo
+  iPhone e ha scritto «funziona ma cerca di migliorarlo». Prossimo passo:
+  misurare (tempi telefono/server, richieste che ricadono sul server, zone,
+  memoria, errori nei log) e proporre all'utente un miglioramento, che
+  diventa una parte nuova di TASK-214.
+  Misure fatte lo stesso giorno (task file, «Le misure dopo D»): il
+  telefono disegna solo vicino a dove si è aperta l'app, perché la zona
+  ha 3 km intorno; i tempi sono quelli del server. Tre proposte
+  all'utente, in attesa della sua scelta.
+  L'utente ha scelto la zona più larga («fai la 1»): **parte E** in
+  `feat/TASK-214-e-wider-zone`. L'API dà con `margin_m=6000` una zona con
+  6 km intorno al telefono, fino a 12 MB; l'app la chiede, passa al motore
+  tutte le zone che contengono la partenza e legge la zona all'apertura.
+  App e server si pubblicano in qualunque ordine: con il server di prima
+  l'app scarica le stesse zone di oggi. I log del server (15 giorni):
+  più di metà delle richieste di zona hanno `404`, cioè lì il server non
+  ha una zona con 3 km intorno e il telefono non disegna.
+  **Parte E in `main` dalla #546** (`7da61107`, 2026-10-25, mergiata dal
+  coordinatore; la #541 della parte D è entrata con lei). La zona da 6 km
+  si accende quando il server si aggiorna (solo l'API, dopo Apple e con il
+  sì dell'utente); la lettura all'apertura vale già con il server di oggi.
+  Restano aperti: tempi e memoria su un iPhone vero, le impronte
+  telefono/server confrontate, il cuore senza rete sull'iPhone; e le zone
+  per i posti dove oggi il server risponde `404` (un seguito da proporre
+  all'utente). Da dove riprendere: `tasks/TASK-214.md`, «Esito».
 - **TASK-266 — Il tour del primo avvio e la guida in «Profile»**
   (ADR-0235; richiesta dell'utente del 2026-10-09, che fra tre proposte ha
   scelto il tour sulle schermate vere). Branch
@@ -1110,6 +1323,101 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
+  2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
+  dove la forma non entra nelle strade, **misurato e scartato**. Su 252
+  richieste in sette città (`tests/measure_stop_earlier.py`, tracciamento
+  per tracciamento) il primo percorso buono compare a qualunque
+  tracciamento, anche al 30º di 30 e dal 6º piazzamento inclinato; ogni
+  tetto o piazzamento in meno perde buoni (28: 2; 25: 5; 20: 12); le regole
+  che li tengono (fase inclinata o rifinitura saltate dopo una fase andata
+  male) peggiorano i mediocri senza abbreviare. Resta: una scala già
+  tracciata per lo stesso piazzamento non si traccia più (1,3 %; i 129
+  buoni identici, i mediocri mai peggiori). **Scelta dell'utente del
+  2026-10-26: tetto 30, invariato.** `engine.zip` rifatto, impronta iOS
+  `83793e26` invariata. PR #558, `61932179`. `tasks/TASK-298.md`.
+- **App** — TASK-302 (aggiunta ad ADR-0047; prova sul campo dell'utente a
+  Trento del 2026-10-25): le svolte di un incrocio attraversato a piedi, a
+  25 m o meno l'una dall'altra, si dicono e si mostrano come una, con la
+  direzione che si vede sul posto (il percorso 20 m prima contro 20 m
+  dopo); una manovra che non gira tace, salvo su una via di un altro nome
+  («Prosegui dritto su …»). Partenza, «u-turn» e arrivo mai fusi, e le
+  indicazioni a più di 25 m dalle vicine identiche a prima (test su Trento
+  e sul grafo di Levico di TASK-271). Su una camminata
+  vera da Trento Fiere da 30 a 13 indicazioni. Solo app
+  (`navigation/simplifyDirections.ts`), nessun testo nuovo; motore, API e
+  file della corsa invariati, quindi vale anche per i percorsi già in
+  cache. Entra col merge del Coordinatore, poi su `preview` da provare
+  sul campo. Seguono **TASK-303** (il rientro dopo una deviazione, testi
+  nuovi) e **TASK-304** (l'attività persa uscendo dall'app: prima la
+  domanda all'utente sulla build della prova). `tasks/TASK-302.md`.
+- **Server** — TASK-122 (ADR-0123), le copie fuori dal server: lo Storage
+  Box Hetzner `muw-backups` (`u700709`, BX11, Falkenstein, 3,20 €/mese,
+  comprato dall'utente il 2026-10-25) riceve ogni notte alle 02:30 UTC le
+  13 copie del database e gli eventi delle ricerche. Primo invio a mano il
+  2026-10-25, 1,5 s; una copia ripresa da lì ha lo stesso SHA-256 e si
+  ripristina in `restore_check`, con 3 account e le migrazioni 0001–0021. È
+  stato ricreato solo `offsite`, senza riavvii di API e database. Il
+  server nella Console ora si chiama `muw`, il progetto `MuW`. L'iscrizione
+  dall'iPhone la conferma l'utente. **TASK-122 è Done**; resta da guardare il
+  2026-10-26 il primo invio notturno. `tasks/TASK-122.md`, `DEPLOY.md` F.13.
+- **Motore, API e app** — TASK-190 (ADR-0153; chiuso il 2026-10-25): i
+  percorsi in bici, parti A, B e C in `main` dal 2026-10-02 (PR #214, #219,
+  #221). I campioni sono tutti giudicati dall'utente: oltre ai cinque di
+  Trento del 2026-10-03, il 2026-10-25 il cerchio da 20 km di Trento «sì»
+  (0,93), Levico cuore 10 «no», cerchio 10 «quasi», stella 10 «no», cuore
+  20 «quasi», cerchio 20 «quasi», stella 20 «no» (0,71–0,94; a 20 km un
+  terzo di sterrato, il cerchio da 10 km con 2,3 km di bici a mano per il
+  posto), Padova «sì» per cuori, cerchi e stella da 20 km, «quasi» la stella
+  da 10 (0,91–0,96: in pianura la bici disegna come la corsa). Zone
+  scaricate da Overpass sul Mac, una per luogo; motore di `main` `263e86d`,
+  1–5 s a campione. Nessuna correzione del motore: i difetti visti (stelle
+  in valle, gallerie, sterrato, metri a piedi dove il posto li chiede) sono
+  già noti in ADR-0167 e «Fuori scope». La prova vera sul server è quella
+  del coordinatore del 2026-10-03 (TASK-205 e TASK-206: zona di Trento
+  dall'estratto, 72 + 31 MB, 167 s, osmium 3,6 GB; cerchi 10/20/30 km in
+  22/28/39 s, 0,88/0,87/0,73), ora scritta nel task file. **Resta**: una
+  verifica leggera sul server (le zone `bike_*`, un cerchio da 10 km,
+  `docker stats`), pronta coi comandi nel task file, dopo l'approvazione di
+  Apple e con un sì dell'utente; la domanda 1 («Explore» e «Feed» con
+  «Bike»), che resta dell'utente. PR dei campioni sul branch
+  `chore/TASK-190-bike-samples-levico-padova`. `tasks/TASK-190.md`.
+- **API** — TASK-291 (ADR-0251; chiesto dall'utente il 2026-10-17): ogni
+  segnalazione nuova arriva per email a chi gestisce MuW, con il link
+  firmato «Hide» (7 giorni, una volta, con «Undo»); il nascosto sparisce
+  agli altri, non all'autore. Migrazione `0024_hidden_content.sql`. Invia
+  con `resend_email.py` di TASK-284 A (#502): un solo codice parla con
+  Resend, le stesse `RESEND_API_KEY` e `SHAPEROUTE_EMAIL_SECRET`. In
+  `main` con la #525 (2026-10-25). **Spenta** finché il server non ha
+  anche `SHAPEROUTE_REPORTS_TO`; prima la privacy che nomina Resend (parte
+  B di TASK-284), poi il server dal Coordinatore dopo Apple e col sì
+  dell'utente. `tasks/TASK-291.md`.
+- **App** — TASK-210 parte H, la chiusura della lingua dell'app (aggiunta
+  ad ADR-0172): letto tutto il codice dell'app in cerca di testi fuori da
+  `t()`, tradotti gli ultimi che si vedono o si sentono: la riga sotto la
+  partenza di «Draw» (`location/startStatus.ts`, prima in `App.tsx`),
+  «PARTENZA», «La mia posizione», «Un altro posto», la nota senza
+  percorsi consigliati e «a 1,4 km» in «Explore», l'attesa del percorso a
+  tema, «47% disegnato», le lettere della direzione («SO», «O») e
+  «mancano 3,2 km» nella corsa, «Pagaia ·» e «Bici ·» nel Feed,
+  «Immagine» fra i preferiti, VoiceOver dopo «Save». Le mappe del Feed
+  seguono un cambio di lingua; le schede di «Explore» e «Draw» scrivono
+  la virgola («5,2 km»). 23 testi nuovi. **TASK-210 è Done**; seguiti
+  fuori scope nel task file: le traduzioni dell'API (percorsi a tema,
+  errori, Strava, push, email), il francese fra «tu» e «vous».
+  `tasks/TASK-210.md`.
+- **Motore** — TASK-277 (aggiunta ad ADR-0040, con rimando ad ADR-0148;
+  da un `engine_error` nei log dell'API del 2026-10-10): un contorno che
+  cade su un solo nodo stradale dà `CollapsedShapeError` (uno
+  `ShapeNotDrawableError`) invece di un errore generico; la ricerca salta
+  quel tentativo, poi cerca entro 2 km, e se niente si traccia risponde
+  `shape_not_drawable` con un messaggio chiaro. Ogni altro percorso
+  identico. Mergiata il 2026-10-25 su «finiscilo» dell'utente, dopo la
+  #489, con `engine.zip` rifatto e `paddleExamples.json` ridisegnato
+  (cambia solo l'impronta `engine`, gli esempi sono identici). In `main`,
+  **non ancora sul server**: aggiornamento, `draw_examples` e motore sul
+  telefono restano al Coordinatore dopo Apple e con il sì dell'utente,
+  insieme a quelli di TASK-271. PR #497. `tasks/TASK-277.md`.
 - **Motore** — TASK-271 (aggiunta ad ADR-0045; dalla prima recensione di
   un tester del 2026-10-10): la voce dice «Make a U-turn» anche dove il
   percorso torna indietro fuori da un incrocio, in fondo a un vicolo cieco
@@ -1122,6 +1430,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Coordinatore dopo Apple e con il sì dell'utente; i percorsi già
   calcolati tengono le indicazioni vecchie finché non si rifanno. PR #489.
   `tasks/TASK-271.md`.
+- **App + API** — TASK-262 C (ADR-0226, aggiunte del 2026-10-10 e del
+  2026-10-25): gli amici dalla rubrica. In «Find friends», sotto la
+  ricerca per nome, «Find friends in your contacts»: il permesso solo al
+  tocco, dal telefono escono solo gli SHA-256 dei numeri in E.164, il
+  server (`POST /people/from-contacts`) li confronta con i numeri salvati
+  e non ne tiene nessuno; mai i bloccati, 30 ricerche all'ora per account.
+  Privacy del 25 ottobre 2026 nelle cinque lingue e in `site/privacy/`.
+  **`expo-contacts` è escluso dalla build nativa** (scelta dell'utente del
+  2026-10-25): l'impronta iOS resta `83793e26` e gli update arrivano
+  ancora alla 1.0, dove la sezione non si vede; su preview (Expo Go) sì.
+  Alla prossima build nativa (1.0.1 iOS, prima Android di TASK-294 B) si
+  toglie l'esclusione e si rimette il plugin: «Alla prossima build
+  nativa» in `tasks/TASK-262.md`. PR #461. **Restano**, del coordinatore
+  con l'ok dell'utente: il server (nessuna migrazione), la copia del sito
+  (F.14), preview.
 - **App** — TASK-295 (ADR-0254; richiesta e scelta dell'utente del
   2026-10-23): il video della corsa da condividere. In «Share your run»,
   «Export video» accanto a «Instagram» fa un video di 12 s, 9:16, sul
