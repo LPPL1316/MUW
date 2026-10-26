@@ -182,4 +182,9 @@ peggiorano i risultati mediocri senza abbreviare: scartate, con i numeri in
 ADR-0259. Resta la regola che non ripete un tracciamento (1,3 %): i buoni
 identici, i mediocri mai peggiori. Il taglio vero è una scelta di prodotto
 da fare con quei numeri, in un task suo. `tests/measure_stop_earlier.py`
-rifà la misura. PR #558 (2026-10-25), al merge del Coordinatore.
+rifà la misura. PR #558, in `main` il 2026-10-26 (`61932179`), mergiata dal
+Coordinatore.
+
+**Scelta dell'utente del 2026-10-26**, con la tabella dei tetti davanti:
+**tetto 30, invariato**. Nessun percorso buono perso; i casi che non trovano
+niente continuano a costare 30 tracciamenti.

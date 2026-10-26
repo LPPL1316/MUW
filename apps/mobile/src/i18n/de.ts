@@ -1329,6 +1329,83 @@ export const DE: Table = {
   "This server cannot look in your contacts yet.":
     "Dieser Server kann noch nicht in deinen Kontakten suchen.",
   "The contacts could not be read.": "Die Kontakte konnten nicht gelesen werden.",
+  // «Play», the «Challenges» tab: src/game/{PlayScreen,ChallengesTab,TeamView,
+  // ChallengeView,NewChallenge}.tsx, teamsApi.ts, timeLeft.ts, shareCode.ts
+  // (TASK-296, parte D)
+  Collection: "Sammlung",
+  Challenges: "Herausforderungen",
+  "Sign in to play with a team.": "Melde dich an, um im Team zu spielen.",
+  "Teams are not on this server yet.": "Teams gibt es auf diesem Server noch nicht.",
+  "YOUR TEAMS": "DEINE TEAMS",
+  "No team yet. Create one, or join one with its code.":
+    "Noch kein Team. Gründe eins, oder tritt mit einem Code bei.",
+  "Team name": "Teamname",
+  Create: "Erstellen",
+  "Team code": "Teamcode",
+  Join: "Beitreten",
+  "{count} member": "{count} Mitglied",
+  "{count} members": "{count} Mitglieder",
+  "No challenge yet": "Noch keine Herausforderung",
+  "{done} of {total} pieces done": "{done} von {total} Teilen geschafft",
+  "Code {code}": "Code {code}",
+  "Share code": "Code teilen",
+  "Join my team «{name}» on MuW: open Play, Challenges, and enter the code {code}.":
+    "Komm in mein Team «{name}» bei MuW: öffne Play, Herausforderungen, und gib den Code {code} ein.",
+  MEMBERS: "MITGLIEDER",
+  Owner: "Besitzer",
+  "Leave team": "Team verlassen",
+  "Leave this team?": "Dieses Team verlassen?",
+  "New challenge": "Neue Herausforderung",
+  Pieces: "Teile",
+  "Fewer pieces": "Weniger Teile",
+  "More pieces": "Mehr Teile",
+  "Each piece": "Jedes Teil",
+  Fast: "Schnell",
+  "Slower pace": "Langsameres Tempo",
+  "Faster pace": "Schnelleres Tempo",
+  Days: "Tage",
+  "Fewer days": "Weniger Tage",
+  "More days": "Mehr Tage",
+  "Start the challenge": "Herausforderung starten",
+  "{count} pieces · {goal} each": "{count} Teile · je {goal}",
+  "Piece {n}": "Teil {n}",
+  Free: "Frei",
+  Yours: "Deins",
+  "Taken by {name}": "Genommen von {name}",
+  "Done by {name}": "Geschafft von {name}",
+  "Take this piece": "Dieses Teil nehmen",
+  Leave: "Abgeben",
+  "WHO GAVE WHAT": "WER WAS BEIGETRAGEN HAT",
+  "Nobody has run yet.": "Noch ist niemand gelaufen.",
+  PIECES: "TEILE",
+  "Complete! Your team drew it together.":
+    "Fertig! Euer Team hat sie zusammen gezeichnet.",
+  "Time ran out: {count} piece was missing.": "Die Zeit ist um: {count} Teil fehlte.",
+  "Time ran out: {count} pieces were missing.":
+    "Die Zeit ist um: {count} Teile fehlten.",
+  "{count} day {hours} h left": "Noch {count} Tag {hours} h",
+  "{count} days {hours} h left": "Noch {count} Tage {hours} h",
+  "{hours} h {minutes} min left": "Noch {hours} h {minutes} min",
+  "{minutes} min {seconds} s left": "Noch {minutes} min {seconds} s",
+  "Time is up": "Die Zeit ist um",
+  "No team with this code.": "Kein Team hat diesen Code.",
+  "You can't join this team.": "Du kannst diesem Team nicht beitreten.",
+  "You are in 10 teams already: leave one first.":
+    "Du bist schon in 10 Teams: verlasse zuerst eins.",
+  "This team is not available any more.": "Dieses Team gibt es nicht mehr.",
+  "This challenge is not available any more.":
+    "Diese Herausforderung gibt es nicht mehr.",
+  "The team has a challenge going already: wait for it to end.":
+    "Das Team hat schon eine Herausforderung am Laufen: warte, bis sie endet.",
+  "This challenge is over.": "Diese Herausforderung ist vorbei.",
+  "This piece is not there any more.": "Dieses Teil gibt es nicht mehr.",
+  "This piece is done already.": "Dieses Teil ist schon geschafft.",
+  "Someone holds this piece already.": "Jemand hat dieses Teil schon.",
+  "You hold a piece of this challenge already: leave it first.":
+    "Du hast schon ein Teil dieser Herausforderung: gib es zuerst ab.",
+  "You don't hold this piece.": "Dieses Teil ist nicht deins.",
+  "This name is not allowed. Choose another one.":
+    "Dieser Name ist nicht erlaubt. Wähle einen anderen.",
   // src/screens/SignInScreen.tsx, src/settings/NotificationsSetting.tsx
   // (TASK-284 B: the email when away; the names as in its email)
   "If you don't open MuW for 2 weeks, we email you once with what's new.":

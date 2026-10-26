@@ -1138,9 +1138,10 @@ torna. Un profilo bloccato non si apre dall'elenco.
 
 ## «Play»: la collezione delle forme (TASK-296 parte B, ADR-0255)
 
-La pagina del gioco delle forme (`GIOCO.md`). Nella parte B c'è la sola
-**collezione**; le squadre e le sfide arrivano con la parte D, che aggiunge
-le due schede. Codice in `apps/mobile/src/game/`.
+La pagina del gioco delle forme (`GIOCO.md`), con due schede
+(`Segmented`, in alto): **«Collection»**, la collezione della parte B, e
+**«Challenges»**, le squadre e le sfide della parte D (in fondo a questa
+sezione). Codice in `apps/mobile/src/game/`.
 
 - **Dove sta**: fra «Explore» e il profilo, con il suo nome in alto dopo
   «Explore»: quattro nomi nell'intestazione. Il profilo resta a un tocco
@@ -1191,6 +1192,74 @@ le due schede. Codice in `apps/mobile/src/game/`.
   (`notificationTap`), mai il profilo che i suoi dati nominano.
 - **Da provare sull'iPhone**: i quattro nomi nell'intestazione su uno
   schermo da 390 pt, e la scheda dopo un «Save» vero.
+
+**La scheda «Challenges»** (TASK-296 parte D; `ChallengesTab`, `TeamView`,
+`ChallengeView`, `NewChallenge`; le regole in `GIOCO.md` §6):
+
+- **Le squadre**: con l'account, «YOUR TEAMS» e una scheda per squadra con
+  il nome, quanti iscritti e la sfida più recente («Hexagon · 1 of 3 pieces
+  done», o «No challenge yet»); senza squadre, «No team yet. Create one, or
+  join one with its code.». Sotto, «Create» con il campo «Team name» e
+  «Join» con il campo «Team code» (il codice di 6, in qualunque maiuscola):
+  la squadra creata o trovata si apre subito. Un codice che nessuno ha dice
+  «No team with this code.»; una squadra piena, troppe squadre o un blocco
+  in mezzo dicono tutti «You can't join this team.», senza il perché; un
+  nome rifiutato dal filtro «This name is not allowed. Choose another
+  one.». Le squadre si rileggono ogni volta che la scheda torna sullo
+  schermo e tornando dalla squadra, mostrando intanto l'ultima risposta.
+- **Senza account**, «Sign in to play with a team.» porta al profilo. Su
+  un **server senza le squadre** (la C non c'è ancora: 404) la scheda dice
+  solo «Teams are not on this server yet.», senza modulo e senza errore.
+  Senza rete resta l'ultima lista; le parole dell'account e «Try again»
+  solo quando non c'è niente da mostrare.
+- **La squadra aperta**: «←», il nome, «Code K7PQ2M» e «Share code», che
+  apre il foglio di condivisione del telefono con una frase di testo («Join
+  my team «Trento runners» on MuW: open Play, Challenges, and enter the
+  code K7PQ2M.»); poi la sfida, o «No challenge yet» e «New challenge»;
+  «MEMBERS» con foto o iniziale, nome e «Owner» su chi l'ha creata, e per
+  il proprietario «Remove» sugli altri; in fondo «Leave team», che chiede
+  «Leave this team?» con «Leave team» e «Cancel» prima di uscire.
+- **La sfida** (`ChallengeView`): il nome della forma, «3 pieces · 5 km in
+  total each», la forma disegnata **pezzo per pezzo** con le View girate
+  della collezione: la parte corsa di un pezzo nel colore di chi lo tiene
+  (o di chi ci ha corso di più, se è tornato libero), il resto grigio
+  `textFaint`. I colori delle persone sono cinque dei token (`startHere`,
+  `warning`, `accent`, `error`, `text`), nell'ordine d'ingresso nella
+  squadra, e tornano dopo cinque. Sotto, il **conto alla rovescia** («6
+  days 3 h left», «2 h 15 min left», «12 min 5 s left», che batte ogni
+  minuto sopra l'ora e ogni secondo sotto; «Time is up» dalla scadenza) e
+  «1 of 3 pieces done»; «WHO GAVE WHAT», una riga per persona con il suo
+  colore e i km («adam.trento 5.0 km», chi più ha dato prima, o «Nobody has
+  run yet.»); «PIECES», una riga per pezzo («Piece 2 · 5 km in total») con
+  lo stato: «Done by adam.trento», «Yours · 2.4 / 5 km», «Taken by ada ·
+  2.4 / 5 km», «Free», e i pulsanti **«Take this piece»** su un pezzo
+  libero, mentre non se ne tiene nessuno, e **«Leave»** sul proprio. Un
+  rifiuto dell'API («Someone holds this piece already.», «This challenge
+  is over.»…) si legge sotto i pezzi, e la sfida si rilegge subito.
+  **Completa**: «Complete! Your team drew it together.» con il giorno;
+  **scaduta**: «Time ran out: 2 pieces were missing.»; in tutti e due i
+  casi niente pulsanti e, nella squadra, «New challenge».
+- **La sfida si rilegge ogni 15 s** mentre è sullo schermo e in corso, e
+  quando l'app torna in primo piano; l'ultima risposta resta in vista
+  intanto (ADR-0255, punto 7). Tutto nelle unità scelte («Yours · 1.5 /
+  3.1 mi»).
+- **«New challenge»** (`NewChallenge`): la forma dal catalogo (una fila di
+  contorni, la scelta in giallo), «Pieces» con − e + (2–12, parte da
+  quanti sono gli iscritti), «Each piece» fra «Distance» (− e + per km o
+  miglio, 1–50 km) e «Fast» («1 km» o «5 km» e il passo con − e + da 15 s,
+  2:30–15:00 /km), «Days» con − e + (1–14, 7), la riga di riepilogo («3
+  pieces · 5 km in total each»), «Start the challenge» (giallo) e «Cancel».
+  I limiti sono quelli dell'API, che non riceve mai una richiesta fuori
+  misura; in miglia il passo si manda in secondi al km interi e il valore
+  mostrato è quello che l'API terrà.
+- **Le push delle sfide** (`piece_done`, `challenge_done`,
+  `challenge_ending`) con l'app aperta si mostrano come banner (non sono
+  «quiet» come `shape_unlocked`); toccate aprono «Play» sulla scheda
+  «Challenges», sulla sfida che nominano (`challengeDoor`), anche se la
+  pagina non era ancora costruita; senza un id buono, la scheda e basta.
+- **Da provare sull'iPhone** quando A e C saranno sul server: il foglio di
+  condivisione del codice, le due schede con la tastiera aperta sui campi,
+  una sfida vera con due telefoni.
 
 ## «Favorites» (TASK-171, ADR-0139)
 

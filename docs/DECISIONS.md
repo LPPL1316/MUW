@@ -15657,6 +15657,85 @@ dell'utente; elenco dei file approvato dal Coordinatore)**:
   `null` prima); i tipi di `shared-types` li aggiorna la parte D, che è
   anche la prima a leggerli.
 
+**Aggiunta (parte D, 2026-10-26, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **Due schede in «Play»** con il `Segmented` di «Draw»: «Collection» com'era
+  e «Challenges» (`ChallengesTab`). La collezione si chiede all'API solo
+  mentre la sua scheda è in vista; le squadre, mentre è in vista l'altra.
+- **Il contorno dei pezzi lo rifà il telefono** (`pieceSegments.piecesOf`)
+  con le stesse operazioni nello stesso ordine di `game_rules.pieces_of`
+  (le lunghezze con `sqrt(dx·dx + dy·dy)`, i tagli a `(L·k)/n`,
+  `bisect_right`, l'interpolazione, l'arrotondamento a 4 decimali con
+  `toFixed`, che legge il valore esatto del double come `round(x, 4)` di
+  Python e ne differisce solo su un pareggio esatto alla quinta cifra, che
+  nessun taglio dei contorni del catalogo produce). Il test di parità
+  confronta ogni forma del catalogo per 2, 3, 5, 7 e 12 pezzi con i numeri
+  scritti dalla funzione dell'API (`piecesOfApi.json`), compreso il punto
+  doppio che un taglio su un vertice lascia. La sfida sullo schermo
+  disegna però gli `outline` che l'API serve in ogni pezzo: la funzione
+  del telefono serve a chi ha la forma e N senza il corpo della sfida (la
+  striscia della parte E).
+- **I colori delle persone**: `tokens.ts` non ha una tavolozza per le
+  persone, e nessun colore si scrive a mano; cinque token fanno a turno
+  (`startHere`, `warning`, `accent`, `error`, `text`), nell'ordine
+  d'ingresso nella squadra, così una persona tiene il suo colore da una
+  lettura all'altra; chi ha lasciato la squadra viene dopo, nell'ordine in
+  cui compare nei pezzi. Dopo cinque i colori tornano e i nomi della
+  legenda distinguono. Un pezzo libero è `textFaint`. Una tavolozza vera
+  per le persone sarebbe un token da aggiungere, se le squadre cresceranno.
+- **Tempo reale**: la sfida si rilegge ogni 15 s (`CHALLENGE_EVERY_MS`)
+  solo finché è `active` e la sua vista è sullo schermo, e appena l'app
+  torna in primo piano (`AppState`); completa o scaduta non cambia più.
+  L'ultima risposta di ogni sfida resta in memoria finché l'app è aperta,
+  e la squadra la mostra subito con quello che la lista diceva di lei.
+  Un rifiuto dell'API a «Take this piece» o «Leave» (409: preso da un
+  altro, finita) si dice e rilegge la sfida: lo schermo mostra quello che
+  il server ha adesso.
+- **Un server senza le squadre non è un errore** (nota del Coordinatore):
+  il 404 di `GET /game/teams` fa dire alla scheda «Teams are not on this
+  server yet.», senza modulo né «Try again»; oggi il server non ha né A né
+  C, e la pagina «Play» non si vede comunque finché il catalogo non
+  risponde 200. Senza rete l'ultima lista e l'ultima sfida restano in
+  vista senza una parola; le parole dell'account e «Try again» compaiono
+  solo quando non c'è niente da mostrare.
+- **Le push delle sfide aprono la sfida**: `notificationTap` legge
+  `{kind, challenge_id}` dei tre `Kind` della C e dà `{kind: "challenge",
+  id}`; senza un id buono dà «Play» e basta. `usePushNotifications` ha
+  `openChallenge` accanto a `openPlay`; il resto è in un piccolo store
+  nuovo (`challengeDoor`): la richiesta resta lì finché la pagina, costruita
+  o da costruire, la prende, apre la scheda «Challenges» su quella sfida e
+  la cancella; così `App.tsx` non cambia (la push passa dall'`openPlay` che
+  c'è). Con l'app aperta queste push si mostrano come banner: non c'è una
+  scheda che le dica già, a differenza di `shape_unlocked`.
+- **«Share code» è testo**: `Share.share` di react-native con una frase
+  che porta nome e codice, non il foglio delle immagini di `src/share/`
+  (che è di una corsa, con il video di TASK-295): niente da ridisegnare,
+  niente file.
+- **I rifiuti dell'API in parole**: l'esito di `ask` non porta lo status
+  HTTP, e i rifiuti delle squadre sono tutti `http_error`; le parole
+  dell'API (`game_teams.py`, `game_challenges.py`) si riconoscono e si
+  traducono (`teamProblem`, con un dizionario dai messaggi dell'API ai
+  testi dell'app), così il 403 «You can't join this team.» e il 404 «No
+  team with this code.» si distinguono. Un messaggio sconosciuto si mostra
+  com'è, come i commenti fanno con un nome rifiutato così com'è scritto.
+- **Il modulo della sfida resta nei limiti dell'API** (pezzi 2–12, 1–50
+  km, passo 2:30–15:00 /km, 1–14 giorni): nessuna richiesta fuori misura.
+  In miglia il passo si manda in secondi al km interi, e il valore mostrato
+  è quello arrotondato che l'API terrà (8:03 → 8:17 /mi), non il passo
+  esatto del tocco: lo schermo non promette un secondo che il server non
+  ha.
+- **I tipi di C e D** stanno in fondo a `index.ts`, come per la B:
+  `GameTeam`, `GameChallenge`, le costanti dei limiti, `ChallengePushKind`
+  accanto a `GamePushKind` (che non cambia); `pieces_done` e
+  `team_unlocked_at` sono `RunGameWithPieces` e `GameShapeStateWithTeam`,
+  estensioni delle interfacce della A, che non si toccano. L'edizione
+  squadra nella collezione non si mostra ancora: è un seguito piccolo, da
+  decidere con l'utente (un segno sulla scheda della forma).
+- **Proprietario e uscita**: la regola di `GIOCO.md` §6.1 è sullo schermo
+  (chi ha creato la squadra toglie, ognuno esce), con «Leave team» che
+  chiede conferma prima, perché rientrare vuole il codice.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
@@ -15870,8 +15949,8 @@ aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
 **Stato**: Scartata (misurata), tranne una regola piccola · 2026-10-25 ·
 deciso dall'agente su delega dell'utente («sì, apri anche quello per
 fermarsi prima», 2026-10-24), con le condizioni del Coordinatore
-(TASK-298); il taglio vero è una scelta di prodotto lasciata all'utente,
-con i numeri qui sotto.
+(TASK-298); il taglio vero, scelta di prodotto, l'ha deciso l'utente il
+2026-10-26 con i numeri qui sotto: **tetto 30, invariato**.
 
 **Contesto**: dove la forma non entra nelle strade la ricerca (§5 di
 `ROUTE_ENGINE.md`) spende tutti i 30 tracciamenti per un disegno mediocre:
@@ -15970,6 +16049,10 @@ proporzione):
 Ogni percorso buono perso è un utente che oggi riceve un disegno buono e
 domani ne riceverebbe uno mediocre o nessuno, per risparmiare 6–14 s sui
 casi che oggi non trovano niente.
+
+**Scelta dell'utente del 2026-10-26**: tetto 30, invariato. Nessun percorso
+buono si perde; chi chiede una forma che non entra nelle strade aspetta i
+30 tracciamenti di oggi. In `main` con la #558 (`61932179`).
 
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 

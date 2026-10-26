@@ -269,6 +269,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Il taglio vero costa percorsi buoni ed è una scelta di prodotto: numeri
   in ADR-0259. `engine.zip` rifatto nella PR. **PR #558** aperta il
   2026-10-25, al merge del Coordinatore. File: `tasks/TASK-298.md`.
+  **Chiuso**: in `main` con la #558 (`61932179`, 2026-10-26), mergiata dal
+  Coordinatore; scelta dell'utente del 2026-10-26: **tetto 30, invariato**,
+  nessun percorso buono perso. Vedi «Completato».
 
   **Parte C, motore** (PR #547 aperta il 2026-10-25, branch
   `feat/TASK-297-c-image-pieces`): `outline_data(…, pen_up=True)` mette
@@ -347,6 +350,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (2026-10-24). Server dopo Apple, con l'ok dell'utente.
   **Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
   Coordinatore su richiesta dell'utente a CI verde. Restano D ed E.
+  **Parte D** (branch `feat/TASK-296-d-challenges-app`, PR #561, 2026-10-26):
+  «Play» ha due schede, «Collection» e «Challenges»; la seconda ha le
+  squadre («Create» con il nome, «Join» con il codice, la squadra con il
+  codice, «Share code» con una frase nel foglio di condivisione, gli
+  iscritti, «Remove» per chi l'ha creata, «Leave team») e la sfida (la
+  forma a pezzi colorati per persona per quanto è corsa, chi ha dato
+  quanto, i pezzi con «Take this piece» e «Leave», quanto manca e il conto
+  alla rovescia, completa e scaduta, «New challenge»); la sfida si rilegge
+  ogni 15 s e al ritorno in primo piano; le tre push della C aprono la
+  sfida. Il contorno dei pezzi del telefono è uguale a quello dell'API
+  (test di parità con i suoi numeri). Su un server senza la C la scheda
+  dice che le squadre non ci sono ancora, senza errore. Solo app, nessuna
+  dipendenza nuova; i testi nelle cinque lingue aspettano il sì
+  dell'utente (task file, «Testi da approvare»). Resta la E.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
@@ -1304,6 +1321,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
+  2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
+  dove la forma non entra nelle strade, **misurato e scartato**. Su 252
+  richieste in sette città (`tests/measure_stop_earlier.py`, tracciamento
+  per tracciamento) il primo percorso buono compare a qualunque
+  tracciamento, anche al 30º di 30 e dal 6º piazzamento inclinato; ogni
+  tetto o piazzamento in meno perde buoni (28: 2; 25: 5; 20: 12); le regole
+  che li tengono (fase inclinata o rifinitura saltate dopo una fase andata
+  male) peggiorano i mediocri senza abbreviare. Resta: una scala già
+  tracciata per lo stesso piazzamento non si traccia più (1,3 %; i 129
+  buoni identici, i mediocri mai peggiori). **Scelta dell'utente del
+  2026-10-26: tetto 30, invariato.** `engine.zip` rifatto, impronta iOS
+  `83793e26` invariata. PR #558, `61932179`. `tasks/TASK-298.md`.
 - **App** — TASK-302 (aggiunta ad ADR-0047; prova sul campo dell'utente a
   Trento del 2026-10-25): le svolte di un incrocio attraversato a piedi, a
   25 m o meno l'una dall'altra, si dicono e si mostrano come una, con la
