@@ -284,7 +284,7 @@ in §7. Questi dettagli li ha decisi l'agente su delega dell'utente
   date scritte come i giorni dei disegni (`dayLabel`, nella lingua
   dell'app).
 - **I numeri al singolare**: «1 reaction» e «Your best post: #1, 1
-  reaction», proposti all'utente con gli altri testi.
+  reaction», approvati dall'utente con gli altri testi (2026-10-26).
 - **La push** `contest_won` porta `drawing_id`: `notificationTap` la apriva
   già, nessun cambio.
 - Il badge e la fascia sono lo stesso componente (`WinnerBadge.tsx`),

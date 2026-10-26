@@ -229,7 +229,9 @@ telefono):
 
 **Tedesco, spagnolo e francese della parte B**, e i due testi al singolare
 che servono ai numeri («1 reaction»), proposti dalla parte B il
-2026-10-26 (in `apps/mobile/src/i18n/`), **da approvare dall'utente**:
+2026-10-26 (in `apps/mobile/src/i18n/`), **approvati dall'utente lo stesso
+giorno** insieme all'inglese, all'italiano e al regolamento nelle cinque
+lingue («Yes, like this» alla domanda della parte B, PR #575):
 
 | Inglese | Tedesco | Spagnolo | Francese |
 |---|---|---|---|
