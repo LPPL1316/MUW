@@ -2515,6 +2515,7 @@ fuori chiude. Con «Voice» spenta la riga resta e si può cambiare, ma
 | Partenza | «Parti lungo Via Roma» |
 | Accanto | «Svolta a sinistra sul percorso pedonale accanto a Via Rosmini» |
 | Fuori, di nuovo, arrivo | «Sei fuori percorso. Torna sul percorso.» · «Di nuovo sul percorso.» · «Hai raggiunto l'arrivo.» |
+| Dove riprende, una volta dopo «fuori» (TASK-303, ADR-0263; testi da approvare) | «Il percorso riprende a 120 metri verso nord-est.»; in miglia «… a 400 piedi …» |
 | Pausa, ripresa | «In pausa.» · «Si riparte.» |
 | Penna alzata | «Lettera finita. Cammina fino alla A: il disegno è in pausa.» · «Giù la penna: disegna la A.» |
 | Km | «Un chilometro. Tempo: 5 minuti e 42 secondi. Passo medio: 5 minuti e 42 secondi al chilometro.» |
@@ -2573,6 +2574,24 @@ la fine della corsa come sempre, e poi si torna alla prima schermata. Una
 corsa interrotta da più di 2 ore apre invece la sua fine, da salvare o da
 lasciare, come prima. Nessun testo nuovo. Lo stesso per la corsa senza
 percorso («Correre senza percorso», sotto).
+
+**Fuori percorso, e il rientro più avanti** (TASK-303, ADR-0263; dalla
+prova sul campo dell'utente a Trento del 2026-10-25). Chi esce dal
+percorso, per una strada chiusa o per un'altra via, vede dove riprende: sulla
+mappa una **linea a puntini** dalla sua posizione al punto del percorso più
+vicino in linea d'aria, più avanti di dove è uscito; nel banner «Off the
+route», la distanza col punto cardinale («120 m NE») e «Follow the dotted
+line back to the route.»; a voce, una volta, dopo «Sei fuori percorso. Torna
+sul percorso.», «Il percorso riprende a 120 metri verso nord-est.». Linea e
+banner si aggiornano a ogni posizione. Rientrando più avanti, dopo 20 m nel
+verso del percorso, la voce dice «Di nuovo sul percorso» e riprende dalla
+svolta successiva: quelle del tratto saltato non si dicono. Attraversare il
+percorso di traverso non è rientrare. Su una forma che ripassa la stessa
+strada più avanti, il punto e il rientro restano nel tratto appena lasciato
+(fino a 300 m più 2 m per ogni metro corso fuori), non su un giro dopo. La
+distanza e il tempo della deviazione contano nella corsa. Lo stesso in bici
+e in canoa. Testi in inglese e italiano qui sopra, le altre tre lingue in
+`src/voice/` e `src/i18n/`, **da approvare dall'utente**.
 
 **Con le miglia** (TASK-182 parte C, ADR-0149 «aggiornamento (parte C)»;
 scelta dell'utente del 2026-10-03, «come fa Strava»). Con «Miles» in

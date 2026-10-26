@@ -160,6 +160,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-303 — Dopo una deviazione la corsa rientra più avanti, con la
+  guida per tornarci** (ADR-0263; prova sul campo dell'utente a Trento del
+  2026-10-25, piano approvato; numero e condizioni dal Coordinatore). Branch
+  `feat/TASK-303-detour-rejoin`, worktree `.claude/worktrees/TASK-303`.
+  Fuori percorso, la corsa cerca il runner anche oltre i 300 m di `locate`,
+  fino a 300 m più 2 m per ogni metro corso fuori, e lo riprende dopo 20 m
+  nel verso del percorso (di traverso no), saltando le svolte di mezzo.
+  Mentre è fuori: linea a puntini sulla mappa fino al punto più vicino in
+  linea d'aria, distanza e punto cardinale nel banner, e una frase a voce
+  dopo «Sei fuori percorso». Solo app, `useNavigation.ts` e `App.tsx`
+  invariati. **Testi nuovi in 5 lingue da approvare dall'utente** prima del
+  merge; poi «#NNN pronta» al Coordinatore, ordine 302 → 303 → 304.
+  `tasks/TASK-303.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch

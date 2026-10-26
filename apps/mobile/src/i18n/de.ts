@@ -1307,4 +1307,9 @@ export const DE: Table = {
   "This server cannot look in your contacts yet.":
     "Dieser Server kann noch nicht in deinen Kontakten suchen.",
   "The contacts could not be read.": "Die Kontakte konnten nicht gelesen werden.",
+  // src/screens/NavigateScreen.tsx (TASK-303)
+  "The route is {distance} away, to the {direction}.":
+    "Die Route ist {distance} entfernt, Richtung {direction}.",
+  "Follow the dotted line back to the route.":
+    "Folge der gepunkteten Linie zurück zur Route.",
 };
