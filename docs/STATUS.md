@@ -1258,6 +1258,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-302 (aggiunta ad ADR-0047; prova sul campo dell'utente a
+  Trento del 2026-10-25): le svolte di un incrocio attraversato a piedi, a
+  25 m o meno l'una dall'altra, si dicono e si mostrano come una, con la
+  direzione che si vede sul posto (il percorso 20 m prima contro 20 m
+  dopo); una manovra che non gira tace, salvo su una via di un altro nome
+  («Prosegui dritto su …»). Partenza, «u-turn» e arrivo mai fusi, e le
+  indicazioni a più di 25 m dalle vicine identiche a prima (test su Trento
+  e sul grafo di Levico di TASK-271). Su una camminata
+  vera da Trento Fiere da 30 a 13 indicazioni. Solo app
+  (`navigation/simplifyDirections.ts`), nessun testo nuovo; motore, API e
+  file della corsa invariati, quindi vale anche per i percorsi già in
+  cache. Entra col merge del Coordinatore, poi su `preview` da provare
+  sul campo. Seguono **TASK-303** (il rientro dopo una deviazione, testi
+  nuovi) e **TASK-304** (l'attività persa uscendo dall'app: prima la
+  domanda all'utente sulla build della prova). `tasks/TASK-302.md`.
 - **Server** — TASK-122 (ADR-0123), le copie fuori dal server: lo Storage
   Box Hetzner `muw-backups` (`u700709`, BX11, Falkenstein, 3,20 €/mese,
   comprato dall'utente il 2026-10-25) riceve ogni notte alle 02:30 UTC le

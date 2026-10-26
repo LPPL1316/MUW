@@ -16065,6 +16065,69 @@ due email insieme (ognuna ha il suo interruttore).
 queste email quando il server avrà Resend. Il link di un'email non spegne
 l'altra: lo scopo è nell'HMAC (`StopLinks.purpose`).
 
+## ADR-0047, aggiunta — L'app dice come una sola le svolte di un incrocio attraversato a piedi
+**Stato**: Attiva · 2026-10-25 · chiesto dall'utente dopo una prova sul
+campo a Trento («le manovre consecutive molto ravvicinate vengono unite in
+un'unica indicazione con la direzione risultante»); il metodo deciso
+dall'agente su delega dell'utente (TASK-302). Aggiunta ad ADR-0047, senza
+numero nuovo.
+
+**Contesto**: ADR-0047 segna le indicazioni vicine (`joined`, meno di
+15 m) e le lascia tutte, perché chi le presenta le legga insieme. In città
+un incrocio attraversato a piedi sono 2–4 nodi di marciapiedi e strisce a
+5–25 m l'uno dall'altro: la voce diceva «svolta a destra, poi a sinistra,
+poi a sinistra» per quella che sul posto è una svolta a sinistra, e quelle
+fra 15 e 50 m arrivavano come annunci separati, uno dietro l'altro. La
+recensione del tester del 2026-10-10 («mini svolte da 3 m») era stata
+lasciata «per ora».
+
+**Decisione**:
+
+1. **Nell'app, non nel motore**: `simplifyDirections` (navigazione)
+   riscrive le indicazioni prima di seguirle. Il motore, l'API e il file
+   della corsa tengono la lista piatta di ADR-0047 com'è.
+2. **Una manovra**: indicazioni a `MERGE_M` = 25 m o meno dalla
+   precedente, per al massimo `MERGE_SPAN_M` = 50 m in tutto. Le due soglie
+   sono costanti del codice, passabili alla funzione; nessuna impostazione
+   per l'utente.
+3. **La svolta che si vede**: la direzione del percorso 20 m prima della
+   manovra contro quella 20 m dopo, con le soglie di `turn_of` (30°, 135°,
+   165°), nel verso della somma degli angoli. Si dice dove la manovra
+   comincia, sulla strada dove finisce.
+4. **Le micro-deviazioni tacciono**: una manovra che non gira non si dice,
+   a meno che finisca su una via di un altro nome («Prosegui dritto su …»).
+5. **Mai fuse** (condizione del Coordinatore): la partenza, la «u-turn»
+   (ADR-0045, aggiunta di TASK-271) e le indicazioni dell'arrivo, negli
+   ultimi `ARRIVE_M` = 25 m. Le indicazioni troppo vicine a loro, o
+   all'inizio e alla fine del percorso, per leggere i 20 m prima e dopo
+   restano come le dà il motore. Un'indicazione da sola resta quella del
+   motore, anche un bivio. Le indicazioni a più di 25 m dalle vicine
+   escono identiche (test di non regressione su due percorsi interi, Trento
+   e Levico).
+
+**Motivo**: nell'app vale subito per ogni percorso, anche quelli già in
+cache, gli esempi di «Explore» e le corse salvate, con un aggiornamento
+OTA e senza ricostruire `engine.zip` e gli esempi sull'acqua. La geometria
+del percorso prima e dopo dice la svolta che il runner fa davvero; la somma
+degli angoli del motore conta due volte la stessa curva quando due nodi
+distano meno dei 20 m con cui il motore legge una strada. Su una camminata
+vera di Trento da Trento Fiere le indicazioni scendono da 30 a 13.
+ADR-0047 scartava 25 m perché a Milano le catene arrivavano a 7, troppe
+**da dire insieme**: qui non si dicono insieme, diventano una.
+
+**Alternative scartate**: unire nel motore (i percorsi già calcolati
+sarebbero rimasti come prima, e il server e il motore sul telefono da
+aggiornare); sommare gli angoli delle indicazioni (vedi sopra: a Levico,
+due sinistre a 8 m l'una dall'altra davanti a un vicolo cieco sommavano
+196° e diventavano un'inversione falsa); una
+soglia d'angolo sulle indicazioni da sole (perderebbe i bivi, che il
+motore dice proprio sotto i 30°).
+
+**Conseguenza**: banner e voce mostrano la stessa indicazione unita.
+Nessun testo nuovo («Prosegui dritto» c'era già). L'aggancio a una forma
+chiusa (TASK-273) aggiunge la svolta del punto di partenza dopo la
+semplificazione, come prima.
+
 ## ADR-0260 — Il primo concorso: il post con più reazioni vince un premio senza valore, deciso dal server
 
 **Stato**: Attiva · 2026-10-24 · il concorso e il premio simbolico li ha
