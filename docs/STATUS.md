@@ -1869,6 +1869,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   aggiornamento su `production` o con la prossima build: lo decide il
   Coordinatore. `tasks/TASK-304.md`.
 
+- **App** — TASK-326 (aggiunta ad ADR-0207; richiesta dell'utente del
+  2026-10-26): ogni post del «Feed» dice anche il **passo medio**, in
+  fondo alla riga dei fatti: «Star · 4.0 km · 19 min · 4:45 /km»; con
+  «Miles» al miglio, in canoa il tempo di 500 m, in bici al km come «My
+  activities»; per gli iscritti dai secondi della corsa. Solo app
+  (`feed/FeedPost.tsx`), nessun testo nuovo. Numero preso come primo
+  libero da una sessione cloud, da confermare col Coordinatore; branch
+  `claude/sweet-carson-vi9ekn`. `docs/UI.md` («Feed») da allineare dopo
+  TASK-309 B, che lo ha in lavorazione. `tasks/TASK-326.md`.
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252
