@@ -85,7 +85,7 @@ test("without an account, or without a challenge, it is off and nothing is asked
   const fetchFn = answers();
   const out = await hook(fetchFn, { status: "signedOut", notice: null });
   expect(out.result.current.shown).toEqual({ status: "off" });
-  const none = await hook(fetchFn, SIGNED_IN, undefined);
+  const none = await hook(fetchFn, SIGNED_IN, null);
   expect(none.result.current.shown).toEqual({ status: "off" });
   await act(async () => jest.advanceTimersByTime(3 * EVERY_MS));
   expect(fetchFn).not.toHaveBeenCalled();
