@@ -186,7 +186,8 @@ che li usa (A la push, B il resto) e vanno approvati con lei.
 | You won the MuW contest! Your post got the most reactions. | Hai vinto il concorso MuW! Il tuo post ha avuto più reazioni di tutti. |
 
 Tedesco, spagnolo e francese della push, proposti dalla parte A il
-2026-10-26 (in `push.py`; **in attesa del sì dell'utente**):
+2026-10-26 (in `push.py`), **approvati dall'utente lo stesso giorno**
+(«Sì, così»):
 
 | Lingua | Testo |
 |---|---|
@@ -251,8 +252,8 @@ Parte A (`test_contests.py`, un test per regola):
 - [x] La corsa vincitrice cancellata lascia `contest_wins` a 1; l'account
       cancellato lascia il concorso senza vincitore (test).
 - [x] `contest_wins` in `GET /users/{public_id}` e in `GET /me`.
-- [ ] pytest, ruff e black verdi; il testo della push approvato
-      dall'utente (de/es/fr proposti il 2026-10-26, sopra).
+- [x] pytest, ruff e black verdi (in locale e nella CI della #562); il
+      testo della push approvato dall'utente (de/es/fr, 2026-10-26, sopra).
 
 Parte B:
 - [ ] La scheda si vede con un 200 ed è nascosta con un 404 e senza
