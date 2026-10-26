@@ -195,6 +195,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-26; `schemas.py` viaggia nel motore del telefono, quindi
   `engine.zip` rifatto (ok del Coordinatore). Server dopo Apple, con l'ok
   dell'utente.
+  **Parte A** in `main` con la #562 (`5f762ae7`, 2026-10-26), mergiata su
+  «mergia si» dell'utente; migrazione `0030_contests.sql`. La parte B
+  (app) parte da qui, in una sessione sua. Sul server dopo Apple, con
+  l'ok dell'utente: migrazione, deploy, `open`.
   **Parte B** (app, branch `feat/TASK-299-b-contest-app`, PR #575): la
   cartella `src/contest/`; la scheda sotto la lente di «Feed» solo con un
   concorso (chiesto quando «Feed» si apre e a ogni pull, tenuto in
@@ -416,6 +420,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **B** (ADR-0253), branch `feat/TASK-294-b-play-build`: package,
   Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
   pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
+  **B in `main`** con la #548 (`049102c5`, 2026-10-25). Il 2026-10-26
+  l'account Play è verificato, l'app «MuW» è creata e i moduli della
+  console sono compilati (scheda, dichiarazioni, Sicurezza dei dati);
+  prima build Android (APK `preview`) in corso su EAS. **C** fatta:
+  `site/account-deletion/` nelle cinque lingue con test, PR aperta; i
+  testi aspettano il sì dell'utente, poi la copia sul server (F.14).
+  La prima build Android (`preview`) del 2026-10-26 è fallita in Gradle
+  su AdMob: correzione `fix/TASK-294-android-build-no-admob` (#572),
+  AdMob mai collegato su Android (aggiunta ad ADR-0237), impronta iOS
+  invariata.
+  **C in `main`** con la #569 (`4075ef8e`, 2026-10-26), testi approvati
+  dall'utente («Sì, 30 giorni»); manca la copia sul server (F.14).
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
