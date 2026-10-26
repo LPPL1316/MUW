@@ -1,6 +1,6 @@
 # TASK-284 — L'email di ritorno a chi non apre l'app da 14 giorni
 
-**Stato**: Parte A Done (2026-10-25, PR #502) · B In revisione
+**Stato**: Done · parte A 2026-10-25 (PR #502) · parte B 2026-10-26 (PR #556)
 **Fase**: 4 · **Branch**: `feat/TASK-284-return-email` (parte A),
 `feat/TASK-284-b-app-privacy` (parte B)
 **Dipende da**: TASK-185 (gli interruttori), TASK-118 (il Feed), TASK-211
@@ -145,7 +145,7 @@ docs/tasks/TASK-284.md                                 (nuovo)
 - Le email di TASK-262 B (follow, reazioni, commenti, tag), la conferma
   dell'email e la password dimenticata.
 
-## Parte B — app e privacy (In revisione)
+## Parte B — app e privacy (Done, PR #556)
 
 - «Sign up»: la riga e la casella non spuntata «Don't send me these
   emails»; la richiesta manda `away_email` e `language`.
@@ -270,4 +270,17 @@ le cinque date sono «26 October 2026» e così `AboutPage.test.tsx`,
 
 ## Esito
 
-*(a fine task)*
+**Fatto.** Parte A (2026-10-25, PR #502, merge `263e86db`): l'API
+dell'email di ritorno, migrazione `0023_away_email.sql`, `resend_email.py`
+che ora usano anche le segnalazioni (TASK-291) e le notifiche (TASK-262
+B). Parte B (2026-10-26, PR #556, merge `3ec54818`): la casella non
+spuntata all'iscrizione, «Email when I'm away» in «Settings» e la
+**privacy unica** del 26 ottobre 2026 nelle cinque lingue (email di
+ritorno, email delle notifiche, email dell'account di TASK-300,
+segnalazioni, gioco delle forme, archivio dei percorsi, Google per le push
+Android, Resend), approvata dall'utente («sì alla privacy, va bene così»,
+«sì, aggiungila»). **Restano** al Coordinatore, dopo l'approvazione di
+Apple e col sì dell'utente: la copia del sito (F.14) e la pubblicazione
+dell'app, poi il server con le migrazioni e le chiavi di Resend
+(`DEPLOY.md`, «Email di ritorno»); l'account Resend e il dominio
+`getmuw.app` verificato li fa l'utente.
