@@ -73,7 +73,16 @@ type Near =
 /** A card of the row: being drawn near, or ready, near or in a city. */
 export type NearCard =
   | { shape: Shape; near: true; status: "drawing" }
-  | { shape: Shape; near: boolean; status: "ready"; route: RecommendedRoute };
+  | {
+      shape: Shape;
+      near: boolean;
+      status: "ready";
+      route: RecommendedRoute;
+      /** Of another city's: how far its start is from the phone, so that
+       * nobody takes it for one to run from home. Absent without the
+       * position. */
+      awayM?: number;
+    };
 
 /** What the file keeps: the point the shapes start from, and each shape's
  * route whole, or null where the engine refused it. */
@@ -278,6 +287,7 @@ export function nearYouCards(here: LatLon | null): NearCard[] {
         near: false,
         status: "ready",
         route: other.route,
+        ...(here === null ? {} : { awayM: metresBetween(here, other.route.start) }),
       });
     }
   }

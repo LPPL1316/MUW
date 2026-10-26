@@ -11,6 +11,7 @@ import {
   forgetExamples,
 } from "../explore/exampleRoutes";
 import { FEATURED_CITIES } from "../explore/presets";
+import { metresBetween } from "../map/coordinates";
 import type { Place } from "../places/photon";
 import {
   CITIES_PER_SHAPE,
@@ -248,6 +249,12 @@ test("a shape refused near gives its place to the same shape in a featured city"
     `heart ${cityOf(first).point.join(",")}`,
   ]);
   expect(describeCards(trento)).toEqual(["circle near", "star near", `heart ${first}`]);
+  // It says how far its start is from the phone; the shapes near do not.
+  const [circle, , heart] = nearYouCards(trento);
+  expect(circle.status === "ready" && circle.awayM).toBeFalsy();
+  expect(heart.status === "ready" && heart.awayM).toBe(
+    heart.status === "ready" ? metresBetween(trento, heart.route.start) : null,
+  );
   // The city is kept for «Explore» and the next time.
   expect(keepFeatured).toHaveBeenCalledWith(first, cityOf(first));
   // Refused, it is kept as such: not asked again here.
@@ -284,6 +291,8 @@ test("without the position: six shapes of other cities, nothing near", async () 
       (shape, i) => `${shape} ${ORDER[i]}`,
     ),
   );
+  // Far from where, nobody knows: the city's name alone.
+  expect(nearYouCards(null).every((card) => !("awayM" in card))).toBe(true);
 });
 
 test("a shape the API would draw now is let go: another city, three at most", async () => {

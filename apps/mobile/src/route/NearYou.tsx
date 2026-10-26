@@ -5,7 +5,7 @@ import type { RecommendedRoute } from "../explore/recommendedRoutes";
 import { t } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
 import { color, fontSize, fontWeight, space } from "../theme/tokens";
-import { distanceLabel } from "../units/format";
+import { awayNumber, distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import type { NearCard } from "./nearYouShapes";
 
@@ -23,7 +23,7 @@ type Props = {
  * Under the distance of «Draw» (TASK-306): shapes of 5 km ready to run, in
  * a row to scroll. «NEAR YOU» while one of them starts from the phone's
  * position; «SHAPES TO TRY» when all are of other cities, each named under
- * it. Nothing without cards.
+ * it with how far it is from the phone. Nothing without cards.
  */
 export function NearYou({ cards, onOpen }: Props) {
   const units = useUnits();
@@ -58,7 +58,18 @@ export function NearYou({ cards, onOpen }: Props) {
           }
           const { route } = each;
           const distance = distanceLabel(route.route_m, units);
-          const city = each.near ? null : route.city;
+          // Another city's says which, and how far: not one to run from home.
+          const away =
+            each.awayM === undefined
+              ? null
+              : units === "mi"
+                ? t("{mi} mi away", { mi: awayNumber(each.awayM, "mi") })
+                : t("{km} km away", { km: awayNumber(each.awayM, "km") });
+          const city = each.near
+            ? null
+            : away === null
+              ? route.city
+              : `${route.city} · ${away}`;
           return (
             <RouteCard
               key={key}
