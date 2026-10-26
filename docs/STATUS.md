@@ -1390,9 +1390,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   volo. **Costo**: 10–14 sessioni (la canoa ne ha prese 15), più le
   licenze, un parere legale e una prova con un pilota. **Verdetto**:
   conviene a tre condizioni (spazi aerei con licenza, decolli scelti dove
-  la forma è ≥ 1,5 km, parere legale e prova), altrimenti no. **Aspetta**:
-  tre scelte di prodotto (nascosto o «Soon»; l'avviso; il nome) e le tre
-  condizioni prima della parte A1. File: `tasks/TASK-305.md`.
+  la forma è ≥ 1,5 km, parere legale e prova), altrimenti no. Il
+  2026-10-27 l'utente ha scelto la riga in Settings **subito, con «Soon»**:
+  è la parte D0 (solo app, `sport.ts` e le lingue), che non aspetta le
+  condizioni. **Aspetta**: due scelte di prodotto (l'avviso; il nome, che
+  serve anche a D0) e le tre condizioni prima della parte A1. File:
+  `tasks/TASK-305.md`.
 
 - **TASK-301 — La musica nel video della corsa** (ADR-0262; richiesta
   dell'utente del 2026-10-25 «aggiungi la musica al video», scelte con le

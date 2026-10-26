@@ -42,6 +42,13 @@ traiettorie è un costo a parte; se non si può fare bene, lo studio dice
   **nessuna guida in volo** e nessuna schermata di volo (la parte G esce
   dal piano).
 
+## Scelte dell'utente (2026-10-27)
+
+- **Dove si vede**: «mostra Paragliding in Settings adesso con «Soon»,
+  come la canoa». La riga c'è da subito, non si può scegliere, e la accende
+  la parte D1 (proposta era: nascosto finché non è pronto). È la parte D0
+  qui sotto, l'unica che non aspetta le tre condizioni del verdetto.
+
 ## Il punto, in breve
 
 - **Il modello**: niente strade, il cono di planata. Da ogni punto della
@@ -203,10 +210,37 @@ File: `services/api/shaperoute_api/paragliding.py`,
 `services/api/shaperoute_api/jobs.py`, `packages/shared-types/src/index.ts`,
 `services/api/tests/test_paragliding.py`, `docs/API.md`.
 
+### D0 — App: la riga «Paragliding» con «Soon» in Settings (subito)
+
+Scelta dell'utente del 2026-10-27. Non dipende da licenze né dal motore.
+
+1. In `sport.ts` la voce `{ id: "paragliding", emoji: "🪂", name:
+   tLater("<nome scelto>"), ready: false }`, dopo «Paddle»: «Settings» la
+   mostra con «Soon» e non si può scegliere (`canChoose`), come la canoa
+   prima di TASK-191 C. Il nome aspetta la scelta dell'utente (domanda 4).
+2. `Sport` diventa `"run" | "bike" | "paddle" | "paragliding"`: dove l'app
+   elenca tutti gli sport (`Record<Sport, …>`, `switch`) la voce nuova
+   prende il valore della corsa o nessuno, mai un percorso; `loadSport`
+   continua a dare «run» per uno sport non pronto.
+3. Il nome nelle quattro lingue (`it.ts`, `de.ts`, `fr.ts`, `es.ts`): testi
+   da far approvare all'utente prima del merge.
+4. Test: la riga c'è, dice «Soon», toccarla non cambia lo sport; i test di
+   prima passano senza modifiche ai valori.
+
+Criteri: in «Settings → Sport» quattro righe, l'ultima «Paragliding» 🪂 con
+«Soon»; nessun altro cambiamento visibile. Solo app, nessun server;
+l'impronta nativa iOS non cambia (solo JS).
+
+File: `apps/mobile/src/settings/sport.ts`,
+`apps/mobile/src/settings/sport.test.ts`,
+`apps/mobile/src/settings/SportSetting.test.tsx`,
+`apps/mobile/src/i18n/it.ts`, `de.ts`, `fr.ts`, `es.ts`, e solo se il tipo
+lo chiede i file con un `Record<Sport, …>` (da elencare nella PR).
+
 ### D1 — App: lo sport, Draw dai decolli, l'avviso
 
-1. `{ id: "paragliding", emoji: "🪂", name: "Paragliding" }` in `sport.ts`
-   (visibile o nascosto: scelta dell'utente).
+1. La voce di D0 diventa `ready: true` e prende la sua attività
+   (`activityOf`).
 2. Con «Paragliding» Draw parte da un decollo (`src/air/TakeoffPicker.tsx`,
    lista dai `GET /air/sites`), non dalla posizione; la distanza sparisce
    e al suo posto c'è la riserva («safer / bigger»); forme del catalogo e
@@ -269,8 +303,9 @@ Fuori per scelta dell'utente (2026-10-26): MuW non fa da navigatore.
       strumenti e i formati (`research_*.md`).
 - [x] La pagina a griglia `out/TASK-305/paragliding-samples-grid.html`.
 - [x] ADR-0265 in stato «proposto»; righe in `STATUS.md`.
-- [ ] Le scelte di prodotto dell'utente: la prima versione è decisa
-      (2026-10-26), restano visibilità, avviso e nome (sotto).
+- [ ] Le scelte di prodotto dell'utente: decise la prima versione
+      (2026-10-26) e la visibilità (2026-10-27); restano l'avviso e il nome
+      (sotto).
 
 ## File toccati (questa PR)
 
@@ -301,10 +336,10 @@ capo con `fetch_dem.py`, `run_study.py`, `fly_sim.py` e `build_grid.py`
 
 Una alla volta, ognuna con la proposta pronta (`studio.md`, in fondo):
 
-1. «Paragliding» **nascosto** finché non è pronto (proposta), o in Settings
-   con «Soon»?
-2. ~~Prima versione~~ — **decisa**: solo la traccia e il caricamento del
-   volo, nessun navigatore.
+1. ~~Dove si vede~~ — **decisa** (2026-10-27): in Settings subito, con
+   «Soon» (parte D0).
+2. ~~Prima versione~~ — **decisa** (2026-10-26): solo la traccia e il
+   caricamento del volo, nessun navigatore.
 3. Il testo dell'avviso di sicurezza (proposta nello studio).
 4. Il nome: «Paragliding» 🪂 (proposta).
 
@@ -313,5 +348,7 @@ Una alla volta, ognuna con la proposta pronta (`studio.md`, in fondo):
 Proposto il 2026-10-26: lo studio dice che si può fare come pianificatore
 (forme di 2–3 km dai decolli con molto dislivello, 1 km dagli altri) e che
 il nodo sono i dati degli spazi aerei, non il motore. L'utente ha scelto
-la traccia più il caricamento del volo, senza navigatore. Restano tre
-scelte di prodotto e le tre condizioni del verdetto prima della parte A1.
+la traccia più il caricamento del volo, senza navigatore (2026-10-26), e la
+riga in Settings con «Soon» da subito (2026-10-27, parte D0). Restano due
+scelte di prodotto (avviso, nome) e le tre condizioni del verdetto prima
+della parte A1.
