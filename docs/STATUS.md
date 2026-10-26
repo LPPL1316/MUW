@@ -411,6 +411,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   prima build Android (APK `preview`) in corso su EAS. **C** fatta:
   `site/account-deletion/` nelle cinque lingue con test, PR aperta; i
   testi aspettano il sì dell'utente, poi la copia sul server (F.14).
+  La prima build Android (`preview`) del 2026-10-26 è fallita in Gradle
+  su AdMob: correzione `fix/TASK-294-android-build-no-admob` (#572),
+  AdMob mai collegato su Android (aggiunta ad ADR-0237), impronta iOS
+  invariata.
+  **C in `main`** con la #569 (`4075ef8e`, 2026-10-26), testi approvati
+  dall'utente («Sì, 30 giorni»); manca la copia sul server (F.14).
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
