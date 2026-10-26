@@ -16393,3 +16393,77 @@ ritorno (TASK-284) e le notizie (TASK-262 B) solo a indirizzi confermati è
 una scelta di quei task. L'app di prima, a un cambio in attesa, mostra
 ancora il vecchio indirizzo: la parte B va pubblicata prima o con il
 server.
+
+## ADR-0264 — La corsa continua mentre si usa un'altra app: dieci minuti di assenza sono corsa
+**Stato**: Attiva · 2026-10-26 · TASK-304. **Scelta dell'utente** del
+2026-10-26, alla domanda su cosa fare al rientro dopo una chiusura da
+parte di iOS: «deve continuare a registrare la corsa anche mentre si usa
+un'altra app, magari un ragazzo vuole solamente fare una foto mentre
+corre»; poi **«Sì, così»** alla proposta: un'assenza fino a 10 minuti è
+corsa, oltre resta una pausa. Il resto (il salvataggio, la mappa smontata,
+i dettagli sotto) è **deciso dall'agente su delega dell'utente**.
+Condizioni del Coordinatore nell'approvare i file: il tratto mancante dopo
+una chiusura è una linea dritta, mai più lunga del vero; la mappa torna
+com'era; salvataggio e Strava non cambiano, mai un invio doppio. Numero
+dato dal Coordinatore. **Aggiorna ADR-0219** (punto 2) **e ADR-0240**.
+
+**Contesto**: la prova sul campo dell'utente a Trento (2026-10-25), con
+la 1.0.0 (7) di TestFlight: uscito per una foto, al rientro la corsa era
+in pausa. La build 7 è di prima di TASK-272 e il canale `production` non
+ha mai avuto un aggiornamento: una chiusura da iOS avrebbe aperto la fine
+della corsa, quindi MuW era viva e la pausa era quella da fermi (10 s,
+ADR-0137). Restava il rischio vero: la fotocamera è pesante e iOS può
+chiudere MuW per memoria; con il solo «While using» (ADR-0225) non la
+rilancia, e il GPS si ferma fino al rientro. Allora si perdevano fino a 15
+s di punti (`SAVE_EVERY_MS`), e la corsa si riapriva in pausa (ADR-0240)
+con l'assenza tolta dal tempo e dai metri. Lo stesso, oltre 60 s, quando
+iOS congela l'app (ADR-0219). Nel simulatore, a corsa in background, la
+mappa (la sua WebView: contenuto, GPU e rete) pesava circa 115 MB contro i
+67 MB di MuW stessa.
+
+**Decisione**:
+
+1. **Un'assenza fino a 10 minuti è corsa** (`AWAY_AFTER_MS`, da 60 s a 10
+   minuti): con l'app congelata, col GPS solo in primo piano (Expo Go), o
+   chiusa da iOS e riaperta, la prima posizione che arriva entro 10 minuti
+   dall'ultima si unisce alla linea con un tratto dritto, e il tempo di
+   mezzo conta. Il tratto dritto è la distanza più corta fra i due punti:
+   mai più lungo della strada fatta. Oltre 10 minuti resta la regola di
+   ADR-0219: una pausa da quando l'app è andata via, e un tratto nuovo. Le
+   pause di chi corre e della penna che coprono l'assenza restano com'erano.
+2. **Riaperta entro 10 minuti dall'ultima posizione, la corsa va avanti da
+   sola**: niente «Paused», niente tasto, la prima posizione con la regola
+   del punto 1. Una pausa da fermi aperta alla chiusura resta da fermi (il
+   primo passo la chiude, come sempre); una di chi corre o della penna
+   resta sua. Più vecchia (fino alle 2 ore di ADR-0240) si riapre in pausa
+   con «Resume», come prima. Il limite lo giudica `startRun` dall'ultima
+   posizione del file; se aprire la corsa lo giudica sempre l'app.
+3. **La pausa da fermi conta dalla ripresa**: riaperta in corsa, i 10 s da
+   fermi partono da quando la corsa è ripresa, non dall'ultima posizione di
+   minuti prima (`takenUpMs` in `runControl`), così la voce non dice
+   «Paused» appena si torna nell'app.
+4. **Il file è sempre aggiornato quando l'app è dietro**: passando a
+   «background» o «inactive» si scrive subito ciò che non era scritto, e
+   finché l'app resta dietro ogni posizione tenuta lo riscrive. In primo
+   piano resta ogni 15 s. Una corsa fermata o arrivata non si riscrive.
+5. **Niente mappa mentre la corsa è in background** (`useRunBehind`): la
+   WebView non c'è finché l'app è «background» durante una corsa, e torna
+   al rientro con percorso, traccia, posizione, tipo di mappa e progresso,
+   mandati di nuovo come dopo «Retry». «inactive» (Centro di Controllo,
+   una notifica tirata giù) non la toglie; fuori da una corsa la mappa non
+   guarda `AppState`.
+
+**Alternative scartate**: la corsa in pausa con «Resume» com'era
+(l'utente vuole che la corsa continui); il permesso «Always» o un modulo
+nativo che faccia rilanciare MuW da iOS (escluso in TASK-261, e ogni
+cambio nativo toglierebbe la 1.0 dagli aggiornamenti); nessun limite
+all'assenza (un'ora a casa diventerebbe corsa); scrivere il file a ogni
+posizione anche in primo piano (lavoro inutile finché l'app è davanti).
+
+**Conseguenze**: un'assenza breve non lascia più buchi nella linea né
+toglie minuti; un'assenza fino a 10 minuti a piedi fermi (una foto
+lunga, con iOS che congela l'app) conta come tempo di corsa. Il file
+cresce di nessun campo. Al rientro la mappa si ricarica (un attimo di
+barra di caricamento). Le correzioni arrivano sulla 1.0 solo con un
+aggiornamento sul canale `production` o con la prossima build: l'impronta
+iOS non cambia.

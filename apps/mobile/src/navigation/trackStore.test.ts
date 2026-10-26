@@ -353,7 +353,7 @@ test("the app leaving for more than AWAY_AFTER_MS is a pause, read back with the
   expect(run.track().distanceM).toBeCloseTo(10, 0);
 });
 
-test("the app back within AWAY_AFTER_MS joins the line as before (the user's choice)", () => {
+test("the app back within AWAY_AFTER_MS joins the line as before (the user's choice, ADR-0264)", () => {
   const run = startRun(ROUTE, 0);
   run.onFix(fix(0, 0), false);
   run.onFix(fix(10, 4), false);
@@ -364,8 +364,10 @@ test("the app back within AWAY_AFTER_MS joins the line as before (the user's cho
   expect(run.track().distanceM).toBeCloseTo(100, 0);
   // Left again, and back late this time: the pause is from the second leaving.
   run.leave(40_000);
-  run.onFix(fix(400, 130), false);
-  expect(run.track().pauses).toEqual([{ fromMs: 40_000, toMs: 130_000, away: true }]);
+  run.onFix(fix(400, 40 + AWAY_AFTER_MS / 1000), false);
+  expect(run.track().pauses).toEqual([
+    { fromMs: 40_000, toMs: 40_000 + AWAY_AFTER_MS, away: true },
+  ]);
 });
 
 test("paused by hand already, the app leaving changes nothing", () => {

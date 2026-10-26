@@ -2460,11 +2460,16 @@ TASK-261, ADR-0225, con il solo permesso «While using». iOS mostra in
 alto la pillola blu, che riporta a MuW; la linea, i metri, i km e la
 pausa automatica vanno avanti come con l'app davanti, e la voce parla
 solo se iOS la lascia parlare (a schermo bloccato no: un task suo). Se
-iOS congela comunque l'app, il GPS si ferma con lei: tornata entro 60
-secondi la linea continua; oltre, quel tempo è una pausa e la linea
+iOS congela comunque l'app, il GPS si ferma con lei: tornata entro **10
+minuti** la linea continua con un tratto dritto e quel tempo conta
+(TASK-304, ADR-0264: scelta dell'utente del 2026-10-26, «una foto mentre
+corre»; prima erano 60 secondi); oltre, quel tempo è una pausa e la linea
 riparte da dove si è, senza riga dritta. In Expo Go (e su Android) il GPS
 si ferma ogni volta che l'app va in secondo piano, con la stessa regola
-dei 60 secondi (scelta dell'utente). La finestra del permesso di
+dei 10 minuti. Mentre la corsa è in background la mappa non c'è, così
+MuW chiede meno al telefono e iOS la chiude meno volentieri; al rientro
+torna com'era, con percorso e traccia. Il file della corsa si scrive
+appena l'app va dietro, e a ogni posizione finché ci resta. La finestra del permesso di
 posizione ha un testo suo nelle cinque lingue, nella lingua del telefono.
 La posizione non esce dal telefono.
 
@@ -2591,7 +2596,14 @@ lettere, la lettera dopo la chiude da sé come sempre. «Stop» tenuto apre
 la fine della corsa come sempre, e poi si torna alla prima schermata. Una
 corsa interrotta da più di 2 ore apre invece la sua fine, da salvare o da
 lasciare, come prima. Nessun testo nuovo. Lo stesso per la corsa senza
-percorso («Correre senza percorso», sotto).
+percorso («Correre senza percorso», sotto). **Da TASK-304** (ADR-0264,
+scelta dell'utente del 2026-10-26): riaperta entro **10 minuti**
+dall'ultima posizione (iOS ha chiuso MuW dietro la fotocamera) la corsa
+non è in pausa ma va avanti da sola: la prima posizione si unisce alla
+linea con un tratto dritto e il tempo con l'app chiusa conta, come
+un'assenza breve; la pausa da fermi conta da quando si è tornati. Chiusa
+mentre si stava fermi, il primo passo la fa ripartire. Oltre 10 minuti,
+in pausa come sopra.
 
 **Con le miglia** (TASK-182 parte C, ADR-0149 «aggiornamento (parte C)»;
 scelta dell'utente del 2026-10-03, «come fa Strava»). Con «Miles» in

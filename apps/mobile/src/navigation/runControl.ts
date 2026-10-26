@@ -88,6 +88,9 @@ type Session = {
   waiting: TrackFix | null;
   countdown: ReturnType<typeof setTimeout> | null;
   watch: ReturnType<typeof setInterval>;
+  /** When a run taken up again went on (TASK-304): standing still counts
+   * from here, not from a last fix minutes before, with the app closed. */
+  takenUpMs: number;
 };
 
 let session: Session | null = null;
@@ -132,15 +135,16 @@ export function skipCountdown(): void {
   }
 }
 
-/** Since when the runner has not moved: the last fix, or the last «Resume». */
-function stillSinceMs(recorder: RunRecorder): number | null {
+/** Since when the runner has not moved: the last fix, the last «Resume»,
+ * or the run taken up again. */
+function stillSinceMs({ recorder, takenUpMs }: Session): number | null {
   const track = recorder.track();
   const last = track.fixes[track.fixes.length - 1];
   if (last === undefined) {
     return null;
   }
   const pause = track.pauses?.[track.pauses.length - 1];
-  return Math.max(last.timeMs, pause?.toMs ?? 0);
+  return Math.max(last.timeMs, pause?.toMs ?? 0, takenUpMs);
 }
 
 function watchStanding(): void {
@@ -152,7 +156,7 @@ function watchStanding(): void {
   ) {
     return;
   }
-  const since = stillSinceMs(session.recorder);
+  const since = stillSinceMs(session);
   const now = Date.now();
   if (since === null || now - since < AUTO_PAUSE_AFTER_MS) {
     return;
@@ -187,7 +191,7 @@ function catchUpClock(mine: Session): boolean {
   if (mine.arrived || !state.autoPause || state.phase !== "running") {
     return false;
   }
-  const since = stillSinceMs(mine.recorder);
+  const since = stillSinceMs(mine);
   if (since === null || now - since < AUTO_PAUSE_AFTER_MS) {
     return false;
   }
@@ -215,8 +219,9 @@ export type RunSession = {
  * Puts the run that `recorder` records under these controls until `end`.
  * A new run begins with the countdown; one taken up again goes on at once,
  * unless it comes with its pause still open: a run the app was closed
- * during waits for «Resume» (TASK-272, ADR-0240), and on a walk between two
- * letters for the next one too.
+ * during a while ago waits for «Resume» (TASK-272, ADR-0240), on a walk
+ * between two letters for the next one too, and one closed while the runner
+ * stood still for the first step (TASK-304, ADR-0264).
  * `onChange` is called when a control changed the track, `say` with what the
  * voice has to tell (it is the caller's to keep quiet when the voice is off).
  */
@@ -241,12 +246,13 @@ export function controlRun(
     waiting: null,
     countdown: fresh ? setTimeout(skipCountdown, COUNTDOWN_MS) : null,
     watch: setInterval(watchStanding, AUTO_PAUSE_CHECK_MS),
+    takenUpMs: Date.now(),
   };
   session = mine;
   set({
     phase: fresh ? "countdown" : held !== null ? "paused" : "running",
     startsAtMs: fresh ? Date.now() + COUNTDOWN_MS : null,
-    auto: false,
+    auto: held?.auto === true,
     pen: held?.pen === true,
   });
   return {
