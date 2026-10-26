@@ -3,13 +3,17 @@
 import type { LatLon } from "@shaperoute/shared-types";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import * as Sharing from "expo-sharing";
+import { readFileSync } from "fs";
+import { join } from "path";
 import type { ReactNode } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ActivitiesContext, useActivitiesDoor } from "../activities/activitiesDoor";
+import { audioTrackOf } from "./m4a";
 import type { PostRun } from "./postRun";
 import { SharePost } from "./SharePost";
 import { VIDEO_FILE, VIDEO_SILENCE_MS } from "./videoFile";
+import { musicTrack } from "./videoMusic";
 import type { VideoPageMessage } from "./videoPage";
 
 jest.mock("expo-file-system");
@@ -19,6 +23,18 @@ jest.mock("expo-sharing", () => ({
   isAvailableAsync: jest.fn(async () => true),
   shareAsync: jest.fn(async () => {}),
 }));
+jest.mock("./videoMusic", () => ({
+  ...jest.requireActual<typeof import("./videoMusic")>("./videoMusic"),
+  musicTrack: jest.fn(),
+}));
+const mockPlayer = {
+  play: jest.fn(),
+  pause: jest.fn(),
+  replace: jest.fn(),
+  remove: jest.fn(),
+  seekTo: jest.fn(() => Promise.resolve()),
+};
+jest.mock("expo-audio", () => ({ createAudioPlayer: jest.fn(() => mockPlayer) }));
 
 const { written } =
   jest.requireMock<typeof import("../../__mocks__/expo-file-system")>(
@@ -30,6 +46,11 @@ const { injectJavaScript: inject } =
   );
 const share = jest.mocked(Sharing.shareAsync);
 const available = jest.mocked(Sharing.isAvailableAsync);
+const track = jest.mocked(musicTrack);
+/** The app's «Energy», as the phone reads it. */
+const ENERGY = audioTrackOf(
+  new Uint8Array(readFileSync(join(__dirname, "../../assets/music/energy.m4a"))),
+);
 
 /** A straight line north, a point every 50 m. */
 function north(metres: number): LatLon[] {
@@ -94,6 +115,91 @@ beforeEach(() => {
   inject.mockClear();
   keepPost.mockClear();
   written.clear();
+  track.mockReset();
+  track.mockResolvedValue(ENERGY);
+  Object.values(mockPlayer).forEach((call) => call.mockClear());
+});
+
+/** The page makes two pictures and is done. */
+async function twoPictures() {
+  await page({ type: "ready", codec: "avc1.42e028" });
+  await page({ type: "config", avcC: base64([1, 0x42, 0xe0, 0x28]) });
+  await page({
+    type: "chunks",
+    list: [
+      { key: true, time: 0, data: base64([0, 0, 0, 2, 0x65, 0x88]) },
+      { key: false, time: 33_333, data: base64([0, 0, 0, 1, 0x41]) },
+    ],
+  });
+  await page({ type: "done", frames: 360 });
+}
+
+function shared(): Uint8Array {
+  return written.get(`file:///cache/${VIDEO_FILE}`) as unknown as Uint8Array;
+}
+
+/** Whether the file has a track of sound. */
+function hasSound(file: Uint8Array): boolean {
+  return Buffer.from(file).includes("soun");
+}
+
+describe("Music", () => {
+  it("starts on «None», and plays a track when it is tapped", async () => {
+    await shown();
+    expect(screen.getByText("Music")).toBeOnTheScreen();
+    expect(screen.getByText("Tap a track to hear it.")).toBeOnTheScreen();
+    expect(screen.getAllByRole("radio")).toHaveLength(11);
+    expect(screen.getByRole("radio", { name: "None" })).toBeChecked();
+    await fireEvent.press(screen.getByRole("radio", { name: "Energy" }));
+    expect(screen.getByRole("radio", { name: "Energy" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "None" })).not.toBeChecked();
+    await act(async () => {});
+    expect(mockPlayer.play).toHaveBeenCalledTimes(1);
+    await fireEvent.press(screen.getByRole("radio", { name: "None" }));
+    expect(mockPlayer.pause).toHaveBeenCalledTimes(1);
+  });
+
+  it("puts the chosen track in the video, after the pictures", async () => {
+    await shown();
+    await fireEvent.press(screen.getByRole("radio", { name: "Fiesta" }));
+    await exportVideo();
+    // The track stops while the video is made.
+    expect(mockPlayer.pause).toHaveBeenCalled();
+    await twoPictures();
+    expect(track).toHaveBeenCalledWith("fiesta");
+    expect(share).toHaveBeenCalledTimes(1);
+    const file = shared();
+    expect(hasSound(file)).toBe(true);
+    const music = ENERGY.packets.reduce((sum, packet) => sum + packet.length, 0);
+    const last = ENERGY.packets[ENERGY.packets.length - 1];
+    expect(Array.from(file.subarray(file.length - last.length))).toEqual(
+      Array.from(last),
+    );
+    // The two pictures, just before the music.
+    expect(
+      Array.from(file.subarray(file.length - music - 11, file.length - music)),
+    ).toEqual([0, 0, 0, 2, 0x65, 0x88, 0, 0, 0, 1, 0x41]);
+  });
+
+  it("leaves the video silent with «None»", async () => {
+    await shown();
+    await exportVideo();
+    await twoPictures();
+    expect(track).not.toHaveBeenCalled();
+    expect(hasSound(shared())).toBe(false);
+  });
+
+  it("fails the video when the track cannot be read, and shares nothing", async () => {
+    track.mockRejectedValueOnce(new Error("no file"));
+    await shown();
+    await fireEvent.press(screen.getByRole("radio", { name: "Rock" }));
+    await exportVideo();
+    await twoPictures();
+    expect(share).not.toHaveBeenCalled();
+    expect(
+      screen.getByText("The video could not be made. Try again."),
+    ).toBeOnTheScreen();
+  });
 });
 
 describe("Export video", () => {
