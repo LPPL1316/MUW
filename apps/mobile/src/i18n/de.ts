@@ -1329,4 +1329,7 @@ export const DE: Table = {
   "This server cannot look in your contacts yet.":
     "Dieser Server kann noch nicht in deinen Kontakten suchen.",
   "The contacts could not be read.": "Die Kontakte konnten nicht gelesen werden.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Letzter km {pace} · Ziel {target}",
+  "Last mi {pace} · target {target}": "Letzte mi {pace} · Ziel {target}",
 };
