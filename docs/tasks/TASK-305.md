@@ -74,6 +74,7 @@ services/api/shaperoute_api/activities.py                (ActivityFixBody, climb
 services/api/shaperoute_api/profiles.py                  (tre campi in PublicProfileBody)
 services/api/shaperoute_api/app.py                       (una riga: install_user_photos)
 services/api/tests/test_profile_totals.py                (nuovo)
+services/api/tests/test_profiles.py                      (i tre campi nell'uguaglianza del profilo)
 packages/shared-types/src/index.ts                       (PublicProfile +3, UserPhoto, UserPhotosPage)
 packages/shared-types/fixtures/public-profile.json       (tre campi)
 packages/shared-types/fixtures/user-photos.json          (nuovo)
