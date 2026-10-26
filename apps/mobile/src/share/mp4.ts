@@ -137,6 +137,17 @@ function sttsOfPackets(count: number): Uint8Array {
   return fullBox("stts", 0, 0, u32(1), u32(count), u32(AAC_PACKET));
 }
 
+/** Every AAC packet needs the one before it to decode («roll» of -1), as
+ * AVAssetWriter writes it. Without it, AVFoundation leaves out the
+ * priming once more than the edit list says: the music starts 2112
+ * samples early. */
+function rollGroup(count: number): Uint8Array[] {
+  return [
+    fullBox("sgpd", 1, 0, ascii("roll"), u32(2), u32(1), u16(0xffff)),
+    fullBox("sbgp", 0, 0, ascii("roll"), u32(1), u32(count), u32(1)),
+  ];
+}
+
 /** The sample entry: how to decode the pictures. */
 function avc1(track: VideoTrack): Uint8Array {
   return box(
@@ -320,6 +331,7 @@ function audioTrak(audio: AudioTrack, duration: number, offset: number) {
               box("esds", audio.esds),
             ),
           ),
+          ...rollGroup(packets.length),
           sttsOfPackets(packets.length),
           // Every packet in chunk 1.
           fullBox("stsc", 0, 0, u32(1), u32(1), u32(packets.length), u32(1)),

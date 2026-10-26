@@ -1,6 +1,6 @@
 # TASK-301 — La musica nel video della corsa
 
-**Stato**: In lavorazione — brani fatti, app da fare (vedi «Dove si è»)
+**Stato**: In lavorazione — PR da aprire (vedi «Dove si è»)
 **Fase**: 4 · **Branch**: `feat/TASK-301-video-music`
 **ADR**: ADR-0262 (sostituisce il punto 1 «Niente musica» di ADR-0254,
 che resta com'è) · **Migrazione**: nessuna · **Solo app** (nessun server,
@@ -9,7 +9,7 @@ nessuna build nativa, nessuna dipendenza nuova)
 ## Obiettivo
 
 Il video di «Export video» in «Share your run» (TASK-295, ADR-0254) ha la
-musica che sceglie chi corre: tre brani nostri, originali, fatti da uno
+musica che sceglie chi corre: dieci brani nostri, originali, fatti da uno
 script nel repository.
 
 ## La richiesta dell'utente (2026-10-25)
@@ -43,8 +43,28 @@ Una domanda per volta, ognuna con una proposta pronta:
 5. **Strumento**: «Sì, afconvert» (fra afconvert di macOS e ffmpeg da
    installare). Solo uno strumento di sviluppo sul Mac: nell'app vanno solo
    i file già codificati.
-6. **I tre brani**: mandati all'utente il 2026-10-25 da ascoltare; **il suo
-   sì manca ancora** (la domanda è stata interrotta).
+6. **I brani**: i primi tre mandati all'utente il 2026-10-25 da
+   ascoltare; risposta «Da ritoccare», poi «Più carica» (fra «Meno
+   elettronico», «Più carica», «Più morbidi», «Una melodia che resta»).
+7. **Dieci invece di tre**: «aggiungi altre 7 canzoni dai». Proposta
+   accettata («Sì, questi sette»): Sprint (drum & bass, 180 bpm), Rock
+   (chitarre distorte, 150), Funk (basso slap e fiati, 120), Sunny (pop,
+   120), Trap (808, 150), Retro (synthwave, 120), Fiesta (reggaeton, 90).
+   Nella riga «Music»: None · Energy · Chill · Epic · Sprint · Rock · Funk
+   · Sunny · Trap · Retro · Fiesta. Nomi nuovi:
+
+   | en | it | es | fr | de |
+   |---|---|---|---|---|
+   | Sprint | Sprint | Sprint | Sprint | Sprint |
+   | Rock | Rock | Rock | Rock | Rock |
+   | Funk | Funk | Funk | Funk | Funk |
+   | Sunny | Solare | Alegre | Ensoleillé | Sonnig |
+   | Trap | Trap | Trap | Trap | Trap |
+   | Retro | Retrò | Retro | Rétro | Retro |
+   | Fiesta | Festa | Fiesta | Fiesta | Fiesta |
+
+8. **I dieci brani più carichi**, mandati all'utente il 2026-10-25:
+   «Sì, vanno bene».
 
 Numeri dal Coordinatore il 2026-10-25: TASK-301, ADR-0262. Le sue
 condizioni: musica davvero originale, che lo script rifà uguale (byte per
@@ -55,7 +75,8 @@ traccia audio nel MP4 (box, durata uguale ai 12 s del video, sincronia) e
 il video senza musica identico a oggi; impronta iOS
 `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` prima e dopo su una copia
 pulita con `npm ci`; niente permessi o dipendenze nuove; i sì dell'utente
-nel task file con le sue parole. `docs/UI.md` è anche della #461: solo una
+nel task file con le sue parole. Dieci brani approvati dal Coordinatore il
+2026-10-25: 1,9 MB vanno bene, a 128 kbit/s, con il peso totale nella PR. `docs/UI.md` è anche della #461: solo una
 sezione nuova o righe nuove in quella di «Share your run». i18n: solo righe
 in fondo, riallineando con #461 e #545.
 
@@ -88,9 +109,9 @@ in fondo, riallineando con #461 e #545.
 
 ## Criteri di accettazione
 
-- [ ] In «Share your run» c'è la riga «Music» con «None», «Energy»,
-  «Chill», «Epic» e «Tap a track to hear it.»; all'apertura è acceso
-  «None»; toccando un brano lo si sente.
+- [ ] In «Share your run» c'è la riga «Music» con «None» e i dieci brani,
+  e «Tap a track to hear it.»; all'apertura è acceso «None»; toccando un
+  brano lo si sente.
 - [ ] Con un brano scelto il video ha due tracce, H.264 e AAC, lunghe tutte
   e due 12 s (AVFoundation); con «None» il file è identico a quello di
   oggi, byte per byte.
@@ -107,12 +128,20 @@ in fondo, riallineando con #461 e #545.
 
 ## File toccati
 
-Approvati dal Coordinatore il 2026-10-25.
+Approvati dal Coordinatore il 2026-10-25 (i sette brani nuovi lo stesso
+giorno).
 
 ```
 apps/mobile/assets/music/energy.m4a        (nuovo)
 apps/mobile/assets/music/chill.m4a         (nuovo)
 apps/mobile/assets/music/epic.m4a          (nuovo)
+apps/mobile/assets/music/sprint.m4a        (nuovo)
+apps/mobile/assets/music/rock.m4a          (nuovo)
+apps/mobile/assets/music/funk.m4a          (nuovo)
+apps/mobile/assets/music/sunny.m4a         (nuovo)
+apps/mobile/assets/music/trap.m4a          (nuovo)
+apps/mobile/assets/music/retro.m4a         (nuovo)
+apps/mobile/assets/music/fiesta.m4a        (nuovo)
 apps/mobile/assets/music/music.json        (nuovo)
 tools/video_music.py                       (nuovo)
 tools/test_video_music.py                  (nuovo)
@@ -147,19 +176,11 @@ docs/STATUS.md
 
 ## Dove si è (2026-10-25)
 
-Fatto, nel branch:
-
-- `tools/video_music.py` scrive i tre brani: «Energy» (120 bpm, la minore,
-  Am F C G, cassa in quattro, basso che pompa, arpeggio), «Chill» (90 bpm,
-  fa, Fmaj7 Am7 B♭maj7 C9, piano elettrico FM, ritmo swing), «Epic»
-  (120 bpm, re minore, Dm B♭ Gm A, tamburi, archi in ottavi, corni, re
-  maggiore alla fine). Tutti: fino a 1 s l'entrata (rullo, riser o
-  accordo che cresce), da 1 a 9 s la linea, a 9 s il colpo, dissolvenza
-  fino a 12 s. Solo + − × ÷ e un LCG: i campioni sono uguali su ogni
-  computer. ~14 s di CPU per i tre.
-- `apps/mobile/assets/music/`: i tre `.m4a` (185 642, 187 840,
-  187 843 byte: 561 325 in tutto) e `music.json` con le impronte SHA-256 di
-  PCM e M4A.
+Fatto, nel branch: i dieci brani e lo script (`tools/video_music.py`, con
+`tools/test_video_music.py`), `m4a.ts`, la seconda traccia in `mp4.ts`,
+`videoMusic.ts`, `MusicRow.tsx`, «Music» in `SharePost.tsx`, la musica in
+`RunVideo.tsx`, i testi, ADR-0262, `UI.md`, `STATUS.md`. Tutti i test di
+`src/share` e `pytest tools/test_video_music.py` verdi.
 
 Dettagli tecnici emersi:
 
@@ -168,13 +189,19 @@ Dettagli tecnici emersi:
   non in un `elst`, e divide i pacchetti in 24 chunk. Lo script riscrive il
   file: un chunk, `elst` con `media_time` 2112 e durata 529 200, `mdhd`
   531 456 (519 × 1024).
+- **AVFoundation toglie il priming due volte** se la traccia ha l'`elst`
+  ma non il gruppo «roll» (`sgpd`/`sbgp`, roll -1): un clic a 1,000 s
+  usciva a 0,952 s (2112 campioni prima) e la traccia durava 527 232
+  campioni. AVAssetWriter scrive `stsd, sgpd, sbgp, stts, stsc, stsz,
+  stco`: con gli stessi box, nel file dei brani e nel video, il clic esce
+  a 44 100 campioni esatti e la musica dura 529 200 (prova con
+  AVAssetReader su un MP4 fatto da `mp4.ts`).
 - `afinfo` legge il file riscritto come 529 344 campioni validi (non guarda
-  la durata dell'`elst`); AVFoundation va controllato.
-- Il suono ha la struttura voluta (volume ogni 0,5 s): entrata più piana,
-  il colpo a 9 s il punto più forte, poi giù fino al silenzio.
+  la durata dell'`elst`); AVFoundation legge 12,0 s.
+- Le prove dei brani: tutti fra -4 e -13 dB nella parte centrale, il colpo
+  a 9 s il momento più forte, fino al silenzio a 12 s. Rifarli costa 17 s
+  di CPU (le note uguali si fanno una volta sola, `functools.cache`).
 
-Prossimi passi, in ordine: il sì dell'utente ai brani (o i ritocchi);
-`tools/test_video_music.py`; `m4a.ts` e `mp4.ts` con i test; `videoMusic.ts`,
-`MusicRow.tsx`, `SharePost.tsx`, `RunVideo.tsx`; i testi; ADR-0262,
-`UI.md`, `STATUS.md`; impronta iOS prima e dopo; simulatore e AVFoundation;
-PR e «#NNN pronta» al Coordinatore.
+Prossimi passi: allineare a `origin/main` (testi di #461 e #545 in fondo
+alle tabelle), impronta iOS prima e dopo su una copia pulita, simulatore e
+AVFoundation sul video vero, PR e «#NNN pronta» al Coordinatore.

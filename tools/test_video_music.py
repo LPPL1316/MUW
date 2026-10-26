@@ -87,6 +87,27 @@ def test_the_apps_file_leaves_the_priming_out_with_an_edit_list() -> None:
     assert data[start + 8 : start + 12] == b"soun"
 
 
+def test_the_apps_file_says_each_packet_decodes_after_the_one_before() -> None:
+    data = vm.app_file(_encoded())
+    start, end = vm.path(data, *vm.STBL)
+    assert list(vm.children(data, start, end)) == [
+        b"stsd",
+        b"sgpd",
+        b"sbgp",
+        b"stts",
+        b"stsc",
+        b"stsz",
+        b"stco",
+    ]
+    start, _ = vm.path(data, *vm.STBL, b"sgpd")
+    # version 1, «roll», 2 bytes an entry, one entry: a roll of -1
+    assert data[start : start + 18] == bytes.fromhex(
+        "01000000726f6c6c0000000200000001ffff"
+    )
+    start, _ = vm.path(data, *vm.STBL, b"sbgp")
+    assert struct.unpack_from(">I4sIII", data, start) == (0, b"roll", 1, 3, 1)
+
+
 def test_the_apps_file_has_every_packet_in_one_chunk() -> None:
     data = vm.app_file(_encoded())
     start, _ = vm.path(data, *vm.STBL, b"stts")

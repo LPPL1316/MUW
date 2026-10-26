@@ -329,6 +329,44 @@ describe("mp4Of with music", () => {
     expect(traks[0].children.map((b) => b.type)).not.toContain("edts");
   });
 
+  it("says each packet decodes after the one before, as AVAssetWriter does", () => {
+    const table = soundTable().children;
+    expect(table.map((b) => b.type)).toEqual([
+      "stsd",
+      "sgpd",
+      "sbgp",
+      "stts",
+      "stsc",
+      "stsz",
+      "stco",
+    ]);
+    const sgpd = find(table, "sgpd");
+    expect(Array.from(file.subarray(sgpd.start, sgpd.start + sgpd.size))).toEqual([
+      0,
+      0,
+      0,
+      26,
+      ...Array.from("sgpd", (c) => c.charCodeAt(0)),
+      1,
+      0,
+      0,
+      0,
+      ...Array.from("roll", (c) => c.charCodeAt(0)),
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      1,
+      0xff,
+      0xff,
+    ]);
+    const sbgp = find(table, "sbgp");
+    expect([16, 20, 24].map((at) => u32(file, sbgp.start + at))).toEqual([1, 519, 1]);
+  });
+
   it("counts the music in its own samples, 1024 a packet", () => {
     const mdhd = find([sound], "trak", "mdia", "mdhd");
     expect(u32(file, mdhd.start + 20)).toBe(44_100);

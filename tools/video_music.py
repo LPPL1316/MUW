@@ -1659,6 +1659,16 @@ def read_encoded(data: bytes) -> Encoded:
 IDENTITY = struct.pack(">9I", 0x0001_0000, 0, 0, 0, 0x0001_0000, 0, 0, 0, 0x4000_0000)
 
 
+def roll_group(count: int) -> tuple[bytes, bytes]:
+    """Every AAC packet needs the one before it to decode («roll» of -1),
+    as AVAssetWriter writes it. Without it, AVFoundation leaves out the
+    priming once more than the edit list says: the sound starts 2112
+    samples early."""
+    sgpd = full_box(b"sgpd", 1, 0, b"roll", struct.pack(">IIh", 2, 1, -1))
+    sbgp = full_box(b"sbgp", 0, 0, b"roll", struct.pack(">III", 1, count, 1))
+    return sgpd, sbgp
+
+
 def app_file(encoded: Encoded) -> bytes:
     """The M4A the app keeps: one AAC track in one chunk, the encoder's
     priming left out by an edit list (ISO/IEC 14496-12), the index first."""
@@ -1674,6 +1684,7 @@ def app_file(encoded: Encoded) -> bytes:
     )
     sample_table = (
         full_box(b"stsd", 0, 0, struct.pack(">I", 1), mp4a),
+        *roll_group(count),
         full_box(b"stts", 0, 0, struct.pack(">III", 1, count, 1024)),
         full_box(b"stsc", 0, 0, struct.pack(">IIII", 1, 1, count, 1)),
         full_box(b"stsz", 0, 0, struct.pack(f">II{count}I", 0, count, *encoded.sizes)),

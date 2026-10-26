@@ -15592,7 +15592,8 @@ Instagram toglie l'audio al Reel.
    dipendenza dell'app. Per rigenerarli, su un Mac, dalla radice del
    repository: `python3 tools/video_music.py`. afconvert mette il priming
    (2112 campioni) in `iTunSMPB` e divide i pacchetti in chunk: lo script
-   riscrive il file come M4A semplice, un chunk e il priming in un `elst`.
+   riscrive il file come M4A semplice, un chunk, il priming in un `elst`
+   e il gruppo «roll» (punto 5).
    `music.json` tiene anche lo SHA-256 del file, e jest e pytest
    controllano che i dieci file dell'app siano quelli. Un afconvert di
    un'altra versione di macOS può dare byte diversi: i campioni restano
@@ -15601,8 +15602,12 @@ Instagram toglie l'audio al Reel.
    brano (`m4a.ts`) e `mp4.ts` aggiunge una seconda traccia `soun` dopo
    quella video: `tkhd` 2, `edts/elst` che salta il priming e dura quanto
    il video (12 s, 1 080 000 tick), `mdhd` a 44 100, `stsd mp4a` con
-   l'`esds` del brano, un chunk dopo i fotogrammi. Le due tracce partono
-   insieme dal tempo 0. **Senza musica il file è identico byte per byte a
+   l'`esds` del brano, il gruppo «roll» (`sgpd`/`sbgp`, ogni pacchetto
+   decodificato dopo quello prima) come lo scrive AVAssetWriter, un chunk
+   dopo i fotogrammi. Senza il gruppo «roll» AVFoundation toglie il
+   priming due volte: la musica partiva 2112 campioni (48 ms) prima.
+   Provato con AVAssetReader: un clic a 1,000 s esce a 1,000 s, la musica
+   dura 529 200 campioni. Le due tracce partono insieme dal tempo 0. **Senza musica il file è identico byte per byte a
    quello di ADR-0254** (impronta nel test).
 6. **I file stanno negli asset dell'app** (`require` dei `.m4a`, letti
    con expo-asset ed expo-file-system, già nell'app): 1,88 MB in tutto,
