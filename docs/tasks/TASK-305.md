@@ -48,6 +48,9 @@ traiettorie è un costo a parte; se non si può fare bene, lo studio dice
   come la canoa». La riga c'è da subito, non si può scegliere, e la accende
   la parte D1 (proposta era: nascosto finché non è pronto). È la parte D0
   qui sotto, l'unica che non aspetta le tre condizioni del verdetto.
+- **Il nome**: «Paragliding» 🪂 nell'interfaccia; **Parapendio** in
+  italiano, **Gleitschirmfliegen** in tedesco, **Parapente** in francese e
+  in spagnolo.
 
 ## Il punto, in breve
 
@@ -215,15 +218,16 @@ File: `services/api/shaperoute_api/paragliding.py`,
 Scelta dell'utente del 2026-10-27. Non dipende da licenze né dal motore.
 
 1. In `sport.ts` la voce `{ id: "paragliding", emoji: "🪂", name:
-   tLater("<nome scelto>"), ready: false }`, dopo «Paddle»: «Settings» la
+   tLater("Paragliding"), ready: false }`, dopo «Paddle»: «Settings» la
    mostra con «Soon» e non si può scegliere (`canChoose`), come la canoa
-   prima di TASK-191 C. Il nome aspetta la scelta dell'utente (domanda 4).
+   prima di TASK-191 C.
 2. `Sport` diventa `"run" | "bike" | "paddle" | "paragliding"`: dove l'app
    elenca tutti gli sport (`Record<Sport, …>`, `switch`) la voce nuova
    prende il valore della corsa o nessuno, mai un percorso; `loadSport`
    continua a dare «run» per uno sport non pronto.
-3. Il nome nelle quattro lingue (`it.ts`, `de.ts`, `fr.ts`, `es.ts`): testi
-   da far approvare all'utente prima del merge.
+3. Il nome nelle quattro lingue, in fondo ai file: `Paragliding:
+   "Parapendio"` (`it.ts`), `"Gleitschirmfliegen"` (`de.ts`),
+   `"Parapente"` (`fr.ts`, `es.ts`), scelti dall'utente il 2026-10-27.
 4. Test: la riga c'è, dice «Soon», toccarla non cambia lo sport; i test di
    prima passano senza modifiche ai valori.
 
@@ -231,8 +235,8 @@ Criteri: in «Settings → Sport» quattro righe, l'ultima «Paragliding» 🪂 
 «Soon»; nessun altro cambiamento visibile. Solo app, nessun server;
 l'impronta nativa iOS non cambia (solo JS).
 
-Condizioni del Coordinatore (2026-10-27): parte dopo il merge della #578 e
-la scelta del nome; le chiavi nuove in fondo ai file delle lingue;
+Condizioni del Coordinatore (2026-10-27): parte dopo il merge della #578
+(il nome è scelto); le chiavi nuove in fondo ai file delle lingue;
 l'impronta iOS si controlla su una copia pulita; «#NNN pronta» al
 Coordinatore, e per il merge serve la parola dell'utente.
 
@@ -320,7 +324,7 @@ Fuori per scelta dell'utente (2026-10-26): MuW non fa da navigatore.
 - [x] La pagina a griglia `out/TASK-305/paragliding-samples-grid.html`.
 - [x] ADR-0265 in stato «proposto»; righe in `STATUS.md`.
 - [ ] Le scelte di prodotto dell'utente: decise la prima versione
-      (2026-10-26) e la visibilità (2026-10-27); restano l'avviso e il nome
+      (2026-10-26), la visibilità e il nome (2026-10-27); resta l'avviso
       (sotto).
 
 ## File toccati (questa PR)
@@ -357,7 +361,8 @@ Una alla volta, ognuna con la proposta pronta (`studio.md`, in fondo):
 2. ~~Prima versione~~ — **decisa** (2026-10-26): solo la traccia e il
    caricamento del volo, nessun navigatore.
 3. Il testo dell'avviso di sicurezza (proposta nello studio).
-4. Il nome: «Paragliding» 🪂 (proposta).
+4. ~~Il nome~~ — **deciso** (2026-10-27): «Paragliding» 🪂; Parapendio,
+   Gleitschirmfliegen, Parapente.
 
 ## Esito
 
@@ -365,6 +370,6 @@ Proposto il 2026-10-26: lo studio dice che si può fare come pianificatore
 (forme di 2–3 km dai decolli con molto dislivello, 1 km dagli altri) e che
 il nodo sono i dati degli spazi aerei, non il motore. L'utente ha scelto
 la traccia più il caricamento del volo, senza navigatore (2026-10-26), e la
-riga in Settings con «Soon» da subito (2026-10-27, parte D0). Restano due
-scelte di prodotto (avviso, nome) e le tre condizioni del verdetto prima
-della parte A1.
+riga in Settings con «Soon» da subito e il nome «Paragliding» (2026-10-27,
+parte D0). Restano l'avviso di sicurezza e le tre condizioni del verdetto
+prima della parte A1.

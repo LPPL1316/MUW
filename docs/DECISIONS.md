@@ -16593,8 +16593,9 @@ mancante).
 (TASK-305, `out/TASK-305/studio.md` del Mac). Scelta dell'utente dello
 stesso giorno: «è una bella idea», MuW dà la traccia e fa caricare il
 volo, **non fa da navigatore**; il 2026-10-27 l'utente ha scelto la riga
-«Paragliding» in Settings subito, con «Soon»; l'avviso, il nome e le tre
-condizioni del punto 7 sono ancora aperti
+«Paragliding» 🪂 in Settings subito, con «Soon», e il nome (Parapendio,
+Gleitschirmfliegen, Parapente); l'avviso e le tre condizioni del punto 7
+sono ancora aperti
 
 **Contesto**: l'utente vuole lo sport «Parapendio»: lo si sceglie, l'app si
 adatta al volo, e il pilota disegna la forma nel cielo con la sua traccia.
