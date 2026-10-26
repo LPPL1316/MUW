@@ -15820,6 +15820,23 @@ troppo piccoli per le strade), da 8 km sì. Immagini in
 - leggere le lettere come testo: una foto di una scritta resta un
   disegno.
 
+**Aggiunta (parte C, motore, 2026-10-25; deciso dall'agente su delega
+dell'utente)**: il 3 % di un foro si misura sull'area del contorno esterno
+pieno del suo soggetto, prima della lisciatura (così un'immagine senza
+fori veri dà con la penna alzata lo stesso contorno esterno di oggi) e di
+nuovo dopo (un foro che la lisciatura consuma sparisce); un soggetto si
+semplifica insieme ai suoi fori (`simplify` con la topologia), così le sue
+linee restano staccate; i punti di tutti i pezzi insieme sono al più
+`MAX_SUBJECT_POINTS` (150), come i tratti; un contorno a pezzi che non
+passa `parse_outline` (un pezzo che tocca una linea, o che con la penna giù
+non si attacca senza incroci, come sette fori a corona) è rifiutato come
+`jagged`. Il logo MuW del repository è il marchio del lancio
+(`apps/mobile/assets/splash-logo-dark.png`: tre lettere staccate, due
+pezzi); il logo del kit con il cuore resta fuori dal repository, come le
+prove del 24. Dalla CLI `--image … --pen-up` su un'immagine senza pezzi
+disegna una linea sola con un avviso, invece di rifiutare come per una
+forma senza pezzi: chi manda una foto non sa prima se ha pezzi.
+
 ## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
 **Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
 (TASK-271), dalla prima recensione di un tester («quando devi tornare
@@ -15847,6 +15864,112 @@ un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
 salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
 server, `draw_examples` e il motore sul telefono (TASK-214) vanno
 aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
+
+## ADR-0259 — Fermarsi prima nella ricerca: misurato e scartato; resta solo il tracciamento mai ripetuto
+
+**Stato**: Scartata (misurata), tranne una regola piccola · 2026-10-25 ·
+deciso dall'agente su delega dell'utente («sì, apri anche quello per
+fermarsi prima», 2026-10-24), con le condizioni del Coordinatore
+(TASK-298); il taglio vero è una scelta di prodotto lasciata all'utente,
+con i numeri qui sotto.
+
+**Contesto**: dove la forma non entra nelle strade la ricerca (§5 di
+`ROUTE_ENGINE.md`) spende tutti i 30 tracciamenti per un disegno mediocre:
+a Trento 19 richieste su 36 (ADR-0257), i 6–14 s che l'utente aspetta. La
+condizione: non perdere nessun percorso buono (distanza ±10 %, somiglianza
+≥ 0,90) che oggi la ricerca trova.
+
+**Misura** (Mac, 2026-10-24/25; tracciamenti, non secondi: la stessa misura
+è durata 690 s e 171 s a Mac carico e scarico, con risultati identici;
+`tests/measure_stop_earlier.py`): le 36 richieste di ADR-0257 — cuore,
+stella, gatto, lumaca, luna da 5 km e cuore da 2 km, sei partenze — in
+sette città, Trento, Rovereto, Levico, Bologna, Milano, Roma e Chicago, con
+la chiamata dell'API (`doubled`: a Trento i buoni sono 16, non 17).
+
+| | richieste | buone | tracciamenti |
+|---|---|---|---|
+| sette città | 252 | 129 | 4 627, di cui 3 581 (77 %) nelle 123 senza percorso buono |
+
+1. Il primo percorso buono compare a qualunque tracciamento: 13 casi dopo
+   il 20º, due al 30º di 30. 14 buoni vengono dalla fase inclinata, anche
+   dal suo 5º e 6º piazzamento; 5 dal 6º piazzamento dritto; 14 dalla
+   rifinitura della rotazione, 1 dalla lucidatura. Un tetto più basso o un
+   piazzamento in meno perde percorsi buoni.
+2. «N piazzamenti senza miglioramento» del costo o della somiglianza perde
+   da 10 buoni (N = 4) a 38 (N = 1) su 129.
+3. La somiglianza del primo tracciamento di un piazzamento non dice nulla
+   del suo esito: cambiando scala sale anche da 0,42 a 0,91; un taglio
+   dentro un piazzamento (distanza entro il 15 % e somiglianza sotto 0,80)
+   perde 2 buoni.
+4. Il conteggio delle strade è 1,00 in testa alla classifica in quasi tutte
+   le richieste di città: non distingue dove la forma entra.
+5. Resa per posto (buoni ogni 100 tracciamenti): 1º e 2º piazzamento
+   dritto 5,5; 3º e 4º 3–4; 5º 0,8; 6º 2,5; rifinitura 3,1; inclinati
+   0–3, il primo inclinato 0 su 413 ma prepara gli altri.
+6. Saltare la fase inclinata quando da dritta la somiglianza migliore è
+   sotto 0,85 perde 1 buono (Rovereto, luna: dritta 0,81, buona al 6º
+   piazzamento inclinato); sotto 0,80 non ne perde ma con margine 0,009;
+   sotto 0,75 non ne perde, margine 0,06, vale 209 tracciamenti (4,5 %).
+7. La rifinitura della rotazione ha dato un percorso buono solo dove la
+   fase aveva già un piazzamento a 0,86 o più: saltarla sotto 0,80 non
+   perde nulla e vale circa il 4 %.
+8. 62 tracciamenti (1,3 %) erano duplicati esatti: la secante della scala
+   rimanda al bordo di `SCALE_RANGE` già tracciato per lo stesso
+   piazzamento.
+
+**Decisione**: in `optimizer.search`, per tutte le ricerche (anche sul
+telefono, nelle partenze vicine e nella ricerca lontana), una scala già
+tracciata per lo stesso piazzamento non si traccia più: il tracciato noto
+vale per quel passo della secante e il budget compra un altro tracciamento.
+Nient'altro: nessun piazzamento in meno, nessun tetto più basso, nessuna
+fase saltata, nessun messaggio nuovo. Questa regola ha una proprietà
+pulita: la ricerca fa gli stessi tentativi di oggi più qualcuno in coda alla
+fase, quindi il percorso restituito non costa mai di più nel costo del
+motore, e dove oggi converge è identico.
+
+Misurato e **scartato**, pur senza perdere buoni nelle 252:
+
+- **la fase inclinata saltata** quando da dritta il meglio è sotto 0,75
+  (4,5 % dei tracciamenti): le sette città hanno griglie quasi nord-sud, e
+  dove le strade disegnano la forma solo inclinata (`tests/test_tilt.py`,
+  da dritta 0,29; una città a griglia diagonale) la fase dritta non la
+  vede; sulla città finta spegneva una stella 0,87 fra le alternative e un
+  cuore 0,80 da una partenza vicina;
+- **la rifinitura della rotazione saltata** quando il meglio della fase è
+  sotto 0,80 (misurata insieme ai duplicati): tracciamenti 4 627 → 4 566
+  (−1,3 %; −1,6 % nei 123 casi senza buono: il budget liberato lo spende
+  la fase inclinata, il tempo non scende), ma 6 risultati mediocri su 123
+  peggiorano, fino a −0,13, e uno scende sotto 0,60 (Levico, gatto da
+  5 km: da percorso mediocre a «nessun percorso»); nella città finta la
+  stella da 3 km passa da 0,73 a 0,59.
+
+**Conseguenze**: i 129 percorsi buoni restano identici punto per punto, tre
+con un tracciamento in meno (il duplicato); nelle 252 richieste i tracciamenti passano da 4 627 a 4619, e dei 123 risultati mediocri 122 sono identici e uno migliora (Roma, cuore da 2 km: da 0,56 a 0,60, da «nessun percorso» a percorso mediocre), nessuno peggiora. Tre impronte di
+`test_kept_per_graph.py` cambiano, tutte di casi che non convergono (il
+cuore da 8 km e le due CIAO della città finta: stesso percorso scelto,
+alternative trovate altrimenti dal budget in più). Il tempo risparmiato è
+nullo o quasi: la conclusione del task è che con questa ricerca **fermarsi
+prima senza perdere percorsi buoni non si può**; il taglio vero (un tetto,
+i piazzamenti inclinati 5–6, la fase inclinata sotto 0,80) costa percorsi
+buoni o città non misurate, e se l'utente vuole scambiarli per la velocità
+si decide con questi numeri, in un task suo. Le misure si rifanno con
+`tests/measure_stop_earlier.py`.
+
+Per la scelta di prodotto (un tetto ai tracciamenti, sulle 252 richieste
+misurate; «tracciamenti» è il costo del motore, i secondi vanno in
+proporzione):
+
+| tetto | tracciamenti (oggi 4 627) | buoni persi su 129 |
+|---|---|---|
+| 28 | 4 431 (−4 %) | 2 (Rovereto stella, Bologna luna: al 30º) |
+| 25 | 4 098 (−11 %) | 5 (più Rovereto cuore al 27º, Milano lumaca al 27º, Chicago cuore 2 km al 28º) |
+| 22 | 3 713 (−20 %) | 9 (più Trento lumaca al 24º, Milano cuore 2 km al 23º e 25º, Roma stella al 23º) |
+| 20, cioè senza la fase inclinata | 3 443 (−26 %) | 12 (i 14 buoni della fase inclinata meno i 2 trovati entro il 20º, più nessun altro) |
+| 15 | 2 756 (−40 %) | 19 |
+
+Ogni percorso buono perso è un utente che oggi riceve un disegno buono e
+domani ne riceverebbe uno mediocre o nessuno, per risparmiare 6–14 s sui
+casi che oggi non trovano niente.
 
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 
@@ -16047,3 +16170,222 @@ due email insieme (ognuna ha il suo interruttore).
 **Conseguenza**: chi aveva acceso «Email notifications» prima riceverà
 queste email quando il server avrà Resend. Il link di un'email non spegne
 l'altra: lo scopo è nell'HMAC (`StopLinks.purpose`).
+
+## ADR-0047, aggiunta — L'app dice come una sola le svolte di un incrocio attraversato a piedi
+**Stato**: Attiva · 2026-10-25 · chiesto dall'utente dopo una prova sul
+campo a Trento («le manovre consecutive molto ravvicinate vengono unite in
+un'unica indicazione con la direzione risultante»); il metodo deciso
+dall'agente su delega dell'utente (TASK-302). Aggiunta ad ADR-0047, senza
+numero nuovo.
+
+**Contesto**: ADR-0047 segna le indicazioni vicine (`joined`, meno di
+15 m) e le lascia tutte, perché chi le presenta le legga insieme. In città
+un incrocio attraversato a piedi sono 2–4 nodi di marciapiedi e strisce a
+5–25 m l'uno dall'altro: la voce diceva «svolta a destra, poi a sinistra,
+poi a sinistra» per quella che sul posto è una svolta a sinistra, e quelle
+fra 15 e 50 m arrivavano come annunci separati, uno dietro l'altro. La
+recensione del tester del 2026-10-10 («mini svolte da 3 m») era stata
+lasciata «per ora».
+
+**Decisione**:
+
+1. **Nell'app, non nel motore**: `simplifyDirections` (navigazione)
+   riscrive le indicazioni prima di seguirle. Il motore, l'API e il file
+   della corsa tengono la lista piatta di ADR-0047 com'è.
+2. **Una manovra**: indicazioni a `MERGE_M` = 25 m o meno dalla
+   precedente, per al massimo `MERGE_SPAN_M` = 50 m in tutto. Le due soglie
+   sono costanti del codice, passabili alla funzione; nessuna impostazione
+   per l'utente.
+3. **La svolta che si vede**: la direzione del percorso 20 m prima della
+   manovra contro quella 20 m dopo, con le soglie di `turn_of` (30°, 135°,
+   165°), nel verso della somma degli angoli. Si dice dove la manovra
+   comincia, sulla strada dove finisce.
+4. **Le micro-deviazioni tacciono**: una manovra che non gira non si dice,
+   a meno che finisca su una via di un altro nome («Prosegui dritto su …»).
+5. **Mai fuse** (condizione del Coordinatore): la partenza, la «u-turn»
+   (ADR-0045, aggiunta di TASK-271) e le indicazioni dell'arrivo, negli
+   ultimi `ARRIVE_M` = 25 m. Le indicazioni troppo vicine a loro, o
+   all'inizio e alla fine del percorso, per leggere i 20 m prima e dopo
+   restano come le dà il motore. Un'indicazione da sola resta quella del
+   motore, anche un bivio. Le indicazioni a più di 25 m dalle vicine
+   escono identiche (test di non regressione su due percorsi interi, Trento
+   e Levico).
+
+**Motivo**: nell'app vale subito per ogni percorso, anche quelli già in
+cache, gli esempi di «Explore» e le corse salvate, con un aggiornamento
+OTA e senza ricostruire `engine.zip` e gli esempi sull'acqua. La geometria
+del percorso prima e dopo dice la svolta che il runner fa davvero; la somma
+degli angoli del motore conta due volte la stessa curva quando due nodi
+distano meno dei 20 m con cui il motore legge una strada. Su una camminata
+vera di Trento da Trento Fiere le indicazioni scendono da 30 a 13.
+ADR-0047 scartava 25 m perché a Milano le catene arrivavano a 7, troppe
+**da dire insieme**: qui non si dicono insieme, diventano una.
+
+**Alternative scartate**: unire nel motore (i percorsi già calcolati
+sarebbero rimasti come prima, e il server e il motore sul telefono da
+aggiornare); sommare gli angoli delle indicazioni (vedi sopra: a Levico,
+due sinistre a 8 m l'una dall'altra davanti a un vicolo cieco sommavano
+196° e diventavano un'inversione falsa); una
+soglia d'angolo sulle indicazioni da sole (perderebbe i bivi, che il
+motore dice proprio sotto i 30°).
+
+**Conseguenza**: banner e voce mostrano la stessa indicazione unita.
+Nessun testo nuovo («Prosegui dritto» c'era già). L'aggancio a una forma
+chiusa (TASK-273) aggiunge la svolta del punto di partenza dopo la
+semplificazione, come prima.
+
+## ADR-0260 — Il primo concorso: il post con più reazioni vince un premio senza valore, deciso dal server
+
+**Stato**: Attiva · 2026-10-24 · il concorso e il premio simbolico li ha
+scelti l'utente; i punti tecnici sono decisi dall'agente su delega
+dell'utente (TASK-299)
+
+**Contesto**: l'utente voleva «il primo concorso a premio: chi ha più like
+nel post vince una maglietta». In Italia un concorso con un premio di
+valore è un «concorso a premio» (DPR 430/2001): promotore un'impresa,
+regolamento, comunicazione al Ministero, cauzione, verbale di un notaio o
+di un funzionario camerale. MuW oggi è di una persona, e i costi superano
+la maglietta. Fra tre strade (premio simbolico subito; la maglietta a una
+giuria; la maglietta a chi ha più like, in regola) l'utente ha scelto
+**premio simbolico, subito**, e ha detto «Sì, così» alla proposta con i
+default (2026-10-24). L'App Store (5.3) e Google Play chiedono un
+regolamento nell'app con la frase che Apple e Google non sono coinvolte.
+Post, reazioni (una a testa), blocchi, profili e push esistono già. Le
+regole sono in `docs/CONCORSI.md`.
+
+**Decisione**:
+
+1. **Il server decide, l'app mostra.** Chi partecipa, che cosa conta,
+   l'ordine e il vincitore vengono da una query sola in `contests.py`,
+   usata dall'endpoint e dai comandi; il Feed, le reazioni e i profili non
+   cambiano, a parte `contest_wins` nei profili.
+2. **Partecipa** un disegno `everyone` pubblicato nel periodo, non
+   nascosto (`hidden_at`, TASK-291). **Conta** una reazione per account
+   (già così nella tabella), di qualunque tipo, **mai la propria** (l'API
+   lascia reagire al proprio disegno), **non attraverso un blocco** con
+   l'autore (`apart_sql`, come nel Feed), lasciata entro `ends_at`
+   (`created_at <= ends_at`: una reazione cambiata dopo la fine non conta
+   più; nessuna seconda colonna).
+3. **Pari merito**: più cuori MuW (`super_like`), poi il post pubblicato
+   prima; l'`id` chiude.
+4. **Gli account nati durante il concorso contano**: escluderli terrebbe
+   fuori chi il concorso vuole portare dentro. Il trucco si guarda alla
+   chiusura: `standings` stampa per i primi dieci le reazioni da account
+   più giovani del concorso, `close --exclude` lascia fuori un post, e il
+   regolamento lo dice. **Una persona proclama**, non un orologio.
+5. **Un solo concorso aperto** alla volta (indice unico parziale). La
+   tabella `contests` tiene `winner_user_id` e `winner_drawing_id` con
+   `ON DELETE SET NULL`: il badge sopravvive alla corsa cancellata; un
+   account cancellato lascia il concorso senza vincitore.
+6. **La chiusura è idempotente**: `UPDATE … WHERE closed_at IS NULL`, poi
+   una sola push `contest_won` al vincitore, in `OWN_KINDS`, mandata da
+   `contests.py` con il `Pusher`; in `push.py` solo il tipo e il testo.
+7. **`GET /contests/current` con la sola chiave dell'API**, anche senza
+   account: la scheda è un motivo per iscriversi. `mine` solo con un
+   token; con un token, un post attraverso un blocco con chi chiede non
+   sta in `top`. `404 no_contest` senza un concorso aperto né uno chiuso
+   da meno di **7 giorni**: è l'API a dire quanto dura l'evidenza.
+8. **App**: la scheda in cima al Feed esiste solo con un 200; l'ultima
+   risposta sta sul telefono come il catalogo del gioco, e un 404 la
+   cancella. Il badge viene da `contest_wins`; la fascia sul disegno dal
+   concorso tenuto sul telefono. Impronta iOS invariata, nessuna
+   dipendenza nuova.
+9. **I testi** (scheda, regolamento, push, badge) nelle cinque lingue li
+   approva l'utente prima del merge; il nome dell'organizzatore nel
+   regolamento lo dice l'utente.
+
+**Alternative scartate**:
+- la maglietta subito: i costi e gli obblighi del DPR 430 superano il
+  premio, e non c'è la ditta;
+- la maglietta a una giuria, nell'esclusione delle opere premiate per
+  merito (art. 6): da far valutare al commercialista, non da decidere qui;
+- contare solo i cuori MuW: richiedono un commento, meno voti e un
+  vantaggio a chi scrive di più;
+- la chiusura automatica a `ends_at`: nessuno guarderebbe gli account
+  finti prima della proclamazione;
+- una push a tutti alla fine: rumore; la scheda nel Feed basta;
+- una pagina di classifica: TASK-241 ha tolto punteggi e classifiche;
+  tre post nella scheda bastano;
+- escludere gli account nati durante il concorso: vedi il punto 4;
+- la scheda in «Play»: si vede solo con il gioco sul server, e il
+  concorso parla dei post, che stanno nel Feed.
+
+**Conseguenze**: una tabella e un modulo nuovi, una riga in `push.py`, in
+`app.py`, in `profiles.py` e in `accounts.py`; l'app aggiunge una cartella
+e tocca tre componenti. Chi gestisce il server apre e chiude i concorsi
+con le date dell'utente, dopo l'approvazione di Apple e con il suo ok.
+Instagram e il sito li fa l'utente a mano. Il concorso con la maglietta è
+un task a sé, con la ditta e il commercialista (`CONCORSI.md` §12).
+
+## ADR-0261 — Email confermata e «Forgot password?», con link firmati
+**Stato**: Attiva · 2026-10-25 · TASK-300. Le scelte di prodotto sono
+dell'utente, chieste una alla volta con una proposta: un task a parte e
+subito; **un indirizzo non confermato non blocca niente**; **gli account
+di prima restano non confermati**, senza email partite da sole; i testi
+inglesi del task file approvati così (de, es, fr, it dell'agente). Del
+Coordinatore, nel dare il numero: link che valgono una volta e scadono, il
+reset che fa uscire da ogni telefono, «Forgot password?» che risponde
+sempre allo stesso modo con un limite, nessuna modifica nativa, **il nuovo
+indirizzo vale solo confermato** e il vecchio riceve un avviso. Il come è
+deciso dall'agente su delega dell'utente.
+
+TASK-183 aveva il cambio d'indirizzo subito e senza conferma, TASK-114
+nessun modo di riavere una password: mancava un servizio di posta, che ora
+c'è (Resend, ADR-0244).
+
+**Decisione**:
+
+1. **I link aprono pagine dell'API** (`/email/confirm`, `/password/reset`),
+   come `/away-email/stop`: senza una build nativa non ci sono link
+   universali. Il `GET` mostra la domanda o il modulo, solo il `POST`
+   cambia (i filtri antispam aprono i link). Pagine senza `X-API-Key`,
+   `no-store`, senza referrer, fuori dai frame (CSP `frame-ancestors
+   'none'`, `form-action 'self'`), nella lingua dell'account. Il modulo
+   si legge dal corpo con `urllib.parse`: nessuna dipendenza nuova.
+2. **Token senza tabella**: `public_id.scadenza.tag`, il tag un HMAC con
+   `SHAPEROUTE_EMAIL_SECRET` dell'uso (prefisso suo: mai valido per un
+   altro link), dell'account, della scadenza e dello **stato che il link
+   cambia**, riletto dal database: l'indirizzo per la conferma; indirizzo
+   e hash della password per il reset. Così il link vale una volta (dopo,
+   indirizzo confermato o password diversa) e muore se l'indirizzo cambia
+   nel frattempo. Conferma 7 giorni, reset 1 ora.
+3. **Il cambio aspetta il link** in `users.pending_email` (non unico: il
+   vincolo su `email` decide alla conferma). Avviso al vecchio indirizzo
+   con il nuovo coperto, senza link: la via d'uscita è «Forgot password?»,
+   che annulla il cambio in attesa. Con le email spente il cambio vale
+   subito come con ADR-0150, non confermato. `PUT /me/email` non cambia
+   forma: la risposta è sempre il `User`.
+4. **Il reset**: `POST /password-reset` risponde `202` vuoto per
+   chiunque; la ricerca dell'account e l'invio stanno dopo la risposta, in
+   un thread che manda una email ogni mezzo secondo (`Outbox`), così
+   neanche il tempo dice chi è iscritto. Salvata la password: tutte le
+   sessioni chiuse, il cambio in attesa annullato, il conto delle password
+   sbagliate azzerato, l'indirizzo confermato (il link lo prova).
+5. **Limiti in memoria**, come le password sbagliate: 3 reset all'ora per
+   indirizzo, di un account o no; 3 email all'ora per account fra «Send
+   the link again» e cambi; 300 email all'ora in tutto.
+6. **Ganci, non intrecci**: `accounts.py` chiama `after_sign_up` (come
+   `before_account_delete`), `contact.py` un `ChangeConfirmation` se c'è;
+   `account_email.py` li registra solo con le email accese. Le stesse tre
+   variabili dell'email di ritorno: niente di nuovo da configurare.
+7. **L'app chiede `GET /account-email`** prima di mostrare «Forgot
+   password?» e «Email not confirmed»: `404` da un server spento o di
+   prima, come «Play» con `GET /game/catalog`.
+
+**Alternative scartate**: una tabella di token (più stato da pulire,
+quando lo stato dell'account basta a renderli usa-e-getta); un codice di 6
+cifre da scrivere nell'app (servono tentativi contati, e un link funziona
+anche dal computer); confermare al solo `GET` (un filtro antispam
+confermerebbe l'indirizzo di chi non si è mai iscritto); il cambio subito
+con la conferma dopo (scelta del Coordinatore: il nuovo vale confermato);
+un link «non sono stato io» nell'avviso (un terzo tipo di token per quello
+che «Forgot password?» già fa); bloccare qualcosa senza conferma (scelta
+dell'utente).
+
+**Conseguenza**: l'indirizzo va a Resend anche per queste email (la
+privacy di TASK-284 B dice già di Resend; queste servono all'account).
+Cambiare il segreto spegne i link già mandati. Mandare le email di
+ritorno (TASK-284) e le notizie (TASK-262 B) solo a indirizzi confermati è
+una scelta di quei task. L'app di prima, a un cambio in attesa, mostra
+ancora il vecchio indirizzo: la parte B va pubblicata prima o con il
+server.

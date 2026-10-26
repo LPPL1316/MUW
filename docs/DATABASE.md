@@ -578,6 +578,21 @@ provvisorio, il numero si controlla al merge con il Coordinatore):
 - `users.notices_emailed_at` (`timestamptz`, facoltativa): l'ultima email
   delle notizie; un'altra solo in un altro giorno (UTC).
 
+Migrazione `0029_email_confirmation.sql` (TASK-300, ADR-0261; il numero è
+il primo libero in `main` al merge: la 0028 è di TASK-262 B, #550; i test
+la trovano dal nome):
+
+- `users.email_confirmed` (`boolean NOT NULL DEFAULT false`): il
+  proprietario ha aperto il link mandato all'indirizzo che ha adesso; un
+  indirizzo nuovo torna falso. **Falso per gli account di prima** (scelta
+  dell'utente): non confermati, e nessuna email parte da sola.
+- `users.pending_email` (`text`, facoltativa): l'indirizzo chiesto in
+  «Settings» che aspetta il suo link; si entra con `email` finché non è
+  aperto. **Non unico**: lo prende chi lo conferma per primo, e il vincolo
+  `users_email_key` decide al momento della conferma.
+- Nessun token nel database: i link sono firmati (ADR-0261). Con
+  l'account se ne vanno le due colonne; nessuna tabella nuova.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

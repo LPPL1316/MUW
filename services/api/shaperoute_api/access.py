@@ -40,9 +40,10 @@ WINDOW_S = 60.0
 # page Strava sends the browser back to (strava.py, TASK-187): a browser has
 # no key, and the page does nothing without the state the API gave the app.
 # So do the pages of the links of an email: «Don't send me these emails»
-# (away_email.py, TASK-284; notice_email.py, TASK-262 B) and a report's
-# (report_email.py, TASK-291). None does anything without the token of its
-# email.
+# (away_email.py, TASK-284; notice_email.py, TASK-262 B), a report's
+# (report_email.py, TASK-291), and those that confirm an address and choose
+# a new password (account_email.py, TASK-300). None does anything without
+# the token of its email.
 OPEN_PATHS = frozenset(
     {
         "/health",
@@ -50,6 +51,8 @@ OPEN_PATHS = frozenset(
         "/away-email/stop",
         "/notice-email/stop",
         "/report-link",
+        "/email/confirm",
+        "/password/reset",
     }
 )
 LIMITED_METHODS = frozenset({"POST"})
