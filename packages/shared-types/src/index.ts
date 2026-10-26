@@ -302,6 +302,8 @@ export const API_ERROR_CODES = [
   "accounts_unavailable",
   /** A comment the API refuses, a negative one (TASK-120, ADR-0176). */
   "comment_rejected",
+  /** No contest open, nor one closed less than a week ago (TASK-299). */
+  "no_contest",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 
@@ -599,6 +601,11 @@ export interface User {
    * from an API older than TASK-300.
    */
   pending_email?: string | null;
+  /**
+   * The contests won (TASK-299), as PublicProfile has it. Missing from an
+   * API older than TASK-299.
+   */
+  contest_wins?: number;
 }
 
 /**
@@ -704,6 +711,11 @@ export interface PublicProfile {
   following?: number;
   /** Where the one who asks stands towards it. Missing from an older API. */
   follow?: FollowState;
+  /**
+   * The contests it won (TASK-299): the «Winner» badge when 1 or more.
+   * Missing from an API older than TASK-299.
+   */
+  contest_wins?: number;
 }
 
 /**
@@ -1110,9 +1122,12 @@ export interface PushTokenRequest {
   language?: PushLanguage | null;
 }
 
-/** What a push notification tells of (TASK-262). */
+/**
+ * What a push notification tells of (TASK-262). `contest_won` (TASK-299)
+ * goes to the winner of a contest and opens its post.
+ */
 export type PushKind =
-  "follow_request" | "follow_accepted" | "reaction" | "comment" | "tag";
+  "follow_request" | "follow_accepted" | "reaction" | "comment" | "tag" | "contest_won";
 
 /**
  * The `data` of a push notification (TASK-262): what the app opens when it
@@ -1366,4 +1381,52 @@ export interface RunGameWithPieces extends RunGame {
  * its team edition, in a completed challenge; null without. */
 export interface GameShapeStateWithTeam extends GameShapeState {
   team_unlocked_at: string | null;
+}
+
+// --- The first contest (TASK-299, ADR-0260; docs/CONCORSI.md) ---
+
+/**
+ * One of the first posts of a contest (GET /contests/current). `rank` is
+ * its place in the whole standings: with a token, a post across a block
+ * with who asks is left out of `top`, and the others keep their numbers.
+ * `reactions` are the ones that count: one per member, never the author's
+ * own, none across a block with the author, left by `ends_at`.
+ */
+export interface ContestEntry {
+  rank: number;
+  reactions: number;
+  drawing: FeedPost;
+}
+
+/** The best post of who asks in the contest: its place and its reactions. */
+export interface ContestMine {
+  drawing_id: string;
+  rank: number;
+  reactions: number;
+}
+
+/** The winner, once the contest is closed; `drawing` is null when its run
+ * was deleted since. */
+export interface ContestWinner {
+  reactions: number;
+  drawing: FeedPost | null;
+}
+
+/**
+ * GET /contests/current: the contest open, or closed less than a week ago
+ * (the week of the winner's post at the top of the Feed); 404 `no_contest`
+ * otherwise, and the app shows no card. Without a token `mine` is missing;
+ * with one it is null when who asks has no post that takes part. `top` has
+ * at most three posts, in order: more reactions, then more MuW hearts, then
+ * the one published first. `winner` is null while open.
+ */
+export interface Contest {
+  id: string;
+  /** ISO 8601, with the offset. */
+  starts_at: string;
+  ends_at: string;
+  closed_at: string | null;
+  top: ContestEntry[];
+  mine?: ContestMine | null;
+  winner: ContestWinner | null;
 }

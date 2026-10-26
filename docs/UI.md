@@ -2959,6 +2959,15 @@ run», con «Close» in alto a sinistra:
   foglio di condivisione con il video («Save Video» lo tiene in Foto).
   Errori: «This phone cannot make the video.», «The video could not be
   made. Try again.», «This phone cannot open the share sheet.».
+- **«Music»**, sopra «Instagram» ed «Export video» (TASK-301,
+  ADR-0262; scelte dell'utente, al posto del «Niente musica» qui sopra):
+  «None» e dieci brani nostri, «Energy», «Chill», «Epic», «Sprint»,
+  «Rock», «Funk», «Sunny», «Trap», «Retro», «Fiesta», uno solo acceso;
+  all'apertura «None». Sotto: «Tap a track to hear it.». Un tocco su un
+  brano lo suona da capo (12 s), «None» lo ferma; si ferma anche facendo
+  il video e chiudendo la pagina. Il brano acceso va nel video, che con
+  «None» resta muto. Con l'iPhone in silenzioso il brano non si sente, ma
+  va nel video.
 - **Strava**, sotto, solo se l'API ha Strava: «Connect with Strava» se
   l'atleta non è collegato; a fine corsa, prima di «Save»: «To send this
   post to Strava, save the run, then share it from «My activities».». Su
