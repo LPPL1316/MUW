@@ -84,11 +84,12 @@ Kind = Literal[
     "piece_done",
     "challenge_done",
     "challenge_ending",
+    "contest_won",
 ]
 # The events of what one did oneself, or of nobody's doing: told to
-# oneself too (the shape game, TASK-296).
+# oneself too (the shape game, TASK-296; the contest won, TASK-299).
 OWN_KINDS: frozenset[str] = frozenset(
-    {"shape_unlocked", "challenge_done", "challenge_ending"}
+    {"shape_unlocked", "challenge_done", "challenge_ending", "contest_won"}
 )
 
 # An Expo push token: "ExponentPushToken[…]", or "ExpoPushToken[…]".
@@ -280,6 +281,19 @@ TEXTS: dict[str, dict[str, str]] = {
         "it": "{shape}: manca 1 giorno. Pezzi da fare: {n}.",
         "es": "{shape}: queda 1 día. Piezas que faltan: {n}.",
         "fr": "{shape} : plus qu'1 jour. Pièces manquantes : {n}.",
+    },
+    # The contest (TASK-299): to the winner only, no name; the app opens
+    # the post (contests.py).
+    "contest_won": {
+        "en": "You won the MuW contest! Your post got the most reactions.",
+        "de": "Du hast den MuW-Wettbewerb gewonnen! Dein Beitrag hat die meisten"
+        " Reaktionen bekommen.",
+        "it": "Hai vinto il concorso MuW! Il tuo post ha avuto più reazioni di"
+        " tutti.",
+        "es": "¡Has ganado el concurso MuW! Tu publicación ha recibido más"
+        " reacciones que ninguna otra.",
+        "fr": "Tu as gagné le concours MuW ! Ta publication a reçu le plus de"
+        " réactions.",
     },
 }
 

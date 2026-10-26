@@ -302,7 +302,7 @@ giorni:
   pianificatore dalla partenza dell'utente;
 - niente che vada bene: il motore calcola come oggi, e il risultato entra
   nell'archivio con il piazzamento della ricerca vicino alla partenza
-  (`jobs.KeepsPlacements`, `put_plan`; `DATABASE.md`, la 0030).
+  (`jobs.KeepsPlacements`, `put_plan`; `DATABASE.md`, la 0031).
 
 Il contratto non cambia. Nel log: `job …: kept route reached along the
 roads` e `kept route reached from 62 m away`; negli eventi la risposta
@@ -1571,6 +1571,7 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `piece_done` | un compagno ha finito un pezzo della sfida (TASK-296 C) | gli altri iscritti | la sfida |
   | `challenge_done` | la squadra ha completato la forma (TASK-296 C) | tutti gli iscritti, anche chi ha corso | la sfida |
   | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
+  | `contest_won` | il comando `close` ha proclamato il suo post vincitore del concorso (TASK-299) | chi ha vinto | il disegno |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
@@ -1586,7 +1587,9 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   «ada asked to follow you.», «ada accepted your follow request.», «ada
   reacted 🔥 to your post.», «ada gave your post a MuW heart: …», «ada
   commented on your post: …», «ada tagged you in a post.», «You unlocked a
-  new shape! Find it in your collection, in Play.». Un commento
+  new shape! Find it in your collection, in Play.», «You won the MuW
+  contest! Your post got the most reactions.» (`contest_won`, TASK-299, in
+  `OWN_KINDS`, mandata dal comando `close` di `contests.py`). Un commento
   entra su una riga, al più 100 caratteri. Nessun titolo (iOS mostra il
   nome dell'app), suono quello del telefono.
 - **`data`** (`PushData`) dice all'app cosa aprire: `{ kind, drawing_id }`
@@ -2419,6 +2422,66 @@ iscritto solo nome, foto, pezzi e metri: mai tracce, orari o luoghi.
   transazione del blocco (`moderation.py`, `app.state.on_block`): la
   regola è nel task file, parte C.
 
+### Contest (TASK-299, ADR-0260)
+
+Il primo concorso: per un periodo i post pubblicati per tutti gareggiano,
+e vince quello con più reazioni. Il premio non ha valore in denaro: il
+badge «Winner» sul profilo, il post in cima al Feed per una settimana, una
+push a chi ha vinto. Le regole sono in `CONCORSI.md`; il codice in
+`contests.py`, con i comandi `open`, `standings` e `close` (`CONCORSI.md`
+§11). Tipi in `shared-types` (`Contest`, `ContestEntry`, `ContestMine`,
+`ContestWinner`), esempi in `fixtures/contest.json` e `contest-closed.json`.
+
+| Endpoint | Account | Cosa | Risposta |
+|---|---|---|---|
+| `GET /contests/current` | no (il token aggiunge `mine`) | il concorso aperto, o chiuso da meno di 7 giorni | `200` `Contest`, o `404 no_contest` |
+
+- **Senza token** risponde a chiunque abbia la chiave dell'API: `id`,
+  `starts_at`, `ends_at`, `closed_at` (`null` finché aperto), `top` e
+  `winner`; `mine` **non c'è**. Un token di una sessione che non esiste:
+  `401 not_signed_in`, come ovunque. Senza database, `503
+  accounts_unavailable`.
+- **`top`**: al più **tre** post, ognuno con `rank`, `reactions` e
+  `drawing` (un `FeedPost`: il disegno come lo elenca il Feed, con
+  `author` e `track_preview`, mai la traccia intera). L'ordine è quello
+  di `CONCORSI.md` §4: più reazioni, poi più cuori MuW, poi il post
+  pubblicato prima. Con un token, un post attraverso un blocco con chi
+  chiede **non c'è**, e gli altri tengono il loro `rank`: la lista può
+  avere due voci.
+- **`mine`**, solo con un token: `{ drawing_id, rank, reactions }` del
+  miglior post di chi chiede fra quelli che partecipano, o `null` se non
+  ne ha.
+- **`winner`**: `null` finché aperto; dopo la chiusura `{ reactions,
+  drawing }`, con `drawing` `null` se la corsa è stata cancellata o nessuno
+  ha partecipato.
+- **Che cosa partecipa e che cosa conta** (`CONCORSI.md` §3): un disegno
+  `everyone` con `published_at` nel periodo, non nascosto e di un account
+  non nascosto (TASK-291); una reazione per account, di qualunque tipo,
+  mai la propria, non attraverso un blocco con l'autore (né di un account
+  nascosto), lasciata entro `ends_at`. Il Feed, le reazioni e i profili
+  non cambiano.
+- **`404 no_contest`** «There is no contest right now.» senza un concorso
+  aperto né uno chiuso da meno di 7 giorni (`SHOWN_AFTER_CLOSE`): l'app
+  non mostra la scheda.
+- **I profili**: `contest_wins` in `GET /users/{public_id}` e in `User`
+  (`GET /me`, `Session`, ogni risposta che riporta l'account): quanti
+  concorsi ha vinto; il badge «Winner» da 1 in su. Resta anche se la
+  corsa vincitrice è cancellata; un account cancellato lascia il concorso
+  senza vincitore.
+- **La push** `contest_won` al solo vincitore, mandata dal comando `close`
+  dopo il commit, con gli interruttori di «Push notifications»; `data` è
+  `{ kind, drawing_id }`.
+- **I comandi**, sul server (`python -m shaperoute_api.contests …`):
+  `open --from … --to …` (momenti ISO 8601 con l'offset; rifiuta un
+  secondo concorso aperto e `to ≤ from`), `standings` (i primi dieci con
+  posto, autore, titolo, reazioni, di cui da account nati dopo l'inizio,
+  cuori MuW, id del disegno), `close [--exclude <drawing_id> …]
+  [--dry-run]` (proclama una volta sola; rifiuta prima di `ends_at`;
+  `--dry-run` dice chi vincerebbe e non scrive). Escono con 0 (fatto), 1
+  (niente da fare) o 2 (rifiuto).
+- **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app non
+  mostra la scheda, come con `no_contest`.
+
 ### Send to Strava (TASK-187, ADR-0156)
 
 Una corsa salvata va sul profilo Strava di chi ha collegato il suo atleta,
@@ -2632,6 +2695,7 @@ motore, in una parola.
 | Account: nessun token, o uno di una sessione chiusa | 401 | `not_signed_in` |
 | Account: sessione non usata da 90 giorni | 401 | `session_expired` |
 | Account: l'API non ha un database (`SHAPEROUTE_DATABASE_URL`) | 503 | `accounts_unavailable` |
+| Concorso: nessun concorso aperto né chiuso da meno di 7 giorni (TASK-299) | 404 | `no_contest` |
 | Strava: il server non ha la sua app Strava (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`) | 503 | `http_error` |
 | Strava: l'account non ha un atleta collegato, o l'atleta ha tolto l'accesso | 409 | `http_error` |
 | Strava: non risponde | 502 | `http_error` |

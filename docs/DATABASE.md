@@ -593,8 +593,32 @@ la trovano dal nome):
 - Nessun token nel database: i link sono firmati (ADR-0261). Con
   l'account se ne vanno le due colonne; nessuna tabella nuova.
 
-Migrazione `0030_drawn_routes_placement.sql` (TASK-297 parte A2, aggiunta
-ad ADR-0256; il numero è il primo libero in `main` al merge):
+Migrazione `0030_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
+§9; il numero è il primo libero in `main` al merge):
+
+- `contests`: una riga per concorso. `id` (uuid casuale), `starts_at` ed
+  `ends_at` (`CHECK (ends_at > starts_at)`), `winner_drawing_id`
+  (`REFERENCES drawings ON DELETE SET NULL`), `winner_user_id`
+  (`REFERENCES users ON DELETE SET NULL`), `closed_at` (quando il
+  vincitore è stato proclamato; `NULL` finché aperto, e allora i due
+  `winner_*` sono `NULL` per `CHECK`), `created_at` (quando è stato
+  aperto).
+- **Un solo concorso aperto**: indice unico parziale
+  `contests_one_open_idx` su `((TRUE)) WHERE closed_at IS NULL` (un indice
+  su `closed_at` non basterebbe: in un indice unico i `NULL` non
+  collidono). Indici su `winner_user_id` (`contest_wins` dei profili,
+  `accounts.contest_wins_sql`) e su `winner_drawing_id`.
+- **Niente colonne nuove** su `drawings` e `reactions`: chi partecipa e
+  quante reazioni contano si leggono dalle tabelle così come sono
+  (`contests.py`, una query); i post esclusi con `close --exclude` non si
+  scrivono.
+- **Cancellazioni**: la corsa vincitrice cancellata porta via il disegno e
+  lascia `winner_user_id` (il badge resta); l'account cancellato lascia il
+  concorso senza vincitore. Test in `test_contests.py`.
+
+Migrazione `0031_drawn_routes_placement.sql` (TASK-297 parte A2, aggiunta
+ad ADR-0256; il numero è il primo libero in `main` al merge: la 0030 è di
+TASK-299 A, #562):
 
 - In `drawn_routes`, **dove il motore ha messo la forma** del percorso,
   per ridisegnarlo da lì dopo un cambio del motore (`API.md`, «L'archivio
