@@ -195,6 +195,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-26; `schemas.py` viaggia nel motore del telefono, quindi
   `engine.zip` rifatto (ok del Coordinatore). Server dopo Apple, con l'ok
   dell'utente.
+  **Parte B** (app, branch `feat/TASK-299-b-contest-app`, PR #575): la
+  cartella `src/contest/`; la scheda sotto la lente di «Feed» solo con un
+  concorso (chiesto quando «Feed» si apre e a ogni pull, tenuto in
+  `contest.json`, cancellato da un 404): i giorni che restano, i primi tre
+  che aprono il post, «Your best post» o «Publish a run to take part.»,
+  «How it works» con il regolamento ufficiale; per 7 giorni dopo la
+  chiusura il post vincitore; il badge «Winner» nei profili
+  (`contest_wins`) e la fascia sul disegno vincitore. Testi nelle cinque
+  lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
+  (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
+  nascosta finché il server non ha la parte A.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
