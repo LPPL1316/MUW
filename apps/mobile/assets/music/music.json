@@ -1,0 +1,62 @@
+{
+  "energy": {
+    "file": "energy.m4a",
+    "bytes": 186862,
+    "pcm_sha256": "0b8a2b9b4d845e794d02f5caeea62a64ad7734e083acf873fae0d2dc82bdb0f8",
+    "m4a_sha256": "d7a47ef589923b7e1ac689939be21594f85a8c1d5137888258615eb5f89c5b6a"
+  },
+  "chill": {
+    "file": "chill.m4a",
+    "bytes": 188847,
+    "pcm_sha256": "1240d2ffbd8d7c4b4c5ee6db471204c35eec300d4bb44185cfd4a3df3a8e82a3",
+    "m4a_sha256": "c7a52ded144839adeaf17b8349fc2a8ac5449543d1f6878d1befc1875db59486"
+  },
+  "epic": {
+    "file": "epic.m4a",
+    "bytes": 187760,
+    "pcm_sha256": "f3dcfae8f0fb6b3ed49e1bb7713f5369cf0eb7a705cf1d2b9339416fec5ab651",
+    "m4a_sha256": "0562283fb6c70dd8dd110a6715df96baf86be809902d2d950a39e4a7cbc15f52"
+  },
+  "sprint": {
+    "file": "sprint.m4a",
+    "bytes": 186586,
+    "pcm_sha256": "6341cbd93d3bbb23845666a43b4f1a89a458cf1cabc5ee3974c3f420196f9dd7",
+    "m4a_sha256": "823c71ed14e1167438d947651bcdc10adc6476cbaff2a99dfa74965d1ea323eb"
+  },
+  "rock": {
+    "file": "rock.m4a",
+    "bytes": 187868,
+    "pcm_sha256": "d8746ff949f53527bff1a2860f2a561b941981cd927987ee1fc92cedfe439175",
+    "m4a_sha256": "901cc00d8ca9199ff19a2f963198c5e23e7fb475ddc3aff10c54c21b9e502d77"
+  },
+  "funk": {
+    "file": "funk.m4a",
+    "bytes": 189641,
+    "pcm_sha256": "52bf7790e2bc319cc1a0d5c9fa005ef78b3dc55751b076e9e5053aee5651fcff",
+    "m4a_sha256": "025e34e0120212b1abb5d951c5d4e3d22db3d0f5b630e7d93a90b1f97e2dcc8b"
+  },
+  "sunny": {
+    "file": "sunny.m4a",
+    "bytes": 189364,
+    "pcm_sha256": "144f3d4319d39da441d194deab63cb95a563da3f0cab775bd9fa0bb43a465d30",
+    "m4a_sha256": "907687224476389503f950e30075db3496aaa30ad2c0e653cda84400b81346ea"
+  },
+  "trap": {
+    "file": "trap.m4a",
+    "bytes": 188658,
+    "pcm_sha256": "78861bfade495cf2dd0014af4d46ffcba50d041828503e22096d0ce3b6eb396e",
+    "m4a_sha256": "e1363e6376060bdbc7e608b1181402acdb38250a9aa9f16d0aaa50ca6cc3fd20"
+  },
+  "retro": {
+    "file": "retro.m4a",
+    "bytes": 186892,
+    "pcm_sha256": "8143f72b56fec97f7d3459ea668d3bb98c31518819c402e6cf545a345662e725",
+    "m4a_sha256": "1fb8b315ed324176b231534a630e95ae902c1d5e65cc5dda5b72436d43b07a2d"
+  },
+  "fiesta": {
+    "file": "fiesta.m4a",
+    "bytes": 186535,
+    "pcm_sha256": "283ba864c1c026d604a3fb691b8c17ca186cb33b088f5fd66f74095c0bc8e6a2",
+    "m4a_sha256": "6b4b2904a04bb44b4e8e586b0110f3c30f13bfcbf1b9dbf5f66d0af19fab70ac"
+  }
+}

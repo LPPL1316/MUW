@@ -16472,3 +16472,91 @@ ritorno (TASK-284) e le notizie (TASK-262 B) solo a indirizzi confermati è
 una scelta di quei task. L'app di prima, a un cambio in attesa, mostra
 ancora il vecchio indirizzo: la parte B va pubblicata prima o con il
 server.
+
+## ADR-0262 — La musica nel video della corsa: dieci brani nostri, scritti da uno script, copiati nel MP4 come traccia AAC
+
+**Stato**: Attiva · 2026-10-25 · sostituisce il punto 1 di ADR-0254 solo
+per «Niente musica» (il resto di ADR-0254 vale com'è) · fonte, brani,
+nomi, testi e partenza spenta li ha scelti l'utente; i punti tecnici sono
+decisi dall'agente su delega dell'utente (TASK-301)
+
+**Contesto**: l'utente il 2026-10-25: «aggiungi la musica al video»; il
+2026-10-23 aveva scelto il video muto (ADR-0254). Su iOS 16.4–18 WebKit
+non ha `AudioEncoder` (WebCodecs audio arriva con iOS 26): l'audio non si
+può codificare sul telefono senza niente di nativo. Un brano di altri ha
+una licenza da verificare e può essere rivendicato con Content ID, che su
+Instagram toglie l'audio al Reel.
+
+**Decisione**:
+
+1. **Le scelte dell'utente**, una domanda per volta: musica **originale,
+   fatta da noi**; **dieci brani** («aggiungi altre 7 canzoni dai»,
+   dopo i primi tre, e «Più carica» ai ritocchi): Energy, Chill, Epic,
+   Sprint, Rock, Funk, Sunny, Trap, Retro, Fiesta; **sceglie chi corre**
+   nella riga «Music» di «Share your run», sopra i pulsanti, e un tocco
+   gli fa sentire il brano; **si parte da «None»** («Spenta»), e la scelta
+   non si salva col post. I testi nelle cinque lingue sono in
+   `tasks/TASK-301.md`.
+2. **I brani li scrive `tools/video_music.py`**, nota per nota, sui tempi
+   del video: fino a 1 s l'entrata, da 1 a 9 s la linea, a 9 s il colpo
+   quando il disegno è intero, dissolvenza fino a 12 s. I tempi sono
+   quelli che mettono 9 s sul primo battito di una battuta (90, 120, 150,
+   180 bpm). Nessuna melodia presa da brani esistenti.
+3. **Uguali su ogni computer**: lo script usa solo + − × ÷ (il seno è una
+   parabola corretta, la `tanh` del limitatore una frazione, il rumore un
+   generatore lineare congruenziale fisso), niente `sin`/`exp`/`pow` della
+   libreria C, la cui ultima cifra cambia fra sistemi. I campioni a 16 bit
+   sono gli stessi byte per byte: `apps/mobile/assets/music/music.json`
+   ne tiene lo SHA-256, `pytest tools` (anche in CI, su Linux) li rifà e
+   li confronta, `python3 tools/video_music.py --check` lo stesso a mano.
+   Il campione più forte sta a 0,75 (−2,5 dBFS): la codifica AAC alza i
+   picchi fino a 1,3 dB, e con 0,89 qualche campione decodificato passava
+   il fondo scala; con 0,75 il più alto è 0,97 («Epic»).
+4. **AAC con `afconvert` di macOS** (scelta dell'utente: «Sì, afconvert»),
+   128 kbit/s, 44 100 Hz, stereo: uno strumento di sviluppo, nessuna
+   dipendenza dell'app. Per rigenerarli, su un Mac, dalla radice del
+   repository: `python3 tools/video_music.py`. afconvert mette il priming
+   (2112 campioni) in `iTunSMPB` e divide i pacchetti in chunk: lo script
+   riscrive il file come M4A semplice, un chunk, il priming in un `elst`
+   e il gruppo «roll» (punto 5).
+   `music.json` tiene anche lo SHA-256 del file, e jest e pytest
+   controllano che i dieci file dell'app siano quelli. Un afconvert di
+   un'altra versione di macOS può dare byte diversi: i campioni restano
+   uguali, il file va rifatto e `music.json` riscritto insieme.
+5. **Nel video la musica è copiata, non codificata**: l'app legge il
+   brano (`m4a.ts`) e `mp4.ts` aggiunge una seconda traccia `soun` dopo
+   quella video: `tkhd` 2, `edts/elst` che salta il priming e dura quanto
+   il video (12 s, 1 080 000 tick), `mdhd` a 44 100, `stsd mp4a` con
+   l'`esds` del brano, il gruppo «roll» (`sgpd`/`sbgp`, ogni pacchetto
+   decodificato dopo quello prima) come lo scrive AVAssetWriter, un chunk
+   dopo i fotogrammi. Senza il gruppo «roll» AVFoundation toglie il
+   priming due volte: la musica partiva 2112 campioni (48 ms) prima.
+   Provato con AVAssetReader: un clic a 1,000 s esce a 1,000 s, la musica
+   dura 529 200 campioni. Le due tracce partono insieme dal tempo 0. **Senza musica il file è identico byte per byte a
+   quello di ADR-0254** (impronta nel test).
+6. **I file stanno negli asset dell'app** (`require` dei `.m4a`, letti
+   con expo-asset ed expo-file-system, già nell'app): 1,88 MB in tutto,
+   ognuno sotto 300 KB, scaricati una volta con l'aggiornamento. Un brano
+   che non si legge fa fallire il video con «The video could not be made.
+   Try again.»: niente video muto quando si è scelta la musica.
+7. **Si sente con expo-audio**, già nell'app, caricato al primo tocco come
+   il suono degli esercizi (TASK-285): un tocco su un brano lo suona da
+   capo, «None» lo ferma, «Export video» e la chiusura della pagina anche.
+   Il modo del suono non cambia: fuori dalla corsa segue l'interruttore
+   del silenzio (ADR-0225), quindi con l'iPhone in silenzioso il brano non
+   si sente, ma va nel video.
+
+**Alternative scartate**: brani di pubblico dominio (Content ID, tagli a
+12 s che non seguono il video); un file scelto da chi corre (un modulo
+nativo nuovo per sceglierlo, un decoder per tagliarlo); `AudioEncoder`
+nel WebView (manca prima di iOS 26); suonare i brani nel WebView e
+registrarli (niente encoder lo stesso); ffmpeg per l'AAC (da installare
+sul Mac, l'utente ha scelto afconvert); i brani dentro il codice in base64
+(un terzo più grandi, nel bundle JS a ogni avvio).
+
+**Conseguenza**: solo app, nessuna dipendenza né permesso nuovi, niente
+di nativo: arriva con un aggiornamento OTA anche alla 1.0 (impronta iOS
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` invariata). L'aggiornamento
+pesa 1,88 MB in più la prima volta. Dodici testi nuovi in fondo alle
+tabelle («Music» c'era già). Rifare i brani costa circa 17 s di CPU, il
+loro test in CI circa 15 s.
