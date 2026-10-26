@@ -138,6 +138,24 @@ TASK-308 (#576) tocca altri paragrafi degli stessi file: righe diverse.
    indicazioni delle svolte: segui la linea sulla mappa.», de, fr, es nel
    codice.
 
+## Al merge
+
+- **La data della «Privacy» diventa quella del giorno del merge**
+  (richiesta del Coordinatore, come #556 e #576): oggi è «26 October
+  2026», messa il 2026-10-26 alle 23:52, e il merge cade dopo. Se il
+  giorno del merge non è il 26 ottobre, prima del merge:
+  1. `PRIVACY_UPDATED` in `apps/mobile/src/about/content/{en,it,de,fr,es}.ts`
+     («27 October 2026», «27 ottobre 2026», «27. Oktober 2026», «27 octobre
+     2026», «27 de octubre de 2026», o il giorno vero);
+  2. i test che la nominano: `apps/mobile/src/about/AboutPage.test.tsx`
+     (righe del titolo nelle cinque lingue), `apps/mobile/src/about/documents.test.ts`
+     (l'espressione della data), `site/tests/privacy.test.mjs` (le cinque
+     pagine);
+  3. `node site/tools/make_privacy.mjs` per riscrivere `site/privacy/*`;
+  4. `npx jest src/about` e i test del sito, poi push e CI verde.
+  Questi tre file di test si aggiungono a «File toccati» in quel momento.
+  Se #576 entra prima e ha già messo la data del giorno, resta la sua.
+
 ## Esito
 
 *(a fine task)*
