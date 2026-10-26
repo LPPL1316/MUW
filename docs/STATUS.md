@@ -210,6 +210,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   vedono). TASK-284 B tocca le stesse schermate in righe diverse. Server
   dopo Apple, con l'ok dell'utente; l'app prima o insieme. File:
   `tasks/TASK-300.md`.
+  **Chiuso**: in `main` con la #550 (`ef5021f4`, 2026-10-25); nota di
+  «Settings», help e privacy con TASK-284 B (#556); server dal
+  Coordinatore dopo Apple.
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -529,6 +532,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte A in `main`** con la #502 (`263e86db`, 2026-10-25, sul
   «finiscila» dell'utente), migrazione `0023_away_email.sql`; spenta finché
   il server non ha chiave, segreto e dominio. Resta la parte B, dopo #461.
+  **Parte B** (2026-10-25, branch `feat/TASK-284-b-app-privacy`): la
+  casella non spuntata all'iscrizione, «Email when I'm away» in
+  «Settings» e la **privacy unica** (email di ritorno, email delle
+  notifiche, segnalazioni, gioco, archivio dei percorsi, push Android,
+  Resend), approvata dall'utente («sì alla privacy, va bene così»).
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a

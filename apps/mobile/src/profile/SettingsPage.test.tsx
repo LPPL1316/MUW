@@ -88,18 +88,19 @@ test("«Help», «Terms» and «Privacy» are rows that open their page (TASK-18
   expect(onAbout.mock.calls).toEqual([["help"], ["terms"], ["privacy"]]);
 });
 
-test("the notifications are two switches kept in the account, off at first (TASK-185)", async () => {
+test("the notifications are three switches kept in the account, email and push off at first (TASK-185, TASK-284)", async () => {
   const account = await show({ changeNotifications: jest.fn(async () => null) });
   expect(screen.getByText("NOTIFICATIONS")).toBeOnTheScreen();
   const email = screen.getByRole("switch", { name: "Email notifications" });
   const push = screen.getByRole("switch", { name: "Push notifications" });
-  expect(screen.getAllByRole("switch")).toHaveLength(2);
+  expect(screen.getAllByRole("switch")).toHaveLength(3);
   expect(email).not.toBeChecked();
   expect(push).not.toBeChecked();
-  // The page says what push tells, and that no email is sent yet (TASK-262).
+  expect(screen.getByRole("switch", { name: "Email when I'm away" })).toBeChecked();
+  // The page says what push and the emails send (TASK-262, TASK-284).
   expect(
     screen.getByText(
-      "Push notifications tell you about follow requests, reactions, comments and tags. MuW does not send emails yet: your choice is kept for when it does.",
+      "Push notifications tell you at once about follow requests, reactions, comments and tags. Email notifications sends the same news in one email a day at most. Email when I'm away: one email if you don't open MuW for 2 weeks.",
     ),
   ).toBeOnTheScreen();
   // The phone allows them when asked (the mock of expo-notifications).

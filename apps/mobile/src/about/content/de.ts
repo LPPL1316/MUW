@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10. Oktober 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "25. Oktober 2026";
+const PRIVACY_UPDATED = "26. Oktober 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
@@ -106,7 +106,7 @@ const help: AboutDocument = {
             "Sprache: English, Deutsch, Italiano, Español oder Français. Die Stimme folgt ihr.",
             "Offline-Karten: Das Handy behält die Karten um dich herum und zeichnet Routen selbst; «Löschen» gibt den Speicher frei.",
             "Einheiten: die deines Handys, Kilometer oder Meilen. Mit Meilen folgen die Distanzen, das Tempo und die Stimme: eine Ansage bei jeder Meile, die Abbiegungen in Fuß.",
-            "Benachrichtigungen: zwei Schalter, E-Mail und Push, aus, bis du sie einschaltest. Mit Push an, und sobald dein Telefon es erlaubt, meldet dir MuW Folgeanfragen, angenommene Anfragen, Reaktionen, Kommentare und Markierungen; ein Tippen darauf öffnet den Beitrag oder das Profil. MuW sendet noch keine E-Mails: Diese Wahl bleibt in deinem Konto gespeichert, für den Tag, an dem es so weit ist.",
+            "Benachrichtigungen: drei Schalter. «E-Mail-Benachrichtigungen» und «Push-Benachrichtigungen» sind aus, bis du sie einschaltest; «E-Mail, wenn ich weg bin» ist an, bis du ihn ausschaltest. Mit Push an, und sobald dein Telefon es erlaubt, meldet dir MuW sofort Folgeanfragen, angenommene Anfragen, Reaktionen, Kommentare und Markierungen; ein Tippen darauf öffnet den Beitrag oder das Profil. Mit E-Mail an kommen dieselben Neuigkeiten in höchstens einer E-Mail am Tag. «E-Mail, wenn ich weg bin»: Wenn du MuW 2 Wochen lang nicht öffnest, eine E-Mail mit den Neuigkeiten.",
           ],
         },
       ],
@@ -275,10 +275,24 @@ const privacy: AboutDocument = {
             "Dein Passwort, nur als Hash gespeichert (Argon2id): Das Passwort selbst speichern oder sehen wir nie.",
             "Der Tag deiner Registrierung und wann du bestätigt hast, dass du mindestens 16 bist.",
             "Die Sitzung jedes Handys, mit dem du dich angemeldet hast: Das Handy bewahrt ein Token in seinem sicheren Speicher auf, der Server nur einen Hash davon. Eine Sitzung endet 90 Tage nach ihrer letzten Nutzung oder wenn du dich abmeldest.",
-            "Deine zwei Einstellungen zu Benachrichtigungen in «Einstellungen», E-Mail und Push: Beide sind aus, bis du sie einschaltest. Mit Push an: der Push-Token deines Telefons, ob es ein iPhone oder ein Android ist, und die Sprache der App, um dir Benachrichtigungen über den Push-Dienst von Expo zu senden, der sie an Apple oder Google weitergibt. Eine Benachrichtigung sagt, wer was getan hat, mit dem Anfang eines Kommentars. Der Token wird gelöscht, wenn du Push ausschaltest, dich abmeldest oder dein Konto löschst. MuW sendet noch keine E-Mails.",
+            "Deine drei Einstellungen zu Benachrichtigungen in «Einstellungen»: «E-Mail-Benachrichtigungen» und «Push-Benachrichtigungen», aus, bis du sie einschaltest, und «E-Mail, wenn ich weg bin», an, bis du ihn ausschaltest. Mit Push an: der Push-Token deines Telefons, ob es ein iPhone oder ein Android ist, und die Sprache der App, um dir Benachrichtigungen über den Push-Dienst von Expo zu senden, der sie an Apple oder Google weitergibt. Eine Benachrichtigung sagt, wer was getan hat, mit dem Anfang eines Kommentars. Der Token wird gelöscht, wenn du Push ausschaltest, dich abmeldest oder dein Konto löschst.",
+            "Die Sprache der App bei deiner Anmeldung, um dir unsere E-Mails in dieser Sprache zu schreiben.",
           ],
         },
         "Deine E-Mail-Adresse wird den anderen Mitgliedern nie gezeigt.",
+      ],
+    },
+    {
+      heading: "E-Mails von MuW",
+      blocks: [
+        {
+          bullets: [
+            "Mit «E-Mail-Benachrichtigungen» an höchstens eine E-Mail am Tag, nur an Tagen mit Neuigkeiten: die Folgeanfragen, angenommenen Anfragen, Reaktionen, Kommentare und Markierungen des Tages, so wie die Push-Benachrichtigungen sie sagen. Bis sie verschickt ist, behält unser Server, wer was bei welchem Beitrag getan hat, höchstens 7 Tage lang; was beim Schreiben nicht mehr stimmt, bleibt draußen.",
+            "«E-Mail, wenn ich weg bin»: Wenn du MuW 2 Wochen lang nicht öffnest, eine E-Mail damit, wie viele neue Zeichnungen es von den Leuten gibt, denen du folgst, mit bis zu drei ihrer Benutzernamen, oder sonst im Feed. Eine pro Abwesenheit: die nächste erst, wenn du zurück und wieder weg bist. Sie ist für jedes Mitglied an, auch für alle, die sich vor diesem Text angemeldet haben; du kannst bei der Anmeldung, in «Einstellungen» oder mit dem Link in der E-Mail Nein sagen.",
+            "Jede E-Mail hat den Link «Schickt mir diese E-Mails nicht mehr», der diese E-Mail ausschaltet. Wir verschicken sie über Resend, von einer Adresse von getmuw.app.",
+            "E-Mails, die dein Konto braucht und die kein Schalter ausschaltet: eine, um deine Adresse zu bestätigen, wenn du dich anmeldest oder sie änderst, ein Hinweis an deine alte Adresse, wenn du sie änderst, und ein Link für ein neues Passwort, wenn du danach fragst.",
+          ],
+        },
       ],
     },
     {
@@ -325,9 +339,22 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Meldungen",
+      blocks: [
+        "Wenn du eine Zeichnung, einen Kommentar oder ein Profil meldest, behalten wir, wer was gemeldet hat, den Grund und wann. Wer MuW betreibt, bekommt die Meldung per E-Mail und kann das Gemeldete vor den anderen Mitgliedern verbergen. Nichts wird gelöscht, und wer es geschrieben hat, sieht es weiter. Deine Meldung wird dem Verfasser nie gezeigt.",
+      ],
+    },
+    {
+      heading: "Das Formenspiel",
+      blocks: [
+        "Mit einem Konto berechnet unser Server aus deinen gespeicherten Läufen zu Fuß, wie viele Kilometer für das Spiel zählen, deine Bestzeiten über 1, 5, 10 und 21,1 km und die Formen, die du gesammelt hast. Nur du siehst deine Sammlung und deine Bestzeiten. Wenn du einem Team beitrittst, sehen seine Mitglieder deinen Benutzernamen, dein Bild, die Teile einer Herausforderung, die du übernommen hast, und die Kilometer, die du zu jedem beigetragen hast, nie deine Strecken, die Zeiten deiner Läufe oder wo du gelaufen bist. Ein Team findet man nur mit seinem Code: Es ist nie in einer Suche. Wenn du einen Lauf löschst, fallen seine Kilometer aus der Zählung, und die Formen, die du schon gesammelt hast, bleiben. Wenn du dein Konto löschst, werden deine Spieldaten mit gelöscht; in den Herausforderungen eines Teams bleiben die Teile, die du gelaufen bist, für die anderen, ohne deinen Namen.",
+      ],
+    },
+    {
       heading: "Routen, die du anforderst",
       blocks: [
         "Um eine Route zu zeichnen, sendet die App unserem Server den Start, die Form oder das Wort und die Distanz. Hat das Handy die Offline-Karte der Gegend, zeichnet es die Route selbst.",
+        "Die Routen, die unser Motor zeichnet, bleiben auf unserem Server, ohne zu speichern, wer sie angefragt hat, um allen, die dieselbe Zeichnung in der Nähe anfragen, sofort zu antworten und um sie vorzuschlagen; wir zählen, wie viele Läufe und Favoriten jeder folgen. Eine Route beginnt dort, wo sie angefragt wurde, oft nahe bei jemandem zu Hause, sagt aber nie, wer sie angefragt hat oder gelaufen ist.",
         "Die Offline-Karten kommen von unserem Server: die um dich herum und, im Voraus, die der Orte in der Nähe. Um diese Downloads zu begrenzen, zählt der Server sie pro Tag nach einer anonymen Nummer, die die App für das Handy erzeugt; die Zählung bleibt nur im Arbeitsspeicher.",
         "Wörter, die eine Form beschreiben, werden auf unserem Server gelesen und an keinen externen KI-Dienst gesendet.",
         "Ein Foto, das du für eine Zeichnung wählst, geht einmal an unseren Server, um seinen Umriss zu finden: Der Server speichert es nicht und protokolliert es nicht.",
@@ -366,6 +393,8 @@ const privacy: AboutDocument = {
             "Den Overpass-Dienst für OpenStreetMap-Daten fragt unser Server nach der Karte einer Gegend, die er noch nicht hat: Er sieht, welche Gegend, nicht wer gefragt hat.",
             "unpkg liefert die Kartenbibliothek, wenn die App startet.",
             "Expo liefert die Updates der App.",
+            "Google Ireland Limited (Firebase Cloud Messaging), um Push-Benachrichtigungen an Android-Telefone zu liefern. Wenn du Push einschaltest, fragt die App bei Firebase einen Registrierungs-Token für dein Telefon an; der Push-Dienst von Expo gibt jede Benachrichtigung (wer was getan hat, und den Anfang eines Kommentars) an Google weiter, das sie an dein Telefon liefert. Google sieht den Token und den Inhalt jeder Benachrichtigung, nicht dein Konto und nicht deine Position. Der Token wird von unserem Server entfernt, wenn du Push ausschaltest, dich abmeldest oder dein Konto löschst; der auf dem Telefon verschwindet, wenn du die App deinstallierst.",
+            "Resend, in den Vereinigten Staaten, verschickt die E-Mails von MuW: deine E-Mail-Adresse mit der E-Mail selbst. Bei einer Meldung bringt es dem Betreiber von MuW, was gemeldet wurde, seinen Text, den Grund und die Benutzernamen dessen, der es gemeldet hat, und dessen, der es geschrieben hat.",
             "Strava, wie oben gesagt.",
           ],
         },
@@ -378,7 +407,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Auf unserem Server in Deutschland, solange du das Konto hast.",
-            "Wenn du dein Konto löschst, wird alles, was dir gehört, sofort gelöscht: Profil, Bild, Telefonnummer, Läufe, Zeichnungen, Favoriten, Kommentare, Reaktionen und Folgen.",
+            "Wenn du dein Konto löschst, wird alles, was dir gehört, sofort gelöscht: Profil, Bild, Telefonnummer, Läufe, Zeichnungen, Favoriten, Kommentare, Reaktionen, Folgen, Spieldaten und die Neuigkeiten, die auf deine E-Mail warten. Die Routen, die unser Motor gezeichnet hat, bleiben: Sie sagen nichts darüber, wer sie angefragt hat.",
             "Jede Nacht wird eine Sicherungskopie der Datenbank gemacht und 13 Tage aufbewahrt: Ein gelöschtes Konto ist nach höchstens 14 Tagen aus jeder Sicherungskopie verschwunden.",
             "Auf deinem Handy: die Sitzung, deine Einstellungen (Sprache, Sport, Seen oder Meer), die Offline-Karten, die Läufe, die noch darauf warten, gesendet zu werden, und mit einem Konto die Gegend, in der deine Aktivitäten meist beginnen, um dir Seen und Meer in der Nähe vorzuschlagen; sie wird gelöscht, wenn du dich abmeldest.",
           ],
@@ -391,8 +420,8 @@ const privacy: AboutDocument = {
       blocks: [
         {
           bullets: [
-            "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst.",
-            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird.",
+            "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst, die E-Mails der Benachrichtigungen, die du eingeschaltet hast, und das Formenspiel.",
+            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist.",
             "Deine Einwilligung: die Telefonnummer, die du hinzufügst, und die Verbindung mit Strava. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
             "Eine rechtliche Pflicht, wenn ein Gesetz von uns verlangt, Daten aufzubewahren oder herauszugeben.",
           ],
@@ -409,6 +438,7 @@ const privacy: AboutDocument = {
             "einen Lauf in «Meine Aktivitäten», einen Favoriten, einen Kommentar oder das ganze Konto in «Einstellungen», «Konto löschen», löschen;",
             "von uns eine Kopie deiner Daten verlangen oder verlangen, dass wir eine Nutzung beenden oder einschränken;",
             "eine Einwilligung widerrufen, die du gegeben hast;",
+            "jede E-Mail in «Einstellungen» oder mit ihrem Link ausschalten;",
             "dich bei der Datenschutzbehörde deines Landes beschweren (in Italien beim Garante per la protezione dei dati personali).",
           ],
         },

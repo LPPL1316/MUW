@@ -18,6 +18,7 @@ const SIGN_UP = {
   username: signUpRequest.username,
   password: signUpRequest.password,
   atLeast16: true,
+  noAwayEmail: false,
 };
 
 beforeEach(() => {

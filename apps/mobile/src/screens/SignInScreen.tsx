@@ -55,6 +55,8 @@ type Props = {
  * «Sign up» and «Log in» (TASK-115): email and password, and for a new
  * account a username and «I am at least 16» (ADR-0114). The fields are
  * checked before they leave; what goes wrong is said under the button.
+ * Under the boxes, what the email when away is, and the unticked box that
+ * says no to it (TASK-284, ADR-0244).
  */
 export function SignInScreen({
   initialMode,
@@ -71,6 +73,7 @@ export function SignInScreen({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [atLeast16, setAtLeast16] = useState(false);
+  const [noAwayEmail, setNoAwayEmail] = useState(false);
   const usernameField = useRef<TextInput>(null);
   const passwordField = useRef<TextInput>(null);
   const signingUp = mode === "signUp";
@@ -88,7 +91,7 @@ export function SignInScreen({
       return;
     }
     if (signingUp) {
-      onSignUp({ email, username, password, atLeast16 });
+      onSignUp({ email, username, password, atLeast16, noAwayEmail });
     } else {
       onLogIn({ email, password });
     }
@@ -176,6 +179,25 @@ export function SignInScreen({
           </View>
           <Text style={styles.checkText}>{t("I am at least 16")}</Text>
         </Pressable>
+      )}
+      {signingUp && (
+        <View style={styles.away}>
+          <Text style={styles.awayText}>
+            {t("If you don't open MuW for 2 weeks, we email you once with what's new.")}
+          </Text>
+          <Pressable
+            style={styles.check}
+            onPress={() => setNoAwayEmail(!noAwayEmail)}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: noAwayEmail }}
+            accessibilityLabel={t("Don't send me these emails")}
+          >
+            <View style={[styles.box, noAwayEmail && styles.boxChecked]}>
+              {noAwayEmail && <Text style={styles.tick}>✓</Text>}
+            </View>
+            <Text style={styles.checkText}>{t("Don't send me these emails")}</Text>
+          </Pressable>
+        </View>
       )}
       <Pressable
         style={[styles.button, busy && styles.buttonBusy]}
@@ -296,6 +318,13 @@ const styles = StyleSheet.create({
   checkText: {
     color: color.text,
     fontSize: fontSize.body,
+  },
+  away: {
+    gap: space.xs,
+  },
+  awayText: {
+    color: color.textMuted,
+    fontSize: fontSize.small,
   },
   // Not yellow: that is the route's (docs/UI.md, «Il tema»).
   button: {
