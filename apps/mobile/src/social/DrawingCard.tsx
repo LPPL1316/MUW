@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { dayLabel } from "../activities/activityText";
+import { useWinnerDrawingId } from "../contest/contestKept";
+import { WinnerBadge } from "../contest/WinnerBadge";
 import { t } from "../i18n";
 import {
   color,
@@ -36,13 +38,16 @@ export const PHOTO_HEIGHT = 160;
  * and the names tagged, each of which opens its profile (TASK-208). Never
  * the score (TASK-241, the user's choice), nor the time of day: the
  * others see the drawing, not when somebody runs. Its comments open from
- * a button (TASK-120), and next to it are its reactions (TASK-119).
+ * a button (TASK-120), and next to it are its reactions (TASK-119). The
+ * drawing that won the contest kept on the phone has the «Winner» band on
+ * top (TASK-299).
  */
 export function DrawingCard({ drawing, onBack }: Props) {
   const day = dayLabel(drawing.started_at);
   const units = useUnits();
   const { photoSource } = useDrawingsDoor();
   const { openProfile } = useFollowsDoor();
+  const won = useWinnerDrawingId() === drawing.id;
   // A super like goes with a comment: the comments are asked for again.
   const [superLikes, setSuperLikes] = useState(0);
   const photos = drawing.photos ?? [];
@@ -53,6 +58,7 @@ export function DrawingCard({ drawing, onBack }: Props) {
   ].join(" · ");
   return (
     <View style={styles.card}>
+      {won && <WinnerBadge band />}
       <View style={styles.row}>
         <View style={styles.words}>
           <Text style={styles.title}>{drawing.title ?? day}</Text>

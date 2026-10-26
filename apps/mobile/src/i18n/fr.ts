@@ -1413,4 +1413,33 @@ export const FR: Table = {
   Retro: "Rétro",
   Fiesta: "Fiesta",
   "Tap a track to hear it.": "Touche un morceau pour l'écouter.",
+  // src/contest/ (TASK-299 B: the contest card, its rules, the Winner badge)
+  "MuW contest": "Concours MuW",
+  "The post with the most reactions wins.":
+    "La publication avec le plus de réactions gagne.",
+  "{count} day left": "Encore {count} jour",
+  "{count} days left": "Encore {count} jours",
+  "Ends today": "Se termine aujourd'hui",
+  "Ended · the winner is coming": "Terminé · le gagnant arrive bientôt",
+  "Publish a run to take part.": "Publie une course pour participer.",
+  "Your best post: #{rank}, {count} reaction":
+    "Ta meilleure publication : n° {rank}, {count} réaction",
+  "Your best post: #{rank}, {count} reactions":
+    "Ta meilleure publication : n° {rank}, {count} réactions",
+  "How it works": "Comment ça marche",
+  "Official rules": "Règlement officiel",
+  "Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.":
+    "Organisé par MuW (Luca Pallaoro). Du {start} au {end}.",
+  "Anyone with a MuW account can take part, for free, by publishing a run for everyone in the app during the contest.":
+    "Toute personne ayant un compte MuW peut participer gratuitement, en publiant une course visible par tous dans l'app pendant le concours.",
+  "At the end, the post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "À la fin, la publication avec le plus de réactions des autres membres gagne. Une réaction par membre compte ; la tienne ne compte pas. En cas d'égalité, la publication avec le plus de cœurs MuW gagne, puis celle publiée en premier.",
+  "The prize has no money value: the winner gets the Winner badge on their profile and their post shown at the top of the Feed for a week.":
+    "Le prix n'a aucune valeur en argent : la personne gagnante reçoit le badge Gagnant sur son profil et sa publication est affichée en haut du Feed pendant une semaine.",
+  "MuW may leave out a post that breaks the community rules.":
+    "MuW peut écarter une publication qui enfreint les règles de la communauté.",
+  "Apple and Google are not sponsors of this contest and are not involved in it in any way.":
+    "Apple et Google ne sont pas sponsors de ce concours et n'y sont impliqués d'aucune manière.",
+  Winner: "Gagnant",
+  "{name} won the MuW contest": "{name} a gagné le concours MuW",
 };
