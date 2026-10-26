@@ -365,20 +365,6 @@ export const FR: Table = {
   "Notifications are not available on this API yet.":
     "Sur cette API, il n'y a pas encore de notifications.",
 
-  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
-  "Send feedback": "Envoie-nous ton avis",
-  "Thank you! Your message reached us.": "Merci ! Ton message nous est bien parvenu.",
-  "Ideas, problems, anything that would make MuW better: we read every message.":
-    "Idées, problèmes, tout ce qui rendrait MuW meilleur : nous lisons chaque message.",
-  "Write here…": "Écris ici…",
-  "Your message": "Ton message",
-  "It reaches us with your username, your email and the app's version, so we can answer you.":
-    "Il nous parvient avec ton nom d'utilisateur, ton e-mail et la version de l'app, pour que nous puissions te répondre.",
-  "Write something first.": "Écris d'abord quelque chose.",
-  "You sent a lot of feedback today. Try again tomorrow.":
-    "Tu nous as déjà beaucoup écrit aujourd'hui. Réessaie demain.",
-  FEEDBACK: "AVIS",
-
   // src/profile/SettingsPage.tsx
   "Change email": "Changer d'e-mail",
   "Phone number": "Numéro de téléphone",
@@ -1427,4 +1413,18 @@ export const FR: Table = {
   Retro: "Rétro",
   Fiesta: "Fiesta",
   "Tap a track to hear it.": "Touche un morceau pour l'écouter.",
+
+  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
+  "Send feedback": "Envoie-nous ton avis",
+  "Thank you! Your message reached us.": "Merci ! Ton message nous est bien parvenu.",
+  "Ideas, problems, anything that would make MuW better: we read every message.":
+    "Idées, problèmes, tout ce qui rendrait MuW meilleur : nous lisons chaque message.",
+  "Write here…": "Écris ici…",
+  "Your message": "Ton message",
+  "It reaches us with your username, your email and the app's version, so we can answer you.":
+    "Il nous parvient avec ton nom d'utilisateur, ton e-mail et la version de l'app, pour que nous puissions te répondre.",
+  "Write something first.": "Écris d'abord quelque chose.",
+  "You sent a lot of feedback today. Try again tomorrow.":
+    "Tu nous as déjà beaucoup écrit aujourd'hui. Réessaie demain.",
+  FEEDBACK: "AVIS",
 };

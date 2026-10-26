@@ -5,7 +5,8 @@ setup from the environment and the email's words. In a real PostgreSQL: a
 message is kept and emailed once, with the member's address as Reply-To;
 five in a day, then 429 until the oldest is a day old; nothing sent
 without an email setup or when Resend fails, and the message kept either
-way; deleting the account deletes its messages."""
+way; deleting the account deletes its messages; at most twenty a day from
+one network address; the probe of the app; the words never in a log."""
 
 from __future__ import annotations
 
@@ -39,6 +40,7 @@ from shaperoute_api.feedback import (
     FEEDBACK_NOT_TEXT,
     FEEDBACK_TOO_LONG,
     MAX_FEEDBACK_LENGTH,
+    MAX_PER_ADDRESS_PER_DAY,
     MAX_PER_DAY,
     TOO_MUCH_FEEDBACK,
     FeedbackConfigError,
@@ -342,3 +344,46 @@ def test_the_migration_holds_only_the_two_systems() -> None:
     sql = FEEDBACK_MIGRATION.read_text(encoding="utf-8")
     assert "ON DELETE CASCADE" in sql
     assert "CHECK (platform IN ('ios', 'android'))" in sql
+
+
+def test_the_probe_says_this_server_takes_feedback(
+    client: TestClient,  # noqa: F811
+) -> None:
+    # Before signing in too: the app asks it when «Settings» opens.
+    assert client.get("/feedback").status_code == 204
+    assert client.get("/feedback", headers=signed_up(client)).status_code == 204
+
+
+def test_one_network_address_sends_at_most_twenty_a_day(
+    client: TestClient,  # noqa: F811
+    wall: WallClock,  # noqa: F811
+    emails: FeedbackEmails,
+    resend: FakeResend,
+) -> None:
+    # Four accounts behind the same address: five each fills the twenty.
+    members = [
+        signed_up(client, email=f"club{n}@example.com", username=f"club_{n}")
+        for n in range(MAX_PER_ADDRESS_PER_DAY // MAX_PER_DAY)
+    ]
+    for headers in members:
+        for _ in range(MAX_PER_DAY):
+            assert send(client, headers).status_code == 204
+    fifth = signed_up(client, email="club9@example.com", username="club_9")
+    refused = send(client, fifth)
+    assert refused.status_code == 429
+    assert code(refused) == "too_many_requests"
+    assert int(refused.headers["retry-after"]) > 0
+    assert len(resend.emails()) == MAX_PER_ADDRESS_PER_DAY
+
+
+def test_the_words_are_never_in_a_log(
+    client: TestClient,  # noqa: F811
+    emails: FeedbackEmails,
+    resend: FakeResend,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.DEBUG)
+    words = "My private idea about the hearts"
+    assert send(client, signed_up(client), words).status_code == 204
+    assert len(resend.emails()) == 1
+    assert words not in caplog.text and MEMBER not in caplog.text

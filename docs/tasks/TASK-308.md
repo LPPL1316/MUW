@@ -38,7 +38,9 @@ grazie». Numero di task dal Coordinatore (`local_e57a8224`).
 1. **API** (`feedback.py`): `POST /feedback` con il token; testo da 1 a
    2000 caratteri (senza spazi ai due capi, niente caratteri di
    controllo), `app_version` e `platform` facoltativi; al più 5 in 24 ore
-   per account, contati nel database, poi `429` con `Retry-After`. Tabella
+   per account, contati nel database, e 20 per indirizzo di rete, in
+   memoria, poi `429` con `Retry-After`. `GET /feedback` risponde `204`:
+   la sonda dell'app. Tabella
    `feedback` (migrazione `0031_feedback.sql`, `ON DELETE CASCADE`).
 2. **Email**: fuori dalla richiesta, con Resend, a
    `SHAPEROUTE_FEEDBACK_TO` o, senza, a `SHAPEROUTE_REPORTS_TO`; Reply-To
@@ -50,7 +52,10 @@ grazie». Numero di task dal Coordinatore (`local_e57a8224`).
 4. **App**: `api/feedback.ts`; `settings/FeedbackSetting.tsx` (la riga e
    il modulo) e `settings/feedbackFields.ts` (controllo, versione,
    sistema, errori in parole); la sezione «FEEDBACK» in `SettingsPage.tsx`,
-   prima di «ABOUT». Testi nelle cinque lingue.
+   prima di «ABOUT», **solo dopo il `204` di `GET /feedback`**
+   (`settings/useFeedbackService.ts`): con il server di oggi (`404`) non
+   c'è, così `main` resta pubblicabile su preview (condizione del
+   Coordinatore). Testi in fondo alle quattro tabelle.
 5. **Privacy**: sezione «Feedback», la frase di Resend e la base del
    trattamento, nelle cinque lingue; pagine del sito rifatte con
    `node site/tools/make_privacy.mjs`.
@@ -101,7 +106,11 @@ Da approvare dall'utente prima del merge:
 - [x] Sessione finita: esce come altrove; niente rete, limite del giorno
       e API precedente detti in parole, il campo tiene le parole.
 - [x] `POST /feedback` tiene il messaggio, 422 per un testo che non lo è,
-      401 senza token, 429 al sesto in 24 ore con `Retry-After` giusto.
+      401 senza token, 429 al sesto in 24 ore con `Retry-After` giusto, e
+      al ventunesimo dallo stesso indirizzo.
+- [x] Con il server di oggi (`GET /feedback` → `404`) e senza rete la
+      sezione «FEEDBACK» non c'è; con `204` c'è (test di `SettingsPage`).
+- [x] Il testo non è mai nei log (`test_the_words_are_never_in_a_log`).
 - [x] Un'email a messaggio, Reply-To l'iscritto, al suo indirizzo o a
       quello delle segnalazioni; niente senza Resend; Resend che sbaglia
       non cambia la risposta; niente chiave, indirizzo o testo nei log.
@@ -138,6 +147,7 @@ apps/mobile/src/settings/FeedbackSetting.tsx
 apps/mobile/src/settings/FeedbackSetting.test.tsx
 apps/mobile/src/settings/feedbackFields.ts
 apps/mobile/src/settings/feedbackFields.test.ts
+apps/mobile/src/settings/useFeedbackService.ts
 apps/mobile/src/profile/SettingsPage.tsx
 apps/mobile/src/profile/SettingsPage.test.tsx
 apps/mobile/src/i18n/it.ts
@@ -169,13 +179,16 @@ site/privacy/fr/index.html
 1. Migrazione: se TASK-309 entra prima con `0031`, rinominare in
    `0032_feedback.sql` (e la riga di `DATABASE.md`, `DEPLOY.md`, il task
    file).
-2. **Server prima dell'app**: l'app manda a `POST /feedback`, che c'è solo
-   sul server aggiornato (dopo l'approvazione di Apple, con l'ok
-   dell'utente; `DEPLOY.md`, «Email del feedback»). Pubblicata prima, «Send»
-   dice «This is not available any more.».
-3. Le pagine privacy del sito: copia F.14 sul server, con l'ok
+2. **App e server in qualsiasi ordine**: finché il server non ha
+   `GET /feedback` la sezione non si vede. Il server dopo l'approvazione
+   di Apple, con l'ok dell'utente (`DEPLOY.md`, «Email del feedback»).
+3. **La data della privacy** diventa quella del giorno del merge, nelle
+   cinque lingue (`PRIVACY_UPDATED` in `about/content/*.ts`) e nei loro
+   test, poi `node site/tools/make_privacy.mjs` (condizione del
+   Coordinatore). Oggi resta «26 October 2026».
+4. Le pagine privacy del sito: copia F.14 sul server, con l'ok
    dell'utente.
-4. Impronta iOS da rimisurare su una copia pulita (attesa `83793e26`).
+5. Impronta iOS su una copia pulita con `npm ci` (attesa `83793e26`).
 
 ## Dove si è (2026-10-26)
 

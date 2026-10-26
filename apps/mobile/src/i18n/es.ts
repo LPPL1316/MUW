@@ -364,20 +364,6 @@ export const ES: Table = {
   "Notifications are not available on this API yet.":
     "En esta API todavía no hay notificaciones.",
 
-  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
-  "Send feedback": "Envíanos tus comentarios",
-  "Thank you! Your message reached us.": "¡Gracias! Tu mensaje nos ha llegado.",
-  "Ideas, problems, anything that would make MuW better: we read every message.":
-    "Ideas, problemas, todo lo que haría mejor a MuW: leemos cada mensaje.",
-  "Write here…": "Escribe aquí…",
-  "Your message": "Tu mensaje",
-  "It reaches us with your username, your email and the app's version, so we can answer you.":
-    "Nos llega con tu nombre de usuario, tu correo y la versión de la app, para que podamos responderte.",
-  "Write something first.": "Escribe algo primero.",
-  "You sent a lot of feedback today. Try again tomorrow.":
-    "Hoy ya nos has escrito mucho. Vuelve a intentarlo mañana.",
-  FEEDBACK: "COMENTARIOS",
-
   // src/profile/SettingsPage.tsx
   "Change email": "Cambiar correo",
   "Phone number": "Número de teléfono",
@@ -1433,4 +1419,18 @@ export const ES: Table = {
   Retro: "Retro",
   Fiesta: "Fiesta",
   "Tap a track to hear it.": "Toca una pista para escucharla.",
+
+  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
+  "Send feedback": "Envíanos tus comentarios",
+  "Thank you! Your message reached us.": "¡Gracias! Tu mensaje nos ha llegado.",
+  "Ideas, problems, anything that would make MuW better: we read every message.":
+    "Ideas, problemas, todo lo que haría mejor a MuW: leemos cada mensaje.",
+  "Write here…": "Escribe aquí…",
+  "Your message": "Tu mensaje",
+  "It reaches us with your username, your email and the app's version, so we can answer you.":
+    "Nos llega con tu nombre de usuario, tu correo y la versión de la app, para que podamos responderte.",
+  "Write something first.": "Escribe algo primero.",
+  "You sent a lot of feedback today. Try again tomorrow.":
+    "Hoy ya nos has escrito mucho. Vuelve a intentarlo mañana.",
+  FEEDBACK: "COMENTARIOS",
 };

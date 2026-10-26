@@ -3,6 +3,7 @@ import type { Session } from "@shaperoute/shared-types";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import type { ComponentProps } from "react";
 
+import { answers } from "../account/testing";
 import type { Account } from "../account/useAccount";
 import { saveLanguageChoice } from "../i18n/language";
 import { useLanguage } from "../i18n/useLanguage";
@@ -27,7 +28,10 @@ afterEach(async () => {
   onAbout.mockClear();
 });
 
-async function show(over: Partial<Account> = {}) {
+async function show(
+  over: Partial<Account> = {},
+  feedbackApi?: ComponentProps<typeof SettingsPage>["feedbackApi"],
+) {
   const account: Account = {
     state: { status: "signedIn", session: signedIn },
     busy: null,
@@ -44,7 +48,14 @@ async function show(over: Partial<Account> = {}) {
     sessionEnded: jest.fn(),
     ...over,
   };
-  await render(<AsInTheApp user={signedIn.user} account={account} onAbout={onAbout} />);
+  await render(
+    <AsInTheApp
+      user={signedIn.user}
+      account={account}
+      onAbout={onAbout}
+      feedbackApi={feedbackApi}
+    />,
+  );
   return account;
 }
 
@@ -63,10 +74,10 @@ test("every row works: none says «Soon» any more", async () => {
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText(/coming soon$/)).toBeNull();
   // The picture (TASK-178), the email and the phone number (TASK-183), the
-  // language (TASK-210), the units (TASK-182), the tone (TASK-263),
-  // «Send feedback» (TASK-308), the three texts of «ABOUT» (TASK-184) and
-  // the ways out are buttons.
-  expect(screen.getAllByRole("button")).toHaveLength(12);
+  // language (TASK-210), the units (TASK-182), the tone (TASK-263), the
+  // three texts of «ABOUT» (TASK-184) and the ways out are buttons.
+  // «Send feedback» waits for a server that takes it (TASK-308, below).
+  expect(screen.getAllByRole("button")).toHaveLength(11);
   expect(screen.getByRole("button", { name: "Profile picture" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Change email" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Phone number, Add" })).toBeOnTheScreen();
@@ -77,14 +88,35 @@ test("every row works: none says «Soon» any more", async () => {
   expect(screen.getByRole("button", { name: "Delete account" })).toBeOnTheScreen();
 });
 
-test("«Send feedback» has its own section, closed until tapped (TASK-308)", async () => {
-  await show();
+test("on a server that takes feedback, «Send feedback» has its own section (TASK-308)", async () => {
+  const fetchFn: jest.Mock = answers({ status: 204 });
+  await show({}, { baseUrl: "http://api", fetchFn, key: null });
+  const row = await screen.findByRole("button", { name: "Send feedback" });
   expect(screen.getByText("FEEDBACK")).toBeOnTheScreen();
-  const row = screen.getByRole("button", { name: "Send feedback" });
+  expect(fetchFn.mock.calls.map(([url, init]) => [url, init.method])).toEqual([
+    ["http://api/feedback", "GET"],
+  ]);
   expect(row).not.toBeExpanded();
   await fireEvent.press(row);
   expect(row).toBeExpanded();
   expect(screen.getByLabelText("Your message")).toHaveDisplayValue("");
+});
+
+test("on the server of today, which answers 404, there is no «FEEDBACK» to write in (TASK-308)", async () => {
+  const fetchFn: jest.Mock = answers({ status: 404, body: { detail: "Not Found" } });
+  await show({}, { baseUrl: "http://api", fetchFn, key: null });
+  await act(async () => {});
+  expect(fetchFn).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText("FEEDBACK")).toBeNull();
+  expect(screen.queryByRole("button", { name: "Send feedback" })).toBeNull();
+  expect(screen.getAllByRole("button")).toHaveLength(11);
+});
+
+test("without a network nothing is shown either (TASK-308)", async () => {
+  const fetchFn: jest.Mock = answers(new TypeError("offline"));
+  await show({}, { baseUrl: "http://api", fetchFn, key: null });
+  await act(async () => {});
+  expect(screen.queryByText("FEEDBACK")).toBeNull();
 });
 
 test("«Help», «Terms» and «Privacy» are rows that open their page (TASK-184)", async () => {

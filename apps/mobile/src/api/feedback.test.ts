@@ -2,7 +2,7 @@ import feedbackRequest from "@shaperoute/shared-types/fixtures/feedback-request.
 import type { FeedbackRequest } from "@shaperoute/shared-types";
 
 import { answers, apiError } from "../account/testing";
-import { sendFeedback } from "./feedback";
+import { checkFeedbackService, sendFeedback } from "./feedback";
 
 const URL = "http://api";
 const TOKEN = "the-token";
@@ -33,4 +33,18 @@ test("the limit of the day comes back with the seconds to wait", async () => {
       retryAfterS: 3600,
     },
   );
+});
+
+test("GET /feedback: 204 is a server that takes it, 404 an older one", async () => {
+  const fetchFn: jest.Mock = answers(
+    { status: 204 },
+    { status: 404, body: { detail: "Not Found" } },
+  );
+  const options = { fetchFn, key: null };
+  expect(await checkFeedbackService(URL, options)).toEqual({ kind: "ok", value: null });
+  expect((await checkFeedbackService(URL, options)).kind).not.toBe("ok");
+  expect(fetchFn.mock.calls.map(([url, init]) => [url, init.method])).toEqual([
+    [`${URL}/feedback`, "GET"],
+    [`${URL}/feedback`, "GET"],
+  ]);
 });

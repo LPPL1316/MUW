@@ -517,8 +517,10 @@ gestisce MuW, con l'email dell'iscritto come Reply-To (`API.md`,
 ritorno) e un indirizzo: `SHAPEROUTE_FEEDBACK_TO`, o, senza, lo stesso
 `SHAPEROUTE_REPORTS_TO` delle segnalazioni, che quindi basta già. Senza
 nessuno dei due i messaggi restano nella tabella `feedback` e non parte
-niente. **Prima di accenderla**: la privacy nuova con la riga del
-feedback approvata e pubblicata, e l'ok del coordinatore per il server.
+niente. Finché il server non ha la versione nuova, l'app non mostra
+«Send feedback» (risponde `404` a `GET /feedback`). **Prima di
+accenderla**: la privacy nuova con la riga del feedback approvata e
+pubblicata, e l'ok del coordinatore per il server.
 
 1. Solo se il feedback va a un indirizzo diverso da quello delle
    segnalazioni, l'utente lo scrive sul server con un comando che non lo

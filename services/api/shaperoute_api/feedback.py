@@ -11,7 +11,13 @@ member. Without RESEND_API_KEY and an address the message is kept and
 nothing is sent.
 
 At most MAX_PER_DAY messages for each account in any 24 hours, counted in
-the database: the next one gets 429 with the seconds to wait.
+the database, and MAX_PER_ADDRESS_PER_DAY from one network address, counted
+in memory (a club on one Wi-Fi): the next one gets 429 with the seconds to
+wait.
+
+GET /feedback answers 204 on a server that takes feedback: the app shows
+«Send feedback» only after it, so an app newer than its server never lets
+someone write a message nobody takes (an older API answers 404).
 
 Deleting the account deletes its messages (ON DELETE CASCADE). Neither the
 key, the address nor the text is ever in a log.
@@ -35,6 +41,7 @@ from fastapi import APIRouter, Depends, FastAPI, Request, Response
 from psycopg import errors as pg_errors
 from pydantic import BaseModel, ConfigDict, Field
 
+from shaperoute_api.access import RateLimiter
 from shaperoute_api.accounts import (
     ACCOUNT_ERRORS,
     NOT_SIGNED_IN,
@@ -55,6 +62,7 @@ TO_VARIABLE = "SHAPEROUTE_FEEDBACK_TO"
 
 MAX_FEEDBACK_LENGTH = 2000
 MAX_PER_DAY = 5
+MAX_PER_ADDRESS_PER_DAY = 20
 WINDOW = timedelta(days=1)
 # «1.0.0 (7)», as the app writes its version and build.
 MAX_VERSION_LENGTH = 40
@@ -261,6 +269,14 @@ class FeedbackEmails:
 
 def feedback_routes() -> APIRouter:
     router = APIRouter(tags=["feedback"], responses=ACCOUNT_ERRORS)
+    # Per network address, as the comments per account: in memory.
+    by_address = RateLimiter(MAX_PER_ADDRESS_PER_DAY, WINDOW.total_seconds())
+
+    # The probe of the app: 204 here, 404 on an older API, 503 without the
+    # database of the accounts.
+    @router.get("/feedback", status_code=204)
+    def takes_feedback(_: Annotated[Accounts, Depends(accounts_of)]) -> Response:
+        return Response(status_code=204)
 
     @router.post("/feedback", status_code=204)
     def send_feedback(
@@ -269,6 +285,12 @@ def feedback_routes() -> APIRouter:
         user: Annotated[UserBody, Depends(current_user)],
         request: Request,
     ) -> Response:
+        address = request.client.host if request.client else "unknown"
+        wait = by_address.wait_s(address)
+        if wait > 0:
+            raise AccountError(
+                429, "too_many_requests", TOO_MUCH_FEEDBACK, math.ceil(wait)
+            )
         kept = feedback.keep(user.id, body)
         emails: FeedbackEmails | None = request.app.state.feedback_emails
         if emails is not None:

@@ -16616,7 +16616,16 @@ dell'utente: «Form in the app».
 3. **Al più 5 in 24 ore per account**, contati nel database (non in
    memoria come i commenti: sopravvivono a un riavvio, e il conto è
    esatto), poi `429 too_many_requests` con `Retry-After`. Basta per chi
-   scrive davvero, ferma chi tiene premuto «Send».
+   scrive davvero, ferma chi tiene premuto «Send». **E al più 20 in 24 ore
+   da un indirizzo di rete**, in memoria (`access.RateLimiter`), contro
+   chi apre account nuovi per scrivere di più.
+3a. **L'app non aspetta il server** (condizione del Coordinatore: `main`
+   resta pubblicabile su preview, che parla col server di oggi):
+   `GET /feedback` risponde `204`, e «Settings» mostra «FEEDBACK» solo
+   dopo quella risposta (`useFeedbackService`), chiesta a ogni apertura.
+   Un'API precedente risponde `404`, e la sezione non c'è: nessuno scrive
+   un messaggio che poi non parte. Un'email dal telefono come riserva non
+   serve: `hello@getmuw.app` oggi non riceve.
 4. **Un'email per messaggio**, come le segnalazioni (ADR-0251): fuori
    dalla richiesta, con Resend, in inglese, a `SHAPEROUTE_FEEDBACK_TO`
    o, senza, a `SHAPEROUTE_REPORTS_TO`, che c'è già: nessuna variabile
@@ -16637,9 +16646,9 @@ pannello o un endpoint per leggere i messaggi (ADR-0228: per ora si
 leggono per email e nel database); il limite in memoria con
 `RateLimiter` (si azzera a ogni riavvio).
 
-**Conseguenza**: una migrazione e un endpoint nuovi: l'app manda i
-messaggi solo a un server aggiornato, che va su dopo l'approvazione di
-Apple e con l'ok dell'utente; con un'API precedente (`404`) «Send» dice
-«This is not available any more.», come le segnalazioni. Nessuna
+**Conseguenza**: una migrazione e due endpoint nuovi. L'app e il server
+entrano in qualsiasi ordine: finché il server non è aggiornato (dopo
+l'approvazione di Apple, con l'ok dell'utente) la sezione non si vede.
+Nessuna
 dipendenza né permesso nuovi, niente di nativo: l'app arriva con un
 aggiornamento OTA (impronta iOS da rimisurare, attesa invariata).

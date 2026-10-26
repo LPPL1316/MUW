@@ -1378,9 +1378,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `0031_feedback.sql`, numero al merge), al più 5 al giorno per account, e
   lo manda per email a `SHAPEROUTE_FEEDBACK_TO` o, senza, a
   `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. Privacy con la sezione
-  «Feedback» nelle cinque lingue, pagine del sito rifatte. Testi e privacy
-  aspettano il sì dell'utente; server prima dell'app, dopo Apple. File:
-  `tasks/TASK-308.md`.
+  «Feedback» nelle cinque lingue, pagine del sito rifatte. La sezione si
+  vede solo quando `GET /feedback` risponde `204`: con il server di oggi
+  non c'è, e `main` resta pubblicabile. Al più 20 al giorno anche per
+  indirizzo di rete. Testi e privacy aspettano il sì dell'utente; server
+  dopo Apple. PR #576. File: `tasks/TASK-308.md`.
 
 ## Completato
 

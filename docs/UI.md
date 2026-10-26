@@ -851,7 +851,9 @@ mappa è quella di prima.
   **«Notifications»**: «Email
   notifications» e «Push notifications», due interruttori salvati
   nell'account (TASK-185, ADR-0206, sotto). **«Feedback»** (TASK-308,
-  ADR-0268): la riga «Send feedback» (💬); un tocco apre sotto il modulo,
+  ADR-0268), solo quando il server risponde `204` a `GET /feedback` (con
+  il server di prima la sezione non c'è): la riga «Send feedback» (💬); un
+  tocco apre sotto il modulo,
   come «Change email»: «Ideas, problems, anything that would make MuW
   better: we read every message.», un campo di più righe («Write here…»,
   al più 2000 caratteri), piccolo e grigio «It reaches us with your

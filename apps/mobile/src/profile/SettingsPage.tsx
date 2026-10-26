@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { AboutRows } from "../about/AboutRows";
 import type { AboutId } from "../about/documents";
 import type { Account } from "../account/useAccount";
+import { apiUrl } from "../api/apiUrl";
 import { OfflineMapsSetting } from "../engine/OfflineMapsSetting";
 import { t } from "../i18n";
 import { EmailSetting } from "../settings/EmailSetting";
@@ -15,6 +16,7 @@ import { PhoneSetting } from "../settings/PhoneSetting";
 import { SportSetting } from "../settings/SportSetting";
 import { ToneSetting } from "../settings/ToneSetting";
 import { UnitsSetting } from "../settings/UnitsSetting";
+import { useFeedbackService } from "../settings/useFeedbackService";
 import { StravaSetting } from "../strava/StravaSetting";
 import {
   color,
@@ -31,6 +33,8 @@ type Props = {
   account: Account;
   /** Opens «Help», «Terms» or «Privacy» as a page of «Profile» (TASK-184). */
   onAbout: (id: AboutId) => void;
+  /** Where «Send feedback» asks (TASK-308), and the fake fetch of the tests. */
+  feedbackApi?: { baseUrl: string | null; fetchFn?: typeof fetch; key?: string | null };
 };
 
 /** A group of «Settings» under its name; each new setting joins one. */
@@ -53,8 +57,16 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
  * works: none says «Soon» any more.
  * «Delete account» asks first, on the screen (ADR-0120: the API does not).
  */
-export function SettingsPage({ user, account, onAbout }: Props) {
+export function SettingsPage({
+  user,
+  account,
+  onAbout,
+  feedbackApi = { baseUrl: apiUrl() },
+}: Props) {
   const [confirming, setConfirming] = useState(false);
+  const { baseUrl: feedbackUrl, fetchFn, key } = feedbackApi;
+  // Only on a server that takes it: an older one answers 404 (TASK-308).
+  const takesFeedback = useFeedbackService(feedbackUrl, { fetchFn, key });
   const deleting = account.busy === "delete";
   return (
     <View style={styles.page}>
@@ -80,9 +92,15 @@ export function SettingsPage({ user, account, onAbout }: Props) {
         <NotificationsSetting user={user} account={account} />
       </Section>
       {/* A message to whoever runs MuW, kept and emailed (TASK-308). */}
-      <Section label={t("FEEDBACK")}>
-        <FeedbackSetting account={account} />
-      </Section>
+      {takesFeedback && (
+        <Section label={t("FEEDBACK")}>
+          <FeedbackSetting
+            account={account}
+            baseUrl={feedbackUrl}
+            options={{ fetchFn, key }}
+          />
+        </Section>
+      )}
       {/* The guide and the two legal texts, each on its own page (TASK-184). */}
       <Section label={t("ABOUT")}>
         <AboutRows onOpen={onAbout} />

@@ -21,6 +21,8 @@ type Props = {
   /** The call and the address of the API: the tests' fakes. */
   send?: typeof sendFeedback;
   baseUrl?: string | null;
+  /** The fake fetch of the tests, and the key of the API. */
+  options?: { fetchFn?: typeof fetch; key?: string | null };
 };
 
 /**
@@ -29,11 +31,14 @@ type Props = {
  * field, what goes with it, «Send». Sent, the form closes and the row
  * thanks; what goes wrong is said under «Send», and the field keeps what
  * was written. Closed without sending, the words stay for the next tap.
+ * «Settings» shows it only once the server said it takes feedback
+ * (`useFeedbackService`).
  */
 export function FeedbackSetting({
   account,
   send = sendFeedback,
   baseUrl = apiUrl(),
+  options = {},
 }: Props) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
@@ -66,11 +71,12 @@ export function FeedbackSetting({
     sendingNow.current = true;
     setSending(true);
     setProblem(null);
-    const outcome = await send(baseUrl, token, {
-      text: checked.text,
-      app_version: appVersion(),
-      platform: phoneSystem(),
-    });
+    const outcome = await send(
+      baseUrl,
+      token,
+      { text: checked.text, app_version: appVersion(), platform: phoneSystem() },
+      options,
+    );
     sendingNow.current = false;
     setSending(false);
     if (outcome.kind === "ok") {

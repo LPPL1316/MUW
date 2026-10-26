@@ -2471,13 +2471,14 @@ push a chi ha vinto. Le regole sono in `CONCORSI.md`; il codice in
 ### Feedback (TASK-308, ADR-0268)
 
 «Send feedback» in «Settings»: un iscritto scrive a chi gestisce MuW
-(idee, problemi, qualunque cosa). Vuole il token: senza, `401
-not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
+(idee, problemi, qualunque cosa). `POST` vuole il token: senza, `401
+not_signed_in`; senza database, `503 accounts_unavailable` (anche `GET`). Tipi in
 `shared-types` (`FeedbackRequest`, `MAX_FEEDBACK_LENGTH`), esempio in
 `fixtures/feedback-request.json`; il codice in `feedback.py`.
 
 | Endpoint | Cosa | Risposta |
 |---|---|---|
+| `GET /feedback` | la sonda dell'app: questo server prende il feedback | `204` |
 | `POST /feedback` | tiene il messaggio e lo manda per email a chi gestisce MuW | `204` |
 
 - **Il corpo**: `{"text", "app_version", "platform"}`. `text` da 1 a
@@ -2490,6 +2491,12 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
 - **Al più 5 in 24 ore per account**, contati nel database: il sesto è
   `429 too_many_requests` con `Retry-After`, i secondi finché il più
   vecchio dei cinque compie un giorno. Gli altri account non contano.
+  **E al più 20 in 24 ore da un indirizzo di rete** (un club sullo
+  stesso Wi-Fi), contati in memoria: si azzerano a un riavvio.
+- **`GET /feedback`**, senza token, risponde `204`: l'app mostra «Send
+  feedback» solo dopo questa risposta, così un'app più nuova del suo
+  server non fa mai scrivere un messaggio che nessuno prende (un'API
+  precedente risponde `404`).
 - **Nessun endpoint li legge**: restano nella tabella `feedback`, e ogni
   messaggio parte, fuori dalla richiesta e con Resend, per email in
   inglese a `SHAPEROUTE_FEEDBACK_TO`, o a `SHAPEROUTE_REPORTS_TO` senza
@@ -2501,8 +2508,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   non cambia mai la risposta. La chiave, l'indirizzo e il testo non sono
   mai nei log.
 - **`DELETE /me`** cancella i messaggi dell'account (`ON DELETE CASCADE`).
-- **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app lo
-  dice sotto «Send».
+- **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app non
+  mostra la sezione «FEEDBACK». Se il server torna indietro dopo che la
+  sezione si è vista, «Send» dice «This is not available any more.».
 
 ### Send to Strava (TASK-187, ADR-0156)
 
