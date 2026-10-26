@@ -96,6 +96,9 @@ site/privacy/it/index.html
 site/privacy/de/index.html
 site/privacy/fr/index.html
 site/privacy/es/index.html
+apps/mobile/src/about/AboutPage.test.tsx              (la data, al merge)
+apps/mobile/src/about/documents.test.ts               (la data, al merge)
+site/tests/privacy.test.mjs                           (la data, al merge)
 docs/tasks/TASK-307.md                                (nuovo)
 docs/STATUS.md
 docs/DECISIONS.md
@@ -140,6 +143,10 @@ TASK-308 (#576) tocca altri paragrafi degli stessi file: righe diverse.
 
 ## Al merge
 
+- [x] Fatto il 2026-10-27, al «mergia 573» dell'utente portato dal
+  Coordinatore: «27 October 2026» nelle cinque lingue, nei tre test e nel
+  sito; prima `origin/main` unito (#574, #575: la fascia «Winner» di
+  TASK-299 B sulla stessa scheda, tenuta insieme a «Start»).
 - **La data della «Privacy» diventa quella del giorno del merge**
   (richiesta del Coordinatore, come #556 e #576): oggi è «26 October
   2026», messa il 2026-10-26 alle 23:52, e il merge cade dopo. Se il
