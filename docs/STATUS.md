@@ -364,6 +364,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dice che le squadre non ci sono ancora, senza errore. Solo app, nessuna
   dipendenza nuova; i testi nelle cinque lingue aspettano il sì
   dell'utente (task file, «Testi da approvare»). Resta la E.
+  **Parte D** in `main` con la #561 (`a8d75842`, 2026-10-26), mergiata
+  dalla sessione della D a CI verde su parola dell'utente, che ha
+  approvato i testi lo stesso giorno («I testi vanno bene, mergiate pure
+  la #561»); impronta iOS da misurare su `main` dal Coordinatore, poi il
+  preview. Resta la E.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
