@@ -69,7 +69,7 @@ const help: AboutDocument = {
     {
       heading: "Pubblicare e condividere",
       blocks: [
-        "Una corsa salvata è privata: la vedi solo tu. Accendi «Pubblica», a fine corsa o su una corsa di «Le mie attività», e gli altri iscritti la vedono come disegno sul tuo profilo, senza i primi e gli ultimi 200 m.",
+        "Una corsa salvata è privata: la vedi solo tu. Gli altri iscritti vedono sul tuo profilo solo i totali di tutte le tue corse salvate, distanza e dislivello, mai le corse. Accendi «Pubblica», a fine corsa o su una corsa di «Le mie attività», e gli altri iscritti la vedono come disegno sul tuo profilo, senza i primi e gli ultimi 200 m.",
         "«Condividi» crea un'immagine della tua corsa da mandare dove vuoi.",
       ],
     },
@@ -319,8 +319,8 @@ const privacy: AboutDocument = {
     {
       heading: "Le tue corse e le loro tracce GPS",
       blocks: [
-        "Con un account, quando tocchi «Salva» a fine corsa la corsa intera va al nostro server: ogni posizione con il suo orario, le pause, il percorso seguito, distanza, durata, un punteggio di quanto la traccia segue il percorso (calcolato dal nostro server e non mostrato nell'app) e il nome del luogo. Con «Discard» non parte niente.",
-        "Una corsa salvata è privata: la vede solo il tuo account. Resta finché non la elimini da «Le mie attività» o elimini l'account.",
+        "Con un account, quando tocchi «Salva» a fine corsa la corsa intera va al nostro server: ogni posizione con il suo orario e la sua altezza, le pause, il percorso seguito, distanza, durata, un punteggio di quanto la traccia segue il percorso (calcolato dal nostro server e non mostrato nell'app) e il nome del luogo. Con «Discard» non parte niente.",
+        "Una corsa salvata è privata: la vede solo il tuo account. Gli altri iscritti vedono sul tuo profilo solo i totali di tutte le tue corse salvate, distanza e dislivello, mai le corse. Resta finché non la elimini da «Le mie attività» o elimini l'account.",
         "Una corsa spesso parte e finisce davanti a casa. Per questo diventa visibile agli altri iscritti solo quando accendi «Pubblica», e allora vedono la traccia senza i primi e gli ultimi 200 m, con il titolo che le hai dato, e senza orari, pause né il percorso pianificato.",
       ],
     },

@@ -16638,9 +16638,11 @@ riquadri (follower e disegni ripetuti due volte).
 nessuna dipendenza nuova, solo app e API: l'app arriva con un
 aggiornamento OTA. Chi guarda un profilo sa quanti km e metri di
 dislivello ha fatto in tutto l'altro, anche correndo da solo e in privato
-(la scelta dell'utente), mai una posizione. **L'informativa (app e sito)
-dice oggi «A saved run is private: only you see it»**: va aggiornata,
-con un testo approvato dall'utente, prima che il server esca
-(`tasks/TASK-305.md`, «Aperto»). Le corse salvate prima di TASK-305
+(la scelta dell'utente), mai una posizione. **L'informativa e l'aiuto
+cambiano** (testi approvati dall'utente il 2026-10-26, nelle cinque
+lingue): al server va anche l'altezza di ogni posizione, e «Other members
+see on your profile only the totals of all your saved runs, distance and
+elevation gain, never the runs themselves.»; il sito si copia insieme al
+server (`tasks/TASK-305.md`, «Aperto»). Le corse salvate prima di TASK-305
 non hanno dislivello: il totale parte da 0 e cresce con le corse nuove.
 Quattro testi nuovi in quattro lingue, accanto a quelli di «Drawings».

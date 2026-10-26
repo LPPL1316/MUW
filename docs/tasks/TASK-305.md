@@ -1,7 +1,7 @@
 # TASK-305 — I totali e le foto di un profilo
 
-**Stato**: In corso — codice, test e documenti sul branch; aspetta il
-testo della privacy (sotto, «Aperto»), la PR e il server
+**Stato**: In corso — codice, test, documenti e informativa sul branch;
+aspetta la PR, poi server e sito con l'ok dell'utente (sotto, «Aperto»)
 **Fase**: 4 · **Branch**: `claude/wonderful-dijkstra-oi568i` (il branch
 assegnato alla sessione cloud, non `feat/TASK-305-…`)
 **ADR**: ADR-0265 · **Migrazione**: `0031_run_climb.sql` (il primo libero
@@ -60,7 +60,8 @@ vede.
       prima; una corsa con le altezze rifiutata va di nuovo senza.
 - [x] Test verdi: API (`pytest`, PostgreSQL vero), `shared-types`, app
       (`jest`, `tsc`, `expo lint`, `prettier`).
-- [ ] Testo della privacy aggiornato e approvato (sotto, «Aperto»).
+- [x] Informativa e aiuto aggiornati nelle cinque lingue, con i testi
+      approvati dall'utente il 2026-10-26; pagine del sito rigenerate.
 
 ## File toccati
 
@@ -87,6 +88,8 @@ apps/mobile/src/profile/UserProfilePage.tsx              (monta i due)
 apps/mobile/src/profile/ProfileHome.tsx                  (monta i due)
 apps/mobile/src/social/DrawingsGrid.tsx                  (titled, per le schede)
 apps/mobile/src/i18n/it.ts, de.ts, es.ts, fr.ts          (quattro testi accanto a «Drawings»)
+apps/mobile/src/about/content/en.ts, it.ts, de.ts, es.ts, fr.ts   (informativa e aiuto: altezza e totali)
+site/privacy/index.html, it/, de/, es/, fr/index.html    (rigenerate: node site/tools/make_privacy.mjs)
 apps/mobile/src/api/activityHeights.test.ts, userPhotos.test.ts                 (nuovi)
 apps/mobile/src/profile/ProfileStats.test.tsx, ProfileGallery.test.tsx          (nuovi)
 docs/tasks/TASK-305.md (nuovo), docs/DECISIONS.md (ADR-0265), docs/STATUS.md,
@@ -111,14 +114,17 @@ parti.
 
 ## Aperto
 
-1. **La privacy** — l'informativa dell'app (`src/about/content/*.ts`) e
-   quella del sito (`site/privacy/`) dicono «A saved run is private: only
-   you see it.» e «A saved run is private: only your account sees it.».
-   Con la scelta «Km anche dalle private» non è più vero del tutto. Testo
-   proposto all'utente, da aggiungere dopo quelle frasi: «Other members see
-   on your profile the total distance and elevation gain of all your saved
-   runs, never the runs themselves.» (e nelle altre quattro lingue). Il
-   server non si aggiorna prima.
+1. **La privacy** (fatto) — l'informativa diceva «A saved run is
+   private: only your account sees it.» e «every position with its time».
+   Testi approvati dall'utente il 2026-10-26 («Sì, con questi testi»):
+   «every position with its time and height» e, dopo «only your account
+   sees it» e nell'aiuto «Publish and share», «Other members see on your
+   profile only the totals of all your saved runs, distance and elevation
+   gain, never the runs themselves.», nelle cinque lingue. La data
+   dell'informativa era già il 26 ottobre 2026. **Il sito va copiato sul
+   server (`DEPLOY.md` F.14) insieme all'aggiornamento del server**, con
+   l'ok dell'utente: non prima, o l'informativa direbbe cose che il server
+   non fa ancora.
 2. **Il server prima dell'app**: con l'API di prima l'app non mostra né i
    totali né le schede, e una corsa con le altezze va di nuovo senza
    (nessuna corsa persa, ma senza dislivello).

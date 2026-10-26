@@ -71,7 +71,7 @@ const help: AboutDocument = {
     {
       heading: "Publier et partager",
       blocks: [
-        "Une course enregistrée est privée : toi seul la vois. Active «Publique», à la fin de la course ou sur une course de «Mes activités», et les autres membres la voient comme un dessin sur ton profil, sans ses 200 premiers et 200 derniers mètres.",
+        "Une course enregistrée est privée : toi seul la vois. Les autres membres voient sur ton profil seulement les totaux de toutes tes courses enregistrées, distance et dénivelé, jamais les courses elles-mêmes. Active «Publique», à la fin de la course ou sur une course de «Mes activités», et les autres membres la voient comme un dessin sur ton profil, sans ses 200 premiers et 200 derniers mètres.",
         "«Partager» crée une image de ta course à envoyer où tu veux.",
       ],
     },
@@ -321,8 +321,8 @@ const privacy: AboutDocument = {
     {
       heading: "Tes courses et leurs traces GPS",
       blocks: [
-        "Avec un compte, quand tu touches «Enregistrer» à la fin d'une course, toute la course part vers notre serveur : chaque position avec son heure, les pauses, le parcours suivi, la distance, la durée, un score de la fidélité de la trace au parcours (calculé par notre serveur et non affiché dans l'app) et le nom du lieu. Avec «Ignorer», rien n'est envoyé.",
-        "Une course enregistrée est privée : seul ton compte la voit. Elle reste jusqu'à ce que tu la supprimes de «Mes activités» ou que tu supprimes ton compte.",
+        "Avec un compte, quand tu touches «Enregistrer» à la fin d'une course, toute la course part vers notre serveur : chaque position avec son heure et son altitude, les pauses, le parcours suivi, la distance, la durée, un score de la fidélité de la trace au parcours (calculé par notre serveur et non affiché dans l'app) et le nom du lieu. Avec «Ignorer», rien n'est envoyé.",
+        "Une course enregistrée est privée : seul ton compte la voit. Les autres membres voient sur ton profil seulement les totaux de toutes tes courses enregistrées, distance et dénivelé, jamais les courses elles-mêmes. Elle reste jusqu'à ce que tu la supprimes de «Mes activités» ou que tu supprimes ton compte.",
         "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres que si tu actives «Publique», et ils voient alors la trace sans ses 200 premiers et 200 derniers mètres, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu.",
       ],
     },

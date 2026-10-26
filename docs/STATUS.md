@@ -171,10 +171,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dislivello lo conta l'API dalle altezze che l'app manda ora con la corsa
   (`runs.climb_m`; le corse di prima non lo hanno). `GET
   /users/{id}/photos` nuovo. Codice e test fatti (API con PostgreSQL vero,
-  `shared-types`, app). **Aperto**: l'informativa privacy (app e sito)
-  dice «A saved run is private: only you see it»: testo nuovo da far
-  approvare all'utente prima del server; il server va aggiornato prima
-  dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
+  `shared-types`, app). Informativa e aiuto aggiornati (altezza e totali,
+  testi approvati dall'utente il 2026-10-26, cinque lingue, sito
+  rigenerato). **Aperto**: PR; server e copia del sito insieme, con l'ok
+  dell'utente, prima dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
   TASK-299 B: poche righe qui, chi entra secondo unisce. File:
   `tasks/TASK-305.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
