@@ -1,20 +1,25 @@
 import catalog from "@shaperoute/shared-types/fixtures/game-catalog.json";
 import me from "@shaperoute/shared-types/fixtures/game-me.json";
-import type { GameCatalog, GameMe, GameShape, LatLon } from "@shaperoute/shared-types";
+import type {
+  ChallengePiece,
+  GameCatalog,
+  GameChallenge,
+  GameGoal,
+  GameMe,
+  GameShape,
+  GameTeams,
+  LatLon,
+} from "@shaperoute/shared-types";
 
 import { answers, apiError } from "../account/testing";
 import { saveLanguageChoice } from "../i18n/language";
 import { emptyTrack, type Track, type TrackFix } from "../navigation/trackRecorder";
 import {
   heldPaceGoal,
-  isStripTeams,
   loadRunStripData,
   nextDistanceShape,
   type PaceGoal,
   runStripText,
-  type StripChallenge,
-  type StripPiece,
-  type StripTeams,
 } from "./runStripData";
 
 // The language the words are written in: the phone's, English here.
@@ -49,6 +54,7 @@ const TOKEN = "token";
 
 /** The fake fetch, as the requests take it. */
 const fake = (...list: Parameters<typeof answers>): jest.Mock => answers(...list);
+
 const CATALOG = catalog as GameCatalog;
 const ME = me as GameMe;
 /** The account of the session fixture. */
@@ -71,65 +77,70 @@ const CIRCLE: GameShape = {
 const WITH_CIRCLE: GameCatalog = { ...CATALOG, shapes: [...CATALOG.shapes, CIRCLE] };
 
 const PACE_1K: PaceGoal = { kind: "pace", distance_m: 1000, pace_s: 300 };
+/** The same, as the API writes a goal. */
+const API_PACE_1K: GameGoal = {
+  kind: "pace",
+  total_m: null,
+  distance_m: 1000,
+  pace_s: 300,
+};
+const API_5K: GameGoal = {
+  kind: "distance",
+  total_m: 5000,
+  distance_m: null,
+  pace_s: null,
+};
 
 function piece(
   idx: number,
   holder: string | null,
-  goal: StripPiece["goal"],
+  goal: GameGoal,
   done = false,
-): StripPiece {
-  return { idx, goal, holder: holder === null ? null : { public_id: holder }, done };
-}
-
-function challenge(
-  pieces: StripPiece[],
-  status: StripChallenge["status"] = "active",
-): StripChallenge {
-  return { shape_id: "lightning", status, pieces };
-}
-
-function teamsOf(...challenges: (StripChallenge | null)[]): StripTeams {
-  return { teams: challenges.map((each) => ({ challenge: each })) };
-}
-
-/** GET /game/teams as the API writes it, with the fields the line skips. */
-function apiTeams(challengePieces: unknown[]): unknown {
+): ChallengePiece {
   return {
-    teams: [
-      {
-        id: "t1",
-        name: "Morning runners",
-        code: "ABC123",
-        owner: MY_ID,
-        members: [{ public_id: MY_ID, username: "Runner_42", photo: null }],
-        challenge: {
-          id: "c1",
-          team_id: "t1",
-          shape_id: "lightning",
-          status: "active",
-          starts_at: "2026-10-25T06:00:00Z",
-          ends_at: "2026-11-01T06:00:00Z",
-          completed_at: null,
-          seconds_left: 500000,
-          pieces: challengePieces,
-          contributions: [],
-        },
-      },
+    idx,
+    goal,
+    holder: holder === null ? null : { public_id: holder, username: "Someone" },
+    done_m: 0,
+    done,
+    outline: [
+      [0, 0],
+      [0.5, 0],
     ],
   };
 }
 
-const API_PIECE = {
-  idx: 0,
-  goal: { kind: "pace", total_m: null, distance_m: 1000, pace_s: 300 },
-  holder: { public_id: MY_ID, username: "Runner_42" },
-  done_m: 0,
-  done: false,
-  outline: [
-    [0, 0],
-    [0.5, 0],
-  ],
-};
+function challenge(
+  pieces: ChallengePiece[],
+  status: GameChallenge["status"] = "active",
+): GameChallenge {
+  return {
+    id: "c1",
+    team_id: "t1",
+    shape_id: "lightning",
+    status,
+    starts_at: "2026-10-25T06:00:00Z",
+    ends_at: "2026-11-01T06:00:00Z",
+    completed_at: null,
+    seconds_left: 500000,
+    pieces,
+    contributions: [],
+  };
+}
+
+/** The account's teams, one for each challenge (or none). */
+function teamsOf(...challenges: (GameChallenge | null)[]): GameTeams {
+  return {
+    teams: challenges.map((each, i) => ({
+      id: `t${i}`,
+      name: "Morning runners",
+      code: "ABC123",
+      owner: MY_ID,
+      members: [{ public_id: MY_ID, username: "Runner_42", photo: null }],
+      challenge: each,
+    })),
+  };
+}
 
 const START: LatLon = [46.0122, 11.2986];
 const METRE = 1 / 111_195;
@@ -187,60 +198,36 @@ describe("the next shape by distance", () => {
 });
 
 describe("the pace piece in hand", () => {
-  test("is my pace piece of a challenge still going", () => {
+  test("is my pace piece of a challenge still going, without the API's other fields", () => {
     const teams = teamsOf(
       null,
-      challenge([piece(0, OTHER_ID, PACE_1K), piece(1, MY_ID, PACE_1K)]),
+      challenge([piece(0, OTHER_ID, API_PACE_1K), piece(1, MY_ID, API_PACE_1K)]),
     );
     expect(heldPaceGoal(teams, MY_ID)).toEqual(PACE_1K);
   });
 
   test("is not a piece of distance, one done, somebody else's, or of a challenge over", () => {
-    const distance = { kind: "distance", total_m: 5000 } as const;
     expect(
-      heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, distance)])), MY_ID),
+      heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, API_5K)])), MY_ID),
     ).toBeNull();
     expect(
-      heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, PACE_1K, true)])), MY_ID),
+      heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, API_PACE_1K, true)])), MY_ID),
     ).toBeNull();
     expect(
-      heldPaceGoal(teamsOf(challenge([piece(0, OTHER_ID, PACE_1K)])), MY_ID),
+      heldPaceGoal(teamsOf(challenge([piece(0, OTHER_ID, API_PACE_1K)])), MY_ID),
     ).toBeNull();
     expect(
-      heldPaceGoal(teamsOf(challenge([piece(0, null, PACE_1K)])), MY_ID),
+      heldPaceGoal(teamsOf(challenge([piece(0, null, API_PACE_1K)])), MY_ID),
     ).toBeNull();
     for (const status of ["completed", "expired"] as const) {
       expect(
-        heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, PACE_1K)], status)), MY_ID),
+        heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, API_PACE_1K)], status)), MY_ID),
       ).toBeNull();
     }
     expect(
-      heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, PACE_1K)])), null),
+      heldPaceGoal(teamsOf(challenge([piece(0, MY_ID, API_PACE_1K)])), null),
     ).toBeNull();
     expect(heldPaceGoal(teamsOf(), MY_ID)).toBeNull();
-  });
-});
-
-describe("GET /game/teams as the line reads it", () => {
-  test("takes the API's body, with the fields it skips", () => {
-    const body = apiTeams([API_PIECE]);
-    expect(isStripTeams(body)).toBe(true);
-    expect(isStripTeams({ teams: [{ challenge: null }] })).toBe(true);
-    expect(isStripTeams({ teams: [] })).toBe(true);
-  });
-
-  test("refuses what is not it", () => {
-    expect(isStripTeams(null)).toBe(false);
-    expect(isStripTeams({ teams: [{}] })).toBe(false);
-    expect(isStripTeams(apiTeams([{ ...API_PIECE, holder: "me" }]))).toBe(false);
-    expect(isStripTeams(apiTeams([{ ...API_PIECE, goal: { kind: "pace" } }]))).toBe(
-      false,
-    );
-    const body = apiTeams([API_PIECE]) as {
-      teams: { challenge: { status: string } }[];
-    };
-    body.teams[0].challenge.status = "paused";
-    expect(isStripTeams(body)).toBe(false);
   });
 });
 
@@ -248,7 +235,7 @@ describe("reading the game as the run starts", () => {
   test("asks for the game and the teams at once, and keeps my pace piece", async () => {
     const fetchFn = fake(
       { status: 200, body: me },
-      { status: 200, body: apiTeams([API_PIECE]) },
+      { status: 200, body: teamsOf(challenge([piece(0, MY_ID, API_PACE_1K)])) },
     );
     const data = await loadRunStripData(API, TOKEN, MY_ID, { fetchFn, key: null });
     expect(data).toEqual({ me: ME, pace: PACE_1K });
