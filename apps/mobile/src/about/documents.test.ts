@@ -263,6 +263,11 @@ test("«Help» and «Privacy» say what push and the emails send (ADR-0206, ADR-
   expect(all(EN.privacy)).toMatch(/one email a day at most/);
   expect(all(EN.privacy)).toMatch(/One per absence/);
   expect(all(EN.privacy)).toMatch(/Resend, in the United States, sends MuW's emails/);
+  // The emails the account needs (TASK-300), with no switch.
+  expect(all(EN.privacy)).toMatch(
+    /Emails your account needs, which no switch turns off/,
+  );
+  expect(all(IT.privacy)).toMatch(/Le email che servono al tuo account/);
   expect(all(IT.privacy)).toMatch(/al massimo una email al giorno/);
   expect(all(EN.help)).toMatch(
     /follow requests, accepted requests, reactions, comments and tags/,

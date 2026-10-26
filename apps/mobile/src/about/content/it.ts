@@ -288,6 +288,7 @@ const privacy: AboutDocument = {
             "Con «Notifiche email» accese, al massimo una email al giorno, solo nei giorni con novità: le richieste di follow, le richieste accettate, le reazioni, i commenti e i tag del giorno, come li dicono le notifiche push. Finché non parte, il nostro server tiene chi ha fatto cosa e su quale post, per al massimo 7 giorni; quello che non è più vero quando la email si scrive resta fuori.",
             "«Email quando sono via»: se non apri MuW per 2 settimane, una email con quanti disegni nuovi ci sono delle persone che segui, con fino a tre dei loro nomi utente, oppure nel Feed. Una per assenza: la successiva solo dopo che sei tornato e poi di nuovo via. È accesa per ogni iscritto, anche per chi si è iscritto prima di questo testo; puoi dire di no all'iscrizione, in «Impostazioni» o con il link nella email.",
             "Ogni email ha il link «Non mandarmi più queste email», che spegne quella email. Le mandiamo attraverso Resend, da un indirizzo di getmuw.app.",
+            "Le email che servono al tuo account, che nessun interruttore spegne: una per confermare il tuo indirizzo quando ti iscrivi o lo cambi, un avviso al vecchio indirizzo quando lo cambi, e un link per una nuova password quando lo chiedi.",
           ],
         },
       ],

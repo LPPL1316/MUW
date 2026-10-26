@@ -290,6 +290,7 @@ const privacy: AboutDocument = {
             "Mit «E-Mail-Benachrichtigungen» an höchstens eine E-Mail am Tag, nur an Tagen mit Neuigkeiten: die Folgeanfragen, angenommenen Anfragen, Reaktionen, Kommentare und Markierungen des Tages, so wie die Push-Benachrichtigungen sie sagen. Bis sie verschickt ist, behält unser Server, wer was bei welchem Beitrag getan hat, höchstens 7 Tage lang; was beim Schreiben nicht mehr stimmt, bleibt draußen.",
             "«E-Mail, wenn ich weg bin»: Wenn du MuW 2 Wochen lang nicht öffnest, eine E-Mail damit, wie viele neue Zeichnungen es von den Leuten gibt, denen du folgst, mit bis zu drei ihrer Benutzernamen, oder sonst im Feed. Eine pro Abwesenheit: die nächste erst, wenn du zurück und wieder weg bist. Sie ist für jedes Mitglied an, auch für alle, die sich vor diesem Text angemeldet haben; du kannst bei der Anmeldung, in «Einstellungen» oder mit dem Link in der E-Mail Nein sagen.",
             "Jede E-Mail hat den Link «Schickt mir diese E-Mails nicht mehr», der diese E-Mail ausschaltet. Wir verschicken sie über Resend, von einer Adresse von getmuw.app.",
+            "E-Mails, die dein Konto braucht und die kein Schalter ausschaltet: eine, um deine Adresse zu bestätigen, wenn du dich anmeldest oder sie änderst, ein Hinweis an deine alte Adresse, wenn du sie änderst, und ein Link für ein neues Passwort, wenn du danach fragst.",
           ],
         },
       ],

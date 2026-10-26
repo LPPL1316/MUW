@@ -290,6 +290,7 @@ const privacy: AboutDocument = {
             "Con «Notificaciones por correo» encendidas, como mucho un correo al día, solo los días con novedades: las solicitudes para seguirte, las solicitudes aceptadas, las reacciones, los comentarios y las etiquetas del día, como las dicen las notificaciones push. Hasta que se envía, nuestro servidor guarda quién hizo qué y en qué publicación, como mucho 7 días; lo que ya no es verdad cuando se escribe queda fuera.",
             "«Correo cuando no estoy»: si no abres MuW durante 2 semanas, un correo con cuántos dibujos nuevos hay de las personas que sigues, con hasta tres de sus nombres de usuario, o si no en el Feed. Uno por ausencia: el siguiente solo después de que vuelvas y te vayas otra vez. Está encendido para cada miembro, también para quienes se registraron antes de este texto; puedes decir que no al registrarte, en «Ajustes» o con el enlace del correo.",
             "Cada correo tiene el enlace «No me envíes más estos correos», que apaga ese correo. Los enviamos a través de Resend, desde una dirección de getmuw.app.",
+            "Los correos que tu cuenta necesita, que ningún interruptor apaga: uno para confirmar tu dirección cuando te registras o la cambias, un aviso a tu dirección antigua cuando la cambias, y un enlace para una contraseña nueva cuando lo pides.",
           ],
         },
       ],

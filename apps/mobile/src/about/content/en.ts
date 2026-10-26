@@ -291,6 +291,7 @@ const privacy: AboutDocument = {
             "With «Email notifications» on, one email a day at most, only on days with news: the follow requests, accepted requests, reactions, comments and tags of the day, as the push notifications say them. Until it is sent our server keeps who did what and on which post, for at most 7 days; what is no longer true when it is written is left out.",
             "«Email when I'm away»: if you do not open MuW for 2 weeks, one email with how many new drawings there are from the people you follow, with up to three of their usernames, or else in the Feed. One per absence: the next only after you are back and away again. It is on for every member, those who signed up before this text too; you can say no at sign-up, in «Settings» or with the link in the email.",
             "Each email has the link «Don't send me these emails», which turns that email off. We send them through Resend, from an address of getmuw.app.",
+            "Emails your account needs, which no switch turns off: one to confirm your address when you sign up or change it, a notice to your old address when you change it, and a link to set a new password when you ask for one.",
           ],
         },
       ],

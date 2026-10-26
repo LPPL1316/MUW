@@ -180,6 +180,11 @@ docs/tasks/TASK-284.md                                 (nuovo)
   `side-session-notes/…/privacy-284B-bozza.md`, «sì alla privacy, va bene
   così» (2026-10-25, nella sessione «Attività rimanenti»). Tedesco,
   spagnolo e francese tradotti dall'agente dall'inglese approvato.
+- **Le email dell'account** (TASK-300, #559, entrata il 2026-10-26): una
+  riga in più in «Emails from MuW» (conferma dell'indirizzo, avviso al
+  vecchio indirizzo, link per una nuova password, nessun interruttore),
+  chiesta dal Coordinatore e approvata dall'utente: «sì, aggiungila»
+  (2026-10-26).
 - Il fixture `sign-up-request.json` porta i due campi: in
   `test_accounts.py` niente più eccezione `optional`; in
   `test_away_email.py` due account si iscrivono senza lingua, come l'app
