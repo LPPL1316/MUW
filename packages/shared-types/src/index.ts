@@ -353,7 +353,7 @@ export interface RouteJob {
 
 /** What the app sends to POST /gpx to get the route as a GPX file (ADR-0033). */
 export interface GpxRequest {
-  request: RouteRequest | ImageRouteRequest;
+  request: RouteRequest | ImageRouteRequest | ImagePenUpRouteRequest;
   result: RouteResult;
 }
 
@@ -484,7 +484,8 @@ export interface ImageRouteRequest {
   /** Target distance in metres, a whole number. */
   distance_m: number;
   activity: Activity;
-  /** No letters to draw with the pen up: true is refused (TASK-197). */
+  /** True only with the pieces of the outline: ImagePenUpRouteRequest
+   * (TASK-297); without them it is refused (TASK-197). */
   pen_up?: false;
 }
 
@@ -1749,4 +1750,35 @@ export interface UserPhotosPage {
   photos: UserPhoto[];
   /** The `cursor` of the next page; null on the last one. */
   next: string | null;
+}
+
+/**
+ * An image with the pen up (TASK-297 part C2, ADR-0258): the other subjects
+ * and the holes of a picture are pieces apart from its outline, each drawn
+ * on its own, and the route walks from one to the next without drawing, as
+ * between the letters of a word with the pen up (TASK-197). These two fields
+ * join ImageOutline above: TypeScript merges the two declarations.
+ */
+export interface ImageOutline {
+  /** Lines apart from the outline, in the frame of `points`, the largest
+   * first; a closed one repeats its first point. What an
+   * ImagePenUpRouteRequest sends back instead of the strokes. Empty when
+   * the picture has none, or more than a route has walks, and after an
+   * edit (TASK-079); missing from an API older than TASK-297. */
+  pieces?: OutlinePoint[][];
+  /** The same pieces over the image, like `image_points`. */
+  image_pieces?: OutlinePoint[][];
+}
+
+/**
+ * What the app sends to POST /image-route-jobs to draw an image with the pen
+ * up: its outline, then each of its pieces on its own. The result has
+ * `walks`, as a word with the pen up, and neither shape nor word; the
+ * distance is the drawing's, the walks on top. The API refuses `pen_up`
+ * without pieces, and pieces without `pen_up`.
+ */
+export interface ImagePenUpRouteRequest extends Omit<ImageRouteRequest, "pen_up"> {
+  /** The `pieces` of an ImageOutline, unchanged: at least one. */
+  pieces: OutlinePoint[][];
+  pen_up: true;
 }

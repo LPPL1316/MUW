@@ -12,6 +12,7 @@ import {
 import { t } from "../i18n";
 import { OpenSettings } from "../permissions/OpenSettings";
 import { ImageEditsContext } from "./imageEdits";
+import { drawnApart, linesOver } from "./imagePieces";
 import { ImagePreview } from "./ImagePreview";
 import { OutlineBoard } from "./OutlineBoard";
 import type { ImageSource } from "./pickImage";
@@ -27,18 +28,26 @@ import type { ImageProblem, ImageState } from "./useImageOutline";
  * «Edit the outline» opens it on the whole screen, where a finger adds a
  * part or a detail and Undo takes the last one away (TASK-079): one line
  * always, which the engine checks.
+ *
+ * With `penUp` and pieces apart (TASK-297), the pieces show instead of the
+ * strokes: the other subjects without their stems, and the holes. Edits
+ * are of the line drawn with the pen down: «Edit the outline» shows with
+ * the pen down only.
  */
 export function ImageChoice({
   state,
   onChoose,
+  penUp = false,
 }: {
   state: ImageState;
   onChoose: (source: ImageSource) => void;
+  penUp?: boolean;
 }) {
   const [showPicture, setShowPicture] = useState(true);
   const [editing, setEditing] = useState(false);
   const edits = useContext(ImageEditsContext);
   const chosen = state.status !== "none" && state.picture !== null;
+  const apart = state.status === "traced" && drawnApart(state.outline, penUp);
   return (
     <View style={styles.panel}>
       <View style={styles.row}>
@@ -59,13 +68,13 @@ export function ImageChoice({
           <Text style={styles.buttonText}>{t("Take photo")}</Text>
         </Pressable>
       </View>
-      <ImageNote state={state} />
+      <ImageNote state={state} apart={apart} />
       {state.status === "traced" && (
         <>
           <ImagePreview
             picture={state.picture}
             points={state.outline.image_points}
-            strokes={state.outline.image_strokes}
+            strokes={linesOver(state.outline, penUp)}
             aspect={state.outline.aspect}
             showPicture={showPicture}
           />
@@ -80,7 +89,7 @@ export function ImageChoice({
               </Text>
             </Pressable>
           </View>
-          {edits && (
+          {edits && !apart && (
             <>
               <Pressable
                 style={styles.button}
@@ -104,7 +113,7 @@ export function ImageChoice({
   );
 }
 
-function ImageNote({ state }: { state: ImageState }) {
+function ImageNote({ state, apart }: { state: ImageState; apart: boolean }) {
   switch (state.status) {
     case "none":
       return (
@@ -121,6 +130,15 @@ function ImageNote({ state }: { state: ImageState }) {
       // of the note; the outline and its edits stay below.
       if (state.problem) {
         return <ProblemNote problem={state.problem} />;
+      }
+      if (apart) {
+        return (
+          <Text style={styles.note}>
+            {t(
+              "The yellow lines are what the route will draw: each part on its own, going from one to the next without drawing. If they do not look like the subject, the route will not either: try another picture.",
+            )}
+          </Text>
+        );
       }
       return (
         <Text style={styles.note}>

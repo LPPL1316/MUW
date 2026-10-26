@@ -1532,4 +1532,7 @@ export const IT: Table = {
     "Tocca una linea per cancellarla. Il contorno porta via i suoi dettagli.",
   "This line encloses nothing. Draw a closed shape.":
     "Questa linea non racchiude niente. Disegna una figura chiusa.",
+  // src/route/ImageChoice.tsx (TASK-297 C2: a picture with the pen up)
+  "The yellow lines are what the route will draw: each part on its own, going from one to the next without drawing. If they do not look like the subject, the route will not either: try another picture.":
+    "Le linee gialle sono quello che il percorso disegnerà: ogni parte per conto suo, andando dall'una all'altra senza disegnare. Se non somigliano al soggetto, nemmeno il percorso gli somiglierà: prova un'altra foto.",
 };

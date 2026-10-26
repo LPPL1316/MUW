@@ -15960,6 +15960,42 @@ prove del 24. Dalla CLI `--image … --pen-up` su un'immagine senza pezzi
 disegna una linea sola con un avviso, invece di rifiutare come per una
 forma senza pezzi: chi manda una foto non sa prima se ha pezzi.
 
+**Aggiunta (parte C2, API e app, 2026-10-26; deciso dall'agente su delega
+dell'utente)**:
+
+1. `POST /image-outlines` ricalca l'immagine anche con `pen_up=True` e dà
+   `pieces` nella cornice di `points` solo se il contorno con la penna
+   alzata è **lo stesso**, nella stessa cornice, di quello con la penna
+   giù (così sulle 16 foto di «Draw» e sugli 8 loghi di
+   `tools/sample_logos.py`); altrimenti vuoti, e la foto si disegna come
+   prima. Così l'app manda indietro gli stessi `points` con i pezzi o con
+   i tratti, senza un secondo contorno nel contratto. Costa un secondo
+   tracciamento: circa il doppio del tempo, sotto 1 s sulle prove.
+2. **Al più 8 pezzi** (`MAX_WALKS`): ogni pezzo è una camminata, e
+   un percorso, una corsa salvata e un preferito ne tengono al più 8. Con
+   di più, nessun pezzo (la foto con la penna giù), invece di tenerne una
+   parte: un logo a metà sarebbe un altro disegno.
+3. `pen_up` e `pieces` vanno insieme: l'uno senza l'altro è
+   `invalid_request` con il motivo. I pezzi che tornano dal telefono si
+   controllano senza incroci (`parse_outline` con `allow_crossings`
+   falso), come li ha tracciati il motore; il motivo di prima
+   («pen_up is for the letters of a word») resta dentro quello nuovo.
+4. **Le modifiche** (TASK-079) sono della linea con la penna giù: un
+   contorno modificato non ha pezzi, e con la penna alzata e dei pezzi
+   l'app non mostra «Edit the outline» (spento l'interruttore, torna).
+5. `shared-types`: `ImagePenUpRouteRequest` è un tipo a sé (`pen_up: true`
+   e `pieces` obbligatori), così `ImageRouteRequest` resta quello di prima;
+   i due campi di `ImageOutline` stanno in coda al file, uniti alla
+   dichiarazione di prima (le interfacce di TypeScript si fondono).
+   `GpxRequest` prende anche il tipo nuovo.
+6. App: l'interruttore è lo stesso «Lift the pen between parts» delle
+   forme in pezzi, con lo stato di quello delle parole (acceso all'avvio);
+   dei pezzi che l'app non sa disegnare (non uno per uno sopra la foto,
+   fuori dalla cornice) si lasciano fuori i pezzi, non il contorno. Un
+   testo nuovo, la riga sotto l'anteprima con la penna alzata, da
+   approvare dall'utente. `images.py` e `schemas.py` vanno sul telefono:
+   `engine.zip` rifatto.
+
 ## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
 **Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
 (TASK-271), dalla prima recensione di un tester («quando devi tornare

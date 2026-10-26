@@ -1550,4 +1550,7 @@ export const DE: Table = {
     "Tippe auf eine Linie, um sie zu löschen. Der Umriss nimmt seine Details mit.",
   "This line encloses nothing. Draw a closed shape.":
     "Diese Linie umschließt nichts. Zeichne eine geschlossene Form.",
+  // src/route/ImageChoice.tsx (TASK-297 C2: a picture with the pen up)
+  "The yellow lines are what the route will draw: each part on its own, going from one to the next without drawing. If they do not look like the subject, the route will not either: try another picture.":
+    "Die gelben Linien sind das, was die Route zeichnen wird: jeder Teil für sich, von einem zum nächsten geht es weiter, ohne zu zeichnen. Sehen sie nicht aus wie das Motiv, wird es die Route auch nicht: Versuche ein anderes Bild.",
 };

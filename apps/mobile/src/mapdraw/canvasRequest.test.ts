@@ -27,7 +27,9 @@ function drawnCircle(radius: number): { line: LatLon[]; placed: Placed } {
 }
 
 function asImage(request: ReturnType<typeof canvasRequest>): ImageRouteRequest {
-  if (!isImageRequest(request)) throw new Error("not an image request");
+  // A drawing on the map has no pieces (TASK-297): never the pen up.
+  if (!isImageRequest(request) || request.pen_up)
+    throw new Error("not an image request");
   return request;
 }
 

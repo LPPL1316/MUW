@@ -290,11 +290,17 @@ Parte C (motore):
       rifare (condizione 4).
 
 Parte C2 (API e app):
-- [ ] `POST /image-outlines` e `POST /image-route-jobs` con i pezzi
-      (test); `pen_up` senza pezzi rifiutato con il motivo.
-- [ ] L'interruttore sulla foto, i pezzi disegnati, i tratti a piedi
-      sulla mappa (test jest); impronta iOS invariata; lint, typecheck,
-      test e format:check verdi.
+- [x] `POST /image-outlines` e `POST /image-route-jobs` con i pezzi
+      (test); `pen_up` senza pezzi rifiutato con il motivo:
+      `tests/test_images.py` (il foro di un disco fino al job, le fixture
+      nuove, `pen_up` e `pieces` l'uno senza l'altro, un pezzo che tocca,
+      troppi pezzi o punti, nessun pezzo quando il secondo tracciamento non
+      va, i `walks` nel risultato).
+- [x] L'interruttore sulla foto, i pezzi disegnati, i tratti a piedi
+      sulla mappa (test jest): `__tests__/AppImagePenUp.test.tsx`,
+      `src/route/imagePieces.test.tsx`; la pausa sui tratti a piedi è
+      quella delle forme in pezzi (`word` null: `penUp.ts`). Impronta iOS
+      invariata (`83793e26`); lint, typecheck, test e format:check verdi.
 
 ## File toccati
 
@@ -350,6 +356,21 @@ services/api/tests/test_images.py
 packages/shared-types/src/index.ts                        (in coda)
 apps/mobile/src/… (la schermata della foto, il contorno sulla foto, i18n in coda)
 docs/API.md, docs/UI.md, docs/STATUS.md, docs/tasks/TASK-297.md
+```
+
+Parte C2 come fatta (fuori dall'elenco sopra, segnalati nella PR):
+```
+services/api/shaperoute_api/app.py                        (to_request: l'immagine passa da images.image_request)
+services/api/tests/test_contract.py                       (le fixture di prima, senza pezzi)
+packages/shared-types/src/index.ts                        (anche in mezzo: il commento di ImageRouteRequest.pen_up, GpxRequest)
+packages/shared-types/test/contract.test.ts               (le fixture di prima; un cast via unknown)
+packages/shared-types/fixtures/image-outline-edited.json  (`pieces` e `image_pieces` vuoti)
+packages/shared-types/fixtures/image-outline-pieces.json, image-route-request-pen-up.json   (nuovi)
+packages/shared-types/test/imagePieces.test.ts            (nuovo)
+apps/mobile/App.tsx                                       (la richiesta della foto: imageAsked)
+apps/mobile/__tests__/AppImagePenUp.test.tsx              (nuovo)
+apps/mobile/assets/engine/engine.zip                      (rifatto: images.py e schemas.py vanno sul telefono)
+docs/DECISIONS.md                                         (aggiunta ad ADR-0258)
 ```
 
 ## Fuori scope
@@ -417,3 +438,18 @@ rifare ancora dopo la #497. Emerso: la ricerca lontana su un grafo
 piccolo che ignora l'area (`FileSource`) cade in `optimizer.next_scale`
 con `ZeroDivisionError`; il test della CLI usa la griglia. Rimandato: C2
 (API e app), `draw_examples` e gli altri file derivati dopo Apple.
+
+**Parte C2, API e app** (2026-10-26, PR aperta, branch
+`feat/TASK-297-c2-image-pieces-api-app`): `POST /image-outlines` dà anche
+`pieces` e `image_pieces`, dal secondo tracciamento con la penna alzata,
+solo quando il suo contorno è lo stesso di `points` e i pezzi sono al più
+8; `POST /image-route-jobs` prende `pen_up: true` con `pieces` (l'uno senza
+l'altro `invalid_request`, i pezzi senza incroci) e il risultato ha i
+`walks`. Nell'app l'interruttore «Lift the pen between parts» sotto la foto
+con pezzi, acceso all'avvio; i pezzi gialli sull'anteprima al posto dei
+tratti, senza «Edit the outline»; la richiesta con `pieces` e `pen_up`; il
+percorso come una forma in pezzi (tratteggio, km a parte, pausa). Un testo
+nuovo da approvare. Impronta iOS invariata, `engine.zip` rifatto. Emerso:
+le foto pronte di «Draw» non hanno pezzi (vengono da
+`samplePictures.json`), anche se auto, chitarra e coppa ne avrebbero (2, 1,
+2). Rimandato: il server dopo Apple con l'ok dell'utente.

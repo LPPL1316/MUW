@@ -416,13 +416,19 @@ def test_image_fixtures_are_valid_bodies() -> None:
     assert set(request) == _names(ImageOutlineRequestBody)
     ImageOutlineRequestBody.model_validate(request)
     outline = _load("image-outline.json")
-    # As an API older than TASK-079 answers: no details (ADR-0074).
-    assert set(outline) == _names(ImageOutlineBody) - {"strokes", "image_strokes"}
+    # As an API older than TASK-079 answers: no details (ADR-0074), nor the
+    # pieces of TASK-297 C2 (test_images.py has those).
+    assert set(outline) == _names(ImageOutlineBody) - {
+        "strokes",
+        "image_strokes",
+        "pieces",
+        "image_pieces",
+    }
     ImageOutlineBody.model_validate(outline)
     route = _load("image-route-request.json")
-    # As an app older than TASK-079 sends it: no details; nor the pen up,
-    # which an image refuses anyway (TASK-197).
-    assert set(route) == _names(ImageRouteRequestBody) - {"strokes"} - PEN_UP
+    # As an app older than TASK-079 sends it: no details; nor the pen up
+    # with the pieces of TASK-297 C2 (test_images.py has those).
+    assert set(route) == _names(ImageRouteRequestBody) - {"strokes", "pieces"} - PEN_UP
     assert ImageRouteRequestBody.model_validate(route).outline == [
         tuple(p) for p in outline["points"]
     ]
@@ -439,16 +445,16 @@ def test_image_fixtures_are_valid_bodies() -> None:
 
 
 def test_an_image_route_request_is_a_route_request_with_an_outline() -> None:
-    # No letters in an image, so no style (TASK-080); its pen_up is there to
-    # be refused with the reason (TASK-197). An image is not drawn on the
-    # water, so it is not moved there (TASK-238).
+    # No letters in an image, so no style (TASK-080); its pen_up goes with
+    # its pieces (TASK-297 C2). An image is not drawn on the water, so it is
+    # not moved there (TASK-238).
     engine = {f.name for f in fields(RouteRequest)} - {
         "shape",
         "word",
         "style",
         "near",
     }
-    assert _names(ImageRouteRequestBody) == engine | {"outline", "strokes"}
+    assert _names(ImageRouteRequestBody) == engine | {"outline", "strokes", "pieces"}
 
 
 def test_image_reasons_and_limits_match_shared_types() -> None:

@@ -26,7 +26,6 @@ from psycopg_pool import PoolTimeout
 from route_engine.export_gpx import route_name, to_gpx
 from route_engine.image_outline import InvalidImageError
 from route_engine.models import (
-    PEN_UP_WITHOUT_WORD,
     InvalidRequestError,
     RouteRequest,
     RouteResult,
@@ -68,9 +67,8 @@ from shaperoute_api.graphs import MapDataUnavailableError
 from shaperoute_api.group_runs import install_group_runs
 from shaperoute_api.images import (
     AnyRequest,
-    ImageRequest,
     decode_image,
-    outline_of,
+    image_request,
     plan_request,
     trace,
 )
@@ -181,19 +179,12 @@ def validation_message(errors: Sequence[Any]) -> str:
 
 def to_request(body: RouteRequestBody | ImageRouteRequestBody) -> AnyRequest:
     """The engine's RouteRequest checks the values, and ImageRequest those of
-    an image route: InvalidRequestError. An image has no letters to draw
-    with the pen up (TASK-197). The activity is one of the contract's: the
+    an image route: InvalidRequestError. An image has the pen up only with
+    its pieces (TASK-297 C2). The activity is one of the contract's: the
     engine may draw more (TASK-190)."""
     check_supported(body.activity)
     if isinstance(body, ImageRouteRequestBody):
-        if body.pen_up:
-            raise InvalidRequestError(PEN_UP_WITHOUT_WORD)
-        return ImageRequest(
-            start=body.start,
-            outline=outline_of(body.outline, body.strokes),
-            distance_m=body.distance_m,
-            activity=body.activity,
-        )
+        return image_request(body)
     return RouteRequest(
         start=body.start,
         shape=body.shape,

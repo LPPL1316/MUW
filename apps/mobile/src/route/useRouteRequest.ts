@@ -98,16 +98,17 @@ export function useRouteRequest(baseUrl: string | null): {
 
 /** Same start, shape, word or image, and distance: the state still belongs
  * to the screen. An image's outline is the same when it is the one traced
- * for the same picture, or the same edit of it (TASK-079): the same arrays.
- * A word with the pen up is another route than the same word without
- * (TASK-198). */
+ * for the same picture, or the same edit of it (TASK-079): the same arrays,
+ * and so the same pieces. A word with the pen up is another route than the
+ * same word without (TASK-198), and so a picture in pieces (TASK-297). */
 export function sameRequest(a: AnyRouteRequest, b: AnyRouteRequest): boolean {
   const drawn =
     isImageRequest(a) || isImageRequest(b)
       ? isImageRequest(a) &&
         isImageRequest(b) &&
         a.outline === b.outline &&
-        a.strokes === b.strokes
+        a.strokes === b.strokes &&
+        (a.pen_up ?? false) === (b.pen_up ?? false)
       : a.shape === b.shape &&
         a.word === b.word &&
         (a.style ?? "round") === (b.style ?? "round") &&
