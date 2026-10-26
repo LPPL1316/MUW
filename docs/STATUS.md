@@ -1358,6 +1358,41 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (cinque lingue) e la coda dei merge. `tasks/TASK-266.md`.
   **Chiuso**: in `main` con la #479 (`1f64621e`, 2026-10-10); vedi
   «Completato».
+- **TASK-305 — Parapendio: proposta e prova di fattibilità** (ADR-0265
+  **proposto**; richiesta dell'utente del 2026-10-26; numeri e condizioni
+  dal Coordinatore). Branch `docs/TASK-305-paragliding-proposal`: solo
+  documenti e misure, **nessun codice**, e nessuna parte parte senza il sì
+  dell'utente. Lo studio è `out/TASK-305/studio.md` del Mac (ignorato da
+  git) con gli script, i dati e la pagina `paragliding-samples-grid.html`.
+  **Il modello**: niente strade, il cono di planata fra il decollo e il suo
+  atterraggio ufficiale (efficienza 8, 300 m sopra il terreno, aria calma);
+  la forma più larga che ci sta, inclinata al massimo di 30°, sotto le CTA
+  e sopra le riserve, 500 m sopra i centri abitati; la quota al posto della
+  distanza; il motore decide, l'AI interpreta. **Misurato** su Monte Baldo
+  → Malcesine, Monte Grappa → Semonzo e Panarotta → Levico (terreno EU-DEM,
+  spazi aerei dal file comunitario AIRAC 2504, centri abitati OSM):
+  in aria calma il cuore più grande è di 2,8 km al Baldo (1667 m di
+  dislivello), 1,2 al Grappa, 1,0 alla Panarotta; con le regole il Baldo
+  resta a 2,7, il Grappa scende a 0,24 (pianura costruita) e alla
+  Panarotta non ci sta niente (il file comunitario mette l'atterraggio di
+  Levico dentro una riserva); con vento contro la planata Grappa e
+  Panarotta non hanno forma. Un cuore regge 12–16 boe; con 15 km/h di vento conta
+  il raggio di virata (60–80 m di errore a 30 m, 90–135 a 50 m): sotto
+  1,5 km la forma si deforma, da 2 km si legge. **Le fonti**: decolli da
+  OSM (499 in Italia, incompleti), terreno Copernicus, vento ICON-D2 o
+  ECMWF (CC BY 4.0); **gli spazi aerei sono il nodo**: openAIP è CC BY-NC,
+  ENAV vuole un accordo, EAD è a pagamento; senza una fonte spedibile non
+  si propone nessuna forma. **La sicurezza**: nessuna guida in volo, la
+  forma si esporta come task di boe (XCTrack QR e `.xctsk`, `.cup`,
+  `.wpt`) e dopo l'atterraggio si importa l'IGC; l'app non dice mai «vola
+  qui», «qui è legale», «ce la fai». **L'utente** (2026-10-26): «è una
+  bella idea», niente navigatore, solo la traccia e il caricamento del
+  volo. **Costo**: 10–14 sessioni (la canoa ne ha prese 15), più le
+  licenze, un parere legale e una prova con un pilota. **Verdetto**:
+  conviene a tre condizioni (spazi aerei con licenza, decolli scelti dove
+  la forma è ≥ 1,5 km, parere legale e prova), altrimenti no. **Aspetta**:
+  tre scelte di prodotto (nascosto o «Soon»; l'avviso; il nome) e le tre
+  condizioni prima della parte A1. File: `tasks/TASK-305.md`.
 
 - **TASK-301 — La musica nel video della corsa** (ADR-0262; richiesta
   dell'utente del 2026-10-25 «aggiungi la musica al video», scelte con le
