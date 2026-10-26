@@ -559,6 +559,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Settings» e la **privacy unica** (email di ritorno, email delle
   notifiche, segnalazioni, gioco, archivio dei percorsi, push Android,
   Resend), approvata dall'utente («sì alla privacy, va bene così»).
+  **Chiuso**: parte B in `main` con la #556 (`3ec54818`, 2026-10-26),
+  privacy datata 26 ottobre 2026; vedi «Completato».
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
@@ -1353,6 +1355,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
+  l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
+  iscritto con «Email when I'm away» acceso (casella non spuntata
+  all'iscrizione, interruttore in «Settings», link in ogni email). Parte A
+  #502 (migrazione `0023`, Resend), parte B #556 con la **privacy unica**
+  del 26 ottobre 2026 che copre anche le email delle notifiche (TASK-262
+  B), quelle dell'account (TASK-300), le segnalazioni (TASK-291), il gioco,
+  l'archivio dei percorsi e le push Android. **Spenta** finché il server non
+  ha Resend: copia del sito, app pubblicata e server dal Coordinatore dopo
+  Apple e col sì dell'utente. `tasks/TASK-284.md`.
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252
