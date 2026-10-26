@@ -509,6 +509,41 @@ Per spegnerla basta togliere `SHAPEROUTE_REPORTS_TO` e `docker compose up
 nascosto finché non si rimostra, dal link o a mano (`DATABASE.md`,
 migrazione `0024`).
 
+## Email del feedback (TASK-308)
+
+Ogni messaggio di «Send feedback» in «Settings» arriva per email a chi
+gestisce MuW, con l'email dell'iscritto come Reply-To (`API.md`,
+«Feedback»; ADR-0268). Serve solo `RESEND_API_KEY` (quella dell'email di
+ritorno) e un indirizzo: `SHAPEROUTE_FEEDBACK_TO`, o, senza, lo stesso
+`SHAPEROUTE_REPORTS_TO` delle segnalazioni, che quindi basta già. Senza
+nessuno dei due i messaggi restano nella tabella `feedback` e non parte
+niente. **Prima di accenderla**: la privacy nuova con la riga del
+feedback approvata e pubblicata, e l'ok del coordinatore per il server.
+
+1. Solo se il feedback va a un indirizzo diverso da quello delle
+   segnalazioni, l'utente lo scrive sul server con un comando che non lo
+   mostra:
+
+   ```bash
+   cd /root/shaperoute/deploy
+   read -r -p "Feedback to: " T && printf 'SHAPEROUTE_FEEDBACK_TO=%s\n' "$T" >> .env; unset T
+   ```
+
+2. L'API nuova, che al primo avvio applica la migrazione
+   `0031_feedback.sql`, come ogni aggiornamento del server:
+
+   ```bash
+   cd /root/shaperoute && git pull
+   cd deploy && docker compose up -d --build
+   docker compose logs api | grep -E "Accounts|feedback|Feedback"
+   ```
+
+   «Each message of «Send feedback» is emailed» dice che è accesa;
+   «Feedback is kept, not emailed» che manca qualcosa.
+3. La prova: dall'app un account di prova manda un messaggio da
+   «Settings › Send feedback». Arriva l'email; «Rispondi» scrive
+   all'indirizzo dell'account di prova.
+
 ## Email confermata e password dimenticata (TASK-300)
 
 La conferma dell'indirizzo e «Forgot password?» (ADR-0261; `API.md`,

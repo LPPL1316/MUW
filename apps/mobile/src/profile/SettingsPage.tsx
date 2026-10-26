@@ -8,6 +8,7 @@ import type { Account } from "../account/useAccount";
 import { OfflineMapsSetting } from "../engine/OfflineMapsSetting";
 import { t } from "../i18n";
 import { EmailSetting } from "../settings/EmailSetting";
+import { FeedbackSetting } from "../settings/FeedbackSetting";
 import { LanguageSetting } from "../settings/LanguageSetting";
 import { NotificationsSetting } from "../settings/NotificationsSetting";
 import { PhoneSetting } from "../settings/PhoneSetting";
@@ -47,8 +48,9 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
  * email and phone number (TASK-183) and the ways out of it, the sport
  * (TASK-189), Strava (TASK-187), the language
  * (TASK-210), the offline maps (TASK-214) and the units (TASK-182) among
- * the preferences, the two notification switches (TASK-185) and the texts
- * of «ABOUT» (TASK-184). Every row works: none says «Soon» any more.
+ * the preferences, the two notification switches (TASK-185), «Send
+ * feedback» (TASK-308) and the texts of «ABOUT» (TASK-184). Every row
+ * works: none says «Soon» any more.
  * «Delete account» asks first, on the screen (ADR-0120: the API does not).
  */
 export function SettingsPage({ user, account, onAbout }: Props) {
@@ -76,6 +78,10 @@ export function SettingsPage({ user, account, onAbout }: Props) {
       {/* Kept in the account; nothing is sent yet (TASK-185). */}
       <Section label={t("NOTIFICATIONS")}>
         <NotificationsSetting user={user} account={account} />
+      </Section>
+      {/* A message to whoever runs MuW, kept and emailed (TASK-308). */}
+      <Section label={t("FEEDBACK")}>
+        <FeedbackSetting account={account} />
       </Section>
       {/* The guide and the two legal texts, each on its own page (TASK-184). */}
       <Section label={t("ABOUT")}>

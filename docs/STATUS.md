@@ -1359,6 +1359,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   musica il video resta identico. 1,88 MB di brani nell'app. Solo app,
   impronta iOS invariata. File: `tasks/TASK-301.md`.
 
+- **TASK-308 — «Send feedback» in «Settings»** (ADR-0268; richiesta
+  dell'utente del 2026-10-26 «aggiungi un tasto in impostazioni per darci
+  un feedback e suggerimenti», scelta «Form in the app» lo stesso giorno;
+  numero dal Coordinatore). Branch `feat/TASK-308-feedback`. Sezione
+  «FEEDBACK» con la riga «Send feedback», che apre un modulo sotto di sé;
+  `POST /feedback` tiene il messaggio (tabella `feedback`, migrazione
+  `0031_feedback.sql`, numero al merge), al più 5 al giorno per account, e
+  lo manda per email a `SHAPEROUTE_FEEDBACK_TO` o, senza, a
+  `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. Privacy con la sezione
+  «Feedback» nelle cinque lingue, pagine del sito rifatte. Testi e privacy
+  aspettano il sì dell'utente; server prima dell'app, dopo Apple. File:
+  `tasks/TASK-308.md`.
+
 ## Completato
 
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):

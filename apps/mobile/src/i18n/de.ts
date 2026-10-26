@@ -366,6 +366,21 @@ export const DE: Table = {
   "Notifications are not available on this API yet.":
     "Benachrichtigungen gibt es auf dieser API noch nicht.",
 
+  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
+  "Send feedback": "Feedback senden",
+  "Thank you! Your message reached us.":
+    "Danke! Deine Nachricht ist bei uns angekommen.",
+  "Ideas, problems, anything that would make MuW better: we read every message.":
+    "Ideen, Probleme, alles, was MuW besser machen würde: Wir lesen jede Nachricht.",
+  "Write here…": "Hier schreiben…",
+  "Your message": "Deine Nachricht",
+  "It reaches us with your username, your email and the app's version, so we can answer you.":
+    "Sie erreicht uns mit deinem Benutzernamen, deiner E-Mail-Adresse und der Version der App, damit wir dir antworten können.",
+  "Write something first.": "Schreib zuerst etwas.",
+  "You sent a lot of feedback today. Try again tomorrow.":
+    "Du hast uns heute schon viel geschrieben. Versuch es morgen wieder.",
+  FEEDBACK: "FEEDBACK",
+
   // src/profile/SettingsPage.tsx
   "Change email": "E-Mail ändern",
   "Phone number": "Telefonnummer",

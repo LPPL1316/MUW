@@ -345,6 +345,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Feedback",
+      blocks: [
+        "Wenn du uns über «Feedback senden» in «Einstellungen» schreibst, behalten wir deine Nachricht, die Version der App, das System deines Handys (iOS oder Android) und wann du sie geschickt hast. Wer MuW betreibt, bekommt sie per E-Mail mit deinem Benutzernamen und deiner E-Mail-Adresse, um sie zu lesen und dir, wenn nötig, per E-Mail zu antworten. Sie wird den anderen Mitgliedern nie gezeigt. Wenn du dein Konto löschst, werden deine Nachrichten mit ihm von unserem Server gelöscht.",
+      ],
+    },
+    {
       heading: "Das Formenspiel",
       blocks: [
         "Mit einem Konto berechnet unser Server aus deinen gespeicherten Läufen zu Fuß, wie viele Kilometer für das Spiel zählen, deine Bestzeiten über 1, 5, 10 und 21,1 km und die Formen, die du gesammelt hast. Nur du siehst deine Sammlung und deine Bestzeiten. Wenn du einem Team beitrittst, sehen seine Mitglieder deinen Benutzernamen, dein Bild, die Teile einer Herausforderung, die du übernommen hast, und die Kilometer, die du zu jedem beigetragen hast, nie deine Strecken, die Zeiten deiner Läufe oder wo du gelaufen bist. Ein Team findet man nur mit seinem Code: Es ist nie in einer Suche. Wenn du einen Lauf löschst, fallen seine Kilometer aus der Zählung, und die Formen, die du schon gesammelt hast, bleiben. Wenn du dein Konto löschst, werden deine Spieldaten mit gelöscht; in den Herausforderungen eines Teams bleiben die Teile, die du gelaufen bist, für die anderen, ohne deinen Namen.",
@@ -394,7 +400,7 @@ const privacy: AboutDocument = {
             "unpkg liefert die Kartenbibliothek, wenn die App startet.",
             "Expo liefert die Updates der App.",
             "Google Ireland Limited (Firebase Cloud Messaging), um Push-Benachrichtigungen an Android-Telefone zu liefern. Wenn du Push einschaltest, fragt die App bei Firebase einen Registrierungs-Token für dein Telefon an; der Push-Dienst von Expo gibt jede Benachrichtigung (wer was getan hat, und den Anfang eines Kommentars) an Google weiter, das sie an dein Telefon liefert. Google sieht den Token und den Inhalt jeder Benachrichtigung, nicht dein Konto und nicht deine Position. Der Token wird von unserem Server entfernt, wenn du Push ausschaltest, dich abmeldest oder dein Konto löschst; der auf dem Telefon verschwindet, wenn du die App deinstallierst.",
-            "Resend, in den Vereinigten Staaten, verschickt die E-Mails von MuW: deine E-Mail-Adresse mit der E-Mail selbst. Bei einer Meldung bringt es dem Betreiber von MuW, was gemeldet wurde, seinen Text, den Grund und die Benutzernamen dessen, der es gemeldet hat, und dessen, der es geschrieben hat.",
+            "Resend, in den Vereinigten Staaten, verschickt die E-Mails von MuW: deine E-Mail-Adresse mit der E-Mail selbst. Bei einer Meldung bringt es dem Betreiber von MuW, was gemeldet wurde, seinen Text, den Grund und die Benutzernamen dessen, der es gemeldet hat, und dessen, der es geschrieben hat. Bei «Feedback senden» bringt es deine Nachricht, deinen Benutzernamen und deine E-Mail-Adresse.",
             "Strava, wie oben gesagt.",
           ],
         },
@@ -421,7 +427,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst, die E-Mails der Benachrichtigungen, die du eingeschaltet hast, und das Formenspiel.",
-            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist.",
+            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist; die Nachrichten von «Feedback senden», um sie zu lesen und dir zu antworten.",
             "Deine Einwilligung: die Telefonnummer, die du hinzufügst, und die Verbindung mit Strava. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
             "Eine rechtliche Pflicht, wenn ein Gesetz von uns verlangt, Daten aufzubewahren oder herauszugeben.",
           ],

@@ -16560,3 +16560,60 @@ di nativo: arriva con un aggiornamento OTA anche alla 1.0 (impronta iOS
 pesa 1,88 MB in più la prima volta. Dodici testi nuovi in fondo alle
 tabelle («Music» c'era già). Rifare i brani costa circa 17 s di CPU, il
 loro test in CI circa 15 s.
+
+## ADR-0268 — «Send feedback» in «Settings»: un modulo nell'app, tenuto dal server e mandato per email
+
+**Stato**: Proposta · 2026-10-26 · il modulo nell'app (invece di un'email
+scritta dal telefono) l'ha scelto l'utente; i testi e la riga della
+privacy aspettano il suo sì; i punti tecnici sono decisi dall'agente su
+delega dell'utente (TASK-308)
+
+**Contesto**: l'utente il 2026-10-26: «aggiungi un tasto in impostazioni
+per darci un feedback e suggerimenti». Due strade: un'email già scritta
+nell'app Mail del telefono, a `hello@getmuw.app`, che però oggi non
+riceve posta (il dominio non ha record MX), o un modulo nell'app. Scelta
+dell'utente: «Form in the app».
+
+**Decisione**:
+
+1. **Una sezione «FEEDBACK» in «Settings»**, prima di «ABOUT», con la
+   riga «💬 Send feedback». Un tocco apre il modulo sotto la riga, come
+   «Change email»: cosa serve il messaggio, un campo di più righe (al più
+   2000 caratteri), cosa parte con lui, «Send». Mandato, il modulo si
+   chiude e la riga ringrazia; chiuso senza mandare, le parole restano
+   per il tocco dopo. Solo con l'account: «Settings» c'è solo da dentro.
+2. **`POST /feedback`** (`feedback.py`) con il token: il testo, la
+   versione dell'app («1.0.0 (7)», da `expo-constants`) e il sistema
+   (`ios`/`android`). Tenuto nella tabella nuova `feedback` (migrazione
+   `0031_feedback.sql`, il numero al merge), `ON DELETE CASCADE`: con
+   l'account se ne vanno i suoi messaggi. Nessun endpoint li legge.
+3. **Al più 5 in 24 ore per account**, contati nel database (non in
+   memoria come i commenti: sopravvivono a un riavvio, e il conto è
+   esatto), poi `429 too_many_requests` con `Retry-After`. Basta per chi
+   scrive davvero, ferma chi tiene premuto «Send».
+4. **Un'email per messaggio**, come le segnalazioni (ADR-0251): fuori
+   dalla richiesta, con Resend, in inglese, a `SHAPEROUTE_FEEDBACK_TO`
+   o, senza, a `SHAPEROUTE_REPORTS_TO`, che c'è già: nessuna variabile
+   nuova obbligatoria sul server. **Reply-To è l'email dell'iscritto**
+   (un campo `reply_to` nuovo in `resend_email.Email`): rispondere
+   all'email risponde a lui. Senza Resend il messaggio resta nel
+   database; un errore di Resend non cambia la risposta. Chiave,
+   indirizzo e testo mai nei log.
+5. **La privacy** ha una sezione nuova («Feedback») e due frasi: cosa
+   porta Resend e la base del trattamento (interesse legittimo: leggere e
+   rispondere), nelle cinque lingue, e le pagine del sito rifatte con
+   `make_privacy.mjs`.
+
+**Alternative scartate**: l'email scritta dal telefono (scelta
+dell'utente; oggi non arriverebbe, e senza un'app Mail configurata non
+parte); un endpoint senza account (spam, nessuno a cui rispondere); un
+pannello o un endpoint per leggere i messaggi (ADR-0228: per ora si
+leggono per email e nel database); il limite in memoria con
+`RateLimiter` (si azzera a ogni riavvio).
+
+**Conseguenza**: una migrazione e un endpoint nuovi: l'app manda i
+messaggi solo a un server aggiornato, che va su dopo l'approvazione di
+Apple e con l'ok dell'utente; con un'API precedente (`404`) «Send» dice
+«This is not available any more.», come le segnalazioni. Nessuna
+dipendenza né permesso nuovi, niente di nativo: l'app arriva con un
+aggiornamento OTA (impronta iOS da rimisurare, attesa invariata).

@@ -63,9 +63,10 @@ test("every row works: none says «Soon» any more", async () => {
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText(/coming soon$/)).toBeNull();
   // The picture (TASK-178), the email and the phone number (TASK-183), the
-  // language (TASK-210), the units (TASK-182), the tone (TASK-263), the
-  // three texts of «ABOUT» (TASK-184) and the ways out are buttons.
-  expect(screen.getAllByRole("button")).toHaveLength(11);
+  // language (TASK-210), the units (TASK-182), the tone (TASK-263),
+  // «Send feedback» (TASK-308), the three texts of «ABOUT» (TASK-184) and
+  // the ways out are buttons.
+  expect(screen.getAllByRole("button")).toHaveLength(12);
   expect(screen.getByRole("button", { name: "Profile picture" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Change email" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Phone number, Add" })).toBeOnTheScreen();
@@ -74,6 +75,16 @@ test("every row works: none says «Soon» any more", async () => {
   expect(screen.getByRole("button", { name: "Tone, Dark" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Log out" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Delete account" })).toBeOnTheScreen();
+});
+
+test("«Send feedback» has its own section, closed until tapped (TASK-308)", async () => {
+  await show();
+  expect(screen.getByText("FEEDBACK")).toBeOnTheScreen();
+  const row = screen.getByRole("button", { name: "Send feedback" });
+  expect(row).not.toBeExpanded();
+  await fireEvent.press(row);
+  expect(row).toBeExpanded();
+  expect(screen.getByLabelText("Your message")).toHaveDisplayValue("");
 });
 
 test("«Help», «Terms» and «Privacy» are rows that open their page (TASK-184)", async () => {
