@@ -380,16 +380,18 @@ packages/shared-types/test/accounts.test.ts              (contest_wins nelle lis
 docs/API.md («Contest»), docs/DATABASE.md (contests), docs/CONCORSI.md (§13), docs/STATUS.md, docs/tasks/TASK-299.md
 ```
 
-Parte B (da confermare col Coordinatore prima del codice):
+Parte B (approvati dal Coordinatore il 2026-10-26; l'elenco esatto della
+PR #575):
 ```
-apps/mobile/src/contest/                                 (nuova: contestApi, contestKept, useContest, daysLeft, ContestCard, WinnerCard, ContestRules e i test)
-apps/mobile/src/screens/FeedScreen.tsx, FeedScreen.test.tsx          (la scheda nell'intestazione)
+apps/mobile/src/contest/                                 (nuova: contestApi.ts, contestKept.ts, useContest.ts, daysLeft.ts, ContestCard.tsx, ContestRules.tsx, WinnerCard.tsx, FeedContest.tsx, WinnerBadge.tsx e i test contestApi, contestKept, useContest, daysLeft, ContestCard, WinnerBadge)
+apps/mobile/src/screens/FeedScreen.tsx                   (la scheda nell'intestazione, il pull)
+apps/mobile/src/screens/FeedScreenContest.test.tsx       (nuovo, invece di toccare FeedScreen.test.tsx)
 apps/mobile/src/profile/ProfileHeader.tsx, ProfileHeader.test.tsx    (il badge)
-apps/mobile/src/profile/UserProfilePage.tsx, ProfileHome.tsx         (passano contest_wins)
-apps/mobile/src/social/DrawingCard.tsx, DrawingCard.test.tsx         (la fascia)
+apps/mobile/src/profile/UserProfilePage.tsx, ProfileHome.tsx         (passano contest_wins, una riga ciascuno)
+apps/mobile/src/social/DrawingCard.tsx, DrawingCard.test.tsx         (la fascia, piccola e separata: TASK-307 tocca lo stesso file)
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts          (righe in fondo)
-apps/mobile/__tests__/AppFeed.test.tsx (e gli altri test dell'app intera che contano le richieste)
-docs/UI.md («Feed»: la scheda; il profilo: il badge), docs/CONCORSI.md, docs/STATUS.md, docs/tasks/TASK-299.md
+apps/mobile/__tests__/AppFeed.test.tsx, __tests__/AppPages.test.tsx, src/screens/FeedScreenPosts.test.tsx   (una riga di filtro su /contests/current, come /game/catalog)
+docs/UI.md («Feed»: la scheda; il profilo: il badge), docs/CONCORSI.md (§14), docs/STATUS.md, docs/tasks/TASK-299.md
 ```
 
 ## Fuori scope
