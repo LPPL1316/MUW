@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in lavorazione (`feat/TASK-296-d-challenges-app`, #561, testi da approvare) · prossima: E
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in lavorazione (`feat/TASK-296-d-challenges-app`, #561, testi approvati dall'utente il 2026-10-26) · prossima: E
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -372,9 +372,10 @@ francese in fondo alle tabelle `i18n`), **approvati dall'utente il
 quando parte.
 
 **Testi dell'app della parte D** (inglese / italiano; tedesco, spagnolo e
-francese in fondo alle tabelle `i18n`), **da approvare dall'utente prima
-del merge della #561**. «Shape», «Distance», «Pace», «Shorter», «Longer»,
-«Cancel», «Remove», «Back», «Done» e «Try again» c'erano già.
+francese in fondo alle tabelle `i18n`), **approvati dall'utente il
+2026-10-26** («I testi vanno bene, mergiate pure la #561»). «Shape»,
+«Distance», «Pace», «Shorter», «Longer», «Cancel», «Remove», «Back», «Done»
+e «Try again» c'erano già.
 
 | Dove | Inglese | Italiano |
 |---|---|---|
@@ -530,7 +531,8 @@ Parte D:
       (3 756 test, 2026-10-26); `shared-types` 71 test.
 - [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
       Coordinatore su copie pulite.
-- [ ] I testi dell'app approvati dall'utente (tabella sopra).
+- [x] I testi dell'app approvati dall'utente (tabella sopra, 2026-10-26:
+      «I testi vanno bene, mergiate pure la #561»).
 
 Parte E: i criteri si scrivono qui quando parte, dalle regole di
 `GIOCO.md` §9.
@@ -679,8 +681,9 @@ non ha PostgreSQL: i test del database valgono in locale.
 `feat/TASK-296-d-challenges-app` (worktree `.claude/worktrees/TASK-296-d`):
 la scheda «Challenges» con squadre e sfide, le push che aprono la sfida,
 il taglio dei pezzi uguale all'API. Solo app, nessuna dipendenza nuova,
-`src/share/` non toccato. **I testi nelle cinque lingue aspettano il sì
-dell'utente** (tabella in «Testi da approvare»): il merge viene dopo.
+`src/share/` non toccato. I testi nelle cinque lingue approvati
+dall'utente il 2026-10-26 («I testi vanno bene, mergiate pure la #561»),
+che ha chiesto il merge al verde.
 Su `preview` la scheda resta nascosta con «Play» finché il server non ha
 A e C. **Da provare sull'iPhone** quando A e C saranno sul server, con due
 telefoni: una sfida vera, il foglio di condivisione del codice, le push.
