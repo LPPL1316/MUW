@@ -600,7 +600,10 @@ Parte E:
       durante; niente riga e nessuna richiesta in bici, in canoa, senza
       account, senza API o senza catalogo; senza rete, con la sessione
       rifiutata o con 404 sulle squadre niente errore.
-- [ ] lint, typecheck, `format:check` e la suite completa verdi in locale.
+- [x] lint, typecheck, `format:check` e la suite completa verdi in locale
+      (3 781 test in 467 file, 2026-10-26; due file, `AppActivities` ed
+      `ExploreScreen`, oltre i 700 s nel giro intero con il Mac fermo, verdi
+      da soli in 7 s); CI della #564 verde.
 - [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
       Coordinatore su una copia pulita.
 - [ ] I due testi approvati dall'utente (tabella sopra).
