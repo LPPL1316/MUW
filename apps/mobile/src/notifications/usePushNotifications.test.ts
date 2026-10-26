@@ -34,6 +34,7 @@ const ended = jest.fn();
 const openDrawing = jest.fn();
 const openProfile = jest.fn();
 const openPlay = jest.fn();
+const openChallenge = jest.fn();
 
 function state(token: string | null, push: boolean): AccountState {
   if (token === null) {
@@ -55,7 +56,7 @@ async function hook(fetchFn: jest.Mock, initialProps: Props) {
       usePushNotifications(
         URL,
         { state: state(token, push), sessionEnded: ended },
-        { openDrawing, openProfile, openPlay },
+        { openDrawing, openProfile, openPlay, openChallenge },
         { fetchFn, key: null },
       ),
     { initialProps },
@@ -76,6 +77,7 @@ beforeEach(() => {
   openDrawing.mockReset();
   openProfile.mockReset();
   openPlay.mockReset();
+  openChallenge.mockReset();
 });
 
 afterEach(async () => {
@@ -159,6 +161,13 @@ test("a notification touched opens its drawing, or the profile of who acted", as
   await act(async () => phone.tap({ ...profile, kind: "shape_unlocked" }));
   expect(openPlay).toHaveBeenCalledTimes(1);
   expect(openProfile).toHaveBeenCalledTimes(1);
+  // A challenge's notification opens the challenge (TASK-296 part D).
+  const challenge = "6d0e5c4a-2b1f-4a3e-9c8d-7e6f5a4b3c2d";
+  await act(async () => phone.tap({ kind: "piece_done", challenge_id: challenge }));
+  expect(openChallenge).toHaveBeenCalledWith(challenge);
+  await act(async () => phone.tap({ kind: "challenge_ending" }));
+  expect(openPlay).toHaveBeenCalledTimes(2);
+  expect(openChallenge).toHaveBeenCalledTimes(1);
 });
 
 test("the notification that opened the app opens its drawing, once", async () => {
