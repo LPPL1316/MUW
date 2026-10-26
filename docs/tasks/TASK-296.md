@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`) · parte E in lavorazione (`feat/TASK-296-e-run-strip`, PR #564, testi da approvare)
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`) · parte E in lavorazione (`feat/TASK-296-e-run-strip`, PR #564, testi approvati dall'utente il 2026-10-26)
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -455,7 +455,9 @@ e «Try again» c'erano già.
 | nome rifiutato dal filtro | This name is not allowed. Choose another one. | Questo nome non va bene. Scegline un altro. |
 
 **Testi dell'app della parte E** (inglese / italiano; tedesco, spagnolo e
-francese in fondo alle tabelle `i18n`), **da approvare dall'utente**:
+francese in fondo alle tabelle `i18n`), **approvati dall'utente il
+2026-10-26** (al Coordinatore: «sì ai testi della 564 e della 565, mergia …
+564 quando sono verdi»):
 
 | Dove | Inglese | Italiano |
 |---|---|---|
@@ -606,7 +608,8 @@ Parte E:
       da soli in 7 s); CI della #564 verde.
 - [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
       Coordinatore su una copia pulita.
-- [ ] I due testi approvati dall'utente (tabella sopra).
+- [x] I due testi approvati dall'utente (tabella sopra, 2026-10-26: «sì ai
+      testi della 564 e della 565, mergia … 564 quando sono verdi»).
 - [ ] Il posto della riga confermato dall'utente su `preview`.
 
 ## File toccati
@@ -778,8 +781,9 @@ riga del gioco nella scheda della corsa, su «Map» e su «Data», con la
 prossima forma per distanza o il pezzo veloce in mano; il server chiesto
 una volta all'inizio della corsa. Solo app, nessuna dipendenza nuova;
 `RunDashboard.tsx` ricontrollato con il Coordinatore (libero: TASK-303 e
-304 toccano la navigazione, non lui). **I due testi aspettano il sì
-dell'utente**; il posto della riga lo conferma l'utente su `preview`. **Da
+304 toccano la navigazione, non lui). I due testi approvati dall'utente il
+2026-10-26, che ha chiesto il merge al verde; il posto della riga lo
+conferma l'utente su `preview`. **Da
 provare sull'iPhone** quando A e C saranno sul server: una corsa vera con
 la riga che cresce, e con un pezzo veloce in mano.
 

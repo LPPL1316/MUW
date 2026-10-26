@@ -371,8 +371,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   all'inizio della corsa, mai durante; niente riga e nessun errore in bici,
   in canoa, senza account, senza rete o senza il gioco sul server. Le
   squadre lette con `fetchTeams` e i tipi della D. Solo app, nessuna
-  dipendenza nuova; i due testi aspettano il sì dell'utente (task file,
-  «Testi da approvare»); il posto della riga lo conferma l'utente su
+  dipendenza nuova; i due testi approvati dall'utente il 2026-10-26 (task
+  file, «Testi da approvare»); il posto della riga lo conferma l'utente su
   `preview`. Con la E il task è completo: dopo il merge, chiusura e
   server (A e C) dopo Apple.
 
