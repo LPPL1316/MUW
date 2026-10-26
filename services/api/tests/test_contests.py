@@ -409,7 +409,9 @@ def test_a_hidden_drawing_or_account_does_not_take_part_nor_count(
     ada, bea, cal = (signed_up(client, name) for name in ("ada", "bea", "cal"))
     opened(database, wall)
     adas = posted(client, ada, 1, "Ada's")
+    wall.t += MINUTE
     posted(client, bea, 2, "Bea's")
+    wall.t += MINUTE
     cals = posted(client, cal, 3, "Cal's")
     react(client, bea, cals)
     assert top(client) == [(1, "Cal's", 1), (2, "Ada's", 0), (3, "Bea's", 0)]
