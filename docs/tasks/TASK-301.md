@@ -1,6 +1,7 @@
 # TASK-301 — La musica nel video della corsa
 
-**Stato**: In lavorazione — PR da aprire (vedi «Dove si è»)
+**Stato**: In lavorazione — PR #568 aperta, aspetta il merge e la prova
+sull'iPhone
 **Fase**: 4 · **Branch**: `feat/TASK-301-video-music`
 **ADR**: ADR-0262 (sostituisce il punto 1 «Niente musica» di ADR-0254,
 che resta com'è) · **Migrazione**: nessuna · **Solo app** (nessun server,
@@ -109,19 +110,19 @@ in fondo, riallineando con #461 e #545.
 
 ## Criteri di accettazione
 
-- [ ] In «Share your run» c'è la riga «Music» con «None» e i dieci brani,
+- [x] In «Share your run» c'è la riga «Music» con «None» e i dieci brani,
   e «Tap a track to hear it.»; all'apertura è acceso «None»; toccando un
   brano lo si sente.
-- [ ] Con un brano scelto il video ha due tracce, H.264 e AAC, lunghe tutte
+- [x] Con un brano scelto il video ha due tracce, H.264 e AAC, lunghe tutte
   e due 12 s (AVFoundation); con «None» il file è identico a quello di
   oggi, byte per byte.
-- [ ] La traccia audio sui byte (`mp4.test.ts`): box, durate, `elst` col
+- [x] La traccia audio sui byte (`mp4.test.ts`): box, durate, `elst` col
   priming, sincronia con il video.
-- [ ] I brani sono nostri e si rifanno uguali: `pytest tools` rifà i
+- [x] I brani sono nostri e si rifanno uguali: `pytest tools` rifà i
   campioni e li confronta con le impronte di `music.json`; jest controlla
   che i tre `.m4a` dell'app siano quelli dello script.
-- [ ] Ogni brano sotto 300 KB; il peso totale scritto nella PR.
-- [ ] Nessuna dipendenza né permesso nuovi; impronta iOS
+- [x] Ogni brano sotto 300 KB; il peso totale scritto nella PR.
+- [x] Nessuna dipendenza né permesso nuovi; impronta iOS
   (`APP_VARIANT=production`) `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`
   prima e dopo, su una copia pulita con `npm ci`.
 - [ ] Instagram accetta il video (prova dell'utente sull'iPhone).
@@ -205,6 +206,16 @@ Dettagli tecnici emersi:
   a 9 s il momento più forte, fino al silenzio a 12 s. Rifarli costa 17 s
   di CPU (le note uguali si fanno una volta sola, `functools.cache`).
 
-Prossimi passi: allineare a `origin/main` (testi di #461 e #545 in fondo
-alle tabelle), impronta iOS prima e dopo su una copia pulita, simulatore e
-AVFoundation sul video vero, PR e «#NNN pronta» al Coordinatore.
+Fatto anche (2026-10-26): allineato a `origin/main` (`5abf78d5`, le righe
+dei testi di `main` prima, le nostre in fondo); impronta iOS
+(`APP_VARIANT=production`, copia pulita con `npm ci`) `83793e26fc0d…` su
+`main` `5abf78d5` e sul branch `f53a5f78`; nel simulatore (iPhone Air
+«MuW TASK-301», iOS 27, Expo Go) la riga «Music», «Energy» scelto,
+«Export video»: MP4 di 1,9 MB, AVFoundation legge 12,0 s, 360 fotogrammi
+e 529 200 campioni audio, le due tracce dal tempo 0. Peso dei dieci brani:
+1 879 013 byte, il più grande 189 641. **PR #568**, «#568 pronta» al
+Coordinatore.
+
+Prossimi passi: il merge del Coordinatore e `preview`; la prova
+dell'utente sull'iPhone (la riga, l'ascolto, un video con la musica
+accettato da Instagram); poi la PR di chiusura di questo file.
