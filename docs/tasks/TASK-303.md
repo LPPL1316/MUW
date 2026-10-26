@@ -98,7 +98,7 @@ prima di TASK-304 (condividono `useNavigation.ts` e `NavigateScreen.tsx`).
 - [x] **Bici e acqua**: la stessa regola, test per entrambe.
 - [x] Banner e mappa mostrano distanza, punto cardinale e linea a puntini
       mentre si è fuori, e niente dopo il rientro.
-- [ ] I testi nuovi in 5 lingue, approvati dall'utente.
+- [x] I testi nuovi in 5 lingue, approvati dall'utente il 2026-10-26: «sì ai testi della 564 e della 565, mergia … 565 … quando sono verdi» (scritto al Coordinatore).
 - [x] Una corsa simulata nel simulatore iOS sulla deviazione
       (`xcrun simctl location … start`): vedi «Come provarlo».
 - [x] Tutta la suite dell'app verde (job `mobile` della CI), lint,

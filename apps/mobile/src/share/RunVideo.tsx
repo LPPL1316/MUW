@@ -1,10 +1,11 @@
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
 
 import { t } from "../i18n";
+import type { AudioTrack } from "./m4a";
 import { mp4Of, type VideoSample } from "./mp4";
 import {
   bytesOfBase64,
@@ -14,11 +15,14 @@ import {
   VIDEO_SILENCE_MS,
   type VideoOutcome,
 } from "./videoFile";
+import { type Music, musicTrack } from "./videoMusic";
 import { makeCall, VIDEO_PAGE, VIDEO_PAGE_BASE } from "./videoPage";
 import type { VideoScene } from "./videoScene";
 
 type Props = {
   scene: VideoScene;
+  /** The track that goes with the pictures; null for none (TASK-301). */
+  music: Music | null;
   /** How much of the video is made, from 0 to 1. */
   onProgress: (share: number) => void;
   /** Once, when the share sheet closes or the video could not be made. */
@@ -31,15 +35,21 @@ type Props = {
  * the app puts them in an MP4 file in the cache folder and shares it.
  * Instagram is in the sheet (Reels, Story), and «Save Video» keeps it in
  * Photos. Mounted while the video is made; it lives inside the post's
- * Modal, where iOS keeps it on screen.
+ * Modal, where iOS keeps it on screen. The music's file is read while the
+ * pictures are made, and goes into the MP4 as its second track.
  */
-export function RunVideo({ scene, onProgress, onEnd }: Props) {
+export function RunVideo({ scene, music, onProgress, onEnd }: Props) {
   const webView = useRef<WebView>(null);
   const avcC = useRef<Uint8Array | null>(null);
   const samples = useRef<VideoSample[]>([]);
   const ended = useRef(false);
   const silence = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sceneJson = useMemo(() => JSON.stringify(scene), [scene]);
+  // The music's packets, read once while the pictures are made; null when
+  // they could not be read.
+  const [audio] = useState<Promise<AudioTrack | null> | null>(() =>
+    music === null ? null : musicTrack(music).catch(() => null),
+  );
   // The latest callbacks, for the timer and the page's messages.
   const callbacks = useRef({ onProgress, onEnd });
   useEffect(() => {
@@ -86,13 +96,20 @@ export function RunVideo({ scene, onProgress, onEnd }: Props) {
       if (avcC.current === null) {
         throw new Error("no avcC");
       }
-      const bytes = mp4Of({
-        width: scene.width,
-        height: scene.height,
-        fps: scene.fps,
-        avcC: avcC.current,
-        samples: samples.current,
-      });
+      const sound = audio === null ? undefined : await audio;
+      if (sound === null) {
+        throw new Error("no music");
+      }
+      const bytes = mp4Of(
+        {
+          width: scene.width,
+          height: scene.height,
+          fps: scene.fps,
+          avcC: avcC.current,
+          samples: samples.current,
+        },
+        sound,
+      );
       samples.current = [];
       const file = new File(Paths.cache, VIDEO_FILE);
       file.create({ overwrite: true });

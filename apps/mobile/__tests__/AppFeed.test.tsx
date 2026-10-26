@@ -47,11 +47,12 @@ let fetchSpy: jest.SpiedFunction<typeof fetch>;
 let underItsId: () => Response;
 
 /** What the app asked the API, but for the shape game's catalog, which it
- * asks as it opens to know whether to show «Play» (TASK-296). */
+ * asks as it opens to know whether to show «Play» (TASK-296), and the
+ * contest, which «Feed» asks to know whether to show its card (TASK-299). */
 function asked(): string[] {
   return fetchSpy.mock.calls
     .map(([url]) => String(url).replace(API, ""))
-    .filter((path) => path !== "/game/catalog");
+    .filter((path) => path !== "/game/catalog" && path !== "/contests/current");
 }
 
 async function onFeed() {

@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { WinnerBadge } from "../contest/WinnerBadge";
 import { t } from "../i18n";
 import {
   color,
@@ -35,14 +36,24 @@ type Props = {
   detail: string;
   /** One's own profile: the circle changes the picture; left out, it does not. */
   photoButton?: PhotoButton;
+  /** It won a contest (`contest_wins` ≥ 1): the «Winner» badge under the name. */
+  winner?: boolean;
 };
 
 /**
  * Who a profile is (TASK-116): the picture, the name, a line about it and
  * the bio. The same on one's own «Profile» and on another member's; on
- * one's own the circle has a «+» and changes the picture (TASK-207).
+ * one's own the circle has a «+» and changes the picture (TASK-207). Who
+ * won a contest has the «Winner» badge under the name, for good (TASK-299).
  */
-export function ProfileHeader({ username, bio, photo, detail, photoButton }: Props) {
+export function ProfileHeader({
+  username,
+  bio,
+  photo,
+  detail,
+  photoButton,
+  winner = false,
+}: Props) {
   const avatar = <Avatar name={username} size={PROFILE_AVATAR_SIZE} photo={photo} />;
   return (
     <View style={styles.who}>
@@ -69,6 +80,7 @@ export function ProfileHeader({ username, bio, photo, detail, photoButton }: Pro
         </Pressable>
       )}
       <Text style={styles.username}>{username}</Text>
+      {winner && <WinnerBadge />}
       <Text style={styles.detail}>{detail}</Text>
       {bio !== "" && <Text style={styles.bio}>{bio}</Text>}
     </View>
