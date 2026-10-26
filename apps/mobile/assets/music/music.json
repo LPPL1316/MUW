@@ -1,20 +1,62 @@
 {
   "energy": {
     "file": "energy.m4a",
-    "bytes": 185642,
-    "pcm_sha256": "0f64e1b29513ca0fb0b4efffd884cc0f63fa3a83d8cc08b2d986b53ffe077b0c",
-    "m4a_sha256": "fc1810532fd335cc39b4fc1cb66ba0b946e848164d6cd3ba8a336bcb4122e85a"
+    "bytes": 186956,
+    "pcm_sha256": "a79b8d6a91129716e7ecff47557f3a444e4c9201ab802561788e64e8ea87db2a",
+    "m4a_sha256": "8d262dc11c79d223b83b3323761527aa9ff9ccfef79e68b0ba9ace4e035e3f9a"
   },
   "chill": {
     "file": "chill.m4a",
-    "bytes": 187840,
-    "pcm_sha256": "732fee50c27e95c908a84583383c9bce0dfd6e183c314616b265a7f9ce373642",
-    "m4a_sha256": "a744c294801b99ba5338e48c11089ef935ef8055871163a1599e9b1fda46f663"
+    "bytes": 188976,
+    "pcm_sha256": "805311c99baf72c5a643a1746bd90ada713afbd8a172c650b2edf45dacfb159d",
+    "m4a_sha256": "4859db1543e92585df3a98f595188cfa9d0e79bfab4124798e5440116891138d"
   },
   "epic": {
     "file": "epic.m4a",
-    "bytes": 187843,
-    "pcm_sha256": "0d2683429b13e111c8c6582f0977441fd735e797585f9a862548bcfe2aeaf245",
-    "m4a_sha256": "0981363623bf59f6c9e27241a145fb40d24b383ce04b0a7a4fdd2537a2b014a1"
+    "bytes": 187834,
+    "pcm_sha256": "b2376438db463006581d48623b9aa7ad44d095e6e6f8d46ed8879630dd99f0be",
+    "m4a_sha256": "9c7b440c909bd2d242fff665f5e443bdd4baf14aa92b47628308946c2f4c10a8"
+  },
+  "sprint": {
+    "file": "sprint.m4a",
+    "bytes": 186768,
+    "pcm_sha256": "7db7c5e17803344a15cc88e3a781e70e091092807b4015e8f59fd021daa48204",
+    "m4a_sha256": "ced8c8f6c51ba0ea314a90050eb94bac0da2500343065259ff68d60f3a364a28"
+  },
+  "rock": {
+    "file": "rock.m4a",
+    "bytes": 187781,
+    "pcm_sha256": "bafc88377c0809831fa2a14616854d5cce733596b1ba15838d29cc6d10962ded",
+    "m4a_sha256": "13c54cca73564cf683e962fec968c8b02f87dd6bd78f534263a2250ab8fc732a"
+  },
+  "funk": {
+    "file": "funk.m4a",
+    "bytes": 188229,
+    "pcm_sha256": "31b45ca80b39f94a28b118cf24d30f5a92b5b5907469cd1e1c0b5a971614e462",
+    "m4a_sha256": "050c0768d70f1d56f0572d05d95d0d7f839fcd0baf380188dd6cc2162aff0b48"
+  },
+  "sunny": {
+    "file": "sunny.m4a",
+    "bytes": 189493,
+    "pcm_sha256": "1ea75d05d266d8a2321906c3c520b9a68d2f65f45be4768abef5d4f50c7b618d",
+    "m4a_sha256": "fb3801106600e2720aa07bfce5eddeac35f575305a7d12ea58d92445ffca88a7"
+  },
+  "trap": {
+    "file": "trap.m4a",
+    "bytes": 189116,
+    "pcm_sha256": "760df9c5c63ac8feedab06da5088bb08669ac1121113495b4179c1c23d950260",
+    "m4a_sha256": "61edf2b47a9a37de16152cefb72c23690d7e26022a67f7dbe0bbe66cde4d77cd"
+  },
+  "retro": {
+    "file": "retro.m4a",
+    "bytes": 186800,
+    "pcm_sha256": "c2e1e9eb189bc6df12e398b87e332158ec3f8e8f765e221022d21574d5c92ffc",
+    "m4a_sha256": "3667f03bb6cdd04a054e1e459016234d51063095a17d2e89e71fa240c0cf2f42"
+  },
+  "fiesta": {
+    "file": "fiesta.m4a",
+    "bytes": 186604,
+    "pcm_sha256": "5fe2efc0828b54a2230ca313c5ae77575453a50d36042eb8718decc55d7639b0",
+    "m4a_sha256": "c1b1f1a7bfd6a6196285335e5a9a19c0e7cb3423fcc31fd6af2de7e2506df597"
   }
 }
