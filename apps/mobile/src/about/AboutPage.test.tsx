@@ -40,7 +40,7 @@ test("«Terms» says it is a draft before anything else, with its day", async ()
 test("«Privacy» is final: its day, no draft notice, nothing left to fill (TASK-237 D)", async () => {
   await render(<AboutPage id="privacy" />);
   expect(screen.queryByText("Draft — not final yet.")).toBeNull();
-  expect(screen.getByText("Last updated: 25 October 2026")).toBeOnTheScreen();
+  expect(screen.getByText("Last updated: 26 October 2026")).toBeOnTheScreen();
   expect(screen.getByRole("header", { name: EN.privacy.title })).toBeOnTheScreen();
   expect(
     screen.getByText(/controller of your personal data is Luca Pallaoro/),
@@ -58,7 +58,7 @@ test("with the app in Italian the text and its day are in Italian", async () => 
     screen.getByRole("header", { name: IT.privacy.sections[0].heading }),
   ).toBeOnTheScreen();
   expect(screen.queryByText("Bozza — non ancora definitiva.")).toBeNull();
-  expect(screen.getByText("Ultimo aggiornamento: 25 ottobre 2026")).toBeOnTheScreen();
+  expect(screen.getByText("Ultimo aggiornamento: 26 ottobre 2026")).toBeOnTheScreen();
   expect(screen.queryByText("Privacy policy")).toBeNull();
 });
 
@@ -78,9 +78,9 @@ test("with the app in German the draft is German, and still a draft (TASK-210 F)
 });
 
 test.each([
-  ["es", "Política de privacidad", "Última actualización: 25 de octubre de 2026"],
-  ["fr", "Politique de confidentialité", "Dernière mise à jour : 25 octobre 2026"],
-  ["de", "Datenschutzerklärung", "Zuletzt aktualisiert: 25. Oktober 2026"],
+  ["es", "Política de privacidad", "Última actualización: 26 de octubre de 2026"],
+  ["fr", "Politique de confidentialité", "Dernière mise à jour : 26 octobre 2026"],
+  ["de", "Datenschutzerklärung", "Zuletzt aktualisiert: 26. Oktober 2026"],
 ] as const)(
   "with the app in «%s» «Privacy» is final in it",
   async (language, name, day) => {

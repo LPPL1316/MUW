@@ -200,17 +200,18 @@ services/api/tests/test_accounts.py
 services/api/tests/test_away_email.py                       (ok del Coordinatore, 2026-10-25)
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
 apps/mobile/src/about/content/en.ts, it.ts, de.ts, es.ts, fr.ts
-apps/mobile/src/about/documents.test.ts
+apps/mobile/src/about/documents.test.ts, about/AboutPage.test.tsx
+site/tests/privacy.test.mjs                                 (la data)
 apps/mobile/src/profile/SettingsPage.test.tsx               (tre interruttori e la nota; ok del Coordinatore)
 site/privacy/index.html, it/, de/, es/, fr/index.html
 docs/UI.md, docs/STATUS.md, docs/tasks/TASK-284.md
 docs/tasks/TASK-262.md                                      (la chiusura della parte B; ok del Coordinatore)
 ```
 
-`AboutPage.test.tsx`, `api/accounts.test.ts`, `account/Profile.test.tsx`
-e `site/tests/privacy.test.mjs` erano nella lista: non sono cambiati (la
-data resta «25 October 2026» se il merge è oggi; un altro giorno, le
-cinque date e i loro test).
+`api/accounts.test.ts` e `account/Profile.test.tsx` erano nella lista e
+non sono cambiati. **La data**: il merge è slittato al 2026-10-26, quindi
+le cinque date sono «26 October 2026» e così `AboutPage.test.tsx`,
+`documents.test.ts` e `site/tests/privacy.test.mjs` (nella lista).
 
 ## Prima di mandare la prima email (utente e coordinatore)
 
