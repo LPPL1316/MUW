@@ -1,7 +1,7 @@
 # TASK-308 — «Send feedback» in «Settings»
 
-**Stato**: In lavorazione — PR aperta, aspetta il sì dell'utente sui testi
-e sulla privacy, poi il «merge» del Coordinatore
+**Stato**: In lavorazione — PR #576 pronta, testi e privacy approvati;
+aspetta il «merge» del Coordinatore con la parola dell'utente
 **Fase**: 4 · **Branch**: `feat/TASK-308-feedback`
 **ADR**: ADR-0268 · **Migrazione**: `0031_feedback.sql` (il numero è il
 primo libero in `main` al merge, conteso con TASK-309) · **API e app**
@@ -23,7 +23,8 @@ grazie». Numero di task dal Coordinatore (`local_e57a8224`).
 1. **Dove arriva il messaggio**: «Form in the app» (fra un'email scritta
    dall'app Mail del telefono a `hello@getmuw.app`, che oggi non riceve
    posta, e un modulo nell'app che il server tiene e manda per email).
-2. **Testi e privacy**: da approvare prima del merge (sotto, «Testi»).
+2. **Testi e privacy**: approvati così come sono (sotto, «Testi»):
+   «Sì ai testi e alla privacy di TASK-308, così come sono.» (2026-10-26).
 
 ## Contesto da leggere
 
@@ -64,7 +65,7 @@ grazie». Numero di task dal Coordinatore (`local_e57a8224`).
 
 ## Testi
 
-Da approvare dall'utente prima del merge:
+Approvati dall'utente il 2026-10-26, così come sono:
 
 | en | it | de | es | fr |
 |---|---|---|---|---|
@@ -117,7 +118,7 @@ Da approvare dall'utente prima del merge:
 - [x] Cancellare l'account cancella i suoi messaggi.
 - [x] La privacy lo dice nelle cinque lingue; le pagine del sito sono
       uguali all'app (`site` `npm test`).
-- [ ] Testi e privacy approvati dall'utente.
+- [x] Testi e privacy approvati dall'utente (2026-10-26).
 - [ ] Test verdi in CI.
 
 ## File toccati

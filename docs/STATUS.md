@@ -1381,7 +1381,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Feedback» nelle cinque lingue, pagine del sito rifatte. La sezione si
   vede solo quando `GET /feedback` risponde `204`: con il server di oggi
   non c'è, e `main` resta pubblicabile. Al più 20 al giorno anche per
-  indirizzo di rete. Testi e privacy aspettano il sì dell'utente; server
+  indirizzo di rete. Testi e privacy approvati dall'utente il 2026-10-26
+  («Sì ai testi e alla privacy di TASK-308, così come sono.»); server
   dopo Apple. PR #576. File: `tasks/TASK-308.md`.
 
 ## Completato
