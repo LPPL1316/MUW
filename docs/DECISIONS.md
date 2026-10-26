@@ -15820,6 +15820,23 @@ troppo piccoli per le strade), da 8 km sì. Immagini in
 - leggere le lettere come testo: una foto di una scritta resta un
   disegno.
 
+**Aggiunta (parte C, motore, 2026-10-25; deciso dall'agente su delega
+dell'utente)**: il 3 % di un foro si misura sull'area del contorno esterno
+pieno del suo soggetto, prima della lisciatura (così un'immagine senza
+fori veri dà con la penna alzata lo stesso contorno esterno di oggi) e di
+nuovo dopo (un foro che la lisciatura consuma sparisce); un soggetto si
+semplifica insieme ai suoi fori (`simplify` con la topologia), così le sue
+linee restano staccate; i punti di tutti i pezzi insieme sono al più
+`MAX_SUBJECT_POINTS` (150), come i tratti; un contorno a pezzi che non
+passa `parse_outline` (un pezzo che tocca una linea, o che con la penna giù
+non si attacca senza incroci, come sette fori a corona) è rifiutato come
+`jagged`. Il logo MuW del repository è il marchio del lancio
+(`apps/mobile/assets/splash-logo-dark.png`: tre lettere staccate, due
+pezzi); il logo del kit con il cuore resta fuori dal repository, come le
+prove del 24. Dalla CLI `--image … --pen-up` su un'immagine senza pezzi
+disegna una linea sola con un avviso, invece di rifiutare come per una
+forma senza pezzi: chi manda una foto non sa prima se ha pezzi.
+
 ## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
 **Stato**: Attiva · 2026-10-10 · deciso dall'agente su delega dell'utente
 (TASK-271), dalla prima recensione di un tester («quando devi tornare
@@ -16110,3 +16127,86 @@ motore dice proprio sotto i 30°).
 Nessun testo nuovo («Prosegui dritto» c'era già). L'aggancio a una forma
 chiusa (TASK-273) aggiunge la svolta del punto di partenza dopo la
 semplificazione, come prima.
+
+## ADR-0260 — Il primo concorso: il post con più reazioni vince un premio senza valore, deciso dal server
+
+**Stato**: Attiva · 2026-10-24 · il concorso e il premio simbolico li ha
+scelti l'utente; i punti tecnici sono decisi dall'agente su delega
+dell'utente (TASK-299)
+
+**Contesto**: l'utente voleva «il primo concorso a premio: chi ha più like
+nel post vince una maglietta». In Italia un concorso con un premio di
+valore è un «concorso a premio» (DPR 430/2001): promotore un'impresa,
+regolamento, comunicazione al Ministero, cauzione, verbale di un notaio o
+di un funzionario camerale. MuW oggi è di una persona, e i costi superano
+la maglietta. Fra tre strade (premio simbolico subito; la maglietta a una
+giuria; la maglietta a chi ha più like, in regola) l'utente ha scelto
+**premio simbolico, subito**, e ha detto «Sì, così» alla proposta con i
+default (2026-10-24). L'App Store (5.3) e Google Play chiedono un
+regolamento nell'app con la frase che Apple e Google non sono coinvolte.
+Post, reazioni (una a testa), blocchi, profili e push esistono già. Le
+regole sono in `docs/CONCORSI.md`.
+
+**Decisione**:
+
+1. **Il server decide, l'app mostra.** Chi partecipa, che cosa conta,
+   l'ordine e il vincitore vengono da una query sola in `contests.py`,
+   usata dall'endpoint e dai comandi; il Feed, le reazioni e i profili non
+   cambiano, a parte `contest_wins` nei profili.
+2. **Partecipa** un disegno `everyone` pubblicato nel periodo, non
+   nascosto (`hidden_at`, TASK-291). **Conta** una reazione per account
+   (già così nella tabella), di qualunque tipo, **mai la propria** (l'API
+   lascia reagire al proprio disegno), **non attraverso un blocco** con
+   l'autore (`apart_sql`, come nel Feed), lasciata entro `ends_at`
+   (`created_at <= ends_at`: una reazione cambiata dopo la fine non conta
+   più; nessuna seconda colonna).
+3. **Pari merito**: più cuori MuW (`super_like`), poi il post pubblicato
+   prima; l'`id` chiude.
+4. **Gli account nati durante il concorso contano**: escluderli terrebbe
+   fuori chi il concorso vuole portare dentro. Il trucco si guarda alla
+   chiusura: `standings` stampa per i primi dieci le reazioni da account
+   più giovani del concorso, `close --exclude` lascia fuori un post, e il
+   regolamento lo dice. **Una persona proclama**, non un orologio.
+5. **Un solo concorso aperto** alla volta (indice unico parziale). La
+   tabella `contests` tiene `winner_user_id` e `winner_drawing_id` con
+   `ON DELETE SET NULL`: il badge sopravvive alla corsa cancellata; un
+   account cancellato lascia il concorso senza vincitore.
+6. **La chiusura è idempotente**: `UPDATE … WHERE closed_at IS NULL`, poi
+   una sola push `contest_won` al vincitore, in `OWN_KINDS`, mandata da
+   `contests.py` con il `Pusher`; in `push.py` solo il tipo e il testo.
+7. **`GET /contests/current` con la sola chiave dell'API**, anche senza
+   account: la scheda è un motivo per iscriversi. `mine` solo con un
+   token; con un token, un post attraverso un blocco con chi chiede non
+   sta in `top`. `404 no_contest` senza un concorso aperto né uno chiuso
+   da meno di **7 giorni**: è l'API a dire quanto dura l'evidenza.
+8. **App**: la scheda in cima al Feed esiste solo con un 200; l'ultima
+   risposta sta sul telefono come il catalogo del gioco, e un 404 la
+   cancella. Il badge viene da `contest_wins`; la fascia sul disegno dal
+   concorso tenuto sul telefono. Impronta iOS invariata, nessuna
+   dipendenza nuova.
+9. **I testi** (scheda, regolamento, push, badge) nelle cinque lingue li
+   approva l'utente prima del merge; il nome dell'organizzatore nel
+   regolamento lo dice l'utente.
+
+**Alternative scartate**:
+- la maglietta subito: i costi e gli obblighi del DPR 430 superano il
+  premio, e non c'è la ditta;
+- la maglietta a una giuria, nell'esclusione delle opere premiate per
+  merito (art. 6): da far valutare al commercialista, non da decidere qui;
+- contare solo i cuori MuW: richiedono un commento, meno voti e un
+  vantaggio a chi scrive di più;
+- la chiusura automatica a `ends_at`: nessuno guarderebbe gli account
+  finti prima della proclamazione;
+- una push a tutti alla fine: rumore; la scheda nel Feed basta;
+- una pagina di classifica: TASK-241 ha tolto punteggi e classifiche;
+  tre post nella scheda bastano;
+- escludere gli account nati durante il concorso: vedi il punto 4;
+- la scheda in «Play»: si vede solo con il gioco sul server, e il
+  concorso parla dei post, che stanno nel Feed.
+
+**Conseguenze**: una tabella e un modulo nuovi, una riga in `push.py`, in
+`app.py`, in `profiles.py` e in `accounts.py`; l'app aggiunge una cartella
+e tocca tre componenti. Chi gestisce il server apre e chiude i concorsi
+con le date dell'utente, dopo l'approvazione di Apple e con il suo ok.
+Instagram e il sito li fa l'utente a mano. Il concorso con la maglietta è
+un task a sé, con la ditta e il commercialista (`CONCORSI.md` §12).

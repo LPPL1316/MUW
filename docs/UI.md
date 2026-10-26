@@ -19,7 +19,7 @@
   senza traduzione si mostra in inglese. Tradotti a pezzi: con la parte A
   «Settings», «Profile», l'accesso, «My activities», i preferiti, i
   disegni, il feed, Strava e la ricerca del luogo; i testi della canoa con
-  TASK-191 C; «Draw», «Explore» e la corsa con le parti successive. Le traduzioni le ha riviste l'agente su
+  TASK-191 C; «Draw», «Explore», la corsa, i nomi delle forme, la mappa e «Help» con le parti B–G, gli ultimi testi con la parte H (2026-10-25): l'app è tutta nella lingua scelta, tranne i testi che manda il server. Le traduzioni le ha riviste l'agente su
   delega dell'utente («controlla te, mi fido», 2026-10-03); chi parla
   tedesco, spagnolo o francese può ancora migliorarle in `src/i18n/`.
 
@@ -918,10 +918,10 @@ Per VoiceOver i titoli sono intestazioni.
   `[governing law]` in «Terms», le basi giuridiche in «Privacy». Uguali in
   tutte le lingue. Li riempie l'utente; nel codice non c'è nessun nome né
   indirizzo vero.
-- **Le lingue**: i testi sono in inglese e in italiano, e seguono la
-  lingua dell'app; con tedesco, spagnolo e francese sono in inglese (e
-  VoiceOver li legge in inglese), mentre il titolo della riga e il
-  riquadro della bozza sono nella lingua dell'app. Nel testo italiano i
+- **Le lingue**: i testi sono in tutte e cinque le lingue e seguono la
+  lingua dell'app, e VoiceOver li legge in quella lingua; tedesco,
+  spagnolo e francese sono arrivati con TASK-210 parte F (prima erano in
+  inglese), anche per «Terms» e «Privacy», che restano bozze. Nel testo italiano i
   nomi di pagine e pulsanti sono quelli che l'app in italiano mostra oggi.
 - «Privacy» dice solo quello che fa l'app oggi («Cosa esce dal telefono»,
   sotto, e `DATABASE.md`): quando cambia cosa l'app manda o tiene, cambia

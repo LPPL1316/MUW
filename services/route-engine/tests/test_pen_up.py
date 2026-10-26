@@ -476,16 +476,12 @@ def test_the_cli_writes_a_word_with_the_pen_up(
     assert isinstance(request, cli.WordRequest) and request.word.pen_up
 
 
-@pytest.mark.parametrize(
-    "argv",
-    [
-        ["--shape=heart", "--distance=5000", "--start=46.0671,11.1214", "--pen-up"],
-        ["--image=x.png", "--distance=5000", "--start=46.0671,11.1214", "--pen-up"],
-    ],
-)
 def test_the_cli_refuses_the_pen_up_without_a_word(
-    argv: list[str], capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
+    # A shape without pieces; an image is drawn in pieces with the pen up
+    # since TASK-297 (tests/test_image_pieces.py).
+    argv = ["--shape=heart", "--distance=5000", "--start=46.0671,11.1214", "--pen-up"]
     with pytest.raises(SystemExit) as exc:
         parse_request(argv)
     assert exc.value.code == 2

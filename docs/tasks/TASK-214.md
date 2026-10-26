@@ -9,7 +9,8 @@ dalla #330, la parte B2 (le zone in più) dalla #337, le città vicine
 l'utente il 2026-10-25: «funziona ma cerca di migliorarlo». Segue un
 miglioramento, da misurare e proporre all'utente (parte nuova). Scelto
 dall'utente lo stesso giorno: la parte E, la zona più larga intorno al
-telefono, in `feat/TASK-214-e-wider-zone`.
+telefono, in `main` dalla #546 (`7da61107`, 2026-10-25). Restano i criteri
+ancora aperti qui sotto e le zone dove il server risponde `404`.
 **Fase**: 4 · **Branch**: il task file con la #258; il codice in
 `feat/TASK-214-…`, una PR per parte · **ADR**: ADR-0177
 
@@ -769,8 +770,9 @@ del server sul telefono (tocca `route_engine`: un task suo).
 
 **Risposta dell'utente** (2026-10-25): «fai la 1».
 
-**Parte E, la zona più larga intorno al telefono** (branch
-`feat/TASK-214-e-wider-zone`; ADR-0177, «Decisione dell'agente, parte E»).
+**Parte E, la zona più larga intorno al telefono** (#546, in `main` come
+`7da61107` il 2026-10-25, mergiata dal coordinatore insieme ai documenti
+della parte D della #541; ADR-0177, «Decisione dell'agente, parte E»).
 Per chi corre: il telefono disegna fino a 8 km anche da una partenza
 scelta sulla mappa o a 2 km da dove si è aperta l'app, anche senza rete,
 dove il server ha una zona abbastanza grande; e il primo percorso non

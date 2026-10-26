@@ -8,7 +8,8 @@
 (TASK-076). `--activity cycling` draws a bike route, 10-30 km, on the bike
 network (TASK-190). `--pen-up` with `--word` draws each letter on its own and
 walks from one to the next (TASK-197); with a shape or an outline that has
-pieces, the outline and then each piece on its own (TASK-223).
+pieces, the outline and then each piece on its own (TASK-223); with an
+image, its other subjects and its holes are those pieces (TASK-297).
 `--activity paddling` draws a shape of the catalogue, 1-5 km, on the water
 of a lake or the sea, from a start on the shore; the water is cached in
 `<cache-dir>/water/` (TASK-191). With `--pen-up` a shape in pieces is drawn
@@ -188,7 +189,8 @@ def _build_parser() -> argparse.ArgumentParser:
         help="with --word: draw each letter on its own and walk, without "
         "drawing, from one to the next; the distance is the letters'. With a "
         "--shape or an --outline that has pieces: the outline, then each "
-        "piece on its own, walking between them",
+        "piece on its own, walking between them; with an --image, its other "
+        "subjects and its holes are the pieces",
     )
     parser.add_argument(
         "--distance", required=True, type=int, help="target distance in metres"
@@ -282,8 +284,6 @@ def parse_args(
         parser.error("--nearby must be 0 or more")
     if args.nearby and args.no_optimize:
         parser.error("--nearby needs the search: drop --no-optimize")
-    if args.pen_up and args.image is not None:
-        parser.error(f"--pen-up: {PEN_UP_WITHOUT_WORD}, or the pieces of a shape")
     if args.activity in WATER_ACTIVITIES:
         if args.nearby:
             parser.error(
@@ -330,7 +330,10 @@ def parse_args(
             )
         elif args.image is not None:
             args.traced = outline_data(
-                args.image, name=args.image.stem, source=args.image.name
+                args.image,
+                name=args.image.stem,
+                source=args.image.name,
+                pen_up=args.pen_up,
             )
             request = OutlineRequest(
                 start=args.start,
@@ -370,12 +373,14 @@ def parse_args(
             if isinstance(request, OutlineRequest)
             else get_shape(request.shape)
         )
-        if not isinstance(outline, Outline) or not outline.in_pieces:
+        if isinstance(outline, Outline) and outline.in_pieces:
+            args.pieces = compose_pieces(outline, request.shape)
+        elif args.image is None:
             parser.error(
                 f"--pen-up: {PEN_UP_WITHOUT_WORD}, or the pieces of a shape; "
                 f"{request.shape} has none"
             )
-        args.pieces = compose_pieces(outline, request.shape)
+        # An image with nothing apart is drawn as one line (ADR-0258).
     return request, args
 
 
@@ -391,6 +396,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         corners = len(args.traced["points"]) - 1
         print(f"  shape:    {request.shape} (traced from {args.image})")
         print(f"            {corners} corners; {request.outline.license}")
+        if args.pen_up and args.pieces is None:
+            print("            pen up: nothing apart in the image, drawn as one line")
         shape = request.outline(SHAPE_POINTS)
     elif isinstance(request, OutlineRequest):
         print(f"  shape:    {request.shape} (outline from {args.outline})")
