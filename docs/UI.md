@@ -1944,8 +1944,11 @@ TOURS», una riga da scorrere di lato con schede larghe come quelle di
 - **Quando una forma non viene** (il motore la rifiuta, o non risponde),
   al suo posto la stessa forma, o la più semplice che manca, **già pronta
   in una città in evidenza di «Explore» scelta a caso**, una città per
-  scheda, con il nome della città sotto. Senza la posizione, o se vicino
-  non viene niente, **sei forme in sei città**, dalla più semplice:
+  scheda, con sotto il nome della città e quanto è lontana dalla
+  posizione, «Roma · 480 km away», perché nessuno la prenda per una da
+  correre da casa (senza la posizione, il nome soltanto). Senza la
+  posizione, o se vicino non viene niente, **sei forme in sei città**,
+  dalla più semplice:
   cerchio, cuore, stella, luna, cavallo, lumaca, testa di cane, testa di
   coniglio. Solo forme che l'API ha già (i suoi esempi tenuti): una che
   dovrebbe disegnare adesso si salta. Se tutte le schede sono di altre

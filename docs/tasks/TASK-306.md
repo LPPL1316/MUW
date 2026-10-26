@@ -50,6 +50,12 @@ TASK-306, ADR-0266.
   saltano, e la scheda si apre subito. Sotto ogni scheda di un'altra città
   il nome della città; se tutte le schede sono di altre città il titolo
   della riga diventa **«SHAPES TO TRY»** («FORME DA PROVARE»).
+- **Non vicino, e lo dice** (nota del Coordinatore del 2026-10-26): sotto
+  una scheda di un'altra città, il nome della città e quanto è lontana
+  dalla posizione, «Roma · 480 km away» («Roma · a 480 km»), con i testi
+  «{km} km away» e «{mi} mi away» che l'app ha già; senza la posizione,
+  il nome soltanto. Nessun endpoint nuovo: `GET /cities` e
+  `POST /route-jobs` ci sono già.
 - **«Bello» non si misura**: la somiglianza del motore sta sopra 0,9 anche
   per percorsi che non si leggono (TASK-290). «Non viene» vuol dire rifiutata
   (`shape_not_drawable`) o senza risposta.
@@ -173,6 +179,21 @@ apps/mobile/src/i18n/fr.ts
 `exampleRoutes.ts` solo per una funzione esportata che tiene un percorso
 intero già disegnato, perché si apra come un esempio (oggi lo fa
 `keepSample`, che però lo lega a una città).
+
+## Al merge
+
+1. **Impronta iOS** misurata su una copia pulita (`npm ci`, `env
+   APP_VARIANT=production npx expo-updates fingerprint:generate --platform
+   ios`) il 2026-10-26 sul commit `cf7d6f64`:
+   `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata.
+2. Il merge con la parola dell'utente, dal Coordinatore; poi «preview» con
+   l'ok dell'utente, da `origin/main` pulito.
+3. **Il tempo vero sul telefono dell'utente** (richiesta del Coordinatore):
+   con l'app aggiornata, aperta in un posto a più di 1 km dall'ultima
+   volta, un cronometro dalla fine dell'animazione d'apertura a quando le
+   tre schede hanno il disegno; e se intanto si è vista la riga «Downloading
+   the maps…» (la zona del telefono prima delle forme). Il numero va
+   nell'«Esito», al posto della stima.
 
 ## Fuori scope
 
