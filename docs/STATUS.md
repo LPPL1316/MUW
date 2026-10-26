@@ -160,6 +160,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-305 — I messaggi privati, con le richieste** (ADR-0265;
+  richiesta dell'utente del 2026-10-26, «aggiungi anche la possibilità di
+  mandarsi messaggi privati»; scelte: «Chiunque, con richiesta», poi «Sì,
+  così» alla proposta). Branch `claude/epic-gauss-k87m6o` (sessione cloud);
+  numeri presi come primi liberi, **da confermare col Coordinatore**.
+  Chiunque scrive a chiunque; chi non è seguito da chi riceve arriva in
+  «Requests», un messaggio solo finché non è accettato, filtrato come i
+  commenti; «Accept», «Delete», «Block»; il blocco cancella la
+  conversazione; nessuna conferma di lettura; push per ogni messaggio, una
+  al giorno per una richiesta. **Parte A** (API, migrazione
+  `0031_messages.sql`, numero al merge) scritta e verde in locale;
+  **parte B** (l'app) da fare, testi da approvare prima del merge; server e
+  app dopo il merge, con l'ok dell'utente; «Messaging and Chat» su App
+  Store Connect la cambia l'utente. File: `tasks/TASK-305.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch

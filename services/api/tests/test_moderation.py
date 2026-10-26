@@ -47,6 +47,8 @@ from shaperoute_api.moderation import (
 
 # The migration of blocks and reports, whatever its number when merged.
 (MODERATION,) = [p for p in migrations() if p.name.endswith("_moderation.sql")]
+# The private messages add their kind to the list (TASK-305).
+(MESSAGES,) = [p for p in migrations() if p.name.endswith("_messages.sql")]
 Headers = dict[str, str]
 
 
@@ -128,8 +130,9 @@ def test_the_example_is_the_body() -> None:
 
 def test_the_migration_holds_the_same_lists() -> None:
     sql = MODERATION.read_text(encoding="utf-8")
+    kinds = MESSAGES.read_text(encoding="utf-8")
     for kind in REPORT_KINDS:
-        assert f"'{kind}'" in sql
+        assert f"'{kind}'" in kinds
     for reason in REPORT_REASONS:
         assert f"'{reason}'" in sql
     assert REPORT_REASONS == get_args(ReportReason)

@@ -16560,3 +16560,104 @@ di nativo: arriva con un aggiornamento OTA anche alla 1.0 (impronta iOS
 pesa 1,88 MB in più la prima volta. Dodici testi nuovi in fondo alle
 tabelle («Music» c'era già). Rifare i brani costa circa 17 s di CPU, il
 loro test in CI circa 15 s.
+
+## ADR-0265 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
+
+**Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
+richieste e il resto della proposta sono **scelte dell'utente** del
+2026-10-26 («Chiunque, con richiesta», poi «Sì, così»); i punti tecnici
+sono decisi dall'agente su delega dell'utente (TASK-305). Numero preso
+come primo libero anche nei branch remoti (0263 e 0264 sono di TASK-303 e
+TASK-304): il Coordinatore non rispondeva.
+
+**Contesto**: l'utente il 2026-10-26: «aggiungi anche la possibilità di
+mandarsi messaggi privati». Il social di MuW aveva profili, follow con
+richiesta (ADR-0173), commenti, reazioni, blocchi e segnalazioni
+(ADR-0228), push (ADR-0226): nessun modo di parlare a una persona sola.
+
+**Decisione**:
+
+1. **Le scelte dell'utente**: si scrive a **chiunque**, con le
+   **richieste**. Un messaggio va dritto in «Messages» se chi lo riceve
+   segue chi scrive (o ha già accettato, risposto o scritto per primo);
+   altrimenti è una richiesta, di **un solo messaggio** finché non è
+   accettata. Chi la riceve: «Accept», «Delete» (chi ha scritto non lo sa,
+   e può riscrivere un messaggio, come dopo un follow rifiutato), «Block».
+   Il primo messaggio di una richiesta passa dal **filtro dei commenti**
+   (ADR-0176); le conversazioni accettate no. Solo testo, fino a 1000
+   caratteri. **Nessuna conferma di lettura.** Push per ogni messaggio
+   (con l'inizio), per una richiesta al più una al giorno per chi scrive
+   (senza il testo); niente email. «Report» sul singolo messaggio, e
+   l'email della segnalazione porta solo quello. Chi ha scritto un
+   messaggio lo cancella per tutti e due. Niente crittografia end-to-end,
+   e la privacy lo dice. Un interruttore per non ricevere richieste è un
+   seguito possibile, non ora.
+2. **Tre tabelle** (`0031_messages.sql`): `conversations`, una per coppia
+   con i due id in ordine (`low_id < high_id`, unica), `ON DELETE
+   CASCADE` su tutti e due gli account; `conversation_members`, due righe
+   con `accepted_at`, `cleared_at`, `read_at` di ognuno; `messages`. Lo
+   stato di una richiesta è **di chi riceve** (`accepted_at` `NULL`), non
+   della conversazione: scrivere accetta dalla propria parte, così
+   «rispondere accetta» e «chi scrive per primo ha la conversazione in
+   Messages» non chiedono altro codice.
+3. **La conversazione si chiede col `public_id` dell'altro**
+   (`/conversations/{public_id}/…`): l'app la apre dal profilo senza
+   cercarne l'id, e prima del primo messaggio la pagina è vuota con il suo
+   `state` (`open`, `first`, `waiting`, `request`), che dice all'app cosa
+   mostrare: la casella, il suggerimento della richiesta, l'attesa, o
+   «Accept · Delete · Block».
+4. **Una richiesta alla volta anche in concorrenza**: l'invio prende la
+   riga della conversazione `FOR UPDATE` prima di guardare lo stato, così
+   due messaggi mandati insieme non passano tutti e due come «il primo».
+   Nessun test lo prova con due thread (sarebbe fragile): lo provano i
+   test del `409` in sequenza e la lettura del codice.
+5. **«Delete» toglie dalla propria vista** (`cleared_at`), non cancella:
+   chi ha scritto li vede ancora. Un messaggio che nessuno dei due vede
+   più si cancella subito. Chi può scrivere liberamente non cambia.
+6. **Un blocco cancella la conversazione** (gancio `on_block` di
+   `moderation.py`, nella transazione del blocco), come chiude i follow
+   (ADR-0228): sbloccare non rimette niente e il primo messaggio dopo è di
+   nuovo una richiesta. Un iscritto nascosto (ADR-0251) e chiunque dietro
+   un blocco sono fuori con `follows.apart_sql`, come altrove: `404`.
+7. **Le segnalazioni**: `reports.kind` ammette `message` (vincolo rifatto
+   nella 0031); solo l'altro membro della conversazione segnala, chiunque
+   altro ha `404`. «Hide» dall'email mette `messages.hidden_at`: chi l'ha
+   ricevuto non lo vede più, chi l'ha scritto sì, come per i commenti.
+8. **Le push** sono due `Kind` nuovi in `push.py`, `message` (la chiave è
+   l'id del messaggio: ognuno è una notizia) e `message_request` (chiave
+   vuota: una al giorno per coppia, con la memoria di `SAME_EVENT_S`). I
+   `data` sono quelli di un follow (`public_id`, `username`): l'app apre
+   la conversazione. Testi nelle cinque lingue in `TEXTS`, da approvare
+   con quelli dell'app.
+9. **Al più 20 messaggi al minuto per account**, in memoria come i
+   commenti (10): una chat va più veloce.
+
+**Alternative scartate**:
+
+- *Solo fra chi si segue a vicenda*, o *chi ha accettato il mio follow*:
+  proposte, l'utente ha scelto le richieste.
+- *Più messaggi prima di accettare* (3), *l'interruttore delle richieste
+  subito*: proposti, l'utente ha scelto «così».
+- *Lo stato della richiesta sulla conversazione* (una colonna `status`):
+  non sa dire chi deve accettare dopo un «Delete» o un blocco senza altre
+  colonne; due righe di membri lo dicono da sole.
+- *L'id della conversazione negli indirizzi*: l'app dovrebbe cercarlo
+  prima di aprire una conversazione dal profilo.
+- *Nascondere la conversazione durante il blocco e ridarla allo sblocco*:
+  messaggi tenuti che nessuno vede; e ADR-0228 dice già che sbloccare non
+  rimette niente.
+- *WebSocket per i messaggi in tempo reale*: un server e un protocollo in
+  più; la conversazione aperta si rilegge ogni pochi secondi (parte B), e
+  la push avvisa.
+
+**Conseguenze**:
+
+- Migrazione nuova: il server va aggiornato prima di pubblicare l'app; con
+  un'API di prima gli endpoint sono `404` e l'app non mostra «Messages».
+- Il testo dei messaggi va a Expo e da lì ad Apple o a Google nelle push,
+  come l'inizio di un commento: la privacy lo dice (parte B).
+- Su App Store Connect la risposta «Messaging and Chat» del questionario
+  dell'età cambia: la cambia l'utente quando l'app con i messaggi va in
+  revisione.
+- Chi aggiunge un modo di vedere persone deve ricordare che una
+  conversazione segue `apart_sql` come tutto il resto.

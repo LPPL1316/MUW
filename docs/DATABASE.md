@@ -46,6 +46,9 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `reports` | chi segnala, cosa (disegno, commento, utente) e il suo id, motivo da un elenco corto, data; una riga per chi segnala e per cosa | TASK-121 |
 | `blocks` | chi blocca, chi è bloccato, data; una riga tiene lontani i due nei due sensi | TASK-121 |
 | `report_links_used` | i link delle email delle segnalazioni già usati: il loro numero a caso e quando | TASK-291 |
+| `conversations` | una per coppia di iscritti che si scrivono, i due id in ordine, data | TASK-305 |
+| `conversation_members` | dove sta ognuno dei due in una conversazione: quando ha accettato, quando l'ha tolta dalla sua vista, quando l'ha letta | TASK-305 |
+| `messages` | conversazione, chi scrive, testo (1–1000), data; nascosto da una segnalazione | TASK-305 |
 
 Tutte le tabelle legate a un utente hanno `ON DELETE CASCADE`: cancellare
 la riga di `users` cancella tutto il resto, anche i suoi
@@ -615,6 +618,36 @@ Migrazione `0030_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
 - **Cancellazioni**: la corsa vincitrice cancellata porta via il disegno e
   lascia `winner_user_id` (il badge resta); l'account cancellato lascia il
   concorso senza vincitore. Test in `test_contests.py`.
+
+Migrazione `0031_messages.sql` (TASK-305, ADR-0265, `API.md`
+«Messages»; il numero è il primo libero in `main` al merge):
+
+- `conversations`: `id` (uuid casuale), `low_id` e `high_id` (i due
+  account, il più basso per primo, tutti e due `ON DELETE CASCADE`),
+  `created_at`. **Una per coppia** (unica `(low_id, high_id)`), chiunque
+  abbia scritto per primo; indice su `high_id` per leggerla dall'altra
+  parte. Cancellare uno dei due account la cancella, con i messaggi e le
+  righe dei due; un blocco anche (`messages.on_block`).
+- `conversation_members`: due righe per conversazione, fatte con lei
+  (chiave `(conversation_id, user_id)`, unica `(user_id, other_id)`).
+  `accepted_at`: da quando questo iscritto lascia scrivere l'altro
+  liberamente (ha accettato, risposto, scritto per primo, o seguiva chi gli
+  ha scritto); `NULL`, quello che l'altro scrive è una richiesta di un
+  messaggio. `cleared_at`: i messaggi fino a lì sono fuori dalla sua vista
+  («Delete»). `read_at`: quando l'ha letta, per il pallino; mai mostrato
+  all'altro.
+- `messages`: `id` (uuid casuale), `conversation_id` e `sender_id`
+  (`ON DELETE CASCADE`), `text` (1–1000 caratteri, come scritto),
+  `created_at`, `hidden_at` (nascosto dall'email di una segnalazione: lo
+  vede solo chi l'ha scritto). Indici `(conversation_id, created_at, id)`
+  per le pagine e `sender_id` per l'account. Un messaggio che nessuno dei
+  due vede più (tutti e due l'hanno tolto dalla vista) si cancella.
+- `reports.kind` ammette anche `message` (il vincolo è rifatto con un
+  nome uguale, `reports_kind_check`); `target_id` è l'id del messaggio.
+- **Privacy**: i messaggi stanno sul server come i commenti, senza
+  crittografia end-to-end. Nessun endpoint li mostra a chi gestisce MuW:
+  di una segnalazione arriva per email solo il messaggio segnalato. Test
+  in `test_messages.py`.
 
 ## Come si memorizza una traccia
 
