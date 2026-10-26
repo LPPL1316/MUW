@@ -786,9 +786,6 @@ export const IT: Table = {
 
   // src/social/DrawingCard.tsx
   "Back to the profile": "Torna al profilo",
-  // TASK-307: «Start» on a drawing follows its track
-  "This route has no turn directions: follow the line on the map.":
-    "Questo percorso non ha le indicazioni delle svolte: segui la linea sulla mappa.",
 
   // src/social/DrawingComments.tsx
   "Opens the comments of this drawing.": "Apre i commenti di questo disegno.",
@@ -1410,4 +1407,7 @@ export const IT: Table = {
   Retro: "Retrò",
   Fiesta: "Festa",
   "Tap a track to hear it.": "Tocca un brano per sentirlo.",
+  // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
+  "This route has no turn directions: follow the line on the map.":
+    "Questo percorso non ha le indicazioni delle svolte: segui la linea sulla mappa.",
 };
