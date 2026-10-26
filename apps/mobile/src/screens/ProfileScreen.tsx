@@ -205,6 +205,8 @@ export function ProfileScreen({ account, page, onPage, hint, onBack }: Props) {
             onSignUp={account.signUp}
             onLogIn={account.signIn}
             onMode={account.clearProblem}
+            // «Forgot password?» (TASK-300).
+            email={account.email}
           />
         )}
         {/* With an account «Guide» is under «Settings» (ProfileHome). */}

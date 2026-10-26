@@ -339,6 +339,28 @@ export const FR: Table = {
   "Wrong password.": "Mot de passe incorrect.",
   "Another account has this email.": "Un autre compte a cet e-mail.",
 
+  // src/screens/SignInScreen.tsx, ForgotPassword.tsx, src/settings/EmailConfirmation.tsx,
+  // src/account/accountEmail.ts (TASK-300: the emails of the account)
+  "Forgot password?": "Mot de passe oublié ?",
+  "Write the email of your account: we send it a link to choose a new password.":
+    "Écris l'e-mail de ton compte : nous y envoyons un lien pour choisir un nouveau mot de passe.",
+  "Send the link": "Envoyer le lien",
+  "If an account has this email, a link is on its way. It works for 1 hour; look in spam too.":
+    "Si un compte a cet e-mail, un lien est en route. Il est valable 1 heure ; regarde aussi dans les spams.",
+  "Back to Log in": "Retour à Se connecter",
+  "Too many emails asked: wait a few minutes and try again.":
+    "Trop d'e-mails demandés : attends quelques minutes et réessaie.",
+  "Email not confirmed": "E-mail non confirmé",
+  "Send the link again": "Renvoyer le lien",
+  "Send again": "Renvoyer",
+  "Cancel change": "Annuler le changement",
+  "Link sent to {email}. Look in spam too.":
+    "Lien envoyé à {email}. Regarde aussi dans les spams.",
+  "We sent a link to {email}. Your email changes when you open it.":
+    "Nous avons envoyé un lien à {email}. Ton e-mail change quand tu l'ouvres.",
+  "Waiting for {email}: open the link we sent there.":
+    "En attente de {email} : ouvre le lien que nous y avons envoyé.",
+
   // src/settings/NotificationsSetting.tsx, notificationFields.ts
   "Notifications are not available on this API yet.":
     "Sur cette API, il n'y a pas encore de notifications.",
@@ -1296,6 +1318,83 @@ export const FR: Table = {
   "This server cannot look in your contacts yet.":
     "Ce serveur ne peut pas encore chercher dans tes contacts.",
   "The contacts could not be read.": "Impossible de lire les contacts.",
+  // «Play», the «Challenges» tab: src/game/{PlayScreen,ChallengesTab,TeamView,
+  // ChallengeView,NewChallenge}.tsx, teamsApi.ts, timeLeft.ts, shareCode.ts
+  // (TASK-296, parte D)
+  Collection: "Collection",
+  Challenges: "Défis",
+  "Sign in to play with a team.": "Connecte-toi pour jouer en équipe.",
+  "Teams are not on this server yet.": "Les équipes ne sont pas encore sur ce serveur.",
+  "YOUR TEAMS": "TES ÉQUIPES",
+  "No team yet. Create one, or join one with its code.":
+    "Pas encore d'équipe. Crées-en une, ou rejoins-en une avec son code.",
+  "Team name": "Nom de l'équipe",
+  Create: "Créer",
+  "Team code": "Code de l'équipe",
+  Join: "Rejoindre",
+  "{count} member": "{count} membre",
+  "{count} members": "{count} membres",
+  "No challenge yet": "Pas encore de défi",
+  "{done} of {total} pieces done": "{done} pièces sur {total} terminées",
+  "Code {code}": "Code {code}",
+  "Share code": "Partager le code",
+  "Join my team «{name}» on MuW: open Play, Challenges, and enter the code {code}.":
+    "Rejoins mon équipe «{name}» sur MuW : ouvre Play, Défis, et saisis le code {code}.",
+  MEMBERS: "MEMBRES",
+  Owner: "Propriétaire",
+  "Leave team": "Quitter l'équipe",
+  "Leave this team?": "Quitter cette équipe ?",
+  "New challenge": "Nouveau défi",
+  Pieces: "Pièces",
+  "Fewer pieces": "Moins de pièces",
+  "More pieces": "Plus de pièces",
+  "Each piece": "Chaque pièce",
+  Fast: "Rapide",
+  "Slower pace": "Allure plus lente",
+  "Faster pace": "Allure plus rapide",
+  Days: "Jours",
+  "Fewer days": "Moins de jours",
+  "More days": "Plus de jours",
+  "Start the challenge": "Lancer le défi",
+  "{count} pieces · {goal} each": "{count} pièces · {goal} chacune",
+  "Piece {n}": "Pièce {n}",
+  Free: "Libre",
+  Yours: "À toi",
+  "Taken by {name}": "Prise par {name}",
+  "Done by {name}": "Terminée par {name}",
+  "Take this piece": "Prendre cette pièce",
+  Leave: "Laisser",
+  "WHO GAVE WHAT": "QUI A DONNÉ QUOI",
+  "Nobody has run yet.": "Personne n'a encore couru.",
+  PIECES: "PIÈCES",
+  "Complete! Your team drew it together.":
+    "Complète ! Ton équipe l'a dessinée ensemble.",
+  "Time ran out: {count} piece was missing.":
+    "Temps écoulé : il manquait {count} pièce.",
+  "Time ran out: {count} pieces were missing.":
+    "Temps écoulé : il manquait {count} pièces.",
+  "{count} day {hours} h left": "Plus que {count} jour et {hours} h",
+  "{count} days {hours} h left": "Plus que {count} jours et {hours} h",
+  "{hours} h {minutes} min left": "Plus que {hours} h {minutes} min",
+  "{minutes} min {seconds} s left": "Plus que {minutes} min {seconds} s",
+  "Time is up": "Temps écoulé",
+  "No team with this code.": "Aucune équipe n'a ce code.",
+  "You can't join this team.": "Tu ne peux pas rejoindre cette équipe.",
+  "You are in 10 teams already: leave one first.":
+    "Tu es déjà dans 10 équipes : quittes-en une d'abord.",
+  "This team is not available any more.": "Cette équipe n'est plus disponible.",
+  "This challenge is not available any more.": "Ce défi n'est plus disponible.",
+  "The team has a challenge going already: wait for it to end.":
+    "L'équipe a déjà un défi en cours : attends qu'il se termine.",
+  "This challenge is over.": "Ce défi est terminé.",
+  "This piece is not there any more.": "Cette pièce n'existe plus.",
+  "This piece is done already.": "Cette pièce est déjà terminée.",
+  "Someone holds this piece already.": "Quelqu'un a déjà cette pièce.",
+  "You hold a piece of this challenge already: leave it first.":
+    "Tu as déjà une pièce de ce défi : laisse-la d'abord.",
+  "You don't hold this piece.": "Cette pièce n'est pas à toi.",
+  "This name is not allowed. Choose another one.":
+    "Ce nom n'est pas autorisé. Choisis-en un autre.",
   // src/screens/NavigateScreen.tsx (TASK-303)
   "The route is {distance} away, to the {direction}.":
     "Le parcours reprend à {distance}, direction {direction}.",

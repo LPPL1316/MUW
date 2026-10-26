@@ -15657,6 +15657,85 @@ dell'utente; elenco dei file approvato dal Coordinatore)**:
   `null` prima); i tipi di `shared-types` li aggiorna la parte D, che è
   anche la prima a leggerli.
 
+**Aggiunta (parte D, 2026-10-26, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **Due schede in «Play»** con il `Segmented` di «Draw»: «Collection» com'era
+  e «Challenges» (`ChallengesTab`). La collezione si chiede all'API solo
+  mentre la sua scheda è in vista; le squadre, mentre è in vista l'altra.
+- **Il contorno dei pezzi lo rifà il telefono** (`pieceSegments.piecesOf`)
+  con le stesse operazioni nello stesso ordine di `game_rules.pieces_of`
+  (le lunghezze con `sqrt(dx·dx + dy·dy)`, i tagli a `(L·k)/n`,
+  `bisect_right`, l'interpolazione, l'arrotondamento a 4 decimali con
+  `toFixed`, che legge il valore esatto del double come `round(x, 4)` di
+  Python e ne differisce solo su un pareggio esatto alla quinta cifra, che
+  nessun taglio dei contorni del catalogo produce). Il test di parità
+  confronta ogni forma del catalogo per 2, 3, 5, 7 e 12 pezzi con i numeri
+  scritti dalla funzione dell'API (`piecesOfApi.json`), compreso il punto
+  doppio che un taglio su un vertice lascia. La sfida sullo schermo
+  disegna però gli `outline` che l'API serve in ogni pezzo: la funzione
+  del telefono serve a chi ha la forma e N senza il corpo della sfida (la
+  striscia della parte E).
+- **I colori delle persone**: `tokens.ts` non ha una tavolozza per le
+  persone, e nessun colore si scrive a mano; cinque token fanno a turno
+  (`startHere`, `warning`, `accent`, `error`, `text`), nell'ordine
+  d'ingresso nella squadra, così una persona tiene il suo colore da una
+  lettura all'altra; chi ha lasciato la squadra viene dopo, nell'ordine in
+  cui compare nei pezzi. Dopo cinque i colori tornano e i nomi della
+  legenda distinguono. Un pezzo libero è `textFaint`. Una tavolozza vera
+  per le persone sarebbe un token da aggiungere, se le squadre cresceranno.
+- **Tempo reale**: la sfida si rilegge ogni 15 s (`CHALLENGE_EVERY_MS`)
+  solo finché è `active` e la sua vista è sullo schermo, e appena l'app
+  torna in primo piano (`AppState`); completa o scaduta non cambia più.
+  L'ultima risposta di ogni sfida resta in memoria finché l'app è aperta,
+  e la squadra la mostra subito con quello che la lista diceva di lei.
+  Un rifiuto dell'API a «Take this piece» o «Leave» (409: preso da un
+  altro, finita) si dice e rilegge la sfida: lo schermo mostra quello che
+  il server ha adesso.
+- **Un server senza le squadre non è un errore** (nota del Coordinatore):
+  il 404 di `GET /game/teams` fa dire alla scheda «Teams are not on this
+  server yet.», senza modulo né «Try again»; oggi il server non ha né A né
+  C, e la pagina «Play» non si vede comunque finché il catalogo non
+  risponde 200. Senza rete l'ultima lista e l'ultima sfida restano in
+  vista senza una parola; le parole dell'account e «Try again» compaiono
+  solo quando non c'è niente da mostrare.
+- **Le push delle sfide aprono la sfida**: `notificationTap` legge
+  `{kind, challenge_id}` dei tre `Kind` della C e dà `{kind: "challenge",
+  id}`; senza un id buono dà «Play» e basta. `usePushNotifications` ha
+  `openChallenge` accanto a `openPlay`; il resto è in un piccolo store
+  nuovo (`challengeDoor`): la richiesta resta lì finché la pagina, costruita
+  o da costruire, la prende, apre la scheda «Challenges» su quella sfida e
+  la cancella; così `App.tsx` non cambia (la push passa dall'`openPlay` che
+  c'è). Con l'app aperta queste push si mostrano come banner: non c'è una
+  scheda che le dica già, a differenza di `shape_unlocked`.
+- **«Share code» è testo**: `Share.share` di react-native con una frase
+  che porta nome e codice, non il foglio delle immagini di `src/share/`
+  (che è di una corsa, con il video di TASK-295): niente da ridisegnare,
+  niente file.
+- **I rifiuti dell'API in parole**: l'esito di `ask` non porta lo status
+  HTTP, e i rifiuti delle squadre sono tutti `http_error`; le parole
+  dell'API (`game_teams.py`, `game_challenges.py`) si riconoscono e si
+  traducono (`teamProblem`, con un dizionario dai messaggi dell'API ai
+  testi dell'app), così il 403 «You can't join this team.» e il 404 «No
+  team with this code.» si distinguono. Un messaggio sconosciuto si mostra
+  com'è, come i commenti fanno con un nome rifiutato così com'è scritto.
+- **Il modulo della sfida resta nei limiti dell'API** (pezzi 2–12, 1–50
+  km, passo 2:30–15:00 /km, 1–14 giorni): nessuna richiesta fuori misura.
+  In miglia il passo si manda in secondi al km interi, e il valore mostrato
+  è quello arrotondato che l'API terrà (8:03 → 8:17 /mi), non il passo
+  esatto del tocco: lo schermo non promette un secondo che il server non
+  ha.
+- **I tipi di C e D** stanno in fondo a `index.ts`, come per la B:
+  `GameTeam`, `GameChallenge`, le costanti dei limiti, `ChallengePushKind`
+  accanto a `GamePushKind` (che non cambia); `pieces_done` e
+  `team_unlocked_at` sono `RunGameWithPieces` e `GameShapeStateWithTeam`,
+  estensioni delle interfacce della A, che non si toccano. L'edizione
+  squadra nella collezione non si mostra ancora: è un seguito piccolo, da
+  decidere con l'utente (un segno sulla scheda della forma).
+- **Proprietario e uscita**: la regola di `GIOCO.md` §6.1 è sullo schermo
+  (chi ha creato la squadra toglie, ognuno esce), con «Leave team» che
+  chiede conferma prima, perché rientrare vuole il codice.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
@@ -15864,6 +15943,116 @@ un vicolo. Quelli già calcolati (esempi di «Explore» in cache, percorsi
 salvati) tengono le indicazioni vecchie finché non si ricalcolano; il
 server, `draw_examples` e il motore sul telefono (TASK-214) vanno
 aggiornati con l'ok dell'utente. Non entra nella 1.0 (build 5).
+
+## ADR-0259 — Fermarsi prima nella ricerca: misurato e scartato; resta solo il tracciamento mai ripetuto
+
+**Stato**: Scartata (misurata), tranne una regola piccola · 2026-10-25 ·
+deciso dall'agente su delega dell'utente («sì, apri anche quello per
+fermarsi prima», 2026-10-24), con le condizioni del Coordinatore
+(TASK-298); il taglio vero, scelta di prodotto, l'ha deciso l'utente il
+2026-10-26 con i numeri qui sotto: **tetto 30, invariato**.
+
+**Contesto**: dove la forma non entra nelle strade la ricerca (§5 di
+`ROUTE_ENGINE.md`) spende tutti i 30 tracciamenti per un disegno mediocre:
+a Trento 19 richieste su 36 (ADR-0257), i 6–14 s che l'utente aspetta. La
+condizione: non perdere nessun percorso buono (distanza ±10 %, somiglianza
+≥ 0,90) che oggi la ricerca trova.
+
+**Misura** (Mac, 2026-10-24/25; tracciamenti, non secondi: la stessa misura
+è durata 690 s e 171 s a Mac carico e scarico, con risultati identici;
+`tests/measure_stop_earlier.py`): le 36 richieste di ADR-0257 — cuore,
+stella, gatto, lumaca, luna da 5 km e cuore da 2 km, sei partenze — in
+sette città, Trento, Rovereto, Levico, Bologna, Milano, Roma e Chicago, con
+la chiamata dell'API (`doubled`: a Trento i buoni sono 16, non 17).
+
+| | richieste | buone | tracciamenti |
+|---|---|---|---|
+| sette città | 252 | 129 | 4 627, di cui 3 581 (77 %) nelle 123 senza percorso buono |
+
+1. Il primo percorso buono compare a qualunque tracciamento: 13 casi dopo
+   il 20º, due al 30º di 30. 14 buoni vengono dalla fase inclinata, anche
+   dal suo 5º e 6º piazzamento; 5 dal 6º piazzamento dritto; 14 dalla
+   rifinitura della rotazione, 1 dalla lucidatura. Un tetto più basso o un
+   piazzamento in meno perde percorsi buoni.
+2. «N piazzamenti senza miglioramento» del costo o della somiglianza perde
+   da 10 buoni (N = 4) a 38 (N = 1) su 129.
+3. La somiglianza del primo tracciamento di un piazzamento non dice nulla
+   del suo esito: cambiando scala sale anche da 0,42 a 0,91; un taglio
+   dentro un piazzamento (distanza entro il 15 % e somiglianza sotto 0,80)
+   perde 2 buoni.
+4. Il conteggio delle strade è 1,00 in testa alla classifica in quasi tutte
+   le richieste di città: non distingue dove la forma entra.
+5. Resa per posto (buoni ogni 100 tracciamenti): 1º e 2º piazzamento
+   dritto 5,5; 3º e 4º 3–4; 5º 0,8; 6º 2,5; rifinitura 3,1; inclinati
+   0–3, il primo inclinato 0 su 413 ma prepara gli altri.
+6. Saltare la fase inclinata quando da dritta la somiglianza migliore è
+   sotto 0,85 perde 1 buono (Rovereto, luna: dritta 0,81, buona al 6º
+   piazzamento inclinato); sotto 0,80 non ne perde ma con margine 0,009;
+   sotto 0,75 non ne perde, margine 0,06, vale 209 tracciamenti (4,5 %).
+7. La rifinitura della rotazione ha dato un percorso buono solo dove la
+   fase aveva già un piazzamento a 0,86 o più: saltarla sotto 0,80 non
+   perde nulla e vale circa il 4 %.
+8. 62 tracciamenti (1,3 %) erano duplicati esatti: la secante della scala
+   rimanda al bordo di `SCALE_RANGE` già tracciato per lo stesso
+   piazzamento.
+
+**Decisione**: in `optimizer.search`, per tutte le ricerche (anche sul
+telefono, nelle partenze vicine e nella ricerca lontana), una scala già
+tracciata per lo stesso piazzamento non si traccia più: il tracciato noto
+vale per quel passo della secante e il budget compra un altro tracciamento.
+Nient'altro: nessun piazzamento in meno, nessun tetto più basso, nessuna
+fase saltata, nessun messaggio nuovo. Questa regola ha una proprietà
+pulita: la ricerca fa gli stessi tentativi di oggi più qualcuno in coda alla
+fase, quindi il percorso restituito non costa mai di più nel costo del
+motore, e dove oggi converge è identico.
+
+Misurato e **scartato**, pur senza perdere buoni nelle 252:
+
+- **la fase inclinata saltata** quando da dritta il meglio è sotto 0,75
+  (4,5 % dei tracciamenti): le sette città hanno griglie quasi nord-sud, e
+  dove le strade disegnano la forma solo inclinata (`tests/test_tilt.py`,
+  da dritta 0,29; una città a griglia diagonale) la fase dritta non la
+  vede; sulla città finta spegneva una stella 0,87 fra le alternative e un
+  cuore 0,80 da una partenza vicina;
+- **la rifinitura della rotazione saltata** quando il meglio della fase è
+  sotto 0,80 (misurata insieme ai duplicati): tracciamenti 4 627 → 4 566
+  (−1,3 %; −1,6 % nei 123 casi senza buono: il budget liberato lo spende
+  la fase inclinata, il tempo non scende), ma 6 risultati mediocri su 123
+  peggiorano, fino a −0,13, e uno scende sotto 0,60 (Levico, gatto da
+  5 km: da percorso mediocre a «nessun percorso»); nella città finta la
+  stella da 3 km passa da 0,73 a 0,59.
+
+**Conseguenze**: i 129 percorsi buoni restano identici punto per punto, tre
+con un tracciamento in meno (il duplicato); nelle 252 richieste i tracciamenti passano da 4 627 a 4619, e dei 123 risultati mediocri 122 sono identici e uno migliora (Roma, cuore da 2 km: da 0,56 a 0,60, da «nessun percorso» a percorso mediocre), nessuno peggiora. Tre impronte di
+`test_kept_per_graph.py` cambiano, tutte di casi che non convergono (il
+cuore da 8 km e le due CIAO della città finta: stesso percorso scelto,
+alternative trovate altrimenti dal budget in più). Il tempo risparmiato è
+nullo o quasi: la conclusione del task è che con questa ricerca **fermarsi
+prima senza perdere percorsi buoni non si può**; il taglio vero (un tetto,
+i piazzamenti inclinati 5–6, la fase inclinata sotto 0,80) costa percorsi
+buoni o città non misurate, e se l'utente vuole scambiarli per la velocità
+si decide con questi numeri, in un task suo. Le misure si rifanno con
+`tests/measure_stop_earlier.py`.
+
+Per la scelta di prodotto (un tetto ai tracciamenti, sulle 252 richieste
+misurate; «tracciamenti» è il costo del motore, i secondi vanno in
+proporzione):
+
+| tetto | tracciamenti (oggi 4 627) | buoni persi su 129 |
+|---|---|---|
+| 28 | 4 431 (−4 %) | 2 (Rovereto stella, Bologna luna: al 30º) |
+| 25 | 4 098 (−11 %) | 5 (più Rovereto cuore al 27º, Milano lumaca al 27º, Chicago cuore 2 km al 28º) |
+| 22 | 3 713 (−20 %) | 9 (più Trento lumaca al 24º, Milano cuore 2 km al 23º e 25º, Roma stella al 23º) |
+| 20, cioè senza la fase inclinata | 3 443 (−26 %) | 12 (i 14 buoni della fase inclinata meno i 2 trovati entro il 20º, più nessun altro) |
+| 15 | 2 756 (−40 %) | 19 |
+
+Ogni percorso buono perso è un utente che oggi riceve un disegno buono e
+domani ne riceverebbe uno mediocre o nessuno, per risparmiare 6–14 s sui
+casi che oggi non trovano niente.
+
+**Scelta dell'utente del 2026-10-26**: tetto 30, invariato. Nessun percorso
+buono si perde; chi chiede una forma che non entra nelle strade aspetta i
+30 tracciamenti di oggi. In `main` con la #558 (`61932179`).
 
 ## ADR-0040, aggiunta — Un contorno che cade su un nodo solo non si disegna, e la ricerca va avanti
 
@@ -16210,6 +16399,79 @@ e tocca tre componenti. Chi gestisce il server apre e chiude i concorsi
 con le date dell'utente, dopo l'approvazione di Apple e con il suo ok.
 Instagram e il sito li fa l'utente a mano. Il concorso con la maglietta è
 un task a sé, con la ditta e il commercialista (`CONCORSI.md` §12).
+
+## ADR-0261 — Email confermata e «Forgot password?», con link firmati
+**Stato**: Attiva · 2026-10-25 · TASK-300. Le scelte di prodotto sono
+dell'utente, chieste una alla volta con una proposta: un task a parte e
+subito; **un indirizzo non confermato non blocca niente**; **gli account
+di prima restano non confermati**, senza email partite da sole; i testi
+inglesi del task file approvati così (de, es, fr, it dell'agente). Del
+Coordinatore, nel dare il numero: link che valgono una volta e scadono, il
+reset che fa uscire da ogni telefono, «Forgot password?» che risponde
+sempre allo stesso modo con un limite, nessuna modifica nativa, **il nuovo
+indirizzo vale solo confermato** e il vecchio riceve un avviso. Il come è
+deciso dall'agente su delega dell'utente.
+
+TASK-183 aveva il cambio d'indirizzo subito e senza conferma, TASK-114
+nessun modo di riavere una password: mancava un servizio di posta, che ora
+c'è (Resend, ADR-0244).
+
+**Decisione**:
+
+1. **I link aprono pagine dell'API** (`/email/confirm`, `/password/reset`),
+   come `/away-email/stop`: senza una build nativa non ci sono link
+   universali. Il `GET` mostra la domanda o il modulo, solo il `POST`
+   cambia (i filtri antispam aprono i link). Pagine senza `X-API-Key`,
+   `no-store`, senza referrer, fuori dai frame (CSP `frame-ancestors
+   'none'`, `form-action 'self'`), nella lingua dell'account. Il modulo
+   si legge dal corpo con `urllib.parse`: nessuna dipendenza nuova.
+2. **Token senza tabella**: `public_id.scadenza.tag`, il tag un HMAC con
+   `SHAPEROUTE_EMAIL_SECRET` dell'uso (prefisso suo: mai valido per un
+   altro link), dell'account, della scadenza e dello **stato che il link
+   cambia**, riletto dal database: l'indirizzo per la conferma; indirizzo
+   e hash della password per il reset. Così il link vale una volta (dopo,
+   indirizzo confermato o password diversa) e muore se l'indirizzo cambia
+   nel frattempo. Conferma 7 giorni, reset 1 ora.
+3. **Il cambio aspetta il link** in `users.pending_email` (non unico: il
+   vincolo su `email` decide alla conferma). Avviso al vecchio indirizzo
+   con il nuovo coperto, senza link: la via d'uscita è «Forgot password?»,
+   che annulla il cambio in attesa. Con le email spente il cambio vale
+   subito come con ADR-0150, non confermato. `PUT /me/email` non cambia
+   forma: la risposta è sempre il `User`.
+4. **Il reset**: `POST /password-reset` risponde `202` vuoto per
+   chiunque; la ricerca dell'account e l'invio stanno dopo la risposta, in
+   un thread che manda una email ogni mezzo secondo (`Outbox`), così
+   neanche il tempo dice chi è iscritto. Salvata la password: tutte le
+   sessioni chiuse, il cambio in attesa annullato, il conto delle password
+   sbagliate azzerato, l'indirizzo confermato (il link lo prova).
+5. **Limiti in memoria**, come le password sbagliate: 3 reset all'ora per
+   indirizzo, di un account o no; 3 email all'ora per account fra «Send
+   the link again» e cambi; 300 email all'ora in tutto.
+6. **Ganci, non intrecci**: `accounts.py` chiama `after_sign_up` (come
+   `before_account_delete`), `contact.py` un `ChangeConfirmation` se c'è;
+   `account_email.py` li registra solo con le email accese. Le stesse tre
+   variabili dell'email di ritorno: niente di nuovo da configurare.
+7. **L'app chiede `GET /account-email`** prima di mostrare «Forgot
+   password?» e «Email not confirmed»: `404` da un server spento o di
+   prima, come «Play» con `GET /game/catalog`.
+
+**Alternative scartate**: una tabella di token (più stato da pulire,
+quando lo stato dell'account basta a renderli usa-e-getta); un codice di 6
+cifre da scrivere nell'app (servono tentativi contati, e un link funziona
+anche dal computer); confermare al solo `GET` (un filtro antispam
+confermerebbe l'indirizzo di chi non si è mai iscritto); il cambio subito
+con la conferma dopo (scelta del Coordinatore: il nuovo vale confermato);
+un link «non sono stato io» nell'avviso (un terzo tipo di token per quello
+che «Forgot password?» già fa); bloccare qualcosa senza conferma (scelta
+dell'utente).
+
+**Conseguenza**: l'indirizzo va a Resend anche per queste email (la
+privacy di TASK-284 B dice già di Resend; queste servono all'account).
+Cambiare il segreto spegne i link già mandati. Mandare le email di
+ritorno (TASK-284) e le notizie (TASK-262 B) solo a indirizzi confermati è
+una scelta di quei task. L'app di prima, a un cambio in attesa, mostra
+ancora il vecchio indirizzo: la parte B va pubblicata prima o con il
+server.
 
 ## ADR-0263 — Dopo una deviazione la corsa rientra più avanti, e mostra dove riprende il percorso
 **Stato**: Attiva · 2026-10-26 · piano approvato dall'utente dopo la prova

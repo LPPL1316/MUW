@@ -22,6 +22,7 @@ import { DrawingsContext, useDrawingsOf } from "../social/drawingsDoor";
 import { useFollowRequestsOf } from "../social/followRequests";
 import { FollowsContext, type FollowsDoor } from "../social/followsDoor";
 import { PeopleContext } from "../social/peopleDoor";
+import { openChallenge } from "../game/challengeDoor";
 import { openPlay } from "../game/unlocks";
 import { LOG_IN_TO_FIND } from "../social/PeopleSearch";
 import { ReactionsContext, useReactionsOf } from "../social/reactionsDoor";
@@ -365,6 +366,8 @@ export function ProfileLayer({ apiUrl, children }: Props) {
     openProfile: followsDoor.openProfile,
     // A shape of the game unlocked (TASK-296): the app shows «Play».
     openPlay,
+    // A challenge's notification (TASK-296 part D): «Play» on the challenge.
+    openChallenge,
   });
   const door = useMemo(
     () => ({
