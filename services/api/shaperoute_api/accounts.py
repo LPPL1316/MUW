@@ -139,10 +139,13 @@ def contest_wins_sql(user_column: str) -> str:
     )
 
 
+# The wins before the switches: test_notifications.py reads the switches as
+# the last three, and the alias of the one subquery (no comma in it).
 USER_COLUMNS = (
     "id, email, username, role, created_at, bio, public_id, phone,"
-    " email_confirmed, pending_email, notify_email, notify_push, notify_away,"
-    f" {contest_wins_sql('users.id')} AS contest_wins"
+    " email_confirmed, pending_email,"
+    f" {contest_wins_sql('users.id')} AS contest_wins,"
+    " notify_email, notify_push, notify_away"
 )
 
 
