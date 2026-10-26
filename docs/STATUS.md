@@ -195,6 +195,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-26; `schemas.py` viaggia nel motore del telefono, quindi
   `engine.zip` rifatto (ok del Coordinatore). Server dopo Apple, con l'ok
   dell'utente.
+  **Parte A** in `main` con la #562 (`5f762ae7`, 2026-10-26), mergiata su
+  «mergia si» dell'utente; migrazione `0030_contests.sql`. La parte B
+  (app) parte da qui, in una sessione sua. Sul server dopo Apple, con
+  l'ok dell'utente: migrazione, deploy, `open`.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
