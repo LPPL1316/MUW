@@ -794,6 +794,9 @@ export const DE: Table = {
 
   // src/social/DrawingCard.tsx
   "Back to the profile": "Zurück zum Profil",
+  // TASK-307: «Start» on a drawing follows its track
+  "This route has no turn directions: follow the line on the map.":
+    "Diese Route hat keine Abbiegehinweise: Folge der Linie auf der Karte.",
 
   // src/social/DrawingComments.tsx
   "Opens the comments of this drawing.": "Öffnet die Kommentare zu dieser Zeichnung.",

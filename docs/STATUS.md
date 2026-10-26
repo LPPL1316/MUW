@@ -160,6 +160,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-307 — Correre il disegno di un altro, e scaricarne la traccia**
+  (ADR-0267; richiesta dell'utente del 2026-10-26: «poter scaricare la
+  traccia e poterla iniziare pure tu»; numero e regole dal Coordinatore).
+  Branch `feat/TASK-307-start-friend-track`, solo app. Sulla scheda del
+  disegno aperto, dal «Feed» o dal profilo: «Start» sulla traccia
+  tagliata, subito e **senza svolte a voce** (una traccia GPS non sta sul
+  grafo, `/route-directions` la rifiuta; la scheda lo dice), ed «Export
+  GPX» scritto sul telefono, senza tempi né nome. La corsa salvata dice ciò
+  che il disegno disegna; a fine corsa si torna al disegno. Aspetta il sì
+  dell'utente sul testo nuovo e la sua scelta sul «no» ai download di chi
+  pubblica (proposta: nessun interruttore, una riga in «Privacy»). Le
+  svolte a voce (map-matching nell'engine) sarebbero un task a parte.
+  File: `tasks/TASK-307.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch

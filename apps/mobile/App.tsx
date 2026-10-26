@@ -146,6 +146,7 @@ import { SportButton } from "./src/settings/SportButton";
 import { useSport } from "./src/settings/useSport";
 import { DrawingCard } from "./src/social/DrawingCard";
 import { drawingDoubleTapped } from "./src/social/DrawingReactions";
+import { drawnOf, followedOf } from "./src/social/drawingRoute";
 import { useDrawingsDoor } from "./src/social/drawingsDoor";
 import { color, space, statusBarStyle } from "./src/theme/tokens";
 import { useDrawDistance } from "./src/units/useDrawDistance";
@@ -215,6 +216,10 @@ type ExploreRun = {
   /** The route of a run the app was closed during, opened again with the
    * app (TASK-272): it has no card of "Explore" to go back to. */
   reopened?: true;
+  /** The track of a drawing opened on the map (TASK-307): what it draws,
+   * for the run saved, and the page the drawing was opened over, which
+   * the end of the run goes back to, the drawing still on it. */
+  drawing?: { drawn: Drawn; page: Screen };
 };
 
 /** A run the app was closed during, lately, if any (TASK-272): it opens
@@ -705,7 +710,7 @@ function MuW() {
   function onEndRun() {
     const run = endRun();
     if (run === null) {
-      setScreen("map");
+      setScreen(exploreRun?.drawing?.page ?? "map");
       return;
     }
     setFinished(finishedRun(run, run.status !== "arrived"));
@@ -728,6 +733,10 @@ function MuW() {
   /** What the route of a run draws, while the app still has that route: a
    * run left from another opening has only its line. */
   function drawnBy(route: LatLon[]): Drawn | null {
+    // The track of a drawing says what it draws (TASK-307).
+    if (exploreRun?.drawing !== undefined && sameLine(exploreRun.points, route)) {
+      return exploreRun.drawing.drawn;
+    }
     const kept = [
       drawnFavorite,
       exploredFavorite,
@@ -757,6 +766,11 @@ function MuW() {
     if (exploreRun?.reopened === true) {
       setExploreRun(null);
       setScreen("choose");
+      return;
+    }
+    // A drawing's track goes back to the drawing (TASK-307).
+    if (exploreRun?.drawing !== undefined) {
+      setScreen(exploreRun.drawing.page);
       return;
     }
     // A run of "Explore" goes back to its route's card.
@@ -857,6 +871,35 @@ function MuW() {
       });
       setScreen("navigate");
     });
+  }
+
+  /** «Start» on a drawing opened on the map (TASK-307): its track is the
+   * route, followed without directions, since a GPS line is not on the
+   * roads of the graph that /route-directions knows. On the water, the
+   * notice first, as for any route there. The drawing stays open: the end
+   * of the run goes back to it, and «Back» from it to where it was. */
+  function onStartDrawing() {
+    if (drawing === null) {
+      return;
+    }
+    const route = followedOf(drawing);
+    // The page under the drawing («Feed», a profile's), or the map it was
+    // opened over from «Profile».
+    const page = screenNow;
+    const run = () => {
+      startDirections.reset();
+      setExploreRun({
+        ...route,
+        directions: NO_DIRECTIONS,
+        drawing: { drawn: drawnOf(drawing), page },
+      });
+      setScreen("navigate");
+    };
+    if (route.activity === "paddling") {
+      paddleNotice.ask(run);
+      return;
+    }
+    run();
   }
 
   function onDraw() {
@@ -1213,7 +1256,11 @@ function MuW() {
             }}
           />
         ) : reviewing && drawing !== null ? (
-          <DrawingCard drawing={drawing} onBack={backFromDrawing} />
+          <DrawingCard
+            drawing={drawing}
+            onBack={backFromDrawing}
+            onStart={onStartDrawing}
+          />
         ) : (finishing || freeFinishing) && stretchAsked ? (
           // «Stretch» opens the exercises (part B) over «Your run», where
           // they leave the runner; «Skip» goes there at once.
