@@ -113,6 +113,17 @@ su un telefono Android. Il testo della privacy su FCM (Google è un
 destinatario nuovo dei dati) si scrive qui per il sì dell'utente; i file
 di `site/privacy/` entrano dopo la #461, insieme a TASK-284 B.
 
+**Prima build Android, 2026-10-26**: la `preview` (EAS `93c8959c`, da
+`main` `23fd4e6b`, keystore creata da EAS) è fallita in Gradle su
+`react-native-google-mobile-ads` (vuole una sezione sua in `app.json`).
+Correzione in `fix/TASK-294-android-build-no-admob`: AdMob mai collegato
+su Android (aggiunta ad ADR-0237), test aggiornato; impronta iOS
+invariata (`b8988669` nel worktree, prima e dopo). Il log di una build EAS
+si legge così: `eas build:view <id> --json` dà `logFiles` (URL firmati,
+15 minuti), il file è compresso **brotli** (`brotli -d`), una riga JSON
+per voce. `expo doctor` segnala patch mancanti (expo ~57.0.31 e altri):
+non bloccano la build.
+
 **Promemoria (Coordinatore, 2026-10-25)**: i contatti della #461
 (TASK-262 C) entrano **senza** il modulo nativo: `expo-contacts` sta in
 `expo.autolinking.exclude` di `apps/mobile/package.json` e il suo plugin
