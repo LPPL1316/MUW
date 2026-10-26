@@ -160,6 +160,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
+  dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
+  Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
+  (documenti), poi A (API), B (app, dopo TASK-299 B) e C (commenti). Un
+  iscritto crea da un percorso pronto una corsa di gruppo: il ritrovo è la
+  partenza, giorno e ora da 30 minuti a 60 giorni, «Where exactly»,
+  descrizione, Everyone o Followers; la fila «Group runs» in cima al Feed
+  sotto la scheda del concorso, solo con qualcosa da mostrare; «I'm going»;
+  un promemoria un'ora prima, le push di cambio e di annullamento; filtro
+  dei testi, segnalazioni e blocchi come i post; avviso di sicurezza e
+  riga della privacy. Selettore di data in JavaScript: impronta iOS
+  invariata. **Da confermare con l'utente**: nessuna notifica
+  all'organizzatore quando qualcuno si aggiunge (la «lista Notifiche»
+  della proposta non esiste). Regole in `EVENTI.md`, file
+  `tasks/TASK-309.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
