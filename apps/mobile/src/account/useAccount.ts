@@ -84,7 +84,9 @@ export type Account = {
   /**
    * PUT /me/notifications (TASK-185): the notification switches that
    * change. With «Push notifications» on, the API sends push notifications
-   * (TASK-262); no email yet. Resolves as `editProfile` does.
+   * (TASK-262); with «Email notifications» on, one email a day at most
+   * (TASK-262 B); «Email when I'm away» (TASK-284) is on until turned off.
+   * Resolves as `editProfile` does.
    */
   changeNotifications: (request: NotificationsRequest) => Promise<string | null>;
   clearProblem: () => void;

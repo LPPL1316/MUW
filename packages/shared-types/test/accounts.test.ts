@@ -23,7 +23,8 @@ import {
 } from "../src/index.ts";
 
 // The same JSON is validated by the API's test_accounts.py (TASK-114).
-const signUpRequest: SignUpRequest = signUp;
+// JSON reads the language as any string: the app sends one of PushLanguage.
+const signUpRequest: SignUpRequest = { ...signUp, language: "en" };
 const signedIn: Session = { ...session, user: { ...session.user, role: "user" } };
 
 test("the sign-up example keeps the API's limits", () => {
@@ -31,12 +32,17 @@ test("the sign-up example keeps the API's limits", () => {
   assert.ok(signUpRequest.password.length <= PASSWORD_LENGTH.max);
   assert.match(signUpRequest.username, /^[A-Za-z0-9_.]{3,20}$/);
   assert.equal(signUpRequest.at_least_16, true);
+  // The box «Don't send me these emails» left unticked, and the app's
+  // language for the emails (TASK-284).
+  assert.equal(signUp.away_email, true);
+  assert.equal(signUp.language, "en");
 });
 
 test("a session carries the token and the user, nothing else", () => {
   assert.deepEqual(Object.keys(signedIn).sort(), ["token", "user"]);
   assert.deepEqual(Object.keys(signedIn.user).sort(), [
     "bio",
+    "contest_wins",
     "created_at",
     "email",
     "email_confirmed",
@@ -65,6 +71,7 @@ test("the profile change keeps the API's limits", () => {
 test("a profile seen by the others has no email, role or internal id", () => {
   assert.deepEqual(Object.keys(seen).sort(), [
     "bio",
+    "contest_wins",
     "drawings",
     "follow",
     "followers",

@@ -457,8 +457,9 @@ def test_the_language_is_the_sign_up_s_then_the_phone_s_then_english(
 ) -> None:
     t0 = wall.t
     me = signed_up(client, language="de")
-    phone = other(client)
-    plain = third(client)
+    # The app of before signed up without its language.
+    phone = signed_up(client, email=OTHER_EMAIL, username="other_runner", language=None)
+    plain = signed_up(client, email=THIRD_EMAIL, username="third_runner", language=None)
     token = {
         "token": "ExponentPushToken[yyyyyyyyyyyyyyyyyyyy]",
         "platform": "ios",

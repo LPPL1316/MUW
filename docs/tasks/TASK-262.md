@@ -1,6 +1,6 @@
 # TASK-262 — Le notifiche inviate davvero: push, email, amici dalla rubrica
 
-**Stato**: Parte A Done (2026-10-10, PR #451) · C Done (2026-10-25, PR #461) · B In revisione (PR #550)
+**Stato**: Parte A Done (2026-10-10, PR #451) · C Done (2026-10-25, PR #461) · B Done (2026-10-25, PR #550)
 **Fase**: 4 · **Branch**: `feat/TASK-262-a-push` (parte A)
 **Dipende da**: TASK-185 (i due interruttori), TASK-211 (follow),
 TASK-119 (reazioni), TASK-120 (commenti), TASK-208 (tag), TASK-121
@@ -196,7 +196,7 @@ docs/tasks/TASK-262.md                            (nuovo)
 - Ritentare un invio che Expo non ha preso (rete giù, `5xx`): si scrive
   nel log e si perde.
 
-## Parte B — email (In revisione, PR #550)
+## Parte B — email (Done, PR #550)
 
 Resend per le stesse cinque notizie con «Email notifications» acceso.
 All'inizio c'erano anche la conferma dell'email e la password dimenticata
@@ -556,3 +556,12 @@ In locale il worktree ha in `node_modules` cartelle vere per
 `expo-image-manipulator`, `expo-task-manager`, `unimodules-app-loader`,
 che il checkout principale non ha ancora; dopo il merge serve `npm
 install` nel checkout principale.
+
+**Parte B fatta il 2026-10-25**: PR #550, in `main` con il merge
+`ef5021f4` (mergiata dal Coordinatore sulla parola dell'utente «mergia la
+550»), migrazione `0028_email_notices.sql`. Un riassunto al giorno delle
+cinque notizie a chi ha «Email notifications» acceso; la nota di
+«Settings», l'help e la privacy che nomina Resend sono arrivati con la
+parte B di TASK-284 (#556). **Restano** al Coordinatore, dopo
+l'approvazione di Apple e col sì dell'utente: il server con la `0028`, che
+si accende con l'email di ritorno (`DEPLOY.md`).

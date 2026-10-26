@@ -192,6 +192,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   e Google non coinvolte). Regole in `CONCORSI.md`. Testi nelle cinque
   lingue da approvare prima del merge; server dopo Apple con l'ok
   dell'utente. File: `tasks/TASK-299.md`.
+  **Documenti** in `main` con la #549 (`612bf143`, 2026-10-25).
+  **Parte A** (branch `feat/TASK-299-a-contest-api`, PR #562, migrazione
+  `0030_contests.sql`, rinumerata dopo la #559, numero al merge): la
+  tabella `contests` con un
+  solo concorso aperto; `contests.py` con la query unica della
+  classifica (partecipa, conta, pari merito), `GET /contests/current`
+  con la sola chiave (`mine` col token, `top` senza i post attraverso un
+  blocco con chi chiede, `404 no_contest`), i comandi `open`,
+  `standings` e `close` (una volta sola, `--exclude`, `--dry-run`,
+  rifiuta prima della fine), la push `contest_won` al vincitore dopo il
+  commit; `contest_wins` in `User` e `PublicProfile`; tipi e fixture in
+  `shared-types`; il codice d'errore `no_contest` (`schemas.py`,
+  `api-error-codes.json`, ok del Coordinatore). Un test per regola in
+  `test_contests.py`. Testi de/es/fr della push approvati dall'utente il
+  2026-10-26; `schemas.py` viaggia nel motore del telefono, quindi
+  `engine.zip` rifatto (ok del Coordinatore). Server dopo Apple, con l'ok
+  dell'utente.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -224,6 +241,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   vedono). TASK-284 B tocca le stesse schermate in righe diverse. Server
   dopo Apple, con l'ok dell'utente; l'app prima o insieme. File:
   `tasks/TASK-300.md`.
+  **Chiuso**: in `main` con la #550 (`ef5021f4`, 2026-10-25); nota di
+  «Settings», help e privacy con TASK-284 B (#556); server dal
+  Coordinatore dopo Apple.
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -375,6 +395,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dice che le squadre non ci sono ancora, senza errore. Solo app, nessuna
   dipendenza nuova; i testi nelle cinque lingue aspettano il sì
   dell'utente (task file, «Testi da approvare»). Resta la E.
+  **Parte D** in `main` con la #561 (`a8d75842`, 2026-10-26), mergiata
+  dalla sessione della D a CI verde su parola dell'utente, che ha
+  approvato i testi lo stesso giorno («I testi vanno bene, mergiate pure
+  la #561»); impronta iOS da misurare su `main` dal Coordinatore, poi il
+  preview. Resta la E.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
@@ -543,6 +568,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte A in `main`** con la #502 (`263e86db`, 2026-10-25, sul
   «finiscila» dell'utente), migrazione `0023_away_email.sql`; spenta finché
   il server non ha chiave, segreto e dominio. Resta la parte B, dopo #461.
+  **Parte B** (2026-10-25, branch `feat/TASK-284-b-app-privacy`): la
+  casella non spuntata all'iscrizione, «Email when I'm away» in
+  «Settings» e la **privacy unica** (email di ritorno, email delle
+  notifiche, segnalazioni, gioco, archivio dei percorsi, push Android,
+  Resend), approvata dall'utente («sì alla privacy, va bene così»).
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a

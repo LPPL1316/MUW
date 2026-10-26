@@ -5,6 +5,7 @@ import {
 } from "@shaperoute/shared-types";
 
 import { t } from "../i18n";
+import { appLanguage } from "../i18n/language";
 
 /**
  * What the forms check before asking the API (TASK-115): the same rules as
@@ -20,6 +21,9 @@ export type SignUpFields = {
   username: string;
   password: string;
   atLeast16: boolean;
+  /** The unticked box «Don't send me these emails» (TASK-284): ticked, no
+   * email when away. */
+  noAwayEmail: boolean;
 };
 
 export type SignInFields = { email: string; password: string };
@@ -42,6 +46,9 @@ export function checkSignUp(fields: SignUpFields): Checked<SignUpRequest> {
           password: fields.password,
           username,
           at_least_16: true,
+          away_email: !fields.noAwayEmail,
+          // For the language of the emails (TASK-284, TASK-262 B).
+          language: appLanguage(),
         },
       }
     : { ok: false, problem };

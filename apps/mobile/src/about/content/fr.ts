@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 octobre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "25 octobre 2026";
+const PRIVACY_UPDATED = "26 octobre 2026";
 
 const help: AboutDocument = {
   title: "Comment fonctionne MuW",
@@ -106,7 +106,7 @@ const help: AboutDocument = {
             "Langue : English, Deutsch, Italiano, Español ou Français. La voix la suit.",
             "Cartes hors ligne : le téléphone garde les cartes autour de toi et dessine les parcours tout seul ; «Supprimer» libère l'espace.",
             "Unités : celles de ton téléphone, kilomètres ou miles. Avec les miles, les distances, l'allure et la voix suivent : une annonce à chaque mile, les virages en pieds.",
-            "Notifications : deux interrupteurs, e-mail et push, éteints jusqu'à ce que tu les allumes. Avec le push allumé, et dès que ton téléphone l'autorise, MuW te prévient des demandes de suivi, des demandes acceptées, des réactions, des commentaires et des identifications ; en touchant une notification, tu ouvres la publication ou le profil. MuW n'envoie pas encore d'e-mails : ce choix est gardé avec ton compte pour le jour où il le fera.",
+            "Notifications : trois interrupteurs. «Notifications par e-mail» et «Notifications push» sont éteints jusqu'à ce que tu les allumes ; «E-mail en cas d'absence» est allumé jusqu'à ce que tu l'éteignes. Avec le push allumé, et dès que ton téléphone l'autorise, MuW te prévient tout de suite des demandes de suivi, des demandes acceptées, des réactions, des commentaires et des identifications ; en touchant une notification, tu ouvres la publication ou le profil. Avec l'e-mail allumé, les mêmes nouvelles arrivent dans un e-mail par jour au plus. «E-mail en cas d'absence» : si tu n'ouvres pas MuW pendant 2 semaines, un e-mail avec les nouveautés.",
           ],
         },
       ],
@@ -275,10 +275,24 @@ const privacy: AboutDocument = {
             "Ton mot de passe, gardé seulement sous forme de hash (Argon2id) : nous ne gardons ni ne voyons jamais le mot de passe lui-même.",
             "Le jour de ton inscription et le moment où tu as confirmé avoir au moins 16 ans.",
             "La session de chaque téléphone depuis lequel tu t'es connecté : le téléphone garde un jeton dans son stockage sécurisé, le serveur n'en garde qu'un hash. Une session prend fin 90 jours après sa dernière utilisation, ou quand tu te déconnectes.",
-            "Tes deux choix de notifications dans «Réglages», e-mail et push : les deux sont éteints jusqu'à ce que tu les allumes. Avec le push allumé, le jeton push de ton téléphone, s'il s'agit d'un iPhone ou d'un Android, et la langue de l'app, pour t'envoyer des notifications via le service push d'Expo, qui les transmet à Apple ou à Google. Une notification dit qui a fait quoi, avec le début d'un commentaire. Le jeton est supprimé quand tu éteins le push, te déconnectes ou supprimes ton compte. MuW n'envoie pas encore d'e-mails.",
+            "Tes trois choix de notifications dans «Réglages» : «Notifications par e-mail» et «Notifications push», éteints jusqu'à ce que tu les allumes, et «E-mail en cas d'absence», allumé jusqu'à ce que tu l'éteignes. Avec le push allumé, le jeton push de ton téléphone, s'il s'agit d'un iPhone ou d'un Android, et la langue de l'app, pour t'envoyer des notifications via le service push d'Expo, qui les transmet à Apple ou à Google. Une notification dit qui a fait quoi, avec le début d'un commentaire. Le jeton est supprimé quand tu éteins le push, te déconnectes ou supprimes ton compte.",
+            "La langue de l'app quand tu t'es inscrit, pour t'écrire nos e-mails dans cette langue.",
           ],
         },
         "Ton adresse e-mail n'est jamais montrée aux autres membres.",
+      ],
+    },
+    {
+      heading: "Les e-mails de MuW",
+      blocks: [
+        {
+          bullets: [
+            "Avec «Notifications par e-mail» allumé, un e-mail par jour au plus, seulement les jours où il y a du nouveau : les demandes de suivi, les demandes acceptées, les réactions, les commentaires et les identifications du jour, comme les disent les notifications push. Jusqu'à son envoi, notre serveur garde qui a fait quoi et sur quelle publication, 7 jours au plus ; ce qui n'est plus vrai au moment de l'écrire reste dehors.",
+            "«E-mail en cas d'absence» : si tu n'ouvres pas MuW pendant 2 semaines, un e-mail avec le nombre de nouveaux dessins des personnes que tu suis, avec jusqu'à trois de leurs noms d'utilisateur, ou sinon dans le Feed. Un par absence : le suivant seulement après ton retour puis une nouvelle absence. Il est allumé pour chaque membre, y compris ceux qui se sont inscrits avant ce texte ; tu peux dire non à l'inscription, dans «Réglages» ou avec le lien de l'e-mail.",
+            "Chaque e-mail a le lien «Ne plus m'envoyer ces e-mails», qui éteint cet e-mail. Nous les envoyons via Resend, depuis une adresse de getmuw.app.",
+            "Les e-mails dont ton compte a besoin, qu'aucun interrupteur n'éteint : un pour confirmer ton adresse quand tu t'inscris ou la changes, un avis à ton ancienne adresse quand tu la changes, et un lien pour un nouveau mot de passe quand tu le demandes.",
+          ],
+        },
       ],
     },
     {
@@ -325,9 +339,22 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Signalements",
+      blocks: [
+        "Quand tu signales un dessin, un commentaire ou un profil, nous gardons qui a signalé quoi, la raison et quand. La personne qui gère MuW le reçoit par e-mail et peut masquer ce qui a été signalé aux autres membres. Rien n'est supprimé, et son auteur le voit toujours. Ton signalement n'est jamais montré à l'auteur.",
+      ],
+    },
+    {
+      heading: "Le jeu des formes",
+      blocks: [
+        "Avec un compte, notre serveur calcule à partir de tes courses à pied enregistrées combien de kilomètres comptent pour le jeu, tes meilleurs temps sur 1, 5, 10 et 21,1 km, et les formes que tu as collectionnées. Toi seul vois ta collection et tes meilleurs temps. Si tu rejoins une équipe, ses membres voient ton nom d'utilisateur, ta photo, les pièces d'un défi que tu as prises et les kilomètres que tu as donnés à chacune, jamais tes tracés, les heures de tes courses ni où tu as couru. Une équipe ne se trouve qu'avec son code : elle n'est jamais dans une recherche. Supprimer une course retire ses kilomètres du compte, et les formes déjà collectionnées restent. Quand tu supprimes ton compte, tes données du jeu sont supprimées avec lui ; dans les défis d'une équipe, les pièces que tu as courues restent pour les autres, sans ton nom.",
+      ],
+    },
+    {
       heading: "Les parcours que tu demandes",
       blocks: [
         "Pour dessiner un parcours, l'app envoie à notre serveur le départ, la forme ou le mot et la distance. Quand le téléphone a la carte hors ligne de la zone, il dessine le parcours tout seul.",
+        "Les parcours que notre moteur dessine restent sur notre serveur sans qui les a demandés, pour répondre tout de suite à qui demande le même dessin à côté et pour les recommander ; nous comptons combien de courses et de favoris suivent chacun. Un parcours part de là où il a été demandé, souvent près de chez quelqu'un, mais ne dit jamais qui l'a demandé ou couru.",
         "Les cartes hors ligne viennent de notre serveur : celle autour de toi et, à l'avance, celles des villes proches. Pour plafonner ces téléchargements, le serveur les compte par jour, selon un numéro anonyme que l'app crée pour le téléphone ; ce compte n'est gardé qu'en mémoire.",
         "Les mots qui décrivent une forme sont lus sur notre serveur et ne sont envoyés à aucun service d'IA externe.",
         "Une photo que tu choisis pour un dessin va une fois vers notre serveur, pour en trouver le contour : le serveur ne la garde pas et ne l'inscrit pas dans ses journaux.",
@@ -366,6 +393,8 @@ const privacy: AboutDocument = {
             "Le service Overpass des données OpenStreetMap est interrogé par notre serveur pour la carte d'une zone qu'il n'a pas encore : il voit quelle zone, pas qui a demandé.",
             "unpkg fournit la bibliothèque de la carte au démarrage de l'app.",
             "Expo fournit les mises à jour de l'app.",
+            "Google Ireland Limited (Firebase Cloud Messaging), pour livrer les notifications push aux téléphones Android. Quand tu allumes le push, l'app demande à Firebase un jeton d'enregistrement pour ton téléphone ; le service push d'Expo transmet chaque notification (qui a fait quoi, et le début d'un commentaire) à Google, qui la livre à ton téléphone. Google voit le jeton et le contenu de chaque notification, pas ton compte ni ta position. Le jeton est retiré de notre serveur quand tu éteins le push, te déconnectes ou supprimes ton compte ; celui du téléphone disparaît quand tu désinstalles l'app.",
+            "Resend, aux États-Unis, envoie les e-mails de MuW : ton adresse e-mail avec l'e-mail lui-même. Pour un signalement, il apporte à la personne qui gère MuW ce qui a été signalé, son texte, la raison et les noms d'utilisateur de qui l'a signalé et de qui l'a écrit.",
             "Strava, comme dit plus haut.",
           ],
         },
@@ -378,7 +407,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Sur notre serveur en Allemagne, tant que tu as le compte.",
-            "Quand tu supprimes ton compte, tout ce qui est à toi est supprimé tout de suite : profil, photo, numéro de téléphone, courses, dessins, favoris, commentaires, réactions et abonnements.",
+            "Quand tu supprimes ton compte, tout ce qui est à toi est supprimé tout de suite : profil, photo, numéro de téléphone, courses, dessins, favoris, commentaires, réactions, abonnements, données du jeu et les nouvelles qui attendent ton e-mail. Les parcours que notre moteur a dessinés restent : ils ne disent rien de qui les a demandés.",
             "Une sauvegarde de la base de données est faite chaque nuit et gardée 13 jours : un compte supprimé sort de toutes les sauvegardes en 14 jours au plus.",
             "Sur ton téléphone : la session, tes choix (langue, sport, lacs ou mer), les cartes hors ligne, les courses qui attendent encore d'être envoyées et, avec un compte, la zone d'où partent d'habitude tes activités, pour te suggérer des lacs et la mer à proximité ; elle est effacée quand tu te déconnectes.",
           ],
@@ -391,8 +420,8 @@ const privacy: AboutDocument = {
       blocks: [
         {
           bullets: [
-            "Pour te fournir le service que tu demandes (contrat) : ton compte, ton profil, les parcours que tu demandes, et les courses, favoris, commentaires, réactions et abonnements que tu enregistres.",
-            "Notre intérêt légitime à faire fonctionner MuW, à la garder sûre et à l'améliorer : les courts journaux du serveur, les comptages qui limitent les téléchargements de cartes et les événements de recherche, qui ne disent rien de qui tu es ; la comparaison des numéros de tes contacts, dont aucun n'est gardé.",
+            "Pour te fournir le service que tu demandes (contrat) : ton compte, ton profil, les parcours que tu demandes, et les courses, favoris, commentaires, réactions et abonnements que tu enregistres, les e-mails des notifications que tu as allumées, et le jeu des formes.",
+            "Notre intérêt légitime à faire fonctionner MuW, à la garder sûre et à l'améliorer : les courts journaux du serveur, les comptages qui limitent les téléchargements de cartes et les événements de recherche, qui ne disent rien de qui tu es ; la comparaison des numéros de tes contacts, dont aucun n'est gardé ; l'e-mail en cas d'absence, que tu peux refuser à l'inscription, dans «Réglages» ou dans chaque e-mail ; les e-mails des signalements, pour garder MuW sûre ; l'archive des parcours dessinés, qui ne dit rien de qui tu es.",
             "Ton consentement : le numéro de téléphone que tu choisis d'ajouter et la connexion à Strava. Tu peux retirer un consentement à tout moment ; ce qui a été fait avant reste licite.",
             "Une obligation légale, quand une loi nous demande de conserver ou de remettre des données.",
           ],
@@ -409,6 +438,7 @@ const privacy: AboutDocument = {
             "supprimer une course de «Mes activités», un favori, un commentaire, ou le compte entier depuis «Réglages», «Supprimer le compte» ;",
             "nous demander une copie de tes données, ou d'arrêter ou de limiter une utilisation ;",
             "retirer un consentement que tu as donné ;",
+            "éteindre n'importe quel e-mail dans «Réglages» ou avec son lien ;",
             "porter plainte auprès de l'autorité de protection des données de ton pays (en Italie, le Garante per la protezione dei dati personali).",
           ],
         },

@@ -671,7 +671,11 @@ senza cambiare niente. È la stessa scelta della sezione «Sport» di
 **«Profile» senza account**: «Sign up» e «Log in», due pulsanti affiancati.
 «Sign up» chiede email, nome (da 3 a 20 fra lettere, cifre, `_` e `.`),
 password (almeno 8 caratteri) e la casella «I am at least 16» (ADR-0114);
-«Log in» email e password. I campi si controllano prima di partire, con le
+sotto, piccola e grigia, «If you don't open MuW for 2 weeks, we email you
+once with what's new.» e la casella **non spuntata** «Don't send me these
+emails» (TASK-284, ADR-0244): spuntata, la richiesta manda `away_email:
+false`; con o senza, manda la lingua dell'app per le email. «Log in»
+email e password. I campi si controllano prima di partire, con le
 regole dell'API, e l'errore si dice in parole sotto il pulsante (sotto,
 «Quando non va»). Si apre su «Sign up»; dopo «Log out» o una sessione
 finita, su «Log in».
@@ -857,16 +861,19 @@ notifiche (TASK-185).
 Usciti dall'account da «Settings», chi rientra trova
 «Profile».
 
-**«Notifications»** (TASK-185, ADR-0206): due righe in un riquadro, «Email
-notifications» (📧) e «Push notifications» (🔔), ognuna con il suo
-interruttore in fondo, disegnato come quelli della corsa (una pista con il
-pomello a destra e bianca quando è acceso; mai gialla). **Tutti e due
-spenti** finché non si accendono (scelta dell'utente). Sotto il riquadro,
-piccolo e grigio come la nota di «Offline maps», sempre: «Push
-notifications tell you about follow requests, reactions, comments and
-tags. MuW does not send emails yet: your choice is kept for when it
-does.» (TASK-262). **Le push partono, l'email no** (fino alla parte B di
-TASK-262).
+**«Notifications»** (TASK-185, ADR-0206): tre righe in un riquadro, «Email
+notifications» (📧), «Push notifications» (🔔) ed «Email when I'm away»
+(👋, TASK-284), ognuna con il suo interruttore in fondo, disegnato come
+quelli della corsa (una pista con il pomello a destra e bianca quando è
+acceso; mai gialla). **Le prime due spente** finché non si accendono
+(scelta dell'utente); **«Email when I'm away» accesa** finché non si spegne
+(scelta dell'utente del 2026-10-11), anche con un'API che non ne dice
+niente. Sotto il riquadro, piccolo e grigio come la nota di «Offline
+maps», sempre: «Push notifications tell you at once about follow requests,
+reactions, comments and tags. Email notifications sends the same news in
+one email a day at most. Email when I'm away: one email if you don't open
+MuW for 2 weeks.» (TASK-262 B, TASK-284 B). Le email le manda l'API
+quando il server ha Resend.
 
 - **Accendere «Push notifications» chiede il permesso al telefono**, qui
   e in nessun altro posto, mai all'avvio (TASK-262, ADR-0226). Mentre il
@@ -876,7 +883,8 @@ TASK-262).
   dell'app). Negato, o negato prima: l'interruttore torna spento e sotto
   la nota, in rosso, «Notifications are off for MuW on this phone. Allow
   them in Settings to turn this on.», con «Open Settings» (TASK-259).
-  Spegnere, ed «Email notifications», non chiedono niente al telefono.
+  Spegnere, «Email notifications» ed «Email when I'm away» non chiedono
+  niente al telefono.
 - Spento l'interruttore, o usciti dall'account, il telefono riprende il
   suo token dall'API e non riceve più.
 - **Toccare una notifica** apre il disegno (una reazione, un commento, un
@@ -895,7 +903,7 @@ TASK-262).
   solo quello; se l'API rifiuta torna com'era, e sotto la nota, in rosso,
   c'è il motivo. Il tocco dopo toglie il motivo.
 - Mentre una risposta è in viaggio un secondo tocco, su una qualunque
-  delle due righe, non manda niente.
+  delle tre righe, non manda niente.
 - Per VoiceOver ogni riga è un interruttore con il suo nome («Email
   notifications», acceso o spento); l'emoji non si legge.
 

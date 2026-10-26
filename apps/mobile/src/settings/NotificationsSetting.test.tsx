@@ -13,7 +13,7 @@ const phone = jest.requireMock<Phone>("expo-notifications");
 
 const off = session.user as User;
 const NOTE =
-  "Push notifications tell you about follow requests, reactions, comments and tags. MuW does not send emails yet: your choice is kept for when it does.";
+  "Push notifications tell you at once about follow requests, reactions, comments and tags. Email notifications sends the same news in one email a day at most. Email when I'm away: one email if you don't open MuW for 2 weeks.";
 const REFUSED =
   "Notifications are off for MuW on this phone. Allow them in Settings to turn this on.";
 const NO_ENDPOINT = "Notifications are not available on this API yet.";
@@ -29,7 +29,7 @@ function AsInTheApp({ user, change }: { user: User; change: jest.Mock }) {
   const changeNotifications: Change = async (request) => {
     const failed: string | null = await change(request);
     if (failed === null) {
-      const before = now.notifications ?? { email: false, push: false };
+      const before = now.notifications ?? { email: false, push: false, away: true };
       setNow({ ...now, notifications: { ...before, ...request } });
     }
     return failed;
@@ -50,34 +50,42 @@ function push() {
   return screen.getByRole("switch", { name: "Push notifications" });
 }
 
+function away() {
+  return screen.getByRole("switch", { name: "Email when I'm away" });
+}
+
 beforeEach(() => phone.resetPhone());
 
 afterEach(async () => {
   await act(async () => saveLanguageChoice("phone"));
 });
 
-test("two switches, both off, and the note of what push tells", async () => {
+test("three switches: email and push off, away on, and the note of what each sends", async () => {
   await show();
-  expect(screen.getAllByRole("switch")).toHaveLength(2);
+  expect(screen.getAllByRole("switch")).toHaveLength(3);
   expect(email()).not.toBeChecked();
   expect(push()).not.toBeChecked();
+  expect(away()).toBeChecked();
   expect(screen.getByText(NOTE)).toBeOnTheScreen();
   // Nothing says «Soon» any more, and nothing went wrong.
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByText(NO_ENDPOINT)).toBeNull();
 });
 
-test("an account from an API without switches shows both off", async () => {
+test("an account from an API without switches shows both off, and away on", async () => {
   const { notifications: _notifications, ...before } = off;
   await show(before);
   expect(email()).not.toBeChecked();
   expect(push()).not.toBeChecked();
+  expect(away()).toBeChecked();
 });
 
 test("the switches show what the account keeps", async () => {
+  // An API older than TASK-284 says nothing of away: on.
   await show({ ...off, notifications: { email: true, push: false } });
   expect(email()).toBeChecked();
   expect(push()).not.toBeChecked();
+  expect(away()).toBeChecked();
 });
 
 test("a tap sends only that switch, and it stays where it was put", async () => {
@@ -96,6 +104,18 @@ test("a tap sends only that switch, and it stays where it was put", async () => 
   expect(push()).not.toBeChecked();
   expect(email()).toBeChecked();
   expect(change).toHaveBeenCalledTimes(3);
+});
+
+test("«Email when I'm away» goes off and on alone, asking the phone nothing (TASK-284)", async () => {
+  const change = await show();
+  await fireEvent.press(away());
+  expect(change).toHaveBeenLastCalledWith({ away: false });
+  expect(away()).not.toBeChecked();
+  await fireEvent.press(away());
+  expect(change).toHaveBeenLastCalledWith({ away: true });
+  expect(away()).toBeChecked();
+  expect(phone.requestPermissionsAsync).not.toHaveBeenCalled();
+  expect(email()).not.toBeChecked();
 });
 
 test("the switch turns at once, before the API answers", async () => {
@@ -164,6 +184,9 @@ test("the rows and the note follow the app's language", async () => {
   await show();
   expect(screen.getByRole("switch", { name: "Notifiche email" })).toBeOnTheScreen();
   expect(screen.getByRole("switch", { name: "Notifiche push" })).toBeOnTheScreen();
+  expect(
+    screen.getByRole("switch", { name: "Email quando sono via" }),
+  ).toBeOnTheScreen();
   expect(screen.queryByText(NOTE)).toBeNull();
 });
 

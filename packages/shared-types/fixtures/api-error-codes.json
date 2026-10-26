@@ -15,5 +15,6 @@
   "not_signed_in",
   "session_expired",
   "accounts_unavailable",
-  "comment_rejected"
+  "comment_rejected",
+  "no_contest"
 ]
