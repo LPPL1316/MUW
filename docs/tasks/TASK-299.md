@@ -1,6 +1,6 @@
 # TASK-299 — Il primo concorso: il post con più reazioni vince
 
-**Stato**: In lavorazione · documenti in `main` (#549) · A (API) in PR · poi B (app)
+**Stato**: In lavorazione · documenti in `main` (#549) · A (API) in PR #562 · poi B (app)
 **Fase**: 4 · **Branch**: `docs/TASK-299-proposal` (documenti),
 `feat/TASK-299-a-contest-api` (A), `feat/TASK-299-b-contest-app` (B)
 **Dipende da**: TASK-117 (i disegni pubblicati), TASK-119 (le reazioni),
