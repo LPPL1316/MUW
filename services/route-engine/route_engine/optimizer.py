@@ -121,6 +121,15 @@ MAX_RESCALES = 4
 REFINE_SPAN_DEG = 15.0
 REFINE_STEP_DEG = 5.0
 MAX_TRACES = 20
+# Stopping sooner where the shape does not fit was measured trace by trace
+# on 252 requests in seven cities (TASK-298, ADR-0259): a good route can
+# come from any placement, the sixth tilted one too, and as late as the
+# 30th trace, so no placement is skipped and no cap is lower; the road
+# count is 1.0 at the top almost everywhere and tells nothing; skipping the
+# tilted stage after a poor upright one, or the rotation refinement of a
+# poor stage, keeps the good routes but makes poor results worse. What
+# stays: a scale already traced for a placement, which the secant asks for
+# again at a bound of SCALE_RANGE, is not traced twice (rescale).
 # Stop when both hold (ROUTE_ENGINE.md §5). Metric and threshold come from
 # the eye judgement of the first results (TASK-015, docs/MAPS.md): the
 # routes judged good covered 90% of the outline or more, the others less.
@@ -768,12 +777,18 @@ def search(
     def rescale(
         p: Placement, scale: float, budget: int
     ) -> tuple[Attempt | None, float]:
-        """Trace, rescale towards the target, repeat; returns the next scale."""
+        """Trace, rescale towards the target, repeat; returns the next scale.
+
+        A scale already traced for this placement is not traced again: the
+        secant asks for it when it points beyond a bound of SCALE_RANGE
+        twice. The trace it gave stands in, and the budget is not spent.
+        """
         history: list[Attempt] = []
         for _ in range(MAX_RESCALES):
             if len(attempts) >= budget:
                 break
-            traced = attempt(p, scale)
+            known = next((a for a in history if math.isclose(a.scale_m, scale)), None)
+            traced = known or attempt(p, scale)
             if traced is None:
                 break  # on a single road node: no distance to aim from
             history.append(traced)

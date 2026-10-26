@@ -1,4 +1,4 @@
-import type { Person } from "@shaperoute/shared-types";
+import type { ChallengePushKind, Person } from "@shaperoute/shared-types";
 
 /**
  * What a touched notification opens (TASK-262): the `data` the API put in
@@ -6,14 +6,24 @@ import type { Person } from "@shaperoute/shared-types";
  * it. A drawing for a reaction, a comment or a tag; the profile of who
  * acted for a follow request or a request accepted. «Play» for a shape of
  * the game unlocked (TASK-296): its data names the runner, but the shape is
- * in the collection. Anything else: nothing.
+ * in the collection. The challenge for a piece done, a shape completed or
+ * a day left (TASK-296 part C): its data names the challenge; without a
+ * good id, «Play» on its «Challenges» tab. Anything else: nothing.
  */
 export type TapTarget =
   | { kind: "drawing"; id: string }
   | { kind: "profile"; person: Person }
-  | { kind: "play" };
+  | { kind: "play" }
+  | { kind: "challenge"; id: string };
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The kinds of a challenge's notifications (TASK-296 part C). */
+const CHALLENGE_KINDS: readonly ChallengePushKind[] = [
+  "piece_done",
+  "challenge_done",
+  "challenge_ending",
+];
 
 function field(data: object, name: string): string | null {
   const value: unknown = (data as Record<string, unknown>)[name];
@@ -24,8 +34,15 @@ export function tapTarget(data: unknown): TapTarget | null {
   if (typeof data !== "object" || data === null) {
     return null;
   }
-  if (field(data, "kind") === "shape_unlocked") {
+  const kind = field(data, "kind");
+  if (kind === "shape_unlocked") {
     return { kind: "play" };
+  }
+  if (kind !== null && (CHALLENGE_KINDS as readonly string[]).includes(kind)) {
+    const challenge = field(data, "challenge_id");
+    return challenge !== null && ID.test(challenge)
+      ? { kind: "challenge", id: challenge }
+      : { kind: "play" };
   }
   const drawing = field(data, "drawing_id");
   if (drawing !== null && ID.test(drawing)) {

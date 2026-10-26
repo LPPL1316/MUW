@@ -766,6 +766,31 @@ o inclinato, entro
 migliore è sotto **0,60**, o nessun tentativo sta entro ±2 km, nessun
 percorso: la forma lì non è disponibile (ADR-0025).
 
+### Fermarsi prima (TASK-298)
+
+Dove la forma non entra nelle strade la ricerca spende tutto il budget per
+un disegno mediocre: a Trento 19 richieste su 36 (ADR-0257). Misurata
+tracciamento per tracciamento su 252 richieste in sette città (ADR-0259),
+la ricerca **non si lascia accorciare senza perdere percorsi buoni**: il
+primo percorso buono compare a qualunque tracciamento, anche al 30º di 30 e
+dal sesto piazzamento inclinato; «N piazzamenti senza miglioramento» perde
+da 10 a 38 buoni su 129; la somiglianza del primo tracciamento di un
+piazzamento non predice nulla (sale anche da 0,42 a 0,91 cambiando scala);
+il conteggio delle strade è 1,00 in testa quasi ovunque. Saltare la fase
+inclinata dopo una fase dritta andata male, o la rifinitura della rotazione
+di una fase andata male, tiene i buoni ma peggiora i risultati mediocri
+(uno su 123 scende sotto 0,60, da percorso mediocre a «nessun percorso»)
+e non abbrevia: il budget liberato lo spende la fase dopo. Tutte e due
+misurate e scartate.
+
+Quello che resta: **nessun tracciamento ripetuto**. Quando la secante della
+scala rimanda a una scala già tracciata per lo stesso piazzamento (succede
+al bordo dell'intervallo 0,4–1,1), il tracciato noto vale per quel passo e
+il budget compra un altro tracciamento: era l'1,3 % dei tracciamenti. La
+ricerca fa gli stessi tentativi di oggi più qualcuno in coda alla fase: dove
+converge è identica, dove non converge non peggiora. Lo script che rifà le
+misure è `tests/measure_stop_earlier.py`.
+
 ### Forme inclinate (TASK-232)
 
 L'app gira la mappa di quanto è girata la forma (`RouteResult.rotation_deg`,
