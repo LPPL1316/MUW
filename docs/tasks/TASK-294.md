@@ -144,7 +144,8 @@ sul modello di `make_support.mjs`), le pagine generate in
 pagina nomina l'app e lo sviluppatore, dà i passi nell'app («Profile» ›
 «Settings» › «Delete account», con i nomi dei bottoni di ogni lingua), la
 via senza app (email a muw2610@gmail.com dall'indirizzo dell'account,
-**entro 30 giorni**: una promessa nuova, da confermare dall'utente), cosa
+**entro 30 giorni**: promessa nuova, **confermata dall'utente** il
+2026-10-26 insieme ai testi della pagina), cosa
 si cancella, i 13/14 giorni delle copie, cosa resta e come cancellare solo
 una parte: tutto dalla privacy. `docs/DEPLOY.md` F.14: la riga del
 `git archive` copia anche `site/account-deletion` (la #502 e la #525 sono
