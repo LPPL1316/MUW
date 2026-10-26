@@ -187,7 +187,8 @@ che li usa (A la push, B il resto) e vanno approvati con lei.
 
 Tedesco, spagnolo e francese della push, proposti dalla parte A il
 2026-10-26 (in `push.py`), **approvati dall'utente lo stesso giorno**
-(«Sì, così»):
+(«Sì, così» alla domanda della parte A; «Sì, vanno bene» alla sessione
+del concorso):
 
 | Lingua | Testo |
 |---|---|
