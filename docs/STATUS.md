@@ -160,6 +160,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
+  dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
+  Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
+  (documenti), poi A (API), B (app, dopo TASK-299 B) e C (commenti). Un
+  iscritto crea da un percorso pronto una corsa di gruppo: il ritrovo è la
+  partenza, giorno e ora da 30 minuti a 60 giorni, «Where exactly»,
+  descrizione, Everyone o Followers; la fila «Group runs» in cima al Feed
+  sotto la scheda del concorso, solo con qualcosa da mostrare; «I'm going»;
+  un promemoria un'ora prima, le push di cambio e di annullamento; filtro
+  dei testi, segnalazioni e blocchi come i post; avviso di sicurezza e
+  riga della privacy. Selettore di data in JavaScript: impronta iOS
+  invariata. Nessuna notifica all'organizzatore quando qualcuno si
+  aggiunge: lo vede nella pagina. È la scelta dell'utente dopo la
+  correzione della proposta, la cui «lista Notifiche» non esiste. Regole
+  in `EVENTI.md`, file `tasks/TASK-309.md`.
 - **TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore»
   preparato all'apertura** (ADR-0266; richiesta dell'utente del
   2026-10-26, «Sì, va bene così: procedi con TASK-306» lo stesso giorno;
@@ -215,6 +230,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «mergia si» dell'utente; migrazione `0030_contests.sql`. La parte B
   (app) parte da qui, in una sessione sua. Sul server dopo Apple, con
   l'ok dell'utente: migrazione, deploy, `open`.
+  **Parte B** (app, branch `feat/TASK-299-b-contest-app`, PR #575): la
+  cartella `src/contest/`; la scheda sotto la lente di «Feed» solo con un
+  concorso (chiesto quando «Feed» si apre e a ogni pull, tenuto in
+  `contest.json`, cancellato da un 404): i giorni che restano, i primi tre
+  che aprono il post, «Your best post» o «Publish a run to take part.»,
+  «How it works» con il regolamento ufficiale; per 7 giorni dopo la
+  chiusura il post vincitore; il badge «Winner» nei profili
+  (`contest_wins`) e la fascia sul disegno vincitore. Testi nelle cinque
+  lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
+  (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
+  nascosta finché il server non ha la parte A.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e

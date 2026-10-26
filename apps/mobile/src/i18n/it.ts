@@ -1407,6 +1407,34 @@ export const IT: Table = {
   Retro: "Retrò",
   Fiesta: "Festa",
   "Tap a track to hear it.": "Tocca un brano per sentirlo.",
+  // src/contest/ (TASK-299 B: the contest card, its rules, the Winner badge)
+  "MuW contest": "Concorso MuW",
+  "The post with the most reactions wins.": "Vince il post con più reazioni.",
+  "{count} day left": "Manca {count} giorno",
+  "{count} days left": "Mancano {count} giorni",
+  "Ends today": "Finisce oggi",
+  "Ended · the winner is coming": "Finito · il vincitore sta arrivando",
+  "Publish a run to take part.": "Pubblica una corsa per partecipare.",
+  "Your best post: #{rank}, {count} reaction":
+    "Il tuo miglior post: n. {rank}, {count} reazione",
+  "Your best post: #{rank}, {count} reactions":
+    "Il tuo miglior post: n. {rank}, {count} reazioni",
+  "How it works": "Come funziona",
+  "Official rules": "Regolamento",
+  "Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.":
+    "Organizzato da MuW (Luca Pallaoro). Dal {start} al {end}.",
+  "Anyone with a MuW account can take part, for free, by publishing a run for everyone in the app during the contest.":
+    "Partecipa gratis chi ha un account MuW, pubblicando una corsa per tutti nell'app durante il concorso.",
+  "At the end, the post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "Alla fine vince il post con più reazioni degli altri iscritti. Conta una reazione per iscritto; la propria no. A pari merito vince il post con più cuori MuW, poi quello pubblicato prima.",
+  "The prize has no money value: the winner gets the Winner badge on their profile and their post shown at the top of the Feed for a week.":
+    "Il premio non ha valore in denaro: chi vince ha il badge Vincitore sul profilo e il suo post in cima al Feed per una settimana.",
+  "MuW may leave out a post that breaks the community rules.":
+    "MuW può escludere un post che viola le regole della community.",
+  "Apple and Google are not sponsors of this contest and are not involved in it in any way.":
+    "Apple e Google non sponsorizzano questo concorso e non vi sono coinvolte in alcun modo.",
+  Winner: "Vincitore",
+  "{name} won the MuW contest": "{name} ha vinto il concorso MuW",
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "VICINO A TE",
   "SHAPES TO TRY": "FORME DA PROVARE",
