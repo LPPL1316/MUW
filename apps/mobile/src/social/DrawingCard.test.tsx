@@ -1,15 +1,19 @@
 import comments from "@shaperoute/shared-types/fixtures/comments.json";
+import closed from "@shaperoute/shared-types/fixtures/contest-closed.json";
+import open from "@shaperoute/shared-types/fixtures/contest.json";
 import drawing from "@shaperoute/shared-types/fixtures/drawing.json";
 import result from "@shaperoute/shared-types/fixtures/reaction-result.json";
 import reactions from "@shaperoute/shared-types/fixtures/reactions.json";
 import type {
   CommentsPage,
+  Contest,
   DrawingDetail,
   ReactionResult,
   ReactionsSummary,
 } from "@shaperoute/shared-types";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 
+import { forgetContest, setContest } from "../contest/contestKept";
 import { CommentsContext, type CommentsDoor } from "./commentsDoor";
 import { DrawingCard } from "./DrawingCard";
 import { drawingDoubleTapped } from "./DrawingReactions";
@@ -22,6 +26,10 @@ jest.mock(
 
 const DRAWING = drawing as DrawingDetail;
 const PAGE = comments as CommentsPage;
+
+afterEach(() => {
+  forgetContest();
+});
 
 test("a super like goes with a comment: the comments count it at once", async () => {
   const pages = [PAGE, { ...PAGE, total: PAGE.total + 1 }];
@@ -71,4 +79,26 @@ test("a super like goes with a comment: the comments count it at once", async ()
     await screen.findByRole("button", { name: `${PAGE.total + 1} comments` }),
   ).toBeTruthy();
   expect(commentsDoor.pageOf).toHaveBeenCalledTimes(2);
+});
+
+test("the drawing that won the contest kept on the phone has the «Winner» band", async () => {
+  const winner = closed as Contest;
+  expect(winner.winner?.drawing?.id).toBe(DRAWING.id);
+  await act(async () => setContest({ account: null, contest: winner }));
+  await render(<DrawingCard drawing={DRAWING} onBack={jest.fn()} />);
+  expect(screen.getByTestId("winner-band")).toHaveTextContent("🏆Winner");
+
+  // Another drawing has none.
+  await render(
+    <DrawingCard drawing={{ ...DRAWING, id: "another" }} onBack={jest.fn()} />,
+  );
+  expect(screen.queryByTestId("winner-band")).toBeNull();
+});
+
+test("while the contest runs, or without one, no drawing has the band", async () => {
+  await act(async () => setContest({ account: null, contest: open as Contest }));
+  await render(<DrawingCard drawing={DRAWING} onBack={jest.fn()} />);
+  expect(screen.queryByTestId("winner-band")).toBeNull();
+  await act(async () => forgetContest());
+  expect(screen.queryByTestId("winner-band")).toBeNull();
 });
