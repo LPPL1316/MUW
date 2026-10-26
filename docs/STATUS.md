@@ -347,6 +347,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (2026-10-24). Server dopo Apple, con l'ok dell'utente.
   **Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
   Coordinatore su richiesta dell'utente a CI verde. Restano D ed E.
+  **Parte D** (branch `feat/TASK-296-d-challenges-app`, PR #561, 2026-10-26):
+  «Play» ha due schede, «Collection» e «Challenges»; la seconda ha le
+  squadre («Create» con il nome, «Join» con il codice, la squadra con il
+  codice, «Share code» con una frase nel foglio di condivisione, gli
+  iscritti, «Remove» per chi l'ha creata, «Leave team») e la sfida (la
+  forma a pezzi colorati per persona per quanto è corsa, chi ha dato
+  quanto, i pezzi con «Take this piece» e «Leave», quanto manca e il conto
+  alla rovescia, completa e scaduta, «New challenge»); la sfida si rilegge
+  ogni 15 s e al ritorno in primo piano; le tre push della C aprono la
+  sfida. Il contorno dei pezzi del telefono è uguale a quello dell'API
+  (test di parità con i suoi numeri). Su un server senza la C la scheda
+  dice che le squadre non ci sono ancora, senza errore. Solo app, nessuna
+  dipendenza nuova; i testi nelle cinque lingue aspettano il sì
+  dell'utente (task file, «Testi da approvare»). Resta la E.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
