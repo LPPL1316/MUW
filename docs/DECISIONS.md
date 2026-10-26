@@ -16593,9 +16593,9 @@ mancante).
 (TASK-305, `out/TASK-305/studio.md` del Mac). Scelta dell'utente dello
 stesso giorno: «è una bella idea», MuW dà la traccia e fa caricare il
 volo, **non fa da navigatore**; il 2026-10-27 l'utente ha scelto la riga
-«Paragliding» 🪂 in Settings subito, con «Soon», e il nome (Parapendio,
-Gleitschirmfliegen, Parapente); l'avviso e le tre condizioni del punto 7
-sono ancora aperti
+«Paragliding» 🪂 in Settings subito, con «Soon», il nome (Parapendio,
+Gleitschirmfliegen, Parapente) e l'avviso di sicurezza com'era proposto;
+le tre condizioni del punto 7 sono ancora aperte
 
 **Contesto**: l'utente vuole lo sport «Parapendio»: lo si sceglie, l'app si
 adatta al volo, e il pilota disegna la forma nel cielo con la sua traccia.
@@ -16648,7 +16648,7 @@ bene lo studio dice «non conviene».
    libero», «nessun NOTAM», «condizioni sicure», «ce la fai»; niente
    linguaggio didattico (le scuole sono dell'AeCI). L'avviso prima di
    pianificare e la riga fissa sul risultato con la data dei dati sono
-   testi da far approvare all'utente.
+   approvati dall'utente (2026-10-27); il testo è in `tasks/TASK-305.md`.
 6. **Le fonti** (licenze lette nello studio): decolli da OSM (ODbL),
    terreno Copernicus GLO-30/90, vento DWD ICON-D2 o ECMWF (CC BY 4.0),
    centri abitati OSM. **Gli spazi aerei sono il nodo**: openAIP è CC

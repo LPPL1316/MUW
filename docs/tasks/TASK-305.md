@@ -51,6 +51,31 @@ traiettorie è un costo a parte; se non si può fare bene, lo studio dice
 - **Il nome**: «Paragliding» 🪂 nell'interfaccia; **Parapendio** in
   italiano, **Gleitschirmfliegen** in tedesco, **Parapente** in francese e
   in spagnolo.
+- **L'avviso di sicurezza**, approvato com'era proposto: compare la prima
+  volta, prima di pianificare un volo su quel telefono (come la canoa):
+
+  > **Before you fly**
+  > - MuW is not a flight instrument. The shape is a plan made on the
+  >   ground, in still air, with a glide ratio of 8 and 300 m over the
+  >   terrain. The sky on the day is yours to judge.
+  > - Check the wind, the airspace, the NOTAMs and the site rules yourself.
+  >   MuW's data has a date; the sky does not.
+  > - Fly it only if you hold a valid licence and insurance, in VMC,
+  >   outside controlled and forbidden airspace, away from towns and
+  >   crowds.
+  > - Load the shape into your flight instrument. MuW does not guide you in
+  >   the air.
+  >
+  > «I understand» · «Not now»
+
+  E su ogni risultato, sempre visibile, con la data dei dati degli spazi
+  aerei:
+
+  > Still air, glide 8, 300 m over the ground. Check the wind, the airspace
+  > and the NOTAMs yourself.
+
+  Le traduzioni nelle altre lingue si fanno con la parte D1 e si fanno
+  approvare all'utente.
 
 ## Il punto, in breve
 
@@ -265,8 +290,10 @@ lo chiede i file con un `Record<Sport, …>` (da elencare nella PR).
    lista dai `GET /air/sites`), non dalla posizione; la distanza sparisce
    e al suo posto c'è la riserva («safer / bigger»); forme del catalogo e
    lettere sole.
-3. L'avviso di sicurezza la prima volta (`src/air/safetyNotice.ts`, come
-   `src/paddle/safetyNotice.ts`; testo: scelta dell'utente).
+3. L'avviso di sicurezza la prima volta, prima di pianificare
+   (`src/air/safetyNotice.ts`, come `src/paddle/safetyNotice.ts`), e la riga
+   fissa su ogni risultato: i testi inglesi approvati il 2026-10-27
+   («Scelte dell'utente»); le traduzioni da far approvare.
 
 File: `apps/mobile/src/settings/sport.ts`, `apps/mobile/src/air/*.tsx`,
 `apps/mobile/src/air/safetyNotice.ts`, i file delle lingue in
@@ -323,9 +350,8 @@ Fuori per scelta dell'utente (2026-10-26): MuW non fa da navigatore.
       strumenti e i formati (`research_*.md`).
 - [x] La pagina a griglia `out/TASK-305/paragliding-samples-grid.html`.
 - [x] ADR-0265 in stato «proposto»; righe in `STATUS.md`.
-- [ ] Le scelte di prodotto dell'utente: decise la prima versione
-      (2026-10-26), la visibilità e il nome (2026-10-27); resta l'avviso
-      (sotto).
+- [x] Le scelte di prodotto dell'utente: la prima versione (2026-10-26),
+      la visibilità, il nome e l'avviso (2026-10-27).
 
 ## File toccati (questa PR)
 
@@ -360,7 +386,9 @@ Una alla volta, ognuna con la proposta pronta (`studio.md`, in fondo):
    «Soon» (parte D0).
 2. ~~Prima versione~~ — **decisa** (2026-10-26): solo la traccia e il
    caricamento del volo, nessun navigatore.
-3. Il testo dell'avviso di sicurezza (proposta nello studio).
+3. ~~L'avviso di sicurezza~~ — **approvato** (2026-10-27) com'era
+   proposto, la prima volta prima di pianificare, più la riga fissa su ogni
+   risultato.
 4. ~~Il nome~~ — **deciso** (2026-10-27): «Paragliding» 🪂; Parapendio,
    Gleitschirmfliegen, Parapente.
 
@@ -370,6 +398,7 @@ Proposto il 2026-10-26: lo studio dice che si può fare come pianificatore
 (forme di 2–3 km dai decolli con molto dislivello, 1 km dagli altri) e che
 il nodo sono i dati degli spazi aerei, non il motore. L'utente ha scelto
 la traccia più il caricamento del volo, senza navigatore (2026-10-26), e la
-riga in Settings con «Soon» da subito e il nome «Paragliding» (2026-10-27,
-parte D0). Restano l'avviso di sicurezza e le tre condizioni del verdetto
-prima della parte A1.
+riga in Settings con «Soon» da subito, il nome «Paragliding» e l'avviso di
+sicurezza (2026-10-27; la riga è la parte D0). Restano le tre condizioni
+del verdetto prima della parte A1 e, prima della build 1.0.1, la scelta se
+tenere «Soon» nelle build per lo store.

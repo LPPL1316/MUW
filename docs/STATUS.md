@@ -1394,7 +1394,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-27 l'utente ha scelto la riga in Settings **subito, con «Soon»**:
   è la parte D0 (solo app, `sport.ts` e le lingue), che non aspetta le
   condizioni; il nome è «Paragliding» 🪂 (Parapendio, Gleitschirmfliegen,
-  Parapente). **Aspetta**: l'avviso di sicurezza, le tre condizioni prima
+  Parapente), l'avviso di sicurezza è approvato com'era proposto. Le
+  scelte di prodotto sono tutte prese. **Aspetta**: le tre condizioni prima
   della parte A1 e, prima della build 1.0.1, la scelta se tenere la riga
   «Soon» nelle build per lo store (Apple, regola 2.1). File:
   `tasks/TASK-305.md`.
