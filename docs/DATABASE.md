@@ -578,7 +578,7 @@ provvisorio, il numero si controlla al merge con il Coordinatore):
 - `users.notices_emailed_at` (`timestamptz`, facoltativa): l'ultima email
   delle notizie; un'altra solo in un altro giorno (UTC).
 
-Migrazione `0029_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
+Migrazione `0030_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
 §9; il numero è il primo libero in `main` al merge):
 
 - `contests`: una riga per concorso. `id` (uuid casuale), `starts_at` ed

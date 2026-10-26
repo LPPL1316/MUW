@@ -177,7 +177,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente. File: `tasks/TASK-299.md`.
   **Documenti** in `main` con la #549 (`612bf143`, 2026-10-25).
   **Parte A** (branch `feat/TASK-299-a-contest-api`, PR #562, migrazione
-  `0029_contests.sql`, numero al merge: anche la #559 vuole la 0029): la
+  `0030_contests.sql`, rinumerata dopo la #559, numero al merge): la
   tabella `contests` con un
   solo concorso aperto; `contests.py` con la query unica della
   classifica (partecipa, conta, pari merito), `GET /contests/current`
