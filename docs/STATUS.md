@@ -327,7 +327,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (2026-10-24). Server dopo Apple, con l'ok dell'utente.
   **Parte C** in `main` con la #540 (`88b63b6e`, 2026-10-25), mergiata dal
   Coordinatore su richiesta dell'utente a CI verde. Restano D ed E.
-  **Parte D** (branch `feat/TASK-296-d-challenges-app`, PR #560, 2026-10-26):
+  **Parte D** (branch `feat/TASK-296-d-challenges-app`, PR #561, 2026-10-26):
   «Play» ha due schede, «Collection» e «Challenges»; la seconda ha le
   squadre («Create» con il nome, «Join» con il codice, la squadra con il
   codice, «Share code» con una frase nel foglio di condivisione, gli

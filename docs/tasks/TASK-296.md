@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in lavorazione (`feat/TASK-296-d-challenges-app`, #560, testi da approvare) · prossima: E
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in lavorazione (`feat/TASK-296-d-challenges-app`, #561, testi da approvare) · prossima: E
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -373,7 +373,7 @@ quando parte.
 
 **Testi dell'app della parte D** (inglese / italiano; tedesco, spagnolo e
 francese in fondo alle tabelle `i18n`), **da approvare dall'utente prima
-del merge della #560**. «Shape», «Distance», «Pace», «Shorter», «Longer»,
+del merge della #561**. «Shape», «Distance», «Pace», «Shorter», «Longer»,
 «Cancel», «Remove», «Back», «Done» e «Try again» c'erano già.
 
 | Dove | Inglese | Italiano |
@@ -675,7 +675,7 @@ Sul server dopo Apple e con l'ok dell'utente (migrazione 0027 e deploy:
 il timer «1 day left» parte con l'API, niente da lanciare a mano). La CI
 non ha PostgreSQL: i test del database valgono in locale.
 
-**Parte D**: PR #560 aperta il 2026-10-26 dal branch
+**Parte D**: PR #561 aperta il 2026-10-26 dal branch
 `feat/TASK-296-d-challenges-app` (worktree `.claude/worktrees/TASK-296-d`):
 la scheda «Challenges» con squadre e sfide, le push che aprono la sfida,
 il taglio dei pezzi uguale all'API. Solo app, nessuna dipendenza nuova,
