@@ -77,6 +77,7 @@ export function ProfileHome({
           bio={bioOf(user)}
           photo={photo.uri}
           detail={user.email}
+          winner={(user.contest_wins ?? 0) > 0}
           photoButton={{
             open: photoOpen,
             busy: photo.busy !== null,

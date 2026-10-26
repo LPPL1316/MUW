@@ -1420,6 +1420,35 @@ export const ES: Table = {
   Fiesta: "Fiesta",
   "Tap a track to hear it.": "Toca una pista para escucharla.",
 
+  // src/contest/ (TASK-299 B: the contest card, its rules, the Winner badge)
+  "MuW contest": "Concurso MuW",
+  "The post with the most reactions wins.": "Gana la publicación con más reacciones.",
+  "{count} day left": "Queda {count} día",
+  "{count} days left": "Quedan {count} días",
+  "Ends today": "Termina hoy",
+  "Ended · the winner is coming": "Terminado · el ganador, muy pronto",
+  "Publish a run to take part.": "Publica una carrera para participar.",
+  "Your best post: #{rank}, {count} reaction":
+    "Tu mejor publicación: n.º {rank}, {count} reacción",
+  "Your best post: #{rank}, {count} reactions":
+    "Tu mejor publicación: n.º {rank}, {count} reacciones",
+  "How it works": "Cómo funciona",
+  "Official rules": "Bases oficiales",
+  "Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.":
+    "Organizado por MuW (Luca Pallaoro). Del {start} al {end}.",
+  "Anyone with a MuW account can take part, for free, by publishing a run for everyone in the app during the contest.":
+    "Puede participar gratis cualquier persona con una cuenta MuW, publicando una carrera para todos en la app durante el concurso.",
+  "At the end, the post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "Al final gana la publicación con más reacciones de otros miembros. Cuenta una reacción por miembro; la tuya no cuenta. En caso de empate, gana la que tenga más corazones de MuW y, después, la publicada primero.",
+  "The prize has no money value: the winner gets the Winner badge on their profile and their post shown at the top of the Feed for a week.":
+    "El premio no tiene valor económico: quien gana recibe la insignia Ganador en su perfil y su publicación aparece arriba del Feed durante una semana.",
+  "MuW may leave out a post that breaks the community rules.":
+    "MuW puede excluir una publicación que incumpla las normas de la comunidad.",
+  "Apple and Google are not sponsors of this contest and are not involved in it in any way.":
+    "Apple y Google no patrocinan este concurso y no participan en él de ninguna manera.",
+  Winner: "Ganador",
+  "{name} won the MuW contest": "{name} ha ganado el concurso MuW",
+
   // src/api/messages.ts (TASK-310: private messages)
   "A message needs some words.": "Un mensaje necesita algunas palabras.",
   "A message is at most {max} characters.":

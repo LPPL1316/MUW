@@ -612,6 +612,35 @@ disegni si rileggono, come quando «Profile» si apriva.
   contacts could not be read.». Senza account non si vede: la ricerca
   sopra dice già «Log in to find your friends.». In un'app costruita senza
   `expo-contacts` (la 1.0 dello store) la sezione non c'è.
+  **Sotto la lente, il concorso** (TASK-299, ADR-0260, `CONCORSI.md` §7;
+  testi approvati dall'utente nelle cinque lingue, `tasks/TASK-299.md`),
+  solo mentre l'API ne ha uno: l'app chiede `GET /contests/current` quando
+  «Feed» è sulla pagina (una volta per account finché l'app è aperta) e a
+  ogni pull, e tiene l'ultima risposta sul telefono (`contest.json`); un 404
+  la cancella. Senza concorso, o su un telefono che non ha mai sentito il
+  server, «Feed» è quello di prima. **Mentre corre**, una scheda: «MuW
+  contest» e a destra quanto manca, in giorni del calendario del telefono
+  («3 days left», «1 day left», «Ends today»; dopo la fine, finché il
+  vincitore non è proclamato, «Ended · the winner is coming»); sotto «The
+  post with the most reactions wins.»; i primi tre, ognuno con il posto, il
+  disegno piccolo (girato come nel Feed), il nome e «14 reactions»: con un
+  account un tocco apre il post come un disegno del Feed, senza account non
+  sono tasti; un autore bloccato sparisce subito. Poi la riga propria: «Your
+  best post: #5, 4 reactions» a chi ha un post nel concorso, «Publish a run
+  to take part.» a chi non ne ha (non più dopo la fine), niente senza
+  account. In fondo **«How it works»** apre sopra l'app il **regolamento
+  ufficiale**: «MuW contest», il titolo «Official rules», chi organizza
+  (MuW, Luca Pallaoro) e le date del concorso nella lingua dell'app, chi
+  partecipa, come si vince e i pari merito, il premio senza valore, che MuW
+  può escludere un post, che Apple e Google non sono sponsor né coinvolte;
+  «Close» (o il tasto indietro di Android) torna a «Feed». **Per 7 giorni
+  dopo la proclamazione**, al posto della scheda «{name} won the MuW
+  contest» con il badge «🏆 Winner» e sotto il post vincitore, disegnato
+  come gli altri del Feed (con la sua mappa; un tocco lo apre). Un concorso
+  chiuso senza vincitore, o con la corsa vincitrice cancellata, non mostra
+  niente. Il disegno vincitore, aperto, ha in cima la fascia «🏆 Winner»
+  (per il concorso tenuto sul telefono). Colori neutri: il giallo è del
+  percorso, il rosso di chi aspetta una risposta.
   **Sotto ogni linea c'è la mappa** della zona (TASK-162, ADR-0131,
   chiesto dall'utente): strade, acqua, verde e nomi dei paesi, con lo
   stile dell'app. È una foto, non una mappa da muovere: la fa una pagina
@@ -1048,6 +1077,13 @@ account «Log in to see the profiles of the others.». **Ci si arriva da
 dagli elenchi di chi segue in «Profile» (sotto); altri
 ingressi (un like, un commento) li decide l'utente
 (`tasks/TASK-116.md`, «Esito»).
+
+**Il badge «Winner»** (TASK-299, `CONCORSI.md` §7): chi ha vinto un
+concorso (`contest_wins` ≥ 1) ha sotto il nome, sul proprio «Profile» e sul
+profilo che vedono gli altri, una pillola neutra «🏆 Winner»; VoiceOver la
+legge «Winner». Resta per sempre, anche se la corsa vincitrice è
+cancellata. Un'API di prima del concorso non manda il numero: nessun
+badge.
 
 **Seguire** (TASK-211, ADR-0173 e ADR-0199; testi **da confermare**). La
 riga sotto il nome di un altro dice anche chi lo segue: «12 drawings · 3

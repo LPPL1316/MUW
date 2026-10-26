@@ -16561,6 +16561,109 @@ pesa 1,88 MB in più la prima volta. Dodici testi nuovi in fondo alle
 tabelle («Music» c'era già). Rifare i brani costa circa 17 s di CPU, il
 loro test in CI circa 15 s.
 
+## ADR-0269 — Le corse di gruppo: una forma, un ritrovo, un'ora, «I'm going»
+
+**Stato**: Attiva · 2026-10-26 · la funzione, i campi, il Feed, le
+notifiche, la sicurezza e la privacy li ha scelti l'utente («Sì, così» alla
+proposta con le aggiunte del Coordinatore); i punti tecnici sono decisi
+dall'agente su delega dell'utente (TASK-309)
+
+**Contesto**: l'utente vuole un «post evento»: una forma scelta, un luogo
+di incontro e un orario, e ci si trova a correrla insieme come in un run
+club. Esistono già i Preferiti (un percorso tenuto, con tutti i suoi
+campi), il Feed con la regola dei 50 km, follow, blocchi, segnalazioni con
+il link che nasconde, il filtro dei testi negativi, le push con i loro
+interruttori, e un orologio dell'API per le sfide del gioco. Un ritrovo
+dal vivo fra sconosciuti chiede regole di sicurezza; chi va a quale corsa
+di gruppo è un dato personale nuovo. Le regole sono in `docs/EVENTI.md`.
+
+**Decisione dell'utente**: corse di gruppo create da un percorso pronto;
+il ritrovo è la partenza; titolo, giorno e ora, «Where exactly»,
+descrizione, Everyone o Followers; una fila «Group runs» in cima al Feed
+sotto la scheda del concorso, solo quando c'è qualcosa; «I'm going» con
+chi va visibile a chi vede la corsa di gruppo; un promemoria un'ora prima,
+le push di cambio e di annullamento; l'avviso di sicurezza e la riga della
+privacy in inglese; commenti dopo, nella parte C. Nessuna notifica
+all'organizzatore quando qualcuno si aggiunge, lo vede nella pagina:
+scelta dopo la correzione della proposta, che prometteva una lista
+Notifiche che l'app non ha.
+
+**Decisione dell'agente**:
+
+1. **Una tabella a sé, non un disegno**: un disegno è una corsa fatta,
+   una corsa di gruppo è una corsa da fare. `group_runs` e
+   `group_run_going` in un modulo nuovo, `group_runs.py`; il Feed dei post
+   non cambia.
+2. **Il percorso ha il corpo di un Preferito**, validato con il codice di
+   `favorites.py` importato: l'app lo ha già pronto (`Keepable`) e lo
+   riapre per «Start» come un Preferito. Non cambia dopo la creazione,
+   come chi la vede: chi va ha detto sì a quella forma e a quel pubblico.
+3. **Il ritrovo è il primo punto**, tenuto anche come `geography(Point)`
+   con indice per i 50 km del Feed.
+4. **I limiti**: da 30 minuti a 60 giorni, al più 10 in arrivo per
+   account, finita 3 ore dopo l'inizio (come le sfide, che restano attive
+   3 ore oltre la scadenza). Testi col filtro di TASK-213 e
+   `422 comment_rejected`, il codice che l'app già conosce. Nessun codice
+   d'errore nuovo: `schemas.py` e il motore sul telefono non cambiano.
+5. **L'organizzatore va sempre** e non ha una riga in `group_run_going`.
+6. **Il promemoria** lo trova un orologio ogni 5 minuti, come
+   `ChallengeClock`, e lo segna con `UPDATE … WHERE reminded_at IS NULL`:
+   una volta sola anche con due processi; un cambio di ora lo riapre. Le
+   push non portano orari: il server non conosce il fuso del telefono.
+   Restano fuori dall'email del giorno (`EMAIL_KINDS` non cambia).
+7. **Annullare non cancella**: `cancelled_at`, così chi apre la push vede
+   «Cancelled». Un account cancellato avvisa chi andava, prima di sparire.
+8. **App**: il selettore di giorno e ora in JavaScript, senza moduli
+   nativi; impronta iOS invariata, la funzione arriva con un OTA.
+9. **Tre parti**: A (API), B (app, dopo TASK-299 B per `FeedScreen.tsx`),
+   C (i commenti, in una tabella a parte).
+
+**Alternative scartate**:
+- la corsa di gruppo come un disegno con una data: i disegni sono corse
+  fatte, con traccia e foto, e il Feed, il concorso e il gioco li contano;
+- il selettore nativo di data e ora: un modulo nativo vuole un build per
+  App Store e Google Play;
+- un promemoria il giorno prima e uno un'ora prima: rumore; uno basta;
+- una push all'organizzatore a ogni aggiunta: l'utente l'ha scartata, la
+  pagina lo dice;
+- i commenti nella tabella `comments` dei disegni: toccherebbe le query di
+  commenti, segnalazioni e link che nasconde, tutte scritte per i
+  disegni;
+- l'invito a persone scelte: vuole la scelta delle persone e un altro
+  livello di chi vede; dopo, se l'utente lo vuole.
+
+**Conseguenze**: due tabelle e un modulo nuovi; righe in `push.py`,
+`app.py`, `moderation.py`, `report_email.py` e `accounts.py`; la privacy in
+cinque lingue. L'app aggiunge una cartella e tocca Feed, profilo, tap delle
+notifiche e il percorso pronto. Il server dopo l'approvazione di Apple e
+con il sì dell'utente.
+
+## ADR-0237, aggiunta — AdMob mai collegato su Android
+
+**Stato**: Attiva · 2026-10-26 · deciso dall'agente su delega dell'utente
+(TASK-294, prima build Android). Aggiunta ad ADR-0237, senza numero nuovo.
+
+**Contesto**: la prima build Android (`preview`, EAS `93c8959c`,
+2026-10-26) è fallita in Gradle su `react-native-google-mobile-ads`
+17.2.0: il suo `app-json.gradle` vuole una sezione
+`react-native-google-mobile-ads` alla radice di `app.json`, che l'app non
+ha (la configurazione è nel plugin di Expo, che basta a iOS), e senza di
+essa «Cannot get property googleMobileAdsJson» e nessun `compileSdk`. Le
+pubblicità sono spente finché non c'è la società (scelta dell'utente del
+2026-10-09).
+
+**Decisione**: `react-native.config.js` non collega il pacchetto su
+Android in nessun profilo (`platforms.android: null` sempre); su iOS come
+prima, solo la produzione lo toglie. Il test `storeWithoutAds.test.ts` lo
+fissa. L'impronta iOS non cambia (misurata prima e dopo); quella Android
+sì, ed è la prima build comunque. Quando le pubblicità arriveranno, su
+Android serviranno la sezione in `app.json` e una build nativa nuova.
+
+**Alternative scartate**: aggiungere la sezione in `app.json` (configura
+un SDK che l'app non usa e ne porta il codice e i permessi nella build);
+`expo-build-properties` per il `compileSdk` (non risolve la sezione
+mancante).
+
 ## ADR-0270 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
 
 **Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
@@ -16661,3 +16764,4 @@ richiesta (ADR-0173), commenti, reazioni, blocchi e segnalazioni
   revisione.
 - Chi aggiunge un modo di vedere persone deve ricordare che una
   conversazione segue `apart_sql` come tutto il resto.
+

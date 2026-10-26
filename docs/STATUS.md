@@ -177,6 +177,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   merge; server, sito e app dopo il merge, con l'ok dell'utente;
   «Messaging and Chat» su App Store Connect la cambia l'utente. File:
   `tasks/TASK-310.md`.
+- **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
+  dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
+  Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
+  (documenti), poi A (API), B (app, dopo TASK-299 B) e C (commenti). Un
+  iscritto crea da un percorso pronto una corsa di gruppo: il ritrovo è la
+  partenza, giorno e ora da 30 minuti a 60 giorni, «Where exactly»,
+  descrizione, Everyone o Followers; la fila «Group runs» in cima al Feed
+  sotto la scheda del concorso, solo con qualcosa da mostrare; «I'm going»;
+  un promemoria un'ora prima, le push di cambio e di annullamento; filtro
+  dei testi, segnalazioni e blocchi come i post; avviso di sicurezza e
+  riga della privacy. Selettore di data in JavaScript: impronta iOS
+  invariata. Nessuna notifica all'organizzatore quando qualcuno si
+  aggiunge: lo vede nella pagina. È la scelta dell'utente dopo la
+  correzione della proposta, la cui «lista Notifiche» non esiste. Regole
+  in `EVENTI.md`, file `tasks/TASK-309.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -212,6 +227,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-26; `schemas.py` viaggia nel motore del telefono, quindi
   `engine.zip` rifatto (ok del Coordinatore). Server dopo Apple, con l'ok
   dell'utente.
+  **Parte A** in `main` con la #562 (`5f762ae7`, 2026-10-26), mergiata su
+  «mergia si» dell'utente; migrazione `0030_contests.sql`. La parte B
+  (app) parte da qui, in una sessione sua. Sul server dopo Apple, con
+  l'ok dell'utente: migrazione, deploy, `open`.
+  **Parte B** (app, branch `feat/TASK-299-b-contest-app`, PR #575): la
+  cartella `src/contest/`; la scheda sotto la lente di «Feed» solo con un
+  concorso (chiesto quando «Feed» si apre e a ogni pull, tenuto in
+  `contest.json`, cancellato da un 404): i giorni che restano, i primi tre
+  che aprono il post, «Your best post» o «Publish a run to take part.»,
+  «How it works» con il regolamento ufficiale; per 7 giorni dopo la
+  chiusura il post vincitore; il badge «Winner» nei profili
+  (`contest_wins`) e la fascia sul disegno vincitore. Testi nelle cinque
+  lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
+  (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
+  nascosta finché il server non ha la parte A.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -422,6 +452,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **B** (ADR-0253), branch `feat/TASK-294-b-play-build`: package,
   Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
   pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
+  **B in `main`** con la #548 (`049102c5`, 2026-10-25). Il 2026-10-26
+  l'account Play è verificato, l'app «MuW» è creata e i moduli della
+  console sono compilati (scheda, dichiarazioni, Sicurezza dei dati);
+  prima build Android (APK `preview`) in corso su EAS. **C** fatta:
+  `site/account-deletion/` nelle cinque lingue con test, PR aperta; i
+  testi aspettano il sì dell'utente, poi la copia sul server (F.14).
+  La prima build Android (`preview`) del 2026-10-26 è fallita in Gradle
+  su AdMob: correzione `fix/TASK-294-android-build-no-admob` (#572),
+  AdMob mai collegato su Android (aggiunta ad ADR-0237), impronta iOS
+  invariata.
+  **C in `main`** con la #569 (`4075ef8e`, 2026-10-26), testi approvati
+  dall'utente («Sì, 30 giorni»); manca la copia sul server (F.14).
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
@@ -576,6 +618,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Settings» e la **privacy unica** (email di ritorno, email delle
   notifiche, segnalazioni, gioco, archivio dei percorsi, push Android,
   Resend), approvata dall'utente («sì alla privacy, va bene così»).
+  **Chiuso**: parte B in `main` con la #556 (`3ec54818`, 2026-10-26),
+  privacy datata 26 ottobre 2026; vedi «Completato».
 - **TASK-285 — Lo stretching dopo la corsa** (ADR-0247; due richieste
   dell'utente del 2026-10-13, unite dal Coordinatore; nessun codice
   ancora). **Parte A**, sessione «Esercizio con stretching opzionale»: a
@@ -1370,6 +1414,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
+  l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
+  iscritto con «Email when I'm away» acceso (casella non spuntata
+  all'iscrizione, interruttore in «Settings», link in ogni email). Parte A
+  #502 (migrazione `0023`, Resend), parte B #556 con la **privacy unica**
+  del 26 ottobre 2026 che copre anche le email delle notifiche (TASK-262
+  B), quelle dell'account (TASK-300), le segnalazioni (TASK-291), il gioco,
+  l'archivio dei percorsi e le push Android. **Spenta** finché il server non
+  ha Resend: copia del sito, app pubblicata e server dal Coordinatore dopo
+  Apple e col sì dell'utente. `tasks/TASK-284.md`.
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252

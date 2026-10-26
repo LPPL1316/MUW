@@ -33,6 +33,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Pubblicità, account AdMob, pagamenti | `PUBBLICITA.md`, `DECISIONS.md` ADR-0198 |
 | Il gioco delle forme, «Play», squadre e sfide | `GIOCO.md`, `tasks/TASK-296.md` |
 | Il primo concorso, la scheda nel Feed, il regolamento | `CONCORSI.md`, `tasks/TASK-299.md` |
+| Le corse di gruppo, «Group runs», «I'm going» | `EVENTI.md`, `tasks/TASK-309.md` |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti
