@@ -231,6 +231,22 @@ Criteri: in «Settings → Sport» quattro righe, l'ultima «Paragliding» 🪂 
 «Soon»; nessun altro cambiamento visibile. Solo app, nessun server;
 l'impronta nativa iOS non cambia (solo JS).
 
+Condizioni del Coordinatore (2026-10-27): parte dopo il merge della #578 e
+la scelta del nome; le chiavi nuove in fondo ai file delle lingue;
+l'impronta iOS si controlla su una copia pulita; «#NNN pronta» al
+Coordinatore, e per il merge serve la parola dell'utente.
+
+**Apple e le voci «Soon».** Alla regola 2.1 (completezza dell'app) Apple
+può contestare voci «coming soon» o funzioni che non fanno niente in una
+build in revisione. **Non c'è un precedente**: la canoa è stata «Soon» solo
+dal 2026-10-02 al 2026-10-03 (da TASK-189 a TASK-191 C), e le due build
+della 1.0 viste da Apple (5 da `793fa112`, 7 da `26990fd4`) hanno tutti e
+tre gli sport pronti, nessuna riga «Soon». D0 non tocca la 1.0: su
+production non va nessuna OTA prima del verdetto. **Prima della build
+1.0.1 va deciso** se tenere la riga o nasconderla nelle build per lo store
+(proposta: nasconderla nelle build per lo store finché il parapendio non è
+pronto, tenerla in `preview`).
+
 File: `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/settings/sport.test.ts`,
 `apps/mobile/src/settings/SportSetting.test.tsx`,
