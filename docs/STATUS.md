@@ -225,6 +225,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
   (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
   nascosta finché il server non ha la parte A.
+  **Chiuso**: parte B in `main` con la #575 (`4771402b`, 2026-10-27); il
+  concorso è tutto in `main`. Sul server dopo Apple, con l'ok
+  dell'utente: migrazione `0030`, deploy, `open` (Coordinatore).
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -1397,6 +1400,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
+  premio senza valore): il primo concorso, vince il post per tutti con più
+  reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi
+  `open`, `standings`, `close`, la push `contest_won`, `contest_wins` nei
+  profili, migrazione `0030`), app #575 (`4771402b`: la scheda sotto la
+  lente di «Feed» solo con un concorso, il regolamento ufficiale, il post
+  vincitore in cima per 7 giorni, il badge «Winner» nei profili e la fascia
+  sul disegno). Testi nelle cinque lingue approvati dall'utente. Sul server
+  dopo Apple, con il suo ok. File: `tasks/TASK-299.md`, `CONCORSI.md`.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
   iscritto con «Email when I'm away» acceso (casella non spuntata
