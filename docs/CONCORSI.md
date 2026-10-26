@@ -246,3 +246,47 @@ delega dell'utente (2026-10-26):
   Coordinatore, 2026-10-25);
 - i comandi escono con 0 (fatto), 1 (niente da fare: nessun concorso
   aperto) o 2 (rifiuto: date, secondo concorso, chiusura anticipata).
+
+## 14. Com'è fatta la parte B
+
+L'app (`apps/mobile/src/contest/`) mostra quello che il server dice, come
+in §7. Questi dettagli li ha decisi l'agente su delega dell'utente
+(2026-10-26):
+
+- **Quando chiede.** `useContest` chiede `GET /contests/current` quando
+  «Feed» è sulla pagina, **una volta per account** finché l'app è aperta
+  (come la prima pagina del Feed: «Feed» si ricostruisce dopo un disegno
+  sulla mappa e non richiede), e di nuovo a **ogni pull**. Con un account
+  la richiesta porta il token, per `mine`. Una risposta arrivata dopo una
+  richiesta più nuova non conta.
+- **Che cosa tiene.** `contest.json` nei documenti del telefono tiene la
+  risposta **e l'account per cui è stata chiesta** (`{ account, contest }`):
+  `mine` si mostra solo all'account a cui appartiene, anche senza rete
+  dopo un cambio di account. Lo cancellano il `404 no_contest` e il 404 di
+  un'API di prima del concorso (`http_error`, che su preview tiene la
+  scheda nascosta finché il server non ha la parte A); senza rete, un 5xx
+  o un 401 non cambiano niente.
+- **I giorni** sono quelli del calendario del telefono (`daysLeft.ts`): «3
+  days left» tre giorni prima dell'ultimo, a qualunque ora; «Ends today»
+  l'ultimo; da `ends_at` in poi, finché manca `closed_at`, «Ended · the
+  winner is coming». L'orologio si rilegge ogni minuto mentre la scheda è
+  sulla pagina. Dopo la fine «Publish a run to take part.» non c'è più.
+- **I primi tre** sono tasti solo con un account: aprire un disegno chiede
+  `GET /drawings/{id}` con il token. Un autore bloccato mentre l'app è
+  aperta sparisce subito dalla scheda, come il suo post dal Feed.
+- **Il vincitore**: per 7 giorni la scheda è il post vincitore disegnato
+  da `FeedPost`, con la sua mappa, sotto la riga «{name} won the MuW
+  contest» e il badge; senza `winner.drawing` (corsa cancellata, nessun
+  partecipante) non c'è niente. La fascia sul disegno aperto
+  (`DrawingCard`) vale per il concorso tenuto sul telefono, finché c'è.
+- **Il regolamento** (`ContestRules.tsx`) si apre sopra l'app: «MuW
+  contest», il titolo «Official rules», poi i paragrafi approvati, con le
+  date scritte come i giorni dei disegni (`dayLabel`, nella lingua
+  dell'app).
+- **I numeri al singolare**: «1 reaction» e «Your best post: #1, 1
+  reaction», proposti all'utente con gli altri testi.
+- **La push** `contest_won` porta `drawing_id`: `notificationTap` la apriva
+  già, nessun cambio.
+- Il badge e la fascia sono lo stesso componente (`WinnerBadge.tsx`),
+  neutro: il giallo è del percorso, il rosso di chi aspetta una risposta;
+  la coppa è un emoji.
