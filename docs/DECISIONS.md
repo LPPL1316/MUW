@@ -16635,3 +16635,29 @@ privacy in inglese; commenti dopo, nella parte C.
 cinque lingue. L'app aggiunge una cartella e tocca Feed, profilo, tap delle
 notifiche e il percorso pronto. Il server dopo l'approvazione di Apple e
 con il sì dell'utente.
+
+## ADR-0237, aggiunta — AdMob mai collegato su Android
+
+**Stato**: Attiva · 2026-10-26 · deciso dall'agente su delega dell'utente
+(TASK-294, prima build Android). Aggiunta ad ADR-0237, senza numero nuovo.
+
+**Contesto**: la prima build Android (`preview`, EAS `93c8959c`,
+2026-10-26) è fallita in Gradle su `react-native-google-mobile-ads`
+17.2.0: il suo `app-json.gradle` vuole una sezione
+`react-native-google-mobile-ads` alla radice di `app.json`, che l'app non
+ha (la configurazione è nel plugin di Expo, che basta a iOS), e senza di
+essa «Cannot get property googleMobileAdsJson» e nessun `compileSdk`. Le
+pubblicità sono spente finché non c'è la società (scelta dell'utente del
+2026-10-09).
+
+**Decisione**: `react-native.config.js` non collega il pacchetto su
+Android in nessun profilo (`platforms.android: null` sempre); su iOS come
+prima, solo la produzione lo toglie. Il test `storeWithoutAds.test.ts` lo
+fissa. L'impronta iOS non cambia (misurata prima e dopo); quella Android
+sì, ed è la prima build comunque. Quando le pubblicità arriveranno, su
+Android serviranno la sezione in `app.json` e una build nativa nuova.
+
+**Alternative scartate**: aggiungere la sezione in `app.json` (configura
+un SDK che l'app non usa e ne porta il codice e i permessi nella build);
+`expo-build-properties` per il `compileSdk` (non risolve la sezione
+mancante).

@@ -45,9 +45,15 @@ describe("the App Store build without ads", () => {
     });
   });
 
-  it("keeps AdMob in every other build (preview, simulator)", () => {
-    expect(config(undefined).dependencies).toEqual({});
-    expect(config("preview").dependencies).toEqual({});
+  it("keeps AdMob on iOS in every other build (preview, simulator), never on Android", () => {
+    // Android: the package's Gradle script wants an AdMob section in app.json
+    // that the app does not have (TASK-294), and ads come with the company.
+    expect(config(undefined).dependencies[PACKAGE]).toEqual({
+      platforms: { android: null },
+    });
+    expect(config("preview").dependencies[PACKAGE]).toEqual({
+      platforms: { android: null },
+    });
   });
 
   it("loads the package at run time only in src/ads/admob.ts", () => {
