@@ -37,6 +37,7 @@ test("a session carries the token and the user, nothing else", () => {
   assert.deepEqual(Object.keys(signedIn).sort(), ["token", "user"]);
   assert.deepEqual(Object.keys(signedIn.user).sort(), [
     "bio",
+    "contest_wins",
     "created_at",
     "email",
     "id",
@@ -63,6 +64,7 @@ test("the profile change keeps the API's limits", () => {
 test("a profile seen by the others has no email, role or internal id", () => {
   assert.deepEqual(Object.keys(seen).sort(), [
     "bio",
+    "contest_wins",
     "drawings",
     "follow",
     "followers",

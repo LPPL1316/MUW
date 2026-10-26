@@ -578,6 +578,29 @@ provvisorio, il numero si controlla al merge con il Coordinatore):
 - `users.notices_emailed_at` (`timestamptz`, facoltativa): l'ultima email
   delle notizie; un'altra solo in un altro giorno (UTC).
 
+Migrazione `0029_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
+§9; il numero è il primo libero in `main` al merge):
+
+- `contests`: una riga per concorso. `id` (uuid casuale), `starts_at` ed
+  `ends_at` (`CHECK (ends_at > starts_at)`), `winner_drawing_id`
+  (`REFERENCES drawings ON DELETE SET NULL`), `winner_user_id`
+  (`REFERENCES users ON DELETE SET NULL`), `closed_at` (quando il
+  vincitore è stato proclamato; `NULL` finché aperto, e allora i due
+  `winner_*` sono `NULL` per `CHECK`), `created_at` (quando è stato
+  aperto).
+- **Un solo concorso aperto**: indice unico parziale
+  `contests_one_open_idx` su `((TRUE)) WHERE closed_at IS NULL` (un indice
+  su `closed_at` non basterebbe: in un indice unico i `NULL` non
+  collidono). Indici su `winner_user_id` (`contest_wins` dei profili,
+  `accounts.contest_wins_sql`) e su `winner_drawing_id`.
+- **Niente colonne nuove** su `drawings` e `reactions`: chi partecipa e
+  quante reazioni contano si leggono dalle tabelle così come sono
+  (`contests.py`, una query); i post esclusi con `close --exclude` non si
+  scrivono.
+- **Cancellazioni**: la corsa vincitrice cancellata porta via il disegno e
+  lascia `winner_user_id` (il badge resta); l'account cancellato lascia il
+  concorso senza vincitore. Test in `test_contests.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

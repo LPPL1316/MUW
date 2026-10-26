@@ -215,3 +215,34 @@ valore dei premi, verbale di assegnazione con un notaio o un funzionario
 camerale, esclusi i dipendenti. Serve il commercialista. In app
 servirebbero il consenso a essere contattati e un indirizzo di spedizione.
 È un task a sé, non questo.
+
+## 13. Com'è fatta la parte A
+
+Dal piano qui sopra cambiano solo questi dettagli, decisi dall'agente su
+delega dell'utente (2026-10-26):
+
+- l'indice di un solo concorso aperto è su `((TRUE)) WHERE closed_at IS
+  NULL`, non su `closed_at`: in un indice unico i `NULL` non collidono;
+- `close` **rifiuta prima di `ends_at`** («the contest ends at …: close it
+  after»): fino alla fine le reazioni contano ancora, e il concorso
+  finisce alla data scritta (§2). Chiude con la riga bloccata (`FOR
+  UPDATE`) e l'`UPDATE … WHERE closed_at IS NULL`; la push parte dopo il
+  commit, nel processo del comando, prima che il comando esca;
+- una reazione di un **account nascosto** (TASK-291) non conta, come non si
+  vede: `apart_sql` tiene a parte anche loro;
+- le «reazioni da account più giovani del concorso» di `standings` sono
+  quelle di account creati da `starts_at` in poi;
+- un post escluso con `--exclude` non si scrive da nessuna parte: non
+  vince, ma resta in `top` al suo posto anche dopo la chiusura;
+- `winner.reactions` è il conto di oggi con la stessa query; `0` con
+  `drawing` `null` (corsa cancellata, o nessun partecipante);
+- `mine` manca senza token (`response_model_exclude_unset`) ed è `null` con
+  un token senza un post che partecipa;
+- `contest_wins` è una sottoquery fra le colonne di `User`
+  (`accounts.contest_wins_sql`): `GET /me`, `Session` e ogni risposta che
+  riporta l'account lo hanno senza altre letture;
+- il codice d'errore `no_contest` sta in `schemas.py`,
+  `fixtures/api-error-codes.json` e `API_ERROR_CODES` (ok del
+  Coordinatore, 2026-10-25);
+- i comandi escono con 0 (fatto), 1 (niente da fare: nessun concorso
+  aperto) o 2 (rifiuto: date, secondo concorso, chiusura anticipata).

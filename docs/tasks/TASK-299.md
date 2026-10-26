@@ -1,6 +1,6 @@
 # TASK-299 — Il primo concorso: il post con più reazioni vince
 
-**Stato**: In lavorazione · documenti (questa PR) · prossime: A (API), poi B (app)
+**Stato**: In lavorazione · documenti in `main` (#549) · A (API) in PR · poi B (app)
 **Fase**: 4 · **Branch**: `docs/TASK-299-proposal` (documenti),
 `feat/TASK-299-a-contest-api` (A), `feat/TASK-299-b-contest-app` (B)
 **Dipende da**: TASK-117 (i disegni pubblicati), TASK-119 (le reazioni),
@@ -185,6 +185,15 @@ che li usa (A la push, B il resto) e vanno approvati con lei.
 |---|---|
 | You won the MuW contest! Your post got the most reactions. | Hai vinto il concorso MuW! Il tuo post ha avuto più reazioni di tutti. |
 
+Tedesco, spagnolo e francese della push, proposti dalla parte A il
+2026-10-26 (in `push.py`; **in attesa del sì dell'utente**):
+
+| Lingua | Testo |
+|---|---|
+| de | Du hast den MuW-Wettbewerb gewonnen! Dein Beitrag hat die meisten Reaktionen bekommen. |
+| es | ¡Has ganado el concurso MuW! Tu publicación ha recibido más reacciones que ninguna otra. |
+| fr | Tu as gagné le concours MuW ! Ta publication a reçu le plus de réactions. |
+
 **Il regolamento ufficiale** (parte B; l'organizzatore lo ha dato
 l'utente il 2026-10-25: «L'organizzatore nel regolamento è Luca
 Pallaoro»; `{start}` e `{end}` sono le date del concorso nella lingua del
@@ -222,26 +231,28 @@ Documenti (questa PR):
 - [ ] `docs/CONCORSI.md`, questo file, ADR-0260, una riga in `INDEX.md` e
       una in `STATUS.md`.
 
-Parte A:
-- [ ] Con un concorso aperto, `GET /contests/current` senza token dà date,
+Parte A (`test_contests.py`, un test per regola):
+- [x] Con un concorso aperto, `GET /contests/current` senza token dà date,
       i primi tre con l'anteprima e l'autore, `mine` assente; con un token
       `mine` ha posto e reazioni del proprio miglior post (test).
-- [ ] Ogni regola di `CONCORSI.md` §3–§4 ha il suo test: la propria
+- [x] Ogni regola di `CONCORSI.md` §3–§4 ha il suo test: la propria
       reazione, il blocco, `followers`/`only_me`, fuori dal periodo, dopo
-      `ends_at`, nascosto, i due pari merito.
-- [ ] Chi chiede non vede in `top` un post attraverso un blocco (test).
-- [ ] `close` due volte proclama una volta e manda una push; `--exclude`
+      `ends_at`, nascosto (disegno e account: la #525 è in `main`), i due
+      pari merito.
+- [x] Chi chiede non vede in `top` un post attraverso un blocco (test).
+- [x] `close` due volte proclama una volta e manda una push; `--exclude`
       salta un post; `--dry-run` non scrive; `open` rifiuta un secondo
-      concorso aperto e `to ≤ from` (test).
-- [ ] `standings` stampa i primi dieci con le reazioni da account più
+      concorso aperto e `to ≤ from` (test). In più: `close` rifiuta prima
+      di `ends_at`, e senza partecipanti chiude senza vincitore né push.
+- [x] `standings` stampa i primi dieci con le reazioni da account più
       giovani del concorso (test sull'output).
-- [ ] Senza concorso, e otto giorni dopo la chiusura, `404 no_contest`
+- [x] Senza concorso, e otto giorni dopo la chiusura, `404 no_contest`
       (test).
-- [ ] La corsa vincitrice cancellata lascia `contest_wins` a 1; l'account
+- [x] La corsa vincitrice cancellata lascia `contest_wins` a 1; l'account
       cancellato lascia il concorso senza vincitore (test).
-- [ ] `contest_wins` in `GET /users/{public_id}` e in `GET /me`.
+- [x] `contest_wins` in `GET /users/{public_id}` e in `GET /me`.
 - [ ] pytest, ruff e black verdi; il testo della push approvato
-      dall'utente.
+      dall'utente (de/es/fr proposti il 2026-10-26, sopra).
 
 Parte B:
 - [ ] La scheda si vede con un 200 ed è nascosta con un 404 e senza
@@ -280,10 +291,13 @@ services/api/shaperoute_api/profiles.py                  (contest_wins in Public
 services/api/shaperoute_api/accounts.py                  (contest_wins in UserBody, in aggiunta)
 services/api/tests/test_contests.py                      (nuovo)
 services/api/tests/test_profiles.py, test_accounts.py    (il campo nuovo nelle uguaglianze, se le fanno)
-packages/shared-types/src/index.ts                       (in fondo: Contest, ContestEntry, ContestMine; PushKind +contest_won)
+services/api/shaperoute_api/schemas.py                   (una riga: no_contest in ErrorCode; ok del Coordinatore 2026-10-25)
+packages/shared-types/fixtures/api-error-codes.json      (una riga: no_contest; ok del Coordinatore 2026-10-25)
+packages/shared-types/src/index.ts                       (in fondo: Contest, ContestEntry, ContestMine, ContestWinner; PushKind +contest_won; API_ERROR_CODES +no_contest; contest_wins in User e PublicProfile)
 packages/shared-types/fixtures/contest.json, contest-closed.json   (nuovi)
-packages/shared-types/fixtures/public-profile.json, user.json      (contest_wins, se esistono con quei nomi)
-docs/API.md («Contest»), docs/DATABASE.md (contests), docs/CONCORSI.md, docs/STATUS.md, docs/tasks/TASK-299.md
+packages/shared-types/fixtures/public-profile.json, session.json   (contest_wins: user.json non esiste, l'utente d'esempio è in session.json)
+packages/shared-types/test/accounts.test.ts              (contest_wins nelle liste di chiavi; ok del Coordinatore 2026-10-26)
+docs/API.md («Contest»), docs/DATABASE.md (contests), docs/CONCORSI.md (§13), docs/STATUS.md, docs/tasks/TASK-299.md
 ```
 
 Parte B (da confermare col Coordinatore prima del codice):
