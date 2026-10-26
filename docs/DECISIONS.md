@@ -16509,6 +16509,9 @@ Instagram toglie l'audio al Reel.
    sono gli stessi byte per byte: `apps/mobile/assets/music/music.json`
    ne tiene lo SHA-256, `pytest tools` (anche in CI, su Linux) li rifà e
    li confronta, `python3 tools/video_music.py --check` lo stesso a mano.
+   Il campione più forte sta a 0,75 (−2,5 dBFS): la codifica AAC alza i
+   picchi fino a 1,3 dB, e con 0,89 qualche campione decodificato passava
+   il fondo scala; con 0,75 il più alto è 0,97 («Epic»).
 4. **AAC con `afconvert` di macOS** (scelta dell'utente: «Sì, afconvert»),
    128 kbit/s, 44 100 Hz, stereo: uno strumento di sviluppo, nessuna
    dipendenza dell'app. Per rigenerarli, su un Mac, dalla radice del

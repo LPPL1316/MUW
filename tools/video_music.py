@@ -49,8 +49,9 @@ DRAW_S = 1.0
 HIT_S = 9.0
 # The end fades to silence over this long.
 FADE_S = 1.2
-# The loudest sample, from 0 to 1 (about -1 dBFS).
-PEAK = 0.89
+# The loudest sample, from 0 to 1 (-2.5 dBFS): AAC adds up to 1.3 dB to
+# the peaks, and a decoded sample must not go past full scale.
+PEAK = 0.75
 
 TWO_PI = 6.283185307179586
 # 2 ** (1 / 12) as a literal: no pow() of the C library.

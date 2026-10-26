@@ -198,6 +198,9 @@ Dettagli tecnici emersi:
   AVAssetReader su un MP4 fatto da `mp4.ts`).
 - `afinfo` legge il file riscritto come 529 344 campioni validi (non guarda
   la durata dell'`elst`); AVFoundation legge 12,0 s.
+- La codifica AAC alza i picchi fino a 1,3 dB: con il campione più forte a
+  0,89 da 1 a 7 campioni per brano passavano il fondo scala dopo la
+  decodifica. Ora 0,75 (circa 1,5 dB più piano): il più alto è 0,97.
 - Le prove dei brani: tutti fra -4 e -13 dB nella parte centrale, il colpo
   a 9 s il momento più forte, fino al silenzio a 12 s. Rifarli costa 17 s
   di CPU (le note uguali si fanno una volta sola, `functools.cache`).
