@@ -173,6 +173,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   invariati. **Testi nuovi in 5 lingue da approvare dall'utente** prima del
   merge; poi «#NNN pronta» al Coordinatore, ordine 302 → 303 → 304.
   `tasks/TASK-303.md`.
+  **Chiuso** nella sua PR #565 (2026-10-26); vedi «Completato».
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -1326,6 +1327,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-303 (ADR-0263; prova sul campo dell'utente a Trento del
+  2026-10-25): dopo una deviazione la corsa ritrova il runner più avanti
+  sul percorso, dopo 20 m nel suo verso (di traverso no), entro 300 m più
+  2 m per ogni metro corso fuori, così una forma che ripassa la stessa
+  strada non lo porta a un giro dopo; le svolte del tratto saltato non si
+  dicono. Fuori percorso: puntini sulla mappa fino al punto più vicino in
+  linea d'aria, «120 m NE» nel banner, una frase a voce una volta. Lo
+  stesso in bici e in canoa; distanza e tempo della deviazione contano.
+  Provato nei test e nel simulatore iOS. Solo app, impronta iOS invariata.
+  **Entra col merge del Coordinatore dopo il sì dell'utente ai testi nuovi
+  in 5 lingue** (tabella nella PR #565), poi su `preview` da provare sul
+  campo. Segue **TASK-304** (l'attività persa uscendo dall'app).
+  `tasks/TASK-303.md`.
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252

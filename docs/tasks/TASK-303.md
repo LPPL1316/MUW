@@ -1,6 +1,7 @@
 # TASK-303 — Dopo una deviazione la corsa rientra più avanti, con la guida per tornarci
 
-**Stato**: In corso
+**Stato**: Done — chiuso nella sua PR (#565); entra col merge del
+Coordinatore **dopo il sì dell'utente ai testi nuovi**, poi su `preview`
 **Fase**: 4 · **Branch**: `feat/TASK-303-detour-rejoin`
 **ADR**: ADR-0263 · **Solo app**, testi nuovi in 5 lingue (da approvare
 dall'utente prima del merge), nessuna dipendenza, l'impronta iOS non cambia
@@ -75,24 +76,55 @@ prima di TASK-304 (condividono `useNavigation.ts` e `NavigateScreen.tsx`).
 
 ## Criteri di accettazione
 
-- [ ] Un percorso finto: si esce a 300 m, si fa il giro dell'isolato e si
+- [x] Un percorso finto: si esce a 300 m, si fa il giro dell'isolato e si
       rientra a 700 m. La corsa dice «fuori» una volta, con il punto di
       rientro; mentre gira il punto si sposta con lui; rientrata dice «Di
-      nuovo sul percorso» a circa 700 m e non dice le svolte di mezzo; la
-      svolta dopo si annuncia come sempre.
-- [ ] Lo stesso giro che attraversa il percorso di traverso a 700 m e
+      nuovo sul percorso» a circa 720 m (dopo `JOIN_M`) e non dice le
+      svolte di mezzo; la svolta dopo si annuncia come sempre.
+- [x] Lo stesso giro che attraversa il percorso di traverso a 700 m e
       prosegue dall'altra parte resta fuori percorso.
-- [ ] La distanza della traccia è il cammino fatto, deviazione compresa.
-- [ ] Senza la modifica il primo test fallisce (la corsa resta fuori).
-- [ ] Chi non è mai stato sul percorso (va verso la partenza) non viene
+- [x] La distanza della traccia è il cammino fatto, deviazione compresa.
+- [x] Senza la modifica il primo test fallisce (la corsa resta fuori):
+      col `navigator.ts` di `main` 8 test su 9 di `detourRun.test.ts`
+      falliscono (passa quello della traccia, che già contava).
+- [x] Chi non è mai stato sul percorso (va verso la partenza) non viene
       preso più avanti, come prima.
-- [ ] Banner e mappa mostrano distanza, punto cardinale e linea a puntini
+- [x] **Forme che si incrociano** (condizione del Coordinatore): su una
+      spirale il cui ultimo lato è la strada della deviazione, 2,3 km più
+      avanti, il punto resta sul tratto lasciato e il rientro è a ~720 m.
+- [x] **La voce** una volta per deviazione, mai sopra una svolta (le due
+      frasi nella stessa posizione, poi niente fino al rientro, la svolta
+      in una posizione sua); il GPS che sfiora il percorso non la ripete.
+- [x] **Bici e acqua**: la stessa regola, test per entrambe.
+- [x] Banner e mappa mostrano distanza, punto cardinale e linea a puntini
       mentre si è fuori, e niente dopo il rientro.
 - [ ] I testi nuovi in 5 lingue, approvati dall'utente.
-- [ ] Una corsa simulata nel simulatore iOS sulla deviazione
-      (`xcrun simctl location … start`).
-- [ ] Tutta la suite dell'app verde, lint, typecheck e prettier; impronta
-      iOS `83793e26…` invariata su una copia pulita con `npm ci`.
+- [x] Una corsa simulata nel simulatore iOS sulla deviazione
+      (`xcrun simctl location … start`): vedi «Come provarlo».
+- [x] Tutta la suite dell'app verde (job `mobile` della CI), lint,
+      typecheck e prettier; impronta iOS `83793e26…` invariata su una copia
+      pulita con `npm ci`.
+
+## Come provarlo
+
+- `npx jest src/navigation/detourRun src/navigation/rejoin
+  src/voice/rejoinWords src/screens/NavigateRejoin src/map/mapPageRejoin
+  src/map/MapViewRejoin` da `apps/mobile`.
+- **Simulatore** (fatto il 2026-10-26, Expo Go su un simulatore proprio,
+  poi cancellato): un componente provvisorio con `useNavigation`,
+  `MapView` e il banner veri su una strada dritta di 1,2 km da Trento
+  Fiere (svolte a 450, 600 e 900 m) e `simctl location start --speed=4
+  --distance=6` sul giro dell'isolato (uscita a 300 m, 100 m a nord, fino a
+  700 m, giù e avanti). Detto: «You are off the route. Head back to it.»,
+  «The route is 80 metres away, to the south.», poi nulla fino a «Back on
+  the route.» a 724 m, «1 kilometre…» sul cammino vero (916 m al rientro),
+  «In 40 metres, turn right onto Via Manci»; mai Via Garibaldi né Via
+  Mazzini. Sulla mappa i puntini bianchi dal runner al percorso, distinti
+  dai trattini gialli; spariti al rientro. Schermate in
+  `out/TASK-303/` del worktree (ignorato da git). Il percorso vero di
+  Trento Fiere (fixture di TASK-302) non si presta: è troppo tortuoso per
+  una via parallela a 100 m, ogni scostamento ripassa a 2–56 m da un altro
+  suo tratto.
 
 ## File toccati
 
@@ -140,4 +172,11 @@ docs/UI.md
 
 ## Esito
 
-*(a fine task)*
+Fuori percorso la corsa ritrova il runner più avanti, nel verso del
+percorso, entro 300 m più 2 m per ogni metro corso fuori, e salta le svolte
+di mezzo; mentre è fuori mostra dove riprende (puntini, banner, una frase a
+voce). Verificato nei test (detour, traverso, spirale, bici, acqua, ritmo
+della voce) e nel simulatore. Impronta iOS invariata (`83793e26…`). Resta il
+sì dell'utente ai testi in 5 lingue (tabella nella PR #565), poi il merge del
+Coordinatore e `preview`, poi la prova sul campo. Seguito possibile, non
+aperto: il giro fino al punto di rientro calcolato sulle strade dal motore.
