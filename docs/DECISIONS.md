@@ -16583,7 +16583,10 @@ descrizione, Everyone o Followers; una fila «Group runs» in cima al Feed
 sotto la scheda del concorso, solo quando c'è qualcosa; «I'm going» con
 chi va visibile a chi vede la corsa di gruppo; un promemoria un'ora prima,
 le push di cambio e di annullamento; l'avviso di sicurezza e la riga della
-privacy in inglese; commenti dopo, nella parte C.
+privacy in inglese; commenti dopo, nella parte C. Nessuna notifica
+all'organizzatore quando qualcuno si aggiunge, lo vede nella pagina:
+scelta dopo la correzione della proposta, che prometteva una lista
+Notifiche che l'app non ha.
 
 **Decisione dell'agente**:
 
@@ -16621,9 +16624,8 @@ privacy in inglese; commenti dopo, nella parte C.
 - il selettore nativo di data e ora: un modulo nativo vuole un build per
   App Store e Google Play;
 - un promemoria il giorno prima e uno un'ora prima: rumore; uno basta;
-- una push all'organizzatore a ogni aggiunta: rumore; la pagina lo dice
-  (la lista Notifiche promessa nella proposta non esiste, da confermare
-  con l'utente);
+- una push all'organizzatore a ogni aggiunta: l'utente l'ha scartata, la
+  pagina lo dice;
 - i commenti nella tabella `comments` dei disegni: toccherebbe le query di
   commenti, segnalazioni e link che nasconde, tutte scritte per i
   disegni;

@@ -17,7 +17,7 @@ scelto e dando un luogo di incontro ed un orario e poi come se fosse un
 run club ci si incontra per correre la forma assieme». La proposta con i
 default, aggiunte del Coordinatore comprese, ha avuto il suo «Sì, così»
 lo stesso giorno: sono le regole qui sotto. Il punto 6.4 corregge la
-proposta e aspetta la conferma dell'utente.
+proposta, e l'utente ha confermato la correzione lo stesso giorno.
 
 ## 2. Da dove nasce
 
@@ -104,9 +104,11 @@ in arrivo e, sotto, le passate.
    nella pagina. Chi è lontano da chi chiede (blocco, nascosto) non è
    nell'elenco e non è contato.
 4. **Nessuna notifica quando qualcuno si aggiunge**: l'organizzatore lo
-   vede nella pagina. *(La proposta del 2026-10-26 diceva «solo nella
-   lista Notifiche dell'app»; quella lista nell'app non esiste. È la
-   correzione da confermare con l'utente.)*
+   vede nella pagina. La proposta del 2026-10-26 diceva «solo nella lista
+   Notifiche dell'app», ma quella lista nell'app non esiste. Avuta la
+   correzione, l'utente ha scelto lo stesso giorno: «Nessuna notifica
+   quando qualcuno si aggiunge: l'organizzatore lo vede nella pagina
+   della corsa di gruppo».
 5. **«Start»** apre la corsa sullo stesso percorso, come un Preferito: si
    può partire in ogni momento, ma la pagina mostra il ritrovo e l'ora.
 

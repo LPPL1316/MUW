@@ -171,10 +171,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   un promemoria un'ora prima, le push di cambio e di annullamento; filtro
   dei testi, segnalazioni e blocchi come i post; avviso di sicurezza e
   riga della privacy. Selettore di data in JavaScript: impronta iOS
-  invariata. **Da confermare con l'utente**: nessuna notifica
-  all'organizzatore quando qualcuno si aggiunge (la «lista Notifiche»
-  della proposta non esiste). Regole in `EVENTI.md`, file
-  `tasks/TASK-309.md`.
+  invariata. Nessuna notifica all'organizzatore quando qualcuno si
+  aggiunge: lo vede nella pagina. È la scelta dell'utente dopo la
+  correzione della proposta, la cui «lista Notifiche» non esiste. Regole
+  in `EVENTI.md`, file `tasks/TASK-309.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch

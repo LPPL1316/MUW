@@ -27,12 +27,12 @@ in due giri (il secondo con le aggiunte del Coordinatore su sicurezza,
 Feed, push e privacy), ha avuto il suo «Sì, così: vai con la proposta del
 Group run, aggiunte comprese» lo stesso giorno.
 
-**Una correzione da confermare**: la proposta diceva che l'avviso «Anna is
+**Una correzione, confermata**: la proposta diceva che l'avviso «Anna is
 going» arriva all'organizzatore «solo nella lista Notifiche dell'app».
-Quella lista non esiste (ci sono solo le push e l'email del giorno). Il
-default scritto qui è **nessuna notifica**: l'organizzatore vede chi va
-nella pagina (`EVENTI.md` §6.4). Va confermato con l'utente prima della
-parte A.
+Quella lista non esiste: ci sono solo le push e l'email del giorno.
+Avuta la correzione, l'utente ha scelto lo stesso giorno: «Nessuna
+notifica quando qualcuno si aggiunge: l'organizzatore lo vede nella
+pagina della corsa di gruppo» (`EVENTI.md` §6.4).
 
 ## Condizioni (dal Coordinatore, 2026-10-26)
 
@@ -291,8 +291,8 @@ docs/UI.md («Feed», il profilo), docs/EVENTI.md, docs/STATUS.md, docs/tasks/TA
 - «Add to calendar»: vuole un modulo nativo e un build per gli store.
 - Cambiare il percorso o chi la vede dopo la creazione: si annulla e se ne
   crea un'altra.
-- Una push all'organizzatore quando qualcuno si aggiunge (`EVENTI.md`
-  §6.4, da confermare).
+- Una push all'organizzatore quando qualcuno si aggiunge: per scelta
+  dell'utente non c'è (`EVENTI.md` §6.4).
 - Una pagina con tutte le corse di gruppo, o una ricerca: la fila del Feed
   e i profili bastano.
 
