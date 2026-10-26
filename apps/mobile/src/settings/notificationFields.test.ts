@@ -24,13 +24,21 @@ function refused(code: "http_error" | "session_expired" | "accounts_unavailable"
 test("the switches of an account are what the API tells", () => {
   // «Email when I'm away» is on until turned off (TASK-284).
   expect(notificationsOf(user)).toEqual({ email: false, push: false, away: true });
-  const on = { email: true, push: true };
+  const on = { email: true, push: true, away: false };
   expect(notificationsOf({ ...user, notifications: on })).toEqual(on);
+  // An API older than TASK-284 says nothing of away: on.
+  expect(
+    notificationsOf({ ...user, notifications: { email: true, push: true } }),
+  ).toEqual({
+    email: true,
+    push: true,
+    away: true,
+  });
 });
 
-test("an account from an API older than TASK-185 has both off", () => {
+test("an account from an API older than TASK-185 has both off, and away on", () => {
   const { notifications: _notifications, ...before } = user;
-  expect(notificationsOf(before)).toEqual({ email: false, push: false });
+  expect(notificationsOf(before)).toEqual({ email: false, push: false, away: true });
 });
 
 test("a switch that could not be kept is said in words", () => {

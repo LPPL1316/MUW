@@ -1,7 +1,8 @@
 # TASK-284 — L'email di ritorno a chi non apre l'app da 14 giorni
 
-**Stato**: Parte A In corso · B Todo
-**Fase**: 4 · **Branch**: `feat/TASK-284-return-email` (parte A)
+**Stato**: Parte A Done (2026-10-25, PR #502) · B In revisione
+**Fase**: 4 · **Branch**: `feat/TASK-284-return-email` (parte A),
+`feat/TASK-284-b-app-privacy` (parte B)
 **Dipende da**: TASK-185 (gli interruttori), TASK-118 (il Feed), TASK-211
 (follow), TASK-121 (bloccare); la parte B da #461 (TASK-262 C, privacy)
 **ADR**: ADR-0244
@@ -144,7 +145,7 @@ docs/tasks/TASK-284.md                                 (nuovo)
 - Le email di TASK-262 B (follow, reazioni, commenti, tag), la conferma
   dell'email e la password dimenticata.
 
-## Parte B — app e privacy (Todo, dopo #461)
+## Parte B — app e privacy (In revisione)
 
 - «Sign up»: la riga e la casella non spuntata «Don't send me these
   emails»; la richiesta manda `away_email` e `language`.
@@ -156,6 +157,66 @@ docs/tasks/TASK-284.md                                 (nuovo)
   all'iscrizione, in «Settings» e in ogni email), Resend come fornitore
   (negli Stati Uniti). Gli account di prima: avvisati dalla privacy nuova
   e dalla prima email. Da far approvare all'utente, con la data.
+
+### Cosa fa la parte B (2026-10-25)
+
+- **«Sign up»**: sotto le caselle la riga «If you don't open MuW for 2
+  weeks, we email you once with what's new.» e la casella **non
+  spuntata** «Don't send me these emails»; la richiesta manda
+  `away_email` (falso se spuntata) e `language` (`appLanguage()`).
+- **«Settings»**: il terzo interruttore «Email when I'm away» (👋), acceso
+  anche quando l'API non dice niente (`notificationsOf`); la nota sotto
+  dice le tre cose: le push subito, l'email delle notifiche una al giorno
+  al massimo (TASK-262 B), l'email quando sei via.
+- **Privacy unica** nelle cinque lingue, data del giorno del merge, e
+  `site/privacy/**` rifatto: l'email di ritorno, l'email delle notifiche
+  (TASK-262 B), le segnalazioni (TASK-291), il gioco delle forme
+  (TASK-296), l'archivio dei percorsi (TASK-297 A), Google per le push
+  Android (TASK-294) e Resend; via «MuW sends no emails yet». L'help dice
+  le tre email. Una sola modifica: al posto di «hello@getmuw.app» la
+  privacy dice «an address of getmuw.app», perché il test dei documenti
+  vuole un solo indirizzo, quello del contatto.
+- **Sì dell'utente**: alla privacy e ai testi dell'app di
+  `side-session-notes/…/privacy-284B-bozza.md`, «sì alla privacy, va bene
+  così» (2026-10-25, nella sessione «Attività rimanenti»). Tedesco,
+  spagnolo e francese tradotti dall'agente dall'inglese approvato.
+- **Le email dell'account** (TASK-300, #559, entrata il 2026-10-26): una
+  riga in più in «Emails from MuW» (conferma dell'indirizzo, avviso al
+  vecchio indirizzo, link per una nuova password, nessun interruttore),
+  chiesta dal Coordinatore e approvata dall'utente: «sì, aggiungila»
+  (2026-10-26).
+- Il fixture `sign-up-request.json` porta i due campi: in
+  `test_accounts.py` niente più eccezione `optional`; in
+  `test_away_email.py` due account si iscrivono senza lingua, come l'app
+  di prima (file aggiunto con l'ok del Coordinatore).
+
+### File toccati (parte B)
+
+```
+apps/mobile/src/screens/SignInScreen.tsx (+ .test.tsx)
+apps/mobile/src/account/fields.ts (+ fields.test.ts)
+apps/mobile/src/account/useAccount.ts                       (docstring)
+apps/mobile/src/account/useAccount.test.ts
+apps/mobile/src/settings/NotificationsSetting.tsx (+ .test.tsx)
+apps/mobile/src/settings/notificationFields.ts (+ .test.ts)
+packages/shared-types/fixtures/sign-up-request.json
+packages/shared-types/test/accounts.test.ts
+services/api/tests/test_accounts.py
+services/api/tests/test_away_email.py                       (ok del Coordinatore, 2026-10-25)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/src/about/content/en.ts, it.ts, de.ts, es.ts, fr.ts
+apps/mobile/src/about/documents.test.ts, about/AboutPage.test.tsx
+site/tests/privacy.test.mjs                                 (la data)
+apps/mobile/src/profile/SettingsPage.test.tsx               (tre interruttori e la nota; ok del Coordinatore)
+site/privacy/index.html, it/, de/, es/, fr/index.html
+docs/UI.md, docs/STATUS.md, docs/tasks/TASK-284.md
+docs/tasks/TASK-262.md                                      (la chiusura della parte B; ok del Coordinatore)
+```
+
+`api/accounts.test.ts` e `account/Profile.test.tsx` erano nella lista e
+non sono cambiati. **La data**: il merge è slittato al 2026-10-26, quindi
+le cinque date sono «26 October 2026» e così `AboutPage.test.tsx`,
+`documents.test.ts` e `site/tests/privacy.test.mjs` (nella lista).
 
 ## Prima di mandare la prima email (utente e coordinatore)
 
