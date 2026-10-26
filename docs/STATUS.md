@@ -405,6 +405,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **B** (ADR-0253), branch `feat/TASK-294-b-play-build`: package,
   Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
   pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
+  **B in `main`** con la #548 (`049102c5`, 2026-10-25). Il 2026-10-26
+  l'account Play è verificato, l'app «MuW» è creata e i moduli della
+  console sono compilati (scheda, dichiarazioni, Sicurezza dei dati);
+  prima build Android (APK `preview`) in corso su EAS. **C** fatta:
+  `site/account-deletion/` nelle cinque lingue con test, PR aperta; i
+  testi aspettano il sì dell'utente, poi la copia sul server (F.14).
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
