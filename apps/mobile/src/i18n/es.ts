@@ -1447,4 +1447,7 @@ export const ES: Table = {
     "Apple y Google no patrocinan este concurso y no participan en él de ninguna manera.",
   Winner: "Ganador",
   "{name} won the MuW contest": "{name} ha ganado el concurso MuW",
+  // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
+  "NEAR YOU": "CERCA DE TI",
+  "SHAPES TO TRY": "FORMAS PARA PROBAR",
 };

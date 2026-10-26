@@ -16663,3 +16663,64 @@ Android serviranno la sezione in `app.json` e una build nativa nuova.
 un SDK che l'app non usa e ne porta il codice e i permessi nella build);
 `expo-build-properties` per il `compileSdk` (non risolve la sezione
 mancante).
+
+## ADR-0266 — Forme pronte vicino a te in «Draw», ed «Explore» preparato all'apertura
+**Stato**: Attiva · 2026-10-26 · TASK-306. Le scelte di prodotto sono
+dell'utente, del 2026-10-26: la riga sotto la distanza, cerchio, cuore e
+stella da 5 km dalla posizione, sempre 5 km, solo la corsa, tenute fino a
+1 km; **forme già pronte in città a caso, dalla più semplice alla più
+complicata, quando vicino non viene niente**; «Explore» preparato
+all'apertura. Del Coordinatore, nel dare il numero: nessun permesso della
+posizione chiesto dal task; niente prima della prima pagina, durante una
+corsa o la navigazione, in background; il server come riserva con l'API
+di oggi; costi in tempo, batteria e dati scritti nel task file. Il come è
+deciso dall'agente su delega dell'utente.
+
+**Decisione**:
+
+1. **Le forme vicine le disegna il telefono** (`requestRouteOnPhoneFirst`,
+   ADR-0177), come un esempio di una città (`requestOf` con la posizione
+   al posto del centro), nella coda delle richieste in priorità «visible»
+   (ADR-0248). Prima aspettano fino a 45 s le mappe intorno al telefono,
+   che l'app scarica all'apertura: con quelle disegna il telefono, senza il
+   server.
+2. **Tenute in `near-you.json`** con il punto da cui partono: interi, con
+   le alternative, e `null` per una forma rifiutata lì. Si disegnano di
+   nuovo oltre 1 km. Una forma senza risposta (rete, server) non si
+   tiene: si chiede la volta dopo. L'id è `near-you:{forma}`, senza la
+   posizione; la città è vuota, come un percorso di «Draw».
+3. **Si aprono come esempi**: `keepWhole` in `exampleRoutes.ts` tiene il
+   percorso intero e la richiesta, così `useExplored` li apre senza
+   chiedere all'API, con A · B · C.
+4. **Le forme di altre città** sono gli esempi tenuti dall'API
+   (ADR-0136): le 14 città in evidenza, in ordine casuale a ogni apertura,
+   il centro dal telefono (`featuredPlace`) o da `GET /cities` la prima
+   volta. Una forma conta solo se il lavoro è `done` nella risposta al
+   POST: altrimenti l'app lo lascia (`DELETE`) e prova un'altra città, al
+   più 3 per forma. Pronte, sono esempi di quella città (`keepSample`),
+   anche per «Explore».
+5. **«Explore» preparato**: lista dei percorsi vicini (tenuta 10 minuti
+   per la pagina), paesi vicini (`fetchNearbyCities` li tiene già) e i
+   loro esempi (`drawSamples`) in priorità «prefetch», finché la pagina
+   non si è aperta una volta: da lì li chiede lei.
+6. **Quando**: `useMayWorkAhead` in `firstPage.ts`, vero dopo
+   l'animazione d'apertura (`Root.tsx`), con l'app non in background e né
+   corsa né navigazione. Fermato, il lavoro riprende da dove era.
+
+**Alternative scartate**: disegnare dal centro del paese più vicino
+(esempi già tenuti dall'API, ma la partenza a chilometri dall'utente, e
+`/nearby-cities` esclude il paese dove si è); le forme alla distanza scelta
+sopra (ogni cambio di distanza, tre percorsi da rifare); aspettare le forme
+di altre città che l'API dovrebbe disegnare (fino a 18 s l'una sul server,
+contro una scheda che si apre subito); giudicare «bello» dalla somiglianza
+del motore (sta sopra 0,9 anche per percorsi che non si leggono, TASK-290);
+scaricare qualcosa durante l'installazione (serve una build nativa, e la
+posizione allora non c'è).
+
+**Conseguenza**: alla prima apertura in un luogo, oltre alla zona del
+telefono, fino a circa 1,3 MB di dati (stima nel task file) e 1–2 minuti
+di un core sul telefono per tre forme; se il telefono non ha mappe, tre
+percorsi in più al server per persona e luogo. Gli esempi dei paesi
+vicini, che prima chiedeva solo chi apriva «Explore», li chiede ogni
+apertura in un luogo nuovo: l'API li tiene per paese, quindi pesano solo
+la prima volta.

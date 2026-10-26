@@ -175,6 +175,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   aggiunge: lo vede nella pagina. È la scelta dell'utente dopo la
   correzione della proposta, la cui «lista Notifiche» non esiste. Regole
   in `EVENTI.md`, file `tasks/TASK-309.md`.
+- **TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore»
+  preparato all'apertura** (ADR-0266; richiesta dell'utente del
+  2026-10-26, «Sì, va bene così: procedi con TASK-306» lo stesso giorno;
+  numeri e condizioni dal Coordinatore). Branch
+  `feat/TASK-306-near-you-shapes`, solo app (JS, nessuna dipendenza,
+  nessun server). Sotto la distanza, con la corsa, «NEAR YOU»: cerchio,
+  cuore e stella da 5 km dalla posizione, disegnati dal telefono (il
+  server se non ha mappe), tenuti in `near-you.json` fino a 1 km; una
+  forma che non viene lascia il posto a una già pronta in una città in
+  evidenza a caso, dalla più semplice; senza posizione o con niente
+  vicino, sei città e «SHAPES TO TRY». All'apertura, prima che si apra,
+  «Explore» chiede lista, paesi vicini e i loro esempi. Tutto dopo
+  l'animazione d'apertura, mai durante corsa, navigazione o background.
+  Testi: inglese e italiano approvati con la proposta, de/es/fr
+  dell'agente; tempi e dati sul telefono sono stime. File:
+  `tasks/TASK-306.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
