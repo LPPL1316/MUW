@@ -178,6 +178,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   e Google non coinvolte). Regole in `CONCORSI.md`. Testi nelle cinque
   lingue da approvare prima del merge; server dopo Apple con l'ok
   dell'utente. File: `tasks/TASK-299.md`.
+  **Documenti** in `main` con la #549 (`612bf143`, 2026-10-25).
+  **Parte A** (branch `feat/TASK-299-a-contest-api`, PR #562, migrazione
+  `0030_contests.sql`, rinumerata dopo la #559, numero al merge): la
+  tabella `contests` con un
+  solo concorso aperto; `contests.py` con la query unica della
+  classifica (partecipa, conta, pari merito), `GET /contests/current`
+  con la sola chiave (`mine` col token, `top` senza i post attraverso un
+  blocco con chi chiede, `404 no_contest`), i comandi `open`,
+  `standings` e `close` (una volta sola, `--exclude`, `--dry-run`,
+  rifiuta prima della fine), la push `contest_won` al vincitore dopo il
+  commit; `contest_wins` in `User` e `PublicProfile`; tipi e fixture in
+  `shared-types`; il codice d'errore `no_contest` (`schemas.py`,
+  `api-error-codes.json`, ok del Coordinatore). Un test per regola in
+  `test_contests.py`. Testi de/es/fr della push approvati dall'utente il
+  2026-10-26; `schemas.py` viaggia nel motore del telefono, quindi
+  `engine.zip` rifatto (ok del Coordinatore). Server dopo Apple, con l'ok
+  dell'utente.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e

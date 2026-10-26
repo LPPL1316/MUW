@@ -129,9 +129,23 @@ class SignInRequestBody(BaseModel):
 
 
 # What the API reads of an account for its owner, in the order of UserBody.
+def contest_wins_sql(user_column: str) -> str:
+    """How many contests the account in `user_column` won (TASK-299,
+    contests.py), as a subquery: the «Winner» badge of the profiles. A
+    column of `users` as the queries of USER_COLUMNS name it."""
+    return (
+        "(SELECT count(*) FROM contests contest_row"
+        f" WHERE contest_row.winner_user_id = {user_column})"
+    )
+
+
+# The wins before the switches: test_notifications.py reads the switches as
+# the last three, and the alias of the one subquery (no comma in it).
 USER_COLUMNS = (
     "id, email, username, role, created_at, bio, public_id, phone,"
-    " email_confirmed, pending_email, notify_email, notify_push, notify_away"
+    " email_confirmed, pending_email,"
+    f" {contest_wins_sql('users.id')} AS contest_wins,"
+    " notify_email, notify_push, notify_away"
 )
 
 
@@ -169,6 +183,9 @@ class UserBody(BaseModel):
     pending_email: str | None
     # The notification switches (TASK-185): told to their owner only.
     notifications: NotificationsBody
+    # The contests won (TASK-299): the «Winner» badge, as the profile has
+    # it; 0 for everyone until the first contest is closed.
+    contest_wins: int = 0
 
     @model_validator(mode="before")
     @classmethod

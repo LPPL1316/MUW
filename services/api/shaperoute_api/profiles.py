@@ -39,6 +39,7 @@ from shaperoute_api.accounts import (
     Accounts,
     UserBody,
     accounts_of,
+    contest_wins_sql,
     current_user,
 )
 from shaperoute_api.db import Database
@@ -91,6 +92,9 @@ class PublicProfileBody(BaseModel):
     following: int = Field(description="How many it follows.")
     follow: FollowState = Field(
         description="Where the one who asks stands towards it; none on its own."
+    )
+    contest_wins: int = Field(
+        description="The contests it won (TASK-299): the «Winner» badge."
     )
 
 
@@ -154,7 +158,8 @@ class Profiles:
                 f" {published_count_sql('u.id', '%s')} AS drawings,"
                 f" {followers_count_sql('u.id')} AS followers,"
                 f" {following_count_sql('u.id')} AS following,"
-                f" {follow_state_sql('%s', 'u.id')} AS follow"
+                f" {follow_state_sql('%s', 'u.id')} AS follow,"
+                f" {contest_wins_sql('u.id')} AS contest_wins"
                 " FROM users u LEFT JOIN profile_photos p ON p.user_id = u.id"
                 " WHERE u.public_id = %s"
                 # Across a block the profile is not there (TASK-121).
@@ -173,6 +178,7 @@ class Profiles:
             followers=row["followers"],
             following=row["following"],
             follow=row["follow"],
+            contest_wins=row["contest_wins"],
         )
 
 
