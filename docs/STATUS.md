@@ -268,6 +268,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
   (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
   nascosta finché il server non ha la parte A.
+  **Chiuso**: parte B in `main` con la #575 (`4771402b`, 2026-10-27); il
+  concorso è tutto in `main`. Sul server dopo Apple, con l'ok
+  dell'utente: migrazione `0030`, deploy, `open` (Coordinatore).
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -463,6 +466,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   approvato i testi lo stesso giorno («I testi vanno bene, mergiate pure
   la #561»); impronta iOS da misurare su `main` dal Coordinatore, poi il
   preview. Resta la E.
+  **Parte E** (branch `feat/TASK-296-e-run-strip`, PR #564, 2026-10-26): la
+  riga del gioco nella scheda della corsa, sotto i numeri di «Map» e di
+  «Data», per la corsa a piedi con l'account: la prossima forma per
+  distanza con i km del server più quelli della corsa («Hexagon 14.2 / 20
+  km»; oltre la soglia la forma dopo, mai «unlocked»), o con un pezzo
+  veloce in mano il passo dell'ultimo km contro l'obiettivo («Last km 5:12
+  · target 5:00 /km»); `GET /game/me` e `GET /game/teams` una volta
+  all'inizio della corsa, mai durante; niente riga e nessun errore in bici,
+  in canoa, senza account, senza rete o senza il gioco sul server. Le
+  squadre lette con `fetchTeams` e i tipi della D. Solo app, nessuna
+  dipendenza nuova; i due testi approvati dall'utente il 2026-10-26 (task
+  file, «Testi da approvare»); il posto della riga lo conferma l'utente su
+  `preview`. Con la E il task è completo: dopo il merge, chiusura e
+  server (A e C) dopo Apple.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
@@ -1433,6 +1450,47 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (cinque lingue) e la coda dei merge. `tasks/TASK-266.md`.
   **Chiuso**: in `main` con la #479 (`1f64621e`, 2026-10-10); vedi
   «Completato».
+- **TASK-305 — Parapendio: proposta e prova di fattibilità** (ADR-0265
+  **proposto**; richiesta dell'utente del 2026-10-26; numeri e condizioni
+  dal Coordinatore). Branch `docs/TASK-305-paragliding-proposal`: solo
+  documenti e misure, **nessun codice**, e nessuna parte parte senza il sì
+  dell'utente. Lo studio è `out/TASK-305/studio.md` del Mac (ignorato da
+  git) con gli script, i dati e la pagina `paragliding-samples-grid.html`.
+  **Il modello**: niente strade, il cono di planata fra il decollo e il suo
+  atterraggio ufficiale (efficienza 8, 300 m sopra il terreno, aria calma);
+  la forma più larga che ci sta, inclinata al massimo di 30°, sotto le CTA
+  e sopra le riserve, 500 m sopra i centri abitati; la quota al posto della
+  distanza; il motore decide, l'AI interpreta. **Misurato** su Monte Baldo
+  → Malcesine, Monte Grappa → Semonzo e Panarotta → Levico (terreno EU-DEM,
+  spazi aerei dal file comunitario AIRAC 2504, centri abitati OSM):
+  in aria calma il cuore più grande è di 2,8 km al Baldo (1667 m di
+  dislivello), 1,2 al Grappa, 1,0 alla Panarotta; con le regole il Baldo
+  resta a 2,7, il Grappa scende a 0,24 (pianura costruita) e alla
+  Panarotta non ci sta niente (il file comunitario mette l'atterraggio di
+  Levico dentro una riserva); con vento contro la planata Grappa e
+  Panarotta non hanno forma. Un cuore regge 12–16 boe; con 15 km/h di vento conta
+  il raggio di virata (60–80 m di errore a 30 m, 90–135 a 50 m): sotto
+  1,5 km la forma si deforma, da 2 km si legge. **Le fonti**: decolli da
+  OSM (499 in Italia, incompleti), terreno Copernicus, vento ICON-D2 o
+  ECMWF (CC BY 4.0); **gli spazi aerei sono il nodo**: openAIP è CC BY-NC,
+  ENAV vuole un accordo, EAD è a pagamento; senza una fonte spedibile non
+  si propone nessuna forma. **La sicurezza**: nessuna guida in volo, la
+  forma si esporta come task di boe (XCTrack QR e `.xctsk`, `.cup`,
+  `.wpt`) e dopo l'atterraggio si importa l'IGC; l'app non dice mai «vola
+  qui», «qui è legale», «ce la fai». **L'utente** (2026-10-26): «è una
+  bella idea», niente navigatore, solo la traccia e il caricamento del
+  volo. **Costo**: 10–14 sessioni (la canoa ne ha prese 15), più le
+  licenze, un parere legale e una prova con un pilota. **Verdetto**:
+  conviene a tre condizioni (spazi aerei con licenza, decolli scelti dove
+  la forma è ≥ 1,5 km, parere legale e prova), altrimenti no. Il
+  2026-10-27 l'utente ha scelto la riga in Settings **subito, con «Soon»**:
+  è la parte D0 (solo app, `sport.ts` e le lingue), che non aspetta le
+  condizioni; il nome è «Paragliding» 🪂 (Parapendio, Gleitschirmfliegen,
+  Parapente), l'avviso di sicurezza è approvato com'era proposto. Le
+  scelte di prodotto sono tutte prese. **Aspetta**: le tre condizioni prima
+  della parte A1 e, prima della build 1.0.1, la scelta se tenere la riga
+  «Soon» nelle build per lo store (Apple, regola 2.1). File:
+  `tasks/TASK-305.md`.
 
 - **TASK-301 — La musica nel video della corsa** (ADR-0262; richiesta
   dell'utente del 2026-10-25 «aggiungi la musica al video», scelte con le
@@ -1462,6 +1520,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
+  premio senza valore): il primo concorso, vince il post per tutti con più
+  reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi
+  `open`, `standings`, `close`, la push `contest_won`, `contest_wins` nei
+  profili, migrazione `0030`), app #575 (`4771402b`: la scheda sotto la
+  lente di «Feed» solo con un concorso, il regolamento ufficiale, il post
+  vincitore in cima per 7 giorni, il badge «Winner» nei profili e la fascia
+  sul disegno). Testi nelle cinque lingue approvati dall'utente. Sul server
+  dopo Apple, con il suo ok. File: `tasks/TASK-299.md`, `CONCORSI.md`.
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
 - **App e API** — TASK-300 (ADR-0261; scelta dell'utente del 2026-10-25,
   «a parte SUBITO»): l'indirizzo email confermato con un link

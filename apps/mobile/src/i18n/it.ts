@@ -1446,6 +1446,9 @@ export const IT: Table = {
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Questo percorso non ha le indicazioni delle svolte: segui la linea sulla mappa.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Ultimo km {pace} · obiettivo {target}",
+  "Last mi {pace} · target {target}": "Ultimo mi {pace} · obiettivo {target}",
 
   // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
   "Send feedback": "Mandaci un feedback",
