@@ -1438,6 +1438,11 @@ export const IT: Table = {
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "VICINO A TE",
   "SHAPES TO TRY": "FORME DA PROVARE",
+  // src/screens/NavigateScreen.tsx (TASK-303: fuori percorso, dov'è)
+  "The route is {distance} away, to the {direction}.":
+    "Il percorso riprende a {distance} verso {direction}.",
+  "Follow the dotted line back to the route.":
+    "Segui la linea a puntini per tornare sul percorso.",
 
   // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
   "Send feedback": "Mandaci un feedback",
