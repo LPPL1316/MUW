@@ -268,6 +268,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
   (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
   nascosta finché il server non ha la parte A.
+  **Chiuso**: parte B in `main` con la #575 (`4771402b`, 2026-10-27); il
+  concorso è tutto in `main`. Sul server dopo Apple, con l'ok
+  dell'utente: migrazione `0030`, deploy, `open` (Coordinatore).
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -1499,8 +1502,33 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   musica il video resta identico. 1,88 MB di brani nell'app. Solo app,
   impronta iOS invariata. File: `tasks/TASK-301.md`.
 
+- **TASK-308 — «Send feedback» in «Settings»** (ADR-0268; richiesta
+  dell'utente del 2026-10-26 «aggiungi un tasto in impostazioni per darci
+  un feedback e suggerimenti», scelta «Form in the app» lo stesso giorno;
+  numero dal Coordinatore). Branch `feat/TASK-308-feedback`. Sezione
+  «FEEDBACK» con la riga «Send feedback», che apre un modulo sotto di sé;
+  `POST /feedback` tiene il messaggio (tabella `feedback`, migrazione
+  `0031_feedback.sql`, numero al merge), al più 5 al giorno per account, e
+  lo manda per email a `SHAPEROUTE_FEEDBACK_TO` o, senza, a
+  `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. Privacy con la sezione
+  «Feedback» nelle cinque lingue, pagine del sito rifatte. La sezione si
+  vede solo quando `GET /feedback` risponde `204`: con il server di oggi
+  non c'è, e `main` resta pubblicabile. Al più 20 al giorno anche per
+  indirizzo di rete. Testi e privacy approvati dall'utente il 2026-10-26
+  («Sì ai testi e alla privacy di TASK-308, così come sono.»); server
+  dopo Apple. PR #576. File: `tasks/TASK-308.md`.
+
 ## Completato
 
+- **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
+  premio senza valore): il primo concorso, vince il post per tutti con più
+  reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi
+  `open`, `standings`, `close`, la push `contest_won`, `contest_wins` nei
+  profili, migrazione `0030`), app #575 (`4771402b`: la scheda sotto la
+  lente di «Feed» solo con un concorso, il regolamento ufficiale, il post
+  vincitore in cima per 7 giorni, il badge «Winner» nei profili e la fascia
+  sul disegno). Testi nelle cinque lingue approvati dall'utente. Sul server
+  dopo Apple, con il suo ok. File: `tasks/TASK-299.md`, `CONCORSI.md`.
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
 - **App e API** — TASK-300 (ADR-0261; scelta dell'utente del 2026-10-25,
   «a parte SUBITO»): l'indirizzo email confermato con un link
