@@ -1431,6 +1431,23 @@ export interface Contest {
   winner: ContestWinner | null;
 }
 
+/** The longest message «Send feedback» takes (TASK-308). */
+export const MAX_FEEDBACK_LENGTH = 2000;
+
+/**
+ * POST /feedback (TASK-308, ADR-0268): what a member writes to whoever runs
+ * MuW, 1 to MAX_FEEDBACK_LENGTH characters once the spaces at either end
+ * are gone; 204. No endpoint reads it back: it is emailed with the
+ * member's username and address. At most 5 in any 24 hours, then 429
+ * `too_many_requests` with the seconds to wait.
+ */
+export interface FeedbackRequest {
+  text: string;
+  /** The app's version and build, like «1.0.0 (7)». */
+  app_version?: string | null;
+  platform?: PushPlatform | null;
+}
+
 /**
  * POST /way-back (TASK-314, ADR-0274): the way back to the route, on the
  * streets, for a runner off it. `ahead` is the stretch of the route where

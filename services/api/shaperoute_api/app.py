@@ -61,6 +61,7 @@ from shaperoute_api.drawings import install_drawings
 from shaperoute_api.errors import error_of
 from shaperoute_api.favorites import install_favorites
 from shaperoute_api.feed import install_feed
+from shaperoute_api.feedback import install_feedback
 from shaperoute_api.follows import install_follows
 from shaperoute_api.game import install_game
 from shaperoute_api.graphs import MapDataUnavailableError
@@ -363,6 +364,8 @@ def create_app(
     # numbers (TASK-262 C); it needs a token.
     install_contact_people(app)
     install_contests(app)
+    # «Send feedback» in «Settings» (TASK-308); it needs a token.
+    install_feedback(app)
 
     @app.get("/health")
     def health() -> dict[str, str]:
