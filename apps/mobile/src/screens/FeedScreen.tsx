@@ -16,6 +16,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { feedAds } from "../ads/admob";
 import type { FeedAds } from "../ads/feedAds";
 import { useFeedAds } from "../ads/useFeedAds";
+import { FeedContest } from "../contest/FeedContest";
+import { useContest } from "../contest/useContest";
 import { FeedAd } from "../feed/FeedAd";
 import { FeedMapShooter } from "../feed/FeedMaps";
 import { drawingHeight, FeedPost } from "../feed/FeedPost";
@@ -60,8 +62,10 @@ const MORE_AT_SCREENS = 1;
  * on a member's drawing opens it whole on the map, with its reactions and
  * comments, as from a profile (TASK-117); one on an example opens its
  * route (TASK-188). Above the drawings, at the right, the lens that finds
- * friends by name (TASK-215, TASK-219). Between the drawings, one ad every
- * 5 (TASK-235, ADR-0198).
+ * friends by name (TASK-215, TASK-219); under it, while the API has a
+ * contest, its card (TASK-299, docs/CONCORSI.md §7), asked with the feed
+ * and with each pull. Between the drawings, one ad every 5 (TASK-235,
+ * ADR-0198).
  */
 export function FeedScreen({
   onOpen,
@@ -74,6 +78,11 @@ export function FeedScreen({
   const cardWidth = width - 2 * space.lg;
   const { shown, signedIn, refreshing, refresh, more } = useFeed(active, near);
   const { open, openProblem } = useDrawingsDoor();
+  const contest = useContest(active);
+  const onRefresh = useCallback(() => {
+    refresh();
+    contest.refresh();
+  }, [contest, refresh]);
   const posts: readonly Post[] = useMemo(() => {
     if (shown.kind === "ready" && shown.posts.length > 0) {
       return shown.posts.map(shownPost);
@@ -111,6 +120,14 @@ export function FeedScreen({
             <View style={styles.lens}>
               <FindFriendsButton />
             </View>
+            {contest.contest !== null && (
+              <FeedContest
+                contest={contest.contest}
+                mine={contest.mine}
+                width={cardWidth}
+                onOpen={signedIn ? open : undefined}
+              />
+            )}
             {openProblem !== null && (
               <Text style={styles.problem} accessibilityRole="alert">
                 {openProblem}
@@ -131,7 +148,7 @@ export function FeedScreen({
           signedIn ? (
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={refresh}
+              onRefresh={onRefresh}
               tintColor={color.textMuted}
             />
           ) : undefined

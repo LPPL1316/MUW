@@ -103,4 +103,18 @@ export const EN: Phrasebook = {
     `${units(km, "kilometre")}. Time: ${time}. Average pace: ${pace} per 500 metres.`,
   paddleMile: (miles, time, pace) =>
     `${units(miles, "mile")}. Time: ${time}. Average pace: ${pace} per 500 metres.`,
+  // Off the route, where it is (TASK-303).
+  routeAt: (metres, towards) =>
+    `The route is ${metres} metres away, to the ${towards}.`,
+  routeAtFeet: (feet, towards) => `The route is ${feet} feet away, to the ${towards}.`,
+  compass: [
+    "north",
+    "north-east",
+    "east",
+    "south-east",
+    "south",
+    "south-west",
+    "west",
+    "north-west",
+  ],
 };
