@@ -52,8 +52,8 @@ export const PHOTO_HEIGHT = 160;
  * others see the drawing, not when somebody runs. Its comments open from
  * a button (TASK-120), and next to it are its reactions (TASK-119). Under
  * them «Start», to run the track as the map shows it, without turn
- * directions, and «Export GPX», the same track as a file (TASK-307).
- * Between them «Draw it near me», its shape or word in «Draw» (TASK-313).
+ * directions, and «Export GPX», the same track as a file (TASK-307);
+ * after them «Draw it near me», its shape or word in «Draw» (TASK-313).
  * The drawing that won the contest kept on the phone has the «Winner» band
  * on top (TASK-299).
  */
@@ -131,15 +131,6 @@ export function DrawingCard({ drawing, onBack, onStart, onDrawAgain }: Props) {
           </Text>
         </>
       )}
-      {onDrawAgain !== undefined && (
-        <Pressable
-          style={styles.button}
-          onPress={onDrawAgain}
-          accessibilityRole="button"
-        >
-          <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
-        </Pressable>
-      )}
       {followable(drawing) && (
         <Pressable
           style={styles.button}
@@ -154,6 +145,15 @@ export function DrawingCard({ drawing, onBack, onStart, onDrawAgain }: Props) {
       )}
       {exported === "failed" && (
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
+      )}
+      {onDrawAgain !== undefined && (
+        <Pressable
+          style={styles.button}
+          onPress={onDrawAgain}
+          accessibilityRole="button"
+        >
+          <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
+        </Pressable>
       )}
       <Pressable style={styles.button} onPress={onBack} accessibilityRole="button">
         <Text style={styles.buttonText}>{t("Back to the profile")}</Text>

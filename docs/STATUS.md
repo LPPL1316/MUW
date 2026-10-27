@@ -169,7 +169,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   sue lettere, e la stessa distanza (al decimo di km, una parola mai sotto
   i suoi 3 km a lettera, dentro i limiti dello sport); la partenza resta
   quella di «Draw» e niente si chiede prima di «Draw route». Niente per
-  foto, immagini, percorsi a tema, parole in «Paddle». Il testo nuovo
+  foto, immagini, percorsi a tema, forme sconosciute, parole che «Draw»
+  rifiuterebbe o parole in «Paddle». Il testo nuovo
   aspetta il sì dell'utente. File: `tasks/TASK-313.md`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del

@@ -16968,6 +16968,10 @@ contorno ricostruito dai punti. Un disegno di un iscritto ha `shape`,
 `word`, `style` e i metri corsi (`distance_m`), ma di una foto o di
 un'immagine solo il titolo (`route_title`). «Draw» tiene forma, parola,
 lettere e distanza come stato di `App.tsx`, e la partenza a parte.
+È vicino ad ADR-0267 (TASK-307, «Start» ed «Export GPX» sul disegno di
+un altro), ma è un'altra scelta: là si segue la traccia dell'altro, qui si
+ridisegna la sua figura dove si vuole, e della sua traccia non viaggia
+niente.
 
 **Decisione**:
 
@@ -16982,15 +16986,26 @@ lettere e distanza come stato di `App.tsx`, e la partenza a parte.
    no, e allora il pulsante non c'è: il disegno non ne ha il contorno, e
    quello di un preferito è ricostruito dai punti, non l'immagine scelta.
    Nemmeno un percorso a tema (`ThemedCard`): passa da quei luoghi. Una
-   forma che l'app non conosce ancora (un'API più nuova) neanche.
+   forma che l'app non conosce (non più, o non ancora: un'API più nuova)
+   neanche, e nemmeno una parola che «Draw» rifiuterebbe come scritta
+   (`checkWord` senza distanza: una sola parola, lettere dalla A alla Z,
+   non più lettere di quante lo sport ne permette). Il pulsante c'è solo
+   quando «Draw» si apre senza errori.
 3. **La distanza**: quella chiesta per il percorso di «Explore», quella
    corsa per un disegno; al decimo di km (il campo ne mostra uno: 4004 m
    sono «4»); una parola mai sotto i 3 km a lettera (`wordDistanceM`),
    così una corsa finita un po' corta resta disegnabile; poi dentro i
    limiti dello sport di «Draw» (`APP_DISTANCE_LIMITS_KM`). Lo sport è
-   quello di «Settings», non quello del percorso: una parola mentre lo
-   sport è «Paddle», dove «Draw» disegna solo forme, non ha il pulsante.
-4. **Il percorso o il disegno si lasciano**: `closeExplore()` per un
+   quello di «Settings», non quello del percorso o del disegno: un
+   disegno fatto in bici, aperto da chi ha «Run», si ridisegna di corsa
+   (21 km al massimo); uno di corsa, aperto da chi ha «Bike», diventa un
+   giro di almeno 10 km. Una parola mentre lo sport è «Paddle», dove
+   «Draw» disegna solo forme, non ha il pulsante.
+4. **Dove sta**: nella scheda di un percorso di «Explore» subito sotto
+   «Start»; in quella di un disegno dopo «Start» ed «Export GPX», che non
+   si spostano, e prima di «Back to the profile»; la fascia «Winner»
+   (TASK-299) resta com'è.
+5. **Il percorso o il disegno si lasciano**: `closeExplore()` per un
    percorso, `leave()` del drawingsDoor per un disegno. `leave` è come
    `back` ma non riapre «Profile» né «Find friends» dietro la mappa
    (`onLeave` di `ProfileLayer`): altrimenti un disegno aperto da un

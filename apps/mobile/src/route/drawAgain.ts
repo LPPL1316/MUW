@@ -8,7 +8,7 @@ import {
 
 import { type AnyRouteRequest, isImageRequest } from "../api/routes";
 import { APP_DISTANCE_LIMITS_KM } from "./distance";
-import { wordDistanceM } from "./wordInput";
+import { checkWord, wordDistanceM } from "./wordInput";
 
 /**
  * «Draw it near me» (TASK-313): the figure of a route of «Explore» or of a
@@ -76,13 +76,22 @@ export function againOfDrawing(drawing: DrawnFigure): DrawAgain | null {
 
 /**
  * Whether «Draw» of `activity` can draw it: on the water only a shape of
- * the catalogue (TASK-191), so a word there would wait for another sport.
+ * the catalogue (TASK-191), so a word there would wait for another sport;
+ * elsewhere a word «Draw» takes as typed (one word, the letters A to Z,
+ * no more letters than the sport allows), never one it would refuse.
  */
 export function drawsAgain(
   again: DrawAgain | null,
   activity: Activity,
 ): again is DrawAgain {
-  return again !== null && (again.kind === "shape" || activity !== "paddling");
+  if (again === null) {
+    return false;
+  }
+  if (again.kind === "shape") {
+    return true;
+  }
+  // Without a distance, the distance is not checked: «Draw» chooses it.
+  return activity !== "paddling" && checkWord(again.word, null, activity).ok;
 }
 
 /**

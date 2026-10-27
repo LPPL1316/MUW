@@ -779,18 +779,22 @@ del 2026-10-27): il pulsante neutro **«Draw it near me»** sta nella scheda
 di un percorso di «Explore» aperto sulla mappa (gli esempi delle città, i
 consigliati, le parole, i preferiti, gli esempi di «Feed» e di «NEAR YOU»),
 subito sotto «Start», e nella scheda di un disegno aperto, dal «Feed» o da
-un profilo, fra «Start» ed «Export GPX». Il tocco lascia il percorso o il
+un profilo, dopo «Start» ed «Export GPX» (che restano dove sono) e prima
+di «Back to the profile». Il tocco lascia il percorso o il
 disegno e porta a **«Draw»** con la stessa forma del catalogo, oppure la
 stessa parola con le stesse lettere («Round» o «Square»), già scelte, e la
 stessa distanza: quella chiesta per il percorso di «Explore», quella corsa
 per un disegno, al decimo di km; una parola mai sotto i 3 km a lettera che
-le servono; dentro i limiti dello sport di «Draw» (una corsa di 5 km
-diventa un giro in bici di 10). La partenza resta quella di «Draw» (la
+le servono; dentro i limiti dello sport di «Settings», che resta quello
+(una corsa di 5 km diventa un giro in bici di 10, un giro in bici si
+ridisegna di corsa). La partenza resta quella di «Draw» (la
 posizione, «Another place», «Choose on the map») e non si chiede niente
 finché non si tocca «Draw route»: il motore decide il percorso nel posto
 nuovo. Il pulsante non c'è per ciò che «Draw» non sa scegliere: una foto o
 un'immagine (il disegno ne tiene solo il titolo), un percorso a tema di
-«Explore» (passa da quei luoghi), una parola mentre lo sport è «Paddle».
+«Explore» (passa da quei luoghi), una forma che l'app non conosce, una
+parola che «Draw» rifiuterebbe (lettere fuori dalla A–Z, due parole,
+troppe lettere per lo sport), una parola mentre lo sport è «Paddle».
 Da un disegno aperto da un profilo o da «Find friends», «Profile» resta
 chiuso.
 

@@ -100,6 +100,17 @@ test("a drawing without a shape of the catalogue or a word gives nothing", () =>
   expect(againOfDrawing({ ...DRAWN, shape: "dragon" })).toBeNull();
 });
 
+test("a word «Draw» would refuse is not drawn again", () => {
+  const word = (letters: string) =>
+    againOfDrawing({ ...DRAWN, shape: null, word: letters, distance_m: 21_000 });
+  expect(drawsAgain(word("CIAO"), "running")).toBe(true);
+  // Letters outside A to Z, two words, more letters than a run allows.
+  expect(drawsAgain(word("ÉTÉ"), "running")).toBe(false);
+  expect(drawsAgain(word("CIAO!"), "running")).toBe(false);
+  expect(drawsAgain(word("TWO WORDS"), "running")).toBe(false);
+  expect(drawsAgain(word("MOUNTAINS"), "running")).toBe(false);
+});
+
 test("on the water only a shape is drawn again", () => {
   const word = againOfDrawing({ ...DRAWN, shape: null, word: "MUW" });
   const shape = againOfDrawing(DRAWN);

@@ -182,6 +182,9 @@ test("a member's drawing gives «Draw» its shape, the drawing left for good", a
   expect(screen.getByLabelText("Shape")).toHaveDisplayValue("star");
   expect(screen.queryByText(String(drawing.description))).toBeNull();
   expect(screen.queryByRole("button", { name: "Back to the profile" })).toBeNull();
+  // Nothing of the other's route travels, and nothing is drawn yet.
+  expect(asked("POST", "/route-jobs")).toHaveLength(0);
+  expect(asked("POST", "/route-directions")).toHaveLength(0);
 
   // Nothing of the drawing is waiting behind «Feed».
   await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
@@ -189,9 +192,13 @@ test("a member's drawing gives «Draw» its shape, the drawing left for good", a
   expect(screen.queryByText(String(drawing.description))).toBeNull();
 });
 
-test("a drawing without a shape or a word has no «Draw it near me»", async () => {
+test.each([
+  ["a photo or a picture", { shape: null, word: null, route_title: "Photo" }],
+  ["a shape the app does not know", { shape: "dragon", word: null }],
+  ["a word «Draw» would refuse", { shape: null, word: "ÉTÉ", style: "round" }],
+])("%s has no «Draw it near me»", async (_what, fields) => {
   store.kept.set(SESSION_KEY, JSON.stringify(session));
-  const photo = { ...drawing, shape: null, word: null, route_title: "Photo" };
+  const photo = { ...drawing, ...fields };
   fetchSpy.mockImplementation(async (input) => {
     const path = String(input).replace(API, "");
     if (path === "/me") {

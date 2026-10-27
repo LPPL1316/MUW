@@ -12,7 +12,17 @@ scelte, per disegnarla dove si vuole. Richiesta dell'utente del
 e chiedere di fare la stessa immagine in un altro posto»; alla proposta
 (il pulsante «Draw it near me» che apre «Draw», contro uno che disegna
 subito dove si è) ha risposto «Sì, così». Numero e ordine dal Coordinatore
-(ADR-0273).
+(ADR-0273, vicino ad ADR-0267 ma un'altra scelta: ridisegnare, non
+seguire la traccia di un altro). Entra prima di TASK-309 B, che tocca le
+stesse schede e si riallinea.
+
+Condizioni del Coordinatore: del percorso dell'altro viaggiano solo forma
+(o parola con le sue lettere) e distanza; nessuna richiesta di percorso
+prima di «Draw route», con un test; una forma non più nel catalogo o una
+parola che non passa il controllo non hanno il pulsante, con un test; lo
+sport resta quello di «Settings» (un disegno in bici, per chi corre, si
+ridisegna di corsa); impronta iOS `83793e26` su una copia pulita, nessuna
+dipendenza, i testi col sì dell'utente.
 
 ## Contesto da leggere
 
@@ -29,8 +39,10 @@ subito dove si è) ha risposto «Sì, così». Numero e ordine dal Coordinatore
    distanza; niente per una foto, un'immagine o una forma sconosciuta.
 2. «Draw it near me» nella scheda di un percorso di «Explore»
    (`ExploredCard`, sotto «Start») e in quella di un disegno
-   (`DrawingCard`, fra «Start» ed «Export GPX»), solo quando «Draw» può
-   sceglierne la figura con lo sport di «Settings».
+   (`DrawingCard`, dopo «Start» ed «Export GPX», che non si spostano; la
+   fascia «Winner» resta com'è), solo quando «Draw» si apre senza errori
+   con lo sport di «Settings»: niente per una forma che l'app non conosce
+   o una parola che «Draw» rifiuterebbe.
 3. In `App.tsx` il tocco sceglie forma o parola, lettere e distanza di
    «Draw», lascia il percorso o il disegno e mostra «Draw». La partenza
    resta quella di «Draw»; niente si chiede prima di «Draw route».
@@ -47,9 +59,10 @@ subito dove si è) ha risposto «Sì, così». Numero e ordine dal Coordinatore
       «Square» se era squadrata.
 - [x] Da un disegno del «Feed», «Draw» ha la forma e i km corsi al
       decimo (4004 m → «4»); il disegno è chiuso e non torna dietro
-      «Feed».
-- [x] Un disegno senza forma né parola (una foto, un'immagine) non ha il
-      pulsante; «Start» resta.
+      «Feed»; nessun `POST /route-jobs` né `/route-directions`.
+- [x] Una foto o un'immagine, una forma che l'app non conosce, una parola
+      che «Draw» rifiuterebbe («ÉTÉ», «CIAO!», due parole, troppe
+      lettere): niente pulsante; «Start» resta.
 - [x] Distanza: al decimo di km, una parola mai sotto i 3 km a lettera,
       dentro i limiti dello sport di «Draw»; una parola in «Paddle» non ha
       il pulsante (`src/route/drawAgain.test.ts`).
@@ -71,9 +84,9 @@ apps/mobile/src/route/drawAgain.test.ts               (nuovo)
 apps/mobile/__tests__/AppDrawAgain.test.tsx           (nuovo)
 apps/mobile/src/explore/ExploredCard.tsx
 apps/mobile/src/social/DrawingCard.tsx
-apps/mobile/src/social/drawingsDoor.ts
-apps/mobile/src/social/DrawingsGrid.test.tsx          (il door di prova ha `leave`)
-apps/mobile/src/screens/ProfileLayer.tsx
+apps/mobile/src/social/drawingsDoor.ts               (`leave`, ok del Coordinatore)
+apps/mobile/src/social/DrawingsGrid.test.tsx          (una riga: il door di prova ha `leave`, ok del Coordinatore)
+apps/mobile/src/screens/ProfileLayer.tsx              (`onLeave`, ok del Coordinatore)
 apps/mobile/src/i18n/it.ts
 apps/mobile/src/i18n/de.ts
 apps/mobile/src/i18n/fr.ts
