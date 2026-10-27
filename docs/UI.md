@@ -894,7 +894,19 @@ mappa è quella di prima.
   GPX, l'API e il motore restano in metri.
   **«Notifications»**: «Email
   notifications» e «Push notifications», due interruttori salvati
-  nell'account (TASK-185, ADR-0206, sotto). **«About»**: «Help»,
+  nell'account (TASK-185, ADR-0206, sotto). **«Feedback»** (TASK-308,
+  ADR-0268), solo quando il server risponde `204` a `GET /feedback` (con
+  il server di prima la sezione non c'è): la riga «Send feedback» (💬); un
+  tocco apre sotto il modulo,
+  come «Change email»: «Ideas, problems, anything that would make MuW
+  better: we read every message.», un campo di più righe («Write here…»,
+  al più 2000 caratteri), piccolo e grigio «It reaches us with your
+  username, your email and the app's version, so we can answer you.», e
+  «Send». Mandato, il modulo si chiude e sotto la riga resta «Thank you!
+  Your message reached us.»; vuoto, «Write something first.»; al sesto
+  del giorno, «You sent a lot of feedback today. Try again tomorrow.», e
+  il campo tiene le parole. Chiuso senza mandare, le parole restano.
+  **«About»**: «Help»,
   «Terms», «Privacy», tre righe con «›» in fondo: ognuna apre il suo
   testo come pagina (TASK-184, ADR-0205, sotto).
 - In fondo **«Log out»** e **«Delete account»**, in rosso, che chiede prima
