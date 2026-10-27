@@ -195,9 +195,10 @@ pagine»):
    con, quando servono, il rimando alle Impostazioni e la ricerca del
    luogo; l'errore della mappa; le forme del catalogo come tessere, con un
    simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +; sotto la distanza, due
-   righe da scorrere di lato, «CITY TOURS» e «PICTURES» (TASK-280, sotto
-   «I giri e le immagini pronte»). In fondo, fermo mentre
+   un'altra parola; la distanza, grande, fra − e +; sotto la distanza,
+   con la corsa, «NEAR YOU» (TASK-306, sotto «Le forme pronte vicino a
+   te»), poi due righe da scorrere di lato, «CITY TOURS» e «PICTURES»
+   (TASK-280, sotto «I giri e le immagini pronte»). In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -2003,6 +2004,54 @@ ci sono città né foto). I testi nuovi, nelle cinque lingue:
 «Bike», le quattro categorie, «near your start» e «near {place}» c'erano
 già.
 
+### Le forme pronte vicino a te (TASK-306, ADR-0266)
+
+Chiesto dall'utente il 2026-10-26 («sotto a distanza 5 km metti una
+sezione di figure semplici il cuore... di posti vicini all'utente»); le
+scelte sono sue, dello stesso giorno. Sotto la distanza, sopra «CITY
+TOURS», una riga da scorrere di lato con schede larghe come quelle di
+«NEARBY TOWNS» (due e il bordo della terza), la mappa sotto il disegno:
+
+- **«NEAR YOU»**: **cerchio, cuore e stella da 5 km** dalla posizione del
+  telefono, sempre 5 km, qualunque sia la distanza sopra. Li disegna il
+  telefono, quando ha le mappe intorno (TASK-214), altrimenti il server.
+  Mentre si disegna, la scheda ha il nome della forma e «Drawing…»;
+  pronta, «Heart · 5.2 km» e il disegno. Restano nel telefono e si
+  disegnano di nuovo solo a più di 1 km da dove partono.
+- **Quando una forma non viene** (il motore la rifiuta, o non risponde),
+  al suo posto la stessa forma, o la più semplice che manca, **già pronta
+  in una città in evidenza di «Explore» scelta a caso**, una città per
+  scheda, con sotto il nome della città e quanto è lontana dalla
+  posizione, «Roma · 480 km away», perché nessuno la prenda per una da
+  correre da casa (senza la posizione, il nome soltanto). Senza la
+  posizione, o se vicino non viene niente, **sei forme in sei città**,
+  dalla più semplice:
+  cerchio, cuore, stella, luna, cavallo, lumaca, testa di cane, testa di
+  coniglio. Solo forme che l'API ha già (i suoi esempi tenuti): una che
+  dovrebbe disegnare adesso si salta. Se tutte le schede sono di altre
+  città, l'etichetta è **«SHAPES TO TRY»**.
+- Un tocco apre il percorso sulla mappa come un percorso di «Explore»
+  (A · B · C, «Start», «Export GPX»); «←» torna a «Draw».
+
+Con «Bike» e «Paddle» la riga non c'è. Il permesso della posizione non lo
+chiede la riga: usa quello che l'app ha già.
+
+**«Explore» preparato all'apertura**: con la partenza nota, prima che la
+pagina si apra, l'app chiede i percorsi vicini, i paesi vicini e i loro
+esempi (questi dietro a tutto il resto nella coda delle richieste);
+aperta, la pagina li ha subito. La lista vale dieci minuti, poi la pagina
+la chiede di nuovo. Non con «Paddle», che ha i suoi posti sull'acqua
+(TASK-246). Riga e preparazione partono solo dopo l'animazione
+d'apertura, si fermano durante una corsa, la navigazione e con l'app in
+background, e riprendono da dove erano.
+
+I testi nuovi, nelle cinque lingue («Drawing…» c'era già):
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| NEAR YOU | VICINO A TE | IN DEINER NÄHE | CERCA DE TI | PRÈS DE VOUS |
+| SHAPES TO TRY | FORME DA PROVARE | FORMEN ZUM AUSPROBIEREN | FORMAS PARA PROBAR | FORMES À ESSAYER |
+
 ### Disegnare sulla mappa: «Draw on the map» (TASK-281, ADR-0245)
 
 Sotto «Shape | Word | Image», largo quanto l'interruttore, il tasto
@@ -2688,6 +2737,7 @@ fuori chiude. Con «Voice» spenta la riga resta e si può cambiare, ma
 | Partenza | «Parti lungo Via Roma» |
 | Accanto | «Svolta a sinistra sul percorso pedonale accanto a Via Rosmini» |
 | Fuori, di nuovo, arrivo | «Sei fuori percorso. Torna sul percorso.» · «Di nuovo sul percorso.» · «Hai raggiunto l'arrivo.» |
+| Dove riprende, una volta dopo «fuori» (TASK-303, ADR-0263; testi da approvare) | «Il percorso riprende a 120 metri verso nord-est.»; in miglia «… a 400 piedi …» |
 | Pausa, ripresa | «In pausa.» · «Si riparte.» |
 | Penna alzata | «Lettera finita. Cammina fino alla A: il disegno è in pausa.» · «Giù la penna: disegna la A.» |
 | Km | «Un chilometro. Tempo: 5 minuti e 42 secondi. Passo medio: 5 minuti e 42 secondi al chilometro.» |
@@ -2746,6 +2796,24 @@ la fine della corsa come sempre, e poi si torna alla prima schermata. Una
 corsa interrotta da più di 2 ore apre invece la sua fine, da salvare o da
 lasciare, come prima. Nessun testo nuovo. Lo stesso per la corsa senza
 percorso («Correre senza percorso», sotto).
+
+**Fuori percorso, e il rientro più avanti** (TASK-303, ADR-0263; dalla
+prova sul campo dell'utente a Trento del 2026-10-25). Chi esce dal
+percorso, per una strada chiusa o per un'altra via, vede dove riprende: sulla
+mappa una **linea a puntini** dalla sua posizione al punto del percorso più
+vicino in linea d'aria, più avanti di dove è uscito; nel banner «Off the
+route», la distanza col punto cardinale («120 m NE») e «Follow the dotted
+line back to the route.»; a voce, una volta, dopo «Sei fuori percorso. Torna
+sul percorso.», «Il percorso riprende a 120 metri verso nord-est.». Linea e
+banner si aggiornano a ogni posizione. Rientrando più avanti, dopo 20 m nel
+verso del percorso, la voce dice «Di nuovo sul percorso» e riprende dalla
+svolta successiva: quelle del tratto saltato non si dicono. Attraversare il
+percorso di traverso non è rientrare. Su una forma che ripassa la stessa
+strada più avanti, il punto e il rientro restano nel tratto appena lasciato
+(fino a 300 m più 2 m per ogni metro corso fuori), non su un giro dopo. La
+distanza e il tempo della deviazione contano nella corsa. Lo stesso in bici
+e in canoa. Testi in inglese e italiano qui sopra, le altre tre lingue in
+`src/voice/` e `src/i18n/`, **da approvare dall'utente**.
 
 **Con le miglia** (TASK-182 parte C, ADR-0149 «aggiornamento (parte C)»;
 scelta dell'utente del 2026-10-03, «come fa Strava»). Con «Miles» in

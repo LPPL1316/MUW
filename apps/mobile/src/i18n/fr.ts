@@ -1444,6 +1444,15 @@ export const FR: Table = {
   Winner: "Gagnant",
   "{name} won the MuW contest": "{name} a gagné le concours MuW",
 
+  // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
+  "NEAR YOU": "PRÈS DE VOUS",
+  "SHAPES TO TRY": "FORMES À ESSAYER",
+  // src/screens/NavigateScreen.tsx (TASK-303)
+  "The route is {distance} away, to the {direction}.":
+    "Le parcours reprend à {distance}, direction {direction}.",
+  "Follow the dotted line back to the route.":
+    "Suivez la ligne pointillée pour revenir sur le parcours.",
+
   // src/api/messages.ts (TASK-311: private messages)
   "A message needs some words.": "Un message a besoin de quelques mots.",
   "A message is at most {max} characters.": "Un message fait au plus {max} caractères.",

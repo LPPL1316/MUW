@@ -124,6 +124,11 @@ test("on a bike a turn is said RIDE_ANNOUNCE_M ahead (TASK-216); a run as before
 });
 
 const OFF_CUE: Cue = { say: "You are off the route. Head back to it.", vibrate: true };
+/** Said after it, once (TASK-303): where the route is. */
+const WHERE_CUE: Cue = {
+  say: expect.stringMatching(/^The route is \d+ metres away, to the [a-z-]+\.$/),
+  vibrate: false,
+};
 const BACK_CUE: Cue = { say: "Back on the route.", vibrate: false };
 /** A fix every 2 s, as the phone gives them at a running pace (6 m apart). */
 const FIX_S = 2;
@@ -199,7 +204,7 @@ test("off the route is said once, and the way back after BACK_FIXES", () => {
     })),
   );
   expect(off.navigation.offRoute).toBe(true);
-  expect(off.cues.map(({ cue }) => cue)).toEqual([OFF_CUE]);
+  expect(off.cues.map(({ cue }) => cue)).toEqual([OFF_CUE, WHERE_CUE]);
   const first = onFix(off.navigation, east(160), { accuracyM: 8, timeMs: 30_000 });
   expect(BACK_FIXES).toBe(2);
   expect(first.cues).toEqual([]);
@@ -243,7 +248,7 @@ test("without times from the phone, OFF_FIXES fixes in a row are enough", () => 
     navigation = result.navigation;
     cues.push(...result.cues);
   }
-  expect(cues).toEqual([OFF_CUE]);
+  expect(cues).toEqual([OFF_CUE, WHERE_CUE]);
 });
 
 test("the end of the route is said, and nothing after", () => {
@@ -377,7 +382,12 @@ test("without a gap, a fix beyond where locate looks is off the route, as before
     reading: { accuracyM: 8, timeMs: lastMs + (i + 1) * FIX_S * 1000 },
   }));
   const after = follow(before.navigation, jump);
-  expect(after.cues).toEqual([OFF_CUE]);
+  // The route is shown where the runner can be taken back: not where they
+  // jumped to, beyond rejoinAheadM (TASK-303).
+  expect(after.cues).toEqual([
+    OFF_CUE,
+    { say: "The route is 230 metres away, to the west.", vibrate: false },
+  ]);
   expect(after.navigation.alongM).toBeCloseTo(296, -1);
 });
 
@@ -438,5 +448,5 @@ test("a runner never on the route yet is not looked for further on", () => {
   const waiting = onFix(start, north(300, east(0)), { accuracyM: 8, timeMs: 0 });
   const walk = follow(waiting.navigation, outward(800, 836, 60_000));
   expect(walk.navigation.alongM).toBe(0);
-  expect(walk.cues).toEqual([OFF_CUE]);
+  expect(walk.cues).toEqual([OFF_CUE, WHERE_CUE]);
 });
