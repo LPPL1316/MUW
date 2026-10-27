@@ -28,8 +28,10 @@ import {
 } from "./src/location/startMode";
 import { startStatus } from "./src/location/startStatus";
 import { useCurrentPosition } from "./src/location/useCurrentPosition";
+import { useMayWorkAhead } from "./src/intro/firstPage";
 import { ExploredCard } from "./src/explore/ExploredCard";
 import { useExplored } from "./src/explore/explored";
+import { prepareExplore } from "./src/explore/exploreAhead";
 import { ExploreScreen } from "./src/explore/ExploreScreen";
 import {
   gameCatalog,
@@ -104,6 +106,8 @@ import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
 import { DrawIdeas, toursFrom } from "./src/route/DrawIdeas";
+import { NearYou } from "./src/route/NearYou";
+import { useNearYou } from "./src/route/nearYouShapes";
 import { sampleOf, samplePicture } from "./src/route/samplePictures";
 import {
   type AnyRouteRequest,
@@ -656,6 +660,44 @@ function MuW() {
   // (TASK-232): choosing it, running it and at its end.
   const canvasOn = screen === "canvas";
   const pickOn = screen === "pickStart";
+  // Work ahead of the user (TASK-306): once the first page shows, never
+  // while running or navigating, nor with the app in the background.
+  const mayWorkAhead = useMayWorkAhead(running || screen === "navigate");
+  // «NEAR YOU» under the distance of «Draw», a run's only: shapes from the
+  // phone's position, if the app has it (none is asked for here); without
+  // it, shapes of other cities.
+  const nearYou = useNearYou(
+    API_URL,
+    position.status === "ok"
+      ? position.point
+      : position.status === "loading"
+        ? undefined
+        : null,
+    mayWorkAhead && sportActivity === "running",
+  );
+  // «Explore» prepared around the start until it is first opened: then
+  // the page asks for itself. On the water it has its own (TASK-246).
+  const [exploreSeen, setExploreSeen] = useState(false);
+  useEffect(() => {
+    if (screen === "explore") {
+      setExploreSeen(true);
+    }
+  }, [screen]);
+  const aheadLat = start?.point[0];
+  const aheadLon = start?.point[1];
+  useEffect(() => {
+    if (
+      !mayWorkAhead ||
+      exploreSeen ||
+      sport === "paddle" ||
+      API_URL === null ||
+      aheadLat === undefined ||
+      aheadLon === undefined
+    ) {
+      return;
+    }
+    return prepareExplore(API_URL, [aheadLat, aheadLon]);
+  }, [mayWorkAhead, exploreSeen, sport, aheadLat, aheadLon]);
   const turned = useTurnedMap(
     reviewing || running || freeFinishing || theming || canvasOn || pickOn
       ? null
@@ -1534,6 +1576,21 @@ function MuW() {
                       underKinds={<MapDrawButton onPress={onOpenCanvas} />}
                     />
                   </ImageEditsContext.Provider>
+                  {/* Shapes ready to run near the phone, or in other cities
+                      (TASK-306): one opens as a route of «Explore», and «←»
+                      comes back here. */}
+                  {sportActivity === "running" && (
+                    <NearYou
+                      cards={nearYou}
+                      onOpen={(route) => {
+                        Keyboard.dismiss();
+                        closeExplore();
+                        openExplored(route);
+                        setRouteList("choose");
+                        setScreen("map");
+                      }}
+                    />
+                  )}
                   {/* The city tours and the ready-made pictures (TASK-280):
                       none on the water, where there are no towns or photos. */}
                   {sportActivity !== "paddling" && (

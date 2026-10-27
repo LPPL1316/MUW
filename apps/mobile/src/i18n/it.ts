@@ -1435,6 +1435,9 @@ export const IT: Table = {
     "Apple e Google non sponsorizzano questo concorso e non vi sono coinvolte in alcun modo.",
   Winner: "Vincitore",
   "{name} won the MuW contest": "{name} ha vinto il concorso MuW",
+  // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
+  "NEAR YOU": "VICINO A TE",
+  "SHAPES TO TRY": "FORME DA PROVARE",
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Questo percorso non ha le indicazioni delle svolte: segui la linea sulla mappa.",

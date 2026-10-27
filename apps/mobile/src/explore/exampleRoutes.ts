@@ -571,6 +571,16 @@ export function readyExample(
   return example?.status === "ready" ? example.route : null;
 }
 
+/**
+ * A route drawn whole outside a city's examples, kept to open as one of
+ * them, without asking the API: the shapes near the phone in «Draw»
+ * (TASK-306). `request` is what it was drawn for.
+ */
+export function keepWhole(detail: ExampleDetail, request: RouteRequest): void {
+  details.set(detail.id, detail);
+  asked.set(detail.id, request);
+}
+
 /** The route whole of a ready example, to open without asking the API. */
 export function exampleDetail(id: string): ExampleDetail | undefined {
   return details.get(id);
@@ -764,7 +774,7 @@ function wordsFromFile(
 }
 
 /** A kept example as its card shows it. */
-function cardOf(city: Place, detail: ExampleDetail): RecommendedRoute {
+export function cardOf(city: Place, detail: ExampleDetail): RecommendedRoute {
   const {
     id,
     city: name,
