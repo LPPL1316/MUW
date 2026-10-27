@@ -16951,3 +16951,96 @@ cresce di nessun campo. Al rientro la mappa si ricarica (un attimo di
 barra di caricamento). Le correzioni arrivano sulla 1.0 solo con un
 aggiornamento sul canale `production` o con la prossima build: l'impronta
 iOS non cambia.
+
+
+## ADR-0265 — Il parapendio come sport di MuW: una forma nel cono di planata, esportata allo strumento di volo, mai guidata in volo
+
+**Stato**: Proposto · 2026-10-26 · studio di fattibilità con misure
+(TASK-305, `out/TASK-305/studio.md` del Mac). Scelta dell'utente dello
+stesso giorno: «è una bella idea», MuW dà la traccia e fa caricare il
+volo, **non fa da navigatore**; il 2026-10-27 l'utente ha scelto la riga
+«Paragliding» 🪂 in Settings subito, con «Soon», il nome (Parapendio,
+Gleitschirmfliegen, Parapente) e l'avviso di sicurezza com'era proposto;
+le tre condizioni del punto 7 sono ancora aperte
+
+**Contesto**: l'utente vuole lo sport «Parapendio»: lo si sceglie, l'app si
+adatta al volo, e il pilota disegna la forma nel cielo con la sua traccia.
+`PRODUCT.md` e `ROADMAP.md` dicono da sempre che il parapendio ha un modello
+di percorso diverso e va riprogettato, non adattato. In aria non ci sono
+strade né rive: c'è il cono di planata fra un decollo e il suo atterraggio
+ufficiale, da cui non si esce senza termiche; ci sono spazi aerei in cui
+il volo libero non può entrare (DPR 133/2010 art. 9: solo VFR diurno, fuori
+dagli spazi controllati e dalle ATZ, a 5 km dagli aeroporti) e regole
+dell'aria sui centri abitati (SERA.5005(f): 300 m). In volo il pilota non
+guarda il telefono. Le condizioni del Coordinatore: la sicurezza prima di
+tutto, le fonti delle zone con licenza, il motore resta sulle strade, un
+motore per termiche e traiettorie è un costo a parte, e se non si può fare
+bene lo studio dice «non conviene».
+
+**Decisione proposta** (nessuna parte parte senza il sì dell'utente):
+
+1. **Il modello è il cono di planata**, non una rete: da ogni punto della
+   forma l'atterraggio ufficiale resta raggiungibile in aria calma con
+   efficienza 8 e 300 m sopra il terreno (nessun margine nei primi 300 m
+   dal decollo, dove si corre giù dal pendio; 100 m sopra il campo
+   all'arrivo, la quota di un circuito). Due Dijkstra sulla griglia del terreno (quota
+   con cui si arriva, quota da cui si torna); la forma più larga che ci sta
+   si cerca per scala, inclinazione entro ±30° e punto d'ingresso; il
+   percorso è decollo → forma → atterraggio. Il vento è una correzione
+   della deriva. **Il motore decide dove e quanto grande; l'AI interpreta
+   soltanto**, e resta una libreria senza rete: terreno, spazi aerei,
+   centri abitati e decolli entrano come file.
+2. **La quota prende il posto della distanza**: non si chiede «quanti km»,
+   si mostra la forma più grande che sta nel cono, con la riserva di quota
+   come numero. Senza termiche è una planata di 10–20 minuti. Una quota di
+   partenza maggiore (termica fatta prima) dà una forma più grande o più
+   riserva: il motore la accetta, **non pianifica mai una termica**.
+3. **Spazi aerei e regole come limiti del cono**: sotto il pavimento delle
+   zone controllate, sopra il soffitto delle riserve (ENR 5.6, 1500 ft),
+   mai dentro P/R/D, 500 m sopra i centri abitati (più dei 300 m della
+   regola, per scelta). I dati hanno la data del ciclo AIRAC; **più vecchi
+   di un ciclo, il motore rifiuta**. I NOTAM non si conoscono: l'app lo
+   dice sempre.
+4. **La forma come boe, allo strumento che il pilota ha già**: 12–16 boe
+   per un cuore, i vertici per stella e lettere, raggio 30–50 m; export
+   `.xctsk` e QR `XCTSK` (XCTrack, Flyskyhy, SeeYou Navigator), `.cup`,
+   `.wpt`. **Nessuna guida in volo da MuW** (scelta dell'utente): niente
+   «Start», niente voce, nessuna schermata di volo.
+   Dopo l'atterraggio l'app importa l'IGC (senza il nome del pilota del
+   record `HFPLT`, con i 200 m tolti come per le corse), dà il punteggio
+   sulla forma e pubblica nel Feed. Strava resta fuori (niente IGC, niente
+   sport parapendio).
+5. **Cosa l'app non dice mai**: «vola qui», «qui è legale», «spazio aereo
+   libero», «nessun NOTAM», «condizioni sicure», «ce la fai»; niente
+   linguaggio didattico (le scuole sono dell'AeCI). L'avviso prima di
+   pianificare e la riga fissa sul risultato con la data dei dati sono
+   approvati dall'utente (2026-10-27); il testo è in `tasks/TASK-305.md`.
+6. **Le fonti** (licenze lette nello studio): decolli da OSM (ODbL),
+   terreno Copernicus GLO-30/90, vento DWD ICON-D2 o ECMWF (CC BY 4.0),
+   centri abitati OSM. **Gli spazi aerei sono il nodo**: openAIP è CC
+   BY-NC (con un'eccezione scritta sulla home da chiarire), ENAV vuole un
+   accordo, EAD è a pagamento con royalties. Senza una fonte di spazi aerei
+   che si possa spedire nell'app non si propone nessuna forma: le email a
+   openAIP, ENAV, ParaglidingEarth e DHV vengono prima di qualunque codice.
+
+7. **Tre condizioni prima del codice** (misurate sui tre decolli dello
+   studio): una fonte di spazi aerei con licenza (alla Panarotta il file
+   comunitario mette l'atterraggio ufficiale dentro una riserva e non ci
+   sta nessuna forma); un elenco di decolli scelti a mano dove la forma in
+   aria calma è ≥ 1,5 km (il Baldo, 1667 m di dislivello: 2,8 km; Grappa e
+   Panarotta, 1000–1400 m: 1 km, nulla con vento contro); un parere legale e
+   una prova con un pilota e il club di un sito.
+
+**Alternative scartate**: adattare il motore delle strade (non c'è una
+rete); una guida vocale in volo di MuW (duplica lo strumento, distrae in
+decollo e in atterraggio, e un «boa raggiunta» parlato non è documentato
+nemmeno in XCTrack); un pianificatore di termiche e traiettorie (progetto a
+parte, dati meteo a pagamento, sconsigliato); usare openAIP «perché lo
+fanno tutti» (la licenza dice no).
+
+**Conseguenze**: 10–14 sessioni (senza schermata di volo, per scelta
+dell'utente), contro le 15 della canoa, che aveva una sola fonte già nel motore; più il
+tempo delle licenze, un parere legale sulla responsabilità da informazione
+e una prova con un pilota vero, che nessuna sessione può fare. Le parti e i
+loro file sono in `tasks/TASK-305.md`; i numeri misurati sui tre decolli
+(Monte Baldo, Monte Grappa, Panarotta) sono nello studio.
