@@ -449,7 +449,8 @@ l'altro `invalid_request`, i pezzi senza incroci) e il risultato ha i
 con pezzi, acceso all'avvio; i pezzi gialli sull'anteprima al posto dei
 tratti, senza «Edit the outline»; la richiesta con `pieces` e `pen_up`; il
 percorso come una forma in pezzi (tratteggio, km a parte, pausa). Un testo
-nuovo da approvare. Impronta iOS invariata, `engine.zip` rifatto. Emerso:
+nuovo, approvato dall'utente il 2026-10-27 nelle cinque lingue con «Edit
+the outline» nascosto a penna alzata. Impronta iOS invariata, `engine.zip` rifatto. Emerso:
 le foto pronte di «Draw» non hanno pezzi (vengono da
 `samplePictures.json`), anche se auto, chitarra e coppa ne avrebbero (2, 1,
 2). Rimandato: il server dopo Apple con l'ok dell'utente.

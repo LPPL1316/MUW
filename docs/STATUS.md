@@ -562,8 +562,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con `pieces`, i `walks` nel risultato; `ImagePenUpRouteRequest` in
   `shared-types`. Nell'app «Lift the pen between parts» sotto una foto con
   pezzi, acceso all'avvio; i pezzi sull'anteprima; il percorso come una
-  forma in pezzi. Un testo nuovo nelle cinque lingue da approvare
-  dall'utente. Impronta iOS invariata (`83793e26`); `engine.zip` rifatto
+  forma in pezzi. Il testo nuovo nelle cinque lingue e «Edit the outline»
+  nascosto con la penna alzata approvati dall'utente il 2026-10-27.
+  Impronta iOS invariata (`83793e26`); `engine.zip` rifatto
   (anche la A2 lo rifà: chi entra dopo lo rifà). Server dopo Apple.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).

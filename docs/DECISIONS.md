@@ -15992,8 +15992,9 @@ dell'utente)**:
    forme in pezzi, con lo stato di quello delle parole (acceso all'avvio);
    dei pezzi che l'app non sa disegnare (non uno per uno sopra la foto,
    fuori dalla cornice) si lasciano fuori i pezzi, non il contorno. Un
-   testo nuovo, la riga sotto l'anteprima con la penna alzata, da
-   approvare dall'utente. `images.py` e `schemas.py` vanno sul telefono:
+   testo nuovo, la riga sotto l'anteprima con la penna alzata, approvato
+   dall'utente nelle cinque lingue il 2026-10-27 («ok vanno bene»), come
+   il punto 4 («ok va bene»). `images.py` e `schemas.py` vanno sul telefono:
    `engine.zip` rifatto.
 
 ## ADR-0045, aggiunta — Si dice «u-turn» anche dove si torna indietro fuori da un incrocio
