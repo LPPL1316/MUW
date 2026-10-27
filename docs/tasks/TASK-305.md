@@ -93,6 +93,7 @@ apps/mobile/src/about/content/en.ts, it.ts, de.ts, es.ts, fr.ts   (informativa e
 site/privacy/index.html, it/, de/, es/, fr/index.html    (rigenerate: node site/tools/make_privacy.mjs)
 apps/mobile/src/api/activityHeights.test.ts, userPhotos.test.ts                 (nuovi)
 apps/mobile/src/profile/ProfileStats.test.tsx, ProfileGallery.test.tsx          (nuovi)
+apps/mobile/src/screens/ProfileEntryPoints.test.tsx      (la pagina propria ora chiede /users/{id} per i totali: si controlla che non si apra il profilo di un altro)
 docs/tasks/TASK-305.md (nuovo), docs/DECISIONS.md (ADR-0265), docs/STATUS.md,
 docs/API.md, docs/DATABASE.md, docs/UI.md
 ```

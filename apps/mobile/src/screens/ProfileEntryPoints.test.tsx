@@ -228,10 +228,10 @@ test("the account's own tagged name goes to the page, and the drawing closes", a
   expect(screen.queryByRole("header", { name: "Profile" })).toBeNull();
   expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
   expect(await screen.findByText("Drawings")).toBeOnTheScreen();
-  // Nobody else's profile was asked for.
-  expect(
-    fetchSpy.mock.calls.filter(([input]) => String(input) === `${API}/users/${ME}`),
-  ).toHaveLength(0);
+  // No member's page opened over it: the page asks its own profile only
+  // for its totals (TASK-305), and never shows the line of another's.
+  expect(screen.queryByText("Loading the profile…")).toBeNull();
+  expect(screen.queryByText(/drawings? · /)).toBeNull();
 });
 
 test("a notification of a member opens over the page, and «←» shows the page again", async () => {
