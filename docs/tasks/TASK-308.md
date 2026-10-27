@@ -1,7 +1,6 @@
 # TASK-308 — «Send feedback» in «Settings»
 
-**Stato**: In lavorazione — PR #576 pronta, testi e privacy approvati;
-aspetta il «merge» del Coordinatore con la parola dell'utente
+**Stato**: Done · 2026-10-28 (PR #576, merge `2a3e3fc9`)
 **Fase**: 4 · **Branch**: `feat/TASK-308-feedback`
 **ADR**: ADR-0268 · **Migrazione**: `0031_feedback.sql` (il numero è il
 primo libero in `main` al merge, conteso con TASK-309) · **API e app**
@@ -120,7 +119,7 @@ Approvati dall'utente il 2026-10-26, così come sono:
 - [x] La privacy lo dice nelle cinque lingue; le pagine del sito sono
       uguali all'app (`site` `npm test`).
 - [x] Testi e privacy approvati dall'utente (2026-10-26).
-- [ ] Test verdi in CI.
+- [x] Test verdi in CI.
 
 ## File toccati
 
@@ -210,3 +209,23 @@ che manca solo nei `node_modules` del Mac. **Impronta iOS** su una copia
 pulita con `npm ci` a `865af5db`: `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`,
 invariata. Aspetta il sì dell'utente su testi e privacy; al merge la data
 della privacy (sopra, «Al merge»).
+
+## Esito
+
+**Fatto** (chiuso il 2026-10-28). API e app in `main` con la #576 (merge
+`2a3e3fc9`), migrazione `0031_feedback.sql`: in «Settings» la sezione
+«FEEDBACK» con «Send feedback», che apre il modulo sotto la riga;
+`POST /feedback` tiene il messaggio, al più 5 al giorno per account e 20
+per indirizzo di rete, e lo manda per email a `SHAPEROUTE_FEEDBACK_TO` o
+a `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. La sezione si vede
+solo dopo il `204` di `GET /feedback`: con il server di oggi non c'è.
+Testi e privacy approvati dall'utente il 2026-10-26; privacy datata
+28 ottobre 2026 nelle cinque lingue, pagine del sito rifatte. Criteri
+provati dai test della PR, verdi in CI: `test_feedback.py` su PostgreSQL
+vero (26), `test_resend_email.py`, i jest della riga, del modulo, della
+sonda e di «Settings» con il server vecchio e quello nuovo, `shared-types`
+e `site`. Solo JS nell'app: impronta iOS `83793e26` invariata.
+**Restano**: il server con la `0031` dopo l'approvazione di Apple e col
+sì dell'utente (`DEPLOY.md`, «Email del feedback»; basta
+`SHAPEROUTE_REPORTS_TO`, già previsto), la copia F.14 delle pagine
+privacy del sito, la pubblicazione dell'app.
