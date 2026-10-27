@@ -1456,4 +1456,9 @@ export const DE: Table = {
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "IN DEINER NÄHE",
   "SHAPES TO TRY": "FORMEN ZUM AUSPROBIEREN",
+  // src/screens/NavigateScreen.tsx (TASK-303)
+  "The route is {distance} away, to the {direction}.":
+    "Die Route ist {distance} entfernt, Richtung {direction}.",
+  "Follow the dotted line back to the route.":
+    "Folge der gepunkteten Linie zurück zur Route.",
 };

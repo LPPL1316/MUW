@@ -113,4 +113,19 @@ export const FR: Phrasebook = {
     `${capital(units(km, "un kilomètre", "kilomètres"))}. Temps : ${time}. Allure moyenne : ${pace} aux 500 mètres.`,
   paddleMile: (miles, time, pace) =>
     `${capital(units(miles, "un mile", "miles"))}. Temps : ${time}. Allure moyenne : ${pace} aux 500 mètres.`,
+  // Hors du parcours, où il est (TASK-303).
+  routeAt: (metres, towards) =>
+    `Le parcours reprend à ${metres} mètres, direction ${towards}.`,
+  routeAtFeet: (feet, towards) =>
+    `Le parcours reprend à ${feet} pieds, direction ${towards}.`,
+  compass: [
+    "nord",
+    "nord-est",
+    "est",
+    "sud-est",
+    "sud",
+    "sud-ouest",
+    "ouest",
+    "nord-ouest",
+  ],
 };
