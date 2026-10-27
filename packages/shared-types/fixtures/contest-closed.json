@@ -1,0 +1,200 @@
+{
+  "id": "6b1e4f2a-9c3d-4e8b-a7f5-2d0c1b9e8a64",
+  "starts_at": "2026-11-02T00:00:00+01:00",
+  "ends_at": "2026-11-15T23:59:59+01:00",
+  "closed_at": "2026-11-16T09:12:00+01:00",
+  "top": [
+    {
+      "rank": 1,
+      "reactions": 14,
+      "drawing": {
+        "id": "3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815",
+        "title": "Sunday heart by the river",
+        "started_at": "2026-09-20T07:13:20Z",
+        "published_at": "2026-11-03T07:40:00Z",
+        "place": "Trento",
+        "shape": "star",
+        "word": null,
+        "style": null,
+        "route_title": null,
+        "distance_m": 4004,
+        "duration_s": 1140,
+        "score": 87,
+        "fidelity": 0.83,
+        "visibility": "everyone",
+        "description": "Legs heavy after the bridge.\nThe heart came out round all the same.",
+        "activity": "running",
+        "tags": [
+          {
+            "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+            "username": "adam.trento"
+          }
+        ],
+        "photos": [
+          {
+            "n": 1,
+            "url": "/drawings/3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815/photos/1?v=1790027100000000",
+            "width": 1080,
+            "height": 810
+          }
+        ],
+        "rotation_deg": -30,
+        "track_preview": [
+          [46.0671, 11.12399],
+          [46.0671, 11.1344],
+          [46.0761, 11.1344],
+          [46.0761, 11.1214],
+          [46.0689, 11.1214]
+        ],
+        "author": {
+          "public_id": "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13",
+          "username": "Ada_runs"
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "reactions": 11,
+      "drawing": {
+        "id": "a7c04e9d-5b12-4f3e-8d6a-91c2b7e0f4d3",
+        "title": "Star over the bridge",
+        "started_at": "2026-09-20T07:13:20Z",
+        "published_at": "2026-11-05T17:05:00Z",
+        "place": "Trento",
+        "shape": "star",
+        "word": null,
+        "style": null,
+        "route_title": null,
+        "distance_m": 4004,
+        "duration_s": 1140,
+        "score": 87,
+        "fidelity": 0.83,
+        "visibility": "everyone",
+        "description": "Legs heavy after the bridge.\nThe heart came out round all the same.",
+        "activity": "running",
+        "tags": [
+          {
+            "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+            "username": "adam.trento"
+          }
+        ],
+        "photos": [
+          {
+            "n": 1,
+            "url": "/drawings/3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815/photos/1?v=1790027100000000",
+            "width": 1080,
+            "height": 810
+          }
+        ],
+        "rotation_deg": -30,
+        "track_preview": [
+          [46.0671, 11.12399],
+          [46.0671, 11.1344],
+          [46.0761, 11.1344],
+          [46.0761, 11.1214],
+          [46.0689, 11.1214]
+        ],
+        "author": {
+          "public_id": "5f0c2b8e-1d4a-4e6b-8c9f-3a2b1c0d9e8f",
+          "username": "bea.k"
+        }
+      }
+    },
+    {
+      "rank": 3,
+      "reactions": 9,
+      "drawing": {
+        "id": "d2e8b1f6-7a93-4c05-b4e1-6f8d0a2c9e71",
+        "title": "Tuesday whale",
+        "started_at": "2026-09-20T07:13:20Z",
+        "published_at": "2026-11-04T06:30:00Z",
+        "place": "Trento",
+        "shape": "star",
+        "word": null,
+        "style": null,
+        "route_title": null,
+        "distance_m": 4004,
+        "duration_s": 1140,
+        "score": 87,
+        "fidelity": 0.83,
+        "visibility": "everyone",
+        "description": "Legs heavy after the bridge.\nThe heart came out round all the same.",
+        "activity": "running",
+        "tags": [
+          {
+            "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+            "username": "adam.trento"
+          }
+        ],
+        "photos": [
+          {
+            "n": 1,
+            "url": "/drawings/3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815/photos/1?v=1790027100000000",
+            "width": 1080,
+            "height": 810
+          }
+        ],
+        "rotation_deg": -30,
+        "track_preview": [
+          [46.0671, 11.12399],
+          [46.0671, 11.1344],
+          [46.0761, 11.1344],
+          [46.0761, 11.1214],
+          [46.0689, 11.1214]
+        ],
+        "author": {
+          "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+          "username": "carlo_runs"
+        }
+      }
+    }
+  ],
+  "mine": null,
+  "winner": {
+    "reactions": 14,
+    "drawing": {
+      "id": "3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815",
+      "title": "Sunday heart by the river",
+      "started_at": "2026-09-20T07:13:20Z",
+      "published_at": "2026-11-03T07:40:00Z",
+      "place": "Trento",
+      "shape": "star",
+      "word": null,
+      "style": null,
+      "route_title": null,
+      "distance_m": 4004,
+      "duration_s": 1140,
+      "score": 87,
+      "fidelity": 0.83,
+      "visibility": "everyone",
+      "description": "Legs heavy after the bridge.\nThe heart came out round all the same.",
+      "activity": "running",
+      "tags": [
+        {
+          "public_id": "3b9d2e10-7c4a-4f8e-a1d6-5e2f9c0b7a44",
+          "username": "adam.trento"
+        }
+      ],
+      "photos": [
+        {
+          "n": 1,
+          "url": "/drawings/3f9d2c71-8a4b-4e06-b5d1-c27e9a40f815/photos/1?v=1790027100000000",
+          "width": 1080,
+          "height": 810
+        }
+      ],
+      "rotation_deg": -30,
+      "track_preview": [
+        [46.0671, 11.12399],
+        [46.0671, 11.1344],
+        [46.0761, 11.1344],
+        [46.0761, 11.1214],
+        [46.0689, 11.1214]
+      ],
+      "author": {
+        "public_id": "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13",
+        "username": "Ada_runs"
+      }
+    }
+  }
+}

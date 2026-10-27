@@ -58,7 +58,25 @@ test("signing up sends what was typed, with the box ticked", async () => {
     username: "Runner_42",
     password: "correct horse battery",
     atLeast16: true,
+    noAwayEmail: false,
   });
+});
+
+test("the email when away is said, and its box starts unticked (TASK-284)", async () => {
+  const { shown, onSignUp } = show();
+  await shown;
+  expect(
+    screen.getByText(
+      "If you don't open MuW for 2 weeks, we email you once with what's new.",
+    ),
+  ).toBeOnTheScreen();
+  const box = screen.getByRole("checkbox", {
+    name: "Don't send me these emails",
+    checked: false,
+  });
+  await fireEvent.press(box);
+  await fireEvent.press(submit());
+  expect(onSignUp).toHaveBeenCalledWith(expect.objectContaining({ noAwayEmail: true }));
 });
 
 test("the box unticked is sent as it is: the account says why not", async () => {
@@ -70,6 +88,7 @@ test("the box unticked is sent as it is: the account says why not", async () => 
     username: "",
     password: "",
     atLeast16: false,
+    noAwayEmail: false,
   });
 });
 

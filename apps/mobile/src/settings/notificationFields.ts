@@ -5,7 +5,7 @@ import type { AccountOutcome } from "../api/accounts";
 import { t, tLater } from "../i18n";
 
 /**
- * What the two notification switches of «Settings» read and say
+ * What the notification switches of «Settings» read and say
  * (TASK-185, ADR-0206, docs/API.md, «Notifications»).
  */
 
@@ -22,12 +22,14 @@ export const PUSH_NOT_ALLOWED = tLater(
   "Notifications are off for MuW on this phone. Allow them in Settings to turn this on.",
 );
 
-/** Both off: an account that never touched its switches. */
-const OFF: Notifications = { email: false, push: false };
+/** An account that never touched its switches: email and push off, «Email
+ * when I'm away» on (TASK-284). */
+const UNTOUCHED: Required<Notifications> = { email: false, push: false, away: true };
 
-/** The switches of an account; an API older than TASK-185 tells none: off. */
-export function notificationsOf(user: User): Notifications {
-  return user.notifications ?? OFF;
+/** The switches of an account; an API older than TASK-185 tells none, one
+ * older than TASK-284 no `away`: as never touched. */
+export function notificationsOf(user: User): Required<Notifications> {
+  return { ...UNTOUCHED, ...user.notifications };
 }
 
 /** A switch that could not be kept, in words (docs/UI.md), as a change of

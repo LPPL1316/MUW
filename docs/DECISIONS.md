@@ -16516,3 +16516,255 @@ ritorno (TASK-284) e le notizie (TASK-262 B) solo a indirizzi confermati è
 una scelta di quei task. L'app di prima, a un cambio in attesa, mostra
 ancora il vecchio indirizzo: la parte B va pubblicata prima o con il
 server.
+
+## ADR-0262 — La musica nel video della corsa: dieci brani nostri, scritti da uno script, copiati nel MP4 come traccia AAC
+
+**Stato**: Attiva · 2026-10-25 · sostituisce il punto 1 di ADR-0254 solo
+per «Niente musica» (il resto di ADR-0254 vale com'è) · fonte, brani,
+nomi, testi e partenza spenta li ha scelti l'utente; i punti tecnici sono
+decisi dall'agente su delega dell'utente (TASK-301)
+
+**Contesto**: l'utente il 2026-10-25: «aggiungi la musica al video»; il
+2026-10-23 aveva scelto il video muto (ADR-0254). Su iOS 16.4–18 WebKit
+non ha `AudioEncoder` (WebCodecs audio arriva con iOS 26): l'audio non si
+può codificare sul telefono senza niente di nativo. Un brano di altri ha
+una licenza da verificare e può essere rivendicato con Content ID, che su
+Instagram toglie l'audio al Reel.
+
+**Decisione**:
+
+1. **Le scelte dell'utente**, una domanda per volta: musica **originale,
+   fatta da noi**; **dieci brani** («aggiungi altre 7 canzoni dai»,
+   dopo i primi tre, e «Più carica» ai ritocchi): Energy, Chill, Epic,
+   Sprint, Rock, Funk, Sunny, Trap, Retro, Fiesta; **sceglie chi corre**
+   nella riga «Music» di «Share your run», sopra i pulsanti, e un tocco
+   gli fa sentire il brano; **si parte da «None»** («Spenta»), e la scelta
+   non si salva col post. I testi nelle cinque lingue sono in
+   `tasks/TASK-301.md`.
+2. **I brani li scrive `tools/video_music.py`**, nota per nota, sui tempi
+   del video: fino a 1 s l'entrata, da 1 a 9 s la linea, a 9 s il colpo
+   quando il disegno è intero, dissolvenza fino a 12 s. I tempi sono
+   quelli che mettono 9 s sul primo battito di una battuta (90, 120, 150,
+   180 bpm). Nessuna melodia presa da brani esistenti.
+3. **Uguali su ogni computer**: lo script usa solo + − × ÷ (il seno è una
+   parabola corretta, la `tanh` del limitatore una frazione, il rumore un
+   generatore lineare congruenziale fisso), niente `sin`/`exp`/`pow` della
+   libreria C, la cui ultima cifra cambia fra sistemi. I campioni a 16 bit
+   sono gli stessi byte per byte: `apps/mobile/assets/music/music.json`
+   ne tiene lo SHA-256, `pytest tools` (anche in CI, su Linux) li rifà e
+   li confronta, `python3 tools/video_music.py --check` lo stesso a mano.
+   Il campione più forte sta a 0,75 (−2,5 dBFS): la codifica AAC alza i
+   picchi fino a 1,3 dB, e con 0,89 qualche campione decodificato passava
+   il fondo scala; con 0,75 il più alto è 0,97 («Epic»).
+4. **AAC con `afconvert` di macOS** (scelta dell'utente: «Sì, afconvert»),
+   128 kbit/s, 44 100 Hz, stereo: uno strumento di sviluppo, nessuna
+   dipendenza dell'app. Per rigenerarli, su un Mac, dalla radice del
+   repository: `python3 tools/video_music.py`. afconvert mette il priming
+   (2112 campioni) in `iTunSMPB` e divide i pacchetti in chunk: lo script
+   riscrive il file come M4A semplice, un chunk, il priming in un `elst`
+   e il gruppo «roll» (punto 5).
+   `music.json` tiene anche lo SHA-256 del file, e jest e pytest
+   controllano che i dieci file dell'app siano quelli. Un afconvert di
+   un'altra versione di macOS può dare byte diversi: i campioni restano
+   uguali, il file va rifatto e `music.json` riscritto insieme.
+5. **Nel video la musica è copiata, non codificata**: l'app legge il
+   brano (`m4a.ts`) e `mp4.ts` aggiunge una seconda traccia `soun` dopo
+   quella video: `tkhd` 2, `edts/elst` che salta il priming e dura quanto
+   il video (12 s, 1 080 000 tick), `mdhd` a 44 100, `stsd mp4a` con
+   l'`esds` del brano, il gruppo «roll» (`sgpd`/`sbgp`, ogni pacchetto
+   decodificato dopo quello prima) come lo scrive AVAssetWriter, un chunk
+   dopo i fotogrammi. Senza il gruppo «roll» AVFoundation toglie il
+   priming due volte: la musica partiva 2112 campioni (48 ms) prima.
+   Provato con AVAssetReader: un clic a 1,000 s esce a 1,000 s, la musica
+   dura 529 200 campioni. Le due tracce partono insieme dal tempo 0. **Senza musica il file è identico byte per byte a
+   quello di ADR-0254** (impronta nel test).
+6. **I file stanno negli asset dell'app** (`require` dei `.m4a`, letti
+   con expo-asset ed expo-file-system, già nell'app): 1,88 MB in tutto,
+   ognuno sotto 300 KB, scaricati una volta con l'aggiornamento. Un brano
+   che non si legge fa fallire il video con «The video could not be made.
+   Try again.»: niente video muto quando si è scelta la musica.
+7. **Si sente con expo-audio**, già nell'app, caricato al primo tocco come
+   il suono degli esercizi (TASK-285): un tocco su un brano lo suona da
+   capo, «None» lo ferma, «Export video» e la chiusura della pagina anche.
+   Il modo del suono non cambia: fuori dalla corsa segue l'interruttore
+   del silenzio (ADR-0225), quindi con l'iPhone in silenzioso il brano non
+   si sente, ma va nel video.
+
+**Alternative scartate**: brani di pubblico dominio (Content ID, tagli a
+12 s che non seguono il video); un file scelto da chi corre (un modulo
+nativo nuovo per sceglierlo, un decoder per tagliarlo); `AudioEncoder`
+nel WebView (manca prima di iOS 26); suonare i brani nel WebView e
+registrarli (niente encoder lo stesso); ffmpeg per l'AAC (da installare
+sul Mac, l'utente ha scelto afconvert); i brani dentro il codice in base64
+(un terzo più grandi, nel bundle JS a ogni avvio).
+
+**Conseguenza**: solo app, nessuna dipendenza né permesso nuovi, niente
+di nativo: arriva con un aggiornamento OTA anche alla 1.0 (impronta iOS
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` invariata). L'aggiornamento
+pesa 1,88 MB in più la prima volta. Dodici testi nuovi in fondo alle
+tabelle («Music» c'era già). Rifare i brani costa circa 17 s di CPU, il
+loro test in CI circa 15 s.
+
+## ADR-0269 — Le corse di gruppo: una forma, un ritrovo, un'ora, «I'm going»
+
+**Stato**: Attiva · 2026-10-26 · la funzione, i campi, il Feed, le
+notifiche, la sicurezza e la privacy li ha scelti l'utente («Sì, così» alla
+proposta con le aggiunte del Coordinatore); i punti tecnici sono decisi
+dall'agente su delega dell'utente (TASK-309)
+
+**Contesto**: l'utente vuole un «post evento»: una forma scelta, un luogo
+di incontro e un orario, e ci si trova a correrla insieme come in un run
+club. Esistono già i Preferiti (un percorso tenuto, con tutti i suoi
+campi), il Feed con la regola dei 50 km, follow, blocchi, segnalazioni con
+il link che nasconde, il filtro dei testi negativi, le push con i loro
+interruttori, e un orologio dell'API per le sfide del gioco. Un ritrovo
+dal vivo fra sconosciuti chiede regole di sicurezza; chi va a quale corsa
+di gruppo è un dato personale nuovo. Le regole sono in `docs/EVENTI.md`.
+
+**Decisione dell'utente**: corse di gruppo create da un percorso pronto;
+il ritrovo è la partenza; titolo, giorno e ora, «Where exactly»,
+descrizione, Everyone o Followers; una fila «Group runs» in cima al Feed
+sotto la scheda del concorso, solo quando c'è qualcosa; «I'm going» con
+chi va visibile a chi vede la corsa di gruppo; un promemoria un'ora prima,
+le push di cambio e di annullamento; l'avviso di sicurezza e la riga della
+privacy in inglese; commenti dopo, nella parte C. Nessuna notifica
+all'organizzatore quando qualcuno si aggiunge, lo vede nella pagina:
+scelta dopo la correzione della proposta, che prometteva una lista
+Notifiche che l'app non ha.
+
+**Decisione dell'agente**:
+
+1. **Una tabella a sé, non un disegno**: un disegno è una corsa fatta,
+   una corsa di gruppo è una corsa da fare. `group_runs` e
+   `group_run_going` in un modulo nuovo, `group_runs.py`; il Feed dei post
+   non cambia.
+2. **Il percorso ha il corpo di un Preferito**, validato con il codice di
+   `favorites.py` importato: l'app lo ha già pronto (`Keepable`) e lo
+   riapre per «Start» come un Preferito. Non cambia dopo la creazione,
+   come chi la vede: chi va ha detto sì a quella forma e a quel pubblico.
+3. **Il ritrovo è il primo punto**, tenuto anche come `geography(Point)`
+   con indice per i 50 km del Feed.
+4. **I limiti**: da 30 minuti a 60 giorni, al più 10 in arrivo per
+   account, finita 3 ore dopo l'inizio (come le sfide, che restano attive
+   3 ore oltre la scadenza). Testi col filtro di TASK-213 e
+   `422 comment_rejected`, il codice che l'app già conosce. Nessun codice
+   d'errore nuovo: `schemas.py` e il motore sul telefono non cambiano.
+5. **L'organizzatore va sempre** e non ha una riga in `group_run_going`.
+6. **Il promemoria** lo trova un orologio ogni 5 minuti, come
+   `ChallengeClock`, e lo segna con `UPDATE … WHERE reminded_at IS NULL`:
+   una volta sola anche con due processi; un cambio di ora lo riapre. Le
+   push non portano orari: il server non conosce il fuso del telefono.
+   Restano fuori dall'email del giorno (`EMAIL_KINDS` non cambia).
+7. **Annullare non cancella**: `cancelled_at`, così chi apre la push vede
+   «Cancelled». Un account cancellato avvisa chi andava, prima di sparire.
+8. **App**: il selettore di giorno e ora in JavaScript, senza moduli
+   nativi; impronta iOS invariata, la funzione arriva con un OTA.
+9. **Tre parti**: A (API), B (app, dopo TASK-299 B per `FeedScreen.tsx`),
+   C (i commenti, in una tabella a parte).
+
+**Alternative scartate**:
+- la corsa di gruppo come un disegno con una data: i disegni sono corse
+  fatte, con traccia e foto, e il Feed, il concorso e il gioco li contano;
+- il selettore nativo di data e ora: un modulo nativo vuole un build per
+  App Store e Google Play;
+- un promemoria il giorno prima e uno un'ora prima: rumore; uno basta;
+- una push all'organizzatore a ogni aggiunta: l'utente l'ha scartata, la
+  pagina lo dice;
+- i commenti nella tabella `comments` dei disegni: toccherebbe le query di
+  commenti, segnalazioni e link che nasconde, tutte scritte per i
+  disegni;
+- l'invito a persone scelte: vuole la scelta delle persone e un altro
+  livello di chi vede; dopo, se l'utente lo vuole.
+
+**Conseguenze**: due tabelle e un modulo nuovi; righe in `push.py`,
+`app.py`, `moderation.py`, `report_email.py` e `accounts.py`; la privacy in
+cinque lingue. L'app aggiunge una cartella e tocca Feed, profilo, tap delle
+notifiche e il percorso pronto. Il server dopo l'approvazione di Apple e
+con il sì dell'utente.
+
+## ADR-0237, aggiunta — AdMob mai collegato su Android
+
+**Stato**: Attiva · 2026-10-26 · deciso dall'agente su delega dell'utente
+(TASK-294, prima build Android). Aggiunta ad ADR-0237, senza numero nuovo.
+
+**Contesto**: la prima build Android (`preview`, EAS `93c8959c`,
+2026-10-26) è fallita in Gradle su `react-native-google-mobile-ads`
+17.2.0: il suo `app-json.gradle` vuole una sezione
+`react-native-google-mobile-ads` alla radice di `app.json`, che l'app non
+ha (la configurazione è nel plugin di Expo, che basta a iOS), e senza di
+essa «Cannot get property googleMobileAdsJson» e nessun `compileSdk`. Le
+pubblicità sono spente finché non c'è la società (scelta dell'utente del
+2026-10-09).
+
+**Decisione**: `react-native.config.js` non collega il pacchetto su
+Android in nessun profilo (`platforms.android: null` sempre); su iOS come
+prima, solo la produzione lo toglie. Il test `storeWithoutAds.test.ts` lo
+fissa. L'impronta iOS non cambia (misurata prima e dopo); quella Android
+sì, ed è la prima build comunque. Quando le pubblicità arriveranno, su
+Android serviranno la sezione in `app.json` e una build nativa nuova.
+
+**Alternative scartate**: aggiungere la sezione in `app.json` (configura
+un SDK che l'app non usa e ne porta il codice e i permessi nella build);
+`expo-build-properties` per il `compileSdk` (non risolve la sezione
+mancante).
+
+## ADR-0266 — Forme pronte vicino a te in «Draw», ed «Explore» preparato all'apertura
+**Stato**: Attiva · 2026-10-26 · TASK-306. Le scelte di prodotto sono
+dell'utente, del 2026-10-26: la riga sotto la distanza, cerchio, cuore e
+stella da 5 km dalla posizione, sempre 5 km, solo la corsa, tenute fino a
+1 km; **forme già pronte in città a caso, dalla più semplice alla più
+complicata, quando vicino non viene niente**; «Explore» preparato
+all'apertura. Del Coordinatore, nel dare il numero: nessun permesso della
+posizione chiesto dal task; niente prima della prima pagina, durante una
+corsa o la navigazione, in background; il server come riserva con l'API
+di oggi; costi in tempo, batteria e dati scritti nel task file. Il come è
+deciso dall'agente su delega dell'utente.
+
+**Decisione**:
+
+1. **Le forme vicine le disegna il telefono** (`requestRouteOnPhoneFirst`,
+   ADR-0177), come un esempio di una città (`requestOf` con la posizione
+   al posto del centro), nella coda delle richieste in priorità «visible»
+   (ADR-0248). Prima aspettano fino a 45 s le mappe intorno al telefono,
+   che l'app scarica all'apertura: con quelle disegna il telefono, senza il
+   server.
+2. **Tenute in `near-you.json`** con il punto da cui partono: interi, con
+   le alternative, e `null` per una forma rifiutata lì. Si disegnano di
+   nuovo oltre 1 km. Una forma senza risposta (rete, server) non si
+   tiene: si chiede la volta dopo. L'id è `near-you:{forma}`, senza la
+   posizione; la città è vuota, come un percorso di «Draw».
+3. **Si aprono come esempi**: `keepWhole` in `exampleRoutes.ts` tiene il
+   percorso intero e la richiesta, così `useExplored` li apre senza
+   chiedere all'API, con A · B · C.
+4. **Le forme di altre città** sono gli esempi tenuti dall'API
+   (ADR-0136): le 14 città in evidenza, in ordine casuale a ogni apertura,
+   il centro dal telefono (`featuredPlace`) o da `GET /cities` la prima
+   volta. Una forma conta solo se il lavoro è `done` nella risposta al
+   POST: altrimenti l'app lo lascia (`DELETE`) e prova un'altra città, al
+   più 3 per forma. Pronte, sono esempi di quella città (`keepSample`),
+   anche per «Explore».
+5. **«Explore» preparato**: lista dei percorsi vicini (tenuta 10 minuti
+   per la pagina), paesi vicini (`fetchNearbyCities` li tiene già) e i
+   loro esempi (`drawSamples`) in priorità «prefetch», finché la pagina
+   non si è aperta una volta: da lì li chiede lei.
+6. **Quando**: `useMayWorkAhead` in `firstPage.ts`, vero dopo
+   l'animazione d'apertura (`Root.tsx`), con l'app non in background e né
+   corsa né navigazione. Fermato, il lavoro riprende da dove era.
+
+**Alternative scartate**: disegnare dal centro del paese più vicino
+(esempi già tenuti dall'API, ma la partenza a chilometri dall'utente, e
+`/nearby-cities` esclude il paese dove si è); le forme alla distanza scelta
+sopra (ogni cambio di distanza, tre percorsi da rifare); aspettare le forme
+di altre città che l'API dovrebbe disegnare (fino a 18 s l'una sul server,
+contro una scheda che si apre subito); giudicare «bello» dalla somiglianza
+del motore (sta sopra 0,9 anche per percorsi che non si leggono, TASK-290);
+scaricare qualcosa durante l'installazione (serve una build nativa, e la
+posizione allora non c'è).
+
+**Conseguenza**: alla prima apertura in un luogo, oltre alla zona del
+telefono, fino a circa 1,3 MB di dati (stima nel task file) e 1–2 minuti
+di un core sul telefono per tre forme; se il telefono non ha mappe, tre
+percorsi in più al server per persona e luogo. Gli esempi dei paesi
+vicini, che prima chiedeva solo chi apriva «Explore», li chiede ogni
+apertura in un luogo nuovo: l'API li tiene per paese, quindi pesano solo
+la prima volta.

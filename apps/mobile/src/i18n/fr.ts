@@ -1175,8 +1175,8 @@ export const FR: Table = {
     "Tu as bloqué {user}. Tu peux le débloquer dans Personnes bloquées de ton profil.",
 
   // src/settings/NotificationsSetting.tsx, notificationFields.ts (TASK-262: push sent)
-  "Push notifications tell you about follow requests, reactions, comments and tags. MuW does not send emails yet: your choice is kept for when it does.":
-    "Les notifications push te préviennent des demandes de suivi, des réactions, des commentaires et des identifications. MuW n'envoie pas encore d'e-mails : ton choix est gardé pour quand ce sera le cas.",
+  "Push notifications tell you at once about follow requests, reactions, comments and tags. Email notifications sends the same news in one email a day at most. Email when I'm away: one email if you don't open MuW for 2 weeks.":
+    "Les notifications push te préviennent tout de suite des demandes de suivi, des réactions, des commentaires et des identifications. Les Notifications par e-mail envoient les mêmes nouvelles dans un e-mail par jour au plus. E-mail en cas d'absence : un e-mail si tu n'ouvres pas MuW pendant 2 semaines.",
   "Notifications are off for MuW on this phone. Allow them in Settings to turn this on.":
     "Les notifications de MuW sont désactivées sur ce téléphone. Autorise-les dans Réglages pour les activer.",
 
@@ -1395,6 +1395,56 @@ export const FR: Table = {
   "You don't hold this piece.": "Cette pièce n'est pas à toi.",
   "This name is not allowed. Choose another one.":
     "Ce nom n'est pas autorisé. Choisis-en un autre.",
+  // src/screens/SignInScreen.tsx, src/settings/NotificationsSetting.tsx
+  // (TASK-284 B: the email when away; the names as in its email)
+  "If you don't open MuW for 2 weeks, we email you once with what's new.":
+    "Si tu n'ouvres pas MuW pendant 2 semaines, on t'envoie un seul e-mail avec les nouveautés.",
+  "Don't send me these emails": "Ne plus m'envoyer ces e-mails",
+  "Email when I'm away": "E-mail en cas d'absence",
+  None: "Aucune",
+  Energy: "Énergie",
+  Chill: "Détente",
+  Epic: "Épique",
+  Sprint: "Sprint",
+  Rock: "Rock",
+  Funk: "Funk",
+  Sunny: "Ensoleillé",
+  Trap: "Trap",
+  Retro: "Rétro",
+  Fiesta: "Fiesta",
+  "Tap a track to hear it.": "Touche un morceau pour l'écouter.",
+  // src/contest/ (TASK-299 B: the contest card, its rules, the Winner badge)
+  "MuW contest": "Concours MuW",
+  "The post with the most reactions wins.":
+    "La publication avec le plus de réactions gagne.",
+  "{count} day left": "Encore {count} jour",
+  "{count} days left": "Encore {count} jours",
+  "Ends today": "Se termine aujourd'hui",
+  "Ended · the winner is coming": "Terminé · le gagnant arrive bientôt",
+  "Publish a run to take part.": "Publie une course pour participer.",
+  "Your best post: #{rank}, {count} reaction":
+    "Ta meilleure publication : n° {rank}, {count} réaction",
+  "Your best post: #{rank}, {count} reactions":
+    "Ta meilleure publication : n° {rank}, {count} réactions",
+  "How it works": "Comment ça marche",
+  "Official rules": "Règlement officiel",
+  "Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.":
+    "Organisé par MuW (Luca Pallaoro). Du {start} au {end}.",
+  "Anyone with a MuW account can take part, for free, by publishing a run for everyone in the app during the contest.":
+    "Toute personne ayant un compte MuW peut participer gratuitement, en publiant une course visible par tous dans l'app pendant le concours.",
+  "At the end, the post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "À la fin, la publication avec le plus de réactions des autres membres gagne. Une réaction par membre compte ; la tienne ne compte pas. En cas d'égalité, la publication avec le plus de cœurs MuW gagne, puis celle publiée en premier.",
+  "The prize has no money value: the winner gets the Winner badge on their profile and their post shown at the top of the Feed for a week.":
+    "Le prix n'a aucune valeur en argent : la personne gagnante reçoit le badge Gagnant sur son profil et sa publication est affichée en haut du Feed pendant une semaine.",
+  "MuW may leave out a post that breaks the community rules.":
+    "MuW peut écarter une publication qui enfreint les règles de la communauté.",
+  "Apple and Google are not sponsors of this contest and are not involved in it in any way.":
+    "Apple et Google ne sont pas sponsors de ce concours et n'y sont impliqués d'aucune manière.",
+  Winner: "Gagnant",
+  "{name} won the MuW contest": "{name} a gagné le concours MuW",
+  // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
+  "NEAR YOU": "PRÈS DE VOUS",
+  "SHAPES TO TRY": "FORMES À ESSAYER",
   // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
   "Last km {pace} · target {target}": "Dernier km {pace} · objectif {target}",
   "Last mi {pace} · target {target}": "Dernier mi {pace} · objectif {target}",

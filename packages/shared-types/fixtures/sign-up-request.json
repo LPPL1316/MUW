@@ -2,5 +2,7 @@
   "email": "runner@example.com",
   "password": "correct horse battery",
   "username": "Runner_42",
-  "at_least_16": true
+  "at_least_16": true,
+  "away_email": true,
+  "language": "en"
 }

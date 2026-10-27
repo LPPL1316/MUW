@@ -43,3 +43,20 @@ test("open, the circle says so; busy, it takes no tap", async () => {
   await fireEvent.press(circle);
   expect(onPress).not.toHaveBeenCalled();
 });
+
+test("who won a contest has the «Winner» badge under the name; the others none", async () => {
+  await render(
+    <ProfileHeader
+      username="runner_42"
+      bio=""
+      photo={null}
+      detail="3 drawings"
+      winner
+    />,
+  );
+  expect(screen.getByLabelText("Winner")).toBeOnTheScreen();
+  expect(screen.getByTestId("winner-badge")).toHaveTextContent("🏆Winner");
+
+  await show();
+  expect(screen.queryByLabelText("Winner")).toBeNull();
+});

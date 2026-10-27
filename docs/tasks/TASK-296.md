@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`) · parte E in lavorazione (`feat/TASK-296-e-run-strip`, PR #564, testi approvati dall'utente il 2026-10-26)
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`, testi approvati dall'utente il 2026-10-26) · parte E in lavorazione (`feat/TASK-296-e-run-strip`, PR #564, testi approvati dall'utente il 2026-10-26)
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -579,8 +579,9 @@ Parte D:
 - [x] «Share code» apre il foglio con nome e codice (`shareCode.test.ts`).
 - [x] lint, typecheck, `format:check` e la suite completa verdi in locale
       (3 756 test, 2026-10-26); `shared-types` 71 test.
-- [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
-      Coordinatore su copie pulite.
+- [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, nessuna
+      dipendenza nuova; la misura il Coordinatore su `main` (`a8d75842`)
+      dopo il merge, prima del preview.
 - [x] I testi dell'app approvati dall'utente (tabella sopra, 2026-10-26:
       «I testi vanno bene, mergiate pure la #561»).
 
@@ -764,13 +765,14 @@ Sul server dopo Apple e con l'ok dell'utente (migrazione 0027 e deploy:
 il timer «1 day left» parte con l'API, niente da lanciare a mano). La CI
 non ha PostgreSQL: i test del database valgono in locale.
 
-**Parte D**: PR #561 aperta il 2026-10-26 dal branch
-`feat/TASK-296-d-challenges-app` (worktree `.claude/worktrees/TASK-296-d`):
-la scheda «Challenges» con squadre e sfide, le push che aprono la sfida,
-il taglio dei pezzi uguale all'API. Solo app, nessuna dipendenza nuova,
-`src/share/` non toccato. I testi nelle cinque lingue approvati
-dall'utente il 2026-10-26 («I testi vanno bene, mergiate pure la #561»),
-che ha chiesto il merge al verde.
+**Parte D** in `main` con la #561 (`a8d75842`, 2026-10-26), mergiata dalla
+sessione della D a CI verde su parola dell'utente («I testi vanno bene,
+mergiate pure la #561»), d'accordo con il Coordinatore: la scheda
+«Challenges» con squadre e sfide, le push che aprono la sfida, il taglio
+dei pezzi uguale all'API. Solo app, nessuna dipendenza nuova, `src/share/`
+non toccato; i testi nelle cinque lingue approvati dall'utente lo stesso
+giorno. L'impronta iOS la misura il Coordinatore su `main`, poi il
+preview.
 Su `preview` la scheda resta nascosta con «Play» finché il server non ha
 A e C. **Da provare sull'iPhone** quando A e C saranno sul server, con due
 telefoni: una sfida vera, il foglio di condivisione del codice, le push.

@@ -33,8 +33,12 @@ let fetchSpy: jest.SpiedFunction<typeof fetch>;
 /** What the API answers to GET /feed. */
 let feedAnswer: () => Response | Promise<Response>;
 
+/** What the page asked the API, but for the contest, which it asks as it
+ * opens to know whether to show its card (TASK-299). */
 function asked(): string[] {
-  return fetchSpy.mock.calls.map(([url]) => String(url).replace(API, ""));
+  return fetchSpy.mock.calls
+    .map(([url]) => String(url).replace(API, ""))
+    .filter((path) => path !== "/contests/current");
 }
 
 function Around({
