@@ -77,6 +77,11 @@ const EN_WORDS = {
   headSud: { say: "Head out on Via Sud", vibrate: false },
   back: { say: "Back on the route.", vibrate: false },
   off: { say: "You are off the route. Head back to it.", vibrate: true },
+  // Said after it, once (TASK-303).
+  where: {
+    say: expect.stringMatching(/^The route is \d+ metres away, to the [a-z-]+\.$/),
+    vibrate: false,
+  },
   arrived: { say: "You have arrived.", vibrate: true },
 };
 /** A left turn said within ANNOUNCE_M: at the first fix there, 6 m apart. */
@@ -388,7 +393,12 @@ describe("a run along a closed route", () => {
     // 100 m outside Via Nord, then onto it at 1200 m.
     const outside = Array.from({ length: 12 }, () => at(300, 600));
     const ran = follow(closed(), [...outside, ...run(1200, 100)]);
-    expect(ran.cues).toEqual([EN_WORDS.off, EN_WORDS.back, EN_WORDS.headNord]);
+    expect(ran.cues).toEqual([
+      EN_WORDS.off,
+      EN_WORDS.where,
+      EN_WORDS.back,
+      EN_WORDS.headNord,
+    ]);
     expect(ran.navigation.joinedAtM).toBeCloseTo(1200, 0);
     expect(ran.navigation.offRoute).toBe(false);
   });
@@ -410,7 +420,7 @@ describe("a run along a closed route", () => {
   test("going the other way it joins, then is off the route: the way is the route's", () => {
     const ran = follow(closed(), run(1200, -120));
     expect(ran.navigation.joinedAtM).toBeCloseTo(1200, 0);
-    expect(ran.cues).toEqual([EN_WORDS.headNord, EN_WORDS.off]);
+    expect(ran.cues).toEqual([EN_WORDS.headNord, EN_WORDS.off, EN_WORDS.where]);
   });
 
   test("open routes and words start at their start, as before", () => {
@@ -418,7 +428,7 @@ describe("a run along a closed route", () => {
     const navigation = startNavigation(open, DIRECTIONS.slice(0, 3), "en").navigation;
     // Half-way along, away from the start: off the route, as ever.
     const ran = follow(navigation, run(1200, 60));
-    expect(ran.cues).toEqual([EN_WORDS.off]);
+    expect(ran.cues).toEqual([EN_WORDS.off, EN_WORDS.where]);
     expect(ran.navigation.joinedAtM).toBeUndefined();
   });
 });
