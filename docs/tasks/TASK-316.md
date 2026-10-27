@@ -63,14 +63,25 @@ minuti con l'app aperta.
    di forma o di parola come quelle di `POST /route-jobs` (nessuna
    immagine, nessuna forma spostata). Risponde `{"routes": [...]}`, uno per
    richiesta nello stesso ordine: il risultato tenuto, come lo dà un lavoro
-   finito, o `null`. Legge soltanto con `get` dello stesso store dei
-   lavori: nessun lavoro, nessuna zona caricata, nessun motore, niente di
-   scritto. Un POST: conta uno nel limite al minuto come gli altri.
+   finito, o `null`. Legge soltanto con `get`: nessun lavoro, nessuna zona
+   caricata, nessun motore, niente di scritto (un test conta che il motore
+   non viene mai chiamato). Un POST: conta uno nel limite al minuto come
+   gli altri.
+   **Niente dati di nessuno** (nota del Coordinatore): legge solo i file
+   dei centri (`route_store.py`: centri delle città e punti sull'acqua),
+   **mai l'archivio** di TASK-297 A, che tiene anche i percorsi disegnati
+   dalla posizione degli utenti, senza account: con una risposta «tenuto o
+   no» un punto direbbe se qualcuno ci ha disegnato. Nessun account, nessun
+   post. Un test disegna lo stesso percorso da casa di un utente e dal
+   centro di una città: torna solo il secondo.
 2. `draw_examples --all`: oltre a cerchio, cuore e stella, gli altri
    cinque disegni e le sei parole che l'app chiede a una città, con la
    stessa richiesta dell'app (parole a 3 km a lettera, penna alzata, stile
    `round`). La lista è uguale a quella dell'app: un test legge la stessa
-   fixture del test dell'app.
+   fixture del test dell'app. Le parole sono il **punto 7 di TASK-279 B**
+   («facoltativo, `draw_examples` con le parole»): il Coordinatore l'ha
+   spostato qui il 2026-10-27; in `TASK-279.md` mette lui la riga di
+   rimando, con una PR di soli documenti, dopo il merge di A.
 3. `draw_examples --around CITTÀ`: i paesi che `GET /nearby-cities` dà
    attorno alla città, ognuno dal **suo** punto di `/nearby-cities` (per
    un paesino non è quello di `/cities`, TASK-236), e i paesi attorno a
@@ -92,14 +103,49 @@ minuti con l'app aperta.
    come oggi. Le carte dei paesi vicini lo leggono anche loro: un cerchio,
    un cuore o una stella già nel file non si chiede più.
 7. Con un server senza `/kept-routes` (404, l'API di oggi) non si chiede
-   niente di nuovo: tutto resta com'è oggi.
+   niente di nuovo: tutto resta com'è oggi (un test: le carte dei paesi
+   vicini si disegnano come prima, e nessun file viene scritto).
 
 ### Parte C — Sul server, dopo Apple e con il sì dell'utente
 
-8. Aggiornamento del server con la parte A (dal Coordinatore, una
-   pubblicazione alla volta), poi, di notte:
-   `draw_examples --all --around Trento --around Caldonazzo`. Almeno 100
-   disegni tenuti; si contano nella cartella `routes/` e nel log.
+8. Aggiornamento del server con la parte A, dal Coordinatore e una
+   pubblicazione alla volta (`DEPLOY.md` F.12), poi il giro dei disegni di
+   notte: alle 23:00 UTC (mezzanotte in Italia), finito prima delle copie
+   delle 02:30 UTC. Sul server, in `/root/shaperoute`:
+
+   ```
+   # 1. Prima: l'immagine per tornare indietro e il segno del momento
+   docker tag shaperoute-api:latest shaperoute-api:before-task316
+   touch data/cache/routes/.before-task316
+   ls data/cache/routes/*.json | wc -l          # i disegni tenuti prima
+   # 2. L'aggiornamento (F.12): main con A, poi build e up dell'API
+   git fetch origin && git checkout <commit di main con A>
+   docker compose build api && docker compose up -d api
+   # 3. Il giro, dentro il contenitore dell'API (la chiave resta lì)
+   nohup docker compose exec -T api python -m shaperoute_api.draw_examples \
+     --api http://127.0.0.1:8000 --all Trento Caldonazzo \
+     --around Trento --around Caldonazzo \
+     > data/draw-examples-<data>-task316.log 2>&1 &
+   # 4. Alla fine: quanti disegni nuovi, e l'ultima riga del log
+   find data/cache/routes -name '*.json' -newer data/cache/routes/.before-task316 | wc -l
+   tail -3 data/draw-examples-<data>-task316.log
+   ```
+
+   Per aspettare il giro via ssh: `pgrep -f "[d]raw_examples"` o l'ultima
+   riga del log, mai `pgrep -f "draw_examples"` (trova sé stesso). Almeno
+   100 disegni nuovi; un paese «not found by the city search» si rifà da
+   solo, per nome.
+
+   **Come si torna indietro**:
+   - l'endpoint: `docker tag shaperoute-api:before-task316
+     shaperoute-api:latest && docker compose up -d api` (F.12); l'app, con
+     un 404, fa come prima;
+   - i disegni sono una cache, come gli altri esempi. Per toglierli:
+     `find data/cache/routes -name '*.json' -newer
+     data/cache/routes/.before-task316 -delete`;
+   - le zone nuove: `find data/cache -maxdepth 1 -name 'foot_*' -newer
+     data/cache/routes/.before-task316`, spostate in
+     `data/cache/before-task316/` come in TASK-206.
 9. **Disco e tempo** (stima, da riscrivere con le misure):
    - un percorso tenuto pesa circa 100 kB (`route_store.py`): 150 disegni
      sono circa 15 MB;
@@ -128,6 +174,9 @@ minuti con l'app aperta.
 - [ ] `POST /kept-routes` risponde i percorsi tenuti e `null` per gli altri,
       senza far partire nessun lavoro (un test lo conta) e senza caricare
       zone.
+- [ ] `POST /kept-routes` non restituisce mai un percorso disegnato dalla
+      posizione di un utente: solo i file dei centri, mai l'archivio (un
+      test).
 - [ ] `POST /kept-routes` rifiuta più di 16 richieste e le immagini (422).
 - [ ] `draw_examples --all` chiede le otto forme e le sei parole dell'app,
       con le stesse richieste: un test Python e uno dell'app leggono la
@@ -194,8 +243,9 @@ Documenti (ogni parte): `docs/tasks/TASK-316.md`, `docs/STATUS.md`,
 - Sapere se il telefono è in Wi-Fi: vorrebbe un modulo nativo.
 - Bici e pagaia: gli esempi preparati sono quelli della corsa.
 - Cambiare l'aspetto di «NEARBY TOWNS» o delle carte.
-- Le parole di TASK-279 B e di TASK-311: qui solo le sei che l'app chiede
-  già.
+- Le parole nuove di TASK-279 B e di TASK-311: qui solo le sei che l'app
+  chiede già (il punto 7 di TASK-279 B, `draw_examples` con le parole, è
+  fatto qui).
 
 ## Al merge
 

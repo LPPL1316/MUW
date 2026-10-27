@@ -17117,7 +17117,15 @@ dall'agente su delega dell'utente.
 4. **Il server calcola i disegni una volta**: `draw_examples --all` chiede
    gli otto disegni e le sei parole dell'app, con le stesse richieste
    (una fixture comune la controlla), e `--around` li chiede dai punti di
-   `/nearby-cities` dei paesi attorno a una città.
+   `/nearby-cities` dei paesi attorno a una città. Le parole sono il punto
+   7 di TASK-279 B («`draw_examples` con le parole», facoltativo), che il
+   Coordinatore ha spostato qui il 2026-10-27.
+5. **Solo i file dei centri, mai l'archivio**: `/kept-routes` legge
+   `route_store` (centri delle città e punti sull'acqua, la posizione di
+   nessuno), non l'archivio di ADR-0256, che tiene anche i percorsi
+   disegnati da dove erano gli utenti, senza account. Con una risposta
+   «tenuto o no» un punto qualsiasi direbbe se qualcuno ci ha disegnato:
+   l'app chiede solo i punti dei paesi, e l'endpoint non risponde altro.
 
 **Alternative scartate**: il prefetch con `POST /route-jobs` (ogni telefono
 farebbe calcolare al server fino a 150 disegni e scaricare zone a ogni
