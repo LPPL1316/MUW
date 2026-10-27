@@ -16720,3 +16720,153 @@ Android serviranno la sezione in `app.json` e una build nativa nuova.
 un SDK che l'app non usa e ne porta il codice e i permessi nella build);
 `expo-build-properties` per il `compileSdk` (non risolve la sezione
 mancante).
+
+## ADR-0266 — Forme pronte vicino a te in «Draw», ed «Explore» preparato all'apertura
+**Stato**: Attiva · 2026-10-26 · TASK-306. Le scelte di prodotto sono
+dell'utente, del 2026-10-26: la riga sotto la distanza, cerchio, cuore e
+stella da 5 km dalla posizione, sempre 5 km, solo la corsa, tenute fino a
+1 km; **forme già pronte in città a caso, dalla più semplice alla più
+complicata, quando vicino non viene niente**; «Explore» preparato
+all'apertura. Del Coordinatore, nel dare il numero: nessun permesso della
+posizione chiesto dal task; niente prima della prima pagina, durante una
+corsa o la navigazione, in background; il server come riserva con l'API
+di oggi; costi in tempo, batteria e dati scritti nel task file. Il come è
+deciso dall'agente su delega dell'utente.
+
+**Decisione**:
+
+1. **Le forme vicine le disegna il telefono** (`requestRouteOnPhoneFirst`,
+   ADR-0177), come un esempio di una città (`requestOf` con la posizione
+   al posto del centro), nella coda delle richieste in priorità «visible»
+   (ADR-0248). Prima aspettano fino a 45 s le mappe intorno al telefono,
+   che l'app scarica all'apertura: con quelle disegna il telefono, senza il
+   server.
+2. **Tenute in `near-you.json`** con il punto da cui partono: interi, con
+   le alternative, e `null` per una forma rifiutata lì. Si disegnano di
+   nuovo oltre 1 km. Una forma senza risposta (rete, server) non si
+   tiene: si chiede la volta dopo. L'id è `near-you:{forma}`, senza la
+   posizione; la città è vuota, come un percorso di «Draw».
+3. **Si aprono come esempi**: `keepWhole` in `exampleRoutes.ts` tiene il
+   percorso intero e la richiesta, così `useExplored` li apre senza
+   chiedere all'API, con A · B · C.
+4. **Le forme di altre città** sono gli esempi tenuti dall'API
+   (ADR-0136): le 14 città in evidenza, in ordine casuale a ogni apertura,
+   il centro dal telefono (`featuredPlace`) o da `GET /cities` la prima
+   volta. Una forma conta solo se il lavoro è `done` nella risposta al
+   POST: altrimenti l'app lo lascia (`DELETE`) e prova un'altra città, al
+   più 3 per forma. Pronte, sono esempi di quella città (`keepSample`),
+   anche per «Explore».
+5. **«Explore» preparato**: lista dei percorsi vicini (tenuta 10 minuti
+   per la pagina), paesi vicini (`fetchNearbyCities` li tiene già) e i
+   loro esempi (`drawSamples`) in priorità «prefetch», finché la pagina
+   non si è aperta una volta: da lì li chiede lei.
+6. **Quando**: `useMayWorkAhead` in `firstPage.ts`, vero dopo
+   l'animazione d'apertura (`Root.tsx`), con l'app non in background e né
+   corsa né navigazione. Fermato, il lavoro riprende da dove era.
+
+**Alternative scartate**: disegnare dal centro del paese più vicino
+(esempi già tenuti dall'API, ma la partenza a chilometri dall'utente, e
+`/nearby-cities` esclude il paese dove si è); le forme alla distanza scelta
+sopra (ogni cambio di distanza, tre percorsi da rifare); aspettare le forme
+di altre città che l'API dovrebbe disegnare (fino a 18 s l'una sul server,
+contro una scheda che si apre subito); giudicare «bello» dalla somiglianza
+del motore (sta sopra 0,9 anche per percorsi che non si leggono, TASK-290);
+scaricare qualcosa durante l'installazione (serve una build nativa, e la
+posizione allora non c'è).
+
+**Conseguenza**: alla prima apertura in un luogo, oltre alla zona del
+telefono, fino a circa 1,3 MB di dati (stima nel task file) e 1–2 minuti
+di un core sul telefono per tre forme; se il telefono non ha mappe, tre
+percorsi in più al server per persona e luogo. Gli esempi dei paesi
+vicini, che prima chiedeva solo chi apriva «Explore», li chiede ogni
+apertura in un luogo nuovo: l'API li tiene per paese, quindi pesano solo
+la prima volta.
+## ADR-0263 — Dopo una deviazione la corsa rientra più avanti, e mostra dove riprende il percorso
+**Stato**: Attiva · 2026-10-26 · piano approvato dall'utente dopo la prova
+sul campo a Trento del 2026-10-25 («Ok, procedi con i tre piani»); numero
+e condizioni dal Coordinatore; le regole di dettaglio decise dall'agente su
+delega dell'utente (TASK-303). I testi nuovi vogliono il sì dell'utente.
+
+**Contesto**: a Trento Fiere un passaggio era chiuso. L'utente ha fatto il
+giro dell'isolato ed è rientrato sul percorso più avanti, ma la corsa è
+rimasta «fuori percorso» per sempre: una volta fuori, `locate` lo cercava
+solo da `BACK_M` dietro ad `AHEAD_M` = 300 m avanti rispetto a dove era
+uscito, e su tutto il percorso avanti solo dopo un buco del GPS (TASK-270).
+Nessuna guida: «Torna sul percorso» senza dire dove.
+
+**Decisione**:
+
+1. **Rientro più avanti**: fuori percorso, chi era già stato messo sul
+   percorso si cerca anche oltre la finestra di `locate`, come dopo un buco
+   (`foundAhead`). Il rientro conta dopo `BACK_FIXES` posizioni di fila,
+   ognuna vicina alla precedente, che vanno nel verso del percorso per
+   `JOIN_M` = 20 m (come ADR-0241): attraversare la forma più avanti di
+   traverso non è rientrare. Poi «Di nuovo sul percorso», e le svolte
+   rimaste indietro non si dicono. Vicino a dove è uscito, e dopo un buco,
+   tutto come prima.
+2. **Fin dove**: le forme si incrociano e ripassano le stesse strade (una
+   stella, un cuore, un otto). Il percorso si cerca, e il punto di rientro
+   si mostra, solo fino a `AHEAD_M` più `REJOIN_PER_M` = 2 m per ogni metro
+   corso da quando il runner è uscito (`rejoinAheadM`). Un giro
+   dell'isolato salta meno percorso di quanto ne corre; un pezzo della
+   forma chilometri più avanti resta fuori, anche se passa a un metro. Su
+   una spirale di prova, la strada della deviazione è l'ultimo lato della
+   forma, 2,3 km più avanti: la corsa rientra a 720 m, non lì.
+3. **Il punto di rientro** (`rejoin.ts`): il punto di quel tratto più
+   vicino al runner in linea d'aria, ricalcolato a ogni posizione, tenuto
+   in `Navigation.rejoin`. Prima di essere mai stato sul percorso, il più
+   vicino dove `locate` lo prenderebbe (i primi `AHEAD_M`); su una forma
+   chiusa non ancora agganciata, il più vicino di tutta la forma. Nessun
+   calcolo di strade: sarebbe un seguito, col motore.
+4. **La guida**: sulla mappa una linea **a puntini** (non a trattini: i
+   trattini gialli sono il percorso che resta, TASK-224) dal runner al
+   punto, nel colore del testo; nel banner la distanza e il punto
+   cardinale («120 m NE») e «Follow the dotted line back to the route.»;
+   a voce, **una volta per deviazione**, subito dopo «Sei fuori percorso.
+   Torna sul percorso.»: «Il percorso riprende a 120 metri verso
+   nord-est.». In miglia, in piedi. Le frasi passano dalla coda della voce
+   (`say`), quindi non si sovrappongono alle svolte (TASK-302), e mentre si
+   è fuori il navigatore non dice altro.
+5. **Bici e acqua**: lo stesso navigatore, la stessa regola; in bici le
+   svolte si annunciano a `RIDE_ANNOUNCE_M` come sempre (TASK-216).
+   Sull'acqua la linea dritta è proprio la via per tornare sulla traccia.
+6. **Distanza e tempo** della deviazione restano nella corsa: la
+   registrazione non guarda il percorso (ADR-0137 per la pausa, invariata).
+7. **Solo app**: `useNavigation.ts` e `App.tsx` non cambiano, il punto
+   viaggia dentro `Navigation`; nessuna dipendenza, l'impronta iOS resta.
+
+**Scartate**:
+
+- il punto più vicino di tutto il percorso avanti: su una forma che si
+  incrocia manda il runner a un giro più avanti (punto 2);
+- far ripartire il percorso dal motore fino al punto di rientro: niente
+  rete né motore durante la corsa per questo; resta un seguito;
+- dire la direzione a ogni posizione o a intervalli: una volta basta, la
+  mappa e il banner la tengono aggiornata.
+
+**Conseguenze**: la ricerca della deviazione costa una passata del
+percorso per posizione mentre si è fuori, come dopo un buco. Un
+attraversamento in diagonale lungo più di `JOIN_M` sopra il percorso più
+avanti, nella finestra, può ancora valere come rientro; se si esce di nuovo,
+la voce lo dice dopo `OFF_FIXES`, come sempre.
+
+## ADR-0270 — pytest fermato sotto la 9.2 finché i test confrontano liste con un solo `approx`
+
+**Data**: 2026-10-27 · **Stato**: Accettata · **Task**: TASK-310
+Deciso dal Coordinatore su delega dell'utente.
+
+**Contesto**: `pytest>=8` nelle dipendenze di sviluppo ha fatto prendere alla
+CI `pytest-9.2.0` (l'ultima `main` verde aveva la 9.1.1). La 9.2 rifiuta
+`pytest.approx()` su strutture annidate, e diversi test del motore e
+dell'API confrontano liste di coppie di coordinate con un solo `approx`:
+`main` e ogni PR aperta sono diventate rosse senza aver toccato niente.
+
+**Decisione**: `pytest>=8,<9.2` in `services/route-engine`, `services/api` e
+`services/ai`. È un tetto a una dipendenza che c'è già, non una nuova.
+
+**Alternative scartate**: riscrivere subito i test con un `approx` per
+elemento: è il rimedio vero, ma tocca molti file di più task mentre una
+dozzina di PR aspetta la CI; resta come seguito.
+
+**Conseguenze**: la CI torna verde con la 9.1. Quando i test saranno
+riscritti, il tetto si toglie con un'aggiunta a questo ADR.

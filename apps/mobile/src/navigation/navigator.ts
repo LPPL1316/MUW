@@ -1,8 +1,10 @@
 import type { Direction, LatLon } from "@shaperoute/shared-types";
 
 import { BASE_LANGUAGE, type Language } from "../i18n/languages";
+import { metresBetween } from "../map/coordinates";
 import { wordsOf } from "../voice/words";
 import {
+  AHEAD_M,
   BACK_M,
   cumulative,
   locate,
@@ -10,12 +12,14 @@ import {
   OFF_ROUTE_M,
   passesNear,
 } from "./progress";
+import { type Rejoin, rejoinAheadM, rejoinOf } from "./rejoin";
 import { joinRoute, type Loop, loopOf } from "./startAnywhere";
 
 /**
  * Turn-by-turn along a route that is already drawn (TASK-049, ADR-0052):
  * pure functions from a GPS fix to what the screen shows, what is said and
- * when the phone vibrates. No recalculation: off the route, it says so.
+ * when the phone vibrates. No recalculation: off the route, it says so,
+ * and where the route is (TASK-303, `rejoin`).
  * What is said is in the voice's `language` (TASK-209), English unless
  * another is given.
  */
@@ -72,9 +76,9 @@ export type Reading = {
 /** Fixes in a row beyond OFF_ROUTE_M, not yet said. */
 type OffStreak = { fixes: number; sinceMs: number | null };
 
-/** After a gap, where on the route ahead the fixes were placed, and how
- * many in a row. */
-type Found = { alongM: number; fixes: number };
+/** After a gap, or off the route (TASK-303), where on the route ahead the
+ * fixes were placed, the first and the last, and how many in a row. */
+type Found = { firstM: number; alongM: number; fixes: number };
 
 /** Before a run joins a closed route, the fixes in a row on one pass of
  * it: where the first and the last were placed, in metres along its loop. */
@@ -103,9 +107,15 @@ export type Navigation = {
   /** A gap was seen and the runner is not placed on the route since: a
    * fix is looked for along all the route ahead (GAP_MS). */
   lost?: boolean;
-  /** Fixes placed beyond where `locate` looks, while `lost`; null when
-   * none. */
+  /** Fixes placed beyond where `locate` looks, while `lost` or off the
+   * route; null when none. */
   found?: Found | null;
+  /** Off the route (TASK-303): where the runner gets back on it, from the
+   * last fix; null or absent on it. */
+  rejoin?: Rejoin | null;
+  /** Off the route, the metres run since it was left: the further on the
+   * route is looked for (`rejoinAheadM`). */
+  offRunM?: number;
   arrived: boolean;
   /** How far ahead a turn is said: ANNOUNCE_M when absent, further on a
    * bike (TASK-216, `ride.ts`). */
@@ -215,7 +225,9 @@ function towardsJoin(
   }
   const pass = joinedPass(joining);
   if (pass === null) {
-    return { navigation: { ...seen, joining, offStreak: null }, cues: [] };
+    // Off the route before, the way to it is still shown (TASK-303).
+    const off = navigation.offRoute ? stillOff(navigation, seen, fix) : {};
+    return { navigation: { ...seen, ...off, joining, offStreak: null }, cues: [] };
   }
   const route = joinRoute(
     navigation.points,
@@ -324,12 +336,26 @@ function follow(
   );
   // After a gap the runner may be anywhere ahead (TASK-270).
   const lost = navigation.lost === true || gapBefore(navigation, timeMs);
+  // Off the route, they may get back on it further on than `locate` looks:
+  // a street closed, a block run round (TASK-303).
+  const detour = navigation.offRoute && placedBefore(navigation);
   let found: Found | null = null;
-  if (offM > OFF_ROUTE_M && lost) {
+  if (offM > OFF_ROUTE_M && (lost || detour)) {
     // A poor fix neither ends nor extends the fixes found ahead.
-    found = poor ? (navigation.found ?? null) : foundAhead(navigation, fix);
+    found = poor
+      ? (navigation.found ?? null)
+      : foundAhead(
+          navigation,
+          fix,
+          lost ? Infinity : rejoinAheadM(navigation.offRunM ?? 0),
+        );
   }
-  const rejoined = found !== null && found.fixes >= BACK_FIXES;
+  // After a detour the fixes found must also have gone JOIN_M the route's
+  // way: crossing the shape further on is not getting back on it.
+  const rejoined =
+    found !== null &&
+    found.fixes >= BACK_FIXES &&
+    (lost || found.alongM - found.firstM >= JOIN_M);
   if (found !== null && rejoined) {
     alongM = found.alongM;
     offM = 0;
@@ -347,7 +373,10 @@ function follow(
       return { navigation: seen, cues: [] };
     }
     if (navigation.offRoute) {
-      return { navigation: { ...seen, backFixes: 0 }, cues: [] };
+      return {
+        navigation: { ...seen, ...stillOff(navigation, seen, fix), backFixes: 0 },
+        cues: [],
+      };
     }
     const streak: OffStreak = {
       fixes: (navigation.offStreak?.fixes ?? 0) + 1,
@@ -361,19 +390,44 @@ function follow(
     if (streak.fixes < OFF_FIXES || !lasted) {
       return { navigation: { ...seen, offStreak: streak }, cues: [] };
     }
+    // Once, as the runner leaves: where the route is, after the words of
+    // always (TASK-303). The navigator says nothing else until they are
+    // back on it.
+    const rejoin = rejoinFor(seen, fix, 0);
     return {
-      navigation: { ...seen, offRoute: true, offStreak: null, backFixes: 0 },
-      cues: [{ say: words.offRoute, vibrate: true }],
+      navigation: {
+        ...seen,
+        offRoute: true,
+        offStreak: null,
+        backFixes: 0,
+        rejoin,
+        offRunM: 0,
+      },
+      cues: [
+        { say: words.offRoute, vibrate: true },
+        ...(rejoin === null
+          ? []
+          : [
+              {
+                say: words.routeAt(rejoin.distanceM, rejoin.bearingDeg),
+                vibrate: false,
+              },
+            ]),
+      ],
     };
   }
-  // Fixes found ahead after a gap were BACK_FIXES on the route already.
+  // Fixes found ahead after a gap, or a detour, were BACK_FIXES on the
+  // route already.
   if (navigation.offRoute && !rejoined) {
     if (poor) {
       return { navigation: seen, cues: [] };
     }
     const backFixes = navigation.backFixes + 1;
     if (backFixes < BACK_FIXES) {
-      return { navigation: { ...seen, backFixes }, cues: [] };
+      return {
+        navigation: { ...seen, ...stillOff(navigation, seen, fix), backFixes },
+        cues: [],
+      };
     }
   }
   const cues: Cue[] = navigation.offRoute
@@ -382,7 +436,13 @@ function follow(
   // A poor fix on the route neither ends nor extends a streak off it, nor
   // places a runner lost after a gap.
   const offStreak = poor ? navigation.offStreak : null;
-  const placed: Navigation = { ...seen, lost: poor && lost, found: null };
+  const placed: Navigation = {
+    ...seen,
+    lost: poor && lost,
+    found: null,
+    // Back on the route, there is no way back to show.
+    ...(seen.rejoin ? { rejoin: null, offRunM: 0 } : {}),
+  };
   const { directions } = navigation;
   let next = navigation.next;
   while (next < directions.length && directions[next].distance_m + PASS_M <= alongM) {
@@ -452,23 +512,68 @@ function gapBefore(navigation: Navigation, timeMs: number | null): boolean {
   );
 }
 
+/** Whether the runner was placed on the route before: one walking to its
+ * start, or to a closed route not joined yet, is not looked for further on
+ * after a detour either (TASK-303). */
+function placedBefore(navigation: Navigation): boolean {
+  return navigation.alongM > 0 && !waitingToJoin(navigation);
+}
+
 /**
  * A fix off the route near where the runner was, placed on the route ahead
- * after a gap: near where the fix before was found, one more in a row, or
- * else anywhere from where the runner was to the end, the first in a row.
- * `locate`'s cost picks the nearest pass ahead, as near where the runner
- * was. Null when the fix is off the route there too.
+ * after a gap, or after a detour (TASK-303): near where the fix before was
+ * found, one more in a row, or else from where the runner was to `aheadM`
+ * on, the first in a row. `locate`'s cost picks the nearest pass ahead, as
+ * near where the runner was. Null when the fix is off the route there too.
  */
-function foundAhead(navigation: Navigation, fix: LatLon): Found | null {
+function foundAhead(navigation: Navigation, fix: LatLon, aheadM: number): Found | null {
   const { points, along, found } = navigation;
   if (found !== null && found !== undefined) {
     const near = locate(points, along, fix, found.alongM);
     if (near.offM <= OFF_ROUTE_M) {
-      return { alongM: near.alongM, fixes: found.fixes + 1 };
+      return { firstM: found.firstM, alongM: near.alongM, fixes: found.fixes + 1 };
     }
   }
-  const far = locate(points, along, fix, navigation.alongM, Infinity);
-  return far.offM <= OFF_ROUTE_M ? { alongM: far.alongM, fixes: 1 } : null;
+  const far = locate(points, along, fix, navigation.alongM, aheadM);
+  return far.offM <= OFF_ROUTE_M
+    ? { firstM: far.alongM, alongM: far.alongM, fixes: 1 }
+    : null;
+}
+
+/**
+ * Where a runner off the route gets back on it (TASK-303, `rejoin.ts`):
+ * ahead of where they left it, as far on as they may be taken back
+ * (`rejoinAheadM`, all the way after a gap). Never on it yet, where
+ * `locate` would place them, near its start; on a closed route not joined
+ * yet, anywhere on it.
+ */
+function rejoinFor(
+  navigation: Navigation,
+  fix: LatLon,
+  offRunM: number,
+): Rejoin | null {
+  const { points, along, alongM } = navigation;
+  if (waitingToJoin(navigation)) {
+    return rejoinOf(points, along, fix, -Infinity, Infinity);
+  }
+  if (alongM <= 0) {
+    return rejoinOf(points, along, fix, 0, AHEAD_M);
+  }
+  const aheadM = navigation.lost === true ? Infinity : rejoinAheadM(offRunM);
+  return rejoinOf(points, along, fix, alongM, alongM + aheadM);
+}
+
+/** A fix of a runner still off the route: the metres run since it was
+ * left, this step too, and where to get back on it from here. */
+function stillOff(
+  navigation: Navigation,
+  seen: Navigation,
+  fix: LatLon,
+): Pick<Navigation, "offRunM" | "rejoin"> {
+  const before = navigation.rejoin?.from;
+  const offRunM =
+    (navigation.offRunM ?? 0) + (before === undefined ? 0 : metresBetween(before, fix));
+  return { offRunM, rejoin: rejoinFor(seen, fix, offRunM) };
 }
 
 /** The direction at `index` and the ones joined to it (read together). */
