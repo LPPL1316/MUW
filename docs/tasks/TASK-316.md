@@ -170,13 +170,19 @@ Parte B:
 ```
 apps/mobile/src/explore/regionAhead.ts              (nuovo)
 apps/mobile/src/explore/regionAhead.test.ts         (nuovo)
+apps/mobile/src/explore/regionStore.ts              (nuovo: i file, come paddle/aheadStore.ts)
 apps/mobile/src/api/keptRoutes.ts                   (nuovo)
 apps/mobile/src/api/keptRoutes.test.ts              (nuovo)
 apps/mobile/src/explore/exploreAhead.ts             (chiama regionAhead dopo i paesi)
 apps/mobile/src/explore/exploreAhead.test.tsx
 apps/mobile/src/explore/exampleRoutes.ts            (legge il file del paese)
+apps/mobile/src/explore/NearbyTowns.tsx             (una riga: useRegionAhead)
 apps/mobile/src/explore/cityExamplesFixture.test.ts (nuovo: la fixture comune)
 ```
+
+`NearbyTowns.tsx` perché `App.tsx` ferma `prepareExplore` appena «Explore»
+si apre: senza la riga il giro si fermerebbe proprio lì. Con la riga
+riprende dai file finché «Near me» è in pagina; `App.tsx` resta com'è.
 
 Documenti (ogni parte): `docs/tasks/TASK-316.md`, `docs/STATUS.md`,
 `docs/DECISIONS.md`.
