@@ -15736,6 +15736,50 @@ dell'utente; elenco dei file approvato dal Coordinatore)**:
   (chi ha creato la squadra toglie, ognuno esce), con «Leave team» che
   chiede conferma prima, perché rientrare vuole il codice.
 
+**Aggiunta (parte E, 2026-10-26, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **La riga del gioco sta nella scheda della corsa** (`RunCard`, in
+  `RunDashboard.tsx`): una riga sola di testo piccolo e grigio sotto i tre
+  numeri di «Map» (sotto i riquadri quando la corsa è in pausa) e su «Data»
+  sotto i sei riquadri, prima dei km uno per uno. Non copre la mappa, i
+  numeri né i pulsanti, non è gialla (il giallo è del percorso, ADR-0046) e
+  la voce non cambia. La scheda legge una volta e mostra la riga sulle due
+  pagine: due righe con una lettura ciascuna avrebbero chiesto il gioco due
+  volte. Il posto lo conferma l'utente quando vede la riga su `preview`.
+- **L'API si chiede una volta, all'inizio della corsa, mai durante**: `GET
+  /game/me` e `GET /game/teams` insieme, appena la scheda compare (anche
+  durante il conto alla rovescia), con l'account, il catalogo sul telefono
+  e solo a piedi. Poi la riga cresce da sola con i metri della corsa che la
+  scheda ha già (`track.distanceM`): nessuna richiesta mentre si corre,
+  nessun timer, niente in background. Senza rete, senza account, senza
+  catalogo (il server di oggi, che non ha il gioco) o con la sessione
+  rifiutata la riga non c'è e non compare nessun errore: la corsa è come
+  prima. Un'API senza la parte C (404 su `/game/teams`) lascia la sola
+  forma per distanza.
+- **Oltre la soglia la riga passa alla forma dopo.** Il totale stimato (i
+  metri contati dall'API più quelli della corsa) sceglie la forma per
+  distanza più vicina non ancora sbloccata e con la soglia ancora sopra il
+  totale: a 20,0 km «Hexagon 19.9 / 20 km» diventa «Circle 20.0 / 42 km»,
+  senza mai dire «unlocked», che lo dice il server dopo «Save» con la
+  scheda della parte B. Scartato restare fermi al 100 % con un testo
+  neutro: una riga che non si muove più per il resto della corsa non dà
+  niente da rincorrere, e il salto alla forma dopo dice da sé che la soglia
+  è passata. Raggiunte tutte le forme per distanza, niente riga.
+- **Il pezzo veloce vince sulla forma per distanza**: con un pezzo `kind:
+  "pace"` in mano (tenuto da me, non fatto) in una sfida `active`, la riga
+  dice il passo dell'ultimo km intero contro l'obiettivo, «Last km 5:12 ·
+  target 5:00 /km», con «–» prima del primo km; con le miglia l'ultimo
+  miglio e l'obiettivo al miglio, «Last mi 8:22 · target 8:03 /mi». Il
+  primo pezzo trovato, nell'ordine delle squadre. Chi sono io lo dice
+  `session.user.public_id`, confrontato con `holder.public_id` dei pezzi;
+  senza (un'API prima di TASK-116) le squadre non si chiedono.
+- **Le squadre si leggono con la parte D**: `fetchTeams` di `teamsApi.ts`
+  e i tipi `GameTeams` di `shared-types`. La E era partita con tipi suoi,
+  minimi, perché la D stava allungando lo stesso file; entrata la D per
+  prima (#561), la E ha tolto il doppione prima della sua PR, come
+  concordato con il Coordinatore.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
@@ -16724,3 +16768,323 @@ percorsi in più al server per persona e luogo. Gli esempi dei paesi
 vicini, che prima chiedeva solo chi apriva «Explore», li chiede ogni
 apertura in un luogo nuovo: l'API li tiene per paese, quindi pesano solo
 la prima volta.
+## ADR-0263 — Dopo una deviazione la corsa rientra più avanti, e mostra dove riprende il percorso
+**Stato**: Attiva · 2026-10-26 · piano approvato dall'utente dopo la prova
+sul campo a Trento del 2026-10-25 («Ok, procedi con i tre piani»); numero
+e condizioni dal Coordinatore; le regole di dettaglio decise dall'agente su
+delega dell'utente (TASK-303). I testi nuovi vogliono il sì dell'utente.
+
+**Contesto**: a Trento Fiere un passaggio era chiuso. L'utente ha fatto il
+giro dell'isolato ed è rientrato sul percorso più avanti, ma la corsa è
+rimasta «fuori percorso» per sempre: una volta fuori, `locate` lo cercava
+solo da `BACK_M` dietro ad `AHEAD_M` = 300 m avanti rispetto a dove era
+uscito, e su tutto il percorso avanti solo dopo un buco del GPS (TASK-270).
+Nessuna guida: «Torna sul percorso» senza dire dove.
+
+**Decisione**:
+
+1. **Rientro più avanti**: fuori percorso, chi era già stato messo sul
+   percorso si cerca anche oltre la finestra di `locate`, come dopo un buco
+   (`foundAhead`). Il rientro conta dopo `BACK_FIXES` posizioni di fila,
+   ognuna vicina alla precedente, che vanno nel verso del percorso per
+   `JOIN_M` = 20 m (come ADR-0241): attraversare la forma più avanti di
+   traverso non è rientrare. Poi «Di nuovo sul percorso», e le svolte
+   rimaste indietro non si dicono. Vicino a dove è uscito, e dopo un buco,
+   tutto come prima.
+2. **Fin dove**: le forme si incrociano e ripassano le stesse strade (una
+   stella, un cuore, un otto). Il percorso si cerca, e il punto di rientro
+   si mostra, solo fino a `AHEAD_M` più `REJOIN_PER_M` = 2 m per ogni metro
+   corso da quando il runner è uscito (`rejoinAheadM`). Un giro
+   dell'isolato salta meno percorso di quanto ne corre; un pezzo della
+   forma chilometri più avanti resta fuori, anche se passa a un metro. Su
+   una spirale di prova, la strada della deviazione è l'ultimo lato della
+   forma, 2,3 km più avanti: la corsa rientra a 720 m, non lì.
+3. **Il punto di rientro** (`rejoin.ts`): il punto di quel tratto più
+   vicino al runner in linea d'aria, ricalcolato a ogni posizione, tenuto
+   in `Navigation.rejoin`. Prima di essere mai stato sul percorso, il più
+   vicino dove `locate` lo prenderebbe (i primi `AHEAD_M`); su una forma
+   chiusa non ancora agganciata, il più vicino di tutta la forma. Nessun
+   calcolo di strade: sarebbe un seguito, col motore.
+4. **La guida**: sulla mappa una linea **a puntini** (non a trattini: i
+   trattini gialli sono il percorso che resta, TASK-224) dal runner al
+   punto, nel colore del testo; nel banner la distanza e il punto
+   cardinale («120 m NE») e «Follow the dotted line back to the route.»;
+   a voce, **una volta per deviazione**, subito dopo «Sei fuori percorso.
+   Torna sul percorso.»: «Il percorso riprende a 120 metri verso
+   nord-est.». In miglia, in piedi. Le frasi passano dalla coda della voce
+   (`say`), quindi non si sovrappongono alle svolte (TASK-302), e mentre si
+   è fuori il navigatore non dice altro.
+5. **Bici e acqua**: lo stesso navigatore, la stessa regola; in bici le
+   svolte si annunciano a `RIDE_ANNOUNCE_M` come sempre (TASK-216).
+   Sull'acqua la linea dritta è proprio la via per tornare sulla traccia.
+6. **Distanza e tempo** della deviazione restano nella corsa: la
+   registrazione non guarda il percorso (ADR-0137 per la pausa, invariata).
+7. **Solo app**: `useNavigation.ts` e `App.tsx` non cambiano, il punto
+   viaggia dentro `Navigation`; nessuna dipendenza, l'impronta iOS resta.
+
+**Scartate**:
+
+- il punto più vicino di tutto il percorso avanti: su una forma che si
+  incrocia manda il runner a un giro più avanti (punto 2);
+- far ripartire il percorso dal motore fino al punto di rientro: niente
+  rete né motore durante la corsa per questo; resta un seguito;
+- dire la direzione a ogni posizione o a intervalli: una volta basta, la
+  mappa e il banner la tengono aggiornata.
+
+**Conseguenze**: la ricerca della deviazione costa una passata del
+percorso per posizione mentre si è fuori, come dopo un buco. Un
+attraversamento in diagonale lungo più di `JOIN_M` sopra il percorso più
+avanti, nella finestra, può ancora valere come rientro; se si esce di nuovo,
+la voce lo dice dopo `OFF_FIXES`, come sempre.
+
+## ADR-0270 — pytest fermato sotto la 9.2 finché i test confrontano liste con un solo `approx`
+
+**Data**: 2026-10-27 · **Stato**: Accettata · **Task**: TASK-310
+Deciso dal Coordinatore su delega dell'utente.
+
+**Contesto**: `pytest>=8` nelle dipendenze di sviluppo ha fatto prendere alla
+CI `pytest-9.2.0` (l'ultima `main` verde aveva la 9.1.1). La 9.2 rifiuta
+`pytest.approx()` su strutture annidate, e diversi test del motore e
+dell'API confrontano liste di coppie di coordinate con un solo `approx`:
+`main` e ogni PR aperta sono diventate rosse senza aver toccato niente.
+
+**Decisione**: `pytest>=8,<9.2` in `services/route-engine`, `services/api` e
+`services/ai`. È un tetto a una dipendenza che c'è già, non una nuova.
+
+**Alternative scartate**: riscrivere subito i test con un `approx` per
+elemento: è il rimedio vero, ma tocca molti file di più task mentre una
+dozzina di PR aspetta la CI; resta come seguito.
+
+**Conseguenze**: la CI torna verde con la 9.1. Quando i test saranno
+riscritti, il tetto si toglie con un'aggiunta a questo ADR.
+
+## ADR-0267 — Correre il disegno di un altro: la traccia tagliata come percorso, senza svolte, e il GPX scritto sul telefono
+
+**Stato**: Attiva · 2026-10-26 · la richiesta («scaricare la traccia e
+poterla iniziare»), il «no» a un interruttore per chi pubblica, la frase
+della «Privacy» e il testo sotto «Start» sono dell'utente; chi può
+scaricare, che cosa e la scritta senza svolte vengono dal Coordinatore; i
+punti tecnici sono decisi dall'agente su delega dell'utente (TASK-307).
+
+**Contesto**: l'utente il 2026-10-26: «quando entri in un'attività di un
+tuo amico, nei suoi disegni e nel feed, poter scaricare la traccia e
+poterla iniziare pure tu». Dal «Feed» e dai «Drawings» di un profilo il
+disegno si apre sulla stessa scheda (`DrawingCard`), che aveva reazioni e
+commenti ma né «Start» né GPX. Dell'altro l'app ha solo la traccia di
+`GET /drawings/{id}`: tagliata di 200 m ai due capi, senza tempi, mai il
+percorso pianificato (ADR-0159). È il GPS di chi ha corso: i suoi punti
+non stanno sui nodi del grafo, e `/route-directions` (ADR-0117) la
+rifiuta («This route is not on the map the API has»).
+
+**Decisione**:
+
+1. **Chi e che cosa.** «Start» ed «Export GPX» ci sono su ogni disegno che
+   si può aprire, anche il proprio: l'API dà la traccia solo a chi lo può
+   vedere (mai attraverso un blocco, mai un post nascosto). Il file ha
+   **solo la traccia tagliata**, la stessa della mappa: niente tempi,
+   niente nome di chi ha corso, niente quote.
+2. **Il GPX si scrive sul telefono** (`src/social/drawingRoute.ts`), non
+   con `POST /gpx`: l'app ha già la traccia, e l'API vorrebbe una
+   richiesta e un risultato dell'engine che un disegno non ha. Come
+   l'engine (GPX.md): GPX 1.1, un `<trk>`, un `<trkseg>`, 7 decimali,
+   creator «MuW»; senza attribuzione a OSM, come la corsa fatta (è il GPS
+   di chi corre). Nome: il titolo, altrimenti ciò che disegna; file
+   `muw-<forma>-<km>km.gpx`. Poi il foglio di condivisione (ADR-0033).
+3. **«Start» segue la traccia senza svolte**, subito, senza chiedere
+   niente all'API: come in acqua, la linea sulla mappa, la parte fatta e
+   quella da fare, i km. La scheda lo dice sotto «Start»: «This route has
+   no turn directions: follow the line on the map.» Bici e acqua come il
+   disegno è stato fatto (come un preferito, TASK-216); in acqua prima
+   l'avviso; la mappa girata come il disegno (TASK-232).
+4. **La corsa salvata** ha come percorso la traccia e dice ciò che il
+   disegno disegna (forma, parola, titolo); la somiglianza, che dell'altro
+   non si sa, è il punteggio del disegno / 100, come per gli esempi di
+   «Feed» (TASK-188).
+5. **Fine corsa** (o Stop prima di partire) torna al disegno, ancora
+   aperto; da lì «←» torna dov'era stato aperto.
+
+**Alternative scartate**: chiedere comunque `/route-directions` (fallisce
+sempre su una traccia GPS, e «Start» resterebbe bloccato da un errore);
+agganciare la traccia alle strade nell'engine prima di partire
+(map-matching: lavoro dell'engine e dell'API da misurare, un task a parte
+se l'utente vuole le svolte a voce); `GET /drawings/{id}/gpx` nell'API
+(un endpoint nuovo per un file che il telefono ha già); chiudere il disegno
+alla partenza (alla fine della corsa non ci sarebbe niente a cui tornare).
+
+6. **Nessun interruttore per chi pubblica** (scelta dell'utente del
+   2026-10-26): il file ha solo ciò che la mappa già mostra. La pagina
+   «Privacy», in app e sul sito, lo dice in un paragrafo nuovo dopo
+   quello dei 200 m: «Whoever can see one of your runs can also follow it
+   with «Start» and save that same track as a GPX file: still without its
+   first and last 200 m and without times.»
+
+**Conseguenza**: solo app, nessun contratto né dipendenza nuovi, arriva
+con un aggiornamento OTA (impronta iOS invariata). Un testo nuovo nelle
+cinque lingue e una frase nuova nella «Privacy». Se un giorno servisse il
+«no» di chi pubblica, servono l'API e una migrazione.
+## ADR-0264 — La corsa continua mentre si usa un'altra app: dieci minuti di assenza sono corsa
+**Stato**: Attiva · 2026-10-26 · TASK-304. **Scelta dell'utente** del
+2026-10-26, alla domanda su cosa fare al rientro dopo una chiusura da
+parte di iOS: «deve continuare a registrare la corsa anche mentre si usa
+un'altra app, magari un ragazzo vuole solamente fare una foto mentre
+corre»; poi **«Sì, così»** alla proposta: un'assenza fino a 10 minuti è
+corsa, oltre resta una pausa. Il resto (il salvataggio, la mappa smontata,
+i dettagli sotto) è **deciso dall'agente su delega dell'utente**.
+Condizioni del Coordinatore nell'approvare i file: il tratto mancante dopo
+una chiusura è una linea dritta, mai più lunga del vero; la mappa torna
+com'era; salvataggio e Strava non cambiano, mai un invio doppio. Numero
+dato dal Coordinatore. **Aggiorna ADR-0219** (punto 2) **e ADR-0240**.
+
+**Contesto**: la prova sul campo dell'utente a Trento (2026-10-25), con
+la 1.0.0 (7) di TestFlight: uscito per una foto, al rientro la corsa era
+in pausa. La build 7 è di prima di TASK-272 e il canale `production` non
+ha mai avuto un aggiornamento: una chiusura da iOS avrebbe aperto la fine
+della corsa, quindi MuW era viva e la pausa era quella da fermi (10 s,
+ADR-0137). Restava il rischio vero: la fotocamera è pesante e iOS può
+chiudere MuW per memoria; con il solo «While using» (ADR-0225) non la
+rilancia, e il GPS si ferma fino al rientro. Allora si perdevano fino a 15
+s di punti (`SAVE_EVERY_MS`), e la corsa si riapriva in pausa (ADR-0240)
+con l'assenza tolta dal tempo e dai metri. Lo stesso, oltre 60 s, quando
+iOS congela l'app (ADR-0219). Nel simulatore, a corsa in background, la
+mappa (la sua WebView: contenuto, GPU e rete) pesava circa 115 MB contro i
+67 MB di MuW stessa.
+
+**Decisione**:
+
+1. **Un'assenza fino a 10 minuti è corsa** (`AWAY_AFTER_MS`, da 60 s a 10
+   minuti): con l'app congelata, col GPS solo in primo piano (Expo Go), o
+   chiusa da iOS e riaperta, la prima posizione che arriva entro 10 minuti
+   dall'ultima si unisce alla linea con un tratto dritto, e il tempo di
+   mezzo conta. Il tratto dritto è la distanza più corta fra i due punti:
+   mai più lungo della strada fatta. Oltre 10 minuti resta la regola di
+   ADR-0219: una pausa da quando l'app è andata via, e un tratto nuovo. Le
+   pause di chi corre e della penna che coprono l'assenza restano com'erano.
+2. **Riaperta entro 10 minuti dall'ultima posizione, la corsa va avanti da
+   sola**: niente «Paused», niente tasto, la prima posizione con la regola
+   del punto 1. Una pausa da fermi aperta alla chiusura resta da fermi (il
+   primo passo la chiude, come sempre); una di chi corre o della penna
+   resta sua. Più vecchia (fino alle 2 ore di ADR-0240) si riapre in pausa
+   con «Resume», come prima. Il limite lo giudica `startRun` dall'ultima
+   posizione del file; se aprire la corsa lo giudica sempre l'app.
+3. **La pausa da fermi conta dalla ripresa**: riaperta in corsa, i 10 s da
+   fermi partono da quando la corsa è ripresa, non dall'ultima posizione di
+   minuti prima (`takenUpMs` in `runControl`), così la voce non dice
+   «Paused» appena si torna nell'app.
+4. **Il file è sempre aggiornato quando l'app è dietro**: passando a
+   «background» o «inactive» si scrive subito ciò che non era scritto, e
+   finché l'app resta dietro ogni posizione tenuta lo riscrive. In primo
+   piano resta ogni 15 s. Una corsa fermata o arrivata non si riscrive.
+5. **Niente mappa mentre la corsa è in background** (`useRunBehind`): la
+   WebView non c'è finché l'app è «background» durante una corsa, e torna
+   al rientro con percorso, traccia, posizione, tipo di mappa e progresso,
+   mandati di nuovo come dopo «Retry». «inactive» (Centro di Controllo,
+   una notifica tirata giù) non la toglie; fuori da una corsa la mappa non
+   guarda `AppState`.
+
+**Alternative scartate**: la corsa in pausa con «Resume» com'era
+(l'utente vuole che la corsa continui); il permesso «Always» o un modulo
+nativo che faccia rilanciare MuW da iOS (escluso in TASK-261, e ogni
+cambio nativo toglierebbe la 1.0 dagli aggiornamenti); nessun limite
+all'assenza (un'ora a casa diventerebbe corsa); scrivere il file a ogni
+posizione anche in primo piano (lavoro inutile finché l'app è davanti).
+
+**Conseguenze**: un'assenza breve non lascia più buchi nella linea né
+toglie minuti; un'assenza fino a 10 minuti a piedi fermi (una foto
+lunga, con iOS che congela l'app) conta come tempo di corsa. Il file
+cresce di nessun campo. Al rientro la mappa si ricarica (un attimo di
+barra di caricamento). Le correzioni arrivano sulla 1.0 solo con un
+aggiornamento sul canale `production` o con la prossima build: l'impronta
+iOS non cambia.
+
+
+## ADR-0265 — Il parapendio come sport di MuW: una forma nel cono di planata, esportata allo strumento di volo, mai guidata in volo
+
+**Stato**: Proposto · 2026-10-26 · studio di fattibilità con misure
+(TASK-305, `out/TASK-305/studio.md` del Mac). Scelta dell'utente dello
+stesso giorno: «è una bella idea», MuW dà la traccia e fa caricare il
+volo, **non fa da navigatore**; il 2026-10-27 l'utente ha scelto la riga
+«Paragliding» 🪂 in Settings subito, con «Soon», il nome (Parapendio,
+Gleitschirmfliegen, Parapente) e l'avviso di sicurezza com'era proposto;
+le tre condizioni del punto 7 sono ancora aperte
+
+**Contesto**: l'utente vuole lo sport «Parapendio»: lo si sceglie, l'app si
+adatta al volo, e il pilota disegna la forma nel cielo con la sua traccia.
+`PRODUCT.md` e `ROADMAP.md` dicono da sempre che il parapendio ha un modello
+di percorso diverso e va riprogettato, non adattato. In aria non ci sono
+strade né rive: c'è il cono di planata fra un decollo e il suo atterraggio
+ufficiale, da cui non si esce senza termiche; ci sono spazi aerei in cui
+il volo libero non può entrare (DPR 133/2010 art. 9: solo VFR diurno, fuori
+dagli spazi controllati e dalle ATZ, a 5 km dagli aeroporti) e regole
+dell'aria sui centri abitati (SERA.5005(f): 300 m). In volo il pilota non
+guarda il telefono. Le condizioni del Coordinatore: la sicurezza prima di
+tutto, le fonti delle zone con licenza, il motore resta sulle strade, un
+motore per termiche e traiettorie è un costo a parte, e se non si può fare
+bene lo studio dice «non conviene».
+
+**Decisione proposta** (nessuna parte parte senza il sì dell'utente):
+
+1. **Il modello è il cono di planata**, non una rete: da ogni punto della
+   forma l'atterraggio ufficiale resta raggiungibile in aria calma con
+   efficienza 8 e 300 m sopra il terreno (nessun margine nei primi 300 m
+   dal decollo, dove si corre giù dal pendio; 100 m sopra il campo
+   all'arrivo, la quota di un circuito). Due Dijkstra sulla griglia del terreno (quota
+   con cui si arriva, quota da cui si torna); la forma più larga che ci sta
+   si cerca per scala, inclinazione entro ±30° e punto d'ingresso; il
+   percorso è decollo → forma → atterraggio. Il vento è una correzione
+   della deriva. **Il motore decide dove e quanto grande; l'AI interpreta
+   soltanto**, e resta una libreria senza rete: terreno, spazi aerei,
+   centri abitati e decolli entrano come file.
+2. **La quota prende il posto della distanza**: non si chiede «quanti km»,
+   si mostra la forma più grande che sta nel cono, con la riserva di quota
+   come numero. Senza termiche è una planata di 10–20 minuti. Una quota di
+   partenza maggiore (termica fatta prima) dà una forma più grande o più
+   riserva: il motore la accetta, **non pianifica mai una termica**.
+3. **Spazi aerei e regole come limiti del cono**: sotto il pavimento delle
+   zone controllate, sopra il soffitto delle riserve (ENR 5.6, 1500 ft),
+   mai dentro P/R/D, 500 m sopra i centri abitati (più dei 300 m della
+   regola, per scelta). I dati hanno la data del ciclo AIRAC; **più vecchi
+   di un ciclo, il motore rifiuta**. I NOTAM non si conoscono: l'app lo
+   dice sempre.
+4. **La forma come boe, allo strumento che il pilota ha già**: 12–16 boe
+   per un cuore, i vertici per stella e lettere, raggio 30–50 m; export
+   `.xctsk` e QR `XCTSK` (XCTrack, Flyskyhy, SeeYou Navigator), `.cup`,
+   `.wpt`. **Nessuna guida in volo da MuW** (scelta dell'utente): niente
+   «Start», niente voce, nessuna schermata di volo.
+   Dopo l'atterraggio l'app importa l'IGC (senza il nome del pilota del
+   record `HFPLT`, con i 200 m tolti come per le corse), dà il punteggio
+   sulla forma e pubblica nel Feed. Strava resta fuori (niente IGC, niente
+   sport parapendio).
+5. **Cosa l'app non dice mai**: «vola qui», «qui è legale», «spazio aereo
+   libero», «nessun NOTAM», «condizioni sicure», «ce la fai»; niente
+   linguaggio didattico (le scuole sono dell'AeCI). L'avviso prima di
+   pianificare e la riga fissa sul risultato con la data dei dati sono
+   approvati dall'utente (2026-10-27); il testo è in `tasks/TASK-305.md`.
+6. **Le fonti** (licenze lette nello studio): decolli da OSM (ODbL),
+   terreno Copernicus GLO-30/90, vento DWD ICON-D2 o ECMWF (CC BY 4.0),
+   centri abitati OSM. **Gli spazi aerei sono il nodo**: openAIP è CC
+   BY-NC (con un'eccezione scritta sulla home da chiarire), ENAV vuole un
+   accordo, EAD è a pagamento con royalties. Senza una fonte di spazi aerei
+   che si possa spedire nell'app non si propone nessuna forma: le email a
+   openAIP, ENAV, ParaglidingEarth e DHV vengono prima di qualunque codice.
+
+7. **Tre condizioni prima del codice** (misurate sui tre decolli dello
+   studio): una fonte di spazi aerei con licenza (alla Panarotta il file
+   comunitario mette l'atterraggio ufficiale dentro una riserva e non ci
+   sta nessuna forma); un elenco di decolli scelti a mano dove la forma in
+   aria calma è ≥ 1,5 km (il Baldo, 1667 m di dislivello: 2,8 km; Grappa e
+   Panarotta, 1000–1400 m: 1 km, nulla con vento contro); un parere legale e
+   una prova con un pilota e il club di un sito.
+
+**Alternative scartate**: adattare il motore delle strade (non c'è una
+rete); una guida vocale in volo di MuW (duplica lo strumento, distrae in
+decollo e in atterraggio, e un «boa raggiunta» parlato non è documentato
+nemmeno in XCTrack); un pianificatore di termiche e traiettorie (progetto a
+parte, dati meteo a pagamento, sconsigliato); usare openAIP «perché lo
+fanno tutti» (la licenza dice no).
+
+**Conseguenze**: 10–14 sessioni (senza schermata di volo, per scelta
+dell'utente), contro le 15 della canoa, che aveva una sola fonte già nel motore; più il
+tempo delle licenze, un parere legale sulla responsabilità da informazione
+e una prova con un pilota vero, che nessuna sessione può fare. Le parti e i
+loro file sono in `tasks/TASK-305.md`; i numeri misurati sui tre decolli
+(Monte Baldo, Monte Grappa, Panarotta) sono nello studio.

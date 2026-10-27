@@ -88,10 +88,33 @@ function NextTurn({ navigation }: { navigation: Navigation }) {
   const units = useUnits();
   const words = wordsOf(useLanguage(), units);
   if (navigation.offRoute) {
+    // How far the route is and which way, as the dotted line on the map
+    // goes to it (TASK-303).
+    const rejoin = navigation.rejoin ?? null;
     return (
-      <View style={[styles.box, styles.off]}>
+      <View style={[styles.box, styles.off]} accessibilityLiveRegion="polite">
         <Text style={styles.instruction}>{t("Off the route")}</Text>
-        <Text style={styles.message}>{t("Head back to the yellow line.")}</Text>
+        {rejoin === null ? (
+          <Text style={styles.message}>{t("Head back to the yellow line.")}</Text>
+        ) : (
+          <>
+            <Text
+              style={styles.distance}
+              accessibilityLabel={t(
+                "The route is {distance} away, to the {direction}.",
+                {
+                  distance: distanceLabel(rejoin.distanceM, units),
+                  direction: t(compassWords(rejoin.bearingDeg)),
+                },
+              )}
+            >
+              {`${distanceLabel(rejoin.distanceM, units)} ${t(compassPoint(rejoin.bearingDeg))}`}
+            </Text>
+            <Text style={styles.message}>
+              {t("Follow the dotted line back to the route.")}
+            </Text>
+          </>
+        )}
       </View>
     );
   }

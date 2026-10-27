@@ -122,10 +122,11 @@ test("a member's drawing opens whole from «Feed», and «←» comes back to «
   expect(asked(FEED)).toBe(1);
 
   await fireEvent.press(screen.getByText(String(STAR.title)));
-  // On the map, with the drawing's card: its day and km, no «Start».
+  // On the map, with the drawing's card: its day and km, and «Start» on
+  // its track (TASK-307, in AppDrawingStart.test.tsx).
   expect(await screen.findByText(String(drawing.description))).toBeOnTheScreen();
   expect(screen.getByText(/4\.00 km/)).toBeOnTheScreen();
-  expect(screen.queryByText("Start")).toBeNull();
+  expect(screen.getByRole("button", { name: "Start" })).toBeOnTheScreen();
   expect(screen.queryByRole("tab")).toBeNull();
   expect(asked(`/drawings/${drawing.id}`)).toBe(1);
 

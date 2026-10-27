@@ -16,6 +16,7 @@ import { t } from "../i18n";
 import { useLanguage } from "../i18n/useLanguage";
 import { usePocketOn } from "../navigation/pocketOn";
 import { cumulative } from "../navigation/progress";
+import { useRunBehind } from "../navigation/runBehind";
 import { MapLoadingBar } from "../route/LoadingBar";
 import {
   color,
@@ -32,6 +33,7 @@ import {
   type CanvasMode,
   clearCanvas,
   clearProgress,
+  clearRejoin,
   clearRoute,
   clearStops,
   clearTrack,
@@ -46,6 +48,7 @@ import {
   setPosition,
   showOthers,
   showProgress,
+  showRejoin,
   showRoute,
   showStops,
   showTrack,
@@ -102,12 +105,14 @@ type Props = {
    * None draws the route whole, as before. `points` and `along` are the
    * line `alongM` is measured on, when the navigator gives it: a closed
    * route is run from where the runner joined it (TASK-273), and the line
-   * run starts there. */
+   * run starts there. Off the route, `rejoin` is where the runner gets back
+   * on it, from where they are: the map draws dots there (TASK-303). */
   progress?: {
     alongM: number;
     arrived: boolean;
     points?: LatLon[];
     along?: number[];
+    rejoin?: { from: LatLon; to: LatLon } | null;
   } | null;
   /** The places of a themed route (TASK-129), or null for none. */
   stops?: { name: string; point: LatLon; passed: boolean }[] | null;
@@ -177,6 +182,13 @@ export function MapView({
   // page again, as «Retry» does, and the map is told everything again.
   const language = useLanguage();
   const page = useMemo(() => buildMapPage(language), [language]);
+  // A run behind another app has no page (TASK-304, ADR-0264): iOS keeps
+  // MuW and its GPS more readily when it asks less. Back in front the page
+  // loads again and is told everything again, as after «Retry».
+  const behind = useRunBehind();
+  if (behind && ready) {
+    setReady(false);
+  }
   // Until the first tiles are drawn, a bar over the map (TASK-058); an error
   // takes its place.
   const [loading, setLoading] = useState(true);
@@ -191,6 +203,7 @@ export function MapView({
   const stopsShown = useRef(false);
   const othersShown = useRef(false);
   const progressShown = useRef(false);
+  const rejoinShown = useRef(false);
   const doubleTapAsked = useRef(false);
   const moveAsked = useRef(false);
   const turnAsked = useRef<Turn | null>(null);
@@ -212,6 +225,9 @@ export function MapView({
       ? progress.points
       : null;
   const runAlong = runPoints === null ? null : (progress?.along ?? null);
+  // Off the route, the way back to it (TASK-303).
+  const rejoinFrom = progress?.rejoin?.from ?? null;
+  const rejoinTo = progress?.rejoin?.to ?? null;
   // Under the black screen of pocket mode nobody sees the blinking.
   const pocket = usePocketOn();
 
@@ -344,6 +360,21 @@ export function MapView({
     }
   }, [ready, route, along, walks, doneM, pocket, runPoints, runAlong]);
 
+  // Off the route: dots from the runner to where it goes on, moved with
+  // each fix (TASK-303). Back on it, or the run over, none.
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+    if (rejoinFrom !== null && rejoinTo !== null) {
+      webView.current?.injectJavaScript(pageScript(showRejoin(rejoinFrom, rejoinTo)));
+      rejoinShown.current = true;
+    } else if (rejoinShown.current) {
+      webView.current?.injectJavaScript(pageScript(clearRejoin()));
+      rejoinShown.current = false;
+    }
+  }, [ready, rejoinFrom, rejoinTo]);
+
   // Asked for only where a double tap means something: elsewhere it zooms.
   const wantsDoubleTap = onDoubleTap !== undefined;
   useEffect(() => {
@@ -428,6 +459,10 @@ export function MapView({
       kindAsked.current = kind;
     }
   }, [ready, kind]);
+
+  if (behind) {
+    return <View style={style} />;
+  }
 
   return (
     <View style={style}>

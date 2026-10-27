@@ -1456,4 +1456,15 @@ export const DE: Table = {
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "IN DEINER NÄHE",
   "SHAPES TO TRY": "FORMEN ZUM AUSPROBIEREN",
+  // src/screens/NavigateScreen.tsx (TASK-303)
+  "The route is {distance} away, to the {direction}.":
+    "Die Route ist {distance} entfernt, Richtung {direction}.",
+  "Follow the dotted line back to the route.":
+    "Folge der gepunkteten Linie zurück zur Route.",
+  // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
+  "This route has no turn directions: follow the line on the map.":
+    "Diese Route hat keine Abbiegehinweise: Folge der Linie auf der Karte.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Letzter km {pace} · Ziel {target}",
+  "Last mi {pace} · target {target}": "Letzte mi {pace} · Ziel {target}",
 };
