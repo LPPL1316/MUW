@@ -1488,6 +1488,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in 5 lingue** (tabella nella PR #565), poi su `preview` da provare sul
   campo. Segue **TASK-304** (l'attività persa uscendo dall'app).
   `tasks/TASK-303.md`.
+- **App** — TASK-304 (ADR-0264, aggiorna ADR-0219 e ADR-0240; prova sul
+  campo dell'utente a Trento del 2026-10-25, uscito per una foto):
+  **la corsa continua mentre si usa un'altra app**. Diagnosi: la prova era
+  con la 1.0.0 (7) di TestFlight, di prima di TASK-272, e `production` non
+  ha mai avuto un aggiornamento; MuW era viva e la pausa era quella da
+  fermi. Scelta dell'utente del 2026-10-26 («deve continuare a registrare
+  la corsa anche mentre si usa un'altra app», poi «Sì, così»):
+  un'assenza fino a **10 minuti** (app congelata, o chiusa da iOS e
+  riaperta) è corsa, con tempo contato e tratto dritto, mai più lungo del
+  vero; oltre, pausa come prima. Riaperta entro 10 minuti la corsa va
+  avanti da sola. Il file della corsa si scrive appena l'app va dietro e a
+  ogni posizione finché ci resta; la mappa non c'è mentre la corsa è in
+  background (nel simulatore circa 110 MB in meno) e torna com'era. Solo
+  app, impronta iOS `83793e26…` invariata, nessun testo nuovo. **PR
+  #567**, dopo la #565 (TASK-303). Arriva sulla 1.0 solo con un
+  aggiornamento su `production` o con la prossima build: lo decide il
+  Coordinatore. `tasks/TASK-304.md`.
+
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252
