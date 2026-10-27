@@ -42,7 +42,7 @@ minuti con l'app aperta.
 ## Le condizioni del Coordinatore (2026-10-27)
 
 1. L'app prende in anticipo **solo** disegni che il server ha già: tenuti
-   (`route_store`, archivio). Il prefetch non fa mai partire un calcolo
+   (`route_store`; l'archivio no, per la nota sui dati più sotto). Il prefetch non fa mai partire un calcolo
    nuovo né una zona nuova. L'API di oggi non distingue «già pronto» da
    «da calcolare»: serve un endpoint di sola lettura (parte A), sul
    server dopo Apple.

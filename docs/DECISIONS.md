@@ -17101,7 +17101,7 @@ dall'agente su delega dell'utente.
 **Decisione**:
 1. **Un endpoint in sola lettura**, `POST /kept-routes`: fino a 16
    richieste di forma o di parola, e per ognuna il percorso tenuto
-   (ADR-0136, ADR-0256) o `null`. Nessun lavoro, zona o motore: è il solo
+   (ADR-0136, dai soli file: punto 5) o `null`. Nessun lavoro, zona o motore: è il solo
    modo per chiedere «solo se è già pronto», perché `POST /route-jobs`
    calcola ciò che non ha. Un POST per paese invece di quattordici: nella
    quota della coda «prefetch» (10 al minuto, ADR-0248) ci stanno diciotto
