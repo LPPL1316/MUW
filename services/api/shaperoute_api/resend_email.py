@@ -47,6 +47,9 @@ class Email:
     headers: Mapping[str, str] = field(default_factory=dict, repr=False)
     # The same key within a day is one email for Resend.
     idempotency_key: str | None = None
+    # Where an answer goes instead of the sender: the member who wrote
+    # «Send feedback» (TASK-308).
+    reply_to: str | None = field(default=None, repr=False)
 
 
 def _error_name(reply: Reply) -> str:
@@ -89,6 +92,8 @@ class Resend:
         }
         if email.headers:
             payload["headers"] = dict(email.headers)
+        if email.reply_to is not None:
+            payload["reply_to"] = [email.reply_to]
         call = Call("POST", SEND_URL, headers, json.dumps(payload).encode())
         try:
             reply = self.send(call)
