@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`, testi approvati dall'utente il 2026-10-26) · parte E in lavorazione (`feat/TASK-296-e-run-strip`, PR #564, testi approvati dall'utente il 2026-10-26)
+**Stato**: Done (2026-10-28) · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`) · parte E in `main` (#564, `de4ca26b`) · sul server A e C dopo Apple, con l'ok dell'utente
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -607,11 +607,14 @@ Parte E:
       (3 781 test in 467 file, 2026-10-26; due file, `AppActivities` ed
       `ExploreScreen`, oltre i 700 s nel giro intero con il Mac fermo, verdi
       da soli in 7 s); CI della #564 verde.
-- [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
-      Coordinatore su una copia pulita.
+- [x] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
+      Coordinatore su una copia pulita prima del merge della #564
+      (2026-10-28, head `35a40f2f`).
 - [x] I due testi approvati dall'utente (tabella sopra, 2026-10-26: «sì ai
       testi della 564 e della 565, mergia … 564 quando sono verdi»).
-- [ ] Il posto della riga confermato dall'utente su `preview`.
+- [ ] Il posto della riga confermato dall'utente su `preview`: lo vede solo
+      dopo l'aggiornamento del server con A e C (dopo Apple); lo segna il
+      Coordinatore.
 
 ## File toccati
 
@@ -777,19 +780,25 @@ Su `preview` la scheda resta nascosta con «Play» finché il server non ha
 A e C. **Da provare sull'iPhone** quando A e C saranno sul server, con due
 telefoni: una sfida vera, il foglio di condivisione del codice, le push.
 
-**Parte E**: PR #564 aperta il 2026-10-26 dal branch
-`feat/TASK-296-e-run-strip` (worktree `.claude/worktrees/TASK-296-e`): la
-riga del gioco nella scheda della corsa, su «Map» e su «Data», con la
-prossima forma per distanza o il pezzo veloce in mano; il server chiesto
-una volta all'inizio della corsa. Solo app, nessuna dipendenza nuova;
-`RunDashboard.tsx` ricontrollato con il Coordinatore (libero: TASK-303 e
-304 toccano la navigazione, non lui). I due testi approvati dall'utente il
-2026-10-26, che ha chiesto il merge al verde; il posto della riga lo
-conferma l'utente su `preview`. **Da
-provare sull'iPhone** quando A e C saranno sul server: una corsa vera con
-la riga che cresce, e con un pezzo veloce in mano.
+**Parte E** in `main` con la #564 (`de4ca26b`, 2026-10-28), mergiata dal
+Coordinatore a CI verde su parola dell'utente («sì ai testi della 564 e
+della 565, mergia … 564 quando sono verdi»; poi «SE hai finito mergia ed
+archivia»), impronta iOS invariata (`83793e26…`, misurata da lui sull'head
+`35a40f2f`): la riga del gioco nella scheda della corsa, su «Map» e su
+«Data», con la prossima forma per distanza o il pezzo veloce in mano; il
+server chiesto una volta all'inizio della corsa. Solo app, nessuna
+dipendenza nuova; `RunDashboard.tsx` ricontrollato con il Coordinatore. I
+due testi approvati dall'utente il 2026-10-26; il posto della riga lo
+conferma l'utente su `preview` quando la vedrà. **Da provare sull'iPhone**
+quando A e C saranno sul server: una corsa vera con la riga che cresce, e
+con un pezzo veloce in mano.
 
-**Con la E il task è completo**: dopo il suo merge restano la chiusura
-(documenti, «Completato» in `STATUS.md`) e, dopo Apple e con l'ok
-dell'utente, A e C sul server (migrazioni 0025 e 0027, deploy,
-`game_backfill` una volta).
+**Il task è completo** (2026-10-28): le cinque parti sono in `main`. Fuori
+dal task, e dopo Apple con l'ok dell'utente: A e C sul server (migrazioni
+`0025` e `0027`, deploy, `python -m shaperoute_api.game_backfill` una
+volta; il timer «1 day left» parte con l'API), poi la pubblicazione su
+`preview` con «Play» finalmente visibile e le prove sull'iPhone scritte
+sopra per B, D ed E (i quattro nomi in alto su 390 pt, una sfida con due
+telefoni, la riga in corsa). Il paragrafo di privacy «The shape game» del
+task file entra in `site/privacy` con la prima modifica della pagina che
+segue l'aggiornamento del server.
