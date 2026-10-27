@@ -2379,6 +2379,28 @@ TASK-164, di cui tiene i numeri.
   «2 · 5:14 · -0:06», l'ultimo in cima; prima del primo km «Your first
   kilometre will show here.»). Poi i due interruttori della corsa,
   «Auto-pause» e «Voice».
+- **La riga del gioco** (TASK-296 parte E, ADR-0255; `GIOCO.md` §9,
+  «Durante la corsa»; codice in `src/game/RunGameStrip.tsx` e
+  `runStripData.ts`): su una corsa a piedi, con l'account e il gioco sul
+  telefono (il catalogo di «Play»), sotto i numeri c'è una riga sola di
+  testo piccolo e grigio: su «Map» sotto i tre numeri (in pausa sotto i
+  riquadri), su «Data» sotto i sei riquadri, prima dei km uno per uno. Dice
+  la **prossima forma per distanza** non ancora sbloccata, con i km contati
+  dal server più quelli di questa corsa, sommati sul telefono: «Hexagon
+  14.2 / 20 km», che cresce mentre si corre, nelle unità scelte («Hexagon
+  8.8 / 12.4 mi»). Passata la soglia passa alla forma dopo («Circle 20.0 /
+  42 km») e **non dice mai «unlocked»**: lo dice il server dopo «Save», con
+  la scheda «New shape unlocked»; raggiunte tutte le forme per distanza,
+  niente riga. Con un **pezzo veloce in mano** in una sfida della squadra,
+  al suo posto il passo dell'ultimo km intero contro l'obiettivo: «Last km
+  5:12 · target 5:00 /km» («–» prima del primo km; con le miglia «Last mi
+  8:22 · target 8:03 /mi»). Il server si chiede **una volta sola,
+  all'inizio della corsa** (`GET /game/me` e `GET /game/teams` insieme,
+  appena la scheda compare), mai durante: la riga segue la traccia che la
+  scheda ha già. Senza account, senza rete, su un server senza il gioco, in
+  bici e in canoa la riga non c'è e non compare nessun errore; la voce non
+  cambia. **Da provare su preview**: il posto della riga lo conferma
+  l'utente quando la vede.
 - **«Pause»**, un pulsante tondo e chiaro in mezzo, su tutte e due le
   pagine; da una parte «Pocket», dall'altra «Music». In pausa il tempo si ferma, le posizioni non
   entrano nella traccia e «Pace now» è «–»; la mappa continua a seguire, e
@@ -2636,11 +2658,16 @@ TASK-261, ADR-0225, con il solo permesso «While using». iOS mostra in
 alto la pillola blu, che riporta a MuW; la linea, i metri, i km e la
 pausa automatica vanno avanti come con l'app davanti, e la voce parla
 solo se iOS la lascia parlare (a schermo bloccato no: un task suo). Se
-iOS congela comunque l'app, il GPS si ferma con lei: tornata entro 60
-secondi la linea continua; oltre, quel tempo è una pausa e la linea
+iOS congela comunque l'app, il GPS si ferma con lei: tornata entro **10
+minuti** la linea continua con un tratto dritto e quel tempo conta
+(TASK-304, ADR-0264: scelta dell'utente del 2026-10-26, «una foto mentre
+corre»; prima erano 60 secondi); oltre, quel tempo è una pausa e la linea
 riparte da dove si è, senza riga dritta. In Expo Go (e su Android) il GPS
 si ferma ogni volta che l'app va in secondo piano, con la stessa regola
-dei 60 secondi (scelta dell'utente). La finestra del permesso di
+dei 10 minuti. Mentre la corsa è in background la mappa non c'è, così
+MuW chiede meno al telefono e iOS la chiude meno volentieri; al rientro
+torna com'era, con percorso e traccia. Il file della corsa si scrive
+appena l'app va dietro, e a ogni posizione finché ci resta. La finestra del permesso di
 posizione ha un testo suo nelle cinque lingue, nella lingua del telefono.
 La posizione non esce dal telefono.
 
@@ -2768,7 +2795,14 @@ lettere, la lettera dopo la chiude da sé come sempre. «Stop» tenuto apre
 la fine della corsa come sempre, e poi si torna alla prima schermata. Una
 corsa interrotta da più di 2 ore apre invece la sua fine, da salvare o da
 lasciare, come prima. Nessun testo nuovo. Lo stesso per la corsa senza
-percorso («Correre senza percorso», sotto).
+percorso («Correre senza percorso», sotto). **Da TASK-304** (ADR-0264,
+scelta dell'utente del 2026-10-26): riaperta entro **10 minuti**
+dall'ultima posizione (iOS ha chiuso MuW dietro la fotocamera) la corsa
+non è in pausa ma va avanti da sola: la prima posizione si unisce alla
+linea con un tratto dritto e il tempo con l'app chiusa conta, come
+un'assenza breve; la pausa da fermi conta da quando si è tornati. Chiusa
+mentre si stava fermi, il primo passo la fa ripartire. Oltre 10 minuti,
+in pausa come sopra.
 
 **Fuori percorso, e il rientro più avanti** (TASK-303, ADR-0263; dalla
 prova sul campo dell'utente a Trento del 2026-10-25). Chi esce dal

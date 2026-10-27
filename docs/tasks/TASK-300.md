@@ -1,6 +1,6 @@
 # TASK-300 — Email confermata e «Forgot password?»
 
-**Stato**: In corso (parti A e B nella stessa PR)
+**Stato**: Done · parti A e B 2026-10-26 (PR #559)
 **Fase**: 4 · **Branch**: `feat/TASK-300-account-emails`
 **Dipende da**: TASK-114 (gli account), TASK-183 (il cambio email),
 TASK-284 parte A (Resend, il segreto dei link, le pagine senza chiave);
@@ -160,30 +160,30 @@ asked: wait a few minutes and try again.»
 
 ### Criteri di accettazione (parte A)
 
-- [ ] Iscriversi manda una email di conferma all'indirizzo, nella lingua
+- [x] Iscriversi manda una email di conferma all'indirizzo, nella lingua
       dell'app; l'account è subito usabile e `email_confirmed` è falso.
-- [ ] Il link apre una pagina; solo il pulsante conferma; dopo,
+- [x] Il link apre una pagina; solo il pulsante conferma; dopo,
       `email_confirmed` è vero e il link non cambia più niente.
-- [ ] Un link scaduto, alterato, di un altro account o di un indirizzo che
+- [x] Un link scaduto, alterato, di un altro account o di un indirizzo che
       non è più quello non conferma niente.
-- [ ] Con le email accese `PUT /me/email` mette il nuovo indirizzo in
+- [x] Con le email accese `PUT /me/email` mette il nuovo indirizzo in
       attesa, manda il link al nuovo e l'avviso al vecchio; si entra con il
       vecchio finché il link non è aperto; poi con il nuovo, confermato.
       Se un altro account l'ha preso nel frattempo, niente cambia.
       `DELETE /me/email/pending` annulla. Con le email spente il cambio vale
       subito come prima e il nuovo indirizzo non è confermato.
-- [ ] `POST /password-reset` risponde `202` uguale per un indirizzo
+- [x] `POST /password-reset` risponde `202` uguale per un indirizzo
       iscritto e non; manda il link solo al primo; la quarta richiesta in
       un'ora per lo stesso indirizzo è `429` in entrambi i casi.
-- [ ] La pagina del reset rifiuta password corte o diverse; salvata, la
+- [x] La pagina del reset rifiuta password corte o diverse; salvata, la
       vecchia non entra più, la nuova sì, ogni sessione è chiusa, il cambio
       in attesa è annullato, l'indirizzo è confermato, e lo stesso link non
       vale più.
-- [ ] Le pagine rispondono senza `X-API-Key`; senza chiave, segreto o
+- [x] Le pagine rispondono senza `X-API-Key`; senza chiave, segreto o
       dominio nessuna di queste strade c'è (`404`) e tutto va come prima.
-- [ ] Gli account di prima: non confermati, nessuna email partita.
-- [ ] Indirizzi, token e chiave mai nei log.
-- [ ] Test verdi in locale e in CI.
+- [x] Gli account di prima: non confermati, nessuna email partita.
+- [x] Indirizzi, token e chiave mai nei log.
+- [x] Test verdi in locale e in CI.
 
 ### File toccati (parte A)
 
@@ -243,16 +243,16 @@ docs/tasks/TASK-300.md                                  (nuovo)
 
 ### Criteri di accettazione (parte B)
 
-- [ ] «Forgot password?» c'è solo sotto «Log in» e solo da un server che
+- [x] «Forgot password?» c'è solo sotto «Log in» e solo da un server che
       risponde `200` a `GET /account-email`; manda l'email scritta con la
       lingua dell'app; dice la stessa frase qualunque sia l'indirizzo.
-- [ ] «Settings» dice «Email not confirmed» solo da un server con le email
+- [x] «Settings» dice «Email not confirmed» solo da un server con le email
       e per un indirizzo non confermato; «Send the link again» lo manda;
       un indirizzo in attesa ha «Send again» e «Cancel change», e annullato
       diventa l'account sul telefono.
-- [ ] Un telefono senza account che non apre «Profile» non chiede niente
+- [x] Un telefono senza account che non apre «Profile» non chiede niente
       di nuovo all'API; un'API di prima non mostra niente di questo.
-- [ ] Testi nelle quattro tabelle (test `tables`), nessun colore a mano,
+- [x] Testi nelle quattro tabelle (test `tables`), nessun colore a mano,
       nessuna dipendenza nuova, impronta iOS invariata (solo JS).
 
 ### File toccati (parte B)
@@ -284,4 +284,17 @@ servono all'account (contratto), non sono promozione.
 
 ## Esito
 
-*(a fine task)*
+**Fatto** (chiuso il 2026-10-26). Parti A e B in `main` con la #559
+(merge `57d87a10`), migrazione `0029_email_confirmation.sql`: il link che
+conferma l'indirizzo all'iscrizione e al cambio in «Settings» (il nuovo
+vale solo confermato, il vecchio riceve l'avviso), e «Forgot password?»
+sotto «Log in» con la pagina per la nuova password, che chiude ogni
+sessione. Criteri provati dai test della PR, verdi in CI: 38 in
+`test_account_email.py` su PostgreSQL vero, i test jest del client, del
+hook, di `ForgotPassword` e di `EmailConfirmation`, i 65 di
+`shared-types`. Solo JS nell'app: impronta iOS invariata. La riga sulle
+email dell'account è nella privacy unica del 26 ottobre 2026 (TASK-284 B,
+#556, «sì, aggiungila»). **Spenta** finché il server non ha Resend.
+**Restano** («Prima della prima email»): l'approvazione di Apple, poi il
+server con la `0029` e le tre variabili di Resend dal Coordinatore col sì
+dell'utente; l'account Resend con `getmuw.app` verificato lo fa l'utente.
