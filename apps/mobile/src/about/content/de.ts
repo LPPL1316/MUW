@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10. Oktober 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "26. Oktober 2026";
+const PRIVACY_UPDATED = "28. Oktober 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
@@ -324,6 +324,7 @@ const privacy: AboutDocument = {
         "Mit einem Konto geht der ganze Lauf an unseren Server, wenn du am Ende eines Laufs auf «Speichern» tippst: jede Position mit ihrer Uhrzeit, die Pausen, die Route, der du gefolgt bist, Distanz, Dauer, eine Punktzahl dafür, wie genau die Spur der Route folgt (von unserem Server berechnet und in der App nicht angezeigt), und der Name des Ortes. Mit «Verwerfen» wird nichts gesendet.",
         "Ein gespeicherter Lauf ist privat: Nur dein Konto sieht ihn. Er bleibt, bis du ihn in «Meine Aktivitäten» löschst oder dein Konto löschst.",
         "Ein Lauf beginnt und endet oft an deiner Haustür. Deshalb wird ein Lauf für die anderen Mitglieder erst sichtbar, wenn du «Öffentlich» einschaltest, und dann sehen sie die Spur ohne ihre ersten und letzten 200 m, mit dem Titel, den du ihr gegeben hast, und ohne Zeiten, Pausen oder die geplante Route.",
+        "Wer einen deiner Läufe sehen kann, kann ihm auch mit «Start» folgen und dieselbe Spur als GPX-Datei speichern: immer ohne ihre ersten und letzten 200 m und ohne Zeiten.",
       ],
     },
     {
@@ -342,6 +343,12 @@ const privacy: AboutDocument = {
       heading: "Meldungen",
       blocks: [
         "Wenn du eine Zeichnung, einen Kommentar oder ein Profil meldest, behalten wir, wer was gemeldet hat, den Grund und wann. Wer MuW betreibt, bekommt die Meldung per E-Mail und kann das Gemeldete vor den anderen Mitgliedern verbergen. Nichts wird gelöscht, und wer es geschrieben hat, sieht es weiter. Deine Meldung wird dem Verfasser nie gezeigt.",
+      ],
+    },
+    {
+      heading: "Feedback",
+      blocks: [
+        "Wenn du uns über «Feedback senden» in «Einstellungen» schreibst, behalten wir deine Nachricht, die Version der App, das System deines Handys (iOS oder Android) und wann du sie geschickt hast. Wer MuW betreibt, bekommt sie per E-Mail mit deinem Benutzernamen und deiner E-Mail-Adresse, um sie zu lesen und dir, wenn nötig, per E-Mail zu antworten. Sie wird den anderen Mitgliedern nie gezeigt. Wenn du dein Konto löschst, werden deine Nachrichten mit ihm von unserem Server gelöscht.",
       ],
     },
     {
@@ -394,7 +401,7 @@ const privacy: AboutDocument = {
             "unpkg liefert die Kartenbibliothek, wenn die App startet.",
             "Expo liefert die Updates der App.",
             "Google Ireland Limited (Firebase Cloud Messaging), um Push-Benachrichtigungen an Android-Telefone zu liefern. Wenn du Push einschaltest, fragt die App bei Firebase einen Registrierungs-Token für dein Telefon an; der Push-Dienst von Expo gibt jede Benachrichtigung (wer was getan hat, und den Anfang eines Kommentars) an Google weiter, das sie an dein Telefon liefert. Google sieht den Token und den Inhalt jeder Benachrichtigung, nicht dein Konto und nicht deine Position. Der Token wird von unserem Server entfernt, wenn du Push ausschaltest, dich abmeldest oder dein Konto löschst; der auf dem Telefon verschwindet, wenn du die App deinstallierst.",
-            "Resend, in den Vereinigten Staaten, verschickt die E-Mails von MuW: deine E-Mail-Adresse mit der E-Mail selbst. Bei einer Meldung bringt es dem Betreiber von MuW, was gemeldet wurde, seinen Text, den Grund und die Benutzernamen dessen, der es gemeldet hat, und dessen, der es geschrieben hat.",
+            "Resend, in den Vereinigten Staaten, verschickt die E-Mails von MuW: deine E-Mail-Adresse mit der E-Mail selbst. Bei einer Meldung bringt es dem Betreiber von MuW, was gemeldet wurde, seinen Text, den Grund und die Benutzernamen dessen, der es gemeldet hat, und dessen, der es geschrieben hat. Bei «Feedback senden» bringt es deine Nachricht, deinen Benutzernamen und deine E-Mail-Adresse.",
             "Strava, wie oben gesagt.",
           ],
         },
@@ -421,7 +428,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst, die E-Mails der Benachrichtigungen, die du eingeschaltet hast, und das Formenspiel.",
-            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist.",
+            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist; die Nachrichten von «Feedback senden», um sie zu lesen und dir zu antworten.",
             "Deine Einwilligung: die Telefonnummer, die du hinzufügst, und die Verbindung mit Strava. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
             "Eine rechtliche Pflicht, wenn ein Gesetz von uns verlangt, Daten aufzubewahren oder herauszugeben.",
           ],

@@ -46,6 +46,7 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `reports` | chi segnala, cosa (disegno, commento, utente) e il suo id, motivo da un elenco corto, data; una riga per chi segnala e per cosa | TASK-121 |
 | `blocks` | chi blocca, chi è bloccato, data; una riga tiene lontani i due nei due sensi | TASK-121 |
 | `report_links_used` | i link delle email delle segnalazioni già usati: il loro numero a caso e quando | TASK-291 |
+| `feedback` | i messaggi di «Send feedback»: chi scrive, il testo, versione dell'app e sistema, data | TASK-308 |
 
 Tutte le tabelle legate a un utente hanno `ON DELETE CASCADE`: cancellare
 la riga di `users` cancella tutto il resto, anche i suoi
@@ -616,9 +617,18 @@ Migrazione `0030_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
   lascia `winner_user_id` (il badge resta); l'account cancellato lascia il
   concorso senza vincitore. Test in `test_contests.py`.
 
-Migrazione `0031_group_runs.sql` (TASK-309 parte A, ADR-0269, `EVENTI.md`
-§12; il numero è il primo libero in `main` al merge, conteso con TASK-308;
-i test la trovano dal nome):
+Migrazione `0031_feedback.sql` (TASK-308, ADR-0268; il numero è il primo
+libero in `main` al merge):
+
+- `feedback`: `id` (uuid casuale), `user_id` (`ON DELETE CASCADE`),
+  `text` (1–2000 caratteri, già senza spazi ai due capi), `app_version`
+  e `platform` (`ios` o `android`, per `CHECK`), facoltativi,
+  `created_at`. Indice su `(user_id, created_at)` per il limite di 5 al
+  giorno. Nessun endpoint li legge: arrivano per email (`API.md`,
+  «Feedback») e si leggono nel database.
+
+Migrazione `0032_group_runs.sql` (TASK-309 parte A, ADR-0269, `EVENTI.md`
+§12; la 0031 è di TASK-308; i test la trovano dal nome):
 
 - `group_runs`: una riga per corsa di gruppo. `id` (uuid casuale),
   `owner_id` (`ON DELETE CASCADE` su `users`), `title` (1–60),

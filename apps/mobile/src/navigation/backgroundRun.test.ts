@@ -204,14 +204,14 @@ test("standing still at a light, phone locked: a pause as in front, not a cut", 
   await unmount();
 });
 
-test("iOS freezing the app cuts the line: neither metres nor time in between", async () => {
+test("iOS freezing the app past AWAY_AFTER_MS cuts the line: neither metres nor time in between", async () => {
   const { result, unmount } = await freeRun();
   let frozeAt = 0;
   await act(async () => {
     await run(0, 100);
     frozeAt = Date.now();
-    // Frozen for three minutes: no tick, no fix; the runner goes on.
-    jest.setSystemTime(frozeAt + 180_000);
+    // Frozen for a quarter of an hour: no tick, no fix; the runner goes on.
+    jest.setSystemTime(frozeAt + 900_000);
     await fix(800);
     await run(810, 900);
   });
@@ -222,9 +222,9 @@ test("iOS freezing the app cuts the line: neither metres nor time in between", a
   // 100 m before, 100 m after: the 700 m of the freeze are not run.
   expect(track.distanceM).toBeCloseTo(200, 0);
   expect(track.pauses).toEqual([
-    { fromMs: frozeAt, toMs: frozeAt + 180_000, away: true },
+    { fromMs: frozeAt, toMs: frozeAt + 900_000, away: true },
   ]);
-  expect(activeMs(track, Date.now())).toBe(Date.now() - BEGAN - 180_000 - STEP_MS);
+  expect(activeMs(track, Date.now())).toBe(Date.now() - BEGAN - 900_000 - STEP_MS);
   await unmount();
 });
 
@@ -241,7 +241,7 @@ test("a short freeze, back within a minute, joins the line as before", async () 
   await unmount();
 });
 
-test("along a route, the turn is said with the phone locked, and a freeze cuts the line", async () => {
+test("along a route, the turn is said with the phone locked, and a long freeze cuts the line", async () => {
   const route: LatLon[] = [START, [START[0] + 2000 * METRE, START[1]]];
   const directions: Direction[] = [
     {
@@ -280,7 +280,7 @@ test("along a route, the turn is said with the phone locked, and a freeze cuts t
   });
   expect(said().some((words) => /Via Verdi/.test(words))).toBe(true);
   await act(async () => {
-    jest.setSystemTime(Date.now() + 120_000);
+    jest.setSystemTime(Date.now() + 900_000);
     await fix(1000);
   });
   const state = result.current;
@@ -319,7 +319,7 @@ describe("with the GPS in front only (Expo Go)", () => {
     } as Location.LocationObject);
   }
 
-  test("leaving the front still pauses the run after a minute away (TASK-255)", async () => {
+  test("leaving the front still pauses the run after AWAY_AFTER_MS away (TASK-255)", async () => {
     const { result, unmount } = await freeRun();
     expect(Location.startLocationUpdatesAsync).not.toHaveBeenCalled();
     await act(async () => {
@@ -328,8 +328,8 @@ describe("with the GPS in front only (Expo Go)", () => {
         inFront(m);
       }
       appState("background");
-      // Away 90 s, the clock running (the app not yet frozen).
-      jest.advanceTimersByTime(90_000);
+      // Away 11 minutes, the clock running (the app not yet frozen).
+      jest.advanceTimersByTime(11 * 60_000);
       appState("active");
       inFront(400);
     });
@@ -347,10 +347,11 @@ describe("with the GPS in front only (Expo Go)", () => {
         inFront(m);
       }
       appState("background");
-      // One more fix before iOS freezes the app, then three minutes frozen.
+      // One more fix before iOS freezes the app, then a quarter of an hour
+      // frozen.
       jest.advanceTimersByTime(STEP_MS);
       inFront(110);
-      jest.setSystemTime(Date.now() + 180_000);
+      jest.setSystemTime(Date.now() + 900_000);
       appState("active");
       inFront(700);
     });

@@ -1,6 +1,6 @@
 # TASK-299 — Il primo concorso: il post con più reazioni vince
 
-**Stato**: In lavorazione · documenti in `main` (#549) · A (API) in `main` (#562, `5f762ae7`) · B (app) in PR #575
+**Stato**: Done · documenti (#549), A (API, #562, `5f762ae7`) e B (app, #575, `4771402b`) in `main` · sul server dopo Apple, con l'ok dell'utente (Coordinatore)
 **Fase**: 4 · **Branch**: `docs/TASK-299-proposal` (documenti),
 `feat/TASK-299-a-contest-api` (A), `feat/TASK-299-b-contest-app` (B)
 **Dipende da**: TASK-117 (i disegni pubblicati), TASK-119 (le reazioni),
@@ -345,8 +345,9 @@ Parte B (com'è fatta: `CONCORSI.md` §14):
       `ProfileHeader.test.tsx`, `DrawingCard.test.tsx`).
 - [x] Impronta iOS invariata (`83793e26…`, misurata su una copia pulita
       il 2026-10-26), solo JavaScript; nessuna dipendenza nuova.
-- [ ] lint, typecheck, test e format:check verdi; i testi approvati
-      dall'utente.
+- [x] lint, typecheck, test e format:check verdi (in locale e nella CI
+      della #575); i testi approvati dall'utente (2026-10-26, «Yes, like
+      this»).
 
 ## File toccati
 
@@ -423,3 +424,14 @@ docs/UI.md («Feed»: la scheda; il profilo: il badge), docs/CONCORSI.md (§14),
   nei profili, `no_contest`, tipi e fixture, 25 test; testi de/es/fr
   approvati dall'utente; `engine.zip` rifatto. Com'è fatta: `CONCORSI.md`
   §13. La parte B parte da qui.
+- **Parte B** in `main` con la #575 (`4771402b`, 2026-10-27), mergiata dal
+  Coordinatore su «mergia 570, 575» dell'utente; impronta iOS invariata
+  (`83793e26`), solo JavaScript. Adesso l'app ha la scheda del concorso
+  sotto la lente di «Feed» (solo con un concorso sul server: con un 404 o
+  senza rete il Feed è quello di prima), il regolamento ufficiale da «How
+  it works», per 7 giorni il post vincitore in cima, il badge «Winner» nei
+  profili e la fascia sul disegno vincitore; testi nelle cinque lingue
+  approvati dall'utente. Com'è fatta: `CONCORSI.md` §14. Resta il server
+  (migrazione `0030`, deploy, `open` con le date dell'utente), dopo Apple e
+  con il suo ok: lo fa il Coordinatore. Su preview la scheda resta
+  nascosta finché il server non ha la parte A.
