@@ -55,13 +55,14 @@ test("the account, by name and email", async () => {
   expect(screen.getByText("runner@example.com")).toBeOnTheScreen();
 });
 
-test("every row works: none says «Soon» any more", async () => {
+test("every row works: only «Paragliding» says «Soon»", async () => {
   await show();
-  // The notifications were the last settings to come (TASK-185). Every
-  // sport is ready («Sport», TASK-189: the bike since TASK-190, paddling
-  // since TASK-191).
-  expect(screen.queryByText("Soon")).toBeNull();
-  expect(screen.queryByLabelText(/coming soon$/)).toBeNull();
+  // The notifications were the last settings to come (TASK-185). The bike
+  // (TASK-190) and paddling (TASK-191) are ready in «Sport» (TASK-189);
+  // paragliding is the one sport to come (TASK-305 D0).
+  expect(screen.getAllByText("Soon")).toHaveLength(1);
+  expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(1);
+  expect(screen.getByLabelText("Paragliding, coming soon")).toBeOnTheScreen();
   // The picture (TASK-178), the email and the phone number (TASK-183), the
   // language (TASK-210), the units (TASK-182), the tone (TASK-263), the
   // three texts of «ABOUT» (TASK-184) and the ways out are buttons.

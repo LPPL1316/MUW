@@ -57,7 +57,12 @@ beforeEach(() => {
 });
 
 test("run, bike and paddle, all three can be chosen (TASK-190, TASK-191)", () => {
-  expect(SPORTS.map((option) => option.name)).toEqual(["Run", "Bike", "Paddle"]);
+  expect(SPORTS.map((option) => option.name)).toEqual([
+    "Run",
+    "Bike",
+    "Paddle",
+    "Paragliding",
+  ]);
   expect(SPORTS.filter((option) => option.ready).map((option) => option.id)).toEqual([
     "run",
     "bike",
@@ -67,6 +72,22 @@ test("run, bike and paddle, all three can be chosen (TASK-190, TASK-191)", () =>
   expect(canChoose("bike")).toBe(true);
   expect(canChoose("paddle")).toBe(true);
   expect(canChoose("golf")).toBe(false);
+});
+
+test("«Paragliding» comes last, only «Soon»: never chosen, never a route (TASK-305 D0)", () => {
+  expect(SPORTS.at(-1)).toEqual({
+    id: "paragliding",
+    emoji: "🪂",
+    name: "Paragliding",
+    ready: false,
+  });
+  expect(canChoose("paragliding")).toBe(false);
+  // A phone that somehow kept it reads it as run, as any sport not ready.
+  saveSport("paragliding");
+  expect(loadSport()).toBe("run");
+  // Wherever the sports are told apart, it goes as a run.
+  expect(activityOf("paragliding")).toBe("running");
+  expect(withoutRouteLabel("paragliding")).toBe("Run without a route");
 });
 
 test("«Draw» asks for a bike route with «Bike», the water with «Paddle»", () => {

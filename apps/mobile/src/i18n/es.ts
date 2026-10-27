@@ -1461,4 +1461,6 @@ export const ES: Table = {
   // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
   "Last km {pace} · target {target}": "Último km {pace} · objetivo {target}",
   "Last mi {pace} · target {target}": "Última mi {pace} · objetivo {target}",
+  // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
+  Paragliding: "Parapente",
 };
