@@ -1453,4 +1453,21 @@ export const FR: Table = {
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Ce parcours n'a pas d'indications de virage : suis la ligne sur la carte.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Dernier km {pace} · objectif {target}",
+  "Last mi {pace} · target {target}": "Dernier mi {pace} · objectif {target}",
+
+  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
+  "Send feedback": "Envoie-nous ton avis",
+  "Thank you! Your message reached us.": "Merci ! Ton message nous est bien parvenu.",
+  "Ideas, problems, anything that would make MuW better: we read every message.":
+    "Idées, problèmes, tout ce qui rendrait MuW meilleur : nous lisons chaque message.",
+  "Write here…": "Écris ici…",
+  "Your message": "Ton message",
+  "It reaches us with your username, your email and the app's version, so we can answer you.":
+    "Il nous parvient avec ton nom d'utilisateur, ton e-mail et la version de l'app, pour que nous puissions te répondre.",
+  "Write something first.": "Écris d'abord quelque chose.",
+  "You sent a lot of feedback today. Try again tomorrow.":
+    "Tu nous as déjà beaucoup écrit aujourd'hui. Réessaie demain.",
+  FEEDBACK: "AVIS",
 };

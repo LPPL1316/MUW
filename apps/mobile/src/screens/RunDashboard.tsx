@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { SafeAreaInsetsContext } from "react-native-safe-area-context";
 
+import { RunGameLine, useRunGameStrip } from "../game/RunGameStrip";
 import { t, tLater } from "../i18n";
 import { openMusic } from "../navigation/music";
 import {
@@ -65,7 +66,10 @@ import {
  * it, a few numbers; «Data» is every number, the kilometres one by one and
  * the run's switches, with no map. Both have the same way to pause, to go
  * on and to stop. With miles (TASK-182) the kilometres are miles, one by
- * one too: worked out here from the track, which stays in metres.
+ * one too: worked out here from the track, which stays in metres. Under
+ * the numbers of both pages, on a run on foot with an account, the game's
+ * line (TASK-296 part E): the next shape to collect, or the pace piece in
+ * hand against its target; read once as the run starts.
  */
 
 export type RunPage = "map" | "data";
@@ -107,6 +111,9 @@ type Props = {
   onStop: () => void;
   /** The route's: on a bike the numbers are speeds (TASK-216). */
   activity?: Activity;
+  /** For the tests: the fetch and the key the game's line asks with. */
+  fetchFn?: typeof fetch;
+  apiKey?: string | null;
 };
 
 export function RunCard({
@@ -117,12 +124,17 @@ export function RunCard({
   heading,
   onStop,
   activity,
+  fetchFn,
+  apiKey,
 }: Props) {
   const numbers = useRunNumbers(track, live && !arrived, route, activity);
   const control = useRunControl();
   const pocket = usePocketMode(live && !arrived);
   // The screen on for the whole run, pocket mode or not (TASK-255).
   useRunAwake(live && !arrived);
+  // The game's line (TASK-296 part E): the API asked once, here, as the
+  // run starts; the line then follows the track, on both pages.
+  const game = useRunGameStrip(track, activity, { fetchFn, key: apiKey });
   const [page, setPage] = useState<RunPage>("map");
   const paused = openPause(track) !== null;
   // One function for the whole run: a swipe in progress keeps its page.
@@ -164,6 +176,7 @@ export function RunCard({
       ) : (
         <RunStrip numbers={numbers} />
       )}
+      <RunGameLine text={game} />
       {route && <RouteBar route={route} numbers={numbers} />}
       {buttons}
       <PageTabs page={page} onPage={setPage} />
@@ -174,6 +187,7 @@ export function RunCard({
         onClose={toMap}
         track={track}
         numbers={numbers}
+        game={game}
         route={route}
         heading={heading}
         buttons={buttons}
@@ -419,6 +433,8 @@ type DataProps = {
   onClose: () => void;
   track: Track;
   numbers: RunNumbers;
+  /** The game's line, as the card has it; null for none. */
+  game: string | null;
   route?: RouteProgress;
   heading?: ReactNode;
   buttons: ReactNode;
@@ -436,6 +452,7 @@ function DataPage({
   onClose,
   track,
   numbers,
+  game,
   route,
   heading,
   buttons,
@@ -529,6 +546,7 @@ function DataPage({
           <Kilometres numbers={numbers} hero />
           {route && <RouteBar route={route} numbers={numbers} />}
           <RunGrid numbers={numbers} />
+          <RunGameLine text={game} />
           <Splits
             track={track}
             ride={numbers.ride}

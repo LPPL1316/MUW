@@ -1,6 +1,6 @@
 # TASK-296 — Il gioco delle forme: collezione (A, B), squadre e sfide (C, D), striscia in corsa (E)
 
-**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`, testi approvati dall'utente il 2026-10-26) · prossima: E
+**Stato**: In lavorazione · documenti in `main` (#532, `f34ca6c5`) · parte A in `main` (#534, `abb593c5`) · parte B in `main` (#536, `145cf992`) · parte C in `main` (#540, `88b63b6e`) · parte D in `main` (#561, `a8d75842`, testi approvati dall'utente il 2026-10-26) · parte E in lavorazione (`feat/TASK-296-e-run-strip`, PR #564, testi approvati dall'utente il 2026-10-26)
 **Fase**: 4 · **Branch**: `docs/TASK-296-shape-game` (documenti),
 `feat/TASK-296-a-game-api` (A), `feat/TASK-296-b-play-collection` (B),
 `feat/TASK-296-c-teams-api` (C), `feat/TASK-296-d-challenges-app` (D),
@@ -279,6 +279,35 @@ Coordinatore.
   dopo «Save».
 - Test con una corsa finta.
 
+**Com'è fatta** (2026-10-26, aggiunta ad ADR-0255; `UI.md`, «La
+navigazione», «La riga del gioco»; elenco dei file approvato dal
+Coordinatore il 2026-10-26, con le sue condizioni: rete al minimo durante
+la corsa, niente sopra mappa, numeri o pulsanti, la voce non cambia):
+
+- `src/game/runStripData.ts`: la lettura di `GET /game/me` e `GET
+  /game/teams` insieme (`loadRunStripData`, mai un errore: null senza rete
+  o con la sessione rifiutata; 404 sulle squadre → la sola forma per
+  distanza), `nextDistanceShape` (la forma per distanza più vicina non
+  sbloccata con la soglia sopra il totale stimato), `heldPaceGoal` (il mio
+  pezzo `pace` in una sfida `active`, non fatto) e `runStripText` (le
+  parole, con `progressText` della B e `lastKmS` della corsa).
+- `src/game/RunGameStrip.tsx`: `useRunGameStrip` (una lettura per
+  montaggio della scheda, con account, catalogo sul telefono e API, solo a
+  piedi; poi la riga segue `track.distanceM`), `RunGameLine` (la riga:
+  piccola, grigia, una sola) e `RunGameStrip`.
+- `RunDashboard.tsx`: `RunCard` legge una volta e mette `RunGameLine` sotto
+  `RunStrip` (sotto `RunGrid` in pausa) e su «Data» sotto `RunGrid`, prima
+  dei km uno per uno; due prop facoltative `fetchFn` e `apiKey` per i test.
+- **Scelte** (aggiunta ad ADR-0255): oltre la soglia la riga passa alla
+  forma dopo, mai «unlocked»; raggiunte tutte le forme per distanza, niente
+  riga; il pezzo veloce vince sulla forma per distanza; le squadre si
+  leggono con `fetchTeams` di `teamsApi.ts` e `GameTeams` di
+  `shared-types` (la E era partita con tipi suoi, tolti dopo il merge
+  della D, #561, come concordato con il Coordinatore).
+- `piecesOf` di `pieceSegments.ts` non serve: la riga è solo testo.
+- `node_modules` a link nel worktree: l'impronta iOS la misura il
+  Coordinatore su una copia pulita con `npm ci`.
+
 ## Testi da approvare dall'utente
 
 **Approvati dall'utente il 2026-10-23** («sì, i testi vanno bene»): il
@@ -425,6 +454,27 @@ e «Try again» c'erano già.
 | rifiuto dell'API | You don't hold this piece. | Questo pezzo non è tuo. |
 | nome rifiutato dal filtro | This name is not allowed. Choose another one. | Questo nome non va bene. Scegline un altro. |
 
+**Testi dell'app della parte E** (inglese / italiano; tedesco, spagnolo e
+francese in fondo alle tabelle `i18n`), **approvati dall'utente il
+2026-10-26** (al Coordinatore: «sì ai testi della 564 e della 565, mergia …
+564 quando sono verdi»):
+
+| Dove | Inglese | Italiano |
+|---|---|---|
+| la riga, con un pezzo veloce in mano | Last km {pace} · target {target} | Ultimo km {pace} · obiettivo {target} |
+| la stessa, con le miglia | Last mi {pace} · target {target} | Ultimo mi {pace} · obiettivo {target} |
+
+Tedesco: «Letzter km {pace} · Ziel {target}», «Letzte mi {pace} · Ziel
+{target}»; spagnolo: «Último km {pace} · objetivo {target}», «Última mi
+{pace} · objetivo {target}»; francese: «Dernier km {pace} · objectif
+{target}», «Dernier mi {pace} · objectif {target}» (come «Last km» e «Last
+mi» dei riquadri, e «target» come in «Best {best} · target {target}» della
+B). `{pace}` è «5:12», o «–» prima del primo km; `{target}` «5:00 /km» o
+«8:03 /mi». La riga della forma per distanza non ha testi da tradurre: il
+nome della forma nella lingua dell'app, dal catalogo, e la via come la
+scrive «Play» («Hexagon 14.2 / 20 km», «Esagono 14,2 / 20 km», «Hexagon
+8.8 / 12.4 mi»).
+
 ## Criteri di accettazione
 
 Documenti (questa PR):
@@ -535,8 +585,33 @@ Parte D:
 - [x] I testi dell'app approvati dall'utente (tabella sopra, 2026-10-26:
       «I testi vanno bene, mergiate pure la #561»).
 
-Parte E: i criteri si scrivono qui quando parte, dalle regole di
-`GIOCO.md` §9.
+Parte E:
+- [x] Su una corsa a piedi con l'account e il catalogo, la riga dice la
+      prossima forma per distanza e cresce con i metri della corsa
+      («Hexagon 14.2 / 20 km» → «14.5»), su «Map», in pausa e su «Data»
+      (`RunGameStrip.test.tsx`, `RunDashboardGame.test.tsx`).
+- [x] Oltre la soglia passa alla forma dopo senza dire «unlocked»;
+      raggiunte tutte, niente riga (`runStripData.test.ts`).
+- [x] Con un pezzo veloce in mano, il passo dell'ultimo km contro
+      l'obiettivo, «–» prima del primo km; un pezzo di distanza, di un
+      altro, fatto o di una sfida finita non conta (`runStripData.test.ts`,
+      `RunGameStrip.test.tsx`).
+- [x] Km e miglia («Hexagon 9.0 / 12.4 mi», «Last mi 8:22 · target 8:03
+      /mi»), e l'italiano («Esagono 14,5 / 20 km», «Ultimo km 5:12 ·
+      obiettivo 5:00 /km»).
+- [x] `GET /game/me` e `GET /game/teams` una volta sola all'inizio, mai
+      durante; niente riga e nessuna richiesta in bici, in canoa, senza
+      account, senza API o senza catalogo; senza rete, con la sessione
+      rifiutata o con 404 sulle squadre niente errore.
+- [x] lint, typecheck, `format:check` e la suite completa verdi in locale
+      (3 781 test in 467 file, 2026-10-26; due file, `AppActivities` ed
+      `ExploreScreen`, oltre i 700 s nel giro intero con il Mac fermo, verdi
+      da soli in 7 s); CI della #564 verde.
+- [ ] L'impronta iOS invariata (`83793e26…`): solo JavaScript, misurata dal
+      Coordinatore su una copia pulita.
+- [x] I due testi approvati dall'utente (tabella sopra, 2026-10-26: «sì ai
+      testi della 564 e della 565, mergia … 564 quando sono verdi»).
+- [ ] Il posto della riga confermato dall'utente su `preview`.
 
 ## File toccati
 
@@ -640,7 +715,19 @@ docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
 ```
 Non toccati: `App.tsx`, `src/share/`, `pushDevice.ts`, `unlocks.ts`.
 
-Parte E: l'elenco si scrive qui, e va al Coordinatore, prima di partire.
+Parte E (elenco approvato dal Coordinatore il 2026-10-26):
+```
+apps/mobile/src/game/runStripData.ts, runStripData.test.ts          (nuovi)
+apps/mobile/src/game/RunGameStrip.tsx, RunGameStrip.test.tsx        (nuovi)
+apps/mobile/src/screens/RunDashboardGame.test.tsx                   (nuovo)
+apps/mobile/src/screens/RunDashboard.tsx                            (la riga in RunCard, fetchFn/apiKey)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts                     (righe in fondo)
+docs/UI.md («La navigazione»: la riga del gioco), docs/GIOCO.md (§9),
+docs/DECISIONS.md (aggiunta ad ADR-0255), docs/STATUS.md, docs/tasks/TASK-296.md
+```
+Non toccati: `RunPanel.tsx`, `NavigateScreen.tsx`, `FreeRunScreen.tsx`,
+`App.tsx`, `packages/shared-types/src/index.ts`, i moduli di `src/game/`
+della B e della D (la E importa `fetchTeams`, `progressText`, `shapeNameIn`).
 
 ## Fuori scope
 
@@ -690,6 +777,19 @@ Su `preview` la scheda resta nascosta con «Play» finché il server non ha
 A e C. **Da provare sull'iPhone** quando A e C saranno sul server, con due
 telefoni: una sfida vera, il foglio di condivisione del codice, le push.
 
-**Resta** la parte E (app: striscia in corsa), con il suo elenco di file
-al Coordinatore prima di partire (`RunDashboard.tsx` da ricontrollare);
-può usare `piecesOf` di `src/game/pieceSegments.ts` per il pezzo in mano.
+**Parte E**: PR #564 aperta il 2026-10-26 dal branch
+`feat/TASK-296-e-run-strip` (worktree `.claude/worktrees/TASK-296-e`): la
+riga del gioco nella scheda della corsa, su «Map» e su «Data», con la
+prossima forma per distanza o il pezzo veloce in mano; il server chiesto
+una volta all'inizio della corsa. Solo app, nessuna dipendenza nuova;
+`RunDashboard.tsx` ricontrollato con il Coordinatore (libero: TASK-303 e
+304 toccano la navigazione, non lui). I due testi approvati dall'utente il
+2026-10-26, che ha chiesto il merge al verde; il posto della riga lo
+conferma l'utente su `preview`. **Da
+provare sull'iPhone** quando A e C saranno sul server: una corsa vera con
+la riga che cresce, e con un pezzo veloce in mano.
+
+**Con la E il task è completo**: dopo il suo merge restano la chiusura
+(documenti, «Completato» in `STATUS.md`) e, dopo Apple e con l'ok
+dell'utente, A e C sul server (migrazioni 0025 e 0027, deploy,
+`game_backfill` una volta).
