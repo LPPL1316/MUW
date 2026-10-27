@@ -218,6 +218,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   per chi pubblica: una frase nuova nella «Privacy», in app e sul sito.
   Le svolte a voce (map-matching nell'engine) sarebbero un task a parte.
   File: `tasks/TASK-307.md`.
+  **Chiuso**: in `main` con la #571 (`0bfc07c0`, 2026-10-27); resta la
+  preview del Coordinatore e il tempo vero sul telefono dell'utente.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -1549,6 +1551,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `0028`. Con la parte A (push, #451) e la C (rubrica, #461) **chiude
   TASK-262**. Si accende con l'email di ritorno (server dal Coordinatore
   dopo Apple, col sì dell'utente). `tasks/TASK-262.md`.
+- **App** — TASK-306 (ADR-0266; scelte dell'utente del 2026-10-26): in
+  «Draw», con la corsa, «NEAR YOU» sotto la distanza, cerchio, cuore e
+  stella da 5 km pronti dalla posizione (dal telefono, tenuti fino a
+  1 km), e forme già pronte di città in evidenza a caso quando vicino non
+  viene niente, con quanto sono lontane; «Explore» preparato
+  all'apertura. In `main` con la #571 (`0bfc07c0`, 2026-10-27). Resta la
+  preview (Coordinatore) e il tempo vero sul telefono dell'utente, da
+  scrivere nell'Esito del task file.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
   iscritto con «Email when I'm away» acceso (casella non spuntata
