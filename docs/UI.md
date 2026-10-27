@@ -760,6 +760,20 @@ prima. **«Back to the profile»** e «←» tornano a «Profile». Se nel
 frattempo è tornato privato: «This drawing is no longer public.» sopra la
 griglia.
 
+**Correre il disegno, e scaricarlo** (TASK-307, ADR-0267, richiesta
+dell'utente del 2026-10-26): nella scheda di un disegno aperto, dal
+«Feed» o dal profilo, sotto reazioni e commenti, il giallo **«Start»** e
+sotto la riga grigia «This route has no turn directions: follow the line
+on the map.», poi il pulsante neutro **«Export GPX»** («Preparing GPX…»
+mentre prepara; «The GPX could not be made. Try again.» se il telefono non
+può condividere). Senza traccia nessuno dei due. «Start» parte subito
+sulla traccia tagliata, senza chiedere le indicazioni: la linea gialla,
+la parte fatta e quella da fare, ma nessuna svolta a voce; in bici o in
+acqua come il disegno è stato fatto, in acqua prima l'avviso. «Export
+GPX» apre il foglio di condivisione con la stessa traccia (`GPX.md`). La
+corsa salvata dice ciò che il disegno disegna. A fine corsa, o con Stop
+prima di partire, si torna al disegno, e «←» torna dov'era stato aperto.
+
 **I commenti di un disegno** (TASK-120, ADR-0175, scelta dell'utente del
 2026-10-03: subito sotto le corse vere, non sugli esempi di «Feed»): nella
 scheda di un disegno aperto, fra i numeri e «Back to the profile», un

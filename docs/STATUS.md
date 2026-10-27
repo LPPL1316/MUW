@@ -205,6 +205,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   merge; poi «#NNN pronta» al Coordinatore, ordine 302 → 303 → 304.
   `tasks/TASK-303.md`.
   **Chiuso** nella sua PR #565 (2026-10-26); vedi «Completato».
+- **TASK-307 — Correre il disegno di un altro, e scaricarne la traccia**
+  (ADR-0267; richiesta dell'utente del 2026-10-26: «poter scaricare la
+  traccia e poterla iniziare pure tu»; numero e regole dal Coordinatore).
+  Branch `feat/TASK-307-start-friend-track`, solo app. Sulla scheda del
+  disegno aperto, dal «Feed» o dal profilo: «Start» sulla traccia
+  tagliata, subito e **senza svolte a voce** (una traccia GPS non sta sul
+  grafo, `/route-directions` la rifiuta; la scheda lo dice), ed «Export
+  GPX» scritto sul telefono, senza tempi né nome. La corsa salvata dice ciò
+  che il disegno disegna; a fine corsa si torna al disegno. L'utente il
+  2026-10-26 ha approvato il testo nuovo e scelto **nessun interruttore**
+  per chi pubblica: una frase nuova nella «Privacy», in app e sul sito.
+  Le svolte a voce (map-matching nell'engine) sarebbero un task a parte.
+  File: `tasks/TASK-307.md`.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
