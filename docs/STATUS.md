@@ -279,6 +279,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
   «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
   File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
+  **TASK-262 chiuso il 2026-10-26**: parte B in `main` con la #550
+  (`ef5021f4`), con A (#451) e C (#461) già dentro; vedi «Completato».
 - **TASK-300 — Email confermata e «Forgot password?»** (ADR-0261; scelta
   dell'utente del 2026-10-25, «a parte SUBITO»; numero e regole dal
   Coordinatore). All'iscrizione e al cambio in «Settings» un link conferma
@@ -303,6 +305,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso**: in `main` con la #550 (`ef5021f4`, 2026-10-25); nota di
   «Settings», help e privacy con TASK-284 B (#556); server dal
   Coordinatore dopo Apple.
+  **TASK-300 chiuso il 2026-10-26**: parti A e B in `main` con la #559
+  (`57d87a10`), migrazione `0029`; vedi «Completato».
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -950,6 +954,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `tasks/TASK-262.md`.
   **Parte A chiusa il 2026-10-10** (PR #451, merge `578c2f7e`): vedi
   «Completato». Restano B e C.
+  **Task chiuso il 2026-10-26**: C con la #461, B con la #550; vedi
+  «Completato».
 - **TASK-152 — MuW sull'App Store** (ADR-0233). **Parte A** in `main`
   il 2026-10-08 (PR #446, merge `9dcacbf4`; chiesta dall'utente): profilo `production` in `eas.json`,
   canale `production`. Solo la build dello store ha il runtime dal
@@ -1441,6 +1447,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 ## Completato
 
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
+- **App e API** — TASK-300 (ADR-0261; scelta dell'utente del 2026-10-25,
+  «a parte SUBITO»): l'indirizzo email confermato con un link
+  all'iscrizione e al cambio in «Settings» (il nuovo vale solo
+  confermato, il vecchio riceve l'avviso) e «Forgot password?» sotto
+  «Log in», con la pagina per la nuova password che chiude ogni sessione.
+  Un indirizzo non confermato non blocca niente; i 3 account di prima
+  restano non confermati. PR #559 (`57d87a10`), migrazione `0029`; app
+  solo JS, impronta iOS invariata. **Spenta** finché il server non ha
+  Resend: server dal Coordinatore dopo Apple e col sì dell'utente,
+  dominio `getmuw.app` verificato su Resend dall'utente.
+  `tasks/TASK-300.md`.
+- **API** — TASK-262 B (aggiunta ad ADR-0226; scelte dell'utente del
+  2026-10-25): un riassunto email al giorno delle cinque notizie delle
+  push a chi ha «Email notifications» acceso, nella lingua dell'email di
+  ritorno, con il link per spegnerlo. PR #550 (`ef5021f4`), migrazione
+  `0028`. Con la parte A (push, #451) e la C (rubrica, #461) **chiude
+  TASK-262**. Si accende con l'email di ritorno (server dal Coordinatore
+  dopo Apple, col sì dell'utente). `tasks/TASK-262.md`.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
   iscritto con «Email when I'm away» acceso (casella non spuntata
