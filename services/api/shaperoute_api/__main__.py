@@ -246,8 +246,9 @@ def main(argv: Sequence[str] | None = None) -> None:
     # their photos beside the zones (TASK-283).
     photos = CityPhotos(args.cache_dir / PHOTOS_FOLDER)
     install_nearby_cities(app, NearbyCities(places.key, photos=photos), route_store)
-    # The towns' examples already kept, read ahead by the app (TASK-316).
-    install_kept_routes(app, archive)
+    # The towns' examples already kept, read ahead by the app (TASK-316):
+    # from the centres' files only, never the archive of users' starts.
+    install_kept_routes(app, route_store)
     install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)

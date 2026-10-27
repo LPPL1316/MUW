@@ -5,6 +5,7 @@ read by the shared types' test too."""
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 from typing import Any
 
@@ -118,3 +119,33 @@ def test_a_request_the_engine_refuses_is_a_422_as_from_route_jobs(
     answer = api.post("/kept-routes", json={"requests": [bad]})
     assert answer.status_code == 422
     assert answer.json()["error"]["code"] == "invalid_request"
+
+
+def test_a_route_drawn_where_a_user_is_never_comes_back(tmp_path: Path) -> None:
+    """Only the centres' files: a route a user drew from their own start
+    (kept by the archive, ADR-0256, never by the files) is never answered,
+    and the same drawn from a city's centre is."""
+    store = RouteStore(tmp_path / "routes", engine="engine-a")
+    centre = (46.0679, 11.1211)
+    store.learn([centre])
+
+    def planner(request: RouteRequest, source: GraphLoader) -> Plan:
+        return Plan(result=result_from(fixture("route-result.json")), search=None)
+
+    app = create_app(
+        FileSource(Path("not-there.graphml")), planner=planner, route_store=store
+    )
+    install_kept_routes(app, store)
+    api = TestClient(app)
+    home = {**fixture("route-request.json"), "start": [46.0702, 11.1265]}
+    town = {**fixture("route-request.json"), "start": list(centre)}
+    for asked in (home, town):
+        job = api.post("/route-jobs", json=asked).json()
+        deadline = time.monotonic() + 10
+        while job["status"] not in ("done", "failed") and time.monotonic() < deadline:
+            time.sleep(0.02)
+            job = api.get(f"/route-jobs/{job['job_id']}").json()
+        assert job["status"] == "done"
+    answer = api.post("/kept-routes", json={"requests": [home, town]}).json()
+    assert answer["routes"][0] is None
+    assert answer["routes"][1] is not None

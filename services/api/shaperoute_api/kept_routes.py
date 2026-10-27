@@ -4,9 +4,15 @@
 as the app opens, before anyone taps them. Asked with POST /route-jobs, every
 phone would have the engine draw what is not kept yet, and the server
 download the towns' zones: here a phone asks a town's examples at once, and
-gets back only those kept (route_store.py, route_archive.py), null for the
-others. No job, no zone, no engine, nothing written: what is not kept is
-drawn when someone taps the town, as before, or ahead by draw_examples.
+gets back only those kept, null for the others. No job, no zone, no
+engine, nothing written: what is not kept is drawn when someone taps the
+town, as before, or ahead by draw_examples.
+
+Only the routes of the files (route_store.py): those from a city's centre
+or a point on the water, which are no one's position. Never the archive's
+(route_archive.py, ADR-0256), which keeps routes drawn from where users
+were, without who: asked of an endpoint whose answer is "kept" or "not",
+a point would say whether someone drew there.
 
     POST /kept-routes  {"requests": [RouteRequest, ...]}
                        -> {"routes": [RouteResult | null, ...]}
@@ -70,7 +76,7 @@ def kept_route_routes(store: KeepsRoutes | None) -> APIRouter:
 
 
 def install_kept_routes(app: FastAPI, store: KeepsRoutes | None) -> None:
-    """POST /kept-routes, read from `store`: the one the route jobs keep
-    in, the archive with its files behind (ADR-0256). Without one, every
-    answer is null."""
+    """POST /kept-routes, read from `store`: the files of the cities'
+    centres (route_store.RouteStore), never the archive. Without them,
+    every answer is null."""
     app.include_router(kept_route_routes(store))
