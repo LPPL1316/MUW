@@ -4,10 +4,10 @@ import { type AccountOutcome, ask } from "./accounts";
 import { isDrawingPhoto } from "./drawings";
 
 /**
- * The photos of a profile (TASK-305, docs/API.md, «Profile»): GET
+ * The photos of a profile (TASK-311, docs/API.md, «Profile»): GET
  * /users/{public_id}/photos with the session token, a page at a time, the
  * latest run first. Each is read as the photo of its drawing
- * (drawingPhotoSource) and opens it. An API older than TASK-305 has no such
+ * (drawingPhotoSource) and opens it. An API older than TASK-311 has no such
  * endpoint: 404, `http_error`.
  */
 

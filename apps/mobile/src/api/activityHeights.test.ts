@@ -7,8 +7,8 @@ import { recordedRun } from "../activities/recordedRun";
 import type { SavedRun } from "../navigation/trackStore";
 import { type ActivityRequest, saveActivity, withoutHeights } from "./activities";
 
-// The heights of a run's fixes (TASK-305): sent when the phone gave them,
-// for the API to count the climb; an API older than TASK-305 refuses them,
+// The heights of a run's fixes (TASK-311): sent when the phone gave them,
+// for the API to count the climb; an API older than TASK-311 refuses them,
 // and the run goes again without.
 
 const URL = "http://api";

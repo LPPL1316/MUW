@@ -43,7 +43,7 @@ type Props = {
   /** The account's own profile: its empty grid says how to fill it. */
   own: boolean;
   /** «Drawings» over the grid; left out, it is. Under the tabs of a
-   * profile (TASK-305) the tab says it. */
+   * profile (TASK-311) the tab says it. */
   titled?: boolean;
 };
 

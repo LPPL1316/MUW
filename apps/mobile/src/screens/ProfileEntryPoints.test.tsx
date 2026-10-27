@@ -229,7 +229,7 @@ test("the account's own tagged name goes to the page, and the drawing closes", a
   expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
   expect(await screen.findByText("Drawings")).toBeOnTheScreen();
   // No member's page opened over it: the page asks its own profile only
-  // for its totals (TASK-305), and never shows the line of another's.
+  // for its totals (TASK-311), and never shows the line of another's.
   expect(screen.queryByText("Loading the profile…")).toBeNull();
   expect(screen.queryByText(/drawings? · /)).toBeNull();
 });

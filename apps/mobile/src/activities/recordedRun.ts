@@ -12,7 +12,7 @@ import { activityKey } from "./activityKey";
  * were recorded: metres, seconds and score are the API's to count. A run
  * along a word with the pen up also sends its route's walks and the pen of
  * its pauses (TASK-199), and a run along a route whose shape is turned sends
- * the turn (TASK-232), and a fix with the phone's height sends it (TASK-305);
+ * the turn (TASK-232), and a fix with the phone's height sends it (TASK-311);
  * any other run sends what it sent before, field for field, because an
  * older API refuses what it does not know.
  */
@@ -64,7 +64,7 @@ export function recordedRun(run: SavedRun, drawn: Drawn | null): RecordedRun | n
         point: fix.point,
         time_ms: fix.timeMs,
         accuracy_m: fix.accuracyM,
-        // The height only when the phone gave one (TASK-305).
+        // The height only when the phone gave one (TASK-311).
         ...(typeof fix.altitudeM === "number" && Number.isFinite(fix.altitudeM)
           ? { altitude_m: fix.altitudeM }
           : {}),

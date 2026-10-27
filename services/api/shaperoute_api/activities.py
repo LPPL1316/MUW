@@ -15,7 +15,7 @@ opened and deleted only by its owner. Deleting the account deletes its runs
 its drawing shows it, and Strava takes it (drawings.py, strava.py). A run
 along a route whose shape the engine turned keeps the turn (TASK-232,
 ADR-0195): the app shows the run turned back, so the drawing reads upright.
-A fix may carry the phone's height (TASK-305, ADR-0265): the API counts the
+A fix may carry the phone's height (TASK-311, ADR-0271): the API counts the
 metres climbed itself (run_climb.py), for the totals of the profile.
 """
 
@@ -115,7 +115,7 @@ ACTIVITIES_FULL = f"You have {MAX_ACTIVITIES} activities: delete one to save ano
 UNKNOWN_ACTIVITY = "No activity with this key."
 BAD_CLOCK = "This run cannot be saved: its times are not those of a clock."
 # Below the Dead Sea and above Everest, with a GPS's error to spare: a
-# height out of these is no place on Earth (TASK-305).
+# height out of these is no place on Earth (TASK-311).
 MIN_ALTITUDE_M = -1_000.0
 MAX_ALTITUDE_M = 10_000.0
 
@@ -134,7 +134,7 @@ def _on_earth(points: Sequence[LatLon]) -> None:
 
 class ActivityFixBody(TrackFixBody):
     """One GPS fix of a run saved: TrackFixBody, with the phone's height
-    (TASK-305). POST /track-scores takes no height: only a run has one."""
+    (TASK-311). POST /track-scores takes no height: only a run has one."""
 
     altitude_m: float | None = Field(
         default=None,
@@ -143,7 +143,7 @@ class ActivityFixBody(TrackFixBody):
         allow_inf_nan=False,
         description="Height above sea level in metres; null when unknown.",
     )
-    """Missing from an app older than TASK-305: the run has no climb. A
+    """Missing from an app older than TASK-311: the run has no climb. A
     height no place on Earth has is refused, and the app sends the run
     again without its heights."""
 
@@ -458,7 +458,7 @@ class RecordedRun:
     score: int | None
     fidelity: float | None
     climb_m: int | None = None
-    """Null without the heights of the fixes (TASK-305)."""
+    """Null without the heights of the fixes (TASK-311)."""
 
     @property
     def start(self) -> LatLon:

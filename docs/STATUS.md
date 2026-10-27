@@ -160,9 +160,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
-- **TASK-305 — I totali e le foto di un profilo** (ADR-0265; richiesta
-  dell'utente del 2026-10-26; numero preso senza coordinatore, nessuna
-  sessione raggiungibile). Branch `claude/wonderful-dijkstra-oi568i` (il
+- **TASK-311 — I totali e le foto di un profilo** (ADR-0271; richiesta
+  dell'utente del 2026-10-26; numeri presi senza coordinatore, nessuna
+  sessione raggiungibile: nato come TASK-305/ADR-0265, rinumerato perché
+  presi da un'altra sessione). Branch `claude/wonderful-dijkstra-oi568i` (il
   branch della sessione cloud), migrazione `0031_run_climb.sql` (numero al
   merge). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
   «Elev. gain» e «Likes», e le schede «Drawings» | «Photos». **Scelta
@@ -176,7 +177,52 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   rigenerato). **Aperto**: PR; server e copia del sito insieme, con l'ok
   dell'utente, prima dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
   TASK-299 B: poche righe qui, chi entra secondo unisce. File:
-  `tasks/TASK-305.md`.
+  `tasks/TASK-311.md`.
+- **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
+  dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
+  Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
+  (documenti), poi A (API), B (app, dopo TASK-299 B) e C (commenti). Un
+  iscritto crea da un percorso pronto una corsa di gruppo: il ritrovo è la
+  partenza, giorno e ora da 30 minuti a 60 giorni, «Where exactly»,
+  descrizione, Everyone o Followers; la fila «Group runs» in cima al Feed
+  sotto la scheda del concorso, solo con qualcosa da mostrare; «I'm going»;
+  un promemoria un'ora prima, le push di cambio e di annullamento; filtro
+  dei testi, segnalazioni e blocchi come i post; avviso di sicurezza e
+  riga della privacy. Selettore di data in JavaScript: impronta iOS
+  invariata. Nessuna notifica all'organizzatore quando qualcuno si
+  aggiunge: lo vede nella pagina. È la scelta dell'utente dopo la
+  correzione della proposta, la cui «lista Notifiche» non esiste. Regole
+  in `EVENTI.md`, file `tasks/TASK-309.md`.
+- **TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore»
+  preparato all'apertura** (ADR-0266; richiesta dell'utente del
+  2026-10-26, «Sì, va bene così: procedi con TASK-306» lo stesso giorno;
+  numeri e condizioni dal Coordinatore). Branch
+  `feat/TASK-306-near-you-shapes`, solo app (JS, nessuna dipendenza,
+  nessun server). Sotto la distanza, con la corsa, «NEAR YOU»: cerchio,
+  cuore e stella da 5 km dalla posizione, disegnati dal telefono (il
+  server se non ha mappe), tenuti in `near-you.json` fino a 1 km; una
+  forma che non viene lascia il posto a una già pronta in una città in
+  evidenza a caso, dalla più semplice; senza posizione o con niente
+  vicino, sei città e «SHAPES TO TRY». All'apertura, prima che si apra,
+  «Explore» chiede lista, paesi vicini e i loro esempi. Tutto dopo
+  l'animazione d'apertura, mai durante corsa, navigazione o background.
+  Testi: inglese e italiano approvati con la proposta, de/es/fr
+  dell'agente; tempi e dati sul telefono sono stime. File:
+  `tasks/TASK-306.md`.
+- **TASK-303 — Dopo una deviazione la corsa rientra più avanti, con la
+  guida per tornarci** (ADR-0263; prova sul campo dell'utente a Trento del
+  2026-10-25, piano approvato; numero e condizioni dal Coordinatore). Branch
+  `feat/TASK-303-detour-rejoin`, worktree `.claude/worktrees/TASK-303`.
+  Fuori percorso, la corsa cerca il runner anche oltre i 300 m di `locate`,
+  fino a 300 m più 2 m per ogni metro corso fuori, e lo riprende dopo 20 m
+  nel verso del percorso (di traverso no), saltando le svolte di mezzo.
+  Mentre è fuori: linea a puntini sulla mappa fino al punto più vicino in
+  linea d'aria, distanza e punto cardinale nel banner, e una frase a voce
+  dopo «Sei fuori percorso». Solo app, `useNavigation.ts` e `App.tsx`
+  invariati. **Testi nuovi in 5 lingue da approvare dall'utente** prima del
+  merge; poi «#NNN pronta» al Coordinatore, ordine 302 → 303 → 304.
+  `tasks/TASK-303.md`.
+  **Chiuso** nella sua PR #565 (2026-10-26); vedi «Completato».
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -212,6 +258,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-10-26; `schemas.py` viaggia nel motore del telefono, quindi
   `engine.zip` rifatto (ok del Coordinatore). Server dopo Apple, con l'ok
   dell'utente.
+  **Parte A** in `main` con la #562 (`5f762ae7`, 2026-10-26), mergiata su
+  «mergia si» dell'utente; migrazione `0030_contests.sql`. La parte B
+  (app) parte da qui, in una sessione sua. Sul server dopo Apple, con
+  l'ok dell'utente: migrazione, deploy, `open`.
+  **Parte B** (app, branch `feat/TASK-299-b-contest-app`, PR #575): la
+  cartella `src/contest/`; la scheda sotto la lente di «Feed» solo con un
+  concorso (chiesto quando «Feed» si apre e a ogni pull, tenuto in
+  `contest.json`, cancellato da un 404): i giorni che restano, i primi tre
+  che aprono il post, «Your best post» o «Publish a run to take part.»,
+  «How it works» con il regolamento ufficiale; per 7 giorni dopo la
+  chiusura il post vincitore; il badge «Winner» nei profili
+  (`contest_wins`) e la fascia sul disegno vincitore. Testi nelle cinque
+  lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
+  (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
+  nascosta finché il server non ha la parte A.
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -422,6 +483,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **B** (ADR-0253), branch `feat/TASK-294-b-play-build`: package,
   Firebase, `eas.json`, la build e il test chiuso. **C** (ADR-0253): la
   pagina per cancellare l'account su getmuw.app. File: `tasks/TASK-294.md`.
+  **B in `main`** con la #548 (`049102c5`, 2026-10-25). Il 2026-10-26
+  l'account Play è verificato, l'app «MuW» è creata e i moduli della
+  console sono compilati (scheda, dichiarazioni, Sicurezza dei dati);
+  prima build Android (APK `preview`) in corso su EAS. **C** fatta:
+  `site/account-deletion/` nelle cinque lingue con test, PR aperta; i
+  testi aspettano il sì dell'utente, poi la copia sul server (F.14).
+  La prima build Android (`preview`) del 2026-10-26 è fallita in Gradle
+  su AdMob: correzione `fix/TASK-294-android-build-no-admob` (#572),
+  AdMob mai collegato su Android (aggiunta ad ADR-0237), impronta iOS
+  invariata.
+  **C in `main`** con la #569 (`4075ef8e`, 2026-10-26), testi approvati
+  dall'utente («Sì, 30 giorni»); manca la copia sul server (F.14).
 - **TASK-293 — «Send to Strava» senza un blocco del database dentro
   l'altro** (aggiunta ad ADR-0249; seguito di TASK-288 B, numero dal
   Coordinatore il 2026-10-18). Branch `feat/TASK-293-strava-one-block`.
@@ -1372,6 +1445,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
   iscritto con «Email when I'm away» acceso (casella non spuntata
@@ -1382,6 +1456,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   l'archivio dei percorsi e le push Android. **Spenta** finché il server non
   ha Resend: copia del sito, app pubblicata e server dal Coordinatore dopo
   Apple e col sì dell'utente. `tasks/TASK-284.md`.
+- **App** — TASK-303 (ADR-0263; prova sul campo dell'utente a Trento del
+  2026-10-25): dopo una deviazione la corsa ritrova il runner più avanti
+  sul percorso, dopo 20 m nel suo verso (di traverso no), entro 300 m più
+  2 m per ogni metro corso fuori, così una forma che ripassa la stessa
+  strada non lo porta a un giro dopo; le svolte del tratto saltato non si
+  dicono. Fuori percorso: puntini sulla mappa fino al punto più vicino in
+  linea d'aria, «120 m NE» nel banner, una frase a voce una volta. Lo
+  stesso in bici e in canoa; distanza e tempo della deviazione contano.
+  Provato nei test e nel simulatore iOS. Solo app, impronta iOS invariata.
+  **Entra col merge del Coordinatore dopo il sì dell'utente ai testi nuovi
+  in 5 lingue** (tabella nella PR #565), poi su `preview` da provare sul
+  campo. Segue **TASK-304** (l'attività persa uscendo dall'app).
+  `tasks/TASK-303.md`.
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252

@@ -134,12 +134,12 @@ export type ActivityPause = {
 
 /**
  * A fix of a run sent: TrackFix, with the phone's height when it gave one
- * (TASK-305). The API counts the climb from it, for the totals of the
+ * (TASK-311). The API counts the climb from it, for the totals of the
  * profile; POST /track-scores takes no height.
  */
 export type ActivityFix = TrackFix & {
   /** Metres above sea level; sent only when known: an API older than
-   * TASK-305 refuses the field. */
+   * TASK-311 refuses the field. */
   altitude_m?: number;
 };
 
@@ -190,7 +190,7 @@ export function withoutPenUp(request: ActivityRequest): ActivityRequest {
 }
 
 /**
- * `request` as an app older than TASK-305 sends it, without the heights of
+ * `request` as an app older than TASK-311 sends it, without the heights of
  * its fixes: an API before it refuses them, and keeps the run without its
  * climb. The same object when no fix has one.
  */
@@ -255,7 +255,7 @@ export function fetchActivity(
 /**
  * PUT /me/activities/{key}: saved once, however many times it is sent. A
  * run with the heights of its fixes that the API refuses is first sent
- * again without them (TASK-305, ADR-0265); a run along a turned route then
+ * again without them (TASK-311, ADR-0271); a run along a turned route then
  * without the turn (TASK-232, ADR-0195); a run along a word with the pen up
  * goes once more as an older app sends it (TASK-199, ADR-0158): an API
  * older than TASK-199 keeps it, scored on the whole route, rather than the

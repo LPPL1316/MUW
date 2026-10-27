@@ -358,7 +358,7 @@ def test_another_member_sees_the_profile_and_never_the_email(
         "follow": "none",
         # No contest closed yet (TASK-299).
         "contest_wins": 0,
-        # No run, no reaction yet (TASK-305).
+        # No run, no reaction yet (TASK-311).
         "distance_m": 0,
         "climb_m": 0,
         "reactions": 0,

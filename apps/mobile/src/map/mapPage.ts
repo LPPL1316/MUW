@@ -106,6 +106,15 @@ export const ON_FOOT_WIDTH = onFoot.width;
 export const ON_FOOT_OPACITY = onFoot.opacity;
 export const ON_FOOT_DASH = onFoot.dash;
 
+/** Off the route (TASK-303): dots from the runner to where the route goes
+ * on, over the route, in the colour of text: apart from the yellow route,
+ * the dashes of its part left and the grey walks between letters. */
+export const REJOIN_COLOR = color.text;
+export const REJOIN_WIDTH = 4;
+export const REJOIN_OPACITY = 0.9;
+/** A dot and a gap, in line widths: the round caps make the dots. */
+export const REJOIN_DASH = [0, 2];
+
 /**
  * A double tap, as the page tells it to the app (TASK-119): two taps of one
  * finger, each shorter than `TAP_MS`, within `DOUBLE_TAP_MS` and
@@ -250,6 +259,8 @@ export function buildMapPage(language: Language = appLanguage()): string {
     var dim = false;
     var walks = noRoute;
     var onFoot = noRoute;
+    // Off the route (TASK-303): the dotted line back to it.
+    var rejoin = noRoute;
     var track = noRoute;
     var stops = noRoute;
     var others = noRoute;
@@ -360,6 +371,21 @@ export function buildMapPage(language: Language = appLanguage()): string {
           "line-width": ${ON_FOOT_WIDTH},
           "line-opacity": ${ON_FOOT_OPACITY},
           "line-dasharray": ${toScript(ON_FOOT_DASH)},
+        },
+      });
+      // Off the route, the dots from the runner back to it, over the route
+      // (TASK-303).
+      map.addSource("rejoin", { type: "geojson", data: rejoin });
+      map.addLayer({
+        id: "rejoin",
+        type: "line",
+        source: "rejoin",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: {
+          "line-color": ${toScript(REJOIN_COLOR)},
+          "line-width": ${REJOIN_WIDTH},
+          "line-opacity": ${REJOIN_OPACITY},
+          "line-dasharray": ${toScript(REJOIN_DASH)},
         },
       });
       // The places of a themed route, over the route (TASK-129).
@@ -569,6 +595,13 @@ export function buildMapPage(language: Language = appLanguage()): string {
       var source = map.getSource("on-foot");
       if (source) {
         source.setData(onFoot);
+      }
+    }
+    function setRejoin(data) {
+      rejoin = data;
+      var source = map.getSource("rejoin");
+      if (source) {
+        source.setData(rejoin);
       }
     }
     function setStops(data) {
@@ -1396,6 +1429,7 @@ export function buildMapPage(language: Language = appLanguage()): string {
           clearProgress();
           setWalks(noRoute);
           setOnFoot(noRoute);
+          setRejoin(noRoute);
           setStartHere(null);
           // A map turned for its route is north-up again without it; one
           // turned by the user stays as it was left.
@@ -1414,6 +1448,14 @@ export function buildMapPage(language: Language = appLanguage()): string {
           clearCanvas();
         } else if (message.type === "setPick") {
           setPick(message.on);
+        } else if (message.type === "showRejoin") {
+          setRejoin({
+            type: "Feature",
+            properties: {},
+            geometry: { type: "LineString", coordinates: message.line },
+          });
+        } else if (message.type === "clearRejoin") {
+          setRejoin(noRoute);
         }
       },
     };

@@ -36,7 +36,7 @@ type Props = {
   publicId: string | null;
   /** The account's own profile: its empty grids say how to fill them. */
   own: boolean;
-  /** The API has the photos of a profile (TASK-305): it answered the
+  /** The API has the photos of a profile (TASK-311): it answered the
    * totals. False: the drawings alone, as before. */
   photos: boolean;
   /** The API the account talks to (ADR-0031); null if unknown. */
@@ -50,12 +50,12 @@ type Props = {
 };
 
 /**
- * What a profile made (TASK-305, ADR-0265): «Drawings» and «Photos», one
+ * What a profile made (TASK-311, ADR-0271): «Drawings» and «Photos», one
  * at a time. «Drawings» is the grid of TASK-117; «Photos» the photos of
  * the drawings the one who looks sees, the latest run first, three a row,
  * a page at a time, and a tap opens the drawing of one on the map. The
  * photos are asked for the first time «Photos» is touched, not before.
- * With an API older than TASK-305, the drawings alone, as before.
+ * With an API older than TASK-311, the drawings alone, as before.
  */
 export function ProfileGallery({
   publicId,

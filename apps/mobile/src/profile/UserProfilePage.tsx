@@ -79,7 +79,7 @@ export function profileViewProblem(failed: Failed): string {
  * follow it, which asks: the other accepts or declines (ADR-0173). Its
  * «…» reports the member or blocks it (TASK-121, ADR-0228); blocked, the
  * page says so and shows the profile no more. Under the top, its totals
- * and its drawings and photos (TASK-305).
+ * and its drawings and photos (TASK-311).
  */
 export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: Props) {
   const { state, sessionEnded: onSessionEnded } = account;
@@ -150,7 +150,7 @@ export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: 
   const left = profile.follow === "following" && follow !== "following" ? 1 : 0;
   const own =
     state.status === "signedIn" && state.session.user.public_id === profile.public_id;
-  // An API older than TASK-305 has no totals: no row.
+  // An API older than TASK-311 has no totals: no row.
   const totals = totalsOf(profile);
   return (
     <View style={styles.page}>
@@ -159,6 +159,7 @@ export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: 
           username={profile.username}
           bio={profile.bio}
           photo={profilePhotoUri(profile)}
+          winner={(profile.contest_wins ?? 0) > 0}
           detail={profileDetail({
             ...profile,
             followers:

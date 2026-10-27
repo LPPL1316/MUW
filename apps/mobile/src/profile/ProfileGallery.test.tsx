@@ -9,7 +9,7 @@ import { dayLabel } from "../activities/activityText";
 import { DrawingsContext, type DrawingsDoor } from "../social/drawingsDoor";
 import { ProfileGallery } from "./ProfileGallery";
 
-// «Drawings» and «Photos» on a profile (TASK-305): the photos are asked for
+// «Drawings» and «Photos» on a profile (TASK-311): the photos are asked for
 // the first time «Photos» is touched, and a tap opens the drawing of one.
 
 const URL = "http://api";
@@ -154,7 +154,7 @@ test("a session ended while asking is said to the account", async () => {
   expect(onSessionEnded).toHaveBeenCalledWith(TOKEN);
 });
 
-test("with an API older than TASK-305, the drawings alone, as before", async () => {
+test("with an API older than TASK-311, the drawings alone, as before", async () => {
   const fetchFn = jest.fn();
   await show(fetchFn, { photos: false });
   expect(await screen.findByRole("header", { name: "Drawings" })).toBeOnTheScreen();

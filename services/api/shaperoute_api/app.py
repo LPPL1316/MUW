@@ -344,7 +344,7 @@ def create_app(
     # Up to three photos of a drawing, besides its map (TASK-208); they need
     # a token.
     install_drawing_photos(app)
-    # The photos of a profile's drawings, a page at a time (TASK-305); they
+    # The photos of a profile's drawings, a page at a time (TASK-311); they
     # need a token.
     install_user_photos(app)
     # Members found by name, and following with a request (TASK-211); they

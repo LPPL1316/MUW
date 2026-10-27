@@ -3,7 +3,7 @@ import userPhotos from "@shaperoute/shared-types/fixtures/user-photos.json";
 import { answers, apiError } from "../account/testing";
 import { fetchUserPhotos, isUserPhoto, isUserPhotosPage } from "./userPhotos";
 
-// GET /users/{public_id}/photos (TASK-305).
+// GET /users/{public_id}/photos (TASK-311).
 
 const URL = "http://api";
 const TOKEN = "the-token";
@@ -36,7 +36,7 @@ test("the first page without a cursor, the next with it", async () => {
   );
 });
 
-test("an API older than TASK-305 has no photos: not found", async () => {
+test("an API older than TASK-311 has no photos: not found", async () => {
   const fetchFn: jest.Mock = answers({
     status: 404,
     body: apiError("http_error", "Not Found"),

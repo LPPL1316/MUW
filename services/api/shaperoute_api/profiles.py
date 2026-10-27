@@ -8,7 +8,7 @@ app to show as it is.
 GET /users/{public_id} is the profile as every member sees it: username,
 bio, picture (profile_photos.py), number of drawings published
 (drawings.py), how many it follows and how many follow it, and where the one
-who asks stands towards it (follows.py); since TASK-305 its totals: metres,
+who asks stands towards it (follows.py); since TASK-311 its totals: metres,
 climb and reactions received (profile_totals.py). Never the email, the role, the
 internal id or when the account was made. It needs the token of an account:
 what members share is for members, as the feed (ADR-0114, point 4). The id
@@ -102,7 +102,7 @@ class PublicProfileBody(BaseModel):
     contest_wins: int = Field(
         description="The contests it won (TASK-299): the «Winner» badge."
     )
-    # The totals (TASK-305, ADR-0265): of every run, private ones too, the
+    # The totals (TASK-311, ADR-0271): of every run, private ones too, the
     # user's choice; only the sums, never a run.
     distance_m: int = Field(description="The metres of all its runs.")
     climb_m: int = Field(description="The metres climbed in all its runs that know it.")
