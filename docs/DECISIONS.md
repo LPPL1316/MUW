@@ -16878,3 +16878,64 @@ alla partenza (alla fine della corsa non ci sarebbe niente a cui tornare).
 con un aggiornamento OTA (impronta iOS invariata). Un testo nuovo nelle
 cinque lingue e una frase nuova nella «Privacy». Se un giorno servisse il
 «no» di chi pubblica, servono l'API e una migrazione.
+
+## ADR-0274 — Fuori percorso, la strada per tornarci sulle vie, come un ricalcolo
+
+**Stato**: Attiva (parte A) · 2026-10-28 · richiesta dell'utente del
+2026-10-27 («Se esci dal percorso ti deve dare le indicazioni per tornare
+sul percorso, tipo il ricalcolo di Google maps»); numero e condizioni dal
+Coordinatore; regole di dettaglio decise dall'agente su delega dell'utente
+(TASK-314). È il seguito che ADR-0263, punto 3, aveva lasciato aperto.
+
+**Contesto**: fuori percorso l'app mostra una linea a puntini in linea
+d'aria fino al punto di rientro e dice «Il percorso riprende a 120 metri
+verso nord-est». In città la linea dritta attraversa i palazzi: non dice da
+che parte andare.
+
+**Decisione**:
+
+1. **Il motore calcola la strada per tornare** (`route_engine/way_back.py`):
+   dal punto della strada più vicina al runner (non dal nodo più vicino:
+   a metà isolato si va avanti) fino al nodo del tratto di rientro più
+   vicino **per strada**. Il tratto è quello di ADR-0263, punto 2, che
+   l'app taglia e manda. Dijkstra con `step_cost`, i sensi unici in bici,
+   un tetto di `MAX_WAY_M`; a parità, il primo nodo lungo il percorso.
+   La strada non corre mai sul percorso: il primo nodo del percorso che
+   tocca è già un arrivo.
+2. **Le indicazioni** della strada sono quelle dei percorsi (`guidance` e
+   `with_alongs`), con le distanze dal runner e l'ultima che dice da che
+   parte prendere il percorso al rientro.
+3. **Dove si calcola**: prima sul telefono, se ha la zona e il motore va
+   (ADR-0177), poi `POST /way-back` sul server. Se nessuno dei due
+   risponde (offline, server vecchio, 429, 422), restano i puntini dritti
+   di ADR-0263 e l'app non mostra errori.
+4. **L'impronta degli esempi tenuti non cambia**: `way_back.py` non entra
+   nella ricerca dei percorsi, e `route_store.engine_fingerprint` lo
+   lascia fuori. Un test cade se un modulo del motore lo importa.
+5. **Limiti sul server**: per telefono (`X-Phone-Id`, altrimenti l'IP) e,
+   più largo, per IP; oltre, 429. Non per account: la guida di corsa va
+   anche senza account.
+6. **Lo schermo di corsa** (parte B) chiede la strada al più ogni
+   `WAY_BACK_EVERY_S` e la tiene finché il runner ci sta sopra. La mostra
+   a puntini sulle vie, nel banner la prossima svolta, a voce le frasi
+   delle svolte di sempre, mai sopra le svolte del percorso. Il rientro
+   resta quello di ADR-0263, deciso dalle posizioni.
+
+**Scartate**:
+
+- ripartire dal nodo più vicino al runner: a metà di un isolato lungo lo
+  manda indietro all'incrocio;
+- il rientro scelto in linea d'aria e poi raggiunto per strada: il punto
+  più vicino in linea d'aria può essere dall'altra parte di un fiume o di
+  una ferrovia;
+- solo il server: senza rete durante la corsa la guida sparirebbe dove il
+  telefono la sa già calcolare;
+- l'impronta del motore cambiata per un file che non disegna percorsi:
+  costringerebbe a rifare gli esempi tenuti sul server;
+- un limite per account: chiederebbe il token a ogni richiesta e
+  lascerebbe fuori chi corre senza account.
+
+**Conseguenze**: un endpoint nuovo, da mettere sul server dopo Apple e con
+il sì dell'utente; fino ad allora l'app calcola la strada solo sul
+telefono, o mostra i puntini. `engine.zip` cresce di un modulo. I testi
+nuovi della parte B vogliono il sì dell'utente.

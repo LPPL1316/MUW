@@ -634,6 +634,45 @@ linea che non segue le strade della mappa risponde `422 invalid_request`
 TASK-191), una zona che non si scarica `503 map_data_unavailable`. Niente si salva. Misurato il
 2026-10-01 sul Mac, zone in cache: 0,1–0,5 s per percorsi di 5–23 km.
 
+### `POST /way-back` (TASK-314, ADR-0274)
+
+La strada per tornare sul percorso, sulle vie, per chi ne è uscito.
+Riceve `{"activity", "here", "ahead"}`
+(`packages/shared-types/fixtures/way-back-request.json`): l'attività della
+corsa (`running` o `cycling`), dove si trova il runner e il tratto del
+percorso dove può rientrare, da 2 a 10 000 punti nell'ordine del percorso.
+Il tratto lo taglia l'app (ADR-0263, punto 2). Risponde `200` con
+`{"points", "distance_m", "rejoin", "rejoin_m", "directions"}`
+(`way-back.json`):
+
+- `points`: la strada dal runner lungo le vie fino al percorso;
+- `rejoin`: il nodo del percorso dove arriva; `rejoin_m`: dove cade lungo
+  `ahead`, dal suo primo punto;
+- `directions`: le stesse `Direction` dei percorsi, con gli `along`, con
+  `distance_m` lungo `points`. La prima è la via da cui si parte, l'ultima
+  la svolta sul percorso.
+
+Coordinate a 7 decimali e metri al decimetro: la stessa risposta su ogni
+macchina. La calcola `route_engine/way_back.py`. Parte dal punto della via
+più vicina al runner e arriva al nodo del tratto più vicino per strada
+(ADR-0274). Il grafo è la zona già in cache, ritagliata 500 m attorno al
+runner e al tratto: questa richiesta non scarica mai una zona.
+
+Risposte d'errore:
+
+- nessuna zona in cache per l'area: `503 map_data_unavailable`;
+- nessuna strada entro 3 km, il runner a più di 200 m da ogni strada, o un
+  tratto che non segue le strade della mappa: `422 invalid_request`;
+- sull'acqua: `422 invalid_request`;
+- oltre 6 richieste al minuto dallo stesso telefono (`X-Phone-Id`,
+  altrimenti l'indirizzo) o 60 dallo stesso indirizzo:
+  `429 too_many_requests` con `Retry-After`.
+
+Niente si salva, e il log non tiene posizioni. Il telefono calcola la
+stessa risposta col suo motore (`on_phone.way_back_json`) e chiede al
+server solo quando non ha la zona. Un'API più vecchia di TASK-314 risponde
+`404`, e l'app tiene la linea dritta di ADR-0263.
+
 ### `POST /shape-readings`
 
 Le parole del riquadro della forma che la tabella dell'app non conosce

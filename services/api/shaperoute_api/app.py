@@ -124,6 +124,7 @@ from shaperoute_api.strava import install_strava
 from shaperoute_api.strava_client import Strava
 from shaperoute_api.themed import ThemedJobBody, ThemedJobs, ThemedRequestBody
 from shaperoute_api.track_scores import score_run
+from shaperoute_api.way_back_api import install_way_back
 
 log = logging.getLogger(__name__)
 
@@ -600,6 +601,9 @@ def create_app(
             time.perf_counter() - started,
         )
         return RouteDirectionsBody.of(directions)
+
+    # The way back to the route for a runner off it (TASK-314, ADR-0274).
+    install_way_back(app, source)
 
     # The words the app's table does not know (ADR-0012). A plain def, like
     # /routes: a model on a laptop takes seconds, in a thread of its own.

@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
+  seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
+  ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A
+  nel branch `feat/TASK-314-a-way-back`, worktree
+  `.claude/worktrees/TASK-314`: il motore calcola la strada per tornare,
+  dal punto della via più vicina al runner fino al percorso più avanti, per
+  strada e con le svolte. Gira sul telefono e su `POST /way-back`;
+  l'impronta degli esempi tenuti non cambia. Parte B (schermo di corsa,
+  testi nuovi) dopo la #567 e dopo A. File `tasks/TASK-314.md`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
