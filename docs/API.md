@@ -2468,6 +2468,50 @@ push a chi ha vinto. Le regole sono in `CONCORSI.md`; il codice in
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app non
   mostra la scheda, come con `no_contest`.
 
+### Feedback (TASK-308, ADR-0268)
+
+«Send feedback» in «Settings»: un iscritto scrive a chi gestisce MuW
+(idee, problemi, qualunque cosa). `POST` vuole il token: senza, `401
+not_signed_in`; senza database, `503 accounts_unavailable` (anche `GET`). Tipi in
+`shared-types` (`FeedbackRequest`, `MAX_FEEDBACK_LENGTH`), esempio in
+`fixtures/feedback-request.json`; il codice in `feedback.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /feedback` | la sonda dell'app: questo server prende il feedback | `204` |
+| `POST /feedback` | tiene il messaggio e lo manda per email a chi gestisce MuW | `204` |
+
+- **Il corpo**: `{"text", "app_version", "platform"}`. `text` da 1 a
+  2000 caratteri tolti gli spazi ai due capi (gli a capo restano; niente
+  caratteri di controllo): vuoto, troppo lungo o con un carattere di
+  controllo è `422 invalid_request`. `app_version` (facoltativo, al più
+  40 caratteri fra lettere, cifre, `.`, `(`, `)`, `+`, `-` e spazi) è
+  come l'app scrive versione e build, «1.0.0 (7)»; `platform`
+  (facoltativo) è `ios` o `android`. Un campo in più: `422`.
+- **Al più 5 in 24 ore per account**, contati nel database: il sesto è
+  `429 too_many_requests` con `Retry-After`, i secondi finché il più
+  vecchio dei cinque compie un giorno. Gli altri account non contano.
+  **E al più 20 in 24 ore da un indirizzo di rete** (un club sullo
+  stesso Wi-Fi), contati in memoria: si azzerano a un riavvio.
+- **`GET /feedback`**, senza token, risponde `204`: l'app mostra «Send
+  feedback» solo dopo questa risposta, così un'app più nuova del suo
+  server non fa mai scrivere un messaggio che nessuno prende (un'API
+  precedente risponde `404`).
+- **Nessun endpoint li legge**: restano nella tabella `feedback`, e ogni
+  messaggio parte, fuori dalla richiesta e con Resend, per email in
+  inglese a `SHAPEROUTE_FEEDBACK_TO`, o a `SHAPEROUTE_REPORTS_TO` senza
+  quella (`DEPLOY.md`, «Email del feedback»). Oggetto «MuW feedback from
+  {username}»; il testo, poi nome utente ed email, versione dell'app e
+  sistema, l'ora (UTC), gli id. **Reply-To è l'email dell'iscritto**:
+  rispondere all'email risponde a lui. Senza `RESEND_API_KEY` o senza
+  indirizzo il messaggio si tiene e non parte niente; un errore di Resend
+  non cambia mai la risposta. La chiave, l'indirizzo e il testo non sono
+  mai nei log.
+- **`DELETE /me`** cancella i messaggi dell'account (`ON DELETE CASCADE`).
+- **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app non
+  mostra la sezione «FEEDBACK». Se il server torna indietro dopo che la
+  sezione si è vista, «Send» dice «This is not available any more.».
+
 ### Send to Strava (TASK-187, ADR-0156)
 
 Una corsa salvata va sul profilo Strava di chi ha collegato il suo atleta,
@@ -2825,3 +2869,54 @@ richiesta fra 10 e 21 km, percorsi identici punto per punto
   aspetta; si ripensa con ADR-0009.
 - Autenticazione, limiti di richieste, versione, HTTPS, deploy: fase 4.
 - Motore di routing di produzione: ADR-0009, rinviata alla fase 4.
+
+## Gli esempi preparati prima (TASK-316, ADR-0276)
+
+### `draw_examples --all` e `--around`
+
+`--all` chiede a ogni città **tutti** i suoi esempi, come l'app quando la
+si tocca: le otto forme e poi le sei parole con la penna alzata, stile
+`round`, 3 km a lettera, la più lunga per prima (`city_examples.py`; la
+lista è `packages/shared-types/fixtures/city-examples.json`, letta da un
+test qui e da uno dell'app). `--around CITTÀ` disegna i paesi che `GET
+/nearby-cities` dà attorno alla città e poi quelli attorno a ognuno, un
+giro dopo l'altro, ognuno **dal suo punto di `/nearby-cities`** (per un
+paesino non è quello di `/cities`, TASK-236), al massimo `--towns` paesi
+(20 di base). La città stessa si disegna per nome, se la si scrive.
+
+```
+python -m shaperoute_api.draw_examples --api https://… --all Trento Caldonazzo \
+  --around Trento --around Caldonazzo
+```
+
+### `POST /kept-routes`: solo ciò che è tenuto
+
+All'apertura l'app prepara gli esempi dei paesi vicini e della regione.
+Con `POST /route-jobs` ogni telefono farebbe disegnare al server ciò che
+non è tenuto, e scaricare le zone dei paesi; qui chiede in un colpo gli
+esempi di un paese e riceve **solo quelli tenuti**, `null` per gli altri.
+Nessun job, nessuna zona, nessun motore, niente scritto.
+
+```json
+{"requests": [{"start": [46.0671, 11.1214], "shape": "heart", "distance_m": 5000, "activity": "running"},
+              {"start": [46.0671, 11.1214], "word": "CIAO", "style": "round", "pen_up": true, "distance_m": 12000, "activity": "running"}]}
+```
+
+```json
+{"routes": [{"points": [...], "distance_m": 4004.5, "...": "come il result di un job"}, null]}
+```
+
+- Da 1 a **16** richieste (gli esempi di una città sono 14), di forma o di
+  parola, con i campi di `POST /route-jobs`: un'immagine è un `422`, e una
+  forma spostata (`near`) non è mai tenuta, quindi `null`.
+- Una risposta per richiesta, nello stesso ordine: il `RouteResult` tenuto
+  o `null`. Una richiesta che il motore rifiuterebbe è un `422` come da
+  `/route-jobs`.
+- **Solo i file dei centri** (`route_store.py`: i centri delle città e i
+  punti sull'acqua, che non sono la posizione di nessuno), **mai
+  l'archivio** di ADR-0256, che tiene anche i percorsi disegnati da dove
+  erano gli utenti, senza chi: con una risposta «tenuto» o «no», un punto
+  direbbe se qualcuno ci ha disegnato. Nessun account, nessun post.
+- È un POST: conta uno nel limite al minuto, come gli altri (`access.py`).
+- Tipi in `packages/shared-types/src/keptRoutes.ts`, fixture
+  `kept-routes-request.json` e `kept-routes.json`.

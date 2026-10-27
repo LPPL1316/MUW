@@ -17088,3 +17088,124 @@ tempo delle licenze, un parere legale sulla responsabilità da informazione
 e una prova con un pilota vero, che nessuna sessione può fare. Le parti e i
 loro file sono in `tasks/TASK-305.md`; i numeri misurati sui tre decolli
 (Monte Baldo, Monte Grappa, Panarotta) sono nello studio.
+
+## ADR-0268 — «Send feedback» in «Settings»: un modulo nell'app, tenuto dal server e mandato per email
+
+**Stato**: Proposta · 2026-10-26 · il modulo nell'app (invece di un'email
+scritta dal telefono) l'ha scelto l'utente; i testi e le righe della
+privacy li ha approvati il 2026-10-26 («Sì ai testi e alla privacy di
+TASK-308, così come sono.»); i punti tecnici sono decisi dall'agente su
+delega dell'utente (TASK-308)
+
+**Contesto**: l'utente il 2026-10-26: «aggiungi un tasto in impostazioni
+per darci un feedback e suggerimenti». Due strade: un'email già scritta
+nell'app Mail del telefono, a `hello@getmuw.app`, che però oggi non
+riceve posta (il dominio non ha record MX), o un modulo nell'app. Scelta
+dell'utente: «Form in the app».
+
+**Decisione**:
+
+1. **Una sezione «FEEDBACK» in «Settings»**, prima di «ABOUT», con la
+   riga «💬 Send feedback». Un tocco apre il modulo sotto la riga, come
+   «Change email»: cosa serve il messaggio, un campo di più righe (al più
+   2000 caratteri), cosa parte con lui, «Send». Mandato, il modulo si
+   chiude e la riga ringrazia; chiuso senza mandare, le parole restano
+   per il tocco dopo. Solo con l'account: «Settings» c'è solo da dentro.
+2. **`POST /feedback`** (`feedback.py`) con il token: il testo, la
+   versione dell'app («1.0.0 (7)», da `expo-constants`) e il sistema
+   (`ios`/`android`). Tenuto nella tabella nuova `feedback` (migrazione
+   `0031_feedback.sql`, il numero al merge), `ON DELETE CASCADE`: con
+   l'account se ne vanno i suoi messaggi. Nessun endpoint li legge.
+3. **Al più 5 in 24 ore per account**, contati nel database (non in
+   memoria come i commenti: sopravvivono a un riavvio, e il conto è
+   esatto), poi `429 too_many_requests` con `Retry-After`. Basta per chi
+   scrive davvero, ferma chi tiene premuto «Send». **E al più 20 in 24 ore
+   da un indirizzo di rete**, in memoria (`access.RateLimiter`), contro
+   chi apre account nuovi per scrivere di più.
+3a. **L'app non aspetta il server** (condizione del Coordinatore: `main`
+   resta pubblicabile su preview, che parla col server di oggi):
+   `GET /feedback` risponde `204`, e «Settings» mostra «FEEDBACK» solo
+   dopo quella risposta (`useFeedbackService`), chiesta a ogni apertura.
+   Un'API precedente risponde `404`, e la sezione non c'è: nessuno scrive
+   un messaggio che poi non parte. Un'email dal telefono come riserva non
+   serve: `hello@getmuw.app` oggi non riceve.
+4. **Un'email per messaggio**, come le segnalazioni (ADR-0251): fuori
+   dalla richiesta, con Resend, in inglese, a `SHAPEROUTE_FEEDBACK_TO`
+   o, senza, a `SHAPEROUTE_REPORTS_TO`, che c'è già: nessuna variabile
+   nuova obbligatoria sul server. **Reply-To è l'email dell'iscritto**
+   (un campo `reply_to` nuovo in `resend_email.Email`): rispondere
+   all'email risponde a lui. Senza Resend il messaggio resta nel
+   database; un errore di Resend non cambia la risposta. Chiave,
+   indirizzo e testo mai nei log.
+5. **La privacy** ha una sezione nuova («Feedback») e due frasi: cosa
+   porta Resend e la base del trattamento (interesse legittimo: leggere e
+   rispondere), nelle cinque lingue, e le pagine del sito rifatte con
+   `make_privacy.mjs`.
+
+**Alternative scartate**: l'email scritta dal telefono (scelta
+dell'utente; oggi non arriverebbe, e senza un'app Mail configurata non
+parte); un endpoint senza account (spam, nessuno a cui rispondere); un
+pannello o un endpoint per leggere i messaggi (ADR-0228: per ora si
+leggono per email e nel database); il limite in memoria con
+`RateLimiter` (si azzera a ogni riavvio).
+
+**Conseguenza**: una migrazione e due endpoint nuovi. L'app e il server
+entrano in qualsiasi ordine: finché il server non è aggiornato (dopo
+l'approvazione di Apple, con l'ok dell'utente) la sezione non si vede.
+Nessuna
+dipendenza né permesso nuovi, niente di nativo: l'app arriva con un
+aggiornamento OTA (impronta iOS da rimisurare, attesa invariata).
+
+## ADR-0275 — Le foto di un post si scorrono nella scheda del Feed, dopo il disegno
+
+**Data**: 2026-10-28 · **Stato**: Accettata · **Task**: TASK-315
+Richiesta dell'utente; il modo è deciso dall'agente su delega dell'utente,
+con le condizioni del Coordinatore.
+
+**Contesto**: l'utente vuole che la foto di un post sia «scorribile e
+visibile dal feed». La scheda del Feed mostrava solo il disegno sulla
+mappa (TASK-156, TASK-162); le foto (TASK-208, ADR-0170) si vedevano solo
+aprendo il post. `GET /feed` le manda già con ogni post (`photos`), quindi
+basta l'app. Tutta l'app scorre già in orizzontale fra Feed, Draw ed
+Explore (TASK-154): un secondo scorrimento orizzontale dentro la scheda non
+deve girare la pagina per sbaglio.
+
+**Decisione**:
+
+1. **Le pagine della scheda**: per un post di un iscritto con foto, e
+   qualcuno entrato (le foto si leggono con il token), il riquadro del
+   disegno diventa uno `ScrollView` orizzontale a pagine. Prima il disegno
+   con la sua mappa, come oggi; poi una foto per pagina, larga quanto la
+   scheda e alta quanto il disegno, ritagliata a riempirlo. Sotto il
+   riquadro un puntino per pagina, acceso quello mostrato. Un tocco apre il
+   disegno come prima (lì le foto si vedono intere).
+2. **I bordi**: lo scorrimento delle foto rimbalza a entrambi i bordi (il
+   default di iOS; quello delle pagine dell'app no, `bounces={false}`).
+   Prima del disegno e dopo l'ultima foto il dito resta nella scheda e la
+   pagina dell'app non gira; per cambiare pagina si scorre fuori dal
+   riquadro, sul nome, sul titolo o fra le schede. È lo stesso annidamento
+   delle file orizzontali di «Explore» (`RecommendedRow`, `NearbyTowns`,
+   `CityWords`).
+3. **I dati**: si carica la foto dopo la più avanti vista, mai oltre; le
+   altre sono un riquadro vuoto finché non tocca a loro, e quelle già
+   caricate restano. La misura è quella che l'API tiene, al più 1080 px
+   per lato (ADR-0170): la scheda larga tutto lo schermo di un iPhone 3×
+   ne mostra circa 1074, e l'originale non lascia mai il telefono. Una
+   misura più piccola per il Feed vorrebbe il server.
+4. **Il resto non cambia**: con zero foto, per un esempio o senza nessuno
+   entrato la scheda è quella di prima; post nascosti e blocchi seguono
+   `GET /feed` come prima.
+
+**Alternative scartate**: i puntini sopra la foto (il Coordinatore li vuole
+sotto); la striscia di foto alte 160 sotto la mappa, come nel disegno
+aperto (la scheda diventerebbe più alta per tutti); la foto come prima
+pagina (il Feed è dei disegni: la forma resta la prima cosa che si vede);
+bloccare il `Pager` mentre il dito è sulle foto (tocca un file di più task
+e su iOS non serve); un pacchetto di carosello (una dipendenza in più per
+ciò che `ScrollView` fa già).
+
+**Conseguenze**: solo app, nessun testo né dipendenza nuovi, impronta iOS
+invariata. Provato nei test (anche che lo scorrimento delle foto non gira
+il `Pager`), non su un telefono. Su Android l'annidamento non è stato
+provato: se lì lo scorrimento delle foto girasse la pagina, serve un blocco
+nel `Pager`, con un'aggiunta a questo ADR.
