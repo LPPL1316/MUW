@@ -127,7 +127,7 @@ describe("«Privacy» is final, approved by the user (TASK-237 D)", () => {
   test.each(CONTENTS)("in «%s», with the day of the approval", (_, content) => {
     expect(content.privacy.draft).toBe(false);
     expect(content.privacy.updated).toMatch(
-      /^25 (October|ottobre) 2026$|^25\. Oktober 2026$|^25 de octubre de 2026$|^25 octobre 2026$/,
+      /^26 (October|ottobre) 2026$|^26\. Oktober 2026$|^26 de octubre de 2026$|^26 octobre 2026$/,
     );
   });
 
@@ -247,15 +247,28 @@ describe("«Privacy» says honestly what the search from the contacts sends (TAS
   });
 });
 
-test("«Help» and «Privacy» say what push sends, and that no email is sent (ADR-0206, ADR-0226)", () => {
+test("«Help» and «Privacy» say what push and the emails send (ADR-0206, ADR-0226, ADR-0244)", () => {
   for (const text of [all(EN.help), all(EN.privacy)]) {
     expect(text).toMatch(/off until you turn them on/);
-    expect(text).toMatch(/MuW sends no emails yet/);
+    // «Email when I'm away» is on until turned off (TASK-284).
+    expect(text).toMatch(/on until you turn it off/);
+    expect(text).not.toMatch(/no emails yet/);
   }
   for (const text of [all(IT.help), all(IT.privacy)]) {
     expect(text).toMatch(/spent[ie] finché non l[ie] accendi/);
-    expect(text).toMatch(/MuW non manda ancora email/);
+    expect(text).toMatch(/acces[oa] finché non l[oa] spegni/);
+    expect(text).not.toMatch(/non manda ancora email/);
   }
+  // The emails: one a day at most for the news, one per absence, Resend.
+  expect(all(EN.privacy)).toMatch(/one email a day at most/);
+  expect(all(EN.privacy)).toMatch(/One per absence/);
+  expect(all(EN.privacy)).toMatch(/Resend, in the United States, sends MuW's emails/);
+  // The emails the account needs (TASK-300), with no switch.
+  expect(all(EN.privacy)).toMatch(
+    /Emails your account needs, which no switch turns off/,
+  );
+  expect(all(IT.privacy)).toMatch(/Le email che servono al tuo account/);
+  expect(all(IT.privacy)).toMatch(/al massimo una email al giorno/);
   expect(all(EN.help)).toMatch(
     /follow requests, accepted requests, reactions, comments and tags/,
   );

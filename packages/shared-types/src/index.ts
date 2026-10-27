@@ -302,6 +302,8 @@ export const API_ERROR_CODES = [
   "accounts_unavailable",
   /** A comment the API refuses, a negative one (TASK-120, ADR-0176). */
   "comment_rejected",
+  /** No contest open, nor one closed less than a week ago (TASK-299). */
+  "no_contest",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 
@@ -599,6 +601,11 @@ export interface User {
    * from an API older than TASK-300.
    */
   pending_email?: string | null;
+  /**
+   * The contests won (TASK-299), as PublicProfile has it. Missing from an
+   * API older than TASK-299.
+   */
+  contest_wins?: number;
 }
 
 /**
@@ -704,6 +711,11 @@ export interface PublicProfile {
   following?: number;
   /** Where the one who asks stands towards it. Missing from an older API. */
   follow?: FollowState;
+  /**
+   * The contests it won (TASK-299): the «Winner» badge when 1 or more.
+   * Missing from an API older than TASK-299.
+   */
+  contest_wins?: number;
 }
 
 /**
@@ -1110,9 +1122,12 @@ export interface PushTokenRequest {
   language?: PushLanguage | null;
 }
 
-/** What a push notification tells of (TASK-262). */
+/**
+ * What a push notification tells of (TASK-262). `contest_won` (TASK-299)
+ * goes to the winner of a contest and opens its post.
+ */
 export type PushKind =
-  "follow_request" | "follow_accepted" | "reaction" | "comment" | "tag";
+  "follow_request" | "follow_accepted" | "reaction" | "comment" | "tag" | "contest_won";
 
 /**
  * The `data` of a push notification (TASK-262): what the app opens when it
@@ -1216,4 +1231,202 @@ export interface ContactPerson extends Person {
  */
 export interface ContactsPeople {
   people: ContactPerson[];
+}
+
+// --- The shape game, teams and challenges (TASK-296 parts C and D, ADR-0255; docs/API.md «Shape game», part C) ---
+
+/**
+ * The push notifications of a challenge (TASK-296 C), beside `PushKind`
+ * and `GamePushKind`: a team-mate finished a piece, the team completed the
+ * shape, one day is left. Their `data` is `{ kind, challenge_id }`, and the
+ * app opens the challenge.
+ */
+export type ChallengePushKind = "piece_done" | "challenge_done" | "challenge_ending";
+
+/** The `data` of a challenge's notification. */
+export interface ChallengePushData {
+  kind: ChallengePushKind;
+  challenge_id: string;
+}
+
+/** The limits of a challenge, as the API checks them (docs/GIOCO.md §6.2). */
+export const CHALLENGE_PIECES_MIN = 2;
+export const CHALLENGE_PIECES_MAX = 12;
+export const CHALLENGE_PIECE_M_MIN = 1_000;
+export const CHALLENGE_PIECE_M_MAX = 50_000;
+/** A fast piece is run over one of these distances, in metres. */
+export const CHALLENGE_FAST_DISTANCES_M: readonly number[] = [1_000, 5_000];
+export const CHALLENGE_PACE_S_MIN = 150;
+export const CHALLENGE_PACE_S_MAX = 900;
+export const CHALLENGE_DAYS_MIN = 1;
+export const CHALLENGE_DAYS_MAX = 14;
+export const CHALLENGE_DAYS_DEFAULT = 7;
+/** A team takes this many members, and an account is in this many teams. */
+export const TEAM_MEMBERS_MAX = 20;
+export const TEAMS_MAX = 10;
+export const TEAM_NAME_MAX_LENGTH = 40;
+
+/** POST /game/teams: the team's name, 1 to TEAM_NAME_MAX_LENGTH characters
+ * on one line. */
+export interface TeamRequest {
+  name: string;
+}
+
+/** POST /game/teams/join: the invite code, six characters in any case. */
+export interface JoinTeamRequest {
+  code: string;
+}
+
+/**
+ * What every piece of a challenge asks (POST /game/teams/{id}/challenges):
+ * `total_m` metres, or `distance_m` (one of CHALLENGE_FAST_DISTANCES_M) in
+ * one run at `pace_s` seconds a kilometre or better.
+ */
+export type PieceRequest =
+  | { kind: "distance"; total_m: number }
+  | { kind: "pace"; distance_m: number; pace_s: number };
+
+/** POST /game/teams/{id}/challenges: a shape of the catalog in `pieces`
+ * pieces, each asking `piece`, for `days` days (CHALLENGE_DAYS_DEFAULT). */
+export interface ChallengeRequest {
+  shape_id: string;
+  pieces: number;
+  piece: PieceRequest;
+  days?: number;
+}
+
+/** A challenge is `active` until it is complete, or three hours past its
+ * deadline: then `expired`. */
+export type ChallengeStatus = "active" | "completed" | "expired";
+
+/** Who holds a piece: never the picture, which the team's members have. */
+export interface PieceHolder {
+  public_id: string;
+  username: string;
+}
+
+/** One piece of a challenge: its goal (as a shape's), who holds it, how
+ * much is run, and its stretch of the shape's outline, from 0 to 1. */
+export interface ChallengePiece {
+  idx: number;
+  goal: GameGoal;
+  holder: PieceHolder | null;
+  done_m: number;
+  done: boolean;
+  /** `pieces_of(outline, n)` on the API: the phone cuts the same way. */
+  outline: [number, number][];
+}
+
+/** The metres a member gave to a piece, all its runs together. */
+export interface ChallengeContribution {
+  public_id: string;
+  username: string;
+  idx: number;
+  metres: number;
+}
+
+/** A challenge as its team sees it (GET /game/challenges/{id}): no time or
+ * place of any run, only pieces and metres. */
+export interface GameChallenge {
+  id: string;
+  team_id: string;
+  shape_id: string;
+  status: ChallengeStatus;
+  /** ISO 8601, UTC. */
+  starts_at: string;
+  ends_at: string;
+  completed_at: string | null;
+  /** To the deadline; 0 once past. */
+  seconds_left: number;
+  pieces: ChallengePiece[];
+  contributions: ChallengeContribution[];
+}
+
+/** A team as its members see it: everyone has the code to share. */
+export interface GameTeam {
+  id: string;
+  name: string;
+  code: string;
+  /** The public_id of who created it and removes members; null if gone. */
+  owner: string | null;
+  /** In the order they joined. */
+  members: Person[];
+  /** The newest challenge, whatever its status; null before one. */
+  challenge: GameChallenge | null;
+}
+
+/** GET /game/teams: the account's teams, the first joined first. */
+export interface GameTeams {
+  teams: GameTeam[];
+}
+
+/** A piece a saved run finished (GET /game/runs/{key}, `pieces_done`,
+ * since part C). */
+export interface PieceDone {
+  challenge_id: string;
+  team_id: string;
+  team_name: string;
+  shape_id: string;
+  idx: number;
+  pieces: number;
+  challenge_completed: boolean;
+}
+
+/** GET /game/runs/{key} since part C: also the pieces the run finished. */
+export interface RunGameWithPieces extends RunGame {
+  pieces_done: PieceDone[];
+}
+
+/** GET /game/me since part C: each shape also says when the account got
+ * its team edition, in a completed challenge; null without. */
+export interface GameShapeStateWithTeam extends GameShapeState {
+  team_unlocked_at: string | null;
+}
+
+// --- The first contest (TASK-299, ADR-0260; docs/CONCORSI.md) ---
+
+/**
+ * One of the first posts of a contest (GET /contests/current). `rank` is
+ * its place in the whole standings: with a token, a post across a block
+ * with who asks is left out of `top`, and the others keep their numbers.
+ * `reactions` are the ones that count: one per member, never the author's
+ * own, none across a block with the author, left by `ends_at`.
+ */
+export interface ContestEntry {
+  rank: number;
+  reactions: number;
+  drawing: FeedPost;
+}
+
+/** The best post of who asks in the contest: its place and its reactions. */
+export interface ContestMine {
+  drawing_id: string;
+  rank: number;
+  reactions: number;
+}
+
+/** The winner, once the contest is closed; `drawing` is null when its run
+ * was deleted since. */
+export interface ContestWinner {
+  reactions: number;
+  drawing: FeedPost | null;
+}
+
+/**
+ * GET /contests/current: the contest open, or closed less than a week ago
+ * (the week of the winner's post at the top of the Feed); 404 `no_contest`
+ * otherwise, and the app shows no card. Without a token `mine` is missing;
+ * with one it is null when who asks has no post that takes part. `top` has
+ * at most three posts, in order: more reactions, then more MuW hearts, then
+ * the one published first. `winner` is null while open.
+ */
+export interface Contest {
+  id: string;
+  /** ISO 8601, with the offset. */
+  starts_at: string;
+  ends_at: string;
+  closed_at: string | null;
+  top: ContestEntry[];
+  mine?: ContestMine | null;
+  winner: ContestWinner | null;
 }

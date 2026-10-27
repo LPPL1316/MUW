@@ -195,9 +195,10 @@ pagine»):
    con, quando servono, il rimando alle Impostazioni e la ricerca del
    luogo; l'errore della mappa; le forme del catalogo come tessere, con un
    simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +; sotto la distanza, due
-   righe da scorrere di lato, «CITY TOURS» e «PICTURES» (TASK-280, sotto
-   «I giri e le immagini pronte»). In fondo, fermo mentre
+   un'altra parola; la distanza, grande, fra − e +; sotto la distanza,
+   con la corsa, «NEAR YOU» (TASK-306, sotto «Le forme pronte vicino a
+   te»), poi due righe da scorrere di lato, «CITY TOURS» e «PICTURES»
+   (TASK-280, sotto «I giri e le immagini pronte»). In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -612,6 +613,35 @@ disegni si rileggono, come quando «Profile» si apriva.
   contacts could not be read.». Senza account non si vede: la ricerca
   sopra dice già «Log in to find your friends.». In un'app costruita senza
   `expo-contacts` (la 1.0 dello store) la sezione non c'è.
+  **Sotto la lente, il concorso** (TASK-299, ADR-0260, `CONCORSI.md` §7;
+  testi approvati dall'utente nelle cinque lingue, `tasks/TASK-299.md`),
+  solo mentre l'API ne ha uno: l'app chiede `GET /contests/current` quando
+  «Feed» è sulla pagina (una volta per account finché l'app è aperta) e a
+  ogni pull, e tiene l'ultima risposta sul telefono (`contest.json`); un 404
+  la cancella. Senza concorso, o su un telefono che non ha mai sentito il
+  server, «Feed» è quello di prima. **Mentre corre**, una scheda: «MuW
+  contest» e a destra quanto manca, in giorni del calendario del telefono
+  («3 days left», «1 day left», «Ends today»; dopo la fine, finché il
+  vincitore non è proclamato, «Ended · the winner is coming»); sotto «The
+  post with the most reactions wins.»; i primi tre, ognuno con il posto, il
+  disegno piccolo (girato come nel Feed), il nome e «14 reactions»: con un
+  account un tocco apre il post come un disegno del Feed, senza account non
+  sono tasti; un autore bloccato sparisce subito. Poi la riga propria: «Your
+  best post: #5, 4 reactions» a chi ha un post nel concorso, «Publish a run
+  to take part.» a chi non ne ha (non più dopo la fine), niente senza
+  account. In fondo **«How it works»** apre sopra l'app il **regolamento
+  ufficiale**: «MuW contest», il titolo «Official rules», chi organizza
+  (MuW, Luca Pallaoro) e le date del concorso nella lingua dell'app, chi
+  partecipa, come si vince e i pari merito, il premio senza valore, che MuW
+  può escludere un post, che Apple e Google non sono sponsor né coinvolte;
+  «Close» (o il tasto indietro di Android) torna a «Feed». **Per 7 giorni
+  dopo la proclamazione**, al posto della scheda «{name} won the MuW
+  contest» con il badge «🏆 Winner» e sotto il post vincitore, disegnato
+  come gli altri del Feed (con la sua mappa; un tocco lo apre). Un concorso
+  chiuso senza vincitore, o con la corsa vincitrice cancellata, non mostra
+  niente. Il disegno vincitore, aperto, ha in cima la fascia «🏆 Winner»
+  (per il concorso tenuto sul telefono). Colori neutri: il giallo è del
+  percorso, il rosso di chi aspetta una risposta.
   **Sotto ogni linea c'è la mappa** della zona (TASK-162, ADR-0131,
   chiesto dall'utente): strade, acqua, verde e nomi dei paesi, con lo
   stile dell'app. È una foto, non una mappa da muovere: la fa una pagina
@@ -671,7 +701,11 @@ senza cambiare niente. È la stessa scelta della sezione «Sport» di
 **«Profile» senza account**: «Sign up» e «Log in», due pulsanti affiancati.
 «Sign up» chiede email, nome (da 3 a 20 fra lettere, cifre, `_` e `.`),
 password (almeno 8 caratteri) e la casella «I am at least 16» (ADR-0114);
-«Log in» email e password. I campi si controllano prima di partire, con le
+sotto, piccola e grigia, «If you don't open MuW for 2 weeks, we email you
+once with what's new.» e la casella **non spuntata** «Don't send me these
+emails» (TASK-284, ADR-0244): spuntata, la richiesta manda `away_email:
+false`; con o senza, manda la lingua dell'app per le email. «Log in»
+email e password. I campi si controllano prima di partire, con le
 regole dell'API, e l'errore si dice in parole sotto il pulsante (sotto,
 «Quando non va»). Si apre su «Sign up»; dopo «Log out» o una sessione
 finita, su «Log in».
@@ -857,16 +891,19 @@ notifiche (TASK-185).
 Usciti dall'account da «Settings», chi rientra trova
 «Profile».
 
-**«Notifications»** (TASK-185, ADR-0206): due righe in un riquadro, «Email
-notifications» (📧) e «Push notifications» (🔔), ognuna con il suo
-interruttore in fondo, disegnato come quelli della corsa (una pista con il
-pomello a destra e bianca quando è acceso; mai gialla). **Tutti e due
-spenti** finché non si accendono (scelta dell'utente). Sotto il riquadro,
-piccolo e grigio come la nota di «Offline maps», sempre: «Push
-notifications tell you about follow requests, reactions, comments and
-tags. MuW does not send emails yet: your choice is kept for when it
-does.» (TASK-262). **Le push partono, l'email no** (fino alla parte B di
-TASK-262).
+**«Notifications»** (TASK-185, ADR-0206): tre righe in un riquadro, «Email
+notifications» (📧), «Push notifications» (🔔) ed «Email when I'm away»
+(👋, TASK-284), ognuna con il suo interruttore in fondo, disegnato come
+quelli della corsa (una pista con il pomello a destra e bianca quando è
+acceso; mai gialla). **Le prime due spente** finché non si accendono
+(scelta dell'utente); **«Email when I'm away» accesa** finché non si spegne
+(scelta dell'utente del 2026-10-11), anche con un'API che non ne dice
+niente. Sotto il riquadro, piccolo e grigio come la nota di «Offline
+maps», sempre: «Push notifications tell you at once about follow requests,
+reactions, comments and tags. Email notifications sends the same news in
+one email a day at most. Email when I'm away: one email if you don't open
+MuW for 2 weeks.» (TASK-262 B, TASK-284 B). Le email le manda l'API
+quando il server ha Resend.
 
 - **Accendere «Push notifications» chiede il permesso al telefono**, qui
   e in nessun altro posto, mai all'avvio (TASK-262, ADR-0226). Mentre il
@@ -876,7 +913,8 @@ TASK-262).
   dell'app). Negato, o negato prima: l'interruttore torna spento e sotto
   la nota, in rosso, «Notifications are off for MuW on this phone. Allow
   them in Settings to turn this on.», con «Open Settings» (TASK-259).
-  Spegnere, ed «Email notifications», non chiedono niente al telefono.
+  Spegnere, «Email notifications» ed «Email when I'm away» non chiedono
+  niente al telefono.
 - Spento l'interruttore, o usciti dall'account, il telefono riprende il
   suo token dall'API e non riceve più.
 - **Toccare una notifica** apre il disegno (una reazione, un commento, un
@@ -895,7 +933,7 @@ TASK-262).
   solo quello; se l'API rifiuta torna com'era, e sotto la nota, in rosso,
   c'è il motivo. Il tocco dopo toglie il motivo.
 - Mentre una risposta è in viaggio un secondo tocco, su una qualunque
-  delle due righe, non manda niente.
+  delle tre righe, non manda niente.
 - Per VoiceOver ogni riga è un interruttore con il suo nome («Email
   notifications», acceso o spento); l'emoji non si legge.
 
@@ -1041,6 +1079,13 @@ dagli elenchi di chi segue in «Profile» (sotto); altri
 ingressi (un like, un commento) li decide l'utente
 (`tasks/TASK-116.md`, «Esito»).
 
+**Il badge «Winner»** (TASK-299, `CONCORSI.md` §7): chi ha vinto un
+concorso (`contest_wins` ≥ 1) ha sotto il nome, sul proprio «Profile» e sul
+profilo che vedono gli altri, una pillola neutra «🏆 Winner»; VoiceOver la
+legge «Winner». Resta per sempre, anche se la corsa vincitrice è
+cancellata. Un'API di prima del concorso non manda il numero: nessun
+badge.
+
 **Seguire** (TASK-211, ADR-0173 e ADR-0199; testi **da confermare**). La
 riga sotto il nome di un altro dice anche chi lo segue: «12 drawings · 3
 followers · 5 following». Sotto l'intestazione, un tasto largo:
@@ -1130,9 +1175,10 @@ torna. Un profilo bloccato non si apre dall'elenco.
 
 ## «Play»: la collezione delle forme (TASK-296 parte B, ADR-0255)
 
-La pagina del gioco delle forme (`GIOCO.md`). Nella parte B c'è la sola
-**collezione**; le squadre e le sfide arrivano con la parte D, che aggiunge
-le due schede. Codice in `apps/mobile/src/game/`.
+La pagina del gioco delle forme (`GIOCO.md`), con due schede
+(`Segmented`, in alto): **«Collection»**, la collezione della parte B, e
+**«Challenges»**, le squadre e le sfide della parte D (in fondo a questa
+sezione). Codice in `apps/mobile/src/game/`.
 
 - **Dove sta**: fra «Explore» e il profilo, con il suo nome in alto dopo
   «Explore»: quattro nomi nell'intestazione. Il profilo resta a un tocco
@@ -1183,6 +1229,74 @@ le due schede. Codice in `apps/mobile/src/game/`.
   (`notificationTap`), mai il profilo che i suoi dati nominano.
 - **Da provare sull'iPhone**: i quattro nomi nell'intestazione su uno
   schermo da 390 pt, e la scheda dopo un «Save» vero.
+
+**La scheda «Challenges»** (TASK-296 parte D; `ChallengesTab`, `TeamView`,
+`ChallengeView`, `NewChallenge`; le regole in `GIOCO.md` §6):
+
+- **Le squadre**: con l'account, «YOUR TEAMS» e una scheda per squadra con
+  il nome, quanti iscritti e la sfida più recente («Hexagon · 1 of 3 pieces
+  done», o «No challenge yet»); senza squadre, «No team yet. Create one, or
+  join one with its code.». Sotto, «Create» con il campo «Team name» e
+  «Join» con il campo «Team code» (il codice di 6, in qualunque maiuscola):
+  la squadra creata o trovata si apre subito. Un codice che nessuno ha dice
+  «No team with this code.»; una squadra piena, troppe squadre o un blocco
+  in mezzo dicono tutti «You can't join this team.», senza il perché; un
+  nome rifiutato dal filtro «This name is not allowed. Choose another
+  one.». Le squadre si rileggono ogni volta che la scheda torna sullo
+  schermo e tornando dalla squadra, mostrando intanto l'ultima risposta.
+- **Senza account**, «Sign in to play with a team.» porta al profilo. Su
+  un **server senza le squadre** (la C non c'è ancora: 404) la scheda dice
+  solo «Teams are not on this server yet.», senza modulo e senza errore.
+  Senza rete resta l'ultima lista; le parole dell'account e «Try again»
+  solo quando non c'è niente da mostrare.
+- **La squadra aperta**: «←», il nome, «Code K7PQ2M» e «Share code», che
+  apre il foglio di condivisione del telefono con una frase di testo («Join
+  my team «Trento runners» on MuW: open Play, Challenges, and enter the
+  code K7PQ2M.»); poi la sfida, o «No challenge yet» e «New challenge»;
+  «MEMBERS» con foto o iniziale, nome e «Owner» su chi l'ha creata, e per
+  il proprietario «Remove» sugli altri; in fondo «Leave team», che chiede
+  «Leave this team?» con «Leave team» e «Cancel» prima di uscire.
+- **La sfida** (`ChallengeView`): il nome della forma, «3 pieces · 5 km in
+  total each», la forma disegnata **pezzo per pezzo** con le View girate
+  della collezione: la parte corsa di un pezzo nel colore di chi lo tiene
+  (o di chi ci ha corso di più, se è tornato libero), il resto grigio
+  `textFaint`. I colori delle persone sono cinque dei token (`startHere`,
+  `warning`, `accent`, `error`, `text`), nell'ordine d'ingresso nella
+  squadra, e tornano dopo cinque. Sotto, il **conto alla rovescia** («6
+  days 3 h left», «2 h 15 min left», «12 min 5 s left», che batte ogni
+  minuto sopra l'ora e ogni secondo sotto; «Time is up» dalla scadenza) e
+  «1 of 3 pieces done»; «WHO GAVE WHAT», una riga per persona con il suo
+  colore e i km («adam.trento 5.0 km», chi più ha dato prima, o «Nobody has
+  run yet.»); «PIECES», una riga per pezzo («Piece 2 · 5 km in total») con
+  lo stato: «Done by adam.trento», «Yours · 2.4 / 5 km», «Taken by ada ·
+  2.4 / 5 km», «Free», e i pulsanti **«Take this piece»** su un pezzo
+  libero, mentre non se ne tiene nessuno, e **«Leave»** sul proprio. Un
+  rifiuto dell'API («Someone holds this piece already.», «This challenge
+  is over.»…) si legge sotto i pezzi, e la sfida si rilegge subito.
+  **Completa**: «Complete! Your team drew it together.» con il giorno;
+  **scaduta**: «Time ran out: 2 pieces were missing.»; in tutti e due i
+  casi niente pulsanti e, nella squadra, «New challenge».
+- **La sfida si rilegge ogni 15 s** mentre è sullo schermo e in corso, e
+  quando l'app torna in primo piano; l'ultima risposta resta in vista
+  intanto (ADR-0255, punto 7). Tutto nelle unità scelte («Yours · 1.5 /
+  3.1 mi»).
+- **«New challenge»** (`NewChallenge`): la forma dal catalogo (una fila di
+  contorni, la scelta in giallo), «Pieces» con − e + (2–12, parte da
+  quanti sono gli iscritti), «Each piece» fra «Distance» (− e + per km o
+  miglio, 1–50 km) e «Fast» («1 km» o «5 km» e il passo con − e + da 15 s,
+  2:30–15:00 /km), «Days» con − e + (1–14, 7), la riga di riepilogo («3
+  pieces · 5 km in total each»), «Start the challenge» (giallo) e «Cancel».
+  I limiti sono quelli dell'API, che non riceve mai una richiesta fuori
+  misura; in miglia il passo si manda in secondi al km interi e il valore
+  mostrato è quello che l'API terrà.
+- **Le push delle sfide** (`piece_done`, `challenge_done`,
+  `challenge_ending`) con l'app aperta si mostrano come banner (non sono
+  «quiet» come `shape_unlocked`); toccate aprono «Play» sulla scheda
+  «Challenges», sulla sfida che nominano (`challengeDoor`), anche se la
+  pagina non era ancora costruita; senza un id buono, la scheda e basta.
+- **Da provare sull'iPhone** quando A e C saranno sul server: il foglio di
+  condivisione del codice, le due schede con la tastiera aperta sui campi,
+  una sfida vera con due telefoni.
 
 ## «Favorites» (TASK-171, ADR-0139)
 
@@ -1848,6 +1962,54 @@ ci sono città né foto). I testi nuovi, nelle cinque lingue:
 
 «Bike», le quattro categorie, «near your start» e «near {place}» c'erano
 già.
+
+### Le forme pronte vicino a te (TASK-306, ADR-0266)
+
+Chiesto dall'utente il 2026-10-26 («sotto a distanza 5 km metti una
+sezione di figure semplici il cuore... di posti vicini all'utente»); le
+scelte sono sue, dello stesso giorno. Sotto la distanza, sopra «CITY
+TOURS», una riga da scorrere di lato con schede larghe come quelle di
+«NEARBY TOWNS» (due e il bordo della terza), la mappa sotto il disegno:
+
+- **«NEAR YOU»**: **cerchio, cuore e stella da 5 km** dalla posizione del
+  telefono, sempre 5 km, qualunque sia la distanza sopra. Li disegna il
+  telefono, quando ha le mappe intorno (TASK-214), altrimenti il server.
+  Mentre si disegna, la scheda ha il nome della forma e «Drawing…»;
+  pronta, «Heart · 5.2 km» e il disegno. Restano nel telefono e si
+  disegnano di nuovo solo a più di 1 km da dove partono.
+- **Quando una forma non viene** (il motore la rifiuta, o non risponde),
+  al suo posto la stessa forma, o la più semplice che manca, **già pronta
+  in una città in evidenza di «Explore» scelta a caso**, una città per
+  scheda, con sotto il nome della città e quanto è lontana dalla
+  posizione, «Roma · 480 km away», perché nessuno la prenda per una da
+  correre da casa (senza la posizione, il nome soltanto). Senza la
+  posizione, o se vicino non viene niente, **sei forme in sei città**,
+  dalla più semplice:
+  cerchio, cuore, stella, luna, cavallo, lumaca, testa di cane, testa di
+  coniglio. Solo forme che l'API ha già (i suoi esempi tenuti): una che
+  dovrebbe disegnare adesso si salta. Se tutte le schede sono di altre
+  città, l'etichetta è **«SHAPES TO TRY»**.
+- Un tocco apre il percorso sulla mappa come un percorso di «Explore»
+  (A · B · C, «Start», «Export GPX»); «←» torna a «Draw».
+
+Con «Bike» e «Paddle» la riga non c'è. Il permesso della posizione non lo
+chiede la riga: usa quello che l'app ha già.
+
+**«Explore» preparato all'apertura**: con la partenza nota, prima che la
+pagina si apra, l'app chiede i percorsi vicini, i paesi vicini e i loro
+esempi (questi dietro a tutto il resto nella coda delle richieste);
+aperta, la pagina li ha subito. La lista vale dieci minuti, poi la pagina
+la chiede di nuovo. Non con «Paddle», che ha i suoi posti sull'acqua
+(TASK-246). Riga e preparazione partono solo dopo l'animazione
+d'apertura, si fermano durante una corsa, la navigazione e con l'app in
+background, e riprendono da dove erano.
+
+I testi nuovi, nelle cinque lingue («Drawing…» c'era già):
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| NEAR YOU | VICINO A TE | IN DEINER NÄHE | CERCA DE TI | PRÈS DE VOUS |
+| SHAPES TO TRY | FORME DA PROVARE | FORMEN ZUM AUSPROBIEREN | FORMAS PARA PROBAR | FORMES À ESSAYER |
 
 ### Disegnare sulla mappa: «Draw on the map» (TASK-281, ADR-0245)
 
@@ -2539,6 +2701,7 @@ fuori chiude. Con «Voice» spenta la riga resta e si può cambiare, ma
 | Partenza | «Parti lungo Via Roma» |
 | Accanto | «Svolta a sinistra sul percorso pedonale accanto a Via Rosmini» |
 | Fuori, di nuovo, arrivo | «Sei fuori percorso. Torna sul percorso.» · «Di nuovo sul percorso.» · «Hai raggiunto l'arrivo.» |
+| Dove riprende, una volta dopo «fuori» (TASK-303, ADR-0263; testi da approvare) | «Il percorso riprende a 120 metri verso nord-est.»; in miglia «… a 400 piedi …» |
 | Pausa, ripresa | «In pausa.» · «Si riparte.» |
 | Penna alzata | «Lettera finita. Cammina fino alla A: il disegno è in pausa.» · «Giù la penna: disegna la A.» |
 | Km | «Un chilometro. Tempo: 5 minuti e 42 secondi. Passo medio: 5 minuti e 42 secondi al chilometro.» |
@@ -2604,6 +2767,24 @@ linea con un tratto dritto e il tempo con l'app chiusa conta, come
 un'assenza breve; la pausa da fermi conta da quando si è tornati. Chiusa
 mentre si stava fermi, il primo passo la fa ripartire. Oltre 10 minuti,
 in pausa come sopra.
+
+**Fuori percorso, e il rientro più avanti** (TASK-303, ADR-0263; dalla
+prova sul campo dell'utente a Trento del 2026-10-25). Chi esce dal
+percorso, per una strada chiusa o per un'altra via, vede dove riprende: sulla
+mappa una **linea a puntini** dalla sua posizione al punto del percorso più
+vicino in linea d'aria, più avanti di dove è uscito; nel banner «Off the
+route», la distanza col punto cardinale («120 m NE») e «Follow the dotted
+line back to the route.»; a voce, una volta, dopo «Sei fuori percorso. Torna
+sul percorso.», «Il percorso riprende a 120 metri verso nord-est.». Linea e
+banner si aggiornano a ogni posizione. Rientrando più avanti, dopo 20 m nel
+verso del percorso, la voce dice «Di nuovo sul percorso» e riprende dalla
+svolta successiva: quelle del tratto saltato non si dicono. Attraversare il
+percorso di traverso non è rientrare. Su una forma che ripassa la stessa
+strada più avanti, il punto e il rientro restano nel tratto appena lasciato
+(fino a 300 m più 2 m per ogni metro corso fuori), non su un giro dopo. La
+distanza e il tempo della deviazione contano nella corsa. Lo stesso in bici
+e in canoa. Testi in inglese e italiano qui sopra, le altre tre lingue in
+`src/voice/` e `src/i18n/`, **da approvare dall'utente**.
 
 **Con le miglia** (TASK-182 parte C, ADR-0149 «aggiornamento (parte C)»;
 scelta dell'utente del 2026-10-03, «come fa Strava»). Con «Miles» in
@@ -2848,6 +3029,15 @@ run», con «Close» in alto a sinistra:
   foglio di condivisione con il video («Save Video» lo tiene in Foto).
   Errori: «This phone cannot make the video.», «The video could not be
   made. Try again.», «This phone cannot open the share sheet.».
+- **«Music»**, sopra «Instagram» ed «Export video» (TASK-301,
+  ADR-0262; scelte dell'utente, al posto del «Niente musica» qui sopra):
+  «None» e dieci brani nostri, «Energy», «Chill», «Epic», «Sprint»,
+  «Rock», «Funk», «Sunny», «Trap», «Retro», «Fiesta», uno solo acceso;
+  all'apertura «None». Sotto: «Tap a track to hear it.». Un tocco su un
+  brano lo suona da capo (12 s), «None» lo ferma; si ferma anche facendo
+  il video e chiudendo la pagina. Il brano acceso va nel video, che con
+  «None» resta muto. Con l'iPhone in silenzioso il brano non si sente, ma
+  va nel video.
 - **Strava**, sotto, solo se l'API ha Strava: «Connect with Strava» se
   l'atleta non è collegato; a fine corsa, prima di «Save»: «To send this
   post to Strava, save the run, then share it from «My activities».». Su

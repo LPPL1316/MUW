@@ -21,6 +21,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { MusicRow } from "./MusicRow";
 import { PostButton } from "./PostButton";
 import { POST_RATIO, PostImage } from "./PostImage";
 import {
@@ -45,6 +46,7 @@ import {
 } from "./stickers";
 import { StravaPostRow } from "./StravaPostRow";
 import { type VideoOutcome, videoProblem } from "./videoFile";
+import { hearMusic, type Music } from "./videoMusic";
 import { type VideoScene, videoScene } from "./videoScene";
 
 /** The share of the screen's height the post takes: the choices fit under it. */
@@ -62,7 +64,8 @@ type Props = {
  * Strava, where the emoji and the results go as the activity's text. Once
  * shared, the post goes to the API with its saved run (TASK-258), and
  * opens as it was the next time. «Export video» shares the same post as a
- * short video of the run drawing itself (TASK-295).
+ * short video of the run drawing itself (TASK-295), with the track chosen
+ * in «Music» (TASK-301).
  */
 export function SharePost({ run, onClose }: Props) {
   const insets = useSafeAreaInsets();
@@ -84,8 +87,13 @@ export function SharePost({ run, onClose }: Props) {
   );
   const [sharing, setSharing] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
-  // The video being made, and how much of it is (TASK-295).
-  const [video, setVideo] = useState<VideoScene | null>(null);
+  // The video's music, none when the post opens (TASK-301).
+  const [music, setMusic] = useState<Music | null>(null);
+  // The video being made, with its music, and how much of it is (TASK-295).
+  const [video, setVideo] = useState<{
+    scene: VideoScene;
+    music: Music | null;
+  } | null>(null);
   const [made, setMade] = useState(0);
   const post = useRef<View>(null);
   const caption = postCaption(
@@ -125,8 +133,9 @@ export function SharePost({ run, onClose }: Props) {
       setProblem(videoProblem("no_sharing"));
       return;
     }
+    hearMusic(null);
     setMade(0);
-    setVideo(videoScene(run, shown, stickers));
+    setVideo({ scene: videoScene(run, shown, stickers), music });
   }
 
   function videoEnded(outcome: VideoOutcome) {
@@ -226,6 +235,8 @@ export function SharePost({ run, onClose }: Props) {
             </Text>
           )}
 
+          <MusicRow music={music} onChange={setMusic} />
+
           <View style={styles.actions}>
             <View style={styles.buttons}>
               <PostButton
@@ -258,7 +269,12 @@ export function SharePost({ run, onClose }: Props) {
           </View>
         </ScrollView>
         {video !== null && (
-          <RunVideo scene={video} onProgress={setMade} onEnd={videoEnded} />
+          <RunVideo
+            scene={video.scene}
+            music={video.music}
+            onProgress={setMade}
+            onEnd={videoEnded}
+          />
         )}
       </View>
     </Modal>

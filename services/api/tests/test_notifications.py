@@ -124,7 +124,8 @@ def test_the_examples_of_shared_types_are_the_contract() -> None:
 
 
 def test_a_row_of_the_database_reads_as_the_object_of_the_contract() -> None:
-    columns = [name.strip() for name in USER_COLUMNS.split(",")]
+    # A column, or a subquery and its alias (contest_wins, TASK-299).
+    columns = [name.strip().split(" AS ")[-1] for name in USER_COLUMNS.split(",")]
     assert columns[-3:] == ["notify_email", "notify_push", "notify_away"]
     row = {
         **_load("session.json")["user"],

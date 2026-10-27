@@ -15657,6 +15657,85 @@ dell'utente; elenco dei file approvato dal Coordinatore)**:
   `null` prima); i tipi di `shared-types` li aggiorna la parte D, che è
   anche la prima a leggerli.
 
+**Aggiunta (parte D, 2026-10-26, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **Due schede in «Play»** con il `Segmented` di «Draw»: «Collection» com'era
+  e «Challenges» (`ChallengesTab`). La collezione si chiede all'API solo
+  mentre la sua scheda è in vista; le squadre, mentre è in vista l'altra.
+- **Il contorno dei pezzi lo rifà il telefono** (`pieceSegments.piecesOf`)
+  con le stesse operazioni nello stesso ordine di `game_rules.pieces_of`
+  (le lunghezze con `sqrt(dx·dx + dy·dy)`, i tagli a `(L·k)/n`,
+  `bisect_right`, l'interpolazione, l'arrotondamento a 4 decimali con
+  `toFixed`, che legge il valore esatto del double come `round(x, 4)` di
+  Python e ne differisce solo su un pareggio esatto alla quinta cifra, che
+  nessun taglio dei contorni del catalogo produce). Il test di parità
+  confronta ogni forma del catalogo per 2, 3, 5, 7 e 12 pezzi con i numeri
+  scritti dalla funzione dell'API (`piecesOfApi.json`), compreso il punto
+  doppio che un taglio su un vertice lascia. La sfida sullo schermo
+  disegna però gli `outline` che l'API serve in ogni pezzo: la funzione
+  del telefono serve a chi ha la forma e N senza il corpo della sfida (la
+  striscia della parte E).
+- **I colori delle persone**: `tokens.ts` non ha una tavolozza per le
+  persone, e nessun colore si scrive a mano; cinque token fanno a turno
+  (`startHere`, `warning`, `accent`, `error`, `text`), nell'ordine
+  d'ingresso nella squadra, così una persona tiene il suo colore da una
+  lettura all'altra; chi ha lasciato la squadra viene dopo, nell'ordine in
+  cui compare nei pezzi. Dopo cinque i colori tornano e i nomi della
+  legenda distinguono. Un pezzo libero è `textFaint`. Una tavolozza vera
+  per le persone sarebbe un token da aggiungere, se le squadre cresceranno.
+- **Tempo reale**: la sfida si rilegge ogni 15 s (`CHALLENGE_EVERY_MS`)
+  solo finché è `active` e la sua vista è sullo schermo, e appena l'app
+  torna in primo piano (`AppState`); completa o scaduta non cambia più.
+  L'ultima risposta di ogni sfida resta in memoria finché l'app è aperta,
+  e la squadra la mostra subito con quello che la lista diceva di lei.
+  Un rifiuto dell'API a «Take this piece» o «Leave» (409: preso da un
+  altro, finita) si dice e rilegge la sfida: lo schermo mostra quello che
+  il server ha adesso.
+- **Un server senza le squadre non è un errore** (nota del Coordinatore):
+  il 404 di `GET /game/teams` fa dire alla scheda «Teams are not on this
+  server yet.», senza modulo né «Try again»; oggi il server non ha né A né
+  C, e la pagina «Play» non si vede comunque finché il catalogo non
+  risponde 200. Senza rete l'ultima lista e l'ultima sfida restano in
+  vista senza una parola; le parole dell'account e «Try again» compaiono
+  solo quando non c'è niente da mostrare.
+- **Le push delle sfide aprono la sfida**: `notificationTap` legge
+  `{kind, challenge_id}` dei tre `Kind` della C e dà `{kind: "challenge",
+  id}`; senza un id buono dà «Play» e basta. `usePushNotifications` ha
+  `openChallenge` accanto a `openPlay`; il resto è in un piccolo store
+  nuovo (`challengeDoor`): la richiesta resta lì finché la pagina, costruita
+  o da costruire, la prende, apre la scheda «Challenges» su quella sfida e
+  la cancella; così `App.tsx` non cambia (la push passa dall'`openPlay` che
+  c'è). Con l'app aperta queste push si mostrano come banner: non c'è una
+  scheda che le dica già, a differenza di `shape_unlocked`.
+- **«Share code» è testo**: `Share.share` di react-native con una frase
+  che porta nome e codice, non il foglio delle immagini di `src/share/`
+  (che è di una corsa, con il video di TASK-295): niente da ridisegnare,
+  niente file.
+- **I rifiuti dell'API in parole**: l'esito di `ask` non porta lo status
+  HTTP, e i rifiuti delle squadre sono tutti `http_error`; le parole
+  dell'API (`game_teams.py`, `game_challenges.py`) si riconoscono e si
+  traducono (`teamProblem`, con un dizionario dai messaggi dell'API ai
+  testi dell'app), così il 403 «You can't join this team.» e il 404 «No
+  team with this code.» si distinguono. Un messaggio sconosciuto si mostra
+  com'è, come i commenti fanno con un nome rifiutato così com'è scritto.
+- **Il modulo della sfida resta nei limiti dell'API** (pezzi 2–12, 1–50
+  km, passo 2:30–15:00 /km, 1–14 giorni): nessuna richiesta fuori misura.
+  In miglia il passo si manda in secondi al km interi, e il valore mostrato
+  è quello arrotondato che l'API terrà (8:03 → 8:17 /mi), non il passo
+  esatto del tocco: lo schermo non promette un secondo che il server non
+  ha.
+- **I tipi di C e D** stanno in fondo a `index.ts`, come per la B:
+  `GameTeam`, `GameChallenge`, le costanti dei limiti, `ChallengePushKind`
+  accanto a `GamePushKind` (che non cambia); `pieces_done` e
+  `team_unlocked_at` sono `RunGameWithPieces` e `GameShapeStateWithTeam`,
+  estensioni delle interfacce della A, che non si toccano. L'edizione
+  squadra nella collezione non si mostra ancora: è un seguito piccolo, da
+  decidere con l'utente (un segno sulla scheda della forma).
+- **Proprietario e uscita**: la regola di `GIOCO.md` §6.1 è sullo schermo
+  (chi ha creato la squadra toglie, ognuno esce), con «Leave team» che
+  chiede conferma prima, perché rientrare vuole il codice.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
@@ -16394,6 +16473,325 @@ una scelta di quei task. L'app di prima, a un cambio in attesa, mostra
 ancora il vecchio indirizzo: la parte B va pubblicata prima o con il
 server.
 
+## ADR-0262 — La musica nel video della corsa: dieci brani nostri, scritti da uno script, copiati nel MP4 come traccia AAC
+
+**Stato**: Attiva · 2026-10-25 · sostituisce il punto 1 di ADR-0254 solo
+per «Niente musica» (il resto di ADR-0254 vale com'è) · fonte, brani,
+nomi, testi e partenza spenta li ha scelti l'utente; i punti tecnici sono
+decisi dall'agente su delega dell'utente (TASK-301)
+
+**Contesto**: l'utente il 2026-10-25: «aggiungi la musica al video»; il
+2026-10-23 aveva scelto il video muto (ADR-0254). Su iOS 16.4–18 WebKit
+non ha `AudioEncoder` (WebCodecs audio arriva con iOS 26): l'audio non si
+può codificare sul telefono senza niente di nativo. Un brano di altri ha
+una licenza da verificare e può essere rivendicato con Content ID, che su
+Instagram toglie l'audio al Reel.
+
+**Decisione**:
+
+1. **Le scelte dell'utente**, una domanda per volta: musica **originale,
+   fatta da noi**; **dieci brani** («aggiungi altre 7 canzoni dai»,
+   dopo i primi tre, e «Più carica» ai ritocchi): Energy, Chill, Epic,
+   Sprint, Rock, Funk, Sunny, Trap, Retro, Fiesta; **sceglie chi corre**
+   nella riga «Music» di «Share your run», sopra i pulsanti, e un tocco
+   gli fa sentire il brano; **si parte da «None»** («Spenta»), e la scelta
+   non si salva col post. I testi nelle cinque lingue sono in
+   `tasks/TASK-301.md`.
+2. **I brani li scrive `tools/video_music.py`**, nota per nota, sui tempi
+   del video: fino a 1 s l'entrata, da 1 a 9 s la linea, a 9 s il colpo
+   quando il disegno è intero, dissolvenza fino a 12 s. I tempi sono
+   quelli che mettono 9 s sul primo battito di una battuta (90, 120, 150,
+   180 bpm). Nessuna melodia presa da brani esistenti.
+3. **Uguali su ogni computer**: lo script usa solo + − × ÷ (il seno è una
+   parabola corretta, la `tanh` del limitatore una frazione, il rumore un
+   generatore lineare congruenziale fisso), niente `sin`/`exp`/`pow` della
+   libreria C, la cui ultima cifra cambia fra sistemi. I campioni a 16 bit
+   sono gli stessi byte per byte: `apps/mobile/assets/music/music.json`
+   ne tiene lo SHA-256, `pytest tools` (anche in CI, su Linux) li rifà e
+   li confronta, `python3 tools/video_music.py --check` lo stesso a mano.
+   Il campione più forte sta a 0,75 (−2,5 dBFS): la codifica AAC alza i
+   picchi fino a 1,3 dB, e con 0,89 qualche campione decodificato passava
+   il fondo scala; con 0,75 il più alto è 0,97 («Epic»).
+4. **AAC con `afconvert` di macOS** (scelta dell'utente: «Sì, afconvert»),
+   128 kbit/s, 44 100 Hz, stereo: uno strumento di sviluppo, nessuna
+   dipendenza dell'app. Per rigenerarli, su un Mac, dalla radice del
+   repository: `python3 tools/video_music.py`. afconvert mette il priming
+   (2112 campioni) in `iTunSMPB` e divide i pacchetti in chunk: lo script
+   riscrive il file come M4A semplice, un chunk, il priming in un `elst`
+   e il gruppo «roll» (punto 5).
+   `music.json` tiene anche lo SHA-256 del file, e jest e pytest
+   controllano che i dieci file dell'app siano quelli. Un afconvert di
+   un'altra versione di macOS può dare byte diversi: i campioni restano
+   uguali, il file va rifatto e `music.json` riscritto insieme.
+5. **Nel video la musica è copiata, non codificata**: l'app legge il
+   brano (`m4a.ts`) e `mp4.ts` aggiunge una seconda traccia `soun` dopo
+   quella video: `tkhd` 2, `edts/elst` che salta il priming e dura quanto
+   il video (12 s, 1 080 000 tick), `mdhd` a 44 100, `stsd mp4a` con
+   l'`esds` del brano, il gruppo «roll» (`sgpd`/`sbgp`, ogni pacchetto
+   decodificato dopo quello prima) come lo scrive AVAssetWriter, un chunk
+   dopo i fotogrammi. Senza il gruppo «roll» AVFoundation toglie il
+   priming due volte: la musica partiva 2112 campioni (48 ms) prima.
+   Provato con AVAssetReader: un clic a 1,000 s esce a 1,000 s, la musica
+   dura 529 200 campioni. Le due tracce partono insieme dal tempo 0. **Senza musica il file è identico byte per byte a
+   quello di ADR-0254** (impronta nel test).
+6. **I file stanno negli asset dell'app** (`require` dei `.m4a`, letti
+   con expo-asset ed expo-file-system, già nell'app): 1,88 MB in tutto,
+   ognuno sotto 300 KB, scaricati una volta con l'aggiornamento. Un brano
+   che non si legge fa fallire il video con «The video could not be made.
+   Try again.»: niente video muto quando si è scelta la musica.
+7. **Si sente con expo-audio**, già nell'app, caricato al primo tocco come
+   il suono degli esercizi (TASK-285): un tocco su un brano lo suona da
+   capo, «None» lo ferma, «Export video» e la chiusura della pagina anche.
+   Il modo del suono non cambia: fuori dalla corsa segue l'interruttore
+   del silenzio (ADR-0225), quindi con l'iPhone in silenzioso il brano non
+   si sente, ma va nel video.
+
+**Alternative scartate**: brani di pubblico dominio (Content ID, tagli a
+12 s che non seguono il video); un file scelto da chi corre (un modulo
+nativo nuovo per sceglierlo, un decoder per tagliarlo); `AudioEncoder`
+nel WebView (manca prima di iOS 26); suonare i brani nel WebView e
+registrarli (niente encoder lo stesso); ffmpeg per l'AAC (da installare
+sul Mac, l'utente ha scelto afconvert); i brani dentro il codice in base64
+(un terzo più grandi, nel bundle JS a ogni avvio).
+
+**Conseguenza**: solo app, nessuna dipendenza né permesso nuovi, niente
+di nativo: arriva con un aggiornamento OTA anche alla 1.0 (impronta iOS
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` invariata). L'aggiornamento
+pesa 1,88 MB in più la prima volta. Dodici testi nuovi in fondo alle
+tabelle («Music» c'era già). Rifare i brani costa circa 17 s di CPU, il
+loro test in CI circa 15 s.
+
+## ADR-0269 — Le corse di gruppo: una forma, un ritrovo, un'ora, «I'm going»
+
+**Stato**: Attiva · 2026-10-26 · la funzione, i campi, il Feed, le
+notifiche, la sicurezza e la privacy li ha scelti l'utente («Sì, così» alla
+proposta con le aggiunte del Coordinatore); i punti tecnici sono decisi
+dall'agente su delega dell'utente (TASK-309)
+
+**Contesto**: l'utente vuole un «post evento»: una forma scelta, un luogo
+di incontro e un orario, e ci si trova a correrla insieme come in un run
+club. Esistono già i Preferiti (un percorso tenuto, con tutti i suoi
+campi), il Feed con la regola dei 50 km, follow, blocchi, segnalazioni con
+il link che nasconde, il filtro dei testi negativi, le push con i loro
+interruttori, e un orologio dell'API per le sfide del gioco. Un ritrovo
+dal vivo fra sconosciuti chiede regole di sicurezza; chi va a quale corsa
+di gruppo è un dato personale nuovo. Le regole sono in `docs/EVENTI.md`.
+
+**Decisione dell'utente**: corse di gruppo create da un percorso pronto;
+il ritrovo è la partenza; titolo, giorno e ora, «Where exactly»,
+descrizione, Everyone o Followers; una fila «Group runs» in cima al Feed
+sotto la scheda del concorso, solo quando c'è qualcosa; «I'm going» con
+chi va visibile a chi vede la corsa di gruppo; un promemoria un'ora prima,
+le push di cambio e di annullamento; l'avviso di sicurezza e la riga della
+privacy in inglese; commenti dopo, nella parte C. Nessuna notifica
+all'organizzatore quando qualcuno si aggiunge, lo vede nella pagina:
+scelta dopo la correzione della proposta, che prometteva una lista
+Notifiche che l'app non ha.
+
+**Decisione dell'agente**:
+
+1. **Una tabella a sé, non un disegno**: un disegno è una corsa fatta,
+   una corsa di gruppo è una corsa da fare. `group_runs` e
+   `group_run_going` in un modulo nuovo, `group_runs.py`; il Feed dei post
+   non cambia.
+2. **Il percorso ha il corpo di un Preferito**, validato con il codice di
+   `favorites.py` importato: l'app lo ha già pronto (`Keepable`) e lo
+   riapre per «Start» come un Preferito. Non cambia dopo la creazione,
+   come chi la vede: chi va ha detto sì a quella forma e a quel pubblico.
+3. **Il ritrovo è il primo punto**, tenuto anche come `geography(Point)`
+   con indice per i 50 km del Feed.
+4. **I limiti**: da 30 minuti a 60 giorni, al più 10 in arrivo per
+   account, finita 3 ore dopo l'inizio (come le sfide, che restano attive
+   3 ore oltre la scadenza). Testi col filtro di TASK-213 e
+   `422 comment_rejected`, il codice che l'app già conosce. Nessun codice
+   d'errore nuovo: `schemas.py` e il motore sul telefono non cambiano.
+5. **L'organizzatore va sempre** e non ha una riga in `group_run_going`.
+6. **Il promemoria** lo trova un orologio ogni 5 minuti, come
+   `ChallengeClock`, e lo segna con `UPDATE … WHERE reminded_at IS NULL`:
+   una volta sola anche con due processi; un cambio di ora lo riapre. Le
+   push non portano orari: il server non conosce il fuso del telefono.
+   Restano fuori dall'email del giorno (`EMAIL_KINDS` non cambia).
+7. **Annullare non cancella**: `cancelled_at`, così chi apre la push vede
+   «Cancelled». Un account cancellato avvisa chi andava, prima di sparire.
+8. **App**: il selettore di giorno e ora in JavaScript, senza moduli
+   nativi; impronta iOS invariata, la funzione arriva con un OTA.
+9. **Tre parti**: A (API), B (app, dopo TASK-299 B per `FeedScreen.tsx`),
+   C (i commenti, in una tabella a parte).
+
+**Alternative scartate**:
+- la corsa di gruppo come un disegno con una data: i disegni sono corse
+  fatte, con traccia e foto, e il Feed, il concorso e il gioco li contano;
+- il selettore nativo di data e ora: un modulo nativo vuole un build per
+  App Store e Google Play;
+- un promemoria il giorno prima e uno un'ora prima: rumore; uno basta;
+- una push all'organizzatore a ogni aggiunta: l'utente l'ha scartata, la
+  pagina lo dice;
+- i commenti nella tabella `comments` dei disegni: toccherebbe le query di
+  commenti, segnalazioni e link che nasconde, tutte scritte per i
+  disegni;
+- l'invito a persone scelte: vuole la scelta delle persone e un altro
+  livello di chi vede; dopo, se l'utente lo vuole.
+
+**Conseguenze**: due tabelle e un modulo nuovi; righe in `push.py`,
+`app.py`, `moderation.py`, `report_email.py` e `accounts.py`; la privacy in
+cinque lingue. L'app aggiunge una cartella e tocca Feed, profilo, tap delle
+notifiche e il percorso pronto. Il server dopo l'approvazione di Apple e
+con il sì dell'utente.
+
+## ADR-0237, aggiunta — AdMob mai collegato su Android
+
+**Stato**: Attiva · 2026-10-26 · deciso dall'agente su delega dell'utente
+(TASK-294, prima build Android). Aggiunta ad ADR-0237, senza numero nuovo.
+
+**Contesto**: la prima build Android (`preview`, EAS `93c8959c`,
+2026-10-26) è fallita in Gradle su `react-native-google-mobile-ads`
+17.2.0: il suo `app-json.gradle` vuole una sezione
+`react-native-google-mobile-ads` alla radice di `app.json`, che l'app non
+ha (la configurazione è nel plugin di Expo, che basta a iOS), e senza di
+essa «Cannot get property googleMobileAdsJson» e nessun `compileSdk`. Le
+pubblicità sono spente finché non c'è la società (scelta dell'utente del
+2026-10-09).
+
+**Decisione**: `react-native.config.js` non collega il pacchetto su
+Android in nessun profilo (`platforms.android: null` sempre); su iOS come
+prima, solo la produzione lo toglie. Il test `storeWithoutAds.test.ts` lo
+fissa. L'impronta iOS non cambia (misurata prima e dopo); quella Android
+sì, ed è la prima build comunque. Quando le pubblicità arriveranno, su
+Android serviranno la sezione in `app.json` e una build nativa nuova.
+
+**Alternative scartate**: aggiungere la sezione in `app.json` (configura
+un SDK che l'app non usa e ne porta il codice e i permessi nella build);
+`expo-build-properties` per il `compileSdk` (non risolve la sezione
+mancante).
+
+## ADR-0266 — Forme pronte vicino a te in «Draw», ed «Explore» preparato all'apertura
+**Stato**: Attiva · 2026-10-26 · TASK-306. Le scelte di prodotto sono
+dell'utente, del 2026-10-26: la riga sotto la distanza, cerchio, cuore e
+stella da 5 km dalla posizione, sempre 5 km, solo la corsa, tenute fino a
+1 km; **forme già pronte in città a caso, dalla più semplice alla più
+complicata, quando vicino non viene niente**; «Explore» preparato
+all'apertura. Del Coordinatore, nel dare il numero: nessun permesso della
+posizione chiesto dal task; niente prima della prima pagina, durante una
+corsa o la navigazione, in background; il server come riserva con l'API
+di oggi; costi in tempo, batteria e dati scritti nel task file. Il come è
+deciso dall'agente su delega dell'utente.
+
+**Decisione**:
+
+1. **Le forme vicine le disegna il telefono** (`requestRouteOnPhoneFirst`,
+   ADR-0177), come un esempio di una città (`requestOf` con la posizione
+   al posto del centro), nella coda delle richieste in priorità «visible»
+   (ADR-0248). Prima aspettano fino a 45 s le mappe intorno al telefono,
+   che l'app scarica all'apertura: con quelle disegna il telefono, senza il
+   server.
+2. **Tenute in `near-you.json`** con il punto da cui partono: interi, con
+   le alternative, e `null` per una forma rifiutata lì. Si disegnano di
+   nuovo oltre 1 km. Una forma senza risposta (rete, server) non si
+   tiene: si chiede la volta dopo. L'id è `near-you:{forma}`, senza la
+   posizione; la città è vuota, come un percorso di «Draw».
+3. **Si aprono come esempi**: `keepWhole` in `exampleRoutes.ts` tiene il
+   percorso intero e la richiesta, così `useExplored` li apre senza
+   chiedere all'API, con A · B · C.
+4. **Le forme di altre città** sono gli esempi tenuti dall'API
+   (ADR-0136): le 14 città in evidenza, in ordine casuale a ogni apertura,
+   il centro dal telefono (`featuredPlace`) o da `GET /cities` la prima
+   volta. Una forma conta solo se il lavoro è `done` nella risposta al
+   POST: altrimenti l'app lo lascia (`DELETE`) e prova un'altra città, al
+   più 3 per forma. Pronte, sono esempi di quella città (`keepSample`),
+   anche per «Explore».
+5. **«Explore» preparato**: lista dei percorsi vicini (tenuta 10 minuti
+   per la pagina), paesi vicini (`fetchNearbyCities` li tiene già) e i
+   loro esempi (`drawSamples`) in priorità «prefetch», finché la pagina
+   non si è aperta una volta: da lì li chiede lei.
+6. **Quando**: `useMayWorkAhead` in `firstPage.ts`, vero dopo
+   l'animazione d'apertura (`Root.tsx`), con l'app non in background e né
+   corsa né navigazione. Fermato, il lavoro riprende da dove era.
+
+**Alternative scartate**: disegnare dal centro del paese più vicino
+(esempi già tenuti dall'API, ma la partenza a chilometri dall'utente, e
+`/nearby-cities` esclude il paese dove si è); le forme alla distanza scelta
+sopra (ogni cambio di distanza, tre percorsi da rifare); aspettare le forme
+di altre città che l'API dovrebbe disegnare (fino a 18 s l'una sul server,
+contro una scheda che si apre subito); giudicare «bello» dalla somiglianza
+del motore (sta sopra 0,9 anche per percorsi che non si leggono, TASK-290);
+scaricare qualcosa durante l'installazione (serve una build nativa, e la
+posizione allora non c'è).
+
+**Conseguenza**: alla prima apertura in un luogo, oltre alla zona del
+telefono, fino a circa 1,3 MB di dati (stima nel task file) e 1–2 minuti
+di un core sul telefono per tre forme; se il telefono non ha mappe, tre
+percorsi in più al server per persona e luogo. Gli esempi dei paesi
+vicini, che prima chiedeva solo chi apriva «Explore», li chiede ogni
+apertura in un luogo nuovo: l'API li tiene per paese, quindi pesano solo
+la prima volta.
+## ADR-0263 — Dopo una deviazione la corsa rientra più avanti, e mostra dove riprende il percorso
+**Stato**: Attiva · 2026-10-26 · piano approvato dall'utente dopo la prova
+sul campo a Trento del 2026-10-25 («Ok, procedi con i tre piani»); numero
+e condizioni dal Coordinatore; le regole di dettaglio decise dall'agente su
+delega dell'utente (TASK-303). I testi nuovi vogliono il sì dell'utente.
+
+**Contesto**: a Trento Fiere un passaggio era chiuso. L'utente ha fatto il
+giro dell'isolato ed è rientrato sul percorso più avanti, ma la corsa è
+rimasta «fuori percorso» per sempre: una volta fuori, `locate` lo cercava
+solo da `BACK_M` dietro ad `AHEAD_M` = 300 m avanti rispetto a dove era
+uscito, e su tutto il percorso avanti solo dopo un buco del GPS (TASK-270).
+Nessuna guida: «Torna sul percorso» senza dire dove.
+
+**Decisione**:
+
+1. **Rientro più avanti**: fuori percorso, chi era già stato messo sul
+   percorso si cerca anche oltre la finestra di `locate`, come dopo un buco
+   (`foundAhead`). Il rientro conta dopo `BACK_FIXES` posizioni di fila,
+   ognuna vicina alla precedente, che vanno nel verso del percorso per
+   `JOIN_M` = 20 m (come ADR-0241): attraversare la forma più avanti di
+   traverso non è rientrare. Poi «Di nuovo sul percorso», e le svolte
+   rimaste indietro non si dicono. Vicino a dove è uscito, e dopo un buco,
+   tutto come prima.
+2. **Fin dove**: le forme si incrociano e ripassano le stesse strade (una
+   stella, un cuore, un otto). Il percorso si cerca, e il punto di rientro
+   si mostra, solo fino a `AHEAD_M` più `REJOIN_PER_M` = 2 m per ogni metro
+   corso da quando il runner è uscito (`rejoinAheadM`). Un giro
+   dell'isolato salta meno percorso di quanto ne corre; un pezzo della
+   forma chilometri più avanti resta fuori, anche se passa a un metro. Su
+   una spirale di prova, la strada della deviazione è l'ultimo lato della
+   forma, 2,3 km più avanti: la corsa rientra a 720 m, non lì.
+3. **Il punto di rientro** (`rejoin.ts`): il punto di quel tratto più
+   vicino al runner in linea d'aria, ricalcolato a ogni posizione, tenuto
+   in `Navigation.rejoin`. Prima di essere mai stato sul percorso, il più
+   vicino dove `locate` lo prenderebbe (i primi `AHEAD_M`); su una forma
+   chiusa non ancora agganciata, il più vicino di tutta la forma. Nessun
+   calcolo di strade: sarebbe un seguito, col motore.
+4. **La guida**: sulla mappa una linea **a puntini** (non a trattini: i
+   trattini gialli sono il percorso che resta, TASK-224) dal runner al
+   punto, nel colore del testo; nel banner la distanza e il punto
+   cardinale («120 m NE») e «Follow the dotted line back to the route.»;
+   a voce, **una volta per deviazione**, subito dopo «Sei fuori percorso.
+   Torna sul percorso.»: «Il percorso riprende a 120 metri verso
+   nord-est.». In miglia, in piedi. Le frasi passano dalla coda della voce
+   (`say`), quindi non si sovrappongono alle svolte (TASK-302), e mentre si
+   è fuori il navigatore non dice altro.
+5. **Bici e acqua**: lo stesso navigatore, la stessa regola; in bici le
+   svolte si annunciano a `RIDE_ANNOUNCE_M` come sempre (TASK-216).
+   Sull'acqua la linea dritta è proprio la via per tornare sulla traccia.
+6. **Distanza e tempo** della deviazione restano nella corsa: la
+   registrazione non guarda il percorso (ADR-0137 per la pausa, invariata).
+7. **Solo app**: `useNavigation.ts` e `App.tsx` non cambiano, il punto
+   viaggia dentro `Navigation`; nessuna dipendenza, l'impronta iOS resta.
+
+**Scartate**:
+
+- il punto più vicino di tutto il percorso avanti: su una forma che si
+  incrocia manda il runner a un giro più avanti (punto 2);
+- far ripartire il percorso dal motore fino al punto di rientro: niente
+  rete né motore durante la corsa per questo; resta un seguito;
+- dire la direzione a ogni posizione o a intervalli: una volta basta, la
+  mappa e il banner la tengono aggiornata.
+
+**Conseguenze**: la ricerca della deviazione costa una passata del
+percorso per posizione mentre si è fuori, come dopo un buco. Un
+attraversamento in diagonale lungo più di `JOIN_M` sopra il percorso più
+avanti, nella finestra, può ancora valere come rientro; se si esce di nuovo,
+la voce lo dice dopo `OFF_FIXES`, come sempre.
 ## ADR-0264 — La corsa continua mentre si usa un'altra app: dieci minuti di assenza sono corsa
 **Stato**: Attiva · 2026-10-26 · TASK-304. **Scelta dell'utente** del
 2026-10-26, alla domanda su cosa fare al rientro dopo una chiusura da

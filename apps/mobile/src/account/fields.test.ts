@@ -7,6 +7,7 @@ const FIELDS: SignUpFields = {
   username: signUpRequest.username,
   password: signUpRequest.password,
   atLeast16: true,
+  noAwayEmail: false,
 };
 
 test("good fields make the contract's request, trimmed", () => {
@@ -18,6 +19,12 @@ test("good fields make the contract's request, trimmed", () => {
       username: ` ${FIELDS.username}`,
     }),
   ).toEqual({ ok: true, request: signUpRequest });
+  // The box «Don't send me these emails» ticked; the app's language goes
+  // either way, for the emails (TASK-284).
+  expect(checkSignUp({ ...FIELDS, noAwayEmail: true })).toEqual({
+    ok: true,
+    request: { ...signUpRequest, away_email: false },
+  });
 });
 
 test.each([
@@ -45,7 +52,13 @@ test.each([
 
 test("the first wrong field is the one told", () => {
   expect(
-    checkSignUp({ email: "", username: "", password: "", atLeast16: false }),
+    checkSignUp({
+      email: "",
+      username: "",
+      password: "",
+      atLeast16: false,
+      noAwayEmail: false,
+    }),
   ).toEqual({
     ok: false,
     problem: "Enter an email address, like name@example.com.",

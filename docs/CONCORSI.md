@@ -215,3 +215,78 @@ valore dei premi, verbale di assegnazione con un notaio o un funzionario
 camerale, esclusi i dipendenti. Serve il commercialista. In app
 servirebbero il consenso a essere contattati e un indirizzo di spedizione.
 È un task a sé, non questo.
+
+## 13. Com'è fatta la parte A
+
+Dal piano qui sopra cambiano solo questi dettagli, decisi dall'agente su
+delega dell'utente (2026-10-26):
+
+- l'indice di un solo concorso aperto è su `((TRUE)) WHERE closed_at IS
+  NULL`, non su `closed_at`: in un indice unico i `NULL` non collidono;
+- `close` **rifiuta prima di `ends_at`** («the contest ends at …: close it
+  after»): fino alla fine le reazioni contano ancora, e il concorso
+  finisce alla data scritta (§2). Chiude con la riga bloccata (`FOR
+  UPDATE`) e l'`UPDATE … WHERE closed_at IS NULL`; la push parte dopo il
+  commit, nel processo del comando, prima che il comando esca;
+- una reazione di un **account nascosto** (TASK-291) non conta, come non si
+  vede: `apart_sql` tiene a parte anche loro;
+- le «reazioni da account più giovani del concorso» di `standings` sono
+  quelle di account creati da `starts_at` in poi;
+- un post escluso con `--exclude` non si scrive da nessuna parte: non
+  vince, ma resta in `top` al suo posto anche dopo la chiusura;
+- `winner.reactions` è il conto di oggi con la stessa query; `0` con
+  `drawing` `null` (corsa cancellata, o nessun partecipante);
+- `mine` manca senza token (`response_model_exclude_unset`) ed è `null` con
+  un token senza un post che partecipa;
+- `contest_wins` è una sottoquery fra le colonne di `User`
+  (`accounts.contest_wins_sql`): `GET /me`, `Session` e ogni risposta che
+  riporta l'account lo hanno senza altre letture;
+- il codice d'errore `no_contest` sta in `schemas.py`,
+  `fixtures/api-error-codes.json` e `API_ERROR_CODES` (ok del
+  Coordinatore, 2026-10-25);
+- i comandi escono con 0 (fatto), 1 (niente da fare: nessun concorso
+  aperto) o 2 (rifiuto: date, secondo concorso, chiusura anticipata).
+
+## 14. Com'è fatta la parte B
+
+L'app (`apps/mobile/src/contest/`) mostra quello che il server dice, come
+in §7. Questi dettagli li ha decisi l'agente su delega dell'utente
+(2026-10-26):
+
+- **Quando chiede.** `useContest` chiede `GET /contests/current` quando
+  «Feed» è sulla pagina, **una volta per account** finché l'app è aperta
+  (come la prima pagina del Feed: «Feed» si ricostruisce dopo un disegno
+  sulla mappa e non richiede), e di nuovo a **ogni pull**. Con un account
+  la richiesta porta il token, per `mine`. Una risposta arrivata dopo una
+  richiesta più nuova non conta.
+- **Che cosa tiene.** `contest.json` nei documenti del telefono tiene la
+  risposta **e l'account per cui è stata chiesta** (`{ account, contest }`):
+  `mine` si mostra solo all'account a cui appartiene, anche senza rete
+  dopo un cambio di account. Lo cancellano il `404 no_contest` e il 404 di
+  un'API di prima del concorso (`http_error`, che su preview tiene la
+  scheda nascosta finché il server non ha la parte A); senza rete, un 5xx
+  o un 401 non cambiano niente.
+- **I giorni** sono quelli del calendario del telefono (`daysLeft.ts`): «3
+  days left» tre giorni prima dell'ultimo, a qualunque ora; «Ends today»
+  l'ultimo; da `ends_at` in poi, finché manca `closed_at`, «Ended · the
+  winner is coming». L'orologio si rilegge ogni minuto mentre la scheda è
+  sulla pagina. Dopo la fine «Publish a run to take part.» non c'è più.
+- **I primi tre** sono tasti solo con un account: aprire un disegno chiede
+  `GET /drawings/{id}` con il token. Un autore bloccato mentre l'app è
+  aperta sparisce subito dalla scheda, come il suo post dal Feed.
+- **Il vincitore**: per 7 giorni la scheda è il post vincitore disegnato
+  da `FeedPost`, con la sua mappa, sotto la riga «{name} won the MuW
+  contest» e il badge; senza `winner.drawing` (corsa cancellata, nessun
+  partecipante) non c'è niente. La fascia sul disegno aperto
+  (`DrawingCard`) vale per il concorso tenuto sul telefono, finché c'è.
+- **Il regolamento** (`ContestRules.tsx`) si apre sopra l'app: «MuW
+  contest», il titolo «Official rules», poi i paragrafi approvati, con le
+  date scritte come i giorni dei disegni (`dayLabel`, nella lingua
+  dell'app).
+- **I numeri al singolare**: «1 reaction» e «Your best post: #1, 1
+  reaction», approvati dall'utente con gli altri testi (2026-10-26).
+- **La push** `contest_won` porta `drawing_id`: `notificationTap` la apriva
+  già, nessun cambio.
+- Il badge e la fascia sono lo stesso componente (`WinnerBadge.tsx`),
+  neutro: il giallo è del percorso, il rosso di chi aspetta una risposta;
+  la coppa è un emoji.

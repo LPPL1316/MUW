@@ -1180,8 +1180,8 @@ export const ES: Table = {
     "Has bloqueado a {user}. Puedes desbloquearlo en Personas bloqueadas de tu perfil.",
 
   // src/settings/NotificationsSetting.tsx, notificationFields.ts (TASK-262: push sent)
-  "Push notifications tell you about follow requests, reactions, comments and tags. MuW does not send emails yet: your choice is kept for when it does.":
-    "Las notificaciones push te avisan de solicitudes para seguirte, reacciones, comentarios y etiquetas. MuW todavía no envía correos: tu elección queda guardada para cuando lo haga.",
+  "Push notifications tell you at once about follow requests, reactions, comments and tags. Email notifications sends the same news in one email a day at most. Email when I'm away: one email if you don't open MuW for 2 weeks.":
+    "Las notificaciones push te avisan al momento de solicitudes para seguirte, reacciones, comentarios y etiquetas. Las Notificaciones por correo envían las mismas novedades en un correo al día como mucho. Correo cuando no estoy: un correo si no abres MuW durante 2 semanas.",
   "Notifications are off for MuW on this phone. Allow them in Settings to turn this on.":
     "Las notificaciones de MuW están desactivadas en este teléfono. Permítelas en Ajustes para activarlas.",
 
@@ -1324,4 +1324,135 @@ export const ES: Table = {
   "This server cannot look in your contacts yet.":
     "Este servidor todavía no puede buscar en tus contactos.",
   "The contacts could not be read.": "No se han podido leer los contactos.",
+  // «Play», the «Challenges» tab: src/game/{PlayScreen,ChallengesTab,TeamView,
+  // ChallengeView,NewChallenge}.tsx, teamsApi.ts, timeLeft.ts, shareCode.ts
+  // (TASK-296, parte D)
+  Collection: "Colección",
+  Challenges: "Retos",
+  "Sign in to play with a team.": "Inicia sesión para jugar en equipo.",
+  "Teams are not on this server yet.": "Los equipos todavía no están en este servidor.",
+  "YOUR TEAMS": "TUS EQUIPOS",
+  "No team yet. Create one, or join one with its code.":
+    "Todavía sin equipo. Crea uno, o únete a uno con su código.",
+  "Team name": "Nombre del equipo",
+  Create: "Crear",
+  "Team code": "Código del equipo",
+  Join: "Unirse",
+  "{count} member": "{count} miembro",
+  "{count} members": "{count} miembros",
+  "No challenge yet": "Todavía sin reto",
+  "{done} of {total} pieces done": "{done} de {total} piezas hechas",
+  "Code {code}": "Código {code}",
+  "Share code": "Compartir el código",
+  "Join my team «{name}» on MuW: open Play, Challenges, and enter the code {code}.":
+    "Únete a mi equipo «{name}» en MuW: abre Play, Retos, e introduce el código {code}.",
+  MEMBERS: "MIEMBROS",
+  Owner: "Propietario",
+  "Leave team": "Salir del equipo",
+  "Leave this team?": "¿Salir de este equipo?",
+  "New challenge": "Nuevo reto",
+  Pieces: "Piezas",
+  "Fewer pieces": "Menos piezas",
+  "More pieces": "Más piezas",
+  "Each piece": "Cada pieza",
+  Fast: "Rápida",
+  "Slower pace": "Ritmo más lento",
+  "Faster pace": "Ritmo más rápido",
+  Days: "Días",
+  "Fewer days": "Menos días",
+  "More days": "Más días",
+  "Start the challenge": "Empezar el reto",
+  "{count} pieces · {goal} each": "{count} piezas · {goal} cada una",
+  "Piece {n}": "Pieza {n}",
+  Free: "Libre",
+  Yours: "Tuya",
+  "Taken by {name}": "Tomada por {name}",
+  "Done by {name}": "Hecha por {name}",
+  "Take this piece": "Tomar esta pieza",
+  Leave: "Dejar",
+  "WHO GAVE WHAT": "QUIÉN HA DADO QUÉ",
+  "Nobody has run yet.": "Nadie ha corrido todavía.",
+  PIECES: "PIEZAS",
+  "Complete! Your team drew it together.":
+    "¡Completa! Vuestro equipo la ha dibujado juntos.",
+  "Time ran out: {count} piece was missing.":
+    "Se acabó el tiempo: faltaba {count} pieza.",
+  "Time ran out: {count} pieces were missing.":
+    "Se acabó el tiempo: faltaban {count} piezas.",
+  "{count} day {hours} h left": "Queda {count} día y {hours} h",
+  "{count} days {hours} h left": "Quedan {count} días y {hours} h",
+  "{hours} h {minutes} min left": "Quedan {hours} h {minutes} min",
+  "{minutes} min {seconds} s left": "Quedan {minutes} min {seconds} s",
+  "Time is up": "Se acabó el tiempo",
+  "No team with this code.": "Ningún equipo tiene este código.",
+  "You can't join this team.": "No puedes unirte a este equipo.",
+  "You are in 10 teams already: leave one first.":
+    "Ya estás en 10 equipos: sal de uno primero.",
+  "This team is not available any more.": "Este equipo ya no está disponible.",
+  "This challenge is not available any more.": "Este reto ya no está disponible.",
+  "The team has a challenge going already: wait for it to end.":
+    "El equipo ya tiene un reto en marcha: espera a que termine.",
+  "This challenge is over.": "Este reto ha terminado.",
+  "This piece is not there any more.": "Esta pieza ya no existe.",
+  "This piece is done already.": "Esta pieza ya está hecha.",
+  "Someone holds this piece already.": "Alguien ya tiene esta pieza.",
+  "You hold a piece of this challenge already: leave it first.":
+    "Ya tienes una pieza de este reto: déjala primero.",
+  "You don't hold this piece.": "Esta pieza no es tuya.",
+  "This name is not allowed. Choose another one.":
+    "Este nombre no está permitido. Elige otro.",
+  // src/screens/SignInScreen.tsx, src/settings/NotificationsSetting.tsx
+  // (TASK-284 B: the email when away; the names as in its email)
+  "If you don't open MuW for 2 weeks, we email you once with what's new.":
+    "Si no abres MuW durante 2 semanas, te enviamos un solo correo con las novedades.",
+  "Don't send me these emails": "No me envíes más estos correos",
+  "Email when I'm away": "Correo cuando no estoy",
+  None: "Ninguna",
+  Energy: "Energía",
+  Chill: "Relax",
+  Epic: "Épica",
+  Sprint: "Sprint",
+  Rock: "Rock",
+  Funk: "Funk",
+  Sunny: "Alegre",
+  Trap: "Trap",
+  Retro: "Retro",
+  Fiesta: "Fiesta",
+  "Tap a track to hear it.": "Toca una pista para escucharla.",
+  // src/contest/ (TASK-299 B: the contest card, its rules, the Winner badge)
+  "MuW contest": "Concurso MuW",
+  "The post with the most reactions wins.": "Gana la publicación con más reacciones.",
+  "{count} day left": "Queda {count} día",
+  "{count} days left": "Quedan {count} días",
+  "Ends today": "Termina hoy",
+  "Ended · the winner is coming": "Terminado · el ganador, muy pronto",
+  "Publish a run to take part.": "Publica una carrera para participar.",
+  "Your best post: #{rank}, {count} reaction":
+    "Tu mejor publicación: n.º {rank}, {count} reacción",
+  "Your best post: #{rank}, {count} reactions":
+    "Tu mejor publicación: n.º {rank}, {count} reacciones",
+  "How it works": "Cómo funciona",
+  "Official rules": "Bases oficiales",
+  "Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.":
+    "Organizado por MuW (Luca Pallaoro). Del {start} al {end}.",
+  "Anyone with a MuW account can take part, for free, by publishing a run for everyone in the app during the contest.":
+    "Puede participar gratis cualquier persona con una cuenta MuW, publicando una carrera para todos en la app durante el concurso.",
+  "At the end, the post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "Al final gana la publicación con más reacciones de otros miembros. Cuenta una reacción por miembro; la tuya no cuenta. En caso de empate, gana la que tenga más corazones de MuW y, después, la publicada primero.",
+  "The prize has no money value: the winner gets the Winner badge on their profile and their post shown at the top of the Feed for a week.":
+    "El premio no tiene valor económico: quien gana recibe la insignia Ganador en su perfil y su publicación aparece arriba del Feed durante una semana.",
+  "MuW may leave out a post that breaks the community rules.":
+    "MuW puede excluir una publicación que incumpla las normas de la comunidad.",
+  "Apple and Google are not sponsors of this contest and are not involved in it in any way.":
+    "Apple y Google no patrocinan este concurso y no participan en él de ninguna manera.",
+  Winner: "Ganador",
+  "{name} won the MuW contest": "{name} ha ganado el concurso MuW",
+  // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
+  "NEAR YOU": "CERCA DE TI",
+  "SHAPES TO TRY": "FORMAS PARA PROBAR",
+  // src/screens/NavigateScreen.tsx (TASK-303)
+  "The route is {distance} away, to the {direction}.":
+    "La ruta sigue a {distance}, hacia el {direction}.",
+  "Follow the dotted line back to the route.":
+    "Sigue la línea de puntos para volver a la ruta.",
 };

@@ -23,6 +23,9 @@ type Opens = {
   openProfile: (person: Person) => void;
   /** Shows the «Play» page: a shape of the game unlocked (TASK-296). */
   openPlay: () => void;
+  /** Shows the challenge `id` of the game (TASK-296 part D): a piece done,
+   * a shape completed, a day left. */
+  openChallenge: (id: string) => void;
 };
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
@@ -99,6 +102,8 @@ export function usePushNotifications(
         latest.current.opens.openDrawing(target.id);
       } else if (target.kind === "profile") {
         latest.current.opens.openProfile(target.person);
+      } else if (target.kind === "challenge") {
+        latest.current.opens.openChallenge(target.id);
       } else {
         latest.current.opens.openPlay();
       }
