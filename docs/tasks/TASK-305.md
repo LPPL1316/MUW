@@ -281,6 +281,11 @@ File: `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/settings/SportSetting.test.tsx`,
 `apps/mobile/src/i18n/it.ts`, `de.ts`, `fr.ts`, `es.ts`, e solo se il tipo
 lo chiede i file con un `Record<Sport, …>` (da elencare nella PR).
+Aggiunti il 2026-10-28 con l'ok del Coordinatore (solo test: i conteggi
+dei «Soon» presi da `SPORTS` salgono di uno):
+`apps/mobile/src/settings/SportButton.test.tsx`,
+`apps/mobile/src/settings/SportVoiceItalian.test.tsx`,
+`apps/mobile/src/profile/SettingsPage.test.tsx`.
 
 **Esito D0** (2026-10-28): fatta nella PR #591 (branch
 `feat/TASK-305-d0-soon-row`). «Paragliding» 🪂 è l'ultima riga di
@@ -290,8 +295,8 @@ valori della corsa. **Scelta dell'utente del 2026-10-27**: la riga compare
 anche nel menu dello sport di «Draw» (`SportButton`, ADR-0165, che mostra
 gli sport di «Settings» con i loro «Soon»); `SportButton.tsx` non cambia.
 I test che contano le righe «Soon» o i nomi da `SPORTS` salgono di uno:
-`sport.test.ts`, `SportSetting.test.tsx` e, fuori dall'elenco qui sopra,
-`SportButton.test.tsx`, `SportVoiceItalian.test.tsx`,
+`sport.test.ts`, `SportSetting.test.tsx` e i tre aggiunti all'elenco
+qui sopra, `SportButton.test.tsx`, `SportVoiceItalian.test.tsx`,
 `profile/SettingsPage.test.tsx` (solo test). Su una copia pulita, dopo
 l'allineamento con `main` (la #576 aveva messo le sue chiavi in fondo alle
 lingue): tsc, Prettier, eslint e jest (23 suite, 174 test) verdi, impronta
