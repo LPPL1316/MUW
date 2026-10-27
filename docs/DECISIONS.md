@@ -15736,6 +15736,50 @@ dell'utente; elenco dei file approvato dal Coordinatore)**:
   (chi ha creato la squadra toglie, ognuno esce), con «Leave team» che
   chiede conferma prima, perché rientrare vuole il codice.
 
+**Aggiunta (parte E, 2026-10-26, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **La riga del gioco sta nella scheda della corsa** (`RunCard`, in
+  `RunDashboard.tsx`): una riga sola di testo piccolo e grigio sotto i tre
+  numeri di «Map» (sotto i riquadri quando la corsa è in pausa) e su «Data»
+  sotto i sei riquadri, prima dei km uno per uno. Non copre la mappa, i
+  numeri né i pulsanti, non è gialla (il giallo è del percorso, ADR-0046) e
+  la voce non cambia. La scheda legge una volta e mostra la riga sulle due
+  pagine: due righe con una lettura ciascuna avrebbero chiesto il gioco due
+  volte. Il posto lo conferma l'utente quando vede la riga su `preview`.
+- **L'API si chiede una volta, all'inizio della corsa, mai durante**: `GET
+  /game/me` e `GET /game/teams` insieme, appena la scheda compare (anche
+  durante il conto alla rovescia), con l'account, il catalogo sul telefono
+  e solo a piedi. Poi la riga cresce da sola con i metri della corsa che la
+  scheda ha già (`track.distanceM`): nessuna richiesta mentre si corre,
+  nessun timer, niente in background. Senza rete, senza account, senza
+  catalogo (il server di oggi, che non ha il gioco) o con la sessione
+  rifiutata la riga non c'è e non compare nessun errore: la corsa è come
+  prima. Un'API senza la parte C (404 su `/game/teams`) lascia la sola
+  forma per distanza.
+- **Oltre la soglia la riga passa alla forma dopo.** Il totale stimato (i
+  metri contati dall'API più quelli della corsa) sceglie la forma per
+  distanza più vicina non ancora sbloccata e con la soglia ancora sopra il
+  totale: a 20,0 km «Hexagon 19.9 / 20 km» diventa «Circle 20.0 / 42 km»,
+  senza mai dire «unlocked», che lo dice il server dopo «Save» con la
+  scheda della parte B. Scartato restare fermi al 100 % con un testo
+  neutro: una riga che non si muove più per il resto della corsa non dà
+  niente da rincorrere, e il salto alla forma dopo dice da sé che la soglia
+  è passata. Raggiunte tutte le forme per distanza, niente riga.
+- **Il pezzo veloce vince sulla forma per distanza**: con un pezzo `kind:
+  "pace"` in mano (tenuto da me, non fatto) in una sfida `active`, la riga
+  dice il passo dell'ultimo km intero contro l'obiettivo, «Last km 5:12 ·
+  target 5:00 /km», con «–» prima del primo km; con le miglia l'ultimo
+  miglio e l'obiettivo al miglio, «Last mi 8:22 · target 8:03 /mi». Il
+  primo pezzo trovato, nell'ordine delle squadre. Chi sono io lo dice
+  `session.user.public_id`, confrontato con `holder.public_id` dei pezzi;
+  senza (un'API prima di TASK-116) le squadre non si chiedono.
+- **Le squadre si leggono con la parte D**: `fetchTeams` di `teamsApi.ts`
+  e i tipi `GameTeams` di `shared-types`. La E era partita con tipi suoi,
+  minimi, perché la D stava allungando lo stesso file; entrata la D per
+  prima (#561), la E ha tolto il doppione prima della sua PR, come
+  concordato con il Coordinatore.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta

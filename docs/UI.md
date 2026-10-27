@@ -2379,6 +2379,28 @@ TASK-164, di cui tiene i numeri.
   «2 · 5:14 · -0:06», l'ultimo in cima; prima del primo km «Your first
   kilometre will show here.»). Poi i due interruttori della corsa,
   «Auto-pause» e «Voice».
+- **La riga del gioco** (TASK-296 parte E, ADR-0255; `GIOCO.md` §9,
+  «Durante la corsa»; codice in `src/game/RunGameStrip.tsx` e
+  `runStripData.ts`): su una corsa a piedi, con l'account e il gioco sul
+  telefono (il catalogo di «Play»), sotto i numeri c'è una riga sola di
+  testo piccolo e grigio: su «Map» sotto i tre numeri (in pausa sotto i
+  riquadri), su «Data» sotto i sei riquadri, prima dei km uno per uno. Dice
+  la **prossima forma per distanza** non ancora sbloccata, con i km contati
+  dal server più quelli di questa corsa, sommati sul telefono: «Hexagon
+  14.2 / 20 km», che cresce mentre si corre, nelle unità scelte («Hexagon
+  8.8 / 12.4 mi»). Passata la soglia passa alla forma dopo («Circle 20.0 /
+  42 km») e **non dice mai «unlocked»**: lo dice il server dopo «Save», con
+  la scheda «New shape unlocked»; raggiunte tutte le forme per distanza,
+  niente riga. Con un **pezzo veloce in mano** in una sfida della squadra,
+  al suo posto il passo dell'ultimo km intero contro l'obiettivo: «Last km
+  5:12 · target 5:00 /km» («–» prima del primo km; con le miglia «Last mi
+  8:22 · target 8:03 /mi»). Il server si chiede **una volta sola,
+  all'inizio della corsa** (`GET /game/me` e `GET /game/teams` insieme,
+  appena la scheda compare), mai durante: la riga segue la traccia che la
+  scheda ha già. Senza account, senza rete, su un server senza il gioco, in
+  bici e in canoa la riga non c'è e non compare nessun errore; la voce non
+  cambia. **Da provare su preview**: il posto della riga lo conferma
+  l'utente quando la vede.
 - **«Pause»**, un pulsante tondo e chiaro in mezzo, su tutte e due le
   pagine; da una parte «Pocket», dall'altra «Music». In pausa il tempo si ferma, le posizioni non
   entrano nella traccia e «Pace now» è «–»; la mappa continua a seguire, e
