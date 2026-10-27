@@ -1,0 +1,18 @@
+{
+  "requests": [
+    {
+      "start": [46.0671, 11.1214],
+      "shape": "heart",
+      "distance_m": 5000,
+      "activity": "running"
+    },
+    {
+      "start": [46.0671, 11.1214],
+      "word": "CIAO",
+      "style": "round",
+      "pen_up": true,
+      "distance_m": 12000,
+      "activity": "running"
+    }
+  ]
+}

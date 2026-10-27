@@ -1,6 +1,6 @@
 # TASK-307 — Correre il disegno di un altro, e scaricarne la traccia
 
-**Stato**: In corso
+**Stato**: Done · 2026-10-27 (PR #573, merge `f8dd7964`)
 **Fase**: 4 · **Branch**: `feat/TASK-307-start-friend-track`
 
 ## Obiettivo
@@ -165,4 +165,16 @@ TASK-308 (#576) tocca altri paragrafi degli stessi file: righe diverse.
 
 ## Esito
 
-*(a fine task)*
+**Fatto.** In `main` con la #573 (merge `f8dd7964`, 2026-10-27, impronta
+iOS `83793e26` invariata): sulla scheda di un disegno aperto, dal «Feed»
+o dal profilo, «Start» parte subito sulla traccia tagliata, senza svolte
+a voce e con la riga che lo dice, ed «Export GPX» scrive sul telefono la
+stessa traccia, senza tempi né nome; la corsa salvata dice ciò che il
+disegno disegna, e a fine corsa si torna al disegno. Le quattro regole
+fisse hanno un test ciascuno nell'API. Scelte dell'utente del 2026-10-26:
+nessun interruttore per chi pubblica, una frase nuova nella «Privacy» in
+app e sul sito (datata 27 ottobre 2026), il testo sotto «Start» nelle
+cinque lingue. Sulla stessa scheda convive la fascia «Winner» di TASK-299
+B. Arriva sui telefoni con il prossimo aggiornamento OTA, che pubblica il
+Coordinatore. Rimandato: le svolte a voce sulla traccia di un altro
+(map-matching nell'engine), un task a parte se l'utente lo vuole.

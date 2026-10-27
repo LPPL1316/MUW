@@ -191,6 +191,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Testi: inglese e italiano approvati con la proposta, de/es/fr
   dell'agente; tempi e dati sul telefono sono stime. File:
   `tasks/TASK-306.md`.
+  **Chiuso**: in `main` con la #571 (`0bfc07c0`, 2026-10-27); resta la
+  preview del Coordinatore e il tempo vero sul telefono dell'utente.
 - **TASK-303 — Dopo una deviazione la corsa rientra più avanti, con la
   guida per tornarci** (ADR-0263; prova sul campo dell'utente a Trento del
   2026-10-25, piano approvato; numero e condizioni dal Coordinatore). Branch
@@ -218,6 +220,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   per chi pubblica: una frase nuova nella «Privacy», in app e sul sito.
   Le svolte a voce (map-matching nell'engine) sarebbero un task a parte.
   File: `tasks/TASK-307.md`.
+  **Chiuso**: in `main` con la #573 (`f8dd7964`, 2026-10-27), privacy
+  datata 27 ottobre 2026; vedi «Completato».
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -480,6 +484,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   file, «Testi da approvare»); il posto della riga lo conferma l'utente su
   `preview`. Con la E il task è completo: dopo il merge, chiusura e
   server (A e C) dopo Apple.
+  **Chiuso**: la E in `main` con la #564 (`de4ca26b`, 2026-10-28); le
+  cinque parti sono in `main`, vedi «Completato». Sul server A e C dopo
+  Apple, con l'ok dell'utente.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
@@ -1504,6 +1511,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
+- **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,
+  che ha scelto la pagina «Play» dentro MuW): il gioco delle forme. Le
+  corse a piedi salvate valgono km e tempi migliori sul server, che
+  sblocca forme da collezionare (per distanza totale o per passo) e tiene
+  squadre e sfide con una forma divisa in pezzi entro una scadenza. API
+  #534 (`abb593c5`, A: `game_runs`, `game_unlocks`, regole pure, catalogo,
+  `/game/catalog`, `/game/me`, `/game/runs/{key}`, push `shape_unlocked`,
+  `game_backfill`; migrazione `0025`) e #540 (`88b63b6e`, C: squadre e
+  sfide, otto endpoint, tre push, timer «1 day left»; migrazione `0027`);
+  app #536 (`145cf992`, B: la pagina «Play» fra «Explore» e il profilo,
+  visibile solo con `GET /game/catalog` a 200, la collezione, la scheda
+  «New shape unlocked»), #561 (`a8d75842`, D: la scheda «Challenges»,
+  squadre, sfide e pezzi colorati, le push che aprono la sfida) e #564
+  (`de4ca26b`, E: la riga del gioco nella scheda della corsa). Tutti i
+  testi approvati dall'utente, regola del blocco fra iscritti scelta da
+  lui. Chiuso il 2026-10-28. **Sul server A e C dopo Apple, con l'ok
+  dell'utente** (migrazioni, deploy, backfill): fino ad allora «Play» resta
+  nascosta su `preview`, e le prove sull'iPhone (B, D, E) vengono dopo.
+  Regole in `GIOCO.md`, file `tasks/TASK-296.md`.
 - **App e API** — TASK-308 (ADR-0268; scelta dell'utente del 2026-10-26,
   «Form in the app»): «Send feedback» in «Settings», un modulo che manda a
   chi gestisce MuW idee e problemi. `POST /feedback` (al più 5 al giorno
@@ -1523,6 +1550,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   vincitore in cima per 7 giorni, il badge «Winner» nei profili e la fascia
   sul disegno). Testi nelle cinque lingue approvati dall'utente. Sul server
   dopo Apple, con il suo ok. File: `tasks/TASK-299.md`, `CONCORSI.md`.
+- **App** — TASK-307 (ADR-0267; richiesta dell'utente del 2026-10-26):
+  dal disegno di un altro, aperto dal «Feed» o dal profilo, **«Start»**
+  sulla sua traccia tagliata (senza svolte a voce, e la scheda lo dice) ed
+  **«Export GPX»** scritto sul telefono, senza tempi né nome. Solo i disegni
+  che si possono già vedere, mai con un blocco, mai quelli nascosti: un
+  test ciascuno nell'API. Nessun interruttore per chi pubblica (scelta
+  dell'utente): la «Privacy» lo dice, in app e sul sito, dal 27 ottobre
+  2026. #573, `tasks/TASK-307.md`.
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
 - **App e API** — TASK-300 (ADR-0261; scelta dell'utente del 2026-10-25,
   «a parte SUBITO»): l'indirizzo email confermato con un link
@@ -1542,6 +1577,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `0028`. Con la parte A (push, #451) e la C (rubrica, #461) **chiude
   TASK-262**. Si accende con l'email di ritorno (server dal Coordinatore
   dopo Apple, col sì dell'utente). `tasks/TASK-262.md`.
+- **App** — TASK-306 (ADR-0266; scelte dell'utente del 2026-10-26): in
+  «Draw», con la corsa, «NEAR YOU» sotto la distanza, cerchio, cuore e
+  stella da 5 km pronti dalla posizione (dal telefono, tenuti fino a
+  1 km), e forme già pronte di città in evidenza a caso quando vicino non
+  viene niente, con quanto sono lontane; «Explore» preparato
+  all'apertura. In `main` con la #571 (`0bfc07c0`, 2026-10-27). Resta la
+  preview (Coordinatore) e il tempo vero sul telefono dell'utente, da
+  scrivere nell'Esito del task file.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
   iscritto con «Email when I'm away» acceso (casella non spuntata
