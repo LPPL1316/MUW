@@ -76,7 +76,7 @@ function keepsAll() {
           (r) =>
             (r.word
               ? { ...penUp, word: r.word }
-              : { ...shapeResult, shape: r.shape }) as RouteResult | null,
+              : { ...shapeResult, shape: r.shape }) as unknown as RouteResult,
         ),
       }),
   );
@@ -125,7 +125,7 @@ test("what the API does not keep is never drawn: it stays to ask", async () => {
       Promise.resolve({
         kind: "kept",
         routes: requests.map((r) =>
-          r.shape === "heart" ? ({ ...shapeResult } as RouteResult) : null,
+          r.shape === "heart" ? (shapeResult as unknown as RouteResult) : null,
         ),
       }),
   );
@@ -223,7 +223,7 @@ test("a town already on the page gets its cards at once", async () => {
   const never = jest.fn(() => new Promise<RouteOutcome>(() => {}));
   drawExamples(API, levico, {
     request: never as never,
-    queue: { background: (_p, run) => run() } as never,
+    queue: queue() as never,
   });
   expect(readyExample(levico, "star")).toBeNull();
   prepareRegion(API, start, [levico], {
