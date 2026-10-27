@@ -127,7 +127,7 @@ describe("«Privacy» is final, approved by the user (TASK-237 D)", () => {
   test.each(CONTENTS)("in «%s», with the day of the approval", (_, content) => {
     expect(content.privacy.draft).toBe(false);
     expect(content.privacy.updated).toMatch(
-      /^26 (October|ottobre) 2026$|^26\. Oktober 2026$|^26 de octubre de 2026$|^26 octobre 2026$/,
+      /^27 (October|ottobre) 2026$|^27\. Oktober 2026$|^27 de octubre de 2026$|^27 octobre 2026$/,
     );
   });
 
