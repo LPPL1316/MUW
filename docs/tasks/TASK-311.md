@@ -42,16 +42,31 @@ Due risultati:
 
 ## Le condizioni del Coordinatore (2026-10-27)
 
-1. **Le parole possono essere personali** (un nome): nell'archivio entrano
-   solo quelle che passano il filtro delle parole, mai legate all'account;
-   agli altri si propongono solo parole della lista provata.
-2. **Disegni e foto**: se entrano nell'archivio, solo il contorno, mai la
-   foto. Il testo della privacy lo approva l'utente.
-3. **Niente peggiora**: nessuna forma che oggi riesce deve riuscire peggio;
-   catalogo ed esempi misurati prima e dopo ogni modifica del motore.
+TASK-311 e ADR-0271 confermati dal Coordinatore; i prossimi liberi sono
+TASK-312 e ADR-0272.
 
-Valgono anche le solite: motore puro, nessuna dipendenza nuova, impronta
-iOS 83793e26, il server solo col sì dell'utente.
+1. **Le 1000 parole**: la misura gira sul Mac, con le zone in sola lettura
+   (qui scaricate da Overpass: la copia dal server è stata negata). Sul
+   server solo dopo Apple e col sì dell'utente. La tabella dice buone,
+   tempo e km a lettera prima e dopo, su più città. **Niente peggiora**:
+   un cambio del motore rifà `draw_examples`, `engine.zip`,
+   `paddleExamples.json` e `catalogueShapes.json`, e nessuna forma che oggi
+   riesce deve riuscire peggio.
+2. **Le parole scritte dagli utenti sono dati personali** (a volte nomi):
+   nell'archivio solo quelle che passano il filtro di TASK-213, mai legate
+   all'account. Agli altri si propongono **solo** parole della lista
+   provata, mai quelle scritte da qualcun altro.
+3. **Disegni a mano e foto**: ADR-0256 li ha esclusi apposta. Se entrano,
+   solo il contorno e mai la foto, senza account, con un tetto e una
+   pulizia. Il testo della privacy è nuovo, lo approva l'utente ed entra
+   con il prossimo aggiornamento della privacy.
+4. Tutto si appoggia a `drawn_routes` di TASK-297 A (migrazione 0026, in
+   `main`, non ancora sul server). Le migrazioni nuove prendono il primo
+   numero libero al merge; l'impronta iOS resta 83793e26 nelle parti app.
+
+Valgono anche le solite: motore puro, nessuna dipendenza nuova, «File
+toccati» al Coordinatore prima di ogni parte di codice, «#NNN pronta» a lui,
+che mergia al verde i task scelti dall'utente (ok del 2026-10-27).
 
 ## Parte A — La misura su 1000 parole
 
@@ -66,7 +81,7 @@ dove era.
 I 1000 casi: 50 parole × 5 città × 2 distanze × 2 stili.
 
 - **Parole**: 50, da 2 a 8 lettere, nelle lingue dell'app, nessun nome di
-  persona (condizione 1): OK, GO, HI; RUN, MUW, SUN, JOY, YES, WOW, SKY,
+  persona (condizione 2): OK, GO, HI; RUN, MUW, SUN, JOY, YES, WOW, SKY,
   ZEN; CIAO, LOVE, HOLA, MARE, SOLE, PACE, LUNA, VITA, FREE, HOPE, BIKE,
   KISS, ROMA; AMORE, HELLO, FORZA, BRAVO, SMILE, HAPPY, PEACE, DREAM, MERCI,
   DANKE, ITALY; GRAZIE, AUGURI, ITALIA, ESTATE, FAMILY, FRIEND; BONJOUR,
@@ -114,13 +129,16 @@ parole mostrare in «Explore» è una scelta dell'utente.
 ## Parte D — Nell'archivio tutto quello che si chiede
 
 - **Disegni a mano e contorni delle foto**: entrano, solo il contorno e mai
-  la foto, senza l'account (condizione 2). È la scelta dell'utente del
-  2026-10-27, che supera il «mai» di ADR-0256 per questi due.
-- **Le parole**: solo quelle che passano il filtro (condizione 1).
+  la foto, senza l'account, con un tetto e una pulizia (condizione 3). È
+  la scelta dell'utente del 2026-10-27, che supera il «mai» di ADR-0256
+  per questi due.
+- **Le parole**: solo quelle che passano il filtro di TASK-213
+  (condizione 2).
 - **Le richieste senza percorso**: che cosa si è chiesto, la distanza e il
   perché, con una cella di circa 1 km al posto della posizione.
 - Una migrazione nuova (il primo numero libero al merge), il paragrafo della
-  privacy da far approvare all'utente.
+  privacy da far approvare all'utente, con il prossimo aggiornamento della
+  privacy.
 
 «File toccati» al Coordinatore prima di cominciare.
 
