@@ -218,6 +218,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   per chi pubblica: una frase nuova nella «Privacy», in app e sul sito.
   Le svolte a voce (map-matching nell'engine) sarebbero un task a parte.
   File: `tasks/TASK-307.md`.
+  **Chiuso**: in `main` con la #573 (`f8dd7964`, 2026-10-27), privacy
+  datata 27 ottobre 2026; vedi «Completato».
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -1440,6 +1442,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-307 (ADR-0267; richiesta dell'utente del 2026-10-26):
+  dal disegno di un altro, aperto dal «Feed» o dal profilo, **«Start»**
+  sulla sua traccia tagliata (senza svolte a voce, e la scheda lo dice) ed
+  **«Export GPX»** scritto sul telefono, senza tempi né nome. Solo i disegni
+  che si possono già vedere, mai con un blocco, mai quelli nascosti: un
+  test ciascuno nell'API. Nessun interruttore per chi pubblica (scelta
+  dell'utente): la «Privacy» lo dice, in app e sul sito, dal 27 ottobre
+  2026. #573, `tasks/TASK-307.md`.
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
