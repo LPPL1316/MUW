@@ -344,6 +344,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Corse di gruppo",
+      blocks: [
+        "Se crei una corsa di gruppo o dici che ci vai, gli iscritti che la vedono vedono il tuo nome, la tua foto e che ci vai. Cancelliamo le tue corse di gruppo e le tue risposte quando cancelli l'account.",
+      ],
+    },
+    {
       heading: "Feedback",
       blocks: [
         "Quando ci scrivi da «Mandaci un feedback» in «Impostazioni», teniamo il tuo messaggio, la versione dell'app, il sistema del telefono (iOS o Android) e quando l'hai mandato. Chi gestisce MuW lo riceve per email con il tuo nome utente e il tuo indirizzo email, per leggerlo e, se serve, risponderti per email. Non è mai mostrato agli altri iscritti. Quando cancelli l'account, i tuoi messaggi sono cancellati con esso dal nostro server.",

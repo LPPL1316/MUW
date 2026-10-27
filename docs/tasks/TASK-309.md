@@ -79,7 +79,8 @@ pagina della corsa di gruppo» (`EVENTI.md` §6.4).
 
 ## Parte A — API: corse di gruppo, «I'm going», promemoria
 
-1. **Migrazione** `00NN_group_runs.sql` (numero al merge, oggi da 0031):
+1. **Migrazione** `0032_group_runs.sql` (il primo numero libero al merge;
+   la 0031 l'ha presa TASK-308):
    `group_runs` e `group_run_going` di `EVENTI.md` §12; indice su
    `starts_at` delle non annullate; GIST su `start`.
 2. **`group_runs.py`** (nuovo):
@@ -273,7 +274,7 @@ dalla prima lista: `accounts.py` esce, perché l'hook
 `app.state.before_account_delete` c'è già; la privacy sta nei testi
 dell'app, da cui `site/privacy` si rifà, e entra dopo #573 e #576):
 ```
-services/api/migrations/0031_group_runs.sql              (nuovo, numero al merge; rifà il CHECK di reports.kind)
+services/api/migrations/0032_group_runs.sql              (nuovo; la 0031 è di TASK-308; rifà il CHECK di reports.kind)
 services/api/shaperoute_api/group_runs.py                (nuovo: regole, endpoint, orologio, push, hook di DELETE /me)
 services/api/shaperoute_api/push.py                      (i tre Kind, OWN_KINDS, i testi; group_run_id in PushEvent e nei dati)
 services/api/shaperoute_api/app.py                       (import e una riga install_group_runs)
@@ -324,7 +325,7 @@ docs/UI.md («Feed», il profilo), docs/EVENTI.md, docs/STATUS.md, docs/tasks/TA
 
 **Parte A** (branch `feat/TASK-309-a-group-runs-api`, 2026-10-27):
 `group_runs.py` con gli endpoint, `GroupRunClock` e le tre push; la
-migrazione `0031_group_runs.sql` (numero al merge); il tipo `group_run`
+migrazione `0032_group_runs.sql` (la 0031 è di TASK-308); il tipo `group_run`
 nelle segnalazioni e nelle loro email; tipi e fixture in `shared-types`.
 Un test per regola in `test_group_runs.py` (44), più il tipo nuovo in
 `test_moderation.py` e `test_report_email.py`. Com'è fatta: `EVENTI.md`
@@ -334,6 +335,10 @@ dati sono `{ kind, group_run_id }`, come le sfide del gioco); un blocco non
 cancella le risposte, le esclude in lettura (`counted_sql`); «in arrivo»
 vuol dire non finita e non annullata.
 Testi de/es/fr delle push e della privacy approvati dall'utente il
-2026-10-27 (sopra, «Testi da approvare»). **Resta**: la riga della privacy
-dopo #573 e #576; il merge dal Coordinatore; il server dopo Apple, con il
-sì dell'utente.
+2026-10-27 (sopra, «Testi da approvare»). La riga della privacy è nei
+cinque `about/content/*.ts`, nella sezione nuova «Group runs» sopra
+«Feedback», con la data del 28 ottobre 2026 già messa dalla #576; le
+pagine di `site/privacy` rifatte con `make_privacy.mjs` (2026-10-28, dopo
+#573 e #576 in `main`). Migrazione rinumerata `0032` (la `0031` è di
+TASK-308). **Resta**: il merge dal Coordinatore; il server dopo Apple, con
+il sì dell'utente.

@@ -224,7 +224,7 @@ L'organizzatore non ha una riga in `group_run_going`: va sempre (§6.2).
 
 **Parte A, l'API** (branch `feat/TASK-309-a-group-runs-api`; contratti in
 `API.md`, «Group runs»; tabelle in `DATABASE.md`, migrazione
-`00NN_group_runs.sql`):
+`0032_group_runs.sql`):
 
 - `group_runs.py` tiene tutto: le regole dei campi (§3), chi vede
   (`seen_sql`, §4), chi è contato (`counted_sql`, §6.3), la fila (§5), il
@@ -249,6 +249,7 @@ L'organizzatore non ha una riga in `group_run_going`: va sempre (§6.2).
 - I limiti contano i caratteri come Python (punti di codice); l'app li
   ricontrolla con le costanti `GROUP_RUN_*` di `shared-types`.
 - Nessun codice d'errore nuovo: `schemas.py` ed `engine.zip` invariati.
-- **La riga della privacy** (§11) va in `apps/mobile/src/about/content/`
-  (le pagine di `site/privacy` si rifanno da lì): entra dopo #573 e #576,
-  che toccano gli stessi file, con le traduzioni approvate dall'utente.
+- **La riga della privacy** (§11) sta in `apps/mobile/src/about/content/`,
+  sezione «Group runs» sopra «Feedback», nelle cinque lingue approvate
+  dall'utente; le pagine di `site/privacy` si rifanno da lì
+  (`site/tools/make_privacy.mjs`).

@@ -346,6 +346,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Gruppenläufe",
+      blocks: [
+        "Wenn du einen Gruppenlauf erstellst oder sagst, dass du hingehst, sehen die Mitglieder, die ihn sehen können, deinen Namen, dein Foto und dass du hingehst. Wenn du dein Konto löschst, löschen wir deine Gruppenläufe und deine Antworten.",
+      ],
+    },
+    {
       heading: "Feedback",
       blocks: [
         "Wenn du uns über «Feedback senden» in «Einstellungen» schreibst, behalten wir deine Nachricht, die Version der App, das System deines Handys (iOS oder Android) und wann du sie geschickt hast. Wer MuW betreibt, bekommt sie per E-Mail mit deinem Benutzernamen und deiner E-Mail-Adresse, um sie zu lesen und dir, wenn nötig, per E-Mail zu antworten. Sie wird den anderen Mitgliedern nie gezeigt. Wenn du dein Konto löschst, werden deine Nachrichten mit ihm von unserem Server gelöscht.",

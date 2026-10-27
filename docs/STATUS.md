@@ -177,7 +177,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in `EVENTI.md`, file `tasks/TASK-309.md`.
   **Documenti** in `main` con la #574 (`06a95749`, 2026-10-27).
   **Parte A** (API, branch `feat/TASK-309-a-group-runs-api`, migrazione
-  `0031_group_runs.sql`, numero al merge, conteso con la #576):
+  `0032_group_runs.sql`; la 0031 è del feedback, #576):
   `group_runs.py` con `POST /group-runs`, la fila `GET /group-runs`, la
   pagina, il cambio e l'annullamento dell'organizzatore, «I'm going» e «Not
   going», chi va a pagine, le corse di gruppo di un profilo; il promemoria
@@ -188,10 +188,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Tipi e fixture in `shared-types`. Nessun codice d'errore nuovo:
   `schemas.py` ed `engine.zip` invariati. Testi de/es/fr delle push e
   della privacy approvati dall'utente il 2026-10-27; la riga della privacy
-  (nei testi dell'app, da cui si rifà `site/privacy`) entra dopo #573 e
-  #576. Merge
-  dal Coordinatore; server dopo Apple, con il sì dell'utente. Com'è
-  fatta: `EVENTI.md` §14.
+  è nella sezione «Group runs» dei testi dell'app, sopra «Feedback», e
+  `site/privacy` è rifatta (2026-10-28, dopo #573 e #576). Merge dal
+  Coordinatore; server dopo Apple, con il sì dell'utente. Com'è fatta:
+  `EVENTI.md` §14.
 - **TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore»
   preparato all'apertura** (ADR-0266; richiesta dell'utente del
   2026-10-26, «Sì, va bene così: procedi con TASK-306» lo stesso giorno;
