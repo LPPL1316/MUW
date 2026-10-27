@@ -1455,6 +1455,9 @@ export const ES: Table = {
     "La ruta sigue a {distance}, hacia el {direction}.",
   "Follow the dotted line back to the route.":
     "Sigue la línea de puntos para volver a la ruta.",
+  // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
+  "This route has no turn directions: follow the line on the map.":
+    "Esta ruta no tiene indicaciones de giro: sigue la línea en el mapa.",
 
   // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
   "Send feedback": "Envíanos tus comentarios",

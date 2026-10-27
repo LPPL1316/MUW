@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 octobre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "26 octobre 2026";
+const PRIVACY_UPDATED = "27 octobre 2026";
 
 const help: AboutDocument = {
   title: "Comment fonctionne MuW",
@@ -324,6 +324,7 @@ const privacy: AboutDocument = {
         "Avec un compte, quand tu touches «Enregistrer» à la fin d'une course, toute la course part vers notre serveur : chaque position avec son heure, les pauses, le parcours suivi, la distance, la durée, un score de la fidélité de la trace au parcours (calculé par notre serveur et non affiché dans l'app) et le nom du lieu. Avec «Ignorer», rien n'est envoyé.",
         "Une course enregistrée est privée : seul ton compte la voit. Elle reste jusqu'à ce que tu la supprimes de «Mes activités» ou que tu supprimes ton compte.",
         "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres que si tu actives «Publique», et ils voient alors la trace sans ses 200 premiers et 200 derniers mètres, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu.",
+        "Qui peut voir une de tes courses peut aussi la suivre avec «Démarrer» et enregistrer cette même trace comme fichier GPX : toujours sans ses 200 premiers et 200 derniers mètres et sans les temps.",
       ],
     },
     {

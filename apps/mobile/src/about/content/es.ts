@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 de octubre de 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "26 de octubre de 2026";
+const PRIVACY_UPDATED = "27 de octubre de 2026";
 
 const help: AboutDocument = {
   title: "Cómo funciona MuW",
@@ -324,6 +324,7 @@ const privacy: AboutDocument = {
         "Con una cuenta, cuando tocas «Guardar» al final de una carrera, la carrera entera va a nuestro servidor: cada posición con su hora, las pausas, la ruta que seguiste, distancia, duración, una puntuación de cuánto sigue la traza a la ruta (calculada por nuestro servidor y no mostrada en la app) y el nombre del lugar. Con «Descartar» no se envía nada.",
         "Una carrera guardada es privada: solo la ve tu cuenta. Se queda hasta que la eliminas de «Mis actividades» o eliminas tu cuenta.",
         "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros cuando activas «Pública», y entonces ven el recorrido sin sus primeros y últimos 200 m, con el título que le diste, y sin tiempos, pausas ni la ruta prevista.",
+        "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX: siempre sin sus primeros y últimos 200 m y sin tiempos.",
       ],
     },
     {

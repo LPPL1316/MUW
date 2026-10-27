@@ -1461,6 +1461,9 @@ export const DE: Table = {
     "Die Route ist {distance} entfernt, Richtung {direction}.",
   "Follow the dotted line back to the route.":
     "Folge der gepunkteten Linie zurück zur Route.",
+  // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
+  "This route has no turn directions: follow the line on the map.":
+    "Diese Route hat keine Abbiegehinweise: Folge der Linie auf der Karte.",
 
   // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
   "Send feedback": "Feedback senden",
