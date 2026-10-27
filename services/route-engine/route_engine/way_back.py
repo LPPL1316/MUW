@@ -104,14 +104,52 @@ class _Start:
     coords: list[LatLon]
 
 
+@dataclass(frozen=True)
+class _Street:
+    """The edge u→v nearest to the runner, `off` metres away: its points
+    from u to v, the index of the piece nearest to the runner, and `point`,
+    the nearest point on it."""
+
+    off: float
+    u: Any
+    v: Any
+    coords: list[LatLon]
+    index: int
+    point: LatLon
+
+    @property
+    def to_v(self) -> list[LatLon]:
+        return _clean([self.point, *self.coords[self.index + 1 :]])
+
+    @property
+    def to_u(self) -> list[LatLon]:
+        return _clean([self.point, *reversed(self.coords[: self.index + 1])])
+
+    @property
+    def share_to_v(self) -> float:
+        """The part of the street from `point` to v."""
+        length = path_length_m(self.coords)
+        return path_length_m(self.to_v) / length if length > 0 else 0.0
+
+
 def way_back(graph: Graph, here: LatLon, ahead: Sequence[LatLon]) -> WayBack:
     """The shortest way on `graph` from `here` to the route stretch `ahead`
     (its points in the route's order). NoWayBackError when there is none
-    within MAX_WAY_M, RouteNotOnGraphError when `ahead` is not on `graph`."""
+    within MAX_WAY_M, RouteNotOnGraphError when `ahead` is not on `graph`.
+    When the street nearest to `here` is itself a piece of the stretch, the
+    way is to that street: the route is there."""
     route = nodes_along(graph, ahead)
-    along = _first_alongs(graph, ahead[0], route)
-    starts = _starts(graph, here)
-    start, path = _nearest_rejoin(graph, starts, along)
+    alongs = _alongs(graph, ahead[0], route)
+    along: dict[Any, float] = {}
+    for node, metres in zip(route, alongs, strict=True):
+        along.setdefault(node, metres)
+    street = _nearest_street(graph, here)
+    if street.off > MAX_OFF_ROAD_M:
+        raise NoWayBackError(NO_ROAD)
+    beside = _beside(graph, here, street, route, alongs)
+    if beside is not None:
+        return beside
+    start, path = _nearest_rejoin(graph, _starts(graph, street), along)
     rejoin = path[-1]
     following = route[route.index(rejoin) + 1 : route.index(rejoin) + 2]
     nodes = [start.behind, *path, *following]
@@ -122,49 +160,63 @@ def way_back(graph: Graph, here: LatLon, ahead: Sequence[LatLon]) -> WayBack:
         distance_m=at[-1],
         rejoin=_node_latlon(graph, rejoin),
         rejoin_m=along[rejoin],
-        directions=_from_here(said, path, at, start.coords[0]),
+        directions=_from_here(said, path, at, street.point),
         nodes=nodes,
     )
 
 
-def _first_alongs(
-    graph: Graph, first: LatLon, route: Sequence[Any]
-) -> dict[Any, float]:
-    """Each node of `route` with where it first comes along the stretch:
-    from its first point to the first node, then along the roads."""
+def _alongs(graph: Graph, first: LatLon, route: Sequence[Any]) -> list[float]:
+    """Where each node of `route` comes along the stretch: from its first
+    point to the first node, then along the roads."""
     along = haversine_m(first, _node_latlon(graph, route[0]))
-    found = {route[0]: along}
+    found = [along]
     for u, v in itertools.pairwise(route):
         along += float(_shortest_edge(graph, u, v)["length"])
-        found.setdefault(v, along)
+        found.append(along)
     return found
 
 
-def _starts(graph: Graph, here: LatLon) -> list[_Start]:
-    """The ends of the street nearest to `here` the way may leave it by:
-    both on foot, on a one-way street only the end it goes to. Each costs
-    the metres to the street, then its share of the street."""
-    off, u, v, coords, index, point = _nearest_street(graph, here)
-    if off > MAX_OFF_ROAD_M:
-        raise NoWayBackError(NO_ROAD)
-    on_street = [point]
-    to_v = _clean([*on_street, *coords[index + 1 :]])
-    to_u = _clean([*on_street, *reversed(coords[: index + 1])])
-    length = path_length_m(coords)
-    share = path_length_m(to_v) / length if length > 0 else 0.0
-    starts = [_Start(v, u, off + share * step_cost(u, v, graph[u][v]), to_v)]
+def _beside(
+    graph: Graph,
+    here: LatLon,
+    street: _Street,
+    route: Sequence[Any],
+    alongs: Sequence[float],
+) -> WayBack | None:
+    """The way to `street` when it is a piece of the route: from `here` to
+    its nearest point, with nothing to say. None when it is not."""
+    ends = {street.u, street.v}
+    for k, (a, b) in enumerate(itertools.pairwise(route)):
+        if {a, b} == ends and a != b:
+            length = float(_shortest_edge(graph, a, b)["length"])
+            share = street.share_to_v if a == street.u else 1.0 - street.share_to_v
+            return WayBack(
+                points=_clean([here, street.point]),
+                distance_m=street.off,
+                rejoin=street.point,
+                rejoin_m=alongs[k] + (1.0 - share) * length,
+                directions=[],
+                nodes=[],
+            )
+    return None
+
+
+def _starts(graph: Graph, street: _Street) -> list[_Start]:
+    """The ends of `street` the way may leave it by: both on foot, on a
+    one-way street only the end it goes to. Each costs the metres to the
+    street, then its share of the street."""
+    u, v, share = street.u, street.v, street.share_to_v
+    starts = [
+        _Start(v, u, street.off + share * step_cost(u, v, graph[u][v]), street.to_v)
+    ]
     if graph.has_edge(v, u):
         back = (1.0 - share) * step_cost(v, u, graph[v][u])
-        starts.append(_Start(u, v, off + back, to_u))
+        starts.append(_Start(u, v, street.off + back, street.to_u))
     return starts
 
 
-def _nearest_street(
-    graph: Graph, here: LatLon
-) -> tuple[float, Any, Any, list[LatLon], int, LatLon]:
-    """How far `here` is from the edge u→v nearest to it, u and v, the
-    edge's points from u to v, the index of the piece of it nearest to
-    `here`, and the point on that piece."""
+def _nearest_street(graph: Graph, here: LatLon) -> _Street:
+    """The edge nearest to `here`, among the roads of the nodes near it."""
     ids, latlon = _node_table(graph)
     xy = latlon_to_local_array(here, latlon)
     off = np.hypot(xy[:, 0], xy[:, 1])
@@ -176,12 +228,12 @@ def _nearest_street(
         node = ids[int(i)]
         edges.update((node, other) for other in graph.successors(node))
         edges.update((other, node) for other in graph.predecessors(node))
-    best: tuple[float, Any, Any, list[LatLon], int, LatLon] | None = None
+    best: _Street | None = None
     for u, v in sorted(edges, key=repr):
         coords = _edge_coords(graph, u, v, _shortest_edge(graph, u, v))
         distance, index, point = _project(here, coords)
-        if best is None or distance < best[0]:
-            best = (distance, u, v, coords, index, point)
+        if best is None or distance < best.off:
+            best = _Street(distance, u, v, coords, index, point)
     if best is None:
         raise NoWayBackError(NO_ROAD)
     return best

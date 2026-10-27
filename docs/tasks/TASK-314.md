@@ -63,7 +63,11 @@ Numero, ADR e condizioni dal Coordinatore (2026-10-27):
      `step_cost`: la bici a mano costa di più, come `pen_up`); a parità,
      il primo lungo il percorso. Per costruzione la strada non corre sul
      percorso: il primo nodo del percorso che tocca è già un arrivo.
-     Oltre `MAX_WAY_M` non c'è strada per tornare.
+     Oltre `MAX_WAY_M` non c'è strada per tornare, e nemmeno a più di
+     `MAX_OFF_ROAD_M` da ogni strada; i metri fino alla strada contano
+     nel tetto.
+   - **Accanto al percorso**: se la via più vicina al runner è già un
+     pezzo del tratto, la strada è fino a quella via, senza indicazioni.
    - **Fuori**: i punti dal runner lungo le geometrie delle vie, la
      lunghezza, il punto di rientro, dove cade lungo `ahead` (`rejoin_m`)
      e le indicazioni. `guidance` gira sui nodi della strada più quelli del

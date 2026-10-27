@@ -201,10 +201,37 @@ def test_the_nodes_are_those_the_directions_were_worked_out_on() -> None:
 def test_a_runner_on_the_route_rejoins_where_they_are() -> None:
     graph = _town()
 
-    way = way_back(graph, _at(300.0, 2.0), _route())
+    way = way_back(graph, _at(330.0, 2.0), _route())
 
-    assert way.distance_m < 105.0
-    assert way.rejoin in (_node(3, 0), _node(4, 0))
+    assert way.distance_m == pytest.approx(2.0, abs=0.1)
+    assert _near(way.rejoin, _at(330.0, 0.0), 0.1)
+    assert way.rejoin_m == pytest.approx(330.0, abs=0.5)
+
+
+def test_beside_the_route_ahead_the_way_is_to_it_with_no_turn_back() -> None:
+    # 30 m off Row 0, 50 m from both corners: the street nearest is the
+    # route, going east. Not to the corner and back.
+    graph = _town(crossings=[5, 6])
+
+    east = way_back(graph, _at(650.0, 30.0), _route(0, 10))
+    west = way_back(graph, _at(650.0, 30.0), _route(10, 0))
+
+    for way in (east, west):
+        assert way.points == [_at(650.0, 30.0), way.rejoin]
+        assert _near(way.rejoin, _at(650.0, 0.0), 0.1)
+        assert way.distance_m == pytest.approx(30.0, abs=0.1)
+        assert way.directions == [] and way.nodes == []
+    assert east.rejoin_m == pytest.approx(650.0, abs=0.5)
+    assert west.rejoin_m == pytest.approx(350.0, abs=0.5)
+
+
+def test_beside_the_route_behind_the_stretch_is_a_street_like_another() -> None:
+    graph = _town()
+
+    way = way_back(graph, _at(150.0, 30.0), _route(4, 10))
+
+    assert _near(way.rejoin, _node(4, 0))
+    assert way.directions[0].turn == "depart"
 
 
 def test_no_way_back_beyond_the_longest() -> None:

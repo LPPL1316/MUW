@@ -655,8 +655,10 @@ Il tratto lo taglia l'app (ADR-0263, punto 2). Risponde `200` con
 Coordinate a 7 decimali e metri al decimetro: la stessa risposta su ogni
 macchina. La calcola `route_engine/way_back.py`. Parte dal punto della via
 più vicina al runner e arriva al nodo del tratto più vicino per strada
-(ADR-0274). Il grafo è la zona già in cache, ritagliata 500 m attorno al
-runner e al tratto: questa richiesta non scarica mai una zona.
+(ADR-0274). Se quella via è già un pezzo del tratto, la strada va solo
+fino a lei: due punti, nessuna indicazione. Il grafo è la zona già in
+cache, ritagliata 500 m attorno al runner e al tratto: questa richiesta
+non scarica mai una zona.
 
 Risposte d'errore:
 

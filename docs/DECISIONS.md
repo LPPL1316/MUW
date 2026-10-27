@@ -16901,7 +16901,10 @@ che parte andare.
    l'app taglia e manda. Dijkstra con `step_cost`, i sensi unici in bici,
    un tetto di `MAX_WAY_M`; a parità, il primo nodo lungo il percorso.
    La strada non corre mai sul percorso: il primo nodo del percorso che
-   tocca è già un arrivo.
+   tocca è già un arrivo. Se la via più vicina al runner è già un pezzo
+   del tratto, la strada è fino a quella via, senza indicazioni: il
+   percorso è lì. Altrimenti, a Trento, chi stava a 60 m dal percorso
+   veniva mandato all'incrocio e poi indietro con un'inversione a U.
 2. **Le indicazioni** della strada sono quelle dei percorsi (`guidance` e
    `with_alongs`), con le distanze dal runner e l'ultima che dice da che
    parte prendere il percorso al rientro.
