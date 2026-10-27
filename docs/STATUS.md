@@ -160,6 +160,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
+  chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
+  numero e condizioni dal Coordinatore). Parte A, branch
+  `feat/TASK-311-a-words-measure`: 1000 parole (50 × 5 città × 3 e 4 km a
+  lettera × due stili) misurate sul Mac con
+  `tests/measure_words_many.py`. Poi B (il metodo, solo ciò che la misura
+  dimostra; più km a lettera col sì dell'utente), C (le parole provate in
+  `drawn_routes` sul server, dopo Apple) e D (nell'archivio anche disegni
+  a mano, contorni delle foto e richieste senza percorso, senza account;
+  privacy da approvare). File `tasks/TASK-311.md`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
