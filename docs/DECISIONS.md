@@ -17156,6 +17156,60 @@ Nessuna
 dipendenza né permesso nuovi, niente di nativo: l'app arriva con un
 aggiornamento OTA (impronta iOS da rimisurare, attesa invariata).
 
+## ADR-0275 — Le foto di un post si scorrono nella scheda del Feed, dopo il disegno
+
+**Data**: 2026-10-28 · **Stato**: Accettata · **Task**: TASK-315
+Richiesta dell'utente; il modo è deciso dall'agente su delega dell'utente,
+con le condizioni del Coordinatore.
+
+**Contesto**: l'utente vuole che la foto di un post sia «scorribile e
+visibile dal feed». La scheda del Feed mostrava solo il disegno sulla
+mappa (TASK-156, TASK-162); le foto (TASK-208, ADR-0170) si vedevano solo
+aprendo il post. `GET /feed` le manda già con ogni post (`photos`), quindi
+basta l'app. Tutta l'app scorre già in orizzontale fra Feed, Draw ed
+Explore (TASK-154): un secondo scorrimento orizzontale dentro la scheda non
+deve girare la pagina per sbaglio.
+
+**Decisione**:
+
+1. **Le pagine della scheda**: per un post di un iscritto con foto, e
+   qualcuno entrato (le foto si leggono con il token), il riquadro del
+   disegno diventa uno `ScrollView` orizzontale a pagine. Prima il disegno
+   con la sua mappa, come oggi; poi una foto per pagina, larga quanto la
+   scheda e alta quanto il disegno, ritagliata a riempirlo. Sotto il
+   riquadro un puntino per pagina, acceso quello mostrato. Un tocco apre il
+   disegno come prima (lì le foto si vedono intere).
+2. **I bordi**: lo scorrimento delle foto rimbalza a entrambi i bordi (il
+   default di iOS; quello delle pagine dell'app no, `bounces={false}`).
+   Prima del disegno e dopo l'ultima foto il dito resta nella scheda e la
+   pagina dell'app non gira; per cambiare pagina si scorre fuori dal
+   riquadro, sul nome, sul titolo o fra le schede. È lo stesso annidamento
+   delle file orizzontali di «Explore» (`RecommendedRow`, `NearbyTowns`,
+   `CityWords`).
+3. **I dati**: si carica la foto dopo la più avanti vista, mai oltre; le
+   altre sono un riquadro vuoto finché non tocca a loro, e quelle già
+   caricate restano. La misura è quella che l'API tiene, al più 1080 px
+   per lato (ADR-0170): la scheda larga tutto lo schermo di un iPhone 3×
+   ne mostra circa 1074, e l'originale non lascia mai il telefono. Una
+   misura più piccola per il Feed vorrebbe il server.
+4. **Il resto non cambia**: con zero foto, per un esempio o senza nessuno
+   entrato la scheda è quella di prima; post nascosti e blocchi seguono
+   `GET /feed` come prima.
+
+**Alternative scartate**: i puntini sopra la foto (il Coordinatore li vuole
+sotto); la striscia di foto alte 160 sotto la mappa, come nel disegno
+aperto (la scheda diventerebbe più alta per tutti); la foto come prima
+pagina (il Feed è dei disegni: la forma resta la prima cosa che si vede);
+bloccare il `Pager` mentre il dito è sulle foto (tocca un file di più task
+e su iOS non serve); un pacchetto di carosello (una dipendenza in più per
+ciò che `ScrollView` fa già).
+
+**Conseguenze**: solo app, nessun testo né dipendenza nuovi, impronta iOS
+invariata. Provato nei test (anche che lo scorrimento delle foto non gira
+il `Pager`), non su un telefono. Su Android l'annidamento non è stato
+provato: se lì lo scorrimento delle foto girasse la pagina, serve un blocco
+nel `Pager`, con un'aggiunta a questo ADR.
+
 ## ADR-0274 — Fuori percorso, la strada per tornarci sulle vie, come un ricalcolo
 
 **Stato**: Attiva (parte A) · 2026-10-28 · richiesta dell'utente del

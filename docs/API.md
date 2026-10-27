@@ -2910,3 +2910,54 @@ richiesta fra 10 e 21 km, percorsi identici punto per punto
   aspetta; si ripensa con ADR-0009.
 - Autenticazione, limiti di richieste, versione, HTTPS, deploy: fase 4.
 - Motore di routing di produzione: ADR-0009, rinviata alla fase 4.
+
+## Gli esempi preparati prima (TASK-316, ADR-0276)
+
+### `draw_examples --all` e `--around`
+
+`--all` chiede a ogni città **tutti** i suoi esempi, come l'app quando la
+si tocca: le otto forme e poi le sei parole con la penna alzata, stile
+`round`, 3 km a lettera, la più lunga per prima (`city_examples.py`; la
+lista è `packages/shared-types/fixtures/city-examples.json`, letta da un
+test qui e da uno dell'app). `--around CITTÀ` disegna i paesi che `GET
+/nearby-cities` dà attorno alla città e poi quelli attorno a ognuno, un
+giro dopo l'altro, ognuno **dal suo punto di `/nearby-cities`** (per un
+paesino non è quello di `/cities`, TASK-236), al massimo `--towns` paesi
+(20 di base). La città stessa si disegna per nome, se la si scrive.
+
+```
+python -m shaperoute_api.draw_examples --api https://… --all Trento Caldonazzo \
+  --around Trento --around Caldonazzo
+```
+
+### `POST /kept-routes`: solo ciò che è tenuto
+
+All'apertura l'app prepara gli esempi dei paesi vicini e della regione.
+Con `POST /route-jobs` ogni telefono farebbe disegnare al server ciò che
+non è tenuto, e scaricare le zone dei paesi; qui chiede in un colpo gli
+esempi di un paese e riceve **solo quelli tenuti**, `null` per gli altri.
+Nessun job, nessuna zona, nessun motore, niente scritto.
+
+```json
+{"requests": [{"start": [46.0671, 11.1214], "shape": "heart", "distance_m": 5000, "activity": "running"},
+              {"start": [46.0671, 11.1214], "word": "CIAO", "style": "round", "pen_up": true, "distance_m": 12000, "activity": "running"}]}
+```
+
+```json
+{"routes": [{"points": [...], "distance_m": 4004.5, "...": "come il result di un job"}, null]}
+```
+
+- Da 1 a **16** richieste (gli esempi di una città sono 14), di forma o di
+  parola, con i campi di `POST /route-jobs`: un'immagine è un `422`, e una
+  forma spostata (`near`) non è mai tenuta, quindi `null`.
+- Una risposta per richiesta, nello stesso ordine: il `RouteResult` tenuto
+  o `null`. Una richiesta che il motore rifiuterebbe è un `422` come da
+  `/route-jobs`.
+- **Solo i file dei centri** (`route_store.py`: i centri delle città e i
+  punti sull'acqua, che non sono la posizione di nessuno), **mai
+  l'archivio** di ADR-0256, che tiene anche i percorsi disegnati da dove
+  erano gli utenti, senza chi: con una risposta «tenuto» o «no», un punto
+  direbbe se qualcuno ci ha disegnato. Nessun account, nessun post.
+- È un POST: conta uno nel limite al minuto, come gli altri (`access.py`).
+- Tipi in `packages/shared-types/src/keptRoutes.ts`, fixture
+  `kept-routes-request.json` e `kept-routes.json`.
