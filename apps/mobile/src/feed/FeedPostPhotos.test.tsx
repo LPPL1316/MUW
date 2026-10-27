@@ -2,8 +2,10 @@ import feed from "@shaperoute/shared-types/fixtures/feed.json";
 import session from "@shaperoute/shared-types/fixtures/session.json";
 import type { FeedPost as Post, Session } from "@shaperoute/shared-types";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { Text } from "react-native";
 
 import type { AccountState } from "../account/useAccount";
+import { Pager } from "../screens/Pager";
 import { forgetBlocked } from "../social/blockedNow";
 import { FollowsContext } from "../social/followsDoor";
 import { FeedPost } from "./FeedPost";
@@ -111,6 +113,46 @@ test("a drawing without photos, or nobody signed in: the drawing alone", async (
   await show(WITH_PHOTO, { status: "signedOut", notice: null });
   expect(screen.queryByTestId("feed-photo")).toBeNull();
   expect(screen.queryByTestId("feed-dots")).toBeNull();
+});
+
+test("with no photos the card has no scroll of its own", async () => {
+  await show({ ...WITH_PHOTO, photos: [] });
+  expect(JSON.stringify(screen.toJSON())).not.toContain("RCTScrollView");
+  expect(screen.queryByTestId("feed-photo-later")).toBeNull();
+});
+
+test("swiping the photos to the last never turns the app's page", async () => {
+  const onPage = jest.fn();
+  await render(
+    <FollowsContext.Provider
+      value={{
+        apiUrl: URL,
+        account: { state: signedIn, sessionEnded: jest.fn() },
+        openProfile: jest.fn(),
+      }}
+    >
+      <Pager
+        pages={[
+          {
+            title: "Feed",
+            render: () => <FeedPost post={shownPost(TWO_PHOTOS)} width={WIDTH} />,
+          },
+          { title: "Draw", render: () => <Text>Draw</Text> },
+        ]}
+        page={0}
+        onPage={onPage}
+      />
+    </FollowsContext.Provider>,
+  );
+  await swipeTo(2);
+  expect(onPage).not.toHaveBeenCalled();
+  expect(screen.getAllByTestId(/^feed-dot(-on)?$/).at(-1)?.props.testID).toBe(
+    "feed-dot-on",
+  );
+  // The photos bounce at their ends, where the pages do not: a swipe past
+  // the last photo stays in the card.
+  expect(screen.getByTestId("feed-pages").props.bounces).not.toBe(false);
+  expect(screen.getByTestId("pager").props.bounces).toBe(false);
 });
 
 test("a tap on a card with photos still opens the drawing", async () => {

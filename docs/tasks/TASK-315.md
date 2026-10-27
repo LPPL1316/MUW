@@ -2,7 +2,7 @@
 
 **Stato**: In corso
 **Fase**: 4 · **Branch**: `feat/TASK-315-feed-photos`
-**ADR**: aggiunta ad ADR-0227 (deciso dall'agente su delega dell'utente)
+**ADR**: ADR-0275 (deciso dall'agente su delega dell'utente)
 
 ## Obiettivo
 
@@ -20,9 +20,15 @@ Condizioni del Coordinatore nell'assegnare il numero:
 
 - la mappa resta la prima pagina, poi le foto, con i puntini **sotto**;
 - scorrere le foto non deve girare per sbaglio la pagina dell'app
-  (Feed, Draw ed Explore scorrono già in orizzontale);
-- si carica solo la foto che si vede, più la successiva;
-- un post senza foto resta identico.
+  (Feed, Draw ed Explore scorrono già in orizzontale): cosa succede ai
+  bordi si decide e si scrive nell'ADR, con un test che lo scorrimento
+  delle foto non sposta il `Pager`;
+- si carica solo la foto che si vede, più al massimo la successiva, nella
+  misura giusta per la scheda, mai l'originale;
+- un post senza foto resta identico, con un test; post nascosti e blocchi
+  come oggi;
+- impronta iOS 83793e26 su una copia pulita, nessuna dipendenza nuova,
+  nessun testo nuovo.
 
 ## Cosa fare
 
@@ -42,7 +48,10 @@ Condizioni del Coordinatore nell'assegnare il numero:
 - [x] Un post con foto le mostra dopo il disegno, lette con il token.
 - [x] Un puntino per pagina, acceso quello mostrato dopo uno scorrimento.
 - [x] Caricate solo fino alla foto dopo la più avanti vista.
-- [x] Un post senza foto, un esempio o nessuno entrato: la scheda di prima.
+- [x] Un post senza foto, un esempio o nessuno entrato: la scheda di prima,
+      senza uno scorrimento suo.
+- [x] Scorrere le foto fino all'ultima non gira la pagina del `Pager`; le
+      foto rimbalzano ai bordi, le pagine no.
 - [x] Un tocco sulla scheda apre ancora il disegno.
 - [x] Nessun testo nuovo; nessuna dipendenza nuova.
 - [ ] CI verde; impronta iOS invariata (83793e26).
@@ -53,7 +62,7 @@ Condizioni del Coordinatore nell'assegnare il numero:
 apps/mobile/src/feed/FeedPost.tsx              (le foto a pagine, i puntini)
 apps/mobile/src/feed/FeedPostPhotos.test.tsx   (nuovo)
 docs/tasks/TASK-315.md                         (nuovo)
-docs/DECISIONS.md                              (aggiunta ad ADR-0227)
+docs/DECISIONS.md                              (ADR-0275 in fondo)
 docs/STATUS.md                                 (una voce in «Completato»)
 ```
 
