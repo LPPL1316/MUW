@@ -269,20 +269,21 @@ describe("the run opened again waits for «Resume»", () => {
 
   test("«Resume» ends the pause: the time closed does not count, nor is the line joined", () => {
     closedDuringRun();
-    jest.setSystemTime(NOW + 10 * 60_000);
+    // Longer ago than AWAY_AFTER_MS: sooner it goes on at once (ADR-0264).
+    jest.setSystemTime(NOW + 20 * 60_000);
     const recorder = startRun(ROUTE, Date.now());
     const session = controlRun(recorder, { onChange: jest.fn(), say: jest.fn() });
     // No countdown: paused, by the runner's hand as it were.
     expect(runControl()).toMatchObject({ phase: "paused", auto: false, pen: false });
     expect(runControl().startsAtMs).toBeNull();
 
-    jest.setSystemTime(NOW + 12 * 60_000);
+    jest.setSystemTime(NOW + 22 * 60_000);
     resumeRun();
     expect(runControl().phase).toBe("running");
-    session.onFix(fix(300, 12 * 60 + 1), false);
-    session.onFix(fix(320, 12 * 60 + 7), false);
+    session.onFix(fix(300, 22 * 60 + 1), false);
+    session.onFix(fix(320, 22 * 60 + 7), false);
     const track = recorder.track();
-    expect(track.pauses).toEqual([{ fromMs: NOW + 15_000, toMs: NOW + 12 * 60_000 }]);
+    expect(track.pauses).toEqual([{ fromMs: NOW + 15_000, toMs: NOW + 22 * 60_000 }]);
     // Where the runner is now is not joined to where the app closed.
     expect(track.fixes[3].gap).toBe(true);
     expect(track.distanceM).toBeCloseTo(60, 0);
@@ -298,6 +299,7 @@ describe("the run opened again waits for «Resume»", () => {
 
   test("standing still while paused does not pause it again, nor end the pause", () => {
     closedDuringRun();
+    jest.setSystemTime(NOW + 20 * 60_000);
     const recorder = startRun(ROUTE, Date.now());
     const session = controlRun(recorder, { onChange: jest.fn(), say: jest.fn() });
     jest.advanceTimersByTime(60_000);

@@ -7,6 +7,7 @@ import {
   type Walk,
 } from "@shaperoute/shared-types";
 import { File, Paths } from "expo-file-system";
+import { AppState, type AppStateStatus } from "react-native";
 
 import {
   addFix,
@@ -14,6 +15,7 @@ import {
   emptyTrack,
   holdTrack,
   leaveTrack,
+  openPause,
   pauseTrack,
   penDownTrack,
   penUpTrack,
@@ -29,7 +31,8 @@ import {
  */
 
 export const RUN_FILE = "current-run.json";
-/** The file is written at most this often, and when the run ends. */
+/** The file is written at most this often with the app in front, and when
+ * the run ends. Behind another app it is written at once (TASK-304). */
 export const SAVE_EVERY_MS = 15_000;
 /** A run stopped less than this ago goes on when the same route starts again. */
 export const RESUME_WITHIN_MS = 30 * 60_000;
@@ -38,9 +41,12 @@ export const RESUME_WITHIN_MS = 30 * 60_000;
  * the app, short enough that yesterday's run is not one in progress. */
 export const REOPEN_WITHIN_MS = 2 * 60 * 60_000;
 /** With the app behind another, or the phone locked, no fix for this long
- * is a pause of the phone's (TASK-255, ADR-0219: the user's choice of 60
- * seconds): a shorter absence, a change of song, joins the line as before. */
-export const AWAY_AFTER_MS = 60_000;
+ * is a pause of the phone's (TASK-255, ADR-0219): a shorter absence joins
+ * the line, its time counted, as if the app had stayed. Ten minutes, the
+ * user's choice (TASK-304, ADR-0264, in place of ADR-0219's 60 seconds): a
+ * photo taken running, with iOS freezing or closing MuW meanwhile, is still
+ * the run. The straight line is never longer than the way run. */
+export const AWAY_AFTER_MS = 10 * 60_000;
 
 /** "running" in the file means the app was closed during the run. */
 export type RunStatus = "running" | "stopped" | "arrived";
@@ -243,12 +249,24 @@ function resumable(
   return continueTrack(saved.track, nowMs);
 }
 
-/** The saved track when the app was closed during a run of `route`
- * (TASK-272): it goes on paused, the time since its last fix a pause that
- * «Resume» ends. How long ago is for the app to judge as it opens
- * (`interruptedRun`): a run it does not open again shows on its end screen,
- * which leaves the file only by «Save», «Discard» or «Done». */
-function reopened(saved: SavedRun | null, route: LatLon[]): Track | null {
+/** A run the app was closed during, taken up again: its track, and since
+ * when the app was away when the run goes on at once. */
+type Reopened = { track: Track; awayFromMs: number | null };
+
+/** The saved track when the app was closed during a run of `route`. Its
+ * last fix no more than AWAY_AFTER_MS before `nowMs`, it goes on at once,
+ * as after any absence of the app (TASK-304, ADR-0264): the next fix joins
+ * the line, its time counted, unless it comes later than that. Older, it
+ * goes on paused, the time since its last fix a pause that «Resume» ends
+ * (TASK-272, ADR-0240). Whether it opens again at all is for the app to
+ * judge as it opens (`interruptedRun`): a run it does not open again shows
+ * on its end screen, which leaves the file only by «Save», «Discard» or
+ * «Done». */
+function reopened(
+  saved: SavedRun | null,
+  route: LatLon[],
+  nowMs: number,
+): Reopened | null {
   if (
     saved === null ||
     saved.status !== "running" ||
@@ -258,7 +276,13 @@ function reopened(saved: SavedRun | null, route: LatLon[]): Track | null {
   ) {
     return null;
   }
-  return holdTrack(saved.track);
+  const last = saved.track.fixes[saved.track.fixes.length - 1];
+  // A pause of the app away is open only once an absence was found too
+  // long: then it is no longer a short one.
+  if (nowMs - last.timeMs <= AWAY_AFTER_MS && openPause(saved.track)?.away !== true) {
+    return { track: saved.track, awayFromMs: last.timeMs };
+  }
+  return { track: holdTrack(saved.track), awayFromMs: null };
 }
 
 /**
@@ -325,8 +349,11 @@ export type RunRecorder = {
  * `rotationDeg` is how far the route's shape is turned, kept when it is
  * (TASK-232): the run saved shows the drawing turned back. `followed` is
  * what the voice needs of the route, kept when the route has it (TASK-272).
- * A run of the same route the app was closed during goes on paused, until
- * «Resume» (TASK-272, ADR-0240).
+ * A run of the same route the app was closed during goes on at once when
+ * closed lately (TASK-304, ADR-0264), otherwise paused until «Resume»
+ * (TASK-272, ADR-0240). With the app behind another the file is written
+ * as it leaves the front and at each fix after (TASK-304): iOS may close
+ * MuW there, and the file is what is left of the run.
  */
 export function startRun(
   route: LatLon[],
@@ -338,7 +365,8 @@ export function startRun(
   { directions = [], word = null, onFoot = [] }: FollowedRoute = {},
 ): RunRecorder {
   const saved = loadRun();
-  let track = reopened(saved, route) ?? resumable(saved, route, nowMs) ?? emptyTrack();
+  const taken = reopened(saved, route, nowMs);
+  let track = taken?.track ?? resumable(saved, route, nowMs) ?? emptyTrack();
   let status: RunStatus = "running";
   let savedMs: number | null = null;
   let unsaved = false;
@@ -381,8 +409,19 @@ export function startRun(
     unsaved = false;
   }
 
-  // When the app left the front, until the first fix after (TASK-255).
-  let leftAtMs: number | null = null;
+  // When the app left the front, until the first fix after (TASK-255):
+  // for a run the app was closed during, its last fix.
+  let leftAtMs: number | null = taken?.awayFromMs ?? null;
+
+  // Leaving the front, what there is goes to the file at once (TASK-304):
+  // behind another app iOS may close MuW, and only the file is left.
+  stopWatchingFront();
+  const watchingFront = AppState.addEventListener("change", (next) => {
+    if (behind(next) && unsaved && status === "running") {
+      save();
+    }
+  });
+  stopWatchingFront = () => watchingFront.remove();
 
   const recorder: RunRecorder = {
     onFix(fix, arrived) {
@@ -412,7 +451,12 @@ export function startRun(
         save();
         return;
       }
-      if (unsaved && (savedMs === null || fix.timeMs - savedMs >= SAVE_EVERY_MS)) {
+      if (
+        unsaved &&
+        (savedMs === null ||
+          fix.timeMs - savedMs >= SAVE_EVERY_MS ||
+          behind(AppState.currentState))
+      ) {
         savedMs = fix.timeMs;
         save();
       }
@@ -461,6 +505,7 @@ export function startRun(
         status = "stopped";
         save();
       }
+      watchingFront.remove();
     },
     track: () => track,
   };
@@ -468,6 +513,16 @@ export function startRun(
   activeNotWritten = () => notWritten;
   return recorder;
 }
+
+/** Whether the app is behind another, or the phone locked: «inactive» too,
+ * the step before. */
+function behind(state: AppStateStatus): boolean {
+  return state === "background" || state === "inactive";
+}
+
+/** Stops the last recorder writing as the app leaves the front: one run at
+ * a time, as in the file. */
+let stopWatchingFront: () => void = () => {};
 
 /** Whether a pause of the runner's, or of the pen's, reaches past `sinceMs`. */
 function pausedByHandAfter(track: Track, sinceMs: number): boolean {
