@@ -230,7 +230,7 @@ apps/mobile/src/explore/cityExamplesFixture.test.ts (nuovo: la fixture comune)
 ```
 
 `NearbyTowns.tsx` perché `App.tsx` ferma `prepareExplore` appena «Explore»
-si apre: senza la riga il giro si fermerebbe proprio lì. Con la riga
+si apre (`exploreSeen`): senza la riga il giro si fermerebbe proprio lì. Con la riga
 riprende dai file finché «Near me» è in pagina; `App.tsx` resta com'è.
 
 Documenti (ogni parte): `docs/tasks/TASK-316.md`, `docs/STATUS.md`,
