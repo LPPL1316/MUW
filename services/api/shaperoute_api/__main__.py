@@ -50,6 +50,7 @@ from shaperoute_api.insights.events import EventLog
 from shaperoute_api.insights.events import wanted as insights_wanted
 from shaperoute_api.insights.vocabulary import DEFAULT_PATH as VOCABULARY
 from shaperoute_api.insights.vocabulary import Vocabulary
+from shaperoute_api.kept_routes import install_kept_routes
 from shaperoute_api.nearby_cities import NearbyCities, install_nearby_cities
 from shaperoute_api.notice_email import (
     NoticeEmails,
@@ -245,6 +246,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     # their photos beside the zones (TASK-283).
     photos = CityPhotos(args.cache_dir / PHOTOS_FOLDER)
     install_nearby_cities(app, NearbyCities(places.key, photos=photos), route_store)
+    # The towns' examples already kept, read ahead by the app (TASK-316).
+    install_kept_routes(app, archive)
     install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)

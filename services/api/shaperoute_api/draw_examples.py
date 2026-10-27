@@ -5,11 +5,20 @@ in a city waits, the next do not. This command is that first phone, for a
 list of cities: it asks a running API what the app asks when a city is
 tapped, the city by name and then a circle, a heart and a star of 5 km from
 its centre, one at a time, and waits for each. The circle goes first, as in
-the app: its zone holds the other two (ADR-0144). The shapes the app draws
-after those three are left to the first phone.
+the app: its zone holds the other two (ADR-0144). With --all also the
+shapes and the words the app asks after those three (city_examples.py,
+TASK-316): the whole of what a phone finds ready when it taps the city.
 
     python -m shaperoute_api.draw_examples --api http://127.0.0.1:8000 Rovereto
     python -m shaperoute_api.draw_examples --api https://... --preset italy
+
+With --around, the towns a phone near that city is shown in "Explore"
+and those it prepares as it opens (TASK-316, ADR-0276): the towns of GET
+/nearby-cities around the city, then the towns around each of them, each
+drawn from the point /nearby-cities gives it (for a village it is not the
+one of /cities, TASK-236), at most --towns of them.
+
+    python -m shaperoute_api.draw_examples --api ... --all --around Trento
 
 Run again, it goes through the cities already kept in a moment. The API's
 key, when it asks for one, comes from SHAPEROUTE_API_KEY. A city whose zone
@@ -41,6 +50,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from shaperoute_api.access import KEY_HEADER, KEY_VARIABLE
+from shaperoute_api.city_examples import name_of
+from shaperoute_api.city_examples import requests as every_example
 from shaperoute_api.paddle_examples import ACTIVITY as WATER_ACTIVITY
 from shaperoute_api.paddle_examples import SHAPES as WATER_SHAPES
 from shaperoute_api.paddle_examples import apart_on_water
@@ -67,6 +78,8 @@ MAX_RETRY_S = 90.0
 # (TASK-288): a city it did not answer for is not one it did not find.
 CITY_SEARCH_RETRIES = 3
 CITY_SEARCH_WAIT_S = 10.0
+# --around: as many towns, the nearest rings first (the app prepares 18).
+AROUND_TOWNS = 20
 
 
 @dataclass
@@ -121,21 +134,33 @@ def http_call(api: str, key: str | None, timeout_s: float = 30.0) -> Call:
     return call
 
 
-def draw_city(
-    city: str,
-    call: Call,
-    sleep: Callable[[float], None] = time.sleep,
-    clock: Callable[[], float] = time.monotonic,
-) -> Drawn:
-    began = clock()
-    drawn = Drawn(city)
-    path = f"/cities?q={urllib.parse.quote(city)}"
+def _ask_city_search(
+    path: str, call: Call, sleep: Callable[[float], None]
+) -> tuple[int, Any]:
+    """GET `path` of the city search, again while it does not answer."""
     status, found = call("GET", path, None)
     for _ in range(CITY_SEARCH_RETRIES):
         if status < 500:
             break
         sleep(CITY_SEARCH_WAIT_S)
         status, found = call("GET", path, None)
+    return status, found
+
+
+def draw_city(
+    city: str,
+    call: Call,
+    sleep: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
+    every: bool = False,
+) -> Drawn:
+    """A city found by name, its first three shapes; with `every`, all its
+    examples (city_examples.py)."""
+    began = clock()
+    drawn = Drawn(city)
+    status, found = _ask_city_search(
+        f"/cities?q={urllib.parse.quote(city)}", call, sleep
+    )
     if status >= 500:
         drawn.unanswered = f"http_{status}"
         drawn.seconds = clock() - began
@@ -144,18 +169,91 @@ def draw_city(
     if not places:
         return drawn
     drawn.label = places[0]["label"]
-    for shape in EXAMPLE_SHAPES:
-        asked = {
-            "shape": shape,
-            "distance_m": EXAMPLE_DISTANCE_M,
-            "start": places[0]["point"],
-            "activity": "running",
-        }
-        drawn.shapes[shape] = _draw(asked, call, sleep, clock)
-        if drawn.shapes[shape] == "map_data_unavailable":
-            break  # the other shapes would end the same (exampleRoutes.ts)
+    _draw_examples(drawn, places[0]["point"], call, sleep, clock, every)
     drawn.seconds = clock() - began
     return drawn
+
+
+def draw_town(
+    label: str,
+    point: list[float],
+    call: Call,
+    sleep: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
+    every: bool = False,
+) -> Drawn:
+    """A town of /nearby-cities from its own point, as a phone asks it."""
+    began = clock()
+    drawn = Drawn(label, label=label)
+    _draw_examples(drawn, point, call, sleep, clock, every)
+    drawn.seconds = clock() - began
+    return drawn
+
+
+def _draw_examples(
+    drawn: Drawn,
+    point: list[float],
+    call: Call,
+    sleep: Callable[[float], None],
+    clock: Callable[[], float],
+    every: bool,
+) -> None:
+    asked_all = (
+        every_example(list(point))
+        if every
+        else [
+            {
+                "shape": shape,
+                "distance_m": EXAMPLE_DISTANCE_M,
+                "start": point,
+                "activity": "running",
+            }
+            for shape in EXAMPLE_SHAPES
+        ]
+    )
+    for asked in asked_all:
+        name = name_of(asked)
+        drawn.shapes[name] = _draw(asked, call, sleep, clock)
+        if drawn.shapes[name] == "map_data_unavailable":
+            break  # the other shapes would end the same (exampleRoutes.ts)
+
+
+def towns_around(
+    city: str,
+    call: Call,
+    most: int = AROUND_TOWNS,
+    sleep: Callable[[float], None] = time.sleep,
+) -> list[tuple[str, list[float]]] | None:
+    """The towns of /nearby-cities around `city`, then around each of them,
+    one a square of 10 m, the nearest rings first: (label, point). None when
+    the city search does not find the city or does not answer."""
+    status, found = _ask_city_search(
+        f"/cities?q={urllib.parse.quote(city)}", call, sleep
+    )
+    places = found.get("places") if status == 200 and isinstance(found, dict) else None
+    if not places:
+        return None
+    towns: list[tuple[str, list[float]]] = []
+    seen = {cell(tuple(places[0]["point"]))}  # the city itself: by name
+
+    def near(point: list[float]) -> list[tuple[str, list[float]]]:
+        lat, lon = point
+        status, body = _ask_city_search(
+            f"/nearby-cities?lat={lat}&lon={lon}", call, sleep
+        )
+        found = body.get("places") if status == 200 and isinstance(body, dict) else None
+        return [(p["label"], list(p["point"])) for p in found or []]
+
+    ring = near(places[0]["point"])
+    while ring and len(towns) < most:
+        added = []
+        for label, point in ring:
+            if cell(tuple(point)) not in seen and len(towns) < most:
+                seen.add(cell(tuple(point)))
+                towns.append((label, point))
+                added.append(point)
+        ring = [town for point in added for town in near(point)]
+    return towns
 
 
 def draw_spot(
@@ -246,6 +344,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--preset", choices=sorted(PRESETS), action="append")
     parser.add_argument("--api", required=True, help="where the API answers")
     parser.add_argument(
+        "--all",
+        action="store_true",
+        help="every example the app asks a city for, not only the first three",
+    )
+    parser.add_argument(
+        "--around",
+        action="append",
+        default=[],
+        metavar="CITY",
+        help="also the towns near this city and near those (repeat)",
+    )
+    parser.add_argument(
+        "--towns",
+        type=int,
+        default=AROUND_TOWNS,
+        help=f"towns for each --around (default {AROUND_TOWNS})",
+    )
+    parser.add_argument(
         "--water",
         action="store_true",
         help="also the Paddle shapes of every point of the lakes and beaches",
@@ -261,16 +377,42 @@ def main(argv: Sequence[str] | None = None) -> int:
     for preset in args.preset or []:
         cities += [c for c in PRESETS[preset] if c not in cities]
     spots = water_spots(args.water_name) if args.water or args.water_name else []
-    if not cities and not spots:
-        parser.error("name some cities, a --preset, or --water")
+    if not cities and not spots and not args.around:
+        parser.error("name some cities, a --preset, --around, or --water")
     call = http_call(args.api, os.environ.get(KEY_VARIABLE, "").strip() or None)
+    # Without --all, draw_city is called as it always was.
+    every: dict[str, bool] = {"every": True} if args.all else {}
+    towns: list[tuple[str, list[float]]] = []
+    for city in args.around:
+        try:
+            around = towns_around(city, call, args.towns)
+        except OSError as exc:
+            print(f"{city}: the API did not answer ({type(exc).__name__})")
+            return 1
+        if around is None:
+            print(f"{city}: no towns around it (not found, or no answer)")
+            continue
+        known = {cell(tuple(point)) for _, point in towns}
+        towns += [(label, p) for label, p in around if cell(tuple(p)) not in known]
     ready = {"cities": 0, "points on the water": 0}
-    jobs: list[tuple[str, str, Callable[[], Drawn]]] = [
-        ("cities", city, lambda city=city: draw_city(city, call)) for city in cities
-    ] + [
-        ("points on the water", spot.name, lambda spot=spot: draw_spot(spot, call))
-        for spot in spots
-    ]
+    jobs: list[tuple[str, str, Callable[[], Drawn]]] = (
+        [
+            ("cities", city, lambda city=city: draw_city(city, call, **every))
+            for city in cities
+        ]
+        + [
+            (
+                "cities",
+                label,
+                lambda label=label, point=point: draw_town(label, point, call, **every),
+            )
+            for label, point in towns
+        ]
+        + [
+            ("points on the water", spot.name, lambda spot=spot: draw_spot(spot, call))
+            for spot in spots
+        ]
+    )
     for kind, name, job in jobs:
         try:
             drawn = job()
@@ -280,8 +422,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         print(drawn.line(), flush=True)
         ready[kind] += drawn.ready
-    if cities:
-        print(f"{ready['cities']} of {len(cities)} cities have their examples")
+    if cities or towns:
+        asked = len(cities) + len(towns)
+        print(f"{ready['cities']} of {asked} cities have their examples")
     if spots:
         print(
             f"{ready['points on the water']} of {len(spots)} points on the water "
