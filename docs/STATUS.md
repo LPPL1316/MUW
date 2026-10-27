@@ -191,6 +191,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Testi: inglese e italiano approvati con la proposta, de/es/fr
   dell'agente; tempi e dati sul telefono sono stime. File:
   `tasks/TASK-306.md`.
+  **Chiuso**: in `main` con la #571 (`0bfc07c0`, 2026-10-27); resta la
+  preview del Coordinatore e il tempo vero sul telefono dell'utente.
 - **TASK-303 — Dopo una deviazione la corsa rientra più avanti, con la
   guida per tornarci** (ADR-0263; prova sul campo dell'utente a Trento del
   2026-10-25, piano approvato; numero e condizioni dal Coordinatore). Branch
@@ -1504,8 +1506,25 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   musica il video resta identico. 1,88 MB di brani nell'app. Solo app,
   impronta iOS invariata. File: `tasks/TASK-301.md`.
 
+- **TASK-308 — «Send feedback» in «Settings»** (ADR-0268; richiesta
+  dell'utente del 2026-10-26 «aggiungi un tasto in impostazioni per darci
+  un feedback e suggerimenti», scelta «Form in the app» lo stesso giorno;
+  numero dal Coordinatore). Branch `feat/TASK-308-feedback`. Sezione
+  «FEEDBACK» con la riga «Send feedback», che apre un modulo sotto di sé;
+  `POST /feedback` tiene il messaggio (tabella `feedback`, migrazione
+  `0031_feedback.sql`, numero al merge), al più 5 al giorno per account, e
+  lo manda per email a `SHAPEROUTE_FEEDBACK_TO` o, senza, a
+  `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. Privacy con la sezione
+  «Feedback» nelle cinque lingue, pagine del sito rifatte. La sezione si
+  vede solo quando `GET /feedback` risponde `204`: con il server di oggi
+  non c'è, e `main` resta pubblicabile. Al più 20 al giorno anche per
+  indirizzo di rete. Testi e privacy approvati dall'utente il 2026-10-26
+  («Sì ai testi e alla privacy di TASK-308, così come sono.»); server
+  dopo Apple. PR #576. File: `tasks/TASK-308.md`.
+
 ## Completato
 
+- **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
   premio senza valore): il primo concorso, vince il post per tutti con più
   reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi
@@ -1542,6 +1561,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `0028`. Con la parte A (push, #451) e la C (rubrica, #461) **chiude
   TASK-262**. Si accende con l'email di ritorno (server dal Coordinatore
   dopo Apple, col sì dell'utente). `tasks/TASK-262.md`.
+- **App** — TASK-306 (ADR-0266; scelte dell'utente del 2026-10-26): in
+  «Draw», con la corsa, «NEAR YOU» sotto la distanza, cerchio, cuore e
+  stella da 5 km pronti dalla posizione (dal telefono, tenuti fino a
+  1 km), e forme già pronte di città in evidenza a caso quando vicino non
+  viene niente, con quanto sono lontane; «Explore» preparato
+  all'apertura. In `main` con la #571 (`0bfc07c0`, 2026-10-27). Resta la
+  preview (Coordinatore) e il tempo vero sul telefono dell'utente, da
+  scrivere nell'Esito del task file.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
   iscritto con «Email when I'm away» acceso (casella non spuntata
