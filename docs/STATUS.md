@@ -175,6 +175,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   aggiunge: lo vede nella pagina. È la scelta dell'utente dopo la
   correzione della proposta, la cui «lista Notifiche» non esiste. Regole
   in `EVENTI.md`, file `tasks/TASK-309.md`.
+  **Documenti** in `main` con la #574 (`06a95749`, 2026-10-27).
+  **Parte A** (API, branch `feat/TASK-309-a-group-runs-api`, migrazione
+  `0031_group_runs.sql`, numero al merge, conteso con la #576):
+  `group_runs.py` con `POST /group-runs`, la fila `GET /group-runs`, la
+  pagina, il cambio e l'annullamento dell'organizzatore, «I'm going» e «Not
+  going», chi va a pagine, le corse di gruppo di un profilo; il promemoria
+  un'ora prima una volta sola (`GroupRunClock`, `UPDATE` condizionato), le
+  push di cambio e di annullamento (anche all'account cancellato
+  dell'organizzatore), nessuna per un «I'm going»; blocchi, nascosti e il
+  filtro dei testi; `group_run` nelle segnalazioni e nelle loro email.
+  Tipi e fixture in `shared-types`. Nessun codice d'errore nuovo:
+  `schemas.py` ed `engine.zip` invariati. Testi de/es/fr delle push e
+  della privacy da approvare dall'utente; la riga della privacy (nei testi
+  dell'app, da cui si rifà `site/privacy`) entra dopo #573 e #576. Merge
+  dal Coordinatore; server dopo Apple, con il sì dell'utente. Com'è
+  fatta: `EVENTI.md` §14.
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch

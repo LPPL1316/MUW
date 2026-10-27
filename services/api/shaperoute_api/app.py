@@ -64,6 +64,7 @@ from shaperoute_api.feed import install_feed
 from shaperoute_api.follows import install_follows
 from shaperoute_api.game import install_game
 from shaperoute_api.graphs import MapDataUnavailableError
+from shaperoute_api.group_runs import install_group_runs
 from shaperoute_api.images import (
     AnyRequest,
     ImageRequest,
@@ -362,6 +363,9 @@ def create_app(
     # numbers (TASK-262 C); it needs a token.
     install_contact_people(app)
     install_contests(app)
+    # Group runs on a route, «I'm going» and the reminder an hour before
+    # (TASK-309); they need a token.
+    install_group_runs(app)
 
     @app.get("/health")
     def health() -> dict[str, str]:

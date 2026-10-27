@@ -1,6 +1,6 @@
 # TASK-309 — Eventi: le corse di gruppo («Group runs»)
 
-**Stato**: In lavorazione · documenti in PR · poi A (API), B (app), C (commenti)
+**Stato**: In lavorazione · documenti in `main` (#574) · A (API) in PR · poi B (app), C (commenti)
 **Fase**: 4 · **Branch**: `docs/TASK-309-group-runs` (documenti),
 `feat/TASK-309-a-group-runs-api` (A), `feat/TASK-309-b-group-runs-app` (B),
 `feat/TASK-309-c-group-run-comments` (C)
@@ -253,20 +253,24 @@ docs/STATUS.md                (righe nuove)
 docs/INDEX.md                 (una riga: «Le corse di gruppo» → EVENTI.md)
 ```
 
-Parte A (da confermare col Coordinatore prima del codice):
+Parte A (confermati dal Coordinatore il 2026-10-27, con due differenze
+dalla prima lista: `accounts.py` esce, perché l'hook
+`app.state.before_account_delete` c'è già; la privacy sta nei testi
+dell'app, da cui `site/privacy` si rifà, e entra dopo #573 e #576):
 ```
-services/api/migrations/00NN_group_runs.sql              (nuovo, numero al merge)
-services/api/shaperoute_api/group_runs.py                (nuovo: regole, endpoint, orologio, push)
-services/api/shaperoute_api/push.py                      (solo i tre Kind, OWN_KINDS, i testi)
-services/api/shaperoute_api/app.py                       (la riga del router, l'orologio nel lifespan)
+services/api/migrations/0031_group_runs.sql              (nuovo, numero al merge; rifà il CHECK di reports.kind)
+services/api/shaperoute_api/group_runs.py                (nuovo: regole, endpoint, orologio, push, hook di DELETE /me)
+services/api/shaperoute_api/push.py                      (i tre Kind, OWN_KINDS, i testi; group_run_id in PushEvent e nei dati)
+services/api/shaperoute_api/app.py                       (import e una riga install_group_runs)
 services/api/shaperoute_api/moderation.py                (il tipo group_run)
 services/api/shaperoute_api/report_email.py              (il tipo group_run, nascondere e rimostrare)
-services/api/shaperoute_api/accounts.py                  (una chiamata prima di cancellare l'account)
 services/api/tests/test_group_runs.py                    (nuovo)
 services/api/tests/test_moderation.py, test_report_email.py   (il tipo nuovo)
-packages/shared-types/src/index.ts                       (in fondo: i tipi; PushKind; REPORT_KINDS)
+packages/shared-types/src/index.ts                       (REPORT_KINDS; in fondo i tipi, GroupRunPushKind e GroupRunPushData)
 packages/shared-types/fixtures/group-run*.json           (nuovi)
-site/tools/make_privacy.mjs, site/privacy/*/index.html, site/tests/privacy.test.mjs   (la riga della privacy)
+packages/shared-types/test/groupRuns.test.ts             (nuovo)
+packages/shared-types/test/moderation.test.ts            (una riga: REPORT_KINDS con group_run)
+apps/mobile/src/about/content/{en,it,de,fr,es}.ts, site/privacy/*/index.html, site/tests/privacy.test.mjs   (la riga della privacy, dopo #573 e #576)
 docs/API.md («Group runs»), docs/DATABASE.md, docs/EVENTI.md, docs/STATUS.md, docs/tasks/TASK-309.md
 ```
 
@@ -299,3 +303,19 @@ docs/UI.md («Feed», il profilo), docs/EVENTI.md, docs/STATUS.md, docs/tasks/TA
 ## Esito
 
 *(si compila a fine task)*
+
+**Documenti** in `main` con la #574 (`06a95749`, 2026-10-27).
+
+**Parte A** (branch `feat/TASK-309-a-group-runs-api`, 2026-10-27):
+`group_runs.py` con gli endpoint, `GroupRunClock` e le tre push; la
+migrazione `0031_group_runs.sql` (numero al merge); il tipo `group_run`
+nelle segnalazioni e nelle loro email; tipi e fixture in `shared-types`.
+Un test per regola in `test_group_runs.py` (44), più il tipo nuovo in
+`test_moderation.py` e `test_report_email.py`. Com'è fatta: `EVENTI.md`
+§14. Scelte tecniche, prese su delega: le push con `GroupRunPushKind`
+accanto a `PushKind` (i dati sono `{ kind, group_run_id }`, come le sfide
+del gioco); un blocco non cancella le risposte, le esclude in lettura
+(`counted_sql`); «in arrivo» vuol dire non finita e non annullata.
+**Resta**: i testi de/es/fr delle push e della riga della privacy con il
+sì dell'utente; la riga della privacy dopo #573 e #576; il merge dal
+Coordinatore; il server dopo Apple, con il sì dell'utente.
