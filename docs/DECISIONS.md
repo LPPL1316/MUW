@@ -16951,3 +16951,49 @@ cresce di nessun campo. Al rientro la mappa si ricarica (un attimo di
 barra di caricamento). Le correzioni arrivano sulla 1.0 solo con un
 aggiornamento sul canale `production` o con la prossima build: l'impronta
 iOS non cambia.
+
+## ADR-0276 — Explore pronto prima: il telefono prende solo i disegni che il server ha già
+**Stato**: Attiva · 2026-10-27 · TASK-316. La richiesta è dell'utente, del
+2026-10-27: i disegni dei paesi vicini e della regione scaricati
+all'apertura, e almeno 100 disegni tenuti sul server. Le condizioni sono del
+Coordinatore, nel dare il numero: il prefetch non fa mai calcolare il server
+né scaricare una zona; i disegni li calcola il server una volta, dopo Apple
+e con il sì dell'utente; le condizioni di TASK-306. Il come è deciso
+dall'agente su delega dell'utente.
+
+**Decisione**:
+1. **Un endpoint in sola lettura**, `POST /kept-routes`: fino a 16
+   richieste di forma o di parola, e per ognuna il percorso tenuto
+   (ADR-0136, ADR-0256) o `null`. Nessun lavoro, zona o motore: è il solo
+   modo per chiedere «solo se è già pronto», perché `POST /route-jobs`
+   calcola ciò che non ha. Un POST per paese invece di quattordici: nella
+   quota della coda «prefetch» (10 al minuto, ADR-0248) ci stanno diciotto
+   paesi in meno di due minuti.
+2. **I paesi della regione** sono quelli che `GET /nearby-cities` dà
+   attorno ai sei paesi vicini, senza doppioni, i più vicini prima, al
+   massimo 18 in tutto: nessun endpoint e nessun servizio nuovo per
+   trovarli, e i loro punti sono quelli con cui l'app li apre.
+3. **Sul telefono un file per paese**, nella cache, valido 7 giorni (un
+   paese senza niente si richiede dopo un giorno), al massimo 150 disegni
+   scaricati per sessione: la seconda apertura nella stessa regione non
+   scarica quasi niente. Toccato il paese, le sue carte partono da lì.
+4. **Il server calcola i disegni una volta**: `draw_examples --all` chiede
+   gli otto disegni e le sei parole dell'app, con le stesse richieste
+   (una fixture comune la controlla), e `--around` li chiede dai punti di
+   `/nearby-cities` dei paesi attorno a una città.
+
+**Alternative scartate**: il prefetch con `POST /route-jobs` (ogni telefono
+farebbe calcolare al server fino a 150 disegni e scaricare zone a ogni
+regione nuova: con utenti veri il CX33 non regge); un parametro «solo se
+pronto» su `/route-jobs` (un POST per disegno: cento disegni vorrebbero
+dieci minuti nella quota del prefetch); scegliere il tetto secondo la rete
+(serve `expo-network`, nativo: l'impronta iOS cambierebbe); un elenco dei
+paesi della regione nuovo sul server (un servizio di luoghi in più per ciò
+che `/nearby-cities` dà già).
+
+**Conseguenze**: con il server di oggi (404 su `/kept-routes`) l'app fa
+come prima. Dopo l'aggiornamento, quanto è pronto dipende da ciò che il
+server tiene: fuori dalle regioni disegnate con `--around`, un paese
+diventa veloce dopo che il primo telefono lo ha toccato. Sul telefono fino
+a circa 15 MB di dati e di cache per una regione nuova, una volta ogni 7
+giorni, uguale in Wi-Fi e su rete mobile.
