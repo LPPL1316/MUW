@@ -213,6 +213,21 @@ approvati con la proposta.
 > vedono vedono il tuo nome, la tua foto e che ci vai. Cancelliamo le tue
 > corse di gruppo e le tue risposte quando cancelli l'account.
 
+**Tedesco, spagnolo e francese della parte A**, approvati dall'utente il
+2026-10-27: «Sì, approvo i testi in tedesco, spagnolo e francese delle tre
+push e della riga della privacy così come sono.» Le push sono in
+`push.py`; la riga della privacy entra in `about/content/*.ts` dopo #573 e
+#576, con il titolo della sezione (in inglese e in italiano «Group runs» e
+«Corse di gruppo», i nomi già approvati per la fila del Feed).
+
+| Tipo | Tedesco | Spagnolo | Francese |
+|---|---|---|---|
+| `group_run_soon` | {title} beginnt gleich: wir sehen uns am Start! | {title} empieza pronto: ¡nos vemos en la salida! | {title} commence bientôt : rendez-vous au départ ! |
+| `group_run_changed` | {name} hat Uhrzeit oder Treffpunkt von {title} geändert. | {name} ha cambiado la hora o el lugar de {title}. | {name} a changé l'heure ou le lieu de {title}. |
+| `group_run_cancelled` | {name} hat {title} abgesagt. | {name} ha cancelado {title}. | {name} a annulé {title}. |
+| titolo della privacy | Gruppenläufe | Carreras en grupo | Courses en groupe |
+| riga della privacy | Wenn du einen Gruppenlauf erstellst oder sagst, dass du hingehst, sehen die Mitglieder, die ihn sehen können, deinen Namen, dein Foto und dass du hingehst. Wenn du dein Konto löschst, löschen wir deine Gruppenläufe und deine Antworten. | Si creas una carrera en grupo o dices que vas, los miembros que pueden verla ven tu nombre, tu foto y que vas. Cuando eliminas tu cuenta, eliminamos tus carreras en grupo y tus respuestas. | Si tu crées une course en groupe ou dis que tu y vas, les membres qui peuvent la voir voient ton nom, ta photo et que tu y vas. Quand tu supprimes ton compte, nous supprimons tes courses en groupe et tes réponses. |
+
 ## Criteri di accettazione
 
 Documenti (questa PR):
@@ -318,6 +333,7 @@ Un test per regola in `test_group_runs.py` (44), più il tipo nuovo in
 dati sono `{ kind, group_run_id }`, come le sfide del gioco); un blocco non
 cancella le risposte, le esclude in lettura (`counted_sql`); «in arrivo»
 vuol dire non finita e non annullata.
-**Resta**: i testi de/es/fr delle push e della riga della privacy con il
-sì dell'utente; la riga della privacy dopo #573 e #576; il merge dal
-Coordinatore; il server dopo Apple, con il sì dell'utente.
+Testi de/es/fr delle push e della privacy approvati dall'utente il
+2026-10-27 (sopra, «Testi da approvare»). **Resta**: la riga della privacy
+dopo #573 e #576; il merge dal Coordinatore; il server dopo Apple, con il
+sì dell'utente.

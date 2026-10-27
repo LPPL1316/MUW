@@ -187,8 +187,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   filtro dei testi; `group_run` nelle segnalazioni e nelle loro email.
   Tipi e fixture in `shared-types`. Nessun codice d'errore nuovo:
   `schemas.py` ed `engine.zip` invariati. Testi de/es/fr delle push e
-  della privacy da approvare dall'utente; la riga della privacy (nei testi
-  dell'app, da cui si rifà `site/privacy`) entra dopo #573 e #576. Merge
+  della privacy approvati dall'utente il 2026-10-27; la riga della privacy
+  (nei testi dell'app, da cui si rifà `site/privacy`) entra dopo #573 e
+  #576. Merge
   dal Coordinatore; server dopo Apple, con il sì dell'utente. Com'è
   fatta: `EVENTI.md` §14.
 - **TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore»
