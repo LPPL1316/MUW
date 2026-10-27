@@ -195,9 +195,10 @@ pagine»):
    con, quando servono, il rimando alle Impostazioni e la ricerca del
    luogo; l'errore della mappa; le forme del catalogo come tessere, con un
    simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +; sotto la distanza, due
-   righe da scorrere di lato, «CITY TOURS» e «PICTURES» (TASK-280, sotto
-   «I giri e le immagini pronte»). In fondo, fermo mentre
+   un'altra parola; la distanza, grande, fra − e +; sotto la distanza,
+   con la corsa, «NEAR YOU» (TASK-306, sotto «Le forme pronte vicino a
+   te»), poi due righe da scorrere di lato, «CITY TOURS» e «PICTURES»
+   (TASK-280, sotto «I giri e le immagini pronte»). In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -1961,6 +1962,54 @@ ci sono città né foto). I testi nuovi, nelle cinque lingue:
 
 «Bike», le quattro categorie, «near your start» e «near {place}» c'erano
 già.
+
+### Le forme pronte vicino a te (TASK-306, ADR-0266)
+
+Chiesto dall'utente il 2026-10-26 («sotto a distanza 5 km metti una
+sezione di figure semplici il cuore... di posti vicini all'utente»); le
+scelte sono sue, dello stesso giorno. Sotto la distanza, sopra «CITY
+TOURS», una riga da scorrere di lato con schede larghe come quelle di
+«NEARBY TOWNS» (due e il bordo della terza), la mappa sotto il disegno:
+
+- **«NEAR YOU»**: **cerchio, cuore e stella da 5 km** dalla posizione del
+  telefono, sempre 5 km, qualunque sia la distanza sopra. Li disegna il
+  telefono, quando ha le mappe intorno (TASK-214), altrimenti il server.
+  Mentre si disegna, la scheda ha il nome della forma e «Drawing…»;
+  pronta, «Heart · 5.2 km» e il disegno. Restano nel telefono e si
+  disegnano di nuovo solo a più di 1 km da dove partono.
+- **Quando una forma non viene** (il motore la rifiuta, o non risponde),
+  al suo posto la stessa forma, o la più semplice che manca, **già pronta
+  in una città in evidenza di «Explore» scelta a caso**, una città per
+  scheda, con sotto il nome della città e quanto è lontana dalla
+  posizione, «Roma · 480 km away», perché nessuno la prenda per una da
+  correre da casa (senza la posizione, il nome soltanto). Senza la
+  posizione, o se vicino non viene niente, **sei forme in sei città**,
+  dalla più semplice:
+  cerchio, cuore, stella, luna, cavallo, lumaca, testa di cane, testa di
+  coniglio. Solo forme che l'API ha già (i suoi esempi tenuti): una che
+  dovrebbe disegnare adesso si salta. Se tutte le schede sono di altre
+  città, l'etichetta è **«SHAPES TO TRY»**.
+- Un tocco apre il percorso sulla mappa come un percorso di «Explore»
+  (A · B · C, «Start», «Export GPX»); «←» torna a «Draw».
+
+Con «Bike» e «Paddle» la riga non c'è. Il permesso della posizione non lo
+chiede la riga: usa quello che l'app ha già.
+
+**«Explore» preparato all'apertura**: con la partenza nota, prima che la
+pagina si apra, l'app chiede i percorsi vicini, i paesi vicini e i loro
+esempi (questi dietro a tutto il resto nella coda delle richieste);
+aperta, la pagina li ha subito. La lista vale dieci minuti, poi la pagina
+la chiede di nuovo. Non con «Paddle», che ha i suoi posti sull'acqua
+(TASK-246). Riga e preparazione partono solo dopo l'animazione
+d'apertura, si fermano durante una corsa, la navigazione e con l'app in
+background, e riprendono da dove erano.
+
+I testi nuovi, nelle cinque lingue («Drawing…» c'era già):
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| NEAR YOU | VICINO A TE | IN DEINER NÄHE | CERCA DE TI | PRÈS DE VOUS |
+| SHAPES TO TRY | FORME DA PROVARE | FORMEN ZUM AUSPROBIEREN | FORMAS PARA PROBAR | FORMES À ESSAYER |
 
 ### Disegnare sulla mappa: «Draw on the map» (TASK-281, ADR-0245)
 

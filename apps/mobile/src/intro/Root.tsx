@@ -7,6 +7,7 @@ import { color } from "../theme/tokens";
 import { Tour } from "../tour/Tour";
 import { useTour } from "../tour/useTour";
 import { AppBoundary } from "./AppBoundary";
+import { markFirstPage } from "./firstPage";
 import { LaunchIntro } from "./LaunchIntro";
 import { SavedLogoLayer } from "./SavedLogo";
 
@@ -19,7 +20,8 @@ import { SavedLogoLayer } from "./SavedLogo";
  * anew, without the animation again. After the animation, the first time
  * and whenever the guide asks, the tour of the app (TASK-266). Under the
  * logo after «Save», the card of a shape the run unlocked (TASK-296): it
- * waits for the logo to go.
+ * waits for the logo to go. When the animation ends, what the app does
+ * ahead of the user may start (TASK-306, firstPage.ts).
  */
 export function Root() {
   const [intro, setIntro] = useState(true);
@@ -33,7 +35,14 @@ export function Root() {
         {!intro && tour.on !== null ? (
           <Tour key={tour.on.key} lockSeconds={tour.on.lockSeconds} onEnd={tour.end} />
         ) : null}
-        {intro ? <LaunchIntro onDone={() => setIntro(false)} /> : null}
+        {intro ? (
+          <LaunchIntro
+            onDone={() => {
+              setIntro(false);
+              markFirstPage();
+            }}
+          />
+        ) : null}
       </AppBoundary>
     </View>
   );
