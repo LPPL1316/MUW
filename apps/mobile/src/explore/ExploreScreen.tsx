@@ -42,6 +42,7 @@ import {
 } from "./exampleRoutes";
 import { CityExamples } from "./CityExamples";
 import { CityWords } from "./CityWords";
+import { listAhead } from "./exploreAhead";
 import { CityPicker } from "./ExploreTools";
 import { NearbyTowns } from "./NearbyTowns";
 import { byPlace, OWN_RADIUS_M } from "./ownRoutes";
@@ -136,9 +137,18 @@ export function ExploreScreen({
     apiUrl === null || lat === undefined || lon === undefined
       ? null
       : `${apiUrl} ${lat},${lon}`;
+  // The list fetched as the app opened (TASK-306), read once a start: it is
+  // not asked again.
+  const ahead = useMemo(() => (key === null ? undefined : listAhead(key)), [key]);
 
   useEffect(() => {
-    if (key === null || apiUrl === null || lat === undefined || lon === undefined) {
+    if (
+      key === null ||
+      apiUrl === null ||
+      lat === undefined ||
+      lon === undefined ||
+      ahead !== undefined
+    ) {
       return;
     }
     const controller = new AbortController();
@@ -156,21 +166,17 @@ export function ExploreScreen({
       },
     );
     return () => controller.abort();
-  }, [key, apiUrl, lat, lon]);
+  }, [key, apiUrl, lat, lon, ahead]);
 
   const list: ListState =
     key === null
       ? { status: "failed" }
       : answer?.key === key
         ? answer.list
-        : { status: "loading" };
-  const routes = useMemo(
-    () =>
-      answer !== null && answer.key === key && answer.list.status === "done"
-        ? answer.list.routes
-        : NO_ROUTES,
-    [answer, key],
-  );
+        : ahead !== undefined
+          ? { status: "done", routes: ahead }
+          : { status: "loading" };
+  const routes = list.status === "done" ? list.routes : NO_ROUTES;
   // Near a chosen city, its own routes and its neighbours' (TASK-192):
   // Caldonazzo has Levico's within "near you", and none starting in it.
   // Near the start they are all one list.

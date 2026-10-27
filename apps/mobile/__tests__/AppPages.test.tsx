@@ -44,11 +44,12 @@ function listCalls(): number {
 }
 
 /** What the app asked the API, but for the shape game's catalog, which it
- * asks as it opens to know whether to show «Play» (TASK-296). */
+ * asks as it opens to know whether to show «Play» (TASK-296), and the
+ * contest, which «Feed» asks to know whether to show its card (TASK-299). */
 function askedBesidesTheGame(): string[] {
   return fetchSpy.mock.calls
     .map(([url]) => String(url).replace(API, ""))
-    .filter((path) => path !== "/game/catalog");
+    .filter((path) => path !== "/game/catalog" && path !== "/contests/current");
 }
 
 /** A swipe that comes to rest on the page at `index`. */

@@ -1,6 +1,6 @@
 # TASK-299 — Il primo concorso: il post con più reazioni vince
 
-**Stato**: In lavorazione · documenti in `main` (#549) · A (API) in `main` (#562, `5f762ae7`) · B (app) da fare
+**Stato**: In lavorazione · documenti in `main` (#549) · A (API) in `main` (#562, `5f762ae7`) · B (app) in PR #575
 **Fase**: 4 · **Branch**: `docs/TASK-299-proposal` (documenti),
 `feat/TASK-299-a-contest-api` (A), `feat/TASK-299-b-contest-app` (B)
 **Dipende da**: TASK-117 (i disegni pubblicati), TASK-119 (le reazioni),
@@ -227,6 +227,79 @@ telefono):
 > Apple e Google non sponsorizzano questo concorso e non vi sono
 > coinvolte in alcun modo.
 
+**Tedesco, spagnolo e francese della parte B**, e i due testi al singolare
+che servono ai numeri («1 reaction»), proposti dalla parte B il
+2026-10-26 (in `apps/mobile/src/i18n/`), **approvati dall'utente lo stesso
+giorno** insieme all'inglese, all'italiano e al regolamento nelle cinque
+lingue («Yes, like this» alla domanda della parte B, PR #575):
+
+| Inglese | Tedesco | Spagnolo | Francese |
+|---|---|---|---|
+| MuW contest | MuW-Wettbewerb | Concurso MuW | Concours MuW |
+| The post with the most reactions wins. | Der Beitrag mit den meisten Reaktionen gewinnt. | Gana la publicación con más reacciones. | La publication avec le plus de réactions gagne. |
+| {n} days left · 1 day left | Noch {n} Tage · Noch 1 Tag | Quedan {n} días · Queda 1 día | Encore {n} jours · Encore 1 jour |
+| Ends today | Endet heute | Termina hoy | Se termine aujourd'hui |
+| Ended · the winner is coming | Beendet · der Gewinner kommt bald | Terminado · el ganador, muy pronto | Terminé · le gagnant arrive bientôt |
+| Your best post: #{rank}, {n} reactions | Dein bester Beitrag: Platz {rank}, {n} Reaktionen | Tu mejor publicación: n.º {rank}, {n} reacciones | Ta meilleure publication : n° {rank}, {n} réactions |
+| … 1 reaction (singolare) | … 1 Reaktion | … 1 reacción | … 1 réaction |
+| Publish a run to take part. | Veröffentliche einen Lauf, um mitzumachen. | Publica una carrera para participar. | Publie une course pour participer. |
+| How it works | So funktioniert's | Cómo funciona | Comment ça marche |
+| Official rules | Teilnahmebedingungen | Bases oficiales | Règlement officiel |
+| Winner | Gewinner | Ganador | Gagnant |
+| {name} won the MuW contest | {name} hat den MuW-Wettbewerb gewonnen | {name} ha ganado el concurso MuW | {name} a gagné le concours MuW |
+
+In italiano il singolare è «Il tuo miglior post: n. {rank}, 1 reazione»;
+«14 reactions» sotto ognuno dei primi tre usa i testi «{n} reaction(s)»
+che l'app ha già (le reazioni di un disegno, TASK-119).
+
+Il regolamento, nella pagina «Official rules» sotto «MuW contest», un
+paragrafo per riga:
+
+> **Deutsch** — Veranstaltet von MuW (Luca Pallaoro). Zeitraum: {start}
+> bis {end}.
+> Mitmachen kann kostenlos jede Person mit einem MuW-Konto, indem sie
+> während des Wettbewerbs in der App einen Lauf für alle veröffentlicht.
+> Am Ende gewinnt der Beitrag mit den meisten Reaktionen anderer
+> Mitglieder. Es zählt eine Reaktion pro Mitglied, die eigene zählt nicht.
+> Bei Gleichstand gewinnt der Beitrag mit mehr MuW-Herzen, dann der zuerst
+> veröffentlichte.
+> Der Preis hat keinen Geldwert: Wer gewinnt, bekommt das
+> Gewinner-Abzeichen im Profil, und der Beitrag steht eine Woche lang oben
+> im Feed.
+> MuW kann einen Beitrag ausschließen, der gegen die Community-Regeln
+> verstößt.
+> Apple und Google sind keine Sponsoren dieses Wettbewerbs und in keiner
+> Weise daran beteiligt.
+
+> **Español** — Organizado por MuW (Luca Pallaoro). Del {start} al {end}.
+> Puede participar gratis cualquier persona con una cuenta MuW, publicando
+> una carrera para todos en la app durante el concurso.
+> Al final gana la publicación con más reacciones de otros miembros. Cuenta
+> una reacción por miembro; la tuya no cuenta. En caso de empate, gana la
+> que tenga más corazones de MuW y, después, la publicada primero.
+> El premio no tiene valor económico: quien gana recibe la insignia
+> Ganador en su perfil y su publicación aparece arriba del Feed durante
+> una semana.
+> MuW puede excluir una publicación que incumpla las normas de la
+> comunidad.
+> Apple y Google no patrocinan este concurso y no participan en él de
+> ninguna manera.
+
+> **Français** — Organisé par MuW (Luca Pallaoro). Du {start} au {end}.
+> Toute personne ayant un compte MuW peut participer gratuitement, en
+> publiant une course visible par tous dans l'app pendant le concours.
+> À la fin, la publication avec le plus de réactions des autres membres
+> gagne. Une réaction par membre compte ; la tienne ne compte pas. En cas
+> d'égalité, la publication avec le plus de cœurs MuW gagne, puis celle
+> publiée en premier.
+> Le prix n'a aucune valeur en argent : la personne gagnante reçoit le
+> badge Gagnant sur son profil et sa publication est affichée en haut du
+> Feed pendant une semaine.
+> MuW peut écarter une publication qui enfreint les règles de la
+> communauté.
+> Apple et Google ne sont pas sponsors de ce concours et n'y sont
+> impliqués d'aucune manière.
+
 ## Criteri di accettazione
 
 Documenti (questa PR):
@@ -256,19 +329,22 @@ Parte A (`test_contests.py`, un test per regola):
 - [x] pytest, ruff e black verdi (in locale e nella CI della #562); il
       testo della push approvato dall'utente (de/es/fr, 2026-10-26, sopra).
 
-Parte B:
-- [ ] La scheda si vede con un 200 ed è nascosta con un 404 e senza
-      niente sul telefono; il Feed senza concorso è uguale a oggi (test).
-- [ ] I giorni che restano vengono da `ends_at`; «Ends today» l'ultimo
+Parte B (com'è fatta: `CONCORSI.md` §14):
+- [x] La scheda si vede con un 200 ed è nascosta con un 404 e senza
+      niente sul telefono; il Feed senza concorso è uguale a oggi (test:
+      `FeedScreenContest.test.tsx`, `contestKept.test.ts`).
+- [x] I giorni che restano vengono da `ends_at`; «Ends today» l'ultimo
       giorno; «Ended · the winner is coming» dopo `ends_at` senza
-      `closed_at` (test con l'orologio finto).
-- [ ] Un tocco su uno dei tre apre il disegno; «How it works» apre il
+      `closed_at` (test con l'orologio finto: `daysLeft.test.ts`,
+      `ContestCard.test.tsx`).
+- [x] Un tocco su uno dei tre apre il disegno; «How it works» apre il
       regolamento con le date (test).
-- [ ] Con `closed_at` la scheda è quella del vincitore (test).
-- [ ] Il badge con `contest_wins > 0`, sul proprio profilo e sugli altri;
-      la fascia sul disegno vincitore (test).
-- [ ] Impronta iOS invariata (`83793e26…`), solo JavaScript; nessuna
-      dipendenza nuova.
+- [x] Con `closed_at` la scheda è quella del vincitore (test).
+- [x] Il badge con `contest_wins > 0`, sul proprio profilo e sugli altri;
+      la fascia sul disegno vincitore (test: `WinnerBadge.test.tsx`,
+      `ProfileHeader.test.tsx`, `DrawingCard.test.tsx`).
+- [x] Impronta iOS invariata (`83793e26…`, misurata su una copia pulita
+      il 2026-10-26), solo JavaScript; nessuna dipendenza nuova.
 - [ ] lint, typecheck, test e format:check verdi; i testi approvati
       dall'utente.
 
@@ -304,16 +380,18 @@ packages/shared-types/test/accounts.test.ts              (contest_wins nelle lis
 docs/API.md («Contest»), docs/DATABASE.md (contests), docs/CONCORSI.md (§13), docs/STATUS.md, docs/tasks/TASK-299.md
 ```
 
-Parte B (da confermare col Coordinatore prima del codice):
+Parte B (approvati dal Coordinatore il 2026-10-26; l'elenco esatto della
+PR #575):
 ```
-apps/mobile/src/contest/                                 (nuova: contestApi, contestKept, useContest, daysLeft, ContestCard, WinnerCard, ContestRules e i test)
-apps/mobile/src/screens/FeedScreen.tsx, FeedScreen.test.tsx          (la scheda nell'intestazione)
+apps/mobile/src/contest/                                 (nuova: contestApi.ts, contestKept.ts, useContest.ts, daysLeft.ts, ContestCard.tsx, ContestRules.tsx, WinnerCard.tsx, FeedContest.tsx, WinnerBadge.tsx e i test contestApi, contestKept, useContest, daysLeft, ContestCard, WinnerBadge)
+apps/mobile/src/screens/FeedScreen.tsx                   (la scheda nell'intestazione, il pull)
+apps/mobile/src/screens/FeedScreenContest.test.tsx       (nuovo, invece di toccare FeedScreen.test.tsx)
 apps/mobile/src/profile/ProfileHeader.tsx, ProfileHeader.test.tsx    (il badge)
-apps/mobile/src/profile/UserProfilePage.tsx, ProfileHome.tsx         (passano contest_wins)
-apps/mobile/src/social/DrawingCard.tsx, DrawingCard.test.tsx         (la fascia)
+apps/mobile/src/profile/UserProfilePage.tsx, ProfileHome.tsx         (passano contest_wins, una riga ciascuno)
+apps/mobile/src/social/DrawingCard.tsx, DrawingCard.test.tsx         (la fascia, piccola e separata: TASK-307 tocca lo stesso file)
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts          (righe in fondo)
-apps/mobile/__tests__/AppFeed.test.tsx (e gli altri test dell'app intera che contano le richieste)
-docs/UI.md («Feed»: la scheda; il profilo: il badge), docs/CONCORSI.md, docs/STATUS.md, docs/tasks/TASK-299.md
+apps/mobile/__tests__/AppFeed.test.tsx, __tests__/AppPages.test.tsx, src/screens/FeedScreenPosts.test.tsx   (una riga di filtro su /contests/current, come /game/catalog)
+docs/UI.md («Feed»: la scheda; il profilo: il badge), docs/CONCORSI.md (§14), docs/STATUS.md, docs/tasks/TASK-299.md
 ```
 
 ## Fuori scope
