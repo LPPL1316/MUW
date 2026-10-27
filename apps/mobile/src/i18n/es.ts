@@ -1458,4 +1458,7 @@ export const ES: Table = {
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Esta ruta no tiene indicaciones de giro: sigue la línea en el mapa.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Último km {pace} · objetivo {target}",
+  "Last mi {pace} · target {target}": "Última mi {pace} · objetivo {target}",
 };
