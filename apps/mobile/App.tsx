@@ -98,6 +98,13 @@ import { trackOfNavigation, useNavigation } from "./src/navigation/useNavigation
 import type { Place } from "./src/places/photon";
 import { choicesOf, type Picked, pickedIndex } from "./src/route/choices";
 import { distanceLimitsM } from "./src/route/distance";
+import {
+  againDistanceM,
+  againOfDrawing,
+  againOfRequest,
+  type DrawAgain,
+  drawsAgain,
+} from "./src/route/drawAgain";
 import { ImageEditsContext } from "./src/route/imageEdits";
 import type { ChoiceKind } from "./src/route/problems";
 import { shapeAsked } from "./src/route/penUpShapes";
@@ -346,7 +353,11 @@ function MuW() {
     signedIn,
   } = useActivitiesDoor();
   // And so does a drawing opened from a profile (TASK-117).
-  const { opened: drawing, back: backFromDrawing } = useDrawingsDoor();
+  const {
+    opened: drawing,
+    back: backFromDrawing,
+    leave: leaveDrawing,
+  } = useDrawingsDoor();
   // «Play» is a page while the API has the shape game (TASK-296): asked
   // once as the app opens, kept on the phone for the next opening.
   const playOn = useGameCatalog() !== null;
@@ -944,6 +955,30 @@ function MuW() {
     run();
   }
 
+  /** «Draw it near me» (TASK-313): the shape or the word of a route of
+   * «Explore» or of a drawing, chosen in «Draw» at the same distance, and
+   * the route or the drawing left. The start stays «Draw»'s: «Draw route»
+   * asks the engine for the route there. */
+  function onDrawAgain(again: DrawAgain) {
+    if (again.kind === "shape") {
+      setKind("shape");
+      setShapeText(shapeName(again.shape));
+    } else {
+      setKind("word");
+      setWordText(again.word);
+      setLetterStyle(again.style);
+    }
+    distance.choose(againDistanceM(again, sportActivity));
+    closeExplore();
+    leaveDrawing();
+    setScreen("choose");
+  }
+
+  /** The button's action for `again`, when «Draw» can draw it. */
+  function drawAgainOf(again: DrawAgain | null): (() => void) | undefined {
+    return drawsAgain(again, sportActivity) ? () => onDrawAgain(again) : undefined;
+  }
+
   function onDraw() {
     // The decimal pad has no return key: drawing closes it.
     Keyboard.dismiss();
@@ -1302,6 +1337,7 @@ function MuW() {
             drawing={drawing}
             onBack={backFromDrawing}
             onStart={onStartDrawing}
+            onDrawAgain={drawAgainOf(againOfDrawing(drawing))}
           />
         ) : (finishing || freeFinishing) && stretchAsked ? (
           // «Stretch» opens the exercises (part B) over «Your run», where
@@ -1378,6 +1414,11 @@ function MuW() {
               }
             }}
             move={moveExample}
+            onDrawAgain={
+              explored.status === "done"
+                ? drawAgainOf(againOfRequest(explored.request))
+                : undefined
+            }
           />
         ) : finishing ? (
           <FinishCard

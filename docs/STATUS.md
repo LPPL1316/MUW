@@ -160,6 +160,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-313 — «Draw it near me»: la stessa forma in un altro posto**
+  (ADR-0273; richiesta dell'utente del 2026-10-27, «Sì, così» alla
+  proposta; numero e ordine dal Coordinatore, prima di TASK-309 B). Branch
+  `feat/TASK-313-draw-it-near-me`, solo app (JS). Nella scheda di un
+  percorso di «Explore» e in quella di un disegno (Feed, profili) il
+  pulsante porta a «Draw» con la stessa forma, o la stessa parola con le
+  sue lettere, e la stessa distanza (al decimo di km, una parola mai sotto
+  i suoi 3 km a lettera, dentro i limiti dello sport); la partenza resta
+  quella di «Draw» e niente si chiede prima di «Draw route». Niente per
+  foto, immagini, percorsi a tema, parole in «Paddle». Il testo nuovo
+  aspetta il sì dell'utente. File: `tasks/TASK-313.md`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`

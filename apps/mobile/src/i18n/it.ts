@@ -1446,4 +1446,7 @@ export const IT: Table = {
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Questo percorso non ha le indicazioni delle svolte: segui la linea sulla mappa.",
+  // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
+  // stessa forma in «Draw»)
+  "Draw it near me": "Disegnala vicino a me",
 };

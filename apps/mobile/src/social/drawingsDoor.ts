@@ -107,6 +107,9 @@ export type DrawingsDoor = {
   opened: DrawingDetail | null;
   /** From the map back to «Profile», where it was opened. */
   back: () => void;
+  /** From the map elsewhere, «Profile» left closed: «Draw it near me»
+   * goes to «Draw» (TASK-313). */
+  leave: () => void;
 };
 
 const NO_KEYS: ReadonlySet<string> = new Set();
@@ -126,6 +129,7 @@ const NOTHING: DrawingsDoor = {
   open: () => {},
   opened: null,
   back: () => {},
+  leave: () => {},
 };
 
 /** Without «Profile» around it (a test of one screen): no drawings. */
@@ -140,6 +144,8 @@ type Doors = {
   onOpened: () => void;
   /** Back from the map: «Profile» again, as it was. */
   onBack: () => void;
+  /** Off the map elsewhere: what «Profile» kept behind it is let go. */
+  onLeave?: () => void;
 };
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
@@ -151,7 +157,7 @@ type Held = { token: string; keys: ReadonlySet<string> };
 export function useDrawingsOf(
   baseUrl: string | null,
   account: Account,
-  { onOpened, onBack }: Doors,
+  { onOpened, onBack, onLeave }: Doors,
   options: Options = {},
 ): DrawingsDoor {
   const { state, sessionEnded: endSession } = account;
@@ -418,6 +424,12 @@ export function useDrawingsOf(
     setOpened(null);
     onBack();
   }, [onBack]);
+  const leave = useCallback(() => {
+    asked.current = null;
+    setOpening(null);
+    setOpened(null);
+    onLeave?.();
+  }, [onLeave]);
 
   const publicKeys = held !== null && held.token === token ? held.keys : NO_KEYS;
   return useMemo(
@@ -436,6 +448,7 @@ export function useDrawingsOf(
       open,
       opened: opened !== null && opened.token === token ? opened.drawing : null,
       back,
+      leave,
     }),
     [
       publicKeys,
@@ -453,6 +466,7 @@ export function useDrawingsOf(
       token,
       opened,
       back,
+      leave,
     ],
   );
 }
