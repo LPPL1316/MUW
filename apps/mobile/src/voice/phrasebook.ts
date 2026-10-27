@@ -141,6 +141,15 @@ export type Phrasebook = {
   paddleKilometre(km: number, time: string, pace: string): string;
   /** The same with miles: each mile, and the pace of 500 metres still. */
   paddleMile(miles: number, time: string, pace: string): string;
+  /** Off the route, after `offRoute` (TASK-303): where it is, "The route
+   * is 120 metres away, to the north-east."; `metres` is rounded,
+   * `towards` one of `compass`. */
+  routeAt(metres: number, towards: string): string;
+  /** The same with miles, in feet. */
+  routeAtFeet(feet: number, towards: string): string;
+  /** The eight points of the compass as `routeAt` says them, from north
+   * clockwise: "north", "north-east", … */
+  compass: readonly string[];
 };
 
 /** The voice's phrases in one language, ready to say. */
@@ -219,6 +228,10 @@ export type VoiceWords = {
   /** With miles: "1 mile. Time: … Average pace: … per 500 metres."; the
    * mile CHEER_MI ends with the cheer. */
   paddleMile(miles: number, ms: number, paceMs: number): string;
+  /** Off the route (TASK-303): "The route is 120 metres away, to the
+   * north-east.", `bearingDeg` clockwise from north said as the nearest of
+   * the eight points of the compass. With miles, in feet. */
+  routeAt(metres: number, bearingDeg: number): string;
 };
 
 function isKind(kind: string): kind is Kind {
@@ -349,6 +362,14 @@ export function voiceWords(book: Phrasebook, units: Units = "km"): VoiceWords {
     paddleMile(miles, ms, paceMs) {
       const said = book.paddleMile(miles, time(ms), time(paceMs));
       return miles === CHEER_MI ? `${said} ${book.cheer}` : said;
+    },
+    routeAt(metres, bearingDeg) {
+      // The nearest point of the compass, as `compassPoint` shows it.
+      const towards =
+        book.compass[Math.round((((bearingDeg % 360) + 360) % 360) / 45) % 8];
+      return units === "mi"
+        ? book.routeAtFeet(roundFeet(metres), towards)
+        : book.routeAt(roundMetres(metres), towards);
     },
   };
 }
