@@ -1520,6 +1520,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
   premio senza valore): il primo concorso, vince il post per tutti con più
   reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi
