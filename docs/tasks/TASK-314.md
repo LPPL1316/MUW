@@ -91,6 +91,29 @@ Numero, ADR e condizioni dal Coordinatore (2026-10-27):
      operatori mobili mettono molti telefoni dietro un IP. Oltre, 429 con
      `Retry-After`. Non per account: la corsa e la sua guida funzionano
      senza account, e il token costerebbe una query a ogni richiesta.
+   - **I valori** (`way_back_api.py`):
+     - `PER_PHONE_A_MINUTE` = 6 per telefono, una richiesta ogni 10 s. È
+       il doppio di quello che chiederà l'app con `WAY_BACK_EVERY_S`
+       (parte B, circa 15–20 s), così un ricalcolo subito dopo aver
+       lasciato la strada non viene rifiutato.
+     - `PER_ADDRESS_A_MINUTE` = 60 per IP: dieci telefoni che chiedono
+       di continuo dallo stesso indirizzo, come dietro il NAT di un
+       operatore mobile.
+     - Sopra c'è il limite di ogni POST di `access.py` (30 al minuto per
+       client).
+     - Una 429 costa poco: l'app tiene la strada che ha, o i puntini.
+   - **Dopo l'aggiornamento del server** (con il sì dell'utente), nei log
+     di `api`:
+     - quante `"POST /way-back HTTP/1.1" 429` (log degli accessi) e quante
+       righe `way back refused` (le 429 di questo limite, non quelle di
+       `access.py`): poche, rispetto alle 200;
+     - i tempi delle righe `way back of … m, … directions, in … s`: sul
+       Mac 0,05–0,15 s con il ritaglio; sul server ci si aspetta 3–5
+       volte tanto, e oltre 1 s va guardato;
+     - le `503` (`map_data_unavailable`), che sono zone non in cache, e le
+       `422`, cioè nessuna strada per tornare. Sono normali solo se
+       rare: tante 503 vogliono dire runner fuori dalle zone del server.
+     Le righe non hanno posizioni (ADR-0092).
 4. **Sul telefono**: `on_phone.way_back_json`, la stessa risposta dello
    stesso calcolo; `page.ts` e `phoneEngine.ts` con la chiamata
    `wayBack`; `engine.zip` ricostruito.

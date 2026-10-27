@@ -6,10 +6,12 @@ a railway between Row 0 and Row 1 crossed only by Columns 5 and 6."""
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 import networkx as nx
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from route_engine.geo import local_to_latlon
@@ -227,6 +229,19 @@ def test_one_address_has_a_wider_limit_for_all_its_phones() -> None:
     ]
 
     assert answers == [200] * PER_ADDRESS_A_MINUTE + [429]
+
+
+def test_a_refusal_is_logged_without_where(caplog: pytest.LogCaptureFixture) -> None:
+    client = _limited(_Clock())
+    caplog.set_level(logging.INFO, logger="shaperoute_api.way_back_api")
+
+    for _ in range(PER_PHONE_A_MINUTE + 1):
+        client.post("/way-back", json=request_body())
+
+    refused = [r.getMessage() for r in caplog.records if "refused" in r.getMessage()]
+    assert refused == ["way back refused: asked again in 60 s"]
+    said = " ".join(r.getMessage() for r in caplog.records)
+    assert "46.0" not in said and "11.1" not in said
 
 
 def test_without_a_phone_id_the_address_is_the_phone() -> None:
