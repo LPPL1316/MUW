@@ -66,7 +66,11 @@ export type ToPage =
   /** Choosing the start on the map (TASK-292): with `on`, the start's pin
    * stays in the middle of the map, which moves under it, and the page
    * tells where the middle is (`centre`). */
-  | { type: "setPick"; on: boolean };
+  | { type: "setPick"; on: boolean }
+  /** Off the route (TASK-303): a dotted line from the runner to where the
+   * route goes on, `showRejoin`; none after. */
+  | { type: "showRejoin"; line: LngLat[] }
+  | { type: "clearRejoin" };
 
 /** What fingers do on the map of «Draw on the map» (TASK-281): «Draw», one
  * finger draws and the map keeps still; «Move», one finger moves the
@@ -226,6 +230,17 @@ export function showProgress(split: RouteSplit, blink: boolean): ToPage {
 /** The run is over: the route is drawn whole again, and nothing blinks. */
 export function clearProgress(): ToPage {
   return { type: "clearProgress" };
+}
+
+/** Off the route (TASK-303): the dotted line from the runner, `from`, to
+ * the point of the route to get back to, `to`, in a straight line. */
+export function showRejoin(from: LatLon, to: LatLon): ToPage {
+  return { type: "showRejoin", line: [toLngLat(from), toLngLat(to)] };
+}
+
+/** Back on the route, or the run over: no dotted line. */
+export function clearRejoin(): ToPage {
+  return { type: "clearRejoin" };
 }
 
 /** Draws the other routes to choose from under the route, without moving
