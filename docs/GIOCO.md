@@ -305,9 +305,17 @@ una volta per sfida.
   `challenge_done`, `challenge_ending`) si mostrano anche con l'app
   aperta, e toccate aprono la sfida che nominano, nella scheda
   «Challenges».
-- **Durante la corsa** c'è una striscia sottile, per esempio «Hexagon
-  14.2 / 20 km», oppure, con un pezzo veloce in mano, il passo dell'ultimo
-  km contro l'obiettivo. È una stima del telefono: il conto vero lo fa il
-  server dopo «Save».
+- **Durante la corsa** (parte E; `UI.md`, «La navigazione», «La riga del
+  gioco») c'è una riga sottile sotto i numeri della scheda, su «Map» e su
+  «Data», per la corsa a piedi con l'account: la prossima forma per
+  distanza con i km contati dal server più quelli della corsa, «Hexagon
+  14.2 / 20 km», che cresce mentre si corre e, passata la soglia, passa
+  alla forma dopo senza dire «unlocked»; oppure, con un pezzo veloce in
+  mano in una sfida in corso, il passo dell'ultimo km contro l'obiettivo,
+  «Last km 5:12 · target 5:00 /km». È una stima del telefono: il conto
+  vero lo fa il server dopo «Save». Il server si chiede una volta sola,
+  all'inizio della corsa (`GET /game/me` e `GET /game/teams`), mai
+  durante; senza rete, senza account, senza il gioco, in bici e in canoa
+  la riga non c'è e non compare nessun errore.
 - I colori vengono da `src/theme/tokens.ts`. I testi sono in inglese e
   tradotti nelle cinque lingue.
