@@ -1450,6 +1450,11 @@ export const ES: Table = {
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "CERCA DE TI",
   "SHAPES TO TRY": "FORMAS PARA PROBAR",
+  // src/screens/NavigateScreen.tsx (TASK-303)
+  "The route is {distance} away, to the {direction}.":
+    "La ruta sigue a {distance}, hacia el {direction}.",
+  "Follow the dotted line back to the route.":
+    "Sigue la línea de puntos para volver a la ruta.",
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Esta ruta no tiene indicaciones de giro: sigue la línea en el mapa.",
