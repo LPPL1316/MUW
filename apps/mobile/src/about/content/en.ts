@@ -12,7 +12,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 October 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "27 October 2026";
+const PRIVACY_UPDATED = "28 October 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -347,6 +347,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Feedback",
+      blocks: [
+        "When you write to us from «Send feedback» in «Settings», we keep your message, the app's version, your phone's system (iOS or Android) and when you sent it. The person who runs MuW receives it by email with your username and email address, to read it and, if needed, to answer you by email. It is never shown to the other members. When you delete your account, your messages are deleted from our server with it.",
+      ],
+    },
+    {
       heading: "The shape game",
       blocks: [
         "With an account, our server works out from your saved runs on foot how many kilometres count for the game, your best times over 1, 5, 10 and 21.1 km, and the shapes you collected. Only you see your collection and your best times. If you join a team, its members see your username, your picture, the pieces of a challenge you took and the kilometres you gave to each, never your tracks, the times of your runs or where you ran. A team is found only with its code: it is never in a search. Deleting a run takes its kilometres out of the count, and the shapes you already collected stay. When you delete your account, your game data is deleted with it; in a team's challenges the pieces you ran stay for the others, without your name.",
@@ -396,7 +402,7 @@ const privacy: AboutDocument = {
             "unpkg serves the map library when the app starts.",
             "Expo serves the app's updates.",
             "Google Ireland Limited (Firebase Cloud Messaging), to deliver push notifications to Android phones. When you turn push on, the app asks Firebase for a registration token for your phone; Expo's push service hands each notification (who did what, and the beginning of a comment) to Google, which delivers it to your phone. Google sees the token and the content of each notification, not your account or your position. The token is dropped from our server when you turn push off, log out or delete your account; the one on the phone goes when you uninstall the app.",
-            "Resend, in the United States, sends MuW's emails: your email address with the email itself. For a report it carries to the person who runs MuW what was reported, its text, the reason, and the usernames of who reported it and who wrote it.",
+            "Resend, in the United States, sends MuW's emails: your email address with the email itself. For a report it carries to the person who runs MuW what was reported, its text, the reason, and the usernames of who reported it and who wrote it. For «Send feedback» it carries your message, your username and your email address.",
             "Strava, as said above.",
           ],
         },
@@ -423,7 +429,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "To give you the service you ask for (contract): your account, your profile, the routes you ask for, the runs, favorites, comments, reactions and follows you save, the emails of the notifications you turned on, and the shape game.",
-            "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them; the email when you are away, which you can refuse at sign-up, in «Settings» or in each email; the reports' emails, to keep MuW safe; the archive of drawn routes, which says nothing about who you are.",
+            "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them; the email when you are away, which you can refuse at sign-up, in «Settings» or in each email; the reports' emails, to keep MuW safe; the archive of drawn routes, which says nothing about who you are; the messages of «Send feedback», to read them and answer you.",
             "Your consent: the phone number you choose to add and the connection to Strava. You can take a consent back at any time; what was done before stays lawful.",
             "A legal obligation, when a law asks us to keep or hand over data.",
           ],
