@@ -16857,3 +16857,68 @@ dozzina di PR aspetta la CI; resta come seguito.
 
 **Conseguenze**: la CI torna verde con la 9.1. Quando i test saranno
 riscritti, il tetto si toglie con un'aggiunta a questo ADR.
+
+## ADR-0267 — Correre il disegno di un altro: la traccia tagliata come percorso, senza svolte, e il GPX scritto sul telefono
+
+**Stato**: Attiva · 2026-10-26 · la richiesta («scaricare la traccia e
+poterla iniziare»), il «no» a un interruttore per chi pubblica, la frase
+della «Privacy» e il testo sotto «Start» sono dell'utente; chi può
+scaricare, che cosa e la scritta senza svolte vengono dal Coordinatore; i
+punti tecnici sono decisi dall'agente su delega dell'utente (TASK-307).
+
+**Contesto**: l'utente il 2026-10-26: «quando entri in un'attività di un
+tuo amico, nei suoi disegni e nel feed, poter scaricare la traccia e
+poterla iniziare pure tu». Dal «Feed» e dai «Drawings» di un profilo il
+disegno si apre sulla stessa scheda (`DrawingCard`), che aveva reazioni e
+commenti ma né «Start» né GPX. Dell'altro l'app ha solo la traccia di
+`GET /drawings/{id}`: tagliata di 200 m ai due capi, senza tempi, mai il
+percorso pianificato (ADR-0159). È il GPS di chi ha corso: i suoi punti
+non stanno sui nodi del grafo, e `/route-directions` (ADR-0117) la
+rifiuta («This route is not on the map the API has»).
+
+**Decisione**:
+
+1. **Chi e che cosa.** «Start» ed «Export GPX» ci sono su ogni disegno che
+   si può aprire, anche il proprio: l'API dà la traccia solo a chi lo può
+   vedere (mai attraverso un blocco, mai un post nascosto). Il file ha
+   **solo la traccia tagliata**, la stessa della mappa: niente tempi,
+   niente nome di chi ha corso, niente quote.
+2. **Il GPX si scrive sul telefono** (`src/social/drawingRoute.ts`), non
+   con `POST /gpx`: l'app ha già la traccia, e l'API vorrebbe una
+   richiesta e un risultato dell'engine che un disegno non ha. Come
+   l'engine (GPX.md): GPX 1.1, un `<trk>`, un `<trkseg>`, 7 decimali,
+   creator «MuW»; senza attribuzione a OSM, come la corsa fatta (è il GPS
+   di chi corre). Nome: il titolo, altrimenti ciò che disegna; file
+   `muw-<forma>-<km>km.gpx`. Poi il foglio di condivisione (ADR-0033).
+3. **«Start» segue la traccia senza svolte**, subito, senza chiedere
+   niente all'API: come in acqua, la linea sulla mappa, la parte fatta e
+   quella da fare, i km. La scheda lo dice sotto «Start»: «This route has
+   no turn directions: follow the line on the map.» Bici e acqua come il
+   disegno è stato fatto (come un preferito, TASK-216); in acqua prima
+   l'avviso; la mappa girata come il disegno (TASK-232).
+4. **La corsa salvata** ha come percorso la traccia e dice ciò che il
+   disegno disegna (forma, parola, titolo); la somiglianza, che dell'altro
+   non si sa, è il punteggio del disegno / 100, come per gli esempi di
+   «Feed» (TASK-188).
+5. **Fine corsa** (o Stop prima di partire) torna al disegno, ancora
+   aperto; da lì «←» torna dov'era stato aperto.
+
+**Alternative scartate**: chiedere comunque `/route-directions` (fallisce
+sempre su una traccia GPS, e «Start» resterebbe bloccato da un errore);
+agganciare la traccia alle strade nell'engine prima di partire
+(map-matching: lavoro dell'engine e dell'API da misurare, un task a parte
+se l'utente vuole le svolte a voce); `GET /drawings/{id}/gpx` nell'API
+(un endpoint nuovo per un file che il telefono ha già); chiudere il disegno
+alla partenza (alla fine della corsa non ci sarebbe niente a cui tornare).
+
+6. **Nessun interruttore per chi pubblica** (scelta dell'utente del
+   2026-10-26): il file ha solo ciò che la mappa già mostra. La pagina
+   «Privacy», in app e sul sito, lo dice in un paragrafo nuovo dopo
+   quello dei 200 m: «Whoever can see one of your runs can also follow it
+   with «Start» and save that same track as a GPX file: still without its
+   first and last 200 m and without times.»
+
+**Conseguenza**: solo app, nessun contratto né dipendenza nuovi, arriva
+con un aggiornamento OTA (impronta iOS invariata). Un testo nuovo nelle
+cinque lingue e una frase nuova nella «Privacy». Se un giorno servisse il
+«no» di chi pubblica, servono l'API e una migrazione.
