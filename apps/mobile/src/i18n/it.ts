@@ -1437,7 +1437,7 @@ export const IT: Table = {
   Winner: "Vincitore",
   "{name} won the MuW contest": "{name} ha vinto il concorso MuW",
 
-  // src/api/messages.ts (TASK-310: private messages)
+  // src/api/messages.ts (TASK-311: private messages)
   "A message needs some words.": "Un messaggio ha bisogno di qualche parola.",
   "A message is at most {max} characters.":
     "Un messaggio può avere al massimo {max} caratteri.",
@@ -1447,7 +1447,7 @@ export const IT: Table = {
     "In questa app non puoi mandare messaggi negativi.",
   "This conversation is not available.": "Questa conversazione non è disponibile.",
 
-  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-310)
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-311)
   Messages: "Messaggi",
   "Messages, {count} waiting": "Messaggi, {count} in attesa",
   "Message requests": "Richieste di messaggio",
@@ -1460,7 +1460,7 @@ export const IT: Table = {
   Message: "Messaggio",
   "Message {name}": "Scrivi a {name}",
 
-  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-310)
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-311)
   "No messages yet.": "Ancora nessun messaggio.",
   "Show earlier messages": "Mostra i messaggi precedenti",
   "Touch and hold to delete it": "Tieni premuto per eliminarlo",

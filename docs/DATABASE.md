@@ -46,9 +46,9 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `reports` | chi segnala, cosa (disegno, commento, utente) e il suo id, motivo da un elenco corto, data; una riga per chi segnala e per cosa | TASK-121 |
 | `blocks` | chi blocca, chi è bloccato, data; una riga tiene lontani i due nei due sensi | TASK-121 |
 | `report_links_used` | i link delle email delle segnalazioni già usati: il loro numero a caso e quando | TASK-291 |
-| `conversations` | una per coppia di iscritti che si scrivono, i due id in ordine, data | TASK-310 |
-| `conversation_members` | dove sta ognuno dei due in una conversazione: quando ha accettato, quando l'ha tolta dalla sua vista, quando l'ha letta | TASK-310 |
-| `messages` | conversazione, chi scrive, testo (1–1000), data; nascosto da una segnalazione | TASK-310 |
+| `conversations` | una per coppia di iscritti che si scrivono, i due id in ordine, data | TASK-311 |
+| `conversation_members` | dove sta ognuno dei due in una conversazione: quando ha accettato, quando l'ha tolta dalla sua vista, quando l'ha letta | TASK-311 |
+| `messages` | conversazione, chi scrive, testo (1–1000), data; nascosto da una segnalazione | TASK-311 |
 
 Tutte le tabelle legate a un utente hanno `ON DELETE CASCADE`: cancellare
 la riga di `users` cancella tutto il resto, anche i suoi
@@ -619,7 +619,7 @@ Migrazione `0030_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
   lascia `winner_user_id` (il badge resta); l'account cancellato lascia il
   concorso senza vincitore. Test in `test_contests.py`.
 
-Migrazione `0032_messages.sql` (TASK-310, ADR-0270, `API.md`
+Migrazione `0032_messages.sql` (TASK-311, ADR-0271, `API.md`
 «Messages»; il numero è il primo libero in `main` al merge):
 
 - `conversations`: `id` (uuid casuale), `low_id` e `high_id` (i due

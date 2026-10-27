@@ -1,4 +1,4 @@
-"""Private messages in a real PostgreSQL (TASK-310, ADR-0270): a message to
+"""Private messages in a real PostgreSQL (TASK-311, ADR-0271): a message to
 someone who follows the writer lands in its «Messages», to anyone else as a
 request of one message until it is accepted, answered or deleted; the
 request's message passes the comments' filter; a block deletes the

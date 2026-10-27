@@ -1,17 +1,17 @@
-# TASK-310 — I messaggi privati, con le richieste
+# TASK-311 — I messaggi privati, con le richieste
 
 **Stato**: In corso (parti A e B nella stessa PR)
 **Fase**: 4 · **Branch**: `claude/epic-gauss-k87m6o` (il branch assegnato
 alla sessione cloud; parte da `main`)
-**ADR**: ADR-0270 · **Migrazione**: `0032_messages.sql` (il numero si
+**ADR**: ADR-0271 · **Migrazione**: `0032_messages.sql` (il numero si
 ricontrolla al merge)
-**Numeri**: TASK-310 e ADR-0270 presi come primi liberi anche nei branch
-remoti, il 2026-10-26 sera: il Coordinatore non era raggiungibile dalla
-sessione cloud. Il lavoro era nato come TASK-305 / ADR-0265, ma prima del
-push quei numeri li aveva presi `docs/TASK-305-paragliding-proposal`
-(306–309 e ADR-0266–0269 sono di TASK-306–309); la migrazione è `0032`
-perché `0031_feedback.sql` è di TASK-308. **Da confermare col
-Coordinatore.**
+**Numeri**: TASK-311 e ADR-0271 presi come primi liberi in `main` e nei
+branch remoti, il 2026-10-27: il Coordinatore non era raggiungibile dalla
+sessione cloud. Il lavoro era nato come TASK-305 / ADR-0265, poi TASK-310 /
+ADR-0270: tutte e due le volte un'altra sessione ha preso quei numeri
+prima che questo branch arrivasse su GitHub (il parapendio, poi «pin
+pytest»). La migrazione è `0032` perché `0031` è di TASK-308 e di
+TASK-309. **Da confermare col Coordinatore.**
 
 ## Obiettivo
 
@@ -53,7 +53,7 @@ Chieste una alla volta, con una proposta:
 
 ## Il disegno (deciso dall'agente su delega dell'utente)
 
-In ADR-0270 e in `API.md` «Messages»: una conversazione per coppia, lo
+In ADR-0271 e in `API.md` «Messages»: una conversazione per coppia, lo
 stato della richiesta su chi riceve (`conversation_members.accepted_at`),
 la conversazione chiesta col `public_id` dell'altro, lo `state` della
 pagina (`open`, `first`, `waiting`, `request`), «Delete» che toglie dalla
@@ -77,7 +77,7 @@ del merge.
 
 - `docs/API.md` «Follow», «Comments», «Block and report», «Push
   notifications», «Messages»; `docs/DATABASE.md` `0020`, `0024`, `0032`
-- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0270
+- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0271
 - `services/api/shaperoute_api/follows.py` (`apart_sql`, `follows_sql`),
   `comments.py`, `moderation.py`, `report_email.py`, `push.py`
 
@@ -147,7 +147,7 @@ docs/API.md
 docs/DATABASE.md
 docs/DECISIONS.md
 docs/STATUS.md
-docs/tasks/TASK-310.md                                  (nuovo)
+docs/tasks/TASK-311.md                                  (nuovo)
 ```
 
 ## Parte B — L'app

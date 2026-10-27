@@ -16664,13 +16664,13 @@ un SDK che l'app non usa e ne porta il codice e i permessi nella build);
 `expo-build-properties` per il `compileSdk` (non risolve la sezione
 mancante).
 
-## ADR-0270 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
+## ADR-0271 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
 
 **Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
 richieste e il resto della proposta sono **scelte dell'utente** del
 2026-10-26 («Chiunque, con richiesta», poi «Sì, così»); i punti tecnici
-sono decisi dall'agente su delega dell'utente (TASK-310). Numero preso
-come primo libero anche nei branch remoti (0263–0269 sono di TASK-303–309,
+sono decisi dall'agente su delega dell'utente (TASK-311). Numero preso
+come primo libero anche nei branch remoti (0263–0270 sono di TASK-303–310,
 0265 della proposta del parapendio): il Coordinatore non rispondeva.
 
 **Contesto**: l'utente il 2026-10-26: «aggiungi anche la possibilità di

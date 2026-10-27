@@ -1073,7 +1073,7 @@ export interface FeedPage {
 
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing
- * (a post of the feed), a comment, a member, or a private message (TASK-310:
+ * (a post of the feed), a comment, a member, or a private message (TASK-311:
  * only the one it was sent to reports it).
  */
 export const REPORT_KINDS = ["drawing", "comment", "user", "message"] as const;
@@ -1432,7 +1432,7 @@ export interface Contest {
   winner: ContestWinner | null;
 }
 
-// --- Private messages (TASK-310, ADR-0270; docs/API.md «Messages») ---
+// --- Private messages (TASK-311, ADR-0271; docs/API.md «Messages») ---
 
 /** The limit of a message, checked by the API too. */
 export const MESSAGE_MAX_LENGTH = 1000;

@@ -56,7 +56,7 @@ type Props = {
 };
 
 /**
- * The sheet of a conversation (TASK-310, ADR-0270), as the «…» of a post
+ * The sheet of a conversation (TASK-311, ADR-0271), as the «…» of a post
  * (ReportMenu.tsx): one's own message touched long is deleted for both;
  * the other's is reported, with the reasons of the posts, and only that
  * message reaches whoever runs MuW. «Block» of a request asks first,

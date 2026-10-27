@@ -47,7 +47,7 @@ from shaperoute_api.moderation import (
 
 # The migration of blocks and reports, whatever its number when merged.
 (MODERATION,) = [p for p in migrations() if p.name.endswith("_moderation.sql")]
-# The private messages add their kind to the list (TASK-310).
+# The private messages add their kind to the list (TASK-311).
 (MESSAGES,) = [p for p in migrations() if p.name.endswith("_messages.sql")]
 Headers = dict[str, str]
 

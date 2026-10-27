@@ -160,7 +160,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
-- **TASK-310 — I messaggi privati, con le richieste** (ADR-0270;
+- **TASK-311 — I messaggi privati, con le richieste** (ADR-0271;
   richiesta dell'utente del 2026-10-26, «aggiungi anche la possibilità di
   mandarsi messaggi privati»; scelte: «Chiunque, con richiesta», poi «Sì,
   così» alla proposta). Branch `claude/epic-gauss-k87m6o` (sessione cloud);
@@ -176,7 +176,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **aspettano l'ok dell'utente sui testi e sulla privacy** prima del
   merge; server, sito e app dopo il merge, con l'ok dell'utente;
   «Messaging and Chat» su App Store Connect la cambia l'utente. File:
-  `tasks/TASK-310.md`.
+  `tasks/TASK-311.md`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`

@@ -357,7 +357,7 @@ def create_app(
     install_feed(app)
     # Blocking and reporting (TASK-121); they need a token.
     install_moderation(app)
-    # Private messages, with message requests (TASK-310); after the blocks,
+    # Private messages, with message requests (TASK-311); after the blocks,
     # which delete a conversation; they need a token.
     install_messages(app)
     # The shape game (TASK-296): the catalog for anyone, the rest with a token.

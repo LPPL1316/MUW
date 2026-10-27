@@ -29,7 +29,7 @@ type Props = {
 };
 
 /**
- * «Messages» over the app (TASK-310, ADR-0270), as «Find friends» is: the
+ * «Messages» over the app (TASK-311, ADR-0271), as «Find friends» is: the
  * list of the conversations, the message requests, or one conversation.
  * «←» goes back to the list a conversation was opened from, and from the
  * requests to «Messages»; else it closes, and the app is as it was left.

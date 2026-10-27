@@ -1558,8 +1558,8 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `challenge_done` | la squadra ha completato la forma (TASK-296 C) | tutti gli iscritti, anche chi ha corso | la sfida |
   | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
   | `contest_won` | il comando `close` ha proclamato il suo post vincitore del concorso (TASK-299) | chi ha vinto | il disegno |
-  | `message` | un messaggio privato, fuori da una richiesta (TASK-310): «{name}: {text}», con l'inizio | chi lo riceve | la conversazione, dal profilo di chi scrive |
-  | `message_request` | una richiesta di messaggio, al più una al giorno per chi scrive (TASK-310), senza il testo | chi la riceve | la conversazione, dal profilo di chi scrive |
+  | `message` | un messaggio privato, fuori da una richiesta (TASK-311): «{name}: {text}», con l'inizio | chi lo riceve | la conversazione, dal profilo di chi scrive |
+  | `message_request` | una richiesta di messaggio, al più una al giorno per chi scrive (TASK-311), senza il testo | chi la riceve | la conversazione, dal profilo di chi scrive |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
@@ -2260,7 +2260,7 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   nome e foto piccola, mai l'email.
 - **`POST /reports`**: `{"kind", "id", "reason"}`. `kind` è `drawing`
   (un post del feed), `comment`, `user` o `message` (un messaggio
-  privato, TASK-310, «Messages» sotto); `id` è l'id del disegno, del
+  privato, TASK-311, «Messages» sotto); `id` è l'id del disegno, del
   commento, del messaggio o il `public_id` dell'iscritto; `reason` è uno di `spam`,
   `offensive`, `harassment`, `sexual`, `other`, in quest'ordine (l'app
   li mostra così). **Una riga per chi segnala e per cosa**: segnalato di
@@ -2323,7 +2323,7 @@ di Resend non cambia mai la risposta di `POST /reports`.
     quello che fa. Lui vede tutto come prima.
   Nessuno viene avvisato.
 
-### Messages (TASK-310, ADR-0270)
+### Messages (TASK-311, ADR-0271)
 
 Due iscritti si scrivono **messaggi privati**, con le **richieste** come
 su Instagram (scelte dell'utente del 2026-10-26). Si scrive a chiunque non
