@@ -94,8 +94,9 @@ Approvati dall'utente il 2026-10-26, così come sono:
   message, your username and your email address.»
 - In fondo all'**interesse legittimo**: «…; the messages of «Send
   feedback», to read them and answer you.»
-- La data resta «26 October 2026»: se entra un altro giorno, la data
-  nuova vuole il sì dell'utente.
+- La data è quella del giorno del merge: «28 October 2026» (la #573
+  l'aveva portata al 27; il merge è il 28), come ha chiesto il
+  Coordinatore.
 
 ## Criteri di accettazione
 
@@ -160,11 +161,14 @@ apps/mobile/src/about/content/it.ts
 apps/mobile/src/about/content/de.ts
 apps/mobile/src/about/content/es.ts
 apps/mobile/src/about/content/fr.ts
+apps/mobile/src/about/AboutPage.test.tsx
+apps/mobile/src/about/documents.test.ts
 site/privacy/index.html
 site/privacy/it/index.html
 site/privacy/de/index.html
 site/privacy/es/index.html
 site/privacy/fr/index.html
+site/tests/privacy.test.mjs
 ```
 
 ## Fuori scope
@@ -183,10 +187,11 @@ site/privacy/fr/index.html
 2. **App e server in qualsiasi ordine**: finché il server non ha
    `GET /feedback` la sezione non si vede. Il server dopo l'approvazione
    di Apple, con l'ok dell'utente (`DEPLOY.md`, «Email del feedback»).
-3. **La data della privacy** diventa quella del giorno del merge, nelle
-   cinque lingue (`PRIVACY_UPDATED` in `about/content/*.ts`) e nei loro
-   test, poi `node site/tools/make_privacy.mjs` (condizione del
-   Coordinatore). Oggi resta «26 October 2026».
+3. **La data della privacy** è quella del giorno del merge, nelle cinque
+   lingue (`PRIVACY_UPDATED` in `about/content/*.ts`) e nei loro test
+   (`AboutPage.test.tsx`, `documents.test.ts`, `site/tests/privacy.test.mjs`),
+   poi `node site/tools/make_privacy.mjs` (condizione del Coordinatore):
+   fatto per il 28 ottobre. Se il merge slitta ancora, si rifà.
 4. Le pagine privacy del sito: copia F.14 sul server, con l'ok
    dell'utente.
 5. Impronta iOS su una copia pulita con `npm ci` (attesa `83793e26`).
