@@ -1,6 +1,6 @@
 # TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore» preparato all'apertura
 
-**Stato**: In corso
+**Stato**: Done
 **Fase**: 4 · **Branch**: `feat/TASK-306-near-you-shapes`
 
 ## Obiettivo
@@ -207,4 +207,22 @@ intero già disegnato, perché si apra come un esempio (oggi lo fa
 
 ## Esito
 
-*(a fine task)*
+In `main` con la PR #571 (`0bfc07c0`, 2026-10-27), mergiata dal
+Coordinatore con la parola dell'utente; impronta iOS `83793e26…`
+invariata, rimisurata da lui sull'ultimo head. Con la corsa, sotto la
+distanza di «Draw», «NEAR YOU»: cerchio, cuore e stella da 5 km dalla
+posizione, disegnati dal telefono (il server se non ha mappe), tenuti
+fino a 1 km; una forma che non viene lascia il posto a una già pronta in
+una città in evidenza a caso, con il nome della città e quanto è lontana;
+con niente vicino o senza posizione, sei città e «SHAPES TO TRY».
+«Explore» chiede lista, paesi vicini e i loro esempi all'apertura, prima
+di essere aperto. Tutto dopo l'animazione d'apertura, mai durante corsa,
+navigazione o background. 33 test nuovi; criteri di accettazione
+verificati con i test, non sul telefono.
+
+**Resta** (seguito, non codice): la pubblicazione su «preview», del
+Coordinatore insieme a #565 e #573, con l'ok dell'utente («Sì: dopo
+l'unione pubblica sulla preview, così la provo sul telefono»); poi il
+tempo vero sul telefono dell'utente («Al merge», punto 3), da scrivere
+qui al posto della stima di «Costi». Il segnaposto della scheda dice
+«Drawing…», non la forma in grigio descritta all'utente nella proposta.
