@@ -16835,3 +16835,24 @@ chi aveva già detto «I'm going», e che cosa vuol dire «in arrivo».
 tabelle piccole. Nessun codice d'errore nuovo; `schemas.py` ed `engine.zip`
 invariati. La parte B legge `GroupRunPushData` accanto a
 `ChallengePushData` in `notificationTap.ts`.
+
+## ADR-0270 — pytest fermato sotto la 9.2 finché i test confrontano liste con un solo `approx`
+
+**Data**: 2026-10-27 · **Stato**: Accettata · **Task**: TASK-310
+Deciso dal Coordinatore su delega dell'utente.
+
+**Contesto**: `pytest>=8` nelle dipendenze di sviluppo ha fatto prendere alla
+CI `pytest-9.2.0` (l'ultima `main` verde aveva la 9.1.1). La 9.2 rifiuta
+`pytest.approx()` su strutture annidate, e diversi test del motore e
+dell'API confrontano liste di coppie di coordinate con un solo `approx`:
+`main` e ogni PR aperta sono diventate rosse senza aver toccato niente.
+
+**Decisione**: `pytest>=8,<9.2` in `services/route-engine`, `services/api` e
+`services/ai`. È un tetto a una dipendenza che c'è già, non una nuova.
+
+**Alternative scartate**: riscrivere subito i test con un `approx` per
+elemento: è il rimedio vero, ma tocca molti file di più task mentre una
+dozzina di PR aspetta la CI; resta come seguito.
+
+**Conseguenze**: la CI torna verde con la 9.1. Quando i test saranno
+riscritti, il tetto si toglie con un'aggiunta a questo ADR.
