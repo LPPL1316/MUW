@@ -272,6 +272,7 @@ packages/shared-types/test/groupRuns.test.ts             (nuovo)
 packages/shared-types/test/moderation.test.ts            (una riga: REPORT_KINDS con group_run)
 apps/mobile/src/about/content/{en,it,de,fr,es}.ts, site/privacy/*/index.html, site/tests/privacy.test.mjs   (la riga della privacy, dopo #573 e #576)
 docs/API.md («Group runs»), docs/DATABASE.md, docs/EVENTI.md, docs/STATUS.md, docs/tasks/TASK-309.md
+docs/DECISIONS.md                                        (aggiunta ad ADR-0269, in fondo: le tre scelte tecniche)
 ```
 
 Parte B (da confermare col Coordinatore prima del codice):
@@ -312,10 +313,11 @@ migrazione `0031_group_runs.sql` (numero al merge); il tipo `group_run`
 nelle segnalazioni e nelle loro email; tipi e fixture in `shared-types`.
 Un test per regola in `test_group_runs.py` (44), più il tipo nuovo in
 `test_moderation.py` e `test_report_email.py`. Com'è fatta: `EVENTI.md`
-§14. Scelte tecniche, prese su delega: le push con `GroupRunPushKind`
-accanto a `PushKind` (i dati sono `{ kind, group_run_id }`, come le sfide
-del gioco); un blocco non cancella le risposte, le esclude in lettura
-(`counted_sql`); «in arrivo» vuol dire non finita e non annullata.
+§14. Scelte tecniche, prese su delega (aggiunta ad ADR-0269 in
+`DECISIONS.md`): le push con `GroupRunPushKind` accanto a `PushKind` (i
+dati sono `{ kind, group_run_id }`, come le sfide del gioco); un blocco non
+cancella le risposte, le esclude in lettura (`counted_sql`); «in arrivo»
+vuol dire non finita e non annullata.
 **Resta**: i testi de/es/fr delle push e della riga della privacy con il
 sì dell'utente; la riga della privacy dopo #573 e #576; il merge dal
 Coordinatore; il server dopo Apple, con il sì dell'utente.
