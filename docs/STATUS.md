@@ -1446,6 +1446,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-315 (aggiunta ad ADR-0227; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
 - **App e API** — TASK-300 (ADR-0261; scelta dell'utente del 2026-10-25,
   «a parte SUBITO»): l'indirizzo email confermato con un link

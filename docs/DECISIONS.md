@@ -13065,6 +13065,27 @@ di quei disegni, senza inventare una classifica.
   foto dell'autore sulla scheda (oggi l'iniziale, come gli esempi); il
   nome dell'autore che apre il suo profilo.
 
+**Aggiunta del 2026-10-28 (TASK-315, le foto nella scheda del Feed)**:
+richiesta dell'utente («la foto nel feed deve essere scorribile e visibile
+dal feed»); il modo è deciso dall'agente su delega dell'utente, con le
+condizioni del Coordinatore. Le foto che `GET /feed` già manda con ogni
+post (`photos`, TASK-208) si vedono nella scheda: il riquadro del disegno
+diventa uno scorrimento a pagine, prima il disegno con la mappa, poi una
+foto per pagina, larga quanto la scheda e alta quanto il disegno
+(ritagliata a riempire); sotto, un puntino per pagina, acceso quello
+mostrato. Si carica solo la foto dopo quella vista più avanti, e quelle
+già viste restano: la rete del telefono è di chi corre. Lo scorrimento
+rimbalza ai bordi (il default di iOS), così passare l'ultima foto non
+gira la pagina dell'app; è lo stesso annidamento delle file orizzontali di
+«Explore» (`RecommendedRow`, `NearbyTowns`). Un tocco apre il disegno come
+prima. Un post senza foto, un esempio o nessuno entrato: la scheda come
+prima. Solo app, nessun testo nuovo, impronta iOS invariata.
+*Scartate*: i puntini sopra la foto (il Coordinatore li vuole sotto); la
+striscia di foto alte 160 sotto la mappa, come nel disegno aperto (la
+scheda diventerebbe molto più alta anche per chi scorre il Feed); la
+foto per prima (il Feed è dei disegni: la forma resta la prima cosa che si
+vede).
+
 ## ADR-0229 — «Recommended»: prima il disegno, poi le reazioni, poi le corse
 **Stato**: Attiva · 2026-10-08 · il criterio è **dell'agente su delega
 esplicita dell'utente** («consiglia tu i migliori disegni», 2026-10-07);
