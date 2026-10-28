@@ -17959,3 +17959,80 @@ migrazione; testi in cinque lingue e tre righe di privacy e termini,
 approvati il 2026-10-28; nelle console di Apple e di Google le chiavi e
 i client OAuth (TASK-322 parte C); il server e la build 1.0.1, ognuno col
 suo sì.
+
+## ADR-0283 — Il nuoto in acque libere: l'acqua della canoa con la fascia dei bagnanti, le curve con un nome a riva, l'orologio in due fasi
+
+**Stato**: Proposto · 2026-10-28 (TASK-323). Scelta dell'utente dello stesso
+giorno: «parti proprio con il progetto secondo me funziona», dopo la
+proposta in chat. Fascia e distanze si confermano coi campioni di A1;
+nome, testi e avviso di sicurezza con la parte C; dipendenza e build
+dell'orologio con la parte E
+
+**Contesto**: l'utente vuole il nuoto in acque libere come sport, con le
+indicazioni su dove nuotare, e pensa che passi tutto dall'orologio. Il
+motore della canoa (ADR-0154, ADR-0161) sa già piazzare una forma
+sull'acqua e trovare i punti della riva raggiungibili, ma tiene la forma
+**oltre** 200 m dalla riva al mare, fuori dai bagnanti. Chi nuota non
+guarda il telefono e non sente la voce con la testa in acqua; il GPS al
+polso prende solo quando la mano esce dall'acqua; la modalità nuoto in
+acque libere dei Garmin non segue un percorso; le ordinanze balneari
+cambiano da posto a posto (di solito 200 m dalle spiagge e 100 m dalle
+coste a picco riservati ai bagnanti).
+
+**Decisione proposta**:
+
+1. **L'acqua è quella della canoa, la fascia è rovesciata**: la forma sta
+   fra 20 e 150 m dalla riva, al mare e sui laghi; 200 m da porti, marine e
+   foci; si entra da una spiaggia o da una via pedonabile, non da scivoli e
+   moli; partenza e arrivo sulla stessa spiaggia. Il profilo della fascia è
+   per attività: la canoa resta con i valori di oggi, punto per punto. Il
+   motore decide dove e quanto grande; l'AI interpreta soltanto.
+2. **Distanze 0,5–3 km**, solo forme del catalogo come sull'acqua della
+   canoa. Fuori da ciò che ci sta, l'errore dice a quanti km la forma ci
+   sta.
+3. **Le curve hanno un nome a riva**, preso da OpenStreetMap (il posto con
+   un nome più vicino sulla riva di fronte, entro 300 m): un dato del motore,
+   non un testo dell'AI. Senza dati, le curve restano senza nome.
+4. **Fase 1, senza codice per l'orologio**: forma e curve prima di entrare;
+   in acqua nessuna guida; la traccia dal telefono nella boa di sicurezza o
+   dal file dell'orologio (TASK-312).
+5. **Fase 2, un'app per Apple Watch**: vibrazioni prima delle curve e fuori
+   rotta, freccia con i metri, traccia rimandata al telefono. Solo col sì
+   dell'utente sulla dipendenza e sulla build nuova, dopo una prova in
+   acqua.
+6. **Avviso di sicurezza** (proposta, da approvare con la parte C), la
+   prima volta su questo telefono:
+
+   > **Before you swim**
+   > - Never swim alone. Tow a bright swim buoy and wear a bright cap.
+   > - Check the water, the weather, the flags and the local rules:
+   >   swimming areas, boat lanes, harbours. MuW does not know them.
+   > - The route stays between 20 and 150 m from the shore. That does not
+   >   make it safe or allowed.
+   > - If you feel tired or cold, head for the shore at once.
+   >
+   > «I understand» · «Not now»
+
+   E sotto ogni giro: «Within 150 m of the shore. Never swim alone.»
+
+**Scartate**:
+
+- la fascia della canoa (oltre 200 m): è dove passano le barche;
+- forme allungate o stirate per farle stare in 130 m: non sono più la
+  forma chiesta;
+- la voce dal telefono: con la testa in acqua non si sente, e il Bluetooth
+  sott'acqua non arriva alle cuffie;
+- un'app Garmin (Connect IQ) adesso: un altro linguaggio e un altro store,
+  per una guida che il Garmin in acque libere non fa;
+- i dati europei sulla qualità delle acque di balneazione: utili, licenza
+  da verificare, un'altra parte se l'utente li vuole.
+
+**Conseguenze**: una nuova attività nel motore, nel contratto e nei vincoli
+del database (una migrazione); un estratto nuovo dei nomi lungo la riva sul
+server; testi nuovi in cinque lingue col sì dell'utente. Condizione del
+Coordinatore: i percorsi della canoa e l'impronta con cui `route_store`
+tiene gli esempi restano gli stessi, con un test, oppure la parte A1 dice
+perché e cosa si ridisegna. La riga dello sport entra con `ready: false`
+(TASK-318). Il codice nativo (parti D ed E) cambia l'impronta iOS ed esce
+con la build 1.0.1 insieme ad Apple Salute di TASK-321. Il motore non
+conosce le regole del posto: l'avviso lo dice.
