@@ -17487,3 +17487,47 @@ un contratto nuovo); la distanza della corsa al metro («5.243» nel campo).
 dipendenza, arriva con un aggiornamento OTA (impronta iOS invariata). Un
 testo nuovo nelle cinque lingue, «Draw it near me». Prima della parte B
 di TASK-309, che tocca le stesse schede.
+
+## ADR-0277 — L'attesa in «Draw»: frasi che girano, e una di tre cose a caso dai disegni del Feed
+**Stato**: Attiva · 2026-10-28 · TASK-317. La richiesta e la scelta sono
+dell'utente: niente più «Waiting for the API…», frasi a rotazione con i
+consigli, poi a caso fra la penna che disegna, i disegni del Feed e il
+gioco «Guess the shape»; testi della proposta approvati. Le condizioni sono
+del Coordinatore (task file). Il come è deciso dall'agente su delega
+dell'utente.
+
+**Decisione**:
+1. **Le frasi**: cinque da corridore, una per la parola, due consigli,
+   in un ordine estratto una volta per attesa; un consiglio ogni due
+   frasi. Una nuova ogni 3 s. La frase della fase («Drawing a 5 km
+   heart…», «First time here: studying the map…») resta la prima e torna
+   ogni tre: dice ancora cosa si sta disegnando.
+2. **La scheda dopo 3 s**: un percorso che arriva prima (uno tenuto dal
+   server, ADR-0136) non la fa comparire e sparire subito; per quei
+   secondi bastano le frasi. Una delle tre, estratta per attesa; arrivato
+   il percorso, la scheda va via con l'attesa.
+3. **Solo `SAMPLE_FEED`**, già nell'app: nessuna richiesta al server né
+   per le immagini, e funziona anche senza rete. Solo i disegni dritti e
+   in un pezzo, come li disegna `RouteThumb`.
+4. **La penna senza SVG**: i segmenti di `thumbSegments`, mostrati uno
+   dopo l'altro con un orologio a scatti, e i segmenti già disegnati che
+   non si ridisegnano (`memo`). Ogni 80 ms; ogni 250 ms, come la barra,
+   quando il percorso può essere calcolato sul telefono (`phoneFirst`,
+   TASK-214), perché i messaggi del motore passano dal thread JS. La fila
+   dei disegni scorre in nativo (`scrollTo`) e non ridisegna niente.
+5. **Il gioco**: la forma giusta e due altre fra quelle dei disegni, coi
+   nomi già tradotti; 100 punti subito, 10 in meno ogni decimo tracciato,
+   mai meno di 10. Il record in `guess-shape-best.json` con
+   `expo-file-system`, come gli altri file dell'app.
+
+**Alternative scartate**: un video vero (`expo-video` è una libreria
+nativa: build nuova); `Animated` con un'opacità interpolata per segmento
+(fino a 120 nodi animati per disegno, contro un orologio solo);
+disegni presi dal Feed vero (rete durante l'attesa, sul server ora ci sono
+utenti); la stessa scheda in «Explore», che ha già `WhileDrawing`.
+
+**Conseguenza**: solo app, solo JavaScript, nessuna dipendenza: arriva con
+un aggiornamento OTA (impronta iOS invariata). Tredici testi nuovi nelle
+cinque lingue, due tolti. Misura del costo sul thread JS nel task file:
+sotto jest al massimo 4 aggiornamenti al secondo con il motore sul
+telefono, 3,4 ms di JS al secondo.

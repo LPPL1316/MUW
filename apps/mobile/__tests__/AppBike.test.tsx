@@ -227,7 +227,7 @@ test("a bike route past the 5 minutes the app waits says so, as before", async (
   await atTrento();
   await fireEvent.changeText(distanceField(), "30");
   await draw();
-  expect(screen.getByText(/Downloading map data for this area…/)).toBeOnTheScreen();
+  expect(screen.getByText(/First time here: studying the map…/)).toBeOnTheScreen();
   await act(() => jest.advanceTimersByTimeAsync(5 * 60_000));
   expect(
     screen.getByText(

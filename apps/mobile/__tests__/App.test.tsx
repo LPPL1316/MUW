@@ -7,6 +7,7 @@ import * as Sharing from "expo-sharing";
 
 import response from "../src/places/fixtures/photon-via-belenzani-trento.json";
 import App from "../App";
+import { FUN_LINES } from "../src/route/waitingLines";
 
 jest.mock("react-native-webview");
 jest.mock(
@@ -331,10 +332,13 @@ test("while waiting it says what the API is doing, with a spinner", async () => 
   apiAnswers(job("downloading_map"), job("computing"));
   await atTrento();
   await fireEvent.press(screen.getByText("Draw route"));
-  expect(screen.getByText(/Waiting for the API…/)).toBeOnTheScreen();
+  // Sent: one of the wait's own lines, no «API» (TASK-317).
+  expect(screen.getByTestId("waiting-line")).toHaveTextContent(
+    new RegExp(`^(${FUN_LINES.join("|")})$`),
+  );
 
   await nextPoll();
-  expect(screen.getByText(/Downloading map data for this area…/)).toBeOnTheScreen();
+  expect(screen.getByText(/First time here: studying the map…/)).toBeOnTheScreen();
   expect(screen.getByTestId("loading")).toBeOnTheScreen();
   expect(screen.queryByText(/\d s$/)).not.toBeOnTheScreen();
 

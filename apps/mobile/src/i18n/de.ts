@@ -540,9 +540,6 @@ export const DE: Table = {
     "{count} Buchstaben: mindestens {km} km. Ein Wort zu zeichnen dauert ein paar Minuten.",
   "Use {km} km": "{km} km verwenden",
   Picture: "Bild",
-  "Waiting for the API…": "Warten auf den Dienst…",
-  "Downloading map data for this area…":
-    "Kartendaten für dieses Gebiet werden geladen…",
   "Drawing the picture's outline, {km} km…":
     "Der Umriss des Bildes wird gezeichnet, {km} km…",
   "Drawing “{word}”, {km} km…": "„{word}“ wird gezeichnet, {km} km…",
@@ -1486,4 +1483,21 @@ export const DE: Table = {
   Paragliding: "Gleitschirmfliegen",
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "In meiner Nähe zeichnen",
+  // src/route/waitingLines.ts, WaitingCard.tsx, GuessShape.tsx, RoutePanel.tsx
+  // (TASK-317: the wait in «Draw»)
+  "Lacing up the shoes…": "Die Schuhe werden geschnürt…",
+  "Asking the streets for directions…": "Die Straßen werden nach dem Weg gefragt…",
+  "Sharpening the pencil…": "Der Bleistift wird gespitzt…",
+  "Looking for the right corners…": "Die richtigen Ecken werden gesucht…",
+  "Counting the crossroads…": "Die Kreuzungen werden gezählt…",
+  "Tracing “{word}” through town…": "„{word}“ wird durch die Stadt gezogen…",
+  "Tip: you can move the start on the map.":
+    "Tipp: Du kannst den Start auf der Karte verschieben.",
+  "Tip: a tilted shape often finds more roads.":
+    "Tipp: Eine geneigte Form findet oft mehr Straßen.",
+  "First time here: studying the map…": "Zum ersten Mal hier: Die Karte wird studiert…",
+  "Guess the shape": "Errate die Form",
+  "Score {score} · Best {best}": "Punkte {score} · Rekord {best}",
+  "Right! +{points}": "Richtig! +{points}",
+  "It was: {shape}": "Es war: {shape}",
 };

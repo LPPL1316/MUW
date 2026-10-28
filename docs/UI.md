@@ -2162,9 +2162,35 @@ pagina non dice `loaded`; se la mappa non si carica, al suo posto l'errore.
 
 | Stato dell'API | Il pannello dice |
 |---|---|
-| richiesta partita, o in coda | «Waiting for the API…» |
-| zona da scaricare | «Downloading map data for this area…» |
+| richiesta partita, o in coda | una delle frasi dell'attesa, qui sotto |
+| zona da scaricare | «First time here: studying the map…» |
 | calcolo | «Drawing a 15 km heart…», per una parola «Drawing “CIAO”, 12 km…» |
+
+**Le frasi dell'attesa** (TASK-317, ADR-0277): ogni 3 s una nuova, in un
+ordine estratto per ogni attesa: «Lacing up the shoes…», «Asking the
+streets for directions…», «Sharpening the pencil…», «Looking for the right
+corners…», «Counting the crossroads…», per una parola anche «Tracing
+“CIAO” through town…»; dopo ogni due, un consiglio: «Tip: you can move the
+start on the map.», «Tip: a tilted shape often finds more roads.». La frase
+della fase, nella tabella, viene per prima e torna ogni tre; inviata o in
+coda non ce n'è, e girano solo le altre.
+
+**Dopo 3 s di attesa**, sotto la barra, una di tre cose estratta a caso:
+- **la penna**: «MEANWHILE, FROM THE FEED», un disegno del Feed tracciato in
+  6 s e tenuto 2 s, poi il successivo; accanto il titolo e «marta_b ·
+  Levico · 21.0 km»;
+- **i disegni in fila**: le miniature del Feed col titolo, che scorrono da
+  sole ogni 2,5 s finché il dito non le tocca;
+- **«Guess the shape»**: la penna traccia un disegno in 8 s e tre bottoni
+  offrono la sua forma e due altre. Giusta subito 100 punti, 10 in meno per
+  ogni decimo tracciato, mai meno di 10 («Right! +50»); sbagliata 0, e «It
+  was: Heart». Dopo 1,5 s il disegno successivo. In alto «Score 150 · Best
+  300»: il record resta sul telefono.
+
+I disegni sono quelli di esempio del Feed, già nell'app: nessuna richiesta
+di rete. Con il percorso che può essere calcolato sul telefono la penna
+avanza a scatti più radi, come la barra. Arrivato il percorso, o un
+errore, la scheda sparisce con l'attesa.
 
 Forma e distanza non si cambiano durante l'attesa.
 

@@ -1604,6 +1604,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente: il server con A, poi di notte `draw_examples --all --around`
   per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
   nel task file).
+- **TASK-317 — L'attesa in «Draw»: frasi che girano, e la penna, i disegni
+  o un gioco** (ADR-0277; richiesta dell'utente del 2026-10-27/28, «cambiare
+  la descrizione "waiting for API" […] io farei a random tutte e tre le
+  cose»; numeri e condizioni dal Coordinatore). Branch
+  `feat/TASK-317-waiting-card`: al posto di «Waiting for the API…» una
+  frase nuova ogni 3 s (frasi da corridore e due consigli veri) e, dopo
+  3 s, una di tre cose a caso: la penna che traccia i disegni del Feed, i
+  disegni in fila, il gioco «Guess the shape» con il record sul telefono.
+  Solo `SAMPLE_FEED`, nessuna rete; con il motore sul telefono la penna va
+  al ritmo della barra (misura nel task file). Gli ultimi tre testi del
+  gioco aspettano il sì dell'utente. La stessa richiesta è arrivata anche a
+  «Caricamento con animazioni e giochi» (solo testi e disegni): quale
+  tenere lo chiede il Coordinatore all'utente. File: `tasks/TASK-317.md`.
 
 ## Completato
 

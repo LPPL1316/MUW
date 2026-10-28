@@ -533,8 +533,6 @@ export const IT: Table = {
     "{count} lettere: almeno {km} km. Per disegnare una parola servono alcuni minuti.",
   "Use {km} km": "Usa {km} km",
   Picture: "Foto",
-  "Waiting for the API…": "In attesa del servizio…",
-  "Downloading map data for this area…": "Scarico la mappa di questa zona…",
   "Drawing the picture's outline, {km} km…": "Disegno il contorno della foto, {km} km…",
   "Drawing “{word}”, {km} km…": "Disegno «{word}», {km} km…",
   "Drawing a {km} km {name}…": "Disegno: {name}, {km} km…",
@@ -1468,4 +1466,21 @@ export const IT: Table = {
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
   // stessa forma in «Draw»)
   "Draw it near me": "Disegnala vicino a me",
+  // src/route/waitingLines.ts, WaitingCard.tsx, GuessShape.tsx, RoutePanel.tsx
+  // (TASK-317: the wait in «Draw»)
+  "Lacing up the shoes…": "Allacciando le scarpe…",
+  "Asking the streets for directions…": "Chiedendo strada alle vie…",
+  "Sharpening the pencil…": "Temperando la matita…",
+  "Looking for the right corners…": "Cercando gli angoli giusti…",
+  "Counting the crossroads…": "Contando gli incroci…",
+  "Tracing “{word}” through town…": "Tracciando «{word}» in città…",
+  "Tip: you can move the start on the map.":
+    "Consiglio: puoi spostare la partenza sulla mappa.",
+  "Tip: a tilted shape often finds more roads.":
+    "Consiglio: una forma inclinata trova spesso più strade.",
+  "First time here: studying the map…": "Prima volta qui: sto studiando la mappa…",
+  "Guess the shape": "Indovina la forma",
+  "Score {score} · Best {best}": "Punti {score} · Record {best}",
+  "Right! +{points}": "Giusto! +{points}",
+  "It was: {shape}": "Era: {shape}",
 };

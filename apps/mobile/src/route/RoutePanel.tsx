@@ -51,6 +51,7 @@ import type { ExportState } from "./useGpxExport";
 import type { ImageState } from "./useImageOutline";
 import type { AnyRouteRequest, RouteProblem, RouteState } from "./useRouteRequest";
 import type { ShapeReadingState } from "./useShapeReading";
+import { WaitingCard, WaitingLine } from "./WaitingCard";
 import { penSplit } from "./walks";
 import { type Note, toNotes } from "./warnings";
 import {
@@ -398,7 +399,13 @@ export function RouteOutcome({
       return (
         <View style={styles.panel}>
           <View style={styles.row}>
-            <Text style={styles.waiting}>{waitingText(view, units)}</Text>
+            <WaitingLine
+              key={view.startedAt}
+              own={waitingText(view, units)}
+              word={isImageRequest(view.request) ? null : (view.request.word ?? null)}
+              phase={view.phase}
+              style={styles.waiting}
+            />
             <Pressable
               style={styles.secondary}
               onPress={onCancel}
@@ -412,6 +419,12 @@ export function RouteOutcome({
             phase={view.phase}
             distanceM={view.request.distance_m}
             word={isImageRequest(view.request) ? null : view.request.word}
+          />
+          {/* Something to do meanwhile: the pen, the drawings or the game. */}
+          <WaitingCard
+            key={view.startedAt}
+            request={view.request}
+            startedAt={view.startedAt}
           />
         </View>
       );
@@ -788,17 +801,19 @@ function kindOf(request: AnyRouteRequest): ChoiceKind {
   return isImageRequest(request) ? "image" : request.word ? "word" : "shape";
 }
 
-/** What the API is doing, as it said on its last answer. */
+/** What the API is doing, as it said on its last answer; nothing while the
+ * request is sent or queued, when the wait's own lines take turns
+ * (TASK-317). */
 function waitingText(
   { phase, request }: Extract<RouteState, { status: "waiting" }>,
   units: Units,
-) {
+): string | null {
   switch (phase) {
     case "sending":
     case "queued":
-      return t("Waiting for the API…");
+      return null;
     case "downloading_map":
-      return t("Downloading map data for this area…");
+      return t("First time here: studying the map…");
     default:
       if (units === "mi") {
         const mi = unitsNumber(request.distance_m, "mi");
