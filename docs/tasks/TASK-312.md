@@ -226,6 +226,15 @@ dell'utente. Poi l'utente sceglie quali.
 - «Send to Strava» nascosto per una corsa importata (§3.7).
 - Un post solo foto senza «Only me» (§4.1).
 
+**Confermate dall'utente il 2026-10-28**: «Sì, le tre proposte vanno
+bene: pulsante «Add past activity» in My activities, niente «Send to
+Strava» per le corse importate, niente «Only me» per i post solo foto.»
+Il punto 5 della parte A (`409` su «Send to Strava») è quindi dentro A.
+
+Il Coordinatore chiede alla parte C una sua riga della privacy, approvata
+dall'utente nella PR di C, e le regole di segnalazione e blocco di
+TASK-121.
+
 ## Criteri di accettazione
 
 - [ ] **A**: una corsa con `source: "file"` si salva con i suoi orari, si
