@@ -16,6 +16,15 @@ disegni; testi e un gioco «Guess the shape»; testi e la forma che si
 disegna da sola) l'utente ha scelto **testi e disegni**. Numeri dal
 Coordinatore lo stesso giorno: TASK-317, ADR-0277.
 
+Una seconda sessione ha scritto, per lo stesso task, la versione con il
+gioco (PR #602). L'utente ha confermato due volte «testi e disegni»: in
+questa chat e in quella del Coordinatore («Solo testi + disegni»). La #602
+è stata chiusa senza merge, e il suo branch `feat/TASK-317-waiting-card`
+resta su origin.
+
+**Testi approvati** dall'utente il 2026-10-28, in questa chat: «Sì, i tre
+testi «Warming up» nelle cinque lingue vanno bene.»
+
 ## Contesto da leggere
 
 - `docs/UI.md`, la tabella «Stato dell'API | Il pannello dice» (le attese
