@@ -1590,3 +1590,31 @@ export interface GroupRunPushData {
   kind: GroupRunPushKind;
   group_run_id: string;
 }
+
+/**
+ * POST /way-back (TASK-314, ADR-0274): the way back to the route, on the
+ * streets, for a runner off it. `ahead` is the stretch of the route where
+ * the runner may rejoin it, in the route's order (ADR-0263). Answered by
+ * the engine on the phone first, with the same bodies.
+ */
+export interface WayBackRequest {
+  activity: Activity;
+  here: LatLon;
+  ahead: LatLon[];
+}
+
+/**
+ * The way from the runner along the streets to `rejoin`, where it reaches
+ * the route: `rejoin_m` along `ahead`, from its first point. The
+ * directions' `distance_m` are along `points`: the street the way starts
+ * on first, the turn onto the route last. No way back is a 422
+ * `invalid_request`; no map kept for the area, 503 `map_data_unavailable`;
+ * asked too often, 429. An API older than TASK-314 answers 404.
+ */
+export interface WayBack {
+  points: LatLon[];
+  distance_m: number;
+  rejoin: LatLon;
+  rejoin_m: number;
+  directions: Direction[];
+}
