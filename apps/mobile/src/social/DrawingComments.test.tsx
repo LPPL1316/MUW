@@ -313,7 +313,7 @@ test("another's comment is held to block its author: asked first, then gone", as
   expect(buttons("Block other_runner?")).toEqual(["Cancel", "Block"]);
   expect(alert).toHaveBeenCalledWith(
     "Block other_runner?",
-    "You will not see each other's drawings, comments or profile, and any follow between you ends. They are not told.",
+    "You will not see each other's drawings, comments, messages or profile, any follow between you ends and your conversation is deleted. They are not told.",
     expect.any(Array),
   );
   expect(blockMember).not.toHaveBeenCalled();

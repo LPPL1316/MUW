@@ -26,6 +26,9 @@ type Opens = {
   /** Shows the challenge `id` of the game (TASK-296 part D): a piece done,
    * a shape completed, a day left. */
   openChallenge: (id: string) => void;
+  /** Shows the conversation with `person`: a message, a message request
+   * (TASK-319). Without it, their profile. */
+  openConversation?: (person: Person) => void;
 };
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
@@ -102,6 +105,9 @@ export function usePushNotifications(
         latest.current.opens.openDrawing(target.id);
       } else if (target.kind === "profile") {
         latest.current.opens.openProfile(target.person);
+      } else if (target.kind === "conversation") {
+        const { openConversation, openProfile } = latest.current.opens;
+        (openConversation ?? openProfile)(target.person);
       } else if (target.kind === "challenge") {
         latest.current.opens.openChallenge(target.id);
       } else {
