@@ -160,24 +160,6 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
-- **TASK-324 — I totali e le foto di un profilo** (ADR-0284; richiesta
-  dell'utente del 2026-10-26; numeri presi senza coordinatore, nessuna
-  sessione raggiungibile: nato come TASK-305/ADR-0265, rinumerato due
-  volte perché presi da altre sessioni). Branch
-  `claude/wonderful-dijkstra-oi568i` (il branch della sessione cloud),
-  migrazione `0034_run_climb.sql` (dopo la 0033). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
-  «Elev. gain» e «Likes», e le schede «Drawings» | «Photos». **Scelta
-  dell'utente: km e dislivello di tutte le corse, anche private**; «Likes»
-  sono le reazioni degli altri sui disegni che chi guarda vede. Il
-  dislivello lo conta l'API dalle altezze che l'app manda ora con la corsa
-  (`runs.climb_m`; le corse di prima non lo hanno). `GET
-  /users/{id}/photos` nuovo. Codice e test fatti (API con PostgreSQL vero,
-  `shared-types`, app). Informativa e aiuto aggiornati (altezza e totali,
-  testi approvati dall'utente il 2026-10-26, cinque lingue, sito
-  rigenerato). **Aperto**: PR; server e copia del sito insieme, con l'ok
-  dell'utente, prima dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
-  TASK-299 B: poche righe qui, chi entra secondo unisce. File:
-  `tasks/TASK-324.md`.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
@@ -1753,6 +1735,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0034`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
 - **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,

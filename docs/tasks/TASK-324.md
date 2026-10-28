@@ -1,7 +1,7 @@
 # TASK-324 — I totali e le foto di un profilo
 
-**Stato**: In corso — codice, test, documenti e informativa sul branch;
-aspetta la PR, poi server e sito con l'ok dell'utente (sotto, «Aperto»)
+**Stato**: Done — in `main` di `LPPL1316/MUW` con la PR #1; server, sito
+e app restano da pubblicare (sotto, «Esito»)
 **Fase**: 4 · **Branch**: `claude/wonderful-dijkstra-oi568i` (il branch
 assegnato alla sessione cloud, non `feat/TASK-324-…`)
 **ADR**: ADR-0284 · **Migrazione**: `0034_run_climb.sql` (il primo libero
@@ -136,4 +136,16 @@ parti.
 
 ## Esito
 
-*(da compilare a fine task)*
+In `main` di `LPPL1316/MUW` con la PR #1 (`84307224`, 2026-10-28): il
+primo merge nel repository nuovo, fatto dall'agente con le tre condizioni
+di `CLAUDE.md` (CI verde sui sei lavori, diff dentro i «File toccati»,
+criteri soddisfatti). Sul profilo di un altro e sul proprio ci sono
+«Distance», «Elev. gain» e «Likes» e le schede «Drawings» | «Photos»;
+l'app manda l'altezza di ogni posizione, l'API conta il dislivello
+(`runs.climb_m`, migrazione `0034`) e risponde ai totali e alle foto.
+Informativa e aiuto aggiornati con i testi approvati dall'utente. Test:
+app 4202/4202 (Node 24), API verde con PostgreSQL, `shared-types`, sito,
+lint e formato. **Resta**: il server (migrazione `0034`) e la copia del
+sito **prima dell'app**, con l'ok dell'utente, poi `preview`; `main` di
+MUW arriva in `rockydalbianco/shaperoute` con lo specchio di TASK-325.
+I seguiti stanno in «Fuori scope».
