@@ -98,21 +98,90 @@ a 3 km a lettera CIAO, LOVE, RUN e MUW escono tutte sotto la soglia (LOVE
 0,85, MUW 0,89, CIAO −16 % di distanza, RUN −12 %); a 4 km MUW è buona
 (0,92). Troppo pochi casi per decidere: è il motivo della misura.
 
-### Le misure
+### Le misure (2026-10-27/28, Mac, `main` 381e35ae)
 
-*(In corso: i risultati vanno qui, con il riepilogo di `--summary`.)*
+I 1000 casi, tutti pianificati (nessuno saltato); i dati in
+`out/TASK-311/words/<città>.jsonl` del checkout principale (ignorato da
+git), il riepilogo con `--summary out/TASK-311/words`. **443 buoni su
+1000.**
+
+| km a lettera, stile | buoni | somiglianza mediana | secondi a caso |
+|---|---|---|---|
+| 3, squadrato | 107/250 (43 %) | 0,88 | 13 |
+| 3, tondo | 108/250 (43 %) | 0,89 | 19 |
+| 4, squadrato | 107/250 (43 %) | 0,87 | 26 |
+| 4, tondo | 121/250 (48 %) | 0,90 | 36 |
+
+| lettere | buoni a 3 km | buoni a 4 km | somiglianza mediana (3 km) |
+|---|---|---|---|
+| 2 | 30/30 (100 %) | 30/30 (100 %) | 0,96 |
+| 3 | 63/80 (79 %) | 69/80 (86 %) | 0,92 |
+| 4 | 93/130 (72 %) | 95/130 (73 %) | 0,91 |
+| 5 | 24/110 (22 %) | 28/110 (25 %) | 0,86 |
+| 6 | 5/60 (8 %) | 6/60 (10 %) | 0,81 |
+| 7 | 0/50 | 0/50 | 0,70 |
+| 8 | 0/40 | 0/40 | 0,67 |
+
+| città | buoni a 3 km | buoni a 4 km |
+|---|---|---|
+| Milano | 59 % | 60 % |
+| Roma | 56 % | 52 % |
+| Torino | 52 % | 55 % |
+| Bologna | 38 % | 46 % |
+| Trento | 10 % | 15 % |
+
+Che cosa dicono:
+
+1. **Più km a lettera non servono**: da 3 a 4 km i buoni passano da 215 a
+   228 su 500 (+2,6 punti, tutti nello stile tondo) e il tempo quasi
+   raddoppia (16 → 31 s a caso). Proporre all'utente di alzare il minimo
+   non ha senso sui numeri.
+2. **Conta la lunghezza della parola**: l'altezza delle lettere è la stessa
+   a ogni lunghezza (600–800 m), ma da 5 lettere in su la somiglianza
+   crolla. La misura non è la causa (`word_similarity` è la media delle
+   lettere): una parola lunga si scrive su una sola linea di base dritta di
+   8–10 km e torna lungo quella, e in città una linea così non c'è. A
+   Bologna e Roma, dei 178 casi cattivi da 5 lettere in su 176 lo sono per
+   la sola somiglianza, nessuno per la sola distanza.
+3. **Trento va male per la geografia**: il centro sta fra l'Adige e la
+   collina, la parola sale sul versante (1–2 km di scalini a percorso) e
+   perde la forma; anche a 4 lettere solo 2 buone su 52. La partenza si
+   sposta al più di 250 m.
+4. I due stili si equivalgono su una riga (43 % e 43 % a 3 km).
+
+**Le parole lunghe a penna alzata** (TASK-197: ogni lettera da sola, senza
+linea di base né ritorno; i tratti a piedi fra le lettere non contano
+nella distanza, come per la ricerca). Le 26 parole da 5 a 8 lettere a 3 km
+a lettera, nei due stili; dati in `out/TASK-311/penup/`. Bologna e Roma:
+
+| lettere | una riga | penna alzata |
+|---|---|---|
+| 5 | 8/44 (18 %) | 32/44 (73 %) |
+| 6 | 2/24 (8 %) | 13/24 (54 %) |
+| 7 | 0/20 | 3/20 (15 %) |
+| 8 | 0/16 | 3/16 (19 %) |
+| in tutto | 10/104 | 51/104 |
+
+A penna alzata il tondo va meglio dello squadrato (34/52 contro 17/52).
+*(Trento, Torino e Milano a penna alzata: in corso.)*
 
 ## Parte B — Il metodo (motore o API, dopo A)
 
-Solo quello che A dimostra. Le strade possibili, da scegliere sui numeri:
+Solo quello che A dimostra. Sui numeri:
 
-- **più km a lettera** (`LETTER_DISTANCE_M` da 3000 a 4000): cambia che
-  cosa l'utente può chiedere (CIAO da 9 a 16 km), quindi è una scelta
-  dell'utente;
-- **l'API propone la distanza e lo stile che riescono** per quella
-  lunghezza di parola, da una tabella imparata da A, un file nel
-  repository come `learned/vocabulary.json`, cambiato solo a mano;
-- **le lettere che non riescono** mai, corrette nell'alfabeto.
+- **più km a lettera: no** (punto 1 delle misure); il minimo resta 3 km;
+- **le parole da 5 lettere in su a penna alzata**: da circa 1 buona su 10
+  a circa 1 su 2. Cambia come si corre la parola (la registrazione in pausa
+  fra una lettera e l'altra), quindi è una **scelta dell'utente**: la
+  penna alzata proposta o scelta da sola per le parole lunghe, o solo
+  un consiglio quando la riga non riesce;
+- **7–8 lettere** non riescono nemmeno così: due righe, o il limite a 6
+  lettere, da studiare a parte;
+- **una partenza più lontana** dove il centro non ha spazio (Trento):
+  da studiare a parte, con la ricerca lontana di TASK-203 B;
+- **il metodo in memoria**: la tabella di riuscita per lunghezza, stile e
+  penna, un file nel repository come `learned/vocabulary.json`, letto
+  dall'API per proporre la scelta che riesce; cambiato solo a mano.
 
 «File toccati» al Coordinatore prima di cominciare.
 
