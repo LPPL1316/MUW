@@ -193,6 +193,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
   invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
   sessione, dopo A. File `tasks/TASK-320.md`.
+  File `tasks/TASK-317.md`. **Chiuso il 2026-10-28**: testi approvati
+  dall'utente, #604 in `main` (d6545be5), impronta iOS `83793e26`
+  invariata; arriva con il prossimo OTA. Voce in «Completato».
+
 - **TASK-318 — Gli sport non pronti nascosti nelle build dello store**
   (ADR-0278; scelta dell'utente del 2026-10-28, «nascondi Soon nello
   store»; fatto dal Coordinatore). Nelle build dell'App Store e di Google
@@ -1731,6 +1735,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,
   che ha scelto la pagina «Play» dentro MuW): il gioco delle forme. Le

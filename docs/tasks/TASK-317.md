@@ -1,7 +1,8 @@
 # TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del Feed
 
-**Stato**: In corso
-**Fase**: 4 · **Branch**: `feat/TASK-317-draw-waiting`
+**Stato**: Done · 2026-10-28, #604 in `main` (d6545be5)
+**Fase**: 4 · **Branch**: `feat/TASK-317-draw-waiting`, chiusura
+`docs/TASK-317-close`
 
 ## Obiettivo
 
@@ -70,21 +71,25 @@ testi «Warming up» nelle cinque lingue vanno bene.»
 
 ## Criteri di accettazione
 
-- [ ] Toccato «Draw route», la scheda dice «Warming up: Heart…» (per una
+- [x] Toccato «Draw route», la scheda dice «Warming up: heart…» (per una
       parola «Warming up: “CIAO”…», per un'immagine «Warming up: the
       picture…») finché l'API non dice un'altra fase; «Waiting for the
       API…» non compare più.
-- [ ] Prima di 3 s la fila dei disegni non c'è; dopo 3 s ci sono
+- [x] Prima di 3 s la fila dei disegni non c'è; dopo 3 s ci sono
       l'etichetta e fino a sei schede, ciascuna con titolo e dati.
-- [ ] Con «Paddle» le schede sono solo disegni sull'acqua, con la corsa
+- [x] Con «Paddle» le schede sono solo disegni sull'acqua, con la corsa
       solo disegni di corsa.
-- [ ] La fila non chiede nulla alla rete (nessuna `fetch`, nessuna mappa
+- [x] La fila non chiede nulla alla rete (nessuna `fetch`, nessuna mappa
       fotografata): un test lo controlla.
-- [ ] Arrivato il percorso, o con «Cancel», la fila sparisce con la
-      scheda dell'attesa.
-- [ ] I due testi nuovi sono tradotti nelle quattro lingue e
-      `tables.test.ts` è verde.
-- [ ] `npm run lint`, `typecheck`, `test`, `format:check` verdi.
+- [x] Arrivato il percorso, o con «Cancel», la fila sparisce con la
+      scheda dell'attesa: la fila sta solo nel ramo `"waiting"`. Il test la
+      prova passando a un errore.
+- [x] I testi nuovi (sono tre: la parola ne ha uno a parte per le
+      virgolette) sono tradotti nelle quattro lingue e `tables.test.ts` è
+      verde.
+- [x] `npm run lint`, `typecheck`, `test`, `format:check` verdi.
+      `typecheck` in locale ha solo l'errore noto di `expo-contacts`,
+      assente nel `node_modules` del Mac.
 
 ## File toccati
 
@@ -116,4 +121,9 @@ docs/tasks/TASK-317.md                          (nuovo)
 
 ## Esito
 
-_(a fine task)_
+#604 in `main` (d6545be5) il 2026-10-28, i testi approvati dall'utente.
+Mentre «Draw» aspetta, la scheda dice «Warming up: …». Dopo 3 s si scorrono
+sei disegni di esempio del Feed, senza rete. Impronta iOS `83793e26`
+invariata, misurata su una copia pulita: arriva con il prossimo OTA. Il
+gioco e la penna sono rimasti fuori: sono nel branch
+`feat/TASK-317-waiting-card` (#602, chiusa), se un giorno serviranno.
