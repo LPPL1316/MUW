@@ -82,6 +82,14 @@ const help: AboutDocument = {
       ],
     },
     {
+      heading: "Messaggi",
+      blocks: [
+        "«Messaggio» sul profilo di un iscritto gli scrive. Se ti segue, il messaggio arriva nei suoi «Messaggi»; se no, arriva come richiesta, e puoi mandare un solo messaggio finché non la accetta.",
+        "Le tue conversazioni sono in «Profilo», «Messaggi», con «Richieste di messaggio» in cima. Accetta una richiesta per scrivervi, eliminala (chi ha scritto non lo sa) o blocca chi ha scritto.",
+        "Tieni premuto un messaggio per eliminare il tuo, per tutti e due, o per segnalarne uno che hai ricevuto. Nessuno vede se hai letto un messaggio. Con le push accese, MuW ti avvisa di ogni messaggio e di ogni richiesta.",
+      ],
+    },
+    {
       heading: "Corsa, bici, canoa",
       blocks: [
         "Scegli lo sport con il pulsante accanto al profilo, o in «Impostazioni».",
@@ -335,6 +343,15 @@ const privacy: AboutDocument = {
             "Chi segui, chi ti segue e le richieste di follow sono conservati con il tuo account.",
           ],
         },
+      ],
+    },
+    {
+      heading: "Messaggi privati",
+      blocks: [
+        "I tuoi messaggi privati stanno sul nostro server: chi ha scritto, a chi, il testo e quando, e per ognuno dei due se ha accettato la conversazione, quando l'ha letta l'ultima volta e fino a quando l'ha tolta dalla sua vista. Non sono cifrati end-to-end. Nell'app una conversazione la vedono solo i suoi due iscritti, e nessuno viene avvisato se un messaggio è stato letto. Li teniamo per darti il servizio che chiedi (contratto).",
+        "Un messaggio a chi non ti segue arriva come richiesta; il primo messaggio di una richiesta passa dallo stesso filtro di parole dei commenti.",
+        "Puoi eliminare i tuoi messaggi, per tutti e due. Eliminare una conversazione la toglie dalla tua vista; un messaggio che nessuno dei due vede più viene cancellato. Un blocco cancella la conversazione; cancellare l'account cancella tutte le tue conversazioni, con i messaggi di tutti e due.",
+        "Quando segnali un messaggio, l'email a chi gestisce MuW contiene solo quel messaggio, mai il resto della conversazione. Con le push accese, la notifica di un messaggio ne porta l'inizio, attraverso il servizio push di Expo e Apple o Google, come per i commenti.",
       ],
     },
     {

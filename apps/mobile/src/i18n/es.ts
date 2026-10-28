@@ -1166,8 +1166,8 @@ export const ES: Table = {
   "Thanks for telling us. We will look at it.":
     "Gracias por avisarnos. Lo revisaremos.",
   "Block {user}?": "¿Bloquear a {user}?",
-  "You will not see each other's drawings, comments or profile, and any follow between you ends. They are not told.":
-    "Dejaréis de ver los dibujos, comentarios y perfil del otro, y termina cualquier seguimiento entre vosotros. No recibirá ningún aviso.",
+  "You will not see each other's drawings, comments, messages or profile, any follow between you ends and your conversation is deleted. They are not told.":
+    "Dejaréis de ver los dibujos, comentarios, mensajes y perfil del otro, termina cualquier seguimiento entre vosotros y se borra vuestra conversación. No recibirá ningún aviso.",
   Block: "Bloquear",
   "Sending…": "Enviando…",
   "This is not available any more.": "Ya no está disponible.",
@@ -1486,6 +1486,43 @@ export const ES: Table = {
   "Warming up: {name}…": "Calentando: {name}…",
   "Warming up: “{word}”…": "Calentando: «{word}»…",
   "Warming up: the picture…": "Calentando: la foto…",
+
+  // src/api/messages.ts (TASK-319: private messages)
+  "A message needs some words.": "Un mensaje necesita algunas palabras.",
+  "A message is at most {max} characters.":
+    "Un mensaje tiene como máximo {max} caracteres.",
+  "Too many messages in a minute. Wait a moment and try again.":
+    "Demasiados mensajes en un minuto. Espera un momento y vuelve a intentarlo.",
+  "You can't send negative messages in this app.":
+    "En esta app no puedes enviar mensajes negativos.",
+  "This conversation is not available.": "Esta conversación no está disponible.",
+
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-319)
+  Messages: "Mensajes",
+  "Messages, {count} waiting": "Mensajes, {count} pendientes",
+  "Message requests": "Solicitudes de mensaje",
+  "Message requests, {count} waiting": "Solicitudes de mensaje, {count} pendientes",
+  "No messages yet. Open someone's profile and tap Message to write to them.":
+    "Todavía no hay mensajes. Abre el perfil de alguien y toca Mensaje para escribirle.",
+  "No message requests.": "No hay solicitudes de mensaje.",
+  "You: {text}": "Tú: {text}",
+  "{name}, new message: {text}": "{name}, mensaje nuevo: {text}",
+  Message: "Mensaje",
+  "Message {name}": "Escribir a {name}",
+
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-319)
+  "No messages yet.": "Todavía no hay mensajes.",
+  "Show earlier messages": "Mostrar mensajes anteriores",
+  "Touch and hold to delete it": "Mantén pulsado para eliminarlo",
+  "Touch and hold to report it": "Mantén pulsado para denunciarlo",
+  "Message request sent. You can write again when {name} accepts it.":
+    "Solicitud de mensaje enviada. Podrás volver a escribir cuando {name} la acepte.",
+  "{name} wants to send you a message.": "{name} quiere enviarte un mensaje.",
+  "{name} gets this as a message request. You can send one message until they accept it.":
+    "{name} lo recibirá como solicitud de mensaje. Hasta que la acepte, puedes enviar un solo mensaje.",
+  "Write a message…": "Escribe un mensaje…",
+  "Delete this message for both of you?": "¿Eliminar este mensaje para los dos?",
+  "Report this message": "Denunciar este mensaje",
   // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
   // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
   Freehand: "A mano alzada",

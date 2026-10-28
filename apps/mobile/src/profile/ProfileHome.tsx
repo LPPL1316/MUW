@@ -12,6 +12,7 @@ import {
   space,
 } from "../theme/tokens";
 import { tourTexts } from "../tour/tourTexts";
+import { MessagesRow } from "../messages/MessagesRow";
 import { BlockedPeople } from "../social/BlockedPeople";
 import { useBlocksVersion } from "../social/blockedNow";
 import { DrawingsGrid } from "../social/DrawingsGrid";
@@ -53,7 +54,8 @@ type Props = {
  * to change the picture under it, as the row of «Settings» (TASK-207).
  * Under «Settings», «Guide» (TASK-266), then «Blocked people», to unblock
  * (TASK-121); after a block the lists of who follows are read again: a
- * block ends every follow.
+ * block ends every follow. Over «Settings», «Messages» (TASK-319), with
+ * the number of what waits for an answer.
  */
 export function ProfileHome({
   user,
@@ -117,6 +119,7 @@ export function ProfileHome({
           onPress={() => onOpen("activities")}
         />
       </View>
+      <MessagesRow />
       <SectionRow
         emoji={SECTION_EMOJI.settings}
         name={t("Settings")}
