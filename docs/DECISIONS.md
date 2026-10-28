@@ -17651,6 +17651,392 @@ invariata. Il come è deciso dall'agente su delega dell'utente.
 dall'utente; «Waiting for the API…» esce dalle tabelle. Arriva con un
 aggiornamento OTA.
 
+## ADR-0280 — Disegnare a mano in «Draw», e ogni figura proposta che si riapre nella tavola
+
+**Stato**: Attiva · 2026-10-28 · proposte, testi e riga della privacy
+approvati dall'utente il 2026-10-28; parte A in `main` con la PR #612,
+parte B da fare · la richiesta è dell'utente («disegnare
+anche a mano nella pagina draw» e «modificare un disegno del feed, un
+disegno ricercato, un disegno di explore… tutto potenzialmente
+editabile»); il posto («Freehand» in «Draw»), la tavola e che cosa si
+modifica sono proposte dell'agente su delega dell'utente, da confermare
+(TASK-320, «Proposte da confermare»); numero, parti e condizioni dal
+Coordinatore (niente rete prima di «Draw route», contratto e motore
+invariati, privacy controllata).
+
+**Contesto**: col dito si disegna solo sulla mappa (ADR-0245, «Draw on the
+map»), dove la figura ha il posto e la grandezza della mappa e la linea è
+lavorata tutta sul telefono; il contorno di una foto si modifica nella
+tavola di ADR-0074 («Add a part», «Add a detail», uniti dal motore con
+`POST /image-outline-edits`, la rete a ogni linea), che vuole una foto
+sotto; «Draw it near me» (ADR-0273) porta in «Draw» la forma o la parola
+di un percorso o di un disegno, non le sue linee. Il contratto ha già
+tutto: `ImageRouteRequest` (`outline` e `strokes` in [-1, 1]) è ciò che
+la mappa manda per una linea a dito. Un contorno si disegna sul server
+(TASK-214: le foto non girano sul telefono), e il server non lo tiene
+(ADR-0136, ADR-0256).
+
+**Decisione**:
+
+1. **Una quarta scelta in «Draw», «Freehand»**, accanto a «Shape | Word |
+   Image» (non con «Paddle»): la figura disegnata col dito, alla distanza
+   e dalla partenza di «Draw». «Draw on the map» resta: là il posto e la
+   grandezza sono quelli della mappa.
+2. **Una tavola sola, tutta sul telefono**, «Edit the drawing», con le
+   regole della linea a dito di ADR-0245: la prima linea è il contorno,
+   chiuso dall'app; le linee dopo sono dettagli appesi al contorno, che il
+   percorso fa andata e ritorno; «Erase» (un tocco toglie una linea: un
+   dettaglio da solo, il contorno con tutto), «Undo», «Save» in fondo
+   (ADR-0191). Niente rete prima di «Draw route». «Add a part» (ADR-0074)
+   non c'è: il contorno si ridisegna; per le foto «Edit the outline» resta
+   com'è.
+3. **«Edit the drawing» ovunque una figura è proposta**: sotto la forma
+   scelta in «Draw», sul risultato accanto alla riga delle figure
+   (TASK-286), sulla scheda di un percorso di «Explore» e su quella del
+   disegno di un iscritto, dopo «Draw it near me». La figura si apre nella
+   tavola; «Save» porta in «Draw» con «Freehand» e la figura cambiata, e
+   il percorso si chiede da lì: la partenza di «Draw», la distanza di
+   prima (le regole di ADR-0273). Della traccia dell'altro non viaggia la
+   linea: viaggia la figura, e il motore decide il percorso.
+4. **Che linee**: di una forma del catalogo le linee del motore
+   (`catalogueShapes.json`); di una foto o un'immagine il contorno
+   tracciato; di un disegno senza forma la traccia corsa, raddrizzata e
+   chiusa come per un preferito. Una parola no (lettere a penna alzata,
+   ADR-0157: la tavola disegna figure chiuse con dettagli), un percorso a
+   tema no, un post di sole foto no: il pulsante non c'è.
+5. **Nessun contratto nuovo**: `ImageRouteRequest` come lo manda la mappa,
+   sul server; il percorso di un disegno a mano si chiama «Drawing» dove
+   quello di una foto si chiama «Image». La privacy di oggi non dice che
+   un contorno (di una foto, della mappa, della tavola) parte come
+   richiesta di percorso e non è tenuto: una riga nuova in «Routes you ask
+   for», col sì dell'utente, entra con la parte A.
+
+**Alternative scartate**: la tavola vuota dentro «Draw on the map» (la
+figura là ha già un posto e una grandezza); parti e dettagli uniti dal
+motore prima di «Draw route», come nella tavola delle foto (la rete a ogni
+linea, contro la condizione del Coordinatore; e la tavola farebbe diverso
+dalla mappa per le stesse linee); un editor di punti (si ridisegna, come
+ADR-0074); il percorso pianificato di un disegno altrui (l'API non lo dà
+mai, ADR-0267: resta la traccia tagliata ai capi); una parola come
+contorno chiuso (le lettere si incrociano e si perdono).
+
+**Conseguenza**: solo app, solo JavaScript, un aggiornamento OTA con
+l'impronta iOS invariata; per la tavola non serve la rete, per «Draw
+route» sì, come per «Image». Due PR (A tavola, «Freehand», «Edit» in
+«Draw» e sul risultato; B le schede), testi nuovi e una riga della
+privacy col sì dell'utente.
+
+**Attuazione, parte A** (2026-10-28, PR #612; deciso dall'agente su delega
+dell'utente):
+
+1. **La tavola è un quadrato** che riempie lo schermo: la figura vive in
+   quote del quadrato (y in giù, come gli `image_points` di una foto), e la
+   richiesta la gira e la passa a `framed` di `canvasRequest.ts`: per le
+   stesse linee, la richiesta di «Draw on the map» (test). Le regole della
+   linea sono le funzioni sul piano di `mapdraw/drawing.ts`: `outlineOf`, e
+   `detailOf`, la parte sul piano di `withDetail`, ora esportata.
+2. **Una tavola nuova** (`FreehandBoard.tsx`), non la tavola delle foto:
+   riusa `boardView.ts`, `drawnLine.ts` e le linee di `ImagePreview.tsx`;
+   «Edit the outline» resta com'è. Un dito disegna sempre; «Erase» acceso
+   fa cancellare un tocco e spostare un dito che si muove.
+3. **«Erase» di un dettaglio porta via i dettagli appesi a lui**: partono
+   da un suo punto, e senza di lui il motore li rifiuterebbe. Il contorno
+   porta via tutto, ed «Erase» si spegne: la linea dopo è il contorno nuovo.
+4. **Le linee del catalogo si smontano**: la variante «down» di
+   `catalogueShapes.json` è una linea sola, in cui il motore corre gli
+   occhi, i raggi e la chiocciola come escursioni da un punto del contorno
+   e ritorno; per 12 forme su 17 non è un anello semplice. `figureLines.ts`
+   fa di ogni escursione un dettaglio appeso in quel punto (la sola andata
+   se il ritorno la ripercorre; l'anello chiuso sul punto di partenza se
+   gira) e del resto il contorno; il cavallo si raddrizza ai 100 angoli di
+   un contorno. Scartato: la variante «up» (il corpo della testa di cane non
+   è un anello semplice nemmeno lì, e i pezzi non sono appesi).
+5. **«Drawing»** si riconosce dagli array del contorno che la tavola ha
+   fatto (`isDrawnOutline`, un `WeakSet`), come `drawnTile` riconosce
+   un'immagine pronta: niente campo nuovo nel contratto, `RouteOutcome`
+   invariato. La linea a dito di «Draw on the map» resta «Image».
+
+## ADR-0278 — Nelle build dello store gli sport non pronti non si vedono
+
+**Stato**: Attiva · 2026-10-28 · la scelta è dell'utente («nascondi Soon
+nello store»); il modo di riconoscere la build è deciso dall'agente su
+delega dell'utente (TASK-318).
+
+**Contesto**: TASK-305 D0 (ADR-0265, ADR-0165) mostra «Paragliding · Soon»
+in «Settings» e nel menu degli sport di «Draw». Con la 1.0 sull'App Store
+il primo update `production` lo porterebbe agli utenti veri, ma il
+parapendio dipende da una licenza dello spazio aereo che non c'è ancora.
+
+**Decisione**:
+
+1. In una build dello store (App Store e Google Play, e gli update fatti
+   per loro) `SPORTS` lascia fuori gli sport con `ready: false`. In Expo
+   Go e `preview` resta com'è, «Soon» compreso.
+2. **Come si riconosce**: dal runtime della config che l'app sta
+   usando (`Constants.expoConfig.runtimeVersion`). Expo Go e `preview`
+   hanno quello di `app.json`, `exposdk:57.0.0` (ADR-0078). La build dello
+   store e gli update `production` sono fatti con `APP_VARIANT=production`
+   e hanno `{ policy: "fingerprint" }` (o l'hash). Senza config o senza
+   runtime vale «non store»: meglio una riga «Soon» in più che uno sport
+   che sparisce in Expo Go. Non si usa `Updates.channel` di
+   `expo-updates`: è un modulo nativo che il JavaScript dell'app non
+   importava ancora, e non si poteva provare in Expo Go prima dell'update.
+3. Il filtro sta in `sport.ts`. `SportSetting` e `SportButton` prendono
+   già `SPORTS` di default e non cambiano; una lista passata a mano (i
+   test) resta com'è.
+
+**Conseguenze**: quando uno sport diventa pronto (`ready: true`) compare
+anche nello store, con lo stesso update. Se un giorno un update
+`production` si pubblicasse senza `APP_VARIANT`, non arriverebbe comunque
+alla build dello store (DEPLOY A.7), quindi il filtro non sbaglia mai
+verso gli utenti veri.
+
+## ADR-0279 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
+
+**Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
+richieste e il resto della proposta sono **scelte dell'utente** del
+2026-10-26 («Chiunque, con richiesta», poi «Sì, così»); i punti tecnici
+sono decisi dall'agente su delega dell'utente (TASK-319). I testi
+dell'app, delle push e la sezione nuova della privacy sono **approvati
+dall'utente** il 2026-10-28 («Approvo così»). Numero dato dal
+Coordinatore il 2026-10-28 (nato come ADR-0265, poi 0277: li hanno presi
+altre sessioni prima che il branch arrivasse su GitHub).
+
+**Contesto**: l'utente il 2026-10-26: «aggiungi anche la possibilità di
+mandarsi messaggi privati». Il social di MuW aveva profili, follow con
+richiesta (ADR-0173), commenti, reazioni, blocchi e segnalazioni
+(ADR-0228), push (ADR-0226): nessun modo di parlare a una persona sola.
+
+**Decisione**:
+
+1. **Le scelte dell'utente**: si scrive a **chiunque**, con le
+   **richieste**. Un messaggio va dritto in «Messages» se chi lo riceve
+   segue chi scrive (o ha già accettato, risposto o scritto per primo);
+   altrimenti è una richiesta, di **un solo messaggio** finché non è
+   accettata. Chi la riceve: «Accept», «Delete» (chi ha scritto non lo sa,
+   e può riscrivere un messaggio, come dopo un follow rifiutato), «Block».
+   Il primo messaggio di una richiesta passa dal **filtro dei commenti**
+   (ADR-0176); le conversazioni accettate no. Solo testo, fino a 1000
+   caratteri. **Nessuna conferma di lettura.** Push per ogni messaggio
+   (con l'inizio), per una richiesta al più una al giorno per chi scrive
+   (senza il testo); niente email. «Report» sul singolo messaggio, e
+   l'email della segnalazione porta solo quello. Chi ha scritto un
+   messaggio lo cancella per tutti e due. Niente crittografia end-to-end,
+   e la privacy lo dice. Un interruttore per non ricevere richieste è un
+   seguito possibile, non ora.
+2. **Tre tabelle** (`0033_messages.sql`): `conversations`, una per coppia
+   con i due id in ordine (`low_id < high_id`, unica), `ON DELETE
+   CASCADE` su tutti e due gli account; `conversation_members`, due righe
+   con `accepted_at`, `cleared_at`, `read_at` di ognuno; `messages`. Lo
+   stato di una richiesta è **di chi riceve** (`accepted_at` `NULL`), non
+   della conversazione: scrivere accetta dalla propria parte, così
+   «rispondere accetta» e «chi scrive per primo ha la conversazione in
+   Messages» non chiedono altro codice.
+3. **La conversazione si chiede col `public_id` dell'altro**
+   (`/conversations/{public_id}/…`): l'app la apre dal profilo senza
+   cercarne l'id, e prima del primo messaggio la pagina è vuota con il suo
+   `state` (`open`, `first`, `waiting`, `request`), che dice all'app cosa
+   mostrare: la casella, il suggerimento della richiesta, l'attesa, o
+   «Accept · Delete · Block».
+4. **Una richiesta alla volta anche in concorrenza**: l'invio prende la
+   riga della conversazione `FOR UPDATE` prima di guardare lo stato, così
+   due messaggi mandati insieme non passano tutti e due come «il primo».
+   Nessun test lo prova con due thread (sarebbe fragile): lo provano i
+   test del `409` in sequenza e la lettura del codice.
+5. **«Delete» toglie dalla propria vista** (`cleared_at`), non cancella:
+   chi ha scritto li vede ancora. Un messaggio che nessuno dei due vede
+   più si cancella subito. Chi può scrivere liberamente non cambia.
+6. **Un blocco cancella la conversazione** (gancio `on_block` di
+   `moderation.py`, nella transazione del blocco), come chiude i follow
+   (ADR-0228): sbloccare non rimette niente e il primo messaggio dopo è di
+   nuovo una richiesta. Un iscritto nascosto (ADR-0251) e chiunque dietro
+   un blocco sono fuori con `follows.apart_sql`, come altrove: `404`.
+7. **Le segnalazioni**: `reports.kind` ammette `message` (vincolo rifatto
+   nella 0033); solo l'altro membro della conversazione segnala, chiunque
+   altro ha `404`. «Hide» dall'email mette `messages.hidden_at`: chi l'ha
+   ricevuto non lo vede più, chi l'ha scritto sì, come per i commenti.
+8. **Le push** sono due `Kind` nuovi in `push.py`, `message` (la chiave è
+   l'id del messaggio: ognuno è una notizia) e `message_request` (chiave
+   vuota: una al giorno per coppia, con la memoria di `SAME_EVENT_S`). I
+   `data` sono quelli di un follow (`public_id`, `username`): l'app apre
+   la conversazione. Testi nelle cinque lingue in `TEXTS`, da approvare
+   con quelli dell'app.
+9. **Al più 20 messaggi al minuto per account**, in memoria come i
+   commenti (10): una chat va più veloce.
+
+**Alternative scartate**:
+
+- *Solo fra chi si segue a vicenda*, o *chi ha accettato il mio follow*:
+  proposte, l'utente ha scelto le richieste.
+- *Più messaggi prima di accettare* (3), *l'interruttore delle richieste
+  subito*: proposti, l'utente ha scelto «così».
+- *Lo stato della richiesta sulla conversazione* (una colonna `status`):
+  non sa dire chi deve accettare dopo un «Delete» o un blocco senza altre
+  colonne; due righe di membri lo dicono da sole.
+- *L'id della conversazione negli indirizzi*: l'app dovrebbe cercarlo
+  prima di aprire una conversazione dal profilo.
+- *Nascondere la conversazione durante il blocco e ridarla allo sblocco*:
+  messaggi tenuti che nessuno vede; e ADR-0228 dice già che sbloccare non
+  rimette niente.
+- *WebSocket per i messaggi in tempo reale*: un server e un protocollo in
+  più; la conversazione aperta si rilegge ogni pochi secondi (parte B), e
+  la push avvisa.
+
+**Conseguenze**:
+
+- Migrazione nuova: il server va aggiornato prima di pubblicare l'app; con
+  un'API di prima gli endpoint sono `404` e l'app non mostra «Messages».
+- Il testo dei messaggi va a Expo e da lì ad Apple o a Google nelle push,
+  come l'inizio di un commento: la privacy lo dice (parte B).
+- Su App Store Connect la risposta «Messaging and Chat» del questionario
+  dell'età cambia: la cambia l'utente quando l'app con i messaggi va in
+  revisione.
+- Chi aggiunge un modo di vedere persone deve ricordare che una
+  conversazione segue `apart_sql` come tutto il resto.
+
+## ADR-0282 — Entrare e iscriversi con Apple e con Google
+
+**Stato**: Proposta · 2026-10-28 · la richiesta e le quattro scelte di
+prodotto sono dell'utente (TASK-322, «Scelte dell'utente»), e i tre
+pacchetti nuovi, i testi, la privacy e i termini li ha approvati il
+2026-10-28; il come è deciso dall'agente su delega dell'utente. Supera il
+punto 3 di ADR-0114 («Apple e Google forse dopo, con una build
+propria»).
+
+**Contesto**: si entra solo con email e password (ADR-0114, ADR-0115).
+`users.password_hash` è `NOT NULL` e «Forgot password» (TASK-300) ci lega
+i suoi link. La 1.0 sull'App Store riceve gli OTA solo con l'impronta iOS
+83793e26, e Apple e Google vogliono moduli nativi.
+
+**Decisione dell'utente**:
+
+1. «Continue with Apple» e «Continue with Google» in alto in «Sign up» e
+   in «Log in», sopra email e password; lo stesso tasto iscrive o fa
+   entrare.
+2. Apple solo su iPhone; Google su iPhone e Android.
+3. La prima volta una schermata sola: il nome utente e «I am at least
+   16» (con «Don't send me these emails» come in «Sign up»).
+4. Stessa email, stesso account: l'email garantita da Apple o Google
+   apre l'account che già la usa.
+
+**Decisione dell'agente** (su delega dell'utente):
+
+- Una tabella `user_identities` (`provider`, `subject`, `user_id`,
+  `email`, `apple_refresh_token`), unica su `(provider, subject)`. `users`
+  non cambia: un account nuovo da Apple o Google riceve una password a
+  caso che nessuno conosce, così «Forgot password» resta un modo di
+  averne una.
+- `POST /session/{provider}` con l'`id_token` (Apple: anche
+  `authorization_code` e `nonce`): identità nota → `Session`; email già
+  iscritta → si lega, `Session`; altrimenti `404 new_account`, e l'app
+  rimanda la richiesta con nome ed età → `201 Session`.
+  `GET /session/providers` dice quali provider sono accesi.
+- I token si verificano sul server con le chiavi pubbliche di Apple e di
+  Google tenute in memoria: firma, `iss`, `aud`, scadenza,
+  `email_verified`, il `nonce` per Apple. Niente chiamate a ogni accesso.
+- Un'email non confermata (TASK-300) che Apple o Google legano perde la
+  password di prima e le altre sessioni: chi l'aveva scritta non aveva
+  provato che fosse sua. Confermata, resta tutto.
+- `DELETE /me` revoca l'accesso Apple (`/auth/revoke`), come Apple chiede;
+  una revoca fallita non ferma la cancellazione.
+- Le chiavi stanno in `.env`; senza, `503 provider_unavailable` e l'app
+  non mostra i tasti. I moduli nativi restano fuori dall'autolinking fino
+  alla build 1.0.1, una sola con `expo-contacts`, `expo-document-picker`
+  e forse HealthKit (TASK-321); fino ad allora i tasti sono nascosti
+  nella build dello store e l'impronta iOS resta 83793e26.
+
+**Scartate**: `password_hash` nullo (cambia `reset_state` e ogni
+controllo della password); `expo-auth-session` per Google (il browser,
+come per Strava in ADR-0156); verificare i token chiedendoli a Google a
+ogni accesso; Apple su Android (un «Services ID» e il browser, per pochi);
+legare l'identità a un'email non confermata lasciando la password di
+prima (chi ha scritto l'email di un altro entrerebbe nel suo account).
+
+**Conseguenze**: tre pacchetti nuovi, approvati dall'utente il
+2026-10-28 (`expo-apple-authentication`,
+`@react-native-google-signin/google-signin`, `PyJWT[crypto]`); una
+migrazione; testi in cinque lingue e tre righe di privacy e termini,
+approvati il 2026-10-28; nelle console di Apple e di Google le chiavi e
+i client OAuth (TASK-322 parte C); il server e la build 1.0.1, ognuno col
+suo sì.
+
+## ADR-0283 — Il nuoto in acque libere: l'acqua della canoa con la fascia dei bagnanti, le curve con un nome a riva, l'orologio in due fasi
+
+**Stato**: Proposto · 2026-10-28 (TASK-323). Scelta dell'utente dello stesso
+giorno: «parti proprio con il progetto secondo me funziona», dopo la
+proposta in chat. Fascia e distanze si confermano coi campioni di A1;
+nome, testi e avviso di sicurezza con la parte C; dipendenza e build
+dell'orologio con la parte E
+
+**Contesto**: l'utente vuole il nuoto in acque libere come sport, con le
+indicazioni su dove nuotare, e pensa che passi tutto dall'orologio. Il
+motore della canoa (ADR-0154, ADR-0161) sa già piazzare una forma
+sull'acqua e trovare i punti della riva raggiungibili, ma tiene la forma
+**oltre** 200 m dalla riva al mare, fuori dai bagnanti. Chi nuota non
+guarda il telefono e non sente la voce con la testa in acqua; il GPS al
+polso prende solo quando la mano esce dall'acqua; la modalità nuoto in
+acque libere dei Garmin non segue un percorso; le ordinanze balneari
+cambiano da posto a posto (di solito 200 m dalle spiagge e 100 m dalle
+coste a picco riservati ai bagnanti).
+
+**Decisione proposta**:
+
+1. **L'acqua è quella della canoa, la fascia è rovesciata**: la forma sta
+   fra 20 e 150 m dalla riva, al mare e sui laghi; 200 m da porti, marine e
+   foci; si entra da una spiaggia o da una via pedonabile, non da scivoli e
+   moli; partenza e arrivo sulla stessa spiaggia. Il profilo della fascia è
+   per attività: la canoa resta con i valori di oggi, punto per punto. Il
+   motore decide dove e quanto grande; l'AI interpreta soltanto.
+2. **Distanze 0,5–3 km**, solo forme del catalogo come sull'acqua della
+   canoa. Fuori da ciò che ci sta, l'errore dice a quanti km la forma ci
+   sta.
+3. **Le curve hanno un nome a riva**, preso da OpenStreetMap (il posto con
+   un nome più vicino sulla riva di fronte, entro 300 m): un dato del motore,
+   non un testo dell'AI. Senza dati, le curve restano senza nome.
+4. **Fase 1, senza codice per l'orologio**: forma e curve prima di entrare;
+   in acqua nessuna guida; la traccia dal telefono nella boa di sicurezza o
+   dal file dell'orologio (TASK-312).
+5. **Fase 2, un'app per Apple Watch**: vibrazioni prima delle curve e fuori
+   rotta, freccia con i metri, traccia rimandata al telefono. Solo col sì
+   dell'utente sulla dipendenza e sulla build nuova, dopo una prova in
+   acqua.
+6. **Avviso di sicurezza** (proposta, da approvare con la parte C), la
+   prima volta su questo telefono:
+
+   > **Before you swim**
+   > - Never swim alone. Tow a bright swim buoy and wear a bright cap.
+   > - Check the water, the weather, the flags and the local rules:
+   >   swimming areas, boat lanes, harbours. MuW does not know them.
+   > - The route stays between 20 and 150 m from the shore. That does not
+   >   make it safe or allowed.
+   > - If you feel tired or cold, head for the shore at once.
+   >
+   > «I understand» · «Not now»
+
+   E sotto ogni giro: «Within 150 m of the shore. Never swim alone.»
+
+**Scartate**:
+
+- la fascia della canoa (oltre 200 m): è dove passano le barche;
+- forme allungate o stirate per farle stare in 130 m: non sono più la
+  forma chiesta;
+- la voce dal telefono: con la testa in acqua non si sente, e il Bluetooth
+  sott'acqua non arriva alle cuffie;
+- un'app Garmin (Connect IQ) adesso: un altro linguaggio e un altro store,
+  per una guida che il Garmin in acque libere non fa;
+- i dati europei sulla qualità delle acque di balneazione: utili, licenza
+  da verificare, un'altra parte se l'utente li vuole.
+
+**Conseguenze**: una nuova attività nel motore, nel contratto e nei vincoli
+del database (una migrazione); un estratto nuovo dei nomi lungo la riva sul
+server; testi nuovi in cinque lingue col sì dell'utente. Condizione del
+Coordinatore: i percorsi della canoa e l'impronta con cui `route_store`
+tiene gli esempi restano gli stessi, con un test, oppure la parte A1 dice
+perché e cosa si ridisegna. La riga dello sport entra con `ready: false`
+(TASK-318). Il codice nativo (parti D ed E) cambia l'impronta iOS ed esce
+con la build 1.0.1 insieme ad Apple Salute di TASK-321. Il motore non
+conosce le regole del posto: l'avviso lo dice.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
