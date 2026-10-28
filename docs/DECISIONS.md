@@ -17655,8 +17655,8 @@ aggiornamento OTA.
 
 **Stato**: Proposta · 2026-10-28 · la richiesta e le quattro scelte di
 prodotto sono dell'utente (TASK-322, «Scelte dell'utente»), e i tre
-pacchetti nuovi li ha approvati; il come è deciso dall'agente su delega
-dell'utente. Mancano il sì ai testi e alla riga della privacy. Supera il
+pacchetti nuovi e i testi li ha approvati; il come è deciso dall'agente
+su delega dell'utente. Manca il sì alla riga della privacy. Supera il
 punto 3 di ADR-0114 («Apple e Google forse dopo, con una build
 propria»).
 
@@ -17712,7 +17712,7 @@ prima (chi ha scritto l'email di un altro entrerebbe nel suo account).
 **Conseguenze**: tre pacchetti nuovi, approvati dall'utente il
 2026-10-28 (`expo-apple-authentication`,
 `@react-native-google-signin/google-signin`, `PyJWT[crypto]`); una
-migrazione; testi in cinque lingue e una riga della
-privacy col sì dell'utente; nelle console di Apple e di Google le chiavi e
+migrazione; testi in cinque lingue, approvati il 2026-10-28, e una riga
+della privacy col sì dell'utente; nelle console di Apple e di Google le chiavi e
 i client OAuth (TASK-322 parte C); il server e la build 1.0.1, ognuno col
 suo sì.

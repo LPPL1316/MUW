@@ -1,7 +1,7 @@
 # TASK-322 — Entrare e iscriversi con Apple e con Google
 
-**Stato**: Todo (proposta: il sì dell'utente alle scelte di prodotto e ai
-pacchetti nuovi c'è; mancano i testi e la riga della privacy)
+**Stato**: Todo (proposta: il sì dell'utente alle scelte di prodotto, ai
+pacchetti nuovi e ai testi c'è; manca la riga della privacy)
 **Fase**: 4 · **Branch**: `docs/TASK-321-sign-in-apple-google` (i
 documenti), poi `feat/TASK-322-a-sign-in-api`, `feat/TASK-322-b-sign-in-app`
 · **ADR**: ADR-0282
@@ -72,12 +72,14 @@ email = stesso account.»
    come già scartato per Strava in ADR-0156; e Google non lo consiglia più
    su Android); verificare i token chiedendoli a Google (`tokeninfo`: una
    chiamata di rete a ogni accesso, e per Apple non esiste).
-2. **I testi** dell'app: la tabella qui sotto, «Testi della parte B».
+2. **I testi** dell'app: la tabella qui sotto, «Testi della parte B» —
+   **approvati dall'utente il 2026-10-28**: «Sì, i testi vanno bene così,
+   in tutte e cinque le lingue.»
 3. **La riga della privacy**: «If you sign in with Apple or Google, we keep
    the account ID they give us and the email they share. Nothing else.»
    Con Apple «Hide My Email» l'email è un indirizzo di Apple che inoltra.
 
-## Testi della parte B (da confermare)
+## Testi della parte B (approvati il 2026-10-28)
 
 Il tono è quello delle schermate di oggi, col «tu». Il tasto di Apple non
 ha testi nostri: è `AppleAuthenticationButton` («Continue with Apple», tipo
