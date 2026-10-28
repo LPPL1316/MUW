@@ -388,6 +388,7 @@ const privacy: AboutDocument = {
         "Die Offline-Karten kommen von unserem Server: die um dich herum und, im Voraus, die der Orte in der Nähe. Um diese Downloads zu begrenzen, zählt der Server sie pro Tag nach einer anonymen Nummer, die die App für das Handy erzeugt; die Zählung bleibt nur im Arbeitsspeicher.",
         "Wörter, die eine Form beschreiben, werden auf unserem Server gelesen und an keinen externen KI-Dienst gesendet.",
         "Ein Foto, das du für eine Zeichnung wählst, geht einmal an unseren Server, um seinen Umriss zu finden: Der Server speichert es nicht und protokolliert es nicht.",
+        "Eine mit dem Finger gezeichnete Figur oder der Umriss deines Fotos geht einmal an unseren Server, als die Route, die du anfragst: der Server behält sie nicht.",
         "Um die Suche zu verbessern, bewahren wir ein Ereignis für jede Suche und für einige Nutzungen der App auf (eine gewählte Route, eine exportierte GPX-Datei, ein bewerteter Lauf): den Text in Kleinbuchstaben, höchstens 200 Zeichen, mit verborgenen E-Mails und langen Zahlen; Positionen nur als Quadrate von etwa 1 km; nichts, was sagt, wer du bist oder welches Handy es war. Diese Ereignisse werden ohne zeitliche Begrenzung aufbewahrt.",
       ],
     },

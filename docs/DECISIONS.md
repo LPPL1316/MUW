@@ -17653,7 +17653,9 @@ aggiornamento OTA.
 
 ## ADR-0280 — Disegnare a mano in «Draw», e ogni figura proposta che si riapre nella tavola
 
-**Stato**: Proposta · 2026-10-28 · la richiesta è dell'utente («disegnare
+**Stato**: Attiva · 2026-10-28 · proposte, testi e riga della privacy
+approvati dall'utente il 2026-10-28; parte A in `main` con la PR #612,
+parte B da fare · la richiesta è dell'utente («disegnare
 anche a mano nella pagina draw» e «modificare un disegno del feed, un
 disegno ricercato, un disegno di explore… tutto potenzialmente
 editabile»); il posto («Freehand» in «Draw»), la tavola e che cosa si
@@ -17723,6 +17725,36 @@ l'impronta iOS invariata; per la tavola non serve la rete, per «Draw
 route» sì, come per «Image». Due PR (A tavola, «Freehand», «Edit» in
 «Draw» e sul risultato; B le schede), testi nuovi e una riga della
 privacy col sì dell'utente.
+
+**Attuazione, parte A** (2026-10-28, PR #612; deciso dall'agente su delega
+dell'utente):
+
+1. **La tavola è un quadrato** che riempie lo schermo: la figura vive in
+   quote del quadrato (y in giù, come gli `image_points` di una foto), e la
+   richiesta la gira e la passa a `framed` di `canvasRequest.ts`: per le
+   stesse linee, la richiesta di «Draw on the map» (test). Le regole della
+   linea sono le funzioni sul piano di `mapdraw/drawing.ts`: `outlineOf`, e
+   `detailOf`, la parte sul piano di `withDetail`, ora esportata.
+2. **Una tavola nuova** (`FreehandBoard.tsx`), non la tavola delle foto:
+   riusa `boardView.ts`, `drawnLine.ts` e le linee di `ImagePreview.tsx`;
+   «Edit the outline» resta com'è. Un dito disegna sempre; «Erase» acceso
+   fa cancellare un tocco e spostare un dito che si muove.
+3. **«Erase» di un dettaglio porta via i dettagli appesi a lui**: partono
+   da un suo punto, e senza di lui il motore li rifiuterebbe. Il contorno
+   porta via tutto, ed «Erase» si spegne: la linea dopo è il contorno nuovo.
+4. **Le linee del catalogo si smontano**: la variante «down» di
+   `catalogueShapes.json` è una linea sola, in cui il motore corre gli
+   occhi, i raggi e la chiocciola come escursioni da un punto del contorno
+   e ritorno; per 12 forme su 17 non è un anello semplice. `figureLines.ts`
+   fa di ogni escursione un dettaglio appeso in quel punto (la sola andata
+   se il ritorno la ripercorre; l'anello chiuso sul punto di partenza se
+   gira) e del resto il contorno; il cavallo si raddrizza ai 100 angoli di
+   un contorno. Scartato: la variante «up» (il corpo della testa di cane non
+   è un anello semplice nemmeno lì, e i pezzi non sono appesi).
+5. **«Drawing»** si riconosce dagli array del contorno che la tavola ha
+   fatto (`isDrawnOutline`, un `WeakSet`), come `drawnTile` riconosce
+   un'immagine pronta: niente campo nuovo nel contratto, `RouteOutcome`
+   invariato. La linea a dito di «Draw on the map» resta «Image».
 
 ## ADR-0278 — Nelle build dello store gli sport non pronti non si vedono
 

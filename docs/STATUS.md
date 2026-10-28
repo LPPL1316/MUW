@@ -168,6 +168,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   scorrere, senza rete. Solo app, OTA. Aspetta il sì dell'utente sui tre
   testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
   File `tasks/TASK-317.md`.
+
+- **TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno
+  proposto** (ADR-0280; richiesta dell'utente del 2026-10-28; proposte,
+  testi e riga della privacy approvati dall'utente il 2026-10-28; numero,
+  parti e condizioni dal Coordinatore). **Parte A fatta** (PR #612, branch
+  `feat/TASK-320-a-freehand`): la quarta scelta «Freehand» in «Draw», la
+  tavola a mano (la prima linea è il contorno chiuso dall'app, le altre
+  dettagli appesi, «Erase», «Undo», «Save», niente rete), «Edit the
+  drawing» sotto la forma scelta (le linee del catalogo smontate in contorno
+  e dettagli) e sul risultato, «Draw route» come per un'immagine, «Drawing»
+  dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
+  invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
+  sessione, dopo A. File `tasks/TASK-320.md`.
 - **TASK-318 — Gli sport non pronti nascosti nelle build dello store**
   (ADR-0278; scelta dell'utente del 2026-10-28, «nascondi Soon nello
   store»; fatto dal Coordinatore). Nelle build dell'App Store e di Google
