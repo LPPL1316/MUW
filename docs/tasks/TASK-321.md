@@ -1,6 +1,6 @@
 # TASK-321 — L'attività finita anche in Apple Salute e in Health Connect, perché compaia in Fitness
 
-**Stato**: In lavorazione · proposta (documenti) nel branch `docs/TASK-321-apple-health`, scelte dell'utente del 2026-10-28 dentro · poi A (app, nascosta), B (la build nativa iOS 1.0.1), C (la build Android con Health Connect)
+**Stato**: In lavorazione · documenti in `main` (#608), scelte dell'utente del 2026-10-28 dentro · A (app, nascosta) fatta nel branch `feat/TASK-321-a-health-app`, impronte invariate · poi B (la build nativa iOS 1.0.1), C (la build Android con Health Connect)
 **Fase**: 4 · **Branch**: `docs/TASK-321-apple-health` (documenti),
 `feat/TASK-321-a-health-app` (A), `chore/TASK-321-b-ios-health-build` (B),
 `chore/TASK-321-c-android-health-connect` (C)
@@ -285,6 +285,79 @@ package-lock.json
 apps/mobile/react-native.config.js
 ```
 
+Senza Coordinatore (archiviato il 2026-10-28), la lista è rimasta questa,
+più i documenti di chiusura di A nella stessa PR: `docs/tasks/TASK-321.md`,
+`docs/STATUS.md` (righe aggiunte alla voce) e `docs/DECISIONS.md`
+(aggiunta ad ADR-0281, in fondo).
+
+#### Com'è andata A (2026-10-28)
+
+- **Il codice**, tutto in `src/health/`: `workout.ts` (la funzione pura
+  dalla traccia salvata all'allenamento: lo sport, inizio e fine dal primo
+  e dall'ultimo punto, i metri di MuW, le pause dentro l'attività, le
+  calorie di `kcal()` solo per la corsa, la chiave `activityKey`);
+  `appleWorkout.ts` e `healthConnectWorkout.ts` (la forma che vuole ogni
+  libreria); `appleHealth.ts` e `healthConnect.ts` (il foglio, il permesso,
+  la scrittura di quello che il permesso concede, tipo per tipo);
+  `healthModules.ts` (il `require` protetto); `healthChoice.ts`
+  (`health.json`, solo il sì); `useHealth.ts` e `HealthRunEnd.tsx` (la
+  riga). In `RunEnd.tsx` la riga sotto «Send to Strava» e la scrittura dopo
+  un «Save» riuscito. I testi nelle quattro lingue, con le traduzioni
+  dell'agente: «Apple Salute», «Apple Salud», «Apple Santé», e l'app
+  Fitness in francese è «Forme».
+- **Lo sport** è quello del modulo di fine corsa: parte da
+  `activityOf(sport)` e l'utente lo può cambiare, come per Strava e per il
+  disegno.
+- **La corsa da scrivere** la legge `RunEnd` dal file della corsa
+  (`loadRun()`) prima che «Save» lo lasci andare: così A non tocca
+  `App.tsx`. È la corsa che «Save» manda in «My activities»; solo se il
+  telefono aveva rifiutato di scrivere il file (TASK-252) il file ha
+  l'ultima copia scritta, e in Salute va quella.
+- **Fuori dal linking**: in `react-native.config.js` le tre librerie
+  native e `@react-native-healthkit/core`, che arriva con quella
+  dell'iPhone, con `platforms: { ios: null, android: null }`;
+  `react-native-health-connect` anche in `expo.autolinking.exclude` di
+  `package.json`, perché porta un modulo Expo per Android.
+  `expo-build-properties` è solo un plugin: senza `app.json` non fa niente.
+- **Le impronte**, misurate su una copia pulita (`npm ci`,
+  `APP_VARIANT=production`), prima e dopo A: iOS
+  `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, Android
+  `e2d334978e85871928226a36343f757128d232b3`, le stesse di `main`. A può
+  entrare in `main` senza aspettare B e C.
+- **I test**, con moduli finti: `workout.test.ts`, `appleHealth.test.ts`,
+  `healthConnect.test.ts`, `healthChoice.test.ts`, `healthModules.test.ts`,
+  `RunEndHealth.test.tsx` (la riga nascosta senza modulo, il foglio, il no,
+  la scrittura con «Save», niente con il permesso tolto né con «Discard»).
+
+**Per B**, da guardare sull'iPhone:
+
+- la libreria mette i metadati dell'allenamento, `HKSyncIdentifier`
+  compreso, anche sui campioni di distanza e calorie che lega
+  all'allenamento. Se Salute prendesse per lo stesso oggetto due campioni
+  di tipo diverso con la stessa chiave, uno non entrerebbe: B guarda che in
+  Salute ci siano l'allenamento, la distanza e le calorie;
+- la distanza della pagaia (`distancePaddleSports`) c'è da iOS 18: prima,
+  l'allenamento ha il suo totale e nessun campione;
+- MuW non tiene la precisione verticale dei punti: l'altezza va con
+  `verticalAccuracy` −1, «non sicura», e Fitness non ne fa un dislivello.
+  Tenerla vorrebbe un campo in più in `TrackFix`
+  (`navigation/trackRecorder.ts`): fuori da questo task.
+
+**Per C**, letto il codice Kotlin di `react-native-health-connect` 4.1.3:
+
+- **blocca la scrittura del percorso**: per ogni punto vuole
+  `horizontalAccuracy`, `verticalAccuracy` e `altitude`, o lancia
+  `InvalidLength`. MuW manda la precisione orizzontale e l'altezza quando
+  c'è, mai la verticale (non la ha, e inventarla sarebbe un dato inesatto):
+  con la 4.1.3 la sessione con il percorso non entra, e con lei niente.
+  Prima di accendere Android, C lo risolve: una versione della libreria che
+  lo corregga, o una correzione da proporre all'utente;
+- legge le pause (`segments`) e i giri (`laps`) dallo stesso campo
+  `samples`, e un giro vuole una lunghezza: le pause non possono passare.
+  A le manda come `segments`, come dicono i tipi della libreria; la 4.1.3
+  le ignora, e in Health Connect il tempo è dall'inizio alla fine, come
+  su iPhone.
+
 ### B — La build nativa iOS 1.0.1
 
 `app.json` (entitlements, testo del permesso), `locales/*.json`,
@@ -308,12 +381,14 @@ prima.
 
 - [x] **Documenti**: questo file e l'ADR, con le scelte dell'utente
       scritte.
-- [ ] **A**: con moduli finti, una corsa salvata diventa un allenamento con
+- [x] **A**: con moduli finti, una corsa salvata diventa un allenamento con
       lo sport, l'inizio, la fine, la distanza e le posizioni giuste, e le
       calorie solo se è una corsa; la stessa corsa salvata due volte ha lo
       stesso identificativo; senza il modulo, o con il permesso tolto, non
       si scrive niente e la riga lo dice; le impronte delle build di oggi
-      non si muovono (o A aspetta B e C).
+      non si muovono (o A aspetta B e C). *Fatto il 2026-10-28: i test di
+      `src/health/`, impronte iOS `83793e26…` e Android `e2d33497…`
+      invariate.*
 - [ ] **B**: sul simulatore e sull'iPhone, dopo «Save» l'allenamento è in
       Fitness con la mappa; il foglio dei permessi ha il testo approvato;
       la privacy è aggiornata; la 1.0.1 parte per Apple solo con il sì
@@ -345,3 +420,8 @@ docs/INDEX.md            (una riga)
 ## Esito
 
 *(si compila a fine task)*
+
+- **A** (2026-10-28): l'app scrive l'attività in Apple Salute e in Health
+  Connect con «Save», dopo il primo sì; nascosta finché le build non hanno
+  il modulo nativo; impronte invariate. Per C, la libreria Android 4.1.3
+  non scrive il percorso senza la precisione verticale (sopra, «Per C»).
