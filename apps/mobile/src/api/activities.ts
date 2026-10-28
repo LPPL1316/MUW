@@ -132,10 +132,21 @@ export type ActivityPause = {
   pen?: boolean;
 };
 
+/**
+ * A fix of a run sent: TrackFix, with the phone's height when it gave one
+ * (TASK-324). The API counts the climb from it, for the totals of the
+ * profile; POST /track-scores takes no height.
+ */
+export type ActivityFix = TrackFix & {
+  /** Metres above sea level; sent only when known: an API older than
+   * TASK-324 refuses the field. */
+  altitude_m?: number;
+};
+
 /** What PUT /me/activities/{key} takes: the run as the app recorded it. The
- * API counts metres, seconds and score itself. */
+ * API counts metres, seconds, climb and score itself. */
 export type ActivityRequest = {
-  track: TrackFix[];
+  track: ActivityFix[];
   pauses: ActivityPause[];
   /** The planned route and its similarity: both, or both null. */
   points: LatLon[] | null;
@@ -175,6 +186,21 @@ export function withoutPenUp(request: ActivityRequest): ActivityRequest {
   return {
     ...older,
     pauses: request.pauses.map(({ pen: _pen, ...pause }) => pause),
+  };
+}
+
+/**
+ * `request` as an app older than TASK-324 sends it, without the heights of
+ * its fixes: an API before it refuses them, and keeps the run without its
+ * climb. The same object when no fix has one.
+ */
+export function withoutHeights(request: ActivityRequest): ActivityRequest {
+  if (!request.track.some((fix) => "altitude_m" in fix)) {
+    return request;
+  }
+  return {
+    ...request,
+    track: request.track.map(({ altitude_m: _height, ...fix }) => fix),
   };
 }
 
@@ -228,11 +254,12 @@ export function fetchActivity(
 
 /**
  * PUT /me/activities/{key}: saved once, however many times it is sent. A
- * run along a turned route that the API refuses is first sent again without
- * the turn (TASK-232, ADR-0195); a run along a word with the pen up that the
- * API refuses goes once more as an older app sends it (TASK-199, ADR-0158):
- * an API older than TASK-199 keeps it, scored on the whole route, rather
- * than the run being lost.
+ * run with the heights of its fixes that the API refuses is first sent
+ * again without them (TASK-324, ADR-0284); a run along a turned route then
+ * without the turn (TASK-232, ADR-0195); a run along a word with the pen up
+ * goes once more as an older app sends it (TASK-199, ADR-0158): an API
+ * older than TASK-199 keeps it, scored on the whole route, rather than the
+ * run being lost.
  */
 export async function saveActivity(
   baseUrl: string,
@@ -253,7 +280,7 @@ export async function saveActivity(
     outcome.kind === "api_error" && outcome.code === "invalid_request";
   let sent = request;
   let outcome = await put(sent);
-  for (const older of [withoutTurn, withoutPenUp]) {
+  for (const older of [withoutHeights, withoutTurn, withoutPenUp]) {
     const next = older(sent);
     if (refused(outcome) && next !== sent) {
       sent = next;

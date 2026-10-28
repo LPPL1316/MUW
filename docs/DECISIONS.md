@@ -18036,3 +18036,89 @@ perché e cosa si ridisegna. La riga dello sport entra con `ready: false`
 (TASK-318). Il codice nativo (parti D ed E) cambia l'impronta iOS ed esce
 con la build 1.0.1 insieme ad Apple Salute di TASK-321. Il motore non
 conosce le regole del posto: l'avviso lo dice.
+## ADR-0284 — I totali e le foto di un profilo: km e dislivello di ogni corsa, anche privata; i like ricevuti; «Drawings» e «Photos»
+
+**Stato**: Attiva · 2026-10-26 · cosa si vede e la scelta di contare anche
+le corse private sono dell'utente; i punti tecnici sono decisi
+dall'agente su delega dell'utente (TASK-324). Numero preso senza
+coordinatore (nessuna sessione «Coordinatore» raggiungibile): il primo
+libero dopo ADR-0283 in `main` e nei branch aperti (scritto prima come
+ADR-0265 e poi come ADR-0271, presi nel frattempo da altre sessioni).
+
+**Contesto**: l'utente il 2026-10-26: «quando vai sul profilo di un utente
+bisogna dare la possibilità di vedere i disegni fatti, le foto fatte, e
+tutti i dettagli dei km percorsi totali... dislivello... aggiungendo anche
+i numeri di like presi totali come statistica numero followers...». Il
+profilo aveva già i disegni (TASK-117), il numero dei disegni, follower e
+seguiti (TASK-211); non i km, il dislivello, i like ricevuti e le foto.
+Il dislivello non arrivava al server: l'app lo contava a fine corsa
+(`runMetrics.climbM`) ma `TrackFixBody` non ha l'altezza e la traccia è
+`LineStringM`. Proposta all'utente con totali solo dalle corse
+pubblicate; l'utente ha scelto **«Km anche dalle private»**: km e
+dislivello contano tutte le corse salvate (stile Strava).
+
+**Decisione**:
+
+1. **`GET /users/{public_id}` ha tre numeri in più**: `distance_m`, la
+   somma dei metri di **tutte** le corse dell'account, private comprese
+   (scelta dell'utente); `climb_m`, la somma dei metri saliti delle corse
+   che lo sanno; `reactions`, le reazioni (tutte e sei, «like» per
+   l'utente) che gli **altri** hanno lasciato sui suoi disegni che chi
+   guarda vede (`shown_sql`), mai le proprie, mai di un iscritto che un
+   blocco tiene lontano da chi guarda: la somma dei numeri che chi guarda
+   leggerebbe sotto ogni disegno. Dal database escono solo le somme: mai
+   una corsa, un luogo, un giorno. Tre sottoquery in `profile_totals.py`.
+2. **Il dislivello lo conta l'API**, come metri e secondi: l'app manda
+   `altitude_m` su ogni posizione di `PUT /me/activities/{key}` che ne ha
+   una (`ActivityFixBody`, sottoclasse di `TrackFixBody` in
+   `activities.py`: `schemas.py` e `engine.zip` non cambiano, `POST
+   /track-scores` continua a rifiutare l'altezza). La regola è quella
+   dell'app (`run_climb.py`): somma delle salite di almeno 3 m dall'ultima
+   altezza contata, le discese non tolgono; solo le posizioni tenute da
+   `clean_track`, e niente salita a cavallo di una pausa chiesta dal
+   corridore, come per i metri. Colonna `runs.climb_m` (migrazione
+   `0034_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
+   totale non le stima.
+3. **`GET /users/{public_id}/photos`**: le foto dei disegni che chi guarda
+   vede sul profilo, dalla corsa più recente e, nello stesso disegno, per
+   posto, 30 per pagina (al più 60) con `cursor`. Solo dove leggerle
+   (`/drawings/{id}/photos/{n}`, come le altre) e il disegno a cui
+   appartengono, che l'app apre al tocco. `404` come i disegni del
+   profilo.
+4. **Nell'app**: sotto l'intestazione del profilo (di un altro e il
+   proprio) una riga di tre riquadri, «Distance» (km o miglia
+   dell'app, un decimale sotto 100, intero da lì), «Elev. gain» (metri,
+   come nella corsa) e «Likes». Follower, seguiti e disegni restano dove
+   sono (la riga sotto il nome; gli elenchi in «Profile»): non si
+   ripetono. In fondo, al posto di «Drawings», due schede **«Drawings» |
+   «Photos»**; le foto si chiedono la prima volta che si tocca «Photos».
+5. **Compatibilità**: un'API senza i totali non ha né la riga né le schede
+   (tutto come prima). Un'API che rifiuta `altitude_m` (`422
+   invalid_request`) riceve la corsa di nuovo senza altezze
+   (`withoutHeights`, prima di `withoutTurn` e `withoutPenUp`): la corsa
+   non si perde, resta senza dislivello. **Il server va aggiornato prima
+   dell'app**, così le corse salvate dopo hanno il loro dislivello.
+
+**Alternative scartate**: totali solo dalle corse pubblicate (la proposta;
+l'utente ha scelto le private); l'altezza in `TrackFixBody` (`schemas.py`
+viaggia nel motore del telefono: `engine.zip` da rifare, e `POST
+/track-scores` l'avrebbe presa senza usarla); un `climb_m` contato
+dall'app (l'API conta i numeri delle corse da sé, ADR-0140); la traccia
+`LineStringZM` (una migrazione di tutte le tracce per un numero solo);
+le foto raccolte dall'app dalle pagine dei disegni (pagine senza foto,
+richieste a vuoto); le schede con le foto caricate all'apertura del
+profilo (una richiesta in più a ogni profilo aperto); i sei numeri in sei
+riquadri (follower e disegni ripetuti due volte).
+
+**Conseguenza**: una migrazione (una colonna, nessun dato riscritto),
+nessuna dipendenza nuova, solo app e API: l'app arriva con un
+aggiornamento OTA. Chi guarda un profilo sa quanti km e metri di
+dislivello ha fatto in tutto l'altro, anche correndo da solo e in privato
+(la scelta dell'utente), mai una posizione. **L'informativa e l'aiuto
+cambiano** (testi approvati dall'utente il 2026-10-26, nelle cinque
+lingue): al server va anche l'altezza di ogni posizione, e «Other members
+see on your profile only the totals of all your saved runs, distance and
+elevation gain, never the runs themselves.»; il sito si copia insieme al
+server (`tasks/TASK-324.md`, «Aperto»). Le corse salvate prima di TASK-324
+non hanno dislivello: il totale parte da 0 e cresce con le corse nuove.
+Quattro testi nuovi in quattro lingue, accanto a quelli di «Drawings».

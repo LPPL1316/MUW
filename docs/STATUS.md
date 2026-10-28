@@ -160,6 +160,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-324 — I totali e le foto di un profilo** (ADR-0284; richiesta
+  dell'utente del 2026-10-26; numeri presi senza coordinatore, nessuna
+  sessione raggiungibile: nato come TASK-305/ADR-0265, rinumerato due
+  volte perché presi da altre sessioni). Branch
+  `claude/wonderful-dijkstra-oi568i` (il branch della sessione cloud),
+  migrazione `0034_run_climb.sql` (dopo la 0033). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
+  «Elev. gain» e «Likes», e le schede «Drawings» | «Photos». **Scelta
+  dell'utente: km e dislivello di tutte le corse, anche private**; «Likes»
+  sono le reazioni degli altri sui disegni che chi guarda vede. Il
+  dislivello lo conta l'API dalle altezze che l'app manda ora con la corsa
+  (`runs.climb_m`; le corse di prima non lo hanno). `GET
+  /users/{id}/photos` nuovo. Codice e test fatti (API con PostgreSQL vero,
+  `shared-types`, app). Informativa e aiuto aggiornati (altezza e totali,
+  testi approvati dall'utente il 2026-10-26, cinque lingue, sito
+  rigenerato). **Aperto**: PR; server e copia del sito insieme, con l'ok
+  dell'utente, prima dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
+  TASK-299 B: poche righe qui, chi entra secondo unisce. File:
+  `tasks/TASK-324.md`.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
