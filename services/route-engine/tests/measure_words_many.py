@@ -7,7 +7,8 @@ in the file is not planned again, so a stopped run goes on where it was.
 Each city runs in a process of its own, its cases from the longest down:
 the first zone a city asks is the largest, and the others are cropped from
 it in memory. A zone not in `--cache-dir` is downloaded from Overpass and
-saved there only with `--download`; without, the case is skipped. Each
+saved there only with `--download`; without, or when Overpass does not
+answer, the case is skipped and not written: the next run plans it. Each
 city writes its own `<city>.jsonl` in `--out`, a directory.
 
     python tests/measure_words_many.py --cache-dir /tmp/zones --download \\
@@ -77,6 +78,9 @@ WORDS: tuple[str, ...] = (
     "MARATONA", "FAMIGLIA", "BIRTHDAY", "SUNSHINE",
 )  # fmt: skip
 
+# Waits before asking Overpass again for a zone, in seconds.
+DOWNLOAD_WAITS_S: tuple[int, ...] = (60, 120, 240, 480, 960)
+
 
 class MemoZones:
     """Zones from the cache, each file read once and cropped in memory;
@@ -99,11 +103,22 @@ class MemoZones:
             return crop(self.graph(covering), bbox)
         if not self.download:
             raise LookupError("zone not in the cache")
-        return self.source.load(bbox)
+        # Overpass at capacity answers 502 or an empty body: wait and ask
+        # again, longer each time, then leave the case to the next run.
+        for wait_s in DOWNLOAD_WAITS_S:
+            try:
+                return self.source.load(bbox)
+            except Exception as exc:  # noqa: BLE001 - any failed download
+                print(f"zone download failed ({exc!s:.80}), again in {wait_s} s")
+                time.sleep(wait_s)
+        raise LookupError("zone download failed")
 
 
 def case_key(case: dict[str, Any]) -> str:
-    return f"{case['word']}|{case['city']}|{case['km_letter']}|{case['style']}"
+    return (
+        f"{case['word']}|{case['city']}|{case['km_letter']}|{case['style']}"
+        f"|{case.get('pen_up', False)}"
+    )
 
 
 def cases_of(
@@ -111,6 +126,7 @@ def cases_of(
     cities: Iterable[str],
     km_letters: Iterable[int],
     styles: Iterable[str],
+    pen_up: bool = False,
 ) -> list[dict[str, Any]]:
     return [
         {
@@ -118,6 +134,7 @@ def cases_of(
             "city": city,
             "km_letter": km,
             "style": style,
+            "pen_up": pen_up,
             "distance_m": len(word) * km * 1000,
         }
         for word in words
@@ -131,7 +148,10 @@ def plan_case(case: dict[str, Any], zones: MemoZones) -> dict[str, Any]:
     """One word planned from its city's centre, and what came of it."""
     word = compose(case["word"], style=case["style"])
     request = RouteRequest(
-        start=CITIES[case["city"]], distance_m=case["distance_m"], word=word.text
+        start=CITIES[case["city"]],
+        distance_m=case["distance_m"],
+        word=word.text,
+        pen_up=case.get("pen_up", False),
     )
     began = time.perf_counter()
     row = dict(case)
@@ -180,10 +200,11 @@ def run_city(
     done = 0
     for case in sorted(cases, key=lambda c: -c["distance_m"]):
         row = plan_case(case, zones)
-        line = json.dumps(row, ensure_ascii=False)
-        with (out / f"{city}.jsonl").open("a", encoding="utf-8") as file:
-            file.write(line + "\n")
-        done += 1
+        if row["outcome"] != "skipped":
+            line = json.dumps(row, ensure_ascii=False)
+            with (out / f"{city}.jsonl").open("a", encoding="utf-8") as file:
+                file.write(line + "\n")
+            done += 1
         print(
             f"{city:<8} {case['word']:<9} {case['km_letter']}km {case['style']:<5}"
             f" {row['outcome']:<8} {row.get('similarity', '')!s:>5}"
@@ -240,6 +261,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--cities", default=",".join(CITIES))
     parser.add_argument("--km-letter", default="3,4", help="kilometres a letter")
     parser.add_argument("--styles", default=",".join(sorted(STYLES)))
+    parser.add_argument(
+        "--pen-up", action="store_true", help="each letter alone (TASK-197)"
+    )
     parser.add_argument("--out", type=Path, default=Path("words"), help="a directory")
     parser.add_argument("--summary", type=Path, help="only summarise this directory")
     args = parser.parse_args(argv)
@@ -252,6 +276,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.cities.split(","),
         [int(km) for km in args.km_letter.split(",")],
         args.styles.split(","),
+        args.pen_up,
     )
     args.out.mkdir(parents=True, exist_ok=True)
     seen = {case_key(r) for r in read_rows(args.out) if r["outcome"] != "skipped"}
