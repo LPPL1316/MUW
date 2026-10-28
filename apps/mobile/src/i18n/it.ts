@@ -533,7 +533,6 @@ export const IT: Table = {
     "{count} lettere: almeno {km} km. Per disegnare una parola servono alcuni minuti.",
   "Use {km} km": "Usa {km} km",
   Picture: "Foto",
-  "Waiting for the API…": "In attesa del servizio…",
   "Downloading map data for this area…": "Scarico la mappa di questa zona…",
   "Drawing the picture's outline, {km} km…": "Disegno il contorno della foto, {km} km…",
   "Drawing “{word}”, {km} km…": "Disegno «{word}», {km} km…",
@@ -1472,4 +1471,8 @@ export const IT: Table = {
   "This word may come out better with the pen up: each letter on its own.":
     "Questa parola può venire meglio con la penna alzata: ogni lettera da sola.",
   "Lift the pen": "Alza la penna",
+  // src/route/RoutePanel.tsx (TASK-317: the wait in «Draw»)
+  "Warming up: {name}…": "Riscaldamento: {name}…",
+  "Warming up: “{word}”…": "Riscaldamento: «{word}»…",
+  "Warming up: the picture…": "Riscaldamento: la foto…",
 };

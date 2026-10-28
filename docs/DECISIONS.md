@@ -17609,3 +17609,44 @@ c'era già.
 **Conseguenze**: due testi nuovi in cinque lingue, col sì dell'utente.
 Solo JavaScript: l'impronta iOS resta 83793e26. Se il motore cambia le
 soglie, `penUpHint.ts` va allineato a mano.
+
+## ADR-0277 — L'attesa in «Draw»: un testo da corridore e i disegni del Feed, senza rete
+**Stato**: Attiva · 2026-10-28 · TASK-317. La richiesta e la scelta sono
+dell'utente, del 2026-10-28: cambiare «Waiting for the API…» e dare
+qualcosa da guardare. Fra quattro proposte (solo testi; testi e disegni;
+testi e un gioco «Guess the shape»; testi e la forma che si disegna da
+sola) ha scelto testi e disegni. Le condizioni sono del Coordinatore: niente
+rete in più mentre il motore cerca, nessuna dipendenza, impronta iOS
+invariata. Il come è deciso dall'agente su delega dell'utente.
+
+**Decisione**:
+1. **Il testo prima del calcolo** («sending» e «queued») è «Warming up:
+   {name}…», «Warming up: “{word}”…» per una parola e «Warming up: the
+   picture…» per un'immagine. Segue la fase vera, come la barra di
+   ADR-0050: dice soltanto che il disegno non è ancora cominciato. Le fasi
+   dopo restano com'erano. Per la parola c'è un testo a parte, perché ogni
+   lingua usa le sue virgolette («CIAO», „CIAO“).
+2. **I disegni** sono quelli di esempio del Feed (`SAMPLE_FEED`,
+   ADR-0127), già nell'app: sei, scelti come in «Explore» (`postsFor`), sull'acqua con
+   «Paddle» e di corsa altrimenti. Sono in una fila da scorrere di lato,
+   sotto la barra.
+3. **Solo la linea**, su fondo mappa, come le miniature di «Explore»: la
+   foto della mappa (`useFeedMap`) vorrebbe una seconda mappa nascosta e le
+   sue tessere dalla rete, proprio mentre il telefono può star calcolando
+   il percorso (ADR-0177).
+4. **Dopo 3 s**: un percorso tenuto dal server arriva in un secondo o due,
+   e la fila comparsa per un attimo sposterebbe la mappa per niente.
+5. **Le schede non si toccano**: aprirne una lascerebbe la ricerca a metà.
+
+**Scartate**:
+
+- un video vero: l'app non ha un lettore, servirebbero una dipendenza
+  nativa, una build nuova e un'altra revisione di Apple;
+- il gioco e la forma che si disegna da sola: non scelti dall'utente;
+- i disegni dei membri dal server: vorrebbero la rete, e i loro dati;
+- le schede intere del Feed (`FeedPost`): alte quanto lo schermo,
+  schiaccerebbero la mappa sopra la scheda.
+
+**Conseguenze**: tre testi nuovi in cinque lingue, da approvare
+dall'utente; «Waiting for the API…» esce dalle tabelle. Arriva con un
+aggiornamento OTA.
