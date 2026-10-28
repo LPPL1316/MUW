@@ -216,6 +216,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
   invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
   sessione, dopo A. File `tasks/TASK-320.md`.
+  **Parte B fatta il 2026-10-29** (branch `feat/TASK-320-b-edit-cards`):
+  «Edit the drawing» sulle schede di «Explore» e dei disegni; il task è
+  chiuso con la sua PR. Voce in «Completato».
   File `tasks/TASK-317.md`. **Chiuso il 2026-10-28**: testi approvati
   dall'utente, #604 in `main` (d6545be5), impronta iOS `83793e26`
   invariata; arriva con il prossimo OTA. Voce in «Completato».
@@ -1774,6 +1777,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-320 (ADR-0280; richiesta dell'utente del 2026-10-28, proposte, testi e riga della privacy approvati lo stesso giorno): disegnare a mano in «Draw» e cambiare ogni figura proposta. Parte A (#612): la quarta scelta «Freehand», la tavola a mano (contorno chiuso dall'app, dettagli appesi, «Erase», «Undo», «Save», niente rete), «Edit the drawing» sotto la forma scelta e sul risultato, «Drawing» dove una foto dice «Image». Parte B (2026-10-29, `feat/TASK-320-b-edit-cards`): «Edit the drawing» sulle schede di «Explore» e dei disegni degli iscritti, dopo «Start», «Draw it near me» ed «Export GPX»; «Save» mostra «Draw» con «Freehand» e la figura, nessuna richiesta prima di «Draw route». Solo app, OTA, impronta iOS `83793e26` invariata. **Da provare col dito sull'iPhone** (l'utente): la tavola, «Erase», l'interruttore a quattro segmenti in italiano e in francese. `tasks/TASK-320.md`.
 - **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,

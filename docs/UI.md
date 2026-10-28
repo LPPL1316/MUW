@@ -798,6 +798,24 @@ troppe lettere per lo sport), una parola mentre lo sport è «Paddle».
 Da un disegno aperto da un profilo o da «Find friends», «Profile» resta
 chiuso.
 
+**La figura da cambiare** (TASK-320 parte B, ADR-0280, proposte approvate
+dall'utente il 2026-10-28): nelle stesse due schede, dopo «Start», «Draw
+it near me» ed «Export GPX» (che restano dove sono) e prima di «Back to
+the list» o «Back to the profile», il pulsante neutro **«Edit the
+drawing»** apre subito la tavola a mano («Freehand», sopra) con la figura:
+di un percorso di «Explore» la figura chiesta (una forma del catalogo con
+le sue linee, un'immagine col contorno e i dettagli); di un disegno con una
+forma le linee di quella forma; di un disegno senza forma né parola (una
+foto, un'immagine, un disegno a mano: il percorso dice solo il titolo) la
+traccia corsa, raddrizzata e chiusa come la tiene un preferito. «Save»
+lascia il percorso o il disegno come «Draw it near me» e mostra **«Draw»**
+con «Freehand» e la figura cambiata, alla distanza di «Draw it near me»
+(al decimo di km, dentro i limiti dello sport) e dalla partenza di «Draw»;
+niente parte dal telefono finché non si tocca «Draw route». Il pulsante non
+c'è per una parola, un percorso a tema, una corsa senza percorso (libera o
+importata da un'altra app), un post di sole foto, una forma che l'app non
+conosce, né con «Paddle». Nessun testo nuovo.
+
 **I commenti di un disegno** (TASK-120, ADR-0175, scelta dell'utente del
 2026-10-03: subito sotto le corse vere, non sugli esempi di «Feed»): nella
 scheda di un disegno aperto, fra i numeri e «Back to the profile», un
@@ -2264,8 +2282,9 @@ o un'immagine pronta (il contorno tracciato e i dettagli), un disegno a
 mano. Non per una parola, né sull'acqua. «Save» torna a «Draw» con
 «Freehand» e la figura, alla distanza del percorso e dalla partenza di
 «Draw» (anche dal risultato di «Draw on the map»); «Draw route» chiede il
-percorso della figura nuova. Le schede di «Explore» e del «Feed» sono la
-parte B di TASK-320.
+percorso della figura nuova. Sulle schede di «Explore» e del «Feed»
+(parte B di TASK-320) lo stesso tasto è descritto con «Draw it near me»,
+in «La figura da cambiare».
 
 Testi nuovi, **approvati dall'utente** il 2026-10-28 nelle cinque lingue:
 
