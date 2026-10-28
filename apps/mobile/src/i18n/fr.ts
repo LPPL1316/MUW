@@ -817,7 +817,7 @@ export const FR: Table = {
     "Pas encore de dessins publics. Rends une course publique dans Mes activités.",
   "No drawings yet.": "Pas encore de dessins.",
 
-  // src/profile/ProfileStats.tsx, src/profile/ProfileGallery.tsx (TASK-311)
+  // src/profile/ProfileStats.tsx, src/profile/ProfileGallery.tsx (TASK-324)
   Likes: "J'aime",
   Photos: "Photos",
   "No photos yet.": "Pas encore de photos.",

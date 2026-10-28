@@ -824,7 +824,7 @@ export const DE: Table = {
     "Noch keine öffentlichen Zeichnungen. Mach einen Lauf in Meine Aktivitäten öffentlich.",
   "No drawings yet.": "Noch keine Zeichnungen.",
 
-  // src/profile/ProfileStats.tsx, src/profile/ProfileGallery.tsx (TASK-311)
+  // src/profile/ProfileStats.tsx, src/profile/ProfileGallery.tsx (TASK-324)
   Likes: "Likes",
   Photos: "Fotos",
   "No photos yet.": "Noch keine Fotos.",

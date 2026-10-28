@@ -1,5 +1,5 @@
--- The metres a run climbed, for the totals of the profile (TASK-311,
--- ADR-0271, docs/DATABASE.md). A migration already in main is never edited:
+-- The metres a run climbed, for the totals of the profile (TASK-324,
+-- ADR-0284, docs/DATABASE.md). A migration already in main is never edited:
 -- write the next one.
 
 -- Counted by the API from the heights the app sends with the fixes

@@ -10,14 +10,14 @@ import { ProfileHome } from "./ProfileHome";
 import { ProfileStats, totalDistanceNumber, totalsOf } from "./ProfileStats";
 import { UserProfilePage } from "./UserProfilePage";
 
-// The totals of a profile (TASK-311): metres of every run, private ones
+// The totals of a profile (TASK-324): metres of every run, private ones
 // too, the climb and the reactions received.
 
 const URL = "http://api";
 const ID = publicProfile.public_id;
 const signedIn: AccountState = { status: "signedIn", session: session as Session };
 const profile = publicProfile as PublicProfile;
-// The profile as an API older than TASK-311 answers it.
+// The profile as an API older than TASK-324 answers it.
 const { distance_m: _d, climb_m: _c, reactions: _r, ...older } = profile;
 
 test("the totals come from an API that has them, and only all three", () => {
@@ -78,7 +78,7 @@ test("another member's profile shows its totals, and «Drawings» and «Photos»
   ).toBeOnTheScreen();
 });
 
-test("from an API older than TASK-311, no totals and the drawings alone", async () => {
+test("from an API older than TASK-324, no totals and the drawings alone", async () => {
   await showPage(older);
   expect(screen.queryByTestId("profile-stats")).toBeNull();
   expect(screen.queryByRole("tab")).toBeNull();

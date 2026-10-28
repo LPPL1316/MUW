@@ -11,12 +11,12 @@ import { inUnits } from "../units/format";
 import type { Units } from "../units/units";
 import { useUnits } from "../units/useUnits";
 
-/** The totals of a profile (TASK-311), as GET /users/{public_id} answers. */
+/** The totals of a profile (TASK-324), as GET /users/{public_id} answers. */
 export type ProfileTotals = Required<
   Pick<PublicProfile, "distance_m" | "climb_m" | "reactions">
 >;
 
-/** The totals of `profile`; null from an API older than TASK-311. */
+/** The totals of `profile`; null from an API older than TASK-324. */
 export function totalsOf(profile: PublicProfile): ProfileTotals | null {
   const { distance_m, climb_m, reactions } = profile;
   if (distance_m === undefined || climb_m === undefined || reactions === undefined) {
@@ -40,7 +40,7 @@ export function totalDistanceNumber(metres: number, units: Units): string {
 type Props = { totals: ProfileTotals };
 
 /**
- * The totals of a profile (TASK-311, ADR-0271), in a row of three: how far
+ * The totals of a profile (TASK-324, ADR-0284), in a row of three: how far
  * it went in all its runs, private ones too (the user's choice), how many
  * metres it climbed, and how many reactions its drawings received. The
  * distance in the app's units; the climb in metres, as on the run's screen.
@@ -78,7 +78,7 @@ function Stat({ label, value, unit }: { label: string; value: string; unit?: str
 /**
  * The totals of one's own «Profile»: as the others see them, from GET
  * /users/{public_id} with the account's token. Null while they come, and
- * from an API older than TASK-311.
+ * from an API older than TASK-324.
  */
 export function useOwnTotals(
   publicId: string | null,

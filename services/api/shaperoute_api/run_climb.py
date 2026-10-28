@@ -1,4 +1,4 @@
-"""The metres a run climbed (TASK-311, ADR-0271, docs/API.md, «My
+"""The metres a run climbed (TASK-324, ADR-0284, docs/API.md, «My
 activities»).
 
 The app sends the height of each fix as the phone measured it; the API
@@ -24,7 +24,7 @@ def climb_m(heights: Sequence[float | None], stops: Sequence[bool]) -> int | Non
     fix without one. `stops[i]` is true when the runner paused the run
     between the fix i - 1 and the fix i: the height there counts from
     anew. None when no fix has a height: a phone that gave none, or an app
-    older than TASK-311."""
+    older than TASK-324."""
     from_m: float | None = None
     climbed = 0.0
     # A pause before a fix without a height still begins anew at the next.

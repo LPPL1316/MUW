@@ -37,7 +37,7 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `profile_photos` | utente, JPEG quadrato 256 px | TASK-178 |
 | `generated_routes` | ogni percorso dell'API (ADR-0086): richiesta, tipo (forma, parola, immagine), distanza, somiglianza, linea, **punto di partenza mostrato** (a più di 500 m da quello vero), centro, data; utente se era entrato, se no nessuno | TASK-092 |
 | `favorites` | percorso tenuto fra i preferiti: utente, chiave fatta dall'app sulla linea (unica per utente), città, forma o parola e stile, titolo, distanza chiesta e sulle strade, somiglianza, **linea intera**, data; i tratti a piedi di una parola con la penna alzata (TASK-199); i tratti con la bici a mano (TASK-206) | TASK-171, TASK-199, TASK-206 |
-| `runs` | corsa salvata: utente, chiave fatta dall'app, percorso pianificato, cosa disegna, traccia (`LineStringM`, M = secondi dall'inizio), pause, inizio, distanza, durata, punteggio, fedeltà, luogo (TASK-172); i tratti a piedi del percorso di una parola con la penna alzata (TASK-199); l'attività, a piedi, in bici o in canoa (TASK-208); il post condiviso, emoji e risultati, mai l'immagine (TASK-258); i metri saliti (TASK-311) | TASK-172, TASK-199, TASK-208, TASK-258, TASK-311 |
+| `runs` | corsa salvata: utente, chiave fatta dall'app, percorso pianificato, cosa disegna, traccia (`LineStringM`, M = secondi dall'inizio), pause, inizio, distanza, durata, punteggio, fedeltà, luogo (TASK-172); i tratti a piedi del percorso di una parola con la penna alzata (TASK-199); l'attività, a piedi, in bici o in canoa (TASK-208); il post condiviso, emoji e risultati, mai l'immagine (TASK-258); i metri saliti (TASK-324) | TASK-172, TASK-199, TASK-208, TASK-258, TASK-324 |
 | `drawings` | il disegno di una corsa: **traccia tagliata** (senza 200 m all'inizio e alla fine), titolo dato dall'utente (TASK-117); chi lo vede (tutti, chi segue, solo io) e la descrizione (TASK-208) | TASK-117, TASK-208 |
 | `drawing_photos` | fino a 3 foto di un disegno oltre alla mappa: posto 1–3, JPEG al più 1080 px di lato, senza EXIF | TASK-208 |
 | `drawing_tags` | gli iscritti taggati in un disegno, in ordine, al più 10 | TASK-208 |
@@ -616,7 +616,7 @@ Migrazione `0030_contests.sql` (TASK-299 parte A, ADR-0260, `CONCORSI.md`
   lascia `winner_user_id` (il badge resta); l'account cancellato lascia il
   concorso senza vincitore. Test in `test_contests.py`.
 
-Migrazione `0031_run_climb.sql` (TASK-311, ADR-0271; il numero è il primo
+Migrazione `0034_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
 libero in `main` al merge):
 
 - `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati

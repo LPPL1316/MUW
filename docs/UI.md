@@ -760,7 +760,7 @@ prima. **«Back to the profile»** e «←» tornano a «Profile». Se nel
 frattempo è tornato privato: «This drawing is no longer public.» sopra la
 griglia.
 
-**I totali e le foto** (TASK-311, ADR-0271, chiesti dall'utente il
+**I totali e le foto** (TASK-324, ADR-0284, chiesti dall'utente il
 2026-10-26; testi **da confermare**). Sotto «Edit profile», e sul profilo
 di un altro sotto il tasto «Follow», tre riquadri affiancati: **«Distance»**,
 i km (o le miglia, «Units») di tutte le corse salvate, anche private

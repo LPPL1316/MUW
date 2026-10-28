@@ -56,7 +56,7 @@ type Props = {
  * Under «Settings», «Guide» (TASK-266), then «Blocked people», to unblock
  * (TASK-121); after a block the lists of who follows are read again: a
  * block ends every follow. Its totals under «Edit profile», and its
- * drawings and photos at the bottom, as the others see them (TASK-311).
+ * drawings and photos at the bottom, as the others see them (TASK-324).
  */
 export function ProfileHome({
   user,
@@ -70,7 +70,7 @@ export function ProfileHome({
   const blocks = useBlocksVersion();
   const { apiUrl, account } = useFollowsDoor();
   const publicId = user.public_id ?? null;
-  // Null while they come, and from an API older than TASK-311.
+  // Null while they come, and from an API older than TASK-324.
   const totals = useOwnTotals(publicId);
   const [photoOpen, setPhotoOpen] = useState(false);
   const busyText = photoBusyText(photo.busy);

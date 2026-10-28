@@ -1,4 +1,4 @@
-"""The totals of a profile (TASK-311, ADR-0271, docs/API.md, «Profile»):
+"""The totals of a profile (TASK-324, ADR-0284, docs/API.md, «Profile»):
 how far an account went, how much it climbed and how many reactions its
 drawings received, as subqueries of GET /users/{public_id} (profiles.py).
 

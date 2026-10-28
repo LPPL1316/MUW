@@ -1,17 +1,16 @@
-# TASK-311 — I totali e le foto di un profilo
+# TASK-324 — I totali e le foto di un profilo
 
 **Stato**: In corso — codice, test, documenti e informativa sul branch;
 aspetta la PR, poi server e sito con l'ok dell'utente (sotto, «Aperto»)
 **Fase**: 4 · **Branch**: `claude/wonderful-dijkstra-oi568i` (il branch
-assegnato alla sessione cloud, non `feat/TASK-311-…`)
-**ADR**: ADR-0271 · **Migrazione**: `0031_run_climb.sql` (il primo libero
-in `main` al merge: anche `0031_feedback.sql` di TASK-308 e
-`0031_group_runs.sql` di TASK-309 A aspettano il loro) · Numero di task e
-di ADR presi senza coordinatore (nessuna sessione raggiungibile): nato
-come TASK-305 e ADR-0265, rinumerato il 2026-10-27 perché nel frattempo
-un'altra sessione li aveva presi (`docs/TASK-305-paragliding-proposal`);
-TASK-311 e ADR-0271 sono i primi liberi dopo TASK-310 e ADR-0270 in
-`main` e nei branch remoti
+assegnato alla sessione cloud, non `feat/TASK-324-…`)
+**ADR**: ADR-0284 · **Migrazione**: `0034_run_climb.sql` (il primo libero
+in `main` al merge, dopo `0033_messages.sql`) · Numeri di task e di ADR
+presi senza coordinatore (nessuna sessione raggiungibile): nato come
+TASK-305 e ADR-0265, rinumerato due volte perché nel frattempo altre
+sessioni li avevano presi (TASK-305 e TASK-311, ADR-0265 e ADR-0271);
+TASK-324 e ADR-0284 sono i primi liberi dopo TASK-323 e ADR-0283 in
+`main` e nei branch remoti al 2026-10-28
 
 ## Obiettivo
 
@@ -30,7 +29,7 @@ vede.
 
 ## Contesto da leggere
 
-- `docs/DECISIONS.md` ADR-0271 (e ADR-0140 per i numeri contati dall'API);
+- `docs/DECISIONS.md` ADR-0284 (e ADR-0140 per i numeri contati dall'API);
 - `docs/API.md` «Profile» e «My activities»; `docs/DATABASE.md` `runs`;
 - `docs/UI.md` «Profile» e «Il profilo di un altro iscritto».
 
@@ -70,7 +69,7 @@ vede.
 ## File toccati
 
 ```
-services/api/migrations/0031_run_climb.sql               (nuovo)
+services/api/migrations/0034_run_climb.sql               (nuovo)
 services/api/shaperoute_api/run_climb.py                 (nuovo)
 services/api/shaperoute_api/profile_totals.py            (nuovo)
 services/api/shaperoute_api/user_photos.py               (nuovo)
@@ -98,7 +97,7 @@ site/privacy/index.html, it/, de/, es/, fr/index.html    (rigenerate: node site/
 apps/mobile/src/api/activityHeights.test.ts, userPhotos.test.ts                 (nuovi)
 apps/mobile/src/profile/ProfileStats.test.tsx, ProfileGallery.test.tsx          (nuovi)
 apps/mobile/src/screens/ProfileEntryPoints.test.tsx      (la pagina propria ora chiede /users/{id} per i totali: si controlla che non si apra il profilo di un altro)
-docs/tasks/TASK-311.md (nuovo), docs/DECISIONS.md (ADR-0271), docs/STATUS.md,
+docs/tasks/TASK-324.md (nuovo), docs/DECISIONS.md (ADR-0284), docs/STATUS.md,
 docs/API.md, docs/DATABASE.md, docs/UI.md
 ```
 

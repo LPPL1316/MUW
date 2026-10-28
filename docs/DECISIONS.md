@@ -16814,14 +16814,14 @@ dozzina di PR aspetta la CI; resta come seguito.
 **Conseguenze**: la CI torna verde con la 9.1. Quando i test saranno
 riscritti, il tetto si toglie con un'aggiunta a questo ADR.
 
-## ADR-0271 — I totali e le foto di un profilo: km e dislivello di ogni corsa, anche privata; i like ricevuti; «Drawings» e «Photos»
+## ADR-0284 — I totali e le foto di un profilo: km e dislivello di ogni corsa, anche privata; i like ricevuti; «Drawings» e «Photos»
 
 **Stato**: Attiva · 2026-10-26 · cosa si vede e la scelta di contare anche
 le corse private sono dell'utente; i punti tecnici sono decisi
-dall'agente su delega dell'utente (TASK-311). Numero preso senza
+dall'agente su delega dell'utente (TASK-324). Numero preso senza
 coordinatore (nessuna sessione «Coordinatore» raggiungibile): il primo
-libero dopo ADR-0270 in `main` e nei branch aperti (scritto come
-ADR-0265, che un'altra sessione ha preso nel frattempo).
+libero dopo ADR-0283 in `main` e nei branch aperti (scritto prima come
+ADR-0265 e poi come ADR-0271, presi nel frattempo da altre sessioni).
 
 **Contesto**: l'utente il 2026-10-26: «quando vai sul profilo di un utente
 bisogna dare la possibilità di vedere i disegni fatti, le foto fatte, e
@@ -16855,7 +16855,7 @@ dislivello contano tutte le corse salvate (stile Strava).
    altezza contata, le discese non tolgono; solo le posizioni tenute da
    `clean_track`, e niente salita a cavallo di una pausa chiesta dal
    corridore, come per i metri. Colonna `runs.climb_m` (migrazione
-   `0031_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
+   `0034_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
    totale non le stima.
 3. **`GET /users/{public_id}/photos`**: le foto dei disegni che chi guarda
    vede sul profilo, dalla corsa più recente e, nello stesso disegno, per
@@ -16897,6 +16897,6 @@ cambiano** (testi approvati dall'utente il 2026-10-26, nelle cinque
 lingue): al server va anche l'altezza di ogni posizione, e «Other members
 see on your profile only the totals of all your saved runs, distance and
 elevation gain, never the runs themselves.»; il sito si copia insieme al
-server (`tasks/TASK-311.md`, «Aperto»). Le corse salvate prima di TASK-311
+server (`tasks/TASK-324.md`, «Aperto»). Le corse salvate prima di TASK-324
 non hanno dislivello: il totale parte da 0 e cresce con le corse nuove.
 Quattro testi nuovi in quattro lingue, accanto a quelli di «Drawings».

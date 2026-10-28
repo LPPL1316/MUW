@@ -1,4 +1,4 @@
-"""The photos of a profile (TASK-311, ADR-0271, docs/API.md, «Profile»).
+"""The photos of a profile (TASK-324, ADR-0284, docs/API.md, «Profile»).
 
 GET /users/{public_id}/photos: the photos of the drawings of an account
 that the one who asks sees on its profile (drawings.shown_sql), the latest

@@ -160,11 +160,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
-- **TASK-311 — I totali e le foto di un profilo** (ADR-0271; richiesta
+- **TASK-324 — I totali e le foto di un profilo** (ADR-0284; richiesta
   dell'utente del 2026-10-26; numeri presi senza coordinatore, nessuna
   sessione raggiungibile: nato come TASK-305/ADR-0265, rinumerato perché
   presi da un'altra sessione). Branch `claude/wonderful-dijkstra-oi568i` (il
-  branch della sessione cloud), migrazione `0031_run_climb.sql` (numero al
+  branch della sessione cloud), migrazione `0034_run_climb.sql` (numero al
   merge). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
   «Elev. gain» e «Likes», e le schede «Drawings» | «Photos». **Scelta
   dell'utente: km e dislivello di tutte le corse, anche private**; «Likes»
@@ -177,7 +177,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   rigenerato). **Aperto**: PR; server e copia del sito insieme, con l'ok
   dell'utente, prima dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
   TASK-299 B: poche righe qui, chi entra secondo unisce. File:
-  `tasks/TASK-311.md`.
+  `tasks/TASK-324.md`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`

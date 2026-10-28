@@ -1,4 +1,4 @@
-"""The totals and the photos of a profile (TASK-311, ADR-0271): the climb
+"""The totals and the photos of a profile (TASK-324, ADR-0284): the climb
 of a run counted by the API from the heights of its fixes, the metres and
 the climb of every run on the profile, private ones too (the user's
 choice), the reactions received as who asks counts them, and the photos of
@@ -279,7 +279,7 @@ def test_the_example_is_the_body() -> None:
 def test_metres_and_climb_count_every_run_private_too(client: TestClient) -> None:
     owner, viewer = signed_up(client, 1), signed_up(client, 2)
     first = saved(client, owner, KEY, run(heights=HEIGHTS))
-    # Private, from an app before TASK-311: metres, and no climb.
+    # Private, from an app before TASK-324: metres, and no climb.
     second = saved(client, owner, OTHER_KEY, run(days_later=1))
     seen = profile(client, viewer, owner)
     assert seen["drawings"] == 0

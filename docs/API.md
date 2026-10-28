@@ -1240,7 +1240,7 @@ tipi dell'app in `apps/mobile/src/api/activities.ts`; il codice in
   resto, conta solo al primo `PUT`; dopo si cambia dal disegno
   («Drawings», sotto), e lì si legge (`MyDrawing.activity`): l'elenco e la
   corsa intera di questa sezione non lo hanno.
-- **L'altezza** (TASK-311, ADR-0271): ogni posizione può avere
+- **L'altezza** (TASK-324, ADR-0284): ogni posizione può avere
   `altitude_m` (metri sul mare, fra −1000 e 10 000, altrimenti `422`;
   `POST /track-scores` non la prende). Assente da un'app di prima: la
   corsa non ha dislivello. Rifiutata, l'app rimanda la corsa senza.
@@ -1398,7 +1398,7 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
 |---|---|---|
 | `PATCH /me` | cambiare nome utente e bio | `200` `User`, com'è adesso |
 | `GET /users/{public_id}` | il profilo di un iscritto | `200` `PublicProfile`, o `404 http_error` |
-| `GET /users/{public_id}/photos` | le foto dei suoi disegni (TASK-311) | `200` `UserPhotosPage`, o `404 http_error` |
+| `GET /users/{public_id}/photos` | le foto dei suoi disegni (TASK-324) | `200` `UserPhotosPage`, o `404 http_error` |
 
 - **`User`** (anche in `Session` e `GET /me`) ha in più `bio` (`""` senza)
   e `public_id`, un UUID casuale dato a ogni account dalla migrazione
@@ -1429,14 +1429,14 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   `follow`, dove sta chi guarda verso quel profilo: `none`, `requested` o
   `following` (il proprio profilo: `none`; «Follow», sotto). **Mai
   l'email**, né `role`, `id` o la data d'iscrizione (un test lo prova).
-- **I totali** (TASK-311, ADR-0271): `distance_m`, i metri di **tutte** le
+- **I totali** (TASK-324, ADR-0284): `distance_m`, i metri di **tutte** le
   corse dell'account, private comprese (scelta dell'utente); `climb_m`, i
   metri saliti delle corse che lo sanno (salvate da un'app con le altezze,
   «My activities»); `reactions`, le reazioni lasciate dagli altri sui
   disegni che chi guarda vede: mai quelle del proprietario, mai di chi un
   blocco tiene lontano da chi guarda. Solo le somme, mai una corsa.
   `profile_totals.py`; un'API precedente non li ha.
-- **`GET /users/{public_id}/photos`** (TASK-311): le foto dei disegni che
+- **`GET /users/{public_id}/photos`** (TASK-324): le foto dei disegni che
   chi guarda vede sul profilo, dalla corsa più recente e nello stesso
   disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima
   (`next`, `null` sull'ultima). Ogni `UserPhoto` è una `DrawingPhoto`

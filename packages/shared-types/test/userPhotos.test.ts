@@ -9,7 +9,7 @@ import {
   type UserPhotosPage,
 } from "../src/index.ts";
 
-// The same JSON is validated by the API's test_profile_totals.py (TASK-311).
+// The same JSON is validated by the API's test_profile_totals.py (TASK-324).
 const page: UserPhotosPage = userPhotos;
 const seen: PublicProfile = { ...publicProfile, follow: "following" };
 
