@@ -175,6 +175,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   C (la build Android: Health Connect, `minSdk` 26, la dichiarazione della
   Play Console). Capability, build, invii e dichiarazione col sì
   dell'utente. File `tasks/TASK-321.md`.
+  **A fatta** (2026-10-28, branch `feat/TASK-321-a-health-app`): la riga
+  sotto «Send to Strava», la scelta in `health.json`, l'allenamento con il
+  percorso scritto con «Save» (`src/health/`), le quattro librerie in
+  `package.json` ma fuori dal linking: senza il modulo nativo la riga non
+  c'è. Impronte invariate su una copia pulita, iOS `83793e26…` e Android
+  `e2d33497…`. Prossimo: B (la 1.0.1). Per C: `react-native-health-connect`
+  4.1.3 non scrive il percorso senza la precisione verticale dei punti, che
+  MuW non ha («Per C» nel task file).
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
