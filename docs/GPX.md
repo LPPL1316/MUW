@@ -129,6 +129,40 @@ stato e quando, quindi ha quello che là manca e non ha quello che là c'è.
 - Il nome c'è solo se la corsa ha disegnato qualcosa di noto.
 - Il file non si salva da nessuna parte: si scrive quando parte.
 
+## Il disegno di un altro (TASK-307, ADR-0267)
+
+Sotto un disegno aperto sulla mappa, dal «Feed» o da un profilo, «Export
+GPX» scrive il file **sul telefono**, senza chiedere niente all'API
+(`apps/mobile/src/social/drawingRoute.ts`): la traccia che `GET
+/drawings/{id}` ha già dato, quella della mappa.
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="MuW" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Sunday heart by the river</name>
+  </metadata>
+  <trk>
+    <name>Sunday heart by the river</name>
+    <trkseg>
+      <trkpt lat="46.0671000" lon="11.1239930"/>
+      …
+    </trkseg>
+  </trk>
+</gpx>
+```
+
+- **Solo la traccia tagliata**: mai i primi e gli ultimi 200 m (ADR-0159),
+  **mai un tempo**, né per punto né nei metadati; mai il nome di chi ha
+  corso; niente quote.
+- Il nome è il titolo del disegno, altrimenti ciò che disegna («Star»,
+  «CIAO», il titolo del percorso), altrimenti «MuW».
+- Il file si chiama `muw-<forma o parola>-<km>km.gpx` (i km della corsa,
+  interi, almeno 1; `drawing` senza forma né parola), solo lettere, cifre e
+  trattini.
+- Niente attribuzione a OpenStreetMap: è il GPS di chi ha corso, come «La
+  corsa fatta».
+
 ## Dal telefono
 
 Sotto un percorso disegnato, «Export GPX» (TASK-024):

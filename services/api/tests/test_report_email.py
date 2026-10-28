@@ -30,6 +30,7 @@ from test_drawings import (
     third,
     wall,  # noqa: F401
 )
+from test_group_runs import asked
 from test_moderation import comment, comment_texts, feed_titles, found, report
 
 from shaperoute_api.access import OPEN_PATHS
@@ -467,3 +468,40 @@ def test_a_link_of_something_deleted_says_so(
     url = hide_url(resend)
     assert client.delete(f"/comments/{comment_id}", headers=you).status_code == 204
     assert GONE in press(client, url, 404)
+
+
+def test_a_group_run_is_emailed_and_hidden_for_the_others_only(
+    client: TestClient,  # noqa: F811
+    emails: ReportEmails,
+    resend: FakeResend,
+    wall: WallClock,  # noqa: F811
+) -> None:
+    """TASK-309: a group run is reported as a post; hidden, only its
+    organiser sees it."""
+    me = signed_up(client)
+    you = other(client)
+    made = client.post("/group-runs", json=asked(at=wall.t), headers=me)
+    assert made.status_code == 201, made.text
+    run = made.json()["id"]
+    assert report(client, you, "group_run", run, "spam").status_code == 204
+    (email,) = resend.emails()
+    assert email["subject"] == "MuW report: group run, spam"
+    for words in (
+        "other_runner reported a group run by",
+        "Title: Star at the MUSE",
+        "Where exactly: MUSE entrance",
+        "Notes: Easy pace, about 6 min/km.",
+        "Starts: 2026-10-03 21:40 UTC",
+        "Reports on this group run: 1",
+        f"Group run id: {run}",
+    ):
+        assert words in email["text"], words
+    url = hide_url(resend)
+    assert "group run" in client.get(f"{LINK_PATH}?t={token_of(url)}").text
+    page = press(client, url)
+    assert "Hidden" in page
+    assert client.get(f"/group-runs/{run}", headers=you).status_code == 404
+    assert client.get("/group-runs", headers=you).json() == {"group_runs": []}
+    assert client.get(f"/group-runs/{run}", headers=me).status_code == 200
+    assert "Shown again" in press(client, undo_url(page))
+    assert client.get(f"/group-runs/{run}", headers=you).status_code == 200

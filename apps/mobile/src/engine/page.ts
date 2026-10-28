@@ -12,6 +12,8 @@
  * The app talks to it with `window.sgrava.boot(...)` and
  * `window.sgrava.plan(...)` (injectJavaScript); it answers with
  * `ReactNativeWebView.postMessage`, one JSON message each (`PageMessage`).
+ * `window.sgrava.wayBack(...)` gives the way back to a route (TASK-314),
+ * `on_phone.way_back_json`, as `plan` gives a route.
  */
 
 /** What the page says to the app. */
@@ -27,6 +29,8 @@ export type PageZone = { name: string; uri: string; version: string };
 
 export type BootArgs = { pyodide: string; engine: string };
 export type PlanArgs = { id: number; body: string; zones: PageZone[] };
+/** The body of POST /way-back, answered with its JSON (TASK-314). */
+export type WayBackArgs = PlanArgs;
 /** The zone a route of `activity` from `point` will use, read into memory
  * ahead (part E); answered as a result whose JSON is true or false. */
 export type WarmArgs = {
@@ -243,7 +247,14 @@ const SCRIPT = String.raw`
     });
   }
 
-  window.sgrava = { boot: boot, plan: plan, warm: warm };
+  function wayBack(args) {
+    return run(args, function () {
+      py.globals.set("BODY", args.body);
+      return py.runPython("on_phone.way_back_json(BODY, GRAPHS)");
+    });
+  }
+
+  window.sgrava = { boot: boot, plan: plan, warm: warm, wayBack: wayBack };
 })();
 `;
 
@@ -262,8 +273,8 @@ export const ENGINE_PAGE = `<!doctype html>
 
 /** The JavaScript that asks the page to do `call` with `args`. */
 export function pageCall(
-  call: "boot" | "plan" | "warm",
-  args: BootArgs | PlanArgs | WarmArgs,
+  call: "boot" | "plan" | "warm" | "wayBack",
+  args: BootArgs | PlanArgs | WarmArgs | WayBackArgs,
 ): string {
   return `window.sgrava.${call}(${JSON.stringify(args)}); true;`;
 }

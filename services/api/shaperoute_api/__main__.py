@@ -43,6 +43,12 @@ from shaperoute_api.away_email import (
 from shaperoute_api.cities import CitySearch
 from shaperoute_api.city_photos import PHOTOS_FOLDER, CityPhotos, install_city_photos
 from shaperoute_api.db import DATABASE_VARIABLE, Database, MigrationError
+from shaperoute_api.feedback import (
+    FeedbackConfigError,
+    FeedbackEmails,
+    FeedbackSetup,
+    install_feedback_email,
+)
 from shaperoute_api.insights import Insights
 from shaperoute_api.insights.events import DEFAULT_DIR as INSIGHTS_DIR
 from shaperoute_api.insights.events import OFF_VARIABLE as INSIGHTS_OFF
@@ -50,6 +56,7 @@ from shaperoute_api.insights.events import EventLog
 from shaperoute_api.insights.events import wanted as insights_wanted
 from shaperoute_api.insights.vocabulary import DEFAULT_PATH as VOCABULARY
 from shaperoute_api.insights.vocabulary import Vocabulary
+from shaperoute_api.kept_routes import install_kept_routes
 from shaperoute_api.nearby_cities import NearbyCities, install_nearby_cities
 from shaperoute_api.notice_email import (
     NoticeEmails,
@@ -173,7 +180,13 @@ def main(argv: Sequence[str] | None = None) -> None:
         away_setup = AwaySetup.from_env()
         notice_setup = NoticeSetup.from_env()
         report_setup = ReportSetup.from_env()
-    except (AccessConfigError, AwayConfigError, ReportConfigError) as exc:
+        feedback_setup = FeedbackSetup.from_env()
+    except (
+        AccessConfigError,
+        AwayConfigError,
+        ReportConfigError,
+        FeedbackConfigError,
+    ) as exc:
         raise SystemExit(str(exc)) from None
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(message)s")
     # GET /places carries the position: not in the access log (ADR-0096).
@@ -245,6 +258,9 @@ def main(argv: Sequence[str] | None = None) -> None:
     # their photos beside the zones (TASK-283).
     photos = CityPhotos(args.cache_dir / PHOTOS_FOLDER)
     install_nearby_cities(app, NearbyCities(places.key, photos=photos), route_store)
+    # The towns' examples already kept, read ahead by the app (TASK-316):
+    # from the centres' files only, never the archive of users' starts.
+    install_kept_routes(app, route_store)
     install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)
@@ -274,6 +290,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         else ReportEmails(database, report_setup)
     )
     install_report_email(app, report_emails)
+    # Each message of «Send feedback» emailed to whoever runs MuW (TASK-308):
+    # off without Resend and the address; the messages are kept either way.
+    feedback_emails = None if feedback_setup is None else FeedbackEmails(feedback_setup)
+    install_feedback_email(app, feedback_emails)
     # The emails of the accounts (TASK-300): the link that confirms an
     # address and the one that chooses a new password. Off as the one above.
     account_emails = (
@@ -325,6 +345,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         print(f"Reports are not emailed ({REPORTS_TO} and the rest not set)")
     else:
         print(f"Each new report is emailed ({REPORTS_TO})")
+    if feedback_emails is None:
+        print("Feedback is kept, not emailed (RESEND_API_KEY and the address not set)")
+    else:
+        print("Each message of «Send feedback» is emailed")
     if account_emails is None:
         print("Addresses are not confirmed and no password is reset by email")
     else:

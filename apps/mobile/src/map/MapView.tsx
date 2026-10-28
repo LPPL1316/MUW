@@ -16,6 +16,7 @@ import { t } from "../i18n";
 import { useLanguage } from "../i18n/useLanguage";
 import { usePocketOn } from "../navigation/pocketOn";
 import { cumulative } from "../navigation/progress";
+import { useRunBehind } from "../navigation/runBehind";
 import { MapLoadingBar } from "../route/LoadingBar";
 import {
   color,
@@ -181,6 +182,13 @@ export function MapView({
   // page again, as «Retry» does, and the map is told everything again.
   const language = useLanguage();
   const page = useMemo(() => buildMapPage(language), [language]);
+  // A run behind another app has no page (TASK-304, ADR-0264): iOS keeps
+  // MuW and its GPS more readily when it asks less. Back in front the page
+  // loads again and is told everything again, as after «Retry».
+  const behind = useRunBehind();
+  if (behind && ready) {
+    setReady(false);
+  }
   // Until the first tiles are drawn, a bar over the map (TASK-058); an error
   // takes its place.
   const [loading, setLoading] = useState(true);
@@ -451,6 +459,10 @@ export function MapView({
       kindAsked.current = kind;
     }
   }, [ready, kind]);
+
+  if (behind) {
+    return <View style={style} />;
+  }
 
   return (
     <View style={style}>

@@ -74,6 +74,16 @@ def test_an_email_goes_on_the_wire_as_resend_documents_it() -> None:
     }
 
 
+def test_a_reply_to_goes_with_the_email() -> None:
+    """«Send feedback» (TASK-308): an answer goes to the member."""
+    wire = Wire(answer(200, {"id": "x"}))
+    Resend(KEY, SENDER, send=wire).deliver(email(reply_to="member@example.com"))
+    (call,) = wire.calls
+    assert call.body is not None
+    assert json.loads(call.body)["reply_to"] == ["member@example.com"]
+    assert "member@example.com" not in repr(email(reply_to="member@example.com"))
+
+
 def test_without_headers_or_key_nothing_more_is_sent() -> None:
     wire = Wire(answer(200, {"id": "x"}))
     Resend(KEY, SENDER, send=wire).deliver(email(headers={}, idempotency_key=None))
@@ -81,6 +91,7 @@ def test_without_headers_or_key_nothing_more_is_sent() -> None:
     assert "Idempotency-Key" not in call.headers
     assert call.body is not None
     assert "headers" not in json.loads(call.body)
+    assert "reply_to" not in json.loads(call.body)
 
 
 @pytest.mark.parametrize(

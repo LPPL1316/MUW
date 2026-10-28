@@ -4,6 +4,7 @@ import { type RouteQueue, routeQueue } from "../api/routeQueue";
 import { fetchNearbyCities } from "./nearbyCities";
 import { drawSamples } from "./nearbySamples";
 import { fetchRecommended, type RecommendedRoute } from "./recommendedRoutes";
+import { prepareRegion } from "./regionAhead";
 
 /**
  * «Explore» prepared as the app opens (TASK-306, ADR-0266; the user's
@@ -15,6 +16,10 @@ import { fetchRecommended, type RecommendedRoute } from "./recommendedRoutes";
  * The examples of the towns wait behind everything else in the app's queue
  * of route requests ("prefetch"): the user's routes and the shapes of the
  * page on screen go first.
+ *
+ * Before them, the towns' examples the API already keeps, and then those of
+ * the towns of the region (TASK-316, regionAhead.ts): a sample already
+ * taken there is not asked.
  */
 
 /** A list fetched ahead stands in for the page's own this long: then the
@@ -54,6 +59,7 @@ export type AheadOptions = {
   fetchList?: typeof fetchRecommended;
   fetchTowns?: typeof fetchNearbyCities;
   draw?: typeof drawSamples;
+  region?: typeof prepareRegion;
   queue?: Pick<RouteQueue, "background">;
   now?: () => number;
 };
@@ -70,6 +76,7 @@ export function prepareExplore(
     fetchList = fetchRecommended,
     fetchTowns = fetchNearbyCities,
     draw = drawSamples,
+    region = prepareRegion,
     queue = AHEAD_QUEUE,
     now = Date.now,
   }: AheadOptions = {},
@@ -77,6 +84,7 @@ export function prepareExplore(
   const controller = new AbortController();
   const { signal } = controller;
   let stopSamples: (() => void) | null = null;
+  let stopRegion: (() => void) | null = null;
   void (async () => {
     const key = listKey(apiUrl, near);
     if (listAhead(key, now()) === undefined) {
@@ -92,10 +100,17 @@ export function prepareExplore(
     if (signal.aborted || towns === null || towns.length === 0) {
       return;
     }
-    stopSamples = draw(apiUrl, towns, { queue });
+    stopRegion = region(apiUrl, near, towns, {
+      onNearby: () => {
+        if (!signal.aborted) {
+          stopSamples = draw(apiUrl, towns, { queue });
+        }
+      },
+    });
   })();
   return () => {
     controller.abort();
+    stopRegion?.();
     stopSamples?.();
   };
 }

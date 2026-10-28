@@ -71,15 +71,21 @@ MAX_WATER_ROUTES = 10_000
 MAX_CENTRES = 50_000
 # 4 decimals: 11 m of latitude, the app's `cityKey`.
 CELL_DECIMALS = 4
+# Files of the engine that draw no route: the way back to a route
+# (TASK-314, ADR-0274). Changing them keeps the routes kept; a test fails
+# when a module of the engine imports one.
+NOT_ROUTES = frozenset({"way_back.py"})
 
 
-def engine_fingerprint() -> str:
+def engine_fingerprint(folder: Path | None = None) -> str:
     """The engine's code and outlines, as a few letters: another engine,
     other routes. From the files' content, not their dates: a new image of
-    the same code keeps what it drew."""
-    folder = Path(route_engine.__file__).parent
+    the same code keeps what it drew. `folder`: the engine's own."""
+    folder = Path(route_engine.__file__).parent if folder is None else folder
     digest = hashlib.sha256()
     for path in sorted(folder.rglob("*")):
+        if path.relative_to(folder).as_posix() in NOT_ROUTES:
+            continue
         if path.suffix in (".py", ".json") and path.is_file():
             digest.update(path.relative_to(folder).as_posix().encode())
             digest.update(path.read_bytes())
