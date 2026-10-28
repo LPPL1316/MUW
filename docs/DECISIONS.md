@@ -18182,6 +18182,10 @@ entra, perché la libreria vuole la precisione verticale di ogni punto: C lo
 risolve prima di accendere Android (`tasks/TASK-321.md`, «Per C»). Le
 impronte delle build di oggi non si muovono: iOS `83793e26…`, Android
 `e2d33497…`.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 11b2a82a45a93ffa2904a715d0de70e53065645c
 ## ADR-0284 — I totali e le foto di un profilo: km e dislivello di ogni corsa, anche privata; i like ricevuti; «Drawings» e «Photos»
 
 **Stato**: Attiva · 2026-10-26 · cosa si vede e la scelta di contare anche
