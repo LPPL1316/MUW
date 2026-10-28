@@ -1073,9 +1073,9 @@ export interface FeedPage {
 
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing
- * (a post of the feed), a comment, or a member.
+ * (a post of the feed), a comment, a member, or a group run (TASK-309).
  */
-export const REPORT_KINDS = ["drawing", "comment", "user"] as const;
+export const REPORT_KINDS = ["drawing", "comment", "user", "group_run"] as const;
 export type ReportKind = (typeof REPORT_KINDS)[number];
 
 /**
@@ -1446,4 +1446,147 @@ export interface FeedbackRequest {
   /** The app's version and build, like «1.0.0 (7)». */
   app_version?: string | null;
   platform?: PushPlatform | null;
+}
+
+// --- Group runs (TASK-309, ADR-0269; docs/EVENTI.md, docs/API.md «Group runs») ---
+
+/** Who sees a group run: every member, or who follows the organiser with
+ * the request accepted. It does not change after the creation. */
+export type GroupRunVisibility = "everyone" | "followers";
+
+/**
+ * Where a group run stands, by the server's clock: `upcoming` until its
+ * start (the organiser may change or cancel it), `started` for the next
+ * GROUP_RUN_OVER_AFTER_HOURS («I'm going» still holds), then `over`;
+ * `cancelled` whenever the organiser cancelled it.
+ */
+export type GroupRunStatus = "upcoming" | "started" | "over" | "cancelled";
+
+/** The limits of a group run, as the API checks them (docs/EVENTI.md §3). */
+export const GROUP_RUN_TITLE_MAX = 60;
+export const GROUP_RUN_MEETING_NOTE_MAX = 80;
+export const GROUP_RUN_DESCRIPTION_MAX = 500;
+/** `starts_at` from this many minutes to this many days from now. */
+export const GROUP_RUN_EARLIEST_MINUTES = 30;
+export const GROUP_RUN_LATEST_DAYS = 60;
+export const GROUP_RUN_OVER_AFTER_HOURS = 3;
+/** Not over and not cancelled, per account. */
+export const GROUP_RUNS_UPCOMING_MAX = 10;
+
+/**
+ * POST /group-runs (201 `GroupRunDetail`): the route as PUT
+ * /me/favorites/{key} keeps it, whole, with a title of its own, and when
+ * and where to meet. The meeting point is the route's first point. The
+ * three texts pass the filter of the comments: `422 comment_rejected`.
+ * `starts_at` is ISO 8601 with its offset.
+ */
+export interface GroupRunRequest {
+  city: string;
+  shape: string | null;
+  word: string | null;
+  style: "round" | "block" | null;
+  title: string;
+  distance_m: number;
+  route_m: number;
+  similarity: number;
+  points: LatLon[];
+  walks?: Walk[];
+  on_foot?: Stretch[];
+  /** Left out for a run, as for a favorite. */
+  activity?: string;
+  rotation_deg?: number | null;
+  starts_at: string;
+  /** «Where exactly», one line. */
+  meeting_note?: string | null;
+  description?: string | null;
+  visibility: GroupRunVisibility;
+}
+
+/**
+ * PUT /group-runs/{id} (200 `GroupRunDetail`), the organiser only, before
+ * the start: all four, and a note or a description left out is taken away.
+ * A new time is checked as at the creation; a new time or place tells who
+ * goes (`group_run_changed`) and the reminder is sent again.
+ */
+export interface GroupRunChange {
+  title: string;
+  starts_at: string;
+  meeting_note?: string | null;
+  description?: string | null;
+}
+
+/** A group run on a card: the Feed's row, a profile. */
+export interface GroupRun {
+  id: string;
+  title: string;
+  /** ISO 8601 in UTC: the app shows it in the phone's time. */
+  starts_at: string;
+  meeting_note: string | null;
+  visibility: GroupRunVisibility;
+  status: GroupRunStatus;
+  organiser: Person;
+  /** How many go, the organiser included, as who asks sees them. */
+  going: number;
+  /** The first three of them, the organiser first. */
+  faces: Person[];
+  /** Whether who asks goes; always for the organiser. */
+  i_am_going: boolean;
+  activity: string;
+  city: string;
+  shape: string | null;
+  word: string | null;
+  style: string | null;
+  distance_m: number;
+  route_m: number;
+  similarity: number;
+  /** The meeting point: the route's first point. */
+  start: LatLon;
+  preview: LatLon[];
+  rotation_deg: number | null;
+  created_at: string;
+}
+
+/**
+ * GET /group-runs/{id}: the group run whole, also once cancelled or over;
+ * 404 for who does not see it, as for an id that is not there.
+ */
+export interface GroupRunDetail extends GroupRun {
+  description: string | null;
+  points: LatLon[];
+  walks: Walk[];
+  on_foot: Stretch[];
+  /** The first 20 who go, the organiser first; GET
+   * /group-runs/{id}/going?cursor=`next` (a `PeoplePage`) for the others. */
+  people: Person[];
+  next: string | null;
+}
+
+/**
+ * GET /group-runs?lat=…&lon=…: the Feed's row, at most 20, the nearest in
+ * time first. The app shows the row only when it is not empty.
+ */
+export interface GroupRunsPage {
+  group_runs: GroupRun[];
+}
+
+/** GET /users/{public_id}/group-runs: those not over yet, the nearest
+ * first, and the last 20 over, the latest first; never the cancelled. */
+export interface ProfileGroupRuns {
+  upcoming: GroupRun[];
+  past: GroupRun[];
+}
+
+/**
+ * The push notifications of a group run, beside `PushKind`: it starts
+ * within the hour (to who goes, the organiser too), its time or place
+ * changed, it was cancelled. Their `data` is `{ kind, group_run_id }`, and
+ * the app opens the group run. Nobody is told of a new «I'm going».
+ */
+export type GroupRunPushKind =
+  "group_run_soon" | "group_run_changed" | "group_run_cancelled";
+
+/** The `data` of a group run's notification. */
+export interface GroupRunPushData {
+  kind: GroupRunPushKind;
+  group_run_id: string;
 }

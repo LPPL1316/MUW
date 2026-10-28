@@ -346,6 +346,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Courses en groupe",
+      blocks: [
+        "Si tu crées une course en groupe ou dis que tu y vas, les membres qui peuvent la voir voient ton nom, ta photo et que tu y vas. Quand tu supprimes ton compte, nous supprimons tes courses en groupe et tes réponses.",
+      ],
+    },
+    {
       heading: "Avis",
       blocks: [
         "Quand tu nous écris depuis «Envoie-nous ton avis» dans «Réglages», nous gardons ton message, la version de l'app, le système de ton téléphone (iOS ou Android) et quand tu l'as envoyé. La personne qui gère MuW le reçoit par e-mail avec ton nom d'utilisateur et ton adresse e-mail, pour le lire et, si besoin, te répondre par e-mail. Il n'est jamais montré aux autres membres. Quand tu supprimes ton compte, tes messages sont supprimés avec lui de notre serveur.",

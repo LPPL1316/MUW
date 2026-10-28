@@ -346,6 +346,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Carreras en grupo",
+      blocks: [
+        "Si creas una carrera en grupo o dices que vas, los miembros que pueden verla ven tu nombre, tu foto y que vas. Cuando eliminas tu cuenta, eliminamos tus carreras en grupo y tus respuestas.",
+      ],
+    },
+    {
       heading: "Comentarios",
       blocks: [
         "Cuando nos escribes desde «Envíanos tus comentarios» en «Ajustes», guardamos tu mensaje, la versión de la app, el sistema de tu teléfono (iOS o Android) y cuándo lo enviaste. Quien gestiona MuW lo recibe por correo con tu nombre de usuario y tu dirección de correo, para leerlo y, si hace falta, responderte por correo. Nunca se muestra a los demás miembros. Cuando eliminas tu cuenta, tus mensajes se eliminan con ella de nuestro servidor.",

@@ -16837,6 +16837,49 @@ attraversamento in diagonale lungo più di `JOIN_M` sopra il percorso più
 avanti, nella finestra, può ancora valere come rientro; se si esce di nuovo,
 la voce lo dice dopo `OFF_FIXES`, come sempre.
 
+## ADR-0269, aggiunta — Come l'API delle corse di gruppo tiene le regole
+
+**Stato**: Attiva · 2026-10-27 · deciso dall'agente su delega dell'utente
+(TASK-309 parte A, PR #581). Aggiunta ad ADR-0269, senza numero nuovo. Le
+regole di prodotto restano quelle di ADR-0269 ed `EVENTI.md`.
+
+**Contesto**: scrivendo `group_runs.py` tre punti non erano decisi dai
+documenti: come le push dicono all'app cosa aprire, che cosa fa un blocco a
+chi aveva già detto «I'm going», e che cosa vuol dire «in arrivo».
+
+**Decisione**:
+1. **Le push delle corse di gruppo hanno un tipo loro in `shared-types`**,
+   `GroupRunPushKind` con i dati `GroupRunPushData` `{ kind, group_run_id }`,
+   accanto a `PushKind` come `ChallengePushKind` delle sfide del gioco, e
+   non dentro `PushKind`: `PushData` lega `PushKind` a `drawing_id` o a un
+   profilo, e un `group_run_id` lì sarebbe un dato che il tipo non dice. In
+   `push.py` i tre tipi entrano in `Kind` come gli altri.
+2. **Un blocco non cancella le risposte, le esclude in lettura.** Chi va
+   conta, per chi chiede, solo se vede ancora la corsa di gruppo e non è
+   lontano da chi chiede (`group_runs.counted_sql`, che usa `seen_sql` e
+   `follows.apart_sql`). Così una sola regola vale per il numero, l'elenco,
+   le facce della scheda e i destinatari delle push, e copre anche chi ha
+   smesso di seguire l'organizzatore di una corsa «Followers», o è stato
+   nascosto. Sbloccato, chi andava torna nell'elenco.
+3. **«In arrivo» vuol dire non finita e non annullata** (meno di 3 ore dopo
+   l'inizio), per il limite di 10 per account e per il profilo; la fila del
+   Feed usa la stessa soglia. Cambiare e annullare restano possibili solo
+   prima dell'inizio (`status` `upcoming`).
+
+**Alternative scartate**:
+- i tre tipi dentro `PushKind`: `PushData` direbbe `drawing_id` o un
+  profilo anche per loro;
+- cancellare le risposte con un gancio del blocco (`app.state.on_block`),
+  come i follow: non copre chi smette di seguire né chi è nascosto, e le
+  query dovrebbero comunque filtrare questi due casi;
+- «in arrivo» come «non ancora cominciata»: una corsa di gruppo appena
+  cominciata uscirebbe dal profilo mentre si può ancora dire «I'm going».
+
+**Conseguenze**: le query di chi va hanno un `EXISTS` in più per riga, su
+tabelle piccole. Nessun codice d'errore nuovo; `schemas.py` ed `engine.zip`
+invariati. La parte B legge `GroupRunPushData` accanto a
+`ChallengePushData` in `notificationTap.ts`.
+
 ## ADR-0270 — pytest fermato sotto la 9.2 finché i test confrontano liste con un solo `approx`
 
 **Data**: 2026-10-27 · **Stato**: Accettata · **Task**: TASK-310

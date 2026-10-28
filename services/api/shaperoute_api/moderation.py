@@ -10,9 +10,10 @@ unblocks; neither side is told. Both change nothing done again: a second
 block keeps one, unblocking someone not blocked is done already.
 GET /me/blocked lists the members blocked, the last first, to unblock them.
 
-POST /reports keeps what a member reports, a drawing, a comment or a
-member, with a reason from a short list: one row for each reporter and
-thing, the latest reason kept. No endpoint reads them (ADR-0228): a new
+POST /reports keeps what a member reports, a drawing, a comment, a
+member or a group run (TASK-309), with a reason from a short list: one
+row for each reporter and thing, the latest reason kept. No endpoint
+reads them (ADR-0228): a new
 report is emailed to whoever runs the app, with a link that hides the
 thing (report_email.py, TASK-291, ADR-0251); the same member reporting it
 again with another reason sends nothing.
@@ -60,8 +61,9 @@ from shaperoute_api.follows import (
 from shaperoute_api.report_email import notify_report
 from shaperoute_api.schemas import ErrorBody
 
-ReportKind = Literal["drawing", "comment", "user"]
-"""What is reported: a drawing (a post of the feed), a comment, a member."""
+ReportKind = Literal["drawing", "comment", "user", "group_run"]
+"""What is reported: a drawing (a post of the feed), a comment, a member, a
+group run (TASK-309)."""
 ReportReason = Literal["spam", "offensive", "harassment", "sexual", "other"]
 """The short list the app shows, in this order. Codes, never the words: the
 app says them in its language. The migration's CHECK holds the same list."""
@@ -87,6 +89,7 @@ OWNER_OF: dict[ReportKind, str] = {
     ),
     "comment": "SELECT user_id AS owner FROM comments WHERE id = %s",
     "user": "SELECT id AS owner FROM users WHERE public_id = %s",
+    "group_run": "SELECT owner_id AS owner FROM group_runs WHERE id = %s",
 }
 
 
@@ -100,7 +103,8 @@ class ReportRequestBody(BaseModel):
 
     kind: ReportKind
     id: UUID
-    """The drawing's id, the comment's id or the member's public_id."""
+    """The drawing's id, the comment's id, the member's public_id or the
+    group run's id."""
     reason: ReportReason
 
 

@@ -347,6 +347,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Group runs",
+      blocks: [
+        "If you create a group run or say you're going, members who can see it see your name, your photo and that you're going. We delete your group runs and your answers when you delete your account.",
+      ],
+    },
+    {
       heading: "Feedback",
       blocks: [
         "When you write to us from «Send feedback» in «Settings», we keep your message, the app's version, your phone's system (iOS or Android) and when you sent it. The person who runs MuW receives it by email with your username and email address, to read it and, if needed, to answer you by email. It is never shown to the other members. When you delete your account, your messages are deleted from our server with it.",

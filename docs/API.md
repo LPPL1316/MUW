@@ -1558,6 +1558,7 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `challenge_done` | la squadra ha completato la forma (TASK-296 C) | tutti gli iscritti, anche chi ha corso | la sfida |
   | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
   | `contest_won` | il comando `close` ha proclamato il suo post vincitore del concorso (TASK-299) | chi ha vinto | il disegno |
+  | `group_run_soon`, `group_run_changed`, `group_run_cancelled` | una corsa di gruppo comincia entro un'ora, cambia ora o luogo, è annullata (TASK-309, «Group runs») | chi va; il promemoria anche all'organizzatore | la corsa di gruppo |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
@@ -2257,8 +2258,9 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   a 50, cursore `microsecondi-public_id`), con `total`; ogni iscritto con
   nome e foto piccola, mai l'email.
 - **`POST /reports`**: `{"kind", "id", "reason"}`. `kind` è `drawing`
-  (un post del feed), `comment` o `user`; `id` è l'id del disegno, del
-  commento o il `public_id` dell'iscritto; `reason` è uno di `spam`,
+  (un post del feed), `comment`, `user` o `group_run` (TASK-309); `id` è
+  l'id del disegno, del commento, il `public_id` dell'iscritto o l'id
+  della corsa di gruppo; `reason` è uno di `spam`,
   `offensive`, `harassment`, `sexual`, `other`, in quest'ordine (l'app
   li mostra così). **Una riga per chi segnala e per cosa**: segnalato di
   nuovo, la riga prende il motivo e l'ora nuovi. Niente con quell'id:
@@ -2467,6 +2469,123 @@ push a chi ha vinto. Le regole sono in `CONCORSI.md`; il codice in
   (niente da fare) o 2 (rifiuto).
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app non
   mostra la scheda, come con `no_contest`.
+
+### Group runs (TASK-309, ADR-0269)
+
+Le corse di gruppo: un iscritto pubblica un percorso con giorno, ora e
+«Where exactly» alla partenza; gli altri dicono «I'm going» e la corrono
+insieme. Le regole sono in `EVENTI.md`; il codice in `group_runs.py`
+(regole, endpoint, `GroupRunClock`, push). Tutti gli endpoint vogliono il
+token: senza, `401 not_signed_in`; senza database, `503
+accounts_unavailable`. Tipi in `shared-types` (`GroupRunRequest`,
+`GroupRunChange`, `GroupRun`, `GroupRunDetail`, `GroupRunsPage`,
+`ProfileGroupRuns`, `GroupRunPushKind`, `GroupRunPushData` e i limiti
+`GROUP_RUN_*`), esempi in `fixtures/group-run-request.json`,
+`group-run-change.json`, `group-run.json`, `group-runs.json`,
+`group-runs-of-profile.json`, `group-run-push-data.json`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /group-runs` | crea una corsa di gruppo da un percorso | `201` `GroupRunDetail` |
+| `GET /group-runs?lat=…&lon=…` | la fila del Feed | `200` `GroupRunsPage` |
+| `GET /group-runs/{id}` | la corsa di gruppo intera, anche annullata o finita | `200` `GroupRunDetail` |
+| `PUT /group-runs/{id}` | l'organizzatore cambia titolo, ora, «Where exactly», note | `200` `GroupRunDetail` |
+| `DELETE /group-runs/{id}` | l'organizzatore la annulla | `204` |
+| `PUT /group-runs/{id}/going` | «I'm going» | `204` |
+| `DELETE /group-runs/{id}/going` | «Not going» | `204` |
+| `GET /group-runs/{id}/going?limit=20&cursor=…` | chi va, l'organizzatore per primo | `200` `PeoplePage` |
+| `GET /users/{public_id}/group-runs` | quelle di un profilo: in arrivo e le ultime 20 finite | `200` `ProfileGroupRuns` |
+
+- **Il corpo di `POST`** è quello di `PUT /me/favorites/{key}` (il
+  percorso intero: `points`, `walks`, `on_foot`, `activity`,
+  `rotation_deg`…, `FavoriteRequestBody`), con `title` obbligatorio e in
+  più `starts_at` (ISO 8601 con l'offset), `meeting_note`, `description` e
+  `visibility` (`everyone` o `followers`; non cambia più). Il ritrovo
+  (`start`) è il primo punto. Il percorso non cambia dopo la creazione.
+- **I limiti** (`EVENTI.md` §3), `422 invalid_request` con un messaggio da
+  mostrare: titolo 1–60 caratteri su una riga («A title is 1 to 60
+  characters, on one line.»), «Where exactly» una riga di al più 80
+  (««Where exactly» is one line of 80 characters at most.»), note al più
+  500 con gli a capo («The notes are 500 characters at most.»); spazi in
+  testa e in coda tolti, un testo vuoto è `null`. `starts_at` da **30
+  minuti** a **60 giorni** da adesso, sull'orologio del server («A group
+  run starts from 30 minutes to 60 days from now.»): l'app ricontrolla
+  prima di mandare. Un'ora senza offset o un `visibility` fuori elenco:
+  `422` di Pydantic. **Al più 10 in arrivo** (non finite, non annullate)
+  per account: «You can have 10 upcoming group runs at most.».
+- **Il filtro dei commenti negativi** (TASK-213) su titolo, «Where
+  exactly» e note: `422 comment_rejected` con `reason`, come un commento.
+- **Chi la vede**: l'organizzatore sempre; gli altri se non è nascosta
+  (TASK-291), se nessun blocco sta fra loro e l'organizzatore
+  (`follows.apart_sql`, nei due sensi, un iscritto nascosto compreso) e
+  se è `everyone` o seguono l'organizzatore con la richiesta accettata.
+  **Chi non la vede** riceve `404` «No group run with this id.» su ogni
+  endpoint con l'id, come per un id che non c'è.
+- **`status`**: `upcoming` fino all'inizio, `started` per le 3 ore dopo,
+  poi `over`; `cancelled` quando l'organizzatore l'ha annullata.
+  L'organizzatore cambia e annulla solo da `upcoming` (dopo: `422` «The
+  group run has started: it cannot change any more.»); «I'm going» e «Not
+  going» valgono da `upcoming` e `started` (dopo: `422` «The group run is
+  over.» o «The group run was cancelled.»). Un altro iscritto che prova a
+  cambiare o annullare: `404`.
+- **Chi va**: `going` è il numero (organizzatore compreso), `faces` i
+  primi tre, `people` nella pagina i primi 20, `i_am_going` se chi chiede
+  va. **L'ordine**: l'organizzatore, poi gli altri nell'ordine in cui
+  hanno detto «I'm going»; il cursore è `rango-microsecondi-public_id`.
+  Conta solo chi vede ancora la corsa di gruppo e non è lontano da chi
+  chiede (blocco o nascosto, `counted_sql`): chi è bloccato
+  dall'organizzatore, o lo blocca, non è contato per nessuno. Nome e foto
+  piccola, mai l'email.
+- **«I'm going»** due volte lascia una riga; «Not going» di chi non va è
+  `204`. **L'organizzatore va sempre**: il suo `PUT` non cambia niente,
+  il suo `DELETE` è `422` «The organiser always goes.». **Nessuna
+  notifica** quando qualcuno si aggiunge (`EVENTI.md` §6.4).
+- **`PUT /group-runs/{id}`** (`GroupRunChange`) manda i quattro campi; una
+  nota o una descrizione lasciata fuori si toglie. Un `starts_at` nuovo
+  ha i limiti della creazione; uno uguale, no. **Ora o «Where exactly»
+  cambiati**: `reminded_at` torna vuoto e chi va (non l'organizzatore)
+  riceve `group_run_changed`.
+- **`DELETE /group-runs/{id}`** mette `cancelled_at`; chi va riceve
+  `group_run_cancelled`. Già annullata: `204` e nessuna push. Annullata,
+  esce dalla fila e dal profilo, e `GET /group-runs/{id}` la mostra con
+  `cancelled`.
+- **La fila del Feed** (`EVENTI.md` §5): al più 20, dalla più vicina nel
+  tempo (a parità, l'id), non finite, non annullate, viste: le proprie e
+  quelle di chi si segue ovunque, quelle a cui si va ovunque, le altre con
+  il ritrovo entro 50 km dal telefono (`feed.NEAR_M`); senza `lat` e
+  `lon`, tutte. Mezzo punto: `422` come il Feed.
+- **Il profilo**: `upcoming` (non finite, la più vicina prima) e `past`
+  (le ultime 20 finite, l'ultima prima), mai le annullate, solo quelle
+  che chi chiede vede; un profilo lontano (blocco, nascosto) o che non
+  c'è: `404` «No profile with this id.».
+- **Le push** (`push.py`), con gli interruttori e i blocchi di sempre,
+  `data` `{ kind, group_run_id }`, senza orari (il server non sa il fuso
+  del telefono):
+
+  | `kind` | Quando | A chi | Testo |
+  |---|---|---|---|
+  | `group_run_soon` | un'ora prima, una volta | chi va, organizzatore compreso (`OWN_KINDS`) | «{title} starts soon: see you at the start!» |
+  | `group_run_changed` | ora o luogo cambiati | chi va | «{name} changed the time or place of {title}.» |
+  | `group_run_cancelled` | annullata, o account dell'organizzatore cancellato prima dell'inizio | chi va | «{name} cancelled {title}.» |
+
+  Non entrano nell'email del giorno (`notice_email.EMAIL_KINDS`).
+- **`GroupRunClock`**, ogni 5 minuti mentre l'app gira, cerca le corse di
+  gruppo che cominciano entro un'ora, non annullate e non avvisate, e le
+  segna con `UPDATE … WHERE reminded_at IS NULL … RETURNING` prima di
+  avvisare: due giri insieme, o due processi, la avvisano una volta. Una
+  creata meno di un'ora prima avvisa al primo giro; una già cominciata,
+  mai. Si ferma prima che si chiuda il database.
+- **Segnalare**: `POST /reports` con `kind` `group_run` e l'id della corsa
+  di gruppo («Block and report»). L'email lo chiama «group run», con
+  titolo, «Where exactly», note e ora; il link nasconde
+  (`group_runs.hidden_at`): la vede solo l'organizzatore, e chi andava non
+  conta più né riceve il promemoria.
+- **`DELETE /me`**: prima della cancellazione chi va alle sue corse di
+  gruppo non ancora cominciate riceve `group_run_cancelled`
+  (`app.state.before_account_delete`); poi le corse di gruppo e le
+  risposte se ne vanno con l'account (`ON DELETE CASCADE`).
+- **Un'API precedente** non ha questi endpoint (`404 http_error`): l'app
+  non mostra la fila né il bottone.
 
 ### Feedback (TASK-308, ADR-0268)
 
