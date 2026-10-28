@@ -169,7 +169,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dimostra; più km a lettera col sì dell'utente), C (le parole provate in
   `drawn_routes` sul server, dopo Apple) e D (nell'archivio anche disegni
   a mano, contorni delle foto e richieste senza percorso, senza account;
-  privacy da approvare). File `tasks/TASK-311.md`.
+  privacy da approvare). File `tasks/TASK-311.md`. **A fatta** (2026-10-28):
+  443 buone su 1000; più km a lettera non servono, conta la lunghezza;
+  da 5 lettere in su la penna alzata porta le buone da 11 % a 40 %. B
+  aspetta la scelta dell'utente sulla penna alzata per le parole lunghe.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`

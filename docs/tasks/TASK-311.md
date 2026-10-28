@@ -1,6 +1,7 @@
 # TASK-311 — Parole scritte meglio, e sul server tutto quello che si chiede
 
-**Stato**: In lavorazione (parte A: la misura su 1000 parole)
+**Stato**: In lavorazione (parte A fatta: la misura su 1000 parole; B, C e D
+da cominciare)
 **Fase**: 4 · **Branch**: `feat/TASK-311-a-words-measure` (A, con questo
 file), poi un branch per ciascuna delle parti B, C e D
 **Dipende da**: TASK-297 A (l'archivio `drawn_routes`, ADR-0256), TASK-050,
@@ -152,26 +153,36 @@ Che cosa dicono:
 **Le parole lunghe a penna alzata** (TASK-197: ogni lettera da sola, senza
 linea di base né ritorno; i tratti a piedi fra le lettere non contano
 nella distanza, come per la ricerca). Le 26 parole da 5 a 8 lettere a 3 km
-a lettera, nei due stili; dati in `out/TASK-311/penup/`. Bologna e Roma:
+a lettera, nei due stili, nelle cinque città: 260 casi, dati in
+`out/TASK-311/penup/`.
 
 | lettere | una riga | penna alzata |
 |---|---|---|
-| 5 | 8/44 (18 %) | 32/44 (73 %) |
-| 6 | 2/24 (8 %) | 13/24 (54 %) |
-| 7 | 0/20 | 3/20 (15 %) |
-| 8 | 0/16 | 3/16 (19 %) |
-| in tutto | 10/104 | 51/104 |
+| 5 | 24/110 (22 %) | 64/110 (58 %) |
+| 6 | 5/60 (8 %) | 29/60 (48 %) |
+| 7 | 0/50 | 6/50 (12 %) |
+| 8 | 0/40 | 6/40 (15 %) |
+| in tutto | 29/260 (11 %) | 105/260 (40 %) |
 
-A penna alzata il tondo va meglio dello squadrato (34/52 contro 17/52).
-*(Trento, Torino e Milano a penna alzata: in corso.)*
+| città | una riga | penna alzata |
+|---|---|---|
+| Milano | 11/52 | 39/52 |
+| Roma | 8/52 | 28/52 |
+| Bologna | 2/52 | 23/52 |
+| Torino | 8/52 | 13/52 |
+| Trento | 0/52 | 2/52 |
+
+Lo stesso tempo (27 s a caso in media). A penna alzata il tondo va meglio
+dello squadrato (65/130 contro 40/130); su una riga il contrario (12/130 e
+17/130).
 
 ## Parte B — Il metodo (motore o API, dopo A)
 
 Solo quello che A dimostra. Sui numeri:
 
 - **più km a lettera: no** (punto 1 delle misure); il minimo resta 3 km;
-- **le parole da 5 lettere in su a penna alzata**: da circa 1 buona su 10
-  a circa 1 su 2. Cambia come si corre la parola (la registrazione in pausa
+- **le parole da 5 lettere in su a penna alzata**: da 11 % a 40 % di
+  buone (5 lettere da 22 % a 58 %, 6 da 8 % a 48 %). Cambia come si corre la parola (la registrazione in pausa
   fra una lettera e l'altra), quindi è una **scelta dell'utente**: la
   penna alzata proposta o scelta da sola per le parole lunghe, o solo
   un consiglio quando la riga non riesce;
@@ -222,7 +233,12 @@ Parte A (questa PR):
 
 ## Criteri di accettazione (parte A)
 
-- [ ] 1000 casi pianificati, i risultati e il riepilogo in questo file.
-- [ ] Le proposte per B scritte sui numeri, con che cosa cambia per
+- [x] 1000 casi pianificati, i risultati e il riepilogo in questo file.
+- [x] Le proposte per B scritte sui numeri, con che cosa cambia per
       l'utente.
-- [ ] Lo script passa `ruff` e `black`; non tocca il motore.
+- [x] Lo script passa `ruff` e `black`; non tocca il motore.
+
+**Esito della parte A** (2026-10-28): 443 buone su 1000; più km a lettera
+non servono (+2,6 punti, tempo quasi doppio), conta la lunghezza: da 5
+lettere in su la penna alzata porta le buone da 11 % a 40 %. Prossimo: la
+scelta dell'utente sulla penna alzata per le parole lunghe (parte B).

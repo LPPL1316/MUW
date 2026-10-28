@@ -16816,7 +16816,7 @@ riscritti, il tetto si toglie con un'aggiunta a questo ADR.
 
 ## ADR-0271 — Le parole misurate su 1000 casi, e sul server tutto quello che si chiede
 
-**Data**: 2026-10-27 · **Stato**: Proposta (parte A in corso) · **Task**: TASK-311
+**Data**: 2026-10-27 · **Stato**: Proposta (parte A misurata il 2026-10-28) · **Task**: TASK-311
 Deciso dall'agente su delega dell'utente, con le condizioni del Coordinatore;
 le scelte di prodotto restano all'utente.
 
@@ -16833,8 +16833,11 @@ parole su quattro sotto la soglia: troppo poco per decidere.
 1. **Prima la misura** (parte A): 50 parole × 5 città × 3 e 4 km a lettera
    × due stili, buone come in TASK-298 (distanza entro il 10 %, somiglianza
    almeno 0,90), sul Mac con le zone scaricate da Overpass.
-2. **Il metodo** (B): cambia solo ciò che la misura dimostra. Più km a
-   lettera cambiano che cosa l'utente può chiedere: solo col suo sì.
+2. **Il metodo** (B): cambia solo ciò che la misura dimostra. Misurato
+   (TASK-311, «Le misure»): 443 buone su 1000; da 3 a 4 km a lettera +2,6
+   punti col tempo quasi doppio, quindi il minimo resta 3 km; da 5 lettere
+   in su la penna alzata porta le buone da 11 % a 40 %. Usarla per le
+   parole lunghe cambia come si corre: solo col sì dell'utente.
 3. **Le parole provate sul server** (C): i percorsi buoni entrano in
    `drawn_routes` dal centro delle città, disegnati dal motore del server;
    agli altri si propongono solo parole della lista provata, nessun nome.
