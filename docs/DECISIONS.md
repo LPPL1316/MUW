@@ -18109,12 +18109,18 @@ dichiarazione delle app di salute. I dettagli sono in
    senza il modulo la riga non c'è. Le build di oggi restano con le loro
    impronte, da misurare su una copia pulita; se si muovono, A aspetta B e
    C. B accende l'iPhone con la 1.0.1, insieme agli altri moduli che la
-   aspettano (`tasks/TASK-152.md`); C accende Android con la sua build.
+   aspettano (`expo-contacts` di TASK-262 C, `expo-document-picker` di
+   TASK-312 B, `tasks/TASK-152.md`) e con l'Apple Watch di TASK-323 E: una
+   sola revisione di Apple; C accende Android con la sua build.
 8. **Le calorie solo per la corsa**, con la formula di `kcal()`
    (ADR-0137): per la bici e la pagaia sarebbero dati inesatti (5.1.3).
 9. **Restano fuori**: le attività importate (TASK-312, vengono da app che
    di solito le hanno già scritte), le corse già in «My activities», la
    cancellazione da Salute quando si cancella in MuW.
+10. **Con TASK-323 E** in comune ci sono la build, la capability e la regola
+    «un'attività, un allenamento» (se l'orologio salva il nuoto, il telefono
+    non lo riscrive). Leggere da Salute non è di questo task: è dello studio
+    D di TASK-312.
 
 **Alternative scartate**:
 

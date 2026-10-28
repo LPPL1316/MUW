@@ -9,7 +9,8 @@
 e calorie stimate), TASK-262 C (la strada dell'esclusione dal linking),
 TASK-152 (la 1.0.1 nativa, promemoria), TASK-294 (la build Android)
 **Si incrocia con**: TASK-312 D (leggere da Salute: la stessa libreria),
-TASK-322 (Sign in with Apple e Google: le stesse build native)
+TASK-322 (Sign in with Apple e Google: le stesse build native), TASK-323 E
+(l'Apple Watch per il nuoto: la stessa 1.0.1 e HealthKit)
 **ADR**: ADR-0281
 
 ## Obiettivo
@@ -19,6 +20,11 @@ Apple Salute (iPhone) o in Health Connect (Android): un allenamento con lo
 sport giusto, il tempo, la distanza e il percorso, e per la corsa le calorie
 attive stimate. L'app Fitness lo mostra fra gli allenamenti, con la mappa.
 Dopo il primo sì va da sé, a ogni «Save».
+
+**Il codice aspetta una build nativa nuova**: nessun telefono vede la
+funzione prima della 1.0.1 per iPhone e della build Android nuova. La parte
+A può entrare in `main` prima, nascosta e senza muovere le impronte di oggi,
+ma accesa è solo con le build di B e C.
 
 ## Contesto
 
@@ -147,9 +153,34 @@ Una domanda per volta, in questa sessione, con la proposta pronta:
   e il testo del permesso in `app.json`, l'impronta nuova misurata. La 1.0.0
   (7) continua a ricevere gli aggiornamenti del suo runtime (`83793e26…`);
   la 1.0.1 ha il suo: ogni `eas update` dopo va fatto per tutti e due
-  (`DEPLOY.md` A.7). Insieme agli altri promemoria della 1.0.1
-  (`tasks/TASK-152.md`: i contatti di TASK-262 C, il selettore di file di
-  TASK-312 B, i moduli di TASK-322).
+  (`DEPLOY.md` A.7).
+- **Una sola 1.0.1 (proposta)**: la stessa build accende anche quello che
+  la aspetta già (`tasks/TASK-152.md`): `expo-contacts` di TASK-262 C e
+  `expo-document-picker` di TASK-312 B, tolti dall'esclusione con i loro
+  plugin e testi, e i moduli di TASK-322 se sono pronti. Una sola revisione
+  di Apple e un solo runtime nuovo, al posto di tanti. Per HealthKit Apple
+  guarda il testo del permesso (`NSHealthUpdateUsageDescription`), la
+  privacy e la riga della descrizione: tutti e tre approvati dall'utente il
+  2026-10-28 (sotto).
+
+## In comune con TASK-323 (nuoto, parte E: Apple Watch)
+
+TASK-323 E è un'app per Apple Watch che registra il nuoto in acque libere.
+Non si toccano i file dell'altro; in comune ci sono:
+
+- **la build e la capability**: la stessa 1.0.1, e HealthKit acceso una
+  volta sola sull'App ID `com.lppl1316.sgrava`. Gli entitlements, i testi
+  `NSHealth…` di `app.json` e la sezione della privacy li scrive la parte B
+  di questo task; se l'orologio vuole di più (il suo target, altri
+  permessi), TASK-323 E li aggiunge con la sua PR, dopo B;
+- **un'attività, un allenamento**: se l'orologio salva già il nuoto in
+  Salute, il telefono non lo riscrive. Il nuoto oggi non è uno sport di
+  MuW; quando lo sarà, `.swimming` all'aperto, e la regola si scrive qui;
+- **leggere da Salute non è di questo task**: TASK-321 scrive e non legge
+  (scelte dell'utente, privacy approvata «MuW never reads your health
+  data»). La lettura dei nuoti dell'orologio che TASK-323 E §4 si aspetta da
+  qui è dello studio D di TASK-312, che dovrà cambiare anche quella riga
+  della privacy, col sì dell'utente.
 
 ## Android
 
