@@ -2138,11 +2138,19 @@ pagina non dice `loaded`; se la mappa non si carica, al suo posto l'errore.
 
 | Stato dell'API | Il pannello dice |
 |---|---|
-| richiesta partita, o in coda | «Waiting for the API…» |
+| richiesta partita, o in coda | «Warming up: heart…», per una parola «Warming up: “CIAO”…», per un'immagine «Warming up: the picture…» (TASK-317) |
 | zona da scaricare | «Downloading map data for this area…» |
 | calcolo | «Drawing a 15 km heart…», per una parola «Drawing “CIAO”, 12 km…» |
 
 Forma e distanza non si cambiano durante l'attesa.
+
+Dopo 3 s di attesa, sotto la barra compare «MEANWHILE, FROM THE FEED»
+(TASK-317, ADR-0277): una fila da scorrere di lato con sei disegni di
+esempio del Feed, quelli sull'acqua con «Paddle» e quelli di corsa
+altrimenti. Ogni scheda ha la linea su fondo mappa, il titolo e i dati
+(«Moon · 4.9 km · 27 min»), senza l'immagine della mappa: mentre il motore
+cerca, la fila non chiede niente alla rete. Le schede non si toccano, e la
+fila sparisce con la scheda dell'attesa.
 
 - Fino a 10 km il percorso di solito arriva in 5–35 s, da 15 a 21 km in
   30–50 s; una zona nuova aggiunge il suo download, circa 105 s per un

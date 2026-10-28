@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
+  Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
+  condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
+  del calcolo la scheda dice «Warming up: heart…» al posto di «Waiting for
+  the API…»; dopo 3 s, sotto la barra, sei disegni di esempio del Feed da
+  scorrere, senza rete. Solo app, OTA. Aspetta il sì dell'utente sui tre
+  testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
+  File `tasks/TASK-317.md`.
+
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch

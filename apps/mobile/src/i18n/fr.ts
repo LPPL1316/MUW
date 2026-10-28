@@ -534,7 +534,6 @@ export const FR: Table = {
     "{count} lettres : au moins {km} km. Dessiner un mot prend quelques minutes.",
   "Use {km} km": "Utiliser {km} km",
   Picture: "Photo",
-  "Waiting for the API…": "En attente du service…",
   "Downloading map data for this area…": "Téléchargement de la carte de cette zone…",
   "Drawing the picture's outline, {km} km…": "Dessin du contour de la photo, {km} km…",
   "Drawing “{word}”, {km} km…": "Dessin de « {word} », {km} km…",
@@ -1472,4 +1471,8 @@ export const FR: Table = {
   FEEDBACK: "AVIS",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapente",
+  // src/route/RoutePanel.tsx (TASK-317: the wait in «Draw»)
+  "Warming up: {name}…": "Échauffement : {name}…",
+  "Warming up: “{word}”…": "Échauffement : « {word} »…",
+  "Warming up: the picture…": "Échauffement : la photo…",
 };
