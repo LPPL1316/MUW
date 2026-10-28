@@ -171,6 +171,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dall'utente, #604 in `main` (d6545be5), impronta iOS `83793e26`
   invariata; arriva con il prossimo OTA. Voce in «Completato».
 
+- **TASK-318 — Gli sport non pronti nascosti nelle build dello store**
+  (ADR-0278; scelta dell'utente del 2026-10-28, «nascondi Soon nello
+  store»; fatto dal Coordinatore). Nelle build dell'App Store e di Google
+  Play, e negli update `production`, «Paragliding · Soon» non si vede né
+  in «Settings» né nel menu di «Draw»; Expo Go e `preview` come prima. Solo
+  `sport.ts` e un test nuovo; impronta iOS `83793e26`. Va prima del primo
+  update `production`. File: `tasks/TASK-318.md`.
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
   scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).
@@ -1644,6 +1651,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente: il server con A, poi di notte `draw_examples --all --around`
   per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
   nel task file).
+- **TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno
+  proposto** (ADR-0280, proposta; richiesta dell'utente del 2026-10-28,
+  «dai la possibilità di disegnare anche a mano nella pagina draw e […]
+  modificare un disegno del feed, un disegno ricercato, un disegno di
+  explore… tutto potenzialmente editabile»; numero, parti e condizioni dal
+  Coordinatore). Branch `docs/TASK-320-freehand-edit`: solo i documenti.
+  Proposta: «Freehand» come quarta scelta di «Draw»; una tavola vuota con
+  le regole della linea a dito di «Draw on the map» (la prima linea è il
+  contorno, le altre dettagli, «Erase»), tutta sul telefono, niente rete
+  prima di «Draw route»; «Edit the drawing» sulla forma scelta, sul
+  risultato, sui percorsi di «Explore» e sui disegni degli iscritti, che si
+  aprono nella tavola e tornano in «Draw» come «Draw it near me». Parole e
+  percorsi a tema no. Nessun contratto nuovo. La privacy di oggi non dice
+  che un contorno parte come richiesta di percorso: una riga nuova proposta,
+  col sì dell'utente. Parti A (tavola, «Freehand», «Edit» in «Draw» e sul
+  risultato) e B (schede), ognuna nella sua sessione dopo il sì dell'utente
+  alle proposte e ai testi. File `tasks/TASK-320.md`.
 
 ## Completato
 
