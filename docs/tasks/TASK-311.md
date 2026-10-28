@@ -184,7 +184,7 @@ unisce).
    (niente frasi già approvate cambiate); le pagine della privacy del sito
    rifatte con `make_privacy.mjs`.
 
-### I testi da approvare (parte B)
+### I testi (parte B), approvati dall'utente il 2026-10-28
 
 Inglese; le traduzioni in tedesco, italiano, spagnolo e francese sono
 dell'agente (`i18n/*.ts`, `about/content/*.ts`).
@@ -215,9 +215,10 @@ dell'agente (`i18n/*.ts`, `about/content/*.ts`).
 - **Privacy**, sezione nuova «Private messages» prima di «Reports»: cosa
   si tiene, niente end-to-end, la richiesta e il filtro, cancellare e
   bloccare, l'email di una segnalazione con quel messaggio soltanto, le
-  push con l'inizio. La data resta «26 October 2026» (già di oggi); se la
-  PR entra dopo, va rifatta con l'ok dell'utente. **Testo legale: lo
-  approva l'utente.**
+  push con l'inizio. **Approvati dall'utente il 2026-10-28** («Approvo
+  così», insieme ai testi qui sopra e alle due push). La data della
+  privacy (oggi «26 October 2026») diventa il giorno del merge, nelle
+  cinque lingue, con `node site/tools/make_privacy.mjs`.
 
 ### Criteri di accettazione (parte B)
 
@@ -232,7 +233,8 @@ dell'agente (`i18n/*.ts`, `about/content/*.ts`).
 - [x] La conversazione aperta si aggiorna da sola; aprirla toglie il
       pallino.
 - [x] Con un'API senza messaggi «Messages» e «Message» non si vedono.
-- [ ] Testi approvati dall'utente, nelle cinque lingue.
+- [x] Testi approvati dall'utente (2026-10-28, «Approvo così»); le
+      traduzioni sono dell'agente.
 - [ ] Test, lint, typecheck e prettier verdi in CI.
 
 ### File toccati (parte B)
@@ -284,8 +286,16 @@ docs/UI.md
   `main` pulito nel container cloud (c'è `httpx2`, che scrive nel log
   l'indirizzo con il `code`): non è di questa PR.
 - 2026-10-26: parte B scritta; test jest dei messaggi verdi, lint,
-  typecheck e prettier verdi. **Aspetta l'ok dell'utente sui testi** (qui
-  sopra) e sulla privacy, poi il Coordinatore per la coda dei merge.
+  typecheck e prettier verdi.
+- 2026-10-27/28: rinumerato due volte (TASK-305, poi TASK-310 presi da
+  altri), unito con `main` dopo TASK-306 e TASK-310; test vicini di nuovo
+  verdi. Testi e privacy **approvati dall'utente** il 2026-10-28.
+  **Bloccato sul push**: la sessione cloud è collegata a GitHub come
+  LPPL1316 e l'app Claude non è installata sull'account rockydalbianco,
+  quindi `git push` risponde 403. Il branch sta in un bundle git mandato
+  all'utente (`TASK-311-messages.bundle`), da spingere dal Mac come
+  `feat/TASK-311-private-messages`. Dopo: CI, la data della privacy al
+  giorno del merge, il Coordinatore per la coda dei merge.
 
 ## Esito
 

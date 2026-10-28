@@ -16819,7 +16819,9 @@ riscritti, il tetto si toglie con un'aggiunta a questo ADR.
 **Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
 richieste e il resto della proposta sono **scelte dell'utente** del
 2026-10-26 («Chiunque, con richiesta», poi «Sì, così»); i punti tecnici
-sono decisi dall'agente su delega dell'utente (TASK-311). Numero preso
+sono decisi dall'agente su delega dell'utente (TASK-311). I testi
+dell'app, delle push e la sezione nuova della privacy sono **approvati
+dall'utente** il 2026-10-28 («Approvo così»). Numero preso
 come primo libero anche nei branch remoti (0263–0270 sono di TASK-303–310,
 0265 della proposta del parapendio): il Coordinatore non rispondeva.
 
