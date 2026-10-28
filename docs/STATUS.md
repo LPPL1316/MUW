@@ -1222,6 +1222,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   va bene»).
   **Online dal 2026-10-09** (#467, `b19ab890`, copia F.14): restano
   dell'utente solo il link TestFlight e il merch.
+  **Parte F** (2026-10-28, branch `feat/TASK-237-download-link`): il
+  link per scaricare porta all'App Store
+  (`https://apps.apple.com/app/id6820961883`), «Get the app» dice «On
+  iPhone, now.». Dopo il merge: la copia F.14 sul server, con il sì
+  dell'utente. Resta il merch.
 - **TASK-223 — Emoji semplici per il catalogo, e la penna alzata nelle
   forme** (ADR-0185; chiesto dall'utente il 2026-10-03). **Parte A, il
   motore**, in `main` (#284): le forme possono avere `pieces`, e gatto,
