@@ -1,7 +1,8 @@
 # TASK-314 — La strada per tornare sul percorso, sulle vie
 
-**Stato**: In lavorazione — parte A
-**Fase**: 4 · **Branch**: `feat/TASK-314-a-way-back` (A), poi
+**Stato**: In lavorazione — parte A in `main` (#588, `f381b7f5`), parte B
+da fare
+**Fase**: 4 · **Branch**: `feat/TASK-314-a-way-back` (A, mergiato), poi
 `feat/TASK-314-b-way-back-run` (B)
 **ADR**: ADR-0274 (seguito di ADR-0263) · A: motore, API, motore sul
 telefono · B: schermo di corsa, testi nuovi da approvare dall'utente
@@ -146,29 +147,79 @@ manda al Coordinatore chi la fa, prima del codice.
 
 ## Criteri di accettazione — parte A
 
-- [ ] Su una griglia di prova: un runner a metà isolato va avanti verso
+- [x] Su una griglia di prova: un runner a metà isolato va avanti verso
       il percorso, non torna all'incrocio dietro; il rientro è il nodo più
       vicino per strada, non in linea d'aria (un isolato lungo in mezzo).
-- [ ] Il percorso chiuso più avanti (la strada che il runner ha lasciato)
+- [x] Il percorso chiuso più avanti (la strada che il runner ha lasciato)
       non si riprende all'indietro: si rientra al primo nodo raggiunto.
-- [ ] In bici un senso unico contrario non si prende; un tratto a mano
+- [x] In bici un senso unico contrario non si prende; un tratto a mano
       costa di più.
-- [ ] Le indicazioni partono dal runner e finiscono al rientro, con il
+- [x] Le indicazioni partono dal runner e finiscono al rientro, con il
       verso da prendere sul percorso; le distanze sono dal runner.
-- [ ] Niente strada entro `MAX_WAY_M`, o tratto non sulla mappa:
+- [x] Niente strada entro `MAX_WAY_M`, o tratto non sulla mappa:
       `NoWayBackError` → 422.
-- [ ] `engine_fingerprint` di `route_store` è uguale a quello di `main`;
+- [x] `engine_fingerprint` di `route_store` è uguale a quello di `main`;
       il test che nessun modulo importi `way_back` c'è.
-- [ ] `POST /way-back` risponde con le fixture; 429 oltre i limiti, per
+- [x] `POST /way-back` risponde con le fixture; 429 oltre i limiti, per
       telefono e per IP; 422 sull'acqua.
-- [ ] Sul telefono `way_back_json` dà la stessa risposta dell'API
+- [x] Sul telefono `way_back_json` dà la stessa risposta dell'API
       (test in CPython; `engine.zip` ricostruito, il test di
       `tools/phone_engine` è verde).
-- [ ] `wayBackOnPhone`: zona salvata → telefono; senza zona → server;
+- [x] `wayBackOnPhone`: zona salvata → telefono; senza zona → server;
       server 404 / offline / 429 / 422 → `none`, senza eccezioni.
-- [ ] Suite del motore, dell'API, dell'app e di `shared-types` verdi;
+- [x] Suite del motore, dell'API, dell'app e di `shared-types` verdi;
       lint, typecheck, prettier, ruff, black; impronta iOS `83793e26`
       su una copia pulita.
+
+## Esito — parte A
+
+In `main` con la #588 (`f381b7f5`, 2026-10-28), mergiata dal
+Coordinatore dopo la CI verde. Diff uguale ai 25 file qui sotto; impronta
+iOS `83793e26` rimisurata da lui su una copia pulita.
+
+- **Cosa c'è**: il motore calcola la strada per tornare sulle vie (sul
+  telefono e con `POST /way-back`). L'app ha il client, ma nessuno lo
+  chiama: la corsa mostra ancora i puntini di TASK-303, finché non entra
+  la parte B.
+- **Una regola in più del piano**: accanto al percorso più avanti, la
+  strada è solo fino a quella via, senza indicazioni. La prova sulla zona
+  vera di Trento l'ha mostrata: senza, chi era a 60 m dal percorso veniva
+  mandato all'incrocio e poi indietro con un'inversione a U. Scritta in
+  ADR-0274 e in `API.md`.
+- **Impronta degli esempi tenuti** (`route_store`): `6072aa1ea3a3`, come
+  prima; senza `NOT_ROUTES` sarebbe diventata `74dc36d25b48`.
+- **Misure** sulla zona di Trento sul Mac, in CPython, sul percorso della
+  prova a Trento Fiere (fixture di TASK-302) con il runner a 60–150 m:
+  - ritaglio 0,01–0,11 s, ricerca 0,03–0,06 s;
+  - strade di 59–293 m, contro 47–280 m in linea d'aria;
+  - nomi veri delle vie (Via Palermo, Corso Tre Novembre, Viale Verona).
+
+  Pyodide è circa 1,8 volte più lento (TASK-214 D).
+- **Test**:
+  - motore: 20 test in `test_way_back.py`, suite intera 1631 verde;
+  - API: 16 in `test_way_back_api.py` e 4 in
+    `test_way_back_fingerprint.py`, suite intera 1855 verde in locale;
+  - app: 21 test nuovi, suite intera 4016 verde;
+  - `shared-types`: 3 test nuovi.
+- **Non provato**: dentro Pyodide e sull'iPhone. Il codice è lo stesso di
+  CPython e non importa niente che il motore del telefono non abbia già.
+  La prova vera è con la parte B, nel simulatore.
+
+### Cosa resta per il server
+
+Dopo l'approvazione di Apple e con il sì dell'utente: un aggiornamento
+dell'API (`/way-back` nuovo). Niente migrazione, niente `draw_examples`,
+nessun esempio da ridisegnare. Poi i log come scritto sopra (le 429, le
+righe `way back refused`, i tempi di `way back of …`, le 503 e le 422).
+
+### Prossimo: parte B
+
+In una sessione sua, da `origin/main`, con i «File toccati» al
+Coordinatore prima del codice. Il punto di partenza è
+`engine/wayBackOnPhone.ts` → `wayBackOnPhoneFirst(apiUrl(), {activity,
+here, ahead})`. `ahead` sono i punti del percorso dentro la finestra di
+`rejoinAheadM` (`navigation/rejoin.ts`), con un tetto di qualche km dopo
+un buco del GPS, quando la finestra è infinita.
 
 ## File toccati — parte A
 
