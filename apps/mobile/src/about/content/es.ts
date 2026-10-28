@@ -84,6 +84,14 @@ const help: AboutDocument = {
       ],
     },
     {
+      heading: "Mensajes",
+      blocks: [
+        "«Mensaje» en el perfil de un miembro le escribe. Si te sigue, tu mensaje llega a sus «Mensajes»; si no, llega como solicitud, y puedes enviar un solo mensaje hasta que la acepte.",
+        "Tus conversaciones están en «Perfil», «Mensajes», con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
+        "Mantén pulsado un mensaje para borrar el tuyo, para los dos, o para denunciar uno que has recibido. Nadie ve si has leído un mensaje. Con las push encendidas, MuW te avisa de cada mensaje y de cada solicitud.",
+      ],
+    },
+    {
       heading: "Correr, bici, remo",
       blocks: [
         "Elige tu deporte con el botón junto a tu perfil, o en «Ajustes».",
@@ -340,6 +348,15 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Mensajes privados",
+      blocks: [
+        "Tus mensajes privados se guardan en nuestro servidor: quién escribió, a quién, el texto y cuándo, y para cada uno de los dos si aceptó la conversación, cuándo la leyó por última vez y hasta cuándo la quitó de su vista. No están cifrados de extremo a extremo. En la app una conversación solo la ven sus dos miembros, y nadie recibe aviso de si un mensaje se ha leído. Los guardamos para darte el servicio que pides (contrato).",
+        "Un mensaje a alguien que no te sigue llega como solicitud; el primer mensaje de una solicitud pasa por el mismo filtro de palabras que los comentarios.",
+        "Puedes borrar tus propios mensajes, para los dos. Borrar una conversación la quita de tu vista; un mensaje que ya no ve ninguno de los dos se borra. Un bloqueo borra la conversación; borrar tu cuenta borra todas tus conversaciones, con los mensajes de los dos.",
+        "Cuando denuncias un mensaje, el correo a la persona que gestiona MuW contiene solo ese mensaje, nunca el resto de la conversación. Con las push encendidas, la notificación de un mensaje lleva su comienzo, a través del servicio push de Expo y de Apple o Google, como con los comentarios.",
+      ],
+    },
+    {
       heading: "Denuncias",
       blocks: [
         "Cuando denuncias un dibujo, un comentario o un perfil, guardamos quién denunció qué, el motivo y cuándo. Quien gestiona MuW la recibe por correo y puede ocultar lo denunciado a los demás miembros. No se borra nada, y su autor lo sigue viendo. Tu denuncia nunca se muestra al autor.",
@@ -371,6 +388,7 @@ const privacy: AboutDocument = {
         "Los mapas sin conexión vienen de nuestro servidor: el de tu alrededor y, con antelación, los de los pueblos cercanos. Para limitar estas descargas, el servidor las cuenta por día, según un número anónimo que la app crea para el teléfono; la cuenta se guarda solo en memoria.",
         "Las palabras que describen una forma se leen en nuestro servidor y no se envían a ningún servicio de IA externo.",
         "Una foto que eliges para un dibujo va una vez a nuestro servidor, para encontrar su contorno: el servidor no la guarda ni la registra.",
+        "Una figura dibujada con el dedo, o el contorno de tu foto, va a nuestro servidor una vez, como la ruta que pides: el servidor no la guarda.",
         "Para mejorar la búsqueda guardamos un evento por cada búsqueda y por algunos usos de la app (una ruta elegida, un archivo GPX exportado, una carrera puntuada): el texto en minúsculas, como máximo 200 caracteres, con los correos y los números largos ocultos; las posiciones solo como cuadrados de alrededor de 1 km; nada que diga quién eres ni qué teléfono era. Estos eventos se guardan sin límite de tiempo.",
       ],
     },

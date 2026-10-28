@@ -84,6 +84,14 @@ const help: AboutDocument = {
       ],
     },
     {
+      heading: "Messages",
+      blocks: [
+        "«Message» sur le profil d'un membre lui écrit. S'il te suit, ton message arrive dans ses «Messages» ; sinon, il arrive comme demande, et tu peux envoyer un seul message tant qu'elle n'est pas acceptée.",
+        "Tes conversations sont dans «Profil», «Messages», avec «Demandes de message» en haut. Accepte une demande pour vous écrire, supprime-la (la personne qui a écrit n'est pas prévenue) ou bloque-la.",
+        "Maintiens appuyé un message pour supprimer le tien, pour vous deux, ou pour signaler un message reçu. Personne ne voit si tu as lu un message. Avec le push allumé, MuW te prévient de chaque message et de chaque demande.",
+      ],
+    },
+    {
       heading: "Course, vélo, pagaie",
       blocks: [
         "Choisis ton sport avec le bouton à côté de ton profil, ou dans «Réglages».",
@@ -340,6 +348,15 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Messages privés",
+      blocks: [
+        "Tes messages privés sont gardés sur notre serveur : qui a écrit, à qui, le texte et quand, et pour chacun des deux s'il a accepté la conversation, quand il l'a lue pour la dernière fois et jusqu'à quand il l'a retirée de sa vue. Ils ne sont pas chiffrés de bout en bout. Dans l'app, seuls les deux membres d'une conversation la voient, et personne n'est prévenu qu'un message a été lu. Nous les gardons pour te fournir le service que tu demandes (contrat).",
+        "Un message à quelqu'un qui ne te suit pas arrive comme demande ; le premier message d'une demande passe par le même filtre de mots que les commentaires.",
+        "Tu peux supprimer tes propres messages, pour vous deux. Supprimer une conversation la retire de ta vue ; un message que ni l'un ni l'autre ne voit plus est supprimé. Un blocage supprime la conversation ; supprimer ton compte supprime toutes tes conversations, avec les messages des deux.",
+        "Quand tu signales un message, l'e-mail à la personne qui gère MuW ne contient que ce message, jamais le reste de la conversation. Avec le push allumé, la notification d'un message en porte le début, via le service push d'Expo et Apple ou Google, comme pour les commentaires.",
+      ],
+    },
+    {
       heading: "Signalements",
       blocks: [
         "Quand tu signales un dessin, un commentaire ou un profil, nous gardons qui a signalé quoi, la raison et quand. La personne qui gère MuW le reçoit par e-mail et peut masquer ce qui a été signalé aux autres membres. Rien n'est supprimé, et son auteur le voit toujours. Ton signalement n'est jamais montré à l'auteur.",
@@ -371,6 +388,7 @@ const privacy: AboutDocument = {
         "Les cartes hors ligne viennent de notre serveur : celle autour de toi et, à l'avance, celles des villes proches. Pour plafonner ces téléchargements, le serveur les compte par jour, selon un numéro anonyme que l'app crée pour le téléphone ; ce compte n'est gardé qu'en mémoire.",
         "Les mots qui décrivent une forme sont lus sur notre serveur et ne sont envoyés à aucun service d'IA externe.",
         "Une photo que tu choisis pour un dessin va une fois vers notre serveur, pour en trouver le contour : le serveur ne la garde pas et ne l'inscrit pas dans ses journaux.",
+        "Une figure dessinée avec le doigt, ou le contour de ta photo, va une fois sur notre serveur, comme l'itinéraire que tu demandes : le serveur ne la garde pas.",
         "Pour améliorer la recherche, nous gardons un événement pour chaque recherche et pour quelques utilisations de l'app (un parcours choisi, un fichier GPX exporté, une course notée) : le texte en minuscules, 200 caractères au plus, avec les e-mails et les longs numéros masqués ; les positions seulement sous forme de carrés d'environ 1 km ; rien qui dise qui tu es ni de quel téléphone il s'agissait. Ces événements sont gardés sans limite de temps.",
       ],
     },

@@ -33,7 +33,7 @@ export const REASON_TEXTS: Record<ReportReason, string> = {
 /** In English: shown with `t()` (TASK-210). */
 export const REPORTED = tLater("Thanks for telling us. We will look at it.");
 export const BLOCK_EXPLAINED = tLater(
-  "You will not see each other's drawings, comments or profile, and any follow between you ends. They are not told.",
+  "You will not see each other's drawings, comments, messages or profile, any follow between you ends and your conversation is deleted. They are not told.",
 );
 
 type Failed = Exclude<AccountOutcome<unknown>, { kind: "ok" }>;

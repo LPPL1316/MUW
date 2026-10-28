@@ -17653,7 +17653,9 @@ aggiornamento OTA.
 
 ## ADR-0280 — Disegnare a mano in «Draw», e ogni figura proposta che si riapre nella tavola
 
-**Stato**: Proposta · 2026-10-28 · la richiesta è dell'utente («disegnare
+**Stato**: Attiva · 2026-10-28 · proposte, testi e riga della privacy
+approvati dall'utente il 2026-10-28; parte A in `main` con la PR #612,
+parte B da fare · la richiesta è dell'utente («disegnare
 anche a mano nella pagina draw» e «modificare un disegno del feed, un
 disegno ricercato, un disegno di explore… tutto potenzialmente
 editabile»); il posto («Freehand» in «Draw»), la tavola e che cosa si
@@ -17724,6 +17726,36 @@ route» sì, come per «Image». Due PR (A tavola, «Freehand», «Edit» in
 «Draw» e sul risultato; B le schede), testi nuovi e una riga della
 privacy col sì dell'utente.
 
+**Attuazione, parte A** (2026-10-28, PR #612; deciso dall'agente su delega
+dell'utente):
+
+1. **La tavola è un quadrato** che riempie lo schermo: la figura vive in
+   quote del quadrato (y in giù, come gli `image_points` di una foto), e la
+   richiesta la gira e la passa a `framed` di `canvasRequest.ts`: per le
+   stesse linee, la richiesta di «Draw on the map» (test). Le regole della
+   linea sono le funzioni sul piano di `mapdraw/drawing.ts`: `outlineOf`, e
+   `detailOf`, la parte sul piano di `withDetail`, ora esportata.
+2. **Una tavola nuova** (`FreehandBoard.tsx`), non la tavola delle foto:
+   riusa `boardView.ts`, `drawnLine.ts` e le linee di `ImagePreview.tsx`;
+   «Edit the outline» resta com'è. Un dito disegna sempre; «Erase» acceso
+   fa cancellare un tocco e spostare un dito che si muove.
+3. **«Erase» di un dettaglio porta via i dettagli appesi a lui**: partono
+   da un suo punto, e senza di lui il motore li rifiuterebbe. Il contorno
+   porta via tutto, ed «Erase» si spegne: la linea dopo è il contorno nuovo.
+4. **Le linee del catalogo si smontano**: la variante «down» di
+   `catalogueShapes.json` è una linea sola, in cui il motore corre gli
+   occhi, i raggi e la chiocciola come escursioni da un punto del contorno
+   e ritorno; per 12 forme su 17 non è un anello semplice. `figureLines.ts`
+   fa di ogni escursione un dettaglio appeso in quel punto (la sola andata
+   se il ritorno la ripercorre; l'anello chiuso sul punto di partenza se
+   gira) e del resto il contorno; il cavallo si raddrizza ai 100 angoli di
+   un contorno. Scartato: la variante «up» (il corpo della testa di cane non
+   è un anello semplice nemmeno lì, e i pezzi non sono appesi).
+5. **«Drawing»** si riconosce dagli array del contorno che la tavola ha
+   fatto (`isDrawnOutline`, un `WeakSet`), come `drawnTile` riconosce
+   un'immagine pronta: niente campo nuovo nel contratto, `RouteOutcome`
+   invariato. La linea a dito di «Draw on the map» resta «Image».
+
 ## ADR-0278 — Nelle build dello store gli sport non pronti non si vedono
 
 **Stato**: Attiva · 2026-10-28 · la scelta è dell'utente («nascondi Soon
@@ -17759,6 +17791,174 @@ anche nello store, con lo stesso update. Se un giorno un update
 alla build dello store (DEPLOY A.7), quindi il filtro non sbaglia mai
 verso gli utenti veri.
 
+## ADR-0279 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
+
+**Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
+richieste e il resto della proposta sono **scelte dell'utente** del
+2026-10-26 («Chiunque, con richiesta», poi «Sì, così»); i punti tecnici
+sono decisi dall'agente su delega dell'utente (TASK-319). I testi
+dell'app, delle push e la sezione nuova della privacy sono **approvati
+dall'utente** il 2026-10-28 («Approvo così»). Numero dato dal
+Coordinatore il 2026-10-28 (nato come ADR-0265, poi 0277: li hanno presi
+altre sessioni prima che il branch arrivasse su GitHub).
+
+**Contesto**: l'utente il 2026-10-26: «aggiungi anche la possibilità di
+mandarsi messaggi privati». Il social di MuW aveva profili, follow con
+richiesta (ADR-0173), commenti, reazioni, blocchi e segnalazioni
+(ADR-0228), push (ADR-0226): nessun modo di parlare a una persona sola.
+
+**Decisione**:
+
+1. **Le scelte dell'utente**: si scrive a **chiunque**, con le
+   **richieste**. Un messaggio va dritto in «Messages» se chi lo riceve
+   segue chi scrive (o ha già accettato, risposto o scritto per primo);
+   altrimenti è una richiesta, di **un solo messaggio** finché non è
+   accettata. Chi la riceve: «Accept», «Delete» (chi ha scritto non lo sa,
+   e può riscrivere un messaggio, come dopo un follow rifiutato), «Block».
+   Il primo messaggio di una richiesta passa dal **filtro dei commenti**
+   (ADR-0176); le conversazioni accettate no. Solo testo, fino a 1000
+   caratteri. **Nessuna conferma di lettura.** Push per ogni messaggio
+   (con l'inizio), per una richiesta al più una al giorno per chi scrive
+   (senza il testo); niente email. «Report» sul singolo messaggio, e
+   l'email della segnalazione porta solo quello. Chi ha scritto un
+   messaggio lo cancella per tutti e due. Niente crittografia end-to-end,
+   e la privacy lo dice. Un interruttore per non ricevere richieste è un
+   seguito possibile, non ora.
+2. **Tre tabelle** (`0033_messages.sql`): `conversations`, una per coppia
+   con i due id in ordine (`low_id < high_id`, unica), `ON DELETE
+   CASCADE` su tutti e due gli account; `conversation_members`, due righe
+   con `accepted_at`, `cleared_at`, `read_at` di ognuno; `messages`. Lo
+   stato di una richiesta è **di chi riceve** (`accepted_at` `NULL`), non
+   della conversazione: scrivere accetta dalla propria parte, così
+   «rispondere accetta» e «chi scrive per primo ha la conversazione in
+   Messages» non chiedono altro codice.
+3. **La conversazione si chiede col `public_id` dell'altro**
+   (`/conversations/{public_id}/…`): l'app la apre dal profilo senza
+   cercarne l'id, e prima del primo messaggio la pagina è vuota con il suo
+   `state` (`open`, `first`, `waiting`, `request`), che dice all'app cosa
+   mostrare: la casella, il suggerimento della richiesta, l'attesa, o
+   «Accept · Delete · Block».
+4. **Una richiesta alla volta anche in concorrenza**: l'invio prende la
+   riga della conversazione `FOR UPDATE` prima di guardare lo stato, così
+   due messaggi mandati insieme non passano tutti e due come «il primo».
+   Nessun test lo prova con due thread (sarebbe fragile): lo provano i
+   test del `409` in sequenza e la lettura del codice.
+5. **«Delete» toglie dalla propria vista** (`cleared_at`), non cancella:
+   chi ha scritto li vede ancora. Un messaggio che nessuno dei due vede
+   più si cancella subito. Chi può scrivere liberamente non cambia.
+6. **Un blocco cancella la conversazione** (gancio `on_block` di
+   `moderation.py`, nella transazione del blocco), come chiude i follow
+   (ADR-0228): sbloccare non rimette niente e il primo messaggio dopo è di
+   nuovo una richiesta. Un iscritto nascosto (ADR-0251) e chiunque dietro
+   un blocco sono fuori con `follows.apart_sql`, come altrove: `404`.
+7. **Le segnalazioni**: `reports.kind` ammette `message` (vincolo rifatto
+   nella 0033); solo l'altro membro della conversazione segnala, chiunque
+   altro ha `404`. «Hide» dall'email mette `messages.hidden_at`: chi l'ha
+   ricevuto non lo vede più, chi l'ha scritto sì, come per i commenti.
+8. **Le push** sono due `Kind` nuovi in `push.py`, `message` (la chiave è
+   l'id del messaggio: ognuno è una notizia) e `message_request` (chiave
+   vuota: una al giorno per coppia, con la memoria di `SAME_EVENT_S`). I
+   `data` sono quelli di un follow (`public_id`, `username`): l'app apre
+   la conversazione. Testi nelle cinque lingue in `TEXTS`, da approvare
+   con quelli dell'app.
+9. **Al più 20 messaggi al minuto per account**, in memoria come i
+   commenti (10): una chat va più veloce.
+
+**Alternative scartate**:
+
+- *Solo fra chi si segue a vicenda*, o *chi ha accettato il mio follow*:
+  proposte, l'utente ha scelto le richieste.
+- *Più messaggi prima di accettare* (3), *l'interruttore delle richieste
+  subito*: proposti, l'utente ha scelto «così».
+- *Lo stato della richiesta sulla conversazione* (una colonna `status`):
+  non sa dire chi deve accettare dopo un «Delete» o un blocco senza altre
+  colonne; due righe di membri lo dicono da sole.
+- *L'id della conversazione negli indirizzi*: l'app dovrebbe cercarlo
+  prima di aprire una conversazione dal profilo.
+- *Nascondere la conversazione durante il blocco e ridarla allo sblocco*:
+  messaggi tenuti che nessuno vede; e ADR-0228 dice già che sbloccare non
+  rimette niente.
+- *WebSocket per i messaggi in tempo reale*: un server e un protocollo in
+  più; la conversazione aperta si rilegge ogni pochi secondi (parte B), e
+  la push avvisa.
+
+**Conseguenze**:
+
+- Migrazione nuova: il server va aggiornato prima di pubblicare l'app; con
+  un'API di prima gli endpoint sono `404` e l'app non mostra «Messages».
+- Il testo dei messaggi va a Expo e da lì ad Apple o a Google nelle push,
+  come l'inizio di un commento: la privacy lo dice (parte B).
+- Su App Store Connect la risposta «Messaging and Chat» del questionario
+  dell'età cambia: la cambia l'utente quando l'app con i messaggi va in
+  revisione.
+- Chi aggiunge un modo di vedere persone deve ricordare che una
+  conversazione segue `apart_sql` come tutto il resto.
+
+## ADR-0282 — Entrare e iscriversi con Apple e con Google
+
+**Stato**: Proposta · 2026-10-28 · la richiesta e le quattro scelte di
+prodotto sono dell'utente (TASK-322, «Scelte dell'utente»), e i tre
+pacchetti nuovi, i testi, la privacy e i termini li ha approvati il
+2026-10-28; il come è deciso dall'agente su delega dell'utente. Supera il
+punto 3 di ADR-0114 («Apple e Google forse dopo, con una build
+propria»).
+
+**Contesto**: si entra solo con email e password (ADR-0114, ADR-0115).
+`users.password_hash` è `NOT NULL` e «Forgot password» (TASK-300) ci lega
+i suoi link. La 1.0 sull'App Store riceve gli OTA solo con l'impronta iOS
+83793e26, e Apple e Google vogliono moduli nativi.
+
+**Decisione dell'utente**:
+
+1. «Continue with Apple» e «Continue with Google» in alto in «Sign up» e
+   in «Log in», sopra email e password; lo stesso tasto iscrive o fa
+   entrare.
+2. Apple solo su iPhone; Google su iPhone e Android.
+3. La prima volta una schermata sola: il nome utente e «I am at least
+   16» (con «Don't send me these emails» come in «Sign up»).
+4. Stessa email, stesso account: l'email garantita da Apple o Google
+   apre l'account che già la usa.
+
+**Decisione dell'agente** (su delega dell'utente):
+
+- Una tabella `user_identities` (`provider`, `subject`, `user_id`,
+  `email`, `apple_refresh_token`), unica su `(provider, subject)`. `users`
+  non cambia: un account nuovo da Apple o Google riceve una password a
+  caso che nessuno conosce, così «Forgot password» resta un modo di
+  averne una.
+- `POST /session/{provider}` con l'`id_token` (Apple: anche
+  `authorization_code` e `nonce`): identità nota → `Session`; email già
+  iscritta → si lega, `Session`; altrimenti `404 new_account`, e l'app
+  rimanda la richiesta con nome ed età → `201 Session`.
+  `GET /session/providers` dice quali provider sono accesi.
+- I token si verificano sul server con le chiavi pubbliche di Apple e di
+  Google tenute in memoria: firma, `iss`, `aud`, scadenza,
+  `email_verified`, il `nonce` per Apple. Niente chiamate a ogni accesso.
+- Un'email non confermata (TASK-300) che Apple o Google legano perde la
+  password di prima e le altre sessioni: chi l'aveva scritta non aveva
+  provato che fosse sua. Confermata, resta tutto.
+- `DELETE /me` revoca l'accesso Apple (`/auth/revoke`), come Apple chiede;
+  una revoca fallita non ferma la cancellazione.
+- Le chiavi stanno in `.env`; senza, `503 provider_unavailable` e l'app
+  non mostra i tasti. I moduli nativi restano fuori dall'autolinking fino
+  alla build 1.0.1, una sola con `expo-contacts`, `expo-document-picker`
+  e forse HealthKit (TASK-321); fino ad allora i tasti sono nascosti
+  nella build dello store e l'impronta iOS resta 83793e26.
+
+**Scartate**: `password_hash` nullo (cambia `reset_state` e ogni
+controllo della password); `expo-auth-session` per Google (il browser,
+come per Strava in ADR-0156); verificare i token chiedendoli a Google a
+ogni accesso; Apple su Android (un «Services ID» e il browser, per pochi);
+legare l'identità a un'email non confermata lasciando la password di
+prima (chi ha scritto l'email di un altro entrerebbe nel suo account).
+
+**Conseguenze**: tre pacchetti nuovi, approvati dall'utente il
+2026-10-28 (`expo-apple-authentication`,
+`@react-native-google-signin/google-signin`, `PyJWT[crypto]`); una
+migrazione; testi in cinque lingue e tre righe di privacy e termini,
+approvati il 2026-10-28; nelle console di Apple e di Google le chiavi e
+i client OAuth (TASK-322 parte C); il server e la build 1.0.1, ognuno col
+suo sì.
 ## ADR-0283 — Il nuoto in acque libere: l'acqua della canoa con la fascia dei bagnanti, le curve con un nome a riva, l'orologio in due fasi
 
 **Stato**: Proposto · 2026-10-28 (TASK-323). Scelta dell'utente dello stesso

@@ -84,6 +84,14 @@ const help: AboutDocument = {
       ],
     },
     {
+      heading: "Nachrichten",
+      blocks: [
+        "«Nachricht» auf dem Profil eines Mitglieds schreibt ihm. Folgt es dir, landet deine Nachricht in seinen «Nachrichten»; sonst kommt sie als Anfrage an, und du kannst eine Nachricht schicken, bis die Anfrage angenommen ist.",
+        "Deine Unterhaltungen sind in «Profil», «Nachrichten», mit «Nachrichtenanfragen» oben. Nimm eine Anfrage an, um euch zu schreiben, lösche sie (wer geschrieben hat, erfährt es nicht) oder blockiere, wer geschrieben hat.",
+        "Halte eine Nachricht gedrückt, um deine für euch beide zu löschen oder eine erhaltene zu melden. Niemand sieht, ob du eine Nachricht gelesen hast. Mit Push meldet dir MuW jede Nachricht und jede Anfrage.",
+      ],
+    },
+    {
       heading: "Laufen, Rad, Paddeln",
       blocks: [
         "Wähle deinen Sport mit der Taste neben deinem Profil oder in «Einstellungen».",
@@ -340,6 +348,15 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Private Nachrichten",
+      blocks: [
+        "Deine privaten Nachrichten liegen auf unserem Server: wer geschrieben hat, an wen, der Text und wann, und für jeden der beiden, ob er die Unterhaltung angenommen hat, wann er sie zuletzt gelesen hat und bis wann er sie aus seiner Ansicht gelöscht hat. Sie sind nicht Ende-zu-Ende-verschlüsselt. In der App sehen eine Unterhaltung nur ihre beiden Mitglieder, und niemand erfährt, ob eine Nachricht gelesen wurde. Wir speichern sie, um dir den Dienst zu geben, den du verlangst (Vertrag).",
+        "Eine Nachricht an jemanden, der dir nicht folgt, kommt als Anfrage an; die erste Nachricht einer Anfrage geht durch denselben Wortfilter wie die Kommentare.",
+        "Du kannst deine eigenen Nachrichten für euch beide löschen. Eine Unterhaltung zu löschen nimmt sie aus deiner Ansicht; eine Nachricht, die keiner von euch mehr sieht, wird gelöscht. Eine Blockierung löscht die Unterhaltung; wenn du dein Konto löschst, werden alle deine Unterhaltungen gelöscht, mit den Nachrichten von beiden.",
+        "Wenn du eine Nachricht meldest, enthält die E-Mail an die Person, die MuW betreibt, nur diese Nachricht, nie den Rest der Unterhaltung. Mit Push trägt die Benachrichtigung einer Nachricht ihren Anfang, über den Push-Dienst von Expo und Apple oder Google, wie bei Kommentaren.",
+      ],
+    },
+    {
       heading: "Meldungen",
       blocks: [
         "Wenn du eine Zeichnung, einen Kommentar oder ein Profil meldest, behalten wir, wer was gemeldet hat, den Grund und wann. Wer MuW betreibt, bekommt die Meldung per E-Mail und kann das Gemeldete vor den anderen Mitgliedern verbergen. Nichts wird gelöscht, und wer es geschrieben hat, sieht es weiter. Deine Meldung wird dem Verfasser nie gezeigt.",
@@ -371,6 +388,7 @@ const privacy: AboutDocument = {
         "Die Offline-Karten kommen von unserem Server: die um dich herum und, im Voraus, die der Orte in der Nähe. Um diese Downloads zu begrenzen, zählt der Server sie pro Tag nach einer anonymen Nummer, die die App für das Handy erzeugt; die Zählung bleibt nur im Arbeitsspeicher.",
         "Wörter, die eine Form beschreiben, werden auf unserem Server gelesen und an keinen externen KI-Dienst gesendet.",
         "Ein Foto, das du für eine Zeichnung wählst, geht einmal an unseren Server, um seinen Umriss zu finden: Der Server speichert es nicht und protokolliert es nicht.",
+        "Eine mit dem Finger gezeichnete Figur oder der Umriss deines Fotos geht einmal an unseren Server, als die Route, die du anfragst: der Server behält sie nicht.",
         "Um die Suche zu verbessern, bewahren wir ein Ereignis für jede Suche und für einige Nutzungen der App auf (eine gewählte Route, eine exportierte GPX-Datei, ein bewerteter Lauf): den Text in Kleinbuchstaben, höchstens 200 Zeichen, mit verborgenen E-Mails und langen Zahlen; Positionen nur als Quadrate von etwa 1 km; nichts, was sagt, wer du bist oder welches Handy es war. Diese Ereignisse werden ohne zeitliche Begrenzung aufbewahrt.",
       ],
     },

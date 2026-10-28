@@ -216,14 +216,36 @@ export function withDetail(placed: Placed, line: readonly LatLon[]): Drawn {
   if (figure.kind !== "drawing") {
     return null;
   }
-  const lines: P[][] = [figure.outline, ...figure.details];
+  const drawn = line.map((point) => {
+    const [x, y] = toPlane(placed.centre, point);
+    return [x / placed.unitM, y / placed.unitM] as P;
+  });
+  const detail = detailOf(figure.outline, figure.details, drawn);
+  if (detail === null || "problem" in detail) {
+    return detail;
+  }
+  return {
+    placed: {
+      ...placed,
+      figure: { ...figure, details: [...figure.details, detail] },
+    },
+  };
+}
+
+/**
+ * The detail a line drawn on the plane makes, in the units of the drawing
+ * it is drawn on (`outline` and `details`): the same for the map and for
+ * the board of «Draw» (TASK-320). Null for a line too short to add;
+ * `too_much` when the details would be more than a route runs.
+ */
+export function detailOf(
+  outline: readonly P[],
+  details: readonly (readonly P[])[],
+  line: readonly P[],
+): P[] | { problem: "too_much" } | null {
+  const lines: (readonly P[])[] = [outline, ...details];
   const { size } = boxOf(lines);
-  const drawn = distinct(
-    line.map((point) => {
-      const [x, y] = toPlane(placed.centre, point);
-      return [x / placed.unitM, y / placed.unitM] as P;
-    }),
-  );
+  const drawn = distinct(line);
   if (drawn.length < 2 || lineLength(drawn) < MIN_DETAIL_SHARE * size) {
     return null;
   }
@@ -235,17 +257,12 @@ export function withDetail(placed: Placed, line: readonly LatLon[]): Drawn {
     hung.away <= SNAP_SHARE * size
       ? [hung.at, ...oriented.slice(1)]
       : [hung.at, ...oriented];
-  const budget = MAX_DETAIL_POINTS - travelledPoints(figure.details);
+  const budget = MAX_DETAIL_POINTS - travelledPoints(details);
   let tolerance = SIMPLIFY_SHARE * size;
   for (let tries = 0; tries < 8; tries += 1) {
     const detail = looped(simplify(stroke, tolerance), size);
     if (detail.length >= 2 && travelledPoints([detail]) <= budget) {
-      return {
-        placed: {
-          ...placed,
-          figure: { ...figure, details: [...figure.details, detail] },
-        },
-      };
+      return detail;
     }
     tolerance *= 2;
   }
