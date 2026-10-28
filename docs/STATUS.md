@@ -181,7 +181,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
   invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
   sessione, dopo A. File `tasks/TASK-320.md`.
-
+- **TASK-318 — Gli sport non pronti nascosti nelle build dello store**
+  (ADR-0278; scelta dell'utente del 2026-10-28, «nascondi Soon nello
+  store»; fatto dal Coordinatore). Nelle build dell'App Store e di Google
+  Play, e negli update `production`, «Paragliding · Soon» non si vede né
+  in «Settings» né nel menu di «Draw»; Expo Go e `preview` come prima. Solo
+  `sport.ts` e un test nuovo; impronta iOS `83793e26`. Va prima del primo
+  update `production`. File: `tasks/TASK-318.md`.
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
   scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).

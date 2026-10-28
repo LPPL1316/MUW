@@ -17755,3 +17755,38 @@ dell'utente):
    fatto (`isDrawnOutline`, un `WeakSet`), come `drawnTile` riconosce
    un'immagine pronta: niente campo nuovo nel contratto, `RouteOutcome`
    invariato. La linea a dito di «Draw on the map» resta «Image».
+
+## ADR-0278 — Nelle build dello store gli sport non pronti non si vedono
+
+**Stato**: Attiva · 2026-10-28 · la scelta è dell'utente («nascondi Soon
+nello store»); il modo di riconoscere la build è deciso dall'agente su
+delega dell'utente (TASK-318).
+
+**Contesto**: TASK-305 D0 (ADR-0265, ADR-0165) mostra «Paragliding · Soon»
+in «Settings» e nel menu degli sport di «Draw». Con la 1.0 sull'App Store
+il primo update `production` lo porterebbe agli utenti veri, ma il
+parapendio dipende da una licenza dello spazio aereo che non c'è ancora.
+
+**Decisione**:
+
+1. In una build dello store (App Store e Google Play, e gli update fatti
+   per loro) `SPORTS` lascia fuori gli sport con `ready: false`. In Expo
+   Go e `preview` resta com'è, «Soon» compreso.
+2. **Come si riconosce**: dal runtime della config che l'app sta
+   usando (`Constants.expoConfig.runtimeVersion`). Expo Go e `preview`
+   hanno quello di `app.json`, `exposdk:57.0.0` (ADR-0078). La build dello
+   store e gli update `production` sono fatti con `APP_VARIANT=production`
+   e hanno `{ policy: "fingerprint" }` (o l'hash). Senza config o senza
+   runtime vale «non store»: meglio una riga «Soon» in più che uno sport
+   che sparisce in Expo Go. Non si usa `Updates.channel` di
+   `expo-updates`: è un modulo nativo che il JavaScript dell'app non
+   importava ancora, e non si poteva provare in Expo Go prima dell'update.
+3. Il filtro sta in `sport.ts`. `SportSetting` e `SportButton` prendono
+   già `SPORTS` di default e non cambiano; una lista passata a mano (i
+   test) resta com'è.
+
+**Conseguenze**: quando uno sport diventa pronto (`ready: true`) compare
+anche nello store, con lo stesso update. Se un giorno un update
+`production` si pubblicasse senza `APP_VARIANT`, non arriverebbe comunque
+alla build dello store (DEPLOY A.7), quindi il filtro non sbaglia mai
+verso gli utenti veri.
