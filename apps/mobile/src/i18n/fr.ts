@@ -1413,7 +1413,6 @@ export const FR: Table = {
   Retro: "Rétro",
   Fiesta: "Fiesta",
   "Tap a track to hear it.": "Touche un morceau pour l'écouter.",
-
   // src/contest/ (TASK-299 B: the contest card, its rules, the Winner badge)
   "MuW contest": "Concours MuW",
   "The post with the most reactions wins.":
@@ -1443,7 +1442,6 @@ export const FR: Table = {
     "Apple et Google ne sont pas sponsors de ce concours et n'y sont impliqués d'aucune manière.",
   Winner: "Gagnant",
   "{name} won the MuW contest": "{name} a gagné le concours MuW",
-
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "PRÈS DE VOUS",
   "SHAPES TO TRY": "FORMES À ESSAYER",
@@ -1452,7 +1450,6 @@ export const FR: Table = {
     "Le parcours reprend à {distance}, direction {direction}.",
   "Follow the dotted line back to the route.":
     "Suivez la ligne pointillée pour revenir sur le parcours.",
-
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Ce parcours n'a pas d'indications de virage : suis la ligne sur la carte.",
@@ -1475,7 +1472,6 @@ export const FR: Table = {
   FEEDBACK: "AVIS",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapente",
-
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "La dessiner près de moi",
   // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
