@@ -17610,14 +17610,14 @@ c'era già.
 Solo JavaScript: l'impronta iOS resta 83793e26. Se il motore cambia le
 soglie, `penUpHint.ts` va allineato a mano.
 
-## ADR-0281 — Entrare e iscriversi con Apple e con Google
+## ADR-0282 — Entrare e iscriversi con Apple e con Google
 
 **Stato**: Proposta · 2026-10-28 · la richiesta e le quattro scelte di
-prodotto sono dell'utente (TASK-321, «Scelte dell'utente»), e i tre
+prodotto sono dell'utente (TASK-322, «Scelte dell'utente»), e i tre
 pacchetti nuovi li ha approvati; il come è deciso dall'agente su delega
-dell'utente. Mancano il sì ai testi e alla riga della privacy. Numeri presi come primi liberi,
-il Coordinatore conferma. Supera il punto 3 di ADR-0114 («Apple e Google
-forse dopo, con una build propria»).
+dell'utente. Mancano il sì ai testi e alla riga della privacy. Supera il
+punto 3 di ADR-0114 («Apple e Google forse dopo, con una build
+propria»).
 
 **Contesto**: si entra solo con email e password (ADR-0114, ADR-0115).
 `users.password_hash` è `NOT NULL` e «Forgot password» (TASK-300) ci lega
@@ -17657,7 +17657,9 @@ i suoi link. La 1.0 sull'App Store riceve gli OTA solo con l'impronta iOS
   una revoca fallita non ferma la cancellazione.
 - Le chiavi stanno in `.env`; senza, `503 provider_unavailable` e l'app
   non mostra i tasti. I moduli nativi restano fuori dall'autolinking fino
-  alla build 1.0.1, come `expo-contacts`.
+  alla build 1.0.1, una sola con `expo-contacts`, `expo-document-picker`
+  e forse HealthKit (TASK-321); fino ad allora i tasti sono nascosti
+  nella build dello store e l'impronta iOS resta 83793e26.
 
 **Scartate**: `password_hash` nullo (cambia `reset_state` e ogni
 controllo della password); `expo-auth-session` per Google (il browser,
@@ -17671,5 +17673,5 @@ prima (chi ha scritto l'email di un altro entrerebbe nel suo account).
 `@react-native-google-signin/google-signin`, `PyJWT[crypto]`); una
 migrazione; testi in cinque lingue e una riga della
 privacy col sì dell'utente; nelle console di Apple e di Google le chiavi e
-i client OAuth (TASK-321 parte C); il server e la build 1.0.1, ognuno col
+i client OAuth (TASK-322 parte C); il server e la build 1.0.1, ognuno col
 suo sì.

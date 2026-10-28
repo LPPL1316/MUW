@@ -1629,17 +1629,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente: il server con A, poi di notte `draw_examples --all --around`
   per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
   nel task file).
-- **TASK-321 — Entrare e iscriversi con Apple e con Google** (ADR-0281,
+- **TASK-322 — Entrare e iscriversi con Apple e con Google** (ADR-0282,
   proposta; richiesta dell'utente del 2026-10-28, «Accedere e registrarsi
-  con Google o Apple», «con google ed apple»; numeri presi come primi
-  liberi, il Coordinatore conferma). Branch
-  `docs/TASK-321-sign-in-apple-google`: solo i documenti. Scelte
-  dell'utente: i tasti in alto in «Sign up» e «Log in», Apple solo su
-  iPhone, Google su iPhone e Android, la prima volta nome ed età, stessa
-  email stesso account; approvati anche i tre pacchetti nuovi. Aspettano
-  il sì: i testi, la riga della privacy. Parti A (API), B (app, moduli fuori
-  dall'autolinking: impronta 83793e26), C (console Apple e Google, server,
-  build 1.0.1). File `tasks/TASK-321.md`.
+  con Google o Apple», «con google ed apple»). Branch
+  `docs/TASK-321-sign-in-apple-google` (il nome con cui è nata la PR
+  #607): solo i documenti. Scelte dell'utente: i tasti in alto in «Sign up»
+  e «Log in», Apple solo su iPhone, Google su iPhone e Android, la prima
+  volta nome ed età, stessa email stesso account; approvati anche i tre
+  pacchetti nuovi. Aspettano il sì: i testi, la riga della privacy. Parti A
+  (API), B (app, moduli fuori dall'autolinking e tasti nascosti nella build
+  dello store: impronta 83793e26), C (console Apple e Google, server, la
+  build 1.0.1 insieme a contatti, document picker e forse HealthKit). File
+  `tasks/TASK-322.md`.
 
 ## Completato
 

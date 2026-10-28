@@ -1,14 +1,14 @@
-# TASK-321 — Entrare e iscriversi con Apple e con Google
+# TASK-322 — Entrare e iscriversi con Apple e con Google
 
 **Stato**: Todo (proposta: il sì dell'utente alle scelte di prodotto e ai
 pacchetti nuovi c'è; mancano i testi e la riga della privacy)
 **Fase**: 4 · **Branch**: `docs/TASK-321-sign-in-apple-google` (i
-documenti), poi `feat/TASK-321-a-sign-in-api`, `feat/TASK-321-b-sign-in-app`
-· **ADR**: ADR-0281
+documenti), poi `feat/TASK-322-a-sign-in-api`, `feat/TASK-322-b-sign-in-app`
+· **ADR**: ADR-0282
 
-> Numeri presi come primi liberi il 2026-10-28 (321 e 0281) mentre il
-> Coordinatore era occupato, dopo averglielo scritto: se ne assegna altri,
-> questo file e l'ADR cambiano numero nella stessa PR.
+> Numeri assegnati dal Coordinatore il 2026-10-28: 322 e 0282 (321 e
+> 0281 sono di «Apple Health»). Il branch dei documenti tiene il nome con
+> cui è nata la PR #607.
 
 ## Obiettivo
 
@@ -102,7 +102,7 @@ emails», «This username is taken. Try another one.», «No connection. Check
 the network and try again.», «Cancel». Se si chiude il foglio di Apple o di
 Google senza scegliere, non compare niente.
 
-## Come (deciso dall'agente su delega dell'utente, ADR-0281)
+## Come (deciso dall'agente su delega dell'utente, ADR-0282)
 
 - **Una tabella nuova `user_identities`**: `provider` (`apple`,
   `google`), `subject` (l'id stabile che dà il provider, `sub`),
@@ -145,21 +145,23 @@ Google senza scegliere, non compare niente.
   `SHAPEROUTE_GOOGLE_CLIENT_IDS`), aggiornando `.env.example`. Senza,
   l'endpoint risponde `503 provider_unavailable` e `GET /session/providers`
   dice quali ci sono: l'app mostra solo quei tasti.
-- **L'app**: i due moduli nativi esclusi dall'autolinking (come
-  `expo-contacts`) finché non c'è la build nuova, e i tasti nascosti se il
-  modulo nativo non c'è: l'impronta resta 83793e26 e gli OTA della 1.0
-  continuano. «Log out» fa anche `GoogleSignin.signOut()`, così la volta
+- **L'app**: i due moduli nativi esclusi dall'autolinking finché non c'è
+  la build 1.0.1, la stessa di `expo-contacts`, `expo-document-picker`
+  (TASK-312) e forse HealthKit (TASK-321), come chiede il Coordinatore.
+  Fino ad allora i tasti restano nascosti nella build dello store, come i
+  contatti: l'impronta iOS resta 83793e26 e gli OTA della 1.0 continuano. «Log out» fa anche `GoogleSignin.signOut()`, così la volta
   dopo Google fa scegliere l'account.
 
 ## Parti
 
-**A — API** (`feat/TASK-321-a-sign-in-api`): migrazione (il prossimo
-numero libero, dal Coordinatore), `POST /session/{provider}`,
+**A — API** (`feat/TASK-322-a-sign-in-api`): migrazione (la prima libera
+al momento del merge: 0033 se la contendono TASK-319 e TASK-312 A; il
+numero non si scrive nei test), `POST /session/{provider}`,
 `GET /session/providers`, la revoca Apple in `DELETE /me`, i tipi in
 `shared-types`, `API.md` e `DATABASE.md`. Test deterministici con chiavi
 finte (un JWKS generato nei test, niente rete).
 
-**B — App** (`feat/TASK-321-b-sign-in-app`): i due tasti in
+**B — App** (`feat/TASK-322-b-sign-in-app`): i due tasti in
 `SignInScreen`, la schermata del nome, i testi nelle cinque lingue, i due
 pacchetti esclusi dall'autolinking. Test con i moduli nativi finti.
 
@@ -177,9 +179,10 @@ pacchetti esclusi dall'autolinking. Test con i moduli nativi finti.
   su Android);
 - il server con la parte A (la migrazione, il ritorno indietro come in
   `DEPLOY.md`);
-- la build nativa nuova (1.0.1) per App Store e Google Play: i moduli
-  entrano nell'autolinking, l'impronta cambia, la revisione di Apple e di
-  Google.
+- la build nativa 1.0.1 per App Store e Google Play, una sola insieme a
+  `expo-contacts`, `expo-document-picker` (TASK-312) e forse HealthKit
+  (TASK-321): i moduli entrano nell'autolinking, l'impronta cambia, la
+  revisione di Apple e di Google.
 
 ## Criteri di accettazione
 
@@ -204,7 +207,7 @@ pacchetti esclusi dall'autolinking. Test con i moduli nativi finti.
 Questa PR (solo documenti):
 
 ```
-docs/tasks/TASK-321.md
+docs/tasks/TASK-322.md
 docs/DECISIONS.md
 docs/STATUS.md
 ```
