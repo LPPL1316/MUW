@@ -81,6 +81,7 @@ from shaperoute_api.line_directions import (
     RouteDirectionsRequestBody,
     directions_of,
 )
+from shaperoute_api.messages import install_messages
 from shaperoute_api.moderation import install_moderation
 from shaperoute_api.notifications import install_notifications
 from shaperoute_api.outline_edits import edit_outline
@@ -126,6 +127,7 @@ from shaperoute_api.strava import install_strava
 from shaperoute_api.strava_client import Strava
 from shaperoute_api.themed import ThemedJobBody, ThemedJobs, ThemedRequestBody
 from shaperoute_api.track_scores import score_run
+from shaperoute_api.user_photos import install_user_photos
 from shaperoute_api.way_back_api import install_way_back
 
 log = logging.getLogger(__name__)
@@ -346,6 +348,9 @@ def create_app(
     # Up to three photos of a drawing, besides its map (TASK-208); they need
     # a token.
     install_drawing_photos(app)
+    # The photos of a profile's drawings, a page at a time (TASK-324); they
+    # need a token.
+    install_user_photos(app)
     # Members found by name, and following with a request (TASK-211); they
     # need a token.
     install_follows(app)
@@ -359,6 +364,9 @@ def create_app(
     install_feed(app)
     # Blocking and reporting (TASK-121); they need a token.
     install_moderation(app)
+    # Private messages, with message requests (TASK-319); after the blocks,
+    # which delete a conversation; they need a token.
+    install_messages(app)
     # The shape game (TASK-296): the catalog for anyone, the rest with a token.
     install_game(app)
     # The members found from the phone's contacts, by the hashes of their

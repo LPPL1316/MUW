@@ -98,13 +98,26 @@ import { trackOfNavigation, useNavigation } from "./src/navigation/useNavigation
 import type { Place } from "./src/places/photon";
 import { choicesOf, type Picked, pickedIndex } from "./src/route/choices";
 import { distanceLimitsM } from "./src/route/distance";
+import {
+  againDistanceM,
+  againOfDrawing,
+  againOfRequest,
+  type DrawAgain,
+  drawsAgain,
+} from "./src/route/drawAgain";
 import { ImageEditsContext } from "./src/route/imageEdits";
 import type { ChoiceKind } from "./src/route/problems";
+import { withPenUp } from "./src/route/penUpHint";
 import { shapeAsked } from "./src/route/penUpShapes";
 import { DrawButton, RouteChoice, RouteOutcome } from "./src/route/RoutePanel";
 import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
+import { requestLines, shapeLines } from "./src/route/figureLines";
+import { figureOf, freehandRequest } from "./src/route/freehand";
+import { FreehandBoard } from "./src/route/FreehandBoard";
+import { EditDrawingButton } from "./src/route/FreehandChoice";
+import { useFreehand } from "./src/route/useFreehand";
 import { DrawIdeas, toursFrom } from "./src/route/DrawIdeas";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
@@ -346,7 +359,11 @@ function MuW() {
     signedIn,
   } = useActivitiesDoor();
   // And so does a drawing opened from a profile (TASK-117).
-  const { opened: drawing, back: backFromDrawing } = useDrawingsDoor();
+  const {
+    opened: drawing,
+    back: backFromDrawing,
+    leave: leaveDrawing,
+  } = useDrawingsDoor();
   // «Play» is a page while the API has the shape game (TASK-296): asked
   // once as the app opens, kept on the phone for the next opening.
   const playOn = useGameCatalog() !== null;
@@ -451,6 +468,11 @@ function MuW() {
   // Past RouteChoice to the image panel (TASK-079).
   const { edits, add, undo } = image;
   const imageEdits = useMemo(() => ({ ...edits, add, undo }), [edits, add, undo]);
+  // The figure drawn by hand (TASK-320), kept beside the picture: going to
+  // «Freehand» and back loses neither. The board is one, over whatever is
+  // on screen; where it was opened from says what «Save» does.
+  const freehand = useFreehand();
+  const [board, setBoard] = useState<"freehand" | "shape" | "result" | null>(null);
   const { draw, cancel, retry, state } = useRouteRequest(API_URL);
   const gpx = useGpxExport(API_URL);
   const {
@@ -481,7 +503,8 @@ function MuW() {
 
   // One of them (ADR-0051): the kinds not chosen are not sent. An image
   // sends the outline the engine traced and the user has seen (ADR-0069),
-  // with the details drawn on it (TASK-079).
+  // with the details drawn on it (TASK-079); a figure drawn by hand its
+  // outline and details as a line drawn on the map sends them (TASK-320).
   // On the water only a shape of the catalogue is drawn (TASK-191): a word or
   // a picture chosen before «Paddle» waits for another sport.
   const drawKind: ChoiceKind = sportActivity === "paddling" ? "shape" : kind;
@@ -505,12 +528,16 @@ function MuW() {
               ...(penUp ? { pen_up: true as const } : {}),
             }
           : null
-        : image.state.status === "traced"
-          ? {
-              outline: image.state.outline.points,
-              strokes: image.state.outline.strokes,
-            }
-          : null;
+        : drawKind === "freehand"
+          ? freehand.figure !== null
+            ? freehandRequest(freehand.figure)
+            : null
+          : image.state.status === "traced"
+            ? {
+                outline: image.state.outline.points,
+                strokes: image.state.outline.strokes,
+              }
+            : null;
   const request: AnyRouteRequest | null =
     start && drawn !== null && distanceM !== null
       ? { start: start.point, ...drawn, distance_m: distanceM, activity: sportActivity }
@@ -550,6 +577,16 @@ function MuW() {
       : fromCanvas
         ? placedTile(mapDraw.placed)
         : drawnTile(view.request);
+  // «Edit the drawing» under the route drawn (TASK-320): the lines of the
+  // figure asked for, to open in the board; none for a word, nor on the
+  // water, where only the catalogue is drawn.
+  const resultLines = useMemo(
+    () =>
+      view.status === "done" && sportActivity !== "paddling"
+        ? requestLines(view.request)
+        : null,
+    [view, sportActivity],
+  );
   const others = useMemo(
     () =>
       choices.length < 2
@@ -944,6 +981,30 @@ function MuW() {
     run();
   }
 
+  /** «Draw it near me» (TASK-313): the shape or the word of a route of
+   * «Explore» or of a drawing, chosen in «Draw» at the same distance, and
+   * the route or the drawing left. The start stays «Draw»'s: «Draw route»
+   * asks the engine for the route there. */
+  function onDrawAgain(again: DrawAgain) {
+    if (again.kind === "shape") {
+      setKind("shape");
+      setShapeText(shapeName(again.shape));
+    } else {
+      setKind("word");
+      setWordText(again.word);
+      setLetterStyle(again.style);
+    }
+    distance.choose(againDistanceM(again, sportActivity));
+    closeExplore();
+    leaveDrawing();
+    setScreen("choose");
+  }
+
+  /** The button's action for `again`, when «Draw» can draw it. */
+  function drawAgainOf(again: DrawAgain | null): (() => void) | undefined {
+    return drawsAgain(again, sportActivity) ? () => onDrawAgain(again) : undefined;
+  }
+
   function onDraw() {
     // The decimal pad has no return key: drawing closes it.
     Keyboard.dismiss();
@@ -1018,6 +1079,50 @@ function MuW() {
       image.show(samplePicture(choice.sample), choice.sample.outline);
     }
     draw(changedRequest(view.request, choice, penUp));
+  }
+
+  /** «Edit the drawing» under the shape chosen in «Draw» (TASK-320): the
+   * board on the shape's lines, as the engine draws them. */
+  function onEditShape(shape: Shape) {
+    Keyboard.dismiss();
+    freehand.set(figureOf(shapeLines(shape)));
+    setBoard("shape");
+  }
+
+  /** «Edit the drawing» or «Draw with your finger» under «Freehand»: the
+   * board on the figure drawn, or empty. */
+  function onEditFreehand() {
+    Keyboard.dismiss();
+    setBoard("freehand");
+  }
+
+  /** «Edit the drawing» under the route drawn: the board on the figure the
+   * route was asked for. */
+  function onEditResult() {
+    if (resultLines === null) {
+      return;
+    }
+    freehand.set(figureOf(resultLines));
+    setBoard("result");
+  }
+
+  /** «Save» on the board: the figure is kept already, so saving is closing
+   * (ADR-0191). Opened on a shape, or on the result, the choice of «Draw»
+   * becomes «Freehand» with the figure; from the result, «Draw» is back,
+   * at the same distance and from the same start. */
+  function onBoardSave() {
+    const from = board;
+    setBoard(null);
+    if (from === "shape" || from === "result") {
+      setKind("freehand");
+    }
+    if (from === "result") {
+      if (view.status === "done") {
+        distance.choose(view.request.distance_m);
+      }
+      setFromCanvas(false);
+      setScreen("choose");
+    }
   }
 
   /** A run of «My activities» leaves the map for the list it came from. */
@@ -1302,6 +1407,7 @@ function MuW() {
             drawing={drawing}
             onBack={backFromDrawing}
             onStart={onStartDrawing}
+            onDrawAgain={drawAgainOf(againOfDrawing(drawing))}
           />
         ) : (finishing || freeFinishing) && stretchAsked ? (
           // «Stretch» opens the exercises (part B) over «Your run», where
@@ -1378,6 +1484,11 @@ function MuW() {
               }
             }}
             move={moveExample}
+            onDrawAgain={
+              explored.status === "done"
+                ? drawAgainOf(againOfRequest(explored.request))
+                : undefined
+            }
           />
         ) : finishing ? (
           <FinishCard
@@ -1432,6 +1543,14 @@ function MuW() {
             }}
             onPickShape={onPickShape}
             onRetry={retry}
+            onLiftPen={() => {
+              // A word in one line that did not come out (TASK-311 B): the
+              // switch turns on, and the word is drawn with the pen up.
+              setPenUp(true);
+              if (view.status === "done" || view.status === "failed") {
+                draw(withPenUp(view.request));
+              }
+            }}
             onStart={() => {
               if (view.status === "done" && view.request.activity === "paddling") {
                 paddleNotice.ask(() => setScreen("navigate"));
@@ -1445,13 +1564,17 @@ function MuW() {
             chosen={chosenIndex}
             onChoose={(index) => answer && setPicked({ of: answer, index })}
             figures={
-              <FigureTiles
-                chosen={resultTile}
-                onChoose={onChangeFigure}
-                // On the water only the shapes, as in «Draw».
-                pictures={sportActivity !== "paddling"}
-                testID="result-figures"
-              />
+              <>
+                <FigureTiles
+                  chosen={resultTile}
+                  onChoose={onChangeFigure}
+                  // On the water only the shapes, as in «Draw».
+                  pictures={sportActivity !== "paddling"}
+                  testID="result-figures"
+                />
+                {/* The figure of the route in the board (TASK-320). */}
+                {resultLines !== null && <EditDrawingButton onPress={onEditResult} />}
+              </>
             }
           />
         )}
@@ -1574,6 +1697,9 @@ function MuW() {
                       onDistanceText={distance.type}
                       activity={sportActivity}
                       underKinds={<MapDrawButton onPress={onOpenCanvas} />}
+                      freehand={freehand.figure}
+                      onEditFreehand={onEditFreehand}
+                      onEditShape={onEditShape}
                     />
                   </ImageEditsContext.Provider>
                   {/* Shapes ready to run near the phone, or in other cities
@@ -1701,6 +1827,17 @@ function MuW() {
           ]}
         />
       )}
+      {/* The board to draw a figure by hand (TASK-320), over everything. */}
+      <FreehandBoard
+        visible={board !== null}
+        onClose={onBoardSave}
+        figure={freehand.figure}
+        problem={freehand.problem}
+        onLine={freehand.addLine}
+        onErase={freehand.erase}
+        onUndo={freehand.undo}
+        canUndo={freehand.canUndo}
+      />
       {/* Before the first «Start» on the water (TASK-191). */}
       <PaddleNotice
         visible={paddleNotice.asking}

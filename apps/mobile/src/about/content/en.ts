@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 October 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C) and the figure drawn by hand (TASK-320) entered. */
 const PRIVACY_UPDATED = "28 October 2026";
 
 const help: AboutDocument = {
@@ -72,7 +72,7 @@ const help: AboutDocument = {
     {
       heading: "Publish and share",
       blocks: [
-        "A saved run is private: only you see it. Turn on «Public», at the end of the run or on a run in «My activities», and the other members see it as a drawing on your profile, without its first and last 200 m.",
+        "A saved run is private: only you see it. Other members see on your profile only the totals of all your saved runs, distance and elevation gain, never the runs themselves. Turn on «Public», at the end of the run or on a run in «My activities», and the other members see it as a drawing on your profile, without its first and last 200 m.",
         "«Share» makes a picture of your run to send wherever you like.",
       ],
     },
@@ -82,6 +82,14 @@ const help: AboutDocument = {
         "«Feed» shows drawings to take ideas from: tap one to open its route and start it.",
         "The lens at the top of «Feed» finds other members by name. On a profile you can tap «Follow»; your requests, your followers and who you follow are in «Profile».",
         "On a member's public drawing you can react with an emoji, send a super like and write a comment. Negative comments are not accepted.",
+      ],
+    },
+    {
+      heading: "Messages",
+      blocks: [
+        "«Message» on a member's profile writes to them. If they follow you, your message arrives in their «Messages»; if not, it arrives as a request, and you can send one message until they accept it.",
+        "Your conversations are in «Profile», «Messages», with «Message requests» at the top. Accept a request and you both write freely; delete it (who wrote is not told), or block who wrote.",
+        "Hold a message to delete yours, for both of you, or to report one you received. Nobody sees whether you read a message. With push on, MuW tells you of each message and of each request.",
       ],
     },
     {
@@ -322,8 +330,8 @@ const privacy: AboutDocument = {
     {
       heading: "Your runs and their GPS tracks",
       blocks: [
-        "With an account, when you tap «Save» at the end of a run the whole run goes to our server: every position with its time, the pauses, the route you followed, distance, duration, a score of how closely the track follows the route (worked out by our server and not shown in the app) and the name of the place. With «Discard», nothing is sent.",
-        "A saved run is private: only your account sees it. It stays until you delete it from «My activities» or delete your account.",
+        "With an account, when you tap «Save» at the end of a run the whole run goes to our server: every position with its time and height, the pauses, the route you followed, distance, duration, a score of how closely the track follows the route (worked out by our server and not shown in the app) and the name of the place. With «Discard», nothing is sent.",
+        "A saved run is private: only your account sees it. Other members see on your profile only the totals of all your saved runs, distance and elevation gain, never the runs themselves. It stays until you delete it from «My activities» or delete your account.",
         "A run often starts and ends at your door. This is why a run becomes visible to the other members only when you turn on «Public», and then they see the track without its first and last 200 m, with the title you gave it, and without times, pauses or the planned route.",
         "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file: still without its first and last 200 m and without times.",
       ],
@@ -338,6 +346,15 @@ const privacy: AboutDocument = {
             "Who you follow, who follows you and the requests to follow are kept with your account.",
           ],
         },
+      ],
+    },
+    {
+      heading: "Private messages",
+      blocks: [
+        "Your private messages are kept on our server: who wrote, to whom, the text and when, and for each of the two whether they accepted the conversation, when they last read it and up to when they deleted it from their view. They are not end-to-end encrypted. In the app only the two members of a conversation see it, and nobody is told whether a message was read. We keep them to give you the service you ask for (contract).",
+        "A message to someone who does not follow you arrives as a request; the first message of a request goes through the same word filter as comments.",
+        "You can delete your own messages, for both of you. Deleting a conversation takes it out of your view; a message that neither of you sees any more is deleted. A block deletes the conversation; deleting your account deletes all your conversations, with the messages of both.",
+        "When you report a message, the email to the person who runs MuW holds that message only, never the rest of the conversation. With push on, the notification of a message carries its beginning, through Expo's push service and Apple or Google, as for comments.",
       ],
     },
     {
@@ -372,6 +389,7 @@ const privacy: AboutDocument = {
         "The offline maps come from our server: the one around you and, ahead of time, those of towns nearby. To cap these downloads the server counts them, per day, by an anonymous number the app makes for the phone; the count is kept in memory only.",
         "Words that describe a shape are read on our server and are not sent to an outside AI service.",
         "A photo you choose for a drawing goes to our server once, to find its outline: the server does not save it and does not log it.",
+        "A figure you draw with your finger, or the outline of your photo, goes to our server once, as the route you ask for: the server does not keep it.",
         "To make the search better we keep an event for each search and for a few uses of the app (a route chosen, a GPX file exported, a run scored): the text in lower case, at most 200 characters, with emails and long numbers hidden; positions only as squares of about 1 km; nothing that says who you are or which phone it was. These events are kept without a time limit.",
       ],
     },

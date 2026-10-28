@@ -71,7 +71,7 @@ const help: AboutDocument = {
     {
       heading: "Publicar y compartir",
       blocks: [
-        "Una carrera guardada es privada: solo la ves tú. Activa «Pública», al final de la carrera o en una carrera de «Mis actividades», y los demás miembros la ven como un dibujo en tu perfil, sin sus primeros y últimos 200 m.",
+        "Una carrera guardada es privada: solo la ves tú. Los demás miembros ven en tu perfil solo los totales de todas tus carreras guardadas, distancia y desnivel, nunca las carreras. Activa «Pública», al final de la carrera o en una carrera de «Mis actividades», y los demás miembros la ven como un dibujo en tu perfil, sin sus primeros y últimos 200 m.",
         "«Compartir» crea una imagen de tu carrera para enviarla donde quieras.",
       ],
     },
@@ -81,6 +81,14 @@ const help: AboutDocument = {
         "«Feed» muestra dibujos de los que sacar ideas: toca uno para abrir su ruta y empezarla.",
         "La lupa de arriba en «Feed» encuentra a otros miembros por su nombre. En un perfil puedes tocar «Seguir»; tus solicitudes, tus seguidores y a quién sigues están en «Perfil».",
         "En el dibujo público de un miembro puedes reaccionar con un emoji, enviar un súper like y escribir un comentario. No se aceptan comentarios negativos.",
+      ],
+    },
+    {
+      heading: "Mensajes",
+      blocks: [
+        "«Mensaje» en el perfil de un miembro le escribe. Si te sigue, tu mensaje llega a sus «Mensajes»; si no, llega como solicitud, y puedes enviar un solo mensaje hasta que la acepte.",
+        "Tus conversaciones están en «Perfil», «Mensajes», con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
+        "Mantén pulsado un mensaje para borrar el tuyo, para los dos, o para denunciar uno que has recibido. Nadie ve si has leído un mensaje. Con las push encendidas, MuW te avisa de cada mensaje y de cada solicitud.",
       ],
     },
     {
@@ -321,8 +329,8 @@ const privacy: AboutDocument = {
     {
       heading: "Tus carreras y sus recorridos GPS",
       blocks: [
-        "Con una cuenta, cuando tocas «Guardar» al final de una carrera, la carrera entera va a nuestro servidor: cada posición con su hora, las pausas, la ruta que seguiste, distancia, duración, una puntuación de cuánto sigue la traza a la ruta (calculada por nuestro servidor y no mostrada en la app) y el nombre del lugar. Con «Descartar» no se envía nada.",
-        "Una carrera guardada es privada: solo la ve tu cuenta. Se queda hasta que la eliminas de «Mis actividades» o eliminas tu cuenta.",
+        "Con una cuenta, cuando tocas «Guardar» al final de una carrera, la carrera entera va a nuestro servidor: cada posición con su hora y su altura, las pausas, la ruta que seguiste, distancia, duración, una puntuación de cuánto sigue la traza a la ruta (calculada por nuestro servidor y no mostrada en la app) y el nombre del lugar. Con «Descartar» no se envía nada.",
+        "Una carrera guardada es privada: solo la ve tu cuenta. Los demás miembros ven en tu perfil solo los totales de todas tus carreras guardadas, distancia y desnivel, nunca las carreras. Se queda hasta que la eliminas de «Mis actividades» o eliminas tu cuenta.",
         "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros cuando activas «Pública», y entonces ven el recorrido sin sus primeros y últimos 200 m, con el título que le diste, y sin tiempos, pausas ni la ruta prevista.",
         "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX: siempre sin sus primeros y últimos 200 m y sin tiempos.",
       ],
@@ -337,6 +345,15 @@ const privacy: AboutDocument = {
             "A quién sigues, quién te sigue y las solicitudes para seguir se guardan con tu cuenta.",
           ],
         },
+      ],
+    },
+    {
+      heading: "Mensajes privados",
+      blocks: [
+        "Tus mensajes privados se guardan en nuestro servidor: quién escribió, a quién, el texto y cuándo, y para cada uno de los dos si aceptó la conversación, cuándo la leyó por última vez y hasta cuándo la quitó de su vista. No están cifrados de extremo a extremo. En la app una conversación solo la ven sus dos miembros, y nadie recibe aviso de si un mensaje se ha leído. Los guardamos para darte el servicio que pides (contrato).",
+        "Un mensaje a alguien que no te sigue llega como solicitud; el primer mensaje de una solicitud pasa por el mismo filtro de palabras que los comentarios.",
+        "Puedes borrar tus propios mensajes, para los dos. Borrar una conversación la quita de tu vista; un mensaje que ya no ve ninguno de los dos se borra. Un bloqueo borra la conversación; borrar tu cuenta borra todas tus conversaciones, con los mensajes de los dos.",
+        "Cuando denuncias un mensaje, el correo a la persona que gestiona MuW contiene solo ese mensaje, nunca el resto de la conversación. Con las push encendidas, la notificación de un mensaje lleva su comienzo, a través del servicio push de Expo y de Apple o Google, como con los comentarios.",
       ],
     },
     {
@@ -371,6 +388,7 @@ const privacy: AboutDocument = {
         "Los mapas sin conexión vienen de nuestro servidor: el de tu alrededor y, con antelación, los de los pueblos cercanos. Para limitar estas descargas, el servidor las cuenta por día, según un número anónimo que la app crea para el teléfono; la cuenta se guarda solo en memoria.",
         "Las palabras que describen una forma se leen en nuestro servidor y no se envían a ningún servicio de IA externo.",
         "Una foto que eliges para un dibujo va una vez a nuestro servidor, para encontrar su contorno: el servidor no la guarda ni la registra.",
+        "Una figura dibujada con el dedo, o el contorno de tu foto, va a nuestro servidor una vez, como la ruta que pides: el servidor no la guarda.",
         "Para mejorar la búsqueda guardamos un evento por cada búsqueda y por algunos usos de la app (una ruta elegida, un archivo GPX exportado, una carrera puntuada): el texto en minúsculas, como máximo 200 caracteres, con los correos y los números largos ocultos; las posiciones solo como cuadrados de alrededor de 1 km; nada que diga quién eres ni qué teléfono era. Estos eventos se guardan sin límite de tiempo.",
       ],
     },

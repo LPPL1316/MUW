@@ -39,8 +39,11 @@ import {
   switchDistance,
 } from "./distance";
 import { DistanceStepper } from "./DistanceStepper";
+import { type FreehandFigure, isDrawnOutline } from "./freehand";
+import { EditDrawingButton, FreehandChoice } from "./FreehandChoice";
 import { ImageChoice } from "./ImageChoice";
 import { LoadingBar, ReadingBar } from "./LoadingBar";
+import { penUpHint } from "./penUpHint";
 import { offersPenUp } from "./penUpShapes";
 import type { ImageSource } from "./pickImage";
 import { type ChoiceKind, problemText } from "./problems";
@@ -53,6 +56,7 @@ import type { AnyRouteRequest, RouteProblem, RouteState } from "./useRouteReques
 import type { ShapeReadingState } from "./useShapeReading";
 import { penSplit } from "./walks";
 import { type Note, toNotes } from "./warnings";
+import { WhileRouting } from "./WhileRouting";
 import {
   MAX_WORD_FIELD_LENGTH,
   routeName,
@@ -65,6 +69,8 @@ const DRAW_KINDS = [
   { value: "shape", label: tLater("Shape") },
   { value: "word", label: tLater("Word") },
   { value: "image", label: tLater("Image") },
+  // A figure drawn by hand on the board (TASK-320).
+  { value: "freehand", label: tLater("Freehand") },
 ] as const;
 
 // The letters of a word (TASK-080, ADR-0075): "block" is square in the API.
@@ -118,6 +124,13 @@ type ChoiceProps = {
   activity?: Activity;
   /** Under the switch, off the water: «Draw on the map» (TASK-281). */
   underKinds?: ReactNode;
+  /** The figure drawn by hand (TASK-320), shown with «Freehand», and the
+   * board to draw or change it; under the shape chosen, «Edit the drawing»
+   * opens the board on the shape's lines. Without them the fourth choice
+   * shows nothing to draw with. */
+  freehand?: FreehandFigure | null;
+  onEditFreehand?: () => void;
+  onEditShape?: (shape: Shape) => void;
 };
 
 /**
@@ -148,6 +161,9 @@ export function RouteChoice({
   onDistanceText,
   activity = "running",
   underKinds,
+  freehand = null,
+  onEditFreehand,
+  onEditShape,
 }: ChoiceProps) {
   // The distance is asked in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -204,9 +220,16 @@ export function RouteChoice({
               onChange={onPenUp}
             />
           )}
+          {/* The shape's lines in the board, to change by hand (TASK-320):
+              not on the water, where only the catalogue is drawn. */}
+          {onEditShape && shape !== null && !shapesOnly && (
+            <EditDrawingButton onPress={() => onEditShape(shape)} />
+          )}
         </>
       ) : kind === "image" ? (
         <ImageChoice state={image} onChoose={onChooseImage} />
+      ) : kind === "freehand" ? (
+        <FreehandChoice figure={freehand} onEdit={() => onEditFreehand?.()} />
       ) : (
         <>
           <TextInput
@@ -335,6 +358,10 @@ type OutcomeProps = {
   /** Another figure for the route on screen (TASK-286): a row of tiles
    * above «Start», once the route has come. */
   figures?: ReactNode;
+  /** The same word again with the pen up (TASK-311 B): «Lift the pen»
+   * under a word in one line that did not come out (penUpHint.ts). Without
+   * it no line is offered. */
+  onLiftPen?: () => void;
 };
 
 /** Under the map: the wait, the route, or why there is none. */
@@ -354,6 +381,7 @@ export function RouteOutcome({
   onSignal = (signal) => void sendSignal(signal),
   onRetry,
   figures,
+  onLiftPen,
 }: OutcomeProps) {
   // The distances are written in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -372,6 +400,16 @@ export function RouteOutcome({
     view.status === "done"
       ? betterDistanceM(choices[0] ?? view.result, view.request, left, units)
       : null;
+  // A word in one line that did not come out, judged on the engine's
+  // choice too (TASK-311 B): «Lift the pen».
+  const liftPen = onLiftPen && penUpHint(view, choices[0] ?? null) ? onLiftPen : null;
+  const liftPenLine = liftPen && (
+    <BetterDistance
+      text={t("This word may come out better with the pen up: each letter on its own.")}
+      tryLabel={t("Lift the pen")}
+      onTry={liftPen}
+    />
+  );
 
   /** Start or export the route on screen, and say which one it was. */
   function use(via: "start" | "gpx", then: () => void) {
@@ -413,6 +451,8 @@ export function RouteOutcome({
             distanceM={view.request.distance_m}
             word={isImageRequest(view.request) ? null : view.request.word}
           />
+          {/* Drawings to look at, after a few seconds (TASK-317). */}
+          <WhileRouting request={view.request} startedAt={view.startedAt} />
         </View>
       );
     case "done":
@@ -449,6 +489,7 @@ export function RouteOutcome({
               }}
             />
           )}
+          {liftPenLine}
           {toNotes(view.result.warnings).map((note) => (
             <NoteRow key={note.text} note={note} />
           ))}
@@ -496,33 +537,36 @@ export function RouteOutcome({
       );
     case "failed":
       return (
-        <Problem
-          problem={view.problem}
-          kind={kindOf(view.request)}
-          activity={view.request.activity}
-          asked={view.request.distance_m}
-          units={units}
-          onRetry={onRetry}
-          onTryDistance={(distanceM) => {
-            onSignal({
-              kind: "hint_taken",
-              ...drawnOf(view.request),
-              hint: "try_distance",
-              distance_m: view.request.distance_m,
-              to_m: distanceM,
-            });
-            onTryDistance(distanceM);
-          }}
-          onPickShape={(shape) => {
-            onSignal({
-              kind: "hint_taken",
-              shape,
-              hint: "catalog_shape",
-              distance_m: view.request.distance_m,
-            });
-            onPickShape(shape);
-          }}
-        />
+        <>
+          <Problem
+            problem={view.problem}
+            kind={kindOf(view.request)}
+            activity={view.request.activity}
+            asked={view.request.distance_m}
+            units={units}
+            onRetry={onRetry}
+            onTryDistance={(distanceM) => {
+              onSignal({
+                kind: "hint_taken",
+                ...drawnOf(view.request),
+                hint: "try_distance",
+                distance_m: view.request.distance_m,
+                to_m: distanceM,
+              });
+              onTryDistance(distanceM);
+            }}
+            onPickShape={(shape) => {
+              onSignal({
+                kind: "hint_taken",
+                shape,
+                hint: "catalog_shape",
+                distance_m: view.request.distance_m,
+              });
+              onPickShape(shape);
+            }}
+          />
+          {liftPenLine}
+        </>
       );
     default:
       return null;
@@ -759,9 +803,13 @@ function WordNote({
   );
 }
 
-/** What the route draws, for the line under its distance. */
+/** What the route draws, for the line under its distance: a figure drawn
+ * by hand is a «Drawing» (TASK-320), known by the outline the board made. */
 function nameOf(request: AnyRouteRequest): string {
-  return isImageRequest(request) ? t("Picture") : routeName(request);
+  if (isImageRequest(request)) {
+    return isDrawnOutline(request.outline) ? t("Drawing") : t("Picture");
+  }
+  return routeName(request);
 }
 
 /** A route on the water (TASK-191): it follows no road, and has no turns. */
@@ -796,7 +844,13 @@ function waitingText(
   switch (phase) {
     case "sending":
     case "queued":
-      return t("Waiting for the API…");
+      // Not drawing yet: said as a runner would, with no «API» (TASK-317).
+      if (isImageRequest(request)) {
+        return t("Warming up: the picture…");
+      }
+      return request.word
+        ? t("Warming up: “{word}”…", { word: request.word })
+        : t("Warming up: {name}…", { name: routeName(request) });
     case "downloading_map":
       return t("Downloading map data for this area…");
     default:

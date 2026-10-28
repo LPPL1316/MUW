@@ -69,7 +69,7 @@ const help: AboutDocument = {
     {
       heading: "Pubblicare e condividere",
       blocks: [
-        "Una corsa salvata è privata: la vedi solo tu. Accendi «Pubblica», a fine corsa o su una corsa di «Le mie attività», e gli altri iscritti la vedono come disegno sul tuo profilo, senza i primi e gli ultimi 200 m.",
+        "Una corsa salvata è privata: la vedi solo tu. Gli altri iscritti vedono sul tuo profilo solo i totali di tutte le tue corse salvate, distanza e dislivello, mai le corse. Accendi «Pubblica», a fine corsa o su una corsa di «Le mie attività», e gli altri iscritti la vedono come disegno sul tuo profilo, senza i primi e gli ultimi 200 m.",
         "«Condividi» crea un'immagine della tua corsa da mandare dove vuoi.",
       ],
     },
@@ -79,6 +79,14 @@ const help: AboutDocument = {
         "«Feed» mostra disegni da cui prendere idee: toccane uno per aprire il suo percorso e correrlo.",
         "La lente in cima a «Feed» trova gli altri iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti segue e chi segui sono in «Profilo».",
         "Sul disegno pubblico di un iscritto puoi reagire con un'emoji, mandare un super like e scrivere un commento. I commenti negativi non sono accettati.",
+      ],
+    },
+    {
+      heading: "Messaggi",
+      blocks: [
+        "«Messaggio» sul profilo di un iscritto gli scrive. Se ti segue, il messaggio arriva nei suoi «Messaggi»; se no, arriva come richiesta, e puoi mandare un solo messaggio finché non la accetta.",
+        "Le tue conversazioni sono in «Profilo», «Messaggi», con «Richieste di messaggio» in cima. Accetta una richiesta per scrivervi, eliminala (chi ha scritto non lo sa) o blocca chi ha scritto.",
+        "Tieni premuto un messaggio per eliminare il tuo, per tutti e due, o per segnalarne uno che hai ricevuto. Nessuno vede se hai letto un messaggio. Con le push accese, MuW ti avvisa di ogni messaggio e di ogni richiesta.",
       ],
     },
     {
@@ -319,8 +327,8 @@ const privacy: AboutDocument = {
     {
       heading: "Le tue corse e le loro tracce GPS",
       blocks: [
-        "Con un account, quando tocchi «Salva» a fine corsa la corsa intera va al nostro server: ogni posizione con il suo orario, le pause, il percorso seguito, distanza, durata, un punteggio di quanto la traccia segue il percorso (calcolato dal nostro server e non mostrato nell'app) e il nome del luogo. Con «Discard» non parte niente.",
-        "Una corsa salvata è privata: la vede solo il tuo account. Resta finché non la elimini da «Le mie attività» o elimini l'account.",
+        "Con un account, quando tocchi «Salva» a fine corsa la corsa intera va al nostro server: ogni posizione con il suo orario e la sua altezza, le pause, il percorso seguito, distanza, durata, un punteggio di quanto la traccia segue il percorso (calcolato dal nostro server e non mostrato nell'app) e il nome del luogo. Con «Discard» non parte niente.",
+        "Una corsa salvata è privata: la vede solo il tuo account. Gli altri iscritti vedono sul tuo profilo solo i totali di tutte le tue corse salvate, distanza e dislivello, mai le corse. Resta finché non la elimini da «Le mie attività» o elimini l'account.",
         "Una corsa spesso parte e finisce davanti a casa. Per questo diventa visibile agli altri iscritti solo quando accendi «Pubblica», e allora vedono la traccia senza i primi e gli ultimi 200 m, con il titolo che le hai dato, e senza orari, pause né il percorso pianificato.",
         "Chi può vedere una tua corsa può anche seguirla con «Parti» e salvarne la stessa traccia come file GPX: sempre senza i primi e gli ultimi 200 m e senza orari.",
       ],
@@ -335,6 +343,15 @@ const privacy: AboutDocument = {
             "Chi segui, chi ti segue e le richieste di follow sono conservati con il tuo account.",
           ],
         },
+      ],
+    },
+    {
+      heading: "Messaggi privati",
+      blocks: [
+        "I tuoi messaggi privati stanno sul nostro server: chi ha scritto, a chi, il testo e quando, e per ognuno dei due se ha accettato la conversazione, quando l'ha letta l'ultima volta e fino a quando l'ha tolta dalla sua vista. Non sono cifrati end-to-end. Nell'app una conversazione la vedono solo i suoi due iscritti, e nessuno viene avvisato se un messaggio è stato letto. Li teniamo per darti il servizio che chiedi (contratto).",
+        "Un messaggio a chi non ti segue arriva come richiesta; il primo messaggio di una richiesta passa dallo stesso filtro di parole dei commenti.",
+        "Puoi eliminare i tuoi messaggi, per tutti e due. Eliminare una conversazione la toglie dalla tua vista; un messaggio che nessuno dei due vede più viene cancellato. Un blocco cancella la conversazione; cancellare l'account cancella tutte le tue conversazioni, con i messaggi di tutti e due.",
+        "Quando segnali un messaggio, l'email a chi gestisce MuW contiene solo quel messaggio, mai il resto della conversazione. Con le push accese, la notifica di un messaggio ne porta l'inizio, attraverso il servizio push di Expo e Apple o Google, come per i commenti.",
       ],
     },
     {
@@ -369,6 +386,7 @@ const privacy: AboutDocument = {
         "Le mappe offline vengono dal nostro server: quella intorno a te e, in anticipo, quelle dei paesi vicini. Per mettere un tetto a questi download il server li conta, giorno per giorno, con un numero anonimo che l'app crea per il telefono; il conteggio sta solo in memoria.",
         "Le parole che descrivono una forma sono lette sul nostro server e non vanno a un servizio di AI esterno.",
         "Una foto che scegli per un disegno va al nostro server una volta, per trovarne il contorno: il server non la salva e non la scrive nei log.",
+        "Una figura disegnata col dito, o il contorno della tua foto, va al nostro server una volta, come il percorso che chiedi: il server non la tiene.",
         "Per migliorare la ricerca teniamo un evento per ogni ricerca e per alcuni usi dell'app (un percorso scelto, un file GPX esportato, una corsa con il punteggio): il testo in minuscolo, al massimo 200 caratteri, con email e numeri lunghi oscurati; le posizioni solo come quadrati di circa 1 km; niente che dica chi sei o quale telefono era. Questi eventi sono conservati senza un limite di tempo.",
       ],
     },

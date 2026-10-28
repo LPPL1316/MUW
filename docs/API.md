@@ -302,7 +302,7 @@ giorni:
   pianificatore dalla partenza dell'utente;
 - niente che vada bene: il motore calcola come oggi, e il risultato entra
   nell'archivio con il piazzamento della ricerca vicino alla partenza
-  (`jobs.KeepsPlacements`, `put_plan`; `DATABASE.md`, la 0033).
+  (`jobs.KeepsPlacements`, `put_plan`; `DATABASE.md`, la 0035).
 
 Il contratto non cambia. Nel log: `job …: kept route reached along the
 roads` e `kept route reached from 62 m away`; negli eventi la risposta
@@ -1295,8 +1295,12 @@ tipi dell'app in `apps/mobile/src/api/activities.ts`; il codice in
   resto, conta solo al primo `PUT`; dopo si cambia dal disegno
   («Drawings», sotto), e lì si legge (`MyDrawing.activity`): l'elenco e la
   corsa intera di questa sezione non lo hanno.
-- **Km, tempo e punteggio li conta l'API**, e l'app non li può mandare
-  (`distance_m`, `duration_s`, `score` nel corpo sono `422`):
+- **L'altezza** (TASK-324, ADR-0284): ogni posizione può avere
+  `altitude_m` (metri sul mare, fra −1000 e 10 000, altrimenti `422`;
+  `POST /track-scores` non la prende). Assente da un'app di prima: la
+  corsa non ha dislivello. Rifiutata, l'app rimanda la corsa senza.
+- **Km, tempo, dislivello e punteggio li conta l'API**, e l'app non li
+  può mandare (`distance_m`, `duration_s`, `score` nel corpo sono `422`):
   - la traccia tenuta è quella **pulita dal motore** (`clean_track`,
     ADR-0090): senza le posizioni troppo incerte, ripetute o che nessun
     corridore raggiunge. Con meno di 2 posizioni buone la corsa non si
@@ -1310,7 +1314,12 @@ tipi dell'app in `apps/mobile/src/api/activities.ts`; il codice in
     come `POST /track-scores`; `null` senza percorso, e `null` anche quando
     la corsa è troppo corta per essere giudicata (si salva lo stesso);
   - `started_at` è l'orario della prima posizione tenuta. Un orario prima
-    del 2020 o oltre domani non è un orologio: `422 invalid_request`.
+    del 2020 o oltre domani non è un orologio: `422 invalid_request`;
+  - il dislivello (`runs.climb_m`, per i totali del profilo; l'elenco non
+    lo manda) è la somma delle salite di almeno 3 m dall'ultima altezza
+    contata, sulle posizioni tenute, niente a cavallo di una pausa chiesta
+    dal corridore (`run_climb.py`, la regola di `runMetrics.climbM`);
+    `null` senza altezze.
 - **`place`** è il nome del paese da cui la corsa parte («Trento»), o
   `null`. L'API lo chiede al geocoding inverso di Geoapify, con la chiave
   della ricerca dei luoghi (`GEOAPIFY_API_KEY`), per la partenza
@@ -1444,6 +1453,7 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
 |---|---|---|
 | `PATCH /me` | cambiare nome utente e bio | `200` `User`, com'è adesso |
 | `GET /users/{public_id}` | il profilo di un iscritto | `200` `PublicProfile`, o `404 http_error` |
+| `GET /users/{public_id}/photos` | le foto dei suoi disegni (TASK-324) | `200` `UserPhotosPage`, o `404 http_error` |
 
 - **`User`** (anche in `Session` e `GET /me`) ha in più `bio` (`""` senza)
   e `public_id`, un UUID casuale dato a ogni account dalla migrazione
@@ -1474,6 +1484,22 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   `follow`, dove sta chi guarda verso quel profilo: `none`, `requested` o
   `following` (il proprio profilo: `none`; «Follow», sotto). **Mai
   l'email**, né `role`, `id` o la data d'iscrizione (un test lo prova).
+- **I totali** (TASK-324, ADR-0284): `distance_m`, i metri di **tutte** le
+  corse dell'account, private comprese (scelta dell'utente); `climb_m`, i
+  metri saliti delle corse che lo sanno (salvate da un'app con le altezze,
+  «My activities»); `reactions`, le reazioni lasciate dagli altri sui
+  disegni che chi guarda vede: mai quelle del proprietario, mai di chi un
+  blocco tiene lontano da chi guarda. Solo le somme, mai una corsa.
+  `profile_totals.py`; un'API precedente non li ha.
+- **`GET /users/{public_id}/photos`** (TASK-324): le foto dei disegni che
+  chi guarda vede sul profilo, dalla corsa più recente e nello stesso
+  disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima
+  (`next`, `null` sull'ultima). Ogni `UserPhoto` è una `DrawingPhoto`
+  (`n`, `url`, `width`, `height`, letta da `url` con il token come le
+  altre) con `drawing_id`, `title` e `started_at` del suo disegno, che
+  l'app apre. Esempio `fixtures/user-photos.json`; `404` come i disegni
+  del profilo (che non c'è, non un UUID, bloccato); `cursor` fuori forma
+  `422`. `user_photos.py`.
 - Un `public_id` che non c'è, di un account cancellato, o che non è un
   UUID (un `id` numerico, un nome): `404 http_error` «No profile with this
   id.». Il proprio profilo si legge come gli altri.
@@ -1614,6 +1640,8 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
   | `contest_won` | il comando `close` ha proclamato il suo post vincitore del concorso (TASK-299) | chi ha vinto | il disegno |
   | `group_run_soon`, `group_run_changed`, `group_run_cancelled` | una corsa di gruppo comincia entro un'ora, cambia ora o luogo, è annullata (TASK-309, «Group runs») | chi va; il promemoria anche all'organizzatore | la corsa di gruppo |
+  | `message` | un messaggio privato, fuori da una richiesta (TASK-319): «{name}: {text}», con l'inizio | chi lo riceve | la conversazione, dal profilo di chi scrive |
+  | `message_request` | una richiesta di messaggio, al più una al giorno per chi scrive (TASK-319), senza il testo | chi la riceve | la conversazione, dal profilo di chi scrive |
 
   «Un nuovo follower» è `follow_accepted`: ogni follow passa da una
   richiesta (TASK-211), e chi accetta lo sa già.
@@ -2313,9 +2341,10 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   a 50, cursore `microsecondi-public_id`), con `total`; ogni iscritto con
   nome e foto piccola, mai l'email.
 - **`POST /reports`**: `{"kind", "id", "reason"}`. `kind` è `drawing`
-  (un post del feed), `comment`, `user` o `group_run` (TASK-309); `id` è
-  l'id del disegno, del commento, il `public_id` dell'iscritto o l'id
-  della corsa di gruppo; `reason` è uno di `spam`,
+  (un post del feed), `comment`, `user`, `group_run` (TASK-309) o
+  `message` (un messaggio privato, TASK-319, «Messages» sotto); `id` è
+  l'id del disegno, del commento, il `public_id` dell'iscritto, l'id della
+  corsa di gruppo o del messaggio; `reason` è uno di `spam`,
   `offensive`, `harassment`, `sexual`, `other`, in quest'ordine (l'app
   li mostra così). **Una riga per chi segnala e per cosa**: segnalato di
   nuovo, la riga prende il motivo e l'ora nuovi. Niente con quell'id:
@@ -2376,6 +2405,89 @@ di Resend non cambia mai la risposta di `POST /reports`.
     commenti, reazioni, follow, e niente notifiche push agli altri per
     quello che fa. Lui vede tutto come prima.
   Nessuno viene avvisato.
+
+### Messages (TASK-319, ADR-0279)
+
+Due iscritti si scrivono **messaggi privati**, con le **richieste** come
+su Instagram (scelte dell'utente del 2026-10-26). Si scrive a chiunque non
+sia lontano per un blocco o nascosto (`follows.apart_sql`); una
+conversazione per coppia, chiesta con il `public_id` dell'altro. Tutti gli
+endpoint vogliono il token: senza, `401 not_signed_in`; senza database,
+`503 accounts_unavailable`. Tipi in `shared-types` (`MessageRequest`,
+`Message`, `MessagesPage`, `Conversation`, `ConversationsPage`,
+`ConversationsUnread`, `ConversationState`, `MESSAGE_MAX_LENGTH`,
+`MessagePushKind`), esempi in `fixtures/message-request.json`,
+`message.json`, `messages.json`, `conversations.json`,
+`conversations-unread.json`; il codice in `messages.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /me/conversations?box=inbox\|requests` | le conversazioni di «Messages» o le richieste, l'ultimo messaggio per primo | `200` `ConversationsPage` |
+| `GET /me/conversations/unread` | quante conversazioni hanno novità, quante richieste aspettano | `200` `ConversationsUnread` |
+| `GET /conversations/{public_id}/messages` | una pagina dei messaggi, l'ultimo per primo, e `state` | `200` `MessagesPage`, o `404` / `422` |
+| `POST /conversations/{public_id}/messages` | un messaggio nuovo | `201` `Message`, o `404` / `409` / `422` / `429` |
+| `PUT /conversations/{public_id}/accept` | accetta la richiesta | `204`, o `404 http_error` |
+| `PUT /conversations/{public_id}/read` | la conversazione letta fino ad ora | `204` |
+| `DELETE /conversations/{public_id}` | toglie la conversazione (o la richiesta) dalla propria vista | `204` |
+| `DELETE /messages/{id}` | cancella un proprio messaggio, per tutti e due | `204`, o `403` / `404 http_error` |
+
+- **Dove arriva un messaggio**: dritto in «Messages» (`box=inbox`) se chi
+  lo riceve **segue chi scrive**, o se ha già accettato, risposto o
+  scritto per primo; altrimenti è una **richiesta** (`box=requests`). Per
+  chi scrive la conversazione è sempre in «Messages».
+- **`state`**, da chi chiede: `open` scrive liberamente; `first` scrive un
+  messaggio, che all'altro arriva come richiesta; `waiting` ha scritto
+  quello e aspetta (`POST` risponde `409 http_error` «Your message request
+  is waiting: write again once it is accepted.»); `request` l'altro gli ha
+  scritto una richiesta: «Accept», «Delete», «Block». **Rispondere accetta**,
+  come «Accept». Seguire l'altro non basta per scrivergli liberamente:
+  conta che sia l'altro a seguire chi scrive.
+- **Il messaggio di una richiesta passa dal filtro dei commenti**
+  (`comment_filter.py`, ADR-0176): negativo, `422 comment_rejected` con
+  `reason` `negative` e «You can't send negative messages in this app.»;
+  non si tiene niente, nemmeno la conversazione. Fra due che si scrivono
+  liberamente il filtro non c'è.
+- **Il corpo del `POST`** è `{ "text": "…" }`: testo semplice, che perde
+  gli spazi in testa e in coda; da 1 a 1000 caratteri
+  (`MESSAGE_MAX_LENGTH`), a capo compresi. Vuoto, troppo lungo o con
+  caratteri di controllo: `422 invalid_request` con il motivo in parole,
+  come per i commenti. **Al più 20 messaggi al minuto per account**: oltre,
+  `429 too_many_requests` con `Retry-After`. Scrivere a se stessi: `422`
+  «You cannot write to yourself.»; a nessuno, o attraverso un blocco:
+  `404` «No profile with this id.», anche per leggere.
+- **Un messaggio** ha `id`, `text`, `created_at` e `mine` (l'ha scritto
+  chi chiede, che lo può cancellare). **Nessuna conferma di lettura**:
+  `read_at` serve solo al pallino di chi riceve (`unread` nella lista,
+  `GET /me/conversations/unread`); scrivere segna letto.
+- **Le pagine**: i messaggi **dall'ultimo**, `limit` da 1 a 50, `next`
+  porta ai più vecchi; le conversazioni dall'ultimo messaggio, con `next` e
+  `total`. Cursore `microsecondi-uuid`, come gli elenchi di «Follow». Prima
+  del primo messaggio la pagina ha `messages: []` e `state`, così l'app
+  apre una conversazione vuota dal profilo.
+- **«Delete»** (`DELETE /conversations/{public_id}`) toglie i messaggi
+  fino ad ora dalla propria vista, e la conversazione dalla lista finché
+  non ne arriva un altro; chi può scrivere liberamente non cambia. Per una
+  richiesta: niente lo dice a chi ha scritto, che la vede ancora, e può
+  scrivere **di nuovo un messaggio**, che è una richiesta nuova (come un
+  follow rifiutato, ADR-0173). Un messaggio che nessuno dei due vede più si
+  cancella. Fatto due volte, `204`.
+- **Un blocco** cancella la conversazione dei due (`messages.on_block`,
+  nella transazione del blocco), come chiude i follow; sbloccare non rimette
+  niente, e il primo messaggio dopo è di nuovo una richiesta.
+- **Segnalare un messaggio**: `POST /reports` con `kind` `message` e l'id
+  del messaggio, **solo da chi l'ha ricevuto**: chi l'ha scritto `422`,
+  chi non è nella conversazione `404` «Nothing to report with this id.».
+  L'email della segnalazione porta **quel messaggio soltanto**, mai il
+  resto della conversazione; «Hide» lo nasconde a chi l'ha ricevuto
+  (`messages.hidden_at`), chi l'ha scritto lo vede ancora. Un iscritto
+  nascosto scrive a tutti come prima, ma nessuno vede i suoi messaggi.
+- **Le push**: `message` per ogni messaggio, con l'inizio del testo;
+  `message_request` per una richiesta, senza il testo, al più una al
+  giorno per chi scrive («Push notifications», sopra). Nessuna email.
+- **`DELETE /me`** cancella ogni conversazione dell'account, con i
+  messaggi di tutti e due (`ON DELETE CASCADE`).
+- **Un'API precedente** non ha questi endpoint (`404 http_error`), e
+  l'app non mostra «Messages».
 
 ### Shape game (TASK-296, ADR-0255)
 

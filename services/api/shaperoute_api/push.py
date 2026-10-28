@@ -13,8 +13,9 @@ reaction, a comment, a tag. A sixth, a shape of the game unlocked (TASK-296,
 ADR-0255), is told to the runner who unlocked it; three more are the game's
 teams' (part C): a piece finished, a challenge complete, a day left; three
 a group run's, to who goes (TASK-309, group_runs.py): it starts soon, its
-time or place changed, it was cancelled. Each to one recipient, and only
-when:
+time or place changed, it was cancelled; two the private messages'
+(TASK-319, messages.py): a message, and a message request once a day for
+each writer. Each to one recipient, and only when:
 
 - the recipient has «Push notifications» on (users.notify_push);
 - the recipient is not the one who acted, but for OWN_KINDS;
@@ -90,6 +91,8 @@ Kind = Literal[
     "group_run_soon",
     "group_run_changed",
     "group_run_cancelled",
+    "message",
+    "message_request",
 ]
 # The events of what one did oneself, or of nobody's doing: told to
 # oneself too (the shape game, TASK-296; the contest won, TASK-299; the
@@ -331,6 +334,22 @@ TEXTS: dict[str, dict[str, str]] = {
         "it": "{name} ha annullato {title}.",
         "es": "{name} ha cancelado {title}.",
         "fr": "{name} a annulé {title}.",
+    },
+    # The private messages (TASK-319): a message with its beginning; a
+    # request without it, which may come from anyone.
+    "message": {
+        "en": "{name}: {text}",
+        "de": "{name}: {text}",
+        "it": "{name}: {text}",
+        "es": "{name}: {text}",
+        "fr": "{name} : {text}",
+    },
+    "message_request": {
+        "en": "{name} wants to send you a message.",
+        "de": "{name} möchte dir eine Nachricht schicken.",
+        "it": "{name} vuole mandarti un messaggio.",
+        "es": "{name} quiere enviarte un mensaje.",
+        "fr": "{name} veut t'envoyer un message.",
     },
 }
 

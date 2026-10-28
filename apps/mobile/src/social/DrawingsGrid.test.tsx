@@ -38,6 +38,7 @@ function door(...pages: AccountOutcome<DrawingsPage>[]) {
     open,
     opened: null,
     back: () => {},
+    leave: () => {},
   };
   return { value, pageOf, open };
 }

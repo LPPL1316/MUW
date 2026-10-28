@@ -716,6 +716,15 @@ export interface PublicProfile {
    * Missing from an API older than TASK-299.
    */
   contest_wins?: number;
+  /**
+   * The totals (TASK-324, ADR-0284): the metres of all its runs and the
+   * metres climbed in those that know it, private runs too (the user's
+   * choice), and the reactions others left on its drawings the one who asks
+   * sees. All three missing from an API older than TASK-324.
+   */
+  distance_m?: number;
+  climb_m?: number;
+  reactions?: number;
 }
 
 /**
@@ -1073,9 +1082,16 @@ export interface FeedPage {
 
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing
- * (a post of the feed), a comment, a member, or a group run (TASK-309).
+ * (a post of the feed), a comment, a member, a group run (TASK-309), or a
+ * private message (TASK-319: only the one it was sent to reports it).
  */
-export const REPORT_KINDS = ["drawing", "comment", "user", "group_run"] as const;
+export const REPORT_KINDS = [
+  "drawing",
+  "comment",
+  "user",
+  "group_run",
+  "message",
+] as const;
 export type ReportKind = (typeof REPORT_KINDS)[number];
 
 /**
@@ -1093,8 +1109,8 @@ export type ReportReason = (typeof REPORT_REASONS)[number];
 
 /**
  * POST /reports: kept once for each reporter and thing, the latest reason
- * kept; 204. `id` is the drawing's id, the comment's id or the member's
- * public_id. PUT and DELETE /users/{public_id}/block keep two members
+ * kept; 204. `id` is the drawing's id, the comment's id, the member's
+ * public_id or the message's id. PUT and DELETE /users/{public_id}/block keep two members
  * apart both ways, and GET /me/blocked is a PeoplePage of those blocked.
  */
 export interface ReportRequest {
@@ -1617,4 +1633,120 @@ export interface WayBack {
   rejoin: LatLon;
   rejoin_m: number;
   directions: Direction[];
+}
+
+// --- Private messages (TASK-319, ADR-0279; docs/API.md «Messages») ---
+
+/** The limit of a message, checked by the API too. */
+export const MESSAGE_MAX_LENGTH = 1000;
+
+/**
+ * Where who asks stands in a conversation:
+ * - "open": it writes freely;
+ * - "first": it writes one message, which the other gets as a request;
+ * - "waiting": it wrote that one, and writes again once the other accepts
+ *   (POST answers 409 meanwhile);
+ * - "request": the other wrote it a request: Accept, Delete or Block.
+ */
+export const CONVERSATION_STATES = ["open", "first", "waiting", "request"] as const;
+export type ConversationState = (typeof CONVERSATION_STATES)[number];
+
+/** The two lists of GET /me/conversations?box=. */
+export type ConversationBox = "inbox" | "requests";
+
+/**
+ * POST /conversations/{public_id}/messages: plain text, 1 to
+ * MESSAGE_MAX_LENGTH characters once the spaces at either end are gone; new
+ * lines are kept. The answer is the Message (201). The one message of a
+ * request is refused as a comment ("comment_rejected") when negative.
+ */
+export interface MessageRequest {
+  text: string;
+}
+
+/** One message, as who asks sees it. */
+export interface Message {
+  id: string;
+  /** Plain text: shown as text, never as a link or HTML. */
+  text: string;
+  created_at: string;
+  /** Who asks wrote it, and may delete it (DELETE /messages/{id}). */
+  mine: boolean;
+}
+
+/**
+ * GET /conversations/{public_id}/messages: a page, the latest first; no
+ * messages before the first one is written. 404 for nobody, or someone a
+ * block keeps apart; 422 for oneself.
+ */
+export interface MessagesPage {
+  /** Who the conversation is with: never the email. */
+  person: Person;
+  state: ConversationState;
+  messages: Message[];
+  /** The `cursor` of the page of older ones; null on the oldest. */
+  next: string | null;
+}
+
+/** One conversation in a list: who with, and its latest message. */
+export interface Conversation {
+  person: Person;
+  last: Message;
+  /** The other wrote since who asks last read it (PUT …/read). */
+  unread: boolean;
+}
+
+/**
+ * GET /me/conversations?box=inbox|requests: a page, the latest message
+ * first. PUT /conversations/{public_id}/accept takes a request into the
+ * inbox, DELETE /conversations/{public_id} takes a conversation out of
+ * one's own view; both answer 204.
+ */
+export interface ConversationsPage {
+  conversations: Conversation[];
+  /** The `cursor` of the next page; null on the last one. */
+  next: string | null;
+  /** How many conversations the box has, on every page. */
+  total: number;
+}
+
+/** GET /me/conversations/unread: what the dot of «Messages» counts. */
+export interface ConversationsUnread {
+  /** Conversations of the inbox with a message not read yet. */
+  unread: number;
+  /** Message requests waiting for an answer. */
+  requests: number;
+}
+
+/**
+ * The push notifications of the messages, beside `PushKind`: a message
+ * (with its beginning), a message request (once a day for each writer).
+ * Their `data` is the profile of who wrote, as a follow event's; the app
+ * opens the conversation.
+ */
+export type MessagePushKind = "message" | "message_request";
+
+/** The `data` of a message's notification. */
+export interface MessagePushData {
+  kind: MessagePushKind;
+  public_id: string;
+  username: string;
+}
+/**
+ * A photo of a drawing on a profile (TASK-324): GET /users/{public_id}/photos.
+ * Read as DrawingPhoto from `url`; a tap opens its drawing.
+ */
+export interface UserPhoto extends DrawingPhoto {
+  drawing_id: string;
+  /** The drawing's; null: none, named by its day. */
+  title: string | null;
+  /** When the drawing's run began, ISO 8601. */
+  started_at: string;
+}
+
+/** A page of a profile's photos, the latest run first (TASK-324). */
+export interface UserPhotosPage {
+  photos: UserPhoto[];
+  /** The `cursor` of the next page; null on the last one. */
+  next: string | null;
 }

@@ -534,7 +534,6 @@ export const FR: Table = {
     "{count} lettres : au moins {km} km. Dessiner un mot prend quelques minutes.",
   "Use {km} km": "Utiliser {km} km",
   Picture: "Photo",
-  "Waiting for the API…": "En attente du service…",
   "Downloading map data for this area…": "Téléchargement de la carte de cette zone…",
   "Drawing the picture's outline, {km} km…": "Dessin du contour de la photo, {km} km…",
   "Drawing “{word}”, {km} km…": "Dessin de « {word} », {km} km…",
@@ -816,6 +815,13 @@ export const FR: Table = {
   "No public drawings yet. Make a run public in My activities.":
     "Pas encore de dessins publics. Rends une course publique dans Mes activités.",
   "No drawings yet.": "Pas encore de dessins.",
+
+  // src/profile/ProfileStats.tsx, src/profile/ProfileGallery.tsx (TASK-324)
+  Likes: "J'aime",
+  Photos: "Photos",
+  "No photos yet.": "Pas encore de photos.",
+  "No photos yet. Add some to a public drawing in My activities.":
+    "Pas encore de photos. Ajoutes-en à un dessin public dans Mes activités.",
 
   // src/social/SuperLikeSheet.tsx
   "Super like": "Super like",
@@ -1162,8 +1168,8 @@ export const FR: Table = {
   "Thanks for telling us. We will look at it.":
     "Merci de nous l'avoir signalé. Nous allons vérifier.",
   "Block {user}?": "Bloquer {user} ?",
-  "You will not see each other's drawings, comments or profile, and any follow between you ends. They are not told.":
-    "Vous ne verrez plus les dessins, commentaires ni le profil l'un de l'autre, et tout abonnement entre vous prend fin. La personne n'est pas prévenue.",
+  "You will not see each other's drawings, comments, messages or profile, any follow between you ends and your conversation is deleted. They are not told.":
+    "Vous ne verrez plus les dessins, commentaires, messages ni le profil l'un de l'autre, tout abonnement entre vous prend fin et votre conversation est supprimée. La personne n'est pas prévenue.",
   Block: "Bloquer",
   "Sending…": "Envoi…",
   "This is not available any more.": "Ce n'est plus disponible.",
@@ -1472,4 +1478,63 @@ export const FR: Table = {
   FEEDBACK: "AVIS",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapente",
+  // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
+  "Draw it near me": "La dessiner près de moi",
+  // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
+  "This word may come out better with the pen up: each letter on its own.":
+    "Ce mot peut être mieux dessiné avec le crayon levé : chaque lettre à part.",
+  "Lift the pen": "Lever le crayon",
+  // src/route/RoutePanel.tsx (TASK-317: the wait in «Draw»)
+  "Warming up: {name}…": "Échauffement : {name}…",
+  "Warming up: “{word}”…": "Échauffement : « {word} »…",
+  "Warming up: the picture…": "Échauffement : la photo…",
+
+  // src/api/messages.ts (TASK-319: private messages)
+  "A message needs some words.": "Un message a besoin de quelques mots.",
+  "A message is at most {max} characters.": "Un message fait au plus {max} caractères.",
+  "Too many messages in a minute. Wait a moment and try again.":
+    "Trop de messages en une minute. Attends un instant et réessaie.",
+  "You can't send negative messages in this app.":
+    "Dans cette app, tu ne peux pas envoyer de messages négatifs.",
+  "This conversation is not available.": "Cette conversation n'est pas disponible.",
+
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-319)
+  Messages: "Messages",
+  "Messages, {count} waiting": "Messages, {count} en attente",
+  "Message requests": "Demandes de message",
+  "Message requests, {count} waiting": "Demandes de message, {count} en attente",
+  "No messages yet. Open someone's profile and tap Message to write to them.":
+    "Pas encore de messages. Ouvre le profil de quelqu'un et touche Message pour lui écrire.",
+  "No message requests.": "Aucune demande de message.",
+  "You: {text}": "Toi : {text}",
+  "{name}, new message: {text}": "{name}, nouveau message : {text}",
+  Message: "Message",
+  "Message {name}": "Écrire à {name}",
+
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-319)
+  "No messages yet.": "Pas encore de messages.",
+  "Show earlier messages": "Afficher les messages précédents",
+  "Touch and hold to delete it": "Maintiens appuyé pour le supprimer",
+  "Touch and hold to report it": "Maintiens appuyé pour le signaler",
+  "Message request sent. You can write again when {name} accepts it.":
+    "Demande de message envoyée. Tu pourras écrire à nouveau quand {name} l'acceptera.",
+  "{name} wants to send you a message.": "{name} veut t'envoyer un message.",
+  "{name} gets this as a message request. You can send one message until they accept it.":
+    "{name} le reçoit comme demande de message. Tant qu'elle n'est pas acceptée, tu peux envoyer un seul message.",
+  "Write a message…": "Écris un message…",
+  "Delete this message for both of you?": "Supprimer ce message pour vous deux ?",
+  "Report this message": "Signaler ce message",
+  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
+  Freehand: "À main levée",
+  "Edit the drawing": "Modifier le dessin",
+  "Draw with your finger": "Dessine avec le doigt",
+  Erase: "Effacer",
+  Drawing: "Dessin",
+  "Draw the outline with one finger: it closes by itself.":
+    "Dessine le contour avec un doigt : il se ferme tout seul.",
+  "Tap a line to erase it. The outline takes its details with it.":
+    "Touche une ligne pour l'effacer. Le contour emporte ses détails.",
+  "This line encloses nothing. Draw a closed shape.":
+    "Cette ligne n'entoure rien. Dessine une figure fermée.",
 };

@@ -367,11 +367,11 @@ services/route-engine/route_engine/optimizer.py           (`first` e `first_scal
 services/route-engine/tests/test_first_placement.py       (nuovo)
 services/route-engine/tests/measure_first_placement.py    (nuovo: la misura prima e dopo)
 services/api/shaperoute_api/route_archive.py              (`put_plan`, il ridisegno da lì, la riga rinfrescata)
-services/api/migrations/0033_drawn_routes_placement.sql   (nuovo, fuori elenco: le colonne del piazzamento; numero al merge)
+services/api/migrations/0035_drawn_routes_placement.sql   (nuovo, fuori elenco: le colonne del piazzamento; numero al merge)
 services/api/shaperoute_api/jobs.py                       (fuori elenco: `KeepsPlacements`, il piano allo store, i grafi dell'archivio dimenticati)
 services/api/tests/test_route_archive_redraw.py           (nuovo)
 apps/mobile/assets/engine/engine.zip                      (fuori elenco: rifatto, `test_phone_engine.py` lo vuole al passo)
-docs/API.md, docs/DATABASE.md                             (fuori elenco: l'archivio e la 0033)
+docs/API.md, docs/DATABASE.md                             (fuori elenco: l'archivio e la 0035)
 docs/ROUTE_ENGINE.md §5, docs/DECISIONS.md (aggiunta ad ADR-0256), docs/STATUS.md, docs/tasks/TASK-297.md
 ```
 

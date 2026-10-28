@@ -37,7 +37,7 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `profile_photos` | utente, JPEG quadrato 256 px | TASK-178 |
 | `generated_routes` | ogni percorso dell'API (ADR-0086): richiesta, tipo (forma, parola, immagine), distanza, somiglianza, linea, **punto di partenza mostrato** (a più di 500 m da quello vero), centro, data; utente se era entrato, se no nessuno | TASK-092 |
 | `favorites` | percorso tenuto fra i preferiti: utente, chiave fatta dall'app sulla linea (unica per utente), città, forma o parola e stile, titolo, distanza chiesta e sulle strade, somiglianza, **linea intera**, data; i tratti a piedi di una parola con la penna alzata (TASK-199); i tratti con la bici a mano (TASK-206) | TASK-171, TASK-199, TASK-206 |
-| `runs` | corsa salvata: utente, chiave fatta dall'app, percorso pianificato, cosa disegna, traccia (`LineStringM`, M = secondi dall'inizio), pause, inizio, distanza, durata, punteggio, fedeltà, luogo (TASK-172); i tratti a piedi del percorso di una parola con la penna alzata (TASK-199); l'attività, a piedi, in bici o in canoa (TASK-208); il post condiviso, emoji e risultati, mai l'immagine (TASK-258) | TASK-172, TASK-199, TASK-208, TASK-258 |
+| `runs` | corsa salvata: utente, chiave fatta dall'app, percorso pianificato, cosa disegna, traccia (`LineStringM`, M = secondi dall'inizio), pause, inizio, distanza, durata, punteggio, fedeltà, luogo (TASK-172); i tratti a piedi del percorso di una parola con la penna alzata (TASK-199); l'attività, a piedi, in bici o in canoa (TASK-208); il post condiviso, emoji e risultati, mai l'immagine (TASK-258); i metri saliti (TASK-324) | TASK-172, TASK-199, TASK-208, TASK-258, TASK-324 |
 | `drawings` | il disegno di una corsa: **traccia tagliata** (senza 200 m all'inizio e alla fine), titolo dato dall'utente (TASK-117); chi lo vede (tutti, chi segue, solo io) e la descrizione (TASK-208) | TASK-117, TASK-208 |
 | `drawing_photos` | fino a 3 foto di un disegno oltre alla mappa: posto 1–3, JPEG al più 1080 px di lato, senza EXIF | TASK-208 |
 | `drawing_tags` | gli iscritti taggati in un disegno, in ordine, al più 10 | TASK-208 |
@@ -47,6 +47,9 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `blocks` | chi blocca, chi è bloccato, data; una riga tiene lontani i due nei due sensi | TASK-121 |
 | `report_links_used` | i link delle email delle segnalazioni già usati: il loro numero a caso e quando | TASK-291 |
 | `feedback` | i messaggi di «Send feedback»: chi scrive, il testo, versione dell'app e sistema, data | TASK-308 |
+| `conversations` | una per coppia di iscritti che si scrivono, i due id in ordine, data | TASK-319 |
+| `conversation_members` | dove sta ognuno dei due in una conversazione: quando ha accettato, quando l'ha tolta dalla sua vista, quando l'ha letta | TASK-319 |
+| `messages` | conversazione, chi scrive, testo (1–1000), data; nascosto da una segnalazione | TASK-319 |
 
 Tutte le tabelle legate a un utente hanno `ON DELETE CASCADE`: cancellare
 la riga di `users` cancella tutto il resto, anche i suoi
@@ -660,9 +663,50 @@ Migrazione `0032_group_runs.sql` (TASK-309 parte A, ADR-0269, `EVENTI.md`
   cancella niente: chi è lontano non è contato, si legge
   (`group_runs.counted_sql`). Test in `test_group_runs.py`.
 
-Migrazione `0033_drawn_routes_placement.sql` (TASK-297 parte A2, aggiunta
-ad ADR-0256; il numero è il primo libero in `main` al merge: la 0030 è di
-TASK-299 A, la 0031 e la 0032 di `main` dopo):
+Migrazione `0033_messages.sql` (TASK-319, ADR-0279, `API.md`
+«Messages»; il numero è il primo libero in `main` al merge):
+
+- `conversations`: `id` (uuid casuale), `low_id` e `high_id` (i due
+  account, il più basso per primo, tutti e due `ON DELETE CASCADE`),
+  `created_at`. **Una per coppia** (unica `(low_id, high_id)`), chiunque
+  abbia scritto per primo; indice su `high_id` per leggerla dall'altra
+  parte. Cancellare uno dei due account la cancella, con i messaggi e le
+  righe dei due; un blocco anche (`messages.on_block`).
+- `conversation_members`: due righe per conversazione, fatte con lei
+  (chiave `(conversation_id, user_id)`, unica `(user_id, other_id)`).
+  `accepted_at`: da quando questo iscritto lascia scrivere l'altro
+  liberamente (ha accettato, risposto, scritto per primo, o seguiva chi gli
+  ha scritto); `NULL`, quello che l'altro scrive è una richiesta di un
+  messaggio. `cleared_at`: i messaggi fino a lì sono fuori dalla sua vista
+  («Delete»). `read_at`: quando l'ha letta, per il pallino; mai mostrato
+  all'altro.
+- `messages`: `id` (uuid casuale), `conversation_id` e `sender_id`
+  (`ON DELETE CASCADE`), `text` (1–1000 caratteri, come scritto),
+  `created_at`, `hidden_at` (nascosto dall'email di una segnalazione: lo
+  vede solo chi l'ha scritto). Indici `(conversation_id, created_at, id)`
+  per le pagine e `sender_id` per l'account. Un messaggio che nessuno dei
+  due vede più (tutti e due l'hanno tolto dalla vista) si cancella.
+- `reports.kind` ammette anche `message` (il vincolo è rifatto con un
+  nome uguale, `reports_kind_check`); `target_id` è l'id del messaggio.
+- **Privacy**: i messaggi stanno sul server come i commenti, senza
+  crittografia end-to-end. Nessun endpoint li mostra a chi gestisce MuW:
+  di una segnalazione arriva per email solo il messaggio segnalato. Test
+  in `test_messages.py`.
+Migrazione `0034_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
+libero in `main` al merge):
+
+- `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati
+  dall'API dalle altezze delle posizioni (`run_climb.py`). `NULL` per le
+  corse salvate prima e per quelle senza altezze: i totali del profilo non
+  le stimano. La traccia resta `LineStringM`: l'altezza non si tiene.
+- Nessun indice nuovo: i totali del profilo (`profile_totals.py`) sommano
+  le corse di un account con `runs_user_started_idx`; le foto di un
+  profilo (`user_photos.py`) passano da `drawings` e `drawing_photos` come
+  la griglia. Test in `test_profile_totals.py`.
+
+Migrazione `0035_drawn_routes_placement.sql` (TASK-297 parte A2, aggiunta
+ad ADR-0256; il numero è il primo libero in `main` al merge: dalla 0030
+alla 0034 sono di altri task):
 
 - In `drawn_routes`, **dove il motore ha messo la forma** del percorso,
   per ridisegnarlo da lì dopo un cambio del motore (`API.md`, «L'archivio
