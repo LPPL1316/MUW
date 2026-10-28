@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import base64
 import io
+import json
 import math
 import random
 import time
@@ -18,7 +19,12 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
-from route_engine.models import InvalidRequestError, RouteRequest, RouteResult
+from route_engine.models import (
+    PEN_UP_WITHOUT_WORD,
+    InvalidRequestError,
+    RouteRequest,
+    RouteResult,
+)
 from route_engine.nearby_starts import NearbyPlan
 from route_engine.network import FileSource
 from route_engine.optimizer import MAX_TILT_DEG, GraphLoader, Plan
@@ -27,12 +33,17 @@ from shapely.geometry import Polygon
 import shaperoute_api.images as images
 from shaperoute_api.app import create_app
 from shaperoute_api.images import (
+    PEN_UP_WITHOUT_PIECES,
+    PIECES_WITHOUT_PEN_UP,
     AnyRequest,
     ImageRequest,
     outline_of,
     plan_request,
 )
 
+FIXTURES = (
+    Path(__file__).resolve().parents[3] / "packages" / "shared-types" / "fixtures"
+)
 START = [46.0671, 11.1214]
 RESULT = RouteResult(
     points=[(46.0671, 11.1214), (46.0680, 11.1220), (46.0671, 11.1214)],
@@ -91,8 +102,18 @@ def test_an_image_gives_its_outline_for_the_route_and_for_the_picture(
     response = http.post("/image-outlines", json={"image": _png(_disc())})
     assert response.status_code == 200, response.json()
     body = response.json()
-    assert set(body) == {"points", "image_points", "aspect", "strokes", "image_strokes"}
+    assert set(body) == {
+        "points",
+        "image_points",
+        "aspect",
+        "strokes",
+        "image_strokes",
+        "pieces",
+        "image_pieces",
+    }
     assert body["strokes"] == [] and body["image_strokes"] == []
+    # One subject without holes: nothing to draw with the pen up (TASK-297).
+    assert body["pieces"] == [] and body["image_pieces"] == []
     assert body["aspect"] == pytest.approx(4 / 3, rel=1e-4)
     points, over = body["points"], body["image_points"]
     assert points[0] == points[-1]
@@ -413,3 +434,199 @@ def test_a_shape_or_a_word_is_planned_with_nearby_starts(
     assert plan_request(request, FileSource(Path("unused.graphml"))) is plan
     assert called["start"] == request.start
     assert called["job"].name == "heart" and called["job"].distance_m == 10000
+
+
+# TASK-297 part C2 (ADR-0258): an image with the pen up through the API.
+
+
+def _ring() -> Image.Image:
+    """A dark disc with a hole worth a third of it, on white: one subject and
+    one piece, the hole, in the middle of the picture."""
+    image = Image.new("RGB", (400, 300), "white")
+    draw = ImageDraw.Draw(image)
+    draw.ellipse((80, 30, 320, 270), fill="black")
+    draw.ellipse((130, 80, 270, 220), fill="white")
+    return image
+
+
+def _fixture(name: str) -> Any:
+    return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
+
+
+def test_an_image_with_a_hole_gives_its_piece_for_the_route_and_the_picture(
+    client: tuple[TestClient, list[AnyRequest]],
+) -> None:
+    http, asked = client
+    response = http.post("/image-outlines", json={"image": _png(_ring())})
+    assert response.status_code == 200, response.json()
+    outline = response.json()
+    # With the pen down the hole is left out, as before.
+    assert outline["strokes"] == [] and outline["image_strokes"] == []
+    [piece], [over] = outline["pieces"], outline["image_pieces"]
+    assert len(piece) == len(over) and piece[0] == piece[-1]
+    # In the frame of points: the ring of the disc from -1 to 1.
+    assert all(abs(x) < 0.7 and abs(y) < 0.7 for x, y in piece)
+    # Over the picture: the hole, 130-270 of 400 across and 80-220 of 300 down.
+    drawn = Polygon([(x * 400, y * 300) for x, y in over])
+    hole = Polygon(
+        [
+            (
+                200 + 70 * math.cos(a / 50 * math.tau),
+                150 + 70 * math.sin(a / 50 * math.tau),
+            )
+            for a in range(50)
+        ]
+    )
+    assert drawn.intersection(hole).area / drawn.union(hole).area > 0.9
+
+    response = http.post(
+        "/image-route-jobs",
+        json={
+            "start": START,
+            "outline": outline["points"],
+            "pieces": outline["pieces"],
+            "distance_m": 15000,
+            "pen_up": True,
+        },
+    )
+    assert response.status_code == 202, response.json()
+    assert _finished(http, response.json()["job_id"])["status"] == "done"
+    [request] = asked
+    assert isinstance(request, ImageRequest)
+    assert request.pen_up and request.outline.in_pieces
+    assert len(request.outline.pieces) == 1 and request.outline.strokes == ()
+
+
+def test_the_pieces_fixtures_are_what_the_api_answers_and_takes(
+    client: tuple[TestClient, list[AnyRequest]],
+) -> None:
+    """The ImageOutline with pieces and the request with the pen up of
+    packages/shared-types (the older ones are in test_contract.py)."""
+    http, asked = client
+    traced = images.ImageOutlineBody.model_validate(
+        _fixture("image-outline-pieces.json")
+    )
+    assert len(traced.pieces) == len(traced.image_pieces) == 1
+    body = _fixture("image-route-request-pen-up.json")
+    assert set(body) == set(images.ImageRouteRequestBody.model_fields) - {"strokes"}
+    assert body["outline"] == [list(p) for p in traced.points]
+    assert body["pieces"] == [[list(p) for p in piece] for piece in traced.pieces]
+    response = http.post("/image-route-jobs", json=body)
+    assert response.status_code == 202, response.json()
+    assert _finished(http, response.json()["job_id"])["status"] == "done"
+    [request] = asked
+    assert isinstance(request, ImageRequest) and request.pen_up
+
+
+@pytest.mark.parametrize(
+    ("change", "words"),
+    [
+        ({"pieces": []}, PEN_UP_WITHOUT_PIECES),
+        ({"pen_up": False}, PIECES_WITHOUT_PEN_UP),
+        # A piece over the outline: it would touch it.
+        (
+            {"pieces": [[[-1.2, -0.5], [0.2, -0.5], [0.0, -0.1], [-1.2, -0.5]]]},
+            "within [-1, 1]",
+        ),
+        (
+            {"pieces": [[[-0.9, -0.9], [0.9, -0.9], [0.0, 0.0], [-0.9, -0.9]]]},
+            "piece 1 touches the outline",
+        ),
+        (
+            {"pieces": [[[0.0, -0.5], [0.0, -0.4]]] * (images.MAX_PIECES + 1)},
+            f"at most {images.MAX_PIECES}",
+        ),
+        (
+            {
+                "pieces": [
+                    [[-0.3 + k / 1000, -0.5] for k in range(100)],
+                    [[-0.3 + k / 1000, -0.3] for k in range(100)],
+                ]
+            },
+            f"pieces: at most {images.MAX_SUBJECT_POINTS} points",
+        ),
+    ],
+)
+def test_the_pen_up_and_the_pieces_go_together_and_are_checked(
+    client: tuple[TestClient, list[AnyRequest]], change: dict[str, Any], words: str
+) -> None:
+    http, asked = client
+    body = {**_fixture("image-route-request-pen-up.json"), **change}
+    response = http.post("/image-route-jobs", json=body)
+    assert response.status_code == 422, response.json()
+    error = response.json()["error"]
+    assert error["code"] == "invalid_request"
+    assert words in error["message"]
+    assert asked == []
+
+
+def test_the_pen_up_without_pieces_still_says_it_is_for_a_word() -> None:
+    """The reason of before is in the new one (test_pen_up.py, TASK-197)."""
+    assert PEN_UP_WITHOUT_WORD in PEN_UP_WITHOUT_PIECES
+
+
+@pytest.mark.parametrize("why", ["refused", "other frame", "too many"])
+def test_no_pieces_are_offered_when_the_pen_up_does_not_fit_the_outline(
+    client: tuple[TestClient, list[AnyRequest]],
+    monkeypatch: pytest.MonkeyPatch,
+    why: str,
+) -> None:
+    """The pen up traces again (ADR-0258): when it fails, gives another
+    outline, or more pieces than a route has walks, the outline is the one
+    of before and the app offers no pen up."""
+    http, _ = client
+    traced = images.outline_data
+
+    def outline_data(image: bytes, *args: Any, pen_up: bool = False, **kw: Any) -> Any:
+        data = traced(image, *args, pen_up=pen_up, **kw)
+        if not pen_up:
+            return data
+        if why == "refused":
+            raise images.InvalidImageError("jagged", "the pieces are too jagged")
+        if why == "other frame":
+            ring = data["points"][:-1]
+            data["points"] = [*ring[1:], ring[0], ring[1]]
+        return data
+
+    monkeypatch.setattr(images, "outline_data", outline_data)
+    if why == "too many":
+        monkeypatch.setattr(images, "MAX_PIECES", 0)
+    response = http.post("/image-outlines", json={"image": _png(_ring())})
+    assert response.status_code == 200, response.json()
+    outline = response.json()
+    assert outline["pieces"] == [] and outline["image_pieces"] == []
+    assert len(outline["points"]) > 8
+
+
+def test_an_image_with_the_pen_up_has_the_walks_in_its_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """As a word with the pen up (TASK-197): walks in the RouteResult, no
+    word and no shape."""
+    called: dict[str, Any] = {}
+
+    def plan_nearby(job: Any, start: Any, source: Any) -> Any:
+        called.update(job=job)
+        result = RouteResult(
+            points=[*RESULT.points[:2], (46.069, 11.123), RESULT.points[-1]],
+            distance_m=15100.0,
+            similarity=0.8,
+            shape=None,
+            word=job.word.text,
+            walks=[(1, 2)],
+        )
+        return NearbyPlan(Plan(result=result, search=None), 0, [])
+
+    monkeypatch.setattr(images, "plan_nearby", plan_nearby)
+    app = create_app(FileSource(Path("unused.graphml")), planner=plan_request)
+    with TestClient(app) as http:
+        response = http.post(
+            "/image-route-jobs", json=_fixture("image-route-request-pen-up.json")
+        )
+        assert response.status_code == 202, response.json()
+        body = _finished(http, response.json()["job_id"])
+    assert body["status"] == "done", body
+    assert called["job"].word is not None and called["job"].word.pen_up
+    result = body["result"]
+    assert result["walks"] == [[1, 2]]
+    assert result["word"] is None and result["shape"] is None

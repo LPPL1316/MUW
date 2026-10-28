@@ -38,7 +38,7 @@ export async function requestImageOutline(
   }
   const body: unknown = await response.json().catch(() => undefined);
   if (response.ok && isImageOutline(body)) {
-    return { kind: "outline", outline: body };
+    return { kind: "outline", outline: withUsablePieces(body) };
   }
   return !response.ok && isApiError(body)
     ? { kind: "api_error", ...body.error }
@@ -81,6 +81,17 @@ function isStrokes(strokes: unknown, imageStrokes: unknown): boolean {
         (stroke as unknown[]).length === (strokes[i] as unknown[]).length,
     )
   );
+}
+
+/** The outline with its pieces for the pen up (TASK-297) when they can be
+ * drawn and sent back, in both frames one for one, as the strokes;
+ * without them otherwise, as an API older than TASK-297 answers: the
+ * picture is drawn with the pen down, never refused for its pieces. */
+export function withUsablePieces(outline: ImageOutline): ImageOutline {
+  const { pieces, image_pieces, ...rest } = outline;
+  return pieces !== undefined && pieces.length > 0 && isStrokes(pieces, image_pieces)
+    ? outline
+    : rest;
 }
 
 /** Enough checks to draw it and send it back safely. */

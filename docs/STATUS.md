@@ -553,6 +553,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lontana (ADR-0040) su un grafo piccolo che ignora l'area cade in
   `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
   con la #497, che ha `optimizer.py`.
+
+  **Parte C2, API e app** (branch `feat/TASK-297-c2-image-pieces-api-app`,
+  PR aperta il 2026-10-26 da una sessione cloud, al merge del
+  Coordinatore): `POST /image-outlines` dà anche `pieces` e
+  `image_pieces` (vuoti senza, con più di 8, o se il contorno con la penna
+  alzata non è lo stesso); `POST /image-route-jobs` prende `pen_up: true`
+  con `pieces`, i `walks` nel risultato; `ImagePenUpRouteRequest` in
+  `shared-types`. Nell'app «Lift the pen between parts» sotto una foto con
+  pezzi, acceso all'avvio; i pezzi sull'anteprima; il percorso come una
+  forma in pezzi. Il testo nuovo nelle cinque lingue e «Edit the outline»
+  nascosto con la penna alzata approvati dall'utente il 2026-10-27.
+  Impronta iOS invariata (`83793e26`); `engine.zip` rifatto
+  (anche la A2 lo rifà: chi entra dopo lo rifà). Server dopo Apple.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»

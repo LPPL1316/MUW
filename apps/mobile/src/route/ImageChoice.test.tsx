@@ -46,7 +46,8 @@ test("the preview only shows the outline; editing opens the full-screen board", 
 });
 
 test("the details added are drawn in the preview", async () => {
-  await shown(edits(), { ...TRACED, outline: edited as ImageOutline });
+  // The empty pieces of the fixture are never[] to tsc: through unknown.
+  await shown(edits(), { ...TRACED, outline: edited as unknown as ImageOutline });
   expect(screen.getAllByTestId("detail-side")).toHaveLength(1);
 });
 

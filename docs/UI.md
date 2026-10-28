@@ -1999,6 +1999,29 @@ dell'anteprima, con i dettagli disegnati (`POST /image-route-jobs`). «Choose an
 foto; annullare il selettore lascia quella di prima. Sotto la distanza del
 risultato si legge «Picture · on roads · target 15 km».
 
+**Con la penna alzata** (TASK-297 C2, ADR-0258). Quando il contorno ha
+dei pezzi (`pieces` di `/image-outlines`: gli altri soggetti e i fori di un
+logo, `API.md`), sotto l'anteprima c'è l'interruttore **«Lift the pen
+between parts»**, lo stesso delle forme in pezzi e lo stesso stato di
+quello delle parole, acceso all'avvio: così è proposto acceso. Acceso,
+l'anteprima disegna i pezzi gialli come i tratti, senza i trattini che li
+collegano, e con i fori; la riga sotto dice *The yellow lines are what the
+route will draw: each part on its own, going from one to the next without
+drawing. If they do not look like the subject, the route will not either:
+try another picture.* (testo nuovo, **approvato dall'utente** nelle
+cinque lingue il 2026-10-27); «Edit the outline» non c'è, perché le
+modifiche sono della linea con la penna giù (confermato dall'utente il
+2026-10-27). La richiesta manda `pieces` e `pen_up: true` al
+posto degli `strokes`. Il percorso torna con i `walks` e si mostra come una
+forma in pezzi: i tratti a piedi tratteggiati sulla mappa, «6.0 km of
+drawing + 0.4 km walking between the parts», la registrazione in pausa sui
+tratti a piedi e la voce «the next part», come per le parole (TASK-198,
+TASK-223). Spento, tutto come prima, con «Edit the outline». Senza pezzi
+(un soggetto senza fori, una foto pronta di «Draw», un contorno modificato,
+un'API più vecchia) l'interruttore non c'è. Pezzi che l'app non sa
+disegnare (non uno per uno sopra la foto, fuori dalla cornice) si lasciano
+fuori, non il contorno.
+
 Se l'immagine è rifiutata, al posto dell'anteprima il motivo in parole
 semplici, con sotto il testo del motore:
 

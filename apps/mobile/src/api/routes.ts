@@ -2,6 +2,7 @@ import {
   type ApiError,
   type ApiErrorCode,
   type Direction,
+  type ImagePenUpRouteRequest,
   type ImageRouteRequest,
   JOB_STATUSES,
   type JobStatus,
@@ -72,10 +73,13 @@ type Options = {
 
 type Answer = { status: number; ok: boolean; body: unknown };
 
-/** A shape or a word, or the outline of an image (TASK-073). */
-export type AnyRouteRequest = RouteRequest | ImageRouteRequest;
+/** A shape or a word, or the outline of an image (TASK-073), with its pieces
+ * and the pen up (TASK-297). */
+export type AnyRouteRequest = RouteRequest | ImageRouteRequest | ImagePenUpRouteRequest;
 
-export function isImageRequest(request: AnyRouteRequest): request is ImageRouteRequest {
+export function isImageRequest(
+  request: AnyRouteRequest,
+): request is ImageRouteRequest | ImagePenUpRouteRequest {
   return "outline" in request;
 }
 

@@ -1537,4 +1537,7 @@ export const FR: Table = {
     "Touche une ligne pour l'effacer. Le contour emporte ses détails.",
   "This line encloses nothing. Draw a closed shape.":
     "Cette ligne n'entoure rien. Dessine une figure fermée.",
+  // src/route/ImageChoice.tsx (TASK-297 C2: a picture with the pen up)
+  "The yellow lines are what the route will draw: each part on its own, going from one to the next without drawing. If they do not look like the subject, the route will not either: try another picture.":
+    "Les lignes jaunes sont ce que le parcours dessinera : chaque partie à part, en allant de l'une à l'autre sans dessiner. Si elles ne ressemblent pas au sujet, le parcours non plus : essaie une autre photo.",
 };

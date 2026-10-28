@@ -1543,4 +1543,7 @@ export const ES: Table = {
     "Toca una línea para borrarla. El contorno se lleva sus detalles.",
   "This line encloses nothing. Draw a closed shape.":
     "Esta línea no encierra nada. Dibuja una figura cerrada.",
+  // src/route/ImageChoice.tsx (TASK-297 C2: a picture with the pen up)
+  "The yellow lines are what the route will draw: each part on its own, going from one to the next without drawing. If they do not look like the subject, the route will not either: try another picture.":
+    "Las líneas amarillas son lo que dibujará la ruta: cada parte por separado, yendo de una a otra sin dibujar. Si no se parecen al sujeto, la ruta tampoco: prueba otra foto.",
 };

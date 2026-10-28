@@ -178,11 +178,12 @@ const shapeReadingFields: Same<
   Same<keyof typeof shapeReading, keyof ShapeReading> &
   Same<keyof typeof shapeReadingNone, keyof ShapeReading> = true;
 
-// The traced outline and its request without the details of TASK-079.
+// The traced outline and its request without the details of TASK-079, nor
+// the pieces of TASK-297 (imagePieces.test.ts).
 const imageFields: Same<keyof typeof imageOutlineRequest, keyof ImageOutlineRequest> &
   Same<
     keyof typeof imageOutline,
-    keyof Omit<ImageOutline, "strokes" | "image_strokes">
+    keyof Omit<ImageOutline, "strokes" | "image_strokes" | "pieces" | "image_pieces">
   > &
   Same<
     keyof typeof imageRouteRequest,
@@ -201,10 +202,11 @@ const typedImage: [ImageOutline, ImageRouteRequest, ApiError] = [
   imageRouteRequest as ImageRouteRequest,
   imageError as ApiError,
 ];
-// The request has no strokes yet: through unknown, like typedImage.
+// The request has no strokes yet, and the empty pieces of the answer are
+// never[] to tsc (TASK-297): through unknown.
 const typedEdit: [ImageOutlineEditRequest, ImageOutline, ApiError] = [
   imageEditRequest as unknown as ImageOutlineEditRequest,
-  imageEdited as ImageOutline,
+  imageEdited as unknown as ImageOutline,
   editError as ApiError,
 ];
 // JSON arrays are not tuples to tsc: through unknown too (TASK-197).

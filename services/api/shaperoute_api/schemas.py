@@ -12,6 +12,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from route_engine.directions import GROUP_M, Turn
 from route_engine.image_outline import MAX_POINTS as MAX_OUTLINE_POINTS
+from route_engine.image_outline import MAX_SUBJECT_POINTS
 from route_engine.models import (
     DISTANCE_LIMITS_M,
     MAX_DISTANCE_M,
@@ -489,6 +490,22 @@ class ImageOutlineBody(BaseModel):
         default_factory=list,
         description="The same strokes over the image, like image_points.",
     )
+    pieces: list[list[tuple[float, float]]] = Field(
+        default_factory=list,
+        description=(
+            "With the pen up (TASK-297, ADR-0258): the other subjects of the "
+            "image and its holes worth 3 % of their subject, as lines apart "
+            "from the outline, in the frame of points, the largest first; a "
+            "closed one repeats its first point. A route request with pen_up "
+            "sends them back instead of the strokes: the outline, then each "
+            "piece on its own, walking between them. Empty when the image has "
+            f"none or more than {MAX_WALKS}, and after an edit (TASK-079)."
+        ),
+    )
+    image_pieces: list[list[tuple[float, float]]] = Field(
+        default_factory=list,
+        description="The same pieces over the image, like image_points.",
+    )
 
 
 class ImageRouteRequestBody(BaseModel):
@@ -521,9 +538,26 @@ class ImageRouteRequestBody(BaseModel):
     )
     distance_m: int = Field(description=DISTANCE_DESCRIPTION, examples=[15000])
     activity: str = Field(default="running", description=ACTIVITY_DESCRIPTION)
+    # Missing from an app of before TASK-297 C2.
+    pieces: list[list[tuple[float, float]]] = Field(
+        default_factory=list,
+        max_length=MAX_WALKS,
+        description=(
+            f"The pieces of an ImageOutline, unchanged, with pen_up (TASK-297, "
+            f"ADR-0258): at most {MAX_WALKS}, {MAX_SUBJECT_POINTS} points in "
+            f"all; they touch neither the outline, nor the strokes, nor each "
+            f"other. None for the pen down: then they are refused."
+        ),
+    )
     pen_up: bool = Field(
         default=False,
-        description="Only for a word (TASK-197): true is refused, invalid_request.",
+        description=(
+            "With the pieces of an ImageOutline (TASK-297, ADR-0258): the "
+            "outline, then each piece on its own, and the route walks from one "
+            "to the next without drawing (walks in the result), as a word with "
+            "the pen up (TASK-197); the distance is the drawing's. Without "
+            "pieces, true is refused: invalid_request."
+        ),
     )
 
 
