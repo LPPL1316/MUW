@@ -22,5 +22,11 @@ test("the short list of reasons, «other» last", () => {
     "sexual",
     "other",
   ]);
-  assert.deepEqual(REPORT_KINDS, ["drawing", "comment", "user", "message"]);
+  assert.deepEqual(REPORT_KINDS, [
+    "drawing",
+    "comment",
+    "user",
+    "group_run",
+    "message",
+  ]);
 });

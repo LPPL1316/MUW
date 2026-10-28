@@ -16,10 +16,11 @@ After «Hide» the page has «Undo», a new link of the same kind.
 
 Hidden is from the others only: the author still sees it. A hidden drawing
 is out of drawings.drawing_seen_sql and shown_sql, a hidden comment out of
-comments.NOT_APART, a hidden message out of messages.SEEN, and a hidden
-member is kept apart from everyone as across a block (follows.apart_sql).
-Nothing is deleted. Of a private message (TASK-317) the email holds that
-message only, never the rest of its conversation.
+comments.NOT_APART, a hidden group run out of group_runs.seen_sql
+(TASK-309), a hidden message out of messages.SEEN, and a hidden member is
+kept apart from everyone as across a block (follows.apart_sql). Nothing is
+deleted. Of a private message (TASK-317) the email holds that message
+only, never the rest of its conversation.
 
 Off unless the environment has RESEND_API_KEY, SHAPEROUTE_EMAIL_SECRET,
 SHAPEROUTE_DOMAIN and SHAPEROUTE_REPORTS_TO (docs/DEPLOY.md, «Email delle
@@ -68,7 +69,7 @@ MAX_TOKEN_LENGTH = 160
 PAGE_HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
 
 Action = Literal["hide", "show"]
-Kind = Literal["drawing", "comment", "user", "message"]
+Kind = Literal["drawing", "comment", "user", "group_run", "message"]
 ACTIONS: tuple[Action, ...] = get_args(Action)
 KINDS: tuple[Kind, ...] = get_args(Kind)
 # What a report's kind is called in the email and on the pages.
@@ -76,6 +77,7 @@ NOUN: dict[Kind, str] = {
     "drawing": "drawing",
     "comment": "comment",
     "user": "profile",
+    "group_run": "group run",
     "message": "message",
 }
 
@@ -84,6 +86,7 @@ TABLE_OF: dict[Kind, tuple[str, str]] = {
     "drawing": ("drawings", "id"),
     "comment": ("comments", "id"),
     "user": ("users", "public_id"),
+    "group_run": ("group_runs", "id"),
     "message": ("messages", "id"),
 }
 
@@ -208,7 +211,8 @@ class Reported:
     reporter: str
     author: str
     author_id: UUID
-    # Title and description, the comment's text, or the name and the bio.
+    # Title and description, the comment's text, the name and the bio, or a
+    # group run's title, «Where exactly», notes and day.
     lines: tuple[str, ...]
     reports: int
     hidden: bool
@@ -247,6 +251,15 @@ def _user(conn: Connection[DictRow], target: UUID) -> DictRow | None:
     ).fetchone()
 
 
+def _group_run(conn: Connection[DictRow], target: UUID) -> DictRow | None:
+    return conn.execute(
+        "SELECT g.title, g.meeting_note, g.description, g.starts_at, g.hidden_at,"
+        " u.username, u.public_id FROM group_runs g"
+        " JOIN users u ON u.id = g.owner_id WHERE g.id = %s",
+        (target,),
+    ).fetchone()
+
+
 def reported(conn: Connection[DictRow], report_id: UUID) -> Reported | None:
     """The report and its thing; None when either is gone already."""
     report = conn.execute(
@@ -274,6 +287,16 @@ def reported(conn: Connection[DictRow], report_id: UUID) -> Reported | None:
             lines = (
                 f"Comment: {row['text']}",
                 f"Under the drawing {row['drawing_id']}",
+            )
+    elif kind == "group_run":
+        row = _group_run(conn, target)
+        if row is not None:
+            starts_at: datetime = row["starts_at"]
+            lines = (
+                f"Title: {row['title']}",
+                f"Where exactly: {row['meeting_note'] or '(none)'}",
+                f"Notes: {row['description'] or '(none)'}",
+                f"Starts: {starts_at.astimezone(UTC).strftime('%Y-%m-%d %H:%M UTC')}",
             )
     elif kind == "message":
         row = _message(conn, target)

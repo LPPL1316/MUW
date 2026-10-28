@@ -634,6 +634,47 @@ linea che non segue le strade della mappa risponde `422 invalid_request`
 TASK-191), una zona che non si scarica `503 map_data_unavailable`. Niente si salva. Misurato il
 2026-10-01 sul Mac, zone in cache: 0,1–0,5 s per percorsi di 5–23 km.
 
+### `POST /way-back` (TASK-314, ADR-0274)
+
+La strada per tornare sul percorso, sulle vie, per chi ne è uscito.
+Riceve `{"activity", "here", "ahead"}`
+(`packages/shared-types/fixtures/way-back-request.json`): l'attività della
+corsa (`running` o `cycling`), dove si trova il runner e il tratto del
+percorso dove può rientrare, da 2 a 10 000 punti nell'ordine del percorso.
+Il tratto lo taglia l'app (ADR-0263, punto 2). Risponde `200` con
+`{"points", "distance_m", "rejoin", "rejoin_m", "directions"}`
+(`way-back.json`):
+
+- `points`: la strada dal runner lungo le vie fino al percorso;
+- `rejoin`: il nodo del percorso dove arriva; `rejoin_m`: dove cade lungo
+  `ahead`, dal suo primo punto;
+- `directions`: le stesse `Direction` dei percorsi, con gli `along`, con
+  `distance_m` lungo `points`. La prima è la via da cui si parte, l'ultima
+  la svolta sul percorso.
+
+Coordinate a 7 decimali e metri al decimetro: la stessa risposta su ogni
+macchina. La calcola `route_engine/way_back.py`. Parte dal punto della via
+più vicina al runner e arriva al nodo del tratto più vicino per strada
+(ADR-0274). Se quella via è già un pezzo del tratto, la strada va solo
+fino a lei: due punti, nessuna indicazione. Il grafo è la zona già in
+cache, ritagliata 500 m attorno al runner e al tratto: questa richiesta
+non scarica mai una zona.
+
+Risposte d'errore:
+
+- nessuna zona in cache per l'area: `503 map_data_unavailable`;
+- nessuna strada entro 3 km, il runner a più di 200 m da ogni strada, o un
+  tratto che non segue le strade della mappa: `422 invalid_request`;
+- sull'acqua: `422 invalid_request`;
+- oltre 6 richieste al minuto dallo stesso telefono (`X-Phone-Id`,
+  altrimenti l'indirizzo) o 60 dallo stesso indirizzo:
+  `429 too_many_requests` con `Retry-After`.
+
+Niente si salva, e il log non tiene posizioni. Il telefono calcola la
+stessa risposta col suo motore (`on_phone.way_back_json`) e chiede al
+server solo quando non ha la zona. Un'API più vecchia di TASK-314 risponde
+`404`, e l'app tiene la linea dritta di ADR-0263.
+
 ### `POST /shape-readings`
 
 Le parole del riquadro della forma che la tabella dell'app non conosce
@@ -1558,6 +1599,7 @@ servizio push di Expo. Tutti e due gli endpoint vogliono il token: senza,
   | `challenge_done` | la squadra ha completato la forma (TASK-296 C) | tutti gli iscritti, anche chi ha corso | la sfida |
   | `challenge_ending` | manca un giorno alla scadenza e manca almeno un pezzo (TASK-296 C) | tutti gli iscritti | la sfida |
   | `contest_won` | il comando `close` ha proclamato il suo post vincitore del concorso (TASK-299) | chi ha vinto | il disegno |
+  | `group_run_soon`, `group_run_changed`, `group_run_cancelled` | una corsa di gruppo comincia entro un'ora, cambia ora o luogo, è annullata (TASK-309, «Group runs») | chi va; il promemoria anche all'organizzatore | la corsa di gruppo |
   | `message` | un messaggio privato, fuori da una richiesta (TASK-317): «{name}: {text}», con l'inizio | chi lo riceve | la conversazione, dal profilo di chi scrive |
   | `message_request` | una richiesta di messaggio, al più una al giorno per chi scrive (TASK-317), senza il testo | chi la riceve | la conversazione, dal profilo di chi scrive |
 
@@ -2259,9 +2301,10 @@ Tipi in `shared-types` (`ReportRequest`, `ReportKind`, `REPORT_KINDS`,
   a 50, cursore `microsecondi-public_id`), con `total`; ogni iscritto con
   nome e foto piccola, mai l'email.
 - **`POST /reports`**: `{"kind", "id", "reason"}`. `kind` è `drawing`
-  (un post del feed), `comment`, `user` o `message` (un messaggio
-  privato, TASK-317, «Messages» sotto); `id` è l'id del disegno, del
-  commento, del messaggio o il `public_id` dell'iscritto; `reason` è uno di `spam`,
+  (un post del feed), `comment`, `user`, `group_run` (TASK-309) o
+  `message` (un messaggio privato, TASK-317, «Messages» sotto); `id` è
+  l'id del disegno, del commento, il `public_id` dell'iscritto, l'id della
+  corsa di gruppo o del messaggio; `reason` è uno di `spam`,
   `offensive`, `harassment`, `sexual`, `other`, in quest'ordine (l'app
   li mostra così). **Una riga per chi segnala e per cosa**: segnalato di
   nuovo, la riga prende il motivo e l'ora nuovi. Niente con quell'id:
@@ -2553,6 +2596,167 @@ push a chi ha vinto. Le regole sono in `CONCORSI.md`; il codice in
   (niente da fare) o 2 (rifiuto).
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app non
   mostra la scheda, come con `no_contest`.
+
+### Group runs (TASK-309, ADR-0269)
+
+Le corse di gruppo: un iscritto pubblica un percorso con giorno, ora e
+«Where exactly» alla partenza; gli altri dicono «I'm going» e la corrono
+insieme. Le regole sono in `EVENTI.md`; il codice in `group_runs.py`
+(regole, endpoint, `GroupRunClock`, push). Tutti gli endpoint vogliono il
+token: senza, `401 not_signed_in`; senza database, `503
+accounts_unavailable`. Tipi in `shared-types` (`GroupRunRequest`,
+`GroupRunChange`, `GroupRun`, `GroupRunDetail`, `GroupRunsPage`,
+`ProfileGroupRuns`, `GroupRunPushKind`, `GroupRunPushData` e i limiti
+`GROUP_RUN_*`), esempi in `fixtures/group-run-request.json`,
+`group-run-change.json`, `group-run.json`, `group-runs.json`,
+`group-runs-of-profile.json`, `group-run-push-data.json`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /group-runs` | crea una corsa di gruppo da un percorso | `201` `GroupRunDetail` |
+| `GET /group-runs?lat=…&lon=…` | la fila del Feed | `200` `GroupRunsPage` |
+| `GET /group-runs/{id}` | la corsa di gruppo intera, anche annullata o finita | `200` `GroupRunDetail` |
+| `PUT /group-runs/{id}` | l'organizzatore cambia titolo, ora, «Where exactly», note | `200` `GroupRunDetail` |
+| `DELETE /group-runs/{id}` | l'organizzatore la annulla | `204` |
+| `PUT /group-runs/{id}/going` | «I'm going» | `204` |
+| `DELETE /group-runs/{id}/going` | «Not going» | `204` |
+| `GET /group-runs/{id}/going?limit=20&cursor=…` | chi va, l'organizzatore per primo | `200` `PeoplePage` |
+| `GET /users/{public_id}/group-runs` | quelle di un profilo: in arrivo e le ultime 20 finite | `200` `ProfileGroupRuns` |
+
+- **Il corpo di `POST`** è quello di `PUT /me/favorites/{key}` (il
+  percorso intero: `points`, `walks`, `on_foot`, `activity`,
+  `rotation_deg`…, `FavoriteRequestBody`), con `title` obbligatorio e in
+  più `starts_at` (ISO 8601 con l'offset), `meeting_note`, `description` e
+  `visibility` (`everyone` o `followers`; non cambia più). Il ritrovo
+  (`start`) è il primo punto. Il percorso non cambia dopo la creazione.
+- **I limiti** (`EVENTI.md` §3), `422 invalid_request` con un messaggio da
+  mostrare: titolo 1–60 caratteri su una riga («A title is 1 to 60
+  characters, on one line.»), «Where exactly» una riga di al più 80
+  (««Where exactly» is one line of 80 characters at most.»), note al più
+  500 con gli a capo («The notes are 500 characters at most.»); spazi in
+  testa e in coda tolti, un testo vuoto è `null`. `starts_at` da **30
+  minuti** a **60 giorni** da adesso, sull'orologio del server («A group
+  run starts from 30 minutes to 60 days from now.»): l'app ricontrolla
+  prima di mandare. Un'ora senza offset o un `visibility` fuori elenco:
+  `422` di Pydantic. **Al più 10 in arrivo** (non finite, non annullate)
+  per account: «You can have 10 upcoming group runs at most.».
+- **Il filtro dei commenti negativi** (TASK-213) su titolo, «Where
+  exactly» e note: `422 comment_rejected` con `reason`, come un commento.
+- **Chi la vede**: l'organizzatore sempre; gli altri se non è nascosta
+  (TASK-291), se nessun blocco sta fra loro e l'organizzatore
+  (`follows.apart_sql`, nei due sensi, un iscritto nascosto compreso) e
+  se è `everyone` o seguono l'organizzatore con la richiesta accettata.
+  **Chi non la vede** riceve `404` «No group run with this id.» su ogni
+  endpoint con l'id, come per un id che non c'è.
+- **`status`**: `upcoming` fino all'inizio, `started` per le 3 ore dopo,
+  poi `over`; `cancelled` quando l'organizzatore l'ha annullata.
+  L'organizzatore cambia e annulla solo da `upcoming` (dopo: `422` «The
+  group run has started: it cannot change any more.»); «I'm going» e «Not
+  going» valgono da `upcoming` e `started` (dopo: `422` «The group run is
+  over.» o «The group run was cancelled.»). Un altro iscritto che prova a
+  cambiare o annullare: `404`.
+- **Chi va**: `going` è il numero (organizzatore compreso), `faces` i
+  primi tre, `people` nella pagina i primi 20, `i_am_going` se chi chiede
+  va. **L'ordine**: l'organizzatore, poi gli altri nell'ordine in cui
+  hanno detto «I'm going»; il cursore è `rango-microsecondi-public_id`.
+  Conta solo chi vede ancora la corsa di gruppo e non è lontano da chi
+  chiede (blocco o nascosto, `counted_sql`): chi è bloccato
+  dall'organizzatore, o lo blocca, non è contato per nessuno. Nome e foto
+  piccola, mai l'email.
+- **«I'm going»** due volte lascia una riga; «Not going» di chi non va è
+  `204`. **L'organizzatore va sempre**: il suo `PUT` non cambia niente,
+  il suo `DELETE` è `422` «The organiser always goes.». **Nessuna
+  notifica** quando qualcuno si aggiunge (`EVENTI.md` §6.4).
+- **`PUT /group-runs/{id}`** (`GroupRunChange`) manda i quattro campi; una
+  nota o una descrizione lasciata fuori si toglie. Un `starts_at` nuovo
+  ha i limiti della creazione; uno uguale, no. **Ora o «Where exactly»
+  cambiati**: `reminded_at` torna vuoto e chi va (non l'organizzatore)
+  riceve `group_run_changed`.
+- **`DELETE /group-runs/{id}`** mette `cancelled_at`; chi va riceve
+  `group_run_cancelled`. Già annullata: `204` e nessuna push. Annullata,
+  esce dalla fila e dal profilo, e `GET /group-runs/{id}` la mostra con
+  `cancelled`.
+- **La fila del Feed** (`EVENTI.md` §5): al più 20, dalla più vicina nel
+  tempo (a parità, l'id), non finite, non annullate, viste: le proprie e
+  quelle di chi si segue ovunque, quelle a cui si va ovunque, le altre con
+  il ritrovo entro 50 km dal telefono (`feed.NEAR_M`); senza `lat` e
+  `lon`, tutte. Mezzo punto: `422` come il Feed.
+- **Il profilo**: `upcoming` (non finite, la più vicina prima) e `past`
+  (le ultime 20 finite, l'ultima prima), mai le annullate, solo quelle
+  che chi chiede vede; un profilo lontano (blocco, nascosto) o che non
+  c'è: `404` «No profile with this id.».
+- **Le push** (`push.py`), con gli interruttori e i blocchi di sempre,
+  `data` `{ kind, group_run_id }`, senza orari (il server non sa il fuso
+  del telefono):
+
+  | `kind` | Quando | A chi | Testo |
+  |---|---|---|---|
+  | `group_run_soon` | un'ora prima, una volta | chi va, organizzatore compreso (`OWN_KINDS`) | «{title} starts soon: see you at the start!» |
+  | `group_run_changed` | ora o luogo cambiati | chi va | «{name} changed the time or place of {title}.» |
+  | `group_run_cancelled` | annullata, o account dell'organizzatore cancellato prima dell'inizio | chi va | «{name} cancelled {title}.» |
+
+  Non entrano nell'email del giorno (`notice_email.EMAIL_KINDS`).
+- **`GroupRunClock`**, ogni 5 minuti mentre l'app gira, cerca le corse di
+  gruppo che cominciano entro un'ora, non annullate e non avvisate, e le
+  segna con `UPDATE … WHERE reminded_at IS NULL … RETURNING` prima di
+  avvisare: due giri insieme, o due processi, la avvisano una volta. Una
+  creata meno di un'ora prima avvisa al primo giro; una già cominciata,
+  mai. Si ferma prima che si chiuda il database.
+- **Segnalare**: `POST /reports` con `kind` `group_run` e l'id della corsa
+  di gruppo («Block and report»). L'email lo chiama «group run», con
+  titolo, «Where exactly», note e ora; il link nasconde
+  (`group_runs.hidden_at`): la vede solo l'organizzatore, e chi andava non
+  conta più né riceve il promemoria.
+- **`DELETE /me`**: prima della cancellazione chi va alle sue corse di
+  gruppo non ancora cominciate riceve `group_run_cancelled`
+  (`app.state.before_account_delete`); poi le corse di gruppo e le
+  risposte se ne vanno con l'account (`ON DELETE CASCADE`).
+- **Un'API precedente** non ha questi endpoint (`404 http_error`): l'app
+  non mostra la fila né il bottone.
+
+### Feedback (TASK-308, ADR-0268)
+
+«Send feedback» in «Settings»: un iscritto scrive a chi gestisce MuW
+(idee, problemi, qualunque cosa). `POST` vuole il token: senza, `401
+not_signed_in`; senza database, `503 accounts_unavailable` (anche `GET`). Tipi in
+`shared-types` (`FeedbackRequest`, `MAX_FEEDBACK_LENGTH`), esempio in
+`fixtures/feedback-request.json`; il codice in `feedback.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /feedback` | la sonda dell'app: questo server prende il feedback | `204` |
+| `POST /feedback` | tiene il messaggio e lo manda per email a chi gestisce MuW | `204` |
+
+- **Il corpo**: `{"text", "app_version", "platform"}`. `text` da 1 a
+  2000 caratteri tolti gli spazi ai due capi (gli a capo restano; niente
+  caratteri di controllo): vuoto, troppo lungo o con un carattere di
+  controllo è `422 invalid_request`. `app_version` (facoltativo, al più
+  40 caratteri fra lettere, cifre, `.`, `(`, `)`, `+`, `-` e spazi) è
+  come l'app scrive versione e build, «1.0.0 (7)»; `platform`
+  (facoltativo) è `ios` o `android`. Un campo in più: `422`.
+- **Al più 5 in 24 ore per account**, contati nel database: il sesto è
+  `429 too_many_requests` con `Retry-After`, i secondi finché il più
+  vecchio dei cinque compie un giorno. Gli altri account non contano.
+  **E al più 20 in 24 ore da un indirizzo di rete** (un club sullo
+  stesso Wi-Fi), contati in memoria: si azzerano a un riavvio.
+- **`GET /feedback`**, senza token, risponde `204`: l'app mostra «Send
+  feedback» solo dopo questa risposta, così un'app più nuova del suo
+  server non fa mai scrivere un messaggio che nessuno prende (un'API
+  precedente risponde `404`).
+- **Nessun endpoint li legge**: restano nella tabella `feedback`, e ogni
+  messaggio parte, fuori dalla richiesta e con Resend, per email in
+  inglese a `SHAPEROUTE_FEEDBACK_TO`, o a `SHAPEROUTE_REPORTS_TO` senza
+  quella (`DEPLOY.md`, «Email del feedback»). Oggetto «MuW feedback from
+  {username}»; il testo, poi nome utente ed email, versione dell'app e
+  sistema, l'ora (UTC), gli id. **Reply-To è l'email dell'iscritto**:
+  rispondere all'email risponde a lui. Senza `RESEND_API_KEY` o senza
+  indirizzo il messaggio si tiene e non parte niente; un errore di Resend
+  non cambia mai la risposta. La chiave, l'indirizzo e il testo non sono
+  mai nei log.
+- **`DELETE /me`** cancella i messaggi dell'account (`ON DELETE CASCADE`).
+- **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app non
+  mostra la sezione «FEEDBACK». Se il server torna indietro dopo che la
+  sezione si è vista, «Send» dice «This is not available any more.».
 
 ### Send to Strava (TASK-187, ADR-0156)
 
@@ -2911,3 +3115,54 @@ richiesta fra 10 e 21 km, percorsi identici punto per punto
   aspetta; si ripensa con ADR-0009.
 - Autenticazione, limiti di richieste, versione, HTTPS, deploy: fase 4.
 - Motore di routing di produzione: ADR-0009, rinviata alla fase 4.
+
+## Gli esempi preparati prima (TASK-316, ADR-0276)
+
+### `draw_examples --all` e `--around`
+
+`--all` chiede a ogni città **tutti** i suoi esempi, come l'app quando la
+si tocca: le otto forme e poi le sei parole con la penna alzata, stile
+`round`, 3 km a lettera, la più lunga per prima (`city_examples.py`; la
+lista è `packages/shared-types/fixtures/city-examples.json`, letta da un
+test qui e da uno dell'app). `--around CITTÀ` disegna i paesi che `GET
+/nearby-cities` dà attorno alla città e poi quelli attorno a ognuno, un
+giro dopo l'altro, ognuno **dal suo punto di `/nearby-cities`** (per un
+paesino non è quello di `/cities`, TASK-236), al massimo `--towns` paesi
+(20 di base). La città stessa si disegna per nome, se la si scrive.
+
+```
+python -m shaperoute_api.draw_examples --api https://… --all Trento Caldonazzo \
+  --around Trento --around Caldonazzo
+```
+
+### `POST /kept-routes`: solo ciò che è tenuto
+
+All'apertura l'app prepara gli esempi dei paesi vicini e della regione.
+Con `POST /route-jobs` ogni telefono farebbe disegnare al server ciò che
+non è tenuto, e scaricare le zone dei paesi; qui chiede in un colpo gli
+esempi di un paese e riceve **solo quelli tenuti**, `null` per gli altri.
+Nessun job, nessuna zona, nessun motore, niente scritto.
+
+```json
+{"requests": [{"start": [46.0671, 11.1214], "shape": "heart", "distance_m": 5000, "activity": "running"},
+              {"start": [46.0671, 11.1214], "word": "CIAO", "style": "round", "pen_up": true, "distance_m": 12000, "activity": "running"}]}
+```
+
+```json
+{"routes": [{"points": [...], "distance_m": 4004.5, "...": "come il result di un job"}, null]}
+```
+
+- Da 1 a **16** richieste (gli esempi di una città sono 14), di forma o di
+  parola, con i campi di `POST /route-jobs`: un'immagine è un `422`, e una
+  forma spostata (`near`) non è mai tenuta, quindi `null`.
+- Una risposta per richiesta, nello stesso ordine: il `RouteResult` tenuto
+  o `null`. Una richiesta che il motore rifiuterebbe è un `422` come da
+  `/route-jobs`.
+- **Solo i file dei centri** (`route_store.py`: i centri delle città e i
+  punti sull'acqua, che non sono la posizione di nessuno), **mai
+  l'archivio** di ADR-0256, che tiene anche i percorsi disegnati da dove
+  erano gli utenti, senza chi: con una risposta «tenuto» o «no», un punto
+  direbbe se qualcuno ci ha disegnato. Nessun account, nessun post.
+- È un POST: conta uno nel limite al minuto, come gli altri (`access.py`).
+- Tipi in `packages/shared-types/src/keptRoutes.ts`, fixture
+  `kept-routes-request.json` e `kept-routes.json`.

@@ -1,0 +1,50 @@
+{
+  "points": [
+    [46.0689886, 11.1271033],
+    [46.0688986, 11.1271033],
+    [46.0688986, 11.127881],
+    [46.0679993, 11.127881],
+    [46.0671, 11.127881]
+  ],
+  "distance_m": 270.0,
+  "rejoin": [46.0671, 11.127881],
+  "rejoin_m": 500.0,
+  "directions": [
+    {
+      "node": 104102,
+      "point": [46.0688986, 11.1271033],
+      "distance_m": 0.0,
+      "turn": "depart",
+      "angle_deg": 0.0,
+      "street": "Row 2",
+      "road_type": "residential",
+      "branches": 4,
+      "joined": false,
+      "along": null
+    },
+    {
+      "node": 105102,
+      "point": [46.0688986, 11.127881],
+      "distance_m": 70.0,
+      "turn": "right",
+      "angle_deg": 90.0,
+      "street": "Column 5",
+      "road_type": "residential",
+      "branches": 4,
+      "joined": false,
+      "along": null
+    },
+    {
+      "node": 105100,
+      "point": [46.0671, 11.127881],
+      "distance_m": 270.0,
+      "turn": "left",
+      "angle_deg": -90.0,
+      "street": "Row 0",
+      "road_type": "residential",
+      "branches": 4,
+      "joined": false,
+      "along": null
+    }
+  ]
+}

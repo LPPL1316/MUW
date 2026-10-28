@@ -25,6 +25,7 @@ import {
   type RecommendedRouteDetail,
   turnOf,
 } from "./recommendedRoutes";
+import { townRoutes } from "./regionStore";
 
 /**
  * Examples drawn at once for a city without recommended routes (TASK-143):
@@ -571,6 +572,60 @@ export function readyExample(
   return example?.status === "ready" ? example.route : null;
 }
 
+/** A run's word of `city` already ready, in memory or in a file: the
+ * round of the region asks it no more (TASK-316). */
+export function readyWord(
+  city: Place,
+  word: string,
+  storage: Storage = fileStorage,
+): RecommendedRoute | null {
+  const key = examplesKey(city.point);
+  const example = (
+    words.get(key) ??
+    wordsFromFile(savedOf(storage, key, RUN_EXAMPLES), city, RUN_EXAMPLES)
+  ).find((e) => e.word === word);
+  return example?.status === "ready" ? example.route : null;
+}
+
+/**
+ * The examples of `city` taken ahead (TASK-316) onto its cards, when they
+ * are in memory already: the town is on the page, or was chosen. Those
+ * waiting or failed become ready; one drawing goes on. A city never shown
+ * reads them when it is.
+ */
+export function takeAhead(city: Place, storage: Storage = fileStorage): void {
+  const key = examplesKey(city.point);
+  const shown = examples.get(key);
+  const shownWords = words.get(key);
+  if (shown === undefined && shownWords === undefined) {
+    return;
+  }
+  const saved = savedOf(storage, key, RUN_EXAMPLES);
+  const taken = (status: string) => status === "waiting" || status === "failed";
+  if (shown !== undefined) {
+    const file = fromFile(saved, city, RUN_EXAMPLES);
+    show(
+      key,
+      shown.map((e) =>
+        taken(e.status)
+          ? (file.find((f) => f.shape === e.shape && f.status === "ready") ?? e)
+          : e,
+      ),
+    );
+  }
+  if (shownWords !== undefined) {
+    const file = wordsFromFile(saved, city, RUN_EXAMPLES);
+    showWords(
+      key,
+      shownWords.map((e) =>
+        taken(e.status)
+          ? (file.find((f) => f.word === e.word && f.status === "ready") ?? e)
+          : e,
+      ),
+    );
+  }
+}
+
 /**
  * A route drawn whole outside a city's examples, kept to open as one of
  * them, without asking the API: the shapes near the phone in «Draw»
@@ -716,7 +771,9 @@ function keep(storage: Storage, key: string): void {
 
 /**
  * What was kept for this place: what came with the app first, then what the
- * phone drew ahead of the page (TASK-246); the phone's file is for the rest.
+ * phone drew ahead of the page (TASK-246); the phone's file is for the rest,
+ * and for a run what was taken ahead of the page from the API's kept routes
+ * last (TASK-316).
  */
 function savedOf(storage: Storage, key: string, set: ExampleSet): ExampleDetail[] {
   return [
@@ -725,6 +782,7 @@ function savedOf(storage: Storage, key: string, set: ExampleSet): ExampleDetail[
       ? (readKept({ [key]: readAheadFile().examples[key] })[key] ?? [])
       : []),
     ...(storage.load()[key] ?? []),
+    ...(set === RUN_EXAMPLES ? (readKept({ [key]: townRoutes(key) })[key] ?? []) : []),
   ];
 }
 

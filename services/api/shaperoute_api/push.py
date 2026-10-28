@@ -11,9 +11,11 @@ Five events are notified, the same list for every channel (the user's
 choice of 2026-10-07): a follow request, a follow request accepted, a
 reaction, a comment, a tag. A sixth, a shape of the game unlocked (TASK-296,
 ADR-0255), is told to the runner who unlocked it; three more are the game's
-teams' (part C): a piece finished, a challenge complete, a day left. Two
-are the private messages' (TASK-317, messages.py): a message, and a message
-request once a day for each writer. Each to one recipient, and only when:
+teams' (part C): a piece finished, a challenge complete, a day left; three
+a group run's, to who goes (TASK-309, group_runs.py): it starts soon, its
+time or place changed, it was cancelled; two the private messages'
+(TASK-317, messages.py): a message, and a message request once a day for
+each writer. Each to one recipient, and only when:
 
 - the recipient has «Push notifications» on (users.notify_push);
 - the recipient is not the one who acted, but for OWN_KINDS;
@@ -86,13 +88,23 @@ Kind = Literal[
     "challenge_done",
     "challenge_ending",
     "contest_won",
+    "group_run_soon",
+    "group_run_changed",
+    "group_run_cancelled",
     "message",
     "message_request",
 ]
 # The events of what one did oneself, or of nobody's doing: told to
-# oneself too (the shape game, TASK-296; the contest won, TASK-299).
+# oneself too (the shape game, TASK-296; the contest won, TASK-299; the
+# reminder of a group run, to its organiser too, TASK-309).
 OWN_KINDS: frozenset[str] = frozenset(
-    {"shape_unlocked", "challenge_done", "challenge_ending", "contest_won"}
+    {
+        "shape_unlocked",
+        "challenge_done",
+        "challenge_ending",
+        "contest_won",
+        "group_run_soon",
+    }
 )
 
 # An Expo push token: "ExponentPushToken[…]", or "ExpoPushToken[…]".
@@ -186,6 +198,8 @@ class PushEvent:
     challenge_id: UUID | None = None
     number: int | None = None
     names: Mapping[str, str] | None = None
+    # A group run (TASK-309): the app opens it; its title is `text`.
+    group_run_id: UUID | None = None
 
     def same(self) -> tuple[str, int, int, str, str]:
         return (
@@ -298,6 +312,29 @@ TEXTS: dict[str, dict[str, str]] = {
         "fr": "Tu as gagné le concours MuW ! Ta publication a reçu le plus de"
         " réactions.",
     },
+    # Group runs (TASK-309, docs/EVENTI.md §8): {title} is the group run's,
+    # {name} its organiser. No time: the server does not know the phone's.
+    "group_run_soon": {
+        "en": "{title} starts soon: see you at the start!",
+        "de": "{title} beginnt gleich: wir sehen uns am Start!",
+        "it": "{title} sta per cominciare: ci vediamo alla partenza!",
+        "es": "{title} empieza pronto: ¡nos vemos en la salida!",
+        "fr": "{title} commence bientôt : rendez-vous au départ !",
+    },
+    "group_run_changed": {
+        "en": "{name} changed the time or place of {title}.",
+        "de": "{name} hat Uhrzeit oder Treffpunkt von {title} geändert.",
+        "it": "{name} ha cambiato ora o luogo di {title}.",
+        "es": "{name} ha cambiado la hora o el lugar de {title}.",
+        "fr": "{name} a changé l'heure ou le lieu de {title}.",
+    },
+    "group_run_cancelled": {
+        "en": "{name} cancelled {title}.",
+        "de": "{name} hat {title} abgesagt.",
+        "it": "{name} ha annullato {title}.",
+        "es": "{name} ha cancelado {title}.",
+        "fr": "{name} a annulé {title}.",
+    },
     # The private messages (TASK-317): a message with its beginning; a
     # request without it, which may come from anyone.
     "message": {
@@ -335,14 +372,17 @@ def text_of(event: PushEvent, name: str, language: str | None) -> str:
         name=name,
         emoji=REACTION_EMOJI.get(event.reaction or "", ""),
         text=quoted(event.text),
+        title=quoted(event.text),
         shape=names.get(language or "en") or names.get("en", ""),
         n="" if event.number is None else event.number,
     )
 
 
 def data_of(event: PushEvent, actor_public_id: UUID, actor_name: str) -> dict[str, str]:
-    """What the app opens when the notification is touched: the challenge,
-    the drawing, or the profile of who acted."""
+    """What the app opens when the notification is touched: the group run,
+    the challenge, the drawing, or the profile of who acted."""
+    if event.group_run_id is not None:
+        return {"kind": event.kind, "group_run_id": str(event.group_run_id)}
     if event.challenge_id is not None:
         return {"kind": event.kind, "challenge_id": str(event.challenge_id)}
     if event.drawing_id is not None:

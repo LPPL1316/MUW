@@ -55,7 +55,7 @@ CREATE INDEX messages_of_conversation ON messages (conversation_id, created_at, 
 CREATE INDEX messages_of_sender ON messages (sender_id);
 
 -- A message is reported too (TASK-317): the list of kinds of
--- 0020_moderation.sql, with 'message'.
+-- 0032_group_runs.sql (TASK-309), with 'message'.
 ALTER TABLE reports DROP CONSTRAINT reports_kind_check;
 ALTER TABLE reports ADD CONSTRAINT reports_kind_check
-    CHECK (kind IN ('drawing', 'comment', 'user', 'message'));
+    CHECK (kind IN ('drawing', 'comment', 'user', 'group_run', 'message'));

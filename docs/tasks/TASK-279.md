@@ -165,3 +165,5 @@ l'API (la prima volta 30–50 s a parola). Restano il punto 7
 (`draw_examples`, dopo Apple) e la parte B.
 
 **Provato sull'iPhone dall'utente il 2026-10-15**, in Expo Go su `preview` (gruppo `9dbc73d0`, da `main` `fd4ae341`): «funziona tutto ok». Vale per la parte A (#503); restano il punto 7 (`draw_examples`, dopo Apple) e la parte B.
+
+**Punto 7 spostato a TASK-316** (2026-10-27, dal Coordinatore): `draw_examples --all` disegna anche le sei parole che l'app chiede a una città, con la stessa richiesta dell'app; codice in `main` con la #590 (`07f98951`, 2026-10-28, ADR-0276). Il giro sul server è la parte C di TASK-316, dopo Apple e con il sì dell'utente. Qui resta solo la parte B (frasi).
