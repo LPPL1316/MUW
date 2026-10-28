@@ -1058,6 +1058,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `83793e26…`) inviata in revisione ad Apple dall'utente; scheda, screenshot
   e privacy su App Store Connect. Resta l'esito di Apple e l'uscita
   manuale.
+  **Chiuso il 2026-10-28**: Apple ha approvato la 1.0.0 (7), che è
+  sull'App Store; server, OTA `production` e 1.0.1 con il sì
+  dell'utente, uno per volta (`tasks/TASK-152.md`, «Esito»).
 - **TASK-237 — Il sito web** (ADR-0201; chiesto dall'utente il
   2026-10-05). Una pagina statica in `site/`, senza dipendenze. **Parte
   A** in `main` (PR #325, `f8e68b6`): la pagina con «Merch». **Parte A2**
