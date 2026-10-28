@@ -208,6 +208,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Testi: inglese e italiano approvati con la proposta, de/es/fr
   dell'agente; tempi e dati sul telefono sono stime. File:
   `tasks/TASK-306.md`.
+  **Chiuso**: in `main` con la #571 (`0bfc07c0`, 2026-10-27); resta la
+  preview del Coordinatore e il tempo vero sul telefono dell'utente.
 - **TASK-303 — Dopo una deviazione la corsa rientra più avanti, con la
   guida per tornarci** (ADR-0263; prova sul campo dell'utente a Trento del
   2026-10-25, piano approvato; numero e condizioni dal Coordinatore). Branch
@@ -235,8 +237,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   per chi pubblica: una frase nuova nella «Privacy», in app e sul sito.
   Le svolte a voce (map-matching nell'engine) sarebbero un task a parte.
   File: `tasks/TASK-307.md`.
-  **Chiuso**: in `main` con la #571 (`0bfc07c0`, 2026-10-27); resta la
-  preview del Coordinatore e il tempo vero sul telefono dell'utente.
+  **Chiuso**: in `main` con la #573 (`f8dd7964`, 2026-10-27), privacy
+  datata 27 ottobre 2026; vedi «Completato».
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -1549,6 +1551,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   vincitore in cima per 7 giorni, il badge «Winner» nei profili e la fascia
   sul disegno). Testi nelle cinque lingue approvati dall'utente. Sul server
   dopo Apple, con il suo ok. File: `tasks/TASK-299.md`, `CONCORSI.md`.
+- **App** — TASK-307 (ADR-0267; richiesta dell'utente del 2026-10-26):
+  dal disegno di un altro, aperto dal «Feed» o dal profilo, **«Start»**
+  sulla sua traccia tagliata (senza svolte a voce, e la scheda lo dice) ed
+  **«Export GPX»** scritto sul telefono, senza tempi né nome. Solo i disegni
+  che si possono già vedere, mai con un blocco, mai quelli nascosti: un
+  test ciascuno nell'API. Nessun interruttore per chi pubblica (scelta
+  dell'utente): la «Privacy» lo dice, in app e sul sito, dal 27 ottobre
+  2026. #573, `tasks/TASK-307.md`.
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
 - **App e API** — TASK-300 (ADR-0261; scelta dell'utente del 2026-10-25,
   «a parte SUBITO»): l'indirizzo email confermato con un link
