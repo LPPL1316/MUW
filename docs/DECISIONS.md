@@ -15736,6 +15736,50 @@ dell'utente; elenco dei file approvato dal Coordinatore)**:
   (chi ha creato la squadra toglie, ognuno esce), con «Leave team» che
   chiede conferma prima, perché rientrare vuole il codice.
 
+**Aggiunta (parte E, 2026-10-26, decisa dall'agente su delega
+dell'utente; elenco dei file approvato dal Coordinatore)**:
+
+- **La riga del gioco sta nella scheda della corsa** (`RunCard`, in
+  `RunDashboard.tsx`): una riga sola di testo piccolo e grigio sotto i tre
+  numeri di «Map» (sotto i riquadri quando la corsa è in pausa) e su «Data»
+  sotto i sei riquadri, prima dei km uno per uno. Non copre la mappa, i
+  numeri né i pulsanti, non è gialla (il giallo è del percorso, ADR-0046) e
+  la voce non cambia. La scheda legge una volta e mostra la riga sulle due
+  pagine: due righe con una lettura ciascuna avrebbero chiesto il gioco due
+  volte. Il posto lo conferma l'utente quando vede la riga su `preview`.
+- **L'API si chiede una volta, all'inizio della corsa, mai durante**: `GET
+  /game/me` e `GET /game/teams` insieme, appena la scheda compare (anche
+  durante il conto alla rovescia), con l'account, il catalogo sul telefono
+  e solo a piedi. Poi la riga cresce da sola con i metri della corsa che la
+  scheda ha già (`track.distanceM`): nessuna richiesta mentre si corre,
+  nessun timer, niente in background. Senza rete, senza account, senza
+  catalogo (il server di oggi, che non ha il gioco) o con la sessione
+  rifiutata la riga non c'è e non compare nessun errore: la corsa è come
+  prima. Un'API senza la parte C (404 su `/game/teams`) lascia la sola
+  forma per distanza.
+- **Oltre la soglia la riga passa alla forma dopo.** Il totale stimato (i
+  metri contati dall'API più quelli della corsa) sceglie la forma per
+  distanza più vicina non ancora sbloccata e con la soglia ancora sopra il
+  totale: a 20,0 km «Hexagon 19.9 / 20 km» diventa «Circle 20.0 / 42 km»,
+  senza mai dire «unlocked», che lo dice il server dopo «Save» con la
+  scheda della parte B. Scartato restare fermi al 100 % con un testo
+  neutro: una riga che non si muove più per il resto della corsa non dà
+  niente da rincorrere, e il salto alla forma dopo dice da sé che la soglia
+  è passata. Raggiunte tutte le forme per distanza, niente riga.
+- **Il pezzo veloce vince sulla forma per distanza**: con un pezzo `kind:
+  "pace"` in mano (tenuto da me, non fatto) in una sfida `active`, la riga
+  dice il passo dell'ultimo km intero contro l'obiettivo, «Last km 5:12 ·
+  target 5:00 /km», con «–» prima del primo km; con le miglia l'ultimo
+  miglio e l'obiettivo al miglio, «Last mi 8:22 · target 8:03 /mi». Il
+  primo pezzo trovato, nell'ordine delle squadre. Chi sono io lo dice
+  `session.user.public_id`, confrontato con `holder.public_id` dei pezzi;
+  senza (un'API prima di TASK-116) le squadre non si chiedono.
+- **Le squadre si leggono con la parte D**: `fetchTeams` di `teamsApi.ts`
+  e i tipi `GameTeams` di `shared-types`. La E era partita con tipi suoi,
+  minimi, perché la D stava allungando lo stesso file; entrata la D per
+  prima (#561), la E ha tolto il doppione prima della sua PR, come
+  concordato con il Coordinatore.
+
 ## ADR-0256 — Tutti i percorsi disegnati restano nel database, e una richiesta entro 100 m riceve quello pronto
 
 **Stato**: Attiva · 2026-10-24 · tenere tutti i percorsi è la scelta
@@ -16793,6 +16837,49 @@ attraversamento in diagonale lungo più di `JOIN_M` sopra il percorso più
 avanti, nella finestra, può ancora valere come rientro; se si esce di nuovo,
 la voce lo dice dopo `OFF_FIXES`, come sempre.
 
+## ADR-0269, aggiunta — Come l'API delle corse di gruppo tiene le regole
+
+**Stato**: Attiva · 2026-10-27 · deciso dall'agente su delega dell'utente
+(TASK-309 parte A, PR #581). Aggiunta ad ADR-0269, senza numero nuovo. Le
+regole di prodotto restano quelle di ADR-0269 ed `EVENTI.md`.
+
+**Contesto**: scrivendo `group_runs.py` tre punti non erano decisi dai
+documenti: come le push dicono all'app cosa aprire, che cosa fa un blocco a
+chi aveva già detto «I'm going», e che cosa vuol dire «in arrivo».
+
+**Decisione**:
+1. **Le push delle corse di gruppo hanno un tipo loro in `shared-types`**,
+   `GroupRunPushKind` con i dati `GroupRunPushData` `{ kind, group_run_id }`,
+   accanto a `PushKind` come `ChallengePushKind` delle sfide del gioco, e
+   non dentro `PushKind`: `PushData` lega `PushKind` a `drawing_id` o a un
+   profilo, e un `group_run_id` lì sarebbe un dato che il tipo non dice. In
+   `push.py` i tre tipi entrano in `Kind` come gli altri.
+2. **Un blocco non cancella le risposte, le esclude in lettura.** Chi va
+   conta, per chi chiede, solo se vede ancora la corsa di gruppo e non è
+   lontano da chi chiede (`group_runs.counted_sql`, che usa `seen_sql` e
+   `follows.apart_sql`). Così una sola regola vale per il numero, l'elenco,
+   le facce della scheda e i destinatari delle push, e copre anche chi ha
+   smesso di seguire l'organizzatore di una corsa «Followers», o è stato
+   nascosto. Sbloccato, chi andava torna nell'elenco.
+3. **«In arrivo» vuol dire non finita e non annullata** (meno di 3 ore dopo
+   l'inizio), per il limite di 10 per account e per il profilo; la fila del
+   Feed usa la stessa soglia. Cambiare e annullare restano possibili solo
+   prima dell'inizio (`status` `upcoming`).
+
+**Alternative scartate**:
+- i tre tipi dentro `PushKind`: `PushData` direbbe `drawing_id` o un
+  profilo anche per loro;
+- cancellare le risposte con un gancio del blocco (`app.state.on_block`),
+  come i follow: non copre chi smette di seguire né chi è nascosto, e le
+  query dovrebbero comunque filtrare questi due casi;
+- «in arrivo» come «non ancora cominciata»: una corsa di gruppo appena
+  cominciata uscirebbe dal profilo mentre si può ancora dire «I'm going».
+
+**Conseguenze**: le query di chi va hanno un `EXISTS` in più per riga, su
+tabelle piccole. Nessun codice d'errore nuovo; `schemas.py` ed `engine.zip`
+invariati. La parte B legge `GroupRunPushData` accanto a
+`ChallengePushData` in `notificationTap.ts`.
+
 ## ADR-0270 — pytest fermato sotto la 9.2 finché i test confrontano liste con un solo `approx`
 
 **Data**: 2026-10-27 · **Stato**: Accettata · **Task**: TASK-310
@@ -16813,6 +16900,49 @@ dozzina di PR aspetta la CI; resta come seguito.
 
 **Conseguenze**: la CI torna verde con la 9.1. Quando i test saranno
 riscritti, il tetto si toglie con un'aggiunta a questo ADR.
+
+## ADR-0271 — Le parole misurate su 1000 casi, e sul server tutto quello che si chiede
+
+**Data**: 2026-10-27 · **Stato**: Proposta (parte A misurata il 2026-10-28) · **Task**: TASK-311
+Deciso dall'agente su delega dell'utente, con le condizioni del Coordinatore;
+le scelte di prodotto restano all'utente.
+
+**Contesto**: l'utente ha chiesto (2026-10-27) parole scritte meglio,
+«magari» con più km, 1000 prove salvate sul server per i calcoli e le
+proposte future, e sul server tutte le forme, i disegni e le scritte
+chieste. ADR-0256 tiene già ogni percorso di una forma o di una parola, ma
+non il contorno di una foto né le richieste senza percorso, e le parole vi
+entrano senza filtro. Una prova a Trento a 3 km a lettera ha dato quattro
+parole su quattro sotto la soglia: troppo poco per decidere.
+
+**Decisione**:
+
+1. **Prima la misura** (parte A): 50 parole × 5 città × 3 e 4 km a lettera
+   × due stili, buone come in TASK-298 (distanza entro il 10 %, somiglianza
+   almeno 0,90), sul Mac con le zone scaricate da Overpass.
+2. **Il metodo** (B): cambia solo ciò che la misura dimostra. Misurato
+   (TASK-311, «Le misure»): 443 buone su 1000; da 3 a 4 km a lettera +2,6
+   punti col tempo quasi doppio, quindi il minimo resta 3 km; da 5 lettere
+   in su la penna alzata porta le buone da 11 % a 40 %. Usarla per le
+   parole lunghe cambia come si corre: solo col sì dell'utente.
+3. **Le parole provate sul server** (C): i percorsi buoni entrano in
+   `drawn_routes` dal centro delle città, disegnati dal motore del server;
+   agli altri si propongono solo parole della lista provata, nessun nome.
+4. **Tutto quello che si chiede** (D), scelta dell'utente: entrano anche i
+   disegni a mano e i contorni delle foto (solo il contorno, mai la foto) e
+   le richieste senza percorso (con una cella di circa 1 km, non la
+   posizione); le parole solo se passano il filtro; mai l'account. Supera
+   il «mai» di ADR-0256 per il contorno di una foto.
+
+**Alternative scartate**: tenere la foto (è dell'utente e può mostrare
+persone); tenere l'account accanto alla richiesta (cancellare l'account non
+deve lasciare niente che riporti a lui, ADR-0256); proporre agli altri le
+parole chieste da qualcuno (possono essere nomi); alzare i km a lettera
+prima di misurare.
+
+**Conseguenze**: l'archivio cresce più in fretta (il tetto di 50 000 righe
+di ADR-0256 resta); un paragrafo nuovo della privacy da far approvare; le
+righe di C vanno ridisegnate a ogni cambio del motore.
 
 ## ADR-0267 — Correre il disegno di un altro: la traccia tagliata come percorso, senza svolte, e il GPX scritto sul telefono
 
@@ -16951,6 +17081,339 @@ cresce di nessun campo. Al rientro la mappa si ricarica (un attimo di
 barra di caricamento). Le correzioni arrivano sulla 1.0 solo con un
 aggiornamento sul canale `production` o con la prossima build: l'impronta
 iOS non cambia.
+
+
+## ADR-0265 — Il parapendio come sport di MuW: una forma nel cono di planata, esportata allo strumento di volo, mai guidata in volo
+
+**Stato**: Proposto · 2026-10-26 · studio di fattibilità con misure
+(TASK-305, `out/TASK-305/studio.md` del Mac). Scelta dell'utente dello
+stesso giorno: «è una bella idea», MuW dà la traccia e fa caricare il
+volo, **non fa da navigatore**; il 2026-10-27 l'utente ha scelto la riga
+«Paragliding» 🪂 in Settings subito, con «Soon», il nome (Parapendio,
+Gleitschirmfliegen, Parapente) e l'avviso di sicurezza com'era proposto;
+le tre condizioni del punto 7 sono ancora aperte
+
+**Contesto**: l'utente vuole lo sport «Parapendio»: lo si sceglie, l'app si
+adatta al volo, e il pilota disegna la forma nel cielo con la sua traccia.
+`PRODUCT.md` e `ROADMAP.md` dicono da sempre che il parapendio ha un modello
+di percorso diverso e va riprogettato, non adattato. In aria non ci sono
+strade né rive: c'è il cono di planata fra un decollo e il suo atterraggio
+ufficiale, da cui non si esce senza termiche; ci sono spazi aerei in cui
+il volo libero non può entrare (DPR 133/2010 art. 9: solo VFR diurno, fuori
+dagli spazi controllati e dalle ATZ, a 5 km dagli aeroporti) e regole
+dell'aria sui centri abitati (SERA.5005(f): 300 m). In volo il pilota non
+guarda il telefono. Le condizioni del Coordinatore: la sicurezza prima di
+tutto, le fonti delle zone con licenza, il motore resta sulle strade, un
+motore per termiche e traiettorie è un costo a parte, e se non si può fare
+bene lo studio dice «non conviene».
+
+**Decisione proposta** (nessuna parte parte senza il sì dell'utente):
+
+1. **Il modello è il cono di planata**, non una rete: da ogni punto della
+   forma l'atterraggio ufficiale resta raggiungibile in aria calma con
+   efficienza 8 e 300 m sopra il terreno (nessun margine nei primi 300 m
+   dal decollo, dove si corre giù dal pendio; 100 m sopra il campo
+   all'arrivo, la quota di un circuito). Due Dijkstra sulla griglia del terreno (quota
+   con cui si arriva, quota da cui si torna); la forma più larga che ci sta
+   si cerca per scala, inclinazione entro ±30° e punto d'ingresso; il
+   percorso è decollo → forma → atterraggio. Il vento è una correzione
+   della deriva. **Il motore decide dove e quanto grande; l'AI interpreta
+   soltanto**, e resta una libreria senza rete: terreno, spazi aerei,
+   centri abitati e decolli entrano come file.
+2. **La quota prende il posto della distanza**: non si chiede «quanti km»,
+   si mostra la forma più grande che sta nel cono, con la riserva di quota
+   come numero. Senza termiche è una planata di 10–20 minuti. Una quota di
+   partenza maggiore (termica fatta prima) dà una forma più grande o più
+   riserva: il motore la accetta, **non pianifica mai una termica**.
+3. **Spazi aerei e regole come limiti del cono**: sotto il pavimento delle
+   zone controllate, sopra il soffitto delle riserve (ENR 5.6, 1500 ft),
+   mai dentro P/R/D, 500 m sopra i centri abitati (più dei 300 m della
+   regola, per scelta). I dati hanno la data del ciclo AIRAC; **più vecchi
+   di un ciclo, il motore rifiuta**. I NOTAM non si conoscono: l'app lo
+   dice sempre.
+4. **La forma come boe, allo strumento che il pilota ha già**: 12–16 boe
+   per un cuore, i vertici per stella e lettere, raggio 30–50 m; export
+   `.xctsk` e QR `XCTSK` (XCTrack, Flyskyhy, SeeYou Navigator), `.cup`,
+   `.wpt`. **Nessuna guida in volo da MuW** (scelta dell'utente): niente
+   «Start», niente voce, nessuna schermata di volo.
+   Dopo l'atterraggio l'app importa l'IGC (senza il nome del pilota del
+   record `HFPLT`, con i 200 m tolti come per le corse), dà il punteggio
+   sulla forma e pubblica nel Feed. Strava resta fuori (niente IGC, niente
+   sport parapendio).
+5. **Cosa l'app non dice mai**: «vola qui», «qui è legale», «spazio aereo
+   libero», «nessun NOTAM», «condizioni sicure», «ce la fai»; niente
+   linguaggio didattico (le scuole sono dell'AeCI). L'avviso prima di
+   pianificare e la riga fissa sul risultato con la data dei dati sono
+   approvati dall'utente (2026-10-27); il testo è in `tasks/TASK-305.md`.
+6. **Le fonti** (licenze lette nello studio): decolli da OSM (ODbL),
+   terreno Copernicus GLO-30/90, vento DWD ICON-D2 o ECMWF (CC BY 4.0),
+   centri abitati OSM. **Gli spazi aerei sono il nodo**: openAIP è CC
+   BY-NC (con un'eccezione scritta sulla home da chiarire), ENAV vuole un
+   accordo, EAD è a pagamento con royalties. Senza una fonte di spazi aerei
+   che si possa spedire nell'app non si propone nessuna forma: le email a
+   openAIP, ENAV, ParaglidingEarth e DHV vengono prima di qualunque codice.
+
+7. **Tre condizioni prima del codice** (misurate sui tre decolli dello
+   studio): una fonte di spazi aerei con licenza (alla Panarotta il file
+   comunitario mette l'atterraggio ufficiale dentro una riserva e non ci
+   sta nessuna forma); un elenco di decolli scelti a mano dove la forma in
+   aria calma è ≥ 1,5 km (il Baldo, 1667 m di dislivello: 2,8 km; Grappa e
+   Panarotta, 1000–1400 m: 1 km, nulla con vento contro); un parere legale e
+   una prova con un pilota e il club di un sito.
+
+**Alternative scartate**: adattare il motore delle strade (non c'è una
+rete); una guida vocale in volo di MuW (duplica lo strumento, distrae in
+decollo e in atterraggio, e un «boa raggiunta» parlato non è documentato
+nemmeno in XCTrack); un pianificatore di termiche e traiettorie (progetto a
+parte, dati meteo a pagamento, sconsigliato); usare openAIP «perché lo
+fanno tutti» (la licenza dice no).
+
+**Conseguenze**: 10–14 sessioni (senza schermata di volo, per scelta
+dell'utente), contro le 15 della canoa, che aveva una sola fonte già nel motore; più il
+tempo delle licenze, un parere legale sulla responsabilità da informazione
+e una prova con un pilota vero, che nessuna sessione può fare. Le parti e i
+loro file sono in `tasks/TASK-305.md`; i numeri misurati sui tre decolli
+(Monte Baldo, Monte Grappa, Panarotta) sono nello studio.
+
+## ADR-0268 — «Send feedback» in «Settings»: un modulo nell'app, tenuto dal server e mandato per email
+
+**Stato**: Attiva · 2026-10-26, in `main` il 2026-10-28 con la #576 · il
+modulo nell'app (invece di un'email
+scritta dal telefono) l'ha scelto l'utente; i testi e le righe della
+privacy li ha approvati il 2026-10-26 («Sì ai testi e alla privacy di
+TASK-308, così come sono.»); i punti tecnici sono decisi dall'agente su
+delega dell'utente (TASK-308)
+
+**Contesto**: l'utente il 2026-10-26: «aggiungi un tasto in impostazioni
+per darci un feedback e suggerimenti». Due strade: un'email già scritta
+nell'app Mail del telefono, a `hello@getmuw.app`, che però oggi non
+riceve posta (il dominio non ha record MX), o un modulo nell'app. Scelta
+dell'utente: «Form in the app».
+
+**Decisione**:
+
+1. **Una sezione «FEEDBACK» in «Settings»**, prima di «ABOUT», con la
+   riga «💬 Send feedback». Un tocco apre il modulo sotto la riga, come
+   «Change email»: cosa serve il messaggio, un campo di più righe (al più
+   2000 caratteri), cosa parte con lui, «Send». Mandato, il modulo si
+   chiude e la riga ringrazia; chiuso senza mandare, le parole restano
+   per il tocco dopo. Solo con l'account: «Settings» c'è solo da dentro.
+2. **`POST /feedback`** (`feedback.py`) con il token: il testo, la
+   versione dell'app («1.0.0 (7)», da `expo-constants`) e il sistema
+   (`ios`/`android`). Tenuto nella tabella nuova `feedback` (migrazione
+   `0031_feedback.sql`, il numero al merge), `ON DELETE CASCADE`: con
+   l'account se ne vanno i suoi messaggi. Nessun endpoint li legge.
+3. **Al più 5 in 24 ore per account**, contati nel database (non in
+   memoria come i commenti: sopravvivono a un riavvio, e il conto è
+   esatto), poi `429 too_many_requests` con `Retry-After`. Basta per chi
+   scrive davvero, ferma chi tiene premuto «Send». **E al più 20 in 24 ore
+   da un indirizzo di rete**, in memoria (`access.RateLimiter`), contro
+   chi apre account nuovi per scrivere di più.
+3a. **L'app non aspetta il server** (condizione del Coordinatore: `main`
+   resta pubblicabile su preview, che parla col server di oggi):
+   `GET /feedback` risponde `204`, e «Settings» mostra «FEEDBACK» solo
+   dopo quella risposta (`useFeedbackService`), chiesta a ogni apertura.
+   Un'API precedente risponde `404`, e la sezione non c'è: nessuno scrive
+   un messaggio che poi non parte. Un'email dal telefono come riserva non
+   serve: `hello@getmuw.app` oggi non riceve.
+4. **Un'email per messaggio**, come le segnalazioni (ADR-0251): fuori
+   dalla richiesta, con Resend, in inglese, a `SHAPEROUTE_FEEDBACK_TO`
+   o, senza, a `SHAPEROUTE_REPORTS_TO`, che c'è già: nessuna variabile
+   nuova obbligatoria sul server. **Reply-To è l'email dell'iscritto**
+   (un campo `reply_to` nuovo in `resend_email.Email`): rispondere
+   all'email risponde a lui. Senza Resend il messaggio resta nel
+   database; un errore di Resend non cambia la risposta. Chiave,
+   indirizzo e testo mai nei log.
+5. **La privacy** ha una sezione nuova («Feedback») e due frasi: cosa
+   porta Resend e la base del trattamento (interesse legittimo: leggere e
+   rispondere), nelle cinque lingue, e le pagine del sito rifatte con
+   `make_privacy.mjs`.
+
+**Alternative scartate**: l'email scritta dal telefono (scelta
+dell'utente; oggi non arriverebbe, e senza un'app Mail configurata non
+parte); un endpoint senza account (spam, nessuno a cui rispondere); un
+pannello o un endpoint per leggere i messaggi (ADR-0228: per ora si
+leggono per email e nel database); il limite in memoria con
+`RateLimiter` (si azzera a ogni riavvio).
+
+**Conseguenza**: una migrazione e due endpoint nuovi. L'app e il server
+entrano in qualsiasi ordine: finché il server non è aggiornato (dopo
+l'approvazione di Apple, con l'ok dell'utente) la sezione non si vede.
+Nessuna
+dipendenza né permesso nuovi, niente di nativo: l'app arriva con un
+aggiornamento OTA (impronta iOS da rimisurare, attesa invariata).
+
+## ADR-0275 — Le foto di un post si scorrono nella scheda del Feed, dopo il disegno
+
+**Data**: 2026-10-28 · **Stato**: Accettata · **Task**: TASK-315
+Richiesta dell'utente; il modo è deciso dall'agente su delega dell'utente,
+con le condizioni del Coordinatore.
+
+**Contesto**: l'utente vuole che la foto di un post sia «scorribile e
+visibile dal feed». La scheda del Feed mostrava solo il disegno sulla
+mappa (TASK-156, TASK-162); le foto (TASK-208, ADR-0170) si vedevano solo
+aprendo il post. `GET /feed` le manda già con ogni post (`photos`), quindi
+basta l'app. Tutta l'app scorre già in orizzontale fra Feed, Draw ed
+Explore (TASK-154): un secondo scorrimento orizzontale dentro la scheda non
+deve girare la pagina per sbaglio.
+
+**Decisione**:
+
+1. **Le pagine della scheda**: per un post di un iscritto con foto, e
+   qualcuno entrato (le foto si leggono con il token), il riquadro del
+   disegno diventa uno `ScrollView` orizzontale a pagine. Prima il disegno
+   con la sua mappa, come oggi; poi una foto per pagina, larga quanto la
+   scheda e alta quanto il disegno, ritagliata a riempirlo. Sotto il
+   riquadro un puntino per pagina, acceso quello mostrato. Un tocco apre il
+   disegno come prima (lì le foto si vedono intere).
+2. **I bordi**: lo scorrimento delle foto rimbalza a entrambi i bordi (il
+   default di iOS; quello delle pagine dell'app no, `bounces={false}`).
+   Prima del disegno e dopo l'ultima foto il dito resta nella scheda e la
+   pagina dell'app non gira; per cambiare pagina si scorre fuori dal
+   riquadro, sul nome, sul titolo o fra le schede. È lo stesso annidamento
+   delle file orizzontali di «Explore» (`RecommendedRow`, `NearbyTowns`,
+   `CityWords`).
+3. **I dati**: si carica la foto dopo la più avanti vista, mai oltre; le
+   altre sono un riquadro vuoto finché non tocca a loro, e quelle già
+   caricate restano. La misura è quella che l'API tiene, al più 1080 px
+   per lato (ADR-0170): la scheda larga tutto lo schermo di un iPhone 3×
+   ne mostra circa 1074, e l'originale non lascia mai il telefono. Una
+   misura più piccola per il Feed vorrebbe il server.
+4. **Il resto non cambia**: con zero foto, per un esempio o senza nessuno
+   entrato la scheda è quella di prima; post nascosti e blocchi seguono
+   `GET /feed` come prima.
+
+**Alternative scartate**: i puntini sopra la foto (il Coordinatore li vuole
+sotto); la striscia di foto alte 160 sotto la mappa, come nel disegno
+aperto (la scheda diventerebbe più alta per tutti); la foto come prima
+pagina (il Feed è dei disegni: la forma resta la prima cosa che si vede);
+bloccare il `Pager` mentre il dito è sulle foto (tocca un file di più task
+e su iOS non serve); un pacchetto di carosello (una dipendenza in più per
+ciò che `ScrollView` fa già).
+
+**Conseguenze**: solo app, nessun testo né dipendenza nuovi, impronta iOS
+invariata. Provato nei test (anche che lo scorrimento delle foto non gira
+il `Pager`), non su un telefono. Su Android l'annidamento non è stato
+provato: se lì lo scorrimento delle foto girasse la pagina, serve un blocco
+nel `Pager`, con un'aggiunta a questo ADR.
+
+## ADR-0276 — Explore pronto prima: il telefono prende solo i disegni che il server ha già
+**Stato**: Attiva · 2026-10-27 · TASK-316. La richiesta è dell'utente, del
+2026-10-27: i disegni dei paesi vicini e della regione scaricati
+all'apertura, e almeno 100 disegni tenuti sul server. Le condizioni sono del
+Coordinatore, nel dare il numero: il prefetch non fa mai calcolare il server
+né scaricare una zona; i disegni li calcola il server una volta, dopo Apple
+e con il sì dell'utente; le condizioni di TASK-306. Il come è deciso
+dall'agente su delega dell'utente.
+
+**Decisione**:
+1. **Un endpoint in sola lettura**, `POST /kept-routes`: fino a 16
+   richieste di forma o di parola, e per ognuna il percorso tenuto
+   (ADR-0136, dai soli file: punto 5) o `null`. Nessun lavoro, zona o motore: è il solo
+   modo per chiedere «solo se è già pronto», perché `POST /route-jobs`
+   calcola ciò che non ha. Un POST per paese invece di quattordici: nella
+   quota della coda «prefetch» (10 al minuto, ADR-0248) ci stanno diciotto
+   paesi in meno di due minuti.
+2. **I paesi della regione** sono quelli che `GET /nearby-cities` dà
+   attorno ai sei paesi vicini, senza doppioni, i più vicini prima, al
+   massimo 18 in tutto: nessun endpoint e nessun servizio nuovo per
+   trovarli, e i loro punti sono quelli con cui l'app li apre.
+3. **Sul telefono un file per paese**, nella cache, valido 7 giorni (un
+   paese senza niente si richiede dopo un giorno), al massimo 150 disegni
+   scaricati per sessione: la seconda apertura nella stessa regione non
+   scarica quasi niente. Toccato il paese, le sue carte partono da lì.
+4. **Il server calcola i disegni una volta**: `draw_examples --all` chiede
+   gli otto disegni e le sei parole dell'app, con le stesse richieste
+   (una fixture comune la controlla), e `--around` li chiede dai punti di
+   `/nearby-cities` dei paesi attorno a una città. Le parole sono il punto
+   7 di TASK-279 B («`draw_examples` con le parole», facoltativo), che il
+   Coordinatore ha spostato qui il 2026-10-27.
+5. **Solo i file dei centri, mai l'archivio**: `/kept-routes` legge
+   `route_store` (centri delle città e punti sull'acqua, la posizione di
+   nessuno), non l'archivio di ADR-0256, che tiene anche i percorsi
+   disegnati da dove erano gli utenti, senza account. Con una risposta
+   «tenuto o no» un punto qualsiasi direbbe se qualcuno ci ha disegnato:
+   l'app chiede solo i punti dei paesi, e l'endpoint non risponde altro.
+
+**Alternative scartate**: il prefetch con `POST /route-jobs` (ogni telefono
+farebbe calcolare al server fino a 150 disegni e scaricare zone a ogni
+regione nuova: con utenti veri il CX33 non regge); un parametro «solo se
+pronto» su `/route-jobs` (un POST per disegno: cento disegni vorrebbero
+dieci minuti nella quota del prefetch); scegliere il tetto secondo la rete
+(serve `expo-network`, nativo: l'impronta iOS cambierebbe); un elenco dei
+paesi della regione nuovo sul server (un servizio di luoghi in più per ciò
+che `/nearby-cities` dà già).
+
+**Conseguenze**: con il server di oggi (404 su `/kept-routes`) l'app fa
+come prima. Dopo l'aggiornamento, quanto è pronto dipende da ciò che il
+server tiene: fuori dalle regioni disegnate con `--around`, un paese
+diventa veloce dopo che il primo telefono lo ha toccato. Sul telefono fino
+a circa 15 MB di dati e di cache per una regione nuova, una volta ogni 7
+giorni, uguale in Wi-Fi e su rete mobile.
+
+## ADR-0274 — Fuori percorso, la strada per tornarci sulle vie, come un ricalcolo
+
+**Stato**: Attiva (parte A in `main` con la #588; parte B da fare) ·
+2026-10-28 · richiesta dell'utente del 2026-10-27 («Se esci dal percorso ti deve dare le indicazioni per tornare
+sul percorso, tipo il ricalcolo di Google maps»); numero e condizioni dal
+Coordinatore; regole di dettaglio decise dall'agente su delega dell'utente
+(TASK-314). È il seguito che ADR-0263, punto 3, aveva lasciato aperto.
+
+**Contesto**: fuori percorso l'app mostra una linea a puntini in linea
+d'aria fino al punto di rientro e dice «Il percorso riprende a 120 metri
+verso nord-est». In città la linea dritta attraversa i palazzi: non dice da
+che parte andare.
+
+**Decisione**:
+
+1. **Il motore calcola la strada per tornare** (`route_engine/way_back.py`):
+   dal punto della strada più vicina al runner (non dal nodo più vicino:
+   a metà isolato si va avanti) fino al nodo del tratto di rientro più
+   vicino **per strada**. Il tratto è quello di ADR-0263, punto 2, che
+   l'app taglia e manda. Dijkstra con `step_cost`, i sensi unici in bici,
+   un tetto di `MAX_WAY_M`; a parità, il primo nodo lungo il percorso.
+   La strada non corre mai sul percorso: il primo nodo del percorso che
+   tocca è già un arrivo. Se la via più vicina al runner è già un pezzo
+   del tratto, la strada è fino a quella via, senza indicazioni: il
+   percorso è lì. Altrimenti, a Trento, chi stava a 60 m dal percorso
+   veniva mandato all'incrocio e poi indietro con un'inversione a U.
+2. **Le indicazioni** della strada sono quelle dei percorsi (`guidance` e
+   `with_alongs`), con le distanze dal runner e l'ultima che dice da che
+   parte prendere il percorso al rientro.
+3. **Dove si calcola**: prima sul telefono, se ha la zona e il motore va
+   (ADR-0177), poi `POST /way-back` sul server. Se nessuno dei due
+   risponde (offline, server vecchio, 429, 422), restano i puntini dritti
+   di ADR-0263 e l'app non mostra errori.
+4. **L'impronta degli esempi tenuti non cambia**: `way_back.py` non entra
+   nella ricerca dei percorsi, e `route_store.engine_fingerprint` lo
+   lascia fuori. Un test cade se un modulo del motore lo importa.
+5. **Limiti sul server**: per telefono (`X-Phone-Id`, altrimenti l'IP) e,
+   più largo, per IP; oltre, 429. Non per account: la guida di corsa va
+   anche senza account.
+6. **Lo schermo di corsa** (parte B) chiede la strada al più ogni
+   `WAY_BACK_EVERY_S` e la tiene finché il runner ci sta sopra. La mostra
+   a puntini sulle vie, nel banner la prossima svolta, a voce le frasi
+   delle svolte di sempre, mai sopra le svolte del percorso. Il rientro
+   resta quello di ADR-0263, deciso dalle posizioni.
+
+**Scartate**:
+
+- ripartire dal nodo più vicino al runner: a metà di un isolato lungo lo
+  manda indietro all'incrocio;
+- il rientro scelto in linea d'aria e poi raggiunto per strada: il punto
+  più vicino in linea d'aria può essere dall'altra parte di un fiume o di
+  una ferrovia;
+- solo il server: senza rete durante la corsa la guida sparirebbe dove il
+  telefono la sa già calcolare;
+- l'impronta del motore cambiata per un file che non disegna percorsi:
+  costringerebbe a rifare gli esempi tenuti sul server;
+- un limite per account: chiederebbe il token a ogni richiesta e
+  lascerebbe fuori chi corre senza account.
+
+**Conseguenze**: un endpoint nuovo, da mettere sul server dopo Apple e con
+il sì dell'utente; fino ad allora l'app calcola la strada solo sul
+telefono, o mostra i puntini. `engine.zip` cresce di un modulo. I testi
+nuovi della parte B vogliono il sì dell'utente.
 
 ## ADR-0273 — «Draw it near me»: la forma o la parola di un percorso o di un disegno scelte in «Draw», alla stessa distanza
 

@@ -1,6 +1,6 @@
 # TASK-309 — Eventi: le corse di gruppo («Group runs»)
 
-**Stato**: In lavorazione · documenti in PR · poi A (API), B (app), C (commenti)
+**Stato**: In lavorazione · documenti in `main` (#574) · A (API) in `main` (#581) · poi B (app), C (commenti)
 **Fase**: 4 · **Branch**: `docs/TASK-309-group-runs` (documenti),
 `feat/TASK-309-a-group-runs-api` (A), `feat/TASK-309-b-group-runs-app` (B),
 `feat/TASK-309-c-group-run-comments` (C)
@@ -79,7 +79,8 @@ pagina della corsa di gruppo» (`EVENTI.md` §6.4).
 
 ## Parte A — API: corse di gruppo, «I'm going», promemoria
 
-1. **Migrazione** `00NN_group_runs.sql` (numero al merge, oggi da 0031):
+1. **Migrazione** `0032_group_runs.sql` (il primo numero libero al merge;
+   la 0031 l'ha presa TASK-308):
    `group_runs` e `group_run_going` di `EVENTI.md` §12; indice su
    `starts_at` delle non annullate; GIST su `start`.
 2. **`group_runs.py`** (nuovo):
@@ -213,22 +214,37 @@ approvati con la proposta.
 > vedono vedono il tuo nome, la tua foto e che ci vai. Cancelliamo le tue
 > corse di gruppo e le tue risposte quando cancelli l'account.
 
+**Tedesco, spagnolo e francese della parte A**, approvati dall'utente il
+2026-10-27: «Sì, approvo i testi in tedesco, spagnolo e francese delle tre
+push e della riga della privacy così come sono.» Le push sono in
+`push.py`; la riga della privacy entra in `about/content/*.ts` dopo #573 e
+#576, con il titolo della sezione (in inglese e in italiano «Group runs» e
+«Corse di gruppo», i nomi già approvati per la fila del Feed).
+
+| Tipo | Tedesco | Spagnolo | Francese |
+|---|---|---|---|
+| `group_run_soon` | {title} beginnt gleich: wir sehen uns am Start! | {title} empieza pronto: ¡nos vemos en la salida! | {title} commence bientôt : rendez-vous au départ ! |
+| `group_run_changed` | {name} hat Uhrzeit oder Treffpunkt von {title} geändert. | {name} ha cambiado la hora o el lugar de {title}. | {name} a changé l'heure ou le lieu de {title}. |
+| `group_run_cancelled` | {name} hat {title} abgesagt. | {name} ha cancelado {title}. | {name} a annulé {title}. |
+| titolo della privacy | Gruppenläufe | Carreras en grupo | Courses en groupe |
+| riga della privacy | Wenn du einen Gruppenlauf erstellst oder sagst, dass du hingehst, sehen die Mitglieder, die ihn sehen können, deinen Namen, dein Foto und dass du hingehst. Wenn du dein Konto löschst, löschen wir deine Gruppenläufe und deine Antworten. | Si creas una carrera en grupo o dices que vas, los miembros que pueden verla ven tu nombre, tu foto y que vas. Cuando eliminas tu cuenta, eliminamos tus carreras en grupo y tus respuestas. | Si tu crées une course en groupe ou dis que tu y vas, les membres qui peuvent la voir voient ton nom, ta photo et que tu y vas. Quand tu supprimes ton compte, nous supprimons tes courses en groupe et tes réponses. |
+
 ## Criteri di accettazione
 
 Documenti (questa PR):
-- [ ] `docs/EVENTI.md`, questo file, ADR-0269, una riga in `INDEX.md` e
-      una in `STATUS.md`.
+- [x] `docs/EVENTI.md`, questo file, ADR-0269, una riga in `INDEX.md` e
+      una in `STATUS.md` (#574).
 
-Parte A:
-- [ ] Ogni regola di `EVENTI.md` §3–§9 ha il suo test in
+Parte A (#581):
+- [x] Ogni regola di `EVENTI.md` §3–§9 ha il suo test in
       `test_group_runs.py` (elenco al punto A.8).
-- [ ] Il promemoria parte una volta sola per corsa di gruppo, anche con
+- [x] Il promemoria parte una volta sola per corsa di gruppo, anche con
       l'orologio due volte; di nuovo dopo un cambio di ora (test).
-- [ ] Chi è bloccato, in uno dei due sensi, non vede, non va, non è
+- [x] Chi è bloccato, in uno dei due sensi, non vede, non va, non è
       contato, non riceve push (test).
-- [ ] `DELETE /me` toglie corse di gruppo e risposte, e avvisa chi andava
+- [x] `DELETE /me` toglie corse di gruppo e risposte, e avvisa chi andava
       (test).
-- [ ] `schemas.py` e `engine.zip` invariati; pytest, ruff e black verdi;
+- [x] `schemas.py` e `engine.zip` invariati; pytest, ruff e black verdi;
       i testi delle push e della privacy approvati dall'utente.
 
 Parte B:
@@ -253,21 +269,26 @@ docs/STATUS.md                (righe nuove)
 docs/INDEX.md                 (una riga: «Le corse di gruppo» → EVENTI.md)
 ```
 
-Parte A (da confermare col Coordinatore prima del codice):
+Parte A (confermati dal Coordinatore il 2026-10-27, con due differenze
+dalla prima lista: `accounts.py` esce, perché l'hook
+`app.state.before_account_delete` c'è già; la privacy sta nei testi
+dell'app, da cui `site/privacy` si rifà, e entra dopo #573 e #576):
 ```
-services/api/migrations/00NN_group_runs.sql              (nuovo, numero al merge)
-services/api/shaperoute_api/group_runs.py                (nuovo: regole, endpoint, orologio, push)
-services/api/shaperoute_api/push.py                      (solo i tre Kind, OWN_KINDS, i testi)
-services/api/shaperoute_api/app.py                       (la riga del router, l'orologio nel lifespan)
+services/api/migrations/0032_group_runs.sql              (nuovo; la 0031 è di TASK-308; rifà il CHECK di reports.kind)
+services/api/shaperoute_api/group_runs.py                (nuovo: regole, endpoint, orologio, push, hook di DELETE /me)
+services/api/shaperoute_api/push.py                      (i tre Kind, OWN_KINDS, i testi; group_run_id in PushEvent e nei dati)
+services/api/shaperoute_api/app.py                       (import e una riga install_group_runs)
 services/api/shaperoute_api/moderation.py                (il tipo group_run)
 services/api/shaperoute_api/report_email.py              (il tipo group_run, nascondere e rimostrare)
-services/api/shaperoute_api/accounts.py                  (una chiamata prima di cancellare l'account)
 services/api/tests/test_group_runs.py                    (nuovo)
 services/api/tests/test_moderation.py, test_report_email.py   (il tipo nuovo)
-packages/shared-types/src/index.ts                       (in fondo: i tipi; PushKind; REPORT_KINDS)
+packages/shared-types/src/index.ts                       (REPORT_KINDS; in fondo i tipi, GroupRunPushKind e GroupRunPushData)
 packages/shared-types/fixtures/group-run*.json           (nuovi)
-site/tools/make_privacy.mjs, site/privacy/*/index.html, site/tests/privacy.test.mjs   (la riga della privacy)
+packages/shared-types/test/groupRuns.test.ts             (nuovo)
+packages/shared-types/test/moderation.test.ts            (una riga: REPORT_KINDS con group_run)
+apps/mobile/src/about/content/{en,it,de,fr,es}.ts, site/privacy/*/index.html, site/tests/privacy.test.mjs   (la riga della privacy, dopo #573 e #576)
 docs/API.md («Group runs»), docs/DATABASE.md, docs/EVENTI.md, docs/STATUS.md, docs/tasks/TASK-309.md
+docs/DECISIONS.md                                        (aggiunta ad ADR-0269, in fondo: le tre scelte tecniche)
 ```
 
 Parte B (da confermare col Coordinatore prima del codice):
@@ -299,3 +320,35 @@ docs/UI.md («Feed», il profilo), docs/EVENTI.md, docs/STATUS.md, docs/tasks/TA
 ## Esito
 
 *(si compila a fine task)*
+
+**Documenti** in `main` con la #574 (`06a95749`, 2026-10-27).
+
+**Parte A** (branch `feat/TASK-309-a-group-runs-api`, 2026-10-27):
+`group_runs.py` con gli endpoint, `GroupRunClock` e le tre push; la
+migrazione `0032_group_runs.sql` (la 0031 è di TASK-308); il tipo `group_run`
+nelle segnalazioni e nelle loro email; tipi e fixture in `shared-types`.
+Un test per regola in `test_group_runs.py` (44), più il tipo nuovo in
+`test_moderation.py` e `test_report_email.py`. Com'è fatta: `EVENTI.md`
+§14. Scelte tecniche, prese su delega (aggiunta ad ADR-0269 in
+`DECISIONS.md`): le push con `GroupRunPushKind` accanto a `PushKind` (i
+dati sono `{ kind, group_run_id }`, come le sfide del gioco); un blocco non
+cancella le risposte, le esclude in lettura (`counted_sql`); «in arrivo»
+vuol dire non finita e non annullata.
+Testi de/es/fr delle push e della privacy approvati dall'utente il
+2026-10-27 (sopra, «Testi da approvare»). La riga della privacy è nei
+cinque `about/content/*.ts`, nella sezione nuova «Group runs» sopra
+«Feedback», con la data del 28 ottobre 2026 già messa dalla #576; le
+pagine di `site/privacy` rifatte con `make_privacy.mjs` (2026-10-28, dopo
+#573 e #576 in `main`). Migrazione rinumerata `0032` (la `0031` è di
+TASK-308). **Resta**: il merge dal Coordinatore; il server dopo Apple, con
+il sì dell'utente.
+
+**Parte A in `main`** con la #581 (`989fffe5`, 2026-10-28), mergiata dal
+Coordinatore; impronta iOS `83793e26` misurata su una copia pulita. Sul
+server dopo l'approvazione di Apple e con il sì dell'utente: il deploy
+applica la migrazione `0032` all'avvio, nessuna variabile nuova. Da
+decidere con l'utente (lo porta il Coordinatore): la sezione «Reports»
+della privacy dice ancora «a drawing, a comment or a profile»; con il suo
+sì, «or a group run» entra nella parte B. **Prossimo**: la parte B (app),
+in una sessione sua, con i «File toccati» al Coordinatore prima del
+codice.

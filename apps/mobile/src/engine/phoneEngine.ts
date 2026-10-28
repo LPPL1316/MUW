@@ -38,14 +38,18 @@ export const BOOT_TIMEOUT_MS = 90_000;
 /** A 21 km route takes about 50 s on the server; the phone gets twice that,
  * unless the caller says otherwise (a route with no server to ask). */
 export const PLAN_TIMEOUT_MS = 120_000;
+/** The way back to a route (TASK-314): a crop of the zone and a search of a
+ * few km, a few seconds at most; past this the server is asked. */
+export const WAY_BACK_TIMEOUT_MS = 20_000;
 /** After this many deaths of the WebView, the phone stops trying until the
  * app opens again: the server draws every route. */
 export const MAX_DEATHS = 2;
 
 type Job = {
   id: number;
-  /** A route, or the zone read ahead of the routes (`prepare`). */
-  call: "plan" | "warm";
+  /** A route, the zone read ahead of the routes (`prepare`), or the way
+   * back to a route (`wayBack`). */
+  call: "plan" | "warm" | "wayBack";
   body: string;
   zones: PageZone[];
   /** For "warm": the activity and the point of the routes to come. */
@@ -100,6 +104,27 @@ export class PhoneEngine {
     timeoutMs: number = PLAN_TIMEOUT_MS,
     signal?: AbortSignal,
   ): Promise<PlanAnswer> {
+    return this.ask("plan", body, zones, timeoutMs, signal);
+  }
+
+  /** The JSON of POST /way-back for its JSON (TASK-314, ADR-0274), worked
+   * out as a route is, behind the requests already asked. */
+  wayBack(
+    body: string,
+    zones: PageZone[],
+    timeoutMs: number = WAY_BACK_TIMEOUT_MS,
+    signal?: AbortSignal,
+  ): Promise<PlanAnswer> {
+    return this.ask("wayBack", body, zones, timeoutMs, signal);
+  }
+
+  private ask(
+    call: "plan" | "wayBack",
+    body: string,
+    zones: PageZone[],
+    timeoutMs: number,
+    signal?: AbortSignal,
+  ): Promise<PlanAnswer> {
     if (this.state === "broken") {
       return Promise.resolve({ kind: "failed", why: "the engine does not start" });
     }
@@ -109,7 +134,7 @@ export class PhoneEngine {
     return new Promise((answer) => {
       const job: Job = {
         id: this.nextId++,
-        call: "plan",
+        call,
         body,
         zones,
         timeoutMs,
@@ -214,10 +239,12 @@ export class PhoneEngine {
   }
 
   /** iOS closed the WebView's process, most likely for memory. Only a death
-   * during a route counts: an idle WebView is fair game for iOS, and so is
-   * one reading a zone ahead (`prepare`), which the next route reads again. */
+   * during a route or a way back counts: an idle WebView is fair game for
+   * iOS, and so is one reading a zone ahead (`prepare`), which the next
+   * route reads again. */
   died(): void {
-    if (this.running?.job.call === "plan") {
+    const call = this.running?.job.call;
+    if (call === "plan" || call === "wayBack") {
       this.deaths += 1;
     }
     this.restart("the engine was closed");
@@ -262,7 +289,11 @@ export class PhoneEngine {
     this.running = { job, timer };
     this.link.send(
       job.warm === undefined
-        ? pageCall("plan", { id: job.id, body: job.body, zones: job.zones })
+        ? pageCall(job.call === "wayBack" ? "wayBack" : "plan", {
+            id: job.id,
+            body: job.body,
+            zones: job.zones,
+          })
         : pageCall("warm", {
             id: job.id,
             zones: job.zones,

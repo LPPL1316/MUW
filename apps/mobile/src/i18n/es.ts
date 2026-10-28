@@ -1458,6 +1458,25 @@ export const ES: Table = {
   // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
   "This route has no turn directions: follow the line on the map.":
     "Esta ruta no tiene indicaciones de giro: sigue la línea en el mapa.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Último km {pace} · objetivo {target}",
+  "Last mi {pace} · target {target}": "Última mi {pace} · objetivo {target}",
+
+  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
+  "Send feedback": "Envíanos tus comentarios",
+  "Thank you! Your message reached us.": "¡Gracias! Tu mensaje nos ha llegado.",
+  "Ideas, problems, anything that would make MuW better: we read every message.":
+    "Ideas, problemas, todo lo que haría mejor a MuW: leemos cada mensaje.",
+  "Write here…": "Escribe aquí…",
+  "Your message": "Tu mensaje",
+  "It reaches us with your username, your email and the app's version, so we can answer you.":
+    "Nos llega con tu nombre de usuario, tu correo y la versión de la app, para que podamos responderte.",
+  "Write something first.": "Escribe algo primero.",
+  "You sent a lot of feedback today. Try again tomorrow.":
+    "Hoy ya nos has escrito mucho. Vuelve a intentarlo mañana.",
+  FEEDBACK: "COMENTARIOS",
+  // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
+  Paragliding: "Parapente",
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "Dibujarla cerca de mí",
 };
