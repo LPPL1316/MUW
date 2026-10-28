@@ -17414,3 +17414,50 @@ che parte andare.
 il sì dell'utente; fino ad allora l'app calcola la strada solo sul
 telefono, o mostra i puntini. `engine.zip` cresce di un modulo. I testi
 nuovi della parte B vogliono il sì dell'utente.
+
+## ADR-0271 — aggiunta, parte B: «Lift the pen» quando la riga non riesce
+
+**Stato**: Attiva · 2026-10-28 · la scelta è dell'utente («anche quando
+non riesce grazie», 2026-10-28, nella chat del Coordinatore); il modo è
+deciso dall'agente su delega dell'utente (TASK-311 parte B). Aggiunta ad
+ADR-0271, senza numero nuovo.
+
+**Contesto**: la misura di A dice che da 5 lettere in su le parole a
+penna alzata riescono il 40 % delle volte invece dell'11 %. L'utente ha
+scelto la penna alzata già scelta per le parole lunghe, con la riga unica
+a un tocco, e in più un consiglio quando la riga non riesce. Ma da
+TASK-202 l'interruttore parte già acceso per ogni parola: la prima metà
+c'era già.
+
+**Decisione**:
+1. **Le parole corte non cambiano**: restano a penna alzata all'avvio,
+   come vuole TASK-202 (confermato dal Coordinatore). Nessun interruttore
+   che segue la lunghezza della parola.
+2. **«Non riesce» è la regola del motore e di A**: nel percorso scelto
+   dal motore la somiglianza è sotto 0,90 (`SIMILARITY_THRESHOLD`) o la
+   distanza si scosta di più del 10 % (`DISTANCE_TOLERANCE`), oppure la
+   risposta è `shape_not_drawable`. Conta la scelta del motore anche
+   quando l'utente guarda un'alternativa, come per «Try N km» (ADR-0197).
+   Le due soglie sono copiate nell'app (`penUpHint.ts`): il motore non le
+   manda.
+3. **Il pulsante accende l'interruttore e ridisegna**: la stessa
+   richiesta con `pen_up: true`; da lì le parole partono così finché
+   l'utente non lo spegne. Una richiesta sola, come «Try N km».
+4. **Nessun segnale del pulsante**: `hint_taken` dell'API accetta solo
+   `try_distance`, `catalog_shape` e `better_distance`; un quarto nome
+   vuole l'API, fuori da una parte solo app.
+5. **Nessuna tabella `learned/vocabulary.json`**: con una regola fissa
+   l'API non ha niente da leggere.
+
+**Scartate**:
+
+- chiedere la parola due volte, su una riga e a penna alzata, e mostrare
+  la migliore: raddoppia l'attesa (27 s a caso in A) per tutti;
+- passare da soli alla penna alzata quando la riga non riesce: cambia come
+  si corre la parola senza che l'utente lo scelga (ADR-0157);
+- un'altra soglia per l'app: il consiglio deve dire quello che A ha
+  misurato.
+
+**Conseguenze**: due testi nuovi in cinque lingue, col sì dell'utente.
+Solo JavaScript: l'impronta iOS resta 83793e26. Se il motore cambia le
+soglie, `penUpHint.ts` va allineato a mano.

@@ -173,6 +173,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   443 buone su 1000; più km a lettera non servono, conta la lunghezza;
   da 5 lettere in su la penna alzata porta le buone da 11 % a 40 %. B
   aspetta la scelta dell'utente sulla penna alzata per le parole lunghe.
+  **Parte B** (2026-10-28, branch `feat/TASK-311-b-pen-up-hint`, worktree
+  `.claude/worktrees/TASK-311-b`): la scelta dell'utente è «anche quando
+  non riesce grazie». La penna alzata già scelta c'era da TASK-202, per
+  ogni parola: le corte restano così (confermato dal Coordinatore). Nuovo:
+  una parola chiesta su una riga che non riesce (somiglianza sotto 0,90,
+  distanza oltre il 10 %, o `shape_not_drawable`) ha sotto «Lift the pen»,
+  che accende l'interruttore e la ridisegna a penna alzata. Solo JS
+  dell'app, impronta iOS `83793e26`; aggiunta ad ADR-0271 in fondo a
+  `DECISIONS.md`. I due testi nuovi aspettano il sì dell'utente nelle
+  cinque lingue; poi «#NNN pronta» al Coordinatore, che mergia. **Dopo**:
+  la parte C (le parole provate in `drawn_routes` sul server), in una
+  sessione sua, col sì dell'utente.
 - **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
   seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
   ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A

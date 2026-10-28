@@ -1477,4 +1477,8 @@ export const ES: Table = {
   FEEDBACK: "COMENTARIOS",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapente",
+  // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
+  "This word may come out better with the pen up: each letter on its own.":
+    "Esta palabra puede salir mejor con el lápiz levantado: cada letra por separado.",
+  "Lift the pen": "Levantar el lápiz",
 };
