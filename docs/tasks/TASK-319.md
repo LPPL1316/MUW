@@ -1,6 +1,6 @@
 # TASK-319 — I messaggi privati, con le richieste
 
-**Stato**: In revisione (parti A e B nella stessa PR)
+**Stato**: Done · in `main` con la #605 (2026-10-28; parti A e B nella stessa PR)
 **Fase**: 4 · **Branch**: `feat/TASK-319-private-messages` (scritto nella
 sessione cloud su `claude/epic-gauss-k87m6o`; parte da `main`)
 **ADR**: ADR-0279 · **Migrazione**: `0033_messages.sql` (il numero si
@@ -348,4 +348,14 @@ docs/UI.md
 
 ## Esito
 
-*(a fine task)*
+In `main` con la #605 (2026-10-28). API, migrazione `0033_messages.sql`,
+app («Messages» in «Profile», «Message» sul profilo di un iscritto) e la
+sezione della privacy in cinque lingue; testi e privacy confermati
+dall'utente anche nella chat del Coordinatore («Sì, confermo»). Le
+condizioni del Coordinatore sono tutte con un test (sopra). Impronta iOS
+`83793e26` misurata dal Coordinatore su una copia pulita con `npm ci`.
+La sessione si è archiviata prima del merge: il Coordinatore l'ha
+riallineata a `main` (solo le righe in fondo di `DECISIONS.md` e
+`STATUS.md`) e l'ha chiusa. Restano, col sì dell'utente già dato nella
+sessione del task: il server (migrazione 0033) e la privacy online; poi
+«Messaging and Chat» su App Store Connect, che cambia l'utente.

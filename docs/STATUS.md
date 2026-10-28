@@ -168,7 +168,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   scorrere, senza rete. Solo app, OTA. Aspetta il sì dell'utente sui tre
   testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
   File `tasks/TASK-317.md`.
-
+- **TASK-318 — Gli sport non pronti nascosti nelle build dello store**
+  (ADR-0278; scelta dell'utente del 2026-10-28, «nascondi Soon nello
+  store»; fatto dal Coordinatore). Nelle build dell'App Store e di Google
+  Play, e negli update `production`, «Paragliding · Soon» non si vede né
+  in «Settings» né nel menu di «Draw»; Expo Go e `preview` come prima. Solo
+  `sport.ts` e un test nuovo; impronta iOS `83793e26`. Va prima del primo
+  update `production`. File: `tasks/TASK-318.md`.
 - **TASK-319 — I messaggi privati, con le richieste** (ADR-0279;
   richiesta dell'utente del 2026-10-26, «aggiungi anche la possibilità di
   mandarsi messaggi privati»; scelte: «Chiunque, con richiesta», poi «Sì,
@@ -190,6 +196,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con l'ok dell'utente;
   «Messaging and Chat» su App Store Connect la cambia l'utente. File:
   `tasks/TASK-319.md`.
+  **Chiuso il 2026-10-28**: in `main` con la #605 (riallineata e chiusa
+  dal Coordinatore, la sessione era archiviata); impronta iOS `83793e26`.
+  «Messages» resta nascosto finché il server non ha la 0033: server e
+  privacy online col sì dell'utente.
 
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
