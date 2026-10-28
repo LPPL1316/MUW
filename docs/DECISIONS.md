@@ -18145,3 +18145,40 @@ Android 7. Dopo la 1.0.1 ogni `eas update` vale per due runtime iOS. Testi
 nuovi in cinque lingue, una sezione nuova della privacy, una riga nella
 descrizione di ogni store. La capability, le build, gli invii e la
 dichiarazione vogliono ognuno il sì dell'utente.
+
+## ADR-0281 — aggiunta, parte A: l'allenamento dalla corsa salvata, tipo per tipo quello che il permesso concede
+
+**Stato**: Attiva · 2026-10-28 · deciso dall'agente su delega dell'utente
+(TASK-321 parte A). Aggiunta ad ADR-0281, senza numero nuovo.
+
+**Contesto**: A scrive il codice prima delle build: le librerie in
+`package.json`, fuori dal linking, caricate solo dove c'è il modulo
+nativo. Leggendo le librerie sono venute fuori scelte che l'ADR non dice.
+
+**Decisione**:
+
+1. **Lo sport è quello del modulo di fine corsa** (`DrawingChoice.activity`):
+   parte da `activityOf(sport)` e l'utente lo può cambiare, come per Strava.
+2. **La corsa la legge `RunEnd` dal file della corsa** prima di «Save»,
+   e la scrive solo se «Save» l'ha tenuta: `App.tsx` non cambia. Scrivere
+   non fa mai fallire «Save», e non usa la rete.
+3. **Il permesso tipo per tipo**: l'allenamento (su Android la sessione)
+   decide se si scrive; il percorso, la distanza e le calorie entrano solo
+   se il loro permesso c'è, perché in Salute e in Health Connect si
+   spengono uno a uno. Su Android un «no» e un foglio mai visto non si
+   distinguono: dopo il sì dell'utente, un permesso che manca è un no.
+4. **Nel percorso solo i punti con la loro precisione**; quello che MuW non
+   tiene (precisione verticale, direzione, velocità) va come −1, il «non
+   so» di Apple, e su Android non va.
+5. **Su Android ogni record ha il suo identificativo**, dalla chiave della
+   corsa: la sessione la chiave, la distanza e le calorie con `-distance` e
+   `-calories`.
+6. **Le pause su Android vanno come segmenti di pausa**, come dicono i tipi
+   della libreria; la 4.1.3 non li passa (li legge dal campo dei giri), e
+   Health Connect ha il tempo dall'inizio alla fine, come Fitness.
+
+**Conseguenze**: con la 4.1.3 la sessione Android con il percorso non
+entra, perché la libreria vuole la precisione verticale di ogni punto: C lo
+risolve prima di accendere Android (`tasks/TASK-321.md`, «Per C»). Le
+impronte delle build di oggi non si muovono: iOS `83793e26…`, Android
+`e2d33497…`.
