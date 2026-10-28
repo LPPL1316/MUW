@@ -293,7 +293,16 @@ Parte B (approvati dal Coordinatore il 2026-10-28):
 - [x] Nessuna riga con la penna già alzata, per una lettera, una forma,
       un'immagine, sull'acqua, per gli altri errori (test).
 - [x] Le parole corte restano a penna alzata all'avvio (TASK-202).
-- [ ] I testi nuovi approvati dall'utente nelle cinque lingue.
+- [x] I testi nuovi approvati dall'utente nelle cinque lingue: «testi ok»,
+      scritto nella chat del Coordinatore il 2026-10-28, per la frase «This
+      word may come out better with the pen up: each letter on its own.» e
+      il pulsante «Lift the pen», con it/de/es/fr come proposti (it «Questa
+      parola può venire meglio con la penna alzata: ogni lettera da sola.» /
+      «Alza la penna»; de «Dieses Wort wird mit angehobenem Stift vielleicht
+      besser: jeder Buchstabe für sich.» / «Stift anheben»; es «Esta palabra
+      puede salir mejor con el lápiz levantado: cada letra por separado.» /
+      «Levantar el lápiz»; fr «Ce mot peut être mieux dessiné avec le crayon
+      levé : chaque lettre à part.» / «Lever le crayon»).
 - [x] Test, lint, `tsc` e `format:check` verdi; nessuna dipendenza nuova.
 
 ## Criteri di accettazione (parte A)

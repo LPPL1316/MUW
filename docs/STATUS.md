@@ -181,8 +181,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   distanza oltre il 10 %, o `shape_not_drawable`) ha sotto «Lift the pen»,
   che accende l'interruttore e la ridisegna a penna alzata. Solo JS
   dell'app, impronta iOS `83793e26`; aggiunta ad ADR-0271 in fondo a
-  `DECISIONS.md`. I due testi nuovi aspettano il sì dell'utente nelle
-  cinque lingue; poi «#NNN pronta» al Coordinatore, che mergia. **Dopo**:
+  `DECISIONS.md`. I due testi nuovi approvati dall'utente nelle cinque
+  lingue («testi ok», 2026-10-28). PR #601, merge dal Coordinatore. **Dopo**:
   la parte C (le parole provate in `drawn_routes` sul server), in una
   sessione sua, col sì dell'utente.
 - **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
