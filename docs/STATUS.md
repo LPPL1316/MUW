@@ -169,6 +169,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
   File `tasks/TASK-317.md`.
 
+- **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
+  foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
+  scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).
+  Branch `docs/TASK-312-import-activities` (documenti), poi A (API:
+  `runs.source`, gioco e concorso solo per `muw`), B (app: «Add past
+  activity» da un file GPX, TCX o FIT letto sul telefono, con
+  `expo-document-picker` escluso dall'autolinking come i contatti:
+  impronta iOS `83793e26` invariata, sui telefoni con la build nativa
+  dopo), C (post di sole foto: un disegno senza corsa), D (studio di Apple
+  Salute e Health Connect) ed E (studio dei collegamenti diretti: Strava,
+  Garmin, Polar, Suunto, Coros, Wahoo, Komoot). Tutto con «Imported», mai
+  per il gioco né per il concorso. Testi e privacy da approvare. Regole in
+  `IMPORTAZIONI.md`, file `tasks/TASK-312.md`.
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch
@@ -182,6 +195,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   443 buone su 1000; più km a lettera non servono, conta la lunghezza;
   da 5 lettere in su la penna alzata porta le buone da 11 % a 40 %. B
   aspetta la scelta dell'utente sulla penna alzata per le parole lunghe.
+  **Parte B** (2026-10-28, branch `feat/TASK-311-b-pen-up-hint`, worktree
+  `.claude/worktrees/TASK-311-b`): la scelta dell'utente è «anche quando
+  non riesce grazie». La penna alzata già scelta c'era da TASK-202, per
+  ogni parola: le corte restano così (confermato dal Coordinatore). Nuovo:
+  una parola chiesta su una riga che non riesce (somiglianza sotto 0,90,
+  distanza oltre il 10 %, o `shape_not_drawable`) ha sotto «Lift the pen»,
+  che accende l'interruttore e la ridisegna a penna alzata. Solo JS
+  dell'app, impronta iOS `83793e26`; aggiunta ad ADR-0271 in fondo a
+  `DECISIONS.md`. I due testi nuovi approvati dall'utente nelle cinque
+  lingue («testi ok», 2026-10-28). PR #601, merge dal Coordinatore. **Dopo**:
+  la parte C (le parole provate in `drawn_routes` sul server), in una
+  sessione sua, col sì dell'utente.
 - **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
   seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
   ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A
@@ -197,6 +222,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo Apple, con il sì dell'utente; poi va guardato nei log quello che
   dice il task file. La parte B parte da qui, in una sessione sua, con i
   «File toccati» al Coordinatore prima del codice.
+- **TASK-313 — «Draw it near me»: la stessa forma in un altro posto**
+  (ADR-0273; richiesta dell'utente del 2026-10-27, «Sì, così» alla
+  proposta; numero e ordine dal Coordinatore, prima di TASK-309 B). Branch
+  `feat/TASK-313-draw-it-near-me`, solo app (JS). Nella scheda di un
+  percorso di «Explore» e in quella di un disegno (Feed, profili) il
+  pulsante porta a «Draw» con la stessa forma, o la stessa parola con le
+  sue lettere, e la stessa distanza (al decimo di km, una parola mai sotto
+  i suoi 3 km a lettera, dentro i limiti dello sport); la partenza resta
+  quella di «Draw» e niente si chiede prima di «Draw route». Niente per
+  foto, immagini, percorsi a tema, forme sconosciute, parole che «Draw»
+  rifiuterebbe o parole in «Paddle». Il testo nuovo è
+  approvato dall'utente (2026-10-28). File: `tasks/TASK-313.md`.
+  **Chiuso**: in `main` con la #586 (2026-10-28), impronta iOS `83793e26`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
@@ -1054,6 +1092,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `83793e26…`) inviata in revisione ad Apple dall'utente; scheda, screenshot
   e privacy su App Store Connect. Resta l'esito di Apple e l'uscita
   manuale.
+  **Chiuso il 2026-10-28**: Apple ha approvato la 1.0.0 (7), che è
+  sull'App Store; server, OTA `production` e 1.0.1 con il sì
+  dell'utente, uno per volta (`tasks/TASK-152.md`, «Esito»).
 - **TASK-237 — Il sito web** (ADR-0201; chiesto dall'utente il
   2026-10-05). Una pagina statica in `site/`, senza dipendenze. **Parte
   A** in `main` (PR #325, `f8e68b6`): la pagina con «Merch». **Parte A2**

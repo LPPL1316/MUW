@@ -1,9 +1,10 @@
 # TASK-311 — Parole scritte meglio, e sul server tutto quello che si chiede
 
-**Stato**: In lavorazione (parte A fatta: la misura su 1000 parole; B, C e D
-da cominciare)
+**Stato**: In lavorazione (parte A fatta: la misura su 1000 parole; B in
+PR, «Lift the pen» sotto una parola su una riga; C e D da cominciare)
 **Fase**: 4 · **Branch**: `feat/TASK-311-a-words-measure` (A, con questo
-file), poi un branch per ciascuna delle parti B, C e D
+file), `feat/TASK-311-b-pen-up-hint` (B), poi un branch per ciascuna delle
+parti C e D
 **Dipende da**: TASK-297 A (l'archivio `drawn_routes`, ADR-0256), TASK-050,
 TASK-077 e TASK-067 (le parole, i due stili, le unioni in alto), TASK-279 A
 (la fila «WORDS» di «Explore»)
@@ -196,6 +197,44 @@ Solo quello che A dimostra. Sui numeri:
 
 «File toccati» al Coordinatore prima di cominciare.
 
+### La scelta dell'utente (2026-10-28) e che cosa fa B
+
+Fra tre proposte del Coordinatore (da 5 lettere in su la penna alzata già
+scelta, con la riga unica a un tocco; sempre a penna alzata, senza scelta;
+solo un consiglio quando la riga non riesce) l'utente ha scritto «anche
+quando non riesce grazie»: la prima, e in più il consiglio.
+
+La prima metà c'era già. Da TASK-202 (2026-10-03, «sì, acceso di
+default») l'interruttore «Lift the pen between letters» parte acceso per
+**ogni** parola, anche corta, e si spegne a mano. Il Coordinatore ha
+confermato di lasciarlo così anche per le parole da 2 a 4 lettere: la
+misura di A le dà buone su una riga (72–100 %) ma non le ha provate a
+penna alzata, e l'utente non ha chiesto di cambiare TASK-202.
+
+B aggiunge il consiglio, solo nell'app (JavaScript, nessuna dipendenza,
+impronta iOS invariata):
+
+- **Quando**: una parola di almeno due lettere chiesta su una riga (con
+  l'interruttore spento) **non riesce** se nel percorso scelto dal motore
+  la somiglianza è sotto 0,90 o la distanza si scosta di più del 10 %, le
+  soglie del motore che A ha usato per dire buona una parola; oppure se la
+  risposta è `shape_not_drawable`. Conta la scelta del motore, non
+  l'alternativa guardata (come «Try N km» di TASK-234).
+- **Che cosa**: sotto il percorso, o sotto l'errore, la riga «This word
+  may come out better with the pen up: each letter on its own.» con il
+  pulsante «Lift the pen». Il pulsante accende l'interruttore e ridisegna
+  la stessa parola con `pen_up: true`; da lì «Draw» la chiede così.
+- **Mai**: con la penna già alzata, per una lettera sola, per una forma,
+  un'immagine o sull'acqua, per gli altri errori.
+- **Fuori**: il segnale `hint_taken` del pulsante (l'API accetta tre nomi
+  in `signals.py`: serve una modifica all'API, da chiedere a parte); la
+  tabella `learned/vocabulary.json`, inutile con una regola fissa; le
+  7–8 lettere e la partenza più lontana (Trento), ognuna uno studio a
+  parte.
+
+Le regole in `apps/mobile/src/route/penUpHint.ts`; la riga in
+`RouteOutcome` (`RoutePanel.tsx`); il collegamento in `App.tsx`.
+
 ## Parte C — Le parole provate sul server
 
 Un comando nuovo dell'API mette i percorsi buoni di A in `drawn_routes`,
@@ -230,6 +269,41 @@ Parte A (questa PR):
 - `docs/DECISIONS.md` (ADR-0271)
 - `docs/STATUS.md` (le righe di TASK-311)
 - `services/route-engine/tests/measure_words_many.py` (nuovo)
+
+Parte B (approvati dal Coordinatore il 2026-10-28):
+
+- `apps/mobile/src/route/penUpHint.ts` (nuovo)
+- `apps/mobile/src/route/penUpHint.test.ts` (nuovo)
+- `apps/mobile/src/route/RoutePanel.tsx` (solo `RouteOutcome` e la prop
+  `onLiftPen`)
+- `apps/mobile/src/route/RoutePanelPenUpHint.test.tsx` (nuovo)
+- `apps/mobile/App.tsx` (il collegamento di `onLiftPen`)
+- `apps/mobile/__tests__/AppPenUpHint.test.tsx` (nuovo)
+- `apps/mobile/src/i18n/it.ts`, `de.ts`, `es.ts`, `fr.ts` (due testi, in
+  fondo)
+- `docs/UI.md`, `docs/STATUS.md`, `docs/DECISIONS.md` (aggiunta in fondo),
+  `docs/tasks/TASK-311.md`
+
+## Criteri di accettazione (parte B)
+
+- [x] Una parola su una riga che non riesce (somiglianza sotto 0,90,
+      distanza oltre il 10 %, o `shape_not_drawable`) mostra «Lift the
+      pen»; premuto, la stessa parola parte con `pen_up: true` e
+      l'interruttore resta acceso (test).
+- [x] Nessuna riga con la penna già alzata, per una lettera, una forma,
+      un'immagine, sull'acqua, per gli altri errori (test).
+- [x] Le parole corte restano a penna alzata all'avvio (TASK-202).
+- [x] I testi nuovi approvati dall'utente nelle cinque lingue: «testi ok»,
+      scritto nella chat del Coordinatore il 2026-10-28, per la frase «This
+      word may come out better with the pen up: each letter on its own.» e
+      il pulsante «Lift the pen», con it/de/es/fr come proposti (it «Questa
+      parola può venire meglio con la penna alzata: ogni lettera da sola.» /
+      «Alza la penna»; de «Dieses Wort wird mit angehobenem Stift vielleicht
+      besser: jeder Buchstabe für sich.» / «Stift anheben»; es «Esta palabra
+      puede salir mejor con el lápiz levantado: cada letra por separado.» /
+      «Levantar el lápiz»; fr «Ce mot peut être mieux dessiné avec le crayon
+      levé : chaque lettre à part.» / «Lever le crayon»).
+- [x] Test, lint, `tsc` e `format:check` verdi; nessuna dipendenza nuova.
 
 ## Criteri di accettazione (parte A)
 

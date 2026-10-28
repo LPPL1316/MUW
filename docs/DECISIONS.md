@@ -17415,6 +17415,201 @@ il sì dell'utente; fino ad allora l'app calcola la strada solo sul
 telefono, o mostra i puntini. `engine.zip` cresce di un modulo. I testi
 nuovi della parte B vogliono il sì dell'utente.
 
+## ADR-0273 — «Draw it near me»: la forma o la parola di un percorso o di un disegno scelte in «Draw», alla stessa distanza
+
+**Stato**: Attiva · 2026-10-27 · la richiesta, il pulsante che apre «Draw»
+invece di disegnare subito e il suo nome sono dell'utente («Sì, così»
+alla proposta); numero, ordine e confini dal Coordinatore; i punti
+tecnici sono decisi dall'agente su delega dell'utente (TASK-313).
+
+**Contesto**: l'utente il 2026-10-27: poter scegliere un'immagine dal
+«Feed» o da «Explore» e chiedere di fare la stessa in un altro posto. Un
+percorso di «Explore» aperto sulla mappa ha la sua richiesta
+(`Explored.request`): una forma del catalogo o una parola, mai
+un'immagine (`toRequest`); un preferito di «Draw» può averne una, col
+contorno ricostruito dai punti. Un disegno di un iscritto ha `shape`,
+`word`, `style` e i metri corsi (`distance_m`), ma di una foto o di
+un'immagine solo il titolo (`route_title`). «Draw» tiene forma, parola,
+lettere e distanza come stato di `App.tsx`, e la partenza a parte.
+È vicino ad ADR-0267 (TASK-307, «Start» ed «Export GPX» sul disegno di
+un altro), ma è un'altra scelta: là si segue la traccia dell'altro, qui si
+ridisegna la sua figura dove si vuole, e della sua traccia non viaggia
+niente.
+
+**Decisione**:
+
+1. **Il pulsante sceglie, non disegna.** «Draw it near me» porta a
+   «Draw» con la figura già scelta; la partenza resta quella di «Draw»
+   (la posizione, un posto cercato, un punto sulla mappa) e niente si
+   chiede prima di «Draw route». Così l'altro posto si sceglie come
+   sempre, e il motore decide il percorso là: la linea vecchia non viaggia.
+2. **Che cosa passa** (`src/route/drawAgain.ts`): una forma del catalogo,
+   o una parola con le sue lettere («round» se non dette). Il «pen up» no:
+   è l'interruttore di «Draw», che resta com'è. Una foto o un'immagine
+   no, e allora il pulsante non c'è: il disegno non ne ha il contorno, e
+   quello di un preferito è ricostruito dai punti, non l'immagine scelta.
+   Nemmeno un percorso a tema (`ThemedCard`): passa da quei luoghi. Una
+   forma che l'app non conosce (non più, o non ancora: un'API più nuova)
+   neanche, e nemmeno una parola che «Draw» rifiuterebbe come scritta
+   (`checkWord` senza distanza: una sola parola, lettere dalla A alla Z,
+   non più lettere di quante lo sport ne permette). Il pulsante c'è solo
+   quando «Draw» si apre senza errori.
+3. **La distanza**: quella chiesta per il percorso di «Explore», quella
+   corsa per un disegno; al decimo di km (il campo ne mostra uno: 4004 m
+   sono «4»); una parola mai sotto i 3 km a lettera (`wordDistanceM`),
+   così una corsa finita un po' corta resta disegnabile; poi dentro i
+   limiti dello sport di «Draw» (`APP_DISTANCE_LIMITS_KM`). Lo sport è
+   quello di «Settings», non quello del percorso o del disegno: un
+   disegno fatto in bici, aperto da chi ha «Run», si ridisegna di corsa
+   (21 km al massimo); uno di corsa, aperto da chi ha «Bike», diventa un
+   giro di almeno 10 km. Una parola mentre lo sport è «Paddle», dove
+   «Draw» disegna solo forme, non ha il pulsante.
+4. **Dove sta**: nella scheda di un percorso di «Explore» subito sotto
+   «Start»; in quella di un disegno dopo «Start» ed «Export GPX», che non
+   si spostano, e prima di «Back to the profile»; la fascia «Winner»
+   (TASK-299) resta com'è.
+5. **Il percorso o il disegno si lasciano**: `closeExplore()` per un
+   percorso, `leave()` del drawingsDoor per un disegno. `leave` è come
+   `back` ma non riapre «Profile» né «Find friends» dietro la mappa
+   (`onLeave` di `ProfileLayer`): altrimenti un disegno aperto da un
+   profilo coprirebbe «Draw» col profilo, e uno rimasto aperto
+   riprenderebbe la mappa (`screen` è «map» finché c'è un disegno).
+
+**Alternative scartate**: disegnare subito dove si è (la proposta
+alternativa, scartata dall'utente: un altro posto si sceglierebbe solo
+dopo); passare il «pen up» del percorso (cambierebbe un interruttore di
+«Draw» senza che l'utente lo veda); ritrovare un'immagine dal titolo del
+disegno o dal contorno di un preferito (un titolo non è un contorno, e un
+contorno ricostruito non è l'immagine scelta: servirebbe salvarne l'id,
+un contratto nuovo); la distanza della corsa al metro («5.243» nel campo).
+
+**Conseguenza**: solo app, solo JavaScript: nessun contratto, nessuna
+dipendenza, arriva con un aggiornamento OTA (impronta iOS invariata). Un
+testo nuovo nelle cinque lingue, «Draw it near me». Prima della parte B
+di TASK-309, che tocca le stesse schede.
+
+## ADR-0272 — Attività fatte con altre app: un file letto sul telefono, segnato «Imported», fuori dal gioco e dal concorso; e i post di sole foto
+
+**Stato**: Proposta · 2026-10-28 · da dove si importa, i post di sole
+foto, la dipendenza e cosa conta li ha scelti l'utente; i punti tecnici
+sono decisi dall'agente su delega dell'utente (TASK-312)
+
+**Contesto**: l'utente vuole caricare nel Feed attività già fatte con
+altre app o messe su Instagram. `PUT /me/activities/{key}` accetta già una
+traccia con orari veri dal 2020 in poi, e il modulo del post (TASK-208) ha
+titolo, descrizione, 3 foto, tag e chi la vede. Mancano: un modo di
+scegliere un file (nessuna dipendenza dell'app lo fa), un segno che
+distingua una corsa registrata da MuW da un file (un GPX si disegna anche
+a mano), e un post senza corsa. Una dipendenza nativa nuova cambia
+l'impronta iOS, e la 1.0 smetterebbe di ricevere gli aggiornamenti.
+L'accordo API di Strava, dal novembre 2024, lascia mostrare i dati di un
+utente solo a lui. Instagram legge via API solo gli account Business o
+Creator, dopo la revisione di Meta, e i suoi post non hanno GPS. Le
+regole sono in `docs/IMPORTAZIONI.md`.
+
+**Decisione dell'utente**: prima un file GPX, TCX o FIT; poi Apple Salute;
+anche Strava, Garmin e le app più famose. Nel Feed anche i post di sole
+foto. `expo-document-picker` sì, come `expo-contacts` (TASK-262 C). Le
+attività importate e i post di sole foto stanno nel Feed con «Imported» e
+non contano per il gioco né per il concorso.
+
+**Decisione dell'agente**:
+
+1. **Il file si legge sul telefono** e diventa il corpo del `PUT` di
+   sempre: l'API non riceve file, non cambia il conto di km, tempo e
+   pause, e `clean_track` vale come per ogni corsa. Il file non si tiene.
+2. **Un campo `runs.source`** (`muw` per difetto, `file`; poi `health` e
+   i provider). Gioco (`after_run_saved`, `game_backfill`) e concorso
+   (`contests.py`) prendono solo `muw`. Il segno lo manda l'app, come oggi
+   manda le posizioni: non è una prova, e i controlli restano quelli di
+   ogni corsa.
+3. **Lettori scritti da noi** per GPX, TCX e FIT, senza altre dipendenze:
+   servono solo posizione, orario e sport. Per il FIT bastano i messaggi
+   `record` e `sport`, con le intestazioni a orario compresso.
+4. **I buchi oltre 60 s diventano pause `auto`**: il tempo in movimento
+   somiglia a quello dell'altra app, e i metri restano. Oltre 20 000 punti
+   (il limite del `PUT`) il telefono dirada a passo uguale; oltre 25 MB il
+   file è rifiutato.
+5. **`expo-document-picker` escluso dall'autolinking**, caricato con
+   `requireOptionalNativeModule` e nascosto senza il modulo: in Expo Go e
+   in preview si prova subito, la 1.0 resta con l'impronta `83793e26`, e
+   si accende con la build nativa dopo, come i contatti.
+6. **Un post di sole foto è un disegno senza corsa** (parte C, proposta di
+   partenza): `drawings.user_id`, `run_id` facoltativo. Così reazioni,
+   commenti, segnalazioni, blocchi e nascosti, che puntano tutti a
+   `drawings`, valgono senza tabelle nuove. Senza «Only me», perché le foto
+   stanno sul server solo quando altri vedono il post (ADR-0170). C la
+   verifica sul codice prima di cominciare e la scrive qui.
+7. **Apple Salute e i collegamenti diretti passano prima da uno studio
+   scritto** (parti D ed E): regole di Apple e di Google sui dati di
+   salute, accordi dei provider su chi può vedere le attività.
+
+**Alternative scartate**:
+
+- leggere il file sull'API: un endpoint nuovo per file fino a 25 MB, e
+  una dipendenza Python per il FIT, per avere lo stesso corpo del `PUT`;
+- importare da Strava via API: il suo accordo non lascia mostrare le
+  attività ad altri iscritti;
+- un collegamento a Instagram: solo account Business o Creator, la
+  revisione di Meta, e nessuna traccia da prendere;
+- una tabella a sé per i post di sole foto: reazioni, commenti e
+  segnalazioni andrebbero rifatti per lei;
+- `expo-document-picker` dentro la build da subito: la 1.0 non
+  riceverebbe più gli aggiornamenti.
+
+**Conseguenze**: una migrazione per A e una per C, sul server dopo Apple e
+con il sì dell'utente. «From a file» arriva sui telefoni con la build
+1.0.1 (iOS) e con la prima Android; i post di sole foto anche nella 1.0.
+Testi e privacy nuovi vogliono il sì dell'utente. D ed E finiscono con una
+scelta dell'utente, non con codice.
+
+## ADR-0271 — aggiunta, parte B: «Lift the pen» quando la riga non riesce
+
+**Stato**: Attiva · 2026-10-28 · la scelta è dell'utente («anche quando
+non riesce grazie», 2026-10-28, nella chat del Coordinatore); il modo è
+deciso dall'agente su delega dell'utente (TASK-311 parte B). Aggiunta ad
+ADR-0271, senza numero nuovo.
+
+**Contesto**: la misura di A dice che da 5 lettere in su le parole a
+penna alzata riescono il 40 % delle volte invece dell'11 %. L'utente ha
+scelto la penna alzata già scelta per le parole lunghe, con la riga unica
+a un tocco, e in più un consiglio quando la riga non riesce. Ma da
+TASK-202 l'interruttore parte già acceso per ogni parola: la prima metà
+c'era già.
+
+**Decisione**:
+1. **Le parole corte non cambiano**: restano a penna alzata all'avvio,
+   come vuole TASK-202 (confermato dal Coordinatore). Nessun interruttore
+   che segue la lunghezza della parola.
+2. **«Non riesce» è la regola del motore e di A**: nel percorso scelto
+   dal motore la somiglianza è sotto 0,90 (`SIMILARITY_THRESHOLD`) o la
+   distanza si scosta di più del 10 % (`DISTANCE_TOLERANCE`), oppure la
+   risposta è `shape_not_drawable`. Conta la scelta del motore anche
+   quando l'utente guarda un'alternativa, come per «Try N km» (ADR-0197).
+   Le due soglie sono copiate nell'app (`penUpHint.ts`): il motore non le
+   manda.
+3. **Il pulsante accende l'interruttore e ridisegna**: la stessa
+   richiesta con `pen_up: true`; da lì le parole partono così finché
+   l'utente non lo spegne. Una richiesta sola, come «Try N km».
+4. **Nessun segnale del pulsante**: `hint_taken` dell'API accetta solo
+   `try_distance`, `catalog_shape` e `better_distance`; un quarto nome
+   vuole l'API, fuori da una parte solo app.
+5. **Nessuna tabella `learned/vocabulary.json`**: con una regola fissa
+   l'API non ha niente da leggere.
+
+**Scartate**:
+
+- chiedere la parola due volte, su una riga e a penna alzata, e mostrare
+  la migliore: raddoppia l'attesa (27 s a caso in A) per tutti;
+- passare da soli alla penna alzata quando la riga non riesce: cambia come
+  si corre la parola senza che l'utente lo scelga (ADR-0157);
+- un'altra soglia per l'app: il consiglio deve dire quello che A ha
+  misurato.
+
+**Conseguenze**: due testi nuovi in cinque lingue, col sì dell'utente.
+Solo JavaScript: l'impronta iOS resta 83793e26. Se il motore cambia le
+soglie, `penUpHint.ts` va allineato a mano.
+
 ## ADR-0277 — L'attesa in «Draw»: un testo da corridore e i disegni del Feed, senza rete
 **Stato**: Attiva · 2026-10-28 · TASK-317. La richiesta e la scelta sono
 dell'utente, del 2026-10-28: cambiare «Waiting for the API…» e dare

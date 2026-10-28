@@ -41,6 +41,7 @@ import {
 import { DistanceStepper } from "./DistanceStepper";
 import { ImageChoice } from "./ImageChoice";
 import { LoadingBar, ReadingBar } from "./LoadingBar";
+import { penUpHint } from "./penUpHint";
 import { offersPenUp } from "./penUpShapes";
 import type { ImageSource } from "./pickImage";
 import { type ChoiceKind, problemText } from "./problems";
@@ -336,6 +337,10 @@ type OutcomeProps = {
   /** Another figure for the route on screen (TASK-286): a row of tiles
    * above «Start», once the route has come. */
   figures?: ReactNode;
+  /** The same word again with the pen up (TASK-311 B): «Lift the pen»
+   * under a word in one line that did not come out (penUpHint.ts). Without
+   * it no line is offered. */
+  onLiftPen?: () => void;
 };
 
 /** Under the map: the wait, the route, or why there is none. */
@@ -355,6 +360,7 @@ export function RouteOutcome({
   onSignal = (signal) => void sendSignal(signal),
   onRetry,
   figures,
+  onLiftPen,
 }: OutcomeProps) {
   // The distances are written in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -373,6 +379,16 @@ export function RouteOutcome({
     view.status === "done"
       ? betterDistanceM(choices[0] ?? view.result, view.request, left, units)
       : null;
+  // A word in one line that did not come out, judged on the engine's
+  // choice too (TASK-311 B): «Lift the pen».
+  const liftPen = onLiftPen && penUpHint(view, choices[0] ?? null) ? onLiftPen : null;
+  const liftPenLine = liftPen && (
+    <BetterDistance
+      text={t("This word may come out better with the pen up: each letter on its own.")}
+      tryLabel={t("Lift the pen")}
+      onTry={liftPen}
+    />
+  );
 
   /** Start or export the route on screen, and say which one it was. */
   function use(via: "start" | "gpx", then: () => void) {
@@ -452,6 +468,7 @@ export function RouteOutcome({
               }}
             />
           )}
+          {liftPenLine}
           {toNotes(view.result.warnings).map((note) => (
             <NoteRow key={note.text} note={note} />
           ))}
@@ -499,33 +516,36 @@ export function RouteOutcome({
       );
     case "failed":
       return (
-        <Problem
-          problem={view.problem}
-          kind={kindOf(view.request)}
-          activity={view.request.activity}
-          asked={view.request.distance_m}
-          units={units}
-          onRetry={onRetry}
-          onTryDistance={(distanceM) => {
-            onSignal({
-              kind: "hint_taken",
-              ...drawnOf(view.request),
-              hint: "try_distance",
-              distance_m: view.request.distance_m,
-              to_m: distanceM,
-            });
-            onTryDistance(distanceM);
-          }}
-          onPickShape={(shape) => {
-            onSignal({
-              kind: "hint_taken",
-              shape,
-              hint: "catalog_shape",
-              distance_m: view.request.distance_m,
-            });
-            onPickShape(shape);
-          }}
-        />
+        <>
+          <Problem
+            problem={view.problem}
+            kind={kindOf(view.request)}
+            activity={view.request.activity}
+            asked={view.request.distance_m}
+            units={units}
+            onRetry={onRetry}
+            onTryDistance={(distanceM) => {
+              onSignal({
+                kind: "hint_taken",
+                ...drawnOf(view.request),
+                hint: "try_distance",
+                distance_m: view.request.distance_m,
+                to_m: distanceM,
+              });
+              onTryDistance(distanceM);
+            }}
+            onPickShape={(shape) => {
+              onSignal({
+                kind: "hint_taken",
+                shape,
+                hint: "catalog_shape",
+                distance_m: view.request.distance_m,
+              });
+              onPickShape(shape);
+            }}
+          />
+          {liftPenLine}
+        </>
       );
     default:
       return null;

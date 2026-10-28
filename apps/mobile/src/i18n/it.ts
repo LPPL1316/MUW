@@ -1464,6 +1464,13 @@ export const IT: Table = {
   FEEDBACK: "FEEDBACK",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapendio",
+  // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
+  // stessa forma in «Draw»)
+  "Draw it near me": "Disegnala vicino a me",
+  // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
+  "This word may come out better with the pen up: each letter on its own.":
+    "Questa parola può venire meglio con la penna alzata: ogni lettera da sola.",
+  "Lift the pen": "Alza la penna",
   // src/route/RoutePanel.tsx (TASK-317: the wait in «Draw»)
   "Warming up: {name}…": "Riscaldamento: {name}…",
   "Warming up: “{word}”…": "Riscaldamento: «{word}»…",
