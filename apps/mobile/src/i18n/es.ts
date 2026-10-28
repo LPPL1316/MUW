@@ -1483,6 +1483,10 @@ export const ES: Table = {
 
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "Dibujarla cerca de mí",
+  // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
+  "This word may come out better with the pen up: each letter on its own.":
+    "Esta palabra puede salir mejor con el lápiz levantado: cada letra por separado.",
+  "Lift the pen": "Levantar el lápiz",
 
   // src/api/messages.ts (TASK-319: private messages)
   "A message needs some words.": "Un mensaje necesita algunas palabras.",

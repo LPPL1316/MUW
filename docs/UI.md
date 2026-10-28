@@ -1820,6 +1820,18 @@ un'API così fallisce, quindi l'app va pubblicata solo dopo il server
 (`tasks/TASK-202.md`, «Note per il deploy»). Non si salva fra un avvio e
 l'altro.
 
+**«Lift the pen» quando la riga non riesce** (TASK-311 B, ADR-0271,
+scelta dell'utente del 2026-10-28). Una parola di almeno due lettere
+chiesta su una riga, con l'interruttore spento, che non riesce, ha sotto
+il percorso (o sotto l'errore) la riga «This word may come out better
+with the pen up: each letter on its own.» e il pulsante «Lift the pen».
+Non riesce se nel percorso scelto dal motore la somiglianza è sotto 0,90
+o la distanza si scosta di più del 10 %, o se la risposta è
+`shape_not_drawable`. Il pulsante accende l'interruttore e ridisegna la
+stessa parola con `pen_up: true`. Mai con la penna già alzata, per una
+lettera sola, per una forma, un'immagine, sull'acqua o per gli altri
+errori. La regola sta in `src/route/penUpHint.ts`.
+
 - Le lettere sono `LETTERS` di `shared-types`; il contratto ne ammette 8
   (`MAX_WORD_LETTERS`), ma a 3 km l'una (`LETTER_DISTANCE_M`) l'ottava
   vorrebbe 24 km, oltre i 21 dell'app: il limite dell'app è 7. Con «Bike»,
