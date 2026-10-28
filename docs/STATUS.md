@@ -160,16 +160,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
-- **TASK-321 — L'attività finita anche in Apple Salute, perché compaia
-  in Fitness** (ADR-0281, proposta; domanda dell'utente del 2026-10-28,
-  numero dal Coordinatore). Branch `docs/TASK-321-apple-health`
-  (documenti), poi A (app: l'interruttore «Save to Apple Health» sotto
-  «Send to Strava», un `HKWorkout` con il percorso scritto sul telefono con
-  «Save»; la libreria fuori dal linking finché non c'è la build, impronta
-  iOS `83793e26` da misurare), B (la build nativa 1.0.1: capability
-  HealthKit, testo del permesso, privacy, revisione di Apple) e C (Android,
-  Health Connect, rinviata). Le scelte di prodotto, i testi, la privacy e
-  la dipendenza aspettano l'utente. File `tasks/TASK-321.md`.
+- **TASK-321 — L'attività finita anche in Apple Salute e in Health
+  Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
+  dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
+  dell'utente dello stesso giorno: automatico dopo il primo sì (si spegne
+  dall'app Salute), calorie stimate solo per la corsa, Android insieme,
+  testi e privacy approvati, quattro dipendenze sì
+  (`@kingstinct/react-native-healthkit`, `react-native-nitro-modules`,
+  `react-native-health-connect`, `expo-build-properties`). Branch
+  `docs/TASK-321-apple-health` (documenti), poi A (app: la riga a fine
+  attività e un allenamento con il percorso scritto con «Save»; le
+  librerie fuori dal linking, impronte da misurare), B (la 1.0.1 iOS:
+  capability HealthKit, testo del permesso, privacy, revisione di Apple) e
+  C (la build Android: Health Connect, `minSdk` 26, la dichiarazione della
+  Play Console). Capability, build, invii e dichiarazione col sì
+  dell'utente. File `tasks/TASK-321.md`.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
