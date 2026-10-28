@@ -1704,6 +1704,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   col sì dell'utente. Parti A (tavola, «Freehand», «Edit» in «Draw» e sul
   risultato) e B (schede), ognuna nella sua sessione dopo il sì dell'utente
   alle proposte e ai testi. File `tasks/TASK-320.md`.
+- **TASK-322 — Entrare e iscriversi con Apple e con Google** (ADR-0282,
+  proposta; richiesta dell'utente del 2026-10-28, «Accedere e registrarsi
+  con Google o Apple», «con google ed apple»). Branch
+  `docs/TASK-321-sign-in-apple-google` (il nome con cui è nata la PR
+  #607): solo i documenti. Scelte dell'utente: i tasti in alto in «Sign up»
+  e «Log in», Apple solo su iPhone, Google su iPhone e Android, la prima
+  volta nome ed età, stessa email stesso account; approvati anche i tre
+  pacchetti nuovi, i testi, privacy e termini: il codice parte con A. Parti A
+  (API), B (app, moduli fuori dall'autolinking e tasti nascosti nella build
+  dello store: impronta 83793e26), C (console Apple e Google, server, la
+  build 1.0.1 insieme a contatti, document picker e forse HealthKit). File
+  `tasks/TASK-322.md`.
 
 ## Completato
 
