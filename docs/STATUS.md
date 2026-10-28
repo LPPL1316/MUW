@@ -1629,7 +1629,6 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente: il server con A, poi di notte `draw_examples --all --around`
   per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
   nel task file).
-
 - **TASK-321 — Entrare e iscriversi con Apple e con Google** (ADR-0281,
   proposta; richiesta dell'utente del 2026-10-28, «Accedere e registrarsi
   con Google o Apple», «con google ed apple»; numeri presi come primi
