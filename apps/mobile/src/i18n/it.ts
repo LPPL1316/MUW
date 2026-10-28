@@ -1465,4 +1465,7 @@ export const IT: Table = {
   FEEDBACK: "FEEDBACK",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapendio",
+  // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
+  // stessa forma in «Draw»)
+  "Draw it near me": "Disegnala vicino a me",
 };
