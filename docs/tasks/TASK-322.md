@@ -75,9 +75,7 @@ email = stesso account.»
 2. **I testi** dell'app: la tabella qui sotto, «Testi della parte B» —
    **approvati dall'utente il 2026-10-28**: «Sì, i testi vanno bene così,
    in tutte e cinque le lingue.»
-3. **La riga della privacy**: «If you sign in with Apple or Google, we keep
-   the account ID they give us and the email they share. Nothing else.»
-   Con Apple «Hide My Email» l'email è un indirizzo di Apple che inoltra.
+3. **La privacy e i termini**: le tre righe qui sotto, «Privacy e termini».
 
 ## Testi della parte B (approvati il 2026-10-28)
 
@@ -103,6 +101,71 @@ or .», «I am at least 16», la riga e la casella «Don't send me these
 emails», «This username is taken. Try another one.», «No connection. Check
 the network and try again.», «Cancel». Se si chiude il foglio di Apple o di
 Google senza scegliere, non compare niente.
+
+## Privacy e termini (da confermare)
+
+Entrano con la parte B, in `about/content/*.ts` e in `site/privacy/`, nelle
+cinque lingue. A Apple chiediamo solo l'email, non il nome; da Google
+teniamo solo l'id e l'email, anche se ci manda nome e foto.
+
+**1. Privacy, «Your account»**, una voce nuova dopo la password:
+
+- en: «If you sign in with Apple or Google: the ID that Apple or Google
+  gives your account and the email address they share. With Apple's «Hide
+  My Email» it is an Apple address that forwards our emails to you. For
+  Apple we also keep a token, only to tell Apple when you delete your
+  account.»
+- it: «Se entri con Apple o Google: l'identificativo che Apple o Google
+  danno al tuo account e l'indirizzo email che ci condividono. Con
+  «Nascondi la mia email» di Apple è un indirizzo di Apple che ti inoltra le
+  nostre email. Per Apple teniamo anche un token, solo per avvisare Apple
+  quando cancelli l'account.»
+- de: «Wenn du dich mit Apple oder Google anmeldest: die Kennung, die Apple
+  oder Google deinem Konto gibt, und die E-Mail-Adresse, die sie mit uns
+  teilen. Mit Apples «E-Mail-Adresse verbergen» ist es eine Adresse von
+  Apple, die unsere E-Mails an dich weiterleitet. Für Apple speichern wir
+  außerdem ein Token, nur um Apple Bescheid zu sagen, wenn du dein Konto
+  löschst.»
+- es: «Si entras con Apple o Google: el identificador que Apple o Google
+  dan a tu cuenta y la dirección de correo que comparten con nosotros. Con
+  «Ocultar mi correo» de Apple es una dirección de Apple que te reenvía
+  nuestros correos. Para Apple también guardamos un token, solo para avisar
+  a Apple cuando borras tu cuenta.»
+- fr: «Si tu te connectes avec Apple ou Google : l'identifiant qu'Apple ou
+  Google donne à ton compte et l'adresse e-mail qu'ils nous partagent. Avec
+  « Masquer mon adresse e-mail » d'Apple, c'est une adresse d'Apple qui te
+  transfère nos e-mails. Pour Apple, nous gardons aussi un jeton, seulement
+  pour prévenir Apple quand tu supprimes ton compte.»
+
+**2. Privacy, «Others who receive data»**, una voce nuova:
+
+- en: «Apple and Google, if you sign in with them: they see that you use
+  MuW and tell us which account is yours. We keep only the ID and the email
+  address.»
+- it: «Apple e Google, se entri con loro: vedono che usi MuW e ci dicono
+  qual è il tuo account. Teniamo solo l'identificativo e l'email.»
+- de: «Apple und Google, wenn du dich mit ihnen anmeldest: Sie sehen, dass
+  du MuW nutzt, und sagen uns, welches Konto deins ist. Wir speichern nur
+  die Kennung und die E-Mail-Adresse.»
+- es: «Apple y Google, si entras con ellos: ven que usas MuW y nos dicen
+  cuál es tu cuenta. Solo guardamos el identificador y el correo.»
+- fr: «Apple et Google, si tu te connectes avec eux : ils voient que tu
+  utilises MuW et nous disent quel compte est le tien. Nous ne gardons que
+  l'identifiant et l'adresse e-mail.»
+
+**3. Termini, «Your account»**, la prima frase cambia:
+
+- en: «You sign up with an email address and a password, or with Apple or
+  Google, and a username.» (oggi: «You sign up with an email address, a
+  username and a password.»)
+- it: «Ti iscrivi con un'email e una password, o con Apple o Google, e un
+  nome utente.»
+- de, es, fr: la stessa frase, nella forma che hanno oggi.
+
+Trovato, fuori da questo task: i termini dicono ancora che non c'è un modo
+di recuperare una password dimenticata (en «There is no way to reset a
+forgotten password yet», it «Non c'è ancora un modo…»), ma c'è da TASK-300.
+Lo segnalo, non lo cambio qui.
 
 ## Come (deciso dall'agente su delega dell'utente, ADR-0282)
 
