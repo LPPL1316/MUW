@@ -6,6 +6,10 @@ mancano i pacchetti nuovi, i testi e la riga della privacy)
 documenti), poi `feat/TASK-321-a-sign-in-api`, `feat/TASK-321-b-sign-in-app`
 · **ADR**: ADR-0281
 
+> Numeri presi come primi liberi il 2026-10-28 (321 e 0281) mentre il
+> Coordinatore era occupato, dopo averglielo scritto: se ne assegna altri,
+> questo file e l'ADR cambiano numero nella stessa PR.
+
 ## Obiettivo
 
 In «Sign up» e in «Log in» si entra anche con **«Continue with Apple»**

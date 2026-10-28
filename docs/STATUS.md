@@ -1630,6 +1630,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
   nel task file).
 
+- **TASK-321 — Entrare e iscriversi con Apple e con Google** (ADR-0281,
+  proposta; richiesta dell'utente del 2026-10-28, «Accedere e registrarsi
+  con Google o Apple», «con google ed apple»; numeri presi come primi
+  liberi, il Coordinatore conferma). Branch
+  `docs/TASK-321-sign-in-apple-google`: solo i documenti. Scelte
+  dell'utente: i tasti in alto in «Sign up» e «Log in», Apple solo su
+  iPhone, Google su iPhone e Android, la prima volta nome ed età, stessa
+  email stesso account. Aspettano il sì: tre pacchetti nuovi, i testi, la
+  riga della privacy. Parti A (API), B (app, moduli fuori
+  dall'autolinking: impronta 83793e26), C (console Apple e Google, server,
+  build 1.0.1). File `tasks/TASK-321.md`.
+
 ## Completato
 
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.

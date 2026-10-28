@@ -17609,3 +17609,66 @@ c'era già.
 **Conseguenze**: due testi nuovi in cinque lingue, col sì dell'utente.
 Solo JavaScript: l'impronta iOS resta 83793e26. Se il motore cambia le
 soglie, `penUpHint.ts` va allineato a mano.
+
+## ADR-0281 — Entrare e iscriversi con Apple e con Google
+
+**Stato**: Proposta · 2026-10-28 · la richiesta e le quattro scelte di
+prodotto sono dell'utente (TASK-321, «Scelte dell'utente»); il come è
+deciso dall'agente su delega dell'utente. Mancano il sì ai pacchetti
+nuovi, ai testi e alla riga della privacy. Numeri presi come primi liberi,
+il Coordinatore conferma. Supera il punto 3 di ADR-0114 («Apple e Google
+forse dopo, con una build propria»).
+
+**Contesto**: si entra solo con email e password (ADR-0114, ADR-0115).
+`users.password_hash` è `NOT NULL` e «Forgot password» (TASK-300) ci lega
+i suoi link. La 1.0 sull'App Store riceve gli OTA solo con l'impronta iOS
+83793e26, e Apple e Google vogliono moduli nativi.
+
+**Decisione dell'utente**:
+
+1. «Continue with Apple» e «Continue with Google» in alto in «Sign up» e
+   in «Log in», sopra email e password; lo stesso tasto iscrive o fa
+   entrare.
+2. Apple solo su iPhone; Google su iPhone e Android.
+3. La prima volta una schermata sola: il nome utente e «I am at least
+   16» (con «Don't send me these emails» come in «Sign up»).
+4. Stessa email, stesso account: l'email garantita da Apple o Google
+   apre l'account che già la usa.
+
+**Decisione dell'agente** (su delega dell'utente):
+
+- Una tabella `user_identities` (`provider`, `subject`, `user_id`,
+  `email`, `apple_refresh_token`), unica su `(provider, subject)`. `users`
+  non cambia: un account nuovo da Apple o Google riceve una password a
+  caso che nessuno conosce, così «Forgot password» resta un modo di
+  averne una.
+- `POST /session/{provider}` con l'`id_token` (Apple: anche
+  `authorization_code` e `nonce`): identità nota → `Session`; email già
+  iscritta → si lega, `Session`; altrimenti `404 new_account`, e l'app
+  rimanda la richiesta con nome ed età → `201 Session`.
+  `GET /session/providers` dice quali provider sono accesi.
+- I token si verificano sul server con le chiavi pubbliche di Apple e di
+  Google tenute in memoria: firma, `iss`, `aud`, scadenza,
+  `email_verified`, il `nonce` per Apple. Niente chiamate a ogni accesso.
+- Un'email non confermata (TASK-300) che Apple o Google legano perde la
+  password di prima e le altre sessioni: chi l'aveva scritta non aveva
+  provato che fosse sua. Confermata, resta tutto.
+- `DELETE /me` revoca l'accesso Apple (`/auth/revoke`), come Apple chiede;
+  una revoca fallita non ferma la cancellazione.
+- Le chiavi stanno in `.env`; senza, `503 provider_unavailable` e l'app
+  non mostra i tasti. I moduli nativi restano fuori dall'autolinking fino
+  alla build 1.0.1, come `expo-contacts`.
+
+**Scartate**: `password_hash` nullo (cambia `reset_state` e ogni
+controllo della password); `expo-auth-session` per Google (il browser,
+come per Strava in ADR-0156); verificare i token chiedendoli a Google a
+ogni accesso; Apple su Android (un «Services ID» e il browser, per pochi);
+legare l'identità a un'email non confermata lasciando la password di
+prima (chi ha scritto l'email di un altro entrerebbe nel suo account).
+
+**Conseguenze**: tre pacchetti nuovi da approvare
+(`expo-apple-authentication`, `@react-native-google-signin/google-signin`,
+`PyJWT[crypto]`); una migrazione; testi in cinque lingue e una riga della
+privacy col sì dell'utente; nelle console di Apple e di Google le chiavi e
+i client OAuth (TASK-321 parte C); il server e la build 1.0.1, ognuno col
+suo sì.
