@@ -177,9 +177,22 @@ def mirror(url_a: str, url_b: str, workdir: Path) -> int:
                 print(f"{action.branch}: merged, deleted on {action.side}")
         except subprocess.CalledProcessError as error:
             # The remote changed since the fetch, or refuses: the next run sees.
-            print(f"refused: {action.branch}: {error.stderr.strip().splitlines()[-1:]}")
+            print(f"refused: {action.branch}: {refusal_reason(error.stderr)}")
             problems += 1
     return 1 if problems else 0
+
+
+def refusal_reason(stderr: str) -> str:
+    """Why git could not push, from its stderr: what the server said
+    (`remote: …`) and the line of the ref refused (` ! …`), or the last line
+    when there is neither. Never a URL: git names the remote by its URL only
+    in a line this leaves out."""
+    lines = [line.strip() for line in stderr.splitlines() if line.strip()]
+    said = [
+        line for line in lines if line.startswith("remote:") or line.startswith("!")
+    ]
+    said = [line for line in said if "https://" not in line]
+    return " | ".join(said) if said else (lines[-1] if lines else "no reason given")
 
 
 def main(argv: list[str]) -> int:

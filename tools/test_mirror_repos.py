@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
-from mirror_repos import Delete, Diverged, Push, mirror, plan
+from mirror_repos import Delete, Diverged, Push, mirror, plan, refusal_reason
 
 pytestmark = pytest.mark.skipif(shutil.which("git") is None, reason="needs git")
 
@@ -220,3 +220,21 @@ def test_nothing_is_forced_when_a_side_moves_meanwhile(
     )
     assert done.returncode != 0
     assert heads(sides.b)["main"] == on_b
+
+
+def test_the_reason_of_a_refusal_is_what_the_server_said() -> None:
+    stderr = (
+        "remote: error: refusing to allow a Personal Access Token to create or"
+        " update workflow `.github/workflows/mirror.yml` without `workflow` scope\n"
+        "To https://github.com/owner/repo\n"
+        " ! [remote rejected] abc123 -> refs/heads/x (refusing to allow)\n"
+        "error: failed to push some refs to 'https://github.com/owner/repo'\n"
+    )
+    reason = refusal_reason(stderr)
+    assert "without `workflow` scope" in reason
+    assert "[remote rejected]" in reason
+    assert "https://" not in reason
+    assert refusal_reason("error: failed to push some refs to 'x'\n") == (
+        "error: failed to push some refs to 'x'"
+    )
+    assert refusal_reason("") == "no reason given"
