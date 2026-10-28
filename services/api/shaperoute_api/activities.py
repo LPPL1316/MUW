@@ -123,6 +123,11 @@ LatLon = tuple[float, float]
 Key = Annotated[str, Path(pattern=KEY_PATTERN)]
 # What a run was (TASK-208): the activities of the API, SUPPORTED_ACTIVITIES.
 RunActivity = Literal["running", "cycling", "paddling"]
+# Where a run comes from (TASK-312, ADR-0272): recorded by the app, or a file
+# of another app read on the phone. Only `muw` counts for the shape game and
+# the contest.
+RunSource = Literal["muw", "file"]
+MUW: RunSource = "muw"
 
 
 def _on_earth(points: Sequence[LatLon]) -> None:
@@ -203,6 +208,10 @@ class ActivityRequestBody(BaseModel):
     (TASK-232, ADR-0195): the app shows the run turned the other way, so the
     drawing reads upright. Only with `points`, and only when the route is
     turned: an older app, and a route north up, send nothing."""
+    source: RunSource = MUW
+    """Where the run comes from (TASK-312): `file` for an activity of
+    another app; missing from an older app, which only recorded. Like the
+    rest of the body, it counts only the first time."""
 
     @field_validator("track")
     @classmethod
@@ -227,6 +236,8 @@ class ActivityRequestBody(BaseModel):
             raise ValueError("walks are stretches of points: there are none")
         if self.rotation_deg is not None and self.points is None:
             raise ValueError("rotation_deg is the route's: there is none")
+        if self.source != MUW and self.points is not None:
+            raise ValueError("a run from another app followed no route of MuW")
         # As POST /track-scores checks them (schemas.py).
         problem = walks_problem(self.walks, len(self.points or []))
         if problem is not None:
@@ -257,6 +268,9 @@ class ActivityBody(BaseModel):
     answered; the default is for the examples written before."""
     activity: RunActivity
     """What the run was (TASK-251): the app writes a paddler's pace."""
+    source: RunSource = MUW
+    """Where it comes from (TASK-312): the app writes «Imported» for `file`.
+    Always answered; the default is for the examples written before."""
     route_preview: list[LatLon] | None
     track_preview: list[LatLon]
 
@@ -351,6 +365,8 @@ class ActivityDetailBody(BaseModel):
     """As in the list: the planned route's turn, or null."""
     activity: RunActivity
     """What the run was (TASK-251)."""
+    source: RunSource = MUW
+    """As in the list (TASK-312)."""
     similarity: float | None
     """The planned route's."""
     points: list[LatLon] | None
@@ -574,7 +590,7 @@ def recorded(body: ActivityRequestBody, now: datetime) -> RecordedRun:
 COLUMNS = (
     "id, key, started_at, place, shape, word, style, title, distance_m,"
     " duration_s, score, fidelity, route_similarity, walks, activity,"
-    " route_rotation_deg,"
+    " route_rotation_deg, source,"
     " ST_AsGeoJSON(route, 15) AS route,"
     " ST_AsGeoJSON(ST_Force2D(track), 15) AS track"
 )
@@ -619,6 +635,7 @@ def _fields(row: DictRow) -> dict[str, Any]:
         "fidelity": None if fidelity is None else round(fidelity, 4),
         "rotation_deg": turn_kept(row["route_rotation_deg"]),
         "activity": row["activity"],
+        "source": row["source"],
     }
 
 
@@ -768,10 +785,10 @@ class Activities:
                 "INSERT INTO runs (user_id, key, route, route_similarity, shape,"
                 " word, style, title, track, pauses, started_at, distance_m,"
                 " duration_s, score, fidelity, place, created_at, walks, activity,"
-                " route_rotation_deg, climb_m)"
+                " route_rotation_deg, climb_m, source)"
                 " VALUES (%s, %s, ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s,"
                 " ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-                " %s, %s)"
+                " %s, %s, %s)"
                 f" RETURNING {COLUMNS}",
                 (
                     user_id,
@@ -795,21 +812,24 @@ class Activities:
                     body.activity,
                     body.rotation_deg,
                     run.climb_m,
+                    body.source,
                 ),
             ).fetchone()
             assert row is not None
             # What the run is worth to the shape game, in the same
-            # transaction (TASK-296, game.py).
-            after_run_saved(
-                conn,
-                user_id,
-                row["id"],
-                run.started_at,
-                run.track,
-                run.pauses,
-                body.activity,
-                self.now(),
-            )
+            # transaction (TASK-296, game.py). A run of another app is
+            # worth nothing to it (TASK-312, ADR-0272).
+            if body.source == MUW:
+                after_run_saved(
+                    conn,
+                    user_id,
+                    row["id"],
+                    run.started_at,
+                    run.track,
+                    run.pauses,
+                    body.activity,
+                    self.now(),
+                )
             # One more run along this line, for whoever asks it next
             # (ADR-0256): the line's name only, never who ran it.
             if body.points is not None:
@@ -888,8 +908,10 @@ def activity_routes() -> APIRouter:
                 # it went: nothing of who ran it, nor where.
                 insights: Insights = request.app.state.run_insights
                 insights.record("run_scored", quality=round(activity.score / 100, 3))
-            # The shapes the new run unlocked, told after its write (TASK-296).
-            notify_unlocked(request, user.id, key)
+            # The shapes the new run unlocked, told after its write
+            # (TASK-296); a run of another app unlocks none (TASK-312).
+            if activity.source == MUW:
+                notify_unlocked(request, user.id, key)
         return activity
 
     # The post, as shared: the last one wins (TASK-258).

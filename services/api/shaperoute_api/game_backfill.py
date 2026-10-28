@@ -10,7 +10,8 @@ in the order they were saved, in one transaction under the account's lock
 (as activities.save takes it): the overlaps and the day's cap come out as
 if each run had just been saved. The shapes reached are unlocked at the
 end of the run that reached them. No push is sent. Run twice, the second
-time changes nothing.
+time changes nothing. Only the runs recorded by the app (`source` `muw`):
+a run added from another app's file has no game (TASK-312, ADR-0272).
 """
 
 from __future__ import annotations
@@ -39,7 +40,8 @@ def backfill(database: Database) -> Backfilled:
             for row in conn.execute(
                 "SELECT DISTINCT r.user_id FROM runs r"
                 " LEFT JOIN game_runs g ON g.run_id = r.id"
-                " WHERE g.run_id IS NULL OR g.rules_version < %s"
+                " WHERE r.source = 'muw'"
+                " AND (g.run_id IS NULL OR g.rules_version < %s)"
                 " ORDER BY r.user_id",
                 (RULES_VERSION,),
             ).fetchall()
@@ -61,7 +63,9 @@ def _account(database: Database, user_id: int) -> tuple[int, int]:
         ids = [
             int(row["id"])
             for row in conn.execute(
-                "SELECT id FROM runs WHERE user_id = %s ORDER BY id", (user_id,)
+                "SELECT id FROM runs WHERE user_id = %s AND source = 'muw'"
+                " ORDER BY id",
+                (user_id,),
             ).fetchall()
         ]
         unlocked = 0

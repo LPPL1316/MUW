@@ -2,9 +2,9 @@
 
 **Stato**: In corso — il sito è **online su https://getmuw.app** con
 la guida, la privacy (`/privacy/`) e l'assistenza (`/support/`), in
-cinque lingue (parti A, A2, A3, C, D, E fatte, 2026-10-05/09); restano
-dell'utente il link per scaricare l'app (alla prima build TestFlight) e
-il merch (parte B, messo da parte)
+cinque lingue (parti A, A2, A3, C, D, E fatte, 2026-10-05/09); il link
+per scaricare l'app porta all'App Store (parte F, 2026-10-28); resta il
+merch (parte B, messo da parte)
 **Fase**: 4 · **Branch**: `feat/TASK-237-website-merch`
 **ADR**: ADR-0201
 
@@ -313,3 +313,23 @@ approvato), copia F.14 del Coordinatore. `/support/` e le altre quattro
 lingue rispondono 200 con l'indirizzo, la home ha il link «Support»;
 ricontrollato da questa sessione. L'URL è passato alla sessione «App Store
 submission».
+
+**Parte F, il link per scaricare** (2026-10-28): l'utente chiede
+«sistema il sito aggiungendo il link per scaricare l'app». MuW è
+sull'App Store dal 2026-10-28 (TASK-152), quindi il link è la pagina
+dell'App Store, non TestFlight: `site/config.js` `downloadUrl` =
+`https://apps.apple.com/app/id6820961883` (lo stesso indirizzo di
+«Open MuW» nelle email, `away_email.py`). I due tasti diventano
+«Download the app»; «Get the app» dice «On iPhone, now.» e «MuW is free
+on the App Store, for iPhone.» (gratis, come dice la scheda). Android
+non è nominato: Google Play (TASK-294) non è ancora pubblico. Branch
+`feat/TASK-237-download-link`. Dopo il merge: la copia F.14 sul server,
+con il sì dell'utente.
+
+**Parte F online** (2026-10-28): testi approvati dall'utente («Sì,
+pubblica»); #614 in `main` come `0ddb6c4a`, copia F.14 da quel commit.
+Su https://getmuw.app i due «Download the app» aprono
+`https://apps.apple.com/app/id6820961883`; `/privacy/`, `/support/` e
+`/account-deletion/` rispondono 200, `www` → 301. Quando Google Play
+(TASK-294) è pubblico, il titolo e la frase di «Get the app» cambiano
+di nuovo (`SITO.md`).

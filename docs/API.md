@@ -1392,6 +1392,24 @@ tipi dell'app in `apps/mobile/src/api/activities.ts`; il codice in
   con la penna alzata, e se il `PUT` torna `422 invalid_request` lo
   rimanda una volta senza, come prima di TASK-199 (la corsa si salva con
   il punteggio su tutto il percorso, invece di perdersi).
+- **Una corsa da un file** (TASK-312, parte A, ADR-0272, migrazione
+  `0034`; le regole in `IMPORTAZIONI.md`): il corpo del `PUT` può avere
+  `source`, da dove viene la corsa: `muw`, registrata dall'app (per
+  difetto: un'app di prima non lo manda), o `file`, un'attività di
+  un'altra app che il telefono ha letto da un file GPX, TCX o FIT. Come il
+  resto del corpo, conta solo al primo `PUT`. Una corsa `file` non ha un
+  percorso di MuW: con `points` è `422 invalid_request`. I suoi orari sono
+  quelli del file (`started_at` dal 2020, come per ogni corsa), e un buco
+  del file arriva come pausa `auto`: il suo tempo non conta, i metri sì.
+  `clean_track` la pulisce come ogni corsa. La corsa dell'elenco e quella
+  intera hanno **sempre** `source`; gli esempi scritti prima non lo hanno
+  (sono corse `muw`). Una corsa `file` **non conta per il gioco** né per le
+  sfide delle squadre (`GIOCO.md`: `GET /game/runs/{key}` risponde `404`),
+  **né per il concorso** (`CONCORSI.md`), e **non va su Strava** (`409
+  imported_run`, «Send to Strava», sotto). Esempi:
+  `activity-request-imported.json`, `activities-imported.json`,
+  `activity-imported.json`. Un'API di prima rifiuta il campo: `422
+  invalid_request`.
 
 ### Profile picture (TASK-178, ADR-0146)
 
@@ -1942,6 +1960,16 @@ nuovi. Il codice in `drawings.py` e `drawing_photos.py`.
   percorso dritto e per le corse salvate prima. Chi lo vede lo disegna
   girato dall'altra parte. `MyDrawing` non ce l'ha: è della corsa, non del
   disegno.
+- **Da dove viene la corsa** (TASK-312, parte A, ADR-0272): `MyDrawing`, il
+  disegno dell'elenco, quello intero, il post del Feed e la griglia del
+  profilo hanno **sempre** `source`, quello della corsa (`runs.source`):
+  `muw`, o `file` per un'attività di un'altra app, che l'app mostra con
+  «Imported». Nel Feed un post da file sta al posto della sua
+  pubblicazione, come ogni post; nella griglia del profilo e in «My
+  activities» al posto del suo inizio, anche un anno prima. Esempi:
+  `my-drawing-imported.json`, `drawing-details-imported.json`,
+  `feed-imported.json`; quelli scritti prima non hanno `source` (corse
+  `muw`).
 - **Le foto**, fino a tre oltre alla mappa, ognuna nel suo **posto** `n`
   (da 1 a 3; `0` o `4` sono `422`): il `PUT` mette la foto nel posto (`{
   "image": … }`, un JPEG o PNG in base64 fino a 10 MB, come la foto del
@@ -2895,6 +2923,12 @@ posto con i suoi indirizzi).
   invalid_request`, «Strava could not read this run.», e la corsa torna
   `not_sent`. Se Strava rifiuta il Client Secret del server, `502`, e
   nessuno viene scollegato.
+- **Una corsa da un file non si manda** (TASK-312, parte A, ADR-0272):
+  viene da un'altra app, spesso da Strava stessa. `POST
+  /me/activities/{key}/strava` di una corsa con `source` `file` risponde
+  `409 imported_run`, «This activity was added from another app: it is
+  not sent to Strava.», prima di guardare il collegamento: anche senza
+  atleta collegato. Strava non riceve niente, e `GET` dice `not_sent`.
 - **Scollegare** (`DELETE /me/strava`) cancella i token dal database
   comunque, poi revoca l'accesso su Strava (`POST /oauth/revoke`). Se
   Strava non risponde i token sono già cancellati, e Sgrava resta
@@ -3000,6 +3034,7 @@ motore, in una parola.
 | Concorso: nessun concorso aperto né chiuso da meno di 7 giorni (TASK-299) | 404 | `no_contest` |
 | Strava: il server non ha la sua app Strava (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`) | 503 | `http_error` |
 | Strava: l'account non ha un atleta collegato, o l'atleta ha tolto l'accesso | 409 | `http_error` |
+| Strava: la corsa viene da un file di un'altra app (`source` `file`, TASK-312) | 409 | `imported_run` |
 | Strava: non risponde | 502 | `http_error` |
 | Strava: il suo limite di richieste è raggiunto (`Retry-After` in secondi) | 429 | `too_many_requests` |
 | Strava: non riesce a leggere la corsa | 422 | `invalid_request` |

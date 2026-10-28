@@ -165,7 +165,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   sessione raggiungibile: nato come TASK-305/ADR-0265, rinumerato due
   volte perché presi da altre sessioni). Branch
   `claude/wonderful-dijkstra-oi568i` (il branch della sessione cloud),
-  migrazione `0034_run_climb.sql` (dopo la 0033). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
+  migrazione `0035_run_climb.sql` (dopo la 0034 di TASK-312). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
   «Elev. gain» e «Likes», e le schede «Drawings» | «Photos». **Scelta
   dell'utente: km e dislivello di tutte le corse, anche private**; «Likes»
   sono le reazioni degli altri sui disegni che chi guarda vede. Il
@@ -178,6 +178,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente, prima dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
   TASK-299 B: poche righe qui, chi entra secondo unisce. File:
   `tasks/TASK-324.md`.
+- **TASK-321 — L'attività finita anche in Apple Salute e in Health
+  Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
+  dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
+  dell'utente dello stesso giorno: automatico dopo il primo sì (si spegne
+  dall'app Salute), calorie stimate solo per la corsa, Android insieme,
+  testi e privacy approvati, quattro dipendenze sì
+  (`@kingstinct/react-native-healthkit`, `react-native-nitro-modules`,
+  `react-native-health-connect`, `expo-build-properties`). Branch
+  `docs/TASK-321-apple-health` (documenti), poi A (app: la riga a fine
+  attività e un allenamento con il percorso scritto con «Save»; le
+  librerie fuori dal linking, impronte da misurare), B (la 1.0.1 iOS:
+  capability HealthKit, testo del permesso, privacy, revisione di Apple) e
+  C (la build Android: Health Connect, `minSdk` 26, la dichiarazione della
+  Play Console). Capability, build, invii e dichiarazione col sì
+  dell'utente. File `tasks/TASK-321.md`.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
@@ -261,6 +276,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Garmin, Polar, Suunto, Coros, Wahoo, Komoot). Tutto con «Imported», mai
   per il gioco né per il concorso. Testi e privacy da approvare. Regole in
   `IMPORTAZIONI.md`, file `tasks/TASK-312.md`.
+  **Parte A fatta** (2026-10-28, PR #613, branch
+  `feat/TASK-312-a-imported-runs-api`): migrazione `0034_run_source.sql`
+  (`runs.source`, `muw` o `file`); `PUT /me/activities/{key}` accetta
+  `source` al primo `PUT`; le corse `file` non entrano nel gioco, nelle
+  sfide né nel concorso, e «Send to Strava» risponde `409 imported_run`;
+  `source` in «My activities», nel disegno, nel Feed e nel profilo, con
+  le fixture `*-imported.json`. Server dopo il merge, col sì dell'utente.
+  Prossima: B (l'app).
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch
@@ -1225,6 +1248,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   va bene»).
   **Online dal 2026-10-09** (#467, `b19ab890`, copia F.14): restano
   dell'utente solo il link TestFlight e il merch.
+  **Parte F** (2026-10-28, branch `feat/TASK-237-download-link`): il
+  link per scaricare porta all'App Store
+  (`https://apps.apple.com/app/id6820961883`), «Get the app» dice «On
+  iPhone, now.». Dopo il merge: la copia F.14 sul server, con il sì
+  dell'utente. Resta il merch.
+  **Online dal 2026-10-28**: #614 in `main` (`0ddb6c4a`), copia F.14
+  da quel commit (sì dell'utente: «Sì, pubblica»); su
+  https://getmuw.app i due tasti portano all'App Store.
 - **TASK-223 — Emoji semplici per il catalogo, e la penna alzata nelle
   forme** (ADR-0185; chiesto dall'utente il 2026-10-03). **Parte A, il
   motore**, in `main` (#284): le forme possono avere `pieces`, e gatto,

@@ -60,6 +60,7 @@ from shaperoute_api.activities import (
     UNKNOWN_ACTIVITY,
     Key,
     RunActivity,
+    RunSource,
     turn_kept,
 )
 from shaperoute_api.db import Database
@@ -325,6 +326,10 @@ class MyDrawingBody(BaseModel):
     description: str | None
     activity: RunActivity
     """The run's."""
+    source: RunSource = "muw"
+    """The run's (TASK-312): `file` for an activity of another app, which
+    the app shows with «Imported». Always answered; the default is for the
+    examples written before."""
     tags: list[TagBody]
     photos: list[PhotoBody]
 
@@ -366,6 +371,10 @@ class SeenFields(BaseModel):
     visibility: Visibility
     description: str | None
     activity: RunActivity
+    source: RunSource = "muw"
+    """The run's (TASK-312): `file` for an activity of another app, shown
+    with «Imported». Always answered; the default is for the examples
+    written before."""
     tags: list[TagBody]
     photos: list[PhotoBody]
     rotation_deg: float | None = None
@@ -412,7 +421,7 @@ _SEEN_FIELDS = (
     "d.id, d.title, d.visibility, d.description, d.published_at,"
     " r.started_at, r.place, r.shape, r.word, r.style, r.title AS route_title,"
     " r.distance_m, r.duration_s, r.score, r.fidelity, r.activity,"
-    " r.route_rotation_deg"
+    " r.route_rotation_deg, r.source"
 )
 # One drawing, its cut track whole.
 SEEN_COLUMNS = f"{_SEEN_FIELDS}, ST_AsGeoJSON(d.track, 15) AS track"
@@ -420,7 +429,8 @@ SEEN_COLUMNS = f"{_SEEN_FIELDS}, ST_AsGeoJSON(d.track, 15) AS track"
 # (migration 0022, TASK-288), the points `preview` would take of the whole.
 LISTED_COLUMNS = f"{_SEEN_FIELDS}, ST_AsGeoJSON(d.preview, 15) AS track"
 MINE_COLUMNS = (
-    "r.key, r.activity, d.id, d.title, d.visibility, d.description, d.published_at"
+    "r.key, r.activity, r.source, d.id, d.title, d.visibility, d.description,"
+    " d.published_at"
 )
 # The run of a drawing, locked while its drawing changes.
 RUN_TO_DRAW = (
@@ -508,6 +518,7 @@ def _seen(row: DictRow, details: Details) -> dict[str, Any]:
         "visibility": row["visibility"],
         "description": row["description"],
         "activity": row["activity"],
+        "source": row["source"],
         "tags": details.tags.get(row["id"], []),
         "photos": details.photos.get(row["id"], []),
         # The run's, as My activities answers it (activities._turn).
@@ -538,6 +549,7 @@ def _mine(conn: Connection, rows: Sequence[DictRow]) -> list[MyDrawingBody]:
             visibility=row["visibility"] or "only_me",
             description=row["description"],
             activity=row["activity"],
+            source=row["source"],
             tags=details.tags.get(row["id"], []),
             photos=details.photos.get(row["id"], []),
         )

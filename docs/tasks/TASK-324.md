@@ -4,8 +4,9 @@
 aspetta la PR, poi server e sito con l'ok dell'utente (sotto, «Aperto»)
 **Fase**: 4 · **Branch**: `claude/wonderful-dijkstra-oi568i` (il branch
 assegnato alla sessione cloud, non `feat/TASK-324-…`)
-**ADR**: ADR-0284 · **Migrazione**: `0034_run_climb.sql` (il primo libero
-in `main` al merge, dopo `0033_messages.sql`) · Numeri di task e di ADR
+**ADR**: ADR-0284 · **Migrazione**: `0035_run_climb.sql` (il primo libero
+in `main` al merge: la 0034 l'ha presa TASK-312, `0034_run_source.sql`,
+mentre MUW e shaperoute erano divergenti) · Numeri di task e di ADR
 presi senza coordinatore (nessuna sessione raggiungibile): nato come
 TASK-305 e ADR-0265, rinumerato due volte perché nel frattempo altre
 sessioni li avevano presi (TASK-305 e TASK-311, ADR-0265 e ADR-0271);
@@ -69,7 +70,7 @@ vede.
 ## File toccati
 
 ```
-services/api/migrations/0034_run_climb.sql               (nuovo)
+services/api/migrations/0035_run_climb.sql               (nuovo)
 services/api/shaperoute_api/run_climb.py                 (nuovo)
 services/api/shaperoute_api/profile_totals.py            (nuovo)
 services/api/shaperoute_api/user_photos.py               (nuovo)

@@ -692,7 +692,7 @@ Migrazione `0033_messages.sql` (TASK-319, ADR-0279, `API.md`
   crittografia end-to-end. Nessun endpoint li mostra a chi gestisce MuW:
   di una segnalazione arriva per email solo il messaggio segnalato. Test
   in `test_messages.py`.
-Migrazione `0034_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
+Migrazione `0035_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
 libero in `main` al merge):
 
 - `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati
@@ -703,6 +703,25 @@ libero in `main` al merge):
   le corse di un account con `runs_user_started_idx`; le foto di un
   profilo (`user_photos.py`) passano da `drawings` e `drawing_photos` come
   la griglia. Test in `test_profile_totals.py`.
+
+Migrazione `0034_run_source.sql` (TASK-312 parte A, ADR-0272,
+`IMPORTAZIONI.md`; il numero è il primo libero in `main` al merge, la 0033
+è di TASK-319):
+
+- `runs.source` (`text NOT NULL DEFAULT 'muw'`, `CHECK` fra `muw` e
+  `file`): da dove viene la corsa. `muw`, registrata dall'app; `file`, un
+  file GPX, TCX o FIT di un'altra app letto dal telefono e salvato con lo
+  stesso `PUT /me/activities/{key}`. Lo scrive solo il primo `PUT`. **Le
+  righe di prima sono tutte `muw`**. Apple Salute e i provider avranno i
+  loro valori con le parti D ed E, con un'altra migrazione.
+- **Solo le corse `muw` contano** per il gioco (`game_runs`,
+  `game_unlocks`, `game_contributions`: `after_run_saved` e
+  `game_backfill` le saltano, `GIOCO.md`) e per il concorso
+  (`contests.py`, `CONCORSI.md`). Il segno lo manda l'app, come le
+  posizioni: non è una prova. Nessun indice: si legge con la corsa.
+- Gli orari di una corsa `file` sono quelli del file e stanno nella riga
+  come quelli di ogni corsa: si cancellano con la corsa e con l'account. Il
+  file non si tiene. Test in `test_imported_runs.py`.
 
 ## Come si memorizza una traccia
 

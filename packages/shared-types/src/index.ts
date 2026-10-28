@@ -55,6 +55,13 @@ export type PenUpShape = (typeof PEN_UP_SHAPES)[number];
 export const ACTIVITIES = ["running", "cycling", "paddling"] as const;
 export type Activity = (typeof ACTIVITIES)[number];
 
+/** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
+ * the app; "file", a GPX, TCX or FIT file of another app, read on the phone
+ * and saved with the same PUT /me/activities/{key}. Only "muw" counts for
+ * the shape game and the contest; the app shows «Imported» for the others. */
+export const RUN_SOURCES = ["muw", "file"] as const;
+export type RunSource = (typeof RUN_SOURCES)[number];
+
 /** Plausible target distances for running, in metres. */
 export const MIN_DISTANCE_M = 1_000;
 export const MAX_DISTANCE_M = 50_000;
@@ -304,6 +311,8 @@ export const API_ERROR_CODES = [
   "comment_rejected",
   /** No contest open, nor one closed less than a week ago (TASK-299). */
   "no_contest",
+  /** «Send to Strava» of a run added from another app's file, 409 (TASK-312). */
+  "imported_run",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 
@@ -866,6 +875,8 @@ export interface MyDrawing {
   visibility?: Visibility;
   description?: string | null;
   activity?: Activity;
+  /** The run's (TASK-312); missing from an API before it: "muw". */
+  source?: RunSource;
   tags?: DrawingTag[];
   photos?: DrawingPhoto[];
 }
@@ -905,6 +916,9 @@ interface DrawingFields {
   visibility?: Visibility;
   description?: string | null;
   activity?: Activity;
+  /** The run's (TASK-312): "file" is shown with «Imported». Missing from an
+   * API before it: "muw". */
+  source?: RunSource;
   tags?: DrawingTag[];
   photos?: DrawingPhoto[];
   /**

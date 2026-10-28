@@ -18036,6 +18036,115 @@ perché e cosa si ridisegna. La riga dello sport entra con `ready: false`
 (TASK-318). Il codice nativo (parti D ed E) cambia l'impronta iOS ed esce
 con la build 1.0.1 insieme ad Apple Salute di TASK-321. Il motore non
 conosce le regole del posto: l'avviso lo dice.
+
+## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
+
+**Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
+Android insieme, i testi, la privacy e le quattro dipendenze li ha scelti
+l'utente; i punti tecnici sono decisi dall'agente su delega dell'utente
+(TASK-321)
+
+**Contesto**: l'utente chiede se l'attività finita si può sincronizzare con
+l'app Fitness di Apple. Fitness mostra gli allenamenti che ogni app scrive
+in Apple Salute: non ha un'API sua. Oggi a fine corsa ci sono solo «Send to
+Strava» (ADR-0156, via API) ed «Export GPX» (TASK-307); HealthKit non è nel
+codice. La corsa salvata ha già sul telefono tutto quello che un
+allenamento vuole: le posizioni con orario, precisione e quota, le pause, i
+metri, lo sport. HealthKit e Health Connect non ci sono in Expo Go né nelle
+build di oggi: vogliono moduli nativi, la capability HealthKit nell'App ID
+e nel profilo, una versione nuova sull'App Store e una build Android nuova,
+perché le impronte cambiano. Apple vieta di usare i dati di Salute per la
+pubblicità e di scriverci dati falsi o inesatti (linee guida 5.1.2 e
+5.1.3), vuole l'integrazione detta nella descrizione dell'app (2.5.1) e
+nessun'altra piattaforma nella scheda (2.3.10). Google Play vuole la
+dichiarazione delle app di salute. I dettagli sono in
+`docs/tasks/TASK-321.md`.
+
+**Decisione dell'utente** (2026-10-28, una domanda per volta):
+
+- **Automatico**: alla prima attività una riga chiede di accendere; dopo
+  il sì ogni «Save» va in Salute, senza interruttore; si spegne dall'app
+  Salute o da Health Connect.
+- **Calorie stimate solo per la corsa.**
+- **Android insieme**, con Health Connect.
+- **I testi** in inglese come proposti, con le traduzioni dell'agente; la
+  riga degli store divisa per store.
+- **Le dipendenze**: `@kingstinct/react-native-healthkit` e
+  `react-native-nitro-modules` (iPhone), `react-native-health-connect` ed
+  `expo-build-properties` (Android).
+
+**Decisione dell'agente**:
+
+1. **Si scrive sul telefono, con «Save»**, dalla corsa salvata: niente
+   server, niente rete, niente migrazione. «Discard» non scrive niente;
+   senza account non c'è «Save», e quindi nemmeno Salute.
+2. **Un allenamento per attività**: su iPhone un `HKWorkout` `.running`,
+   `.cycling` o `.paddleSports` da `activityOf(sport)` (`.walking` quando
+   MuW avrà la camminata), su Android una `ExerciseSessionRecord` del tipo
+   corrispondente; inizio e fine dal primo e dall'ultimo punto; la
+   distanza; il percorso (`HKWorkoutRoute`, `ExerciseRoute`).
+3. **Una corsa, un allenamento**: la chiave della corsa è
+   `HKMetadataKeySyncIdentifier` (con `HKMetadataKeySyncVersion` 1) e
+   `clientRecordId` su Android. Salvata di nuovo, non ne nascono due.
+4. **Il permesso si legge prima di scrivere**: è il modo di spegnerlo che
+   ha scelto l'utente. Tolto o negato, la riga a fine attività lo dice e
+   non si scrive niente.
+5. **Le pause**: la libreria iOS salva senza gli eventi di pausa, e in
+   Fitness il tempo è dall'inizio alla fine. È un limite scritto, accettato
+   con la scelta delle dipendenze: il tempo totale è vero, la distanza e il
+   percorso sono quelli di MuW. Su Android le pause vanno come segmenti di
+   pausa, se la libreria li passa.
+6. **Niente config plugin della libreria iOS**: aggiunge sempre il testo
+   per leggere e il permesso delle consegne in background, che non servono.
+   In `app.json` gli entitlements (`com.apple.developer.healthkit`) e
+   `NSHealthUpdateUsageDescription`, con le traduzioni in `locales/*.json`.
+   Il testo per leggere entra solo se serve davvero (B lo verifica) o con
+   TASK-312 D. Su Android il plugin di `react-native-health-connect` sì:
+   dichiara i permessi di sola scrittura e la pagina che li spiega; con
+   `expo-build-properties` porta `minSdkVersion` a 26. Le impostazioni di
+   Android vanno in `ANDROID_ONLY` di `fingerprint.config.js`.
+7. **Prima il codice, poi le build**: nella parte A le librerie stanno in
+   `package.json` ma fuori dal linking (`react-native.config.js`, come
+   AdMob nella build dello store), caricate con un `require` protetto, e
+   senza il modulo la riga non c'è. Le build di oggi restano con le loro
+   impronte, da misurare su una copia pulita; se si muovono, A aspetta B e
+   C. B accende l'iPhone con la 1.0.1, insieme agli altri moduli che la
+   aspettano (`expo-contacts` di TASK-262 C, `expo-document-picker` di
+   TASK-312 B, `tasks/TASK-152.md`) e con l'Apple Watch di TASK-323 E: una
+   sola revisione di Apple; C accende Android con la sua build.
+8. **Le calorie solo per la corsa**, con la formula di `kcal()`
+   (ADR-0137): per la bici e la pagaia sarebbero dati inesatti (5.1.3).
+9. **Restano fuori**: le attività importate (TASK-312, vengono da app che
+   di solito le hanno già scritte), le corse già in «My activities», la
+   cancellazione da Salute quando si cancella in MuW.
+10. **Con TASK-323 E** in comune ci sono la build, la capability e la regola
+    «un'attività, un allenamento» (se l'orologio salva il nuoto, il telefono
+    non lo riscrive). Leggere da Salute non è di questo task: è dello studio
+    D di TASK-312.
+
+**Alternative scartate**:
+
+- un interruttore a ogni attività, come Strava: l'utente ha scelto
+  l'automatico;
+- `react-native-health` (1.19.0, ottobre 2024): non salva il percorso, e
+  dal 2023 non aggiunge funzioni;
+- un modulo nostro in Swift con `HKWorkoutBuilder` (le pause come eventi,
+  nessuna libreria): codice nativo da tenere nel repository, che oggi non
+  ne ha, e fuori dai test di Jest; l'utente ha scelto le librerie;
+- il plugin della libreria iOS: un testo per leggere che direbbe una cosa
+  che MuW non fa;
+- le calorie della formula della corsa per ogni sport: dati inesatti per
+  la bici e la pagaia;
+- Android più avanti: l'utente l'ha voluto insieme.
+
+**Conseguenze**: quattro dipendenze native nuove e la capability
+HealthKit. Sui telefoni arriva con la 1.0.1 iOS, dopo la revisione di
+Apple, e con la build Android nuova, dopo la dichiarazione della Play
+Console; le build di oggi non lo vedono. MuW smette di installarsi su
+Android 7. Dopo la 1.0.1 ogni `eas update` vale per due runtime iOS. Testi
+nuovi in cinque lingue, una sezione nuova della privacy, una riga nella
+descrizione di ogni store. La capability, le build, gli invii e la
+dichiarazione vogliono ognuno il sì dell'utente.
 ## ADR-0284 — I totali e le foto di un profilo: km e dislivello di ogni corsa, anche privata; i like ricevuti; «Drawings» e «Photos»
 
 **Stato**: Attiva · 2026-10-26 · cosa si vede e la scelta di contare anche
@@ -18077,7 +18186,7 @@ dislivello contano tutte le corse salvate (stile Strava).
    altezza contata, le discese non tolgono; solo le posizioni tenute da
    `clean_track`, e niente salita a cavallo di una pausa chiesta dal
    corridore, come per i metri. Colonna `runs.climb_m` (migrazione
-   `0034_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
+   `0035_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
    totale non le stima.
 3. **`GET /users/{public_id}/photos`**: le foto dei disegni che chi guarda
    vede sul profilo, dalla corsa più recente e, nello stesso disegno, per

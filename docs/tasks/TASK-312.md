@@ -1,6 +1,6 @@
 # TASK-312 — Importare nel Feed attività fatte con altre app, e post di sole foto
 
-**Stato**: In lavorazione · documenti nel branch `docs/TASK-312-import-activities` · poi A (API), B (app, file), C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
+**Stato**: In lavorazione · documenti in `main` (#600) · **A fatta** (API, PR #613, branch `feat/TASK-312-a-imported-runs-api`) · poi B (app, file), C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
 **Fase**: 4 · **Branch**: `docs/TASK-312-import-activities` (documenti),
 `feat/TASK-312-a-imported-runs-api` (A), `feat/TASK-312-b-import-file-app`
 (B), `feat/TASK-312-c-photo-posts` (C), `docs/TASK-312-d-health-study`
@@ -120,6 +120,52 @@ docs/STATUS.md
 docs/tasks/TASK-312.md
 ```
 
+### Parte A — com'è fatta (2026-10-28, PR #613)
+
+«File toccati» approvati dall'utente il 2026-10-28 («OK, go ahead»; il
+Coordinatore era archiviato). Rispetto alla lista sopra:
+
+- la migrazione è **`0034_run_source.sql`**: la 0033 è dei messaggi
+  (TASK-319);
+- **`feed.py` e `profiles.py` non cambiano**: il Feed, la griglia del
+  profilo (`GET /users/{id}/drawings`) e il concorso leggono le colonne e
+  `_seen` di `drawings.py`, e `source` arriva da lì;
+- in più `schemas.py` e `fixtures/api-error-codes.json` (il codice
+  `imported_run`), `packages/shared-types/test/imported.test.ts` (nuovo) e
+  tre test che confrontano le risposte con le fixture di prima
+  (`test_activities.py`, `test_drawings.py`, `test_feed.py`: solo `source`
+  fra i campi nuovi, come `rotation_deg`);
+- in più `apps/mobile/assets/engine/engine.zip`, ricostruito con
+  `python tools/phone_engine/phone_engine.py engine`: il telefono porta una
+  copia di `schemas.py`, e il codice d'errore nuovo la cambia (dentro lo
+  zip cambia solo quel file, come per `no_contest` in TASK-299). Sì
+  dell'utente il 2026-10-28: «Yes, add and merge».
+
+Cosa fa:
+
+- `PUT /me/activities/{key}` accetta `source` (`muw` per difetto, `file`),
+  solo al primo `PUT`; una corsa `file` con `points` è `422`;
+- con `source` `file` niente `after_run_saved` né push delle forme;
+  `game_backfill` legge solo le corse `muw` (così un account con una corsa
+  da file non torna a ogni lancio); `PARTICIPATES_SQL` del concorso vuole
+  `r.source = 'muw'`;
+- «Send to Strava» di una corsa `file`: `409 imported_run`, prima del
+  token;
+- `source` nell'elenco e nella corsa intera, in `MyDrawing`, nel disegno
+  degli altri (elenco, intero, Feed, concorso); nei tipi `RunSource`,
+  `RUN_SOURCES` e `source?` (mancante da un'API di prima: `muw`);
+- fixture nuove `activity-request-imported.json`,
+  `activities-imported.json`, `activity-imported.json`,
+  `my-drawing-imported.json`, `drawing-details-imported.json`,
+  `feed-imported.json`, fatte dalle risposte vere dell'API; le vecchie
+  invariate;
+- 15 test in `services/api/tests/test_imported_runs.py`.
+
+Per B: i tipi di «My activities» stanno nell'app
+(`apps/mobile/src/api/activities.ts`); `source` lì va aggiunto da B, con
+`muw` quando manca. Un'API senza la 0034 rifiuta `source` con `422`.
+Server: la migrazione dopo il merge, con il sì dell'utente.
+
 ## Parte B — L'app: «Add past activity» da un file
 
 1. `expo-document-picker` come nella condizione 1; `npm install` con il
@@ -226,9 +272,18 @@ dell'utente. Poi l'utente sceglie quali.
 - «Send to Strava» nascosto per una corsa importata (§3.7).
 - Un post solo foto senza «Only me» (§4.1).
 
+**Confermate dall'utente il 2026-10-28**: «Sì, le tre proposte vanno
+bene: pulsante «Add past activity» in My activities, niente «Send to
+Strava» per le corse importate, niente «Only me» per i post solo foto.»
+Il punto 5 della parte A (`409` su «Send to Strava») è quindi dentro A.
+
+Il Coordinatore chiede alla parte C una sua riga della privacy, approvata
+dall'utente nella PR di C, e le regole di segnalazione e blocco di
+TASK-121.
+
 ## Criteri di accettazione
 
-- [ ] **A**: una corsa con `source: "file"` si salva con i suoi orari, si
+- [x] **A**: una corsa con `source: "file"` si salva con i suoi orari, si
       pubblica, e il Feed, il disegno e «My activities» dicono
       `source`; il gioco e il concorso non la contano (test).
 - [ ] **B**: in Expo Go un GPX di Strava, un TCX e un FIT di Garmin
