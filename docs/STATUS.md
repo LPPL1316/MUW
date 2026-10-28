@@ -160,6 +160,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-321 — L'attività finita anche in Apple Salute e in Health
+  Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
+  dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
+  dell'utente dello stesso giorno: automatico dopo il primo sì (si spegne
+  dall'app Salute), calorie stimate solo per la corsa, Android insieme,
+  testi e privacy approvati, quattro dipendenze sì
+  (`@kingstinct/react-native-healthkit`, `react-native-nitro-modules`,
+  `react-native-health-connect`, `expo-build-properties`). Branch
+  `docs/TASK-321-apple-health` (documenti), poi A (app: la riga a fine
+  attività e un allenamento con il percorso scritto con «Save»; le
+  librerie fuori dal linking, impronte da misurare), B (la 1.0.1 iOS:
+  capability HealthKit, testo del permesso, privacy, revisione di Apple) e
+  C (la build Android: Health Connect, `minSdk` 26, la dichiarazione della
+  Play Console). Capability, build, invii e dichiarazione col sì
+  dell'utente. File `tasks/TASK-321.md`.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
