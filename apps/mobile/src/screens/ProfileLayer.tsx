@@ -249,6 +249,11 @@ export function ProfileLayer({ apiUrl, children }: Props) {
           setPage(home.current === "page" ? null : "account");
         }
       },
+      // «Draw it near me» (TASK-313): to «Draw», «Find friends» let go too.
+      onLeave: () => {
+        setHint(null);
+        setPeople(null);
+      },
     }),
     [setPeople],
   );

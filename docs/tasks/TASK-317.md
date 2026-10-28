@@ -5,16 +5,15 @@
 alla sessione cloud; parte da `main`)
 **ADR**: ADR-0277 · **Migrazione**: `0033_messages.sql` (il numero si
 ricontrolla al merge)
-**Numeri**: TASK-317 e ADR-0277 presi il 2026-10-28 come primi liberi
-oltre tutto quello che c'è in `main` e nei branch remoti (312 e 0272
-mancano in tutti e due: probabilmente assegnati e non ancora pubblicati,
-saltati). Il Coordinatore non era raggiungibile dalla sessione cloud.
-Questo lavoro è nato come TASK-305 / ADR-0265 ed è stato rinumerato tre
-volte (305, 310, 311 presi da altre sessioni prima che questo branch
-potesse arrivare su GitHub: il push dalla sessione cloud è bloccato). La
-migrazione è `0033` (`0031` e `0032` sono di TASK-308 e TASK-309). **Chi
-fa il push ricontrolla i numeri col Coordinatore**: cambiarli è una
-sostituzione di testo in tutti i file del branch.
+**Numeri**: **provvisori, da assegnare dal Coordinatore.** Questo lavoro
+è nato come TASK-305 / ADR-0265 nella sessione cloud, che non può fare il
+push (GitHub risponde 403), ed è stato rinumerato tre volte: 305, 310, 311
+e poi anche 317 / ADR-0277 (`feat/TASK-317-waiting-card`) li hanno presi
+altre sessioni prima che questo branch arrivasse su GitHub. La sessione
+sul Mac che lo porta su GitHub lo rinomina con il numero dato dal
+Coordinatore: è una sostituzione di testo di «TASK-317» e «ADR-0277» nei
+file del branch, più il nome di questo file. La migrazione è `0033`
+(`0031` e `0032` sono di TASK-308 e TASK-309), da ricontrollare al merge.
 
 ## Obiettivo
 

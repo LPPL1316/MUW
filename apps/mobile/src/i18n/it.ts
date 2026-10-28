@@ -1469,6 +1469,10 @@ export const IT: Table = {
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapendio",
 
+  // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
+  // stessa forma in «Draw»)
+  "Draw it near me": "Disegnala vicino a me",
+
   // src/api/messages.ts (TASK-317: private messages)
   "A message needs some words.": "Un messaggio ha bisogno di qualche parola.",
   "A message is at most {max} characters.":
