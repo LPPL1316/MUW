@@ -107,6 +107,7 @@ import {
 } from "./src/route/drawAgain";
 import { ImageEditsContext } from "./src/route/imageEdits";
 import type { ChoiceKind } from "./src/route/problems";
+import { withPenUp } from "./src/route/penUpHint";
 import { shapeAsked } from "./src/route/penUpShapes";
 import { DrawButton, RouteChoice, RouteOutcome } from "./src/route/RoutePanel";
 import { shapeName, toShape } from "./src/route/shapeWords";
@@ -1473,6 +1474,14 @@ function MuW() {
             }}
             onPickShape={onPickShape}
             onRetry={retry}
+            onLiftPen={() => {
+              // A word in one line that did not come out (TASK-311 B): the
+              // switch turns on, and the word is drawn with the pen up.
+              setPenUp(true);
+              if (view.status === "done" || view.status === "failed") {
+                draw(withPenUp(view.request));
+              }
+            }}
             onStart={() => {
               if (view.status === "done" && view.request.activity === "paddling") {
                 paddleNotice.ask(() => setScreen("navigate"));
