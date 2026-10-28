@@ -17414,3 +17414,78 @@ che parte andare.
 il sì dell'utente; fino ad allora l'app calcola la strada solo sul
 telefono, o mostra i puntini. `engine.zip` cresce di un modulo. I testi
 nuovi della parte B vogliono il sì dell'utente.
+
+## ADR-0272 — Attività fatte con altre app: un file letto sul telefono, segnato «Imported», fuori dal gioco e dal concorso; e i post di sole foto
+
+**Stato**: Proposta · 2026-10-28 · da dove si importa, i post di sole
+foto, la dipendenza e cosa conta li ha scelti l'utente; i punti tecnici
+sono decisi dall'agente su delega dell'utente (TASK-312)
+
+**Contesto**: l'utente vuole caricare nel Feed attività già fatte con
+altre app o messe su Instagram. `PUT /me/activities/{key}` accetta già una
+traccia con orari veri dal 2020 in poi, e il modulo del post (TASK-208) ha
+titolo, descrizione, 3 foto, tag e chi la vede. Mancano: un modo di
+scegliere un file (nessuna dipendenza dell'app lo fa), un segno che
+distingua una corsa registrata da MuW da un file (un GPX si disegna anche
+a mano), e un post senza corsa. Una dipendenza nativa nuova cambia
+l'impronta iOS, e la 1.0 smetterebbe di ricevere gli aggiornamenti.
+L'accordo API di Strava, dal novembre 2024, lascia mostrare i dati di un
+utente solo a lui. Instagram legge via API solo gli account Business o
+Creator, dopo la revisione di Meta, e i suoi post non hanno GPS. Le
+regole sono in `docs/IMPORTAZIONI.md`.
+
+**Decisione dell'utente**: prima un file GPX, TCX o FIT; poi Apple Salute;
+anche Strava, Garmin e le app più famose. Nel Feed anche i post di sole
+foto. `expo-document-picker` sì, come `expo-contacts` (TASK-262 C). Le
+attività importate e i post di sole foto stanno nel Feed con «Imported» e
+non contano per il gioco né per il concorso.
+
+**Decisione dell'agente**:
+
+1. **Il file si legge sul telefono** e diventa il corpo del `PUT` di
+   sempre: l'API non riceve file, non cambia il conto di km, tempo e
+   pause, e `clean_track` vale come per ogni corsa. Il file non si tiene.
+2. **Un campo `runs.source`** (`muw` per difetto, `file`; poi `health` e
+   i provider). Gioco (`after_run_saved`, `game_backfill`) e concorso
+   (`contests.py`) prendono solo `muw`. Il segno lo manda l'app, come oggi
+   manda le posizioni: non è una prova, e i controlli restano quelli di
+   ogni corsa.
+3. **Lettori scritti da noi** per GPX, TCX e FIT, senza altre dipendenze:
+   servono solo posizione, orario e sport. Per il FIT bastano i messaggi
+   `record` e `sport`, con le intestazioni a orario compresso.
+4. **I buchi oltre 60 s diventano pause `auto`**: il tempo in movimento
+   somiglia a quello dell'altra app, e i metri restano. Oltre 20 000 punti
+   (il limite del `PUT`) il telefono dirada a passo uguale; oltre 25 MB il
+   file è rifiutato.
+5. **`expo-document-picker` escluso dall'autolinking**, caricato con
+   `requireOptionalNativeModule` e nascosto senza il modulo: in Expo Go e
+   in preview si prova subito, la 1.0 resta con l'impronta `83793e26`, e
+   si accende con la build nativa dopo, come i contatti.
+6. **Un post di sole foto è un disegno senza corsa** (parte C, proposta di
+   partenza): `drawings.user_id`, `run_id` facoltativo. Così reazioni,
+   commenti, segnalazioni, blocchi e nascosti, che puntano tutti a
+   `drawings`, valgono senza tabelle nuove. Senza «Only me», perché le foto
+   stanno sul server solo quando altri vedono il post (ADR-0170). C la
+   verifica sul codice prima di cominciare e la scrive qui.
+7. **Apple Salute e i collegamenti diretti passano prima da uno studio
+   scritto** (parti D ed E): regole di Apple e di Google sui dati di
+   salute, accordi dei provider su chi può vedere le attività.
+
+**Alternative scartate**:
+
+- leggere il file sull'API: un endpoint nuovo per file fino a 25 MB, e
+  una dipendenza Python per il FIT, per avere lo stesso corpo del `PUT`;
+- importare da Strava via API: il suo accordo non lascia mostrare le
+  attività ad altri iscritti;
+- un collegamento a Instagram: solo account Business o Creator, la
+  revisione di Meta, e nessuna traccia da prendere;
+- una tabella a sé per i post di sole foto: reazioni, commenti e
+  segnalazioni andrebbero rifatti per lei;
+- `expo-document-picker` dentro la build da subito: la 1.0 non
+  riceverebbe più gli aggiornamenti.
+
+**Conseguenze**: una migrazione per A e una per C, sul server dopo Apple e
+con il sì dell'utente. «From a file» arriva sui telefoni con la build
+1.0.1 (iOS) e con la prima Android; i post di sole foto anche nella 1.0.
+Testi e privacy nuovi vogliono il sì dell'utente. D ed E finiscono con una
+scelta dell'utente, non con codice.
