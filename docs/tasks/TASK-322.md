@@ -153,14 +153,22 @@ teniamo solo l'id e l'email, anche se ci manda nome e foto.
   utilises MuW et nous disent quel compte est le tien. Nous ne gardons que
   l'identifiant et l'adresse e-mail.»
 
-**3. Termini, «Your account»**, la prima frase cambia:
+**3. Termini, «Your account»** (e la stessa frase nel riassunto in cima
+ai termini): come ci si iscrive.
 
 - en: «You sign up with an email address and a password, or with Apple or
   Google, and a username.» (oggi: «You sign up with an email address, a
   username and a password.»)
 - it: «Ti iscrivi con un'email e una password, o con Apple o Google, e un
   nome utente.»
-- de, es, fr: la stessa frase, nella forma che hanno oggi.
+- de: «Du registrierst dich mit einer E-Mail-Adresse und einem Passwort
+  oder mit Apple oder Google, und mit einem Benutzernamen.»
+- es: «Te registras con un correo y una contraseña, o con Apple o
+  Google, y un nombre de usuario.»
+- fr: «Tu t'inscris avec une adresse e-mail et un mot de passe, ou avec
+  Apple ou Google, et un nom d'utilisateur.»
+
+Il resto della frase di oggi (i 16 anni, l'account solo tuo) resta.
 
 Trovato, fuori da questo task: i termini dicono ancora che non c'è un modo
 di recuperare una password dimenticata (en «There is no way to reset a
