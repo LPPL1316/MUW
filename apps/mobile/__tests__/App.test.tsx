@@ -331,7 +331,7 @@ test("while waiting it says what the API is doing, with a spinner", async () => 
   apiAnswers(job("downloading_map"), job("computing"));
   await atTrento();
   await fireEvent.press(screen.getByText("Draw route"));
-  expect(screen.getByText(/Waiting for the API…/)).toBeOnTheScreen();
+  expect(screen.getByText(/^Warming up: .+…$/)).toBeOnTheScreen();
 
   await nextPoll();
   expect(screen.getByText(/Downloading map data for this area…/)).toBeOnTheScreen();
