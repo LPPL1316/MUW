@@ -15,10 +15,11 @@ city writes its own `<city>.jsonl` in `--out`, a directory.
         --out /tmp/words
     python tests/measure_words_many.py --summary /tmp/words
 
-A case is good as in tests/measure_stop_earlier.py: distance on the roads
-within DISTANCE_TOLERANCE of the target and similarity at least
-SIMILARITY_THRESHOLD. Traces are the engine's cost unit, seconds depend on
-the machine.
+A case is good as in tests/measure_stop_earlier.py: distance drawn within
+DISTANCE_TOLERANCE of the target and similarity at least
+SIMILARITY_THRESHOLD. With the pen up the walks between the letters are
+not drawn, and not counted, as the search does. Traces are the engine's
+cost unit, seconds depend on the machine.
 """
 
 from __future__ import annotations
@@ -166,13 +167,15 @@ def plan_case(case: dict[str, Any], zones: MemoZones) -> dict[str, Any]:
             "seconds": round(time.perf_counter() - began, 1),
         }
     result = plan.result
-    ratio = result.distance_m / case["distance_m"]
+    search = plan.search
+    best = search.best if search is not None else None
+    # The distance drawn: with the pen up, the walks between the letters
+    # are not part of it (TASK-197), as the search judges them.
+    ratio = best.ratio if best is not None else result.distance_m / case["distance_m"]
     good = (
         abs(ratio - 1) <= DISTANCE_TOLERANCE
         and result.similarity >= SIMILARITY_THRESHOLD
     )
-    search = plan.search
-    best = search.best if search is not None else None
     return row | {
         "outcome": "good" if good else "poor",
         "similarity": round(result.similarity, 3),
