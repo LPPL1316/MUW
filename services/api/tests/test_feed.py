@@ -118,7 +118,9 @@ def test_the_example_is_the_body() -> None:
     # A post is a drawing of a profile's list, with its author.
     assert set(FeedPostBody.model_fields) == set(DrawingBody.model_fields) | {"author"}
     post = page["posts"][0]
-    assert set(post) == set(FeedPostBody.model_fields)
+    # Written before TASK-312: a post of a run of the app
+    # (feed-imported.json, test_imported_runs.py).
+    assert set(post) == set(FeedPostBody.model_fields) - {"source"}
     assert set(post["author"]) == set(AuthorBody.model_fields)
     assert post["author"] == _load("drawing-details.json")["author"]
     assert re.match(CURSOR_PATTERN, page["next"])

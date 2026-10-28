@@ -287,6 +287,8 @@ ErrorCode = Literal[
     "comment_rejected",
     # No contest open, nor one closed less than a week ago (TASK-299).
     "no_contest",
+    # A run added from a file is not sent to Strava (TASK-312, ADR-0272).
+    "imported_run",
 ]
 
 # Why an image gives no outline: InvalidImageError.reason in

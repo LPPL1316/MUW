@@ -41,6 +41,14 @@ collezione e le barre di avanzamento.
 
 - Solo le corse a piedi salvate nell'account (`runs.activity =
   'running'`). Bici e pagaia no.
+- Solo le corse **registrate dall'app** (`runs.source = 'muw'`, TASK-312,
+  ADR-0272). Un'attività aggiunta dal file di un'altra app (`file`, con
+  «Imported») non entra in `after_run_saved` né in `game_backfill`: niente
+  riga in `game_runs`, niente forme sbloccate, niente pezzi delle sfide.
+  Non conta nemmeno come corsa sovrapposta a un'altra. `GET
+  /game/runs/{key}` di una corsa così risponde `404`, come per una corsa
+  che il gioco non ha calcolato. Il segno lo manda l'app: non è una prova,
+  e le regole del §4 valgono per ogni corsa che conta.
 - Contano anche le corse salvate **prima** del gioco. Un comando le
   calcola una volta sul server (§7), senza mandare push.
 - Due corse dello stesso account che si sovrappongono nel tempo contano
@@ -233,14 +241,15 @@ altri iscritti, con il titolare del pezzo a `NULL`.
 
 Le corse di prima del gioco si calcolano con
 `python -m shaperoute_api.game_backfill`: è idempotente, salta le righe
-già alla `RULES_VERSION` corrente e non manda push. Si lancia una volta
+già alla `RULES_VERSION` corrente e le corse con `source` diverso da `muw`
+(TASK-312), e non manda push. Si lancia una volta
 dopo il deploy della parte A e di nuovo a ogni cambio di regole.
 
 ## 8. API
 
 | Metodo | Percorso | Account | Parte |
 |---|---|---|---|
-| — | `PUT /me/activities/{key}` (c'è già) | sì | A: nella transazione del salvataggio, `game.after_run_saved`; la risposta non cambia |
+| — | `PUT /me/activities/{key}` (c'è già) | sì | A: nella transazione del salvataggio, `game.after_run_saved`, solo per `source` `muw` (TASK-312); la risposta non cambia |
 | GET | `/game/runs/{key}` | sì | A: che cosa ha valso la corsa: `counted`, `reason`, `counted_m`, `best_s`, `unlocked[]` (C aggiunge i pezzi) |
 | GET | `/game/catalog` | no | A: il catalogo con i contorni. Se risponde 404, l'app nasconde «Play» (ADR-0255) |
 | GET | `/game/me` | sì | A: km contati, migliori tempi, sblocchi, avanzamento |

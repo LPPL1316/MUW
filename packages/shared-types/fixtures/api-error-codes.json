@@ -16,5 +16,6 @@
   "session_expired",
   "accounts_unavailable",
   "comment_rejected",
-  "no_contest"
+  "no_contest",
+  "imported_run"
 ]
