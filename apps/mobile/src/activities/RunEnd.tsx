@@ -2,8 +2,14 @@ import { useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { type DrawingChoice, isChosen, NOT_CHOSEN } from "../api/drawings";
+import { loadHealthOn } from "../health/healthChoice";
+import { healthPhone } from "../health/healthModules";
+import type { HealthPhone } from "../health/healthPhone";
+import { HealthRunEnd } from "../health/HealthRunEnd";
+import { saveToHealth, useHealth } from "../health/useHealth";
 import { t } from "../i18n";
 import { showSavedLogo } from "../intro/SavedLogo";
+import { loadRun } from "../navigation/trackStore";
 import { activityOf } from "../settings/sport";
 import { useSport } from "../settings/useSport";
 import { phonePhotoUri } from "../social/drawingPhotos";
@@ -34,10 +40,12 @@ type Props = {
   onSave: () => boolean;
   /** «Discard», after a yes: the run is gone for good. */
   onDiscard: () => void;
-  /** The fakes of the tests: the photo picker, the fetch of the tag search. */
+  /** The fakes of the tests: the photo picker, the fetch of the tag search,
+   * the phone's health data. */
   pick?: PickPhoto;
   fetchFn?: typeof fetch;
   apiKey?: string | null;
+  health?: HealthPhone | null;
 };
 
 /** How much of the screen the form may take: the map and the buttons
@@ -56,14 +64,24 @@ type Chosen = { n: number; base64: string };
  * ADR-0170): up to three photos, the title, «How did it go?», the people
  * tagged, what the run was (from the sport of «Settings») and who can see
  * it («Only me» at every run, the user's choice); then «Send to Strava»
- * with Strava connected (TASK-187). With «Save» the choice and the photos
- * go with the run: to the API once it has the run, the photos only while
- * others see it.
+ * with Strava connected (TASK-187), and «Save to Apple Health» (or to
+ * Health Connect) where the phone's build has it (TASK-321). With «Save»
+ * the choice and the photos go with the run: to the API once it has the
+ * run, the photos only while others see it; and the run to the phone's
+ * health data, after the user's yes.
  */
-export function RunEnd({ onSave, onDiscard, pick, fetchFn, apiKey }: Props) {
+export function RunEnd({
+  onSave,
+  onDiscard,
+  pick,
+  fetchFn,
+  apiKey,
+  health = healthPhone(),
+}: Props) {
   const { signedIn, signIn, toStrava, toDrawing, toPhotos, full, waiting, refused } =
     useActivitiesDoor();
   const strava = useStrava();
+  const healthState = useHealth(health);
   const sport = useSport();
   const { height } = useWindowDimensions();
   // «Discard» asks first, here: a run thrown away does not come back.
@@ -85,11 +103,19 @@ export function RunEnd({ onSave, onDiscard, pick, fetchFn, apiKey }: Props) {
     toStrava(sending ? { name: choice.title } : null);
     toDrawing(isChosen(choice) ? choice : null);
     toPhotos([...photos].sort((a, b) => a.n - b.n).map((photo) => photo.base64));
+    // The run as the phone keeps it, read before «Save» lets the file go:
+    // only after the user's yes to the phone's health data.
+    const run = health !== null && loadHealthOn() ? loadRun() : null;
     const kept = onSave();
     setFailed(!kept);
     if (kept) {
       // The Sgrava logo, over the app, says the run is kept (TASK-212).
       showSavedLogo();
+      if (run !== null) {
+        // To the phone's health data, as the form says the run was
+        // (TASK-321): written there, on the phone, with no network.
+        void saveToHealth(health, run.track, choice.activity);
+      }
     }
   }
 
@@ -163,6 +189,9 @@ export function RunEnd({ onSave, onDiscard, pick, fetchFn, apiKey }: Props) {
               saveSendToStrava(on);
             }}
           />
+          {health !== null && (
+            <HealthRunEnd store={health.store} health={healthState} />
+          )}
         </View>
       </FormScroll>
       {failed && (
