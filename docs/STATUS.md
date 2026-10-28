@@ -501,6 +501,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   file, «Testi da approvare»); il posto della riga lo conferma l'utente su
   `preview`. Con la E il task è completo: dopo il merge, chiusura e
   server (A e C) dopo Apple.
+  **Chiuso**: la E in `main` con la #564 (`de4ca26b`, 2026-10-28); le
+  cinque parti sono in `main`, vedi «Completato». Sul server A e C dopo
+  Apple, con l'ok dell'utente.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
@@ -1542,6 +1545,25 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 ## Completato
 
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
+- **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,
+  che ha scelto la pagina «Play» dentro MuW): il gioco delle forme. Le
+  corse a piedi salvate valgono km e tempi migliori sul server, che
+  sblocca forme da collezionare (per distanza totale o per passo) e tiene
+  squadre e sfide con una forma divisa in pezzi entro una scadenza. API
+  #534 (`abb593c5`, A: `game_runs`, `game_unlocks`, regole pure, catalogo,
+  `/game/catalog`, `/game/me`, `/game/runs/{key}`, push `shape_unlocked`,
+  `game_backfill`; migrazione `0025`) e #540 (`88b63b6e`, C: squadre e
+  sfide, otto endpoint, tre push, timer «1 day left»; migrazione `0027`);
+  app #536 (`145cf992`, B: la pagina «Play» fra «Explore» e il profilo,
+  visibile solo con `GET /game/catalog` a 200, la collezione, la scheda
+  «New shape unlocked»), #561 (`a8d75842`, D: la scheda «Challenges»,
+  squadre, sfide e pezzi colorati, le push che aprono la sfida) e #564
+  (`de4ca26b`, E: la riga del gioco nella scheda della corsa). Tutti i
+  testi approvati dall'utente, regola del blocco fra iscritti scelta da
+  lui. Chiuso il 2026-10-28. **Sul server A e C dopo Apple, con l'ok
+  dell'utente** (migrazioni, deploy, backfill): fino ad allora «Play» resta
+  nascosta su `preview`, e le prove sull'iPhone (B, D, E) vengono dopo.
+  Regole in `GIOCO.md`, file `tasks/TASK-296.md`.
 - **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
   premio senza valore): il primo concorso, vince il post per tutti con più
   reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi
