@@ -160,6 +160,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-321 — L'attività finita anche in Apple Salute, perché compaia
+  in Fitness** (ADR-0281, proposta; domanda dell'utente del 2026-10-28,
+  numero dal Coordinatore). Branch `docs/TASK-321-apple-health`
+  (documenti), poi A (app: l'interruttore «Save to Apple Health» sotto
+  «Send to Strava», un `HKWorkout` con il percorso scritto sul telefono con
+  «Save»; la libreria fuori dal linking finché non c'è la build, impronta
+  iOS `83793e26` da misurare), B (la build nativa 1.0.1: capability
+  HealthKit, testo del permesso, privacy, revisione di Apple) e C (Android,
+  Health Connect, rinviata). Le scelte di prodotto, i testi, la privacy e
+  la dipendenza aspettano l'utente. File `tasks/TASK-321.md`.
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
   scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).

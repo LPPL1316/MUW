@@ -17609,3 +17609,87 @@ c'era già.
 **Conseguenze**: due testi nuovi in cinque lingue, col sì dell'utente.
 Solo JavaScript: l'impronta iOS resta 83793e26. Se il motore cambia le
 soglie, `penUpHint.ts` va allineato a mano.
+
+## ADR-0281 — L'attività finita anche in Apple Salute: un allenamento con il percorso, scritto sul telefono con «Save», nella build nativa 1.0.1
+
+**Stato**: Proposta · 2026-10-28 · le scelte di prodotto (interruttore o
+automatico, calorie, Android, testi) e la dipendenza le prende l'utente; i
+punti tecnici sono decisi dall'agente su delega dell'utente (TASK-321)
+
+**Contesto**: l'utente chiede se l'attività finita si può sincronizzare con
+l'app Fitness di Apple. Fitness mostra gli allenamenti che ogni app scrive
+in Apple Salute: non ha un'API sua. Oggi a fine corsa ci sono solo «Send to
+Strava» (ADR-0156, via API) ed «Export GPX» (TASK-307); HealthKit non è nel
+codice. La corsa salvata ha già sul telefono tutto quello che un
+allenamento vuole: le posizioni con orario, precisione e quota, le pause, i
+metri, lo sport. HealthKit non c'è in Expo Go né nella 1.0: vuole un modulo
+nativo, la capability HealthKit nell'App ID e nel profilo, e una versione
+nuova sull'App Store, perché l'impronta iOS (`83793e26…`) cambia. Apple
+vieta di usare i dati di Salute per la pubblicità e di scriverci dati falsi
+o inesatti (linee guida 5.1.2 e 5.1.3), e vuole l'integrazione detta nella
+descrizione dell'app (2.5.1). I dettagli sono in `docs/tasks/TASK-321.md`.
+
+**Decisione dell'utente**: *(da prendere, una domanda per volta)*
+interruttore o automatico; calorie stimate sì o no; Android sì o no; i
+testi del permesso e della schermata; la dipendenza.
+
+**Decisione dell'agente**:
+
+1. **Si scrive sul telefono, con «Save»**, dalla corsa salvata: niente
+   server, niente rete, niente migrazione. «Discard» non scrive niente.
+2. **Un `HKWorkout` per attività**: `.running`, `.cycling` o
+   `.paddleSports` da `activityOf(sport)` (`.walking` quando MuW avrà la
+   camminata); inizio e fine dal primo e dall'ultimo punto; la distanza
+   come totale e come campione del tipo giusto (`distancePaddleSports` da
+   iOS 18); il percorso come `HKWorkoutRoute`; `HKMetadataKeyIndoorWorkout`
+   falso.
+3. **Una corsa, un allenamento**: `HKMetadataKeySyncIdentifier` è la chiave
+   della corsa, con `HKMetadataKeySyncVersion` 1. Salvata di nuovo, Salute
+   non ne fa due.
+4. **La libreria proposta è `@kingstinct/react-native-healthkit`** (16.2.0,
+   MIT, 2026-10-12), con `react-native-nitro-modules`: salva allenamento,
+   campioni e percorso, e legge (servirà a TASK-312 D). Salva senza gli
+   eventi di pausa: in Fitness il tempo è dall'inizio alla fine, pause
+   comprese. È un limite scritto: il tempo totale è vero, la distanza e il
+   percorso sono gli stessi di MuW.
+5. **Niente config plugin della libreria**: aggiunge sempre il testo per
+   leggere e il permesso delle consegne in background, che non servono. In
+   `app.json` gli entitlements (`com.apple.developer.healthkit`) e
+   `NSHealthUpdateUsageDescription`, con le traduzioni in `locales/*.json`.
+   Il testo per leggere entra solo se serve davvero (B lo verifica) o con
+   TASK-312 D.
+6. **Prima il codice, poi la build**: nella parte A le librerie stanno in
+   `package.json` ma fuori dal linking (`react-native.config.js`, come
+   AdMob nella build dello store), caricate con un `require` protetto, e
+   senza il modulo l'interruttore non c'è. La 1.0 resta con la sua
+   impronta, da misurare su una copia pulita; se si muove, A aspetta B. La
+   parte B accende tutto con la build 1.0.1, insieme agli altri moduli che
+   la aspettano (`tasks/TASK-152.md`).
+7. **Le calorie solo dove la stima regge** (se l'utente dice sì): la
+   formula della corsa (`kcal()`, ADR-0137) per la corsa; per la bici e la
+   pagaia niente, finché non c'è una stima per sport.
+8. **Restano fuori**: le attività importate (TASK-312, vengono da app che
+   di solito le hanno già scritte), le corse già in «My activities», la
+   cancellazione da Salute quando si cancella in MuW.
+
+**Alternative scartate**:
+
+- `react-native-health` (1.19.0, ottobre 2024): non salva il percorso, e
+  dal 2023 non aggiunge funzioni;
+- un modulo nostro in Swift con `HKWorkoutBuilder` (le pause come eventi,
+  nessuna dipendenza): codice nativo da tenere nel repository, che oggi non
+  ne ha, e fuori dai test di Jest. Resta la strada se l'utente vuole in
+  Fitness il tempo senza le pause;
+- il plugin della libreria: un testo per leggere che direbbe una cosa che
+  MuW non fa;
+- le calorie della formula della corsa per ogni sport: per la bici e la
+  pagaia sarebbero dati inesatti in Salute (5.1.3);
+- Health Connect insieme: dichiarazione nella Play Console, attesa fino a 7
+  giorni, un'altra build Android. Proposto come parte C, dopo.
+
+**Conseguenze**: due dipendenze native nuove e la capability HealthKit, con
+il sì dell'utente. Sui telefoni arriva con la 1.0.1 (iOS), dopo la
+revisione di Apple; la 1.0 non lo vede. Dopo la 1.0.1 ogni `eas update`
+vale per due runtime. Testi nuovi in cinque lingue, una sezione nuova
+della privacy e una riga nella descrizione dello store, tutti col sì
+dell'utente. Android con una parte sua.

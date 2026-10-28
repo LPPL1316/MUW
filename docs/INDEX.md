@@ -35,6 +35,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Il primo concorso, la scheda nel Feed, il regolamento | `CONCORSI.md`, `tasks/TASK-299.md` |
 | Le corse di gruppo, «Group runs», «I'm going» | `EVENTI.md`, `tasks/TASK-309.md` |
 | Attività da altre app (GPX, TCX, FIT), post di sole foto, «Imported» | `IMPORTAZIONI.md`, `tasks/TASK-312.md` |
+| Apple Salute e Fitness, Health Connect: l'attività finita scritta sul telefono | `tasks/TASK-321.md`, `DECISIONS.md` ADR-0281 |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti
