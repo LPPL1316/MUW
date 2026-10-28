@@ -1,6 +1,6 @@
 # TASK-319 — I messaggi privati, con le richieste
 
-**Stato**: In corso (parti A e B nella stessa PR)
+**Stato**: In revisione (parti A e B nella stessa PR)
 **Fase**: 4 · **Branch**: `feat/TASK-319-private-messages` (scritto nella
 sessione cloud su `claude/epic-gauss-k87m6o`; parte da `main`)
 **ADR**: ADR-0279 · **Migrazione**: `0033_messages.sql` (il numero si
@@ -301,32 +301,50 @@ docs/UI.md
   spinto. Il Coordinatore ha dato TASK-319 / ADR-0279: «TASK-317» e
   «ADR-0277» sostituiti in tutti i file, questo file rinominato, branch
   `feat/TASK-319-private-messages`, da `main` 0e04e5ce.
-- 2026-10-28, condizioni del Coordinatore e dove stanno (letto il codice
-  e i test, **non eseguiti** sul Mac; la CI li fa sulla PR):
-  1. migrazione: il primo numero libero al merge (oggi `0033`; anche
-     TASK-312 A ne vuole una, chi entra secondo rinumera). Nei test il
-     numero non compare.
-  2. App Store, guideline 1.2: un messaggio, anche quello di una
-     richiesta, si segnala (`test_a_message_is_reported_only_by_the_other`,
-     fra due che non si seguono); chi è bloccato non scrive né manda
-     richieste, risposta `404` (`test_a_block_deletes_the_conversation_and_keeps_the_two_apart`);
-     invio limitato per minuto, `429` (`test_too_many_messages_in_a_minute`);
-     l'account cancellato porta via le conversazioni (`ON DELETE CASCADE`,
-     `test_a_deleted_account_takes_its_conversations`).
-  3. server vecchio: senza `GET` dei non letti (`404`) l'app non mostra
-     né «Messages» né «Message» (test «an API without messages shows
-     neither…» in `Messages.test.tsx`). Il server si aggiorna solo con il
-     sì dell'utente.
-  4. fingerprint iOS `83793e26`: niente file nativi né dipendenze nuove
-     nel diff; la misura sulla copia pulita la fa il Coordinatore.
-  5. «File toccati» mandati al Coordinatore prima della PR: decide lui
-     l'ordine con TASK-309 B, TASK-312 A/B e #602.
-  L'approvazione dei testi: sessione cloud «Messaggi privati»
-  (claude.ai/code/session_01Mt7LvDLKFJp9Cf4Qvp3otf), risposta «Approvo
-  così» alla domanda «Approvi i testi dei messaggi e la nuova sezione
-  della privacy così come sono?» (testi elencati allora in
-  `TASK-311.md`, oggi sopra). Il messaggio prima della domanda diceva che
-  le traduzioni nelle altre quattro lingue erano dell'agente.
+- 2026-10-28, le condizioni del Coordinatore, ognuna con il suo test
+  (verdi sul Mac: `test_messages.py` e `test_moderation.py`, 51; jest
+  intero, 511 suite e 4119 test):
+  - [x] migrazione: il primo numero libero al merge (oggi `0033`; anche
+    TASK-312 A ne vuole una, chi entra secondo rinumera). Nei test il
+    numero non compare.
+  - [x] segnalazione e blocco coprono messaggi e richieste: si segnala
+    anche il messaggio di una richiesta
+    (`test_a_message_is_reported_only_by_the_other`, fra due che non si
+    seguono).
+  - [x] chi è bloccato non scrive né manda richieste, nei due sensi,
+    risposta `404`
+    (`test_a_block_deletes_the_conversation_and_keeps_the_two_apart`).
+  - [x] invio limitato per minuto, `429`
+    (`test_too_many_messages_in_a_minute`).
+  - [x] l'account cancellato porta via conversazioni, messaggi e
+    richieste: `DELETE /me` cancella la riga di `users` e
+    `0033_messages.sql` ha `ON DELETE CASCADE`, quindi non serve
+    `before_account_delete` (`test_a_deleted_account_takes_its_conversations`).
+  - [x] server vecchio: senza `GET` dei non letti (`404`) l'app non
+    mostra né «Messages» né «Message» (test «an API without messages
+    shows neither…» in `Messages.test.tsx`). Il server si aggiorna solo
+    con il sì dell'utente, dopo il merge.
+  - [x] fingerprint iOS `83793e26`: niente file nativi né dipendenze
+    nuove nel diff; la misura sulla copia pulita la fa il Coordinatore.
+  - [x] file condivisi: le righe nuove stanno in fondo ai file i18n e a
+    `DECISIONS.md`, senza righe vuote fra i blocchi degli altri.
+    `ProfileLayer.tsx` è quasi tutto rientro, per il nuovo
+    `MessagesContext.Provider` (15 righe con `git diff -w`).
+  - [x] data della privacy: 28 ottobre 2026, oggi, come in `main`; le
+    pagine di `site/privacy` rigenerate con `make_privacy.mjs` non
+    cambiano.
+- L'approvazione dei testi:
+  - sessione cloud «Messaggi privati»
+    (claude.ai/code/session_01Mt7LvDLKFJp9Cf4Qvp3otf): risposta «Approvo
+    così» alla domanda «Approvi i testi dei messaggi e la nuova sezione
+    della privacy così come sono?» (testi elencati allora in
+    `TASK-311.md`, oggi sopra). Il messaggio prima della domanda diceva
+    che le traduzioni nelle altre quattro lingue erano dell'agente.
+  - chat del Coordinatore (local_e57a8224), 2026-10-28 verso le 19:03
+    UTC: risposta «Sì, confermo» alla domanda sulla sezione della privacy
+    dei messaggi (le push con l'inizio del messaggio tramite Expo e
+    Apple/Google) e sul merge quando è verde. Secondo il Coordinatore
+    copre i testi e la privacy nelle cinque lingue, traduzioni comprese.
 
 ## Esito
 
