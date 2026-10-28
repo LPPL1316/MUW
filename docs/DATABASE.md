@@ -627,6 +627,39 @@ libero in `main` al merge):
   giorno. Nessun endpoint li legge: arrivano per email (`API.md`,
   «Feedback») e si leggono nel database.
 
+Migrazione `0032_group_runs.sql` (TASK-309 parte A, ADR-0269, `EVENTI.md`
+§12; la 0031 è di TASK-308; i test la trovano dal nome):
+
+- `group_runs`: una riga per corsa di gruppo. `id` (uuid casuale),
+  `owner_id` (`ON DELETE CASCADE` su `users`), `title` (1–60),
+  `starts_at`, `meeting_note` («Where exactly», 1–80 o `NULL`),
+  `description` (1–500 o `NULL`), `visibility` (`everyone` o
+  `followers`). **Il percorso** con i campi di un Preferito, copiato
+  intero e mai cambiato: `activity`, `city`, `shape`, `word`, `style`,
+  `distance_m`, `route_m`, `similarity`, `line` (`LineString` WGS84),
+  `walks`, `on_foot`, `rotation_deg`. `start` (`geography(Point)`, il
+  primo punto della linea: il ritrovo). `created_at`, `updated_at`;
+  facoltativi `cancelled_at` (annullata dall'organizzatore),
+  `reminded_at` (il promemoria partito; torna `NULL` con un cambio di ora
+  o di luogo) e `hidden_at` (nascosta dal link di una segnalazione).
+- `group_run_going`: chi ha detto «I'm going». `group_run_id`
+  (`CASCADE` su `group_runs`), `user_id` (`CASCADE` su `users`),
+  `created_at`; chiave `(group_run_id, user_id)`: dirlo due volte lascia
+  una riga. «Not going» la cancella. **L'organizzatore non ha una riga**:
+  va sempre.
+- Indici: `starts_at` delle non annullate (la fila del Feed e
+  l'orologio), GIST su `start` (i 50 km), `(owner_id, starts_at DESC)`
+  (il profilo e le 10 in arrivo), `group_run_going.user_id` (le corse a
+  cui si va, ovunque siano).
+- `reports.kind` prende anche `group_run`: il `CHECK` è rifatto con i
+  quattro tipi, e le segnalazioni di prima restano (test con le righe
+  dentro, in `test_group_runs.py`).
+- **Cancellazioni**: un account cancellato porta via le sue corse di
+  gruppo e le sue risposte (`ON DELETE CASCADE`); prima, chi andava a una
+  non ancora cominciata riceve la push dell'annullamento. Un blocco non
+  cancella niente: chi è lontano non è contato, si legge
+  (`group_runs.counted_sql`). Test in `test_group_runs.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

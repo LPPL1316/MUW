@@ -1482,4 +1482,6 @@ export const DE: Table = {
   "You sent a lot of feedback today. Try again tomorrow.":
     "Du hast uns heute schon viel geschrieben. Versuch es morgen wieder.",
   FEEDBACK: "FEEDBACK",
+  // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
+  Paragliding: "Gleitschirmfliegen",
 };

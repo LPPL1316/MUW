@@ -219,3 +219,37 @@ L'organizzatore non ha una riga in `group_run_going`: va sempre (§6.2).
 - I club, con una pagina propria.
 - L'invito a persone scelte («solo su invito»).
 - Il calendario del telefono («Add to calendar»): vuole un modulo nativo.
+
+## 14. Com'è fatta
+
+**Parte A, l'API** (branch `feat/TASK-309-a-group-runs-api`; contratti in
+`API.md`, «Group runs»; tabelle in `DATABASE.md`, migrazione
+`0032_group_runs.sql`):
+
+- `group_runs.py` tiene tutto: le regole dei campi (§3), chi vede
+  (`seen_sql`, §4), chi è contato (`counted_sql`, §6.3), la fila (§5), il
+  profilo, i cambi e l'annullamento (§7), «I'm going» (§6), l'orologio
+  `GroupRunClock` (§8) e la push a chi andava quando l'organizzatore
+  cancella l'account (con `app.state.before_account_delete`, senza toccare
+  `accounts.py`). Il percorso è il corpo di un Preferito
+  (`favorites.FavoriteRequestBody`), importato e non cambiato.
+- **Lo stato** si legge dall'ora del server: `upcoming` fino all'inizio,
+  `started` per 3 ore, poi `over`; `cancelled` se annullata. «In arrivo»,
+  per il limite di 10 e per il profilo, vuol dire non finita e non
+  annullata.
+- **Un blocco non cancella niente**: chi va e poi è bloccato (o blocca)
+  resta nella tabella, ma non vede, non va, non è contato e non riceve
+  push, per nessuno; sbloccato, torna. Lo stesso vale per chi non vede
+  più una corsa «Followers» dopo aver smesso di seguire. Fra due che vanno,
+  un blocco toglie l'uno dall'elenco dell'altro.
+- **«Where exactly»** è il luogo del §7: cambiarlo, come cambiare l'ora,
+  avvisa chi va e fa ripartire il promemoria. Titolo e note no.
+- **Le push** portano `{ kind, group_run_id }` (`GroupRunPushData` in
+  `shared-types`, accanto a `PushKind` come quelle delle sfide del gioco).
+- I limiti contano i caratteri come Python (punti di codice); l'app li
+  ricontrolla con le costanti `GROUP_RUN_*` di `shared-types`.
+- Nessun codice d'errore nuovo: `schemas.py` ed `engine.zip` invariati.
+- **La riga della privacy** (§11) sta in `apps/mobile/src/about/content/`,
+  sezione «Group runs» sopra «Feedback», nelle cinque lingue approvate
+  dall'utente; le pagine di `site/privacy` si rifanno da lì
+  (`site/tools/make_privacy.mjs`).
