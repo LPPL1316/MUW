@@ -160,6 +160,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
+  chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
+  numero e condizioni dal Coordinatore). Parte A, branch
+  `feat/TASK-311-a-words-measure`: 1000 parole (50 × 5 città × 3 e 4 km a
+  lettera × due stili) misurate sul Mac con
+  `tests/measure_words_many.py`. Poi B (il metodo, solo ciò che la misura
+  dimostra; più km a lettera col sì dell'utente), C (le parole provate in
+  `drawn_routes` sul server, dopo Apple) e D (nell'archivio anche disegni
+  a mano, contorni delle foto e richieste senza percorso, senza account;
+  privacy da approvare). File `tasks/TASK-311.md`. **A fatta** (2026-10-28):
+  443 buone su 1000; più km a lettera non servono, conta la lunghezza;
+  da 5 lettere in su la penna alzata porta le buone da 11 % a 40 %. B
+  aspetta la scelta dell'utente sulla penna alzata per le parole lunghe.
 - **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
   seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
   ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A

@@ -16901,6 +16901,49 @@ dozzina di PR aspetta la CI; resta come seguito.
 **Conseguenze**: la CI torna verde con la 9.1. Quando i test saranno
 riscritti, il tetto si toglie con un'aggiunta a questo ADR.
 
+## ADR-0271 — Le parole misurate su 1000 casi, e sul server tutto quello che si chiede
+
+**Data**: 2026-10-27 · **Stato**: Proposta (parte A misurata il 2026-10-28) · **Task**: TASK-311
+Deciso dall'agente su delega dell'utente, con le condizioni del Coordinatore;
+le scelte di prodotto restano all'utente.
+
+**Contesto**: l'utente ha chiesto (2026-10-27) parole scritte meglio,
+«magari» con più km, 1000 prove salvate sul server per i calcoli e le
+proposte future, e sul server tutte le forme, i disegni e le scritte
+chieste. ADR-0256 tiene già ogni percorso di una forma o di una parola, ma
+non il contorno di una foto né le richieste senza percorso, e le parole vi
+entrano senza filtro. Una prova a Trento a 3 km a lettera ha dato quattro
+parole su quattro sotto la soglia: troppo poco per decidere.
+
+**Decisione**:
+
+1. **Prima la misura** (parte A): 50 parole × 5 città × 3 e 4 km a lettera
+   × due stili, buone come in TASK-298 (distanza entro il 10 %, somiglianza
+   almeno 0,90), sul Mac con le zone scaricate da Overpass.
+2. **Il metodo** (B): cambia solo ciò che la misura dimostra. Misurato
+   (TASK-311, «Le misure»): 443 buone su 1000; da 3 a 4 km a lettera +2,6
+   punti col tempo quasi doppio, quindi il minimo resta 3 km; da 5 lettere
+   in su la penna alzata porta le buone da 11 % a 40 %. Usarla per le
+   parole lunghe cambia come si corre: solo col sì dell'utente.
+3. **Le parole provate sul server** (C): i percorsi buoni entrano in
+   `drawn_routes` dal centro delle città, disegnati dal motore del server;
+   agli altri si propongono solo parole della lista provata, nessun nome.
+4. **Tutto quello che si chiede** (D), scelta dell'utente: entrano anche i
+   disegni a mano e i contorni delle foto (solo il contorno, mai la foto) e
+   le richieste senza percorso (con una cella di circa 1 km, non la
+   posizione); le parole solo se passano il filtro; mai l'account. Supera
+   il «mai» di ADR-0256 per il contorno di una foto.
+
+**Alternative scartate**: tenere la foto (è dell'utente e può mostrare
+persone); tenere l'account accanto alla richiesta (cancellare l'account non
+deve lasciare niente che riporti a lui, ADR-0256); proporre agli altri le
+parole chieste da qualcuno (possono essere nomi); alzare i km a lettera
+prima di misurare.
+
+**Conseguenze**: l'archivio cresce più in fretta (il tetto di 50 000 righe
+di ADR-0256 resta); un paragrafo nuovo della privacy da far approvare; le
+righe di C vanno ridisegnate a ogni cambio del motore.
+
 ## ADR-0267 — Correre il disegno di un altro: la traccia tagliata come percorso, senza svolte, e il GPX scritto sul telefono
 
 **Stato**: Attiva · 2026-10-26 · la richiesta («scaricare la traccia e
