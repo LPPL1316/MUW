@@ -160,6 +160,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
+  proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
+  progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
+  Branch `docs/TASK-323-open-water-swim` (documenti), poi A1 (motore:
+  l'acqua della canoa con la fascia rovesciata, 20–150 m dalla riva,
+  0,5–3 km, campioni per l'utente; la canoa e l'impronta degli esempi
+  tenuti non cambiano), A2 (le curve col nome del posto a riva), B (API,
+  migrazione, estratto dei nomi sul server col sì dell'utente), C (lo
+  sport nell'app, `ready: false` fino al motore, avviso di sicurezza e
+  testi da approvare), D (telefono nella boa, file dell'orologio) ed E
+  (Apple Watch con le vibrazioni, nella build 1.0.1 con TASK-321). File
+  `tasks/TASK-323.md`.
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
   scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).
