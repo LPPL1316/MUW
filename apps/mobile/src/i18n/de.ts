@@ -540,7 +540,6 @@ export const DE: Table = {
     "{count} Buchstaben: mindestens {km} km. Ein Wort zu zeichnen dauert ein paar Minuten.",
   "Use {km} km": "{km} km verwenden",
   Picture: "Bild",
-  "Waiting for the API…": "Warten auf den Dienst…",
   "Downloading map data for this area…":
     "Kartendaten für dieses Gebiet werden geladen…",
   "Drawing the picture's outline, {km} km…":
@@ -1490,6 +1489,10 @@ export const DE: Table = {
   "This word may come out better with the pen up: each letter on its own.":
     "Dieses Wort wird mit angehobenem Stift vielleicht besser: jeder Buchstabe für sich.",
   "Lift the pen": "Stift anheben",
+  // src/route/RoutePanel.tsx (TASK-317: the wait in «Draw»)
+  "Warming up: {name}…": "Aufwärmen: {name}…",
+  "Warming up: “{word}”…": "Aufwärmen: „{word}“…",
+  "Warming up: the picture…": "Aufwärmen: das Bild…",
 
   // src/api/messages.ts (TASK-319: private messages)
   "A message needs some words.": "Eine Nachricht braucht ein paar Worte.",

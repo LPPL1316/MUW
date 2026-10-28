@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
+  Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
+  condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
+  del calcolo la scheda dice «Warming up: heart…» al posto di «Waiting for
+  the API…»; dopo 3 s, sotto la barra, sei disegni di esempio del Feed da
+  scorrere, senza rete. Solo app, OTA. Aspetta il sì dell'utente sui tre
+  testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
+  File `tasks/TASK-317.md`.
+
 - **TASK-319 — I messaggi privati, con le richieste** (ADR-0279;
   richiesta dell'utente del 2026-10-26, «aggiungi anche la possibilità di
   mandarsi messaggi privati»; scelte: «Chiunque, con richiesta», poi «Sì,
@@ -181,6 +190,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con l'ok dell'utente;
   «Messaging and Chat» su App Store Connect la cambia l'utente. File:
   `tasks/TASK-319.md`.
+
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
   scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).
@@ -219,6 +229,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lingue («testi ok», 2026-10-28). PR #601, merge dal Coordinatore. **Dopo**:
   la parte C (le parole provate in `drawn_routes` sul server), in una
   sessione sua, col sì dell'utente.
+  **Parte B** in `main` con la #601 (`83ba3087`, 2026-10-28), mergiata dal
+  Coordinatore; impronta iOS `83793e26` invariata. Sul telefono con il
+  prossimo aggiornamento dell'app, col sì dell'utente. **Prossimo**: la
+  parte C, in una sessione nuova, dopo Apple e col sì dell'utente.
 - **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
   seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
   ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A
