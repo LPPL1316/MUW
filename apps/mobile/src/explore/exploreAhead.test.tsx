@@ -6,7 +6,7 @@ import { type BackgroundPriority, routeQueue } from "../api/routeQueue";
 import type { RouteOutcome } from "../api/routes";
 import { forgetFeedMaps } from "../feed/FeedMaps";
 import type { Place } from "../places/photon";
-import { forgetExamples } from "./exampleRoutes";
+import { examplesKey, forgetExamples } from "./exampleRoutes";
 import {
   forgetExploreAhead,
   LIST_FRESH_MS,
@@ -17,6 +17,8 @@ import {
 import { ExploreScreen } from "./ExploreScreen";
 import { forgetNearby, type NearbyCity } from "./nearbyCities";
 import type { ListOutcome, RecommendedRoute } from "./recommendedRoutes";
+import { forgetRegion } from "./regionAhead";
+import { forgetRegionStore, townEntry } from "./regionStore";
 
 /**
  * «Explore» prepared as the app opens (TASK-306): the list near the start,
@@ -39,6 +41,8 @@ const levico: NearbyCity = {
 
 beforeEach(() => {
   forgetExploreAhead();
+  forgetRegion();
+  forgetRegionStore();
   forgetExamples();
   forgetNearby();
   forgetFeedMaps();
@@ -61,15 +65,29 @@ function fakes(listOutcome: ListOutcome = { kind: "routes", routes }) {
       _options?: { queue?: { background: unknown } },
     ) => stopped,
   );
-  return { fetchList, fetchTowns, draw, stopped };
+  // The region's kept examples (TASK-316): the towns near done at once.
+  const regionStopped = jest.fn();
+  const region = jest.fn(
+    (
+      _api: string,
+      _near: LatLon,
+      _towns: readonly Place[],
+      options?: { onNearby?: () => void },
+    ) => {
+      options?.onNearby?.();
+      return regionStopped;
+    },
+  );
+  return { fetchList, fetchTowns, draw, stopped, region, regionStopped };
 }
 
 test("the list near the start, the towns near it, then their examples", async () => {
-  const { fetchList, fetchTowns, draw } = fakes();
+  const { fetchList, fetchTowns, draw, region } = fakes();
   prepareExplore(API, trento, {
     fetchList: fetchList as never,
     fetchTowns: fetchTowns as never,
     draw: draw as never,
+    region: region as never,
   });
   await settle();
   expect(fetchList).toHaveBeenCalledWith(API, trento, expect.anything());
@@ -79,11 +97,12 @@ test("the list near the start, the towns near it, then their examples", async ()
 });
 
 test("the towns' examples wait behind the page's in the app's queue", async () => {
-  const { fetchList, fetchTowns, draw } = fakes();
+  const { fetchList, fetchTowns, draw, region } = fakes();
   prepareExplore(API, trento, {
     fetchList: fetchList as never,
     fetchTowns: fetchTowns as never,
     draw: draw as never,
+    region: region as never,
   });
   await settle();
   const queue = draw.mock.calls[0][2]?.queue as {
@@ -102,11 +121,12 @@ test("the towns' examples wait behind the page's in the app's queue", async () =
 });
 
 test("a list fetched ahead stands in for ten minutes, then the page asks", async () => {
-  const { fetchList, fetchTowns, draw } = fakes();
+  const { fetchList, fetchTowns, draw, region } = fakes();
   prepareExplore(API, trento, {
     fetchList: fetchList as never,
     fetchTowns: fetchTowns as never,
     draw: draw as never,
+    region: region as never,
     now: () => 1000,
   });
   await settle();
@@ -116,11 +136,12 @@ test("a list fetched ahead stands in for ten minutes, then the page asks", async
 });
 
 test("prepared twice: the list is not asked again while fresh", async () => {
-  const { fetchList, fetchTowns, draw } = fakes();
+  const { fetchList, fetchTowns, draw, region } = fakes();
   const options = {
     fetchList: fetchList as never,
     fetchTowns: fetchTowns as never,
     draw: draw as never,
+    region: region as never,
   };
   prepareExplore(API, trento, options);
   await settle();
@@ -135,6 +156,7 @@ test("stopped before the towns come: nothing is drawn; after, the examples stop"
     fetchList: early.fetchList as never,
     fetchTowns: early.fetchTowns as never,
     draw: early.draw as never,
+    region: early.region as never,
   });
   stop();
   await settle();
@@ -145,18 +167,49 @@ test("stopped before the towns come: nothing is drawn; after, the examples stop"
     fetchList: late.fetchList as never,
     fetchTowns: late.fetchTowns as never,
     draw: late.draw as never,
+    region: late.region as never,
   });
   await settle();
   stopLate();
   expect(late.stopped).toHaveBeenCalled();
+  expect(late.regionStopped).toHaveBeenCalled();
 });
 
-test("a list that failed is not kept: the page asks for it", async () => {
-  const { fetchList, fetchTowns, draw } = fakes({ kind: "failed" });
+test("the towns' kept examples first, then their samples (TASK-316)", async () => {
+  const { fetchList, fetchTowns, draw } = fakes();
+  let nearbyDone: () => void = () => {};
+  const region = jest.fn(
+    (
+      _api: string,
+      _near: LatLon,
+      _towns: readonly Place[],
+      options?: { onNearby?: () => void },
+    ) => {
+      nearbyDone = options?.onNearby ?? (() => {});
+      return () => {};
+    },
+  );
   prepareExplore(API, trento, {
     fetchList: fetchList as never,
     fetchTowns: fetchTowns as never,
     draw: draw as never,
+    region: region as never,
+  });
+  await settle();
+  expect(region).toHaveBeenCalledWith(API, trento, [levico], expect.anything());
+  // A sample the API keeps is not drawn: the samples wait for the towns near.
+  expect(draw).not.toHaveBeenCalled();
+  nearbyDone();
+  expect(draw).toHaveBeenCalledWith(API, [levico], expect.anything());
+});
+
+test("a list that failed is not kept: the page asks for it", async () => {
+  const { fetchList, fetchTowns, draw, region } = fakes({ kind: "failed" });
+  prepareExplore(API, trento, {
+    fetchList: fetchList as never,
+    fetchTowns: fetchTowns as never,
+    draw: draw as never,
+    region: region as never,
   });
   await settle();
   expect(listAhead(listKey(API, trento))).toBeUndefined();
@@ -188,5 +241,36 @@ test("«Explore» opened after: its routes at once, the list not asked again", a
     0,
   );
   expect(asked()).toBe(1);
+  fetchMock.mockRestore();
+});
+
+test("an API without /kept-routes: the samples as before, nothing kept", async () => {
+  const fetchMock = jest.spyOn(globalThis, "fetch").mockImplementation((input) => {
+    const url = String(input);
+    return Promise.resolve(
+      url.includes("/recommended-routes")
+        ? Response.json({ routes })
+        : Response.json({ detail: "Not Found" }, { status: 404 }),
+    );
+  });
+  const { fetchList, draw } = fakes();
+  const fetchTowns = jest.fn(() => Promise.resolve<NearbyCity[] | null>([levico]));
+  prepareExplore(API, trento, {
+    fetchList: fetchList as never,
+    fetchTowns: fetchTowns as never,
+    draw: draw as never,
+  });
+  await settle();
+  // One POST /kept-routes, a 404: the samples are drawn as before TASK-316.
+  const kept = fetchMock.mock.calls.filter(([url]) =>
+    String(url).endsWith("/kept-routes"),
+  );
+  expect(kept).toHaveLength(1);
+  expect(draw).toHaveBeenCalledWith(API, [levico], expect.anything());
+  expect(townEntry(examplesKey(levico.point))).toBeNull();
+  // And no town of the region asked for.
+  expect(
+    fetchMock.mock.calls.filter(([url]) => String(url).includes("/nearby-cities")),
+  ).toHaveLength(0);
   fetchMock.mockRestore();
 });

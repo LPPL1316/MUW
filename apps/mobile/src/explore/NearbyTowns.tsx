@@ -11,6 +11,7 @@ import { useUnits } from "../units/useUnits";
 import { fetchNearbyCities, knownNearby, type NearbyCity } from "./nearbyCities";
 import { type SampleOptions, useNearbySamples } from "./nearbySamples";
 import { cityShort } from "./presets";
+import { useRegionAhead } from "./regionAhead";
 import { CardMapsCredit, type CardPhoto, RouteCard } from "./RouteCard";
 
 /** A card's share of the section: two whole and the edge of the third, so
@@ -92,6 +93,8 @@ export function NearbyTowns({
         : (knownNearby(apiUrl, [lat, lon]) ?? NO_TOWNS);
   // Drawn anyway: the town opens with its shapes ready.
   const samples = useNearbySamples(apiUrl, towns, { request });
+  // And the region's examples the API keeps, behind them (TASK-316).
+  useRegionAhead(apiUrl, near, towns, fetchFn);
   // The photos that did not load: their towns go back to the drawing.
   const [broken, setBroken] = useState<ReadonlySet<string>>(NO_PHOTOS);
   // One source a photo, as long as the towns are the same: a new one
