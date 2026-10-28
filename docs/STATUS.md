@@ -198,6 +198,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lingue («testi ok», 2026-10-28). PR #601, merge dal Coordinatore. **Dopo**:
   la parte C (le parole provate in `drawn_routes` sul server), in una
   sessione sua, col sì dell'utente.
+  **Parte B** in `main` con la #601 (`83ba3087`, 2026-10-28), mergiata dal
+  Coordinatore; impronta iOS `83793e26` invariata. Sul telefono con il
+  prossimo aggiornamento dell'app, col sì dell'utente. **Prossimo**: la
+  parte C, in una sessione nuova, dopo Apple e col sì dell'utente.
 - **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
   seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
   ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A
