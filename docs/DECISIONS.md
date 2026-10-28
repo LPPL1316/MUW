@@ -17310,8 +17310,8 @@ giorni, uguale in Wi-Fi e su rete mobile.
 
 ## ADR-0274 — Fuori percorso, la strada per tornarci sulle vie, come un ricalcolo
 
-**Stato**: Attiva (parte A) · 2026-10-28 · richiesta dell'utente del
-2026-10-27 («Se esci dal percorso ti deve dare le indicazioni per tornare
+**Stato**: Attiva (parte A in `main` con la #588; parte B da fare) ·
+2026-10-28 · richiesta dell'utente del 2026-10-27 («Se esci dal percorso ti deve dare le indicazioni per tornare
 sul percorso, tipo il ricalcolo di Google maps»); numero e condizioni dal
 Coordinatore; regole di dettaglio decise dall'agente su delega dell'utente
 (TASK-314). È il seguito che ADR-0263, punto 3, aveva lasciato aperto.

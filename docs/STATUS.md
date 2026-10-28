@@ -169,6 +169,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   strada e con le svolte. Gira sul telefono e su `POST /way-back`;
   l'impronta degli esempi tenuti non cambia. Parte B (schermo di corsa,
   testi nuovi) dopo la #567 e dopo A. File `tasks/TASK-314.md`.
+  **Parte A** in `main` con la #588 (`f381b7f5`, 2026-10-28). Impronta di
+  `route_store` invariata (`6072aa1ea3a3`), impronta iOS `83793e26`. Nessuno
+  la chiama ancora: oggi la corsa mostra i puntini come prima. Sul server
+  dopo Apple, con il sì dell'utente; poi va guardato nei log quello che
+  dice il task file. La parte B parte da qui, in una sessione sua, con i
+  «File toccati» al Coordinatore prima del codice.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
