@@ -24,10 +24,16 @@ Coordinatore lo stesso giorno: TASK-317, ADR-0277.
 La stessa richiesta è arrivata anche alla sessione «Caricamento con
 animazioni e giochi» (local_dc5d6fe3), dove l'utente ha scelto solo testi e
 disegni, con gli stessi numeri e lo stesso worktree. Il Coordinatore ha
-detto a questa sessione di andare avanti e chiede all'utente quale tenere;
-il lavoro dell'altra sessione resta, non committato e intatto, in
-`.claude/worktrees/TASK-317` (branch `feat/TASK-317-draw-waiting`). Questo
-task file vale per il branch `feat/TASK-317-waiting-card`.
+detto a questa sessione di andare avanti e ha chiesto all'utente quale
+tenere. Il lavoro dell'altra sessione resta, non committato e intatto, in
+`.claude/worktrees/TASK-317` (branch `feat/TASK-317-draw-waiting`): lo
+cancella il Coordinatore solo quando l'utente glielo dice. Questo task
+file vale per il branch `feat/TASK-317-waiting-card`.
+
+**La scelta dell'utente** (2026-10-28, nella chat del Coordinatore, «ok va
+bene»): si tiene questa sessione, «Miglioramenti sezione draw in
+caricamento», con le tre attese a caso. «Caricamento con animazioni e
+giochi» si archivia.
 
 ## Contesto da leggere
 
@@ -112,9 +118,10 @@ che calcola davvero: serve una zona salvata sul telefono.
 
 ## I testi (cinque lingue)
 
-Nuovi; i primi dieci sono nella proposta approvata («Testi approvati»), gli
-ultimi tre sono le parole del gioco, che la proposta descriveva senza
-scriverle: vogliono il sì dell'utente.
+Tutti nuovi. I primi dieci sono nella proposta approvata («Testi
+approvati»). Gli ultimi tre sono le parole del gioco, che la proposta
+descriveva senza scriverle: l'utente li ha approvati, con le traduzioni
+della PR #602, il 2026-10-28 nella chat del Coordinatore («ok va bene»).
 
 | EN | IT | DE | FR | ES |
 |---|---|---|---|---|

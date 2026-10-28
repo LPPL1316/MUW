@@ -1613,10 +1613,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   3 s, una di tre cose a caso: la penna che traccia i disegni del Feed, i
   disegni in fila, il gioco «Guess the shape» con il record sul telefono.
   Solo `SAMPLE_FEED`, nessuna rete; con il motore sul telefono la penna va
-  al ritmo della barra (misura nel task file). Gli ultimi tre testi del
-  gioco aspettano il sì dell'utente. La stessa richiesta è arrivata anche a
-  «Caricamento con animazioni e giochi» (solo testi e disegni): quale
-  tenere lo chiede il Coordinatore all'utente. File: `tasks/TASK-317.md`.
+  al ritmo della barra (misura nel task file). PR #602. La stessa
+  richiesta era arrivata anche a «Caricamento con animazioni e giochi»
+  (solo testi e disegni): il 2026-10-28 l'utente ha scelto questa versione
+  e ha approvato anche i tre testi del gioco («ok va bene», nella chat del
+  Coordinatore). File: `tasks/TASK-317.md`.
 
 ## Completato
 
