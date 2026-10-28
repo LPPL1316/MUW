@@ -36,6 +36,9 @@ type Props = {
   /** «Draw it near me» (TASK-313): its shape or word chosen in «Draw»;
    * without it, a figure «Draw» cannot choose, there is no button. */
   onDrawAgain?: () => void;
+  /** «Edit the drawing» (TASK-320): its figure in the board, then «Draw»;
+   * without it, a figure the board cannot open, there is no button. */
+  onEditDrawing?: () => void;
 };
 
 /** Under the map: a route of "Explore", to run, look at and export (TASK-126). */
@@ -48,6 +51,7 @@ export function ExploredCard({
   onStart,
   move,
   onDrawAgain,
+  onEditDrawing,
 }: Props) {
   const { route } = explored;
   const title = routeTitle(route);
@@ -146,6 +150,16 @@ export function ExploredCard({
       )}
       {exporting.status === "failed" && (
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
+      )}
+      {/* After «Start», «Draw it near me» and «Export GPX», which stay put. */}
+      {open !== null && onEditDrawing !== undefined && (
+        <Pressable
+          style={styles.secondary}
+          onPress={onEditDrawing}
+          accessibilityRole="button"
+        >
+          <Text style={styles.secondaryText}>{t("Edit the drawing")}</Text>
+        </Pressable>
       )}
       <Pressable style={styles.secondary} onPress={onList} accessibilityRole="button">
         <Text style={styles.secondaryText}>{t("Back to the list")}</Text>

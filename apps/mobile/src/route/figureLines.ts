@@ -1,4 +1,5 @@
 import {
+  type DrawingDetail,
   type LatLon,
   type OutlinePoint,
   type Shape,
@@ -117,4 +118,29 @@ export function requestLines(request: AnyRouteRequest): FreehandLines | null {
  * a shape opens in the board. */
 export function trackLines(points: LatLon[]): FreehandLines {
   return { outline: outlineOf(points).map(onBoard), details: [] };
+}
+
+/** What a member's drawing says of its figure (GET /drawings/{id}). */
+type DrawnRun = Pick<
+  DrawingDetail,
+  "shape" | "word" | "route_title" | "source" | "track"
+>;
+
+/**
+ * The lines of a member's drawing (TASK-320 part B): a shape of the
+ * catalogue by its lines; a picture, a photo or a figure drawn by hand —
+ * a planned route that says only its title — by the track run, the one
+ * line the API gives of it. Null for a word, a shape the app does not
+ * know, a run without a planned route (a free run, one imported from
+ * another app, a post of photos alone) and a track too short to follow.
+ */
+export function drawingLines(drawing: DrawnRun): FreehandLines | null {
+  if (drawing.word !== null && drawing.word !== "") {
+    return null;
+  }
+  if (drawing.shape !== null) {
+    return isShape(drawing.shape) ? shapeLines(drawing.shape) : null;
+  }
+  const planned = drawing.route_title !== null && drawing.source !== "file";
+  return planned && drawing.track.length >= 2 ? trackLines(drawing.track) : null;
 }
