@@ -17613,9 +17613,9 @@ soglie, `penUpHint.ts` va allineato a mano.
 ## ADR-0281 — Entrare e iscriversi con Apple e con Google
 
 **Stato**: Proposta · 2026-10-28 · la richiesta e le quattro scelte di
-prodotto sono dell'utente (TASK-321, «Scelte dell'utente»); il come è
-deciso dall'agente su delega dell'utente. Mancano il sì ai pacchetti
-nuovi, ai testi e alla riga della privacy. Numeri presi come primi liberi,
+prodotto sono dell'utente (TASK-321, «Scelte dell'utente»), e i tre
+pacchetti nuovi li ha approvati; il come è deciso dall'agente su delega
+dell'utente. Mancano il sì ai testi e alla riga della privacy. Numeri presi come primi liberi,
 il Coordinatore conferma. Supera il punto 3 di ADR-0114 («Apple e Google
 forse dopo, con una build propria»).
 
@@ -17666,9 +17666,10 @@ ogni accesso; Apple su Android (un «Services ID» e il browser, per pochi);
 legare l'identità a un'email non confermata lasciando la password di
 prima (chi ha scritto l'email di un altro entrerebbe nel suo account).
 
-**Conseguenze**: tre pacchetti nuovi da approvare
-(`expo-apple-authentication`, `@react-native-google-signin/google-signin`,
-`PyJWT[crypto]`); una migrazione; testi in cinque lingue e una riga della
+**Conseguenze**: tre pacchetti nuovi, approvati dall'utente il
+2026-10-28 (`expo-apple-authentication`,
+`@react-native-google-signin/google-signin`, `PyJWT[crypto]`); una
+migrazione; testi in cinque lingue e una riga della
 privacy col sì dell'utente; nelle console di Apple e di Google le chiavi e
 i client OAuth (TASK-321 parte C); il server e la build 1.0.1, ognuno col
 suo sì.

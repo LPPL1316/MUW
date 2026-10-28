@@ -1,7 +1,7 @@
 # TASK-321 — Entrare e iscriversi con Apple e con Google
 
-**Stato**: Todo (proposta: il sì dell'utente alle scelte di prodotto c'è;
-mancano i pacchetti nuovi, i testi e la riga della privacy)
+**Stato**: Todo (proposta: il sì dell'utente alle scelte di prodotto e ai
+pacchetti nuovi c'è; mancano i testi e la riga della privacy)
 **Fase**: 4 · **Branch**: `docs/TASK-321-sign-in-apple-google` (i
 documenti), poi `feat/TASK-321-a-sign-in-api`, `feat/TASK-321-b-sign-in-app`
 · **ADR**: ADR-0281
@@ -58,7 +58,10 @@ email = stesso account.»
 
 ## Proposte da confermare
 
-1. **Pacchetti nuovi** (CLAUDE.md: niente dipendenze senza chiedere):
+1. **Pacchetti nuovi** — **approvati dall'utente il 2026-10-28**: «Sì, i
+   tre pacchetti vanno bene: expo-apple-authentication e
+   @react-native-google-signin/google-signin nell'app, PyJWT[crypto]
+   nell'API.»
    - `expo-apple-authentication` nell'app (di Expo, la versione di SDK 57);
    - `@react-native-google-signin/google-signin` nell'app, la versione
      libera su npm (con il plugin di Expo);
@@ -69,10 +72,35 @@ email = stesso account.»
    come già scartato per Strava in ADR-0156; e Google non lo consiglia più
    su Android); verificare i token chiedendoli a Google (`tokeninfo`: una
    chiamata di rete a ogni accesso, e per Apple non esiste).
-2. **I testi** dell'app (tabella nella parte B, nelle cinque lingue).
+2. **I testi** dell'app: la tabella qui sotto, «Testi della parte B».
 3. **La riga della privacy**: «If you sign in with Apple or Google, we keep
    the account ID they give us and the email they share. Nothing else.»
    Con Apple «Hide My Email» l'email è un indirizzo di Apple che inoltra.
+
+## Testi della parte B (da confermare)
+
+Il tono è quello delle schermate di oggi, col «tu». Il tasto di Apple non
+ha testi nostri: è `AppleAuthenticationButton` («Continue with Apple», tipo
+`CONTINUE`), che Apple disegna nella lingua del telefono, come chiedono le
+sue regole. Il tasto di Google lo disegniamo noi con la «G» di Google e
+la sua frase ufficiale.
+
+| Dove | en | it | de | es | fr |
+|---|---|---|---|---|---|
+| Tasto Google | Continue with Google | Continua con Google | Weiter mit Google | Continuar con Google | Continuer avec Google |
+| Fra i tasti e l'email | or | oppure | oder | o | ou |
+| Titolo della prima volta | Choose your username | Scegli il tuo nome utente | Wähle deinen Benutzernamen | Elige tu nombre de usuario | Choisis ton nom d'utilisateur |
+| Sotto il titolo | Your account email: {email} | Email dell'account: {email} | E-Mail deines Kontos: {email} | Correo de tu cuenta: {email} | E-mail de ton compte : {email} |
+| Tasto | Create account | Crea l'account | Konto erstellen | Crear cuenta | Créer le compte |
+| Tasto, mentre aspetta | Creating account… | Creo l'account… | Konto wird erstellt… | Creando la cuenta… | Création du compte… |
+| Errore Apple | Signing in with Apple didn't work. Try again or use your email. | L'accesso con Apple non è riuscito. Riprova o usa la tua email. | Die Anmeldung mit Apple hat nicht geklappt. Versuch es noch mal oder nutze deine E-Mail. | No se pudo entrar con Apple. Vuelve a intentarlo o usa tu correo. | La connexion avec Apple n'a pas marché. Réessaie ou utilise ton e-mail. |
+| Errore Google | Signing in with Google didn't work. Try again or use your email. | L'accesso con Google non è riuscito. Riprova o usa la tua email. | Die Anmeldung mit Google hat nicht geklappt. Versuch es noch mal oder nutze deine E-Mail. | No se pudo entrar con Google. Vuelve a intentarlo o usa tu correo. | La connexion avec Google n'a pas marché. Réessaie ou utilise ton e-mail. |
+
+Restano come oggi, già tradotti: «USERNAME», «3 to 20 letters, digits, _
+or .», «I am at least 16», la riga e la casella «Don't send me these
+emails», «This username is taken. Try another one.», «No connection. Check
+the network and try again.», «Cancel». Se si chiude il foglio di Apple o di
+Google senza scegliere, non compare niente.
 
 ## Come (deciso dall'agente su delega dell'utente, ADR-0281)
 

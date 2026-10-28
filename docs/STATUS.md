@@ -1636,8 +1636,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `docs/TASK-321-sign-in-apple-google`: solo i documenti. Scelte
   dell'utente: i tasti in alto in «Sign up» e «Log in», Apple solo su
   iPhone, Google su iPhone e Android, la prima volta nome ed età, stessa
-  email stesso account. Aspettano il sì: tre pacchetti nuovi, i testi, la
-  riga della privacy. Parti A (API), B (app, moduli fuori
+  email stesso account; approvati anche i tre pacchetti nuovi. Aspettano
+  il sì: i testi, la riga della privacy. Parti A (API), B (app, moduli fuori
   dall'autolinking: impronta 83793e26), C (console Apple e Google, server,
   build 1.0.1). File `tasks/TASK-321.md`.
 
