@@ -1,0 +1,38 @@
+{
+  "track": [
+    {
+      "point": [46.07, 11.11],
+      "time_ms": 1761463800000,
+      "accuracy_m": null
+    },
+    {
+      "point": [46.0745, 11.11],
+      "time_ms": 1761463980000,
+      "accuracy_m": null
+    },
+    {
+      "point": [46.0745, 11.1165],
+      "time_ms": 1761464160000,
+      "accuracy_m": null
+    },
+    {
+      "point": [46.07, 11.1165],
+      "time_ms": 1761464400000,
+      "accuracy_m": null
+    },
+    {
+      "point": [46.07, 11.11],
+      "time_ms": 1761464580000,
+      "accuracy_m": null
+    }
+  ],
+  "pauses": [{ "from_ms": 1761464160000, "to_ms": 1761464400000, "auto": true }],
+  "points": null,
+  "similarity": null,
+  "shape": null,
+  "word": null,
+  "style": null,
+  "title": null,
+  "activity": "running",
+  "source": "file"
+}

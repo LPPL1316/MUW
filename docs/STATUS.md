@@ -243,6 +243,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Garmin, Polar, Suunto, Coros, Wahoo, Komoot). Tutto con «Imported», mai
   per il gioco né per il concorso. Testi e privacy da approvare. Regole in
   `IMPORTAZIONI.md`, file `tasks/TASK-312.md`.
+  **Parte A fatta** (2026-10-28, branch
+  `feat/TASK-312-a-imported-runs-api`): migrazione `0034_run_source.sql`
+  (`runs.source`, `muw` o `file`); `PUT /me/activities/{key}` accetta
+  `source` al primo `PUT`; le corse `file` non entrano nel gioco, nelle
+  sfide né nel concorso, e «Send to Strava» risponde `409 imported_run`;
+  `source` in «My activities», nel disegno, nel Feed e nel profilo, con
+  le fixture `*-imported.json`. Server dopo il merge, col sì dell'utente.
+  Prossima: B (l'app).
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch

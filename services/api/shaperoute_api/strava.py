@@ -43,7 +43,7 @@ from shaperoute_api.accounts import (
     now_utc,
     token_hash,
 )
-from shaperoute_api.activities import UNKNOWN_ACTIVITY, Key
+from shaperoute_api.activities import MUW, UNKNOWN_ACTIVITY, Key
 from shaperoute_api.db import Database
 from shaperoute_api.drawings import MAX_DESCRIPTION_LENGTH
 from shaperoute_api.run_gpx import run_gpx
@@ -96,6 +96,9 @@ RUN_REFUSED = "Strava could not read this run."
 NOT_DESCRIBED = (
     "Strava did not let MuW change this activity: change its text on Strava."
 )
+# A run added from another app's file (TASK-312, ADR-0272): it came from
+# there, often from Strava itself.
+IMPORTED = "This activity was added from another app: it is not sent to Strava."
 
 T = TypeVar("T")
 SendStatus = Literal["not_sent", "processing", "sent"]
@@ -271,7 +274,7 @@ def disconnect(database: Database, strava: Strava | None, user_id: int) -> None:
         log.warning("Strava did not take a revocation: the tokens are deleted here")
 
 
-RUN_STATE = "id, strava_status, strava_upload_id, strava_activity_id"
+RUN_STATE = "id, source, strava_status, strava_upload_id, strava_activity_id"
 # The track as (lat, lon, seconds since the first point), in order.
 RUN_TO_SEND = (
     f"{RUN_STATE}, started_at, place, shape, word, title, pauses, activity,"
@@ -519,8 +522,11 @@ class StravaRuns:
         with self._answering():
             # First with no lock: an unknown run is a 404 before the token
             # is a 409, and a run on Strava with nothing new for it asks
-            # Strava nothing. A run sent stays sent.
+            # Strava nothing. A run sent stays sent. A run of another app is
+            # never sent (TASK-312): a 409 of its own, before the token.
             known = self._known(user_id, key)
+            if known["source"] != MUW:
+                raise AccountError(409, "imported_run", IMPORTED)
             posted = typed_description(post)
             if known["strava_status"] == "sent" and (
                 posted is None or not known["strava_activity_id"]

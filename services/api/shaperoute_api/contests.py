@@ -154,11 +154,13 @@ HEARTS = " AND x.kind = 'super_like'"
 # prints them for whoever closes the contest to see a trick.
 YOUNG = " AND xu.created_at >= %(starts_at)s"
 
-# The drawing `d` of the run `r` of the account `u` takes part: for everyone,
-# published in the period, not hidden nor of a hidden account (TASK-291),
-# not left out (the placeholder `excluded`, the ids of `close --exclude`).
+# The drawing `d` of the run `r` of the account `u` takes part: of a run
+# recorded by the app, not added from a file (TASK-312, ADR-0272), for
+# everyone, published in the period, not hidden nor of a hidden account
+# (TASK-291), not left out (the placeholder `excluded`, the ids of
+# `close --exclude`).
 PARTICIPATES_SQL = (
-    "d.visibility = 'everyone'"
+    "r.source = 'muw' AND d.visibility = 'everyone'"
     " AND d.published_at >= %(starts_at)s AND d.published_at <= %(ends_at)s"
     " AND d.hidden_at IS NULL AND u.hidden_at IS NULL"
     " AND NOT (d.id = ANY(%(excluded)s::uuid[]))"
