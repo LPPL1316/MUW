@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 October 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C) and the figure drawn by hand (TASK-320) entered. */
 const PRIVACY_UPDATED = "28 October 2026";
 
 const help: AboutDocument = {
@@ -372,6 +372,7 @@ const privacy: AboutDocument = {
         "The offline maps come from our server: the one around you and, ahead of time, those of towns nearby. To cap these downloads the server counts them, per day, by an anonymous number the app makes for the phone; the count is kept in memory only.",
         "Words that describe a shape are read on our server and are not sent to an outside AI service.",
         "A photo you choose for a drawing goes to our server once, to find its outline: the server does not save it and does not log it.",
+        "A figure you draw with your finger, or the outline of your photo, goes to our server once, as the route you ask for: the server does not keep it.",
         "To make the search better we keep an event for each search and for a few uses of the app (a route chosen, a GPX file exported, a run scored): the text in lower case, at most 200 characters, with emails and long numbers hidden; positions only as squares of about 1 km; nothing that says who you are or which phone it was. These events are kept without a time limit.",
       ],
     },

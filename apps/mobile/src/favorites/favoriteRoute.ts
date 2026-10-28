@@ -23,8 +23,10 @@ import {
   turnOf,
 } from "../explore/recommendedRoutes";
 import type { ThemedResult } from "../explore/themedRoutes";
+import { isImageRequest } from "../api/routes";
 import { t, tLater } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
+import { isDrawnOutline } from "../route/freehand";
 import { onFootOf } from "../route/onFoot";
 import { isPenUpShape } from "../route/penUpShapes";
 import type { AnyRouteRequest } from "../route/useRouteRequest";
@@ -47,6 +49,16 @@ const PREVIEW_POINTS = 64;
 /** The title kept for the outline of an image: data, in English; shown with
  * `t(IMAGE_TITLE)`. */
 const IMAGE_TITLE = tLater("Image");
+/** The same for a figure drawn by hand on the board of «Draw» (TASK-320):
+ * the app knows its outline by the arrays the board made. */
+const DRAWING_TITLE = tLater("Drawing");
+
+/** "Image", or "Drawing" for an outline the board of «Draw» made. */
+function outlineTitle(request: AnyRouteRequest): string {
+  return isImageRequest(request) && isDrawnOutline(request.outline)
+    ? DRAWING_TITLE
+    : IMAGE_TITLE;
+}
 
 /**
  * The walks of a word with the pen up, as a favorite keeps them (TASK-199):
@@ -116,8 +128,8 @@ export function drawnKeepable(
       shape: result.shape,
       word,
       style: word !== null && "style" in request ? (request.style ?? "round") : null,
-      // Neither a shape nor a word: the outline of an image.
-      title: result.shape === null && word === null ? IMAGE_TITLE : null,
+      // Neither a shape nor a word: the outline of an image, or a drawing.
+      title: result.shape === null && word === null ? outlineTitle(request) : null,
       distance_m: request.distance_m,
       route_m: Math.round(result.distance_m),
       points: result.points,
@@ -202,14 +214,18 @@ export function keptNow({ id, request }: Keepable, now: Date): Favorite {
 
 /** What a favorite draws, in a word or two: "CIAO", "Fountains", "Star".
  * The outline of an image is kept as "Image" and shown in the app's
- * language, «Immagine» (TASK-210); a themed route keeps the API's title. */
+ * language, «Immagine» (TASK-210), and so a figure drawn by hand, kept as
+ * "Drawing" (TASK-320); a themed route keeps the API's title. */
 export function favoriteTitle(favorite: {
   shape: string | null;
   word: string | null;
   title: string | null;
 }): string {
-  if (favorite.word === null && favorite.title === IMAGE_TITLE) {
-    return t(IMAGE_TITLE);
+  if (
+    favorite.word === null &&
+    (favorite.title === IMAGE_TITLE || favorite.title === DRAWING_TITLE)
+  ) {
+    return t(favorite.title);
   }
   return (
     favorite.word ??

@@ -1481,4 +1481,17 @@ export const FR: Table = {
   "Warming up: {name}…": "Échauffement : {name}…",
   "Warming up: “{word}”…": "Échauffement : « {word} »…",
   "Warming up: the picture…": "Échauffement : la photo…",
+  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
+  Freehand: "À main levée",
+  "Edit the drawing": "Modifier le dessin",
+  "Draw with your finger": "Dessine avec le doigt",
+  Erase: "Effacer",
+  Drawing: "Dessin",
+  "Draw the outline with one finger: it closes by itself.":
+    "Dessine le contour avec un doigt : il se ferme tout seul.",
+  "Tap a line to erase it. The outline takes its details with it.":
+    "Touche une ligne pour l'effacer. Le contour emporte ses détails.",
+  "This line encloses nothing. Draw a closed shape.":
+    "Cette ligne n'entoure rien. Dessine une figure fermée.",
 };
