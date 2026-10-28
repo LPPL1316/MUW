@@ -1633,17 +1633,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   proposto** (ADR-0280, proposta; richiesta dell'utente del 2026-10-28,
   «dai la possibilità di disegnare anche a mano nella pagina draw e […]
   modificare un disegno del feed, un disegno ricercato, un disegno di
-  explore… tutto potenzialmente editabile»; numeri presi come primi liberi,
-  il Coordinatore conferma). Branch `docs/TASK-320-freehand-edit`: solo i
-  documenti. Proposta: «Freehand» come quarta scelta di «Draw»; la tavola di
-  «Edit the outline» senza foto (la prima linea è il contorno, parti e
-  dettagli dal motore, «Erase»); «Edit the drawing» sulla forma scelta, sul
+  explore… tutto potenzialmente editabile»; numero, parti e condizioni dal
+  Coordinatore). Branch `docs/TASK-320-freehand-edit`: solo i documenti.
+  Proposta: «Freehand» come quarta scelta di «Draw»; una tavola vuota con
+  le regole della linea a dito di «Draw on the map» (la prima linea è il
+  contorno, le altre dettagli, «Erase»), tutta sul telefono, niente rete
+  prima di «Draw route»; «Edit the drawing» sulla forma scelta, sul
   risultato, sui percorsi di «Explore» e sui disegni degli iscritti, che si
   aprono nella tavola e tornano in «Draw» come «Draw it near me». Parole e
-  percorsi a tema no. Nessun contratto nuovo. Parti A (tavola e
-  «Freehand»), B («Draw» e risultato), C (schede), ognuna nella sua
-  sessione dopo il sì dell'utente alle proposte e ai testi. File
-  `tasks/TASK-320.md`.
+  percorsi a tema no. Nessun contratto nuovo. La privacy di oggi non dice
+  che un contorno parte come richiesta di percorso: una riga nuova proposta,
+  col sì dell'utente. Parti A (tavola, «Freehand», «Edit» in «Draw» e sul
+  risultato) e B (schede), ognuna nella sua sessione dopo il sì dell'utente
+  alle proposte e ai testi. File `tasks/TASK-320.md`.
 
 ## Completato
 
