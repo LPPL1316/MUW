@@ -160,6 +160,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-325 — I due repository si tengono uguali da soli** (ADR-0285;
+  richiesta dell'utente del 2026-10-28; numeri presi senza coordinatore).
+  Branch `chore/TASK-325-mirror-repos`. Dal 2026-10-28 esiste
+  `LPPL1316/MUW`, copia di `rockydalbianco/shaperoute` con tutta la storia
+  e i branch, perché lì l'app GitHub di Claude non si può installare.
+  `tools/mirror_repos.py` e `.github/workflows/mirror.yml` (ogni push su
+  MUW e ogni dieci minuti) portano i branch da una parte all'altra, nei
+  due versi, senza mai forzare; un branch con commit da tutte e due le
+  parti si unisce a mano. **Aperto**: il segreto `MIRROR_TOKEN` in MUW
+  (token classico con `repo` di chi scrive in `shaperoute`) lo mette
+  l'utente; fino ad allora lo specchio non fa niente. File:
+  `tasks/TASK-325.md`.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
