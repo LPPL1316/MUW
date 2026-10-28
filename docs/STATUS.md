@@ -169,6 +169,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
   File `tasks/TASK-317.md`.
 
+- **TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno
+  proposto** (ADR-0280; richiesta dell'utente del 2026-10-28; proposte,
+  testi e riga della privacy approvati dall'utente il 2026-10-28; numero,
+  parti e condizioni dal Coordinatore). **Parte A fatta** (PR #612, branch
+  `feat/TASK-320-a-freehand`): la quarta scelta «Freehand» in «Draw», la
+  tavola a mano (la prima linea è il contorno chiuso dall'app, le altre
+  dettagli appesi, «Erase», «Undo», «Save», niente rete), «Edit the
+  drawing» sotto la forma scelta (le linee del catalogo smontate in contorno
+  e dettagli) e sul risultato, «Draw route» come per un'immagine, «Drawing»
+  dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
+  invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
+  sessione, dopo A. File `tasks/TASK-320.md`.
+
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
   scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).

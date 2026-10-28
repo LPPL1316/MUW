@@ -1,8 +1,9 @@
 # TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno proposto
 
-**Stato**: Todo (proposta, aspetta il sì dell'utente)
-**Fase**: 4 · **Branch**: `docs/TASK-320-freehand-edit` (i documenti), poi
-`feat/TASK-320-a-freehand` e `feat/TASK-320-b-edit-cards` · **ADR**: ADR-0280
+**Stato**: In lavorazione — parte A fatta (PR #612), parte B da fare
+**Fase**: 4 · **Branch**: `docs/TASK-320-freehand-edit` (i documenti, PR #606),
+`feat/TASK-320-a-freehand` (parte A, PR #612), poi
+`feat/TASK-320-b-edit-cards` · **ADR**: ADR-0280
 
 Numeri, parti e condizioni dal Coordinatore (2026-10-28, sotto).
 
@@ -49,6 +50,10 @@ parte dal telefono.
 
 Decise dall'agente su delega, da confermare dall'utente con un sì o da
 correggere; il codice parte dopo.
+
+**Approvate dall'utente il 2026-10-28**, tutte e cinque, insieme ai testi e
+alla riga della privacy qui sotto («Sì, le proposte, i testi e la riga
+della privacy di TASK-320 vanno bene: avvia la parte A»).
 
 1. **Dove si disegna a mano**: una quarta scelta **«Freehand»**
    nell'interruttore di «Draw», «Shape | Word | Image | Freehand» (con
@@ -108,6 +113,9 @@ correggere; il codice parte dopo.
 
 ## Testi proposti
 
+**Approvati dall'utente il 2026-10-28**, nelle cinque lingue, come sono
+qui; in `src/i18n/{it,de,es,fr}.ts` con la parte A.
+
 | en                                                             | it                                                                      | de                                                                           | es                                                               | fr                                                               |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
 | Freehand                                                       | A mano libera                                                           | Freihand                                                                     | A mano alzada                                                    | À main levée                                                     |
@@ -152,6 +160,10 @@ rende il buco più visibile. Proposta, col sì dell'utente (i testi legali li
 approva lui, non l'agente): una riga in «Routes you ask for», dopo quella
 della foto, nelle cinque lingue, che entra con la parte A insieme alla data
 «updated».
+
+**Approvata dall'utente il 2026-10-28**, come è qui; in
+`src/about/content/{en,it,de,es,fr}.ts` con la parte A (la data «updated»
+era già il 28 ottobre 2026, il giorno dei contatti di TASK-262 C).
 
 | en                                                                                                                                     | it                                                                                                                                          | de                                                                                                                                                      | es                                                                                                                                            | fr                                                                                                                                                       |
 | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -266,20 +278,20 @@ dopo A
 
 ## Criteri di accettazione
 
-- [ ] A: in «Draw» c'è «Freehand»; la tavola chiude la prima linea da sola
+- [x] A: in «Draw» c'è «Freehand»; la tavola chiude la prima linea da sola
       (test `freehand.test.ts`, con linee come quelle di
       `drawing.test.ts`), rifiuta col suo testo una linea che non racchiude
       niente e una che si incrocia dove non si può chiudere, appende le
       linee dopo come dettagli; «Erase» toglie la linea toccata e «Undo» la
       rimette; nessuna chiamata di rete nella tavola (test).
-- [ ] A: «Draw route» manda un `ImageRouteRequest` valido (contorno chiuso
+- [x] A: «Draw route» manda un `ImageRouteRequest` valido (contorno chiuso
       in [-1, 1], `strokes` se ci sono) con la partenza e la distanza di
       «Draw», uguale a quello di «Draw on the map» per le stesse linee;
       `planOnPhone` lo passa al server come una foto (test). Il risultato,
       i preferiti e «My activities» dicono «Drawing».
-- [ ] A: una foto scelta in «Image» resta scelta dopo un passaggio a
+- [x] A: una foto scelta in «Image» resta scelta dopo un passaggio a
       «Freehand» e ritorno, e viceversa.
-- [ ] A: da una forma del catalogo la tavola mostra le sue linee (test: le
+- [x] A: da una forma del catalogo la tavola mostra le sue linee (test: le
       17 forme danno un contorno chiuso e dettagli entro
       `MAX_DETAIL_POINTS`); dal risultato di una forma, di una foto e di un
       disegno mostra la figura chiesta; da una parola il pulsante non c'è;
@@ -289,15 +301,28 @@ dopo A
       mostra «Draw» con «Freehand», la distanza di ADR-0273 e la partenza
       di prima; nessun `POST` prima di «Draw route». Niente pulsante per
       una parola, un percorso a tema, un post di sole foto.
-- [ ] Con «Paddle» non c'è né «Freehand» né «Edit the drawing».
-- [ ] Testi e riga della privacy approvati dall'utente nelle cinque
+- [x] Con «Paddle» non c'è né «Freehand» né «Edit the drawing» (A: in
+      «Draw» e sul risultato, test; B: le schede).
+- [x] Testi e riga della privacy approvati dall'utente nelle cinque
       lingue; impronta iOS `83793e26` su una copia pulita; nessuna
-      dipendenza nuova; `jest`, `tsc`, `expo lint`, `format:check` verdi.
+      dipendenza nuova; `jest`, `tsc`, `expo lint`, `format:check` verdi
+      (A, 2026-10-28: 514 suite e 4156 test verdi, impronta
+      `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`; da rifare per B).
 
 ## File toccati
 
 Previsti; quelli in più si dicono nella PR. Ogni parte manda i suoi al
 Coordinatore prima del codice.
+
+**Parte A, com'è andata** (PR #612): la tavola è un file nuovo,
+`src/route/FreehandBoard.tsx`, e il riquadro di «Freehand» un altro,
+`src/route/FreehandChoice.tsx`; `OutlineBoard.tsx`, `ImagePreview.tsx`,
+`FigureTiles.tsx` e `ChooseScreen.tsx` **non** sono stati toccati (il
+pulsante sul risultato passa dalla prop `figures`, che `App.tsx` già
+riempiva). In più: i test `freehand.test.ts`, `figureLines.test.ts`,
+`useFreehand.test.ts`, `FreehandBoard.test.tsx`,
+`src/engine/onPhoneFreehand.test.ts` e `__tests__/AppFreehand.test.tsx`.
+`DECISIONS.md`: lo stato di ADR-0280 e la sua «Attuazione».
 
 ```
 apps/mobile/src/route/freehand.ts                 (A, nuovo, con test)
@@ -341,4 +366,60 @@ docs/tasks/TASK-320.md
 
 ## Esito
 
-_(a fine task)_
+**Parte A** (2026-10-28, PR #612, branch `feat/TASK-320-a-freehand`): in
+«Draw» c'è «Freehand», con la tavola a mano, e «Edit the drawing» sotto la
+forma scelta e sul risultato. Scelte tecniche dell'agente su delega
+dell'utente, registrate anche in ADR-0280 («Attuazione»):
+
+- **La tavola è un quadrato** che riempie lo schermo (`fitBox` con
+  proporzione 1, come la foto della tavola di ADR-0074): i punti della
+  figura sono quote del quadrato, dall'angolo in alto a sinistra con la y in
+  giù, come gli `image_points` di una foto; la richiesta li gira (y in su)
+  e li passa a `framed` di `canvasRequest.ts`, lo stesso di «Draw on the
+  map». Per le stesse linee la richiesta è la stessa (test). Le regole della
+  linea sono le funzioni sul piano di `mapdraw/drawing.ts`: `outlineOf` per
+  la prima linea e `detailOf`, la parte sul piano di `withDetail`, ora
+  esportata; `withDetail` la chiama, e i suoi test restano.
+- **Tavola nuova, non la tavola delle foto**: `FreehandBoard.tsx` riusa
+  `boardView.ts`, `drawnLine.ts` e `OutlineLines`/`Sides` di
+  `ImagePreview.tsx`; «Edit the outline» resta com'è. Un dito disegna
+  sempre (niente «Add a detail» da accendere: la prima linea è il contorno,
+  le altre dettagli); con «Erase» acceso un tocco cancella e un dito che si
+  muove sposta il quadrato ingrandito; due dita ingrandiscono e spostano.
+- **«Erase» di un dettaglio porta via i dettagli appesi a lui** (partono da
+  un suo punto): senza di lui galleggerebbero, e il motore li rifiuterebbe.
+  Il contorno porta via tutto, e «Erase» si spegne da solo: la linea dopo è
+  il contorno nuovo.
+- **Le linee del catalogo non sono «contorno + dettagli»** come il task
+  file supponeva: la variante «down» di `catalogueShapes.json` è **una**
+  linea, in cui il motore corre gli occhi, i raggi del sole e la chiocciola
+  della lumaca come escursioni che partono da un punto del contorno e vi
+  tornano (`travelled_points`): per 12 forme su 17 non è un anello
+  semplice, e `outlineOf` la rifiuterebbe o perderebbe gli occhi.
+  `figureLines.ts` (`splitExcursions`) la smonta: ogni escursione è un
+  dettaglio appeso in quel punto (la sola andata se il ritorno la ripercorre,
+  come un raggio; l'anello chiuso sul punto da cui parte, come un occhio), e
+  quel che resta è il contorno. Le 17 forme danno così un contorno chiuso
+  semplice e i loro dettagli (test); il cavallo, 148 angoli, viene
+  raddrizzato ai 100 che un contorno può avere.
+- **«Drawing» al posto di «Image»**: l'app riconosce la richiesta di un
+  disegno a mano dagli array del contorno che la tavola ha fatto
+  (`isDrawnOutline`, un `WeakSet`), come `drawnTile` riconosce
+  un'immagine pronta dal suo `outline`: niente campo nuovo nel contratto, e
+  `RouteOutcome` non cambia. Vale per il risultato («Drawing · on roads ·
+  target 5 km»), i preferiti e «My activities» (il titolo tenuto è
+  «Drawing», mostrato con `t()`); il percorso di una linea a dito su «Draw
+  on the map» resta «Image», fuori scope.
+- **«Save» dal risultato** porta a «Draw» con «Freehand», la distanza del
+  percorso e la partenza di «Draw» (anche da un risultato di «Draw on the
+  map», la cui partenza era il primo punto della figura). Aprire la figura
+  del risultato e salvarla uguale chiede il percorso di nuovo: la richiesta
+  è una figura nuova (ricentrata da `framed`).
+
+Resta alla **parte B**: «Edit the drawing» sulle schede di «Explore» e del
+«Feed» (`ExploredCard.tsx`, `DrawingCard.tsx`, dopo «Draw it near me»),
+con `requestLines` e `trackLines` di `figureLines.ts` già pronti e
+provati, e il test di flusso `__tests__/AppEditDrawing.test.tsx`. Da
+provare col dito vero sull'iPhone (l'utente): la tavola, «Erase», i
+quattro segmenti dell'interruttore («A mano libera», «À main levée»
+potrebbero andare su due righe su un telefono stretto).
