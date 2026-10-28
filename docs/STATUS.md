@@ -1526,6 +1526,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   musica il video resta identico. 1,88 MB di brani nell'app. Solo app,
   impronta iOS invariata. File: `tasks/TASK-301.md`.
 
+- **TASK-316 — Explore pronto prima: i disegni dei paesi vicini e della
+  regione** (ADR-0276; richiesta dell'utente del 2026-10-27, «appena la
+  apro deve già iniziare a scaricare i vari disegni nelle città vicine,
+  anzi addirittura nella regione, e fai almeno 100 disegni da tenere in
+  server»; numeri e condizioni dal Coordinatore). Branch
+  `docs/TASK-316-explore-ahead`, poi A (API), B (app), C (server). Toccato
+  un paese vicino, oggi gli undici esempi dopo cerchio, cuore e stella
+  partono solo allora. A: `POST /kept-routes`, in sola lettura, i percorsi
+  già tenuti e nient'altro; `draw_examples --all --around`. B: all'apertura
+  i sei paesi vicini e quelli della regione (fino a 18) chiedono a
+  `/kept-routes` i loro quattordici esempi, scritti in un file per paese
+  per 7 giorni, al massimo 150 disegni a sessione: il prefetch non fa mai
+  calcolare il server. C, dopo Apple e con il sì dell'utente: almeno 100
+  disegni attorno a Trento e Caldonazzo calcolati sul server una volta, di
+  notte. File: `tasks/TASK-316.md`.
+
 ## Completato
 
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
