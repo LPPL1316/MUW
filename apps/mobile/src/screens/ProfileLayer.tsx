@@ -15,6 +15,8 @@ import { type Account, useAccount } from "../account/useAccount";
 import { ActivitiesContext, useActivitiesOf } from "../activities/activitiesDoor";
 import { FavoritesContext, useFavoritesOf } from "../favorites/favoritesDoor";
 import { t, tPlural } from "../i18n";
+import { MessagesContext, useMessagesOf } from "../messages/messagesDoor";
+import { MessagesOverlay } from "../messages/MessagesOverlay";
 import { usePushNotifications } from "../notifications/usePushNotifications";
 import { ProfilePhotoContext, useProfilePhotoOf } from "../profile/useProfilePhoto";
 import { CommentsContext, useCommentsOf } from "../social/commentsDoor";
@@ -363,9 +365,12 @@ export function ProfileLayer({ apiUrl, children }: Props) {
   const onProfilePage = useCallback((to: ProfilePage) => {
     setPage(to === "account" && home.current === "page" ? null : to);
   }, []);
+  // The private messages (TASK-319): «Messages» and the conversations over
+  // everything else, and the numbers of the dot.
+  const messages = useMessagesOf(apiUrl, account);
   // Push notifications (TASK-262): this phone's token on the API while the
   // switch is on; a notification touched opens its drawing or a profile,
-  // as a tagged name does.
+  // as a tagged name does, or the conversation of a message.
   usePushNotifications(apiUrl, account, {
     openDrawing: (id) => drawings.open({ id }),
     openProfile: followsDoor.openProfile,
@@ -373,6 +378,7 @@ export function ProfileLayer({ apiUrl, children }: Props) {
     openPlay,
     // A challenge's notification (TASK-296 part D): «Play» on the challenge.
     openChallenge,
+    openConversation: messages.openConversation,
   });
   const door = useMemo(
     () => ({
@@ -396,62 +402,69 @@ export function ProfileLayer({ apiUrl, children }: Props) {
             <StravaContext.Provider value={strava}>
               <DrawingsContext.Provider value={drawings}>
                 <PeopleContext.Provider value={peopleDoor}>
-                  <View style={styles.layer}>
-                    <View
-                      style={styles.app}
-                      // Under «Profile» the app is out of the screen reader's sight too.
-                      accessibilityElementsHidden={shown}
-                      importantForAccessibility={shown ? "no-hide-descendants" : "auto"}
-                    >
-                      <CommentsContext.Provider value={comments}>
-                        <ReactionsContext.Provider value={reactions}>
-                          {/* The end of a run tags members, and a tagged
+                  <MessagesContext.Provider value={messages}>
+                    <View style={styles.layer}>
+                      <View
+                        style={styles.app}
+                        // Under «Profile» the app is out of the screen reader's sight too.
+                        accessibilityElementsHidden={shown}
+                        importantForAccessibility={
+                          shown ? "no-hide-descendants" : "auto"
+                        }
+                      >
+                        <CommentsContext.Provider value={comments}>
+                          <ReactionsContext.Provider value={reactions}>
+                            {/* The end of a run tags members, and a tagged
                               name opens a profile (TASK-208). */}
-                          <FollowsContext.Provider value={followsDoor}>
-                            <OwnContext.Provider value={own}>
-                              {children}
-                            </OwnContext.Provider>
-                          </FollowsContext.Provider>
-                        </ReactionsContext.Provider>
-                      </CommentsContext.Provider>
-                    </View>
-                    {people !== null && (
-                      <PeopleScreen
-                        // A member of the lists, or the search: not the same page.
-                        key={member?.public_id ?? "search"}
-                        apiUrl={apiUrl}
-                        account={account}
-                        first={member}
-                        hidden={people === "behind"}
-                        onBack={() => {
-                          setPeople(null);
-                          if (member !== null) {
-                            setMember(null);
-                            // The fourth page, or the app, is under it already.
-                            if (home.current === "layer") {
-                              setHint(null);
-                              setPage("account");
-                            }
-                          }
-                        }}
-                      />
-                    )}
-                    {page !== null && (
-                      <FollowsContext.Provider value={layerFollows}>
-                        <ProfileScreen
+                            <FollowsContext.Provider value={followsDoor}>
+                              <OwnContext.Provider value={own}>
+                                {children}
+                              </OwnContext.Provider>
+                            </FollowsContext.Provider>
+                          </ReactionsContext.Provider>
+                        </CommentsContext.Provider>
+                      </View>
+                      {people !== null && (
+                        <PeopleScreen
+                          // A member of the lists, or the search: not the same page.
+                          key={member?.public_id ?? "search"}
+                          apiUrl={apiUrl}
                           account={account}
-                          page={page}
-                          onPage={onProfilePage}
-                          hint={hint}
+                          first={member}
+                          hidden={people === "behind"}
                           onBack={() => {
-                            // Closed without an account: the heart's route waits no more.
-                            forgetWaiting();
-                            setPage(null);
+                            setPeople(null);
+                            if (member !== null) {
+                              setMember(null);
+                              // The fourth page, or the app, is under it already.
+                              if (home.current === "layer") {
+                                setHint(null);
+                                setPage("account");
+                              }
+                            }
                           }}
                         />
-                      </FollowsContext.Provider>
-                    )}
-                  </View>
+                      )}
+                      {page !== null && (
+                        <FollowsContext.Provider value={layerFollows}>
+                          <ProfileScreen
+                            account={account}
+                            page={page}
+                            onPage={onProfilePage}
+                            hint={hint}
+                            onBack={() => {
+                              // Closed without an account: the heart's route waits no more.
+                              forgetWaiting();
+                              setPage(null);
+                            }}
+                          />
+                        </FollowsContext.Provider>
+                      )}
+                      {/* Over everything: opened from a profile, «Profile» or a
+                        notification, and closed back to it (TASK-319). */}
+                      <MessagesOverlay />
+                    </View>
+                  </MessagesContext.Provider>
                 </PeopleContext.Provider>
               </DrawingsContext.Provider>
             </StravaContext.Provider>

@@ -81,6 +81,7 @@ from shaperoute_api.line_directions import (
     RouteDirectionsRequestBody,
     directions_of,
 )
+from shaperoute_api.messages import install_messages
 from shaperoute_api.moderation import install_moderation
 from shaperoute_api.notifications import install_notifications
 from shaperoute_api.outline_edits import edit_outline
@@ -359,6 +360,9 @@ def create_app(
     install_feed(app)
     # Blocking and reporting (TASK-121); they need a token.
     install_moderation(app)
+    # Private messages, with message requests (TASK-319); after the blocks,
+    # which delete a conversation; they need a token.
+    install_messages(app)
     # The shape game (TASK-296): the catalog for anyone, the rest with a token.
     install_game(app)
     # The members found from the phone's contacts, by the hashes of their
