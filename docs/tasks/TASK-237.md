@@ -325,3 +325,11 @@ on the App Store, for iPhone.» (gratis, come dice la scheda). Android
 non è nominato: Google Play (TASK-294) non è ancora pubblico. Branch
 `feat/TASK-237-download-link`. Dopo il merge: la copia F.14 sul server,
 con il sì dell'utente.
+
+**Parte F online** (2026-10-28): testi approvati dall'utente («Sì,
+pubblica»); #614 in `main` come `0ddb6c4a`, copia F.14 da quel commit.
+Su https://getmuw.app i due «Download the app» aprono
+`https://apps.apple.com/app/id6820961883`; `/privacy/`, `/support/` e
+`/account-deletion/` rispondono 200, `www` → 301. Quando Google Play
+(TASK-294) è pubblico, il titolo e la frase di «Get the app» cambiano
+di nuovo (`SITO.md`).

@@ -1235,6 +1235,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`https://apps.apple.com/app/id6820961883`), «Get the app» dice «On
   iPhone, now.». Dopo il merge: la copia F.14 sul server, con il sì
   dell'utente. Resta il merch.
+  **Online dal 2026-10-28**: #614 in `main` (`0ddb6c4a`), copia F.14
+  da quel commit (sì dell'utente: «Sì, pubblica»); su
+  https://getmuw.app i due tasti portano all'App Store.
 - **TASK-223 — Emoji semplici per il catalogo, e la penna alzata nelle
   forme** (ADR-0185; chiesto dall'utente il 2026-10-03). **Parte A, il
   motore**, in `main` (#284): le forme possono avere `pieces`, e gatto,
