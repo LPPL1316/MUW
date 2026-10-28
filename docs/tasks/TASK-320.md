@@ -322,7 +322,11 @@ pulsante sul risultato passa dalla prop `figures`, che `App.tsx` già
 riempiva). In più: i test `freehand.test.ts`, `figureLines.test.ts`,
 `useFreehand.test.ts`, `FreehandBoard.test.tsx`,
 `src/engine/onPhoneFreehand.test.ts` e `__tests__/AppFreehand.test.tsx`.
-`DECISIONS.md`: lo stato di ADR-0280 e la sua «Attuazione».
+`DECISIONS.md`: lo stato di ADR-0280 e la sua «Attuazione». Fuori lista,
+generati: `site/privacy/{,it/,de/,es/,fr/}index.html`, le pagine della
+privacy del sito, che `site/tools/make_privacy.mjs` riscrive dal testo
+dell'app e un test del sito pretende aggiornate (la CI «site» era rossa
+senza).
 
 ```
 apps/mobile/src/route/freehand.ts                 (A, nuovo, con test)
