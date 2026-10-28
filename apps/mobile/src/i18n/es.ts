@@ -1523,4 +1523,17 @@ export const ES: Table = {
   "Write a message…": "Escribe un mensaje…",
   "Delete this message for both of you?": "¿Eliminar este mensaje para los dos?",
   "Report this message": "Denunciar este mensaje",
+  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
+  Freehand: "A mano alzada",
+  "Edit the drawing": "Editar el dibujo",
+  "Draw with your finger": "Dibuja con el dedo",
+  Erase: "Borrar",
+  Drawing: "Dibujo",
+  "Draw the outline with one finger: it closes by itself.":
+    "Dibuja el contorno con un dedo: se cierra solo.",
+  "Tap a line to erase it. The outline takes its details with it.":
+    "Toca una línea para borrarla. El contorno se lleva sus detalles.",
+  "This line encloses nothing. Draw a closed shape.":
+    "Esta línea no encierra nada. Dibuja una figura cerrada.",
 };

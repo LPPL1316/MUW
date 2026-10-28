@@ -386,6 +386,7 @@ const privacy: AboutDocument = {
         "Le mappe offline vengono dal nostro server: quella intorno a te e, in anticipo, quelle dei paesi vicini. Per mettere un tetto a questi download il server li conta, giorno per giorno, con un numero anonimo che l'app crea per il telefono; il conteggio sta solo in memoria.",
         "Le parole che descrivono una forma sono lette sul nostro server e non vanno a un servizio di AI esterno.",
         "Una foto che scegli per un disegno va al nostro server una volta, per trovarne il contorno: il server non la salva e non la scrive nei log.",
+        "Una figura disegnata col dito, o il contorno della tua foto, va al nostro server una volta, come il percorso che chiedi: il server non la tiene.",
         "Per migliorare la ricerca teniamo un evento per ogni ricerca e per alcuni usi dell'app (un percorso scelto, un file GPX esportato, una corsa con il punteggio): il testo in minuscolo, al massimo 200 caratteri, con email e numeri lunghi oscurati; le posizioni solo come quadrati di circa 1 km; niente che dica chi sei o quale telefono era. Questi eventi sono conservati senza un limite di tempo.",
       ],
     },
