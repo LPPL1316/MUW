@@ -1,6 +1,6 @@
 # TASK-313 — «Draw it near me»: la stessa forma in un altro posto
 
-**Stato**: In corso
+**Stato**: Done · in `main` con la #586 (2026-10-28)
 **Fase**: 4 · **Branch**: `feat/TASK-313-draw-it-near-me`
 
 ## Obiettivo
@@ -66,11 +66,11 @@ dipendenza, i testi col sì dell'utente.
 - [x] Distanza: al decimo di km, una parola mai sotto i 3 km a lettera,
       dentro i limiti dello sport di «Draw»; una parola in «Paddle» non ha
       il pulsante (`src/route/drawAgain.test.ts`).
-- [ ] Il testo nuovo approvato dall'utente nelle cinque lingue: «Draw it
+- [x] Il testo nuovo approvato dall'utente nelle cinque lingue: «Draw it
       near me» · it «Disegnala vicino a me» · de «In meiner Nähe
       zeichnen» · es «Dibujarla cerca de mí» · fr «La dessiner près de
       moi».
-- [ ] Impronta iOS invariata (`83793e26`) su una copia pulita con
+- [x] Impronta iOS invariata (`83793e26`) su una copia pulita con
       `npm ci`; nessuna dipendenza nuova.
 - [x] Test deterministici verdi in locale (`jest`: 489 file, 3957 test;
       `tsc` senza errori nuovi, `expo lint`, Prettier).
@@ -110,4 +110,9 @@ docs/UI.md
 
 ## Esito
 
-*(a fine task)*
+In `main` con la #586 (2026-10-28). Il testo «Draw it near me» nelle
+cinque lingue approvato dall'utente il 2026-10-28 («vanno bene si»,
+nella chat del Coordinatore). Riallineata a `main` dal Coordinatore
+(conflitti solo di righe aggiunte in fondo ai file); impronta iOS
+`83793e26` misurata su una copia pulita con `npm ci`. Arriva
+sul canale `preview` con la prossima pubblicazione del Coordinatore.

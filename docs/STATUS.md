@@ -198,8 +198,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   i suoi 3 km a lettera, dentro i limiti dello sport); la partenza resta
   quella di «Draw» e niente si chiede prima di «Draw route». Niente per
   foto, immagini, percorsi a tema, forme sconosciute, parole che «Draw»
-  rifiuterebbe o parole in «Paddle». Il testo nuovo
-  aspetta il sì dell'utente. File: `tasks/TASK-313.md`.
+  rifiuterebbe o parole in «Paddle». Il testo nuovo è
+  approvato dall'utente (2026-10-28). File: `tasks/TASK-313.md`.
+  **Chiuso**: in `main` con la #586 (2026-10-28), impronta iOS `83793e26`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
