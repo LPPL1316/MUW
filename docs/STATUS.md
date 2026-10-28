@@ -183,6 +183,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `e2d33497…`. Prossimo: B (la 1.0.1). Per C: `react-native-health-connect`
   4.1.3 non scrive il percorso senza la precisione verticale dei punti, che
   MuW non ha («Per C» nel task file).
+  A in `main`: #615, merge `8d8c4dde` (2026-10-28), impronte misurate anche
+  sull'albero unito con `main`: iOS `83793e26…`, Android `e2d33497…`.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).

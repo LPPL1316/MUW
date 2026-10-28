@@ -1,6 +1,6 @@
 # TASK-321 — L'attività finita anche in Apple Salute e in Health Connect, perché compaia in Fitness
 
-**Stato**: In lavorazione · documenti in `main` (#608), scelte dell'utente del 2026-10-28 dentro · A (app, nascosta) fatta nel branch `feat/TASK-321-a-health-app`, impronte invariate · poi B (la build nativa iOS 1.0.1), C (la build Android con Health Connect)
+**Stato**: In lavorazione · documenti in `main` (#608), scelte dell'utente del 2026-10-28 dentro · A (app, nascosta) in `main` (#615, `8d8c4dde`), impronte invariate · poi B (la build nativa iOS 1.0.1), C (la build Android con Health Connect)
 **Fase**: 4 · **Branch**: `docs/TASK-321-apple-health` (documenti),
 `feat/TASK-321-a-health-app` (A), `chore/TASK-321-b-ios-health-build` (B),
 `chore/TASK-321-c-android-health-connect` (C)
