@@ -1,6 +1,6 @@
 # TASK-297 — Ricerche dall'archivio dei percorsi (A) e loghi con la penna alzata (C); il piazzamento imparato, misurato e scartato (B)
 
-**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · **C, motore: PR #547 aperta (2026-10-25)** · TASK-298 nella sua sessione · **A2: PR #NNN aperta (2026-10-26)** · poi C2
+**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · **C, motore: PR #547 aperta (2026-10-25)** · TASK-298 nella sua sessione · **A2: PR #7 su `LPPL1316/MUW` aperta (2026-10-28)** · poi C2
 **Fase**: 4 · **Branch**: `docs/TASK-297-proposal` (documenti),
 `feat/TASK-297-a-route-archive` (A), `feat/TASK-297-a2-first-placement`
 (A2, dopo la #497), `feat/TASK-297-c-image-pieces` (C, motore),
@@ -268,7 +268,7 @@ PostgreSQL, e in `tests/test_jobs.py`):
       migrazione (0026, o il numero libero al merge) e il testo della
       privacy approvato dall'utente.
 
-Parte A2 (PR #NNN; i test sono in `tests/test_first_placement.py` del
+Parte A2 (PR #7 su `LPPL1316/MUW`; i test sono in `tests/test_first_placement.py` del
 motore e `tests/test_route_archive_redraw.py` dell'API, con PostgreSQL):
 - [x] Senza `first` la ricerca è quella di oggi, tracciamento per
       tracciamento: impronte prese su `main` 5abf78d prima del cambio,
@@ -359,7 +359,7 @@ services/route-engine/tests/test_first_placement.py       (nuovo)
 services/api/shaperoute_api/route_archive.py              (il ridisegno da lì)
 docs/ROUTE_ENGINE.md §5, docs/DECISIONS.md (aggiunta ad ADR-0256), docs/STATUS.md, docs/tasks/TASK-297.md
 ```
-Come fatta nella PR #NNN, con i file **fuori elenco** segnati (la 0026
+Come fatta nella PR #7, con i file **fuori elenco** segnati (la 0026
 non ha le colonne del piazzamento, e il `RouteResult` non lo porta: lo
 porta il `Plan`, che `RouteJobs` passa all'archivio):
 ```
@@ -464,7 +464,7 @@ piccolo che ignora l'area (`FileSource`) cade in `optimizer.next_scale`
 con `ZeroDivisionError`; il test della CLI usa la griglia. Rimandato: C2
 (API e app), `draw_examples` e gli altri file derivati dopo Apple.
 
-**Parte A2** (2026-10-26, PR #NNN aperta, sessione cloud): `search` prova
+**Parte A2** (2026-10-26, PR #7 su `LPPL1316/MUW` aperta il 2026-10-28, sessione cloud): `search` prova
 per primo il piazzamento di prima (`first`, `first_scale_m`); buono, si
 ferma lì, altrimenti i suoi tracciamenti vanno da parte e la ricerca è
 quella di oggi. L'archivio tiene il piazzamento della ricerca vicino alla

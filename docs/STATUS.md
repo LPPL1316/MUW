@@ -554,7 +554,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
   con la #497, che ha `optimizer.py`.
 
-  **Parte A2** (PR #NNN aperta il 2026-10-26, branch
+  **Parte A2** (PR #7 su `LPPL1316/MUW`, aperta il 2026-10-28, branch
   `feat/TASK-297-a2-first-placement`, sessione cloud; aggiunta ad
   ADR-0256): il ridisegno rapido dopo un cambio del motore.
   `optimizer.search` prende `first` (un piazzamento) e `first_scale_m`,
