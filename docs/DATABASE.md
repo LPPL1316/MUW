@@ -47,9 +47,9 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `blocks` | chi blocca, chi è bloccato, data; una riga tiene lontani i due nei due sensi | TASK-121 |
 | `report_links_used` | i link delle email delle segnalazioni già usati: il loro numero a caso e quando | TASK-291 |
 | `feedback` | i messaggi di «Send feedback»: chi scrive, il testo, versione dell'app e sistema, data | TASK-308 |
-| `conversations` | una per coppia di iscritti che si scrivono, i due id in ordine, data | TASK-317 |
-| `conversation_members` | dove sta ognuno dei due in una conversazione: quando ha accettato, quando l'ha tolta dalla sua vista, quando l'ha letta | TASK-317 |
-| `messages` | conversazione, chi scrive, testo (1–1000), data; nascosto da una segnalazione | TASK-317 |
+| `conversations` | una per coppia di iscritti che si scrivono, i due id in ordine, data | TASK-319 |
+| `conversation_members` | dove sta ognuno dei due in una conversazione: quando ha accettato, quando l'ha tolta dalla sua vista, quando l'ha letta | TASK-319 |
+| `messages` | conversazione, chi scrive, testo (1–1000), data; nascosto da una segnalazione | TASK-319 |
 
 Tutte le tabelle legate a un utente hanno `ON DELETE CASCADE`: cancellare
 la riga di `users` cancella tutto il resto, anche i suoi
@@ -663,7 +663,7 @@ Migrazione `0032_group_runs.sql` (TASK-309 parte A, ADR-0269, `EVENTI.md`
   cancella niente: chi è lontano non è contato, si legge
   (`group_runs.counted_sql`). Test in `test_group_runs.py`.
 
-Migrazione `0033_messages.sql` (TASK-317, ADR-0277, `API.md`
+Migrazione `0033_messages.sql` (TASK-319, ADR-0279, `API.md`
 «Messages»; il numero è il primo libero in `main` al merge):
 
 - `conversations`: `id` (uuid casuale), `low_id` e `high_id` (i due

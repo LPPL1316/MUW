@@ -1074,7 +1074,7 @@ export interface FeedPage {
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing
  * (a post of the feed), a comment, a member, a group run (TASK-309), or a
- * private message (TASK-317: only the one it was sent to reports it).
+ * private message (TASK-319: only the one it was sent to reports it).
  */
 export const REPORT_KINDS = [
   "drawing",
@@ -1626,7 +1626,7 @@ export interface WayBack {
   directions: Direction[];
 }
 
-// --- Private messages (TASK-317, ADR-0277; docs/API.md «Messages») ---
+// --- Private messages (TASK-319, ADR-0279; docs/API.md «Messages») ---
 
 /** The limit of a message, checked by the API too. */
 export const MESSAGE_MAX_LENGTH = 1000;

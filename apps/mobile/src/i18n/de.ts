@@ -1491,7 +1491,7 @@ export const DE: Table = {
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "In meiner Nähe zeichnen",
 
-  // src/api/messages.ts (TASK-317: private messages)
+  // src/api/messages.ts (TASK-319: private messages)
   "A message needs some words.": "Eine Nachricht braucht ein paar Worte.",
   "A message is at most {max} characters.":
     "Eine Nachricht hat höchstens {max} Zeichen.",
@@ -1501,7 +1501,7 @@ export const DE: Table = {
     "In dieser App kannst du keine negativen Nachrichten schicken.",
   "This conversation is not available.": "Diese Unterhaltung ist nicht verfügbar.",
 
-  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-317)
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-319)
   Messages: "Nachrichten",
   "Messages, {count} waiting": "Nachrichten, {count} offen",
   "Message requests": "Nachrichtenanfragen",
@@ -1514,7 +1514,7 @@ export const DE: Table = {
   Message: "Nachricht",
   "Message {name}": "{name} eine Nachricht schreiben",
 
-  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-317)
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-319)
   "No messages yet.": "Noch keine Nachrichten.",
   "Show earlier messages": "Frühere Nachrichten zeigen",
   "Touch and hold to delete it": "Gedrückt halten, um sie zu löschen",

@@ -1,19 +1,17 @@
-# TASK-317 — I messaggi privati, con le richieste
+# TASK-319 — I messaggi privati, con le richieste
 
 **Stato**: In corso (parti A e B nella stessa PR)
-**Fase**: 4 · **Branch**: `claude/epic-gauss-k87m6o` (il branch assegnato
-alla sessione cloud; parte da `main`)
-**ADR**: ADR-0277 · **Migrazione**: `0033_messages.sql` (il numero si
+**Fase**: 4 · **Branch**: `feat/TASK-319-private-messages` (scritto nella
+sessione cloud su `claude/epic-gauss-k87m6o`; parte da `main`)
+**ADR**: ADR-0279 · **Migrazione**: `0033_messages.sql` (il numero si
 ricontrolla al merge)
-**Numeri**: **provvisori, da assegnare dal Coordinatore.** Questo lavoro
-è nato come TASK-305 / ADR-0265 nella sessione cloud, che non può fare il
-push (GitHub risponde 403), ed è stato rinumerato tre volte: 305, 310, 311
-e poi anche 317 / ADR-0277 (`feat/TASK-317-waiting-card`) li hanno presi
-altre sessioni prima che questo branch arrivasse su GitHub. La sessione
-sul Mac che lo porta su GitHub lo rinomina con il numero dato dal
-Coordinatore: è una sostituzione di testo di «TASK-317» e «ADR-0277» nei
-file del branch, più il nome di questo file. La migrazione è `0033`
-(`0031` e `0032` sono di TASK-308 e TASK-309), da ricontrollare al merge.
+**Numeri**: TASK-319 / ADR-0279, **assegnati dal Coordinatore** il
+2026-10-28. Questo lavoro è nato come TASK-305 / ADR-0265 nella sessione
+cloud, che non può fare il push (GitHub risponde 403), ed è stato
+rinumerato quattro volte: 305, 310, 311 e 317 / ADR-0277 li hanno presi
+altre sessioni prima che questo branch arrivasse su GitHub (317 è
+`feat/TASK-317-waiting-card`, la #602). La migrazione è `0033` (`0031` e
+`0032` sono di TASK-308 e TASK-309), da ricontrollare al merge.
 
 ## Obiettivo
 
@@ -55,7 +53,7 @@ Chieste una alla volta, con una proposta:
 
 ## Il disegno (deciso dall'agente su delega dell'utente)
 
-In ADR-0277 e in `API.md` «Messages»: una conversazione per coppia, lo
+In ADR-0279 e in `API.md` «Messages»: una conversazione per coppia, lo
 stato della richiesta su chi riceve (`conversation_members.accepted_at`),
 la conversazione chiesta col `public_id` dell'altro, lo `state` della
 pagina (`open`, `first`, `waiting`, `request`), «Delete» che toglie dalla
@@ -79,7 +77,7 @@ del merge.
 
 - `docs/API.md` «Follow», «Comments», «Block and report», «Push
   notifications», «Messages»; `docs/DATABASE.md` `0020`, `0024`, `0033`
-- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0277
+- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0279
 - `services/api/shaperoute_api/follows.py` (`apart_sql`, `follows_sql`),
   `comments.py`, `moderation.py`, `report_email.py`, `push.py`
 
@@ -149,7 +147,7 @@ docs/API.md
 docs/DATABASE.md
 docs/DECISIONS.md
 docs/STATUS.md
-docs/tasks/TASK-317.md                                  (nuovo)
+docs/tasks/TASK-319.md                                  (nuovo)
 ```
 
 ## Parte B — L'app
@@ -295,9 +293,21 @@ docs/UI.md
   **Bloccato sul push**: la sessione cloud è collegata a GitHub come
   LPPL1316 e l'app Claude non è installata sull'account rockydalbianco,
   quindi `git push` risponde 403. Il branch sta in un bundle git mandato
-  all'utente (`TASK-317-messages.bundle`), da spingere dal Mac come
-  `feat/TASK-317-private-messages`. Dopo: CI, la data della privacy al
-  giorno del merge, il Coordinatore per la coda dei merge.
+  all'utente (`TASK-317-messages.bundle`), da spingere dal Mac. Dopo: CI,
+  la data della privacy al giorno del merge, il Coordinatore per la coda
+  dei merge.
+- 2026-10-28: una sessione sul Mac ha preso il bundle dall'artifact della
+  sessione cloud (`git bundle verify` ok, diff identico alla patch) e l'ha
+  spinto. Il Coordinatore ha dato TASK-319 / ADR-0279: «TASK-317» e
+  «ADR-0277» sostituiti in tutti i file, questo file rinominato, branch
+  `feat/TASK-319-private-messages`. Condizioni del Coordinatore, **da
+  verificare sul codice prima del merge**: segnalazione e blocco valgono
+  anche per i messaggi e per le richieste; c'è un limite ai messaggi
+  inviati; quando un account si cancella si cancellano anche i suoi
+  messaggi; «Messages» resta nascosto finché il server non ha la parte
+  nuova, e il server si aggiorna solo con il sì dell'utente. Prima di
+  cambiare il codice l'elenco dei file va al Coordinatore; prima del merge
+  controlla dove l'utente ha approvato i testi di aiuto e privacy.
 
 ## Esito
 

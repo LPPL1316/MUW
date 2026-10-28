@@ -11,7 +11,7 @@ block keeps one, unblocking someone not blocked is done already.
 GET /me/blocked lists the members blocked, the last first, to unblock them.
 
 POST /reports keeps what a member reports, a drawing, a comment, a
-member, a group run (TASK-309) or a private message (TASK-317: only the
+member, a group run (TASK-309) or a private message (TASK-319: only the
 other member of its conversation reports it), with a reason from a short
 list: one row for each reporter and thing, the latest reason kept. No
 endpoint reads them (ADR-0228): a new report is emailed to whoever runs

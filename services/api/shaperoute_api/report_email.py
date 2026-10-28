@@ -19,7 +19,7 @@ is out of drawings.drawing_seen_sql and shown_sql, a hidden comment out of
 comments.NOT_APART, a hidden group run out of group_runs.seen_sql
 (TASK-309), a hidden message out of messages.SEEN, and a hidden member is
 kept apart from everyone as across a block (follows.apart_sql). Nothing is
-deleted. Of a private message (TASK-317) the email holds that message
+deleted. Of a private message (TASK-319) the email holds that message
 only, never the rest of its conversation.
 
 Off unless the environment has RESEND_API_KEY, SHAPEROUTE_EMAIL_SECRET,

@@ -10,7 +10,7 @@ type Props = {
 };
 
 /**
- * «Message» on another member's profile (TASK-317, ADR-0277): it opens the
+ * «Message» on another member's profile (TASK-319, ADR-0279): it opens the
  * conversation with them over the app. Nothing with an API older than the
  * messages, as «Messages» in «Profile».
  */

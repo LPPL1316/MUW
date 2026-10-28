@@ -16,7 +16,7 @@ import { type AccountOutcome, ask } from "./accounts";
 import { isPerson } from "./people";
 
 /**
- * Private messages (TASK-317, ADR-0277): the calls of docs/API.md,
+ * Private messages (TASK-319, ADR-0279): the calls of docs/API.md,
  * «Messages», all with the session token. A conversation is asked with the
  * other's `public_id`; who is not followed by the one it writes to sends a
  * request, one message until it is accepted. The bodies are

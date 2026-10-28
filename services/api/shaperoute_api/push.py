@@ -14,7 +14,7 @@ ADR-0255), is told to the runner who unlocked it; three more are the game's
 teams' (part C): a piece finished, a challenge complete, a day left; three
 a group run's, to who goes (TASK-309, group_runs.py): it starts soon, its
 time or place changed, it was cancelled; two the private messages'
-(TASK-317, messages.py): a message, and a message request once a day for
+(TASK-319, messages.py): a message, and a message request once a day for
 each writer. Each to one recipient, and only when:
 
 - the recipient has «Push notifications» on (users.notify_push);
@@ -335,7 +335,7 @@ TEXTS: dict[str, dict[str, str]] = {
         "es": "{name} ha cancelado {title}.",
         "fr": "{name} a annulé {title}.",
     },
-    # The private messages (TASK-317): a message with its beginning; a
+    # The private messages (TASK-319): a message with its beginning; a
     # request without it, which may come from anyone.
     "message": {
         "en": "{name}: {text}",

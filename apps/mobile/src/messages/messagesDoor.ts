@@ -29,7 +29,7 @@ export type MessagesScreen =
     };
 
 /**
- * The private messages (TASK-317, ADR-0277) as the whole app reaches them:
+ * The private messages (TASK-319, ADR-0279) as the whole app reaches them:
  * the list and the conversations over the app, opened from «Profile», from
  * «Message» on another's profile and from a notification; and what the dot
  * of «Messages» counts.

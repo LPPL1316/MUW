@@ -17563,17 +17563,16 @@ con il sì dell'utente. «From a file» arriva sui telefoni con la build
 Testi e privacy nuovi vogliono il sì dell'utente. D ed E finiscono con una
 scelta dell'utente, non con codice.
 
-## ADR-0277 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
+## ADR-0279 — I messaggi privati: le richieste come su Instagram, una conversazione per coppia, il blocco la cancella
 
 **Stato**: Attiva · 2026-10-26 · chi scrive a chi, le regole delle
 richieste e il resto della proposta sono **scelte dell'utente** del
 2026-10-26 («Chiunque, con richiesta», poi «Sì, così»); i punti tecnici
-sono decisi dall'agente su delega dell'utente (TASK-317). I testi
+sono decisi dall'agente su delega dell'utente (TASK-319). I testi
 dell'app, delle push e la sezione nuova della privacy sono **approvati
-dall'utente** il 2026-10-28 («Approvo così»). Numero preso
-come primo libero oltre `main` e i branch remoti (fino a 0276 sono presi;
-0272 manca, saltato come probabilmente già assegnato): il Coordinatore non
-rispondeva. Da ricontrollare col Coordinatore prima del push.
+dall'utente** il 2026-10-28 («Approvo così»). Numero dato dal
+Coordinatore il 2026-10-28 (nato come ADR-0265, poi 0277: li hanno presi
+altre sessioni prima che il branch arrivasse su GitHub).
 
 **Contesto**: l'utente il 2026-10-26: «aggiungi anche la possibilità di
 mandarsi messaggi privati». Il social di MuW aveva profili, follow con

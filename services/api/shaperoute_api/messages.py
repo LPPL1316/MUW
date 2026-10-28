@@ -1,5 +1,5 @@
-"""Private messages between two members, with message requests (TASK-317,
-ADR-0277, docs/API.md, «Messages»).
+"""Private messages between two members, with message requests (TASK-319,
+ADR-0279, docs/API.md, «Messages»).
 
 A member writes to any other one it is not kept apart from (a block, a
 member hidden: follows.apart_sql). One conversation for each pair, read and

@@ -49,7 +49,7 @@ from shaperoute_api.moderation import (
 (MODERATION,) = [p for p in migrations() if p.name.endswith("_moderation.sql")]
 # The one that adds the group runs to the kinds (TASK-309).
 (GROUP_RUNS,) = [p for p in migrations() if p.name.endswith("_group_runs.sql")]
-# The private messages add their kind to the list (TASK-317).
+# The private messages add their kind to the list (TASK-319).
 (MESSAGES,) = [p for p in migrations() if p.name.endswith("_messages.sql")]
 Headers = dict[str, str]
 
@@ -132,7 +132,7 @@ def test_the_example_is_the_body() -> None:
 
 def test_the_migration_holds_the_same_lists() -> None:
     sql = MODERATION.read_text(encoding="utf-8")
-    # The latest check of the kinds is the messages' (TASK-317), after
+    # The latest check of the kinds is the messages' (TASK-319), after
     # the group runs' (TASK-309).
     kinds = MESSAGES.read_text(encoding="utf-8").split("reports_kind_check")[-1]
     for kind in REPORT_KINDS:
