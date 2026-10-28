@@ -1541,6 +1541,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   calcolare il server. C, dopo Apple e con il sì dell'utente: almeno 100
   disegni attorno a Trento e Caldonazzo calcolati sul server una volta, di
   notte. File: `tasks/TASK-316.md`.
+  **A** in `main` con la #590 (`07f98951`, 2026-10-28) e **B** con la #593
+  (`bf68d9cf`), impronta iOS `83793e26`. `/kept-routes` legge solo
+  `route_store`, mai l'archivio, che tiene le posizioni degli utenti. Il
+  punto 7 di TASK-279 B è fatto qui. Resta C, dopo Apple e con il sì
+  dell'utente: il server con A, poi di notte `draw_examples --all --around`
+  per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
+  nel task file).
 
 ## Completato
 

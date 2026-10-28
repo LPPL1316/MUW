@@ -1,6 +1,6 @@
 # TASK-316 — Explore pronto prima: i disegni dei paesi vicini e della regione
 
-**Stato**: In corso
+**Stato**: In corso · A e B in `main`; C dopo Apple
 **Fase**: 4 · **Branch**: `docs/TASK-316-explore-ahead` (documenti), poi
 `feat/TASK-316-a-kept-routes` (A), `feat/TASK-316-b-region-ahead` (B)
 
@@ -255,4 +255,29 @@ Documenti (ogni parte): `docs/tasks/TASK-316.md`, `docs/STATUS.md`,
 
 ## Esito
 
-*(a fine task)*
+A e B in `main` il 2026-10-28. La parte A è la #590 (`07f98951`):
+`POST /kept-routes` in sola lettura e `draw_examples --all --around`. La
+parte B è la #593 (`bf68d9cf`): all'apertura i 6 paesi vicini e poi
+quelli della regione, 18 in tutto, chiedono i loro 14 esempi a
+`/kept-routes`, una richiesta a paese, nella coda «prefetch». Il telefono
+li tiene 7 giorni, al massimo 150 disegni a sessione. Toccato un paese
+preparato, le carte sono già pronte. Con il server di oggi (404) tutto
+resta com'era.
+
+Emerso nel lavoro: l'archivio di TASK-297 A non ha `user_id`, ma tiene
+anche i percorsi disegnati **dalla posizione degli utenti**. Con una
+risposta «tenuto o no» un punto direbbe se qualcuno ci ha disegnato.
+Quindi `/kept-routes` legge **solo `route_store`** (i centri delle città e
+i punti sull'acqua), **mai l'archivio**, con un test. Il punto 7 di
+TASK-279 B (`draw_examples` con le parole) è fatto qui. Un'altra cosa
+emersa: `App.tsx` ferma il prefetch appena «Explore» si apre
+(`exploreSeen`), quindi il giro riparte anche da «Near me», con una riga
+in `NearbyTowns.tsx`.
+
+Impronta iOS `83793e26`, invariata. Non provato nel simulatore né sul
+telefono: finché il server non ha A non c'è niente da vedere.
+
+Resta la **parte C**, dopo Apple e con il sì dell'utente: aggiornare il
+server con A e lanciare di notte `draw_examples --all Trento Caldonazzo
+--around Trento --around Caldonazzo` (i comandi e il ritorno indietro sono
+nella parte C). Poi qui le misure vere di disco e tempo.
