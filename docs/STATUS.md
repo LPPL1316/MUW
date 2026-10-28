@@ -1515,6 +1515,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   della parte A1 e, prima della build 1.0.1, la scelta se tenere la riga
   «Soon» nelle build per lo store (Apple, regola 2.1). File:
   `tasks/TASK-305.md`.
+  **Documenti in main** con la #578 (`0f66aa54`, 2026-10-27). **Parte D0
+  fatta** il 2026-10-28 (branch `feat/TASK-305-d0-soon-row`, PR #591): la
+  riga «Paragliding» 🪂 con «Soon» in «Settings → Sport» e, per scelta
+  dell'utente del 2026-10-27, anche nel menu dello sport di «Draw»; non si
+  sceglie e non dà percorsi; impronta iOS invariata (`83793e26…`). Merge
+  sulla parola dell'utente e il «merge 591» del Coordinatore.
 
 - **TASK-301 — La musica nel video della corsa** (ADR-0262; richiesta
   dell'utente del 2026-10-25 «aggiungi la musica al video», scelte con le
