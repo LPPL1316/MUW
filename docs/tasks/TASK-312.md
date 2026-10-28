@@ -1,6 +1,6 @@
 # TASK-312 — Importare nel Feed attività fatte con altre app, e post di sole foto
 
-**Stato**: In lavorazione · documenti in `main` (#600) · **A fatta** (API, branch `feat/TASK-312-a-imported-runs-api`) · poi B (app, file), C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
+**Stato**: In lavorazione · documenti in `main` (#600) · **A fatta** (API, PR #613, branch `feat/TASK-312-a-imported-runs-api`) · poi B (app, file), C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
 **Fase**: 4 · **Branch**: `docs/TASK-312-import-activities` (documenti),
 `feat/TASK-312-a-imported-runs-api` (A), `feat/TASK-312-b-import-file-app`
 (B), `feat/TASK-312-c-photo-posts` (C), `docs/TASK-312-d-health-study`
@@ -120,7 +120,7 @@ docs/STATUS.md
 docs/tasks/TASK-312.md
 ```
 
-### Parte A — com'è fatta (2026-10-28)
+### Parte A — com'è fatta (2026-10-28, PR #613)
 
 «File toccati» approvati dall'utente il 2026-10-28 («OK, go ahead»; il
 Coordinatore era archiviato). Rispetto alla lista sopra:
