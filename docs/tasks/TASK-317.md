@@ -1,17 +1,20 @@
-# TASK-311 — I messaggi privati, con le richieste
+# TASK-317 — I messaggi privati, con le richieste
 
 **Stato**: In corso (parti A e B nella stessa PR)
 **Fase**: 4 · **Branch**: `claude/epic-gauss-k87m6o` (il branch assegnato
 alla sessione cloud; parte da `main`)
-**ADR**: ADR-0271 · **Migrazione**: `0032_messages.sql` (il numero si
+**ADR**: ADR-0277 · **Migrazione**: `0033_messages.sql` (il numero si
 ricontrolla al merge)
-**Numeri**: TASK-311 e ADR-0271 presi come primi liberi in `main` e nei
-branch remoti, il 2026-10-27: il Coordinatore non era raggiungibile dalla
-sessione cloud. Il lavoro era nato come TASK-305 / ADR-0265, poi TASK-310 /
-ADR-0270: tutte e due le volte un'altra sessione ha preso quei numeri
-prima che questo branch arrivasse su GitHub (il parapendio, poi «pin
-pytest»). La migrazione è `0032` perché `0031` è di TASK-308 e di
-TASK-309. **Da confermare col Coordinatore.**
+**Numeri**: TASK-317 e ADR-0277 presi il 2026-10-28 come primi liberi
+oltre tutto quello che c'è in `main` e nei branch remoti (312 e 0272
+mancano in tutti e due: probabilmente assegnati e non ancora pubblicati,
+saltati). Il Coordinatore non era raggiungibile dalla sessione cloud.
+Questo lavoro è nato come TASK-305 / ADR-0265 ed è stato rinumerato tre
+volte (305, 310, 311 presi da altre sessioni prima che questo branch
+potesse arrivare su GitHub: il push dalla sessione cloud è bloccato). La
+migrazione è `0033` (`0031` e `0032` sono di TASK-308 e TASK-309). **Chi
+fa il push ricontrolla i numeri col Coordinatore**: cambiarli è una
+sostituzione di testo in tutti i file del branch.
 
 ## Obiettivo
 
@@ -53,7 +56,7 @@ Chieste una alla volta, con una proposta:
 
 ## Il disegno (deciso dall'agente su delega dell'utente)
 
-In ADR-0271 e in `API.md` «Messages»: una conversazione per coppia, lo
+In ADR-0277 e in `API.md` «Messages»: una conversazione per coppia, lo
 stato della richiesta su chi riceve (`conversation_members.accepted_at`),
 la conversazione chiesta col `public_id` dell'altro, lo `state` della
 pagina (`open`, `first`, `waiting`, `request`), «Delete» che toglie dalla
@@ -76,14 +79,14 @@ del merge.
 ## Contesto da leggere
 
 - `docs/API.md` «Follow», «Comments», «Block and report», «Push
-  notifications», «Messages»; `docs/DATABASE.md` `0020`, `0024`, `0032`
-- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0271
+  notifications», «Messages»; `docs/DATABASE.md` `0020`, `0024`, `0033`
+- ADR-0173, ADR-0176, ADR-0226, ADR-0228, ADR-0251, ADR-0277
 - `services/api/shaperoute_api/follows.py` (`apart_sql`, `follows_sql`),
   `comments.py`, `moderation.py`, `report_email.py`, `push.py`
 
 ## Parte A — API
 
-1. Migrazione `0032_messages.sql`: `conversations`, `conversation_members`,
+1. Migrazione `0033_messages.sql`: `conversations`, `conversation_members`,
    `messages`; `reports.kind` con `message`.
 2. `messages.py` (nuovo): gli otto endpoint, lo stato, il filtro sulla
    richiesta, il limite per minuto, «Delete», il gancio del blocco, le
@@ -127,14 +130,14 @@ del merge.
 ### File toccati (parte A)
 
 ```
-services/api/migrations/0032_messages.sql               (nuovo)
+services/api/migrations/0033_messages.sql               (nuovo)
 services/api/shaperoute_api/messages.py                 (nuovo)
 services/api/shaperoute_api/push.py
 services/api/shaperoute_api/moderation.py
 services/api/shaperoute_api/report_email.py
 services/api/shaperoute_api/app.py
 services/api/tests/test_messages.py                     (nuovo)
-services/api/tests/test_moderation.py                   (l'elenco dei tipi è anche nella 0032)
+services/api/tests/test_moderation.py                   (l'elenco dei tipi è anche nella 0033)
 packages/shared-types/src/index.ts
 packages/shared-types/test/messages.test.ts             (nuovo)
 packages/shared-types/test/moderation.test.ts           (REPORT_KINDS con message)
@@ -147,7 +150,7 @@ docs/API.md
 docs/DATABASE.md
 docs/DECISIONS.md
 docs/STATUS.md
-docs/tasks/TASK-311.md                                  (nuovo)
+docs/tasks/TASK-317.md                                  (nuovo)
 ```
 
 ## Parte B — L'app
@@ -293,8 +296,8 @@ docs/UI.md
   **Bloccato sul push**: la sessione cloud è collegata a GitHub come
   LPPL1316 e l'app Claude non è installata sull'account rockydalbianco,
   quindi `git push` risponde 403. Il branch sta in un bundle git mandato
-  all'utente (`TASK-311-messages.bundle`), da spingere dal Mac come
-  `feat/TASK-311-private-messages`. Dopo: CI, la data della privacy al
+  all'utente (`TASK-317-messages.bundle`), da spingere dal Mac come
+  `feat/TASK-317-private-messages`. Dopo: CI, la data della privacy al
   giorno del merge, il Coordinatore per la coda dei merge.
 
 ## Esito

@@ -22,7 +22,7 @@ import {
   sendMessage,
 } from "./messages";
 
-// The calls of the private messages (TASK-311, ADR-0271): the paths, the
+// The calls of the private messages (TASK-317, ADR-0277): the paths, the
 // methods, the token, and the bodies of packages/shared-types/fixtures.
 
 const URL = "http://api";

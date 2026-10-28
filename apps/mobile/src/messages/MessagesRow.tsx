@@ -15,7 +15,7 @@ import { useMessagesDoor } from "./messagesDoor";
 const COUNT_MAX = 9;
 
 /**
- * «Messages» on the first page of «Profile» (TASK-311, ADR-0271): a row
+ * «Messages» on the first page of «Profile» (TASK-317, ADR-0277): a row
  * that opens the conversations over the app, with a red number for the
  * conversations with news and the requests waiting. Nothing until the API
  * has said it has messages: an API older than them, or nobody signed in,

@@ -7,7 +7,7 @@ import type { AccountState } from "../account/useAccount";
 import { ConversationScreen, merged } from "./ConversationScreen";
 import { MessagesContext, type MessagesDoor } from "./messagesDoor";
 
-// One conversation (TASK-311): read again while it is on screen, the new
+// One conversation (TASK-317): read again while it is on screen, the new
 // messages over the ones held, a deleted one gone.
 
 const URL = "http://api";

@@ -1446,7 +1446,7 @@ export const IT: Table = {
   "Follow the dotted line back to the route.":
     "Segui la linea a puntini per tornare sul percorso.",
 
-  // src/api/messages.ts (TASK-311: private messages)
+  // src/api/messages.ts (TASK-317: private messages)
   "A message needs some words.": "Un messaggio ha bisogno di qualche parola.",
   "A message is at most {max} characters.":
     "Un messaggio può avere al massimo {max} caratteri.",
@@ -1456,7 +1456,7 @@ export const IT: Table = {
     "In questa app non puoi mandare messaggi negativi.",
   "This conversation is not available.": "Questa conversazione non è disponibile.",
 
-  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-311)
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-317)
   Messages: "Messaggi",
   "Messages, {count} waiting": "Messaggi, {count} in attesa",
   "Message requests": "Richieste di messaggio",
@@ -1469,7 +1469,7 @@ export const IT: Table = {
   Message: "Messaggio",
   "Message {name}": "Scrivi a {name}",
 
-  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-311)
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-317)
   "No messages yet.": "Ancora nessun messaggio.",
   "Show earlier messages": "Mostra i messaggi precedenti",
   "Touch and hold to delete it": "Tieni premuto per eliminarlo",

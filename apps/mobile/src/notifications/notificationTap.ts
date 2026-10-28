@@ -13,7 +13,7 @@ import type {
  * in the collection. The challenge for a piece done, a shape completed or
  * a day left (TASK-296 part C): its data names the challenge; without a
  * good id, «Play» on its «Challenges» tab. The conversation with who wrote
- * for a message or a message request (TASK-311). Anything else: nothing.
+ * for a message or a message request (TASK-317). Anything else: nothing.
  */
 export type TapTarget =
   | { kind: "drawing"; id: string }
@@ -31,7 +31,7 @@ const CHALLENGE_KINDS: readonly ChallengePushKind[] = [
   "challenge_ending",
 ];
 
-/** The kinds of a private message's notifications (TASK-311). */
+/** The kinds of a private message's notifications (TASK-317). */
 const MESSAGE_KINDS: readonly MessagePushKind[] = ["message", "message_request"];
 
 function field(data: object, name: string): string | null {

@@ -1,5 +1,5 @@
--- Private messages between two members, with message requests (TASK-311,
--- ADR-0271, docs/DATABASE.md). A migration already in main is never
+-- Private messages between two members, with message requests (TASK-317,
+-- ADR-0277, docs/DATABASE.md). A migration already in main is never
 -- edited: write the next one.
 
 -- One conversation for each pair of members, whoever wrote first: the two
@@ -54,7 +54,7 @@ CREATE INDEX messages_of_conversation ON messages (conversation_id, created_at, 
 -- The messages of an account, deleted with it.
 CREATE INDEX messages_of_sender ON messages (sender_id);
 
--- A message is reported too (TASK-311): the list of kinds of
+-- A message is reported too (TASK-317): the list of kinds of
 -- 0020_moderation.sql, with 'message'.
 ALTER TABLE reports DROP CONSTRAINT reports_kind_check;
 ALTER TABLE reports ADD CONSTRAINT reports_kind_check

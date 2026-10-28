@@ -54,7 +54,7 @@ type Props = {
  * to change the picture under it, as the row of «Settings» (TASK-207).
  * Under «Settings», «Guide» (TASK-266), then «Blocked people», to unblock
  * (TASK-121); after a block the lists of who follows are read again: a
- * block ends every follow. Over «Settings», «Messages» (TASK-311), with
+ * block ends every follow. Over «Settings», «Messages» (TASK-317), with
  * the number of what waits for an answer.
  */
 export function ProfileHome({

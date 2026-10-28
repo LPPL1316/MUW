@@ -1158,7 +1158,7 @@ have not blocked anyone.»; venti per volta, poi «Show more». Sbloccato,
 esce dall'elenco e torna in «Feed» alla lettura dopo; il follow non
 torna. Un profilo bloccato non si apre dall'elenco.
 
-**I messaggi privati** (TASK-311, ADR-0271; testi **da approvare**
+**I messaggi privati** (TASK-317, ADR-0277; testi **da approvare**
 dall'utente). In «Profile», sopra «Settings», la riga **«✉️ Messages»** con
 un numero rosso (le conversazioni con novità più le richieste in attesa;
 VoiceOver «Messages, {count} waiting»); sul profilo di un altro, sotto
