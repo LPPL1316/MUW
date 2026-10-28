@@ -18122,3 +18122,39 @@ elevation gain, never the runs themselves.»; il sito si copia insieme al
 server (`tasks/TASK-324.md`, «Aperto»). Le corse salvate prima di TASK-324
 non hanno dislivello: il totale parte da 0 e cresce con le corse nuove.
 Quattro testi nuovi in quattro lingue, accanto a quelli di «Drawings».
+
+## ADR-0207 — aggiunta (TASK-326): il passo medio nella riga dei fatti del «Feed»
+
+**Data**: 2026-10-26 · **Stato**: Accettato · **Task**: TASK-326 ·
+mostrare il passo medio è una **scelta dell'utente** («nella sezione feed
+quando viene caricato un post bisogna aggiungere anche il passo medio come
+dato»); il come è **deciso dall'agente su delega dell'utente**
+
+**Contesto**: la riga dei fatti di un post del «Feed» diceva cosa disegna,
+quanto è lunga e quanto è durata la corsa («Star · 4.0 km · 19 min»).
+
+**Decisione**:
+
+1. Il passo medio va **in fondo alla riga dei fatti** (`postFacts`),
+   dopo la durata: «Star · 4.0 km · 19 min · 4:45 /km». Niente riga né
+   riquadro nuovi; VoiceOver lo legge con il resto della riga, senza
+   testi nuovi da tradurre.
+2. Si scrive come in «My activities» (`runFacts`) e nel post per Strava:
+   `paceLabel` al km o, con «Miles», al miglio; in canoa e paddle
+   `paddlePaceLabel`, il tempo di 500 m (ADR-0215); in bici al km, come
+   già fanno «My activities» e il post (ADR-0215, aggiornamento parte C).
+   Sotto i 100 m (`MIN_PACE_M`) nessun passo.
+3. Per un disegno pubblicato il passo viene dai **secondi** della corsa
+   (`duration_s`), non dai minuti arrotondati che la riga mostra; gli
+   esempi hanno solo i minuti e usano quelli.
+
+**Alternative scartate**: la velocità in km/h per la bici (più giusta per
+chi pedala, ma diversa da «My activities» e dal post: una scelta
+dell'utente, se la vuole); il passo dai minuti mostrati anche per gli
+iscritti (fino a 30 s di errore sul minuto, cioè secondi di passo su una
+corsa corta); il passo su una riga a parte (la scheda diventa più alta
+per un dato solo).
+
+**Conseguenze**: la riga è più lunga e su schermi stretti va a capo, come
+già faceva «Paddle · …». `docs/UI.md` («Feed») va allineato dopo
+TASK-309 B, che lo ha in lavorazione (`tasks/TASK-326.md`).
