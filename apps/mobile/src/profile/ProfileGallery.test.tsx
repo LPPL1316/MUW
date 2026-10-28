@@ -35,6 +35,7 @@ function door() {
     open,
     opened: null,
     back: () => {},
+    leave: () => {},
   };
   return { value, open };
 }

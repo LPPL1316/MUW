@@ -33,6 +33,9 @@ type Props = {
   /** An example on the water that says where its shape is (TASK-244):
    * «Move the shape» lets the user drag it on the map, as in «Draw». */
   move?: MoveExample;
+  /** «Draw it near me» (TASK-313): its shape or word chosen in «Draw»;
+   * without it, a figure «Draw» cannot choose, there is no button. */
+  onDrawAgain?: () => void;
 };
 
 /** Under the map: a route of "Explore", to run, look at and export (TASK-126). */
@@ -44,6 +47,7 @@ export function ExploredCard({
   start,
   onStart,
   move,
+  onDrawAgain,
 }: Props) {
   const { route } = explored;
   const title = routeTitle(route);
@@ -110,6 +114,15 @@ export function ExploredCard({
         />
       )}
       {open !== null && <ExploreStart start={start} onStart={onStart} />}
+      {open !== null && onDrawAgain !== undefined && (
+        <Pressable
+          style={styles.secondary}
+          onPress={onDrawAgain}
+          accessibilityRole="button"
+        >
+          <Text style={styles.secondaryText}>{t("Draw it near me")}</Text>
+        </Pressable>
+      )}
       {open !== null && move?.available && (
         <Pressable
           style={styles.secondary}

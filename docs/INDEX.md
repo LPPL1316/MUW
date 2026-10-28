@@ -34,6 +34,9 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Il gioco delle forme, «Play», squadre e sfide | `GIOCO.md`, `tasks/TASK-296.md` |
 | Il primo concorso, la scheda nel Feed, il regolamento | `CONCORSI.md`, `tasks/TASK-299.md` |
 | Le corse di gruppo, «Group runs», «I'm going» | `EVENTI.md`, `tasks/TASK-309.md` |
+| Attività da altre app (GPX, TCX, FIT), post di sole foto, «Imported» | `IMPORTAZIONI.md`, `tasks/TASK-312.md` |
+| Disegnare a mano in «Draw» («Freehand»), «Edit the drawing» sulle figure proposte | `UI.md`, `tasks/TASK-320.md` |
+| Il nuoto in acque libere, «Open water swim», la guida con l'Apple Watch | `tasks/TASK-323.md`, `ROUTE_ENGINE.md` §8 |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti

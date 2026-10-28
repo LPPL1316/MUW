@@ -533,7 +533,6 @@ export const IT: Table = {
     "{count} lettere: almeno {km} km. Per disegnare una parola servono alcuni minuti.",
   "Use {km} km": "Usa {km} km",
   Picture: "Foto",
-  "Waiting for the API…": "In attesa del servizio…",
   "Downloading map data for this area…": "Scarico la mappa di questa zona…",
   "Drawing the picture's outline, {km} km…": "Disegno il contorno della foto, {km} km…",
   "Drawing “{word}”, {km} km…": "Disegno «{word}», {km} km…",
@@ -1164,8 +1163,8 @@ export const IT: Table = {
   "Thanks for telling us. We will look at it.":
     "Grazie per avercelo detto. Lo controlleremo.",
   "Block {user}?": "Bloccare {user}?",
-  "You will not see each other's drawings, comments or profile, and any follow between you ends. They are not told.":
-    "Non vedrete più i disegni, i commenti e il profilo l'uno dell'altro, e ogni follow fra voi finisce. Non riceverà alcun avviso.",
+  "You will not see each other's drawings, comments, messages or profile, any follow between you ends and your conversation is deleted. They are not told.":
+    "Non vedrete più i disegni, i commenti, i messaggi e il profilo l'uno dell'altro, ogni follow fra voi finisce e la vostra conversazione viene cancellata. Non riceverà alcun avviso.",
   Block: "Blocca",
   "Sending…": "Invio…",
   "This is not available any more.": "Non è più disponibile.",
@@ -1450,4 +1449,87 @@ export const IT: Table = {
     "Il percorso riprende a {distance} verso {direction}.",
   "Follow the dotted line back to the route.":
     "Segui la linea a puntini per tornare sul percorso.",
+  // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
+  "This route has no turn directions: follow the line on the map.":
+    "Questo percorso non ha le indicazioni delle svolte: segui la linea sulla mappa.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Ultimo km {pace} · obiettivo {target}",
+  "Last mi {pace} · target {target}": "Ultimo mi {pace} · obiettivo {target}",
+
+  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
+  "Send feedback": "Mandaci un feedback",
+  "Thank you! Your message reached us.": "Grazie! Il tuo messaggio ci è arrivato.",
+  "Ideas, problems, anything that would make MuW better: we read every message.":
+    "Idee, problemi, tutto ciò che renderebbe MuW migliore: leggiamo ogni messaggio.",
+  "Write here…": "Scrivi qui…",
+  "Your message": "Il tuo messaggio",
+  "It reaches us with your username, your email and the app's version, so we can answer you.":
+    "Ci arriva con il tuo nome utente, la tua email e la versione dell'app, così possiamo risponderti.",
+  "Write something first.": "Scrivi prima qualcosa.",
+  "You sent a lot of feedback today. Try again tomorrow.":
+    "Oggi ci hai già scritto molto. Riprova domani.",
+  FEEDBACK: "FEEDBACK",
+  // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
+  Paragliding: "Parapendio",
+  // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
+  // stessa forma in «Draw»)
+  "Draw it near me": "Disegnala vicino a me",
+  // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
+  "This word may come out better with the pen up: each letter on its own.":
+    "Questa parola può venire meglio con la penna alzata: ogni lettera da sola.",
+  "Lift the pen": "Alza la penna",
+  // src/route/RoutePanel.tsx (TASK-317: the wait in «Draw»)
+  "Warming up: {name}…": "Riscaldamento: {name}…",
+  "Warming up: “{word}”…": "Riscaldamento: «{word}»…",
+  "Warming up: the picture…": "Riscaldamento: la foto…",
+
+  // src/api/messages.ts (TASK-319: private messages)
+  "A message needs some words.": "Un messaggio ha bisogno di qualche parola.",
+  "A message is at most {max} characters.":
+    "Un messaggio può avere al massimo {max} caratteri.",
+  "Too many messages in a minute. Wait a moment and try again.":
+    "Troppi messaggi in un minuto. Aspetta un momento e riprova.",
+  "You can't send negative messages in this app.":
+    "In questa app non puoi mandare messaggi negativi.",
+  "This conversation is not available.": "Questa conversazione non è disponibile.",
+
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-319)
+  Messages: "Messaggi",
+  "Messages, {count} waiting": "Messaggi, {count} in attesa",
+  "Message requests": "Richieste di messaggio",
+  "Message requests, {count} waiting": "Richieste di messaggio, {count} in attesa",
+  "No messages yet. Open someone's profile and tap Message to write to them.":
+    "Ancora nessun messaggio. Apri il profilo di qualcuno e tocca Messaggio per scrivergli.",
+  "No message requests.": "Nessuna richiesta di messaggio.",
+  "You: {text}": "Tu: {text}",
+  "{name}, new message: {text}": "{name}, nuovo messaggio: {text}",
+  Message: "Messaggio",
+  "Message {name}": "Scrivi a {name}",
+
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-319)
+  "No messages yet.": "Ancora nessun messaggio.",
+  "Show earlier messages": "Mostra i messaggi precedenti",
+  "Touch and hold to delete it": "Tieni premuto per eliminarlo",
+  "Touch and hold to report it": "Tieni premuto per segnalarlo",
+  "Message request sent. You can write again when {name} accepts it.":
+    "Richiesta di messaggio inviata. Potrai scrivere di nuovo quando {name} la accetta.",
+  "{name} wants to send you a message.": "{name} vuole mandarti un messaggio.",
+  "{name} gets this as a message request. You can send one message until they accept it.":
+    "{name} la riceve come richiesta di messaggio. Finché non la accetta puoi mandare un solo messaggio.",
+  "Write a message…": "Scrivi un messaggio…",
+  "Delete this message for both of you?": "Eliminare questo messaggio per tutti e due?",
+  "Report this message": "Segnala questo messaggio",
+  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
+  Freehand: "A mano libera",
+  "Edit the drawing": "Modifica il disegno",
+  "Draw with your finger": "Disegna col dito",
+  Erase: "Cancella",
+  Drawing: "Disegno",
+  "Draw the outline with one finger: it closes by itself.":
+    "Disegna il contorno con un dito: si chiude da solo.",
+  "Tap a line to erase it. The outline takes its details with it.":
+    "Tocca una linea per cancellarla. Il contorno porta via i suoi dettagli.",
+  "This line encloses nothing. Draw a closed shape.":
+    "Questa linea non racchiude niente. Disegna una figura chiusa.",
 };

@@ -378,11 +378,12 @@ test("the app behind another, or the phone locked, pauses the run until the next
     appState("background");
     appState("active");
     onPosition(position(200, 50));
-    // The phone locks; three minutes later the app is back, 300 m on.
+    // The phone locks; a quarter of an hour later the app is back, 300 m
+    // on: longer than AWAY_AFTER_MS (ADR-0264).
     appState("background");
     appState("active");
-    onPosition(position(500, 220));
-    onPosition(position(600, 250));
+    onPosition(position(500, 950));
+    onPosition(position(600, 980));
   });
   const state = result.current;
   expect(state.status).toBe("running");
@@ -397,7 +398,7 @@ test("the app behind another, or the phone locked, pauses the run until the next
     expect(state.track.distanceM).toBeCloseTo(300, 0);
     expect(state.track.pauses).toEqual([
       // Never before the last fix (50 s in).
-      { fromMs: began + 50_000, toMs: began + 220_000, away: true },
+      { fromMs: began + 50_000, toMs: began + 950_000, away: true },
     ]);
   }
   await unmount();

@@ -61,9 +61,11 @@ from shaperoute_api.drawings import install_drawings
 from shaperoute_api.errors import error_of
 from shaperoute_api.favorites import install_favorites
 from shaperoute_api.feed import install_feed
+from shaperoute_api.feedback import install_feedback
 from shaperoute_api.follows import install_follows
 from shaperoute_api.game import install_game
 from shaperoute_api.graphs import MapDataUnavailableError
+from shaperoute_api.group_runs import install_group_runs
 from shaperoute_api.images import (
     AnyRequest,
     ImageRequest,
@@ -79,6 +81,7 @@ from shaperoute_api.line_directions import (
     RouteDirectionsRequestBody,
     directions_of,
 )
+from shaperoute_api.messages import install_messages
 from shaperoute_api.moderation import install_moderation
 from shaperoute_api.notifications import install_notifications
 from shaperoute_api.outline_edits import edit_outline
@@ -125,6 +128,7 @@ from shaperoute_api.strava_client import Strava
 from shaperoute_api.themed import ThemedJobBody, ThemedJobs, ThemedRequestBody
 from shaperoute_api.track_scores import score_run
 from shaperoute_api.user_photos import install_user_photos
+from shaperoute_api.way_back_api import install_way_back
 
 log = logging.getLogger(__name__)
 
@@ -360,12 +364,20 @@ def create_app(
     install_feed(app)
     # Blocking and reporting (TASK-121); they need a token.
     install_moderation(app)
+    # Private messages, with message requests (TASK-319); after the blocks,
+    # which delete a conversation; they need a token.
+    install_messages(app)
     # The shape game (TASK-296): the catalog for anyone, the rest with a token.
     install_game(app)
     # The members found from the phone's contacts, by the hashes of their
     # numbers (TASK-262 C); it needs a token.
     install_contact_people(app)
     install_contests(app)
+    # «Send feedback» in «Settings» (TASK-308); it needs a token.
+    install_feedback(app)
+    # Group runs on a route, «I'm going» and the reminder an hour before
+    # (TASK-309); they need a token.
+    install_group_runs(app)
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -604,6 +616,9 @@ def create_app(
             time.perf_counter() - started,
         )
         return RouteDirectionsBody.of(directions)
+
+    # The way back to the route for a runner off it (TASK-314, ADR-0274).
+    install_way_back(app, source)
 
     # The words the app's table does not know (ADR-0012). A plain def, like
     # /routes: a model on a laptop takes seconds, in a thread of its own.

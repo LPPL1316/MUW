@@ -10,6 +10,8 @@ deadline.
 
 On the phone go the shapes and the words on roads. A photo, the water, or a
 zone the phone does not have: the job fails, and the app asks the server.
+So does the way back to a route (TASK-314, ADR-0274): the body of POST
+/way-back in, its answer out (`way_back_json`).
 """
 
 from __future__ import annotations
@@ -23,11 +25,18 @@ from route_engine.network import NETWORKS, area_around
 from route_engine.optimizer import GraphLoader, Plan
 
 from shaperoute_api.activity_graphs import ROAD_ACTIVITIES, ActivityGraphs, Ground
+from shaperoute_api.errors import error_of
 from shaperoute_api.graphs import MapDataUnavailableError, ZoneGraphs
 from shaperoute_api.images import AnyRequest
 from shaperoute_api.jobs import RouteJobs
 from shaperoute_api.phone_zones import PhoneZones
-from shaperoute_api.schemas import RouteJobBody, RouteRequestBody, RouteResultBody
+from shaperoute_api.schemas import (
+    ErrorBody,
+    RouteJobBody,
+    RouteRequestBody,
+    RouteResultBody,
+)
+from shaperoute_api.way_back import WayBackBody, WayBackRequestBody, find_way_back
 
 # One zone of each network in memory: the phone has less of it than the
 # server (docs/tasks/TASK-214.md, choice 3).
@@ -118,3 +127,18 @@ def plan_json(body_json: str, jobs: PhoneJobs) -> str:
         result=None if job.result is None else RouteResultBody.from_result(job.result),
         error=job.error,
     ).model_dump_json()
+
+
+def way_back_json(body_json: str, graphs: ActivityGraphs) -> str:
+    """The JSON POST /way-back answers for its JSON, on the phone's zones:
+    the way, or the error the API would give. With no zone here, that is
+    map_data_unavailable, and the app asks the server; with no way back,
+    invalid_request, which the server would answer too. A body the API
+    would refuse raises, as the API answers 422."""
+    body = WayBackRequestBody.model_validate_json(body_json)
+    try:
+        way = find_way_back(graphs, body)
+    except (InvalidRequestError, MapDataUnavailableError) as exc:
+        _, detail = error_of(exc)
+        return ErrorBody(error=detail).model_dump_json()
+    return WayBackBody.of(way).model_dump_json()

@@ -2,6 +2,7 @@
  * A run along a route the app was closed during opens again with the app,
  * paused (TASK-272, ADR-0240: the user's choice): its route, its turns and
  * its track from the run file, «Resume» to go on, «Stop» held to end it.
+ * Closed lately it goes on at once (TASK-304, ADR-0264: the user's choice).
  * A run without a route is in AppFreeRun.test.tsx.
  */
 import type { Direction, LatLon } from "@shaperoute/shared-types";
@@ -10,14 +11,15 @@ import * as Location from "expo-location";
 import * as Speech from "expo-speech";
 
 import App from "../App";
+import { durationMs, type TrackFix } from "../src/navigation/trackRecorder";
 import {
+  AWAY_AFTER_MS,
   clearRun,
   loadRun,
   REOPEN_WITHIN_MS,
   type SavedRun,
   saveRun,
 } from "../src/navigation/trackStore";
-import type { TrackFix } from "../src/navigation/trackRecorder";
 
 jest.mock("react-native-webview");
 jest.mock(
@@ -92,8 +94,9 @@ const north = (m: number): LatLon => [START[0] + m * METRE, START[1]];
 const ROUTE: LatLon[] = Array.from({ length: 21 }, (_, i) => north(100 * i));
 /** When each test begins, on the clock the tests move by hand. */
 const NOW = new Date("2026-10-10T08:00:00Z").getTime();
-/** The app was closed five minutes ago, at 1 km. */
-const CLOSED = NOW - 5 * 60_000;
+/** The app was closed a quarter of an hour ago, at 1 km: longer ago than
+ * AWAY_AFTER_MS, so the run waits for «Resume» (ADR-0264). */
+const CLOSED = NOW - 15 * 60_000;
 
 const DEPART: Direction = {
   node: 0,
@@ -394,4 +397,39 @@ describe("a closed shape, started where it was reached (TASK-273)", () => {
     expect(screen.getByText("Off the route")).toBeOnTheScreen();
     expect(screen.queryByText("Turn right onto Via Roma")).toBeNull();
   });
+});
+
+test("a run closed less than AWAY_AFTER_MS ago goes on at once, the absence run (TASK-304)", async () => {
+  // Closed by iOS four minutes ago, behind the camera, at 1 km.
+  const closed = NOW - 4 * 60_000;
+  expect(NOW - closed).toBeLessThan(AWAY_AFTER_MS);
+  saveRun(closedRun(closed));
+  await openApp();
+
+  // The run screen, going on: «Pause», not «Paused»; no countdown.
+  expect(await screen.findByLabelText("Pause")).toBeOnTheScreen();
+  expect(screen.queryByText("Paused")).toBeNull();
+  expect(screen.queryByText("Get ready")).toBeNull();
+  expect(screen.getByLabelText("Distance: 1.00 km")).toBeOnTheScreen();
+  // Standing still counts from now, not from the fix of four minutes ago.
+  await act(async () => {
+    jest.advanceTimersByTime(5000);
+  });
+  expect(screen.queryByText("Paused")).toBeNull();
+  expect(said()).not.toContainEqual("Paused.");
+
+  // The runner went on 300 m meanwhile: joined to the line, time counted.
+  await act(async () => {
+    onPosition(position(1300, NOW + 6000));
+    onPosition(position(1320, NOW + 22_000));
+  });
+  const track = loadRun()?.track ?? { fixes: [], distanceM: 0 };
+  expect(track.pauses ?? []).toEqual([]);
+  expect(track.fixes.some((fix) => fix.gap)).toBe(false);
+  expect(track.distanceM).toBeCloseTo(1320, 0);
+  // From the first fix (300 s before closing) to the last, nothing left out.
+  expect(durationMs(track)).toBe(NOW + 22_000 - (closed - 300_000));
+  expect(screen.queryByText("Off the route")).toBeNull();
+  // Taken up by itself, it is sent nowhere: only «Save» sends a run, once.
+  expect(fetchSpy.mock.calls.filter(([, init]) => init?.method === "POST")).toEqual([]);
 });

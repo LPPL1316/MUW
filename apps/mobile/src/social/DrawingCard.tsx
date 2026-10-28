@@ -5,6 +5,8 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import { dayLabel } from "../activities/activityText";
 import { useWinnerDrawingId } from "../contest/contestKept";
 import { WinnerBadge } from "../contest/WinnerBadge";
+import { ExploreStart } from "../explore/ExploreStart";
+import type { StartView } from "../explore/useStartDirections";
 import { t } from "../i18n";
 import {
   color,
@@ -18,15 +20,25 @@ import { runDistanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { DrawingComments } from "./DrawingComments";
 import { DrawingReactions } from "./DrawingReactions";
+import { followable } from "./drawingRoute";
 import { useDrawingsDoor } from "./drawingsDoor";
 import { useFollowsDoor } from "./followsDoor";
 import { activityName } from "./PublicParts";
+import { useDrawingGpx } from "./useDrawingGpx";
 
 type Props = {
   drawing: DrawingDetail;
   /** Back to «Profile», where it was opened. */
   onBack: () => void;
+  /** Runs its track (TASK-307); without it there is no «Start». */
+  onStart?: () => void;
+  /** «Draw it near me» (TASK-313): its shape or word chosen in «Draw»;
+   * without it, a drawing «Draw» cannot choose, there is no button. */
+  onDrawAgain?: () => void;
 };
+
+/** «Start» on a drawing asks for nothing first: it is never loading. */
+const READY: StartView = { status: "idle" };
 
 /** The height of the photos under the map; the width follows each. */
 export const PHOTO_HEIGHT = 160;
@@ -38,15 +50,20 @@ export const PHOTO_HEIGHT = 160;
  * and the names tagged, each of which opens its profile (TASK-208). Never
  * the score (TASK-241, the user's choice), nor the time of day: the
  * others see the drawing, not when somebody runs. Its comments open from
- * a button (TASK-120), and next to it are its reactions (TASK-119). The
- * drawing that won the contest kept on the phone has the «Winner» band on
- * top (TASK-299).
+ * a button (TASK-120), and next to it are its reactions (TASK-119). Under
+ * them «Start», to run the track as the map shows it, without turn
+ * directions, and «Export GPX», the same track as a file (TASK-307);
+ * after them «Draw it near me», its shape or word in «Draw» (TASK-313).
+ * The drawing that won the contest kept on the phone has the «Winner» band
+ * on top (TASK-299).
  */
-export function DrawingCard({ drawing, onBack }: Props) {
+export function DrawingCard({ drawing, onBack, onStart, onDrawAgain }: Props) {
   const day = dayLabel(drawing.started_at);
   const units = useUnits();
   const { photoSource } = useDrawingsDoor();
   const { openProfile } = useFollowsDoor();
+  const { exporting, exportGpx } = useDrawingGpx();
+  const exported = exporting(drawing.id);
   const won = useWinnerDrawingId() === drawing.id;
   // A super like goes with a comment: the comments are asked for again.
   const [superLikes, setSuperLikes] = useState(0);
@@ -106,6 +123,38 @@ export function DrawingCard({ drawing, onBack }: Props) {
         onSuperLiked={() => setSuperLikes((count) => count + 1)}
         beside={<DrawingComments key={superLikes} drawingId={drawing.id} />}
       />
+      {followable(drawing) && onStart !== undefined && (
+        <>
+          <ExploreStart start={READY} onStart={onStart} />
+          <Text style={styles.message}>
+            {t("This route has no turn directions: follow the line on the map.")}
+          </Text>
+        </>
+      )}
+      {followable(drawing) && (
+        <Pressable
+          style={styles.button}
+          onPress={() => exportGpx(drawing)}
+          disabled={exported === "preparing"}
+          accessibilityRole="button"
+        >
+          <Text style={styles.buttonText}>
+            {exported === "preparing" ? t("Preparing GPX…") : t("Export GPX")}
+          </Text>
+        </Pressable>
+      )}
+      {exported === "failed" && (
+        <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
+      )}
+      {onDrawAgain !== undefined && (
+        <Pressable
+          style={styles.button}
+          onPress={onDrawAgain}
+          accessibilityRole="button"
+        >
+          <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
+        </Pressable>
+      )}
       <Pressable style={styles.button} onPress={onBack} accessibilityRole="button">
         <Text style={styles.buttonText}>{t("Back to the profile")}</Text>
       </Pressable>
@@ -153,6 +202,10 @@ const styles = StyleSheet.create({
   },
   message: {
     color: color.textMuted,
+    fontSize: fontSize.small,
+  },
+  error: {
+    color: color.error,
     fontSize: fontSize.small,
   },
   facts: {

@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10. Oktober 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "26. Oktober 2026";
+const PRIVACY_UPDATED = "28. Oktober 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
@@ -81,6 +81,14 @@ const help: AboutDocument = {
         "«Feed» zeigt Zeichnungen, die dich auf Ideen bringen: Tippe auf eine, um ihre Route zu öffnen und loszulaufen.",
         "Die Lupe oben in «Feed» findet andere Mitglieder über ihren Namen. Auf einem Profil kannst du auf «Folgen» tippen; deine Anfragen, deine Follower und wem du folgst, findest du in «Profil».",
         "Auf der öffentlichen Zeichnung eines Mitglieds kannst du mit einem Emoji reagieren, ein Super Like senden und einen Kommentar schreiben. Negative Kommentare werden nicht angenommen.",
+      ],
+    },
+    {
+      heading: "Nachrichten",
+      blocks: [
+        "«Nachricht» auf dem Profil eines Mitglieds schreibt ihm. Folgt es dir, landet deine Nachricht in seinen «Nachrichten»; sonst kommt sie als Anfrage an, und du kannst eine Nachricht schicken, bis die Anfrage angenommen ist.",
+        "Deine Unterhaltungen sind in «Profil», «Nachrichten», mit «Nachrichtenanfragen» oben. Nimm eine Anfrage an, um euch zu schreiben, lösche sie (wer geschrieben hat, erfährt es nicht) oder blockiere, wer geschrieben hat.",
+        "Halte eine Nachricht gedrückt, um deine für euch beide zu löschen oder eine erhaltene zu melden. Niemand sieht, ob du eine Nachricht gelesen hast. Mit Push meldet dir MuW jede Nachricht und jede Anfrage.",
       ],
     },
     {
@@ -324,6 +332,7 @@ const privacy: AboutDocument = {
         "Mit einem Konto geht der ganze Lauf an unseren Server, wenn du am Ende eines Laufs auf «Speichern» tippst: jede Position mit ihrer Uhrzeit und Höhe, die Pausen, die Route, der du gefolgt bist, Distanz, Dauer, eine Punktzahl dafür, wie genau die Spur der Route folgt (von unserem Server berechnet und in der App nicht angezeigt), und der Name des Ortes. Mit «Verwerfen» wird nichts gesendet.",
         "Ein gespeicherter Lauf ist privat: Nur dein Konto sieht ihn. Andere Mitglieder sehen auf deinem Profil nur die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, nie die Läufe selbst. Er bleibt, bis du ihn in «Meine Aktivitäten» löschst oder dein Konto löschst.",
         "Ein Lauf beginnt und endet oft an deiner Haustür. Deshalb wird ein Lauf für die anderen Mitglieder erst sichtbar, wenn du «Öffentlich» einschaltest, und dann sehen sie die Spur ohne ihre ersten und letzten 200 m, mit dem Titel, den du ihr gegeben hast, und ohne Zeiten, Pausen oder die geplante Route.",
+        "Wer einen deiner Läufe sehen kann, kann ihm auch mit «Start» folgen und dieselbe Spur als GPX-Datei speichern: immer ohne ihre ersten und letzten 200 m und ohne Zeiten.",
       ],
     },
     {
@@ -339,9 +348,30 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Private Nachrichten",
+      blocks: [
+        "Deine privaten Nachrichten liegen auf unserem Server: wer geschrieben hat, an wen, der Text und wann, und für jeden der beiden, ob er die Unterhaltung angenommen hat, wann er sie zuletzt gelesen hat und bis wann er sie aus seiner Ansicht gelöscht hat. Sie sind nicht Ende-zu-Ende-verschlüsselt. In der App sehen eine Unterhaltung nur ihre beiden Mitglieder, und niemand erfährt, ob eine Nachricht gelesen wurde. Wir speichern sie, um dir den Dienst zu geben, den du verlangst (Vertrag).",
+        "Eine Nachricht an jemanden, der dir nicht folgt, kommt als Anfrage an; die erste Nachricht einer Anfrage geht durch denselben Wortfilter wie die Kommentare.",
+        "Du kannst deine eigenen Nachrichten für euch beide löschen. Eine Unterhaltung zu löschen nimmt sie aus deiner Ansicht; eine Nachricht, die keiner von euch mehr sieht, wird gelöscht. Eine Blockierung löscht die Unterhaltung; wenn du dein Konto löschst, werden alle deine Unterhaltungen gelöscht, mit den Nachrichten von beiden.",
+        "Wenn du eine Nachricht meldest, enthält die E-Mail an die Person, die MuW betreibt, nur diese Nachricht, nie den Rest der Unterhaltung. Mit Push trägt die Benachrichtigung einer Nachricht ihren Anfang, über den Push-Dienst von Expo und Apple oder Google, wie bei Kommentaren.",
+      ],
+    },
+    {
       heading: "Meldungen",
       blocks: [
         "Wenn du eine Zeichnung, einen Kommentar oder ein Profil meldest, behalten wir, wer was gemeldet hat, den Grund und wann. Wer MuW betreibt, bekommt die Meldung per E-Mail und kann das Gemeldete vor den anderen Mitgliedern verbergen. Nichts wird gelöscht, und wer es geschrieben hat, sieht es weiter. Deine Meldung wird dem Verfasser nie gezeigt.",
+      ],
+    },
+    {
+      heading: "Gruppenläufe",
+      blocks: [
+        "Wenn du einen Gruppenlauf erstellst oder sagst, dass du hingehst, sehen die Mitglieder, die ihn sehen können, deinen Namen, dein Foto und dass du hingehst. Wenn du dein Konto löschst, löschen wir deine Gruppenläufe und deine Antworten.",
+      ],
+    },
+    {
+      heading: "Feedback",
+      blocks: [
+        "Wenn du uns über «Feedback senden» in «Einstellungen» schreibst, behalten wir deine Nachricht, die Version der App, das System deines Handys (iOS oder Android) und wann du sie geschickt hast. Wer MuW betreibt, bekommt sie per E-Mail mit deinem Benutzernamen und deiner E-Mail-Adresse, um sie zu lesen und dir, wenn nötig, per E-Mail zu antworten. Sie wird den anderen Mitgliedern nie gezeigt. Wenn du dein Konto löschst, werden deine Nachrichten mit ihm von unserem Server gelöscht.",
       ],
     },
     {
@@ -358,6 +388,7 @@ const privacy: AboutDocument = {
         "Die Offline-Karten kommen von unserem Server: die um dich herum und, im Voraus, die der Orte in der Nähe. Um diese Downloads zu begrenzen, zählt der Server sie pro Tag nach einer anonymen Nummer, die die App für das Handy erzeugt; die Zählung bleibt nur im Arbeitsspeicher.",
         "Wörter, die eine Form beschreiben, werden auf unserem Server gelesen und an keinen externen KI-Dienst gesendet.",
         "Ein Foto, das du für eine Zeichnung wählst, geht einmal an unseren Server, um seinen Umriss zu finden: Der Server speichert es nicht und protokolliert es nicht.",
+        "Eine mit dem Finger gezeichnete Figur oder der Umriss deines Fotos geht einmal an unseren Server, als die Route, die du anfragst: der Server behält sie nicht.",
         "Um die Suche zu verbessern, bewahren wir ein Ereignis für jede Suche und für einige Nutzungen der App auf (eine gewählte Route, eine exportierte GPX-Datei, ein bewerteter Lauf): den Text in Kleinbuchstaben, höchstens 200 Zeichen, mit verborgenen E-Mails und langen Zahlen; Positionen nur als Quadrate von etwa 1 km; nichts, was sagt, wer du bist oder welches Handy es war. Diese Ereignisse werden ohne zeitliche Begrenzung aufbewahrt.",
       ],
     },
@@ -394,7 +425,7 @@ const privacy: AboutDocument = {
             "unpkg liefert die Kartenbibliothek, wenn die App startet.",
             "Expo liefert die Updates der App.",
             "Google Ireland Limited (Firebase Cloud Messaging), um Push-Benachrichtigungen an Android-Telefone zu liefern. Wenn du Push einschaltest, fragt die App bei Firebase einen Registrierungs-Token für dein Telefon an; der Push-Dienst von Expo gibt jede Benachrichtigung (wer was getan hat, und den Anfang eines Kommentars) an Google weiter, das sie an dein Telefon liefert. Google sieht den Token und den Inhalt jeder Benachrichtigung, nicht dein Konto und nicht deine Position. Der Token wird von unserem Server entfernt, wenn du Push ausschaltest, dich abmeldest oder dein Konto löschst; der auf dem Telefon verschwindet, wenn du die App deinstallierst.",
-            "Resend, in den Vereinigten Staaten, verschickt die E-Mails von MuW: deine E-Mail-Adresse mit der E-Mail selbst. Bei einer Meldung bringt es dem Betreiber von MuW, was gemeldet wurde, seinen Text, den Grund und die Benutzernamen dessen, der es gemeldet hat, und dessen, der es geschrieben hat.",
+            "Resend, in den Vereinigten Staaten, verschickt die E-Mails von MuW: deine E-Mail-Adresse mit der E-Mail selbst. Bei einer Meldung bringt es dem Betreiber von MuW, was gemeldet wurde, seinen Text, den Grund und die Benutzernamen dessen, der es gemeldet hat, und dessen, der es geschrieben hat. Bei «Feedback senden» bringt es deine Nachricht, deinen Benutzernamen und deine E-Mail-Adresse.",
             "Strava, wie oben gesagt.",
           ],
         },
@@ -421,7 +452,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst, die E-Mails der Benachrichtigungen, die du eingeschaltet hast, und das Formenspiel.",
-            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist.",
+            "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist; die Nachrichten von «Feedback senden», um sie zu lesen und dir zu antworten.",
             "Deine Einwilligung: die Telefonnummer, die du hinzufügst, und die Verbindung mit Strava. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
             "Eine rechtliche Pflicht, wenn ein Gesetz von uns verlangt, Daten aufzubewahren oder herauszugeben.",
           ],

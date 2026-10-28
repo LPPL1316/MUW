@@ -1082,9 +1082,16 @@ export interface FeedPage {
 
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing
- * (a post of the feed), a comment, or a member.
+ * (a post of the feed), a comment, a member, a group run (TASK-309), or a
+ * private message (TASK-319: only the one it was sent to reports it).
  */
-export const REPORT_KINDS = ["drawing", "comment", "user"] as const;
+export const REPORT_KINDS = [
+  "drawing",
+  "comment",
+  "user",
+  "group_run",
+  "message",
+] as const;
 export type ReportKind = (typeof REPORT_KINDS)[number];
 
 /**
@@ -1102,8 +1109,8 @@ export type ReportReason = (typeof REPORT_REASONS)[number];
 
 /**
  * POST /reports: kept once for each reporter and thing, the latest reason
- * kept; 204. `id` is the drawing's id, the comment's id or the member's
- * public_id. PUT and DELETE /users/{public_id}/block keep two members
+ * kept; 204. `id` is the drawing's id, the comment's id, the member's
+ * public_id or the message's id. PUT and DELETE /users/{public_id}/block keep two members
  * apart both ways, and GET /me/blocked is a PeoplePage of those blocked.
  */
 export interface ReportRequest {
@@ -1440,6 +1447,291 @@ export interface Contest {
   winner: ContestWinner | null;
 }
 
+/** The longest message «Send feedback» takes (TASK-308). */
+export const MAX_FEEDBACK_LENGTH = 2000;
+
+/**
+ * POST /feedback (TASK-308, ADR-0268): what a member writes to whoever runs
+ * MuW, 1 to MAX_FEEDBACK_LENGTH characters once the spaces at either end
+ * are gone; 204. No endpoint reads it back: it is emailed with the
+ * member's username and address. At most 5 in any 24 hours, then 429
+ * `too_many_requests` with the seconds to wait.
+ */
+export interface FeedbackRequest {
+  text: string;
+  /** The app's version and build, like «1.0.0 (7)». */
+  app_version?: string | null;
+  platform?: PushPlatform | null;
+}
+
+// --- Group runs (TASK-309, ADR-0269; docs/EVENTI.md, docs/API.md «Group runs») ---
+
+/** Who sees a group run: every member, or who follows the organiser with
+ * the request accepted. It does not change after the creation. */
+export type GroupRunVisibility = "everyone" | "followers";
+
+/**
+ * Where a group run stands, by the server's clock: `upcoming` until its
+ * start (the organiser may change or cancel it), `started` for the next
+ * GROUP_RUN_OVER_AFTER_HOURS («I'm going» still holds), then `over`;
+ * `cancelled` whenever the organiser cancelled it.
+ */
+export type GroupRunStatus = "upcoming" | "started" | "over" | "cancelled";
+
+/** The limits of a group run, as the API checks them (docs/EVENTI.md §3). */
+export const GROUP_RUN_TITLE_MAX = 60;
+export const GROUP_RUN_MEETING_NOTE_MAX = 80;
+export const GROUP_RUN_DESCRIPTION_MAX = 500;
+/** `starts_at` from this many minutes to this many days from now. */
+export const GROUP_RUN_EARLIEST_MINUTES = 30;
+export const GROUP_RUN_LATEST_DAYS = 60;
+export const GROUP_RUN_OVER_AFTER_HOURS = 3;
+/** Not over and not cancelled, per account. */
+export const GROUP_RUNS_UPCOMING_MAX = 10;
+
+/**
+ * POST /group-runs (201 `GroupRunDetail`): the route as PUT
+ * /me/favorites/{key} keeps it, whole, with a title of its own, and when
+ * and where to meet. The meeting point is the route's first point. The
+ * three texts pass the filter of the comments: `422 comment_rejected`.
+ * `starts_at` is ISO 8601 with its offset.
+ */
+export interface GroupRunRequest {
+  city: string;
+  shape: string | null;
+  word: string | null;
+  style: "round" | "block" | null;
+  title: string;
+  distance_m: number;
+  route_m: number;
+  similarity: number;
+  points: LatLon[];
+  walks?: Walk[];
+  on_foot?: Stretch[];
+  /** Left out for a run, as for a favorite. */
+  activity?: string;
+  rotation_deg?: number | null;
+  starts_at: string;
+  /** «Where exactly», one line. */
+  meeting_note?: string | null;
+  description?: string | null;
+  visibility: GroupRunVisibility;
+}
+
+/**
+ * PUT /group-runs/{id} (200 `GroupRunDetail`), the organiser only, before
+ * the start: all four, and a note or a description left out is taken away.
+ * A new time is checked as at the creation; a new time or place tells who
+ * goes (`group_run_changed`) and the reminder is sent again.
+ */
+export interface GroupRunChange {
+  title: string;
+  starts_at: string;
+  meeting_note?: string | null;
+  description?: string | null;
+}
+
+/** A group run on a card: the Feed's row, a profile. */
+export interface GroupRun {
+  id: string;
+  title: string;
+  /** ISO 8601 in UTC: the app shows it in the phone's time. */
+  starts_at: string;
+  meeting_note: string | null;
+  visibility: GroupRunVisibility;
+  status: GroupRunStatus;
+  organiser: Person;
+  /** How many go, the organiser included, as who asks sees them. */
+  going: number;
+  /** The first three of them, the organiser first. */
+  faces: Person[];
+  /** Whether who asks goes; always for the organiser. */
+  i_am_going: boolean;
+  activity: string;
+  city: string;
+  shape: string | null;
+  word: string | null;
+  style: string | null;
+  distance_m: number;
+  route_m: number;
+  similarity: number;
+  /** The meeting point: the route's first point. */
+  start: LatLon;
+  preview: LatLon[];
+  rotation_deg: number | null;
+  created_at: string;
+}
+
+/**
+ * GET /group-runs/{id}: the group run whole, also once cancelled or over;
+ * 404 for who does not see it, as for an id that is not there.
+ */
+export interface GroupRunDetail extends GroupRun {
+  description: string | null;
+  points: LatLon[];
+  walks: Walk[];
+  on_foot: Stretch[];
+  /** The first 20 who go, the organiser first; GET
+   * /group-runs/{id}/going?cursor=`next` (a `PeoplePage`) for the others. */
+  people: Person[];
+  next: string | null;
+}
+
+/**
+ * GET /group-runs?lat=…&lon=…: the Feed's row, at most 20, the nearest in
+ * time first. The app shows the row only when it is not empty.
+ */
+export interface GroupRunsPage {
+  group_runs: GroupRun[];
+}
+
+/** GET /users/{public_id}/group-runs: those not over yet, the nearest
+ * first, and the last 20 over, the latest first; never the cancelled. */
+export interface ProfileGroupRuns {
+  upcoming: GroupRun[];
+  past: GroupRun[];
+}
+
+/**
+ * The push notifications of a group run, beside `PushKind`: it starts
+ * within the hour (to who goes, the organiser too), its time or place
+ * changed, it was cancelled. Their `data` is `{ kind, group_run_id }`, and
+ * the app opens the group run. Nobody is told of a new «I'm going».
+ */
+export type GroupRunPushKind =
+  "group_run_soon" | "group_run_changed" | "group_run_cancelled";
+
+/** The `data` of a group run's notification. */
+export interface GroupRunPushData {
+  kind: GroupRunPushKind;
+  group_run_id: string;
+}
+
+/**
+ * POST /way-back (TASK-314, ADR-0274): the way back to the route, on the
+ * streets, for a runner off it. `ahead` is the stretch of the route where
+ * the runner may rejoin it, in the route's order (ADR-0263). Answered by
+ * the engine on the phone first, with the same bodies.
+ */
+export interface WayBackRequest {
+  activity: Activity;
+  here: LatLon;
+  ahead: LatLon[];
+}
+
+/**
+ * The way from the runner along the streets to `rejoin`, where it reaches
+ * the route: `rejoin_m` along `ahead`, from its first point. The
+ * directions' `distance_m` are along `points`: the street the way starts
+ * on first, the turn onto the route last. No way back is a 422
+ * `invalid_request`; no map kept for the area, 503 `map_data_unavailable`;
+ * asked too often, 429. An API older than TASK-314 answers 404.
+ */
+export interface WayBack {
+  points: LatLon[];
+  distance_m: number;
+  rejoin: LatLon;
+  rejoin_m: number;
+  directions: Direction[];
+}
+
+// --- Private messages (TASK-319, ADR-0279; docs/API.md «Messages») ---
+
+/** The limit of a message, checked by the API too. */
+export const MESSAGE_MAX_LENGTH = 1000;
+
+/**
+ * Where who asks stands in a conversation:
+ * - "open": it writes freely;
+ * - "first": it writes one message, which the other gets as a request;
+ * - "waiting": it wrote that one, and writes again once the other accepts
+ *   (POST answers 409 meanwhile);
+ * - "request": the other wrote it a request: Accept, Delete or Block.
+ */
+export const CONVERSATION_STATES = ["open", "first", "waiting", "request"] as const;
+export type ConversationState = (typeof CONVERSATION_STATES)[number];
+
+/** The two lists of GET /me/conversations?box=. */
+export type ConversationBox = "inbox" | "requests";
+
+/**
+ * POST /conversations/{public_id}/messages: plain text, 1 to
+ * MESSAGE_MAX_LENGTH characters once the spaces at either end are gone; new
+ * lines are kept. The answer is the Message (201). The one message of a
+ * request is refused as a comment ("comment_rejected") when negative.
+ */
+export interface MessageRequest {
+  text: string;
+}
+
+/** One message, as who asks sees it. */
+export interface Message {
+  id: string;
+  /** Plain text: shown as text, never as a link or HTML. */
+  text: string;
+  created_at: string;
+  /** Who asks wrote it, and may delete it (DELETE /messages/{id}). */
+  mine: boolean;
+}
+
+/**
+ * GET /conversations/{public_id}/messages: a page, the latest first; no
+ * messages before the first one is written. 404 for nobody, or someone a
+ * block keeps apart; 422 for oneself.
+ */
+export interface MessagesPage {
+  /** Who the conversation is with: never the email. */
+  person: Person;
+  state: ConversationState;
+  messages: Message[];
+  /** The `cursor` of the page of older ones; null on the oldest. */
+  next: string | null;
+}
+
+/** One conversation in a list: who with, and its latest message. */
+export interface Conversation {
+  person: Person;
+  last: Message;
+  /** The other wrote since who asks last read it (PUT …/read). */
+  unread: boolean;
+}
+
+/**
+ * GET /me/conversations?box=inbox|requests: a page, the latest message
+ * first. PUT /conversations/{public_id}/accept takes a request into the
+ * inbox, DELETE /conversations/{public_id} takes a conversation out of
+ * one's own view; both answer 204.
+ */
+export interface ConversationsPage {
+  conversations: Conversation[];
+  /** The `cursor` of the next page; null on the last one. */
+  next: string | null;
+  /** How many conversations the box has, on every page. */
+  total: number;
+}
+
+/** GET /me/conversations/unread: what the dot of «Messages» counts. */
+export interface ConversationsUnread {
+  /** Conversations of the inbox with a message not read yet. */
+  unread: number;
+  /** Message requests waiting for an answer. */
+  requests: number;
+}
+
+/**
+ * The push notifications of the messages, beside `PushKind`: a message
+ * (with its beginning), a message request (once a day for each writer).
+ * Their `data` is the profile of who wrote, as a follow event's; the app
+ * opens the conversation.
+ */
+export type MessagePushKind = "message" | "message_request";
+
+/** The `data` of a message's notification. */
+export interface MessagePushData {
+  kind: MessagePushKind;
+  public_id: string;
+  username: string;
+}
 /**
  * A photo of a drawing on a profile (TASK-324): GET /users/{public_id}/photos.
  * Read as DrawingPhoto from `url`; a tap opens its drawing.

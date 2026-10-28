@@ -1,13 +1,17 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   type GestureResponderEvent,
   Image,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 
+import { drawingPhotoSource } from "../api/drawings";
 import { cityName } from "../explore/recommendedRoutes";
 import { thumbSegments } from "../explore/RouteThumb";
 import { t, tLater } from "../i18n";
@@ -42,6 +46,8 @@ const LINE_WIDTH = 3;
 const DRAWING_PAD = space.xl;
 /** How far a finger may move, in points, and still have tapped. */
 const TAP_SLOP = 12;
+/** The side of a dot under the photos. */
+const DOT = 6;
 
 /** How tall the drawing of a card `width` wide is. */
 export function drawingHeight(width: number): number {
@@ -109,12 +115,19 @@ export function postFacts(post: SamplePost): string {
  * it whole, with its reactions and comments, as from a profile. On a
  * member's drawing, but not on one's own, a «…» reports the drawing or
  * blocks its author (TASK-121): once blocked, the card goes away at once.
+ * A drawing with photos shows them in the card, after the drawing, one
+ * whole width each, to swipe sideways, and under them a dot for each with
+ * the one shown lit (TASK-315).
  */
 export function FeedPost({ post, width, onOpen }: Props) {
   // The line of facts is written again when «Settings» changes the units
   // (TASK-182).
   useUnits();
   const { apiUrl, account } = useFollowsDoor();
+  // Which of the drawing (0) and its photos is shown, and the furthest
+  // reached: the photos up to the one after it are loaded, and stay.
+  const [page, setPage] = useState(0);
+  const [reached, setReached] = useState(0);
   const author = isShown(post) ? post.drawing.author : null;
   const blocked = useBlockedNow(author === null ? null : author.public_id);
   const height = drawingHeight(width);
@@ -168,6 +181,19 @@ export function FeedPost({ post, width, onOpen }: Props) {
         onSessionEnded={account.sessionEnded}
       />
     ) : null;
+  // A member's photos, read with the token; an example has none.
+  const photos =
+    isShown(post) && apiUrl !== null && state.status === "signedIn"
+      ? (post.drawing.photos ?? []).map((photo) => ({
+          n: photo.n,
+          source: drawingPhotoSource(apiUrl, state.session.token, photo),
+        }))
+      : [];
+  function onPaged({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) {
+    const shown = Math.round(nativeEvent.contentOffset.x / width);
+    setPage(shown);
+    setReached((was) => Math.max(was, shown));
+  }
   // A member's run may have no place found (TASK-118): then none is read.
   const label =
     city === ""
@@ -182,6 +208,33 @@ export function FeedPost({ post, width, onOpen }: Props) {
           title: post.title,
           facts: postFacts(post),
         });
+  const drawing = (
+    <View style={[styles.drawing, { width, height }]} testID="feed-drawing">
+      {map !== null && (
+        <Image
+          testID="feed-map"
+          style={StyleSheet.absoluteFill}
+          source={{ uri: map }}
+          accessible={false}
+        />
+      )}
+      {segments.map((s, i) => (
+        <View
+          key={i}
+          style={[
+            styles.segment,
+            {
+              left: s.left,
+              top: s.top - LINE_WIDTH / 2,
+              width: s.length + LINE_WIDTH / 2,
+              transform: [{ rotate: `${s.angle}deg` }],
+            },
+          ]}
+        />
+      ))}
+      {map !== null && <Text style={styles.credit}>{t(MAP_CREDIT)}</Text>}
+    </View>
+  );
   const body = (
     <>
       <View style={styles.who}>
@@ -194,31 +247,52 @@ export function FeedPost({ post, width, onOpen }: Props) {
         </View>
         {menu}
       </View>
-      <View style={[styles.drawing, { width, height }]} testID="feed-drawing">
-        {map !== null && (
-          <Image
-            testID="feed-map"
-            style={StyleSheet.absoluteFill}
-            source={{ uri: map }}
-            accessible={false}
-          />
-        )}
-        {segments.map((s, i) => (
-          <View
-            key={i}
-            style={[
-              styles.segment,
-              {
-                left: s.left,
-                top: s.top - LINE_WIDTH / 2,
-                width: s.length + LINE_WIDTH / 2,
-                transform: [{ rotate: `${s.angle}deg` }],
-              },
-            ]}
-          />
-        ))}
-        {map !== null && <Text style={styles.credit}>{t(MAP_CREDIT)}</Text>}
-      </View>
+      {photos.length === 0 ? (
+        drawing
+      ) : (
+        <>
+          {/* It bounces at its ends, as by default: a swipe past the last
+              photo stays here and never turns the app's page. */}
+          <ScrollView
+            style={{ width, height }}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={onPaged}
+            testID="feed-pages"
+          >
+            {drawing}
+            {photos.map((photo, i) =>
+              // Photo i is page i + 1: loaded once the page before it was
+              // shown, never further on (the phone's data is the runner's).
+              i <= reached ? (
+                <Image
+                  key={photo.n}
+                  testID="feed-photo"
+                  style={[styles.photo, { width, height }]}
+                  source={photo.source}
+                  accessible={false}
+                />
+              ) : (
+                <View
+                  key={photo.n}
+                  testID="feed-photo-later"
+                  style={[styles.photo, { width, height }]}
+                />
+              ),
+            )}
+          </ScrollView>
+          <View style={styles.dots} testID="feed-dots">
+            {[0, ...photos.map((photo) => photo.n)].map((key, i) => (
+              <View
+                key={key}
+                testID={i === page ? "feed-dot-on" : "feed-dot"}
+                style={[styles.dot, i === page && styles.dotOn]}
+              />
+            ))}
+          </View>
+        </>
+      )}
       <View style={styles.words}>
         <Text style={styles.title}>{post.title}</Text>
         <Text style={styles.facts}>{postFacts(post)}</Text>
@@ -312,6 +386,24 @@ const styles = StyleSheet.create({
     color: color.textFaint,
     fontSize: fontSize.label,
     textAlign: "right",
+  },
+  photo: {
+    backgroundColor: color.surfaceRaised,
+  },
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: space.xs,
+    paddingTop: space.sm,
+  },
+  dot: {
+    width: DOT,
+    height: DOT,
+    borderRadius: DOT / 2,
+    backgroundColor: color.borderStrong,
+  },
+  dotOn: {
+    backgroundColor: color.text,
   },
   words: {
     gap: 2,

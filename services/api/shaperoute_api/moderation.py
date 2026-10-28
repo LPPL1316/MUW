@@ -10,12 +10,14 @@ unblocks; neither side is told. Both change nothing done again: a second
 block keeps one, unblocking someone not blocked is done already.
 GET /me/blocked lists the members blocked, the last first, to unblock them.
 
-POST /reports keeps what a member reports, a drawing, a comment or a
-member, with a reason from a short list: one row for each reporter and
-thing, the latest reason kept. No endpoint reads them (ADR-0228): a new
-report is emailed to whoever runs the app, with a link that hides the
-thing (report_email.py, TASK-291, ADR-0251); the same member reporting it
-again with another reason sends nothing.
+POST /reports keeps what a member reports, a drawing, a comment, a
+member, a group run (TASK-309) or a private message (TASK-319: only the
+other member of its conversation reports it), with a reason from a short
+list: one row for each reporter and thing, the latest reason kept. No
+endpoint reads them (ADR-0228): a new report is emailed to whoever runs
+the app, with a link that hides the thing (report_email.py, TASK-291,
+ADR-0251); the same member reporting it again with another reason sends
+nothing.
 
 Deleting an account deletes its blocks, both ways, and its reports
 (ON DELETE CASCADE).
@@ -60,8 +62,9 @@ from shaperoute_api.follows import (
 from shaperoute_api.report_email import notify_report
 from shaperoute_api.schemas import ErrorBody
 
-ReportKind = Literal["drawing", "comment", "user"]
-"""What is reported: a drawing (a post of the feed), a comment, a member."""
+ReportKind = Literal["drawing", "comment", "user", "group_run", "message"]
+"""What is reported: a drawing (a post of the feed), a comment, a member, a
+group run (TASK-309), a private message (messages.py)."""
 ReportReason = Literal["spam", "offensive", "harassment", "sexual", "other"]
 """The short list the app shows, in this order. Codes, never the words: the
 app says them in its language. The migration's CHECK holds the same list."""
@@ -79,7 +82,8 @@ NOT_YOURSELF_BLOCK = "You cannot block yourself."
 NOT_YOURSELF_REPORT = "You cannot report yourself or what you wrote."
 NOTHING_TO_REPORT = "Nothing to report with this id."
 
-# The table of each kind, and the column of the account that owns a row.
+# The table of each kind, and the column of the account that owns a row. A
+# message only for a member of its conversation: the second placeholder.
 OWNER_OF: dict[ReportKind, str] = {
     "drawing": (
         "SELECT r.user_id AS owner FROM drawings d JOIN runs r ON r.id = d.run_id"
@@ -87,6 +91,12 @@ OWNER_OF: dict[ReportKind, str] = {
     ),
     "comment": "SELECT user_id AS owner FROM comments WHERE id = %s",
     "user": "SELECT id AS owner FROM users WHERE public_id = %s",
+    "group_run": "SELECT owner_id AS owner FROM group_runs WHERE id = %s",
+    "message": (
+        "SELECT m.sender_id AS owner FROM messages m WHERE m.id = %s"
+        " AND EXISTS (SELECT 1 FROM conversation_members cm"
+        " WHERE cm.conversation_id = m.conversation_id AND cm.user_id = %s)"
+    ),
 }
 
 
@@ -100,7 +110,8 @@ class ReportRequestBody(BaseModel):
 
     kind: ReportKind
     id: UUID
-    """The drawing's id, the comment's id or the member's public_id."""
+    """The drawing's id, the comment's id, the member's public_id, the
+    group run's id or the message's id."""
     reason: ReportReason
 
 
@@ -199,7 +210,8 @@ class Moderation:
         for nothing with this id, 422 for oneself or one's own."""
         try:
             with self.database.connect() as conn:
-                row = conn.execute(OWNER_OF[body.kind], (body.id,)).fetchone()
+                asked = (body.id, user_id) if body.kind == "message" else (body.id,)
+                row = conn.execute(OWNER_OF[body.kind], asked).fetchone()
                 if row is None:
                     raise AccountError(404, "http_error", NOTHING_TO_REPORT)
                 if row["owner"] == user_id:

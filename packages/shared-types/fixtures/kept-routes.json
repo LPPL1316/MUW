@@ -1,0 +1,112 @@
+{
+  "routes": [
+    {
+      "points": [
+        [46.0671, 11.1214],
+        [46.0671, 11.1344],
+        [46.0761, 11.1344],
+        [46.0761, 11.1214],
+        [46.0671, 11.1214]
+      ],
+      "distance_m": 4004.5,
+      "similarity": 0.91,
+      "shape": "heart",
+      "warnings": ["120 m of the route on steps"],
+      "directions": [
+        {
+          "node": 1,
+          "point": [46.0671, 11.1214],
+          "distance_m": 0.0,
+          "turn": "depart",
+          "angle_deg": 0.0,
+          "street": "Via Belenzani",
+          "road_type": "residential",
+          "branches": 3,
+          "joined": false,
+          "along": null
+        },
+        {
+          "node": 2,
+          "point": [46.0671, 11.1344],
+          "distance_m": 1003.6,
+          "turn": "left",
+          "angle_deg": -90.0,
+          "street": "Via Manci",
+          "road_type": "residential",
+          "branches": 4,
+          "joined": false,
+          "along": null
+        },
+        {
+          "node": 3,
+          "point": [46.0761, 11.1344],
+          "distance_m": 2004.4,
+          "turn": "left",
+          "angle_deg": -88.5,
+          "street": null,
+          "road_type": "footway",
+          "branches": 3,
+          "joined": false,
+          "along": "Via Rosmini"
+        },
+        {
+          "node": 4,
+          "point": [46.0761, 11.1293],
+          "distance_m": 2395.2,
+          "turn": "straight",
+          "angle_deg": 4.0,
+          "street": "SP12",
+          "road_type": "tertiary",
+          "branches": 3,
+          "joined": false,
+          "along": null
+        },
+        {
+          "node": 5,
+          "point": [46.0761, 11.1292],
+          "distance_m": 2403.1,
+          "turn": "sharp-right",
+          "angle_deg": 140.0,
+          "street": "Via Verdi",
+          "road_type": "residential",
+          "branches": 4,
+          "joined": true,
+          "along": null
+        }
+      ],
+      "word": null,
+      "alternatives": [
+        {
+          "points": [
+            [46.0671, 11.1214],
+            [46.0675, 11.135],
+            [46.0768, 11.135],
+            [46.0768, 11.121],
+            [46.0671, 11.1214]
+          ],
+          "distance_m": 4210.0,
+          "similarity": 0.88,
+          "shape": "heart",
+          "warnings": [],
+          "directions": [
+            {
+              "node": 1,
+              "point": [46.0671, 11.1214],
+              "distance_m": 0.0,
+              "turn": "depart",
+              "angle_deg": 0.0,
+              "street": "Via Belenzani",
+              "road_type": "residential",
+              "branches": 3,
+              "joined": false,
+              "along": null
+            }
+          ],
+          "word": null,
+          "alternatives": []
+        }
+      ]
+    },
+    null
+  ]
+}

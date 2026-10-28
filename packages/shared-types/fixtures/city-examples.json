@@ -1,0 +1,101 @@
+{
+  "start": [46.0036, 11.2647],
+  "requests": [
+    {
+      "shape": "circle",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "shape": "heart",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "shape": "star",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "shape": "moon",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "shape": "horse",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "shape": "snail",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "shape": "dog_head",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "shape": "rabbit_head",
+      "distance_m": 5000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "word": "AMORE",
+      "style": "round",
+      "pen_up": true,
+      "distance_m": 15000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "word": "HELLO",
+      "style": "round",
+      "pen_up": true,
+      "distance_m": 15000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "word": "CIAO",
+      "style": "round",
+      "pen_up": true,
+      "distance_m": 12000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "word": "LOVE",
+      "style": "round",
+      "pen_up": true,
+      "distance_m": 12000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "word": "RUN",
+      "style": "round",
+      "pen_up": true,
+      "distance_m": 9000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    },
+    {
+      "word": "MUW",
+      "style": "round",
+      "pen_up": true,
+      "distance_m": 9000,
+      "start": [46.0036, 11.2647],
+      "activity": "running"
+    }
+  ]
+}

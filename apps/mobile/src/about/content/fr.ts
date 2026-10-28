@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 octobre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "26 octobre 2026";
+const PRIVACY_UPDATED = "28 octobre 2026";
 
 const help: AboutDocument = {
   title: "Comment fonctionne MuW",
@@ -81,6 +81,14 @@ const help: AboutDocument = {
         "«Fil» montre des dessins pour trouver des idées : touches-en un pour ouvrir son parcours et le démarrer.",
         "La loupe en haut de «Fil» trouve les autres membres par leur nom. Sur un profil, tu peux toucher «Suivre» ; tes demandes, tes abonnés et les personnes que tu suis sont dans «Profil».",
         "Sur le dessin public d'un membre, tu peux réagir avec un emoji, envoyer un super like et écrire un commentaire. Les commentaires négatifs ne sont pas acceptés.",
+      ],
+    },
+    {
+      heading: "Messages",
+      blocks: [
+        "«Message» sur le profil d'un membre lui écrit. S'il te suit, ton message arrive dans ses «Messages» ; sinon, il arrive comme demande, et tu peux envoyer un seul message tant qu'elle n'est pas acceptée.",
+        "Tes conversations sont dans «Profil», «Messages», avec «Demandes de message» en haut. Accepte une demande pour vous écrire, supprime-la (la personne qui a écrit n'est pas prévenue) ou bloque-la.",
+        "Maintiens appuyé un message pour supprimer le tien, pour vous deux, ou pour signaler un message reçu. Personne ne voit si tu as lu un message. Avec le push allumé, MuW te prévient de chaque message et de chaque demande.",
       ],
     },
     {
@@ -324,6 +332,7 @@ const privacy: AboutDocument = {
         "Avec un compte, quand tu touches «Enregistrer» à la fin d'une course, toute la course part vers notre serveur : chaque position avec son heure et son altitude, les pauses, le parcours suivi, la distance, la durée, un score de la fidélité de la trace au parcours (calculé par notre serveur et non affiché dans l'app) et le nom du lieu. Avec «Ignorer», rien n'est envoyé.",
         "Une course enregistrée est privée : seul ton compte la voit. Les autres membres voient sur ton profil seulement les totaux de toutes tes courses enregistrées, distance et dénivelé, jamais les courses elles-mêmes. Elle reste jusqu'à ce que tu la supprimes de «Mes activités» ou que tu supprimes ton compte.",
         "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres que si tu actives «Publique», et ils voient alors la trace sans ses 200 premiers et 200 derniers mètres, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu.",
+        "Qui peut voir une de tes courses peut aussi la suivre avec «Démarrer» et enregistrer cette même trace comme fichier GPX : toujours sans ses 200 premiers et 200 derniers mètres et sans les temps.",
       ],
     },
     {
@@ -339,9 +348,30 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Messages privés",
+      blocks: [
+        "Tes messages privés sont gardés sur notre serveur : qui a écrit, à qui, le texte et quand, et pour chacun des deux s'il a accepté la conversation, quand il l'a lue pour la dernière fois et jusqu'à quand il l'a retirée de sa vue. Ils ne sont pas chiffrés de bout en bout. Dans l'app, seuls les deux membres d'une conversation la voient, et personne n'est prévenu qu'un message a été lu. Nous les gardons pour te fournir le service que tu demandes (contrat).",
+        "Un message à quelqu'un qui ne te suit pas arrive comme demande ; le premier message d'une demande passe par le même filtre de mots que les commentaires.",
+        "Tu peux supprimer tes propres messages, pour vous deux. Supprimer une conversation la retire de ta vue ; un message que ni l'un ni l'autre ne voit plus est supprimé. Un blocage supprime la conversation ; supprimer ton compte supprime toutes tes conversations, avec les messages des deux.",
+        "Quand tu signales un message, l'e-mail à la personne qui gère MuW ne contient que ce message, jamais le reste de la conversation. Avec le push allumé, la notification d'un message en porte le début, via le service push d'Expo et Apple ou Google, comme pour les commentaires.",
+      ],
+    },
+    {
       heading: "Signalements",
       blocks: [
         "Quand tu signales un dessin, un commentaire ou un profil, nous gardons qui a signalé quoi, la raison et quand. La personne qui gère MuW le reçoit par e-mail et peut masquer ce qui a été signalé aux autres membres. Rien n'est supprimé, et son auteur le voit toujours. Ton signalement n'est jamais montré à l'auteur.",
+      ],
+    },
+    {
+      heading: "Courses en groupe",
+      blocks: [
+        "Si tu crées une course en groupe ou dis que tu y vas, les membres qui peuvent la voir voient ton nom, ta photo et que tu y vas. Quand tu supprimes ton compte, nous supprimons tes courses en groupe et tes réponses.",
+      ],
+    },
+    {
+      heading: "Avis",
+      blocks: [
+        "Quand tu nous écris depuis «Envoie-nous ton avis» dans «Réglages», nous gardons ton message, la version de l'app, le système de ton téléphone (iOS ou Android) et quand tu l'as envoyé. La personne qui gère MuW le reçoit par e-mail avec ton nom d'utilisateur et ton adresse e-mail, pour le lire et, si besoin, te répondre par e-mail. Il n'est jamais montré aux autres membres. Quand tu supprimes ton compte, tes messages sont supprimés avec lui de notre serveur.",
       ],
     },
     {
@@ -358,6 +388,7 @@ const privacy: AboutDocument = {
         "Les cartes hors ligne viennent de notre serveur : celle autour de toi et, à l'avance, celles des villes proches. Pour plafonner ces téléchargements, le serveur les compte par jour, selon un numéro anonyme que l'app crée pour le téléphone ; ce compte n'est gardé qu'en mémoire.",
         "Les mots qui décrivent une forme sont lus sur notre serveur et ne sont envoyés à aucun service d'IA externe.",
         "Une photo que tu choisis pour un dessin va une fois vers notre serveur, pour en trouver le contour : le serveur ne la garde pas et ne l'inscrit pas dans ses journaux.",
+        "Une figure dessinée avec le doigt, ou le contour de ta photo, va une fois sur notre serveur, comme l'itinéraire que tu demandes : le serveur ne la garde pas.",
         "Pour améliorer la recherche, nous gardons un événement pour chaque recherche et pour quelques utilisations de l'app (un parcours choisi, un fichier GPX exporté, une course notée) : le texte en minuscules, 200 caractères au plus, avec les e-mails et les longs numéros masqués ; les positions seulement sous forme de carrés d'environ 1 km ; rien qui dise qui tu es ni de quel téléphone il s'agissait. Ces événements sont gardés sans limite de temps.",
       ],
     },
@@ -394,7 +425,7 @@ const privacy: AboutDocument = {
             "unpkg fournit la bibliothèque de la carte au démarrage de l'app.",
             "Expo fournit les mises à jour de l'app.",
             "Google Ireland Limited (Firebase Cloud Messaging), pour livrer les notifications push aux téléphones Android. Quand tu allumes le push, l'app demande à Firebase un jeton d'enregistrement pour ton téléphone ; le service push d'Expo transmet chaque notification (qui a fait quoi, et le début d'un commentaire) à Google, qui la livre à ton téléphone. Google voit le jeton et le contenu de chaque notification, pas ton compte ni ta position. Le jeton est retiré de notre serveur quand tu éteins le push, te déconnectes ou supprimes ton compte ; celui du téléphone disparaît quand tu désinstalles l'app.",
-            "Resend, aux États-Unis, envoie les e-mails de MuW : ton adresse e-mail avec l'e-mail lui-même. Pour un signalement, il apporte à la personne qui gère MuW ce qui a été signalé, son texte, la raison et les noms d'utilisateur de qui l'a signalé et de qui l'a écrit.",
+            "Resend, aux États-Unis, envoie les e-mails de MuW : ton adresse e-mail avec l'e-mail lui-même. Pour un signalement, il apporte à la personne qui gère MuW ce qui a été signalé, son texte, la raison et les noms d'utilisateur de qui l'a signalé et de qui l'a écrit. Pour «Envoie-nous ton avis», il apporte ton message, ton nom d'utilisateur et ton adresse e-mail.",
             "Strava, comme dit plus haut.",
           ],
         },
@@ -421,7 +452,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Pour te fournir le service que tu demandes (contrat) : ton compte, ton profil, les parcours que tu demandes, et les courses, favoris, commentaires, réactions et abonnements que tu enregistres, les e-mails des notifications que tu as allumées, et le jeu des formes.",
-            "Notre intérêt légitime à faire fonctionner MuW, à la garder sûre et à l'améliorer : les courts journaux du serveur, les comptages qui limitent les téléchargements de cartes et les événements de recherche, qui ne disent rien de qui tu es ; la comparaison des numéros de tes contacts, dont aucun n'est gardé ; l'e-mail en cas d'absence, que tu peux refuser à l'inscription, dans «Réglages» ou dans chaque e-mail ; les e-mails des signalements, pour garder MuW sûre ; l'archive des parcours dessinés, qui ne dit rien de qui tu es.",
+            "Notre intérêt légitime à faire fonctionner MuW, à la garder sûre et à l'améliorer : les courts journaux du serveur, les comptages qui limitent les téléchargements de cartes et les événements de recherche, qui ne disent rien de qui tu es ; la comparaison des numéros de tes contacts, dont aucun n'est gardé ; l'e-mail en cas d'absence, que tu peux refuser à l'inscription, dans «Réglages» ou dans chaque e-mail ; les e-mails des signalements, pour garder MuW sûre ; l'archive des parcours dessinés, qui ne dit rien de qui tu es ; les messages de «Envoie-nous ton avis», pour les lire et te répondre.",
             "Ton consentement : le numéro de téléphone que tu choisis d'ajouter et la connexion à Strava. Tu peux retirer un consentement à tout moment ; ce qui a été fait avant reste licite.",
             "Une obligation légale, quand une loi nous demande de conserver ou de remettre des données.",
           ],

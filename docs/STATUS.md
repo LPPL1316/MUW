@@ -162,10 +162,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 - **TASK-324 — I totali e le foto di un profilo** (ADR-0284; richiesta
   dell'utente del 2026-10-26; numeri presi senza coordinatore, nessuna
-  sessione raggiungibile: nato come TASK-305/ADR-0265, rinumerato perché
-  presi da un'altra sessione). Branch `claude/wonderful-dijkstra-oi568i` (il
-  branch della sessione cloud), migrazione `0034_run_climb.sql` (numero al
-  merge). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
+  sessione raggiungibile: nato come TASK-305/ADR-0265, rinumerato due
+  volte perché presi da altre sessioni). Branch
+  `claude/wonderful-dijkstra-oi568i` (il branch della sessione cloud),
+  migrazione `0034_run_climb.sql` (dopo la 0033). Sul profilo di un altro e sul proprio tre riquadri, «Distance»,
   «Elev. gain» e «Likes», e le schede «Drawings» | «Photos». **Scelta
   dell'utente: km e dislivello di tutte le corse, anche private**; «Likes»
   sono le reazioni degli altri sui disegni che chi guarda vede. Il
@@ -178,6 +178,146 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente, prima dell'app. `UserProfilePage.tsx` e `ProfileHome.tsx` sono anche di
   TASK-299 B: poche righe qui, chi entra secondo unisce. File:
   `tasks/TASK-324.md`.
+- **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
+  proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
+  progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
+  Branch `docs/TASK-323-open-water-swim` (documenti), poi A1 (motore:
+  l'acqua della canoa con la fascia rovesciata, 20–150 m dalla riva,
+  0,5–3 km, campioni per l'utente; la canoa e l'impronta degli esempi
+  tenuti non cambiano), A2 (le curve col nome del posto a riva), B (API,
+  migrazione, estratto dei nomi sul server col sì dell'utente), C (lo
+  sport nell'app, `ready: false` fino al motore, avviso di sicurezza e
+  testi da approvare), D (telefono nella boa, file dell'orologio) ed E
+  (Apple Watch con le vibrazioni, nella build 1.0.1 con TASK-321). File
+  `tasks/TASK-323.md`.
+- **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
+  Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
+  condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
+  del calcolo la scheda dice «Warming up: heart…» al posto di «Waiting for
+  the API…»; dopo 3 s, sotto la barra, sei disegni di esempio del Feed da
+  scorrere, senza rete. Solo app, OTA. Aspetta il sì dell'utente sui tre
+  testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
+  File `tasks/TASK-317.md`.
+
+- **TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno
+  proposto** (ADR-0280; richiesta dell'utente del 2026-10-28; proposte,
+  testi e riga della privacy approvati dall'utente il 2026-10-28; numero,
+  parti e condizioni dal Coordinatore). **Parte A fatta** (PR #612, branch
+  `feat/TASK-320-a-freehand`): la quarta scelta «Freehand» in «Draw», la
+  tavola a mano (la prima linea è il contorno chiuso dall'app, le altre
+  dettagli appesi, «Erase», «Undo», «Save», niente rete), «Edit the
+  drawing» sotto la forma scelta (le linee del catalogo smontate in contorno
+  e dettagli) e sul risultato, «Draw route» come per un'immagine, «Drawing»
+  dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
+  invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
+  sessione, dopo A. File `tasks/TASK-320.md`.
+  File `tasks/TASK-317.md`. **Chiuso il 2026-10-28**: testi approvati
+  dall'utente, #604 in `main` (d6545be5), impronta iOS `83793e26`
+  invariata; arriva con il prossimo OTA. Voce in «Completato».
+
+- **TASK-318 — Gli sport non pronti nascosti nelle build dello store**
+  (ADR-0278; scelta dell'utente del 2026-10-28, «nascondi Soon nello
+  store»; fatto dal Coordinatore). Nelle build dell'App Store e di Google
+  Play, e negli update `production`, «Paragliding · Soon» non si vede né
+  in «Settings» né nel menu di «Draw»; Expo Go e `preview` come prima. Solo
+  `sport.ts` e un test nuovo; impronta iOS `83793e26`. Va prima del primo
+  update `production`. File: `tasks/TASK-318.md`.
+- **TASK-319 — I messaggi privati, con le richieste** (ADR-0279;
+  richiesta dell'utente del 2026-10-26, «aggiungi anche la possibilità di
+  mandarsi messaggi privati»; scelte: «Chiunque, con richiesta», poi «Sì,
+  così» alla proposta). Branch `feat/TASK-319-private-messages` (scritto
+  nella sessione cloud); numeri dati dal Coordinatore il 2026-10-28.
+  Chiunque scrive a chiunque; chi non è seguito da chi riceve arriva in
+  «Requests», un messaggio solo finché non è accettato, filtrato come i
+  commenti; «Accept», «Delete», «Block»; il blocco cancella la
+  conversazione; nessuna conferma di lettura; push per ogni messaggio, una
+  al giorno per una richiesta. **Parte A** (API, migrazione
+  `0033_messages.sql`, numero al merge) e **parte B** (l'app: «Messages»
+  in «Profile», «Message» sul profilo, la conversazione, «Help» e una
+  sezione nuova della privacy, anche sul sito) scritte e verdi in locale;
+  testi e privacy **approvati dall'utente** il 2026-10-28. La sessione
+  cloud non può fare il push (l'app Claude non è installata su
+  rockydalbianco): il branch è arrivato su GitHub dal Mac, dal bundle
+  nell'artifact della sessione cloud. Prima del merge, le condizioni del
+  Coordinatore scritte nel task file. Server, sito e app dopo il merge,
+  con l'ok dell'utente;
+  «Messaging and Chat» su App Store Connect la cambia l'utente. File:
+  `tasks/TASK-319.md`.
+  **Chiuso il 2026-10-28**: in `main` con la #605 (riallineata e chiusa
+  dal Coordinatore, la sessione era archiviata); impronta iOS `83793e26`.
+  «Messages» resta nascosto finché il server non ha la 0033: server e
+  privacy online col sì dell'utente.
+
+- **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
+  foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
+  scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).
+  Branch `docs/TASK-312-import-activities` (documenti), poi A (API:
+  `runs.source`, gioco e concorso solo per `muw`), B (app: «Add past
+  activity» da un file GPX, TCX o FIT letto sul telefono, con
+  `expo-document-picker` escluso dall'autolinking come i contatti:
+  impronta iOS `83793e26` invariata, sui telefoni con la build nativa
+  dopo), C (post di sole foto: un disegno senza corsa), D (studio di Apple
+  Salute e Health Connect) ed E (studio dei collegamenti diretti: Strava,
+  Garmin, Polar, Suunto, Coros, Wahoo, Komoot). Tutto con «Imported», mai
+  per il gioco né per il concorso. Testi e privacy da approvare. Regole in
+  `IMPORTAZIONI.md`, file `tasks/TASK-312.md`.
+- **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
+  chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
+  numero e condizioni dal Coordinatore). Parte A, branch
+  `feat/TASK-311-a-words-measure`: 1000 parole (50 × 5 città × 3 e 4 km a
+  lettera × due stili) misurate sul Mac con
+  `tests/measure_words_many.py`. Poi B (il metodo, solo ciò che la misura
+  dimostra; più km a lettera col sì dell'utente), C (le parole provate in
+  `drawn_routes` sul server, dopo Apple) e D (nell'archivio anche disegni
+  a mano, contorni delle foto e richieste senza percorso, senza account;
+  privacy da approvare). File `tasks/TASK-311.md`. **A fatta** (2026-10-28):
+  443 buone su 1000; più km a lettera non servono, conta la lunghezza;
+  da 5 lettere in su la penna alzata porta le buone da 11 % a 40 %. B
+  aspetta la scelta dell'utente sulla penna alzata per le parole lunghe.
+  **Parte B** (2026-10-28, branch `feat/TASK-311-b-pen-up-hint`, worktree
+  `.claude/worktrees/TASK-311-b`): la scelta dell'utente è «anche quando
+  non riesce grazie». La penna alzata già scelta c'era da TASK-202, per
+  ogni parola: le corte restano così (confermato dal Coordinatore). Nuovo:
+  una parola chiesta su una riga che non riesce (somiglianza sotto 0,90,
+  distanza oltre il 10 %, o `shape_not_drawable`) ha sotto «Lift the pen»,
+  che accende l'interruttore e la ridisegna a penna alzata. Solo JS
+  dell'app, impronta iOS `83793e26`; aggiunta ad ADR-0271 in fondo a
+  `DECISIONS.md`. I due testi nuovi approvati dall'utente nelle cinque
+  lingue («testi ok», 2026-10-28). PR #601, merge dal Coordinatore. **Dopo**:
+  la parte C (le parole provate in `drawn_routes` sul server), in una
+  sessione sua, col sì dell'utente.
+  **Parte B** in `main` con la #601 (`83ba3087`, 2026-10-28), mergiata dal
+  Coordinatore; impronta iOS `83793e26` invariata. Sul telefono con il
+  prossimo aggiornamento dell'app, col sì dell'utente. **Prossimo**: la
+  parte C, in una sessione nuova, dopo Apple e col sì dell'utente.
+- **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
+  seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
+  ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A
+  nel branch `feat/TASK-314-a-way-back`, worktree
+  `.claude/worktrees/TASK-314`: il motore calcola la strada per tornare,
+  dal punto della via più vicina al runner fino al percorso più avanti, per
+  strada e con le svolte. Gira sul telefono e su `POST /way-back`;
+  l'impronta degli esempi tenuti non cambia. Parte B (schermo di corsa,
+  testi nuovi) dopo la #567 e dopo A. File `tasks/TASK-314.md`.
+  **Parte A** in `main` con la #588 (`f381b7f5`, 2026-10-28). Impronta di
+  `route_store` invariata (`6072aa1ea3a3`), impronta iOS `83793e26`. Nessuno
+  la chiama ancora: oggi la corsa mostra i puntini come prima. Sul server
+  dopo Apple, con il sì dell'utente; poi va guardato nei log quello che
+  dice il task file. La parte B parte da qui, in una sessione sua, con i
+  «File toccati» al Coordinatore prima del codice.
+- **TASK-313 — «Draw it near me»: la stessa forma in un altro posto**
+  (ADR-0273; richiesta dell'utente del 2026-10-27, «Sì, così» alla
+  proposta; numero e ordine dal Coordinatore, prima di TASK-309 B). Branch
+  `feat/TASK-313-draw-it-near-me`, solo app (JS). Nella scheda di un
+  percorso di «Explore» e in quella di un disegno (Feed, profili) il
+  pulsante porta a «Draw» con la stessa forma, o la stessa parola con le
+  sue lettere, e la stessa distanza (al decimo di km, una parola mai sotto
+  i suoi 3 km a lettera, dentro i limiti dello sport); la partenza resta
+  quella di «Draw» e niente si chiede prima di «Draw route». Niente per
+  foto, immagini, percorsi a tema, forme sconosciute, parole che «Draw»
+  rifiuterebbe o parole in «Paddle». Il testo nuovo è
+  approvato dall'utente (2026-10-28). File: `tasks/TASK-313.md`.
+  **Chiuso**: in `main` con la #586 (2026-10-28), impronta iOS `83793e26`.
 - **TASK-309 — Le corse di gruppo («Group runs»)** (ADR-0269; richiesta
   dell'utente del 2026-10-26, «Sì, così» alla proposta con le aggiunte del
   Coordinatore lo stesso giorno). Branch `docs/TASK-309-group-runs`
@@ -193,6 +333,29 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   aggiunge: lo vede nella pagina. È la scelta dell'utente dopo la
   correzione della proposta, la cui «lista Notifiche» non esiste. Regole
   in `EVENTI.md`, file `tasks/TASK-309.md`.
+  **Documenti** in `main` con la #574 (`06a95749`, 2026-10-27).
+  **Parte A** (API, branch `feat/TASK-309-a-group-runs-api`, migrazione
+  `0032_group_runs.sql`; la 0031 è del feedback, #576):
+  `group_runs.py` con `POST /group-runs`, la fila `GET /group-runs`, la
+  pagina, il cambio e l'annullamento dell'organizzatore, «I'm going» e «Not
+  going», chi va a pagine, le corse di gruppo di un profilo; il promemoria
+  un'ora prima una volta sola (`GroupRunClock`, `UPDATE` condizionato), le
+  push di cambio e di annullamento (anche all'account cancellato
+  dell'organizzatore), nessuna per un «I'm going»; blocchi, nascosti e il
+  filtro dei testi; `group_run` nelle segnalazioni e nelle loro email.
+  Tipi e fixture in `shared-types`. Nessun codice d'errore nuovo:
+  `schemas.py` ed `engine.zip` invariati. Testi de/es/fr delle push e
+  della privacy approvati dall'utente il 2026-10-27; la riga della privacy
+  è nella sezione «Group runs» dei testi dell'app, sopra «Feedback», e
+  `site/privacy` è rifatta (2026-10-28, dopo #573 e #576). Merge dal
+  Coordinatore; server dopo Apple, con il sì dell'utente. Com'è fatta:
+  `EVENTI.md` §14.
+  **Parte A** in `main` con la #581 (`989fffe5`, 2026-10-28), mergiata dal
+  Coordinatore; impronta iOS `83793e26` invariata. Sul server dopo Apple,
+  con il sì dell'utente (migrazione `0032` all'avvio, nessuna variabile
+  nuova). La riga «Reports» della privacy con «or a group run» la porta il
+  Coordinatore all'utente; con il sì, va nella parte B. **Prossimo**: la
+  parte B (app), in una sessione sua.
 - **TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore»
   preparato all'apertura** (ADR-0266; richiesta dell'utente del
   2026-10-26, «Sì, va bene così: procedi con TASK-306» lo stesso giorno;
@@ -209,6 +372,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Testi: inglese e italiano approvati con la proposta, de/es/fr
   dell'agente; tempi e dati sul telefono sono stime. File:
   `tasks/TASK-306.md`.
+  **Chiuso**: in `main` con la #571 (`0bfc07c0`, 2026-10-27); resta la
+  preview del Coordinatore e il tempo vero sul telefono dell'utente.
 - **TASK-303 — Dopo una deviazione la corsa rientra più avanti, con la
   guida per tornarci** (ADR-0263; prova sul campo dell'utente a Trento del
   2026-10-25, piano approvato; numero e condizioni dal Coordinatore). Branch
@@ -223,6 +388,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   merge; poi «#NNN pronta» al Coordinatore, ordine 302 → 303 → 304.
   `tasks/TASK-303.md`.
   **Chiuso** nella sua PR #565 (2026-10-26); vedi «Completato».
+- **TASK-307 — Correre il disegno di un altro, e scaricarne la traccia**
+  (ADR-0267; richiesta dell'utente del 2026-10-26: «poter scaricare la
+  traccia e poterla iniziare pure tu»; numero e regole dal Coordinatore).
+  Branch `feat/TASK-307-start-friend-track`, solo app. Sulla scheda del
+  disegno aperto, dal «Feed» o dal profilo: «Start» sulla traccia
+  tagliata, subito e **senza svolte a voce** (una traccia GPS non sta sul
+  grafo, `/route-directions` la rifiuta; la scheda lo dice), ed «Export
+  GPX» scritto sul telefono, senza tempi né nome. La corsa salvata dice ciò
+  che il disegno disegna; a fine corsa si torna al disegno. L'utente il
+  2026-10-26 ha approvato il testo nuovo e scelto **nessun interruttore**
+  per chi pubblica: una frase nuova nella «Privacy», in app e sul sito.
+  Le svolte a voce (map-matching nell'engine) sarebbero un task a parte.
+  File: `tasks/TASK-307.md`.
+  **Chiuso**: in `main` con la #573 (`f8dd7964`, 2026-10-27), privacy
+  datata 27 ottobre 2026; vedi «Completato».
 - **TASK-299 — Il primo concorso: il post con più reazioni vince**
   (ADR-0260; richiesta dell'utente del 2026-10-24, «Sì, così» alla
   proposta lo stesso giorno; numeri e condizioni dal Coordinatore). Branch
@@ -273,6 +453,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lingue approvati dall'utente il 2026-10-26; impronta iOS invariata
   (`83793e26`). Com'è fatta: `CONCORSI.md` §14. Su preview la scheda resta
   nascosta finché il server non ha la parte A.
+  **Chiuso**: parte B in `main` con la #575 (`4771402b`, 2026-10-27); il
+  concorso è tutto in `main`. Sul server dopo Apple, con l'ok
+  dell'utente: migrazione `0030`, deploy, `open` (Coordinatore).
 - **TASK-262 parte B — L'email delle notifiche, una al giorno**
   (aggiunta ad ADR-0226; scelte dell'utente del 2026-10-25: un riassunto
   al giorno, la lingua come l'email di ritorno; conferma dell'email e
@@ -284,6 +467,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Si accende con l'email di ritorno e dopo la parte B di TASK-284 (nota di
   «Settings», help e privacy). I testi nuovi aspettano il sì dell'utente.
   File: `tasks/TASK-262.md`, «Parte B» (scritta dopo #461).
+  **TASK-262 chiuso il 2026-10-26**: parte B in `main` con la #550
+  (`ef5021f4`), con A (#451) e C (#461) già dentro; vedi «Completato».
 - **TASK-300 — Email confermata e «Forgot password?»** (ADR-0261; scelta
   dell'utente del 2026-10-25, «a parte SUBITO»; numero e regole dal
   Coordinatore). All'iscrizione e al cambio in «Settings» un link conferma
@@ -308,6 +493,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso**: in `main` con la #550 (`ef5021f4`, 2026-10-25); nota di
   «Settings», help e privacy con TASK-284 B (#556); server dal
   Coordinatore dopo Apple.
+  **TASK-300 chiuso il 2026-10-26**: parti A e B in `main` con la #559
+  (`57d87a10`), migrazione `0029`; vedi «Completato».
 - **TASK-297 — Ricerche dall'archivio dei percorsi e loghi con la penna
   alzata** (ADR-0256 e ADR-0258; ADR-0257 misurata e scartata; richiesta
   dell'utente del 2026-10-24, «sì grazie» alla proposta lo stesso giorno;
@@ -464,6 +651,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   approvato i testi lo stesso giorno («I testi vanno bene, mergiate pure
   la #561»); impronta iOS da misurare su `main` dal Coordinatore, poi il
   preview. Resta la E.
+  **Parte E** (branch `feat/TASK-296-e-run-strip`, PR #564, 2026-10-26): la
+  riga del gioco nella scheda della corsa, sotto i numeri di «Map» e di
+  «Data», per la corsa a piedi con l'account: la prossima forma per
+  distanza con i km del server più quelli della corsa («Hexagon 14.2 / 20
+  km»; oltre la soglia la forma dopo, mai «unlocked»), o con un pezzo
+  veloce in mano il passo dell'ultimo km contro l'obiettivo («Last km 5:12
+  · target 5:00 /km»); `GET /game/me` e `GET /game/teams` una volta
+  all'inizio della corsa, mai durante; niente riga e nessun errore in bici,
+  in canoa, senza account, senza rete o senza il gioco sul server. Le
+  squadre lette con `fetchTeams` e i tipi della D. Solo app, nessuna
+  dipendenza nuova; i due testi approvati dall'utente il 2026-10-26 (task
+  file, «Testi da approvare»); il posto della riga lo conferma l'utente su
+  `preview`. Con la E il task è completo: dopo il merge, chiusura e
+  server (A e C) dopo Apple.
+  **Chiuso**: la E in `main` con la #564 (`de4ca26b`, 2026-10-28); le
+  cinque parti sono in `main`, vedi «Completato». Sul server A e C dopo
+  Apple, con l'ok dell'utente.
 
 - **TASK-294 — MuW su Google Play** (richiesta dell'utente del
   2026-10-23; numero dal Coordinatore). Tre parti, una PR ciascuna.
@@ -955,6 +1159,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `tasks/TASK-262.md`.
   **Parte A chiusa il 2026-10-10** (PR #451, merge `578c2f7e`): vedi
   «Completato». Restano B e C.
+  **Task chiuso il 2026-10-26**: C con la #461, B con la #550; vedi
+  «Completato».
 - **TASK-152 — MuW sull'App Store** (ADR-0233). **Parte A** in `main`
   il 2026-10-08 (PR #446, merge `9dcacbf4`; chiesta dall'utente): profilo `production` in `eas.json`,
   canale `production`. Solo la build dello store ha il runtime dal
@@ -969,6 +1175,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `83793e26…`) inviata in revisione ad Apple dall'utente; scheda, screenshot
   e privacy su App Store Connect. Resta l'esito di Apple e l'uscita
   manuale.
+  **Chiuso il 2026-10-28**: Apple ha approvato la 1.0.0 (7), che è
+  sull'App Store; server, OTA `production` e 1.0.1 con il sì
+  dell'utente, uno per volta (`tasks/TASK-152.md`, «Esito»).
 - **TASK-237 — Il sito web** (ADR-0201; chiesto dall'utente il
   2026-10-05). Una pagina statica in `site/`, senza dipendenze. **Parte
   A** in `main` (PR #325, `f8e68b6`): la pagina con «Merch». **Parte A2**
@@ -1432,6 +1641,53 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (cinque lingue) e la coda dei merge. `tasks/TASK-266.md`.
   **Chiuso**: in `main` con la #479 (`1f64621e`, 2026-10-10); vedi
   «Completato».
+- **TASK-305 — Parapendio: proposta e prova di fattibilità** (ADR-0265
+  **proposto**; richiesta dell'utente del 2026-10-26; numeri e condizioni
+  dal Coordinatore). Branch `docs/TASK-305-paragliding-proposal`: solo
+  documenti e misure, **nessun codice**, e nessuna parte parte senza il sì
+  dell'utente. Lo studio è `out/TASK-305/studio.md` del Mac (ignorato da
+  git) con gli script, i dati e la pagina `paragliding-samples-grid.html`.
+  **Il modello**: niente strade, il cono di planata fra il decollo e il suo
+  atterraggio ufficiale (efficienza 8, 300 m sopra il terreno, aria calma);
+  la forma più larga che ci sta, inclinata al massimo di 30°, sotto le CTA
+  e sopra le riserve, 500 m sopra i centri abitati; la quota al posto della
+  distanza; il motore decide, l'AI interpreta. **Misurato** su Monte Baldo
+  → Malcesine, Monte Grappa → Semonzo e Panarotta → Levico (terreno EU-DEM,
+  spazi aerei dal file comunitario AIRAC 2504, centri abitati OSM):
+  in aria calma il cuore più grande è di 2,8 km al Baldo (1667 m di
+  dislivello), 1,2 al Grappa, 1,0 alla Panarotta; con le regole il Baldo
+  resta a 2,7, il Grappa scende a 0,24 (pianura costruita) e alla
+  Panarotta non ci sta niente (il file comunitario mette l'atterraggio di
+  Levico dentro una riserva); con vento contro la planata Grappa e
+  Panarotta non hanno forma. Un cuore regge 12–16 boe; con 15 km/h di vento conta
+  il raggio di virata (60–80 m di errore a 30 m, 90–135 a 50 m): sotto
+  1,5 km la forma si deforma, da 2 km si legge. **Le fonti**: decolli da
+  OSM (499 in Italia, incompleti), terreno Copernicus, vento ICON-D2 o
+  ECMWF (CC BY 4.0); **gli spazi aerei sono il nodo**: openAIP è CC BY-NC,
+  ENAV vuole un accordo, EAD è a pagamento; senza una fonte spedibile non
+  si propone nessuna forma. **La sicurezza**: nessuna guida in volo, la
+  forma si esporta come task di boe (XCTrack QR e `.xctsk`, `.cup`,
+  `.wpt`) e dopo l'atterraggio si importa l'IGC; l'app non dice mai «vola
+  qui», «qui è legale», «ce la fai». **L'utente** (2026-10-26): «è una
+  bella idea», niente navigatore, solo la traccia e il caricamento del
+  volo. **Costo**: 10–14 sessioni (la canoa ne ha prese 15), più le
+  licenze, un parere legale e una prova con un pilota. **Verdetto**:
+  conviene a tre condizioni (spazi aerei con licenza, decolli scelti dove
+  la forma è ≥ 1,5 km, parere legale e prova), altrimenti no. Il
+  2026-10-27 l'utente ha scelto la riga in Settings **subito, con «Soon»**:
+  è la parte D0 (solo app, `sport.ts` e le lingue), che non aspetta le
+  condizioni; il nome è «Paragliding» 🪂 (Parapendio, Gleitschirmfliegen,
+  Parapente), l'avviso di sicurezza è approvato com'era proposto. Le
+  scelte di prodotto sono tutte prese. **Aspetta**: le tre condizioni prima
+  della parte A1 e, prima della build 1.0.1, la scelta se tenere la riga
+  «Soon» nelle build per lo store (Apple, regola 2.1). File:
+  `tasks/TASK-305.md`.
+  **Documenti in main** con la #578 (`0f66aa54`, 2026-10-27). **Parte D0
+  fatta** il 2026-10-28 (branch `feat/TASK-305-d0-soon-row`, PR #591): la
+  riga «Paragliding» 🪂 con «Soon» in «Settings → Sport» e, per scelta
+  dell'utente del 2026-10-27, anche nel menu dello sport di «Draw»; non si
+  sceglie e non dà percorsi; impronta iOS invariata (`83793e26…`). Merge
+  sulla parola dell'utente e il «merge 591» del Coordinatore.
 
 - **TASK-301 — La musica nel video della corsa** (ADR-0262; richiesta
   dell'utente del 2026-10-25 «aggiungi la musica al video», scelte con le
@@ -1443,9 +1699,135 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   musica il video resta identico. 1,88 MB di brani nell'app. Solo app,
   impronta iOS invariata. File: `tasks/TASK-301.md`.
 
+- **TASK-316 — Explore pronto prima: i disegni dei paesi vicini e della
+  regione** (ADR-0276; richiesta dell'utente del 2026-10-27, «appena la
+  apro deve già iniziare a scaricare i vari disegni nelle città vicine,
+  anzi addirittura nella regione, e fai almeno 100 disegni da tenere in
+  server»; numeri e condizioni dal Coordinatore). Branch
+  `docs/TASK-316-explore-ahead`, poi A (API), B (app), C (server). Toccato
+  un paese vicino, oggi gli undici esempi dopo cerchio, cuore e stella
+  partono solo allora. A: `POST /kept-routes`, in sola lettura, i percorsi
+  già tenuti e nient'altro; `draw_examples --all --around`. B: all'apertura
+  i sei paesi vicini e quelli della regione (fino a 18) chiedono a
+  `/kept-routes` i loro quattordici esempi, scritti in un file per paese
+  per 7 giorni, al massimo 150 disegni a sessione: il prefetch non fa mai
+  calcolare il server. C, dopo Apple e con il sì dell'utente: almeno 100
+  disegni attorno a Trento e Caldonazzo calcolati sul server una volta, di
+  notte. File: `tasks/TASK-316.md`.
+  **A** in `main` con la #590 (`07f98951`, 2026-10-28) e **B** con la #593
+  (`bf68d9cf`), impronta iOS `83793e26`. `/kept-routes` legge solo
+  `route_store`, mai l'archivio, che tiene le posizioni degli utenti. Il
+  punto 7 di TASK-279 B è fatto qui. Resta C, dopo Apple e con il sì
+  dell'utente: il server con A, poi di notte `draw_examples --all --around`
+  per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
+  nel task file).
+- **TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno
+  proposto** (ADR-0280, proposta; richiesta dell'utente del 2026-10-28,
+  «dai la possibilità di disegnare anche a mano nella pagina draw e […]
+  modificare un disegno del feed, un disegno ricercato, un disegno di
+  explore… tutto potenzialmente editabile»; numero, parti e condizioni dal
+  Coordinatore). Branch `docs/TASK-320-freehand-edit`: solo i documenti.
+  Proposta: «Freehand» come quarta scelta di «Draw»; una tavola vuota con
+  le regole della linea a dito di «Draw on the map» (la prima linea è il
+  contorno, le altre dettagli, «Erase»), tutta sul telefono, niente rete
+  prima di «Draw route»; «Edit the drawing» sulla forma scelta, sul
+  risultato, sui percorsi di «Explore» e sui disegni degli iscritti, che si
+  aprono nella tavola e tornano in «Draw» come «Draw it near me». Parole e
+  percorsi a tema no. Nessun contratto nuovo. La privacy di oggi non dice
+  che un contorno parte come richiesta di percorso: una riga nuova proposta,
+  col sì dell'utente. Parti A (tavola, «Freehand», «Edit» in «Draw» e sul
+  risultato) e B (schede), ognuna nella sua sessione dopo il sì dell'utente
+  alle proposte e ai testi. File `tasks/TASK-320.md`.
+- **TASK-322 — Entrare e iscriversi con Apple e con Google** (ADR-0282,
+  proposta; richiesta dell'utente del 2026-10-28, «Accedere e registrarsi
+  con Google o Apple», «con google ed apple»). Branch
+  `docs/TASK-321-sign-in-apple-google` (il nome con cui è nata la PR
+  #607): solo i documenti. Scelte dell'utente: i tasti in alto in «Sign up»
+  e «Log in», Apple solo su iPhone, Google su iPhone e Android, la prima
+  volta nome ed età, stessa email stesso account; approvati anche i tre
+  pacchetti nuovi, i testi, privacy e termini: il codice parte con A. Parti A
+  (API), B (app, moduli fuori dall'autolinking e tasti nascosti nella build
+  dello store: impronta 83793e26), C (console Apple e Google, server, la
+  build 1.0.1 insieme a contatti, document picker e forse HealthKit). File
+  `tasks/TASK-322.md`.
+
 ## Completato
 
+- **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
+- **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
+- **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,
+  che ha scelto la pagina «Play» dentro MuW): il gioco delle forme. Le
+  corse a piedi salvate valgono km e tempi migliori sul server, che
+  sblocca forme da collezionare (per distanza totale o per passo) e tiene
+  squadre e sfide con una forma divisa in pezzi entro una scadenza. API
+  #534 (`abb593c5`, A: `game_runs`, `game_unlocks`, regole pure, catalogo,
+  `/game/catalog`, `/game/me`, `/game/runs/{key}`, push `shape_unlocked`,
+  `game_backfill`; migrazione `0025`) e #540 (`88b63b6e`, C: squadre e
+  sfide, otto endpoint, tre push, timer «1 day left»; migrazione `0027`);
+  app #536 (`145cf992`, B: la pagina «Play» fra «Explore» e il profilo,
+  visibile solo con `GET /game/catalog` a 200, la collezione, la scheda
+  «New shape unlocked»), #561 (`a8d75842`, D: la scheda «Challenges»,
+  squadre, sfide e pezzi colorati, le push che aprono la sfida) e #564
+  (`de4ca26b`, E: la riga del gioco nella scheda della corsa). Tutti i
+  testi approvati dall'utente, regola del blocco fra iscritti scelta da
+  lui. Chiuso il 2026-10-28. **Sul server A e C dopo Apple, con l'ok
+  dell'utente** (migrazioni, deploy, backfill): fino ad allora «Play» resta
+  nascosta su `preview`, e le prove sull'iPhone (B, D, E) vengono dopo.
+  Regole in `GIOCO.md`, file `tasks/TASK-296.md`.
+- **App e API** — TASK-308 (ADR-0268; scelta dell'utente del 2026-10-26,
+  «Form in the app»): «Send feedback» in «Settings», un modulo che manda a
+  chi gestisce MuW idee e problemi. `POST /feedback` (al più 5 al giorno
+  per account, 20 per indirizzo di rete), tabella `feedback`, migrazione
+  `0031`; un'email per messaggio a `SHAPEROUTE_FEEDBACK_TO` o a
+  `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. La sezione si vede solo
+  quando il server risponde `204` a `GET /feedback`: con quello di oggi
+  non c'è. Testi e privacy approvati dall'utente; privacy del 28 ottobre.
+  PR #576 (`2a3e3fc9`); app solo JS, impronta iOS invariata. Sul server
+  dopo Apple, con il suo ok. `tasks/TASK-308.md`.
+- **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
+  premio senza valore): il primo concorso, vince il post per tutti con più
+  reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi
+  `open`, `standings`, `close`, la push `contest_won`, `contest_wins` nei
+  profili, migrazione `0030`), app #575 (`4771402b`: la scheda sotto la
+  lente di «Feed» solo con un concorso, il regolamento ufficiale, il post
+  vincitore in cima per 7 giorni, il badge «Winner» nei profili e la fascia
+  sul disegno). Testi nelle cinque lingue approvati dall'utente. Sul server
+  dopo Apple, con il suo ok. File: `tasks/TASK-299.md`, `CONCORSI.md`.
+- **App** — TASK-307 (ADR-0267; richiesta dell'utente del 2026-10-26):
+  dal disegno di un altro, aperto dal «Feed» o dal profilo, **«Start»**
+  sulla sua traccia tagliata (senza svolte a voce, e la scheda lo dice) ed
+  **«Export GPX»** scritto sul telefono, senza tempi né nome. Solo i disegni
+  che si possono già vedere, mai con un blocco, mai quelli nascosti: un
+  test ciascuno nell'API. Nessun interruttore per chi pubblica (scelta
+  dell'utente): la «Privacy» lo dice, in app e sul sito, dal 27 ottobre
+  2026. #573, `tasks/TASK-307.md`.
 - **CI** — TASK-310 (ADR-0270): `pytest` fermato sotto la 9.2 nelle dipendenze di sviluppo di motore, API e AI; la 9.2.0 rifiuta `approx` su liste di coordinate e aveva reso rosse `main` e tutte le PR del 2026-10-27. Seguito: riscrivere quei test e togliere il tetto. `tasks/TASK-310.md`.
+- **App e API** — TASK-300 (ADR-0261; scelta dell'utente del 2026-10-25,
+  «a parte SUBITO»): l'indirizzo email confermato con un link
+  all'iscrizione e al cambio in «Settings» (il nuovo vale solo
+  confermato, il vecchio riceve l'avviso) e «Forgot password?» sotto
+  «Log in», con la pagina per la nuova password che chiude ogni sessione.
+  Un indirizzo non confermato non blocca niente; i 3 account di prima
+  restano non confermati. PR #559 (`57d87a10`), migrazione `0029`; app
+  solo JS, impronta iOS invariata. **Spenta** finché il server non ha
+  Resend: server dal Coordinatore dopo Apple e col sì dell'utente,
+  dominio `getmuw.app` verificato su Resend dall'utente.
+  `tasks/TASK-300.md`.
+- **API** — TASK-262 B (aggiunta ad ADR-0226; scelte dell'utente del
+  2026-10-25): un riassunto email al giorno delle cinque notizie delle
+  push a chi ha «Email notifications» acceso, nella lingua dell'email di
+  ritorno, con il link per spegnerlo. PR #550 (`ef5021f4`), migrazione
+  `0028`. Con la parte A (push, #451) e la C (rubrica, #461) **chiude
+  TASK-262**. Si accende con l'email di ritorno (server dal Coordinatore
+  dopo Apple, col sì dell'utente). `tasks/TASK-262.md`.
+- **App** — TASK-306 (ADR-0266; scelte dell'utente del 2026-10-26): in
+  «Draw», con la corsa, «NEAR YOU» sotto la distanza, cerchio, cuore e
+  stella da 5 km pronti dalla posizione (dal telefono, tenuti fino a
+  1 km), e forme già pronte di città in evidenza a caso quando vicino non
+  viene niente, con quanto sono lontane; «Explore» preparato
+  all'apertura. In `main` con la #571 (`0bfc07c0`, 2026-10-27). Resta la
+  preview (Coordinatore) e il tempo vero sul telefono dell'utente, da
+  scrivere nell'Esito del task file.
 - **App e API** — TASK-284 (ADR-0244; scelte dell'utente del 2026-10-11):
   l'email a chi non apre MuW da 14 giorni, una per assenza, per ogni
   iscritto con «Email when I'm away» acceso (casella non spuntata
@@ -1469,6 +1851,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in 5 lingue** (tabella nella PR #565), poi su `preview` da provare sul
   campo. Segue **TASK-304** (l'attività persa uscendo dall'app).
   `tasks/TASK-303.md`.
+- **App** — TASK-304 (ADR-0264, aggiorna ADR-0219 e ADR-0240; prova sul
+  campo dell'utente a Trento del 2026-10-25, uscito per una foto):
+  **la corsa continua mentre si usa un'altra app**. Diagnosi: la prova era
+  con la 1.0.0 (7) di TestFlight, di prima di TASK-272, e `production` non
+  ha mai avuto un aggiornamento; MuW era viva e la pausa era quella da
+  fermi. Scelta dell'utente del 2026-10-26 («deve continuare a registrare
+  la corsa anche mentre si usa un'altra app», poi «Sì, così»):
+  un'assenza fino a **10 minuti** (app congelata, o chiusa da iOS e
+  riaperta) è corsa, con tempo contato e tratto dritto, mai più lungo del
+  vero; oltre, pausa come prima. Riaperta entro 10 minuti la corsa va
+  avanti da sola. Il file della corsa si scrive appena l'app va dietro e a
+  ogni posizione finché ci resta; la mappa non c'è mentre la corsa è in
+  background (nel simulatore circa 110 MB in meno) e torna com'era. Solo
+  app, impronta iOS `83793e26…` invariata, nessun testo nuovo. **PR
+  #567**, dopo la #565 (TASK-303). Arriva sulla 1.0 solo con un
+  aggiornamento su `production` o con la prossima build: lo decide il
+  Coordinatore. `tasks/TASK-304.md`.
+
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252

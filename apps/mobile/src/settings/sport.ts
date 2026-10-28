@@ -1,11 +1,14 @@
 import type { Activity } from "@shaperoute/shared-types";
+import Constants from "expo-constants";
 import { File, Paths } from "expo-file-system";
 
 import { t, tLater } from "../i18n";
 
 /** What a route is for: a run, a bike ride since TASK-190, or paddling on a
- * lake or the sea since TASK-191 (a canoe, a kayak, a SUP). */
-export type Sport = "run" | "bike" | "paddle";
+ * lake or the sea since TASK-191 (a canoe, a kayak, a SUP). Paragliding is
+ * only «Soon» for now (TASK-305 D0, ADR-0265): never chosen, so never a
+ * route, and wherever the sports are told apart it goes as a run. */
+export type Sport = "run" | "bike" | "paddle" | "paragliding";
 
 export type SportOption = {
   id: Sport;
@@ -20,12 +23,41 @@ export type SportOption = {
   ready: boolean;
 };
 
-/** The sports of «Settings», in the order they are shown. */
-export const SPORTS: readonly SportOption[] = [
+/** Every sport, in the order they are shown; the ones not ready included. */
+export const ALL_SPORTS: readonly SportOption[] = [
   { id: "run", emoji: "🏃‍♂️", name: tLater("Run"), ready: true },
   { id: "bike", emoji: "🚴", name: tLater("Bike"), ready: true },
   { id: "paddle", emoji: "🛶", name: tLater("Paddle"), ready: true },
+  { id: "paragliding", emoji: "🪂", name: tLater("Paragliding"), ready: false },
 ];
+
+/**
+ * True in the App Store and Google Play builds, and in the updates made for
+ * them: their runtime version is the fingerprint of the native code
+ * (app.config.ts with APP_VARIANT=production), never the "exposdk:" one of
+ * app.json that Expo Go and `preview` use (ADR-0078, TASK-318).
+ */
+export function isStoreBuild(
+  config: { runtimeVersion?: unknown } | null | undefined = Constants.expoConfig,
+): boolean {
+  const runtime = config?.runtimeVersion;
+  if (runtime === undefined || runtime === null) {
+    return false;
+  }
+  return !(typeof runtime === "string" && runtime.startsWith("exposdk:"));
+}
+
+/** `sports` as this app shows them: a store build leaves out the ones not
+ * ready, so its users are promised no «Soon» (TASK-318, ADR-0278). */
+export function shownSports(
+  sports: readonly SportOption[],
+  store: boolean,
+): readonly SportOption[] {
+  return store ? sports.filter((option) => option.ready) : sports;
+}
+
+/** The sports of «Settings» and of the sport menu of «Draw», in order. */
+export const SPORTS: readonly SportOption[] = shownSports(ALL_SPORTS, isStoreBuild());
 
 export const DEFAULT_SPORT: Sport = "run";
 export const SPORT_FILE = "sport.json";

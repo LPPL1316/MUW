@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 de octubre de 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "26 de octubre de 2026";
+const PRIVACY_UPDATED = "28 de octubre de 2026";
 
 const help: AboutDocument = {
   title: "Cómo funciona MuW",
@@ -81,6 +81,14 @@ const help: AboutDocument = {
         "«Feed» muestra dibujos de los que sacar ideas: toca uno para abrir su ruta y empezarla.",
         "La lupa de arriba en «Feed» encuentra a otros miembros por su nombre. En un perfil puedes tocar «Seguir»; tus solicitudes, tus seguidores y a quién sigues están en «Perfil».",
         "En el dibujo público de un miembro puedes reaccionar con un emoji, enviar un súper like y escribir un comentario. No se aceptan comentarios negativos.",
+      ],
+    },
+    {
+      heading: "Mensajes",
+      blocks: [
+        "«Mensaje» en el perfil de un miembro le escribe. Si te sigue, tu mensaje llega a sus «Mensajes»; si no, llega como solicitud, y puedes enviar un solo mensaje hasta que la acepte.",
+        "Tus conversaciones están en «Perfil», «Mensajes», con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
+        "Mantén pulsado un mensaje para borrar el tuyo, para los dos, o para denunciar uno que has recibido. Nadie ve si has leído un mensaje. Con las push encendidas, MuW te avisa de cada mensaje y de cada solicitud.",
       ],
     },
     {
@@ -324,6 +332,7 @@ const privacy: AboutDocument = {
         "Con una cuenta, cuando tocas «Guardar» al final de una carrera, la carrera entera va a nuestro servidor: cada posición con su hora y su altura, las pausas, la ruta que seguiste, distancia, duración, una puntuación de cuánto sigue la traza a la ruta (calculada por nuestro servidor y no mostrada en la app) y el nombre del lugar. Con «Descartar» no se envía nada.",
         "Una carrera guardada es privada: solo la ve tu cuenta. Los demás miembros ven en tu perfil solo los totales de todas tus carreras guardadas, distancia y desnivel, nunca las carreras. Se queda hasta que la eliminas de «Mis actividades» o eliminas tu cuenta.",
         "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros cuando activas «Pública», y entonces ven el recorrido sin sus primeros y últimos 200 m, con el título que le diste, y sin tiempos, pausas ni la ruta prevista.",
+        "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX: siempre sin sus primeros y últimos 200 m y sin tiempos.",
       ],
     },
     {
@@ -339,9 +348,30 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Mensajes privados",
+      blocks: [
+        "Tus mensajes privados se guardan en nuestro servidor: quién escribió, a quién, el texto y cuándo, y para cada uno de los dos si aceptó la conversación, cuándo la leyó por última vez y hasta cuándo la quitó de su vista. No están cifrados de extremo a extremo. En la app una conversación solo la ven sus dos miembros, y nadie recibe aviso de si un mensaje se ha leído. Los guardamos para darte el servicio que pides (contrato).",
+        "Un mensaje a alguien que no te sigue llega como solicitud; el primer mensaje de una solicitud pasa por el mismo filtro de palabras que los comentarios.",
+        "Puedes borrar tus propios mensajes, para los dos. Borrar una conversación la quita de tu vista; un mensaje que ya no ve ninguno de los dos se borra. Un bloqueo borra la conversación; borrar tu cuenta borra todas tus conversaciones, con los mensajes de los dos.",
+        "Cuando denuncias un mensaje, el correo a la persona que gestiona MuW contiene solo ese mensaje, nunca el resto de la conversación. Con las push encendidas, la notificación de un mensaje lleva su comienzo, a través del servicio push de Expo y de Apple o Google, como con los comentarios.",
+      ],
+    },
+    {
       heading: "Denuncias",
       blocks: [
         "Cuando denuncias un dibujo, un comentario o un perfil, guardamos quién denunció qué, el motivo y cuándo. Quien gestiona MuW la recibe por correo y puede ocultar lo denunciado a los demás miembros. No se borra nada, y su autor lo sigue viendo. Tu denuncia nunca se muestra al autor.",
+      ],
+    },
+    {
+      heading: "Carreras en grupo",
+      blocks: [
+        "Si creas una carrera en grupo o dices que vas, los miembros que pueden verla ven tu nombre, tu foto y que vas. Cuando eliminas tu cuenta, eliminamos tus carreras en grupo y tus respuestas.",
+      ],
+    },
+    {
+      heading: "Comentarios",
+      blocks: [
+        "Cuando nos escribes desde «Envíanos tus comentarios» en «Ajustes», guardamos tu mensaje, la versión de la app, el sistema de tu teléfono (iOS o Android) y cuándo lo enviaste. Quien gestiona MuW lo recibe por correo con tu nombre de usuario y tu dirección de correo, para leerlo y, si hace falta, responderte por correo. Nunca se muestra a los demás miembros. Cuando eliminas tu cuenta, tus mensajes se eliminan con ella de nuestro servidor.",
       ],
     },
     {
@@ -358,6 +388,7 @@ const privacy: AboutDocument = {
         "Los mapas sin conexión vienen de nuestro servidor: el de tu alrededor y, con antelación, los de los pueblos cercanos. Para limitar estas descargas, el servidor las cuenta por día, según un número anónimo que la app crea para el teléfono; la cuenta se guarda solo en memoria.",
         "Las palabras que describen una forma se leen en nuestro servidor y no se envían a ningún servicio de IA externo.",
         "Una foto que eliges para un dibujo va una vez a nuestro servidor, para encontrar su contorno: el servidor no la guarda ni la registra.",
+        "Una figura dibujada con el dedo, o el contorno de tu foto, va a nuestro servidor una vez, como la ruta que pides: el servidor no la guarda.",
         "Para mejorar la búsqueda guardamos un evento por cada búsqueda y por algunos usos de la app (una ruta elegida, un archivo GPX exportado, una carrera puntuada): el texto en minúsculas, como máximo 200 caracteres, con los correos y los números largos ocultos; las posiciones solo como cuadrados de alrededor de 1 km; nada que diga quién eres ni qué teléfono era. Estos eventos se guardan sin límite de tiempo.",
       ],
     },
@@ -394,7 +425,7 @@ const privacy: AboutDocument = {
             "unpkg sirve la biblioteca del mapa cuando arranca la app.",
             "Expo sirve las actualizaciones de la app.",
             "Google Ireland Limited (Firebase Cloud Messaging), para entregar las notificaciones push a los teléfonos Android. Cuando enciendes push, la app pide a Firebase un token de registro para tu teléfono; el servicio push de Expo pasa cada notificación (quién hizo qué, y el principio de un comentario) a Google, que la entrega a tu teléfono. Google ve el token y el contenido de cada notificación, no tu cuenta ni tu posición. El token se quita de nuestro servidor cuando apagas push, cierras sesión o borras tu cuenta; el del teléfono se va cuando desinstalas la app.",
-            "Resend, en Estados Unidos, envía los correos de MuW: tu dirección de correo con el correo mismo. En una denuncia lleva a quien gestiona MuW lo denunciado, su texto, el motivo y los nombres de usuario de quien lo denunció y de quien lo escribió.",
+            "Resend, en Estados Unidos, envía los correos de MuW: tu dirección de correo con el correo mismo. En una denuncia lleva a quien gestiona MuW lo denunciado, su texto, el motivo y los nombres de usuario de quien lo denunció y de quien lo escribió. En «Envíanos tus comentarios» lleva tu mensaje, tu nombre de usuario y tu dirección de correo.",
             "Strava, como se ha dicho arriba.",
           ],
         },
@@ -421,7 +452,7 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Para darte el servicio que pides (contrato): tu cuenta, tu perfil, las rutas que pides, y las carreras, favoritos, comentarios, reacciones y seguimientos que guardas, los correos de las notificaciones que encendiste, y el juego de las formas.",
-            "Nuestro interés legítimo en que MuW funcione, sea segura y mejore: los registros breves del servidor, los recuentos que limitan las descargas de mapas y los eventos de búsqueda, que no dicen nada de quién eres; la comparación de los números de tus contactos, que no conserva ninguno; el correo cuando no estás, que puedes rechazar al registrarte, en «Ajustes» o en cada correo; los correos de las denuncias, para que MuW sea segura; el archivo de las rutas dibujadas, que no dice nada de quién eres.",
+            "Nuestro interés legítimo en que MuW funcione, sea segura y mejore: los registros breves del servidor, los recuentos que limitan las descargas de mapas y los eventos de búsqueda, que no dicen nada de quién eres; la comparación de los números de tus contactos, que no conserva ninguno; el correo cuando no estás, que puedes rechazar al registrarte, en «Ajustes» o en cada correo; los correos de las denuncias, para que MuW sea segura; el archivo de las rutas dibujadas, que no dice nada de quién eres; los mensajes de «Envíanos tus comentarios», para leerlos y responderte.",
             "Tu consentimiento: el número de teléfono que decides añadir y la conexión con Strava. Puedes retirar un consentimiento en cualquier momento; lo que se hizo antes sigue siendo lícito.",
             "Una obligación legal, cuando una ley nos pide conservar o entregar datos.",
           ],

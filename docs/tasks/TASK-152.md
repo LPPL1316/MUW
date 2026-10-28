@@ -1,7 +1,7 @@
 # TASK-152 — Sgrava sull'App Store
 
-**Stato**: In lavorazione · parte A fatta (profilo `production`, ADR-0233);
-parte B (ambiente `production`, prima build) in corso
+**Stato**: Done · la 1.0.0 (7) è approvata da Apple e sull'App Store
+(2026-10-28); parte A con la #446 (profilo `production`, ADR-0233)
 **Fase**: 4 · **Branch**: `feat/TASK-152-app-store` (parte A:
 `feat/TASK-152-a-production-profile`)
 **Dipende da**: TASK-132 (AdMob nell'app), API raggiungibile con HTTPS
@@ -99,7 +99,7 @@ privacy, così AdMob può verificare l'app (TASK-153).
       dell'utente: percorso, navigazione, GPX e annuncio di prova funzionano.
 - [ ] La scheda dell'App Store ha il sito dello sviluppatore e l'URL della
       privacy.
-- [ ] Inviata alla revisione di Apple; l'esito è scritto qui.
+- [x] Inviata alla revisione di Apple; l'esito è scritto qui.
 - [ ] Expo Go sul canale `preview` funziona come prima (ADR-0078).
 
 ## File toccati
@@ -334,3 +334,12 @@ non cambia.
   misurare l'impronta nuova e provare la rubrica sull'iPhone prima
   dell'invio ad Apple. Per Android la stessa riga è in `tasks/TASK-294.md`
   (prima build senza contatti, scelta dell'utente «No, più avanti»).
+- **2026-10-28: Apple ha approvato la 1.0.0 (7), ed è sull'App Store**
+  (uscita automatica). L'ha detto l'utente in una sessione nuova, verso le
+  14:10 UTC; runtime `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`. Il task
+  è chiuso. Ogni passo che aspettava Apple vuole ancora il sì dell'utente:
+  l'aggiornamento del server da `main` (oggi `55b990be`, migrazioni
+  0001–0021; in `main` ci sono 0022–0032), poi il primo `eas update` sul
+  canale `production` (solo con impronta `83793e26…` e dopo il server),
+  i disegni sul server (TASK-316 C, TASK-311), le date `open` di
+  TASK-299 e la 1.0.1 nativa (promemoria qui sopra).
