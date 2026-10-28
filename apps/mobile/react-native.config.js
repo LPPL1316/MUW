@@ -12,13 +12,26 @@
  * app does not have, and the first Android build failed on it. Ads come
  * with the company (the user's choice), and on Android with a new native
  * build then.
+ *
+ * Apple Health and Health Connect (TASK-321, ADR-0281) wait for their own
+ * native builds: the 1.0.1 for the iPhone (part B), a new Android build
+ * (part C). Until then their libraries are in package.json but linked on
+ * no platform, so today's builds keep their fingerprints; the app never
+ * loads them without the native module (`src/health/healthModules.ts`).
+ * `@react-native-healthkit/core` comes with the iPhone library.
  */
 const storeBuild = process.env.APP_VARIANT === "production";
+
+const notYet = { platforms: { ios: null, android: null } };
 
 module.exports = {
   dependencies: {
     "react-native-google-mobile-ads": {
       platforms: storeBuild ? { ios: null, android: null } : { android: null },
     },
+    "@kingstinct/react-native-healthkit": notYet,
+    "@react-native-healthkit/core": notYet,
+    "react-native-nitro-modules": notYet,
+    "react-native-health-connect": notYet,
   },
 };

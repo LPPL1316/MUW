@@ -190,6 +190,20 @@ export const ES: Table = {
   "{user} in {city}: {title}. {facts}.": "{user} en {city}: {title}. {facts}.",
   "Opens the route on the map": "Abre la ruta en el mapa",
 
+  // src/health/HealthRunEnd.tsx (TASK-321: Apple Health and Health Connect)
+  "Save to Apple Health": "Guardar en Apple Salud",
+  "Save to Health Connect": "Guardar en Health Connect",
+  "Your activities also go to the Fitness app, with the route.":
+    "Tus actividades también van a la app Fitness, con la ruta.",
+  "Your activities also go to Health Connect, with the route.":
+    "Tus actividades también van a Health Connect, con la ruta.",
+  "Also to Apple Health, with Save.": "Con Guardar va también a Apple Salud.",
+  "Also to Health Connect, with Save.": "Con Guardar va también a Health Connect.",
+  "MuW can't write to Apple Health. Allow it in the Health app: your profile › Apps › MuW.":
+    "MuW no puede escribir en Apple Salud. Permítelo en la app Salud: tu perfil › Apps › MuW.",
+  "MuW can't write to Health Connect. Allow it in Health Connect › App permissions › MuW.":
+    "MuW no puede escribir en Health Connect. Permítelo en Health Connect › Permisos de apps › MuW.",
+
   // src/i18n/shapeNames.ts
   Circle: "Círculo",
   Heart: "Corazón",
