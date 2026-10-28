@@ -1,6 +1,6 @@
 # TASK-309 — Eventi: le corse di gruppo («Group runs»)
 
-**Stato**: In lavorazione · documenti in `main` (#574) · A (API) in PR · poi B (app), C (commenti)
+**Stato**: In lavorazione · documenti in `main` (#574) · A (API) in `main` (#581) · poi B (app), C (commenti)
 **Fase**: 4 · **Branch**: `docs/TASK-309-group-runs` (documenti),
 `feat/TASK-309-a-group-runs-api` (A), `feat/TASK-309-b-group-runs-app` (B),
 `feat/TASK-309-c-group-run-comments` (C)
@@ -232,19 +232,19 @@ push e della riga della privacy così come sono.» Le push sono in
 ## Criteri di accettazione
 
 Documenti (questa PR):
-- [ ] `docs/EVENTI.md`, questo file, ADR-0269, una riga in `INDEX.md` e
-      una in `STATUS.md`.
+- [x] `docs/EVENTI.md`, questo file, ADR-0269, una riga in `INDEX.md` e
+      una in `STATUS.md` (#574).
 
-Parte A:
-- [ ] Ogni regola di `EVENTI.md` §3–§9 ha il suo test in
+Parte A (#581):
+- [x] Ogni regola di `EVENTI.md` §3–§9 ha il suo test in
       `test_group_runs.py` (elenco al punto A.8).
-- [ ] Il promemoria parte una volta sola per corsa di gruppo, anche con
+- [x] Il promemoria parte una volta sola per corsa di gruppo, anche con
       l'orologio due volte; di nuovo dopo un cambio di ora (test).
-- [ ] Chi è bloccato, in uno dei due sensi, non vede, non va, non è
+- [x] Chi è bloccato, in uno dei due sensi, non vede, non va, non è
       contato, non riceve push (test).
-- [ ] `DELETE /me` toglie corse di gruppo e risposte, e avvisa chi andava
+- [x] `DELETE /me` toglie corse di gruppo e risposte, e avvisa chi andava
       (test).
-- [ ] `schemas.py` e `engine.zip` invariati; pytest, ruff e black verdi;
+- [x] `schemas.py` e `engine.zip` invariati; pytest, ruff e black verdi;
       i testi delle push e della privacy approvati dall'utente.
 
 Parte B:
@@ -342,3 +342,13 @@ pagine di `site/privacy` rifatte con `make_privacy.mjs` (2026-10-28, dopo
 #573 e #576 in `main`). Migrazione rinumerata `0032` (la `0031` è di
 TASK-308). **Resta**: il merge dal Coordinatore; il server dopo Apple, con
 il sì dell'utente.
+
+**Parte A in `main`** con la #581 (`989fffe5`, 2026-10-28), mergiata dal
+Coordinatore; impronta iOS `83793e26` misurata su una copia pulita. Sul
+server dopo l'approvazione di Apple e con il sì dell'utente: il deploy
+applica la migrazione `0032` all'avvio, nessuna variabile nuova. Da
+decidere con l'utente (lo porta il Coordinatore): la sezione «Reports»
+della privacy dice ancora «a drawing, a comment or a profile»; con il suo
+sì, «or a group run» entra nella parte B. **Prossimo**: la parte B (app),
+in una sessione sua, con i «File toccati» al Coordinatore prima del
+codice.

@@ -192,6 +192,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `site/privacy` è rifatta (2026-10-28, dopo #573 e #576). Merge dal
   Coordinatore; server dopo Apple, con il sì dell'utente. Com'è fatta:
   `EVENTI.md` §14.
+  **Parte A** in `main` con la #581 (`989fffe5`, 2026-10-28), mergiata dal
+  Coordinatore; impronta iOS `83793e26` invariata. Sul server dopo Apple,
+  con il sì dell'utente (migrazione `0032` all'avvio, nessuna variabile
+  nuova). La riga «Reports» della privacy con «or a group run» la porta il
+  Coordinatore all'utente; con il sì, va nella parte B. **Prossimo**: la
+  parte B (app), in una sessione sua.
 - **TASK-306 — Forme pronte vicino a te in «Draw», ed «Explore»
   preparato all'apertura** (ADR-0266; richiesta dell'utente del
   2026-10-26, «Sì, va bene così: procedi con TASK-306» lo stesso giorno;
