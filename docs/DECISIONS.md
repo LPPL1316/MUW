@@ -17609,3 +17609,67 @@ c'era già.
 **Conseguenze**: due testi nuovi in cinque lingue, col sì dell'utente.
 Solo JavaScript: l'impronta iOS resta 83793e26. Se il motore cambia le
 soglie, `penUpHint.ts` va allineato a mano.
+
+## ADR-0280 — Disegnare a mano in «Draw», e ogni figura proposta che si riapre nella tavola
+
+**Stato**: Proposta · 2026-10-28 · la richiesta è dell'utente («disegnare
+anche a mano nella pagina draw» e «modificare un disegno del feed, un
+disegno ricercato, un disegno di explore… tutto potenzialmente
+editabile»); il posto («Freehand» in «Draw»), la tavola e che cosa si
+modifica sono proposte dell'agente su delega dell'utente, da confermare
+(TASK-320, «Proposte da confermare»); numeri presi come primi liberi, il
+Coordinatore conferma.
+
+**Contesto**: col dito si disegna solo sulla mappa (ADR-0245, «Draw on the
+map»), dove la figura ha il posto e la grandezza della mappa; il contorno
+di una foto si modifica nella tavola di ADR-0074 («Add a part», «Add a
+detail», uniti dal motore con `POST /image-outline-edits`), che vuole una
+foto sotto; «Draw it near me» (ADR-0273) porta in «Draw» la forma o la
+parola di un percorso o di un disegno, non le sue linee. Il contratto ha
+già tutto: `ImageRouteRequest` (`outline` e `strokes` in [-1, 1]) è ciò
+che la mappa manda per una linea a dito, e `/image-outline-edits` prende
+un contorno qualsiasi. Un contorno si disegna sul server (TASK-214: le
+foto non girano sul telefono).
+
+**Decisione**:
+
+1. **Una quarta scelta in «Draw», «Freehand»**, accanto a «Shape | Word |
+   Image» (non con «Paddle»): la figura disegnata col dito, alla distanza
+   e dalla partenza di «Draw». «Draw on the map» resta: là il posto e la
+   grandezza sono quelli della mappa.
+2. **Una tavola sola**, quella di ADR-0074 senza la foto, «Edit the
+   drawing»: la prima linea è il contorno, chiuso dall'app come sulla
+   mappa (ADR-0245); poi parti e dettagli uniti dal motore come oggi, e
+   in più «Erase» (un tocco toglie una linea: un dettaglio da solo, il
+   contorno con tutto), «Undo», «Save» in fondo (ADR-0191).
+3. **«Edit the drawing» ovunque una figura è proposta**: sotto la forma
+   scelta in «Draw», sul risultato accanto alla riga delle figure
+   (TASK-286), sulla scheda di un percorso di «Explore» e su quella del
+   disegno di un iscritto, dopo «Draw it near me». La figura si apre nella
+   tavola; «Save» porta in «Draw» con «Freehand» e la figura cambiata, e
+   il percorso si chiede da lì: la partenza di «Draw», la distanza di
+   prima (le regole di ADR-0273). Della traccia dell'altro non viaggia la
+   linea: viaggia la figura, e il motore decide il percorso.
+4. **Che linee**: di una forma del catalogo le linee del motore
+   (`catalogueShapes.json`); di una foto o un'immagine il contorno
+   tracciato; di un disegno senza forma la traccia corsa, raddrizzata e
+   chiusa come per un preferito. Una parola no (lettere a penna alzata,
+   ADR-0157: la tavola disegna figure chiuse con dettagli), un percorso a
+   tema no, un post di sole foto no: il pulsante non c'è.
+5. **Nessun contratto nuovo**: `ImageRouteRequest` e `/image-outline-edits`
+   come sono; il percorso di un disegno a mano si chiama «Drawing» dove
+   quello di una foto si chiama «Image».
+
+**Alternative scartate**: la tavola vuota dentro «Draw on the map» (la
+figura là ha già un posto e una grandezza); un editor di punti (si
+ridisegna, come ADR-0074); i dettagli uniti dall'app come sulla mappa
+invece che dal motore (due unioni diverse nella stessa tavola, e «Add a
+part» esiste solo nel motore); il percorso pianificato di un disegno
+altrui (l'API non lo dà mai, ADR-0267: resta la traccia tagliata ai
+capi); una parola come contorno chiuso (le lettere si incrociano e si
+perdono).
+
+**Conseguenza**: solo app, solo JavaScript, un aggiornamento OTA con
+l'impronta iOS invariata; per la tavola serve la rete, come per «Image».
+Tre PR (A tavola e «Freehand», B «Draw» e risultato, C schede), testi
+nuovi col sì dell'utente.

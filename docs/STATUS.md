@@ -1629,6 +1629,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente: il server con A, poi di notte `draw_examples --all --around`
   per Trento e Caldonazzo, almeno 100 disegni (comandi e ritorno indietro
   nel task file).
+- **TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno
+  proposto** (ADR-0280, proposta; richiesta dell'utente del 2026-10-28,
+  «dai la possibilità di disegnare anche a mano nella pagina draw e […]
+  modificare un disegno del feed, un disegno ricercato, un disegno di
+  explore… tutto potenzialmente editabile»; numeri presi come primi liberi,
+  il Coordinatore conferma). Branch `docs/TASK-320-freehand-edit`: solo i
+  documenti. Proposta: «Freehand» come quarta scelta di «Draw»; la tavola di
+  «Edit the outline» senza foto (la prima linea è il contorno, parti e
+  dettagli dal motore, «Erase»); «Edit the drawing» sulla forma scelta, sul
+  risultato, sui percorsi di «Explore» e sui disegni degli iscritti, che si
+  aprono nella tavola e tornano in «Draw» come «Draw it near me». Parole e
+  percorsi a tema no. Nessun contratto nuovo. Parti A (tavola e
+  «Freehand»), B («Draw» e risultato), C (schede), ognuna nella sua
+  sessione dopo il sì dell'utente alle proposte e ai testi. File
+  `tasks/TASK-320.md`.
 
 ## Completato
 
