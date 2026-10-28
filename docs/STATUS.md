@@ -160,6 +160,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
+  foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
+  scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).
+  Branch `docs/TASK-312-import-activities` (documenti), poi A (API:
+  `runs.source`, gioco e concorso solo per `muw`), B (app: «Add past
+  activity» da un file GPX, TCX o FIT letto sul telefono, con
+  `expo-document-picker` escluso dall'autolinking come i contatti:
+  impronta iOS `83793e26` invariata, sui telefoni con la build nativa
+  dopo), C (post di sole foto: un disegno senza corsa), D (studio di Apple
+  Salute e Health Connect) ed E (studio dei collegamenti diretti: Strava,
+  Garmin, Polar, Suunto, Coros, Wahoo, Komoot). Tutto con «Imported», mai
+  per il gioco né per il concorso. Testi e privacy da approvare. Regole in
+  `IMPORTAZIONI.md`, file `tasks/TASK-312.md`.
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch
@@ -173,6 +186,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   443 buone su 1000; più km a lettera non servono, conta la lunghezza;
   da 5 lettere in su la penna alzata porta le buone da 11 % a 40 %. B
   aspetta la scelta dell'utente sulla penna alzata per le parole lunghe.
+  **Parte B** (2026-10-28, branch `feat/TASK-311-b-pen-up-hint`, worktree
+  `.claude/worktrees/TASK-311-b`): la scelta dell'utente è «anche quando
+  non riesce grazie». La penna alzata già scelta c'era da TASK-202, per
+  ogni parola: le corte restano così (confermato dal Coordinatore). Nuovo:
+  una parola chiesta su una riga che non riesce (somiglianza sotto 0,90,
+  distanza oltre il 10 %, o `shape_not_drawable`) ha sotto «Lift the pen»,
+  che accende l'interruttore e la ridisegna a penna alzata. Solo JS
+  dell'app, impronta iOS `83793e26`; aggiunta ad ADR-0271 in fondo a
+  `DECISIONS.md`. I due testi nuovi approvati dall'utente nelle cinque
+  lingue («testi ok», 2026-10-28). PR #601, merge dal Coordinatore. **Dopo**:
+  la parte C (le parole provate in `drawn_routes` sul server), in una
+  sessione sua, col sì dell'utente.
 - **TASK-314 — La strada per tornare sul percorso, sulle vie** (ADR-0274,
   seguito di ADR-0263; richiesta dell'utente del 2026-10-27, «tipo il
   ricalcolo di Google maps»; numero e condizioni dal Coordinatore). Parte A

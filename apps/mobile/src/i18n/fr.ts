@@ -1472,6 +1472,10 @@ export const FR: Table = {
   Paragliding: "Parapente",
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "La dessiner près de moi",
+  // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
+  "This word may come out better with the pen up: each letter on its own.":
+    "Ce mot peut être mieux dessiné avec le crayon levé : chaque lettre à part.",
+  "Lift the pen": "Lever le crayon",
   // src/route/waitingLines.ts, WaitingCard.tsx, GuessShape.tsx, RoutePanel.tsx
   // (TASK-317: the wait in «Draw»)
   "Lacing up the shoes…": "On lace les chaussures…",
