@@ -1526,22 +1526,6 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   musica il video resta identico. 1,88 MB di brani nell'app. Solo app,
   impronta iOS invariata. File: `tasks/TASK-301.md`.
 
-- **TASK-308 — «Send feedback» in «Settings»** (ADR-0268; richiesta
-  dell'utente del 2026-10-26 «aggiungi un tasto in impostazioni per darci
-  un feedback e suggerimenti», scelta «Form in the app» lo stesso giorno;
-  numero dal Coordinatore). Branch `feat/TASK-308-feedback`. Sezione
-  «FEEDBACK» con la riga «Send feedback», che apre un modulo sotto di sé;
-  `POST /feedback` tiene il messaggio (tabella `feedback`, migrazione
-  `0031_feedback.sql`, numero al merge), al più 5 al giorno per account, e
-  lo manda per email a `SHAPEROUTE_FEEDBACK_TO` o, senza, a
-  `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. Privacy con la sezione
-  «Feedback» nelle cinque lingue, pagine del sito rifatte. La sezione si
-  vede solo quando `GET /feedback` risponde `204`: con il server di oggi
-  non c'è, e `main` resta pubblicabile. Al più 20 al giorno anche per
-  indirizzo di rete. Testi e privacy approvati dall'utente il 2026-10-26
-  («Sì ai testi e alla privacy di TASK-308, così come sono.»); server
-  dopo Apple. PR #576. File: `tasks/TASK-308.md`.
-
 ## Completato
 
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
@@ -1564,6 +1548,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente** (migrazioni, deploy, backfill): fino ad allora «Play» resta
   nascosta su `preview`, e le prove sull'iPhone (B, D, E) vengono dopo.
   Regole in `GIOCO.md`, file `tasks/TASK-296.md`.
+- **App e API** — TASK-308 (ADR-0268; scelta dell'utente del 2026-10-26,
+  «Form in the app»): «Send feedback» in «Settings», un modulo che manda a
+  chi gestisce MuW idee e problemi. `POST /feedback` (al più 5 al giorno
+  per account, 20 per indirizzo di rete), tabella `feedback`, migrazione
+  `0031`; un'email per messaggio a `SHAPEROUTE_FEEDBACK_TO` o a
+  `SHAPEROUTE_REPORTS_TO`, con Reply-To l'iscritto. La sezione si vede solo
+  quando il server risponde `204` a `GET /feedback`: con quello di oggi
+  non c'è. Testi e privacy approvati dall'utente; privacy del 28 ottobre.
+  PR #576 (`2a3e3fc9`); app solo JS, impronta iOS invariata. Sul server
+  dopo Apple, con il suo ok. `tasks/TASK-308.md`.
 - **App e API** — TASK-299 (ADR-0260; scelta dell'utente del 2026-10-24,
   premio senza valore): il primo concorso, vince il post per tutti con più
   reazioni. API #562 (`5f762ae7`: `GET /contests/current`, i comandi

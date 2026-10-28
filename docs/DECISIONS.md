@@ -17134,7 +17134,8 @@ loro file sono in `tasks/TASK-305.md`; i numeri misurati sui tre decolli
 
 ## ADR-0268 — «Send feedback» in «Settings»: un modulo nell'app, tenuto dal server e mandato per email
 
-**Stato**: Proposta · 2026-10-26 · il modulo nell'app (invece di un'email
+**Stato**: Attiva · 2026-10-26, in `main` il 2026-10-28 con la #576 · il
+modulo nell'app (invece di un'email
 scritta dal telefono) l'ha scelto l'utente; i testi e le righe della
 privacy li ha approvati il 2026-10-26 («Sì ai testi e alla privacy di
 TASK-308, così come sono.»); i punti tecnici sono decisi dall'agente su
