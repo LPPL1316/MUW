@@ -18269,3 +18269,58 @@ elevation gain, never the runs themselves.»; il sito si copia insieme al
 server (`tasks/TASK-324.md`, «Aperto»). Le corse salvate prima di TASK-324
 non hanno dislivello: il totale parte da 0 e cresce con le corse nuove.
 Quattro testi nuovi in quattro lingue, accanto a quelli di «Drawings».
+
+## ADR-0285 — Due repository uguali: MUW sotto l'utente, specchiato con shaperoute nei due versi da un flusso in MUW
+
+**Stato**: Attiva · 2026-10-28 · il repository nuovo e lo specchio nei due
+versi li ha chiesti l'utente; i punti tecnici sono decisi dall'agente su
+delega dell'utente (TASK-325). Numero preso senza coordinatore: il primo
+libero dopo ADR-0284.
+
+**Contesto**: le sessioni cloud di Claude scrivono su GitHub solo dove è
+installata l'app GitHub di Claude, e il proprietario di
+`rockydalbianco/shaperoute` non può installarla (2026-10-28). L'utente ha
+creato `LPPL1316/MUW` e ha chiesto che i due «si parlino a vicenda e si
+aggiornino in automatico entrambi». Il server Hetzner e `deploy/` leggono
+ancora `shaperoute`; chi lavora dal Mac continua a usare quello.
+
+**Decisione**:
+
+1. **`LPPL1316/MUW` è una copia intera** di `shaperoute` (storia completa,
+   tutti i branch), fatta il 2026-10-28 con `git push` da una sessione
+   cloud. Da lì in poi Claude in cloud lavora su MUW (branch, PR, merge).
+2. **Un solo flusso, in MUW** (`.github/workflows/mirror.yml`), fa tutti e
+   due i versi: a ogni push su MUW e ogni dieci minuti scarica i branch
+   dei due repository e, branch per branch (`tools/mirror_repos.py`):
+   uguali, niente; uno indietro, lo porta avanti con un push che git
+   accetta solo se è un fast-forward; presente da una parte sola, lo crea
+   dall'altra, a meno che sia già fuso in un `main` (la sua punta è un
+   antenato di un `main`, e non è `main`): allora è stato cancellato dopo
+   il merge, e lo cancella anche qui; con commit da tutte e due le parti,
+   non lo tocca, lo nomina e finisce rosso. `main` non si cancella mai.
+   Mai `--force`. Niente tag (non ce ne sono).
+3. **Un solo segreto**: `MIRROR_TOKEN` in MUW, un token classico GitHub
+   con lo scope `repo` di un account che scrive in `shaperoute`; verso MUW
+   basta il token del flusso. Pubblica una sola persona (l'utente), nel
+   repository che possiede. I push fatti con il token del flusso non
+   avviano altri flussi: nessun ciclo, e un branch specchiato in MUW fa
+   la CI nell'altro repository e nella sua PR.
+4. **Il file del flusso arriva anche in `shaperoute`** con `main`, e lì
+   non gira (`if: github.repository_owner == 'LPPL1316'`): un flusso in
+   `shaperoute` vorrebbe un segreto che nessuno può mettere.
+
+**Alternative scartate**: un flusso per repository (un segreto anche in
+`shaperoute`, che il proprietario non può mettere); `git push --mirror`
+(forza, e porterebbe le cancellazioni e le divergenze senza chiedere);
+una sola direzione (l'utente ne vuole due); lavorare solo su MUW e
+abbandonare `shaperoute` (il server e il Mac stanno lì); unire da soli i
+branch divergenti (un merge sbagliato in silenzio costa più di un rosso).
+
+**Conseguenza**: chi lavora dal Mac su `shaperoute` e chi lavora in cloud
+su MUW vedono lo stesso dopo al più dieci minuti; una PR si apre e si
+mergia in uno dei due, e il `main` nuovo arriva nell'altro. Un branch
+abbandonato senza merge, o fuso con uno squash, ricompare finché non si
+cancella da tutte e due le parti. Due merge su `main` da parti diverse
+nello stesso intervallo vogliono una mano: meglio mergiare sempre dallo
+stesso repository. Il flusso costa un job di pochi secondi ogni dieci
+minuti.
