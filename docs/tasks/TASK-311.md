@@ -1,7 +1,8 @@
 # TASK-311 — Parole scritte meglio, e sul server tutto quello che si chiede
 
-**Stato**: In lavorazione (parte A fatta: la misura su 1000 parole; B in
-PR, «Lift the pen» sotto una parola su una riga; C e D da cominciare)
+**Stato**: In lavorazione (parte A fatta: la misura su 1000 parole; B
+fatta, «Lift the pen» sotto una parola su una riga, #601; C e D da
+cominciare)
 **Fase**: 4 · **Branch**: `feat/TASK-311-a-words-measure` (A, con questo
 file), `feat/TASK-311-b-pen-up-hint` (B), poi un branch per ciascuna delle
 parti C e D
@@ -316,3 +317,14 @@ Parte B (approvati dal Coordinatore il 2026-10-28):
 non servono (+2,6 punti, tempo quasi doppio), conta la lunghezza: da 5
 lettere in su la penna alzata porta le buone da 11 % a 40 %. Prossimo: la
 scelta dell'utente sulla penna alzata per le parole lunghe (parte B).
+
+**Esito della parte B** (2026-10-28): in `main` con la #601 (`83ba3087`),
+mergiata dal Coordinatore, che ha misurato l'impronta iOS: `83793e26`,
+invariata. La penna alzata già scelta per le parole lunghe c'era da
+TASK-202; nuovo è «Lift the pen» sotto una parola su una riga che non
+riesce, con i testi approvati dall'utente nelle cinque lingue. Arriva sul
+telefono con il prossimo aggiornamento dell'app, col sì dell'utente.
+Seguiti: il segnale `hint_taken` del pulsante (vuole l'API); le 7–8
+lettere e la partenza più lontana, ognuna uno studio a parte. Prossimo: la
+parte C (le parole provate in `drawn_routes` sul server), in una sessione
+nuova, dopo Apple e col sì dell'utente.
