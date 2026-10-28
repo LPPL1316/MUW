@@ -134,7 +134,12 @@ Coordinatore era archiviato). Rispetto alla lista sopra:
   `imported_run`), `packages/shared-types/test/imported.test.ts` (nuovo) e
   tre test che confrontano le risposte con le fixture di prima
   (`test_activities.py`, `test_drawings.py`, `test_feed.py`: solo `source`
-  fra i campi nuovi, come `rotation_deg`).
+  fra i campi nuovi, come `rotation_deg`);
+- in più `apps/mobile/assets/engine/engine.zip`, ricostruito con
+  `python tools/phone_engine/phone_engine.py engine`: il telefono porta una
+  copia di `schemas.py`, e il codice d'errore nuovo la cambia (dentro lo
+  zip cambia solo quel file, come per `no_contest` in TASK-299). Sì
+  dell'utente il 2026-10-28: «Yes, add and merge».
 
 Cosa fa:
 
