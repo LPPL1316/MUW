@@ -1,6 +1,6 @@
 # TASK-262 — Le notifiche inviate davvero: push, email, amici dalla rubrica
 
-**Stato**: Parte A Done (2026-10-10, PR #451) · C Done (2026-10-25, PR #461) · B Done (2026-10-25, PR #550)
+**Stato**: Done · parte A 2026-10-10 (PR #451) · parti B e C 2026-10-25 (PR #550, #461)
 **Fase**: 4 · **Branch**: `feat/TASK-262-a-push` (parte A)
 **Dipende da**: TASK-185 (i due interruttori), TASK-211 (follow),
 TASK-119 (reazioni), TASK-120 (commenti), TASK-208 (tag), TASK-121
@@ -487,6 +487,15 @@ Android di TASK-294 B**:
   TASK-215).
 
 ## Esito
+
+**Fatto** (chiuso il 2026-10-26): le tre parti sono in `main`. A, le push
+(#451, `578c2f7e`); C, gli amici dalla rubrica (#461, `d62c9db4`), con
+`expo-contacts` fuori dalla build nativa fino alla prossima; B, il
+riassunto giornaliero via email (#550, `ef5021f4`). **Restano** al
+Coordinatore, dopo l'approvazione di Apple e col sì dell'utente: il server
+con la `0028` e `contact_people.py` (la `0021` è già sul server); alla
+prossima build nativa, la prova vera delle push sull'iPhone e
+`expo-contacts` dentro la build («Alla prossima build nativa»).
 
 **Parte C fatta il 2026-10-25**: PR #461, in `main` con `expo-contacts`
 escluso dalla build nativa (scelta dell'utente), così l'impronta iOS

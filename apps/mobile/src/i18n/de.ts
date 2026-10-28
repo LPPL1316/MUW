@@ -1461,4 +1461,27 @@ export const DE: Table = {
     "Die Route ist {distance} entfernt, Richtung {direction}.",
   "Follow the dotted line back to the route.":
     "Folge der gepunkteten Linie zurück zur Route.",
+  // src/social/DrawingCard.tsx (TASK-307: «Start» on a drawing follows its track)
+  "This route has no turn directions: follow the line on the map.":
+    "Diese Route hat keine Abbiegehinweise: Folge der Linie auf der Karte.",
+  // src/game/runStripData.ts (TASK-296 E: the game's line on the run screen)
+  "Last km {pace} · target {target}": "Letzter km {pace} · Ziel {target}",
+  "Last mi {pace} · target {target}": "Letzte mi {pace} · Ziel {target}",
+
+  // src/settings/FeedbackSetting.tsx, feedbackFields.ts, SettingsPage.tsx (TASK-308)
+  "Send feedback": "Feedback senden",
+  "Thank you! Your message reached us.":
+    "Danke! Deine Nachricht ist bei uns angekommen.",
+  "Ideas, problems, anything that would make MuW better: we read every message.":
+    "Ideen, Probleme, alles, was MuW besser machen würde: Wir lesen jede Nachricht.",
+  "Write here…": "Hier schreiben…",
+  "Your message": "Deine Nachricht",
+  "It reaches us with your username, your email and the app's version, so we can answer you.":
+    "Sie erreicht uns mit deinem Benutzernamen, deiner E-Mail-Adresse und der Version der App, damit wir dir antworten können.",
+  "Write something first.": "Schreib zuerst etwas.",
+  "You sent a lot of feedback today. Try again tomorrow.":
+    "Du hast uns heute schon viel geschrieben. Versuch es morgen wieder.",
+  FEEDBACK: "FEEDBACK",
+  // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
+  Paragliding: "Gleitschirmfliegen",
 };

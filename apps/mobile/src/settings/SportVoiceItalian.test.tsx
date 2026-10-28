@@ -73,13 +73,15 @@ test("«Sport» in «Settings» speaks Italian", async () => {
   expect(screen.getByRole("radio", { name: "Corsa" })).toBeChecked();
   expect(screen.getByRole("radio", { name: "Bici" })).not.toBeChecked();
   expect(screen.getByRole("radio", { name: "Pagaia" })).not.toBeChecked();
+  expect(screen.getByLabelText("Parapendio, in arrivo")).toBeOnTheScreen();
   expect(screen.queryByText("Run")).toBeNull();
 });
 
 test("a sport not ready says «Soon» in Italian", async () => {
   await render(<SportSetting sports={RUN_ONLY} />);
   expect(screen.getByLabelText("Bici, in arrivo")).toBeOnTheScreen();
-  expect(screen.getAllByText("In arrivo")).toHaveLength(2);
+  // Bici, Pagaia and Parapendio (TASK-305 D0).
+  expect(screen.getAllByText("In arrivo")).toHaveLength(3);
 });
 
 test("the sport's button and its menu speak Italian", async () => {
