@@ -54,6 +54,7 @@ import type { AnyRouteRequest, RouteProblem, RouteState } from "./useRouteReques
 import type { ShapeReadingState } from "./useShapeReading";
 import { penSplit } from "./walks";
 import { type Note, toNotes } from "./warnings";
+import { WhileRouting } from "./WhileRouting";
 import {
   MAX_WORD_FIELD_LENGTH,
   routeName,
@@ -429,6 +430,8 @@ export function RouteOutcome({
             distanceM={view.request.distance_m}
             word={isImageRequest(view.request) ? null : view.request.word}
           />
+          {/* Drawings to look at, after a few seconds (TASK-317). */}
+          <WhileRouting request={view.request} startedAt={view.startedAt} />
         </View>
       );
     case "done":
@@ -816,7 +819,13 @@ function waitingText(
   switch (phase) {
     case "sending":
     case "queued":
-      return t("Waiting for the API…");
+      // Not drawing yet: said as a runner would, with no «API» (TASK-317).
+      if (isImageRequest(request)) {
+        return t("Warming up: the picture…");
+      }
+      return request.word
+        ? t("Warming up: “{word}”…", { word: request.word })
+        : t("Warming up: {name}…", { name: routeName(request) });
     case "downloading_map":
       return t("Downloading map data for this area…");
     default:
