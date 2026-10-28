@@ -1170,8 +1170,8 @@ export const DE: Table = {
   "Thanks for telling us. We will look at it.":
     "Danke für den Hinweis. Wir sehen es uns an.",
   "Block {user}?": "{user} blockieren?",
-  "You will not see each other's drawings, comments or profile, and any follow between you ends. They are not told.":
-    "Ihr seht gegenseitig keine Zeichnungen, Kommentare oder Profile mehr, und jedes Folgen zwischen euch endet. Die Person erfährt es nicht.",
+  "You will not see each other's drawings, comments, messages or profile, any follow between you ends and your conversation is deleted. They are not told.":
+    "Ihr seht gegenseitig keine Zeichnungen, Kommentare, Nachrichten oder Profile mehr, jedes Folgen zwischen euch endet und eure Unterhaltung wird gelöscht. Die Person erfährt es nicht.",
   Block: "Blockieren",
   "Sending…": "Wird gesendet…",
   "This is not available any more.": "Das ist nicht mehr verfügbar.",
@@ -1493,4 +1493,54 @@ export const DE: Table = {
   "Warming up: {name}…": "Aufwärmen: {name}…",
   "Warming up: “{word}”…": "Aufwärmen: „{word}“…",
   "Warming up: the picture…": "Aufwärmen: das Bild…",
+
+  // src/api/messages.ts (TASK-319: private messages)
+  "A message needs some words.": "Eine Nachricht braucht ein paar Worte.",
+  "A message is at most {max} characters.":
+    "Eine Nachricht hat höchstens {max} Zeichen.",
+  "Too many messages in a minute. Wait a moment and try again.":
+    "Zu viele Nachrichten in einer Minute. Warte kurz und versuche es noch einmal.",
+  "You can't send negative messages in this app.":
+    "In dieser App kannst du keine negativen Nachrichten schicken.",
+  "This conversation is not available.": "Diese Unterhaltung ist nicht verfügbar.",
+
+  // src/messages/ConversationList.tsx, MessagesOverlay.tsx, MessagesRow.tsx, MessageButton.tsx (TASK-319)
+  Messages: "Nachrichten",
+  "Messages, {count} waiting": "Nachrichten, {count} offen",
+  "Message requests": "Nachrichtenanfragen",
+  "Message requests, {count} waiting": "Nachrichtenanfragen, {count} offen",
+  "No messages yet. Open someone's profile and tap Message to write to them.":
+    "Noch keine Nachrichten. Öffne ein Profil und tippe auf Nachricht, um zu schreiben.",
+  "No message requests.": "Keine Nachrichtenanfragen.",
+  "You: {text}": "Du: {text}",
+  "{name}, new message: {text}": "{name}, neue Nachricht: {text}",
+  Message: "Nachricht",
+  "Message {name}": "{name} eine Nachricht schreiben",
+
+  // src/messages/ConversationScreen.tsx, MessageSheet.tsx (TASK-319)
+  "No messages yet.": "Noch keine Nachrichten.",
+  "Show earlier messages": "Frühere Nachrichten zeigen",
+  "Touch and hold to delete it": "Gedrückt halten, um sie zu löschen",
+  "Touch and hold to report it": "Gedrückt halten, um sie zu melden",
+  "Message request sent. You can write again when {name} accepts it.":
+    "Nachrichtenanfrage gesendet. Du kannst wieder schreiben, wenn {name} sie annimmt.",
+  "{name} wants to send you a message.": "{name} möchte dir eine Nachricht schicken.",
+  "{name} gets this as a message request. You can send one message until they accept it.":
+    "{name} bekommt das als Nachrichtenanfrage. Bis sie angenommen ist, kannst du eine Nachricht schicken.",
+  "Write a message…": "Schreib eine Nachricht…",
+  "Delete this message for both of you?": "Diese Nachricht für euch beide löschen?",
+  "Report this message": "Diese Nachricht melden",
+  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
+  Freehand: "Freihand",
+  "Edit the drawing": "Zeichnung bearbeiten",
+  "Draw with your finger": "Mit dem Finger zeichnen",
+  Erase: "Radieren",
+  Drawing: "Zeichnung",
+  "Draw the outline with one finger: it closes by itself.":
+    "Zeichne den Umriss mit einem Finger: er schließt sich von selbst.",
+  "Tap a line to erase it. The outline takes its details with it.":
+    "Tippe auf eine Linie, um sie zu löschen. Der Umriss nimmt seine Details mit.",
+  "This line encloses nothing. Draw a closed shape.":
+    "Diese Linie umschließt nichts. Zeichne eine geschlossene Form.",
 };

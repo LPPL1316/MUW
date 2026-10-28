@@ -160,6 +160,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
+  proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
+  progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
+  Branch `docs/TASK-323-open-water-swim` (documenti), poi A1 (motore:
+  l'acqua della canoa con la fascia rovesciata, 20–150 m dalla riva,
+  0,5–3 km, campioni per l'utente; la canoa e l'impronta degli esempi
+  tenuti non cambiano), A2 (le curve col nome del posto a riva), B (API,
+  migrazione, estratto dei nomi sul server col sì dell'utente), C (lo
+  sport nell'app, `ready: false` fino al motore, avviso di sicurezza e
+  testi da approvare), D (telefono nella boa, file dell'orologio) ed E
+  (Apple Watch con le vibrazioni, nella build 1.0.1 con TASK-321). File
+  `tasks/TASK-323.md`.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
@@ -167,6 +179,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   the API…»; dopo 3 s, sotto la barra, sei disegni di esempio del Feed da
   scorrere, senza rete. Solo app, OTA. Aspetta il sì dell'utente sui tre
   testi nelle cinque lingue; poi «pronta» al Coordinatore, che mergia.
+  File `tasks/TASK-317.md`.
+
+- **TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno
+  proposto** (ADR-0280; richiesta dell'utente del 2026-10-28; proposte,
+  testi e riga della privacy approvati dall'utente il 2026-10-28; numero,
+  parti e condizioni dal Coordinatore). **Parte A fatta** (PR #612, branch
+  `feat/TASK-320-a-freehand`): la quarta scelta «Freehand» in «Draw», la
+  tavola a mano (la prima linea è il contorno chiuso dall'app, le altre
+  dettagli appesi, «Erase», «Undo», «Save», niente rete), «Edit the
+  drawing» sotto la forma scelta (le linee del catalogo smontate in contorno
+  e dettagli) e sul risultato, «Draw route» come per un'immagine, «Drawing»
+  dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
+  invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
+  sessione, dopo A. File `tasks/TASK-320.md`.
   File `tasks/TASK-317.md`. **Chiuso il 2026-10-28**: testi approvati
   dall'utente, #604 in `main` (d6545be5), impronta iOS `83793e26`
   invariata; arriva con il prossimo OTA. Voce in «Completato».
@@ -178,6 +204,32 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in «Settings» né nel menu di «Draw»; Expo Go e `preview` come prima. Solo
   `sport.ts` e un test nuovo; impronta iOS `83793e26`. Va prima del primo
   update `production`. File: `tasks/TASK-318.md`.
+- **TASK-319 — I messaggi privati, con le richieste** (ADR-0279;
+  richiesta dell'utente del 2026-10-26, «aggiungi anche la possibilità di
+  mandarsi messaggi privati»; scelte: «Chiunque, con richiesta», poi «Sì,
+  così» alla proposta). Branch `feat/TASK-319-private-messages` (scritto
+  nella sessione cloud); numeri dati dal Coordinatore il 2026-10-28.
+  Chiunque scrive a chiunque; chi non è seguito da chi riceve arriva in
+  «Requests», un messaggio solo finché non è accettato, filtrato come i
+  commenti; «Accept», «Delete», «Block»; il blocco cancella la
+  conversazione; nessuna conferma di lettura; push per ogni messaggio, una
+  al giorno per una richiesta. **Parte A** (API, migrazione
+  `0033_messages.sql`, numero al merge) e **parte B** (l'app: «Messages»
+  in «Profile», «Message» sul profilo, la conversazione, «Help» e una
+  sezione nuova della privacy, anche sul sito) scritte e verdi in locale;
+  testi e privacy **approvati dall'utente** il 2026-10-28. La sessione
+  cloud non può fare il push (l'app Claude non è installata su
+  rockydalbianco): il branch è arrivato su GitHub dal Mac, dal bundle
+  nell'artifact della sessione cloud. Prima del merge, le condizioni del
+  Coordinatore scritte nel task file. Server, sito e app dopo il merge,
+  con l'ok dell'utente;
+  «Messaging and Chat» su App Store Connect la cambia l'utente. File:
+  `tasks/TASK-319.md`.
+  **Chiuso il 2026-10-28**: in `main` con la #605 (riallineata e chiusa
+  dal Coordinatore, la sessione era archiviata); impronta iOS `83793e26`.
+  «Messages» resta nascosto finché il server non ha la 0033: server e
+  privacy online col sì dell'utente.
+
 - **TASK-312 — Attività fatte con altre app nel Feed, e post di sole
   foto** (ADR-0272, proposta; richiesta dell'utente del 2026-10-27,
   scelte il 27 e il 28 ottobre, numero e condizioni dal Coordinatore).
@@ -1668,6 +1720,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   col sì dell'utente. Parti A (tavola, «Freehand», «Edit» in «Draw» e sul
   risultato) e B (schede), ognuna nella sua sessione dopo il sì dell'utente
   alle proposte e ai testi. File `tasks/TASK-320.md`.
+- **TASK-322 — Entrare e iscriversi con Apple e con Google** (ADR-0282,
+  proposta; richiesta dell'utente del 2026-10-28, «Accedere e registrarsi
+  con Google o Apple», «con google ed apple»). Branch
+  `docs/TASK-321-sign-in-apple-google` (il nome con cui è nata la PR
+  #607): solo i documenti. Scelte dell'utente: i tasti in alto in «Sign up»
+  e «Log in», Apple solo su iPhone, Google su iPhone e Android, la prima
+  volta nome ed età, stessa email stesso account; approvati anche i tre
+  pacchetti nuovi, i testi, privacy e termini: il codice parte con A. Parti A
+  (API), B (app, moduli fuori dall'autolinking e tasti nascosti nella build
+  dello store: impronta 83793e26), C (console Apple e Google, server, la
+  build 1.0.1 insieme a contatti, document picker e forse HealthKit). File
+  `tasks/TASK-322.md`.
 
 ## Completato
 
