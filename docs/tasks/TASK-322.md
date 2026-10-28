@@ -1,7 +1,7 @@
 # TASK-322 — Entrare e iscriversi con Apple e con Google
 
-**Stato**: Todo (proposta: il sì dell'utente alle scelte di prodotto, ai
-pacchetti nuovi e ai testi c'è; manca la riga della privacy)
+**Stato**: Todo (tutte le scelte approvate dall'utente il 2026-10-28:
+prodotto, pacchetti, testi, privacy e termini; il codice parte con A)
 **Fase**: 4 · **Branch**: `docs/TASK-321-sign-in-apple-google` (i
 documenti), poi `feat/TASK-322-a-sign-in-api`, `feat/TASK-322-b-sign-in-app`
 · **ADR**: ADR-0282
@@ -56,7 +56,7 @@ email = stesso account.»
    garantiscono è già di un iscritto con la password, si entra in
    quell'account, che da allora si apre in tutti e due i modi.
 
-## Proposte da confermare
+## Proposte (approvate)
 
 1. **Pacchetti nuovi** — **approvati dall'utente il 2026-10-28**: «Sì, i
    tre pacchetti vanno bene: expo-apple-authentication e
@@ -75,7 +75,8 @@ email = stesso account.»
 2. **I testi** dell'app: la tabella qui sotto, «Testi della parte B» —
    **approvati dall'utente il 2026-10-28**: «Sì, i testi vanno bene così,
    in tutte e cinque le lingue.»
-3. **La privacy e i termini**: le tre righe qui sotto, «Privacy e termini».
+3. **La privacy e i termini**: le tre righe qui sotto, «Privacy e termini»
+   — **approvate dall'utente il 2026-10-28**: «Sì, approvate».
 
 ## Testi della parte B (approvati il 2026-10-28)
 
@@ -102,7 +103,7 @@ emails», «This username is taken. Try another one.», «No connection. Check
 the network and try again.», «Cancel». Se si chiude il foglio di Apple o di
 Google senza scegliere, non compare niente.
 
-## Privacy e termini (da confermare)
+## Privacy e termini (approvati il 2026-10-28)
 
 Entrano con la parte B, in `about/content/*.ts` e in `site/privacy/`, nelle
 cinque lingue. A Apple chiediamo solo l'email, non il nome; da Google
