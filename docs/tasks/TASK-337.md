@@ -1,20 +1,35 @@
 # TASK-337 — Meno note sotto il percorso: due alla volta, le altre dietro «Show more»
 
 **Stato**: Done · 2026-10-29, chiuso nella stessa PR del codice
-**Fase**: 4 · **Branch**: `feat/TASK-337-fewer-notes`
+**Fase**: 4 · **Branch**: `feat/TASK-337-fewer-notes` (il Coordinatore
+aveva proposto `fix/TASK-337-fewer-red-notes`: la PR #644 era già aperta
+col primo nome, che resta)
 
 ## Obiettivo
 
 Sotto il risultato di «Draw» le note del motore («The roads here follow the
 shape only roughly.», «388 m runs along main roads, with traffic.»…) sono
 al massimo due. Le altre restano raggiungibili con «Show more», così la
-mappa sopra resta in vista.
+mappa sopra resta in vista. Le note di sicurezza non vanno mai dietro
+«Show more».
 
-Richiesta dell'utente del 2026-10-29, con uno screenshot del risultato
-(cuore a Levico, due note arancio): «a volte le scritte rosse… sono troppe,
-magari tienine meno se risultano troppe, che poi non si visualizza più
-l'immagine». Numero dal Coordinatore lo stesso giorno: TASK-337, nessun ADR
-nuovo (aggiunta ad ADR-0048).
+Le parole dell'utente (2026-10-29, con uno screenshot del risultato: cuore
+a Levico, due note arancio), così come le ha scritte:
+
+> A VOLETE LE SCRITTE ROSSE AD ESEMPIO QUI LE STRADE SEGGUNO LA FORMA SOLO
+> ALL'INCIRCA... ED ALTRE A VOLETE SONO TROPPE MAGARU TIENINE MENO SE
+> RISULTANO TROPPE CHE POI NON SI VISUALIZZA PIù L'IMMAGINE... GARZIE
+
+Numero dal Coordinatore lo stesso giorno: TASK-337, nessun ADR nuovo (voce
+breve in DECISIONS, aggiunta ad ADR-0048).
+
+## La condizione del Coordinatore (2026-10-29)
+
+Le note che fermano chi corre, cioè quelle di sicurezza o «qui non si
+corre», non vanno mai dietro «Show more», con un test che le tiene fra le
+prime. Sono le scale, le strade principali col traffico, le gallerie e la
+bici a mano (`safety` in `warnings.ts`). Se sono più di due si vedono
+tutte. Impronta iOS `83793e26` misurata su una copia pulita della testa.
 
 ## Contesto da leggere
 
@@ -25,8 +40,10 @@ nuovo (aggiunta ad ADR-0048).
 
 ## Cosa fare
 
-1. `warnings.ts`: `NOTES_AT_FIRST = 2` e `shownNotes(notes, all)`, le prime
-   due nell'ordine di sempre (prima quelle a cui fare attenzione) o tutte.
+1. `warnings.ts`: `NOTES_AT_FIRST = 2`, `safety` sulle regole di scale,
+   strade principali, gallerie e bici a mano, e `shownNotes(notes, all)`:
+   nell'ordine di sempre (prima quelle a cui fare attenzione) tutte quelle
+   di sicurezza e le prime altre fino a due in tutto; o tutte.
 2. `RoutePanel.tsx`: le note in un componente `Notes`; sotto le prime due,
    se ce ne sono altre, una riga discreta «Show more» (testo già tradotto in
    tutte le lingue) che le apre. Aperte valgono per quel percorso: un altro
@@ -43,6 +60,8 @@ nuovo (aggiunta ad ADR-0048).
   attenzione, e «Show more» (test).
 - [x] «Show more» mostra tutte le altre e se ne va (test).
 - [x] Con due note o meno nessun «Show more» (test).
+- [x] Scale, traffico, gallerie e bici a mano non vanno mai dietro «Show
+  more», anche se sono tre (test, condizione del Coordinatore).
 - [x] Un altro percorso, o l'altro fra A e B, mostra di nuovo le prime due
   (test).
 - [x] Nessun testo nuovo: in italiano «Mostra altro» (test).
@@ -59,15 +78,9 @@ nuovo (aggiunta ad ADR-0048).
 - `docs/UI.md` (paragrafo degli avvisi in «Il risultato»)
 - `docs/STATUS.md`
 
-## Fuori dal task
-
-- Quali note contano di più fra quelle a cui fare attenzione: l'ordine
-  resta quello del motore. Se l'utente preferisce che le scale o il
-  traffico vengano prima di «forma poco fedele» (la somiglianza è già nelle
-  tessere A · B), è un ritocco a `toNotes`.
-
 ## Esito
 
-Fatto il 2026-10-29: due note alla volta, «Show more» per le altre. Solo JS
-dell'app (OTA), nessun testo nuovo, nessuna dipendenza, impronta iOS
-invariata (nessun file nativo toccato).
+Fatto il 2026-10-29: due note alla volta, «Show more» per le altre, quelle
+di sicurezza sempre in vista. Solo JS dell'app (OTA), nessun testo nuovo,
+nessuna dipendenza. Impronta iOS sulla copia pulita della testa: vedi la
+riga sotto.

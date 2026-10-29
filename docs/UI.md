@@ -2732,7 +2732,9 @@ chiesta, strade ripercorse); prima quelli a cui fare attenzione, e la
 stessa frase una volta sola. Se ne vedono **due alla volta** (TASK-337,
 richiesta dell'utente: di più spingevano la mappa fuori dallo schermo):
 sotto, una riga grigia «Show more» apre gli altri; un altro percorso, o
-l'altro fra A e B, riparte da due. Restano fuori dal conto la riga della
+l'altro fra A e B, riparte da due. Quelli di sicurezza (scale, strade
+principali, gallerie, bici a mano) si vedono sempre, anche se sono più di
+due. Restano fuori dal conto la riga della
 forma spostata («The shape does not fit there…») e quelle con un pulsante.
 Un testo che l'app non conosce resta com'è,
 in inglese. La somiglianza non si mostra come

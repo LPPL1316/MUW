@@ -19443,34 +19443,19 @@ prima del suo taglio.
 - Chi cancella disegni, corse o account deve ricordare il file: la riga
   va in cascata, il file con la pulizia di ogni ora.
 
-## ADR-0048 — aggiunta (TASK-337): due avvisi alla volta sotto il percorso, gli altri dietro «Show more»
+## ADR-0048 — aggiunta (TASK-337): due avvisi alla volta sotto il percorso, mai quelli di sicurezza dietro «Show more»
 
-**Stato**: Attiva · 2026-10-29 · richiesta dell'utente del 2026-10-29 («a
-volte le scritte rosse… sono troppe, tienine meno… che poi non si
-visualizza più l'immagine»); il numero due e la forma della riga sono
-**decisi dall'agente su delega dell'utente**. Aggiunta ad ADR-0048, senza
-numero nuovo (Coordinatore).
+**Stato**: Attiva · 2026-10-29 · richiesta dell'utente dello stesso giorno
+(«ad esempio qui le strade seguono la forma solo all'incirca… a volte sono
+troppe… che poi non si visualizza più l'immagine»); la regola di sicurezza
+è la condizione del Coordinatore; il resto **deciso dall'agente su delega
+dell'utente**. Voce breve, senza numero nuovo.
 
-**Contesto**: ADR-0048 mostra tutti gli avvisi, uno per riga, sotto il
-percorso. Con tre o quattro il pannello cresceva e sul telefono la mappa
-sopra non si vedeva più.
-
-**Decisione**: se ne mostrano i primi **due**, nell'ordine di sempre (prima
-quelli a cui fare attenzione). Se ce ne sono altri, una riga grigia «Show
-more» (testo già tradotto) li apre tutti; aperti valgono per quel percorso,
-un altro o l'altro fra A e B riparte da due. Fuori dal conto la riga della
-forma spostata sull'acqua (risposta a un gesto dell'utente) e le righe con
-un pulsante («Try 8 km», «Lift the pen»).
-
-**Alternative scartate**:
-
-- *Uno solo*: con due (lo screenshot dell'utente) la mappa si vede ancora,
-  e il secondo è spesso una cosa a cui fare attenzione.
-- *Togliere gli avvisi in più senza modo di vederli*: ADR-0077 vuole che
-  nessun avviso sparisca; le scale o il traffico contano per chi corre.
-- *Una frase nuova, «2 more notes»*: un testo da approvare e tradurre in
-  quattro lingue, mentre «Show more» c'è già.
-
-**Conseguenze**: solo JS dell'app, arriva con un OTA. Fra gli avvisi a cui
-fare attenzione l'ordine resta quello del motore: se «forma poco fedele»
-dovesse lasciare il posto a scale e traffico, è un ritocco a `toNotes`.
+Sotto il percorso si vedono **due** avvisi, nell'ordine di sempre; gli
+altri con «Show more» (testo già tradotto), mai tolti (ADR-0077). Quelli
+di **sicurezza** (scale, strade principali, gallerie, bici a mano) si
+vedono sempre, anche se sono più di due. Fuori dal conto la riga della
+forma spostata e le righe con un pulsante. Un altro percorso, o l'altro
+fra A e B, riparte da due. Scartati: un avviso solo (spesso è proprio
+quello delle scale) e una frase nuova «2 more notes» (da tradurre, mentre
+«Show more» c'è già).
