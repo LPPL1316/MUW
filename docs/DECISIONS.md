@@ -19507,3 +19507,59 @@ privacy, nelle dipendenze e nel nativo. I messaggi tra app e pagina della
 mappa hanno `metresPerPx`, `bent`, `links`, `bendable` e `marks` (pagina e
 app vanno sempre insieme). Il nuovo `mapdraw/tools.ts` contiene gli
 strumenti; `erasedAt` esce da `edit.ts`.
+
+## ADR-0297 — Cercare i disegni dalla lente del Feed: `GET /search/drawings`, le parole senza accenti, la complessità dalla linea
+
+**Stato**: Attiva · 2026-10-29 · TASK-344. La richiesta e le scelte di
+prodotto sono **dell'utente**, del 2026-10-29 («Sì, vai» sulla proposta in
+sei punti, `tasks/TASK-344.md`). Numero e condizioni dal Coordinatore. Il
+come è deciso dall'agente su delega dell'utente.
+
+**Contesto**: la lente del Feed apriva solo «Find friends» (TASK-215,
+TASK-219). L'utente vuole cercare i disegni per soggetto, autore, posto e
+parole, con filtri e ordinamento. I disegni dei membri stanno sul server,
+a pagine (`GET /feed`): l'app non può cercarli tutti da sola. Gli esempi
+del Feed sono una ventina, sul telefono.
+
+**Decisione**:
+
+1. **Un endpoint nuovo**, `GET /search/drawings`, accanto al feed
+   (`drawing_search.py`): la stessa domanda su chi vede cosa
+   (`drawings.shown_sql`, mai `only_me`, mai attraverso un blocco), la
+   stessa pagina (`FeedPage`), un cursore suo.
+2. **Le parole** (`q`) si cercano nel titolo, nella descrizione, nella
+   forma (`dog_head` come «dog head»), nella parola disegnata, nel titolo
+   del percorso, nel posto e nel nome dell'autore; **tutte** devono
+   esserci. Maiuscole e accenti non contano: una sola tabella di lettere
+   piega le parole in Python e i campi in SQL (`translate(lower(…))`).
+   Niente `unaccent`, che vorrebbe una migrazione.
+3. **Le forme nella lingua dell'app**: le forme sono id inglesi; l'app
+   manda in `named` quelle che le parole nominano nella sua lingua
+   («cuore» → `heart`), e un disegno di una di esse è trovato anche se le
+   parole non ci sono.
+4. **I filtri**: `shape` (le forme di una categoria, decise dall'app),
+   `activity`, `min_m`/`max_m`, `place`, `complexity`. Più valori di uno
+   si sommano, filtri diversi valgono tutti.
+5. **La complessità** si legge dall'anteprima della traccia (al più 64
+   punti): lunghezza diviso diagonale del rettangolo che la contiene;
+   sotto 3,6 semplice, sotto 4,5 media, oltre complessa. Le soglie sono
+   tarate sugli esempi del Feed e stanno in `shared-types`, così l'app
+   classifica gli esempi allo stesso modo.
+6. **Gli ordini**: `recent` (pubblicazione), `longest` (distanza),
+   `popular` (reazioni). Il cursore è `ordine-valore-id`: un cursore di un
+   altro ordine è `422`. In `popular` una reazione lasciata fra due pagine
+   può spostare un disegno: accettato, come nel feed chi comincia a
+   seguire.
+
+**Alternative scartate**: cercare sul telefono nelle pagine del feed già
+lette (trova solo ciò che si è già scorso); un indice di testo di
+PostgreSQL con migrazione (da aggiungere solo se i tempi su 10.000 disegni
+non bastano); tradurre i nomi delle forme sul server (le lingue stanno
+nell'app); salvare la complessità in una colonna (vorrebbe una migrazione,
+e si calcola in fretta dall'anteprima).
+
+**Conseguenze**: nessuna migrazione, nessuna dipendenza, niente di nativo.
+Il server va aggiornato prima dell'OTA dell'app che usa la ricerca, col sì
+dell'utente; un server precedente risponde `404` e l'app cerca solo negli
+esempi. `shared-types` ha `DrawingSearchPage`, `DRAWING_SORTS`,
+`DRAWING_COMPLEXITIES` e le due soglie.
