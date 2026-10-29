@@ -16,6 +16,13 @@ in all; beyond, 429 with Retry-After until midnight UTC (the TrafficCap of
 TASK-214 part A2, counting zones instead of bytes). A place whose download
 failed is refused with 503 for FAILED_FOR_S, then it may be asked again.
 
+A place is prepared only while the API draws no route (RouteWork): the
+night run of draw_examples asks and follows its route jobs one after the
+other, as a phone does, so no place starts while it runs, nor while a phone
+waits for its route; the place waits for QUIET_S without one. PAUSE_FILE in
+the cache folder holds them too, for a heavy job outside the API
+(prefetch_zones, phone_zone_api). Asked meanwhile, a place is `preparing`.
+
 The queue is in memory, as the cap: a restart forgets it, and the phone,
 asking again, puts its place back.
 """
@@ -31,7 +38,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from route_engine.geo import LatLon
@@ -42,6 +49,7 @@ from route_engine.network import (
     OsmnxSource,
     area_around,
 )
+from starlette.middleware.base import RequestResponseEndpoint
 
 from shaperoute_api.access import refuse
 from shaperoute_api.phone_zone_cap import TrafficCap, phone_of
@@ -59,6 +67,16 @@ PLACES_A_DAY = 3
 SERVER_PLACES_A_DAY = 20
 # After a download that failed (Overpass busy or refusing, no roads there).
 FAILED_FOR_S = 3600
+# Decided by the agent: no place starts until the API has had no route job
+# asked or followed for this long. draw_examples asks the next as soon as
+# one ends, a phone follows its own every second.
+QUIET_S = 120.0
+# How often a place held back looks again.
+LOOK_AGAIN_S = 30.0
+# Present in the cache folder, it holds every place (touch it, remove it).
+PAUSE_FILE = "places.pause"
+# The requests of a route being drawn.
+ROUTE_PATHS = "/route-jobs"
 UNKNOWN_NETWORK = f"Unknown network; one of: {', '.join(FILTERS)}."
 ENOUGH_TODAY = "Enough new places prepared today: try again tomorrow."
 NOT_NOW = "The map of this place could not be prepared now: try again later."
@@ -77,6 +95,36 @@ class PlaceBody(BaseModel):
 
 class PlaceAnswer(BaseModel):
     state: Literal["ready", "preparing"]
+
+
+class RouteWork:
+    """When the API last had a route job asked or followed (ROUTE_PATHS)."""
+
+    def __init__(
+        self, quiet_s: float = QUIET_S, clock: Callable[[], float] = time.monotonic
+    ) -> None:
+        self._quiet_s = quiet_s
+        self._clock = clock
+        self._last = -math.inf
+
+    def seen(self) -> None:
+        self._last = self._clock()
+
+    def busy(self) -> bool:
+        """True until QUIET_S have gone by without a route request."""
+        return self._clock() - self._last < self._quiet_s
+
+
+def watch_route_work(app: FastAPI, work: RouteWork) -> None:
+    """Tells `work` of every request of a route job, before it is answered."""
+
+    @app.middleware("http")
+    async def note_route_work(
+        request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        if request.url.path.startswith(ROUTE_PATHS):
+            work.seen()
+        return await call_next(request)
 
 
 def download_zone(source: OsmnxSource, bbox: BBox) -> None:
@@ -105,8 +153,10 @@ class PlaceBuilds:
         download: Download = download_zone,
         clock: Callable[[], float] = time.monotonic,
         background: bool = True,
+        busy: Callable[[], bool] = lambda: False,
     ) -> None:
         self._cache_dir = cache_dir
+        self._busy_now = busy
         self._finish = finish
         self._cap = (
             cap
@@ -154,8 +204,16 @@ class PlaceBuilds:
         log.info("place zone %s %s queued", network, bbox)
         return "preparing", 0
 
+    def held(self) -> bool:
+        """True while no place may start: routes are being drawn, or
+        PAUSE_FILE is there."""
+        return self._busy_now() or (self._cache_dir / PAUSE_FILE).exists()
+
     def work_once(self) -> bool:
-        """Prepares the oldest place waiting; False when none is."""
+        """Prepares the oldest place waiting; False when none is, or while
+        the places are held."""
+        if self.held():
+            return False
         with self._lock:
             if not self._queue:
                 return False
@@ -170,6 +228,9 @@ class PlaceBuilds:
             with self._lock:
                 while not self._queue:
                     self._wake.wait()
+            if self.held():
+                time.sleep(LOOK_AGAIN_S)
+                continue
             self.work_once()
 
     def _prepare(self, network: str, bbox: BBox) -> None:

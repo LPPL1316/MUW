@@ -18843,6 +18843,17 @@ proposti.
    Un download fallito dà `503` per un'ora. Coda, tetti e fallimenti in
    memoria, come il tetto del traffico: un riavvio li dimentica e il
    telefono rimette in coda il suo posto chiedendo di nuovo.
+   **Mai mentre il server disegna percorsi** (chiesto dal coordinatore il
+   2026-10-29 per il giro di notte degli esempi; il modo deciso
+   dall'agente): `draw_examples` è un client dell'API, che chiede e segue i
+   suoi lavori su `/route-jobs` uno dopo l'altro, come un telefono. Un
+   middleware (`watch_route_work`) annota l'ultima richiesta a
+   `/route-jobs`; un posto parte solo dopo **120 s** senza nessuna, e chi è
+   in attesa riguarda ogni 30 s. Così il giro di notte non si divide il
+   server con i posti, e nemmeno un telefono che aspetta il suo percorso.
+   Per un lavoro pesante fuori dall'API (`prefetch_zones`,
+   `phone_zone_api`, che non passano da `/route-jobs`) c'è
+   `data/cache/places.pause`: finché c'è, nessun posto parte.
 4. **Il telefono chiede di nuovo** (deciso dall'agente): ogni 30 s mentre
    «Settings» è aperta e c'è un posto in preparazione, e a ogni apertura
    dell'app dopo le zone intorno a sé e prima di quelle in anticipo

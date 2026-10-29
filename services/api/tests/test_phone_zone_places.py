@@ -17,8 +17,11 @@ from shaperoute_api.phone_zone_api import install_phone_zones, phone_file
 from shaperoute_api.phone_zone_cap import TrafficCap
 from shaperoute_api.phone_zone_places import (
     FAILED_FOR_S,
+    PAUSE_FILE,
     PLACE_MARGIN_M,
+    QUIET_S,
     PlaceBuilds,
+    RouteWork,
     download_zone,
 )
 from shaperoute_api.phone_zones import SUFFIX, zone_name
@@ -229,3 +232,52 @@ def test_the_api_started_from_the_command_line_has_them(
     entry.main(["--cache-dir", str(cache)])
     client = TestClient(served["app"])
     assert keep(client, LEVICO).json() == {"state": "ready"}
+
+
+def test_no_place_starts_while_routes_are_drawn(cache: Path) -> None:
+    drawing = {"now": True}
+    builds = PlaceBuilds(
+        cache,
+        phone_file,
+        download=saved,
+        background=False,
+        busy=lambda: drawing["now"],
+    )
+    point = (TRENTO["lat"], TRENTO["lon"])
+    assert builds.ask("foot", point, "id:a") == ("preparing", 0)
+    assert not builds.work_once()  # the night run of draw_examples
+    assert builds.ask("foot", point, "id:a") == ("preparing", 0)
+    drawing["now"] = False
+    assert builds.work_once()
+    assert builds.ask("foot", point, "id:a") == ("ready", 0)
+
+
+def test_the_pause_file_holds_every_place(cache: Path, builds: PlaceBuilds) -> None:
+    point = (TRENTO["lat"], TRENTO["lon"])
+    builds.ask("foot", point, "id:a")
+    (cache / PAUSE_FILE).touch()
+    assert not builds.work_once()
+    (cache / PAUSE_FILE).unlink()
+    assert builds.work_once()
+
+
+def test_the_api_sees_the_route_jobs_asked_and_followed(
+    cache: Path, builds: PlaceBuilds, clock: Clock
+) -> None:
+    work = RouteWork(clock=clock)
+    app = create_app(FileSource(LEVICO_GRAPH))
+    install_phone_zones(app, cache, places=builds, work=work)
+    client = TestClient(app)
+    assert not work.busy()
+    client.get("/phone-zones/foot", params=LEVICO)  # not a route
+    keep(client, TRENTO)
+    assert not work.busy()
+    client.get("/route-jobs/unknown")  # draw_examples follows its job
+    assert work.busy()
+    clock.now += QUIET_S - 1
+    assert work.busy()
+    client.post("/route-jobs", json={})  # and asks the next one
+    clock.now += QUIET_S - 1
+    assert work.busy()
+    clock.now += 1
+    assert not work.busy()

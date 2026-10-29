@@ -3179,6 +3179,15 @@ place». Il codice è in `phone_zone_places.py`, installato con
   già pronto o già in coda non si conta.
 - **Un download fallito** (Overpass che rifiuta, nessuna strada lì) dà
   `503` con `Retry-After: 3600`; dopo, il posto si può chiedere di nuovo.
+- **Mai mentre si disegnano percorsi**: un middleware dell'API annota ogni
+  richiesta a `/route-jobs` (`RouteWork`); un posto parte solo dopo 120 s
+  senza nessuna. Il giro di notte di `draw_examples` chiede e segue i suoi
+  lavori uno dopo l'altro, quindi finché gira nessun posto parte; lo
+  stesso mentre un telefono aspetta il suo percorso. Il file
+  `places.pause` nella cartella della cache (`data/cache/places.pause`)
+  ferma tutti i posti finché c'è, per un lavoro pesante fuori dall'API
+  (`prefetch_zones`, `phone_zone_api`). Nel frattempo la risposta è
+  `202 preparing`.
 - **In memoria**: coda, tetti e fallimenti. Un riavvio li dimentica, e il
   telefono, chiedendo di nuovo, rimette in coda il suo posto.
 

@@ -52,6 +52,7 @@ già).
    volta (Overpass con `OsmnxSource.load`, i nomi a piedi, il file del
    telefono); 3 posti nuovi al giorno per telefono e 20 per il server
    (`TrafficCap`), `429` oltre; `503` per un'ora dopo un download fallito.
+   Mai mentre il server disegna percorsi (sotto, «Il server occupato»).
    Installato da `install_phone_zones`.
 2. **App, le zone** — `ZoneEntry.kept`: fuori dai 2 GB, mai cancellata da
    `overLimit`, tenuta anche quando la zona intorno al telefono la
@@ -83,6 +84,9 @@ già).
 - [x] Un download fallito dà `503` con `Retry-After: 3600`, e dopo un'ora
       il posto si richiede.
 - [x] I nomi delle strade si scaricano solo a piedi; senza, la zona resta.
+- [x] Nessun posto parte mentre l'API ha richieste a `/route-jobs` negli
+      ultimi 120 s (il giro di `draw_examples`), né con
+      `data/cache/places.pause`; dopo, parte.
 - [x] L'API avviata da riga di comando ha l'endpoint.
 - [x] Le zone tenute non contano nei 2 GB e non si cancellano oltre il
       limite; una zona tenuta riscritta dal download intorno al telefono
@@ -104,6 +108,28 @@ già).
 - [ ] L'utente approva i due testi nuovi.
 - [x] L'impronta iOS su una copia pulita resta `83793e26…` (misurata sulla
       testa `feb5ab54`).
+
+## Il server occupato
+
+Chiesto dal coordinatore il 2026-10-29: la preparazione dei posti si ferma
+quando il server fa il giro di notte degli esempi (`draw_examples`).
+
+- **Come lo sa**: `draw_examples` non gira dentro l'API, la chiama come un
+  telefono: `POST /route-jobs`, poi `GET /route-jobs/{id}` finché il
+  percorso è pronto, poi il successivo. Un middleware dell'API
+  (`watch_route_work`, `RouteWork`) annota l'ora dell'ultima richiesta a
+  `/route-jobs`. Un posto parte solo dopo **120 s** senza nessuna; chi è in
+  coda riguarda ogni 30 s. Finché il giro gira, quindi, nessun posto parte;
+  finisce il giro, e dopo due minuti partono uno alla volta.
+- **Di giorno** vale lo stesso per i telefoni: un posto non parte mentre
+  qualcuno aspetta il suo percorso.
+- **A mano**: `data/cache/places.pause` (sul server
+  `/root/shaperoute/data/cache/places.pause`) ferma tutti i posti finché
+  c'è. Serve per i lavori pesanti che non passano da `/route-jobs`:
+  `prefetch_zones`, `phone_zone_api`. Si crea con `touch` e si toglie a fine
+  lavoro.
+- **Nel frattempo** il telefono riceve `202 preparing` e mostra «Preparing
+  the map…».
 
 ## File toccati
 
