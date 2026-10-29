@@ -404,8 +404,20 @@ non arrivano più alla 1.0.0 (7).
   librerie, la configurazione, l'autolinking iOS), Android
   `e9a0bda01eef8abd2de692c67666d9bcc7e44b5a` (era `e2d33497…`: solo
   `expoConfig`, per le chiavi `ios` di `app.json`). Per tenere ferma quella
-  Android serve un elenco solo iOS in `fingerprint.config.js`, di TASK-294:
-  scelta del Coordinatore al taglio.
+  Android servirebbe un elenco solo iOS in `fingerprint.config.js`, di
+  TASK-294. **Scelta del Coordinatore** (2026-10-29): niente elenco,
+  `fingerprint.config.js` resta com'è; Android ha comunque la sua build
+  1.0.1, con contatti, document picker e l'accesso con Google, e la sua
+  impronta si muove con quella iOS.
+- **Il sì dell'utente** (2026-10-29, in questa sessione, una domanda per
+  volta): «Approvo così» al testo del permesso
+  (`NSHealthUpdateUsageDescription`) nelle cinque lingue, e «Approvo così»
+  alla sezione della privacy e alla riga del consenso nelle cinque lingue.
+- **La data della privacy** è quella del giorno del merge al taglio della
+  1.0.1 (condizione del Coordinatore), così non va online prima che la
+  1.0.1 sia sull'App Store: nella PR c'è il 29 ottobre 2026, da portare a
+  quel giorno al riallineamento, dopo quello per TASK-312 B, con
+  `site/privacy/` rifatto.
 - **Sul simulatore** (Xcode 27, iOS 27, build Release come quella dello
   store, `APP_VARIANT=production`, con l'attesa degli update spenta e la
   scena di iOS 27 aggiunta solo nella copia locale): l'app parte con i
@@ -416,13 +428,17 @@ non arrivano più alla 1.0.0 (7).
   in bici, distanza della pagaia e le altre tre). Senza
   `NSHealthShareUsageDescription` non si chiude: per scrivere basta il testo
   dello scrivere, come previsto.
-- **Resta da guardare**, con i tocchi sul simulatore (l'utente non c'era a
-  dare l'accesso): «Select All» e «Allow», poi «Save» e l'allenamento in
-  Fitness con la mappa. La build è pronta nella cartella ignorata
-  `out/TASK-321-b/` del worktree, con il simulatore «MuW Health 321».
-  Sull'iPhone dell'utente, alla build `preview` o alla 1.0.1: l'anello
-  Movimento, e in Salute l'allenamento con la distanza e le calorie (i
-  campioni con lo stesso `HKSyncIdentifier`, «Per B» qui sopra).
+- **Dopo «Allow», l'allenamento in Fitness con la mappa** (con l'accesso
+  al simulatore dato dall'utente): «Select All 6 Topics» e «Allow»; sulla
+  fine corsa «Save to Apple Health» diventa «Also to Apple Health, with
+  Save.» senza un altro foglio; poi «Save». Fitness mostra «Outdoor Run»,
+  Trento, il percorso sulla mappa, la fonte MuW, 0:18:00, 3,01 km, 219 kcal
+  attive, 5'58"/km: i numeri di MuW (3,02 km in MuW: 3016 m, che Fitness
+  scrive 3,01). In «Step Distance» di oggi ci sono i 3,01 km: la distanza
+  e le calorie sono entrate accanto all'allenamento, anche con lo stesso
+  `HKSyncIdentifier` («Per B» qui sopra).
+- **Resta per l'iPhone dell'utente**, alla build `preview` o alla 1.0.1:
+  l'anello Movimento (il simulatore non ha un obiettivo, dice «--/--»).
 
 ### C — La build Android con Health Connect
 
@@ -449,7 +465,10 @@ prima.
 - [ ] **B**: sul simulatore e sull'iPhone, dopo «Save» l'allenamento è in
       Fitness con la mappa; il foglio dei permessi ha il testo approvato;
       la privacy è aggiornata; la 1.0.1 parte per Apple solo con il sì
-      dell'utente.
+      dell'utente. *Sul simulatore fatto il 2026-10-29 (#620 in
+      bozza): il foglio con il testo approvato, l'allenamento in Fitness con
+      la mappa, privacy e testi approvati dall'utente. Restano l'iPhone e
+      la 1.0.1, al taglio.*
 - [ ] **C**: su un telefono Android l'attività è in Health Connect con il
       percorso; la dichiarazione della Play Console è fatta; la build parte
       solo con il sì dell'utente.

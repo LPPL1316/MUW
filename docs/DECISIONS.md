@@ -18294,9 +18294,10 @@ privacy. Restano da decidere il modo e i confini.
    iOS vuole il testo per leggere solo da chi chiede di leggere. Il testo
    approvato in `app.json` e nelle cinque `locales/*.json`.
 3. **La privacy entra con B**, intera (anche la riga di Health Connect,
-   com'è stata approvata), con la data del giorno; se il taglio della
-   1.0.1 arriva un altro giorno, la data si porta a quel giorno al
-   riallineamento.
+   com'è stata approvata), con la data del giorno del merge al taglio
+   della 1.0.1 (condizione del Coordinatore): così non va online prima che
+   la 1.0.1 sia sull'App Store. Le traduzioni del testo del permesso e
+   della privacy le ha approvate l'utente il 2026-10-29.
 4. **La PR resta in bozza fino al taglio della 1.0.1**: l'impronta iOS
    passa da `83793e26…` a `fd0cbb43…`, e in `main` gli `eas update` non
    arriverebbero più alla 1.0.0 (7).
@@ -18306,5 +18307,8 @@ privacy. Restano da decidere il modo e i confini.
 `app.json` contano nell'impronta di tutti e due i telefoni, come le
 impostazioni Android contavano in quella dell'iPhone prima di
 `ANDROID_ONLY` (TASK-294). Tenerla ferma vorrebbe un elenco gemello in
-`fingerprint.config.js`, che è di TASK-294: la scelta è del Coordinatore,
-al taglio.
+`fingerprint.config.js`, che è di TASK-294: il Coordinatore ha scelto di
+no, perché Android ha comunque la sua build 1.0.1 (contatti, document
+picker, accesso con Google) e la sua impronta si muove con quella iOS.
+Sul simulatore, dopo «Save», l'allenamento è in Fitness con la mappa, il
+tempo, la distanza e le calorie di MuW.
