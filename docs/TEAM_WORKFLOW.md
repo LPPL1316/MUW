@@ -92,8 +92,23 @@ tiene uguali a ogni push su MUW e ogni dieci minuti, nei due versi:
 - niente viene mai forzato; i tag non si copiano.
 
 Serve il segreto `MIRROR_TOKEN` in MUW (Settings → Secrets and variables →
-Actions): un token classico di GitHub con lo scope `repo` di un account che
-scrive in `shaperoute`. Senza, il flusso non fa niente e lo scrive.
+Actions): un token classico di GitHub con gli scope `repo` e `workflow` di
+un account che scrive in `shaperoute`. Senza, il flusso non fa niente e lo
+scrive.
+
+**`main` di `shaperoute` accetta solo pull request** (regola del
+repository del proprietario, quattro controlli obbligatori): lo specchio
+non può spingerlo, e quando il `main` di MUW è avanti il giro finisce rosso
+con `refused: main` e la risposta del server. Un merge su `shaperoute`
+arriva invece in MUW da solo. Per portare il `main` di MUW in `shaperoute`:
+un branch fermo **esattamente** al commit di `main` di MUW (per convenzione
+`sync/muw-main`, che lo specchio copia di là), una PR su `shaperoute` da
+quel branch, fusa con un **merge commit**; il `main` nuovo di `shaperoute`
+ha quello di MUW come antenato, e lo specchio porta avanti MUW al giro
+dopo. Non si fonde di là un branch qualunque di una PR già fusa in MUW: i
+due `main` avrebbero due merge commit diversi e tornerebbero divergenti.
+`tasks/TASK-325.md`, «Aperto», punto 4, per le due strade che tolgono il
+passaggio a mano.
 
 ## Lavorare con Claude Code
 

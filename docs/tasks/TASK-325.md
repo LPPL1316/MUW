@@ -1,7 +1,8 @@
 # TASK-325 — I due repository si tengono uguali da soli
 
-**Stato**: Done — chiuso nella sua PR (LPPL1316/MUW#4), entra in `main` di
-MUW col merge; lo specchio porta `main` su `shaperoute` da solo
+**Stato**: Done — fuso in `main` di MUW (LPPL1316/MUW#4, `182800a3`,
+2026-10-29). Il `main` di `shaperoute` prende quello di MUW solo con una PR
+là («Aperto», punto 4): il primo è pronto in `sync/muw-main`
 **Fase**: 4 · **Branch**: `chore/TASK-325-mirror-repos`
 **ADR**: ADR-0285 · **Migrazione**: nessuna · Solo strumenti e CI
 (nessuna dipendenza nuova). Numeri di task e di ADR presi senza
@@ -83,26 +84,50 @@ docs/TEAM_WORKFLOW.md               (sezione «I due repository»)
    privato) ha esaurito i minuti del piano gratuito («The job was not
    started because recent account payments have failed or your spending
    limit needs to be increased»): nessun lavoro parte, né la CI né lo
-   specchio. Si sblocca da Settings → Billing and plans (un tetto di spesa
-   per Actions) o rendendo MUW pubblico (minuti illimitati): scelta
-   dell'utente. Fino ad allora i branch si allineano a mano con il bundle
-   o dal Mac.
+   specchio. **Risolto il 2026-10-29**: l'utente ha reso MUW pubblico
+   (minuti illimitati; il codice era già pubblico in `shaperoute`).
 3. **Due `main` con merge da tutte e due le parti** divergono e lo specchio
    si ferma in rosso: è successo tre volte il 2026-10-28, con il team che
    mergiava su `shaperoute` mentre MUW prendeva TASK-324, TASK-326 e
    questa PR. Si unisce a mano in una PR su MUW (come questa). Meglio
    mergiare sempre dallo stesso repository.
+4. **Il `main` di `shaperoute` accetta solo pull request.** Una regola del
+   repository del proprietario («GH013: Changes must be made through a
+   pull request», quattro controlli obbligatori) rifiuta il push dello
+   specchio su `main` (primo giro da `main` di MUW, 2026-10-29 09:10:
+   `refused: main`). L'altro verso funziona: un merge su `shaperoute`
+   arriva in MUW da solo. Per portare il `main` di MUW in `shaperoute`
+   serve una PR là da un branch fermo **esattamente** al commit di `main`
+   di MUW, fusa con un merge commit: il `main` nuovo di `shaperoute` ha
+   quello di MUW come antenato e lo specchio porta avanti MUW al giro dopo
+   (un branch qualunque della PR, fuso di là, darebbe due merge commit
+   diversi e i `main` tornerebbero divergenti). Il primo è pronto:
+   `sync/muw-main` su `shaperoute` (= `182800a3`), da fondere con la PR
+   <https://github.com/rockydalbianco/shaperoute/compare/main...sync/muw-main>;
+   le sessioni cloud non possono aprirla (403). Finché il `main` di
+   `shaperoute` è indietro, il giro ogni dieci minuti è rosso su quella
+   riga sola. Due strade per non farlo a mano ogni volta, **scelta
+   dell'utente**: il proprietario mette l'utente `LPPL1316` nella lista di
+   bypass della regola di `main` (allora lo specchio spinge `main` da
+   solo), oppure lo specchio tiene aggiornato `sync/muw-main` da sé e
+   qualcuno apre la PR (un task nuovo, piccolo: `tools/mirror_repos.py`,
+   un test).
 
 ## Esito
 
-Chiuso nella sua PR, LPPL1316/MUW#4 (2026-10-29), che unisce in un colpo
-solo lo specchio (`tools/mirror_repos.py`, `.github/workflows/mirror.yml`,
-undici test), i due `main` divergenti (`shaperoute` fino a `df96f316`,
-TASK-312, 321 A, 237 F; MUW fino a `61846764`, TASK-324 e 326) e la
-rinumerazione della migrazione del dislivello a `0037` (la 0034 l'ha presa
-TASK-312, la 0035 TASK-297 A2, la 0036 TASK-322 A). Col merge il `main` di `shaperoute` diventa un antenato di
-quello di MUW e lo specchio lo porta avanti da solo; la PR
-rockydalbianco/shaperoute#618 dello stesso branch risulta fusa. Lo
-specchio ha già girato dal branch con il token: tre giri utili, poi i
-minuti di Actions sono finiti («Aperto», punto 2). Il server e `deploy/`
-leggono ancora `shaperoute`: rinominare è un task a parte.
+Fuso in `main` di MUW il 2026-10-29 (LPPL1316/MUW#4, merge commit
+`182800a3`), con la CI verde su `1852942f` (api, mobile, route-engine, ai,
+docker, site). La PR unisce in un colpo solo lo specchio
+(`tools/mirror_repos.py`, `.github/workflows/mirror.yml`, undici test), i
+due `main` divergenti (`shaperoute` fino a `5d7a5eda`: TASK-312 A e B,
+321 A, 237 F, 320 B, 322 A; MUW fino a `3a34d621`: TASK-324, 326, 297 A2) e
+la rinumerazione della migrazione del dislivello a `0037` (la 0034 l'ha
+presa TASK-312, la 0035 TASK-297 A2, la 0036 TASK-322 A), resa idempotente
+con `ADD COLUMN IF NOT EXISTS` perché la stessa colonna sta nei due `main`
+con altri nomi (segnalazione di un'altra sessione; `DATABASE.md`). Lo
+specchio ha girato dal branch con il token: ha portato i branch nei due
+versi e cancellato quelli fusi; dal `main` di MUW il push su `main` di
+`shaperoute` è rifiutato dalla regola del repository («Aperto», punto 4):
+`main` di MUW aspetta in `sync/muw-main` la PR dell'utente su
+`shaperoute`. Il server e `deploy/` leggono ancora `shaperoute`:
+rinominare è un task a parte.
