@@ -19571,9 +19571,12 @@ nativa successiva; l'API rifiuta i campi sconosciuti.
    posto di `Step put/swap`); `useMapCanvas` compone. Gli strumenti (parte
    D), le guide da immagine col contorno già tracciato dal motore (parte E,
    TASK-072/084 e i pezzi di TASK-297), informazioni e bozza (parte F)
-   vengono dopo, una parte alla volta; dislivello e profilo (parte G)
-   vogliono quote sul server e sono a parte; aptica e altri nativi alla
-   build successiva. Modificare i nodi di una traccia vera è del TASK-346.
+   vengono dopo, una parte alla volta; dislivello e profilo (parte G,
+   nella fase 5 per scelta dell'utente, «Subito») si misurano sul server
+   dalle tegole del terreno di AWS che la mappa 3D usa già (ADR-0232),
+   in cache sul Volume, con `RouteResult.elevation` e `POST /elevations`
+   opzionali e senza quote offline; aptica e altri nativi alla build
+   successiva. Modificare i nodi di una traccia vera è del TASK-346.
 
 **Alternative scartate**: Mapbox Map Matching (chiave nell'app, costo a
 richiesta, rete obbligatoria), Valhalla/OSRM/GraphHopper (modelli di

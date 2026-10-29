@@ -202,8 +202,23 @@ seguono il tuo disegno», sotto la mappa; non nei post (TASK-241).
   `expo-file-system`, ripresa all'apertura, anche offline); GPX, Start,
   condivisione e pubblicazione ci sono già; anteprima immagine dalla
   condivisione (TASK-231).
-- **G — Dislivello e profilo altimetrico**: servono quote (DEM) sul
-  server, dati nuovi: parte a sé col sì dell'utente, dopo F.
+- **G — Dislivello e profilo altimetrico, nella fase 5** (scelta
+  dell'utente: «Subito»): le quote vengono dalle **tegole del terreno di
+  AWS** (Terrarium, circa 30 m, gratuite e senza chiave), le stesse che la
+  mappa 3D usa già (TASK-264, ADR-0232). Il server le scarica una volta e
+  le tiene in cache sul Volume (`data/cache/terrain/`, qualche decina di
+  KB a tegola), le decodifica con Pillow (già nel motore) e misura un
+  percorso campionato ogni 20–30 m: quota per punto, lisciata (mediana su
+  finestra) e con isteresi di 3 m per non contare il rumore; dislivello in
+  salita e in discesa; profilo decimato a ~100 punti. Contratto,
+  opzionale: `RouteResult.elevation { gain_m, loss_m, profile:
+  [along_m, m][] }` e `POST /elevations` per le linee mentre si disegna
+  (dopo ogni tratto agganciato, con debounce e cache per tratto); il GPX
+  esportato ha `<ele>`. Nel motore una funzione pura
+  `elevation_profile(points, tiles)` con test su tegole salvate; la rete
+  la fa l'API, non il motore. **Senza rete niente quote** («—» nella
+  barra): le tegole non sono nelle zone del telefono; se servirà offline,
+  si aggiungeranno alle zone, a parte.
 
 Dopo, alla build nativa successiva: feedback aptico (`expo-haptics`) e,
 se mai servisse, Skia.
@@ -223,7 +238,9 @@ proposta pronta:
    si disegna, non nei post. Proposta: sì. **Scelta dell'utente,
    2026-10-30: «Sì, così».**
 4. **Dislivello e profilo** come parte a sé (G), dopo le altre. Proposta:
-   sì; fino ad allora km, tempo e punteggio.
+   sì; fino ad allora km, tempo e punteggio. **Scelta dell'utente,
+   2026-10-30: «Subito»**: dislivello e profilo già nella fase 5, dalle
+   tegole del terreno sul server (parte G, sotto).
 5. **Tre campi opzionali nel contratto e un endpoint nuovo**, con la sonda
    per il server vecchio; il server si aggiorna col sì dell'utente prima
    dell'OTA. Proposta: sì.
@@ -260,7 +277,8 @@ Le parti elencheranno i propri: A `services/route-engine/route_engine/`
 - Un servizio esterno di map matching, per le ragioni sopra.
 - Dipendenze native (Skia, gesture-handler, haptics, svg): alla build
   successiva, se mai.
-- Il DEM e il dislivello: parte G, a parte.
+- Un modello del terreno scaricato intero sul server o sul telefono: le
+  quote si leggono dalle tegole, per zona, in cache (parte G).
 - Pubblicare il punteggio nei post (TASK-241 lo ha tolto).
 
 ## Esito

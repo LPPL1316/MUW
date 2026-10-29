@@ -172,7 +172,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   somiglianza del motore; il tratto resta nella pagina della mappa (niente
   Skia: nativi alla build successiva). Parti A (motore e API), B
   (telefono), C (app), D (strumenti), E (forme e guide col contorno da
-  foto), F (informazioni, bozza, esportazione), G (dislivello, a parte).
+  foto), F (informazioni, bozza, esportazione), G (dislivello e profilo
+  dalle tegole del terreno sul server, nella fase 5).
   **Resta**: le cinque scelte di prodotto, fatte all'utente una per volta,
   poi la parte A nella sua sessione. Non si sovrappone a TASK-346 (i nodi
   della traccia vera). File `tasks/TASK-347.md`.
