@@ -1,4 +1,9 @@
-import { type RouteResult, type Shape, SHAPES } from "@shaperoute/shared-types";
+import {
+  type LatLon,
+  type RouteResult,
+  type Shape,
+  SHAPES,
+} from "@shaperoute/shared-types";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { t } from "../i18n";
 import { shapeWord } from "../i18n/shapeNames";
@@ -16,6 +21,7 @@ import {
 import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { ExploreStart } from "./ExploreStart";
+import { StopPhotos } from "./StopPhotos";
 import type { ThemedResult } from "./themedRoutes";
 import type { StartView } from "./useStartDirections";
 import type { ThemedState } from "./useThemedRoute";
@@ -83,6 +89,10 @@ type Props = {
    * start, the yellow button in the place of «Start». Without it, «Start».
    */
   onNearMe?: () => void;
+  /** Where the places' photos are read from (TASK-329): none without. */
+  apiUrl?: string | null;
+  /** A tap on a place's photo: the map goes there. */
+  onPlace?: (point: LatLon) => void;
 };
 
 /** Under the map: a shape through the places of a theme (TASK-129). */
@@ -94,6 +104,8 @@ export function ThemedCard({
   start,
   onStart,
   onNearMe,
+  apiUrl = null,
+  onPlace,
 }: Props) {
   // Written again when «Settings» changes the units (TASK-182); with a
   // point, as the texts here, still in English.
@@ -134,7 +146,6 @@ export function ThemedCard({
     );
   }
   const { result, idea } = state;
-  const passed = result.stops.filter((s) => s.passed);
   return (
     <View style={styles.panel}>
       <View>
@@ -149,9 +160,8 @@ export function ThemedCard({
         </Text>
       </View>
       <Text style={styles.body}>{passedText(result)}</Text>
-      {passed.length > 0 && (
-        <Text style={styles.places}>{passed.map((s) => s.name).join(" · ")}</Text>
-      )}
+      {/* The places passed by, numbered as on the map, with their photos. */}
+      <StopPhotos stops={result.stops} apiUrl={apiUrl} onPlace={onPlace} />
       {onNearMe !== undefined ? (
         <Pressable
           style={({ pressed }) => [styles.nearMe, pressed && styles.pressed]}
@@ -199,10 +209,6 @@ const styles = StyleSheet.create({
   body: {
     color: color.text,
     fontSize: fontSize.body,
-  },
-  places: {
-    color: color.textMuted,
-    fontSize: fontSize.small,
   },
   error: {
     color: color.error,

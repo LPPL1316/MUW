@@ -18594,6 +18594,62 @@ solo rilanciando lo strumento, che ha bisogno di Overpass e della chiave di
 Geoapify (con Overpass pieno, `--only` rifà quelle mancate). Il bundle
 dell'app cresce del file delle idee.
 
+## ADR-0287, aggiunta — Le foto dei posti: nella risposta di un percorso, e da una lista per le idee
+
+**Stato**: Attiva · 2026-10-29 · il cosa è dell'utente (proposta approvata
+con «Sì, così», punto 7 qui sopra); il come deciso dall'agente su delega
+dell'utente, con le condizioni del Coordinatore (TASK-329 parte B).
+Aggiunta ad ADR-0287, senza numero nuovo; ADR-0243 resta.
+
+**Contesto**: `/city-photos/{item}.jpg` dà solo la foto di un elemento che
+l'API ha già chiesto con `CityPhotos.photos()`: non è un proxy di Commons
+(ADR-0243). Un percorso a tema chiesto all'API passa da lì; le dodici idee
+no, perché le calcola una volta lo strumento sul Mac.
+
+**Decisione**:
+
+1. **I posti con l'elemento**: `parse_places` tiene l'elemento Wikidata di
+   ogni posto (`item_of` di `/nearby-cities`, anche da `datasource.raw`) su
+   `Place`, una sottoclasse di `Stop` in `themed.py`: il motore legge solo
+   nome e punto, e né lui né `jobs.py` cambiano (niente `engine.zip`).
+   Quali posti contano come notevoli non cambia.
+2. **Un percorso chiesto** ha `wikidata` su ogni posto e `photo` sui posti
+   toccati: `CityPhotos.photos()` con l'attesa di `/nearby-cities` (al più
+   2 s), solo per quelli, perché la fila mostra solo loro. `null` vuol dire
+   «nessuna foto libera»: l'app non chiede altro.
+3. **Le idee**: lo strumento tiene nel file dell'app solo `wikidata`, mai
+   `photo`, perché il credito può cambiare e va detto com'è oggi. Scrive
+   anche `services/api/shaperoute_api/data/idea_items.json`, gli elementi
+   dei posti toccati dalle idee, che l'API legge all'avvio e non da
+   `apps/`. `GET /place-photos?items=…` (al più 15, solo `Q…`, con la
+   chiave) risponde solo per quelli: un altro elemento non ha foto lì e
+   Wikimedia non ne sente parlare (condizione del Coordinatore).
+   `--items` dello strumento ritrova i posti delle idee tenute con la
+   ricerca dell'API e dà a ognuno il suo elemento per nome, senza
+   ripianificare: i percorsi guardati a occhio restano quelli.
+4. **L'app**: sotto la mappa la fila «1 Colosseum»…, numerata come i posti
+   sulla mappa (il numero sta nel nome che `App` passa alla mappa: la
+   pagina della mappa non cambia per questo); un tocco manda alla pagina
+   `focus` (`flyTo`, zoom 16, mai più lontano, girata com'è). Un'idea
+   chiede le foto dei suoi posti senza `photo`; le schede delle idee una
+   richiesta sola per la fila. Le foto restano per tutto il giro dell'app.
+   Le immagini vengono sempre da `/city-photos/` della nostra API.
+
+**Alternative scartate**: `GET /place-photos` per qualunque elemento, o
+`/city-photos/` che chiede a Wikimedia un elemento mai visto (un proxy per
+chiunque abbia la chiave, contro ADR-0243); il credito nel file dell'app
+(resta vecchio quando la foto cambia); le foto nel bundle (pesano, e il
+credito resta vecchio lo stesso); ripianificare le idee per avere gli
+elementi (i percorsi cambierebbero e andrebbero riguardati).
+
+**Conseguenze**: dei 101 posti toccati dalle idee, 93 hanno un elemento
+(88 elementi diversi nella lista); 8, a Praga, Lisbona e Londra, no:
+OpenStreetMap non ne nomina uno, o Geoapify non li ha ridati con lo stesso
+nome, e restano col solo nome. Rilanciare lo strumento riscrive anche la
+lista dell'API, che arriva sul server con il deploy. La privacy non cambia: a
+Wikimedia vanno solo elementi e nomi di file, e il telefono parla solo con
+la nostra API (TASK-283).
+
 ## ADR-0289 — Gli allegati nei messaggi privati: un disegno, una foto o un video per messaggio, i file su disco, i video con un limite e una scadenza
 
 **Stato**: Proposta · 2026-10-29 · la richiesta e le scelte di prodotto

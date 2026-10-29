@@ -387,6 +387,7 @@ export function ExploreScreen({
                   width={contentWidth - 2 * space.md}
                   onIdea={onIdea}
                   maps={list.status !== "loading"}
+                  apiUrl={apiUrl}
                 />
               )
             }

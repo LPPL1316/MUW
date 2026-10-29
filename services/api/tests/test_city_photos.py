@@ -20,13 +20,17 @@ from route_engine.network import FileSource
 
 from shaperoute_api.app import create_app
 from shaperoute_api.city_photos import (
+    IDEA_ITEMS,
+    MAX_ASKED,
     MAX_AUTHOR,
     PHOTO_WIDTH,
     QUIET_AFTER_FAILURE_S,
     RECHECK_S,
     CityPhotoBody,
     CityPhotos,
+    PlacePhotosBody,
     credit_of,
+    idea_items,
     image_of,
     install_city_photos,
     jpeg_of,
@@ -446,9 +450,11 @@ def test_a_transparent_picture_becomes_a_jpeg() -> None:
     assert kept.getpixel((10, 10)) == (255, 255, 255)
 
 
-def client_with(photos: CityPhotos) -> TestClient:
+def client_with(
+    photos: CityPhotos, allowed: frozenset[str] = frozenset()
+) -> TestClient:
     app = create_app(FileSource(HERE))
-    install_city_photos(app, photos)
+    install_city_photos(app, photos, allowed)
     return TestClient(app)
 
 
@@ -474,3 +480,84 @@ def test_the_endpoint_says_when_commons_did_not_give_it(tmp_path: Path) -> None:
     assert response.status_code == 503
     wiki.down = False
     assert client_with(photos).get(f"/city-photos/{MOREDA}.jpg").status_code == 200
+
+
+# The ideas of «Ask for a route» (TASK-329, ADR-0287): their places' photos,
+# for those items only.
+
+
+def entities(wiki: Wiki) -> list[str]:
+    asked = [urllib.parse.parse_qs(urllib.parse.urlsplit(u).query) for u in wiki.urls]
+    return sorted(q["entity"][0] for q in asked if "entity" in q)
+
+
+def test_the_photos_of_the_ideas_places(tmp_path: Path) -> None:
+    wiki = around_moreda()
+    ideas = frozenset({MOREDA, OYON, LAGUARDIA})
+    client = client_with(photos_of(wiki, tmp_path), ideas)
+    response = client.get("/place-photos", params={"items": f"{MOREDA},{LAGUARDIA}"})
+    assert response.status_code == 200
+    assert response.json() == {
+        "photos": {
+            MOREDA: {
+                "url": f"/city-photos/{MOREDA}.jpg",
+                "credit": "© LBM1948 · CC BY-SA 4.0",
+            }
+        }
+    }
+    # Its picture from our API, as a town's.
+    assert client.get(f"/city-photos/{MOREDA}.jpg").status_code == 200
+
+
+def test_an_item_that_is_not_an_idea_s_is_never_asked(tmp_path: Path) -> None:
+    wiki = around_moreda()
+    client = client_with(photos_of(wiki, tmp_path), frozenset({OYON}))
+    response = client.get("/place-photos", params={"items": f"{MOREDA},{OYON}"})
+    assert set(response.json()["photos"]) == {OYON}
+    assert entities(wiki) == [OYON]
+    # Nor is its picture there to take.
+    assert client.get(f"/city-photos/{MOREDA}.jpg").status_code == 404
+
+
+@pytest.mark.parametrize(
+    "items",
+    [
+        "",
+        ",",
+        "Q1,moreda",
+        "Q1 OR 1=1",
+        ",".join(f"Q{n}" for n in range(1, MAX_ASKED + 2)),
+    ],
+)
+def test_only_a_few_items_are_asked_for(items: str) -> None:
+    wiki = around_moreda()
+    client = client_with(photos_of(wiki, None), frozenset({"Q1"}))
+    assert client.get("/place-photos", params={"items": items}).status_code == 422
+    assert wiki.urls == []
+
+
+def test_without_the_list_no_place_has_a_photo() -> None:
+    wiki = around_moreda()
+    client = client_with(photos_of(wiki, None))
+    response = client.get("/place-photos", params={"items": MOREDA})
+    assert response.json() == {"photos": {}}
+    assert wiki.urls == []
+
+
+def test_the_ideas_items_read_from_their_file(tmp_path: Path) -> None:
+    path = tmp_path / "idea_items.json"
+    path.write_text(json.dumps({"items": [MOREDA, "moreda", 7, OYON]}), "utf-8")
+    assert idea_items(path) == {MOREDA, OYON}
+    path.write_text("{", "utf-8")
+    assert idea_items(path) == frozenset()
+    assert idea_items(tmp_path / "none.json") == frozenset()
+    # The file the tool writes, beside the API.
+    assert idea_items(IDEA_ITEMS)
+    kept = json.loads(IDEA_ITEMS.read_text("utf-8"))["items"]
+    assert sorted(kept) == sorted(idea_items(IDEA_ITEMS)) == kept
+
+
+def test_the_shared_fixture_is_a_body_of_the_api() -> None:
+    contract = HERE.parents[2] / "packages" / "shared-types" / "fixtures"
+    body = json.loads((contract / "place-photos.json").read_text("utf-8"))
+    assert PlacePhotosBody.model_validate(body).model_dump(mode="json") == body

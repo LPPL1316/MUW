@@ -1,7 +1,8 @@
 # TASK-329 — «Ask for a route» sempre aperto, con le nostre idee in Europa e le foto vere dei posti
 
 **Stato**: In corso
-**Fase**: 2 · **Branch**: `feat/TASK-329-explore-ideas` (parte A)
+**Fase**: 2 · **Branch**: `feat/TASK-329-explore-ideas` (parte A, #630 in
+`main`), `feat/TASK-329-b-place-photos` (parte B)
 **ADR**: ADR-0287 · numeri dati dal Coordinatore il 2026-10-29
 
 ## Obiettivo
@@ -146,9 +147,75 @@ docs/UI.md
 Condizione del Coordinatore: `App.tsx` entra dopo il merge di TASK-327
 (la riga «Play»), che lo tocca prima; riallineare su `main` prima del merge.
 
+## Criteri di accettazione (parte B)
+
+- [x] Ogni posto di un percorso a tema ha `wikidata` (o `null`); un posto
+      toccato ha `photo` da `CityPhotos`, `null` senza una foto libera; a
+      Wikimedia vanno solo elementi e nomi di file (test dell'API).
+- [x] `GET /place-photos` risponde solo per gli elementi delle idee, scritti
+      dallo strumento in `services/api/shaperoute_api/data/idea_items.json`
+      e letti all'avvio; un altro elemento non è chiesto a Wikimedia; al più
+      15, solo `Q…` (condizioni del Coordinatore).
+- [x] Il file delle idee ha `wikidata` sui posti e mai `photo`; la lista
+      dell'API è quella del file (test dello strumento).
+- [x] Sotto la mappa la fila «1 …», «2 …», numerata come i posti sulla
+      mappa; il credito piccolo sulla foto; un posto senza foto ha il solo
+      nome; un tocco porta la mappa lì.
+- [x] Le schede delle idee mostrano la foto del primo posto toccato con la
+      forma in piccolo; senza foto, o con un'API più vecchia, la mappa.
+- [x] Nessun testo nuovo, nessuna dipendenza nuova, `jobs.py` e
+      `engine.zip` invariati.
+- [ ] Test verdi: API (pytest), strumento (`pytest tools`), app (jest, tsc,
+      lint, format); impronta iOS `83793e26` su una copia pulita.
+- [ ] Riga della privacy di TASK-283 ricontrollata con l'utente.
+- [ ] Server aggiornato, col sì dell'utente.
+
+## File toccati (parte B)
+
+```
+services/api/shaperoute_api/themed.py
+services/api/shaperoute_api/city_photos.py          (GET /place-photos)
+services/api/shaperoute_api/__main__.py             (CityPhotos prima di ThemedJobs)
+services/api/shaperoute_api/data/idea_items.json    (nuovo, scritto dallo strumento)
+services/api/tests/test_themed.py
+services/api/tests/test_city_photos.py
+packages/shared-types/fixtures/themed-route-job-done.json
+packages/shared-types/fixtures/place-photos.json    (nuovo)
+tools/themed_ideas.py
+tools/test_themed_ideas.py
+apps/mobile/App.tsx
+apps/mobile/__tests__/AppThemedIdeas.test.tsx
+apps/mobile/src/explore/themedIdeas.json           (rigenerato con --items)
+apps/mobile/src/explore/themedRoutes.ts
+apps/mobile/src/explore/ThemedCard.tsx
+apps/mobile/src/explore/ThemedCard.test.tsx
+apps/mobile/src/explore/IdeasFromEurope.tsx
+apps/mobile/src/explore/IdeasFromEurope.test.tsx
+apps/mobile/src/explore/ExploreScreen.tsx
+apps/mobile/src/explore/StopPhotos.tsx             (nuovo)
+apps/mobile/src/explore/StopPhotos.test.tsx        (nuovo)
+apps/mobile/src/explore/placePhotos.ts             (nuovo)
+apps/mobile/src/explore/placePhotos.test.ts        (nuovo)
+apps/mobile/src/map/messages.ts                    (solo aggiunte: `focus`)
+apps/mobile/src/map/mapPage.ts                     (solo aggiunte: il ramo `focus`)
+apps/mobile/src/map/MapView.tsx                    (solo aggiunte: la prop `focus`)
+apps/mobile/src/map/MapViewFocus.test.tsx          (nuovo)
+apps/mobile/src/map/mapPageFocus.test.ts           (nuovo)
+docs/API.md
+docs/UI.md
+docs/DECISIONS.md
+docs/STATUS.md
+docs/tasks/TASK-329.md
+```
+
+Condizioni del Coordinatore (2026-10-29): niente endpoint aperto, solo gli
+elementi della lista dello strumento; le immagini solo da `/city-photos/`;
+`App.tsx`, `map/messages.ts` e `map/mapPage.ts` li tocca anche TASK-331:
+entra prima chi è verde prima, l'altro si riallinea tenendo le due parti
+e rifà i test di `map/` e `mapdraw/`; nei file della mappa solo aggiunte.
+
 ## Fuori scope
 
-- Le foto dei posti (parte B, dopo A).
 - Togliere le sagome anche da «Draw on the map» o da «Change figure».
 - Idee fuori dall'Europa, o in città che non sono le otto.
 - Idee calcolate sul server o aggiornate da sole: il file cambia solo
@@ -157,4 +224,12 @@ Condizione del Coordinatore: `App.tsx` entra dopo il merge di TASK-327
 
 ## Esito
 
-*(a fine task)*
+- **Parte A**: in `main` con la #630 (`75bcb2e7`), 2026-10-29: «Draw»
+  senza le due righe, «Ask for a route» aperto con quattro temi, 12 idee in
+  8 città da `tools/themed_ideas.py`, «Make it near me»; testi approvati
+  («Sì, approvo»); impronta iOS `83793e26` invariata; solo OTA.
+- **Parte B**: fatta il 2026-10-29 sul branch
+  `feat/TASK-329-b-place-photos`. Dei 101 posti toccati dalle idee 93
+  hanno un elemento (88 diversi nella lista dell'API); gli altri 8 restano
+  col solo nome. Restano il sì dell'utente sulla privacy (invariata) e il
+  server.

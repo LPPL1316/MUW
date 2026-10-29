@@ -24,6 +24,15 @@ again; the others are kept from the file as they are. When the public
 Overpass is full, ``--overpass-url`` downloads the streets from another one:
 only the boxes around the cities go there.
 
+Each place keeps its Wikidata item, never its photo: the app asks the API
+for the photos of the places passed by (GET /place-photos, TASK-329), whose
+credit can change. The API answers only for the items the tool lists in
+``services/api/shaperoute_api/data/idea_items.json``, written with the
+ideas. ``--items`` finds the places of the kept ideas again, with the API's
+own search, and gives each its item by name, planning nothing:
+
+    python tools/themed_ideas.py --cache-dir out/explore-ideas/cache --items
+
 The API is imported only to plan: the rest, and the tests, run with the
 route-engine's tools alone, like CI's tools job.
 """
@@ -44,6 +53,10 @@ from sample_feed import simplified
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = REPO_ROOT / "apps" / "mobile" / "src" / "explore" / "themedIdeas.json"
+# The items the API gives the photos of (city_photos.py, GET /place-photos).
+API_ITEMS = (
+    REPO_ROOT / "services" / "api" / "shaperoute_api" / "data" / "idea_items.json"
+)
 
 # As the previews of the API (recommended.py): about one metre.
 COORD_DECIMALS = 5
@@ -108,7 +121,14 @@ def entry(idea: Idea, result: dict[str, Any]) -> dict[str, Any]:
     kept["similarity"] = round(result["similarity"], 3)
     kept["city"] = idea.city
     kept["stops"] = [
-        {**stop, "point": rounded(stop["point"])} for stop in result["stops"]
+        {
+            "name": stop["name"],
+            "point": rounded(stop["point"]),
+            "passed": stop["passed"],
+            # Never the photo: its credit can change; the app asks for it.
+            "wikidata": stop.get("wikidata"),
+        }
+        for stop in result["stops"]
     ]
     return {
         "id": idea.id,
@@ -150,6 +170,33 @@ def ideas_file(
         )
         out.append(entry(idea, result))
     return {"ideas": out}
+
+
+def with_items(
+    kept: dict[str, Any], items: dict[str, str | None], log: Callable[[str], None]
+) -> dict[str, Any]:
+    """An idea of the file with the Wikidata item of each place found again
+    by its name in `items`; one not found keeps what it had, and is said."""
+    stops = []
+    for stop in kept["result"]["stops"]:
+        if stop["name"] not in items:
+            log(f"{kept['id']}: {stop['name']!r} not found again")
+        stops.append(
+            {**stop, "wikidata": items.get(stop["name"], stop.get("wikidata"))}
+        )
+    return {**kept, "result": {**kept["result"], "stops": stops}}
+
+
+def items_file(body: dict[str, Any]) -> dict[str, Any]:
+    """The API's list: the items of the places the ideas pass by, each once,
+    in order."""
+    items = {
+        stop["wikidata"]
+        for idea in body["ideas"]
+        for stop in idea["result"]["stops"]
+        if stop["passed"] and stop.get("wikidata")
+    }
+    return {"items": sorted(items)}
 
 
 def read_kept(path: Path) -> dict[str, dict[str, Any]]:
@@ -200,6 +247,40 @@ def api_planner(
     return plan
 
 
+def api_places() -> Callable[[dict[str, Any]], dict[str, str | None]]:
+    """The places of a kept idea found again as its job found them: its
+    theme, around its city's centre, as far as its distance asks; by name,
+    with their Wikidata items."""
+    from shaperoute_api.cities import CitySearch
+    from shaperoute_api.themed import StopFinder, search_radius_m
+    from shaperoute_api.themes import THEMES
+
+    key = os.environ.get("GEOAPIFY_API_KEY") or None
+    if key is None:
+        raise SystemExit("GEOAPIFY_API_KEY is needed: the places and the cities.")
+    cities = CitySearch(key)
+    finder = StopFinder(key)
+
+    def places(kept: dict[str, Any]) -> dict[str, str | None]:
+        found = cities.search(kept["city"])
+        if not found:
+            raise RuntimeError(f"no city {kept['city']!r}")
+        result = kept["result"]
+        stops = finder.find(
+            THEMES[result["theme"]], found[0].point, search_radius_m(result["target_m"])
+        )
+        return {stop.name: stop.wikidata for stop in stops}
+
+    return places
+
+
+def write_json(path: Path, body: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--cache-dir", type=Path, required=True)
@@ -208,14 +289,29 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--overpass-url", help="another Overpass API, e.g. when the usual is full"
     )
+    parser.add_argument(
+        "--items",
+        action="store_true",
+        help="only the Wikidata items of the kept ideas' places, planning nothing",
+    )
+    parser.add_argument("--api-items", type=Path, default=API_ITEMS)
     args = parser.parse_args(argv)
     kept = read_kept(args.out)
-    only = None if args.only is None else set(args.only)
-    planner = api_planner(args.cache_dir, args.overpass_url)
-    body = ideas_file(IDEAS, planner, kept, only)
-    args.out.write_text(
-        json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
+    if args.items:
+        places = api_places()
+        body = {
+            "ideas": [
+                with_items(kept[idea.id], places(kept[idea.id]), print)
+                for idea in IDEAS
+                if idea.id in kept
+            ]
+        }
+    else:
+        only = None if args.only is None else set(args.only)
+        planner = api_planner(args.cache_dir, args.overpass_url)
+        body = ideas_file(IDEAS, planner, kept, only)
+    write_json(args.out, body)
+    write_json(args.api_items, items_file(body))
     print(f"{len(body['ideas'])} of {len(IDEAS)} ideas in {args.out}")
     return 0 if len(body["ideas"]) == len(IDEAS) else 1
 

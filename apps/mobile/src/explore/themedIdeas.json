@@ -762,77 +762,92 @@
           {
             "name": "Trofeo Mario",
             "point": [41.89359, 12.48268],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q126182518"
           },
           {
             "name": "Cola di Rienzo",
             "point": [41.89372, 12.48232],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q105989516"
           },
           {
             "name": "Testa di Costantino",
             "point": [41.89289, 12.48249],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q1289781"
           },
           {
             "name": "Palazzo Clementino",
             "point": [41.89293, 12.48231],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q124395541"
           },
           {
             "name": "Esedra di Marco Aurelio",
             "point": [41.89265, 12.48224],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q122231765"
           },
           {
             "name": "Lupa capitolina",
             "point": [41.89327, 12.48365],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q408623"
           },
           {
             "name": "Tempio di Vespasiano e Tito",
             "point": [41.89273, 12.48392],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q731284"
           },
           {
             "name": "Tempio della Concordia",
             "point": [41.89293, 12.4842],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q828143"
           },
           {
             "name": "Nilo",
             "point": [41.89319, 12.48339],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q125809210"
           },
           {
             "name": "Dea Roma",
             "point": [41.89312, 12.48331],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q125809209"
           },
           {
             "name": "Tevere",
             "point": [41.89303, 12.48325],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q125809207"
           },
           {
             "name": "Piazza del Campidoglio",
             "point": [41.89325, 12.48299],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q34921"
           },
           {
             "name": "Palazzo dei Conservatori",
             "point": [41.89294, 12.48284],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q64103"
           },
           {
             "name": "Statua equestre di Marco Aurelio",
             "point": [41.89332, 12.48293],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q21141671"
           },
           {
             "name": "Insula dell'Ara Coeli",
             "point": [41.89415, 12.48225],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2249182"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -1659,77 +1674,92 @@
           {
             "name": "Place Dauphine",
             "point": [48.85641, 2.34265],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q1810430"
           },
           {
             "name": "Square Jean XXIII",
             "point": [48.85235, 2.35127],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3494657"
           },
           {
             "name": "Square de l'Île-de-France",
             "point": [48.85209, 2.35223],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3389977"
           },
           {
             "name": "Square Danielle Mitterrand",
             "point": [48.85059, 2.35002],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3162524"
           },
           {
             "name": "Square René Viviani",
             "point": [48.85212, 2.34754],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3280855"
           },
           {
             "name": "Square André Lefèvre",
             "point": [48.85168, 2.34545],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3494475"
           },
           {
             "name": "Square Federico-García-Lorca",
             "point": [48.85472, 2.35324],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3495077"
           },
           {
             "name": "Jardin des Combattants-de-la-Nueve",
             "point": [48.85577, 2.35211],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q19945094"
           },
           {
             "name": "Jardin médiéval du musée de Cluny",
             "point": [48.85078, 2.34426],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3162595"
           },
           {
             "name": "Square de la Tour Saint-Jacques",
             "point": [48.85788, 2.34876],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3494976"
           },
           {
             "name": "Square Auguste Mariette-Pacha",
             "point": [48.84915, 2.34594],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3494492"
           },
           {
             "name": "Square Michel Foucault",
             "point": [48.84933, 2.34526],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3494732"
           },
           {
             "name": "Square Yves Coppens",
             "point": [48.84897, 2.34633],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q122811087"
           },
           {
             "name": "Square Paul Langevin",
             "point": [48.84776, 2.35027],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3494757"
           },
           {
             "name": "Jardin Carré",
             "point": [48.84735, 2.34957],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3162298"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -2506,77 +2536,92 @@
           {
             "name": "George IV",
             "point": [51.50837, -0.12757],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q7604481"
           },
           {
             "name": "George Washington",
             "point": [51.50872, -0.12757],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q25338492"
           },
           {
             "name": "Edith Cavell Memorial",
             "point": [51.50937, -0.12717],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "A Conversation with Oscar Wilde",
             "point": [51.50872, -0.12586],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q18159614"
           },
           {
             "name": "Fourth Plinth",
             "point": [51.50818, -0.12871],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q4515084"
           },
           {
             "name": "Statue of James II",
             "point": [51.50849, -0.12901],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q17527074"
           },
           {
             "name": "Trafalgar Square",
             "point": [51.50845, -0.12845],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q129143"
           },
           {
             "name": "Charles I",
             "point": [51.50733, -0.12765],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q7604492"
           },
           {
             "name": "Royal Marines",
             "point": [51.50654, -0.12953],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q18121475"
           },
           {
             "name": "Captain James Cook",
             "point": [51.50634, -0.12923],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q17514442"
           },
           {
             "name": "George III",
             "point": [51.50778, -0.13056],
-            "passed": false
+            "passed": false,
+            "wikidata": null
           },
           {
             "name": "Queen Eleanor Memorial Cross",
             "point": [51.50844, -0.12529],
-            "passed": false
+            "passed": false,
+            "wikidata": null
           },
           {
             "name": "National Police Memorial",
             "point": [51.50574, -0.12995],
-            "passed": false
+            "passed": false,
+            "wikidata": null
           },
           {
             "name": "Royal Naval Division Memorial",
             "point": [51.50535, -0.12903],
-            "passed": false
+            "passed": false,
+            "wikidata": null
           },
           {
             "name": "Prince George, Duke of Cambridge",
             "point": [51.50522, -0.12659],
-            "passed": false
+            "passed": false,
+            "wikidata": null
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -3235,77 +3280,92 @@
           {
             "name": "Asil Bressol del Nen Jesús",
             "point": [41.38463, 2.18118],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q81330705"
           },
           {
             "name": "Casa Padellàs",
             "point": [41.38399, 2.17764],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q14924660"
           },
           {
             "name": "Plaça de Sant Jaume",
             "point": [41.38265, 2.17699],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q2082605"
           },
           {
             "name": "Homenatge als castellers",
             "point": [41.38203, 2.17701],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q11926010"
           },
           {
             "name": "Plaça de la Verònica",
             "point": [41.38093, 2.17737],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q21604356"
           },
           {
             "name": "Plaça de George Orwell",
             "point": [41.38051, 2.17756],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q16620211"
           },
           {
             "name": "Plaça del Teatre",
             "point": [41.37868, 2.17582],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q18156044"
           },
           {
             "name": "Casa Mauri",
             "point": [41.38498, 2.18138],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q46125649"
           },
           {
             "name": "Monument als Herois de 1809",
             "point": [41.38358, 2.17578],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q11937554"
           },
           {
             "name": "Plaça de Sant Felip Neri",
             "point": [41.38338, 2.1751],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q9060949"
           },
           {
             "name": "Casa Ferran-Civil",
             "point": [41.38166, 2.1796],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q21903377"
           },
           {
             "name": "Plaça Nova",
             "point": [41.38417, 2.17512],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3753891"
           },
           {
             "name": "Plaça del Pi",
             "point": [41.3824, 2.17365],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3392167"
           },
           {
             "name": "Plaça Reial",
             "point": [41.38009, 2.17502],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q1519964"
           },
           {
             "name": "Cercle Artistic de Sant lluc",
             "point": [41.38575, 2.17369],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q113663728"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -3780,77 +3840,92 @@
           {
             "name": "Heilig Hartbeeld",
             "point": [52.36949, 4.89008],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q13723270"
           },
           {
             "name": "Begijnhof",
             "point": [52.36943, 4.89004],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q1629214"
           },
           {
             "name": "Argus",
             "point": [52.37099, 4.89024],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q113995958"
           },
           {
             "name": "Mirakelkolom",
             "point": [52.37026, 4.89237],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q52162388"
           },
           {
             "name": "The Amsterdam Dungeon",
             "point": [52.3702, 4.89217],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q2134254"
           },
           {
             "name": "Rokinfontein",
             "point": [52.37204, 4.89312],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q43196597"
           },
           {
             "name": "Walenpoortje",
             "point": [52.37123, 4.89771],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q17288856"
           },
           {
             "name": "Oost-Indisch Huis",
             "point": [52.371, 4.89803],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q2223310"
           },
           {
             "name": "Houten Huis",
             "point": [52.36911, 4.88971],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q2200239"
           },
           {
             "name": "Amsterdam Oersoep",
             "point": [52.37471, 4.8946],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q101623454"
           },
           {
             "name": "Borstplaat",
             "point": [52.37402, 4.89791],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2298562"
           },
           {
             "name": "Spinhuispoort",
             "point": [52.37052, 4.89631],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q17306709"
           },
           {
             "name": "de Wallen",
             "point": [52.37341, 4.89828],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q447664"
           },
           {
             "name": "Huis aan 3 grachten",
             "point": [52.36939, 4.89468],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2035791"
           },
           {
             "name": "Gasthuispoort",
             "point": [52.36928, 4.8951],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q17308727"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -4528,77 +4603,92 @@
           {
             "name": "Miradouro de Santa Luzia",
             "point": [38.71174, -9.13022],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q6837314"
           },
           {
             "name": "Miradouro do Torel",
             "point": [38.71874, -9.14141],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q10306349"
           },
           {
             "name": "Miradouro de São Pedro de Alcântara",
             "point": [38.71544, -9.14405],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q6672039"
           },
           {
             "name": "Jardim de São Pedro de Alcântara",
             "point": [38.71506, -9.14412],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q6672039"
           },
           {
             "name": "Miradouro da Academia das Belas Artes",
             "point": [38.70889, -9.13981],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "Miradouro do Arco da Rua Augusta",
             "point": [38.70841, -9.13673],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "Jardim Roque Gameiro",
             "point": [38.70566, -9.14356],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q10306026"
           },
           {
             "name": "Jardim Sá da Bandeira",
             "point": [38.70708, -9.14673],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q10306246"
           },
           {
             "name": "Jardim do Alto de Santa Catarina",
             "point": [38.70951, -9.14759],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q10306318"
           },
           {
             "name": "Miradouro Sophia de Mello Breyner Andresen",
             "point": [38.71637, -9.13157],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2744066"
           },
           {
             "name": "Jardim do Torel",
             "point": [38.71924, -9.14176],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q10306349"
           },
           {
             "name": "Jardim Alfredo Keil",
             "point": [38.71786, -9.14525],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q1683439"
           },
           {
             "name": "Jardim do Príncipe Real",
             "point": [38.71628, -9.14862],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q1107447"
           },
           {
             "name": "Jardim Botto Machado",
             "point": [38.71594, -9.12407],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q10305525"
           },
           {
             "name": "Miradouro do Mercado do Chão do Loureiro",
             "point": [38.7121, -9.13524],
-            "passed": false
+            "passed": false,
+            "wikidata": null
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -5206,77 +5296,92 @@
           {
             "name": "Pražský poledník",
             "point": [50.08748, 14.42133],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q22694906"
           },
           {
             "name": "Pomník mistra Jana Husa",
             "point": [50.08772, 14.42114],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3499497"
           },
           {
             "name": "Jan Hus",
             "point": [50.08773, 14.42112],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3499497"
           },
           {
             "name": "Albert Einstein",
             "point": [50.08718, 14.42183],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "Mariánský sloup",
             "point": [50.08737, 14.42132],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "Staroměstské náměstí",
             "point": [50.08745, 14.42097],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q421678"
           },
           {
             "name": "Památník 27 pánů popravených po bitvě na Bílé Hoře",
             "point": [50.08723, 14.42078],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q66050049"
           },
           {
             "name": "Radniční věž",
             "point": [50.08705, 14.42067],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q2332231"
           },
           {
             "name": "náměstí Franze Kafky",
             "point": [50.08774, 14.41938],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q12041586"
           },
           {
             "name": "Franz Kafka",
             "point": [50.08789, 14.41922],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q94441415"
           },
           {
             "name": "palác Hrzánů z Harasova",
             "point": [50.08688, 14.42334],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "U Kamenného zvonu",
             "point": [50.08787, 14.42224],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "Václav Budovec z Budova",
             "point": [50.08802, 14.42285],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q64815666"
           },
           {
             "name": "palác Kinských",
             "point": [50.08809, 14.42168],
-            "passed": true
+            "passed": true,
+            "wikidata": null
           },
           {
             "name": "Artur Görgey",
             "point": [50.08607, 14.4212],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q94441202"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -5885,77 +5990,92 @@
           {
             "name": "Neue Wache",
             "point": [52.5179, 13.39554],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q152341"
           },
           {
             "name": "Mutter mit totem Sohn",
             "point": [52.51795, 13.39553],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q116343888"
           },
           {
             "name": "Gerhard von Scharnhorst",
             "point": [52.51714, 13.39537],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q61769308"
           },
           {
             "name": "Friedrich Wilhelm Bülow",
             "point": [52.51715, 13.39549],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q64760457"
           },
           {
             "name": "SculpturePopulaire",
             "point": [52.51696, 13.39591],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q119009603"
           },
           {
             "name": "August von Gneisenau",
             "point": [52.51657, 13.39558],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q61769303"
           },
           {
             "name": "Gebhard von Blücher",
             "point": [52.51657, 13.39574],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q51846342"
           },
           {
             "name": "Ludwig Yorck",
             "point": [52.51659, 13.3959],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q61769306"
           },
           {
             "name": "Reiterstandbild Friedrich II. von Preußen",
             "point": [52.51726, 13.39274],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q881611"
           },
           {
             "name": "Alexander von Humboldt",
             "point": [52.51764, 13.39408],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q17351109"
           },
           {
             "name": "Wilhelm von Humboldt",
             "point": [52.5176, 13.39346],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q24976694"
           },
           {
             "name": "Nike lehrt den Knaben Heldensagen",
             "point": [52.51746, 13.39823],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q25064541"
           },
           {
             "name": "Athena unterrichtet den Jungen im Waffengebrauch",
             "point": [52.51747, 13.39846],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q24915443"
           },
           {
             "name": "Der Jüngling wird von Athena in neuen Kampf geführt",
             "point": [52.51777, 13.39841],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q24915452"
           },
           {
             "name": "Hegel",
             "point": [52.51932, 13.3936],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q61769305"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -6496,77 +6616,92 @@
           {
             "name": "Piazza del Campidoglio",
             "point": [41.89325, 12.48299],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q34921"
           },
           {
             "name": "Tempio di Vespasiano e Tito",
             "point": [41.89273, 12.48392],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q731284"
           },
           {
             "name": "Testa di Costantino",
             "point": [41.89289, 12.48249],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q1289781"
           },
           {
             "name": "Altare della Patria",
             "point": [41.89469, 12.48307],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q506234"
           },
           {
             "name": "Statua equestre di Vittorio Emanuele II",
             "point": [41.89479, 12.48298],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q63759614"
           },
           {
             "name": "Insula dell'Ara Coeli",
             "point": [41.89415, 12.48225],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q2249182"
           },
           {
             "name": "Piazza d'Aracoeli",
             "point": [41.89421, 12.48131],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3902369"
           },
           {
             "name": "Tempio della Concordia",
             "point": [41.89293, 12.4842],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q828143"
           },
           {
             "name": "Tempio di Saturno",
             "point": [41.8924, 12.48408],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q746721"
           },
           {
             "name": "Miliarum Aureum",
             "point": [41.89258, 12.48438],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q916963"
           },
           {
             "name": "Umbilicus Urbis Romae",
             "point": [41.89272, 12.48459],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q205840"
           },
           {
             "name": "Basilica Argentaria",
             "point": [41.89406, 12.4845],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q1980093"
           },
           {
             "name": "Arco di Settimio Severo",
             "point": [41.89283, 12.48474],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q162353"
           },
           {
             "name": "Rostra Vetera",
             "point": [41.89261, 12.48465],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q426372"
           },
           {
             "name": "Tempio di Venere Genitrice",
             "point": [41.89416, 12.48487],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2459870"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -7518,77 +7653,92 @@
           {
             "name": "L'Art",
             "point": [48.85654, 2.35181],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q63341353"
           },
           {
             "name": "La Science",
             "point": [48.85665, 2.35187],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q63341415"
           },
           {
             "name": "Étienne Marcel, prévôt des marchands",
             "point": [48.85567, 2.35212],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q18156540"
           },
           {
             "name": "Mihai Eminescu",
             "point": [48.84925, 2.34676],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q18180812"
           },
           {
             "name": "Place Jacques Duhamel",
             "point": [48.85135, 2.35017],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q28963331"
           },
           {
             "name": "Notre-Dame de Paris",
             "point": [48.85327, 2.34789],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q7934019"
           },
           {
             "name": "Charlemagne et ses leudes",
             "point": [48.85309, 2.34822],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q17346987"
           },
           {
             "name": "Lieu du sacre de Napoléon",
             "point": [48.85281, 2.34965],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q973118"
           },
           {
             "name": "Point zéro des Routes de France",
             "point": [48.8534, 2.34879],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q2467833"
           },
           {
             "name": "Rosace Sud",
             "point": [48.85279, 2.34982],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q63168906"
           },
           {
             "name": "Édicule Guimard",
             "point": [48.85519, 2.34713],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3579100"
           },
           {
             "name": "Fontaine Saint-Michel",
             "point": [48.85318, 2.3437],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q692839"
           },
           {
             "name": "Mémorial des Martyrs de la Déportation",
             "point": [48.85174, 2.35237],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3333162"
           },
           {
             "name": "Palais de Justice de Paris",
             "point": [48.85566, 2.34505],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q143080"
           },
           {
             "name": "Fontaine du Palmier",
             "point": [48.8575, 2.34729],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3076281"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -8443,77 +8593,92 @@
           {
             "name": "St James's Square Gardens",
             "point": [51.50722, -0.13529],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q500529"
           },
           {
             "name": "Christchurch Gardens",
             "point": [51.49807, -0.13451],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q59818439"
           },
           {
             "name": "Golden Square",
             "point": [51.51165, -0.13718],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q5579811"
           },
           {
             "name": "Leicester Square",
             "point": [51.51043, -0.13015],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q848912"
           },
           {
             "name": "Victoria Embankment Gardens",
             "point": [51.50864, -0.12142],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q7926695"
           },
           {
             "name": "St Anne's Churchyard",
             "point": [51.51226, -0.13246],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q18748717"
           },
           {
             "name": "St. James's Park",
             "point": [51.50313, -0.13317],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q216914"
           },
           {
             "name": "Jubilee Gardens",
             "point": [51.50394, -0.11818],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2290816"
           },
           {
             "name": "Soho Square Gardens",
             "point": [51.51529, -0.13221],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2705335"
           },
           {
             "name": "Dean's Yard",
             "point": [51.49858, -0.129],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q5245943"
           },
           {
             "name": "College Garden",
             "point": [51.49796, -0.12699],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q5146391"
           },
           {
             "name": "College Green",
             "point": [51.49806, -0.12614],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q59756"
           },
           {
             "name": "The Green Park",
             "point": [51.50446, -0.14372],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q119892"
           },
           {
             "name": "Victoria Tower Gardens",
             "point": [51.4965, -0.12493],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2485117"
           },
           {
             "name": "Lincoln's Inn Fields",
             "point": [51.51623, -0.11657],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q2736153"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"
@@ -9080,77 +9245,92 @@
           {
             "name": "Capella de Santa Àgata",
             "point": [41.38427, 2.17751],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3896289"
           },
           {
             "name": "Font del Bacallà",
             "point": [41.38568, 2.17894],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q99509415"
           },
           {
             "name": "Casa Martí",
             "point": [41.38582, 2.17356],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q3661125"
           },
           {
             "name": "Font de Santa Anna",
             "point": [41.38453, 2.1742],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q81100391"
           },
           {
             "name": "Lletres gimnastes",
             "point": [41.38134, 2.17483],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q18696317"
           },
           {
             "name": "Font de les Tres Gràcies",
             "point": [41.38009, 2.17528],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q18146384"
           },
           {
             "name": "Monument de Leandre Cristòfol",
             "point": [41.38042, 2.17726],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q99484727"
           },
           {
             "name": "Font de Neptú",
             "point": [41.37909, 2.17932],
-            "passed": true
+            "passed": true,
+            "wikidata": "Q18145171"
           },
           {
             "name": "Topos V",
             "point": [41.38404, 2.1775],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q3819918"
           },
           {
             "name": "Bàrcino",
             "point": [41.38425, 2.17538],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q18696741"
           },
           {
             "name": "Al Doctor Jacint Reventós",
             "point": [41.38347, 2.18074],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q99509381"
           },
           {
             "name": "El món neix en cada besada",
             "point": [41.38517, 2.17481],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q24766839"
           },
           {
             "name": "Paviment Joan Miró",
             "point": [41.38116, 2.17327],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q18005025"
           },
           {
             "name": "Font de la Portaferrissa",
             "point": [41.38304, 2.1719],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q99484779"
           },
           {
             "name": "Monument a Frederic Soler (Serafí Pitarra)",
             "point": [41.3787, 2.17574],
-            "passed": false
+            "passed": false,
+            "wikidata": "Q18156044"
           }
         ],
         "license": "Places and roads © OpenStreetMap contributors"

@@ -1,11 +1,12 @@
 import done from "@shaperoute/shared-types/fixtures/themed-route-job-done.json";
-import { fireEvent, render, screen, within } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, within } from "@testing-library/react-native";
 
 import { FeedMapShooter, forgetFeedMaps } from "../feed/FeedMaps";
 
+import { forgetPlacePhotos } from "./placePhotos";
 import { cardMapsCredit } from "./RouteCard";
 import type { ThemedIdea } from "./themedIdeas";
-import { IdeasFromEurope, SEEN_AT_FIRST, wantsMap } from "./IdeasFromEurope";
+import { ideaItem, IdeasFromEurope, SEEN_AT_FIRST, wantsMap } from "./IdeasFromEurope";
 import type { ThemedResult } from "./themedRoutes";
 
 jest.mock("react-native-webview");
@@ -27,6 +28,7 @@ function shots(): Record<string, unknown>[] {
 
 beforeEach(() => {
   forgetFeedMaps();
+  forgetPlacePhotos();
   injectJavaScript.mockClear();
 });
 const idea = (city: string, category: string, shape: string): ThemedIdea => ({
@@ -123,4 +125,78 @@ test("in the app, three maps are asked at first, the others once the row slides"
   });
   expect((await asked()).size).toBe(many.length - SEEN_AT_FIRST);
   expect(new Set(shots().map((shot) => shot.key)).size).toBe(many.length);
+});
+
+// The photos of the ideas' places (TASK-329).
+const API = "http://192.168.1.23:8000";
+const withItems = (base: ThemedIdea, items: (string | null)[]): ThemedIdea => ({
+  ...base,
+  result: {
+    ...base.result,
+    stops: base.result.stops.map((s, i) => ({ ...s, wikidata: items[i] ?? null })),
+  },
+});
+
+test("a card's photo is that of the first place passed by with an item", () => {
+  // The fixture: two places passed by, then four not.
+  expect(ideaItem(withItems(IDEAS[0], [null, "Q2", "Q3"]))).toBe("Q2");
+  expect(ideaItem(withItems(IDEAS[0], ["Q1", "Q2"]))).toBe("Q1");
+  // Not passed by: not its photo.
+  expect(ideaItem(withItems(IDEAS[0], [null, null, "Q3"]))).toBeNull();
+});
+
+test("an idea whose place has a photo shows it, credited, with its shape small over it", async () => {
+  const ideas = [withItems(IDEAS[0], ["Q10285"]), withItems(IDEAS[1], ["Q90"])];
+  const fetchFn = jest.fn(async () =>
+    Response.json({
+      photos: { Q10285: { url: "/city-photos/Q10285.jpg", credit: "© A · CC BY 4.0" } },
+    }),
+  );
+  await render(
+    <IdeasFromEurope
+      width={350}
+      onIdea={jest.fn()}
+      ideas={ideas}
+      apiUrl={API}
+      fetchFn={fetchFn}
+    />,
+  );
+  await act(async () => {});
+  // One request for the row.
+  expect(fetchFn).toHaveBeenCalledTimes(1);
+  expect(String((fetchFn.mock.calls[0] as unknown[])[0])).toBe(
+    `${API}/place-photos?items=Q10285%2CQ90`,
+  );
+  const [rome, paris] = screen.getAllByTestId("route-card");
+  expect(within(rome).getByTestId("route-card-photo").props.source).toEqual({
+    uri: `${API}/city-photos/Q10285.jpg`,
+    headers: {},
+  });
+  expect(within(rome).getByText("CC BY 4.0")).toBeOnTheScreen();
+  expect(within(rome).getByText("Rome · Star")).toBeOnTheScreen();
+  expect(screen.getAllByTestId("idea-shape")).toHaveLength(1);
+  // No free photo: the map card, as before.
+  expect(within(paris).queryByTestId("route-card-photo")).toBeNull();
+
+  // A photo that does not load: back to the map.
+  await fireEvent(within(rome).getByTestId("route-card-photo"), "error");
+  expect(screen.queryByTestId("route-card-photo")).toBeNull();
+  expect(screen.queryByTestId("idea-shape")).toBeNull();
+});
+
+test("an API without the photos keeps the cards as they were", async () => {
+  const fetchFn = jest.fn(async () => Response.json({}, { status: 404 }));
+  await render(
+    <IdeasFromEurope
+      width={350}
+      onIdea={jest.fn()}
+      ideas={[withItems(IDEAS[0], ["Q10285"])]}
+      apiUrl={API}
+      fetchFn={fetchFn}
+    />,
+  );
+  await act(async () => {});
+  expect(fetchFn).toHaveBeenCalledTimes(1);
+  expect(screen.queryByTestId("route-card-photo")).toBeNull();
+  expect(screen.getByText("Rome · Star")).toBeOnTheScreen();
 });

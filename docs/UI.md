@@ -2177,7 +2177,7 @@ partenza** (oltre 20 km dal centro della sua città) il bottone giallo è
 **«Make it near me»** al posto di «Start»: manda le stesse parole
 dell'idea («Famous Places star 8 km») dalla partenza, e il percorso fatto
 lì ha «Start» come ogni altro. Nella sua città, o senza partenza, c'è
-«Start». Le foto vere dei posti arrivano con la parte B.
+«Start». Le foto vere dei posti sono sotto, «Le foto dei posti».
 
 Testi nuovi, nelle cinque lingue (da approvare):
 
@@ -2193,6 +2193,32 @@ Testi nuovi, nelle cinque lingue (da approvare):
 | Lisbon | Lisbona | Lissabon | Lisboa | Lisbonne |
 | Prague | Praga | Prag | Praga | Prague |
 | Berlin | Berlino | Berlin | Berlín | Berlin |
+
+#### Le foto dei posti (TASK-329 parte B, ADR-0287)
+
+Sotto la mappa di un percorso a tema, un'idea o uno chiesto, al posto
+della riga coi nomi dei posti toccati: **una fila di schede da scorrere di
+lato**, una per posto toccato, nell'ordine in cui il percorso li incontra,
+**«1 Colosseum», «2 Pantheon»…**. Sulla mappa gli stessi posti hanno lo
+stesso numero davanti al nome. La scheda (150 punti, due e il bordo della
+terza) ha in alto la **foto vera** del posto, dall'elemento Wikidata che
+OpenStreetMap gli dà, solo con una licenza libera, e il **credito piccolo
+sulla foto**, in basso a destra, come le schede di «NEARBY TOWNS»
+(ADR-0243); sotto, numero e nome. Un posto senza foto libera, o la cui
+foto non si carica, ha la scheda col **solo nome**. **Un tocco porta la
+mappa lì**, vicina come una strada (zoom 16, mai più lontana di com'era),
+girata com'è.
+
+Le schede di **«IDEAS FROM EUROPE»** mostrano la foto del primo posto
+toccato che ha un elemento Wikidata, con la **forma in piccolo** sopra,
+nell'angolo in alto a sinistra; per quella scheda la mappa non si prende.
+Una scheda senza foto, o la cui foto non si carica, resta con la mappa.
+
+Le foto le dà sempre la nostra API (`/city-photos/{item}.jpg`), mai
+Wikimedia: un percorso chiesto le ha nella risposta, le idee le chiedono
+all'API coi loro elementi (`GET /place-photos`). Un'API più vecchia non le
+ha: i posti col solo nome e le schede con la mappa, come prima. Nessun
+testo nuovo: numeri, nomi dei posti, autori e licenze.
 
 ### Le forme pronte vicino a te (TASK-306, ADR-0266)
 

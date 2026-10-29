@@ -105,3 +105,23 @@ test("an idea far from the start has «Make it near me» in the place of «Start
   expect(onStart).toHaveBeenCalled();
   expect(screen.getByText("Back to Explore")).toBeOnTheScreen();
 });
+
+test("under it, the places passed by with their photos; a tap takes the map there", async () => {
+  const onPlace = jest.fn();
+  await render(
+    <ThemedCard
+      state={{ status: "done", request, result }}
+      exporting={{ status: "idle" }}
+      onExport={jest.fn()}
+      onCancel={jest.fn()}
+      start={{ status: "idle" }}
+      onStart={jest.fn()}
+      apiUrl="http://192.168.1.23:8000"
+      onPlace={onPlace}
+    />,
+  );
+  expect(screen.getAllByTestId("stop-photo")).toHaveLength(2);
+  expect(screen.getByTestId("stop-photo-image")).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole("button", { name: "1 Strada di Galliera" }));
+  expect(onPlace).toHaveBeenCalledWith([44.511644, 11.3470742]);
+});
