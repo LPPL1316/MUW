@@ -1,8 +1,8 @@
 # TASK-331 — Disegnare a mano solo sulla mappa: la linea aperta, «Erase», «Edit the drawing» sulla mappa
 
-**Stato**: In corso — parte A in `main` (#632, `b5d4e5d3`, 2026-10-29);
-parte B (gli strumenti di disegno) pronta, #643, testi approvati il
-2026-10-29: aspetta il merge, sotto
+**Stato**: Done — parte A in `main` con la #632 (`b5d4e5d3`), parte B
+(gli strumenti di disegno) con la #643 (`dbf618fd`), il 2026-10-29; resta
+la prova col dito sull'iPhone
 **Fase**: 4 · **Branch**: `feat/TASK-331-draw-on-map-only` (A),
 `feat/TASK-331-b-draw-tools` (B) · **ADR**: ADR-0288
 
@@ -225,11 +225,19 @@ docs/tasks/TASK-331.md
 
 ## Esito
 
-*(a fine task)* Il 2026-10-29 il codice è fatto: la prima linea resta
-aperta se non torna all'inizio (andata e ritorno, contratto invariato,
-provato sul motore con le strade di Trento), la tavola di «Draw» è tolta,
-«Edit the drawing» mette la figura sulla mappa e non c'è per le emoji, sulla
-mappa ci sono «Erase» e le due dita che spostano la mappa. Jest 533 suite /
-4297 test verdi. I due testi nuovi sono approvati dall'utente lo stesso
-giorno. Resta, dopo il merge, la prova col dito sull'iPhone con la
-prossima anteprima.
+Il 2026-10-29, parte A (#632, `b5d4e5d3`): la prima linea resta aperta se
+non torna all'inizio (andata e ritorno, contratto invariato, provato sul
+motore con le strade di Trento), la tavola di «Draw» è tolta, «Edit the
+drawing» mette la figura sulla mappa e non c'è per le emoji, sulla mappa
+ci sono «Erase» e le due dita che spostano la mappa. I due testi nuovi
+approvati dall'utente lo stesso giorno.
+
+Parte B (#643, `dbf618fd`), lo stesso giorno: sotto la mappa «Draw | Line |
+Erase | Move», «Undo», «Redo» e «Clear all»; la gomma toglie il pezzo sotto
+il dito e un pezzo staccato si riattacca con un collegamento tratteggiato;
+«Line» fa segmenti dritti a tocchi, chiusi sul primo punto; con «Move» una
+linea tenuta ferma e trascinata si piega. Jest 548 suite / 4419 test verdi,
+impronta iOS `83793e26` invariata, otto testi nuovi approvati dall'utente.
+
+Resta la prova col dito sull'iPhone con la prossima preview: niente di
+questo task è stato ancora toccato con un dito vero.
