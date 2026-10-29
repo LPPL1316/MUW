@@ -1,11 +1,15 @@
 import type { ImageRouteRequest, RouteRequest } from "@shaperoute/shared-types";
 import imageRequest from "@shaperoute/shared-types/fixtures/image-route-request.json";
-import { act, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, within } from "@testing-library/react-native";
 
+import { cardMapsCredit } from "../explore/RouteCard";
+import { forgetFeedMaps } from "../feed/FeedMaps";
 import { SAMPLE_FEED, type SamplePost } from "../feed/sampleFeed";
+import { bearingOf } from "../map/turnedMap";
 import { RouteOutcome } from "./RoutePanel";
 import type { RouteState } from "./useRouteRequest";
 import {
+  MAPS_ASKED_AHEAD,
   POSTS_SHOWN,
   postsWhileRouting,
   SHOWN_AFTER_MS,
@@ -59,6 +63,17 @@ function outcome(view: RouteState) {
     />
   );
 }
+
+jest.mock("react-native-webview");
+const { injectJavaScript } =
+  jest.requireMock<typeof import("../../__mocks__/react-native-webview")>(
+    "react-native-webview",
+  );
+
+beforeEach(() => {
+  forgetFeedMaps();
+  injectJavaScript.mockClear();
+});
 
 afterEach(() => {
   jest.useRealTimers();
@@ -142,14 +157,143 @@ test("each card reads out who, where, what and how far", async () => {
   expect(label).toMatch(/km/);
 });
 
-test("the row asks nothing of the network, and takes no picture of a map", async () => {
+test("until its picture is taken a card is the line alone, and the maps are credited", async () => {
   jest.useFakeTimers();
-  const fetch = jest.spyOn(global, "fetch");
   await render(<WhileRouting request={HEART} startedAt={0} />);
-  await act(() => jest.advanceTimersByTimeAsync(60_000));
+  await act(() => jest.advanceTimersByTimeAsync(0));
   expect(screen.getAllByTestId("while-routing-post").length).toBeGreaterThan(0);
-  expect(fetch).not.toHaveBeenCalled();
   expect(screen.queryByTestId("feed-map")).not.toBeOnTheScreen();
+  expect(screen.getByText(cardMapsCredit())).toBeOnTheScreen();
+});
+
+/** The name of the picture of `post`'s map on a card of the row. */
+function cardMapKey(post: SamplePost): string {
+  const bearing = bearingOf(post.rotation_deg);
+  return `${post.id}:132x88${bearing === 0 ? "" : `@${bearing}`}`;
+}
+
+function mapPage() {
+  return screen.getByTestId("feed-map-page", { includeHiddenElements: true });
+}
+
+async function answer(data: object) {
+  await fireEvent(mapPage(), "message", {
+    nativeEvent: { data: JSON.stringify(data) },
+  });
+}
+
+test("a page under the row takes the maps, and each lies under its line (TASK-335)", async () => {
+  jest.useFakeTimers();
+  await render(<WhileRouting request={HEART} startedAt={0} />);
+  await act(() => jest.advanceTimersByTimeAsync(0));
+  await answer({ type: "ready" });
+  const [first] = postsWhileRouting(HEART);
+  expect(injectJavaScript).toHaveBeenCalledTimes(1);
+  expect(injectJavaScript.mock.calls[0][0]).toContain(`"key":"${cardMapKey(first)}"`);
+  const picture = "data:image/jpeg;base64,AAAA";
+  await answer({ type: "shot", key: cardMapKey(first), image: picture });
+
+  // Only the first card has its picture; the map is under the line.
+  const maps = screen.getAllByTestId("feed-map", { includeHiddenElements: true });
+  expect(maps).toHaveLength(1);
+  expect(maps[0]).toHaveProp("source", { uri: picture });
+  expect(maps[0]).toHaveStyle({ position: "absolute", left: 0, top: 0 });
+  const card = screen.getAllByTestId("while-routing-post")[0];
+  expect(within(card).getByTestId("feed-map", { includeHiddenElements: true })).toBe(
+    maps[0],
+  );
+});
+
+test("the maps are taken one card after the other, by one page loaded once", async () => {
+  jest.useFakeTimers();
+  await render(<WhileRouting request={HEART} startedAt={0} />);
+  await act(() => jest.advanceTimersByTimeAsync(0));
+  const page = mapPage();
+  await answer({ type: "ready" });
+  const shown = postsWhileRouting(HEART);
+  expect(shown.length).toBeGreaterThan(MAPS_ASKED_AHEAD);
+  for (const [i, post] of shown.entries()) {
+    expect(injectJavaScript).toHaveBeenCalledTimes(i + 1);
+    expect(injectJavaScript.mock.calls[i][0]).toContain(`"key":"${cardMapKey(post)}"`);
+    // The same page all along: MapLibre is not loaded again for each.
+    expect(mapPage()).toBe(page);
+    await answer({
+      type: "shot",
+      key: cardMapKey(post),
+      image: `data:image/jpeg;${i}`,
+    });
+  }
+  expect(
+    screen.getAllByTestId("feed-map", { includeHiddenElements: true }),
+  ).toHaveLength(shown.length);
+  // All taken: the page goes.
+  expect(
+    screen.queryByTestId("feed-map-page", { includeHiddenElements: true }),
+  ).toBeNull();
+});
+
+test("maps that do not come, as with no signal, stop the others being asked", async () => {
+  jest.useFakeTimers();
+  await render(<WhileRouting request={HEART} startedAt={0} />);
+  await act(() => jest.advanceTimersByTimeAsync(0));
+  await answer({ type: "ready" });
+  const shown = postsWhileRouting(HEART);
+  for (const post of shown.slice(0, MAPS_ASKED_AHEAD)) {
+    await answer({ type: "miss", key: cardMapKey(post) });
+  }
+  await act(() => jest.advanceTimersByTimeAsync(60_000));
+  expect(injectJavaScript).toHaveBeenCalledTimes(MAPS_ASKED_AHEAD);
+  expect(
+    screen.queryByTestId("feed-map-page", { includeHiddenElements: true }),
+  ).toBeNull();
+  expect(screen.queryByTestId("feed-map")).not.toBeOnTheScreen();
+});
+
+test("a map taken before is not taken again", async () => {
+  jest.useFakeTimers();
+  const [first, second] = postsWhileRouting(HEART);
+  const { unmount } = await render(<WhileRouting request={HEART} startedAt={0} />);
+  await act(() => jest.advanceTimersByTimeAsync(0));
+  await answer({ type: "ready" });
+  await answer({
+    type: "shot",
+    key: cardMapKey(first),
+    image: "data:image/jpeg;first",
+  });
+  await unmount();
+  injectJavaScript.mockClear();
+
+  await render(<WhileRouting request={HEART} startedAt={0} />);
+  await act(() => jest.advanceTimersByTimeAsync(0));
+  expect(
+    screen.getAllByTestId("feed-map", { includeHiddenElements: true }),
+  ).toHaveLength(1);
+  await answer({ type: "ready" });
+  expect(injectJavaScript.mock.calls[0][0]).toContain(`"key":"${cardMapKey(second)}"`);
+  expect(
+    injectJavaScript.mock.calls.some(([js]) =>
+      js.includes(`"key":"${cardMapKey(first)}"`),
+    ),
+  ).toBe(false);
+});
+
+test("the page is not there once the route has come", async () => {
+  jest.useFakeTimers();
+  const startedAt = Date.now();
+  const { rerender } = await render(
+    outcome({ status: "waiting", request: HEART, startedAt, phase: "computing" }),
+  );
+  await act(() => jest.advanceTimersByTimeAsync(SHOWN_AFTER_MS));
+  expect(
+    screen.getByTestId("feed-map-page", { includeHiddenElements: true }),
+  ).toBeTruthy();
+
+  await rerender(
+    outcome({ status: "failed", request: HEART, problem: { kind: "no_api_url" } }),
+  );
+  expect(
+    screen.queryByTestId("feed-map-page", { includeHiddenElements: true }),
+  ).toBeNull();
 });
 
 test("before drawing, the card warms up for the shape, the word or the picture", async () => {

@@ -2515,10 +2515,13 @@ Forma e distanza non si cambiano durante l'attesa.
 Dopo 3 s di attesa, sotto la barra compare «MEANWHILE, FROM THE FEED»
 (TASK-317, ADR-0277): una fila da scorrere di lato con sei disegni di
 esempio del Feed, quelli sull'acqua con «Paddle» e quelli di corsa
-altrimenti. Ogni scheda ha la linea su fondo mappa, il titolo e i dati
-(«Moon · 4.9 km · 27 min»), senza l'immagine della mappa: mentre il motore
-cerca, la fila non chiede niente alla rete. Le schede non si toccano, e la
-fila sparisce con la scheda dell'attesa.
+altrimenti. Ogni scheda ha la linea, il titolo e i dati («Moon · 4.9 km ·
+27 min»). Sotto la linea c'è la foto della mappa del posto (TASK-335,
+ADR-0291), scattata da una pagina nascosta sotto la fila, una scheda dopo
+l'altra. Finché la foto non arriva, la linea è su fondo mappa. Senza rete
+le foto non arrivano, e dopo due la fila non ne chiede altre. Sotto la fila
+c'è «Maps: …», come in «Explore». Le schede non si toccano, e la fila
+sparisce con la scheda dell'attesa.
 
 - Fino a 10 km il percorso di solito arriva in 5–35 s, da 15 a 21 km in
   30–50 s; una zona nuova aggiunge il suo download, circa 105 s per un
