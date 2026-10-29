@@ -197,7 +197,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la mappa; testo del permesso e privacy nelle cinque lingue approvati
   dall'utente; la data della privacy sarà quella del merge. L'impronta
   Android si muove con la 1.0.1 (scelta del Coordinatore). Resta l'anello
-  Movimento sull'iPhone.
+  Movimento sull'iPhone. Il 2026-10-29 l'utente ha detto sì anche a
+  capability HealthKit, build, invio ad Apple e riga dell'App Store: valgono
+  al taglio della 1.0.1.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).

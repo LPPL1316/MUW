@@ -439,6 +439,15 @@ non arrivano più alla 1.0.0 (7).
   `HKSyncIdentifier` («Per B» qui sopra).
 - **Resta per l'iPhone dell'utente**, alla build `preview` o alla 1.0.1:
   l'anello Movimento (il simulatore non ha un obiettivo, dice «--/--»).
+- **Gli altri quattro sì dell'utente** (2026-10-29, «SI» a ognuno, in
+  questa sessione): accendere HealthKit sull'App ID nell'account Apple
+  Developer, la build, l'invio ad Apple e la riga dell'App Store «Saves your
+  activities to Apple Health.». Valgono per il taglio della 1.0.1, che
+  decide il Coordinatore: una sola build con contatti, document picker e
+  l'accesso con Apple e Google, come ha chiesto l'utente. La build la lancia
+  l'utente con il suo account Apple (`DEPLOY.md` A.7); la capability la
+  allinea EAS alla build o, se non lo fa, l'utente a mano in
+  developer.apple.com.
 
 ### C — La build Android con Health Connect
 
