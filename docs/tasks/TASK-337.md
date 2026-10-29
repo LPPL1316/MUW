@@ -82,5 +82,6 @@ tutte. Impronta iOS `83793e26` misurata su una copia pulita della testa.
 
 Fatto il 2026-10-29: due note alla volta, «Show more» per le altre, quelle
 di sicurezza sempre in vista. Solo JS dell'app (OTA), nessun testo nuovo,
-nessuna dipendenza. Impronta iOS sulla copia pulita della testa: vedi la
-riga sotto.
+nessuna dipendenza. Impronta iOS misurata su una copia pulita di
+`3e1617fe` (`npm ci`, `APP_VARIANT=production`): `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`,
+invariata.
