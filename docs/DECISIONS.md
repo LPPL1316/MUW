@@ -4861,6 +4861,11 @@ OpenFreeMap dà solo tile vettoriali: non c'è un'immagine da chiedere.
 - **Il credito su ogni foto**: «OpenFreeMap © OpenMapTiles / Data from
   OpenStreetMap», il testo di `ATTRIBUTION`, senza link perché la scheda
   non si tocca. In due righe, in basso a destra, accanto al punteggio.
+- **Anche sotto i disegni di un profilo** (TASK-332, 2026-10-29, deciso
+  dall'agente su delega dell'utente): ogni miniatura chiede la foto solo
+  quando entra nello schermo (`SightScrollView`), i crediti una volta sotto
+  la griglia; fa le foto solo la prima pagina montata, e «Find friends» ne
+  ha una sua per quando «Feed» è smontata sotto la mappa grande.
 
 **Scartate**: una WebView per scheda (memoria, e i gesti della mappa
 contro lo swipe delle pagine); immagini già pronte nell'app, fatte da uno
