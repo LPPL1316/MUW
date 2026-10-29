@@ -70,6 +70,7 @@ test("the profile change keeps the API's limits", () => {
 
 test("a profile seen by the others has no email, role or internal id", () => {
   assert.deepEqual(Object.keys(seen).sort(), [
+    "badges",
     "bio",
     "climb_m",
     "contest_wins",

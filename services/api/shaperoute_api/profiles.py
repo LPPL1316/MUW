@@ -43,6 +43,7 @@ from shaperoute_api.accounts import (
     contest_wins_sql,
     current_user,
 )
+from shaperoute_api.badges import Badge, badges_sql
 from shaperoute_api.db import Database
 from shaperoute_api.drawings import published_count_sql
 from shaperoute_api.follows import (
@@ -108,6 +109,11 @@ class PublicProfileBody(BaseModel):
     climb_m: int = Field(description="The metres climbed in all its runs that know it.")
     reactions: int = Field(
         description="The reactions others left on its drawings the one who asks sees."
+    )
+    # The badges (TASK-341, ADR-0294): decided here, of the drawings the one
+    # who asks sees; «Winner» is contest_wins.
+    badges: list[Badge] = Field(
+        description="The badges it earned, in a fixed order; [] without one."
     )
 
 
@@ -175,12 +181,13 @@ class Profiles:
                 f" {contest_wins_sql('u.id')} AS contest_wins,"
                 f" {distance_total_sql('u.id')} AS distance_m,"
                 f" {climb_total_sql('u.id')} AS climb_m,"
-                f" {reactions_received_sql('u.id', '%s')} AS reactions"
+                f" {reactions_received_sql('u.id', '%s')} AS reactions,"
+                f" {badges_sql('u.id', '%s')} AS badges"
                 " FROM users u LEFT JOIN profile_photos p ON p.user_id = u.id"
                 " WHERE u.public_id = %s"
                 # Across a block the profile is not there (TASK-121).
                 f" AND NOT {apart_sql('%s', 'u.id')}",
-                (viewer_id, viewer_id, viewer_id, viewer_id, wanted, viewer_id),
+                (viewer_id,) * 5 + (wanted, viewer_id),
             ).fetchone()
         if row is None:
             return None
@@ -198,6 +205,7 @@ class Profiles:
             distance_m=row["distance_m"],
             climb_m=row["climb_m"],
             reactions=row["reactions"],
+            badges=row["badges"],
         )
 
 

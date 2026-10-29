@@ -1635,4 +1635,10 @@ export const DE: Table = {
   "Send a drawing": "Eine Zeichnung senden",
   "Photos, videos and drawings can be sent once {name} accepts your message.":
     "Fotos, Videos und Zeichnungen kannst du senden, sobald {name} deine Nachricht annimmt.",
+
+  // src/profile/BadgeRow.tsx (TASK-341: the badges of a profile)
+  "First drawing": "Erste Zeichnung",
+  "10 drawings": "10 Zeichnungen",
+  "{distance} drawing": "{distance}-Zeichnung",
+  "Not earned yet: {badge}": "Noch nicht erreicht: {badge}",
 };
