@@ -704,6 +704,25 @@ libero in `main` al merge):
   profilo (`user_photos.py`) passano da `drawings` e `drawing_photos` come
   la griglia. Test in `test_profile_totals.py`.
 
+Migrazione `0035_drawn_routes_placement.sql` (TASK-297 parte A2, aggiunta
+ad ADR-0256; il numero è il primo libero in `main` al merge: dalla 0030
+alla 0034 sono di altri task):
+
+- In `drawn_routes`, **dove il motore ha messo la forma** del percorso,
+  per ridisegnarlo da lì dopo un cambio del motore (`API.md`, «L'archivio
+  dei percorsi»): `placed_start` (`geography(Point, 4326)`: la partenza
+  chiesta, o il punto a 250–500 m dove la ricerca l'ha spostata),
+  `offset_m` (quanto è lontano), `rotation_deg`, `phase` (dove il percorso
+  entra nella forma, 0–1) e `scale_m` (i metri di un'unità della forma
+  normalizzata). `double precision`: gli stessi numeri ridisegnano lo
+  stesso percorso. Tutte e cinque o nessuna: niente per un percorso da una
+  partenza vicina o da 2 km, sull'acqua, o tenuto prima di questa
+  migrazione (quei percorsi si ridisegnano come prima, dalla partenza).
+- Niente di chi: sono numeri del motore. Una riga ridisegnata uguale
+  (stessa linea, stessa richiesta, stesso motore) non si ripete: prende
+  il `drawn_at` di adesso, il risultato e il piazzamento nuovi, e tiene
+  `runs` e `favorites`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

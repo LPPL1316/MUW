@@ -553,6 +553,28 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lontana (ADR-0040) su un grafo piccolo che ignora l'area cade in
   `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
   con la #497, che ha `optimizer.py`.
+
+  **Parte A2** (PR #7 su `LPPL1316/MUW`, aperta il 2026-10-28, branch
+  `feat/TASK-297-a2-first-placement`, sessione cloud; aggiunta ad
+  ADR-0256): il ridisegno rapido dopo un cambio del motore.
+  `optimizer.search` prende `first` (un piazzamento) e `first_scale_m`,
+  facoltativi, e li prova per primi: se il percorso è buono si ferma lì,
+  altrimenti i loro tracciamenti vanno da parte e la ricerca è quella di
+  oggi; senza `first` è quella di oggi tracciamento per tracciamento
+  (impronte prese su `main`). L'archivio tiene il piazzamento della
+  ricerca vicino alla partenza (migrazione `0035_drawn_routes_placement.sql`,
+  numero al merge; `RouteJobs` gli passa il piano, `KeepsPlacements`) e,
+  quando entro 100 m c'è solo una riga buona di un altro motore o di più
+  di 30 giorni, la ridisegna dalla sua partenza con il pianificatore
+  dell'API e `first`, la tiene e la raggiunge dalla partenza dell'utente.
+  Una linea ridisegnata uguale rinfresca la sua riga; i grafi caricati
+  dall'archivio non finiscono più sotto le indicazioni del motore (difetto
+  della parte A). File fuori elenco nella PR: la migrazione, `jobs.py`,
+  `engine.zip`, `API.md`, `DATABASE.md`. Da rifare dopo il merge, con gli
+  altri cambi del motore e dopo Apple: `draw_examples` (anche `--water`),
+  `paddleExamples.json`, `catalogueShapes.json`; le città vere e gli
+  esempi tenuti si misurano sul Mac (`tests/measure_first_placement.py
+  --cache-dir`), qui la rete non c'è.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
