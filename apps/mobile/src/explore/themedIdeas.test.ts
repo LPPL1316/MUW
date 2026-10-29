@@ -23,7 +23,11 @@ const ROME: ThemedIdea = {
     [41.89, 12.49],
     [41.891, 12.491],
   ],
-  result: { ...(done.result as ThemedResult), city: "Rome", centre: [41.8933, 12.4829] },
+  result: {
+    ...(done.result as ThemedResult),
+    city: "Rome",
+    centre: [41.8933, 12.4829],
+  },
 };
 
 test("every idea of the file is one, the four categories, our cities", () => {

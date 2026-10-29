@@ -197,7 +197,12 @@ test("«Ask for a route» is open under the routes, our four categories in view"
     order.indexOf("CIAO · 15.2 km"),
   );
   expect(order.indexOf("ASK FOR A ROUTE")).toBeGreaterThan(order.indexOf("CITY"));
-  for (const category of ["Famous Places", "Best Views", "Hidden Gems", "Photography"]) {
+  for (const category of [
+    "Famous Places",
+    "Best Views",
+    "Hidden Gems",
+    "Photography",
+  ]) {
     expect(screen.getByText(category)).toBeOnTheScreen();
   }
   expect(screen.queryByText("Food")).toBeNull();
@@ -253,7 +258,9 @@ test("«Ask for a route» is at the foot of the page also without routes", async
   await screen.findByText(/No recommended routes near this start yet/);
   const order = texts();
   expect(order.indexOf("ASK FOR A ROUTE")).toBeGreaterThan(
-    order.indexOf("No recommended routes near this start yet. Draw one: the best ones will show up here."),
+    order.indexOf(
+      "No recommended routes near this start yet. Draw one: the best ones will show up here.",
+    ),
   );
   expect(order.at(-1)).toBe("Make my route");
 });

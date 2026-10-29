@@ -381,7 +381,9 @@ export function ExploreScreen({
             where={city?.label ?? t("your start")}
             onAsk={(text) => onAsk({ text, centre: near, city: city?.label ?? null })}
             ideas={
-              onIdea && <IdeasFromEurope width={contentWidth - 2 * space.md} onIdea={onIdea} />
+              onIdea && (
+                <IdeasFromEurope width={contentWidth - 2 * space.md} onIdea={onIdea} />
+              )
             }
           />
         )}

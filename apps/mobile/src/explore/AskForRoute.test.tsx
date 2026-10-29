@@ -17,7 +17,12 @@ test("four categories, those of our ideas, the others behind More…", async () 
   const onAsk = jest.fn();
   await render(<AskForRoute city={newYork} where={newYork.label} onAsk={onAsk} />);
   expect(QUICK_CATEGORIES).toBe(4);
-  for (const category of ["Famous Places", "Best Views", "Hidden Gems", "Photography"]) {
+  for (const category of [
+    "Famous Places",
+    "Best Views",
+    "Hidden Gems",
+    "Photography",
+  ]) {
     expect(screen.getByText(category)).toBeOnTheScreen();
   }
   expect(screen.queryByText("Food")).toBeNull();
@@ -42,7 +47,9 @@ test("the ideas come first, under its name", async () => {
   );
   const order = screen.getAllByText(/./).map((node) => String(node.props.children));
   expect(order.indexOf("IDEAS FROM EUROPE")).toBe(order.indexOf("ASK FOR A ROUTE") + 1);
-  expect(order.indexOf("IDEAS FROM EUROPE")).toBeLessThan(order.indexOf("Famous Places"));
+  expect(order.indexOf("IDEAS FROM EUROPE")).toBeLessThan(
+    order.indexOf("Famous Places"),
+  );
 });
 
 test("a category is one tap, for the city or near the start", async () => {
