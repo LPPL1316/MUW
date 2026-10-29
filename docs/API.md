@@ -1179,6 +1179,68 @@ Tipi e esempi in `shared-types` (`SignUpRequest`, `SignInRequest`,
   anche con quella giusta. Il limite dei POST di `SHAPEROUTE_RATE_LIMIT`
   vale in più.
 
+### Sign in with Apple and Google (TASK-322, ADR-0282)
+
+«Continue with Apple» (solo iPhone) e «Continue with Google» in «Sign up» e
+in «Log in»: lo stesso tasto iscrive o fa entrare. Codice in
+`sign_in_providers.py`, tabella `user_identities` in `DATABASE.md`. Tipi e
+esempi in `shared-types` (`SignInProviders`, `ProviderSignInRequest`,
+`NewAccountError`; `fixtures/sign-in-providers.json`,
+`fixtures/provider-sign-in-request.json`, `fixtures/new-account-error.json`).
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /session/providers` | quali provider sono accesi su questo server | `200` `{ "providers": ["apple", "google"] }` |
+| `POST /session/{provider}` | entrare o iscriversi con `apple` o `google`: `id_token`; per Apple anche `authorization_code` e `nonce`; la seconda volta `username`, `at_least_16`, facoltativi `away_email` e `language` | `200` `Session` (account già suo), `201` `Session` (account nuovo), `404 new_account` |
+
+- **`GET /session/providers`**: un provider è acceso quando l'API ha le sue
+  chiavi in `.env` (`SHAPEROUTE_APPLE_TEAM_ID`, `SHAPEROUTE_APPLE_KEY_ID`,
+  `SHAPEROUTE_APPLE_KEY_P8` per Apple; `SHAPEROUTE_GOOGLE_CLIENT_IDS` per
+  Google); vuoto senza database. L'app mostra solo quei tasti. Un provider
+  spento risponde `503 provider_unavailable`.
+- **Il token si legge sul server**, con le chiavi pubbliche del provider
+  (`appleid.apple.com/auth/keys`, `www.googleapis.com/oauth2/v3/certs`)
+  tenute in memoria quanto dice il loro `Cache-Control` (da 1 minuto a un
+  giorno; una chiave nuova si richiede al massimo una volta al minuto).
+  Valgono: firma `RS256`, `iss` del provider, `aud` dell'app (Apple: il
+  bundle `com.lppl1316.sgrava`; Google: uno dei client ID), scadenza e
+  `iat` con un minuto di tolleranza, `email` con `email_verified` vero, e
+  per Apple il `nonce`: l'app ne fa uno, lo manda qui com'è e ad Apple il
+  suo SHA-256 in esadecimale. Altrimenti `401 wrong_credentials`, e non si
+  scrive niente. Chiavi del provider irraggiungibili e nessuna in memoria:
+  `503 provider_unavailable`.
+- **Chi è già noto** (stesso provider, stesso `sub`) entra nel suo account,
+  `200`, anche se l'email del provider è cambiata (per esempio «Hide My
+  Email» acceso dopo): conta l'identità, e l'account tiene la sua email.
+- **Un'email già iscritta** (scelta 4 dell'utente): l'identità si lega a
+  quell'account, `200`, e da allora lo aprono tutti e due i modi. Se
+  l'account non aveva confermato l'email (TASK-300), la password di prima
+  diventa una a caso e le sue sessioni finiscono; l'email diventa
+  confermata. Con l'email confermata, password e sessioni restano.
+- **Né l'una né l'altra**: senza `username` la risposta è
+  `404 new_account`, con l'email da mostrare:
+  `{ "error": { "code": "new_account", "message": "…", "email": "…",
+  "suggested_distance_m": null, "reason": null } }`; non si scrive niente.
+  L'app chiede il nome e rimanda la stessa richiesta con `username`,
+  `at_least_16`, `away_email` e `language`, come in `POST /accounts`
+  (stesse regole e stessi errori: `422`, `409 username_taken`): `201`
+  `Session`. L'account nuovo ha l'email del provider già confermata, quindi
+  nessuna email di conferma, e una password a caso che nessuno conosce:
+  «Forgot password» resta un modo di averne una. Il nome e la foto di
+  Google non si tengono.
+- I token durano poco (Apple 10 minuti, Google un'ora): scaduto fra il
+  `404` e il nome, è `401`, e l'app ne chiede un altro.
+- **Apple**: alla prima entrata `authorization_code` diventa un refresh
+  token (`appleid.apple.com/auth/token`, con un client secret `ES256`
+  firmato con il `.p8`), tenuto solo per la revoca. Se Apple non lo dà,
+  l'entrata va avanti lo stesso e ci riprova la volta dopo.
+- **`DELETE /me`** di un account con Apple revoca l'accesso
+  (`appleid.apple.com/auth/revoke`), come chiede Apple (App Review
+  5.1.1(v)); una revoca che non riesce finisce nel log e non ferma la
+  cancellazione. Per Google non si tiene nessun token: niente da revocare.
+- Nei log non finiscono token, codici, nonce né il `.p8`. Il limite dei
+  POST di `SHAPEROUTE_RATE_LIMIT` vale anche qui.
+
 ### Favorites (TASK-171, ADR-0139)
 
 I percorsi che un account tiene. Tutti gli endpoint vogliono il token
@@ -1406,6 +1468,24 @@ tipi dell'app in `apps/mobile/src/api/activities.ts`; il codice in
   con la penna alzata, e se il `PUT` torna `422 invalid_request` lo
   rimanda una volta senza, come prima di TASK-199 (la corsa si salva con
   il punteggio su tutto il percorso, invece di perdersi).
+- **Una corsa da un file** (TASK-312, parte A, ADR-0272, migrazione
+  `0034`; le regole in `IMPORTAZIONI.md`): il corpo del `PUT` può avere
+  `source`, da dove viene la corsa: `muw`, registrata dall'app (per
+  difetto: un'app di prima non lo manda), o `file`, un'attività di
+  un'altra app che il telefono ha letto da un file GPX, TCX o FIT. Come il
+  resto del corpo, conta solo al primo `PUT`. Una corsa `file` non ha un
+  percorso di MuW: con `points` è `422 invalid_request`. I suoi orari sono
+  quelli del file (`started_at` dal 2020, come per ogni corsa), e un buco
+  del file arriva come pausa `auto`: il suo tempo non conta, i metri sì.
+  `clean_track` la pulisce come ogni corsa. La corsa dell'elenco e quella
+  intera hanno **sempre** `source`; gli esempi scritti prima non lo hanno
+  (sono corse `muw`). Una corsa `file` **non conta per il gioco** né per le
+  sfide delle squadre (`GIOCO.md`: `GET /game/runs/{key}` risponde `404`),
+  **né per il concorso** (`CONCORSI.md`), e **non va su Strava** (`409
+  imported_run`, «Send to Strava», sotto). Esempi:
+  `activity-request-imported.json`, `activities-imported.json`,
+  `activity-imported.json`. Un'API di prima rifiuta il campo: `422
+  invalid_request`.
 
 ### Profile picture (TASK-178, ADR-0146)
 
@@ -1956,6 +2036,16 @@ nuovi. Il codice in `drawings.py` e `drawing_photos.py`.
   percorso dritto e per le corse salvate prima. Chi lo vede lo disegna
   girato dall'altra parte. `MyDrawing` non ce l'ha: è della corsa, non del
   disegno.
+- **Da dove viene la corsa** (TASK-312, parte A, ADR-0272): `MyDrawing`, il
+  disegno dell'elenco, quello intero, il post del Feed e la griglia del
+  profilo hanno **sempre** `source`, quello della corsa (`runs.source`):
+  `muw`, o `file` per un'attività di un'altra app, che l'app mostra con
+  «Imported». Nel Feed un post da file sta al posto della sua
+  pubblicazione, come ogni post; nella griglia del profilo e in «My
+  activities» al posto del suo inizio, anche un anno prima. Esempi:
+  `my-drawing-imported.json`, `drawing-details-imported.json`,
+  `feed-imported.json`; quelli scritti prima non hanno `source` (corse
+  `muw`).
 - **Le foto**, fino a tre oltre alla mappa, ognuna nel suo **posto** `n`
   (da 1 a 3; `0` o `4` sono `422`): il `PUT` mette la foto nel posto (`{
   "image": … }`, un JPEG o PNG in base64 fino a 10 MB, come la foto del
@@ -2909,6 +2999,12 @@ posto con i suoi indirizzi).
   invalid_request`, «Strava could not read this run.», e la corsa torna
   `not_sent`. Se Strava rifiuta il Client Secret del server, `502`, e
   nessuno viene scollegato.
+- **Una corsa da un file non si manda** (TASK-312, parte A, ADR-0272):
+  viene da un'altra app, spesso da Strava stessa. `POST
+  /me/activities/{key}/strava` di una corsa con `source` `file` risponde
+  `409 imported_run`, «This activity was added from another app: it is
+  not sent to Strava.», prima di guardare il collegamento: anche senza
+  atleta collegato. Strava non riceve niente, e `GET` dice `not_sent`.
 - **Scollegare** (`DELETE /me/strava`) cancella i token dal database
   comunque, poi revoca l'accesso su Strava (`POST /oauth/revoke`). Se
   Strava non risponde i token sono già cancellati, e Sgrava resta
@@ -3014,6 +3110,7 @@ motore, in una parola.
 | Concorso: nessun concorso aperto né chiuso da meno di 7 giorni (TASK-299) | 404 | `no_contest` |
 | Strava: il server non ha la sua app Strava (`STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`) | 503 | `http_error` |
 | Strava: l'account non ha un atleta collegato, o l'atleta ha tolto l'accesso | 409 | `http_error` |
+| Strava: la corsa viene da un file di un'altra app (`source` `file`, TASK-312) | 409 | `imported_run` |
 | Strava: non risponde | 502 | `http_error` |
 | Strava: il suo limite di richieste è raggiunto (`Retry-After` in secondi) | 429 | `too_many_requests` |
 | Strava: non riesce a leggere la corsa | 422 | `invalid_request` |

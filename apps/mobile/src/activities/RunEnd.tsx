@@ -1,9 +1,17 @@
+import type { Activity } from "@shaperoute/shared-types";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 import { type DrawingChoice, isChosen, NOT_CHOSEN } from "../api/drawings";
+import { loadHealthOn } from "../health/healthChoice";
+import { healthPhone } from "../health/healthModules";
+import type { HealthPhone } from "../health/healthPhone";
+import { HealthRunEnd } from "../health/HealthRunEnd";
+import { saveToHealth, useHealth } from "../health/useHealth";
 import { t } from "../i18n";
+import { ImportedMark } from "../imports/ImportedMark";
 import { showSavedLogo } from "../intro/SavedLogo";
+import { loadRun } from "../navigation/trackStore";
 import { activityOf } from "../settings/sport";
 import { useSport } from "../settings/useSport";
 import { phonePhotoUri } from "../social/drawingPhotos";
@@ -34,10 +42,20 @@ type Props = {
   onSave: () => boolean;
   /** «Discard», after a yes: the run is gone for good. */
   onDiscard: () => void;
-  /** The fakes of the tests: the photo picker, the fetch of the tag search. */
+  /** The fakes of the tests: the photo picker, the fetch of the tag search,
+   * the phone's health data. */
   pick?: PickPhoto;
   fetchFn?: typeof fetch;
   apiKey?: string | null;
+  health?: HealthPhone | null;
+  /**
+   * An activity added from a file of another app (TASK-312, ADR-0272), with
+   * the sport the file says (null: the one of «Settings»): «Imported» over
+   * the form, and a line that it does not count for Play or the contests.
+   * Neither «Send to Strava» (it often comes from Strava itself) nor the
+   * phone's health data (the other app wrote it there already).
+   */
+  imported?: { sport: Activity | null };
 };
 
 /** How much of the screen the form may take: the map and the buttons
@@ -56,14 +74,27 @@ type Chosen = { n: number; base64: string };
  * ADR-0170): up to three photos, the title, «How did it go?», the people
  * tagged, what the run was (from the sport of «Settings») and who can see
  * it («Only me» at every run, the user's choice); then «Send to Strava»
- * with Strava connected (TASK-187). With «Save» the choice and the photos
- * go with the run: to the API once it has the run, the photos only while
- * others see it.
+ * with Strava connected (TASK-187), and «Save to Apple Health» (or to
+ * Health Connect) where the phone's build has it (TASK-321). With «Save»
+ * the choice and the photos go with the run: to the API once it has the
+ * run, the photos only while others see it; and the run to the phone's
+ * health data, after the user's yes. An activity added from a file has the
+ * same form, marked «Imported» (TASK-312).
  */
-export function RunEnd({ onSave, onDiscard, pick, fetchFn, apiKey }: Props) {
+export function RunEnd({
+  onSave,
+  onDiscard,
+  pick,
+  fetchFn,
+  apiKey,
+  health: phoneHealth = healthPhone(),
+  imported,
+}: Props) {
   const { signedIn, signIn, toStrava, toDrawing, toPhotos, full, waiting, refused } =
     useActivitiesDoor();
   const strava = useStrava();
+  const health = imported === undefined ? phoneHealth : null;
+  const healthState = useHealth(health);
   const sport = useSport();
   const { height } = useWindowDimensions();
   // «Discard» asks first, here: a run thrown away does not come back.
@@ -73,23 +104,35 @@ export function RunEnd({ onSave, onDiscard, pick, fetchFn, apiKey }: Props) {
   const [send, setSend] = useState(loadSendToStrava);
   // «Only me» at every run, whatever the last one chose (the user's
   // choice): publishing by mistake costs more than forgetting to. The
-  // activity is the sport chosen in «Settings».
+  // activity is the sport chosen in «Settings», or the one the file says.
   const [choice, setChoice] = useState<DrawingChoice>(() => ({
     ...NOT_CHOSEN,
-    activity: activityOf(sport),
+    activity: imported?.sport ?? activityOf(sport),
   }));
   const [photos, setPhotos] = useState<Chosen[]>([]);
 
   function save() {
-    const sending = strava.status.available && strava.status.connected && send;
+    const sending =
+      imported === undefined &&
+      strava.status.available &&
+      strava.status.connected &&
+      send;
     toStrava(sending ? { name: choice.title } : null);
     toDrawing(isChosen(choice) ? choice : null);
     toPhotos([...photos].sort((a, b) => a.n - b.n).map((photo) => photo.base64));
+    // The run as the phone keeps it, read before «Save» lets the file go:
+    // only after the user's yes to the phone's health data.
+    const run = health !== null && loadHealthOn() ? loadRun() : null;
     const kept = onSave();
     setFailed(!kept);
     if (kept) {
       // The Sgrava logo, over the app, says the run is kept (TASK-212).
       showSavedLogo();
+      if (run !== null) {
+        // To the phone's health data, as the form says the run was
+        // (TASK-321): written there, on the phone, with no network.
+        void saveToHealth(health, run.track, choice.activity);
+      }
     }
   }
 
@@ -138,6 +181,14 @@ export function RunEnd({ onSave, onDiscard, pick, fetchFn, apiKey }: Props) {
     <View style={styles.end}>
       <FormScroll maxHeight={Math.round(height * FORM_SHARE)}>
         <View style={styles.form}>
+          {imported !== undefined && (
+            <View style={styles.imported}>
+              <ImportedMark />
+              <Text style={styles.note}>
+                {t("Imported activities don't count for Play or contests.")}
+              </Text>
+            </View>
+          )}
           <DrawingForm
             choice={choice}
             onChoice={setChoice}
@@ -155,14 +206,19 @@ export function RunEnd({ onSave, onDiscard, pick, fetchFn, apiKey }: Props) {
             fetchFn={fetchFn}
             apiKey={apiKey}
           />
-          <StravaRunEnd
-            strava={strava}
-            send={send}
-            onSend={(on) => {
-              setSend(on);
-              saveSendToStrava(on);
-            }}
-          />
+          {imported === undefined && (
+            <StravaRunEnd
+              strava={strava}
+              send={send}
+              onSend={(on) => {
+                setSend(on);
+                saveSendToStrava(on);
+              }}
+            />
+          )}
+          {health !== null && (
+            <HealthRunEnd store={health.store} health={healthState} />
+          )}
         </View>
       </FormScroll>
       {failed && (
@@ -208,6 +264,13 @@ const styles = StyleSheet.create({
   form: {
     gap: space.sm,
     paddingBottom: space.xs,
+  },
+  imported: {
+    gap: space.xs,
+  },
+  note: {
+    color: color.textMuted,
+    fontSize: fontSize.small,
   },
   buttons: {
     flexDirection: "row",

@@ -1,6 +1,6 @@
 # TASK-312 — Importare nel Feed attività fatte con altre app, e post di sole foto
 
-**Stato**: In lavorazione · documenti nel branch `docs/TASK-312-import-activities` · poi A (API), B (app, file), C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
+**Stato**: In lavorazione · documenti in `main` (#600) · **A fatta** (API, PR #613, branch `feat/TASK-312-a-imported-runs-api`) · poi B (app, file), C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
 **Fase**: 4 · **Branch**: `docs/TASK-312-import-activities` (documenti),
 `feat/TASK-312-a-imported-runs-api` (A), `feat/TASK-312-b-import-file-app`
 (B), `feat/TASK-312-c-photo-posts` (C), `docs/TASK-312-d-health-study`
@@ -120,6 +120,52 @@ docs/STATUS.md
 docs/tasks/TASK-312.md
 ```
 
+### Parte A — com'è fatta (2026-10-28, PR #613)
+
+«File toccati» approvati dall'utente il 2026-10-28 («OK, go ahead»; il
+Coordinatore era archiviato). Rispetto alla lista sopra:
+
+- la migrazione è **`0034_run_source.sql`**: la 0033 è dei messaggi
+  (TASK-319);
+- **`feed.py` e `profiles.py` non cambiano**: il Feed, la griglia del
+  profilo (`GET /users/{id}/drawings`) e il concorso leggono le colonne e
+  `_seen` di `drawings.py`, e `source` arriva da lì;
+- in più `schemas.py` e `fixtures/api-error-codes.json` (il codice
+  `imported_run`), `packages/shared-types/test/imported.test.ts` (nuovo) e
+  tre test che confrontano le risposte con le fixture di prima
+  (`test_activities.py`, `test_drawings.py`, `test_feed.py`: solo `source`
+  fra i campi nuovi, come `rotation_deg`);
+- in più `apps/mobile/assets/engine/engine.zip`, ricostruito con
+  `python tools/phone_engine/phone_engine.py engine`: il telefono porta una
+  copia di `schemas.py`, e il codice d'errore nuovo la cambia (dentro lo
+  zip cambia solo quel file, come per `no_contest` in TASK-299). Sì
+  dell'utente il 2026-10-28: «Yes, add and merge».
+
+Cosa fa:
+
+- `PUT /me/activities/{key}` accetta `source` (`muw` per difetto, `file`),
+  solo al primo `PUT`; una corsa `file` con `points` è `422`;
+- con `source` `file` niente `after_run_saved` né push delle forme;
+  `game_backfill` legge solo le corse `muw` (così un account con una corsa
+  da file non torna a ogni lancio); `PARTICIPATES_SQL` del concorso vuole
+  `r.source = 'muw'`;
+- «Send to Strava» di una corsa `file`: `409 imported_run`, prima del
+  token;
+- `source` nell'elenco e nella corsa intera, in `MyDrawing`, nel disegno
+  degli altri (elenco, intero, Feed, concorso); nei tipi `RunSource`,
+  `RUN_SOURCES` e `source?` (mancante da un'API di prima: `muw`);
+- fixture nuove `activity-request-imported.json`,
+  `activities-imported.json`, `activity-imported.json`,
+  `my-drawing-imported.json`, `drawing-details-imported.json`,
+  `feed-imported.json`, fatte dalle risposte vere dell'API; le vecchie
+  invariate;
+- 15 test in `services/api/tests/test_imported_runs.py`.
+
+Per B: i tipi di «My activities» stanno nell'app
+(`apps/mobile/src/api/activities.ts`); `source` lì va aggiunto da B, con
+`muw` quando manca. Un'API senza la 0034 rifiuta `source` con `422`.
+Server: la migrazione dopo il merge, con il sì dell'utente.
+
 ## Parte B — L'app: «Add past activity» da un file
 
 1. `expo-document-picker` come nella condizione 1; `npm install` con il
@@ -164,6 +210,75 @@ docs/tasks/TASK-152.md                        (una riga di promemoria)
 docs/STATUS.md
 docs/tasks/TASK-312.md
 ```
+
+### Parte B — com'è fatta (2026-10-29, branch `feat/TASK-312-b-import-file-app`)
+
+«File toccati» mandati al Coordinatore prima del codice e approvati il
+2026-10-29, con le sue condizioni: il selettore fuori dalle build dello
+store fino alla 1.0.1 (impronta invariata), il file letto sul telefono e
+niente che parte prima di «Save», testi e privacy all'utente. Rispetto
+alla lista sopra, in più: `apps/mobile/src/feed/FeedPost.tsx` («Imported»
+nella riga dei fatti della scheda del Feed) e
+`apps/mobile/src/about/content/*.ts` (la riga della privacy sta lì:
+`make_privacy.mjs` legge da lì).
+
+Cosa fa:
+
+- `expo-document-picker` `~57.0.2` (57.0.3 nel lock), la versione di Expo
+  SDK 57; il sì dell'utente è del 2026-10-28, «Sì, come i contatti» (scelta
+  3 in «Contesto»). In `expo.autolinking.exclude`, nessun plugin in
+  `app.json`, così le build dello store restano senza e l'impronta iOS resta
+  `83793e26…` (misurata su copia pulita, con il `package-lock.json`
+  cambiato);
+  `pickActivityFile.ts` lo carica solo con `require` dietro
+  `requireOptionalNativeModule("ExpoDocumentPicker")`: senza il modulo
+  nativo (la 1.0, e le build fino alla 1.0.1) «Add past activity» non c'è;
+  Expo Go lo mostra. Il file scelto si copia nella cache, si legge e la
+  copia si cancella; un file oltre 25 MB non si legge;
+- `src/imports/`: `gpx.ts` e `tcx.ts` (XML letto con poche espressioni
+  regolari, `xml.ts`: solo numeri e orari, con o senza prefisso dei nomi),
+  `fit.ts` (binario dal protocollo FIT: definizioni little e big endian,
+  campi dello sviluppatore saltati per la loro misura, intestazioni con
+  l'orario compresso, file concatenati, file tagliato letto fino al
+  taglio; `record` 20, `sport` 12, `session` 18). Il formato si riconosce
+  dal contenuto, non dal nome;
+- `importFile.ts`: tiene i punti con posizione e orario, in ordine di
+  tempo (un punto non più tardi di quello prima si lascia), i buchi oltre
+  60 s come pause `auto` (al più 1 000, le più lunghe), al più 20 000
+  punti a passo uguale, `accuracy_m` `null`, `source: "file"`, la chiave di
+  sempre (`activityKey`). Errori: non GPX/TCX/FIT, nessuna posizione (anche
+  meno di due punti), posizioni senza orari (un percorso), prima del 2020,
+  oltre 25 MB; «Something went wrong.» (testo già approvato) per un file
+  che il telefono non legge;
+- **già in «My activities»**: prima del modulo, la corsa si cerca fra
+  quelle in attesa sul telefono, nell'elenco e poi sull'API con
+  `GET /me/activities/{key}`: parte **solo la chiave**, niente del file.
+  Serve perché «Save» su una corsa già salvata riscriverebbe il suo
+  disegno (titolo, chi la vede). Senza rete si va avanti: il `PUT` la
+  tiene una volta comunque. *Deciso dall'agente su delega dell'utente.*
+- «Add past activity» in cima a «My activities» (`AddPastActivity.tsx`):
+  «From a file» con la riga sotto e l'aiuto; poi il disegno della traccia
+  (al più 200 punti, ognuno è una View) e il modulo di `RunEnd` con
+  `imported`: «Imported», la riga sul gioco e i concorsi, lo sport del file
+  (altrimenti «Settings»), «Only me» all'inizio, niente «Send to Strava» né
+  Apple Salute (l'altra app l'ha già scritta lì). «Save» passa da
+  `recordImported` della porta: la stessa coda, le stesse scelte e foto di
+  una corsa registrata; una corsa `file` non chiede niente al gioco
+  (`tellUnlocked` saltato). Mai rimandata senza `source`: un'API senza la
+  0034 la rifiuta (`422`) e resta fra quelle rifiutate, con «Try again»;
+- «Imported» sulla riga e sulla scheda di «My activities» (sulla scheda
+  niente «Send to Strava», la proposta confermata), nella riga dei fatti
+  della scheda del Feed («Imported · 4.9 km · 27 min») e sul disegno
+  aperto (`DrawingCard.tsx`, dopo il merge di #619); `source?` e
+  `isImported` in `api/activities.ts`, mancante = `muw`;
+- test su file piccoli in `apps/mobile/__tests__/fixtures/imports/`, fatti
+  da `make_fixtures.mjs` nello stesso posto (sempre uguali): una corsa di
+  Strava (GPX), un giro in bici di Garmin Connect (TCX), una corsa di un
+  orologio Garmin (FIT con campo dello sviluppatore, definizione big endian
+  e orari compressi), un percorso di Komoot (GPX senza orari), un tapis
+  roulant (TCX senza posizioni). Le tracce sono inventate, per formula:
+  nessuna attività di una persona nel repository. La struttura è quella
+  dei file veri; la prova con file veri è il punto 7.
 
 ## Parte C — I post di sole foto
 
@@ -220,15 +335,30 @@ dell'utente. Poi l'utente sceglie quali.
 | Post di sole foto | «Add at least one photo.» |
 | Privacy | «If you add a past activity from a file, we keep its track and times like a run recorded with MuW. We do not keep the file.» |
 
+**Parte B approvata dall'utente il 2026-10-29** («Approvo tutto»): i testi
+della parte B (le righe sopra senza «Photos only» e «Add at least one
+photo.», che sono di C) con le traduzioni in italiano, tedesco, francese e
+spagnolo della PR, la riga della privacy nelle cinque lingue e la data
+della privacy **29 ottobre 2026**.
+
 ## Proposte da confermare con l'utente
 
 - Il pulsante in «My activities», con le due scelte (§2).
 - «Send to Strava» nascosto per una corsa importata (§3.7).
 - Un post solo foto senza «Only me» (§4.1).
 
+**Confermate dall'utente il 2026-10-28**: «Sì, le tre proposte vanno
+bene: pulsante «Add past activity» in My activities, niente «Send to
+Strava» per le corse importate, niente «Only me» per i post solo foto.»
+Il punto 5 della parte A (`409` su «Send to Strava») è quindi dentro A.
+
+Il Coordinatore chiede alla parte C una sua riga della privacy, approvata
+dall'utente nella PR di C, e le regole di segnalazione e blocco di
+TASK-121.
+
 ## Criteri di accettazione
 
-- [ ] **A**: una corsa con `source: "file"` si salva con i suoi orari, si
+- [x] **A**: una corsa con `source: "file"` si salva con i suoi orari, si
       pubblica, e il Feed, il disegno e «My activities» dicono
       `source`; il gioco e il concorso non la contano (test).
 - [ ] **B**: in Expo Go un GPX di Strava, un TCX e un FIT di Garmin

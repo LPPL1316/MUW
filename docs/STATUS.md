@@ -160,6 +160,31 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-321 — L'attività finita anche in Apple Salute e in Health
+  Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
+  dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
+  dell'utente dello stesso giorno: automatico dopo il primo sì (si spegne
+  dall'app Salute), calorie stimate solo per la corsa, Android insieme,
+  testi e privacy approvati, quattro dipendenze sì
+  (`@kingstinct/react-native-healthkit`, `react-native-nitro-modules`,
+  `react-native-health-connect`, `expo-build-properties`). Branch
+  `docs/TASK-321-apple-health` (documenti), poi A (app: la riga a fine
+  attività e un allenamento con il percorso scritto con «Save»; le
+  librerie fuori dal linking, impronte da misurare), B (la 1.0.1 iOS:
+  capability HealthKit, testo del permesso, privacy, revisione di Apple) e
+  C (la build Android: Health Connect, `minSdk` 26, la dichiarazione della
+  Play Console). Capability, build, invii e dichiarazione col sì
+  dell'utente. File `tasks/TASK-321.md`.
+  **A fatta** (2026-10-28, branch `feat/TASK-321-a-health-app`): la riga
+  sotto «Send to Strava», la scelta in `health.json`, l'allenamento con il
+  percorso scritto con «Save» (`src/health/`), le quattro librerie in
+  `package.json` ma fuori dal linking: senza il modulo nativo la riga non
+  c'è. Impronte invariate su una copia pulita, iOS `83793e26…` e Android
+  `e2d33497…`. Prossimo: B (la 1.0.1). Per C: `react-native-health-connect`
+  4.1.3 non scrive il percorso senza la precisione verticale dei punti, che
+  MuW non ha («Per C» nel task file).
+  A in `main`: #615, merge `8d8c4dde` (2026-10-28), impronte misurate anche
+  sull'albero unito con `main`: iOS `83793e26…`, Android `e2d33497…`.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
@@ -193,6 +218,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dove una foto dice «Image». Solo app, OTA, impronta iOS `83793e26`
   invariata. **Parte B** (le schede di «Explore» e del «Feed») in un'altra
   sessione, dopo A. File `tasks/TASK-320.md`.
+  **Parte B fatta il 2026-10-29** (branch `feat/TASK-320-b-edit-cards`):
+  «Edit the drawing» sulle schede di «Explore» e dei disegni; il task è
+  chiuso con la sua PR. Voce in «Completato».
   File `tasks/TASK-317.md`. **Chiuso il 2026-10-28**: testi approvati
   dall'utente, #604 in `main` (d6545be5), impronta iOS `83793e26`
   invariata; arriva con il prossimo OTA. Voce in «Completato».
@@ -243,6 +271,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Garmin, Polar, Suunto, Coros, Wahoo, Komoot). Tutto con «Imported», mai
   per il gioco né per il concorso. Testi e privacy da approvare. Regole in
   `IMPORTAZIONI.md`, file `tasks/TASK-312.md`.
+  **Parte A fatta** (2026-10-28, PR #613, branch
+  `feat/TASK-312-a-imported-runs-api`): migrazione `0034_run_source.sql`
+  (`runs.source`, `muw` o `file`); `PUT /me/activities/{key}` accetta
+  `source` al primo `PUT`; le corse `file` non entrano nel gioco, nelle
+  sfide né nel concorso, e «Send to Strava» risponde `409 imported_run`;
+  `source` in «My activities», nel disegno, nel Feed e nel profilo, con
+  le fixture `*-imported.json`. Server dopo il merge, col sì dell'utente.
+  Prossima: B (l'app).
+  **Parte B fatta** (2026-10-29, PR #622, branch
+  `feat/TASK-312-b-import-file-app`): in cima a «My activities» «Add past
+  activity» → «From a file»; GPX, TCX e FIT letti sul telefono dai lettori
+  di `src/imports/` (niente dipendenze oltre al selettore), la corsa con gli
+  orari del file e `source: "file"`, il modulo di fine corsa con
+  «Imported», senza Strava né Apple Salute; «Imported» anche sulla riga,
+  sulla scheda e nel Feed. `expo-document-picker` fuori dall'autolinking:
+  nella 1.0 il pulsante non c'è (impronta iOS `83793e26` invariata, su copia
+  pulita), si accende con la 1.0.1 (promemoria in `tasks/TASK-152.md`).
+  Testi e riga della privacy approvati dall'utente, privacy del 29 ottobre
+  2026. Provata contro l'API vera (0034); la prova con i file veri di
+  Strava e Garmin resta per il telefono (Expo Go, preview). Prossima: C.
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch
@@ -1229,6 +1277,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   va bene»).
   **Online dal 2026-10-09** (#467, `b19ab890`, copia F.14): restano
   dell'utente solo il link TestFlight e il merch.
+  **Parte F** (2026-10-28, branch `feat/TASK-237-download-link`): il
+  link per scaricare porta all'App Store
+  (`https://apps.apple.com/app/id6820961883`), «Get the app» dice «On
+  iPhone, now.». Dopo il merge: la copia F.14 sul server, con il sì
+  dell'utente. Resta il merch.
+  **Online dal 2026-10-28**: #614 in `main` (`0ddb6c4a`), copia F.14
+  da quel commit (sì dell'utente: «Sì, pubblica»); su
+  https://getmuw.app i due tasti portano all'App Store.
 - **TASK-223 — Emoji semplici per il catalogo, e la penna alzata nelle
   forme** (ADR-0185; chiesto dall'utente il 2026-10-03). **Parte A, il
   motore**, in `main` (#284): le forme possono avere `pieces`, e gatto,
@@ -1754,10 +1810,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dello store: impronta 83793e26), C (console Apple e Google, server, la
   build 1.0.1 insieme a contatti, document picker e forse HealthKit). File
   `tasks/TASK-322.md`.
+  **Parte A fatta** (2026-10-29, PR #621, branch
+  `feat/TASK-322-a-sign-in-api`): migrazione `0036_user_identities.sql`,
+  `GET /session/providers`, `POST /session/{provider}` (identità nota
+  `200`, email già iscritta legata `200`, altrimenti `404 new_account` e poi
+  `201` col nome; un'email non confermata legata perde password e sessioni),
+  la revoca di Apple in `DELETE /me`, i tipi in `shared-types`. Token letti
+  con le chiavi pubbliche in memoria, test con chiavi finte e senza rete
+  (`test_sign_in_providers.py`). Solo API: impronta iOS `83793e26`
+  invariata. Spento finché il server non ha le chiavi (parte C, col sì
+  dell'utente). Prossima: B (l'app), in una sessione sua.
 
 ## Completato
 
-- **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0034`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
+- **Strumenti e CI** — TASK-325 (ADR-0285; richiesta dell'utente del 2026-10-28): `LPPL1316/MUW`, copia intera di `rockydalbianco/shaperoute` sotto l'utente (dove l'app GitHub di Claude non si può installare), e lo specchio nei due versi: `tools/mirror_repos.py` e `.github/workflows/mirror.yml` in MUW, a ogni push e ogni dieci minuti, portano avanti i branch indietro, creano i nuovi, cancellano i fusi, non toccano i divergenti (rosso, si unisce a mano). Segreto `MIRROR_TOKEN` (token classico con `repo` e `workflow`) messo dall'utente. PR LPPL1316/MUW#4 (2026-10-29), che unisce anche i due `main` e sposta la migrazione del dislivello di TASK-324 a `0037`. **Aperto**: i minuti di GitHub Actions di MUW sono finiti il 2026-10-28 sera (tetto di spesa o repository pubblico: scelta dell'utente); il server legge ancora `shaperoute`. `tasks/TASK-325.md`.
+- **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0037`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
+- **App** — TASK-320 (ADR-0280; richiesta dell'utente del 2026-10-28, proposte, testi e riga della privacy approvati lo stesso giorno): disegnare a mano in «Draw» e cambiare ogni figura proposta. Parte A (#612): la quarta scelta «Freehand», la tavola a mano (contorno chiuso dall'app, dettagli appesi, «Erase», «Undo», «Save», niente rete), «Edit the drawing» sotto la forma scelta e sul risultato, «Drawing» dove una foto dice «Image». Parte B (2026-10-29, `feat/TASK-320-b-edit-cards`): «Edit the drawing» sulle schede di «Explore» e dei disegni degli iscritti, dopo «Start», «Draw it near me» ed «Export GPX»; «Save» mostra «Draw» con «Freehand» e la figura, nessuna richiesta prima di «Draw route». Solo app, OTA, impronta iOS `83793e26` invariata. **Da provare col dito sull'iPhone** (l'utente): la tavola, «Erase», l'interruttore a quattro segmenti in italiano e in francese. `tasks/TASK-320.md`.
 - **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,

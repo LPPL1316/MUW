@@ -191,6 +191,22 @@ export const DE: Table = {
   "{user} in {city}: {title}. {facts}.": "{user} in {city}: {title}. {facts}.",
   "Opens the route on the map": "Öffnet die Route auf der Karte",
 
+  // src/health/HealthRunEnd.tsx (TASK-321: Apple Health and Health Connect)
+  "Save to Apple Health": "In Apple Health speichern",
+  "Save to Health Connect": "In Health Connect speichern",
+  "Your activities also go to the Fitness app, with the route.":
+    "Deine Aktivitäten kommen auch in die Fitness-App, mit der Route.",
+  "Your activities also go to Health Connect, with the route.":
+    "Deine Aktivitäten kommen auch in Health Connect, mit der Route.",
+  "Also to Apple Health, with Save.":
+    "Mit Speichern geht die Aktivität auch an Apple Health.",
+  "Also to Health Connect, with Save.":
+    "Mit Speichern geht die Aktivität auch an Health Connect.",
+  "MuW can't write to Apple Health. Allow it in the Health app: your profile › Apps › MuW.":
+    "MuW kann nicht in Apple Health schreiben. Erlaube es in der Health-App: dein Profil › Apps › MuW.",
+  "MuW can't write to Health Connect. Allow it in Health Connect › App permissions › MuW.":
+    "MuW kann nicht in Health Connect schreiben. Erlaube es in Health Connect › App-Berechtigungen › MuW.",
+
   // src/i18n/shapeNames.ts
   Circle: "Kreis",
   Heart: "Herz",
@@ -1550,4 +1566,23 @@ export const DE: Table = {
     "Tippe auf eine Linie, um sie zu löschen. Der Umriss nimmt seine Details mit.",
   "This line encloses nothing. Draw a closed shape.":
     "Diese Linie umschließt nichts. Zeichne eine geschlossene Form.",
+  // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
+  // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
+  "Add past activity": "Frühere Aktivität hinzufügen",
+  "From a file": "Aus einer Datei",
+  "GPX, TCX or FIT from Strava, Garmin, Komoot…":
+    "GPX, TCX oder FIT von Strava, Garmin, Komoot…",
+  "Export the activity as a file from the other app or its website, save it in Files, then pick it here.":
+    "Exportiere die Aktivität als Datei aus der anderen App oder von ihrer Website, speichere sie in Dateien und wähle sie dann hier aus.",
+  Imported: "Importiert",
+  "Imported activities don't count for Play or contests.":
+    "Importierte Aktivitäten zählen nicht für das Spiel und die Wettbewerbe.",
+  "This file is not GPX, TCX or FIT.": "Diese Datei ist weder GPX noch TCX noch FIT.",
+  "This file has no times: it is a route, not an activity.":
+    "Diese Datei hat keine Zeiten: Sie ist eine Route, keine Aktivität.",
+  "This file has no positions.": "Diese Datei hat keine Positionen.",
+  "This file is too big (over 25 MB).": "Diese Datei ist zu groß (über 25 MB).",
+  "Activities before 2020 cannot be added.":
+    "Aktivitäten vor 2020 können nicht hinzugefügt werden.",
+  "Already in My activities.": "Schon in Meine Aktivitäten.",
 };

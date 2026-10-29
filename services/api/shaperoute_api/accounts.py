@@ -219,6 +219,18 @@ def now_utc() -> datetime:
     return datetime.now(UTC)
 
 
+def open_session(conn: psycopg.Connection[DictRow], user_id: int, now: datetime) -> str:
+    """A new session of `user_id` in the transaction of `conn`: its token.
+    Also for the sign-ins with Apple and Google (sign_in_providers.py)."""
+    token = secrets.token_urlsafe(TOKEN_BYTES)
+    conn.execute(
+        "INSERT INTO sessions (token_hash, user_id, created_at, last_used_at)"
+        " VALUES (%s, %s, %s, %s)",
+        (token_hash(token), user_id, now, now),
+    )
+    return token
+
+
 class FailedSignIns:
     """Wrong passwords per email address in the last `window_s` seconds."""
 
@@ -285,30 +297,62 @@ class Accounts:
         password_hash = self.hasher.hash(body.password)
         now = self.now()
         with self.database.connect() as conn:
-            try:
-                row = conn.execute(
-                    "INSERT INTO users"
-                    " (email, password_hash, username, confirmed_16_at, created_at,"
-                    " notify_away, language)"
-                    " VALUES (%s, %s, %s, %s, %s, %s, %s)"
-                    f" RETURNING {USER_COLUMNS}",
-                    (
-                        body.email,
-                        password_hash,
-                        body.username,
-                        now,
-                        now,
-                        body.away_email,
-                        body.language,
-                    ),
-                ).fetchone()
-            except pg_errors.UniqueViolation as exc:
-                if exc.diag.constraint_name == "users_email_key":
-                    raise AccountError(409, "email_taken", EMAIL_TAKEN) from None
-                raise AccountError(409, "username_taken", USERNAME_TAKEN) from None
-            assert row is not None
+            row = self.insert_user(
+                conn,
+                email=body.email,
+                password_hash=password_hash,
+                username=body.username,
+                now=now,
+                away_email=body.away_email,
+                language=body.language,
+            )
             token = self._open_session(conn, row["id"], now)
         return SessionBody(token=token, user=UserBody.model_validate(row))
+
+    def insert_user(
+        self,
+        conn: psycopg.Connection[DictRow],
+        *,
+        email: str,
+        password_hash: str,
+        username: str,
+        now: datetime,
+        away_email: bool,
+        language: Language | None,
+        email_confirmed: bool = False,
+    ) -> DictRow:
+        """A new account, its box «I am at least 16» ticked now; 409 for an
+        email or a username already taken. Its row, as USER_COLUMNS."""
+        try:
+            row = conn.execute(
+                "INSERT INTO users"
+                " (email, password_hash, username, confirmed_16_at, created_at,"
+                " notify_away, language, email_confirmed)"
+                " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                f" RETURNING {USER_COLUMNS}",
+                (
+                    email,
+                    password_hash,
+                    username,
+                    now,
+                    now,
+                    away_email,
+                    language,
+                    email_confirmed,
+                ),
+            ).fetchone()
+        except pg_errors.UniqueViolation as exc:
+            if exc.diag.constraint_name == "users_email_key":
+                raise AccountError(409, "email_taken", EMAIL_TAKEN) from None
+            raise AccountError(409, "username_taken", USERNAME_TAKEN) from None
+        assert row is not None
+        return row
+
+    def unusable_password_hash(self) -> str:
+        """The hash of 32 random bytes, thrown away: a password nobody
+        knows, for an account opened with Apple or Google (TASK-322,
+        ADR-0282). «Forgot password» still gives it one."""
+        return self.hasher.hash(secrets.token_bytes(TOKEN_BYTES))
 
     def sign_in(self, body: SignInRequestBody) -> SessionBody:
         wait = self.failed.wait_s(body.email)
@@ -391,13 +435,8 @@ class Accounts:
     def _open_session(
         self, conn: psycopg.Connection[DictRow], user_id: int, now: datetime
     ) -> str:
-        token = secrets.token_urlsafe(TOKEN_BYTES)
-        conn.execute(
-            "INSERT INTO sessions (token_hash, user_id, created_at, last_used_at)"
-            " VALUES (%s, %s, %s, %s)",
-            (token_hash(token), user_id, now, now),
-        )
-        return token
+        # A method of its own: test_connection_pool.py breaks it on purpose.
+        return open_session(conn, user_id, now)
 
 
 bearer = HTTPBearer(auto_error=False, description="The token of POST /session.")

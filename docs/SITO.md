@@ -22,8 +22,8 @@ Dall'alto in basso:
    Sotto, le quattro pagine dell'app: «Feed», «Draw», «Explore», «Profile».
 3. **«Best drawings»**: dieci disegni, sei corse e quattro uscite in
    canoa, con un filtro («All», «Run», «Paddle»).
-4. **«Get the app»**: per ora «Download — coming soon», in cima e in
-   fondo. Il link arriva quando l'app è sull'App Store (TASK-152).
+4. **«Get the app»**: «Download the app», in cima e in fondo, porta
+   alla pagina di MuW sull'App Store (dal 2026-10-28, TASK-237 F).
 
 ## I file
 
@@ -44,9 +44,10 @@ Dall'alto in basso:
 
 In `site/config.js`, `downloadUrl`: l'indirizzo `https://…` dell'app
 sull'App Store. Con `null` i due tasti dicono «Download — coming soon»;
-con l'indirizzo diventano «Download the app». Vanno poi cambiati a mano
-il titolo e la frase di «Get the app» in `index.html` («On iPhone, soon.»,
-«MuW is in preview on iPhone…»).
+con l'indirizzo diventano «Download the app». Il titolo e la frase di
+«Get the app» in `index.html` si cambiano a mano insieme al link (oggi
+«On iPhone, now.», «MuW is free on the App Store, for iPhone.»); quando
+arriva Google Play (TASK-294) cambiano anche loro.
 
 ## Cambiare i testi della guida
 

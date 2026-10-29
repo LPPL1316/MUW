@@ -287,6 +287,13 @@ ErrorCode = Literal[
     "comment_rejected",
     # No contest open, nor one closed less than a week ago (TASK-299).
     "no_contest",
+    # A run added from a file is not sent to Strava (TASK-312, ADR-0272).
+    "imported_run",
+    # Signing in with Apple or Google (TASK-322, ADR-0282): no account yet
+    # for that identity or its email, so the app asks for a username; the
+    # server has no keys for that provider.
+    "new_account",
+    "provider_unavailable",
 ]
 
 # Why an image gives no outline: InvalidImageError.reason in

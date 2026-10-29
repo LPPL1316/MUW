@@ -814,6 +814,24 @@ vuota «No photos yet.», sul proprio «No photos yet. Add some to a public
 drawing in My activities.»; non arrivate, il motivo e «Try again». Con
 un'API senza i totali niente riquadri né schede, come prima.
 
+**La figura da cambiare** (TASK-320 parte B, ADR-0280, proposte approvate
+dall'utente il 2026-10-28): nelle stesse due schede, dopo «Start», «Draw
+it near me» ed «Export GPX» (che restano dove sono) e prima di «Back to
+the list» o «Back to the profile», il pulsante neutro **«Edit the
+drawing»** apre subito la tavola a mano («Freehand», sopra) con la figura:
+di un percorso di «Explore» la figura chiesta (una forma del catalogo con
+le sue linee, un'immagine col contorno e i dettagli); di un disegno con una
+forma le linee di quella forma; di un disegno senza forma né parola (una
+foto, un'immagine, un disegno a mano: il percorso dice solo il titolo) la
+traccia corsa, raddrizzata e chiusa come la tiene un preferito. «Save»
+lascia il percorso o il disegno come «Draw it near me» e mostra **«Draw»**
+con «Freehand» e la figura cambiata, alla distanza di «Draw it near me»
+(al decimo di km, dentro i limiti dello sport) e dalla partenza di «Draw»;
+niente parte dal telefono finché non si tocca «Draw route». Il pulsante non
+c'è per una parola, un percorso a tema, una corsa senza percorso (libera o
+importata da un'altra app), un post di sole foto, una forma che l'app non
+conosce, né con «Paddle». Nessun testo nuovo.
+
 **I commenti di un disegno** (TASK-120, ADR-0175, scelta dell'utente del
 2026-10-03: subito sotto le corse vere, non sugli esempi di «Feed»): nella
 scheda di un disegno aperto, fra i numeri e «Back to the profile», un
@@ -1585,6 +1603,31 @@ telefono dell'account: con un percorso o senza.
   prima sulla scheda stessa: «Delete this run? It cannot be undone.», con
   «Keep it» e «Delete run». La corsa sparisce subito; se l'API rifiuta
   torna dov'era, con il motivo in cima all'elenco.
+- **«Add past activity»** (TASK-312 parte B, ADR-0272,
+  `IMPORTAZIONI.md`), in cima alla pagina, neutro come gli altri pulsanti:
+  apre **«From a file»**, con sotto «GPX, TCX or FIT from Strava, Garmin,
+  Komoot…» e l'aiuto «Export the activity as a file from the other app or
+  its website, save it in Files, then pick it here.»; toccato di nuovo si
+  chiude. «From a file» apre «File» per un file solo, di ogni tipo (il
+  formato lo dice il contenuto); mentre legge dice «Loading…». Un file che
+  non va dice perché, in rosso, e «From a file» resta per un altro: «This
+  file is not GPX, TCX or FIT.», «This file has no times: it is a route,
+  not an activity.», «This file has no positions.», «This file is too big
+  (over 25 MB).», «Activities before 2020 cannot be added.», «Already in My
+  activities.»; un file che il telefono non legge, «Something went
+  wrong.». Un file buono diventa una scheda: il giorno e l'ora del primo
+  punto, il disegno della traccia (160 × 160) e sotto il modulo della fine
+  della corsa con **«Imported»** in cima e «Imported activities don't count
+  for Play or contests.»; lo sport è quello del file (altrimenti
+  «Settings»), «Only me» all'inizio, niente «Send to Strava» né «Save to
+  Apple Health». «Save» la mette in «My activities» con il logo, come una
+  corsa; «Discard» chiede prima, come sempre. **Nell'app dello store il
+  pulsante non c'è** finché la build 1.0.1 non porta il selettore di file;
+  Expo Go lo mostra. «Photos only» arriva con la parte C.
+- **«Imported»** (TASK-312): una corsa aggiunta da un file ha il segno
+  «Imported» sotto i numeri, accanto a «Public» se c'è, e sulla corsa
+  aperta; lì non c'è Strava. Nel Feed la riga dei fatti comincia con
+  «Imported · », e il disegno aperto ha il segno sotto i numeri.
 - **Vuoto**: «No activities yet. Save a run when you finish it, and it is
   kept here.». **Elenco non arrivato**: «Your activities could not load.» e «Try
   again». L'elenco si chiede all'apertura dell'app, se c'è un account, e
@@ -2280,8 +2323,9 @@ o un'immagine pronta (il contorno tracciato e i dettagli), un disegno a
 mano. Non per una parola, né sull'acqua. «Save» torna a «Draw» con
 «Freehand» e la figura, alla distanza del percorso e dalla partenza di
 «Draw» (anche dal risultato di «Draw on the map»); «Draw route» chiede il
-percorso della figura nuova. Le schede di «Explore» e del «Feed» sono la
-parte B di TASK-320.
+percorso della figura nuova. Sulle schede di «Explore» e del «Feed»
+(parte B di TASK-320) lo stesso tasto è descritto con «Draw it near me»,
+in «La figura da cambiare».
 
 Testi nuovi, **approvati dall'utente** il 2026-10-28 nelle cinque lingue:
 

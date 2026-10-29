@@ -1,0 +1,9 @@
+{
+  "id_token": "eyJraWQiOiJXNldjT0tCIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIn0.c2lnbmF0dXJl",
+  "authorization_code": "c0a1b2c3d4e5f6.0.abcd.Ef12Gh34Ij56Kl78",
+  "nonce": "4b1c2f0e-8f7a-4d3b-9c51-2e6a0d9b7f13",
+  "username": "Runner_42",
+  "at_least_16": true,
+  "away_email": true,
+  "language": "en"
+}

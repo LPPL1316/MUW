@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import type { Activity } from "../api/activities";
+import { type Activity, isImported } from "../api/activities";
 import { t, tPlural } from "../i18n";
+import { AddPastActivity } from "../imports/AddPastActivity";
+import { ImportedMark } from "../imports/ImportedMark";
 import { useDrawingsDoor } from "../social/drawingsDoor";
 import { waitingText } from "../social/PublicParts";
 import {
@@ -25,9 +27,10 @@ const DRAWING = 88;
 /**
  * «My activities» in «Profile» (TASK-172): the runs the account recorded,
  * the latest first, a page at a time. A row opens its run on the map;
- * «Delete» asks first. A public run says so (TASK-117). Over them, the runs
- * of this phone the API will not take, with its reason and «Discard»
- * (TASK-257).
+ * «Delete» asks first. A public run says so (TASK-117), one added from a
+ * file of another app says «Imported» (TASK-312). Over them, the runs of
+ * this phone the API will not take, with its reason and «Discard»
+ * (TASK-257); over all, «Add past activity» (TASK-312).
  */
 export function ActivitiesList() {
   const activities = useActivitiesDoor();
@@ -49,6 +52,7 @@ export function ActivitiesList() {
 
   return (
     <View style={styles.list}>
+      <AddPastActivity />
       {activities.problem !== null && (
         <Text style={styles.problem} accessibilityRole="alert">
           {activities.problem}
@@ -276,10 +280,15 @@ function ActivityRow({
           <Text style={styles.facts} numberOfLines={1}>
             {opening ? t("Opening…") : facts}
           </Text>
-          {isPublic && (
-            <Text style={styles.mark} testID="activity-public">
-              {t("Public")}
-            </Text>
+          {(isPublic || isImported(activity)) && (
+            <View style={styles.marks}>
+              {isPublic && (
+                <Text style={styles.mark} testID="activity-public">
+                  {t("Public")}
+                </Text>
+              )}
+              {isImported(activity) && <ImportedMark />}
+            </View>
           )}
         </View>
       </Pressable>
@@ -362,6 +371,10 @@ const styles = StyleSheet.create({
   detail: {
     color: color.textMuted,
     fontSize: fontSize.small,
+  },
+  marks: {
+    flexDirection: "row",
+    gap: space.xs,
   },
   // Neutral, as every mark that is not the route's.
   mark: {

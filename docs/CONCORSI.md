@@ -39,7 +39,12 @@ Partecipa un **disegno**:
 2. con `published_at` fra `starts_at` ed `ends_at` del concorso;
 3. non nascosto dalla moderazione (`hidden_at IS NULL`, TASK-291) e di un
    account non nascosto;
-4. non escluso alla chiusura (`--exclude`, §5).
+4. non escluso alla chiusura (`--exclude`, §5);
+5. di una corsa **registrata dall'app** (`runs.source = 'muw'`, TASK-312,
+   ADR-0272): un'attività aggiunta dal file di un'altra app, con
+   «Imported», non partecipa, qualunque reazione abbia. La regola sta nella
+   query di `contests.py` (`PARTICIPATES_SQL`), quindi vale per
+   `GET /contests/current`, per `standings` e per `close`.
 
 Conta una **reazione**:
 

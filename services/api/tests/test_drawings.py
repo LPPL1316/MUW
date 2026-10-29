@@ -81,6 +81,11 @@ NEAR_M = 0.01
 NEW_FIELDS = {"visibility", "description", "activity", "tags", "photos"}
 # And the run's turn, TASK-232 part C: the same older fixtures.
 NEW_FIELDS |= {"rotation_deg"}
+# Where the run comes from (TASK-312 part A): every fixture written before
+# is of a run of the app; the examples of a run from a file are
+# *-imported.json (test_imported_runs.py).
+SOURCE = {"source"}
+NEW_FIELDS |= SOURCE
 THIRD_EMAIL = "third@example.com"
 
 
@@ -302,13 +307,13 @@ def test_the_examples_are_the_bodies() -> None:
     assert set(request) == set(DrawingRequestBody.model_fields) - {"public"}
     DrawingRequestBody.model_validate(request)
     mine = _load("my-drawing-details.json")
-    assert set(mine) == set(MyDrawingBody.model_fields)
+    assert set(mine) == set(MyDrawingBody.model_fields) - SOURCE
     MyDrawingBody.model_validate(mine)
     page = _load("drawings-details.json")
     assert set(page) == set(DrawingsBody.model_fields)
     DrawingsBody.model_validate(page)
     one = _load("drawing-details.json")
-    assert set(one) == set(DrawingDetailBody.model_fields)
+    assert set(one) == set(DrawingDetailBody.model_fields) - SOURCE
     seen = DrawingDetailBody.model_validate(one)
     # The list item is the detail without author, public and track, with a
     # preview instead.
@@ -359,6 +364,7 @@ def test_a_run_is_private_until_published(client: TestClient) -> None:
         "visibility": "only_me",
         "description": None,
         "activity": "running",
+        "source": "muw",
         "tags": [],
         "photos": [],
     }

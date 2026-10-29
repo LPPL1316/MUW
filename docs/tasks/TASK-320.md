@@ -1,9 +1,9 @@
 # TASK-320 — Disegnare a mano in «Draw», e modificare ogni disegno proposto
 
-**Stato**: In lavorazione — parte A fatta (PR #612), parte B da fare
+**Stato**: Done — parte A (PR #612) e parte B (le schede, 2026-10-29)
 **Fase**: 4 · **Branch**: `docs/TASK-320-freehand-edit` (i documenti, PR #606),
-`feat/TASK-320-a-freehand` (parte A, PR #612), poi
-`feat/TASK-320-b-edit-cards` · **ADR**: ADR-0280
+`feat/TASK-320-a-freehand` (parte A, PR #612),
+`feat/TASK-320-b-edit-cards` (parte B) · **ADR**: ADR-0280
 
 Numeri, parti e condizioni dal Coordinatore (2026-10-28, sotto).
 
@@ -296,18 +296,21 @@ dopo A
       `MAX_DETAIL_POINTS`); dal risultato di una forma, di una foto e di un
       disegno mostra la figura chiesta; da una parola il pulsante non c'è;
       «Save» sceglie «Freehand».
-- [ ] B: da un percorso di «Explore» e da un disegno di un iscritto (con
+- [x] B: da un percorso di «Explore» e da un disegno di un iscritto (con
       forma, senza forma) la tavola si apre con le linee giuste; «Save»
       mostra «Draw» con «Freehand», la distanza di ADR-0273 e la partenza
       di prima; nessun `POST` prima di «Draw route». Niente pulsante per
-      una parola, un percorso a tema, un post di sole foto.
+      una parola, un percorso a tema, un post di sole foto
+      (`AppEditDrawing.test.tsx`, `figureLines.test.ts`; il percorso a
+      tema ha la sua scheda, `ThemedCard`, che il pulsante non lo ha).
 - [x] Con «Paddle» non c'è né «Freehand» né «Edit the drawing» (A: in
       «Draw» e sul risultato, test; B: le schede).
 - [x] Testi e riga della privacy approvati dall'utente nelle cinque
       lingue; impronta iOS `83793e26` su una copia pulita; nessuna
       dipendenza nuova; `jest`, `tsc`, `expo lint`, `format:check` verdi
       (A, 2026-10-28: 514 suite e 4156 test verdi, impronta
-      `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`; da rifare per B).
+      `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`; B, 2026-10-29: 526
+      suite e 4239 test verdi, impronta sotto in «Esito»).
 
 ## File toccati
 
@@ -327,6 +330,12 @@ generati: `site/privacy/{,it/,de/,es/,fr/}index.html`, le pagine della
 privacy del sito, che `site/tools/make_privacy.mjs` riscrive dal testo
 dell'app e un test del sito pretende aggiornate (la CI «site» era rossa
 senza).
+
+**Parte B, com'è andata**: `ExploredCard.tsx`, `DrawingCard.tsx`,
+`App.tsx` e il test nuovo `__tests__/AppEditDrawing.test.tsx`, come
+previsti; in più `src/route/figureLines.ts` (della parte A, nella lista:
+`drawingLines`, le linee di un disegno) e il suo `figureLines.test.ts`.
+Nessun testo nuovo: le righe di `src/i18n/` non cambiano.
 
 ```
 apps/mobile/src/route/freehand.ts                 (A, nuovo, con test)
@@ -427,3 +436,35 @@ provati, e il test di flusso `__tests__/AppEditDrawing.test.tsx`. Da
 provare col dito vero sull'iPhone (l'utente): la tavola, «Erase», i
 quattro segmenti dell'interruttore («A mano libera», «À main levée»
 potrebbero andare su due righe su un telefono stretto).
+
+**Parte B** (2026-10-29, branch `feat/TASK-320-b-edit-cards`): «Edit the
+drawing» sulle schede di un percorso di «Explore» (esempi, consigliati,
+ricerche, preferiti) e di un disegno di un iscritto, dopo «Start», «Draw
+it near me» ed «Export GPX», che non si spostano. La tavola si apre subito
+sulla figura; «Save» lascia il percorso o il disegno come «Draw it near
+me» e mostra «Draw» con «Freehand», la figura, la distanza di ADR-0273 e
+la partenza di «Draw»; nessuna richiesta prima di «Draw route» (test di
+flusso `AppEditDrawing.test.tsx`). Niente in Profile e nei messaggi, nessun
+testo nuovo. Scelte tecniche dell'agente su delega dell'utente, in ADR-0280
+(«Attuazione, parte B»):
+
+- **Il pulsante c'è solo se la figura si fa**: `App.tsx` passa le linee a
+  `figureOf` prima di mostrarlo; una traccia che non racchiude niente non
+  apre una tavola vuota.
+- **Quale disegno ha una figura** (`drawingLines`, `figureLines.ts`): una
+  forma del catalogo; senza forma né parola un percorso che dice solo il
+  titolo (`route_title`: una foto, un'immagine, un disegno a mano), con la
+  traccia corsa. Niente per una parola, una forma sconosciuta, una corsa
+  senza percorso, una corsa importata (`source: "file"`, TASK-312), un post
+  di sole foto (traccia vuota), né con «Paddle».
+- **«Save» lascia la scheda**: la tavola si apre sopra la scheda, che resta
+  finché non si salva (la tavola non ha altro modo di chiudersi).
+- **La distanza** è quella di «Draw it near me» per una forma, scritta in
+  `App.tsx` (`cardDistanceM`) per non toccare `drawAgain.ts`.
+
+`jest` 526 suite e 4239 test verdi, `tsc`, `npm run lint` e
+`format:check` verdi; impronta iOS su una copia pulita
+`83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata. Da provare col dito
+vero sull'iPhone (l'utente): la tavola, «Erase» e i quattro segmenti
+dell'interruttore («A mano libera», «À main levée» potrebbero andare su due
+righe su un telefono stretto), e ora anche «Edit the drawing» dalle schede.
