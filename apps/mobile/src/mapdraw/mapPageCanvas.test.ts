@@ -7,7 +7,15 @@
  */
 import vm from "node:vm";
 
-import { buildMapPage, CANVAS_ZOOM, FIGURE_PADDING_PX } from "../map/mapPage";
+import type { LatLon } from "@shaperoute/shared-types";
+
+import {
+  buildMapPage,
+  CANVAS_ZOOM,
+  ERASER_PX,
+  FIGURE_PADDING_PX,
+  HOLD_MS,
+} from "../map/mapPage";
 import {
   type CanvasMode,
   clearCanvas,
@@ -20,7 +28,13 @@ import {
 type Touch = { clientX: number; clientY: number };
 type TouchEventLike = { touches: Touch[]; timeStamp: number };
 type Listener = (event: TouchEventLike) => void;
-type Drawn = { geometry?: { type: string; coordinates: unknown } };
+type Drawn = {
+  geometry?: { type: string; coordinates: unknown };
+  features?: {
+    properties: Record<string, unknown>;
+    geometry: { coordinates: unknown };
+  }[];
+};
 
 const WIDTH = 400;
 const HEIGHT = 600;
@@ -61,6 +75,9 @@ function runPage() {
   const framed: { bounds: unknown; options: unknown }[] = [];
   const eased: Record<string, unknown>[] = [];
   const halts = { times: 0 };
+  // The time of the touches, and the paint of the layers as the page sets it.
+  const clock = { now: 0 };
+  const paints: Record<string, unknown> = {};
   const handlers = {
     dragPan: handler(),
     touchZoomRotate: handler(),
@@ -87,6 +104,12 @@ function runPage() {
       sources.set(name, source.data);
     }
     addLayer() {}
+    getLayer(id: string) {
+      return { id };
+    }
+    setPaintProperty(layer: string, name: string, value: unknown) {
+      paints[`${layer} ${name}`] = value;
+    }
     getSource(name: string) {
       return sources.has(name)
         ? { setData: (data: Drawn) => sources.set(name, data) }
@@ -156,7 +179,7 @@ function runPage() {
   const page = context.shaperoute as { receive: (message: ToPage) => void };
   const fire = (type: string, touches: Touch[]) =>
     (listeners.get(type) ?? []).forEach((listener) =>
-      listener({ touches, timeStamp: 0 }),
+      listener({ touches, timeStamp: clock.now }),
     );
   /** Fingers at x, y, then x, y of the next one. */
   const at = (...xy: number[]): Touch[] =>
@@ -179,6 +202,17 @@ function runPage() {
         .map((data) => parsePageMessage(data))
         .filter((message): message is FromPage => message !== null),
     drawn: (name: string) => sources.get(name)?.geometry?.coordinates,
+    /** The dots a source holds: where, and whether each is the first. */
+    dots: (name: string) =>
+      (sources.get(name)?.features ?? []).map((f) => ({
+        at: f.geometry.coordinates,
+        first: f.properties.first,
+      })),
+    paints,
+    /** Time goes by between touches. */
+    wait: (ms: number) => {
+      clock.now += ms;
+    },
     down: (...xy: number[]) => fire("touchstart", at(...xy)),
     to: (...xy: number[]) => fire("touchmove", at(...xy)),
     /** Fingers lifted; those given stay on the map. */
@@ -197,10 +231,19 @@ const SQUARE: [number, number][] = [
   [45.995, 10.995],
 ];
 
-function canvas(mode: CanvasMode, withFigure = true, frame = false) {
+function canvas(
+  mode: CanvasMode,
+  withFigure = true,
+  frame = false,
+  more: { lines?: LatLon[][]; links?: boolean[]; marks?: LatLon[] } = {},
+) {
+  const lines = more.lines ?? (withFigure ? [SQUARE] : []);
   return setCanvas({
     mode,
-    lines: withFigure ? [SQUARE] : [],
+    lines,
+    links: more.links ?? lines.map(() => false),
+    bendable: lines.map((_, i) => i),
+    marks: more.marks ?? [],
     centre: withFigure ? [46, 11] : null,
     shrink: 0.5,
     grow: 2,
@@ -402,6 +445,9 @@ test("grown past the screen, the map steps back to show the figure whole", () =>
     setCanvas({
       mode: "move",
       lines: [SQUARE],
+      links: [false],
+      bendable: [],
+      marks: [],
       centre: [46, 11],
       shrink: 0.1,
       grow: 10,
@@ -423,4 +469,97 @@ test("grown past the screen, the map steps back to show the figure whole", () =>
   page.to(190, 300, 210, 300);
   page.up();
   expect(page.framed).toHaveLength(1);
+});
+
+/** The point of the map at x, y on the screen, north up at CANVAS_ZOOM. */
+function lngLatOf(x: number, y: number): [number, number] {
+  return [11 + (x - 200) / PX_PER_DEG, 46 - (y - 300) / PX_PER_DEG];
+}
+
+test("with «Line» a band goes from the last point to the finger, and the point lifted is told (TASK-331 B)", () => {
+  const page = runPage();
+  page.send(canvas("line", false, false, { marks: [[46, 11]] }));
+  expect(page.dots("canvas-marks")).toEqual([{ at: [11, 46], first: false }]);
+  page.down(250, 300);
+  expect(page.drawn("ink")).toEqual([[11, 46], lngLatOf(250, 300)]);
+  page.to(260, 310);
+  expect(page.drawn("ink")).toEqual([[11, 46], lngLatOf(260, 310)]);
+  page.up();
+  const [tapped] = only(page.told(), "drawn");
+  expect(tapped.line).toHaveLength(1);
+  tapped.line[0].forEach((value, i) =>
+    expect(value).toBeCloseTo(lngLatOf(260, 310)[i], 9),
+  );
+  expect(tapped.metresPerPx).toBeGreaterThan(0);
+  // The map keeps still; with two points the first is the larger one.
+  expect(page.view).toEqual({ lng: 11, lat: 46, zoom: CANVAS_ZOOM });
+  page.send(
+    canvas("line", false, false, {
+      marks: [
+        [46, 11],
+        [46.001, 11],
+      ],
+    }),
+  );
+  expect(page.dots("canvas-marks").map((dot) => dot.first)).toEqual([true, false]);
+  expect(page.drawn("ink")).toBeUndefined();
+});
+
+test("with «Erase» the ink is the eraser's wide pale band, and the line says how big a pixel is", () => {
+  const page = runPage();
+  page.send(canvas("erase"));
+  expect(page.paints["ink line-width"]).toBe(2 * ERASER_PX);
+  page.down(100, 100);
+  page.to(120, 100);
+  page.up();
+  const [rubbed] = only(page.told(), "drawn");
+  // 0.01° of longitude at 46° N over 100 px.
+  expect(rubbed.metresPerPx).toBeCloseTo(
+    (0.01 * Math.PI * 6_371_000 * Math.cos((46 * Math.PI) / 180)) / 180 / 100,
+    6,
+  );
+  page.send(canvas("draw"));
+  expect(page.paints["ink line-width"]).not.toBe(2 * ERASER_PX);
+});
+
+test("a line whose first side is a link is drawn without it, and the link dashed apart", () => {
+  const page = runPage();
+  const detail: LatLon[] = [
+    [46, 11.005],
+    [46, 11.01],
+    [46.002, 11.01],
+  ];
+  page.send(
+    canvas("draw", true, false, { lines: [SQUARE, detail], links: [false, true] }),
+  );
+  const flipped = (line: LatLon[]) => line.map(([lat, lng]) => [lng, lat]);
+  expect(page.drawn("canvas")).toEqual([flipped(SQUARE), flipped(detail.slice(1))]);
+  expect(page.drawn("canvas-links")).toEqual([flipped(detail.slice(0, 2))]);
+});
+
+test("with «Move» a line held still, then dragged, bends there and is told; a quick drag moves the figure", () => {
+  const page = runPage();
+  page.send(canvas("move"));
+  // The middle of the right side, held still, then dragged out.
+  page.down(250, 300);
+  page.wait(HOLD_MS);
+  page.to(290, 300);
+  const [preview] = page.drawn("canvas") as [number, number][][];
+  expect(preview).toHaveLength(6);
+  preview[2].forEach((value, i) => expect(value).toBeCloseTo(lngLatOf(290, 300)[i], 9));
+  page.up();
+  expect(only(page.told(), "figure")).toHaveLength(0);
+  const [held] = only(page.told(), "bent");
+  held.from.forEach((value, i) => expect(value).toBeCloseTo(lngLatOf(250, 300)[i], 9));
+  held.to.forEach((value, i) => expect(value).toBeCloseTo(lngLatOf(290, 300)[i], 9));
+  expect(held.metresPerPx).toBeGreaterThan(0);
+
+  // Not held still: the figure moves.
+  page.send(canvas("move"));
+  page.down(250, 300);
+  page.wait(HOLD_MS / 2);
+  page.to(290, 300);
+  page.up();
+  expect(only(page.told(), "bent")).toHaveLength(1);
+  expect(only(page.told(), "figure")).toHaveLength(1);
 });

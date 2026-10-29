@@ -15,6 +15,9 @@ jest.mock("../api/imageOutlines", () => ({ requestImageOutline: jest.fn() }));
 const TRENTO: LatLon = [46.0671, 11.1214];
 const MIDDLE: LatLon = [46.07, 11.13];
 const LIMITS: [number, number] = [1000, 21_000];
+/** Metres a pixel of the map is, as the page tells it: a finger reaches
+ * 48 m, the eraser 28 m. */
+const PX_M = 2;
 
 function setUp(options: Partial<MapCanvasOptions> = {}) {
   return renderHook(() =>
@@ -122,7 +125,7 @@ test("with «Draw» a line is the figure, the next one a detail; «Undo» one at
   const { result } = await setUp();
   expect(result.current.mode).toBe("draw");
   await act(async () =>
-    result.current.onCanvas({ type: "drawn", line: roundLine(800) }),
+    result.current.onCanvas({ type: "drawn", line: roundLine(800), metresPerPx: PX_M }),
   );
   const drawing = result.current.placed;
   expect(drawing?.figure.kind).toBe("drawing");
@@ -133,6 +136,7 @@ test("with «Draw» a line is the figure, the next one a detail; «Undo» one at
   await act(async () =>
     result.current.onCanvas({
       type: "drawn",
+      metresPerPx: PX_M,
       line: [
         fromPlane(MIDDLE, [0, 0]),
         fromPlane(MIDDLE, [0, -400]),
@@ -159,7 +163,7 @@ test("a line drawn over a shape takes its place; «Undo» brings the shape back"
   const heart = result.current.placed;
   await act(async () => result.current.setMode("draw"));
   await act(async () =>
-    result.current.onCanvas({ type: "drawn", line: roundLine(500) }),
+    result.current.onCanvas({ type: "drawn", line: roundLine(500), metresPerPx: PX_M }),
   );
   expect(result.current.placed?.figure.kind).toBe("drawing");
   await act(async () => result.current.undo());
@@ -176,7 +180,9 @@ test("a line that crosses itself and ends far from its start stays as drawn; wit
     [-1000, 0],
     [-1000, 1000],
   ].map((p) => fromPlane(MIDDLE, p as [number, number]));
-  await act(async () => result.current.onCanvas({ type: "drawn", line: zigzag }));
+  await act(async () =>
+    result.current.onCanvas({ type: "drawn", line: zigzag, metresPerPx: PX_M }),
+  );
   expect(result.current.problem).toBeNull();
   const figure = result.current.placed?.figure;
   if (figure?.kind !== "drawing") throw new Error("no drawing");
@@ -187,7 +193,7 @@ test("a line that crosses itself and ends far from its start stays as drawn; wit
   const drawn = result.current.placed;
   await act(async () => result.current.setMode("move"));
   await act(async () =>
-    result.current.onCanvas({ type: "drawn", line: roundLine(500) }),
+    result.current.onCanvas({ type: "drawn", line: roundLine(500), metresPerPx: PX_M }),
   );
   expect(result.current.placed).toBe(drawn);
 });
@@ -202,6 +208,7 @@ test("a line drawn on a photo's outline joins it where it is; «Undo» brings th
   await act(async () =>
     result.current.onCanvas({
       type: "drawn",
+      metresPerPx: PX_M,
       line: [fromPlane(MIDDLE, [0, 0]), fromPlane(MIDDLE, [0, 300])],
     }),
   );
@@ -215,14 +222,15 @@ test("a line drawn on a photo's outline joins it where it is; «Undo» brings th
   expect(result.current.placed).toEqual(picture);
 });
 
-test("«Erase» takes the line under the finger, a shape whole; «Undo» puts it back", async () => {
+test("the eraser takes the piece under the finger, a shape whole; «Undo» puts it back", async () => {
   const { result } = await setUp();
   await act(async () =>
-    result.current.onCanvas({ type: "drawn", line: roundLine(800) }),
+    result.current.onCanvas({ type: "drawn", line: roundLine(800), metresPerPx: PX_M }),
   );
   await act(async () =>
     result.current.onCanvas({
       type: "drawn",
+      metresPerPx: PX_M,
       line: [fromPlane(MIDDLE, [0, 0]), fromPlane(MIDDLE, [0, -780])],
     }),
   );
@@ -230,20 +238,37 @@ test("«Erase» takes the line under the finger, a shape whole; «Undo» puts it
   await act(async () => result.current.setMode("erase"));
   // A tap on nothing does nothing.
   await act(async () =>
-    result.current.onCanvas({ type: "drawn", line: [fromPlane(MIDDLE, [400, 300])] }),
+    result.current.onCanvas({
+      type: "drawn",
+      line: [fromPlane(MIDDLE, [400, 300])],
+      metresPerPx: PX_M,
+    }),
   );
   expect(result.current.placed).toBe(both);
   expect(result.current.canUndo).toBe(true);
-  // A tap on the detail takes it.
+  // A tap on the detail takes a finger's width of it: the piece cut off
+  // joins the drawing again by a link, over the gap.
   await act(async () =>
-    result.current.onCanvas({ type: "drawn", line: [fromPlane(MIDDLE, [5, -300])] }),
+    result.current.onCanvas({
+      type: "drawn",
+      line: [fromPlane(MIDDLE, [5, -300])],
+      metresPerPx: PX_M,
+    }),
   );
-  expect(
-    result.current.placed?.figure.kind === "drawing" &&
-      result.current.placed.figure.details,
-  ).toEqual([]);
+  const cut = result.current.placed?.figure;
+  if (cut?.kind !== "drawing") throw new Error("no drawing");
+  expect(cut.outline).toEqual(both?.figure.kind === "drawing" && both.figure.outline);
+  expect(cut.details).toHaveLength(2);
+  expect(cut.linked).toEqual([false, true]);
+  const [link] = result.current.canvas.links.slice(2);
+  expect(link).toBe(true);
   await act(async () => result.current.undo());
   expect(result.current.placed?.figure).toEqual(both?.figure);
+  // «Redo» cuts it again.
+  expect(result.current.canRedo).toBe(true);
+  await act(async () => result.current.redo());
+  expect(result.current.placed?.figure).toEqual(cut);
+  await act(async () => result.current.undo());
 
   // A shape of the catalogue goes whole, and comes back with «Undo».
   await act(async () => result.current.pick("heart"));
@@ -252,7 +277,9 @@ test("«Erase» takes the line under the finger, a shape whole; «Undo» puts it
   const [x, y] = line[2];
   const on = fromPlane(heart!.centre, [x * heart!.unitM, y * heart!.unitM]);
   await act(async () => result.current.setMode("erase"));
-  await act(async () => result.current.onCanvas({ type: "drawn", line: [on] }));
+  await act(async () =>
+    result.current.onCanvas({ type: "drawn", line: [on], metresPerPx: PX_M }),
+  );
   expect(result.current.placed).toBeNull();
   await act(async () => result.current.undo());
   expect(result.current.placed).toEqual(heart);
@@ -374,4 +401,131 @@ test("a ready-made picture of «Draw» is a tile: its outline goes on the map", 
   await act(async () => result.current.pickSample(second));
   expect(result.current.placed?.figure).toMatchObject({ sample: second.id });
   expect(result.current.placed?.unitM).toBe(placed?.unitM);
+});
+
+/** A point tapped with «Line», `x`, `y` metres from the middle. */
+function tapAt(x: number, y: number) {
+  return {
+    type: "drawn" as const,
+    line: [fromPlane(MIDDLE, [x, y])],
+    metresPerPx: PX_M,
+  };
+}
+
+test("«Line» taps a straight line point by point, and closes it on its first point", async () => {
+  const { result } = await setUp();
+  await act(async () => result.current.setMode("line"));
+  await act(async () => result.current.onCanvas(tapAt(0, 0)));
+  // One point is no line yet: it shows, and «Undo» takes it.
+  expect(result.current.placed).toBeNull();
+  expect(result.current.canvas.marks).toHaveLength(1);
+  expect(result.current.tapping).toBe(true);
+  await act(async () => result.current.onCanvas(tapAt(600, 0)));
+  const open = result.current.placed?.figure;
+  if (open?.kind !== "drawing") throw new Error("no drawing");
+  expect(open.details).toEqual([expect.any(Array)]);
+  expect(open.details[0]).toHaveLength(2);
+  await act(async () => result.current.onCanvas(tapAt(600, 600)));
+  expect(result.current.canvas.marks).toHaveLength(3);
+  const three = result.current.placed;
+  // Near the first point: closed, the outline of a triangle.
+  await act(async () => result.current.onCanvas(tapAt(20, 10)));
+  const closed = result.current.placed?.figure;
+  if (closed?.kind !== "drawing") throw new Error("no drawing");
+  expect(closed.outline).toHaveLength(4);
+  expect(closed.details).toEqual([]);
+  expect(result.current.tapping).toBe(false);
+  expect(result.current.canvas.marks).toEqual([]);
+  expect(result.current.distanceM).toBeCloseTo(600 + 600 + 600 * Math.SQRT2, -1);
+  // «Undo» opens it again, the line still being tapped.
+  await act(async () => result.current.undo());
+  expect(result.current.placed?.figure).toEqual(three?.figure);
+  expect(result.current.canvas.marks).toHaveLength(3);
+  // Its last point again finishes it.
+  await act(async () => result.current.onCanvas(tapAt(610, 590)));
+  expect(result.current.tapping).toBe(false);
+  expect(result.current.placed?.figure).toEqual(three?.figure);
+});
+
+test("«Line» on a drawing starts on it, or joins it by a link from away", async () => {
+  const { result } = await setUp();
+  await act(async () =>
+    result.current.onCanvas({ type: "drawn", line: roundLine(800), metresPerPx: PX_M }),
+  );
+  await act(async () => result.current.setMode("line"));
+  // From the circle in: a detail starting on it.
+  await act(async () => result.current.onCanvas(tapAt(790, 0)));
+  await act(async () => result.current.onCanvas(tapAt(0, 0)));
+  const inside = result.current.placed?.figure;
+  if (inside?.kind !== "drawing") throw new Error("no drawing");
+  expect(inside.details).toHaveLength(1);
+  expect(inside.linked).toEqual([false]);
+  // Finished, a new one far outside joins it by a link.
+  await act(async () => result.current.onCanvas(tapAt(0, 0)));
+  await act(async () => result.current.onCanvas(tapAt(2000, 0)));
+  await act(async () => result.current.onCanvas(tapAt(2000, 600)));
+  const outside = result.current.placed?.figure;
+  if (outside?.kind !== "drawing") throw new Error("no drawing");
+  expect(outside.linked).toEqual([false, true]);
+  expect(outside.details[1]).toHaveLength(3);
+  expect(result.current.canvas.links).toEqual([false, false, true]);
+});
+
+test("«Clear all» takes the figure away; «Undo» puts it back, «Redo» clears it again", async () => {
+  const { result } = await setUp();
+  await act(async () => result.current.clear());
+  expect(result.current.canUndo).toBe(false);
+  await act(async () => result.current.pick("heart"));
+  const heart = result.current.placed;
+  await act(async () => result.current.clear());
+  expect(result.current.placed).toBeNull();
+  await act(async () => result.current.undo());
+  expect(result.current.placed).toEqual(heart);
+  await act(async () => result.current.redo());
+  expect(result.current.placed).toBeNull();
+  expect(result.current.canRedo).toBe(false);
+  // A new change forgets what «Redo» would do.
+  await act(async () => result.current.undo());
+  expect(result.current.canRedo).toBe(true);
+  await act(async () => result.current.pick("star"));
+  expect(result.current.canRedo).toBe(false);
+});
+
+test("a line held and dragged bends where it is held; across the outline it does not", async () => {
+  const { result } = await setUp();
+  await act(async () =>
+    result.current.onCanvas({ type: "drawn", line: roundLine(800), metresPerPx: PX_M }),
+  );
+  const circle = result.current.placed;
+  const length = result.current.distanceM ?? 0;
+  expect(result.current.canvas.bendable).toEqual([0]);
+  await act(async () => result.current.setMode("move"));
+  await act(async () =>
+    result.current.onCanvas({
+      type: "bent",
+      from: fromPlane(MIDDLE, [800, 0]),
+      to: fromPlane(MIDDLE, [1100, 0]),
+      metresPerPx: PX_M,
+    }),
+  );
+  expect(result.current.problem).toBeNull();
+  expect(result.current.placed?.figure).not.toEqual(circle?.figure);
+  expect(result.current.distanceM).toBeGreaterThan(length);
+  const bentOnce = result.current.placed;
+  // Past the other side the outline would cross itself: nothing changes.
+  await act(async () =>
+    result.current.onCanvas({
+      type: "bent",
+      from: fromPlane(MIDDLE, [0, 800]),
+      to: fromPlane(MIDDLE, [0, -1300]),
+      metresPerPx: PX_M,
+    }),
+  );
+  expect(result.current.problem).toBe("crosses");
+  expect(result.current.placed).toBe(bentOnce);
+  await act(async () => result.current.undo());
+  expect(result.current.placed?.figure).toEqual(circle?.figure);
+  // A shape of the catalogue does not bend.
+  await act(async () => result.current.pick("heart"));
+  expect(result.current.canvas.bendable).toEqual([]);
 });

@@ -1,10 +1,13 @@
 # TASK-331 — Disegnare a mano solo sulla mappa: la linea aperta, «Erase», «Edit the drawing» sulla mappa
 
-**Stato**: In corso — codice, test e testi (approvati il 2026-10-29)
-fatti; aspetta il merge del Coordinatore a CI verde
-**Fase**: 4 · **Branch**: `feat/TASK-331-draw-on-map-only` · **ADR**: ADR-0288
+**Stato**: In corso — parte A in `main` (#632, `b5d4e5d3`, 2026-10-29);
+parte B (gli strumenti di disegno) pronta, #643, testi approvati il
+2026-10-29: aspetta il merge, sotto
+**Fase**: 4 · **Branch**: `feat/TASK-331-draw-on-map-only` (A),
+`feat/TASK-331-b-draw-tools` (B) · **ADR**: ADR-0288
 
-Numero e ADR dal Coordinatore (2026-10-29: TASK-331, ADR-0288).
+Numero e ADR dal Coordinatore (2026-10-29: TASK-331, ADR-0288; la parte B
+come TASK-331 parte B, aggiunta ad ADR-0288, senza un numero nuovo).
 
 ## Obiettivo
 
@@ -141,6 +144,84 @@ docs/tasks/TASK-331.md
 - Spostare un punto di una linea già disegnata.
 - La privacy: la riga del TASK-320 («un contorno viaggia come richiesta del
   percorso e non si tiene») vale già per ogni disegno della mappa.
+
+## Parte B — gli strumenti di disegno
+
+Richiesta dell'utente dello stesso giorno, dopo il sì ai testi della parte
+A: «Metti proprio degli strumenti di disegno, come la gomma per cancellare
+un pezzo... fallo più complesso...». Alla proposta di quattro strumenti
+l'utente li ha scelti **tutti e quattro**: gomma a pezzi, linea dritta a
+tocchi, «Ripeti» e «Cancella tutto», piega una linea. Branch da `main`
+dopo il merge della #632.
+
+### Cosa fare (B)
+
+1. `mapdraw/tools.ts` (nuovo), sul disegno nelle sue unità:
+   - la gomma (`erased`): toglie quello che il dito strofina entro il suo
+     raggio; un contorno tagliato torna una linea aperta; un pezzo staccato
+     si riattacca al disegno col collegamento più corto; le briciole
+     spariscono;
+   - la linea a tocchi (`straightStarted`, `straightGoneOn`): un punto dopo
+     l'altro; sul primo punto si chiude (contorno se è tutto il disegno e
+     non si incrocia, altrimenti un anello); sull'ultimo finisce;
+   - la piega (`bent`): il punto tenuto va dove va il dito e la linea si
+     piega attorno, sempre meno, per il 20% della grandezza del disegno; un
+     contorno che si incrocerebbe viene rifiutato.
+2. Il disegno sa quali dettagli cominciano con un collegamento (`linked` in
+   `figure.ts`): la mappa lo mostra tratteggiato, il percorso lo corre.
+3. `useMapCanvas.ts`: modi «Draw | Line | Erase | Move»; storia con «Undo» e
+   «Redo»; «Clear all».
+4. Pagina della mappa (`map/mapPage.ts`, `map/messages.ts`,
+   `map/MapView.tsx`): l'elastico della linea dal punto precedente al dito,
+   la scia larga e chiara della gomma, i punti tappati, i collegamenti
+   tratteggiati, la piega con anteprima (dito fermo 0,45 s su una linea, poi
+   trascinato); la pagina dice all'app quanti metri è un pixel.
+5. `DrawOnMap.tsx`: i quattro strumenti, «Undo», «Redo», «Clear all» con una
+   domanda prima; `App.tsx` li collega.
+6. Testi nuovi nelle quattro lingue (da approvare); test; `UI.md`, ADR-0288,
+   STATUS.
+
+### Criteri di accettazione (B)
+
+- [x] La gomma toglie solo il pezzo sotto il dito; un contorno tagliato è
+      una linea aperta; un pezzo staccato si riattacca tratteggiato.
+- [x] Con «Line» un tocco dopo l'altro fa segmenti dritti; il primo punto la
+      chiude, l'ultimo la finisce.
+- [x] Con «Move» una linea tenuta ferma e poi trascinata si piega; un
+      contorno che si incrocerebbe resta com'era, con un messaggio.
+- [x] «Redo» rimette quello che «Undo» ha tolto; «Clear all» chiede prima e
+      «Undo» lo rimette.
+- [x] Contratto, API e motore invariati; nessuna dipendenza nuova.
+- [x] Impronta iOS invariata, misurata su una copia pulita della testa
+      0d59d7c0 (`npm ci`, `APP_VARIANT=production`): 83793e26.
+- [x] jest, lint, typecheck, Prettier verdi.
+- [x] Testi nuovi approvati dall'utente il 2026-10-29 (in `UI.md`).
+
+### File toccati (B)
+
+```
+apps/mobile/App.tsx (tre righe: «Redo», «Clear all»)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/src/map/MapView.tsx
+apps/mobile/src/map/mapPage.ts
+apps/mobile/src/map/messages.ts
+apps/mobile/src/mapdraw/DrawOnMap.tsx
+apps/mobile/src/mapdraw/DrawOnMapApp.test.tsx
+apps/mobile/src/mapdraw/canvasMessages.test.ts
+apps/mobile/src/mapdraw/drawing.ts
+apps/mobile/src/mapdraw/edit.ts
+apps/mobile/src/mapdraw/edit.test.ts
+apps/mobile/src/mapdraw/figure.ts
+apps/mobile/src/mapdraw/mapPageCanvas.test.ts
+apps/mobile/src/mapdraw/tools.ts (nuovo)
+apps/mobile/src/mapdraw/tools.test.ts (nuovo)
+apps/mobile/src/mapdraw/useMapCanvas.ts
+apps/mobile/src/mapdraw/useMapCanvas.test.ts
+docs/DECISIONS.md (aggiunta ad ADR-0288)
+docs/STATUS.md (righe nuove)
+docs/UI.md
+docs/tasks/TASK-331.md
+```
 
 ## Esito
 

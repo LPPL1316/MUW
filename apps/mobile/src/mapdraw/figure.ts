@@ -17,9 +17,12 @@ export type Unit = OutlinePoint;
 /** What is on the map: a line drawn with a finger and the lines drawn after
  * it, hung on it as details (ADR-0074); a shape of the catalogue; or the
  * outline the engine traced from a photo (ADR-0069), or from one of the
- * ready-made pictures of «Draw» (TASK-280), which `sample` names. */
+ * ready-made pictures of «Draw» (TASK-280), which `sample` names. A
+ * drawing's `linked` says, detail by detail, whether its first side is a
+ * straight link that joins it to the drawing, not drawn: the map shows it
+ * dashed, and the route runs it (TASK-331 part B). */
 export type Figure =
-  | { kind: "drawing"; outline: Unit[]; details: Unit[][] }
+  | { kind: "drawing"; outline: Unit[]; details: Unit[][]; linked?: boolean[] }
   | { kind: "shape"; shape: Shape }
   | { kind: "picture"; outline: Unit[]; strokes: Unit[][]; sample?: string };
 

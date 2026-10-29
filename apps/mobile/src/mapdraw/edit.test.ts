@@ -7,19 +7,16 @@ import {
 import imageRequest from "@shaperoute/shared-types/fixtures/image-route-request.json";
 
 import { requestLines } from "../route/figureLines";
-import { newDrawing, travelledPoints, withDetail } from "./drawing";
-import { asDrawing, type Drawing, drawingOf, erasedAt, touchesLines } from "./edit";
+import { travelledPoints } from "./drawing";
+import { asDrawing, type Drawing, drawingOf, touchesLines } from "./edit";
 import { lookOf, type Unit } from "./figure";
 import { isSimpleRing, nearestOnSegment, type P } from "./geometry";
-import { fromPlane } from "./plane";
 
 /**
  * Changing the figure on the map (TASK-331, ADR-0288): the outline of a
  * picture becomes a drawing the engine takes, where it was; a shape of the
- * catalogue is not changed; a tap with «Erase» takes a line away.
+ * catalogue is not changed, and the eraser takes it whole.
  */
-
-const TRENTO: LatLon = [46.0671, 11.1214];
 
 /** A straight line of `steps` points. */
 function stroke(a: P, b: P, steps = 20): P[] {
@@ -119,58 +116,8 @@ test("a photo on the map becomes a drawing where it is; a drawing stays itself; 
   expect(asDrawing({ kind: "shape", shape: "heart" })).toBeNull();
 });
 
-test("Erase on a shape of the catalogue: a finger on its line, and nowhere else", () => {
+test("the eraser on a shape of the catalogue: a finger on its line, and nowhere else", () => {
   const { lines } = lookOf({ kind: "shape", shape: "heart" });
-  expect(touchesLines(lines, [lines[0][3]])).toBe(true);
-  expect(touchesLines(lines, [[5, 5]])).toBe(false);
-});
-
-test("Erase: the line under the finger goes; the outline takes the details with it", () => {
-  const square: Drawing = { kind: "drawing", outline: SQUARE, details: [] };
-  const one = { ...square, details: [stroke([0, -1], [0, 0.4])] };
-  const two = { ...one, details: [...one.details, stroke([-0.6, -1], [-0.6, 0.4])] };
-  // A tap on the second detail, a little off it.
-  expect(erasedAt(two, [[-0.58, 0]])).toEqual({ drawing: one });
-  // A tap on the outline: nothing is left.
-  expect(erasedAt(two, [[1.02, 0.5]])).toEqual({ drawing: null });
-  // A tap on nothing, and a line that touches nothing: nothing happens.
-  expect(erasedAt(two, [[0.5, 0.5]])).toBeNull();
-  expect(erasedAt(two, stroke([0.4, 0.2], [0.6, 0.6]))).toBeNull();
-  // A finger's line across the first detail: the first line it touches.
-  expect(erasedAt(two, stroke([0.3, 0], [-0.1, 0]))).toEqual({
-    drawing: { ...square, details: [two.details[1]] },
-  });
-});
-
-test("a detail erased takes the details hung on it", () => {
-  const square: Drawing = { kind: "drawing", outline: SQUARE, details: [] };
-  const trunk = { ...square, details: [stroke([0, -1], [0, 0.4])] };
-  // A branch from the trunk, far from the outline: it starts on the trunk.
-  const branch = { ...trunk, details: [...trunk.details, stroke([0, 0], [0.5, 0])] };
-  expect(erasedAt(branch, [[0, 0.3]])).toEqual({ drawing: square });
-  // The branch alone leaves the trunk.
-  expect(erasedAt(branch, [[0.45, 0]])).toEqual({ drawing: trunk });
-});
-
-test("on an open line, Erase takes the line, and with it the whole drawing", () => {
-  const drawn = newDrawing(
-    [
-      [-500, 0],
-      [0, 400],
-      [500, 0],
-    ].map(([x, y]) => fromPlane(TRENTO, [x, y])),
-  );
-  if (drawn === null || !("placed" in drawn)) throw new Error("no drawing");
-  const open = drawn.placed.figure as Drawing;
-  // Its start, where the ring is: the ring is no line, the line is.
-  expect(erasedAt(open, [open.outline[0]])).toEqual({ drawing: null });
-  // A line hung on it goes alone; the open line stays.
-  const hung = withDetail(drawn.placed, [
-    fromPlane(TRENTO, [0, 380]),
-    fromPlane(TRENTO, [0, 0]),
-  ]);
-  if (hung === null || !("placed" in hung)) throw new Error("no detail");
-  const two = hung.placed.figure as Drawing;
-  const tip = two.details[1][two.details[1].length - 1];
-  expect(erasedAt(two, [tip])).toEqual({ drawing: open });
+  expect(touchesLines(lines, [lines[0][3]], 0.1)).toBe(true);
+  expect(touchesLines(lines, [[5, 5]], 0.1)).toBe(false);
 });
