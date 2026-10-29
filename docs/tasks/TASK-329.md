@@ -224,7 +224,10 @@ e rifà i test di `map/` e `mapdraw/`; nei file della mappa solo aggiunte.
 
 ## Esito
 
-- **Parte A**: in `main` con #630 (`75bcb2e7`), 2026-10-29.
+- **Parte A**: in `main` con la #630 (`75bcb2e7`), 2026-10-29: «Draw»
+  senza le due righe, «Ask for a route» aperto con quattro temi, 12 idee in
+  8 città da `tools/themed_ideas.py`, «Make it near me»; testi approvati
+  («Sì, approvo»); impronta iOS `83793e26` invariata; solo OTA.
 - **Parte B**: fatta il 2026-10-29 sul branch
   `feat/TASK-329-b-place-photos`. Dei 101 posti toccati dalle idee 93
   hanno un elemento (88 diversi nella lista dell'API); gli altri 8 restano

@@ -175,7 +175,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   + server col sì dell'utente): codice Wikidata e foto di ogni posto con
   `CityPhotos` di TASK-283, la fila di foto sotto la mappa. File
   `tasks/TASK-329.md`.
-  **A in `main`** (#630, `75bcb2e7`). **Parte B fatta il 2026-10-29**
+  **A in `main`** con la #630 (`75bcb2e7`, 2026-10-29): «Draw» senza le
+  due righe, «Ask for a route» aperto con quattro temi, 12 idee in 8 città
+  da `tools/themed_ideas.py`, «Make it near me»; testi approvati («Sì,
+  approvo»); impronta iOS `83793e26` invariata; solo OTA.
+  **Parte B fatta il 2026-10-29**
   (branch `feat/TASK-329-b-place-photos`, aggiunta ad ADR-0287): ogni
   posto di un percorso a tema ha `wikidata`, i toccati `photo`
   (`CityPhotos`, ≤ 2 s); `GET /place-photos` per i soli elementi delle idee,
