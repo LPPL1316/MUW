@@ -75,10 +75,11 @@ test("every row works: only «Paragliding» says «Soon»", async () => {
   expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(1);
   expect(screen.getByLabelText("Paragliding, coming soon")).toBeOnTheScreen();
   // The picture (TASK-178), the email and the phone number (TASK-183), the
-  // language (TASK-210), the units (TASK-182), the tone (TASK-263), the
-  // three texts of «ABOUT» (TASK-184) and the ways out are buttons.
-  // «Send feedback» waits for a server that takes it (TASK-308, below).
-  expect(screen.getAllByRole("button")).toHaveLength(11);
+  // language (TASK-210), «Add a place» (TASK-334), the units (TASK-182),
+  // the tone (TASK-263), the three texts of «ABOUT» (TASK-184) and the ways
+  // out are buttons. «Send feedback» waits for a server that takes it
+  // (TASK-308, below).
+  expect(screen.getAllByRole("button")).toHaveLength(12);
   expect(screen.getByRole("button", { name: "Profile picture" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Change email" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Phone number, Add" })).toBeOnTheScreen();
@@ -110,7 +111,7 @@ test("on the server of today, which answers 404, there is no «FEEDBACK» to wri
   expect(fetchFn).toHaveBeenCalledTimes(1);
   expect(screen.queryByText("FEEDBACK")).toBeNull();
   expect(screen.queryByRole("button", { name: "Send feedback" })).toBeNull();
-  expect(screen.getAllByRole("button")).toHaveLength(11);
+  expect(screen.getAllByRole("button")).toHaveLength(12);
 });
 
 test("without a network nothing is shown either (TASK-308)", async () => {

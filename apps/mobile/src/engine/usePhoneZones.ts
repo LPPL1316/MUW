@@ -5,6 +5,7 @@ import type { PositionState } from "../location/useCurrentPosition";
 import { drawShapesAhead } from "../paddle/aheadExamples";
 import { activityOf, loadSport } from "../settings/sport";
 import { downloadAhead } from "./aheadZones";
+import { keepPlaces } from "./keptPlaces";
 import { type PhoneEngine, phoneEngine } from "./phoneEngine";
 import {
   AROUND_MARGIN_M,
@@ -39,7 +40,9 @@ export const NOTICE_MIN_BYTES = 100_000;
  * when the server gave a zone around the phone at this opening; and, beside
  * them, the shapes on the water of the places near the phone (TASK-246,
  * `aheadExamples.ts`): routes asked of the API when it answers, whatever it
- * has of zones.
+ * has of zones. Before the cities ahead, the places the user keeps that are
+ * not on the phone yet (TASK-334, `keptPlaces.ts`), from a server that
+ * answers.
  *
  * Gives the bytes of the first maps of the phone while they download, for
  * the notice over «Draw route» (part C), else null. Only the first: when
@@ -54,11 +57,16 @@ export function usePhoneZones(
     download = downloadZone,
     ahead = downloadAhead,
     shapes = drawShapesAhead,
+    places = keepPlaces,
   }: {
     engine?: PhoneEngine;
     download?: typeof downloadZone;
     ahead?: typeof downloadAhead;
     shapes?: (apiUrl: string, here: LatLon) => Promise<unknown>;
+    places?: (
+      apiUrl: string,
+      options: { download: typeof downloadZone },
+    ) => Promise<void>;
   } = {},
 ): number | null {
   const done = useRef(false);
@@ -119,6 +127,9 @@ export function usePhoneZones(
       // with a zone or without: the shapes are routes it draws.
       if (answered) {
         void shapes(baseUrl, point);
+        // The places the user keeps (TASK-334), before the zones ahead:
+        // the user chose them.
+        await places(baseUrl, { download });
       }
       // Only from a server that gives zones and answers now: else every
       // city ahead would be a request for nothing.
@@ -126,7 +137,7 @@ export function usePhoneZones(
         await ahead(baseUrl, point, networks[0], { download });
       }
     })();
-  }, [position, baseUrl, engine, download, ahead, shapes]);
+  }, [position, baseUrl, engine, download, ahead, shapes, places]);
 
   return firstBytes;
 }

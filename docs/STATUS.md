@@ -160,6 +160,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-334 — I posti che l'utente tiene sul telefono** (ADR-0290;
+  richiesta dell'utente del 2026-10-29, numeri dal coordinatore). Scelta
+  dell'utente: «Sì, così»: in «Settings» → «Offline maps» «Add a place»
+  cerca un paese per nome e ne scarica la zona con 6 km intorno, per lo
+  sport di «Settings»; dove il server non l'ha la prepara lui (3 posti
+  nuovi al giorno per telefono, 20 per il server, uno alla volta); fino a
+  10 posti, fuori dai 2 GB, mai cancellati da soli. API
+  (`phone_zone_places.py`, `POST /phone-zones/{network}/places`) e app
+  (`keptPlaces.ts`, `OfflineMapsSetting`, `ZoneEntry.kept`) nella PR del
+  branch `feat/TASK-334-kept-places`. Mancano il sì ai due testi nuovi
+  («Trying again later», «Up to {count} places.»), l'impronta iOS su una
+  copia pulita, poi il server e l'OTA col sì dell'utente. File
+  `tasks/TASK-334.md`.
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
