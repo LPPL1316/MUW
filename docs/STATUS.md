@@ -160,6 +160,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
+  la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
+  dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;
+  numeri dal Coordinatore). Branch `docs/TASK-343-monthly-challenges`
+  (documenti), poi A (API: migrazione, iscrizioni, galleria, archivio,
+  tre push, `open --theme`) e B (app: pagina della sfida, «Past
+  challenges», interruttore nel modulo di pubblicazione). Disegni per
+  account: nessun limite (scelta dell'utente del 2026-10-30, «No limit»).
+  Testi, regolamento, server e push con il sì dell'utente. File
+  `tasks/TASK-343.md`.
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno
   proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
   approvata con «Yes, write it up»; numeri dal Coordinatore). Branch

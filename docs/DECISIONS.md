@@ -19548,3 +19548,57 @@ privacy, nelle dipendenze e nel nativo. I messaggi tra app e pagina della
 mappa hanno `metresPerPx`, `bent`, `links`, `bendable` e `marks` (pagina e
 app vanno sempre insieme). Il nuovo `mapdraw/tools.ts` contiene gli
 strumenti; `erasedAt` esce da `edit.ts`.
+
+## ADR-0296 — Le sfide del mese: un tema sul concorso, l'iscrizione esplicita, la galleria, l'archivio, tre push
+
+**Stato**: Proposta · 2026-10-29 · TASK-343. Estende ADR-0260 (il primo
+concorso), che resta valido per i concorsi senza tema. Il tema,
+l'iscrizione esplicita e il voto che resta la reazione sono dell'utente
+(richiesta del 2026-10-29, proposta approvata con «Yes, as proposed»);
+quanti disegni per account è dell'utente (2026-10-30, «No limit»:
+nessun limite);
+i punti tecnici sono decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore.
+
+**Contesto**: l'utente il 2026-10-29, in un testo incollato su «GPS Art e
+challenge mensili»: una sezione «Challenge» con il tema del mese, la
+pagina con regole, date, premi e partecipanti, la galleria per più votati
+e più recenti, un voto per disegno senza autovoto, la classifica e il
+badge per i vincitori, l'archivio, le notifiche per la nuova sfida, gli
+ultimi 3 giorni e i risultati. Il concorso di TASK-299 ha già la
+classifica, il voto (la reazione: una per account, mai la propria), il
+badge «Winner», il premio senza valore e una push al vincitore; non ha un
+tema, un'iscrizione, una galleria, un archivio, le altre push.
+
+**Decisione** (proposta):
+
+1. **Il tema sta sul concorso**: `contests.theme`, titolo e descrizione
+   nelle cinque lingue, scritti da chi lo apre (`open --theme`). Resta un
+   solo concorso aperto alla volta; il premio resta senza valore
+   (CONCORSI §12). Senza tema il concorso è quello di ADR-0260.
+2. **Con un tema si partecipa iscrivendosi**: l'interruttore nel modulo
+   di pubblicazione, o dal post già pubblicato; tabella
+   `contest_entries`, nessuna colonna su `drawings` e `reactions`. Il
+   tema conta solo se chi pubblica lo sceglie; nessun controllo
+   automatico del tema: chi chiude esclude a mano, come oggi. Un account
+   iscrive quanti disegni vuole (scelta dell'utente). Valgono
+   tutte le regole di ADR-0260 su chi partecipa (per tutti, nel periodo,
+   registrato dall'app, non nascosto).
+3. **Il voto resta la reazione** di ADR-0260: nessun «mi piace» nuovo.
+4. **La galleria e l'archivio** sono letture nuove sulla stessa query
+   della classifica (`RANKED_SQL`): una regola sola per chi è davanti.
+5. **Tre push nuove**: nuova sfida a chi ha le push accese; gli ultimi 3
+   giorni una volta sola, a chi ha pubblicato almeno un disegno e non è
+   iscritto (un orologio nel processo dell'API, come `GroupRunClock`);
+   i risultati a chi ha partecipato. Il vincitore riceve ancora
+   `contest_won`.
+
+**Alternative scartate**: tutti i post del periodo in gara anche con un
+tema (il tema non varrebbe niente); un voto separato dalle reazioni (due
+gesti per la stessa cosa); un cron sul server per gli ultimi 3 giorni
+(l'API ha già i suoi orologi, nessun pezzo nuovo da far partire).
+
+**Conseguenze**: una migrazione; tre tipi di push e i loro testi; il
+regolamento ufficiale cambia e va riapprovato. «Challenge» è già una
+parola del gioco «Play» (TASK-296): i testi dell'app devono tenerle
+distinte.

@@ -33,6 +33,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Pubblicità, account AdMob, pagamenti | `PUBBLICITA.md`, `DECISIONS.md` ADR-0198 |
 | Il gioco delle forme, «Play», squadre e sfide | `GIOCO.md`, `tasks/TASK-296.md` |
 | Il primo concorso, la scheda nel Feed, il regolamento | `CONCORSI.md`, `tasks/TASK-299.md` |
+| Le sfide del mese: il tema, l'iscrizione, la galleria, l'archivio | `CONCORSI.md`, `tasks/TASK-343.md`, `DECISIONS.md` ADR-0296 e ADR-0260 |
 | Le corse di gruppo, «Group runs», «I'm going» | `EVENTI.md`, `tasks/TASK-309.md` |
 | Attività da altre app (GPX, TCX, FIT), post di sole foto, «Imported» | `IMPORTAZIONI.md`, `tasks/TASK-312.md` |
 | Un video nei post: il video della corsa o uno proprio, la pagina nel Feed, `expo-video` | `tasks/TASK-336.md`, `DECISIONS.md` ADR-0292 e ADR-0289, `API.md` «Drawings» |
