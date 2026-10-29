@@ -1,11 +1,11 @@
 # TASK-333 — Gli allegati nei messaggi privati: un disegno, una foto, un video
 
-**Stato**: In lavorazione · 2026-10-29 · le sette scelte e i testi sono
-dell'utente (2026-10-29); parte A scritta (branch
-`feat/TASK-333-a-attachments-api`), B e C dopo
+**Stato**: Done · 2026-10-29 · parti A–D in `main` (#634, #635, #636,
+#639); la parte E (expo-video nei messaggi) al taglio della 1.0.2. Le
+sette scelte e i testi sono dell'utente (2026-10-29)
 **Fase**: 4 · **Branch**: `docs/TASK-333-message-attachments` (documenti),
 poi una PR per parte
-**ADR**: ADR-0289 (proposta) · **Migrazione**: il primo numero libero in
+**ADR**: ADR-0289 (con l'aggiunta della parte D) · **Migrazione**: il primo numero libero in
 `main` al merge della parte A (per il Coordinatore oggi `0038`)
 **Numeri**: TASK-333 / ADR-0289, **assegnati dal Coordinatore** il
 2026-10-29.
@@ -666,4 +666,30 @@ Le parti A, B e C hanno i loro elenchi in «Le parti».
   da `main` 2d6b8b69), col via del Coordinatore e i testi approvati
   dall'utente. In locale verdi: i tre test nuovi di `test_message_media.py`
   e i vicini (67), `ruff`, `black`.
+- 2026-10-29: **parte D in `main`** con la #639 (dd607e89), alle 22:29
+  italiane: la data della privacy «29 October 2026» è giusta.
+
+## Esito
+
+Nei messaggi privati si mandano una foto, un video fino a 60 s e 40 MB, o
+un disegno, solo in una conversazione accettata. L'API (#634, migrazione
+`0038`) tiene foto e video su disco in `data/media`, mai nel database né
+nelle copie, senza EXIF né il luogo del video; i video durano 30 giorni,
+o meno quando lo spazio è pieno, e allora vanno via dal più vecchio
+(#639). L'app (#635, #636) ha il «+» con «Photo», «Video» e «Drawing»
+(solo con un server che lo sa fare), l'anteprima, foto e video a tutto
+schermo con «Share», «Send to a friend» sotto il cuore della mappa e sulle
+schede, e il disegno ricevuto aperto sulla mappa come un preferito.
+Privacy e «Help» nelle cinque lingue, testi approvati dall'utente. Solo
+OTA: impronta iOS `83793e26` invariata in ogni parte.
+
+**Restano, col sì dell'utente**: il server (migrazione `0038`, dove sta
+`data/media` e il tetto dopo un `df -h` quel giorno, `DEPLOY.md` «Foto e
+video dei messaggi»), «Photos or Videos» in «App Privacy» di App Store
+Connect e in «Data safety» di Google Play, l'OTA dopo il server, il sito
+con la privacy nuova. **Da provare sul telefono**: il caricamento, la
+riduzione del video sull'iPhone, la locandina e il lettore nella WebView,
+il disegno aperto sulla mappa e il ritorno alla conversazione. **Da
+rivedere** con l'utente: «Too many photos today. Try again tomorrow.».
+**Dopo**: la parte E al taglio della 1.0.2.
 
