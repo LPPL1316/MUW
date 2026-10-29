@@ -28,9 +28,11 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { useBlockedNow } from "./blockedNow";
 import { useCommentChoices } from "./commentChoices";
 import { useCommentsDoor } from "./commentsDoor";
 import { agoLabel, commentsLabel, negativeComment } from "./commentText";
+import { useFollowsDoor } from "./followsDoor";
 import {
   type DrawingComments as Shown,
   useDrawingComments,
@@ -39,6 +41,8 @@ import {
 /** How much of the screen the sheet takes, before the keyboard. */
 const SHEET_SHARE = 0.72;
 const AVATAR_SIDE = 32;
+// The picture is small: its touch reaches the size of a button.
+const AVATAR_SLOP = (MIN_TAP_SIZE - AVATAR_SIDE) / 2;
 // The count shows from here, so the limit never comes as a surprise.
 const COUNT_FROM = COMMENT_MAX_LENGTH - 50;
 
@@ -99,6 +103,18 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
   const canSend = !comments.sending && commentTextProblem(text) === null;
   const choices = useCommentChoices();
   const me = choices?.me ?? null;
+  const { openProfile } = useFollowsDoor();
+
+  // The picture of who wrote it (TASK-338): their profile, as a tagged
+  // name does; the sheet goes first, or it would stay over the profile.
+  function onAuthor(comment: Comment) {
+    onClose();
+    openProfile({
+      public_id: comment.author.public_id,
+      username: comment.author.username,
+      photo: null,
+    });
+  }
 
   async function onSend() {
     if (!canSend) {
@@ -199,6 +215,7 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
             me={me}
             onHold={onHold}
             onAction={onAction}
+            onAuthor={onAuthor}
           />
           {comments.sendProblem !== null && (
             <Text style={styles.problem} accessibilityLiveRegion="polite">
@@ -271,9 +288,11 @@ type ListProps = {
   me: string | null;
   onHold: (comment: Comment) => void;
   onAction: (comment: Comment, action: CommentAction) => void;
+  /** Opens the profile of who wrote `comment`. */
+  onAuthor: (comment: Comment) => void;
 };
 
-function CommentsList({ comments, list, me, onHold, onAction }: ListProps) {
+function CommentsList({ comments, list, me, onHold, onAction, onAuthor }: ListProps) {
   if (comments.status === "loading") {
     return (
       <View style={styles.middle}>
@@ -304,7 +323,13 @@ function CommentsList({ comments, list, me, onHold, onAction }: ListProps) {
       data={comments.comments}
       keyExtractor={(comment) => comment.id}
       renderItem={({ item }) => (
-        <CommentRow comment={item} me={me} onHold={onHold} onAction={onAction} />
+        <CommentRow
+          comment={item}
+          me={me}
+          onHold={onHold}
+          onAction={onAction}
+          onAuthor={onAuthor}
+        />
       )}
       keyboardShouldPersistTaps="handled"
       ListEmptyComponent={
@@ -332,10 +357,17 @@ type RowProps = {
   me: string | null;
   onHold: (comment: Comment) => void;
   onAction: (comment: Comment, action: CommentAction) => void;
+  onAuthor: (comment: Comment) => void;
 };
 
-/** One comment: who, how long ago, and the words, always as plain text. */
-function CommentRow({ comment, me, onHold, onAction }: RowProps) {
+/** The name of VoiceOver's action that opens the author's profile. */
+const PROFILE_ACTION = "profile";
+
+/**
+ * One comment: who, how long ago, and the words, always as plain text. A
+ * touch on the picture opens who wrote it (TASK-338).
+ */
+function CommentRow({ comment, me, onHold, onAction, onAuthor }: RowProps) {
   const door = useCommentsDoor();
   const [photo, setPhoto] = useState<string | null>(null);
   const publicId = comment.author.public_id;
@@ -352,6 +384,13 @@ function CommentRow({ comment, me, onHold, onAction }: RowProps) {
   }, [door, publicId]);
   const ago = agoLabel(comment.created_at);
   const actions = actionsOf(comment, me);
+  // Blocked while the sheet is open, as its card in «Feed»: no way to them
+  // until the page, asked again, leaves them out.
+  const blocked = useBlockedNow(publicId);
+  const profileLabel = t("{name}'s profile", { name: comment.author.username });
+  const picture = (
+    <Avatar name={comment.author.username} size={AVATAR_SIDE} photo={photo} />
+  );
   return (
     <Pressable
       style={styles.row}
@@ -369,19 +408,43 @@ function CommentRow({ comment, me, onHold, onAction }: RowProps) {
             ? t("Touch and hold to delete.")
             : undefined
       }
-      // VoiceOver has no long press: the same choices as actions.
-      accessibilityActions={actions.map((action) => ({
-        name: action,
-        label: actionLabel(comment, action),
-      }))}
+      // VoiceOver has no long press: the same choices as actions. The row is
+      // one element, so the picture's profile is one of them too.
+      accessibilityActions={[
+        ...actions.map((action) => ({
+          name: action,
+          label: actionLabel(comment, action),
+        })),
+        ...(blocked ? [] : [{ name: PROFILE_ACTION, label: profileLabel }]),
+      ]}
       onAccessibilityAction={(event) => {
-        const asked = actions.find((action) => action === event.nativeEvent.actionName);
+        const name = event.nativeEvent.actionName;
+        if (name === PROFILE_ACTION) {
+          if (!blocked) {
+            onAuthor(comment);
+          }
+          return;
+        }
+        const asked = actions.find((action) => action === name);
         if (asked !== undefined) {
           onAction(comment, asked);
         }
       }}
     >
-      <Avatar name={comment.author.username} size={AVATAR_SIDE} photo={photo} />
+      {blocked ? (
+        picture
+      ) : (
+        <Pressable
+          onPress={() => onAuthor(comment)}
+          // Held, the picture is still the comment's.
+          onLongPress={() => onHold(comment)}
+          hitSlop={AVATAR_SLOP}
+          accessibilityRole="button"
+          accessibilityLabel={profileLabel}
+        >
+          {picture}
+        </Pressable>
+      )}
       <View style={styles.words}>
         <Text style={styles.who}>
           {comment.author.username}

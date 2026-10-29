@@ -8514,6 +8514,18 @@ esempi (TASK-156) che non stanno sul server. Le corse pubblicate vere
 7. **La foto di chi scrive** non viaggia nel commento (20 foto in base64
    per pagina): l'app la chiede a `GET /users/{public_id}`, una volta per
    profilo finché è aperta; senza, l'iniziale.
+8. **La foto di chi scrive apre il suo profilo** (TASK-338, 2026-10-29,
+   richiesta dell'utente; il modo deciso dall'agente su delega
+   dell'utente): `openProfile` di `followsDoor`, come un nome taggato
+   (TASK-208), il proprio porta alla propria pagina. Il foglio si chiude
+   prima, perché il `Modal` resterebbe sopra il profilo. Il tocco arriva a
+   44 pt con `hitSlop`; tenuta premuta, la foto dà le scelte del commento
+   come il resto della riga. La riga è un solo elemento per VoiceOver, per
+   cui il profilo è anche un'azione, «{name}'s profile», testo che c'era
+   già. Un autore bloccato mentre il foglio è aperto (`useBlockedNow`,
+   come le schede di «Feed») non apre niente: la foto torna solo foto e
+   l'azione sparisce, finché la pagina richiesta non lo toglie. Il nome
+   resta solo testo: la richiesta era la foto.
 
 **Perché così**: la scelta dell'utente dà commenti veri subito, e i file
 nuovi (`comments.py`, `src/social/…`) non si scontrano con i task che
