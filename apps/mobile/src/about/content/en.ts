@@ -72,7 +72,7 @@ const help: AboutDocument = {
     {
       heading: "Publish and share",
       blocks: [
-        "A saved run is private: only you see it. Turn on «Public», at the end of the run or on a run in «My activities», and the other members see it as a drawing on your profile, without its first and last 200 m.",
+        "A saved run is private: only you see it. Other members see on your profile only the totals of all your saved runs, distance and elevation gain, never the runs themselves. Turn on «Public», at the end of the run or on a run in «My activities», and the other members see it as a drawing on your profile, without its first and last 200 m.",
         "«Share» makes a picture of your run to send wherever you like.",
       ],
     },
@@ -330,8 +330,8 @@ const privacy: AboutDocument = {
     {
       heading: "Your runs and their GPS tracks",
       blocks: [
-        "With an account, when you tap «Save» at the end of a run the whole run goes to our server: every position with its time, the pauses, the route you followed, distance, duration, a score of how closely the track follows the route (worked out by our server and not shown in the app) and the name of the place. With «Discard», nothing is sent.",
-        "A saved run is private: only your account sees it. It stays until you delete it from «My activities» or delete your account.",
+        "With an account, when you tap «Save» at the end of a run the whole run goes to our server: every position with its time and height, the pauses, the route you followed, distance, duration, a score of how closely the track follows the route (worked out by our server and not shown in the app) and the name of the place. With «Discard», nothing is sent.",
+        "A saved run is private: only your account sees it. Other members see on your profile only the totals of all your saved runs, distance and elevation gain, never the runs themselves. It stays until you delete it from «My activities» or delete your account.",
         "A run often starts and ends at your door. This is why a run becomes visible to the other members only when you turn on «Public», and then they see the track without its first and last 200 m, with the title you gave it, and without times, pauses or the planned route.",
         "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file: still without its first and last 200 m and without times.",
       ],

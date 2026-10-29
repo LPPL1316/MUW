@@ -797,6 +797,22 @@ parola che «Draw» rifiuterebbe (lettere fuori dalla A–Z, due parole,
 troppe lettere per lo sport), una parola mentre lo sport è «Paddle».
 Da un disegno aperto da un profilo o da «Find friends», «Profile» resta
 chiuso.
+**I totali e le foto** (TASK-324, ADR-0284, chiesti dall'utente il
+2026-10-26; testi **da confermare**). Sotto «Edit profile», e sul profilo
+di un altro sotto il tasto «Follow», tre riquadri affiancati: **«Distance»**,
+i km (o le miglia, «Units») di tutte le corse salvate, anche private
+(scelta dell'utente), con un decimale sotto 100 e interi da lì;
+**«Elev. gain»**, i metri saliti, in metri come nella corsa; **«Likes»**,
+le reazioni lasciate dagli altri sui disegni che chi guarda vede. Follower,
+seguiti e disegni non si ripetono: restano sotto il nome (di un altro) o
+negli elenchi (il proprio). Al posto del titolo «Drawings» due schede,
+**«Drawings» | «Photos»**: «Drawings» è la griglia di sopra; «Photos» le
+foto dei disegni, tre per riga e quadrate, dalla corsa più recente, trenta
+per volta con «Show more»; un tocco apre il disegno sulla mappa come dalla
+griglia. Le foto si chiedono la prima volta che si tocca «Photos» («Loading…»);
+vuota «No photos yet.», sul proprio «No photos yet. Add some to a public
+drawing in My activities.»; non arrivate, il motivo e «Try again». Con
+un'API senza i totali niente riquadri né schede, come prima.
 
 **La figura da cambiare** (TASK-320 parte B, ADR-0280, proposte approvate
 dall'utente il 2026-10-28): nelle stesse due schede, dopo «Start», «Draw

@@ -15,6 +15,8 @@ opened and deleted only by its owner. Deleting the account deletes its runs
 its drawing shows it, and Strava takes it (drawings.py, strava.py). A run
 along a route whose shape the engine turned keeps the turn (TASK-232,
 ADR-0195): the app shows the run turned back, so the drawing reads upright.
+A fix may carry the phone's height (TASK-324, ADR-0284): the API counts the
+metres climbed itself (run_climb.py), for the totals of the profile.
 """
 
 from __future__ import annotations
@@ -72,6 +74,7 @@ from shaperoute_api.insights import Insights
 from shaperoute_api.places import KEY_VARIABLE, Fetch, fetch_json
 from shaperoute_api.recommended import preview
 from shaperoute_api.route_archive import count_run
+from shaperoute_api.run_climb import climb_m
 from shaperoute_api.schemas import (
     MAX_ROUTE_POINTS,
     MAX_TRACK_FIXES,
@@ -111,6 +114,10 @@ PLACE_CACHE_SIZE = 2_000
 ACTIVITIES_FULL = f"You have {MAX_ACTIVITIES} activities: delete one to save another."
 UNKNOWN_ACTIVITY = "No activity with this key."
 BAD_CLOCK = "This run cannot be saved: its times are not those of a clock."
+# Below the Dead Sea and above Everest, with a GPS's error to spare: a
+# height out of these is no place on Earth (TASK-324).
+MIN_ALTITUDE_M = -1_000.0
+MAX_ALTITUDE_M = 10_000.0
 
 LatLon = tuple[float, float]
 Key = Annotated[str, Path(pattern=KEY_PATTERN)]
@@ -128,6 +135,22 @@ def _on_earth(points: Sequence[LatLon]) -> None:
         # Written so that NaN, which compares false with anything, fails.
         if not (-90 <= lat <= 90 and -180 <= lon <= 180):
             raise ValueError("a point is (lat, lon) in degrees, WGS84")
+
+
+class ActivityFixBody(TrackFixBody):
+    """One GPS fix of a run saved: TrackFixBody, with the phone's height
+    (TASK-324). POST /track-scores takes no height: only a run has one."""
+
+    altitude_m: float | None = Field(
+        default=None,
+        ge=MIN_ALTITUDE_M,
+        le=MAX_ALTITUDE_M,
+        allow_inf_nan=False,
+        description="Height above sea level in metres; null when unknown.",
+    )
+    """Missing from an app older than TASK-324: the run has no climb. A
+    height no place on Earth has is refused, and the app sends the run
+    again without its heights."""
 
 
 class PauseBody(BaseModel):
@@ -159,7 +182,7 @@ class ActivityRequestBody(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    track: list[TrackFixBody] = Field(min_length=2, max_length=MAX_TRACK_FIXES)
+    track: list[ActivityFixBody] = Field(min_length=2, max_length=MAX_TRACK_FIXES)
     pauses: list[PauseBody] = Field(default_factory=list, max_length=MAX_PAUSES)
     points: list[LatLon] | None = Field(
         default=None, min_length=2, max_length=MAX_ROUTE_POINTS
@@ -192,7 +215,7 @@ class ActivityRequestBody(BaseModel):
 
     @field_validator("track")
     @classmethod
-    def fixes_on_earth(cls, track: list[TrackFixBody]) -> list[TrackFixBody]:
+    def fixes_on_earth(cls, track: list[ActivityFixBody]) -> list[ActivityFixBody]:
         _on_earth([fix.point for fix in track])
         if not all(math.isfinite(fix.time_ms) for fix in track):
             raise ValueError("a fix has a time, in milliseconds")
@@ -450,6 +473,8 @@ class RecordedRun:
     duration_s: int
     score: int | None
     fidelity: float | None
+    climb_m: int | None = None
+    """Null without the heights of the fixes (TASK-324)."""
 
     @property
     def start(self) -> LatLon:
@@ -492,6 +517,10 @@ def recorded(body: ActivityRequestBody, now: datetime) -> RecordedRun:
         )
         for fix in body.track
     ]
+    # The heights of the fixes, by fix: the cleaning keeps the same objects.
+    heights = {
+        id(point): fix.altitude_m for point, fix in zip(fixes, body.track, strict=True)
+    }
     track = clean_track(fixes)
     if len(track) < 2:
         raise AccountError(
@@ -515,6 +544,14 @@ def recorded(body: ActivityRequestBody, now: datetime) -> RecordedRun:
         end = min(pause.to_ms / 1000, last_s)
         if end > start:
             pauses.append(Pause(start - first_s, end - first_s, pause.auto, pause.pen))
+    climbed = climb_m(
+        [heights[id(p)] for p in track],
+        [False]
+        + [
+            _stopped_between(pauses, _seconds(a) - first_s, _seconds(b) - first_s)
+            for a, b in zip(track, track[1:], strict=False)
+        ],
+    )
     track = [
         TrackPoint(p.lat, p.lon, _seconds(p) - first_s, p.accuracy_m) for p in track
     ]
@@ -544,6 +581,7 @@ def recorded(body: ActivityRequestBody, now: datetime) -> RecordedRun:
         duration_s=round(duration_s),
         score=score,
         fidelity=fidelity,
+        climb_m=climbed,
     )
 
 
@@ -747,10 +785,10 @@ class Activities:
                 "INSERT INTO runs (user_id, key, route, route_similarity, shape,"
                 " word, style, title, track, pauses, started_at, distance_m,"
                 " duration_s, score, fidelity, place, created_at, walks, activity,"
-                " route_rotation_deg, source)"
+                " route_rotation_deg, climb_m, source)"
                 " VALUES (%s, %s, ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s,"
                 " ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-                " %s, %s)"
+                " %s, %s, %s)"
                 f" RETURNING {COLUMNS}",
                 (
                     user_id,
@@ -773,6 +811,7 @@ class Activities:
                     Jsonb([list(walk) for walk in body.walks]),
                     body.activity,
                     body.rotation_deg,
+                    run.climb_m,
                     body.source,
                 ),
             ).fetchone()
