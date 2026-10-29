@@ -367,6 +367,26 @@ dell'utente (l'allenamento in Fitness con la mappa; l'anello Movimento),
 poi la build e l'invio ad Apple. La capability, la build, l'invio e la
 descrizione dello store vogliono il sì dell'utente, ognuno.
 
+File toccati (detti al Coordinatore prima del codice, 2026-10-29), branch
+`feat/TASK-321-b-health-ios` (il nome dato dalla sessione che ha aperto
+B, al posto di `chore/TASK-321-b-ios-health-build`):
+
+```
+apps/mobile/app.json                          (ios.entitlements, NSHealthUpdateUsageDescription)
+apps/mobile/locales/{en,it,de,es,fr}.json     (NSHealthUpdateUsageDescription)
+apps/mobile/react-native.config.js            (le librerie iOS dentro, solo su iOS)
+apps/mobile/src/about/content/{en,it,de,es,fr}.ts  (la sezione della privacy, la data)
+apps/mobile/src/about/{AboutPage,documents}.test.*  (la data nuova)
+apps/mobile/src/health/nativeConfig.test.ts   (nuovo)
+site/privacy/*                                (rifatto con make_privacy.mjs)
+site/tests/privacy.test.mjs                   (la data nuova)
+docs/tasks/TASK-321.md, docs/STATUS.md (righe aggiunte), docs/DECISIONS.md (aggiunta ad ADR-0281)
+```
+
+**La PR resta in bozza** fino al taglio della 1.0.1, che decide il
+Coordinatore: in `main` sposta l'impronta iOS e gli `eas update` da `main`
+non arrivano più alla 1.0.0 (7).
+
 ### C — La build Android con Health Connect
 
 `app.json` (i plugin di `react-native-health-connect` ed

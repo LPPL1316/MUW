@@ -18182,3 +18182,42 @@ entra, perché la libreria vuole la precisione verticale di ogni punto: C lo
 risolve prima di accendere Android (`tasks/TASK-321.md`, «Per C»). Le
 impronte delle build di oggi non si muovono: iOS `83793e26…`, Android
 `e2d33497…`.
+
+## ADR-0281 — aggiunta, parte B: HealthKit nella 1.0.1, le librerie solo su iOS
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-321 parte B). Aggiunta ad ADR-0281, senza numero nuovo.
+
+**Contesto**: B porta nella build iOS quello che A ha lasciato fuori: le
+librerie dentro il linking, la capability, il testo del permesso e la
+privacy. Restano da decidere il modo e i confini.
+
+**Decisione**:
+
+1. **Le tre librerie dell'iPhone collegate solo su iOS**
+   (`platforms: { android: null }` in `react-native.config.js`):
+   `@kingstinct/react-native-healthkit`, `@react-native-healthkit/core` e
+   `react-native-nitro-modules`. Su Android non servono a niente e
+   sposterebbero la build Android; `react-native-health-connect` resta
+   fuori da tutte e due, fino a C.
+2. **Gli entitlements e il testo in `app.json`, senza il plugin della
+   libreria**, come previsto: `com.apple.developer.healthkit` e
+   `…healthkit.access` vuoto (niente cartelle cliniche), niente consegne in
+   background, niente `NSHealthShareUsageDescription`: MuW non legge, e
+   iOS vuole il testo per leggere solo da chi chiede di leggere. Il testo
+   approvato in `app.json` e nelle cinque `locales/*.json`.
+3. **La privacy entra con B**, intera (anche la riga di Health Connect,
+   com'è stata approvata), con la data del giorno; se il taglio della
+   1.0.1 arriva un altro giorno, la data si porta a quel giorno al
+   riallineamento.
+4. **La PR resta in bozza fino al taglio della 1.0.1**: l'impronta iOS
+   passa da `83793e26…` a `fd0cbb43…`, e in `main` gli `eas update` non
+   arriverebbero più alla 1.0.0 (7).
+
+**Conseguenze**: anche l'impronta Android si muove (`e2d33497…` →
+`e9a0bda0…`), solo per la configurazione dell'app: le chiavi `ios` di
+`app.json` contano nell'impronta di tutti e due i telefoni, come le
+impostazioni Android contavano in quella dell'iPhone prima di
+`ANDROID_ONLY` (TASK-294). Tenerla ferma vorrebbe un elenco gemello in
+`fingerprint.config.js`, che è di TASK-294: la scelta è del Coordinatore,
+al taglio.
