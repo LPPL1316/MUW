@@ -330,6 +330,12 @@ dell'utente. Poi l'utente sceglie quali.
 | Post di sole foto | «Add at least one photo.» |
 | Privacy | «If you add a past activity from a file, we keep its track and times like a run recorded with MuW. We do not keep the file.» |
 
+**Parte B approvata dall'utente il 2026-10-29** («Approvo tutto»): i testi
+della parte B (le righe sopra senza «Photos only» e «Add at least one
+photo.», che sono di C) con le traduzioni in italiano, tedesco, francese e
+spagnolo della PR, la riga della privacy nelle cinque lingue e la data
+della privacy **29 ottobre 2026**.
+
 ## Proposte da confermare con l'utente
 
 - Il pulsante in «My activities», con le due scelte (§2).

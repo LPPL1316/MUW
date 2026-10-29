@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10. Oktober 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "28. Oktober 2026";
+const PRIVACY_UPDATED = "29. Oktober 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
