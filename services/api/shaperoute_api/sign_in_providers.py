@@ -51,6 +51,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from shaperoute_api.accounts import (
     ACCOUNT_ERRORS,
     EMAIL_PATTERN,
+    MAX_EMAIL_LENGTH,
     TOO_YOUNG,
     USER_COLUMNS,
     USERNAME_PATTERN,
@@ -348,9 +349,13 @@ class SignInProviders:
         verified = claims.get("email_verified") in (True, "true")
         if not isinstance(subject, str) or not subject or not verified:
             raise wrong
-        if not isinstance(email, str) or not re.match(EMAIL_PATTERN, email.strip()):
+        if not isinstance(email, str):
             raise wrong
-        return Identity(provider, subject, email.strip().lower())
+        email = email.strip().lower()
+        # The limits of POST /accounts, which the users table checks too.
+        if len(email) > MAX_EMAIL_LENGTH or not re.match(EMAIL_PATTERN, email):
+            raise wrong
+        return Identity(provider, subject, email)
 
     def apple_refresh_token(self, code: str) -> str | None:
         """The refresh token of Apple's code; None when Apple does not give

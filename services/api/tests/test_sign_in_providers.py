@@ -276,6 +276,7 @@ def test_a_google_token_of_either_client_gives_its_identity(
         ("apple", id_token("apple", email_verified="false"), NONCE),
         ("apple", id_token("apple", email=LEFT_OUT), NONCE),
         ("apple", id_token("apple", email="not an email"), NONCE),
+        ("apple", id_token("apple", email="a" * 250 + "@x.it"), NONCE),
         ("apple", id_token("apple", kid="unknown-key"), NONCE),
         ("google", id_token("google", email_verified=False), None),
         ("google", id_token("google", email_verified=LEFT_OUT), None),
