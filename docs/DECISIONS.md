@@ -19102,6 +19102,77 @@ for videos is full» e «Help» «or less when our space for videos is full:
 the oldest go first», nelle cinque lingue; la data della privacy è quella
 del merge.
 
+## ADR-0288 — A mano solo sulla mappa: la linea aperta corsa andata e ritorno, «Erase», «Edit the drawing» sulla mappa e mai per le emoji
+
+**Stato**: Attiva · 2026-10-29 · cambia ADR-0245 (la prima linea non si
+chiude più sempre) e ADR-0280 (la tavola di «Draw» è tolta) · TASK-331 ·
+richiesta e scelte dell'utente: «Tutto sulla mappa» (domanda di questa
+sessione) e «non la modifica delle emoji perché non serve a nulla»
+(sessione «Funzione modifica editing nella mappa»); il modo di mandare una
+linea aperta, la soglia di chiusura, «Erase» e le due dita sulla mappa sono
+**deciso dall'agente su delega dell'utente**; i due testi nuovi sono
+approvati dall'utente il 2026-10-29.
+
+**Contesto**: provando sul telefono l'utente non riusciva a fare una linea
+singola: la prima linea diventava sempre una figura chiusa («mi fa un
+cerchio»), sulla mappa (`mapdraw/drawing.ts`) e sulla tavola di «Draw». Il
+contratto vuole un contorno chiuso (`ImageRouteRequest.outline`: almeno 3
+punti distinti, senza incroci); le linee dopo il contorno (`strokes`) il
+motore le corre andata e ritorno (ADR-0074). Il motore sa correre una linea
+aperta anche da sé (`path`, `one_way`), ma solo per i file di forme, non
+per una richiesta dell'API.
+
+**Decisione**:
+
+1. **La prima linea si chiude solo se finisce vicino al suo inizio**, entro
+   il 15% della sua grandezza (`CLOSED_SHARE`), e si può chiudere;
+   altrimenti resta **aperta**, com'è disegnata. Anche una linea che torna
+   all'inizio ma si incrocia in un modo che non si taglia resta aperta: la
+   prima linea non è mai rifiutata.
+2. **Una linea aperta va al motore senza niente di nuovo nel contratto**:
+   un anello minuscolo (un triangolo di lato 0,5% della linea,
+   `START_RING_SHARE`) sul suo primo punto è il contorno, e la linea è un
+   dettaglio appeso lì, corso andata e ritorno; il percorso parte da dove è
+   partito il dito. Provato offline sulle strade di Trento in cache
+   (`out/TASK-331/open_line/`): un arco aperto dà un arco andata e ritorno
+   (somiglianza 0.78, una «W» 0.89), dove chiuso dava la figura chiusa.
+   L'anello non si vede (meno di un millimetro sullo schermo) e «Erase» non
+   lo tocca.
+3. **A mano si disegna solo sulla mappa**: la scelta «Freehand» e la tavola
+   di «Draw» sono tolte. **«Edit the drawing»** mette la figura sulla mappa
+   di «Draw on the map» come disegno a cui aggiungere linee, nel mezzo della
+   partenza di «Draw», lunga quanto il percorso (sulle schede quanto «Draw
+   it near me» sceglierebbe); dal risultato della mappa torna alla figura.
+4. **Le emoji non si modificano**: per una forma del catalogo «Edit the
+   drawing» non c'è (sotto la forma scelta, sul risultato, sulle schede), e
+   sulla mappa una linea su una forma ne prende il posto come prima, mentre
+   «Erase» la toglie intera. Le **immagini pronte** di «Draw» (TASK-280) e
+   le foto contano come immagini, non come emoji: una linea vi si appende e
+   «Edit the drawing» c'è (scelta dell'agente, da correggere se l'utente le
+   intende emoji).
+5. **Sulla mappa**, per renderla più intuitiva: «Draw | Move | Erase»; con
+   «Draw» ed «Erase» due dita spostano e ingrandiscono la mappa (prima non
+   facevano niente); «Erase» toglie la linea toccata (un dettaglio porta via
+   quelli appesi, il contorno tutto) e «Undo» la rimette; la riga sotto dice
+   come chiudere una linea e che le linee dopo si uniscono al disegno.
+6. Il percorso di ogni disegno della mappa si chiama «Drawing», come quello
+   della tavola.
+
+**Alternative scartate**: un campo nuovo `path` in `ImageRouteRequest` per
+la linea aperta, con un percorso da A a B (`one_way`): contratto, API e
+server da aggiornare, e l'app in produzione chiederebbe a un server che non
+lo conosce; si propone a parte se l'utente vuole un percorso che non torna.
+Un contorno «a salsiccia» (la linea e il ritorno accanto): si incrocia sulle
+curve strette e il motore lo corre come una figura chiusa. Lasciare la
+tavola accanto alla mappa: l'utente l'ha esclusa.
+
+**Conseguenze**: niente cambia nel contratto, nell'API, nel motore, nella
+privacy (la riga del TASK-320 vale per ogni disegno della mappa), nelle
+dipendenze e nel nativo. Escono `FreehandBoard`, `FreehandChoice`,
+`useFreehand`, `freehand.ts` e i testi della tavola; le parti utili alla
+mappa vivono in `mapdraw/edit.ts`. `figureLines.ts` dà le linee nella
+cornice del motore e niente per una forma.
+
 ## ADR-0292 — Un video nei post: un file su disco finché altri vedono il post, l'ultima pagina della striscia del Feed, un lettore nativo nella 1.0.2
 
 **Stato**: Proposta · 2026-10-29 · TASK-336. La richiesta e il disegno

@@ -827,21 +827,22 @@ drawing in My activities.»; non arrivate, il motivo e «Try again». Con
 un'API senza i totali niente riquadri né schede, come prima.
 
 **La figura da cambiare** (TASK-320 parte B, ADR-0280, proposte approvate
-dall'utente il 2026-10-28): nelle stesse due schede, dopo «Start», «Draw
-it near me» ed «Export GPX» (che restano dove sono) e prima di «Back to
-the list» o «Back to the profile», il pulsante neutro **«Edit the
-drawing»** apre subito la tavola a mano («Freehand», sopra) con la figura:
-di un percorso di «Explore» la figura chiesta (una forma del catalogo con
-le sue linee, un'immagine col contorno e i dettagli); di un disegno con una
-forma le linee di quella forma; di un disegno senza forma né parola (una
-foto, un'immagine, un disegno a mano: il percorso dice solo il titolo) la
-traccia corsa, raddrizzata e chiusa come la tiene un preferito. «Save»
-lascia il percorso o il disegno come «Draw it near me» e mostra **«Draw»**
-con «Freehand» e la figura cambiata, alla distanza di «Draw it near me»
-(al decimo di km, dentro i limiti dello sport) e dalla partenza di «Draw»;
-niente parte dal telefono finché non si tocca «Draw route». Il pulsante non
-c'è per una parola, un percorso a tema, una corsa senza percorso (libera o
-importata da un'altra app), un post di sole foto, una forma che l'app non
+dall'utente il 2026-10-28; sulla mappa dal TASK-331, ADR-0288): nelle
+stesse due schede, dopo «Start», «Draw it near me» ed «Export GPX» (che
+restano dove sono) e prima di «Back to the list» o «Back to the profile»,
+il pulsante neutro **«Edit the drawing»** mette subito la figura sulla
+mappa di «Draw on the map» (sotto, in «Edit the drawing: la figura sulla
+mappa»): di un percorso di «Explore» il contorno e i dettagli chiesti, se è
+un'immagine; di un disegno senza forma né parola (una foto, un'immagine, un
+disegno a mano: il percorso dice solo il titolo) la traccia corsa,
+raddrizzata e chiusa come la tiene un preferito. Il percorso o il disegno
+si lascia come con «Draw it near me»; la figura è lunga quanto «Draw it
+near me» la sceglierebbe (al decimo di km, dentro i limiti dello sport) e
+sta nel mezzo della partenza di «Draw»; niente parte dal telefono finché
+non si tocca «Draw route». Il pulsante non c'è per una forma del catalogo
+(un'emoji, TASK-331), una parola, un percorso a tema, una corsa senza
+percorso (libera o importata da un'altra app), un post di sole foto, una
+forma che l'app non
 conosce, né con «Paddle». Nessun testo nuovo.
 
 **I commenti di un disegno** (TASK-120, ADR-0175, scelta dell'utente del
@@ -1800,11 +1801,12 @@ la via**, con il segnaposto fermo al centro della mappa.
 
 ## Forma e distanza
 
-Sopra, un interruttore **«Shape | Word | Image | Freehand»** (TASK-057,
-ADR-0053; «Image» dal TASK-073; «Freehand» dal TASK-320, sotto in
-«Disegnare a mano»): il percorso disegna una forma del catalogo, una
-parola, il contorno di un'immagine **oppure** una figura disegnata col
-dito, mai due insieme, e l'interruttore mostra quale. Di partenza «Shape».
+Sopra, un interruttore **«Shape | Word | Image»** (TASK-057, ADR-0053;
+«Image» dal TASK-073; la quarta scelta «Freehand» del TASK-320 è tolta dal
+TASK-331: a mano si disegna solo sulla mappa, sotto in «Disegnare sulla
+mappa»): il percorso disegna una forma del catalogo, una parola **oppure**
+il contorno di un'immagine, mai due insieme, e l'interruttore mostra quale.
+Di partenza «Shape».
 Passare dall'uno all'altro non cancella quanto scritto o scelto negli altri.
 
 La forma si sceglie toccando una tessera, che scrive il nome nel campo, o
@@ -2318,15 +2320,21 @@ inquadrata sul paese intorno (zoom 13): in alto «←», che torna a «Draw»,
 e il nome del luogo se la partenza è un luogo cercato; il segnaposto
 della partenza resta. Sotto la mappa:
 
-- **«Draw | Move»** e **«Undo»** sulla stessa riga. Con «Draw» un dito
-  traccia una linea gialla e la mappa sta ferma; due dita non fanno
-  niente. Con «Move» un dito che parte sulla figura (il suo riquadro, con
-  un margine per il dito) la trascina, altrove sposta la mappa; due dita
-  col punto di mezzo sulla figura la ingrandiscono o la rimpiccioliscono,
-  altrove fanno lo zoom della mappa. Sotto, in grigio: *Draw with one
-  finger. Lines after the first are joined to it.* · *Drag the figure or
-  the map. Two fingers on the figure resize it.* (sempre due righe di
-  posto, così le tessere non saltano).
+- **«Draw | Move | Erase»** (Erase dal TASK-331) e **«Undo»** sulla
+  stessa riga. Con «Draw» un dito traccia una linea gialla; due dita
+  spostano la mappa e ne fanno lo zoom (TASK-331; prima non facevano
+  niente), anche sopra la figura, che non si muove. Con «Move» un dito che
+  parte sulla figura (il suo riquadro, con un margine per il dito) la
+  trascina, altrove sposta la mappa; due dita col punto di mezzo sulla
+  figura la ingrandiscono o la rimpiccioliscono, altrove fanno lo zoom
+  della mappa. Con «Erase» un tocco (o un dito che passa) su una linea la
+  toglie, e due dita spostano la mappa. Sotto, in grigio: *Draw with one
+  finger. End where you started to close it. Two fingers move the map.*
+  senza figura o su una forma del catalogo; *Each new line joins the
+  drawing. Two fingers move the map.* su un disegno o una foto; *Drag the
+  figure or the map. Two fingers on the figure resize it.* con «Move»;
+  *Tap a line to erase it. The outline takes its details with it.* con
+  «Erase» (sempre due righe di posto, così le tessere non saltano).
 - **Una riga di tessere** che scorre di lato: **«+ photo»** (una foto della
   libreria; mentre il motore ne traccia il contorno, *Tracing the
   outline…*, e i suoi rifiuti con le parole di «Image»), le 17 forme del
@@ -2339,23 +2347,37 @@ della partenza resta. Sotto la mappa:
   «Miles»), che segue le due dita mentre la ridimensionano, e **«Draw
   route»**, acceso con una figura.
 
-**La linea a dito**: la prima diventa la figura, chiusa dall'app (l'ultimo
-punto torna al primo); una linea che passa oltre l'inizio si chiude dove
-si incrocia. Le linee dopo la prima sono appese alla figura come «Add a
-detail» dell'immagine: un trattino dritto dal punto più vicino, e il
-percorso le fa andata e ritorno; una linea che torna su se stessa fa un
-anello, come un occhio. Una linea su una forma o su una foto ne prende il
-posto. In rosso, al posto della riga grigia: *This line crosses itself.
-Draw it again without crossing it.* quando non si può chiudere, e *That
-is too much for one route. Undo something, or draw simpler lines.* oltre
-i dettagli che un percorso fa.
+**La linea a dito** (TASK-331, ADR-0288): la prima diventa la figura.
+**Si chiude solo se finisce vicino al suo inizio** (entro il 15% della sua
+grandezza: l'ultimo punto torna al primo, con un lato corto se serve; una
+linea che passa oltre l'inizio si chiude dove si incrocia). **Altrimenti
+resta aperta, com'è stata disegnata**: una linea dritta, un arco, una «C»,
+una «W»; il percorso la fa andata e ritorno, partendo da dove è partito il
+dito, e la distanza è quella di andata e ritorno. Anche una linea che torna
+all'inizio ma non si può chiudere (si incrocia in un modo che non si
+taglia) resta aperta: nessuna prima linea viene rifiutata. Le linee dopo
+la prima sono appese alla figura come «Add a detail» dell'immagine: un
+trattino dritto dal punto più vicino, e il percorso le fa andata e
+ritorno; una linea che torna su se stessa fa un anello, come un occhio. Una
+linea su una **foto o un'immagine pronta** vi si appende allo stesso modo
+(la figura diventa un disegno, dov'è e grande uguale); su una **forma del
+catalogo** (un'emoji, che non si modifica: scelta dell'utente) ne prende
+il posto, come prima. In rosso, al posto della riga grigia: *That is too
+much for one route. Undo something, or draw simpler lines.* oltre i
+dettagli che un percorso fa.
+
+**«Erase»** (TASK-331): un tocco su una linea di un disegno o di una foto
+la toglie; un dettaglio porta via i dettagli appesi a lui, il contorno
+porta via tutto; di una linea aperta toglie la linea e con lei il disegno.
+Una forma del catalogo se ne va intera. «Undo» la rimette.
 
 **Grandezza**: dentro i limiti di «Draw» per lo sport (1–21 km a piedi,
 10–30 in bici): oltre, la figura non cresce e non cala più. Una figura
 cresciuta oltre lo schermo fa allontanare la mappa, che la mostra intera.
 
 **«Undo»** toglie l'ultima figura messa o disegnata (torna quella di
-prima, dov'era), l'ultimo cambio di tessera o l'ultimo tratto appeso.
+prima, dov'era), l'ultimo cambio di tessera, l'ultimo tratto appeso o
+l'ultima linea cancellata.
 Spostare e ridimensionare non si annullano. Spento finché non c'è niente.
 
 **«Draw route»** chiede il percorso della figura dov'è, senza niente di
@@ -2385,7 +2407,40 @@ Testi nuovi, **approvati dall'utente** il 2026-10-13 nelle cinque lingue:
 | + photo | + foto | + Foto | + foto | + photo |
 
 «Draw», «Undo», «Draw route», *Tracing the outline…* e le parole dei
-rifiuti c'erano già.
+rifiuti c'erano già. Il TASK-331 ha tolto *Draw with one finger. Lines
+after the first are joined to it.* e *This line crosses itself. Draw it
+again without crossing it.*, e aggiunto (**approvati dall'utente** il
+2026-10-29 nelle quattro lingue):
+
+| English | Italiano | Deutsch | Español | Français |
+|---|---|---|---|---|
+| Draw with one finger. End where you started to close it. Two fingers move the map. | Disegna con un dito. Finisci dove hai iniziato per chiuderla. Con due dita sposti la mappa. | Zeichne mit einem Finger. Ende, wo du begonnen hast, um sie zu schließen. Zwei Finger bewegen die Karte. | Dibuja con un dedo. Termina donde empezaste para cerrarla. Con dos dedos mueves el mapa. | Dessine avec un doigt. Termine là où tu as commencé pour la fermer. Deux doigts déplacent la carte. |
+| Each new line joins the drawing. Two fingers move the map. | Ogni nuova linea si unisce al disegno. Con due dita sposti la mappa. | Jede neue Linie wird mit der Zeichnung verbunden. Zwei Finger bewegen die Karte. | Cada línea nueva se une al dibujo. Con dos dedos mueves el mapa. | Chaque nouvelle ligne rejoint le dessin. Deux doigts déplacent la carte. |
+
+«Erase» e *Tap a line to erase it. The outline takes its details with it.*
+vengono dalla tavola del TASK-320, già approvati.
+
+### «Edit the drawing»: la figura sulla mappa (TASK-320, TASK-331, ADR-0288)
+
+Dal TASK-331 la tavola bianca di «Draw» non c'è più: **«Edit the
+drawing»** mette la figura sulla mappa di «Draw on the map», come un
+disegno a cui aggiungere linee, nel mezzo della partenza di «Draw» e lunga
+quanto il percorso (sulle schede, la distanza di «Draw it near me»); la
+mappa si inquadra su di lei, l'interruttore è su «Draw», e «Undo» la
+toglie. «←» torna a «Draw». Niente parte dal telefono prima di «Draw
+route», che la chiede come ogni disegno della mappa (la partenza è il suo
+primo punto). Il tasto c'è **sotto il risultato** di un'immagine, di una
+foto o di un disegno (dal risultato di «Draw on the map» torna alla figura
+com'era) e **sulle schede** di un disegno senza forma né parola (sopra, in
+«La figura da cambiare»). **Non c'è mai per una forma del catalogo**
+(un'emoji: sotto la forma scelta in «Draw», sul suo risultato, sulle
+schede), scelta dell'utente del 2026-10-29: «non la modifica delle emoji
+perché non serve a nulla»; né per una parola, né sull'acqua. Il percorso di
+un disegno sulla mappa si chiama «Drawing» («Disegno»), come quello della
+tavola.
+
+Quello che segue è la tavola del TASK-320, tolta dal TASK-331: resta come
+storia delle scelte approvate allora.
 
 ### Disegnare a mano: «Freehand» ed «Edit the drawing» (TASK-320, ADR-0280)
 
