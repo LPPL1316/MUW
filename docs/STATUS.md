@@ -1983,6 +1983,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-338 (punto 8 di ADR-0175; richiesta dell'utente del 2026-10-29): nel foglio dei commenti, un tocco sulla foto di chi ha scritto chiude il foglio e apre il suo profilo, come un nome taggato (il proprio porta alla propria pagina); tenuta premuta dà ancora le scelte del commento, e per VoiceOver è l'azione «{name}'s profile» della riga; un autore appena bloccato non apre niente. Solo app, nessun testo nuovo. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-338.md`.
 - **App e API** — TASK-334 (ADR-0290; richiesta e scelta dell'utente del 2026-10-29, «Sì, così», testi approvati lo stesso giorno): i posti che l'utente tiene sul telefono. «Add a place» in «Settings» → «Offline maps», fino a 10 posti con la zona di 6 km fuori dai 2 GB; il server prepara quelle che non ha (`POST /phone-zones/{network}/places`, 3 al giorno per telefono, 20 per il server, mai mentre disegna percorsi). In `main` dalla #637 (`a623d61c`). Restano il server e l'OTA col sì dell'utente; la pagina non è ancora vista sul telefono. `tasks/TASK-334.md`, «Esito».
 - **App e API** — TASK-333 (ADR-0289 con l'aggiunta della parte D;
   richiesta dell'utente del 2026-10-29, «Aggiungi la possibilità di inviare
