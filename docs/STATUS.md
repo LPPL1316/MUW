@@ -586,6 +586,28 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lontana (ADR-0040) su un grafo piccolo che ignora l'area cade in
   `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
   con la #497, che ha `optimizer.py`.
+
+  **Parte A2** (PR #7 su `LPPL1316/MUW`, aperta il 2026-10-28, branch
+  `feat/TASK-297-a2-first-placement`, sessione cloud; aggiunta ad
+  ADR-0256): il ridisegno rapido dopo un cambio del motore.
+  `optimizer.search` prende `first` (un piazzamento) e `first_scale_m`,
+  facoltativi, e li prova per primi: se il percorso è buono si ferma lì,
+  altrimenti i loro tracciamenti vanno da parte e la ricerca è quella di
+  oggi; senza `first` è quella di oggi tracciamento per tracciamento
+  (impronte prese su `main`). L'archivio tiene il piazzamento della
+  ricerca vicino alla partenza (migrazione `0035_drawn_routes_placement.sql`,
+  numero al merge; `RouteJobs` gli passa il piano, `KeepsPlacements`) e,
+  quando entro 100 m c'è solo una riga buona di un altro motore o di più
+  di 30 giorni, la ridisegna dalla sua partenza con il pianificatore
+  dell'API e `first`, la tiene e la raggiunge dalla partenza dell'utente.
+  Una linea ridisegnata uguale rinfresca la sua riga; i grafi caricati
+  dall'archivio non finiscono più sotto le indicazioni del motore (difetto
+  della parte A). File fuori elenco nella PR: la migrazione, `jobs.py`,
+  `engine.zip`, `API.md`, `DATABASE.md`. Da rifare dopo il merge, con gli
+  altri cambi del motore e dopo Apple: `draw_examples` (anche `--water`),
+  `paddleExamples.json`, `catalogueShapes.json`; le città vere e gli
+  esempi tenuti si misurano sul Mac (`tests/measure_first_placement.py
+  --cache-dir`), qui la rete non c'è.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
@@ -1777,7 +1799,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 ## Completato
 
 - **Strumenti e CI** — TASK-325 (ADR-0285; richiesta dell'utente del 2026-10-28): `LPPL1316/MUW`, copia intera di `rockydalbianco/shaperoute` sotto l'utente (dove l'app GitHub di Claude non si può installare), e lo specchio nei due versi: `tools/mirror_repos.py` e `.github/workflows/mirror.yml` in MUW, a ogni push e ogni dieci minuti, portano avanti i branch indietro, creano i nuovi, cancellano i fusi, non toccano i divergenti (rosso, si unisce a mano). Segreto `MIRROR_TOKEN` (token classico con `repo` e `workflow`) messo dall'utente. PR LPPL1316/MUW#4 (2026-10-29), che unisce anche i due `main` e sposta la migrazione del dislivello di TASK-324 a `0035`. **Aperto**: i minuti di GitHub Actions di MUW sono finiti il 2026-10-28 sera (tetto di spesa o repository pubblico: scelta dell'utente); il server legge ancora `shaperoute`. `tasks/TASK-325.md`.
-- **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0035`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
+- **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0036`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
 - **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
 - **App e API** — TASK-296 (ADR-0255; chiesto dall'utente il 2026-10-23,

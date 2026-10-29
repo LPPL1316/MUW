@@ -287,8 +287,22 @@ giorni:
   `line_key` da `PUT /me/activities/{key}` e dai preferiti, mai per chi),
   poi la più somigliante, poi la più vicina; le altre, fino a tre, sono le
   alternative;
+- **dopo un cambio del motore, o dopo 30 giorni** (TASK-297 parte A2):
+  nessuna riga di questo motore entro 100 m, ma una di prima, buona
+  (somiglianza ≥ 0,90) e con il suo piazzamento. Si ridisegna **dalla sua
+  partenza**, come il pianificatore dell'API (partenze vicine e
+  alternative comprese), con la ricerca che prova per primo quel
+  piazzamento (`first` di `optimizer.search`, `ROUTE_ENGINE.md` §5): lo
+  stesso piazzamento dalla stessa partenza rifà lo stesso percorso in un
+  tracciamento o due (ADR-0257). Se non è più buono, la ricerca continua
+  come senza. Il percorso entra nell'archivio e si raggiunge dalla
+  partenza dell'utente come al punto sopra; nel log `kept route drawn
+  again from 0 m away`, nella riga dei tempi (TASK-289) i tracciamenti
+  della partenza. Se il motore nuovo lì non lo disegna, calcola il
+  pianificatore dalla partenza dell'utente;
 - niente che vada bene: il motore calcola come oggi, e il risultato entra
-  nell'archivio.
+  nell'archivio con il piazzamento della ricerca vicino alla partenza
+  (`jobs.KeepsPlacements`, `put_plan`; `DATABASE.md`, la 0035).
 
 Il contratto non cambia. Nel log: `job …: kept route reached along the
 roads` e `kept route reached from 62 m away`; negli eventi la risposta

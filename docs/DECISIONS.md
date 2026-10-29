@@ -15848,6 +15848,63 @@ scelta di ADR-0086 aspettava il database, che c'è dal 2026-10-02.
 - contare `route_chosen` (A · B · C): 36 eventi in ottobre, e il segnale
   non porta la `line_key`; da aprire quando le scelte saranno di più.
 
+**Aggiunta (TASK-297 parte A2, 2026-10-26)** — il ridisegno rapido del
+punto 6; deciso dall'agente su delega dell'utente:
+
+1. **Il motore**: `optimizer.search` prende `first` (un `Placement`) e
+   `first_scale_m`, facoltativi; `plan_shape` e `plan_route` li passano
+   alla ricerca vicino alla partenza. Il piazzamento si traccia per primo
+   e si riscala come gli altri (fino a 4 tracciamenti); se è buono la
+   ricerca finisce, altrimenti i suoi tracciamenti vanno da parte
+   (`Search.set_aside`) e la ricerca è **quella senza**, con il suo
+   budget e il suo risultato. Il parametro si chiama
+   `first_scale_m` e non `first_scale`, che è già la funzione del modulo
+   chiamata da `search`. Un piazzamento oltre 500 m dalla partenza (della
+   ricerca lontana) è rifiutato.
+2. **Dove sta il piazzamento**: la 0026 non aveva le colonne promesse al
+   punto 1, e il `RouteResult` non lo porta (cambiarlo vorrebbe dire
+   cambiare il contratto del motore e dell'app). Lo porta il `Plan`: una
+   migrazione nuova (`0035_drawn_routes_placement.sql`, cinque colonne
+   `double precision`, tutte o nessuna) e `RouteJobs` che passa il piano
+   allo store che lo vuole (`jobs.KeepsPlacements`,
+   `RouteArchive.put_plan`). Si tiene solo il piazzamento della ricerca
+   **vicino alla partenza** (la partenza o un punto a 250–500 m): non
+   quello di una partenza vicina (ADR-0071), che è di un'altra ricerca, né
+   della ricerca lontana, né sull'acqua.
+3. **Quando si ridisegna**: nessuna riga di questo motore entro 100 m, ma
+   una di prima (altro motore o più di 30 giorni), **buona** (somiglianza
+   ≥ 0,90) e con il piazzamento. Si ridisegna **dalla sua partenza**,
+   dove la misura dice che il piazzamento rifà lo stesso percorso, con il
+   pianificatore dell'API intero (partenze vicine e alternative) e la
+   ricerca della partenza che prova `first`; il percorso entra
+   nell'archivio e si raggiunge dalla partenza dell'utente come ogni riga
+   entro 100 m. Una riga non buona non si ridisegna: il piazzamento non lo
+   sarebbe nemmeno adesso, e costerebbe 1–4 tracciamenti per niente.
+4. **Una linea ridisegnata uguale rinfresca la sua riga** invece di
+   essere scartata: con la parte A un percorso di più di 30 giorni
+   ridisegnato uguale restava vecchio e non rispondeva più. Tiene corse e
+   preferiti.
+5. **Le indicazioni**: quando l'archivio carica una zona e poi non
+   risponde, `RouteJobs` dimentica quel grafo prima del motore; prima le
+   indicazioni del motore si leggevano sul ritaglio dell'archivio (difetto
+   della parte A, che il ridisegno avrebbe reso più frequente).
+
+**Alternative scartate**:
+- scegliere il migliore anche fra i tracciamenti di `first` non buono:
+  riscalato verso la distanza, il cerchio da 5 km della città finta ha
+  dato un tracciato più economico del migliore della ricerca ma sotto 0,60
+  di somiglianza, e il piano che la ricerca dava è stato rifiutato
+  (`test_a_trace_set_aside_never_refuses_the_plan`);
+- ridisegnare dalla partenza dell'utente con il piazzamento della riga
+  spostato fin lì: a 500 m la misura di ADR-0257 dice molto peggio, entro
+  100 m non è misurato;
+- una chiamata al motore che provi solo `first` e, se non va, il
+  pianificatore da capo: quando il piazzamento non è più buono il motore
+  lavora due volte;
+- il piazzamento dentro il `RouteResult` o nel `jsonb` di `result`: il
+  primo cambia il contratto, il secondo mescola il risultato con i conti
+  del motore.
+
 ## ADR-0257 — Il piazzamento imparato da una ricerca vicina: misurato e scartato
 
 **Stato**: Scartata (misurata) · 2026-10-24 · deciso dall'agente su delega
@@ -18224,7 +18281,7 @@ dislivello contano tutte le corse salvate (stile Strava).
    altezza contata, le discese non tolgono; solo le posizioni tenute da
    `clean_track`, e niente salita a cavallo di una pausa chiesta dal
    corridore, come per i metri. Colonna `runs.climb_m` (migrazione
-   `0035_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
+   `0036_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
    totale non le stima.
 3. **`GET /users/{public_id}/photos`**: le foto dei disegni che chi guarda
    vede sul profilo, dalla corsa più recente e, nello stesso disegno, per

@@ -692,7 +692,7 @@ Migrazione `0033_messages.sql` (TASK-319, ADR-0279, `API.md`
   crittografia end-to-end. Nessun endpoint li mostra a chi gestisce MuW:
   di una segnalazione arriva per email solo il messaggio segnalato. Test
   in `test_messages.py`.
-Migrazione `0035_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
+Migrazione `0036_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
 libero in `main` al merge):
 
 - `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati
@@ -722,6 +722,24 @@ Migrazione `0034_run_source.sql` (TASK-312 parte A, ADR-0272,
 - Gli orari di una corsa `file` sono quelli del file e stanno nella riga
   come quelli di ogni corsa: si cancellano con la corsa e con l'account. Il
   file non si tiene. Test in `test_imported_runs.py`.
+Migrazione `0035_drawn_routes_placement.sql` (TASK-297 parte A2, aggiunta
+ad ADR-0256; il numero è il primo libero in `main` al merge: dalla 0030
+alla 0034 sono di altri task):
+
+- In `drawn_routes`, **dove il motore ha messo la forma** del percorso,
+  per ridisegnarlo da lì dopo un cambio del motore (`API.md`, «L'archivio
+  dei percorsi»): `placed_start` (`geography(Point, 4326)`: la partenza
+  chiesta, o il punto a 250–500 m dove la ricerca l'ha spostata),
+  `offset_m` (quanto è lontano), `rotation_deg`, `phase` (dove il percorso
+  entra nella forma, 0–1) e `scale_m` (i metri di un'unità della forma
+  normalizzata). `double precision`: gli stessi numeri ridisegnano lo
+  stesso percorso. Tutte e cinque o nessuna: niente per un percorso da una
+  partenza vicina o da 2 km, sull'acqua, o tenuto prima di questa
+  migrazione (quei percorsi si ridisegnano come prima, dalla partenza).
+- Niente di chi: sono numeri del motore. Una riga ridisegnata uguale
+  (stessa linea, stessa richiesta, stesso motore) non si ripete: prende
+  il `drawn_at` di adesso, il risultato e il piazzamento nuovi, e tiene
+  `runs` e `favorites`.
 
 ## Come si memorizza una traccia
 
