@@ -18337,3 +18337,41 @@ che l'ADR non dice.
 **Conseguenze**: nessun contratto di oggi cambia; `Accounts` ha
 `insert_user` (anche per `POST /accounts`) e `unusable_password_hash`, e
 `open_session` è una funzione del modulo.
+
+## ADR-0286 — «Play» sotto la distanza di «Draw», non più una pagina
+
+**Stato**: Attiva · 2026-10-29 · scelta dell'utente (dove sta e come si
+apre) e deciso dall'agente su delega dell'utente (come è fatto) (TASK-327).
+Cambia ADR-0255 in un punto solo: dove sta «Play» nell'app. Le regole del
+gioco, l'API e le due schede restano quelle di ADR-0255.
+
+**Contesto**: ADR-0255 metteva «Play» fra «Explore» e il profilo: dalla
+parte B di TASK-296 era la quarta pagina da scorrere, con il suo nome in
+alto dopo «Explore». Il 2026-10-29 l'utente:
+«la sezione play non mi piace in cima a fianco ad explore mettila
+direttamente sotto la modifica della distanza». Fra due proposte ha scelto
+una riga che apre il gioco a tutto schermo; scartato il gioco intero
+dentro «Draw», che avrebbe spinto in fondo «NEAR YOU» e le idee.
+
+**Decisione**:
+
+1. **In alto tre nomi**: `"play"` non è più fra le pagine affiancate
+   (`PAGES` in `App.tsx`), e il profilo torna a uno swipe da «Explore».
+2. **La riga** (`PlayRow`) sta in «Draw» subito dopo `RouteChoice`, cioè
+   dopo «DISTANCE», prima di «NEAR YOU»; c'è con ogni sport, solo mentre
+   l'API ha il gioco (`useGameCatalog`, come prima la pagina). È fatta come
+   la riga «Messages» del profilo: «PLAY» piccolo e grigio come le altre
+   etichette di «Draw», sotto «Collect shapes by running», «›» a destra.
+3. **Il gioco sopra l'app** (`PlayOverlay`): lo schermo `"play"` resta uno
+   degli schermi dell'app, ma fuori dalle pagine; quando è lui, il `Pager`
+   non c'è (come per la mappa) e sopra tutto stanno «←», «Play» e
+   `PlayScreen`. «←» torna a «Draw». «See collection» e le notifiche del
+   gioco lo aprono da qualunque pagina, mai sopra una corsa, come prima.
+4. **Il nome resta in `pageTitles.ts`** (`pageTitle("play")`), usato dalla
+   riga per VoiceOver e dal titolo del gioco: un testo solo, «Play», nelle
+   cinque lingue.
+
+**Conseguenze**: tornando da «Play» la pagina «Draw» si ricostruisce
+dall'alto, come tornando dalla mappa: quello che era scritto resta (sta in
+`App.tsx`), la posizione dello scorrimento no. Il `Pager` sa ancora
+aggiungere una pagina dopo l'avvio, anche se oggi nessuna lo fa.
