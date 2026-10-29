@@ -723,6 +723,28 @@ Migrazione `0034_run_source.sql` (TASK-312 parte A, ADR-0272,
   come quelli di ogni corsa: si cancellano con la corsa e con l'account. Il
   file non si tiene. Test in `test_imported_runs.py`.
 
+Migrazione `0036_user_identities.sql` (TASK-322 parte A, ADR-0282,
+`API.md` «Sign in with Apple and Google»; il numero è il primo libero in
+`main` al merge, la 0035 è di TASK-324):
+
+- `user_identities`: un account Apple o Google che è entrato. Chiave
+  `(provider, subject)`: `provider` (`apple` o `google`), `subject` (il
+  `sub` del suo token, che non cambia). `user_id` (`ON DELETE CASCADE`,
+  con un indice per la cancellazione), `email` (quella che il provider
+  garantiva all'ultima entrata: con «Hide My Email» un indirizzo di
+  Apple), `apple_refresh_token` (solo Apple, tenuto solo per revocare
+  l'accesso a `DELETE /me`; `NULL` per Google, e per Apple quando lo
+  scambio del codice non è riuscito), `created_at`. Un account può averne
+  più d'una: Apple e Google con la stessa email aprono lo stesso.
+- **`users` non cambia**: un account nato da Apple o Google ha un
+  `password_hash` vero, l'Argon2id di 32 byte casuali buttati, così resta
+  `NOT NULL` e «Forgot password» (TASK-300) funziona anche per lui; ha
+  `email_confirmed` vero, perché il provider ha verificato l'email.
+- **Stessa email, la sicurezza**: un'identità che si lega a un account con
+  l'email non confermata gli cambia la password con una a caso e cancella
+  le sue sessioni (`sign_in_providers.ProviderAccounts`). Del nome e della
+  foto di Google non si tiene niente. Test in `test_sign_in_providers.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno
