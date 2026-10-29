@@ -1,8 +1,8 @@
 # TASK-331 — Disegnare a mano solo sulla mappa: la linea aperta, «Erase», «Edit the drawing» sulla mappa
 
-**Stato**: In corso — parte A pronta (#632, testi approvati il
-2026-10-29), merge del Coordinatore a CI verde; parte B (gli strumenti di
-disegno) in lavorazione, sotto
+**Stato**: In corso — parte A in `main` (#632, `b5d4e5d3`, 2026-10-29);
+parte B (gli strumenti di disegno) fatta, aspetta il sì sui testi e il
+merge, sotto
 **Fase**: 4 · **Branch**: `feat/TASK-331-draw-on-map-only` (A),
 `feat/TASK-331-b-draw-tools` (B) · **ADR**: ADR-0288
 

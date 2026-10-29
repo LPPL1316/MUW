@@ -216,8 +216,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   per una forma del catalogo; sulla mappa «Erase» e due dita che spostano
   la mappa. Solo JS dell'app, niente dipendenze né nativo. Jest 533/4297
   verdi. I due testi nuovi (`UI.md`) approvati dall'utente il 2026-10-29.
-  **Resta**: il merge del Coordinatore e la prova col dito sull'iPhone con
-  la prossima anteprima.
+  **A in `main`** con la #632 (`b5d4e5d3`, 2026-10-29). **Resta**: la prova
+  col dito sull'iPhone con la prossima anteprima.
   **Parte B, gli strumenti di disegno** (aggiunta ad ADR-0288; richiesta
   dell'utente dello stesso giorno, «fallo più complesso», scelti tutti e
   quattro): branch `feat/TASK-331-b-draw-tools`. Sulla mappa «Draw | Line |
