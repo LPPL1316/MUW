@@ -151,6 +151,12 @@ export const IT: Table = {
   "Offline maps: {size}": "Mappe offline: {size}",
   "Maps download on Wi-Fi and mobile data.":
     "Le mappe si scaricano con il Wi-Fi e con i dati mobili.",
+  "Add a place": "Aggiungi un posto",
+  "Preparing the map…": "Preparo la mappa…",
+  "Trying again later": "Riprovo più tardi",
+  "Up to {count} places.": "Fino a {count} posti.",
+  "Places you add stay on the phone, so shapes there are drawn faster, even without signal.":
+    "I posti che aggiungi restano sul telefono: lì le forme si disegnano più in fretta, anche senza segnale.",
 
   // src/engine/ZoneNotice.tsx
   "Downloading the maps of your area ({size}) so routes work without signal.":

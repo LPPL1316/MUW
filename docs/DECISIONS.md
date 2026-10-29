@@ -18902,6 +18902,93 @@ non crescono da soli, e il database si copia ogni notte.
 - Chi tocca la cancellazione dei messaggi deve ricordare i file su
   disco: la riga sparisce in cascata, il file solo con la pulizia.
 
+## ADR-0290 — I posti che l'utente tiene sul telefono: «Add a place» in «Offline maps», la zona preparata dal server se manca
+
+**Stato**: Attiva · 2026-10-29 · cosa si vede e i limiti (6 km, sport di
+«Settings», 3 posti nuovi al giorno, 10 posti, fuori dai 2 GB) sono
+scelta dell'utente; i punti tecnici sono decisi dall'agente su delega
+dell'utente (TASK-334). Numeri dal coordinatore.
+
+**Contesto**: l'utente il 2026-10-29: «Dai la possibilità ad un utente di
+scaricarsi le zone di suo interesse, così è più veloce la creazione di
+forme». Il telefono scarica da solo la zona intorno a sé e quelle di alcune
+città (ADR-0177, parti B2/B2b ed E), ma solo dove il server ha già una
+zona: nei log del server dal 10 al 25 ottobre più di metà delle richieste
+`/phone-zones` hanno dato `404` (`tasks/TASK-214.md`, «I log dell'API sul
+server»). Lì il percorso lo disegna il server, che scarica la zona alla
+prima richiesta, fino a qualche minuto. Proposta all'utente: in
+«Settings» → «Offline maps» un tasto «Add a place»; si cerca un paese per
+nome, si vede quanto pesa e lo si scarica; se il server non ha la zona la
+prepara lui e il telefono la scarica appena pronta; i posti scelti non si
+cancellano mai da soli. Scelta dell'utente: **«Sì, così»**, con i limiti
+proposti.
+
+**Decisione**:
+
+1. **Cosa vede l'utente** (scelta dell'utente): sotto «Offline maps: …» in
+   «Settings» una riga per posto, «📍 Levico Terme · 6 MB» oppure «⏳
+   Bolzano · Preparing the map…», con «✕» per toglierlo; poi «＋ Add a
+   place», che apre la ricerca dei posti di «Draw» (`PlaceSearch`). Sotto,
+   «Places you add stay on the phone, so shapes there are drawn faster,
+   even without signal.» Al massimo **10 posti**; con 10 la riga sparisce e
+   la nota dice «Up to 10 places.». «Delete» cancella anche i posti.
+2. **Quale zona** (scelta dell'utente): quella con **6 km** intorno al
+   posto (`AROUND_MARGIN_M` della parte E: un percorso a piedi fino a 8 km
+   da lì ci sta), della rete dello sport di «Settings» al momento
+   dell'aggiunta (`foot` con la canoa, che è del server). Il telefono la
+   scarica da `GET /phone-zones` con `margin_m=6000`, come la zona intorno
+   a sé: il file è al massimo 12 MB quando il server ne ha una abbastanza
+   piccola, altrimenti quella che il telefono riceverebbe comunque lì.
+3. **Il server la prepara se manca** (scelta dell'utente):
+   `POST /phone-zones/{network}/places` (`phone_zone_places.py`) risponde
+   `ready` se ha una zona con 6 km intorno al posto, altrimenti la mette in
+   coda e risponde `preparing`. Un thread dell'API prepara **un posto alla
+   volta**: `OsmnxSource.load` (Overpass, come per un percorso), i nomi
+   delle strade a piedi (senza, la zona resta valida), poi il file del
+   telefono. **3 posti nuovi al giorno per telefono** (scelta dell'utente) e
+   **20 in tutto il server** (deciso dall'agente: ogni zona sono due
+   richieste a Overpass di qualche decina di MB, che ne concede circa 1 GB
+   al giorno, oltre a quelle dei percorsi), con `TrafficCap` di ADR-0177
+   che conta posti invece di byte; oltre, `429` fino alla mezzanotte UTC.
+   Un download fallito dà `503` per un'ora. Coda, tetti e fallimenti in
+   memoria, come il tetto del traffico: un riavvio li dimentica e il
+   telefono rimette in coda il suo posto chiedendo di nuovo.
+   **Mai mentre il server disegna percorsi** (chiesto dal coordinatore il
+   2026-10-29 per il giro di notte degli esempi; il modo deciso
+   dall'agente): `draw_examples` è un client dell'API, che chiede e segue i
+   suoi lavori su `/route-jobs` uno dopo l'altro, come un telefono. Un
+   middleware (`watch_route_work`) annota l'ultima richiesta a
+   `/route-jobs`; un posto parte solo dopo **120 s** senza nessuna, e chi è
+   in attesa riguarda ogni 30 s. Così il giro di notte non si divide il
+   server con i posti, e nemmeno un telefono che aspetta il suo percorso.
+   Per un lavoro pesante fuori dall'API (`prefetch_zones`,
+   `phone_zone_api`, che non passano da `/route-jobs`) c'è
+   `data/cache/places.pause`: finché c'è, nessun posto parte.
+4. **Il telefono chiede di nuovo** (deciso dall'agente): ogni 30 s mentre
+   «Settings» è aperta e c'è un posto in preparazione, e a ogni apertura
+   dell'app dopo le zone intorno a sé e prima di quelle in anticipo
+   (`usePhoneZones`). Uno alla volta; senza rete si ferma e riprova alla
+   volta dopo. Dopo `429` o `503` aspetta `Retry-After`. Un server senza
+   l'endpoint (`404`) dà quello che ha lì con `GET /phone-zones`; se non ha
+   niente il posto aspetta un'ora («Trying again later»).
+5. **Le zone dei posti restano** (scelta dell'utente): `ZoneEntry.kept`.
+   Non contano nei 2 GB e non si cancellano oltre il limite; restano tenute
+   anche quando il download intorno al telefono le riscrive. Vanno via solo
+   con «✕» (se nessun altro posto tiene la stessa zona) o con «Delete».
+   Hanno un file parziale loro (`.foot.place.download`): un posto può
+   scaricare mentre scaricano le zone intorno al telefono.
+6. **Il motore non cambia**: una zona tenuta è una zona come le altre, e
+   `zonesForEngine` la dà al motore per una partenza che contiene.
+
+**Conseguenze**: l'app funziona con il server di oggi (i posti dove il
+server ha già la zona si scaricano subito, gli altri aspettano); la
+preparazione delle zone mancanti arriva con l'aggiornamento del server, da
+fare col sì dell'utente. Il telefono può tenere fino a ~120 MB in più dei
+2 GB. `aheadZones.ts` conta ancora le zone tenute nel suo «quasi pieno»
+(si ferma al massimo ~120 MB prima): lasciato com'è. Nessuna dipendenza,
+nessuna migrazione, nessun modulo nativo: l'impronta iOS non cambia, e
+l'app va in OTA.
+
 ## ADR-0291 — La mappa sotto i disegni mentre «Draw» calcola: le foto si scattano durante l'attesa
 
 **Stato**: Attiva · 2026-10-29 · TASK-335. La segnalazione e la scelta sono

@@ -3162,6 +3162,39 @@ codice è in `phone_zone_api.py` e `phone_zones.py`.
   il file di ogni zona in cache, così nessun telefono aspetta che si scriva
   (stime di spazio e tempo in `tasks/TASK-214.md`).
 
+#### I posti tenuti sul telefono (TASK-334, ADR-0290)
+
+Un posto scelto dall'utente in «Settings» → «Offline maps» → «Add a
+place». Il codice è in `phone_zone_places.py`, installato con
+`install_phone_zones`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /phone-zones/{network}/places` | corpo `{"lat": …, "lon": …}`; la zona della rete `foot` o `bike` con 6 km intorno al posto: se il server ce l'ha è pronta, se no la prepara | `200 {"state": "ready"}`: il telefono la scarica da `GET /phone-zones/{network}?lat=&lon=&margin_m=6000`; `202 {"state": "preparing"}`: in coda o in download, da richiedere; `404 http_error` con un'altra rete; `422 invalid_request` con `lat` o `lon` fuori dai limiti; `429 too_many_requests` con `Retry-After` oltre i posti nuovi del giorno; `503 map_data_unavailable` con `Retry-After` dopo un download fallito |
+
+- **La preparazione**: un posto alla volta, il più vecchio prima, in un
+  thread dell'API. La zona si scarica da Overpass come per un percorso
+  (`OsmnxSource.load`), a piedi anche con i nomi delle strade; poi si
+  scrive il file del telefono. Una zona che contiene già il posto (portata
+  intanto da un percorso) non si scarica di nuovo.
+- **I tetti**: 3 posti nuovi al giorno per telefono (scelta dell'utente;
+  l'id in `X-Phone-Id`, come per il tetto del traffico) e 20 in tutto il
+  server; oltre, `429` con `Retry-After` fino alla mezzanotte UTC. Un posto
+  già pronto o già in coda non si conta.
+- **Un download fallito** (Overpass che rifiuta, nessuna strada lì) dà
+  `503` con `Retry-After: 3600`; dopo, il posto si può chiedere di nuovo.
+- **Mai mentre si disegnano percorsi**: un middleware dell'API annota ogni
+  richiesta a `/route-jobs` (`RouteWork`); un posto parte solo dopo 120 s
+  senza nessuna. Il giro di notte di `draw_examples` chiede e segue i suoi
+  lavori uno dopo l'altro, quindi finché gira nessun posto parte; lo
+  stesso mentre un telefono aspetta il suo percorso. Il file
+  `places.pause` nella cartella della cache (`data/cache/places.pause`)
+  ferma tutti i posti finché c'è, per un lavoro pesante fuori dall'API
+  (`prefetch_zones`, `phone_zone_api`). Nel frattempo la risposta è
+  `202 preparing`.
+- **In memoria**: coda, tetti e fallimenti. Un riavvio li dimentica, e il
+  telefono, chiedendo di nuovo, rimette in coda il suo posto.
+
 ## Eventi delle ricerche (TASK-130, ADR-0101)
 
 Ogni ricerca e ogni segnale d'uso lascia un evento in `data/insights/`
