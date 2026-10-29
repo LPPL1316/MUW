@@ -1,6 +1,6 @@
 # TASK-312 — Importare nel Feed attività fatte con altre app, e post di sole foto
 
-**Stato**: In lavorazione · documenti in `main` (#600) · **A fatta** (API, PR #613, branch `feat/TASK-312-a-imported-runs-api`) · poi B (app, file), C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
+**Stato**: In lavorazione · documenti in `main` (#600) · **A in `main`** (API, PR #613) · **B in `main`** (app, file, PR #622, `5d7a5eda`) · poi C (post di sole foto), D (studio Apple Salute), E (studio collegamenti diretti)
 **Fase**: 4 · **Branch**: `docs/TASK-312-import-activities` (documenti),
 `feat/TASK-312-a-imported-runs-api` (A), `feat/TASK-312-b-import-file-app`
 (B), `feat/TASK-312-c-photo-posts` (C), `docs/TASK-312-d-health-study`
@@ -364,8 +364,14 @@ TASK-121.
 - [ ] **B**: in Expo Go un GPX di Strava, un TCX e un FIT di Garmin
       diventano corse di «My activities» con «Imported»; lo stesso file
       due volte resta una corsa; i file sbagliati danno i loro errori.
-- [ ] **B**: impronta iOS `83793e26…` invariata; senza il modulo nativo
-      «From a file» non c'è.
+      *Scelta dell'utente del 2026-10-29 («Merge, provo sulla preview»):
+      merge al verde, e la prova con i suoi file sulla preview di `main`
+      dopo l'aggiornamento del server. Si spunta quando l'utente la
+      conferma su quella preview.*
+- [x] **B**: impronta iOS `83793e26…` invariata; senza il modulo nativo
+      «From a file» non c'è. *Misurata dal Coordinatore su una copia
+      pulita di `72af7335`; i test in `AddPastActivity.test.tsx` e
+      `pickActivityFile.test.ts`.*
 - [ ] **C**: un post di sole foto si pubblica a «Everyone» o
       «Followers», si vede nel Feed con le foto e «Imported», e non entra
       nel concorso.
