@@ -38,7 +38,8 @@ import {
   refreshGameCatalog,
   useGameCatalog,
 } from "./src/game/gameCatalog";
-import { PlayScreen } from "./src/game/PlayScreen";
+import { PlayOverlay } from "./src/game/PlayOverlay";
+import { PlayRow } from "./src/game/PlayRow";
 import { onOpenPlay } from "./src/game/unlocks";
 import {
   loadRecentCities,
@@ -205,12 +206,9 @@ type Screen =
 /** The screens that are pages side by side, left to right, one swipe apart
  * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
  * take the whole screen. «Play», the shape game (TASK-296, ADR-0255), is
- * among them only while the API has the game. */
-function pagesOf(playOn: boolean): readonly Screen[] {
-  return playOn
-    ? ["feed", "choose", "explore", "play", "profile"]
-    : ["feed", "choose", "explore", "profile"];
-}
+ * not among them since 2026-10-29 (the user's choice): it opens from its
+ * row under the distance of «Draw», over the app. */
+const PAGES: readonly Screen[] = ["feed", "choose", "explore", "profile"];
 
 /** A run that ended, shown on the finish screen. */
 type Finished = {
@@ -388,15 +386,16 @@ function MuW() {
     back: backFromDrawing,
     leave: leaveDrawing,
   } = useDrawingsDoor();
-  // «Play» is a page while the API has the shape game (TASK-296): asked
-  // once as the app opens, kept on the phone for the next opening.
+  // «Play» has its row in «Draw» while the API has the shape game
+  // (TASK-296): asked once as the app opens, kept on the phone for the next
+  // opening.
   const playOn = useGameCatalog() !== null;
-  const pages = pagesOf(playOn);
+  const pages = PAGES;
   useEffect(() => {
     void refreshGameCatalog(API_URL);
   }, []);
   if (screenNow === "play" && !playOn) {
-    // The API said it has no game while the page was on screen.
+    // The API said it has no game while the game was on screen.
     setScreen("choose");
   }
   const onPage = pages.includes(screenNow);
@@ -1237,11 +1236,13 @@ function MuW() {
     setScreen("choose");
   }
 
-  // The page on screen; -1 while the map or a run takes the whole screen.
+  // The page on screen; -1 while the map, a run or «Play» takes the whole
+  // screen.
   const page = pages.indexOf(screen);
 
   // The card of a shape unlocked, or its notification, asks for «Play»
-  // (TASK-296): only while a page is on screen, never over a run.
+  // (TASK-296): only while a page is on screen, never over a run; already
+  // open, it stays as it is.
   const latestPage = useRef({ onPage, showPage });
   latestPage.current = { onPage, showPage };
   useEffect(
@@ -1773,6 +1774,9 @@ function MuW() {
                       onEditShape={onEditShape}
                     />
                   </ImageEditsContext.Provider>
+                  {/* The shape game, right under the distance (the user's
+                      choice of 2026-10-29), while the API has it. */}
+                  {playOn && <PlayRow onPress={() => showPage("play")} />}
                   {/* Shapes ready to run near the phone, or in other cities
                       (TASK-306): one opens as a route of «Explore», and «←»
                       comes back here. */}
@@ -1866,22 +1870,6 @@ function MuW() {
                   />
                 ),
             },
-            // The shape game (TASK-296, ADR-0255), while the API has it: it
-            // asks for the account's collection as it opens.
-            ...(playOn
-              ? [
-                  {
-                    title: pageTitle("play"),
-                    lazy: true,
-                    render: () => (
-                      <PlayScreen
-                        active={screen === "play"}
-                        onSignIn={() => showPage("profile")}
-                      />
-                    ),
-                  },
-                ]
-              : []),
             {
               // The account's own profile, after «Explore» (TASK-278): no
               // name in the header, where its circle is.
@@ -1896,6 +1884,14 @@ function MuW() {
               ),
             },
           ]}
+        />
+      )}
+      {/* The shape game (TASK-296, ADR-0255) over the app, opened from its
+          row in «Draw»: «←» goes back there. */}
+      {screen === "play" && (
+        <PlayOverlay
+          onBack={() => setScreen("choose")}
+          onSignIn={() => showPage("profile")}
         />
       )}
       {/* The board to draw a figure by hand (TASK-320), over everything. */}
