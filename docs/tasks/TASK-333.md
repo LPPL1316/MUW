@@ -253,46 +253,58 @@ Oltre ad ADR-0289, scrivendo il codice:
    video scaricato e guardato nella WebView (`<video>` dal file, come il
    motore legge i suoi).
 5. La lista: «📷 Photo», «🎬 Video»; il messaggio scaduto.
-6. «Help» e «Privacy» (sezione «Private messages» allungata, cinque
-   lingue, sito rifatto con `make_privacy.mjs`, data della privacy al
-   giorno del merge).
+6. «Privacy» (sezione «Private messages» allungata, cinque lingue, sito
+   rifatto con `make_privacy.mjs`, data della privacy al giorno del merge).
+   Il paragrafo di «Help» va con la parte C (sotto, «Le scelte tecniche
+   della parte B»).
 
 #### Criteri di accettazione (parte B)
 
-- [ ] In una conversazione aperta il «+» offre «Photo» e «Video»; in una
+- [x] In una conversazione aperta il «+» offre «Photo» e «Video»; in una
       richiesta, o con un'API senza `attachments`, non c'è.
-- [ ] Un video oltre 60 s o 40 MB si ferma sul telefono con il suo testo,
-      prima di caricarlo; sull'iPhone parte ridotto a 960 × 540.
-- [ ] Chi riceve vede la foto e la locandina del video; a tutto schermo
-      il video si guarda, «Share» apre il foglio del telefono.
-- [ ] Un invio fallito resta con «Couldn't send. Tap to try again.».
-- [ ] Il video scaduto dice «This video has expired.»
-- [ ] «Report this message» e «Delete» funzionano anche su un messaggio
+- [x] Un video oltre 60 s o 40 MB si ferma sul telefono con il suo testo,
+      prima di caricarlo; sull'iPhone parte ridotto a 960 × 540 (la
+      riduzione si vede solo sul telefono: da provare).
+- [x] Chi riceve vede la foto e la locandina del video; a tutto schermo
+      il video si guarda, «Share» apre il foglio del telefono (nei test;
+      locandina e lettore nella WebView da provare sul telefono).
+- [x] Un invio fallito resta con «Couldn't send. Tap to try again.».
+- [x] Il video scaduto dice «This video has expired.»
+- [x] «Report this message» e «Delete» funzionano anche su un messaggio
       con un allegato.
-- [ ] Testi approvati (2026-10-29), traduzioni dell'agente; privacy e
-      «Help» nelle cinque lingue e sul sito.
-- [ ] Impronta iOS `83793e26` invariata su una copia pulita.
+- [x] Testi approvati (2026-10-29), traduzioni dell'agente; privacy nelle
+      cinque lingue e sul sito («Help» con la parte C). Un testo nuovo,
+      «Too many photos today. Try again tomorrow.», **da rivedere**.
+- [x] Impronta iOS `83793e26` invariata su una copia pulita (`83793e26fc0d…`,
+      misurata sulla testa con `npm ci`).
 - [ ] Test, lint, typecheck e prettier verdi in CI.
 
 #### File toccati (parte B)
+
+Mandati al Coordinatore prima del codice; rispetto alla proposta, le due
+pagine della WebView stanno in `videoPage.ts` (con il suo test) e la
+locandina in `VideoPoster.tsx`, e c'è `attachmentText.ts`.
 
 ```
 apps/mobile/src/api/messageMedia.ts                      (nuovo)
 apps/mobile/src/api/messageMedia.test.ts                 (nuovo)
 apps/mobile/src/api/messages.ts
 apps/mobile/src/api/messages.test.ts
+apps/mobile/src/messages/attachmentText.ts               (nuovo: «📷 Photo» e VoiceOver)
 apps/mobile/src/messages/AttachButton.tsx                (nuovo: il «+» e il suo foglio)
-apps/mobile/src/messages/pickMessageMedia.ts             (nuovo)
-apps/mobile/src/messages/pickMessageMedia.test.ts        (nuovo)
 apps/mobile/src/messages/AttachmentPreview.tsx           (nuovo)
 apps/mobile/src/messages/MessageMedia.tsx                (nuovo: foto e locandina nel messaggio)
 apps/mobile/src/messages/MediaViewer.tsx                 (nuovo: a tutto schermo, «Share»)
-apps/mobile/src/messages/videoPlayerPage.ts              (nuovo: la pagina della WebView)
-apps/mobile/src/messages/videoPoster.ts                  (nuovo: la locandina nella WebView nascosta)
+apps/mobile/src/messages/pickMessageMedia.ts             (nuovo)
+apps/mobile/src/messages/pickMessageMedia.test.ts        (nuovo)
+apps/mobile/src/messages/videoPage.ts                    (nuovo: le pagine del lettore e della locandina)
+apps/mobile/src/messages/videoPage.test.ts               (nuovo)
+apps/mobile/src/messages/VideoPoster.tsx                 (nuovo: la locandina nella WebView nascosta)
 apps/mobile/src/messages/Attachments.test.tsx            (nuovo)
 apps/mobile/src/messages/ConversationScreen.tsx
-apps/mobile/src/messages/ConversationScreen.test.tsx
+apps/mobile/src/messages/ConversationScreen.test.tsx     (l'indirizzo con ?with=attachments)
 apps/mobile/src/messages/ConversationList.tsx
+apps/mobile/src/messages/Messages.test.tsx               (gli indirizzi con ?with=attachments)
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
 apps/mobile/src/about/content/de.ts, en.ts, es.ts, fr.ts, it.ts
 site/privacy/index.html, de/, es/, fr/, it/              (rifatte da make_privacy.mjs)
@@ -300,6 +312,52 @@ docs/UI.md
 docs/STATUS.md
 docs/tasks/TASK-333.md
 ```
+
+Solo se il merge non è il 29 ottobre (condizione del Coordinatore: la
+data della privacy è quella del merge): `PRIVACY_UPDATED` nei cinque
+`about/content/*.ts`, e con lei `site/tests/privacy.test.mjs`,
+`apps/mobile/src/about/documents.test.ts`,
+`apps/mobile/src/about/AboutPage.test.tsx` e le pagine del sito rifatte.
+Oggi la data è già «29 October 2026» in tutte e cinque le lingue, quindi
+un merge del 29 non cambia niente. Il sito va online solo col sì
+dell'utente; `about/content`, `site/privacy` (anche nella #620) e le
+tabelle `i18n` (anche nella #632): chi entra secondo si riallinea tenendo
+tutte le righe.
+
+#### Le scelte tecniche della parte B (decise dall'agente su delega dell'utente)
+
+1. **Niente sonda nuova per il server vecchio**: il «+» c'è solo quando
+   la pagina della conversazione ha `attachments` e non è `null`. Un
+   server senza la 0038 non ha il campo, e il «+» manca; aggiornato il
+   server, compare alla lettura dopo (ogni 5 s), senza riaprire l'app,
+   mentre una sonda come `GET /feedback` ricorderebbe il `404` fino alla
+   riapertura (ADR-0289, punto 3). Il test: «a server before the
+   attachments shows no «+»». Detto al Coordinatore con l'elenco dei file.
+2. **Caricare e scaricare con `expo-file-system` 57.0.7**, già nella build
+   dello store: `File.upload` col corpo nudo (`BINARY_CONTENT`) e
+   `File.downloadFileAsync` con le intestazioni. Mai usate prima
+   nell'app: da provare sul telefono.
+3. **La foto si guarda dall'indirizzo**, con la chiave e il token (come
+   le foto del Feed, TASK-330); il video si scarica una volta nella cache
+   (`message-<id>.mp4`) e si guarda in una WebView che legge la cache, con
+   i comandi del telefono. «Share» scarica anche la foto.
+4. **La locandina** la fa una WebView nascosta mentre si scrive il testo:
+   il video in un `<video>` muto, un decimo di secondo dentro, disegnato su
+   un `<canvas>`, JPEG al più 720 px; dieci secondi al massimo, poi il
+   video parte senza. Va al server prima del messaggio, così chi riceve la
+   vede subito.
+5. **Dalla galleria senza `allowsEditing`**: così iOS usa il selettore che
+   non chiede permessi; la durata si controlla dopo la scelta, non con il
+   taglio del selettore.
+6. **«Help» con la parte C**: il paragrafo approvato parla anche di
+   «Send to a friend» e dei disegni, che arrivano con C; prima sarebbe
+   sbagliato. La privacy invece entra adesso intera: dice cosa fa il
+   server, che i disegni li tiene già.
+7. **Un testo nuovo, «Too many photos today. Try again tomorrow.»**, per
+   il limite delle 100 foto al giorno, come quello approvato per i video:
+   preso il consigliato, **da rivedere** con l'utente.
+8. **Il testo scritto prima di scegliere** passa sotto la foto, e parte
+   con lei.
 
 ### Parte C — L'app: i disegni
 
@@ -466,3 +524,18 @@ Le parti A, B e C hanno i loro elenchi in «Le parti».
   `test_messages.py`, `test_push.py`, `test_report_email.py`,
   `test_moderation.py` (131 in tutto); `ruff` e `black`; `shared-types`
   (tsc, 100 test), i test jest dei messaggi dell'app (18), prettier.
+- 2026-10-29: **parte A in `main`** con la #634 (02e3fc5c), branch
+  cancellato; la 0038 è sua. Il Coordinatore ha dato il via alla parte B
+  sotto la stessa delega.
+- 2026-10-29 sera: **parte B scritta** (branch
+  `feat/TASK-333-b-attachments-app` da `main` 02e3fc5c). In locale verdi:
+  i test nuovi (`Attachments.test.tsx` 12, `messageMedia.test.ts` 6,
+  `pickMessageMedia.test.ts` 3, `videoPage.test.ts` 3) e la suite jest
+  intera tranne due suite che qui non partono per moduli assenti dai
+  `node_modules` del checkout principale (document picker, Salute), le
+  stesse su `main`; lint, typecheck, prettier. Da provare sul telefono:
+  la riduzione del video, `File.upload`, la locandina e il lettore nella
+  WebView.
+  Sulla copia pulita della testa (`npm ci`): impronta iOS
+  `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata, e verdi anche le
+  due suite che in locale non partivano.

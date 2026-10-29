@@ -1883,6 +1883,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   segnalazione con l'allegato sulla pagina del link, `data/media` in
   `compose.yaml`. Server fermo fino al ritorno dell'utente. Prossima: B
   (l'app, foto e video).
+  A in `main` con la #634 (02e3fc5c). **Parte B scritta il 2026-10-29**
+  (branch `feat/TASK-333-b-attachments-app`, stessa delega): il «+» solo
+  quando la pagina ha `attachments` (niente sonda nuova), «Photo» e
+  «Video» dalla galleria con i controlli di 60 s e 40 MB, l'anteprima con
+  il testo, il file caricato con `File.upload` di `expo-file-system`, la
+  locandina fatta in una WebView nascosta, la foto e il video a tutto
+  schermo con «Share», la lista con «📷 Photo», la privacy nelle cinque
+  lingue e sul sito; «Help» con la parte C. Solo OTA, dopo il server.
+  Prossima: C (i disegni), dopo B; `RoutePanel.tsx` è conteso con TASK-331.
 
 ## Completato
 

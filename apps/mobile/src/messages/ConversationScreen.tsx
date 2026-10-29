@@ -1,10 +1,13 @@
-import type {
-  ConversationState,
-  Message,
-  MessagesPage,
-  Person,
+import {
+  MESSAGE_VIDEO_MAX_BYTES,
+  MESSAGE_VIDEO_MAX_S,
+  type ConversationState,
+  type Message,
+  type MessageAttachment,
+  type MessagesPage,
+  type Person,
 } from "@shaperoute/shared-types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
   AppState,
   FlatList,
@@ -16,8 +19,11 @@ import {
 } from "react-native";
 
 import { sessionEnded } from "../account/messages";
+import type { AccountOutcome } from "../api/accounts";
+import { putPoster, uploadMedia, type Upload } from "../api/messageMedia";
 import {
   acceptConversation,
+  attachableFiles,
   clearConversation,
   fetchMessages,
   messageProblem,
@@ -37,8 +43,15 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { AttachButton, type FileKind } from "./AttachButton";
+import { AttachmentPreview, type DraftStatus } from "./AttachmentPreview";
+import { attachmentLabel } from "./attachmentText";
+import { MediaViewer } from "./MediaViewer";
+import { MessageMedia } from "./MessageMedia";
 import { MessageSheet, type SheetFor } from "./MessageSheet";
 import { useMessagesDoor } from "./messagesDoor";
+import { type MessageFile, pickMessageFile } from "./pickMessageMedia";
+import { VideoPoster } from "./VideoPoster";
 
 /** How often an open conversation is read again: a reply within seconds. */
 export const CONVERSATION_EVERY_MS = 5_000;
@@ -54,7 +67,54 @@ type Held = {
   /** The latest first, as the API gives them. */
   messages: Message[];
   next: string | null;
+  /** What a photo or a video may go as now (TASK-333): none in a request,
+   * none on a server before the attachments. */
+  files: FileKind[];
 };
+
+/** A photo or a video chosen, until its message is sent. */
+type Draft = {
+  file: MessageFile;
+  text: string;
+  status: DraftStatus;
+  /** Kept by the API already: a try again sends the message only. */
+  mediaId: string | null;
+};
+
+/** A video's first picture, made while the text is written: its JPEG in
+ * the cache, or null without one. */
+type Poster = { promise: Promise<string | null>; done: (uri: string | null) => void };
+
+function posterToCome(): Poster {
+  let done: (uri: string | null) => void = () => {};
+  const promise = new Promise<string | null>((resolve) => {
+    done = resolve;
+  });
+  return { promise, done };
+}
+
+/** Why a photo or a video did not go, when the API says more than «try
+ * again»; null for the rest. */
+export function fileProblem(
+  outcome: AccountOutcome<unknown>,
+  kind: FileKind,
+): string | null {
+  if (outcome.kind !== "api_error") {
+    return null;
+  }
+  switch (outcome.code) {
+    case "too_many_requests":
+      return kind === "video"
+        ? t("Too many videos today. Try again tomorrow.")
+        : t("Too many photos today. Try again tomorrow.");
+    // The server's room for videos is full (507).
+    case "http_error":
+      return t("Videos can't be sent right now. Try again later.");
+    case "invalid_request":
+      return outcome.message;
+  }
+  return messageProblem(outcome);
+}
 
 type Shown = Held | { asked: string; problem: string };
 
@@ -66,6 +126,9 @@ type Props = {
   fetchFn?: typeof fetch;
   apiKey?: string | null;
   everyMs?: number;
+  /** The tests' own: the library, and the files sent. */
+  pick?: typeof pickMessageFile;
+  upload?: Upload;
 };
 
 /** The newer messages of `page` over the ones held, the latest first. */
@@ -99,6 +162,8 @@ export function ConversationScreen({
   fetchFn,
   apiKey,
   everyMs = CONVERSATION_EVERY_MS,
+  pick = pickMessageFile,
+  upload,
 }: Props) {
   const { apiUrl, account, recount } = useMessagesDoor();
   const { state, sessionEnded: onSessionEnded } = account;
@@ -111,6 +176,9 @@ export function ConversationScreen({
   const [busy, setBusy] = useState(false);
   const [sheet, setSheet] = useState<SheetFor | null>(null);
   const [loadingOlder, setLoadingOlder] = useState(false);
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [viewing, setViewing] = useState<MessageAttachment | null>(null);
+  const poster = useRef<Poster | null>(null);
   // Asked to read again at once: a message refused may mean a request
   // still waiting, or a conversation gone.
   const [reads, setReads] = useState(0);
@@ -186,6 +254,7 @@ export function ConversationScreen({
           asked,
           person: page.person,
           state: page.state,
+          files: page.state === "open" ? attachableFiles(page) : [],
           messages:
             was !== null && "state" in was && was.asked === asked
               ? merged(was.messages, page.messages)
@@ -284,6 +353,101 @@ export function ConversationScreen({
         recount();
       }
     });
+  }
+
+  function choose(kind: FileKind) {
+    setProblem(null);
+    void pick(kind).then((picked) => {
+      switch (picked.kind) {
+        case "picked":
+          // What was written goes with it.
+          setDraft({ file: picked.file, text, status: "ready", mediaId: null });
+          setText("");
+          poster.current = picked.file.kind === "video" ? posterToCome() : null;
+          return;
+        case "too_long":
+          setProblem(
+            t("This video is longer than {seconds} seconds. Choose a shorter one.", {
+              seconds: MESSAGE_VIDEO_MAX_S,
+            }),
+          );
+          return;
+        case "too_large":
+          setProblem(
+            t("This video is too large: at most {mb} MB. Choose a shorter one.", {
+              mb: MESSAGE_VIDEO_MAX_BYTES / 1_000_000,
+            }),
+          );
+          return;
+        case "pick_failed":
+          setProblem(t("Could not open the picture. Try again."));
+          return;
+        case "cancelled":
+          return;
+      }
+    });
+  }
+
+  function cancelDraft() {
+    setDraft(null);
+    poster.current = null;
+  }
+
+  /** The file first, its first picture if a video, then the message. */
+  async function sendDraft() {
+    if (token === null || apiUrl === null || held === null || draft === null) {
+      return;
+    }
+    const { file } = draft;
+    setDraft({ ...draft, status: "sending" });
+    setProblem(null);
+    const fail = (outcome: AccountOutcome<unknown>, mediaId: string | null) => {
+      setDraft((was) => (was === null ? was : { ...was, status: "failed", mediaId }));
+      setProblem(fileProblem(outcome, file.kind));
+      if (sessionEnded(outcome)) {
+        onSessionEnded(token);
+      }
+    };
+    let mediaId = draft.mediaId;
+    if (mediaId === null) {
+      const kept = await uploadMedia(apiUrl, token, file.uri, file.mimeType, {
+        key: apiKey,
+        upload,
+      });
+      if (kept.kind !== "ok") {
+        fail(kept, null);
+        return;
+      }
+      mediaId = kept.value.id;
+      const first = await poster.current?.promise;
+      if (first) {
+        // Without it the video still goes, as a dark square.
+        await putPoster(apiUrl, token, mediaId, first, { key: apiKey, upload });
+      }
+    }
+    const outcome = await sendMessage(
+      apiUrl,
+      token,
+      person.public_id,
+      draft.text,
+      options,
+      { media_id: mediaId },
+    );
+    if (outcome.kind !== "ok") {
+      if (outcome.kind === "api_error" && outcome.code === "http_error") {
+        // No longer open (a block, a request): the reading says so.
+        setReads((n) => n + 1);
+      }
+      fail(outcome, mediaId);
+      return;
+    }
+    cancelDraft();
+    changed.current += 1;
+    const sent = outcome.value;
+    update((was) => ({
+      ...was,
+      messages: [sent, ...was.messages.filter((m) => m.id !== sent.id)],
+    }));
   }
 
   function accept() {
@@ -406,6 +570,23 @@ export function ConversationScreen({
               renderItem={({ item }) => (
                 <Bubble
                   message={item}
+                  media={
+                    item.attachment && token !== null && apiUrl !== null ? (
+                      <MessageMedia
+                        attachment={item.attachment}
+                        apiUrl={apiUrl}
+                        token={token}
+                        apiKey={apiKey}
+                      />
+                    ) : null
+                  }
+                  onOpen={
+                    item.attachment &&
+                    item.attachment.kind !== "drawing" &&
+                    item.attachment.media_id !== null
+                      ? () => setViewing(item.attachment ?? null)
+                      : null
+                  }
                   onLongPress={() => setSheet({ kind: "message", message: item })}
                 />
               )}
@@ -431,19 +612,50 @@ export function ConversationScreen({
               {problem}
             </Text>
           )}
-          <Foot
-            state={shown.state}
-            name={who.username}
-            text={text}
-            sending={sending}
-            busy={busy}
-            onText={setText}
-            onSend={send}
-            onAccept={accept}
-            onDelete={remove}
-            onBlock={() => setSheet({ kind: "block", person: who })}
-          />
+          {draft !== null && shown.state === "open" ? (
+            <AttachmentPreview
+              file={draft.file}
+              text={draft.text}
+              status={draft.status}
+              onText={(words) =>
+                setDraft((was) => (was === null ? was : { ...was, text: words }))
+              }
+              onSend={() => void sendDraft()}
+              onCancel={cancelDraft}
+            />
+          ) : (
+            <Foot
+              state={shown.state}
+              name={who.username}
+              text={text}
+              sending={sending}
+              busy={busy}
+              files={shown.files}
+              onText={setText}
+              onSend={send}
+              onAttach={choose}
+              onAccept={accept}
+              onDelete={remove}
+              onBlock={() => setSheet({ kind: "block", person: who })}
+            />
+          )}
         </>
+      )}
+      {draft !== null && draft.file.kind === "video" && draft.mediaId === null && (
+        <VideoPoster
+          key={draft.file.uri}
+          videoUri={draft.file.uri}
+          onPoster={(uri) => poster.current?.done(uri)}
+        />
+      )}
+      {viewing !== null && token !== null && apiUrl !== null && (
+        <MediaViewer
+          attachment={viewing}
+          apiUrl={apiUrl}
+          token={token}
+          apiKey={apiKey}
+          onClose={() => setViewing(null)}
+        />
       )}
       {sheet !== null && token !== null && apiUrl !== null && (
         <MessageSheet
@@ -470,11 +682,23 @@ export function ConversationScreen({
 
 function Bubble({
   message,
+  media,
+  onOpen,
   onLongPress,
 }: {
   message: Message;
+  /** What it carries (TASK-333), above its text. */
+  media: ReactNode;
+  /** A photo or a video: opened on the whole screen. */
+  onOpen: (() => void) | null;
   onLongPress: () => void;
 }) {
+  const words = [
+    message.attachment ? attachmentLabel(message.attachment) : "",
+    message.text,
+  ]
+    .filter((part) => part !== "")
+    .join(", ");
   return (
     <Pressable
       style={({ pressed }) => [
@@ -482,11 +706,10 @@ function Bubble({
         message.mine ? styles.mine : styles.theirs,
         pressed && styles.pressed,
       ]}
+      onPress={onOpen ?? undefined}
       onLongPress={onLongPress}
-      accessibilityRole="text"
-      accessibilityLabel={
-        message.mine ? t("You: {text}", { text: message.text }) : message.text
-      }
+      accessibilityRole={onOpen === null ? "text" : "button"}
+      accessibilityLabel={message.mine ? t("You: {text}", { text: words }) : words}
       accessibilityHint={
         message.mine
           ? t("Touch and hold to delete it")
@@ -495,7 +718,8 @@ function Bubble({
       accessibilityActions={[{ name: "longpress" }]}
       onAccessibilityAction={onLongPress}
     >
-      <Text style={styles.bubbleText}>{message.text}</Text>
+      {media}
+      {message.text !== "" && <Text style={styles.bubbleText}>{message.text}</Text>}
     </Pressable>
   );
 }
@@ -506,8 +730,10 @@ type FootProps = {
   text: string;
   sending: boolean;
   busy: boolean;
+  files: FileKind[];
   onText: (text: string) => void;
   onSend: () => void;
+  onAttach: (kind: FileKind) => void;
   onAccept: () => void;
   onDelete: () => void;
   onBlock: () => void;
@@ -520,8 +746,10 @@ function Foot({
   text,
   sending,
   busy,
+  files,
   onText,
   onSend,
+  onAttach,
   onAccept,
   onDelete,
   onBlock,
@@ -561,6 +789,9 @@ function Foot({
         </Text>
       )}
       <View style={styles.box}>
+        {state === "open" && (
+          <AttachButton kinds={files} disabled={sending} onPick={onAttach} />
+        )}
         <TextInput
           style={styles.input}
           value={text}
@@ -653,6 +884,7 @@ const styles = StyleSheet.create({
   // Neutral, both: the yellow belongs to the route.
   bubble: {
     maxWidth: "80%",
+    gap: space.sm,
     paddingHorizontal: space.md,
     paddingVertical: space.sm,
     borderRadius: radius.lg,

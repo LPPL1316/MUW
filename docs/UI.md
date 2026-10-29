@@ -1294,6 +1294,32 @@ l'app, come «Find friends»:
   conversazione; «←» chiude e lascia l'app com'era. Il numero di «Messages»
   si chiede ogni minuto mentre l'app è aperta, come quello delle richieste
   di follow.
+- **Foto e video** (TASK-333 parte B, ADR-0289; testi approvati
+  dall'utente il 2026-10-29). In una conversazione aperta, a sinistra della
+  casella, il tasto tondo **«+»** (VoiceOver «Add a photo, a video or a
+  drawing»), solo se la pagina dell'API dice cosa si può allegare
+  (`attachments`): non in una richiesta, non con un server di prima. Apre
+  un foglio come quello di un messaggio con «Photo», «Video» (manca col
+  server pieno) e «Cancel». Si sceglie dalla galleria, senza permessi; la
+  fotocamera arriva con la build 1.0.1. Un video più lungo di 60 s o più
+  pesante di 40 MB si ferma subito: «This video is longer than 60 seconds.
+  Choose a shorter one.», «This video is too large: at most 40 MB. Choose a
+  shorter one.». Scelto il file, al posto della casella: la miniatura (il
+  video come «▶ 0:24»), «Add a message…» con il testo già scritto, «Cancel»
+  e «Send» («Sending…»); un invio fallito resta, con «Couldn't send. Tap to
+  try again.» in rosso, e le parole dell'API quando dice di più («Too many
+  videos today. Try again tomorrow.», «Videos can't be sent right now. Try
+  again later.»).
+- **Nella conversazione** la foto o il primo fotogramma del video, al più
+  220 punti di lato, sopra il testo; un video senza locandina è un
+  riquadro scuro con ▶ e la durata; uno scaduto dice «This video has
+  expired.». Un disegno, finché non c'è la parte C, è la riga «🗺️ Drawing».
+  Un tocco apre la foto o il video **a tutto schermo** su fondo scuro, con
+  «Share» (il foglio del telefono, da cui si salva) e «Close»; il video si
+  scarica nella cache e si guarda con i comandi del telefono, in una
+  WebView. VoiceOver legge «Photo», «Video, 0:24», «Drawing: {title},
+  {distance}», con il testo dopo. Nella lista l'ultimo messaggio dice
+  «📷 Photo», «🎬 Video», «🗺️ Drawing», o il segno con il testo.
 
 - **Chiusa e riaperta**, l'app è già dentro: la sessione sta nel
   portachiavi del telefono. All'apertura chiede all'API (`GET /me`) se vale
