@@ -390,8 +390,9 @@ tutte le righe.
       GPX», il cuore e «Draw it near me» quando la figura lo permette, e
       «←» torna alla conversazione.
 - [x] «Help» nelle cinque lingue.
-- [ ] Impronta iOS `83793e26` invariata; test, lint, typecheck e
-      prettier verdi in CI.
+- [x] Impronta iOS `83793e26` invariata (`83793e26fc0d…`, copia pulita
+      della testa con `npm ci`).
+- [ ] Test, lint, typecheck e prettier verdi in CI.
 
 #### File toccati (parte C)
 
@@ -578,4 +579,6 @@ Le parti A, B e C hanno i loro elenchi in «Le parti».
   assenti (document picker, Salute); lint, typecheck, prettier. Da provare
   sul telefono: il disegno aperto sulla mappa e il ritorno alla
   conversazione.
-
+  Sulla copia pulita (`npm ci`) della testa 53b53573: impronta iOS
+  `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata, e verdi anche le
+  due suite che in locale non partivano.
