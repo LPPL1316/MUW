@@ -444,6 +444,85 @@ docs/tasks/TASK-333.md
 5. **Una corsa di ore** va in al più 20 000 punti (il limite dei
    preferiti), primo e ultimo tenuti.
 
+### Parte D — Lo spazio pieno toglie i video dei messaggi più vecchi
+
+Due scelte dell'utente del 2026-10-29, prese con TASK-336 (video nei post,
+ADR-0292, #631), cambiano i file di questo task. Le parole esatte, come le
+riporta il task file di TASK-336:
+
+- sul lettore: **«expo-video in 1.0.2»** (la proposta; per i post e per i
+  messaggi);
+- sullo spazio, subito dopo la scelta «Server disk, 15 GB cap»: **«poi
+  appena è pieno cancella i video delle chat degli utenti dal più vecchio
+  al più recente»**.
+
+I due testi nuovi, chiesti all'utente in questa sessione con l'anteprima
+di prima e dopo: risposta **«Approvo così»** (le traduzioni nelle altre
+quattro lingue sono dell'agente):
+
+- privacy, «Private messages»: «… and is deleted 30 days after it was
+  sent, or earlier, oldest first, when our space for videos is full.»
+- «Help», «Messages»: «Videos are kept for 30 days, or less when our space
+  for videos is full: the oldest go first.»
+
+Il via e le condizioni del Coordinatore: parte D di TASK-333 senza un
+numero nuovo, un'aggiunta ad ADR-0289, da `main` dopo la #636.
+
+1. `MessageMedia.free_videos(needed_bytes) -> int`: i video dei messaggi
+   più vecchi smettono di essere tenuti finché c'è posto; prima il
+   database, poi il disco. Un caricamento pieno fa posto così; `507` solo
+   senza più video da togliere. La chiama anche la parte A di TASK-336.
+2. La privacy e «Help» con i due testi, nelle cinque lingue; il sito
+   rifatto (online solo con l'aggiornamento del server); la data della
+   privacy al giorno del merge.
+3. L'aggiunta ad ADR-0289 (punti 8 e 9); `API.md`, `DEPLOY.md` (dove sta
+   `data/media`, da rivedere con l'utente).
+
+#### Criteri di accettazione (parte D)
+
+- [x] Pieno, un video nuovo entra e il video del messaggio più vecchio
+      diventa «This video has expired.» (`410`); gli altri restano.
+- [x] `free_videos` non tocca mai una foto, un caricamento non mandato né
+      un video di un post (la cartella dei post resta com'è, anche dopo il
+      giro di ogni ora); senza più video da togliere, `507`.
+- [x] Fermato a metà, nessuna riga tiene un file che non c'è: con il
+      database giù non cambia niente; fermato dopo il database, il file
+      resta senza riga, nessuno lo legge (`410`) e il giro lo toglie.
+- [x] I due testi approvati nelle cinque lingue e sul sito.
+- [ ] Test verdi in CI.
+
+#### File toccati (parte D)
+
+Approvati dal Coordinatore prima del codice.
+
+```
+services/api/shaperoute_api/message_media.py
+services/api/tests/test_message_media.py
+apps/mobile/src/about/content/de.ts, en.ts, es.ts, fr.ts, it.ts
+apps/mobile/src/about/documents.test.ts                  (solo se la data cambia)
+apps/mobile/src/about/AboutPage.test.tsx                 (solo se la data cambia)
+site/tests/privacy.test.mjs                              (solo se la data cambia)
+site/privacy/index.html, de/, es/, fr/, it/              (rifatte da make_privacy.mjs)
+docs/DECISIONS.md                                        (aggiunta ad ADR-0289, in fondo)
+docs/API.md
+docs/DEPLOY.md
+docs/STATUS.md
+docs/tasks/TASK-333.md
+```
+
+La data della privacy dice già «29 October 2026»: con un merge del 29 non
+cambia; se slitta, cambiano `PRIVACY_UPDATED` e i tre test.
+
+### Parte E — Il lettore dei video con expo-video (al taglio della 1.0.2)
+
+Con la build 1.0.2 (scelta dell'utente «expo-video in 1.0.2», ADR-0289
+aggiunta della parte D, punto 3): i video dei messaggi si guardano con
+`expo-video`, come quelli dei post di TASK-336, e il lettore nella WebView
+(`MediaViewer.tsx`, `videoPage.ts` per il lettore) esce da `main` nello
+stesso cambio che collega il modulo. Un lettore solo (Coordinatore). La
+locandina fatta nella WebView resta finché non serve altro. File e criteri
+si scrivono quando il Coordinatore fissa il taglio.
+
 ### Dopo, col sì dell'utente
 
 - Il server (migrazione, `data/media`, spazio misurato con `df -h`
@@ -582,3 +661,9 @@ Le parti A, B e C hanno i loro elenchi in «Le parti».
   Sulla copia pulita (`npm ci`) della testa 53b53573: impronta iOS
   `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata, e verdi anche le
   due suite che in locale non partivano.
+- 2026-10-29: **parte C in `main`** con la #636 (2d6b8b69).
+- 2026-10-29 notte: **parte D scritta** (branch `feat/TASK-333-d-free-videos`
+  da `main` 2d6b8b69), col via del Coordinatore e i testi approvati
+  dall'utente. In locale verdi: i tre test nuovi di `test_message_media.py`
+  e i vicini (67), `ruff`, `black`.
+

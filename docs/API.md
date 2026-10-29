@@ -2648,9 +2648,13 @@ post, ADR-0292); tipi `MessageAttachmentRequest`, `MessageDrawing`,
 - **I limiti**: 10 video e 100 foto al giorno per account, poi `429
   too_many_requests` «Too many videos today: try again tomorrow.» con
   `Retry-After`; il server tiene al più `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`
-  (10) di foto e video: sopra, `507 http_error` «Videos can't be sent
-  right now: try again later.» per i video, e le foto fino a un decimo in
-  più.
+  (10) di foto e video. **Pieno**, un caricamento nuovo fa posto togliendo
+  i video dei messaggi più vecchi (`free_videos`, scelta dell'utente del
+  2026-10-29, ADR-0289 aggiunta della parte D), che da lì sono `expired`
+  (`410`); le foto vanno fino a un decimo in più. `507 http_error`
+  «Videos can't be sent right now: try again later.» solo quando non resta
+  un video di un messaggio da togliere. Mai una foto, un caricamento non
+  mandato o un video di un post.
 - **Chi legge un file**: chi l'ha caricato, e l'altro della conversazione
   del suo messaggio finché vede quel messaggio (non tolto dalla sua vista,
   non nascosto da una segnalazione) e nessun blocco li separa; per tutti

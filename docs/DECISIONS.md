@@ -18791,3 +18791,50 @@ non crescono da soli, e il database si copia ogni notte.
   Videos»: li cambia l'utente, prima dell'OTA `production`.
 - Chi tocca la cancellazione dei messaggi deve ricordare i file su
   disco: la riga sparisce in cascata, il file solo con la pulizia.
+
+## ADR-0289 — aggiunta, parte D: lo spazio pieno toglie i video dei messaggi più vecchi; il lettore è expo-video dalla 1.0.2
+
+**Stato**: Attiva · 2026-10-29 · le due regole sono **scelte dell'utente**
+del 2026-10-29, prese con TASK-336 (ADR-0292): «appena è pieno cancella i
+video delle chat degli utenti dal più vecchio al più recente» e «expo-video
+in 1.0.2». La frase nuova della privacy e quella di «Help» le ha
+**approvate l'utente** («Approvo così»). Il come è deciso dall'agente su
+delega dell'utente (TASK-333 parte D). Aggiunta ad ADR-0289, senza numero
+nuovo (Coordinatore).
+
+**Contesto**: il punto 8 diceva che sopra il tetto i video nuovi
+aspettano (`507`); il punto 9 e l'alternativa «`expo-video` scartata»
+volevano il video nella WebView. I video dei post (TASK-336) condividono
+lo spazio sul disco del server, con il loro tetto di 15 GB.
+
+**Decisione**:
+
+1. **Punto 8, cambiato**: quando un video nuovo non ci sta, si tolgono i
+   video dei messaggi più vecchi finché ci sta (`MessageMedia.free_videos`,
+   in ordine di `messages.created_at`). Al loro posto il messaggio dice
+   «This video has expired.», come dopo i 30 giorni. Mai una foto, mai un
+   caricamento non ancora mandato, mai un video di un post: quelli stanno
+   in un'altra tabella e in un'altra cartella. `507` resta solo quando non
+   c'è più un video di un messaggio da togliere. La parte A di TASK-336
+   chiama la stessa funzione per i video dei post: conta le due tabelle e
+   decide lei quando lo spazio insieme è pieno.
+2. **Coerenza**: il database lo dice prima, in un solo `UPDATE … RETURNING`
+   che sceglie i più vecchi con una somma progressiva; poi i file lasciano
+   il disco. Un processo fermato fra le due cose lascia file che nessuna
+   riga tiene, e li toglie il giro di ogni ora; una riga non tiene mai un
+   file che non c'è più. Due caricamenti insieme non tolgono due volte lo
+   stesso video: l'`UPDATE` rilegge `stored`.
+3. **Punto 9, cambiato**: dalla build 1.0.2 i video dei messaggi si
+   guardano con `expo-video`, come quelli dei post, e la WebView del
+   lettore esce da `main` nello stesso cambio che collega il modulo (parte
+   E, al taglio della 1.0.2; un lettore solo, Coordinatore). Fino ad
+   allora, nella 1.0 e nella 1.0.1, la WebView di #635. L'alternativa
+   «`expo-video` scartata» vale solo per le build di prima.
+4. **Il disco**: `data/media` sta su `/`, non sul Volume (`DEPLOY.md`,
+   «Foto e video dei messaggi»); la scelta definitiva la fa l'utente
+   quando si aggiorna il server.
+
+**Conseguenze**: la privacy dice «or earlier, oldest first, when our space
+for videos is full» e «Help» «or less when our space for videos is full:
+the oldest go first», nelle cinque lingue; la data della privacy è quella
+del merge.
