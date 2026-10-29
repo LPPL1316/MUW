@@ -57,6 +57,7 @@ from shaperoute_api.contact import install_contact
 from shaperoute_api.contact_people import install_contact_people
 from shaperoute_api.contests import install_contests
 from shaperoute_api.drawing_photos import install_drawing_photos
+from shaperoute_api.drawing_search import install_drawing_search
 from shaperoute_api.drawings import install_drawings
 from shaperoute_api.errors import error_of
 from shaperoute_api.favorites import install_favorites
@@ -370,6 +371,9 @@ def create_app(
     # The drawings the members publish, read by whoever is signed in
     # (TASK-118); it needs a token.
     install_feed(app)
+    # The search of the drawings from the lens of «Feed» (TASK-344); it
+    # needs a token.
+    install_drawing_search(app)
     # Blocking and reporting (TASK-121); they need a token.
     install_moderation(app)
     # Private messages, with message requests (TASK-319); after the blocks,
