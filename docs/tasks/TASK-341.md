@@ -91,6 +91,7 @@ services/api/tests/test_badges.py                (nuovo)
 services/api/tests/test_profiles.py
 packages/shared-types/src/index.ts
 packages/shared-types/fixtures/public-profile.json
+packages/shared-types/test/accounts.test.ts
 apps/mobile/src/profile/BadgeRow.tsx             (nuovo)
 apps/mobile/src/profile/BadgeRow.test.tsx        (nuovo)
 apps/mobile/src/profile/ProfileHeader.tsx
