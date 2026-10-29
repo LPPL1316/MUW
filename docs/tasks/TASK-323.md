@@ -258,8 +258,9 @@ File: `services/route-engine/route_engine/swim_turns.py`,
 
 Scritta nella stessa sessione cloud di A1, su richiesta dell'utente («Prima
 A2», alla domanda su B), branch `feat/TASK-323-a2-swim-turns` partito da
-A1: va riallineato a `main` quando A1 entra. «File toccati» mandati al
-Coordinatore prima del codice. Aggiunta ad ADR-0283.
+A1, poi allineato a `main` dopo che A1 c'è entrata (rockydalbianco/shaperoute#640).
+«File toccati» mandati al Coordinatore prima del codice. Aggiunta ad
+ADR-0283.
 
 - `swim_turns.py`: le curve (oltre 45°, guardate 15 m prima e dopo), con
   punto, metri dalla partenza, verso, angolo e giro; `with_turns` mette nel
