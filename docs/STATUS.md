@@ -178,6 +178,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   corse registrate dall'app; nell'app una fila sotto il nome accanto a
   «Winner». Nessuna migrazione. Testi da approvare. File
   `tasks/TASK-341.md`.
+- **TASK-345 — Calorie e battito nei post del Feed** (ADR-0298;
+  richiesta dell'utente del 2026-10-29, «Yes, A and B»; numeri dal
+  Coordinatore). Branch `docs/TASK-345-heart-calories`: i documenti. Poi
+  A (le calorie sulla card dalla distanza, solo app), B (il battito dai
+  file importati, «Show heart rate» acceso e nascondibile: scelta
+  dell'utente «On, publisher can hide»; testi e privacy col suo sì) e C
+  (lettura da Apple Salute / Health Connect, una sola modifica nativa con
+  TASK-321 B). `tasks/TASK-345.md`.
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno
   proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
   approvata con «Yes, write it up»; numeri dal Coordinatore). Branch

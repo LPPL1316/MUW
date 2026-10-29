@@ -19646,3 +19646,47 @@ lo chiede.
 **Conseguenze**: lo stesso profilo può mostrare badge diversi a chi segue
 e a chi no. Un disegno cancellato può togliere un badge. Aggiungere un
 badge è una riga in `badges.py` più un testo nell'app.
+
+## ADR-0298 — Calorie e battito nei post del Feed: le calorie contate dalla distanza, il battito riassunto, acceso e nascondibile da chi pubblica
+
+**Stato**: Proposta · 2026-10-29 · TASK-345. Chi vede il battito è una
+scelta dell'utente («On, publisher can hide»); il resto deciso dall'agente
+su delega dell'utente.
+
+**Contesto**: l'utente ha chiesto calorie e battito nei post del Feed. Le
+calorie l'app le stima solo durante la corsa (`kcal()`, 70 kg fissi,
+ADR-0219) e non le salva; il battito non c'è da nessuna parte: il telefono
+non lo misura, TASK-321 scrive in Salute ma non legge, l'importazione lo
+scarta.
+
+**Decisione**:
+
+1. **Le calorie si contano sulla card dalla distanza** del post, con la
+   stessa `kcal()`. Con il peso fisso dipendono solo dai metri: salvarle
+   sul server non aggiungerebbe niente. Solo per la corsa, come ADR-0219.
+2. **Del battito si tiene solo il riassunto**, medio e massimo in bpm
+   interi (`heart_avg_bpm`, `heart_max_bpm` in `runs`), mai i punti. Un
+   valore fuori dai 30–230 bpm è scartato dall'app e rifiutato dall'API.
+3. **Due fonti**: i file importati (GPX, TCX, FIT; senza niente di
+   nativo) e la lettura da Apple Salute / Health Connect nella finestra
+   della corsa (permesso di lettura: una sola modifica nativa insieme a
+   TASK-321 B, nella 1.0.1 se arriva prima del taglio, altrimenti nella
+   1.0.2).
+4. **Visibile e nascondibile** (scelta dell'utente): `heart_shown`, vero
+   all'inizio; nel modulo di pubblicazione «Show heart rate» lo spegne. Il
+   server non dà il battito agli altri quando è spento; all'autore sempre.
+5. **Un dato di salute usato solo lì**: il battito si mostra nel post e in
+   «My activities», nient'altro: né pubblicità, né classifiche, né il
+   gioco, né le email. La privacy lo dice nelle cinque lingue, con il sì
+   dell'utente.
+
+**Alternative scartate**: salvare le calorie sul server (lo stesso numero,
+una migrazione in più); tenere tutti i punti del battito (più dati di
+salute del necessario per un numero sulla card); il battito spento
+all'inizio (consiglio del Coordinatore, non scelto dall'utente); il
+sensore Bluetooth (dipendenza nuova, task a parte).
+
+**Conseguenze**: la parte A è solo app e va con un OTA. La B aggiunge tre
+colonne a `runs`, campi a `FeedPost` e al `PUT` della corsa, testi nuovi e
+la riga della privacy. La C cambia `app.config.ts` e il testo del permesso
+di Salute: solo dentro una build nativa.
