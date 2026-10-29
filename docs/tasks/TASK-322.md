@@ -1,7 +1,8 @@
 # TASK-322 — Entrare e iscriversi con Apple e con Google
 
-**Stato**: Todo (tutte le scelte approvate dall'utente il 2026-10-28:
-prodotto, pacchetti, testi, privacy e termini; il codice parte con A)
+**Stato**: In lavorazione (tutte le scelte approvate dall'utente il
+2026-10-28: prodotto, pacchetti, testi, privacy e termini). A fatta il
+2026-10-29 (PR #621); prossima B, l'app
 **Fase**: 4 · **Branch**: `docs/TASK-321-sign-in-apple-google` (i
 documenti), poi `feat/TASK-322-a-sign-in-api`, `feat/TASK-322-b-sign-in-app`
 · **ADR**: ADR-0282
@@ -326,4 +327,26 @@ package-lock.json
 
 ## Esito
 
-*(si compila a fine task)*
+*(il task si chiude con la parte C)*
+
+**Parte A** (2026-10-29, PR #621, branch `feat/TASK-322-a-sign-in-api`):
+fatta come in «Come», con la migrazione `0036_user_identities.sql` (la
+0035 è di TASK-324; numero e file approvati dal Coordinatore). File in
+più rispetto ai previsti: `schemas.py` (i due codici `new_account` e
+`provider_unavailable`), le fixture e un test nuovi in `shared-types`,
+un'aggiunta ad ADR-0282 in `DECISIONS.md` per le scelte del codice
+(l'account nuovo ha l'email già confermata, il codice di Apple si scambia
+solo quando serve, la cache delle chiavi), e
+`apps/mobile/assets/engine/engine.zip`, ricostruito con
+`python tools/phone_engine/phone_engine.py engine`: il telefono porta una
+copia di `schemas.py` e i due codici la cambiano (dentro lo zip cambia solo
+quel file, come per TASK-312 A; detto al Coordinatore, che l'aveva
+previsto). Dipendenza nuova: `PyJWT[crypto]>=2.10,<3` solo in
+`services/api/pyproject.toml` (in locale la 2.15.1, con `cryptography`
+50), approvata dall'utente il 2026-10-28 («Sì, i tre pacchetti vanno
+bene: … PyJWT[crypto] nell'API»). Test:
+`test_sign_in_providers.py` (56, chiavi generate nei test, niente rete) e
+`node --test` di `shared-types`. I criteri dell'API sono soddisfatti; quelli
+dell'app e dell'impronta restano a B e C. Il server non ha ancora né la
+migrazione né le chiavi: senza, `GET /session/providers` è vuoto e l'app non
+mostra i tasti.
