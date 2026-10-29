@@ -1320,6 +1320,21 @@ l'app, come «Find friends»:
   WebView. VoiceOver legge «Photo», «Video, 0:24», «Drawing: {title},
   {distance}», con il testo dopo. Nella lista l'ultimo messaggio dice
   «📷 Photo», «🎬 Video», «🗺️ Drawing», o il segno con il testo.
+- **I disegni** (TASK-333 parte C; testi approvati il 2026-10-29, Help
+  compreso). Si mandano in due modi. **«Send to a friend»**: sulla mappa
+  è il tasto tondo «✉︎» sotto il cuore (VoiceOver «Send to a friend»), per
+  il risultato di «Draw», un percorso di «Explore», uno a tema o un
+  preferito; sulle schede di «My activities» e di un disegno del Feed o di
+  un profilo è una riga come le altre. Apre «Send to…»: chi ti scrive,
+  poi chi segui, e «Search people»; un tocco manda il disegno, «Sent to
+  {name}.», o «Photos, videos and drawings can be sent once {name} accepts
+  your message.» a chi non ha accettato. **Nella conversazione** il «+» ha
+  anche «Drawing»: «Send a drawing» con «Favorites» e «My activities»; un
+  tocco lo manda subito, con il testo scritto. Una propria corsa parte
+  senza i primi e gli ultimi 200 m. Nella conversazione il disegno è la sua
+  linea (`RouteThumb`), «🗺️ Drawing» e «Star · 5.1 km»; un tocco lo apre
+  sulla mappa come un preferito, con «Start», «Export GPX», il cuore e
+  «Draw it near me», e «Back to the list» torna alla conversazione.
 
 - **Chiusa e riaperta**, l'app è già dentro: la sessione sta nel
   portachiavi del telefono. All'apertura chiede all'API (`GET /me`) se vale

@@ -13,18 +13,20 @@ import {
 } from "../theme/tokens";
 
 export type FileKind = "photo" | "video";
+export type AttachKind = FileKind | "drawing";
 
 type Props = {
   /** What the conversation's page offers now; no «+» without any. */
-  kinds: readonly FileKind[];
+  kinds: readonly AttachKind[];
   disabled: boolean;
-  onPick: (kind: FileKind) => void;
+  onPick: (kind: AttachKind) => void;
 };
 
 /**
  * The «+» beside the box of an open conversation (TASK-333): a sheet with
  * «Photo» and «Video» from the library, as the page of the conversation
- * offers them (a full server leaves the video out), and «Cancel».
+ * offers them (a full server leaves the video out), «Drawing» (a favorite
+ * or a run of one's own), and «Cancel».
  */
 export function AttachButton({ kinds, disabled, onPick }: Props) {
   const [open, setOpen] = useState(false);
@@ -32,7 +34,7 @@ export function AttachButton({ kinds, disabled, onPick }: Props) {
     return null;
   }
 
-  function pick(kind: FileKind) {
+  function pick(kind: AttachKind) {
     setOpen(false);
     onPick(kind);
   }
@@ -70,6 +72,9 @@ export function AttachButton({ kinds, disabled, onPick }: Props) {
             )}
             {kinds.includes("video") && (
               <Choice label={t("Video")} onPress={() => pick("video")} />
+            )}
+            {kinds.includes("drawing") && (
+              <Choice label={t("Drawing")} onPress={() => pick("drawing")} />
             )}
             <Choice label={t("Cancel")} onPress={() => setOpen(false)} />
           </Sheet>

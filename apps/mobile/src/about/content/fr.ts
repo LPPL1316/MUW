@@ -89,6 +89,7 @@ const help: AboutDocument = {
         "«Message» sur le profil d'un membre lui écrit. S'il te suit, ton message arrive dans ses «Messages» ; sinon, il arrive comme demande, et tu peux envoyer un seul message tant qu'elle n'est pas acceptée.",
         "Tes conversations sont dans «Profil», «Messages», avec «Demandes de message» en haut. Accepte une demande pour vous écrire, supprime-la (la personne qui a écrit n'est pas prévenue) ou bloque-la.",
         "Maintiens appuyé un message pour supprimer le tien, pour vous deux, ou pour signaler un message reçu. Personne ne voit si tu as lu un message. Avec le push allumé, MuW te prévient de chaque message et de chaque demande.",
+        "Dans une conversation, touche + pour envoyer une photo, une vidéo de 60 secondes au maximum ou un dessin, ou touche Envoyer à des amis sur un parcours ou un dessin. Tu peux les envoyer quand l'autre personne a accepté ton message. Les vidéos sont gardées 30 jours. Touche un dessin pour l'ouvrir sur la carte, le lancer, exporter son GPX ou le garder dans tes favoris.",
       ],
     },
     {

@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { type ActivityDetail, isImported } from "../api/activities";
 import { t } from "../i18n";
 import { ImportedMark } from "../imports/ImportedMark";
+import { drawingOfRun } from "../messages/messageDrawing";
+import { SendDrawingButton } from "../messages/SendDrawingButton";
 import { postOfActivity } from "../share/postRun";
 import { SharePostButton } from "../share/SharePost";
 import { PublicRow } from "../social/PublicRow";
@@ -35,7 +37,8 @@ type Props = {
  * connected, «Send to Strava» or «View on Strava» (TASK-187). «Share» makes
  * its post, for Instagram and Strava (TASK-231). A run added from a file of
  * another app says «Imported», and has no «Send to Strava» (TASK-312): it
- * often comes from Strava itself.
+ * often comes from Strava itself. «Send to a friend» puts it in a message
+ * (TASK-333), cut at its ends as the Feed shows it.
  */
 export function ActivityCard({ activity, onList, onDelete }: Props) {
   // «Delete» asks first, on the card itself.
@@ -64,6 +67,13 @@ export function ActivityCard({ activity, onList, onDelete }: Props) {
       {!confirming && <SharePostButton makeRun={() => postOfActivity(activity)} />}
       {!confirming && <PublicRow activityKey={activity.id} />}
       {!confirming && !imported && <StravaActivityRow activity={activity} />}
+      {!confirming && (
+        <SendDrawingButton
+          drawing={() => drawingOfRun(activity)}
+          style={styles.button}
+          textStyle={styles.buttonText}
+        />
+      )}
       {confirming ? (
         <>
           <Text style={styles.confirmText}>

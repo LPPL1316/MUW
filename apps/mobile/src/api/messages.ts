@@ -8,6 +8,7 @@ import {
   type ConversationsUnread,
   type Message,
   type MessageAttachmentRequest,
+  type MessageDrawing,
   type MessageRequest,
   type MessagesPage,
 } from "@shaperoute/shared-types";
@@ -130,6 +131,32 @@ export function sendMessage(
     { method: "POST", body, token },
     isMessage,
     options,
+  );
+}
+
+/** GET /messages/{id}/drawing: the drawing of a message, whole (TASK-333). */
+export function fetchMessageDrawing(
+  baseUrl: string,
+  token: string,
+  messageId: string,
+  options: Options = {},
+): Promise<AccountOutcome<MessageDrawing>> {
+  return ask(
+    baseUrl,
+    `/messages/${encodeURIComponent(messageId)}/drawing`,
+    { method: "GET", token },
+    isMessageDrawing,
+    options,
+  );
+}
+
+export function isMessageDrawing(body: unknown): body is MessageDrawing {
+  return (
+    isRecord(body) &&
+    Array.isArray(body.points) &&
+    body.points.length >= 2 &&
+    typeof body.distance_m === "number" &&
+    typeof body.route_m === "number"
   );
 }
 

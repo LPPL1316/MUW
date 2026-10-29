@@ -10,7 +10,7 @@ import {
 
 import type { Account } from "../account/useAccount";
 import { sessionEnded } from "../account/messages";
-import { type Favorite, fetchFavorite } from "../api/favorites";
+import { type Favorite, type FavoriteDetail, fetchFavorite } from "../api/favorites";
 import { t, tLater } from "../i18n";
 import { type Keepable, type OpenedFavorite, openedFavorite } from "./favoriteRoute";
 import { favoriteProblem, type FavoritesState, useFavorites } from "./useFavorites";
@@ -28,6 +28,12 @@ export type FavoritesDoor = FavoritesState & {
   opening: string | null;
   /** Fetches the favorite whole and shows it on the map. */
   open: (favorite: Favorite) => void;
+  /**
+   * Shows on the map a route that is not among the favorites, as one: a
+   * drawing of a message (TASK-333). «←» of its card goes to `back`, not to
+   * the list.
+   */
+  show: (detail: FavoriteDetail, back: () => void) => void;
   /** The favorite on the map; null when none. */
   opened: OpenedFavorite | null;
   /** The map lets the favorite go. */
@@ -50,6 +56,7 @@ const NOTHING: FavoritesDoor = {
   press: () => {},
   opening: null,
   open: () => {},
+  show: () => {},
   opened: null,
   close: () => {},
   showList: () => {},
@@ -124,6 +131,9 @@ export function useFavoritesOf(
   const [openProblem, setOpenProblem] = useState<string | null>(null);
   // The last favorite asked for wins.
   const asked = useRef<string | null>(null);
+  // Where «←» goes from a route shown with `show`; null: the list. Kept
+  // when the map lets the route go, which comes before «←» asks for it.
+  const back = useRef<(() => void) | null>(null);
   const { sessionEnded: endSession } = account;
   const open = useCallback(
     (favorite: Favorite) => {
@@ -131,6 +141,7 @@ export function useFavoritesOf(
         return;
       }
       asked.current = favorite.id;
+      back.current = null;
       setOpening(favorite.id);
       setOpenProblem(null);
       void fetchFavorite(baseUrl, token, favorite.id, { fetchFn, key }).then(
@@ -154,12 +165,31 @@ export function useFavoritesOf(
     },
     [baseUrl, endSession, fetchFn, key, onOpened, token],
   );
+  const show = useCallback(
+    (detail: FavoriteDetail, onBack: () => void) => {
+      asked.current = null;
+      back.current = onBack;
+      setOpening(null);
+      setOpenProblem(null);
+      setOpened(openedFavorite(detail));
+      onOpened();
+    },
+    [onOpened],
+  );
   const close = useCallback(() => {
     asked.current = null;
     setOpening(null);
     setOpened(null);
   }, []);
-  const showList = useCallback(() => onProfile("favorites", null), [onProfile]);
+  const showList = useCallback(() => {
+    const to = back.current;
+    back.current = null;
+    if (to !== null) {
+      to();
+      return;
+    }
+    onProfile("favorites", null);
+  }, [onProfile]);
 
   const { clearProblem: clearListProblem } = favorites;
   const clearProblem = useCallback(() => {
@@ -175,6 +205,7 @@ export function useFavoritesOf(
       press,
       opening,
       open,
+      show,
       opened,
       close,
       showList,
@@ -187,6 +218,7 @@ export function useFavoritesOf(
       press,
       opening,
       open,
+      show,
       opened,
       close,
       showList,
