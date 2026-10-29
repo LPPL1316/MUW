@@ -17,5 +17,7 @@
   "accounts_unavailable",
   "comment_rejected",
   "no_contest",
-  "imported_run"
+  "imported_run",
+  "new_account",
+  "provider_unavailable"
 ]

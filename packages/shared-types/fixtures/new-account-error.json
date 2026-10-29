@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "new_account",
+    "message": "No account yet: choose a username to make one.",
+    "suggested_distance_m": null,
+    "reason": null,
+    "email": "abc123@privaterelay.appleid.com"
+  }
+}

@@ -18182,3 +18182,46 @@ entra, perché la libreria vuole la precisione verticale di ogni punto: C lo
 risolve prima di accendere Android (`tasks/TASK-321.md`, «Per C»). Le
 impronte delle build di oggi non si muovono: iOS `83793e26…`, Android
 `e2d33497…`.
+
+## ADR-0282 — aggiunta, parte A: cosa l'API fa con i token di Apple e di Google
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-322 parte A). Aggiunta ad ADR-0282, senza numero nuovo.
+
+**Contesto**: scrivendo `POST /session/{provider}` sono venute fuori scelte
+che l'ADR non dice.
+
+**Decisione**:
+
+1. **L'account nuovo ha l'email confermata** (`email_confirmed` vero) e non
+   riceve l'email di conferma di TASK-300: Apple o Google l'hanno appena
+   verificata. Un'identità che si lega a un account con l'email non
+   confermata la rende confermata, oltre a cambiare la password e chiudere
+   le sessioni.
+2. **`email_verified` si chiede sempre**, anche a un'identità già nota: un
+   token senza un'email verificata è `401 wrong_credentials`, come dice il
+   criterio di accettazione. L'identità nota segue il suo `sub`: se
+   l'email del provider cambia, cambia solo `user_identities.email`.
+3. **Il codice di Apple si scambia solo quando serve**: alla nascita o al
+   legame dell'identità, o quando il refresh token manca; mai al `404`,
+   perché il codice vale una volta sola. Se Apple non lo scambia, l'entrata
+   va avanti senza token e ci si riprova alla volta dopo.
+4. **Le chiavi pubbliche** si tengono quanto dice `Cache-Control`, fra 1
+   minuto e un giorno; una chiave sconosciuta le fa richiedere al massimo
+   una volta al minuto; se il provider non risponde si usano quelle di
+   prima per un altro minuto. Scadenza e `iat` si controllano con
+   l'orologio dell'API (un minuto di tolleranza), non con quello di PyJWT:
+   i test lo fissano.
+5. **Il `404 new_account`** è il corpo d'errore di sempre con un campo in
+   più, `email`; i codici nuovi sono `new_account` e
+   `provider_unavailable`. L'audience di Apple è il bundle dell'app,
+   `com.lppl1316.sgrava`, scritto nel codice; il `.p8` sta in
+   `SHAPEROUTE_APPLE_KEY_P8` con le righe unite da `\n`, e un `.p8` che non
+   firma lascia Apple spento con una riga nel log.
+6. **Le richieste HTTP** passano per `Call`/`Reply` di `strava_client.py`,
+   con `urllib` come Strava: nessuna dipendenza in più oltre a
+   `PyJWT[crypto]`.
+
+**Conseguenze**: nessun contratto di oggi cambia; `Accounts` ha
+`insert_user` (anche per `POST /accounts`) e `unusable_password_hash`, e
+`open_session` è una funzione del modulo.

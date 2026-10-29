@@ -313,6 +313,13 @@ export const API_ERROR_CODES = [
   "no_contest",
   /** «Send to Strava» of a run added from another app's file, 409 (TASK-312). */
   "imported_run",
+  /**
+   * POST /session/{provider}, 404 (TASK-322): no account yet for that Apple
+   * or Google account nor its email; NewAccountError carries the email.
+   */
+  "new_account",
+  /** The API has no keys for Apple or for Google, 503 (TASK-322). */
+  "provider_unavailable",
 ] as const;
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];
 
@@ -565,6 +572,64 @@ export const PASSWORD_LENGTH = { min: 8, max: 128 } as const;
 export interface SignInRequest {
   email: string;
   password: string;
+}
+
+/**
+ * «Continue with Apple» and «Continue with Google» (TASK-322, ADR-0282):
+ * besides email and password, an account opens with these. Apple only on
+ * iPhone.
+ */
+export const SIGN_IN_PROVIDERS = ["apple", "google"] as const;
+export type SignInProvider = (typeof SIGN_IN_PROVIDERS)[number];
+
+/**
+ * GET /session/providers: the ones the API has the keys of, none without
+ * its database. The app shows only their buttons.
+ */
+export interface SignInProviders {
+  providers: SignInProvider[];
+}
+
+/**
+ * What the app sends to POST /session/{provider}. The answer is a Session:
+ * 200 for an account that was there (the same Apple or Google account, or
+ * one already signed up with its email), 201 for a new one. The first time,
+ * without `username`: 404 NewAccountError, and the app sends the same again
+ * with the username and the box. A token that does not hold: 401
+ * "wrong_credentials".
+ */
+export interface ProviderSignInRequest {
+  /**
+   * The token Apple's or Google's sheet gave: it lasts 10 minutes for
+   * Apple, an hour for Google.
+   */
+  id_token: string;
+  /**
+   * Apple only: the code of the same sign-in, so the API can revoke the
+   * access when the account is deleted.
+   */
+  authorization_code?: string | null;
+  /** Apple only: the string the app made; Apple gets its SHA-256, in hex. */
+  nonce?: string | null;
+  /** A new account only, as in SignUpRequest; ignored otherwise. */
+  username?: string | null;
+  /** A new account only: the "I am at least 16" box; false is refused. */
+  at_least_16?: boolean;
+  /**
+   * A new account only: the box «Don't send me these emails», as in
+   * SignUpRequest.
+   */
+  away_email?: boolean;
+  /** A new account only: the app's language, for the texts of the emails. */
+  language?: PushLanguage | null;
+}
+
+/**
+ * 404 of POST /session/{provider}: the email Apple or Google gave, shown
+ * above the username.
+ */
+export interface NewAccountError {
+  error: ApiError["error"] & { code: "new_account"; email: string };
 }
 
 export const USER_ROLES = ["user", "admin"] as const;

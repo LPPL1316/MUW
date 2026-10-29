@@ -1165,6 +1165,68 @@ Tipi e esempi in `shared-types` (`SignUpRequest`, `SignInRequest`,
   anche con quella giusta. Il limite dei POST di `SHAPEROUTE_RATE_LIMIT`
   vale in più.
 
+### Sign in with Apple and Google (TASK-322, ADR-0282)
+
+«Continue with Apple» (solo iPhone) e «Continue with Google» in «Sign up» e
+in «Log in»: lo stesso tasto iscrive o fa entrare. Codice in
+`sign_in_providers.py`, tabella `user_identities` in `DATABASE.md`. Tipi e
+esempi in `shared-types` (`SignInProviders`, `ProviderSignInRequest`,
+`NewAccountError`; `fixtures/sign-in-providers.json`,
+`fixtures/provider-sign-in-request.json`, `fixtures/new-account-error.json`).
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /session/providers` | quali provider sono accesi su questo server | `200` `{ "providers": ["apple", "google"] }` |
+| `POST /session/{provider}` | entrare o iscriversi con `apple` o `google`: `id_token`; per Apple anche `authorization_code` e `nonce`; la seconda volta `username`, `at_least_16`, facoltativi `away_email` e `language` | `200` `Session` (account già suo), `201` `Session` (account nuovo), `404 new_account` |
+
+- **`GET /session/providers`**: un provider è acceso quando l'API ha le sue
+  chiavi in `.env` (`SHAPEROUTE_APPLE_TEAM_ID`, `SHAPEROUTE_APPLE_KEY_ID`,
+  `SHAPEROUTE_APPLE_KEY_P8` per Apple; `SHAPEROUTE_GOOGLE_CLIENT_IDS` per
+  Google); vuoto senza database. L'app mostra solo quei tasti. Un provider
+  spento risponde `503 provider_unavailable`.
+- **Il token si legge sul server**, con le chiavi pubbliche del provider
+  (`appleid.apple.com/auth/keys`, `www.googleapis.com/oauth2/v3/certs`)
+  tenute in memoria quanto dice il loro `Cache-Control` (da 1 minuto a un
+  giorno; una chiave nuova si richiede al massimo una volta al minuto).
+  Valgono: firma `RS256`, `iss` del provider, `aud` dell'app (Apple: il
+  bundle `com.lppl1316.sgrava`; Google: uno dei client ID), scadenza e
+  `iat` con un minuto di tolleranza, `email` con `email_verified` vero, e
+  per Apple il `nonce`: l'app ne fa uno, lo manda qui com'è e ad Apple il
+  suo SHA-256 in esadecimale. Altrimenti `401 wrong_credentials`, e non si
+  scrive niente. Chiavi del provider irraggiungibili e nessuna in memoria:
+  `503 provider_unavailable`.
+- **Chi è già noto** (stesso provider, stesso `sub`) entra nel suo account,
+  `200`, anche se l'email del provider è cambiata (per esempio «Hide My
+  Email» acceso dopo): conta l'identità, e l'account tiene la sua email.
+- **Un'email già iscritta** (scelta 4 dell'utente): l'identità si lega a
+  quell'account, `200`, e da allora lo aprono tutti e due i modi. Se
+  l'account non aveva confermato l'email (TASK-300), la password di prima
+  diventa una a caso e le sue sessioni finiscono; l'email diventa
+  confermata. Con l'email confermata, password e sessioni restano.
+- **Né l'una né l'altra**: senza `username` la risposta è
+  `404 new_account`, con l'email da mostrare:
+  `{ "error": { "code": "new_account", "message": "…", "email": "…",
+  "suggested_distance_m": null, "reason": null } }`; non si scrive niente.
+  L'app chiede il nome e rimanda la stessa richiesta con `username`,
+  `at_least_16`, `away_email` e `language`, come in `POST /accounts`
+  (stesse regole e stessi errori: `422`, `409 username_taken`): `201`
+  `Session`. L'account nuovo ha l'email del provider già confermata, quindi
+  nessuna email di conferma, e una password a caso che nessuno conosce:
+  «Forgot password» resta un modo di averne una. Il nome e la foto di
+  Google non si tengono.
+- I token durano poco (Apple 10 minuti, Google un'ora): scaduto fra il
+  `404` e il nome, è `401`, e l'app ne chiede un altro.
+- **Apple**: alla prima entrata `authorization_code` diventa un refresh
+  token (`appleid.apple.com/auth/token`, con un client secret `ES256`
+  firmato con il `.p8`), tenuto solo per la revoca. Se Apple non lo dà,
+  l'entrata va avanti lo stesso e ci riprova la volta dopo.
+- **`DELETE /me`** di un account con Apple revoca l'accesso
+  (`appleid.apple.com/auth/revoke`), come chiede Apple (App Review
+  5.1.1(v)); una revoca che non riesce finisce nel log e non ferma la
+  cancellazione. Per Google non si tiene nessun token: niente da revocare.
+- Nei log non finiscono token, codici, nonce né il `.p8`. Il limite dei
+  POST di `SHAPEROUTE_RATE_LIMIT` vale anche qui.
+
 ### Favorites (TASK-171, ADR-0139)
 
 I percorsi che un account tiene. Tutti gli endpoint vogliono il token
