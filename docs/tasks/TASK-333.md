@@ -361,57 +361,88 @@ tutte le righe.
 
 ### Parte C — L'app: i disegni
 
-1. «Send to a friend» sulle schede scelte (risposta 5) e la scelta della
-   persona (le conversazioni, poi chi si segue, con la ricerca).
-2. «Drawing» nel «+»: i preferiti e «My activities».
-3. La scheda del disegno nella conversazione e quella aperta sulla mappa
-   con «Start», «Export GPX», il cuore, «Draw it near me» (risposta 4).
+1. «Send to a friend» e la scelta della persona (`SendToFriend.tsx`:
+   chi ti scrive, poi chi segui, con la ricerca). Sulla mappa è il tasto
+   tondo sotto il cuore (`FavoriteHeart.tsx`), che ha già il percorso di
+   «Draw», «Explore», dei percorsi a tema e dei preferiti; sulle schede di
+   «My activities» (`ActivityCard.tsx`) e di un disegno (`DrawingCard.tsx`).
+2. «Drawing» nel «+»: i preferiti e «My activities» (`DrawingPicker.tsx`).
+3. La scheda del disegno nella conversazione (la sua linea con
+   `RouteThumb`) e, toccata, il disegno aperto sulla mappa **come un
+   preferito** (`favoritesDoor.show`): «Start», «Export GPX», il cuore,
+   «Draw it near me», e «←» che torna alla conversazione.
 4. La lista: «🗺️ Drawing».
 5. Il disegno da mandare (`messageDrawing.ts`): il corpo di un preferito;
-   la corsa tagliata a `DRAWING_CUT_M` come nel Feed, un percorso intero.
+   la corsa propria tagliata a 200 m come nel Feed (`withoutEnds`), un
+   disegno del Feed come l'API lo dà, un percorso intero.
+6. «Help»: il paragrafo approvato, nelle cinque lingue.
 
 #### Criteri di accettazione (parte C)
 
-- [ ] «Send to a friend» c'è sulle schede di «Draw», «Explore», del Feed,
-      di un profilo, di «My activities» e dei preferiti, e chiede a chi;
-      chi non ha accettato la conversazione si vede con «Photos, videos
-      and drawings can be sent once {name} accepts your message.».
-- [ ] «Drawing» nel «+» sceglie fra i preferiti e le proprie corse.
-- [ ] Una propria corsa parte tagliata all'inizio e alla fine; un
+- [x] «Send to a friend» c'è sulla mappa (Draw, Explore, a tema,
+      preferiti), su «My activities» e sui disegni; chiede a chi, e chi non
+      ha accettato la conversazione si vede con «Photos, videos and
+      drawings can be sent once {name} accepts your message.».
+- [x] «Drawing» nel «+» sceglie fra i preferiti e le proprie corse.
+- [x] Una propria corsa parte tagliata all'inizio e alla fine; un
       percorso progettato intero.
-- [ ] Chi riceve vede la scheda; aperta sulla mappa ha «Start», «Export
-      GPX», il cuore e «Draw it near me» quando la figura lo permette.
-- [ ] Impronta iOS `83793e26` invariata; test, lint, typecheck e
-      prettier verdi in CI.
+- [x] Chi riceve vede la scheda; aperta sulla mappa ha «Start», «Export
+      GPX», il cuore e «Draw it near me» quando la figura lo permette, e
+      «←» torna alla conversazione.
+- [x] «Help» nelle cinque lingue.
+- [x] Impronta iOS `83793e26` invariata (`83793e26fc0d…`, copia pulita
+      della testa con `npm ci`).
+- [ ] Test, lint, typecheck e prettier verdi in CI.
 
 #### File toccati (parte C)
 
-Da ricontrollare con il Coordinatore all'inizio di C: le schede sono
-file che altri task toccano spesso (oggi `route/RoutePanel.tsx` per
-TASK-331).
+Mandati al Coordinatore prima del codice e poi ristretti: `RoutePanel.tsx`,
+`ExploredCard.tsx` e `ThemedCard.tsx` non si toccano (il tasto della mappa
+sta sotto il cuore), `App.tsx` nemmeno. `DrawingCard.tsx` è anche nella
+#632 (TASK-331), che lì cambia solo due commenti: righe diverse.
 
 ```
 apps/mobile/src/messages/messageDrawing.ts               (nuovo)
-apps/mobile/src/messages/messageDrawing.test.ts          (nuovo)
-apps/mobile/src/messages/SendToFriend.tsx                (nuovo: la scelta della persona)
-apps/mobile/src/messages/SendToFriend.test.tsx           (nuovo)
-apps/mobile/src/messages/DrawingPicker.tsx               (nuovo: preferiti e «My activities»)
-apps/mobile/src/messages/MessageDrawing.tsx              (nuovo: la scheda nel messaggio)
-apps/mobile/src/messages/ReceivedDrawing.tsx             (nuovo: aperta sulla mappa)
+apps/mobile/src/messages/SendDrawingButton.tsx           (nuovo)
+apps/mobile/src/messages/SendToFriend.tsx                (nuovo)
+apps/mobile/src/messages/DrawingPicker.tsx               (nuovo)
 apps/mobile/src/messages/Drawings.test.tsx               (nuovo)
 apps/mobile/src/messages/AttachButton.tsx
 apps/mobile/src/messages/ConversationScreen.tsx
-apps/mobile/src/messages/ConversationList.tsx
-apps/mobile/src/route/RoutePanel.tsx                     («Send to a friend»)
-apps/mobile/src/explore/ExploredCard.tsx, RouteCard.tsx
+apps/mobile/src/messages/MessageMedia.tsx
+apps/mobile/src/messages/attachmentText.ts
+apps/mobile/src/messages/Attachments.test.tsx            (VoiceOver col nome della forma)
+apps/mobile/src/api/messages.ts                          (GET /messages/{id}/drawing)
+apps/mobile/src/favorites/favoritesDoor.ts               (show, e «←» che torna)
+apps/mobile/src/favorites/FavoriteHeart.tsx              (il tasto sotto il cuore)
+apps/mobile/src/activities/ActivityCard.tsx
 apps/mobile/src/social/DrawingCard.tsx
-apps/mobile/src/activities/RunDrawing.tsx
-apps/mobile/src/favorites/FavoritesList.tsx
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/src/about/content/de.ts, en.ts, es.ts, fr.ts, it.ts  (Help)
 docs/UI.md
 docs/STATUS.md
 docs/tasks/TASK-333.md
 ```
+
+#### Le scelte tecniche della parte C (decise dall'agente su delega dell'utente)
+
+1. **Il disegno ricevuto si apre come un preferito**: `favoritesDoor`
+   ha `show(detail, back)`, che mostra sulla mappa un percorso non in
+   lista; `App.tsx` lo legge già come un preferito, con la sua scheda. La
+   chiave è quella di un preferito (`favoriteKey` della linea), così il
+   cuore lo tiene come ogni percorso. «Back to the list» va a `back`, cioè
+   alla conversazione, non alla lista dei preferiti.
+2. **«Send to a friend» sulla mappa è un tasto tondo «✉︎» sotto il cuore**,
+   con VoiceOver «Send to a friend»: il cuore ha già il percorso di ogni
+   pagina, quindi nessuna scheda di «Draw» o di «Explore» cambia (né il
+   `RoutePanel.tsx` conteso con TASK-331). Sulle schede di «My activities»
+   e del Feed è una riga col testo approvato.
+3. **«Drawing» nel «+» manda subito**, senza l'anteprima delle foto: un
+   disegno non si carica, e il testo già scritto va con lui.
+4. **Il tasto c'è solo con un account e un'API che ha i messaggi** (il
+   numero di «Messages» arrivato), come «Message» su un profilo.
+5. **Una corsa di ore** va in al più 20 000 punti (il limite dei
+   preferiti), primo e ultimo tenuti.
 
 ### Dopo, col sì dell'utente
 
@@ -537,5 +568,17 @@ Le parti A, B e C hanno i loro elenchi in «Le parti».
   la riduzione del video, `File.upload`, la locandina e il lettore nella
   WebView.
   Sulla copia pulita della testa (`npm ci`): impronta iOS
+  `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata, e verdi anche le
+  due suite che in locale non partivano.
+- 2026-10-29: **parte B in `main`** con la #635 (e6f5b1c3). Il
+  Coordinatore ha dato il via alla parte C sotto la stessa delega.
+- 2026-10-29 notte: **parte C scritta** (branch
+  `feat/TASK-333-c-attachments-drawings` da `main` e6f5b1c3). In locale
+  verdi: `Drawings.test.tsx` (10), i test dei messaggi (42 in tutto), la
+  suite jest intera tranne le due suite che qui non partono per moduli
+  assenti (document picker, Salute); lint, typecheck, prettier. Da provare
+  sul telefono: il disegno aperto sulla mappa e il ritorno alla
+  conversazione.
+  Sulla copia pulita (`npm ci`) della testa 53b53573: impronta iOS
   `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata, e verdi anche le
   due suite che in locale non partivano.

@@ -1,5 +1,6 @@
 import type { Message, MessageAttachment } from "@shaperoute/shared-types";
 
+import { favoriteTitle } from "../favorites/favoriteRoute";
 import { t } from "../i18n";
 import { distanceLabel } from "../units/format";
 
@@ -56,10 +57,9 @@ export function attachmentLabel(attachment: MessageAttachment): string {
           });
     case "drawing": {
       const card = attachment.drawing;
-      const title = card?.title ?? card?.word ?? card?.shape ?? "";
       return t("Drawing: {title}, {distance}", {
-        title,
-        distance: distanceLabel(card?.distance_m ?? 0),
+        title: card === null ? "" : favoriteTitle(card),
+        distance: distanceLabel(card?.route_m ?? 0),
       });
     }
   }

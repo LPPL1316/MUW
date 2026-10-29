@@ -2,12 +2,17 @@ import type { MessageAttachment } from "@shaperoute/shared-types";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 import { mediaImage } from "../api/messageMedia";
+import { RouteThumb } from "../explore/RouteThumb";
+import { favoriteTitle } from "../favorites/favoriteRoute";
 import { t } from "../i18n";
 import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
+import { distanceLabel } from "../units/format";
 import { attachmentLine, duration } from "./attachmentText";
 
 /** The widest a photo or a video is shown in a message. */
 export const MEDIA_SIDE = 220;
+/** The side of a drawing's line in a message. */
+export const DRAWING_SIDE = 140;
 
 type Props = {
   attachment: MessageAttachment;
@@ -31,12 +36,25 @@ export function shownSize(
 /**
  * What a message carries, in its bubble (TASK-333): a photo, a video's
  * first picture with ▶ and its length (a dark square without one), «This
- * video has expired.», or a drawing in words until part C opens it. The
- * bubble is what is touched, and what VoiceOver reads (attachmentLabel).
+ * video has expired.», or a drawing: its line, what it draws and how long
+ * it is, opened on the map with a tap (part C). The bubble is what is
+ * touched, and what VoiceOver reads (attachmentLabel).
  */
 export function MessageMedia({ attachment, apiUrl, token, apiKey }: Props) {
   if (attachment.kind === "drawing") {
-    return <Text style={styles.line}>{attachmentLine("drawing")}</Text>;
+    const card = attachment.drawing;
+    if (card === null) {
+      return <Text style={styles.line}>{attachmentLine("drawing")}</Text>;
+    }
+    return (
+      <View style={styles.drawing} testID="message-drawing">
+        <RouteThumb line={card.preview} width={DRAWING_SIDE} height={DRAWING_SIDE} />
+        <Text style={styles.line}>{attachmentLine("drawing")}</Text>
+        <Text style={styles.detail}>
+          {`${favoriteTitle(card)} · ${distanceLabel(card.route_m)}`}
+        </Text>
+      </View>
+    );
   }
   if (attachment.kind === "video" && attachment.expired) {
     return <Text style={styles.gone}>{t("This video has expired.")}</Text>;
@@ -94,6 +112,13 @@ const styles = StyleSheet.create({
   line: {
     color: color.text,
     fontSize: fontSize.body,
+  },
+  drawing: {
+    gap: space.xs,
+  },
+  detail: {
+    color: color.textMuted,
+    fontSize: fontSize.small,
   },
   gone: {
     color: color.textMuted,

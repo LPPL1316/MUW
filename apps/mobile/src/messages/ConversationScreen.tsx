@@ -4,6 +4,7 @@ import {
   type ConversationState,
   type Message,
   type MessageAttachment,
+  type MessageDrawing,
   type MessagesPage,
   type Person,
 } from "@shaperoute/shared-types";
@@ -23,7 +24,7 @@ import type { AccountOutcome } from "../api/accounts";
 import { putPoster, uploadMedia, type Upload } from "../api/messageMedia";
 import {
   acceptConversation,
-  attachableFiles,
+  fetchMessageDrawing,
   clearConversation,
   fetchMessages,
   messageProblem,
@@ -32,6 +33,7 @@ import {
   sendMessage,
 } from "../api/messages";
 import { personPhotoUri } from "../api/people";
+import { useFavoritesDoor } from "../favorites/favoritesDoor";
 import { t } from "../i18n";
 import { Avatar } from "../profile/Avatar";
 import { ReportMenu } from "../social/ReportMenu";
@@ -43,9 +45,11 @@ import {
   radius,
   space,
 } from "../theme/tokens";
-import { AttachButton, type FileKind } from "./AttachButton";
+import { type AttachKind, AttachButton, type FileKind } from "./AttachButton";
 import { AttachmentPreview, type DraftStatus } from "./AttachmentPreview";
 import { attachmentLabel } from "./attachmentText";
+import { DrawingPicker } from "./DrawingPicker";
+import { favoriteOfMessage } from "./messageDrawing";
 import { MediaViewer } from "./MediaViewer";
 import { MessageMedia } from "./MessageMedia";
 import { MessageSheet, type SheetFor } from "./MessageSheet";
@@ -67,9 +71,9 @@ type Held = {
   /** The latest first, as the API gives them. */
   messages: Message[];
   next: string | null;
-  /** What a photo or a video may go as now (TASK-333): none in a request,
-   * none on a server before the attachments. */
-  files: FileKind[];
+  /** What may be attached now (TASK-333): nothing in a request, nothing
+   * on a server before the attachments, no video while it is full. */
+  files: AttachKind[];
 };
 
 /** A photo or a video chosen, until its message is sent. */
@@ -165,7 +169,8 @@ export function ConversationScreen({
   pick = pickMessageFile,
   upload,
 }: Props) {
-  const { apiUrl, account, recount } = useMessagesDoor();
+  const { apiUrl, account, recount, close, openConversation } = useMessagesDoor();
+  const favorites = useFavoritesDoor();
   const { state, sessionEnded: onSessionEnded } = account;
   const token = state.status === "signedIn" ? state.session.token : null;
   const asked = `${token ?? ""} ${person.public_id}`;
@@ -178,6 +183,7 @@ export function ConversationScreen({
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [viewing, setViewing] = useState<MessageAttachment | null>(null);
+  const [choosingDrawing, setChoosingDrawing] = useState(false);
   const poster = useRef<Poster | null>(null);
   // Asked to read again at once: a message refused may mean a request
   // still waiting, or a conversation gone.
@@ -254,7 +260,7 @@ export function ConversationScreen({
           asked,
           person: page.person,
           state: page.state,
-          files: page.state === "open" ? attachableFiles(page) : [],
+          files: page.state === "open" ? (page.attachments?.kinds ?? []) : [],
           messages:
             was !== null && "state" in was && was.asked === asked
               ? merged(was.messages, page.messages)
@@ -355,7 +361,59 @@ export function ConversationScreen({
     });
   }
 
-  function choose(kind: FileKind) {
+  /** A drawing chosen in «Drawing»: it goes at once, with what was written. */
+  function sendDrawing(drawing: MessageDrawing) {
+    setChoosingDrawing(false);
+    if (token === null || apiUrl === null) {
+      return;
+    }
+    setSending(true);
+    setProblem(null);
+    void sendMessage(apiUrl, token, person.public_id, text, options, { drawing }).then(
+      (outcome) => {
+        setSending(false);
+        if (outcome.kind !== "ok") {
+          if (outcome.kind === "api_error" && outcome.code === "http_error") {
+            setReads((n) => n + 1);
+          }
+          failed(outcome);
+          return;
+        }
+        setText("");
+        changed.current += 1;
+        const sent = outcome.value;
+        update((was) => ({
+          ...was,
+          messages: [sent, ...was.messages.filter((m) => m.id !== sent.id)],
+        }));
+      },
+    );
+  }
+
+  /** A drawing touched: fetched whole and opened on the map, as a
+   * favorite; «←» of its card comes back here. */
+  function openDrawing(message: Message) {
+    if (token === null || apiUrl === null) {
+      return;
+    }
+    setProblem(null);
+    void fetchMessageDrawing(apiUrl, token, message.id, options).then((outcome) => {
+      if (outcome.kind !== "ok") {
+        failed(outcome);
+        return;
+      }
+      favorites.show(favoriteOfMessage(outcome.value, new Date()), () =>
+        openConversation(person),
+      );
+      close();
+    });
+  }
+
+  function choose(kind: AttachKind) {
+    if (kind === "drawing") {
+      setChoosingDrawing(true);
+      return;
+    }
     setProblem(null);
     void pick(kind).then((picked) => {
       switch (picked.kind) {
@@ -581,11 +639,11 @@ export function ConversationScreen({
                     ) : null
                   }
                   onOpen={
-                    item.attachment &&
-                    item.attachment.kind !== "drawing" &&
-                    item.attachment.media_id !== null
-                      ? () => setViewing(item.attachment ?? null)
-                      : null
+                    item.attachment?.kind === "drawing"
+                      ? () => openDrawing(item)
+                      : item.attachment && item.attachment.media_id !== null
+                        ? () => setViewing(item.attachment ?? null)
+                        : null
                   }
                   onLongPress={() => setSheet({ kind: "message", message: item })}
                 />
@@ -646,6 +704,16 @@ export function ConversationScreen({
           key={draft.file.uri}
           videoUri={draft.file.uri}
           onPoster={(uri) => poster.current?.done(uri)}
+        />
+      )}
+      {choosingDrawing && token !== null && apiUrl !== null && (
+        <DrawingPicker
+          apiUrl={apiUrl}
+          token={token}
+          onPick={sendDrawing}
+          onClose={() => setChoosingDrawing(false)}
+          fetchFn={fetchFn}
+          apiKey={apiKey}
         />
       )}
       {viewing !== null && token !== null && apiUrl !== null && (
@@ -730,10 +798,10 @@ type FootProps = {
   text: string;
   sending: boolean;
   busy: boolean;
-  files: FileKind[];
+  files: AttachKind[];
   onText: (text: string) => void;
   onSend: () => void;
-  onAttach: (kind: FileKind) => void;
+  onAttach: (kind: AttachKind) => void;
   onAccept: () => void;
   onDelete: () => void;
   onBlock: () => void;

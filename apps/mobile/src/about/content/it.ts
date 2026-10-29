@@ -87,6 +87,7 @@ const help: AboutDocument = {
         "«Messaggio» sul profilo di un iscritto gli scrive. Se ti segue, il messaggio arriva nei suoi «Messaggi»; se no, arriva come richiesta, e puoi mandare un solo messaggio finché non la accetta.",
         "Le tue conversazioni sono in «Profilo», «Messaggi», con «Richieste di messaggio» in cima. Accetta una richiesta per scrivervi, eliminala (chi ha scritto non lo sa) o blocca chi ha scritto.",
         "Tieni premuto un messaggio per eliminare il tuo, per tutti e due, o per segnalarne uno che hai ricevuto. Nessuno vede se hai letto un messaggio. Con le push accese, MuW ti avvisa di ogni messaggio e di ogni richiesta.",
+        "In una conversazione tocca + per inviare una foto, un video fino a 60 secondi o un disegno, oppure tocca Invia agli amici su un percorso o un disegno. Puoi inviarli quando l'altra persona ha accettato il tuo messaggio. I video restano 30 giorni. Tocca un disegno per aprirlo sulla mappa, partire, esportarne il GPX o tenerlo nei preferiti.",
       ],
     },
     {

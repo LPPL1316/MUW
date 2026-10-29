@@ -90,6 +90,7 @@ const help: AboutDocument = {
         "«Message» on a member's profile writes to them. If they follow you, your message arrives in their «Messages»; if not, it arrives as a request, and you can send one message until they accept it.",
         "Your conversations are in «Profile», «Messages», with «Message requests» at the top. Accept a request and you both write freely; delete it (who wrote is not told), or block who wrote.",
         "Hold a message to delete yours, for both of you, or to report one you received. Nobody sees whether you read a message. With push on, MuW tells you of each message and of each request.",
+        "In a conversation, tap + to send a photo, a video of up to 60 seconds or a drawing, or tap Send to a friend on a route or a drawing. You can send them once the other person has accepted your message. Videos are kept for 30 days. Tap a drawing to open it on the map, start it, export its GPX or keep it in your favorites.",
       ],
     },
     {
