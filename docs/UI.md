@@ -2288,7 +2288,8 @@ Testi nuovi, **approvati dall'utente** il 2026-10-13 nelle cinque lingue:
 «Draw», «Undo», «Draw route», *Tracing the outline…* e le parole dei
 rifiuti c'erano già. Il TASK-331 ha tolto *Draw with one finger. Lines
 after the first are joined to it.* e *This line crosses itself. Draw it
-again without crossing it.*, e aggiunto (da approvare dall'utente):
+again without crossing it.*, e aggiunto (**approvati dall'utente** il
+2026-10-29 nelle quattro lingue):
 
 | English | Italiano | Deutsch | Español | Français |
 |---|---|---|---|---|

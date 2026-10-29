@@ -18537,8 +18537,8 @@ richiesta e scelte dell'utente: «Tutto sulla mappa» (domanda di questa
 sessione) e «non la modifica delle emoji perché non serve a nulla»
 (sessione «Funzione modifica editing nella mappa»); il modo di mandare una
 linea aperta, la soglia di chiusura, «Erase» e le due dita sulla mappa sono
-**deciso dall'agente su delega dell'utente**; i due testi nuovi aspettano
-il suo sì.
+**deciso dall'agente su delega dell'utente**; i due testi nuovi sono
+approvati dall'utente il 2026-10-29.
 
 **Contesto**: provando sul telefono l'utente non riusciva a fare una linea
 singola: la prima linea diventava sempre una figura chiusa («mi fa un

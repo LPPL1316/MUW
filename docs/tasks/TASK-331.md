@@ -1,7 +1,7 @@
 # TASK-331 — Disegnare a mano solo sulla mappa: la linea aperta, «Erase», «Edit the drawing» sulla mappa
 
-**Stato**: In corso — codice e test fatti; aspetta il sì dell'utente sui
-due testi nuovi, poi il merge del Coordinatore a CI verde
+**Stato**: In corso — codice, test e testi (approvati il 2026-10-29)
+fatti; aspetta il merge del Coordinatore a CI verde
 **Fase**: 4 · **Branch**: `feat/TASK-331-draw-on-map-only` · **ADR**: ADR-0288
 
 Numero e ADR dal Coordinatore (2026-10-29: TASK-331, ADR-0288).
@@ -88,8 +88,8 @@ Niente da cambiare nel contratto, nell'API o nel motore.
 - [x] Impronta iOS invariata, misurata su una copia pulita della testa
       dae970bd (`npm ci`, `APP_VARIANT=production`): 83793e26.
 - [x] jest, lint, typecheck, Prettier verdi.
-- [ ] Testi nuovi approvati dall'utente (due, nelle quattro lingue, in
-      `UI.md` sotto «Disegnare sulla mappa»).
+- [x] Testi nuovi approvati dall'utente il 2026-10-29 (due, nelle quattro
+      lingue, in `UI.md` sotto «Disegnare sulla mappa»).
 
 ## File toccati
 
@@ -149,5 +149,6 @@ aperta se non torna all'inizio (andata e ritorno, contratto invariato,
 provato sul motore con le strade di Trento), la tavola di «Draw» è tolta,
 «Edit the drawing» mette la figura sulla mappa e non c'è per le emoji, sulla
 mappa ci sono «Erase» e le due dita che spostano la mappa. Jest 533 suite /
-4297 test verdi. Restano il sì dell'utente sui due testi nuovi e, dopo il
-merge, la prova col dito sull'iPhone con la prossima anteprima.
+4297 test verdi. I due testi nuovi sono approvati dall'utente lo stesso
+giorno. Resta, dopo il merge, la prova col dito sull'iPhone con la
+prossima anteprima.
