@@ -725,7 +725,7 @@ Migrazione `0034_run_source.sql` (TASK-312 parte A, ADR-0272,
 
 Migrazione `0036_user_identities.sql` (TASK-322 parte A, ADR-0282,
 `API.md` «Sign in with Apple and Google»; il numero è il primo libero in
-`main` al merge, la 0035 è di TASK-325):
+`main` al merge, la 0035 è di TASK-324):
 
 - `user_identities`: un account Apple o Google che è entrato. Chiave
   `(provider, subject)`: `provider` (`apple` o `google`), `subject` (il

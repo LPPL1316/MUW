@@ -1773,6 +1773,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dello store: impronta 83793e26), C (console Apple e Google, server, la
   build 1.0.1 insieme a contatti, document picker e forse HealthKit). File
   `tasks/TASK-322.md`.
+  **Parte A fatta** (2026-10-29, PR #621, branch
+  `feat/TASK-322-a-sign-in-api`): migrazione `0036_user_identities.sql`,
+  `GET /session/providers`, `POST /session/{provider}` (identità nota
+  `200`, email già iscritta legata `200`, altrimenti `404 new_account` e poi
+  `201` col nome; un'email non confermata legata perde password e sessioni),
+  la revoca di Apple in `DELETE /me`, i tipi in `shared-types`. Token letti
+  con le chiavi pubbliche in memoria, test con chiavi finte e senza rete
+  (`test_sign_in_providers.py`). Solo API: impronta iOS `83793e26`
+  invariata. Spento finché il server non ha le chiavi (parte C, col sì
+  dell'utente). Prossima: B (l'app), in una sessione sua.
 
 ## Completato
 
