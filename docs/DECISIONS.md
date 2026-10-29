@@ -18600,6 +18600,10 @@ non crescono da soli, e il database si copia ogni notte.
      3 Mbit/s); Android non lo sa fare e manda il file com'è, entro i
      40 MB: un video 1080p di Android ci sta per circa 20 s (seguito
      possibile: ridurlo con WebCodecs nella WebView).
+   - Il codice comune (il controllo MP4, i file su disco, il tetto) sta in
+     un modulo senza tabelle, `media_files.py`, che usano anche i video
+     dei post (TASK-336, ADR-0292): le regole di questo punto e dei punti
+     5, 6 e 8 valgono anche lì, salvo quello che ADR-0292 dice diverso.
 8. **Lo spazio**: fino a 60 s e 40 MB per video (scelta 2), limiti per
    account al giorno (10 video, 100 foto), i video cancellati dopo 30
    giorni (scelta 3) e un **tetto per tutto il server**
