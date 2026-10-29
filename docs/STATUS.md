@@ -1922,9 +1922,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Help» con i testi approvati, aggiunta ad ADR-0289, `data/media` su `/`
   da rivedere con l'utente al server. Parte E (expo-video nei messaggi) al
   taglio della 1.0.2.
+  **Chiuso il 2026-10-29**: D in `main` con la #639 (dd607e89), quindi
+  A–D tutte in `main`. Voce in «Completato».
 
 ## Completato
 
+- **App e API** — TASK-333 (ADR-0289 con l'aggiunta della parte D;
+  richiesta dell'utente del 2026-10-29, «Aggiungi la possibilità di inviare
+  disegni agli amici allegati, foto video», e le sue sette scelte, testi e
+  privacy approvati): nei messaggi privati una foto, un video fino a 60 s
+  e 40 MB o un disegno, solo dopo «Accept». File su disco in `data/media`
+  (mai nel database né nelle copie), video tenuti 30 giorni o meno quando
+  lo spazio è pieno, dal più vecchio; il «+» solo con un server che lo sa
+  fare; «Send to a friend» sotto il cuore della mappa e sulle schede; il
+  disegno ricevuto si apre sulla mappa come un preferito. #627, #634
+  (`0038`), #635, #636, #639; impronta iOS `83793e26`. **Server, «App
+  Privacy»/«Data safety», OTA e sito col sì dell'utente; da provare sul
+  telefono.** Parte E (expo-video) al taglio della 1.0.2. `tasks/TASK-333.md`.
 - **App** — TASK-335 (ADR-0291, che cambia il punto 3 di ADR-0277; segnalazione e scelta «Durante l'attesa» dell'utente del 2026-10-29): mentre «Draw» calcola, le sei schede «MEANWHILE, FROM THE FEED» hanno sotto la linea la foto della mappa del posto, come in «Feed». Le scatta una pagina nascosta sotto la fila, due schede alla volta, con la cache del Feed; senza rete, dopo due foto mancate non ne chiede altre. «Maps: …» sotto la fila. Misurato nel simulatore iOS: cuore da 5 km a Trento sul telefono, 7701 ms senza e 7714 ms con le sei foto (tre giri ciascuno), quindi nessun rallentamento visibile. Solo app, nessun testo nuovo, `RoutePanel.tsx` non toccato, impronta iOS `83793e26`. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-335.md`.
 - **App** — TASK-330 (segnalazione dell'utente del 2026-10-29): le foto dei post si vedono sul telefono. Si chiedevano senza `X-API-Key` e il server rispondeva 401 (Feed, galleria del profilo, disegno aperto); e nel Feed lo swipe sulla figura girava la pagina su Draw, perché su iOS uno `ScrollView` dentro un `Pressable` toccato non scorre: ora il disegno e ogni foto prendono il tocco da soli. Riprodotto e verificato nel simulatore iOS. Solo JS, impronta invariata. `tasks/TASK-330.md`.
 - **App** — TASK-332 (una riga in ADR-0131; richiesta dell'utente del 2026-10-29): nella griglia «Drawings» del profilo, proprio e di un altro, ogni disegno ha sotto la foto della mappa del posto, come in «Feed», con «Maps: …» una volta sotto la griglia. La foto si chiede solo quando la miniatura entra nello schermo (`SightScrollView` in «Profile» e «Find friends»); sopra la mappa grande il profilo di un altro ha la sua pagina delle foto, e ne lavora una alla volta. Solo app, nessun testo nuovo. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-332.md`.
