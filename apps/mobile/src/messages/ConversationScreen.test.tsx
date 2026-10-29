@@ -43,7 +43,9 @@ test("open, it is read again, and a new message shows", async () => {
     if (init?.method === "PUT") {
       return new Response(null, { status: 204 });
     }
-    expect(input).toBe(`${URL}/conversations/${ada.public_id}/messages`);
+    expect(input).toBe(
+      `${URL}/conversations/${ada.public_id}/messages?with=attachments`,
+    );
     return Response.json(answers.length > 1 ? answers.shift() : answers[0]);
   });
   const recount = jest.fn();

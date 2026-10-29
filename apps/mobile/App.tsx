@@ -38,15 +38,18 @@ import {
   refreshGameCatalog,
   useGameCatalog,
 } from "./src/game/gameCatalog";
-import { PlayScreen } from "./src/game/PlayScreen";
+import { PlayOverlay } from "./src/game/PlayOverlay";
+import { PlayRow } from "./src/game/PlayRow";
 import { onOpenPlay } from "./src/game/unlocks";
 import {
   loadRecentCities,
   remember,
   saveRecentCities,
 } from "./src/explore/recentCities";
+import { mapStops } from "./src/explore/StopPhotos";
 import { ThemedCard, themedGpx } from "./src/explore/ThemedCard";
 import { startViewOf, useStartDirections } from "./src/explore/useStartDirections";
+import { isHere, nearMeRequest } from "./src/explore/themedIdeas";
 import { useThemedRoute } from "./src/explore/useThemedRoute";
 import { FavoriteHeart } from "./src/favorites/FavoriteHeart";
 import {
@@ -123,10 +126,9 @@ import {
 import { FreehandBoard } from "./src/route/FreehandBoard";
 import { EditDrawingButton } from "./src/route/FreehandChoice";
 import { useFreehand } from "./src/route/useFreehand";
-import { DrawIdeas, toursFrom } from "./src/route/DrawIdeas";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
-import { sampleOf, samplePicture } from "./src/route/samplePictures";
+import { samplePicture } from "./src/route/samplePictures";
 import {
   type AnyRouteRequest,
   type RouteState,
@@ -205,12 +207,9 @@ type Screen =
 /** The screens that are pages side by side, left to right, one swipe apart
  * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
  * take the whole screen. «Play», the shape game (TASK-296, ADR-0255), is
- * among them only while the API has the game. */
-function pagesOf(playOn: boolean): readonly Screen[] {
-  return playOn
-    ? ["feed", "choose", "explore", "play", "profile"]
-    : ["feed", "choose", "explore", "profile"];
-}
+ * not among them since 2026-10-29 (the user's choice): it opens from its
+ * row under the distance of «Draw», over the app. */
+const PAGES: readonly Screen[] = ["feed", "choose", "explore", "profile"];
 
 /** A run that ended, shown on the finish screen. */
 type Finished = {
@@ -388,15 +387,16 @@ function MuW() {
     back: backFromDrawing,
     leave: leaveDrawing,
   } = useDrawingsDoor();
-  // «Play» is a page while the API has the shape game (TASK-296): asked
-  // once as the app opens, kept on the phone for the next opening.
+  // «Play» has its row in «Draw» while the API has the shape game
+  // (TASK-296): asked once as the app opens, kept on the phone for the next
+  // opening.
   const playOn = useGameCatalog() !== null;
-  const pages = pagesOf(playOn);
+  const pages = PAGES;
   useEffect(() => {
     void refreshGameCatalog(API_URL);
   }, []);
   if (screenNow === "play" && !playOn) {
-    // The API said it has no game while the page was on screen.
+    // The API said it has no game while the game was on screen.
     setScreen("choose");
   }
   const onPage = pages.includes(screenNow);
@@ -521,11 +521,27 @@ function MuW() {
     () => (themed.state.status === "done" ? themedGpx(themed.state.result) : null),
     [themed.state],
   );
+  // Its places on the map, those passed by numbered as the photos under it
+  // (TASK-329); a photo tapped takes the map to its place.
+  const themedStops = useMemo(
+    () => (themed.state.status === "done" ? mapStops(themed.state.result.stops) : null),
+    [themed.state],
+  );
+  const [placeFocus, setPlaceFocus] = useState<{ point: LatLon } | null>(null);
 
   const start = useMemo(
     () => chooseStart(startMode, position, place),
     [startMode, position, place],
   );
+  // One of our ideas opened far from the start: «Make it near me» asks its
+  // words from the start instead of «Start».
+  const farIdea =
+    themed.state.status === "done" &&
+    themed.state.idea !== undefined &&
+    start !== null &&
+    !isHere(themed.state.idea, start.point)
+      ? { idea: themed.state.idea, from: start.point }
+      : null;
 
   // One of them (ADR-0051): the kinds not chosen are not sent. An image
   // sends the outline the engine traced and the user has seen (ADR-0069),
@@ -1237,11 +1253,13 @@ function MuW() {
     setScreen("choose");
   }
 
-  // The page on screen; -1 while the map or a run takes the whole screen.
+  // The page on screen; -1 while the map, a run or «Play» takes the whole
+  // screen.
   const page = pages.indexOf(screen);
 
   // The card of a shape unlocked, or its notification, asks for «Play»
-  // (TASK-296): only while a page is on screen, never over a run.
+  // (TASK-296): only while a page is on screen, never over a run; already
+  // open, it stays as it is.
   const latestPage = useRef({ onPage, showPage });
   latestPage.current = { onPage, showPage };
   useEffect(
@@ -1334,11 +1352,8 @@ function MuW() {
                         ? explored.route.start
                         : (exploreRun?.points[0] ?? start?.point ?? null)
             }
-            stops={
-              theming && themed.state.status === "done"
-                ? themed.state.result.stops
-                : null
-            }
+            stops={theming ? themedStops : null}
+            focus={theming ? placeFocus : null}
             route={
               finishing
                 ? finished.run.route
@@ -1518,7 +1533,13 @@ function MuW() {
               closeExplore();
               setScreen(routeList);
             }}
-            fromDraw={routeList === "choose"}
+            onNearMe={
+              farIdea === null
+                ? undefined
+                : () => themed.ask(nearMeRequest(farIdea.idea, farIdea.from))
+            }
+            apiUrl={API_URL}
+            onPlace={(point) => setPlaceFocus({ point })}
             start={startViewOf(
               startDirections.state,
               themed.state.status === "done" ? themed.state.result.points : null,
@@ -1773,6 +1794,9 @@ function MuW() {
                       onEditShape={onEditShape}
                     />
                   </ImageEditsContext.Provider>
+                  {/* The shape game, right under the distance (the user's
+                      choice of 2026-10-29), while the API has it. */}
+                  {playOn && <PlayRow onPress={() => showPage("play")} />}
                   {/* Shapes ready to run near the phone, or in other cities
                       (TASK-306): one opens as a route of «Explore», and «←»
                       comes back here. */}
@@ -1785,34 +1809,6 @@ function MuW() {
                         openExplored(route);
                         setRouteList("choose");
                         setScreen("map");
-                      }}
-                    />
-                  )}
-                  {/* The city tours and the ready-made pictures (TASK-280):
-                      none on the water, where there are no towns or photos. */}
-                  {sportActivity !== "paddling" && (
-                    <DrawIdeas
-                      where={toursFrom(start)}
-                      onTour={(category) => {
-                        if (start === null) {
-                          return;
-                        }
-                        Keyboard.dismiss();
-                        closeExplore();
-                        // As a category of «Explore» with «Near me»: around
-                        // the start, the category alone (ADR-0099).
-                        themed.ask({ text: category, centre: start.point, city: null });
-                        setRouteList("choose");
-                        setScreen("map");
-                      }}
-                      chosen={
-                        drawKind === "image" && image.state.status === "traced"
-                          ? sampleOf(image.state.picture)
-                          : null
-                      }
-                      onPicture={(picture) => {
-                        setKind("image");
-                        image.show(samplePicture(picture), picture.outline);
                       }}
                     />
                   )}
@@ -1863,25 +1859,17 @@ function MuW() {
                       setRouteList("explore");
                       setScreen("map");
                     }}
+                    onIdea={(idea) => {
+                      Keyboard.dismiss();
+                      closeExplore();
+                      // Planned already: it opens at once, nothing asked.
+                      themed.show(idea);
+                      setRouteList("explore");
+                      setScreen("map");
+                    }}
                   />
                 ),
             },
-            // The shape game (TASK-296, ADR-0255), while the API has it: it
-            // asks for the account's collection as it opens.
-            ...(playOn
-              ? [
-                  {
-                    title: pageTitle("play"),
-                    lazy: true,
-                    render: () => (
-                      <PlayScreen
-                        active={screen === "play"}
-                        onSignIn={() => showPage("profile")}
-                      />
-                    ),
-                  },
-                ]
-              : []),
             {
               // The account's own profile, after «Explore» (TASK-278): no
               // name in the header, where its circle is.
@@ -1896,6 +1884,14 @@ function MuW() {
               ),
             },
           ]}
+        />
+      )}
+      {/* The shape game (TASK-296, ADR-0255) over the app, opened from its
+          row in «Draw»: «←» goes back there. */}
+      {screen === "play" && (
+        <PlayOverlay
+          onBack={() => setScreen("choose")}
+          onSignIn={() => showPage("profile")}
         />
       )}
       {/* The board to draw a figure by hand (TASK-320), over everything. */}

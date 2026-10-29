@@ -1,11 +1,14 @@
 import type { Drawing } from "@shaperoute/shared-types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { accountProblem } from "../account/messages";
 import { dayLabel } from "../activities/activityText";
-import { RunDrawing } from "../activities/RunDrawing";
+import { RUN_DRAWING_PAD, RunDrawing } from "../activities/RunDrawing";
+import { CardMapsCredit } from "../explore/RouteCard";
+import { useFeedMap } from "../feed/FeedMaps";
 import { t } from "../i18n";
+import { bearingOf } from "../map/turnedMap";
 import {
   color,
   fontSize,
@@ -15,6 +18,7 @@ import {
   space,
 } from "../theme/tokens";
 import { useDrawingsDoor } from "./drawingsDoor";
+import { useSeen } from "./scrollSight";
 
 /** Three drawings a row, as a profile shows its pictures. */
 const COLUMNS = 3;
@@ -50,8 +54,9 @@ type Props = {
 /**
  * «Drawings» in a profile (TASK-117, ADR-0159): the runs it made public,
  * the latest first, three a row, a page at a time. Each is the run as the
- * others see it, small and without its first and last 200 m; a tap opens
- * it on the map. Never its score (TASK-241).
+ * others see it, small and without its first and last 200 m, on the map
+ * of where it was run (TASK-332); a tap opens it on the map. Never its
+ * score (TASK-241).
  */
 export function DrawingsGrid({ publicId, own, titled = true }: Props) {
   const { pageOf, open, opening, openProblem } = useDrawingsDoor();
@@ -168,31 +173,17 @@ export function DrawingsGrid({ publicId, own, titled = true }: Props) {
         <>
           <View style={styles.grid}>
             {shown.drawings.map((drawing) => (
-              <Pressable
+              <DrawingCell
                 key={drawing.id}
-                style={({ pressed }) => [
-                  styles.cell,
-                  { width: cell },
-                  (pressed || opening === drawing.id) && styles.pressed,
-                ]}
-                onPress={() => open(drawing)}
+                drawing={drawing}
+                size={cell}
+                opening={opening === drawing.id}
                 disabled={opening !== null}
-                accessibilityRole="button"
-                accessibilityLabel={t("{title}, open on the map", {
-                  title: drawingName(drawing),
-                })}
-                testID="drawing-cell"
-              >
-                <RunDrawing
-                  route={drawing.track_preview}
-                  track={NO_TRACK}
-                  width={cell}
-                  height={cell}
-                  rotationDeg={drawing.rotation_deg}
-                />
-              </Pressable>
+                onOpen={() => open(drawing)}
+              />
             ))}
           </View>
+          <CardMapsCredit />
           {shown.next !== null && (
             <Pressable
               style={[styles.button, loadingMore && styles.busy]}
@@ -214,6 +205,62 @@ export function DrawingsGrid({ publicId, own, titled = true }: Props) {
 
 /** A drawing is one line: the run, drawn in the route's yellow as in «Feed». */
 const NO_TRACK: Drawing["track_preview"] = [];
+
+type CellProps = {
+  drawing: Drawing;
+  /** The side of the square. */
+  size: number;
+  /** This one is being opened. */
+  opening: boolean;
+  disabled: boolean;
+  onOpen: () => void;
+};
+
+/**
+ * One drawing of the grid, on a picture of the map of where it was run, as
+ * in «Feed» (TASK-332, ADR-0131). The picture is asked for once the
+ * drawing has come on screen: a long grid does not ask for all of its
+ * maps at once. Until it comes, the line on the dark.
+ */
+function DrawingCell({ drawing, size, opening, disabled, onOpen }: CellProps) {
+  const place = useRef<View>(null);
+  const { seen, look } = useSeen(place);
+  const map = useFeedMap(
+    drawing.id,
+    seen ? drawing.track_preview : NO_TRACK,
+    size,
+    size,
+    RUN_DRAWING_PAD,
+    bearingOf(drawing.rotation_deg),
+  );
+  return (
+    <Pressable
+      ref={place}
+      onLayout={look}
+      style={({ pressed }) => [
+        styles.cell,
+        { width: size },
+        (pressed || opening) && styles.pressed,
+      ]}
+      onPress={onOpen}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={t("{title}, open on the map", {
+        title: drawingName(drawing),
+      })}
+      testID="drawing-cell"
+    >
+      <RunDrawing
+        route={drawing.track_preview}
+        track={NO_TRACK}
+        width={size}
+        height={size}
+        rotationDeg={drawing.rotation_deg}
+        map={map}
+      />
+    </Pressable>
+  );
+}
 
 const styles = StyleSheet.create({
   section: {

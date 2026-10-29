@@ -2,6 +2,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { t } from "../i18n";
+import { drawingOfRoute } from "../messages/messageDrawing";
+import { SendDrawingButton } from "../messages/SendDrawingButton";
 import { color, fontSize, MIN_TAP_SIZE, radius, space } from "../theme/tokens";
 import type { Keepable } from "./favoriteRoute";
 import { useFavoritesDoor } from "./favoritesDoor";
@@ -18,7 +20,8 @@ type Props = {
 /**
  * The heart over the map, opposite the way back and level with it
  * (TASK-171): keeps the route shown among the favorites of the account, or
- * removes it. Full when kept.
+ * removes it. Full when kept. Under it «Send to a friend» (TASK-333): the
+ * route goes in a message, whole, as the heart keeps it.
  */
 export function FavoriteHeart({ route }: Props) {
   const insets = useSafeAreaInsets();
@@ -41,6 +44,7 @@ export function FavoriteHeart({ route }: Props) {
       >
         <Text style={styles.heart}>{kept ? HEART_KEPT : HEART_EMPTY}</Text>
       </Pressable>
+      <SendDrawingButton round drawing={() => drawingOfRoute(route)} />
       {favorites.problem !== null && (
         <Pressable
           style={styles.problem}

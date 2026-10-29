@@ -11,9 +11,11 @@ sommati e i tempi migliori sbloccano **forme da collezionare**. In
 **squadra** si ricrea insieme una forma divisa in **pezzi**, entro una
 scadenza.
 
-Tutto sta nella pagina **«Play»**, accanto a Feed, Draw ed Explore
-(scelta dell'utente del 2026-10-23), con due schede: **Collection** e
-**Challenges**.
+Tutto sta in **«Play»**, con due schede: **Collection** e
+**Challenges**. Fino al 2026-10-29 era una pagina accanto a Feed, Draw ed
+Explore (scelta dell'utente del 2026-10-23); da TASK-327 (scelta
+dell'utente del 2026-10-29) si apre a tutto schermo dalla sua riga in
+«Draw», subito sotto la distanza.
 
 Le forme del gioco sono figurine: **non** chiudono niente in «Draw», dove
 ogni forma resta libera. Non c'è punteggio né classifica: TASK-241 ha tolto
@@ -278,9 +280,11 @@ una volta per sfida.
 
 ## 9. App
 
-- **«Play»**, la quarta pagina da scorrere, fra Explore e il profilo, con
-  il suo nome in alto (parte B; `UI.md`, «“Play”: la collezione delle
-  forme»). Dalla parte D ha due schede (`Segmented`):
+- **«Play»**, aperta a tutto schermo dalla riga «PLAY» di «Draw», subito
+  sotto la distanza, con «←» che torna lì (TASK-327; fino ad allora la
+  quarta pagina da scorrere, fra Explore e il profilo, con il suo nome in
+  alto, parte B; `UI.md`, «“Play”: la collezione delle forme»). Dalla
+  parte D ha due schede (`Segmented`):
   - **Collection**: una griglia di forme. Le sbloccate sono in giallo, con
     il giorno. Le bloccate sono in grigio, con il requisito, la barra di
     avanzamento e quanto manca, nelle unità scelte. Senza account le forme
@@ -297,9 +301,9 @@ una volta per sfida.
     sullo schermo e in corso, e quando l'app torna in primo piano. Su un
     server senza la parte C la scheda dice solo che le squadre non ci sono
     ancora. Senza account, «Sign in to play with a team.».
-- **La pagina si vede solo se il server ha il gioco**: all'avvio l'app
+- **La riga si vede solo se il server ha il gioco**: all'avvio l'app
   chiede `GET /game/catalog` e tiene la risposta sul telefono
-  (`game-catalog.json`). Con 200 la pagina compare, anche subito, mentre
+  (`game-catalog.json`). Con 200 la riga compare, anche subito, mentre
   l'app è aperta; con 404 sparisce. Senza rete vale l'ultima risposta
   salvata, e un telefono che non ha mai sentito il server non la mostra.
 - **Dopo che l'API ha preso la corsa** (`activitiesDoor.send`, subito dopo

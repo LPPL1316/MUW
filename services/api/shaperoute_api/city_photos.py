@@ -18,6 +18,13 @@ a folder beside the zones and looked at again after RECHECK_S.
 The towns' list waits at most WAIT_S for the photos of a place new to the
 API; what comes later is kept for the next to ask. The pictures of the
 photos found are taken right after, before the phone asks for them.
+
+The places a themed route passes by have theirs the same way (TASK-329,
+ADR-0287): in the route's answer when the API planned it, and from GET
+/place-photos for the ideas of «Ask for a route», planned once by
+tools/themed_ideas.py. That one answers only the items of the ideas, which
+the tool lists in data/idea_items.json: the API never asks Wikimedia for
+an item someone just names.
 """
 
 from __future__ import annotations
@@ -36,9 +43,9 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, FastAPI, HTTPException, Response
+from fastapi import APIRouter, FastAPI, HTTPException, Query, Response
 from PIL import Image, ImageOps
 from pydantic import BaseModel
 
@@ -79,9 +86,14 @@ FREE_LICENCES = ("cc-by-", "cc0", "pd")
 MAX_AUTHOR = 60
 ITEM = re.compile(r"Q[1-9][0-9]{0,11}")
 PHOTO_PATH = re.compile(r"(Q[1-9][0-9]{0,11})\.jpg")
+# The items of the ideas' places, as tools/themed_ideas.py writes them.
+IDEA_ITEMS = Path(__file__).resolve().parent / "data" / "idea_items.json"
+# As many as a themed route has places (themed.MAX_STOPS).
+MAX_ASKED = 15
 
 NO_PHOTO = "This town has no photo."
 NOT_FETCHED = "The town's photo could not be fetched; try again."
+NOT_ITEMS = f"Ask for at most {MAX_ASKED} Wikidata items, e.g. items=Q42,Q64."
 
 FetchJson = Callable[[str], Any]
 """Gets a URL and returns its JSON; raises on any failure."""
@@ -98,6 +110,13 @@ class CityPhotoBody(BaseModel):
     """"© LBM1948 · CC BY-SA 4.0"; null when the licence asks for nothing."""
 
 
+class PlacePhotosBody(BaseModel):
+    """The answer of GET /place-photos: the photos of the items that have
+    one, by item."""
+
+    photos: dict[str, CityPhotoBody]
+
+
 @dataclass(frozen=True)
 class Known:
     """What is known of an item: its photo's file, or None for none."""
@@ -111,6 +130,19 @@ class Known:
 
 def is_item(value: object) -> bool:
     return isinstance(value, str) and ITEM.fullmatch(value) is not None
+
+
+def idea_items(path: Path = IDEA_ITEMS) -> frozenset[str]:
+    """The items GET /place-photos answers: none when the file is not
+    there or does not read."""
+    try:
+        body = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return frozenset()
+    items = body.get("items") if isinstance(body, dict) else None
+    if not isinstance(items, list):
+        return frozenset()
+    return frozenset(i for i in items if is_item(i))
 
 
 def _request(url: str) -> urllib.request.Request:
@@ -449,13 +481,32 @@ class CityPhotos:
         temporary.replace(path)
 
 
-def install_city_photos(app: FastAPI, photos: CityPhotos) -> None:
-    """GET /city-photos/{item}.jpg: the pictures GET /nearby-cities names."""
-    app.include_router(city_photo_routes(photos))
+def install_city_photos(
+    app: FastAPI, photos: CityPhotos, allowed: frozenset[str] | None = None
+) -> None:
+    """GET /city-photos/{item}.jpg: the pictures GET /nearby-cities and the
+    themed routes name; GET /place-photos: the photos of the ideas' places,
+    `allowed` (data/idea_items.json unless a test says otherwise)."""
+    app.include_router(
+        city_photo_routes(photos, idea_items() if allowed is None else allowed)
+    )
 
 
-def city_photo_routes(photos: CityPhotos) -> APIRouter:
+def city_photo_routes(
+    photos: CityPhotos, allowed: frozenset[str] = frozenset()
+) -> APIRouter:
     router = APIRouter()
+
+    @router.get("/place-photos", responses={422: {"model": ErrorBody}})
+    def place_photos(
+        items: Annotated[str, Query(max_length=MAX_ASKED * 14)],
+    ) -> PlacePhotosBody:
+        asked = [i.strip() for i in items.split(",") if i.strip()]
+        if not asked or len(asked) > MAX_ASKED or not all(map(is_item, asked)):
+            raise HTTPException(422, NOT_ITEMS)
+        # Only the ideas' items: another has no photo here, and Wikimedia
+        # never hears of it.
+        return PlacePhotosBody(photos=photos.photos(i for i in asked if i in allowed))
 
     @router.get(
         "/city-photos/{name}",

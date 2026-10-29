@@ -4861,6 +4861,11 @@ OpenFreeMap dà solo tile vettoriali: non c'è un'immagine da chiedere.
 - **Il credito su ogni foto**: «OpenFreeMap © OpenMapTiles / Data from
   OpenStreetMap», il testo di `ATTRIBUTION`, senza link perché la scheda
   non si tocca. In due righe, in basso a destra, accanto al punteggio.
+- **Anche sotto i disegni di un profilo** (TASK-332, 2026-10-29, deciso
+  dall'agente su delega dell'utente): ogni miniatura chiede la foto solo
+  quando entra nello schermo (`SightScrollView`), i crediti una volta sotto
+  la griglia; fa le foto solo la prima pagina montata, e «Find friends» ne
+  ha una sua per quando «Feed» è smontata sotto la mappa grande.
 
 **Scartate**: una WebView per scheda (memoria, e i gesti della mappa
 contro lo swipe delle pagine); immagini già pronte nell'app, fatte da uno
@@ -15848,6 +15853,63 @@ scelta di ADR-0086 aspettava il database, che c'è dal 2026-10-02.
 - contare `route_chosen` (A · B · C): 36 eventi in ottobre, e il segnale
   non porta la `line_key`; da aprire quando le scelte saranno di più.
 
+**Aggiunta (TASK-297 parte A2, 2026-10-26)** — il ridisegno rapido del
+punto 6; deciso dall'agente su delega dell'utente:
+
+1. **Il motore**: `optimizer.search` prende `first` (un `Placement`) e
+   `first_scale_m`, facoltativi; `plan_shape` e `plan_route` li passano
+   alla ricerca vicino alla partenza. Il piazzamento si traccia per primo
+   e si riscala come gli altri (fino a 4 tracciamenti); se è buono la
+   ricerca finisce, altrimenti i suoi tracciamenti vanno da parte
+   (`Search.set_aside`) e la ricerca è **quella senza**, con il suo
+   budget e il suo risultato. Il parametro si chiama
+   `first_scale_m` e non `first_scale`, che è già la funzione del modulo
+   chiamata da `search`. Un piazzamento oltre 500 m dalla partenza (della
+   ricerca lontana) è rifiutato.
+2. **Dove sta il piazzamento**: la 0026 non aveva le colonne promesse al
+   punto 1, e il `RouteResult` non lo porta (cambiarlo vorrebbe dire
+   cambiare il contratto del motore e dell'app). Lo porta il `Plan`: una
+   migrazione nuova (`0035_drawn_routes_placement.sql`, cinque colonne
+   `double precision`, tutte o nessuna) e `RouteJobs` che passa il piano
+   allo store che lo vuole (`jobs.KeepsPlacements`,
+   `RouteArchive.put_plan`). Si tiene solo il piazzamento della ricerca
+   **vicino alla partenza** (la partenza o un punto a 250–500 m): non
+   quello di una partenza vicina (ADR-0071), che è di un'altra ricerca, né
+   della ricerca lontana, né sull'acqua.
+3. **Quando si ridisegna**: nessuna riga di questo motore entro 100 m, ma
+   una di prima (altro motore o più di 30 giorni), **buona** (somiglianza
+   ≥ 0,90) e con il piazzamento. Si ridisegna **dalla sua partenza**,
+   dove la misura dice che il piazzamento rifà lo stesso percorso, con il
+   pianificatore dell'API intero (partenze vicine e alternative) e la
+   ricerca della partenza che prova `first`; il percorso entra
+   nell'archivio e si raggiunge dalla partenza dell'utente come ogni riga
+   entro 100 m. Una riga non buona non si ridisegna: il piazzamento non lo
+   sarebbe nemmeno adesso, e costerebbe 1–4 tracciamenti per niente.
+4. **Una linea ridisegnata uguale rinfresca la sua riga** invece di
+   essere scartata: con la parte A un percorso di più di 30 giorni
+   ridisegnato uguale restava vecchio e non rispondeva più. Tiene corse e
+   preferiti.
+5. **Le indicazioni**: quando l'archivio carica una zona e poi non
+   risponde, `RouteJobs` dimentica quel grafo prima del motore; prima le
+   indicazioni del motore si leggevano sul ritaglio dell'archivio (difetto
+   della parte A, che il ridisegno avrebbe reso più frequente).
+
+**Alternative scartate**:
+- scegliere il migliore anche fra i tracciamenti di `first` non buono:
+  riscalato verso la distanza, il cerchio da 5 km della città finta ha
+  dato un tracciato più economico del migliore della ricerca ma sotto 0,60
+  di somiglianza, e il piano che la ricerca dava è stato rifiutato
+  (`test_a_trace_set_aside_never_refuses_the_plan`);
+- ridisegnare dalla partenza dell'utente con il piazzamento della riga
+  spostato fin lì: a 500 m la misura di ADR-0257 dice molto peggio, entro
+  100 m non è misurato;
+- una chiamata al motore che provi solo `first` e, se non va, il
+  pianificatore da capo: quando il piazzamento non è più buono il motore
+  lavora due volte;
+- il piazzamento dentro il `RouteResult` o nel `jsonb` di `result`: il
+  primo cambia il contratto, il secondo mescola il risultato con i conti
+  del motore.
+
 ## ADR-0257 — Il piazzamento imparato da una ricerca vicina: misurato e scartato
 
 **Stato**: Scartata (misurata) · 2026-10-24 · deciso dall'agente su delega
@@ -18249,7 +18311,7 @@ dislivello contano tutte le corse salvate (stile Strava).
    altezza contata, le discese non tolgono; solo le posizioni tenute da
    `clean_track`, e niente salita a cavallo di una pausa chiesta dal
    corridore, come per i metri. Colonna `runs.climb_m` (migrazione
-   `0035_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
+   `0037_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
    totale non le stima.
 3. **`GET /users/{public_id}/photos`**: le foto dei disegni che chi guarda
    vede sul profilo, dalla corsa più recente e, nello stesso disegno, per
@@ -18337,3 +18399,395 @@ che l'ADR non dice.
 **Conseguenze**: nessun contratto di oggi cambia; `Accounts` ha
 `insert_user` (anche per `POST /accounts`) e `unusable_password_hash`, e
 `open_session` è una funzione del modulo.
+
+## ADR-0207 — aggiunta (TASK-326): il passo medio nella riga dei fatti del «Feed»
+
+**Data**: 2026-10-26 · **Stato**: Accettato · **Task**: TASK-326 ·
+mostrare il passo medio è una **scelta dell'utente** («nella sezione feed
+quando viene caricato un post bisogna aggiungere anche il passo medio come
+dato»); il come è **deciso dall'agente su delega dell'utente**
+
+**Contesto**: la riga dei fatti di un post del «Feed» diceva cosa disegna,
+quanto è lunga e quanto è durata la corsa («Star · 4.0 km · 19 min»).
+
+**Decisione**:
+
+1. Il passo medio va **in fondo alla riga dei fatti** (`postFacts`),
+   dopo la durata: «Star · 4.0 km · 19 min · 4:45 /km». Niente riga né
+   riquadro nuovi; VoiceOver lo legge con il resto della riga, senza
+   testi nuovi da tradurre.
+2. Si scrive come in «My activities» (`runFacts`) e nel post per Strava:
+   `paceLabel` al km o, con «Miles», al miglio; in canoa e paddle
+   `paddlePaceLabel`, il tempo di 500 m (ADR-0215); in bici al km, come
+   già fanno «My activities» e il post (ADR-0215, aggiornamento parte C).
+   Sotto i 100 m (`MIN_PACE_M`) nessun passo.
+3. Per un disegno pubblicato il passo viene dai **secondi** della corsa
+   (`duration_s`), non dai minuti arrotondati che la riga mostra; gli
+   esempi hanno solo i minuti e usano quelli.
+
+**Alternative scartate**: la velocità in km/h per la bici (più giusta per
+chi pedala, ma diversa da «My activities» e dal post: una scelta
+dell'utente, se la vuole); il passo dai minuti mostrati anche per gli
+iscritti (fino a 30 s di errore sul minuto, cioè secondi di passo su una
+corsa corta); il passo su una riga a parte (la scheda diventa più alta
+per un dato solo).
+
+**Conseguenze**: la riga è più lunga e su schermi stretti va a capo, come
+già faceva «Paddle · …». `docs/UI.md` («Feed») va allineato dopo
+TASK-309 B, che lo ha in lavorazione (`tasks/TASK-326.md`).
+
+## ADR-0285 — Due repository uguali: MUW sotto l'utente, specchiato con shaperoute nei due versi da un flusso in MUW
+
+**Stato**: Attiva · 2026-10-28 · il repository nuovo e lo specchio nei due
+versi li ha chiesti l'utente; i punti tecnici sono decisi dall'agente su
+delega dell'utente (TASK-325). Numero preso senza coordinatore: il primo
+libero dopo ADR-0284.
+
+**Contesto**: le sessioni cloud di Claude scrivono su GitHub solo dove è
+installata l'app GitHub di Claude, e il proprietario di
+`rockydalbianco/shaperoute` non può installarla (2026-10-28). L'utente ha
+creato `LPPL1316/MUW` e ha chiesto che i due «si parlino a vicenda e si
+aggiornino in automatico entrambi». Il server Hetzner e `deploy/` leggono
+ancora `shaperoute`; chi lavora dal Mac continua a usare quello.
+
+**Decisione**:
+
+1. **`LPPL1316/MUW` è una copia intera** di `shaperoute` (storia completa,
+   tutti i branch), fatta il 2026-10-28 con `git push` da una sessione
+   cloud. Da lì in poi Claude in cloud lavora su MUW (branch, PR, merge).
+2. **Un solo flusso, in MUW** (`.github/workflows/mirror.yml`), fa tutti e
+   due i versi: a ogni push su MUW e ogni dieci minuti scarica i branch
+   dei due repository e, branch per branch (`tools/mirror_repos.py`):
+   uguali, niente; uno indietro, lo porta avanti con un push che git
+   accetta solo se è un fast-forward; presente da una parte sola, lo crea
+   dall'altra, a meno che sia già fuso in un `main` (la sua punta è un
+   antenato di un `main`, e non è `main`): allora è stato cancellato dopo
+   il merge, e lo cancella anche qui; con commit da tutte e due le parti,
+   non lo tocca, lo nomina e finisce rosso. `main` non si cancella mai.
+   Mai `--force`. Niente tag (non ce ne sono).
+3. **Un solo segreto**: `MIRROR_TOKEN` in MUW, un token classico GitHub
+   con lo scope `repo` di un account che scrive in `shaperoute`; verso MUW
+   basta il token del flusso. Pubblica una sola persona (l'utente), nel
+   repository che possiede. I push fatti con il token del flusso non
+   avviano altri flussi: nessun ciclo, e un branch specchiato in MUW fa
+   la CI nell'altro repository e nella sua PR.
+4. **Il file del flusso arriva anche in `shaperoute`** con `main`, e lì
+   non gira (`if: github.repository_owner == 'LPPL1316'`): un flusso in
+   `shaperoute` vorrebbe un segreto che nessuno può mettere.
+
+**Alternative scartate**: un flusso per repository (un segreto anche in
+`shaperoute`, che il proprietario non può mettere); `git push --mirror`
+(forza, e porterebbe le cancellazioni e le divergenze senza chiedere);
+una sola direzione (l'utente ne vuole due); lavorare solo su MUW e
+abbandonare `shaperoute` (il server e il Mac stanno lì); unire da soli i
+branch divergenti (un merge sbagliato in silenzio costa più di un rosso).
+
+**Conseguenza**: chi lavora dal Mac su `shaperoute` e chi lavora in cloud
+su MUW vedono lo stesso dopo al più dieci minuti; una PR si apre e si
+mergia in uno dei due, e il `main` nuovo arriva nell'altro. Un branch
+abbandonato senza merge, o fuso con uno squash, ricompare finché non si
+cancella da tutte e due le parti. Due merge su `main` da parti diverse
+nello stesso intervallo vogliono una mano: meglio mergiare sempre dallo
+stesso repository. Il flusso costa un job di pochi secondi ogni dieci
+minuti.
+
+## ADR-0286 — «Play» sotto la distanza di «Draw», non più una pagina
+
+**Stato**: Attiva · 2026-10-29 · scelta dell'utente (dove sta e come si
+apre) e deciso dall'agente su delega dell'utente (come è fatto) (TASK-327).
+Cambia ADR-0255 in un punto solo: dove sta «Play» nell'app. Le regole del
+gioco, l'API e le due schede restano quelle di ADR-0255.
+
+**Contesto**: ADR-0255 metteva «Play» fra «Explore» e il profilo: dalla
+parte B di TASK-296 era la quarta pagina da scorrere, con il suo nome in
+alto dopo «Explore». Il 2026-10-29 l'utente:
+«la sezione play non mi piace in cima a fianco ad explore mettila
+direttamente sotto la modifica della distanza». Fra due proposte ha scelto
+una riga che apre il gioco a tutto schermo; scartato il gioco intero
+dentro «Draw», che avrebbe spinto in fondo «NEAR YOU» e le idee.
+
+**Decisione**:
+
+1. **In alto tre nomi**: `"play"` non è più fra le pagine affiancate
+   (`PAGES` in `App.tsx`), e il profilo torna a uno swipe da «Explore».
+2. **La riga** (`PlayRow`) sta in «Draw» subito dopo `RouteChoice`, cioè
+   dopo «DISTANCE», prima di «NEAR YOU»; c'è con ogni sport, solo mentre
+   l'API ha il gioco (`useGameCatalog`, come prima la pagina). È fatta come
+   la riga «Messages» del profilo: «PLAY» piccolo e grigio come le altre
+   etichette di «Draw», sotto «Collect shapes by running», «›» a destra.
+3. **Il gioco sopra l'app** (`PlayOverlay`): lo schermo `"play"` resta uno
+   degli schermi dell'app, ma fuori dalle pagine; quando è lui, il `Pager`
+   non c'è (come per la mappa) e sopra tutto stanno «←», «Play» e
+   `PlayScreen`. «←» torna a «Draw». «See collection» e le notifiche del
+   gioco lo aprono da qualunque pagina, mai sopra una corsa, come prima.
+4. **Il nome resta in `pageTitles.ts`** (`pageTitle("play")`), usato dalla
+   riga per VoiceOver e dal titolo del gioco: un testo solo, «Play», nelle
+   cinque lingue.
+
+**Conseguenze**: tornando da «Play» la pagina «Draw» si ricostruisce
+dall'alto, come tornando dalla mappa: quello che era scritto resta (sta in
+`App.tsx`), la posizione dello scorrimento no. Il `Pager` sa ancora
+aggiungere una pagina dopo l'avvio, anche se oggi nessuna lo fa.
+
+## ADR-0287 — Le idee per un percorso solo in «Ask for a route»: sempre aperto, con i nostri percorsi nelle città d'Europa, poi le foto vere dei posti
+**Stato**: Attiva · 2026-10-29 · le scelte di prodotto sono dell'utente
+(richiesta a voce del 2026-10-29, proposta approvata in chat con «Sì,
+così», TASK-329); il come deciso dall'agente su delega dell'utente.
+Sostituisce i punti 1–3 di ADR-0246 (le righe di «Draw») e la riga chiusa
+di TASK-157; ADR-0099 e ADR-0243 restano.
+
+**Contesto**: le idee stavano in tre posti: «CITY TOURS» e «PICTURES» in
+fondo a «Draw», «Ask for a route» chiuso in fondo a «Explore». L'utente
+le vuole in un posto solo, aperto, con esempi nostri da cui prendere
+spunto, e dentro un percorso le foto vere dei posti belli.
+
+**Decisione**:
+
+1. **«Draw» senza le due righe** (scelta dell'utente): via
+   `src/route/DrawIdeas.tsx`. Le sagome di `samplePictures.ts` restano in
+   «Draw on the map» e in «Change figure» (ADR-0245), dove servono già.
+   Senza i giri da «Draw», `ThemedCard` perde `fromDraw` e «Back to Draw».
+2. **«Ask for a route» aperto**, nello stesso posto in fondo a «Explore»,
+   senza la riga da toccare (scelta dell'utente). Quattro categorie fisse,
+   quelle delle idee: Famous Places, Best Views, Hidden Gems, Photography;
+   le altre nove dietro «More…». Le parole mandate all'API non cambiano.
+3. **«IDEAS FROM EUROPE»** dentro il blocco, sopra le categorie: una fila
+   di schede di «Explore» (`RouteCard` con la mappa sotto la linea, come
+   «NEARBY TOWNS»), «Roma · Stella», «Famous Places · 8,1 km». Le città
+   sono scritte nella lingua dell'app. Sotto la fila, il credito delle
+   mappe e «© OpenStreetMap contributors», perché posti e strade delle idee
+   sono dati OSM (condizione del Coordinatore); il JSON tiene il campo
+   `license` della risposta. Le foto delle mappe si fanno una alla volta
+   per tutta l'app, in fila: le schede delle idee le chiedono dopo che i
+   percorsi della pagina sono arrivati, e solo le tre in vista finché la
+   fila non scorre, così non passano davanti alle schede in cima.
+4. **Le idee le calcola uno strumento una volta**, `tools/themed_ideas.py`,
+   con i job a tema dell'API (`ThemedJobs.result_of`, le tabelle senza
+   AI) e il Route Engine. Le parole sono quelle che manderebbe l'app
+   («Famous Places star 8 km»), dal centro della città che dà la ricerca
+   città dell'API. Il file `src/explore/themedIdeas.json` ha la risposta di
+   `GET /themed-route-jobs/{id}`, con i punti arrotondati a 5 decimali, e
+   una linea di 120 punti per la scheda (come i disegni del Feed). L'AI
+   non dà coordinate: le dà il motore, come per ogni percorso. Si tengono
+   solo le idee che si leggono bene a occhio, perché la somiglianza del
+   motore dice poco (TASK-290).
+5. **Un'idea si apre senza rete**: `useThemedRoute.show(idea)` mette lo
+   stato `done` con la richiesta che l'ha fatta e l'idea; mappa, scheda,
+   GPX, «Start» e preferiti sono quelli di un percorso chiesto.
+6. **«Make it near me»** (scelta dell'utente): su un'idea a più di 20 km
+   dal centro della sua città il bottone giallo manda le stesse parole con
+   `centre` la partenza e `city` nullo, al posto di «Start»; vicino, o
+   senza una partenza, resta «Start». Il percorso fatto vicino ha «Start»
+   come ogni altro.
+   «Export GPX» c'è sempre.
+7. **Le foto vere dei posti, parte B**: il codice Wikidata che Geoapify dà
+   per i posti notevoli (`wiki_and_media.wikidata`, già usato da
+   `parse_places`) entra facoltativo in `StopBody`, con la foto di
+   `CityPhotos.photos()` (ADR-0243: P18, solo licenze libere, il JPEG
+   tenuto sul nostro server, il credito sulla foto). L'app mostra la fila
+   numerata sotto la mappa e la foto del primo posto sulla scheda di
+   un'idea. Il server solo col sì dell'utente.
+
+**Conseguenze**: nessun contratto dell'API cambia nella parte A, e non ci
+sono dipendenze nuove. Le idee non si aggiornano da sole: il file cambia
+solo rilanciando lo strumento, che ha bisogno di Overpass e della chiave di
+Geoapify (con Overpass pieno, `--only` rifà quelle mancate). Il bundle
+dell'app cresce del file delle idee.
+
+## ADR-0287, aggiunta — Le foto dei posti: nella risposta di un percorso, e da una lista per le idee
+
+**Stato**: Attiva · 2026-10-29 · il cosa è dell'utente (proposta approvata
+con «Sì, così», punto 7 qui sopra); il come deciso dall'agente su delega
+dell'utente, con le condizioni del Coordinatore (TASK-329 parte B).
+Aggiunta ad ADR-0287, senza numero nuovo; ADR-0243 resta.
+
+**Contesto**: `/city-photos/{item}.jpg` dà solo la foto di un elemento che
+l'API ha già chiesto con `CityPhotos.photos()`: non è un proxy di Commons
+(ADR-0243). Un percorso a tema chiesto all'API passa da lì; le dodici idee
+no, perché le calcola una volta lo strumento sul Mac.
+
+**Decisione**:
+
+1. **I posti con l'elemento**: `parse_places` tiene l'elemento Wikidata di
+   ogni posto (`item_of` di `/nearby-cities`, anche da `datasource.raw`) su
+   `Place`, una sottoclasse di `Stop` in `themed.py`: il motore legge solo
+   nome e punto, e né lui né `jobs.py` cambiano (niente `engine.zip`).
+   Quali posti contano come notevoli non cambia.
+2. **Un percorso chiesto** ha `wikidata` su ogni posto e `photo` sui posti
+   toccati: `CityPhotos.photos()` con l'attesa di `/nearby-cities` (al più
+   2 s), solo per quelli, perché la fila mostra solo loro. `null` vuol dire
+   «nessuna foto libera»: l'app non chiede altro.
+3. **Le idee**: lo strumento tiene nel file dell'app solo `wikidata`, mai
+   `photo`, perché il credito può cambiare e va detto com'è oggi. Scrive
+   anche `services/api/shaperoute_api/data/idea_items.json`, gli elementi
+   dei posti toccati dalle idee, che l'API legge all'avvio e non da
+   `apps/`. `GET /place-photos?items=…` (al più 15, solo `Q…`, con la
+   chiave) risponde solo per quelli: un altro elemento non ha foto lì e
+   Wikimedia non ne sente parlare (condizione del Coordinatore).
+   `--items` dello strumento ritrova i posti delle idee tenute con la
+   ricerca dell'API e dà a ognuno il suo elemento per nome, senza
+   ripianificare: i percorsi guardati a occhio restano quelli.
+4. **L'app**: sotto la mappa la fila «1 Colosseum»…, numerata come i posti
+   sulla mappa (il numero sta nel nome che `App` passa alla mappa: la
+   pagina della mappa non cambia per questo); un tocco manda alla pagina
+   `focus` (`flyTo`, zoom 16, mai più lontano, girata com'è). Un'idea
+   chiede le foto dei suoi posti senza `photo`; le schede delle idee una
+   richiesta sola per la fila. Le foto restano per tutto il giro dell'app.
+   Le immagini vengono sempre da `/city-photos/` della nostra API.
+
+**Alternative scartate**: `GET /place-photos` per qualunque elemento, o
+`/city-photos/` che chiede a Wikimedia un elemento mai visto (un proxy per
+chiunque abbia la chiave, contro ADR-0243); il credito nel file dell'app
+(resta vecchio quando la foto cambia); le foto nel bundle (pesano, e il
+credito resta vecchio lo stesso); ripianificare le idee per avere gli
+elementi (i percorsi cambierebbero e andrebbero riguardati).
+
+**Conseguenze**: dei 101 posti toccati dalle idee, 93 hanno un elemento
+(88 elementi diversi nella lista); 8, a Praga, Lisbona e Londra, no:
+OpenStreetMap non ne nomina uno, o Geoapify non li ha ridati con lo stesso
+nome, e restano col solo nome. Rilanciare lo strumento riscrive anche la
+lista dell'API, che arriva sul server con il deploy. La privacy non cambia: a
+Wikimedia vanno solo elementi e nomi di file, e il telefono parla solo con
+la nostra API (TASK-283).
+
+## ADR-0289 — Gli allegati nei messaggi privati: un disegno, una foto o un video per messaggio, i file su disco, i video con un limite e una scadenza
+
+**Stato**: Proposta · 2026-10-29 · la richiesta e le scelte di prodotto
+sono **dell'utente** (TASK-333, «Le scelte dell'utente», 2026-10-29: solo
+dopo «Accept»; video fino a 60 s e 40 MB; video tenuti 30 giorni; il
+disegno si apre, si corre e si tiene; si manda dalla scheda e dalla
+conversazione; il resto «Sì, così»); testi e privacy **approvati
+dall'utente** il 2026-10-29 («Approvo così»); i punti tecnici sono
+decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore. Estende ADR-0279.
+
+**Contesto**: l'utente il 2026-10-29: «Aggiungi la possibilità di
+inviare disegni agli amici allegati, foto video». I messaggi di ADR-0279
+sono solo testo. L'app ha già quello che serve per scegliere e mostrare
+foto e video (`expo-image-picker`, `expo-image-manipulator`,
+`expo-file-system`, la WebView, `expo-sharing`) e un disegno si copia già
+intero nei preferiti (ADR-0139). Le foto dei disegni stanno nel database
+(ADR-0170), 0,1–0,3 MB l'una; un video di 60 s è 20–40 MB. Lo spazio del
+server è poco: il disco del sistema e il Volume da 70 GB (zone e cache)
+non crescono da soli, e il database si copia ogni notte.
+
+**Decisione** (proposta):
+
+1. **Un allegato per messaggio**, `photo`, `video` o `drawing`, con un
+   testo facoltativo (fino a 1000 caratteri come oggi; vuoto ammesso solo
+   con un allegato). Chi può allegare e in quale stato della conversazione
+   è la scelta 1 dell'utente: solo in `open`, cioè dopo «Accept» (o
+   quando chi riceve segue chi scrive). Un allegato in una richiesta è
+   `409`, come un secondo messaggio.
+2. **Un disegno è una copia, non un rimando**: lo stesso corpo di un
+   preferito (`FavoriteRequestBody`: linea, forma o parola, lettere,
+   titolo, metri, sport, `walks`, `on_foot`, rotazione), tenuto in
+   `jsonb` col messaggio. Resta com'è anche se il disegno di partenza si
+   cancella o cambia visibilità, e chi lo riceve lo mette nei preferiti
+   così com'è. La corsa di chi manda viaggia **tagliata** come nel Feed
+   (`DRAWING_CUT_M`, ADR-0159); un percorso progettato intero, con la sua
+   partenza: si manda per correrlo.
+3. **L'app sa cosa può allegare dalla pagina della conversazione**: `GET
+   /conversations/{public_id}/messages` ha `attachments` (i tipi ammessi
+   adesso, i limiti), `null` quando non si può (una richiesta, i video
+   fermi per il tetto). Un'API di prima non ha il campo e l'app non
+   mostra il «+». Nessuna sonda nuova: `messagesDoor.ts` dopo un `404`
+   non chiede più finché l'app non si riapre, mentre la pagina si rilegge
+   a ogni apertura.
+4. **L'app di prima**: chiede le pagine senza `?with=attachments` e
+   riceve, per un messaggio con un allegato, il testo con davanti
+   «[Photo]», «[Video]» o «[Drawing]» (inglese, come i codici); niente
+   bolle vuote.
+5. **Foto e video su disco, non nel database**: `data/media/messages/`,
+   un file per id casuale, montato nell'API da `deploy/compose.yaml`. Il
+   database tiene la riga (`message_media`: proprietario, tipo, byte,
+   misure, durata, scadenza, messaggio). Le copie di ogni notte restano
+   piccole e **foto e video non sono nelle copie** (né nello Storage
+   Box): se il disco si rompe, il messaggio resta e l'allegato dice che
+   non c'è più. La privacy lo dice.
+6. **Caricare in due tempi**: `POST /me/message-media` con il file nudo
+   (non base64 in JSON: un video di 20 MB diventerebbe 27), risposta con
+   l'`id`; poi il messaggio con quell'`id`. Un file non usato entro
+   un'ora si cancella. La locandina del video (un JPEG del primo
+   fotogramma) la fa il telefono di chi manda nella WebView nascosta,
+   come il video della corsa (ADR-0254), e arriva con `PUT
+   …/{id}/poster`; senza, l'app mostra un riquadro con ▶ e la durata.
+7. **Cosa controlla il server**, senza programmi nuovi:
+   - la foto come quelle dei disegni (`fitted_jpeg`: dritta, 1080 px,
+     JPEG, **senza EXIF**);
+   - il video: le prime scatole devono dire MP4 o QuickTime (`ftyp`), la
+     durata si legge da `mvhd`, il peso dal corpo; oltre i limiti `422`.
+     Il luogo della ripresa (`©xyz`) e le scatole di metadati (`udta`,
+     `meta`) diventano `free` della stessa lunghezza: nessun offset si
+     sposta e chi riceve non sa dove è stato girato. Niente ffmpeg:
+     ricomprimere sul server ruberebbe la CPU al motore.
+   - Il video si riduce **sul telefono**: sull'iPhone
+     `videoExportPreset` di `expo-image-picker` (960 × 540, circa
+     3 Mbit/s); Android non lo sa fare e manda il file com'è, entro i
+     40 MB: un video 1080p di Android ci sta per circa 20 s (seguito
+     possibile: ridurlo con WebCodecs nella WebView).
+   - Il codice comune (il controllo MP4, i file su disco, il tetto) sta in
+     un modulo senza tabelle, `media_files.py`, che usano anche i video
+     dei post (TASK-336, ADR-0292): le regole di questo punto e dei punti
+     5, 6 e 8 valgono anche lì, salvo quello che ADR-0292 dice diverso.
+8. **Lo spazio**: fino a 60 s e 40 MB per video (scelta 2), limiti per
+   account al giorno (10 video, 100 foto), i video cancellati dopo 30
+   giorni (scelta 3) e un **tetto per tutto il server**
+   (`SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, 10 GB): sopra, `attachments` non
+   offre più i video (le foto, piccole, fino al tetto più un decimo) e il
+   log lo dice. Stima: un video 960 × 540 di 60 s è circa 22 MB; con 30
+   giorni di scadenza, 10 GB reggono circa 15 video al giorno ogni
+   giorno; una foto 0,2 MB, mille foto 0,2 GB. Lo spazio libero vero si
+   misura (`df -h`) prima di aggiornare il server, col sì dell'utente; il
+   tetto si alza cambiando la variabile.
+9. **Leggere un allegato** (`GET /message-media/{id}`, `…/poster`): solo
+   i due membri della conversazione, con il token e la chiave di sempre;
+   `404` per tutti gli altri, attraverso un blocco, per un messaggio
+   nascosto a chi l'ha ricevuto; `410` per un video scaduto. L'app scarica
+   il file nella sua cache con le intestazioni e lo mostra da lì (il
+   video in una `<video>` della WebView, che legge i file come il
+   motore): niente indirizzi firmati.
+10. **Moderazione (Apple 1.2)**: l'allegato è parte del messaggio. «Report
+    this message» lo copre; l'email della segnalazione dice che c'è un
+    allegato e la **pagina del link** (firmata, ADR-0251) lo mostra a chi
+    gestisce MuW; «Hide» nasconde messaggio e allegato a chi l'ha
+    ricevuto. Il blocco cancella la conversazione e con lei i file;
+    «Delete» di chi ha scritto, l'account cancellato e la scadenza
+    anche. Una pulizia ogni ora toglie dal disco i file senza più riga e
+    quelli scaduti.
+11. **Le push**: `message` con l'allegato dice «{name}: 📷 Photo» (o
+    «🎬 Video», «🗺️ Drawing»), con il testo se c'è; il file non va mai
+    a Expo, ad Apple o a Google.
+12. **I permessi del telefono non cambiano**: la galleria (`PHPicker` su
+    iOS 14 e oltre, il selettore di Android) non chiede permessi. La
+    fotocamera e la registrazione restano fuori fino alla 1.0.1: il testo
+    del permesso della fotocamera parla del contorno del percorso e
+    quello del microfono dice «MuW never records sound», e cambiarli
+    vuole una build nativa.
+
+**Alternative scartate**:
+
+- *Foto e video nel database*, come le foto dei disegni: la copia di
+  ogni notte crescerebbe con ogni video.
+- *Base64 in JSON*, come oggi le foto: un terzo in più su ogni video.
+- *Ridurre o tagliare il video sul server con ffmpeg*: un programma in
+  più nell'immagine e la CPU tolta ai percorsi.
+- *Un indirizzo firmato per guardare il video senza scaricarlo*: ogni
+  percorso dell'API vuole la chiave `X-API-Key`, che non va negli
+  indirizzi; il video corto si scarica in pochi secondi.
+- *Un rimando al disegno pubblicato invece della copia*: non vale per un
+  percorso non salvato né per una corsa privata, e sparisce col disegno.
+- *Una sonda nuova per sapere se l'API ha gli allegati*: dopo un `404`
+  l'app non richiederebbe fino alla riapertura.
+- *`expo-video` o `expo-media-library`*: moduli nativi, l'impronta cambia.
+
+**Conseguenze**:
+
+- Una migrazione e una cartella nuova sul server (`data/media`, in
+  `compose.yaml`): il server va aggiornato prima dell'OTA, col sì
+  dell'utente.
+- La privacy cambia nelle cinque lingue; su App Store Connect «App
+  Privacy» e su Google Play «Data safety» vanno aggiunti «Photos or
+  Videos»: li cambia l'utente, prima dell'OTA `production`.
+- Chi tocca la cancellazione dei messaggi deve ricordare i file su
+  disco: la riga sparisce in cascata, il file solo con la pulizia.

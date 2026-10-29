@@ -8,7 +8,17 @@ import { apiKey, keyHeaders } from "../api/apiUrl";
  * The bodies are packages/shared-types/fixtures/themed-route-job-*.json.
  */
 
-export type ThemedStop = { name: string; point: LatLon; passed: boolean };
+export type ThemedStop = {
+  name: string;
+  point: LatLon;
+  passed: boolean;
+  /** Its Wikidata item, when OpenStreetMap names one (TASK-329). */
+  wikidata?: string | null;
+  /** Passed by, on a route the API planned: its free photo, or null for
+   * none. Read with `apiPhoto`. Absent on our ideas, which ask the API for
+   * it by `wikidata`, and from an API before TASK-329. */
+  photo?: unknown;
+};
 
 export type ThemedResult = {
   points: LatLon[];
@@ -48,7 +58,8 @@ function isPoint(value: unknown): value is LatLon {
   );
 }
 
-function isResult(value: unknown): value is ThemedResult {
+/** A result as GET /themed-route-jobs/{id} gives it, or an idea keeps it. */
+export function isThemedResult(value: unknown): value is ThemedResult {
   if (typeof value !== "object" || value === null) {
     return false;
   }
@@ -90,7 +101,7 @@ export function isThemedJob(body: unknown): body is ThemedJob {
     return false;
   }
   if (job.status === "done") {
-    return isResult(job.result);
+    return isThemedResult(job.result);
   }
   if (job.status === "failed") {
     const error = job.error as Record<string, unknown> | null;

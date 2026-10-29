@@ -198,15 +198,20 @@ def report(client: TestClient, who: Headers, message_id: str) -> Any:
 
 def test_the_examples_are_the_bodies() -> None:
     for name, model in (
-        ("message-request.json", MessageRequestBody),
         ("message.json", MessageBody),
         ("messages.json", MessagesBody),
+        ("message-attachments.json", MessagesBody),
         ("conversations.json", ConversationsBody),
         ("conversations-unread.json", UnreadBody),
     ):
         body = _load(name)
         assert set(body) == set(model.model_fields), name
         model.model_validate(body)
+    # What the app sends: the attachment only when there is one (TASK-333).
+    for name in ("message-request.json", "message-attachment-request.json"):
+        body = _load(name)
+        assert set(body) <= set(MessageRequestBody.model_fields), name
+        MessageRequestBody.model_validate(body)
 
 
 def test_a_text_refused_says_why() -> None:
@@ -519,6 +524,7 @@ def test_reading_takes_the_dot_away(client: TestClient) -> None:
         "text",
         "created_at",
         "mine",
+        "attachment",
     }
 
 

@@ -1,4 +1,9 @@
-import { type RouteResult, type Shape, SHAPES } from "@shaperoute/shared-types";
+import {
+  type LatLon,
+  type RouteResult,
+  type Shape,
+  SHAPES,
+} from "@shaperoute/shared-types";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { t } from "../i18n";
 import { shapeWord } from "../i18n/shapeNames";
@@ -16,6 +21,7 @@ import {
 import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { ExploreStart } from "./ExploreStart";
+import { StopPhotos } from "./StopPhotos";
 import type { ThemedResult } from "./themedRoutes";
 import type { StartView } from "./useStartDirections";
 import type { ThemedState } from "./useThemedRoute";
@@ -78,8 +84,15 @@ type Props = {
   /** Turn-by-turn along it, the directions asked for first (TASK-145). */
   start: StartView;
   onStart: () => void;
-  /** Asked from the tours of «Draw» (TASK-280): the way back goes there. */
-  fromDraw?: boolean;
+  /**
+   * On one of our ideas far from the start: the same words asked from the
+   * start, the yellow button in the place of «Start». Without it, «Start».
+   */
+  onNearMe?: () => void;
+  /** Where the places' photos are read from (TASK-329): none without. */
+  apiUrl?: string | null;
+  /** A tap on a place's photo: the map goes there. */
+  onPlace?: (point: LatLon) => void;
 };
 
 /** Under the map: a shape through the places of a theme (TASK-129). */
@@ -90,7 +103,9 @@ export function ThemedCard({
   onCancel,
   start,
   onStart,
-  fromDraw = false,
+  onNearMe,
+  apiUrl = null,
+  onPlace,
 }: Props) {
   // Written again when «Settings» changes the units (TASK-182); with a
   // point, as the texts here, still in English.
@@ -125,15 +140,12 @@ export function ThemedCard({
           onPress={onCancel}
           accessibilityRole="button"
         >
-          <Text style={styles.secondaryText}>
-            {fromDraw ? t("Back to Draw") : t("Back to Explore")}
-          </Text>
+          <Text style={styles.secondaryText}>{t("Back to Explore")}</Text>
         </Pressable>
       </View>
     );
   }
-  const { result } = state;
-  const passed = result.stops.filter((s) => s.passed);
+  const { result, idea } = state;
   return (
     <View style={styles.panel}>
       <View>
@@ -141,16 +153,26 @@ export function ThemedCard({
         <Text style={styles.target}>
           {t("{title} · {city} · looks {percent}% like it", {
             title: shapeWord(result.shape),
-            city: result.city ?? t("here"),
+            // An idea's city in the app's language: «Roma».
+            city: idea !== undefined ? t(idea.city) : (result.city ?? t("here")),
             percent: Math.round(result.similarity * 100),
           })}
         </Text>
       </View>
       <Text style={styles.body}>{passedText(result)}</Text>
-      {passed.length > 0 && (
-        <Text style={styles.places}>{passed.map((s) => s.name).join(" · ")}</Text>
+      {/* The places passed by, numbered as on the map, with their photos. */}
+      <StopPhotos stops={result.stops} apiUrl={apiUrl} onPlace={onPlace} />
+      {onNearMe !== undefined ? (
+        <Pressable
+          style={({ pressed }) => [styles.nearMe, pressed && styles.pressed]}
+          onPress={onNearMe}
+          accessibilityRole="button"
+        >
+          <Text style={styles.nearMeText}>{t("Make it near me")}</Text>
+        </Pressable>
+      ) : (
+        <ExploreStart start={start} onStart={onStart} />
       )}
-      <ExploreStart start={start} onStart={onStart} />
       <Pressable
         style={styles.secondary}
         onPress={onExport}
@@ -165,9 +187,7 @@ export function ThemedCard({
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
       )}
       <Pressable style={styles.secondary} onPress={onCancel} accessibilityRole="button">
-        <Text style={styles.secondaryText}>
-          {fromDraw ? t("Back to Draw") : t("Back to Explore")}
-        </Text>
+        <Text style={styles.secondaryText}>{t("Back to Explore")}</Text>
       </Pressable>
     </View>
   );
@@ -190,13 +210,27 @@ const styles = StyleSheet.create({
     color: color.text,
     fontSize: fontSize.body,
   },
-  places: {
-    color: color.textMuted,
-    fontSize: fontSize.small,
-  },
   error: {
     color: color.error,
     fontSize: fontSize.body,
+  },
+  // Yellow as «Start», whose place it takes: it produces a route.
+  nearMe: {
+    minHeight: MIN_TAP_SIZE + space.md,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.lg,
+    backgroundColor: color.accent,
+  },
+  // Dark on yellow: white does not reach the contrast minimum (ADR-0046).
+  nearMeText: {
+    color: color.onAccent,
+    fontWeight: fontWeight.bold,
+    fontSize: fontSize.input,
+  },
+  // A light touch: what is pressed dims, nothing moves.
+  pressed: {
+    opacity: 0.6,
   },
   secondary: {
     minHeight: MIN_TAP_SIZE,

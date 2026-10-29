@@ -70,11 +70,12 @@ test("each call asks its path and method, with the token", async () => {
     String(url).replace(URL, ""),
   ]);
   expect(asked).toEqual([
-    ["GET", "/me/conversations?box=inbox"],
-    ["GET", "/me/conversations?box=requests&cursor=17-ab"],
+    // With what each message carries (TASK-333).
+    ["GET", "/me/conversations?box=inbox&with=attachments"],
+    ["GET", "/me/conversations?box=requests&cursor=17-ab&with=attachments"],
     ["GET", "/me/conversations/unread"],
-    ["GET", `/conversations/${ID}/messages`],
-    ["POST", `/conversations/${ID}/messages`],
+    ["GET", `/conversations/${ID}/messages?with=attachments`],
+    ["POST", `/conversations/${ID}/messages?with=attachments`],
     ["PUT", `/conversations/${ID}/accept`],
     ["PUT", `/conversations/${ID}/read`],
     ["DELETE", `/conversations/${ID}`],
