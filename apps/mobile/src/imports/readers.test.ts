@@ -76,8 +76,8 @@ describe("a GPX file", () => {
       point: [46.067, 11.1241484],
       timeMs: Date.UTC(2025, 3, 12, 6, 31, 5),
     });
-    // The stop of 95 s after the 20th point.
-    expect(track.points[20].timeMs! - track.points[19].timeMs!).toBe(100_000);
+    // The stop of 95 s after the 20th point, 10 s apart otherwise.
+    expect(track.points[20].timeMs! - track.points[19].timeMs!).toBe(105_000);
     // The time of the metadata is not a point.
     expect(track.points.every((p) => p.point !== null && p.timeMs !== null)).toBe(true);
   });
@@ -149,12 +149,12 @@ describe("a FIT file", () => {
     expect(track.points[1].timeMs).toBe(START + 1000);
     expect(track.points[1].point![0]).toBeCloseTo(45.8906, 6);
     expect(track.points[1].point![1]).toBeCloseTo(11.0420654, 6);
-    // Compressed headers, 2 s apart, across a wrap of the 5 bits.
+    // Compressed headers, 10 s apart, across wraps of the 5 bits.
     const seconds = track.points.map((p) => (p.timeMs! - START) / 1000);
-    expect(seconds.slice(0, 5)).toEqual([0, 1, 3, 5, 7]);
+    expect(seconds.slice(0, 6)).toEqual([0, 1, 11, 21, 31, 41]);
     // The stop of 70 s, written with a full timestamp.
     expect(seconds[21] - seconds[20]).toBe(70);
-    expect(seconds[30]).toBe(1 + 2 * 28 + 70);
+    expect(seconds[30]).toBe(1 + 10 * 28 + 70);
     // The big-endian definition reads the same positions.
     for (const { point } of track.points.slice(1)) {
       expect(point![0]).toBeGreaterThan(45.88);

@@ -86,7 +86,7 @@ describe("a file of another app made into a run", () => {
 
   it("makes a gap over a minute a pause of the app's", () => {
     const run = ok(importedRun(fileOf("strava-run.gpx")));
-    // The stop of 95 s after the 20th point (5 s apart otherwise).
+    // The stop of 95 s after the 20th point (10 s apart otherwise).
     expect(run.request.pauses).toEqual([
       {
         from_ms: run.request.track[19].time_ms,

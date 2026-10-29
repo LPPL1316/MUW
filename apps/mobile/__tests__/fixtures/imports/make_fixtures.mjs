@@ -51,7 +51,7 @@ function iso(ms, fraction = false) {
 function stravaGpx() {
   const start = Date.UTC(2025, 3, 12, 6, 31, 5);
   const points = loop([46.067, 11.1213], 220, 40);
-  const seconds = times(points.length, 5, 19, 95);
+  const seconds = times(points.length, 10, 19, 95);
   const trkpts = points
     .map(
       ([lat, lon], i) => `   <trkpt lat="${lat.toFixed(7)}" lon="${lon.toFixed(7)}">
@@ -86,7 +86,7 @@ ${trkpts}
 function garminTcx() {
   const start = Date.UTC(2025, 4, 3, 7, 2, 11);
   const points = loop([46.0108, 11.3035], 900, 36);
-  const seconds = times(points.length, 10, 17, 0);
+  const seconds = times(points.length, 20, 17, 0);
   const first = `          <Trackpoint>
             <Time>${iso(start - 3000, true)}</Time>
             <AltitudeMeters>440.0</AltitudeMeters>
@@ -261,7 +261,7 @@ function definition(local, global, fields, { little = true, developer = [] } = {
 }
 
 // A run from a Garmin watch, Rovereto, 7 June 2025: the activity file as
-// the watch writes it, cut to its first 48 seconds of records and a stop.
+// the watch writes it, cut to its first six minutes of records and a stop.
 function garminFit() {
   const start = Date.UTC(2025, 5, 7, 5, 48, 20) / 1000 - FIT_EPOCH_S;
   const points = loop([45.8906, 11.04], 160, 30);
@@ -359,7 +359,7 @@ function garminFit() {
       data.push(...record(seconds, point, i));
       continue;
     }
-    seconds += 2;
+    seconds += 10;
     data.push(
       0x80 | (2 << 5) | ((start + seconds) & 0x1f),
       ...int(Math.round(point[0] * SEMICIRCLES), 4, false, true),
