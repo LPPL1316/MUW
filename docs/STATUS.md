@@ -174,7 +174,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Scelte dell'utente del 2026-10-29: `expo-video` nella 1.0.2, anche per
   i messaggi; i video sul disco del server con un tetto di 15 GB; a
   spazio pieno si cancellano i video dei messaggi dal più vecchio, mai
-  quelli dei post. Aperte: dati mobili, testi e privacy.
+  quelli dei post. Dati mobili (parte sulla sua pagina), testi e privacy
+  accettati su delega dell'utente, da rivedere; tutto ciò che è nativo
+  aspetta l'utente. PR #631, solo documenti.
 - **TASK-329 — «Ask for a route» sempre aperto, con le nostre idee in
   Europa e poi le foto vere dei posti** (ADR-0287; richiesta a voce
   dell'utente del 2026-10-29, proposta approvata con «Sì, così»; numeri

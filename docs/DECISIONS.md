@@ -18855,8 +18855,9 @@ prima del suo taglio.
    `data/media/tmp/`, si controlla e solo allora va al suo posto: un
    `PUT` mandato di nuovo sostituisce, non raddoppia. `409` mentre il
    disegno è solo del proprietario (come le foto), `422` per un file che
-   non è un MP4 o è troppo lungo, `429` oltre 5 caricamenti al minuto o
-   20 al giorno per account, `503 videos_paused` (con `Retry-After`)
+   non è un MP4 o è troppo lungo, `429` oltre il limite al giorno di
+   ADR-0289 (10 video per account, contati qui per i post), `503
+   videos_paused` (con `Retry-After`)
    quando lo spazio è pieno anche dopo aver tolto i video dei messaggi
    (punto 11): il video aspetta sul telefono e il post va senza.
    `PUT …/drawing/video/poster` con il JPEG nudo (al più 1 MB, rifatto da
@@ -18889,7 +18890,7 @@ prima del suo taglio.
    | Chiave e token | l'app scarica prima il file (la `<video>` non manda intestazioni) | `headers` della sorgente |
    | Nel Feed | una WebView per la pagina sullo schermo, da aprire ogni volta, e i tocchi da passare alla scheda | una vista nativa, fatta per le liste |
    | Rivedere | i file nella cache dell'app, tenuti a mano | `useCaching`, cache su disco |
-   | Messaggi (TASK-333) | come approvato | i video dei messaggi suonano dalla 1.0.2; foto e disegni arrivano subito |
+   | Messaggi (TASK-333) | come approvato | nella 1.0 e nella 1.0.1 la WebView di #635; dalla 1.0.2 `expo-video` |
 
    Con `expo-video` la sorgente è `{uri, headers, useCaching: true}`, la
    cache su disco si porta a 200 MB (`setVideoCacheSizeAsync`; 1 GB di
@@ -18904,7 +18905,11 @@ prima del suo taglio.
    TASK-333 B è entrata in `main` (#635) con la WebView per i video dei
    messaggi: quella resta finché non c'è la 1.0.2, che porta anche i
    messaggi su `expo-video`; il cambio nei file dei messaggi è di
-   TASK-333.
+   TASK-333. **Mai due lettori nel codice**: la WebView dei messaggi esce
+   da `main` al taglio della 1.0.2, insieme al collegamento di
+   `expo-video`; la riserva proposta da TASK-333 (la WebView dove manca il
+   modulo) non si usa. Le build 1.0 e 1.0.1 tengono la WebView che hanno,
+   perché gli OTA di `main` dopo il taglio non le raggiungono più.
 7. **La striscia del Feed** (ADR-0275, TASK-330): il video è l'ultima
    pagina, dopo il disegno e le foto, con il suo puntino. Quando si vede
    la pagina prima di lui se ne carica solo la locandina (circa 50 KB),
@@ -18985,7 +18990,14 @@ prima del suo taglio.
     prezzo di listino del 2026, da verificare quando si compra, che si
     allarga senza fermare il server). Prima di allora fanno posto i video
     dei messaggi, dal più vecchio (punto 11); i video dei post restano.
-14. **I dati mobili** (scelta 3 dell'utente): proposta, il video parte
+    **Lo spazio libero di oggi non è noto** a questo task: le ultime
+    misure scritte sono del 2026-10-10 (circa 59 GB liberi sul disco del
+    server, 23 GB sul Volume delle zone), poi sono arrivati zone, copie e
+    i file dei messaggi. Si misura con `df -h` sul server prima della
+    parte A, col sì dell'utente, e i due tetti (15 + 10 GB) devono starci
+    con margine per le copie di notte.
+14. **I dati mobili** (scelta 3; accettata su delega dell'utente del
+    2026-10-29, da rivedere): il video parte
     quando la sua pagina è sullo schermo, anche con i dati mobili. Ci si
     arriva solo scorrendo fino all'ultima pagina, che è già una scelta;
     prima si scarica solo la locandina, e un video già visto viene dalla
@@ -18997,7 +19009,9 @@ prima del suo taglio.
     il suo autore; niente si cancella. «Report» sul post copre anche il
     video; l'email dice che il post ha un video, e la pagina del link
     (ADR-0251) lo mostra, come per i messaggi (ADR-0289, punto 10).
-16. **La privacy** (scelta 4 dell'utente): un paragrafo nuovo in «Your
+16. **La privacy** (scelta 4; accettata su delega dell'utente del
+    2026-10-29, da rivedere: va online solo con la parte D, col sì
+    dell'utente): un paragrafo nuovo in «Your
     runs and their GPS tracks», nelle cinque lingue e sul sito. Su App
     Store Connect «App Privacy» e su Google Play «Data safety» «Photos or
     Videos» arriva già con TASK-333; li cambia l'utente.

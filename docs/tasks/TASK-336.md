@@ -1,6 +1,8 @@
 # TASK-336 — Un video nei post: il video della corsa di MuW o uno proprio
 
-**Stato**: Proposta · 2026-10-29 · aspetta le scelte 1–4 dell'utente
+**Stato**: Proposta · 2026-10-29 · scelte 1 e 2 fatte dall'utente; 3 e 4
+accettate su delega dell'utente, da rivedere; tutto ciò che è nativo
+(`expo-video`, permessi, la build) aspetta l'utente
 **Fase**: 4 · **Branch**: `docs/TASK-336-video-in-posts` (documenti),
 poi una PR per parte
 **ADR**: ADR-0292 (proposta), che estende ADR-0289 (TASK-333), ADR-0170 e
@@ -104,11 +106,21 @@ risposte si scrivono qui.
    visto non si riscarica. Alternativa: con i dati mobili la locandina
    con ▶ e il video parte con un tocco, o un interruttore in «Settings»;
    tutte e due vogliono `expo-network`, un altro modulo nativo.
-   — *Risposta:* …
+   — *Risposta:* la domanda è stata fatta il 2026-10-29 e l'utente ha
+   risposto con un'altra cosa (la frase della scelta 2). **Accettata su
+   delega dell'utente del 2026-10-29, da rivedere**: la proposta, il
+   video parte sulla sua pagina anche con i dati mobili, e niente
+   `expo-network`. La delega è di 23 ore, fino al 2026-10-30 16:15Z
+   (sessione «Coordinatore automatico 23 ore»), comunicata dal
+   Coordinatore e letta in quella sessione: «porta avanti accetta tutto».
+   Una risposta dell'utente prende il suo posto.
 4. **I testi e la privacy** (sotto, «I testi»): in inglese da approvare,
    le traduzioni dei testi dell'app le fa l'agente nelle parti; la
    privacy qui nelle cinque lingue.
-   — *Risposta:* …
+   — *Risposta:* non ancora chiesta. **Accettata su delega dell'utente
+   del 2026-10-29, da rivedere**: i testi e la privacy come scritti
+   sotto. Nessuno va online prima della parte D, che chiede di nuovo il
+   sì dell'utente su testi, permessi e privacy prima della build.
 
 ## Il disegno tecnico (deciso dall'agente su delega dell'utente)
 
@@ -380,9 +392,11 @@ sono nelle copie di notte. È fuori da questo task; da proporre a parte.
 
 Della proposta (questa PR):
 
-- [ ] Le scelte 1–4 hanno una risposta dell'utente, scritta qui.
-- [ ] ADR-0292 e le parti aggiornati alle risposte.
-- [ ] TASK-333 informato della scelta del lettore (il suo punto 9).
+- [x] Le scelte 1 e 2 hanno una risposta dell'utente, con le sue parole,
+      scritta qui; 3 e 4 accettate su delega, da rivedere.
+- [x] ADR-0292 e le parti aggiornati alle risposte.
+- [x] TASK-333 informato della scelta del lettore (il suo punto 9) e
+      della regola a spazio pieno (il suo punto 8).
 
 Delle parti:
 
