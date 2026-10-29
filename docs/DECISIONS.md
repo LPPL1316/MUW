@@ -18792,6 +18792,72 @@ non crescono da soli, e il database si copia ogni notte.
 - Chi tocca la cancellazione dei messaggi deve ricordare i file su
   disco: la riga sparisce in cascata, il file solo con la pulizia.
 
+## ADR-0291 — La mappa sotto i disegni mentre «Draw» calcola: le foto si scattano durante l'attesa
+
+**Stato**: Attiva · 2026-10-29 · TASK-335. La segnalazione e la scelta sono
+**dell'utente**, del 2026-10-29: «mentre sta calcolando un percorso dal
+feed, ci sono delle immagini, ma non c'è la cartina sotto le varie città».
+Fra «Durante l'attesa» e «Preparata prima, nel Feed» ha scelto **«Durante
+l'attesa»**. Numero e condizioni dal Coordinatore. Il come è deciso
+dall'agente su delega dell'utente. **Cambia il punto 3 di ADR-0277**
+(«Solo la linea, su fondo mappa»), e con lui la condizione «niente rete in
+più mentre il motore cerca». Gli altri punti di ADR-0277 restano.
+
+**Contesto**: le sei schede di «MEANWHILE, FROM THE FEED» (TASK-317)
+avevano solo la linea gialla su fondo scuro. In «Feed», in «Explore» e nel
+profilo (TASK-332) la stessa linea ha sotto la foto della mappa, fatta da
+una pagina MapLibre nascosta (ADR-0131). In «Draw» il Feed non c'è: nessuna
+pagina può scattare le foto. Il motore può girare sul telefono (ADR-0177)
+nello stesso momento.
+
+**Decisione**:
+1. **Una pagina delle foto sotto la fila**: `FeedMapShooter` alla misura
+   della scheda (132 × 88) dentro `WhileRouting`, coperta dalla fila, che
+   è opaca (`color.surface`), come la lista copre quella del Feed. C'è
+   solo mentre la fila è sullo schermo (dopo i 3 s di ADR-0277, punto 4) e
+   finché una foto è attesa. Se ne va con la scheda dell'attesa.
+2. **La cache del Feed** (`useFeedMap`): una foto per disegno e misura,
+   tenuta per tutta la vita dell'app. Una scheda già vista ha subito la sua
+   mappa, e non si scatta di nuovo.
+3. **Due schede alla volta**: una scheda chiede la sua foto quando è
+   arrivata quella di due posti prima. Così la pagina scatta una foto
+   mentre la successiva aspetta, e non si smonta fra le due. Con una sola
+   alla volta la coda si svuoterebbe dopo ogni foto, e MapLibre si
+   ricaricherebbe ogni volta.
+4. **Senza rete si ferma**: due foto che non arrivano, e le schede dopo
+   non chiedono niente. Se la libreria della mappa non si carica, la pagina
+   rinuncia già da sola (ADR-0131). L'app non ha un modulo che dica se c'è
+   rete, e non si aggiunge una dipendenza.
+5. **Il credito** «Maps: …» una volta sotto la fila (`CardMapsCredit`,
+   ADR-0142), come in «Explore». Nessun testo nuovo.
+
+**La misura** (condizione del Coordinatore; numeri in `tasks/TASK-335.md`):
+cuore da 5 km a Trento calcolato sul telefono, nel simulatore iOS con Expo
+Go, tre volte senza e tre con le sei foto scattate durante il calcolo (il
+caso peggiore: fila subito, cache vuota). Media 7701 ms senza, 7714 ms con:
++13 ms, contro uno scarto di 921 ms fra i giri senza. Il calcolo non
+rallenta in modo visibile, quindi le foto partono come sono, dopo i 3 s e
+una alla volta. La CPU è quella del Mac: sull'iPhone si guarda con la
+prossima preview.
+
+**Scartate**:
+
+- *Le foto preparate prima, nel Feed*: nessun lavoro durante l'attesa, ma
+  aperta l'app e andati subito in «Draw» le schede restavano senza mappa, e
+  si scaricavano 15 foto anche per chi non disegna mai. Non scelta
+  dall'utente.
+- *Le foto dal primo secondo dell'attesa*: prima dei 3 s non c'è niente di
+  opaco sotto cui nascondere la pagina (ADR-0131 la vuole coperta).
+- *Una foto alla volta, ciascuna dopo l'arrivo della precedente*: la pagina
+  si smonterebbe fra l'una e l'altra.
+
+**Conseguenze**:
+
+- Mentre si aspetta un percorso, la rete porta le tessere di sei piccole
+  mappe (solo la prima volta per ogni disegno).
+- Chi cambia `FeedMaps.tsx` (la coda, la pagina che va via quando la coda è
+  vuota) deve ricordare che anche «Draw» ne ha una.
+
 ## ADR-0289 — aggiunta, parte D: lo spazio pieno toglie i video dei messaggi più vecchi; il lettore è expo-video dalla 1.0.2
 
 **Stato**: Attiva · 2026-10-29 · le due regole sono **scelte dell'utente**
