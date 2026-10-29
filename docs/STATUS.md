@@ -291,6 +291,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Testi e riga della privacy approvati dall'utente, privacy del 29 ottobre
   2026. Provata contro l'API vera (0034); la prova con i file veri di
   Strava e Garmin resta per il telefono (Expo Go, preview). Prossima: C.
+  **B in `main`** il 2026-10-29 (#622, `5d7a5eda`, merge del
+  Coordinatore). La prova con i file veri la fa l'utente sulla preview di
+  `main` dopo l'aggiornamento del server: è una sua scelta del
+  2026-10-29, «Merge, provo sulla preview».
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch
