@@ -1,6 +1,7 @@
 {
   "ios": {
     "NSLocationWhenInUseUsageDescription": "MuW uses your location to draw routes near you and to record your activities. During an activity it keeps recording with the phone locked, and iOS shows the blue bar.",
-    "NSMicrophoneUsageDescription": "MuW never records sound: during your activity it only speaks the directions."
+    "NSMicrophoneUsageDescription": "MuW never records sound: during your activity it only speaks the directions.",
+    "NSHealthUpdateUsageDescription": "MuW saves your finished activities to Apple Health, with their time, distance, route and, for runs, estimated calories, so they also appear in the Fitness app."
   }
 }

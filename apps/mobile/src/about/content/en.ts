@@ -11,8 +11,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 October 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C) and the figure drawn by hand (TASK-320) entered. */
-const PRIVACY_UPDATED = "28 October 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
+const PRIVACY_UPDATED = "29 October 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -415,6 +415,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Health and Health Connect",
+      blocks: [
+        "Once you turn on «Save to Apple Health» (iPhone) or «Save to Health Connect» (Android), every activity you save is also written there, on your phone: the sport, when it started and ended, the distance, the route and, for a run, the estimated active calories. MuW never reads your health data, and nothing from them reaches our server or any advertising. You can stop it in the Health app or in Health Connect. What is already there stays until you delete it there, also when you delete the run or your account.",
+      ],
+    },
+    {
       heading: "Others who receive data",
       blocks: [
         {
@@ -454,7 +460,7 @@ const privacy: AboutDocument = {
           bullets: [
             "To give you the service you ask for (contract): your account, your profile, the routes you ask for, the runs, favorites, comments, reactions and follows you save, the emails of the notifications you turned on, and the shape game.",
             "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them; the email when you are away, which you can refuse at sign-up, in «Settings» or in each email; the reports' emails, to keep MuW safe; the archive of drawn routes, which says nothing about who you are; the messages of «Send feedback», to read them and answer you.",
-            "Your consent: the phone number you choose to add and the connection to Strava. You can take a consent back at any time; what was done before stays lawful.",
+            "Your consent: the phone number you choose to add, the connection to Strava and saving your activities to Apple Health or Health Connect. You can take a consent back at any time; what was done before stays lawful.",
             "A legal obligation, when a law asks us to keep or hand over data.",
           ],
         },

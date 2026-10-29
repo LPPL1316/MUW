@@ -18,7 +18,12 @@
       },
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": ["audio"],
+        "NSHealthUpdateUsageDescription": "MuW saves your finished activities to Apple Health, with their time, distance, route and, for runs, estimated calories, so they also appear in the Fitness app."
+      },
+      "entitlements": {
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.access": []
       }
     },
     "locales": {

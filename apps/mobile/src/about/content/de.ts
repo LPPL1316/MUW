@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10. Oktober 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "28. Oktober 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
+const PRIVACY_UPDATED = "29. Oktober 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
@@ -414,6 +414,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Health und Health Connect",
+      blocks: [
+        "Sobald du «In Apple Health speichern» (iPhone) oder «In Health Connect speichern» (Android) einschaltest, wird jede Aktivität, die du speicherst, auch dort geschrieben, auf deinem Telefon: die Sportart, wann sie begann und endete, die Distanz, die Route und, bei einem Lauf, die geschätzten aktiven Kalorien. MuW liest nie deine Gesundheitsdaten, und nichts davon erreicht unseren Server oder irgendeine Werbung. Du kannst es in der Health-App oder in Health Connect beenden. Was schon dort ist, bleibt, bis du es dort löschst, auch wenn du den Lauf oder dein Konto löschst.",
+      ],
+    },
+    {
       heading: "Andere, die Daten erhalten",
       blocks: [
         {
@@ -453,7 +459,7 @@ const privacy: AboutDocument = {
           bullets: [
             "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst, die E-Mails der Benachrichtigungen, die du eingeschaltet hast, und das Formenspiel.",
             "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist; die Nachrichten von «Feedback senden», um sie zu lesen und dir zu antworten.",
-            "Deine Einwilligung: die Telefonnummer, die du hinzufügst, und die Verbindung mit Strava. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
+            "Deine Einwilligung: die Telefonnummer, die du hinzufügst, die Verbindung mit Strava und das Speichern deiner Aktivitäten in Apple Health oder Health Connect. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
             "Eine rechtliche Pflicht, wenn ein Gesetz von uns verlangt, Daten aufzubewahren oder herauszugeben.",
           ],
         },

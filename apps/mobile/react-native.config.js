@@ -13,15 +13,18 @@
  * with the company (the user's choice), and on Android with a new native
  * build then.
  *
- * Apple Health and Health Connect (TASK-321, ADR-0281) wait for their own
- * native builds: the 1.0.1 for the iPhone (part B), a new Android build
- * (part C). Until then their libraries are in package.json but linked on
- * no platform, so today's builds keep their fingerprints; the app never
- * loads them without the native module (`src/health/healthModules.ts`).
- * `@react-native-healthkit/core` comes with the iPhone library.
+ * Apple Health and Health Connect (TASK-321, ADR-0281) each come with their
+ * own native build. The iPhone's libraries are linked on iOS since the
+ * 1.0.1 (part B), with the HealthKit entitlement and the permission text in
+ * app.json; `@react-native-healthkit/core` comes with the iPhone library.
+ * On Android they are not linked: Health Connect waits for a new Android
+ * build (part C), so its library is linked on no platform yet and today's
+ * Android build keeps its fingerprint. The app never loads a library
+ * without its native module (`src/health/healthModules.ts`).
  */
 const storeBuild = process.env.APP_VARIANT === "production";
 
+const iosOnly = { platforms: { android: null } };
 const notYet = { platforms: { ios: null, android: null } };
 
 module.exports = {
@@ -29,9 +32,9 @@ module.exports = {
     "react-native-google-mobile-ads": {
       platforms: storeBuild ? { ios: null, android: null } : { android: null },
     },
-    "@kingstinct/react-native-healthkit": notYet,
-    "@react-native-healthkit/core": notYet,
-    "react-native-nitro-modules": notYet,
+    "@kingstinct/react-native-healthkit": iosOnly,
+    "@react-native-healthkit/core": iosOnly,
+    "react-native-nitro-modules": iosOnly,
     "react-native-health-connect": notYet,
   },
 };
