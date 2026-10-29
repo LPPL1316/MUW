@@ -164,8 +164,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (ADR-0294; richiesta dell'utente del 2026-10-29, proposta approvata con
   «Yes, as proposed»; numeri dal Coordinatore). Branch
   `docs/TASK-341-profile-badges` (documenti), poi
-  `feat/TASK-341-profile-badges`: `badges` in `GET /users/{id}` e
-  `GET /me`, decisi dal server sui disegni che chi guarda vede, solo
+  `feat/TASK-341-profile-badges`: `badges` in `GET /users/{id}`, decisi dal server sui disegni che chi guarda vede, solo
   corse registrate dall'app; nell'app una fila sotto il nome accanto a
   «Winner». Nessuna migrazione. Testi da approvare. File
   `tasks/TASK-341.md`.

@@ -19511,7 +19511,8 @@ challenge mensili»: «Badge: primo disegno, 10 disegni, disegno oltre
 **Decisione**:
 
 1. **Il server decide, l'app mostra**: `badges`, una lista di chiavi in
-   ordine fisso, in `GET /users/{public_id}` e in `GET /me`:
+   ordine fisso, in `GET /users/{public_id}` (il proprio profilo lo legge
+   già con il token per i totali, quindi `GET /me` non cambia):
    `first_drawing` (almeno un disegno), `ten_drawings` (almeno dieci),
    `long_drawing` (un disegno di almeno 30 000 m, `runs.distance_m`).
    Una sottoquery sola, `badges.py`, nessuna tabella e nessuna colonna:

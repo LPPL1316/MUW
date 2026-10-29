@@ -25,8 +25,7 @@ ricevuti) ci sono già: TASK-324, ADR-0284.
   §«Winner» e ADR-0272 (le corse importate non partecipano)
 - `CONCORSI.md` §7 (il badge «Winner» nell'app)
 - `services/api/shaperoute_api/profiles.py` (`PublicProfileBody`,
-  `profile`), `accounts.py` (`USER_COLUMNS`, `UserBody`),
-  `drawings.py` (`published_count_sql`, `shown_sql`),
+  `profile`), `drawings.py` (`published_count_sql`, `shown_sql`),
   `profile_totals.py`
 - `apps/mobile/src/contest/WinnerBadge.tsx`,
   `apps/mobile/src/profile/ProfileHeader.tsx`
@@ -41,11 +40,12 @@ ricevuti) ci sono già: TASK-324, ADR-0284.
    `drawings` sul profilo), non nascosti dalla moderazione, di corse
    **registrate dall'app** (`runs.source = 'muw'`, come il concorso).
    I metri sono `runs.distance_m`, contati dall'API al salvataggio.
-2. `badges: list[str]` in `PublicProfileBody` (`GET /users/{public_id}`)
-   e in `UserBody` (`GET /me`, chi guarda è il proprietario: vede tutti i
-   propri disegni pubblicati, `only_me` escluso). «Winner» resta
-   `contest_wins`, che non cambia.
-3. **Tipi.** `badges?: ProfileBadge[]` in `PublicProfile` e `User` di
+2. `badges: list[Badge]` in `PublicProfileBody` (`GET /users/{public_id}`).
+   Il proprio profilo legge già `GET /users/{public_id}` con il token per i
+   totali (`ProfileStats.tsx`): da lì prende anche i badge, quindi `GET /me`
+   non cambia (e `accounts.py` non importa `drawings.py`, che importa lui).
+   «Winner» resta `contest_wins`, che non cambia.
+3. **Tipi.** `badges?: ProfileBadge[]` in `PublicProfile` di
    `shared-types` (assente da un'API più vecchia), `PROFILE_BADGES` come
    costante; fixture `public-profile.json` aggiornata.
 4. **App.** Un componente nuovo `profile/BadgeRow.tsx`: una fila di
@@ -58,7 +58,7 @@ ricevuti) ci sono già: TASK-324, ADR-0284.
    solo `WinnerBadge`.
 5. **Testi** nelle cinque lingue, da approvare prima del merge:
    «First drawing», «10 drawings», «30 km drawing» (con le miglia:
-   «18 mi drawing»), e le etichette di accessibilità «Badge not earned
+   «19 mi drawing»), e le etichette di accessibilità «Badge not earned
    yet: …».
 6. `API.md` («Profile»), `STATUS.md`, task file a `Done`.
 
@@ -72,7 +72,7 @@ ricevuti) ci sono già: TASK-324, ADR-0284.
       `only_me` o nascosto dalla moderazione non contano.
 - [ ] Un disegno per i soli follower conta per chi segue, non per chi
       non segue (la regola di `shown_sql`).
-- [ ] `GET /me` dà i badge del proprietario.
+- [ ] Il proprietario vede i propri badge con `GET /users/{id}` e il token.
 - [ ] L'app mostra i badge presi sotto il nome; sul proprio profilo
       anche quelli spenti; con un'API senza `badges` solo «Winner».
 - [ ] Test deterministici: `test_badges.py` (una regola per test),
@@ -85,8 +85,8 @@ ricevuti) ci sono già: TASK-324, ADR-0284.
 ```
 services/api/shaperoute_api/badges.py            (nuovo)
 services/api/shaperoute_api/profiles.py
-services/api/shaperoute_api/accounts.py
 services/api/tests/test_badges.py                (nuovo)
+services/api/tests/test_profiles.py
 packages/shared-types/src/index.ts
 packages/shared-types/fixtures/public-profile.json
 apps/mobile/src/profile/BadgeRow.tsx             (nuovo)
@@ -94,6 +94,7 @@ apps/mobile/src/profile/BadgeRow.test.tsx        (nuovo)
 apps/mobile/src/profile/ProfileHeader.tsx
 apps/mobile/src/profile/ProfileHeader.test.tsx
 apps/mobile/src/profile/ProfileHome.tsx
+apps/mobile/src/profile/ProfileStats.tsx
 apps/mobile/src/profile/UserProfilePage.tsx
 apps/mobile/src/i18n/de.ts
 apps/mobile/src/i18n/es.ts
