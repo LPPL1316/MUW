@@ -275,7 +275,8 @@ Oltre ad ADR-0289, scrivendo il codice:
 - [x] Testi approvati (2026-10-29), traduzioni dell'agente; privacy nelle
       cinque lingue e sul sito («Help» con la parte C). Un testo nuovo,
       «Too many photos today. Try again tomorrow.», **da rivedere**.
-- [ ] Impronta iOS `83793e26` invariata su una copia pulita.
+- [x] Impronta iOS `83793e26` invariata su una copia pulita (`83793e26fc0d…`,
+      misurata sulla testa con `npm ci`).
 - [ ] Test, lint, typecheck e prettier verdi in CI.
 
 #### File toccati (parte B)
@@ -524,3 +525,6 @@ Le parti A, B e C hanno i loro elenchi in «Le parti».
   stesse su `main`; lint, typecheck, prettier. Da provare sul telefono:
   la riduzione del video, `File.upload`, la locandina e il lettore nella
   WebView.
+  Sulla copia pulita della testa (`npm ci`): impronta iOS
+  `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`, invariata, e verdi anche le
+  due suite che in locale non partivano.
