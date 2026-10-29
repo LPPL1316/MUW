@@ -2320,21 +2320,22 @@ inquadrata sul paese intorno (zoom 13): in alto «←», che torna a «Draw»,
 e il nome del luogo se la partenza è un luogo cercato; il segnaposto
 della partenza resta. Sotto la mappa:
 
-- **«Draw | Move | Erase»** (Erase dal TASK-331) e **«Undo»** sulla
-  stessa riga. Con «Draw» un dito traccia una linea gialla; due dita
+- **«Draw | Line | Erase | Move»** (Erase dal TASK-331, Line dal TASK-331
+  parte B) su tutta la larghezza, e sotto **«Undo»**, **«Redo»** e, a
+  destra, **«Clear all»** (parte B). Con «Draw» un dito traccia una linea
+  gialla; due dita
   spostano la mappa e ne fanno lo zoom (TASK-331; prima non facevano
   niente), anche sopra la figura, che non si muove. Con «Move» un dito che
   parte sulla figura (il suo riquadro, con un margine per il dito) la
   trascina, altrove sposta la mappa; due dita col punto di mezzo sulla
   figura la ingrandiscono o la rimpiccioliscono, altrove fanno lo zoom
-  della mappa. Con «Erase» un tocco (o un dito che passa) su una linea la
-  toglie, e due dita spostano la mappa. Sotto, in grigio: *Draw with one
+  della mappa. Con «Line» e con «Erase» un dito tocca o strofina, e due
+  dita spostano la mappa. Sotto, in grigio: *Draw with one
   finger. End where you started to close it. Two fingers move the map.*
   senza figura o su una forma del catalogo; *Each new line joins the
-  drawing. Two fingers move the map.* su un disegno o una foto; *Drag the
-  figure or the map. Two fingers on the figure resize it.* con «Move»;
-  *Tap a line to erase it. The outline takes its details with it.* con
-  «Erase» (sempre due righe di posto, così le tessere non saltano).
+  drawing. Two fingers move the map.* su un disegno o una foto; con
+  «Line», «Erase» e «Move» i testi della parte B, sotto (sempre due righe
+  di posto, così le tessere non saltano).
 - **Una riga di tessere** che scorre di lato: **«+ photo»** (una foto della
   libreria; mentre il motore ne traccia il contorno, *Tracing the
   outline…*, e i suoi rifiuti con le parole di «Image»), le 17 forme del
@@ -2357,7 +2358,8 @@ dito, e la distanza è quella di andata e ritorno. Anche una linea che torna
 all'inizio ma non si può chiudere (si incrocia in un modo che non si
 taglia) resta aperta: nessuna prima linea viene rifiutata. Le linee dopo
 la prima sono appese alla figura come «Add a detail» dell'immagine: un
-trattino dritto dal punto più vicino, e il percorso le fa andata e
+trattino dritto dal punto più vicino (tratteggiato sulla mappa dalla parte
+B, quando la linea parte lontano dalla figura), e il percorso le fa andata e
 ritorno; una linea che torna su se stessa fa un anello, come un occhio. Una
 linea su una **foto o un'immagine pronta** vi si appende allo stesso modo
 (la figura diventa un disegno, dov'è e grande uguale); su una **forma del
@@ -2366,19 +2368,48 @@ il posto, come prima. In rosso, al posto della riga grigia: *That is too
 much for one route. Undo something, or draw simpler lines.* oltre i
 dettagli che un percorso fa.
 
-**«Erase»** (TASK-331): un tocco su una linea di un disegno o di una foto
-la toglie; un dettaglio porta via i dettagli appesi a lui, il contorno
-porta via tutto; di una linea aperta toglie la linea e con lei il disegno.
-Una forma del catalogo se ne va intera. «Undo» la rimette.
+**La gomma, «Erase»** (TASK-331; a pezzi dalla parte B, scelta
+dell'utente del 2026-10-29): il dito che strofina lascia una scia larga e
+chiara, e di un disegno o di una foto toglie **solo il pezzo sotto il
+dito** (circa 14 px intorno, qualunque sia lo zoom: più vicino, più fine).
+Un contorno tagliato diventa una linea aperta, che il percorso fa andata e
+ritorno. Un pezzo rimasto staccato **si riattacca al disegno col
+collegamento più corto**, tratteggiato sulla mappa, perché il percorso è un
+solo giro continuo e quel tratto lo corre; un collegamento non si cancella
+da solo. Le briciole troppo corte per vedersi spariscono. Una forma del
+catalogo se ne va intera. «Undo» rimette quello che c'era.
+
+**La linea a tocchi, «Line»** (parte B): un tocco dopo l'altro fa segmenti
+dritti; un elastico va dall'ultimo punto al dito finché non lo alza, e i
+punti tappati restano come pallini gialli, il primo più grande. **Toccare
+il primo punto la chiude** (dopo almeno tre punti): è il contorno della
+figura se è tutto il disegno e non si incrocia, altrimenti un anello appeso.
+**Toccare l'ultimo punto la finisce**, come cambiare strumento. Su un
+disegno parte dal disegno se il primo tocco è sulla linea, altrimenti un
+collegamento tratteggiato la unisce; su una forma del catalogo ne prende il
+posto. «Undo» toglie un punto alla volta.
+
+**La piega** (parte B, con «Move»): un dito tenuto fermo su una linea per
+mezzo secondo e poi trascinato la piega: il punto tenuto va dove va il dito
+e la linea lo segue sempre meno, per un quinto della grandezza del disegno
+da una parte e dall'altra (un poligono si piega solo nel punto tenuto, un
+tratto a mano si piega morbido). L'inizio di un dettaglio resta dov'è
+appeso, e i dettagli appesi alla linea piegata la seguono. Un contorno che
+si incrocerebbe resta com'era, con *The outline cannot cross itself. Bend
+it less.* in rosso. Un dito che trascina subito sposta la figura, come
+prima; le emoji non si piegano.
 
 **Grandezza**: dentro i limiti di «Draw» per lo sport (1–21 km a piedi,
 10–30 in bici): oltre, la figura non cresce e non cala più. Una figura
 cresciuta oltre lo schermo fa allontanare la mappa, che la mostra intera.
 
 **«Undo»** toglie l'ultima figura messa o disegnata (torna quella di
-prima, dov'era), l'ultimo cambio di tessera, l'ultimo tratto appeso o
-l'ultima linea cancellata.
-Spostare e ridimensionare non si annullano. Spento finché non c'è niente.
+prima, dov'era), l'ultimo cambio di tessera, l'ultimo tratto appeso,
+l'ultima cancellatura, l'ultimo punto tappato o l'ultima piega.
+**«Redo»** rimette quello che «Undo» ha tolto, finché non si cambia altro.
+**«Clear all»** chiede *Clear the whole drawing?* («Cancel» o «Clear all»)
+e toglie la figura; «Undo» la rimette.
+Spostare e ridimensionare non si annullano. Spenti finché non c'è niente.
 
 **«Draw route»** chiede il percorso della figura dov'è, senza niente di
 nuovo nel contratto: una forma come in «Draw» (con la penna alzata se
@@ -2419,6 +2450,24 @@ again without crossing it.*, e aggiunto (**approvati dall'utente** il
 
 «Erase» e *Tap a line to erase it. The outline takes its details with it.*
 vengono dalla tavola del TASK-320, già approvati.
+
+La parte B del TASK-331 ha tolto *Drag the figure or the map. Two fingers
+on the figure resize it.* e *Tap a line to erase it. The outline takes its
+details with it.*, e aggiunto (**approvati dall'utente** il 2026-10-29
+nelle quattro lingue):
+
+| English | Italiano | Deutsch | Español | Français |
+|---|---|---|---|---|
+| Line | Linea | Linie | Línea | Ligne |
+| Redo | Ripeti | Wiederholen | Rehacer | Rétablir |
+| Clear all | Cancella tutto | Alles löschen | Borrar todo | Tout effacer |
+| Clear the whole drawing? | Cancellare tutto il disegno? | Die ganze Zeichnung löschen? | ¿Borrar todo el dibujo? | Effacer tout le dessin ? |
+| Tap point after point. Tap the first point to close it, the last one to finish. | Tocca un punto dopo l'altro. Tocca il primo punto per chiuderla, l'ultimo per finire. | Tippe Punkt für Punkt. Tippe auf den ersten Punkt, um sie zu schließen, auf den letzten, um fertig zu sein. | Toca punto tras punto. Toca el primer punto para cerrarla, el último para terminar. | Touche point après point. Touche le premier point pour la fermer, le dernier pour terminer. |
+| Rub a line to erase that piece. A piece cut off joins the drawing with a dash. | Passa il dito su una linea per cancellarne il pezzo. Un pezzo staccato si unisce al disegno con un tratteggio. | Fahre über eine Linie, um das Stück zu radieren. Ein abgetrenntes Stück wird gestrichelt mit der Zeichnung verbunden. | Pasa el dedo por una línea para borrar ese trozo. Un trozo separado se une al dibujo con una línea discontinua. | Frotte une ligne pour en effacer le morceau. Un morceau coupé rejoint le dessin par un pointillé. |
+| Drag the figure or the map. Hold a line still, then drag to bend it. Two fingers resize. | Trascina la figura o la mappa. Tieni fermo il dito su una linea, poi trascina per piegarla. Con due dita la ridimensioni. | Ziehe die Figur oder die Karte. Halte eine Linie still und ziehe dann, um sie zu biegen. Zwei Finger ändern die Größe. | Arrastra la figura o el mapa. Mantén el dedo quieto en una línea y arrastra para doblarla. Con dos dedos cambias el tamaño. | Fais glisser la figure ou la carte. Garde le doigt immobile sur une ligne, puis fais glisser pour la plier. Deux doigts changent la taille. |
+| The outline cannot cross itself. Bend it less. | Il contorno non può incrociarsi. Piegalo di meno. | Der Umriss darf sich nicht kreuzen. Biege ihn weniger. | El contorno no puede cruzarse. Dóblalo menos. | Le contour ne peut pas se croiser. Plie-le moins. |
+
+«Cancel» c'era già.
 
 ### «Edit the drawing»: la figura sulla mappa (TASK-320, TASK-331, ADR-0288)
 

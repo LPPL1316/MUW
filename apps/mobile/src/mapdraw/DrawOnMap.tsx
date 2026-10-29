@@ -1,5 +1,5 @@
 import type { Shape } from "@shaperoute/shared-types";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { t, tLater } from "../i18n";
 import type { CanvasMode } from "../map/messages";
@@ -17,34 +17,43 @@ import {
   space,
 } from "../theme/tokens";
 import { distanceLabel } from "../units/format";
-import type { DrawingProblem } from "./drawing";
 import type { Placed } from "./figure";
 import { FigureTiles } from "./FigureTiles";
 import { placedTile } from "./resultFigure";
+import type { ToolProblem } from "./tools";
 
 // Translated where shown, with t().
 const MODES = [
   { value: "draw", label: tLater("Draw") },
-  { value: "move", label: tLater("Move") },
+  { value: "line", label: tLater("Line") },
   { value: "erase", label: tLater("Erase") },
+  { value: "move", label: tLater("Move") },
 ] as const;
 
 /** What the fingers do, said under the switch: with «Draw», a first line
  * stays open unless it ends where it started, and the lines after it join
- * a drawing or a photo (TASK-331). */
+ * a drawing or a photo (TASK-331); the tools of TASK-331 part B. */
 const HINTS: Record<CanvasMode, string> = {
   draw: tLater(
     "Draw with one finger. End where you started to close it. Two fingers move the map.",
   ),
-  move: tLater("Drag the figure or the map. Two fingers on the figure resize it."),
-  erase: tLater("Tap a line to erase it. The outline takes its details with it."),
+  line: tLater(
+    "Tap point after point. Tap the first point to close it, the last one to finish.",
+  ),
+  erase: tLater(
+    "Rub a line to erase that piece. A piece cut off joins the drawing with a dash.",
+  ),
+  move: tLater(
+    "Drag the figure or the map. Hold a line still, then drag to bend it. Two fingers resize.",
+  ),
 };
 const ON_FIGURE = tLater("Each new line joins the drawing. Two fingers move the map.");
 
-const PROBLEMS: Record<DrawingProblem, string> = {
+const PROBLEMS: Record<ToolProblem, string> = {
   too_much: tLater(
     "That is too much for one route. Undo something, or draw simpler lines.",
   ),
+  crosses: tLater("The outline cannot cross itself. Bend it less."),
 };
 
 type Props = {
@@ -58,20 +67,24 @@ type Props = {
   onPhoto: () => void;
   onUndo: () => void;
   canUndo: boolean;
+  onRedo: () => void;
+  canRedo: boolean;
+  /** «Clear all»: asked first; on with a figure. */
+  onClear: () => void;
   /** What the figure would make, in metres; none without a figure. */
   distanceM: number | null;
-  problem: DrawingProblem | null;
+  problem: ToolProblem | null;
   /** «Draw route»: on with a figure. */
   onDraw: (() => void) | null;
 };
 
 /**
- * Under the map of «Draw on the map» (TASK-281): «Draw | Move | Erase»
- * (TASK-331) and «Undo», what the fingers do, a row of tiles that put a
- * figure on the map or
- * change it where it is («+ photo» first, then the shapes of the
- * catalogue and the ready-made pictures of «Draw»), the distance the figure
- * would make, and «Draw route».
+ * Under the map of «Draw on the map» (TASK-281): «Draw | Line | Erase |
+ * Move» (TASK-331), «Undo», «Redo» and «Clear all» (TASK-331 part B), what
+ * the fingers do, a row of tiles that put a figure on the map or change it
+ * where it is («+ photo» first, then the shapes of the catalogue and the
+ * ready-made pictures of «Draw»), the distance the figure would make, and
+ * «Draw route».
  */
 export function DrawOnMap({
   mode,
@@ -83,28 +96,30 @@ export function DrawOnMap({
   onPhoto,
   onUndo,
   canUndo,
+  onRedo,
+  canRedo,
+  onClear,
   distanceM,
   problem,
   onDraw,
 }: Props) {
+  const askClear = () =>
+    Alert.alert(t("Clear the whole drawing?"), undefined, [
+      { text: t("Cancel"), style: "cancel" },
+      { text: t("Clear all"), style: "destructive", onPress: onClear },
+    ]);
   return (
     <View style={styles.panel}>
+      <Segmented
+        options={MODES.map((option) => ({ ...option, label: t(option.label) }))}
+        value={mode}
+        onChange={onMode}
+      />
       <View style={styles.top}>
-        <Segmented
-          options={MODES.map((option) => ({ ...option, label: t(option.label) }))}
-          value={mode}
-          onChange={onMode}
-          style={styles.modes}
-        />
-        <Pressable
-          style={[styles.undo, !canUndo && styles.off]}
-          onPress={onUndo}
-          disabled={!canUndo}
-          accessibilityRole="button"
-          accessibilityState={{ disabled: !canUndo }}
-        >
-          <Text style={styles.undoText}>{t("Undo")}</Text>
-        </Pressable>
+        <Step label={t("Undo")} onPress={onUndo} enabled={canUndo} />
+        <Step label={t("Redo")} onPress={onRedo} enabled={canRedo} />
+        <View style={styles.gap} />
+        <Step label={t("Clear all")} onPress={askClear} enabled={placed !== null} />
       </View>
       <Note
         mode={mode}
@@ -138,9 +153,32 @@ export function DrawOnMap({
   );
 }
 
-/** One line: why the last line or photo gave nothing, the photo being
- * traced, or what the fingers do; with «Draw» on a figure, that a line
- * joins it. */
+/** «Undo», «Redo» or «Clear all»: a pill, faint while it would do nothing. */
+function Step({
+  label,
+  onPress,
+  enabled,
+}: {
+  label: string;
+  onPress: () => void;
+  enabled: boolean;
+}) {
+  return (
+    <Pressable
+      style={[styles.step, !enabled && styles.off]}
+      onPress={onPress}
+      disabled={!enabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !enabled }}
+    >
+      <Text style={styles.stepText}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/** One line: why the last line, tool or photo gave nothing, the photo
+ * being traced, or what the fingers do; with «Draw» on a figure, that a
+ * line joins it. */
 function Note({
   mode,
   onFigure,
@@ -150,7 +188,7 @@ function Note({
   mode: CanvasMode;
   onFigure: boolean;
   photo: ImageState;
-  problem: DrawingProblem | null;
+  problem: ToolProblem | null;
 }) {
   if (problem !== null) {
     return <Text style={styles.problem}>{t(PROBLEMS[problem])}</Text>;
@@ -184,10 +222,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: space.sm,
   },
-  modes: {
+  gap: {
     flex: 1,
   },
-  undo: {
+  step: {
     minHeight: MIN_TAP_SIZE,
     justifyContent: "center",
     paddingHorizontal: space.lg,
@@ -196,7 +234,7 @@ const styles = StyleSheet.create({
     borderColor: color.borderStrong,
     backgroundColor: color.surfaceRaised,
   },
-  undoText: {
+  stepText: {
     color: color.text,
     fontWeight: fontWeight.bold,
   },

@@ -2,6 +2,7 @@ import jobDone from "@shaperoute/shared-types/fixtures/route-job-done.json";
 import type { RouteResult } from "@shaperoute/shared-types";
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import * as Location from "expo-location";
+import { Alert } from "react-native";
 
 import App from "../../App";
 import type { MemorySecureStore } from "../account/testing";
@@ -160,7 +161,7 @@ test("drawing by hand is on the map only: an open line stays open, and its route
     const a = (Math.PI * i) / 19;
     return [11.13 + 0.01 * Math.cos(a), 46.07 + 0.007 * Math.sin(a)];
   });
-  await pagePosts(JSON.stringify({ type: "drawn", line: arch }));
+  await pagePosts(JSON.stringify({ type: "drawn", line: arch, metresPerPx: 2 }));
   expect(
     screen.getByText("Each new line joins the drawing. Two fingers move the map."),
   ).toBeOnTheScreen();
@@ -178,6 +179,52 @@ test("drawing by hand is on the map only: an open line stays open, and its route
   expect("outline" in asked && asked.outline).toHaveLength(4);
   expect("strokes" in asked && asked.strokes).toHaveLength(1);
   expect(screen.getByText(/^Drawing · on roads · target/)).toBeOnTheScreen();
+});
+
+test("the tools under the map: «Line» taps a line, «Clear all» asks first, «Redo» undoes «Undo» (TASK-331 B)", async () => {
+  const alert = jest
+    .spyOn(Alert, "alert")
+    .mockImplementation((_title, _message, buttons) =>
+      buttons?.find((button) => button.style === "destructive")?.onPress?.(),
+    );
+  await render(<App />);
+  await pagePosts('{"type":"ready"}');
+  await pagePosts('{"type":"centre","lngLat":[11.13,46.07]}');
+  await fireEvent.press(screen.getByText("Draw on the map"));
+  for (const label of ["Draw", "Line", "Erase", "Move", "Undo", "Redo", "Clear all"]) {
+    expect(screen.getByRole("button", { name: label })).toBeOnTheScreen();
+  }
+  await fireEvent.press(screen.getByRole("button", { name: "Line" }));
+  expect(
+    screen.getByText(
+      "Tap point after point. Tap the first point to close it, the last one to finish.",
+    ),
+  ).toBeOnTheScreen();
+  expect(sent("setCanvas").at(-1)).toMatchObject({ mode: "line", marks: [] });
+  const tap = (lngLat: [number, number]) =>
+    pagePosts(JSON.stringify({ type: "drawn", line: [lngLat], metresPerPx: 2 }));
+  await tap([11.13, 46.07]);
+  expect(sent("setCanvas").at(-1)).toMatchObject({
+    marks: [[11.13, 46.07]],
+    lines: [],
+  });
+  await tap([11.14, 46.07]);
+  // The line, on the small ring at its start.
+  expect(sent("setCanvas").at(-1)?.lines).toHaveLength(2);
+  expect(screen.getByText(/^≈ /)).toBeOnTheScreen();
+
+  await fireEvent.press(screen.getByRole("button", { name: "Clear all" }));
+  expect(alert).toHaveBeenCalledWith(
+    "Clear the whole drawing?",
+    undefined,
+    expect.any(Array),
+  );
+  expect(sent("setCanvas").at(-1)?.lines).toEqual([]);
+  await fireEvent.press(screen.getByRole("button", { name: "Undo" }));
+  expect(sent("setCanvas").at(-1)?.lines).toHaveLength(2);
+  await fireEvent.press(screen.getByRole("button", { name: "Redo" }));
+  expect(sent("setCanvas").at(-1)?.lines).toEqual([]);
+  alert.mockRestore();
 });
 
 test("on the water «Draw» has no «Draw on the map»", async () => {

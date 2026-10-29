@@ -1265,8 +1265,16 @@ export const IT: Table = {
     "Disegna con un dito. Finisci dove hai iniziato per chiuderla. Con due dita sposti la mappa.",
   "Each new line joins the drawing. Two fingers move the map.":
     "Ogni nuova linea si unisce al disegno. Con due dita sposti la mappa.",
-  "Drag the figure or the map. Two fingers on the figure resize it.":
-    "Trascina la figura o la mappa. Con due dita sulla figura la ingrandisci o la rimpicciolisci.",
+  "Drag the figure or the map. Hold a line still, then drag to bend it. Two fingers resize.":
+    "Trascina la figura o la mappa. Tieni fermo il dito su una linea, poi trascina per piegarla. Con due dita la ridimensioni.",
+  Line: "Linea",
+  "Tap point after point. Tap the first point to close it, the last one to finish.":
+    "Tocca un punto dopo l'altro. Tocca il primo punto per chiuderla, l'ultimo per finire.",
+  "The outline cannot cross itself. Bend it less.":
+    "Il contorno non può incrociarsi. Piegalo di meno.",
+  Redo: "Ripeti",
+  "Clear all": "Cancella tutto",
+  "Clear the whole drawing?": "Cancellare tutto il disegno?",
   "+ photo": "+ foto",
 
   // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
@@ -1554,8 +1562,8 @@ export const IT: Table = {
   "Edit the drawing": "Modifica il disegno",
   Erase: "Cancella",
   Drawing: "Disegno",
-  "Tap a line to erase it. The outline takes its details with it.":
-    "Tocca una linea per cancellarla. Il contorno porta via i suoi dettagli.",
+  "Rub a line to erase that piece. A piece cut off joins the drawing with a dash.":
+    "Passa il dito su una linea per cancellarne il pezzo. Un pezzo staccato si unisce al disegno con un tratteggio.",
   // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
   // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
   "Add past activity": "Aggiungi un'attività passata",

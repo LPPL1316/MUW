@@ -1272,8 +1272,16 @@ export const FR: Table = {
     "Dessine avec un doigt. Termine là où tu as commencé pour la fermer. Deux doigts déplacent la carte.",
   "Each new line joins the drawing. Two fingers move the map.":
     "Chaque nouvelle ligne rejoint le dessin. Deux doigts déplacent la carte.",
-  "Drag the figure or the map. Two fingers on the figure resize it.":
-    "Fais glisser la figure ou la carte. Deux doigts sur la figure changent sa taille.",
+  "Drag the figure or the map. Hold a line still, then drag to bend it. Two fingers resize.":
+    "Fais glisser la figure ou la carte. Garde le doigt immobile sur une ligne, puis fais glisser pour la plier. Deux doigts changent la taille.",
+  Line: "Ligne",
+  "Tap point after point. Tap the first point to close it, the last one to finish.":
+    "Touche point après point. Touche le premier point pour la fermer, le dernier pour terminer.",
+  "The outline cannot cross itself. Bend it less.":
+    "Le contour ne peut pas se croiser. Plie-le moins.",
+  Redo: "Rétablir",
+  "Clear all": "Tout effacer",
+  "Clear the whole drawing?": "Effacer tout le dessin ?",
   "+ photo": "+ photo",
 
   // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
@@ -1561,8 +1569,8 @@ export const FR: Table = {
   "Edit the drawing": "Modifier le dessin",
   Erase: "Effacer",
   Drawing: "Dessin",
-  "Tap a line to erase it. The outline takes its details with it.":
-    "Touche une ligne pour l'effacer. Le contour emporte ses détails.",
+  "Rub a line to erase that piece. A piece cut off joins the drawing with a dash.":
+    "Frotte une ligne pour en effacer le morceau. Un morceau coupé rejoint le dessin par un pointillé.",
   // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
   // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
   "Add past activity": "Ajouter une activité passée",
