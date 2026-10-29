@@ -18344,8 +18344,9 @@ che l'ADR non dice.
 sono **dell'utente** (TASK-333, «Le scelte dell'utente», 2026-10-29: solo
 dopo «Accept»; video fino a 60 s e 40 MB; video tenuti 30 giorni; il
 disegno si apre, si corre e si tiene; si manda dalla scheda e dalla
-conversazione; il resto «Sì, così»); testi e privacy da approvare; i
-punti tecnici sono decisi dall'agente su delega dell'utente. Numero dato
+conversazione; il resto «Sì, così»); testi e privacy **approvati
+dall'utente** il 2026-10-29 («Approvo così»); i punti tecnici sono
+decisi dall'agente su delega dell'utente. Numero dato
 dal Coordinatore. Estende ADR-0279.
 
 **Contesto**: l'utente il 2026-10-29: «Aggiungi la possibilità di

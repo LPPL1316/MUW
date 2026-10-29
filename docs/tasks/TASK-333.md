@@ -1,7 +1,7 @@
 # TASK-333 — Gli allegati nei messaggi privati: un disegno, una foto, un video
 
-**Stato**: Proposta · 2026-10-29 · scelte 1–6 fatte dall'utente il
-2026-10-29; aspetta il sì ai testi e alla privacy (scelta 7)
+**Stato**: Proposta approvata · 2026-10-29 · le sette scelte e i testi
+sono dell'utente (2026-10-29); le parti A, B e C partono col suo «vai»
 **Fase**: 4 · **Branch**: `docs/TASK-333-message-attachments` (documenti),
 poi una PR per parte
 **ADR**: ADR-0289 (proposta) · **Migrazione**: il primo numero libero in
@@ -86,7 +86,11 @@ risposte si scrivono qui.
    «Share»).
 7. **I testi e la privacy** (sotto, «I testi»): in inglese da approvare,
    traduzioni dell'agente; la privacy nelle cinque lingue.
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «Approvo così», sui testi dell'app, delle
+   push, di «Help» e della privacy elencati sotto (con 60 s, 40 MB e 30
+   giorni già dentro); la domanda diceva che le traduzioni sono
+   dell'agente e che la data della privacy diventa il giorno del merge
+   della parte B.
 
 ## Il disegno tecnico (deciso dall'agente su delega dell'utente)
 
@@ -99,9 +103,11 @@ spazio.
 
 ## Le parti
 
-Ognuna nella sua PR, dopo il sì a questa proposta. Le parti B e C
-toccano file diversi della conversazione e vanno una dopo l'altra (C
-dopo B).
+Ognuna nella sua PR e nella sua sessione, dopo il «vai» dell'utente:
+A, poi B, poi C. B e C toccano la stessa conversazione
+(`ConversationScreen.tsx`, `api/messages.ts`) e le tabelle `i18n`, quindi
+C parte quando B è in `main`. B si prova con l'API della parte A in
+locale; l'OTA aspetta il server.
 
 ### Parte A — API
 
@@ -122,17 +128,72 @@ dopo B).
    caricato o un disegno), nella risposta e nelle pagine; `attachments`
    nella pagina della conversazione; `?with=attachments` dell'app nuova
    (senza, l'app vecchia legge «[Photo]» al posto del messaggio); il `409`
-   di un allegato in una richiesta (se la scelta 1 resta così); «Delete»,
-   il blocco e l'account cancellato portano via anche i file.
+   di un allegato in una richiesta (scelta 1); «Delete», il blocco e
+   l'account cancellato portano via anche i file.
 4. `push.py`: i testi con l'allegato. `report_email.py`: l'email dice
    che c'è un allegato, la pagina del link lo mostra.
 5. `deploy/compose.yaml`: `data/media` montata nell'API (e nell'`init`).
-   `DEPLOY.md`: la cartella, il tetto, perché non è nelle copie.
+   `.env.example`: `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB` (10). `DEPLOY.md`:
+   la cartella, il tetto, perché non è nelle copie, `df -h` prima.
 6. `shared-types`: `MessageAttachment`, `MessageMedia`,
    `AttachmentsAllowed`, i limiti; esempi.
 7. Test deterministici con un PostgreSQL vero (`test_message_media.py`,
    e in `test_messages.py` gli allegati), MP4 piccoli fatti nei test;
    `API.md`, `DATABASE.md`.
+
+#### Criteri di accettazione (parte A)
+
+- [ ] In una conversazione `open` un messaggio porta una foto, un video o
+      un disegno, con o senza testo; in una richiesta un allegato è `409`.
+- [ ] Una foto torna JPEG, al più 1080 px, senza EXIF; un PNG anche.
+- [ ] Un video oltre 60 s o 40 MB, o che non è MP4/QuickTime, è `422` e
+      non resta niente su disco; `©xyz`, `udta` e `meta` diventano `free`
+      e il file si legge ancora (test con un MP4 fatto nel test).
+- [ ] Solo i due della conversazione leggono un file; un terzo, chi sta
+      dietro un blocco e chi riceve un messaggio nascosto hanno `404`; un
+      video dopo 30 giorni `410`.
+- [ ] 10 video e 100 foto al giorno per account, poi `429`; sopra il tetto
+      `attachments` non offre i video.
+- [ ] «Delete» di chi ha scritto, il blocco, `DELETE /me`, la scadenza e
+      un caricamento non usato da un'ora tolgono il file dal disco (la
+      pulizia chiamata dal test, con l'orologio finto).
+- [ ] Senza `?with=attachments` il messaggio ha «[Photo]», «[Video]» o
+      «[Drawing]» davanti al testo; con, il campo `attachment`.
+- [ ] La pagina della conversazione ha `attachments`; un'API senza
+      allegati no (l'app nasconde il «+»).
+- [ ] Segnalare un messaggio con un allegato: l'email lo dice, la pagina
+      del link lo mostra, «Hide» lo toglie a chi l'ha ricevuto.
+- [ ] Push «{name}: 📷 Photo» e simili, con il testo se c'è.
+- [ ] Test verdi in locale e in CI.
+
+#### File toccati (parte A)
+
+```
+services/api/migrations/00NN_message_media.sql          (nuovo; il primo numero libero al merge)
+services/api/shaperoute_api/message_media.py            (nuovo)
+services/api/shaperoute_api/mp4_boxes.py                (nuovo: durata e metadati)
+services/api/shaperoute_api/messages.py
+services/api/shaperoute_api/push.py
+services/api/shaperoute_api/report_email.py
+services/api/shaperoute_api/app.py
+services/api/tests/test_message_media.py                (nuovo)
+services/api/tests/test_mp4_boxes.py                    (nuovo)
+services/api/tests/test_messages.py
+services/api/tests/test_push.py
+services/api/tests/test_report_email.py
+packages/shared-types/src/index.ts
+packages/shared-types/test/message-media.test.ts        (nuovo)
+packages/shared-types/fixtures/message-media.json       (nuovo)
+packages/shared-types/fixtures/message-attachments.json (nuovo)
+deploy/compose.yaml
+.env.example
+docs/API.md
+docs/DATABASE.md
+docs/DEPLOY.md
+docs/DECISIONS.md                                       (righe in fondo, se serve un'aggiunta)
+docs/STATUS.md
+docs/tasks/TASK-333.md
+```
 
 ### Parte B — L'app: foto e video
 
@@ -152,7 +213,52 @@ dopo B).
    motore legge i suoi).
 5. La lista: «📷 Photo», «🎬 Video»; il messaggio scaduto.
 6. «Help» e «Privacy» (sezione «Private messages» allungata, cinque
-   lingue, sito rifatto con `make_privacy.mjs`).
+   lingue, sito rifatto con `make_privacy.mjs`, data della privacy al
+   giorno del merge).
+
+#### Criteri di accettazione (parte B)
+
+- [ ] In una conversazione aperta il «+» offre «Photo» e «Video»; in una
+      richiesta, o con un'API senza `attachments`, non c'è.
+- [ ] Un video oltre 60 s o 40 MB si ferma sul telefono con il suo testo,
+      prima di caricarlo; sull'iPhone parte ridotto a 960 × 540.
+- [ ] Chi riceve vede la foto e la locandina del video; a tutto schermo
+      il video si guarda, «Share» apre il foglio del telefono.
+- [ ] Un invio fallito resta con «Couldn't send. Tap to try again.».
+- [ ] Il video scaduto dice «This video has expired.»
+- [ ] «Report this message» e «Delete» funzionano anche su un messaggio
+      con un allegato.
+- [ ] Testi approvati (2026-10-29), traduzioni dell'agente; privacy e
+      «Help» nelle cinque lingue e sul sito.
+- [ ] Impronta iOS `83793e26` invariata su una copia pulita.
+- [ ] Test, lint, typecheck e prettier verdi in CI.
+
+#### File toccati (parte B)
+
+```
+apps/mobile/src/api/messageMedia.ts                      (nuovo)
+apps/mobile/src/api/messageMedia.test.ts                 (nuovo)
+apps/mobile/src/api/messages.ts
+apps/mobile/src/api/messages.test.ts
+apps/mobile/src/messages/AttachButton.tsx                (nuovo: il «+» e il suo foglio)
+apps/mobile/src/messages/pickMessageMedia.ts             (nuovo)
+apps/mobile/src/messages/pickMessageMedia.test.ts        (nuovo)
+apps/mobile/src/messages/AttachmentPreview.tsx           (nuovo)
+apps/mobile/src/messages/MessageMedia.tsx                (nuovo: foto e locandina nel messaggio)
+apps/mobile/src/messages/MediaViewer.tsx                 (nuovo: a tutto schermo, «Share»)
+apps/mobile/src/messages/videoPlayerPage.ts              (nuovo: la pagina della WebView)
+apps/mobile/src/messages/videoPoster.ts                  (nuovo: la locandina nella WebView nascosta)
+apps/mobile/src/messages/Attachments.test.tsx            (nuovo)
+apps/mobile/src/messages/ConversationScreen.tsx
+apps/mobile/src/messages/ConversationScreen.test.tsx
+apps/mobile/src/messages/ConversationList.tsx
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/src/about/content/de.ts, en.ts, es.ts, fr.ts, it.ts
+site/privacy/index.html, de/, es/, fr/, it/              (rifatte da make_privacy.mjs)
+docs/UI.md
+docs/STATUS.md
+docs/tasks/TASK-333.md
+```
 
 ### Parte C — L'app: i disegni
 
@@ -162,6 +268,51 @@ dopo B).
 3. La scheda del disegno nella conversazione e quella aperta sulla mappa
    con «Start», «Export GPX», il cuore, «Draw it near me» (risposta 4).
 4. La lista: «🗺️ Drawing».
+5. Il disegno da mandare (`messageDrawing.ts`): il corpo di un preferito;
+   la corsa tagliata a `DRAWING_CUT_M` come nel Feed, un percorso intero.
+
+#### Criteri di accettazione (parte C)
+
+- [ ] «Send to a friend» c'è sulle schede di «Draw», «Explore», del Feed,
+      di un profilo, di «My activities» e dei preferiti, e chiede a chi;
+      chi non ha accettato la conversazione si vede con «Photos, videos
+      and drawings can be sent once {name} accepts your message.».
+- [ ] «Drawing» nel «+» sceglie fra i preferiti e le proprie corse.
+- [ ] Una propria corsa parte tagliata all'inizio e alla fine; un
+      percorso progettato intero.
+- [ ] Chi riceve vede la scheda; aperta sulla mappa ha «Start», «Export
+      GPX», il cuore e «Draw it near me» quando la figura lo permette.
+- [ ] Impronta iOS `83793e26` invariata; test, lint, typecheck e
+      prettier verdi in CI.
+
+#### File toccati (parte C)
+
+Da ricontrollare con il Coordinatore all'inizio di C: le schede sono
+file che altri task toccano spesso (oggi `route/RoutePanel.tsx` per
+TASK-331).
+
+```
+apps/mobile/src/messages/messageDrawing.ts               (nuovo)
+apps/mobile/src/messages/messageDrawing.test.ts          (nuovo)
+apps/mobile/src/messages/SendToFriend.tsx                (nuovo: la scelta della persona)
+apps/mobile/src/messages/SendToFriend.test.tsx           (nuovo)
+apps/mobile/src/messages/DrawingPicker.tsx               (nuovo: preferiti e «My activities»)
+apps/mobile/src/messages/MessageDrawing.tsx              (nuovo: la scheda nel messaggio)
+apps/mobile/src/messages/ReceivedDrawing.tsx             (nuovo: aperta sulla mappa)
+apps/mobile/src/messages/Drawings.test.tsx               (nuovo)
+apps/mobile/src/messages/AttachButton.tsx
+apps/mobile/src/messages/ConversationScreen.tsx
+apps/mobile/src/messages/ConversationList.tsx
+apps/mobile/src/route/RoutePanel.tsx                     («Send to a friend»)
+apps/mobile/src/explore/ExploredCard.tsx, RouteCard.tsx
+apps/mobile/src/social/DrawingCard.tsx
+apps/mobile/src/activities/RunDrawing.tsx
+apps/mobile/src/favorites/FavoritesList.tsx
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+docs/UI.md
+docs/STATUS.md
+docs/tasks/TASK-333.md
+```
 
 ### Dopo, col sì dell'utente
 
@@ -175,8 +326,9 @@ dopo B).
 
 ## I testi
 
-In inglese, da approvare con la scelta 7; le traduzioni in tedesco,
-italiano, spagnolo e francese sono dell'agente.
+In inglese, **approvati dall'utente il 2026-10-29** («Approvo così»,
+scelta 7); le traduzioni in tedesco, italiano, spagnolo e francese sono
+dell'agente.
 
 **App**
 
@@ -223,24 +375,9 @@ drawing too.»
 Della proposta (questa PR):
 
 - [x] Le scelte 1–6 hanno una risposta dell'utente, scritta qui.
-- [ ] I testi e la privacy sono approvati (scelta 7).
-- [ ] Le parti hanno i loro file toccati e criteri, aggiornati alle
-      risposte.
-
-Delle parti (da precisare con le risposte):
-
-- [ ] Una foto e un video si mandano in una conversazione aperta e chi
-      riceve li vede; con un server vecchio il «+» non c'è.
-- [ ] Un video oltre la durata o il peso è rifiutato prima di partire
-      (app) e all'arrivo (API); la foto non ha EXIF, il video non ha il
-      luogo.
-- [ ] Un allegato si segnala come il suo messaggio, e chi lo riceve
-      segnalato e nascosto non lo vede più; la pagina del link lo mostra.
-- [ ] Blocco, «Delete» di chi ha scritto, l'account cancellato e la
-      scadenza portano via i file dal disco.
-- [ ] Un disegno arriva, si apre sulla mappa e si corre.
-- [ ] Impronta iOS `83793e26` invariata.
-- [ ] Test verdi in locale e in CI.
+- [x] I testi e la privacy sono approvati (scelta 7).
+- [x] Le parti hanno i loro file toccati e criteri, aggiornati alle
+      risposte (sopra, in «Le parti»).
 
 ## File toccati
 
@@ -253,8 +390,7 @@ docs/STATUS.md
 docs/INDEX.md
 ```
 
-Le parti A, B e C scrivono i loro elenchi qui quando partono, dopo le
-risposte.
+Le parti A, B e C hanno i loro elenchi in «Le parti».
 
 ## Fuori scope
 
@@ -270,4 +406,10 @@ risposte.
 - 2026-10-29: letti TASK-319, ADR-0279, `messages.py`, `0033`, l'app dei
   messaggi, le foto dei disegni (`drawing_photos.py`), i preferiti, il
   video della corsa e i permessi in `app.json`. Numeri dal Coordinatore.
-  Proposta scritta; le scelte all'utente.
+  Proposta scritta, PR #627.
+- 2026-10-29: le sette scelte dell'utente, una per volta (sopra): solo
+  dopo «Accept»; video 60 s e 40 MB; video 30 giorni; il disegno si
+  apre, si corre e si tiene; si manda dalla scheda e dalla
+  conversazione; il resto «Sì, così»; testi e privacy «Approvo così».
+  Parti pianificate. Prossimo: il «vai» dell'utente per la parte A, in
+  una sessione sua.

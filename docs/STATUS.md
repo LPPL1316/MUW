@@ -1814,6 +1814,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   sua PR. Impronta iOS `83793e26`: niente moduli nuovi. Server, OTA e
   «App Privacy» / «Data safety» col sì dell'utente. File
   `tasks/TASK-333.md`.
+  **Proposta approvata il 2026-10-29** (PR #627): solo dopo «Accept»,
+  video fino a 60 s e 40 MB tenuti 30 giorni, il disegno si apre, si
+  corre e si tiene, si manda dalla scheda e dalla conversazione; testi e
+  privacy approvati («Approvo così»). Prossimo: la parte A, col «vai»
+  dell'utente, in una sessione sua.
 
 ## Completato
 
