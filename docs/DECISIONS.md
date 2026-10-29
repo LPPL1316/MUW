@@ -18856,8 +18856,8 @@ prima del suo taglio.
    `PUT` mandato di nuovo sostituisce, non raddoppia. `409` mentre il
    disegno è solo del proprietario (come le foto), `422` per un file che
    non è un MP4 o è troppo lungo, `429` oltre il limite al giorno di
-   ADR-0289 (10 video per account, contati qui per i post), `503
-   videos_paused` (con `Retry-After`)
+   ADR-0289 (10 video per account, contati qui per i post), `507`
+   come per i messaggi
    quando lo spazio è pieno anche dopo aver tolto i video dei messaggi
    (punto 11): il video aspetta sul telefono e il post va senza.
    `PUT …/drawing/video/poster` con il JPEG nudo (al più 1 MB, rifatto da
@@ -18962,12 +18962,18 @@ prima del suo taglio.
     messaggio, non ci sta, il server cancella i video dei messaggi dal più
     vecchio, finché ci sta. I video dei post non si cancellano mai per
     fare posto; solo quando non resta nessun video di un messaggio il
-    video nuovo di un post aspetta sul telefono (`503 videos_paused`). Al
+    video nuovo di un post aspetta sul telefono (`507`, come i messaggi). Al
     posto di un video cancellato così il messaggio dice, come per la
     scadenza, «This video has expired.». Cambia il punto 8 di ADR-0289 (là
     i video nuovi aspettano): lo aggiorna TASK-333 nei suoi file
-    (`message_media.py`, con una funzione che fa posto e che la parte A di
-    questo task chiama), con la sua riga della privacy.
+    (`message_media.py`, `MessageMedia.free_videos(needed_bytes) -> int`:
+    segna `stored = false` i video dei messaggi dal più vecchio, per il
+    `created_at` del messaggio, ne toglie subito file e locandine e dice
+    quanti byte ha liberato), con la sua riga della privacy. La funzione
+    non sa dei tetti: è la parte A di questo task, che legge le due
+    tabelle, a dire quando lo spazio comune è pieno per un video di un
+    post e quanto liberare; per un video di un messaggio la chiama
+    `message_media.py` stesso (TASK-333, parte D).
 12. **I permessi** (build 1.0.2, `app.json`): oggi il testo del microfono
     (di `expo-audio`) dice «MuW never records sound», e il plugin di
     `expo-image-picker` ha `microphonePermission: false`. Registrare un

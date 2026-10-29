@@ -147,9 +147,11 @@ non si vede niente; D è la build 1.0.2.
    `/me/activities/{key}/drawing/video`, `PUT …/video/poster`, `GET
    /drawings/{id}/video` e `…/video/poster` con `Range`; i limiti al
    minuto e al giorno; lo spazio pieno che toglie i video dei messaggi
-   dal più vecchio (con la funzione che TASK-333 aggiunge in
-   `message_media.py`), e `503 videos_paused` solo quando non ne resta
-   nessuno.
+   dal più vecchio con `MessageMedia.free_videos(needed_bytes)` di
+   TASK-333 (la sua parte D, nome e firma già fissati), e `507` come i
+   messaggi solo quando non ne resta nessuno. Questa parte conta lo
+   spazio delle due tabelle e decide quando è pieno per un video di un
+   post.
 4. `drawings.py`: `video` nei corpi di «My activities», del disegno e del
    Feed, letto insieme alle foto; «Only me» toglie riga e file.
 5. La pulizia di ogni ora di ADR-0289 copre anche `data/media/posts`.
@@ -405,8 +407,8 @@ Delle parti:
       altri e attraverso un blocco; oltre durata e peso `422` e `413`;
       il luogo non resta nel file; «Only me» lo toglie dal disco subito,
       corsa e account cancellati entro un'ora; a spazio pieno se ne vanno
-      i video dei messaggi dal più vecchio, mai quelli dei post, e `503
-      videos_paused` solo quando non ne resta nessuno.
+      i video dei messaggi dal più vecchio, mai quelli dei post, e `507`
+      solo quando non ne resta nessuno.
 - [ ] B: «Run video», galleria e (dalla 1.0.2) fotocamera danno un video
       entro i limiti, che arriva al server dopo il disegno e le foto e
       aspetta senza rete, con «Only me» e sopra il tetto; nella 1.0 e
