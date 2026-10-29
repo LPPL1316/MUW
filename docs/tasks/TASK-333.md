@@ -1,6 +1,7 @@
 # TASK-333 — Gli allegati nei messaggi privati: un disegno, una foto, un video
 
-**Stato**: Proposta · 2026-10-29 · aspetta le scelte dell'utente
+**Stato**: Proposta · 2026-10-29 · scelte 1–6 fatte dall'utente il
+2026-10-29; aspetta il sì ai testi e alla privacy (scelta 7)
 **Fase**: 4 · **Branch**: `docs/TASK-333-message-attachments` (documenti),
 poi una PR per parte
 **ADR**: ADR-0289 (proposta) · **Migrazione**: il primo numero libero in
@@ -45,30 +46,34 @@ risposte si scrivono qui.
    una richiesta resta di solo testo, e foto, video e disegni arrivano
    dopo «Accept». Alternative: i disegni anche in una richiesta (foto e
    video no); tutto anche in una richiesta.
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «Solo dopo «Accept»», la proposta.
 2. **Quanto è lungo e pesante un video.** Proposta: fino a 30 secondi,
    ridotto sul telefono a 960 × 540 (sull'iPhone), al più 20 MB; scelto
    dalla galleria, non registrato dalla chat. Alternative: 15 s; 60 s e
    40 MB.
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «60 s, 40 MB». Quindi fino a 60 secondi e
+   40 MB, sempre ridotto a 960 × 540 sull'iPhone (circa 22 MB per 60 s) e
+   scelto dalla galleria; Android lo manda com'è entro i 40 MB.
 3. **Quanto restano sul server.** Proposta: un video 30 giorni, poi al
    suo posto «This video has expired.»; foto e disegni restano come il
    testo. Più un tetto per tutto il server: sopra, i video nuovi
    aspettano. Alternative: 7 giorni; per sempre, con il solo tetto.
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «Video 30 giorni», la proposta (chiesta con
+   il peso di un video da 60 s, circa 22 MB, e il tetto di 10 GB che
+   regge circa 15 video al giorno).
 4. **Chi riceve un disegno.** Proposta: nella conversazione una scheda
    con la mappa piccola, il nome e i km; un tocco la apre sulla mappa con
    «Start», «Export GPX», il cuore dei preferiti e «Draw it near me»
    quando la figura lo permette (ADR-0273). Alternativa: solo guardarlo e
    «Start».
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «Aprirlo, correrlo, tenerlo», la proposta.
 5. **Da dove si manda un disegno.** Proposta: tutti e due: «Send to a
    friend» sulla scheda di un percorso o di un disegno (il risultato di
    «Draw», «Explore», il «Feed», un profilo, «My activities», i
    preferiti), che chiede a chi; e «Drawing» nel «+» della conversazione,
    che sceglie fra i preferiti e le proprie corse. Alternative: solo
    dalla scheda; solo dalla conversazione.
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «Da tutti e due», la proposta.
 6. **Il resto della proposta**, in un sì solo: un allegato per messaggio,
    con un testo facoltativo; foto e video a tutto schermo con «Share» (dal
    foglio del telefono si salvano); la fotocamera nella chat solo con la
@@ -77,7 +82,8 @@ risposte si scrivono qui.
    push «{name}: 📷 Photo», «🎬 Video», «🗺️ Drawing»; la corsa mandata
    tagliata come nel Feed (ADR-0159), un percorso progettato intero con la
    sua partenza.
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «Sì, così» (l'alternativa era senza
+   «Share»).
 7. **I testi e la privacy** (sotto, «I testi»): in inglese da approvare,
    traduzioni dell'agente; la privacy nelle cinque lingue.
    — *Risposta:* …
@@ -134,8 +140,9 @@ dopo B).
    come corpo), scaricare nella cache con le intestazioni, i problemi in
    parole.
 2. Il «+» accanto alla casella, solo con `attachments` nella pagina:
-   «Photo», «Video» (dalla galleria, `expo-image-picker`), con le
-   proposte della scelta 2; la foto ridotta come quelle dei disegni.
+   «Photo», «Video» (dalla galleria, `expo-image-picker`), fino a 60 s e
+   40 MB (scelta 2), sull'iPhone ridotto a 960 × 540; la foto ridotta
+   come quelle dei disegni.
 3. L'anteprima prima dell'invio, con il testo facoltativo; «Sending…» e
    «Tap to try again».
 4. Nei messaggi la foto e la locandina del video (fatta sul telefono di
@@ -181,8 +188,8 @@ italiano, spagnolo e francese sono dell'agente.
   {distance}» (VoiceOver); «This video has expired.»; «Share»,
   «Close».
 - Errori: «This video is longer than {seconds} seconds. Choose a shorter
-  one.», «This video is too large: at most {mb} MB. Choose a shorter
-  one.», «Too many videos today. Try again tomorrow.», «Videos can't be
+  one.» ({seconds} = 60), «This video is too large: at most {mb} MB.
+  Choose a shorter one.» ({mb} = 40), «Too many videos today. Try again tomorrow.», «Videos can't be
   sent right now. Try again later.», «Photos, videos and drawings can be
   sent once {name} accepts your message.»
 - Lista: «📷 Photo», «🎬 Video», «🗺️ Drawing», «You: 📷 Photo».
@@ -192,11 +199,18 @@ italiano, spagnolo e francese sono dell'agente.
 **Push**: «{name}: 📷 Photo», «{name}: 🎬 Video», «{name}: 🗺️ Drawing»; con
 un testo, «{name}: 📷 {text}».
 
+**Help**, in «Messages», un paragrafo nuovo dopo gli altri: «In a
+conversation, tap + to send a photo, a video of up to 60 seconds or a
+drawing, or tap Send to a friend on a route or a drawing. You can send
+them once the other person has accepted your message. Videos are kept
+for 30 days. Tap a drawing to open it on the map, start it, export its
+GPX or keep it in your favorites.»
+
 **Privacy**, in «Private messages», un paragrafo nuovo dopo il primo:
 «A message can carry a photo, a video or a drawing. A photo is kept
 resized, without the data your phone adds to it, such as where and when
 it was taken. A video is kept as your phone sends it, without the place
-it was shot, and is deleted {days} days after it was sent. A drawing is
+it was shot, and is deleted 30 days after it was sent. A drawing is
 a copy of the route: a run you send is cut at its start and end as in
 the Feed, a route you plan is sent whole, with its start. Photos and
 videos are not end-to-end encrypted, are not in our backup copies, and
@@ -208,7 +222,7 @@ drawing too.»
 
 Della proposta (questa PR):
 
-- [ ] Le scelte 1–6 hanno una risposta dell'utente, scritta qui.
+- [x] Le scelte 1–6 hanno una risposta dell'utente, scritta qui.
 - [ ] I testi e la privacy sono approvati (scelta 7).
 - [ ] Le parti hanno i loro file toccati e criteri, aggiornati alle
       risposte.

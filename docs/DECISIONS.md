@@ -18340,12 +18340,13 @@ che l'ADR non dice.
 
 ## ADR-0289 — Gli allegati nei messaggi privati: un disegno, una foto o un video per messaggio, i file su disco, i video con un limite e una scadenza
 
-**Stato**: Proposta · 2026-10-29 · la richiesta è dell'utente; le scelte
-di prodotto (chi allega, i limiti dei video, quanto restano, cosa fa chi
-riceve un disegno, da dove si manda, i testi e la privacy) sono da
-chiedere all'utente e si scrivono in TASK-333; i punti tecnici sono
-decisi dall'agente su delega dell'utente. Numero dato dal Coordinatore.
-Estende ADR-0279.
+**Stato**: Proposta · 2026-10-29 · la richiesta e le scelte di prodotto
+sono **dell'utente** (TASK-333, «Le scelte dell'utente», 2026-10-29: solo
+dopo «Accept»; video fino a 60 s e 40 MB; video tenuti 30 giorni; il
+disegno si apre, si corre e si tiene; si manda dalla scheda e dalla
+conversazione; il resto «Sì, così»); testi e privacy da approvare; i
+punti tecnici sono decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore. Estende ADR-0279.
 
 **Contesto**: l'utente il 2026-10-29: «Aggiungi la possibilità di
 inviare disegni agli amici allegati, foto video». I messaggi di ADR-0279
@@ -18353,7 +18354,7 @@ sono solo testo. L'app ha già quello che serve per scegliere e mostrare
 foto e video (`expo-image-picker`, `expo-image-manipulator`,
 `expo-file-system`, la WebView, `expo-sharing`) e un disegno si copia già
 intero nei preferiti (ADR-0139). Le foto dei disegni stanno nel database
-(ADR-0170), 0,1–0,3 MB l'una; un video di 30 s è 10–20 MB. Lo spazio del
+(ADR-0170), 0,1–0,3 MB l'una; un video di 60 s è 20–40 MB. Lo spazio del
 server è poco: il disco del sistema e il Volume da 70 GB (zone e cache)
 non crescono da soli, e il database si copia ogni notte.
 
@@ -18362,7 +18363,9 @@ non crescono da soli, e il database si copia ogni notte.
 1. **Un allegato per messaggio**, `photo`, `video` o `drawing`, con un
    testo facoltativo (fino a 1000 caratteri come oggi; vuoto ammesso solo
    con un allegato). Chi può allegare e in quale stato della conversazione
-   è la scelta 1 dell'utente; la proposta: solo in `open`.
+   è la scelta 1 dell'utente: solo in `open`, cioè dopo «Accept» (o
+   quando chi riceve segue chi scrive). Un allegato in una richiesta è
+   `409`, come un secondo messaggio.
 2. **Un disegno è una copia, non un rimando**: lo stesso corpo di un
    preferito (`FavoriteRequestBody`: linea, forma o parola, lettere,
    titolo, metri, sport, `walks`, `on_foot`, rotazione), tenuto in
@@ -18406,19 +18409,20 @@ non crescono da soli, e il database si copia ogni notte.
      sposta e chi riceve non sa dove è stato girato. Niente ffmpeg:
      ricomprimere sul server ruberebbe la CPU al motore.
    - Il video si riduce **sul telefono**: sull'iPhone
-     `videoExportPreset` di `expo-image-picker` (960 × 540 nella
-     proposta, circa 3 Mbit/s); Android non lo sa fare e manda il file
-     com'è, entro il peso (seguito possibile: ridurlo con WebCodecs nella
-     WebView).
-8. **Lo spazio**: limiti per account al giorno (proposta: 20 video, 100
-   foto), una scadenza dei video (scelta 3) e un **tetto per tutto il
-   server** (`SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, proposta 10 GB): sopra,
-   `attachments` non offre più i video (le foto, piccole, fino al tetto
-   più un decimo) e il log lo dice. Stima con la proposta: un video
-   960 × 540 di 30 s è circa 11 MB; con 30 giorni di scadenza, 10 GB
-   reggono circa 30 video al giorno ogni giorno; una foto 0,2 MB. Lo
-   spazio libero vero si misura (`df -h`) prima di aggiornare il server,
-   col sì dell'utente.
+     `videoExportPreset` di `expo-image-picker` (960 × 540, circa
+     3 Mbit/s); Android non lo sa fare e manda il file com'è, entro i
+     40 MB: un video 1080p di Android ci sta per circa 20 s (seguito
+     possibile: ridurlo con WebCodecs nella WebView).
+8. **Lo spazio**: fino a 60 s e 40 MB per video (scelta 2), limiti per
+   account al giorno (10 video, 100 foto), i video cancellati dopo 30
+   giorni (scelta 3) e un **tetto per tutto il server**
+   (`SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, 10 GB): sopra, `attachments` non
+   offre più i video (le foto, piccole, fino al tetto più un decimo) e il
+   log lo dice. Stima: un video 960 × 540 di 60 s è circa 22 MB; con 30
+   giorni di scadenza, 10 GB reggono circa 15 video al giorno ogni
+   giorno; una foto 0,2 MB, mille foto 0,2 GB. Lo spazio libero vero si
+   misura (`df -h`) prima di aggiornare il server, col sì dell'utente; il
+   tetto si alza cambiando la variabile.
 9. **Leggere un allegato** (`GET /message-media/{id}`, `…/poster`): solo
    i due membri della conversazione, con il token e la chiave di sempre;
    `404` per tutti gli altri, attraverso un blocco, per un messaggio
