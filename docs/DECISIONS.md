@@ -19690,3 +19690,100 @@ sensore Bluetooth (dipendenza nuova, task a parte).
 colonne a `runs`, campi a `FeedPost` e al `PUT` della corsa, testi nuovi e
 la riga della privacy. La C cambia `app.config.ts` e il testo del permesso
 di Salute: solo dentro una build nativa.
+
+## ADR-0300 — Il disegno libero ancorato alle strade: il map matching è una modalità del nostro motore, per tratto, al sollevamento del dito
+
+**Stato**: Accettata · 2026-10-30 · la richiesta è **dell'utente**
+(TASK-347, «Contesto», 2026-10-30: il tracciato deve seguire da solo
+strade e sentieri reali, correggendo il dito, con strumenti da
+professionista, confronto e punteggio, informazioni, bozza ed
+esportazione); l'architettura è proposta dall'agente; le cinque scelte di
+prodotto sono **dell'utente**, fatte una per volta lo stesso giorno
+(TASK-347, «Scelte di prodotto»): il nostro motore e non un servizio
+esterno («Sì, motore nostro»); il tratto nella pagina della mappa, niente
+nativi fino alla build successiva («Sì, nella pagina»); il punteggio = la
+somiglianza del motore, sotto la mappa e non nei post («Sì, così»);
+dislivello e profilo subito, nella fase 5, dalle tegole del terreno
+(«Subito»); campi opzionali nel contratto ed endpoint nuovi con la sonda
+(«Sì, così»). I punti tecnici sono decisi dall'agente su delega
+dell'utente. Numeri dal Coordinatore.
+
+**Contesto**: dal TASK-331 (ADR-0288) a mano si disegna solo sulla mappa,
+ma il tratto resta geometria libera finché non si preme «Draw route»; lì
+il motore **cerca** (ruota fino a 45°, riscala 0,4–1,1, sposta la partenza
+fino a 500 m, 20–30 tracciamenti: 7,7 s sul telefono per un cuore da 5 km,
+fino a 50 s sul server per 21 km) e il risultato non dice dove ha messo la
+forma, quindi il disegno sparisce dalla mappa. Il motore ha già un modo
+senza ricerca (`--no-optimize`, TASK-017) e sa agganciare una linea aperta
+(TASK-040/041). L'app non ha Skia, gesture-handler, haptics né svg; la
+mappa è MapLibre in una WebView, dove il tratto è già a 60 fps senza
+passare dal ponte. L'impronta iOS deve restare `83793e26` fino alla build
+nativa successiva; l'API rifiuta i campi sconosciuti.
+
+**Decisione (proposta)**:
+
+1. **Il map matching è una modalità ancorata del motore**, non un servizio
+   esterno: la figura resta dove e come il dito l'ha messa, il motore non
+   cerca ma aggancia, tratto per tratto al sollevamento del dito, e ogni
+   tratto parte dal nodo finale del precedente, così i tratti si collegano
+   lungo le strade da soli. La ricerca di oggi («free») resta per forme,
+   parole e chi vuole una forma «vicino a casa».
+2. **Contratto, tutto opzionale**: `ImageRouteRequest.placement` («free»
+   di default, «anchored»), `ImageRouteRequest.fit` in [0, 1] (la forza
+   del magnete: la fascia del corridoio e il raggio delle zone fra due
+   quote della grandezza), `RouteResult.placed_outline` (la forma come
+   piazzata, per il fantasma), e `POST /stroke-matches` per un tratto
+   aperto (`points`, `off_roads`, `away_m` per punto). L'app li manda solo
+   a un server che li conosce (sonda, come TASK-308).
+3. **Prima sul telefono, poi sul server** (TASK-214): `phoneEngine` ha una
+   chiamata `match` sulla zona scaricata, o sulla zona del posto per un
+   disegno lontano (`/phone-zones`, come TASK-334); i tempi si misurano
+   nella parte A col banco di TASK-335 e, se un tratto supera ~1,5 s sul
+   telefono, il server va prima.
+4. **Il tratto resta nella pagina della mappa**: smoothing (ricampionamento
+   a passo fisso, Catmull-Rom o Chaikin) e Douglas-Peucker all'1% in un
+   modulo puro, lo stesso nella pagina per l'anteprima. Niente Skia né
+   gesture-handler: nativi, e un livello sopra la WebView passerebbe dal
+   ponte.
+5. **Confronto**: il tratto originale resta come fantasma sotto il
+   percorso agganciato; i punti oltre una soglia di distanza si colorano
+   con un terzo colore dei token; il punteggio è la somiglianza del motore
+   (copertura e precisione, già giudicata a occhio su sette città), non
+   Fréchet né Hausdorff (provate e scartate, `ROUTE_ENGINE.md` §5), detta
+   come «quanto le strade seguono il tuo disegno», sotto la mappa e non nei
+   post (TASK-241).
+6. **Casi difficili**: zona senza strade → `off_roads`, tratto lasciato
+   fantasma con avviso; aggancio fallito → routing fra i vertici della
+   semplificazione; tratto lungo → spezzato e concatenato; niente zona e
+   niente rete → fantasma, agganciato alla prima occasione.
+7. **Logica fuori dalla UI**: `strokes.ts`, `matching.ts` +
+   `useMapMatching`, `fidelity.ts`, `history.ts` (cronologia completa al
+   posto di `Step put/swap`); `useMapCanvas` compone. Gli strumenti (parte
+   D), le guide da immagine col contorno già tracciato dal motore (parte E,
+   TASK-072/084 e i pezzi di TASK-297), informazioni e bozza (parte F)
+   vengono dopo, una parte alla volta; dislivello e profilo (parte G,
+   nella fase 5 per scelta dell'utente, «Subito») si misurano sul server
+   dalle tegole del terreno di AWS che la mappa 3D usa già (ADR-0232),
+   in cache sul Volume, con `RouteResult.elevation` e `POST /elevations`
+   opzionali e senza quote offline; aptica e altri nativi alla build
+   successiva. Modificare i nodi di una traccia vera è del TASK-346.
+
+**Alternative scartate**: Mapbox Map Matching (chiave nell'app, costo a
+richiesta, rete obbligatoria), Valhalla/OSRM/GraphHopper (modelli di
+Markov per tracce GPS vere, che tagliano punte e anse e non ripassano un
+tratto apposta; un servizio nuovo sul server con grafi in RAM; rete
+obbligatoria); Skia + gesture-handler sopra la WebView (nativi, e la
+conversione schermo→geo passerebbe dal ponte); Fréchet/Hausdorff come
+punteggio (dominate dal punto peggiore); aggancio solo a fine disegno (è
+ciò che non va oggi); riscalare la figura ancorata per far tornare la
+distanza (tradirebbe «l'ho disegnato qui»: se la distanza non torna, lo
+dice).
+
+**Conseguenze**: il motore resta una libreria pura, senza rete e senza
+chiavi, e guadagna una modalità e una funzione per tratto da riga di
+comando; l'API un endpoint e tre campi opzionali, nessuna migrazione; il
+server si aggiorna col sì dell'utente prima dell'OTA; l'app resta OTA
+(impronta invariata) finché non chiede nativi; TASK-282 è assorbito dalla
+modalità ancorata. La somiglianza di un disegno ancorato sarà per
+costruzione più bassa di quella della ricerca: il numero va spiegato, non
+dato come voto.
