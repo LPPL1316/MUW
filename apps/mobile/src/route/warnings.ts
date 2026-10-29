@@ -21,6 +21,13 @@ import {
 } from "../units/format";
 import { appUnits } from "../units/units";
 
+/**
+ * How many notes the route shows at first (TASK-337): with more, the panel
+ * grew over the map on the phone. The rest wait behind «Show more», never
+ * dropped (ADR-0077).
+ */
+export const NOTES_AT_FIRST = 2;
+
 /** How a note should look: something to watch for, or just to know. */
 export type NoteTone = "caution" | "info";
 
@@ -198,4 +205,12 @@ export function toNotes(warnings: readonly string[]): Note[] {
     ...notes.filter((note) => note.tone === "caution"),
     ...notes.filter((note) => note.tone === "info"),
   ];
+}
+
+/**
+ * The notes on screen (TASK-337): the first ones, things to watch for
+ * first, or all of them once «Show more» was pressed.
+ */
+export function shownNotes(notes: readonly Note[], all: boolean): Note[] {
+  return all ? [...notes] : notes.slice(0, NOTES_AT_FIRST);
 }

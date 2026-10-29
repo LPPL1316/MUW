@@ -1,5 +1,5 @@
 import { saveLanguageChoice } from "../i18n/language";
-import { roughMetres, toNote, toNotes } from "./warnings";
+import { NOTES_AT_FIRST, roughMetres, shownNotes, toNote, toNotes } from "./warnings";
 
 afterEach(() => saveLanguageChoice("phone"));
 
@@ -110,6 +110,24 @@ test("things to watch for come first, and a sentence is said once", () => {
     "There are 120 m of steps along the way.",
     "The route is 12% longer than asked.",
   ]);
+});
+
+// --- Two notes at first (TASK-337) ---
+
+test("the first two notes are shown, all of them after «Show more»", () => {
+  const notes = toNotes([
+    "distance on roads is +12% from the target after 18 attempts",
+    "shape similarity 0.86 is below 0.90 after 18 attempts",
+    "120 m of the route on steps",
+  ]);
+  expect(NOTES_AT_FIRST).toBe(2);
+  expect(shownNotes(notes, false).map((note) => note.text)).toEqual([
+    "The roads here follow the shape only roughly.",
+    "There are 120 m of steps along the way.",
+  ]);
+  expect(shownNotes(notes, true)).toEqual(notes);
+  expect(shownNotes(notes.slice(0, 1), false)).toEqual(notes.slice(0, 1));
+  expect(shownNotes([], false)).toEqual([]);
 });
 
 // --- The bike on foot (TASK-206) ---
