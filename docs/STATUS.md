@@ -185,8 +185,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nuovi al giorno per telefono, 20 per il server, uno alla volta); fino a
   10 posti, fuori dai 2 GB, mai cancellati da soli. API
   (`phone_zone_places.py`, `POST /phone-zones/{network}/places`) e app
-  (`keptPlaces.ts`, `OfflineMapsSetting`, `ZoneEntry.kept`) nella PR #637
-  (branch `feat/TASK-334-kept-places`), impronta iOS invariata
+  (`keptPlaces.ts`, `OfflineMapsSetting`, `ZoneEntry.kept`) in `main` dalla
+  #637 (`a623d61c`, 2026-10-29; task Done), impronta iOS invariata
   (`83793e26…`). I due testi nuovi («Trying again later», «Up to {count}
   places.») approvati dall'utente lo stesso giorno. Dopo il merge, il
   server e l'OTA col sì dell'utente. File `tasks/TASK-334.md`.
@@ -1972,6 +1972,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App e API** — TASK-334 (ADR-0290; richiesta e scelta dell'utente del 2026-10-29, «Sì, così», testi approvati lo stesso giorno): i posti che l'utente tiene sul telefono. «Add a place» in «Settings» → «Offline maps», fino a 10 posti con la zona di 6 km fuori dai 2 GB; il server prepara quelle che non ha (`POST /phone-zones/{network}/places`, 3 al giorno per telefono, 20 per il server, mai mentre disegna percorsi). In `main` dalla #637 (`a623d61c`). Restano il server e l'OTA col sì dell'utente; la pagina non è ancora vista sul telefono. `tasks/TASK-334.md`, «Esito».
 - **App e API** — TASK-333 (ADR-0289 con l'aggiunta della parte D;
   richiesta dell'utente del 2026-10-29, «Aggiungi la possibilità di inviare
   disegni agli amici allegati, foto video», e le sue sette scelte, testi e
