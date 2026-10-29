@@ -17655,7 +17655,8 @@ aggiornamento OTA.
 
 **Stato**: Attiva · 2026-10-28 · proposte, testi e riga della privacy
 approvati dall'utente il 2026-10-28; parte A in `main` con la PR #612,
-parte B da fare · la richiesta è dell'utente («disegnare
+parte B (le schede) fatta il 2026-10-29, branch `feat/TASK-320-b-edit-cards`
+· la richiesta è dell'utente («disegnare
 anche a mano nella pagina draw» e «modificare un disegno del feed, un
 disegno ricercato, un disegno di explore… tutto potenzialmente
 editabile»); il posto («Freehand» in «Draw»), la tavola e che cosa si
@@ -17755,6 +17756,30 @@ dell'utente):
    fatto (`isDrawnOutline`, un `WeakSet`), come `drawnTile` riconosce
    un'immagine pronta: niente campo nuovo nel contratto, `RouteOutcome`
    invariato. La linea a dito di «Draw on the map» resta «Image».
+
+**Attuazione, parte B** (2026-10-29, branch `feat/TASK-320-b-edit-cards`;
+deciso dall'agente su delega dell'utente):
+
+1. **Il pulsante c'è solo se la tavola apre davvero una figura**: l'app
+   la fa prima (`figureOf` sulle linee, in `App.tsx`), e una figura che
+   non racchiude niente o con più dettagli di quanti un percorso ne corre
+   non dà il pulsante, invece di aprire una tavola vuota.
+2. **Quale disegno ha una figura** (`drawingLines` in `figureLines.ts`):
+   una forma del catalogo; senza forma né parola, un percorso pianificato
+   che dice solo il titolo (`route_title`, una foto, un'immagine, un
+   disegno a mano), con la traccia di almeno due punti. Un `route_title`
+   nullo è una corsa senza percorso; `source: "file"` (TASK-312) una corsa
+   importata, esclusa anche se un giorno avesse un titolo: non è il
+   disegno di una figura.
+3. **«Save» lascia la scheda, non l'apertura della tavola**: la tavola si
+   apre sopra la scheda; la figura e la distanza di «Draw» si scelgono al
+   tocco, il percorso o il disegno si lascia (`closeExplore`, `leave()`)
+   e «Draw» si mostra con «Save», l'unico modo di chiudere la tavola.
+4. **La distanza** è quella di «Draw it near me» per una forma
+   (`againDistanceM`): la richiesta del percorso di «Explore» o la corsa
+   del disegno, al decimo di km, nei limiti dello sport. Scritta in
+   `App.tsx` (`cardDistanceM`) per non toccare `drawAgain.ts`, fuori dai
+   file del task.
 
 ## ADR-0278 — Nelle build dello store gli sport non pronti non si vedono
 

@@ -35,6 +35,9 @@ type Props = {
   /** «Draw it near me» (TASK-313): its shape or word chosen in «Draw»;
    * without it, a drawing «Draw» cannot choose, there is no button. */
   onDrawAgain?: () => void;
+  /** «Edit the drawing» (TASK-320): its figure in the board, then «Draw»;
+   * without it, a drawing the board cannot open, there is no button. */
+  onEditDrawing?: () => void;
 };
 
 /** «Start» on a drawing asks for nothing first: it is never loading. */
@@ -53,11 +56,18 @@ export const PHOTO_HEIGHT = 160;
  * a button (TASK-120), and next to it are its reactions (TASK-119). Under
  * them «Start», to run the track as the map shows it, without turn
  * directions, and «Export GPX», the same track as a file (TASK-307);
- * after them «Draw it near me», its shape or word in «Draw» (TASK-313).
+ * after them «Draw it near me», its shape or word in «Draw» (TASK-313),
+ * and «Edit the drawing», its figure in the board (TASK-320).
  * The drawing that won the contest kept on the phone has the «Winner» band
  * on top (TASK-299).
  */
-export function DrawingCard({ drawing, onBack, onStart, onDrawAgain }: Props) {
+export function DrawingCard({
+  drawing,
+  onBack,
+  onStart,
+  onDrawAgain,
+  onEditDrawing,
+}: Props) {
   const day = dayLabel(drawing.started_at);
   const units = useUnits();
   const { photoSource } = useDrawingsDoor();
@@ -153,6 +163,15 @@ export function DrawingCard({ drawing, onBack, onStart, onDrawAgain }: Props) {
           accessibilityRole="button"
         >
           <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
+        </Pressable>
+      )}
+      {onEditDrawing !== undefined && (
+        <Pressable
+          style={styles.button}
+          onPress={onEditDrawing}
+          accessibilityRole="button"
+        >
+          <Text style={styles.buttonText}>{t("Edit the drawing")}</Text>
         </Pressable>
       )}
       <Pressable style={styles.button} onPress={onBack} accessibilityRole="button">
