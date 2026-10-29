@@ -48,8 +48,9 @@ from route_engine.water_fit import ON_LAND_M
 
 @dataclass(frozen=True)
 class SwimBand:
-    """Where a swimmer may be, in metres from the shore: the proposal of
-    ADR-0283, the user's to confirm after the samples (TASK-323 A1)."""
+    """Where a swimmer may be, in metres from the shore: the user's choice
+    after the samples, a longer swim going round the shape in laps
+    (ADR-0283, TASK-323 A1)."""
 
     # Off the shore: on a beach the water's edge moves by tens of metres
     # (water.SHORE_MARGIN_M), and a turn is not swum on the sand.

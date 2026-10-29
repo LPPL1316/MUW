@@ -1,7 +1,8 @@
 """Open-water swims (TASK-323 A1, ADR-0283): the canoe's water with the band
 turned inside out, between 20 and 150 m from the shore, 200 m off harbours,
 marinas and river mouths, in from a beach or a path; a SwimRequest of
-0.5-3 km; the checks of a swim; `python -m route_engine.swimming`.
+0.5-3 km, of a shape or a drawing, swum lap after lap; the checks of a swim;
+`python -m route_engine.swimming`.
 
 On the hand-built fixtures of make_water_fixtures.py, as test_paddling.py.
 No network and no keys: a download is refused.
@@ -24,6 +25,7 @@ from route_engine import water
 from route_engine.geo import LatLon, latlon_to_local_array, local_to_latlon
 from route_engine.models import InvalidRequestError, RouteRequest
 from route_engine.paddling import plan_paddling
+from route_engine.shapes.outline import parse_outline
 from route_engine.swim_water import (
     SWIM_ACCESS,
     SWIM_BAND,
@@ -31,8 +33,10 @@ from route_engine.swim_water import (
     build_swim_area,
 )
 from route_engine.swimming import (
+    MAX_LAPS,
     SwimRequest,
     check_in_band,
+    lapped,
     main,
     measure_swim,
     plan_swimming,
@@ -84,6 +88,27 @@ def _coast_water(band: SwimBand = SWIM_BAND) -> Any:
     return build_swim_area(elements, request.start, bbox, band)
 
 
+# A drawing as «Freehand» sends it (TASK-320): a closed line in [-1, 1].
+DRAWING = parse_outline(
+    {
+        "name": "drawing",
+        "source": "drawn by hand in the test",
+        "license": "CC0",
+        "points": [
+            [-1.0, -0.4],
+            [-0.3, -0.5],
+            [0.2, -0.9],
+            [0.9, -0.3],
+            [0.6, 0.5],
+            [0.0, 0.9],
+            [-0.7, 0.6],
+            [-1.0, -0.4],
+        ],
+    },
+    allow_crossings=True,
+)
+
+
 def _xy(water_area: Any, points: list[LatLon]) -> np.ndarray:
     return latlon_to_local_array(water_area.origin, np.asarray(points, dtype=float))
 
@@ -107,6 +132,22 @@ def test_a_swim_is_a_shape_of_the_catalogue() -> None:
     assert SwimRequest(start=COAST_START, distance_m=500, shape="cat", pen_up=True)
     with pytest.raises(InvalidRequestError, match="latitude"):
         SwimRequest(start=COAST_START, distance_m=500, shape="star", near=(95.0, 0.0))
+
+
+def test_a_swim_is_a_shape_or_a_drawing_one_of_the_two() -> None:
+    drawn = SwimRequest(start=COAST_START, distance_m=500, outline=DRAWING)
+    assert drawn.name == "drawing"
+    for wrong in ({}, {"shape": "star", "outline": DRAWING}):
+        with pytest.raises(InvalidRequestError, match="one of the two"):
+            SwimRequest(start=COAST_START, distance_m=500, **wrong)
+
+
+def test_a_swim_goes_round_its_shape_one_to_five_times() -> None:
+    assert MAX_LAPS == 5
+    assert SwimRequest(start=COAST_START, distance_m=500, shape="star", laps=5)
+    for wrong in (0, 6):
+        with pytest.raises(InvalidRequestError, match="1 to 5 times"):
+            SwimRequest(start=COAST_START, distance_m=500, shape="star", laps=wrong)
 
 
 def test_a_swim_is_not_yet_an_activity_of_the_contract() -> None:
@@ -219,17 +260,67 @@ def test_asked_where_it_is_it_stays() -> None:
     assert plan_swimming(again, source).result.points == first.points
 
 
-def test_a_circle_of_half_a_km_is_too_wide_for_the_band() -> None:
-    # The risk of ADR-0283: 130 m of band hold a circle of about 0.4 km.
-    with pytest.raises(WaterFitError, match="20-150 m from the shore") as caught:
-        plan_swimming(_swim(shape="circle"), FileWaterSource(COAST))
-    assert caught.value.best_distance_m is not None
-    assert caught.value.best_distance_m < 450
+def test_a_circle_of_half_a_km_is_swum_in_two_laps() -> None:
+    # The risk of ADR-0283: 130 m of band hold a circle of about 0.4 km, so
+    # half a kilometre is the circle twice (the user's choice).
+    plan = plan_swimming(_swim(shape="circle"), FileWaterSource(COAST))
+    assert plan.laps == 2
+    assert abs(plan.result.distance_m - 500) <= 50
+    points = plan.result.points
+    per_lap = (len(points) - 2 - 1) // 2
+    first, second = points[1 : 2 + per_lap], points[1 + per_lap : 2 + 2 * per_lap]
+    assert first == second
+    assert first[0] == first[-1]
+    check_in_band(plan.route, plan.water, 500)
 
 
-def test_a_shape_that_fits_nowhere_says_so_in_a_swimmer_s_words() -> None:
-    with pytest.raises(WaterFitError, match="nor smaller down to 0.4 km"):
-        plan_swimming(_swim(distance_m=1000, shape="circle"), FileWaterSource(COAST))
+def test_the_fewer_the_laps_the_larger_the_shape() -> None:
+    source = FileWaterSource(COAST)
+    fewest = plan_swimming(_swim(distance_m=1000, shape="heart"), source)
+    assert fewest.laps == 3
+    smaller = SwimRequest(start=COAST_START, distance_m=1000, shape="heart", laps=4)
+    more = plan_swimming(smaller, source)
+    assert more.laps == 4
+    assert more.lap_m < fewest.lap_m
+    assert abs(more.result.distance_m - 1000) <= 100
+
+
+def test_too_few_laps_say_how_many_fit() -> None:
+    larger = SwimRequest(start=COAST_START, distance_m=1000, shape="heart", laps=2)
+    with pytest.raises(WaterFitError, match="fit in 2 laps.*it fits in 3 laps"):
+        plan_swimming(larger, FileWaterSource(COAST))
+
+
+def test_too_long_even_in_five_laps_says_what_fits() -> None:
+    with pytest.raises(WaterFitError, match="even in 5 laps") as caught:
+        plan_swimming(_swim(distance_m=3000, shape="circle"), FileWaterSource(COAST))
+    fits = caught.value.best_distance_m
+    assert fits is not None and 1200 < fits < 2500
+
+
+def test_a_drawing_is_swum_as_a_shape() -> None:
+    request = SwimRequest(start=COAST_START, distance_m=1000, outline=DRAWING)
+    plan = plan_swimming(request, FileWaterSource(COAST))
+    assert plan.result.shape is None
+    assert abs(plan.result.distance_m - 1000) <= 100
+    check_in_band(plan.route, plan.water, 1000)
+
+
+def test_each_lap_has_its_pen_up_stretches() -> None:
+    points = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (1.0, 0.0), (0.0, 0.0)]
+    out, walks = lapped(points, [(2, 3)], 3)
+    lap = points[1:-1]
+    assert out == [points[0], *lap, *lap[1:], *lap[1:], points[-1]]
+    assert walks == [(2, 3), (5, 6), (8, 9)]
+    assert all(out[a] == points[2] and out[b] == points[3] for a, b in walks)
+
+
+def test_a_cat_with_the_pen_up_lifts_it_every_lap() -> None:
+    request = SwimRequest(start=COAST_START, distance_m=1500, shape="cat", pen_up=True)
+    plan = plan_swimming(request, FileWaterSource(COAST))
+    assert plan.laps > 1
+    assert len(plan.result.walks) % plan.laps == 0
+    assert len(plan.result.walks) >= plan.laps
 
 
 def test_away_from_the_water_there_is_nowhere_to_swim() -> None:
@@ -281,6 +372,22 @@ def test_the_command_line_draws_a_swim(
     points = ET.parse(out).getroot().findall(".//g:trkpt", ns)
     assert len(points) > 100
     assert points[0].attrib == points[-1].attrib
+
+
+def test_the_command_line_draws_a_drawing_in_laps(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    lat, lon = COAST_START
+    drawing = tmp_path / "drawing.json"
+    drawing.write_text(
+        '{"name": "drawing", "source": "test", "license": "CC0", "points": '
+        "[[-1, -0.4], [-0.3, -0.5], [0.2, -0.9], [0.9, -0.3], [0.6, 0.5], "
+        "[0, 0.9], [-0.7, 0.6], [-1, -0.4]]}",
+        encoding="utf-8",
+    )
+    argv = ["--outline", str(drawing), "--distance", "1000", f"--start={lat},{lon}"]
+    assert main([*argv, "--laps", "4", "--water-file", str(COAST)]) == 0
+    assert "4 laps of" in capsys.readouterr().out
 
 
 def test_the_command_line_refuses_a_swim_too_short(

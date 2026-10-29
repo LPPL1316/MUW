@@ -1,9 +1,10 @@
 """Measure how large a swim fits in the bathers' band (TASK-323 A1).
 
 Not a test: for each place, each band and each shape it finds the longest
-swim that fits, trying the distances of DISTANCES from the longest down,
+lap that fits, trying the distances of DISTANCES from the longest down,
 and draws the samples of the task (circle, heart and star at 0.5, 1 and
-1.5 km) with the band as it is. It prints one row per place, band and shape
+1.5 km) with the band as it is, lap after lap as a swim is
+(swimming.swim_on). It prints one row per place, band and shape
 and, with --json, writes the rows, the samples and the water to look at
 (the page of the samples reads it).
 
@@ -41,7 +42,7 @@ from route_engine.errors import ShapeNotDrawableError
 from route_engine.geo import LatLon, local_to_latlon
 from route_engine.shapes import FREE_ROTATION
 from route_engine.swim_water import SWIM_BAND, SwimBand, SwimWater, build_swim_area
-from route_engine.swimming import SwimRequest, check_in_band, swim_lines
+from route_engine.swimming import SwimRequest, check_in_band, swim_lines, swim_on
 from route_engine.water import FileWaterSource, OverpassWaterSource, WaterSource
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -119,8 +120,9 @@ def _water(place: Place, band: SwimBand) -> SwimWater:
 def _fit(
     water: SwimWater, shape: str, distance_m: int
 ) -> tuple[water_fit.WaterRoute | None, float | None]:
-    """The swim of `shape` at `distance_m`, checked, or None and the
-    distance the error says it fits at (None when it fits nowhere)."""
+    """One lap of `shape` at `distance_m`, legs included, checked, or None
+    and the distance the error says it fits at (None when it fits
+    nowhere)."""
     outline = swim_lines(SwimRequest(start=(0.0, 0.0), distance_m=500, shape=shape))[0]
     try:
         route = water_fit.fit_shape(
@@ -207,17 +209,24 @@ def main(argv: list[str] | None = None) -> int:
                     if label != bands[0][0]:
                         continue
                     for distance in SAMPLE_DISTANCES:
-                        route, fits_m = _fit(water, shape, distance)
-                        samples.append(
-                            {
-                                "place": place.name,
-                                "shape": shape,
-                                "distance_m": distance,
-                                "route": None if route is None else route.points,
-                                "route_m": None if route is None else route.distance_m,
-                                "fits_m": fits_m,
-                            }
+                        request = SwimRequest(
+                            start=place.start, distance_m=distance, shape=shape
                         )
+                        sample: dict[str, Any] = {
+                            "place": place.name,
+                            "shape": shape,
+                            "distance_m": distance,
+                        }
+                        try:
+                            plan = swim_on(water, request)
+                        except ShapeNotDrawableError as exc:
+                            sample["fits_m"] = exc.best_distance_m
+                        else:
+                            sample["route"] = plan.route.points
+                            sample["route_m"] = plan.route.distance_m
+                            sample["laps"] = plan.laps
+                            sample["lap_m"] = plan.lap_m
+                        samples.append(sample)
     if args.json is not None:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(

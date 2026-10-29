@@ -18119,6 +18119,59 @@ impronte e ferma la CI sugli esempi della canoa finché il server non dà la
 sua acqua); `swimming` in `models.py` già in A1 (stesso motivo); celle più
 fini per il nuoto (tocca `water_fit.py`; si può riconsiderare con B).
 
+## ADR-0283 — aggiunta, parte A1: i giri ripetuti, il disegno a mano sull'acqua, la forma più grande o più piccola
+
+**Stato**: Attiva · 2026-10-29 · scelte dell'utente (i giri; disegnare
+sull'acqua e cambiare la grandezza), punti tecnici decisi dall'agente su
+delega dell'utente (TASK-323 parte A1). Aggiunta ad ADR-0283.
+
+**Contesto**: con 20–150 m un giro ci sta da 0,4–0,5 km (aggiunta sopra).
+La domanda 1 del task file all'utente, con tre proposte: i giri ripetuti
+con la fascia di 20–150 m, la fascia di 20–200 m, le distanze più corte.
+Risposta: **«Giri ripetuti»**. Subito dopo l'utente: «dai la possibilità di
+disegnare anche sull'acqua e di modificare la forma più grande e più
+piccola».
+
+**Decisione dell'utente**:
+
+1. **La fascia resta 20–150 m, le distanze 0,5–3 km**: un nuoto più lungo
+   della forma la ripassa a giri, uno dopo l'altro, dalla stessa spiaggia.
+2. **Sull'acqua si disegna anche a mano**, e **la forma si fa più grande o
+   più piccola**.
+
+**Decisione dell'agente**:
+
+1. **Un giro è un percorso della canoa**, piazzato con `fit_shape` alla
+   distanza divisa i giri; la forma si ripete dal punto dove arriva il
+   tratto, e il tratto dalla riva si nuota una volta per verso. Un secondo
+   piazzamento corregge i tratti contati a ogni giro; il nuoto intero sta
+   entro il ±10%, come ogni percorso.
+2. **Al massimo 5 giri** (`MAX_LAPS`), come nella proposta. Lungo una
+   costa dritta o la riva di un lago grande si arriva a 1,7–2,1 km; oltre,
+   l'errore dice a quanti km ci sta. **3 km ci stanno solo dove un giro è
+   di 0,6 km** (baie, laghi stretti): la proposta prometteva 0,5–3 km con
+   1–5 giri, e lungo le coste dritte non è così. Più giri sono una riga.
+3. **La grandezza si sceglie coi giri** (`SwimRequest.laps`): la distanza
+   resta quella chiesta, un giro in più fa la forma più piccola, uno in
+   meno più grande; senza, il motore prende i meno giri in cui ci sta.
+   Troppo pochi giri, e l'errore dice in quanti ci sta. Così la grandezza
+   non sposta la distanza, che l'utente ha scelto, e nessuna grandezza
+   chiesta esce dalla fascia: la decide ancora il motore.
+4. **Il disegno a mano** è un contorno come quello di «Freehand»
+   (`Outline`, in [-1, 1]): `SwimRequest.outline` al posto di `shape`, una
+   delle due. Il motore lo piazza come una forma del catalogo; il risultato
+   ha `shape` `None`, come un'immagine.
+5. **Solo per il nuoto, in A1**: per la canoa disegnare sull'acqua vuol dire
+   togliere il rifiuto di `models.check_drawn_on_land` e passare il
+   contorno a `paddling.py`, cioè le due impronte; va con la parte B, che
+   cambia `models.py` comunque, col sì del Coordinatore. Lo schermo
+   (disegnare sull'acqua in «Draw», «più grande» e «più piccola» sul
+   risultato) è della parte C, coi testi da approvare.
+
+**Scartate**: la grandezza in metri al posto dei giri (con giri interi la
+distanza non torna, o cambia: la distanza è dell'utente); i giri oltre 5
+senza dirlo all'utente.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,

@@ -189,11 +189,22 @@ sotto prima del merge.
   https://claude.ai/artifact/UYiPvDiPaiJetF9z5ntoEX. Levico, Caldonazzo,
   Riccione e Jesolo si misurano sul Mac con `tests/measure_swim.py`
   (comando in `ROUTE_ENGINE.md` §8).
-- **Il rischio c'è**: con 20–150 m ci stanno 0,4–0,5 km lungo una costa
-  dritta e la riva di un lago grande. Il criterio «un giro di 1 km a Levico
-  fra 20 e 150 m» dipende dalla risposta alla domanda 1 e dall'acqua vera.
-- **Prossimo**: la domanda 1 all'utente; poi i numeri in `SwimBand` e
-  `SWIM_DISTANCE_M`, i posti veri sul Mac, il Coordinatore.
+- **Il rischio c'è**: con 20–150 m un giro ci sta da 0,4–0,5 km lungo una
+  costa dritta e la riva di un lago grande.
+- **Domanda 1, risposta dell'utente (2026-10-29)**: «Giri ripetuti». La
+  fascia resta 20–150 m, le distanze 0,5–3 km; un nuoto più lungo della
+  forma la ripassa a giri, al massimo 5 (`MAX_LAPS`). I campioni del task
+  ci stanno tutti, in 1–4 giri; 5 giri arrivano a 1,7–2,1 km lungo una
+  costa dritta, 3 km solo dove un giro è di 0,6 km.
+- **Richiesta dell'utente dello stesso giorno**: «dai la possibilità di
+  disegnare anche sull'acqua e di modificare la forma più grande e più
+  piccola». Nel motore del nuoto, in A1: `SwimRequest.outline` (un disegno
+  come «Freehand») e `SwimRequest.laps` (meno giri, forma più grande; la
+  distanza resta). Per la canoa va con B (tocca `models.py`), lo schermo
+  con C. Aggiunta ad ADR-0283.
+- **Prossimo**: i posti veri sul Mac con `tests/measure_swim.py`; la
+  conferma dei «File toccati» e della canoa disegnata in B al
+  Coordinatore; poi B.
 
 File toccati da A1:
 

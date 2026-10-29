@@ -202,11 +202,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`swim_water.py`, `swimming.py`, `python -m route_engine.swimming`), la
   canoa e le impronte come in `main` (`route_store` `6072aa1ea3a3`, esempi
   della canoa `1b6759cb3cc4`; aggiunta ad ADR-0283). **Il risultato**: con
-  20–150 m una costa dritta o la riva di un lago grande tengono 0,4–0,5 km,
-  non 0,5–3 km (20–200 m: 0,5–0,8; 20–300 m: 0,8–1,5). **Prossimo**: la
-  domanda 1 all'utente (fascia e distanze), poi i posti veri sul Mac con
-  `tests/measure_swim.py` e la conferma dei «File toccati» al Coordinatore
-  prima del merge.
+  20–150 m una costa dritta o la riva di un lago grande tengono un giro di
+  0,4–0,5 km. **L'utente ha scelto i giri ripetuti**: la fascia resta, il
+  nuoto ripassa la forma fino a 5 volte (fino a circa 2 km sulle coste
+  dritte). Nel nuoto anche un disegno a mano e la grandezza coi giri
+  (richiesta dell'utente). **Prossimo**: i posti veri sul Mac con
+  `tests/measure_swim.py`, la conferma dei «File toccati» al Coordinatore
+  prima del merge, poi B (con la canoa disegnata sull'acqua).
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
