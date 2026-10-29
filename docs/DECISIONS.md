@@ -19495,3 +19495,46 @@ privacy, nelle dipendenze e nel nativo. I messaggi tra app e pagina della
 mappa hanno `metresPerPx`, `bent`, `links`, `bendable` e `marks` (pagina e
 app vanno sempre insieme). Il nuovo `mapdraw/tools.ts` contiene gli
 strumenti; `erasedAt` esce da `edit.ts`.
+
+## ADR-0294 — I badge sul profilo: primo disegno, 10 disegni, 30 km, decisi dal server
+
+**Stato**: Attiva · 2026-10-29 · TASK-341. I badge sono dell'utente
+(richiesta del 2026-10-29, proposta approvata con «Yes, as proposed»); i
+punti tecnici sono decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore. Accanto ad ADR-0260 («Winner») e ADR-0284 (i totali).
+
+**Contesto**: l'utente il 2026-10-29, in un testo incollato su «GPS Art e
+challenge mensili»: «Badge: primo disegno, 10 disegni, disegno oltre
+30 km, vincitore challenge». Il profilo aveva solo «Winner»
+(`contest_wins`, TASK-299) e i totali (TASK-324).
+
+**Decisione**:
+
+1. **Il server decide, l'app mostra**: `badges`, una lista di chiavi in
+   ordine fisso, in `GET /users/{public_id}` e in `GET /me`:
+   `first_drawing` (almeno un disegno), `ten_drawings` (almeno dieci),
+   `long_drawing` (un disegno di almeno 30 000 m, `runs.distance_m`).
+   Una sottoquery sola, `badges.py`, nessuna tabella e nessuna colonna:
+   un badge si prende e si perde con i disegni.
+2. **Contano i disegni che chi guarda vede** (`shown_sql`, la regola del
+   numero `drawings` del profilo): un badge non dice niente dei disegni
+   che chi guarda non può vedere. Sul proprio profilo contano tutti i
+   propri disegni pubblicati.
+3. **Solo corse registrate dall'app** (`runs.source = 'muw'`), come il
+   concorso (ADR-0272): un file importato non fa un badge.
+4. **«Winner» resta `contest_wins`**, invariato; nell'app viene per primo
+   nella stessa fila.
+5. **Nell'app** una fila di badge sotto il nome, nello stile di
+   `WinnerBadge`. Sul proprio profilo anche quelli non ancora presi,
+   spenti, per dire che cosa si può prendere; sugli altri solo quelli
+   presi. Un'API senza `badges` lascia il solo «Winner».
+
+**Alternative scartate**: contare tutti i disegni pubblicati, anche
+quelli per i soli follower, per chiunque guardi: «10 drawings» direbbe a
+chi non segue che ci sono disegni che non vede. Una tabella dei badge
+presi: servirebbe solo per badge che non si perdono, e nessuno di questi
+lo chiede.
+
+**Conseguenze**: lo stesso profilo può mostrare badge diversi a chi segue
+e a chi no. Un disegno cancellato può togliere un badge. Aggiungere un
+badge è una riga in `badges.py` più un testo nell'app.
