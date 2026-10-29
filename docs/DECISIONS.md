@@ -18124,6 +18124,116 @@ perché e cosa si ridisegna. La riga dello sport entra con `ready: false`
 con la build 1.0.1 insieme ad Apple Salute di TASK-321. Il motore non
 conosce le regole del posto: l'avviso lo dice.
 
+## ADR-0283 — aggiunta, parte A1: il nuoto in file nuovi, la canoa e le impronte come prima; 130 m di fascia tengono mezzo chilometro
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-323 parte A1; il Coordinatore non era raggiungibile dalla sessione:
+la strada del punto 0 è scritta qui e nel task file, e la PR resta in bozza
+finché non la conferma). Aggiunta ad ADR-0283, senza numero nuovo.
+
+**Contesto**: il punto 0 di A1 chiede di scegliere, prima del codice, fra il
+nuoto tutto in file nuovi con l'impronta degli esempi tenuti invariata, e la
+fascia per attività dentro `water.py`. Le impronte sono due:
+`route_store.engine_fingerprint` legge ogni `.py` e `.json` del motore (un
+file nuovo la cambia), e quella di `paddleExamples.json` segue gli `import`
+da `paddling.py` (dove c'è anche `models.py`); se cambia, il test degli
+esempi della canoa fallisce finché non si rifanno con l'acqua del server,
+che questa sessione non ha (Overpass e il server non rispondono dal cloud).
+
+**Decisione**:
+
+1. **La prima strada**: `swim_water.py` e `swimming.py` nuovi; `water.py`,
+   `water_fit.py`, `paddling.py`, `validation.py`, `models.py` e
+   `__main__.py` non cambiano. `route_store` lascia fuori i due file
+   (`SWIM_ONLY`, come `NOT_ROUTES` di ADR-0274) e un test dice che
+   l'impronta è quella del motore senza di loro e che nessun altro modulo
+   li importa. Impronte misurate: `abaea5bb82b3` e `1b6759cb3cc4`, come in
+   `main`. `engine.zip` si rifà (ha dentro tutto il motore).
+2. **`swimming` non entra ancora in `RouteRequest`**: una `SwimRequest` con
+   i campi che il nuoto legge. `models.py` cambia con la parte B, che porta
+   il nuoto nel contratto e rifà comunque gli esempi della canoa
+   dall'acqua del server: un solo cambio d'impronta, dove il server si
+   tocca già. Anche `--activity swimming` della CLI aspetta B; oggi c'è
+   `python -m route_engine.swimming`.
+3. **La fascia di chi nuota** è costruita sopra l'area della canoa, senza
+   toccarla: la fascia, l'acqua dei tratti dalla riva (anche loro entro
+   `max_shore_m` e fuori dai 200 m dei pericoli) e le entrate (solo
+   spiaggia e via, lontano dai pericoli). Pericoli: porti, marine, bacini
+   portuali interi; fiumi e canali solo alla foce (50 m dal lago o dal
+   mare). I numeri stanno in `SwimBand`, così la scelta dell'utente è una
+   riga.
+4. **La validazione** dice tutte le regole: nessun punto oltre
+   `max_shore_m`, la forma ad almeno `min_shore_m` dalla terra, il giro a
+   `danger_margin_m` dai pericoli, entro 2 m (i buffer sono poligoni).
+
+**Cosa è venuto fuori** (`tests/measure_swim.py`, sulle due acque di prova;
+tabella in `ROUTE_ENGINE.md` §8): con **20–150 m** una costa dritta e la
+riva di un lago grande tengono **0,4–0,5 km** (cerchio 0,4, cuore 0,4,
+stella 0,5), non 0,5–3 km. Con 20–200 m 0,5–0,8 km, con 20–300 m 0,8–1,5
+km. La griglia della ricerca (celle di 10 m) toglie circa 25 m alla fascia;
+con celle di 5 m si guadagna poco (cuore sul lago 0,8 km), e cambiarle
+vuol dire toccare `water_fit.py`. Fascia e distanze sono la domanda 1 del
+task file, dell'utente: si cambiano in `SwimBand` e `SWIM_DISTANCE_M`. I
+posti veri si misurano sul Mac con lo stesso comando.
+
+**Scartate**: la fascia per attività dentro `water.py` (cambia le due
+impronte e ferma la CI sugli esempi della canoa finché il server non dà la
+sua acqua); `swimming` in `models.py` già in A1 (stesso motivo); celle più
+fini per il nuoto (tocca `water_fit.py`; si può riconsiderare con B).
+
+## ADR-0283 — aggiunta, parte A1: i giri ripetuti, il disegno a mano sull'acqua, la forma più grande o più piccola
+
+**Stato**: Attiva · 2026-10-29 · scelte dell'utente (i giri; disegnare
+sull'acqua e cambiare la grandezza), punti tecnici decisi dall'agente su
+delega dell'utente (TASK-323 parte A1). Aggiunta ad ADR-0283.
+
+**Contesto**: con 20–150 m un giro ci sta da 0,4–0,5 km (aggiunta sopra).
+La domanda 1 del task file all'utente, con tre proposte: i giri ripetuti
+con la fascia di 20–150 m, la fascia di 20–200 m, le distanze più corte.
+Risposta: **«Giri ripetuti»**. Subito dopo l'utente: «dai la possibilità di
+disegnare anche sull'acqua e di modificare la forma più grande e più
+piccola».
+
+**Decisione dell'utente**:
+
+1. **La fascia resta 20–150 m, le distanze 0,5–3 km**: un nuoto più lungo
+   della forma la ripassa a giri, uno dopo l'altro, dalla stessa spiaggia.
+2. **Sull'acqua si disegna anche a mano**, e **la forma si fa più grande o
+   più piccola**.
+
+**Decisione dell'agente**:
+
+1. **Un giro è un percorso della canoa**, piazzato con `fit_shape` alla
+   distanza divisa i giri; la forma si ripete dal punto dove arriva il
+   tratto, e il tratto dalla riva si nuota una volta per verso. Un secondo
+   piazzamento corregge i tratti contati a ogni giro; il nuoto intero sta
+   entro il ±10%, come ogni percorso.
+2. **Al massimo 5 giri** (`MAX_LAPS`), come nella proposta. Lungo una
+   costa dritta o la riva di un lago grande si arriva a 1,7–2,1 km; oltre,
+   l'errore dice a quanti km ci sta. **3 km ci stanno solo dove un giro è
+   di 0,6 km** (baie, laghi stretti): la proposta prometteva 0,5–3 km con
+   1–5 giri, e lungo le coste dritte non è così. Più giri sono una riga.
+3. **La grandezza si sceglie coi giri** (`SwimRequest.laps`): la distanza
+   resta quella chiesta, un giro in più fa la forma più piccola, uno in
+   meno più grande; senza, il motore prende i meno giri in cui ci sta.
+   Troppo pochi giri, e l'errore dice in quanti ci sta. Così la grandezza
+   non sposta la distanza, che l'utente ha scelto, e nessuna grandezza
+   chiesta esce dalla fascia: la decide ancora il motore.
+4. **Il disegno a mano** è un contorno come quello di «Freehand»
+   (`Outline`, in [-1, 1]): `SwimRequest.outline` al posto di `shape`, una
+   delle due. Il motore lo piazza come una forma del catalogo; il risultato
+   ha `shape` `None`, come un'immagine.
+5. **Solo per il nuoto, in A1**: per la canoa disegnare sull'acqua vuol dire
+   togliere il rifiuto di `models.check_drawn_on_land` e passare il
+   contorno a `paddling.py`, cioè le due impronte; va con la parte B, che
+   cambia `models.py` comunque, col sì del Coordinatore. Lo schermo
+   (disegnare sull'acqua in «Draw», «più grande» e «più piccola» sul
+   risultato) è della parte C, coi testi da approvare.
+
+**Scartate**: la grandezza in metri al posto dei giri (con giri interi la
+distanza non torna, o cambia: la distanza è dell'utente); i giri oltre 5
+senza dirlo all'utente.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
