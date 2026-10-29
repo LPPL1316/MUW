@@ -28,7 +28,10 @@ engine imports this module (`route_store.SWIM_ONLY`).
         --water-file tests/fixtures/water_coast.json --out star_coast.gpx
 
 The water is that of `<cache-dir>/water/`, the canoe's (one request to
-Overpass on a miss), or of a file with `--water-file`.
+Overpass on a miss), or of a file with `--water-file`. The turns of the swim
+(swim_turns.py) are named after the places on the shore of
+`<cache-dir>/shore_names/` (shore_names.py), or of `--names-file`; without
+them they have no name. The GPX has a waypoint for each turn.
 """
 
 from __future__ import annotations
@@ -57,6 +60,13 @@ from route_engine.models import (
 from route_engine.paddling import WATER_SHAPE_POINTS, _cut, _length
 from route_engine.shapes import FREE_ROTATION, SUPPORTED_SHAPES, get_shape, in_pieces
 from route_engine.shapes.outline import InvalidOutlineError, Outline, read_outline
+from route_engine.shore_names import (
+    FileShoreNames,
+    FolderShoreNames,
+    ShoreNameSource,
+    landmarks,
+)
+from route_engine.swim_turns import SwimTurn, named, swim_turns, turn_label, with_turns
 from route_engine.swim_water import SWIM_BAND, SwimBand, SwimWater, build_swim_area
 from route_engine.validation import InvalidRouteError, check_on_water
 from route_engine.water import (
@@ -154,13 +164,16 @@ class SwimRequest:
 @dataclass(frozen=True)
 class SwimPlan:
     """The route of a swim, how it lies on the water, and the water: the
-    shape `laps` times, each lap `lap_m` long (the shape, without the legs)."""
+    shape `laps` times, each lap `lap_m` long (the shape, without the legs),
+    and its turns in order, every lap's (TASK-323 A2). Part B moves the
+    turns into RouteResult, with the contract."""
 
     result: RouteResult
     route: WaterRoute
     water: SwimWater
     laps: int
     lap_m: float
+    turns: tuple[SwimTurn, ...] = ()
 
 
 def swim_lines(request: SwimRequest) -> tuple[list[XY], list[list[XY]]]:
@@ -188,18 +201,24 @@ def plan_swimming(
     request: SwimRequest,
     source: WaterSource,
     band: SwimBand = SWIM_BAND,
+    names: ShoreNameSource | None = None,
 ) -> SwimPlan:
     """The route of a swim on the water `source` gives: closed, from a beach
     or a path and back, the shape lap after lap in the swimmers' band of
-    `band`, checked (`check_in_band`). The similarity is the shape's with
-    itself, 1.
+    `band`, checked (`check_in_band`), with its turns, each named after the
+    place of `names` on the shore nearest it (shore_names.landmarks). The
+    similarity is the shape's with itself, 1.
 
     NoWaterError when there is no band near the start, WaterFitError when
     the shape does not fit in it in as many laps as asked, or MAX_LAPS
     (both ShapeNotDrawableError), in a swimmer's words."""
     bbox = swim_bbox(request)
     water = build_swim_area(source.elements(bbox), request.start, bbox, band)
-    return swim_on(water, request)
+    plan = swim_on(water, request)
+    if names is None or not plan.turns:
+        return plan
+    found = landmarks(plan.turns, names.places(bbox))
+    return replace(plan, turns=tuple(named(plan.turns, found)))
 
 
 def swim_on(water: SwimWater, request: SwimRequest) -> SwimPlan:
@@ -326,7 +345,8 @@ def _plan(
         rotation_deg=route.rotation_deg + 0.0,
     )
     lap_m = (route.distance_m - 2 * route.approach_m) / laps
-    return SwimPlan(result, route, water, laps, lap_m)
+    turns = swim_turns(route.points, laps=laps, leg_m=route.approach_m, lap_m=lap_m)
+    return SwimPlan(result, route, water, laps, lap_m, tuple(turns))
 
 
 def _band(band: SwimBand) -> str:
@@ -444,6 +464,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--pen-up", action="store_true", help="a shape in pieces")
     parser.add_argument("--near", type=_latlon, help="LAT,LON: the shape near here")
     parser.add_argument("--water-file", type=Path, help="a water file (fixtures)")
+    parser.add_argument(
+        "--names-file", type=Path, help="places on the shore, a file (fixtures)"
+    )
     parser.add_argument("--cache-dir", type=Path, default=Path("data/cache"))
     parser.add_argument("--out", type=Path, help="GPX to write")
     parser.add_argument("--geojson", type=Path, help="band and route to look at")
@@ -471,11 +494,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("Water: from the cache" if cached else "Water: downloading...")
         source = cache
 
+    names: ShoreNameSource = (
+        FolderShoreNames(args.cache_dir)
+        if args.names_file is None
+        else FileShoreNames(args.names_file)
+    )
+
     lat, lon = request.start
     print(f"Swim: {request.name}, {request.distance_m} m, from {lat}, {lon}")
     began = time.perf_counter()
     try:
-        plan = plan_swimming(request, source)
+        plan = plan_swimming(request, source, names=names)
     except ShapeNotDrawableError as exc:
         print(f"No route: {exc}", file=sys.stderr)
         return 1
@@ -502,10 +531,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     if swim.nearest_danger_m != float("inf"):
         print(f"  boats:         {swim.nearest_danger_m:.0f} m from a harbour")
     print(f"  time:          {seconds:.1f} s")
+    first = [turn for turn in plan.turns if turn.lap == 1]
+    print(f"  turns:         {len(first)} in the first lap, {len(plan.turns)} in all")
+    for turn in first:
+        mark = turn.landmark
+        where = (
+            ""
+            if mark is None
+            else f" ({mark.distance_m:.0f} m at {mark.bearing_deg:.0f}°)"
+        )
+        print(
+            f"    {turn.at_m:5.0f} m  {turn_label(turn)}, {turn.angle_deg:.0f}°{where}"
+        )
     if args.out is not None:
         when = datetime.now(UTC)
         name = route_name(request.name, request.distance_m, when)
-        document = to_gpx(result.points, name, when, result.walks)
+        document = with_turns(
+            to_gpx(result.points, name, when, result.walks), plan.turns
+        )
         args.out.write_text(document, encoding="utf-8")
         print(f"Wrote {args.out}")
     if args.geojson is not None:

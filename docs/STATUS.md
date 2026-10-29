@@ -211,6 +211,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (richiesta dell'utente). **Prossimo**: i posti veri sul Mac con
   `tests/measure_swim.py`, la conferma dei «File toccati» al Coordinatore
   prima del merge, poi B (con la canoa disegnata sull'acqua).
+  **A2 scritta** (2026-10-29, stessa sessione, branch
+  `feat/TASK-323-a2-swim-turns` partito da A1): le curve del nuoto con il
+  posto a riva più vicino entro 300 m, dai file di `<cache>/shore_names/`,
+  e i waypoint nel GPX; in `SwimPlan`, impronte come in `main`. **Prossimo**:
+  A1 e A2 in `main`, poi B (contratto, migrazione, estratto dei nomi sul
+  server, esempi della canoa rifatti).
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

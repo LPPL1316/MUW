@@ -18229,6 +18229,47 @@ piccola».
 distanza non torna, o cambia: la distanza è dell'utente); i giri oltre 5
 senza dirlo all'utente.
 
+## ADR-0283 — aggiunta, parte A2: le curve dove si gira davvero, il posto con un nome più vicino, i waypoint
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-323 parte A2; l'utente ha scelto di fare A2 prima di B). Aggiunta ad
+ADR-0283.
+
+**Contesto**: il punto 3 della proposta vuole le curve con un nome a riva,
+da OpenStreetMap, entro 300 m. A2 è nel motore; l'estratto dei nomi sul
+server è di B. Come A1, le impronte non devono cambiare.
+
+**Decisione**:
+
+1. **Una curva è dove si gira davvero**: la direzione 15 m prima e 15 m
+   dopo il punto differisce di più di 45°, e di una fila di punti così si
+   tiene il più stretto. Su un contorno di 128 punti il cambio da un punto
+   all'altro è piccolo anche sulle punte: la finestra le trova, e lascia
+   fuori la curva di un cerchio. Dove il tratto dalla riva arriva sulla
+   forma e prosegue quasi dritto non c'è curva.
+2. **«La riva di fronte» è il posto più vicino**: la fascia sta entro 150 m
+   dalla riva, quindi il posto con un nome più vicino alla curva, entro 300
+   m, è su quella riva. A pari distanza il primo per nome, così il
+   risultato non dipende dall'ordine del file. Con il posto, il tipo e la
+   direzione in cui guardarlo.
+3. **Il formato dei file dei nomi** lo fissa A2, perché B lo scriva:
+   `<cache>/shore_names/*.json` con `bbox` e `places` (`name`, `kind`,
+   `lat`, `lon`). Si leggono i file la cui area tocca quella del nuoto. Un
+   file che non si legge si salta: i nomi aiutano, non devono fermare un
+   nuoto.
+4. **Le curve stanno in `SwimPlan`**, non in `RouteResult`, e i waypoint li
+   aggiunge `swim_turns.with_turns` al GPX di `export_gpx.to_gpx`: toccare
+   `models.py` o `export_gpx.py` cambierebbe le impronte, e B li tocca
+   comunque. I due file nuovi sono in `route_store.SWIM_ONLY`; impronte
+   come in `main`.
+5. **Nel GPX solo le curve del primo giro**: i giri dopo girano negli
+   stessi posti, e un waypoint ripetuto cinque volte non aiuta nessuno.
+
+**Scartate**: le curve come vertici della linea semplificata
+(Douglas-Peucker): danno curve finte ogni 60° su un cerchio; i posti
+pesati per tipo (un faro prima di un bar), da riprendere coi posti veri se
+servirà.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,

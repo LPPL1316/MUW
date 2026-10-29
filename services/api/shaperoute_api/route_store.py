@@ -78,7 +78,9 @@ NOT_ROUTES = frozenset({"way_back.py"})
 # Files of the engine that draw only swims (TASK-323, ADR-0283): no route
 # kept is a swim, so changing them keeps the routes kept; a test fails when a
 # module that draws other routes imports one.
-SWIM_ONLY = frozenset({"swim_water.py", "swimming.py"})
+SWIM_ONLY = frozenset(
+    {"shore_names.py", "swim_turns.py", "swim_water.py", "swimming.py"}
+)
 
 
 def engine_fingerprint(folder: Path | None = None) -> str:
