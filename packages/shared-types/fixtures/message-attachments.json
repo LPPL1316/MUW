@@ -1,0 +1,97 @@
+{
+  "person": {
+    "public_id": "8c1f7a52-3d4e-4b9a-9f61-2a7c0e5d9b13",
+    "username": "Ada_runs",
+    "photo": null
+  },
+  "state": "open",
+  "messages": [
+    {
+      "id": "e41b0a7c-9d26-4f53-a8e1-6c3f2b95d017",
+      "text": "",
+      "created_at": "2026-10-29T18:04:10Z",
+      "mine": false,
+      "attachment": {
+        "kind": "drawing",
+        "media_id": null,
+        "width": null,
+        "height": null,
+        "duration_ms": null,
+        "poster": false,
+        "expired": false,
+        "drawing": {
+          "title": null,
+          "shape": "heart",
+          "word": null,
+          "style": null,
+          "distance_m": 5000,
+          "route_m": 5080,
+          "activity": "running",
+          "rotation_deg": null,
+          "preview": [
+            [46.067, 11.1215],
+            [46.07, 11.123],
+            [46.071, 11.126],
+            [46.068, 11.127],
+            [46.067, 11.1215]
+          ]
+        }
+      }
+    },
+    {
+      "id": "b8f35d62-2a1e-4c70-9b84-0e6d7c3a5f19",
+      "text": "The river at 7, see you there",
+      "created_at": "2026-10-29T18:01:45Z",
+      "mine": true,
+      "attachment": {
+        "kind": "video",
+        "media_id": "5d2c8e71-0b4f-4a96-8c3e-7f19a6d2b450",
+        "width": 540,
+        "height": 960,
+        "duration_ms": 24480,
+        "poster": true,
+        "expired": false,
+        "drawing": null
+      }
+    },
+    {
+      "id": "71c9e4b0-5f38-4d2a-b6e7-3a80d1f2c945",
+      "text": "",
+      "created_at": "2026-10-29T17:58:02Z",
+      "mine": false,
+      "attachment": {
+        "kind": "photo",
+        "media_id": "0f6a3b28-d4c1-4e97-a25b-81e7c9d03f64",
+        "width": 1080,
+        "height": 810,
+        "duration_ms": null,
+        "poster": false,
+        "expired": false,
+        "drawing": null
+      }
+    },
+    {
+      "id": "9a2e7f14-c63b-4d80-8f5a-2b19e0d4c7a6",
+      "text": "Last month's sunrise",
+      "created_at": "2026-09-27T06:40:00Z",
+      "mine": true,
+      "attachment": {
+        "kind": "video",
+        "media_id": null,
+        "width": 960,
+        "height": 540,
+        "duration_ms": 58020,
+        "poster": false,
+        "expired": true,
+        "drawing": null
+      }
+    }
+  ],
+  "next": null,
+  "attachments": {
+    "kinds": ["photo", "video", "drawing"],
+    "video_max_s": 60,
+    "video_max_bytes": 40000000,
+    "photo_max_bytes": 10000000
+  }
+}

@@ -237,23 +237,15 @@ test("«Edit the drawing» under the shape opens its lines; «Save» chooses «F
   expect(screen.getByText("Drawing · on roads · target 5 km")).toBeOnTheScreen();
 });
 
-test("a picture chosen stays chosen past «Freehand» and back, and the drawing past «Image»", async () => {
+test("the drawing stays past «Image» and back", async () => {
   await onDraw();
-  await fireEvent.press(
-    within(screen.getByTestId("pictures")).getByRole("button", { name: "Rocket" }),
-  );
-  expect(screen.getByRole("button", { name: "Image" })).toBeSelected();
-  expect(screen.getByTestId("image-preview")).toBeOnTheScreen();
-
   await fireEvent.press(screen.getByRole("button", { name: "Freehand" }));
-  expect(screen.queryByTestId("image-preview")).toBeNull();
   await fireEvent.press(screen.getByRole("button", { name: "Draw with your finger" }));
   await drawSquare(await boardShown());
   await fireEvent.press(screen.getByRole("button", { name: "Save" }));
   expect(screen.getByTestId("freehand-preview")).toBeOnTheScreen();
 
   await fireEvent.press(screen.getByRole("button", { name: "Image" }));
-  expect(screen.getByTestId("image-preview")).toBeOnTheScreen();
   expect(screen.queryByTestId("freehand-preview")).toBeNull();
   await fireEvent.press(screen.getByRole("button", { name: "Freehand" }));
   expect(screen.getByTestId("freehand-preview")).toBeOnTheScreen();

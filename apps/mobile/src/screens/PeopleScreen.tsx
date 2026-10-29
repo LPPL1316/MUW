@@ -4,18 +4,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { Account } from "../account/useAccount";
+import { FeedMapShooter } from "../feed/FeedMaps";
 import { t } from "../i18n";
 import { UserProfilePage } from "../profile/UserProfilePage";
 import { ContactsFriends } from "../social/ContactsFriends";
 import { PeopleSearch } from "../social/PeopleSearch";
+import { SightScrollView } from "../social/scrollSight";
 import {
   color,
   fontSize,
@@ -49,7 +51,9 @@ type Props = {
  * (`UserProfilePage`, TASK-116). Back from a profile goes to the names
  * found, which stay as they were; back from them goes to «Feed». Opened
  * on a member of the lists of «Profile» (TASK-211), it is that profile
- * alone, and back goes to «Profile».
+ * alone, and back goes to «Profile». Under it, out of sight, the page that
+ * takes the maps of the profile's drawings when «Feed» is not there to
+ * (TASK-332): over the big map, opened from a tagged name.
  */
 export function PeopleScreen({
   apiUrl,
@@ -61,6 +65,7 @@ export function PeopleScreen({
   apiKey,
 }: Props) {
   const insets = useSafeAreaInsets();
+  const window = useWindowDimensions();
   const [person, setPerson] = useState<Person | null>(first);
   // With the search under it, back from a profile goes to the names found.
   const toNames = person !== null && first === null;
@@ -69,7 +74,11 @@ export function PeopleScreen({
       style={[StyleSheet.absoluteFill, styles.screen, hidden && styles.hidden]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView
+      {/* Hidden, a page draws no map: it would hold up every picture. */}
+      {!hidden && <FeedMapShooter width={window.width} height={window.height} />}
+      <SightScrollView
+        // Opaque: the map page under it is never seen.
+        style={styles.screen}
         contentContainerStyle={[
           styles.content,
           {
@@ -123,7 +132,7 @@ export function PeopleScreen({
             apiKey={apiKey}
           />
         )}
-      </ScrollView>
+      </SightScrollView>
     </KeyboardAvoidingView>
   );
 }

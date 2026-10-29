@@ -9,6 +9,10 @@ how it went: the route, and every place found, passed by or not.
 The places are OpenStreetMap's, through Geoapify's Places API with the key
 of the place search (places.py): named ones only, those with a Wikidata
 entry first. Nothing is invented: too few places, and the job says so.
+
+A place passed by has its photo when its Wikidata item has a free one
+(TASK-329, ADR-0287): the photos of the towns nearby (city_photos.py,
+ADR-0243), asked for at most WAIT_S; only the items go to Wikimedia.
 """
 
 from __future__ import annotations
@@ -38,9 +42,11 @@ from route_engine.shapes import get_shape
 from route_engine.stops import Stop, StopsPlan, plan_through_stops, union
 
 from shaperoute_api.cities import CitySearch
+from shaperoute_api.city_photos import CityPhotoBody, CityPhotos
 from shaperoute_api.errors import error_of
 from shaperoute_api.insights import Insights
 from shaperoute_api.insights.events import redact
+from shaperoute_api.nearby_cities import item_of
 from shaperoute_api.places import Fetch, PlacesUnavailableError, fetch_json
 from shaperoute_api.themes import (
     THEMES,
@@ -81,10 +87,24 @@ class ThemedRequestBody(BaseModel):
     """How the app names the city, for the answer."""
 
 
+@dataclass(frozen=True)
+class Place(Stop):
+    """A stop as Geoapify gives it, with its Wikidata item when it has one:
+    the engine reads only the name and the point."""
+
+    wikidata: str | None = None
+
+
 class StopBody(BaseModel):
     name: str
     point: tuple[float, float]
     passed: bool
+    wikidata: str | None = None
+    """The place's Wikidata item ("Q12345"), when OpenStreetMap names one
+    (TASK-329)."""
+    photo: CityPhotoBody | None = None
+    """A place passed by: its photo, with a free licence, kept on the API
+    as the towns' are (/city-photos/{item}.jpg); null without one."""
 
 
 class ThemedResultBody(BaseModel):
@@ -137,13 +157,13 @@ def places_url(key: str, theme: Theme, centre: LatLon, radius_m: int) -> str:
     return f"{PLACES_URL}?{urllib.parse.urlencode(params)}"
 
 
-def parse_places(body: Any, notable_only: bool) -> list[Stop]:
-    """Named places with a point, each name once; those with a Wikidata
-    entry first, and with `notable_only` only those when there are enough.
-    In the order the service gave, nearest first."""
+def parse_places(body: Any, notable_only: bool) -> list[Place]:
+    """Named places with a point, each name once, with their Wikidata item;
+    those with a Wikidata entry first, and with `notable_only` only those
+    when there are enough. In the order the service gave, nearest first."""
     features = body.get("features") if isinstance(body, dict) else None
-    notable: list[Stop] = []
-    others: list[Stop] = []
+    notable: list[Place] = []
+    others: list[Place] = []
     seen: set[str] = set()
     for feature in features if isinstance(features, list) else []:
         props = feature.get("properties") if isinstance(feature, dict) else None
@@ -160,7 +180,7 @@ def parse_places(body: Any, notable_only: bool) -> list[Stop]:
         if key in seen:
             continue
         seen.add(key)
-        stop = Stop(name.strip(), (float(lat), float(lon)))
+        stop = Place(name.strip(), (float(lat), float(lon)), item_of(props))
         wiki = props.get("wiki_and_media")
         if isinstance(wiki, dict) and wiki.get("wikidata"):
             notable.append(stop)
@@ -178,12 +198,12 @@ class StopFinder:
     def __init__(self, key: str | None, fetch: Fetch = fetch_json) -> None:
         self.key = key
         self._fetch = fetch
-        self._cache: OrderedDict[tuple[object, ...], tuple[float, list[Stop]]] = (
+        self._cache: OrderedDict[tuple[object, ...], tuple[float, list[Place]]] = (
             OrderedDict()
         )
         self._lock = threading.Lock()
 
-    def find(self, theme: Theme, centre: LatLon, radius_m: int) -> list[Stop]:
+    def find(self, theme: Theme, centre: LatLon, radius_m: int) -> list[Place]:
         if self.key is None:
             raise ThemedRouteError(
                 "places_unavailable", "Place search is off on this API."
@@ -214,11 +234,15 @@ class StopFinder:
         return stops
 
 
-PlanThrough = Callable[[str, int, LatLon, list[Stop], GraphLoader], StopsPlan]
+PlanThrough = Callable[[str, int, LatLon, list[Place], GraphLoader], StopsPlan]
 
 
 def plan_shape_through(
-    shape: str, distance_m: int, centre: LatLon, stops: list[Stop], source: GraphLoader
+    shape: str,
+    distance_m: int,
+    centre: LatLon,
+    stops: list[Place],
+    source: GraphLoader,
 ) -> StopsPlan:
     outline = get_shape(shape)(SHAPE_POINTS)
 
@@ -260,6 +284,7 @@ class ThemedJobs:
         plan: PlanThrough = plan_shape_through,
         run_inline: bool = False,
         insights: Insights | None = None,
+        photos: CityPhotos | None = None,
     ) -> None:
         self.source = source
         self.finder = finder
@@ -267,6 +292,8 @@ class ThemedJobs:
         self.ai = ai
         self.plan = plan
         self.run_inline = run_inline
+        # The photos of the places passed by (TASK-329); none without.
+        self.photos = photos
         # The search events, and the learned vocabulary (TASK-130).
         self.insights = insights or Insights(None)
         self._jobs: dict[str, ThemedJob] = {}
@@ -374,6 +401,14 @@ class ThemedJobs:
         route = planned.plan.result
         passed = {s.name for s in planned.passed}
         ordered = list(planned.passed) + [s for s in stops if s.name not in passed]
+        items = {s.name: s.wikidata for s in stops}
+        # Only the places passed by have their photo on the way.
+        shown = [items.get(s.name) for s in planned.passed]
+        photos = (
+            {}
+            if self.photos is None
+            else self.photos.photos(item for item in shown if item is not None)
+        )
         return ThemedResultBody(
             points=list(route.points),
             distance_m=route.distance_m,
@@ -385,7 +420,17 @@ class ThemedJobs:
             city=city,
             centre=centre,
             stops=[
-                StopBody(name=s.name, point=s.point, passed=s.name in passed)
+                StopBody(
+                    name=s.name,
+                    point=s.point,
+                    passed=s.name in passed,
+                    wikidata=items.get(s.name),
+                    photo=(
+                        photos.get(items.get(s.name) or "")
+                        if s.name in passed
+                        else None
+                    ),
+                )
                 for s in ordered
             ],
         )

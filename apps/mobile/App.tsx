@@ -46,8 +46,10 @@ import {
   remember,
   saveRecentCities,
 } from "./src/explore/recentCities";
+import { mapStops } from "./src/explore/StopPhotos";
 import { ThemedCard, themedGpx } from "./src/explore/ThemedCard";
 import { startViewOf, useStartDirections } from "./src/explore/useStartDirections";
+import { isHere, nearMeRequest } from "./src/explore/themedIdeas";
 import { useThemedRoute } from "./src/explore/useThemedRoute";
 import { FavoriteHeart } from "./src/favorites/FavoriteHeart";
 import {
@@ -124,10 +126,9 @@ import {
 import { FreehandBoard } from "./src/route/FreehandBoard";
 import { EditDrawingButton } from "./src/route/FreehandChoice";
 import { useFreehand } from "./src/route/useFreehand";
-import { DrawIdeas, toursFrom } from "./src/route/DrawIdeas";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
-import { sampleOf, samplePicture } from "./src/route/samplePictures";
+import { samplePicture } from "./src/route/samplePictures";
 import {
   type AnyRouteRequest,
   type RouteState,
@@ -520,11 +521,27 @@ function MuW() {
     () => (themed.state.status === "done" ? themedGpx(themed.state.result) : null),
     [themed.state],
   );
+  // Its places on the map, those passed by numbered as the photos under it
+  // (TASK-329); a photo tapped takes the map to its place.
+  const themedStops = useMemo(
+    () => (themed.state.status === "done" ? mapStops(themed.state.result.stops) : null),
+    [themed.state],
+  );
+  const [placeFocus, setPlaceFocus] = useState<{ point: LatLon } | null>(null);
 
   const start = useMemo(
     () => chooseStart(startMode, position, place),
     [startMode, position, place],
   );
+  // One of our ideas opened far from the start: «Make it near me» asks its
+  // words from the start instead of «Start».
+  const farIdea =
+    themed.state.status === "done" &&
+    themed.state.idea !== undefined &&
+    start !== null &&
+    !isHere(themed.state.idea, start.point)
+      ? { idea: themed.state.idea, from: start.point }
+      : null;
 
   // One of them (ADR-0051): the kinds not chosen are not sent. An image
   // sends the outline the engine traced and the user has seen (ADR-0069),
@@ -1335,11 +1352,8 @@ function MuW() {
                         ? explored.route.start
                         : (exploreRun?.points[0] ?? start?.point ?? null)
             }
-            stops={
-              theming && themed.state.status === "done"
-                ? themed.state.result.stops
-                : null
-            }
+            stops={theming ? themedStops : null}
+            focus={theming ? placeFocus : null}
             route={
               finishing
                 ? finished.run.route
@@ -1519,7 +1533,13 @@ function MuW() {
               closeExplore();
               setScreen(routeList);
             }}
-            fromDraw={routeList === "choose"}
+            onNearMe={
+              farIdea === null
+                ? undefined
+                : () => themed.ask(nearMeRequest(farIdea.idea, farIdea.from))
+            }
+            apiUrl={API_URL}
+            onPlace={(point) => setPlaceFocus({ point })}
             start={startViewOf(
               startDirections.state,
               themed.state.status === "done" ? themed.state.result.points : null,
@@ -1792,34 +1812,6 @@ function MuW() {
                       }}
                     />
                   )}
-                  {/* The city tours and the ready-made pictures (TASK-280):
-                      none on the water, where there are no towns or photos. */}
-                  {sportActivity !== "paddling" && (
-                    <DrawIdeas
-                      where={toursFrom(start)}
-                      onTour={(category) => {
-                        if (start === null) {
-                          return;
-                        }
-                        Keyboard.dismiss();
-                        closeExplore();
-                        // As a category of «Explore» with «Near me»: around
-                        // the start, the category alone (ADR-0099).
-                        themed.ask({ text: category, centre: start.point, city: null });
-                        setRouteList("choose");
-                        setScreen("map");
-                      }}
-                      chosen={
-                        drawKind === "image" && image.state.status === "traced"
-                          ? sampleOf(image.state.picture)
-                          : null
-                      }
-                      onPicture={(picture) => {
-                        setKind("image");
-                        image.show(samplePicture(picture), picture.outline);
-                      }}
-                    />
-                  )}
                 </ChooseScreen>
               ),
             },
@@ -1864,6 +1856,14 @@ function MuW() {
                       Keyboard.dismiss();
                       closeExplore();
                       themed.ask(request);
+                      setRouteList("explore");
+                      setScreen("map");
+                    }}
+                    onIdea={(idea) => {
+                      Keyboard.dismiss();
+                      closeExplore();
+                      // Planned already: it opens at once, nothing asked.
+                      themed.show(idea);
                       setRouteList("explore");
                       setScreen("map");
                     }}

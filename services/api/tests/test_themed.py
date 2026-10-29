@@ -18,6 +18,7 @@ from route_engine.stops import Stop, StopsPlan
 
 from shaperoute_api.app import create_app
 from shaperoute_api.cities import CitySearch, cities_url, city_label
+from shaperoute_api.city_photos import CityPhotoBody, CityPhotos
 from shaperoute_api.themed import (
     MAX_STOPS,
     StopFinder,
@@ -102,6 +103,33 @@ def test_places_named_once_notable_first() -> None:
     assert len(parse_places(body, notable_only=True)) == len(stops)
 
 
+def place(name: str, item: str | None = None, raw: bool = False) -> dict[str, Any]:
+    props: dict[str, Any] = {"name": name, "lat": 41.9, "lon": 12.48}
+    if item is not None and raw:
+        props["datasource"] = {"raw": {"wikidata": item}}
+    elif item is not None:
+        props["wiki_and_media"] = {"wikidata": item}
+    return {"properties": props}
+
+
+def test_places_keep_their_wikidata_item() -> None:
+    body = {
+        "features": [
+            place("Colosseo", "Q10285"),
+            place("Pantheon", "Q99309", raw=True),
+            place("Fontana", "not an item"),
+            place("Vicolo"),
+        ]
+    }
+    found = {s.name: s.wikidata for s in parse_places(body, notable_only=False)}
+    assert found == {
+        "Colosseo": "Q10285",
+        "Pantheon": "Q99309",
+        "Fontana": None,
+        "Vicolo": None,
+    }
+
+
 def test_places_url_asks_named_places_of_the_theme_around_the_point() -> None:
     q = parse_qs(urlparse(places_url("K", THEMES["food"], (44.49, 11.34), 2500)).query)
     assert q["categories"] == ["catering.restaurant,catering.cafe"]
@@ -142,13 +170,16 @@ def fake_plan(passed: int) -> Any:
     return plan
 
 
-def jobs(stops_body: Any = PLACES, plan: Any = None) -> ThemedJobs:
+def jobs(
+    stops_body: Any = PLACES, plan: Any = None, photos: CityPhotos | None = None
+) -> ThemedJobs:
     return ThemedJobs(
         FileSource(HERE),
         StopFinder("K", fetch=lambda url: stops_body),
         cities=CitySearch("K", fetch=lambda url: CITIES),
         plan=plan or fake_plan(2),
         run_inline=True,
+        photos=photos,
     )
 
 
@@ -165,6 +196,80 @@ def test_a_themed_job_gives_the_route_and_every_place_found() -> None:
     )
     assert [s.passed for s in r.stops][:3] == [True, True, False]
     assert len(r.stops) == 6
+
+
+class Wiki:
+    """Wikidata and Commons, for an item with a free photo and one without;
+    what they are asked, kept."""
+
+    def __init__(self) -> None:
+        self.urls: list[str] = []
+
+    def get_json(self, url: str) -> Any:
+        self.urls.append(url)
+        query = parse_qs(urlparse(url).query)
+        if query["action"] == ["wbgetclaims"]:
+            if query["entity"] != ["Q10285"]:
+                return {"claims": {}}
+            image = {"mainsnak": {"datavalue": {"value": "Colosseo.jpg"}}}
+            return {"claims": {"P18": [{**image, "rank": "normal"}]}}
+        licence = {
+            "Artist": {"value": "Diliff"},
+            "LicenseShortName": {"value": "CC BY-SA 2.5"},
+            "License": {"value": "cc-by-sa-2.5"},
+        }
+        info = {
+            "thumburl": "https://upload.wikimedia.org/c.jpg",
+            "extmetadata": licence,
+        }
+        return {
+            "query": {
+                "pages": {"1": {"title": "File:Colosseo.jpg", "imageinfo": [info]}}
+            }
+        }
+
+    def entities(self) -> list[str]:
+        asked = [parse_qs(urlparse(u).query) for u in self.urls]
+        return sorted(q["entity"][0] for q in asked if "entity" in q)
+
+
+def test_the_places_passed_by_have_their_photo() -> None:
+    wiki = Wiki()
+    photos = CityPhotos(None, wiki.get_json, lambda url: b"", wait_s=30.0)
+    body = {
+        "features": [
+            place("Colosseo", "Q10285"),
+            place("Pantheon", "Q99309"),
+            place("Trevi", "Q186579"),
+        ]
+    }
+    job = jobs(body, fake_plan(2), photos).submit(
+        ThemedRequestBody(text="luoghi famosi", centre=(41.9, 12.48))
+    )
+    assert job.result is not None
+    stops = {s.name: s for s in job.result.stops}
+    assert stops["Colosseo"].photo == CityPhotoBody(
+        url="/city-photos/Q10285.jpg", credit="© Diliff · CC BY-SA 2.5"
+    )
+    # Passed by, with an item but no image: its name alone.
+    assert (stops["Pantheon"].wikidata, stops["Pantheon"].photo) == ("Q99309", None)
+    # Not passed by: its item, and no photo, not even asked for.
+    assert (stops["Trevi"].wikidata, stops["Trevi"].photo) == ("Q186579", None)
+    assert wiki.entities() == ["Q10285", "Q99309"]
+    # Wikimedia hears the items and the file, never where the city is.
+    assert not any("41.9" in url or "12.48" in url for url in wiki.urls)
+
+
+def test_without_the_photos_the_places_have_their_items_alone() -> None:
+    body = {"features": [place("Colosseo", "Q10285"), place("Vicolo")]}
+    job = jobs(body).submit(
+        ThemedRequestBody(text="luoghi famosi", centre=(41.9, 12.48))
+    )
+    assert job.result is not None
+    assert [(s.wikidata, s.photo) for s in job.result.stops] == [
+        ("Q10285", None),
+        (None, None),
+    ]
 
 
 @pytest.mark.parametrize(

@@ -204,9 +204,7 @@ test("from «Draw» a picture of the row sends its outline and puts «Draw» on 
 
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
   expect(screen.getByRole("button", { name: "Image" })).toBeSelected();
-  expect(
-    within(screen.getByTestId("pictures")).getByRole("button", { name: "Rocket" }),
-  ).toBeSelected();
+  expect(screen.getByTestId("image-preview")).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
   expect(posted("/image-route-jobs")).toHaveLength(1);
 });

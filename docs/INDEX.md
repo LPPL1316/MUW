@@ -39,6 +39,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Disegnare a mano in «Draw» («Freehand»), «Edit the drawing» sulle figure proposte | `UI.md`, `tasks/TASK-320.md` |
 | Il nuoto in acque libere, «Open water swim», la guida con l'Apple Watch | `tasks/TASK-323.md`, `ROUTE_ENGINE.md` §8 |
 | Apple Salute e Fitness, Health Connect: l'attività finita scritta sul telefono | `tasks/TASK-321.md`, `DECISIONS.md` ADR-0281 |
+| Allegati nei messaggi privati: disegni, foto, video | `tasks/TASK-333.md`, `DECISIONS.md` ADR-0279 e ADR-0289, `API.md` «Messages» |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti

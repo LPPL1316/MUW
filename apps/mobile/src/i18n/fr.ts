@@ -1085,7 +1085,17 @@ export const FR: Table = {
     "Choisissez d'abord un départ : les parcours sont ceux à proximité.",
   "The routes could not load. Check the connection and try again.":
     "Les parcours n'ont pas pu se charger. Vérifiez la connexion et réessayez.",
-  "Ask for a route": "Demander un parcours",
+  // src/explore/IdeasFromEurope.tsx, themedIdeas.ts, ThemedCard.tsx: our ideas
+  "IDEAS FROM EUROPE": "IDÉES D'EUROPE",
+  "Make it near me": "Le faire près de moi",
+  Rome: "Rome",
+  Paris: "Paris",
+  London: "Londres",
+  Barcelona: "Barcelone",
+  Amsterdam: "Amsterdam",
+  Lisbon: "Lisbonne",
+  Prague: "Prague",
+  Berlin: "Berlin",
   "Getting directions…": "Récupération de l'itinéraire…",
   CITY: "VILLE",
   "Type a city or a place": "Saisissez une ville ou un lieu",
@@ -1231,10 +1241,7 @@ export const FR: Table = {
   "Switch sides": "Changez de côté",
   "{seconds} seconds left": "{seconds} secondes restantes",
   "Stop if it hurts.": "Arrêtez si ça fait mal.",
-  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
-  // src/explore/ThemedCard.tsx (TASK-280)
-  "CITY TOURS": "BALADES EN VILLE",
-  PICTURES: "IMAGES",
+  // «Draw»: src/route/samplePictures.ts (TASK-280)
   "Running shoe": "Basket",
   Dinosaur: "Dinosaure",
   Guitar: "Guitare",
@@ -1251,7 +1258,6 @@ export const FR: Table = {
   Duck: "Canard",
   Trophy: "Trophée",
   Bone: "Os",
-  "Back to Draw": "Retour à Dessiner",
 
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Dessiner sur la carte",
@@ -1576,4 +1582,26 @@ export const FR: Table = {
   "Activities before 2020 cannot be added.":
     "Impossible d'ajouter des activités antérieures à 2020.",
   "Already in My activities.": "Déjà dans Mes activités.",
+  // The attachments of the private messages (TASK-333).
+  "📷 Photo": "📷 Photo",
+  "🎬 Video": "🎬 Vidéo",
+  "🗺️ Drawing": "🗺️ Dessin",
+  Photo: "Photo",
+  Video: "Vidéo",
+  "This video has expired.": "Cette vidéo a expiré.",
+  "Video, {duration}": "Vidéo, {duration}",
+  "Drawing: {title}, {distance}": "Dessin : {title}, {distance}",
+  "Add a photo, a video or a drawing": "Ajouter une photo, une vidéo ou un dessin",
+  "Add a message…": "Ajouter un message…",
+  "Couldn't send. Tap to try again.": "Pas envoyé. Touche pour réessayer.",
+  "This video is longer than {seconds} seconds. Choose a shorter one.":
+    "Cette vidéo dure plus de {seconds} secondes. Choisis-en une plus courte.",
+  "This video is too large: at most {mb} MB. Choose a shorter one.":
+    "Cette vidéo est trop lourde : {mb} Mo au maximum. Choisis-en une plus courte.",
+  "Too many videos today. Try again tomorrow.":
+    "Trop de vidéos aujourd'hui. Réessaie demain.",
+  "Too many photos today. Try again tomorrow.":
+    "Trop de photos aujourd'hui. Réessaie demain.",
+  "Videos can't be sent right now. Try again later.":
+    "Impossible d'envoyer des vidéos pour l'instant. Réessaie plus tard.",
 };
