@@ -264,7 +264,8 @@ Cosa fa:
   0034 la rifiuta (`422`) e resta fra quelle rifiutate, con «Try again»;
 - «Imported» sulla riga e sulla scheda di «My activities» (sulla scheda
   niente «Send to Strava», la proposta confermata), nella riga dei fatti
-  della scheda del Feed («Imported · 4.9 km · 27 min»); `source?` e
+  della scheda del Feed («Imported · 4.9 km · 27 min») e sul disegno
+  aperto (`DrawingCard.tsx`, dopo il merge di #619); `source?` e
   `isImported` in `api/activities.ts`, mancante = `muw`;
 - test su file piccoli in `apps/mobile/__tests__/fixtures/imports/`, fatti
   da `make_fixtures.mjs` nello stesso posto (sempre uguali): una corsa di

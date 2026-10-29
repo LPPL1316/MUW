@@ -2,9 +2,11 @@ import activities from "@shaperoute/shared-types/fixtures/activities.json";
 import imported from "@shaperoute/shared-types/fixtures/activities-imported.json";
 import recorded from "@shaperoute/shared-types/fixtures/activity.json";
 import importedRun from "@shaperoute/shared-types/fixtures/activity-imported.json";
+import drawing from "@shaperoute/shared-types/fixtures/drawing-details.json";
+import importedDrawing from "@shaperoute/shared-types/fixtures/drawing-details-imported.json";
 import feed from "@shaperoute/shared-types/fixtures/feed.json";
 import importedFeed from "@shaperoute/shared-types/fixtures/feed-imported.json";
-import type { FeedPost as Post } from "@shaperoute/shared-types";
+import type { DrawingDetail, FeedPost as Post } from "@shaperoute/shared-types";
 import { act, render, screen } from "@testing-library/react-native";
 
 import { ActivitiesList } from "../activities/ActivitiesList";
@@ -23,10 +25,14 @@ import {
 } from "../api/activities";
 import { postFacts } from "../feed/FeedPost";
 import { isImportedPost, shownPost } from "../feed/feedPosts";
+import { CommentsContext, type CommentsDoor } from "../social/commentsDoor";
+import { DrawingCard } from "../social/DrawingCard";
+import { ReactionsContext, type ReactionsDoor } from "../social/reactionsDoor";
 import { StravaContext, type StravaState } from "../strava/useStrava";
 
 // «Imported» wherever an activity added from a file shows (TASK-312): its
-// row and its card in «My activities», the facts of its «Feed» card; and
+// row and its card in «My activities», the facts of its «Feed» card, its
+// drawing opened; and
 // its card has no «Send to Strava». Runs recorded with MuW, and the
 // answers of an API before part A, read as before.
 
@@ -135,5 +141,40 @@ describe("the facts of a «Feed» card", () => {
     expect(postFacts(post)).not.toContain("Imported");
     const { drawing: _drawing, ...example } = post;
     expect(isImportedPost(example)).toBe(false);
+  });
+});
+
+describe("a drawing opened", () => {
+  const commentsDoor: CommentsDoor = {
+    pageOf: jest.fn(async () => null),
+    write: jest.fn(async () => null),
+    remove: jest.fn(async () => null),
+    photoOf: jest.fn(async () => null),
+  };
+  const reactionsDoor: ReactionsDoor = {
+    of: jest.fn(async () => null),
+    leave: jest.fn(async () => null),
+    remove: jest.fn(async () => null),
+  };
+
+  async function opened(shown: unknown) {
+    await render(
+      <CommentsContext.Provider value={commentsDoor}>
+        <ReactionsContext.Provider value={reactionsDoor}>
+          <DrawingCard drawing={shown as DrawingDetail} onBack={jest.fn()} />
+        </ReactionsContext.Provider>
+      </CommentsContext.Provider>,
+    );
+    await act(async () => {});
+  }
+
+  it("of an imported run says «Imported»", async () => {
+    await opened(importedDrawing);
+    expect(screen.getByTestId("imported-mark")).toHaveTextContent("Imported");
+  });
+
+  it("of a run recorded with MuW does not", async () => {
+    await opened(drawing);
+    expect(screen.queryByTestId("imported-mark")).toBeNull();
   });
 });
