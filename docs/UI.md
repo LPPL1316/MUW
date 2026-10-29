@@ -198,8 +198,9 @@ pagine»):
    un'altra parola; la distanza, grande, fra − e +; subito sotto la
    distanza, mentre il server ha il gioco, la riga «PLAY» (TASK-327, sotto
    «“Play”: la collezione delle forme»); poi, con la corsa, «NEAR YOU»
-   (TASK-306, sotto «Le forme pronte vicino a te»), poi due righe da scorrere di lato, «CITY TOURS» e «PICTURES»
-   (TASK-280, sotto «I giri e le immagini pronte»). In fondo, fermo mentre
+   (TASK-306, sotto «Le forme pronte vicino a te»). Le due righe «CITY
+   TOURS» e «PICTURES» di TASK-280 non ci sono più (TASK-329, ADR-0287): le
+   idee stanno in «Ask for a route» di «Explore». In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -275,9 +276,10 @@ pagine»):
    Sopra l'elenco (TASK-129): **«City»**, il campo «Search a city» per
    qualsiasi città del mondo (l'elenco e la richiesta partono dal suo
    centro, «Change» torna alla partenza). **In fondo alla pagina**, sotto
-   gli esempi della città e l'elenco (TASK-157, chiesto dall'utente): una
-   riga discreta, «Ask for a route», grigia e sottolineata. Un tocco la
-   apre lì dov'è, e la pagina scorre fino a lei: **«Ask for a route»**, una
+   gli esempi della città e l'elenco (TASK-157, chiesto dall'utente), e
+   **sempre aperto** da TASK-329 (prima era una riga discreta da toccare):
+   **«Ask for a route»**, con in cima le nostre idee (sotto, «Le idee
+   dall'Europa»), poi le categorie e una
    richiesta in parole («a romantic heart», «famous places in Paris,
    15 km») e «Make my route», giallo come «Draw route». Il percorso si
    apre sulla mappa coi luoghi: pallini chiari col nome quelli da cui
@@ -316,7 +318,9 @@ pagine»):
 
    **Da TASK-143** «Ask for a route» mostra due categorie, Food e Famous
    Places, e una terza tessera «More…» («11 more») che apre tutte le 13;
-   tre tessere per riga. Scelta una città senza percorsi consigliati entro
+   tre tessere per riga. **Da TASK-329** le categorie in vista sono
+   quattro, quelle delle idee: Famous Places, Best Views, Hidden Gems,
+   Photography; «More…» («9 more») apre le altre, Food per prima. Scelta una città senza percorsi consigliati entro
    5 km, sotto «City» compare **«EXAMPLES IN VERCELLI»**: cuore, cerchio e
    stella da 5 km dal centro, chiesti da soli, uno alla volta, il cuore per
    primo. Sono schede come quelle di «Best near you», due per riga
@@ -745,6 +749,13 @@ l'account ha reso pubbliche, come le vedono gli altri, dalla
 più recente, tre per riga. Ognuna è la traccia senza i primi e gli ultimi
 200 m, piccola e gialla come i disegni di «Feed», **senza punteggio**
 (TASK-241 parte E, chiesto dall'utente); venti per volta, poi «Show more».
+**Sotto la linea c'è la mappa del posto**, una foto come in «Feed»
+(TASK-332, ADR-0131): finché non arriva, la linea sul
+fondo scuro di prima. Ogni miniatura la chiede quando entra nello
+schermo, non prima: una griglia lunga non le chiede tutte insieme. Sotto
+la griglia, una volta, «Maps: OpenFreeMap © OpenMapTiles · Data from
+OpenStreetMap», come sotto le schede di «Explore». Vale per il proprio
+profilo e per quello di un altro.
 Vuota: «No public drawings yet. Make a run public in My activities.».
 Non arrivata: il motivo e «Try again». **Un disegno toccato si apre sulla
 mappa**, come una corsa di «My activities»: «Profile» si toglie, la mappa
@@ -816,21 +827,22 @@ drawing in My activities.»; non arrivate, il motivo e «Try again». Con
 un'API senza i totali niente riquadri né schede, come prima.
 
 **La figura da cambiare** (TASK-320 parte B, ADR-0280, proposte approvate
-dall'utente il 2026-10-28): nelle stesse due schede, dopo «Start», «Draw
-it near me» ed «Export GPX» (che restano dove sono) e prima di «Back to
-the list» o «Back to the profile», il pulsante neutro **«Edit the
-drawing»** apre subito la tavola a mano («Freehand», sopra) con la figura:
-di un percorso di «Explore» la figura chiesta (una forma del catalogo con
-le sue linee, un'immagine col contorno e i dettagli); di un disegno con una
-forma le linee di quella forma; di un disegno senza forma né parola (una
-foto, un'immagine, un disegno a mano: il percorso dice solo il titolo) la
-traccia corsa, raddrizzata e chiusa come la tiene un preferito. «Save»
-lascia il percorso o il disegno come «Draw it near me» e mostra **«Draw»**
-con «Freehand» e la figura cambiata, alla distanza di «Draw it near me»
-(al decimo di km, dentro i limiti dello sport) e dalla partenza di «Draw»;
-niente parte dal telefono finché non si tocca «Draw route». Il pulsante non
-c'è per una parola, un percorso a tema, una corsa senza percorso (libera o
-importata da un'altra app), un post di sole foto, una forma che l'app non
+dall'utente il 2026-10-28; sulla mappa dal TASK-331, ADR-0288): nelle
+stesse due schede, dopo «Start», «Draw it near me» ed «Export GPX» (che
+restano dove sono) e prima di «Back to the list» o «Back to the profile»,
+il pulsante neutro **«Edit the drawing»** mette subito la figura sulla
+mappa di «Draw on the map» (sotto, in «Edit the drawing: la figura sulla
+mappa»): di un percorso di «Explore» il contorno e i dettagli chiesti, se è
+un'immagine; di un disegno senza forma né parola (una foto, un'immagine, un
+disegno a mano: il percorso dice solo il titolo) la traccia corsa,
+raddrizzata e chiusa come la tiene un preferito. Il percorso o il disegno
+si lascia come con «Draw it near me»; la figura è lunga quanto «Draw it
+near me» la sceglierebbe (al decimo di km, dentro i limiti dello sport) e
+sta nel mezzo della partenza di «Draw»; niente parte dal telefono finché
+non si tocca «Draw route». Il pulsante non c'è per una forma del catalogo
+(un'emoji, TASK-331), una parola, un percorso a tema, una corsa senza
+percorso (libera o importata da un'altra app), un post di sole foto, una
+forma che l'app non
 conosce, né con «Paddle». Nessun testo nuovo.
 
 **I commenti di un disegno** (TASK-120, ADR-0175, scelta dell'utente del
@@ -1283,6 +1295,47 @@ l'app, come «Find friends»:
   conversazione; «←» chiude e lascia l'app com'era. Il numero di «Messages»
   si chiede ogni minuto mentre l'app è aperta, come quello delle richieste
   di follow.
+- **Foto e video** (TASK-333 parte B, ADR-0289; testi approvati
+  dall'utente il 2026-10-29). In una conversazione aperta, a sinistra della
+  casella, il tasto tondo **«+»** (VoiceOver «Add a photo, a video or a
+  drawing»), solo se la pagina dell'API dice cosa si può allegare
+  (`attachments`): non in una richiesta, non con un server di prima. Apre
+  un foglio come quello di un messaggio con «Photo», «Video» (manca col
+  server pieno) e «Cancel». Si sceglie dalla galleria, senza permessi; la
+  fotocamera arriva con la build 1.0.1. Un video più lungo di 60 s o più
+  pesante di 40 MB si ferma subito: «This video is longer than 60 seconds.
+  Choose a shorter one.», «This video is too large: at most 40 MB. Choose a
+  shorter one.». Scelto il file, al posto della casella: la miniatura (il
+  video come «▶ 0:24»), «Add a message…» con il testo già scritto, «Cancel»
+  e «Send» («Sending…»); un invio fallito resta, con «Couldn't send. Tap to
+  try again.» in rosso, e le parole dell'API quando dice di più («Too many
+  videos today. Try again tomorrow.», «Videos can't be sent right now. Try
+  again later.»).
+- **Nella conversazione** la foto o il primo fotogramma del video, al più
+  220 punti di lato, sopra il testo; un video senza locandina è un
+  riquadro scuro con ▶ e la durata; uno scaduto dice «This video has
+  expired.». Un disegno, finché non c'è la parte C, è la riga «🗺️ Drawing».
+  Un tocco apre la foto o il video **a tutto schermo** su fondo scuro, con
+  «Share» (il foglio del telefono, da cui si salva) e «Close»; il video si
+  scarica nella cache e si guarda con i comandi del telefono, in una
+  WebView. VoiceOver legge «Photo», «Video, 0:24», «Drawing: {title},
+  {distance}», con il testo dopo. Nella lista l'ultimo messaggio dice
+  «📷 Photo», «🎬 Video», «🗺️ Drawing», o il segno con il testo.
+- **I disegni** (TASK-333 parte C; testi approvati il 2026-10-29, Help
+  compreso). Si mandano in due modi. **«Send to a friend»**: sulla mappa
+  è il tasto tondo «✉︎» sotto il cuore (VoiceOver «Send to a friend»), per
+  il risultato di «Draw», un percorso di «Explore», uno a tema o un
+  preferito; sulle schede di «My activities» e di un disegno del Feed o di
+  un profilo è una riga come le altre. Apre «Send to…»: chi ti scrive,
+  poi chi segui, e «Search people»; un tocco manda il disegno, «Sent to
+  {name}.», o «Photos, videos and drawings can be sent once {name} accepts
+  your message.» a chi non ha accettato. **Nella conversazione** il «+» ha
+  anche «Drawing»: «Send a drawing» con «Favorites» e «My activities»; un
+  tocco lo manda subito, con il testo scritto. Una propria corsa parte
+  senza i primi e gli ultimi 200 m. Nella conversazione il disegno è la sua
+  linea (`RouteThumb`), «🗺️ Drawing» e «Star · 5.1 km»; un tocco lo apre
+  sulla mappa come un preferito, con «Start», «Export GPX», il cuore e
+  «Draw it near me», e «Back to the list» torna alla conversazione.
 
 - **Chiusa e riaperta**, l'app è già dentro: la sessione sta nel
   portachiavi del telefono. All'apertura chiede all'API (`GET /me`) se vale
@@ -1748,11 +1801,12 @@ la via**, con il segnaposto fermo al centro della mappa.
 
 ## Forma e distanza
 
-Sopra, un interruttore **«Shape | Word | Image | Freehand»** (TASK-057,
-ADR-0053; «Image» dal TASK-073; «Freehand» dal TASK-320, sotto in
-«Disegnare a mano»): il percorso disegna una forma del catalogo, una
-parola, il contorno di un'immagine **oppure** una figura disegnata col
-dito, mai due insieme, e l'interruttore mostra quale. Di partenza «Shape».
+Sopra, un interruttore **«Shape | Word | Image»** (TASK-057, ADR-0053;
+«Image» dal TASK-073; la quarta scelta «Freehand» del TASK-320 è tolta dal
+TASK-331: a mano si disegna solo sulla mappa, sotto in «Disegnare sulla
+mappa»): il percorso disegna una forma del catalogo, una parola **oppure**
+il contorno di un'immagine, mai due insieme, e l'interruttore mostra quale.
+Di partenza «Shape».
 Passare dall'uno all'altro non cancella quanto scritto o scelto negli altri.
 
 La forma si sceglie toccando una tessera, che scrive il nome nel campo, o
@@ -2067,6 +2121,12 @@ semplici, con sotto il testo del motore:
 
 ### I giri e le immagini pronte (TASK-280, ADR-0246)
 
+**Tolte da TASK-329 (ADR-0287)**, scelta dell'utente del 2026-10-29: le
+due righe non sono più in fondo a «Draw». Le sedici sagome restano in
+«Draw on the map» e in «Change figure»; le idee di percorsi stanno in «Ask
+for a route» di «Explore» (sotto, «Le idee dall'Europa»). Quello che
+segue è com'era.
+
 Chiesto dall'utente il 2026-10-11 («Sotto draw nella sezione draw
 inserisci i tour delle città o immagini varie»); le scelte sono sue, del
 2026-10-13. Sotto la distanza, nella parte che scorre, sopra «Draw route»
@@ -2133,6 +2193,76 @@ ci sono città né foto). I testi nuovi, nelle cinque lingue:
 «Bike», le quattro categorie, «near your start» e «near {place}» c'erano
 già.
 
+### Le idee dall'Europa (TASK-329, ADR-0287)
+
+Chiesto dall'utente il 2026-10-29 («dobbiamo dare noi degli esempi e la
+gente poi deve prendere spunto»); proposta approvata con «Sì, così». In
+cima ad «Ask for a route», sotto la sua etichetta, **«IDEAS FROM EUROPE»**:
+una fila da scorrere di lato, con le schede di «Explore» larghe come quelle
+di «NEARBY TOWNS» (0,42 della pagina, la seguente si affaccia). Ognuna ha
+la linea gialla sulla mappa delle sue strade, il titolo «Roma · Stella» e
+sotto «Famous Places · 8,1 km». Sotto la fila, a destra e in piccolo, il
+credito delle mappe e «© OpenStreetMap contributors» (posti e strade sono
+di OpenStreetMap). La mappa sotto la linea arriva dopo quelle dei percorsi
+della pagina, e per le schede oltre la terza quando la fila scorre.
+Sono percorsi nostri in otto città, Roma, Parigi, Londra, Barcellona,
+Amsterdam, Lisbona, Praga e Berlino, con forme semplici (cuore, stella,
+cerchio, luna) di 6–10 km, attraverso i posti di quattro temi: posti
+famosi, panorami, angoli nascosti, fotografia. Li calcola una volta
+`tools/themed_ideas.py` con la stessa strada di una categoria (job a tema
+dell'API e motore) e stanno nell'app: si tengono solo quelli che si
+leggono bene a occhio.
+
+Un tocco apre l'idea sulla mappa **subito, senza rete**, come un percorso
+chiesto: i posti, la scheda (ThemedCard) con km, forma, città e «Passes by
+N of the M … found», «Export GPX», «Back to Explore». **Lontano dalla
+partenza** (oltre 20 km dal centro della sua città) il bottone giallo è
+**«Make it near me»** al posto di «Start»: manda le stesse parole
+dell'idea («Famous Places star 8 km») dalla partenza, e il percorso fatto
+lì ha «Start» come ogni altro. Nella sua città, o senza partenza, c'è
+«Start». Le foto vere dei posti sono sotto, «Le foto dei posti».
+
+Testi nuovi, nelle cinque lingue (da approvare):
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| IDEAS FROM EUROPE | IDEE DALL'EUROPA | IDEEN AUS EUROPA | IDEAS DE EUROPA | IDÉES D'EUROPE |
+| Make it near me | Fallo vicino a me | In meiner Nähe machen | Hazlo cerca de mí | Le faire près de moi |
+| Rome | Roma | Rom | Roma | Rome |
+| Paris | Parigi | Paris | París | Paris |
+| London | Londra | London | Londres | Londres |
+| Barcelona | Barcellona | Barcelona | Barcelona | Barcelone |
+| Amsterdam | Amsterdam | Amsterdam | Ámsterdam | Amsterdam |
+| Lisbon | Lisbona | Lissabon | Lisboa | Lisbonne |
+| Prague | Praga | Prag | Praga | Prague |
+| Berlin | Berlino | Berlin | Berlín | Berlin |
+
+#### Le foto dei posti (TASK-329 parte B, ADR-0287)
+
+Sotto la mappa di un percorso a tema, un'idea o uno chiesto, al posto
+della riga coi nomi dei posti toccati: **una fila di schede da scorrere di
+lato**, una per posto toccato, nell'ordine in cui il percorso li incontra,
+**«1 Colosseum», «2 Pantheon»…**. Sulla mappa gli stessi posti hanno lo
+stesso numero davanti al nome. La scheda (150 punti, due e il bordo della
+terza) ha in alto la **foto vera** del posto, dall'elemento Wikidata che
+OpenStreetMap gli dà, solo con una licenza libera, e il **credito piccolo
+sulla foto**, in basso a destra, come le schede di «NEARBY TOWNS»
+(ADR-0243); sotto, numero e nome. Un posto senza foto libera, o la cui
+foto non si carica, ha la scheda col **solo nome**. **Un tocco porta la
+mappa lì**, vicina come una strada (zoom 16, mai più lontana di com'era),
+girata com'è.
+
+Le schede di **«IDEAS FROM EUROPE»** mostrano la foto del primo posto
+toccato che ha un elemento Wikidata, con la **forma in piccolo** sopra,
+nell'angolo in alto a sinistra; per quella scheda la mappa non si prende.
+Una scheda senza foto, o la cui foto non si carica, resta con la mappa.
+
+Le foto le dà sempre la nostra API (`/city-photos/{item}.jpg`), mai
+Wikimedia: un percorso chiesto le ha nella risposta, le idee le chiedono
+all'API coi loro elementi (`GET /place-photos`). Un'API più vecchia non le
+ha: i posti col solo nome e le schede con la mappa, come prima. Nessun
+testo nuovo: numeri, nomi dei posti, autori e licenze.
+
 ### Le forme pronte vicino a te (TASK-306, ADR-0266)
 
 Chiesto dall'utente il 2026-10-26 («sotto a distanza 5 km metti una
@@ -2190,15 +2320,21 @@ inquadrata sul paese intorno (zoom 13): in alto «←», che torna a «Draw»,
 e il nome del luogo se la partenza è un luogo cercato; il segnaposto
 della partenza resta. Sotto la mappa:
 
-- **«Draw | Move»** e **«Undo»** sulla stessa riga. Con «Draw» un dito
-  traccia una linea gialla e la mappa sta ferma; due dita non fanno
-  niente. Con «Move» un dito che parte sulla figura (il suo riquadro, con
-  un margine per il dito) la trascina, altrove sposta la mappa; due dita
-  col punto di mezzo sulla figura la ingrandiscono o la rimpiccioliscono,
-  altrove fanno lo zoom della mappa. Sotto, in grigio: *Draw with one
-  finger. Lines after the first are joined to it.* · *Drag the figure or
-  the map. Two fingers on the figure resize it.* (sempre due righe di
-  posto, così le tessere non saltano).
+- **«Draw | Move | Erase»** (Erase dal TASK-331) e **«Undo»** sulla
+  stessa riga. Con «Draw» un dito traccia una linea gialla; due dita
+  spostano la mappa e ne fanno lo zoom (TASK-331; prima non facevano
+  niente), anche sopra la figura, che non si muove. Con «Move» un dito che
+  parte sulla figura (il suo riquadro, con un margine per il dito) la
+  trascina, altrove sposta la mappa; due dita col punto di mezzo sulla
+  figura la ingrandiscono o la rimpiccioliscono, altrove fanno lo zoom
+  della mappa. Con «Erase» un tocco (o un dito che passa) su una linea la
+  toglie, e due dita spostano la mappa. Sotto, in grigio: *Draw with one
+  finger. End where you started to close it. Two fingers move the map.*
+  senza figura o su una forma del catalogo; *Each new line joins the
+  drawing. Two fingers move the map.* su un disegno o una foto; *Drag the
+  figure or the map. Two fingers on the figure resize it.* con «Move»;
+  *Tap a line to erase it. The outline takes its details with it.* con
+  «Erase» (sempre due righe di posto, così le tessere non saltano).
 - **Una riga di tessere** che scorre di lato: **«+ photo»** (una foto della
   libreria; mentre il motore ne traccia il contorno, *Tracing the
   outline…*, e i suoi rifiuti con le parole di «Image»), le 17 forme del
@@ -2211,23 +2347,37 @@ della partenza resta. Sotto la mappa:
   «Miles»), che segue le due dita mentre la ridimensionano, e **«Draw
   route»**, acceso con una figura.
 
-**La linea a dito**: la prima diventa la figura, chiusa dall'app (l'ultimo
-punto torna al primo); una linea che passa oltre l'inizio si chiude dove
-si incrocia. Le linee dopo la prima sono appese alla figura come «Add a
-detail» dell'immagine: un trattino dritto dal punto più vicino, e il
-percorso le fa andata e ritorno; una linea che torna su se stessa fa un
-anello, come un occhio. Una linea su una forma o su una foto ne prende il
-posto. In rosso, al posto della riga grigia: *This line crosses itself.
-Draw it again without crossing it.* quando non si può chiudere, e *That
-is too much for one route. Undo something, or draw simpler lines.* oltre
-i dettagli che un percorso fa.
+**La linea a dito** (TASK-331, ADR-0288): la prima diventa la figura.
+**Si chiude solo se finisce vicino al suo inizio** (entro il 15% della sua
+grandezza: l'ultimo punto torna al primo, con un lato corto se serve; una
+linea che passa oltre l'inizio si chiude dove si incrocia). **Altrimenti
+resta aperta, com'è stata disegnata**: una linea dritta, un arco, una «C»,
+una «W»; il percorso la fa andata e ritorno, partendo da dove è partito il
+dito, e la distanza è quella di andata e ritorno. Anche una linea che torna
+all'inizio ma non si può chiudere (si incrocia in un modo che non si
+taglia) resta aperta: nessuna prima linea viene rifiutata. Le linee dopo
+la prima sono appese alla figura come «Add a detail» dell'immagine: un
+trattino dritto dal punto più vicino, e il percorso le fa andata e
+ritorno; una linea che torna su se stessa fa un anello, come un occhio. Una
+linea su una **foto o un'immagine pronta** vi si appende allo stesso modo
+(la figura diventa un disegno, dov'è e grande uguale); su una **forma del
+catalogo** (un'emoji, che non si modifica: scelta dell'utente) ne prende
+il posto, come prima. In rosso, al posto della riga grigia: *That is too
+much for one route. Undo something, or draw simpler lines.* oltre i
+dettagli che un percorso fa.
+
+**«Erase»** (TASK-331): un tocco su una linea di un disegno o di una foto
+la toglie; un dettaglio porta via i dettagli appesi a lui, il contorno
+porta via tutto; di una linea aperta toglie la linea e con lei il disegno.
+Una forma del catalogo se ne va intera. «Undo» la rimette.
 
 **Grandezza**: dentro i limiti di «Draw» per lo sport (1–21 km a piedi,
 10–30 in bici): oltre, la figura non cresce e non cala più. Una figura
 cresciuta oltre lo schermo fa allontanare la mappa, che la mostra intera.
 
 **«Undo»** toglie l'ultima figura messa o disegnata (torna quella di
-prima, dov'era), l'ultimo cambio di tessera o l'ultimo tratto appeso.
+prima, dov'era), l'ultimo cambio di tessera, l'ultimo tratto appeso o
+l'ultima linea cancellata.
 Spostare e ridimensionare non si annullano. Spento finché non c'è niente.
 
 **«Draw route»** chiede il percorso della figura dov'è, senza niente di
@@ -2257,7 +2407,40 @@ Testi nuovi, **approvati dall'utente** il 2026-10-13 nelle cinque lingue:
 | + photo | + foto | + Foto | + foto | + photo |
 
 «Draw», «Undo», «Draw route», *Tracing the outline…* e le parole dei
-rifiuti c'erano già.
+rifiuti c'erano già. Il TASK-331 ha tolto *Draw with one finger. Lines
+after the first are joined to it.* e *This line crosses itself. Draw it
+again without crossing it.*, e aggiunto (**approvati dall'utente** il
+2026-10-29 nelle quattro lingue):
+
+| English | Italiano | Deutsch | Español | Français |
+|---|---|---|---|---|
+| Draw with one finger. End where you started to close it. Two fingers move the map. | Disegna con un dito. Finisci dove hai iniziato per chiuderla. Con due dita sposti la mappa. | Zeichne mit einem Finger. Ende, wo du begonnen hast, um sie zu schließen. Zwei Finger bewegen die Karte. | Dibuja con un dedo. Termina donde empezaste para cerrarla. Con dos dedos mueves el mapa. | Dessine avec un doigt. Termine là où tu as commencé pour la fermer. Deux doigts déplacent la carte. |
+| Each new line joins the drawing. Two fingers move the map. | Ogni nuova linea si unisce al disegno. Con due dita sposti la mappa. | Jede neue Linie wird mit der Zeichnung verbunden. Zwei Finger bewegen die Karte. | Cada línea nueva se une al dibujo. Con dos dedos mueves el mapa. | Chaque nouvelle ligne rejoint le dessin. Deux doigts déplacent la carte. |
+
+«Erase» e *Tap a line to erase it. The outline takes its details with it.*
+vengono dalla tavola del TASK-320, già approvati.
+
+### «Edit the drawing»: la figura sulla mappa (TASK-320, TASK-331, ADR-0288)
+
+Dal TASK-331 la tavola bianca di «Draw» non c'è più: **«Edit the
+drawing»** mette la figura sulla mappa di «Draw on the map», come un
+disegno a cui aggiungere linee, nel mezzo della partenza di «Draw» e lunga
+quanto il percorso (sulle schede, la distanza di «Draw it near me»); la
+mappa si inquadra su di lei, l'interruttore è su «Draw», e «Undo» la
+toglie. «←» torna a «Draw». Niente parte dal telefono prima di «Draw
+route», che la chiede come ogni disegno della mappa (la partenza è il suo
+primo punto). Il tasto c'è **sotto il risultato** di un'immagine, di una
+foto o di un disegno (dal risultato di «Draw on the map» torna alla figura
+com'era) e **sulle schede** di un disegno senza forma né parola (sopra, in
+«La figura da cambiare»). **Non c'è mai per una forma del catalogo**
+(un'emoji: sotto la forma scelta in «Draw», sul suo risultato, sulle
+schede), scelta dell'utente del 2026-10-29: «non la modifica delle emoji
+perché non serve a nulla»; né per una parola, né sull'acqua. Il percorso di
+un disegno sulla mappa si chiama «Drawing» («Disegno»), come quello della
+tavola.
+
+Quello che segue è la tavola del TASK-320, tolta dal TASK-331: resta come
+storia delle scelte approvate allora.
 
 ### Disegnare a mano: «Freehand» ed «Edit the drawing» (TASK-320, ADR-0280)
 
@@ -2387,10 +2570,13 @@ Forma e distanza non si cambiano durante l'attesa.
 Dopo 3 s di attesa, sotto la barra compare «MEANWHILE, FROM THE FEED»
 (TASK-317, ADR-0277): una fila da scorrere di lato con sei disegni di
 esempio del Feed, quelli sull'acqua con «Paddle» e quelli di corsa
-altrimenti. Ogni scheda ha la linea su fondo mappa, il titolo e i dati
-(«Moon · 4.9 km · 27 min»), senza l'immagine della mappa: mentre il motore
-cerca, la fila non chiede niente alla rete. Le schede non si toccano, e la
-fila sparisce con la scheda dell'attesa.
+altrimenti. Ogni scheda ha la linea, il titolo e i dati («Moon · 4.9 km ·
+27 min»). Sotto la linea c'è la foto della mappa del posto (TASK-335,
+ADR-0291), scattata da una pagina nascosta sotto la fila, una scheda dopo
+l'altra. Finché la foto non arriva, la linea è su fondo mappa. Senza rete
+le foto non arrivano, e dopo due la fila non ne chiede altre. Sotto la fila
+c'è «Maps: …», come in «Explore». Le schede non si toccano, e la fila
+sparisce con la scheda dell'attesa.
 
 - Fino a 10 km il percorso di solito arriva in 5–35 s, da 15 a 21 km in
   30–50 s; una zona nuova aggiunge il suo download, circa 105 s per un

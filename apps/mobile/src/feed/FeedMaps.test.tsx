@@ -166,3 +166,32 @@ test("the page is out of reach of fingers and of the screen reader", async () =>
   expect(page.parent).toHaveProp("accessibilityElementsHidden", true);
   expect(page.parent).toHaveStyle({ width: 358, height: 222 });
 });
+
+test("with two shooters on screen, the first takes the pictures; gone, the other", async () => {
+  function Two({ first }: { first: boolean }) {
+    return (
+      <>
+        {first && <FeedMapShooter width={358} height={222} />}
+        <FeedMapShooter width={390} height={844} />
+        <Drawing id="a" />
+        <Drawing id="b" />
+      </>
+    );
+  }
+  const view = await render(<Two first />);
+  // One page, never two pictures of the same map at once.
+  expect(
+    screen.getAllByTestId("feed-map-page", { includeHiddenElements: true }),
+  ).toHaveLength(1);
+  expect(mapPage()!.parent).toHaveStyle({ width: 358, height: 222 });
+  await pagePosts({ type: "ready" });
+  await pagePosts({ type: "shot", key: "a:358x222", image: PICTURE });
+  expect(injectJavaScript).toHaveBeenCalledTimes(2);
+
+  // The first goes: the other takes the picture still to take.
+  await view.rerender(<Two first={false} />);
+  expect(mapPage()!.parent).toHaveStyle({ width: 390, height: 844 });
+  await pagePosts({ type: "ready" });
+  expect(injectJavaScript.mock.calls.at(-1)?.[0]).toContain('"key":"b:358x222"');
+  expect(screen.getByText(`a: ${PICTURE}`)).toBeOnTheScreen();
+});

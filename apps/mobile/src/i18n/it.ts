@@ -151,6 +151,12 @@ export const IT: Table = {
   "Offline maps: {size}": "Mappe offline: {size}",
   "Maps download on Wi-Fi and mobile data.":
     "Le mappe si scaricano con il Wi-Fi e con i dati mobili.",
+  "Add a place": "Aggiungi un posto",
+  "Preparing the map…": "Preparo la mappa…",
+  "Trying again later": "Riprovo più tardi",
+  "Up to {count} places.": "Fino a {count} posti.",
+  "Places you add stay on the phone, so shapes there are drawn faster, even without signal.":
+    "I posti che aggiungi restano sul telefono: lì le forme si disegnano più in fretta, anche senza segnale.",
 
   // src/engine/ZoneNotice.tsx
   "Downloading the maps of your area ({size}) so routes work without signal.":
@@ -1080,7 +1086,17 @@ export const IT: Table = {
     "Scegli prima una partenza: i percorsi sono quelli vicini.",
   "The routes could not load. Check the connection and try again.":
     "I percorsi non si sono caricati. Controlla la connessione e riprova.",
-  "Ask for a route": "Chiedi un percorso",
+  // src/explore/IdeasFromEurope.tsx, themedIdeas.ts, ThemedCard.tsx: our ideas
+  "IDEAS FROM EUROPE": "IDEE DALL'EUROPA",
+  "Make it near me": "Fallo vicino a me",
+  Rome: "Roma",
+  Paris: "Parigi",
+  London: "Londra",
+  Barcelona: "Barcellona",
+  Amsterdam: "Amsterdam",
+  Lisbon: "Lisbona",
+  Prague: "Praga",
+  Berlin: "Berlino",
   "Getting directions…": "Prendo le indicazioni…",
   CITY: "CITTÀ",
   "Type a city or a place": "Scrivi una città o un posto",
@@ -1224,10 +1240,7 @@ export const IT: Table = {
   "Switch sides": "Cambia lato",
   "{seconds} seconds left": "Mancano {seconds} secondi",
   "Stop if it hurts.": "Fermati se fa male.",
-  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
-  // src/explore/ThemedCard.tsx (TASK-280)
-  "CITY TOURS": "GIRI IN CITTÀ",
-  PICTURES: "IMMAGINI",
+  // «Draw»: src/route/samplePictures.ts (TASK-280)
   "Running shoe": "Scarpa da corsa",
   Dinosaur: "Dinosauro",
   Guitar: "Chitarra",
@@ -1244,17 +1257,16 @@ export const IT: Table = {
   Duck: "Paperella",
   Trophy: "Coppa",
   Bone: "Osso",
-  "Back to Draw": "Torna a Disegna",
 
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Disegna sulla mappa",
   Move: "Sposta",
-  "Draw with one finger. Lines after the first are joined to it.":
-    "Disegna con un dito. Le linee dopo la prima vengono unite a lei.",
+  "Draw with one finger. End where you started to close it. Two fingers move the map.":
+    "Disegna con un dito. Finisci dove hai iniziato per chiuderla. Con due dita sposti la mappa.",
+  "Each new line joins the drawing. Two fingers move the map.":
+    "Ogni nuova linea si unisce al disegno. Con due dita sposti la mappa.",
   "Drag the figure or the map. Two fingers on the figure resize it.":
     "Trascina la figura o la mappa. Con due dita sulla figura la ingrandisci o la rimpicciolisci.",
-  "This line crosses itself. Draw it again without crossing it.":
-    "Questa linea si incrocia. Ridisegnala senza incrociarla.",
   "+ photo": "+ foto",
 
   // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
@@ -1536,19 +1548,14 @@ export const IT: Table = {
   "Write a message…": "Scrivi un messaggio…",
   "Delete this message for both of you?": "Eliminare questo messaggio per tutti e due?",
   "Report this message": "Segnala questo messaggio",
-  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
-  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
-  Freehand: "A mano libera",
+  // src/route/EditDrawingButton.tsx, mapdraw/DrawOnMap.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure drawn by hand
+  // on the map)
   "Edit the drawing": "Modifica il disegno",
-  "Draw with your finger": "Disegna col dito",
   Erase: "Cancella",
   Drawing: "Disegno",
-  "Draw the outline with one finger: it closes by itself.":
-    "Disegna il contorno con un dito: si chiude da solo.",
   "Tap a line to erase it. The outline takes its details with it.":
     "Tocca una linea per cancellarla. Il contorno porta via i suoi dettagli.",
-  "This line encloses nothing. Draw a closed shape.":
-    "Questa linea non racchiude niente. Disegna una figura chiusa.",
   // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
   // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
   "Add past activity": "Aggiungi un'attività passata",
@@ -1568,4 +1575,32 @@ export const IT: Table = {
   "Activities before 2020 cannot be added.":
     "Non si possono aggiungere attività prima del 2020.",
   "Already in My activities.": "È già in Le mie attività.",
+  // The attachments of the private messages (TASK-333).
+  "📷 Photo": "📷 Foto",
+  "🎬 Video": "🎬 Video",
+  "🗺️ Drawing": "🗺️ Disegno",
+  Photo: "Foto",
+  Video: "Video",
+  "This video has expired.": "Questo video è scaduto.",
+  "Video, {duration}": "Video, {duration}",
+  "Drawing: {title}, {distance}": "Disegno: {title}, {distance}",
+  "Add a photo, a video or a drawing": "Aggiungi una foto, un video o un disegno",
+  "Add a message…": "Aggiungi un messaggio…",
+  "Couldn't send. Tap to try again.": "Non inviato. Tocca per riprovare.",
+  "This video is longer than {seconds} seconds. Choose a shorter one.":
+    "Questo video dura più di {seconds} secondi. Scegline uno più corto.",
+  "This video is too large: at most {mb} MB. Choose a shorter one.":
+    "Questo video è troppo grande: al massimo {mb} MB. Scegline uno più corto.",
+  "Too many videos today. Try again tomorrow.": "Oggi troppi video. Riprova domani.",
+  "Too many photos today. Try again tomorrow.": "Oggi troppe foto. Riprova domani.",
+  "Videos can't be sent right now. Try again later.":
+    "Ora non si possono mandare video. Riprova più tardi.",
+  // The drawings of the private messages (TASK-333 part C).
+  "Send to a friend": "Invia agli amici",
+  "Send to…": "Invia a…",
+  "Search people": "Cerca persone",
+  "Sent to {name}.": "Inviato a {name}.",
+  "Send a drawing": "Invia un disegno",
+  "Photos, videos and drawings can be sent once {name} accepts your message.":
+    "Foto, video e disegni si possono inviare quando {name} accetta il tuo messaggio.",
 };

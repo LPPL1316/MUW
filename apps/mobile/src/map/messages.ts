@@ -48,6 +48,9 @@ export type ToPage =
   | { type: "stopFollow" }
   | { type: "showStops"; stops: StopFeature[] }
   | { type: "clearStops" }
+  /** A place of a themed route tapped under the map (TASK-329): the map
+   * goes there, as close as a street. */
+  | { type: "focus"; lngLat: LngLat }
   /** With `on`, a double tap is told to the app and no longer zooms the
    * map (TASK-119); two fingers still do. */
   | { type: "setDoubleTap"; on: boolean }
@@ -73,10 +76,12 @@ export type ToPage =
   | { type: "clearRejoin" };
 
 /** What fingers do on the map of «Draw on the map» (TASK-281): «Draw», one
- * finger draws and the map keeps still; «Move», one finger moves the
- * figure, or the map away from it, and two fingers size the figure, or
- * zoom the map away from it. */
-export type CanvasMode = "draw" | "move";
+ * finger draws, and two move and zoom the map (TASK-331); «Move», one
+ * finger moves the figure, or the map away from it, and two fingers size
+ * the figure, or zoom the map away from it; «Erase» (TASK-331), a finger
+ * on a line takes it away, told as a line drawn, and two move and zoom the
+ * map. */
+export type CanvasMode = "draw" | "move" | "erase";
 
 /** The figure on the map of «Draw on the map», as the page draws it. */
 export type CanvasOnPage = {
@@ -206,6 +211,11 @@ export function showStops(
 
 export function clearStops(): ToPage {
   return { type: "clearStops" };
+}
+
+/** Takes the map to `point`, a place of a themed route (TASK-329). */
+export function focus(point: LatLon): ToPage {
+  return { type: "focus", lngLat: toLngLat(point) };
 }
 
 export function clearRoute(): ToPage {

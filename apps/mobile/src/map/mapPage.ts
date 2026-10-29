@@ -58,6 +58,9 @@ export const ITALY_BOUNDS: [southWest: LatLon, northEast: LatLon] = [
 
 /** Zoom used to show a start: a few streets around it. */
 export const START_ZOOM = 15;
+/** A place of a themed route, tapped under the map (TASK-329): as close as
+ * the street it is on, never farther than the map already was. */
+export const PLACE_ZOOM = 16;
 
 /** Zoom while navigating: the next junction and the streets around it. */
 export const FOLLOW_ZOOM = 17;
@@ -883,10 +886,12 @@ export function buildMapPage(language: Language = appLanguage()): string {
     }
     // «Draw on the map» (TASK-281, ADR-0245): while the app asks, the
     // fingers on the map are the page's own, and MapLibre's gestures are
-    // off. With «Draw» one finger draws a yellow line and the map keeps
-    // still. With «Move» one finger drags the figure, when it starts on it,
-    // or the map; two fingers size the figure, when their middle is on it,
-    // or zoom the map. The app is told of each line drawn (\`drawn\`), of the
+    // off. With «Draw» one finger draws a yellow line, and two move and zoom
+    // the map (TASK-331). With «Move» one finger drags the figure, when it
+    // starts on it, or the map; two fingers size the figure, when their
+    // middle is on it, or zoom the map. With «Erase» a finger's line or tap
+    // is told as a line drawn, and two move and zoom the map. The app is
+    // told of each line drawn (\`drawn\`), of the
     // figure moved or sized (\`figure\`), and of where the map is
     // (\`centre\`): a figure is put there.
     var canvas = null;
@@ -1029,7 +1034,7 @@ export function buildMapPage(language: Language = appLanguage()): string {
       }
       if (touches.length === 1) {
         var at = pointOf(touches[0]);
-        if (canvas.mode === "draw") {
+        if (canvas.mode !== "move") {
           ink = [lngLatAt(at)];
           inkLast = at;
           gesture = { kind: "ink" };
@@ -1041,11 +1046,13 @@ export function buildMapPage(language: Language = appLanguage()): string {
         }
         return;
       }
-      if (touches.length === 2 && canvas.mode === "move") {
+      if (touches.length === 2) {
         var a = pointOf(touches[0]);
         var b = pointOf(touches[1]);
         var middle = middleOf(a, b);
-        gesture = onFigure(middle)
+        // Only with «Move» do two fingers size the figure; else they move
+        // and zoom the map, the figure on it.
+        gesture = canvas.mode === "move" && onFigure(middle)
           ? { kind: "size", from: apart(a, b), anchor: figureMiddle(), factor: 1, told: 1 }
           : {
               kind: "zoom",
@@ -1055,7 +1062,7 @@ export function buildMapPage(language: Language = appLanguage()): string {
             };
         return;
       }
-      // With «Draw», two fingers do nothing: the map keeps still.
+      // Three fingers or more do nothing.
       gesture = { kind: "wait" };
     }
     // \`lifted\`: the fingers left the map; otherwise another one came, and
@@ -1067,7 +1074,8 @@ export function buildMapPage(language: Language = appLanguage()): string {
         return;
       }
       if (was.kind === "ink") {
-        if (lifted && ink.length >= 3) {
+        // With «Erase» a tap is enough: it says where the line is.
+        if (lifted && (ink.length >= 3 || canvas.mode === "erase")) {
           // Shown until the app answers with the figure.
           post({ type: "drawn", line: ink });
         } else {
@@ -1407,6 +1415,12 @@ export function buildMapPage(language: Language = appLanguage()): string {
           });
         } else if (message.type === "clearStops") {
           setStops(noRoute);
+        } else if (message.type === "focus") {
+          map.flyTo({
+            center: message.lngLat,
+            zoom: Math.max(map.getZoom(), ${PLACE_ZOOM}),
+            bearing: wanted,
+          });
         } else if (message.type === "showOthers") {
           setOthers({
             type: "Feature",

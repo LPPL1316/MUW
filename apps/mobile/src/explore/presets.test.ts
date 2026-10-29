@@ -15,11 +15,17 @@ const milan = {
   point: [45.4642, 9.1896] as [number, number],
 };
 
-test("cities from several countries, Food the first category", () => {
+test("cities from several countries, the four of our ideas the first categories", () => {
   expect(FEATURED_CITIES).toEqual(
     expect.arrayContaining(["New York", "Tokyo", "Dubai", "Torino"]),
   );
-  expect(CATEGORIES[0]).toBe("Food");
+  expect(CATEGORIES.slice(0, 4)).toEqual([
+    "Famous Places",
+    "Best Views",
+    "Hidden Gems",
+    "Photography",
+  ]);
+  expect(CATEGORIES).toContain("Food");
   expect(new Set(CATEGORIES).size).toBe(CATEGORIES.length);
 });
 

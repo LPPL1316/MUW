@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { Text } from "react-native";
 
 import type { Place } from "../places/photon";
 import { AskForRoute, QUICK_CATEGORIES } from "./AskForRoute";
@@ -12,29 +13,50 @@ const arena: Place = {
   kind: "place",
 };
 
-test("two categories, Food first, the others behind More… (TASK-143)", async () => {
+test("four categories, those of our ideas, the others behind More…", async () => {
   const onAsk = jest.fn();
   await render(<AskForRoute city={newYork} where={newYork.label} onAsk={onAsk} />);
-  expect(QUICK_CATEGORIES).toBe(2);
-  expect(screen.getByText("Food")).toBeOnTheScreen();
-  expect(screen.getByText("Famous Places")).toBeOnTheScreen();
-  expect(screen.queryByText("Hidden Gems")).toBeNull();
-  expect(screen.getByText(`${CATEGORIES.length - 2} more`)).toBeOnTheScreen();
+  expect(QUICK_CATEGORIES).toBe(4);
+  for (const category of [
+    "Famous Places",
+    "Best Views",
+    "Hidden Gems",
+    "Photography",
+  ]) {
+    expect(screen.getByText(category)).toBeOnTheScreen();
+  }
+  expect(screen.queryByText("Food")).toBeNull();
+  expect(screen.getByText(`${CATEGORIES.length - 4} more`)).toBeOnTheScreen();
 
   await fireEvent.press(screen.getByLabelText("More categories"));
   for (const category of CATEGORIES) {
     expect(screen.getByText(category)).toBeOnTheScreen();
   }
   expect(screen.queryByText("More…")).toBeNull();
-  await fireEvent.press(screen.getByText("Hidden Gems"));
-  expect(onAsk).toHaveBeenLastCalledWith("Hidden Gems in New York");
+  await fireEvent.press(screen.getByText("Food"));
+  expect(onAsk).toHaveBeenLastCalledWith("Food in New York");
+});
+
+test("the ideas come first, under its name", async () => {
+  await render(
+    <AskForRoute
+      where="your start"
+      onAsk={jest.fn()}
+      ideas={<Text>IDEAS FROM EUROPE</Text>}
+    />,
+  );
+  const order = screen.getAllByText(/./).map((node) => String(node.props.children));
+  expect(order.indexOf("IDEAS FROM EUROPE")).toBe(order.indexOf("ASK FOR A ROUTE") + 1);
+  expect(order.indexOf("IDEAS FROM EUROPE")).toBeLessThan(
+    order.indexOf("Famous Places"),
+  );
 });
 
 test("a category is one tap, for the city or near the start", async () => {
   const onAsk = jest.fn();
   await render(<AskForRoute city={newYork} where={newYork.label} onAsk={onAsk} />);
-  await fireEvent.press(screen.getByText("Food"));
-  expect(onAsk).toHaveBeenCalledWith("Food in New York");
+  await fireEvent.press(screen.getByText("Best Views"));
+  expect(onAsk).toHaveBeenCalledWith("Best Views in New York");
   expect(screen.getAllByText("in New York").length).toBe(QUICK_CATEGORIES);
 
   await render(<AskForRoute where="your start" onAsk={onAsk} />);
@@ -46,8 +68,8 @@ test("from a place, the categories go by its point, not its name", async () => {
   const onAsk = jest.fn();
   await render(<AskForRoute city={arena} where={arena.label} onAsk={onAsk} />);
   expect(screen.getAllByText("near Verona Arena").length).toBe(QUICK_CATEGORIES);
-  await fireEvent.press(screen.getByText("Food"));
-  expect(onAsk).toHaveBeenCalledWith("Food");
+  await fireEvent.press(screen.getByText("Photography"));
+  expect(onAsk).toHaveBeenCalledWith("Photography");
 });
 
 test("a request in words still works, with an example for the city", async () => {

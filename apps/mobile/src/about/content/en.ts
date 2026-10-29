@@ -90,6 +90,7 @@ const help: AboutDocument = {
         "«Message» on a member's profile writes to them. If they follow you, your message arrives in their «Messages»; if not, it arrives as a request, and you can send one message until they accept it.",
         "Your conversations are in «Profile», «Messages», with «Message requests» at the top. Accept a request and you both write freely; delete it (who wrote is not told), or block who wrote.",
         "Hold a message to delete yours, for both of you, or to report one you received. Nobody sees whether you read a message. With push on, MuW tells you of each message and of each request.",
+        "In a conversation, tap + to send a photo, a video of up to 60 seconds or a drawing, or tap Send to a friend on a route or a drawing. You can send them once the other person has accepted your message. Videos are kept for 30 days, or less when our space for videos is full: the oldest go first. Tap a drawing to open it on the map, start it, export its GPX or keep it in your favorites.",
       ],
     },
     {
@@ -353,6 +354,7 @@ const privacy: AboutDocument = {
       heading: "Private messages",
       blocks: [
         "Your private messages are kept on our server: who wrote, to whom, the text and when, and for each of the two whether they accepted the conversation, when they last read it and up to when they deleted it from their view. They are not end-to-end encrypted. In the app only the two members of a conversation see it, and nobody is told whether a message was read. We keep them to give you the service you ask for (contract).",
+        "A message can carry a photo, a video or a drawing. A photo is kept resized, without the data your phone adds to it, such as where and when it was taken. A video is kept as your phone sends it, without the place it was shot, and is deleted 30 days after it was sent, or earlier, oldest first, when our space for videos is full. A drawing is a copy of the route: a run you send is cut at its start and end as in the Feed, a route you plan is sent whole, with its start. Photos and videos are not end-to-end encrypted, are not in our backup copies, and are deleted with their message, the conversation or your account. When you report a message, the person who runs MuW sees its photo, video or drawing too.",
         "A message to someone who does not follow you arrives as a request; the first message of a request goes through the same word filter as comments.",
         "You can delete your own messages, for both of you. Deleting a conversation takes it out of your view; a message that neither of you sees any more is deleted. A block deletes the conversation; deleting your account deletes all your conversations, with the messages of both.",
         "When you report a message, the email to the person who runs MuW holds that message only, never the rest of the conversation. With push on, the notification of a message carries its beginning, through Expo's push service and Apple or Google, as for comments.",

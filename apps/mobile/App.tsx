@@ -46,8 +46,10 @@ import {
   remember,
   saveRecentCities,
 } from "./src/explore/recentCities";
+import { mapStops } from "./src/explore/StopPhotos";
 import { ThemedCard, themedGpx } from "./src/explore/ThemedCard";
 import { startViewOf, useStartDirections } from "./src/explore/useStartDirections";
+import { isHere, nearMeRequest } from "./src/explore/themedIdeas";
 import { useThemedRoute } from "./src/explore/useThemedRoute";
 import { FavoriteHeart } from "./src/favorites/FavoriteHeart";
 import {
@@ -63,6 +65,7 @@ import { ZoneNotice } from "./src/engine/ZoneNotice";
 import { useLanguage } from "./src/i18n/useLanguage";
 import { CanvasTop } from "./src/mapdraw/CanvasTop";
 import { DrawOnMap } from "./src/mapdraw/DrawOnMap";
+import { drawingOf, type FigureLines } from "./src/mapdraw/edit";
 import { FigureTiles } from "./src/mapdraw/FigureTiles";
 import { MapDrawButton } from "./src/mapdraw/MapDrawButton";
 import {
@@ -114,20 +117,11 @@ import { DrawButton, RouteChoice, RouteOutcome } from "./src/route/RoutePanel";
 import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
-import { drawingLines, requestLines, shapeLines } from "./src/route/figureLines";
-import {
-  figureOf,
-  type FreehandFigure,
-  type FreehandLines,
-  freehandRequest,
-} from "./src/route/freehand";
-import { FreehandBoard } from "./src/route/FreehandBoard";
-import { EditDrawingButton } from "./src/route/FreehandChoice";
-import { useFreehand } from "./src/route/useFreehand";
-import { DrawIdeas, toursFrom } from "./src/route/DrawIdeas";
+import { drawingLines, requestLines } from "./src/route/figureLines";
+import { EditDrawingButton } from "./src/route/EditDrawingButton";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
-import { sampleOf, samplePicture } from "./src/route/samplePictures";
+import { samplePicture } from "./src/route/samplePictures";
 import {
   type AnyRouteRequest,
   type RouteState,
@@ -297,19 +291,19 @@ function leftFreeRun(): FreeFinished | null {
   return run === null ? null : freeFinishedRun(run, canResume(run, Date.now()));
 }
 
-/** The figure the board opens of a route or a drawing on a card (TASK-320):
- * none for lines that enclose nothing, or with more details than a route
- * runs, and none on the water, where only the catalogue is drawn. */
-function cardFigure(
-  lines: FreehandLines | null,
-  activity: Activity,
-): FreehandFigure | null {
-  return lines === null || activity === "paddling" ? null : figureOf(lines);
+/** The lines «Edit the drawing» puts on the map, of a route or a drawing
+ * on a card (TASK-320, TASK-331): none for lines that make no drawing
+ * (`drawingOf`), and none on the water, where only the catalogue is
+ * drawn. */
+function cardFigure(lines: FigureLines | null, activity: Activity): FigureLines | null {
+  return lines === null || activity === "paddling" || drawingOf(lines) === null
+    ? null
+    : lines;
 }
 
-/** The distance «Draw» takes with a figure edited from a card: as «Draw it
- * near me» takes a shape's (`againDistanceM`, ADR-0273), the route's or the
- * run's to the tenth of a km, within the limits of the sport of «Draw». */
+/** The distance of a figure edited from a card: as «Draw it near me» takes
+ * a shape's (`againDistanceM`, ADR-0273), the route's or the run's to the
+ * tenth of a km, within the limits of the sport of «Draw». */
 function cardDistanceM(distanceM: number, activity: Activity): number {
   const [lowest, highest] = APP_DISTANCE_LIMITS_KM[activity];
   const stepped = Math.round(distanceM / 100) * 100;
@@ -491,13 +485,6 @@ function MuW() {
   // Past RouteChoice to the image panel (TASK-079).
   const { edits, add, undo } = image;
   const imageEdits = useMemo(() => ({ ...edits, add, undo }), [edits, add, undo]);
-  // The figure drawn by hand (TASK-320), kept beside the picture: going to
-  // «Freehand» and back loses neither. The board is one, over whatever is
-  // on screen; where it was opened from says what «Save» does.
-  const freehand = useFreehand();
-  const [board, setBoard] = useState<"freehand" | "shape" | "result" | "card" | null>(
-    null,
-  );
   const { draw, cancel, retry, state } = useRouteRequest(API_URL);
   const gpx = useGpxExport(API_URL);
   const {
@@ -520,16 +507,32 @@ function MuW() {
     () => (themed.state.status === "done" ? themedGpx(themed.state.result) : null),
     [themed.state],
   );
+  // Its places on the map, those passed by numbered as the photos under it
+  // (TASK-329); a photo tapped takes the map to its place.
+  const themedStops = useMemo(
+    () => (themed.state.status === "done" ? mapStops(themed.state.result.stops) : null),
+    [themed.state],
+  );
+  const [placeFocus, setPlaceFocus] = useState<{ point: LatLon } | null>(null);
 
   const start = useMemo(
     () => chooseStart(startMode, position, place),
     [startMode, position, place],
   );
+  // One of our ideas opened far from the start: «Make it near me» asks its
+  // words from the start instead of «Start».
+  const farIdea =
+    themed.state.status === "done" &&
+    themed.state.idea !== undefined &&
+    start !== null &&
+    !isHere(themed.state.idea, start.point)
+      ? { idea: themed.state.idea, from: start.point }
+      : null;
 
   // One of them (ADR-0051): the kinds not chosen are not sent. An image
   // sends the outline the engine traced and the user has seen (ADR-0069),
-  // with the details drawn on it (TASK-079); a figure drawn by hand its
-  // outline and details as a line drawn on the map sends them (TASK-320).
+  // with the details drawn on it (TASK-079); a figure drawn by hand is
+  // asked from the map (TASK-331).
   // On the water only a shape of the catalogue is drawn (TASK-191): a word or
   // a picture chosen before «Paddle» waits for another sport.
   const drawKind: ChoiceKind = sportActivity === "paddling" ? "shape" : kind;
@@ -553,16 +556,12 @@ function MuW() {
               ...(penUp ? { pen_up: true as const } : {}),
             }
           : null
-        : drawKind === "freehand"
-          ? freehand.figure !== null
-            ? freehandRequest(freehand.figure)
-            : null
-          : image.state.status === "traced"
-            ? {
-                outline: image.state.outline.points,
-                strokes: image.state.outline.strokes,
-              }
-            : null;
+        : image.state.status === "traced"
+          ? {
+              outline: image.state.outline.points,
+              strokes: image.state.outline.strokes,
+            }
+          : null;
   const request: AnyRouteRequest | null =
     start && drawn !== null && distanceM !== null
       ? { start: start.point, ...drawn, distance_m: distanceM, activity: sportActivity }
@@ -603,18 +602,18 @@ function MuW() {
         ? placedTile(mapDraw.placed)
         : drawnTile(view.request);
   // «Edit the drawing» under the route drawn (TASK-320): the lines of the
-  // figure asked for, to open in the board; none for a word, nor on the
-  // water, where only the catalogue is drawn.
+  // figure asked for, to put on the map (TASK-331); none for a word, nor on
+  // the water, where only the catalogue is drawn.
   const resultLines = useMemo(
     () =>
-      view.status === "done" && sportActivity !== "paddling"
-        ? requestLines(view.request)
+      view.status === "done"
+        ? cardFigure(requestLines(view.request), sportActivity)
         : null,
     [view, sportActivity],
   );
   // «Edit the drawing» on the card of a route of «Explore» (an example, a
-  // search, a favorite) and of a member's drawing: the figure it opens in
-  // the board. None for a word, nor for a drawing without a planned figure.
+  // search, a favorite) and of a member's drawing: the figure it puts on
+  // the map. None for a word, nor for a drawing without a planned figure.
   const exploredFigure = useMemo(
     () =>
       explored?.status === "done"
@@ -1044,22 +1043,32 @@ function MuW() {
     return drawsAgain(again, sportActivity) ? () => onDrawAgain(again) : undefined;
   }
 
-  /** «Edit the drawing» on a card (TASK-320): the board at once, on the
-   * figure of the route of «Explore» or of the drawing, at the distance
-   * «Draw it near me» would choose; its «Save» leaves the card for «Draw».
-   * Nothing is asked before «Draw route». */
-  function onEditCard(figure: FreehandFigure, distanceM: number) {
-    freehand.set(figure);
-    distance.choose(cardDistanceM(distanceM, sportActivity));
-    setBoard("card");
+  /** «Edit the drawing» (TASK-320): `lines` on the map of «Draw on the map»
+   * as a drawing, in the middle of the start, as long as `distanceM`
+   * (TASK-331). Drawing on it, moving it and «Draw route» are the map's;
+   * nothing is asked before «Draw route», and «←» goes to «Draw». */
+  function onEditLines(lines: FigureLines, distanceM: number) {
+    Keyboard.dismiss();
+    if (mapDraw.edit(lines, distanceM)) {
+      setScreen("canvas");
+    }
   }
 
-  /** The button's action for `figure`, when the card has one. */
+  /** «Edit the drawing» on a card: the figure of the route of «Explore» or
+   * of the drawing, at the distance «Draw it near me» would choose; the
+   * route or the drawing is left as «Draw it near me» leaves it. */
+  function onEditCard(lines: FigureLines, distanceM: number) {
+    closeExplore();
+    leaveDrawing();
+    onEditLines(lines, cardDistanceM(distanceM, sportActivity));
+  }
+
+  /** The button's action for `lines`, when the card has them. */
   function editCardOf(
-    figure: FreehandFigure | null,
+    lines: FigureLines | null,
     distanceM: number,
   ): (() => void) | undefined {
-    return figure !== null ? () => onEditCard(figure, distanceM) : undefined;
+    return lines !== null ? () => onEditCard(lines, distanceM) : undefined;
   }
 
   function onDraw() {
@@ -1138,54 +1147,14 @@ function MuW() {
     draw(changedRequest(view.request, choice, penUp));
   }
 
-  /** «Edit the drawing» under the shape chosen in «Draw» (TASK-320): the
-   * board on the shape's lines, as the engine draws them. */
-  function onEditShape(shape: Shape) {
-    Keyboard.dismiss();
-    freehand.set(figureOf(shapeLines(shape)));
-    setBoard("shape");
-  }
-
-  /** «Edit the drawing» or «Draw with your finger» under «Freehand»: the
-   * board on the figure drawn, or empty. */
-  function onEditFreehand() {
-    Keyboard.dismiss();
-    setBoard("freehand");
-  }
-
-  /** «Edit the drawing» under the route drawn: the board on the figure the
-   * route was asked for. */
+  /** «Edit the drawing» under the route drawn: the figure the route was
+   * asked for on the map, as long as the route asked; from the map, the
+   * figure is there as it was. */
   function onEditResult() {
-    if (resultLines === null) {
-      return;
-    }
-    freehand.set(figureOf(resultLines));
-    setBoard("result");
-  }
-
-  /** «Save» on the board: the figure is kept already, so saving is closing
-   * (ADR-0191). Opened on a shape, on the result or on a card, the choice
-   * of «Draw» becomes «Freehand» with the figure; from the result, «Draw»
-   * is back, at the same distance and from the same start; from a card,
-   * «Draw» shows, and the route or the drawing is left as «Draw it near
-   * me» leaves it. */
-  function onBoardSave() {
-    const from = board;
-    setBoard(null);
-    if (from === "shape" || from === "result" || from === "card") {
-      setKind("freehand");
-    }
-    if (from === "card") {
-      closeExplore();
-      leaveDrawing();
-      setScreen("choose");
-    }
-    if (from === "result") {
-      if (view.status === "done") {
-        distance.choose(view.request.distance_m);
-      }
-      setFromCanvas(false);
-      setScreen("choose");
+    if (fromCanvas) {
+      setScreen("canvas");
+    } else if (view.status === "done" && resultLines !== null) {
+      onEditLines(resultLines, view.request.distance_m);
     }
   }
 
@@ -1335,11 +1304,8 @@ function MuW() {
                         ? explored.route.start
                         : (exploreRun?.points[0] ?? start?.point ?? null)
             }
-            stops={
-              theming && themed.state.status === "done"
-                ? themed.state.result.stops
-                : null
-            }
+            stops={theming ? themedStops : null}
+            focus={theming ? placeFocus : null}
             route={
               finishing
                 ? finished.run.route
@@ -1519,7 +1485,13 @@ function MuW() {
               closeExplore();
               setScreen(routeList);
             }}
-            fromDraw={routeList === "choose"}
+            onNearMe={
+              farIdea === null
+                ? undefined
+                : () => themed.ask(nearMeRequest(farIdea.idea, farIdea.from))
+            }
+            apiUrl={API_URL}
+            onPlace={(point) => setPlaceFocus({ point })}
             start={startViewOf(
               startDirections.state,
               themed.state.status === "done" ? themed.state.result.points : null,
@@ -1644,7 +1616,7 @@ function MuW() {
                   pictures={sportActivity !== "paddling"}
                   testID="result-figures"
                 />
-                {/* The figure of the route in the board (TASK-320). */}
+                {/* The figure of the route on the map (TASK-331). */}
                 {resultLines !== null && <EditDrawingButton onPress={onEditResult} />}
               </>
             }
@@ -1769,9 +1741,6 @@ function MuW() {
                       onDistanceText={distance.type}
                       activity={sportActivity}
                       underKinds={<MapDrawButton onPress={onOpenCanvas} />}
-                      freehand={freehand.figure}
-                      onEditFreehand={onEditFreehand}
-                      onEditShape={onEditShape}
                     />
                   </ImageEditsContext.Provider>
                   {/* The shape game, right under the distance (the user's
@@ -1789,34 +1758,6 @@ function MuW() {
                         openExplored(route);
                         setRouteList("choose");
                         setScreen("map");
-                      }}
-                    />
-                  )}
-                  {/* The city tours and the ready-made pictures (TASK-280):
-                      none on the water, where there are no towns or photos. */}
-                  {sportActivity !== "paddling" && (
-                    <DrawIdeas
-                      where={toursFrom(start)}
-                      onTour={(category) => {
-                        if (start === null) {
-                          return;
-                        }
-                        Keyboard.dismiss();
-                        closeExplore();
-                        // As a category of «Explore» with «Near me»: around
-                        // the start, the category alone (ADR-0099).
-                        themed.ask({ text: category, centre: start.point, city: null });
-                        setRouteList("choose");
-                        setScreen("map");
-                      }}
-                      chosen={
-                        drawKind === "image" && image.state.status === "traced"
-                          ? sampleOf(image.state.picture)
-                          : null
-                      }
-                      onPicture={(picture) => {
-                        setKind("image");
-                        image.show(samplePicture(picture), picture.outline);
                       }}
                     />
                   )}
@@ -1867,6 +1808,14 @@ function MuW() {
                       setRouteList("explore");
                       setScreen("map");
                     }}
+                    onIdea={(idea) => {
+                      Keyboard.dismiss();
+                      closeExplore();
+                      // Planned already: it opens at once, nothing asked.
+                      themed.show(idea);
+                      setRouteList("explore");
+                      setScreen("map");
+                    }}
                   />
                 ),
             },
@@ -1894,17 +1843,6 @@ function MuW() {
           onSignIn={() => showPage("profile")}
         />
       )}
-      {/* The board to draw a figure by hand (TASK-320), over everything. */}
-      <FreehandBoard
-        visible={board !== null}
-        onClose={onBoardSave}
-        figure={freehand.figure}
-        problem={freehand.problem}
-        onLine={freehand.addLine}
-        onErase={freehand.erase}
-        onUndo={freehand.undo}
-        canUndo={freehand.canUndo}
-      />
       {/* Before the first «Start» on the water (TASK-191). */}
       <PaddleNotice
         visible={paddleNotice.asking}

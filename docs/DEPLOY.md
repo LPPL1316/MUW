@@ -563,6 +563,44 @@ giorni per una conferma, 1 ora per un reset). Pubblicare l'app della parte
 B prima o insieme al server: l'app di prima, a un cambio in attesa, mostra
 ancora il vecchio indirizzo.
 
+## Foto e video dei messaggi (TASK-333)
+
+Gli allegati dei messaggi privati (ADR-0289; `API.md`, «Gli allegati»)
+sono **file**, non righe del database: l'API li scrive in
+`--media-dir`/`messages` (di solito `data/media/messages`; nel container
+`/app/data/media`, che `deploy/compose.yaml` monta da `../data/media` e
+che `data-owner` crea per l'utente 10001). Senza la cartella montata il
+container li scriverebbe al suo interno e li perderebbe a ogni
+aggiornamento.
+
+- **Non sono nelle copie**: `pg_dump` non li vede e `data/media` non va
+  nello Storage Box. Se il disco si rompe, i messaggi restano e i loro
+  allegati dicono che non ci sono più (la privacy lo dice).
+- **Il tetto**: `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB` in `deploy/.env`
+  (vuota, 10). Pieno, un video nuovo fa posto togliendo i video dei
+  messaggi più vecchi, e il log scrive «message media: … video(s) of old
+  messages taken away»; solo quando non ne resta nessuno il log scrive
+  «message media: the cap of … bytes is reached» e i video aspettano. Le
+  foto vanno fino a un decimo in più (ADR-0289, aggiunta della parte D).
+- **Dove sta `data/media`, da rivedere con l'utente** al primo
+  aggiornamento con gli allegati. Oggi sta sul disco del server, `/`:
+  `compose.yaml` monta `../data/media`, cioè `/root/shaperoute/data/media`,
+  mentre sul Volume c'è solo `data/cache` (il bind mount di fstab). Il
+  `df -h` del 2026-10-29 sera (Coordinatore): `/` con 57 GB liberi, il
+  Volume con 12 GB (82% pieno). I due tetti insieme, 10 GB dei messaggi e
+  15 GB dei post (ADR-0292, «Server disk, 15 GB cap»), fanno 25 GB su 57,
+  e restano circa 32 GB per le copie del database e il resto.
+  L'alternativa è `data/media` sul Volume con tetti più bassi (per esempio
+  4 + 6 GB). La sceglie l'utente quel giorno, dopo un `df -h /` e un
+  `du -sh data/` nuovi.
+- **La pulizia**: un giro ogni ora nell'API toglie i caricamenti mai
+  mandati (dopo un'ora), i video 30 giorni dopo il loro messaggio e i file
+  dei messaggi cancellati. Non serve niente sul server; per vedere quanto
+  occupano, `du -sh data/media/messages`.
+- Il primo avvio applica `0038_message_media.sql`. Pubblicare l'app degli
+  allegati (TASK-333 B) solo dopo il server: con un'API di prima il «+»
+  non c'è.
+
 ## Il registro delle richieste e le posizioni
 
 L'API può scrivere ogni richiesta di percorso in un file, per rifarla

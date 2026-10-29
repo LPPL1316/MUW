@@ -4861,6 +4861,11 @@ OpenFreeMap dà solo tile vettoriali: non c'è un'immagine da chiedere.
 - **Il credito su ogni foto**: «OpenFreeMap © OpenMapTiles / Data from
   OpenStreetMap», il testo di `ATTRIBUTION`, senza link perché la scheda
   non si tocca. In due righe, in basso a destra, accanto al punteggio.
+- **Anche sotto i disegni di un profilo** (TASK-332, 2026-10-29, deciso
+  dall'agente su delega dell'utente): ogni miniatura chiede la foto solo
+  quando entra nello schermo (`SightScrollView`), i crediti una volta sotto
+  la griglia; fa le foto solo la prima pagina montata, e «Find friends» ne
+  ha una sua per quando «Feed» è smontata sotto la mappa grande.
 
 **Scartate**: una WebView per scheda (memoria, e i gesti della mappa
 contro lo swipe delle pagine); immagini già pronte nell'app, fatte da uno
@@ -18674,3 +18679,807 @@ dentro «Draw», che avrebbe spinto in fondo «NEAR YOU» e le idee.
 dall'alto, come tornando dalla mappa: quello che era scritto resta (sta in
 `App.tsx`), la posizione dello scorrimento no. Il `Pager` sa ancora
 aggiungere una pagina dopo l'avvio, anche se oggi nessuna lo fa.
+
+## ADR-0287 — Le idee per un percorso solo in «Ask for a route»: sempre aperto, con i nostri percorsi nelle città d'Europa, poi le foto vere dei posti
+**Stato**: Attiva · 2026-10-29 · le scelte di prodotto sono dell'utente
+(richiesta a voce del 2026-10-29, proposta approvata in chat con «Sì,
+così», TASK-329); il come deciso dall'agente su delega dell'utente.
+Sostituisce i punti 1–3 di ADR-0246 (le righe di «Draw») e la riga chiusa
+di TASK-157; ADR-0099 e ADR-0243 restano.
+
+**Contesto**: le idee stavano in tre posti: «CITY TOURS» e «PICTURES» in
+fondo a «Draw», «Ask for a route» chiuso in fondo a «Explore». L'utente
+le vuole in un posto solo, aperto, con esempi nostri da cui prendere
+spunto, e dentro un percorso le foto vere dei posti belli.
+
+**Decisione**:
+
+1. **«Draw» senza le due righe** (scelta dell'utente): via
+   `src/route/DrawIdeas.tsx`. Le sagome di `samplePictures.ts` restano in
+   «Draw on the map» e in «Change figure» (ADR-0245), dove servono già.
+   Senza i giri da «Draw», `ThemedCard` perde `fromDraw` e «Back to Draw».
+2. **«Ask for a route» aperto**, nello stesso posto in fondo a «Explore»,
+   senza la riga da toccare (scelta dell'utente). Quattro categorie fisse,
+   quelle delle idee: Famous Places, Best Views, Hidden Gems, Photography;
+   le altre nove dietro «More…». Le parole mandate all'API non cambiano.
+3. **«IDEAS FROM EUROPE»** dentro il blocco, sopra le categorie: una fila
+   di schede di «Explore» (`RouteCard` con la mappa sotto la linea, come
+   «NEARBY TOWNS»), «Roma · Stella», «Famous Places · 8,1 km». Le città
+   sono scritte nella lingua dell'app. Sotto la fila, il credito delle
+   mappe e «© OpenStreetMap contributors», perché posti e strade delle idee
+   sono dati OSM (condizione del Coordinatore); il JSON tiene il campo
+   `license` della risposta. Le foto delle mappe si fanno una alla volta
+   per tutta l'app, in fila: le schede delle idee le chiedono dopo che i
+   percorsi della pagina sono arrivati, e solo le tre in vista finché la
+   fila non scorre, così non passano davanti alle schede in cima.
+4. **Le idee le calcola uno strumento una volta**, `tools/themed_ideas.py`,
+   con i job a tema dell'API (`ThemedJobs.result_of`, le tabelle senza
+   AI) e il Route Engine. Le parole sono quelle che manderebbe l'app
+   («Famous Places star 8 km»), dal centro della città che dà la ricerca
+   città dell'API. Il file `src/explore/themedIdeas.json` ha la risposta di
+   `GET /themed-route-jobs/{id}`, con i punti arrotondati a 5 decimali, e
+   una linea di 120 punti per la scheda (come i disegni del Feed). L'AI
+   non dà coordinate: le dà il motore, come per ogni percorso. Si tengono
+   solo le idee che si leggono bene a occhio, perché la somiglianza del
+   motore dice poco (TASK-290).
+5. **Un'idea si apre senza rete**: `useThemedRoute.show(idea)` mette lo
+   stato `done` con la richiesta che l'ha fatta e l'idea; mappa, scheda,
+   GPX, «Start» e preferiti sono quelli di un percorso chiesto.
+6. **«Make it near me»** (scelta dell'utente): su un'idea a più di 20 km
+   dal centro della sua città il bottone giallo manda le stesse parole con
+   `centre` la partenza e `city` nullo, al posto di «Start»; vicino, o
+   senza una partenza, resta «Start». Il percorso fatto vicino ha «Start»
+   come ogni altro.
+   «Export GPX» c'è sempre.
+7. **Le foto vere dei posti, parte B**: il codice Wikidata che Geoapify dà
+   per i posti notevoli (`wiki_and_media.wikidata`, già usato da
+   `parse_places`) entra facoltativo in `StopBody`, con la foto di
+   `CityPhotos.photos()` (ADR-0243: P18, solo licenze libere, il JPEG
+   tenuto sul nostro server, il credito sulla foto). L'app mostra la fila
+   numerata sotto la mappa e la foto del primo posto sulla scheda di
+   un'idea. Il server solo col sì dell'utente.
+
+**Conseguenze**: nessun contratto dell'API cambia nella parte A, e non ci
+sono dipendenze nuove. Le idee non si aggiornano da sole: il file cambia
+solo rilanciando lo strumento, che ha bisogno di Overpass e della chiave di
+Geoapify (con Overpass pieno, `--only` rifà quelle mancate). Il bundle
+dell'app cresce del file delle idee.
+
+## ADR-0287, aggiunta — Le foto dei posti: nella risposta di un percorso, e da una lista per le idee
+
+**Stato**: Attiva · 2026-10-29 · il cosa è dell'utente (proposta approvata
+con «Sì, così», punto 7 qui sopra); il come deciso dall'agente su delega
+dell'utente, con le condizioni del Coordinatore (TASK-329 parte B).
+Aggiunta ad ADR-0287, senza numero nuovo; ADR-0243 resta.
+
+**Contesto**: `/city-photos/{item}.jpg` dà solo la foto di un elemento che
+l'API ha già chiesto con `CityPhotos.photos()`: non è un proxy di Commons
+(ADR-0243). Un percorso a tema chiesto all'API passa da lì; le dodici idee
+no, perché le calcola una volta lo strumento sul Mac.
+
+**Decisione**:
+
+1. **I posti con l'elemento**: `parse_places` tiene l'elemento Wikidata di
+   ogni posto (`item_of` di `/nearby-cities`, anche da `datasource.raw`) su
+   `Place`, una sottoclasse di `Stop` in `themed.py`: il motore legge solo
+   nome e punto, e né lui né `jobs.py` cambiano (niente `engine.zip`).
+   Quali posti contano come notevoli non cambia.
+2. **Un percorso chiesto** ha `wikidata` su ogni posto e `photo` sui posti
+   toccati: `CityPhotos.photos()` con l'attesa di `/nearby-cities` (al più
+   2 s), solo per quelli, perché la fila mostra solo loro. `null` vuol dire
+   «nessuna foto libera»: l'app non chiede altro.
+3. **Le idee**: lo strumento tiene nel file dell'app solo `wikidata`, mai
+   `photo`, perché il credito può cambiare e va detto com'è oggi. Scrive
+   anche `services/api/shaperoute_api/data/idea_items.json`, gli elementi
+   dei posti toccati dalle idee, che l'API legge all'avvio e non da
+   `apps/`. `GET /place-photos?items=…` (al più 15, solo `Q…`, con la
+   chiave) risponde solo per quelli: un altro elemento non ha foto lì e
+   Wikimedia non ne sente parlare (condizione del Coordinatore).
+   `--items` dello strumento ritrova i posti delle idee tenute con la
+   ricerca dell'API e dà a ognuno il suo elemento per nome, senza
+   ripianificare: i percorsi guardati a occhio restano quelli.
+4. **L'app**: sotto la mappa la fila «1 Colosseum»…, numerata come i posti
+   sulla mappa (il numero sta nel nome che `App` passa alla mappa: la
+   pagina della mappa non cambia per questo); un tocco manda alla pagina
+   `focus` (`flyTo`, zoom 16, mai più lontano, girata com'è). Un'idea
+   chiede le foto dei suoi posti senza `photo`; le schede delle idee una
+   richiesta sola per la fila. Le foto restano per tutto il giro dell'app.
+   Le immagini vengono sempre da `/city-photos/` della nostra API.
+
+**Alternative scartate**: `GET /place-photos` per qualunque elemento, o
+`/city-photos/` che chiede a Wikimedia un elemento mai visto (un proxy per
+chiunque abbia la chiave, contro ADR-0243); il credito nel file dell'app
+(resta vecchio quando la foto cambia); le foto nel bundle (pesano, e il
+credito resta vecchio lo stesso); ripianificare le idee per avere gli
+elementi (i percorsi cambierebbero e andrebbero riguardati).
+
+**Conseguenze**: dei 101 posti toccati dalle idee, 93 hanno un elemento
+(88 elementi diversi nella lista); 8, a Praga, Lisbona e Londra, no:
+OpenStreetMap non ne nomina uno, o Geoapify non li ha ridati con lo stesso
+nome, e restano col solo nome. Rilanciare lo strumento riscrive anche la
+lista dell'API, che arriva sul server con il deploy. La privacy non cambia: a
+Wikimedia vanno solo elementi e nomi di file, e il telefono parla solo con
+la nostra API (TASK-283).
+
+## ADR-0289 — Gli allegati nei messaggi privati: un disegno, una foto o un video per messaggio, i file su disco, i video con un limite e una scadenza
+
+**Stato**: Proposta · 2026-10-29 · la richiesta e le scelte di prodotto
+sono **dell'utente** (TASK-333, «Le scelte dell'utente», 2026-10-29: solo
+dopo «Accept»; video fino a 60 s e 40 MB; video tenuti 30 giorni; il
+disegno si apre, si corre e si tiene; si manda dalla scheda e dalla
+conversazione; il resto «Sì, così»); testi e privacy **approvati
+dall'utente** il 2026-10-29 («Approvo così»); i punti tecnici sono
+decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore. Estende ADR-0279.
+
+**Contesto**: l'utente il 2026-10-29: «Aggiungi la possibilità di
+inviare disegni agli amici allegati, foto video». I messaggi di ADR-0279
+sono solo testo. L'app ha già quello che serve per scegliere e mostrare
+foto e video (`expo-image-picker`, `expo-image-manipulator`,
+`expo-file-system`, la WebView, `expo-sharing`) e un disegno si copia già
+intero nei preferiti (ADR-0139). Le foto dei disegni stanno nel database
+(ADR-0170), 0,1–0,3 MB l'una; un video di 60 s è 20–40 MB. Lo spazio del
+server è poco: il disco del sistema e il Volume da 70 GB (zone e cache)
+non crescono da soli, e il database si copia ogni notte.
+
+**Decisione** (proposta):
+
+1. **Un allegato per messaggio**, `photo`, `video` o `drawing`, con un
+   testo facoltativo (fino a 1000 caratteri come oggi; vuoto ammesso solo
+   con un allegato). Chi può allegare e in quale stato della conversazione
+   è la scelta 1 dell'utente: solo in `open`, cioè dopo «Accept» (o
+   quando chi riceve segue chi scrive). Un allegato in una richiesta è
+   `409`, come un secondo messaggio.
+2. **Un disegno è una copia, non un rimando**: lo stesso corpo di un
+   preferito (`FavoriteRequestBody`: linea, forma o parola, lettere,
+   titolo, metri, sport, `walks`, `on_foot`, rotazione), tenuto in
+   `jsonb` col messaggio. Resta com'è anche se il disegno di partenza si
+   cancella o cambia visibilità, e chi lo riceve lo mette nei preferiti
+   così com'è. La corsa di chi manda viaggia **tagliata** come nel Feed
+   (`DRAWING_CUT_M`, ADR-0159); un percorso progettato intero, con la sua
+   partenza: si manda per correrlo.
+3. **L'app sa cosa può allegare dalla pagina della conversazione**: `GET
+   /conversations/{public_id}/messages` ha `attachments` (i tipi ammessi
+   adesso, i limiti), `null` quando non si può (una richiesta, i video
+   fermi per il tetto). Un'API di prima non ha il campo e l'app non
+   mostra il «+». Nessuna sonda nuova: `messagesDoor.ts` dopo un `404`
+   non chiede più finché l'app non si riapre, mentre la pagina si rilegge
+   a ogni apertura.
+4. **L'app di prima**: chiede le pagine senza `?with=attachments` e
+   riceve, per un messaggio con un allegato, il testo con davanti
+   «[Photo]», «[Video]» o «[Drawing]» (inglese, come i codici); niente
+   bolle vuote.
+5. **Foto e video su disco, non nel database**: `data/media/messages/`,
+   un file per id casuale, montato nell'API da `deploy/compose.yaml`. Il
+   database tiene la riga (`message_media`: proprietario, tipo, byte,
+   misure, durata, scadenza, messaggio). Le copie di ogni notte restano
+   piccole e **foto e video non sono nelle copie** (né nello Storage
+   Box): se il disco si rompe, il messaggio resta e l'allegato dice che
+   non c'è più. La privacy lo dice.
+6. **Caricare in due tempi**: `POST /me/message-media` con il file nudo
+   (non base64 in JSON: un video di 20 MB diventerebbe 27), risposta con
+   l'`id`; poi il messaggio con quell'`id`. Un file non usato entro
+   un'ora si cancella. La locandina del video (un JPEG del primo
+   fotogramma) la fa il telefono di chi manda nella WebView nascosta,
+   come il video della corsa (ADR-0254), e arriva con `PUT
+   …/{id}/poster`; senza, l'app mostra un riquadro con ▶ e la durata.
+7. **Cosa controlla il server**, senza programmi nuovi:
+   - la foto come quelle dei disegni (`fitted_jpeg`: dritta, 1080 px,
+     JPEG, **senza EXIF**);
+   - il video: le prime scatole devono dire MP4 o QuickTime (`ftyp`), la
+     durata si legge da `mvhd`, il peso dal corpo; oltre i limiti `422`.
+     Il luogo della ripresa (`©xyz`) e le scatole di metadati (`udta`,
+     `meta`) diventano `free` della stessa lunghezza: nessun offset si
+     sposta e chi riceve non sa dove è stato girato. Niente ffmpeg:
+     ricomprimere sul server ruberebbe la CPU al motore.
+   - Il video si riduce **sul telefono**: sull'iPhone
+     `videoExportPreset` di `expo-image-picker` (960 × 540, circa
+     3 Mbit/s); Android non lo sa fare e manda il file com'è, entro i
+     40 MB: un video 1080p di Android ci sta per circa 20 s (seguito
+     possibile: ridurlo con WebCodecs nella WebView).
+   - Il codice comune (il controllo MP4, i file su disco, il tetto) sta in
+     un modulo senza tabelle, `media_files.py`, che usano anche i video
+     dei post (TASK-336, ADR-0292): le regole di questo punto e dei punti
+     5, 6 e 8 valgono anche lì, salvo quello che ADR-0292 dice diverso.
+8. **Lo spazio**: fino a 60 s e 40 MB per video (scelta 2), limiti per
+   account al giorno (10 video, 100 foto), i video cancellati dopo 30
+   giorni (scelta 3) e un **tetto per tutto il server**
+   (`SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, 10 GB): sopra, `attachments` non
+   offre più i video (le foto, piccole, fino al tetto più un decimo) e il
+   log lo dice. Stima: un video 960 × 540 di 60 s è circa 22 MB; con 30
+   giorni di scadenza, 10 GB reggono circa 15 video al giorno ogni
+   giorno; una foto 0,2 MB, mille foto 0,2 GB. Lo spazio libero vero si
+   misura (`df -h`) prima di aggiornare il server, col sì dell'utente; il
+   tetto si alza cambiando la variabile.
+9. **Leggere un allegato** (`GET /message-media/{id}`, `…/poster`): solo
+   i due membri della conversazione, con il token e la chiave di sempre;
+   `404` per tutti gli altri, attraverso un blocco, per un messaggio
+   nascosto a chi l'ha ricevuto; `410` per un video scaduto. L'app scarica
+   il file nella sua cache con le intestazioni e lo mostra da lì (il
+   video in una `<video>` della WebView, che legge i file come il
+   motore): niente indirizzi firmati.
+10. **Moderazione (Apple 1.2)**: l'allegato è parte del messaggio. «Report
+    this message» lo copre; l'email della segnalazione dice che c'è un
+    allegato e la **pagina del link** (firmata, ADR-0251) lo mostra a chi
+    gestisce MuW; «Hide» nasconde messaggio e allegato a chi l'ha
+    ricevuto. Il blocco cancella la conversazione e con lei i file;
+    «Delete» di chi ha scritto, l'account cancellato e la scadenza
+    anche. Una pulizia ogni ora toglie dal disco i file senza più riga e
+    quelli scaduti.
+11. **Le push**: `message` con l'allegato dice «{name}: 📷 Photo» (o
+    «🎬 Video», «🗺️ Drawing»), con il testo se c'è; il file non va mai
+    a Expo, ad Apple o a Google.
+12. **I permessi del telefono non cambiano**: la galleria (`PHPicker` su
+    iOS 14 e oltre, il selettore di Android) non chiede permessi. La
+    fotocamera e la registrazione restano fuori fino alla 1.0.1: il testo
+    del permesso della fotocamera parla del contorno del percorso e
+    quello del microfono dice «MuW never records sound», e cambiarli
+    vuole una build nativa.
+
+**Alternative scartate**:
+
+- *Foto e video nel database*, come le foto dei disegni: la copia di
+  ogni notte crescerebbe con ogni video.
+- *Base64 in JSON*, come oggi le foto: un terzo in più su ogni video.
+- *Ridurre o tagliare il video sul server con ffmpeg*: un programma in
+  più nell'immagine e la CPU tolta ai percorsi.
+- *Un indirizzo firmato per guardare il video senza scaricarlo*: ogni
+  percorso dell'API vuole la chiave `X-API-Key`, che non va negli
+  indirizzi; il video corto si scarica in pochi secondi.
+- *Un rimando al disegno pubblicato invece della copia*: non vale per un
+  percorso non salvato né per una corsa privata, e sparisce col disegno.
+- *Una sonda nuova per sapere se l'API ha gli allegati*: dopo un `404`
+  l'app non richiederebbe fino alla riapertura.
+- *`expo-video` o `expo-media-library`*: moduli nativi, l'impronta cambia.
+
+**Conseguenze**:
+
+- Una migrazione e una cartella nuova sul server (`data/media`, in
+  `compose.yaml`): il server va aggiornato prima dell'OTA, col sì
+  dell'utente.
+- La privacy cambia nelle cinque lingue; su App Store Connect «App
+  Privacy» e su Google Play «Data safety» vanno aggiunti «Photos or
+  Videos»: li cambia l'utente, prima dell'OTA `production`.
+- Chi tocca la cancellazione dei messaggi deve ricordare i file su
+  disco: la riga sparisce in cascata, il file solo con la pulizia.
+
+## ADR-0290 — I posti che l'utente tiene sul telefono: «Add a place» in «Offline maps», la zona preparata dal server se manca
+
+**Stato**: Attiva · 2026-10-29 · cosa si vede e i limiti (6 km, sport di
+«Settings», 3 posti nuovi al giorno, 10 posti, fuori dai 2 GB) sono
+scelta dell'utente; i punti tecnici sono decisi dall'agente su delega
+dell'utente (TASK-334). Numeri dal coordinatore.
+
+**Contesto**: l'utente il 2026-10-29: «Dai la possibilità ad un utente di
+scaricarsi le zone di suo interesse, così è più veloce la creazione di
+forme». Il telefono scarica da solo la zona intorno a sé e quelle di alcune
+città (ADR-0177, parti B2/B2b ed E), ma solo dove il server ha già una
+zona: nei log del server dal 10 al 25 ottobre più di metà delle richieste
+`/phone-zones` hanno dato `404` (`tasks/TASK-214.md`, «I log dell'API sul
+server»). Lì il percorso lo disegna il server, che scarica la zona alla
+prima richiesta, fino a qualche minuto. Proposta all'utente: in
+«Settings» → «Offline maps» un tasto «Add a place»; si cerca un paese per
+nome, si vede quanto pesa e lo si scarica; se il server non ha la zona la
+prepara lui e il telefono la scarica appena pronta; i posti scelti non si
+cancellano mai da soli. Scelta dell'utente: **«Sì, così»**, con i limiti
+proposti.
+
+**Decisione**:
+
+1. **Cosa vede l'utente** (scelta dell'utente): sotto «Offline maps: …» in
+   «Settings» una riga per posto, «📍 Levico Terme · 6 MB» oppure «⏳
+   Bolzano · Preparing the map…», con «✕» per toglierlo; poi «＋ Add a
+   place», che apre la ricerca dei posti di «Draw» (`PlaceSearch`). Sotto,
+   «Places you add stay on the phone, so shapes there are drawn faster,
+   even without signal.» Al massimo **10 posti**; con 10 la riga sparisce e
+   la nota dice «Up to 10 places.». «Delete» cancella anche i posti.
+2. **Quale zona** (scelta dell'utente): quella con **6 km** intorno al
+   posto (`AROUND_MARGIN_M` della parte E: un percorso a piedi fino a 8 km
+   da lì ci sta), della rete dello sport di «Settings» al momento
+   dell'aggiunta (`foot` con la canoa, che è del server). Il telefono la
+   scarica da `GET /phone-zones` con `margin_m=6000`, come la zona intorno
+   a sé: il file è al massimo 12 MB quando il server ne ha una abbastanza
+   piccola, altrimenti quella che il telefono riceverebbe comunque lì.
+3. **Il server la prepara se manca** (scelta dell'utente):
+   `POST /phone-zones/{network}/places` (`phone_zone_places.py`) risponde
+   `ready` se ha una zona con 6 km intorno al posto, altrimenti la mette in
+   coda e risponde `preparing`. Un thread dell'API prepara **un posto alla
+   volta**: `OsmnxSource.load` (Overpass, come per un percorso), i nomi
+   delle strade a piedi (senza, la zona resta valida), poi il file del
+   telefono. **3 posti nuovi al giorno per telefono** (scelta dell'utente) e
+   **20 in tutto il server** (deciso dall'agente: ogni zona sono due
+   richieste a Overpass di qualche decina di MB, che ne concede circa 1 GB
+   al giorno, oltre a quelle dei percorsi), con `TrafficCap` di ADR-0177
+   che conta posti invece di byte; oltre, `429` fino alla mezzanotte UTC.
+   Un download fallito dà `503` per un'ora. Coda, tetti e fallimenti in
+   memoria, come il tetto del traffico: un riavvio li dimentica e il
+   telefono rimette in coda il suo posto chiedendo di nuovo.
+   **Mai mentre il server disegna percorsi** (chiesto dal coordinatore il
+   2026-10-29 per il giro di notte degli esempi; il modo deciso
+   dall'agente): `draw_examples` è un client dell'API, che chiede e segue i
+   suoi lavori su `/route-jobs` uno dopo l'altro, come un telefono. Un
+   middleware (`watch_route_work`) annota l'ultima richiesta a
+   `/route-jobs`; un posto parte solo dopo **120 s** senza nessuna, e chi è
+   in attesa riguarda ogni 30 s. Così il giro di notte non si divide il
+   server con i posti, e nemmeno un telefono che aspetta il suo percorso.
+   Per un lavoro pesante fuori dall'API (`prefetch_zones`,
+   `phone_zone_api`, che non passano da `/route-jobs`) c'è
+   `data/cache/places.pause`: finché c'è, nessun posto parte.
+4. **Il telefono chiede di nuovo** (deciso dall'agente): ogni 30 s mentre
+   «Settings» è aperta e c'è un posto in preparazione, e a ogni apertura
+   dell'app dopo le zone intorno a sé e prima di quelle in anticipo
+   (`usePhoneZones`). Uno alla volta; senza rete si ferma e riprova alla
+   volta dopo. Dopo `429` o `503` aspetta `Retry-After`. Un server senza
+   l'endpoint (`404`) dà quello che ha lì con `GET /phone-zones`; se non ha
+   niente il posto aspetta un'ora («Trying again later»).
+5. **Le zone dei posti restano** (scelta dell'utente): `ZoneEntry.kept`.
+   Non contano nei 2 GB e non si cancellano oltre il limite; restano tenute
+   anche quando il download intorno al telefono le riscrive. Vanno via solo
+   con «✕» (se nessun altro posto tiene la stessa zona) o con «Delete».
+   Hanno un file parziale loro (`.foot.place.download`): un posto può
+   scaricare mentre scaricano le zone intorno al telefono.
+6. **Il motore non cambia**: una zona tenuta è una zona come le altre, e
+   `zonesForEngine` la dà al motore per una partenza che contiene.
+
+**Conseguenze**: l'app funziona con il server di oggi (i posti dove il
+server ha già la zona si scaricano subito, gli altri aspettano); la
+preparazione delle zone mancanti arriva con l'aggiornamento del server, da
+fare col sì dell'utente. Il telefono può tenere fino a ~120 MB in più dei
+2 GB. `aheadZones.ts` conta ancora le zone tenute nel suo «quasi pieno»
+(si ferma al massimo ~120 MB prima): lasciato com'è. Nessuna dipendenza,
+nessuna migrazione, nessun modulo nativo: l'impronta iOS non cambia, e
+l'app va in OTA.
+
+## ADR-0291 — La mappa sotto i disegni mentre «Draw» calcola: le foto si scattano durante l'attesa
+
+**Stato**: Attiva · 2026-10-29 · TASK-335. La segnalazione e la scelta sono
+**dell'utente**, del 2026-10-29: «mentre sta calcolando un percorso dal
+feed, ci sono delle immagini, ma non c'è la cartina sotto le varie città».
+Fra «Durante l'attesa» e «Preparata prima, nel Feed» ha scelto **«Durante
+l'attesa»**. Numero e condizioni dal Coordinatore. Il come è deciso
+dall'agente su delega dell'utente. **Cambia il punto 3 di ADR-0277**
+(«Solo la linea, su fondo mappa»), e con lui la condizione «niente rete in
+più mentre il motore cerca». Gli altri punti di ADR-0277 restano.
+
+**Contesto**: le sei schede di «MEANWHILE, FROM THE FEED» (TASK-317)
+avevano solo la linea gialla su fondo scuro. In «Feed», in «Explore» e nel
+profilo (TASK-332) la stessa linea ha sotto la foto della mappa, fatta da
+una pagina MapLibre nascosta (ADR-0131). In «Draw» il Feed non c'è: nessuna
+pagina può scattare le foto. Il motore può girare sul telefono (ADR-0177)
+nello stesso momento.
+
+**Decisione**:
+1. **Una pagina delle foto sotto la fila**: `FeedMapShooter` alla misura
+   della scheda (132 × 88) dentro `WhileRouting`, coperta dalla fila, che
+   è opaca (`color.surface`), come la lista copre quella del Feed. C'è
+   solo mentre la fila è sullo schermo (dopo i 3 s di ADR-0277, punto 4) e
+   finché una foto è attesa. Se ne va con la scheda dell'attesa.
+2. **La cache del Feed** (`useFeedMap`): una foto per disegno e misura,
+   tenuta per tutta la vita dell'app. Una scheda già vista ha subito la sua
+   mappa, e non si scatta di nuovo.
+3. **Due schede alla volta**: una scheda chiede la sua foto quando è
+   arrivata quella di due posti prima. Così la pagina scatta una foto
+   mentre la successiva aspetta, e non si smonta fra le due. Con una sola
+   alla volta la coda si svuoterebbe dopo ogni foto, e MapLibre si
+   ricaricherebbe ogni volta.
+4. **Senza rete si ferma**: due foto che non arrivano, e le schede dopo
+   non chiedono niente. Se la libreria della mappa non si carica, la pagina
+   rinuncia già da sola (ADR-0131). L'app non ha un modulo che dica se c'è
+   rete, e non si aggiunge una dipendenza.
+5. **Il credito** «Maps: …» una volta sotto la fila (`CardMapsCredit`,
+   ADR-0142), come in «Explore». Nessun testo nuovo.
+
+**La misura** (condizione del Coordinatore; numeri in `tasks/TASK-335.md`):
+cuore da 5 km a Trento calcolato sul telefono, nel simulatore iOS con Expo
+Go, tre volte senza e tre con le sei foto scattate durante il calcolo (il
+caso peggiore: fila subito, cache vuota). Media 7701 ms senza, 7714 ms con:
++13 ms, contro uno scarto di 921 ms fra i giri senza. Il calcolo non
+rallenta in modo visibile, quindi le foto partono come sono, dopo i 3 s e
+una alla volta. La CPU è quella del Mac: sull'iPhone si guarda con la
+prossima preview.
+
+**Scartate**:
+
+- *Le foto preparate prima, nel Feed*: nessun lavoro durante l'attesa, ma
+  aperta l'app e andati subito in «Draw» le schede restavano senza mappa, e
+  si scaricavano 15 foto anche per chi non disegna mai. Non scelta
+  dall'utente.
+- *Le foto dal primo secondo dell'attesa*: prima dei 3 s non c'è niente di
+  opaco sotto cui nascondere la pagina (ADR-0131 la vuole coperta).
+- *Una foto alla volta, ciascuna dopo l'arrivo della precedente*: la pagina
+  si smonterebbe fra l'una e l'altra.
+
+**Conseguenze**:
+
+- Mentre si aspetta un percorso, la rete porta le tessere di sei piccole
+  mappe (solo la prima volta per ogni disegno).
+- Chi cambia `FeedMaps.tsx` (la coda, la pagina che va via quando la coda è
+  vuota) deve ricordare che anche «Draw» ne ha una.
+
+## ADR-0289 — aggiunta, parte D: lo spazio pieno toglie i video dei messaggi più vecchi; il lettore è expo-video dalla 1.0.2
+
+**Stato**: Attiva · 2026-10-29 · le due regole sono **scelte dell'utente**
+del 2026-10-29, prese con TASK-336 (ADR-0292): «appena è pieno cancella i
+video delle chat degli utenti dal più vecchio al più recente» e «expo-video
+in 1.0.2». La frase nuova della privacy e quella di «Help» le ha
+**approvate l'utente** («Approvo così»). Il come è deciso dall'agente su
+delega dell'utente (TASK-333 parte D). Aggiunta ad ADR-0289, senza numero
+nuovo (Coordinatore).
+
+**Contesto**: il punto 8 diceva che sopra il tetto i video nuovi
+aspettano (`507`); il punto 9 e l'alternativa «`expo-video` scartata»
+volevano il video nella WebView. I video dei post (TASK-336) condividono
+lo spazio sul disco del server, con il loro tetto di 15 GB.
+
+**Decisione**:
+
+1. **Punto 8, cambiato**: quando un video nuovo non ci sta, si tolgono i
+   video dei messaggi più vecchi finché ci sta (`MessageMedia.free_videos`,
+   in ordine di `messages.created_at`). Al loro posto il messaggio dice
+   «This video has expired.», come dopo i 30 giorni. Mai una foto, mai un
+   caricamento non ancora mandato, mai un video di un post: quelli stanno
+   in un'altra tabella e in un'altra cartella. `507` resta solo quando non
+   c'è più un video di un messaggio da togliere. La parte A di TASK-336
+   chiama la stessa funzione per i video dei post: conta le due tabelle e
+   decide lei quando lo spazio insieme è pieno.
+2. **Coerenza**: il database lo dice prima, in un solo `UPDATE … RETURNING`
+   che sceglie i più vecchi con una somma progressiva; poi i file lasciano
+   il disco. Un processo fermato fra le due cose lascia file che nessuna
+   riga tiene, e li toglie il giro di ogni ora; una riga non tiene mai un
+   file che non c'è più. Due caricamenti insieme non tolgono due volte lo
+   stesso video: l'`UPDATE` rilegge `stored`.
+3. **Punto 9, cambiato**: dalla build 1.0.2 i video dei messaggi si
+   guardano con `expo-video`, come quelli dei post, e la WebView del
+   lettore esce da `main` nello stesso cambio che collega il modulo (parte
+   E, al taglio della 1.0.2; un lettore solo, Coordinatore). Fino ad
+   allora, nella 1.0 e nella 1.0.1, la WebView di #635. L'alternativa
+   «`expo-video` scartata» vale solo per le build di prima.
+4. **Il disco**: `data/media` sta su `/`, non sul Volume (`DEPLOY.md`,
+   «Foto e video dei messaggi»); la scelta definitiva la fa l'utente
+   quando si aggiorna il server.
+
+**Conseguenze**: la privacy dice «or earlier, oldest first, when our space
+for videos is full» e «Help» «or less when our space for videos is full:
+the oldest go first», nelle cinque lingue; la data della privacy è quella
+del merge.
+
+## ADR-0288 — A mano solo sulla mappa: la linea aperta corsa andata e ritorno, «Erase», «Edit the drawing» sulla mappa e mai per le emoji
+
+**Stato**: Attiva · 2026-10-29 · cambia ADR-0245 (la prima linea non si
+chiude più sempre) e ADR-0280 (la tavola di «Draw» è tolta) · TASK-331 ·
+richiesta e scelte dell'utente: «Tutto sulla mappa» (domanda di questa
+sessione) e «non la modifica delle emoji perché non serve a nulla»
+(sessione «Funzione modifica editing nella mappa»); il modo di mandare una
+linea aperta, la soglia di chiusura, «Erase» e le due dita sulla mappa sono
+**deciso dall'agente su delega dell'utente**; i due testi nuovi sono
+approvati dall'utente il 2026-10-29.
+
+**Contesto**: provando sul telefono l'utente non riusciva a fare una linea
+singola: la prima linea diventava sempre una figura chiusa («mi fa un
+cerchio»), sulla mappa (`mapdraw/drawing.ts`) e sulla tavola di «Draw». Il
+contratto vuole un contorno chiuso (`ImageRouteRequest.outline`: almeno 3
+punti distinti, senza incroci); le linee dopo il contorno (`strokes`) il
+motore le corre andata e ritorno (ADR-0074). Il motore sa correre una linea
+aperta anche da sé (`path`, `one_way`), ma solo per i file di forme, non
+per una richiesta dell'API.
+
+**Decisione**:
+
+1. **La prima linea si chiude solo se finisce vicino al suo inizio**, entro
+   il 15% della sua grandezza (`CLOSED_SHARE`), e si può chiudere;
+   altrimenti resta **aperta**, com'è disegnata. Anche una linea che torna
+   all'inizio ma si incrocia in un modo che non si taglia resta aperta: la
+   prima linea non è mai rifiutata.
+2. **Una linea aperta va al motore senza niente di nuovo nel contratto**:
+   un anello minuscolo (un triangolo di lato 0,5% della linea,
+   `START_RING_SHARE`) sul suo primo punto è il contorno, e la linea è un
+   dettaglio appeso lì, corso andata e ritorno; il percorso parte da dove è
+   partito il dito. Provato offline sulle strade di Trento in cache
+   (`out/TASK-331/open_line/`): un arco aperto dà un arco andata e ritorno
+   (somiglianza 0.78, una «W» 0.89), dove chiuso dava la figura chiusa.
+   L'anello non si vede (meno di un millimetro sullo schermo) e «Erase» non
+   lo tocca.
+3. **A mano si disegna solo sulla mappa**: la scelta «Freehand» e la tavola
+   di «Draw» sono tolte. **«Edit the drawing»** mette la figura sulla mappa
+   di «Draw on the map» come disegno a cui aggiungere linee, nel mezzo della
+   partenza di «Draw», lunga quanto il percorso (sulle schede quanto «Draw
+   it near me» sceglierebbe); dal risultato della mappa torna alla figura.
+4. **Le emoji non si modificano**: per una forma del catalogo «Edit the
+   drawing» non c'è (sotto la forma scelta, sul risultato, sulle schede), e
+   sulla mappa una linea su una forma ne prende il posto come prima, mentre
+   «Erase» la toglie intera. Le **immagini pronte** di «Draw» (TASK-280) e
+   le foto contano come immagini, non come emoji: una linea vi si appende e
+   «Edit the drawing» c'è (scelta dell'agente, da correggere se l'utente le
+   intende emoji).
+5. **Sulla mappa**, per renderla più intuitiva: «Draw | Move | Erase»; con
+   «Draw» ed «Erase» due dita spostano e ingrandiscono la mappa (prima non
+   facevano niente); «Erase» toglie la linea toccata (un dettaglio porta via
+   quelli appesi, il contorno tutto) e «Undo» la rimette; la riga sotto dice
+   come chiudere una linea e che le linee dopo si uniscono al disegno.
+6. Il percorso di ogni disegno della mappa si chiama «Drawing», come quello
+   della tavola.
+
+**Alternative scartate**: un campo nuovo `path` in `ImageRouteRequest` per
+la linea aperta, con un percorso da A a B (`one_way`): contratto, API e
+server da aggiornare, e l'app in produzione chiederebbe a un server che non
+lo conosce; si propone a parte se l'utente vuole un percorso che non torna.
+Un contorno «a salsiccia» (la linea e il ritorno accanto): si incrocia sulle
+curve strette e il motore lo corre come una figura chiusa. Lasciare la
+tavola accanto alla mappa: l'utente l'ha esclusa.
+
+**Conseguenze**: niente cambia nel contratto, nell'API, nel motore, nella
+privacy (la riga del TASK-320 vale per ogni disegno della mappa), nelle
+dipendenze e nel nativo. Escono `FreehandBoard`, `FreehandChoice`,
+`useFreehand`, `freehand.ts` e i testi della tavola; le parti utili alla
+mappa vivono in `mapdraw/edit.ts`. `figureLines.ts` dà le linee nella
+cornice del motore e niente per una forma.
+
+## ADR-0292 — Un video nei post: un file su disco finché altri vedono il post, l'ultima pagina della striscia del Feed, un lettore nativo nella 1.0.2
+
+**Stato**: Proposta · 2026-10-29 · TASK-336. La richiesta e il disegno
+generale sono dell'utente (2026-10-29, «Yes, write it up»); il lettore, lo
+spazio e i limiti, i dati mobili, i testi e la privacy sono da chiedere
+all'utente e si scrivono in TASK-336; i punti tecnici sono decisi
+dall'agente su delega dell'utente. Numero dato dal Coordinatore. Estende
+ADR-0289 (i file di foto e video, comuni con i messaggi di TASK-333: la
+divisione è concordata con quella sessione il 2026-10-29), ADR-0170 (le
+foto dei post) e ADR-0275 (la striscia del Feed); usa ADR-0254 (il video
+della corsa).
+
+**Contesto**: l'utente il 2026-10-29: «dai la possibilità di aggiungere
+anche il video della corsa e un video dell'utente, magari di lui, mentre
+corre o del suo cane o di quello che vuole». Le foto dei post sono JPEG
+nel database, mandate in base64 dentro JSON (ADR-0170): per un video di
+10–40 MB vorrebbe dire un terzo in più a ogni invio e la copia di ogni
+notte (13 giorni tenuta) che cresce con ogni video. ADR-0289 decide già
+per i messaggi i file su disco, il caricamento del file nudo, i controlli
+del server senza ffmpeg, la locandina fatta dal telefono e un tetto; il
+Coordinatore vuole una regola sola per post e messaggi, e lo stesso
+lettore. L'app non ha un lettore video: la WebView sa suonare una
+`<video>` (ADR-0289, punto 9), `expo-video` è un modulo nativo. La build
+1.0.1 deve tenere l'impronta iOS `83793e26`: niente di nativo in `main`
+prima del suo taglio.
+
+**Decisione** (proposta):
+
+1. **Un video per post**, accanto alle tre foto: il video della corsa di
+   MuW (ADR-0254) con un tocco, oppure uno proprio, dalla galleria o
+   dalla fotocamera. Si sceglie dove si scelgono le foto, nel modulo di
+   fine corsa e in quello di «My activities» (TASK-208 B), prima o dopo
+   la pubblicazione.
+2. **Le regole comuni sono quelle di ADR-0289**, con il codice nel modulo
+   comune `media_files.py` (senza tabelle; in `main` con TASK-333 A, #634:
+   questo task lo importa soltanto): file su disco, mai nel
+   database né nelle copie (punto 5); il file nudo, non base64 (punto 6);
+   il controllo dell'MP4 senza ffmpeg, la durata da `mvhd`, il luogo
+   (`©xyz`) e i metadati (`udta`, `meta`) resi `free` (punto 7); la
+   riduzione sull'iPhone con `videoExportPreset` 960 × 540 (punto 7); il
+   tetto (punto 8). **Diverso qui**: la cartella `data/media/posts/`, la
+   tabella `drawing_videos`, 30 secondi, nessuna scadenza, un tetto suo.
+3. **Dove sta e quanto resta**: il file `data/media/posts/{id}.mp4` e la
+   locandina `{id}.poster.jpg` (`MediaFolder`), con un `id` casuale, mai il
+   nome del file del telefono. La tabella `drawing_videos` ha una riga per
+   disegno (`drawing_id` → `drawings` con `ON DELETE CASCADE`, il file,
+   byte, misure, durata, la locandina, `updated_at`). Come le foto
+   (ADR-0170) il server lo tiene **solo mentre altri vedono il post**:
+   «Only me» cancella riga e file nella stessa richiesta
+   (`Drawings.keep`, accanto alle foto), il telefono lo tiene e lo
+   rimanda quando il post si riapre agli altri. Cancellare la corsa o
+   l'account cancella la riga in cascata e la pulizia di ogni ora di
+   ADR-0289 (`MediaFolder.keep_only`, come `sweep` dei messaggi) toglie
+   il file rimasto senza riga: dal disco entro un'ora.
+   Il video non è nelle copie di notte: se il disco si rompe il post
+   resta senza video, e il telefono che ha ancora il suo lo rimanda
+   quando legge `video: null` in «My activities».
+4. **Caricare**: `PUT /me/activities/{key}/drawing/video` con il file
+   nudo come corpo (`Content-Type` `video/mp4` o `video/quicktime`);
+   oltre il peso massimo `413` prima di leggerlo. Il file arriva in
+   `data/media/tmp/`, si controlla e solo allora va al suo posto: un
+   `PUT` mandato di nuovo sostituisce, non raddoppia. `409` mentre il
+   disegno è solo del proprietario (come le foto), `422` per un file che
+   non è un MP4 o è troppo lungo, `429` oltre il limite al giorno di
+   ADR-0289 (10 video per account, contati qui per i post), `507`
+   come per i messaggi
+   quando lo spazio è pieno anche dopo aver tolto i video dei messaggi
+   (punto 11): il video aspetta sul telefono e il post va senza.
+   `PUT …/drawing/video/poster` con il JPEG nudo (al più 1 MB, rifatto da
+   `fitted_jpeg`), `DELETE …/drawing/video`. Un `PUT` solo, non a pezzi: al
+   più 40 MB, e un caricamento interrotto riparte da capo dalla coda del
+   telefono, dopo la scelta del disegno e dopo le foto (`drawingOutbox.ts`).
+5. **Leggere**: `GET /drawings/{id}/video` e `…/video/poster` per chi
+   vede il disegno (`drawing_seen_sql`: i follower, i blocchi, un
+   disegno nascosto da una segnalazione), con la chiave `X-API-Key` e il
+   token come le foto (TASK-330: senza la chiave il server risponde
+   `401` e non si vede niente); `404` per gli altri. Il file passa da
+   `FileResponse` di Starlette, che risponde a `Range` con `206` e
+   `Accept-Ranges: bytes`: il lettore di iOS chiede il file a pezzi e
+   senza `206` non parte. `Cache-Control: private, max-age=86400`, e
+   l'indirizzo cambia quando cambia il video (`?v=`, come `photo_url`).
+   L'`encode gzip` di Caddy non deve toccare `video/mp4`: la sua lista di
+   tipi da comprimere non lo comprende, e si verifica sul server con una
+   richiesta `Range` prima della 1.0.2. I corpi di `GET /me/drawings`, del
+   disegno e di `GET /feed` hanno `video`: `{url, poster_url, width,
+   height, duration_ms}` o `null`, letto insieme alle foto.
+   Un'app di prima ignora il campo.
+6. **Il lettore** (scelta 1 dell'utente), uno solo per post e messaggi.
+   La proposta è `expo-video` nella build 1.0.2:
+
+   | | WebView `<video>` (ADR-0289, punto 9) | `expo-video` |
+   |---|---|---|
+   | Dipendenza nuova | no | sì (un pacchetto di Expo, già in Expo Go) |
+   | Quando arriva | con un OTA | con la build 1.0.2 |
+   | Primo fotogramma | dopo aver scaricato tutto il file: il video della corsa (3 MB) circa 1 s, uno proprio di 30 s (11 MB) 3–5 s in 4G | a pezzi con `Range`: sotto il secondo |
+   | Chiave e token | l'app scarica prima il file (la `<video>` non manda intestazioni) | `headers` della sorgente |
+   | Nel Feed | una WebView per la pagina sullo schermo, da aprire ogni volta, e i tocchi da passare alla scheda | una vista nativa, fatta per le liste |
+   | Rivedere | i file nella cache dell'app, tenuti a mano | `useCaching`, cache su disco |
+   | Messaggi (TASK-333) | come approvato | nella 1.0 e nella 1.0.1 la WebView di #635; dalla 1.0.2 `expo-video` |
+
+   Con `expo-video` la sorgente è `{uri, headers, useCaching: true}`, la
+   cache su disco si porta a 200 MB (`setVideoCacheSizeAsync`; 1 GB di
+   default). Il pacchetto entra in `package.json` con la parte C ma resta
+   escluso dall'autolinking fino al taglio della 1.0.1, come
+   `expo-document-picker` (TASK-312 B): senza il modulo nativo l'app non
+   offre «Add video» e non mostra la pagina del video. La build 1.0.2 lo
+   collega e l'impronta cambia lì, non prima. Proposta da TASK-333, per il
+   confronto: `expo-video` dove la build lo ha e la WebView dove non lo
+   ha (i video dei messaggi subito con un OTA, ma due lettori da tenere).
+   **Scelta dell'utente** (2026-10-29): `expo-video` nella 1.0.2. Intanto
+   TASK-333 B è entrata in `main` (#635) con la WebView per i video dei
+   messaggi: quella resta finché non c'è la 1.0.2, che porta anche i
+   messaggi su `expo-video`; il cambio nei file dei messaggi è di
+   TASK-333. **Mai due lettori nel codice**: la WebView dei messaggi esce
+   da `main` al taglio della 1.0.2, insieme al collegamento di
+   `expo-video`; la riserva proposta da TASK-333 (la WebView dove manca il
+   modulo) non si usa. Le build 1.0 e 1.0.1 tengono la WebView che hanno,
+   perché gli OTA di `main` dopo il taglio non le raggiungono più.
+7. **La striscia del Feed** (ADR-0275, TASK-330): il video è l'ultima
+   pagina, dopo il disegno e le foto, con il suo puntino. Quando si vede
+   la pagina prima di lui se ne carica solo la locandina (circa 50 KB),
+   mai il video. Sulla sua
+   pagina parte senza suono, in loop, dall'inizio; si ferma quando si
+   lascia la pagina, quando la scheda esce dallo schermo (la `FlatList`
+   di `FeedScreen` dice quali si vedono) e quando l'app va in secondo
+   piano. Ne suona uno solo alla volta. Un tocco sulla pagina accende il
+   suono e un altro lo spegne, con l'icona dell'altoparlante in un
+   angolo: qui il tocco non apre il disegno come sulle foto (TASK-330), lo
+   aprono la pagina del disegno, il nome e il titolo. Un video senza
+   traccia audio (il lettore non ne trova, `availableAudioTracks`; così il
+   video della corsa senza musica) non ha l'icona, e il tocco apre il
+   disegno come una foto.
+   Senza suono `audioMixingMode` è `mixWithOthers` (la musica del
+   corridore continua), con il suono `doNotMix`.
+8. **Nel disegno aperto** (`DrawingCard`): il video sta nella fila delle
+   foto, dopo di loro, alto come loro, con la locandina, ▶ e la durata.
+   Un tocco lo apre a tutto schermo con il suono e i comandi del sistema.
+9. **Il video della corsa nel post**: «Run video» lo fa con la pagina di
+   ADR-0254, ma a 540 × 960 e 2 Mbit/s, circa 3 MB per 12 s («Export
+   video» resta 1080 × 1920 per Instagram). Senza musica: la riga «Music»
+   (TASK-301) resta di «Share your run». La locandina è l'ultimo
+   fotogramma, il post intero, disegnato dalla stessa pagina. Non chiede
+   permessi.
+10. **Il video proprio**: dalla galleria (`mediaTypes: ["videos"]`,
+    sull'iPhone `videoExportPreset` `H264_960x540` e `allowsEditing` con
+    `videoMaxDuration: 30`, perché iOS offra il taglio: da provare sul
+    telefono) o dalla fotocamera (`videoMaxDuration: 30`,
+    `videoQuality` `IFrame960x540`), la fotocamera solo dalla build
+    1.0.2 (punto 12). Dopo la scelta l'app legge durata e peso: oltre i
+    limiti dice perché e non tiene niente. Il file va nei documenti
+    dell'app (`drawing-video-{owner}-{key}.mp4`, come le foto) e la
+    locandina la fa la WebView nascosta, come in ADR-0289. Android non sa
+    ridurlo e lo manda com'è, entro il peso: ridurlo anche lì con
+    WebCodecs è un seguito comune con TASK-333.
+11. **I limiti** (scelta 2 dell'utente): fino a **30 s** (detto
+    dall'utente) e **40 MB** come i messaggi; sull'iPhone 960 × 540, circa
+    11 MB per 30 s. `data/media` sta sul **disco del server**, senza
+    acquisti (scelta dell'utente del 2026-10-29, fra questo e un Volume
+    nuovo da 50 GB): il tetto `SHAPEROUTE_POST_MEDIA_MAX_GB` è **15 GB** e
+    si somma a quello dei messaggi (10 GB, ADR-0289). Insieme devono stare
+    nello spazio libero misurato con `df -h` prima di aggiornare il
+    server, lasciando posto alle copie di notte e agli estratti delle
+    zone; se non ci stanno, si abbassa il tetto e si richiede all'utente.
+    **Quando lo spazio è pieno** (scelta dell'utente dello stesso giorno:
+    «appena è pieno cancella i video delle chat degli utenti dal più
+    vecchio al più recente»): i due tetti fanno uno spazio solo per i
+    video (15 + 10 GB); quando un video nuovo, di un post o di un
+    messaggio, non ci sta, il server cancella i video dei messaggi dal più
+    vecchio, finché ci sta. I video dei post non si cancellano mai per
+    fare posto; solo quando non resta nessun video di un messaggio il
+    video nuovo di un post aspetta sul telefono (`507`, come i messaggi). Al
+    posto di un video cancellato così il messaggio dice, come per la
+    scadenza, «This video has expired.». Cambia il punto 8 di ADR-0289 (là
+    i video nuovi aspettano): lo aggiorna TASK-333 nei suoi file
+    (`message_media.py`, `MessageMedia.free_videos(needed_bytes) -> int`:
+    segna `stored = false` i video dei messaggi dal più vecchio, per il
+    `created_at` del messaggio, ne toglie subito file e locandine e dice
+    quanti byte ha liberato), con la sua riga della privacy. La funzione
+    non sa dei tetti: è la parte A di questo task, che legge le due
+    tabelle, a dire quando lo spazio comune è pieno per un video di un
+    post e quanto liberare; per un video di un messaggio la chiama
+    `message_media.py` stesso (TASK-333, parte D).
+12. **I permessi** (build 1.0.2, `app.json`): oggi il testo del microfono
+    (di `expo-audio`) dice «MuW never records sound», e il plugin di
+    `expo-image-picker` ha `microphonePermission: false`. Registrare un
+    video con il suono vuole il microfono, e la chiave è una per tutti e
+    due i plugin: la 1.0.2 cambia quel testo e quello della fotocamera
+    (scelta 4). La galleria non chiede permessi.
+13. **Lo spazio**, stimato per **1000 iscritti**, con un video medio di
+    7 MB (metà video della corsa da 3 MB, metà propri da circa 11 MB):
+
+    | Ipotesi | Post a settimana | Con video | Al mese | In un anno |
+    |---|---|---|---|---|
+    | Bassa: 1 su 4 pubblica una corsa a settimana | 250 | 1 su 5: 50 | 1,5 GB | 18 GB |
+    | Media: 1 su 3, 1,5 corse a settimana | 500 | 1 su 4: 125 | 3,8 GB | 45 GB |
+    | Alta: tutti, 2 corse a settimana | 2000 | 1 su 3: 667 | 20 GB | 240 GB |
+
+    I post resi «Only me» o cancellati tolgono spazio e qui non sono
+    contati. Con l'ipotesi media 15 GB bastano circa quattro mesi. Il log
+    dice quando si passa l'80 % del tetto: allora si sceglie con
+    l'utente, per esempio un Volume Hetzner (0,0572 € al GB al mese al
+    prezzo di listino del 2026, da verificare quando si compra, che si
+    allarga senza fermare il server). Prima di allora fanno posto i video
+    dei messaggi, dal più vecchio (punto 11); i video dei post restano.
+    **Lo spazio libero**, misurato dal Coordinatore con `df -h` la sera
+    del 2026-10-29 (riferito da TASK-333): sul disco del server (`/`)
+    57 GB liberi, sul Volume delle zone 12 GB (pieno all'82 %).
+    `data/media` sta su `/` (`compose.yaml` monta
+    `/root/shaperoute/data/media`; dal Volume viene solo `data/cache`):
+    i due tetti, 10 + 15 GB = 25 GB, ci stanno, e restano circa 32 GB per
+    le copie del database. È quello che l'utente ha scelto («Server disk,
+    15 GB cap»); **da rivedere**: l'utente decide all'aggiornamento del
+    server, con un `df -h` di quel momento. L'alternativa è `data/media`
+    sul Volume con tetti più bassi, per esempio 4 + 6 GB. Le regole della
+    cartella e dello spazio sono in `DEPLOY.md`, «Foto e video dei
+    messaggi» (TASK-333, parte D).
+14. **I dati mobili** (scelta 3; accettata su delega dell'utente del
+    2026-10-29, da rivedere): il video parte
+    quando la sua pagina è sullo schermo, anche con i dati mobili. Ci si
+    arriva solo scorrendo fino all'ultima pagina, che è già una scelta;
+    prima si scarica solo la locandina, e un video già visto viene dalla
+    cache. Sapere se il telefono è sul Wi-Fi vorrebbe `expo-network`, un
+    altro modulo nativo.
+15. **Segnalare e bloccare**, come per le foto: il video segue
+    `drawing_seen_sql`, quindi attraverso un blocco risponde `404`, e un
+    post nascosto dall'email di una segnalazione (TASK-291) lo vede solo
+    il suo autore; niente si cancella. «Report» sul post copre anche il
+    video; l'email dice che il post ha un video, e la pagina del link
+    (ADR-0251) lo mostra, come per i messaggi (ADR-0289, punto 10).
+16. **La privacy** (scelta 4; accettata su delega dell'utente del
+    2026-10-29, da rivedere: va online solo con la parte D, col sì
+    dell'utente): un paragrafo nuovo in «Your
+    runs and their GPS tracks», nelle cinque lingue e sul sito. Su App
+    Store Connect «App Privacy» e su Google Play «Data safety» «Photos or
+    Videos» arriva già con TASK-333; li cambia l'utente.
+
+**Alternative scartate**:
+
+- *Il video nel database*, come le foto: la copia di ogni notte
+  crescerebbe di un video alla volta.
+- *Base64 in JSON*: un terzo in più su ogni video.
+- *Un caricamento a pezzi* (tus o simili): vuole stato sul server per un
+  file di al più 40 MB, che si rimanda intero.
+- *Ridurre il video sul server con ffmpeg*: un programma in più e la CPU
+  tolta ai percorsi (ADR-0289).
+- *Object Storage di Hetzner con indirizzi firmati*: un servizio e una
+  chiave in più, e gli indirizzi firmati scavalcano la chiave dell'API
+  (ADR-0289). Da riprendere sopra i 100 GB.
+- *Il video della corsa disegnato dal vivo nella scheda, senza file*:
+  niente spazio né dati, ma non è il video che l'utente ha fatto e
+  visto, e ogni scheda dovrebbe saper disegnare la scena.
+- *La scadenza di 30 giorni dei messaggi*: un post resta finché il suo
+  autore lo mostra, come le sue foto.
+- *La WebView come lettore*: nella tabella del punto 6.
+
+**Conseguenze**:
+
+- Una migrazione e la cartella `data/media/posts` (`data/media` è già in
+  `compose.yaml` con TASK-333): il server va aggiornato prima che esca
+  l'app 1.0.2, col
+  sì dell'utente; lo spazio libero si misura prima.
+- La build 1.0.2 collega `expo-video` e cambia i testi del microfono e
+  della fotocamera; l'impronta cambia lì.
+- `app.json` e i testi della privacy si toccano dopo la #620 (TASK-321 B,
+  in bozza fino al taglio della 1.0.1).
+- Il video non è nelle copie: un disco rotto perde i video sul server,
+  non quelli sui telefoni.
+- Chi cancella disegni, corse o account deve ricordare il file: la riga
+  va in cascata, il file con la pulizia di ogni ora.

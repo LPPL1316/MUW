@@ -1,13 +1,15 @@
 /**
  * The map page's script run against a stand-in for MapLibre (TASK-281):
  * on «Draw on the map» the fingers are the page's own. With «Draw» one
- * finger draws a line and the map keeps still; with «Move» one finger moves
- * the figure or the map, two fingers size the figure or zoom the map.
+ * finger draws a line and two zoom and move the map (TASK-331); with «Move»
+ * one finger moves the figure or the map, two fingers size the figure or
+ * zoom the map; with «Erase» a tap is told as a line.
  */
 import vm from "node:vm";
 
 import { buildMapPage, CANVAS_ZOOM, FIGURE_PADDING_PX } from "../map/mapPage";
 import {
+  type CanvasMode,
   clearCanvas,
   type FromPage,
   parsePageMessage,
@@ -195,7 +197,7 @@ const SQUARE: [number, number][] = [
   [45.995, 10.995],
 ];
 
-function canvas(mode: "draw" | "move", withFigure = true, frame = false) {
+function canvas(mode: CanvasMode, withFigure = true, frame = false) {
   return setCanvas({
     mode,
     lines: withFigure ? [SQUARE] : [],
@@ -251,7 +253,7 @@ test("with «Draw» one finger draws a line, and the map keeps still", () => {
   expect(page.drawn("ink")).toBeUndefined();
 });
 
-test("with «Draw» a second finger drops the line, and two fingers do nothing", () => {
+test("with «Draw» a second finger drops the line, and two fingers zoom the map (TASK-331)", () => {
   const page = runPage();
   page.send(canvas("draw", false));
   page.down(100, 100);
@@ -261,7 +263,33 @@ test("with «Draw» a second finger drops the line, and two fingers do nothing",
   page.up();
   expect(only(page.told(), "drawn")).toHaveLength(0);
   expect(page.drawn("ink")).toBeUndefined();
-  expect(page.view.zoom).toBe(CANVAS_ZOOM);
+  // Apart by 100 √2 px from 70 √2: the map zooms in, and says where it is.
+  expect(page.view.zoom).toBeCloseTo(CANVAS_ZOOM + Math.log2(100 / 70), 9);
+  expect(only(page.told(), "centre")).toHaveLength(1);
+});
+
+test("with «Draw» two fingers on the figure move the map, not the figure", () => {
+  const page = runPage();
+  page.send(canvas("draw"));
+  page.down(180, 300, 220, 300);
+  page.to(170, 300, 230, 300);
+  page.up();
+  expect(only(page.told(), "figure")).toHaveLength(0);
+  expect(page.view.zoom).toBeCloseTo(CANVAS_ZOOM + Math.log2(1.5), 9);
+});
+
+test("with «Erase» a tap is told as a line of one point, and a finger's line as a line", () => {
+  const page = runPage();
+  page.send(canvas("erase"));
+  page.down(200, 300);
+  page.up();
+  page.down(100, 100);
+  page.to(120, 100);
+  page.up();
+  const told = only(page.told(), "drawn");
+  expect(told.map((m) => m.line.length)).toEqual([1, 2]);
+  // The map keeps still.
+  expect(page.view).toEqual({ lng: 11, lat: 46, zoom: CANVAS_ZOOM });
 });
 
 test("with «Move» one finger on the figure drags it, and the app is told where", () => {

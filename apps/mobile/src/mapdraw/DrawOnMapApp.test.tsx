@@ -140,6 +140,46 @@ test("the figure's route opens as one of «Draw», and «←» comes back to the
   expect(screen.getByText("Draw on the map")).toBeOnTheScreen();
 });
 
+test("drawing by hand is on the map only: an open line stays open, and its route is a «Drawing» (TASK-331)", async () => {
+  await render(<App />);
+  await pagePosts('{"type":"ready"}');
+  await pagePosts('{"type":"centre","lngLat":[11.13,46.07]}');
+  // «Draw» has no board of its own, and no «Edit the drawing» for an emoji.
+  expect(screen.queryByText("Freehand")).toBeNull();
+  await fireEvent.press(screen.getByLabelText("heart"));
+  expect(screen.queryByText("Edit the drawing")).toBeNull();
+
+  await fireEvent.press(screen.getByText("Draw on the map"));
+  expect(
+    screen.getByText(
+      "Draw with one finger. End where you started to close it. Two fingers move the map.",
+    ),
+  ).toBeOnTheScreen();
+  // An arch, its ends far apart, as a finger draws it.
+  const arch = Array.from({ length: 20 }, (_, i) => {
+    const a = (Math.PI * i) / 19;
+    return [11.13 + 0.01 * Math.cos(a), 46.07 + 0.007 * Math.sin(a)];
+  });
+  await pagePosts(JSON.stringify({ type: "drawn", line: arch }));
+  expect(
+    screen.getByText("Each new line joins the drawing. Two fingers move the map."),
+  ).toBeOnTheScreen();
+  // On the page, the line as drawn and the ring too small to see at its start.
+  const lines = sent("setCanvas").at(-1)?.lines as [number, number][][];
+  expect(lines).toHaveLength(2);
+  expect(lines[0]).toHaveLength(4);
+  const [first] = lines[1];
+  const last = lines[1][lines[1].length - 1];
+  expect(Math.abs(first[0] - last[0])).toBeGreaterThan(0.015);
+
+  await act(async () => fireEvent.press(screen.getByText("Draw route")));
+  const [, asked] = jest.mocked(requestRouteOnPhoneFirst).mock.calls[0];
+  expect(asked).toMatchObject({ activity: "running" });
+  expect("outline" in asked && asked.outline).toHaveLength(4);
+  expect("strokes" in asked && asked.strokes).toHaveLength(1);
+  expect(screen.getByText(/^Drawing · on roads · target/)).toBeOnTheScreen();
+});
+
 test("on the water «Draw» has no «Draw on the map»", async () => {
   const props = {
     kind: "shape" as const,

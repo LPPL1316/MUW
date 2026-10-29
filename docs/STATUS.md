@@ -160,6 +160,82 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-336 — Un video nei post: il video della corsa di MuW o uno
+  proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
+  approvata con «Yes, write it up»; numeri dal Coordinatore). Branch
+  `docs/TASK-336-video-in-posts`: solo i documenti, con quattro scelte da
+  chiedere all'utente una per volta (il lettore, lo spazio e i limiti, i
+  dati mobili, testi e privacy). Regola comune con TASK-333 (ADR-0289,
+  modulo `media_files.py`), concordata con quella sessione. Poi A (API:
+  file su disco in `data/media/posts`, `PUT` del file nudo, lettura con
+  `Range`), B (app: scegliere e mandare), C (app: Feed e disegno aperto)
+  e D (la build 1.0.2 con `expo-video`). Impronta iOS `83793e26`
+  invariata fino a D. File `tasks/TASK-336.md`.
+  Scelte dell'utente del 2026-10-29: `expo-video` nella 1.0.2, anche per
+  i messaggi; i video sul disco del server con un tetto di 15 GB; a
+  spazio pieno si cancellano i video dei messaggi dal più vecchio, mai
+  quelli dei post. Dati mobili (parte sulla sua pagina), testi e privacy
+  accettati su delega dell'utente, da rivedere; tutto ciò che è nativo
+  aspetta l'utente. PR #631, solo documenti.
+- **TASK-334 — I posti che l'utente tiene sul telefono** (ADR-0290;
+  richiesta dell'utente del 2026-10-29, numeri dal coordinatore). Scelta
+  dell'utente: «Sì, così»: in «Settings» → «Offline maps» «Add a place»
+  cerca un paese per nome e ne scarica la zona con 6 km intorno, per lo
+  sport di «Settings»; dove il server non l'ha la prepara lui (3 posti
+  nuovi al giorno per telefono, 20 per il server, uno alla volta); fino a
+  10 posti, fuori dai 2 GB, mai cancellati da soli. API
+  (`phone_zone_places.py`, `POST /phone-zones/{network}/places`) e app
+  (`keptPlaces.ts`, `OfflineMapsSetting`, `ZoneEntry.kept`) in `main` dalla
+  #637 (`a623d61c`, 2026-10-29; task Done), impronta iOS invariata
+  (`83793e26…`). I due testi nuovi («Trying again later», «Up to {count}
+  places.») approvati dall'utente lo stesso giorno. Dopo il merge, il
+  server e l'OTA col sì dell'utente. File `tasks/TASK-334.md`.
+- **TASK-329 — «Ask for a route» sempre aperto, con le nostre idee in
+  Europa e poi le foto vere dei posti** (ADR-0287; richiesta a voce
+  dell'utente del 2026-10-29, proposta approvata con «Sì, così»; numeri
+  dal Coordinatore). **Parte A** (branch `feat/TASK-329-explore-ideas`,
+  solo app, OTA): via «CITY TOURS» e «PICTURES» da «Draw»; «Ask for a
+  route» aperto in fondo a «Explore» con quattro categorie fisse (Famous
+  Places, Best Views, Hidden Gems, Photography); sopra, la fila «IDEAS FROM
+  EUROPE» con circa 12 percorsi in 8 città calcolati una volta da
+  `tools/themed_ideas.py` (job a tema dell'API e motore, nessuna coordinata
+  inventata) in `src/explore/themedIdeas.json`; un'idea si apre senza rete
+  e, lontano dalla partenza, ha «Make it near me». I testi nuovi aspettano
+  il sì dell'utente; `App.tsx` dopo il merge di TASK-327. **Parte B** (API
+  + server col sì dell'utente): codice Wikidata e foto di ogni posto con
+  `CityPhotos` di TASK-283, la fila di foto sotto la mappa. File
+  `tasks/TASK-329.md`.
+  **A in `main`** con la #630 (`75bcb2e7`, 2026-10-29): «Draw» senza le
+  due righe, «Ask for a route» aperto con quattro temi, 12 idee in 8 città
+  da `tools/themed_ideas.py`, «Make it near me»; testi approvati («Sì,
+  approvo»); impronta iOS `83793e26` invariata; solo OTA.
+  **Parte B fatta il 2026-10-29**
+  (branch `feat/TASK-329-b-place-photos`, aggiunta ad ADR-0287): ogni
+  posto di un percorso a tema ha `wikidata`, i toccati `photo`
+  (`CityPhotos`, ≤ 2 s); `GET /place-photos` per i soli elementi delle idee,
+  elencati dallo strumento in `services/api/shaperoute_api/data/idea_items.json`
+  (`themed_ideas.py --items`); nell'app la fila «1 Colosseum»… sotto la
+  mappa, numerata come sulla mappa, un tocco porta la mappa lì; le schede
+  delle idee con la foto del primo posto e la forma in piccolo. Nessun
+  testo nuovo, nessuna dipendenza, `engine.zip` invariato. **Prossimo**:
+  il sì dell'utente sulla riga della privacy (invariata), la PR al
+  Coordinatore, poi il server col sì dell'utente; senza il server l'app
+  mostra i posti col solo nome.
+
+- **TASK-331 — A mano solo sulla mappa: la linea aperta, «Erase», «Edit
+  the drawing» sulla mappa e mai per le emoji** (ADR-0288; richiesta
+  dell'utente del 2026-10-29 dopo la prova sul telefono, scelta «Tutto
+  sulla mappa»). Branch `feat/TASK-331-draw-on-map-only`. La prima linea
+  resta aperta se non torna all'inizio e il percorso la fa andata e ritorno
+  (contratto invariato: un anello minuscolo al suo inizio più la linea come
+  dettaglio, provato sul motore con le strade di Trento); via la tavola
+  «Freehand» di «Draw»; «Edit the drawing» mette la figura sulla mappa, mai
+  per una forma del catalogo; sulla mappa «Erase» e due dita che spostano
+  la mappa. Solo JS dell'app, niente dipendenze né nativo. Jest 533/4297
+  verdi. I due testi nuovi (`UI.md`) approvati dall'utente il 2026-10-29.
+  **Resta**: il merge del Coordinatore e la prova col dito sull'iPhone con
+  la prossima anteprima.
+
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
@@ -1844,9 +1920,80 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`test_sign_in_providers.py`). Solo API: impronta iOS `83793e26`
   invariata. Spento finché il server non ha le chiavi (parte C, col sì
   dell'utente). Prossima: B (l'app), in una sessione sua.
+- **TASK-333 — Gli allegati nei messaggi privati: un disegno, una foto, un
+  video** (ADR-0289, proposta; richiesta dell'utente del 2026-10-29,
+  «Aggiungi la possibilità di inviare disegni agli amici allegati, foto
+  video»; numeri dal Coordinatore). Branch
+  `docs/TASK-333-message-attachments`: solo i documenti, con le scelte
+  da chiedere all'utente una per volta. Poi A (API: file su disco in
+  `data/media`, caricamento in due tempi, durata letta dall'MP4, il luogo
+  tolto, limiti, scadenza dei video e tetto del server, segnalazione con
+  l'allegato), B (app: foto e video) e C (app: i disegni), ognuna nella
+  sua PR. Impronta iOS `83793e26`: niente moduli nuovi. Server, OTA e
+  «App Privacy» / «Data safety» col sì dell'utente. File
+  `tasks/TASK-333.md`.
+  **Proposta approvata il 2026-10-29** (PR #627): solo dopo «Accept»,
+  video fino a 60 s e 40 MB tenuti 30 giorni, il disegno si apre, si
+  corre e si tiene, si manda dalla scheda e dalla conversazione; testi e
+  privacy approvati («Approvo così»). Prossimo: la parte A, col «vai»
+  dell'utente, in una sessione sua.
+  **Parte A scritta il 2026-10-29** (branch
+  `feat/TASK-333-a-attachments-api`, sulla delega di 23 ore dell'utente e
+  col via del Coordinatore): migrazione `0038_message_media.sql`,
+  `media_files.py` (comune con TASK-336), `message_media.py` (caricare,
+  locandina, leggere con `Range`, 10 video e 100 foto al giorno, tetto
+  `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, video scaduti dopo 30 giorni, giro di
+  pulizia ogni ora), `messages.py` (l'allegato solo in `open`, il disegno
+  intero e la sua scheda, «[Photo]» per l'app di prima), push, la
+  segnalazione con l'allegato sulla pagina del link, `data/media` in
+  `compose.yaml`. Server fermo fino al ritorno dell'utente. Prossima: B
+  (l'app, foto e video).
+  A in `main` con la #634 (02e3fc5c). **Parte B scritta il 2026-10-29**
+  (branch `feat/TASK-333-b-attachments-app`, stessa delega): il «+» solo
+  quando la pagina ha `attachments` (niente sonda nuova), «Photo» e
+  «Video» dalla galleria con i controlli di 60 s e 40 MB, l'anteprima con
+  il testo, il file caricato con `File.upload` di `expo-file-system`, la
+  locandina fatta in una WebView nascosta, la foto e il video a tutto
+  schermo con «Share», la lista con «📷 Photo», la privacy nelle cinque
+  lingue e sul sito; «Help» con la parte C. Solo OTA, dopo il server.
+  Prossima: C (i disegni), dopo B; `RoutePanel.tsx` è conteso con TASK-331.
+  B in `main` con la #635 (e6f5b1c3). **Parte C scritta il 2026-10-29**
+  (branch `feat/TASK-333-c-attachments-drawings`, stessa delega): «Send to
+  a friend» sotto il cuore della mappa e sulle schede di «My activities» e
+  dei disegni, «Drawing» nel «+», la scheda del disegno nella
+  conversazione e il disegno aperto sulla mappa come un preferito, con
+  «←» che torna alla conversazione; «Help» nelle cinque lingue. Solo OTA,
+  dopo il server; `RoutePanel.tsx` non toccato. Con C le parti di TASK-333
+  sono tutte scritte: restano server, OTA e i moduli di «App Privacy» e
+  «Data safety», col sì dell'utente.
+  C in `main` con la #636 (2d6b8b69). **Parte D scritta il 2026-10-29**
+  (branch `feat/TASK-333-d-free-videos`): con lo spazio pieno si tolgono i
+  video dei messaggi più vecchi (`free_videos`, scelta dell'utente «appena
+  è pieno cancella i video delle chat…»; mai quelli dei post), privacy e
+  «Help» con i testi approvati, aggiunta ad ADR-0289, `data/media` su `/`
+  da rivedere con l'utente al server. Parte E (expo-video nei messaggi) al
+  taglio della 1.0.2.
+  **Chiuso il 2026-10-29**: D in `main` con la #639 (dd607e89), quindi
+  A–D tutte in `main`. Voce in «Completato».
 
 ## Completato
 
+- **App e API** — TASK-334 (ADR-0290; richiesta e scelta dell'utente del 2026-10-29, «Sì, così», testi approvati lo stesso giorno): i posti che l'utente tiene sul telefono. «Add a place» in «Settings» → «Offline maps», fino a 10 posti con la zona di 6 km fuori dai 2 GB; il server prepara quelle che non ha (`POST /phone-zones/{network}/places`, 3 al giorno per telefono, 20 per il server, mai mentre disegna percorsi). In `main` dalla #637 (`a623d61c`). Restano il server e l'OTA col sì dell'utente; la pagina non è ancora vista sul telefono. `tasks/TASK-334.md`, «Esito».
+- **App e API** — TASK-333 (ADR-0289 con l'aggiunta della parte D;
+  richiesta dell'utente del 2026-10-29, «Aggiungi la possibilità di inviare
+  disegni agli amici allegati, foto video», e le sue sette scelte, testi e
+  privacy approvati): nei messaggi privati una foto, un video fino a 60 s
+  e 40 MB o un disegno, solo dopo «Accept». File su disco in `data/media`
+  (mai nel database né nelle copie), video tenuti 30 giorni o meno quando
+  lo spazio è pieno, dal più vecchio; il «+» solo con un server che lo sa
+  fare; «Send to a friend» sotto il cuore della mappa e sulle schede; il
+  disegno ricevuto si apre sulla mappa come un preferito. #627, #634
+  (`0038`), #635, #636, #639; impronta iOS `83793e26`. **Server, «App
+  Privacy»/«Data safety», OTA e sito col sì dell'utente; da provare sul
+  telefono.** Parte E (expo-video) al taglio della 1.0.2. `tasks/TASK-333.md`.
+- **App** — TASK-335 (ADR-0291, che cambia il punto 3 di ADR-0277; segnalazione e scelta «Durante l'attesa» dell'utente del 2026-10-29): mentre «Draw» calcola, le sei schede «MEANWHILE, FROM THE FEED» hanno sotto la linea la foto della mappa del posto, come in «Feed». Le scatta una pagina nascosta sotto la fila, due schede alla volta, con la cache del Feed; senza rete, dopo due foto mancate non ne chiede altre. «Maps: …» sotto la fila. Misurato nel simulatore iOS: cuore da 5 km a Trento sul telefono, 7701 ms senza e 7714 ms con le sei foto (tre giri ciascuno), quindi nessun rallentamento visibile. Solo app, nessun testo nuovo, `RoutePanel.tsx` non toccato, impronta iOS `83793e26`. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-335.md`.
+- **App** — TASK-330 (segnalazione dell'utente del 2026-10-29): le foto dei post si vedono sul telefono. Si chiedevano senza `X-API-Key` e il server rispondeva 401 (Feed, galleria del profilo, disegno aperto); e nel Feed lo swipe sulla figura girava la pagina su Draw, perché su iOS uno `ScrollView` dentro un `Pressable` toccato non scorre: ora il disegno e ogni foto prendono il tocco da soli. Riprodotto e verificato nel simulatore iOS. Solo JS, impronta invariata. `tasks/TASK-330.md`.
+- **App** — TASK-332 (una riga in ADR-0131; richiesta dell'utente del 2026-10-29): nella griglia «Drawings» del profilo, proprio e di un altro, ogni disegno ha sotto la foto della mappa del posto, come in «Feed», con «Maps: …» una volta sotto la griglia. La foto si chiede solo quando la miniatura entra nello schermo (`SightScrollView` in «Profile» e «Find friends»); sopra la mappa grande il profilo di un altro ha la sua pagina delle foto, e ne lavora una alla volta. Solo app, nessun testo nuovo. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-332.md`.
 - **App** — TASK-327 (ADR-0286, che cambia ADR-0255; richiesta e scelta dell'utente del 2026-10-29): «Play» non è più il quarto nome in alto accanto a «Explore». In «Draw», subito sotto la distanza e prima di «NEAR YOU», una riga «PLAY» · «Collect shapes by running» · «›», solo mentre l'API ha il gioco; un tocco apre il gioco a tutto schermo (le due schede di sempre) e «←» torna a «Draw». «See collection» e le notifiche del gioco lo aprono come prima. In alto tre nomi, il profilo di nuovo a uno swipe da «Explore». Testi approvati dall'utente, solo app, OTA, impronta iOS `83793e26`. **Da vedere su un telefono** (solo nei test finora). `tasks/TASK-327.md`.
 - **Scheda dell'App Store** — TASK-328 (richiesta dell'utente del 2026-10-29): `apps/mobile/store/screenshots/` e `store.config.json` usano ora le 7 schermate del 2026-10-29 (cuore, gatto, «RUN», Draw, corsa, Explore, Feed; 1320×2868) al posto delle 5 vecchie, così un `eas metadata:push` non le rimette. Sono le stesse caricate dalla «Libreria di risorse» di App Store Connect e mandate in revisione ad Apple il 2026-10-29 alle 00:53. Le immagini creative dell'intestazione (5244×2950) e dei risultati di ricerca (3840×2560) stanno solo in `out/appstore-v2/creative/` e su App Store Connect. Nessun push, niente toccato su App Store Connect. `tasks/TASK-328.md`. Numero dato come TASK-326 e rinumerato TASK-328 il 2026-10-29, con il sì dell'utente: TASK-326 era già il passo medio nel Feed, nel repository MUW.
 - **Strumenti e CI** — TASK-325 (ADR-0285; richiesta dell'utente del 2026-10-28): `LPPL1316/MUW`, copia intera di `rockydalbianco/shaperoute` sotto l'utente (dove l'app GitHub di Claude non si può installare), e lo specchio nei due versi: `tools/mirror_repos.py` e `.github/workflows/mirror.yml` in MUW, a ogni push e ogni dieci minuti, portano avanti i branch indietro, creano i nuovi, cancellano i fusi, non toccano i divergenti (rosso, si unisce a mano). Segreto `MIRROR_TOKEN` (token classico con `repo` e `workflow`) messo dall'utente; MUW reso pubblico dall'utente il 2026-10-29 (minuti di Actions). Fuso in `main` di MUW il 2026-10-29 (LPPL1316/MUW#4, `182800a3`), insieme ai due `main` e alla migrazione del dislivello di TASK-324 a `0037`, idempotente. **Aperto**: il `main` di `shaperoute` accetta solo PR (regola del proprietario), lo specchio non può spingerlo: il `main` di MUW aspetta in `sync/muw-main` la PR dell'utente su `shaperoute`; due strade per automatizzarlo in `tasks/TASK-325.md`, «Aperto» 4 (scelta dell'utente). Il server legge ancora `shaperoute`.

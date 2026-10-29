@@ -510,13 +510,35 @@ schede di prima.
 
 ### `GET /city-photos/{item}.jpg` (TASK-283, ADR-0243)
 
-La foto di un posto di `/nearby-cities`, `item` il suo elemento Wikidata
-(`Q1442886`): JPEG larga al più 500 pixel, presa da Commons la prima volta
-e tenuta nella cartella `city_photos/` della cache, senza i metadati del
-file. Cosa si sa di ogni elemento (la foto, o nessuna) è tenuto lì e
-richiesto di nuovo dopo 30 giorni. 404 per un elemento senza foto o mai
-nominato da `/nearby-cities` (non è un proxy di Commons); 503 se Commons
-non dà la foto. `Cache-Control: private, max-age=86400`.
+La foto di un posto di `/nearby-cities`, di un percorso a tema o di
+`/place-photos`, `item` il suo elemento Wikidata (`Q1442886`): JPEG larga
+al più 500 pixel, presa da Commons la prima volta e tenuta nella cartella
+`city_photos/` della cache, senza i metadati del file. Cosa si sa di ogni
+elemento (la foto, o nessuna) è tenuto lì e richiesto di nuovo dopo 30
+giorni. 404 per un elemento senza foto o mai nominato da una di quelle tre
+(non è un proxy di Commons); 503 se Commons non dà la foto.
+`Cache-Control: private, max-age=86400`.
+
+### `GET /place-photos` (TASK-329, ADR-0287)
+
+Le foto dei posti delle idee di «Ask for a route», che lo strumento
+`tools/themed_ideas.py` ha calcolato una volta e l'app tiene in un file:
+`?items=Q34921,Q152341`, al più 15 elementi Wikidata separati da virgole.
+Risponde solo per gli elementi della lista che lo strumento scrive accanto
+all'API (`shaperoute_api/data/idea_items.json`, letta all'avvio): un altro
+non ha foto qui e non è chiesto a Wikimedia. Le foto sono quelle di
+`/nearby-cities`, con le stesse regole (licenze libere, credito, attesa al
+più 2 s, solo l'elemento e il nome del file a Wikimedia); un elemento
+senza foto manca dalla risposta (`place-photos.json`). 422 per una lista
+vuota, più lunga di 15 o con qualcosa che non è un elemento. Un'API prima
+di TASK-329 risponde 404: l'app mostra i posti col solo nome.
+
+```json
+{"photos": {
+  "Q1442886": {"url": "/city-photos/Q1442886.jpg", "credit": "© LBM1948 · CC BY-SA 4.0"},
+  "Q581589": {"url": "/city-photos/Q581589.jpg", "credit": null}
+}}
+```
 
 ### `GET /city-suggestions` (TASK-134, TASK-138, ADR-0110)
 
@@ -568,6 +590,12 @@ null}`. Risponde 202 con un job, letto con `GET /themed-route-jobs/{id}`
   numero di luoghi.
 - **Il risultato**: `points`, `distance_m`, `similarity`, `shape`,
   `theme`, `city`, `centre` e **tutti** i luoghi trovati con `passed`.
+- **Le foto dei luoghi** (TASK-329, ADR-0287): ogni luogo ha `wikidata`,
+  il suo elemento quando OpenStreetMap ne nomina uno, altrimenti `null`; un
+  luogo toccato ha `photo` come i posti di `/nearby-cities` (stesse regole,
+  attesa al più 2 s, solo gli elementi a Wikimedia), `null` senza una foto
+  libera e per i luoghi non toccati. Un'API prima di TASK-329 non ha i due
+  campi: l'app mostra i posti col solo nome.
 - **Errori del job** (`error.code`): `theme_unknown`, `city_unknown`,
   `no_places` (meno di 2 luoghi verificati: lo dice, non inventa),
   `places_unavailable`, e quelli dei percorsi (`shape_not_drawable`,
@@ -2579,6 +2607,87 @@ endpoint vogliono il token: senza, `401 not_signed_in`; senza database,
 - **Un'API precedente** non ha questi endpoint (`404 http_error`), e
   l'app non mostra «Messages».
 
+#### Gli allegati: una foto, un video, un disegno (TASK-333, ADR-0289)
+
+Un messaggio porta **un allegato**, con un testo facoltativo (vuoto
+ammesso solo con l'allegato), **solo in una conversazione `open`** per chi
+scrive: in una richiesta è `409 http_error` «Photos, videos and drawings
+can be sent once they accept your message.» (scelta dell'utente del
+2026-10-29). Foto e video si caricano prima, poi si mandano col loro id;
+il disegno viaggia nel messaggio, copia del percorso. Codice in
+`message_media.py` (i file) e `media_files.py` (comune con i video dei
+post, ADR-0292); tipi `MessageAttachmentRequest`, `MessageDrawing`,
+`MessageMedia`, `MessageAttachment`, `MessageDrawingCard`,
+`AttachmentsAllowed`, `MESSAGE_VIDEO_MAX_S`, `MESSAGE_VIDEO_MAX_BYTES`,
+`MESSAGE_VIDEO_DAYS`; esempi `message-media.json`,
+`message-attachment-request.json`, `message-attachments.json`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /me/message-media` | il file nudo come corpo, `Content-Type` `image/jpeg`, `image/png`, `video/mp4` o `video/quicktime` | `201` `MessageMedia`, o `422` / `429` / `507` |
+| `PUT /me/message-media/{id}/poster` | il primo fotogramma di un proprio video, JPEG o PNG nudo | `204`, o `404` / `422` |
+| `GET /message-media/{id}` | il file; risponde anche a `Range` | `200`/`206`, o `404` / `410` |
+| `GET /message-media/{id}/poster` | il primo fotogramma | `200 image/jpeg`, o `404` / `410` |
+| `GET /messages/{id}/drawing` | il disegno di un messaggio intero, come `PUT /me/favorites/{key}` lo prende | `200 MessageDrawing`, o `404` |
+
+- **Mandare**: `POST /conversations/{public_id}/messages?with=attachments`
+  con `{"text": "…", "attachment": {"media_id": "…"}}` o
+  `{"attachment": {"drawing": {…}}}`, uno dei due (`422` per tutti e due
+  o nessuno). Un `media_id` non caricato da chi scrive, o già mandato, o
+  di più di un'ora fa, è `404` «No photo or video with this id to send:
+  upload it again.».
+- **Cosa resta di una foto**: rifatta come le foto dei disegni
+  (`fitted_jpeg`: dritta, al più 1080 px, JPEG, **senza EXIF**), al più
+  10 MB prima. **Di un video**: com'è, se le scatole MP4 dicono `ftyp`,
+  `moov` con `mvhd` e `mdat`, al più **60 s** (letti da `mvhd`) e **40 MB**;
+  le scatole `udta`, `meta` e `uuid` (il luogo `©xyz` e gli altri
+  metadati) diventano `free` piene di zeri, della stessa lunghezza. Il
+  video lo riduce il telefono (`videoExportPreset` 960 × 540
+  sull'iPhone); il server non lo ricomprime. Le misure di un video sono
+  quelle mostrate: la matrice della traccia che lo gira le scambia.
+- **I limiti**: 10 video e 100 foto al giorno per account, poi `429
+  too_many_requests` «Too many videos today: try again tomorrow.» con
+  `Retry-After`; il server tiene al più `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`
+  (10) di foto e video. **Pieno**, un caricamento nuovo fa posto togliendo
+  i video dei messaggi più vecchi (`free_videos`, scelta dell'utente del
+  2026-10-29, ADR-0289 aggiunta della parte D), che da lì sono `expired`
+  (`410`); le foto vanno fino a un decimo in più. `507 http_error`
+  «Videos can't be sent right now: try again later.» solo quando non resta
+  un video di un messaggio da togliere. Mai una foto, un caricamento non
+  mandato o un video di un post.
+- **Chi legge un file**: chi l'ha caricato, e l'altro della conversazione
+  del suo messaggio finché vede quel messaggio (non tolto dalla sua vista,
+  non nascosto da una segnalazione) e nessun blocco li separa; per tutti
+  gli altri `404`, come per un id che non c'è. Con la chiave e il token di
+  sempre: nessun indirizzo firmato. Un video **30 giorni** dopo il suo
+  messaggio è `410` «This video has expired.».
+- **Nelle pagine** (`GET …/messages`, `GET /me/conversations`, la risposta
+  del `POST`) ogni messaggio ha `attachment` (`null` se è solo testo): il
+  tipo, il `media_id`, le misure, la durata, `poster`, `expired`, o la
+  scheda del disegno (`drawing`: nomi, metri, sport, rotazione e al più 64
+  punti). `MessagesPage.attachments` dice cosa si può allegare adesso:
+  `null` fuori da `open`; i `kinds` (`video` sparisce col server pieno, e
+  senza la cartella dei file resta solo `drawing`) e i limiti.
+- **L'app di prima** non chiede `?with=attachments`: il testo di un
+  messaggio con un allegato le arriva con davanti «[Photo]», «[Video]» o
+  «[Drawing]», mai vuoto.
+- **Cancellare**: il messaggio (chi l'ha scritto), la conversazione con un
+  blocco, l'account con `DELETE /me` tolgono la riga del file subito; il
+  giro di ogni ora (`MessageMedia.sweep`) toglie dal disco i file senza
+  riga, i caricamenti mai mandati dopo un'ora e i video scaduti.
+- **Segnalare** un messaggio con un allegato: l'email lo dice («With a
+  photo…», «With a video of 24 s…», «With a drawing: star, 5.0 km…») e la
+  pagina del link lo mostra (la foto, il video, la linea del disegno); il
+  file viene dallo stesso indirizzo, `/report-link?t=…&part=media`, senza
+  account. «Hide» nasconde messaggio e allegato a chi l'ha ricevuto.
+- **Le push**: «{name}: 📷 Photo», «{name}: 🎬 Video», «{name}: 🗺️
+  Drawing», nelle cinque lingue; con un testo, «{name}: 📷 {text}». Il file
+  non va mai a Expo, Apple o Google.
+- **Un'API senza gli allegati** non ha `attachments` né `attachment`:
+  l'app non mostra il «+». Un server senza la cartella (`--media-dir`, di
+  solito `data/media`) risponde `404` agli endpoint dei file e offre solo
+  i disegni.
+
 ### Shape game (TASK-296, ADR-0255)
 
 Il gioco delle forme, parte A: che cosa vale una corsa salvata e le forme
@@ -3052,6 +3161,39 @@ codice è in `phone_zone_api.py` e `phone_zones.py`.
 - **Prima dei telefoni**: `python -m shaperoute_api.phone_zone_api` scrive
   il file di ogni zona in cache, così nessun telefono aspetta che si scriva
   (stime di spazio e tempo in `tasks/TASK-214.md`).
+
+#### I posti tenuti sul telefono (TASK-334, ADR-0290)
+
+Un posto scelto dall'utente in «Settings» → «Offline maps» → «Add a
+place». Il codice è in `phone_zone_places.py`, installato con
+`install_phone_zones`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /phone-zones/{network}/places` | corpo `{"lat": …, "lon": …}`; la zona della rete `foot` o `bike` con 6 km intorno al posto: se il server ce l'ha è pronta, se no la prepara | `200 {"state": "ready"}`: il telefono la scarica da `GET /phone-zones/{network}?lat=&lon=&margin_m=6000`; `202 {"state": "preparing"}`: in coda o in download, da richiedere; `404 http_error` con un'altra rete; `422 invalid_request` con `lat` o `lon` fuori dai limiti; `429 too_many_requests` con `Retry-After` oltre i posti nuovi del giorno; `503 map_data_unavailable` con `Retry-After` dopo un download fallito |
+
+- **La preparazione**: un posto alla volta, il più vecchio prima, in un
+  thread dell'API. La zona si scarica da Overpass come per un percorso
+  (`OsmnxSource.load`), a piedi anche con i nomi delle strade; poi si
+  scrive il file del telefono. Una zona che contiene già il posto (portata
+  intanto da un percorso) non si scarica di nuovo.
+- **I tetti**: 3 posti nuovi al giorno per telefono (scelta dell'utente;
+  l'id in `X-Phone-Id`, come per il tetto del traffico) e 20 in tutto il
+  server; oltre, `429` con `Retry-After` fino alla mezzanotte UTC. Un posto
+  già pronto o già in coda non si conta.
+- **Un download fallito** (Overpass che rifiuta, nessuna strada lì) dà
+  `503` con `Retry-After: 3600`; dopo, il posto si può chiedere di nuovo.
+- **Mai mentre si disegnano percorsi**: un middleware dell'API annota ogni
+  richiesta a `/route-jobs` (`RouteWork`); un posto parte solo dopo 120 s
+  senza nessuna. Il giro di notte di `draw_examples` chiede e segue i suoi
+  lavori uno dopo l'altro, quindi finché gira nessun posto parte; lo
+  stesso mentre un telefono aspetta il suo percorso. Il file
+  `places.pause` nella cartella della cache (`data/cache/places.pause`)
+  ferma tutti i posti finché c'è, per un lavoro pesante fuori dall'API
+  (`prefetch_zones`, `phone_zone_api`). Nel frattempo la risposta è
+  `202 preparing`.
+- **In memoria**: coda, tetti e fallimenti. Un riavvio li dimentica, e il
+  telefono, chiedendo di nuovo, rimette in coda il suo posto.
 
 ## Eventi delle ricerche (TASK-130, ADR-0101)
 

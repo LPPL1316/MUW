@@ -152,6 +152,12 @@ export const FR: Table = {
   "Offline maps: {size}": "Cartes hors ligne : {size}",
   "Maps download on Wi-Fi and mobile data.":
     "Les cartes se téléchargent en Wi-Fi et avec les données mobiles.",
+  "Add a place": "Ajouter un lieu",
+  "Preparing the map…": "Préparation de la carte…",
+  "Trying again later": "Nouvel essai plus tard",
+  "Up to {count} places.": "Jusqu'à {count} lieux.",
+  "Places you add stay on the phone, so shapes there are drawn faster, even without signal.":
+    "Les lieux ajoutés restent sur le téléphone : les formes y sont dessinées plus vite, même sans réseau.",
 
   // src/engine/ZoneNotice.tsx
   "Downloading the maps of your area ({size}) so routes work without signal.":
@@ -1085,7 +1091,17 @@ export const FR: Table = {
     "Choisissez d'abord un départ : les parcours sont ceux à proximité.",
   "The routes could not load. Check the connection and try again.":
     "Les parcours n'ont pas pu se charger. Vérifiez la connexion et réessayez.",
-  "Ask for a route": "Demander un parcours",
+  // src/explore/IdeasFromEurope.tsx, themedIdeas.ts, ThemedCard.tsx: our ideas
+  "IDEAS FROM EUROPE": "IDÉES D'EUROPE",
+  "Make it near me": "Le faire près de moi",
+  Rome: "Rome",
+  Paris: "Paris",
+  London: "Londres",
+  Barcelona: "Barcelone",
+  Amsterdam: "Amsterdam",
+  Lisbon: "Lisbonne",
+  Prague: "Prague",
+  Berlin: "Berlin",
   "Getting directions…": "Récupération de l'itinéraire…",
   CITY: "VILLE",
   "Type a city or a place": "Saisissez une ville ou un lieu",
@@ -1231,10 +1247,7 @@ export const FR: Table = {
   "Switch sides": "Changez de côté",
   "{seconds} seconds left": "{seconds} secondes restantes",
   "Stop if it hurts.": "Arrêtez si ça fait mal.",
-  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
-  // src/explore/ThemedCard.tsx (TASK-280)
-  "CITY TOURS": "BALADES EN VILLE",
-  PICTURES: "IMAGES",
+  // «Draw»: src/route/samplePictures.ts (TASK-280)
   "Running shoe": "Basket",
   Dinosaur: "Dinosaure",
   Guitar: "Guitare",
@@ -1251,17 +1264,16 @@ export const FR: Table = {
   Duck: "Canard",
   Trophy: "Trophée",
   Bone: "Os",
-  "Back to Draw": "Retour à Dessiner",
 
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Dessiner sur la carte",
   Move: "Déplacer",
-  "Draw with one finger. Lines after the first are joined to it.":
-    "Dessine avec un doigt. Les lignes après la première y sont reliées.",
+  "Draw with one finger. End where you started to close it. Two fingers move the map.":
+    "Dessine avec un doigt. Termine là où tu as commencé pour la fermer. Deux doigts déplacent la carte.",
+  "Each new line joins the drawing. Two fingers move the map.":
+    "Chaque nouvelle ligne rejoint le dessin. Deux doigts déplacent la carte.",
   "Drag the figure or the map. Two fingers on the figure resize it.":
     "Fais glisser la figure ou la carte. Deux doigts sur la figure changent sa taille.",
-  "This line crosses itself. Draw it again without crossing it.":
-    "Cette ligne se croise elle-même. Redessine-la sans la croiser.",
   "+ photo": "+ photo",
 
   // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
@@ -1543,19 +1555,14 @@ export const FR: Table = {
   "Write a message…": "Écris un message…",
   "Delete this message for both of you?": "Supprimer ce message pour vous deux ?",
   "Report this message": "Signaler ce message",
-  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
-  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
-  Freehand: "À main levée",
+  // src/route/EditDrawingButton.tsx, mapdraw/DrawOnMap.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure drawn by hand
+  // on the map)
   "Edit the drawing": "Modifier le dessin",
-  "Draw with your finger": "Dessine avec le doigt",
   Erase: "Effacer",
   Drawing: "Dessin",
-  "Draw the outline with one finger: it closes by itself.":
-    "Dessine le contour avec un doigt : il se ferme tout seul.",
   "Tap a line to erase it. The outline takes its details with it.":
     "Touche une ligne pour l'effacer. Le contour emporte ses détails.",
-  "This line encloses nothing. Draw a closed shape.":
-    "Cette ligne n'entoure rien. Dessine une figure fermée.",
   // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
   // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
   "Add past activity": "Ajouter une activité passée",
@@ -1576,4 +1583,34 @@ export const FR: Table = {
   "Activities before 2020 cannot be added.":
     "Impossible d'ajouter des activités antérieures à 2020.",
   "Already in My activities.": "Déjà dans Mes activités.",
+  // The attachments of the private messages (TASK-333).
+  "📷 Photo": "📷 Photo",
+  "🎬 Video": "🎬 Vidéo",
+  "🗺️ Drawing": "🗺️ Dessin",
+  Photo: "Photo",
+  Video: "Vidéo",
+  "This video has expired.": "Cette vidéo a expiré.",
+  "Video, {duration}": "Vidéo, {duration}",
+  "Drawing: {title}, {distance}": "Dessin : {title}, {distance}",
+  "Add a photo, a video or a drawing": "Ajouter une photo, une vidéo ou un dessin",
+  "Add a message…": "Ajouter un message…",
+  "Couldn't send. Tap to try again.": "Pas envoyé. Touche pour réessayer.",
+  "This video is longer than {seconds} seconds. Choose a shorter one.":
+    "Cette vidéo dure plus de {seconds} secondes. Choisis-en une plus courte.",
+  "This video is too large: at most {mb} MB. Choose a shorter one.":
+    "Cette vidéo est trop lourde : {mb} Mo au maximum. Choisis-en une plus courte.",
+  "Too many videos today. Try again tomorrow.":
+    "Trop de vidéos aujourd'hui. Réessaie demain.",
+  "Too many photos today. Try again tomorrow.":
+    "Trop de photos aujourd'hui. Réessaie demain.",
+  "Videos can't be sent right now. Try again later.":
+    "Impossible d'envoyer des vidéos pour l'instant. Réessaie plus tard.",
+  // The drawings of the private messages (TASK-333 part C).
+  "Send to a friend": "Envoyer à des amis",
+  "Send to…": "Envoyer à…",
+  "Search people": "Chercher des personnes",
+  "Sent to {name}.": "Envoyé à {name}.",
+  "Send a drawing": "Envoyer un dessin",
+  "Photos, videos and drawings can be sent once {name} accepts your message.":
+    "Tu pourras envoyer des photos, des vidéos et des dessins quand {name} acceptera ton message.",
 };

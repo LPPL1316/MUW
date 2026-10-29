@@ -21,6 +21,7 @@ import {
 import { isImageRequest } from "../api/routes";
 import { drawnOf, sendSignal } from "../api/signals";
 import { decimal, t, tLater, tPlural } from "../i18n";
+import { isDrawnOutline } from "../mapdraw/canvasRequest";
 import { Segmented } from "../screens/Segmented";
 import { milesAtLeast, tenthsToM, unitsNumber } from "../units/distanceInput";
 import { distanceLabel, inUnits, METRES_PER_MILE } from "../units/format";
@@ -39,8 +40,6 @@ import {
   switchDistance,
 } from "./distance";
 import { DistanceStepper } from "./DistanceStepper";
-import { type FreehandFigure, isDrawnOutline } from "./freehand";
-import { EditDrawingButton, FreehandChoice } from "./FreehandChoice";
 import { ImageChoice } from "./ImageChoice";
 import { LoadingBar, ReadingBar } from "./LoadingBar";
 import { penUpHint } from "./penUpHint";
@@ -69,8 +68,6 @@ const DRAW_KINDS = [
   { value: "shape", label: tLater("Shape") },
   { value: "word", label: tLater("Word") },
   { value: "image", label: tLater("Image") },
-  // A figure drawn by hand on the board (TASK-320).
-  { value: "freehand", label: tLater("Freehand") },
 ] as const;
 
 // The letters of a word (TASK-080, ADR-0075): "block" is square in the API.
@@ -124,13 +121,6 @@ type ChoiceProps = {
   activity?: Activity;
   /** Under the switch, off the water: «Draw on the map» (TASK-281). */
   underKinds?: ReactNode;
-  /** The figure drawn by hand (TASK-320), shown with «Freehand», and the
-   * board to draw or change it; under the shape chosen, «Edit the drawing»
-   * opens the board on the shape's lines. Without them the fourth choice
-   * shows nothing to draw with. */
-  freehand?: FreehandFigure | null;
-  onEditFreehand?: () => void;
-  onEditShape?: (shape: Shape) => void;
 };
 
 /**
@@ -161,9 +151,6 @@ export function RouteChoice({
   onDistanceText,
   activity = "running",
   underKinds,
-  freehand = null,
-  onEditFreehand,
-  onEditShape,
 }: ChoiceProps) {
   // The distance is asked in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -220,16 +207,9 @@ export function RouteChoice({
               onChange={onPenUp}
             />
           )}
-          {/* The shape's lines in the board, to change by hand (TASK-320):
-              not on the water, where only the catalogue is drawn. */}
-          {onEditShape && shape !== null && !shapesOnly && (
-            <EditDrawingButton onPress={() => onEditShape(shape)} />
-          )}
         </>
       ) : kind === "image" ? (
         <ImageChoice state={image} onChoose={onChooseImage} />
-      ) : kind === "freehand" ? (
-        <FreehandChoice figure={freehand} onEdit={() => onEditFreehand?.()} />
       ) : (
         <>
           <TextInput
@@ -804,7 +784,8 @@ function WordNote({
 }
 
 /** What the route draws, for the line under its distance: a figure drawn
- * by hand is a «Drawing» (TASK-320), known by the outline the board made. */
+ * by hand is a «Drawing» (TASK-320), known by the outline of its request
+ * (TASK-331). */
 function nameOf(request: AnyRouteRequest): string {
   if (isImageRequest(request)) {
     return isDrawnOutline(request.outline) ? t("Drawing") : t("Picture");

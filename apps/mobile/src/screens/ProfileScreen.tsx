@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -23,6 +22,7 @@ import { t, tLater } from "../i18n";
 import { EditProfile } from "../profile/EditProfile";
 import { ProfileHome } from "../profile/ProfileHome";
 import { SettingsPage } from "../profile/SettingsPage";
+import { SightScrollView } from "../social/scrollSight";
 import {
   color,
   fontSize,
@@ -126,7 +126,7 @@ export function ProfileScreen({ account, page, onPage, hint, onBack }: Props) {
       style={[StyleSheet.absoluteFill, styles.screen]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView
+      <SightScrollView
         style={about !== null && styles.hidden}
         contentContainerStyle={[
           styles.content,
@@ -218,7 +218,7 @@ export function ProfileScreen({ account, page, onPage, hint, onBack }: Props) {
             }}
           />
         )}
-      </ScrollView>
+      </SightScrollView>
       {about !== null && (
         <AboutScreen
           id={about}
