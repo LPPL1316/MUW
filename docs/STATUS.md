@@ -170,9 +170,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`phone_zone_places.py`, `POST /phone-zones/{network}/places`) e app
   (`keptPlaces.ts`, `OfflineMapsSetting`, `ZoneEntry.kept`) nella PR #637
   (branch `feat/TASK-334-kept-places`), impronta iOS invariata
-  (`83793e26…`). Mancano il sì ai due testi nuovi («Trying again later»,
-  «Up to {count} places.»), poi il server e l'OTA col sì dell'utente. File
-  `tasks/TASK-334.md`.
+  (`83793e26…`). I due testi nuovi («Trying again later», «Up to {count}
+  places.») approvati dall'utente lo stesso giorno. Dopo il merge, il
+  server e l'OTA col sì dell'utente. File `tasks/TASK-334.md`.
 - **TASK-329 — «Ask for a route» sempre aperto, con le nostre idee in
   Europa e poi le foto vere dei posti** (ADR-0287; richiesta a voce
   dell'utente del 2026-10-29, proposta approvata con «Sì, così»; numeri

@@ -34,9 +34,10 @@ dell'API sul server»).
 
 Testi approvati con l'anteprima: «Add a place», «Preparing the map…»,
 «Places you add stay on the phone, so shapes there are drawn faster, even
-without signal.». Testi nuovi da far approvare con la PR: «Trying again
-later» e «Up to {count} places.» («Remove {name}», per VoiceOver, c'era
-già).
+without signal.». Testi nuovi della PR, «Trying again later» e «Up to
+{count} places.», con le traduzioni: **approvati dall'utente** il
+2026-10-29 in questa sessione («Sì, vanno bene»). «Remove {name}», per
+VoiceOver, c'era già.
 
 ## Contesto da leggere
 
@@ -105,7 +106,7 @@ già).
 - [x] A ogni apertura, con un server che risponde, i posti si chiedono
       dopo le zone intorno e prima di quelle in anticipo; senza rete no
       (`usePhoneZones.test.ts`).
-- [ ] L'utente approva i due testi nuovi.
+- [x] L'utente approva i due testi nuovi (2026-10-29, «Sì, vanno bene»).
 - [x] L'impronta iOS su una copia pulita resta `83793e26…` (misurata sulla
       testa `feb5ab54`).
 
