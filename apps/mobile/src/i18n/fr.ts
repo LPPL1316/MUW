@@ -1599,4 +1599,12 @@ export const FR: Table = {
     "Trop de photos aujourd'hui. Réessaie demain.",
   "Videos can't be sent right now. Try again later.":
     "Impossible d'envoyer des vidéos pour l'instant. Réessaie plus tard.",
+  // The drawings of the private messages (TASK-333 part C).
+  "Send to a friend": "Envoyer à des amis",
+  "Send to…": "Envoyer à…",
+  "Search people": "Chercher des personnes",
+  "Sent to {name}.": "Envoyé à {name}.",
+  "Send a drawing": "Envoyer un dessin",
+  "Photos, videos and drawings can be sent once {name} accepts your message.":
+    "Tu pourras envoyer des photos, des vidéos et des dessins quand {name} acceptera ton message.",
 };

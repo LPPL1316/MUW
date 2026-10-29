@@ -89,6 +89,7 @@ const help: AboutDocument = {
         "«Nachricht» auf dem Profil eines Mitglieds schreibt ihm. Folgt es dir, landet deine Nachricht in seinen «Nachrichten»; sonst kommt sie als Anfrage an, und du kannst eine Nachricht schicken, bis die Anfrage angenommen ist.",
         "Deine Unterhaltungen sind in «Profil», «Nachrichten», mit «Nachrichtenanfragen» oben. Nimm eine Anfrage an, um euch zu schreiben, lösche sie (wer geschrieben hat, erfährt es nicht) oder blockiere, wer geschrieben hat.",
         "Halte eine Nachricht gedrückt, um deine für euch beide zu löschen oder eine erhaltene zu melden. Niemand sieht, ob du eine Nachricht gelesen hast. Mit Push meldet dir MuW jede Nachricht und jede Anfrage.",
+        "Tippe in einer Unterhaltung auf +, um ein Foto, ein Video bis 60 Sekunden oder eine Zeichnung zu senden, oder tippe bei einer Route oder einer Zeichnung auf An Freunde senden. Du kannst sie senden, sobald die andere Person deine Nachricht angenommen hat. Videos bleiben 30 Tage. Tippe auf eine Zeichnung, um sie auf der Karte zu öffnen, zu starten, als GPX zu exportieren oder in deinen Favoriten zu behalten.",
       ],
     },
     {

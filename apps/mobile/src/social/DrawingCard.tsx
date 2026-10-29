@@ -9,6 +9,8 @@ import { ExploreStart } from "../explore/ExploreStart";
 import type { StartView } from "../explore/useStartDirections";
 import { t } from "../i18n";
 import { ImportedMark } from "../imports/ImportedMark";
+import { drawingOfDrawing } from "../messages/messageDrawing";
+import { SendDrawingButton } from "../messages/SendDrawingButton";
 import {
   color,
   fontSize,
@@ -159,6 +161,15 @@ export function DrawingCard({
       )}
       {exported === "failed" && (
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
+      )}
+      {/* «Send to a friend» (TASK-333): the track as the map shows it, in a
+          message. */}
+      {followable(drawing) && (
+        <SendDrawingButton
+          drawing={() => drawingOfDrawing(drawing)}
+          style={styles.button}
+          textStyle={styles.buttonText}
+        />
       )}
       {onDrawAgain !== undefined && (
         <Pressable
