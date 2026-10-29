@@ -18587,8 +18587,9 @@ prima del suo taglio.
    `PUT` mandato di nuovo sostituisce, non raddoppia. `409` mentre il
    disegno è solo del proprietario (come le foto), `422` per un file che
    non è un MP4 o è troppo lungo, `429` oltre 5 caricamenti al minuto o
-   20 al giorno per account, `503 videos_paused` (con `Retry-After`) sopra
-   il tetto: il video aspetta sul telefono e il post va senza.
+   20 al giorno per account, `503 videos_paused` (con `Retry-After`)
+   quando lo spazio è pieno anche dopo aver tolto i video dei messaggi
+   (punto 11): il video aspetta sul telefono e il post va senza.
    `PUT …/drawing/video/poster` con il JPEG nudo (al più 1 MB, rifatto da
    `fitted_jpeg`), `DELETE …/drawing/video`. Un `PUT` solo, non a pezzi: al
    più 40 MB, e un caricamento interrotto riparte da capo dalla coda del
@@ -18674,6 +18675,18 @@ prima del suo taglio.
     nello spazio libero misurato con `df -h` prima di aggiornare il
     server, lasciando posto alle copie di notte e agli estratti delle
     zone; se non ci stanno, si abbassa il tetto e si richiede all'utente.
+    **Quando lo spazio è pieno** (scelta dell'utente dello stesso giorno:
+    «appena è pieno cancella i video delle chat degli utenti dal più
+    vecchio al più recente»): i due tetti fanno uno spazio solo per i
+    video (15 + 10 GB); quando un video nuovo, di un post o di un
+    messaggio, non ci sta, il server cancella i video dei messaggi dal più
+    vecchio, finché ci sta. I video dei post non si cancellano mai per
+    fare posto; solo quando non resta nessun video di un messaggio il
+    video nuovo di un post aspetta sul telefono (`503 videos_paused`). Al
+    posto di un video cancellato così il messaggio dice, come per la
+    scadenza, «This video has expired.». Cambia il punto 8 di ADR-0289 (là
+    i video nuovi aspettano): lo aggiorna TASK-333 nei suoi file, con la
+    sua riga della privacy.
 12. **I permessi** (build 1.0.2, `app.json`): oggi il testo del microfono
     (di `expo-audio`) dice «MuW never records sound», e il plugin di
     `expo-image-picker` ha `microphonePermission: false`. Registrare un
@@ -18694,8 +18707,8 @@ prima del suo taglio.
     dice quando si passa l'80 % del tetto: allora si sceglie con
     l'utente, per esempio un Volume Hetzner (0,0572 € al GB al mese al
     prezzo di listino del 2026, da verificare quando si compra, che si
-    allarga senza fermare il server). Sopra il tetto i video nuovi
-    aspettano sul telefono (punto 4).
+    allarga senza fermare il server). Prima di allora fanno posto i video
+    dei messaggi, dal più vecchio (punto 11); i video dei post restano.
 14. **I dati mobili** (scelta 3 dell'utente): proposta, il video parte
     quando la sua pagina è sullo schermo, anche con i dati mobili. Ci si
     arriva solo scorrendo fino all'ultima pagina, che è già una scelta;

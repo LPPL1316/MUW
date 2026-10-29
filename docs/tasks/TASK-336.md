@@ -86,6 +86,15 @@ risposte si scrivono qui.
    540 sull'iPhone, niente copie di notte. Con l'ipotesi media il tetto
    si raggiunge in circa quattro mesi: all'80 % il log lo dice e si
    richiede all'utente.
+   Aggiunta dell'utente, subito dopo: «poi appena è pieno cancella i video
+   delle chat degli utenti dal più vecchio al più recente». Letta così
+   (ADR-0292, punto 11): i due tetti sono uno spazio solo per i video;
+   quando un video nuovo non ci sta, il server cancella i video dei
+   messaggi dal più vecchio finché ci sta; quelli dei post non si
+   cancellano mai per fare posto, e un video nuovo di un post aspetta sul
+   telefono solo quando non resta nessun video di un messaggio. Cambia
+   ADR-0289 punto 8 e la riga della privacy dei messaggi: li aggiorna
+   TASK-333, che ne chiede il sì all'utente.
 3. **I dati mobili.** Proposta: il video parte quando la sua pagina è
    sullo schermo, anche con i dati mobili. È l'ultima pagina, ci si
    arriva solo scorrendo; prima si scarica solo la locandina, e un video
@@ -122,7 +131,9 @@ non si vede niente; D è la build 1.0.2.
 3. `drawing_videos.py` (nuovo): `PUT`, `DELETE`
    `/me/activities/{key}/drawing/video`, `PUT …/video/poster`, `GET
    /drawings/{id}/video` e `…/video/poster` con `Range`; i limiti al
-   minuto e al giorno; il tetto con `503 videos_paused`.
+   minuto e al giorno; lo spazio pieno che toglie i video dei messaggi
+   dal più vecchio (con la funzione comune di `media_files.py`), e `503
+   videos_paused` solo quando non ne resta nessuno.
 4. `drawings.py`: `video` nei corpi di «My activities», del disegno e del
    Feed, letto insieme alle foto; «Only me» toglie riga e file.
 5. La pulizia di ogni ora di ADR-0289 copre anche `data/media/posts`.
@@ -380,8 +391,9 @@ Delle parti:
       (`206`) con chiave e token solo da chi vede il post, `404` agli
       altri e attraverso un blocco; oltre durata e peso `422` e `413`;
       il luogo non resta nel file; «Only me» lo toglie dal disco subito,
-      corsa e account cancellati entro un'ora; sopra il tetto `503
-      videos_paused`.
+      corsa e account cancellati entro un'ora; a spazio pieno se ne vanno
+      i video dei messaggi dal più vecchio, mai quelli dei post, e `503
+      videos_paused` solo quando non ne resta nessuno.
 - [ ] B: «Run video», galleria e (dalla 1.0.2) fotocamera danno un video
       entro i limiti, che arriva al server dopo il disegno e le foto e
       aspetta senza rete, con «Only me» e sopra il tetto; nella 1.0 e
