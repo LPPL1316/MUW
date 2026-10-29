@@ -17655,7 +17655,8 @@ aggiornamento OTA.
 
 **Stato**: Attiva · 2026-10-28 · proposte, testi e riga della privacy
 approvati dall'utente il 2026-10-28; parte A in `main` con la PR #612,
-parte B da fare · la richiesta è dell'utente («disegnare
+parte B (le schede) fatta il 2026-10-29, branch `feat/TASK-320-b-edit-cards`
+· la richiesta è dell'utente («disegnare
 anche a mano nella pagina draw» e «modificare un disegno del feed, un
 disegno ricercato, un disegno di explore… tutto potenzialmente
 editabile»); il posto («Freehand» in «Draw»), la tavola e che cosa si
@@ -17755,6 +17756,30 @@ dell'utente):
    fatto (`isDrawnOutline`, un `WeakSet`), come `drawnTile` riconosce
    un'immagine pronta: niente campo nuovo nel contratto, `RouteOutcome`
    invariato. La linea a dito di «Draw on the map» resta «Image».
+
+**Attuazione, parte B** (2026-10-29, branch `feat/TASK-320-b-edit-cards`;
+deciso dall'agente su delega dell'utente):
+
+1. **Il pulsante c'è solo se la tavola apre davvero una figura**: l'app
+   la fa prima (`figureOf` sulle linee, in `App.tsx`), e una figura che
+   non racchiude niente o con più dettagli di quanti un percorso ne corre
+   non dà il pulsante, invece di aprire una tavola vuota.
+2. **Quale disegno ha una figura** (`drawingLines` in `figureLines.ts`):
+   una forma del catalogo; senza forma né parola, un percorso pianificato
+   che dice solo il titolo (`route_title`, una foto, un'immagine, un
+   disegno a mano), con la traccia di almeno due punti. Un `route_title`
+   nullo è una corsa senza percorso; `source: "file"` (TASK-312) una corsa
+   importata, esclusa anche se un giorno avesse un titolo: non è il
+   disegno di una figura.
+3. **«Save» lascia la scheda, non l'apertura della tavola**: la tavola si
+   apre sopra la scheda; la figura e la distanza di «Draw» si scelgono al
+   tocco, il percorso o il disegno si lascia (`closeExplore`, `leave()`)
+   e «Draw» si mostra con «Save», l'unico modo di chiudere la tavola.
+4. **La distanza** è quella di «Draw it near me» per una forma
+   (`againDistanceM`): la richiesta del percorso di «Explore» o la corsa
+   del disegno, al decimo di km, nei limiti dello sport. Scritta in
+   `App.tsx` (`cardDistanceM`) per non toccare `drawAgain.ts`, fuori dai
+   file del task.
 
 ## ADR-0278 — Nelle build dello store gli sport non pronti non si vedono
 
@@ -18269,3 +18294,46 @@ elevation gain, never the runs themselves.»; il sito si copia insieme al
 server (`tasks/TASK-324.md`, «Aperto»). Le corse salvate prima di TASK-324
 non hanno dislivello: il totale parte da 0 e cresce con le corse nuove.
 Quattro testi nuovi in quattro lingue, accanto a quelli di «Drawings».
+
+## ADR-0282 — aggiunta, parte A: cosa l'API fa con i token di Apple e di Google
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-322 parte A). Aggiunta ad ADR-0282, senza numero nuovo.
+
+**Contesto**: scrivendo `POST /session/{provider}` sono venute fuori scelte
+che l'ADR non dice.
+
+**Decisione**:
+
+1. **L'account nuovo ha l'email confermata** (`email_confirmed` vero) e non
+   riceve l'email di conferma di TASK-300: Apple o Google l'hanno appena
+   verificata. Un'identità che si lega a un account con l'email non
+   confermata la rende confermata, oltre a cambiare la password e chiudere
+   le sessioni.
+2. **`email_verified` si chiede sempre**, anche a un'identità già nota: un
+   token senza un'email verificata è `401 wrong_credentials`, come dice il
+   criterio di accettazione. L'identità nota segue il suo `sub`: se
+   l'email del provider cambia, cambia solo `user_identities.email`.
+3. **Il codice di Apple si scambia solo quando serve**: alla nascita o al
+   legame dell'identità, o quando il refresh token manca; mai al `404`,
+   perché il codice vale una volta sola. Se Apple non lo scambia, l'entrata
+   va avanti senza token e ci si riprova alla volta dopo.
+4. **Le chiavi pubbliche** si tengono quanto dice `Cache-Control`, fra 1
+   minuto e un giorno; una chiave sconosciuta le fa richiedere al massimo
+   una volta al minuto; se il provider non risponde si usano quelle di
+   prima per un altro minuto. Scadenza e `iat` si controllano con
+   l'orologio dell'API (un minuto di tolleranza), non con quello di PyJWT:
+   i test lo fissano.
+5. **Il `404 new_account`** è il corpo d'errore di sempre con un campo in
+   più, `email`; i codici nuovi sono `new_account` e
+   `provider_unavailable`. L'audience di Apple è il bundle dell'app,
+   `com.lppl1316.sgrava`, scritto nel codice; il `.p8` sta in
+   `SHAPEROUTE_APPLE_KEY_P8` con le righe unite da `\n`, e un `.p8` che non
+   firma lascia Apple spento con una riga nel log.
+6. **Le richieste HTTP** passano per `Call`/`Reply` di `strava_client.py`,
+   con `urllib` come Strava: nessuna dipendenza in più oltre a
+   `PyJWT[crypto]`.
+
+**Conseguenze**: nessun contratto di oggi cambia; `Accounts` ha
+`insert_user` (anche per `POST /accounts`) e `unusable_password_hash`, e
+`open_session` è una funzione del modulo.

@@ -18,6 +18,9 @@ dependencies = [
     # The pool keeps the requests' connections open (TASK-288 B, ADR-0249).
     "psycopg[binary,pool]>=3.2,<4",
     "argon2-cffi>=23.1,<26",
+    # Sign in with Apple and Google (TASK-322, ADR-0282): their id_tokens
+    # read with their public keys, and Apple's client secret signed (ES256).
+    "PyJWT[crypto]>=2.10,<3",
 ]
 
 [project.optional-dependencies]
