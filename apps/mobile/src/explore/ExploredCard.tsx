@@ -36,8 +36,9 @@ type Props = {
   /** «Draw it near me» (TASK-313): its shape or word chosen in «Draw»;
    * without it, a figure «Draw» cannot choose, there is no button. */
   onDrawAgain?: () => void;
-  /** «Edit the drawing» (TASK-320): its figure in the board, then «Draw»;
-   * without it, a figure the board cannot open, there is no button. */
+  /** «Edit the drawing» (TASK-320): its figure on the map of «Draw on the
+   * map» (TASK-331); without it, an emoji or a figure that is no drawing,
+   * there is no button. */
   onEditDrawing?: () => void;
 };
 

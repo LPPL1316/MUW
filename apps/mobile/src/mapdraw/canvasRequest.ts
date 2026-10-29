@@ -64,14 +64,27 @@ export function framed(
  * them (`sameRequest`). */
 const FRAMED = new WeakMap<Figure, ReturnType<typeof framed>>();
 
+/** The outlines of drawings asked for: a route of one is a «Drawing»,
+ * where a photo's is an «Image» (TASK-320, TASK-331). */
+const DRAWN = new WeakSet<OutlinePoint[]>();
+
 function framedOf(figure: Extract<Figure, { outline: unknown }>) {
   let made = FRAMED.get(figure);
   if (made === undefined) {
     const details = figure.kind === "drawing" ? figure.details : figure.strokes;
     made = framed(figure.outline, details);
+    if (figure.kind === "drawing") {
+      DRAWN.add(made.outline);
+    }
     FRAMED.set(figure, made);
   }
   return made;
+}
+
+/** Whether `outline` is one of a drawing on the map: its route is a
+ * «Drawing». */
+export function isDrawnOutline(outline: OutlinePoint[]): boolean {
+  return DRAWN.has(outline);
 }
 
 /**

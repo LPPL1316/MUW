@@ -1,14 +1,17 @@
 import type { ImageRouteRequest, LatLon } from "@shaperoute/shared-types";
 
-import { type BoardPoint, freehandRequest, newFigure } from "../route/freehand";
+import { canvasRequest } from "../mapdraw/canvasRequest";
+import { newDrawing } from "../mapdraw/drawing";
+import { fromPlane } from "../mapdraw/plane";
 import { PhoneEngine } from "./phoneEngine";
 import { phoneFirst, planOnPhone } from "./onPhone";
 import type { ZoneEntry } from "./zones";
 
 /**
- * A figure drawn by hand in «Draw» (TASK-320) is asked for as a picture's
- * outline: the phone does not draw it, even with a zone around the start
- * (TASK-214, «photos are drawn on the server»); it goes to the server.
+ * A figure drawn by hand on the map (TASK-320, TASK-331) is asked for as a
+ * picture's outline, an open line too: the phone does not draw it, even
+ * with a zone around the start (TASK-214, «photos are drawn on the
+ * server»); it goes to the server.
  */
 
 const TRENTO: LatLon = [46.0671, 11.1214];
@@ -21,27 +24,35 @@ const ZONE: ZoneEntry = {
   usedAt: 0,
 };
 
-function stroke(a: BoardPoint, b: BoardPoint, steps = 20): BoardPoint[] {
-  return Array.from({ length: steps }, (_, i) => {
-    const t = i / (steps - 1);
-    return [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])];
-  });
-}
-
-test("a drawing of the board goes to the server, as a photo does", async () => {
-  const added = newFigure([
-    ...stroke([0.2, 0.2], [0.8, 0.2]),
-    ...stroke([0.8, 0.2], [0.8, 0.8]).slice(1),
-    ...stroke([0.8, 0.8], [0.2, 0.8]).slice(1),
-    ...stroke([0.2, 0.8], [0.2, 0.22]).slice(1),
-  ]);
-  if (added === null || !("figure" in added)) throw new Error("no figure");
-  const request: ImageRouteRequest = {
-    start: TRENTO,
-    ...freehandRequest(added.figure),
-    distance_m: 5000,
-    activity: "running",
-  };
+test.each([
+  [
+    "a closed line",
+    [
+      [-500, -500],
+      [500, -500],
+      [500, 500],
+      [-500, 500],
+      [-500, -480],
+    ],
+  ],
+  [
+    "an open line",
+    [
+      [-500, 0],
+      [0, 400],
+      [500, 0],
+    ],
+  ],
+])("%s drawn on the map goes to the server, as a photo does", async (_what, line) => {
+  const drawn = newDrawing(line.map(([x, y]) => fromPlane(TRENTO, [x, y])));
+  if (drawn === null || !("placed" in drawn)) throw new Error("no drawing");
+  const request = canvasRequest(
+    drawn.placed,
+    false,
+    "running",
+    "km",
+  ) as ImageRouteRequest;
+  expect(request.outline.length).toBeGreaterThanOrEqual(4);
   expect(phoneFirst(request)).toBe(false);
   const engine = new PhoneEngine();
   const plan = jest.spyOn(engine, "plan");

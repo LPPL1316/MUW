@@ -1271,12 +1271,12 @@ export const ES: Table = {
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Dibujar en el mapa",
   Move: "Mover",
-  "Draw with one finger. Lines after the first are joined to it.":
-    "Dibuja con un dedo. Las líneas después de la primera se unen a ella.",
+  "Draw with one finger. End where you started to close it. Two fingers move the map.":
+    "Dibuja con un dedo. Termina donde empezaste para cerrarla. Con dos dedos mueves el mapa.",
+  "Each new line joins the drawing. Two fingers move the map.":
+    "Cada línea nueva se une al dibujo. Con dos dedos mueves el mapa.",
   "Drag the figure or the map. Two fingers on the figure resize it.":
     "Arrastra la figura o el mapa. Dos dedos sobre la figura cambian su tamaño.",
-  "This line crosses itself. Draw it again without crossing it.":
-    "Esta línea se cruza consigo misma. Dibújala de nuevo sin cruzarla.",
   "+ photo": "+ foto",
 
   // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
@@ -1559,19 +1559,14 @@ export const ES: Table = {
   "Write a message…": "Escribe un mensaje…",
   "Delete this message for both of you?": "¿Eliminar este mensaje para los dos?",
   "Report this message": "Denunciar este mensaje",
-  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
-  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
-  Freehand: "A mano alzada",
+  // src/route/EditDrawingButton.tsx, mapdraw/DrawOnMap.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure drawn by hand
+  // on the map)
   "Edit the drawing": "Editar el dibujo",
-  "Draw with your finger": "Dibuja con el dedo",
   Erase: "Borrar",
   Drawing: "Dibujo",
-  "Draw the outline with one finger: it closes by itself.":
-    "Dibuja el contorno con un dedo: se cierra solo.",
   "Tap a line to erase it. The outline takes its details with it.":
     "Toca una línea para borrarla. El contorno se lleva sus detalles.",
-  "This line encloses nothing. Draw a closed shape.":
-    "Esta línea no encierra nada. Dibuja una figura cerrada.",
   // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
   // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
   "Add past activity": "Añadir una actividad pasada",

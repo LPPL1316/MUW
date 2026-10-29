@@ -10,24 +10,26 @@ import { type ImageState, useImageOutline } from "../route/useImageOutline";
 import { appUnits } from "../units/units";
 import { canvasRequest, figureApart } from "./canvasRequest";
 import { type DrawingProblem, newDrawing, withDetail } from "./drawing";
+import { asDrawing, drawingOf, erasedAt, type FigureLines, touchesLines } from "./edit";
 import {
   distanceOf,
   type Figure,
+  lookOf,
   type Placed,
   placeAt,
   placedLines,
+  type Unit,
   unitLimits,
   withinLimits,
 } from "./figure";
+import { toPlane } from "./plane";
 import { type FigureChoice, figureOf } from "./resultFigure";
 
-/** What «Undo» takes back (TASK-281): a figure put on the map or drawn, in
- * place of what was there; a tile that changed the figure where it is; a
- * line hung on the drawing. Moving and sizing are not undone. */
-type Step =
-  | { kind: "put"; before: Placed | null }
-  | { kind: "swap"; before: Figure }
-  | { kind: "detail" };
+/** What «Undo» takes back (TASK-281): a figure put on the map or drawn, or
+ * erased, in place of what was there; a tile, a line or «Erase» that
+ * changed the figure where it is (TASK-331). Moving and sizing are not
+ * undone. */
+type Step = { kind: "put"; before: Placed | null } | { kind: "swap"; before: Figure };
 
 export type MapCanvasOptions = {
   apiUrl: string | null;
@@ -70,6 +72,11 @@ export type MapCanvasState = {
   problem: DrawingProblem | null;
   /** The screen opens: the map is framed on the figure, or the start. */
   open: () => void;
+  /** «Edit the drawing» (TASK-331): the lines of a figure the app proposes
+   * on the map as a drawing, in the middle of the start, as long as
+   * `distanceM`, to draw on; «Undo» takes it away. False when they make no
+   * drawing. */
+  edit: (lines: FigureLines, distanceM: number) => boolean;
   /** «Try 8 km» on the route of the figure: the figure that size, and the
    * request for it, to draw at once. */
   sizeTo: (distanceM: number) => AnyRouteRequest | null;
@@ -82,9 +89,9 @@ export type MapCanvasState = {
 /**
  * «Draw on the map» (TASK-281, ADR-0245): the figure on the map of the
  * town, drawn with a finger, a shape of the catalogue or a photo's outline;
- * moved and sized by the fingers on the map, changed in place by a tile, and
- * taken back by «Undo». It stays as it was while the route of it is shown,
- * so «←» comes back to it.
+ * moved and sized by the fingers on the map, changed in place by a tile, by
+ * a line drawn on it or by «Erase» (TASK-331), and taken back by «Undo». It
+ * stays as it was while the route of it is shown, so «←» comes back to it.
  */
 export function useMapCanvas({
   apiUrl,
@@ -185,6 +192,40 @@ export function useMapCanvas({
   const { choose } = photo;
   const choosePhoto = useCallback(() => choose("library"), [choose]);
 
+  /** «Erase» (TASK-331): the line under the finger taken away; the whole
+   * figure with its outline, or with the line of an open one. A shape of
+   * the catalogue is no drawing to take apart: it goes whole. */
+  const erase = useCallback(
+    (line: readonly LatLon[]) => {
+      if (placed === null) {
+        return;
+      }
+      const touched = line.map((point): Unit => {
+        const [x, y] = toPlane(placed.centre, point);
+        return [x / placed.unitM, y / placed.unitM];
+      });
+      const drawing = asDrawing(placed.figure);
+      const left =
+        drawing !== null
+          ? erasedAt(drawing, touched)
+          : touchesLines(lookOf(placed.figure, apartOf(placed.figure)).lines, touched)
+            ? { drawing: null }
+            : null;
+      if (left === null) {
+        return;
+      }
+      setProblem(null);
+      if (left.drawing === null) {
+        setSteps((now) => [...now, { kind: "put", before: placed }]);
+        setKept(null);
+        return;
+      }
+      setSteps((now) => [...now, { kind: "swap", before: placed.figure }]);
+      setKept(within({ ...placed, figure: left.drawing }));
+    },
+    [placed, within, apartOf],
+  );
+
   const onCanvas = useCallback(
     (event: CanvasEvent) => {
       if (event.type === "centre") {
@@ -209,13 +250,20 @@ export function useMapCanvas({
       }
       // A line drawn: the ink on the map goes, whatever comes of it.
       setAnswers((n) => n + 1);
+      if (mode === "erase") {
+        erase(event.line);
+        return;
+      }
       if (mode !== "draw") {
         return;
       }
-      const onDrawing = placed !== null && placed.figure.kind === "drawing";
+      // On a photo the line joins it too: the figure becomes a drawing
+      // where it is, as big (TASK-331). On a shape of the catalogue, which
+      // is not changed, the line is a new drawing in its place.
+      const drawing = placed === null ? null : asDrawing(placed.figure);
       const drawn =
-        placed !== null && onDrawing
-          ? withDetail(placed, event.line)
+        placed !== null && drawing !== null
+          ? withDetail({ ...placed, figure: drawing }, event.line)
           : newDrawing(event.line);
       if (drawn === null) {
         return;
@@ -227,11 +275,13 @@ export function useMapCanvas({
       setProblem(null);
       setSteps((now) => [
         ...now,
-        onDrawing ? { kind: "detail" } : { kind: "put", before: placed },
+        placed !== null && drawing !== null
+          ? { kind: "swap", before: placed.figure }
+          : { kind: "put", before: placed },
       ]);
       setKept(within(drawn.placed));
     },
-    [placed, mode, within],
+    [placed, mode, within, erase],
   );
 
   const undo = useCallback(() => {
@@ -243,13 +293,8 @@ export function useMapCanvas({
     setProblem(null);
     if (step.kind === "put") {
       setKept(step.before);
-    } else if (placed !== null && step.kind === "swap") {
+    } else if (placed !== null) {
       setKept({ ...placed, figure: step.before });
-    } else if (placed !== null && placed.figure.kind === "drawing") {
-      setKept({
-        ...placed,
-        figure: { ...placed.figure, details: placed.figure.details.slice(0, -1) },
-      });
     }
   }, [steps, placed]);
 
@@ -279,6 +324,24 @@ export function useMapCanvas({
   );
 
   const open = useCallback(() => setFraming((n) => n + 1), []);
+
+  const edit = useCallback(
+    (lines: FigureLines, metres: number) => {
+      const drawing = drawingOf(lines);
+      const middle = start ?? centre.current;
+      if (drawing === null || middle === null) {
+        return false;
+      }
+      setProblem(null);
+      // Drawing on it is what comes next.
+      setModeState("draw");
+      setSteps((now) => [...now, { kind: "put", before: placed }]);
+      setKept(within(placeAt(drawing, middle, metres)));
+      setFraming((n) => n + 1);
+      return true;
+    },
+    [start, placed, within],
+  );
 
   const sizeTo = useCallback(
     (metres: number) => {
@@ -323,6 +386,7 @@ export function useMapCanvas({
     request,
     problem,
     open,
+    edit,
     sizeTo,
     changeTo,
   };

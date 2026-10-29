@@ -1,9 +1,10 @@
 /**
- * «Edit the drawing» on the cards (TASK-320 part B, ADR-0280): the figure
- * of a route of «Explore», or of a member's drawing, opens in the board at
- * once; «Save» shows «Draw» with «Freehand», the figure, the distance «Draw
- * it near me» would choose and «Draw»'s start, and nothing is asked before
- * «Draw route». What a drawing opens is in src/route/figureLines.test.ts.
+ * «Edit the drawing» on the cards (TASK-320 part B, TASK-331): the figure
+ * of a member's drawing goes on the map of «Draw on the map» at once, in
+ * the middle of «Draw»'s start, at the distance «Draw it near me» would
+ * choose, and nothing is asked before «Draw route». A shape of the
+ * catalogue — an emoji — has no «Edit the drawing» (ADR-0288). What a
+ * drawing puts on the map is in src/route/figureLines.test.ts.
  */
 import drawing from "@shaperoute/shared-types/fixtures/drawing-details.json";
 import imported from "@shaperoute/shared-types/fixtures/drawing-details-imported.json";
@@ -12,7 +13,7 @@ import detail from "@shaperoute/shared-types/fixtures/recommended-route.json";
 import list from "@shaperoute/shared-types/fixtures/recommended-routes.json";
 import jobDone from "@shaperoute/shared-types/fixtures/route-job-done.json";
 import session from "@shaperoute/shared-types/fixtures/session.json";
-import { fireEvent, render, screen, within } from "@testing-library/react-native";
+import { fireEvent, render, screen } from "@testing-library/react-native";
 import * as Location from "expo-location";
 
 import App from "../App";
@@ -114,34 +115,13 @@ async function onDrawing() {
   await screen.findByRole("button", { name: "Back to the profile" });
 }
 
-/** The board on a 400 × 700 screen, and the sides of its outline. */
-async function boardSides(): Promise<number> {
-  const area = screen.getByTestId("freehand-board");
-  await fireEvent(area, "layout", {
-    nativeEvent: { layout: { x: 0, y: 0, width: 400, height: 700 } },
-  });
-  return within(area).getAllByTestId("outline-side").length;
-}
-
-/** «Draw» on screen with «Freehand» and the figure, ready to ask for it. */
-function expectFreehandDraw(distance: string) {
-  expect(screen.queryByTestId("freehand-board")).toBeNull();
-  expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
-  expect(screen.getByRole("button", { name: "Freehand" })).toBeSelected();
-  expect(screen.getByTestId("freehand-preview")).toBeOnTheScreen();
-  expect(screen.getByLabelText("Distance in km")).toHaveDisplayValue(distance);
-  // From where «Draw» starts, as before.
-  expect(screen.getByText("Starting from your position.")).toBeOnTheScreen();
-  expect(screen.getByRole("button", { name: "Draw route" })).toBeEnabled();
-}
-
-/** What the API checks of an outline sent (ADR-0069), as a drawing's. */
+/** What the API checks of an outline sent (ADR-0069), as a drawing's: the
+ * route starts on the figure, put around «Draw»'s start. */
 function expectDrawingRequest(body: Record<string, unknown>, distanceM: number) {
-  expect(body).toMatchObject({
-    start: HERE,
-    distance_m: distanceM,
-    activity: "running",
-  });
+  expect(body).toMatchObject({ distance_m: distanceM, activity: "running" });
+  const [lat, lon] = body.start as [number, number];
+  expect(Math.abs(lat - HERE[0])).toBeLessThan(0.02);
+  expect(Math.abs(lon - HERE[1])).toBeLessThan(0.03);
   expect(body).not.toHaveProperty("shape");
   const outline = body.outline as [number, number][];
   expect(outline.length).toBeGreaterThanOrEqual(4);
@@ -204,65 +184,15 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test("a route of «Explore» opens its shape in the board, and «Save» shows «Draw» with it, asking for nothing", async () => {
+test("a route of «Explore» of an emoji has «Draw it near me» but no «Edit the drawing»", async () => {
   await onFeed();
   await fireEvent.press(screen.getByText(POST.title));
   await screen.findByText("Start");
-  // Where it goes: after «Start», «Draw it near me» and «Export GPX».
-  const buttons = screen.getAllByRole("button");
-  const named = (name: string) => buttons.indexOf(screen.getByRole("button", { name }));
-  expect(named("Start")).toBeGreaterThanOrEqual(0);
-  expect(named("Edit the drawing")).toBeGreaterThan(named("Start"));
-  expect(named("Edit the drawing")).toBeGreaterThan(named("Draw it near me"));
-  expect(named("Edit the drawing")).toBeGreaterThan(named("Export GPX"));
-  const before = fetchSpy.mock.calls.length;
-
-  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
-
-  // The board at once, on the star of the route: its outline and nothing
-  // asked for.
-  expect(await boardSides()).toBeGreaterThan(4);
-  await fireEvent.press(screen.getByRole("button", { name: "Save" }));
-
-  expectFreehandDraw("5");
-  // The route is left: no card of it.
-  expect(screen.queryByText("Back to the list")).toBeNull();
-  expect(fetchSpy.mock.calls.length).toBe(before);
-
-  // «Draw route»: the figure goes as a drawing, from «Draw»'s start.
-  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
-  expect(
-    await screen.findByText("Drawing · on roads · target 5 km", {}, { timeout: 3000 }),
-  ).toBeOnTheScreen();
-  const sent = posted();
-  expect(sent).toHaveLength(1);
-  expect(String(sent[0][0])).toBe(`${API}/image-route-jobs`);
-  expectDrawingRequest(JSON.parse(String(sent[0][1]?.body)), 5000);
+  expect(screen.getByRole("button", { name: "Draw it near me" })).toBeOnTheScreen();
+  expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
 });
 
-test("a member's drawing with a shape opens the shape; «Save» leaves the drawing for «Draw»", async () => {
-  await onDrawing();
-  const before = fetchSpy.mock.calls.length;
-
-  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
-  expect(await boardSides()).toBeGreaterThan(4);
-  await fireEvent.press(screen.getByRole("button", { name: "Save" }));
-
-  // The star of the drawing at the km it was run: 4004 m are 4 km.
-  expect(drawing.distance_m).toBe(4004);
-  expectFreehandDraw("4");
-  expect(screen.queryByText(String(drawing.description))).toBeNull();
-  expect(screen.queryByRole("button", { name: "Back to the profile" })).toBeNull();
-  // Nothing of the other's route travels, and nothing is drawn yet.
-  expect(posted()).toHaveLength(0);
-  expect(fetchSpy.mock.calls.length).toBe(before);
-
-  // Nothing of the drawing is waiting behind «Feed».
-  await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
-  expect(screen.queryByText(String(drawing.description))).toBeNull();
-});
-
-test("a member's drawing of a picture opens the track it ran, closed", async () => {
+test("a member's drawing of a picture puts the track it ran on the map, then «Draw route» asks for it as a drawing", async () => {
   theDrawing = () =>
     Response.json({
       ...drawing,
@@ -275,15 +205,41 @@ test("a member's drawing of a picture opens the track it ran, closed", async () 
     });
   await onDrawing();
   expect(screen.queryByRole("button", { name: "Draw it near me" })).toBeNull();
+  const before = fetchSpy.mock.calls.length;
 
   await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
-  expect(await boardSides()).toBeGreaterThan(4);
-  await fireEvent.press(screen.getByRole("button", { name: "Save" }));
 
-  // 6260 m to the tenth of a km.
-  expectFreehandDraw("6.3");
+  // The map of «Draw on the map» at once, with the figure: 6260 m to the
+  // tenth of a km, ready to draw on.
+  expect(screen.getByText("Undo")).toBeOnTheScreen();
+  expect(screen.getByText("≈ 6.3 km")).toBeOnTheScreen();
+  expect(
+    screen.getByText("Each new line joins the drawing. Two fingers move the map."),
+  ).toBeOnTheScreen();
+  // The drawing is left, and nothing of it travels.
+  expect(screen.queryByText(String(drawing.description))).toBeNull();
+  expect(screen.queryByRole("button", { name: "Back to the profile" })).toBeNull();
   expect(posted()).toHaveLength(0);
   expect(asked("POST", "/route-directions")).toHaveLength(0);
+  expect(fetchSpy.mock.calls.length).toBe(before);
+
+  // «Draw route»: the figure goes as a drawing, from where it is.
+  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
+  expect(
+    await screen.findByText(
+      "Drawing · on roads · target 6.3 km",
+      {},
+      { timeout: 3000 },
+    ),
+  ).toBeOnTheScreen();
+  const sent = posted();
+  expect(sent).toHaveLength(1);
+  expect(String(sent[0][0])).toBe(`${API}/image-route-jobs`);
+  expectDrawingRequest(JSON.parse(String(sent[0][1]?.body)), 6300);
+
+  // Under the route, «Edit the drawing» goes back to the figure on the map.
+  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
+  expect(screen.getByText("≈ 6.3 km")).toBeOnTheScreen();
 });
 
 test("a word of «Explore» has «Draw it near me» but no «Edit the drawing»", async () => {
@@ -298,6 +254,7 @@ test("a word of «Explore» has «Draw it near me» but no «Edit the drawing»"
 });
 
 test.each([
+  ["an emoji", {}],
   ["a word", { shape: null, word: "ciao", style: "round" }],
   ["a run without a planned route", { shape: null, word: null, route_title: null }],
   ["a run imported from another app", imported],
@@ -311,10 +268,17 @@ test.each([
   expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
 });
 
-test("with «Paddle» a drawing's card has no «Edit the drawing»", async () => {
+test("with «Paddle» a drawing's card has no «Edit the drawing», even of a picture", async () => {
   jest.mocked(loadSport).mockReturnValue("paddle");
+  theDrawing = () =>
+    Response.json({
+      ...drawing,
+      shape: null,
+      word: null,
+      style: null,
+      route_title: "Drawing",
+      track: RING,
+    });
   await onDrawing();
-  // Its star is still drawn near: on the water, as a shape of the catalogue.
-  expect(screen.getByRole("button", { name: "Draw it near me" })).toBeOnTheScreen();
   expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
 });

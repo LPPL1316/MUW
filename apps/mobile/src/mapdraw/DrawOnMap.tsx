@@ -26,16 +26,22 @@ import { placedTile } from "./resultFigure";
 const MODES = [
   { value: "draw", label: tLater("Draw") },
   { value: "move", label: tLater("Move") },
+  { value: "erase", label: tLater("Erase") },
 ] as const;
 
-/** What the fingers do, said under the switch. */
+/** What the fingers do, said under the switch: with «Draw», a first line
+ * stays open unless it ends where it started, and the lines after it join
+ * a drawing or a photo (TASK-331). */
 const HINTS: Record<CanvasMode, string> = {
-  draw: tLater("Draw with one finger. Lines after the first are joined to it."),
+  draw: tLater(
+    "Draw with one finger. End where you started to close it. Two fingers move the map.",
+  ),
   move: tLater("Drag the figure or the map. Two fingers on the figure resize it."),
+  erase: tLater("Tap a line to erase it. The outline takes its details with it."),
 };
+const ON_FIGURE = tLater("Each new line joins the drawing. Two fingers move the map.");
 
 const PROBLEMS: Record<DrawingProblem, string> = {
-  crosses: tLater("This line crosses itself. Draw it again without crossing it."),
   too_much: tLater(
     "That is too much for one route. Undo something, or draw simpler lines.",
   ),
@@ -60,8 +66,9 @@ type Props = {
 };
 
 /**
- * Under the map of «Draw on the map» (TASK-281): «Draw | Move» and «Undo»,
- * what the fingers do, a row of tiles that put a figure on the map or
+ * Under the map of «Draw on the map» (TASK-281): «Draw | Move | Erase»
+ * (TASK-331) and «Undo», what the fingers do, a row of tiles that put a
+ * figure on the map or
  * change it where it is («+ photo» first, then the shapes of the
  * catalogue and the ready-made pictures of «Draw»), the distance the figure
  * would make, and «Draw route».
@@ -99,7 +106,13 @@ export function DrawOnMap({
           <Text style={styles.undoText}>{t("Undo")}</Text>
         </Pressable>
       </View>
-      <Note mode={mode} photo={photo} problem={problem} />
+      <Note
+        mode={mode}
+        // A line joins a drawing or a photo; on a shape it is a new drawing.
+        onFigure={placed !== null && placed.figure.kind !== "shape"}
+        photo={photo}
+        problem={problem}
+      />
       <FigureTiles
         chosen={placedTile(placed)}
         onChoose={(choice) => {
@@ -126,13 +139,16 @@ export function DrawOnMap({
 }
 
 /** One line: why the last line or photo gave nothing, the photo being
- * traced, or what the fingers do. */
+ * traced, or what the fingers do; with «Draw» on a figure, that a line
+ * joins it. */
 function Note({
   mode,
+  onFigure,
   photo,
   problem,
 }: {
   mode: CanvasMode;
+  onFigure: boolean;
   photo: ImageState;
   problem: DrawingProblem | null;
 }) {
@@ -151,11 +167,12 @@ function Note({
   if (refused !== null) {
     return <Text style={styles.problem}>{imageProblemText(refused).text}</Text>;
   }
-  return <Text style={styles.note}>{t(HINTS[mode])}</Text>;
+  const hint = mode === "draw" && onFigure ? ON_FIGURE : HINTS[mode];
+  return <Text style={styles.note}>{t(hint)}</Text>;
 }
 
-/** Two lines of the note, kept whatever it says: «Draw» and «Move» do not
- * move the tiles up and down. */
+/** Two lines of the note, kept whatever it says: the modes do not move the
+ * tiles up and down. */
 const NOTE_HEIGHT = Math.ceil(fontSize.small * 1.35) * 2;
 
 const styles = StyleSheet.create({
