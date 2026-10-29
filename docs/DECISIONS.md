@@ -19510,13 +19510,20 @@ strumenti; `erasedAt` esce da `edit.ts`.
 
 ## ADR-0300 — Il disegno libero ancorato alle strade: il map matching è una modalità del nostro motore, per tratto, al sollevamento del dito
 
-**Stato**: Proposta · 2026-10-30 · la richiesta è **dell'utente**
+**Stato**: Accettata · 2026-10-30 · la richiesta è **dell'utente**
 (TASK-347, «Contesto», 2026-10-30: il tracciato deve seguire da solo
 strade e sentieri reali, correggendo il dito, con strumenti da
 professionista, confronto e punteggio, informazioni, bozza ed
 esportazione); l'architettura è proposta dall'agente; le cinque scelte di
-prodotto (TASK-347, «Scelte di prodotto») si fanno all'utente una per
-volta e si registrano qui. Numeri dal Coordinatore.
+prodotto sono **dell'utente**, fatte una per volta lo stesso giorno
+(TASK-347, «Scelte di prodotto»): il nostro motore e non un servizio
+esterno («Sì, motore nostro»); il tratto nella pagina della mappa, niente
+nativi fino alla build successiva («Sì, nella pagina»); il punteggio = la
+somiglianza del motore, sotto la mappa e non nei post («Sì, così»);
+dislivello e profilo subito, nella fase 5, dalle tegole del terreno
+(«Subito»); campi opzionali nel contratto ed endpoint nuovi con la sonda
+(«Sì, così»). I punti tecnici sono decisi dall'agente su delega
+dell'utente. Numeri dal Coordinatore.
 
 **Contesto**: dal TASK-331 (ADR-0288) a mano si disegna solo sulla mappa,
 ma il tratto resta geometria libera finché non si preme «Draw route»; lì

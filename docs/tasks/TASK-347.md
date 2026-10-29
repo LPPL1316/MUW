@@ -1,8 +1,9 @@
 # TASK-347 — Il disegno libero ancorato alle strade: map matching per tratto, confronto e punteggio, strumenti da professionista, guide
 
-**Stato**: Proposta · 2026-10-30 · i documenti in questo branch; le
-scelte di prodotto (§«Scelte di prodotto») si fanno all'utente una per
-volta, poi le parti partono una alla volta, ognuna nella sua sessione
+**Stato**: Proposta approvata · 2026-10-30 · le cinque scelte di prodotto
+fatte dall'utente lo stesso giorno (§«Scelte di prodotto»); i documenti
+in questo branch; le parti partono una alla volta, ognuna nella sua
+sessione, dalla A
 **Fase**: 5 · **Branch**: `docs/TASK-347-pro-freehand` (documenti); le
 parti `feat/TASK-347-a-engine-anchored` e così via
 **Dipende da**: TASK-331 (a mano solo sulla mappa, in `main`), TASK-214
@@ -243,13 +244,18 @@ proposta pronta:
    tegole del terreno sul server (parte G, sotto).
 5. **Tre campi opzionali nel contratto e un endpoint nuovo**, con la sonda
    per il server vecchio; il server si aggiorna col sì dell'utente prima
-   dell'OTA. Proposta: sì.
+   dell'OTA. Proposta: sì. **Scelta dell'utente, 2026-10-30: «Sì,
+   così»** (con la parte G sono due endpoint: `/stroke-matches` e
+   `/elevations`).
+
+Tutte e cinque fatte il 2026-10-30, una per volta, in questa sessione.
 
 ## Criteri di accettazione (proposta)
 
 - [ ] Documenti in `main`: questo file, ADR-0300, la riga in `INDEX.md`,
       la voce in `STATUS.md`.
-- [ ] Le cinque scelte fatte dall'utente, registrate qui e in ADR-0300.
+- [x] Le cinque scelte fatte dall'utente, registrate qui e in ADR-0300
+      (2026-10-30).
 - [ ] Le parti A–G con i loro file, pronte a partire una alla volta.
 
 ## File toccati

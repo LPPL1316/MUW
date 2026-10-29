@@ -174,9 +174,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (telefono), C (app), D (strumenti), E (forme e guide col contorno da
   foto), F (informazioni, bozza, esportazione), G (dislivello e profilo
   dalle tegole del terreno sul server, nella fase 5).
-  **Resta**: le cinque scelte di prodotto, fatte all'utente una per volta,
-  poi la parte A nella sua sessione. Non si sovrappone a TASK-346 (i nodi
-  della traccia vera). File `tasks/TASK-347.md`.
+  Le cinque scelte di prodotto fatte dall'utente il 2026-10-30, una per
+  volta (motore nostro; tratto nella pagina; punteggio = somiglianza;
+  dislivello subito dalle tegole; contratto opzionale con la sonda).
+  **Resta**: il merge dei documenti, poi la parte A nella sua sessione.
+  Non si sovrappone a TASK-346 (i nodi della traccia vera). File
+  `tasks/TASK-347.md`.
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno
   proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
   approvata con «Yes, write it up»; numeri dal Coordinatore). Branch
