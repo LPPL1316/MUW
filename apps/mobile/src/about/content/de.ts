@@ -71,7 +71,7 @@ const help: AboutDocument = {
     {
       heading: "Veröffentlichen und teilen",
       blocks: [
-        "Ein gespeicherter Lauf ist privat: Nur du siehst ihn. Schalte «Öffentlich» ein, am Ende des Laufs oder bei einem Lauf in «Meine Aktivitäten», und die anderen Mitglieder sehen ihn als Zeichnung auf deinem Profil, ohne seine ersten und letzten 200 m.",
+        "Ein gespeicherter Lauf ist privat: Nur du siehst ihn. Andere Mitglieder sehen auf deinem Profil nur die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, nie die Läufe selbst. Schalte «Öffentlich» ein, am Ende des Laufs oder bei einem Lauf in «Meine Aktivitäten», und die anderen Mitglieder sehen ihn als Zeichnung auf deinem Profil, ohne seine ersten und letzten 200 m.",
         "«Teilen» macht ein Bild deines Laufs, das du verschicken kannst, wohin du willst.",
       ],
     },
@@ -329,8 +329,8 @@ const privacy: AboutDocument = {
     {
       heading: "Deine Läufe und ihre GPS-Spuren",
       blocks: [
-        "Mit einem Konto geht der ganze Lauf an unseren Server, wenn du am Ende eines Laufs auf «Speichern» tippst: jede Position mit ihrer Uhrzeit, die Pausen, die Route, der du gefolgt bist, Distanz, Dauer, eine Punktzahl dafür, wie genau die Spur der Route folgt (von unserem Server berechnet und in der App nicht angezeigt), und der Name des Ortes. Mit «Verwerfen» wird nichts gesendet.",
-        "Ein gespeicherter Lauf ist privat: Nur dein Konto sieht ihn. Er bleibt, bis du ihn in «Meine Aktivitäten» löschst oder dein Konto löschst.",
+        "Mit einem Konto geht der ganze Lauf an unseren Server, wenn du am Ende eines Laufs auf «Speichern» tippst: jede Position mit ihrer Uhrzeit und Höhe, die Pausen, die Route, der du gefolgt bist, Distanz, Dauer, eine Punktzahl dafür, wie genau die Spur der Route folgt (von unserem Server berechnet und in der App nicht angezeigt), und der Name des Ortes. Mit «Verwerfen» wird nichts gesendet.",
+        "Ein gespeicherter Lauf ist privat: Nur dein Konto sieht ihn. Andere Mitglieder sehen auf deinem Profil nur die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, nie die Läufe selbst. Er bleibt, bis du ihn in «Meine Aktivitäten» löschst oder dein Konto löschst.",
         "Ein Lauf beginnt und endet oft an deiner Haustür. Deshalb wird ein Lauf für die anderen Mitglieder erst sichtbar, wenn du «Öffentlich» einschaltest, und dann sehen sie die Spur ohne ihre ersten und letzten 200 m, mit dem Titel, den du ihr gegeben hast, und ohne Zeiten, Pausen oder die geplante Route.",
         "Wer einen deiner Läufe sehen kann, kann ihm auch mit «Start» folgen und dieselbe Spur als GPX-Datei speichern: immer ohne ihre ersten und letzten 200 m und ohne Zeiten.",
       ],
