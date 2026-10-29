@@ -510,13 +510,35 @@ schede di prima.
 
 ### `GET /city-photos/{item}.jpg` (TASK-283, ADR-0243)
 
-La foto di un posto di `/nearby-cities`, `item` il suo elemento Wikidata
-(`Q1442886`): JPEG larga al più 500 pixel, presa da Commons la prima volta
-e tenuta nella cartella `city_photos/` della cache, senza i metadati del
-file. Cosa si sa di ogni elemento (la foto, o nessuna) è tenuto lì e
-richiesto di nuovo dopo 30 giorni. 404 per un elemento senza foto o mai
-nominato da `/nearby-cities` (non è un proxy di Commons); 503 se Commons
-non dà la foto. `Cache-Control: private, max-age=86400`.
+La foto di un posto di `/nearby-cities`, di un percorso a tema o di
+`/place-photos`, `item` il suo elemento Wikidata (`Q1442886`): JPEG larga
+al più 500 pixel, presa da Commons la prima volta e tenuta nella cartella
+`city_photos/` della cache, senza i metadati del file. Cosa si sa di ogni
+elemento (la foto, o nessuna) è tenuto lì e richiesto di nuovo dopo 30
+giorni. 404 per un elemento senza foto o mai nominato da una di quelle tre
+(non è un proxy di Commons); 503 se Commons non dà la foto.
+`Cache-Control: private, max-age=86400`.
+
+### `GET /place-photos` (TASK-329, ADR-0287)
+
+Le foto dei posti delle idee di «Ask for a route», che lo strumento
+`tools/themed_ideas.py` ha calcolato una volta e l'app tiene in un file:
+`?items=Q34921,Q152341`, al più 15 elementi Wikidata separati da virgole.
+Risponde solo per gli elementi della lista che lo strumento scrive accanto
+all'API (`shaperoute_api/data/idea_items.json`, letta all'avvio): un altro
+non ha foto qui e non è chiesto a Wikimedia. Le foto sono quelle di
+`/nearby-cities`, con le stesse regole (licenze libere, credito, attesa al
+più 2 s, solo l'elemento e il nome del file a Wikimedia); un elemento
+senza foto manca dalla risposta (`place-photos.json`). 422 per una lista
+vuota, più lunga di 15 o con qualcosa che non è un elemento. Un'API prima
+di TASK-329 risponde 404: l'app mostra i posti col solo nome.
+
+```json
+{"photos": {
+  "Q1442886": {"url": "/city-photos/Q1442886.jpg", "credit": "© LBM1948 · CC BY-SA 4.0"},
+  "Q581589": {"url": "/city-photos/Q581589.jpg", "credit": null}
+}}
+```
 
 ### `GET /city-suggestions` (TASK-134, TASK-138, ADR-0110)
 
@@ -568,6 +590,12 @@ null}`. Risponde 202 con un job, letto con `GET /themed-route-jobs/{id}`
   numero di luoghi.
 - **Il risultato**: `points`, `distance_m`, `similarity`, `shape`,
   `theme`, `city`, `centre` e **tutti** i luoghi trovati con `passed`.
+- **Le foto dei luoghi** (TASK-329, ADR-0287): ogni luogo ha `wikidata`,
+  il suo elemento quando OpenStreetMap ne nomina uno, altrimenti `null`; un
+  luogo toccato ha `photo` come i posti di `/nearby-cities` (stesse regole,
+  attesa al più 2 s, solo gli elementi a Wikimedia), `null` senza una foto
+  libera e per i luoghi non toccati. Un'API prima di TASK-329 non ha i due
+  campi: l'app mostra i posti col solo nome.
 - **Errori del job** (`error.code`): `theme_unknown`, `city_unknown`,
   `no_places` (meno di 2 luoghi verificati: lo dice, non inventa),
   `places_unavailable`, e quelli dei percorsi (`shape_not_drawable`,

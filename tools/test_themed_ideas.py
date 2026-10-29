@@ -7,6 +7,7 @@ import json
 from typing import Any
 
 from themed_ideas import (
+    API_ITEMS,
     COORD_DECIMALS,
     DEFAULT_OUT,
     IDEAS,
@@ -14,7 +15,9 @@ from themed_ideas import (
     Idea,
     entry,
     ideas_file,
+    items_file,
     read_kept,
+    with_items,
 )
 
 # The four categories the user chose for the ideas (2026-10-29), in the words
@@ -40,8 +43,20 @@ def result(shape: str = "star") -> dict[str, Any]:
         "city": "Rome, Lazio, Italy",
         "centre": [41.8933203, 12.4829321],
         "stops": [
-            {"name": "Colosseum", "point": [41.8902123, 12.4922345], "passed": True},
-            {"name": "Pantheon", "point": [41.8986108, 12.4768729], "passed": False},
+            {
+                "name": "Colosseum",
+                "point": [41.8902123, 12.4922345],
+                "passed": True,
+                "wikidata": "Q10285",
+                "photo": {"url": "/city-photos/Q10285.jpg", "credit": "© A · CC0"},
+            },
+            {
+                "name": "Pantheon",
+                "point": [41.8986108, 12.4768729],
+                "passed": False,
+                "wikidata": None,
+                "photo": None,
+            },
         ],
         "license": "Places and roads © OpenStreetMap contributors",
     }
@@ -75,6 +90,46 @@ def test_an_entry_keeps_the_result_rounded_with_the_city_as_named() -> None:
     assert body["similarity"] == 0.912
     assert kept["preview"] == body["points"]
     assert entry(idea, body) == kept
+
+
+def test_a_place_keeps_its_item_never_its_photo() -> None:
+    kept = entry(Idea("Rome", "Famous Places", "star", 8), result())
+    assert [s["wikidata"] for s in kept["result"]["stops"]] == ["Q10285", None]
+    assert all("photo" not in s for s in kept["result"]["stops"])
+    # A file written before the items: none.
+    old = result()
+    for stop in old["stops"]:
+        del stop["wikidata"], stop["photo"]
+    kept = entry(Idea("Rome", "Famous Places", "star", 8), old)
+    assert [s["wikidata"] for s in kept["result"]["stops"]] == [None, None]
+
+
+def test_the_items_found_again_by_name() -> None:
+    kept = entry(Idea("Rome", "Famous Places", "star", 8), result())
+    said: list[str] = []
+    again = with_items(kept, {"Colosseum": "Q10", "Trevi": "Q186579"}, said.append)
+    stops = again["result"]["stops"]
+    assert [s["wikidata"] for s in stops] == ["Q10", None]
+    assert said == ["rome-famous-places-star: 'Pantheon' not found again"]
+    # Nothing else moves.
+    assert {**again, "result": {**again["result"], "stops": []}} == {
+        **kept,
+        "result": {**kept["result"], "stops": []},
+    }
+
+
+def test_the_apis_list_has_the_items_of_the_places_passed_by() -> None:
+    first = entry(Idea("Rome", "Famous Places", "star", 8), result())
+    other = with_items(first, {"Colosseum": "Q10285", "Pantheon": "Q99309"}, print)
+    body = {"ideas": [first, other]}
+    assert items_file(body) == {"items": ["Q10285"]}
+
+
+def test_the_apis_list_is_that_of_the_apps_file() -> None:
+    body = json.loads(DEFAULT_OUT.read_text(encoding="utf-8"))
+    listed = json.loads(API_ITEMS.read_text(encoding="utf-8"))
+    assert listed == items_file(body)
+    assert listed["items"]
 
 
 def test_a_long_line_has_a_short_preview_with_its_ends() -> None:

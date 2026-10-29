@@ -20,32 +20,47 @@
       {
         "name": "Strada di Galliera",
         "point": [44.511644, 11.3470742],
-        "passed": true
+        "passed": true,
+        "wikidata": "Q3970434",
+        "photo": {
+          "url": "/city-photos/Q3970434.jpg",
+          "credit": "Wikimedia Commons · CC BY-SA 4.0"
+        }
       },
       {
         "name": "La lotta tra la tigre e il serpente",
         "point": [44.5025217, 11.3461454],
-        "passed": true
+        "passed": true,
+        "wikidata": "Q55074871",
+        "photo": null
       },
       {
         "name": "Memoriale alle vittime di Marcinelle",
         "point": [44.5047563, 11.3671021],
-        "passed": false
+        "passed": false,
+        "wikidata": null,
+        "photo": null
       },
       {
         "name": "Locomotiva FS Gr 835.255",
         "point": [44.5075937, 11.352835],
-        "passed": false
+        "passed": false,
+        "wikidata": null,
+        "photo": null
       },
       {
         "name": "Giovannini Alceste «Gino»",
         "point": [44.5108165, 11.3503592],
-        "passed": false
+        "passed": false,
+        "wikidata": null,
+        "photo": null
       },
       {
         "name": "2 agosto 1980 - Vittime del terrorismo fascista",
         "point": [44.5058878, 11.3429076],
-        "passed": false
+        "passed": false,
+        "wikidata": null,
+        "photo": null
       }
     ],
     "license": "Places and roads © OpenStreetMap contributors"

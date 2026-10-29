@@ -233,6 +233,9 @@ def main(argv: Sequence[str] | None = None) -> None:
         EventLog(args.insights_dir) if insights_wanted(args.no_insights) else None,
         Vocabulary.load(args.vocabulary),
     )
+    # The photos of the towns nearby (TASK-283), beside the zones; those of
+    # the places a themed route passes by too (TASK-329).
+    photos = CityPhotos(args.cache_dir / PHOTOS_FOLDER)
     # Themed routes (TASK-129): the places with the key of the place search,
     # the AI only for words the tables do not know.
     themed = ThemedJobs(
@@ -241,6 +244,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         cities=cities,
         insights=insights,
         ai=ThemeReader(OllamaModel(args.ai_model, args.ai_url)),
+        photos=photos,
     )
     app = create_app(
         graphs,
@@ -255,8 +259,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         route_store=archive,
     )
     # The towns near the user, under "Near me" in "Explore" (TASK-236), with
-    # their photos beside the zones (TASK-283).
-    photos = CityPhotos(args.cache_dir / PHOTOS_FOLDER)
+    # their photos (TASK-283).
     install_nearby_cities(app, NearbyCities(places.key, photos=photos), route_store)
     # The towns' examples already kept, read ahead by the app (TASK-316):
     # from the centres' files only, never the archive of users' starts.
