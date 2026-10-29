@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { type AnyRouteRequest, isImageRequest } from "../api/routes";
 import { cityName } from "../explore/recommendedRoutes";
+import { CardMapsCredit } from "../explore/RouteCard";
 import { thumbSegments } from "../explore/RouteThumb";
 import { postsFor } from "../explore/WhileDrawing";
+import { FeedMapShooter, useFeedMap } from "../feed/FeedMaps";
 import { postFacts } from "../feed/FeedPost";
 import { SAMPLE_FEED, type SamplePost } from "../feed/sampleFeed";
 import { turnedLine } from "../feed/turnedLine";
@@ -27,6 +29,8 @@ export const POSTS_SHOWN = 6;
 /** A card, as small as the tiles of «Draw»: the map above stays large. */
 const CARD_WIDTH = 132;
 const DRAWING_HEIGHT = 88;
+/** Clear around the line, on every side. */
+const DRAWING_PAD = space.sm;
 const LINE_WIDTH = 2;
 
 /**
@@ -67,10 +71,11 @@ type Props = {
 /**
  * Something to look at while «Draw» waits for a route (TASK-317,
  * ADR-0277): the example drawings of «Feed», in a row to scroll sideways,
- * as «Explore» shows them while it draws (TASK-163). Only the line on the
- * map's colour, with no picture of the map: nothing is asked of the network
- * while the engine works. The cards are not buttons: opening one would
- * leave the search half done.
+ * as «Explore» shows them while it draws (TASK-163). Under each line the
+ * picture of its map (TASK-335): a page under the row takes them, as the one
+ * of «Feed» does (ADR-0131), and a card shows the line alone until its own
+ * comes. The cards are not buttons: opening one would leave the search half
+ * done.
  */
 export function WhileRouting({ request, startedAt }: Props) {
   const shown = useShownAfter(startedAt, SHOWN_AFTER_MS);
@@ -79,33 +84,47 @@ export function WhileRouting({ request, startedAt }: Props) {
     return null;
   }
   return (
-    <View style={styles.section} testID="while-routing">
-      <Text style={styles.label}>{t("MEANWHILE, FROM THE FEED")}</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.row}
-      >
-        {posts.map((post) => (
-          <Card key={post.id} post={post} />
-        ))}
-      </ScrollView>
+    <View testID="while-routing">
+      {/* Under the row, which covers it: «Draw» has no «Feed» behind it. */}
+      <FeedMapShooter width={CARD_WIDTH} height={DRAWING_HEIGHT} />
+      <View style={styles.section}>
+        <Text style={styles.label}>{t("MEANWHILE, FROM THE FEED")}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.row}
+        >
+          {posts.map((post) => (
+            <Card key={post.id} post={post} />
+          ))}
+        </ScrollView>
+        <CardMapsCredit />
+      </View>
     </View>
   );
 }
 
-/** One drawing: its line, its title, what it is and how far. */
+/** One drawing: its line on its map, its title, what it is and how far. */
 function Card({ post }: { post: SamplePost }) {
+  const bearing = bearingOf(post.rotation_deg);
   const segments = useMemo(
     () =>
       thumbSegments(
-        turnedLine(post.line, bearingOf(post.rotation_deg)),
+        turnedLine(post.line, bearing),
         CARD_WIDTH,
         DRAWING_HEIGHT,
-        space.sm,
+        DRAWING_PAD,
         post.gaps,
       ),
-    [post],
+    [post.line, bearing, post.gaps],
+  );
+  const map = useFeedMap(
+    post.id,
+    post.line,
+    CARD_WIDTH,
+    DRAWING_HEIGHT,
+    DRAWING_PAD,
+    bearing,
   );
   const city = cityName(post.city);
   const facts = postFacts(post);
@@ -126,6 +145,14 @@ function Card({ post }: { post: SamplePost }) {
       accessibilityLabel={label}
     >
       <View style={styles.drawing}>
+        {map !== null && (
+          <Image
+            testID="feed-map"
+            style={StyleSheet.absoluteFill}
+            source={{ uri: map }}
+            accessible={false}
+          />
+        )}
         {segments.map((s, i) => (
           <View
             key={i}
@@ -152,9 +179,11 @@ function Card({ post }: { post: SamplePost }) {
 }
 
 const styles = StyleSheet.create({
+  // Opaque, as the card it is in: the page taking the pictures is under it.
   section: {
     gap: space.sm,
     paddingTop: space.xs,
+    backgroundColor: color.surface,
   },
   label: {
     color: color.textMuted,
