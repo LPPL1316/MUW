@@ -88,11 +88,14 @@ spento all'inizio: l'utente ha scelto acceso.
    accordo del 2026-10-30 con TASK-321 B (`local_a9812e3f`): la chiave la
    aggiunge quella sessione nella #620, se il Coordinatore conferma che la
    lettura entra nella 1.0.1 e l'utente approva il testo; altrimenti tutto
-   alla 1.0.2. La richiesta di lettura è separata, nei file nuovi di
+   alla 1.0.2. **Il Coordinatore ha confermato il 2026-10-30**: la lettura
+   entra nella 1.0.1, nella #620; «Health» in App Privacy va dichiarato
+   prima dell'invio della 1.0.1. La richiesta di lettura è separata, nei file nuovi di
    `health/` (`appleHealth.ts` resta di TASK-321).
 3. **Mai sulla 1.0 build 7** (impronta `83793e26`): senza la chiave,
    chiedere `toRead` fa crashare l'app. C si accende solo sulle build che
-   hanno la chiave, e può arrivare con un OTA sulla 1.0.1.
+   hanno la chiave, e può arrivare con un OTA sulla 1.0.1. Un test lo
+   prova: sulla build 7 la lettura non si chiede mai.
 4. Android: `READ_HEART_RATE` va con TASK-321 C (Health Connect,
    bloccata da 4.1.3), non nella #620.
 5. Con C cambiano la privacy (la #620 dice che MuW non legge i dati di
