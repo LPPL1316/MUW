@@ -224,8 +224,12 @@ nella riga dei fatti della scheda del Feed) e
 
 Cosa fa:
 
-- `expo-document-picker` `~57.0.2` (57.0.3 nel lock) in
-  `expo.autolinking.exclude`, nessun plugin in `app.json`;
+- `expo-document-picker` `~57.0.2` (57.0.3 nel lock), la versione di Expo
+  SDK 57; il sì dell'utente è del 2026-10-28, «Sì, come i contatti» (scelta
+  3 in «Contesto»). In `expo.autolinking.exclude`, nessun plugin in
+  `app.json`, così le build dello store restano senza e l'impronta iOS resta
+  `83793e26…` (misurata su copia pulita, con il `package-lock.json`
+  cambiato);
   `pickActivityFile.ts` lo carica solo con `require` dietro
   `requireOptionalNativeModule("ExpoDocumentPicker")`: senza il modulo
   nativo (la 1.0, e le build fino alla 1.0.1) «Add past activity» non c'è;
