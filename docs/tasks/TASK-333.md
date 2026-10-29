@@ -168,16 +168,21 @@ locale; l'OTA aspetta il server.
 
 #### File toccati (parte A)
 
+`media_files.py` è il modulo comune con i video dei post (TASK-336,
+ADR-0292): lo scrive la prima parte A che arriva in `main`, l'altra lo
+importa soltanto. Se c'è già, esce da questo elenco con il suo test.
+Non ha tabelle: ogni parte tiene la sua (`message_media` qui).
+
 ```
 services/api/migrations/00NN_message_media.sql          (nuovo; il primo numero libero al merge)
 services/api/shaperoute_api/message_media.py            (nuovo)
-services/api/shaperoute_api/mp4_boxes.py                (nuovo: durata e metadati)
+services/api/shaperoute_api/media_files.py              (nuovo, comune con TASK-336: controllo MP4, file su disco, tetto)
 services/api/shaperoute_api/messages.py
 services/api/shaperoute_api/push.py
 services/api/shaperoute_api/report_email.py
 services/api/shaperoute_api/app.py
 services/api/tests/test_message_media.py                (nuovo)
-services/api/tests/test_mp4_boxes.py                    (nuovo)
+services/api/tests/test_media_files.py                  (nuovo)
 services/api/tests/test_messages.py
 services/api/tests/test_push.py
 services/api/tests/test_report_email.py
