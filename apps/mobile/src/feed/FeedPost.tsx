@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { Fragment, type ReactNode, useMemo, useRef, useState } from "react";
 import {
   type GestureResponderEvent,
   Image,
@@ -191,6 +191,26 @@ export function FeedPost({ post, width, onOpen }: Props) {
           source: drawingPhotoSource(apiUrl, state.session.token, photo),
         }))
       : [];
+  // Each page of the photos takes a tap itself (TASK-330): were the card
+  // the one touched, iOS would not let the photos scroll inside it, and the
+  // swipe would turn the app's page to «Draw» instead.
+  function tappable(key: string | number, shown: ReactNode) {
+    if (onOpen === undefined) {
+      return <Fragment key={key}>{shown}</Fragment>;
+    }
+    return (
+      <Pressable
+        key={key}
+        style={({ pressed }) => pressed && styles.pressed}
+        onPressIn={onPressIn}
+        onPress={onPress}
+        accessible={false}
+        testID="feed-page-tap"
+      >
+        {shown}
+      </Pressable>
+    );
+  }
   function onPaged({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) {
     const shown = Math.round(nativeEvent.contentOffset.x / width);
     setPage(shown);
@@ -263,24 +283,25 @@ export function FeedPost({ post, width, onOpen }: Props) {
             onMomentumScrollEnd={onPaged}
             testID="feed-pages"
           >
-            {drawing}
+            {tappable("drawing", drawing)}
             {photos.map((photo, i) =>
-              // Photo i is page i + 1: loaded once the page before it was
-              // shown, never further on (the phone's data is the runner's).
-              i <= reached ? (
-                <Image
-                  key={photo.n}
-                  testID="feed-photo"
-                  style={[styles.photo, { width, height }]}
-                  source={photo.source}
-                  accessible={false}
-                />
-              ) : (
-                <View
-                  key={photo.n}
-                  testID="feed-photo-later"
-                  style={[styles.photo, { width, height }]}
-                />
+              tappable(
+                photo.n,
+                // Photo i is page i + 1: loaded once the page before it was
+                // shown, never further on (the phone's data is the runner's).
+                i <= reached ? (
+                  <Image
+                    testID="feed-photo"
+                    style={[styles.photo, { width, height }]}
+                    source={photo.source}
+                    accessible={false}
+                  />
+                ) : (
+                  <View
+                    testID="feed-photo-later"
+                    style={[styles.photo, { width, height }]}
+                  />
+                ),
               ),
             )}
           </ScrollView>
