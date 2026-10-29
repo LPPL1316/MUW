@@ -200,6 +200,9 @@ class PushEvent:
     names: Mapping[str, str] | None = None
     # A group run (TASK-309): the app opens it; its title is `text`.
     group_run_id: UUID | None = None
+    # What a private message carries (TASK-333): "photo", "video",
+    # "drawing"; its text, if any, is `text`.
+    attachment: str | None = None
 
     def same(self) -> tuple[str, int, int, str, str]:
         return (
@@ -351,6 +354,41 @@ TEXTS: dict[str, dict[str, str]] = {
         "es": "{name} quiere enviarte un mensaje.",
         "fr": "{name} veut t'envoyer un message.",
     },
+    # A message with an attachment (TASK-333, approved 2026-10-29): what it
+    # carries, or with a text the text after its sign.
+    "message_photo": {
+        "en": "{name}: 📷 Photo",
+        "de": "{name}: 📷 Foto",
+        "it": "{name}: 📷 Foto",
+        "es": "{name}: 📷 Foto",
+        "fr": "{name} : 📷 Photo",
+    },
+    "message_video": {
+        "en": "{name}: 🎬 Video",
+        "de": "{name}: 🎬 Video",
+        "it": "{name}: 🎬 Video",
+        "es": "{name}: 🎬 Vídeo",
+        "fr": "{name} : 🎬 Vidéo",
+    },
+    "message_drawing": {
+        "en": "{name}: 🗺️ Drawing",
+        "de": "{name}: 🗺️ Zeichnung",
+        "it": "{name}: 🗺️ Disegno",
+        "es": "{name}: 🗺️ Dibujo",
+        "fr": "{name} : 🗺️ Dessin",
+    },
+    "message_photo_text": {
+        language: "{name}" + (" : " if language == "fr" else ": ") + "📷 {text}"
+        for language in ("en", "de", "it", "es", "fr")
+    },
+    "message_video_text": {
+        language: "{name}" + (" : " if language == "fr" else ": ") + "🎬 {text}"
+        for language in ("en", "de", "it", "es", "fr")
+    },
+    "message_drawing_text": {
+        language: "{name}" + (" : " if language == "fr" else ": ") + "🗺️ {text}"
+        for language in ("en", "de", "it", "es", "fr")
+    },
 }
 
 
@@ -365,6 +403,8 @@ def text_of(event: PushEvent, name: str, language: str | None) -> str:
     which: str = event.kind
     if event.kind == "reaction" and event.reaction == "super_like":
         which = "super_like"
+    if event.kind == "message" and event.attachment is not None:
+        which = f"message_{event.attachment}" + ("_text" if event.text else "")
     texts = TEXTS[which]
     template = texts.get(language or "en", texts["en"])
     names = event.names or {}

@@ -57,6 +57,12 @@ from shaperoute_api.insights.events import wanted as insights_wanted
 from shaperoute_api.insights.vocabulary import DEFAULT_PATH as VOCABULARY
 from shaperoute_api.insights.vocabulary import Vocabulary
 from shaperoute_api.kept_routes import install_kept_routes
+from shaperoute_api.media_files import MediaConfigError
+from shaperoute_api.message_media import (
+    SweepRound,
+    install_message_media,
+    message_media_from,
+)
 from shaperoute_api.nearby_cities import NearbyCities, install_nearby_cities
 from shaperoute_api.notice_email import (
     NoticeEmails,
@@ -110,6 +116,15 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--ai-url",
         default=DEFAULT_URL,
         help=f"where Ollama answers (default: {DEFAULT_URL})",
+    )
+    parser.add_argument(
+        "--media-dir",
+        type=Path,
+        default=Path("data/media"),
+        help=(
+            "where the photos and videos of the messages are kept"
+            " (default: data/media; never in the database)"
+        ),
     )
     parser.add_argument(
         "--request-log",
@@ -290,6 +305,20 @@ def main(argv: Sequence[str] | None = None) -> None:
         else ReportEmails(database, report_setup)
     )
     install_report_email(app, report_emails)
+    # The photos and videos of the messages (TASK-333), files under
+    # --media-dir with their rows in the database, and the hourly round
+    # that takes away those no longer kept: off without the database.
+    try:
+        message_media = (
+            None
+            if accounts is None
+            else message_media_from(accounts.database, args.media_dir, accounts.now)
+        )
+    except MediaConfigError as exc:
+        raise SystemExit(str(exc)) from None
+    install_message_media(app, message_media)
+    if message_media is not None:
+        SweepRound(message_media).start()
     # Each message of «Send feedback» emailed to whoever runs MuW (TASK-308):
     # off without Resend and the address; the messages are kept either way.
     feedback_emails = None if feedback_setup is None else FeedbackEmails(feedback_setup)

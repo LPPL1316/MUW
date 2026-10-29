@@ -1856,6 +1856,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   corre e si tiene, si manda dalla scheda e dalla conversazione; testi e
   privacy approvati («Approvo così»). Prossimo: la parte A, col «vai»
   dell'utente, in una sessione sua.
+  **Parte A scritta il 2026-10-29** (branch
+  `feat/TASK-333-a-attachments-api`, sulla delega di 23 ore dell'utente e
+  col via del Coordinatore): migrazione `0038_message_media.sql`,
+  `media_files.py` (comune con TASK-336), `message_media.py` (caricare,
+  locandina, leggere con `Range`, 10 video e 100 foto al giorno, tetto
+  `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, video scaduti dopo 30 giorni, giro di
+  pulizia ogni ora), `messages.py` (l'allegato solo in `open`, il disegno
+  intero e la sua scheda, «[Photo]» per l'app di prima), push, la
+  segnalazione con l'allegato sulla pagina del link, `data/media` in
+  `compose.yaml`. Server fermo fino al ritorno dell'utente. Prossima: B
+  (l'app, foto e video).
 
 ## Completato
 

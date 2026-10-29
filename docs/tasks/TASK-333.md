@@ -1,7 +1,8 @@
 # TASK-333 — Gli allegati nei messaggi privati: un disegno, una foto, un video
 
-**Stato**: Proposta approvata · 2026-10-29 · le sette scelte e i testi
-sono dell'utente (2026-10-29); le parti A, B e C partono col suo «vai»
+**Stato**: In lavorazione · 2026-10-29 · le sette scelte e i testi sono
+dell'utente (2026-10-29); parte A scritta (branch
+`feat/TASK-333-a-attachments-api`), B e C dopo
 **Fase**: 4 · **Branch**: `docs/TASK-333-message-attachments` (documenti),
 poi una PR per parte
 **ADR**: ADR-0289 (proposta) · **Migrazione**: il primo numero libero in
@@ -143,62 +144,96 @@ locale; l'OTA aspetta il server.
 
 #### Criteri di accettazione (parte A)
 
-- [ ] In una conversazione `open` un messaggio porta una foto, un video o
+- [x] In una conversazione `open` un messaggio porta una foto, un video o
       un disegno, con o senza testo; in una richiesta un allegato è `409`.
-- [ ] Una foto torna JPEG, al più 1080 px, senza EXIF; un PNG anche.
-- [ ] Un video oltre 60 s o 40 MB, o che non è MP4/QuickTime, è `422` e
+- [x] Una foto torna JPEG, al più 1080 px, senza EXIF; un PNG anche.
+- [x] Un video oltre 60 s o 40 MB, o che non è MP4/QuickTime, è `422` e
       non resta niente su disco; `©xyz`, `udta` e `meta` diventano `free`
       e il file si legge ancora (test con un MP4 fatto nel test).
-- [ ] Solo i due della conversazione leggono un file; un terzo, chi sta
+- [x] Solo i due della conversazione leggono un file; un terzo, chi sta
       dietro un blocco e chi riceve un messaggio nascosto hanno `404`; un
       video dopo 30 giorni `410`.
-- [ ] 10 video e 100 foto al giorno per account, poi `429`; sopra il tetto
+- [x] 10 video e 100 foto al giorno per account, poi `429`; sopra il tetto
       `attachments` non offre i video.
-- [ ] «Delete» di chi ha scritto, il blocco, `DELETE /me`, la scadenza e
+- [x] «Delete» di chi ha scritto, il blocco, `DELETE /me`, la scadenza e
       un caricamento non usato da un'ora tolgono il file dal disco (la
       pulizia chiamata dal test, con l'orologio finto).
-- [ ] Senza `?with=attachments` il messaggio ha «[Photo]», «[Video]» o
+- [x] Senza `?with=attachments` il messaggio ha «[Photo]», «[Video]» o
       «[Drawing]» davanti al testo; con, il campo `attachment`.
-- [ ] La pagina della conversazione ha `attachments`; un'API senza
+- [x] La pagina della conversazione ha `attachments`; un'API senza
       allegati no (l'app nasconde il «+»).
-- [ ] Segnalare un messaggio con un allegato: l'email lo dice, la pagina
+- [x] Segnalare un messaggio con un allegato: l'email lo dice, la pagina
       del link lo mostra, «Hide» lo toglie a chi l'ha ricevuto.
-- [ ] Push «{name}: 📷 Photo» e simili, con il testo se c'è.
-- [ ] Test verdi in locale e in CI.
+- [x] Push «{name}: 📷 Photo» e simili, con il testo se c'è.
+- [ ] Test verdi in locale e in CI (in locale sì: sotto, «Dove si è»).
 
 #### File toccati (parte A)
 
 `media_files.py` è il modulo comune con i video dei post (TASK-336,
-ADR-0292): lo scrive la prima parte A che arriva in `main`, l'altra lo
-importa soltanto. Se c'è già, esce da questo elenco con il suo test.
-Non ha tabelle: ogni parte tiene la sua (`message_media` qui).
+ADR-0292): l'ha scritto questa parte, la prima in `main`; l'altra lo
+importa soltanto. Non ha tabelle: ogni parte tiene la sua (`message_media`
+qui). Rispetto alla proposta: `app.py` non si tocca (l'installazione è in
+`__main__.py`, come le email delle segnalazioni), `test_report_email.py`
+nemmeno (la segnalazione con l'allegato si prova in
+`test_message_media.py`), e le parti tecniche nuove sono qui sotto, non in
+`DECISIONS.md`. Elenco mandato al Coordinatore prima del codice.
 
 ```
-services/api/migrations/00NN_message_media.sql          (nuovo; il primo numero libero al merge)
+services/api/migrations/0038_message_media.sql          (nuovo)
+services/api/shaperoute_api/media_files.py              (nuovo, comune con TASK-336)
 services/api/shaperoute_api/message_media.py            (nuovo)
-services/api/shaperoute_api/media_files.py              (nuovo, comune con TASK-336: controllo MP4, file su disco, tetto)
 services/api/shaperoute_api/messages.py
 services/api/shaperoute_api/push.py
 services/api/shaperoute_api/report_email.py
-services/api/shaperoute_api/app.py
-services/api/tests/test_message_media.py                (nuovo)
+services/api/shaperoute_api/__main__.py
 services/api/tests/test_media_files.py                  (nuovo)
+services/api/tests/test_message_media.py                (nuovo)
 services/api/tests/test_messages.py
-services/api/tests/test_push.py
-services/api/tests/test_report_email.py
 packages/shared-types/src/index.ts
-packages/shared-types/test/message-media.test.ts        (nuovo)
+packages/shared-types/test/message-attachments.test.ts  (nuovo)
+packages/shared-types/fixtures/message.json
+packages/shared-types/fixtures/messages.json
+packages/shared-types/fixtures/conversations.json
 packages/shared-types/fixtures/message-media.json       (nuovo)
+packages/shared-types/fixtures/message-attachment-request.json (nuovo)
 packages/shared-types/fixtures/message-attachments.json (nuovo)
 deploy/compose.yaml
 .env.example
 docs/API.md
 docs/DATABASE.md
 docs/DEPLOY.md
-docs/DECISIONS.md                                       (righe in fondo, se serve un'aggiunta)
 docs/STATUS.md
 docs/tasks/TASK-333.md
 ```
+
+#### Le scelte tecniche della parte A (decise dall'agente su delega dell'utente)
+
+Oltre ad ADR-0289, scrivendo il codice:
+
+1. **Il disegno ha due copie** nel messaggio: `drawing` intero e
+   `drawing_card` (nomi, metri, al più 64 punti); le pagine portano solo la
+   scheda, l'intero si chiede con `GET /messages/{id}/drawing`. Una pagina
+   di venti disegni da 20 000 punti sarebbe di megabyte.
+2. **`attachment` c'è sempre** nei messaggi (`null` per il testo): solo il
+   testo cambia per l'app di prima, che non chiede `?with=attachments`.
+3. **Le scatole di metadati diventano `free` piene di zeri**, non solo
+   rinominate: rinominate, le coordinate sarebbero rimaste nel file.
+4. **Lettura con `FileResponse`**: dal disco senza caricarlo in memoria, e
+   risponde a `Range` (`206`), che serve se il lettore diventa `expo-video`
+   (la scelta di TASK-336).
+5. **Il file sparisce dal disco al giro di ogni ora**, non nella stessa
+   richiesta: la riga si toglie subito (in cascata, anche dentro la
+   transazione del blocco) e da quel momento nessuno lo legge più. Un file
+   scritto e non ancora nella tabella resta 10 minuti (`STRAY_AFTER_S`).
+6. **Il tetto si conta dalla tabella** (somma dei byte tenuti), non
+   leggendo la cartella; i codici sono quelli che c'erano: `507
+   http_error` per il server pieno, `429 too_many_requests` per il giorno.
+7. **La pagina del link della segnalazione** prende il file dallo stesso
+   indirizzo `/report-link?t=…&part=media`, già senza chiave
+   (`access.OPEN_PATHS`): `access.py` non cambia. Il disegno lo mostra come
+   una linea SVG, senza mappa.
+8. **La 30ª giornata di un video** si misura dal suo messaggio, e l'API la
+   applica subito (`410`, `expired`) anche se il giro non è ancora passato.
 
 ### Parte B — L'app: foto e video
 
@@ -418,3 +453,15 @@ Le parti A, B e C hanno i loro elenchi in «Le parti».
   conversazione; il resto «Sì, così»; testi e privacy «Approvo così».
   Parti pianificate. Prossimo: il «vai» dell'utente per la parte A, in
   una sessione sua.
+- 2026-10-29 sera: **parte A partita** sulla delega dell'utente di 23 ore
+  (il suo messaggio delle 17:16Z nella sessione «Coordinatore automatico
+  23 ore», `out/autopilota-23h/RUNBOOK.md`: «avvio delle parti in coda
+  che aspettavano solo il via»), col via del Coordinatore: migrazione
+  0038, branch `feat/TASK-333-a-attachments-api` da `main` 95bfc5c4,
+  nella sessione della proposta. Server e `compose.yaml` in produzione
+  fermi fino al ritorno dell'utente.
+- 2026-10-29: **parte A scritta**. In locale verdi: `test_media_files.py`
+  (15) e `test_message_media.py` (25) con un PostgreSQL vero, e con loro
+  `test_messages.py`, `test_push.py`, `test_report_email.py`,
+  `test_moderation.py` (131 in tutto); `ruff` e `black`; `shared-types`
+  (tsc, 100 test), i test jest dei messaggi dell'app (18), prettier.

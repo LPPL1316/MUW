@@ -10,7 +10,8 @@
         "id": "c7e02b94-1f6a-4d35-8e9b-52a0f3d1c6e8",
         "text": "Yes, but the bridge is closed on Sundays.\nTake the one after it.",
         "created_at": "2026-10-26T09:20:30Z",
-        "mine": false
+        "mine": false,
+        "attachment": null
       },
       "unread": true
     }

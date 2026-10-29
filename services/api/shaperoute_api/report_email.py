@@ -20,7 +20,10 @@ comments.NOT_APART, a hidden group run out of group_runs.seen_sql
 (TASK-309), a hidden message out of messages.SEEN, and a hidden member is
 kept apart from everyone as across a block (follows.apart_sql). Nothing is
 deleted. Of a private message (TASK-319) the email holds that message
-only, never the rest of its conversation.
+only, never the rest of its conversation. A message with a photo, a video
+or a drawing (TASK-333) says so, and the page of the link shows it: the
+file comes from the same address, `?t=…&part=media`, so whoever runs MuW
+needs no account; «Hide» hides the attachment with its message.
 
 Off unless the environment has RESEND_API_KEY, SHAPEROUTE_EMAIL_SECRET,
 SHAPEROUTE_DOMAIN and SHAPEROUTE_REPORTS_TO (docs/DEPLOY.md, «Email delle
@@ -33,22 +36,26 @@ from __future__ import annotations
 import hashlib
 import hmac
 import logging
+import math
 import os
 from collections.abc import Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from html import escape
-from typing import Annotated, Literal, get_args
+from typing import TYPE_CHECKING, Annotated, Literal, get_args
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, FastAPI, Query, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from psycopg import Connection
 from psycopg.rows import DictRow
 
 from shaperoute_api.db import Database
 from shaperoute_api.send_email import Mailer, send_email
+
+if TYPE_CHECKING:
+    from shaperoute_api.message_media import MessageMedia
 
 log = logging.getLogger(__name__)
 
@@ -237,10 +244,38 @@ def _comment(conn: Connection[DictRow], target: UUID) -> DictRow | None:
 
 def _message(conn: Connection[DictRow], target: UUID) -> DictRow | None:
     return conn.execute(
-        "SELECT m.text, m.hidden_at, u.username, u.public_id"
-        " FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.id = %s",
+        "SELECT m.text, m.hidden_at, m.attachment, m.drawing_card, mm.duration_ms,"
+        " mm.stored, u.username, u.public_id FROM messages m"
+        " JOIN users u ON u.id = m.sender_id"
+        " LEFT JOIN message_media mm ON mm.message_id = m.id WHERE m.id = %s",
         (target,),
     ).fetchone()
+
+
+def _drawing_name(card: dict[str, object]) -> str:
+    named = card.get("title") or card.get("word") or card.get("shape")
+    return str(named) if named else "no name"
+
+
+def attachment_lines(row: DictRow) -> tuple[str, ...]:
+    """What a message carries (TASK-333), for the email: the page of the
+    link shows it."""
+    kind = row["attachment"]
+    if kind == "photo":
+        return ("With a photo: the link below shows it before hiding.",)
+    if kind == "video":
+        seconds = round((row["duration_ms"] or 0) / 1000)
+        if not row["stored"]:
+            return (f"With a video of {seconds} s, expired: no longer kept.",)
+        return (f"With a video of {seconds} s: the link below shows it before hiding.",)
+    if kind == "drawing":
+        card = row["drawing_card"]
+        km = card["distance_m"] / 1000
+        return (
+            f"With a drawing: {_drawing_name(card)}, {km:.1f} km;"
+            " the link below shows it before hiding.",
+        )
+    return ()
 
 
 def _user(conn: Connection[DictRow], target: UUID) -> DictRow | None:
@@ -302,7 +337,8 @@ def reported(conn: Connection[DictRow], report_id: UUID) -> Reported | None:
         row = _message(conn, target)
         if row is not None:
             lines = (
-                f"Message: {row['text']}",
+                f"Message: {row['text'] or '(no text)'}",
+                *attachment_lines(row),
                 "A private message to who reported it: only this one is here.",
             )
     else:
@@ -460,17 +496,73 @@ def _what(link: Link) -> str:
     return f"the {NOUN[link.kind]} {link.target}"
 
 
-def ask_page(link: Link, url: str) -> str:
+def ask_page(link: Link, url: str, shown: str = "") -> str:
+    """`shown`: the attachment of a message, as shown_html makes it."""
     if link.action == "hide":
         return _page(
             "Hide it?",
             f"<p>{escape(_what(link))} will be hidden from everyone but its"
-            " author. Nothing is deleted.</p>" + _button(url, "Hide"),
+            " author. Nothing is deleted.</p>" + shown + _button(url, "Hide"),
         )
     return _page(
         "Show it again?",
         f"<p>{escape(_what(link))} will be seen again as before.</p>"
+        + shown
         + _button(url, "Show again"),
+    )
+
+
+# The drawing of a message on the page: a line in a square this wide.
+DRAWING_SIDE = 240
+
+
+def drawing_svg(points: list[list[float]]) -> str:
+    """The points of a drawing's card as a line, north up, without a map."""
+    if len(points) < 2:
+        return ""
+    lats = [p[0] for p in points]
+    lons = [p[1] for p in points]
+    middle = math.cos(math.radians((min(lats) + max(lats)) / 2))
+    width = max((max(lons) - min(lons)) * middle, 1e-9)
+    height = max(max(lats) - min(lats), 1e-9)
+    scale = (DRAWING_SIDE - 20) / max(width, height)
+    line = " ".join(
+        f"{10 + (lon - min(lons)) * middle * scale:.1f},"
+        f"{10 + (max(lats) - lat) * scale:.1f}"
+        for lat, lon in zip(lats, lons, strict=True)
+    )
+    return (
+        f'<svg width="{DRAWING_SIDE}" height="{DRAWING_SIDE}"'
+        f' viewBox="0 0 {DRAWING_SIDE} {DRAWING_SIDE}" role="img"'
+        ' aria-label="The drawing">'
+        f'<polyline points="{line}" fill="none" stroke="#000" stroke-width="3"'
+        ' stroke-linejoin="round" stroke-linecap="round"/></svg>'
+    )
+
+
+def shown_html(row: DictRow | None, token: str) -> str:
+    """The attachment of a reported message on the page of its link: the
+    photo, the video, or the drawing's line; empty without one."""
+    if row is None or row["attachment"] is None:
+        return ""
+    source = escape(f"{LINK_PATH}?t={token}&part=media")
+    if row["attachment"] == "photo":
+        return (
+            f'<p><img src="{source}" alt="The photo of the message"'
+            ' style="max-width:100%;height:auto"></p>'
+        )
+    if row["attachment"] == "video":
+        if not row["stored"]:
+            return "<p>The video of the message has expired.</p>"
+        return (
+            f'<p><video src="{source}" controls playsinline preload="metadata"'
+            ' style="max-width:100%"></video></p>'
+        )
+    card = row["drawing_card"]
+    return (
+        f"<p>{escape(_drawing_name(card))},"
+        f" {card['distance_m'] / 1000:.1f} km</p>"
+        f"<p>{drawing_svg(card['preview'])}</p>"
     )
 
 
@@ -501,6 +593,22 @@ GONE = "It is no longer there: it was deleted."
 
 # The token of a link, in the address: ?t=…
 Token = Annotated[str, Query(max_length=MAX_TOKEN_LENGTH)]
+# &part=media: the photo or the video of a reported message (TASK-333).
+Part = Annotated[Literal["media"] | None, Query()]
+NO_FILE = "The message has no photo or video kept."
+
+
+def attached(request: Request, link: Link) -> Response:
+    """The photo or video of the message of a link, for its page."""
+    media: MessageMedia | None = getattr(request.app.state, "message_media", None)
+    stored = (
+        None
+        if media is None or link.kind != "message"
+        else media.of_message(link.target)
+    )
+    if stored is None:
+        return HTMLResponse(wrong_page(NO_FILE), 404, PAGE_HEADERS)
+    return FileResponse(stored.path, media_type=stored.media_type, headers=PAGE_HEADERS)
 
 
 def report_link_routes() -> APIRouter:
@@ -516,13 +624,19 @@ def report_link_routes() -> APIRouter:
         return emails, link
 
     @router.get(LINK_PATH, response_class=HTMLResponse)
-    def ask(request: Request, t: Token) -> HTMLResponse:
+    def ask(request: Request, t: Token, part: Part = None) -> Response:
         found = checked(request, t)
         if isinstance(found, str):
             return HTMLResponse(wrong_page(found), 404, PAGE_HEADERS)
         emails, link = found
+        if part is not None:
+            return attached(request, link)
+        shown = ""
+        if link.kind == "message":
+            with emails.database.connect() as conn:
+                shown = shown_html(_message(conn, link.target), t)
         url = emails.setup.links.url(link)
-        return HTMLResponse(ask_page(link, url), 200, PAGE_HEADERS)
+        return HTMLResponse(ask_page(link, url, shown), 200, PAGE_HEADERS)
 
     # The button of the page: the token in the address is enough.
     @router.post(LINK_PATH, response_class=HTMLResponse)

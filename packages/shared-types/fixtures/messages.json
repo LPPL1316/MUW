@@ -10,14 +10,22 @@
       "id": "c7e02b94-1f6a-4d35-8e9b-52a0f3d1c6e8",
       "text": "Yes, but the bridge is closed on Sundays.\nTake the one after it.",
       "created_at": "2026-10-26T09:20:30Z",
-      "mine": false
+      "mine": false,
+      "attachment": null
     },
     {
       "id": "3a9d5e21-7c40-4f8b-b6e2-0d18c5f7a9e4",
       "text": "Hi! Is the heart by the river easy to follow?",
       "created_at": "2026-10-26T09:12:00Z",
-      "mine": true
+      "mine": true,
+      "attachment": null
     }
   ],
-  "next": "1793005920000000-3a9d5e217c404f8bb6e20d18c5f7a9e4"
+  "next": "1793005920000000-3a9d5e217c404f8bb6e20d18c5f7a9e4",
+  "attachments": {
+    "kinds": ["photo", "video", "drawing"],
+    "video_max_s": 60,
+    "video_max_bytes": 40000000,
+    "photo_max_bytes": 10000000
+  }
 }
