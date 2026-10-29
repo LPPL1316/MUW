@@ -426,6 +426,10 @@ class Search:
     # When the tilted stage ran too (TASK-232), the best of the upright one:
     # what the search gave before tilts beyond UPRIGHT_TILT_DEG.
     upright: Attempt | None = None
+    # The traces of a placement tried first that gave no good route (`first`,
+    # TASK-297 A2), set aside: the search is the one without it, and these
+    # are what it cost more.
+    set_aside: list[Attempt] = field(default_factory=list)
 
     @property
     def upright_best(self) -> Attempt:
@@ -581,6 +585,8 @@ def search(
     word: Word | None = None,
     doubled: float = 0.0,
     tilted_traces: int = TILTED_TRACES,
+    first: Placement | None = None,
+    first_scale_m: float | None = None,
 ) -> Search:
     """Best route for `shape` near `distance_m` on `graph`, starting at
     `start` or, with `move_start`, up to START_OFFSET_M away from it; or
@@ -600,8 +606,20 @@ def search(
     (`grid_turns`), whatever `max_tilt_deg` says (TASK-077): up to
     UPRIGHT_GRID_TILT_DEG first, the steeper ones as tilts. A word with the
     pen up is traced letter by letter, walking between them (pen_up.py):
-    its similarity and its distance are those of the letters alone."""
+    its similarity and its distance are those of the letters alone.
+
+    With `first`, a placement a search gave before (its start may be any
+    point, `offset_m` from `start`; its phase one of `phases`), that one is
+    traced first, at `first_scale_m` (the initial scale when None) and
+    rescaled towards the target as any placement is: a route drawn before
+    by another engine, drawn again (TASK-297 A2, ADR-0256). When it gives a
+    good route the search ends there. Otherwise its traces are set aside
+    (`Search.set_aside`) and the search is the one without `first`, with
+    its own budget: the same result. A trace of `first` cheaper but less
+    alike than 0.60 would otherwise be chosen, and refused (plan_shape)."""
     similarity = similarity or SIMILARITIES[SIMILARITY]
+    if first is not None and first.phase not in phases:
+        raise ValueError(f"the first placement's phase {first.phase} is not tried")
 
     def allowed(rotation_deg: float, tilted: bool) -> bool:
         """Whether the upright search (`tilted` False) or the tilted one
@@ -627,6 +645,8 @@ def search(
     phase_xy = {phase: np.array(start_at_phase(shape, phase)) for phase in phases}
     phase_corners = {phase: corner_indices(pts[:-1]) for phase, pts in phase_xy.items()}
     start_xy = {s: latlon_to_local_array(start, np.array([s]))[0] for s, _ in starts}
+    if first is not None and first.start not in start_xy:
+        start_xy[first.start] = latlon_to_local_array(start, np.array([first.start]))[0]
     # A shape with strokes is judged finer (ADR-0039); normalized, its sides
     # drawn twice coincide exactly.
     band_share = CORRIDOR_BAND * detail_scale(np.array(shape), near_m=1e-9)
@@ -905,15 +925,29 @@ def search(
         polish(min(attempts[first:], key=lambda a: a.cost), budget)
         return any(good(a) for a in attempts[first:])
 
+    # The placement of a route drawn before (TASK-297 A2): when it is not
+    # good, its traces are set aside, and the search below is the one
+    # without it.
+    aside: list[Attempt] = []
+    if first is not None:
+        scale = min(high, max(low, first_scale_m or base_scale))
+        last, _ = rescale(first, scale, MAX_RESCALES)
+        if last is not None and good(last):
+            return _done(attempts, good, distance_m)
+        aside = attempts[:]
+        attempts.clear()
+
     if go(False, max_traces) or tilted_traces <= 0:
-        return _done(attempts, good, distance_m)
-    # None when every upright outline fell on a single road node.
-    upright = _done(list(attempts), good, distance_m).best if attempts else None
-    upright_traces = len(attempts)
-    go(True, max_traces + tilted_traces)
-    found = _done(attempts, good, distance_m)
-    if len(attempts) > upright_traces:
-        found.upright = upright
+        found = _done(attempts, good, distance_m)
+    else:
+        # None when every upright outline fell on a single road node.
+        upright = _done(list(attempts), good, distance_m).best if attempts else None
+        upright_traces = len(attempts)
+        go(True, max_traces + tilted_traces)
+        found = _done(attempts, good, distance_m)
+        if len(attempts) > upright_traces:
+            found.upright = upright
+    found.set_aside = aside
     return found
 
 
@@ -1079,6 +1113,9 @@ def plan_route(
     reuse_penalty: float = EDGE_REUSE_PENALTY,
     style: Style | None = None,
     top_joins: bool | None = None,
+    *,
+    first: Placement | None = None,
+    first_scale_m: float | None = None,
 ) -> Plan:
     """RouteRequest in, RouteResult out (docs/ARCHITECTURE.md §3).
 
@@ -1092,6 +1129,7 @@ def plan_route(
     With the request's `pen_up` each letter is drawn on its own, and the
     result says where the route walks between them (TASK-197); so each
     piece of a shape in pieces (TASK-223), and the result keeps the shape.
+    `first` and `first_scale_m` go to the search (plan_shape).
     """
     if request.word is not None:
         word = compose(
@@ -1111,6 +1149,8 @@ def plan_route(
             MAX_TILT_DEG,
             word=word,
             activity=request.activity,
+            first=first,
+            first_scale_m=first_scale_m,
         )
         result = replace(plan.result, shape=None, word=word.text)
         return replace(plan, result=result)
@@ -1128,6 +1168,8 @@ def plan_route(
             tilt_limit(request.shape),
             word=drawn,
             activity=request.activity,
+            first=first,
+            first_scale_m=first_scale_m,
         )
     return plan_shape(
         get_shape(request.shape)(SHAPE_POINTS),
@@ -1139,6 +1181,8 @@ def plan_route(
         reuse_penalty,
         tilt_limit(request.shape),
         activity=request.activity,
+        first=first,
+        first_scale_m=first_scale_m,
     )
 
 
@@ -1166,6 +1210,9 @@ def plan_shape(
     one_way: bool = False,
     word: Word | None = None,
     activity: str = "running",
+    *,
+    first: Placement | None = None,
+    first_scale_m: float | None = None,
 ) -> Plan:
     """plan_route for any normalized shape, also an outline read from a file
     (TASK-032). `name` only labels the result and its messages; start and
@@ -1188,7 +1235,18 @@ def plan_shape(
 
     After a search the result may advise another distance, where the
     search found the shape clearly better drawn (better_distance, TASK-234).
+
+    With `first`, the search near the start traces that placement first, at
+    `first_scale_m`, and goes on as without when it is not good (`search`,
+    TASK-297 A2). Its start is at most START_OFFSET_M away, as the search
+    near the start moves it: one farther, from the search 2 km away, is
+    refused (ValueError), and that search has no `first`.
     """
+    if first is not None and first.offset_m > START_OFFSET_M:
+        raise ValueError(
+            f"the first placement is {first.offset_m:.0f} m from the start, "
+            f"at most {START_OFFSET_M:.0f} m"
+        )
     similarity = SIMILARITIES[SIMILARITY]
     planned_m = planned_distance(distance_m, one_way)
     kept = 0.5 if one_way else 1.0  # of the planned route
@@ -1210,6 +1268,8 @@ def plan_shape(
                 phases=phases,
                 word=word,
                 doubled=doubled_weight(name),
+                first=first,
+                first_scale_m=first_scale_m,
             )
         except CollapsedShapeError:
             found = None  # every outline here on a single road node

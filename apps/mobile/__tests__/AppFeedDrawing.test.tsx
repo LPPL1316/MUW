@@ -117,7 +117,7 @@ test("a member's drawing opens whole from «Feed», and «←» comes back to «
   await onFeed();
   // The drawings the members published, asked from where the phone is.
   expect(await screen.findByText("Ada_runs")).toBeOnTheScreen();
-  expect(screen.getByText("Star · 4.0 km · 19 min")).toBeOnTheScreen();
+  expect(screen.getByText("Star · 4.0 km · 19 min · 4:45 /km")).toBeOnTheScreen();
   expect(screen.queryByText(SAMPLE_FEED[0].user)).toBeNull();
   expect(asked(FEED)).toBe(1);
 
