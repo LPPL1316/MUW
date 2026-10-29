@@ -1782,9 +1782,42 @@ python -m route_engine.swimming --shape heart --distance 1000 \
     --out heart_coast.gpx
 ```
 
+**Le curve e i nomi a riva** (TASK-323 A2): in acqua non si guarda il
+telefono e la voce non si sente; ci si orienta alzando la testa verso un
+punto a terra. Il motore dà le curve del nuoto, ognuna col posto a riva
+davanti a cui girare: sono dati, l'app e l'orologio le dicono con le loro
+parole (parte C).
+
+- `swim_turns.py` — **le curve**: dove la direzione cambia di più di
+  `TURN_MIN_DEG` = 45°, guardata `TURN_WINDOW_M` = 15 m prima e dopo il
+  punto; di una fila di punti così, il più stretto. Le punte di una stella
+  e la cuspide di un cuore sono curve, la curva di un cerchio (100 m di
+  diametro o più) no. Ogni curva ha il punto, i metri dalla partenza, il
+  verso (`left`, `right`), l'angolo e il giro; il primo e l'ultimo punto,
+  sulla riva, non sono curve. Dove il tratto dalla riva arriva sulla forma
+  e prosegue quasi dritto, come sulla punta della stella, non si gira.
+- `shore_names.py` — **i nomi**: per ogni curva il posto con un nome più
+  vicino entro `LANDMARK_REACH_M` = 300 m (la fascia sta entro 150 m dalla
+  riva, quindi è sulla riva davanti), il primo per nome a pari distanza,
+  con il tipo e la direzione in cui guardarlo (gradi da nord, in senso
+  orario). I posti sono file in `<cache>/shore_names/`, tagliati dal server
+  lungo la riva (parte B): `{"bbox": [s, w, n, e], "places": [{"name",
+  "kind", "lat", "lon"}]}`; si leggono i file la cui area tocca quella del
+  nuoto. Senza file, o con un file che non si legge, le curve non hanno
+  nome e niente fallisce. Mai rete.
+- **Dove stanno**: `SwimPlan.turns`, tutte le curve di tutti i giri in
+  ordine; `plan_swimming(..., names=)` le nomina. Passano in
+  `RouteResult` con la parte B, insieme a `models.py`.
+- **Nel GPX** (`with_turns`): un waypoint per ogni curva del primo giro,
+  prima della traccia, col nome «Turn left · Bagno 54» e il tipo `turn`; i
+  giri dopo girano negli stessi posti.
+
 Stampa i giri e quanto è lungo ognuno, la scala, la rotazione, la partenza
 sulla riva e il suo tipo, il tratto, il centro, quanto la forma sta lontana
 dalla terra e quanto il nuoto dalla riva, e quanto da un porto. `--laps N`
 chiede i giri (meno giri, forma più grande); `--outline FILE` nuota un
-contorno disegnato, in JSON come quelli del catalogo, al posto di `--shape`. `--activity swimming` di
+contorno disegnato, in JSON come quelli del catalogo, al posto di `--shape`.
+Stampa anche le curve del primo giro col loro posto a riva, presi da
+`<cache-dir>/shore_names/` o da `--names-file`, e il GPX di `--out` le ha
+come waypoint. `--activity swimming` di
 `python -m route_engine` arriva con la parte B, insieme a `models.py`.
