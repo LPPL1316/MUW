@@ -195,9 +195,10 @@ pagine»):
    con, quando servono, il rimando alle Impostazioni e la ricerca del
    luogo; l'errore della mappa; le forme del catalogo come tessere, con un
    simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +; sotto la distanza,
-   con la corsa, «NEAR YOU» (TASK-306, sotto «Le forme pronte vicino a
-   te»), poi due righe da scorrere di lato, «CITY TOURS» e «PICTURES»
+   un'altra parola; la distanza, grande, fra − e +; subito sotto la
+   distanza, mentre il server ha il gioco, la riga «PLAY» (TASK-327, sotto
+   «“Play”: la collezione delle forme»); poi, con la corsa, «NEAR YOU»
+   (TASK-306, sotto «Le forme pronte vicino a te»), poi due righe da scorrere di lato, «CITY TOURS» e «PICTURES»
    (TASK-280, sotto «I giri e le immagini pronte»). In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
@@ -1305,18 +1306,24 @@ La pagina del gioco delle forme (`GIOCO.md`), con due schede
 **«Challenges»**, le squadre e le sfide della parte D (in fondo a questa
 sezione). Codice in `apps/mobile/src/game/`.
 
-- **Dove sta**: fra «Explore» e il profilo, con il suo nome in alto dopo
-  «Explore»: quattro nomi nell'intestazione. Il profilo resta a un tocco
-  sul suo cerchio da qualunque pagina; con lo swipe è a due pagine da
-  «Explore» invece di una. Si costruisce la prima volta che ci si arriva,
-  come «Explore».
+- **Dove sta** (TASK-327, scelta dell'utente del 2026-10-29): non è più
+  una pagina da scorrere con il suo nome in alto dopo «Explore» (così fino
+  ad allora, TASK-296 parte B). In «Draw», subito sotto la distanza e
+  prima di «NEAR YOU», una riga (`PlayRow`, come «Messages» del profilo):
+  «PLAY» piccolo e grigio, sotto «Collect shapes by running», e «›» a
+  destra; VoiceOver legge «Play, Collect shapes by running». Un tocco apre
+  il gioco **sopra l'app, a tutto schermo** (`PlayOverlay`): in alto «←» e
+  «Play», come il titolo di «Messages», sotto le due schede. «←» torna a
+  «Draw». In alto restano tre nomi, e il profilo è di nuovo a uno swipe
+  da «Explore». La riga c'è con ogni sport: le forme si raccolgono solo
+  correndo, ma la collezione è dell'account.
 - **Quando c'è**: solo mentre il server ha il gioco. All'avvio l'app
   chiede `GET /game/catalog`, senza aspettarlo per mostrare «Draw», e
-  tiene la risposta sul telefono: se risponde 200 la pagina compare (anche
-  subito, mentre l'app è aperta: le pagine già costruite restano al loro
-  posto), se risponde 404 sparisce, senza rete vale l'ultima risposta e
-  non compare nessun errore. Un telefono che non ha mai sentito il server
-  non la mostra.
+  tiene la risposta sul telefono: se risponde 200 la riga compare (anche
+  subito, mentre l'app è aperta), se risponde 404 sparisce (e il gioco
+  aperto si chiude su «Draw»), senza rete vale l'ultima risposta e non
+  compare nessun errore. Un telefono che non ha mai sentito il server non
+  la mostra.
 - **La griglia**: le forme del catalogo dell'API, due per riga, nell'ordine
   del catalogo. Ogni scheda ha il contorno disegnato con View sottili
   girate (niente SVG, come il disegno della corsa), il nome nella lingua
@@ -1352,8 +1359,8 @@ sezione). Codice in `apps/mobile/src/game/`.
 - **La push `shape_unlocked`** non si mostra con l'app in primo piano
   (`pushDevice.shownWhileOpen`); toccata dal centro notifiche apre «Play»
   (`notificationTap`), mai il profilo che i suoi dati nominano.
-- **Da provare sull'iPhone**: i quattro nomi nell'intestazione su uno
-  schermo da 390 pt, e la scheda dopo un «Save» vero.
+- **Da provare sull'iPhone**: la riga «PLAY» sotto la distanza e il gioco
+  sopra l'app con «←» (TASK-327), e la scheda dopo un «Save» vero.
 
 **La scheda «Challenges»** (TASK-296 parte D; `ChallengesTab`, `TeamView`,
 `ChallengeView`, `NewChallenge`; le regole in `GIOCO.md` §6):
