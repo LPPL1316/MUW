@@ -2607,6 +2607,83 @@ endpoint vogliono il token: senza, `401 not_signed_in`; senza database,
 - **Un'API precedente** non ha questi endpoint (`404 http_error`), e
   l'app non mostra «Messages».
 
+#### Gli allegati: una foto, un video, un disegno (TASK-333, ADR-0289)
+
+Un messaggio porta **un allegato**, con un testo facoltativo (vuoto
+ammesso solo con l'allegato), **solo in una conversazione `open`** per chi
+scrive: in una richiesta è `409 http_error` «Photos, videos and drawings
+can be sent once they accept your message.» (scelta dell'utente del
+2026-10-29). Foto e video si caricano prima, poi si mandano col loro id;
+il disegno viaggia nel messaggio, copia del percorso. Codice in
+`message_media.py` (i file) e `media_files.py` (comune con i video dei
+post, ADR-0292); tipi `MessageAttachmentRequest`, `MessageDrawing`,
+`MessageMedia`, `MessageAttachment`, `MessageDrawingCard`,
+`AttachmentsAllowed`, `MESSAGE_VIDEO_MAX_S`, `MESSAGE_VIDEO_MAX_BYTES`,
+`MESSAGE_VIDEO_DAYS`; esempi `message-media.json`,
+`message-attachment-request.json`, `message-attachments.json`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `POST /me/message-media` | il file nudo come corpo, `Content-Type` `image/jpeg`, `image/png`, `video/mp4` o `video/quicktime` | `201` `MessageMedia`, o `422` / `429` / `507` |
+| `PUT /me/message-media/{id}/poster` | il primo fotogramma di un proprio video, JPEG o PNG nudo | `204`, o `404` / `422` |
+| `GET /message-media/{id}` | il file; risponde anche a `Range` | `200`/`206`, o `404` / `410` |
+| `GET /message-media/{id}/poster` | il primo fotogramma | `200 image/jpeg`, o `404` / `410` |
+| `GET /messages/{id}/drawing` | il disegno di un messaggio intero, come `PUT /me/favorites/{key}` lo prende | `200 MessageDrawing`, o `404` |
+
+- **Mandare**: `POST /conversations/{public_id}/messages?with=attachments`
+  con `{"text": "…", "attachment": {"media_id": "…"}}` o
+  `{"attachment": {"drawing": {…}}}`, uno dei due (`422` per tutti e due
+  o nessuno). Un `media_id` non caricato da chi scrive, o già mandato, o
+  di più di un'ora fa, è `404` «No photo or video with this id to send:
+  upload it again.».
+- **Cosa resta di una foto**: rifatta come le foto dei disegni
+  (`fitted_jpeg`: dritta, al più 1080 px, JPEG, **senza EXIF**), al più
+  10 MB prima. **Di un video**: com'è, se le scatole MP4 dicono `ftyp`,
+  `moov` con `mvhd` e `mdat`, al più **60 s** (letti da `mvhd`) e **40 MB**;
+  le scatole `udta`, `meta` e `uuid` (il luogo `©xyz` e gli altri
+  metadati) diventano `free` piene di zeri, della stessa lunghezza. Il
+  video lo riduce il telefono (`videoExportPreset` 960 × 540
+  sull'iPhone); il server non lo ricomprime. Le misure di un video sono
+  quelle mostrate: la matrice della traccia che lo gira le scambia.
+- **I limiti**: 10 video e 100 foto al giorno per account, poi `429
+  too_many_requests` «Too many videos today: try again tomorrow.» con
+  `Retry-After`; il server tiene al più `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`
+  (10) di foto e video: sopra, `507 http_error` «Videos can't be sent
+  right now: try again later.» per i video, e le foto fino a un decimo in
+  più.
+- **Chi legge un file**: chi l'ha caricato, e l'altro della conversazione
+  del suo messaggio finché vede quel messaggio (non tolto dalla sua vista,
+  non nascosto da una segnalazione) e nessun blocco li separa; per tutti
+  gli altri `404`, come per un id che non c'è. Con la chiave e il token di
+  sempre: nessun indirizzo firmato. Un video **30 giorni** dopo il suo
+  messaggio è `410` «This video has expired.».
+- **Nelle pagine** (`GET …/messages`, `GET /me/conversations`, la risposta
+  del `POST`) ogni messaggio ha `attachment` (`null` se è solo testo): il
+  tipo, il `media_id`, le misure, la durata, `poster`, `expired`, o la
+  scheda del disegno (`drawing`: nomi, metri, sport, rotazione e al più 64
+  punti). `MessagesPage.attachments` dice cosa si può allegare adesso:
+  `null` fuori da `open`; i `kinds` (`video` sparisce col server pieno, e
+  senza la cartella dei file resta solo `drawing`) e i limiti.
+- **L'app di prima** non chiede `?with=attachments`: il testo di un
+  messaggio con un allegato le arriva con davanti «[Photo]», «[Video]» o
+  «[Drawing]», mai vuoto.
+- **Cancellare**: il messaggio (chi l'ha scritto), la conversazione con un
+  blocco, l'account con `DELETE /me` tolgono la riga del file subito; il
+  giro di ogni ora (`MessageMedia.sweep`) toglie dal disco i file senza
+  riga, i caricamenti mai mandati dopo un'ora e i video scaduti.
+- **Segnalare** un messaggio con un allegato: l'email lo dice («With a
+  photo…», «With a video of 24 s…», «With a drawing: star, 5.0 km…») e la
+  pagina del link lo mostra (la foto, il video, la linea del disegno); il
+  file viene dallo stesso indirizzo, `/report-link?t=…&part=media`, senza
+  account. «Hide» nasconde messaggio e allegato a chi l'ha ricevuto.
+- **Le push**: «{name}: 📷 Photo», «{name}: 🎬 Video», «{name}: 🗺️
+  Drawing», nelle cinque lingue; con un testo, «{name}: 📷 {text}». Il file
+  non va mai a Expo, Apple o Google.
+- **Un'API senza gli allegati** non ha `attachments` né `attachment`:
+  l'app non mostra il «+». Un server senza la cartella (`--media-dir`, di
+  solito `data/media`) risponde `404` agli endpoint dei file e offre solo
+  i disegni.
+
 ### Shape game (TASK-296, ADR-0255)
 
 Il gioco delle forme, parte A: che cosa vale una corsa salvata e le forme

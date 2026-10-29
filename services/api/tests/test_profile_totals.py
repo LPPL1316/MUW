@@ -79,7 +79,8 @@ def test_the_climb_migration_accepts_a_database_that_has_the_column_already(
             "INSERT INTO schema_migrations (version) VALUES ('0035_run_climb')"
         )
 
-    assert database.migrate() == ["0037_run_climb"]
+    # The climb migration first, then any that came after it (0038, TASK-333).
+    assert database.migrate()[0] == "0037_run_climb"
 
     with psycopg.connect(database_url) as conn:
         columns = conn.execute(
