@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { t } from "../i18n";
 
@@ -15,8 +15,9 @@ import { CATEGORIES, exampleFor, requestFor, whereFor } from "./presets";
 
 /** The longest request the API reads (themed.py). */
 export const MAX_REQUEST_LENGTH = 200;
-/** The categories always shown (TASK-143): Food and Famous Places. */
-export const QUICK_CATEGORIES = 2;
+/** The categories always shown: Famous Places, Best Views, Hidden Gems and
+ * Photography (the user's choice of 2026-10-29). */
+export const QUICK_CATEGORIES = 4;
 
 type Props = {
   /** The city the requests are for, or null for the start. */
@@ -24,14 +25,16 @@ type Props = {
   /** Where the request starts from, in words: the city or "your start". */
   where: string;
   onAsk: (text: string) => void;
+  /** Our ideas, above the categories: what to take a route from. */
+  ideas?: ReactNode;
 };
 
 /**
- * "Ask for a route" (TASK-129, TASK-134, TASK-143): two categories, one tap
- * each ("Food in New York"), the others behind "More…"; or a request in
- * words.
+ * "Ask for a route" (TASK-129, TASK-134, TASK-143): our ideas first, then
+ * four categories, one tap each ("Famous Places in Rome"), the others behind
+ * "More…"; or a request in words.
  */
-export function AskForRoute({ city = null, where, onAsk }: Props) {
+export function AskForRoute({ city = null, where, onAsk, ideas }: Props) {
   const [text, setText] = useState("");
   const [all, setAll] = useState(false);
   const ready = text.trim() !== "";
@@ -40,6 +43,7 @@ export function AskForRoute({ city = null, where, onAsk }: Props) {
   return (
     <View style={styles.section}>
       <Text style={styles.label}>{t("ASK FOR A ROUTE")}</Text>
+      {ideas}
       <Text style={styles.note}>
         {t("A shape through real places {place}. Tap one to make it.", { place })}
       </Text>
