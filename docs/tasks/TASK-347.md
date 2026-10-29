@@ -217,7 +217,8 @@ proposta pronta:
    con Mapbox/Valhalla/OSRM/GraphHopper. Proposta: sì. **Scelta
    dell'utente, 2026-10-30: «Sì, motore nostro».**
 2. **Il tratto nella pagina della mappa**, niente Skia/gesture-handler/
-   haptics fino alla build successiva. Proposta: sì.
+   haptics fino alla build successiva. Proposta: sì. **Scelta
+   dell'utente, 2026-10-30: «Sì, nella pagina».**
 3. **Il punteggio = somiglianza del motore**, 0–100%, sotto la mappa mentre
    si disegna, non nei post. Proposta: sì.
 4. **Dislivello e profilo** come parte a sé (G), dopo le altre. Proposta:
