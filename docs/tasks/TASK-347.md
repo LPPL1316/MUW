@@ -220,6 +220,22 @@ seguono il tuo disegno», sotto la mappa; non nei post (TASK-241).
   la fa l'API, non il motore. **Senza rete niente quote** («—» nella
   barra): le tegole non sono nelle zone del telefono; se servirà offline,
   si aggiungeranno alle zone, a parte.
+  **Spazio sul server** (condizione del Coordinatore, 2026-10-30: il
+  Volume ha 12 GB liberi, all'82%): si usa lo zoom 12, dove una tegola
+  copre circa 10 × 7 km alle nostre latitudini con un pixel di 25–30 m,
+  quanto basta per campionare ogni 20–30 m; una tegola PNG pesa 20–60 KB
+  (le montagne di più, fino a ~100 KB). Un percorso da 5 km tocca 1–4
+  tegole (0,1–0,2 MB), una città 25–50 (1–3 MB), le zone italiane
+  servite oggi qualche decina di MB. Le tegole si scaricano solo quando
+  un percorso le tocca, in `data/cache/terrain/12/{x}/{y}.png` sul
+  Volume, come i grafi. **Tetto: 1 GB** (≈ 25 000 tegole, ≈ 2 milioni di
+  km², più di quanto si userà mai): superato, la pulizia toglie le meno
+  usate di recente (per data d'ultimo uso) fino a tornare sotto, a ogni
+  scrittura e in una passata notturna; e se il Volume scende sotto 2 GB
+  liberi la tegola si usa in memoria e non si salva. Se il Volume non
+  bastasse, la stessa cache va su `/` (57 GB) cambiando una sola
+  variabile (`TERRAIN_CACHE_DIR`). Lo zoom 13 raddoppierebbe la
+  risoluzione per quattro volte lo spazio: non serve.
 
 Dopo, alla build nativa successiva: feedback aptico (`expo-haptics`) e,
 se mai servisse, Skia.
