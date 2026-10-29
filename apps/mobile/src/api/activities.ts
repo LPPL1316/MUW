@@ -1,6 +1,7 @@
 import type {
   Activity as Sport,
   LatLon,
+  RunSource,
   TrackFix,
   Walk,
 } from "@shaperoute/shared-types";
@@ -45,6 +46,13 @@ export type Activity = {
    * older than TASK-232 part C. Read through `bearingOf`.
    */
   rotation_deg?: number | null;
+  /**
+   * Where the run comes from (TASK-312, ADR-0272): "file" for an activity
+   * of another app added from its file, shown «Imported». Missing from an
+   * API older than TASK-312 part A: every run was recorded with MuW. Read
+   * through `isImported`.
+   */
+  source?: RunSource;
   /** The planned route; null for a run without one. */
   route_preview: LatLon[] | null;
   track_preview: LatLon[];
@@ -113,6 +121,11 @@ export type SavedPause = {
   pen?: boolean;
 };
 
+/** Whether a run of the list, or whole, came from a file (TASK-312). */
+export function isImported(run: Pick<Activity, "source">): boolean {
+  return run.source !== undefined && run.source !== "muw";
+}
+
 /** A page of the list, the latest run first. */
 export type ActivitiesPage = {
   activities: Activity[];
@@ -167,6 +180,13 @@ export type ActivityRequest = {
    * than TASK-232 part C refuses the field.
    */
   rotation_deg?: number;
+  /**
+   * "file" for an activity added from a file of another app (TASK-312):
+   * sent only then, since an API older than TASK-312 part A refuses the
+   * field. Such a run is never sent again without it: it would count as
+   * one recorded with MuW, for Play and the contests.
+   */
+  source?: RunSource;
 };
 
 /**
@@ -397,7 +417,8 @@ function hasFields(body: Record<string, unknown>): boolean {
     typeof body.duration_s === "number" &&
     isNumber(body.score) &&
     isNumber(body.fidelity) &&
-    (body.rotation_deg === undefined || isNumber(body.rotation_deg))
+    (body.rotation_deg === undefined || isNumber(body.rotation_deg)) &&
+    (body.source === undefined || typeof body.source === "string")
   );
 }
 

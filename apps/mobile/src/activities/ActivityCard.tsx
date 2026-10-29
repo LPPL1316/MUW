@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import type { ActivityDetail } from "../api/activities";
+import { type ActivityDetail, isImported } from "../api/activities";
 import { t } from "../i18n";
+import { ImportedMark } from "../imports/ImportedMark";
 import { postOfActivity } from "../share/postRun";
 import { SharePostButton } from "../share/SharePost";
 import { PublicRow } from "../social/PublicRow";
@@ -32,7 +33,9 @@ type Props = {
  * as the end of a run does: the route yellow, what was run light. «Public»
  * and its title make it a drawing in the profile (TASK-117). With Strava
  * connected, «Send to Strava» or «View on Strava» (TASK-187). «Share» makes
- * its post, for Instagram and Strava (TASK-231).
+ * its post, for Instagram and Strava (TASK-231). A run added from a file of
+ * another app says «Imported», and has no «Send to Strava» (TASK-312): it
+ * often comes from Strava itself.
  */
 export function ActivityCard({ activity, onList, onDelete }: Props) {
   // «Delete» asks first, on the card itself.
@@ -40,12 +43,14 @@ export function ActivityCard({ activity, onList, onDelete }: Props) {
   // The facts are written again when «Settings» changes the units (TASK-182).
   useUnits();
   const withRoute = activity.points !== null;
+  const imported = isImported(activity);
   return (
     <View style={styles.card}>
       <View style={styles.row}>
         <View style={styles.words}>
           <Text style={styles.when}>{startedLabel(activity.started_at)}</Text>
           <Text style={styles.message}>{whereAndWhat(activity, withRoute)}</Text>
+          {imported && <ImportedMark />}
         </View>
       </View>
       <Text style={styles.facts}>{runFacts(activity)}</Text>
@@ -58,7 +63,7 @@ export function ActivityCard({ activity, onList, onDelete }: Props) {
       </Text>
       {!confirming && <SharePostButton makeRun={() => postOfActivity(activity)} />}
       {!confirming && <PublicRow activityKey={activity.id} />}
-      {!confirming && <StravaActivityRow activity={activity} />}
+      {!confirming && !imported && <StravaActivityRow activity={activity} />}
       {confirming ? (
         <>
           <Text style={styles.confirmText}>

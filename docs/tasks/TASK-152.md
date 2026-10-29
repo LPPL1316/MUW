@@ -343,3 +343,8 @@ non cambia.
   canale `production` (solo con impronta `83793e26…` e dopo il server),
   i disegni sul server (TASK-316 C, TASK-311), le date `open` di
   TASK-299 e la 1.0.1 nativa (promemoria qui sopra).
+- **2026-10-29: alla build 1.0.1, anche il selettore di file** (TASK-312
+  B): togliere `expo-document-picker` da `expo.autolinking.exclude` di
+  `apps/mobile/package.json`, misurare l'impronta nuova e provare «Add past
+  activity» → «From a file» sull'iPhone con un GPX di Strava, un TCX e un FIT
+  di Garmin. Nessun plugin in `app.json`: senza iCloud non serve.
