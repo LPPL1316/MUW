@@ -158,9 +158,9 @@ function middleOf(line: readonly LatLon[]): LatLon {
 /**
  * The ring that stands for the outline of an open line (START_RING_SHARE):
  * a small triangle on its first point, behind it, so the line starts on it
- * and leaves it without crossing it.
+ * and leaves it without crossing it. `size` is the drawing's.
  */
-function startRing(first: P, next: P, size: number): P[] {
+export function startRing(first: P, next: P, size: number): P[] {
   const side = START_RING_SHARE * size;
   const length = dist(first, next);
   const back: P = [(first[0] - next[0]) / length, (first[1] - next[1]) / length];
@@ -222,24 +222,36 @@ export function newDrawing(line: readonly LatLon[]): Drawn {
   if (first === null || "problem" in first) {
     return first;
   }
-  const { size, middle } = boxOf([first.outline, ...first.details]);
+  return { placed: placedDrawing(origin, first.outline, first.details) };
+}
+
+/**
+ * A drawing made on the plane tangent at `origin`, in metres, placed where
+ * it is: in units of half its size, about its middle. Its outline closes on
+ * its very first point, as the engine reads one; a first detail starting
+ * there, the line of an open one, starts on that very point.
+ */
+export function placedDrawing(
+  origin: LatLon,
+  outlineM: readonly P[],
+  detailsM: readonly (readonly P[])[],
+): Placed {
+  const { size, middle } = boxOf([outlineM, ...detailsM]);
   const half = size / 2;
   const toUnits = (line: readonly P[]): Unit[] =>
     line.map(([x, y]): Unit => [(x - middle[0]) / half, (y - middle[1]) / half]);
-  const outline = toUnits(first.outline);
-  // Closed on the very first point, as the engine reads an outline; an open
-  // line starts on that very point.
+  const outline = toUnits(outlineM);
   outline[outline.length - 1] = outline[0];
-  const details = first.details.map(toUnits);
-  for (const detail of details) {
-    detail[0] = outline[0];
+  const details = detailsM.map(toUnits);
+  for (const [i, detail] of details.entries()) {
+    if (dist(detailsM[i][0], outlineM[0]) === 0) {
+      detail[0] = outline[0];
+    }
   }
   return {
-    placed: {
-      figure: { kind: "drawing", outline, details },
-      centre: fromPlane(origin, middle),
-      unitM: half,
-    },
+    figure: { kind: "drawing", outline, details },
+    centre: fromPlane(origin, middle),
+    unitM: half,
   };
 }
 
@@ -254,7 +266,7 @@ export function travelledPoints(strokes: readonly (readonly Unit[])[]): number {
 }
 
 /** Where `point` meets the lines of a drawing nearest, and how far. */
-function nearestOn(
+export function nearestOn(
   point: P,
   lines: readonly (readonly P[])[],
 ): { at: P; away: number } {
@@ -287,29 +299,42 @@ export function withDetail(placed: Placed, line: readonly LatLon[]): Drawn {
     const [x, y] = toPlane(placed.centre, point);
     return [x / placed.unitM, y / placed.unitM] as P;
   });
-  const detail = detailOf(figure.outline, figure.details, drawn);
-  if (detail === null || "problem" in detail) {
-    return detail;
+  const hung = detailOf(figure.outline, figure.details, drawn);
+  if (hung === null || "problem" in hung) {
+    return hung;
   }
   return {
     placed: {
       ...placed,
-      figure: { ...figure, details: [...figure.details, detail] },
+      figure: {
+        ...figure,
+        details: [...figure.details, hung.detail],
+        linked: [...linkedOf(figure), hung.linked],
+      },
     },
   };
 }
 
+/** Detail by detail, whether a drawing's first side is a link (`linked`):
+ * none for a drawing made before links were told. */
+export function linkedOf(drawing: {
+  details: readonly unknown[];
+  linked?: readonly boolean[];
+}): boolean[] {
+  return drawing.details.map((_, i) => drawing.linked?.[i] === true);
+}
+
 /**
  * The detail a line drawn on the plane makes, in the units of the drawing
- * it is drawn on (`outline` and `details`): the same for the map and for
- * the board of «Draw» (TASK-320). Null for a line too short to add;
- * `too_much` when the details would be more than a route runs.
+ * it is drawn on (`outline` and `details`), and whether a straight link
+ * joins it there (`linked`, TASK-331 part B). Null for a line too short to
+ * add; `too_much` when the details would be more than a route runs.
  */
 export function detailOf(
   outline: readonly P[],
   details: readonly (readonly P[])[],
   line: readonly P[],
-): P[] | { problem: "too_much" } | null {
+): { detail: P[]; linked: boolean } | { problem: "too_much" } | null {
   const lines: (readonly P[])[] = [outline, ...details];
   const { size } = boxOf(lines);
   const drawn = distinct(line);
@@ -320,11 +345,10 @@ export function detailOf(
   const fromEnd = nearestOn(drawn[drawn.length - 1], lines);
   const oriented = fromEnd.away < fromStart.away ? [...drawn].reverse() : drawn;
   const hung = fromEnd.away < fromStart.away ? fromEnd : fromStart;
-  const stroke: P[] =
-    hung.away <= SNAP_SHARE * size
-      ? [hung.at, ...oriented.slice(1)]
-      : [hung.at, ...oriented];
-  return fitted(stroke, size, MAX_DETAIL_POINTS - travelledPoints(details));
+  const linked = hung.away > SNAP_SHARE * size;
+  const stroke: P[] = linked ? [hung.at, ...oriented] : [hung.at, ...oriented.slice(1)];
+  const detail = fitted(stroke, size, MAX_DETAIL_POINTS - travelledPoints(details));
+  return "problem" in detail ? detail : { detail, linked };
 }
 
 /** `stroke` straightened as a detail, more each time, until the route can

@@ -76,18 +76,27 @@ export type ToPage =
   | { type: "clearRejoin" };
 
 /** What fingers do on the map of «Draw on the map» (TASK-281): «Draw», one
- * finger draws, and two move and zoom the map (TASK-331); «Move», one
- * finger moves the figure, or the map away from it, and two fingers size
- * the figure, or zoom the map away from it; «Erase» (TASK-331), a finger
- * on a line takes it away, told as a line drawn, and two move and zoom the
- * map. */
-export type CanvasMode = "draw" | "move" | "erase";
+ * finger draws, and two move and zoom the map (TASK-331); «Line» (TASK-331
+ * part B), a finger taps the points of a straight line, told as a line
+ * drawn, a band from the last point following it; «Erase», a finger rubs
+ * lines out, told as a line drawn; «Move», one finger moves the figure, or
+ * the map away from it, or bends a line held still first (`bent`), and two
+ * fingers size the figure, or zoom the map away from it. With «Line» and
+ * «Erase» too, two fingers move and zoom the map. */
+export type CanvasMode = "draw" | "line" | "erase" | "move";
 
 /** The figure on the map of «Draw on the map», as the page draws it. */
 export type CanvasOnPage = {
   mode: CanvasMode;
   /** The figure's lines; none without a figure. */
   lines: LngLat[][];
+  /** Line by line, whether its first side is a link, drawn dashed
+   * (TASK-331 part B). */
+  links: boolean[];
+  /** The lines a finger may bend with «Move», by their index. */
+  bendable: number[];
+  /** The points of a straight line being tapped, the first to close it. */
+  marks: LngLat[];
   /** The middle of the figure's frame, told back moved or sized. */
   centre: LngLat | null;
   /** How much two fingers may shrink and grow the figure: beyond, it stays
@@ -115,8 +124,13 @@ export type FromPage =
   /** The map turned, by the app or by two fingers (TASK-232): its bearing
    * now, in whole degrees clockwise from north. */
   | { type: "turned"; bearing: number }
-  /** «Draw on the map» (TASK-281): a line drawn with one finger, lifted. */
-  | { type: "drawn"; line: LngLat[] }
+  /** «Draw on the map» (TASK-281): a line drawn with one finger, lifted;
+   * and how many metres a pixel of the map is then, so the app knows a
+   * finger's reach (TASK-331 part B). */
+  | { type: "drawn"; line: LngLat[]; metresPerPx: number }
+  /** A line held and dragged with «Move» (TASK-331 part B): from the point
+   * held to where the finger left it. */
+  | { type: "bent"; from: LngLat; to: LngLat; metresPerPx: number }
   /** The figure moved or sized by the fingers: the middle of its frame
    * now, and how many times bigger. While two fingers still size it
    * `done` is false, for the distance on screen. */
@@ -299,12 +313,16 @@ export function setKind(kind: MapKind): ToPage {
 
 /**
  * «Draw on the map» (TASK-281): the figure drawn on the map, and what
- * fingers do there. The page tells the app of lines drawn (`drawn`), of the
- * figure moved or sized (`figure`) and of where the map is (`centre`).
+ * fingers do there. The page tells the app of lines drawn (`drawn`), of
+ * lines bent (`bent`), of the figure moved or sized (`figure`) and of where
+ * the map is (`centre`).
  */
 export function setCanvas(canvas: {
   mode: CanvasMode;
   lines: LatLon[][];
+  links: boolean[];
+  bendable: number[];
+  marks: LatLon[];
   centre: LatLon | null;
   shrink: number;
   grow: number;
@@ -314,6 +332,7 @@ export function setCanvas(canvas: {
     type: "setCanvas",
     ...canvas,
     lines: canvas.lines.map((line) => line.map(toLngLat)),
+    marks: canvas.marks.map(toLngLat),
     centre: canvas.centre === null ? null : toLngLat(canvas.centre),
   };
 }
@@ -351,6 +370,11 @@ function isLngLat(value: unknown): value is LngLat {
   );
 }
 
+/** Metres a pixel of the map is: a number above nought. */
+function isScale(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0;
+}
+
 /** Reads a message posted by the page; anything unexpected gives null. */
 export function parsePageMessage(data: string): FromPage | null {
   let message: unknown;
@@ -383,10 +407,28 @@ export function parsePageMessage(data: string): FromPage | null {
     }
     return null;
   }
-  if (message.type === "drawn" && "line" in message) {
-    const line = message.line;
-    return Array.isArray(line) && line.length > 0 && line.every(isLngLat)
-      ? { type: "drawn", line: line.map(([lng, lat]) => [lng, lat] as LngLat) }
+  if (message.type === "drawn" && "line" in message && "metresPerPx" in message) {
+    const { line, metresPerPx } = message;
+    return Array.isArray(line) &&
+      line.length > 0 &&
+      line.every(isLngLat) &&
+      isScale(metresPerPx)
+      ? {
+          type: "drawn",
+          line: line.map(([lng, lat]) => [lng, lat] as LngLat),
+          metresPerPx,
+        }
+      : null;
+  }
+  if (
+    message.type === "bent" &&
+    "from" in message &&
+    "to" in message &&
+    "metresPerPx" in message
+  ) {
+    const { from, to, metresPerPx } = message;
+    return isLngLat(from) && isLngLat(to) && isScale(metresPerPx)
+      ? { type: "bent", from: [from[0], from[1]], to: [to[0], to[1]], metresPerPx }
       : null;
   }
   if (

@@ -19172,3 +19172,56 @@ dipendenze e nel nativo. Escono `FreehandBoard`, `FreehandChoice`,
 `useFreehand`, `freehand.ts` e i testi della tavola; le parti utili alla
 mappa vivono in `mapdraw/edit.ts`. `figureLines.ts` dà le linee nella
 cornice del motore e niente per una forma.
+
+## ADR-0288, aggiunta — Gli strumenti di disegno sulla mappa: la gomma a pezzi, la linea a tocchi, «Redo» e «Clear all», la piega
+
+**Data**: 2026-10-29 · **Stato**: accettata (TASK-331 parte B)
+
+**Chi ha deciso**: l'utente ha chiesto «Metti proprio degli strumenti di
+disegno, come la gomma per cancellare un pezzo... fallo più complesso...»
+e, alla proposta, ha scelto tutti e quattro gli strumenti: la gomma a
+pezzi, la linea dritta a tocchi, «Ripeti» e «Cancella tutto», piega una
+linea. Il modo di farli è **deciso dall'agente su delega dell'utente**; i
+testi nuovi aspettano il suo sì. Parte B del TASK-331 e aggiunta a questo
+ADR per scelta del Coordinatore.
+
+**Decisione**:
+
+1. **La gomma toglie il pezzo sotto il dito**, non più la linea intera: un
+   raggio di 14 px sullo schermo, che l'app riceve in metri (la pagina dice
+   quanti metri è un pixel), quindi più fine se si ingrandisce la mappa. Il
+   percorso è un solo giro (ADR-0074): un contorno tagliato diventa la linea
+   aperta del TASK-331; **un pezzo rimasto staccato si riattacca al disegno
+   col collegamento più corto**, dal suo capo più vicino; i pezzi più corti
+   del 3% del disegno spariscono. Un'emoji resta intera o se ne va intera.
+2. **I collegamenti si vedono tratteggiati**: il disegno sa, dettaglio per
+   dettaglio, se il primo lato è un collegamento (`linked`); la mappa lo
+   disegna tratteggiato, il percorso lo corre come prima. La gomma non lo
+   cancella da solo: ciò che univa si riattacca.
+3. **La linea a tocchi**: ogni tocco aggiunge un punto dritto; il primo
+   punto, dopo tre, la chiude (il contorno se è tutto il disegno e non si
+   incrocia, altrimenti un anello); l'ultimo punto, o un altro strumento, la
+   finisce. Un elastico dal punto precedente al dito e i punti tappati si
+   vedono sulla mappa.
+4. **La piega**, con «Move»: un dito fermo mezzo secondo su una linea e poi
+   trascinato sposta il punto tenuto (un angolo vicino, o uno nuovo lì) e la
+   linea attorno sempre meno, per il 20% della grandezza del disegno da una
+   parte e dall'altra; la pagina mostra la stessa piega mentre il dito
+   si muove, l'app la decide al rilascio. L'inizio di un dettaglio resta
+   appeso; i dettagli appesi alla linea la seguono; un contorno che si
+   incrocerebbe è rifiutato con un messaggio.
+5. **«Redo»** rimette ciò che «Undo» ha tolto finché non si cambia altro;
+   **«Clear all»** chiede prima e si annulla con «Undo».
+
+**Alternative scartate**: lasciare un buco vero tra i pezzi (la penna
+alzata), che il contratto vieta per le immagini; buttare via i pezzi
+staccati, che toglie ciò che il dito non ha toccato; una piega calcolata
+dall'app a ogni movimento del dito, che ridisegnerebbe lo schermo intero
+decine di volte al secondo; un timer per il tocco tenuto (basta il tempo dei
+tocchi).
+
+**Conseguenze**: niente cambia nel contratto, nell'API, nel motore, nella
+privacy, nelle dipendenze e nel nativo. I messaggi tra app e pagina della
+mappa hanno `metresPerPx`, `bent`, `links`, `bendable` e `marks` (pagina e
+app vanno sempre insieme). Il nuovo `mapdraw/tools.ts` contiene gli
+strumenti; `erasedAt` esce da `edit.ts`.

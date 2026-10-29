@@ -1419,6 +1419,9 @@ function MuW() {
             onPhoto={mapDraw.choosePhoto}
             onUndo={mapDraw.undo}
             canUndo={mapDraw.canUndo}
+            onRedo={mapDraw.redo}
+            canRedo={mapDraw.canRedo}
+            onClear={mapDraw.clear}
             distanceM={mapDraw.distanceM}
             problem={mapDraw.problem}
             onDraw={mapDraw.request === null ? null : onDrawCanvas}

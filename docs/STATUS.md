@@ -218,6 +218,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   verdi. I due testi nuovi (`UI.md`) approvati dall'utente il 2026-10-29.
   **Resta**: il merge del Coordinatore e la prova col dito sull'iPhone con
   la prossima anteprima.
+  **Parte B, gli strumenti di disegno** (aggiunta ad ADR-0288; richiesta
+  dell'utente dello stesso giorno, «fallo più complesso», scelti tutti e
+  quattro): branch `feat/TASK-331-b-draw-tools`. Sulla mappa «Draw | Line |
+  Erase | Move», «Undo», «Redo», «Clear all»; la gomma toglie il pezzo sotto
+  il dito e un pezzo staccato si riattacca col collegamento più corto,
+  tratteggiato; «Line» fa segmenti dritti a tocchi e si chiude sul primo
+  punto; con «Move» una linea tenuta ferma e trascinata si piega. Solo JS
+  dell'app, contratto e motore invariati. Jest 546/4381 verdi. **Resta**: il
+  sì dell'utente sui testi nuovi (`UI.md`), l'impronta iOS, la PR al
+  Coordinatore.
 
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda

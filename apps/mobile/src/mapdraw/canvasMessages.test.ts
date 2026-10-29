@@ -13,6 +13,9 @@ test("the figure goes to the page as [lng, lat]", () => {
           [46.1, 11.2],
         ],
       ],
+      links: [false],
+      bendable: [0],
+      marks: [[46, 11]],
       centre: [46.05, 11.1],
       shrink: 0.5,
       grow: 2,
@@ -27,6 +30,9 @@ test("the figure goes to the page as [lng, lat]", () => {
         [11.2, 46.1],
       ],
     ],
+    links: [false],
+    bendable: [0],
+    marks: [[11, 46]],
     centre: [11.1, 46.05],
     shrink: 0.5,
     grow: 2,
@@ -36,15 +42,31 @@ test("the figure goes to the page as [lng, lat]", () => {
 });
 
 test("what the page tells is read only when it is what it should be", () => {
-  expect(parsePageMessage('{"type":"drawn","line":[[11,46],[11.1,46.1]]}')).toEqual({
+  expect(
+    parsePageMessage('{"type":"drawn","line":[[11,46],[11.1,46.1]],"metresPerPx":2}'),
+  ).toEqual({
     type: "drawn",
     line: [
       [11, 46],
       [11.1, 46.1],
     ],
+    metresPerPx: 2,
   });
-  expect(parsePageMessage('{"type":"drawn","line":[]}')).toBeNull();
-  expect(parsePageMessage('{"type":"drawn","line":[[11,"46"]]}')).toBeNull();
+  expect(parsePageMessage('{"type":"drawn","line":[],"metresPerPx":2}')).toBeNull();
+  expect(
+    parsePageMessage('{"type":"drawn","line":[[11,"46"]],"metresPerPx":2}'),
+  ).toBeNull();
+  expect(parsePageMessage('{"type":"drawn","line":[[11,46]]}')).toBeNull();
+  expect(
+    parsePageMessage('{"type":"drawn","line":[[11,46]],"metresPerPx":0}'),
+  ).toBeNull();
+  // A line bent with «Move» (TASK-331 part B).
+  expect(
+    parsePageMessage('{"type":"bent","from":[11,46],"to":[11.1,46],"metresPerPx":1.5}'),
+  ).toEqual({ type: "bent", from: [11, 46], to: [11.1, 46], metresPerPx: 1.5 });
+  expect(
+    parsePageMessage('{"type":"bent","from":[11,46],"metresPerPx":1.5}'),
+  ).toBeNull();
   expect(
     parsePageMessage('{"type":"figure","centre":[11,46],"factor":1.5,"done":false}'),
   ).toEqual({ type: "figure", centre: [11, 46], factor: 1.5, done: false });

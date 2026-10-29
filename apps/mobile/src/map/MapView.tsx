@@ -66,6 +66,12 @@ const NO_OTHERS: LatLon[][] = [];
 export type MapCanvas = {
   mode: CanvasMode;
   lines: LatLon[][];
+  /** Line by line, whether its first side is a link, dashed (TASK-331
+   * part B); the lines a finger may bend; the points of a straight line
+   * being tapped. */
+  links: boolean[];
+  bendable: number[];
+  marks: LatLon[];
   centre: LatLon | null;
   /** How much two fingers may shrink and grow the figure. */
   shrink: number;
@@ -77,7 +83,8 @@ export type MapCanvas = {
 
 /** What the page of «Draw on the map» tells the app (TASK-281). */
 export type CanvasEvent =
-  | { type: "drawn"; line: LatLon[] }
+  | { type: "drawn"; line: LatLon[]; metresPerPx: number }
+  | { type: "bent"; from: LatLon; to: LatLon; metresPerPx: number }
   | { type: "figure"; centre: LatLon; factor: number; done: boolean }
   | { type: "centre"; point: LatLon };
 
@@ -436,6 +443,9 @@ export function MapView({
           setCanvas({
             mode: canvas.mode,
             lines: canvas.lines,
+            links: canvas.links,
+            bendable: canvas.bendable,
+            marks: canvas.marks,
             centre: canvas.centre,
             shrink: canvas.shrink,
             grow: canvas.grow,
@@ -510,7 +520,18 @@ export function MapView({
           } else if (message?.type === "turned") {
             onTurned?.(message.bearing);
           } else if (message?.type === "drawn") {
-            onCanvas?.({ type: "drawn", line: message.line.map(fromLngLat) });
+            onCanvas?.({
+              type: "drawn",
+              line: message.line.map(fromLngLat),
+              metresPerPx: message.metresPerPx,
+            });
+          } else if (message?.type === "bent") {
+            onCanvas?.({
+              type: "bent",
+              from: fromLngLat(message.from),
+              to: fromLngLat(message.to),
+              metresPerPx: message.metresPerPx,
+            });
           } else if (message?.type === "figure") {
             onCanvas?.({
               type: "figure",
