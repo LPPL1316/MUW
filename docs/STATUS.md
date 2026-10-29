@@ -160,6 +160,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-336 — Un video nei post: il video della corsa di MuW o uno
+  proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
+  approvata con «Yes, write it up»; numeri dal Coordinatore). Branch
+  `docs/TASK-336-video-in-posts`: solo i documenti, con quattro scelte da
+  chiedere all'utente una per volta (il lettore, lo spazio e i limiti, i
+  dati mobili, testi e privacy). Regola comune con TASK-333 (ADR-0289,
+  modulo `media_files.py`), concordata con quella sessione. Poi A (API:
+  file su disco in `data/media/posts`, `PUT` del file nudo, lettura con
+  `Range`), B (app: scegliere e mandare), C (app: Feed e disegno aperto,
+  dopo la #629) e D (la build 1.0.2 con `expo-video`, se l'utente lo
+  sceglie). Impronta iOS `83793e26` invariata fino a D. File
+  `tasks/TASK-336.md`.
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
