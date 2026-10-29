@@ -124,13 +124,13 @@ describe("the card of a run opened", () => {
 
 describe("the facts of a «Feed» card", () => {
   it("begin with «Imported» for an imported run", () => {
-    const post = shownPost((importedFeed.posts as Post[])[0]);
+    const post = shownPost((importedFeed.posts as unknown as Post[])[0]);
     expect(isImportedPost(post)).toBe(true);
     expect(postFacts(post)).toMatch(/^Imported · /);
   });
 
   it("are as before for a run recorded with MuW, and for an example", () => {
-    const post = shownPost((feed.posts as Post[])[0]);
+    const post = shownPost((feed.posts as unknown as Post[])[0]);
     expect(isImportedPost(post)).toBe(false);
     expect(postFacts(post)).not.toContain("Imported");
     const { drawing: _drawing, ...example } = post;
