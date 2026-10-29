@@ -18996,12 +18996,18 @@ prima del suo taglio.
     prezzo di listino del 2026, da verificare quando si compra, che si
     allarga senza fermare il server). Prima di allora fanno posto i video
     dei messaggi, dal più vecchio (punto 11); i video dei post restano.
-    **Lo spazio libero di oggi non è noto** a questo task: le ultime
-    misure scritte sono del 2026-10-10 (circa 59 GB liberi sul disco del
-    server, 23 GB sul Volume delle zone), poi sono arrivati zone, copie e
-    i file dei messaggi. Si misura con `df -h` sul server prima della
-    parte A, col sì dell'utente, e i due tetti (15 + 10 GB) devono starci
-    con margine per le copie di notte.
+    **Lo spazio libero**, misurato dal Coordinatore con `df -h` la sera
+    del 2026-10-29 (riferito da TASK-333): sul disco del server (`/`)
+    57 GB liberi, sul Volume delle zone 12 GB (pieno all'82 %).
+    `data/media` sta su `/` (`compose.yaml` monta
+    `/root/shaperoute/data/media`; dal Volume viene solo `data/cache`):
+    i due tetti, 10 + 15 GB = 25 GB, ci stanno, e restano circa 32 GB per
+    le copie del database. È quello che l'utente ha scelto («Server disk,
+    15 GB cap»); **da rivedere**: l'utente decide all'aggiornamento del
+    server, con un `df -h` di quel momento. L'alternativa è `data/media`
+    sul Volume con tetti più bassi, per esempio 4 + 6 GB. Le regole della
+    cartella e dello spazio sono in `DEPLOY.md`, «Foto e video dei
+    messaggi» (TASK-333, parte D).
 14. **I dati mobili** (scelta 3; accettata su delega dell'utente del
     2026-10-29, da rivedere): il video parte
     quando la sua pagina è sullo schermo, anche con i dati mobili. Ci si

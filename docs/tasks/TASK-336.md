@@ -165,9 +165,12 @@ non si vede niente; D è la build 1.0.2.
    attraverso un blocco, `409` con «Only me», `413`, `422`, il luogo reso
    `free`, «Only me» che toglie il file, la corsa cancellata che lo lascia
    alla pulizia, il tetto.
-10. `API.md`, `DATABASE.md`, `DEPLOY.md` (la cartella sul disco del
-    server, il tetto di 15 GB, perché non è nelle copie, la prova `Range`
-    attraverso Caddy).
+10. `API.md`, `DATABASE.md`, `DEPLOY.md`: per la cartella, lo spazio e
+    perché non è nelle copie un rimando a «Foto e video dei messaggi»
+    (TASK-333), non una copia; qui solo `data/media/posts`, il tetto di
+    15 GB e la prova `Range` attraverso Caddy. Prima di aggiornare il
+    server, un `df -h` nuovo (la sera del 2026-10-29: 57 GB liberi su `/`,
+    dove sta `data/media`).
 
 File toccati:
 
