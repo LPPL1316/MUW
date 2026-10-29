@@ -299,7 +299,7 @@ test("VoiceOver hears what a message carries", () => {
     "This video has expired.",
   );
   expect(attachmentLabel(drawing.attachment as MessageAttachment)).toBe(
-    "Drawing: heart, 5.0 km",
+    "Drawing: Heart, 5.1 km",
   );
   expect(duration(58_020)).toBe("0:58");
   expect(duration(60_000)).toBe("1:00");

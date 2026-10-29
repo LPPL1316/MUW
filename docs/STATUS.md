@@ -1892,6 +1892,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   schermo con «Share», la lista con «📷 Photo», la privacy nelle cinque
   lingue e sul sito; «Help» con la parte C. Solo OTA, dopo il server.
   Prossima: C (i disegni), dopo B; `RoutePanel.tsx` è conteso con TASK-331.
+  B in `main` con la #635 (e6f5b1c3). **Parte C scritta il 2026-10-29**
+  (branch `feat/TASK-333-c-attachments-drawings`, stessa delega): «Send to
+  a friend» sotto il cuore della mappa e sulle schede di «My activities» e
+  dei disegni, «Drawing» nel «+», la scheda del disegno nella
+  conversazione e il disegno aperto sulla mappa come un preferito, con
+  «←» che torna alla conversazione; «Help» nelle cinque lingue. Solo OTA,
+  dopo il server; `RoutePanel.tsx` non toccato. Con C le parti di TASK-333
+  sono tutte scritte: restano server, OTA e i moduli di «App Privacy» e
+  «Data safety», col sì dell'utente.
 
 ## Completato
 

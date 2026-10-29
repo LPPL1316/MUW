@@ -89,6 +89,7 @@ const help: AboutDocument = {
         "«Mensaje» en el perfil de un miembro le escribe. Si te sigue, tu mensaje llega a sus «Mensajes»; si no, llega como solicitud, y puedes enviar un solo mensaje hasta que la acepte.",
         "Tus conversaciones están en «Perfil», «Mensajes», con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
         "Mantén pulsado un mensaje para borrar el tuyo, para los dos, o para denunciar uno que has recibido. Nadie ve si has leído un mensaje. Con las push encendidas, MuW te avisa de cada mensaje y de cada solicitud.",
+        "En una conversación, toca + para enviar una foto, un vídeo de hasta 60 segundos o un dibujo, o toca Enviar a amigos en una ruta o un dibujo. Puedes enviarlos cuando la otra persona haya aceptado tu mensaje. Los vídeos se guardan 30 días. Toca un dibujo para abrirlo en el mapa, empezarlo, exportar su GPX o guardarlo en tus favoritos.",
       ],
     },
     {
