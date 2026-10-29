@@ -168,10 +168,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dati mobili, testi e privacy). Regola comune con TASK-333 (ADR-0289,
   modulo `media_files.py`), concordata con quella sessione. Poi A (API:
   file su disco in `data/media/posts`, `PUT` del file nudo, lettura con
-  `Range`), B (app: scegliere e mandare), C (app: Feed e disegno aperto,
-  dopo la #629) e D (la build 1.0.2 con `expo-video`, se l'utente lo
-  sceglie). Impronta iOS `83793e26` invariata fino a D. File
-  `tasks/TASK-336.md`.
+  `Range`), B (app: scegliere e mandare), C (app: Feed e disegno aperto)
+  e D (la build 1.0.2 con `expo-video`). Impronta iOS `83793e26`
+  invariata fino a D. File `tasks/TASK-336.md`.
+  Scelte dell'utente del 2026-10-29: `expo-video` nella 1.0.2, anche per
+  i messaggi; i video sul disco del server con un tetto di 15 GB; a
+  spazio pieno si cancellano i video dei messaggi dal più vecchio, mai
+  quelli dei post. Aperte: dati mobili, testi e privacy.
 - **TASK-329 — «Ask for a route» sempre aperto, con le nostre idee in
   Europa e poi le foto vere dei posti** (ADR-0287; richiesta a voce
   dell'utente del 2026-10-29, proposta approvata con «Sì, così»; numeri

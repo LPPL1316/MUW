@@ -18826,8 +18826,8 @@ prima del suo taglio.
    fine corsa e in quello di «My activities» (TASK-208 B), prima o dopo
    la pubblicazione.
 2. **Le regole comuni sono quelle di ADR-0289**, con il codice nel modulo
-   comune `media_files.py` (senza tabelle; lo scrive la prima parte A che
-   arriva in `main`, l'altra lo importa soltanto): file su disco, mai nel
+   comune `media_files.py` (senza tabelle; in `main` con TASK-333 A, #634:
+   questo task lo importa soltanto): file su disco, mai nel
    database né nelle copie (punto 5); il file nudo, non base64 (punto 6);
    il controllo dell'MP4 senza ffmpeg, la durata da `mvhd`, il luogo
    (`©xyz`) e i metadati (`udta`, `meta`) resi `free` (punto 7); la
@@ -18835,16 +18835,17 @@ prima del suo taglio.
    tetto (punto 8). **Diverso qui**: la cartella `data/media/posts/`, la
    tabella `drawing_videos`, 30 secondi, nessuna scadenza, un tetto suo.
 3. **Dove sta e quanto resta**: il file `data/media/posts/{id}.mp4` e la
-   locandina `{id}.jpg`, con un `id` casuale, mai il nome del file del
-   telefono. La tabella `drawing_videos` ha una riga per disegno
-   (`drawing_id` → `drawings` con `ON DELETE CASCADE`, il file, byte,
-   misure, durata, `has_sound`, la locandina, `updated_at`). Come le foto
+   locandina `{id}.poster.jpg` (`MediaFolder`), con un `id` casuale, mai il
+   nome del file del telefono. La tabella `drawing_videos` ha una riga per
+   disegno (`drawing_id` → `drawings` con `ON DELETE CASCADE`, il file,
+   byte, misure, durata, la locandina, `updated_at`). Come le foto
    (ADR-0170) il server lo tiene **solo mentre altri vedono il post**:
    «Only me» cancella riga e file nella stessa richiesta
    (`Drawings.keep`, accanto alle foto), il telefono lo tiene e lo
    rimanda quando il post si riapre agli altri. Cancellare la corsa o
    l'account cancella la riga in cascata e la pulizia di ogni ora di
-   ADR-0289 toglie il file rimasto senza riga: dal disco entro un'ora.
+   ADR-0289 (`MediaFolder.keep_only`, come `sweep` dei messaggi) toglie
+   il file rimasto senza riga: dal disco entro un'ora.
    Il video non è nelle copie di notte: se il disco si rompe il post
    resta senza video, e il telefono che ha ancora il suo lo rimanda
    quando legge `video: null` in «My activities».
@@ -18875,7 +18876,7 @@ prima del suo taglio.
    tipi da comprimere non lo comprende, e si verifica sul server con una
    richiesta `Range` prima della 1.0.2. I corpi di `GET /me/drawings`, del
    disegno e di `GET /feed` hanno `video`: `{url, poster_url, width,
-   height, duration_ms, has_sound}` o `null`, letto insieme alle foto.
+   height, duration_ms}` o `null`, letto insieme alle foto.
    Un'app di prima ignora il campo.
 6. **Il lettore** (scelta 1 dell'utente), uno solo per post e messaggi.
    La proposta è `expo-video` nella build 1.0.2:
@@ -18899,6 +18900,11 @@ prima del suo taglio.
    collega e l'impronta cambia lì, non prima. Proposta da TASK-333, per il
    confronto: `expo-video` dove la build lo ha e la WebView dove non lo
    ha (i video dei messaggi subito con un OTA, ma due lettori da tenere).
+   **Scelta dell'utente** (2026-10-29): `expo-video` nella 1.0.2. Intanto
+   TASK-333 B è entrata in `main` (#635) con la WebView per i video dei
+   messaggi: quella resta finché non c'è la 1.0.2, che porta anche i
+   messaggi su `expo-video`; il cambio nei file dei messaggi è di
+   TASK-333.
 7. **La striscia del Feed** (ADR-0275, TASK-330): il video è l'ultima
    pagina, dopo il disegno e le foto, con il suo puntino. Quando si vede
    la pagina prima di lui se ne carica solo la locandina (circa 50 KB),
@@ -18910,8 +18916,9 @@ prima del suo taglio.
    suono e un altro lo spegne, con l'icona dell'altoparlante in un
    angolo: qui il tocco non apre il disegno come sulle foto (TASK-330), lo
    aprono la pagina del disegno, il nome e il titolo. Un video senza
-   traccia audio (`has_sound: false`, come il video della corsa senza
-   musica) non ha l'icona, e il tocco apre il disegno come una foto.
+   traccia audio (il lettore non ne trova, `availableAudioTracks`; così il
+   video della corsa senza musica) non ha l'icona, e il tocco apre il
+   disegno come una foto.
    Senza suono `audioMixingMode` è `mixWithOthers` (la musica del
    corridore continua), con il suono `doNotMix`.
 8. **Nel disegno aperto** (`DrawingCard`): il video sta nella fila delle
@@ -18953,8 +18960,9 @@ prima del suo taglio.
     video nuovo di un post aspetta sul telefono (`503 videos_paused`). Al
     posto di un video cancellato così il messaggio dice, come per la
     scadenza, «This video has expired.». Cambia il punto 8 di ADR-0289 (là
-    i video nuovi aspettano): lo aggiorna TASK-333 nei suoi file, con la
-    sua riga della privacy.
+    i video nuovi aspettano): lo aggiorna TASK-333 nei suoi file
+    (`message_media.py`, con una funzione che fa posto e che la parte A di
+    questo task chiama), con la sua riga della privacy.
 12. **I permessi** (build 1.0.2, `app.json`): oggi il testo del microfono
     (di `expo-audio`) dice «MuW never records sound», e il plugin di
     `expo-image-picker` ha `microphonePermission: false`. Registrare un
@@ -19015,14 +19023,14 @@ prima del suo taglio.
 
 **Conseguenze**:
 
-- Una migrazione e la cartella `data/media/posts` (in `compose.yaml`
-  con TASK-333): il server va aggiornato prima che esca l'app 1.0.2, col
+- Una migrazione e la cartella `data/media/posts` (`data/media` è già in
+  `compose.yaml` con TASK-333): il server va aggiornato prima che esca
+  l'app 1.0.2, col
   sì dell'utente; lo spazio libero si misura prima.
 - La build 1.0.2 collega `expo-video` e cambia i testi del microfono e
   della fotocamera; l'impronta cambia lì.
-- `FeedPost.tsx` si tocca dopo la #629 (TASK-330); `app.json` e i testi
-  della privacy dopo la #620 (TASK-321 B, in bozza fino al taglio della
-  1.0.1).
+- `app.json` e i testi della privacy si toccano dopo la #620 (TASK-321 B,
+  in bozza fino al taglio della 1.0.1).
 - Il video non è nelle copie: un disco rotto perde i video sul server,
   non quelli sui telefoni.
 - Chi cancella disegni, corse o account deve ricordare il file: la riga

@@ -49,11 +49,11 @@ corre o del suo cane o di quello che vuole».
   dello spazio** per 1000 iscritti (ADR-0292, punto 13).
 - **Prima PR**: solo documenti. Server, OTA, build e acquisti col sì
   dell'utente.
-- **File occupati**: `apps/mobile/src/feed/FeedPost.tsx` e
-  `apps/mobile/src/api/drawings.ts` dalla #629 (TASK-330); `app.json` e
-  `apps/mobile/src/about/content/*.ts` dalla #620 (TASK-321 B, in bozza
-  fino al taglio della 1.0.1). Le parti che li toccano partono dopo quei
-  merge.
+- **File occupati**: `app.json` e `apps/mobile/src/about/content/*.ts`
+  dalla #620 (TASK-321 B, in bozza fino al taglio della 1.0.1): la parte D
+  parte dopo quel merge. La #629 (TASK-330) è in `main` dal 2026-10-29,
+  e così TASK-333 A (#634, `media_files.py`, `data/media` in
+  `compose.yaml`) e B (#635, la WebView per i video dei messaggi).
 
 ## Le scelte dell'utente
 
@@ -70,7 +70,10 @@ risposte si scrivono qui.
    la build lo ha e la WebView altrove (due lettori da tenere). Confronto
    intero in ADR-0292, punto 6.
    — *Risposta (2026-10-29):* «expo-video in 1.0.2», la proposta. Vale
-   anche per i video dei messaggi (TASK-333, il suo punto 9).
+   anche per i video dei messaggi (TASK-333, il suo punto 9). Mentre
+   l'utente sceglieva, TASK-333 B è entrata in `main` (#635) con la
+   WebView per i video dei messaggi: resta fino alla 1.0.2, che li porta
+   su `expo-video` (lo fa TASK-333 nei suoi file).
 2. **Lo spazio sul server e i limiti.** Proposta: fino a 30 s e 40 MB
    (lo stesso peso dei messaggi), ridotto a 960 × 540 sull'iPhone (circa
    11 MB per 30 s), il video della corsa circa 3 MB; un tetto di 30 GB
@@ -126,21 +129,22 @@ non si vede niente; D è la build 1.0.2.
 
 1. Migrazione: `drawing_videos` (una riga per disegno, `ON DELETE
    CASCADE` da `drawings`).
-2. `media_files.py` (comune con TASK-333): se non c'è ancora lo scrive
-   questa parte, con il suo test; se c'è, solo import.
+2. `media_files.py` (comune con TASK-333, già in `main`): solo import
+   (`MediaFolder`, `video_facts`, `without_metadata`, `cap_bytes`).
 3. `drawing_videos.py` (nuovo): `PUT`, `DELETE`
    `/me/activities/{key}/drawing/video`, `PUT …/video/poster`, `GET
    /drawings/{id}/video` e `…/video/poster` con `Range`; i limiti al
    minuto e al giorno; lo spazio pieno che toglie i video dei messaggi
-   dal più vecchio (con la funzione comune di `media_files.py`), e `503
-   videos_paused` solo quando non ne resta nessuno.
+   dal più vecchio (con la funzione che TASK-333 aggiunge in
+   `message_media.py`), e `503 videos_paused` solo quando non ne resta
+   nessuno.
 4. `drawings.py`: `video` nei corpi di «My activities», del disegno e del
    Feed, letto insieme alle foto; «Only me» toglie riga e file.
 5. La pulizia di ogni ora di ADR-0289 copre anche `data/media/posts`.
 6. `report_email.py`: l'email dice che il post ha un video, la pagina del
    link lo mostra.
-7. `deploy/compose.yaml`: `data/media` montata nell'API, se TASK-333 A non
-   l'ha già fatto; `SHAPEROUTE_POST_MEDIA_MAX_GB` in `.env.example`.
+7. `SHAPEROUTE_POST_MEDIA_MAX_GB` in `.env.example` (`data/media` è già
+   montata in `compose.yaml` da TASK-333 A).
 8. `shared-types`: `DrawingVideo`, i limiti; esempi.
 9. Test deterministici con un PostgreSQL vero e MP4 piccoli fatti nei
    test: `206` a una richiesta `Range`, `404` a chi non vede il disegno e
@@ -155,19 +159,16 @@ File toccati:
 
 ```
 services/api/migrations/00NN_drawing_videos.sql      (nuovo; numero al merge)
-services/api/shaperoute_api/media_files.py           (nuovo, comune con TASK-333; solo se non c'è)
 services/api/shaperoute_api/drawing_videos.py        (nuovo)
 services/api/shaperoute_api/drawings.py
 services/api/shaperoute_api/app.py
 services/api/shaperoute_api/report_email.py
 services/api/tests/test_drawing_videos.py            (nuovo)
-services/api/tests/test_media_files.py               (nuovo, solo con media_files.py)
 services/api/tests/test_drawings.py
 services/api/tests/test_report_email.py
 packages/shared-types/src/index.ts
 packages/shared-types/fixtures/drawing-video.json    (nuovo)
 packages/shared-types/fixtures/feed-video.json       (nuovo)
-deploy/compose.yaml                                  (solo se TASK-333 A non l'ha già fatto)
 .env.example
 docs/API.md
 docs/DATABASE.md
@@ -226,8 +227,6 @@ docs/STATUS.md
 ```
 
 ### Parte C — L'app: il video nel Feed e nel disegno aperto
-
-Dopo la #629 (TASK-330).
 
 1. `expo-video` in `package.json`, escluso dall'autolinking fino al
    taglio della 1.0.1 (accanto a `expo-document-picker`).
