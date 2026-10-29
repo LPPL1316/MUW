@@ -382,7 +382,12 @@ export function ExploreScreen({
             onAsk={(text) => onAsk({ text, centre: near, city: city?.label ?? null })}
             ideas={
               onIdea && (
-                <IdeasFromEurope width={contentWidth - 2 * space.md} onIdea={onIdea} />
+                // Their maps after those of the routes above them.
+                <IdeasFromEurope
+                  width={contentWidth - 2 * space.md}
+                  onIdea={onIdea}
+                  maps={list.status !== "loading"}
+                />
               )
             }
           />

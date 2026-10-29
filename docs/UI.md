@@ -2153,7 +2153,8 @@ di «NEARBY TOWNS» (0,42 della pagina, la seguente si affaccia). Ognuna ha
 la linea gialla sulla mappa delle sue strade, il titolo «Roma · Stella» e
 sotto «Famous Places · 8,1 km». Sotto la fila, a destra e in piccolo, il
 credito delle mappe e «© OpenStreetMap contributors» (posti e strade sono
-di OpenStreetMap).
+di OpenStreetMap). La mappa sotto la linea arriva dopo quelle dei percorsi
+della pagina, e per le schede oltre la terza quando la fila scorre.
 Sono percorsi nostri in otto città, Roma, Parigi, Londra, Barcellona,
 Amsterdam, Lisbona, Praga e Berlino, con forme semplici (cuore, stella,
 cerchio, luna) di 6–10 km, attraverso i posti di quattro temi: posti

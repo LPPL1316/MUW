@@ -108,6 +108,7 @@ testi già tradotti.
 ```
 apps/mobile/App.tsx
 apps/mobile/__tests__/AppDrawIdeas.test.tsx          (tolto)
+apps/mobile/__tests__/AppExploreTurned.test.tsx      (la scheda ruotata cercata fra le schede delle idee)
 apps/mobile/__tests__/AppFreehand.test.tsx           (un test senza la riga «PICTURES»)
 apps/mobile/__tests__/AppThemedIdeas.test.tsx        (nuovo)
 apps/mobile/src/explore/AskForRoute.tsx
