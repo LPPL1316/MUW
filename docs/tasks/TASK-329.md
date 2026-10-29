@@ -26,6 +26,12 @@ La proposta (`out/esplora-idee-europa/proposta.md` nel checkout di `main`,
 non nel repository) è stata approvata dall'utente in chat il 2026-10-29 con
 «Sì, così». Contiene i cinque punti qui sotto e le due parti.
 
+I testi nuovi della parte A, «IDEAS FROM EUROPE», «Make it near me» e i
+nomi delle otto città nelle cinque lingue (tabella in `docs/UI.md`, «Le
+idee dall'Europa»), sono stati approvati dall'utente in chat il 2026-10-29
+con «Sì, approvo». I quattro temi e «© OpenStreetMap contributors» sono
+testi già tradotti.
+
 ## Contesto da leggere
 
 - `docs/UI.md` §«Explore» (punti su «Ask for a route», TASK-157/143) e
@@ -93,7 +99,7 @@ non nel repository) è stata approvata dall'utente in chat il 2026-10-29 con
       posti del tema (test dello strumento), guardato a occhio.
 - [ ] Un'idea lontana dalla partenza ha «Make it near me», che manda le sue
       parole con `centre` la partenza; vicina ha «Start».
-- [ ] Testi nuovi approvati dall'utente in cinque lingue.
+- [x] Testi nuovi approvati dall'utente in cinque lingue («Sì, approvo»).
 - [ ] Test verdi: app (jest, tsc, lint, format) e `pytest tools`; impronta
       iOS `83793e26` invariata su una copia pulita.
 
