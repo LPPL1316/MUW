@@ -18667,13 +18667,13 @@ prima del suo taglio.
     WebCodecs è un seguito comune con TASK-333.
 11. **I limiti** (scelta 2 dell'utente): fino a **30 s** (detto
     dall'utente) e **40 MB** come i messaggi; sull'iPhone 960 × 540, circa
-    11 MB per 30 s. Il tetto `SHAPEROUTE_POST_MEDIA_MAX_GB` (proposta 30
-    GB) si somma a quello dei messaggi (10 GB, ADR-0289): insieme devono
-    stare nello spazio libero misurato con `df -h` prima di aggiornare il
-    server. Proposta: un Volume Hetzner nuovo da 50 GB per `data/media`
-    (circa 3 € al mese al prezzo di listino del 2026 di 0,0572 € al GB al
-    mese, da verificare quando si compra), montato come la cache delle
-    zone, così zone e video non si tolgono lo spazio.
+    11 MB per 30 s. `data/media` sta sul **disco del server**, senza
+    acquisti (scelta dell'utente del 2026-10-29, fra questo e un Volume
+    nuovo da 50 GB): il tetto `SHAPEROUTE_POST_MEDIA_MAX_GB` è **15 GB** e
+    si somma a quello dei messaggi (10 GB, ADR-0289). Insieme devono stare
+    nello spazio libero misurato con `df -h` prima di aggiornare il
+    server, lasciando posto alle copie di notte e agli estratti delle
+    zone; se non ci stanno, si abbassa il tetto e si richiede all'utente.
 12. **I permessi** (build 1.0.2, `app.json`): oggi il testo del microfono
     (di `expo-audio`) dice «MuW never records sound», e il plugin di
     `expo-image-picker` ha `microphonePermission: false`. Registrare un
@@ -18690,9 +18690,12 @@ prima del suo taglio.
     | Alta: tutti, 2 corse a settimana | 2000 | 1 su 3: 667 | 20 GB | 240 GB |
 
     I post resi «Only me» o cancellati tolgono spazio e qui non sono
-    contati. Con l'ipotesi media 30 GB bastano circa otto mesi; poi il
-    Volume si allarga senza fermare il server, circa 0,06 € al GB al
-    mese. Il log dice quando si passa l'80 % del tetto.
+    contati. Con l'ipotesi media 15 GB bastano circa quattro mesi. Il log
+    dice quando si passa l'80 % del tetto: allora si sceglie con
+    l'utente, per esempio un Volume Hetzner (0,0572 € al GB al mese al
+    prezzo di listino del 2026, da verificare quando si compra, che si
+    allarga senza fermare il server). Sopra il tetto i video nuovi
+    aspettano sul telefono (punto 4).
 14. **I dati mobili** (scelta 3 dell'utente): proposta, il video parte
     quando la sua pagina è sullo schermo, anche con i dati mobili. Ci si
     arriva solo scorrendo fino all'ultima pagina, che è già una scelta;
@@ -18733,7 +18736,7 @@ prima del suo taglio.
 
 - Una migrazione e la cartella `data/media/posts` (in `compose.yaml`
   con TASK-333): il server va aggiornato prima che esca l'app 1.0.2, col
-  sì dell'utente, e il Volume nuovo lo compra l'utente.
+  sì dell'utente; lo spazio libero si misura prima.
 - La build 1.0.2 collega `expo-video` e cambia i testi del microfono e
   della fotocamera; l'impronta cambia lì.
 - `FeedPost.tsx` si tocca dopo la #629 (TASK-330); `app.json` e i testi

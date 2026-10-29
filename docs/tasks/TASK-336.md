@@ -69,7 +69,8 @@ risposte si scrivono qui.
    subito con un OTA e senza dipendenze; tutti e due, `expo-video` dove
    la build lo ha e la WebView altrove (due lettori da tenere). Confronto
    intero in ADR-0292, punto 6.
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «expo-video in 1.0.2», la proposta. Vale
+   anche per i video dei messaggi (TASK-333, il suo punto 9).
 2. **Lo spazio sul server e i limiti.** Proposta: fino a 30 s e 40 MB
    (lo stesso peso dei messaggi), ridotto a 960 × 540 sull'iPhone (circa
    11 MB per 30 s), il video della corsa circa 3 MB; un tetto di 30 GB
@@ -79,7 +80,12 @@ risposte si scrivono qui.
    l'ipotesi media fa circa 45 GB in un anno. Alternative: nessun Volume,
    sul disco del server con un tetto di 15 GB; 1280 × 720 (circa 19 MB
    per 30 s, il doppio dello spazio).
-   — *Risposta:* …
+   — *Risposta (2026-10-29):* «Server disk, 15 GB cap». Quindi nessun
+   Volume nuovo: `data/media` sul disco del server, tetto di 15 GB per i
+   video dei post (più i 10 GB dei messaggi), fino a 30 s e 40 MB, 960 ×
+   540 sull'iPhone, niente copie di notte. Con l'ipotesi media il tetto
+   si raggiunge in circa quattro mesi: all'80 % il log lo dice e si
+   richiede all'utente.
 3. **I dati mobili.** Proposta: il video parte quando la sua pagina è
    sullo schermo, anche con i dati mobili. È l'ultima pagina, ci si
    arriva solo scorrendo; prima si scarica solo la locandina, e un video
@@ -130,8 +136,9 @@ non si vede niente; D è la build 1.0.2.
    attraverso un blocco, `409` con «Only me», `413`, `422`, il luogo reso
    `free`, «Only me» che toglie il file, la corsa cancellata che lo lascia
    alla pulizia, il tetto.
-10. `API.md`, `DATABASE.md`, `DEPLOY.md` (il Volume, la cartella, il
-    tetto, perché non è nelle copie, la prova `Range` attraverso Caddy).
+10. `API.md`, `DATABASE.md`, `DEPLOY.md` (la cartella sul disco del
+    server, il tetto di 15 GB, perché non è nelle copie, la prova `Range`
+    attraverso Caddy).
 
 File toccati:
 
@@ -257,8 +264,8 @@ Col sì dell'utente a ogni passo, dopo il taglio della 1.0.1.
    «Record a video» acceso.
 3. «Help» e «Privacy» nelle cinque lingue, il sito rifatto
    (`make_privacy.mjs`).
-4. Prima: il server con la parte A e il Volume (`df -h`, prova `Range`
-   attraverso Caddy).
+4. Prima: il server con la parte A (`df -h` per i due tetti, prova
+   `Range` attraverso Caddy).
 5. La build, la prova sul telefono (Feed, suono, dati, galleria,
    fotocamera, «Only me»), la revisione di Apple, Google Play.
 
