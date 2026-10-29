@@ -192,7 +192,8 @@ dopo il merge della #632.
 - [x] «Redo» rimette quello che «Undo» ha tolto; «Clear all» chiede prima e
       «Undo» lo rimette.
 - [x] Contratto, API e motore invariati; nessuna dipendenza nuova.
-- [ ] Impronta iOS invariata, misurata su una copia pulita della testa.
+- [x] Impronta iOS invariata, misurata su una copia pulita della testa
+      0d59d7c0 (`npm ci`, `APP_VARIANT=production`): 83793e26.
 - [x] jest, lint, typecheck, Prettier verdi.
 - [ ] Testi nuovi approvati dall'utente (in `UI.md`).
 
