@@ -1,8 +1,8 @@
 # TASK-334 — I posti che l'utente tiene sul telefono
 
-**Stato**: In corso — codice e documenti nella PR del branch
-`feat/TASK-334-kept-places`; poi il server e l'OTA, ciascuno col sì
-dell'utente
+**Stato**: Done — in `main` dalla #637 (`a623d61c`, 2026-10-29); restano
+da pubblicare il server e l'OTA, ciascuno col sì dell'utente (sotto,
+«Esito»)
 **Fase**: 4 · **Branch**: `feat/TASK-334-kept-places` · **ADR**: ADR-0290 ·
 numeri dal coordinatore (2026-10-29)
 
@@ -176,4 +176,21 @@ uno in più (da 11 a 12), nient'altro.
 
 ## Esito
 
-*(da compilare a fine task)*
+In `main` dalla #637 (`a623d61c`, 2026-10-29), mergiata dal coordinatore
+dopo il sì dell'utente ai due testi nuovi. In «Settings» → «Offline maps»
+si aggiungono fino a 10 posti per nome; la loro zona con 6 km intorno
+resta sul telefono fuori dai 2 GB; dove il server non l'ha, la prepara lui
+con `POST /phone-zones/{network}/places`, 3 posti nuovi al giorno per
+telefono e 20 per il server, mai mentre l'API disegna percorsi (il giro
+di notte di `draw_examples`) né con `data/cache/places.pause`. Impronta
+iOS invariata (`83793e26…`): l'app va in OTA.
+
+- **Da pubblicare, col sì dell'utente**: il server (l'endpoint nuovo,
+  nessuna migrazione) e l'OTA. In qualunque ordine: con il server di oggi
+  l'app scarica subito i posti di cui il server ha già la zona, gli altri
+  restano «Preparing the map…» fino all'aggiornamento del server.
+- **Non provato a occhio** nel simulatore né sull'iPhone: la pagina è
+  coperta dai test, non vista. Da guardare con la prima `preview`.
+- **Da misurare sul server, dopo**: quanto pesa e quanto ci mette una
+  zona preparata (dal log, «place zone … prepared in … s») e se 20 al
+  giorno bastano.

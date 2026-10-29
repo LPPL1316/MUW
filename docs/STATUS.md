@@ -168,8 +168,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nuovi al giorno per telefono, 20 per il server, uno alla volta); fino a
   10 posti, fuori dai 2 GB, mai cancellati da soli. API
   (`phone_zone_places.py`, `POST /phone-zones/{network}/places`) e app
-  (`keptPlaces.ts`, `OfflineMapsSetting`, `ZoneEntry.kept`) nella PR #637
-  (branch `feat/TASK-334-kept-places`), impronta iOS invariata
+  (`keptPlaces.ts`, `OfflineMapsSetting`, `ZoneEntry.kept`) in `main` dalla
+  #637 (`a623d61c`, 2026-10-29; task Done), impronta iOS invariata
   (`83793e26…`). I due testi nuovi («Trying again later», «Up to {count}
   places.») approvati dall'utente lo stesso giorno. Dopo il merge, il
   server e l'OTA col sì dell'utente. File `tasks/TASK-334.md`.
@@ -1938,6 +1938,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App e API** — TASK-334 (ADR-0290; richiesta e scelta dell'utente del 2026-10-29, «Sì, così», testi approvati lo stesso giorno): i posti che l'utente tiene sul telefono. «Add a place» in «Settings» → «Offline maps», fino a 10 posti con la zona di 6 km fuori dai 2 GB; il server prepara quelle che non ha (`POST /phone-zones/{network}/places`, 3 al giorno per telefono, 20 per il server, mai mentre disegna percorsi). In `main` dalla #637 (`a623d61c`). Restano il server e l'OTA col sì dell'utente; la pagina non è ancora vista sul telefono. `tasks/TASK-334.md`, «Esito».
 - **App** — TASK-335 (ADR-0291, che cambia il punto 3 di ADR-0277; segnalazione e scelta «Durante l'attesa» dell'utente del 2026-10-29): mentre «Draw» calcola, le sei schede «MEANWHILE, FROM THE FEED» hanno sotto la linea la foto della mappa del posto, come in «Feed». Le scatta una pagina nascosta sotto la fila, due schede alla volta, con la cache del Feed; senza rete, dopo due foto mancate non ne chiede altre. «Maps: …» sotto la fila. Misurato nel simulatore iOS: cuore da 5 km a Trento sul telefono, 7701 ms senza e 7714 ms con le sei foto (tre giri ciascuno), quindi nessun rallentamento visibile. Solo app, nessun testo nuovo, `RoutePanel.tsx` non toccato, impronta iOS `83793e26`. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-335.md`.
 - **App** — TASK-330 (segnalazione dell'utente del 2026-10-29): le foto dei post si vedono sul telefono. Si chiedevano senza `X-API-Key` e il server rispondeva 401 (Feed, galleria del profilo, disegno aperto); e nel Feed lo swipe sulla figura girava la pagina su Draw, perché su iOS uno `ScrollView` dentro un `Pressable` toccato non scorre: ora il disegno e ogni foto prendono il tocco da soli. Riprodotto e verificato nel simulatore iOS. Solo JS, impronta invariata. `tasks/TASK-330.md`.
 - **App** — TASK-332 (una riga in ADR-0131; richiesta dell'utente del 2026-10-29): nella griglia «Drawings» del profilo, proprio e di un altro, ogni disegno ha sotto la foto della mappa del posto, come in «Feed», con «Maps: …» una volta sotto la griglia. La foto si chiede solo quando la miniatura entra nello schermo (`SightScrollView` in «Profile» e «Find friends»); sopra la mappa grande il profilo di un altro ha la sua pagina delle foto, e ne lavora una alla volta. Solo app, nessun testo nuovo. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-332.md`.
