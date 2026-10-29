@@ -220,7 +220,8 @@ proposta pronta:
    haptics fino alla build successiva. Proposta: sì. **Scelta
    dell'utente, 2026-10-30: «Sì, nella pagina».**
 3. **Il punteggio = somiglianza del motore**, 0–100%, sotto la mappa mentre
-   si disegna, non nei post. Proposta: sì.
+   si disegna, non nei post. Proposta: sì. **Scelta dell'utente,
+   2026-10-30: «Sì, così».**
 4. **Dislivello e profilo** come parte a sé (G), dopo le altre. Proposta:
    sì; fino ad allora km, tempo e punteggio.
 5. **Tre campi opzionali nel contratto e un endpoint nuovo**, con la sonda
