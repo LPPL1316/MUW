@@ -160,6 +160,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-347 — Il disegno libero ancorato alle strade: map matching per
+  tratto, confronto e punteggio, strumenti da professionista, guide**
+  (ADR-0300, proposta; richiesta dell'utente del 2026-10-30 in sei
+  capitoli e cinque fasi, con una fermata dopo ognuna; numeri dal
+  Coordinatore). Branch `docs/TASK-347-pro-freehand`: solo i documenti.
+  Proposta: niente Mapbox/Valhalla/OSRM; il map matching è una modalità
+  **ancorata** del nostro motore, per tratto al sollevamento del dito,
+  prima sul telefono (TASK-214) poi sul server, con la forza del magnete
+  (`fit`), il fantasma del tratto sotto il percorso e il punteggio = la
+  somiglianza del motore; il tratto resta nella pagina della mappa (niente
+  Skia: nativi alla build successiva). Parti A (motore e API), B
+  (telefono), C (app), D (strumenti), E (forme e guide col contorno da
+  foto), F (informazioni, bozza, esportazione), G (dislivello, a parte).
+  **Resta**: le cinque scelte di prodotto, fatte all'utente una per volta,
+  poi la parte A nella sua sessione. Non si sovrappone a TASK-346 (i nodi
+  della traccia vera). File `tasks/TASK-347.md`.
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno
   proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
   approvata con «Yes, write it up»; numeri dal Coordinatore). Branch
