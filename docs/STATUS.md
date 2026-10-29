@@ -160,6 +160,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-329 — «Ask for a route» sempre aperto, con le nostre idee in
+  Europa e poi le foto vere dei posti** (ADR-0287; richiesta a voce
+  dell'utente del 2026-10-29, proposta approvata con «Sì, così»; numeri
+  dal Coordinatore). **Parte A** (branch `feat/TASK-329-explore-ideas`,
+  solo app, OTA): via «CITY TOURS» e «PICTURES» da «Draw»; «Ask for a
+  route» aperto in fondo a «Explore» con quattro categorie fisse (Famous
+  Places, Best Views, Hidden Gems, Photography); sopra, la fila «IDEAS FROM
+  EUROPE» con circa 12 percorsi in 8 città calcolati una volta da
+  `tools/themed_ideas.py` (job a tema dell'API e motore, nessuna coordinata
+  inventata) in `src/explore/themedIdeas.json`; un'idea si apre senza rete
+  e, lontano dalla partenza, ha «Make it near me». I testi nuovi aspettano
+  il sì dell'utente; `App.tsx` dopo il merge di TASK-327. **Parte B** (API
+  + server col sì dell'utente): codice Wikidata e foto di ogni posto con
+  `CityPhotos` di TASK-283, la fila di foto sotto la mappa. File
+  `tasks/TASK-329.md`.
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
