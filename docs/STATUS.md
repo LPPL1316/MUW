@@ -160,18 +160,6 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
-- **TASK-325 — I due repository si tengono uguali da soli** (ADR-0285;
-  richiesta dell'utente del 2026-10-28; numeri presi senza coordinatore).
-  Branch `chore/TASK-325-mirror-repos`. Dal 2026-10-28 esiste
-  `LPPL1316/MUW`, copia di `rockydalbianco/shaperoute` con tutta la storia
-  e i branch, perché lì l'app GitHub di Claude non si può installare.
-  `tools/mirror_repos.py` e `.github/workflows/mirror.yml` (ogni push su
-  MUW e ogni dieci minuti) portano i branch da una parte all'altra, nei
-  due versi, senza mai forzare; un branch con commit da tutte e due le
-  parti si unisce a mano. **Aperto**: il segreto `MIRROR_TOKEN` in MUW
-  (token classico con `repo` di chi scrive in `shaperoute`) lo mette
-  l'utente; fino ad allora lo specchio non fa niente. File:
-  `tasks/TASK-325.md`.
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
@@ -1788,6 +1776,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **Strumenti e CI** — TASK-325 (ADR-0285; richiesta dell'utente del 2026-10-28): `LPPL1316/MUW`, copia intera di `rockydalbianco/shaperoute` sotto l'utente (dove l'app GitHub di Claude non si può installare), e lo specchio nei due versi: `tools/mirror_repos.py` e `.github/workflows/mirror.yml` in MUW, a ogni push e ogni dieci minuti, portano avanti i branch indietro, creano i nuovi, cancellano i fusi, non toccano i divergenti (rosso, si unisce a mano). Segreto `MIRROR_TOKEN` (token classico con `repo` e `workflow`) messo dall'utente. PR LPPL1316/MUW#4 (2026-10-29), che unisce anche i due `main` e sposta la migrazione del dislivello di TASK-324 a `0035`. **Aperto**: i minuti di GitHub Actions di MUW sono finiti il 2026-10-28 sera (tetto di spesa o repository pubblico: scelta dell'utente); il server legge ancora `shaperoute`. `tasks/TASK-325.md`.
 - **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0035`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
 - **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.

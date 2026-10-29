@@ -1,7 +1,7 @@
 # TASK-325 — I due repository si tengono uguali da soli
 
-**Stato**: In corso — codice, test e documenti sul branch; aspetta la PR,
-poi il segreto `MIRROR_TOKEN` dall'utente
+**Stato**: Done — chiuso nella sua PR (LPPL1316/MUW#4), entra in `main` di
+MUW col merge; lo specchio porta `main` su `shaperoute` da solo
 **Fase**: 4 · **Branch**: `chore/TASK-325-mirror-repos`
 **ADR**: ADR-0285 · **Migrazione**: nessuna · Solo strumenti e CI
 (nessuna dipendenza nuova). Numeri di task e di ADR presi senza
@@ -44,8 +44,12 @@ modifiche di uno e dell'altro».
       da una parte all'altra, crea i nuovi, cancella i fusi, non tocca i
       divergenti e torna 1 (dieci test).
 - [x] `ruff`, `black` e `pytest tools` verdi.
-- [ ] Il flusso gira su MUW con `MIRROR_TOKEN` e la prima esecuzione porta
-      `main` di MUW (con TASK-324) in `rockydalbianco/shaperoute`.
+- [x] Il flusso gira su MUW con `MIRROR_TOKEN` (2026-10-28, lanciato a mano
+      dal branch): ha creato su `shaperoute` i branch nuovi di MUW, portato
+      su MUW due branch del team, cancellato su MUW 13 branch già fusi e
+      cancellati di là, e si è fermato, come deve, sui due `main`
+      divergenti; con lo scope `workflow` passa anche il branch con il
+      file di flusso. `main` arriva su `shaperoute` col merge di questa PR.
 
 ## File toccati
 
@@ -70,18 +74,35 @@ docs/TEAM_WORKFLOW.md               (sezione «I due repository»)
 
 ## Aperto
 
-1. **Il segreto `MIRROR_TOKEN`** lo mette l'utente in MUW (Settings →
-   Secrets and variables → Actions → New repository secret): un token
-   **classico** di GitHub (Settings → Developer settings → Personal access
-   tokens → Tokens (classic)) con lo scope `repo`, di un account che
-   scrive in `rockydalbianco/shaperoute`. Un token «fine-grained» non va:
-   non può coprire un repository di un altro utente. Senza, lo specchio
-   non parte: il flusso lo scrive e finisce verde.
-2. **Due `main` con merge da tutte e due le parti nello stesso quarto
-   d'ora** divergono: il flusso diventa rosso e nomina il branch; qualcuno
-   unisce a mano. Con un solo repository dove si mergia (meglio MUW, dove
-   lavora Claude) non succede.
+1. **Lo scope `workflow` del token**: il primo giro vero ha rifiutato il
+   branch con il file di flusso («refusing to allow a Personal Access
+   Token to create or update workflow … without `workflow` scope»);
+   l'utente lo ha aggiunto il 2026-10-28 e da allora passa. Se il token
+   viene rifatto, servono `repo` **e** `workflow`.
+2. **I minuti di GitHub Actions**: il 2026-10-28 sera MUW (repository
+   privato) ha esaurito i minuti del piano gratuito («The job was not
+   started because recent account payments have failed or your spending
+   limit needs to be increased»): nessun lavoro parte, né la CI né lo
+   specchio. Si sblocca da Settings → Billing and plans (un tetto di spesa
+   per Actions) o rendendo MUW pubblico (minuti illimitati): scelta
+   dell'utente. Fino ad allora i branch si allineano a mano con il bundle
+   o dal Mac.
+3. **Due `main` con merge da tutte e due le parti** divergono e lo specchio
+   si ferma in rosso: è successo tre volte il 2026-10-28, con il team che
+   mergiava su `shaperoute` mentre MUW prendeva TASK-324, TASK-326 e
+   questa PR. Si unisce a mano in una PR su MUW (come questa). Meglio
+   mergiare sempre dallo stesso repository.
 
 ## Esito
 
-*(da compilare a fine task)*
+Chiuso nella sua PR, LPPL1316/MUW#4 (2026-10-29), che unisce in un colpo
+solo lo specchio (`tools/mirror_repos.py`, `.github/workflows/mirror.yml`,
+undici test), i due `main` divergenti (`shaperoute` fino a `df96f316`,
+TASK-312, 321 A, 237 F; MUW fino a `61846764`, TASK-324 e 326) e la
+rinumerazione della migrazione del dislivello a `0035` (la 0034 l'ha presa
+TASK-312). Col merge il `main` di `shaperoute` diventa un antenato di
+quello di MUW e lo specchio lo porta avanti da solo; la PR
+rockydalbianco/shaperoute#618 dello stesso branch risulta fusa. Lo
+specchio ha già girato dal branch con il token: tre giri utili, poi i
+minuti di Actions sono finiti («Aperto», punto 2). Il server e `deploy/`
+leggono ancora `shaperoute`: rinominare è un task a parte.
