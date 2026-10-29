@@ -197,6 +197,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   testi da approvare), D (telefono nella boa, file dell'orologio) ed E
   (Apple Watch con le vibrazioni, nella build 1.0.1 con TASK-321). File
   `tasks/TASK-323.md`.
+  **A1 scritta** (2026-10-29, sessione cloud, branch
+  `claude/inspiring-lovelace-rcadwd`, PR in bozza): il nuoto in file nuovi
+  (`swim_water.py`, `swimming.py`, `python -m route_engine.swimming`), la
+  canoa e le impronte come in `main` (`route_store` `6072aa1ea3a3`, esempi
+  della canoa `1b6759cb3cc4`; aggiunta ad ADR-0283). **Il risultato**: con
+  20–150 m una costa dritta o la riva di un lago grande tengono 0,4–0,5 km,
+  non 0,5–3 km (20–200 m: 0,5–0,8; 20–300 m: 0,8–1,5). **Prossimo**: la
+  domanda 1 all'utente (fascia e distanze), poi i posti veri sul Mac con
+  `tests/measure_swim.py` e la conferma dei «File toccati» al Coordinatore
+  prima del merge.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

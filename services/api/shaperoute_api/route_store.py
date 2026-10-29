@@ -75,6 +75,10 @@ CELL_DECIMALS = 4
 # (TASK-314, ADR-0274). Changing them keeps the routes kept; a test fails
 # when a module of the engine imports one.
 NOT_ROUTES = frozenset({"way_back.py"})
+# Files of the engine that draw only swims (TASK-323, ADR-0283): no route
+# kept is a swim, so changing them keeps the routes kept; a test fails when a
+# module that draws other routes imports one.
+SWIM_ONLY = frozenset({"swim_water.py", "swimming.py"})
 
 
 def engine_fingerprint(folder: Path | None = None) -> str:
@@ -84,7 +88,7 @@ def engine_fingerprint(folder: Path | None = None) -> str:
     folder = Path(route_engine.__file__).parent if folder is None else folder
     digest = hashlib.sha256()
     for path in sorted(folder.rglob("*")):
-        if path.relative_to(folder).as_posix() in NOT_ROUTES:
+        if path.relative_to(folder).as_posix() in NOT_ROUTES | SWIM_ONLY:
             continue
         if path.suffix in (".py", ".json") and path.is_file():
             digest.update(path.relative_to(folder).as_posix().encode())
