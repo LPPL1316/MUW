@@ -48,7 +48,8 @@ function isPoint(value: unknown): value is LatLon {
   );
 }
 
-function isResult(value: unknown): value is ThemedResult {
+/** A result as GET /themed-route-jobs/{id} gives it, or an idea keeps it. */
+export function isThemedResult(value: unknown): value is ThemedResult {
   if (typeof value !== "object" || value === null) {
     return false;
   }
@@ -90,7 +91,7 @@ export function isThemedJob(body: unknown): body is ThemedJob {
     return false;
   }
   if (job.status === "done") {
-    return isResult(job.result);
+    return isThemedResult(job.result);
   }
   if (job.status === "failed") {
     const error = job.error as Record<string, unknown> | null;

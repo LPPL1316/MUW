@@ -3,8 +3,9 @@ import { t, tLater } from "../i18n";
 
 /**
  * The quick choices of "Explore" (TASK-134): cities from around the world,
- * and the categories of "Ask for a route", Food first. A city is a name
- * only: its centre comes from the API when it is tapped, never written here.
+ * and the categories of "Ask for a route", the four of our ideas first (the
+ * user's choice of 2026-10-29). A city is a name only: its centre comes
+ * from the API when it is tapped, never written here.
  */
 export const FEATURED_CITIES = [
   "New York",
@@ -25,18 +26,18 @@ export const FEATURED_CITIES = [
 
 /** Each category is a theme of the API, named in words its tables read. */
 export const CATEGORIES = [
-  tLater("Food"),
   tLater("Famous Places"),
-  tLater("Romantic"),
   tLater("Best Views"),
+  tLater("Hidden Gems"),
+  tLater("Photography"),
+  tLater("Food"),
+  tLater("Romantic"),
   tLater("Shopping"),
   tLater("Culture"),
   tLater("Nightlife"),
-  tLater("Hidden Gems"),
   tLater("Running"),
   tLater("Walking"),
   tLater("Family"),
-  tLater("Photography"),
   tLater("Local Experience"),
 ] as const;
 

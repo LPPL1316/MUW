@@ -2,6 +2,8 @@ import done from "@shaperoute/shared-types/fixtures/themed-route-job-done.json";
 import failed from "@shaperoute/shared-types/fixtures/themed-route-job-failed.json";
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 
+import type { ThemedIdea } from "./themedIdeas";
+import type { ThemedResult } from "./themedRoutes";
 import { useThemedRoute } from "./useThemedRoute";
 
 const request = { text: "luoghi famosi a Milano", centre: null, city: null };
@@ -72,4 +74,36 @@ test("an ask that fails between two good ones does not end the route (TASK-254)"
   expect(gone).toHaveBeenCalledTimes(4);
   const state = lost.current.state;
   expect(state.status === "failed" && state.message).toMatch(/did not answer/);
+});
+
+test("one of our ideas is shown at once, asking nothing, and closes as any", async () => {
+  const fetchFn = jest.fn();
+  const { result } = await renderHook(() =>
+    useThemedRoute("http://api", { fetchFn, pollMs: 0 }),
+  );
+  const idea: ThemedIdea = {
+    id: "milan-famous-places-star",
+    city: "Milan",
+    category: "Famous Places",
+    text: "Famous Places star 10 km",
+    preview: [
+      [45.46, 9.19],
+      [45.47, 9.2],
+    ],
+    result: done.result as ThemedResult,
+  };
+  await act(async () => result.current.show(idea));
+  expect(result.current.state).toEqual({
+    status: "done",
+    request: {
+      text: "Famous Places star 10 km",
+      centre: done.result.centre,
+      city: "Milan",
+    },
+    result: done.result,
+    idea,
+  });
+  expect(fetchFn).not.toHaveBeenCalled();
+  await act(async () => result.current.close());
+  expect(result.current.state).toEqual({ status: "idle" });
 });

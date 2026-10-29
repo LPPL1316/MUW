@@ -48,6 +48,7 @@ import {
 } from "./src/explore/recentCities";
 import { ThemedCard, themedGpx } from "./src/explore/ThemedCard";
 import { startViewOf, useStartDirections } from "./src/explore/useStartDirections";
+import { isHere, nearMeRequest } from "./src/explore/themedIdeas";
 import { useThemedRoute } from "./src/explore/useThemedRoute";
 import { FavoriteHeart } from "./src/favorites/FavoriteHeart";
 import {
@@ -124,10 +125,9 @@ import {
 import { FreehandBoard } from "./src/route/FreehandBoard";
 import { EditDrawingButton } from "./src/route/FreehandChoice";
 import { useFreehand } from "./src/route/useFreehand";
-import { DrawIdeas, toursFrom } from "./src/route/DrawIdeas";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
-import { sampleOf, samplePicture } from "./src/route/samplePictures";
+import { samplePicture } from "./src/route/samplePictures";
 import {
   type AnyRouteRequest,
   type RouteState,
@@ -525,6 +525,15 @@ function MuW() {
     () => chooseStart(startMode, position, place),
     [startMode, position, place],
   );
+  // One of our ideas opened far from the start: «Make it near me» asks its
+  // words from the start instead of «Start».
+  const farIdea =
+    themed.state.status === "done" &&
+    themed.state.idea !== undefined &&
+    start !== null &&
+    !isHere(themed.state.idea, start.point)
+      ? { idea: themed.state.idea, from: start.point }
+      : null;
 
   // One of them (ADR-0051): the kinds not chosen are not sent. An image
   // sends the outline the engine traced and the user has seen (ADR-0069),
@@ -1519,7 +1528,11 @@ function MuW() {
               closeExplore();
               setScreen(routeList);
             }}
-            fromDraw={routeList === "choose"}
+            onNearMe={
+              farIdea === null
+                ? undefined
+                : () => themed.ask(nearMeRequest(farIdea.idea, farIdea.from))
+            }
             start={startViewOf(
               startDirections.state,
               themed.state.status === "done" ? themed.state.result.points : null,
@@ -1792,34 +1805,6 @@ function MuW() {
                       }}
                     />
                   )}
-                  {/* The city tours and the ready-made pictures (TASK-280):
-                      none on the water, where there are no towns or photos. */}
-                  {sportActivity !== "paddling" && (
-                    <DrawIdeas
-                      where={toursFrom(start)}
-                      onTour={(category) => {
-                        if (start === null) {
-                          return;
-                        }
-                        Keyboard.dismiss();
-                        closeExplore();
-                        // As a category of «Explore» with «Near me»: around
-                        // the start, the category alone (ADR-0099).
-                        themed.ask({ text: category, centre: start.point, city: null });
-                        setRouteList("choose");
-                        setScreen("map");
-                      }}
-                      chosen={
-                        drawKind === "image" && image.state.status === "traced"
-                          ? sampleOf(image.state.picture)
-                          : null
-                      }
-                      onPicture={(picture) => {
-                        setKind("image");
-                        image.show(samplePicture(picture), picture.outline);
-                      }}
-                    />
-                  )}
                 </ChooseScreen>
               ),
             },
@@ -1864,6 +1849,14 @@ function MuW() {
                       Keyboard.dismiss();
                       closeExplore();
                       themed.ask(request);
+                      setRouteList("explore");
+                      setScreen("map");
+                    }}
+                    onIdea={(idea) => {
+                      Keyboard.dismiss();
+                      closeExplore();
+                      // Planned already: it opens at once, nothing asked.
+                      themed.show(idea);
                       setRouteList("explore");
                       setScreen("map");
                     }}

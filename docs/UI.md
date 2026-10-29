@@ -198,8 +198,9 @@ pagine»):
    un'altra parola; la distanza, grande, fra − e +; subito sotto la
    distanza, mentre il server ha il gioco, la riga «PLAY» (TASK-327, sotto
    «“Play”: la collezione delle forme»); poi, con la corsa, «NEAR YOU»
-   (TASK-306, sotto «Le forme pronte vicino a te»), poi due righe da scorrere di lato, «CITY TOURS» e «PICTURES»
-   (TASK-280, sotto «I giri e le immagini pronte»). In fondo, fermo mentre
+   (TASK-306, sotto «Le forme pronte vicino a te»). Le due righe «CITY
+   TOURS» e «PICTURES» di TASK-280 non ci sono più (TASK-329, ADR-0287): le
+   idee stanno in «Ask for a route» di «Explore». In fondo, fermo mentre
    il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
@@ -275,9 +276,10 @@ pagine»):
    Sopra l'elenco (TASK-129): **«City»**, il campo «Search a city» per
    qualsiasi città del mondo (l'elenco e la richiesta partono dal suo
    centro, «Change» torna alla partenza). **In fondo alla pagina**, sotto
-   gli esempi della città e l'elenco (TASK-157, chiesto dall'utente): una
-   riga discreta, «Ask for a route», grigia e sottolineata. Un tocco la
-   apre lì dov'è, e la pagina scorre fino a lei: **«Ask for a route»**, una
+   gli esempi della città e l'elenco (TASK-157, chiesto dall'utente), e
+   **sempre aperto** da TASK-329 (prima era una riga discreta da toccare):
+   **«Ask for a route»**, con in cima le nostre idee (sotto, «Le idee
+   dall'Europa»), poi le categorie e una
    richiesta in parole («a romantic heart», «famous places in Paris,
    15 km») e «Make my route», giallo come «Draw route». Il percorso si
    apre sulla mappa coi luoghi: pallini chiari col nome quelli da cui
@@ -316,7 +318,9 @@ pagine»):
 
    **Da TASK-143** «Ask for a route» mostra due categorie, Food e Famous
    Places, e una terza tessera «More…» («11 more») che apre tutte le 13;
-   tre tessere per riga. Scelta una città senza percorsi consigliati entro
+   tre tessere per riga. **Da TASK-329** le categorie in vista sono
+   quattro, quelle delle idee: Famous Places, Best Views, Hidden Gems,
+   Photography; «More…» («9 more») apre le altre, Food per prima. Scelta una città senza percorsi consigliati entro
    5 km, sotto «City» compare **«EXAMPLES IN VERCELLI»**: cuore, cerchio e
    stella da 5 km dal centro, chiesti da soli, uno alla volta, il cuore per
    primo. Sono schede come quelle di «Best near you», due per riga
@@ -2074,6 +2078,12 @@ semplici, con sotto il testo del motore:
 
 ### I giri e le immagini pronte (TASK-280, ADR-0246)
 
+**Tolte da TASK-329 (ADR-0287)**, scelta dell'utente del 2026-10-29: le
+due righe non sono più in fondo a «Draw». Le sedici sagome restano in
+«Draw on the map» e in «Change figure»; le idee di percorsi stanno in «Ask
+for a route» di «Explore» (sotto, «Le idee dall'Europa»). Quello che
+segue è com'era.
+
 Chiesto dall'utente il 2026-10-11 («Sotto draw nella sezione draw
 inserisci i tour delle città o immagini varie»); le scelte sono sue, del
 2026-10-13. Sotto la distanza, nella parte che scorre, sopra «Draw route»
@@ -2139,6 +2149,50 @@ ci sono città né foto). I testi nuovi, nelle cinque lingue:
 
 «Bike», le quattro categorie, «near your start» e «near {place}» c'erano
 già.
+
+### Le idee dall'Europa (TASK-329, ADR-0287)
+
+Chiesto dall'utente il 2026-10-29 («dobbiamo dare noi degli esempi e la
+gente poi deve prendere spunto»); proposta approvata con «Sì, così». In
+cima ad «Ask for a route», sotto la sua etichetta, **«IDEAS FROM EUROPE»**:
+una fila da scorrere di lato, con le schede di «Explore» larghe come quelle
+di «NEARBY TOWNS» (0,42 della pagina, la seguente si affaccia). Ognuna ha
+la linea gialla sulla mappa delle sue strade, il titolo «Roma · Stella» e
+sotto «Famous Places · 8,1 km». Sotto la fila, a destra e in piccolo, il
+credito delle mappe e «© OpenStreetMap contributors» (posti e strade sono
+di OpenStreetMap). La mappa sotto la linea arriva dopo quelle dei percorsi
+della pagina, e per le schede oltre la terza quando la fila scorre.
+Sono percorsi nostri in otto città, Roma, Parigi, Londra, Barcellona,
+Amsterdam, Lisbona, Praga e Berlino, con forme semplici (cuore, stella,
+cerchio, luna) di 6–10 km, attraverso i posti di quattro temi: posti
+famosi, panorami, angoli nascosti, fotografia. Li calcola una volta
+`tools/themed_ideas.py` con la stessa strada di una categoria (job a tema
+dell'API e motore) e stanno nell'app: si tengono solo quelli che si
+leggono bene a occhio.
+
+Un tocco apre l'idea sulla mappa **subito, senza rete**, come un percorso
+chiesto: i posti, la scheda (ThemedCard) con km, forma, città e «Passes by
+N of the M … found», «Export GPX», «Back to Explore». **Lontano dalla
+partenza** (oltre 20 km dal centro della sua città) il bottone giallo è
+**«Make it near me»** al posto di «Start»: manda le stesse parole
+dell'idea («Famous Places star 8 km») dalla partenza, e il percorso fatto
+lì ha «Start» come ogni altro. Nella sua città, o senza partenza, c'è
+«Start». Le foto vere dei posti arrivano con la parte B.
+
+Testi nuovi, nelle cinque lingue (da approvare):
+
+| en | it | de | es | fr |
+|---|---|---|---|---|
+| IDEAS FROM EUROPE | IDEE DALL'EUROPA | IDEEN AUS EUROPA | IDEAS DE EUROPA | IDÉES D'EUROPE |
+| Make it near me | Fallo vicino a me | In meiner Nähe machen | Hazlo cerca de mí | Le faire près de moi |
+| Rome | Roma | Rom | Roma | Rome |
+| Paris | Parigi | Paris | París | Paris |
+| London | Londra | London | Londres | Londres |
+| Barcelona | Barcellona | Barcelona | Barcelona | Barcelone |
+| Amsterdam | Amsterdam | Amsterdam | Ámsterdam | Amsterdam |
+| Lisbon | Lisbona | Lissabon | Lisboa | Lisbonne |
+| Prague | Praga | Prag | Praga | Prague |
+| Berlin | Berlino | Berlin | Berlín | Berlin |
 
 ### Le forme pronte vicino a te (TASK-306, ADR-0266)
 
