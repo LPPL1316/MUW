@@ -19172,3 +19172,273 @@ dipendenze e nel nativo. Escono `FreehandBoard`, `FreehandChoice`,
 `useFreehand`, `freehand.ts` e i testi della tavola; le parti utili alla
 mappa vivono in `mapdraw/edit.ts`. `figureLines.ts` dà le linee nella
 cornice del motore e niente per una forma.
+
+## ADR-0292 — Un video nei post: un file su disco finché altri vedono il post, l'ultima pagina della striscia del Feed, un lettore nativo nella 1.0.2
+
+**Stato**: Proposta · 2026-10-29 · TASK-336. La richiesta e il disegno
+generale sono dell'utente (2026-10-29, «Yes, write it up»); il lettore, lo
+spazio e i limiti, i dati mobili, i testi e la privacy sono da chiedere
+all'utente e si scrivono in TASK-336; i punti tecnici sono decisi
+dall'agente su delega dell'utente. Numero dato dal Coordinatore. Estende
+ADR-0289 (i file di foto e video, comuni con i messaggi di TASK-333: la
+divisione è concordata con quella sessione il 2026-10-29), ADR-0170 (le
+foto dei post) e ADR-0275 (la striscia del Feed); usa ADR-0254 (il video
+della corsa).
+
+**Contesto**: l'utente il 2026-10-29: «dai la possibilità di aggiungere
+anche il video della corsa e un video dell'utente, magari di lui, mentre
+corre o del suo cane o di quello che vuole». Le foto dei post sono JPEG
+nel database, mandate in base64 dentro JSON (ADR-0170): per un video di
+10–40 MB vorrebbe dire un terzo in più a ogni invio e la copia di ogni
+notte (13 giorni tenuta) che cresce con ogni video. ADR-0289 decide già
+per i messaggi i file su disco, il caricamento del file nudo, i controlli
+del server senza ffmpeg, la locandina fatta dal telefono e un tetto; il
+Coordinatore vuole una regola sola per post e messaggi, e lo stesso
+lettore. L'app non ha un lettore video: la WebView sa suonare una
+`<video>` (ADR-0289, punto 9), `expo-video` è un modulo nativo. La build
+1.0.1 deve tenere l'impronta iOS `83793e26`: niente di nativo in `main`
+prima del suo taglio.
+
+**Decisione** (proposta):
+
+1. **Un video per post**, accanto alle tre foto: il video della corsa di
+   MuW (ADR-0254) con un tocco, oppure uno proprio, dalla galleria o
+   dalla fotocamera. Si sceglie dove si scelgono le foto, nel modulo di
+   fine corsa e in quello di «My activities» (TASK-208 B), prima o dopo
+   la pubblicazione.
+2. **Le regole comuni sono quelle di ADR-0289**, con il codice nel modulo
+   comune `media_files.py` (senza tabelle; in `main` con TASK-333 A, #634:
+   questo task lo importa soltanto): file su disco, mai nel
+   database né nelle copie (punto 5); il file nudo, non base64 (punto 6);
+   il controllo dell'MP4 senza ffmpeg, la durata da `mvhd`, il luogo
+   (`©xyz`) e i metadati (`udta`, `meta`) resi `free` (punto 7); la
+   riduzione sull'iPhone con `videoExportPreset` 960 × 540 (punto 7); il
+   tetto (punto 8). **Diverso qui**: la cartella `data/media/posts/`, la
+   tabella `drawing_videos`, 30 secondi, nessuna scadenza, un tetto suo.
+3. **Dove sta e quanto resta**: il file `data/media/posts/{id}.mp4` e la
+   locandina `{id}.poster.jpg` (`MediaFolder`), con un `id` casuale, mai il
+   nome del file del telefono. La tabella `drawing_videos` ha una riga per
+   disegno (`drawing_id` → `drawings` con `ON DELETE CASCADE`, il file,
+   byte, misure, durata, la locandina, `updated_at`). Come le foto
+   (ADR-0170) il server lo tiene **solo mentre altri vedono il post**:
+   «Only me» cancella riga e file nella stessa richiesta
+   (`Drawings.keep`, accanto alle foto), il telefono lo tiene e lo
+   rimanda quando il post si riapre agli altri. Cancellare la corsa o
+   l'account cancella la riga in cascata e la pulizia di ogni ora di
+   ADR-0289 (`MediaFolder.keep_only`, come `sweep` dei messaggi) toglie
+   il file rimasto senza riga: dal disco entro un'ora.
+   Il video non è nelle copie di notte: se il disco si rompe il post
+   resta senza video, e il telefono che ha ancora il suo lo rimanda
+   quando legge `video: null` in «My activities».
+4. **Caricare**: `PUT /me/activities/{key}/drawing/video` con il file
+   nudo come corpo (`Content-Type` `video/mp4` o `video/quicktime`);
+   oltre il peso massimo `413` prima di leggerlo. Il file arriva in
+   `data/media/tmp/`, si controlla e solo allora va al suo posto: un
+   `PUT` mandato di nuovo sostituisce, non raddoppia. `409` mentre il
+   disegno è solo del proprietario (come le foto), `422` per un file che
+   non è un MP4 o è troppo lungo, `429` oltre il limite al giorno di
+   ADR-0289 (10 video per account, contati qui per i post), `507`
+   come per i messaggi
+   quando lo spazio è pieno anche dopo aver tolto i video dei messaggi
+   (punto 11): il video aspetta sul telefono e il post va senza.
+   `PUT …/drawing/video/poster` con il JPEG nudo (al più 1 MB, rifatto da
+   `fitted_jpeg`), `DELETE …/drawing/video`. Un `PUT` solo, non a pezzi: al
+   più 40 MB, e un caricamento interrotto riparte da capo dalla coda del
+   telefono, dopo la scelta del disegno e dopo le foto (`drawingOutbox.ts`).
+5. **Leggere**: `GET /drawings/{id}/video` e `…/video/poster` per chi
+   vede il disegno (`drawing_seen_sql`: i follower, i blocchi, un
+   disegno nascosto da una segnalazione), con la chiave `X-API-Key` e il
+   token come le foto (TASK-330: senza la chiave il server risponde
+   `401` e non si vede niente); `404` per gli altri. Il file passa da
+   `FileResponse` di Starlette, che risponde a `Range` con `206` e
+   `Accept-Ranges: bytes`: il lettore di iOS chiede il file a pezzi e
+   senza `206` non parte. `Cache-Control: private, max-age=86400`, e
+   l'indirizzo cambia quando cambia il video (`?v=`, come `photo_url`).
+   L'`encode gzip` di Caddy non deve toccare `video/mp4`: la sua lista di
+   tipi da comprimere non lo comprende, e si verifica sul server con una
+   richiesta `Range` prima della 1.0.2. I corpi di `GET /me/drawings`, del
+   disegno e di `GET /feed` hanno `video`: `{url, poster_url, width,
+   height, duration_ms}` o `null`, letto insieme alle foto.
+   Un'app di prima ignora il campo.
+6. **Il lettore** (scelta 1 dell'utente), uno solo per post e messaggi.
+   La proposta è `expo-video` nella build 1.0.2:
+
+   | | WebView `<video>` (ADR-0289, punto 9) | `expo-video` |
+   |---|---|---|
+   | Dipendenza nuova | no | sì (un pacchetto di Expo, già in Expo Go) |
+   | Quando arriva | con un OTA | con la build 1.0.2 |
+   | Primo fotogramma | dopo aver scaricato tutto il file: il video della corsa (3 MB) circa 1 s, uno proprio di 30 s (11 MB) 3–5 s in 4G | a pezzi con `Range`: sotto il secondo |
+   | Chiave e token | l'app scarica prima il file (la `<video>` non manda intestazioni) | `headers` della sorgente |
+   | Nel Feed | una WebView per la pagina sullo schermo, da aprire ogni volta, e i tocchi da passare alla scheda | una vista nativa, fatta per le liste |
+   | Rivedere | i file nella cache dell'app, tenuti a mano | `useCaching`, cache su disco |
+   | Messaggi (TASK-333) | come approvato | nella 1.0 e nella 1.0.1 la WebView di #635; dalla 1.0.2 `expo-video` |
+
+   Con `expo-video` la sorgente è `{uri, headers, useCaching: true}`, la
+   cache su disco si porta a 200 MB (`setVideoCacheSizeAsync`; 1 GB di
+   default). Il pacchetto entra in `package.json` con la parte C ma resta
+   escluso dall'autolinking fino al taglio della 1.0.1, come
+   `expo-document-picker` (TASK-312 B): senza il modulo nativo l'app non
+   offre «Add video» e non mostra la pagina del video. La build 1.0.2 lo
+   collega e l'impronta cambia lì, non prima. Proposta da TASK-333, per il
+   confronto: `expo-video` dove la build lo ha e la WebView dove non lo
+   ha (i video dei messaggi subito con un OTA, ma due lettori da tenere).
+   **Scelta dell'utente** (2026-10-29): `expo-video` nella 1.0.2. Intanto
+   TASK-333 B è entrata in `main` (#635) con la WebView per i video dei
+   messaggi: quella resta finché non c'è la 1.0.2, che porta anche i
+   messaggi su `expo-video`; il cambio nei file dei messaggi è di
+   TASK-333. **Mai due lettori nel codice**: la WebView dei messaggi esce
+   da `main` al taglio della 1.0.2, insieme al collegamento di
+   `expo-video`; la riserva proposta da TASK-333 (la WebView dove manca il
+   modulo) non si usa. Le build 1.0 e 1.0.1 tengono la WebView che hanno,
+   perché gli OTA di `main` dopo il taglio non le raggiungono più.
+7. **La striscia del Feed** (ADR-0275, TASK-330): il video è l'ultima
+   pagina, dopo il disegno e le foto, con il suo puntino. Quando si vede
+   la pagina prima di lui se ne carica solo la locandina (circa 50 KB),
+   mai il video. Sulla sua
+   pagina parte senza suono, in loop, dall'inizio; si ferma quando si
+   lascia la pagina, quando la scheda esce dallo schermo (la `FlatList`
+   di `FeedScreen` dice quali si vedono) e quando l'app va in secondo
+   piano. Ne suona uno solo alla volta. Un tocco sulla pagina accende il
+   suono e un altro lo spegne, con l'icona dell'altoparlante in un
+   angolo: qui il tocco non apre il disegno come sulle foto (TASK-330), lo
+   aprono la pagina del disegno, il nome e il titolo. Un video senza
+   traccia audio (il lettore non ne trova, `availableAudioTracks`; così il
+   video della corsa senza musica) non ha l'icona, e il tocco apre il
+   disegno come una foto.
+   Senza suono `audioMixingMode` è `mixWithOthers` (la musica del
+   corridore continua), con il suono `doNotMix`.
+8. **Nel disegno aperto** (`DrawingCard`): il video sta nella fila delle
+   foto, dopo di loro, alto come loro, con la locandina, ▶ e la durata.
+   Un tocco lo apre a tutto schermo con il suono e i comandi del sistema.
+9. **Il video della corsa nel post**: «Run video» lo fa con la pagina di
+   ADR-0254, ma a 540 × 960 e 2 Mbit/s, circa 3 MB per 12 s («Export
+   video» resta 1080 × 1920 per Instagram). Senza musica: la riga «Music»
+   (TASK-301) resta di «Share your run». La locandina è l'ultimo
+   fotogramma, il post intero, disegnato dalla stessa pagina. Non chiede
+   permessi.
+10. **Il video proprio**: dalla galleria (`mediaTypes: ["videos"]`,
+    sull'iPhone `videoExportPreset` `H264_960x540` e `allowsEditing` con
+    `videoMaxDuration: 30`, perché iOS offra il taglio: da provare sul
+    telefono) o dalla fotocamera (`videoMaxDuration: 30`,
+    `videoQuality` `IFrame960x540`), la fotocamera solo dalla build
+    1.0.2 (punto 12). Dopo la scelta l'app legge durata e peso: oltre i
+    limiti dice perché e non tiene niente. Il file va nei documenti
+    dell'app (`drawing-video-{owner}-{key}.mp4`, come le foto) e la
+    locandina la fa la WebView nascosta, come in ADR-0289. Android non sa
+    ridurlo e lo manda com'è, entro il peso: ridurlo anche lì con
+    WebCodecs è un seguito comune con TASK-333.
+11. **I limiti** (scelta 2 dell'utente): fino a **30 s** (detto
+    dall'utente) e **40 MB** come i messaggi; sull'iPhone 960 × 540, circa
+    11 MB per 30 s. `data/media` sta sul **disco del server**, senza
+    acquisti (scelta dell'utente del 2026-10-29, fra questo e un Volume
+    nuovo da 50 GB): il tetto `SHAPEROUTE_POST_MEDIA_MAX_GB` è **15 GB** e
+    si somma a quello dei messaggi (10 GB, ADR-0289). Insieme devono stare
+    nello spazio libero misurato con `df -h` prima di aggiornare il
+    server, lasciando posto alle copie di notte e agli estratti delle
+    zone; se non ci stanno, si abbassa il tetto e si richiede all'utente.
+    **Quando lo spazio è pieno** (scelta dell'utente dello stesso giorno:
+    «appena è pieno cancella i video delle chat degli utenti dal più
+    vecchio al più recente»): i due tetti fanno uno spazio solo per i
+    video (15 + 10 GB); quando un video nuovo, di un post o di un
+    messaggio, non ci sta, il server cancella i video dei messaggi dal più
+    vecchio, finché ci sta. I video dei post non si cancellano mai per
+    fare posto; solo quando non resta nessun video di un messaggio il
+    video nuovo di un post aspetta sul telefono (`507`, come i messaggi). Al
+    posto di un video cancellato così il messaggio dice, come per la
+    scadenza, «This video has expired.». Cambia il punto 8 di ADR-0289 (là
+    i video nuovi aspettano): lo aggiorna TASK-333 nei suoi file
+    (`message_media.py`, `MessageMedia.free_videos(needed_bytes) -> int`:
+    segna `stored = false` i video dei messaggi dal più vecchio, per il
+    `created_at` del messaggio, ne toglie subito file e locandine e dice
+    quanti byte ha liberato), con la sua riga della privacy. La funzione
+    non sa dei tetti: è la parte A di questo task, che legge le due
+    tabelle, a dire quando lo spazio comune è pieno per un video di un
+    post e quanto liberare; per un video di un messaggio la chiama
+    `message_media.py` stesso (TASK-333, parte D).
+12. **I permessi** (build 1.0.2, `app.json`): oggi il testo del microfono
+    (di `expo-audio`) dice «MuW never records sound», e il plugin di
+    `expo-image-picker` ha `microphonePermission: false`. Registrare un
+    video con il suono vuole il microfono, e la chiave è una per tutti e
+    due i plugin: la 1.0.2 cambia quel testo e quello della fotocamera
+    (scelta 4). La galleria non chiede permessi.
+13. **Lo spazio**, stimato per **1000 iscritti**, con un video medio di
+    7 MB (metà video della corsa da 3 MB, metà propri da circa 11 MB):
+
+    | Ipotesi | Post a settimana | Con video | Al mese | In un anno |
+    |---|---|---|---|---|
+    | Bassa: 1 su 4 pubblica una corsa a settimana | 250 | 1 su 5: 50 | 1,5 GB | 18 GB |
+    | Media: 1 su 3, 1,5 corse a settimana | 500 | 1 su 4: 125 | 3,8 GB | 45 GB |
+    | Alta: tutti, 2 corse a settimana | 2000 | 1 su 3: 667 | 20 GB | 240 GB |
+
+    I post resi «Only me» o cancellati tolgono spazio e qui non sono
+    contati. Con l'ipotesi media 15 GB bastano circa quattro mesi. Il log
+    dice quando si passa l'80 % del tetto: allora si sceglie con
+    l'utente, per esempio un Volume Hetzner (0,0572 € al GB al mese al
+    prezzo di listino del 2026, da verificare quando si compra, che si
+    allarga senza fermare il server). Prima di allora fanno posto i video
+    dei messaggi, dal più vecchio (punto 11); i video dei post restano.
+    **Lo spazio libero**, misurato dal Coordinatore con `df -h` la sera
+    del 2026-10-29 (riferito da TASK-333): sul disco del server (`/`)
+    57 GB liberi, sul Volume delle zone 12 GB (pieno all'82 %).
+    `data/media` sta su `/` (`compose.yaml` monta
+    `/root/shaperoute/data/media`; dal Volume viene solo `data/cache`):
+    i due tetti, 10 + 15 GB = 25 GB, ci stanno, e restano circa 32 GB per
+    le copie del database. È quello che l'utente ha scelto («Server disk,
+    15 GB cap»); **da rivedere**: l'utente decide all'aggiornamento del
+    server, con un `df -h` di quel momento. L'alternativa è `data/media`
+    sul Volume con tetti più bassi, per esempio 4 + 6 GB. Le regole della
+    cartella e dello spazio sono in `DEPLOY.md`, «Foto e video dei
+    messaggi» (TASK-333, parte D).
+14. **I dati mobili** (scelta 3; accettata su delega dell'utente del
+    2026-10-29, da rivedere): il video parte
+    quando la sua pagina è sullo schermo, anche con i dati mobili. Ci si
+    arriva solo scorrendo fino all'ultima pagina, che è già una scelta;
+    prima si scarica solo la locandina, e un video già visto viene dalla
+    cache. Sapere se il telefono è sul Wi-Fi vorrebbe `expo-network`, un
+    altro modulo nativo.
+15. **Segnalare e bloccare**, come per le foto: il video segue
+    `drawing_seen_sql`, quindi attraverso un blocco risponde `404`, e un
+    post nascosto dall'email di una segnalazione (TASK-291) lo vede solo
+    il suo autore; niente si cancella. «Report» sul post copre anche il
+    video; l'email dice che il post ha un video, e la pagina del link
+    (ADR-0251) lo mostra, come per i messaggi (ADR-0289, punto 10).
+16. **La privacy** (scelta 4; accettata su delega dell'utente del
+    2026-10-29, da rivedere: va online solo con la parte D, col sì
+    dell'utente): un paragrafo nuovo in «Your
+    runs and their GPS tracks», nelle cinque lingue e sul sito. Su App
+    Store Connect «App Privacy» e su Google Play «Data safety» «Photos or
+    Videos» arriva già con TASK-333; li cambia l'utente.
+
+**Alternative scartate**:
+
+- *Il video nel database*, come le foto: la copia di ogni notte
+  crescerebbe di un video alla volta.
+- *Base64 in JSON*: un terzo in più su ogni video.
+- *Un caricamento a pezzi* (tus o simili): vuole stato sul server per un
+  file di al più 40 MB, che si rimanda intero.
+- *Ridurre il video sul server con ffmpeg*: un programma in più e la CPU
+  tolta ai percorsi (ADR-0289).
+- *Object Storage di Hetzner con indirizzi firmati*: un servizio e una
+  chiave in più, e gli indirizzi firmati scavalcano la chiave dell'API
+  (ADR-0289). Da riprendere sopra i 100 GB.
+- *Il video della corsa disegnato dal vivo nella scheda, senza file*:
+  niente spazio né dati, ma non è il video che l'utente ha fatto e
+  visto, e ogni scheda dovrebbe saper disegnare la scena.
+- *La scadenza di 30 giorni dei messaggi*: un post resta finché il suo
+  autore lo mostra, come le sue foto.
+- *La WebView come lettore*: nella tabella del punto 6.
+
+**Conseguenze**:
+
+- Una migrazione e la cartella `data/media/posts` (`data/media` è già in
+  `compose.yaml` con TASK-333): il server va aggiornato prima che esca
+  l'app 1.0.2, col
+  sì dell'utente; lo spazio libero si misura prima.
+- La build 1.0.2 collega `expo-video` e cambia i testi del microfono e
+  della fotocamera; l'impronta cambia lì.
+- `app.json` e i testi della privacy si toccano dopo la #620 (TASK-321 B,
+  in bozza fino al taglio della 1.0.1).
+- Il video non è nelle copie: un disco rotto perde i video sul server,
+  non quelli sui telefoni.
+- Chi cancella disegni, corse o account deve ricordare il file: la riga
+  va in cascata, il file con la pulizia di ogni ora.
