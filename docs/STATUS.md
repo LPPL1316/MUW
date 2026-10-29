@@ -1915,6 +1915,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dopo il server; `RoutePanel.tsx` non toccato. Con C le parti di TASK-333
   sono tutte scritte: restano server, OTA e i moduli di «App Privacy» e
   «Data safety», col sì dell'utente.
+  C in `main` con la #636 (2d6b8b69). **Parte D scritta il 2026-10-29**
+  (branch `feat/TASK-333-d-free-videos`): con lo spazio pieno si tolgono i
+  video dei messaggi più vecchi (`free_videos`, scelta dell'utente «appena
+  è pieno cancella i video delle chat…»; mai quelli dei post), privacy e
+  «Help» con i testi approvati, aggiunta ad ADR-0289, `data/media` su `/`
+  da rivedere con l'utente al server. Parte E (expo-video nei messaggi) al
+  taglio della 1.0.2.
 
 ## Completato
 
