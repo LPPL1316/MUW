@@ -387,6 +387,43 @@ docs/tasks/TASK-321.md, docs/STATUS.md (righe aggiunte), docs/DECISIONS.md (aggi
 Coordinatore: in `main` sposta l'impronta iOS e gli `eas update` da `main`
 non arrivano più alla 1.0.0 (7).
 
+#### Com'è andata B (2026-10-29)
+
+- **Il codice**: in `app.json` `ios.entitlements`
+  (`com.apple.developer.healthkit: true`, `…healthkit.access: []`) e
+  `ios.infoPlist.NSHealthUpdateUsageDescription` con il testo approvato,
+  tradotto nelle quattro `locales/*.json` con i nomi di A («Apple Salute»,
+  «Apple Salud», «Apple Santé», l'app «Forme»); in `react-native.config.js`
+  le tre librerie dell'iPhone collegate **solo su iOS**, Health Connect
+  ancora fuori da tutte e due; la privacy approvata nelle cinque lingue,
+  dopo «Strava», con il consenso nella base giuridica e la data del 29
+  ottobre 2026, e `site/privacy/` rifatto. PR in bozza #620.
+- **Le impronte** (copia pulita, `npm ci`, `APP_VARIANT=production`), anche
+  dopo l'unione con `main` del 2026-10-29: iOS
+  `fd0cbb436ec37c7ed184d1c88176cfaa08c68a02` (era `83793e26…`: le
+  librerie, la configurazione, l'autolinking iOS), Android
+  `e9a0bda01eef8abd2de692c67666d9bcc7e44b5a` (era `e2d33497…`: solo
+  `expoConfig`, per le chiavi `ios` di `app.json`). Per tenere ferma quella
+  Android serve un elenco solo iOS in `fingerprint.config.js`, di TASK-294:
+  scelta del Coordinatore al taglio.
+- **Sul simulatore** (Xcode 27, iOS 27, build Release come quella dello
+  store, `APP_VARIANT=production`, con l'attesa degli update spenta e la
+  scena di iOS 27 aggiunta solo nella copia locale): l'app parte con i
+  moduli nativi, nel binario ci sono gli entitlements HealthKit, la fine
+  corsa si apre con «Save» e «Discard». Il foglio di iOS dice «Write
+  Access», «Choose which Health data you'd like this app to be able to add
+  to», con il testo approvato sotto, e sei voci (energia attiva, distanza
+  in bici, distanza della pagaia e le altre tre). Senza
+  `NSHealthShareUsageDescription` non si chiude: per scrivere basta il testo
+  dello scrivere, come previsto.
+- **Resta da guardare**, con i tocchi sul simulatore (l'utente non c'era a
+  dare l'accesso): «Select All» e «Allow», poi «Save» e l'allenamento in
+  Fitness con la mappa. La build è pronta nella cartella ignorata
+  `out/TASK-321-b/` del worktree, con il simulatore «MuW Health 321».
+  Sull'iPhone dell'utente, alla build `preview` o alla 1.0.1: l'anello
+  Movimento, e in Salute l'allenamento con la distanza e le calorie (i
+  campioni con lo stesso `HKSyncIdentifier`, «Per B» qui sopra).
+
 ### C — La build Android con Health Connect
 
 `app.json` (i plugin di `react-native-health-connect` ed
