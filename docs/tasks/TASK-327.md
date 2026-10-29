@@ -1,7 +1,7 @@
 # TASK-327 — «Play» sotto la distanza di «Draw», non più in alto accanto a «Explore»
 
-**Stato**: Done — PR `feat/TASK-327-play-under-distance`; il merge aspetta
-il sì dell'utente ai testi nuovi
+**Stato**: Done — PR #626 `feat/TASK-327-play-under-distance`; testi
+approvati dall'utente il 2026-10-29
 **Fase**: 4 · **Branch**: `feat/TASK-327-play-under-distance` · **ADR**:
 ADR-0286 · numeri dati dal Coordinatore il 2026-10-29
 
@@ -54,9 +54,10 @@ proposta: «PLAY» e «Collect shapes by running».
 - [x] `__tests__/AppPlay.test.tsx` verde; l'intera suite dell'app verde
       tranne due gruppi che in locale non trovano dipendenze nuove di
       `main` (Health, document picker), verdi in CI.
-- [ ] Impronta iOS della testa, misurata su una copia pulita: `83793e26`.
-- [ ] Il sì dell'utente ai testi nuovi nelle cinque lingue, prima del
-      merge: «PLAY» / «GIOCA» / «SPIELEN» / «JUEGA» / «JOUER» e «Collect
+- [x] Impronta iOS della testa, misurata su una copia pulita: `83793e26`
+      (testa `fda7f0a5`; da rimisurare dopo il riallineamento su main).
+- [x] Il sì dell'utente ai testi nuovi nelle cinque lingue, prima del
+      merge (2026-10-29, «Yes, approve them»): «PLAY» / «GIOCA» / «SPIELEN» / «JUEGA» / «JOUER» e «Collect
       shapes by running» / «Colleziona le forme correndo» / «Sammle Formen
       beim Laufen» / «Colecciona formas corriendo» / «Collectionne des
       formes en courant».
