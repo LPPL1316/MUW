@@ -28,6 +28,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { useBlockedNow } from "./blockedNow";
 import { useCommentChoices } from "./commentChoices";
 import { useCommentsDoor } from "./commentsDoor";
 import { agoLabel, commentsLabel, negativeComment } from "./commentText";
@@ -383,7 +384,13 @@ function CommentRow({ comment, me, onHold, onAction, onAuthor }: RowProps) {
   }, [door, publicId]);
   const ago = agoLabel(comment.created_at);
   const actions = actionsOf(comment, me);
+  // Blocked while the sheet is open, as its card in «Feed»: no way to them
+  // until the page, asked again, leaves them out.
+  const blocked = useBlockedNow(publicId);
   const profileLabel = t("{name}'s profile", { name: comment.author.username });
+  const picture = (
+    <Avatar name={comment.author.username} size={AVATAR_SIDE} photo={photo} />
+  );
   return (
     <Pressable
       style={styles.row}
@@ -408,12 +415,14 @@ function CommentRow({ comment, me, onHold, onAction, onAuthor }: RowProps) {
           name: action,
           label: actionLabel(comment, action),
         })),
-        { name: PROFILE_ACTION, label: profileLabel },
+        ...(blocked ? [] : [{ name: PROFILE_ACTION, label: profileLabel }]),
       ]}
       onAccessibilityAction={(event) => {
         const name = event.nativeEvent.actionName;
         if (name === PROFILE_ACTION) {
-          onAuthor(comment);
+          if (!blocked) {
+            onAuthor(comment);
+          }
           return;
         }
         const asked = actions.find((action) => action === name);
@@ -422,16 +431,20 @@ function CommentRow({ comment, me, onHold, onAction, onAuthor }: RowProps) {
         }
       }}
     >
-      <Pressable
-        onPress={() => onAuthor(comment)}
-        // Held, the picture is still the comment's.
-        onLongPress={() => onHold(comment)}
-        hitSlop={AVATAR_SLOP}
-        accessibilityRole="button"
-        accessibilityLabel={profileLabel}
-      >
-        <Avatar name={comment.author.username} size={AVATAR_SIDE} photo={photo} />
-      </Pressable>
+      {blocked ? (
+        picture
+      ) : (
+        <Pressable
+          onPress={() => onAuthor(comment)}
+          // Held, the picture is still the comment's.
+          onLongPress={() => onHold(comment)}
+          hitSlop={AVATAR_SLOP}
+          accessibilityRole="button"
+          accessibilityLabel={profileLabel}
+        >
+          {picture}
+        </Pressable>
+      )}
       <View style={styles.words}>
         <Text style={styles.who}>
           {comment.author.username}

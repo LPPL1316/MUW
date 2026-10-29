@@ -8,7 +8,7 @@ import { Alert, type AlertButton } from "react-native";
 import type { AccountState } from "../account/useAccount";
 import type { AccountOutcome } from "../api/accounts";
 import { blockMember, report } from "../api/moderation";
-import { forgetBlocked, useBlockedNow } from "./blockedNow";
+import { forgetBlocked, markBlocked, useBlockedNow } from "./blockedNow";
 import { CommentsContext, type CommentsDoor } from "./commentsDoor";
 import { DrawingComments } from "./DrawingComments";
 import { FollowsContext } from "./followsDoor";
@@ -413,6 +413,26 @@ test("VoiceOver opens the profile with an action of the row", async () => {
   expect(openProfile).toHaveBeenCalledWith(
     expect.objectContaining({ public_id: OTHERS.author.public_id }),
   );
+});
+
+test("a blocked author's picture opens nothing, as their card in «Feed»", async () => {
+  const openProfile = jest.fn();
+  await openedSignedIn(door([page([OTHERS])]), "1 comment", { openProfile });
+  expect(
+    screen.getByRole("button", { name: "other_runner's profile" }),
+  ).toBeOnTheScreen();
+  // Blocked elsewhere while the sheet is open: the page still has them.
+  await act(async () => markBlocked(OTHERS.author.public_id));
+  expect(screen.getByText(OTHERS.text)).toBeOnTheScreen();
+  expect(screen.queryByRole("button", { name: "other_runner's profile" })).toBeNull();
+  const others = screen.getByLabelText(/^other_runner, /);
+  expect(
+    others.props.accessibilityActions.map((a: { name: string }) => a.name),
+  ).toEqual(["report", "block"]);
+  await fireEvent(others, "accessibilityAction", {
+    nativeEvent: { actionName: "profile" },
+  });
+  expect(openProfile).not.toHaveBeenCalled();
 });
 
 test("held, the picture still offers the comment's choices", async () => {

@@ -8522,7 +8522,10 @@ esempi (TASK-156) che non stanno sul server. Le corse pubblicate vere
    44 pt con `hitSlop`; tenuta premuta, la foto dà le scelte del commento
    come il resto della riga. La riga è un solo elemento per VoiceOver, per
    cui il profilo è anche un'azione, «{name}'s profile», testo che c'era
-   già. Il nome resta solo testo: la richiesta era la foto.
+   già. Un autore bloccato mentre il foglio è aperto (`useBlockedNow`,
+   come le schede di «Feed») non apre niente: la foto torna solo foto e
+   l'azione sparisce, finché la pagina richiesta non lo toglie. Il nome
+   resta solo testo: la richiesta era la foto.
 
 **Perché così**: la scelta dell'utente dà commenti veri subito, e i file
 nuovi (`comments.py`, `src/social/…`) non si scontrano con i task che
