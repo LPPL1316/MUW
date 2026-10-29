@@ -8,6 +8,7 @@ import { WinnerBadge } from "../contest/WinnerBadge";
 import { ExploreStart } from "../explore/ExploreStart";
 import type { StartView } from "../explore/useStartDirections";
 import { t } from "../i18n";
+import { ImportedMark } from "../imports/ImportedMark";
 import {
   color,
   fontSize,
@@ -59,7 +60,8 @@ export const PHOTO_HEIGHT = 160;
  * after them «Draw it near me», its shape or word in «Draw» (TASK-313),
  * and «Edit the drawing», its figure in the board (TASK-320).
  * The drawing that won the contest kept on the phone has the «Winner» band
- * on top (TASK-299).
+ * on top (TASK-299). An activity added from a file of another app says
+ * «Imported» under its facts (TASK-312).
  */
 export function DrawingCard({
   drawing,
@@ -91,6 +93,7 @@ export function DrawingCard({
           <Text style={styles.title}>{drawing.title ?? day}</Text>
           {drawing.title !== null && <Text style={styles.message}>{day}</Text>}
           <Text style={styles.facts}>{facts}</Text>
+          {drawing.source !== undefined && drawing.source !== "muw" && <ImportedMark />}
         </View>
       </View>
       {photos.length > 0 && (

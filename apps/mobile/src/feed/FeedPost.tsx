@@ -34,7 +34,7 @@ import {
 import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { useFeedMap } from "./FeedMaps";
-import { isShown } from "./feedPosts";
+import { isImportedPost, isShown } from "./feedPosts";
 import type { SamplePost } from "./sampleFeed";
 import { turnedLine } from "./turnedLine";
 
@@ -85,7 +85,8 @@ const BIKE = SPORTS.find((sport) => sport.id === "bike")?.name ?? tLater("Bike")
  * on a bike "Bike · …" (TASK-118). In the app's units (TASK-182): "Moon ·
  * 3.0 mi · 27 min". A member's drawing says what it draws in its own
  * words, a word or a route's title, and a run without a route says only
- * how far and how long.
+ * how far and how long. An activity added from a file of another app says
+ * so before all, "Imported · 4.9 km · 27 min" (TASK-312).
  */
 export function postFacts(post: SamplePost): string {
   const what = post.what === undefined ? shapeLabel(post.shape) : post.what;
@@ -98,7 +99,8 @@ export function postFacts(post: SamplePost): string {
     .join(" · ");
   const sport =
     post.activity === "paddling" ? PADDLE : post.activity === "cycling" ? BIKE : null;
-  return sport === null ? facts : `${t(sport)} · ${facts}`;
+  const withSport = sport === null ? facts : `${t(sport)} · ${facts}`;
+  return isImportedPost(post) ? `${t("Imported")} · ${withSport}` : withSport;
 }
 
 /**

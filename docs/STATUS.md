@@ -294,6 +294,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `source` in «My activities», nel disegno, nel Feed e nel profilo, con
   le fixture `*-imported.json`. Server dopo il merge, col sì dell'utente.
   Prossima: B (l'app).
+  **Parte B fatta** (2026-10-29, PR #622, branch
+  `feat/TASK-312-b-import-file-app`): in cima a «My activities» «Add past
+  activity» → «From a file»; GPX, TCX e FIT letti sul telefono dai lettori
+  di `src/imports/` (niente dipendenze oltre al selettore), la corsa con gli
+  orari del file e `source: "file"`, il modulo di fine corsa con
+  «Imported», senza Strava né Apple Salute; «Imported» anche sulla riga,
+  sulla scheda e nel Feed. `expo-document-picker` fuori dall'autolinking:
+  nella 1.0 il pulsante non c'è (impronta iOS `83793e26` invariata, su copia
+  pulita), si accende con la 1.0.1 (promemoria in `tasks/TASK-152.md`).
+  Testi e riga della privacy approvati dall'utente, privacy del 29 ottobre
+  2026. Provata contro l'API vera (0034); la prova con i file veri di
+  Strava e Garmin resta per il telefono (Expo Go, preview). Prossima: C.
 - **TASK-311 — Parole scritte meglio, e sul server tutto quello che si
   chiede** (ADR-0271, proposta; richiesta dell'utente del 2026-10-27,
   numero e condizioni dal Coordinatore). Parte A, branch

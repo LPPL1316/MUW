@@ -1603,6 +1603,31 @@ telefono dell'account: con un percorso o senza.
   prima sulla scheda stessa: «Delete this run? It cannot be undone.», con
   «Keep it» e «Delete run». La corsa sparisce subito; se l'API rifiuta
   torna dov'era, con il motivo in cima all'elenco.
+- **«Add past activity»** (TASK-312 parte B, ADR-0272,
+  `IMPORTAZIONI.md`), in cima alla pagina, neutro come gli altri pulsanti:
+  apre **«From a file»**, con sotto «GPX, TCX or FIT from Strava, Garmin,
+  Komoot…» e l'aiuto «Export the activity as a file from the other app or
+  its website, save it in Files, then pick it here.»; toccato di nuovo si
+  chiude. «From a file» apre «File» per un file solo, di ogni tipo (il
+  formato lo dice il contenuto); mentre legge dice «Loading…». Un file che
+  non va dice perché, in rosso, e «From a file» resta per un altro: «This
+  file is not GPX, TCX or FIT.», «This file has no times: it is a route,
+  not an activity.», «This file has no positions.», «This file is too big
+  (over 25 MB).», «Activities before 2020 cannot be added.», «Already in My
+  activities.»; un file che il telefono non legge, «Something went
+  wrong.». Un file buono diventa una scheda: il giorno e l'ora del primo
+  punto, il disegno della traccia (160 × 160) e sotto il modulo della fine
+  della corsa con **«Imported»** in cima e «Imported activities don't count
+  for Play or contests.»; lo sport è quello del file (altrimenti
+  «Settings»), «Only me» all'inizio, niente «Send to Strava» né «Save to
+  Apple Health». «Save» la mette in «My activities» con il logo, come una
+  corsa; «Discard» chiede prima, come sempre. **Nell'app dello store il
+  pulsante non c'è** finché la build 1.0.1 non porta il selettore di file;
+  Expo Go lo mostra. «Photos only» arriva con la parte C.
+- **«Imported»** (TASK-312): una corsa aggiunta da un file ha il segno
+  «Imported» sotto i numeri, accanto a «Public» se c'è, e sulla corsa
+  aperta; lì non c'è Strava. Nel Feed la riga dei fatti comincia con
+  «Imported · », e il disegno aperto ha il segno sotto i numeri.
 - **Vuoto**: «No activities yet. Save a run when you finish it, and it is
   kept here.». **Elenco non arrivato**: «Your activities could not load.» e «Try
   again». L'elenco si chiede all'apertura dell'app, se c'è un account, e

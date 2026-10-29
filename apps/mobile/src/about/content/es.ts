@@ -331,6 +331,7 @@ const privacy: AboutDocument = {
       blocks: [
         "Con una cuenta, cuando tocas «Guardar» al final de una carrera, la carrera entera va a nuestro servidor: cada posición con su hora y su altura, las pausas, la ruta que seguiste, distancia, duración, una puntuación de cuánto sigue la traza a la ruta (calculada por nuestro servidor y no mostrada en la app) y el nombre del lugar. Con «Descartar» no se envía nada.",
         "Una carrera guardada es privada: solo la ve tu cuenta. Los demás miembros ven en tu perfil solo los totales de todas tus carreras guardadas, distancia y desnivel, nunca las carreras. Se queda hasta que la eliminas de «Mis actividades» o eliminas tu cuenta.",
+        "Si añades una actividad pasada desde un archivo, guardamos su recorrido y sus horas como los de una carrera registrada con MuW. No guardamos el archivo.",
         "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros cuando activas «Pública», y entonces ven el recorrido sin sus primeros y últimos 200 m, con el título que le diste, y sin tiempos, pausas ni la ruta prevista.",
         "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX: siempre sin sus primeros y últimos 200 m y sin tiempos.",
       ],

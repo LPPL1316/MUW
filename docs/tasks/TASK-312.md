@@ -211,6 +211,75 @@ docs/STATUS.md
 docs/tasks/TASK-312.md
 ```
 
+### Parte B — com'è fatta (2026-10-29, branch `feat/TASK-312-b-import-file-app`)
+
+«File toccati» mandati al Coordinatore prima del codice e approvati il
+2026-10-29, con le sue condizioni: il selettore fuori dalle build dello
+store fino alla 1.0.1 (impronta invariata), il file letto sul telefono e
+niente che parte prima di «Save», testi e privacy all'utente. Rispetto
+alla lista sopra, in più: `apps/mobile/src/feed/FeedPost.tsx` («Imported»
+nella riga dei fatti della scheda del Feed) e
+`apps/mobile/src/about/content/*.ts` (la riga della privacy sta lì:
+`make_privacy.mjs` legge da lì).
+
+Cosa fa:
+
+- `expo-document-picker` `~57.0.2` (57.0.3 nel lock), la versione di Expo
+  SDK 57; il sì dell'utente è del 2026-10-28, «Sì, come i contatti» (scelta
+  3 in «Contesto»). In `expo.autolinking.exclude`, nessun plugin in
+  `app.json`, così le build dello store restano senza e l'impronta iOS resta
+  `83793e26…` (misurata su copia pulita, con il `package-lock.json`
+  cambiato);
+  `pickActivityFile.ts` lo carica solo con `require` dietro
+  `requireOptionalNativeModule("ExpoDocumentPicker")`: senza il modulo
+  nativo (la 1.0, e le build fino alla 1.0.1) «Add past activity» non c'è;
+  Expo Go lo mostra. Il file scelto si copia nella cache, si legge e la
+  copia si cancella; un file oltre 25 MB non si legge;
+- `src/imports/`: `gpx.ts` e `tcx.ts` (XML letto con poche espressioni
+  regolari, `xml.ts`: solo numeri e orari, con o senza prefisso dei nomi),
+  `fit.ts` (binario dal protocollo FIT: definizioni little e big endian,
+  campi dello sviluppatore saltati per la loro misura, intestazioni con
+  l'orario compresso, file concatenati, file tagliato letto fino al
+  taglio; `record` 20, `sport` 12, `session` 18). Il formato si riconosce
+  dal contenuto, non dal nome;
+- `importFile.ts`: tiene i punti con posizione e orario, in ordine di
+  tempo (un punto non più tardi di quello prima si lascia), i buchi oltre
+  60 s come pause `auto` (al più 1 000, le più lunghe), al più 20 000
+  punti a passo uguale, `accuracy_m` `null`, `source: "file"`, la chiave di
+  sempre (`activityKey`). Errori: non GPX/TCX/FIT, nessuna posizione (anche
+  meno di due punti), posizioni senza orari (un percorso), prima del 2020,
+  oltre 25 MB; «Something went wrong.» (testo già approvato) per un file
+  che il telefono non legge;
+- **già in «My activities»**: prima del modulo, la corsa si cerca fra
+  quelle in attesa sul telefono, nell'elenco e poi sull'API con
+  `GET /me/activities/{key}`: parte **solo la chiave**, niente del file.
+  Serve perché «Save» su una corsa già salvata riscriverebbe il suo
+  disegno (titolo, chi la vede). Senza rete si va avanti: il `PUT` la
+  tiene una volta comunque. *Deciso dall'agente su delega dell'utente.*
+- «Add past activity» in cima a «My activities» (`AddPastActivity.tsx`):
+  «From a file» con la riga sotto e l'aiuto; poi il disegno della traccia
+  (al più 200 punti, ognuno è una View) e il modulo di `RunEnd` con
+  `imported`: «Imported», la riga sul gioco e i concorsi, lo sport del file
+  (altrimenti «Settings»), «Only me» all'inizio, niente «Send to Strava» né
+  Apple Salute (l'altra app l'ha già scritta lì). «Save» passa da
+  `recordImported` della porta: la stessa coda, le stesse scelte e foto di
+  una corsa registrata; una corsa `file` non chiede niente al gioco
+  (`tellUnlocked` saltato). Mai rimandata senza `source`: un'API senza la
+  0034 la rifiuta (`422`) e resta fra quelle rifiutate, con «Try again»;
+- «Imported» sulla riga e sulla scheda di «My activities» (sulla scheda
+  niente «Send to Strava», la proposta confermata), nella riga dei fatti
+  della scheda del Feed («Imported · 4.9 km · 27 min») e sul disegno
+  aperto (`DrawingCard.tsx`, dopo il merge di #619); `source?` e
+  `isImported` in `api/activities.ts`, mancante = `muw`;
+- test su file piccoli in `apps/mobile/__tests__/fixtures/imports/`, fatti
+  da `make_fixtures.mjs` nello stesso posto (sempre uguali): una corsa di
+  Strava (GPX), un giro in bici di Garmin Connect (TCX), una corsa di un
+  orologio Garmin (FIT con campo dello sviluppatore, definizione big endian
+  e orari compressi), un percorso di Komoot (GPX senza orari), un tapis
+  roulant (TCX senza posizioni). Le tracce sono inventate, per formula:
+  nessuna attività di una persona nel repository. La struttura è quella
+  dei file veri; la prova con file veri è il punto 7.
+
 ## Parte C — I post di sole foto
 
 1. API: un disegno senza corsa. `drawings.user_id` (riempito da `runs`
@@ -265,6 +334,12 @@ dell'utente. Poi l'utente sceglie quali.
 |  | «Already in My activities.» |
 | Post di sole foto | «Add at least one photo.» |
 | Privacy | «If you add a past activity from a file, we keep its track and times like a run recorded with MuW. We do not keep the file.» |
+
+**Parte B approvata dall'utente il 2026-10-29** («Approvo tutto»): i testi
+della parte B (le righe sopra senza «Photos only» e «Add at least one
+photo.», che sono di C) con le traduzioni in italiano, tedesco, francese e
+spagnolo della PR, la riga della privacy nelle cinque lingue e la data
+della privacy **29 ottobre 2026**.
 
 ## Proposte da confermare con l'utente
 

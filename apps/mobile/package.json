@@ -21,6 +21,7 @@
     "expo-build-properties": "~57.0.22",
     "expo-constants": "~57.0.19",
     "expo-contacts": "~57.0.6",
+    "expo-document-picker": "~57.0.2",
     "expo-file-system": "~57.0.7",
     "expo-image-manipulator": "~57.0.19",
     "expo-image-picker": "~57.0.20",
@@ -62,6 +63,7 @@
     "autolinking": {
       "exclude": [
         "expo-contacts",
+        "expo-document-picker",
         "react-native-health-connect"
       ]
     }
