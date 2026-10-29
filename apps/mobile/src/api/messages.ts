@@ -1,11 +1,13 @@
 import {
   CONVERSATION_STATES,
   MESSAGE_MAX_LENGTH,
+  WITH_ATTACHMENTS,
   type Conversation,
   type ConversationBox,
   type ConversationsPage,
   type ConversationsUnread,
   type Message,
+  type MessageAttachmentRequest,
   type MessageRequest,
   type MessagesPage,
 } from "@shaperoute/shared-types";
@@ -21,7 +23,12 @@ import { isPerson } from "./people";
  * other's `public_id`; who is not followed by the one it writes to sends a
  * request, one message until it is accepted. The bodies are
  * packages/shared-types/fixtures/message*.json and conversations*.json.
+ * Every page and message is asked `?with=attachments` (TASK-333): a message
+ * carries its photo, video or drawing in `attachment`, and a server of
+ * before simply has none.
  */
+
+const WITH = `with=${WITH_ATTACHMENTS}`;
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
 
@@ -58,7 +65,7 @@ export function fetchConversations(
   const query = cursor === null ? "" : `&cursor=${encodeURIComponent(cursor)}`;
   return ask(
     baseUrl,
-    `/me/conversations?box=${box}${query}`,
+    `/me/conversations?box=${box}${query}&${WITH}`,
     { method: "GET", token },
     isConversationsPage,
     options,
@@ -91,32 +98,49 @@ export function fetchMessages(
   cursor: string | null = null,
   options: Options = {},
 ): Promise<AccountOutcome<MessagesPage>> {
-  const query = cursor === null ? "" : `?cursor=${encodeURIComponent(cursor)}`;
+  const query = cursor === null ? "" : `&cursor=${encodeURIComponent(cursor)}`;
   return ask(
     baseUrl,
-    `${conversationPath(publicId)}/messages${query}`,
+    `${conversationPath(publicId)}/messages?${WITH}${query}`,
     { method: "GET", token },
     isMessagesPage,
     options,
   );
 }
 
-/** POST /conversations/{public_id}/messages: the message as kept. */
+/**
+ * POST /conversations/{public_id}/messages: the message as kept. With an
+ * attachment (TASK-333) the text may be empty.
+ */
 export function sendMessage(
   baseUrl: string,
   token: string,
   publicId: string,
   text: string,
   options: Options = {},
+  attachment: MessageAttachmentRequest | null = null,
 ): Promise<AccountOutcome<Message>> {
-  const body: MessageRequest = { text: messageOf(text) };
+  const body: MessageRequest =
+    attachment === null
+      ? { text: messageOf(text) }
+      : { text: messageOf(text), attachment };
   return ask(
     baseUrl,
-    `${conversationPath(publicId)}/messages`,
+    `${conversationPath(publicId)}/messages?${WITH}`,
     { method: "POST", body, token },
     isMessage,
     options,
   );
+}
+
+/**
+ * What a photo or a video may be attached as in a conversation now: none
+ * outside an open one, none on a server before TASK-333 (its page has no
+ * `attachments`), no video while the server is full.
+ */
+export function attachableFiles(page: MessagesPage): ("photo" | "video")[] {
+  const kinds = page.attachments?.kinds ?? [];
+  return kinds.filter((kind): kind is "photo" | "video" => kind !== "drawing");
 }
 
 /** PUT /conversations/{public_id}/accept: the request taken into «Messages». */

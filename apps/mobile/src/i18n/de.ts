@@ -1594,4 +1594,28 @@ export const DE: Table = {
   "Activities before 2020 cannot be added.":
     "Aktivitäten vor 2020 können nicht hinzugefügt werden.",
   "Already in My activities.": "Schon in Meine Aktivitäten.",
+  // The attachments of the private messages (TASK-333).
+  "📷 Photo": "📷 Foto",
+  "🎬 Video": "🎬 Video",
+  "🗺️ Drawing": "🗺️ Zeichnung",
+  Photo: "Foto",
+  Video: "Video",
+  "This video has expired.": "Dieses Video ist abgelaufen.",
+  "Video, {duration}": "Video, {duration}",
+  "Drawing: {title}, {distance}": "Zeichnung: {title}, {distance}",
+  "Add a photo, a video or a drawing":
+    "Ein Foto, ein Video oder eine Zeichnung hinzufügen",
+  "Add a message…": "Eine Nachricht hinzufügen…",
+  "Couldn't send. Tap to try again.":
+    "Nicht gesendet. Tippe, um es noch einmal zu versuchen.",
+  "This video is longer than {seconds} seconds. Choose a shorter one.":
+    "Dieses Video ist länger als {seconds} Sekunden. Wähle ein kürzeres.",
+  "This video is too large: at most {mb} MB. Choose a shorter one.":
+    "Dieses Video ist zu groß: höchstens {mb} MB. Wähle ein kürzeres.",
+  "Too many videos today. Try again tomorrow.":
+    "Heute schon zu viele Videos. Versuch es morgen wieder.",
+  "Too many photos today. Try again tomorrow.":
+    "Heute schon zu viele Fotos. Versuch es morgen wieder.",
+  "Videos can't be sent right now. Try again later.":
+    "Gerade können keine Videos gesendet werden. Versuch es später wieder.",
 };
