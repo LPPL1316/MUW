@@ -180,7 +180,7 @@ sotto prima del merge.
   `water.py`, `water_fit.py`, `validation.py`, `paddling.py` e
   `__main__.py` non cambiano. `route_store` lascia fuori i file del nuoto
   (`SWIM_ONLY`), con il test. Impronte come in `main`: `route_store`
-  `6072aa1ea3a3`, esempi della canoa `1b6759cb3cc4`. I punti 1 e 4 e
+  `abaea5bb82b3`, esempi della canoa `1b6759cb3cc4`. I punti 1 e 4 e
   `--activity swimming` passano a B (con `models.py`); al loro posto
   `SwimRequest` (0,5–3 km), `check_in_band` e
   `python -m route_engine.swimming`.

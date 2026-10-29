@@ -791,6 +791,43 @@ ricerca fa gli stessi tentativi di oggi più qualcuno in coda alla fase: dove
 converge è identica, dove non converge non peggiora. Lo script che rifà le
 misure è `tests/measure_stop_earlier.py`.
 
+### Il piazzamento di prima (TASK-297 A2)
+
+Dopo un cambio del motore l'archivio dell'API (ADR-0256, `API.md`) ha
+percorsi disegnati dal motore di prima, che non rispondono più. Ne tiene
+il piazzamento: partenza, rotazione, fase e scala della ricerca vicino
+alla partenza. `search` prende quel piazzamento, facoltativo (`first`, e
+la sua scala `first_scale_m`; senza, la scala iniziale):
+
+1. **Per primo**: si traccia e si riscala verso la distanza come ogni
+   piazzamento, fino a 4 tracciamenti, anche se è inclinato o parte da un
+   punto spostato. Se il percorso è buono la ricerca finisce lì.
+2. **Se non è buono, la ricerca di sempre**: i suoi tracciamenti restano
+   da parte (`Search.set_aside`, contati ma non scelti) e la ricerca
+   riparte come senza `first`, con il suo budget intero: stessi
+   tentativi, stesso risultato, 1–4 tracciamenti in più. Sceglierli fra
+   gli altri è stato provato e scartato: riscalato verso la distanza, il
+   cerchio della città finta ha dato un tracciato più economico del
+   migliore ma sotto 0,60 di somiglianza, e il piano che la ricerca dava
+   è stato rifiutato.
+3. **Senza `first`** la ricerca è quella di prima, tracciamento per
+   tracciamento: `tests/test_first_placement.py` ne tiene le impronte,
+   prese su `main` prima del cambio.
+
+`plan_shape` e `plan_route` passano `first` alla ricerca vicino alla
+partenza; la ricerca lontana (ADR-0040) non lo prende, e un piazzamento a
+più di 500 m dalla partenza è rifiutato (`ValueError`). Lo stesso
+piazzamento dalla stessa partenza rifà lo stesso percorso: a Trento 36 su
+36 (ADR-0257); nei test sulla griglia, sui cuori inclinati di 30°, sul
+cerchio spostato di 500 m e sulle parole, in un tracciamento.
+Lo script che misura il pianificatore dell'API senza e con il piazzamento
+di prima, prima e dopo un cambio, è `tests/measure_first_placement.py`: sulle
+17 forme del catalogo in quattro luoghi finti (griglia, città finta,
+griglia girata di 30°, Levico) i 68 piani senza `first` sono quelli di
+prima; con il piazzamento di prima i 19 buoni danno lo stesso percorso con
+19 tracciamenti della partenza invece di 56, i 23 non buoni lo stesso
+percorso con 714 invece di 657.
+
 ### Forme inclinate (TASK-232)
 
 L'app gira la mappa di quanto è girata la forma (`RouteResult.rotation_deg`,
@@ -1697,7 +1734,8 @@ distanza, e si tiene il più vicino. Il nuoto intero sta entro il ±10%.
 `paddling.py`, `validation.py` e `models.py` sono quelli di prima, e nessun
 modulo che disegna altri percorsi importa i due file del nuoto. L'impronta
 con cui `route_store` tiene gli esempi li lascia fuori (`SWIM_ONLY`, come
-`NOT_ROUTES` per la via del ritorno) e resta `6072aa1ea3a3`; quella degli
+`NOT_ROUTES` per la via del ritorno) e resta quella di `main`
+(`abaea5bb82b3` il 2026-10-29); quella degli
 esempi della canoa nell'app (`paddle_examples`) segue gli `import` da
 `paddling.py` e resta `1b6759cb3cc4`. Per questo `swimming` **non è ancora
 un'attività di `RouteRequest`**: aggiungerla a `models.py` cambierebbe tutte

@@ -176,7 +176,9 @@ test("a post on the water or on a bike names its sport in Italian", () => {
     line: [TRENTO, TRENTO],
     activity: "paddling",
   };
-  expect(postFacts(post)).toBe("Pagaia · Testa di cane · 2,0 km · 30 min");
+  expect(postFacts(post)).toBe(
+    "Pagaia · Testa di cane · 2,0 km · 30 min · 7:30 /500 m",
+  );
   expect(postFacts({ ...post, activity: "cycling" })).toMatch(/^Bici · /);
   expect(postFacts({ ...post, activity: undefined })).toMatch(/^Testa di cane · /);
 });

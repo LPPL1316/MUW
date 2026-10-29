@@ -200,7 +200,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **A1 scritta** (2026-10-29, sessione cloud, branch
   `claude/inspiring-lovelace-rcadwd`, PR in bozza): il nuoto in file nuovi
   (`swim_water.py`, `swimming.py`, `python -m route_engine.swimming`), la
-  canoa e le impronte come in `main` (`route_store` `6072aa1ea3a3`, esempi
+  canoa e le impronte come in `main` (`route_store` `abaea5bb82b3`, esempi
   della canoa `1b6759cb3cc4`; aggiunta ad ADR-0283). **Il risultato**: con
   20–150 m una costa dritta o la riva di un lago grande tengono un giro di
   0,4–0,5 km. **L'utente ha scelto i giri ripetuti**: la fascia resta, il
@@ -617,6 +617,28 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lontana (ADR-0040) su un grafo piccolo che ignora l'area cade in
   `optimizer.next_scale` con `ZeroDivisionError` (`ratio` 0): da guardare
   con la #497, che ha `optimizer.py`.
+
+  **Parte A2** (in `main` di `LPPL1316/MUW` con la #7, `e789e9c`, 2026-10-29, branch
+  `feat/TASK-297-a2-first-placement`, sessione cloud; aggiunta ad
+  ADR-0256): il ridisegno rapido dopo un cambio del motore.
+  `optimizer.search` prende `first` (un piazzamento) e `first_scale_m`,
+  facoltativi, e li prova per primi: se il percorso è buono si ferma lì,
+  altrimenti i loro tracciamenti vanno da parte e la ricerca è quella di
+  oggi; senza `first` è quella di oggi tracciamento per tracciamento
+  (impronte prese su `main`). L'archivio tiene il piazzamento della
+  ricerca vicino alla partenza (migrazione `0035_drawn_routes_placement.sql`,
+  numero al merge; `RouteJobs` gli passa il piano, `KeepsPlacements`) e,
+  quando entro 100 m c'è solo una riga buona di un altro motore o di più
+  di 30 giorni, la ridisegna dalla sua partenza con il pianificatore
+  dell'API e `first`, la tiene e la raggiunge dalla partenza dell'utente.
+  Una linea ridisegnata uguale rinfresca la sua riga; i grafi caricati
+  dall'archivio non finiscono più sotto le indicazioni del motore (difetto
+  della parte A). File fuori elenco nella PR: la migrazione, `jobs.py`,
+  `engine.zip`, `API.md`, `DATABASE.md`. Da rifare dopo il merge, con gli
+  altri cambi del motore e dopo Apple: `draw_examples` (anche `--water`),
+  `paddleExamples.json`, `catalogueShapes.json`; le città vere e gli
+  esempi tenuti si misurano sul Mac (`tests/measure_first_placement.py
+  --cache-dir`), qui la rete non c'è.
 - **TASK-295 — Il video della corsa, da esportare per i social**
   (ADR-0254; richiesta e scelta dell'utente del 2026-10-23, «Sì, così»).
   Branch `feat/TASK-295-run-video`. In «Share your run», «Export video»
@@ -1817,8 +1839,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
-- **Scheda dell'App Store** — TASK-326 (richiesta dell'utente del 2026-10-29): `apps/mobile/store/screenshots/` e `store.config.json` usano ora le 7 schermate del 2026-10-29 (cuore, gatto, «RUN», Draw, corsa, Explore, Feed; 1320×2868) al posto delle 5 vecchie, così un `eas metadata:push` non le rimette. Sono le stesse caricate dalla «Libreria di risorse» di App Store Connect e mandate in revisione ad Apple il 2026-10-29 alle 00:53. Le immagini creative dell'intestazione (5244×2950) e dei risultati di ricerca (3840×2560) stanno solo in `out/appstore-v2/creative/` e su App Store Connect. Nessun push, niente toccato su App Store Connect. `tasks/TASK-326.md`.
-- **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0034`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
+- **App** — TASK-327 (ADR-0286, che cambia ADR-0255; richiesta e scelta dell'utente del 2026-10-29): «Play» non è più il quarto nome in alto accanto a «Explore». In «Draw», subito sotto la distanza e prima di «NEAR YOU», una riga «PLAY» · «Collect shapes by running» · «›», solo mentre l'API ha il gioco; un tocco apre il gioco a tutto schermo (le due schede di sempre) e «←» torna a «Draw». «See collection» e le notifiche del gioco lo aprono come prima. In alto tre nomi, il profilo di nuovo a uno swipe da «Explore». Testi approvati dall'utente, solo app, OTA, impronta iOS `83793e26`. **Da vedere su un telefono** (solo nei test finora). `tasks/TASK-327.md`.
+- **Scheda dell'App Store** — TASK-328 (richiesta dell'utente del 2026-10-29): `apps/mobile/store/screenshots/` e `store.config.json` usano ora le 7 schermate del 2026-10-29 (cuore, gatto, «RUN», Draw, corsa, Explore, Feed; 1320×2868) al posto delle 5 vecchie, così un `eas metadata:push` non le rimette. Sono le stesse caricate dalla «Libreria di risorse» di App Store Connect e mandate in revisione ad Apple il 2026-10-29 alle 00:53. Le immagini creative dell'intestazione (5244×2950) e dei risultati di ricerca (3840×2560) stanno solo in `out/appstore-v2/creative/` e su App Store Connect. Nessun push, niente toccato su App Store Connect. `tasks/TASK-328.md`. Numero dato come TASK-326 e rinumerato TASK-328 il 2026-10-29, con il sì dell'utente: TASK-326 era già il passo medio nel Feed, nel repository MUW.
+- **Strumenti e CI** — TASK-325 (ADR-0285; richiesta dell'utente del 2026-10-28): `LPPL1316/MUW`, copia intera di `rockydalbianco/shaperoute` sotto l'utente (dove l'app GitHub di Claude non si può installare), e lo specchio nei due versi: `tools/mirror_repos.py` e `.github/workflows/mirror.yml` in MUW, a ogni push e ogni dieci minuti, portano avanti i branch indietro, creano i nuovi, cancellano i fusi, non toccano i divergenti (rosso, si unisce a mano). Segreto `MIRROR_TOKEN` (token classico con `repo` e `workflow`) messo dall'utente; MUW reso pubblico dall'utente il 2026-10-29 (minuti di Actions). Fuso in `main` di MUW il 2026-10-29 (LPPL1316/MUW#4, `182800a3`), insieme ai due `main` e alla migrazione del dislivello di TASK-324 a `0037`, idempotente. **Aperto**: il `main` di `shaperoute` accetta solo PR (regola del proprietario), lo specchio non può spingerlo: il `main` di MUW aspetta in `sync/muw-main` la PR dell'utente su `shaperoute`; due strade per automatizzarlo in `tasks/TASK-325.md`, «Aperto» 4 (scelta dell'utente). Il server legge ancora `shaperoute`.
+- **App e API** — TASK-324 (ADR-0284; richiesta dell'utente del 2026-10-26, che ha scelto «Km anche dalle private» e i testi della privacy): sul profilo di un altro e sul proprio «Distance», «Elev. gain» e «Likes», e le schede «Drawings» | «Photos» (le foto dei disegni, un tocco apre il disegno). L'app manda l'altezza di ogni posizione, l'API conta il dislivello (`runs.climb_m`, migrazione `0037`) e risponde ai totali e a `GET /users/{id}/photos`; con un'API di prima tutto come prima. Informativa e aiuto aggiornati nelle cinque lingue, sito rigenerato. PR #1 di `LPPL1316/MUW` (`84307224`, 2026-10-28), il primo merge nel repository nuovo. **Server e copia del sito prima dell'app, con l'ok dell'utente.** `tasks/TASK-324.md`.
 - **App** — TASK-320 (ADR-0280; richiesta dell'utente del 2026-10-28, proposte, testi e riga della privacy approvati lo stesso giorno): disegnare a mano in «Draw» e cambiare ogni figura proposta. Parte A (#612): la quarta scelta «Freehand», la tavola a mano (contorno chiuso dall'app, dettagli appesi, «Erase», «Undo», «Save», niente rete), «Edit the drawing» sotto la forma scelta e sul risultato, «Drawing» dove una foto dice «Image». Parte B (2026-10-29, `feat/TASK-320-b-edit-cards`): «Edit the drawing» sulle schede di «Explore» e dei disegni degli iscritti, dopo «Start», «Draw it near me» ed «Export GPX»; «Save» mostra «Draw» con «Freehand» e la figura, nessuna richiesta prima di «Draw route». Solo app, OTA, impronta iOS `83793e26` invariata. **Da provare col dito sull'iPhone** (l'utente): la tavola, «Erase», l'interruttore a quattro segmenti in italiano e in francese. `tasks/TASK-320.md`.
 - **App** — TASK-317 (ADR-0277; richiesta e scelta dell'utente del 2026-10-28): l'attesa in «Draw». Prima del calcolo la scheda dice «Warming up: heart…» («Warming up: “CIAO”…», «Warming up: the picture…») al posto di «Waiting for the API…». Dopo 3 s, sotto la barra, «MEANWHILE, FROM THE FEED» con sei disegni di esempio da scorrere, senza rete. Testi approvati, #604 in `main` (d6545be5), impronta iOS `83793e26`. Il gioco «Guess the shape» (#602) è stato chiuso senza merge e il branch `feat/TASK-317-waiting-card` resta su origin. `tasks/TASK-317.md`.
 - **App** — TASK-315 (ADR-0275; richiesta dell'utente del 2026-10-27): le foto di un post si vedono nella scheda del Feed, a pagine da scorrere dopo il disegno, con un puntino per pagina sotto; si carica solo la foto dopo quella vista. Solo app, nessun testo nuovo. `tasks/TASK-315.md`.
@@ -1936,6 +1960,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   aggiornamento su `production` o con la prossima build: lo decide il
   Coordinatore. `tasks/TASK-304.md`.
 
+- **App** — TASK-326 (aggiunta ad ADR-0207; richiesta dell'utente del
+  2026-10-26): ogni post del «Feed» dice anche il **passo medio**, in
+  fondo alla riga dei fatti: «Star · 4.0 km · 19 min · 4:45 /km»; con
+  «Miles» al miglio, in canoa il tempo di 500 m, in bici al km come «My
+  activities»; per gli iscritti dai secondi della corsa. Solo app
+  (`feed/FeedPost.tsx`), nessun testo nuovo. Numero preso come primo
+  libero da una sessione cloud, da confermare col Coordinatore; branch
+  `claude/sweet-carson-vi9ekn`. `docs/UI.md` («Feed») da allineare dopo
+  TASK-309 B, che lo ha in lavorazione. `tasks/TASK-326.md`.
 - **Motore** — TASK-298 (ADR-0259; seguito di TASK-297, l'utente il
   2026-10-24: «sì, apri anche quello per fermarsi prima»): fermarsi prima
   dove la forma non entra nelle strade, **misurato e scartato**. Su 252
