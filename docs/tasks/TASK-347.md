@@ -214,7 +214,8 @@ Da fare all'utente **una per volta**, in quest'ordine, ognuna con la
 proposta pronta:
 
 1. **L'aggancio col nostro motore** (modalità ancorata, per tratto) e non
-   con Mapbox/Valhalla/OSRM/GraphHopper. Proposta: sì.
+   con Mapbox/Valhalla/OSRM/GraphHopper. Proposta: sì. **Scelta
+   dell'utente, 2026-10-30: «Sì, motore nostro».**
 2. **Il tratto nella pagina della mappa**, niente Skia/gesture-handler/
    haptics fino alla build successiva. Proposta: sì.
 3. **Il punteggio = somiglianza del motore**, 0–100%, sotto la mappa mentre
