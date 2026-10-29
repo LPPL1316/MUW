@@ -170,6 +170,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   account: nessun limite (scelta dell'utente del 2026-10-30, «No limit»).
   Testi, regolamento, server e push con il sì dell'utente. File
   `tasks/TASK-343.md`.
+- **TASK-341 — I badge sul profilo: primo disegno, 10 disegni, 30 km**
+  (ADR-0294; richiesta dell'utente del 2026-10-29, proposta approvata con
+  «Yes, as proposed»; numeri dal Coordinatore). Branch
+  `docs/TASK-341-profile-badges` (documenti), poi
+  `feat/TASK-341-profile-badges`: `badges` in `GET /users/{id}`, decisi dal server sui disegni che chi guarda vede, solo
+  corse registrate dall'app; nell'app una fila sotto il nome accanto a
+  «Winner». Nessuna migrazione. Testi da approvare. File
+  `tasks/TASK-341.md`.
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno
   proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
   approvata con «Yes, write it up»; numeri dal Coordinatore). Branch
