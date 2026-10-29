@@ -1,0 +1,48 @@
+# The two repositories kept the same (TASK-325, ADR-0285,
+# docs/TEAM_WORKFLOW.md, «I due repository»): LPPL1316/MUW, where this runs,
+# and rockydalbianco/shaperoute. On every push here and every ten minutes,
+# tools/mirror_repos.py moves forward the branches that are behind on either
+# side, creates the new ones and deletes the merged ones; a branch with
+# commits on both sides is left alone and named in red.
+#
+# It needs the secret MIRROR_TOKEN: a classic token (scope `repo`) of an
+# account that writes in rockydalbianco/shaperoute. Without it nothing is
+# mirrored, and the run says so. The pushes made here with the token of the
+# workflow start no other workflow: a branch mirrored into MUW runs its CI
+# in the other repository, and its pull request here. This file reaches the
+# other repository too, where it does nothing: it runs only under LPPL1316.
+name: Mirror
+
+on:
+  push:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One run at a time: two at once would push the same branches.
+concurrency:
+  group: mirror
+
+jobs:
+  mirror:
+    if: github.repository_owner == 'LPPL1316'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mirror
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+          HERE_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$MIRROR_TOKEN" ]; then
+            echo "::notice::MIRROR_TOKEN is not set: nothing is mirrored (docs/TEAM_WORKFLOW.md, «I due repository»)."
+            exit 0
+          fi
+          python3 tools/mirror_repos.py \
+            "https://x-access-token:${HERE_TOKEN}@github.com/${GITHUB_REPOSITORY}" \
+            "https://x-access-token:${MIRROR_TOKEN}@github.com/rockydalbianco/shaperoute"

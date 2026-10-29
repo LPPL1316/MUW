@@ -17,6 +17,7 @@ import { thumbSegments } from "../explore/RouteThumb";
 import { t, tLater } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
 import { bearingOf } from "../map/turnedMap";
+import { paddlePaceLabel } from "../navigation/paddle";
 import { durationLabel } from "../screens/FinishScreen";
 import { SPORTS } from "../settings/sport";
 import { useBlockedNow } from "../social/blockedNow";
@@ -31,7 +32,7 @@ import {
   route as routeLine,
   space,
 } from "../theme/tokens";
-import { distanceLabel } from "../units/format";
+import { distanceLabel, paceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { useFeedMap } from "./FeedMaps";
 import { isImportedPost, isShown } from "./feedPosts";
@@ -80,20 +81,28 @@ const PADDLE = SPORTS.find((sport) => sport.id === "paddle")?.name ?? tLater("Pa
 const BIKE = SPORTS.find((sport) => sport.id === "bike")?.name ?? tLater("Bike");
 
 /**
- * "Moon · 4.9 km · 27 min": what was drawn, how far, how long. A drawing on
- * the water says so first, "Paddle · Moon · 2.0 km · 24 min" (TASK-228), one
- * on a bike "Bike · …" (TASK-118). In the app's units (TASK-182): "Moon ·
- * 3.0 mi · 27 min". A member's drawing says what it draws in its own
+ * "Moon · 4.9 km · 27 min · 5:32 /km": what was drawn, how far, how long,
+ * the average pace (TASK-326). A drawing on the water says so first, and
+ * its pace is a paddler's, "Paddle · Moon · 2.0 km · 24 min · 6:00 /500 m"
+ * (TASK-228); one on a bike "Bike · …" (TASK-118), its pace a kilometre's
+ * as in «My activities». In the app's units (TASK-182): "Moon · 3.0 mi ·
+ * 27 min · 8:54 /mi". A member's drawing says what it draws in its own
  * words, a word or a route's title, and a run without a route says only
- * how far and how long. An activity added from a file of another app says
- * so before all, "Imported · 4.9 km · 27 min" (TASK-312).
+ * how far, how long and how fast. A run too short has no pace. An activity
+ * added from a file of another app says so before all, "Imported · 4.9 km ·
+ * 27 min" (TASK-312).
  */
 export function postFacts(post: SamplePost): string {
   const what = post.what === undefined ? shapeLabel(post.shape) : post.what;
+  // A member's drawing has the seconds; an example only its minutes.
+  const ms = isShown(post) ? post.drawing.duration_s * 1000 : post.minutes * 60_000;
   const facts = [
     what,
     distanceLabel(post.route_m),
     durationLabel(post.minutes * 60_000),
+    post.activity === "paddling"
+      ? paddlePaceLabel(post.route_m, ms)
+      : paceLabel(post.route_m, ms),
   ]
     .filter((fact): fact is string => fact !== null)
     .join(" · ");

@@ -15848,6 +15848,63 @@ scelta di ADR-0086 aspettava il database, che c'è dal 2026-10-02.
 - contare `route_chosen` (A · B · C): 36 eventi in ottobre, e il segnale
   non porta la `line_key`; da aprire quando le scelte saranno di più.
 
+**Aggiunta (TASK-297 parte A2, 2026-10-26)** — il ridisegno rapido del
+punto 6; deciso dall'agente su delega dell'utente:
+
+1. **Il motore**: `optimizer.search` prende `first` (un `Placement`) e
+   `first_scale_m`, facoltativi; `plan_shape` e `plan_route` li passano
+   alla ricerca vicino alla partenza. Il piazzamento si traccia per primo
+   e si riscala come gli altri (fino a 4 tracciamenti); se è buono la
+   ricerca finisce, altrimenti i suoi tracciamenti vanno da parte
+   (`Search.set_aside`) e la ricerca è **quella senza**, con il suo
+   budget e il suo risultato. Il parametro si chiama
+   `first_scale_m` e non `first_scale`, che è già la funzione del modulo
+   chiamata da `search`. Un piazzamento oltre 500 m dalla partenza (della
+   ricerca lontana) è rifiutato.
+2. **Dove sta il piazzamento**: la 0026 non aveva le colonne promesse al
+   punto 1, e il `RouteResult` non lo porta (cambiarlo vorrebbe dire
+   cambiare il contratto del motore e dell'app). Lo porta il `Plan`: una
+   migrazione nuova (`0035_drawn_routes_placement.sql`, cinque colonne
+   `double precision`, tutte o nessuna) e `RouteJobs` che passa il piano
+   allo store che lo vuole (`jobs.KeepsPlacements`,
+   `RouteArchive.put_plan`). Si tiene solo il piazzamento della ricerca
+   **vicino alla partenza** (la partenza o un punto a 250–500 m): non
+   quello di una partenza vicina (ADR-0071), che è di un'altra ricerca, né
+   della ricerca lontana, né sull'acqua.
+3. **Quando si ridisegna**: nessuna riga di questo motore entro 100 m, ma
+   una di prima (altro motore o più di 30 giorni), **buona** (somiglianza
+   ≥ 0,90) e con il piazzamento. Si ridisegna **dalla sua partenza**,
+   dove la misura dice che il piazzamento rifà lo stesso percorso, con il
+   pianificatore dell'API intero (partenze vicine e alternative) e la
+   ricerca della partenza che prova `first`; il percorso entra
+   nell'archivio e si raggiunge dalla partenza dell'utente come ogni riga
+   entro 100 m. Una riga non buona non si ridisegna: il piazzamento non lo
+   sarebbe nemmeno adesso, e costerebbe 1–4 tracciamenti per niente.
+4. **Una linea ridisegnata uguale rinfresca la sua riga** invece di
+   essere scartata: con la parte A un percorso di più di 30 giorni
+   ridisegnato uguale restava vecchio e non rispondeva più. Tiene corse e
+   preferiti.
+5. **Le indicazioni**: quando l'archivio carica una zona e poi non
+   risponde, `RouteJobs` dimentica quel grafo prima del motore; prima le
+   indicazioni del motore si leggevano sul ritaglio dell'archivio (difetto
+   della parte A, che il ridisegno avrebbe reso più frequente).
+
+**Alternative scartate**:
+- scegliere il migliore anche fra i tracciamenti di `first` non buono:
+  riscalato verso la distanza, il cerchio da 5 km della città finta ha
+  dato un tracciato più economico del migliore della ricerca ma sotto 0,60
+  di somiglianza, e il piano che la ricerca dava è stato rifiutato
+  (`test_a_trace_set_aside_never_refuses_the_plan`);
+- ridisegnare dalla partenza dell'utente con il piazzamento della riga
+  spostato fin lì: a 500 m la misura di ADR-0257 dice molto peggio, entro
+  100 m non è misurato;
+- una chiamata al motore che provi solo `first` e, se non va, il
+  pianificatore da capo: quando il piazzamento non è più buono il motore
+  lavora due volte;
+- il piazzamento dentro il `RouteResult` o nel `jsonb` di `result`: il
+  primo cambia il contratto, il secondo mescola il risultato con i conti
+  del motore.
+
 ## ADR-0257 — Il piazzamento imparato da una ricerca vicina: misurato e scartato
 
 **Stato**: Scartata (misurata) · 2026-10-24 · deciso dall'agente su delega
@@ -18249,7 +18306,7 @@ dislivello contano tutte le corse salvate (stile Strava).
    altezza contata, le discese non tolgono; solo le posizioni tenute da
    `clean_track`, e niente salita a cavallo di una pausa chiesta dal
    corridore, come per i metri. Colonna `runs.climb_m` (migrazione
-   `0035_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
+   `0037_run_climb.sql`), `NULL` per le corse di prima e senza altezze: il
    totale non le stima.
 3. **`GET /users/{public_id}/photos`**: le foto dei disegni che chi guarda
    vede sul profilo, dalla corsa più recente e, nello stesso disegno, per
@@ -18337,3 +18394,94 @@ che l'ADR non dice.
 **Conseguenze**: nessun contratto di oggi cambia; `Accounts` ha
 `insert_user` (anche per `POST /accounts`) e `unusable_password_hash`, e
 `open_session` è una funzione del modulo.
+
+## ADR-0207 — aggiunta (TASK-326): il passo medio nella riga dei fatti del «Feed»
+
+**Data**: 2026-10-26 · **Stato**: Accettato · **Task**: TASK-326 ·
+mostrare il passo medio è una **scelta dell'utente** («nella sezione feed
+quando viene caricato un post bisogna aggiungere anche il passo medio come
+dato»); il come è **deciso dall'agente su delega dell'utente**
+
+**Contesto**: la riga dei fatti di un post del «Feed» diceva cosa disegna,
+quanto è lunga e quanto è durata la corsa («Star · 4.0 km · 19 min»).
+
+**Decisione**:
+
+1. Il passo medio va **in fondo alla riga dei fatti** (`postFacts`),
+   dopo la durata: «Star · 4.0 km · 19 min · 4:45 /km». Niente riga né
+   riquadro nuovi; VoiceOver lo legge con il resto della riga, senza
+   testi nuovi da tradurre.
+2. Si scrive come in «My activities» (`runFacts`) e nel post per Strava:
+   `paceLabel` al km o, con «Miles», al miglio; in canoa e paddle
+   `paddlePaceLabel`, il tempo di 500 m (ADR-0215); in bici al km, come
+   già fanno «My activities» e il post (ADR-0215, aggiornamento parte C).
+   Sotto i 100 m (`MIN_PACE_M`) nessun passo.
+3. Per un disegno pubblicato il passo viene dai **secondi** della corsa
+   (`duration_s`), non dai minuti arrotondati che la riga mostra; gli
+   esempi hanno solo i minuti e usano quelli.
+
+**Alternative scartate**: la velocità in km/h per la bici (più giusta per
+chi pedala, ma diversa da «My activities» e dal post: una scelta
+dell'utente, se la vuole); il passo dai minuti mostrati anche per gli
+iscritti (fino a 30 s di errore sul minuto, cioè secondi di passo su una
+corsa corta); il passo su una riga a parte (la scheda diventa più alta
+per un dato solo).
+
+**Conseguenze**: la riga è più lunga e su schermi stretti va a capo, come
+già faceva «Paddle · …». `docs/UI.md` («Feed») va allineato dopo
+TASK-309 B, che lo ha in lavorazione (`tasks/TASK-326.md`).
+
+## ADR-0285 — Due repository uguali: MUW sotto l'utente, specchiato con shaperoute nei due versi da un flusso in MUW
+
+**Stato**: Attiva · 2026-10-28 · il repository nuovo e lo specchio nei due
+versi li ha chiesti l'utente; i punti tecnici sono decisi dall'agente su
+delega dell'utente (TASK-325). Numero preso senza coordinatore: il primo
+libero dopo ADR-0284.
+
+**Contesto**: le sessioni cloud di Claude scrivono su GitHub solo dove è
+installata l'app GitHub di Claude, e il proprietario di
+`rockydalbianco/shaperoute` non può installarla (2026-10-28). L'utente ha
+creato `LPPL1316/MUW` e ha chiesto che i due «si parlino a vicenda e si
+aggiornino in automatico entrambi». Il server Hetzner e `deploy/` leggono
+ancora `shaperoute`; chi lavora dal Mac continua a usare quello.
+
+**Decisione**:
+
+1. **`LPPL1316/MUW` è una copia intera** di `shaperoute` (storia completa,
+   tutti i branch), fatta il 2026-10-28 con `git push` da una sessione
+   cloud. Da lì in poi Claude in cloud lavora su MUW (branch, PR, merge).
+2. **Un solo flusso, in MUW** (`.github/workflows/mirror.yml`), fa tutti e
+   due i versi: a ogni push su MUW e ogni dieci minuti scarica i branch
+   dei due repository e, branch per branch (`tools/mirror_repos.py`):
+   uguali, niente; uno indietro, lo porta avanti con un push che git
+   accetta solo se è un fast-forward; presente da una parte sola, lo crea
+   dall'altra, a meno che sia già fuso in un `main` (la sua punta è un
+   antenato di un `main`, e non è `main`): allora è stato cancellato dopo
+   il merge, e lo cancella anche qui; con commit da tutte e due le parti,
+   non lo tocca, lo nomina e finisce rosso. `main` non si cancella mai.
+   Mai `--force`. Niente tag (non ce ne sono).
+3. **Un solo segreto**: `MIRROR_TOKEN` in MUW, un token classico GitHub
+   con lo scope `repo` di un account che scrive in `shaperoute`; verso MUW
+   basta il token del flusso. Pubblica una sola persona (l'utente), nel
+   repository che possiede. I push fatti con il token del flusso non
+   avviano altri flussi: nessun ciclo, e un branch specchiato in MUW fa
+   la CI nell'altro repository e nella sua PR.
+4. **Il file del flusso arriva anche in `shaperoute`** con `main`, e lì
+   non gira (`if: github.repository_owner == 'LPPL1316'`): un flusso in
+   `shaperoute` vorrebbe un segreto che nessuno può mettere.
+
+**Alternative scartate**: un flusso per repository (un segreto anche in
+`shaperoute`, che il proprietario non può mettere); `git push --mirror`
+(forza, e porterebbe le cancellazioni e le divergenze senza chiedere);
+una sola direzione (l'utente ne vuole due); lavorare solo su MUW e
+abbandonare `shaperoute` (il server e il Mac stanno lì); unire da soli i
+branch divergenti (un merge sbagliato in silenzio costa più di un rosso).
+
+**Conseguenza**: chi lavora dal Mac su `shaperoute` e chi lavora in cloud
+su MUW vedono lo stesso dopo al più dieci minuti; una PR si apre e si
+mergia in uno dei due, e il `main` nuovo arriva nell'altro. Un branch
+abbandonato senza merge, o fuso con uno squash, ricompare finché non si
+cancella da tutte e due le parti. Due merge su `main` da parti diverse
+nello stesso intervallo vogliono una mano: meglio mergiare sempre dallo
+stesso repository. Il flusso costa un job di pochi secondi ogni dieci
+minuti.
