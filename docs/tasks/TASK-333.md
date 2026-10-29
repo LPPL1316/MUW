@@ -189,6 +189,7 @@ services/api/shaperoute_api/__main__.py
 services/api/tests/test_media_files.py                  (nuovo)
 services/api/tests/test_message_media.py                (nuovo)
 services/api/tests/test_messages.py
+services/api/tests/test_profile_totals.py               (una riga: la 0037 non è più l'ultima)
 packages/shared-types/src/index.ts
 packages/shared-types/test/message-attachments.test.ts  (nuovo)
 packages/shared-types/fixtures/message.json
