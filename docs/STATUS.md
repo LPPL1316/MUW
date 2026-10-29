@@ -175,6 +175,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   + server col sì dell'utente): codice Wikidata e foto di ogni posto con
   `CityPhotos` di TASK-283, la fila di foto sotto la mappa. File
   `tasks/TASK-329.md`.
+  **A in `main`** (#630, `75bcb2e7`). **Parte B fatta il 2026-10-29**
+  (branch `feat/TASK-329-b-place-photos`, aggiunta ad ADR-0287): ogni
+  posto di un percorso a tema ha `wikidata`, i toccati `photo`
+  (`CityPhotos`, ≤ 2 s); `GET /place-photos` per i soli elementi delle idee,
+  elencati dallo strumento in `services/api/shaperoute_api/data/idea_items.json`
+  (`themed_ideas.py --items`); nell'app la fila «1 Colosseum»… sotto la
+  mappa, numerata come sulla mappa, un tocco porta la mappa lì; le schede
+  delle idee con la foto del primo posto e la forma in piccolo. Nessun
+  testo nuovo, nessuna dipendenza, `engine.zip` invariato. **Prossimo**:
+  il sì dell'utente sulla riga della privacy (invariata), la PR al
+  Coordinatore, poi il server col sì dell'utente; senza il server l'app
+  mostra i posti col solo nome.
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte

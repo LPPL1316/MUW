@@ -46,6 +46,7 @@ import {
   remember,
   saveRecentCities,
 } from "./src/explore/recentCities";
+import { mapStops } from "./src/explore/StopPhotos";
 import { ThemedCard, themedGpx } from "./src/explore/ThemedCard";
 import { startViewOf, useStartDirections } from "./src/explore/useStartDirections";
 import { isHere, nearMeRequest } from "./src/explore/themedIdeas";
@@ -520,6 +521,13 @@ function MuW() {
     () => (themed.state.status === "done" ? themedGpx(themed.state.result) : null),
     [themed.state],
   );
+  // Its places on the map, those passed by numbered as the photos under it
+  // (TASK-329); a photo tapped takes the map to its place.
+  const themedStops = useMemo(
+    () => (themed.state.status === "done" ? mapStops(themed.state.result.stops) : null),
+    [themed.state],
+  );
+  const [placeFocus, setPlaceFocus] = useState<{ point: LatLon } | null>(null);
 
   const start = useMemo(
     () => chooseStart(startMode, position, place),
@@ -1344,11 +1352,8 @@ function MuW() {
                         ? explored.route.start
                         : (exploreRun?.points[0] ?? start?.point ?? null)
             }
-            stops={
-              theming && themed.state.status === "done"
-                ? themed.state.result.stops
-                : null
-            }
+            stops={theming ? themedStops : null}
+            focus={theming ? placeFocus : null}
             route={
               finishing
                 ? finished.run.route
@@ -1533,6 +1538,8 @@ function MuW() {
                 ? undefined
                 : () => themed.ask(nearMeRequest(farIdea.idea, farIdea.from))
             }
+            apiUrl={API_URL}
+            onPlace={(point) => setPlaceFocus({ point })}
             start={startViewOf(
               startDirections.state,
               themed.state.status === "done" ? themed.state.result.points : null,

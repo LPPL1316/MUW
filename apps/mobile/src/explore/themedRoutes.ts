@@ -8,7 +8,17 @@ import { apiKey, keyHeaders } from "../api/apiUrl";
  * The bodies are packages/shared-types/fixtures/themed-route-job-*.json.
  */
 
-export type ThemedStop = { name: string; point: LatLon; passed: boolean };
+export type ThemedStop = {
+  name: string;
+  point: LatLon;
+  passed: boolean;
+  /** Its Wikidata item, when OpenStreetMap names one (TASK-329). */
+  wikidata?: string | null;
+  /** Passed by, on a route the API planned: its free photo, or null for
+   * none. Read with `apiPhoto`. Absent on our ideas, which ask the API for
+   * it by `wikidata`, and from an API before TASK-329. */
+  photo?: unknown;
+};
 
 export type ThemedResult = {
   points: LatLon[];
