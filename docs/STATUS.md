@@ -222,31 +222,6 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Coordinatore, poi il server col sì dell'utente; senza il server l'app
   mostra i posti col solo nome.
 
-- **TASK-331 — A mano solo sulla mappa: la linea aperta, «Erase», «Edit
-  the drawing» sulla mappa e mai per le emoji** (ADR-0288; richiesta
-  dell'utente del 2026-10-29 dopo la prova sul telefono, scelta «Tutto
-  sulla mappa»). Branch `feat/TASK-331-draw-on-map-only`. La prima linea
-  resta aperta se non torna all'inizio e il percorso la fa andata e ritorno
-  (contratto invariato: un anello minuscolo al suo inizio più la linea come
-  dettaglio, provato sul motore con le strade di Trento); via la tavola
-  «Freehand» di «Draw»; «Edit the drawing» mette la figura sulla mappa, mai
-  per una forma del catalogo; sulla mappa «Erase» e due dita che spostano
-  la mappa. Solo JS dell'app, niente dipendenze né nativo. Jest 533/4297
-  verdi. I due testi nuovi (`UI.md`) approvati dall'utente il 2026-10-29.
-  **A in `main`** con la #632 (`b5d4e5d3`, 2026-10-29). **Resta**: la prova
-  col dito sull'iPhone con la prossima anteprima.
-  **Parte B, gli strumenti di disegno** (aggiunta ad ADR-0288; richiesta
-  dell'utente dello stesso giorno, «fallo più complesso», scelti tutti e
-  quattro): branch `feat/TASK-331-b-draw-tools`. Sulla mappa «Draw | Line |
-  Erase | Move», «Undo», «Redo», «Clear all»; la gomma toglie il pezzo sotto
-  il dito e un pezzo staccato si riattacca col collegamento più corto,
-  tratteggiato; «Line» fa segmenti dritti a tocchi e si chiude sul primo
-  punto; con «Move» una linea tenuta ferma e trascinata si piega. Solo JS
-  dell'app, contratto e motore invariati. PR #643; jest 548/4419 verdi;
-  impronta iOS 83793e26 invariata; testi nuovi (`UI.md`) approvati
-  dall'utente il 2026-10-29. **Resta**: il merge del Coordinatore e la
-  prova col dito sull'iPhone.
-
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
@@ -1983,6 +1958,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-331 (ADR-0288 con l'aggiunta della parte B; richieste
+  dell'utente del 2026-10-29, «Tutto sulla mappa» e poi «fallo più
+  complesso», testi approvati): a mano si disegna solo sulla mappa. La
+  prima linea resta aperta se non torna all'inizio e il percorso la fa
+  andata e ritorno (contratto invariato); via la tavola «Freehand»; «Edit
+  the drawing» mette la figura sulla mappa, mai per un'emoji. Sotto la
+  mappa «Draw | Line | Erase | Move», «Undo», «Redo», «Clear all»: la gomma
+  toglie il pezzo sotto il dito e un pezzo staccato si riattacca con un
+  collegamento tratteggiato; «Line» fa segmenti dritti a tocchi; con
+  «Move» una linea tenuta ferma e trascinata si piega; due dita spostano la
+  mappa. #632 (`b5d4e5d3`), #643 (`dbf618fd`); solo JS, impronta iOS
+  `83793e26`. **Da provare col dito sull'iPhone** con la prossima preview.
+  `tasks/TASK-331.md`.
 - **App** — TASK-338 (punto 8 di ADR-0175; richiesta dell'utente del 2026-10-29): nel foglio dei commenti, un tocco sulla foto di chi ha scritto chiude il foglio e apre il suo profilo, come un nome taggato (il proprio porta alla propria pagina); tenuta premuta dà ancora le scelte del commento, e per VoiceOver è l'azione «{name}'s profile» della riga; un autore appena bloccato non apre niente. Solo app, nessun testo nuovo. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-338.md`.
 - **App e API** — TASK-334 (ADR-0290; richiesta e scelta dell'utente del 2026-10-29, «Sì, così», testi approvati lo stesso giorno): i posti che l'utente tiene sul telefono. «Add a place» in «Settings» → «Offline maps», fino a 10 posti con la zona di 6 km fuori dai 2 GB; il server prepara quelle che non ha (`POST /phone-zones/{network}/places`, 3 al giorno per telefono, 20 per il server, mai mentre disegna percorsi). In `main` dalla #637 (`a623d61c`). Restano il server e l'OTA col sì dell'utente; la pagina non è ancora vista sul telefono. `tasks/TASK-334.md`, «Esito».
 - **App e API** — TASK-333 (ADR-0289 con l'aggiunta della parte D;
