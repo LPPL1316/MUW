@@ -85,6 +85,8 @@ Niente da cambiare nel contratto, nell'API o nel motore.
 - [x] «Erase» sulla mappa toglie una linea; «Undo» la rimette.
 - [x] Con «Draw» due dita spostano e ingrandiscono la mappa.
 - [x] Contratto, API e motore invariati; nessuna dipendenza nuova.
+- [x] Impronta iOS invariata, misurata su una copia pulita della testa
+      dae970bd (`npm ci`, `APP_VARIANT=production`): 83793e26.
 - [x] jest, lint, typecheck, Prettier verdi.
 - [ ] Testi nuovi approvati dall'utente (due, nelle quattro lingue, in
       `UI.md` sotto «Disegnare sulla mappa»).
