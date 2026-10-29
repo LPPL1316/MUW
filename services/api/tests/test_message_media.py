@@ -674,3 +674,115 @@ def test_the_push_says_what_the_message_carries(
         "ada: 🗺️ Drawing",
     ]
     assert expo.sent[-1]["data"]["kind"] == "message"
+
+
+# --- A full space (part D, the user's choice of 2026-10-29) ---
+
+
+def large_video(extra: int = 400_000) -> bytes:
+    """A video larger than a photo, so a cap can count them."""
+    return video() + box(b"free", bytes(extra))
+
+
+def test_a_full_space_takes_the_videos_of_the_oldest_messages_away(
+    client: TestClient, folder: MediaFolder, media: MessageMedia
+) -> None:
+    ada, bob = talking(client)
+    sent = []
+    for _ in range(3):
+        media_id = uploaded(client, ada, large_video(), "video/mp4")
+        attach(client, ada, bob, {"media_id": media_id})
+        sent.append(media_id)
+    photo_id = uploaded(client, ada, photo_bytes(), "image/jpeg")
+    attach(client, ada, bob, {"media_id": photo_id})
+    # Room for what is there now, and not one video more.
+    media.cap = media.used()
+    assert "video" in page(client, bob, ada, **WITH)["attachments"]["kinds"]
+    newest = upload(client, ada, large_video(), "video/mp4")
+    assert newest.status_code == 201, newest.text
+    # The oldest went, and only it; the photo stays.
+    oldest, *kept = sent
+    assert client.get(f"/message-media/{oldest}", headers=bob).status_code == 410
+    for media_id in kept + [photo_id]:
+        assert client.get(f"/message-media/{media_id}", headers=bob).status_code == 200
+    assert f"{oldest}.mp4" not in files(folder)
+    shown = [
+        m["attachment"]
+        for m in page(client, bob, ada, **WITH)["messages"]
+        if m["attachment"] and m["attachment"]["kind"] == "video"
+    ]
+    assert [a["expired"] for a in reversed(shown)] == [True, False, False]
+    assert media.used() <= media.cap
+
+
+def test_room_is_made_only_of_the_videos_of_messages(
+    client: TestClient, folder: MediaFolder, media: MessageMedia, disk: DiskClock
+) -> None:
+    ada, bob = talking(client)
+    # A post's video lives beside, in a folder of its own (ADR-0292).
+    posts = MediaFolder(folder.root.parent / "posts")
+    posts.write("post-video.mp4", large_video())
+    photo_id = uploaded(client, ada, photo_bytes(), "image/jpeg")
+    attach(client, ada, bob, {"media_id": photo_id})
+    unsent = uploaded(client, ada, large_video(), "video/mp4")
+    old_video = uploaded(client, ada, large_video(), "video/mp4")
+    attach(client, ada, bob, {"media_id": old_video})
+    size = len(large_video())
+    # Asked for far more than there is: only the video of a message goes.
+    assert media.free_videos(10**12) == size
+    assert media.free_videos(10**12) == 0
+    assert media.free_videos(0) == 0
+    assert [name for name, _ in posts.names()] == ["post-video.mp4"]
+    assert client.get(f"/message-media/{photo_id}", headers=bob).status_code == 200
+    # Nothing left to take away: a full space refuses a new video.
+    media.cap = media.used()
+    assert upload(client, ada, large_video(), "video/mp4").status_code == 507
+    assert "video" not in page(client, bob, ada, **WITH)["attachments"]["kinds"]
+    # The upload not sent yet was left alone: it still goes.
+    assert attach(client, ada, bob, {"media_id": unsent}).status_code == 201
+    # The round leaves the posts' folder alone too.
+    disk.s += 10**6
+    media.sweep()
+    assert [name for name, _ in posts.names()] == ["post-video.mp4"]
+
+
+def test_a_stop_half_way_never_leaves_a_row_keeping_a_gone_file(
+    client: TestClient,
+    database: Database,
+    folder: MediaFolder,
+    media: MessageMedia,
+    disk: DiskClock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ada, bob = talking(client)
+    media_id = uploaded(client, ada, large_video(), "video/mp4")
+    attach(client, ada, bob, {"media_id": media_id})
+
+    # The database cannot be reached: nothing changes, on disk either.
+    class Down:
+        def connect(self) -> Any:
+            raise RuntimeError("database down")
+
+    real = media.database
+    monkeypatch.setattr(media, "database", Down())
+    with pytest.raises(RuntimeError):
+        media.free_videos(1)
+    monkeypatch.setattr(media, "database", real)
+    assert f"{media_id}.mp4" in files(folder)
+    assert rows(database, "SELECT stored FROM message_media") == [{"stored": True}]
+
+    # Stopped after the database said so, before the disk followed.
+    def stopped(self: MediaFolder, name: str) -> None:
+        raise OSError("stopped here")
+
+    monkeypatch.setattr(MediaFolder, "remove", stopped)
+    assert media.free_videos(1) == len(large_video())
+    monkeypatch.undo()
+    assert rows(database, "SELECT stored FROM message_media") == [{"stored": False}]
+    # The file is still there, kept by no row: nobody reads it any more…
+    assert f"{media_id}.mp4" in files(folder)
+    assert client.get(f"/message-media/{media_id}", headers=bob).status_code == 410
+    # …and the hourly round takes it.
+    disk.s += 10**6
+    assert media.sweep() == 1
+    assert files(folder) == []

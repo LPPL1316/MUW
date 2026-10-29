@@ -16,10 +16,14 @@ What is kept of a file:
   (PUT …/poster), which the API keeps as a photo.
 
 Each account sends at most VIDEOS_A_DAY videos and PHOTOS_A_DAY photos in a
-day, and the server keeps at most SHAPEROUTE_MESSAGE_MEDIA_MAX_GB of them:
-above, no video is taken (the page of a conversation no longer offers one)
-and a photo only until a tenth more. A video stops being kept VIDEO_DAYS
-after its message («This video has expired»).
+day, and the server keeps at most SHAPEROUTE_MESSAGE_MEDIA_MAX_GB of them. A
+video stops being kept VIDEO_DAYS after its message («This video has
+expired»), or earlier when the space for videos is full: the videos of the
+oldest messages go first to make room for a new one (`free_videos`, the
+user's choice of 2026-10-29, ADR-0289 addition of part D; the videos of the
+posts call it too, ADR-0292). A photo goes on until a tenth past the cap.
+Only when no video of a message is left to take away is a new one refused
+(507).
 
 A file is read by who uploaded it and by the other member of its
 message's conversation while that one sees the message (messages.SEEN: not
@@ -80,6 +84,12 @@ from shaperoute_api.schemas import ErrorBody
 log = logging.getLogger(__name__)
 
 MediaKind = Literal["photo", "video"]
+# The videos of messages sent, still kept, the oldest message first: what
+# free_videos takes away. `mm` with its message `m`.
+OLDEST_VIDEOS = (
+    "FROM message_media mm JOIN messages m ON m.id = mm.message_id"
+    " WHERE mm.kind = 'video' AND mm.stored"
+)
 # What the phone sends, by its Content-Type.
 KIND_OF: dict[str, MediaKind] = {
     "image/jpeg": "photo",
@@ -156,12 +166,65 @@ class MessageMedia:
         assert row is not None
         return int(row["n"])
 
+    def freeable(self) -> int:
+        """Bytes of the videos of messages sent that `free_videos` could take
+        away."""
+        with self.database.connect() as conn:
+            row = conn.execute(
+                "SELECT coalesce(sum(mm.bytes + coalesce(mm.poster_bytes, 0)), 0) AS n"
+                f" {OLDEST_VIDEOS}"
+            ).fetchone()
+        assert row is not None
+        return int(row["n"])
+
     def kinds(self) -> list[AttachmentKind]:
-        """What may be uploaded now: a video while the server has room."""
-        used = self.used()
-        if used >= self.cap * PHOTO_ROOM:
+        """What may be uploaded now: a video while the server has room for
+        it, once the videos of older messages are taken away if need be."""
+        kept = self.used() - self.freeable()
+        if kept >= self.cap * PHOTO_ROOM:
             return []
-        return ["photo"] if used >= self.cap else ["photo", "video"]
+        return ["photo"] if kept >= self.cap else ["photo", "video"]
+
+    def free_videos(self, needed_bytes: int) -> int:
+        """Makes room for `needed_bytes`: the videos of the oldest messages
+        stop being kept until that much is free, and are «expired» from then
+        on. Never a photo, an upload not sent yet, nor a video of a post
+        (another table, ADR-0292). The database says so first, in one
+        statement; then the files leave the disk. A process stopped between
+        the two leaves files no row keeps, which the hourly round takes; a
+        row is never left keeping a file that is gone. The bytes freed: less
+        than asked when there were no more."""
+        if needed_bytes <= 0:
+            return 0
+        with self.database.connect() as conn:
+            rows = conn.execute(
+                "UPDATE message_media SET stored = false WHERE stored AND id IN ("
+                " SELECT id FROM (SELECT mm.id, sum(mm.bytes"
+                " + coalesce(mm.poster_bytes, 0)) OVER (ORDER BY m.created_at, mm.id)"
+                " - (mm.bytes + coalesce(mm.poster_bytes, 0)) AS before"
+                f" {OLDEST_VIDEOS}) oldest WHERE before < %s)"
+                " RETURNING id, media_type, bytes + coalesce(poster_bytes, 0) AS size",
+                (needed_bytes,),
+            ).fetchall()
+        freed = 0
+        for row in rows:
+            freed += int(row["size"])
+            for name in (
+                f"{row['id']}.{EXTENSION[row['media_type']]}",
+                f"{row['id']}.poster.jpg",
+            ):
+                try:
+                    self.folder.remove(name)
+                except OSError:
+                    # No row keeps it: the hourly round takes it.
+                    log.exception("message media: %s not removed", name)
+        if rows:
+            log.info(
+                "message media: %d video(s) of old messages taken away, %d bytes",
+                len(rows),
+                freed,
+            )
+        return freed
 
     def upload(self, user_id: int, media_type: str, data: bytes) -> MessageMediaBody:
         """The file kept for `user_id`, not yet in a message."""
@@ -187,8 +250,9 @@ class MessageMedia:
                 raise AccountError(422, "invalid_request", VIDEO_TOO_LONG)
             media_type = facts.media_type
             width, height, duration_ms = facts.width, facts.height, facts.duration_ms
-        room = self.cap * (PHOTO_ROOM if kind == "photo" else 1)
-        if self.used() + len(kept) > room:
+        room = round(self.cap * (PHOTO_ROOM if kind == "photo" else 1))
+        over = self.used() + len(kept) - room
+        if over > 0 and self.free_videos(over) < over:
             log.warning("message media: the cap of %d bytes is reached", self.cap)
             raise HTTPException(507, FULL)
         media_id = uuid.uuid4()
