@@ -123,6 +123,8 @@ apps/mobile/src/feed/postEnergy.ts            (nuovo)
 apps/mobile/src/feed/postEnergy.test.ts       (nuovo)
 apps/mobile/src/feed/FeedPost.tsx             (una riga in postFacts)
 apps/mobile/src/feed/feedPosts.test.ts
+apps/mobile/src/feed/FeedPost.test.tsx
+apps/mobile/src/units/cardsInMiles.test.tsx
 docs/UI.md
 # B
 apps/mobile/src/imports/gpx.ts, tcx.ts, fit.ts, fileTrack.ts, importFile.ts (+ test)
