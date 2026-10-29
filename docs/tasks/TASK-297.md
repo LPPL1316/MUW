@@ -1,6 +1,6 @@
 # TASK-297 — Ricerche dall'archivio dei percorsi (A) e loghi con la penna alzata (C); il piazzamento imparato, misurato e scartato (B)
 
-**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · **C, motore: PR #547 aperta (2026-10-25)** · TASK-298 nella sua sessione · **A2: PR #7 su `LPPL1316/MUW` aperta (2026-10-28)** · poi C2
+**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · **C, motore: PR #547 aperta (2026-10-25)** · TASK-298 nella sua sessione · **A2: in `main` di `LPPL1316/MUW` con la #7 (`e789e9c`, 2026-10-29)** · poi C2
 **Fase**: 4 · **Branch**: `docs/TASK-297-proposal` (documenti),
 `feat/TASK-297-a-route-archive` (A), `feat/TASK-297-a2-first-placement`
 (A2, dopo la #497), `feat/TASK-297-c-image-pieces` (C, motore),
@@ -464,7 +464,8 @@ piccolo che ignora l'area (`FileSource`) cade in `optimizer.next_scale`
 con `ZeroDivisionError`; il test della CLI usa la griglia. Rimandato: C2
 (API e app), `draw_examples` e gli altri file derivati dopo Apple.
 
-**Parte A2** (2026-10-26, PR #7 su `LPPL1316/MUW` aperta il 2026-10-28, sessione cloud): `search` prova
+**Parte A2** (2026-10-26, in `main` di `LPPL1316/MUW` con la #7, `e789e9c`, 2026-10-29, mergiata
+con il sì dell'utente a CI verde; sessione cloud): `search` prova
 per primo il piazzamento di prima (`first`, `first_scale_m`); buono, si
 ferma lì, altrimenti i suoi tracciamenti vanno da parte e la ricerca è
 quella di oggi. L'archivio tiene il piazzamento della ricerca vicino alla
