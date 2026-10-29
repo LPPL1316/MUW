@@ -40,7 +40,7 @@ import {
   toStravaOf,
   type Waiting,
 } from "./outbox";
-import { type Drawn, recordedRun } from "./recordedRun";
+import { type Drawn, type RecordedRun, recordedRun } from "./recordedRun";
 import { activityProblem, type ActivitiesState, useActivities } from "./useActivities";
 
 /** A run of this phone the API will not take (TASK-257), as «My
@@ -72,6 +72,18 @@ export type ActivitiesDoor = ActivitiesState & {
    * on the phone already (`full`).
    */
   record: (run: SavedRun, drawn: Drawn | null) => boolean;
+  /**
+   * «Save» on an activity added from a file (TASK-312): the same as
+   * `record`, for a run already made by `importedRun`. The choices told
+   * before go with it, as with `record`.
+   */
+  recordImported: (run: RecordedRun) => boolean;
+  /**
+   * Whether the run `id` is already the account's: waiting on the phone, in
+   * the list, or on the API (asked by its key alone). False when the API
+   * cannot say: «Save» keeps it once anyway.
+   */
+  alreadyKept: (id: string) => Promise<boolean>;
   /**
    * What the next `record` does with Strava (TASK-187): the run goes on to
    * Strava once the API has it, with this name; null: it does not. Told
@@ -139,6 +151,8 @@ const NOTHING: ActivitiesDoor = {
   clearProblem: () => {},
   signedIn: false,
   record: () => false,
+  recordImported: () => false,
+  alreadyKept: () => Promise.resolve(false),
   toStrava: () => {},
   toDrawing: () => {},
   toPhotos: () => {},
@@ -324,9 +338,12 @@ export function useActivitiesOf(
             stopWaiting(owner, run.id);
             // The shape game (TASK-296): what the run unlocked, now that the
             // API has counted it. Outside the loop's wait: the next run goes.
+            // A run from a file counts for none of it (TASK-312).
             const keptAt = justKept.current.get(run.id) ?? null;
             justKept.current.delete(run.id);
-            void tellUnlocked(baseUrl, token, run.id, keptAt, { fetchFn, key });
+            if (run.request.source !== "file") {
+              void tellUnlocked(baseUrl, token, run.id, keptAt, { fetchFn, key });
+            }
             saved = true;
             gone = true;
             continue;
@@ -427,15 +444,16 @@ export function useActivitiesOf(
     nextPhotos.current = photos;
   }, []);
 
-  const record = useCallback(
-    (run: SavedRun, drawn: Drawn | null) => {
+  // What `record` and `recordImported` share: the run on the phone, with
+  // what was told for it just before «Save».
+  const keep = useCallback(
+    (recorded: RecordedRun | null) => {
       const strava = nextStrava.current;
       nextStrava.current = null;
       const drawing = nextDrawing.current;
       nextDrawing.current = null;
       const photos = nextPhotos.current;
       nextPhotos.current = [];
-      const recorded = owner === null ? null : recordedRun(run, drawn);
       if (owner === null || recorded === null) {
         return false;
       }
@@ -460,6 +478,36 @@ export function useActivitiesOf(
       return true;
     },
     [owner, recount, send],
+  );
+
+  const record = useCallback(
+    (run: SavedRun, drawn: Drawn | null) =>
+      keep(owner === null ? null : recordedRun(run, drawn)),
+    [keep, owner],
+  );
+
+  const recordImported = useCallback((run: RecordedRun) => keep(run), [keep]);
+
+  const { list } = activities;
+  const alreadyKept = useCallback(
+    async (id: string) => {
+      if (owner === null || token === null || baseUrl === null) {
+        return false;
+      }
+      if (
+        loadOutbox().some((run) => run.owner === owner && run.id === id) ||
+        list.some((activity) => activity.id === id)
+      ) {
+        return true;
+      }
+      // Only the key goes: the file stays on the phone until «Save».
+      const outcome = await fetchActivity(baseUrl, token, id, { fetchFn, key });
+      if (sessionEnded(outcome)) {
+        endSession(token);
+      }
+      return outcome.kind === "ok";
+    },
+    [baseUrl, endSession, fetchFn, key, list, owner, token],
   );
 
   // A refused run in «My activities» (TASK-257): thrown away after a yes,
@@ -581,6 +629,8 @@ export function useActivitiesOf(
       clearProblem,
       signedIn: owner !== null,
       record,
+      recordImported,
+      alreadyKept,
       toStrava,
       toDrawing,
       toPhotos,
@@ -607,6 +657,8 @@ export function useActivitiesOf(
       clearProblem,
       owner,
       record,
+      recordImported,
+      alreadyKept,
       toStrava,
       toDrawing,
       toPhotos,

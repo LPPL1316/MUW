@@ -1546,4 +1546,24 @@ export const FR: Table = {
     "Touche une ligne pour l'effacer. Le contour emporte ses détails.",
   "This line encloses nothing. Draw a closed shape.":
     "Cette ligne n'entoure rien. Dessine une figure fermée.",
+  // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
+  // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
+  "Add past activity": "Ajouter une activité passée",
+  "From a file": "Depuis un fichier",
+  "GPX, TCX or FIT from Strava, Garmin, Komoot…":
+    "GPX, TCX ou FIT depuis Strava, Garmin, Komoot…",
+  "Export the activity as a file from the other app or its website, save it in Files, then pick it here.":
+    "Exporte l'activité en fichier depuis l'autre app ou son site, enregistre-la dans Fichiers, puis choisis-la ici.",
+  Imported: "Importée",
+  "Imported activities don't count for Play or contests.":
+    "Les activités importées ne comptent ni pour le jeu ni pour les concours.",
+  "This file is not GPX, TCX or FIT.": "Ce fichier n'est ni GPX, ni TCX, ni FIT.",
+  "This file has no times: it is a route, not an activity.":
+    "Ce fichier n'a pas d'horaires : c'est un parcours, pas une activité.",
+  "This file has no positions.": "Ce fichier n'a pas de positions.",
+  "This file is too big (over 25 MB).":
+    "Ce fichier est trop volumineux (plus de 25 Mo).",
+  "Activities before 2020 cannot be added.":
+    "Impossible d'ajouter des activités antérieures à 2020.",
+  "Already in My activities.": "Déjà dans Mes activités.",
 };
