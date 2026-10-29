@@ -1,6 +1,6 @@
 # TASK-297 — Ricerche dall'archivio dei percorsi (A) e loghi con la penna alzata (C); il piazzamento imparato, misurato e scartato (B)
 
-**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · **C, motore: PR #547 aperta (2026-10-25)** · TASK-298 nella sua sessione · A2 dopo la #497 · poi C2
+**Stato**: In lavorazione · documenti in `main` (#538, `9391893c`) · parte A in `main` (#539, `0c4ada00`, su `preview` e0e4e126) · **C, motore: PR #547 aperta (2026-10-25)** · TASK-298 nella sua sessione · **A2: in `main` di `LPPL1316/MUW` con la #7 (`e789e9c`, 2026-10-29)** · poi C2
 **Fase**: 4 · **Branch**: `docs/TASK-297-proposal` (documenti),
 `feat/TASK-297-a-route-archive` (A), `feat/TASK-297-a2-first-placement`
 (A2, dopo la #497), `feat/TASK-297-c-image-pieces` (C, motore),
@@ -268,6 +268,37 @@ PostgreSQL, e in `tests/test_jobs.py`):
       migrazione (0026, o il numero libero al merge) e il testo della
       privacy approvato dall'utente.
 
+Parte A2 (PR #7 su `LPPL1316/MUW`; i test sono in `tests/test_first_placement.py` del
+motore e `tests/test_route_archive_redraw.py` dell'API, con PostgreSQL):
+- [x] Senza `first` la ricerca è quella di oggi, tracciamento per
+      tracciamento: impronte prese su `main` 5abf78d prima del cambio,
+      sette ricerche fra griglia, città finta, Levico e «ciao»
+      (`test_without_first_the_search_is_that_of_before`), e
+      `test_kept_per_graph.py` invariato.
+- [x] Con `first` buono la ricerca finisce al primo tracciamento con lo
+      stesso percorso: dritto, inclinato di 30° (salta la fase dritta), da
+      una partenza spostata di 500 m, le parole tonde e squadrate con e
+      senza penna alzata, `plan_route` intero
+      (`test_a_good_placement_draws_the_same_route_at_once`, …).
+- [x] Con `first` non più buono la ricerca è quella di oggi, impronta
+      per impronta, con 1–4 tracciamenti in più messi da parte
+      (`test_a_placement_not_good_leaves_the_search_as_it_was`,
+      `test_a_trace_set_aside_never_refuses_the_plan`).
+- [x] L'API tiene il piazzamento della ricerca vicino alla partenza (non
+      quello di una partenza vicina, né della ricerca lontana, né
+      sull'acqua) e, con un motore diverso o una riga di più di 30 giorni,
+      ridisegna da lì dalla partenza della riga e raggiunge il percorso
+      dalla partenza dell'utente; non una riga senza piazzamento o non
+      buona; il motore che non lo disegna lascia fare al pianificatore;
+      attraverso l'API il pianificatore del job non parte
+      (`test_through_the_api_the_route_of_before_is_drawn_again`).
+- [x] Misura prima e dopo (condizione 4): `tests/measure_first_placement.py`
+      sulle 17 forme del catalogo in quattro luoghi finti; i 68 piani senza
+      `first` uguali a `main` impronta per impronta. Gli esempi tenuti e le
+      città vere vogliono le zone del Mac (rete): nella PR.
+- [x] Motore puro, contratto invariato; `engine.zip` rifatto (cambiano
+      `optimizer.py` e `jobs.py`); pytest, ruff e black verdi.
+
 Parte C (motore):
 - [x] Con `pen_up=False` le sedici immagini di `sample_pictures` danno
       lo stesso contorno di oggi (test): `tools/test_sample_logos.py`,
@@ -326,6 +357,21 @@ Parte A2 (dopo la #497):
 services/route-engine/route_engine/optimizer.py           (`first` e `first_scale` facoltativi in `search`)
 services/route-engine/tests/test_first_placement.py       (nuovo)
 services/api/shaperoute_api/route_archive.py              (il ridisegno da lì)
+docs/ROUTE_ENGINE.md §5, docs/DECISIONS.md (aggiunta ad ADR-0256), docs/STATUS.md, docs/tasks/TASK-297.md
+```
+Come fatta nella PR #7, con i file **fuori elenco** segnati (la 0026
+non ha le colonne del piazzamento, e il `RouteResult` non lo porta: lo
+porta il `Plan`, che `RouteJobs` passa all'archivio):
+```
+services/route-engine/route_engine/optimizer.py           (`first` e `first_scale_m` in `search`, `plan_shape`, `plan_route`)
+services/route-engine/tests/test_first_placement.py       (nuovo)
+services/route-engine/tests/measure_first_placement.py    (nuovo: la misura prima e dopo)
+services/api/shaperoute_api/route_archive.py              (`put_plan`, il ridisegno da lì, la riga rinfrescata)
+services/api/migrations/0035_drawn_routes_placement.sql   (nuovo, fuori elenco: le colonne del piazzamento; numero al merge)
+services/api/shaperoute_api/jobs.py                       (fuori elenco: `KeepsPlacements`, il piano allo store, i grafi dell'archivio dimenticati)
+services/api/tests/test_route_archive_redraw.py           (nuovo)
+apps/mobile/assets/engine/engine.zip                      (fuori elenco: rifatto, `test_phone_engine.py` lo vuole al passo)
+docs/API.md, docs/DATABASE.md                             (fuori elenco: l'archivio e la 0035)
 docs/ROUTE_ENGINE.md §5, docs/DECISIONS.md (aggiunta ad ADR-0256), docs/STATUS.md, docs/tasks/TASK-297.md
 ```
 
@@ -417,3 +463,25 @@ rifare ancora dopo la #497. Emerso: la ricerca lontana su un grafo
 piccolo che ignora l'area (`FileSource`) cade in `optimizer.next_scale`
 con `ZeroDivisionError`; il test della CLI usa la griglia. Rimandato: C2
 (API e app), `draw_examples` e gli altri file derivati dopo Apple.
+
+**Parte A2** (2026-10-26, in `main` di `LPPL1316/MUW` con la #7, `e789e9c`, 2026-10-29, mergiata
+con il sì dell'utente a CI verde; sessione cloud): `search` prova
+per primo il piazzamento di prima (`first`, `first_scale_m`); buono, si
+ferma lì, altrimenti i suoi tracciamenti vanno da parte e la ricerca è
+quella di oggi. L'archivio tiene il piazzamento della ricerca vicino alla
+partenza e, con un motore diverso o una riga vecchia, ridisegna la riga
+buona dalla sua partenza e la raggiunge dalla partenza dell'utente.
+Misura (`tests/measure_first_placement.py`, 17 forme del catalogo su
+griglia, città finta, griglia girata di 30° e Levico, pianificatore
+dell'API senza processi): senza `first` 68 piani su 68 identici a `main`;
+con il piazzamento di prima, i 19 piani buoni stesso percorso con 19
+tracciamenti della partenza invece di 56 (la luna sulla griglia girata 26
+→ 1), i 23 non buoni stesso percorso con 714 invece di 657. Emerso: la
+0026 non aveva le colonne del piazzamento e il `RouteResult` non lo porta
+(migrazione nuova, `jobs.KeepsPlacements`); scegliere fra i tracciamenti
+di `first` non buono faceva rifiutare un piano (il cerchio della città
+finta), quindi vanno da parte; una riga di più di 30 giorni ridisegnata
+uguale non si rinfrescava; le indicazioni del motore si leggevano sul
+grafo dell'archivio quando questo non rispondeva. Rimandato: le città vere
+e gli esempi tenuti (zone del Mac, `--cache-dir`), il server dopo Apple,
+`draw_examples`, `paddleExamples.json`, `catalogueShapes.json`.

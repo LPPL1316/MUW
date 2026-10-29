@@ -74,6 +74,42 @@ un commit poi corretto: la cronologia di git conserva tutto.
 Variabile nuova → in `.env` locale e in `.env.example` con valore fittizio,
 nello stesso commit.
 
+## I due repository (TASK-325, ADR-0285)
+
+Dal 2026-10-28 il progetto sta in due posti uguali: `rockydalbianco/shaperoute`
+(il primo: il server e il Mac leggono quello) e `LPPL1316/MUW` (la copia
+sotto l'utente, dove le sessioni cloud di Claude possono scrivere). Un
+flusso in MUW (`.github/workflows/mirror.yml`, `tools/mirror_repos.py`) li
+tiene uguali a ogni push su MUW e ogni dieci minuti, nei due versi:
+
+- un branch avanti da una parte viene portato avanti dall'altra; uno nuovo
+  viene creato dall'altra parte; uno già fuso in `main` e cancellato da una
+  parte viene cancellato anche dall'altra;
+- un branch con commit da tutte e due le parti **non si tocca**: il flusso
+  finisce rosso e lo nomina, e qualcuno lo unisce a mano da una delle due
+  parti. Per non arrivarci: **si mergia sempre dallo stesso repository**
+  (MUW, dove lavora Claude), e un branch si cancella dove lo si è aperto;
+- niente viene mai forzato; i tag non si copiano.
+
+Serve il segreto `MIRROR_TOKEN` in MUW (Settings → Secrets and variables →
+Actions): un token classico di GitHub con gli scope `repo` e `workflow` di
+un account che scrive in `shaperoute`. Senza, il flusso non fa niente e lo
+scrive.
+
+**`main` di `shaperoute` accetta solo pull request** (regola del
+repository del proprietario, quattro controlli obbligatori): lo specchio
+non può spingerlo, e quando il `main` di MUW è avanti il giro finisce rosso
+con `refused: main` e la risposta del server. Un merge su `shaperoute`
+arriva invece in MUW da solo. Per portare il `main` di MUW in `shaperoute`:
+un branch fermo **esattamente** al commit di `main` di MUW (per convenzione
+`sync/muw-main`, che lo specchio copia di là), una PR su `shaperoute` da
+quel branch, fusa con un **merge commit**; il `main` nuovo di `shaperoute`
+ha quello di MUW come antenato, e lo specchio porta avanti MUW al giro
+dopo. Non si fonde di là un branch qualunque di una PR già fusa in MUW: i
+due `main` avrebbero due merge commit diversi e tornerebbero divergenti.
+`tasks/TASK-325.md`, «Aperto», punto 4, per le due strade che tolgono il
+passaggio a mano.
+
 ## Lavorare con Claude Code
 
 - Una sessione = un task. Finito il task, si chiude la sessione.

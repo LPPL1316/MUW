@@ -692,18 +692,6 @@ Migrazione `0033_messages.sql` (TASK-319, ADR-0279, `API.md`
   crittografia end-to-end. Nessun endpoint li mostra a chi gestisce MuW:
   di una segnalazione arriva per email solo il messaggio segnalato. Test
   in `test_messages.py`.
-Migrazione `0035_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
-libero in `main` al merge):
-
-- `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati
-  dall'API dalle altezze delle posizioni (`run_climb.py`). `NULL` per le
-  corse salvate prima e per quelle senza altezze: i totali del profilo non
-  le stimano. La traccia resta `LineStringM`: l'altezza non si tiene.
-- Nessun indice nuovo: i totali del profilo (`profile_totals.py`) sommano
-  le corse di un account con `runs_user_started_idx`; le foto di un
-  profilo (`user_photos.py`) passano da `drawings` e `drawing_photos` come
-  la griglia. Test in `test_profile_totals.py`.
-
 Migrazione `0034_run_source.sql` (TASK-312 parte A, ADR-0272,
 `IMPORTAZIONI.md`; il numero è il primo libero in `main` al merge, la 0033
 è di TASK-319):
@@ -722,6 +710,24 @@ Migrazione `0034_run_source.sql` (TASK-312 parte A, ADR-0272,
 - Gli orari di una corsa `file` sono quelli del file e stanno nella riga
   come quelli di ogni corsa: si cancellano con la corsa e con l'account. Il
   file non si tiene. Test in `test_imported_runs.py`.
+Migrazione `0035_drawn_routes_placement.sql` (TASK-297 parte A2, aggiunta
+ad ADR-0256; il numero è il primo libero in `main` al merge: dalla 0030
+alla 0034 sono di altri task):
+
+- In `drawn_routes`, **dove il motore ha messo la forma** del percorso,
+  per ridisegnarlo da lì dopo un cambio del motore (`API.md`, «L'archivio
+  dei percorsi»): `placed_start` (`geography(Point, 4326)`: la partenza
+  chiesta, o il punto a 250–500 m dove la ricerca l'ha spostata),
+  `offset_m` (quanto è lontano), `rotation_deg`, `phase` (dove il percorso
+  entra nella forma, 0–1) e `scale_m` (i metri di un'unità della forma
+  normalizzata). `double precision`: gli stessi numeri ridisegnano lo
+  stesso percorso. Tutte e cinque o nessuna: niente per un percorso da una
+  partenza vicina o da 2 km, sull'acqua, o tenuto prima di questa
+  migrazione (quei percorsi si ridisegnano come prima, dalla partenza).
+- Niente di chi: sono numeri del motore. Una riga ridisegnata uguale
+  (stessa linea, stessa richiesta, stesso motore) non si ripete: prende
+  il `drawn_at` di adesso, il risultato e il piazzamento nuovi, e tiene
+  `runs` e `favorites`.
 
 Migrazione `0036_user_identities.sql` (TASK-322 parte A, ADR-0282,
 `API.md` «Sign in with Apple and Google»; il numero è il primo libero in
@@ -744,6 +750,25 @@ Migrazione `0036_user_identities.sql` (TASK-322 parte A, ADR-0282,
   l'email non confermata gli cambia la password con una a caso e cancella
   le sue sessioni (`sign_in_providers.ProviderAccounts`). Del nome e della
   foto di Google non si tiene niente. Test in `test_sign_in_providers.py`.
+
+Migrazione `0037_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
+libero in `main` al merge: la 0036 è di TASK-322 A):
+
+- **`ADD COLUMN IF NOT EXISTS`**: la stessa colonna è arrivata nei due
+  repository con altri nomi mentre erano divergenti (`0034_run_climb` nel
+  `main` di MUW, `0035_run_climb` in quello di `shaperoute`, TASK-325). Un
+  database che ne ha applicata una ha la colonna e non la versione `0037`:
+  la migrazione non fa niente e la registra. Test in
+  `test_profile_totals.py`.
+
+- `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati
+  dall'API dalle altezze delle posizioni (`run_climb.py`). `NULL` per le
+  corse salvate prima e per quelle senza altezze: i totali del profilo non
+  le stimano. La traccia resta `LineStringM`: l'altezza non si tiene.
+- Nessun indice nuovo: i totali del profilo (`profile_totals.py`) sommano
+  le corse di un account con `runs_user_started_idx`; le foto di un
+  profilo (`user_photos.py`) passano da `drawings` e `drawing_photos` come
+  la griglia. Test in `test_profile_totals.py`.
 
 ## Come si memorizza una traccia
 
