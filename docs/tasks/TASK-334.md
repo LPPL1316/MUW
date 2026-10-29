@@ -102,7 +102,8 @@ già).
       dopo le zone intorno e prima di quelle in anticipo; senza rete no
       (`usePhoneZones.test.ts`).
 - [ ] L'utente approva i due testi nuovi.
-- [ ] L'impronta iOS su una copia pulita resta `83793e26…`.
+- [x] L'impronta iOS su una copia pulita resta `83793e26…` (misurata sulla
+      testa `feb5ab54`).
 
 ## File toccati
 
