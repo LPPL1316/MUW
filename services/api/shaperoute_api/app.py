@@ -131,6 +131,7 @@ from shaperoute_api.strava import install_strava
 from shaperoute_api.strava_client import Strava
 from shaperoute_api.themed import ThemedJobBody, ThemedJobs, ThemedRequestBody
 from shaperoute_api.track_scores import score_run
+from shaperoute_api.user_photos import install_user_photos
 from shaperoute_api.way_back_api import install_way_back
 
 log = logging.getLogger(__name__)
@@ -355,6 +356,9 @@ def create_app(
     # Up to three photos of a drawing, besides its map (TASK-208); they need
     # a token.
     install_drawing_photos(app)
+    # The photos of a profile's drawings, a page at a time (TASK-324); they
+    # need a token.
+    install_user_photos(app)
     # Members found by name, and following with a request (TASK-211); they
     # need a token.
     install_follows(app)
