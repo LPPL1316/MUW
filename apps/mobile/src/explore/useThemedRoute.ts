@@ -3,6 +3,7 @@ import { t, tLater } from "../i18n";
 
 import { routeQueue } from "../api/routeQueue";
 import { MAX_POLL_FAILURES } from "../api/routes";
+import { ideaRequest, type ThemedIdea } from "./themedIdeas";
 import {
   getThemed,
   postThemed,
@@ -18,21 +19,35 @@ export const GIVE_UP_MS = 5 * 60 * 1000;
 export type ThemedState =
   | { status: "idle" }
   | { status: "waiting"; request: ThemedRequest }
-  | { status: "done"; request: ThemedRequest; result: ThemedResult }
+  | {
+      status: "done";
+      request: ThemedRequest;
+      result: ThemedResult;
+      /** One of our ideas, opened without asking the API. */
+      idea?: ThemedIdea;
+    }
   | { status: "failed"; request: ThemedRequest; message: string };
 
 const UNREACHABLE = tLater(
   "The API did not answer. Check the connection and try again.",
 );
 
-/** Asks for a themed route and follows its job until it ends (TASK-129). */
+/**
+ * Asks for a themed route and follows its job until it ends (TASK-129); or
+ * shows one of our ideas, planned already.
+ */
 export function useThemedRoute(
   apiUrl: string | null,
   {
     fetchFn = fetch,
     pollMs = POLL_MS,
   }: { fetchFn?: typeof fetch; pollMs?: number } = {},
-): { state: ThemedState; ask: (request: ThemedRequest) => void; close: () => void } {
+): {
+  state: ThemedState;
+  ask: (request: ThemedRequest) => void;
+  show: (idea: ThemedIdea) => void;
+  close: () => void;
+} {
   const [state, setState] = useState<ThemedState>({ status: "idle" });
   const run = useRef<AbortController | null>(null);
 
@@ -43,6 +58,12 @@ export function useThemedRoute(
   }, []);
 
   useEffect(() => () => run.current?.abort(), []);
+
+  const show = useCallback((idea: ThemedIdea) => {
+    run.current?.abort();
+    run.current = null;
+    setState({ status: "done", request: ideaRequest(idea), result: idea.result, idea });
+  }, []);
 
   const ask = useCallback(
     (request: ThemedRequest) => {
@@ -99,5 +120,5 @@ export function useThemedRoute(
     [apiUrl, fetchFn, pollMs],
   );
 
-  return { state, ask, close };
+  return { state, ask, show, close };
 }

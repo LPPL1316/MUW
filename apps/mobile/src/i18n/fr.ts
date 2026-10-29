@@ -1085,7 +1085,17 @@ export const FR: Table = {
     "Choisissez d'abord un départ : les parcours sont ceux à proximité.",
   "The routes could not load. Check the connection and try again.":
     "Les parcours n'ont pas pu se charger. Vérifiez la connexion et réessayez.",
-  "Ask for a route": "Demander un parcours",
+  // src/explore/IdeasFromEurope.tsx, themedIdeas.ts, ThemedCard.tsx: our ideas
+  "IDEAS FROM EUROPE": "IDÉES D'EUROPE",
+  "Make it near me": "Le faire près de moi",
+  Rome: "Rome",
+  Paris: "Paris",
+  London: "Londres",
+  Barcelona: "Barcelone",
+  Amsterdam: "Amsterdam",
+  Lisbon: "Lisbonne",
+  Prague: "Prague",
+  Berlin: "Berlin",
   "Getting directions…": "Récupération de l'itinéraire…",
   CITY: "VILLE",
   "Type a city or a place": "Saisissez une ville ou un lieu",
@@ -1231,10 +1241,7 @@ export const FR: Table = {
   "Switch sides": "Changez de côté",
   "{seconds} seconds left": "{seconds} secondes restantes",
   "Stop if it hurts.": "Arrêtez si ça fait mal.",
-  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
-  // src/explore/ThemedCard.tsx (TASK-280)
-  "CITY TOURS": "BALADES EN VILLE",
-  PICTURES: "IMAGES",
+  // «Draw»: src/route/samplePictures.ts (TASK-280)
   "Running shoe": "Basket",
   Dinosaur: "Dinosaure",
   Guitar: "Guitare",
@@ -1251,7 +1258,6 @@ export const FR: Table = {
   Duck: "Canard",
   Trophy: "Trophée",
   Bone: "Os",
-  "Back to Draw": "Retour à Dessiner",
 
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Dessiner sur la carte",

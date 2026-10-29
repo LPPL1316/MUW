@@ -18337,3 +18337,62 @@ che l'ADR non dice.
 **Conseguenze**: nessun contratto di oggi cambia; `Accounts` ha
 `insert_user` (anche per `POST /accounts`) e `unusable_password_hash`, e
 `open_session` è una funzione del modulo.
+
+## ADR-0287 — Le idee per un percorso solo in «Ask for a route»: sempre aperto, con i nostri percorsi nelle città d'Europa, poi le foto vere dei posti
+**Stato**: Attiva · 2026-10-29 · le scelte di prodotto sono dell'utente
+(richiesta a voce del 2026-10-29, proposta approvata in chat con «Sì,
+così», TASK-329); il come deciso dall'agente su delega dell'utente.
+Sostituisce i punti 1–3 di ADR-0246 (le righe di «Draw») e la riga chiusa
+di TASK-157; ADR-0099 e ADR-0243 restano.
+
+**Contesto**: le idee stavano in tre posti: «CITY TOURS» e «PICTURES» in
+fondo a «Draw», «Ask for a route» chiuso in fondo a «Explore». L'utente
+le vuole in un posto solo, aperto, con esempi nostri da cui prendere
+spunto, e dentro un percorso le foto vere dei posti belli.
+
+**Decisione**:
+
+1. **«Draw» senza le due righe** (scelta dell'utente): via
+   `src/route/DrawIdeas.tsx`. Le sagome di `samplePictures.ts` restano in
+   «Draw on the map» e in «Change figure» (ADR-0245), dove servono già.
+   Senza i giri da «Draw», `ThemedCard` perde `fromDraw` e «Back to Draw».
+2. **«Ask for a route» aperto**, nello stesso posto in fondo a «Explore»,
+   senza la riga da toccare (scelta dell'utente). Quattro categorie fisse,
+   quelle delle idee: Famous Places, Best Views, Hidden Gems, Photography;
+   le altre nove dietro «More…». Le parole mandate all'API non cambiano.
+3. **«IDEAS FROM EUROPE»** dentro il blocco, sopra le categorie: una fila
+   di schede di «Explore» (`RouteCard` con la mappa sotto la linea, come
+   «NEARBY TOWNS»), «Roma · Stella», «Famous Places · 8,1 km». Le città
+   sono scritte nella lingua dell'app.
+4. **Le idee le calcola uno strumento una volta**, `tools/themed_ideas.py`,
+   con i job a tema dell'API (`ThemedJobs.result_of`, le tabelle senza
+   AI) e il Route Engine. Le parole sono quelle che manderebbe l'app
+   («Famous Places star 8 km»), dal centro della città che dà la ricerca
+   città dell'API. Il file `src/explore/themedIdeas.json` ha la risposta di
+   `GET /themed-route-jobs/{id}`, con i punti arrotondati a 5 decimali, e
+   una linea di 120 punti per la scheda (come i disegni del Feed). L'AI
+   non dà coordinate: le dà il motore, come per ogni percorso. Si tengono
+   solo le idee che si leggono bene a occhio, perché la somiglianza del
+   motore dice poco (TASK-290).
+5. **Un'idea si apre senza rete**: `useThemedRoute.show(idea)` mette lo
+   stato `done` con la richiesta che l'ha fatta e l'idea; mappa, scheda,
+   GPX, «Start» e preferiti sono quelli di un percorso chiesto.
+6. **«Make it near me»** (scelta dell'utente): su un'idea a più di 20 km
+   dal centro della sua città il bottone giallo manda le stesse parole con
+   `centre` la partenza e `city` nullo, al posto di «Start»; vicino, o
+   senza una partenza, resta «Start». Il percorso fatto vicino ha «Start»
+   come ogni altro.
+   «Export GPX» c'è sempre.
+7. **Le foto vere dei posti, parte B**: il codice Wikidata che Geoapify dà
+   per i posti notevoli (`wiki_and_media.wikidata`, già usato da
+   `parse_places`) entra facoltativo in `StopBody`, con la foto di
+   `CityPhotos.photos()` (ADR-0243: P18, solo licenze libere, il JPEG
+   tenuto sul nostro server, il credito sulla foto). L'app mostra la fila
+   numerata sotto la mappa e la foto del primo posto sulla scheda di
+   un'idea. Il server solo col sì dell'utente.
+
+**Conseguenze**: nessun contratto dell'API cambia nella parte A, e non ci
+sono dipendenze nuove. Le idee non si aggiornano da sole: il file cambia
+solo rilanciando lo strumento, che ha bisogno di Overpass e della chiave di
+Geoapify (con Overpass pieno, `--only` rifà quelle mancate). Il bundle
+dell'app cresce del file delle idee.
