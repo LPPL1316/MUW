@@ -206,6 +206,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Resta**: il merge dei documenti, poi la parte A nella sua sessione.
   Non si sovrappone a TASK-346 (i nodi della traccia vera). File
   `tasks/TASK-347.md`.
+- **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297;
+  richiesta dell'utente del 2026-10-29, sei scelte approvate con «Sì,
+  vai»; numeri dal Coordinatore). Prima questa PR dei documenti
+  (`docs/TASK-344-feed-search`), poi la parte A, branch
+  `feat/TASK-344-a-drawing-search`: `GET /search/drawings` in
+  `drawing_search.py` (parole senza accenti, `named`, filtri, tre ordini,
+  nessuna migrazione), tipi in `shared-types`, `docs/API.md` «Drawing
+  search»; tempi su 10.000 disegni in `out/TASK-344/bench.txt`. Il server
+  si aggiorna solo col sì dell'utente. Poi parte B, l'app (`src/search/`,
+  la lente apre la ricerca; testi da approvare). File `tasks/TASK-344.md`.
+
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno
   proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
   approvata con «Yes, write it up»; numeri dal Coordinatore). Branch
