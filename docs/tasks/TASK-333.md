@@ -313,6 +313,17 @@ docs/STATUS.md
 docs/tasks/TASK-333.md
 ```
 
+Solo se il merge non è il 29 ottobre (condizione del Coordinatore: la
+data della privacy è quella del merge): `PRIVACY_UPDATED` nei cinque
+`about/content/*.ts`, e con lei `site/tests/privacy.test.mjs`,
+`apps/mobile/src/about/documents.test.ts`,
+`apps/mobile/src/about/AboutPage.test.tsx` e le pagine del sito rifatte.
+Oggi la data è già «29 October 2026» in tutte e cinque le lingue, quindi
+un merge del 29 non cambia niente. Il sito va online solo col sì
+dell'utente; `about/content`, `site/privacy` (anche nella #620) e le
+tabelle `i18n` (anche nella #632): chi entra secondo si riallinea tenendo
+tutte le righe.
+
 #### Le scelte tecniche della parte B (decise dall'agente su delega dell'utente)
 
 1. **Niente sonda nuova per il server vecchio**: il «+» c'è solo quando
