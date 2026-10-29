@@ -1266,12 +1266,12 @@ export const DE: Table = {
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Auf der Karte zeichnen",
   Move: "Verschieben",
-  "Draw with one finger. Lines after the first are joined to it.":
-    "Zeichne mit einem Finger. Linien nach der ersten werden mit ihr verbunden.",
+  "Draw with one finger. End where you started to close it. Two fingers move the map.":
+    "Zeichne mit einem Finger. Ende, wo du begonnen hast, um sie zu schließen. Zwei Finger bewegen die Karte.",
+  "Each new line joins the drawing. Two fingers move the map.":
+    "Jede neue Linie wird mit der Zeichnung verbunden. Zwei Finger bewegen die Karte.",
   "Drag the figure or the map. Two fingers on the figure resize it.":
     "Ziehe die Figur oder die Karte. Zwei Finger auf der Figur ändern ihre Größe.",
-  "This line crosses itself. Draw it again without crossing it.":
-    "Diese Linie kreuzt sich selbst. Zeichne sie ohne Kreuzung neu.",
   "+ photo": "+ Foto",
 
   // src/screens/ChooseScreen.tsx, src/location/PickStart.tsx (TASK-292)
@@ -1553,19 +1553,14 @@ export const DE: Table = {
   "Write a message…": "Schreib eine Nachricht…",
   "Delete this message for both of you?": "Diese Nachricht für euch beide löschen?",
   "Report this message": "Diese Nachricht melden",
-  // src/route/FreehandBoard.tsx, FreehandChoice.tsx, RoutePanel.tsx,
-  // favorites/favoriteRoute.ts (TASK-320: the figure drawn by hand in «Draw»)
-  Freehand: "Freihand",
+  // src/route/EditDrawingButton.tsx, mapdraw/DrawOnMap.tsx, RoutePanel.tsx,
+  // favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure drawn by hand
+  // on the map)
   "Edit the drawing": "Zeichnung bearbeiten",
-  "Draw with your finger": "Mit dem Finger zeichnen",
   Erase: "Radieren",
   Drawing: "Zeichnung",
-  "Draw the outline with one finger: it closes by itself.":
-    "Zeichne den Umriss mit einem Finger: er schließt sich von selbst.",
   "Tap a line to erase it. The outline takes its details with it.":
     "Tippe auf eine Linie, um sie zu löschen. Der Umriss nimmt seine Details mit.",
-  "This line encloses nothing. Draw a closed shape.":
-    "Diese Linie umschließt nichts. Zeichne eine geschlossene Form.",
   // src/imports/, activities/RunEnd.tsx, feed/FeedPost.tsx (TASK-312 B:
   // «Add past activity» from a GPX, TCX or FIT file, «Imported»)
   "Add past activity": "Frühere Aktivität hinzufügen",

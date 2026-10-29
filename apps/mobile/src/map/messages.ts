@@ -73,10 +73,12 @@ export type ToPage =
   | { type: "clearRejoin" };
 
 /** What fingers do on the map of «Draw on the map» (TASK-281): «Draw», one
- * finger draws and the map keeps still; «Move», one finger moves the
- * figure, or the map away from it, and two fingers size the figure, or
- * zoom the map away from it. */
-export type CanvasMode = "draw" | "move";
+ * finger draws, and two move and zoom the map (TASK-331); «Move», one
+ * finger moves the figure, or the map away from it, and two fingers size
+ * the figure, or zoom the map away from it; «Erase» (TASK-331), a finger
+ * on a line takes it away, told as a line drawn, and two move and zoom the
+ * map. */
+export type CanvasMode = "draw" | "move" | "erase";
 
 /** The figure on the map of «Draw on the map», as the page draws it. */
 export type CanvasOnPage = {

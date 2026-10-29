@@ -160,6 +160,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-331 — A mano solo sulla mappa: la linea aperta, «Erase», «Edit
+  the drawing» sulla mappa e mai per le emoji** (ADR-0288; richiesta
+  dell'utente del 2026-10-29 dopo la prova sul telefono, scelta «Tutto
+  sulla mappa»). Branch `feat/TASK-331-draw-on-map-only`. La prima linea
+  resta aperta se non torna all'inizio e il percorso la fa andata e ritorno
+  (contratto invariato: un anello minuscolo al suo inizio più la linea come
+  dettaglio, provato sul motore con le strade di Trento); via la tavola
+  «Freehand» di «Draw»; «Edit the drawing» mette la figura sulla mappa, mai
+  per una forma del catalogo; sulla mappa «Erase» e due dita che spostano
+  la mappa. Solo JS dell'app, niente dipendenze né nativo. Jest 533/4297
+  verdi. **Resta**: il sì dell'utente sui due testi nuovi (`UI.md`), poi il
+  merge del Coordinatore (ordine su `App.tsx`) e la prova col dito
+  sull'iPhone con la prossima anteprima.
+
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
   dell'utente del 2026-10-28, numero dal Coordinatore). Scelte
