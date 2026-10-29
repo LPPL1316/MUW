@@ -865,7 +865,10 @@ campo resta com'è e sopra c'è il motivo dell'API (troppi in un minuto,
 vuoto, troppo lungo); senza rete «No connection. Try again when you are
 online.». **Tenere premuto** un commento che si può cancellare (il proprio,
 o qualsiasi sotto il proprio disegno) chiede «Delete this comment?» con
-«Cancel» e «Delete»; per VoiceOver è l'azione «Delete» della riga. **Il
+«Cancel» e «Delete»; per VoiceOver è l'azione «Delete» della riga. **Un
+tocco sulla foto di chi ha scritto** chiude il foglio e apre il suo
+profilo, come un nome taggato (il proprio porta alla propria pagina); per
+VoiceOver è l'azione «{name}'s profile» della riga (TASK-338). **Il
 testo è sempre solo testo**: un link non si tocca, un tag HTML si legge
 com'è scritto, e il commento non entra mai nella WebView della mappa.
 

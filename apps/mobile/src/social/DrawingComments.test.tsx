@@ -1,6 +1,6 @@
 import comments from "@shaperoute/shared-types/fixtures/comments.json";
 import session from "@shaperoute/shared-types/fixtures/session.json";
-import type { Comment, CommentsPage, Session } from "@shaperoute/shared-types";
+import type { Comment, CommentsPage, Person, Session } from "@shaperoute/shared-types";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 import { Alert, type AlertButton } from "react-native";
@@ -226,14 +226,19 @@ async function openedSignedIn(
   {
     sessionEnded = jest.fn(),
     beside = null,
-  }: { sessionEnded?: () => void; beside?: ReactNode } = {},
+    openProfile = jest.fn(),
+  }: {
+    sessionEnded?: () => void;
+    beside?: ReactNode;
+    openProfile?: (person: Person) => void;
+  } = {},
 ) {
   await render(
     <FollowsContext.Provider
       value={{
         apiUrl: URL,
         account: { state: signedIn, sessionEnded },
-        openProfile: jest.fn(),
+        openProfile,
       }}
     >
       <CommentsContext.Provider value={value}>
@@ -357,7 +362,7 @@ test("VoiceOver offers the same choices as actions", async () => {
   expect(others.props.accessibilityHint).toBe("Report or block");
   expect(
     others.props.accessibilityActions.map((a: { name: string }) => a.name),
-  ).toEqual(["report", "block"]);
+  ).toEqual(["report", "block", "profile"]);
   await fireEvent(others, "accessibilityAction", {
     nativeEvent: { actionName: "report" },
   });
@@ -366,7 +371,64 @@ test("VoiceOver offers the same choices as actions", async () => {
   expect(mine.props.accessibilityHint).toBe("Touch and hold to delete.");
   expect(mine.props.accessibilityActions.map((a: { name: string }) => a.name)).toEqual([
     "delete",
+    "profile",
   ]);
+  alert.mockRestore();
+});
+
+// The picture of who wrote a comment (TASK-338).
+test("the picture of who wrote it opens their profile, and the sheet goes", async () => {
+  const openProfile = jest.fn();
+  await openedSignedIn(door([page([OTHERS, MINE])]), "2 comments", { openProfile });
+  await fireEvent.press(screen.getByRole("button", { name: "other_runner's profile" }));
+  expect(openProfile).toHaveBeenCalledWith({
+    public_id: OTHERS.author.public_id,
+    username: "other_runner",
+    photo: null,
+  });
+  await waitFor(() => expect(screen.queryByText(OTHERS.text)).toBeNull());
+  expect(screen.getByRole("button", { name: "2 comments" })).toBeOnTheScreen();
+});
+
+test("one's own picture opens one's own profile, as a tagged name does", async () => {
+  const openProfile = jest.fn();
+  await openedSignedIn(door([page([MINE])]), "1 comment", { openProfile });
+  await fireEvent.press(screen.getByRole("button", { name: "Ada_runs's profile" }));
+  expect(openProfile).toHaveBeenCalledWith(
+    expect.objectContaining({ public_id: MINE.author.public_id }),
+  );
+});
+
+test("VoiceOver opens the profile with an action of the row", async () => {
+  const openProfile = jest.fn();
+  await openedSignedIn(door([page([OTHERS])]), "1 comment", { openProfile });
+  const others = screen.getByLabelText(/^other_runner, /);
+  expect(others.props.accessibilityActions.at(-1)).toEqual({
+    name: "profile",
+    label: "other_runner's profile",
+  });
+  await fireEvent(others, "accessibilityAction", {
+    nativeEvent: { actionName: "profile" },
+  });
+  expect(openProfile).toHaveBeenCalledWith(
+    expect.objectContaining({ public_id: OTHERS.author.public_id }),
+  );
+});
+
+test("held, the picture still offers the comment's choices", async () => {
+  const { alert, buttons } = alerts();
+  const openProfile = jest.fn();
+  await openedSignedIn(door([page([OTHERS])]), "1 comment", { openProfile });
+  await fireEvent(
+    screen.getByRole("button", { name: "other_runner's profile" }),
+    "longPress",
+  );
+  expect(buttons("Report or block")).toEqual([
+    "Report",
+    "Block other_runner",
+    "Cancel",
+  ]);
+  expect(openProfile).not.toHaveBeenCalled();
   alert.mockRestore();
 });
 
