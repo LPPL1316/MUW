@@ -17,6 +17,14 @@ export function isShown(post: SamplePost): post is ShownPost {
   return "drawing" in post;
 }
 
+/** A member's drawing of an activity added from a file of another app
+ * (TASK-312): its card says «Imported». An example never is. */
+export function isImportedPost(post: SamplePost): boolean {
+  return (
+    isShown(post) && post.drawing.source !== undefined && post.drawing.source !== "muw"
+  );
+}
+
 /**
  * What the drawing draws, as the facts of the card say it: the shape's
  * name, the word as written, or the planned route's title; null when the

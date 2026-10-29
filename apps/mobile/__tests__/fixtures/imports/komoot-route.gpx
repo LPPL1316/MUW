@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<gpx version="1.1" creator="https://www.komoot.de" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Giro di Trento</name>
+    <author>
+      <link href="https://www.komoot.de">
+        <text>komoot</text>
+        <type>text/html</type>
+      </link>
+    </author>
+  </metadata>
+  <rte>
+    <name>Giro di Trento</name>
+    <rtept lat="46.067" lon="11.126479">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0690661" lon="11.1264579">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0701118" lon="11.1238895">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0700543" lon="11.1213">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0701118" lon="11.1187105">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0690661" lon="11.1161421">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.067" lon="11.116121">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0654729" lon="11.1174877">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0638882" lon="11.1187105">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0628678" lon="11.1213">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0638882" lon="11.1238895">
+      <ele>195.0</ele>
+    </rtept>
+    <rtept lat="46.0654729" lon="11.1251123">
+      <ele>195.0</ele>
+    </rtept>
+  </rte>
+</gpx>
