@@ -1,8 +1,9 @@
 import { t, tLater } from "../i18n";
 
 /** The pages side by side, in their order (docs/UI.md): three named in the
- * header, «Play» after them while the API has the shape game (TASK-296),
- * then the account's own profile, reached by its circle (TASK-278). */
+ * header, then the account's own profile, reached by its circle (TASK-278).
+ * «Play», the shape game (TASK-296), is no page since TASK-327: its name is
+ * on its row in «Draw» and over the game. */
 export type PageName = "feed" | "draw" | "explore" | "play" | "profile";
 
 /** Their names in the header, in English (TASK-210): `pageTitle` translates.

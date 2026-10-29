@@ -1458,6 +1458,9 @@ export const IT: Table = {
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "VICINO A TE",
   "SHAPES TO TRY": "FORME DA PROVARE",
+  // src/game/PlayRow.tsx (TASK-327: «Play» under the distance of «Draw»)
+  PLAY: "GIOCA",
+  "Collect shapes by running": "Colleziona le forme correndo",
   // src/screens/NavigateScreen.tsx (TASK-303: fuori percorso, dov'è)
   "The route is {distance} away, to the {direction}.":
     "Il percorso riprende a {distance} verso {direction}.",
