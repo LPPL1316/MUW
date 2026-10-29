@@ -18,6 +18,10 @@ any of them.
 
 `python -m shaperoute_api.phone_zone_api` writes the file of every cached
 zone ahead, so no phone waits for it (with the user's OK, as draw_examples).
+
+A place the user keeps on the phone (TASK-334) is prepared beside these, by
+POST /phone-zones/{network}/places (phone_zone_places.py): that one does
+download from Overpass, a few places a day.
 """
 
 from __future__ import annotations
@@ -42,6 +46,12 @@ from route_engine.network import (
 
 from shaperoute_api.access import refuse
 from shaperoute_api.phone_zone_cap import TrafficCap, phone_of
+from shaperoute_api.phone_zone_places import (
+    PlaceBuilds,
+    RouteWork,
+    place_routes,
+    watch_route_work,
+)
 from shaperoute_api.phone_zones import SUFFIX, write_zone, zone_bbox
 from shaperoute_api.schemas import ErrorBody
 
@@ -68,12 +78,25 @@ def install_phone_zones(
     cache_dir: Path,
     cap: TrafficCap | None = None,
     wide_max_bytes: int = WIDE_MAX_BYTES,
+    places: PlaceBuilds | None = None,
+    work: RouteWork | None = None,
 ) -> None:
     """The zones of `cache_dir` for the phone; `cap` defaults to the user's
-    300 MB a phone and 300 GB in all, a day."""
+    300 MB a phone and 300 GB in all, a day. With them, the places the user
+    keeps on the phone (TASK-334), prepared by `places` while `work` says
+    no route is being drawn."""
     app.include_router(
         phone_zone_routes(
             cache_dir, cap if cap is not None else TrafficCap(), wide_max_bytes
+        )
+    )
+    work = work if work is not None else RouteWork()
+    watch_route_work(app, work)
+    app.include_router(
+        place_routes(
+            places
+            if places is not None
+            else PlaceBuilds(cache_dir, phone_file, busy=work.busy)
         )
     )
 

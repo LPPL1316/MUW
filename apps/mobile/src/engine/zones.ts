@@ -22,7 +22,8 @@ import {
  * gives it, in `Documents/engine/zones/`, under the name the API gives it
  * (the network and the area). An index beside them keeps each zone's ETag,
  * size and last use. Beyond SPACE_LIMIT_BYTES, the zones used longest ago
- * are deleted.
+ * are deleted; those of the places the user keeps (TASK-334) never are, nor
+ * count in it.
  */
 
 /** The user's choice of 2026-10-03: up to 2 GB of zones on the phone. */
@@ -46,6 +47,9 @@ export type ZoneEntry = {
   /** When a route last used it, or it was saved, in ms since 1970; 0 for
    * a zone saved ahead that no route used yet, the first to go. */
   usedAt: number;
+  /** The zone of a place the user keeps (TASK-334, `keptPlaces.ts`): out
+   * of the limit, deleted only with the place or «Delete». */
+  kept?: boolean;
 };
 
 export type ZoneArea = {
@@ -148,15 +152,17 @@ export function coveringZone(
 }
 
 /** The zones to delete so the rest fits in `limit`: those used longest ago
- * first, never `keep`. */
+ * first, never `keep`. The zones of kept places are neither deleted nor
+ * counted (TASK-334). */
 export function overLimit(
   zones: readonly ZoneEntry[],
   limit: number = SPACE_LIMIT_BYTES,
   keep: string | null = null,
 ): ZoneEntry[] {
-  let total = zones.reduce((sum, zone) => sum + zone.bytes, 0);
+  const free = zones.filter((zone) => zone.kept !== true);
+  let total = free.reduce((sum, zone) => sum + zone.bytes, 0);
   const out: ZoneEntry[] = [];
-  for (const zone of [...zones].sort((a, b) => a.usedAt - b.usedAt)) {
+  for (const zone of [...free].sort((a, b) => a.usedAt - b.usedAt)) {
     if (total <= limit) {
       break;
     }
@@ -182,7 +188,8 @@ function isEntry(value: unknown): value is ZoneEntry {
     zoneArea(entry.name) !== null &&
     (entry.etag === null || typeof entry.etag === "string") &&
     typeof entry.bytes === "number" &&
-    typeof entry.usedAt === "number"
+    typeof entry.usedAt === "number" &&
+    (entry.kept === undefined || typeof entry.kept === "boolean")
   );
 }
 
@@ -239,16 +246,34 @@ export function zoneUri(zone: ZoneEntry): string {
   return new File(zonesDirectory(), zone.name).uri;
 }
 
-/** Marks `name` as used now: it is the last to go beyond the limit. */
-export function touchZone(name: string, now: number = Date.now()): void {
+/** Marks `name` as used now: it is the last to go beyond the limit. With
+ * `kept`, also as the zone of a place the user keeps (TASK-334). */
+export function touchZone(
+  name: string,
+  now: number = Date.now(),
+  kept: boolean = false,
+): void {
   try {
     saveIndex(
       savedZones().map((zone) =>
-        zone.name === name ? { ...zone, usedAt: now } : zone,
+        zone.name === name
+          ? { ...zone, usedAt: now, ...(kept ? { kept: true } : {}) }
+          : zone,
       ),
     );
   } catch {
     // The order of deletion is a little off; nothing else changes.
+  }
+}
+
+/** Deletes the saved zone `name`, the zone of a place the user no longer
+ * keeps (TASK-334). */
+export function deleteZone(name: string): void {
+  try {
+    deleteQuietly(new File(zonesDirectory(), name));
+    saveIndex(savedZones().filter((zone) => zone.name !== name));
+  } catch {
+    // A file left behind is replaced by the next download, or «Delete».
   }
 }
 
@@ -320,6 +345,10 @@ export const downloadTelling: Download = (url, fileUri, options, onSize) => {
  * cap; after a 429 the phone asks for none until Retry-After (part A2). It
  * is saved as never used: beyond the limit it goes before the zones the
  * phone was in (part B2).
+ *
+ * `kept`: the zone of a place the user keeps (TASK-334), out of the limit.
+ * A zone once kept stays so when a download around the phone saves it
+ * again; only the place, or «Delete», lets it go.
  */
 export async function downloadZone(
   baseUrl: string,
@@ -332,6 +361,7 @@ export async function downloadZone(
     onSize,
     prefetch = false,
     marginM,
+    kept = false,
   }: {
     apiKey?: string | null;
     now?: () => number;
@@ -341,6 +371,7 @@ export async function downloadZone(
     /** The room asked for around the point (AROUND_MARGIN_M); the server's
      * 3 km when not given. */
     marginM?: number;
+    kept?: boolean;
   } = {},
 ): Promise<ZoneDownload> {
   try {
@@ -361,7 +392,9 @@ export async function downloadZone(
     const have = near.filter((zone) => zone.etag !== null);
     const first = near[0]?.etag ? near[0] : undefined;
     const others = have.filter((zone) => zone !== first);
-    const partial = new File(folder, `.${network}.download`);
+    // Its own partial file: a place may download while the zones around
+    // the phone do.
+    const partial = new File(folder, `.${network}${kept ? ".place" : ""}.download`);
     const query = `lat=${lat}&lon=${lon}${prefetch ? "&prefetch=1" : ""}${
       marginM === undefined ? "" : `&margin_m=${marginM}`
     }`;
@@ -387,7 +420,7 @@ export async function downloadZone(
     if (answer.status === 304 && have.length > 0) {
       const tag = header(answer.headers, "etag");
       const same = have.find((zone) => zone.etag === tag) ?? have[0];
-      touchZone(same.name, now());
+      touchZone(same.name, now(), kept);
       deleteQuietly(partial);
       return { kind: "unchanged", zone: same };
     }
@@ -413,18 +446,20 @@ export async function downloadZone(
       target.delete();
     }
     partial.moveSync(target);
+    const before = savedZones().find((each) => each.name === name);
     const zone: ZoneEntry = {
       name,
       etag: header(answer.headers, "etag"),
       bytes: new File(folder, name).size,
       usedAt: prefetch ? 0 : now(),
+      ...(kept || before?.kept === true ? { kept: true } : {}),
     };
-    const kept = [...savedZones().filter((each) => each.name !== name), zone];
-    const gone = overLimit(kept, SPACE_LIMIT_BYTES, name);
+    const all = [...savedZones().filter((each) => each.name !== name), zone];
+    const gone = overLimit(all, SPACE_LIMIT_BYTES, name);
     for (const old of gone) {
       deleteQuietly(new File(folder, old.name));
     }
-    saveIndex(kept.filter((each) => !gone.includes(each)));
+    saveIndex(all.filter((each) => !gone.includes(each)));
     return { kind: "saved", zone };
   } catch (error) {
     return { kind: "failed", why: String(error) };

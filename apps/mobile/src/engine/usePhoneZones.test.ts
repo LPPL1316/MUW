@@ -280,3 +280,50 @@ test("offline, the zone saved before starts Python, and no city ahead is asked",
   // Nor the shapes on the water: the server does not answer.
   expect(noShapes).not.toHaveBeenCalled();
 });
+
+test("the places the user keeps are asked after the zones around, before those ahead (TASK-334)", async () => {
+  const order: string[] = [];
+  const download = jest.fn(async (): Promise<ZoneDownload> => {
+    order.push("around");
+    return SAVED;
+  });
+  const places = jest.fn(async () => {
+    order.push("places");
+  });
+  const ahead = jest.fn(async () => {
+    order.push("ahead");
+    return "done" as const;
+  });
+  await act(async () => {
+    await renderHook(() =>
+      usePhoneZones(HERE, "https://api", {
+        engine: new PhoneEngine(),
+        download,
+        ahead,
+        shapes: noShapes,
+        places,
+      }),
+    );
+  });
+  expect(places.mock.calls).toEqual([["https://api", { download }]]);
+  expect(order).toEqual(["around", "around", "places", "ahead"]);
+});
+
+test("offline, the places are not asked", async () => {
+  const places = jest.fn(async () => undefined);
+  await act(async () => {
+    await renderHook(() =>
+      usePhoneZones(HERE, "https://api", {
+        engine: new PhoneEngine(),
+        download: jest.fn(async (): Promise<ZoneDownload> => ({
+          kind: "failed",
+          why: "offline",
+        })),
+        ahead: noAhead,
+        shapes: noShapes,
+        places,
+      }),
+    );
+  });
+  expect(places).not.toHaveBeenCalled();
+});
