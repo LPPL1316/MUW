@@ -18593,3 +18593,145 @@ sono dipendenze nuove. Le idee non si aggiornano da sole: il file cambia
 solo rilanciando lo strumento, che ha bisogno di Overpass e della chiave di
 Geoapify (con Overpass pieno, `--only` rifà quelle mancate). Il bundle
 dell'app cresce del file delle idee.
+
+## ADR-0289 — Gli allegati nei messaggi privati: un disegno, una foto o un video per messaggio, i file su disco, i video con un limite e una scadenza
+
+**Stato**: Proposta · 2026-10-29 · la richiesta e le scelte di prodotto
+sono **dell'utente** (TASK-333, «Le scelte dell'utente», 2026-10-29: solo
+dopo «Accept»; video fino a 60 s e 40 MB; video tenuti 30 giorni; il
+disegno si apre, si corre e si tiene; si manda dalla scheda e dalla
+conversazione; il resto «Sì, così»); testi e privacy **approvati
+dall'utente** il 2026-10-29 («Approvo così»); i punti tecnici sono
+decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore. Estende ADR-0279.
+
+**Contesto**: l'utente il 2026-10-29: «Aggiungi la possibilità di
+inviare disegni agli amici allegati, foto video». I messaggi di ADR-0279
+sono solo testo. L'app ha già quello che serve per scegliere e mostrare
+foto e video (`expo-image-picker`, `expo-image-manipulator`,
+`expo-file-system`, la WebView, `expo-sharing`) e un disegno si copia già
+intero nei preferiti (ADR-0139). Le foto dei disegni stanno nel database
+(ADR-0170), 0,1–0,3 MB l'una; un video di 60 s è 20–40 MB. Lo spazio del
+server è poco: il disco del sistema e il Volume da 70 GB (zone e cache)
+non crescono da soli, e il database si copia ogni notte.
+
+**Decisione** (proposta):
+
+1. **Un allegato per messaggio**, `photo`, `video` o `drawing`, con un
+   testo facoltativo (fino a 1000 caratteri come oggi; vuoto ammesso solo
+   con un allegato). Chi può allegare e in quale stato della conversazione
+   è la scelta 1 dell'utente: solo in `open`, cioè dopo «Accept» (o
+   quando chi riceve segue chi scrive). Un allegato in una richiesta è
+   `409`, come un secondo messaggio.
+2. **Un disegno è una copia, non un rimando**: lo stesso corpo di un
+   preferito (`FavoriteRequestBody`: linea, forma o parola, lettere,
+   titolo, metri, sport, `walks`, `on_foot`, rotazione), tenuto in
+   `jsonb` col messaggio. Resta com'è anche se il disegno di partenza si
+   cancella o cambia visibilità, e chi lo riceve lo mette nei preferiti
+   così com'è. La corsa di chi manda viaggia **tagliata** come nel Feed
+   (`DRAWING_CUT_M`, ADR-0159); un percorso progettato intero, con la sua
+   partenza: si manda per correrlo.
+3. **L'app sa cosa può allegare dalla pagina della conversazione**: `GET
+   /conversations/{public_id}/messages` ha `attachments` (i tipi ammessi
+   adesso, i limiti), `null` quando non si può (una richiesta, i video
+   fermi per il tetto). Un'API di prima non ha il campo e l'app non
+   mostra il «+». Nessuna sonda nuova: `messagesDoor.ts` dopo un `404`
+   non chiede più finché l'app non si riapre, mentre la pagina si rilegge
+   a ogni apertura.
+4. **L'app di prima**: chiede le pagine senza `?with=attachments` e
+   riceve, per un messaggio con un allegato, il testo con davanti
+   «[Photo]», «[Video]» o «[Drawing]» (inglese, come i codici); niente
+   bolle vuote.
+5. **Foto e video su disco, non nel database**: `data/media/messages/`,
+   un file per id casuale, montato nell'API da `deploy/compose.yaml`. Il
+   database tiene la riga (`message_media`: proprietario, tipo, byte,
+   misure, durata, scadenza, messaggio). Le copie di ogni notte restano
+   piccole e **foto e video non sono nelle copie** (né nello Storage
+   Box): se il disco si rompe, il messaggio resta e l'allegato dice che
+   non c'è più. La privacy lo dice.
+6. **Caricare in due tempi**: `POST /me/message-media` con il file nudo
+   (non base64 in JSON: un video di 20 MB diventerebbe 27), risposta con
+   l'`id`; poi il messaggio con quell'`id`. Un file non usato entro
+   un'ora si cancella. La locandina del video (un JPEG del primo
+   fotogramma) la fa il telefono di chi manda nella WebView nascosta,
+   come il video della corsa (ADR-0254), e arriva con `PUT
+   …/{id}/poster`; senza, l'app mostra un riquadro con ▶ e la durata.
+7. **Cosa controlla il server**, senza programmi nuovi:
+   - la foto come quelle dei disegni (`fitted_jpeg`: dritta, 1080 px,
+     JPEG, **senza EXIF**);
+   - il video: le prime scatole devono dire MP4 o QuickTime (`ftyp`), la
+     durata si legge da `mvhd`, il peso dal corpo; oltre i limiti `422`.
+     Il luogo della ripresa (`©xyz`) e le scatole di metadati (`udta`,
+     `meta`) diventano `free` della stessa lunghezza: nessun offset si
+     sposta e chi riceve non sa dove è stato girato. Niente ffmpeg:
+     ricomprimere sul server ruberebbe la CPU al motore.
+   - Il video si riduce **sul telefono**: sull'iPhone
+     `videoExportPreset` di `expo-image-picker` (960 × 540, circa
+     3 Mbit/s); Android non lo sa fare e manda il file com'è, entro i
+     40 MB: un video 1080p di Android ci sta per circa 20 s (seguito
+     possibile: ridurlo con WebCodecs nella WebView).
+   - Il codice comune (il controllo MP4, i file su disco, il tetto) sta in
+     un modulo senza tabelle, `media_files.py`, che usano anche i video
+     dei post (TASK-336, ADR-0292): le regole di questo punto e dei punti
+     5, 6 e 8 valgono anche lì, salvo quello che ADR-0292 dice diverso.
+8. **Lo spazio**: fino a 60 s e 40 MB per video (scelta 2), limiti per
+   account al giorno (10 video, 100 foto), i video cancellati dopo 30
+   giorni (scelta 3) e un **tetto per tutto il server**
+   (`SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, 10 GB): sopra, `attachments` non
+   offre più i video (le foto, piccole, fino al tetto più un decimo) e il
+   log lo dice. Stima: un video 960 × 540 di 60 s è circa 22 MB; con 30
+   giorni di scadenza, 10 GB reggono circa 15 video al giorno ogni
+   giorno; una foto 0,2 MB, mille foto 0,2 GB. Lo spazio libero vero si
+   misura (`df -h`) prima di aggiornare il server, col sì dell'utente; il
+   tetto si alza cambiando la variabile.
+9. **Leggere un allegato** (`GET /message-media/{id}`, `…/poster`): solo
+   i due membri della conversazione, con il token e la chiave di sempre;
+   `404` per tutti gli altri, attraverso un blocco, per un messaggio
+   nascosto a chi l'ha ricevuto; `410` per un video scaduto. L'app scarica
+   il file nella sua cache con le intestazioni e lo mostra da lì (il
+   video in una `<video>` della WebView, che legge i file come il
+   motore): niente indirizzi firmati.
+10. **Moderazione (Apple 1.2)**: l'allegato è parte del messaggio. «Report
+    this message» lo copre; l'email della segnalazione dice che c'è un
+    allegato e la **pagina del link** (firmata, ADR-0251) lo mostra a chi
+    gestisce MuW; «Hide» nasconde messaggio e allegato a chi l'ha
+    ricevuto. Il blocco cancella la conversazione e con lei i file;
+    «Delete» di chi ha scritto, l'account cancellato e la scadenza
+    anche. Una pulizia ogni ora toglie dal disco i file senza più riga e
+    quelli scaduti.
+11. **Le push**: `message` con l'allegato dice «{name}: 📷 Photo» (o
+    «🎬 Video», «🗺️ Drawing»), con il testo se c'è; il file non va mai
+    a Expo, ad Apple o a Google.
+12. **I permessi del telefono non cambiano**: la galleria (`PHPicker` su
+    iOS 14 e oltre, il selettore di Android) non chiede permessi. La
+    fotocamera e la registrazione restano fuori fino alla 1.0.1: il testo
+    del permesso della fotocamera parla del contorno del percorso e
+    quello del microfono dice «MuW never records sound», e cambiarli
+    vuole una build nativa.
+
+**Alternative scartate**:
+
+- *Foto e video nel database*, come le foto dei disegni: la copia di
+  ogni notte crescerebbe con ogni video.
+- *Base64 in JSON*, come oggi le foto: un terzo in più su ogni video.
+- *Ridurre o tagliare il video sul server con ffmpeg*: un programma in
+  più nell'immagine e la CPU tolta ai percorsi.
+- *Un indirizzo firmato per guardare il video senza scaricarlo*: ogni
+  percorso dell'API vuole la chiave `X-API-Key`, che non va negli
+  indirizzi; il video corto si scarica in pochi secondi.
+- *Un rimando al disegno pubblicato invece della copia*: non vale per un
+  percorso non salvato né per una corsa privata, e sparisce col disegno.
+- *Una sonda nuova per sapere se l'API ha gli allegati*: dopo un `404`
+  l'app non richiederebbe fino alla riapertura.
+- *`expo-video` o `expo-media-library`*: moduli nativi, l'impronta cambia.
+
+**Conseguenze**:
+
+- Una migrazione e una cartella nuova sul server (`data/media`, in
+  `compose.yaml`): il server va aggiornato prima dell'OTA, col sì
+  dell'utente.
+- La privacy cambia nelle cinque lingue; su App Store Connect «App
+  Privacy» e su Google Play «Data safety» vanno aggiunti «Photos or
+  Videos»: li cambia l'utente, prima dell'OTA `production`.
+- Chi tocca la cancellazione dei messaggi deve ricordare i file su
+  disco: la riga sparisce in cascata, il file solo con la pulizia.

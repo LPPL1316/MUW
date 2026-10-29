@@ -1839,6 +1839,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`test_sign_in_providers.py`). Solo API: impronta iOS `83793e26`
   invariata. Spento finché il server non ha le chiavi (parte C, col sì
   dell'utente). Prossima: B (l'app), in una sessione sua.
+- **TASK-333 — Gli allegati nei messaggi privati: un disegno, una foto, un
+  video** (ADR-0289, proposta; richiesta dell'utente del 2026-10-29,
+  «Aggiungi la possibilità di inviare disegni agli amici allegati, foto
+  video»; numeri dal Coordinatore). Branch
+  `docs/TASK-333-message-attachments`: solo i documenti, con le scelte
+  da chiedere all'utente una per volta. Poi A (API: file su disco in
+  `data/media`, caricamento in due tempi, durata letta dall'MP4, il luogo
+  tolto, limiti, scadenza dei video e tetto del server, segnalazione con
+  l'allegato), B (app: foto e video) e C (app: i disegni), ognuna nella
+  sua PR. Impronta iOS `83793e26`: niente moduli nuovi. Server, OTA e
+  «App Privacy» / «Data safety» col sì dell'utente. File
+  `tasks/TASK-333.md`.
+  **Proposta approvata il 2026-10-29** (PR #627): solo dopo «Accept»,
+  video fino a 60 s e 40 MB tenuti 30 giorni, il disegno si apre, si
+  corre e si tiene, si manda dalla scheda e dalla conversazione; testi e
+  privacy approvati («Approvo così»). Prossimo: la parte A, col «vai»
+  dell'utente, in una sessione sua.
 
 ## Completato
 
