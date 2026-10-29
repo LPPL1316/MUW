@@ -1,8 +1,8 @@
 # TASK-331 — Disegnare a mano solo sulla mappa: la linea aperta, «Erase», «Edit the drawing» sulla mappa
 
 **Stato**: In corso — parte A in `main` (#632, `b5d4e5d3`, 2026-10-29);
-parte B (gli strumenti di disegno) fatta, aspetta il sì sui testi e il
-merge, sotto
+parte B (gli strumenti di disegno) pronta, #643, testi approvati il
+2026-10-29: aspetta il merge, sotto
 **Fase**: 4 · **Branch**: `feat/TASK-331-draw-on-map-only` (A),
 `feat/TASK-331-b-draw-tools` (B) · **ADR**: ADR-0288
 
@@ -195,7 +195,7 @@ dopo il merge della #632.
 - [x] Impronta iOS invariata, misurata su una copia pulita della testa
       0d59d7c0 (`npm ci`, `APP_VARIANT=production`): 83793e26.
 - [x] jest, lint, typecheck, Prettier verdi.
-- [ ] Testi nuovi approvati dall'utente (in `UI.md`).
+- [x] Testi nuovi approvati dall'utente il 2026-10-29 (in `UI.md`).
 
 ### File toccati (B)
 

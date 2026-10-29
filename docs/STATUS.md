@@ -225,9 +225,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   il dito e un pezzo staccato si riattacca col collegamento più corto,
   tratteggiato; «Line» fa segmenti dritti a tocchi e si chiude sul primo
   punto; con «Move» una linea tenuta ferma e trascinata si piega. Solo JS
-  dell'app, contratto e motore invariati. Jest 546/4381 verdi. **Resta**: il
-  sì dell'utente sui testi nuovi (`UI.md`), l'impronta iOS, la PR al
-  Coordinatore.
+  dell'app, contratto e motore invariati. PR #643; jest 548/4419 verdi;
+  impronta iOS 83793e26 invariata; testi nuovi (`UI.md`) approvati
+  dall'utente il 2026-10-29. **Resta**: il merge del Coordinatore e la
+  prova col dito sull'iPhone.
 
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda

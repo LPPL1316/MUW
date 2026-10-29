@@ -19182,8 +19182,8 @@ disegno, come la gomma per cancellare un pezzo... fallo più complesso...»
 e, alla proposta, ha scelto tutti e quattro gli strumenti: la gomma a
 pezzi, la linea dritta a tocchi, «Ripeti» e «Cancella tutto», piega una
 linea. Il modo di farli è **deciso dall'agente su delega dell'utente**; i
-testi nuovi aspettano il suo sì. Parte B del TASK-331 e aggiunta a questo
-ADR per scelta del Coordinatore.
+testi nuovi sono approvati dall'utente il 2026-10-29. Parte B del
+TASK-331 e aggiunta a questo ADR per scelta del Coordinatore.
 
 **Decisione**:
 

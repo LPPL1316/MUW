@@ -2453,7 +2453,8 @@ vengono dalla tavola del TASK-320, già approvati.
 
 La parte B del TASK-331 ha tolto *Drag the figure or the map. Two fingers
 on the figure resize it.* e *Tap a line to erase it. The outline takes its
-details with it.*, e aggiunto (**da approvare dall'utente**):
+details with it.*, e aggiunto (**approvati dall'utente** il 2026-10-29
+nelle quattro lingue):
 
 | English | Italiano | Deutsch | Español | Français |
 |---|---|---|---|---|
