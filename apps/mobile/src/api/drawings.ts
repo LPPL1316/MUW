@@ -16,6 +16,7 @@ import { ACTIVITIES, VISIBILITIES } from "@shaperoute/shared-types";
 import { accountProblem, SESSION_ENDED } from "../account/messages";
 import { t } from "../i18n";
 import { type AccountOutcome, ask, authHeaders } from "./accounts";
+import { apiKey, keyHeaders } from "./apiUrl";
 
 /**
  * Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170): the calls of
@@ -226,13 +227,19 @@ export function removeDrawingPhoto(
 }
 
 /** What an `Image` shows of a photo on the API: its address, read with the
- * token as every other call (ADR-0120). */
+ * token as every other call (ADR-0120), and with the API's key: a server
+ * with one answers 401 to a request without it, and the photo stays blank
+ * (TASK-330). */
 export function drawingPhotoSource(
   baseUrl: string,
   token: string,
   photo: DrawingPhoto,
+  key: string | null = apiKey(),
 ): { uri: string; headers: Record<string, string> } {
-  return { uri: `${baseUrl}${photo.url}`, headers: authHeaders(token) };
+  return {
+    uri: `${baseUrl}${photo.url}`,
+    headers: { ...keyHeaders(key), ...authHeaders(token) },
+  };
 }
 
 /**

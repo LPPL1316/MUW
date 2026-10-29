@@ -1,5 +1,5 @@
 import type { LatLon } from "@shaperoute/shared-types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -32,6 +32,8 @@ import {
 import { HeartBadge } from "../intro/HeartBadge";
 import type { Place } from "../places/photon";
 import { AskForRoute } from "./AskForRoute";
+import type { ThemedIdea } from "./themedIdeas";
+import { IdeasFromEurope } from "./IdeasFromEurope";
 import {
   addedExamples,
   cityKey,
@@ -72,6 +74,8 @@ type Props = {
   recent?: Place[];
   /** A shape through the places of a theme (TASK-129). */
   onAsk?: (request: ThemedRequest) => void;
+  /** One of our ideas in the cities of Europe, opened as it is. */
+  onIdea?: (idea: ThemedIdea) => void;
 };
 
 const NO_ROUTES: RecommendedRoute[] = [];
@@ -115,6 +119,7 @@ export function ExploreScreen({
   onCity,
   recent = [],
   onAsk,
+  onIdea,
 }: Props) {
   // A city searched for takes the place of the start (TASK-129).
   const near = city?.point ?? start;
@@ -127,10 +132,6 @@ export function ExploreScreen({
   const card = cardWidth(contentWidth);
   // The answer for one start: another start shows "loading" until its own.
   const [answer, setAnswer] = useState<{ key: string; list: ListState } | null>(null);
-  // "Ask for a route" waits closed at the foot of the page (TASK-157).
-  const [asking, setAsking] = useState(false);
-  const page = useRef<ScrollView>(null);
-  const shownAsking = useRef(false);
   const lat = near?.[0];
   const lon = near?.[1];
   const key =
@@ -278,14 +279,6 @@ export function ExploreScreen({
         <HeartBadge size={MIN_TAP_SIZE} />
       </View>
       <ScrollView
-        ref={page}
-        // Opened, "Ask for a route" is below the fold: the page goes to it.
-        onContentSizeChange={() => {
-          if (asking && !shownAsking.current) {
-            shownAsking.current = true;
-            page.current?.scrollToEnd({ animated: true });
-          }
-        }}
         contentContainerStyle={[
           styles.list,
           { paddingBottom: insets.bottom + space.lg },
@@ -380,24 +373,26 @@ export function ExploreScreen({
         {nearby.length > 0 && (
           <View style={styles.grid}>{nearby.map((route) => routeCard(route))}</View>
         )}
-        {/* Under the routes already there, and closed: the page is for looking
-            first (TASK-157). */}
-        {onAsk &&
-          (asking ? (
-            <AskForRoute
-              city={city}
-              where={city?.label ?? t("your start")}
-              onAsk={(text) => onAsk({ text, centre: near, city: city?.label ?? null })}
-            />
-          ) : (
-            <Pressable
-              style={styles.ask}
-              onPress={() => setAsking(true)}
-              accessibilityRole="button"
-            >
-              <Text style={styles.askText}>{t("Ask for a route")}</Text>
-            </Pressable>
-          ))}
+        {/* Under the routes already there, and open, with our ideas in it
+            (the user's choice of 2026-10-29). */}
+        {onAsk && (
+          <AskForRoute
+            city={city}
+            where={city?.label ?? t("your start")}
+            onAsk={(text) => onAsk({ text, centre: near, city: city?.label ?? null })}
+            ideas={
+              onIdea && (
+                // Their maps after those of the routes above them.
+                <IdeasFromEurope
+                  width={contentWidth - 2 * space.md}
+                  onIdea={onIdea}
+                  maps={list.status !== "loading"}
+                  apiUrl={apiUrl}
+                />
+              )
+            }
+          />
+        )}
       </ScrollView>
     </View>
   );
@@ -460,18 +455,6 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.semibold,
     letterSpacing: 1.2,
     marginTop: space.sm,
-  },
-  // Quiet on purpose: a line of text at the foot of the page, not a card.
-  ask: {
-    minHeight: MIN_TAP_SIZE,
-    justifyContent: "center",
-    alignSelf: "flex-start",
-    marginTop: space.lg,
-  },
-  askText: {
-    color: color.textMuted,
-    fontSize: fontSize.body,
-    textDecorationLine: "underline",
   },
   grid: {
     flexDirection: "row",

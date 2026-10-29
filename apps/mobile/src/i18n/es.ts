@@ -1092,7 +1092,17 @@ export const ES: Table = {
     "Elige primero una salida: las rutas son las cercanas.",
   "The routes could not load. Check the connection and try again.":
     "Las rutas no se han cargado. Comprueba la conexión e inténtalo de nuevo.",
-  "Ask for a route": "Pide una ruta",
+  // src/explore/IdeasFromEurope.tsx, themedIdeas.ts, ThemedCard.tsx: our ideas
+  "IDEAS FROM EUROPE": "IDEAS DE EUROPA",
+  "Make it near me": "Hazlo cerca de mí",
+  Rome: "Roma",
+  Paris: "París",
+  London: "Londres",
+  Barcelona: "Barcelona",
+  Amsterdam: "Ámsterdam",
+  Lisbon: "Lisboa",
+  Prague: "Praga",
+  Berlin: "Berlín",
   "Getting directions…": "Obteniendo indicaciones…",
   CITY: "CIUDAD",
   "Type a city or a place": "Escribe una ciudad o un lugar",
@@ -1240,10 +1250,7 @@ export const ES: Table = {
   "Switch sides": "Cambia de lado",
   "{seconds} seconds left": "Quedan {seconds} segundos",
   "Stop if it hurts.": "Para si duele.",
-  // «Draw»: src/route/DrawIdeas.tsx, src/route/samplePictures.ts,
-  // src/explore/ThemedCard.tsx (TASK-280)
-  "CITY TOURS": "RUTAS POR LA CIUDAD",
-  PICTURES: "IMÁGENES",
+  // «Draw»: src/route/samplePictures.ts (TASK-280)
   "Running shoe": "Zapatilla",
   Dinosaur: "Dinosaurio",
   Guitar: "Guitarra",
@@ -1260,7 +1267,6 @@ export const ES: Table = {
   Duck: "Pato",
   Trophy: "Trofeo",
   Bone: "Hueso",
-  "Back to Draw": "Volver a Dibuja",
 
   // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
   "Draw on the map": "Dibujar en el mapa",
@@ -1476,6 +1482,9 @@ export const ES: Table = {
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "CERCA DE TI",
   "SHAPES TO TRY": "FORMAS PARA PROBAR",
+  // src/game/PlayRow.tsx (TASK-327: «Play» under the distance of «Draw»)
+  PLAY: "JUEGA",
+  "Collect shapes by running": "Colecciona formas corriendo",
   // src/screens/NavigateScreen.tsx (TASK-303)
   "The route is {distance} away, to the {direction}.":
     "La ruta sigue a {distance}, hacia el {direction}.",
@@ -1583,4 +1592,35 @@ export const ES: Table = {
   "Activities before 2020 cannot be added.":
     "No se pueden añadir actividades anteriores a 2020.",
   "Already in My activities.": "Ya está en Mis actividades.",
+  // The attachments of the private messages (TASK-333).
+  "📷 Photo": "📷 Foto",
+  "🎬 Video": "🎬 Vídeo",
+  "🗺️ Drawing": "🗺️ Dibujo",
+  Photo: "Foto",
+  Video: "Vídeo",
+  "This video has expired.": "Este vídeo ha caducado.",
+  "Video, {duration}": "Vídeo, {duration}",
+  "Drawing: {title}, {distance}": "Dibujo: {title}, {distance}",
+  "Add a photo, a video or a drawing": "Añade una foto, un vídeo o un dibujo",
+  "Add a message…": "Añade un mensaje…",
+  "Couldn't send. Tap to try again.":
+    "No se ha enviado. Toca para volver a intentarlo.",
+  "This video is longer than {seconds} seconds. Choose a shorter one.":
+    "Este vídeo dura más de {seconds} segundos. Elige uno más corto.",
+  "This video is too large: at most {mb} MB. Choose a shorter one.":
+    "Este vídeo es demasiado grande: como máximo {mb} MB. Elige uno más corto.",
+  "Too many videos today. Try again tomorrow.":
+    "Hoy ya hay demasiados vídeos. Vuelve a intentarlo mañana.",
+  "Too many photos today. Try again tomorrow.":
+    "Hoy ya hay demasiadas fotos. Vuelve a intentarlo mañana.",
+  "Videos can't be sent right now. Try again later.":
+    "Ahora no se pueden enviar vídeos. Vuelve a intentarlo más tarde.",
+  // The drawings of the private messages (TASK-333 part C).
+  "Send to a friend": "Enviar a amigos",
+  "Send to…": "Enviar a…",
+  "Search people": "Buscar personas",
+  "Sent to {name}.": "Enviado a {name}.",
+  "Send a drawing": "Enviar un dibujo",
+  "Photos, videos and drawings can be sent once {name} accepts your message.":
+    "Podrás enviar fotos, vídeos y dibujos cuando {name} acepte tu mensaje.",
 };

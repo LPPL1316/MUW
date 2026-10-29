@@ -20,6 +20,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { messageLine } from "./attachmentText";
 import { useMessagesDoor } from "./messagesDoor";
 
 /** The side of a member's picture in the list, as in the lists of who follows. */
@@ -41,7 +42,8 @@ type Props = {
 
 /** The line under a name: the latest message, «You: …» when one's own. */
 export function previewOf(conversation: Conversation): string {
-  const line = conversation.last.text.split("\n").join(" ");
+  // A photo, a video or a drawing in words (TASK-333).
+  const line = messageLine(conversation.last);
   return conversation.last.mine ? t("You: {text}", { text: line }) : line;
 }
 

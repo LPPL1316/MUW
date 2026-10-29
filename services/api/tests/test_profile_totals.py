@@ -53,6 +53,50 @@ class WallClock:
         return self.t
 
 
+def test_the_climb_migration_accepts_a_database_that_has_the_column_already(
+    database_url: str, tmp_path: Path
+) -> None:
+    """The same column reached the two repositories under other names while
+    they were divergent (0034_run_climb in MUW, 0035_run_climb in
+    shaperoute): a database that applied one of them has the column and not
+    the version 0037_run_climb. The migration passes, and is recorded."""
+    import shutil
+
+    import psycopg
+
+    from shaperoute_api.db import MIGRATIONS_DIR, migrations
+
+    before = tmp_path / "before"
+    before.mkdir()
+    for path in migrations(MIGRATIONS_DIR):
+        if path.stem < "0037":
+            shutil.copy(path, before / path.name)
+    database = Database(database_url)
+    database.migrate(before)
+    with psycopg.connect(database_url, autocommit=True) as conn:
+        conn.execute("ALTER TABLE runs ADD COLUMN climb_m integer CHECK (climb_m >= 0)")
+        conn.execute(
+            "INSERT INTO schema_migrations (version) VALUES ('0035_run_climb')"
+        )
+
+    # The climb migration first, then any that came after it (0038, TASK-333).
+    assert database.migrate()[0] == "0037_run_climb"
+
+    with psycopg.connect(database_url) as conn:
+        columns = conn.execute(
+            "SELECT column_name FROM information_schema.columns"
+            " WHERE table_name = 'runs' AND column_name = 'climb_m'"
+        ).fetchall()
+        assert columns == [("climb_m",)]
+        versions = conn.execute(
+            "SELECT version FROM schema_migrations WHERE version LIKE '%run_climb'"
+            " ORDER BY version"
+        ).fetchall()
+        assert versions == [("0035_run_climb",), ("0037_run_climb",)]
+    # A second run has nothing left to do.
+    assert database.migrate() == []
+
+
 @pytest.fixture
 def database(database_url: str) -> Database:
     database = Database(database_url)
