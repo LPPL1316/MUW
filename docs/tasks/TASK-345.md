@@ -80,14 +80,26 @@ spento all'inizio: l'utente ha scelto acceso.
 1. A corsa salvata, l'app legge i campioni di battito tra inizio e fine
    (Apple Watch o un altro orologio che scrive in Salute / Health
    Connect), ne fa medio e massimo e li manda come in B.
-2. Il permesso di **lettura** (`HKQuantityTypeIdentifierHeartRate`,
-   `NSHealthShareUsageDescription`; `READ_HEART_RATE` di Health Connect)
-   cambia i file nativi e il testo del permesso, che oggi sono nella #620
-   (TASK-321 B, solo scrittura, sessione `local_a9812e3f`). **Una sola
-   modifica nativa**: o la lettura entra nella #620 prima del taglio della
-   1.0.1, o tutte e due vanno alla 1.0.2. Da decidere con quella sessione
-   e con il Coordinatore prima di scrivere codice.
-3. Se l'utente nega la lettura, niente battito e nessun messaggio: la
+2. Il permesso di **lettura**: su iPhone serve solo la chiave
+   `NSHealthShareUsageDescription` (`app.json` `ios.infoPlist` e
+   `locales/*.json`); il tipo `HKQuantityTypeIdentifierHeartRate` si
+   chiede a runtime (`requestAuthorization({ toRead })`, kingstinct
+   16.2.0), niente entitlement nuovo. **Una sola modifica nativa**:
+   accordo del 2026-10-30 con TASK-321 B (`local_a9812e3f`): la chiave la
+   aggiunge quella sessione nella #620, se il Coordinatore conferma che la
+   lettura entra nella 1.0.1 e l'utente approva il testo; altrimenti tutto
+   alla 1.0.2. La richiesta di lettura è separata, nei file nuovi di
+   `health/` (`appleHealth.ts` resta di TASK-321).
+3. **Mai sulla 1.0 build 7** (impronta `83793e26`): senza la chiave,
+   chiedere `toRead` fa crashare l'app. C si accende solo sulle build che
+   hanno la chiave, e può arrivare con un OTA sulla 1.0.1.
+4. Android: `READ_HEART_RATE` va con TASK-321 C (Health Connect,
+   bloccata da 4.1.3), non nella #620.
+5. Con C cambiano la privacy (la #620 dice che MuW non legge i dati di
+   salute: resta vera finché C non legge), App Privacy su App Store
+   Connect (dati Health legati all'utente) e forse la riga dello store:
+   tutto con il sì dell'utente, quando C esce.
+6. Se l'utente nega la lettura, niente battito e nessun messaggio: la
    corsa resta com'è.
 
 ## Criteri di accettazione
@@ -125,6 +137,8 @@ apps/mobile/src/feed/FeedPost.tsx             (una riga in postFacts)
 apps/mobile/src/feed/feedPosts.test.ts
 apps/mobile/src/feed/FeedPost.test.tsx
 apps/mobile/src/units/cardsInMiles.test.tsx
+apps/mobile/src/screens/FeedScreenPosts.test.tsx
+apps/mobile/__tests__/AppFeedDrawing.test.tsx
 docs/UI.md
 # B
 apps/mobile/src/imports/gpx.ts, tcx.ts, fit.ts, fileTrack.ts, importFile.ts (+ test)
@@ -138,7 +152,7 @@ services/api/shaperoute_api/activities.py, drawings.py (+ test)
 docs/API.md, docs/DATABASE.md, docs/IMPORTAZIONI.md
 # C
 apps/mobile/src/health/                       (lettura)
-apps/mobile/app.config.ts                     (solo con la #620 o nella 1.0.2)
+apps/mobile/app.json, locales/*.json          (nella #620, li tocca TASK-321 B)
 ```
 
 ## Fuori scope
