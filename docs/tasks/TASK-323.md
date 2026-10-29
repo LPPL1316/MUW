@@ -171,10 +171,21 @@ File (da confermare col punto 0; con la prima strada si aggiungono
 #### A1, dove si è (2026-10-29)
 
 Scritta in una sessione cloud, branch `claude/inspiring-lovelace-rcadwd`
-(il nome lo impone la sessione), PR in bozza. Il Coordinatore non era
-raggiungibile: la strada del punto 0 è scelta su delega dell'utente e
-scritta nell'aggiunta ad ADR-0283; va confermata con i «File toccati» qui
+(il nome lo impone la sessione), PR in bozza
+[LPPL1316/MUW#10](https://github.com/LPPL1316/MUW/pull/10). Il Coordinatore
+non era raggiungibile: la strada del punto 0 è scelta su delega dell'utente
+e scritta nell'aggiunta ad ADR-0283; va confermata con i «File toccati» qui
 sotto prima del merge.
+
+**Il push dal cloud** (2026-10-29): su `rockydalbianco/shaperoute` la
+sessione cloud riceve 403, sia col push sia con lo strumento GitHub (l'app
+Claude non ci può scrivere). Funziona così, col sì dell'utente: `add_repo`
+di `LPPL1316/MUW` con accesso `push`, un remote `muw` nel checkout, `git
+fetch muw main`, poi `git push -u muw <branch>`. Lo specchio
+(`TEAM_WORKFLOW.md`) copia il branch su `shaperoute` in pochi secondi. La PR
+su `shaperoute` resta da aprire a mano (anche quella dà 403 dal cloud);
+dal cloud si apre in bozza su MUW. L'utente ha chiesto di dirlo al
+Coordinatore, perché valga per tutte le sessioni cloud.
 
 - **Punto 0, la prima strada**: tutto in file nuovi; `models.py`,
   `water.py`, `water_fit.py`, `validation.py`, `paddling.py` e
