@@ -56,10 +56,12 @@ ricevuti) ci sono già: TASK-324, ADR-0284.
    profilo di un altro solo quelli presi. Senza `badges` (API vecchia):
    solo «Winner», come oggi. `ProfileHeader` riceve la fila al posto del
    solo `WinnerBadge`.
-5. **Testi** nelle cinque lingue, da approvare prima del merge:
-   «First drawing», «10 drawings», «30 km drawing» (con le miglia:
-   «19 mi drawing»), e le etichette di accessibilità «Badge not earned
-   yet: …».
+5. **Testi** nelle cinque lingue: «First drawing», «10 drawings»,
+   «{distance} drawing» («30 km drawing», con le miglia «19 mi
+   drawing»), e l'etichetta di accessibilità «Not earned yet: …»; in
+   italiano «Primo disegno», «10 disegni», «Disegno da 30 km», «Non
+   ancora preso: …». **Approvati dall'utente il 2026-10-30 con «Yes,
+   approve»**, sulla tabella delle cinque lingue della PR #651.
 6. `API.md` («Profile»), `STATUS.md`, task file a `Done`.
 
 ## Criteri di accettazione
@@ -77,7 +79,7 @@ ricevuti) ci sono già: TASK-324, ADR-0284.
       anche quelli spenti; con un'API senza `badges` solo «Winner».
 - [ ] Test deterministici: `test_badges.py` (una regola per test),
       `BadgeRow.test.tsx`, `ProfileHeader.test.tsx` aggiornato.
-- [ ] Testi approvati dall'utente; nessuna dipendenza nuova; impronta
+- [x] Testi approvati dall'utente (2026-10-30, «Yes, approve»); nessuna dipendenza nuova; impronta
       iOS invariata (`83793e26`).
 
 ## File toccati
