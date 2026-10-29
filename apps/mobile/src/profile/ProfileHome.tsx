@@ -20,7 +20,7 @@ import { useFollowsDoor } from "../social/followsDoor";
 import { photoBusyText, PhotoChoices } from "./PhotoChoices";
 import { ProfileGallery } from "./ProfileGallery";
 import { ProfileHeader } from "./ProfileHeader";
-import { ProfileStats, useOwnTotals } from "./ProfileStats";
+import { ProfileStats, totalsOf, useOwnProfile } from "./ProfileStats";
 import { bioOf } from "./profileFields";
 import { useProfilePhoto } from "./useProfilePhoto";
 
@@ -73,8 +73,9 @@ export function ProfileHome({
   const blocks = useBlocksVersion();
   const { apiUrl, account } = useFollowsDoor();
   const publicId = user.public_id ?? null;
-  // Null while they come, and from an API older than TASK-324.
-  const totals = useOwnTotals(publicId);
+  // Null while it comes; the totals also from an API older than TASK-324.
+  const own = useOwnProfile(publicId);
+  const totals = own === null ? null : totalsOf(own);
   const [photoOpen, setPhotoOpen] = useState(false);
   const busyText = photoBusyText(photo.busy);
   return (
@@ -86,6 +87,7 @@ export function ProfileHome({
           photo={photo.uri}
           detail={user.email}
           winner={(user.contest_wins ?? 0) > 0}
+          badges={own?.badges ?? null}
           photoButton={{
             open: photoOpen,
             busy: photo.busy !== null,

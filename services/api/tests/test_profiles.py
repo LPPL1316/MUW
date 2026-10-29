@@ -362,6 +362,8 @@ def test_another_member_sees_the_profile_and_never_the_email(
         "distance_m": 0,
         "climb_m": 0,
         "reactions": 0,
+        # No drawing, no badge yet (TASK-341).
+        "badges": [],
     }
     # Not the email, nor anything of the account behind the profile.
     assert EMAIL not in answer.text

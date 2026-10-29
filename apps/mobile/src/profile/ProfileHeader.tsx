@@ -1,6 +1,6 @@
+import type { ProfileBadge } from "@shaperoute/shared-types";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { WinnerBadge } from "../contest/WinnerBadge";
 import { t } from "../i18n";
 import {
   color,
@@ -11,6 +11,7 @@ import {
   space,
 } from "../theme/tokens";
 import { Avatar } from "./Avatar";
+import { BadgeRow } from "./BadgeRow";
 
 export const PROFILE_AVATAR_SIZE = 2 * MIN_TAP_SIZE;
 
@@ -38,13 +39,20 @@ type Props = {
   photoButton?: PhotoButton;
   /** It won a contest (`contest_wins` ≥ 1): the «Winner» badge under the name. */
   winner?: boolean;
+  /**
+   * The badges it earned (TASK-341), after «Winner»; null or left out from an
+   * API older than TASK-341. On one's own (`photoButton` given) also those
+   * still to earn, dimmed.
+   */
+  badges?: readonly ProfileBadge[] | null;
 };
 
 /**
  * Who a profile is (TASK-116): the picture, the name, a line about it and
  * the bio. The same on one's own «Profile» and on another member's; on
  * one's own the circle has a «+» and changes the picture (TASK-207). Who
- * won a contest has the «Winner» badge under the name, for good (TASK-299).
+ * won a contest has the «Winner» badge under the name, for good (TASK-299),
+ * and the badges of the drawings follow it (TASK-341).
  */
 export function ProfileHeader({
   username,
@@ -53,6 +61,7 @@ export function ProfileHeader({
   detail,
   photoButton,
   winner = false,
+  badges = null,
 }: Props) {
   const avatar = <Avatar name={username} size={PROFILE_AVATAR_SIZE} photo={photo} />;
   return (
@@ -80,7 +89,7 @@ export function ProfileHeader({
         </Pressable>
       )}
       <Text style={styles.username}>{username}</Text>
-      {winner && <WinnerBadge />}
+      <BadgeRow winner={winner} badges={badges} own={photoButton !== undefined} />
       <Text style={styles.detail}>{detail}</Text>
       {bio !== "" && <Text style={styles.bio}>{bio}</Text>}
     </View>

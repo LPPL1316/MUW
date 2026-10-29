@@ -799,7 +799,24 @@ export interface PublicProfile {
   distance_m?: number;
   climb_m?: number;
   reactions?: number;
+  /**
+   * The badges it earned (TASK-341, ADR-0294), in the order of
+   * PROFILE_BADGES, decided by the API on the drawings the one who asks
+   * sees. «Winner» is `contest_wins`. Missing from an API older than TASK-341.
+   */
+  badges?: ProfileBadge[];
 }
+
+/**
+ * The badges of a profile (TASK-341): a first drawing, ten drawings, a
+ * drawing of 30 km or more, of runs recorded by the app.
+ */
+export const PROFILE_BADGES = [
+  "first_drawing",
+  "ten_drawings",
+  "long_drawing",
+] as const;
+export type ProfileBadge = (typeof PROFILE_BADGES)[number];
 
 /**
  * Where a member stands towards a profile (TASK-211): it asked and waits
