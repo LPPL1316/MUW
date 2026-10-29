@@ -18511,7 +18511,10 @@ spunto, e dentro un percorso le foto vere dei posti belli.
 3. **«IDEAS FROM EUROPE»** dentro il blocco, sopra le categorie: una fila
    di schede di «Explore» (`RouteCard` con la mappa sotto la linea, come
    «NEARBY TOWNS»), «Roma · Stella», «Famous Places · 8,1 km». Le città
-   sono scritte nella lingua dell'app.
+   sono scritte nella lingua dell'app. Sotto la fila, il credito delle
+   mappe e «© OpenStreetMap contributors», perché posti e strade delle idee
+   sono dati OSM (condizione del Coordinatore); il JSON tiene il campo
+   `license` della risposta.
 4. **Le idee le calcola uno strumento una volta**, `tools/themed_ideas.py`,
    con i job a tema dell'API (`ThemedJobs.result_of`, le tabelle senza
    AI) e il Route Engine. Le parole sono quelle che manderebbe l'app

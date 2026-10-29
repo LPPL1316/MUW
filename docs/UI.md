@@ -2143,8 +2143,10 @@ gente poi deve prendere spunto»); proposta approvata con «Sì, così». In
 cima ad «Ask for a route», sotto la sua etichetta, **«IDEAS FROM EUROPE»**:
 una fila da scorrere di lato, con le schede di «Explore» larghe come quelle
 di «NEARBY TOWNS» (0,42 della pagina, la seguente si affaccia). Ognuna ha
-la linea gialla sulla mappa delle sue strade (sotto la fila, il credito
-delle mappe), il titolo «Roma · Stella» e sotto «Famous Places · 8,1 km».
+la linea gialla sulla mappa delle sue strade, il titolo «Roma · Stella» e
+sotto «Famous Places · 8,1 km». Sotto la fila, a destra e in piccolo, il
+credito delle mappe e «© OpenStreetMap contributors» (posti e strade sono
+di OpenStreetMap).
 Sono percorsi nostri in otto città, Roma, Parigi, Londra, Barcellona,
 Amsterdam, Lisbona, Praga e Berlino, con forme semplici (cuore, stella,
 cerchio, luna) di 6–10 km, attraverso i posti di quattro temi: posti

@@ -21,7 +21,8 @@ type Props = {
 /**
  * «IDEAS FROM EUROPE», at the top of «Ask for a route»: our routes in big
  * cities of Europe, in a row that slides sideways, each on the map of its
- * streets. A tap opens it on the map, as a route asked for.
+ * streets. A tap opens it on the map, as a route asked for. Under the row,
+ * whose the maps are, and whose the places and roads.
  */
 export function IdeasFromEurope({ width, onIdea, ideas = THEMED_IDEAS }: Props) {
   // Written again when «Settings» changes the units (TASK-182).
@@ -60,6 +61,8 @@ export function IdeasFromEurope({ width, onIdea, ideas = THEMED_IDEAS }: Props) 
         </View>
       </ScrollView>
       <CardMapsCredit />
+      {/* The places and the roads of the ideas are OpenStreetMap's. */}
+      <Text style={styles.credit}>{t("© OpenStreetMap contributors")}</Text>
     </View>
   );
 }
@@ -78,5 +81,11 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     gap: space.md,
+  },
+  // As the maps' credit above it.
+  credit: {
+    color: color.textFaint,
+    fontSize: fontSize.label,
+    textAlign: "right",
   },
 });

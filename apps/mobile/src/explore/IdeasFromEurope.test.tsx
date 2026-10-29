@@ -33,8 +33,9 @@ test("a row of cards, each the city, its shape, its category and its length", as
   expect(row.getByText("Rome · Star")).toBeOnTheScreen();
   expect(row.getByText("Famous Places · 8.1 km")).toBeOnTheScreen();
   expect(row.getByText("Paris · Heart")).toBeOnTheScreen();
-  // The maps under the lines say whose they are.
+  // The maps under the lines say whose they are, and the places theirs.
   expect(screen.getByText(cardMapsCredit())).toBeOnTheScreen();
+  expect(screen.getByText("© OpenStreetMap contributors")).toBeOnTheScreen();
 
   await fireEvent.press(row.getByLabelText("Paris, Heart, Best Views, 8.1 km"));
   expect(onIdea).toHaveBeenCalledWith(IDEAS[1]);
