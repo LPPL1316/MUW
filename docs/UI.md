@@ -745,7 +745,7 @@ più recente, tre per riga. Ognuna è la traccia senza i primi e gli ultimi
 200 m, piccola e gialla come i disegni di «Feed», **senza punteggio**
 (TASK-241 parte E, chiesto dall'utente); venti per volta, poi «Show more».
 **Sotto la linea c'è la mappa del posto**, una foto come in «Feed»
-(TASK-332, ADR-0131 e la sua aggiunta): finché non arriva, la linea sul
+(TASK-332, ADR-0131): finché non arriva, la linea sul
 fondo scuro di prima. Ogni miniatura la chiede quando entra nello
 schermo, non prima: una griglia lunga non le chiede tutte insieme. Sotto
 la griglia, una volta, «Maps: OpenFreeMap © OpenMapTiles · Data from

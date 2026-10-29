@@ -4861,6 +4861,11 @@ OpenFreeMap dà solo tile vettoriali: non c'è un'immagine da chiedere.
 - **Il credito su ogni foto**: «OpenFreeMap © OpenMapTiles / Data from
   OpenStreetMap», il testo di `ATTRIBUTION`, senza link perché la scheda
   non si tocca. In due righe, in basso a destra, accanto al punteggio.
+- **Anche sotto i disegni di un profilo** (TASK-332, 2026-10-29, deciso
+  dall'agente su delega dell'utente): ogni miniatura chiede la foto solo
+  quando entra nello schermo (`SightScrollView`), i crediti una volta sotto
+  la griglia; fa le foto solo la prima pagina montata, e «Find friends» ne
+  ha una sua per quando «Feed» è smontata sotto la mappa grande.
 
 **Scartate**: una WebView per scheda (memoria, e i gesti della mappa
 contro lo swipe delle pagine); immagini già pronte nell'app, fatte da uno
@@ -18337,48 +18342,3 @@ che l'ADR non dice.
 **Conseguenze**: nessun contratto di oggi cambia; `Accounts` ha
 `insert_user` (anche per `POST /accounts`) e `unusable_password_hash`, e
 `open_session` è una funzione del modulo.
-
-## ADR-0131 — aggiunta: la mappa sotto i disegni del profilo, chiesta quando si vedono
-
-**Stato**: Attiva · 2026-10-29 · **richiesta dell'utente** per il cosa
-(«quando vado sul profilo di un amico e vedo i disegni, non c'è sotto la
-cartina geografica, sistema»); il come deciso dall'agente su delega
-dell'utente (TASK-332). Aggiunta ad ADR-0131, senza numero nuovo.
-
-**Contesto**: la griglia «Drawings» di un profilo (TASK-117) disegna la
-linea gialla su fondo scuro, mentre «Feed» ed «Explore» hanno sotto la
-foto della mappa. Il Coordinatore ha chiesto che una griglia lunga non
-chieda decine di foto insieme. La pagina che fa le foto sta in «Feed»,
-che il `Pager` smonta quando c'è la mappa grande: un profilo aperto sopra
-la mappa (un nome taggato su un disegno aperto) non avrebbe nessuno che
-le fa.
-
-**Decisione**:
-
-1. **La stessa foto di «Feed»**: `RunDrawing` accetta `map`, un'`Image`
-   sotto le linee; la griglia la chiede con `useFeedMap` per l'`id` del
-   disegno, la sua linea, il quadrato e `RUN_DRAWING_PAD`, con la stessa
-   rotazione. `fitLines` e `lineCamera` inquadrano allo stesso modo, e
-   `turnedLine` gira attorno allo stesso centro: la foto sta sotto la
-   linea. Una riga di crediti sotto la griglia (`CardMapsCredit`).
-2. **Solo quando la miniatura si vede** (`src/social/scrollSight.tsx`):
-   «Profile» e «Find friends» scorrono in un `SightScrollView`, che a ogni
-   movimento (al massimo ogni 100 ms) fa guardare di nuovo chi aspetta.
-   Una miniatura misura dov'è (`measureInWindow`) al suo `onLayout` e a
-   ogni movimento, e chiede la foto la prima volta che è anche solo in
-   parte dentro lo schermo in altezza; poi smette di guardare. Fuori da
-   una pagina così, tutto conta come visto subito. Una pagina nascosta
-   (`display: none`) non ha altezza: le sue miniature aspettano.
-3. **Una pagina delle foto alla volta**: le pagine montate si mettono in
-   fila e solo la prima fa le foto; le altre aspettano e prendono il
-   posto quando quella se ne va. «Feed» ha la sua da sempre; ora anche
-   «Find friends» (il profilo di un altro) ne ha una, sotto il suo
-   contenuto reso opaco, montata solo quando si vede: nascosta dietro un
-   disegno aperto, WebKit non disegnerebbe e fermerebbe ogni foto. Con
-   «Feed» montato cambia niente; sopra la mappa grande le foto le fa
-   quella del profilo.
-
-**Conseguenze**: nessun testo nuovo, niente di nativo; le foto restano in
-memoria come quelle di «Feed». Il proprio profilo aperto come strato
-sopra la mappa grande (raro: con un account ci si arriva dalla quarta
-pagina) non ha una pagina sua: le foto arrivano tornando a una pagina.

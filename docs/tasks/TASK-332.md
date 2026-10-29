@@ -18,7 +18,7 @@ richieste.
 ## Contesto da leggere
 
 - `docs/DECISIONS.md`, ADR-0131 (la foto della mappa sotto i disegni di
-  «Feed») e la sua aggiunta di questo task;
+  «Feed»), con la riga di questo task;
 - `docs/UI.md`, «Drawings» in «Profile».
 
 ## Cosa fare
