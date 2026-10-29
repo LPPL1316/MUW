@@ -166,8 +166,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   numeri dal Coordinatore). Branch `docs/TASK-343-monthly-challenges`
   (documenti), poi A (API: migrazione, iscrizioni, galleria, archivio,
   tre push, `open --theme`) e B (app: pagina della sfida, «Past
-  challenges», interruttore nel modulo di pubblicazione). Da chiedere
-  all'utente prima di A: quanti disegni per account (proposta: uno).
+  challenges», interruttore nel modulo di pubblicazione). Disegni per
+  account: nessun limite (scelta dell'utente del 2026-10-30, «No limit»).
   Testi, regolamento, server e push con il sì dell'utente. File
   `tasks/TASK-343.md`.
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno

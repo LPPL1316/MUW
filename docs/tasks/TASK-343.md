@@ -64,7 +64,8 @@ Notifiche: nuova challenge, ultimi 3 giorni, risultati». La proposta
    disegno che oggi partecipa; `409` con un codice nuovo per ogni rifiuto
    (`contest_closed`, `not_entrant`; testi d'errore in inglese, codici in
    `schemas.py` e `api-error-codes.json`, come `no_contest`, con l'ok del Coordinatore). Quanti disegni per
-   account: vedi «Aperto» 1. Un disegno che smette di partecipare (reso
+   account: **nessun limite**, scelta dell'utente (sotto, «Scelte
+   dell'utente»). Un disegno che smette di partecipare (reso
    privato, nascosto) esce dalla classifica da solo: la query lo rilegge.
 4. **`GET /contests/current`** ha in più `theme` (tutte le lingue: l'app
    sceglie la sua, `en` se manca), `entrants` (gli account con almeno
@@ -185,12 +186,15 @@ docs/tasks/TASK-343.md
   confondersi (da guardare con i testi).
 - Disegni su più giorni.
 
-## Aperto
+## Scelte dell'utente
 
-1. **Quanti disegni può iscrivere un account in una sfida.** Proposta:
-   **uno**, cambiabile fino alla fine (iscriverne un altro ritira il
-   primo), così la galleria non si riempie dello stesso autore. Scelta
-   dell'utente, da chiedere prima di A.
+1. **Quanti disegni può iscrivere un account in una sfida: nessun
+   limite.** Proposta dell'agente: uno, cambiabile fino alla fine. Il
+   2026-10-30 l'utente ha risposto «Several» e poi, fra «Up to 3» e «No
+   limit», **«No limit»**: ogni disegno pubblicato nel periodo che
+   partecipa si può iscrivere. Conseguenza: la galleria può mostrare più
+   volte lo stesso autore; ogni disegno conta le sue reazioni da solo.
+   Il regolamento ufficiale (parte B, punto 5) lo dice.
 
 ## Esito
 

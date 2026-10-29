@@ -19502,7 +19502,8 @@ strumenti; `erasedAt` esce da `edit.ts`.
 concorso), che resta valido per i concorsi senza tema. Il tema,
 l'iscrizione esplicita e il voto che resta la reazione sono dell'utente
 (richiesta del 2026-10-29, proposta approvata con «Yes, as proposed»);
-quanti disegni per account è da chiedere all'utente (TASK-343, «Aperto»);
+quanti disegni per account è dell'utente (2026-10-30, «No limit»:
+nessun limite);
 i punti tecnici sono decisi dall'agente su delega dell'utente. Numero dato
 dal Coordinatore.
 
@@ -19526,7 +19527,8 @@ tema, un'iscrizione, una galleria, un archivio, le altre push.
    di pubblicazione, o dal post già pubblicato; tabella
    `contest_entries`, nessuna colonna su `drawings` e `reactions`. Il
    tema conta solo se chi pubblica lo sceglie; nessun controllo
-   automatico del tema: chi chiude esclude a mano, come oggi. Valgono
+   automatico del tema: chi chiude esclude a mano, come oggi. Un account
+   iscrive quanti disegni vuole (scelta dell'utente). Valgono
    tutte le regole di ADR-0260 su chi partecipa (per tutti, nel periodo,
    registrato dall'app, non nascosto).
 3. **Il voto resta la reazione** di ADR-0260: nessun «mi piace» nuovo.
