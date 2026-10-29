@@ -38,8 +38,9 @@ type Props = {
   /** «Draw it near me» (TASK-313): its shape or word chosen in «Draw»;
    * without it, a drawing «Draw» cannot choose, there is no button. */
   onDrawAgain?: () => void;
-  /** «Edit the drawing» (TASK-320): its figure in the board, then «Draw»;
-   * without it, a drawing the board cannot open, there is no button. */
+  /** «Edit the drawing» (TASK-320): its figure on the map of «Draw on the
+   * map» (TASK-331); without it, an emoji or a drawing that gives no
+   * figure, there is no button. */
   onEditDrawing?: () => void;
 };
 
@@ -60,7 +61,7 @@ export const PHOTO_HEIGHT = 160;
  * them «Start», to run the track as the map shows it, without turn
  * directions, and «Export GPX», the same track as a file (TASK-307);
  * after them «Draw it near me», its shape or word in «Draw» (TASK-313),
- * and «Edit the drawing», its figure in the board (TASK-320).
+ * and «Edit the drawing», its figure on the map (TASK-320, TASK-331).
  * The drawing that won the contest kept on the phone has the «Winner» band
  * on top (TASK-299). An activity added from a file of another app says
  * «Imported» under its facts (TASK-312).

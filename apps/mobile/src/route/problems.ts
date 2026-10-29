@@ -20,9 +20,9 @@ import type { EditProblem, ImageProblem } from "./useImageOutline";
 import type { RouteProblem } from "./useRouteRequest";
 import type { DrawKind } from "./wordInput";
 
-/** What the route draws: a shape, a word, the outline of an image, or a
- * figure drawn by hand (TASK-320), asked for as an image's outline is. */
-export type ChoiceKind = DrawKind | "image" | "freehand";
+/** What the route draws: a shape, a word, or the outline of an image. A
+ * figure drawn by hand is drawn on the map (TASK-331). */
+export type ChoiceKind = DrawKind | "image";
 
 /**
  * What the screen says: what happened and what to do, then details. The
@@ -106,7 +106,6 @@ function fitsAtText(kind: ChoiceKind, fits: number, units: Units): string {
           km,
         );
       case "image":
-      case "freehand":
         return t(
           "This image does not fit the roads here at this distance. It fits at about {km} km.",
           km,
@@ -126,7 +125,6 @@ function fitsAtText(kind: ChoiceKind, fits: number, units: Units): string {
         miles,
       );
     case "image":
-    case "freehand":
       return t(
         "This image does not fit the roads here at this distance. It fits at about {mi} mi.",
         miles,
@@ -179,7 +177,7 @@ export function problemText(
               detail: devDetail(problem.message),
             };
           }
-          if (kind === "image" || kind === "freehand") {
+          if (kind === "image") {
             return {
               text: t(
                 "This outline does not fit the roads here. Try another distance, another start, or a simpler picture.",

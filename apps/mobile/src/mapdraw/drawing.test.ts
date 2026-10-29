@@ -6,8 +6,16 @@ import {
 
 import { metresBetween } from "../map/coordinates";
 import { lookOf, type Placed, placedLines } from "./figure";
-import { isSimpleRing, type P } from "./geometry";
-import { newDrawing, outlineOf, travelledPoints, withDetail } from "./drawing";
+import { isSimpleRing, type P, signedArea } from "./geometry";
+import {
+  CLOSED_SHARE,
+  firstLineOf,
+  isOpenLine,
+  newDrawing,
+  outlineOf,
+  travelledPoints,
+  withDetail,
+} from "./drawing";
 import { fromPlane } from "./plane";
 
 const TRENTO: LatLon = [46.0671, 11.1214];
@@ -95,15 +103,8 @@ test("a line that crosses itself where it cannot be cut is refused", () => {
   expect(outlineOf(zigzag)).toEqual({ problem: "crosses" });
 });
 
-test("a tap, or a line that encloses nothing, is no drawing", () => {
-  expect(
-    newDrawing(
-      onMap([
-        [0, 0],
-        [1, 1],
-      ]),
-    ),
-  ).toBeNull();
+test("a tap is no drawing", () => {
+  expect(newDrawing(onMap([[0, 0]]))).toBeNull();
   expect(
     newDrawing(
       onMap([
@@ -113,16 +114,98 @@ test("a tap, or a line that encloses nothing, is no drawing", () => {
       ]),
     ),
   ).toBeNull();
+});
+
+/** The drawing of the first line, or a failed test. */
+function drawingOf(line: P[]) {
+  const placed = placedOf(newDrawing(onMap(line)));
+  if (placed.figure.kind !== "drawing") throw new Error(placed.figure.kind);
+  return { placed, figure: placed.figure };
+}
+
+test("a line that does not come back to its start stays open, run there and back from where the finger started (TASK-331)", () => {
+  // An arch, its ends a kilometre apart: the user's «not a circle».
+  const arch = circle(500, 0.5, 0);
+  const { placed, figure } = drawingOf(arch);
+  expect(isOpenLine(figure.outline, figure.details)).toBe(true);
+  // The outline is a ring too small to see, on the line's first point.
+  expect(figure.outline).toHaveLength(4);
+  expect(figure.outline[3]).toEqual(figure.outline[0]);
+  expect(isSimpleRing(figure.outline)).toBe(true);
+  expect(Math.abs(signedArea(figure.outline))).toBeGreaterThan(0);
+  // The line is the one detail, from that very point, and not closed.
+  expect(figure.details).toHaveLength(1);
+  const [line] = figure.details;
+  expect(line[0]).toBe(figure.outline[0]);
+  const last = line[line.length - 1];
+  expect(Math.hypot(last[0] - line[0][0], last[1] - line[0][1])).toBeGreaterThan(1.5);
+  // Its length: the arch out and back, about.
+  expect(lookOf(figure).length * placed.unitM).toBeCloseTo(2 * Math.PI * 500, -2);
+  // The route starts where the finger started.
   expect(
-    newDrawing(
+    metresBetween(placedLines(placed)[0][0], fromPlane(TRENTO, [500, 0])),
+  ).toBeLessThan(5);
+  // A straight line, the simplest of all, is open too.
+  const straight = drawingOf([
+    [0, 0],
+    [100, 0],
+    [200, 0],
+    [300, 0],
+  ]).figure;
+  expect(isOpenLine(straight.outline, straight.details)).toBe(true);
+  expect(straight.details[0]).toHaveLength(2);
+});
+
+test("a line ending near its start closes, even with a short side; one ending farther stays open", () => {
+  // A tenth of its size from its start, then an eighth: closed, by a short
+  // side.
+  const near = drawingOf(circle(500, 0.97)).figure;
+  expect(near.details).toEqual([]);
+  expect(isOpenLine(near.outline, near.details)).toBe(false);
+  const shut = firstLineOf(circle(500, 0.96));
+  expect(shut !== null && "outline" in shut && shut.details).toEqual([]);
+  // A sixth: open.
+  const wide = firstLineOf(circle(500, 0.95));
+  expect(wide !== null && "outline" in wide && wide.details).toHaveLength(1);
+  // Three quarters of a circle: a «C», open.
+  const open = firstLineOf(circle(500, 0.75));
+  if (open === null || !("outline" in open)) throw new Error("no line");
+  expect(open.details).toHaveLength(1);
+  expect(CLOSED_SHARE).toBe(0.15);
+});
+
+test("a line that comes back to its start but cannot be closed stays open: no line is refused", () => {
+  // A figure of eight of two equal loops: either loop is half of it.
+  const eight: P[] = [
+    ...circle(400, 1, Math.PI, [400, 0]),
+    ...circle(400, 1, 0, [-400, 0]),
+  ];
+  expect(outlineOf(eight)).toEqual({ problem: "crosses" });
+  const first = firstLineOf(eight);
+  if (first === null || !("outline" in first)) throw new Error("no line");
+  expect(first.details).toHaveLength(1);
+  // Back on its first point: a loop the route runs once.
+  const [line] = first.details;
+  expect(line[line.length - 1]).toEqual(line[0]);
+});
+
+test("lines drawn on an open line hang on it, and keep it open", () => {
+  const { placed, figure } = drawingOf(circle(500, 0.5, 0));
+  const top = Math.max(...figure.details[0].map(([, y]) => y));
+  const hung = placedOf(
+    withDetail(
+      placed,
       onMap([
-        [0, 0],
-        [100, 0],
-        [200, 0],
-        [300, 0],
+        [0, 500],
+        [0, 200],
       ]),
     ),
-  ).toBeNull();
+  );
+  if (hung.figure.kind !== "drawing") throw new Error(hung.figure.kind);
+  expect(hung.figure.details).toHaveLength(2);
+  // It starts on the top of the arch, where it came nearest.
+  expect(hung.figure.details[1][0][1]).toBeCloseTo(top, 1);
+  expect(isOpenLine(hung.figure.outline, hung.figure.details)).toBe(true);
 });
 
 test("a line drawn after the first is hung on the drawing, there and back", () => {

@@ -26,7 +26,7 @@ import type { ThemedResult } from "../explore/themedRoutes";
 import { isImageRequest } from "../api/routes";
 import { t, tLater } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
-import { isDrawnOutline } from "../route/freehand";
+import { isDrawnOutline } from "../mapdraw/canvasRequest";
 import { onFootOf } from "../route/onFoot";
 import { isPenUpShape } from "../route/penUpShapes";
 import type { AnyRouteRequest } from "../route/useRouteRequest";
@@ -49,11 +49,11 @@ const PREVIEW_POINTS = 64;
 /** The title kept for the outline of an image: data, in English; shown with
  * `t(IMAGE_TITLE)`. */
 const IMAGE_TITLE = tLater("Image");
-/** The same for a figure drawn by hand on the board of «Draw» (TASK-320):
- * the app knows its outline by the arrays the board made. */
+/** The same for a figure drawn by hand on the map (TASK-320, TASK-331):
+ * the app knows its outline by the arrays the request was made of. */
 const DRAWING_TITLE = tLater("Drawing");
 
-/** "Image", or "Drawing" for an outline the board of «Draw» made. */
+/** "Image", or "Drawing" for the outline of a drawing on the map. */
 function outlineTitle(request: AnyRouteRequest): string {
   return isImageRequest(request) && isDrawnOutline(request.outline)
     ? DRAWING_TITLE
