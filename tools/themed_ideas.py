@@ -88,7 +88,7 @@ IDEAS: tuple[Idea, ...] = (
     Idea("Berlin", "Hidden Gems", "star", 8),
     Idea("Rome", "Photography", "heart", 6),
     Idea("Paris", "Famous Places", "star", 10),
-    Idea("London", "Best Views", "moon", 8),
+    Idea("London", "Best Views", "star", 8),
     Idea("Barcelona", "Hidden Gems", "moon", 6),
 )
 
