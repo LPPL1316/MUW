@@ -117,7 +117,9 @@ afterEach(() => {
 test("with «Run», a drawing on the water opens its route on the water, asking nothing", async () => {
   await onFeed();
   expect(POST.user).toBe("greta_kayak");
-  expect(screen.getByText("Paddle · Heart · 2.0 km · 26 min")).toBeOnTheScreen();
+  expect(
+    screen.getByText(/^Paddle · Heart · 2\.0 km · 26 min · \d:\d\d \/500 m$/),
+  ).toBeOnTheScreen();
   await fireEvent.press(screen.getByText(POST.title));
 
   // The card of a route of "Explore", over the whole screen.
