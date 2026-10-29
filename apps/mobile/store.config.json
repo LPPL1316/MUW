@@ -30,11 +30,13 @@
         "privacyPolicyUrl": "https://getmuw.app/privacy/",
         "screenshots": {
           "APP_IPHONE_67": [
-            "store/screenshots/iphone-69-1-heart-route.jpg",
-            "store/screenshots/iphone-69-2-run.jpg",
-            "store/screenshots/iphone-69-3-explore.jpg",
-            "store/screenshots/iphone-69-4-feed.jpg",
-            "store/screenshots/iphone-69-5-draw.jpg"
+            "store/screenshots/iphone-69-1-heart.jpg",
+            "store/screenshots/iphone-69-2-cat.jpg",
+            "store/screenshots/iphone-69-3-word.jpg",
+            "store/screenshots/iphone-69-4-draw.jpg",
+            "store/screenshots/iphone-69-5-run.jpg",
+            "store/screenshots/iphone-69-6-explore.jpg",
+            "store/screenshots/iphone-69-7-feed.jpg"
           ]
         }
       }
