@@ -25,6 +25,11 @@ type Want = Omit<Shoot, "type">;
 const images = new Map<string, string>();
 let queue: readonly Want[] = [];
 const listeners = new Set<() => void>();
+// The shooters on screen, in the order they came. The first takes the
+// pictures and the others wait: one map page at a time, wherever it is
+// (TASK-332). «Feed» has one; a profile over the big map, where «Feed» is
+// taken down, has its own.
+let shooters: readonly object[] = [];
 
 function subscribe(listener: () => void): () => void {
   listeners.add(listener);
@@ -66,6 +71,20 @@ export function forgetFeedMaps() {
   images.clear();
   queue = [];
   tell();
+}
+
+/** Whether this shooter is the one that takes the pictures now. */
+function useTurn(): boolean {
+  const [me] = useState(() => ({}));
+  useEffect(() => {
+    shooters = [...shooters, me];
+    tell();
+    return () => {
+      shooters = shooters.filter((each) => each !== me);
+      tell();
+    };
+  }, [me]);
+  return useSyncExternalStore(subscribe, () => shooters[0] === me);
 }
 
 /**
@@ -110,13 +129,15 @@ type Props = {
 /**
  * Takes the pictures `useFeedMap` asks for (TASK-162, ADR-0131), one at a
  * time, with a map page that nobody sees: it goes under something opaque,
- * and is there only while a picture is waited for.
+ * and is there only while a picture is waited for. With another shooter
+ * on screen since before, that one takes them and this one waits (TASK-332).
  */
 export function FeedMapShooter({ width, height }: Props) {
   // A new language: the pictures still to take are asked again in it.
   useEffect(() => subscribeLanguage(giveUp), []);
+  const mine = useTurn();
   const next = useSyncExternalStore(subscribe, () => queue[0] ?? null);
-  if (next === null) {
+  if (!mine || next === null) {
     return null;
   }
   return <Page next={next} width={width} height={height} />;

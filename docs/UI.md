@@ -744,6 +744,13 @@ l'account ha reso pubbliche, come le vedono gli altri, dalla
 più recente, tre per riga. Ognuna è la traccia senza i primi e gli ultimi
 200 m, piccola e gialla come i disegni di «Feed», **senza punteggio**
 (TASK-241 parte E, chiesto dall'utente); venti per volta, poi «Show more».
+**Sotto la linea c'è la mappa del posto**, una foto come in «Feed»
+(TASK-332, ADR-0131 e la sua aggiunta): finché non arriva, la linea sul
+fondo scuro di prima. Ogni miniatura la chiede quando entra nello
+schermo, non prima: una griglia lunga non le chiede tutte insieme. Sotto
+la griglia, una volta, «Maps: OpenFreeMap © OpenMapTiles · Data from
+OpenStreetMap», come sotto le schede di «Explore». Vale per il proprio
+profilo e per quello di un altro.
 Vuota: «No public drawings yet. Make a run public in My activities.».
 Non arrivata: il motivo e «Try again». **Un disegno toccato si apre sulla
 mappa**, come una corsa di «My activities»: «Profile» si toglie, la mappa
