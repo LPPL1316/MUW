@@ -26,6 +26,13 @@ report's email, who wrote it still sees it.
 Each message is told by push to the other (push.py, "message", with its
 beginning); a request once a day for each writer ("message_request",
 without its text). Never by email.
+
+A message of a conversation `open` to its writer may carry one attachment
+(TASK-333, ADR-0289): a photo or a video uploaded first (message_media.py,
+files on disk), or a drawing, a copy of the route as a favorite keeps it.
+With one the text may be empty. A request is text only (409). An app that
+does not ask `?with=attachments` reads «[Photo]», «[Video]» or «[Drawing]»
+before the text instead.
 """
 
 from __future__ import annotations
@@ -34,8 +41,8 @@ import math
 import unicodedata
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Annotated, Any, Literal
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 from uuid import UUID
 
 from fastapi import (
@@ -51,7 +58,8 @@ from fastapi.responses import JSONResponse
 from psycopg import Connection
 from psycopg import errors as pg_errors
 from psycopg.rows import DictRow
-from pydantic import BaseModel, ConfigDict, Field
+from psycopg.types.json import Jsonb
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from shaperoute_api.access import RateLimiter
 from shaperoute_api.accounts import (
@@ -66,6 +74,7 @@ from shaperoute_api.accounts import (
 from shaperoute_api.activities import EPOCH, MICROSECOND
 from shaperoute_api.comment_filter import check_comment
 from shaperoute_api.db import Database
+from shaperoute_api.favorites import FavoriteRequestBody
 from shaperoute_api.follows import (
     CURSOR_PATTERN,
     MAX_PAGE_SIZE,
@@ -80,7 +89,12 @@ from shaperoute_api.follows import (
     follows_sql,
 )
 from shaperoute_api.push import PushEvent, notify
-from shaperoute_api.schemas import ErrorBody, ErrorDetail
+from shaperoute_api.recommended import preview
+from shaperoute_api.schemas import MAX_IMAGE_BYTES, ErrorBody, ErrorDetail
+
+if TYPE_CHECKING:
+    # Not at run time: message_media.py reads SEEN here.
+    from shaperoute_api.message_media import MessageMedia
 
 MAX_MESSAGE_LENGTH = 1000
 # A chat goes faster than comments; more is a script.
@@ -94,6 +108,22 @@ MAX_MESSAGES_PER_MINUTE = 20
 State = Literal["open", "first", "waiting", "request"]
 Box = Literal["inbox", "requests"]
 
+# The attachments (TASK-333, ADR-0289): the user's limits of 2026-10-29.
+AttachmentKind = Literal["photo", "video", "drawing"]
+VIDEO_MAX_S = 60
+VIDEO_MAX_BYTES = 40_000_000
+# A photo before the API makes it smaller: as the photos of the drawings.
+PHOTO_MAX_BYTES = MAX_IMAGE_BYTES
+# A video is kept this long after its message, then «This video has expired».
+VIDEO_DAYS = 30
+# What an app that does not ask ?with=attachments reads before the text.
+OLD_APP_LABELS: dict[str, str] = {
+    "photo": "[Photo]",
+    "video": "[Video]",
+    "drawing": "[Drawing]",
+}
+WITH_ATTACHMENTS = "attachments"
+
 MESSAGE_EMPTY = "A message needs some words."
 MESSAGE_TOO_LONG = f"A message is at most {MAX_MESSAGE_LENGTH} characters."
 MESSAGE_NOT_TEXT = (
@@ -106,13 +136,18 @@ NO_CONVERSATION = "No conversation with this member."
 NO_MESSAGE = "No message with this id."
 NOT_YOUR_MESSAGE = "Only who wrote a message deletes it."
 NEGATIVE_MESSAGE = "You can't send negative messages in this app."
+ATTACHMENT_IN_REQUEST = (
+    "Photos, videos and drawings can be sent once they accept your message."
+)
+NO_UPLOAD = "No photo or video with this id to send: upload it again."
+NO_DRAWING = "No drawing in a message with this id."
 
 
-def checked_text(value: str) -> str:
+def checked_text(value: str, attached: bool = False) -> str:
     """The message as kept: without spaces at either end; or 422 saying
-    what is wrong with it. New lines stay."""
+    what is wrong with it. New lines stay. Empty only with an attachment."""
     text = value.strip()
-    if not text:
+    if not text and not attached:
         raise AccountError(422, "invalid_request", MESSAGE_EMPTY)
     if len(text) > MAX_MESSAGE_LENGTH:
         raise AccountError(422, "invalid_request", MESSAGE_TOO_LONG)
@@ -141,18 +176,75 @@ def rejected_answer(_: Request, exc: Exception) -> JSONResponse:
 # --- The bodies ---
 
 
+class MessageAttachmentRequestBody(BaseModel):
+    """What a message carries: a photo or a video uploaded with POST
+    /me/message-media, or a drawing; one of the two."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    media_id: UUID | None = None
+    drawing: FavoriteRequestBody | None = None
+    """The route as PUT /me/favorites/{key} takes it."""
+
+    @model_validator(mode="after")
+    def one_of_the_two(self) -> MessageAttachmentRequestBody:
+        if (self.media_id is None) == (self.drawing is None):
+            raise ValueError("attachment: a media_id or a drawing, one of the two")
+        return self
+
+
 class MessageRequestBody(BaseModel):
     """POST /conversations/{public_id}/messages:
-    packages/shared-types/fixtures/message-request.json."""
+    packages/shared-types/fixtures/message-request.json, and with an
+    attachment message-attachment-request.json."""
 
     model_config = ConfigDict(extra="forbid")
 
     text: str = Field(
+        default="",
         description=(
             f"1 to {MAX_MESSAGE_LENGTH} characters once the spaces at either end"
-            " are gone; new lines are kept."
+            " are gone; new lines are kept. May be empty with an attachment."
         ),
     )
+    attachment: MessageAttachmentRequestBody | None = None
+
+
+LatLon = tuple[float, float]
+
+
+class DrawingCardBody(BaseModel):
+    """A drawing as the conversation shows it; GET /messages/{id}/drawing
+    has it whole."""
+
+    title: str | None
+    shape: str | None
+    word: str | None
+    style: Literal["round", "block"] | None
+    distance_m: int
+    route_m: int
+    activity: str
+    rotation_deg: float | None
+    preview: list[LatLon]
+    """At most 64 points of its line."""
+
+
+class AttachmentBody(BaseModel):
+    """What a message carries besides its text."""
+
+    kind: AttachmentKind
+    media_id: UUID | None
+    """A photo's or a video's: GET /message-media/{media_id}. Null for a
+    drawing and for a video expired."""
+    width: int | None
+    height: int | None
+    duration_ms: int | None
+    """A video's length."""
+    poster: bool
+    """A video's first picture: GET /message-media/{media_id}/poster."""
+    expired: bool
+    """A video VIDEO_DAYS after its message: gone from the server."""
+    drawing: DrawingCardBody | None
 
 
 class MessageBody(BaseModel):
@@ -164,6 +256,18 @@ class MessageBody(BaseModel):
     created_at: datetime
     mine: bool
     """Who asks wrote it, and may delete it."""
+    attachment: AttachmentBody | None
+    """Null for text only (TASK-333)."""
+
+
+class AttachmentsAllowedBody(BaseModel):
+    """What who asks may attach in this conversation now."""
+
+    kinds: list[AttachmentKind]
+    """"video" leaves while the server is full of them."""
+    video_max_s: int
+    video_max_bytes: int
+    photo_max_bytes: int
 
 
 class MessagesBody(BaseModel):
@@ -175,6 +279,9 @@ class MessagesBody(BaseModel):
     messages: list[MessageBody]
     next: str | None
     """The `cursor` of the page of older ones; null on the oldest."""
+    attachments: AttachmentsAllowedBody | None
+    """Null outside an `open` conversation: a request is text only. An API
+    before TASK-333 has no field, and the app shows no «+»."""
 
 
 class ConversationBody(BaseModel):
@@ -227,10 +334,23 @@ BOX_OF: dict[Box, str] = {
     "inbox": "cm.accepted_at IS NOT NULL",
     "requests": "cm.accepted_at IS NULL",
 }
+# A message with its attachment (TASK-333): `m` with `mm`, its photo or
+# video if it has one.
+MESSAGE_COLUMNS = (
+    "m.id, m.text, m.created_at, m.sender_id, m.attachment, m.drawing_card,"
+    " mm.id AS media_id, mm.width, mm.height, mm.duration_ms, mm.poster_bytes,"
+    " mm.stored"
+)
+WITH_MEDIA = "LEFT JOIN message_media mm ON mm.message_id = m.id"
 LAST = (
-    "JOIN LATERAL (SELECT m.id, m.text, m.created_at, m.sender_id"
-    " FROM messages m WHERE m.conversation_id = cm.conversation_id"
+    f"JOIN LATERAL (SELECT {MESSAGE_COLUMNS} FROM messages m {WITH_MEDIA}"
+    " WHERE m.conversation_id = cm.conversation_id"
     f" AND {SEEN} ORDER BY m.created_at DESC, m.id DESC LIMIT 1) last ON true"
+)
+LAST_COLUMNS = (
+    "last.id, last.text, last.created_at, last.sender_id, last.attachment,"
+    " last.drawing_card, last.media_id, last.width, last.height,"
+    " last.duration_ms, last.poster_bytes, last.stored"
 )
 
 
@@ -332,12 +452,69 @@ def _person_of(conn: Connection[DictRow], user_id: int) -> PersonBody:
     return _person(row)
 
 
-def _message(row: DictRow, user_id: int) -> MessageBody:
+def expired(created_at: datetime, now: datetime) -> bool:
+    """A video's message older than VIDEO_DAYS: its file is gone, or goes
+    at the next round."""
+    return created_at <= now - timedelta(days=VIDEO_DAYS)
+
+
+def _attachment(row: DictRow, now: datetime) -> AttachmentBody | None:
+    kind: AttachmentKind | None = row["attachment"]
+    if kind is None:
+        return None
+    if kind == "drawing":
+        return AttachmentBody(
+            kind=kind,
+            media_id=None,
+            width=None,
+            height=None,
+            duration_ms=None,
+            poster=False,
+            expired=False,
+            drawing=DrawingCardBody.model_validate(row["drawing_card"]),
+        )
+    gone = kind == "video" and (not row["stored"] or expired(row["created_at"], now))
+    return AttachmentBody(
+        kind=kind,
+        media_id=None if gone else row["media_id"],
+        width=row["width"],
+        height=row["height"],
+        duration_ms=row["duration_ms"],
+        poster=not gone and row["poster_bytes"] is not None,
+        expired=gone,
+        drawing=None,
+    )
+
+
+def _message(
+    row: DictRow, user_id: int, now: datetime, with_attachments: bool = True
+) -> MessageBody:
+    text: str = row["text"]
+    kind = row["attachment"]
+    if kind is not None and not with_attachments:
+        # An app of before reads its text only.
+        text = f"{OLD_APP_LABELS[kind]} {text}".rstrip()
     return MessageBody(
         id=row["id"],
-        text=row["text"],
+        text=text,
         created_at=row["created_at"],
         mine=row["sender_id"] == user_id,
+        attachment=_attachment(row, now),
+    )
+
+
+def drawing_card(drawing: FavoriteRequestBody) -> DrawingCardBody:
+    """The drawing as the conversation shows it."""
+    return DrawingCardBody(
+        title=drawing.title,
+        shape=drawing.shape,
+        word=drawing.word,
+        style=drawing.style,
+        distance_m=drawing.distance_m,
+        route_m=drawing.route_m,
+        activity=drawing.activity,
+        rotation_deg=drawing.rotation_deg,
+        preview=preview(drawing.points),
     )
 
 
@@ -361,6 +538,9 @@ class Sent:
     message: MessageBody
     recipient_id: int
     request: bool
+    attachment: AttachmentKind | None = None
+    text: str = ""
+    """As written, for the push: without what an app of before reads."""
 
 
 @dataclass
@@ -370,6 +550,9 @@ class Messages:
 
     database: Database
     now: Callable[[], datetime]
+    # The photos and videos (message_media.py, TASK-333): None on a server
+    # without their folder, where only drawings are attached.
+    media: MessageMedia | None = None
 
     def conversations(
         self,
@@ -377,6 +560,7 @@ class Messages:
         box: Box = "inbox",
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
+        with_attachments: bool = True,
     ) -> ConversationsBody:
         """A page of the box's conversations, the latest message first."""
         where = _box(box)
@@ -385,10 +569,10 @@ class Messages:
         if cursor is not None:
             paged += " AND (last.created_at, cm.conversation_id) < (%s, %s)"
             values += _after_cursor(cursor)
+        now = self.now()
         with self.database.connect() as conn:
             rows = conn.execute(
-                f"SELECT cm.conversation_id, {PERSON_COLUMNS}, last.id,"
-                " last.text, last.created_at, last.sender_id,"
+                f"SELECT cm.conversation_id, {PERSON_COLUMNS}, {LAST_COLUMNS},"
                 f" {UNREAD} AS unread FROM {paged}"
                 " ORDER BY last.created_at DESC, cm.conversation_id DESC LIMIT %s",
                 (*values, limit + 1),
@@ -402,7 +586,7 @@ class Messages:
             conversations=[
                 ConversationBody(
                     person=_person(row),
-                    last=_message(row, user_id),
+                    last=_message(row, user_id, now, with_attachments),
                     unread=row["unread"],
                 )
                 for row in page
@@ -432,29 +616,53 @@ class Messages:
         assert row is not None
         return UnreadBody(unread=row["unread"], requests=row["requests"])
 
+    def allowed(self, state: State) -> AttachmentsAllowedBody | None:
+        """What may be attached now: nothing outside an `open`
+        conversation; a drawing always; a photo and a video with the
+        folder, a video while the server has room for it."""
+        if state != "open":
+            return None
+        kinds: list[AttachmentKind] = (
+            [] if self.media is None else self.media.kinds()
+        ) + ["drawing"]
+        return AttachmentsAllowedBody(
+            kinds=kinds,
+            video_max_s=VIDEO_MAX_S,
+            video_max_bytes=VIDEO_MAX_BYTES,
+            photo_max_bytes=PHOTO_MAX_BYTES,
+        )
+
     def page(
         self,
         user_id: int,
         public_id: str,
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
+        with_attachments: bool = True,
     ) -> MessagesBody:
         """A page of the messages with `public_id`, the latest first; none
         before the first one is written."""
+        now = self.now()
         with self.database.connect() as conn:
             other = _other(conn, user_id, public_id)
             person = _person_of(conn, other)
             state = _state(conn, user_id, other)
             mine = _member(conn, user_id, other)
             if mine is None:
-                return MessagesBody(person=person, state=state, messages=[], next=None)
+                return MessagesBody(
+                    person=person,
+                    state=state,
+                    messages=[],
+                    next=None,
+                    attachments=self.allowed(state),
+                )
             where = f"m.conversation_id = %s AND {SEEN}"
             values: list[Any] = [user_id, mine["conversation_id"]]
             if cursor is not None:
                 where += " AND (m.created_at, m.id) < (%s, %s)"
                 values += _after_cursor(cursor)
             rows = conn.execute(
-                "SELECT m.id, m.text, m.created_at, m.sender_id FROM messages m"
+                f"SELECT {MESSAGE_COLUMNS} FROM messages m {WITH_MEDIA}"
                 " JOIN conversation_members cm"
                 " ON cm.conversation_id = m.conversation_id AND cm.user_id = %s"
                 f" WHERE {where} ORDER BY m.created_at DESC, m.id DESC LIMIT %s",
@@ -464,15 +672,24 @@ class Messages:
         return MessagesBody(
             person=person,
             state=state,
-            messages=[_message(row, user_id) for row in page],
+            messages=[_message(row, user_id, now, with_attachments) for row in page],
             next=_cursor(page[-1]["created_at"], page[-1]["id"]) if more else None,
+            attachments=self.allowed(state),
         )
 
-    def send(self, user: UserBody, public_id: str, text: str) -> Sent:
+    def send(
+        self,
+        user: UserBody,
+        public_id: str,
+        text: str,
+        attachment: MessageAttachmentRequestBody | None = None,
+        with_attachments: bool = True,
+    ) -> Sent:
         """`text` from `user` to `public_id`: the comment of State says when.
-        409 while a request waits; 422 for a text refused, or a request's
-        negative one."""
-        kept = checked_text(text)
+        409 while a request waits, or for an attachment outside an `open`
+        conversation; 404 for a photo or video not uploaded by `user`, or
+        sent already; 422 for a text refused, or a request's negative one."""
+        kept = checked_text(text, attached=attachment is not None)
         now = self.now()
         try:
             with self.database.connect() as conn:
@@ -501,16 +718,58 @@ class Messages:
                 state = _state(conn, user.id, other)
                 if state == "waiting":
                     raise AccountError(409, "http_error", WAITING)
+                if attachment is not None and state != "open":
+                    raise AccountError(409, "http_error", ATTACHMENT_IN_REQUEST)
                 if state == "first":
                     reason = check_comment(kept)
                     if reason is not None:
                         raise MessageRejected(reason)
+                kind: AttachmentKind | None = None
+                drawing = None if attachment is None else attachment.drawing
+                if attachment is not None and attachment.media_id is not None:
+                    upload = conn.execute(
+                        "SELECT kind FROM message_media WHERE id = %s"
+                        " AND owner_id = %s AND message_id IS NULL AND stored"
+                        " FOR UPDATE",
+                        (attachment.media_id, user.id),
+                    ).fetchone()
+                    if upload is None:
+                        raise AccountError(404, "http_error", NO_UPLOAD)
+                    kind = upload["kind"]
+                elif drawing is not None:
+                    kind = "drawing"
+                inserted = conn.execute(
+                    "INSERT INTO messages (conversation_id, sender_id, text,"
+                    " created_at, attachment, drawing, drawing_card)"
+                    " VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                    (
+                        conversation_id,
+                        user.id,
+                        kept,
+                        now,
+                        kind,
+                        (
+                            None
+                            if drawing is None
+                            else Jsonb(drawing.model_dump(mode="json"))
+                        ),
+                        (
+                            None
+                            if drawing is None
+                            else Jsonb(drawing_card(drawing).model_dump(mode="json"))
+                        ),
+                    ),
+                ).fetchone()
+                assert inserted is not None
+                if attachment is not None and attachment.media_id is not None:
+                    conn.execute(
+                        "UPDATE message_media SET message_id = %s WHERE id = %s",
+                        (inserted["id"], attachment.media_id),
+                    )
                 kept_row = conn.execute(
-                    "INSERT INTO messages"
-                    " (conversation_id, sender_id, text, created_at)"
-                    " VALUES (%s, %s, %s, %s)"
-                    " RETURNING id, text, created_at, sender_id",
-                    (conversation_id, user.id, kept, now),
+                    f"SELECT {MESSAGE_COLUMNS} FROM messages m {WITH_MEDIA}"
+                    " WHERE m.id = %s",
+                    (inserted["id"],),
                 ).fetchone()
                 assert kept_row is not None
                 # Writing accepts: a reply to a request, or the first message.
@@ -531,7 +790,31 @@ class Messages:
         except pg_errors.ForeignKeyViolation:
             # The account was deleted while it was writing.
             raise AccountError(401, "not_signed_in", NOT_SIGNED_IN) from None
-        return Sent(_message(kept_row, user.id), other, state == "first")
+        return Sent(
+            _message(kept_row, user.id, now, with_attachments),
+            other,
+            state == "first",
+            kind,
+            kept,
+        )
+
+    def drawing(self, user_id: int, message_id: str) -> FavoriteRequestBody | None:
+        """The drawing of a message whole, for a member who sees the
+        message; None otherwise, as for an id that is not there."""
+        wanted = _uuid(message_id)
+        if wanted is None:
+            return None
+        with self.database.connect() as conn:
+            row = conn.execute(
+                "SELECT m.drawing FROM messages m JOIN conversation_members cm"
+                " ON cm.conversation_id = m.conversation_id AND cm.user_id = %s"
+                f" WHERE m.id = %s AND m.drawing IS NOT NULL AND {SEEN}"
+                f" AND NOT {apart_sql('cm.user_id', 'cm.other_id')}",
+                (user_id, wanted),
+            ).fetchone()
+        return (
+            None if row is None else FavoriteRequestBody.model_validate(row["drawing"])
+        )
 
     def accept(self, user_id: int, public_id: str) -> bool:
         """The other's request accepted: the two write freely. False when
@@ -605,14 +888,21 @@ class Messages:
         )
 
 
-def messages_of(accounts: Annotated[Accounts, Depends(accounts_of)]) -> Messages:
-    """In the database of the accounts, on the same clock."""
-    return Messages(accounts.database, accounts.now)
+def messages_of(
+    accounts: Annotated[Accounts, Depends(accounts_of)], request: Request
+) -> Messages:
+    """In the database of the accounts, on the same clock, with the photos
+    and videos when the server has their folder."""
+    media: MessageMedia | None = getattr(request.app.state, "message_media", None)
+    return Messages(accounts.database, accounts.now, media)
 
 
 Them = Annotated[Messages, Depends(messages_of)]
 Me = Annotated[UserBody, Depends(current_user)]
 NOT_FOUND: dict[int | str, dict[str, Any]] = {404: {"model": ErrorBody}}
+# ?with=attachments: an app that shows them (TASK-333); without, the text
+# of a message says «[Photo]» and the like before it.
+With = Annotated[str | None, Query(alias="with", pattern=f"^{WITH_ATTACHMENTS}$")]
 
 
 def message_routes() -> APIRouter:
@@ -627,8 +917,9 @@ def message_routes() -> APIRouter:
         box: Box = "inbox",
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
+        with_: With = None,
     ) -> ConversationsBody:
-        return messages.conversations(user.id, box, limit, cursor)
+        return messages.conversations(user.id, box, limit, cursor, with_ is not None)
 
     @router.get("/me/conversations/unread")
     def unread(messages: Them, user: Me) -> UnreadBody:
@@ -641,8 +932,9 @@ def message_routes() -> APIRouter:
         user: Me,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
+        with_: With = None,
     ) -> MessagesBody:
-        return messages.page(user.id, public_id, limit, cursor)
+        return messages.page(user.id, public_id, limit, cursor, with_ is not None)
 
     @router.post(
         "/conversations/{public_id}/messages",
@@ -655,13 +947,16 @@ def message_routes() -> APIRouter:
         messages: Them,
         user: Me,
         request: Request,
+        with_: With = None,
     ) -> MessageBody:
         wait = written.wait_s(str(user.id))
         if wait > 0:
             raise AccountError(
                 429, "too_many_requests", TOO_MANY_MESSAGES, math.ceil(wait)
             )
-        sent = messages.send(user, public_id, body.text)
+        sent = messages.send(
+            user, public_id, body.text, body.attachment, with_ is not None
+        )
         pushed_message(request, user, sent)
         return sent.message
 
@@ -682,6 +977,15 @@ def message_routes() -> APIRouter:
     def clear(public_id: str, messages: Them, user: Me) -> Response:
         messages.clear(user.id, public_id)
         return Response(status_code=204)
+
+    @router.get("/messages/{message_id}/drawing", responses=NOT_FOUND)
+    def message_drawing(
+        message_id: str, messages: Them, user: Me
+    ) -> FavoriteRequestBody:
+        drawing = messages.drawing(user.id, message_id)
+        if drawing is None:
+            raise HTTPException(404, NO_DRAWING)
+        return drawing
 
     @router.delete(
         "/messages/{message_id}",
@@ -717,7 +1021,8 @@ def install_messages(app: FastAPI) -> None:
 
 def pushed_message(request: Request, user: UserBody, sent: Sent) -> None:
     """After a message is kept: the other is told (push.py). Each message
-    with its beginning; a request without its text, once a day."""
+    with its beginning and what it carries; a request without its text,
+    once a day."""
     if sent.request:
         notify(request, PushEvent("message_request", user.id, sent.recipient_id))
     else:
@@ -727,7 +1032,8 @@ def pushed_message(request: Request, user: UserBody, sent: Sent) -> None:
                 "message",
                 user.id,
                 sent.recipient_id,
-                text=sent.message.text,
+                text=sent.text,
                 key=str(sent.message.id),
+                attachment=sent.attachment,
             ),
         )

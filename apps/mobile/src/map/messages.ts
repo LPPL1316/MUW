@@ -48,6 +48,9 @@ export type ToPage =
   | { type: "stopFollow" }
   | { type: "showStops"; stops: StopFeature[] }
   | { type: "clearStops" }
+  /** A place of a themed route tapped under the map (TASK-329): the map
+   * goes there, as close as a street. */
+  | { type: "focus"; lngLat: LngLat }
   /** With `on`, a double tap is told to the app and no longer zooms the
    * map (TASK-119); two fingers still do. */
   | { type: "setDoubleTap"; on: boolean }
@@ -208,6 +211,11 @@ export function showStops(
 
 export function clearStops(): ToPage {
   return { type: "clearStops" };
+}
+
+/** Takes the map to `point`, a place of a themed route (TASK-329). */
+export function focus(point: LatLon): ToPage {
+  return { type: "focus", lngLat: toLngLat(point) };
 }
 
 export function clearRoute(): ToPage {

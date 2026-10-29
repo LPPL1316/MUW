@@ -31,7 +31,7 @@ services:
     command:
       - sh
       - -c
-      - mkdir -p /data/cache /data/insights /data/requests /data/backups && chown -R 10001:10001 /data
+      - mkdir -p /data/cache /data/insights /data/requests /data/backups /data/media && chown -R 10001:10001 /data
     volumes:
       - ../data:/data
     logging: *logging
@@ -132,6 +132,9 @@ services:
       - ../data/cache:/app/data/cache
       - ../data/insights:/app/data/insights
       - ../data/requests:/app/data/requests
+      # The photos and videos of the messages (TASK-333, ADR-0289): files,
+      # never in the database, so not in data/backups either.
+      - ../data/media:/app/data/media
       # The image has no catalog/: without it Explore has no routes.
       - ../catalog:/app/catalog:ro
     ports:

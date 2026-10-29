@@ -160,6 +160,38 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-329 — «Ask for a route» sempre aperto, con le nostre idee in
+  Europa e poi le foto vere dei posti** (ADR-0287; richiesta a voce
+  dell'utente del 2026-10-29, proposta approvata con «Sì, così»; numeri
+  dal Coordinatore). **Parte A** (branch `feat/TASK-329-explore-ideas`,
+  solo app, OTA): via «CITY TOURS» e «PICTURES» da «Draw»; «Ask for a
+  route» aperto in fondo a «Explore» con quattro categorie fisse (Famous
+  Places, Best Views, Hidden Gems, Photography); sopra, la fila «IDEAS FROM
+  EUROPE» con circa 12 percorsi in 8 città calcolati una volta da
+  `tools/themed_ideas.py` (job a tema dell'API e motore, nessuna coordinata
+  inventata) in `src/explore/themedIdeas.json`; un'idea si apre senza rete
+  e, lontano dalla partenza, ha «Make it near me». I testi nuovi aspettano
+  il sì dell'utente; `App.tsx` dopo il merge di TASK-327. **Parte B** (API
+  + server col sì dell'utente): codice Wikidata e foto di ogni posto con
+  `CityPhotos` di TASK-283, la fila di foto sotto la mappa. File
+  `tasks/TASK-329.md`.
+  **A in `main`** con la #630 (`75bcb2e7`, 2026-10-29): «Draw» senza le
+  due righe, «Ask for a route» aperto con quattro temi, 12 idee in 8 città
+  da `tools/themed_ideas.py`, «Make it near me»; testi approvati («Sì,
+  approvo»); impronta iOS `83793e26` invariata; solo OTA.
+  **Parte B fatta il 2026-10-29**
+  (branch `feat/TASK-329-b-place-photos`, aggiunta ad ADR-0287): ogni
+  posto di un percorso a tema ha `wikidata`, i toccati `photo`
+  (`CityPhotos`, ≤ 2 s); `GET /place-photos` per i soli elementi delle idee,
+  elencati dallo strumento in `services/api/shaperoute_api/data/idea_items.json`
+  (`themed_ideas.py --items`); nell'app la fila «1 Colosseum»… sotto la
+  mappa, numerata come sulla mappa, un tocco porta la mappa lì; le schede
+  delle idee con la foto del primo posto e la forma in piccolo. Nessun
+  testo nuovo, nessuna dipendenza, `engine.zip` invariato. **Prossimo**:
+  il sì dell'utente sulla riga della privacy (invariata), la PR al
+  Coordinatore, poi il server col sì dell'utente; senza il server l'app
+  mostra i posti col solo nome.
+
 - **TASK-331 — A mano solo sulla mappa: la linea aperta, «Erase», «Edit
   the drawing» sulla mappa e mai per le emoji** (ADR-0288; richiesta
   dell'utente del 2026-10-29 dopo la prova sul telefono, scelta «Tutto
@@ -170,9 +202,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Freehand» di «Draw»; «Edit the drawing» mette la figura sulla mappa, mai
   per una forma del catalogo; sulla mappa «Erase» e due dita che spostano
   la mappa. Solo JS dell'app, niente dipendenze né nativo. Jest 533/4297
-  verdi. **Resta**: il sì dell'utente sui due testi nuovi (`UI.md`), poi il
-  merge del Coordinatore (ordine su `App.tsx`) e la prova col dito
-  sull'iPhone con la prossima anteprima.
+  verdi. I due testi nuovi (`UI.md`) approvati dall'utente il 2026-10-29.
+  **Resta**: il merge del Coordinatore e la prova col dito sull'iPhone con
+  la prossima anteprima.
 
 - **TASK-321 — L'attività finita anche in Apple Salute e in Health
   Connect, perché compaia in Fitness** (ADR-0281, proposta; domanda
@@ -1838,9 +1870,47 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`test_sign_in_providers.py`). Solo API: impronta iOS `83793e26`
   invariata. Spento finché il server non ha le chiavi (parte C, col sì
   dell'utente). Prossima: B (l'app), in una sessione sua.
+- **TASK-333 — Gli allegati nei messaggi privati: un disegno, una foto, un
+  video** (ADR-0289, proposta; richiesta dell'utente del 2026-10-29,
+  «Aggiungi la possibilità di inviare disegni agli amici allegati, foto
+  video»; numeri dal Coordinatore). Branch
+  `docs/TASK-333-message-attachments`: solo i documenti, con le scelte
+  da chiedere all'utente una per volta. Poi A (API: file su disco in
+  `data/media`, caricamento in due tempi, durata letta dall'MP4, il luogo
+  tolto, limiti, scadenza dei video e tetto del server, segnalazione con
+  l'allegato), B (app: foto e video) e C (app: i disegni), ognuna nella
+  sua PR. Impronta iOS `83793e26`: niente moduli nuovi. Server, OTA e
+  «App Privacy» / «Data safety» col sì dell'utente. File
+  `tasks/TASK-333.md`.
+  **Proposta approvata il 2026-10-29** (PR #627): solo dopo «Accept»,
+  video fino a 60 s e 40 MB tenuti 30 giorni, il disegno si apre, si
+  corre e si tiene, si manda dalla scheda e dalla conversazione; testi e
+  privacy approvati («Approvo così»). Prossimo: la parte A, col «vai»
+  dell'utente, in una sessione sua.
+  **Parte A scritta il 2026-10-29** (branch
+  `feat/TASK-333-a-attachments-api`, sulla delega di 23 ore dell'utente e
+  col via del Coordinatore): migrazione `0038_message_media.sql`,
+  `media_files.py` (comune con TASK-336), `message_media.py` (caricare,
+  locandina, leggere con `Range`, 10 video e 100 foto al giorno, tetto
+  `SHAPEROUTE_MESSAGE_MEDIA_MAX_GB`, video scaduti dopo 30 giorni, giro di
+  pulizia ogni ora), `messages.py` (l'allegato solo in `open`, il disegno
+  intero e la sua scheda, «[Photo]» per l'app di prima), push, la
+  segnalazione con l'allegato sulla pagina del link, `data/media` in
+  `compose.yaml`. Server fermo fino al ritorno dell'utente. Prossima: B
+  (l'app, foto e video).
+  A in `main` con la #634 (02e3fc5c). **Parte B scritta il 2026-10-29**
+  (branch `feat/TASK-333-b-attachments-app`, stessa delega): il «+» solo
+  quando la pagina ha `attachments` (niente sonda nuova), «Photo» e
+  «Video» dalla galleria con i controlli di 60 s e 40 MB, l'anteprima con
+  il testo, il file caricato con `File.upload` di `expo-file-system`, la
+  locandina fatta in una WebView nascosta, la foto e il video a tutto
+  schermo con «Share», la lista con «📷 Photo», la privacy nelle cinque
+  lingue e sul sito; «Help» con la parte C. Solo OTA, dopo il server.
+  Prossima: C (i disegni), dopo B; `RoutePanel.tsx` è conteso con TASK-331.
 
 ## Completato
 
+- **App** — TASK-330 (segnalazione dell'utente del 2026-10-29): le foto dei post si vedono sul telefono. Si chiedevano senza `X-API-Key` e il server rispondeva 401 (Feed, galleria del profilo, disegno aperto); e nel Feed lo swipe sulla figura girava la pagina su Draw, perché su iOS uno `ScrollView` dentro un `Pressable` toccato non scorre: ora il disegno e ogni foto prendono il tocco da soli. Riprodotto e verificato nel simulatore iOS. Solo JS, impronta invariata. `tasks/TASK-330.md`.
 - **App** — TASK-332 (una riga in ADR-0131; richiesta dell'utente del 2026-10-29): nella griglia «Drawings» del profilo, proprio e di un altro, ogni disegno ha sotto la foto della mappa del posto, come in «Feed», con «Maps: …» una volta sotto la griglia. La foto si chiede solo quando la miniatura entra nello schermo (`SightScrollView` in «Profile» e «Find friends»); sopra la mappa grande il profilo di un altro ha la sua pagina delle foto, e ne lavora una alla volta. Solo app, nessun testo nuovo. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-332.md`.
 - **App** — TASK-327 (ADR-0286, che cambia ADR-0255; richiesta e scelta dell'utente del 2026-10-29): «Play» non è più il quarto nome in alto accanto a «Explore». In «Draw», subito sotto la distanza e prima di «NEAR YOU», una riga «PLAY» · «Collect shapes by running» · «›», solo mentre l'API ha il gioco; un tocco apre il gioco a tutto schermo (le due schede di sempre) e «←» torna a «Draw». «See collection» e le notifiche del gioco lo aprono come prima. In alto tre nomi, il profilo di nuovo a uno swipe da «Explore». Testi approvati dall'utente, solo app, OTA, impronta iOS `83793e26`. **Da vedere su un telefono** (solo nei test finora). `tasks/TASK-327.md`.
 - **Scheda dell'App Store** — TASK-328 (richiesta dell'utente del 2026-10-29): `apps/mobile/store/screenshots/` e `store.config.json` usano ora le 7 schermate del 2026-10-29 (cuore, gatto, «RUN», Draw, corsa, Explore, Feed; 1320×2868) al posto delle 5 vecchie, così un `eas metadata:push` non le rimette. Sono le stesse caricate dalla «Libreria di risorse» di App Store Connect e mandate in revisione ad Apple il 2026-10-29 alle 00:53. Le immagini creative dell'intestazione (5244×2950) e dei risultati di ricerca (3840×2560) stanno solo in `out/appstore-v2/creative/` e su App Store Connect. Nessun push, niente toccato su App Store Connect. `tasks/TASK-328.md`. Numero dato come TASK-326 e rinumerato TASK-328 il 2026-10-29, con il sì dell'utente: TASK-326 era già il passo medio nel Feed, nel repository MUW.

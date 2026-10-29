@@ -58,6 +58,9 @@ export const ITALY_BOUNDS: [southWest: LatLon, northEast: LatLon] = [
 
 /** Zoom used to show a start: a few streets around it. */
 export const START_ZOOM = 15;
+/** A place of a themed route, tapped under the map (TASK-329): as close as
+ * the street it is on, never farther than the map already was. */
+export const PLACE_ZOOM = 16;
 
 /** Zoom while navigating: the next junction and the streets around it. */
 export const FOLLOW_ZOOM = 17;
@@ -1412,6 +1415,12 @@ export function buildMapPage(language: Language = appLanguage()): string {
           });
         } else if (message.type === "clearStops") {
           setStops(noRoute);
+        } else if (message.type === "focus") {
+          map.flyTo({
+            center: message.lngLat,
+            zoom: Math.max(map.getZoom(), ${PLACE_ZOOM}),
+            bearing: wanted,
+          });
         } else if (message.type === "showOthers") {
           setOthers({
             type: "Feature",

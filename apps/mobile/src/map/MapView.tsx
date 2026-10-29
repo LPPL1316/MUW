@@ -36,6 +36,7 @@ import {
   clearRejoin,
   clearRoute,
   clearStops,
+  focus as focusMap,
   clearTrack,
   follow,
   pageScript,
@@ -116,6 +117,9 @@ type Props = {
   } | null;
   /** The places of a themed route (TASK-129), or null for none. */
   stops?: { name: string; point: LatLon; passed: boolean }[] | null;
+  /** A place of a themed route tapped under the map (TASK-329): the map
+   * goes there. A new one for each tap; the same one is not asked twice. */
+  focus?: { point: LatLon } | null;
   /** With it, a double tap on the map calls it and no longer zooms
    * (TASK-119); two fingers still do. Without, the map is as before. */
   onDoubleTap?: () => void;
@@ -163,6 +167,7 @@ export function MapView({
   heading = null,
   progress = null,
   stops = null,
+  focus = null,
   onDoubleTap,
   moving = false,
   onMoved,
@@ -207,6 +212,7 @@ export function MapView({
   const doubleTapAsked = useRef(false);
   const moveAsked = useRef(false);
   const turnAsked = useRef<Turn | null>(null);
+  const focusAsked = useRef<{ point: LatLon } | null>(null);
   // The figure the page was told of last, and the framing it was asked.
   const canvasShown = useRef(false);
   const framed = useRef<number | null>(null);
@@ -407,6 +413,14 @@ export function MapView({
     }
     turnAsked.current = turn;
   }, [ready, turn]);
+
+  // A place tapped under the map: asked of the map once, as the north arrow.
+  useEffect(() => {
+    if (ready && focus !== null && focus !== focusAsked.current) {
+      webView.current?.injectJavaScript(pageScript(focusMap(focus.point)));
+    }
+    focusAsked.current = focus;
+  }, [ready, focus]);
 
   // After the route, which a figure takes the place of: told each new
   // figure, framed once for each new `framing`, and again when the page
