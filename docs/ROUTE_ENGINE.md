@@ -1673,3 +1673,118 @@ python -m route_engine.water --shape heart --distance 2000 \
     --water-file services/route-engine/tests/fixtures/water_coast.json \
     --out heart_coast.gpx
 ```
+
+### Il nuoto in acque libere (TASK-323 A1)
+
+L'acqua è quella della canoa, la fascia è **rovesciata** (ADR-0283): la
+canoa sta oltre i 200 m dalla riva al mare, chi nuota sta **fra 20 e 150 m
+dalla riva**, al mare e sui laghi. La forma piazzata è il percorso, dalla
+riva e ritorno, come per la canoa; il motore decide dove e quanto grande.
+130 m di fascia tengono una forma di circa mezzo chilometro, e un nuoto più
+lungo **la ripassa a giri** (scelta dell'utente del 2026-10-29, dopo i
+campioni): dalla riva, la forma una volta dopo l'altra, ritorno.
+
+- `swim_water.py` — **la fascia di chi nuota**: prende l'area di
+  `water.build_area` così com'è (acqua, terra, ostacoli, punti della riva) e
+  rifà solo tre cose. La fascia: l'acqua navigabile entro
+  `SwimBand.max_shore_m` dalla riva, meno `min_shore_m` dalla terra (scogli
+  compresi), 30 m dagli ostacoli come la canoa, e **200 m dai pericoli**
+  (`danger_margin_m`): porti, marine, bacini portuali (`leisure=marina`,
+  `landuse=harbour`, `water=harbour`) e le **foci** di fiumi e canali
+  (`water=river|canal`, solo il tratto entro 50 m dal lago o dal mare: più
+  su il fiume corre dietro la spiaggia e non toglie acqua a nessuno).
+  L'acqua dei tratti dalla riva (`wet`): entro `max_shore_m` dalla riva e
+  fuori dai 200 m dei pericoli, così anche il tratto resta coi bagnanti. Le
+  entrate: solo `beach` e `path`, non scivoli e moli dove ci sono barche, e
+  nessuna entro 200 m da un pericolo.
+- `swimming.py` — **la richiesta**: `SwimRequest` (partenza, distanza di
+  tutto il nuoto **0,5–3 km**, una forma del catalogo **o un contorno
+  disegnato a mano** come lo manda «Freehand», TASK-320, i giri, penna
+  alzata e `near` come sull'acqua della canoa), `plan_swimming` (la forma
+  con 128 punti, `water_fit.fit_shape` sull'area di chi nuota, i giri, gli
+  errori detti con le parole del nuoto) e
+  `check_in_band`: i controlli di `check_on_water` e in più nessun punto
+  oltre `max_shore_m` dalla riva, la forma (senza i tratti) ad almeno
+  `min_shore_m` dalla terra, tutto il giro a 200 m dai pericoli, entro 2 m
+  (i buffer sono poligoni: 200 m disegnati con 16 segmenti a quarto sono
+  corti fino a 1 m). Un nuoto che non li rispetta è un errore del motore.
+
+**I giri** (`swim_on`): un giro è piazzato come un percorso della canoa,
+tratti compresi, lungo la distanza diviso i giri; poi la forma si ripete
+dal punto dove arriva il tratto (`lapped`, che sposta anche i tratti a
+penna alzata di ogni giro), e il tratto si nuota una volta all'andata e una
+al ritorno. Con più di un giro i tratti sarebbero contati una volta a giro:
+un secondo piazzamento chiede il giro che, coi tratti del primo, fa la
+distanza, e si tiene il più vicino. Il nuoto intero sta entro il ±10%.
+
+- **Senza giri chiesti** il motore prende **i meno giri** in cui la forma
+  ci sta, da 1 a `MAX_LAPS` = 5: la forma più grande. Un giro più lungo di
+  quello che un errore ha già detto che ci sta non si prova.
+- **Con i giri chiesti** (`SwimRequest.laps`) la forma è grande quanto quei
+  giri la fanno: **è così che la si fa più grande o più piccola** senza
+  cambiare la distanza (richiesta dell'utente dello stesso giorno). Troppo
+  pochi giri, e l'errore dice in quanti ci sta («it fits in 3 laps»).
+- **Troppo lungo anche in 5 giri**: l'errore dice a quanti km ci sta in 5
+  giri del giro più lungo (`best_distance_m`), come per la canoa.
+- `SwimPlan.laps` e `SwimPlan.lap_m` (la forma, senza i tratti) dicono
+  com'è venuto; `RouteResult.points` è il nuoto intero, i giri uno dopo
+  l'altro, e `shape` è `None` per un disegno, come per un'immagine.
+
+**La canoa non cambia di un metro**: `water.py`, `water_fit.py`,
+`paddling.py`, `validation.py` e `models.py` sono quelli di prima, e nessun
+modulo che disegna altri percorsi importa i due file del nuoto. L'impronta
+con cui `route_store` tiene gli esempi li lascia fuori (`SWIM_ONLY`, come
+`NOT_ROUTES` per la via del ritorno) e resta quella di `main`
+(`abaea5bb82b3` il 2026-10-29); quella degli
+esempi della canoa nell'app (`paddle_examples`) segue gli `import` da
+`paddling.py` e resta `1b6759cb3cc4`. Per questo `swimming` **non è ancora
+un'attività di `RouteRequest`**: aggiungerla a `models.py` cambierebbe tutte
+e due, e la parte B, che porta il nuoto nel contratto dell'API, lo fa
+comunque (con gli esempi della canoa rifatti dall'acqua del server).
+
+**Quanto grande ci sta un giro** (`tests/measure_swim.py`, sulle due acque
+di prova: la costa dritta e la riva del lago di 6 × 1,8 km; un giro solo,
+tratti compresi):
+
+| Fascia dalla riva | Cerchio | Cuore | Stella |
+|---|---|---|---|
+| 20–150 m (scelta) | 0,4 km | 0,4 km | 0,5 km |
+| 20–200 m | 0,5 km | 0,6–0,8 km | 0,7 km |
+| 20–300 m | 0,8 km | 1–1,5 km | 1,2 km |
+| 20–500 m | 1,5 km | 2 km | 2–2,5 km |
+
+Una fascia larga 130 m tiene un cerchio di 130 m di diametro, 0,41 km: lungo
+una costa dritta o la riva di un lago grande le forme del nuoto stanno sotto
+il mezzo chilometro, e di più solo in una baia, in un lago stretto o attorno
+a un'isola. A giri, i campioni del task (cerchio, cuore e stella a 0,5, 1 e
+1,5 km) ci stanno tutti, in 1–4 giri da 216–395 m; con 5 giri al massimo
+si arriva a 1,7–2,1 km, e 3 km solo dove un giro ci sta da 0,6 km. La
+griglia della ricerca (celle di 10 m, `CELL_SAFETY`) toglie
+circa 25 m di larghezza alla fascia: con celle di 5 m il cuore sul lago va
+da 0,4 a 0,8 km, ma cambiarle vuol dire toccare `water_fit.py`. I posti veri
+(Levico, Caldonazzo, Riccione, Jesolo) si misurano dove c'è la loro acqua:
+
+```
+cd services/route-engine
+python tests/measure_swim.py --cache-dir ../../data/cache \
+    --place "Levico,46.0085,11.283" --place "Caldonazzo,46.02,11.24" \
+    --place "Riccione,44.00355,12.66338" --place "Jesolo,45.50137,12.63925" \
+    --json ../../out/TASK-323/swim-real.json
+```
+
+**Dalla CLI**, senza rete né chiavi con l'acqua in `<cache-dir>/water/` (la
+stessa della canoa: l'area chiesta è quella di `water_bbox`), o da un file:
+
+```
+python -m route_engine.swimming --shape heart --distance 1000 \
+    --start 44.0007195,12.6512502 \
+    --water-file services/route-engine/tests/fixtures/water_coast.json \
+    --out heart_coast.gpx
+```
+
+Stampa i giri e quanto è lungo ognuno, la scala, la rotazione, la partenza
+sulla riva e il suo tipo, il tratto, il centro, quanto la forma sta lontana
+dalla terra e quanto il nuoto dalla riva, e quanto da un porto. `--laps N`
+chiede i giri (meno giri, forma più grande); `--outline FILE` nuota un
+contorno disegnato, in JSON come quelli del catalogo, al posto di `--shape`. `--activity swimming` di
+`python -m route_engine` arriva con la parte B, insieme a `models.py`.

@@ -1,6 +1,7 @@
 # TASK-323 — Nuoto in acque libere («Open water swim»)
 
-**Stato**: Proposto · solo documenti (questa PR). L'utente il 2026-10-28:
+**Stato**: In lavorazione · A1 scritta, in bozza (2026-10-29, «A1, dove si
+è» più sotto); i documenti in `main` con la #609. L'utente il 2026-10-28:
 «parti proprio con il progetto secondo me funziona»; le parti partono una
 alla volta, ognuna nella sua sessione
 **Fase**: 5 · **Branch**: `docs/TASK-323-open-water-swim` (documenti); le
@@ -166,6 +167,71 @@ File (da confermare col punto 0; con la prima strada si aggiungono
 `services/route-engine/route_engine/__main__.py`,
 `services/route-engine/tests/test_swimming.py`, `docs/ROUTE_ENGINE.md` §8
 (una sottosezione nuova).
+
+#### A1, dove si è (2026-10-29)
+
+Scritta in una sessione cloud, branch `claude/inspiring-lovelace-rcadwd`
+(il nome lo impone la sessione), PR in bozza
+[LPPL1316/MUW#10](https://github.com/LPPL1316/MUW/pull/10). Il Coordinatore
+non era raggiungibile: la strada del punto 0 è scelta su delega dell'utente
+e scritta nell'aggiunta ad ADR-0283; va confermata con i «File toccati» qui
+sotto prima del merge.
+
+**Il push dal cloud** (2026-10-29): su `rockydalbianco/shaperoute` la
+sessione cloud riceve 403, sia col push sia con lo strumento GitHub (l'app
+Claude non ci può scrivere). Funziona così, col sì dell'utente: `add_repo`
+di `LPPL1316/MUW` con accesso `push`, un remote `muw` nel checkout, `git
+fetch muw main`, poi `git push -u muw <branch>`. Lo specchio
+(`TEAM_WORKFLOW.md`) copia il branch su `shaperoute` in pochi secondi. La PR
+su `shaperoute` resta da aprire a mano (anche quella dà 403 dal cloud);
+dal cloud si apre in bozza su MUW. L'utente ha chiesto di dirlo al
+Coordinatore, perché valga per tutte le sessioni cloud.
+
+- **Punto 0, la prima strada**: tutto in file nuovi; `models.py`,
+  `water.py`, `water_fit.py`, `validation.py`, `paddling.py` e
+  `__main__.py` non cambiano. `route_store` lascia fuori i file del nuoto
+  (`SWIM_ONLY`), con il test. Impronte come in `main`: `route_store`
+  `abaea5bb82b3`, esempi della canoa `1b6759cb3cc4`. I punti 1 e 4 e
+  `--activity swimming` passano a B (con `models.py`); al loro posto
+  `SwimRequest` (0,5–3 km), `check_in_band` e
+  `python -m route_engine.swimming`.
+- **I campioni**: solo sulle due acque di prova del motore (la sessione
+  cloud non raggiunge Overpass né il server). Pagina per l'utente:
+  https://claude.ai/artifact/UYiPvDiPaiJetF9z5ntoEX. Levico, Caldonazzo,
+  Riccione e Jesolo si misurano sul Mac con `tests/measure_swim.py`
+  (comando in `ROUTE_ENGINE.md` §8).
+- **Il rischio c'è**: con 20–150 m un giro ci sta da 0,4–0,5 km lungo una
+  costa dritta e la riva di un lago grande.
+- **Domanda 1, risposta dell'utente (2026-10-29)**: «Giri ripetuti». La
+  fascia resta 20–150 m, le distanze 0,5–3 km; un nuoto più lungo della
+  forma la ripassa a giri, al massimo 5 (`MAX_LAPS`). I campioni del task
+  ci stanno tutti, in 1–4 giri; 5 giri arrivano a 1,7–2,1 km lungo una
+  costa dritta, 3 km solo dove un giro è di 0,6 km.
+- **Richiesta dell'utente dello stesso giorno**: «dai la possibilità di
+  disegnare anche sull'acqua e di modificare la forma più grande e più
+  piccola». Nel motore del nuoto, in A1: `SwimRequest.outline` (un disegno
+  come «Freehand») e `SwimRequest.laps` (meno giri, forma più grande; la
+  distanza resta). Per la canoa va con B (tocca `models.py`), lo schermo
+  con C. Aggiunta ad ADR-0283.
+- **Prossimo**: i posti veri sul Mac con `tests/measure_swim.py`; la
+  conferma dei «File toccati» e della canoa disegnata in B al
+  Coordinatore; poi B.
+
+File toccati da A1:
+
+```
+services/route-engine/route_engine/swim_water.py        (nuovo)
+services/route-engine/route_engine/swimming.py          (nuovo)
+services/route-engine/tests/test_swimming.py            (nuovo)
+services/route-engine/tests/measure_swim.py             (nuovo)
+services/api/shaperoute_api/route_store.py              (SWIM_ONLY)
+services/api/tests/test_swim_fingerprint.py             (nuovo)
+apps/mobile/assets/engine/engine.zip                    (rifatto)
+docs/ROUTE_ENGINE.md                                    (§8, sottosezione)
+docs/tasks/TASK-323.md
+docs/DECISIONS.md                                       (aggiunta ad ADR-0283)
+docs/STATUS.md                                          (le righe di TASK-323)
+```
 
 ### A2 — Motore: le curve e i nomi a riva
 
