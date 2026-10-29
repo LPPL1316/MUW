@@ -81,6 +81,15 @@ class FindsNearby(Protocol):
     ) -> RouteResult | None: ...
 
 
+@runtime_checkable
+class KeepsPlacements(Protocol):
+    """A store that also keeps where the engine placed each route of the
+    plan the result comes from, to draw it again from there once the
+    engine has changed (route_archive.RouteArchive, TASK-297 A2)."""
+
+    def put_plan(self, request: object, result: RouteResult, plan: Plan) -> bool: ...
+
+
 class _Dropped(Exception):
     """The job was cancelled while its graph was loading: stop before the
     engine starts computing."""
@@ -178,6 +187,7 @@ class RouteJobs:
 
         # Answered from a route kept nearby (ADR-0256): not kept again.
         from_archive = False
+        plan: Plan | None = None  # on the roads, where its routes were placed
         try:
             if activity in WATER_ACTIVITIES:
                 # On the water (TASK-191): no graph, so no directions.
@@ -202,6 +212,9 @@ class RouteJobs:
                 if kept is not None:
                     result, from_archive = kept, True
                 else:
+                    # The graphs the archive loaded are not the plan's: the
+                    # directions are read on the plan's first (with_choices).
+                    source.graphs.clear()
                     plan = self._plan(job, source, times)
                     began = self._clock()
                     result = with_choices(plan, source.graphs, named)
@@ -235,13 +248,20 @@ class RouteJobs:
         )
         self._log_times(job, times, self._clock() - started)
         # Also when cancelled meanwhile: the next to ask does not wait.
-        if (
-            not from_archive
-            and self._store is not None
-            and self._store.put(job.request, result)
-        ):
+        if not from_archive and self._keep(job.request, result, plan):
             log.info("job %s: kept for the next to ask", job.job_id)
         self._tell(job, result, None, self._clock() - started)
+
+    def _keep(
+        self, request: AnyRequest, result: RouteResult, plan: Plan | None
+    ) -> bool:
+        """`result` kept for the next to ask, with the plan it comes from
+        when the store keeps where its routes were placed."""
+        if self._store is None:
+            return False
+        if plan is not None and isinstance(self._store, KeepsPlacements):
+            return self._store.put_plan(request, result, plan)
+        return self._store.put(request, result)
 
     def _nearby(
         self, job: Job, source: GraphLoader, named_roads: NamedRoads | None
