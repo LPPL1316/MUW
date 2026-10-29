@@ -99,8 +99,8 @@ Chiuso nella sua PR, LPPL1316/MUW#4 (2026-10-29), che unisce in un colpo
 solo lo specchio (`tools/mirror_repos.py`, `.github/workflows/mirror.yml`,
 undici test), i due `main` divergenti (`shaperoute` fino a `df96f316`,
 TASK-312, 321 A, 237 F; MUW fino a `61846764`, TASK-324 e 326) e la
-rinumerazione della migrazione del dislivello a `0035` (la 0034 l'ha presa
-TASK-312). Col merge il `main` di `shaperoute` diventa un antenato di
+rinumerazione della migrazione del dislivello a `0036` (la 0034 l'ha presa
+TASK-312, la 0035 TASK-297 A2). Col merge il `main` di `shaperoute` diventa un antenato di
 quello di MUW e lo specchio lo porta avanti da solo; la PR
 rockydalbianco/shaperoute#618 dello stesso branch risulta fusa. Lo
 specchio ha già girato dal branch con il token: tre giri utili, poi i
