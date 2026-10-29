@@ -2,7 +2,13 @@ import type { LatLon, OutlinePoint } from "@shaperoute/shared-types";
 import imageRequest from "@shaperoute/shared-types/fixtures/image-route-request.json";
 
 import { lookOf } from "../mapdraw/figure";
-import { requestLines, shapeLines, splitExcursions, trackLines } from "./figureLines";
+import {
+  drawingLines,
+  requestLines,
+  shapeLines,
+  splitExcursions,
+  trackLines,
+} from "./figureLines";
 
 /**
  * The lines a figure opens in the board (TASK-320): of a shape of the
@@ -152,4 +158,33 @@ test("the points of a route run give one closed outline, as a favorite keeps it"
     expect(y).toBeGreaterThanOrEqual(-1e-9);
     expect(y).toBeLessThanOrEqual(1 + 1e-9);
   }
+});
+
+test("a member's drawing: a shape by its lines, a picture or a drawing by the track run", () => {
+  const ring: LatLon[] = Array.from({ length: 50 }, (_, i) => {
+    const a = (2 * Math.PI * i) / 50;
+    return [TRENTO[0] + 0.004 * Math.sin(a), TRENTO[1] + 0.006 * Math.cos(a)];
+  });
+  const run = { shape: null, word: null, route_title: null, track: ring };
+  expect(drawingLines({ ...run, shape: "star" })).toEqual(shapeLines("star"));
+  // A drawing, a picture or a photo: its planned route says only a title.
+  expect(drawingLines({ ...run, route_title: "Drawing" })).toEqual(trackLines(ring));
+  expect(drawingLines({ ...run, route_title: "Image", source: "muw" })).toEqual(
+    trackLines(ring),
+  );
+});
+
+test.each([
+  ["a word", { word: "ciao", style: "round" as const }],
+  ["a shape the app does not know", { shape: "dragon" }],
+  ["a run without a planned route", {}],
+  [
+    "a run imported from another app",
+    { route_title: "Morning run", source: "file" as const },
+  ],
+  ["a post of photos alone", { route_title: "Image", track: [] }],
+  ["a track too short to follow", { route_title: "Image", track: [TRENTO] }],
+])("a member's drawing opens nothing in the board: %s", (_what, fields) => {
+  const run = { shape: null, word: null, route_title: null, track: [TRENTO, TRENTO] };
+  expect(drawingLines({ ...run, ...fields })).toBeNull();
 });

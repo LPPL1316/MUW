@@ -692,18 +692,6 @@ Migrazione `0033_messages.sql` (TASK-319, ADR-0279, `API.md`
   crittografia end-to-end. Nessun endpoint li mostra a chi gestisce MuW:
   di una segnalazione arriva per email solo il messaggio segnalato. Test
   in `test_messages.py`.
-Migrazione `0036_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
-libero in `main` al merge):
-
-- `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati
-  dall'API dalle altezze delle posizioni (`run_climb.py`). `NULL` per le
-  corse salvate prima e per quelle senza altezze: i totali del profilo non
-  le stimano. La traccia resta `LineStringM`: l'altezza non si tiene.
-- Nessun indice nuovo: i totali del profilo (`profile_totals.py`) sommano
-  le corse di un account con `runs_user_started_idx`; le foto di un
-  profilo (`user_photos.py`) passano da `drawings` e `drawing_photos` come
-  la griglia. Test in `test_profile_totals.py`.
-
 Migrazione `0034_run_source.sql` (TASK-312 parte A, ADR-0272,
 `IMPORTAZIONI.md`; il numero è il primo libero in `main` al merge, la 0033
 è di TASK-319):
@@ -740,6 +728,40 @@ alla 0034 sono di altri task):
   (stessa linea, stessa richiesta, stesso motore) non si ripete: prende
   il `drawn_at` di adesso, il risultato e il piazzamento nuovi, e tiene
   `runs` e `favorites`.
+
+Migrazione `0036_user_identities.sql` (TASK-322 parte A, ADR-0282,
+`API.md` «Sign in with Apple and Google»; il numero è il primo libero in
+`main` al merge, la 0035 è di TASK-324):
+
+- `user_identities`: un account Apple o Google che è entrato. Chiave
+  `(provider, subject)`: `provider` (`apple` o `google`), `subject` (il
+  `sub` del suo token, che non cambia). `user_id` (`ON DELETE CASCADE`,
+  con un indice per la cancellazione), `email` (quella che il provider
+  garantiva all'ultima entrata: con «Hide My Email» un indirizzo di
+  Apple), `apple_refresh_token` (solo Apple, tenuto solo per revocare
+  l'accesso a `DELETE /me`; `NULL` per Google, e per Apple quando lo
+  scambio del codice non è riuscito), `created_at`. Un account può averne
+  più d'una: Apple e Google con la stessa email aprono lo stesso.
+- **`users` non cambia**: un account nato da Apple o Google ha un
+  `password_hash` vero, l'Argon2id di 32 byte casuali buttati, così resta
+  `NOT NULL` e «Forgot password» (TASK-300) funziona anche per lui; ha
+  `email_confirmed` vero, perché il provider ha verificato l'email.
+- **Stessa email, la sicurezza**: un'identità che si lega a un account con
+  l'email non confermata gli cambia la password con una a caso e cancella
+  le sue sessioni (`sign_in_providers.ProviderAccounts`). Del nome e della
+  foto di Google non si tiene niente. Test in `test_sign_in_providers.py`.
+
+Migrazione `0037_run_climb.sql` (TASK-324, ADR-0284; il numero è il primo
+libero in `main` al merge: la 0036 è di TASK-322 A):
+
+- `runs.climb_m` (`integer`, `>= 0`, facoltativa): i metri saliti, contati
+  dall'API dalle altezze delle posizioni (`run_climb.py`). `NULL` per le
+  corse salvate prima e per quelle senza altezze: i totali del profilo non
+  le stimano. La traccia resta `LineStringM`: l'altezza non si tiene.
+- Nessun indice nuovo: i totali del profilo (`profile_totals.py`) sommano
+  le corse di un account con `runs_user_started_idx`; le foto di un
+  profilo (`user_photos.py`) passano da `drawings` e `drawing_photos` come
+  la griglia. Test in `test_profile_totals.py`.
 
 ## Come si memorizza una traccia
 

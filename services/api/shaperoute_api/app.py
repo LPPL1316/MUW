@@ -122,6 +122,10 @@ from shaperoute_api.schemas import (
     TrackScoreBody,
     TrackScoreRequestBody,
 )
+from shaperoute_api.sign_in_providers import (
+    SignInProviders,
+    install_sign_in_providers,
+)
 from shaperoute_api.signals import SignalBody, SignalGate, event_of
 from shaperoute_api.strava import install_strava
 from shaperoute_api.strava_client import Strava
@@ -256,6 +260,7 @@ def create_app(
     route_store: RouteStore | None = None,
     run_places: PlaceNames | None = None,
     strava: Strava | None = None,
+    sign_in: SignInProviders | None = None,
 ) -> FastAPI:
     # The search events and the learned vocabulary (TASK-130, ADR-0101).
     insights = insights or Insights(None)
@@ -328,6 +333,9 @@ def create_app(
     # A run sent to the runner's Strava (TASK-187); off unless the
     # environment has this server's Strava application.
     install_strava(app, strava)
+    # «Continue with Apple» and «Continue with Google» (TASK-322); each off
+    # unless the environment has its keys.
+    install_sign_in_providers(app, sign_in)
     # The profile picture of an account (TASK-178); it needs its token.
     install_profile_photos(app)
     # Username and bio, and the profile the others see (TASK-116); both need

@@ -97,7 +97,7 @@ import { trackOf, useFreeRun } from "./src/navigation/useFreeRun";
 import { trackOfNavigation, useNavigation } from "./src/navigation/useNavigation";
 import type { Place } from "./src/places/photon";
 import { choicesOf, type Picked, pickedIndex } from "./src/route/choices";
-import { distanceLimitsM } from "./src/route/distance";
+import { APP_DISTANCE_LIMITS_KM, distanceLimitsM } from "./src/route/distance";
 import {
   againDistanceM,
   againOfDrawing,
@@ -113,8 +113,13 @@ import { DrawButton, RouteChoice, RouteOutcome } from "./src/route/RoutePanel";
 import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
-import { requestLines, shapeLines } from "./src/route/figureLines";
-import { figureOf, freehandRequest } from "./src/route/freehand";
+import { drawingLines, requestLines, shapeLines } from "./src/route/figureLines";
+import {
+  figureOf,
+  type FreehandFigure,
+  type FreehandLines,
+  freehandRequest,
+} from "./src/route/freehand";
 import { FreehandBoard } from "./src/route/FreehandBoard";
 import { EditDrawingButton } from "./src/route/FreehandChoice";
 import { useFreehand } from "./src/route/useFreehand";
@@ -292,6 +297,25 @@ function freeFinishedRun(run: FreeRun, resumable: boolean): FreeFinished {
 function leftFreeRun(): FreeFinished | null {
   const run = pendingFreeRun();
   return run === null ? null : freeFinishedRun(run, canResume(run, Date.now()));
+}
+
+/** The figure the board opens of a route or a drawing on a card (TASK-320):
+ * none for lines that enclose nothing, or with more details than a route
+ * runs, and none on the water, where only the catalogue is drawn. */
+function cardFigure(
+  lines: FreehandLines | null,
+  activity: Activity,
+): FreehandFigure | null {
+  return lines === null || activity === "paddling" ? null : figureOf(lines);
+}
+
+/** The distance «Draw» takes with a figure edited from a card: as «Draw it
+ * near me» takes a shape's (`againDistanceM`, ADR-0273), the route's or the
+ * run's to the tenth of a km, within the limits of the sport of «Draw». */
+function cardDistanceM(distanceM: number, activity: Activity): number {
+  const [lowest, highest] = APP_DISTANCE_LIMITS_KM[activity];
+  const stepped = Math.round(distanceM / 100) * 100;
+  return Math.min(Math.max(stepped, lowest * 1000), highest * 1000);
 }
 
 export default function App() {
@@ -472,7 +496,9 @@ function MuW() {
   // «Freehand» and back loses neither. The board is one, over whatever is
   // on screen; where it was opened from says what «Save» does.
   const freehand = useFreehand();
-  const [board, setBoard] = useState<"freehand" | "shape" | "result" | null>(null);
+  const [board, setBoard] = useState<"freehand" | "shape" | "result" | "card" | null>(
+    null,
+  );
   const { draw, cancel, retry, state } = useRouteRequest(API_URL);
   const gpx = useGpxExport(API_URL);
   const {
@@ -586,6 +612,20 @@ function MuW() {
         ? requestLines(view.request)
         : null,
     [view, sportActivity],
+  );
+  // «Edit the drawing» on the card of a route of «Explore» (an example, a
+  // search, a favorite) and of a member's drawing: the figure it opens in
+  // the board. None for a word, nor for a drawing without a planned figure.
+  const exploredFigure = useMemo(
+    () =>
+      explored?.status === "done"
+        ? cardFigure(requestLines(explored.request), sportActivity)
+        : null,
+    [explored, sportActivity],
+  );
+  const drawingFigure = useMemo(
+    () => (drawing !== null ? cardFigure(drawingLines(drawing), sportActivity) : null),
+    [drawing, sportActivity],
   );
   const others = useMemo(
     () =>
@@ -1005,6 +1045,24 @@ function MuW() {
     return drawsAgain(again, sportActivity) ? () => onDrawAgain(again) : undefined;
   }
 
+  /** «Edit the drawing» on a card (TASK-320): the board at once, on the
+   * figure of the route of «Explore» or of the drawing, at the distance
+   * «Draw it near me» would choose; its «Save» leaves the card for «Draw».
+   * Nothing is asked before «Draw route». */
+  function onEditCard(figure: FreehandFigure, distanceM: number) {
+    freehand.set(figure);
+    distance.choose(cardDistanceM(distanceM, sportActivity));
+    setBoard("card");
+  }
+
+  /** The button's action for `figure`, when the card has one. */
+  function editCardOf(
+    figure: FreehandFigure | null,
+    distanceM: number,
+  ): (() => void) | undefined {
+    return figure !== null ? () => onEditCard(figure, distanceM) : undefined;
+  }
+
   function onDraw() {
     // The decimal pad has no return key: drawing closes it.
     Keyboard.dismiss();
@@ -1107,14 +1165,21 @@ function MuW() {
   }
 
   /** «Save» on the board: the figure is kept already, so saving is closing
-   * (ADR-0191). Opened on a shape, or on the result, the choice of «Draw»
-   * becomes «Freehand» with the figure; from the result, «Draw» is back,
-   * at the same distance and from the same start. */
+   * (ADR-0191). Opened on a shape, on the result or on a card, the choice
+   * of «Draw» becomes «Freehand» with the figure; from the result, «Draw»
+   * is back, at the same distance and from the same start; from a card,
+   * «Draw» shows, and the route or the drawing is left as «Draw it near
+   * me» leaves it. */
   function onBoardSave() {
     const from = board;
     setBoard(null);
-    if (from === "shape" || from === "result") {
+    if (from === "shape" || from === "result" || from === "card") {
       setKind("freehand");
+    }
+    if (from === "card") {
+      closeExplore();
+      leaveDrawing();
+      setScreen("choose");
     }
     if (from === "result") {
       if (view.status === "done") {
@@ -1408,6 +1473,7 @@ function MuW() {
             onBack={backFromDrawing}
             onStart={onStartDrawing}
             onDrawAgain={drawAgainOf(againOfDrawing(drawing))}
+            onEditDrawing={editCardOf(drawingFigure, drawing.distance_m)}
           />
         ) : (finishing || freeFinishing) && stretchAsked ? (
           // «Stretch» opens the exercises (part B) over «Your run», where
@@ -1487,6 +1553,11 @@ function MuW() {
             onDrawAgain={
               explored.status === "done"
                 ? drawAgainOf(againOfRequest(explored.request))
+                : undefined
+            }
+            onEditDrawing={
+              explored.status === "done"
+                ? editCardOf(exploredFigure, explored.request.distance_m)
                 : undefined
             }
           />
