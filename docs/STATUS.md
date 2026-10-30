@@ -214,6 +214,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `cardTitle` e i nomi medium, `Tap` al posto dell'opacità, `Hairline`
   prima delle azioni, la distanza delle schede di «Explore» in `display`;
   prima/dopo in `tasks/TASK-339/b-*.jpg`. Poi C.
+  **Parte B in `main` dal 2026-10-30** con la #677 (`4faeceb2`, 23:16 CET,
+  mergiata al verde: tutte le 557 suite dell'app verdi anche nella copia
+  pulita). Poi C.
 - **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
   la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
   dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;

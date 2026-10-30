@@ -263,3 +263,7 @@ test) più i 24 test nuovi o cambiati, `tsc`, Prettier, `expo lint`;
 impronta iOS `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` su una copia
 pulita (`npm ci`); le 12 schermate `b-*.jpg` dal simulatore (iPhone 17e,
 Expo Go). Non vista su un iPhone vero: arriva con la prossima preview.
+
+Parte B in `main` con la PR #677 (`4faeceb2`, 2026-10-30 23:16 CET), mergiata
+al verde; prima del merge tutte le 557 suite dell'app verdi nella copia
+pulita. Il branch `feat/TASK-339-premium-look-b` è cancellato.
