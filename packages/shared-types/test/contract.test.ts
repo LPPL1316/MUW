@@ -41,6 +41,7 @@ import alternativeLimits from "../fixtures/route-alternatives.json" with { type:
 import cyclingRequest from "../fixtures/route-request-cycling.json" with { type: "json" };
 import paddlingNearRequest from "../fixtures/route-request-paddling-near.json" with { type: "json" };
 import paddlingRequest from "../fixtures/route-request-paddling.json" with { type: "json" };
+import swimmingRequest from "../fixtures/route-request-swimming.json" with { type: "json" };
 import penUpShapeRequest from "../fixtures/route-request-pen-up-shape.json" with { type: "json" };
 import penUpRequest from "../fixtures/route-request-pen-up.json" with { type: "json" };
 import wordRequest from "../fixtures/route-request-word.json" with { type: "json" };
@@ -49,6 +50,7 @@ import betterResult from "../fixtures/route-result-better-distance.json" with { 
 import cyclingResult from "../fixtures/route-result-cycling.json" with { type: "json" };
 import imageResult from "../fixtures/route-result-image.json" with { type: "json" };
 import paddlingResult from "../fixtures/route-result-paddling.json" with { type: "json" };
+import swimmingResult from "../fixtures/route-result-swimming.json" with { type: "json" };
 import penUpResult from "../fixtures/route-result-pen-up.json" with { type: "json" };
 import tiltedResult from "../fixtures/route-result-tilted.json" with { type: "json" };
 import wordResult from "../fixtures/route-result-word.json" with { type: "json" };
@@ -61,6 +63,8 @@ import trackScoreRequest from "../fixtures/track-score-request.json" with { type
 import trackWalksRequest from "../fixtures/track-score-request-walks.json" with { type: "json" };
 import {
   ACTIVITIES,
+  API_ACTIVITIES,
+  MAX_SWIM_LAPS,
   API_ERROR_CODES,
   DISTANCE_LIMITS_M,
   EDIT_REASONS,
@@ -111,12 +115,14 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 // Member by member: a shape's request and a word's stay apart.
 type OlderRequest = RouteRequest extends infer R
   ? R extends RouteRequest
-    ? Omit<R, "pen_up" | "near">
+    ? Omit<R, "pen_up" | "near" | "laps">
     : never
   : never;
+// The laps a swim asks for, and its laps and turns (TASK-323), came last.
+type Swims = "laps" | "lap_m" | "turns";
 type OlderResult = Omit<
   RouteResult,
-  "walks" | "on_foot" | "better_distance_m" | "centre" | "rotation_deg"
+  "walks" | "on_foot" | "better_distance_m" | "centre" | "rotation_deg" | Swims
 >;
 const requestFields: Same<keyof typeof request, keyof OlderRequest> = true;
 const resultFields: Same<keyof typeof result, keyof OlderResult> = true;
@@ -126,29 +132,46 @@ const wordFields: Same<keyof typeof wordRequest, keyof OlderRequest> &
 const cyclingFields: Same<keyof typeof cyclingRequest, keyof OlderRequest> = true;
 // A paddling route (TASK-191): the same fields again.
 const paddlingFields: Same<keyof typeof paddlingRequest, keyof OlderRequest> = true;
-const penUpFields: Same<keyof typeof penUpRequest, keyof Omit<RouteRequest, "near">> &
-  Same<keyof typeof penUpShapeRequest, keyof Omit<RouteRequest, "near">> &
+const penUpFields: Same<
+  keyof typeof penUpRequest,
+  keyof Omit<RouteRequest, "near" | "laps">
+> &
+  Same<keyof typeof penUpShapeRequest, keyof Omit<RouteRequest, "near" | "laps">> &
   Same<
     keyof typeof penUpResult,
-    keyof Omit<RouteResult, "on_foot" | "better_distance_m" | "centre" | "rotation_deg">
+    keyof Omit<
+      RouteResult,
+      "on_foot" | "better_distance_m" | "centre" | "rotation_deg" | Swims
+    >
   > = true;
 // A shape moved on the water (TASK-238): every field of the request, and of
 // the result that says where the shape is, before TASK-232.
-const movedFields: Same<keyof typeof paddlingNearRequest, keyof RouteRequest> &
-  Same<keyof typeof paddlingResult, keyof Omit<RouteResult, "rotation_deg">> = true;
+const movedFields: Same<
+  keyof typeof paddlingNearRequest,
+  keyof Omit<RouteRequest, "laps">
+> &
+  Same<keyof typeof paddlingResult, keyof Omit<RouteResult, "rotation_deg" | Swims>> =
+  true;
 // A bike route walked in part (TASK-206): every field before TASK-234, its
 // alternative too.
-type BikeResult = Omit<RouteResult, "better_distance_m" | "centre" | "rotation_deg">;
+type BikeResult = Omit<
+  RouteResult,
+  "better_distance_m" | "centre" | "rotation_deg" | Swims
+>;
 const cyclingResultFields: Same<keyof typeof cyclingResult, keyof BikeResult> &
   Same<keyof (typeof cyclingResult.alternatives)[number], keyof BikeResult> = true;
 // A route with a better distance (TASK-234): every field before TASK-232,
 // its alternative too.
-type BetterResult = Omit<RouteResult, "rotation_deg">;
+type BetterResult = Omit<RouteResult, "rotation_deg" | Swims>;
 const betterFields: Same<keyof typeof betterResult, keyof BetterResult> &
   Same<keyof (typeof betterResult.alternatives)[number], keyof BetterResult> = true;
-// A tilted route (TASK-232): every field, its alternative too.
-const tiltedFields: Same<keyof typeof tiltedResult, keyof RouteResult> &
-  Same<keyof (typeof tiltedResult.alternatives)[number], keyof RouteResult> = true;
+// A tilted route (TASK-232): every field before TASK-323, its alternative too.
+type TiltedResult = Omit<RouteResult, Swims>;
+const tiltedFields: Same<keyof typeof tiltedResult, keyof TiltedResult> &
+  Same<keyof (typeof tiltedResult.alternatives)[number], keyof TiltedResult> = true;
+// A swim (TASK-323): every field of the request and of the result.
+const swimmingFields: Same<keyof typeof swimmingRequest, keyof RouteRequest> &
+  Same<keyof typeof swimmingResult, keyof RouteResult> = true;
 const trackFields: Same<
   keyof typeof trackScoreRequest,
   keyof Omit<TrackScoreRequest, "walks">
@@ -186,7 +209,7 @@ const imageFields: Same<keyof typeof imageOutlineRequest, keyof ImageOutlineRequ
   > &
   Same<
     keyof typeof imageRouteRequest,
-    keyof Omit<ImageRouteRequest, "strokes" | "pen_up">
+    keyof Omit<ImageRouteRequest, "strokes" | "pen_up" | "laps">
   > &
   Same<keyof typeof imageResult, keyof OlderResult> &
   Same<keyof typeof imageError.error, keyof ApiError["error"]> = true;
@@ -476,11 +499,13 @@ test("the error fixture uses a known code, and the codes match the API", () => {
 test("shapes, activities and distance limits match the route engine", () => {
   assert.deepEqual([...SHAPES], contract.shapes);
   assert.deepEqual([...PEN_UP_SHAPES], contract.pen_up_shapes);
-  assert.deepEqual([...ACTIVITIES], contract.activities);
+  // The API's; the app offers them all but swimming until TASK-323 part C.
+  assert.deepEqual([...API_ACTIVITIES], contract.activities);
+  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES, "swimming"]);
   assert.equal(MIN_DISTANCE_M, contract.min_distance_m);
   assert.equal(MAX_DISTANCE_M, contract.max_distance_m);
   assert.deepEqual(DISTANCE_LIMITS_M, contract.distance_limits_m);
-  assert.deepEqual(Object.keys(DISTANCE_LIMITS_M), [...ACTIVITIES]);
+  assert.deepEqual(Object.keys(DISTANCE_LIMITS_M), [...API_ACTIVITIES]);
   assert.deepEqual([...LETTERS], contract.letters);
   assert.equal(MAX_WORD_LETTERS, contract.max_word_letters);
   assert.equal(LETTER_DISTANCE_M, contract.letter_distance_m);
@@ -520,6 +545,38 @@ test("a paddling request is a request with a shape and the water's distances", (
   );
   assert.ok(isShape(paddlingRequest.shape));
   assert.equal(paddlingRequest.word, null);
+});
+
+test("a swim is a request on the water with its laps, its result has the turns", () => {
+  // TASK-323: 0.5-3 km, the shape swum `laps` times, each turn with the
+  // place on the shore to turn opposite.
+  assert.equal(swimmingRequest.activity, "swimming");
+  assert.ok((API_ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
+  assert.ok(!(ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
+  assert.deepEqual(DISTANCE_LIMITS_M.swimming, [500, 3_000]);
+  const [lowest, highest] = DISTANCE_LIMITS_M.swimming;
+  assert.ok(
+    lowest <= swimmingRequest.distance_m && swimmingRequest.distance_m <= highest,
+  );
+  assert.ok(1 <= swimmingRequest.laps && swimmingRequest.laps <= MAX_SWIM_LAPS);
+  const swum = swimmingResult as unknown as RouteResult;
+  assert.equal(swum.laps, swimmingRequest.laps);
+  assert.ok(swum.turns && swum.turns.length > 0);
+  let before = 0;
+  for (const turn of swum.turns) {
+    assert.ok(turn.side === "left" || turn.side === "right");
+    assert.ok(0 < turn.angle_deg && turn.angle_deg <= 180);
+    assert.ok(1 <= turn.lap && turn.lap <= (swum.laps ?? 1));
+    assert.ok(turn.at_m >= before && turn.at_m <= swum.distance_m);
+    before = turn.at_m;
+  }
+  const named = swum.turns.filter((turn) => turn.landmark);
+  assert.ok(named.length > 0);
+  for (const { landmark } of named) {
+    assert.ok(landmark && landmark.name.length > 0 && landmark.distance_m <= 300);
+    assert.ok(0 <= landmark.bearing_deg && landmark.bearing_deg < 360);
+  }
+  assert.deepEqual(swum.points[0], swum.points[swum.points.length - 1]);
 });
 
 test("a shape on the water says where it is, and may be asked elsewhere", () => {

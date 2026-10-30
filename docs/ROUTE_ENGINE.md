@@ -1731,16 +1731,20 @@ distanza, e si tiene il più vicino. Il nuoto intero sta entro il ±10%.
   l'altro, e `shape` è `None` per un disegno, come per un'immagine.
 
 **La canoa non cambia di un metro**: `water.py`, `water_fit.py`,
-`paddling.py`, `validation.py` e `models.py` sono quelli di prima, e nessun
-modulo che disegna altri percorsi importa i due file del nuoto. L'impronta
-con cui `route_store` tiene gli esempi li lascia fuori (`SWIM_ONLY`, come
-`NOT_ROUTES` per la via del ritorno) e resta quella di `main`
-(`abaea5bb82b3` il 2026-10-29); quella degli
-esempi della canoa nell'app (`paddle_examples`) segue gli `import` da
-`paddling.py` e resta `1b6759cb3cc4`. Per questo `swimming` **non è ancora
-un'attività di `RouteRequest`**: aggiungerla a `models.py` cambierebbe tutte
-e due, e la parte B, che porta il nuoto nel contratto dell'API, lo fa
-comunque (con gli esempi della canoa rifatti dall'acqua del server).
+`paddling.py` e `validation.py` sono quelli di prima, e nessun modulo che
+disegna altri percorsi importa i file del nuoto (il comando
+`python -m route_engine` sì, ma l'API non lo importa). L'impronta con cui
+`route_store` tiene gli esempi li lascia fuori (`SWIM_ONLY`, come
+`NOT_ROUTES` per la via del ritorno): un cambio del nuoto non fa ridisegnare
+gli altri percorsi. **Dalla parte B** `swimming` è un'attività del contratto
+(`models.SUPPORTED_ACTIVITIES`, `WATER_ACTIVITIES`, 500–3000 m),
+`RouteRequest.laps` dice i giri, `RouteResult.laps` e `.turns` li
+riportano, e i tipi delle curve (`SwimTurn`, `Landmark`) stanno in
+`models.py`; `SwimRequest.of` legge una `RouteRequest` di nuoto. Toccare
+`models.py` ha cambiato una volta l'impronta degli esempi tenuti e quella
+degli esempi della canoa nell'app (`paddleExamples.json`, da rifare con
+l'acqua del server). I nuoti tenuti hanno un'impronta loro, coi file del
+nuoto (`engine_fingerprint(swims=True)`).
 
 **Quanto grande ci sta un giro** (`tests/measure_swim.py`, sulle due acque
 di prova: la costa dritta e la riva del lago di 6 × 1,8 km; un giro solo,
@@ -1805,9 +1809,9 @@ parole (parte C).
   "kind", "lat", "lon"}]}`; si leggono i file la cui area tocca quella del
   nuoto. Senza file, o con un file che non si legge, le curve non hanno
   nome e niente fallisce. Mai rete.
-- **Dove stanno**: `SwimPlan.turns`, tutte le curve di tutti i giri in
-  ordine; `plan_swimming(..., names=)` le nomina. Passano in
-  `RouteResult` con la parte B, insieme a `models.py`.
+- **Dove stanno**: `RouteResult.turns` (dalla parte B; in A2 erano in
+  `SwimPlan`), tutte le curve di tutti i giri in ordine;
+  `plan_swimming(..., names=)` le nomina.
 - **Nel GPX** (`with_turns`): un waypoint per ogni curva del primo giro,
   prima della traccia, col nome «Turn left · Bagno 54» e il tipo `turn`; i
   giri dopo girano negli stessi posti.
@@ -1819,5 +1823,12 @@ chiede i giri (meno giri, forma più grande); `--outline FILE` nuota un
 contorno disegnato, in JSON come quelli del catalogo, al posto di `--shape`.
 Stampa anche le curve del primo giro col loro posto a riva, presi da
 `<cache-dir>/shore_names/` o da `--names-file`, e il GPX di `--out` le ha
-come waypoint. `--activity swimming` di
-`python -m route_engine` arriva con la parte B, insieme a `models.py`.
+come waypoint. Dalla parte B anche `python -m route_engine --activity
+swimming [--laps N]` disegna un nuoto, coi nomi di
+`<cache-dir>/shore_names/`; un disegno a mano si nuota col comando del
+nuoto (`--outline`). I file dei nomi li scrive, da un estratto di
+OpenStreetMap, `python -m shaperoute_api.shore_extract --extract
+places.osm.pbf --bbox S,W,N,E --cache-dir data/cache` (il filtro di osmium
+è nella sua docstring): i posti con un nome di un tipo che serve (moli,
+fari, stabilimenti balneari, alberghi, chiese, bar, luoghi storici) entro
+300 m dalla costa o dal bordo di un lago.
