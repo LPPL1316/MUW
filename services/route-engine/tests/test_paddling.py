@@ -155,7 +155,8 @@ def _lake_shore() -> shapely.Geometry:
 def test_paddling_is_an_engine_activity_on_the_water() -> None:
     assert DISTANCE_LIMITS_M["paddling"] == (1_000, 5_000)  # the user's choice
     assert "paddling" in ACTIVITIES
-    assert WATER_ACTIVITIES == {"paddling"}
+    # With the swims of TASK-323 part B, the other activity on the water.
+    assert WATER_ACTIVITIES == {"paddling", "swimming"}
     # No road network: the water is its own source (water.py).
     assert not WATER_ACTIVITIES & set(NETWORKS)
     # The API offers it since TASK-191 part B, with shared-types.

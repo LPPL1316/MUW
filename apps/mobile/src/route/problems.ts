@@ -7,6 +7,7 @@ import {
 } from "@shaperoute/shared-types";
 
 import { decimal, t, tLater } from "../i18n";
+import { isOnWater } from "../swim/water";
 import { nearestTenths, tenthsToM, unitsNumber } from "../units/distanceInput";
 import { METRES_PER_MILE } from "../units/format";
 import { appUnits, type Units } from "../units/units";
@@ -153,7 +154,8 @@ export function problemText(
     case "api_error":
       switch (problem.code) {
         case "shape_not_drawable": {
-          if (activity === "paddling") {
+          // A swim's are the water's too (TASK-323): the same words.
+          if (isOnWater(activity)) {
             return waterProblemText(
               problem.message,
               fitsAtM(problem.suggested_distance_m, activity, units, asked, true),

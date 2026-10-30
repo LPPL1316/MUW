@@ -302,6 +302,61 @@ docs/STATUS.md
 4. Sul server, **col sì dell'utente**: l'estratto dei nomi e, per
    «Explore», un `draw_examples --water` per il nuoto.
 
+#### B, dove si è (2026-10-30)
+
+Scritta nella stessa sessione cloud, su richiesta dell'utente («passa alla
+parte B»), branch `feat/TASK-323-b-swim-api` allineato a `main` dopo A2
+(rockydalbianco/shaperoute#640 e LPPL1316/MUW#11). «File toccati» mandati
+al Coordinatore prima del codice. Aggiunta ad ADR-0283.
+
+- Punto 1: `swimming` nel contratto del motore e dell'API, coi giri
+  (`laps`) nella richiesta e giri e curve (`laps`, `turns`) nella risposta;
+  in `shared-types` `API_ACTIVITIES` e le fixture del nuoto. `Activity`
+  dell'app resta a tre fino alla parte C (decisione 2 dell'aggiunta).
+- Punto 2: `0039_swimming.sql` (preferiti, corse, corse di gruppo); il
+  gioco e i disegni leggono `runs.activity` e non hanno un elenco loro.
+- Punto 3: `shore_extract.py`, i posti con nome lungo la riva da un
+  estratto, nei file che il motore legge.
+- In più: un disegno a nuoto da `/image-route-jobs`; i nuoti tenuti con
+  un'impronta loro; il GPX di `POST /gpx` con le curve; Strava `Swim`;
+  `--activity swimming --laps N` nel comando del motore.
+- Punto 4 e **il blocco**: col sì dell'utente, sul server l'estratto dei
+  nomi, `draw_examples` (l'impronta degli esempi cambia) e
+  `paddleExamples.json` rifatto con l'acqua del server. Dalla sessione
+  cloud non si raggiunge: `test_paddle_examples` resta rosso finché il
+  Mac non lo rifà. `draw_examples --water` per il nuoto serve a «Explore»,
+  quindi va con la parte C.
+- `lap_m` nella risposta (2026-10-30, per la parte C: «3 laps of 320 m»
+  sotto il nuoto, scelta dell'utente): quanto è lungo un giro, senza i
+  tratti dalla riva.
+- Impronte dopo B: esempi tenuti `5b5e026cea9b` (i nuoti `b9d00c37d28d`),
+  esempi della canoa `574fbfba41eb` (il file dell'app dice ancora
+  `1b6759cb3cc4`). Il codice che disegna la canoa non cambia: rifatti,
+  gli esempi dovrebbero cambiare solo nel campo `engine`.
+
+File toccati da B:
+
+```
+services/route-engine/route_engine/models.py, __main__.py, swimming.py,
+  swim_turns.py, shore_names.py
+services/route-engine/tests/test_swimming.py, test_contract.py,
+  test_better_distance.py, test_bike_network.py, test_cli.py,
+  test_paddling.py (il nuoto non è più «un'attività che non c'è»)
+services/api/shaperoute_api/paddling.py, jobs.py, images.py, schemas.py,
+  app.py, activities.py, strava.py, route_store.py, shore_extract.py (nuovo)
+services/api/migrations/0039_swimming.sql (nuovo)
+services/api/tests/test_swimming_api.py, test_shore_extract.py (nuovi),
+  test_contract.py, test_cycling.py, test_route_store.py,
+  test_swim_fingerprint.py, test_better_distance.py, test_rotation.py,
+  test_request_log.py (i campi nuovi `laps` e `turns`)
+packages/shared-types/src/index.ts, test/contract.test.ts,
+  fixtures/contract.json, fixtures/route-request-swimming.json (nuovo),
+  fixtures/route-result-swimming.json (nuovo)
+apps/mobile/assets/engine/engine.zip (rifatto)
+docs/API.md, docs/DATABASE.md, docs/ROUTE_ENGINE.md, docs/DECISIONS.md,
+docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ### C — App: lo sport
 
 1. «Open water swim» 🏊 in «Settings» e nel menu degli sport di «Draw»
@@ -313,6 +368,98 @@ docs/STATUS.md
 3. Sul risultato, prima di «Start», l'elenco delle curve con i nomi a riva.
 4. I posti d'acqua in «Explore» con gli esempi a nuoto.
 5. Testi in cinque lingue, col sì dell'utente.
+
+#### C, dove si è (2026-10-30)
+
+Scritta nella stessa sessione cloud, su richiesta dell'utente («passa alla
+parte C»), branch `feat/TASK-323-c-swim-app` partito da quello di B
+(MUW#12, non ancora in `main`): a C serve il contratto del nuoto. Quando B
+entra, si fa il merge di `main` dentro C. Il Coordinatore («Coordinatore
+automatico 23 ore») era archiviato: i «File toccati» sono qui e nella PR.
+Aggiunta ad ADR-0283.
+
+- **Testi inglesi approvati dall'utente** il 2026-10-30 («Sì, così»): 🏊
+  «Open water swim», l'avviso «Before you swim» com'era proposto in
+  ADR-0283, la riga «Within 150 m of the shore. Never swim alone.».
+- **C1, fatta**: la riga dello sport con `ready: false` dopo «Paddle»
+  (in Expo Go e `preview` con «Soon», nascosta nello store da TASK-318;
+  finché è «Soon» va come una corsa, come il parapendio); in `src/swim/`
+  l'avviso col suo file `swim-notice.json` e `useSwimNotice`, la riga sotto
+  il giro (`SwimRouteNote`), l'elenco delle curve del primo giro
+  (`SwimTurns`, `swimTurns.ts`). Test con la fixture del contratto.
+- **Approvati dall'utente** il 2026-10-30 («Sì, così», seconda domanda):
+  i testi delle curve («TURNS», «Turn left · {place}», «{distance} from the
+  start», «The same turns every lap, {laps} laps, then back to the
+  shore.») e le traduzioni di tutti i testi nuovi in italiano, tedesco,
+  spagnolo e francese.
+- **C2, dopo B in `main`**: `Activity` dell'app con `swimming`, che tocca
+  `src/health/appleWorkout.ts` e `healthConnectWorkout.ts` di TASK-321
+  (condizione 3: col via del Coordinatore, il tipo di allenamento del nuoto
+  in Salute e in Health Connect); `activityOf("swim")` = `"swimming"`; in
+  `App.tsx` l'avviso al «Start» di un nuoto, e nel pannello del percorso la
+  riga e l'elenco; `ready: true` quando il server nuota.
+- **Punto 4 («Explore» a nuoto)**: aspetta gli esempi disegnati
+  sull'acqua del server (`draw_examples --water`), col sì dell'utente.
+
+File toccati da C1:
+
+```
+apps/mobile/src/swim/safetyNotice.ts, SwimNotice.tsx, SwimRouteNote.tsx,
+  swimTurns.ts, SwimTurns.tsx, safetyNotice.test.tsx, SwimTurns.test.tsx
+  (nuovi)
+apps/mobile/src/settings/sport.ts, sport.test.ts, SportSetting.test.tsx,
+  SportButton.test.tsx, SportStoreBuild.test.tsx,
+  SportVoiceItalian.test.tsx
+apps/mobile/src/profile/SettingsPage.test.tsx (conta le righe «Soon»)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
+#### C2, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+C2»), branch `feat/TASK-323-c2-swim-on` partito da C1. Aggiunta ad
+ADR-0283. Le scelte dell'utente, una domanda per volta: le righe del nuoto
+nei file di Apple Salute di TASK-321 («Add the entries»), le distanze a
+mezzo km («Half-km steps»), i pulsanti sul risultato («Buttons on the
+result»), i testi e le traduzioni («Yes, like this»).
+
+- `Activity` con `swimming`; `activityOf("swim")` = `"swimming"`, la riga
+  ancora `ready: false`.
+- Le distanze: 0,5–3 km di mezzo km da 1 km, 0,5–1,5 mi di mezzo miglio
+  (`distanceStep`, `SWIMMING_START_KM`).
+- Sul risultato (`SwimResult`): «3 laps of 320 m», «Bigger shape» e
+  «Smaller shape», la riga sotto il giro, le curve. `lap_m` aggiunto alla
+  risposta in B (`ec03204`).
+- Sull'acqua come la canoa (`isOnWater`): niente indicazioni, gli errori
+  dell'acqua, la ricerca delle spiagge, le forme a pezzi; «Word» no,
+  «Image» e «Draw on the map» sì.
+- L'avviso del nuoto a ogni «Start» di un nuoto (risultato, «Explore», un
+  disegno aperto).
+- **Prima di `ready: true`**: B in `main` e sul server col sì dell'utente,
+  C4 («Explore» a nuoto: oggi con lo sport del nuoto mostrerebbe gli esempi
+  della corsa). La corsa a nuoto (niente voce, passo per 100 m) è D.
+
+File toccati da C2:
+
+```
+packages/shared-types/src/index.ts, test/contract.test.ts
+apps/mobile/App.tsx (l'avviso, i giri, la ricerca sull'acqua)
+apps/mobile/src/swim/water.ts, SwimResult.tsx e i loro test (nuovi)
+apps/mobile/src/settings/sport.ts, sport.test.ts
+apps/mobile/src/route/RoutePanel.tsx, distance.ts, problems.ts,
+  WhileRouting.tsx, drawAgain.ts, penUpShapes.ts, distanceMiles.test.ts,
+  swimDistance.test.ts (nuovo)
+apps/mobile/src/health/appleWorkout.ts, healthConnectWorkout.ts,
+  appleHealth.test.ts (TASK-321, col sì dell'utente), swimWorkout.test.ts
+  (nuovo)
+apps/mobile/src/social/PublicParts.tsx
+apps/mobile/src/api/favorites.test.ts, src/favorites/favoriteRoute.test.ts
+  (il nuoto non è più «un'attività che non c'è»)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/__tests__/AppSwim.test.tsx (nuovo)
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
 
 ### D — App: nuotare con il telefono nella boa
 
