@@ -2426,6 +2426,50 @@ esempio in `fixtures/feed.json`; il codice in `feed.py`.
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app
   mostra i disegni d'esempio.
 
+### Drawing search (TASK-344, ADR-0297)
+
+La ricerca dei disegni dalla lente del Feed: le stesse regole del feed su
+chi vede cosa, la stessa pagina. Vuole il token: senza, `401
+not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
+`shared-types` (`DrawingSearchPage`, `DRAWING_SORTS`,
+`DRAWING_COMPLEXITIES`, `DRAWING_SIMPLE_BELOW`, `DRAWING_MEDIUM_BELOW`,
+`DRAWING_SEARCH_PAGE_SIZE`); il codice in `drawing_search.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /search/drawings?q=…&named=…&shape=…&activity=…&min_m=…&max_m=…&place=…&complexity=…&sort=…&limit=20&cursor=…` | i disegni che chi chiede può vedere, trovati dalle parole e passati dai filtri | `200` `DrawingSearchPage` |
+
+- **Le parole** (`q`, al più 80 caratteri; oltre, nessun risultato): ogni
+  parola deve stare nel titolo, nella descrizione, nella forma (`dog_head`
+  si legge «dog head»), nella parola disegnata, nel titolo del percorso,
+  nel posto o nel nome dell'autore. **Maiuscole e accenti non contano**
+  («citta» trova «Città»). `%` e `_` sono solo sé stessi. Senza parole,
+  ogni disegno che passa i filtri.
+- **`named`**: le forme (id del catalogo, `^[a-z0-9_]{1,40}$`) che le
+  parole nominano nella lingua dell'app; un disegno di una di esse è
+  trovato anche senza le parole. Senza `q` non chiede niente.
+- **I filtri**, ognuno ripetuto per ogni valore (`shape=heart&shape=star`),
+  al più 50 valori: `shape` (le forme), `activity` (`running`, `cycling`,
+  `paddling`), `min_m` e `max_m` (la distanza della corsa, inclusi),
+  `place` (una parte del nome del posto, senza accenti), `complexity`
+  (`simple`, `medium`, `complex`: lunghezza dell'anteprima diviso la
+  diagonale del suo rettangolo, sotto 3,6 e sotto 4,5). Più valori di un
+  filtro si sommano; filtri diversi valgono tutti. `min_m` sopra `max_m`,
+  o una forma scritta male: `422 invalid_request`.
+- **Chi vede cosa**: come il feed. Mai `only_me`, **nemmeno al
+  proprietario**; `followers` a chi segue con la richiesta accettata; mai
+  un disegno di chi si è bloccato o ha bloccato; mai uno nascosto.
+- **L'ordine** (`sort`): `recent` (default, l'ultima pubblicazione per
+  prima), `longest` (la distanza), `popular` (il numero di reazioni); a
+  parità l'id.
+- **Le pagine**: `limit` da 1 a 50, 20 se non detto; il cursore è
+  `ordine-valore-id` (`^(recent|longest|popular)-\d{1,17}-[0-9a-f]{32}$`).
+  Un cursore di un altro ordine: `422` «This cursor is of another order:
+  start again without it.». In `popular` una reazione lasciata fra due
+  pagine può spostare un disegno.
+- **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app cerca
+  solo negli esempi.
+
 ### Block and report (TASK-121, ADR-0228)
 
 Bloccare tiene **due iscritti lontani, nei due sensi**; segnalare lascia
