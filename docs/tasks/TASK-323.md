@@ -554,6 +554,76 @@ docs/IMPORTAZIONI.md, docs/DECISIONS.md, docs/STATUS.md,
    la nostra app dell'orologio: è di TASK-321 e dello studio D di TASK-312;
    qui si usa quello che decidono, senza toccare i loro file.
 
+#### E, il piano (2026-10-30)
+
+L'utente, alla richiesta «passa alla parte E», ha scelto «Wait for B, then
+the Mac»: **sì alle due dipendenze**, ma il codice parte dopo. Dalla
+sessione cloud non si può: non c'è Xcode per compilare e provare lo Swift
+dell'orologio, e `app.json`, `package.json` e `react-native.config.js` sono
+della parte B di TASK-321 (la build 1.0.1, branch
+`feat/TASK-321-b-health-ios`), che li sta cambiando adesso. Questo è il
+piano per la sessione che lo farà.
+
+**Quando parte**: TASK-321 B in `main` (HealthKit acceso, gli entitlements,
+il testo del permesso), le parti B, C1, C2, C4 e D di questo task in
+`main`, una sessione sul Mac con Xcode e un Apple Watch per provare. Il
+nuoto acceso (`ready: true`) non serve per scrivere il codice, serve per
+la prova.
+
+**Le dipendenze** (sì dell'utente del 2026-10-30; versioni da ricontrollare
+quando si parte, una sola riga in `package.json` ciascuna):
+
+- `@bacons/apple-targets` 5.0.0: il plugin di Expo che aggiunge il target
+  dell'orologio da una cartella `targets/watch/` (il suo
+  `expo-target.config.js` e i sorgenti Swift) a ogni `prebuild`;
+- `react-native-watch-connectivity` 2.0.0: `WCSession` dal JavaScript, per
+  mandare il giro all'orologio e ricevere la traccia.
+
+**Come è fatto**:
+
+1. **Il telefono** (`src/watch/`, file nuovi): `watchSwim.ts`, puro, fa il
+   pacchetto per l'orologio dal risultato del nuoto: i punti (diradati
+   come le anteprime, entro il limite di un messaggio di `WCSession`), le
+   curve del primo giro con il lato, i metri dalla partenza e il nome a
+   riva, i giri, `lap_m`, la distanza. `useWatch.ts`: se c'è un orologio
+   con l'app, al «Start» di un nuoto (dopo l'avviso) manda il pacchetto e
+   dice sul telefono «On your watch» (testo da approvare); alla fine riceve
+   la traccia e la mette nella corsa come quella del telefono, con «Save»
+   e il modulo di sempre.
+2. **L'orologio** (`targets/watch/`, Swift e SwiftUI): un
+   `HKWorkoutSession` `.swimming` con `swimmingLocationType` `.openWater`
+   (l'orologio salva l'allenamento in Salute: «un'attività, un
+   allenamento», il telefono non lo riscrive, regola di TASK-321); il GPS
+   dell'orologio; il blocco dell'acqua all'avvio. `SwimGuide.swift`, puro:
+   dove si è lungo il giro, i metri alla prossima curva, fuori rotta oltre
+   25 m. Le vibrazioni: prima di una curva a destra e a sinistra con due
+   schemi diversi, fuori rotta un terzo (da provare in acqua e da far
+   scegliere all'utente). Lo schermo: una freccia grande e i metri alla
+   prossima curva, per chi alza la testa. Alla fine la traccia al
+   telefono (`transferFile`, anche se il telefono non c'è subito).
+3. **I test**: `jest` per `src/watch/`; XCTest per `SwimGuide` (la
+   posizione lungo il giro, la curva che viene, il fuori rotta), sul Mac.
+4. **La prova in acqua** (primavera 2027) dice se le vibrazioni si sentono
+   nuotando e se i 25 m vanno bene; poi la build 1.0.1 con TASK-321 B e
+   l'invio ad Apple, col sì dell'utente.
+
+**Da chiedere all'utente quando si parte** (una domanda per volta): gli
+schemi delle vibrazioni, i pochi testi dell'orologio e del telefono nelle
+cinque lingue, la riga della privacy (la posizione dell'orologio durante il
+nuoto).
+
+File toccati da E (previsti, da confermare quando parte):
+
+```
+apps/mobile/targets/watch/ (nuova: il target, lo Swift, i test XCTest)
+apps/mobile/src/watch/ (nuova: watchSwim.ts, useWatch.ts e i test)
+apps/mobile/package.json (le due dipendenze), app.json (il plugin), con
+  TASK-321 B già in main
+apps/mobile/App.tsx (il «Start» di un nuoto con l'orologio)
+apps/mobile/src/i18n/*.ts, site/privacy/ (testi e privacy, col sì)
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ## Criteri di accettazione (del task intero)
 
 - [ ] Dalla CLI, senza rete né chiavi, un giro a nuoto sta tutto fra la

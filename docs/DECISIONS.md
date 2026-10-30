@@ -18533,6 +18533,31 @@ activities» e nella scheda da condividere «Open water swim · 1.02 km ·
 (`ready: true`) come detto in C4; la prova in acqua dirà se i 30 s e la
 soglia di 1 km/h vanno bene.
 
+## ADR-0283 — aggiunta, parte E: le due dipendenze dell'orologio sì, il codice dopo TASK-321 B, sul Mac
+
+**Stato**: Attiva · 2026-10-30 · scelta dell'utente («Wait for B, then the
+Mac», alla richiesta «passa alla parte E»). Aggiunta ad ADR-0283.
+
+**Contesto**: l'app per Apple Watch è Swift, da compilare e provare con
+Xcode, che la sessione cloud non ha; va nella build 1.0.1 con Apple Salute
+di TASK-321, la cui parte B sta cambiando adesso `app.json`, `package.json`
+e `react-native.config.js`.
+
+**Decisione dell'utente**:
+
+1. **Sì alle due dipendenze**, per quando si parte: `@bacons/apple-targets`
+   (il target dell'orologio in un progetto Expo) e
+   `react-native-watch-connectivity` (il giro all'orologio, la traccia al
+   telefono).
+2. **Il codice dopo**: in una sessione sul Mac, con TASK-321 B in `main`,
+   nella stessa 1.0.1. Adesso solo il piano (`tasks/TASK-323.md`, «E, il
+   piano»).
+
+**Conseguenze**: nessun codice e nessuna dipendenza in questa PR. Gli schemi
+delle vibrazioni, i testi e la riga della privacy si chiedono all'utente
+quando E parte; la build e l'invio ad Apple col suo sì, dopo la prova in
+acqua.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,

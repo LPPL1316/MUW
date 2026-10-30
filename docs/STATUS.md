@@ -376,6 +376,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `main` in quest'ordine; poi server col sì dell'utente, `ready: true`; la
   prova in acqua (primavera 2027) e la parte E (Apple Watch, col sì
   dell'utente su dipendenza e build).
+  **E, il piano** (2026-10-30, branch `docs/TASK-323-e-watch-plan`): sì
+  dell'utente alle due dipendenze (`@bacons/apple-targets`,
+  `react-native-watch-connectivity`), il codice dopo TASK-321 B in `main`,
+  in una sessione sul Mac con Xcode («Wait for B, then the Mac»). Il piano
+  in `tasks/TASK-323.md`, «E, il piano».
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
