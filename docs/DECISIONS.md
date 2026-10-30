@@ -19549,6 +19549,23 @@ mappa hanno `metresPerPx`, `bent`, `links`, `bendable` e `marks` (pagina e
 app vanno sempre insieme). Il nuovo `mapdraw/tools.ts` contiene gli
 strumenti; `erasedAt` esce da `edit.ts`.
 
+## ADR-0048 — aggiunta (TASK-337): due avvisi alla volta sotto il percorso, mai quelli di sicurezza dietro «Show more»
+
+**Stato**: Attiva · 2026-10-29 · richiesta dell'utente dello stesso giorno
+(«ad esempio qui le strade seguono la forma solo all'incirca… a volte sono
+troppe… che poi non si visualizza più l'immagine»); la regola di sicurezza
+è la condizione del Coordinatore; il resto **deciso dall'agente su delega
+dell'utente**. Voce breve, senza numero nuovo.
+
+Sotto il percorso si vedono **due** avvisi, nell'ordine di sempre; gli
+altri con «Show more» (testo già tradotto), mai tolti (ADR-0077). Quelli
+di **sicurezza** (scale, strade principali, gallerie, bici a mano) si
+vedono sempre, anche se sono più di due. Fuori dal conto la riga della
+forma spostata e le righe con un pulsante. Un altro percorso, o l'altro
+fra A e B, riparte da due. Scartati: un avviso solo (spesso è proprio
+quello delle scale) e una frase nuova «2 more notes» (da tradurre, mentre
+«Show more» c'è già).
+
 ## ADR-0296 — Le sfide del mese: un tema sul concorso, l'iscrizione esplicita, la galleria, l'archivio, tre push
 
 **Stato**: Proposta · 2026-10-29 · TASK-343. Estende ADR-0260 (il primo

@@ -1,5 +1,5 @@
 import { saveLanguageChoice } from "../i18n/language";
-import { roughMetres, toNote, toNotes } from "./warnings";
+import { NOTES_AT_FIRST, roughMetres, shownNotes, toNote, toNotes } from "./warnings";
 
 afterEach(() => saveLanguageChoice("phone"));
 
@@ -60,7 +60,7 @@ test.each([
     "A bit of the shape has no road to follow, so the route skips it.",
   ],
 ])("%j reads %s: %j", (warning, tone, text) => {
-  expect(toNote(warning)).toEqual({ tone, text });
+  expect(toNote(warning)).toMatchObject({ tone, text });
 });
 
 // Every direction optimizer._compass can write, with metres and kilometres.
@@ -112,12 +112,82 @@ test("things to watch for come first, and a sentence is said once", () => {
   ]);
 });
 
+// --- Two notes at first (TASK-337) ---
+
+test("the first two notes are shown, all of them after «Show more»", () => {
+  const notes = toNotes([
+    "distance on roads is +12% from the target after 18 attempts",
+    "shape similarity 0.86 is below 0.90 after 18 attempts",
+    "120 m of the route on steps",
+  ]);
+  expect(NOTES_AT_FIRST).toBe(2);
+  expect(shownNotes(notes, false).map((note) => note.text)).toEqual([
+    "The roads here follow the shape only roughly.",
+    "There are 120 m of steps along the way.",
+  ]);
+  expect(shownNotes(notes, true)).toEqual(notes);
+  expect(shownNotes(notes.slice(0, 1), false)).toEqual(notes.slice(0, 1));
+  expect(shownNotes([], false)).toEqual([]);
+});
+
+// The Coordinatore's condition: what makes a stretch unsafe, or one that
+// cannot be run or ridden, is never behind «Show more».
+test.each([
+  ["120 m of the route on steps", true],
+  ["1400 m of the route on main roads", true],
+  ["60 m of the route in tunnels", true],
+  ["923 m of the route with the bike on foot", true],
+  ["shape similarity 0.86 is below 0.90 after 18 attempts", false],
+  ["no road path to shape point 17; skipped", false],
+  ["distance on roads is +12% from the target after 18 attempts", false],
+  ["something new from the engine", false],
+])("%j is about safety: %s", (warning, safety) => {
+  expect(toNote(warning).safety === true).toBe(safety);
+});
+
+test("notes about safety are always among the first ones, even more than two", () => {
+  const behind = [
+    "shape similarity 0.86 is below 0.90 after 18 attempts",
+    "no road path to shape point 3; skipped",
+    "sparse road network: shape points are 140 m from the nearest road on average (threshold 120 m)",
+  ];
+  // Things to watch for that are not about safety come first from the
+  // engine: a safety note after them still shows, in its place.
+  const one = toNotes([...behind, "120 m of the route on steps"]);
+  expect(shownNotes(one, false).map((note) => note.text)).toEqual([
+    "The roads here follow the shape only roughly.",
+    "There are 120 m of steps along the way.",
+  ]);
+  const three = toNotes([
+    ...behind,
+    "distance on roads is +12% from the target after 18 attempts",
+    "120 m of the route on steps",
+    "1400 m of the route on main roads",
+    "60 m of the route in tunnels",
+  ]);
+  expect(shownNotes(three, false).map((note) => note.text)).toEqual([
+    "There are 120 m of steps along the way.",
+    "1.4 km runs along main roads, with traffic.",
+    "60 m runs through tunnels.",
+  ]);
+  const onFoot = toNotes([
+    ...behind,
+    "923 m of the route with the bike on foot",
+    "distance on roads is +12% from the target after 18 attempts",
+  ]);
+  expect(shownNotes(onFoot, false).map((note) => note.text)).toEqual([
+    "The roads here follow the shape only roughly.",
+    "Includes 920 m walking the bike.",
+  ]);
+});
+
 // --- The bike on foot (TASK-206) ---
 
 test("a bike route says the metres with the bike on foot, part of its distance", () => {
   expect(toNote("923 m of the route with the bike on foot")).toEqual({
     tone: "info",
     text: "Includes 920 m walking the bike.",
+    safety: true,
   });
   expect(toNote("1062 m of the route with the bike on foot").text).toBe(
     "Includes 1.1 km walking the bike.",

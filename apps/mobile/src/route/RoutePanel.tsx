@@ -54,7 +54,7 @@ import type { ImageState } from "./useImageOutline";
 import type { AnyRouteRequest, RouteProblem, RouteState } from "./useRouteRequest";
 import type { ShapeReadingState } from "./useShapeReading";
 import { penSplit } from "./walks";
-import { type Note, toNotes } from "./warnings";
+import { type Note, shownNotes, toNotes } from "./warnings";
 import { WhileRouting } from "./WhileRouting";
 import {
   MAX_WORD_FIELD_LENGTH,
@@ -374,6 +374,9 @@ export function RouteOutcome({
   // The request a «Try» under the route left (TASK-234): no line offers to
   // go back to it.
   const [left, setLeft] = useState<Left | null>(null);
+  // The route whose notes were all opened with «Show more» (TASK-337):
+  // another route, or the other of A and B, shows the first ones again.
+  const [allNotesOf, setAllNotesOf] = useState<RouteResult | null>(null);
   // Where the shape comes out better: the request's, from the engine's
   // choice, whichever route is on screen.
   const better =
@@ -470,9 +473,11 @@ export function RouteOutcome({
             />
           )}
           {liftPenLine}
-          {toNotes(view.result.warnings).map((note) => (
-            <NoteRow key={note.text} note={note} />
-          ))}
+          <Notes
+            notes={toNotes(view.result.warnings)}
+            all={allNotesOf === view.result}
+            onShowAll={() => setAllNotesOf(view.result)}
+          />
           {movedElsewhere && (
             <NoteRow
               note={{
@@ -968,6 +973,39 @@ function NoteRow({ note }: { note: Note }) {
   );
 }
 
+/**
+ * The route's notes, the first two only (TASK-337): more pushed the map out
+ * of sight. «Show more» opens the rest under them.
+ */
+function Notes({
+  notes,
+  all,
+  onShowAll,
+}: {
+  notes: Note[];
+  all: boolean;
+  onShowAll: () => void;
+}) {
+  const shown = shownNotes(notes, all);
+  return (
+    <>
+      {shown.map((note) => (
+        <NoteRow key={note.text} note={note} />
+      ))}
+      {shown.length < notes.length && (
+        <Pressable
+          style={styles.moreNotes}
+          onPress={onShowAll}
+          hitSlop={space.sm}
+          accessibilityRole="button"
+        >
+          <Text style={styles.moreNotesText}>{t("Show more")}</Text>
+        </Pressable>
+      )}
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
   panel: {
     gap: space.sm,
@@ -1103,6 +1141,17 @@ const styles = StyleSheet.create({
   noteText: {
     color: color.text,
     fontSize: fontSize.small,
+  },
+  // A quiet line, not a button: it should take less room than a note.
+  moreNotes: {
+    alignSelf: "flex-start",
+    paddingVertical: space.xs,
+    paddingHorizontal: space.md,
+  },
+  moreNotesText: {
+    color: color.textMuted,
+    fontSize: fontSize.small,
+    fontWeight: fontWeight.semibold,
   },
   problem: {
     color: color.error,

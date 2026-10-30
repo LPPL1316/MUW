@@ -2782,7 +2782,14 @@ striscia arancio (`warning`) per quelli a cui fare attenzione (scale,
 strade principali, gallerie, forma poco fedele, pochi tratti di strada) e
 grigia per quelli da sapere (partenza spostata, distanza diversa da quella
 chiesta, strade ripercorse); prima quelli a cui fare attenzione, e la
-stessa frase una volta sola. Un testo che l'app non conosce resta com'è,
+stessa frase una volta sola. Se ne vedono **due alla volta** (TASK-337,
+richiesta dell'utente: di più spingevano la mappa fuori dallo schermo):
+sotto, una riga grigia «Show more» apre gli altri; un altro percorso, o
+l'altro fra A e B, riparte da due. Quelli di sicurezza (scale, strade
+principali, gallerie, bici a mano) si vedono sempre, anche se sono più di
+due. Restano fuori dal conto la riga della
+forma spostata («The shape does not fit there…») e quelle con un pulsante.
+Un testo che l'app non conosce resta com'è,
 in inglese. La somiglianza non si mostra come
 numero, tranne nelle tessere dei percorsi alternativi, dove serve a
 confrontarli (TASK-093, scelta dell'utente): la forma la giudica l'occhio

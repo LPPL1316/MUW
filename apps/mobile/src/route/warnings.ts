@@ -21,17 +21,28 @@ import {
 } from "../units/format";
 import { appUnits } from "../units/units";
 
+/**
+ * How many notes the route shows at first (TASK-337): with more, the panel
+ * grew over the map on the phone. The rest wait behind «Show more», never
+ * dropped (ADR-0077). Notes about safety are always shown, even more of them.
+ */
+export const NOTES_AT_FIRST = 2;
+
 /** How a note should look: something to watch for, or just to know. */
 export type NoteTone = "caution" | "info";
 
 export type Note = {
   tone: NoteTone;
   text: string;
+  /** About safety, or a stretch that cannot be run or ridden (TASK-337):
+   * never behind «Show more». */
+  safety?: true;
 };
 
 type Rule = {
   pattern: RegExp;
   tone: NoteTone;
+  safety?: true;
   say: (match: RegExpExecArray) => string;
 };
 
@@ -100,12 +111,14 @@ const RULES: Rule[] = [
   {
     pattern: /^(\d+(?:\.\d+)?) m of the route on steps$/,
     tone: "caution",
+    safety: true,
     say: ([, m]) =>
       t("There are {distance} of steps along the way.", { distance: metres(m) }),
   },
   {
     pattern: /^(\d+(?:\.\d+)?) m of the route on main roads$/,
     tone: "caution",
+    safety: true,
     say: ([, m]) =>
       t("{distance} runs along main roads, with traffic.", { distance: metres(m) }),
   },
@@ -114,12 +127,14 @@ const RULES: Rule[] = [
     // stretches are part of the route and of its distance.
     pattern: /^(\d+(?:\.\d+)?) m of the route with the bike on foot$/,
     tone: "info",
+    safety: true,
     say: ([, m]) =>
       t("Includes {distance} walking the bike.", { distance: roughMetres(Number(m)) }),
   },
   {
     pattern: /^(\d+(?:\.\d+)?) m of the route in tunnels$/,
     tone: "caution",
+    safety: true,
     say: ([, m]) => t("{distance} runs through tunnels.", { distance: metres(m) }),
   },
   {
@@ -176,7 +191,8 @@ export function toNote(warning: string): Note {
   for (const rule of RULES) {
     const match = rule.pattern.exec(warning);
     if (match) {
-      return { tone: rule.tone, text: rule.say(match) };
+      const note: Note = { tone: rule.tone, text: rule.say(match) };
+      return rule.safety ? { ...note, safety: true } : note;
     }
   }
   return { tone: "info", text: capitalise(warning) };
@@ -198,4 +214,18 @@ export function toNotes(warnings: readonly string[]): Note[] {
     ...notes.filter((note) => note.tone === "caution"),
     ...notes.filter((note) => note.tone === "info"),
   ];
+}
+
+/**
+ * The notes on screen (TASK-337), in their order: every note about safety,
+ * and the first others up to two notes in all; or all of them once «Show
+ * more» was pressed.
+ */
+export function shownNotes(notes: readonly Note[], all: boolean): Note[] {
+  if (all) {
+    return [...notes];
+  }
+  const room = NOTES_AT_FIRST - notes.filter((note) => note.safety).length;
+  const others = notes.filter((note) => !note.safety).slice(0, Math.max(0, room));
+  return notes.filter((note) => note.safety || others.includes(note));
 }
