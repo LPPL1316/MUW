@@ -63,10 +63,11 @@ Condizioni del coordinatore (2026-10-29):
    nella lingua dell'app), i filtri `shape`, `activity`, `min_m`/`max_m`,
    `place`, `complexity`, l'ordine `sort` (`recent`, `longest`,
    `popular`), `limit` e `cursor`. Una pagina è un `FeedPage`.
-2. Maiuscole e accenti non contano: la stessa tabella di lettere
-   (`FOLDED_FROM`/`FOLDED_TO`) piega le parole in Python e i campi in SQL
-   (`translate(lower(…))`). Nessuna migrazione.
-3. La complessità si legge dall'anteprima della traccia (al più 64 punti):
+2. Maiuscole e accenti non contano: la parola, piegata in Python, diventa
+   un'espressione regolare con ogni lettera e le sue accentate
+   (`pattern_of`), sul testo in minuscolo. Nessuna migrazione.
+3. La complessità si legge dall'anteprima della traccia (al più 64 punti),
+   su un piano con le longitudini accorciate dal coseno della latitudine:
    lunghezza diviso diagonale del rettangolo che la contiene, sotto 3,6
    `simple`, sotto 4,5 `medium`, oltre `complex` (soglie tarate sugli
    esempi del Feed: cerchio 3,0, cuore 3,0, stella 3,1–3,5, cavallo
@@ -107,7 +108,32 @@ Condizioni del coordinatore (2026-10-29):
       sensi.
 - [ ] Le pagine non ripetono e non saltano nessuno, in ognuno dei tre
       ordini; un cursore di un altro ordine è `422`.
-- [ ] Una ricerca su 10.000 disegni risponde in meno di 300 ms sul Mac.
+- [ ] I tempi su 10.000 disegni sono misurati e scritti qui sotto
+      («I tempi»); nessuna ricerca costa più del feed sullo stesso database.
+
+### I tempi (parte A, 2026-10-30)
+
+10.000 disegni finti pubblicati da un membro, sul PostgreSQL di prova del
+Mac (colima), con `ANALYZE`; script e piani in `out/TASK-344/` (fuori da
+git). Solo l'SQL, con `EXPLAIN ANALYZE` e il JIT spento come nell'API:
+
+| Ricerca | SQL |
+|---|---|
+| niente chiesto (`recent`) | 2,3 ms |
+| `complexity=simple` | 3,9 ms |
+| `q=cuore` con `named=heart` | 10,1 ms |
+| `sort=longest` | 283 ms |
+| `q=heart`, `q=citta`, `q=xyz` (nessuno) | 377–405 ms |
+| `sort=popular` | 465 ms |
+| `q=sunday heart trento` | 599 ms |
+
+Con la richiesta intera (client di prova): da 295 a 760 ms; `GET /feed`
+sullo stesso database circa 1.050 ms. Quando una ricerca legge tutti i
+disegni, circa 200 ms sono il controllo dei blocchi riga per riga
+(`shown_sql`, lo stesso del feed), il resto il confronto delle parole. Un
+indice trigram non aiuta: le parole stanno in tre tabelle. Il criterio
+di partenza, «meno di 300 ms», vale per le ricerche che si fermano presto
+(niente parole, filtri, `named`), non per quelle che leggono tutto.
 
 ### Parte B
 

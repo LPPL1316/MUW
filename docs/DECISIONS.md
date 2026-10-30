@@ -19530,9 +19530,12 @@ del Feed sono una ventina, sul telefono.
 2. **Le parole** (`q`) si cercano nel titolo, nella descrizione, nella
    forma (`dog_head` come «dog head»), nella parola disegnata, nel titolo
    del percorso, nel posto e nel nome dell'autore; **tutte** devono
-   esserci. Maiuscole e accenti non contano: una sola tabella di lettere
-   piega le parole in Python e i campi in SQL (`translate(lower(…))`).
-   Niente `unaccent`, che vorrebbe una migrazione.
+   esserci. Maiuscole e accenti non contano: la parola è piegata in
+   Python a lettere semplici, poi ogni lettera diventa la classe di sé e
+   delle sue accentate in un'espressione regolare di PostgreSQL sul testo
+   in minuscolo («citta» → `c[cçćč]i[iì…]…`). Piegare ogni testo con
+   `translate` costava dieci volte tanto; `unaccent` vorrebbe una
+   migrazione.
 3. **Le forme nella lingua dell'app**: le forme sono id inglesi; l'app
    manda in `named` quelle che le parole nominano nella sua lingua
    («cuore» → `heart`), e un disegno di una di esse è trovato anche se le
@@ -19541,7 +19544,8 @@ del Feed sono una ventina, sul telefono.
    `activity`, `min_m`/`max_m`, `place`, `complexity`. Più valori di uno
    si sommano, filtri diversi valgono tutti.
 5. **La complessità** si legge dall'anteprima della traccia (al più 64
-   punti): lunghezza diviso diagonale del rettangolo che la contiene;
+   punti), su un piano con le longitudini accorciate dal coseno della
+   latitudine: lunghezza diviso diagonale del rettangolo che la contiene;
    sotto 3,6 semplice, sotto 4,5 media, oltre complessa. Le soglie sono
    tarate sugli esempi del Feed e stanno in `shared-types`, così l'app
    classifica gli esempi allo stesso modo.
@@ -19551,10 +19555,16 @@ del Feed sono una ventina, sul telefono.
    può spostare un disegno: accettato, come nel feed chi comincia a
    seguire.
 
+7. **La pagina in due passi**: prima gli id, dalle colonne leggere e
+   nell'ordine delle colonne vere (l'indice dei disegni pubblicati per
+   `recent`), poi i campi da mostrare solo dei venti trovati. La query
+   gira con `SET LOCAL jit = off`: compilarla costava più che eseguirla.
+
 **Alternative scartate**: cercare sul telefono nelle pagine del feed già
 lette (trova solo ciò che si è già scorso); un indice di testo di
-PostgreSQL con migrazione (da aggiungere solo se i tempi su 10.000 disegni
-non bastano); tradurre i nomi delle forme sul server (le lingue stanno
+PostgreSQL con migrazione (le parole stanno in tre tabelle, disegno,
+corsa e autore: un indice trigram su una sola non basta, e su 10.000
+disegni metà del tempo è il controllo dei blocchi, lo stesso del feed); tradurre i nomi delle forme sul server (le lingue stanno
 nell'app); salvare la complessità in una colonna (vorrebbe una migrazione,
 e si calcola in fretta dall'anteprima).
 
