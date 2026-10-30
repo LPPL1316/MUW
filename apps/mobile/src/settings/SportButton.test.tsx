@@ -80,8 +80,16 @@ test("a sport not ready is not a choice in the menu", async () => {
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
   expect(screen.getAllByRole("radio")).toHaveLength(1);
   expect(screen.getByLabelText("Bike, coming soon")).toBeOnTheScreen();
-  // Bike, Paddle and Paragliding (TASK-305 D0).
-  expect(screen.getAllByText("Soon")).toHaveLength(3);
+  // Bike, Paddle, Open water swim (TASK-323 C) and Paragliding (TASK-305 D0).
+  expect(screen.getAllByText("Soon")).toHaveLength(4);
+});
+
+test("in the menu «Open water swim» says «Soon» and takes no tap (TASK-323 C)", async () => {
+  await render(<SportButton />);
+  await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
+  await fireEvent.press(screen.getByLabelText("Open water swim, coming soon"));
+  expect(saveSport).not.toHaveBeenCalled();
+  expect(screen.getByRole("radio", { name: "Run" })).toBeChecked();
 });
 
 test("the app's menu ends with «Paragliding» «Soon», as «Settings» (TASK-305 D0)", async () => {

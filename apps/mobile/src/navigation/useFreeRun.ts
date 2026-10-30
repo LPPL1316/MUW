@@ -14,6 +14,7 @@ import { isPaddle, paddleAnnouncement } from "./paddle";
 import { type RunAway, watchAway } from "./runAway";
 import { controlRun, type RunSession } from "./runControl";
 import { type RunWatch, watchRunPosition } from "./runPosition";
+import { isSwim, SWIM_AUTO_PAUSE_AFTER_MS } from "./swim";
 import { emptyTrack, type Track } from "./trackRecorder";
 import { startRun } from "./trackStore";
 import { FIX_EVERY_M, play } from "./useNavigation";
@@ -77,6 +78,9 @@ export function useFreeRun(active: boolean): FreeRunState {
         let saidUnits = appUnits();
         let saidKm = wholeUnits(recorder.track(), saidUnits);
         let position: LatLon | null = null;
+        // A swim says nothing: with the head in the water nobody hears it
+        // (TASK-323 D); standing still waits longer before the pause.
+        const swim = isSwim(activity);
         const session = controlRun(recorder, {
           // «Pause» and «Resume» change the track between two fixes.
           onChange: () => {
@@ -84,7 +88,12 @@ export function useFreeRun(active: boolean): FreeRunState {
               setState({ status: "running", track: recorder.track(), position });
             }
           },
-          say: (text) => play([{ say: text, vibrate: false }]),
+          say: (text) => {
+            if (!swim) {
+              play([{ say: text, vibrate: false }]);
+            }
+          },
+          ...(swim ? { stillMs: SWIM_AUTO_PAUSE_AFTER_MS } : {}),
         });
         run = session;
         setState({ status: "running", track: recorder.track(), position });
@@ -119,7 +128,7 @@ export function useFreeRun(active: boolean): FreeRunState {
               saidKm = wholeUnits(track, units);
             }
             const km = wholeUnits(track, units);
-            if (km > saidKm) {
+            if (km > saidKm && !swim) {
               saidKm = km;
               const { language } = speaking();
               const said = isPaddle(activity)

@@ -91,6 +91,9 @@ type Session = {
   /** When a run taken up again went on (TASK-304): standing still counts
    * from here, not from a last fix minutes before, with the app closed. */
   takenUpMs: number;
+  /** Standing still this long pauses it: AUTO_PAUSE_AFTER_MS, longer for a
+   * swim (TASK-323 D, SWIM_AUTO_PAUSE_AFTER_MS). */
+  stillMs: number;
 };
 
 let session: Session | null = null;
@@ -158,7 +161,7 @@ function watchStanding(): void {
   }
   const since = stillSinceMs(session);
   const now = Date.now();
-  if (since === null || now - since < AUTO_PAUSE_AFTER_MS) {
+  if (since === null || now - since < session.stillMs) {
     return;
   }
   session.recorder.pause(now, true);
@@ -192,10 +195,10 @@ function catchUpClock(mine: Session): boolean {
     return false;
   }
   const since = stillSinceMs(mine);
-  if (since === null || now - since < AUTO_PAUSE_AFTER_MS) {
+  if (since === null || now - since < mine.stillMs) {
     return false;
   }
-  mine.recorder.pause(since + AUTO_PAUSE_AFTER_MS, true);
+  mine.recorder.pause(since + mine.stillMs, true);
   set({ phase: "paused", auto: true });
   return true;
 }
@@ -227,7 +230,16 @@ export type RunSession = {
  */
 export function controlRun(
   recorder: RunRecorder,
-  { onChange, say }: { onChange: () => void; say: (text: string) => void },
+  {
+    onChange,
+    say,
+    stillMs = AUTO_PAUSE_AFTER_MS,
+  }: {
+    onChange: () => void;
+    say: (text: string) => void;
+    /** How long standing still waits before the pause: a run's unless said. */
+    stillMs?: number;
+  },
 ): RunSession {
   // One run at a time: a run still under the controls leaves them.
   if (session !== null) {
@@ -247,6 +259,7 @@ export function controlRun(
     countdown: fresh ? setTimeout(skipCountdown, COUNTDOWN_MS) : null,
     watch: setInterval(watchStanding, AUTO_PAUSE_CHECK_MS),
     takenUpMs: Date.now(),
+    stillMs,
   };
   session = mine;
   set({

@@ -34,6 +34,14 @@ does. --water-name only the points of a lake or beach.
 
     python -m shaperoute_api.draw_examples --api http://127.0.0.1:8000 --water
     python -m shaperoute_api.draw_examples --api ... --water-name "Lago di Levico"
+
+With --swim the same points are swum (TASK-323 C4): the eight shapes as the
+app's «Explore» asks them with «Open water swim» (SWIM_EXAMPLES), 1 km from
+each point, the laps the engine chooses. Within 150 m of the shore a shape
+may not fit at a point: that is the engine's answer, not a failure.
+
+    python -m shaperoute_api.draw_examples --api ... --swim
+    python -m shaperoute_api.draw_examples --api ... --swim --water-name Riccione
 """
 
 from __future__ import annotations
@@ -61,6 +69,10 @@ from shaperoute_api.water_spots import WaterSpot, read_spots
 
 # Method, path and body in; status and JSON body out.
 Call = Callable[[str, str, dict[str, Any] | None], tuple[int, Any]]
+
+# The app's SWIM_EXAMPLES (src/swim/swimExamples.ts): 1 km, swum.
+SWIM_ACTIVITY = "swimming"
+SWIM_DISTANCE_M = 1000
 
 # The app's DRAW_ORDER on the water: the first shapes, then the others.
 WATER_ORDER = (
@@ -93,11 +105,14 @@ class Drawn:
     # For each shape: "kept" (already there), "drawn", or the error's code.
     shapes: dict[str, str] = field(default_factory=dict)
     seconds: float = 0.0
+    # What counts as done for a shape: a swim's shape that does not fit
+    # within 150 m of the shore is an answer too (draw_swim).
+    answers: frozenset[str] = frozenset({"kept", "drawn"})
 
     @property
     def ready(self) -> bool:
         return self.label is not None and all(
-            said in ("kept", "drawn") for said in self.shapes.values()
+            said in self.answers for said in self.shapes.values()
         )
 
     def line(self) -> str:
@@ -264,14 +279,43 @@ def draw_spot(
 ) -> Drawn:
     """The eight shapes of a point on the water, as a phone asks them
     (aheadExamples.ts): from the point, at its distance, on the water."""
-    began = clock()
     drawn = Drawn(spot.name, label=f"{spot.name} ({cell(spot.point)})")
+    return _on_water(drawn, spot, WATER_ACTIVITY, spot.distance_m, call, sleep, clock)
+
+
+def draw_swim(
+    spot: WaterSpot,
+    call: Call,
+    sleep: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
+) -> Drawn:
+    """The eight shapes of a point swum, as «Explore» asks them with «Open
+    water swim» (TASK-323 C4): from the point, SWIM_DISTANCE_M, the laps the
+    engine chooses. A shape that does not fit there is answered."""
+    drawn = Drawn(
+        spot.name,
+        label=f"{spot.name} swum ({cell(spot.point)})",
+        answers=frozenset({"kept", "drawn", "shape_not_drawable"}),
+    )
+    return _on_water(drawn, spot, SWIM_ACTIVITY, SWIM_DISTANCE_M, call, sleep, clock)
+
+
+def _on_water(
+    drawn: Drawn,
+    spot: WaterSpot,
+    activity: str,
+    distance_m: int,
+    call: Call,
+    sleep: Callable[[float], None],
+    clock: Callable[[], float],
+) -> Drawn:
+    began = clock()
     for shape in WATER_ORDER:
         asked: dict[str, Any] = {
             "shape": shape,
-            "distance_m": spot.distance_m,
+            "distance_m": distance_m,
             "start": list(spot.point),
-            "activity": WATER_ACTIVITY,
+            "activity": activity,
         }
         if apart_on_water(shape):
             asked["pen_up"] = True
@@ -370,15 +414,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--water-name",
         action="append",
         default=[],
-        help="only the points of this lake or beach (repeat); implies --water",
+        help=(
+            "only the points of this lake or beach (repeat); implies --water "
+            "unless --swim"
+        ),
+    )
+    parser.add_argument(
+        "--swim",
+        action="store_true",
+        help="the Open water swim shapes of the points of the lakes and beaches",
     )
     args = parser.parse_args(argv)
     cities = list(args.cities)
     for preset in args.preset or []:
         cities += [c for c in PRESETS[preset] if c not in cities]
-    spots = water_spots(args.water_name) if args.water or args.water_name else []
-    if not cities and not spots and not args.around:
-        parser.error("name some cities, a --preset, --around, or --water")
+    paddled = args.water or (bool(args.water_name) and not args.swim)
+    spots = water_spots(args.water_name) if paddled else []
+    swims = water_spots(args.water_name) if args.swim else []
+    if not cities and not spots and not swims and not args.around:
+        parser.error("name some cities, a --preset, --around, --water or --swim")
     call = http_call(args.api, os.environ.get(KEY_VARIABLE, "").strip() or None)
     # Without --all, draw_city is called as it always was.
     every: dict[str, bool] = {"every": True} if args.all else {}
@@ -394,7 +448,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             continue
         known = {cell(tuple(point)) for _, point in towns}
         towns += [(label, p) for label, p in around if cell(tuple(p)) not in known]
-    ready = {"cities": 0, "points on the water": 0}
+    ready = {"cities": 0, "points on the water": 0, "points swum": 0}
     jobs: list[tuple[str, str, Callable[[], Drawn]]] = (
         [
             ("cities", city, lambda city=city: draw_city(city, call, **every))
@@ -411,6 +465,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         + [
             ("points on the water", spot.name, lambda spot=spot: draw_spot(spot, call))
             for spot in spots
+        ]
+        + [
+            ("points swum", spot.name, lambda spot=spot: draw_swim(spot, call))
+            for spot in swims
         ]
     )
     for kind, name, job in jobs:
@@ -430,6 +488,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"{ready['points on the water']} of {len(spots)} points on the water "
             "have their shapes"
         )
+    if swims:
+        print(f"{ready['points swum']} of {len(swims)} points have their swims")
     return 0 if sum(ready.values()) == len(jobs) else 1
 
 

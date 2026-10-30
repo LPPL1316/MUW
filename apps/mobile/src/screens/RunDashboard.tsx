@@ -34,6 +34,7 @@ import { PADDLE_PACE_M, PADDLE_PACE_UNIT } from "../navigation/paddle";
 import { speedChange, speedNumber } from "../navigation/ride";
 import { changeLabel, type Split, splits } from "../navigation/runMetrics";
 import { paceClock } from "../navigation/runStats";
+import { SWIM_PACE_M, SWIM_PACE_UNIT } from "../navigation/swim";
 import { openPause, type Track } from "../navigation/trackRecorder";
 import { usePocketMode } from "../navigation/usePocketMode";
 import { useRunAwake } from "../navigation/useRunAwake";
@@ -551,6 +552,7 @@ function DataPage({
             track={track}
             ride={numbers.ride}
             paddle={numbers.paddle}
+            swim={numbers.swim}
             units={numbers.units}
           />
           <View style={styles.switches}>
@@ -559,9 +561,12 @@ function DataPage({
               on={control.autoPause}
               onChange={setAutoPause}
             />
-            <Switch label={t("Voice")} on={control.voice} onChange={setVoice} />
+            {/* A swim says nothing (TASK-323 D): no voice to switch. */}
+            {!numbers.swim && (
+              <Switch label={t("Voice")} on={control.voice} onChange={setVoice} />
+            )}
           </View>
-          <VoiceSetting />
+          {!numbers.swim && <VoiceSetting />}
         </ScrollView>
         {buttons}
         <PageTabs page="data" onPage={(page) => page === "map" && toMap.close()} />
@@ -606,11 +611,17 @@ function splitChange(row: Split, ride: boolean): string {
 
 /** What a row of the splits is read as: "Kilometre 2: 5:30", on a bike
  * "Kilometre 2: 24.3 km/h"; with miles "Mile 2: 8:51", "Mile 2: 15.1 mph".
- * On the water, with miles too, "1000 metres: 5:10" (TASK-251). */
-function splitName(row: Split, ride: boolean, paddle: boolean, units: Units): string {
-  if (paddle) {
+ * On the water, with miles too, "1000 metres: 5:10" (TASK-251); a swim's
+ * "300 metres: 2:05" (TASK-323 D). */
+function splitName(
+  row: Split,
+  ride: boolean,
+  waterM: number | null,
+  units: Units,
+): string {
+  if (waterM !== null) {
     return t("{metres} metres: {pace}", {
-      metres: row.km * PADDLE_PACE_M,
+      metres: row.km * waterM,
       pace: paceClock(row.seconds),
     });
   }
@@ -627,33 +638,45 @@ function splitName(row: Split, ride: boolean, paddle: boolean, units: Units): st
 /** Each whole kilometre, its pace, and how it went against the one before;
  * a bar beside each, longer the faster it was (TASK-204). On a bike, the
  * speed (TASK-216). With miles, each whole mile (TASK-182). On the water,
- * each 500 m and their time, a paddler's pace, with miles too (TASK-251). */
+ * each 500 m and their time, a paddler's pace, with miles too (TASK-251);
+ * swum, each 100 m (TASK-323 D). */
 function Splits({
   track,
   ride,
   paddle,
+  swim,
   units,
 }: {
   track: Track;
   ride: boolean;
   paddle: boolean;
+  swim: boolean;
   units: Units;
 }) {
-  const everyM = paddle ? PADDLE_PACE_M : metresPer(units);
+  // The metres of a row on the water; null elsewhere.
+  const waterM = paddle ? PADDLE_PACE_M : swim ? SWIM_PACE_M : null;
+  const water = waterM !== null;
+  const everyM = waterM ?? metresPer(units);
   const rows = useMemo(() => splits(track, everyM), [track, everyM]);
   // On the water a row is named by its metres, "1500": wider than a "12".
-  const nameStyle = paddle ? styles.splitMetres : styles.splitKm;
+  const nameStyle = water ? styles.splitMetres : styles.splitKm;
   const fastest = Math.min(...rows.map((row) => row.seconds));
   const slowest = Math.max(...rows.map((row) => row.seconds));
   return (
     <View style={styles.splits}>
       <View style={styles.splitRow}>
         <Text style={[styles.splitHead, nameStyle]}>
-          {paddle ? "m" : units === "mi" ? t("Mi") : t("Km")}
+          {water ? "m" : units === "mi" ? t("Mi") : t("Km")}
         </Text>
         <View style={styles.splitBarCell} />
         <Text style={[styles.splitHead, styles.splitCell]}>
-          {ride ? t("Speed") : paddle ? PADDLE_PACE_UNIT : t("Pace")}
+          {ride
+            ? t("Speed")
+            : paddle
+              ? PADDLE_PACE_UNIT
+              : swim
+                ? SWIM_PACE_UNIT
+                : t("Pace")}
         </Text>
         <Text style={[styles.splitHead, styles.splitCell]}>{t("Change")}</Text>
       </View>
@@ -661,9 +684,11 @@ function Splits({
         <Text style={styles.noSplits}>
           {paddle
             ? t("Your first 500 metres will show here.")
-            : units === "mi"
-              ? t("Your first mile will show here.")
-              : t("Your first kilometre will show here.")}
+            : swim
+              ? t("Your first 100 metres will show here.")
+              : units === "mi"
+                ? t("Your first mile will show here.")
+                : t("Your first kilometre will show here.")}
         </Text>
       ) : (
         // In the page's scroll, not one of their own (TASK-268).
@@ -675,12 +700,12 @@ function Splits({
               style={styles.splitRow}
               accessible
               accessibilityLabel={
-                splitName(row, ride, paddle, units) +
+                splitName(row, ride, waterM, units) +
                 (row.change === null ? "" : `, ${splitChange(row, ride)}`)
               }
             >
               <Text style={[styles.splitText, nameStyle]}>
-                {paddle ? row.km * PADDLE_PACE_M : row.km}
+                {waterM !== null ? row.km * waterM : row.km}
               </Text>
               <View style={styles.splitBarCell}>
                 <View

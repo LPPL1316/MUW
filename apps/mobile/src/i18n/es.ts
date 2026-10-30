@@ -264,6 +264,9 @@ export const ES: Table = {
   "On the water": "En el agua",
   "Shapes to paddle, within 1 km of the shore":
     "Formas para remar, a menos de 1 km de la orilla",
+  // The swim's (TASK-323 C4).
+  "Shapes to swim, within 150 m of the shore":
+    "Formas para nadar, a menos de 150 m de la orilla",
   "LAKES AND SEA": "LAGOS Y MAR",
   "Near me": "Cerca de mí",
   "Choose a lake or a beach: eight shapes on its water, from the shore.":
@@ -292,6 +295,43 @@ export const ES: Table = {
     "La ruta se queda a menos de 1 km de la orilla. Eso no la hace segura ni permitida.",
   "I understand": "Entendido",
   "Not now": "Ahora no",
+
+  // src/swim/SwimNotice.tsx, src/swim/SwimRouteNote.tsx (TASK-323 C: the swim's
+  // notice and the line under every swim, approved by the user in English)
+  "Before you swim": "Antes de nadar",
+  "Never swim alone. Tow a bright swim buoy and wear a bright cap.":
+    "No nades nunca solo. Lleva una boya de natación bien visible y un gorro de color llamativo.",
+  "Check the water, the weather, the flags and the local rules: swimming areas, boat lanes, harbours. MuW does not know them.":
+    "Mira el agua, el tiempo, las banderas y las normas del lugar: zonas de baño, canales de navegación, puertos. MuW no las conoce.",
+  "The route stays between 20 and 150 m from the shore. That does not make it safe or allowed.":
+    "La ruta se queda entre 20 y 150 m de la orilla. Eso no la hace segura ni permitida.",
+  "If you feel tired or cold, head for the shore at once.":
+    "Si te cansas o tienes frío, vuelve enseguida hacia la orilla.",
+  "Within 150 m of the shore. Never swim alone.":
+    "A menos de 150 m de la orilla. No nades nunca solo.",
+
+  // src/swim/SwimTurns.tsx, src/swim/swimTurns.ts (TASK-323 C: the turns of a
+  // swim before «Start», the place's name as OpenStreetMap writes it)
+  TURNS: "GIROS",
+  "Turn left": "Gira a la izquierda",
+  "Turn right": "Gira a la derecha",
+  "Turn left · {place}": "Gira a la izquierda · {place}",
+  "Turn right · {place}": "Gira a la derecha · {place}",
+  "{distance} from the start": "A {distance} de la salida",
+  "The same turns every lap, {laps} laps, then back to the shore.":
+    "Los mismos giros en cada vuelta, {laps} vueltas, y luego vuelta a la orilla.",
+
+  // src/swim/SwimResult.tsx, src/route/RoutePanel.tsx, src/settings/sport.ts
+  // (TASK-323 C2: the laps of a swim, its size, the way out with the track)
+  "Swim without a route": "Nadar sin ruta",
+  "{count} lap of {distance}": "{count} vuelta de {distance}",
+  "{count} laps of {distance}": "{count} vueltas de {distance}",
+  "Bigger shape": "Forma más grande",
+  "Smaller shape": "Forma más pequeña",
+  "{drawn} km of drawing + {between} km swimming between the parts":
+    "{drawn} km de dibujo + {between} km nadando entre las partes",
+  "{drawn} mi of drawing + {between} mi swimming between the parts":
+    "{drawn} mi de dibujo + {between} mi nadando entre las partes",
 
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Mover la forma",
@@ -718,6 +758,7 @@ export const ES: Table = {
   "Mile {mile}: {pace}": "Milla {mile}: {pace}",
   "Mile {mile}: {speed} mph": "Milla {mile}: {speed} mph",
   "Your first 500 metres will show here.": "Tus primeros 500 metros aparecerán aquí.",
+  "Your first 100 metres will show here.": "Tus primeros 100 metros aparecerán aquí.",
   "{metres} metres: {pace}": "{metres} metros: {pace}",
 
   // src/screens/RunPanel.tsx
@@ -727,6 +768,9 @@ export const ES: Table = {
   "Last mi": "Última mi",
   "Avg /500 m": "Med. /500 m",
   "Last 500 m": "Últ. 500 m",
+  // A swim's (TASK-323 D).
+  "Avg /100 m": "Med. /100 m",
+  "Last 100 m": "Últ. 100 m",
 
   // src/screens/SignInScreen.tsx
   "Sign up": "Registrarse",
@@ -1520,6 +1564,8 @@ export const ES: Table = {
   FEEDBACK: "COMENTARIOS",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapente",
+  // src/settings/sport.ts (TASK-323 C: swimming in open water, «Soon» in «Sport»)
+  "Open water swim": "Natación en aguas abiertas",
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "Dibujarla cerca de mí",
   // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)

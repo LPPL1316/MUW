@@ -99,11 +99,17 @@ export const STANDING_S_PER_KM = 20 * 60;
 
 /**
  * Seconds per kilometre over the last RECENT_M up to `nowMs`; null before
- * MIN_PACE_M, and when the runner stands. The time goes on between fixes, so
- * a runner who stops sees the pace slow down, then nothing. A pause counts
- * neither its time nor its metres (TASK-169).
+ * MIN_PACE_M, and when the runner stands: slower than `standingSPerKm`, a
+ * run's STANDING_S_PER_KM unless said (a swim's is slower, TASK-323 D). The
+ * time goes on between fixes, so a runner who stops sees the pace slow
+ * down, then nothing. A pause counts neither its time nor its metres
+ * (TASK-169).
  */
-export function recentPaceS(track: Track, nowMs: number): number | null {
+export function recentPaceS(
+  track: Track,
+  nowMs: number,
+  standingSPerKm: number = STANDING_S_PER_KM,
+): number | null {
   const { fixes } = track;
   const last = fixes[fixes.length - 1];
   if (last === undefined) {
@@ -120,7 +126,7 @@ export function recentPaceS(track: Track, nowMs: number): number | null {
   }
   const ms = activeBetween(track, fixes[from].timeMs, Math.max(nowMs, last.timeMs));
   const pace = ms / metres;
-  return pace > STANDING_S_PER_KM ? null : pace;
+  return pace > standingSPerKm ? null : pace;
 }
 
 /** Seconds per kilometre since the first fix; null before MIN_PACE_M. */

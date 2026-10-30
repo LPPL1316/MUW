@@ -102,5 +102,9 @@ export function sportOfWord(word: string): Activity | null {
   ) {
     return "paddling";
   }
+  // Open water (TASK-323 D): a pool's file has no track to draw.
+  if (name.includes("swim")) {
+    return "swimming";
+  }
   return null;
 }

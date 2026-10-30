@@ -2,6 +2,7 @@ import { favoriteTitle } from "../favorites/favoriteRoute";
 import { t, tLater } from "../i18n";
 import { clockLabel } from "../navigation/freeRun";
 import { paddlePaceLabel } from "../navigation/paddle";
+import { swimPaceLabel } from "../navigation/swim";
 import { paceLabel, runDistanceLabel } from "../units/format";
 
 /**
@@ -87,7 +88,8 @@ export function whereAndWhat(
 export function runFacts(run: {
   distance_m: number;
   duration_s: number;
-  /** As the API writes it: "paddling" is an outing on the water. */
+  /** As the API writes it: "paddling" is an outing on the water,
+   * "swimming" a swim (TASK-323 D). */
   activity?: string;
 }): string {
   const ms = run.duration_s * 1000;
@@ -96,7 +98,9 @@ export function runFacts(run: {
     clockLabel(ms),
     run.activity === "paddling"
       ? paddlePaceLabel(run.distance_m, ms)
-      : paceLabel(run.distance_m, ms),
+      : run.activity === "swimming"
+        ? swimPaceLabel(run.distance_m, ms)
+        : paceLabel(run.distance_m, ms),
   ]
     .filter((part): part is string => part !== null)
     .join(" · ");

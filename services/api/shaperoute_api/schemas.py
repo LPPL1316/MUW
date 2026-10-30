@@ -15,8 +15,11 @@ from route_engine.image_outline import MAX_POINTS as MAX_OUTLINE_POINTS
 from route_engine.models import (
     DISTANCE_LIMITS_M,
     MAX_DISTANCE_M,
+    MAX_SWIM_LAPS,
     SUPPORTED_ACTIVITIES,
+    Landmark,
     RouteResult,
+    SwimTurn,
 )
 from route_engine.outline_edits import MAX_DETAIL_POINTS, MAX_DRAWN_POINTS
 from route_engine.pen_up import walks_problem
@@ -62,7 +65,13 @@ ACTIVITY_DESCRIPTION = (
     f"One of: {', '.join(SUPPORTED_ACTIVITIES)}; cycling is drawn on the "
     f"roads a bike may ride, one-way streets kept (TASK-190); paddling on a "
     f"lake or the sea within 1 km of the shore, from a start on the shore, "
-    f"a shape of the catalogue only (TASK-191)."
+    f"a shape of the catalogue only (TASK-191); swimming 20-150 m from the "
+    f"shore, lap after lap, a shape of the catalogue or a drawing (TASK-323)."
+)
+LAPS_DESCRIPTION = (
+    f"A swim (TASK-323): how many times round its shape, 1 to {MAX_SWIM_LAPS}; "
+    "fewer for a larger shape, the distance staying the same. Null: the "
+    "fewest it fits in. With another activity, invalid_request."
 )
 WALKS_DESCRIPTION = (
     "A word with the pen up (TASK-197), or a shape in pieces (TASK-223): "
@@ -145,6 +154,49 @@ class RouteRequestBody(BaseModel):
         ),
         examples=[None],
     )
+    # Missing from an app of before TASK-323.
+    laps: int | None = Field(
+        default=None, description=LAPS_DESCRIPTION, examples=[None]
+    )
+
+
+class LandmarkBody(BaseModel):
+    """A place with a name on the shore, to turn opposite: Landmark in
+    packages/shared-types (route_engine/shore_names.py, TASK-323)."""
+
+    name: str
+    kind: str = Field(description='From OpenStreetMap, like "beach_resort".')
+    point: tuple[float, float] = Field(description="Where it is, as [lat, lon].")
+    distance_m: float = Field(description="From the turn.")
+    bearing_deg: float = Field(
+        description="Where to look from the turn, degrees clockwise from north."
+    )
+
+
+class SwimTurnBody(BaseModel):
+    """Where a swim turns: SwimTurn in packages/shared-types
+    (route_engine/swim_turns.py, TASK-323)."""
+
+    point: tuple[float, float] = Field(description="The turn as [lat, lon].")
+    at_m: float = Field(description="Along the swim from its start.")
+    side: Literal["left", "right"]
+    angle_deg: float = Field(description="How much it turns, 0-180°.")
+    lap: int = Field(description="The lap it is in, from 1.")
+    landmark: LandmarkBody | None = Field(
+        default=None,
+        description="The place on the shore to turn opposite; null without one.",
+    )
+
+    def to_turn(self) -> SwimTurn:
+        mark = self.landmark
+        return SwimTurn(
+            point=self.point,
+            at_m=self.at_m,
+            side=self.side,
+            angle_deg=self.angle_deg,
+            lap=self.lap,
+            landmark=None if mark is None else Landmark(**mark.model_dump()),
+        )
 
 
 class DirectionBody(BaseModel):
@@ -245,6 +297,27 @@ class RouteResultBody(BaseModel):
             "opposite (a MapLibre bearing of -rotation_deg) so the drawing "
             "reads upright. 0 for a shape that turns freely, like the "
             "circle; each alternative has its own."
+        ),
+    )
+    # Missing from an older API, and in a GPX request from an older app.
+    laps: int = Field(
+        default=1,
+        description="A swim (TASK-323): how many times round its shape; 1 else.",
+    )
+    lap_m: float | None = Field(
+        default=None,
+        ge=0,
+        description=(
+            "A swim (TASK-323): how long one lap is, in metres, the shape "
+            "without the legs from the shore and back; null for any other route."
+        ),
+    )
+    turns: list[SwimTurnBody] = Field(
+        default_factory=list,
+        description=(
+            "A swim (TASK-323): where it turns, in order, every lap's, each "
+            "with the place on the shore to turn opposite when there is one; "
+            "empty for any other route."
         ),
     )
 
@@ -531,6 +604,10 @@ class ImageRouteRequestBody(BaseModel):
     pen_up: bool = Field(
         default=False,
         description="Only for a word (TASK-197): true is refused, invalid_request.",
+    )
+    # Missing from an app of before TASK-323.
+    laps: int | None = Field(
+        default=None, description=LAPS_DESCRIPTION, examples=[None]
     )
 
 
