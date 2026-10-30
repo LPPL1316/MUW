@@ -18340,6 +18340,59 @@ va rifatto con l'acqua del server (`python -m shaperoute_api.paddle_examples
 dalla sessione cloud non si può. L'estratto dei nomi e il deploy col sì
 dell'utente.
 
+## ADR-0283 — aggiunta, parte C: i testi approvati, C in due tempi, lo sport ancora una corsa finché è «Soon»
+
+**Stato**: Attiva · 2026-10-30 · i testi inglesi li ha scelti l'utente
+(«Sì, così» alla proposta di ADR-0283, punto 6); il resto è deciso
+dall'agente su delega dell'utente (TASK-323 parte C, su richiesta
+dell'utente «passa alla parte C»). Aggiunta ad ADR-0283.
+
+**Contesto**: C porta lo sport nell'app. Per chiedere un nuoto all'API,
+`Activity` dell'app deve avere `swimming`; ma `Activity` è la chiave di
+`Record` nei due file di Apple Salute di TASK-321 (`appleWorkout.ts`,
+`healthConnectWorkout.ts`), che è in lavorazione e che per la condizione 3
+del Coordinatore nessuna parte tocca. `App.tsx` e `RoutePanel.tsx`, dove
+l'avviso, la riga e l'elenco si collegano, sono contesi con altri task. B
+non è ancora in `main`.
+
+**Decisione dell'utente** (2026-10-30): il nome 🏊 «Open water swim»;
+l'avviso «Before you swim» con i quattro punti di ADR-0283 al primo «Start»
+di un nuoto su questo telefono, come per la canoa, con «I understand» e
+«Not now»; sotto ogni giro «Within 150 m of the shore. Never swim alone.».
+
+**Decisione dell'agente**:
+
+1. **C in due tempi.** C1, adesso, in file nuovi (`src/swim/`) più la riga
+   di `sport.ts`: lo sport con `ready: false`, l'avviso col suo file
+   (`swim-notice.json`, separato da quello della canoa), la riga sotto il
+   giro, l'elenco delle curve, i testi nelle cinque lingue. C2, dopo B in
+   `main`: `Activity` con `swimming` insieme a TASK-321 (il tipo di
+   allenamento del nuoto in Salute e in Health Connect), `activityOf("swim")`
+   = `"swimming"`, il collegamento in `App.tsx` e nel pannello del
+   percorso, `ready: true` quando il server nuota.
+2. **Finché è «Soon» lo sport va come una corsa**, come il parapendio
+   (TASK-305 D0): non si sceglie mai, quindi non chiede mai un percorso.
+   Nelle build dello store non si vede (TASK-318).
+3. **L'elenco delle curve è quello del primo giro**: ogni giro passa dagli
+   stessi angoli della forma, e il GPX tiene le curve del primo giro.
+   Ogni curva si scrive come il suo waypoint del GPX («Turn left ·
+   Bagno 54») con i metri dalla partenza nelle unità dell'app; sopra, per più
+   giri, «The same turns every lap, {laps} laps, then back to the shore.».
+   Un nuoto senza curve (un cerchio) non ha elenco. Il nome del posto resta
+   come lo scrive OpenStreetMap, in ogni lingua.
+4. **La riga sotto il giro ha la striscia gialla** delle note da tenere
+   d'occhio del pannello (`NoteRow`, `caution`), e c'è sempre, avviso letto
+   o no.
+5. **«Explore» a nuoto (punto 4 di C) aspetta** gli esempi disegnati
+   sull'acqua del server (`draw_examples --water`), col sì dell'utente.
+
+**Conseguenze**: C1 cambia l'app solo dove si vede «Soon» (Expo Go e
+`preview`): una riga in più in «Settings» e nel menu di «Draw». Solo
+JavaScript, nessuna dipendenza: l'impronta iOS non cambia. I testi delle
+curve e le traduzioni nelle quattro lingue li ha approvati l'utente lo
+stesso giorno («Sì, così»). C2 chiede il via del Coordinatore per i file di
+TASK-321.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,

@@ -344,6 +344,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   attività fino a C. **Blocco**: `paddleExamples.json` va rifatto con
   l'acqua del server (dal Mac), poi server, estratto dei nomi e
   `draw_examples` col sì dell'utente. **Prossimo**: C, lo sport nell'app.
+  **C1 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c-swim-app`, partito da quello di B): 🏊 «Open water swim»
+  con `ready: false` in `sport.ts`, e in `src/swim/` l'avviso «Before you
+  swim», la riga sotto il giro e l'elenco delle curve coi nomi a riva;
+  testi, curve e traduzioni approvati dall'utente il 2026-10-30.
+  **Prossimo**: C2 dopo B in `main`, cioè `Activity`
+  con `swimming` (tocca i file di TASK-321: via del Coordinatore),
+  il collegamento in `App.tsx`, `ready: true` col server.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

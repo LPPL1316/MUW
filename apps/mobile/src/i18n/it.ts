@@ -293,6 +293,31 @@ export const IT: Table = {
   "I understand": "Ho capito",
   "Not now": "Non ora",
 
+  // src/swim/SwimNotice.tsx, src/swim/SwimRouteNote.tsx (TASK-323 C: the swim's
+  // notice and the line under every swim, approved by the user in English)
+  "Before you swim": "Prima di nuotare",
+  "Never swim alone. Tow a bright swim buoy and wear a bright cap.":
+    "Non nuotare mai da solo. Porta con te una boa di sicurezza ben visibile e indossa una cuffia colorata.",
+  "Check the water, the weather, the flags and the local rules: swimming areas, boat lanes, harbours. MuW does not know them.":
+    "Controlla l'acqua, il meteo, le bandiere e le regole del posto: zone di balneazione, corridoi di lancio, porti. MuW non le conosce.",
+  "The route stays between 20 and 150 m from the shore. That does not make it safe or allowed.":
+    "Il percorso resta fra 20 e 150 m dalla riva. Questo non lo rende sicuro né permesso.",
+  "If you feel tired or cold, head for the shore at once.":
+    "Se ti senti stanco o hai freddo, torna subito verso riva.",
+  "Within 150 m of the shore. Never swim alone.":
+    "Entro 150 m dalla riva. Non nuotare mai da solo.",
+
+  // src/swim/SwimTurns.tsx, src/swim/swimTurns.ts (TASK-323 C: the turns of a
+  // swim before «Start», the place's name as OpenStreetMap writes it)
+  TURNS: "CURVE",
+  "Turn left": "Gira a sinistra",
+  "Turn right": "Gira a destra",
+  "Turn left · {place}": "Gira a sinistra · {place}",
+  "Turn right · {place}": "Gira a destra · {place}",
+  "{distance} from the start": "A {distance} dalla partenza",
+  "The same turns every lap, {laps} laps, then back to the shore.":
+    "Le stesse curve a ogni giro, {laps} giri, poi di nuovo a riva.",
+
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Sposta la forma",
   "Drag the shape where you want it, then let go.":
@@ -1508,6 +1533,8 @@ export const IT: Table = {
   FEEDBACK: "FEEDBACK",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapendio",
+  // src/settings/sport.ts (TASK-323 C: swimming in open water, «Soon» in «Sport»)
+  "Open water swim": "Nuoto in acque libere",
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
   // stessa forma in «Draw»)
   "Draw it near me": "Disegnala vicino a me",

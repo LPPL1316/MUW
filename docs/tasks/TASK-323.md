@@ -366,6 +366,52 @@ docs/STATUS.md, docs/tasks/TASK-323.md
 4. I posti d'acqua in «Explore» con gli esempi a nuoto.
 5. Testi in cinque lingue, col sì dell'utente.
 
+#### C, dove si è (2026-10-30)
+
+Scritta nella stessa sessione cloud, su richiesta dell'utente («passa alla
+parte C»), branch `feat/TASK-323-c-swim-app` partito da quello di B
+(MUW#12, non ancora in `main`): a C serve il contratto del nuoto. Quando B
+entra, si fa il merge di `main` dentro C. Il Coordinatore («Coordinatore
+automatico 23 ore») era archiviato: i «File toccati» sono qui e nella PR.
+Aggiunta ad ADR-0283.
+
+- **Testi inglesi approvati dall'utente** il 2026-10-30 («Sì, così»): 🏊
+  «Open water swim», l'avviso «Before you swim» com'era proposto in
+  ADR-0283, la riga «Within 150 m of the shore. Never swim alone.».
+- **C1, fatta**: la riga dello sport con `ready: false` dopo «Paddle»
+  (in Expo Go e `preview` con «Soon», nascosta nello store da TASK-318;
+  finché è «Soon» va come una corsa, come il parapendio); in `src/swim/`
+  l'avviso col suo file `swim-notice.json` e `useSwimNotice`, la riga sotto
+  il giro (`SwimRouteNote`), l'elenco delle curve del primo giro
+  (`SwimTurns`, `swimTurns.ts`). Test con la fixture del contratto.
+- **Approvati dall'utente** il 2026-10-30 («Sì, così», seconda domanda):
+  i testi delle curve («TURNS», «Turn left · {place}», «{distance} from the
+  start», «The same turns every lap, {laps} laps, then back to the
+  shore.») e le traduzioni di tutti i testi nuovi in italiano, tedesco,
+  spagnolo e francese.
+- **C2, dopo B in `main`**: `Activity` dell'app con `swimming`, che tocca
+  `src/health/appleWorkout.ts` e `healthConnectWorkout.ts` di TASK-321
+  (condizione 3: col via del Coordinatore, il tipo di allenamento del nuoto
+  in Salute e in Health Connect); `activityOf("swim")` = `"swimming"`; in
+  `App.tsx` l'avviso al «Start» di un nuoto, e nel pannello del percorso la
+  riga e l'elenco; `ready: true` quando il server nuota.
+- **Punto 4 («Explore» a nuoto)**: aspetta gli esempi disegnati
+  sull'acqua del server (`draw_examples --water`), col sì dell'utente.
+
+File toccati da C1:
+
+```
+apps/mobile/src/swim/safetyNotice.ts, SwimNotice.tsx, SwimRouteNote.tsx,
+  swimTurns.ts, SwimTurns.tsx, safetyNotice.test.tsx, SwimTurns.test.tsx
+  (nuovi)
+apps/mobile/src/settings/sport.ts, sport.test.ts, SportSetting.test.tsx,
+  SportButton.test.tsx, SportStoreBuild.test.tsx,
+  SportVoiceItalian.test.tsx
+apps/mobile/src/profile/SettingsPage.test.tsx (conta le righe «Soon»)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ### D — App: nuotare con il telefono nella boa
 
 1. La schermata della corsa per il nuoto: niente voce, il passo per 100 m,

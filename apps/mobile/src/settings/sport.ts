@@ -5,10 +5,11 @@ import { File, Paths } from "expo-file-system";
 import { t, tLater } from "../i18n";
 
 /** What a route is for: a run, a bike ride since TASK-190, or paddling on a
- * lake or the sea since TASK-191 (a canoe, a kayak, a SUP). Paragliding is
- * only «Soon» for now (TASK-305 D0, ADR-0265): never chosen, so never a
- * route, and wherever the sports are told apart it goes as a run. */
-export type Sport = "run" | "bike" | "paddle" | "paragliding";
+ * lake or the sea since TASK-191 (a canoe, a kayak, a SUP). Swimming in open
+ * water (TASK-323 part C, ADR-0283) and paragliding (TASK-305 D0, ADR-0265)
+ * are only «Soon» for now: never chosen, so never a route, and wherever the
+ * sports are told apart they go as a run. */
+export type Sport = "run" | "bike" | "paddle" | "swim" | "paragliding";
 
 export type SportOption = {
   id: Sport;
@@ -28,6 +29,9 @@ export const ALL_SPORTS: readonly SportOption[] = [
   { id: "run", emoji: "🏃‍♂️", name: tLater("Run"), ready: true },
   { id: "bike", emoji: "🚴", name: tLater("Bike"), ready: true },
   { id: "paddle", emoji: "🛶", name: tLater("Paddle"), ready: true },
+  // On once the API swims and the app asks it for a swim (TASK-323 C2): its
+  // activity is "swimming" from then on (activityOf).
+  { id: "swim", emoji: "🏊", name: tLater("Open water swim"), ready: false },
   { id: "paragliding", emoji: "🪂", name: tLater("Paragliding"), ready: false },
 ];
 
