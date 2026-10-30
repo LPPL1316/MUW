@@ -1648,4 +1648,13 @@ export const DE: Table = {
   Yesterday: "Gestern",
   "{day} {month}": "{day}. {month}",
   "{name}, {count} new messages: {text}": "{name}, {count} neue Nachrichten: {text}",
+
+  // The tabs of «Feed» (TASK-362).
+  All: "Alle",
+  "Follow people to see their drawings here.":
+    "Folge anderen, um ihre Zeichnungen hier zu sehen.",
+  "Find people to follow": "Personen zum Folgen finden",
+  "The people you follow have not published anything yet.":
+    "Die Personen, denen du folgst, haben noch nichts veröffentlicht.",
+  "Couldn't load the Feed.": "Der Feed konnte nicht geladen werden.",
 };

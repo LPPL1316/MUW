@@ -1217,6 +1217,20 @@ export interface FeedPage {
   next: string | null;
 }
 
+/**
+ * The tabs of «Feed» (TASK-362, ADR-0308), as GET /feed?filter=… names them:
+ * `all` is what everyone may see, `following` the reader's own and those of
+ * the people it follows. Either way the last published first, with no groups
+ * and no point.
+ */
+export type FeedFilter = "all" | "following";
+
+/** GET /feed?filter=following: a page that says apart a reader who follows
+ * nobody from one whose people have published nothing. */
+export interface FollowingFeedPage extends FeedPage {
+  follows_anyone: boolean;
+}
+
 /** The orders of GET /search/drawings (TASK-344, ADR-0297): the last
  * published, the longest, the one with the most reactions first. */
 export const DRAWING_SORTS = ["recent", "longest", "popular"] as const;

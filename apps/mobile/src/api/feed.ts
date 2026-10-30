@@ -1,4 +1,10 @@
-import type { FeedPage, FeedPost, LatLon } from "@shaperoute/shared-types";
+import type {
+  FeedFilter,
+  FeedPage,
+  FeedPost,
+  FollowingFeedPage,
+  LatLon,
+} from "@shaperoute/shared-types";
 
 import { type AccountOutcome, ask } from "./accounts";
 import { isDrawing } from "./drawings";
@@ -9,7 +15,9 @@ import { isDrawing } from "./drawings";
  * first, then those of the people it follows, then the others' near the
  * phone (all of them when the phone does not say where it is), the last
  * published first in each. Never a private one. The body is
- * packages/shared-types/fixtures/feed.json.
+ * packages/shared-types/fixtures/feed.json. With a `filter`, one tab of
+ * «Feed» (TASK-362, ADR-0308): the last published first, with no groups and
+ * no point.
  */
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
@@ -19,11 +27,20 @@ export type FeedQuery = {
   cursor?: string | null;
   /** Where the phone is, for the drawings nearby; null when unknown. */
   near?: LatLon | null;
+  /** The tab of «Feed» the page is for. */
+  filter?: FeedFilter | null;
 };
 
 /** The query of a page: the point first, so the pages of one read agree. */
-export function feedPath({ cursor = null, near = null }: FeedQuery): string {
+export function feedPath({
+  cursor = null,
+  near = null,
+  filter = null,
+}: FeedQuery): string {
   const query = new URLSearchParams();
+  if (filter !== null) {
+    query.set("filter", filter);
+  }
   if (near !== null) {
     query.set("lat", String(near[0]));
     query.set("lon", String(near[1]));
@@ -41,7 +58,7 @@ export function fetchFeed(
   token: string,
   query: FeedQuery = {},
   options: Options = {},
-): Promise<AccountOutcome<FeedPage>> {
+): Promise<AccountOutcome<FeedPage & Partial<FollowingFeedPage>>> {
   return ask(baseUrl, feedPath(query), { method: "GET", token }, isFeedPage, options);
 }
 

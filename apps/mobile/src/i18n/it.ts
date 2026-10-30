@@ -1624,4 +1624,13 @@ export const IT: Table = {
   Yesterday: "Ieri",
   "{day} {month}": "{day} {month}",
   "{name}, {count} new messages: {text}": "{name}, {count} nuovi messaggi: {text}",
+
+  // The tabs of «Feed» (TASK-362).
+  All: "Tutti",
+  "Follow people to see their drawings here.":
+    "Segui qualcuno per vedere qui i suoi disegni.",
+  "Find people to follow": "Trova persone da seguire",
+  "The people you follow have not published anything yet.":
+    "Chi segui non ha ancora pubblicato nulla.",
+  "Couldn't load the Feed.": "Non è stato possibile caricare il Feed.",
 };

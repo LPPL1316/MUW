@@ -22,6 +22,11 @@ between two pages goes to the top of its group, above the cursor, and
 the next page neither repeats nor skips one. Every post is a Drawing as
 the profile lists it (drawings.DrawingBody) with its author: the app
 opens it whole with GET /drawings/{id}, with its reactions and comments.
+
+The tabs of «Feed» ask with a `filter` (TASK-362, ADR-0308): `all` is what
+everyone may see, `following` the reader's own and those of the people it
+follows, the last published first with no groups and no point. Without a
+`filter` the page is as above, for the apps already on the phones.
 """
 
 from __future__ import annotations
@@ -29,7 +34,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, FastAPI, Query
@@ -71,6 +76,9 @@ OWN, FOLLOWED, OTHERS = 0, 1, 2
 # about the others.
 CURSOR_PATTERN = r"^[0-2]-\d{1,17}-[0-9a-f]{32}$"
 
+# The tabs of «Feed»: what a page holds when it is asked for one.
+FeedFilter = Literal["all", "following"]
+
 HALF_A_POINT = "Say where the phone is with both lat and lon, or with neither."
 
 LatLon = tuple[float, float]
@@ -89,6 +97,13 @@ class FeedBody(BaseModel):
     posts: list[FeedPostBody]
     next: str | None
     """The `cursor` of the next page; null on the last one."""
+
+
+class FollowingFeedBody(FeedBody):
+    """GET /feed?filter=following: the page says apart a reader who follows
+    nobody from one whose people have published nothing."""
+
+    follows_anyone: bool
 
 
 def _cursor(row: DictRow) -> str:
@@ -127,6 +142,14 @@ def tier_sql(viewer: str) -> str:
     )
 
 
+def filter_sql(feed_filter: FeedFilter, viewer: str) -> str:
+    """An SQL condition: the drawing `d` of the run `r` is in the tab
+    `feed_filter` of the account `viewer`, once shown_sql lets it be seen."""
+    if feed_filter == "all":
+        return "d.visibility = 'everyone'"
+    return f"(r.user_id = {viewer}::bigint OR {follows_sql(viewer, 'r.user_id')})"
+
+
 @dataclass
 class Feed:
     """The feed in the database."""
@@ -140,10 +163,15 @@ class Feed:
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
         point: LatLon | None = None,
+        feed_filter: FeedFilter | None = None,
     ) -> FeedBody:
         """A page of the drawings `viewer_id` may see, its own first, then
         those of the members it follows, then the others' near `point`
-        (all of them without one); the last published first in each."""
+        (all of them without one); the last published first in each. With
+        `feed_filter` only that tab's, the last published first, whatever
+        `point` is: a single group, so the cursor keeps its form."""
+        if feed_filter is not None:
+            point = None
         values: dict[str, Any] = {"viewer": viewer_id, "limit": limit + 1}
         if point is not None:
             values.update(lat=point[0], lon=point[1], near_m=NEAR_M)
@@ -156,36 +184,50 @@ class Feed:
                 " AND (tier > %(tier)s OR (tier = %(tier)s"
                 " AND (published_at, id) < (%(at)s, %(last)s)))"
             )
+        tier = str(OWN) if feed_filter is not None else tier_sql("%(viewer)s")
+        chosen = (
+            ""
+            if feed_filter is None
+            else f" AND {filter_sql(feed_filter, '%(viewer)s')}"
+        )
         with self.database.connect() as conn:
             rows = conn.execute(
                 "SELECT * FROM ("
                 f"SELECT {LISTED_COLUMNS}, u.public_id, u.username,"
-                f" {tier_sql('%(viewer)s')} AS tier, {near_sql(point)} AS nearby"
+                f" {tier} AS tier, {near_sql(point)} AS nearby"
                 " FROM drawings d JOIN runs r ON r.id = d.run_id"
                 " JOIN users u ON u.id = r.user_id"
                 # Implied by shown_sql, and said for the index of the
                 # published drawings (migration 0022).
                 " WHERE d.visibility <> 'only_me'"
-                f" AND {shown_sql('%(viewer)s')}) feed"
+                f" AND {shown_sql('%(viewer)s')}{chosen}) feed"
                 f" WHERE {where}"
                 " ORDER BY tier, published_at DESC, id DESC LIMIT %(limit)s",
                 values,
             ).fetchall()
             page, more = rows[:limit], len(rows) > limit
             details = _details(conn, [row["id"] for row in page])
-        return FeedBody(
-            posts=[
-                FeedPostBody(
-                    **_seen(row, details),
-                    track_preview=preview(_line(row["track"])),
-                    author=AuthorBody(
-                        public_id=row["public_id"], username=row["username"]
-                    ),
-                )
-                for row in page
-            ],
-            next=_cursor(page[-1]) if more else None,
-        )
+            follows_anyone = feed_filter == "following" and bool(
+                conn.execute(
+                    "SELECT EXISTS (SELECT 1 FROM follows WHERE follower_id = %s"
+                    " AND status = 'accepted') AS some",
+                    (viewer_id,),
+                ).fetchone()["some"]
+            )
+        posts = [
+            FeedPostBody(
+                **_seen(row, details),
+                track_preview=preview(_line(row["track"])),
+                author=AuthorBody(public_id=row["public_id"], username=row["username"]),
+            )
+            for row in page
+        ]
+        after = _cursor(page[-1]) if more else None
+        if feed_filter == "following":
+            return FollowingFeedBody(
+                posts=posts, next=after, follows_anyone=follows_anyone
+            )
+        return FeedBody(posts=posts, next=after)
 
 
 def feed_of(accounts: Annotated[Accounts, Depends(accounts_of)]) -> Feed:
@@ -204,11 +246,12 @@ def feed_routes() -> APIRouter:
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
         lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
         lon: Annotated[float | None, Query(ge=-180, le=180)] = None,
-    ) -> FeedBody:
+        feed_filter: Annotated[FeedFilter | None, Query(alias="filter")] = None,
+    ) -> FollowingFeedBody | FeedBody:
         if (lat is None) != (lon is None):
             raise AccountError(422, "invalid_request", HALF_A_POINT)
         point = None if lat is None or lon is None else (lat, lon)
-        return feeds.page(user.id, limit, cursor, point)
+        return feeds.page(user.id, limit, cursor, point, feed_filter)
 
     return router
 

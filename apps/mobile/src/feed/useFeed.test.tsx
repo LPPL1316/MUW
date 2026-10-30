@@ -1,6 +1,6 @@
 import page from "@shaperoute/shared-types/fixtures/feed.json";
 import session from "@shaperoute/shared-types/fixtures/session.json";
-import type { LatLon, Session } from "@shaperoute/shared-types";
+import type { FeedFilter, Session } from "@shaperoute/shared-types";
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 
@@ -15,10 +15,9 @@ const API = "http://api";
 const SESSION = session as Session;
 const SIGNED_IN: AccountState = { status: "signedIn", session: SESSION };
 const SIGNED_OUT: AccountState = { status: "signedOut", notice: null };
-const TRENTO: LatLon = [46.0671, 11.1214];
 const options = (fetchFn: jest.Mock) => ({ fetchFn, key: null });
 
-type Props = { active?: boolean; near?: LatLon | null; state?: AccountState };
+type Props = { active?: boolean; filter?: FeedFilter; state?: AccountState };
 
 /** The hook inside «Profile»'s doors, with the account `state`; `signIn`
  * changes the account for the next rerender. */
@@ -36,7 +35,8 @@ async function feedHook(
     </FollowsContext.Provider>
   );
   const hook = await renderHook(
-    ({ active = true, near = null }: Props) => useFeed(active, near, options(fetchFn)),
+    ({ active = true, filter = "all" }: Props) =>
+      useFeed(active, filter, options(fetchFn)),
     { wrapper, initialProps: first },
   );
   return {
@@ -59,17 +59,16 @@ test("without an account the feed is off, and nothing is asked", async () => {
   expect(fetchFn).not.toHaveBeenCalled();
 });
 
-test("the first page is asked once «Feed» is on the screen, from where the phone is", async () => {
+test("the first page is asked once the tab is on the screen, never with the phone's position", async () => {
   const { fetchFn, answer } = held();
   const { result, rerender } = await feedHook(fetchFn, jest.fn(), {
     active: false,
-    near: TRENTO,
   });
   expect(result.current.shown).toEqual({ kind: "off" });
   expect(fetchFn).not.toHaveBeenCalled();
-  await rerender({ active: true, near: TRENTO });
+  await rerender({ active: true });
   expect(result.current.shown).toEqual({ kind: "loading" });
-  expect(asked(fetchFn)).toEqual(["/feed?lat=46.0671&lon=11.1214"]);
+  expect(asked(fetchFn)).toEqual(["/feed?filter=all"]);
   expect(fetchFn.mock.calls[0][1]).toMatchObject({
     headers: { Authorization: `Bearer ${SESSION.token}` },
   });
@@ -81,29 +80,27 @@ test("the first page is asked once «Feed» is on the screen, from where the pho
   });
   expect(result.current.signedIn).toBe(true);
   // Off the screen and back: not asked again.
-  await rerender({ active: false, near: TRENTO });
-  await rerender({ active: true, near: TRENTO });
+  await rerender({ active: false });
+  await rerender({ active: true });
   expect(fetchFn).toHaveBeenCalledTimes(1);
 });
 
-test("the next page follows the cursor from the same point, and adds its posts", async () => {
+test("the next page follows the cursor, and adds its posts", async () => {
   const second = { posts: [{ ...page.posts[1], id: "another" }], next: null };
   const fetchFn = answers({ status: 200, body: page }, { status: 200, body: second });
-  const { result, rerender } = await feedHook(fetchFn, jest.fn(), { near: TRENTO });
+  const { result } = await feedHook(fetchFn);
   await waitFor(() => expect(result.current.shown.kind).toBe("ready"));
-  // The phone moved meanwhile: the pages of this read keep the first point.
-  await rerender({ near: [45.0, 10.0] });
   await act(async () => result.current.more());
   await waitFor(() =>
-    expect(result.current.shown).toEqual({
+    expect(result.current.shown).toMatchObject({
       kind: "ready",
       posts: [...page.posts, second.posts[0]],
       next: null,
     }),
   );
   expect(asked(fetchFn)).toEqual([
-    "/feed?lat=46.0671&lon=11.1214",
-    `/feed?lat=46.0671&lon=11.1214&cursor=${page.next}`,
+    "/feed?filter=all",
+    `/feed?filter=all&cursor=${page.next}`,
   ]);
   // No page left: nothing more is asked.
   await act(async () => result.current.more());
@@ -123,20 +120,22 @@ test("a page asked twice is asked once", async () => {
     result.current.more();
   });
   expect(fetchFn).toHaveBeenCalledTimes(1);
-  expect(asked(both)).toEqual(["/feed", `/feed?cursor=${page.next}`]);
+  expect(asked(both)).toEqual([
+    "/feed?filter=all",
+    `/feed?filter=all&cursor=${page.next}`,
+  ]);
   await act(async () => answer(200, { posts: [], next: null }));
   expect(result.current.shown).toMatchObject({ kind: "ready", next: null });
 });
 
-test("a pull reads the first page again from where the phone is now; one that fails leaves the posts", async () => {
+test("a pull reads the first page again; one that fails leaves the posts", async () => {
   const fetchFn = answers(
     { status: 200, body: page },
     { status: 200, body: { posts: [page.posts[1]], next: null } },
     new TypeError("Network request failed"),
   );
-  const { result, rerender } = await feedHook(fetchFn);
+  const { result } = await feedHook(fetchFn);
   await waitFor(() => expect(result.current.shown.kind).toBe("ready"));
-  await rerender({ near: TRENTO });
   await act(async () => result.current.refresh());
   await waitFor(() => expect(result.current.refreshing).toBe(false));
   expect(result.current.shown).toEqual({
@@ -144,7 +143,7 @@ test("a pull reads the first page again from where the phone is now; one that fa
     posts: [page.posts[1]],
     next: null,
   });
-  expect(asked(fetchFn)[1]).toBe("/feed?lat=46.0671&lon=11.1214");
+  expect(asked(fetchFn)[1]).toBe("/feed?filter=all");
   // Offline: the pull ends, the posts stay.
   await act(async () => result.current.refresh());
   await waitFor(() => expect(result.current.refreshing).toBe(false));
@@ -173,10 +172,10 @@ test("what was there stays while a pull reads", async () => {
   expect(result.current.shown).toEqual({ kind: "ready", posts: [], next: null });
 });
 
-test("an older API, or no network at the start, leaves the feed off; a pull asks again", async () => {
+test("an answer that does not come at the start has failed; a pull asks again", async () => {
   const older = answers({ status: 404, body: apiError("http_error") });
   const { result } = await feedHook(older);
-  await waitFor(() => expect(result.current.shown).toEqual({ kind: "off" }));
+  await waitFor(() => expect(result.current.shown).toEqual({ kind: "failed" }));
   expect(older).toHaveBeenCalledTimes(1);
   // Another opening of the app, offline this time.
   forgetFeed();
@@ -185,7 +184,7 @@ test("an older API, or no network at the start, leaves the feed off; a pull asks
     body: page,
   });
   const { result: away } = await feedHook(offline);
-  await waitFor(() => expect(away.current.shown).toEqual({ kind: "off" }));
+  await waitFor(() => expect(away.current.shown).toEqual({ kind: "failed" }));
   await act(async () => away.current.refresh());
   await waitFor(() => expect(away.current.shown.kind).toBe("ready"));
 });
@@ -208,4 +207,63 @@ test("another account's feed is not this one's", async () => {
   expect(result.current.shown).toEqual({ kind: "off" });
   expect(result.current.signedIn).toBe(false);
   expect(fetchFn).toHaveBeenCalledTimes(1);
+});
+
+test("each tab asks for itself, with its own cursor, and keeps its read", async () => {
+  const following = { posts: [page.posts[1]], next: "0-1-abc", follows_anyone: true };
+  const fetchFn = answers(
+    { status: 200, body: following },
+    { status: 200, body: page },
+    { status: 200, body: { ...following, next: null } },
+  );
+  const { result } = await feedHook(fetchFn, jest.fn(), { filter: "following" });
+  await waitFor(() =>
+    expect(result.current.shown).toMatchObject({
+      kind: "ready",
+      next: "0-1-abc",
+      followsAnyone: true,
+    }),
+  );
+  const { result: all } = await feedHook(fetchFn);
+  await waitFor(() =>
+    expect(all.current.shown).toMatchObject({ kind: "ready", next: page.next }),
+  );
+  await act(async () => result.current.more());
+  await waitFor(() => expect(result.current.shown).toMatchObject({ next: null }));
+  expect(asked(fetchFn)).toEqual([
+    "/feed?filter=following",
+    "/feed?filter=all",
+    "/feed?filter=following&cursor=0-1-abc",
+  ]);
+  // Built again, each shows what it had, without asking.
+  const { result: again } = await feedHook(fetchFn, jest.fn(), { filter: "following" });
+  expect(again.current.shown).toMatchObject({ kind: "ready", next: null });
+  expect(fetchFn).toHaveBeenCalledTimes(3);
+});
+
+test("a page that does not come says so, keeps the posts, and more asks again", async () => {
+  const second = { posts: [{ ...page.posts[1], id: "another" }], next: null };
+  const fetchFn = answers(
+    { status: 200, body: page },
+    new TypeError("Network request failed"),
+    { status: 200, body: second },
+  );
+  const { result } = await feedHook(fetchFn);
+  await waitFor(() => expect(result.current.shown.kind).toBe("ready"));
+  await act(async () => result.current.more());
+  await waitFor(() =>
+    expect(result.current.shown).toMatchObject({
+      kind: "ready",
+      posts: page.posts,
+      moreFailed: true,
+    }),
+  );
+  await act(async () => result.current.more());
+  await waitFor(() =>
+    expect(result.current.shown).toMatchObject({
+      posts: [...page.posts, second.posts[0]],
+      next: null,
+      moreFailed: false,
+    }),
+  );
 });

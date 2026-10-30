@@ -77,7 +77,7 @@ const ACCOUNT: Answers = {
   "GET /me/activities": () => Response.json({ activities: [], next: null, total: 0 }),
 };
 // Asked from where «Draw» starts: the position of the phone.
-const FEED = "/feed?lat=46.067&lon=11.1215";
+const FEED = "/feed?filter=all";
 
 async function onFeed() {
   store.kept.set(SESSION_KEY, JSON.stringify(session));
@@ -144,11 +144,11 @@ test("a member's drawing opens whole from «Feed», and «←» comes back to «
   expect(asked(FEED)).toBe(1);
 });
 
-test("an API without a feed leaves the examples, without a word", async () => {
+test("an API that does not answer offers to ask again, in place of the examples", async () => {
   api(ACCOUNT);
   await onFeed();
-  expect(await screen.findByText(SAMPLE_FEED[0].user)).toBeOnTheScreen();
-  expect(screen.getByText(SAMPLE_FEED[0].title)).toBeOnTheScreen();
+  expect(await screen.findByText("Couldn't load the Feed.")).toBeOnTheScreen();
+  expect(screen.getByText("Try again")).toBeOnTheScreen();
+  expect(screen.queryByText(SAMPLE_FEED[0].user)).toBeNull();
   expect(asked(FEED)).toBe(1);
-  expect(screen.queryByText(/no longer|cannot|could not|wrong/i)).toBeNull();
 });
