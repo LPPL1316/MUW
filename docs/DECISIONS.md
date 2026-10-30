@@ -18287,6 +18287,208 @@ server è di B. Come A1, le impronte non devono cambiare.
 pesati per tipo (un faro prima di un bar), da riprendere coi posti veri se
 servirà.
 
+## ADR-0283 — aggiunta, parte B: il nuoto nel contratto, l'app ancora a tre attività, un'impronta per i nuoti tenuti
+
+**Stato**: Attiva · 2026-10-30 · deciso dall'agente su delega dell'utente
+(TASK-323 parte B, su richiesta dell'utente «passa alla parte B»).
+Aggiunta ad ADR-0283.
+
+**Contesto**: B porta il nuoto nell'API: il contratto, la migrazione,
+l'estratto dei nomi a riva. `models.py` cambia, e con lui le due impronte
+che A1 e A2 avevano tenuto ferme. I tipi condivisi (`shared-types`) sono
+anche quelli dell'app: `Activity` è la chiave di tabelle dell'app e dei
+file di Apple Salute di TASK-321, che il task non deve toccare.
+
+**Decisione**:
+
+1. **Il contratto**: `swimming` in `SUPPORTED_ACTIVITIES`,
+   `WATER_ACTIVITIES` e `DISTANCE_LIMITS_M` (500–3000 m);
+   `RouteRequest.laps` (1–5, solo nuoto, `laps are for a swim`);
+   `RouteResult.laps`, `.lap_m` (quanto è lungo un giro, senza i tratti
+   dalla riva: per «3 laps of 320 m» della parte C) e `.turns`. I tipi
+   delle curve (`SwimTurn`,
+   `Landmark`) passano da `swim_turns.py` a `models.py`: sono dati del
+   contratto, e così `models.py` non importa un modulo del nuoto.
+2. **L'app resta a tre attività**: in `shared-types` `Activity` non cambia
+   e un `API_ACTIVITIES` nuovo ha anche `swimming`, come `contract.json`;
+   `DISTANCE_LIMITS_M` ha le quattro. Allargare `Activity` rompe
+   `distance.ts`, `PublicParts.tsx` e i due file di Apple Salute: è lavoro
+   della parte C (lo schermo, i testi da approvare) e di TASK-321 (il tipo
+   di allenamento del nuoto, condiviso con la parte E). L'app compila
+   senza cambiare.
+3. **Un disegno si nuota come un'immagine**: `/image-route-jobs` con
+   `swimming` (anche coi giri) va a `plan_swim`; per la canoa resta il
+   rifiuto (`check_outline_drawn`). Il comando principale nuota solo le
+   forme; un disegno da `python -m route_engine.swimming --outline`.
+4. **I nomi a riva sul server**: `ServerWater.places` legge
+   `<cache>/shore_names/`, e il job li passa al motore
+   (`_ReportingWater.places`). `shore_extract.py` li scrive da un estratto,
+   come `water_extract.py`: i posti con un nome di `KINDS` entro 300 m
+   dalla costa o dal bordo di un lago.
+5. **Le impronte**: `route_store` tiene i nuoti con
+   `engine_fingerprint(swims=True)`, gli altri senza i file del nuoto; i
+   giri sono parte di cosa è uguale (`_same`). Il comando principale
+   importa il nuoto ma l'API no: il test dell'import lo lascia fuori.
+6. **Strava** riceve un nuoto come `Swim` (non ha un tipo per le acque
+   libere); il gioco lo conta come ogni attività che non è corsa.
+7. **La migrazione `0039_swimming.sql`** apre i tre vincoli che elencano
+   le attività (preferiti, corse, corse di gruppo); `drawn_routes` non ha
+   un elenco.
+
+**Conseguenze**: dopo il merge e l'aggiornamento del server gli esempi
+tenuti si ridisegnano (`draw_examples`). `apps/mobile/src/paddle/paddleExamples.json`
+va rifatto con l'acqua del server (`python -m shaperoute_api.paddle_examples
+--cache-dir …`): finché non lo si rifà, `test_paddle_examples` è rosso, e
+dalla sessione cloud non si può. L'estratto dei nomi e il deploy col sì
+dell'utente.
+
+## ADR-0283 — aggiunta, parte C: i testi approvati, C in due tempi, lo sport ancora una corsa finché è «Soon»
+
+**Stato**: Attiva · 2026-10-30 · i testi inglesi li ha scelti l'utente
+(«Sì, così» alla proposta di ADR-0283, punto 6); il resto è deciso
+dall'agente su delega dell'utente (TASK-323 parte C, su richiesta
+dell'utente «passa alla parte C»). Aggiunta ad ADR-0283.
+
+**Contesto**: C porta lo sport nell'app. Per chiedere un nuoto all'API,
+`Activity` dell'app deve avere `swimming`; ma `Activity` è la chiave di
+`Record` nei due file di Apple Salute di TASK-321 (`appleWorkout.ts`,
+`healthConnectWorkout.ts`), che è in lavorazione e che per la condizione 3
+del Coordinatore nessuna parte tocca. `App.tsx` e `RoutePanel.tsx`, dove
+l'avviso, la riga e l'elenco si collegano, sono contesi con altri task. B
+non è ancora in `main`.
+
+**Decisione dell'utente** (2026-10-30): il nome 🏊 «Open water swim»;
+l'avviso «Before you swim» con i quattro punti di ADR-0283 al primo «Start»
+di un nuoto su questo telefono, come per la canoa, con «I understand» e
+«Not now»; sotto ogni giro «Within 150 m of the shore. Never swim alone.».
+
+**Decisione dell'agente**:
+
+1. **C in due tempi.** C1, adesso, in file nuovi (`src/swim/`) più la riga
+   di `sport.ts`: lo sport con `ready: false`, l'avviso col suo file
+   (`swim-notice.json`, separato da quello della canoa), la riga sotto il
+   giro, l'elenco delle curve, i testi nelle cinque lingue. C2, dopo B in
+   `main`: `Activity` con `swimming` insieme a TASK-321 (il tipo di
+   allenamento del nuoto in Salute e in Health Connect), `activityOf("swim")`
+   = `"swimming"`, il collegamento in `App.tsx` e nel pannello del
+   percorso, `ready: true` quando il server nuota.
+2. **Finché è «Soon» lo sport va come una corsa**, come il parapendio
+   (TASK-305 D0): non si sceglie mai, quindi non chiede mai un percorso.
+   Nelle build dello store non si vede (TASK-318).
+3. **L'elenco delle curve è quello del primo giro**: ogni giro passa dagli
+   stessi angoli della forma, e il GPX tiene le curve del primo giro.
+   Ogni curva si scrive come il suo waypoint del GPX («Turn left ·
+   Bagno 54») con i metri dalla partenza nelle unità dell'app; sopra, per più
+   giri, «The same turns every lap, {laps} laps, then back to the shore.».
+   Un nuoto senza curve (un cerchio) non ha elenco. Il nome del posto resta
+   come lo scrive OpenStreetMap, in ogni lingua.
+4. **La riga sotto il giro ha la striscia gialla** delle note da tenere
+   d'occhio del pannello (`NoteRow`, `caution`), e c'è sempre, avviso letto
+   o no.
+5. **«Explore» a nuoto (punto 4 di C) aspetta** gli esempi disegnati
+   sull'acqua del server (`draw_examples --water`), col sì dell'utente.
+
+**Conseguenze**: C1 cambia l'app solo dove si vede «Soon» (Expo Go e
+`preview`): una riga in più in «Settings» e nel menu di «Draw». Solo
+JavaScript, nessuna dipendenza: l'impronta iOS non cambia. I testi delle
+curve e le traduzioni nelle quattro lingue li ha approvati l'utente lo
+stesso giorno («Sì, così»). C2 chiede il via del Coordinatore per i file di
+TASK-321.
+
+## ADR-0283 — aggiunta, parte C2: il nuoto è un'attività dell'app, a mezzo km, coi giri sul risultato
+
+**Stato**: Attiva · 2026-10-30 · le scelte di prodotto le ha fatte
+l'utente (i passi di mezzo km, i pulsanti sul risultato, i testi e le
+traduzioni, le righe del nuoto in Apple Salute e Health Connect); il resto
+è deciso dall'agente su delega dell'utente (TASK-323 parte C2, su
+richiesta dell'utente «passa alla parte C2»). Aggiunta ad ADR-0283.
+
+**Contesto**: C1 ha messo lo sport e i suoi pezzi in file nuovi. C2 li
+collega: l'app deve chiedere un nuoto all'API e mostrarlo. Il tipo
+`Activity` è la chiave di tabelle dell'app e dei file di Apple Salute di
+TASK-321, ancora in lavorazione (condizione 3 del Coordinatore, che era
+archiviato).
+
+**Decisione dell'utente** (2026-10-30, una domanda per volta):
+
+- **Le righe del nuoto nei file di TASK-321**: sì, solo quelle (Apple Salute
+  `.swimming` 46 con la distanza a nuoto, Health Connect «nuoto in acque
+  libere» 73) e un test; il resto di TASK-321 non cambia.
+- **Le distanze a mezzo km**: − e + di 0,5 km, da 0,5 a 3 km (in miglia
+  0,5–1,5 di mezzo miglio), da 1 km.
+- **La forma più grande o più piccola sul risultato**: il motore sceglie i
+  giri; sotto il nuoto «3 laps of 320 m» e i pulsanti «Bigger shape» (un
+  giro in meno) e «Smaller shape» (un giro in più). Se non ci sta, il
+  messaggio di sempre.
+- **I testi nuovi e le traduzioni** come proposti: «Swim without a route»,
+  «{count} laps of {distance}», «Bigger shape», «Smaller shape», «… km
+  swimming between the parts».
+
+**Decisione dell'agente**:
+
+1. **`Activity` ha `swimming`** in `shared-types`; `API_ACTIVITIES` resta
+   come nome dello stesso elenco. `activityOf("swim")` è `"swimming"`; la
+   riga resta `ready: false` finché il server non nuota.
+2. **`lap_m` nella risposta** (in B, prima del merge): quanto è lungo un
+   giro, senza i tratti dalla riva. Le impronte cambiano ancora una volta,
+   prima che il Mac rifaccia gli esempi della canoa.
+3. **Sull'acqua come la canoa** (`swim/water.ts`, `isOnWater`): nessuna
+   indicazione, «Start» senza `/route-directions`, i messaggi d'errore
+   dell'acqua, la ricerca dei laghi e delle spiagge, una forma a pezzi
+   sempre a pezzi, nessuna parola nelle corse da rifare.
+4. **Un nuoto disegna una forma o un disegno**, mai una parola: «Word» non
+   c'è, una parola scelta prima aspetta un altro sport. «Image» e «Draw on
+   the map» sì.
+5. **I giri non sono uno stato in più**: «Bigger shape» rimanda la stessa
+   richiesta con `laps`. `sameRequest` non guarda i giri (come `near`):
+   il nuoto resta quello sullo schermo, «Draw route» lo mostra di nuovo;
+   un'altra forma, distanza o partenza torna ai giri del motore.
+6. **L'avviso** è quello del nuoto (`swim-notice.json`) a ogni «Start» di
+   un nuoto: dal risultato, da «Explore» e da un disegno aperto.
+7. **Non ancora**: «Explore» a nuoto (C4, con `draw_examples --water` sul
+   server), la schermata della corsa a nuoto (D: niente voce, il passo per
+   100 m). Prima di `ready: true` servono B sul server e C4.
+
+**Conseguenze**: con la riga ancora «Soon», nessun telefono chiede un
+nuoto. Il foglio dei permessi di Apple Salute chiederà anche la distanza a
+nuoto quando TASK-321 B lo accende. Solo JavaScript: l'impronta iOS non
+cambia.
+
+## ADR-0283 — aggiunta, parte C4: «Explore» a nuoto, i posti della canoa, gli esempi dall'API
+
+**Stato**: Attiva · 2026-10-30 · il sottotitolo e le traduzioni li ha
+approvati l'utente («Yes, like this»); il resto è deciso dall'agente su
+delega dell'utente (TASK-323 parte C4, su richiesta dell'utente «passa
+alla parte C4»). Aggiunta ad ADR-0283.
+
+**Contesto**: con lo sport del nuoto «Explore» mostrava gli esempi della
+corsa. Gli esempi della canoa dei posti scelti a mano vengono con l'app
+(`paddleExamples.json`, TASK-227), disegnati sul Mac con l'acqua del
+server; gli altri li disegna l'API, che li tiene.
+
+**Decisione**:
+
+1. **Gli stessi posti della canoa**: «Explore» con «Open water swim» è
+   la pagina della canoa (`PaddleExplore` con `swim`), i laghi e le
+   spiagge, «Near me», i filtri; il sottotitolo «Shapes to swim, within
+   150 m of the shore».
+2. **Gli esempi a nuoto** (`SWIM_EXAMPLES`): le otto forme della corsa,
+   1 km da ogni punto (anche dove la canoa ne fa meno, su un lago
+   piccolo), i giri scelti dal motore, una forma a pezzi a pezzi. Tenuti a
+   parte da quelli della canoa dello stesso punto (`prefix`).
+3. **Nessun esempio con l'app**: li disegna l'API e li tiene; prima di
+   ogni telefono li disegna `draw_examples --swim` sul server, col sì
+   dell'utente. Un file come `paddleExamples.json` vorrebbe l'acqua del
+   server sul Mac e un'impronta in più da rifare a ogni cambio del motore:
+   non serve finché l'API risponde.
+4. **Una forma che non ci sta è una risposta**: entro 150 m dalla riva
+   capita; `draw_examples --swim` conta il punto come fatto, e l'app
+   mostra la scheda come per la canoa.
+
+**Conseguenze**: per vedere gli esempi a nuoto serve il server col nuoto
+(B). Il nuoto si accende (`ready: true`) quando B è sul server e
+`draw_examples --swim` è passato.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,

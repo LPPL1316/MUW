@@ -8,7 +8,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from route_engine.directions import Direction
-from route_engine.models import RouteRequest, RouteResult
+from route_engine.models import Landmark, RouteRequest, RouteResult, SwimTurn
 
 from shaperoute_api.images import ImageRequest
 from shaperoute_api.route_store import (
@@ -304,3 +304,51 @@ def test_a_shape_moved_on_the_water_is_the_users_own(tmp_path: Path) -> None:
     moved = replace(ON_THE_LAKE, near=(46.0100, 11.2800))
     assert kept.put(moved, PADDLED) is False
     assert kept.get(moved) is None
+
+
+SWIM_ON_THE_LAKE = RouteRequest(
+    start=LEVICO_LAKE, shape="heart", distance_m=1000, activity="swimming", laps=3
+)
+SWUM = RouteResult(
+    points=[LEVICO_LAKE, (46.0095, 11.2790), (46.0094, 11.2795), LEVICO_LAKE],
+    distance_m=1010.0,
+    similarity=1.0,
+    shape="heart",
+    centre=(46.0091, 11.2781),
+    laps=3,
+    turns=[
+        SwimTurn(
+            point=(46.0095, 11.2790),
+            at_m=28.0,
+            side="left",
+            angle_deg=71.0,
+            lap=1,
+            landmark=Landmark(
+                name="Lido di Levico",
+                kind="beach_resort",
+                point=(46.0099, 11.2788),
+                distance_m=46.0,
+                bearing_deg=342.0,
+            ),
+        ),
+        SwimTurn(point=(46.0094, 11.2795), at_m=150.0, side="right", angle_deg=121.0),
+    ],
+)
+
+
+def test_a_swim_is_kept_with_its_laps_and_turns(tmp_path: Path) -> None:
+    # TASK-323 part B: read back as drawn, its laps part of what it is, and
+    # under the fingerprint of the swims.
+    kept = RouteStore(tmp_path, water=[LEVICO_LAKE])
+    assert kept.put(SWIM_ON_THE_LAKE, SWUM) is True
+    assert kept.get(SWIM_ON_THE_LAKE) == SWUM
+    assert kept.get(replace(SWIM_ON_THE_LAKE, laps=4)) is None
+    (path,) = (tmp_path / WATER_FOLDER).glob("*.json")
+    assert json.loads(path.read_text())["engine"] == engine_fingerprint(swims=True)
+    paddled = RouteStore(tmp_path, water=[LEVICO_LAKE])
+    assert paddled.put(ON_THE_LAKE, PADDLED) is True
+    engines = {
+        json.loads(p.read_text())["engine"]
+        for p in (tmp_path / WATER_FOLDER).glob("*.json")
+    }
+    assert engines == {engine_fingerprint(), engine_fingerprint(swims=True)}

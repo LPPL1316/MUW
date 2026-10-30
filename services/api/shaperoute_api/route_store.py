@@ -47,7 +47,7 @@ from typing import Any
 
 import route_engine
 from route_engine.directions import Direction
-from route_engine.models import RouteRequest, RouteResult
+from route_engine.models import Landmark, RouteRequest, RouteResult, SwimTurn
 
 log = logging.getLogger(__name__)
 
@@ -75,22 +75,27 @@ CELL_DECIMALS = 4
 # (TASK-314, ADR-0274). Changing them keeps the routes kept; a test fails
 # when a module of the engine imports one.
 NOT_ROUTES = frozenset({"way_back.py"})
-# Files of the engine that draw only swims (TASK-323, ADR-0283): no route
-# kept is a swim, so changing them keeps the routes kept; a test fails when a
-# module that draws other routes imports one.
+# Files of the engine that draw only swims (TASK-323, ADR-0283): the swims
+# kept have a fingerprint of their own, with them, and changing them keeps
+# every other route kept. A test fails when a module that draws other routes
+# imports one; models.py imports swim_turns.py for a type only.
 SWIM_ONLY = frozenset(
     {"shore_names.py", "swim_turns.py", "swim_water.py", "swimming.py"}
 )
+SWIMMING = "swimming"
 
 
-def engine_fingerprint(folder: Path | None = None) -> str:
+def engine_fingerprint(folder: Path | None = None, swims: bool = False) -> str:
     """The engine's code and outlines, as a few letters: another engine,
     other routes. From the files' content, not their dates: a new image of
-    the same code keeps what it drew. `folder`: the engine's own."""
+    the same code keeps what it drew. `folder`: the engine's own. Without
+    `swims` the files that draw only swims are left out (SWIM_ONLY): the
+    fingerprint of every route but a swim."""
     folder = Path(route_engine.__file__).parent if folder is None else folder
+    left_out = NOT_ROUTES if swims else NOT_ROUTES | SWIM_ONLY
     digest = hashlib.sha256()
     for path in sorted(folder.rglob("*")):
-        if path.relative_to(folder).as_posix() in NOT_ROUTES | SWIM_ONLY:
+        if path.relative_to(folder).as_posix() in left_out:
             continue
         if path.suffix in (".py", ".json") and path.is_file():
             digest.update(path.relative_to(folder).as_posix().encode())
@@ -133,6 +138,32 @@ def result_from(data: dict[str, Any]) -> RouteResult:
         centre=None if data.get("centre") is None else _pair(data["centre"]),
         # Kept before TASK-232: upright.
         rotation_deg=float(data.get("rotation_deg", 0.0)),
+        # Kept before TASK-323, or not a swim: one lap, no turns.
+        laps=int(data.get("laps", 1)),
+        lap_m=None if data.get("lap_m") is None else float(data["lap_m"]),
+        turns=[_turn(turn) for turn in data.get("turns", [])],
+    )
+
+
+def _turn(data: dict[str, Any]) -> SwimTurn:
+    mark = data.get("landmark")
+    return SwimTurn(
+        point=_pair(data["point"]),
+        at_m=float(data["at_m"]),
+        side=str(data["side"]),  # type: ignore[arg-type]
+        angle_deg=float(data["angle_deg"]),
+        lap=int(data["lap"]),
+        landmark=(
+            None
+            if mark is None
+            else Landmark(
+                name=str(mark["name"]),
+                kind=str(mark["kind"]),
+                point=_pair(mark["point"]),
+                distance_m=float(mark["distance_m"]),
+                bearing_deg=float(mark["bearing_deg"]),
+            )
+        ),
     )
 
 
@@ -155,6 +186,8 @@ class RouteStore:
     ) -> None:
         self._directory = directory
         self._engine = engine_fingerprint() if engine is None else engine
+        # The swims' (TASK-323): the engine with the files of the swims.
+        self._swim_engine = engine_fingerprint(swims=True) if engine is None else engine
         self._keep_s = keep_s
         self._max_routes = max_routes
         self._max_centres = max_centres
@@ -236,7 +269,7 @@ class RouteStore:
                 return False
         kept = {
             "saved_at": self._clock(),
-            "engine": self._engine,
+            "engine": self._engine_of(request),
             "request": self._same(request),
             "result": asdict(result),
         }
@@ -282,14 +315,23 @@ class RouteStore:
         }
         if request.pen_up:
             same["pen_up"] = True
+        if request.laps is not None:
+            same["laps"] = request.laps  # a swim (TASK-323), as the pen up
         return same
+
+    def _engine_of(self, request: RouteRequest) -> str:
+        """The fingerprint a route of `request` is kept by: a swim's has
+        the files of the swims (SWIM_ONLY), the others leave them out."""
+        return self._swim_engine if request.activity == SWIMMING else self._engine
 
     def _path(self, request: object) -> Path | None:
         if not isinstance(request, RouteRequest):
             return None  # an image: its outline is the user's own
         if request.near is not None:
             return None  # a shape moved by the user (TASK-238): theirs too
-        same = json.dumps([self._engine, self._same(request)], sort_keys=True)
+        same = json.dumps(
+            [self._engine_of(request), self._same(request)], sort_keys=True
+        )
         name = hashlib.sha256(same.encode()).hexdigest()[:24]
         on_water = cell(request.start) in self._water
         folder = self._water_directory if on_water else self._directory

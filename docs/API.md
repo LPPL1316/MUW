@@ -245,6 +245,19 @@ un punto senza acqua sul disco dell'API si salta alla prima forma
 (`map_data_unavailable`), come fa il telefono. Una forma che non ci sta
 (`shape_not_drawable`) resta scritta nella riga e non ferma il punto.
 
+**A nuoto** (TASK-323 C4): `--swim` chiede gli stessi punti come li chiede
+«Explore» con «Open water swim», le otto forme a 1 km da ogni punto,
+`"activity": "swimming"`, i giri scelti dal motore; con `--water-name`
+solo i punti nominati, e senza `--water` non si pagaia. Entro 150 m dalla
+riva una forma può non starci: `shape_not_drawable` lì è una risposta, e
+il punto conta come fatto. I nuoti si tengono con la loro impronta
+(`route_store`, TASK-323 B).
+
+```
+python -m shaperoute_api.draw_examples --api http://127.0.0.1:8000 --swim
+python -m shaperoute_api.draw_examples --api … --swim --water-name Riccione
+```
+
 **Tempi** (2026-10-09, Mac scarico, motore di `main` a `89287a0a`, acqua
 dei laghi d'Italia in cache): le 24 forme di un telefono nuovo a Levico
 Terme (Lago di Levico, Lago di Caldonazzo, Lago della Serraia) costano
@@ -855,9 +868,9 @@ La richiesta è sincrona: la risposta arriva quando il percorso è pronto
   cycling, got 5000`. La corsa resta 1–50 km, con il messaggio di prima.
   La distanza suggerita di `shape_not_drawable` resta in quei limiti.
 - **Solo le attività del contratto**, `running`, `cycling` e, dalla parte
-  B di TASK-191, `paddling` (`SUPPORTED_ACTIVITIES`): un'altra è `422
-  invalid_request`, `unsupported activity 'swimming'; choose one of:
-  running, cycling, paddling`.
+  B di TASK-191, `paddling`, dalla parte B di TASK-323 `swimming`
+  (`SUPPORTED_ACTIVITIES`): un'altra è `422 invalid_request`, `unsupported
+  activity 'hiking'; choose one of: running, cycling, paddling, swimming`.
 - **Le zone**: l'API ha le zone della bici accanto a quelle a piedi,
   `bike_*` in `data/cache/` (`MAPS.md`, «Cache»), e ne tiene in memoria una
   sola (sotto, «Grafi»). Le città con la zona della bici già fatta
@@ -963,6 +976,61 @@ motore.)
   `centre`; un'API di prima rifiuta `near` (`extra="forbid"`), quindi l'app
   offre lo spostamento solo quando il risultato ha `centre`. Tempi
   sull'acqua vera (Garda, Como, Jesolo, Riccione, 2 km): 1–6 s.
+
+### A nuoto: `"activity": "swimming"` (TASK-323, ADR-0283)
+
+```json
+{ "start": [44.0007, 12.6513], "shape": "heart", "distance_m": 1000,
+  "activity": "swimming", "laps": 3 }
+```
+
+(`fixtures/route-request-swimming.json` e
+`fixtures/route-result-swimming.json`, sulla costa delle fixture del
+motore.)
+
+- **Come la canoa, nella fascia dei bagnanti**: l'acqua è quella di
+  `data/cache/water/`, ma la forma sta **fra 20 e 150 m dalla riva**, 200 m
+  lontano da porti, marine e foci, e si entra da una spiaggia o da una
+  via, mai da uno scivolo o da un molo (`ROUTE_ENGINE.md` §8, «Il nuoto in
+  acque libere»). `/routes` e `/route-jobs`, come la canoa: niente
+  indicazioni, niente alternative.
+- **Da 0,5 a 3 km**, giri e tratti dalla riva compresi
+  (`DISTANCE_LIMITS_M.swimming`): fuori è `422 invalid_request`,
+  `distance must be between 500 and 3000 metres for swimming, got 400`.
+- **I giri**: 130 m di fascia tengono una forma di circa mezzo
+  chilometro, e un nuoto più lungo la ripassa, fino a 5 volte. La
+  richiesta può dire `laps` (1–5): meno giri, forma più grande, la
+  distanza resta quella; senza, il motore prende i meno giri in cui ci
+  sta. Con troppo pochi giri è `422 shape_not_drawable`, `… does not fit
+  in 2 laps … it fits in 3 laps`; troppo lungo anche in 5 giri, `… even in
+  5 laps: it fits at 1.7 km`, con `suggested_distance_m` al mezzo km
+  (1500), come la canoa. `laps` con un'altra attività è `422
+  invalid_request`, `laps are for a swim`.
+- **Il `RouteResult`** ha tre campi in più: `laps`, quanti giri (1 per ogni
+  altro percorso), `lap_m`, quanto è lungo un giro, la forma senza i tratti
+  dalla riva e ritorno (`null` per ogni altro percorso: l'app scrive «3 laps
+  of 320 m»), e `turns`, le curve in ordine, di tutti i giri: `point`,
+  `at_m` dalla partenza, `side` (`left`, `right`), `angle_deg`, `lap`, e
+  `landmark`, il posto con un nome più vicino entro 300 m (`name`, `kind`,
+  `point`, `distance_m`, `bearing_deg` da nord), o `null`. I posti sono
+  quelli di `data/cache/shore_names/`, tagliati dall'estratto di
+  OpenStreetMap (`python -m shaperoute_api.shore_extract`): senza file, le
+  curve non hanno nome. `points` è il nuoto intero, giri uno dopo l'altro.
+- **Un disegno a nuoto** (richiesta dell'utente): `/image-route-jobs` con
+  `"activity": "swimming"` prende il contorno di «Freehand» o di
+  un'immagine, anche con `laps`; la canoa continua a rifiutarlo (`… not an
+  image`).
+- **Il GPX** (`POST /gpx`) di un nuoto ha un waypoint per ogni curva del
+  primo giro, «Turn left · Bagno 54», tipo `turn`, prima della traccia.
+- **Salvati e tenuti**: preferiti, corse e corse di gruppo prendono
+  `swimming` (migrazione `0039`, `DATABASE.md`); Strava lo riceve come
+  `Swim`. Un nuoto dai punti dei laghi e delle spiagge si tiene come la
+  canoa, con un'impronta sua (`route_store`).
+- **Campi facoltativi**: un'app di prima non manda `laps` e ignora `laps`,
+  `lap_m` e `turns` della risposta; un'API di prima rifiuta `swimming` e `laps`.
+  L'app mostra il nuoto con la parte C di TASK-323 (`ready: false` fino
+  ad allora): in `shared-types` `Activity` resta quella dell'app, e
+  `API_ACTIVITIES` ha anche `swimming`.
 
 ### Una parola invece di una forma (TASK-056)
 

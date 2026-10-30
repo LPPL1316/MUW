@@ -22,6 +22,7 @@ from route_engine.models import WATER_ACTIVITIES, RouteResult
 from route_engine.nearby_starts import NearbyPlan
 from route_engine.network import BBox, Graph
 from route_engine.optimizer import GraphLoader, Plan
+from route_engine.shore_names import ShoreNameSource, ShorePlace
 from route_engine.sidewalks import NamedRoad
 from route_engine.water import Element, WaterSource
 
@@ -425,6 +426,13 @@ class _ReportingWater:
         if downloading:
             self._report("computing")
         return elements
+
+    def places(self, bbox: BBox) -> list[ShorePlace]:
+        """The places with a name on the shore of the job's water, for a
+        swim's turns (TASK-323): none when it has no such places."""
+        if isinstance(self._source, ShoreNameSource):
+            return self._source.places(bbox)
+        return []
 
 
 def with_choices(

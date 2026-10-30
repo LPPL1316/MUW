@@ -66,13 +66,15 @@ test("the account, by name and email", async () => {
   expect(screen.getByText("runner@example.com")).toBeOnTheScreen();
 });
 
-test("every row works: only «Paragliding» says «Soon»", async () => {
+test("every row works: only the sports to come say «Soon»", async () => {
   await show();
   // The notifications were the last settings to come (TASK-185). The bike
   // (TASK-190) and paddling (TASK-191) are ready in «Sport» (TASK-189);
-  // paragliding is the one sport to come (TASK-305 D0).
-  expect(screen.getAllByText("Soon")).toHaveLength(1);
-  expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(1);
+  // swimming in open water (TASK-323 C) and paragliding (TASK-305 D0) are
+  // the sports to come.
+  expect(screen.getAllByText("Soon")).toHaveLength(2);
+  expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(2);
+  expect(screen.getByLabelText("Open water swim, coming soon")).toBeOnTheScreen();
   expect(screen.getByLabelText("Paragliding, coming soon")).toBeOnTheScreen();
   // The picture (TASK-178), the email and the phone number (TASK-183), the
   // language (TASK-210), «Add a place» (TASK-334), the units (TASK-182),
