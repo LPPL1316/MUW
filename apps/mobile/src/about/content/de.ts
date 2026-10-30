@@ -432,7 +432,7 @@ const privacy: AboutDocument = {
             "Strava, wie oben gesagt.",
           ],
         },
-        "Ein Bild deines Laufs, das du mit «Teilen» machst, entsteht auf dem Handy und verlässt es nur über das Teilen-Menü, dorthin, wohin du es sendest.",
+        "Ein Bild oder ein Video deines Laufs, das du mit «Teilen» machst, entsteht auf dem Handy und verlässt es nur über das Teilen-Menü, dorthin, wohin du es sendest. Das Video zeigt die Karte rund um deinen Lauf, ohne seine ersten und letzten 200 Meter.",
       ],
     },
     {

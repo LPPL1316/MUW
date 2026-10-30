@@ -1,9 +1,10 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
 import { fitLines } from "../activities/fitLines";
-import { color } from "../theme/tokens";
+import { color, SHADES } from "../theme/tokens";
 import { POST_RESULTS, type PostRun, resultValue } from "./postRun";
 import type { Sticker } from "./stickers";
+import { MAP_CREDIT, MAP_WAIT_MS, NIGHT } from "./videoMap";
 import {
   lengthOf,
   MAX_POINTS,
@@ -50,16 +51,21 @@ function words(frame: VideoOp[]): string[] {
   return frame.filter((op): op is Words => op.k === "text").map((op) => op.text);
 }
 
-const scene = videoScene(RUN, POST_RESULTS, STICKERS);
+const scene = videoScene(RUN, POST_RESULTS, STICKERS, "paper");
 const last = scene.frames[scene.frames.length - 1];
 
-describe("videoScene", () => {
-  it("is a vertical video of about 12 seconds on the yellow of MuW", () => {
+describe("videoScene, on paper", () => {
+  it("is a vertical video of about 12 seconds on the yellow of MuW, with no map", () => {
     expect([scene.width, scene.height, scene.fps]).toEqual([1080, 1920, 30]);
     expect(VIDEO_WIDTH / VIDEO_HEIGHT).toBeCloseTo(9 / 16);
     expect(scene.frames).toHaveLength(VIDEO_SECONDS * VIDEO_FPS);
-    expect(scene.paper).toBe(color.accent);
-    expect(scene.ink).toBe(color.onAccent);
+    expect(scene.look).toBe("paper");
+    expect(scene.colors.paper).toBe(color.accent);
+    expect(scene.colors.ink).toBe(color.onAccent);
+    expect(scene.map).toBeNull();
+    expect(scene.frames.every((frame) => frame.every((op) => op.k !== "map"))).toBe(
+      true,
+    );
   });
 
   it("starts empty, the logo and the title coming in", () => {
@@ -87,7 +93,7 @@ describe("videoScene", () => {
 
   it("shows the pen's tip only while the line draws", () => {
     const tips = (frame: VideoOp[]) =>
-      frame.filter((op) => op.k === "dot" && op.fill === color.accent && op.alpha > 0);
+      frame.filter((op) => op.k === "dot" && op.fill === "accent" && op.alpha > 0);
     expect(tips(scene.frames[5 * VIDEO_FPS])).toHaveLength(1);
     expect(tips(last)).toHaveLength(0);
   });
@@ -110,7 +116,7 @@ describe("videoScene", () => {
   });
 
   it("shows only the results on", () => {
-    const only = videoScene(RUN, ["distance"], []);
+    const only = videoScene(RUN, ["distance"], [], "paper");
     const end = words(only.frames[only.frames.length - 1]);
     expect(end).toContain(resultValue(RUN, "distance"));
     expect(end).not.toContain("Time");
@@ -131,6 +137,7 @@ describe("videoScene", () => {
       { ...RUN, track: north(350), distanceM: 350 },
       POST_RESULTS,
       [],
+      "paper",
     );
     expect(short.paths[1]).toEqual([]);
     expect(short.frames.every((frame) => runLine(frame) === undefined)).toBe(true);
@@ -150,7 +157,7 @@ describe("videoScene", () => {
   });
 
   it("draws a run along a turned route turned back, as the post", () => {
-    const turned = videoScene({ ...RUN, rotationDeg: 90 }, POST_RESULTS, []);
+    const turned = videoScene({ ...RUN, rotationDeg: 90 }, POST_RESULTS, [], "paper");
     const xs = turned.paths[1].filter((_, i) => i % 2 === 0);
     const ys = turned.paths[1].filter((_, i) => i % 2 === 1);
     expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThan(
@@ -159,10 +166,153 @@ describe("videoScene", () => {
   });
 
   it("has no title words when the run has no title", () => {
-    const untitled = videoScene({ ...RUN, title: null }, POST_RESULTS, []);
+    const untitled = videoScene({ ...RUN, title: null }, POST_RESULTS, [], "paper");
     expect(words(untitled.frames[untitled.frames.length - 1])).not.toContain(
       "Heart in Trento",
     );
+  });
+});
+
+describe("videoScene, at night", () => {
+  const night = videoScene(RUN, POST_RESULTS, STICKERS, "night");
+  const end = night.frames[night.frames.length - 1];
+  const texts = (frame: VideoOp[]) =>
+    frame.filter((op): op is Words => op.k === "text");
+
+  it("lays the map under the line, framed on the drawing's box", () => {
+    expect(night.look).toBe("night");
+    const map = night.map;
+    expect(map).not.toBeNull();
+    expect([map?.width, map?.height, map?.pixelRatio]).toEqual([360, 640, 3]);
+    // The box of the drawing, 20 % to 70 % of the height and 8 % in from
+    // the sides, as the room kept clear around the centre.
+    expect(map?.camera.padding.top).toBeCloseTo(128, 5);
+    expect(map?.camera.padding.bottom).toBeCloseTo(192, 5);
+    expect(map?.camera.padding.left).toBeCloseTo(28.8, 5);
+    expect(map?.camera.padding.right).toBeCloseTo(28.8, 5);
+    // The middle of the run without its ends: longitude first.
+    expect(map?.camera.center[0]).toBeCloseTo(11.12, 6);
+    expect(map?.camera.center[1]).toBeCloseTo(46.07 + 2600 / 111_195, 5);
+    expect(map?.camera.zoom).toBeGreaterThan(11);
+    expect(map?.camera.zoom).toBeLessThan(13);
+    expect(map?.camera.bearing).toBe(0);
+    expect(map?.camera.pitch).toBe(0);
+    expect(map?.waitMs).toBe(MAP_WAIT_MS);
+    expect(map?.style.layers.length).toBeGreaterThan(5);
+  });
+
+  it("takes every colour from the dark tone at its darkest, the line in the yellow", () => {
+    expect(night.colors).toEqual({
+      paper: NIGHT.map.background,
+      ink: NIGHT.text,
+      muted: NIGHT.textMuted,
+      faint: NIGHT.textFaint,
+      accent: NIGHT.accent,
+      onAccent: NIGHT.onAccent,
+      dot: NIGHT.text,
+      scrim: NIGHT.scrim,
+    });
+    expect(NIGHT.map).toEqual(SHADES.dark.darkest.map);
+    const known = new Set<string>(Object.values(NIGHT.map));
+    for (const hex of JSON.stringify(night.map?.style).match(/#[0-9A-Fa-f]{6}/g) ??
+      []) {
+      expect(known.has(hex)).toBe(true);
+    }
+    expect(runLine(end)).toMatchObject({ color: "accent", width: 17.3 });
+  });
+
+  it("writes the title regular and tight, the labels small, spaced and in capitals, the numbers large and light", () => {
+    const title = texts(end).find((op) => op.text === "Heart in Trento");
+    expect(title).toMatchObject({
+      weight: 400,
+      size: 83.1,
+      tracking: -1.7,
+      color: "ink",
+    });
+    const label = texts(end).find((op) => op.text === "DISTANCE");
+    expect(label).toMatchObject({
+      weight: 600,
+      size: 30.5,
+      tracking: 3.3,
+      color: "muted",
+    });
+    expect(texts(end).some((op) => op.text === "Distance")).toBe(false);
+    const value = texts(end).find((op) => op.text === resultValue(RUN, "distance"));
+    expect(value).toMatchObject({
+      weight: 300,
+      size: 121.8,
+      tracking: -2.8,
+      color: "ink",
+    });
+    expect(texts(end).find((op) => op.text === "MuW")).toMatchObject({ weight: 700 });
+  });
+
+  it("puts the map first, the yellow square under the heart, the dark under the words, the credit last", () => {
+    const kinds = end.map((op) => op.k);
+    expect(kinds[0]).toBe("map");
+    expect(kinds.indexOf("rect")).toBeLessThan(kinds.indexOf("line"));
+    expect(end.find((op) => op.k === "rect")).toMatchObject({
+      color: "accent",
+      w: 97.2,
+      h: 97.2,
+    });
+    const scrim = kinds.indexOf("scrim");
+    expect(scrim).toBeGreaterThan(kinds.lastIndexOf("line"));
+    expect(scrim).toBeLessThan(
+      end.findIndex((op) => op.k === "text" && op.text === "DISTANCE"),
+    );
+    expect(end.find((op) => op.k === "scrim")).toEqual({
+      k: "scrim",
+      top: 1152,
+      alpha: 1,
+    });
+    const credit = texts(end).find((op) => op.text === MAP_CREDIT);
+    expect(credit).toMatchObject({ color: "faint", align: "center", weight: 400 });
+    expect(credit?.y).toBeGreaterThan(1920 * 0.95);
+    // The numbers sit above the credit.
+    const value = texts(end).find((op) => op.text === resultValue(RUN, "pace"));
+    expect((value?.y ?? 0) + (value?.size ?? 0) * 1.2).toBeLessThan(credit?.y ?? 0);
+  });
+
+  it("brings the map and the dark in with the logo, then keeps them", () => {
+    const at = (frame: number, kind: "map" | "scrim") =>
+      night.frames[frame].find((op) => op.k === kind)?.alpha;
+    expect(at(0, "map")).toBe(0);
+    expect(at(0, "scrim")).toBe(0);
+    expect(at(VIDEO_FPS / 2, "map")).toBe(1);
+    expect(at(VIDEO_FPS * 6, "map")).toBe(1);
+    expect(at(VIDEO_FPS * 6, "scrim")).toBe(1);
+  });
+
+  it("turns the map as the drawing is turned", () => {
+    const turned = videoScene({ ...RUN, rotationDeg: 90 }, POST_RESULTS, [], "night");
+    expect(turned.map?.camera.bearing).toBe(-90);
+  });
+
+  it("frames no map for a run too short to draw, and stays dark", () => {
+    const short = videoScene(
+      { ...RUN, track: north(350), distanceM: 350 },
+      POST_RESULTS,
+      [],
+      "night",
+    );
+    expect(short.map).toBeNull();
+    expect(short.colors.paper).toBe(NIGHT.map.background);
+    expect(short.frames.every((frame) => frame.every((op) => op.k !== "map"))).toBe(
+      true,
+    );
+  });
+
+  it("keeps the drawing inside its box, and the video the same size as on paper", () => {
+    const path = night.paths[1];
+    for (let i = 0; i < path.length; i += 2) {
+      expect(path[i]).toBeGreaterThanOrEqual(1080 * 0.08);
+      expect(path[i]).toBeLessThanOrEqual(1080 * 0.92);
+      expect(path[i + 1]).toBeGreaterThanOrEqual(1920 * 0.2);
+      expect(path[i + 1]).toBeLessThanOrEqual(1920 * 0.7);
+    }
+    expect(night.frames).toHaveLength(VIDEO_SECONDS * VIDEO_FPS);
+    expect(Math.max(...night.frames.map((frame) => frame.length))).toBeLessThan(24);
   });
 });
 
@@ -208,6 +358,7 @@ describe("the size of a video, whatever the run", () => {
       { ...RUN, track: zigzag(20_000), distanceM: 400_000 },
       POST_RESULTS,
       [],
+      "paper",
     );
     expect(long.paths[1].length / 2).toBeLessThanOrEqual(MAX_POINTS + 2);
     expect(long.frames).toHaveLength(VIDEO_SECONDS * VIDEO_FPS);

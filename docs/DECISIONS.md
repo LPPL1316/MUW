@@ -19981,6 +19981,44 @@ dell'utente; un server precedente risponde `404` e l'app cerca solo negli
 esempi. `shared-types` ha `DrawingSearchPage`, `DRAWING_SORTS`,
 `DRAWING_COMPLEXITIES` e le due soglie.
 
+## ADR-0288 — aggiunta (TASK-340): «Freehand» prima di «Shape | Word | Image», niente «Edit the drawing» in «Draw»
+
+**Stato**: Attiva · 2026-10-29 · **scelta dell'utente** del 2026-10-29:
+«TOGLI LA FUNZIONE MODIFICA IL DISEGNO IN DRAW, TIENI SOLO LA FUNZIONE
+DISEGNA A MANO L'IBERA SU MAPPA E METTILA PER PRUMA TRA FORMA PAROLA ED
+IMMAGINE». Il come è **deciso dall'agente su delega dell'utente**
+(TASK-340). Aggiunta ad ADR-0288, senza numero nuovo (Coordinatore).
+
+**Contesto**: dopo il TASK-331 il disegno a mano stava sotto
+«Shape | Word | Image», nel tasto «Draw on the map», e sotto il risultato
+di «Draw» c'era «Edit the drawing», che metteva la figura sulla mappa.
+
+**Decisione**:
+
+1. **«Freehand» è la prima scelta** dell'interruttore di «Draw»:
+   «Freehand | Shape | Word | Image». Un tocco apre subito la mappa della
+   partenza, come faceva il tasto, e l'interruttore resta sulla scelta di
+   prima: la mappa ha la sua pagina, il suo «Draw route» e il suo «←».
+   Con «Paddle» non c'è, come non c'era il tasto.
+2. L'etichetta è **«Freehand»**, con le traduzioni già approvate
+   dall'utente per il TASK-320 il 2026-10-28: «Draw on the map» non sta in
+   un quarto dell'interruttore. Il testo «Draw on the map» esce dall'app.
+3. **Sotto il risultato di «Draw» non c'è più «Edit the drawing»** (punto
+   3 di ADR-0288): dal risultato della mappa si torna alla figura con «←»,
+   come già si poteva. Sulle schede di «Explore» e del Feed resta: l'utente
+   ha detto «in Draw».
+
+**Alternative scartate**: una scelta «Freehand» che resta accesa e mostra
+sotto di sé il tasto della mappa: un tocco in più per la stessa pagina.
+Togliere «Edit the drawing» anche dalle schede: non chiesto.
+
+**Conseguenze**: escono `MapDrawButton.tsx` ed `EditDrawingButton.tsx`;
+`RouteChoice` prende `onFreehand` al posto di `underKinds`. Niente cambia
+nel contratto, nell'API, nel motore, nella privacy e nel nativo.
+Il punto 4 di ADR-0299 («il risultato di "Draw" resta come prima») dice
+solo cosa il TASK-346 non tocca: il tasto sotto il risultato esce con questa
+aggiunta, e quello sulla scheda del Feed resta, con la traccia dov'è.
+
 ## ADR-0304 — «Who can see it» parte da «Only me», poi dall'ultima scelta salvata
 **Stato**: Attiva · 2026-10-30 · **scelta dell'utente**; i dettagli sono
 decisi dall'agente su delega dell'utente (TASK-352). Sostituisce, per la fine
@@ -20252,6 +20290,24 @@ l'app in Expo Go, in `tasks/TASK-351.md`; sul telefono da rifare.
     parte (la pagina dice all'app i tempi delle tegole, dello scatto e
     della codifica); se raddoppia, lo si scrive.
 
+**Aggiunta (parte B, 2026-10-30, decisa dall'agente su delega
+dell'utente)**: sulle mappe piatte la linea resta quella che l'app calcola
+con `fitLines`, e la mappa è messa sotto con la camera di `lineCamera` e il
+`padding` del riquadro del disegno, come il Feed (ADR-0131): la differenza
+fra la proiezione piatta e quella di Mercatore è sotto il pixel su pochi
+chilometri; la proiezione dalla pagina (`map.project`) arriva con la D,
+dove l'inclinazione la rende necessaria, e il punto 4 vale da lì. Il
+credito è a 0,02 della larghezza (22 px su 1080), non 0,0065, perché si
+legga su un telefono. Il canvas non ha le cifre tabulari: i numeri sono
+allineati a sinistra e il tremolio mentre salgono è piccolo; le lettere
+spaziate usano `letterSpacing` del canvas dove c'è (iOS 17) e una lettera
+per volta prima. Mentre le tegole arrivano l'app mostra lo stato di attesa
+che c'è già («Making the video… 0%»), senza testi nuovi; a tegole fredde
+l'export può raddoppiare (misure in `tasks/TASK-351.md`). La B non va
+nell'OTA di produzione finché l'utente non ha esportato un video vero
+sull'iPhone e visto la mappa (condizione del Coordinatore): il rischio da
+guardare è un telefono che ricade sul giallo in silenzio.
+
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
 con la linea in prospettiva non si fa); la linea come layer di MapLibre
@@ -20358,6 +20414,46 @@ lavoro molto più grande); un campo nuovo nel contratto per la traccia
 testi, nelle dipendenze e nel nativo; arriva con un OTA. `useMapCanvas`
 ha `editInPlace` accanto a `edit`; `figureLines.drawingLines` diventa
 `drawingTrack`.
+
+## ADR-0308 — Le schede del Feed: «Tutti» e «Seguiti», un `filter` facoltativo sul server, una cache per scheda
+
+**Stato**: Proposta · 2026-10-30 · TASK-362. La richiesta è dell'utente (un
+brief del 2026-10-30); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-362.md`; il resto è deciso dall'agente su delega
+dell'utente. Estende ADR-0227; toglie i filtri da ADR-0306 e TASK-355 B.
+
+**Contesto**: il Feed è una lista sola in tre gruppi: i propri, quelli di chi
+si segue, gli altri vicini. L'utente vuole scegliere cosa vedere, in ordine
+cronologico inverso. TASK-355 B prevedeva i filtri All, Friends e Mine; alla
+domanda se le schede li sostituissero l'utente ha risposto «Sì, sostituiscono».
+
+**Decisione** (proposta):
+
+1. `GET /feed` prende un `filter` facoltativo, `all` o `following`. Senza, la
+   risposta è quella di oggi: le app già installate non cambiano.
+2. Con `filter`, solo `published_at DESC, id DESC`, e `lat` e `lon` non contano.
+   `all` è `everyone`; `following` sono i propri e chi si segue con la richiesta
+   accettata («No, includili»), `everyone` e `followers`. Entrambi passano da `shown_sql`, quindi blocchi e
+   disegni nascosti restano fuori.
+3. Nell'app una lettura e un cursore per scheda e due `FlatList` montate:
+   cambiare scheda non rilegge e non perde la posizione.
+4. L'ultima scheda sta in un file del telefono, come lo sport; non va al server.
+5. Con le schede l'app non manda più la posizione al Feed. La riga di privacy di
+   TASK-356 resta vera per le app già installate; si toglie più avanti, col sì
+   dell'utente.
+6. Un indice nuovo solo se l'`EXPLAIN` su 10.000 disegni lo chiede: la chiave di
+   `follows` e gli indici di `drawings` e `runs` ci sono già.
+
+**Alternative scartate**: filtrare sul telefono (pagine vuote e dati scaricati
+per nulla); cambiare la risposta senza parametro (romperebbe le app già
+installate); i filtri accanto alle schede (due modi per la stessa cosa);
+smontare la lista non aperta (perde la posizione); AsyncStorage (dipendenza
+nuova, e il file basta).
+
+**Conseguenze**: TASK-355 B si riduce a foto dell'autore, conteggi e skeleton.
+Chi non segue nessuno e apre «Tutti» non vede più prima i vicini, ma gli ultimi
+pubblicati (scelta 3 del task). Il codice arriva col via del Coordinatore;
+server solo col sì dell'utente.
 
 ## ADR-0305 — Quanti messaggi nuovi: un numero dall'API fermato a 10, contato a parte solo sulla pagina
 

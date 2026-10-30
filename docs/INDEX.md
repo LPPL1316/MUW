@@ -51,6 +51,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Calorie e battito nei post del Feed, «Show heart rate» | `tasks/TASK-345.md`, `DECISIONS.md` ADR-0298 |
 | Il video della corsa con la mappa sotto, i tre stili, il 3D | `tasks/TASK-351.md`, `DECISIONS.md` ADR-0303, ADR-0254 e ADR-0262, `UI.md` «Il post da condividere» |
 | La scheda del Feed: titolo, data, estremi, barra azioni, conteggi, filtri | `tasks/TASK-355.md`, `DECISIONS.md` ADR-0306 e ADR-0293 |
+| Le schede del Feed «Tutti» e «Seguiti», il `filter` di `GET /feed`, la scheda ricordata | `tasks/TASK-362.md`, `DECISIONS.md` ADR-0308, `API.md` «Feed» |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti

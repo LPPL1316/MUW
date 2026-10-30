@@ -1,7 +1,8 @@
 import { fitLines, type Segment } from "../activities/fitLines";
+import { appLanguage } from "../i18n/language";
 import { HEART_BOX, HEART_POINTS, heartHeight } from "../intro/heartLine";
 import { bearingOf } from "../map/turnedMap";
-import { color } from "../theme/tokens";
+import { color, font, type Palette, tracking } from "../theme/tokens";
 import {
   POST_RESULTS,
   type PostResult,
@@ -11,18 +12,28 @@ import {
   withoutEnds,
 } from "./postRun";
 import type { Sticker } from "./stickers";
+import {
+  MAP_CREDIT,
+  MAP_PIXEL_RATIO,
+  NIGHT,
+  type VideoMap,
+  videoMap,
+} from "./videoMap";
 
 /**
- * The video of a run (TASK-295, ADR-0254), as what to draw in each of its
- * pictures: the post (TASK-231) coming to life. On the yellow of MuW the
- * logo and the title come in; the run's line draws itself from start to end
- * while distance and time count up; then the whole drawing stays, with the
- * results and the emoji the runner chose for the post. The last picture is
- * the post.
+ * The video of a run (TASK-295, ADR-0254; TASK-351, ADR-0303), as what to
+ * draw in each of its pictures. In the «night» look the map of the run lies
+ * under everything, dark and warm, and the line draws itself in the yellow
+ * of a route while distance and time count up, the words in the type scale
+ * of the premium look (ADR-0293); then the whole drawing stays, with the
+ * results and the emoji the runner chose for the post. The «paper» look is
+ * the post on the yellow of MuW coming to life, as the video was before:
+ * the page falls back on it when the map does not come.
  *
  * Only numbers and words here: the hidden WebView (videoPage) draws them on
  * a canvas and encodes them, so what the video shows is decided, and
- * tested, in the app.
+ * tested, in the app. Where the line lies on the map is decided here too,
+ * with the same fit the Feed lays its maps under a drawing with (ADR-0131).
  */
 
 /** A vertical video for Stories and Reels: 9 wide, 16 tall. */
@@ -32,6 +43,9 @@ export const VIDEO_FPS = 30;
 /** About 12 seconds, the user's choice. */
 export const VIDEO_SECONDS = 12;
 
+/** The two looks of the video: the map under the line, or the yellow post. */
+export type VideoLook = "paper" | "night";
+
 /** When each part starts and how long the line takes, in seconds. */
 const INTRO_S = 1;
 const DRAW_S = 8;
@@ -40,22 +54,15 @@ const HOLD_FROM_S = INTRO_S + DRAW_S;
 const EMOJI_STEP_S = 0.15;
 const EMOJI_POP_S = 0.35;
 
-// The post's sizes (PostImage), as shares of the width; its places as
-// shares of the height.
+// The post's places (PostImage), as shares of the width and of the height.
 const SIDE = 0.08;
-const LINE = 0.02;
 const BADGE = 0.09;
 const NAME = 0.05;
-const TITLE = 0.065;
-const LABEL = 0.035;
-const VALUE = 0.075;
 const EMOJI = 0.11;
 const BRAND_GAP = 0.017;
-const ROW_GAP = 0.023;
 const TITLE_TOP = 0.1;
 const DRAWING_TOP = 0.2;
 const DRAWING_BOTTOM = 0.7;
-const RESULTS_BOTTOM = 0.04;
 /** A line of text is this many times its letters' size, as in the app. */
 const LINE_HEIGHT = 1.2;
 
@@ -64,31 +71,87 @@ const HEART_SHARE = 0.68;
 const HEART_LINE_SHARE = 1 / 16;
 const HEART_DOT_SHARE = 1 / 6;
 const HEART_RING_SHARE = 1 / 24;
+/** The corner of the yellow square behind the heart (HeartBadge). */
+const BADGE_CORNER_SHARE = 0.22;
+
+/** Where the dark rises from, on the map looks, as a share of the height. */
+const SCRIM_TOP = 0.6;
+/** The credit's letters and its room from the bottom edge. */
+const CREDIT = 0.02;
+const CREDIT_BOTTOM = 0.012;
+
+/** The width of the phone the type scale (`font`) is drawn for, in points:
+ * a size in points is that share of the video's width. */
+const PHONE_WIDTH = 390;
+
+/** A colour of the look an op is drawn in. */
+export type ColorRole = "ink" | "muted" | "faint" | "accent" | "onAccent" | "dot";
+
+/** The colours of a look, from the tokens: what each role means. */
+export type VideoColors = {
+  /** Under everything: the yellow of the post, or the map's own ground. */
+  paper: string;
+  ink: string;
+  muted: string;
+  faint: string;
+  accent: string;
+  onAccent: string;
+  /** The start of the logo's heart. */
+  dot: string;
+  /** The dark that rises under the words on the map looks. */
+  scrim: string;
+};
 
 /** One thing to draw. Places and sizes in pixels of the video, y down;
  * `alpha` from 0 (not there) to 1. */
 export type VideoOp =
+  /** The map's picture, once the page has it. */
+  | { k: "map"; alpha: number }
+  /** The dark rising from `top` to the bottom edge. */
+  | { k: "scrim"; top: number; alpha: number }
+  /** A filled square with round corners. */
+  | {
+      k: "rect";
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      r: number;
+      color: ColorRole;
+      alpha: number;
+    }
   /** A path of the scene, from its start to `upTo` pixels along it. */
-  | { k: "line"; path: number; upTo: number; width: number; alpha: number }
-  /** A round dot, `ring` pixels of ink around it. */
+  | {
+      k: "line";
+      path: number;
+      upTo: number;
+      width: number;
+      color: ColorRole;
+      alpha: number;
+    }
+  /** A round dot, `ring` pixels of `ringColor` inside its edge. */
   | {
       k: "dot";
       x: number;
       y: number;
       r: number;
-      fill: string;
+      fill: ColorRole;
       ring: number;
+      ringColor: ColorRole;
       alpha: number;
     }
   /** Words, from the top of their first line; at most `lines` lines
-   * `maxWidth` wide, the last one cut with «…». */
+   * `maxWidth` wide, the last one cut with «…». `tracking` in pixels
+   * between letters, `weight` as CSS has it. */
   | {
       k: "text";
       text: string;
       x: number;
       y: number;
       size: number;
-      bold: boolean;
+      weight: number;
+      tracking: number;
+      color: ColorRole;
       align: "left" | "center";
       maxWidth: number;
       lines: number;
@@ -109,9 +172,10 @@ export type VideoScene = {
   width: number;
   height: number;
   fps: number;
-  /** The yellow under everything, and the ink of the lines and words. */
-  paper: string;
-  ink: string;
+  look: VideoLook;
+  colors: VideoColors;
+  /** The map under the pictures; null on paper, or with nothing to frame. */
+  map: VideoMap | null;
   /** Lines, each as x0, y0, x1, y1, …: the logo's heart, then the run. */
   paths: number[][];
   /** What each picture shows, in order. */
@@ -125,9 +189,115 @@ const RUN_PATH = 1;
 export const MAX_POINTS = 2000;
 const MIN_STEP_PX = 2;
 
+/** A size of text: letters, weight, tracking, as shares of the width (the
+ * tracking too), and the line as a multiple of the letters. */
+type TextStyle = {
+  size: number;
+  weight: number;
+  tracking: number;
+  lineHeight: number;
+};
+
+/** How a look draws the video. */
+type Look = {
+  colors: VideoColors;
+  title: TextStyle;
+  label: TextStyle & { upper: boolean; color: ColorRole };
+  value: TextStyle;
+  line: { width: number; color: ColorRole };
+  /** The yellow square behind the logo's heart. */
+  badge: boolean;
+  scrim: boolean;
+  credit: string | null;
+  /** The results' room from the bottom edge, as a share of the height; the
+   * gap between their rows, of the width. */
+  resultsBottom: number;
+  rowGap: number;
+};
+
+/** A measure in points of the phone, as a share of the video's width. */
+function ofPhone(points: number): number {
+  return points / PHONE_WIDTH;
+}
+
+/** A style of `font`, as the video draws it. */
+function textStyle(
+  style: { fontSize: number; fontWeight: string; lineHeight: number },
+  letterTracking: number,
+): TextStyle {
+  return {
+    size: ofPhone(style.fontSize),
+    weight: Number(style.fontWeight),
+    tracking: ofPhone(letterTracking),
+    lineHeight: style.lineHeight / style.fontSize,
+  };
+}
+
+/** The post on the yellow of MuW, as the video was (ADR-0254): the ink is
+ * the text on yellow, in the app's own tone. */
+const PAPER: Look = {
+  colors: {
+    paper: color.accent,
+    ink: color.onAccent,
+    muted: color.onAccent,
+    faint: color.onAccent,
+    accent: color.accent,
+    onAccent: color.onAccent,
+    dot: color.text,
+    scrim: color.scrim,
+  },
+  title: { size: 0.065, weight: 700, tracking: 0, lineHeight: LINE_HEIGHT },
+  label: {
+    size: 0.035,
+    weight: 500,
+    tracking: 0,
+    lineHeight: LINE_HEIGHT,
+    upper: false,
+    color: "ink",
+  },
+  value: { size: 0.075, weight: 700, tracking: 0, lineHeight: LINE_HEIGHT },
+  line: { width: 0.02, color: "ink" },
+  badge: false,
+  scrim: false,
+  credit: null,
+  resultsBottom: 0.04,
+  rowGap: 0.023,
+};
+
+/** The map under the line, in the colours of `palette` and the type scale
+ * of the premium look (ADR-0293): large light numbers, small spaced labels,
+ * a regular title, the line in the yellow of a route. */
+function mapLook(palette: Palette): Look {
+  return {
+    colors: {
+      paper: palette.map.background,
+      ink: palette.text,
+      muted: palette.textMuted,
+      faint: palette.textFaint,
+      accent: palette.accent,
+      onAccent: palette.onAccent,
+      dot: palette.text,
+      scrim: palette.scrim,
+    },
+    title: textStyle(font.title, tracking.title),
+    label: { ...textStyle(font.label, tracking.label), upper: true, color: "muted" },
+    value: textStyle(font.display, tracking.display),
+    line: { width: 0.016, color: "accent" },
+    badge: true,
+    scrim: true,
+    credit: MAP_CREDIT,
+    resultsBottom: 0.06,
+    rowGap: 0.036,
+  };
+}
+
 /** One decimal: the scene goes to the WebView as text. */
 function round(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+function round3(value: number): number {
+  return Math.round(value * 1000) / 1000;
 }
 
 /** Where `t` is from `from` to `to`, from 0 to 1. */
@@ -242,8 +412,14 @@ function valueAt(run: PostRun, result: PostResult, share: number): string | null
   );
 }
 
-/** The parts that do not move: the logo, the drawing's path, the places. */
-function layoutOf(run: PostRun, shown: readonly PostResult[]) {
+/** The parts that do not move: the logo, the drawing's path, the places,
+ * and the map under them. */
+function layoutOf(
+  run: PostRun,
+  shown: readonly PostResult[],
+  look: Look,
+  withMap: boolean,
+) {
   const w = VIDEO_WIDTH;
   const h = VIDEO_HEIGHT;
   const badge = w * BADGE;
@@ -259,31 +435,41 @@ function layoutOf(run: PostRun, shown: readonly PostResult[]) {
 
   const boxWidth = w * (1 - 2 * SIDE);
   const boxHeight = h * (DRAWING_BOTTOM - DRAWING_TOP);
-  const line = w * LINE;
-  const [segments] = fitLines(
-    [withoutEnds(run.track)],
-    boxWidth,
-    boxHeight,
-    line,
-    bearingOf(run.rotationDeg),
-  );
+  const line = w * look.line.width;
+  const cut = withoutEnds(run.track);
+  const bearing = bearingOf(run.rotationDeg);
+  const [segments] = fitLines([cut], boxWidth, boxHeight, line, bearing);
   const track = thinned(pointsOf(segments)).flatMap(([x, y]) => [
     round(w * SIDE + x),
     round(h * DRAWING_TOP + y),
   ]);
+  // The same fit, in points of the map, so the map lies under the line.
+  const map = withMap
+    ? videoMap(
+        cut,
+        {
+          left: (w * SIDE) / MAP_PIXEL_RATIO,
+          top: (h * DRAWING_TOP) / MAP_PIXEL_RATIO,
+          width: boxWidth / MAP_PIXEL_RATIO,
+          height: boxHeight / MAP_PIXEL_RATIO,
+          pad: line / MAP_PIXEL_RATIO,
+        },
+        bearing,
+      )
+    : null;
 
   const results = resultsShown(run, shown);
-  const labelHeight = w * LABEL * LINE_HEIGHT;
-  const valueHeight = w * VALUE * LINE_HEIGHT;
+  const labelHeight = w * look.label.size * look.label.lineHeight;
+  const valueHeight = w * look.value.size * look.value.lineHeight;
   const rows = Math.ceil(results.length / 2);
   const resultsHeight =
-    rows * (labelHeight + valueHeight) + Math.max(0, rows - 1) * w * ROW_GAP;
-  const resultsTop = h * (1 - RESULTS_BOTTOM) - resultsHeight;
+    rows * (labelHeight + valueHeight) + Math.max(0, rows - 1) * w * look.rowGap;
+  const resultsTop = h * (1 - look.resultsBottom) - resultsHeight;
   const columnWidth = (w * (1 - 2 * SIDE)) / 2;
   const placed = results.map((result, i) => ({
     result,
     x: w * SIDE + (i % 2) * columnWidth,
-    y: resultsTop + Math.floor(i / 2) * (labelHeight + valueHeight + w * ROW_GAP),
+    y: resultsTop + Math.floor(i / 2) * (labelHeight + valueHeight + w * look.rowGap),
   }));
 
   return {
@@ -301,6 +487,7 @@ function layoutOf(run: PostRun, shown: readonly PostResult[]) {
     track,
     trackLength: lengthOf(track),
     line,
+    map,
     placed,
     labelHeight,
     columnWidth,
@@ -313,20 +500,23 @@ function text(
   words: string,
   x: number,
   y: number,
-  size: number,
-  bold: boolean,
+  style: TextStyle,
+  colorRole: ColorRole,
   maxWidth: number,
   alpha: number,
   align: "left" | "center" = "left",
   lines = 1,
 ): VideoOp {
+  const w = VIDEO_WIDTH;
   return {
     k: "text",
     text: words,
     x: round(x),
     y: round(y),
-    size: round(size),
-    bold,
+    size: round(w * style.size),
+    weight: style.weight,
+    tracking: round(w * style.tracking),
+    color: colorRole,
     align,
     maxWidth: round(maxWidth),
     lines,
@@ -334,9 +524,20 @@ function text(
   };
 }
 
-function round3(value: number): number {
-  return Math.round(value * 1000) / 1000;
-}
+/** The brand's name next to the heart: bold in every look. */
+const NAME_STYLE: TextStyle = {
+  size: NAME,
+  weight: 700,
+  tracking: 0,
+  lineHeight: LINE_HEIGHT,
+};
+/** The credit's line, small and faint. */
+const CREDIT_STYLE: TextStyle = {
+  size: CREDIT,
+  weight: 400,
+  tracking: 0,
+  lineHeight: LINE_HEIGHT,
+};
 
 /** What the picture at `t` seconds shows. */
 function frameAt(
@@ -344,18 +545,39 @@ function frameAt(
   run: PostRun,
   stickers: readonly Sticker[],
   layout: Layout,
+  look: Look,
+  language: string,
 ): VideoOp[] {
   const w = VIDEO_WIDTH;
   const h = VIDEO_HEIGHT;
   const ops: VideoOp[] = [];
 
+  // The map comes in with the logo, and the dark under the words with it.
+  const ground = round3(ramp(t, 0, 0.5));
+  if (layout.map !== null) {
+    ops.push({ k: "map", alpha: ground });
+  }
+
   const brand = round3(ramp(t, 0, 0.5));
+  if (look.badge) {
+    ops.push({
+      k: "rect",
+      x: round(layout.corner),
+      y: round(layout.corner),
+      w: round(layout.badge),
+      h: round(layout.badge),
+      r: round(layout.badge * BADGE_CORNER_SHARE),
+      color: "accent",
+      alpha: brand,
+    });
+  }
   ops.push(
     {
       k: "line",
       path: HEART_PATH,
       upTo: round(layout.heartLength),
       width: round(layout.heartLine),
+      color: "onAccent",
       alpha: brand,
     },
     {
@@ -363,15 +585,16 @@ function frameAt(
       ...layout.heartDot,
       r: round(layout.heartDot.r),
       ring: round(layout.heartDot.ring),
-      fill: color.text,
+      fill: "dot",
+      ringColor: "onAccent",
       alpha: brand,
     },
     text(
       "MuW",
       layout.corner + layout.badge + w * BRAND_GAP,
       layout.corner + (layout.badge - w * NAME * LINE_HEIGHT) / 2,
-      w * NAME,
-      true,
+      NAME_STYLE,
+      "ink",
       w / 2,
       brand,
     ),
@@ -382,8 +605,8 @@ function frameAt(
         run.title,
         w / 2,
         h * TITLE_TOP,
-        w * TITLE,
-        true,
+        look.title,
+        "ink",
         w * (1 - 2 * SIDE),
         ramp(t, 0.2, 0.8),
         "center",
@@ -400,6 +623,7 @@ function frameAt(
       path: RUN_PATH,
       upTo: round(upTo),
       width: round(layout.line),
+      color: look.line.color,
       alpha: 1,
     });
     // The pen's tip while it draws, gone once the drawing is whole.
@@ -412,17 +636,31 @@ function frameAt(
         y: round(y),
         r: round(layout.line * 1.3),
         ring: round(layout.line * 0.5),
-        fill: color.accent,
+        fill: "accent",
+        ringColor: "onAccent",
         alpha: round3(tip),
       });
     }
   }
 
+  if (look.scrim) {
+    ops.push({ k: "scrim", top: round(h * SCRIM_TOP), alpha: ground });
+  }
+
   const numbers = ramp(t, 0.6, 1);
   for (const { result, x, y } of layout.placed) {
     const value = valueAt(run, result, share);
+    const name = resultName(result);
     ops.push(
-      text(resultName(result), x, y, w * LABEL, false, layout.columnWidth, numbers),
+      text(
+        look.label.upper ? name.toLocaleUpperCase(language) : name,
+        x,
+        y,
+        look.label,
+        look.label.color,
+        layout.columnWidth,
+        numbers,
+      ),
     );
     if (value !== null) {
       ops.push(
@@ -430,13 +668,27 @@ function frameAt(
           value,
           x,
           y + layout.labelHeight,
-          w * VALUE,
-          true,
+          look.value,
+          "ink",
           layout.columnWidth,
           numbers,
         ),
       );
     }
+  }
+  if (look.credit !== null) {
+    ops.push(
+      text(
+        look.credit,
+        w / 2,
+        h * (1 - CREDIT_BOTTOM) - w * CREDIT * LINE_HEIGHT,
+        CREDIT_STYLE,
+        "faint",
+        w * (1 - 2 * SIDE),
+        numbers,
+        "center",
+      ),
+    );
   }
 
   stickers.forEach((sticker, i) => {
@@ -461,25 +713,29 @@ function frameAt(
 }
 
 /**
- * The video of `run`'s post as it is now: the results on in `shown`, the
- * emoji where the runner put them.
+ * The video of `run`'s post as it is now, in `look`: the results on in
+ * `shown`, the emoji where the runner put them.
  */
 export function videoScene(
   run: PostRun,
   shown: readonly PostResult[],
   stickers: readonly Sticker[],
+  look: VideoLook,
 ): VideoScene {
-  const layout = layoutOf(run, shown);
+  const spec = look === "paper" ? PAPER : mapLook(NIGHT);
+  const layout = layoutOf(run, shown, spec, look !== "paper");
+  const language = appLanguage();
   const count = VIDEO_SECONDS * VIDEO_FPS;
   return {
     width: VIDEO_WIDTH,
     height: VIDEO_HEIGHT,
     fps: VIDEO_FPS,
-    paper: color.accent,
-    ink: color.onAccent,
+    look,
+    colors: spec.colors,
+    map: layout.map,
     paths: [layout.heart, layout.track],
     frames: Array.from({ length: count }, (_, i) =>
-      frameAt(i / VIDEO_FPS, run, stickers, layout),
+      frameAt(i / VIDEO_FPS, run, stickers, layout, spec, language),
     ),
   };
 }

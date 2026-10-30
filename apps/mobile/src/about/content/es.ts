@@ -432,7 +432,7 @@ const privacy: AboutDocument = {
             "Strava, como se ha dicho arriba.",
           ],
         },
-        "Una imagen de tu carrera hecha con «Compartir» se crea en el teléfono y solo sale de él por el menú de compartir, hacia donde la envíes.",
+        "Una imagen o un vídeo de tu carrera hechos con «Compartir» se crean en el teléfono y solo salen de él por el menú de compartir, hacia donde los envíes. El vídeo muestra el mapa alrededor de tu carrera, sin sus primeros y últimos 200 metros.",
       ],
     },
     {

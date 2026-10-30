@@ -71,7 +71,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.borderStrong,
   },
+  // On two lines when a label does not fit (TASK-340: «A mano libera»).
   modeText: {
+    textAlign: "center",
     color: color.textMuted,
     fontWeight: fontWeight.semibold,
   },

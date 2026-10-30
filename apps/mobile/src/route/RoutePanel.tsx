@@ -63,7 +63,10 @@ import {
   wordDistanceM,
 } from "./wordInput";
 
-// Translated where shown, with t() (TASK-210).
+// Translated where shown, with t() (TASK-210). «Freehand» first (TASK-340,
+// the user's choice of 2026-10-29): it opens the map to draw on, and the
+// switch never stays on it.
+const FREEHAND = { value: "freehand", label: tLater("Freehand") } as const;
 const DRAW_KINDS = [
   { value: "shape", label: tLater("Shape") },
   { value: "word", label: tLater("Word") },
@@ -119,8 +122,9 @@ type ChoiceProps = {
   /** Whose distances the field offers (TASK-190): a run's unless said. On
    * the water only shapes are drawn (TASK-191): no word, no picture. */
   activity?: Activity;
-  /** Under the switch, off the water: «Draw on the map» (TASK-281). */
-  underKinds?: ReactNode;
+  /** «Freehand», first in the switch off the water (TASK-340): the map of
+   * the start, to draw on (TASK-281). Without it the switch has three. */
+  onFreehand?: () => void;
 };
 
 /**
@@ -150,7 +154,7 @@ export function RouteChoice({
   distanceM,
   onDistanceText,
   activity = "running",
-  underKinds,
+  onFreehand,
 }: ChoiceProps) {
   // The distance is asked in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -171,15 +175,12 @@ export function RouteChoice({
       {shapesOnly ? (
         <Text style={styles.note}>{t("On the water, a shape of the catalogue.")}</Text>
       ) : (
-        <>
-          <Segmented
-            options={translated(DRAW_KINDS)}
-            value={kind}
-            onChange={onKind}
-            style={styles.kinds}
-          />
-          {underKinds}
-        </>
+        <Segmented<ChoiceKind | "freehand">
+          options={translated(onFreehand ? [FREEHAND, ...DRAW_KINDS] : DRAW_KINDS)}
+          value={kind}
+          onChange={(value) => (value === "freehand" ? onFreehand?.() : onKind(value))}
+          style={styles.kinds}
+        />
       )}
       {kind === "shape" || shapesOnly ? (
         <>

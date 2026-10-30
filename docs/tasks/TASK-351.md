@@ -154,10 +154,40 @@ qui con le parole dell'utente.
    200 m: va bene?»):* **«Sì, va bene»**. Vale la proposta: la mappa in
    ogni video, le estremità tagliate di 200 m, la stessa regola per ogni
    corsa.
-6. **Il credito nel video.** Proposta: sì, 0,0065 della larghezza (7 px su
-   1080) in `textFaint`, in fondo; sul 3D anche «Terrain Tiles».
+6. **Il credito nel video.** Proposta: sì, 0,02 della larghezza (22 px su
+   1080, leggibile su un telefono) in `textFaint`, in fondo; sul 3D anche
+   «Terrain Tiles».
    — *Risposta:* accettata su delega dell'utente del 2026-10-29, da
    rivedere.
+
+7. **La riga di privacy estesa al video** (condizione 3 del Coordinatore:
+   con la B il file esportato mostra la mappa). Proposta, al posto della
+   riga di oggi su «A picture of your run made with «Share»…», in
+   `src/about/content/*.ts`:
+
+   - en: «A picture or a video of your run made with «Share» is made on
+     the phone and leaves it only through the share sheet, where you send
+     it. The video shows the map around your run, without its first and
+     last 200 metres.»
+   - it: «Un'immagine o un video della tua corsa creati con «Condividi» si
+     fanno sul telefono ed escono solo dal foglio di condivisione, dove li
+     mandi tu. Il video mostra la mappa attorno alla corsa, senza i primi e
+     gli ultimi 200 metri.»
+   - de: «Ein Bild oder ein Video deines Laufs, das du mit «Teilen» machst,
+     entsteht auf dem Handy und verlässt es nur über das Teilen-Menü,
+     dorthin, wohin du es sendest. Das Video zeigt die Karte rund um deinen
+     Lauf, ohne seine ersten und letzten 200 Meter.»
+   - es: «Una imagen o un vídeo de tu carrera hechos con «Compartir» se
+     crean en el teléfono y solo salen de él por el menú de compartir,
+     hacia donde los envíes. El vídeo muestra el mapa alrededor de tu
+     carrera, sin sus primeros y últimos 200 metros.»
+   - fr: «Une image ou une vidéo de ta course faites avec «Partager» sont
+     créées sur le téléphone et ne le quittent que par le menu de partage,
+     vers l'endroit où tu les envoies. La vidéo montre la carte autour de
+     ta course, sans ses 200 premiers et derniers mètres.»
+
+   TASK-356 tocca gli stessi file: chi arriva secondo riallinea.
+   — *Risposta (2026-10-30):* **sì**: entra con la B (#679).
 
 **La privacy in `about/content`** (controllata il 2026-10-30, condizione
 3): in «Others who receive data» ci sono OpenFreeMap («serves the map:
@@ -328,6 +358,12 @@ Delle parti:
 - [ ] D: 3D fa la mappa inclinata con le colline, la linea in prospettiva;
       la camera gira solo se un fotogramma costa meno di 25 ms sul
       telefono, altrimenti lo zoom lento.
+- [ ] **Prima dell'OTA di produzione della B** (condizione del Coordinatore,
+      2026-10-30): l'utente ha esportato un video vero sull'iPhone, dalla
+      preview, e ha visto la mappa sotto la linea. Il rischio da guardare
+      è un telefono che ricade sul giallo in silenzio.
+- [ ] **Prima dell'OTA di produzione della B**, se non è entrata con la B:
+      la riga di privacy estesa al video, col sì dell'utente (scelta 7).
 - [ ] Test deterministici verdi in locale e in CI: la scena (stile,
       camera, quote, il taglio), la pagina con MapLibre e WebCodecs finti
       (scatto, proiezione, riserva, 360 pezzi), i colori solo dai token.
@@ -362,7 +398,18 @@ apps/mobile/src/share/videoFile.test.ts
 apps/mobile/src/share/RunVideo.tsx
 apps/mobile/src/share/SharePostVideo.test.tsx
 apps/mobile/src/map/mapStyle.ts                   (solo una funzione nuova)
+apps/mobile/src/about/content/en.ts               (la riga di privacy, scelta 7)
+apps/mobile/src/about/content/it.ts
+apps/mobile/src/about/content/de.ts
+apps/mobile/src/about/content/es.ts
+apps/mobile/src/about/content/fr.ts
+site/privacy/index.html                           (rigenerate da make_privacy.mjs)
+site/privacy/it/index.html
+site/privacy/de/index.html
+site/privacy/es/index.html
+site/privacy/fr/index.html
 docs/UI.md
+docs/DECISIONS.md                                 (aggiunta a ADR-0303)
 docs/tasks/TASK-351.md
 docs/STATUS.md
 ```
@@ -415,6 +462,62 @@ docs/STATUS.md
 - La riga di privacy sulle tegole del terreno e sulle foto aeree della
   mappa 3D e satellite di oggi (TASK-264): da proporre a parte.
 - Android (TASK-294).
+
+## La parte B, com'è fatta (2026-10-30)
+
+PR #679, branch `feat/TASK-351-b-video-map` (worktree `TASK-351-b`), da
+`main` 477bdb68 con la #658; testa `a6d8cf1d (il codice; poi la privacy e i documenti)`.
+
+- `videoMap.ts` (nuovo): `NIGHT`, il tono scuro al suo passo più scuro
+  (`paletteOf`), lo stile con `mapStyleFor(NIGHT, language)`, la camera da
+  `lineCamera` del Feed (ADR-0131) sul riquadro del disegno, con il
+  `padding` della mappa che mette il centro in mezzo al riquadro: la
+  linea, calcolata dall'app con `fitLines` come oggi, cade sulla mappa a
+  meno di un pixel (la proiezione dalla pagina con `map.project` arriva
+  con la D, dove l'inclinazione la rende necessaria). 360 × 640 pt a 3×;
+  15 s di attesa al più; il credito.
+- `videoScene.ts`: due look, `paper` (il giallo di oggi, byte per byte
+  tranne il formato degli op) e `night`; i colori per ruolo (`ink`,
+  `muted`, `faint`, `accent`, `onAccent`, `dot`) risolti dai token della
+  palette del look; gli op nuovi `map`, `scrim`, `rect`; le scritte con
+  `weight`, `tracking` e il ruolo del colore; le quote di `font` sulla
+  larghezza del telefono (390 pt): titolo 30 regular −0,6, etichette 11
+  semibold +1,2 in maiuscolo nella lingua dell'app, numeri 44 light −1; il
+  credito a 0,02 della larghezza; nessuna mappa per una corsa troppo corta
+  da disegnare (resta scuro, senza luogo).
+- `videoPage.ts`: MapLibre dal CDN con l'indirizzo e l'impronta SRI di
+  `mapPage.ts` (l'unico `src=` della pagina); `prepareMap` fa la mappa
+  (`preserveDrawingBuffer`, `pixelRatio` 3, `setPadding` + `jumpTo`),
+  aspetta `idle` al più `waitMs`, copia il canvas in un'immagine e lascia
+  andare la mappa; un errore di tegola o il tempo scaduto rispondono
+  `map ok:false`; ogni 4 s un `waiting`, così il silenzio di 20 s
+  dell'app non scatta. Il velo è un gradiente con la curva di
+  `tools/ui_scrim.py` (smoothstep, 82 %); le lettere spaziate con
+  `letterSpacing` del canvas dove c'è (iOS 17), altrimenti una per una.
+  Il canvas non ha le cifre tabulari: i numeri sono allineati a sinistra,
+  e il tremolio mentre salgono è piccolo.
+- `RunVideo.tsx`: due passi, `prepareMap` poi `make` con la scena, o con
+  la scena di riserva (`fallback`) quando la mappa non arriva; `onTimes`
+  dà i tempi della pagina a chi lo monta. Mentre le tegole arrivano il
+  pulsante resta su «Making the video… 0%»: lo stato di attesa che c'è
+  già, nessun testo nuovo (condizione del Coordinatore).
+- `mapStyle.ts`: `mapStyleFor(palette, language)`; `darkMapStyle` tiene
+  firma e risultato e delega (il test di uguaglianza lo controlla).
+- Test: 98 nelle suite toccate (scena, mappa, pagina con MapLibre e
+  WebCodecs finti, flusso in due passi, riserva gialla); la suite intera
+  verde in locale, tranne due file che cercano moduli nativi assenti dal
+  `node_modules` del checkout principale (in CI ci sono).
+- Impronta iOS su copia pulita con `npm ci`: `83793e26…` invariata, e
+  uguale a `main` 477bdb68 misurato nello stesso modo.
+- Provata in Expo Go (simulatore iPhone 17, iOS 27, il WebView nascosto
+  com'è montato): 12 s, 360 fotogrammi, 1080 × 1920, 4,6 MB (il giallo:
+  1,9), il foglio di condivisione con «Save Video». Fotogrammi in
+  `out/TASK-351-b/frames/` sul Mac.
+- Tempo di export (condizione 5), dal montaggio all'ultimo fotogramma,
+  cache calda, tre giri: Night 5,4–8,3 s (tegole 0,55 s, scatto 10 ms,
+  codifica 3,1–5,0 s) contro giallo 4,1–5,9 s (codifica 2,9–4,0 s):
+  +1,3–2,4 s. A tegole fredde +4–10 s (dal bench): lì può raddoppiare, e
+  si vede solo lo stato di attesa.
 
 ## Dove si è (2026-10-30, sera)
 

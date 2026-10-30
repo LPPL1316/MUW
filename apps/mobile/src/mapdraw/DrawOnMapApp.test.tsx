@@ -10,10 +10,9 @@ import { requestRouteOnPhoneFirst } from "../engine/onPhone";
 import { RouteChoice } from "../route/RoutePanel";
 import { checkWord } from "../route/wordInput";
 import { saveUnitsChoice } from "../units/units";
-import { MapDrawButton } from "./MapDrawButton";
 
-// «Draw on the map» in the app itself (TASK-281): the button under the
-// switch of «Draw», the figure on the map, its route shown as one of
+// «Draw on the map» in the app itself (TASK-281): «Freehand», first in the
+// switch of «Draw» (TASK-340), the figure on the map, its route shown as one of
 // «Draw», and «←» back to the figure as it was. The setup is
 // `Profile.test.tsx`'s: no GPS, no account; the route comes from a stand-in.
 
@@ -90,7 +89,7 @@ test("the figure's route opens as one of «Draw», and «←» comes back to the
   // Where the map is: the figure goes there.
   await pagePosts('{"type":"centre","lngLat":[11.13,46.07]}');
 
-  await fireEvent.press(screen.getByText("Draw on the map"));
+  await fireEvent.press(screen.getByText("Freehand"));
   expect(screen.getByText("Undo")).toBeOnTheScreen();
   // Framed as it opens, with no figure yet.
   expect(sent("setCanvas").at(-1)).toMatchObject({
@@ -138,19 +137,18 @@ test("the figure's route opens as one of «Draw», and «←» comes back to the
   // From the figure, «←» goes back to «Draw».
   await fireEvent.press(screen.getByLabelText("Back"));
   await fireEvent.press(screen.getByLabelText("Back"));
-  expect(screen.getByText("Draw on the map")).toBeOnTheScreen();
+  expect(screen.getByText("Freehand")).toBeOnTheScreen();
 });
 
 test("drawing by hand is on the map only: an open line stays open, and its route is a «Drawing» (TASK-331)", async () => {
   await render(<App />);
   await pagePosts('{"type":"ready"}');
   await pagePosts('{"type":"centre","lngLat":[11.13,46.07]}');
-  // «Draw» has no board of its own, and no «Edit the drawing» for an emoji.
-  expect(screen.queryByText("Freehand")).toBeNull();
+  // «Draw» has no board of its own, and no «Edit the drawing» (TASK-340).
   await fireEvent.press(screen.getByLabelText("heart"));
   expect(screen.queryByText("Edit the drawing")).toBeNull();
 
-  await fireEvent.press(screen.getByText("Draw on the map"));
+  await fireEvent.press(screen.getByText("Freehand"));
   expect(
     screen.getByText(
       "Draw with one finger. End where you started to close it. Two fingers move the map.",
@@ -190,7 +188,7 @@ test("the tools under the map: «Line» taps a line, «Clear all» asks first, �
   await render(<App />);
   await pagePosts('{"type":"ready"}');
   await pagePosts('{"type":"centre","lngLat":[11.13,46.07]}');
-  await fireEvent.press(screen.getByText("Draw on the map"));
+  await fireEvent.press(screen.getByText("Freehand"));
   for (const label of ["Draw", "Line", "Erase", "Move", "Undo", "Redo", "Clear all"]) {
     expect(screen.getByRole("button", { name: label })).toBeOnTheScreen();
   }
@@ -227,7 +225,7 @@ test("the tools under the map: «Line» taps a line, «Clear all» asks first, �
   alert.mockRestore();
 });
 
-test("on the water «Draw» has no «Draw on the map»", async () => {
+test("«Freehand» comes first and opens the map; on the water there is none", async () => {
   const props = {
     kind: "shape" as const,
     onKind: jest.fn(),
@@ -246,10 +244,23 @@ test("on the water «Draw» has no «Draw on the map»", async () => {
     image: { status: "none" as const },
     onChooseImage: jest.fn(),
     onDistanceText: jest.fn(),
-    underKinds: <MapDrawButton onPress={jest.fn()} />,
+    onFreehand: jest.fn(),
   };
   const { rerender } = await render(<RouteChoice {...props} activity="paddling" />);
-  expect(screen.queryByText("Draw on the map")).toBeNull();
+  expect(screen.queryByText("Freehand")).toBeNull();
   await rerender(<RouteChoice {...props} activity="running" />);
-  expect(screen.getByText("Draw on the map")).toBeOnTheScreen();
+  expect(
+    screen
+      .getAllByText(/^(Freehand|Shape|Word|Image)$/)
+      .map((text) => text.props.children as string),
+  ).toEqual(["Freehand", "Shape", "Word", "Image"]);
+  // A label on two lines, as «A mano libera» is, stays in the middle.
+  expect(screen.getByText("Freehand")).toHaveStyle({ textAlign: "center" });
+
+  // It opens the map; the switch stays on what was chosen.
+  await fireEvent.press(screen.getByRole("button", { name: "Freehand" }));
+  expect(props.onFreehand).toHaveBeenCalledTimes(1);
+  expect(props.onKind).not.toHaveBeenCalled();
+  expect(screen.getByRole("button", { name: "Shape" })).toBeSelected();
+  expect(screen.getByRole("button", { name: "Freehand" })).not.toBeSelected();
 });

@@ -433,7 +433,7 @@ const privacy: AboutDocument = {
             "Strava, as said above.",
           ],
         },
-        "A picture of your run made with «Share» is made on the phone and leaves it only through the share sheet, where you send it.",
+        "A picture or a video of your run made with «Share» is made on the phone and leaves it only through the share sheet, where you send it. The video shows the map around your run, without its first and last 200 metres.",
       ],
     },
     {

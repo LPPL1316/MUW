@@ -1,5 +1,5 @@
 import type { Language } from "../i18n/languages";
-import { color } from "../theme/tokens";
+import { color, type Palette } from "../theme/tokens";
 
 /**
  * A dark MapLibre style for Sgrava, written here instead of fetched.
@@ -65,9 +65,13 @@ export function placeName(language: Language) {
   return ["coalesce", ["get", `name:${language}`], ["get", "name"]];
 }
 
-/** The style with the places named in `language`. */
-export const darkMapStyle = (language: Language) =>
-  ({
+/**
+ * The style with the places named in `language`, in the colours of
+ * `palette`: the app's own palette for the map on screen, another tone's for
+ * a run's video (TASK-351), which is for whoever watches it.
+ */
+export function mapStyleFor(palette: Palette, language: Language) {
+  return {
     version: 8,
     name: "MuW Dark",
     glyphs: GLYPHS_URL,
@@ -82,7 +86,7 @@ export const darkMapStyle = (language: Language) =>
       {
         id: "background",
         type: "background",
-        paint: { "background-color": color.map.background },
+        paint: { "background-color": palette.map.background },
       },
       {
         id: "landuse-built-up",
@@ -96,7 +100,7 @@ export const darkMapStyle = (language: Language) =>
           true,
           false,
         ],
-        paint: { "fill-color": color.map.builtUp },
+        paint: { "fill-color": palette.map.builtUp },
       },
       {
         id: "landcover-green",
@@ -104,21 +108,21 @@ export const darkMapStyle = (language: Language) =>
         source: "openmaptiles",
         "source-layer": "landcover",
         filter: ["match", ["get", "class"], ["wood", "grass", "farmland"], true, false],
-        paint: { "fill-color": color.map.green },
+        paint: { "fill-color": palette.map.green },
       },
       {
         id: "park",
         type: "fill",
         source: "openmaptiles",
         "source-layer": "park",
-        paint: { "fill-color": color.map.green },
+        paint: { "fill-color": palette.map.green },
       },
       {
         id: "water",
         type: "fill",
         source: "openmaptiles",
         "source-layer": "water",
-        paint: { "fill-color": color.map.water },
+        paint: { "fill-color": palette.map.water },
       },
       {
         id: "waterway",
@@ -127,7 +131,7 @@ export const darkMapStyle = (language: Language) =>
         "source-layer": "waterway",
         minzoom: 9,
         paint: {
-          "line-color": color.map.waterLine,
+          "line-color": palette.map.waterLine,
           "line-width": roadWidth(0.4, 1, 2.5),
         },
       },
@@ -137,7 +141,7 @@ export const darkMapStyle = (language: Language) =>
         source: "openmaptiles",
         "source-layer": "building",
         minzoom: 13,
-        paint: { "fill-color": color.map.building, "fill-opacity": 0.85 },
+        paint: { "fill-color": palette.map.building, "fill-opacity": 0.85 },
       },
       // Roads, faintest first: the later a layer is listed, the higher it draws.
       {
@@ -149,7 +153,7 @@ export const darkMapStyle = (language: Language) =>
         filter: roadFilter(FAINT_ROADS),
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": color.map.roadFaint,
+          "line-color": palette.map.roadFaint,
           "line-width": roadWidth(0.3, 0.8, 3),
         },
       },
@@ -162,7 +166,7 @@ export const darkMapStyle = (language: Language) =>
         filter: roadFilter(MINOR_ROADS),
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": color.map.roadMinor,
+          "line-color": palette.map.roadMinor,
           "line-width": roadWidth(0.4, 1.2, 5),
         },
       },
@@ -174,7 +178,7 @@ export const darkMapStyle = (language: Language) =>
         filter: roadFilter(MEDIUM_ROADS),
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": color.map.roadMedium,
+          "line-color": palette.map.roadMedium,
           "line-width": roadWidth(0.7, 2, 7),
         },
       },
@@ -186,7 +190,7 @@ export const darkMapStyle = (language: Language) =>
         filter: roadFilter(MAJOR_ROADS),
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": color.map.roadMajor,
+          "line-color": palette.map.roadMajor,
           "line-width": roadWidth(1, 3, 10),
         },
       },
@@ -204,10 +208,14 @@ export const darkMapStyle = (language: Language) =>
           "text-max-width": 8,
         },
         paint: {
-          "text-color": color.map.label,
-          "text-halo-color": color.map.labelHalo,
+          "text-color": palette.map.label,
+          "text-halo-color": palette.map.labelHalo,
           "text-halo-width": 1.2,
         },
       },
     ],
-  }) as const;
+  } as const;
+}
+
+/** The style with the places named in `language`, in the tone the app is shown in. */
+export const darkMapStyle = (language: Language) => mapStyleFor(color, language);

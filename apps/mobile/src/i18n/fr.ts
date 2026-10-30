@@ -1265,8 +1265,10 @@ export const FR: Table = {
   Trophy: "Trophée",
   Bone: "Os",
 
-  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
-  "Draw on the map": "Dessiner sur la carte",
+  // src/route/RoutePanel.tsx (TASK-340: first in «Draw», it opens the map
+  // to draw on)
+  Freehand: "À main levée",
+  // src/mapdraw/DrawOnMap.tsx (TASK-281)
   Move: "Déplacer",
   "Draw with one finger. End where you started to close it. Two fingers move the map.":
     "Dessine avec un doigt. Termine là où tu as commencé pour la fermer. Deux doigts déplacent la carte.",
@@ -1563,9 +1565,9 @@ export const FR: Table = {
   "Write a message…": "Écris un message…",
   "Delete this message for both of you?": "Supprimer ce message pour vous deux ?",
   "Report this message": "Signaler ce message",
-  // src/route/EditDrawingButton.tsx, mapdraw/DrawOnMap.tsx, RoutePanel.tsx,
-  // favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure drawn by hand
-  // on the map)
+  // src/explore/ExploredCard.tsx, social/DrawingCard.tsx, mapdraw/DrawOnMap.tsx,
+  // RoutePanel.tsx, favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure
+  // drawn by hand on the map)
   "Edit the drawing": "Modifier le dessin",
   Erase: "Effacer",
   Drawing: "Dessin",

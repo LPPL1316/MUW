@@ -430,7 +430,7 @@ const privacy: AboutDocument = {
             "Strava, come detto sopra.",
           ],
         },
-        "Un'immagine della tua corsa creata con «Condividi» si fa sul telefono ed esce solo dal foglio di condivisione, dove la mandi tu.",
+        "Un'immagine o un video della tua corsa creati con «Condividi» si fanno sul telefono ed escono solo dal foglio di condivisione, dove li mandi tu. Il video mostra la mappa attorno alla corsa, senza i primi e gli ultimi 200 metri.",
       ],
     },
     {
