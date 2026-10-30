@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import {
@@ -18,6 +18,8 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
+import { Tap } from "../ui/Tap";
 
 /**
  * «Language» in «Settings» (TASK-210, ADR-0172): the language the app is
@@ -38,8 +40,8 @@ export function LanguageSetting() {
   };
   return (
     <View style={styles.menu}>
-      <Pressable
-        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      <Tap
+        style={styles.row}
         onPress={() => setOpen(!open)}
         accessibilityRole="button"
         // One name for the row: the emoji is not read on its own.
@@ -49,7 +51,7 @@ export function LanguageSetting() {
         <Text style={styles.emoji}>🌐</Text>
         <Text style={styles.rowText}>{t("Language")}</Text>
         <Text style={styles.value}>{shown}</Text>
-      </Pressable>
+      </Tap>
       {open && (
         <View accessibilityRole="radiogroup">
           <Choice
@@ -86,9 +88,9 @@ type ChoiceProps = {
 function Choice({ name, detail, speech, chosen, onPress }: ChoiceProps) {
   return (
     <View>
-      <View style={styles.divider} />
-      <Pressable
-        style={({ pressed }) => [styles.row, styles.choice, pressed && styles.pressed]}
+      <Hairline />
+      <Tap
+        style={[styles.row, styles.choice]}
         onPress={onPress}
         accessibilityRole="radio"
         accessibilityLabel={detail === undefined ? name : `${name}, ${detail}`}
@@ -98,7 +100,7 @@ function Choice({ name, detail, speech, chosen, onPress }: ChoiceProps) {
         <Text style={styles.rowText}>{name}</Text>
         {detail !== undefined && <Text style={styles.value}>{detail}</Text>}
         {chosen && <Text style={styles.check}>✓</Text>}
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -122,14 +124,6 @@ const styles = StyleSheet.create({
   // The choices start where the row's name does, under it.
   choice: {
     paddingLeft: space.md + space.xl + space.md,
-  },
-  pressed: {
-    opacity: 0.6,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: space.md,
-    backgroundColor: color.border,
   },
   emoji: {
     fontSize: fontSize.input + space.xs,

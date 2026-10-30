@@ -53,9 +53,6 @@ export const contactStyles = StyleSheet.create({
     gap: space.md,
     paddingHorizontal: space.md,
   },
-  pressed: {
-    opacity: 0.6,
-  },
   emoji: {
     fontSize: fontSize.input + space.xs,
   },
@@ -68,11 +65,6 @@ export const contactStyles = StyleSheet.create({
   value: {
     color: color.textMuted,
     fontSize: fontSize.body,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: space.md,
-    backgroundColor: color.border,
   },
   form: {
     gap: space.md,

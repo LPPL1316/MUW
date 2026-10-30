@@ -10,6 +10,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
 import { loadSport, saveSport, type Sport, SPORTS, type SportOption } from "./sport";
 
 type Props = {
@@ -34,7 +35,7 @@ export function SportSetting({ sports = SPORTS }: Props) {
       <View style={styles.menu} accessibilityRole="radiogroup">
         {sports.map((option, at) => (
           <View key={option.id}>
-            {at > 0 && <View style={styles.divider} />}
+            {at > 0 && <Hairline />}
             {option.ready ? (
               <Pressable
                 style={styles.row}
@@ -92,11 +93,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: space.md,
     paddingHorizontal: space.md,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: space.md,
-    backgroundColor: color.border,
   },
   emoji: {
     fontSize: fontSize.input + space.xs,

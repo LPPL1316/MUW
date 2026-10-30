@@ -10,6 +10,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import type { LatLon } from "@shaperoute/shared-types";
 
 import type { Place } from "./photon";
@@ -182,14 +183,14 @@ export function PlaceSearch({
       {places.length > 0 && (
         <View>
           {places.map((place) => (
-            <Pressable
+            <Tap
               key={place.label}
-              style={({ pressed }) => [styles.place, pressed && styles.placePressed]}
+              style={styles.place}
               accessibilityRole="button"
               onPress={() => choose(place)}
             >
               <Text style={styles.placeText}>{place.label}</Text>
-            </Pressable>
+            </Tap>
           ))}
           <Text style={styles.credit}>{t("© OpenStreetMap contributors")}</Text>
         </View>
@@ -249,10 +250,7 @@ const styles = StyleSheet.create({
     minHeight: MIN_TAP_SIZE,
     justifyContent: "center",
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.border,
-  },
-  placePressed: {
-    backgroundColor: color.surfaceRaised,
+    borderBottomColor: color.hairline,
   },
   placeText: {
     color: color.text,

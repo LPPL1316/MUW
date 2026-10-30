@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { t, tLater } from "../i18n";
 import {
@@ -9,6 +9,8 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
+import { Tap } from "../ui/Tap";
 import type { AboutId } from "./documents";
 
 /** The texts of «ABOUT», by the name of their row; in English, shown with
@@ -39,9 +41,9 @@ export function AboutRows({ onOpen }: Props) {
     <View style={styles.menu}>
       {ABOUT_ROWS.map((row, at) => (
         <View key={row.id}>
-          {at > 0 && <View style={styles.divider} />}
-          <Pressable
-            style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+          {at > 0 && <Hairline />}
+          <Tap
+            style={styles.row}
             onPress={() => onOpen(row.id)}
             accessibilityRole="button"
             // One name for the row: the emoji and the arrow are not read.
@@ -50,7 +52,7 @@ export function AboutRows({ onOpen }: Props) {
             <Text style={styles.emoji}>{row.emoji}</Text>
             <Text style={styles.rowText}>{t(row.name)}</Text>
             <Text style={styles.arrow}>›</Text>
-          </Pressable>
+          </Tap>
         </View>
       ))}
     </View>
@@ -72,14 +74,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: space.md,
     paddingHorizontal: space.md,
-  },
-  pressed: {
-    opacity: 0.6,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: space.md,
-    backgroundColor: color.border,
   },
   emoji: {
     fontSize: fontSize.input + space.xs,

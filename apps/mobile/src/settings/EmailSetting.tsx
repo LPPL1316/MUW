@@ -4,6 +4,7 @@ import { Pressable, Text, type TextInput, View } from "react-native";
 
 import type { Account } from "../account/useAccount";
 import { t } from "../i18n";
+import { Tap } from "../ui/Tap";
 import { ContactField, contactStyles as styles } from "./ContactField";
 import { checkEmailChange } from "./contactFields";
 import { EmailConfirmation } from "./EmailConfirmation";
@@ -71,8 +72,8 @@ export function EmailSetting({ user, account }: Props) {
 
   return (
     <View style={styles.menu}>
-      <Pressable
-        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      <Tap
+        style={styles.row}
         onPress={() => (open ? close() : setOpen(true))}
         disabled={saving}
         accessibilityRole="button"
@@ -82,7 +83,7 @@ export function EmailSetting({ user, account }: Props) {
       >
         <Text style={styles.emoji}>✉️</Text>
         <Text style={styles.rowText}>{t("Change email")}</Text>
-      </Pressable>
+      </Tap>
       {account.email !== undefined && (
         <EmailConfirmation
           user={user}

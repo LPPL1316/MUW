@@ -25,6 +25,8 @@ import {
   space,
   tone as shown,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
+import { Tap } from "../ui/Tap";
 
 // In English; shown with t() in the app's language (TASK-210).
 const NAMES: Readonly<Record<Tone, string>> = {
@@ -70,8 +72,8 @@ export function ToneSetting() {
 
   return (
     <View style={styles.menu}>
-      <Pressable
-        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      <Tap
+        style={styles.row}
         onPress={toggle}
         accessibilityRole="button"
         // One name for the row: the emoji is not read on its own.
@@ -81,7 +83,7 @@ export function ToneSetting() {
         <Text style={styles.emoji}>🌗</Text>
         <Text style={styles.rowText}>{t("Tone")}</Text>
         <Text style={styles.value}>{t(NAMES[shown.tone])}</Text>
-      </Pressable>
+      </Tap>
       {open && (
         <View>
           <View accessibilityRole="radiogroup">
@@ -94,7 +96,7 @@ export function ToneSetting() {
               />
             ))}
           </View>
-          <View style={styles.divider} />
+          <Hairline />
           <View style={styles.inside}>
             <Text style={styles.label}>{t("Brightness")}</Text>
             <View style={styles.steps} accessibilityRole="radiogroup">
@@ -123,13 +125,9 @@ export function ToneSetting() {
             <Preview choice={draft} />
             {changed && (
               <View style={styles.applyBox}>
-                <Pressable
-                  style={({ pressed }) => [styles.apply, pressed && styles.pressed]}
-                  onPress={apply}
-                  accessibilityRole="button"
-                >
+                <Tap style={styles.apply} onPress={apply} accessibilityRole="button">
                   <Text style={styles.applyText}>{t("Apply")}</Text>
-                </Pressable>
+                </Tap>
                 <Text style={styles.note}>{t("MuW opens again in the new tone.")}</Text>
               </View>
             )}
@@ -216,9 +214,9 @@ type ChoiceProps = {
 function Choice({ name, chosen, onPress }: ChoiceProps) {
   return (
     <View>
-      <View style={styles.divider} />
-      <Pressable
-        style={({ pressed }) => [styles.row, styles.choice, pressed && styles.pressed]}
+      <Hairline />
+      <Tap
+        style={[styles.row, styles.choice]}
         onPress={onPress}
         accessibilityRole="radio"
         accessibilityLabel={name}
@@ -226,7 +224,7 @@ function Choice({ name, chosen, onPress }: ChoiceProps) {
       >
         <Text style={styles.rowText}>{name}</Text>
         {chosen && <Text style={styles.check}>✓</Text>}
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -254,14 +252,6 @@ const styles = StyleSheet.create({
   // The choices start where the row's name does, under it.
   choice: {
     paddingLeft: space.md + space.xl + space.md,
-  },
-  pressed: {
-    opacity: 0.6,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: space.md,
-    backgroundColor: color.border,
   },
   emoji: {
     fontSize: fontSize.input + space.xs,

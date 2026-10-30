@@ -10,6 +10,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
 import { ConnectWithStrava, StravaLine } from "./StravaParts";
 import { useStrava } from "./useStrava";
 
@@ -46,7 +47,7 @@ export function StravaSetting() {
                 : t("Connected as {athlete}", { athlete: status.athlete })}
             </Text>
           </View>
-          <View style={styles.divider} />
+          <Hairline />
           {confirming ? (
             <View style={styles.confirm}>
               <Text style={styles.confirmText}>
@@ -126,11 +127,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: space.md,
     paddingHorizontal: space.md,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: space.md,
-    backgroundColor: color.border,
   },
   rowText: {
     flex: 1,
