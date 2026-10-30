@@ -235,9 +235,9 @@ Parte C2 (divisioni e tocco, senza testi):
       `UnitsSettingLook.test.tsx` (una hairline sopra ogni scelta, il tocco
       in `motion.pressMs`); `GuideRowTap.test.tsx`; il `ref` in
       `Tap.test.tsx`.
-- [ ] Nessun testo nuovo, nessuna dipendenza, niente di nativo: impronta
+- [x] Nessun testo nuovo, nessuna dipendenza, niente di nativo: impronta
       iOS `83793e26` su una copia pulita della testa (`npm ci`).
-- [ ] `tsc`, Prettier, `expo lint`; la suite intera verde nella copia
+- [x] `tsc`, Prettier, `expo lint`; la suite intera verde nella copia
       pulita; prima e dopo di una pagina di «Settings» nei due toni in
       `tasks/TASK-339/c2-*.jpg`.
 
