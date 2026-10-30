@@ -352,6 +352,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Prossimo**: C2 dopo B in `main`, cioè `Activity`
   con `swimming` (tocca i file di TASK-321: via del Coordinatore),
   il collegamento in `App.tsx`, `ready: true` col server.
+  **C2 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c2-swim-on`, partito da C1): `Activity` con `swimming`
+  (con il sì dell'utente le righe del nuoto in Apple Salute e Health
+  Connect di TASK-321), le distanze a mezzo km da 1 km, «Bigger shape» e
+  «Smaller shape» coi giri sul risultato, l'avviso del nuoto a ogni
+  «Start», `lap_m` nella risposta (aggiunto a B). Testi e traduzioni
+  approvati. Riga ancora «Soon». **Prossimo**: B in `main` e sul server,
+  C4 («Explore» a nuoto), poi `ready: true`; D (la corsa a nuoto).
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

@@ -7,6 +7,7 @@ import {
 } from "@shaperoute/shared-types";
 
 import { type AnyRouteRequest, isImageRequest } from "../api/routes";
+import { isOnWater } from "../swim/water";
 import { APP_DISTANCE_LIMITS_KM } from "./distance";
 import { checkWord, wordDistanceM } from "./wordInput";
 
@@ -91,7 +92,8 @@ export function drawsAgain(
     return true;
   }
   // Without a distance, the distance is not checked: «Draw» chooses it.
-  return activity !== "paddling" && checkWord(again.word, null, activity).ok;
+  // No word on the water, paddled or swum (TASK-323).
+  return !isOnWater(activity) && checkWord(again.word, null, activity).ok;
 }
 
 /**

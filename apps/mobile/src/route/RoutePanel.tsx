@@ -23,6 +23,8 @@ import { drawnOf, sendSignal } from "../api/signals";
 import { decimal, t, tLater, tPlural } from "../i18n";
 import { isDrawnOutline } from "../mapdraw/canvasRequest";
 import { Segmented } from "../screens/Segmented";
+import { SwimResult } from "../swim/SwimResult";
+import { isOnWater } from "../swim/water";
 import { milesAtLeast, tenthsToM, unitsNumber } from "../units/distanceInput";
 import { distanceLabel, inUnits, METRES_PER_MILE } from "../units/format";
 import { appUnits, type Units } from "../units/units";
@@ -165,6 +167,10 @@ export function RouteChoice({
     }
   }, [units, distanceText, activity, onDistanceText]);
   const shapesOnly = activity === "paddling";
+  // A swim draws a shape or a drawing, never a word (TASK-323): a word
+  // chosen before «Open water swim» waits for another sport, as App.tsx asks.
+  const swim = activity === "swimming";
+  const shownKind = swim && kind === "word" ? "shape" : kind;
   return (
     <View style={styles.panel}>
       <Text style={styles.label}>{t("DRAW")}</Text>
@@ -173,15 +179,19 @@ export function RouteChoice({
       ) : (
         <>
           <Segmented
-            options={translated(DRAW_KINDS)}
-            value={kind}
+            options={translated(
+              swim
+                ? DRAW_KINDS.filter((option) => option.value !== "word")
+                : DRAW_KINDS,
+            )}
+            value={shownKind}
             onChange={onKind}
             style={styles.kinds}
           />
           {underKinds}
         </>
       )}
-      {kind === "shape" || shapesOnly ? (
+      {shownKind === "shape" || shapesOnly ? (
         <>
           <ShapeTiles chosen={shape} onPick={onShapeText} />
           <TextInput
@@ -200,7 +210,7 @@ export function RouteChoice({
             accessibilityLabel={t("Shape")}
           />
           <ShapeNote text={shapeText} shape={shape} reading={reading} />
-          {onPenUp && !shapesOnly && offersPenUp(shape) && (
+          {onPenUp && !isOnWater(activity) && offersPenUp(shape) && (
             <PenSwitch
               label={t("Lift the pen between parts")}
               on={penUp}
@@ -208,7 +218,7 @@ export function RouteChoice({
             />
           )}
         </>
-      ) : kind === "image" ? (
+      ) : shownKind === "image" ? (
         <ImageChoice state={image} onChoose={onChooseImage} />
       ) : (
         <>
@@ -342,6 +352,9 @@ type OutcomeProps = {
    * under a word in one line that did not come out (penUpHint.ts). Without
    * it no line is offered. */
   onLiftPen?: () => void;
+  /** A swim drawn again in `laps` laps (TASK-323 C2): «Bigger shape» and
+   * «Smaller shape» under it. Without it no button is offered. */
+  onSwimLaps?: (laps: number) => void;
 };
 
 /** Under the map: the wait, the route, or why there is none. */
@@ -362,6 +375,7 @@ export function RouteOutcome({
   onRetry,
   figures,
   onLiftPen,
+  onSwimLaps,
 }: OutcomeProps) {
   // The distances are written in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -449,6 +463,9 @@ export function RouteOutcome({
               units={units}
             />
           </View>
+          {view.request.activity === "swimming" && (
+            <SwimResult result={view.result} onLaps={onSwimLaps} />
+          )}
           <RouteTiles choices={choices} chosen={chosen} onChoose={onChoose} />
           {better !== null && (
             <BetterDistance
@@ -614,41 +631,52 @@ export function PenSplit({
                 letters: drawn,
                 between,
               })
-          : activity === "paddling"
-            ? t("{drawn} mi of drawing + {between} mi paddling between the parts", {
+          : activity === "swimming"
+            ? t("{drawn} mi of drawing + {between} mi swimming between the parts", {
                 drawn,
                 between,
               })
-            : activity === "cycling"
-              ? t("{drawn} mi of drawing + {between} mi riding between the parts", {
+            : activity === "paddling"
+              ? t("{drawn} mi of drawing + {between} mi paddling between the parts", {
                   drawn,
                   between,
                 })
-              : t("{drawn} mi of drawing + {between} mi walking between the parts", {
-                  drawn,
-                  between,
-                })}
+              : activity === "cycling"
+                ? t("{drawn} mi of drawing + {between} mi riding between the parts", {
+                    drawn,
+                    between,
+                  })
+                : t("{drawn} mi of drawing + {between} mi walking between the parts", {
+                    drawn,
+                    between,
+                  })}
       </Text>
     );
   }
   if (result.word === null) {
     return (
       <Text style={styles.target}>
-        {activity === "paddling"
-          ? // On the water (TASK-226): the whole is the distance asked.
-            t("{drawn} km of drawing + {between} km paddling between the parts", {
+        {activity === "swimming"
+          ? // A swim (TASK-323): swum between the parts, lap after lap.
+            t("{drawn} km of drawing + {between} km swimming between the parts", {
               drawn,
               between,
             })
-          : activity === "cycling"
-            ? t("{drawn} km of drawing + {between} km riding between the parts", {
+          : activity === "paddling"
+            ? // On the water (TASK-226): the whole is the distance asked.
+              t("{drawn} km of drawing + {between} km paddling between the parts", {
                 drawn,
                 between,
               })
-            : t("{drawn} km of drawing + {between} km walking between the parts", {
-                drawn,
-                between,
-              })}
+            : activity === "cycling"
+              ? t("{drawn} km of drawing + {between} km riding between the parts", {
+                  drawn,
+                  between,
+                })
+              : t("{drawn} km of drawing + {between} km walking between the parts", {
+                  drawn,
+                  between,
+                })}
       </Text>
     );
   }
@@ -793,9 +821,10 @@ function nameOf(request: AnyRouteRequest): string {
   return routeName(request);
 }
 
-/** A route on the water (TASK-191): it follows no road, and has no turns. */
+/** A route on the water (TASK-191), a swim too (TASK-323): it follows no
+ * road, and has no turns. */
 function onWater(request: AnyRouteRequest): boolean {
-  return request.activity === "paddling";
+  return isOnWater(request.activity);
 }
 
 /** The line under the route's distance: what it is, what it runs on, and

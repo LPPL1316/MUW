@@ -151,6 +151,9 @@ import {
 } from "./src/screens/ProfileLayer";
 import { StretchReminder } from "./src/screens/StretchReminder";
 import { StretchScreen } from "./src/stretch/StretchScreen";
+import { useSwimNotice } from "./src/swim/safetyNotice";
+import { SwimNotice } from "./src/swim/SwimNotice";
+import { isOnWater } from "./src/swim/water";
 import { PaddleExplore } from "./src/paddle/PaddleExplore";
 import { MoveShape } from "./src/paddle/MoveShape";
 import { PaddleNotice } from "./src/paddle/PaddleNotice";
@@ -534,8 +537,12 @@ function MuW() {
   // with the details drawn on it (TASK-079); a figure drawn by hand is
   // asked from the map (TASK-331).
   // On the water only a shape of the catalogue is drawn (TASK-191): a word or
-  // a picture chosen before «Paddle» waits for another sport.
-  const drawKind: ChoiceKind = sportActivity === "paddling" ? "shape" : kind;
+  // a picture chosen before «Paddle» waits for another sport. A swim draws a
+  // shape or a drawing, a word chosen before it waits too (TASK-323).
+  const drawKind: ChoiceKind =
+    sportActivity === "paddling" || (sportActivity === "swimming" && kind === "word")
+      ? "shape"
+      : kind;
   const drawn:
     | { shape: Shape }
     | { shape: PenUpShape; pen_up: true }
@@ -649,6 +656,8 @@ function MuW() {
   const startDirections = useStartDirections(API_URL);
   // Start on the water: the safety notice first, the first time (TASK-191).
   const paddleNotice = usePaddleNotice();
+  // A swim has its own notice, read once on this phone (TASK-323 C).
+  const swimNotice = useSwimNotice();
   // A run opened again with the app follows the route of its file (TASK-272).
   const [exploreRun, setExploreRun] = useState<ExploreRun | null>(() =>
     reopened !== null && !isFreeRun(reopened) ? reopenedRoute(reopened) : null,
@@ -765,6 +774,7 @@ function MuW() {
       !mayWorkAhead ||
       exploreSeen ||
       sport === "paddle" ||
+      sport === "swim" ||
       API_URL === null ||
       aheadLat === undefined ||
       aheadLon === undefined
@@ -954,8 +964,8 @@ function MuW() {
     // Turned on the map, it stays turned while it is run (TASK-232).
     const turn =
       route.rotation_deg !== undefined ? { rotation_deg: route.rotation_deg } : {};
-    if (activity === "paddling") {
-      paddleNotice.ask(() => {
+    if (isOnWater(activity)) {
+      (activity === "swimming" ? swimNotice : paddleNotice).ask(() => {
         startDirections.reset();
         setExploreRun({
           points: route.points,
@@ -1014,6 +1024,10 @@ function MuW() {
     };
     if (route.activity === "paddling") {
       paddleNotice.ask(run);
+      return;
+    }
+    if (route.activity === "swimming") {
+      swimNotice.ask(run);
       return;
     }
     run();
@@ -1598,9 +1612,24 @@ function MuW() {
                 draw(withPenUp(view.request));
               }
             }}
+            onSwimLaps={(laps) => {
+              // «Bigger shape», «Smaller shape» (TASK-323 C2): the same swim
+              // in a lap fewer or more. Its request stays the one on screen
+              // (sameRequest leaves the laps out, as `near`), and «Draw
+              // route» shows it again; another shape, distance or start asks
+              // the engine's laps.
+              if (view.status === "done") {
+                draw({ ...view.request, laps });
+              }
+            }}
             onStart={() => {
               if (view.status === "done" && view.request.activity === "paddling") {
                 paddleNotice.ask(() => setScreen("navigate"));
+              } else if (
+                view.status === "done" &&
+                view.request.activity === "swimming"
+              ) {
+                swimNotice.ask(() => setScreen("navigate"));
               } else {
                 setScreen("navigate");
               }
@@ -1694,11 +1723,10 @@ function MuW() {
                   near={
                     position.status === "ok" ? position.point : (place?.point ?? null)
                   }
-                  // On the water the search knows the lakes and the beaches.
-                  suggest={sportActivity === "paddling" ? spotPlaces : undefined}
-                  searchHint={
-                    sportActivity === "paddling" ? SPOT_SEARCH_HINT : undefined
-                  }
+                  // On the water the search knows the lakes and the beaches,
+                  // for a swim too (TASK-323).
+                  suggest={isOnWater(sportActivity) ? spotPlaces : undefined}
+                  searchHint={isOnWater(sportActivity) ? SPOT_SEARCH_HINT : undefined}
                   onPickOnMap={onOpenPick}
                   mapError={mapError}
                   onMapRetry={() => {
@@ -1851,6 +1879,12 @@ function MuW() {
         visible={paddleNotice.asking}
         onAccept={paddleNotice.accept}
         onDismiss={paddleNotice.dismiss}
+      />
+      {/* Before the first «Start» of a swim (TASK-323 C). */}
+      <SwimNotice
+        visible={swimNotice.asking}
+        onAccept={swimNotice.accept}
+        onDismiss={swimNotice.dismiss}
       />
     </View>
   );

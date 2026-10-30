@@ -49,18 +49,17 @@ export const PEN_UP_SHAPES = [
 export type PenUpShape = (typeof PEN_UP_SHAPES)[number];
 
 /** What a route is for in the app: on foot, by bike on the roads a bike
- * may ride, one-way streets kept (TASK-190, ADR-0153), or paddling on a lake
+ * may ride, one-way streets kept (TASK-190, ADR-0153), paddling on a lake
  * or the sea within 1 km of the shore, a shape of the catalogue only
- * (TASK-191, ADR-0161). */
-export const ACTIVITIES = ["running", "cycling", "paddling"] as const;
+ * (TASK-191, ADR-0161), or swimming in open water 20–150 m from the shore,
+ * lap after lap, a shape of the catalogue or a drawing (TASK-323,
+ * ADR-0283). */
+export const ACTIVITIES = ["running", "cycling", "paddling", "swimming"] as const;
 export type Activity = (typeof ACTIVITIES)[number];
 
 /** The activities of the API (route_engine/models.py SUPPORTED_ACTIVITIES):
- * those of the app, and swimming in open water 20–150 m from the shore, lap
- * after lap, a shape of the catalogue or a drawing (TASK-323, ADR-0283). The
- * app offers a swim from part C of TASK-323: its Activity widens then, with
- * the tables keyed on it (distances, names, Apple Health of TASK-321). */
-export const API_ACTIVITIES = [...ACTIVITIES, "swimming"] as const;
+ * the app's, since part C2 of TASK-323 (B had swimming here alone). */
+export const API_ACTIVITIES = ACTIVITIES;
 export type ApiActivity = (typeof API_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by

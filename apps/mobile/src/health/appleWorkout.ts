@@ -21,6 +21,9 @@ const ACTIVITY_TYPE: Readonly<Record<Activity, WorkoutActivityType>> = {
   running: 37 as WorkoutActivityType,
   cycling: 13 as WorkoutActivityType,
   paddling: 31 as WorkoutActivityType,
+  // `.swimming`; that it was in open water is TASK-321's to add
+  // (HKMetadataKeySwimmingLocationType), with TASK-323 E.
+  swimming: 46 as WorkoutActivityType,
 };
 
 /** The distance of each activity, as Apple Health counts it a day. */
@@ -31,6 +34,7 @@ export const DISTANCE_TYPE: Readonly<
   cycling: "HKQuantityTypeIdentifierDistanceCycling",
   // From iOS 18: before it, the workout keeps its total only.
   paddling: "HKQuantityTypeIdentifierDistancePaddleSports",
+  swimming: "HKQuantityTypeIdentifierDistanceSwimming",
 };
 
 export const ENERGY_TYPE: QuantityTypeIdentifierWriteable =
