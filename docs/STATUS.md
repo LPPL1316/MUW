@@ -217,6 +217,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte B in `main` dal 2026-10-30** con la #677 (`4faeceb2`, 23:16 CET,
   mergiata al verde: tutte le 557 suite dell'app verdi anche nella copia
   pulita). Poi C.
+  **Parte C2 in PR dal 2026-10-30** (branch `feat/TASK-339-premium-look-c2`;
+  via del Coordinatore della sera sulla lista esatta dei file): nei 34 file
+  liberi i 51 `pressed` passano a `Tap`, le divisioni a `Hairline` o a un
+  pixel di `hairline`, `Tap` prende un `ref`. La C1 (pagine vuote, testi
+  nuovi) aspetta il sì dell'utente sui testi; poi D.
 - **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
   la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
   dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;

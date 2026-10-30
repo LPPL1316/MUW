@@ -1,11 +1,13 @@
 # TASK-339 — L'interfaccia premium ed elegante: tipografia, neutri caldi, immagini, movimento, dettagli
 
-**Stato**: In lavorazione · parte A in `main` (#658, 2026-10-30) ·
-**parte B pronta, in PR dal 2026-10-30** (branch
-`feat/TASK-339-premium-look-b`); numeri e condizioni dal Coordinatore il
-2026-10-30
+**Stato**: In lavorazione · parte A in `main` (#658, 2026-10-30) · parte B
+in `main` (#677, 2026-10-30) · **parte C2 (divisioni e tocco) in PR dal
+2026-10-30** (branch `feat/TASK-339-premium-look-c2`) · parte C1 (pagine
+vuote) dopo il sì dell'utente sui testi; numeri e condizioni dal
+Coordinatore il 2026-10-30
 **Fase**: 4 · **Branch**: `feat/TASK-339-premium-look-a` (A, in `main`),
-`feat/TASK-339-premium-look-b` (B), poi uno per parte · **ADR**: ADR-0293
+`feat/TASK-339-premium-look-b` (B, in `main`),
+`feat/TASK-339-premium-look-c2` (C2), poi uno per parte · **ADR**: ADR-0293
 
 ## Obiettivo
 
@@ -144,6 +146,24 @@ Coordinatore del 2026-10-30).
   e la B la tiene (`postEnergy` nei fatti).
 - «#NNN pronta» al Coordinatore con la testa; lui mergia al verde.
 
+## Condizioni del Coordinatore (2026-10-30, parte C)
+
+- Via dato la sera del 2026-10-30 sulla lista esatta dei file esistenti,
+  mandata prima di toccarli («lista ok, nessuna PR aperta tocca questi
+  file»), con le eccezioni: `screens/RunPanel` e `RunDashboard` restano
+  fuori (lo schermo di corsa non cambia per una divisione: per 314 B o per
+  una parte a sé); `social/FindFriendsButton` è di 344 B e di TASK-362; in
+  `explore/*` solo i `pressed` (TASK-363 può toccare la posizione: chi
+  arriva secondo riallinea); `FeedScreen` fuori; i messaggi a TASK-354, che
+  il Coordinatore avvisa.
+- i18n: non aspettare le #661, #667 e #675; le righe nuove a metà file, in
+  un blocco proprio con un commento, non in fondo (la regola di unione vale
+  per i tre documenti, non per gli i18n).
+- Due PR: **C1** le pagine vuote coi testi (col sì dell'utente nella chat
+  della sessione), **C2** `Hairline` e `Tap` senza testi, che si unisce
+  subito. Nei `pressed` nessun cambio di comportamento; «Riduci movimento»
+  vale ovunque. Impronta `83793e26` su copia pulita; il jest completo in CI.
+
 ## Criteri di accettazione
 
 Parte A:
@@ -195,7 +215,34 @@ Parte B:
       la fila «Ideas from Europe») nei due toni, dal simulatore; le
       schermate in `tasks/TASK-339/b-*.jpg`.
 
-Parti C–E: i loro criteri si scrivono qui quando partono.
+Parte C2 (divisioni e tocco, senza testi):
+
+- [x] Nei 34 file liberi della lista approvata nessun comando tiene più il
+      `pressed && styles.pressed` (né un `…Pressed` con altro nome): ogni
+      Pressable con un aspetto alla pressione è `Tap`; chi si velava anche
+      mentre lavorava (`busy`, `loadingMore`, `opening`, `reading`) tiene
+      quel velo come `styles.dim`. I Pressable senza aspetto alla pressione
+      restano come sono.
+- [x] Le divisioni a `View` in `color.border` sono `Hairline`; il bordo di
+      una riga di lista (`borderBottomWidth`, `borderTopWidth`) è un pixel
+      fisico (`StyleSheet.hairlineWidth`) in `color.hairline`. I bordi dei
+      comandi (`borderStrong`) e il bordo in cima ai fogli (`sheet`, per la
+      D) non cambiano.
+- [x] `Tap` accetta un `ref` (per chi misura il proprio comando:
+      `DrawingsGrid`), con un test.
+- [x] Test deterministici: `src/ui/premiumLookC.test.ts` legge il sorgente
+      dei 34 file e nega il `pressed` e le divisioni in `color.border`;
+      `UnitsSettingLook.test.tsx` (una hairline sopra ogni scelta, il tocco
+      in `motion.pressMs`); `GuideRowTap.test.tsx`; il `ref` in
+      `Tap.test.tsx`.
+- [ ] Nessun testo nuovo, nessuna dipendenza, niente di nativo: impronta
+      iOS `83793e26` su una copia pulita della testa (`npm ci`).
+- [ ] `tsc`, Prettier, `expo lint`; la suite intera verde nella copia
+      pulita; prima e dopo di una pagina di «Settings» nei due toni in
+      `tasks/TASK-339/c2-*.jpg`.
+
+Parte C1 (pagine vuote, coi testi) e parti D–E: i loro criteri si scrivono
+qui quando partono.
 
 ## File toccati
 
@@ -228,6 +275,35 @@ apps/mobile/src/explore/ExploredCard.tsx, ExploredCard.test.tsx
 apps/mobile/src/social/DrawingCard.tsx, DrawingCardStart.test.tsx
 docs/UI.md, docs/STATUS.md, docs/tasks/TASK-339.md
 docs/tasks/TASK-339/b-*.jpg                              (12 schermate prima/dopo dal simulatore, nuove)
+```
+
+Parte C2:
+
+```
+apps/mobile/src/ui/Tap.tsx, Tap.test.tsx                         (il ref)
+apps/mobile/src/ui/premiumLookC.test.ts                          (nuovo)
+apps/mobile/src/settings/UnitsSettingLook.test.tsx               (nuovo)
+apps/mobile/src/tour/GuideRowTap.test.tsx                        (nuovo)
+apps/mobile/src/about/AboutRows.tsx
+apps/mobile/src/activities/ActivitiesList.tsx
+apps/mobile/src/engine/OfflineMapsSetting.tsx
+apps/mobile/src/explore/AskForRoute.tsx, CityExamples.tsx, ExploreTools.tsx, StopPhotos.tsx
+apps/mobile/src/game/PlayRow.tsx
+apps/mobile/src/imports/AddPastActivity.tsx
+apps/mobile/src/map/MapKindButton.tsx
+apps/mobile/src/paddle/PaddleExplore.tsx
+apps/mobile/src/places/PlaceSearch.tsx
+apps/mobile/src/profile/PhotoChoices.tsx, PhotoRow.tsx, ProfileGallery.tsx
+apps/mobile/src/screens/ForgotPassword.tsx
+apps/mobile/src/settings/ContactField.tsx, EmailSetting.tsx, LanguageSetting.tsx,
+  PhoneSetting.tsx, SportButton.tsx, SportSetting.tsx, ToneSetting.tsx, UnitsSetting.tsx
+apps/mobile/src/social/BlockedPeople.tsx, ContactsFriends.tsx, DrawingsGrid.tsx,
+  FollowButton.tsx, FollowLists.tsx, PeopleSearch.tsx, ReportMenu.tsx
+apps/mobile/src/strava/StravaSetting.tsx
+apps/mobile/src/tour/GuideRow.tsx
+apps/mobile/src/voice/VoiceSetting.tsx
+docs/UI.md, docs/STATUS.md, docs/tasks/TASK-339.md
+docs/tasks/TASK-339/c2-*.jpg                                     (schermate, nuove)
 ```
 
 ## Fuori scope
