@@ -119,7 +119,7 @@ type OlderRequest = RouteRequest extends infer R
     : never
   : never;
 // The laps a swim asks for, and its laps and turns (TASK-323), came last.
-type Swims = "laps" | "turns";
+type Swims = "laps" | "lap_m" | "turns";
 type OlderResult = Omit<
   RouteResult,
   "walks" | "on_foot" | "better_distance_m" | "centre" | "rotation_deg" | Swims

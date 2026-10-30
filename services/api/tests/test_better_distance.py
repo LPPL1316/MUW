@@ -82,7 +82,7 @@ def test_the_fixture_of_the_contract_is_a_valid_body() -> None:
     data = _load("route-result-better-distance.json")
     # Every field of its day: the rotation came after (TASK-232), the laps
     # and the turns of a swim too (TASK-323).
-    later = {"rotation_deg", "laps", "turns"}
+    later = {"rotation_deg", "laps", "lap_m", "turns"}
     assert set(data) == set(RouteResultBody.model_fields) - later
     body = RouteResultBody.model_validate(data)
     assert body.better_distance_m == 12_000
@@ -104,6 +104,7 @@ def test_an_older_app_reads_the_answer_as_before(advised: TestClient) -> None:
         "centre",
         "rotation_deg",
         "laps",
+        "lap_m",
         "turns",
     }
 

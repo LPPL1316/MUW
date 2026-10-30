@@ -363,6 +363,7 @@ def _plan(
         # Within ±45°, counterclockwise; 0 for the circle (TASK-232).
         rotation_deg=route.rotation_deg + 0.0,
         laps=laps,
+        lap_m=lap_m,
         turns=swim_turns(route.points, laps=laps, leg_m=route.approach_m, lap_m=lap_m),
     )
     return SwimPlan(result, route, water, laps, lap_m)

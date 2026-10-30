@@ -18304,7 +18304,9 @@ file di Apple Salute di TASK-321, che il task non deve toccare.
 1. **Il contratto**: `swimming` in `SUPPORTED_ACTIVITIES`,
    `WATER_ACTIVITIES` e `DISTANCE_LIMITS_M` (500–3000 m);
    `RouteRequest.laps` (1–5, solo nuoto, `laps are for a swim`);
-   `RouteResult.laps` e `.turns`. I tipi delle curve (`SwimTurn`,
+   `RouteResult.laps`, `.lap_m` (quanto è lungo un giro, senza i tratti
+   dalla riva: per «3 laps of 320 m» della parte C) e `.turns`. I tipi
+   delle curve (`SwimTurn`,
    `Landmark`) passano da `swim_turns.py` a `models.py`: sono dati del
    contratto, e così `models.py` non importa un modulo del nuoto.
 2. **L'app resta a tre attività**: in `shared-types` `Activity` non cambia

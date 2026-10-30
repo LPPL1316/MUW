@@ -284,6 +284,12 @@ export interface RouteResult {
    */
   laps?: number;
   /**
+   * A swim (TASK-323): how long one lap is, in metres, the shape without the
+   * legs from the shore and back; null for any other route. Missing from an
+   * older API.
+   */
+  lap_m?: number | null;
+  /**
    * A swim (TASK-323): where it turns, in order, every lap's, each with the
    * place on the shore to turn opposite when there is one. Empty for any
    * other route; missing from an older API.

@@ -140,6 +140,7 @@ def result_from(data: dict[str, Any]) -> RouteResult:
         rotation_deg=float(data.get("rotation_deg", 0.0)),
         # Kept before TASK-323, or not a swim: one lap, no turns.
         laps=int(data.get("laps", 1)),
+        lap_m=None if data.get("lap_m") is None else float(data["lap_m"]),
         turns=[_turn(turn) for turn in data.get("turns", [])],
     )
 

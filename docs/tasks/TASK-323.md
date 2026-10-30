@@ -326,8 +326,11 @@ al Coordinatore prima del codice. Aggiunta ad ADR-0283.
   cloud non si raggiunge: `test_paddle_examples` resta rosso finché il
   Mac non lo rifà. `draw_examples --water` per il nuoto serve a «Explore»,
   quindi va con la parte C.
-- Impronte dopo B: esempi tenuti `6f2cb10229f1` (i nuoti `7f83fc6aa067`),
-  esempi della canoa `fa42c9b81a1e` (il file dell'app dice ancora
+- `lap_m` nella risposta (2026-10-30, per la parte C: «3 laps of 320 m»
+  sotto il nuoto, scelta dell'utente): quanto è lungo un giro, senza i
+  tratti dalla riva.
+- Impronte dopo B: esempi tenuti `5b5e026cea9b` (i nuoti `b9d00c37d28d`),
+  esempi della canoa `574fbfba41eb` (il file dell'app dice ancora
   `1b6759cb3cc4`). Il codice che disegna la canoa non cambia: rifatti,
   gli esempi dovrebbero cambiare solo nel campo `engine`.
 

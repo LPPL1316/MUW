@@ -94,6 +94,8 @@ def test_a_swim_is_drawn_lap_after_lap_with_its_named_turns(tmp_path: Path) -> N
     assert answer.status_code == 200, answer.json()
     result = answer.json()
     assert result["laps"] == 3
+    # One lap, the legs from the shore left out.
+    assert 0 < 3 * result["lap_m"] < result["distance_m"]
     assert abs(result["distance_m"] - 1000) <= 100
     assert result["directions"] == [] and result["alternatives"] == []
     assert result["points"][0] == result["points"][-1]
