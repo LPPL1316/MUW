@@ -245,6 +245,19 @@ un punto senza acqua sul disco dell'API si salta alla prima forma
 (`map_data_unavailable`), come fa il telefono. Una forma che non ci sta
 (`shape_not_drawable`) resta scritta nella riga e non ferma il punto.
 
+**A nuoto** (TASK-323 C4): `--swim` chiede gli stessi punti come li chiede
+«Explore» con «Open water swim», le otto forme a 1 km da ogni punto,
+`"activity": "swimming"`, i giri scelti dal motore; con `--water-name`
+solo i punti nominati, e senza `--water` non si pagaia. Entro 150 m dalla
+riva una forma può non starci: `shape_not_drawable` lì è una risposta, e
+il punto conta come fatto. I nuoti si tengono con la loro impronta
+(`route_store`, TASK-323 B).
+
+```
+python -m shaperoute_api.draw_examples --api http://127.0.0.1:8000 --swim
+python -m shaperoute_api.draw_examples --api … --swim --water-name Riccione
+```
+
 **Tempi** (2026-10-09, Mac scarico, motore di `main` a `89287a0a`, acqua
 dei laghi d'Italia in cache): le 24 forme di un telefono nuovo a Levico
 Terme (Lago di Levico, Lago di Caldonazzo, Lago della Serraia) costano

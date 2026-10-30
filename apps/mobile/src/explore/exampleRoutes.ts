@@ -18,6 +18,7 @@ import type { Place } from "../places/photon";
 import { shapeAsked } from "../route/penUpShapes";
 import { problemText } from "../route/problems";
 import { walksOf } from "../route/walks";
+import { isOnWater } from "../swim/water";
 import { cityShort } from "./presets";
 import {
   isRecommendedDetail,
@@ -144,11 +145,12 @@ export const PADDLE_EXAMPLES: ExampleSet = {
 
 /**
  * How a set asks for `shape`. On the water a shape in pieces is drawn piece
- * by piece, the pen up between them, as «Draw» asks for it (TASK-226); a
- * run's examples are drawn in one line, as they always were.
+ * by piece, the pen up between them, as «Draw» asks for it (TASK-226), a
+ * swim's too (TASK-323); a run's examples are drawn in one line, as they
+ * always were.
  */
 function shapeOf(shape: Shape, set: ExampleSet): ReturnType<typeof shapeAsked> {
-  return set.activity === "paddling" ? shapeAsked(shape, true, "paddling") : { shape };
+  return isOnWater(set.activity) ? shapeAsked(shape, true, set.activity) : { shape };
 }
 
 /** What a set asks the API for `shape` from `city`: an example's request. */

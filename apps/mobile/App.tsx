@@ -1800,11 +1800,13 @@ function MuW() {
               // It asks the API for its routes as it opens: not before.
               lazy: true,
               render: () =>
-                // On the water, the lakes and the beaches (TASK-191).
-                sport === "paddle" ? (
+                // On the water, the lakes and the beaches (TASK-191), a
+                // swim's too (TASK-323 C4).
+                sport === "paddle" || sport === "swim" ? (
                   <PaddleExplore
                     apiUrl={API_URL}
                     near={start?.point ?? null}
+                    swim={sport === "swim"}
                     onOpen={(route) => {
                       closeExplore();
                       openExplored(route);

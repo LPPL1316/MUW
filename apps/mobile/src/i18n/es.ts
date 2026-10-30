@@ -264,6 +264,9 @@ export const ES: Table = {
   "On the water": "En el agua",
   "Shapes to paddle, within 1 km of the shore":
     "Formas para remar, a menos de 1 km de la orilla",
+  // The swim's (TASK-323 C4).
+  "Shapes to swim, within 150 m of the shore":
+    "Formas para nadar, a menos de 150 m de la orilla",
   "LAKES AND SEA": "LAGOS Y MAR",
   "Near me": "Cerca de mí",
   "Choose a lake or a beach: eight shapes on its water, from the shore.":

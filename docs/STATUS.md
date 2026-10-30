@@ -360,6 +360,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Start», `lap_m` nella risposta (aggiunto a B). Testi e traduzioni
   approvati. Riga ancora «Soon». **Prossimo**: B in `main` e sul server,
   C4 («Explore» a nuoto), poi `ready: true`; D (la corsa a nuoto).
+  **C4 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c4-swim-explore`, partito da C2): «Explore» con il nuoto
+  è la pagina dei laghi e delle spiagge della canoa, le otto forme a nuoto
+  a 1 km chieste all'API (`SWIM_EXAMPLES`), il sottotitolo approvato;
+  `draw_examples --swim` per disegnarle sul server. **Prossimo**: B, C1,
+  C2, C4 in `main`; col sì dell'utente server, migrazione 0039, estratto
+  dei nomi a riva, `draw_examples --swim`, poi `ready: true`; D.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

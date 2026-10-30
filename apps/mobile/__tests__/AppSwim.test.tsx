@@ -266,3 +266,28 @@ test("a shape too big for the band offers the half km it fits at, in the water's
     routeBodies().map((body) => (body as { distance_m: number }).distance_m),
   ).toEqual([3000, 1500]);
 });
+
+test("«Explore» has the lakes and the beaches to swim; a swim of theirs starts through the notice", async () => {
+  apiAnswers(swimDone);
+  await atRiccione();
+  await fireEvent.press(screen.getByText("Explore"));
+  expect(
+    screen.getByText("Shapes to swim, within 150 m of the shore"),
+  ).toBeOnTheScreen();
+  expect(screen.getByText("RICCIONE · FROM THE BEACH")).toBeOnTheScreen();
+  // None come with the app: the API swims them, 1 km from the beach.
+  for (let i = 0; i < 10; i += 1) {
+    await act(() => jest.advanceTimersByTimeAsync(500));
+  }
+  expect(routeBodies().length).toBeGreaterThan(0);
+  for (const body of routeBodies()) {
+    expect(body).toMatchObject({ activity: "swimming", distance_m: 1000 });
+  }
+  await fireEvent.press(screen.getByLabelText("Heart, 1.0 km, on the water"));
+  await fireEvent.press(screen.getByRole("button", { name: "Start" }));
+  expect(screen.getByText(SWIM_NOTICE_TITLE)).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole("button", { name: "I understand" }));
+  await act(() => jest.advanceTimersByTimeAsync(0));
+  expect(screen.getByText("Stop")).toBeOnTheScreen();
+  expect(directionCalls()).toHaveLength(0);
+});

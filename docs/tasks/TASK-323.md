@@ -461,6 +461,38 @@ apps/mobile/__tests__/AppSwim.test.tsx (nuovo)
 docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
 ```
 
+#### C4, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+C4»), branch `feat/TASK-323-c4-swim-explore` partito da C2. Aggiunta ad
+ADR-0283. Il sottotitolo e le traduzioni approvati dall'utente («Yes, like
+this»).
+
+- «Explore» con «Open water swim» è `PaddleExplore` con `swim`: gli stessi
+  laghi e spiagge, «Near me», i filtri; «Shapes to swim, within 150 m of
+  the shore».
+- `SWIM_EXAMPLES` (`src/swim/swimExamples.ts`): le otto forme a 1 km da
+  ogni punto, `swimming`, a pezzi quelle a pezzi, nessuna con l'app.
+- `draw_examples --swim` (con `--water-name` per pochi punti): i nuoti
+  dei punti prima di ogni telefono; una forma che non ci sta è una
+  risposta.
+- **Per accendere il nuoto** (`ready: true` in `sport.ts`, una riga): B,
+  C1, C2 e C4 in `main`, poi col sì dell'utente il server (migrazione
+  0039), l'estratto dei nomi a riva e `draw_examples --swim`.
+
+File toccati da C4:
+
+```
+apps/mobile/src/swim/swimExamples.ts, SwimExplore.test.tsx (nuovi)
+apps/mobile/src/paddle/PaddleExplore.tsx (il nuoto con `swim`)
+apps/mobile/src/explore/exampleRoutes.ts (le forme a pezzi anche a nuoto)
+apps/mobile/App.tsx (la pagina «Explore» col nuoto)
+apps/mobile/__tests__/AppSwim.test.tsx
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+services/api/shaperoute_api/draw_examples.py, tests/test_draw_swims.py (nuovo)
+docs/API.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ### D — App: nuotare con il telefono nella boa
 
 1. La schermata della corsa per il nuoto: niente voce, il passo per 100 m,

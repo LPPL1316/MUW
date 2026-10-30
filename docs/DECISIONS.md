@@ -18454,6 +18454,41 @@ nuoto. Il foglio dei permessi di Apple Salute chiederà anche la distanza a
 nuoto quando TASK-321 B lo accende. Solo JavaScript: l'impronta iOS non
 cambia.
 
+## ADR-0283 — aggiunta, parte C4: «Explore» a nuoto, i posti della canoa, gli esempi dall'API
+
+**Stato**: Attiva · 2026-10-30 · il sottotitolo e le traduzioni li ha
+approvati l'utente («Yes, like this»); il resto è deciso dall'agente su
+delega dell'utente (TASK-323 parte C4, su richiesta dell'utente «passa
+alla parte C4»). Aggiunta ad ADR-0283.
+
+**Contesto**: con lo sport del nuoto «Explore» mostrava gli esempi della
+corsa. Gli esempi della canoa dei posti scelti a mano vengono con l'app
+(`paddleExamples.json`, TASK-227), disegnati sul Mac con l'acqua del
+server; gli altri li disegna l'API, che li tiene.
+
+**Decisione**:
+
+1. **Gli stessi posti della canoa**: «Explore» con «Open water swim» è
+   la pagina della canoa (`PaddleExplore` con `swim`), i laghi e le
+   spiagge, «Near me», i filtri; il sottotitolo «Shapes to swim, within
+   150 m of the shore».
+2. **Gli esempi a nuoto** (`SWIM_EXAMPLES`): le otto forme della corsa,
+   1 km da ogni punto (anche dove la canoa ne fa meno, su un lago
+   piccolo), i giri scelti dal motore, una forma a pezzi a pezzi. Tenuti a
+   parte da quelli della canoa dello stesso punto (`prefix`).
+3. **Nessun esempio con l'app**: li disegna l'API e li tiene; prima di
+   ogni telefono li disegna `draw_examples --swim` sul server, col sì
+   dell'utente. Un file come `paddleExamples.json` vorrebbe l'acqua del
+   server sul Mac e un'impronta in più da rifare a ogni cambio del motore:
+   non serve finché l'API risponde.
+4. **Una forma che non ci sta è una risposta**: entro 150 m dalla riva
+   capita; `draw_examples --swim` conta il punto come fatto, e l'app
+   mostra la scheda come per la canoa.
+
+**Conseguenze**: per vedere gli esempi a nuoto serve il server col nuoto
+(B). Il nuoto si accende (`ready: true`) quando B è sul server e
+`draw_examples --swim` è passato.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
