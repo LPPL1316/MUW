@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import { Animated, StyleSheet, Text } from "react-native";
+import { createRef } from "react";
+import { Animated, StyleSheet, Text, type View } from "react-native";
 
 import { motion } from "../theme/tokens";
 import { Tap } from "./Tap";
@@ -76,4 +77,15 @@ test("the caller's pressIn and pressOut still arrive, under the animated look", 
   };
   expect(style.opacity).toBe(1);
   expect(style.transform?.[0]?.scale).toBe(1);
+});
+
+test("a ref reaches the Pressable, for a caller that measures it", async () => {
+  const ref = createRef<View>();
+  await render(
+    <Tap ref={ref} onPress={jest.fn()} accessibilityRole="button">
+      <Text>Measure me</Text>
+    </Tap>,
+  );
+  expect(ref.current).not.toBeNull();
+  expect(typeof ref.current?.measure).toBe("function");
 });

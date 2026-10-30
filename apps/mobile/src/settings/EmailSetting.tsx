@@ -4,6 +4,7 @@ import { Pressable, Text, type TextInput, View } from "react-native";
 
 import type { Account } from "../account/useAccount";
 import { t } from "../i18n";
+import { Hairline } from "../ui/Hairline";
 import { Tap } from "../ui/Tap";
 import { ContactField, contactStyles as styles } from "./ContactField";
 import { checkEmailChange } from "./contactFields";
@@ -93,7 +94,7 @@ export function EmailSetting({ user, account }: Props) {
       )}
       {open && (
         <View>
-          <View style={styles.divider} />
+          <Hairline />
           <View style={styles.form}>
             <ContactField
               label={t("NEW EMAIL")}

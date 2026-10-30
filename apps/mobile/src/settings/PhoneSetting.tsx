@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 
 import type { Account } from "../account/useAccount";
 import { t } from "../i18n";
+import { Hairline } from "../ui/Hairline";
 import { Tap } from "../ui/Tap";
 import { ContactField, contactStyles as styles } from "./ContactField";
 import { checkPhone, phoneOfUser } from "./contactFields";
@@ -83,7 +84,7 @@ export function PhoneSetting({ user, account }: Props) {
       </Tap>
       {open && (
         <View>
-          <View style={styles.divider} />
+          <Hairline />
           <View style={styles.form}>
             <ContactField
               label={t("PHONE NUMBER")}
