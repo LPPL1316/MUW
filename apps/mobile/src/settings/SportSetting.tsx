@@ -35,7 +35,7 @@ export function SportSetting({ sports = SPORTS }: Props) {
       <View style={styles.menu} accessibilityRole="radiogroup">
         {sports.map((option, at) => (
           <View key={option.id}>
-            {at > 0 && <Hairline />}
+            {at > 0 && <Hairline style={styles.inset} />}
             {option.ready ? (
               <Pressable
                 style={styles.row}
@@ -72,6 +72,10 @@ export function SportSetting({ sports = SPORTS }: Props) {
 // The rows of «Settings» (`../profile/SettingsPage`), so the section sits
 // among the others as one of them.
 const styles = StyleSheet.create({
+  /** A division set in from the card's edge, as the rows' words are. */
+  inset: {
+    marginHorizontal: space.md,
+  },
   section: {
     gap: space.lg,
   },

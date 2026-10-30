@@ -94,7 +94,7 @@ export function EmailSetting({ user, account }: Props) {
       )}
       {open && (
         <View>
-          <Hairline />
+          <Hairline style={styles.inset} />
           <View style={styles.form}>
             <ContactField
               label={t("NEW EMAIL")}

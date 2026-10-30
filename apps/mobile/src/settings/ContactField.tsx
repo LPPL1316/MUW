@@ -42,7 +42,12 @@ export const contactStyles = StyleSheet.create({
   /** The division over a form or between rows, one physical pixel (TASK-339). */
   divider: {
     height: StyleSheet.hairlineWidth,
+    marginHorizontal: space.md,
     backgroundColor: color.hairline,
+  },
+  /** A division set in from the card's edge, for a `Hairline`. */
+  inset: {
+    marginHorizontal: space.md,
   },
   /** The flat press look of the rows not yet on `Tap` (NotificationsSetting). */
   pressed: {

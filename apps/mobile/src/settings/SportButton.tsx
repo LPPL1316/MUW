@@ -98,7 +98,7 @@ export function SportButton({ sports = SPORTS }: Props) {
         >
           {sports.map((option, at) => (
             <View key={option.id}>
-              {at > 0 && <Hairline />}
+              {at > 0 && <Hairline style={styles.inset} />}
               {option.ready ? (
                 <Pressable
                   style={styles.row}
@@ -136,6 +136,10 @@ export function SportButton({ sports = SPORTS }: Props) {
 // The button as the one of «Profile» (`../screens/ProfileLayer`), the rows as
 // those of «Sport» in «Settings» (`./SportSetting`).
 const styles = StyleSheet.create({
+  /** A division set in from the card's edge, as the rows' words are. */
+  inset: {
+    marginHorizontal: space.md,
+  },
   // Neutral, as every control that is not the route's (docs/UI.md, «Il tema»).
   button: {
     width: MIN_TAP_SIZE,

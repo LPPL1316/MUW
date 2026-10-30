@@ -84,7 +84,7 @@ export function PhoneSetting({ user, account }: Props) {
       </Tap>
       {open && (
         <View>
-          <Hairline />
+          <Hairline style={styles.inset} />
           <View style={styles.form}>
             <ContactField
               label={t("PHONE NUMBER")}

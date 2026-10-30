@@ -92,7 +92,7 @@ type ChoiceProps = {
 function Choice({ name, detail, chosen, onPress }: ChoiceProps) {
   return (
     <View>
-      <Hairline />
+      <Hairline style={styles.inset} />
       <Tap
         style={[styles.row, styles.choice]}
         onPress={onPress}
@@ -111,6 +111,10 @@ function Choice({ name, detail, chosen, onPress }: ChoiceProps) {
 // The rows of «Settings» (`../profile/SettingsPage`), as «Language» has
 // them (`./LanguageSetting`), so the row sits among the others as one of them.
 const styles = StyleSheet.create({
+  /** A division set in from the card's edge, as the rows' words are. */
+  inset: {
+    marginHorizontal: space.md,
+  },
   menu: {
     borderRadius: radius.lg,
     borderWidth: 1,

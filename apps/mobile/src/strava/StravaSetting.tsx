@@ -47,7 +47,7 @@ export function StravaSetting() {
                 : t("Connected as {athlete}", { athlete: status.athlete })}
             </Text>
           </View>
-          <Hairline />
+          <Hairline style={styles.inset} />
           {confirming ? (
             <View style={styles.confirm}>
               <Text style={styles.confirmText}>
@@ -106,6 +106,10 @@ export function StravaSetting() {
 
 // The rows of «Settings» (`../profile/SettingsPage`), as SportSetting's.
 const styles = StyleSheet.create({
+  /** A division set in from the card's edge, as the rows' words are. */
+  inset: {
+    marginHorizontal: space.md,
+  },
   section: {
     gap: space.lg,
   },

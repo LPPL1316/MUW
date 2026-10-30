@@ -41,7 +41,7 @@ export function AboutRows({ onOpen }: Props) {
     <View style={styles.menu}>
       {ABOUT_ROWS.map((row, at) => (
         <View key={row.id}>
-          {at > 0 && <Hairline />}
+          {at > 0 && <Hairline style={styles.inset} />}
           <Tap
             style={styles.row}
             onPress={() => onOpen(row.id)}
@@ -62,6 +62,10 @@ export function AboutRows({ onOpen }: Props) {
 // The rows of «Settings» (`../profile/SettingsPage`), so these sit among
 // the others as three of them.
 const styles = StyleSheet.create({
+  /** A division set in from the card's edge, as the rows' words are. */
+  inset: {
+    marginHorizontal: space.md,
+  },
   menu: {
     borderRadius: radius.lg,
     borderWidth: 1,
