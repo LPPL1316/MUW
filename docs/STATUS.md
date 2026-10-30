@@ -367,6 +367,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `draw_examples --swim` per disegnarle sul server. **Prossimo**: B, C1,
   C2, C4 in `main`; col sì dell'utente server, migrazione 0039, estratto
   dei nomi a riva, `draw_examples --swim`, poi `ready: true`; D.
+  **D scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-d-swim-run`, partito da C4): un nuoto non parla e non
+  vibra, si mette in pausa da fermo dopo 30 s, è fermo sotto 1 km/h; la
+  schermata della canoa col passo di 100 m; Feed, «My activities» e la
+  scheda col passo di 100 m; i file dell'orologio col nuoto. Proposta e
+  traduzioni approvate. Solo JavaScript. **Prossimo**: B, C1, C2, C4, D in
+  `main` in quest'ordine; poi server col sì dell'utente, `ready: true`; la
+  prova in acqua (primavera 2027) e la parte E (Apple Watch, col sì
+  dell'utente su dipendenza e build).
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

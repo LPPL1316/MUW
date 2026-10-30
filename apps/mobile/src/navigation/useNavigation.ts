@@ -30,6 +30,7 @@ import { controlRun, runControl, type RunSession } from "./runControl";
 import { type RunWatch, watchRunPosition } from "./runPosition";
 import { simplifyDirections } from "./simplifyDirections";
 import { startsAnywhere } from "./startAnywhere";
+import { isSwim, SWIM_AUTO_PAUSE_AFTER_MS } from "./swim";
 import { emptyTrack, type Track } from "./trackRecorder";
 import { startRun } from "./trackStore";
 
@@ -183,6 +184,15 @@ export function useNavigation(
         let saidUnits = appUnits();
         let saidKm = saidKmOf(recorder.track(), activity, saidUnits);
         let position: LatLon | null = null;
+        // A swim says nothing and does not vibrate: with the head in the
+        // water nobody hears it, and the phone is in the buoy (TASK-323 D);
+        // standing still waits longer before the pause.
+        const swim = isSwim(activity);
+        const cue = (cues: Cue[]) => {
+          if (!swim) {
+            play(cues);
+          }
+        };
         const session = controlRun(recorder, {
           // «Pause» and «Resume» change the track between two fixes.
           onChange: () => {
@@ -195,7 +205,8 @@ export function useNavigation(
               });
             }
           },
-          say: (text) => play([{ say: text, vibrate: false }]),
+          say: (text) => cue([{ say: text, vibrate: false }]),
+          ...(swim ? { stillMs: SWIM_AUTO_PAUSE_AFTER_MS } : {}),
         });
         run = session;
         setState({
@@ -206,7 +217,7 @@ export function useNavigation(
         });
         // «Head out on …» is for a run that starts, not one that goes on.
         if (recorder.track().fixes.length === 0) {
-          play(started.cues);
+          cue(started.cues);
         }
         // With the phone locked too, where the app can (TASK-261).
         subscription = await watchRunPosition(
@@ -262,8 +273,8 @@ export function useNavigation(
               track,
             });
             // The pen first: what the runner does next depends on it.
-            play(drawing.cues);
-            play(next.cues);
+            cue(drawing.cues);
+            cue(next.cues);
             // After the turn, which may be the way onto the stretch; from
             // where the run joined a closed route (TASK-273).
             const walking = moveOnFootJoined(
@@ -274,7 +285,7 @@ export function useNavigation(
               coords.accuracy,
             );
             bike = walking.onFoot;
-            play(walking.cues);
+            cue(walking.cues);
             // After the turn, so a kilometre never delays one.
             const units = appUnits();
             if (units !== saidUnits) {
@@ -291,11 +302,11 @@ export function useNavigation(
                 : isPaddle(activity)
                   ? paddleAnnouncement(km, track, language, units)
                   : kmAnnouncement(km, track, language, units);
-              play([{ say: said, vibrate: false }]);
+              cue([{ say: said, vibrate: false }]);
               // Then how it went against the one before (TASK-217).
               const compared = comparisonOf(km, track, activity, language, units);
               if (compared !== null) {
-                play([{ say: compared, vibrate: false }]);
+                cue([{ say: compared, vibrate: false }]);
               }
             }
           },

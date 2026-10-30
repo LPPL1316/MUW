@@ -754,6 +754,7 @@ export const IT: Table = {
   "Mile {mile}: {pace}": "Miglio {mile}: {pace}",
   "Mile {mile}: {speed} mph": "Miglio {mile}: {speed} mph",
   "Your first 500 metres will show here.": "I tuoi primi 500 metri appariranno qui.",
+  "Your first 100 metres will show here.": "I tuoi primi 100 metri appariranno qui.",
   "{metres} metres: {pace}": "{metres} metri: {pace}",
 
   // src/screens/RunPanel.tsx
@@ -763,6 +764,9 @@ export const IT: Table = {
   "Last mi": "Ultimo mi",
   "Avg /500 m": "Med. /500 m",
   "Last 500 m": "Ultimi 500 m",
+  // A swim's (TASK-323 D).
+  "Avg /100 m": "Med. /100 m",
+  "Last 100 m": "Ultimi 100 m",
 
   // src/screens/SignInScreen.tsx
   "Sign up": "Iscriviti",

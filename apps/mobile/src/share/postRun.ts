@@ -7,6 +7,7 @@ import { t } from "../i18n";
 import { metresBetween } from "../map/coordinates";
 import { clockLabel } from "../navigation/freeRun";
 import { isPaddle, paddlePaceLabel } from "../navigation/paddle";
+import { isSwim, swimPaceLabel } from "../navigation/swim";
 import { durationMs, type Track } from "../navigation/trackRecorder";
 import { paceLabel, runDistanceLabel } from "../units/format";
 
@@ -129,6 +130,10 @@ export function resultValue(run: PostRun, result: PostResult): string | null {
     case "time":
       return clockLabel(run.durationMs);
     case "pace":
+      if (isSwim(run.activity)) {
+        // A swimmer's pace, of 100 m (TASK-323 D).
+        return swimPaceLabel(run.distanceM, run.durationMs);
+      }
       return isPaddle(run.activity)
         ? paddlePaceLabel(run.distanceM, run.durationMs)
         : paceLabel(run.distanceM, run.durationMs);

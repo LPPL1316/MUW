@@ -504,6 +504,42 @@ docs/API.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
    con Apple Salute di TASK-321; quello solo JavaScript può uscire prima,
    con l'impronta iOS misurata su una copia pulita.
 
+#### D, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+D»), branch `feat/TASK-323-d-swim-run` partito da C4. Aggiunta ad
+ADR-0283. La proposta e le traduzioni approvate dall'utente («Yes, like
+this», due volte). TASK-312 B è in `main` e la sua parte C non tocca
+`src/imports/`.
+
+- **In acqua**: niente voce né vibrazioni (le indicazioni, i chilometri,
+  «pausa»), niente interruttore «Voice»; la pausa da fermi dopo 30 s
+  (`stillMs` di `controlRun`); fermo sotto 1 km/h.
+- **La schermata**: quella della canoa col passo di 100 m: «Avg /100 m»,
+  «Last 100 m», i parziali ogni 100 m (`navigation/swim.ts`).
+- **Dopo**: Feed, «My activities», la scheda da condividere con «Open water
+  swim» e il passo di 100 m; il gioco non conta un nuoto.
+- **I file dell'orologio**: GPX e TCX con «swim», FIT `sport` 5; la
+  piscina non ha traccia.
+- **Resta**: la prova in acqua col telefono nella boa (primavera 2027); il
+  codice nativo non serve.
+
+File toccati da D:
+
+```
+apps/mobile/src/navigation/swim.ts, swim.test.ts, swimRun.test.ts (nuovi)
+apps/mobile/src/navigation/runControl.ts, runStats.ts, useNavigation.ts,
+  useFreeRun.ts
+apps/mobile/src/screens/RunPanel.tsx, RunDashboard.tsx, RunSwim.test.tsx
+  (nuovo)
+apps/mobile/src/feed/FeedPost.tsx, src/activities/activityText.ts,
+  src/share/postRun.ts, src/game/RunGameStrip.tsx, RunGameStrip.test.tsx
+apps/mobile/src/imports/fit.ts, fileTrack.ts, swimImport.test.ts (nuovo)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+docs/IMPORTAZIONI.md, docs/DECISIONS.md, docs/STATUS.md,
+  docs/tasks/TASK-323.md
+```
+
 ### E — Apple Watch (solo col sì dell'utente su dipendenze e build)
 
 1. Un target watchOS nell'app: la dipendenza per aggiungerlo (un plugin di

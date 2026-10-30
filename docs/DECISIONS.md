@@ -18489,6 +18489,50 @@ server; gli altri li disegna l'API, che li tiene.
 (B). Il nuoto si accende (`ready: true`) quando B è sul server e
 `draw_examples --swim` è passato.
 
+## ADR-0283 — aggiunta, parte D: il nuoto col telefono nella boa, senza voce, il passo di 100 m
+
+**Stato**: Attiva · 2026-10-30 · la proposta e le traduzioni le ha
+approvate l'utente («Yes, like this», due volte); il resto è deciso
+dall'agente su delega dell'utente (TASK-323 parte D, su richiesta
+dell'utente «passa alla parte D»). Aggiunta ad ADR-0283.
+
+**Contesto**: in acqua il telefono sta nella boa di sicurezza: non si
+guarda, non si sente, non si sente vibrare. La corsa della canoa (TASK-251)
+ha già le velocità e un passo di 500 m. Un nuotatore va a 2–4 km/h: per
+l'app, sotto i 3 km/h (STANDING_S_PER_KM) si è fermi, e la pausa da fermi
+viene dopo 10 s.
+
+**Decisione dell'utente** (2026-10-30): niente voce né interruttore della
+voce; la pausa da fermi dopo 30 s; la schermata della canoa col passo di
+100 m («Avg /100 m», «Last 100 m», i parziali ogni 100 m); nel Feed, in «My
+activities» e nella scheda da condividere «Open water swim · 1.02 km ·
+25:10 · 2:28 /100 m»; un nuoto in acque libere dai file dell'orologio.
+
+**Decisione dell'agente**:
+
+1. **Il silenzio** è nei due registratori (`useNavigation`, `useFreeRun`):
+   ogni frase e ogni vibrazione di un nuoto passano da una funzione che
+   per il nuoto non fa niente, anche «pausa» e «riprendi» del controllo
+   della corsa. La scelta della voce resta quella di prima per le corse
+   dopo.
+2. **La pausa da fermi** è un'opzione di `controlRun` (`stillMs`): 10 s
+   per tutti, 30 s per un nuoto (SWIM_AUTO_PAUSE_AFTER_MS).
+3. **Fermo sotto 1 km/h**: `recentPaceS` prende la soglia; per un nuoto
+   60 min/km (6:00 ogni 100 m), altrimenti «Speed now» sarebbe vuoto a ogni
+   nuotata tranquilla.
+4. **I numeri** sono quelli della canoa (`RunNumbers.swim`, `pace100`), e
+   i parziali di `Splits` hanno i metri dell'acqua: 500 per la canoa, 100
+   per il nuoto.
+5. **I file**: `sportOfWord` legge «swim», il FIT `sport` 5; nient'altro
+   cambia nei lettori. Il gioco delle forme non conta un nuoto (non è a
+   piedi), come la canoa.
+6. **Niente codice nativo**: D è solo JavaScript; la prova in acqua col
+   telefono in una boa resta per la primavera del 2027, con l'utente.
+
+**Conseguenze**: l'impronta iOS non cambia. Il nuoto si accende
+(`ready: true`) come detto in C4; la prova in acqua dirà se i 30 s e la
+soglia di 1 km/h vanno bene.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
