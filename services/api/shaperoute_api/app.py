@@ -33,6 +33,7 @@ from route_engine.models import (
 )
 from route_engine.optimizer import ShapeNotDrawableError
 from route_engine.outline_edits import InvalidEditError
+from route_engine.swim_turns import with_turns
 from shaperoute_ai.reading import (
     InvalidTextError,
     ModelUnavailableError,
@@ -198,6 +199,7 @@ def to_request(body: RouteRequestBody | ImageRouteRequestBody) -> AnyRequest:
             outline=outline_of(body.outline, body.strokes),
             distance_m=body.distance_m,
             activity=body.activity,
+            laps=body.laps,
         )
     return RouteRequest(
         start=body.start,
@@ -208,6 +210,7 @@ def to_request(body: RouteRequestBody | ImageRouteRequestBody) -> AnyRequest:
         style=body.style,  # type: ignore[arg-type]  # RouteRequest checks it
         pen_up=body.pen_up,
         near=body.near,
+        laps=body.laps,
     )
 
 
@@ -463,6 +466,10 @@ def create_app(
             # Where to pause between the letters of a word with the pen up.
             body.result.walks,
         )
+        if body.result.turns:
+            # A swim's turns as waypoints, the first lap's (TASK-323).
+            turns = [turn.to_turn() for turn in body.result.turns]
+            document = with_turns(document, turns)
         return Response(
             document,
             media_type="application/gpx+xml",
