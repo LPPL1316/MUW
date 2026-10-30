@@ -34,14 +34,17 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Il gioco delle forme, «Play», squadre e sfide | `GIOCO.md`, `tasks/TASK-296.md` |
 | Il primo concorso, la scheda nel Feed, il regolamento | `CONCORSI.md`, `tasks/TASK-299.md` |
 | Le sfide del mese: il tema, l'iscrizione, la galleria, l'archivio | `CONCORSI.md`, `tasks/TASK-343.md`, `DECISIONS.md` ADR-0296 e ADR-0260 |
+| I badge sul profilo (primo disegno, 10 disegni, 30 km) | `tasks/TASK-341.md`, `DECISIONS.md` ADR-0294 e ADR-0284 |
 | Le corse di gruppo, «Group runs», «I'm going» | `EVENTI.md`, `tasks/TASK-309.md` |
 | Attività da altre app (GPX, TCX, FIT), post di sole foto, «Imported» | `IMPORTAZIONI.md`, `tasks/TASK-312.md` |
 | Un video nei post: il video della corsa o uno proprio, la pagina nel Feed, `expo-video` | `tasks/TASK-336.md`, `DECISIONS.md` ADR-0292 e ADR-0289, `API.md` «Drawings» |
 | Disegnare a mano in «Draw» («Freehand»), «Edit the drawing» sulle figure proposte | `UI.md`, `tasks/TASK-320.md` |
 | A mano solo sulla mappa: la linea aperta, «Erase», «Edit the drawing» sulla mappa, niente per le emoji | `UI.md` «Disegnare sulla mappa», `tasks/TASK-331.md`, `DECISIONS.md` ADR-0288 |
+| Il disegno libero ancorato alle strade: map matching per tratto col nostro motore, fantasma e punteggio, strumenti da professionista, guide | `tasks/TASK-347.md`, `DECISIONS.md` ADR-0300, `ROUTE_ENGINE.md` §4–5 |
 | Il nuoto in acque libere, «Open water swim», la guida con l'Apple Watch | `tasks/TASK-323.md`, `ROUTE_ENGINE.md` §8 |
 | Apple Salute e Fitness, Health Connect: l'attività finita scritta sul telefono | `tasks/TASK-321.md`, `DECISIONS.md` ADR-0281 |
 | Allegati nei messaggi privati: disegni, foto, video | `tasks/TASK-333.md`, `DECISIONS.md` ADR-0279 e ADR-0289, `API.md` «Messages» |
+| Calorie e battito nei post del Feed, «Show heart rate» | `tasks/TASK-345.md`, `DECISIONS.md` ADR-0298 |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti

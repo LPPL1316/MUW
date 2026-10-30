@@ -170,6 +170,53 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   account: nessun limite (scelta dell'utente del 2026-10-30, «No limit»).
   Testi, regolamento, server e push con il sì dell'utente. File
   `tasks/TASK-343.md`.
+- **TASK-341 — I badge sul profilo: primo disegno, 10 disegni, 30 km**
+  (ADR-0294; richiesta dell'utente del 2026-10-29, proposta approvata con
+  «Yes, as proposed»; numeri dal Coordinatore). Branch
+  `docs/TASK-341-profile-badges` (documenti), poi
+  `feat/TASK-341-profile-badges`: `badges` in `GET /users/{id}`, decisi dal server sui disegni che chi guarda vede, solo
+  corse registrate dall'app; nell'app una fila sotto il nome accanto a
+  «Winner». Nessuna migrazione. Testi da approvare. File
+  `tasks/TASK-341.md`.
+- **TASK-345 — Calorie e battito nei post del Feed** (ADR-0298;
+  richiesta dell'utente del 2026-10-29, «Yes, A and B»; numeri dal
+  Coordinatore). Branch `docs/TASK-345-heart-calories`: i documenti. Poi
+  A (le calorie sulla card dalla distanza, solo app), B (il battito dai
+  file importati, «Show heart rate» acceso e nascondibile: scelta
+  dell'utente «On, publisher can hide»; testi e privacy col suo sì) e C
+  (lettura da Apple Salute / Health Connect, una sola modifica nativa con
+  TASK-321 B). `tasks/TASK-345.md`.
+- **TASK-347 — Il disegno libero ancorato alle strade: map matching per
+  tratto, confronto e punteggio, strumenti da professionista, guide**
+  (ADR-0300, proposta; richiesta dell'utente del 2026-10-30 in sei
+  capitoli e cinque fasi, con una fermata dopo ognuna; numeri dal
+  Coordinatore). Branch `docs/TASK-347-pro-freehand`: solo i documenti.
+  Proposta: niente Mapbox/Valhalla/OSRM; il map matching è una modalità
+  **ancorata** del nostro motore, per tratto al sollevamento del dito,
+  prima sul telefono (TASK-214) poi sul server, con la forza del magnete
+  (`fit`), il fantasma del tratto sotto il percorso e il punteggio = la
+  somiglianza del motore; il tratto resta nella pagina della mappa (niente
+  Skia: nativi alla build successiva). Parti A (motore e API), B
+  (telefono), C (app), D (strumenti), E (forme e guide col contorno da
+  foto), F (informazioni, bozza, esportazione), G (dislivello e profilo
+  dalle tegole del terreno sul server, nella fase 5).
+  Le cinque scelte di prodotto fatte dall'utente il 2026-10-30, una per
+  volta (motore nostro; tratto nella pagina; punteggio = somiglianza;
+  dislivello subito dalle tegole; contratto opzionale con la sonda).
+  **Resta**: il merge dei documenti, poi la parte A nella sua sessione.
+  Non si sovrappone a TASK-346 (i nodi della traccia vera). File
+  `tasks/TASK-347.md`.
+- **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297;
+  richiesta dell'utente del 2026-10-29, sei scelte approvate con «Sì,
+  vai»; numeri dal Coordinatore). Prima questa PR dei documenti
+  (`docs/TASK-344-feed-search`), poi la parte A, branch
+  `feat/TASK-344-a-drawing-search`: `GET /search/drawings` in
+  `drawing_search.py` (parole senza accenti, `named`, filtri, tre ordini,
+  nessuna migrazione), tipi in `shared-types`, `docs/API.md` «Drawing
+  search»; tempi su 10.000 disegni in `out/TASK-344/bench.txt`. Il server
+  si aggiorna solo col sì dell'utente. Poi parte B, l'app (`src/search/`,
+  la lente apre la ricerca; testi da approvare). File `tasks/TASK-344.md`.
+
 - **TASK-336 — Un video nei post: il video della corsa di MuW o uno
   proprio** (ADR-0292, proposta; richiesta dell'utente del 2026-10-29,
   approvata con «Yes, write it up»; numeri dal Coordinatore). Branch
