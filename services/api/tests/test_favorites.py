@@ -42,8 +42,12 @@ KEY = "3f9a1c0e7b2d4a65"
 OTHER_KEY = "a41b77c2d09e5f13"
 BIKE_KEY = "b7d2e94a0c3f6158"
 # The migrations of a favorite's activity: the column (TASK-200), and the
-# check widened for paddling (TASK-191).
-ACTIVITY_MIGRATIONS = ("_favorite_activity.sql", "_favorite_paddling.sql")
+# check widened for paddling (TASK-191) and for swimming (TASK-323).
+ACTIVITY_MIGRATIONS = (
+    "_favorite_activity.sql",
+    "_favorite_paddling.sql",
+    "_swimming.sql",
+)
 # Added by TASK-206 part B: the fixtures written before are what an older
 # app sends and an older API answers.
 ON_FOOT = {"on_foot"}
@@ -415,7 +419,7 @@ def test_every_activity_offered_is_kept(client: TestClient, activity: str) -> No
     assert whole["activity"] == activity
 
 
-@pytest.mark.parametrize("activity", ["swimming", "Cycling", "", None, 1])
+@pytest.mark.parametrize("activity", ["hiking", "Cycling", "", None, 1])
 def test_an_activity_the_api_does_not_offer_is_refused(
     client: TestClient, activity: Any
 ) -> None:
@@ -429,7 +433,7 @@ def test_an_activity_the_api_does_not_offer_is_refused(
         # The words of POST /routes.
         assert (
             f"unsupported activity {activity!r}; "
-            "choose one of: running, cycling, paddling"
+            "choose one of: running, cycling, paddling, swimming"
             in answer.json()["error"]["message"]
         )
     assert client.get("/me/favorites", headers=me).json() == {"favorites": []}
@@ -449,7 +453,7 @@ def test_the_database_keeps_only_the_activities_offered(
                 " similarity, line, created_at, activity) VALUES (%s, %s, '',"
                 " 5000, 5120, 0.9, ST_GeomFromText("
                 "'LINESTRING(11.1215 46.067,11.123 46.07)', 4326), now(),"
-                " 'swimming')",
+                " 'hiking')",
                 (user["id"], KEY),
             )
 
@@ -464,7 +468,7 @@ def test_favorites_kept_before_are_runs(
     before = [
         path for path in migrations() if not path.name.endswith(ACTIVITY_MIGRATIONS)
     ]
-    assert len(before) == len(migrations()) - 2
+    assert len(before) == len(migrations()) - len(ACTIVITY_MIGRATIONS)
     for path in before:
         shutil.copy(path, tmp_path / path.name)
     database.migrate(tmp_path)
