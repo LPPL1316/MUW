@@ -1599,6 +1599,13 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   disegni che chi guarda vede: mai quelle del proprietario, mai di chi un
   blocco tiene lontano da chi guarda. Solo le somme, mai una corsa.
   `profile_totals.py`; un'API precedente non li ha.
+- **I badge** (TASK-341, ADR-0294): `badges`, le chiavi dei badge presi
+  in ordine fisso: `first_drawing` (almeno un disegno), `ten_drawings`
+  (almeno dieci), `long_drawing` (un disegno di almeno 30 000 m). Contano
+  i disegni che chi guarda vede (la regola di `drawings`), mai quelli
+  nascosti dalla moderazione, solo di corse registrate dall'app
+  (`source = 'muw'`). «Winner» resta `contest_wins`. `badges.py`; un'API
+  precedente non li ha.
 - **`GET /users/{public_id}/photos`** (TASK-324): le foto dei disegni che
   chi guarda vede sul profilo, dalla corsa più recente e nello stesso
   disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima

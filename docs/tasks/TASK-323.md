@@ -254,6 +254,42 @@ File: `services/route-engine/route_engine/swim_turns.py`,
 `services/route-engine/tests/test_swim_turns.py`,
 `services/route-engine/tests/fixtures/shore_names_*.json`.
 
+#### A2, dove si è (2026-10-29)
+
+Scritta nella stessa sessione cloud di A1, su richiesta dell'utente («Prima
+A2», alla domanda su B), branch `feat/TASK-323-a2-swim-turns` partito da
+A1, poi allineato a `main` dopo che A1 c'è entrata (rockydalbianco/shaperoute#640).
+«File toccati» mandati al Coordinatore prima del codice. Aggiunta ad
+ADR-0283.
+
+- `swim_turns.py`: le curve (oltre 45°, guardate 15 m prima e dopo), con
+  punto, metri dalla partenza, verso, angolo e giro; `with_turns` mette nel
+  GPX un waypoint per ogni curva del primo giro.
+- `shore_names.py`: il posto con un nome più vicino entro 300 m, col tipo e
+  la direzione in cui guardarlo, dai file di `<cache>/shore_names/` (il
+  formato che B deve scrivere è in `ROUTE_ENGINE.md` §8). Senza file,
+  nessun nome e nessun errore.
+- `SwimPlan.turns` al posto di `RouteResult.turns`, e niente
+  `export_gpx.py`: tutti e due vanno con B, insieme a `models.py`, perché
+  cambiano le impronte. Impronte come in `main`.
+- Criteri: sulla fixture `shore_names_coast.json` (tre posti) ogni curva ha
+  il nome giusto, il faro oltre 300 m nessuna; senza file nessun nome e
+  nessun errore; tutto senza rete (`tests/test_swim_turns.py`).
+
+File toccati da A2:
+
+```
+services/route-engine/route_engine/swim_turns.py         (nuovo)
+services/route-engine/route_engine/shore_names.py        (nuovo)
+services/route-engine/route_engine/swimming.py           (di A1: le curve)
+services/route-engine/tests/test_swim_turns.py           (nuovo)
+services/route-engine/tests/fixtures/shore_names_coast.json (nuovo)
+services/api/shaperoute_api/route_store.py               (SWIM_ONLY)
+apps/mobile/assets/engine/engine.zip                     (rifatto)
+docs/ROUTE_ENGINE.md, docs/tasks/TASK-323.md, docs/DECISIONS.md,
+docs/STATUS.md
+```
+
 ### B — API e server
 
 1. `swimming` nel contratto (`packages/shared-types`, `SUPPORTED_ACTIVITIES`

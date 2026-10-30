@@ -75,23 +75,25 @@ function Stat({ label, value, unit }: { label: string; value: string; unit?: str
   );
 }
 
+type Asked = { fetchFn?: typeof fetch; apiKey?: string | null };
+
 /**
- * The totals of one's own «Profile»: as the others see them, from GET
- * /users/{public_id} with the account's token. Null while they come, and
- * from an API older than TASK-324.
+ * One's own «Profile» as the others see it, from GET /users/{public_id}
+ * with the account's token: the totals (TASK-324, `totalsOf`) and the
+ * badges (TASK-341). Null while it comes.
  */
-export function useOwnTotals(
+export function useOwnProfile(
   publicId: string | null,
-  { fetchFn, apiKey }: { fetchFn?: typeof fetch; apiKey?: string | null } = {},
-): ProfileTotals | null {
+  { fetchFn, apiKey }: Asked = {},
+): PublicProfile | null {
   const { apiUrl, account } = useFollowsDoor();
   const { state, sessionEnded: onSessionEnded } = account;
   const token = state.status === "signedIn" ? state.session.token : null;
   const asked = `${token ?? ""} ${publicId ?? ""}`;
-  // The totals of one account and token: another's are not these.
+  // The profile of one account and token: another's is not this.
   const [answer, setAnswer] = useState<{
     asked: string;
-    totals: ProfileTotals | null;
+    profile: PublicProfile;
   } | null>(null);
 
   useEffect(() => {
@@ -105,7 +107,7 @@ export function useOwnTotals(
           return;
         }
         if (outcome.kind === "ok") {
-          setAnswer({ asked, totals: totalsOf(outcome.value) });
+          setAnswer({ asked, profile: outcome.value });
         } else if (sessionEnded(outcome)) {
           onSessionEnded(token);
         }
@@ -116,7 +118,7 @@ export function useOwnTotals(
     };
   }, [apiKey, apiUrl, asked, fetchFn, onSessionEnded, publicId, token]);
 
-  return answer !== null && answer.asked === asked ? answer.totals : null;
+  return answer !== null && answer.asked === asked ? answer.profile : null;
 }
 
 const styles = StyleSheet.create({

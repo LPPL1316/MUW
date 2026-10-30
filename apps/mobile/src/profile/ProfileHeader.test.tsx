@@ -60,3 +60,30 @@ test("who won a contest has the «Winner» badge under the name; the others none
   await show();
   expect(screen.queryByLabelText("Winner")).toBeNull();
 });
+
+test("the badges of the drawings follow «Winner»; on one's own, those to earn too", async () => {
+  await render(
+    <ProfileHeader
+      username="runner_42"
+      bio=""
+      photo={null}
+      detail="3 drawings"
+      winner
+      badges={["first_drawing"]}
+    />,
+  );
+  expect(screen.getByTestId("badge-row")).toHaveTextContent("🏆Winner✏️First drawing");
+  expect(screen.queryByTestId("badge-ten_drawings")).toBeNull();
+
+  await render(
+    <ProfileHeader
+      username="runner_42"
+      bio=""
+      photo={null}
+      detail="me@example.com"
+      photoButton={{ open: false, busy: false, onPress: jest.fn() }}
+      badges={["first_drawing"]}
+    />,
+  );
+  expect(screen.getByLabelText("Not earned yet: 10 drawings")).toBeDisabled();
+});

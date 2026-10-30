@@ -1,0 +1,29 @@
+{
+  "note": "Three places on the beach of water_coast.json, in metres around its origin (44.0, 12.65): Bagno 54 at (-60, 25), Hotel Miramare at (70, 30), Faro di prova at (900, 30), more than 300 m from the star of tests/test_swim_turns.py.",
+  "bbox": [
+    43.977517,
+    12.6124939,
+    44.0089932,
+    12.6875061
+  ],
+  "places": [
+    {
+      "name": "Bagno 54",
+      "kind": "beach_resort",
+      "lat": 44.0002248,
+      "lon": 12.6492499
+    },
+    {
+      "name": "Hotel Miramare",
+      "kind": "hotel",
+      "lat": 44.0002698,
+      "lon": 12.6508751
+    },
+    {
+      "name": "Faro di prova",
+      "kind": "lighthouse",
+      "lat": 44.0002698,
+      "lon": 12.6612518
+    }
+  ]
+}

@@ -18246,6 +18246,47 @@ piccola».
 distanza non torna, o cambia: la distanza è dell'utente); i giri oltre 5
 senza dirlo all'utente.
 
+## ADR-0283 — aggiunta, parte A2: le curve dove si gira davvero, il posto con un nome più vicino, i waypoint
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-323 parte A2; l'utente ha scelto di fare A2 prima di B). Aggiunta ad
+ADR-0283.
+
+**Contesto**: il punto 3 della proposta vuole le curve con un nome a riva,
+da OpenStreetMap, entro 300 m. A2 è nel motore; l'estratto dei nomi sul
+server è di B. Come A1, le impronte non devono cambiare.
+
+**Decisione**:
+
+1. **Una curva è dove si gira davvero**: la direzione 15 m prima e 15 m
+   dopo il punto differisce di più di 45°, e di una fila di punti così si
+   tiene il più stretto. Su un contorno di 128 punti il cambio da un punto
+   all'altro è piccolo anche sulle punte: la finestra le trova, e lascia
+   fuori la curva di un cerchio. Dove il tratto dalla riva arriva sulla
+   forma e prosegue quasi dritto non c'è curva.
+2. **«La riva di fronte» è il posto più vicino**: la fascia sta entro 150 m
+   dalla riva, quindi il posto con un nome più vicino alla curva, entro 300
+   m, è su quella riva. A pari distanza il primo per nome, così il
+   risultato non dipende dall'ordine del file. Con il posto, il tipo e la
+   direzione in cui guardarlo.
+3. **Il formato dei file dei nomi** lo fissa A2, perché B lo scriva:
+   `<cache>/shore_names/*.json` con `bbox` e `places` (`name`, `kind`,
+   `lat`, `lon`). Si leggono i file la cui area tocca quella del nuoto. Un
+   file che non si legge si salta: i nomi aiutano, non devono fermare un
+   nuoto.
+4. **Le curve stanno in `SwimPlan`**, non in `RouteResult`, e i waypoint li
+   aggiunge `swim_turns.with_turns` al GPX di `export_gpx.to_gpx`: toccare
+   `models.py` o `export_gpx.py` cambierebbe le impronte, e B li tocca
+   comunque. I due file nuovi sono in `route_store.SWIM_ONLY`; impronte
+   come in `main`.
+5. **Nel GPX solo le curve del primo giro**: i giri dopo girano negli
+   stessi posti, e un waypoint ripetuto cinque volte non aiuta nessuno.
+
+**Scartate**: le curve come vertici della linea semplificata
+(Douglas-Peucker): danno curve finte ogni 60° su un cerchio; i posti
+pesati per tipo (un faro prima di un bar), da riprendere coi posti veri se
+servirà.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
@@ -19524,3 +19565,298 @@ forma spostata e le righe con un pulsante. Un altro percorso, o l'altro
 fra A e B, riparte da due. Scartati: un avviso solo (spesso è proprio
 quello delle scale) e una frase nuova «2 more notes» (da tradurre, mentre
 «Show more» c'è già).
+
+## ADR-0296 — Le sfide del mese: un tema sul concorso, l'iscrizione esplicita, la galleria, l'archivio, tre push
+
+**Stato**: Proposta · 2026-10-29 · TASK-343. Estende ADR-0260 (il primo
+concorso), che resta valido per i concorsi senza tema. Il tema,
+l'iscrizione esplicita e il voto che resta la reazione sono dell'utente
+(richiesta del 2026-10-29, proposta approvata con «Yes, as proposed»);
+quanti disegni per account è dell'utente (2026-10-30, «No limit»:
+nessun limite);
+i punti tecnici sono decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore.
+
+**Contesto**: l'utente il 2026-10-29, in un testo incollato su «GPS Art e
+challenge mensili»: una sezione «Challenge» con il tema del mese, la
+pagina con regole, date, premi e partecipanti, la galleria per più votati
+e più recenti, un voto per disegno senza autovoto, la classifica e il
+badge per i vincitori, l'archivio, le notifiche per la nuova sfida, gli
+ultimi 3 giorni e i risultati. Il concorso di TASK-299 ha già la
+classifica, il voto (la reazione: una per account, mai la propria), il
+badge «Winner», il premio senza valore e una push al vincitore; non ha un
+tema, un'iscrizione, una galleria, un archivio, le altre push.
+
+**Decisione** (proposta):
+
+1. **Il tema sta sul concorso**: `contests.theme`, titolo e descrizione
+   nelle cinque lingue, scritti da chi lo apre (`open --theme`). Resta un
+   solo concorso aperto alla volta; il premio resta senza valore
+   (CONCORSI §12). Senza tema il concorso è quello di ADR-0260.
+2. **Con un tema si partecipa iscrivendosi**: l'interruttore nel modulo
+   di pubblicazione, o dal post già pubblicato; tabella
+   `contest_entries`, nessuna colonna su `drawings` e `reactions`. Il
+   tema conta solo se chi pubblica lo sceglie; nessun controllo
+   automatico del tema: chi chiude esclude a mano, come oggi. Un account
+   iscrive quanti disegni vuole (scelta dell'utente). Valgono
+   tutte le regole di ADR-0260 su chi partecipa (per tutti, nel periodo,
+   registrato dall'app, non nascosto).
+3. **Il voto resta la reazione** di ADR-0260: nessun «mi piace» nuovo.
+4. **La galleria e l'archivio** sono letture nuove sulla stessa query
+   della classifica (`RANKED_SQL`): una regola sola per chi è davanti.
+5. **Tre push nuove**: nuova sfida a chi ha le push accese; gli ultimi 3
+   giorni una volta sola, a chi ha pubblicato almeno un disegno e non è
+   iscritto (un orologio nel processo dell'API, come `GroupRunClock`);
+   i risultati a chi ha partecipato. Il vincitore riceve ancora
+   `contest_won`.
+
+**Alternative scartate**: tutti i post del periodo in gara anche con un
+tema (il tema non varrebbe niente); un voto separato dalle reazioni (due
+gesti per la stessa cosa); un cron sul server per gli ultimi 3 giorni
+(l'API ha già i suoi orologi, nessun pezzo nuovo da far partire).
+
+**Conseguenze**: una migrazione; tre tipi di push e i loro testi; il
+regolamento ufficiale cambia e va riapprovato. «Challenge» è già una
+parola del gioco «Play» (TASK-296): i testi dell'app devono tenerle
+distinte.
+
+## ADR-0294 — I badge sul profilo: primo disegno, 10 disegni, 30 km, decisi dal server
+
+**Stato**: Attiva · 2026-10-29 · TASK-341. I badge sono dell'utente
+(richiesta del 2026-10-29, proposta approvata con «Yes, as proposed»); i
+punti tecnici sono decisi dall'agente su delega dell'utente. Numero dato
+dal Coordinatore. Accanto ad ADR-0260 («Winner») e ADR-0284 (i totali).
+
+**Contesto**: l'utente il 2026-10-29, in un testo incollato su «GPS Art e
+challenge mensili»: «Badge: primo disegno, 10 disegni, disegno oltre
+30 km, vincitore challenge». Il profilo aveva solo «Winner»
+(`contest_wins`, TASK-299) e i totali (TASK-324).
+
+**Decisione**:
+
+1. **Il server decide, l'app mostra**: `badges`, una lista di chiavi in
+   ordine fisso, in `GET /users/{public_id}` (il proprio profilo lo legge
+   già con il token per i totali, quindi `GET /me` non cambia):
+   `first_drawing` (almeno un disegno), `ten_drawings` (almeno dieci),
+   `long_drawing` (un disegno di almeno 30 000 m, `runs.distance_m`).
+   Una sottoquery sola, `badges.py`, nessuna tabella e nessuna colonna:
+   un badge si prende e si perde con i disegni.
+2. **Contano i disegni che chi guarda vede** (`shown_sql`, la regola del
+   numero `drawings` del profilo): un badge non dice niente dei disegni
+   che chi guarda non può vedere. Sul proprio profilo contano tutti i
+   propri disegni pubblicati.
+3. **Solo corse registrate dall'app** (`runs.source = 'muw'`), come il
+   concorso (ADR-0272): un file importato non fa un badge.
+4. **«Winner» resta `contest_wins`**, invariato; nell'app viene per primo
+   nella stessa fila.
+5. **Nell'app** una fila di badge sotto il nome, nello stile di
+   `WinnerBadge`. Sul proprio profilo anche quelli non ancora presi,
+   spenti, per dire che cosa si può prendere; sugli altri solo quelli
+   presi. Un'API senza `badges` lascia il solo «Winner».
+
+**Alternative scartate**: contare tutti i disegni pubblicati, anche
+quelli per i soli follower, per chiunque guardi: «10 drawings» direbbe a
+chi non segue che ci sono disegni che non vede. Una tabella dei badge
+presi: servirebbe solo per badge che non si perdono, e nessuno di questi
+lo chiede.
+
+**Conseguenze**: lo stesso profilo può mostrare badge diversi a chi segue
+e a chi no. Un disegno cancellato può togliere un badge. Aggiungere un
+badge è una riga in `badges.py` più un testo nell'app.
+
+## ADR-0298 — Calorie e battito nei post del Feed: le calorie contate dalla distanza, il battito riassunto, acceso e nascondibile da chi pubblica
+
+**Stato**: Proposta · 2026-10-29 · TASK-345. Chi vede il battito è una
+scelta dell'utente («On, publisher can hide»); il resto deciso dall'agente
+su delega dell'utente.
+
+**Contesto**: l'utente ha chiesto calorie e battito nei post del Feed. Le
+calorie l'app le stima solo durante la corsa (`kcal()`, 70 kg fissi,
+ADR-0219) e non le salva; il battito non c'è da nessuna parte: il telefono
+non lo misura, TASK-321 scrive in Salute ma non legge, l'importazione lo
+scarta.
+
+**Decisione**:
+
+1. **Le calorie si contano sulla card dalla distanza** del post, con la
+   stessa `kcal()`. Con il peso fisso dipendono solo dai metri: salvarle
+   sul server non aggiungerebbe niente. Solo per la corsa, come ADR-0219.
+2. **Del battito si tiene solo il riassunto**, medio e massimo in bpm
+   interi (`heart_avg_bpm`, `heart_max_bpm` in `runs`), mai i punti. Un
+   valore fuori dai 30–230 bpm è scartato dall'app e rifiutato dall'API.
+3. **Due fonti**: i file importati (GPX, TCX, FIT; senza niente di
+   nativo) e la lettura da Apple Salute / Health Connect nella finestra
+   della corsa (permesso di lettura: una sola modifica nativa insieme a
+   TASK-321 B, nella 1.0.1 se arriva prima del taglio, altrimenti nella
+   1.0.2).
+4. **Visibile e nascondibile** (scelta dell'utente): `heart_shown`, vero
+   all'inizio; nel modulo di pubblicazione «Show heart rate» lo spegne. Il
+   server non dà il battito agli altri quando è spento; all'autore sempre.
+5. **Un dato di salute usato solo lì**: il battito si mostra nel post e in
+   «My activities», nient'altro: né pubblicità, né classifiche, né il
+   gioco, né le email. La privacy lo dice nelle cinque lingue, con il sì
+   dell'utente.
+
+**Alternative scartate**: salvare le calorie sul server (lo stesso numero,
+una migrazione in più); tenere tutti i punti del battito (più dati di
+salute del necessario per un numero sulla card); il battito spento
+all'inizio (consiglio del Coordinatore, non scelto dall'utente); il
+sensore Bluetooth (dipendenza nuova, task a parte).
+
+**Conseguenze**: la parte A è solo app e va con un OTA. La B aggiunge tre
+colonne a `runs`, campi a `FeedPost` e al `PUT` della corsa, testi nuovi e
+la riga della privacy. La C cambia `app.config.ts` e il testo del permesso
+di Salute: solo dentro una build nativa.
+
+## ADR-0300 — Il disegno libero ancorato alle strade: il map matching è una modalità del nostro motore, per tratto, al sollevamento del dito
+
+**Stato**: Accettata · 2026-10-30 · la richiesta è **dell'utente**
+(TASK-347, «Contesto», 2026-10-30: il tracciato deve seguire da solo
+strade e sentieri reali, correggendo il dito, con strumenti da
+professionista, confronto e punteggio, informazioni, bozza ed
+esportazione); l'architettura è proposta dall'agente; le cinque scelte di
+prodotto sono **dell'utente**, fatte una per volta lo stesso giorno
+(TASK-347, «Scelte di prodotto»): il nostro motore e non un servizio
+esterno («Sì, motore nostro»); il tratto nella pagina della mappa, niente
+nativi fino alla build successiva («Sì, nella pagina»); il punteggio = la
+somiglianza del motore, sotto la mappa e non nei post («Sì, così»);
+dislivello e profilo subito, nella fase 5, dalle tegole del terreno
+(«Subito»); campi opzionali nel contratto ed endpoint nuovi con la sonda
+(«Sì, così»). I punti tecnici sono decisi dall'agente su delega
+dell'utente. Numeri dal Coordinatore.
+
+**Contesto**: dal TASK-331 (ADR-0288) a mano si disegna solo sulla mappa,
+ma il tratto resta geometria libera finché non si preme «Draw route»; lì
+il motore **cerca** (ruota fino a 45°, riscala 0,4–1,1, sposta la partenza
+fino a 500 m, 20–30 tracciamenti: 7,7 s sul telefono per un cuore da 5 km,
+fino a 50 s sul server per 21 km) e il risultato non dice dove ha messo la
+forma, quindi il disegno sparisce dalla mappa. Il motore ha già un modo
+senza ricerca (`--no-optimize`, TASK-017) e sa agganciare una linea aperta
+(TASK-040/041). L'app non ha Skia, gesture-handler, haptics né svg; la
+mappa è MapLibre in una WebView, dove il tratto è già a 60 fps senza
+passare dal ponte. L'impronta iOS deve restare `83793e26` fino alla build
+nativa successiva; l'API rifiuta i campi sconosciuti.
+
+**Decisione (proposta)**:
+
+1. **Il map matching è una modalità ancorata del motore**, non un servizio
+   esterno: la figura resta dove e come il dito l'ha messa, il motore non
+   cerca ma aggancia, tratto per tratto al sollevamento del dito, e ogni
+   tratto parte dal nodo finale del precedente, così i tratti si collegano
+   lungo le strade da soli. La ricerca di oggi («free») resta per forme,
+   parole e chi vuole una forma «vicino a casa».
+2. **Contratto, tutto opzionale**: `ImageRouteRequest.placement` («free»
+   di default, «anchored»), `ImageRouteRequest.fit` in [0, 1] (la forza
+   del magnete: la fascia del corridoio e il raggio delle zone fra due
+   quote della grandezza), `RouteResult.placed_outline` (la forma come
+   piazzata, per il fantasma), e `POST /stroke-matches` per un tratto
+   aperto (`points`, `off_roads`, `away_m` per punto). L'app li manda solo
+   a un server che li conosce (sonda, come TASK-308).
+3. **Prima sul telefono, poi sul server** (TASK-214): `phoneEngine` ha una
+   chiamata `match` sulla zona scaricata, o sulla zona del posto per un
+   disegno lontano (`/phone-zones`, come TASK-334); i tempi si misurano
+   nella parte A col banco di TASK-335 e, se un tratto supera ~1,5 s sul
+   telefono, il server va prima.
+4. **Il tratto resta nella pagina della mappa**: smoothing (ricampionamento
+   a passo fisso, Catmull-Rom o Chaikin) e Douglas-Peucker all'1% in un
+   modulo puro, lo stesso nella pagina per l'anteprima. Niente Skia né
+   gesture-handler: nativi, e un livello sopra la WebView passerebbe dal
+   ponte.
+5. **Confronto**: il tratto originale resta come fantasma sotto il
+   percorso agganciato; i punti oltre una soglia di distanza si colorano
+   con un terzo colore dei token; il punteggio è la somiglianza del motore
+   (copertura e precisione, già giudicata a occhio su sette città), non
+   Fréchet né Hausdorff (provate e scartate, `ROUTE_ENGINE.md` §5), detta
+   come «quanto le strade seguono il tuo disegno», sotto la mappa e non nei
+   post (TASK-241).
+6. **Casi difficili**: zona senza strade → `off_roads`, tratto lasciato
+   fantasma con avviso; aggancio fallito → routing fra i vertici della
+   semplificazione; tratto lungo → spezzato e concatenato; niente zona e
+   niente rete → fantasma, agganciato alla prima occasione.
+7. **Logica fuori dalla UI**: `strokes.ts`, `matching.ts` +
+   `useMapMatching`, `fidelity.ts`, `history.ts` (cronologia completa al
+   posto di `Step put/swap`); `useMapCanvas` compone. Gli strumenti (parte
+   D), le guide da immagine col contorno già tracciato dal motore (parte E,
+   TASK-072/084 e i pezzi di TASK-297), informazioni e bozza (parte F)
+   vengono dopo, una parte alla volta; dislivello e profilo (parte G,
+   nella fase 5 per scelta dell'utente, «Subito») si misurano sul server
+   dalle tegole del terreno di AWS che la mappa 3D usa già (ADR-0232),
+   in cache sul Volume, con `RouteResult.elevation` e `POST /elevations`
+   opzionali e senza quote offline; aptica e altri nativi alla build
+   successiva. Modificare i nodi di una traccia vera è del TASK-346.
+
+**Alternative scartate**: Mapbox Map Matching (chiave nell'app, costo a
+richiesta, rete obbligatoria), Valhalla/OSRM/GraphHopper (modelli di
+Markov per tracce GPS vere, che tagliano punte e anse e non ripassano un
+tratto apposta; un servizio nuovo sul server con grafi in RAM; rete
+obbligatoria); Skia + gesture-handler sopra la WebView (nativi, e la
+conversione schermo→geo passerebbe dal ponte); Fréchet/Hausdorff come
+punteggio (dominate dal punto peggiore); aggancio solo a fine disegno (è
+ciò che non va oggi); riscalare la figura ancorata per far tornare la
+distanza (tradirebbe «l'ho disegnato qui»: se la distanza non torna, lo
+dice).
+
+**Conseguenze**: il motore resta una libreria pura, senza rete e senza
+chiavi, e guadagna una modalità e una funzione per tratto da riga di
+comando; l'API un endpoint e tre campi opzionali, nessuna migrazione; il
+server si aggiorna col sì dell'utente prima dell'OTA; l'app resta OTA
+(impronta invariata) finché non chiede nativi; TASK-282 è assorbito dalla
+modalità ancorata. La somiglianza di un disegno ancorato sarà per
+costruzione più bassa di quella della ricerca: il numero va spiegato, non
+dato come voto.
+
+## ADR-0297 — Cercare i disegni dalla lente del Feed: `GET /search/drawings`, le parole senza accenti, la complessità dalla linea
+
+**Stato**: Attiva · 2026-10-29 · TASK-344. La richiesta e le scelte di
+prodotto sono **dell'utente**, del 2026-10-29 («Sì, vai» sulla proposta in
+sei punti, `tasks/TASK-344.md`). Numero e condizioni dal Coordinatore. Il
+come è deciso dall'agente su delega dell'utente.
+
+**Contesto**: la lente del Feed apriva solo «Find friends» (TASK-215,
+TASK-219). L'utente vuole cercare i disegni per soggetto, autore, posto e
+parole, con filtri e ordinamento. I disegni dei membri stanno sul server,
+a pagine (`GET /feed`): l'app non può cercarli tutti da sola. Gli esempi
+del Feed sono una ventina, sul telefono.
+
+**Decisione**:
+
+1. **Un endpoint nuovo**, `GET /search/drawings`, accanto al feed
+   (`drawing_search.py`): la stessa domanda su chi vede cosa
+   (`drawings.shown_sql`, mai `only_me`, mai attraverso un blocco), la
+   stessa pagina (`FeedPage`), un cursore suo.
+2. **Le parole** (`q`) si cercano nel titolo, nella descrizione, nella
+   forma (`dog_head` come «dog head»), nella parola disegnata, nel titolo
+   del percorso, nel posto e nel nome dell'autore; **tutte** devono
+   esserci. Maiuscole e accenti non contano: una sola tabella di lettere
+   piega le parole in Python e i campi in SQL (`translate(lower(…))`).
+   Niente `unaccent`, che vorrebbe una migrazione.
+3. **Le forme nella lingua dell'app**: le forme sono id inglesi; l'app
+   manda in `named` quelle che le parole nominano nella sua lingua
+   («cuore» → `heart`), e un disegno di una di esse è trovato anche se le
+   parole non ci sono.
+4. **I filtri**: `shape` (le forme di una categoria, decise dall'app),
+   `activity`, `min_m`/`max_m`, `place`, `complexity`. Più valori di uno
+   si sommano, filtri diversi valgono tutti.
+5. **La complessità** si legge dall'anteprima della traccia (al più 64
+   punti): lunghezza diviso diagonale del rettangolo che la contiene;
+   sotto 3,6 semplice, sotto 4,5 media, oltre complessa. Le soglie sono
+   tarate sugli esempi del Feed e stanno in `shared-types`, così l'app
+   classifica gli esempi allo stesso modo.
+6. **Gli ordini**: `recent` (pubblicazione), `longest` (distanza),
+   `popular` (reazioni). Il cursore è `ordine-valore-id`: un cursore di un
+   altro ordine è `422`. In `popular` una reazione lasciata fra due pagine
+   può spostare un disegno: accettato, come nel feed chi comincia a
+   seguire.
+
+**Alternative scartate**: cercare sul telefono nelle pagine del feed già
+lette (trova solo ciò che si è già scorso); un indice di testo di
+PostgreSQL con migrazione (da aggiungere solo se i tempi su 10.000 disegni
+non bastano); tradurre i nomi delle forme sul server (le lingue stanno
+nell'app); salvare la complessità in una colonna (vorrebbe una migrazione,
+e si calcola in fretta dall'anteprima).
+
+**Conseguenze**: nessuna migrazione, nessuna dipendenza, niente di nativo.
+Il server va aggiornato prima dell'OTA dell'app che usa la ricerca, col sì
+dell'utente; un server precedente risponde `404` e l'app cerca solo negli
+esempi. `shared-types` ha `DrawingSearchPage`, `DRAWING_SORTS`,
+`DRAWING_COMPLEXITIES` e le due soglie.
