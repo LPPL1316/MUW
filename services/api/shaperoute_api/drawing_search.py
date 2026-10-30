@@ -38,7 +38,7 @@ from shaperoute_api.accounts import (
     accounts_of,
     current_user,
 )
-from shaperoute_api.activities import RunActivity
+from shaperoute_api.activities import EPOCH, MICROSECOND, RunActivity
 from shaperoute_api.db import Database
 from shaperoute_api.drawings import (
     LISTED_COLUMNS,
@@ -69,9 +69,11 @@ Complexity = Literal["simple", "medium", "complex"]
 SIMPLE_BELOW = 3.6
 MEDIUM_BELOW = 4.5
 
-# The letters folded to their plain ones before words are compared, in
-# Python and in SQL (translate): one for one, the same table both sides.
-# Lower case only: both sides lower the text first.
+# The letters with accents, under their plain ones: a word asked is folded
+# to plain letters, then each letter stands for itself and its accented
+# ones in the pattern the text is matched with (`pattern_of`). Lower case
+# only: the text is lowered first. A pattern costs a tenth of folding every
+# text with translate() (out/TASK-344).
 _FOLDED = {
     "a": "àáâãäåāăą",
     "c": "çćč",
@@ -108,14 +110,19 @@ def folded(text: str) -> str:
     return text.lower().translate(_FOLD)
 
 
-def folded_sql(column: str) -> str:
-    """The SQL of `column` folded as `folded` folds a text."""
-    return f"translate(lower({column}), '{FOLDED_FROM}', '{FOLDED_TO}')"
-
-
-def like_itself(text: str) -> str:
-    """`text` in a LIKE pattern, matching only itself."""
-    return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+def pattern_of(word: str) -> str:
+    """A regular expression of PostgreSQL that finds the folded `word` in a
+    lowered text, each letter with or without its accents: «citta» finds
+    «città». Every other character stands only for itself."""
+    out: list[str] = []
+    for char in word:
+        if char in _FOLDED:
+            out.append(f"[{char}{_FOLDED[char]}]")
+        elif char.isascii() and not char.isalnum():
+            out.append(f"\\{char}")
+        else:
+            out.append(char)
+    return "".join(out)
 
 
 def words_of(q: str) -> list[str] | None:
@@ -128,8 +135,8 @@ def words_of(q: str) -> list[str] | None:
 
 
 def complexity_of(length_m: float, diagonal_m: float) -> Complexity:
-    """How complex a line is, from its length and its rectangle's diagonal:
-    as COMPLEXITY_SQL says it. A line with no width is simple."""
+    """How complex a line is, from its length and its rectangle's diagonal,
+    both on the plane of COMPLEXITY_SQL. A line with no width is simple."""
     if diagonal_m <= 0:
         return "simple"
     winding = length_m / diagonal_m
@@ -138,31 +145,46 @@ def complexity_of(length_m: float, diagonal_m: float) -> Complexity:
     return "medium" if winding < MEDIUM_BELOW else "complex"
 
 
-# The rectangle of the preview, as its two corners in geography.
-_CORNER = "ST_SetSRID(ST_MakePoint(ST_X{0}(d.preview), ST_Y{0}(d.preview)), 4326)"
-_DIAGONAL = (
-    f"ST_Distance({_CORNER.format('Min')}::geography,"
-    f" {_CORNER.format('Max')}::geography)"
+# The preview on a plane: longitudes shortened by the cosine of the
+# latitude in the middle, so a degree is about as long both ways. Ratios
+# need no metres, and a plane is ten times cheaper than geography.
+_FLAT = (
+    "ST_Scale(d.preview,"
+    " cos(radians((ST_YMin(d.preview) + ST_YMax(d.preview)) / 2)), 1)"
+)
+# Its length over its rectangle's diagonal, computed once for each row.
+_WINDING = (
+    "SELECT ST_Length(flat) / NULLIF(sqrt(power(ST_XMax(flat) - ST_XMin(flat), 2)"
+    " + power(ST_YMax(flat) - ST_YMin(flat), 2)), 0) AS winding"
+    f" FROM (SELECT {_FLAT} AS flat) plane"
 )
 COMPLEXITY_SQL = (
-    f"CASE WHEN d.preview IS NULL OR {_DIAGONAL} = 0 THEN 'simple'"
-    f" WHEN ST_Length(d.preview::geography) / {_DIAGONAL} < {SIMPLE_BELOW}"
-    " THEN 'simple'"
-    f" WHEN ST_Length(d.preview::geography) / {_DIAGONAL} < {MEDIUM_BELOW}"
-    " THEN 'medium' ELSE 'complex' END"
+    "(SELECT CASE WHEN winding IS NULL"
+    f" OR winding < {SIMPLE_BELOW} THEN 'simple'"
+    f" WHEN winding < {MEDIUM_BELOW} THEN 'medium' ELSE 'complex' END"
+    f" FROM ({_WINDING}) line)"
 )
 # Every word a drawing is found by, in one text, folded.
-WORDS_SQL = folded_sql(
-    "concat_ws(' ', d.title, d.description, replace(r.shape, '_', ' '), r.word,"
-    " r.title, r.place, u.username)"
+WORDS_SQL = (
+    "lower(concat_ws(' ', d.title, d.description, replace(r.shape, '_', ' '),"
+    " r.word, r.title, r.place, u.username))"
 )
+FROM_SQL = "drawings d JOIN runs r ON r.id = d.run_id JOIN users u ON u.id = r.user_id"
 REACTIONS_SQL = "(SELECT count(*) FROM reactions x WHERE x.drawing_id = d.id)"
-# The value each order is in, a bigint: the latest, longest or most liked
-# first.
+# The value each order is in, a bigint for the cursor: the latest, longest
+# or most liked first.
 RANK_SQL: dict[Sort, str] = {
     # Microseconds of publication since 1970, as in the cursor of the feed.
     "recent": "(EXTRACT(EPOCH FROM d.published_at) * 1000000)::bigint",
     "longest": "r.distance_m::bigint",
+    "popular": REACTIONS_SQL,
+}
+# What each order sorts by: the columns themselves where there are some,
+# so the index of the published drawings (migration 0022) reads the latest
+# first and stops at the page.
+ORDER_SQL: dict[Sort, str] = {
+    "recent": "d.published_at",
+    "longest": "r.distance_m",
     "popular": REACTIONS_SQL,
 }
 
@@ -191,35 +213,53 @@ def _after_cursor(cursor: str) -> tuple[str, int, UUID]:
 
 def _where(words: Sequence[str], filters: Filters, values: dict[str, Any]) -> str:
     """The conditions of the words and of the filters, on the columns of
-    the inner query; their values go into `values`."""
+    the drawing `d`, its run `r` and its author `u`; their values go into
+    `values`. Each expression is computed only when it is asked."""
     found: list[str] = []
     if words:
-        values["words"] = [f"%{like_itself(word)}%" for word in words]
-        every = "words LIKE ALL (%(words)s)"
+        values["words"] = [pattern_of(word) for word in words]
+        every = f"{WORDS_SQL} ~ ALL (%(words)s)"
         if filters.named:
             values["named"] = list(filters.named)
-            every = f"({every} OR shape = ANY (%(named)s))"
+            every = f"({every} OR r.shape = ANY (%(named)s))"
         found.append(every)
     if filters.shapes:
         values["shapes"] = list(filters.shapes)
-        found.append("shape = ANY (%(shapes)s)")
+        found.append("r.shape = ANY (%(shapes)s)")
     if filters.activities:
         values["activities"] = list(filters.activities)
-        found.append("activity = ANY (%(activities)s)")
+        found.append("r.activity = ANY (%(activities)s)")
     if filters.min_m is not None:
         values["min_m"] = filters.min_m
-        found.append("distance_m >= %(min_m)s")
+        found.append("r.distance_m >= %(min_m)s")
     if filters.max_m is not None:
         values["max_m"] = filters.max_m
-        found.append("distance_m <= %(max_m)s")
+        found.append("r.distance_m <= %(max_m)s")
     place = folded(filters.place.strip())
     if place:
-        values["place"] = f"%{like_itself(place)}%"
-        found.append(f"{folded_sql('place')} LIKE %(place)s")
+        values["place"] = pattern_of(place)
+        found.append("lower(r.place) ~ %(place)s")
     if filters.complexities:
         values["complexities"] = list(filters.complexities)
-        found.append("complexity = ANY (%(complexities)s)")
+        found.append(f"{COMPLEXITY_SQL} = ANY (%(complexities)s)")
     return " AND ".join(found) or "TRUE"
+
+
+def search_sql(sort: Sort, where: str) -> str:
+    """The query of a page: first the ids, from the light columns; then
+    what is shown of those only. The preview of 10,000 drawings is not
+    written out to keep twenty."""
+    return (
+        f"SELECT {LISTED_COLUMNS}, u.public_id, u.username, found.rank"
+        f" FROM (SELECT d.id, {RANK_SQL[sort]} AS rank FROM {FROM_SQL}"
+        # As the feed: never a private run, for the index too.
+        " WHERE d.visibility <> 'only_me'"
+        f" AND {shown_sql('%(viewer)s')} AND {where}"
+        f" ORDER BY {ORDER_SQL[sort]} DESC, d.id DESC LIMIT %(limit)s) found"
+        " JOIN drawings d ON d.id = found.id"
+        " JOIN runs r ON r.id = d.run_id JOIN users u ON u.id = r.user_id"
+        " ORDER BY found.rank DESC, d.id DESC"
+    )
 
 
 @dataclass
@@ -251,23 +291,14 @@ class DrawingSearch:
             cursor_sort, rank, last = _after_cursor(cursor)
             if cursor_sort != sort:
                 raise AccountError(422, "invalid_request", SORT_MISMATCH)
-            values.update(rank=rank, last=last)
-            where += " AND (rank, id) < (%(rank)s, %(last)s)"
+            at: Any = EPOCH + rank * MICROSECOND if sort == "recent" else rank
+            values.update(at=at, last=last)
+            where += f" AND ({ORDER_SQL[sort]}, d.id) < (%(at)s, %(last)s)"
         with self.database.connect() as conn:
-            rows = conn.execute(
-                "SELECT * FROM ("
-                f"SELECT {LISTED_COLUMNS}, u.public_id, u.username,"
-                f" {WORDS_SQL} AS words, {COMPLEXITY_SQL} AS complexity,"
-                f" {RANK_SQL[sort]} AS rank"
-                " FROM drawings d JOIN runs r ON r.id = d.run_id"
-                " JOIN users u ON u.id = r.user_id"
-                # As the feed: never a private run, for the index too.
-                " WHERE d.visibility <> 'only_me'"
-                f" AND {shown_sql('%(viewer)s')}) found"
-                f" WHERE {where}"
-                " ORDER BY rank DESC, id DESC LIMIT %(limit)s",
-                values,
-            ).fetchall()
+            # Compiling the query costs more than running it on 10,000
+            # drawings (out/TASK-344): for this transaction only.
+            conn.execute("SET LOCAL jit = off")
+            rows = conn.execute(search_sql(sort, where), values).fetchall()
             page, more = rows[:limit], len(rows) > limit
             details = _details(conn, [row["id"] for row in page])
         return FeedBody(

@@ -32,13 +32,12 @@ from shaperoute_api.db import Database
 from shaperoute_api.drawing_search import (
     CURSOR_PATTERN,
     DISTANCE_UPSIDE_DOWN,
-    FOLDED_FROM,
-    FOLDED_TO,
     MAX_QUERY_LENGTH,
     NOT_A_SHAPE,
     SORT_MISMATCH,
     complexity_of,
     folded,
+    pattern_of,
     words_of,
 )
 
@@ -107,9 +106,11 @@ def zigzag(strokes: int, width_m: float = 1000.0) -> dict[str, Any]:
 # --- The words ---
 
 
-def test_the_folding_tables_are_one_for_one() -> None:
-    assert len(FOLDED_FROM) == len(FOLDED_TO)
-    assert len(set(FOLDED_FROM)) == len(FOLDED_FROM)
+def test_the_folding_and_the_patterns() -> None:
+    # Each letter with its accents; anything else only itself.
+    assert pattern_of("ca") == "[cçćč][aàáâãäåāăą]"
+    assert pattern_of("#1%") == "\\#1\\%"
+    assert pattern_of("ж") == "ж"
     assert folded("Città ÀNCORA Señora Łódź") == "citta ancora senora lodz"
 
 
@@ -158,6 +159,8 @@ def test_every_field_is_searched_without_capitals_or_accents(
     }
     # A `%` or a `_` is only itself.
     assert found(client, me, q="%") == set()
+    # Nor a dot, in the pattern.
+    assert found(client, me, q=".") == set()
 
 
 def test_every_word_must_be_there(
