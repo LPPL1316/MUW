@@ -18287,6 +18287,59 @@ server è di B. Come A1, le impronte non devono cambiare.
 pesati per tipo (un faro prima di un bar), da riprendere coi posti veri se
 servirà.
 
+## ADR-0283 — aggiunta, parte B: il nuoto nel contratto, l'app ancora a tre attività, un'impronta per i nuoti tenuti
+
+**Stato**: Attiva · 2026-10-30 · deciso dall'agente su delega dell'utente
+(TASK-323 parte B, su richiesta dell'utente «passa alla parte B»).
+Aggiunta ad ADR-0283.
+
+**Contesto**: B porta il nuoto nell'API: il contratto, la migrazione,
+l'estratto dei nomi a riva. `models.py` cambia, e con lui le due impronte
+che A1 e A2 avevano tenuto ferme. I tipi condivisi (`shared-types`) sono
+anche quelli dell'app: `Activity` è la chiave di tabelle dell'app e dei
+file di Apple Salute di TASK-321, che il task non deve toccare.
+
+**Decisione**:
+
+1. **Il contratto**: `swimming` in `SUPPORTED_ACTIVITIES`,
+   `WATER_ACTIVITIES` e `DISTANCE_LIMITS_M` (500–3000 m);
+   `RouteRequest.laps` (1–5, solo nuoto, `laps are for a swim`);
+   `RouteResult.laps` e `.turns`. I tipi delle curve (`SwimTurn`,
+   `Landmark`) passano da `swim_turns.py` a `models.py`: sono dati del
+   contratto, e così `models.py` non importa un modulo del nuoto.
+2. **L'app resta a tre attività**: in `shared-types` `Activity` non cambia
+   e un `API_ACTIVITIES` nuovo ha anche `swimming`, come `contract.json`;
+   `DISTANCE_LIMITS_M` ha le quattro. Allargare `Activity` rompe
+   `distance.ts`, `PublicParts.tsx` e i due file di Apple Salute: è lavoro
+   della parte C (lo schermo, i testi da approvare) e di TASK-321 (il tipo
+   di allenamento del nuoto, condiviso con la parte E). L'app compila
+   senza cambiare.
+3. **Un disegno si nuota come un'immagine**: `/image-route-jobs` con
+   `swimming` (anche coi giri) va a `plan_swim`; per la canoa resta il
+   rifiuto (`check_outline_drawn`). Il comando principale nuota solo le
+   forme; un disegno da `python -m route_engine.swimming --outline`.
+4. **I nomi a riva sul server**: `ServerWater.places` legge
+   `<cache>/shore_names/`, e il job li passa al motore
+   (`_ReportingWater.places`). `shore_extract.py` li scrive da un estratto,
+   come `water_extract.py`: i posti con un nome di `KINDS` entro 300 m
+   dalla costa o dal bordo di un lago.
+5. **Le impronte**: `route_store` tiene i nuoti con
+   `engine_fingerprint(swims=True)`, gli altri senza i file del nuoto; i
+   giri sono parte di cosa è uguale (`_same`). Il comando principale
+   importa il nuoto ma l'API no: il test dell'import lo lascia fuori.
+6. **Strava** riceve un nuoto come `Swim` (non ha un tipo per le acque
+   libere); il gioco lo conta come ogni attività che non è corsa.
+7. **La migrazione `0039_swimming.sql`** apre i tre vincoli che elencano
+   le attività (preferiti, corse, corse di gruppo); `drawn_routes` non ha
+   un elenco.
+
+**Conseguenze**: dopo il merge e l'aggiornamento del server gli esempi
+tenuti si ridisegnano (`draw_examples`). `apps/mobile/src/paddle/paddleExamples.json`
+va rifatto con l'acqua del server (`python -m shaperoute_api.paddle_examples
+--cache-dir …`): finché non lo si rifà, `test_paddle_examples` è rosso, e
+dalla sessione cloud non si può. L'estratto dei nomi e il deploy col sì
+dell'utente.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,

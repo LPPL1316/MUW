@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Literal
 
 from route_engine.directions import Direction
 from route_engine.shapes import SUPPORTED_SHAPES, in_pieces
@@ -18,9 +19,10 @@ from route_engine.words import (
 # The activities of the contract, what the API and the app offer:
 # packages/shared-types mirrors them (ADR-0028). "cycling" joined them with
 # the API's part of TASK-190 (ADR-0153), "paddling" with that of TASK-191
-# (ADR-0164); an activity the engine draws joins them only when the API
-# gives it its network, or its water.
-SUPPORTED_ACTIVITIES: tuple[str, ...] = ("running", "cycling", "paddling")
+# (ADR-0164), "swimming" with that of TASK-323 (ADR-0283); an activity the
+# engine draws joins them only when the API gives it its network, or its
+# water.
+SUPPORTED_ACTIVITIES: tuple[str, ...] = ("running", "cycling", "paddling", "swimming")
 
 # Plausible target distances for running, in metres.
 MIN_DISTANCE_M = 1_000
@@ -31,17 +33,27 @@ MAX_DISTANCE_M = 50_000
 # distances in metres: a bike route is 10-30 km, the user's choice for a
 # first step (TASK-190, ADR-0153); a paddling route 1-5 km, the user's choice
 # too (TASK-191, ADR-0161): within 1 km of the shore a shape fits up to about
-# 3 km at sea and 5-6 on a lake, and beyond that the error says what fits.
+# 3 km at sea and 5-6 on a lake, and beyond that the error says what fits;
+# an open-water swim 0.5-3 km, every lap and the legs from the shore
+# (TASK-323, ADR-0283).
 DISTANCE_LIMITS_M: dict[str, tuple[int, int]] = {
     "running": (MIN_DISTANCE_M, MAX_DISTANCE_M),
     "cycling": (10_000, 30_000),
     "paddling": (1_000, 5_000),
+    "swimming": (500, 3_000),
 }
 ACTIVITIES: tuple[str, ...] = tuple(DISTANCE_LIMITS_M)
 
 # The activities drawn on a lake or the sea, with no road network: where the
 # shape fits on the water it is the route (water_fit.py, ADR-0154).
-WATER_ACTIVITIES: frozenset[str] = frozenset({"paddling"})
+WATER_ACTIVITIES: frozenset[str] = frozenset({"paddling", "swimming"})
+# Those that also take a drawn outline, an image's or one drawn by hand:
+# a swim (TASK-323, the user's ask of 2026-10-29).
+DRAWN_ON_WATER: frozenset[str] = frozenset({"swimming"})
+# A swim goes round its shape this many times at most (TASK-323, the user's
+# choice): 130 m of band hold about half a kilometre of shape.
+MAX_SWIM_LAPS = 5
+LAPS_SWIM_ONLY = "laps are for a swim"
 # Why a word or an image on the water is refused (TASK-191, ADR-0161): only
 # a shape of the catalogue is drawn there for now. The API says it for an
 # image too (TASK-191 part B).
@@ -59,6 +71,38 @@ PEN_UP_WITHOUT_PIECES = f"{PEN_UP_WITHOUT_WORD}, or the pieces of a shape"
 # A shape is moved only on the water (TASK-238): on the roads the search
 # decides where it fits.
 NEAR_ON_WATER_ONLY = "a shape is placed near a point only on the water"
+
+
+# The turns of a swim (TASK-323, swim_turns.py): data of the contract, as
+# the route, so here; swim_turns.py finds them, shore_names.py names them.
+Side = Literal["left", "right"]
+
+
+@dataclass(frozen=True)
+class Landmark:
+    """A place with a name on the shore, to turn opposite (shore_names)."""
+
+    name: str
+    # What it is, from OpenStreetMap: "beach_resort", "pier", "lighthouse"...
+    kind: str
+    point: tuple[float, float]
+    # From the turn, and the direction to look, clockwise from north.
+    distance_m: float
+    bearing_deg: float
+
+
+@dataclass(frozen=True)
+class SwimTurn:
+    """Where the route turns: the point, metres from the start of the
+    swim, which way and by how much (0-180°), the lap (from 1), and the
+    place on the shore to turn opposite, when there is one."""
+
+    point: tuple[float, float]
+    at_m: float
+    side: Side
+    angle_deg: float
+    lap: int = 1
+    landmark: Landmark | None = None
 
 
 class InvalidRequestError(ValueError):
@@ -85,6 +129,10 @@ class RouteRequest:
     # `centre` of a route before, moved. The engine places the shape at the
     # nearest place to it where it fits.
     near: tuple[float, float] | None = None
+    # A swim, how many times round its shape (TASK-323): fewer, a larger
+    # shape, as many laps as that make the distance. None: the fewest it
+    # fits in.
+    laps: int | None = None
 
     def __post_init__(self) -> None:
         check_start(self.start)
@@ -114,6 +162,7 @@ class RouteRequest:
             if self.activity not in WATER_ACTIVITIES:
                 raise InvalidRequestError(NEAR_ON_WATER_ONLY)
             check_start(self.near)
+        check_laps(self.laps, self.activity)
 
     @property
     def name(self) -> str:
@@ -183,6 +232,25 @@ def check_drawn_on_land(activity: str, what: str) -> None:
         raise InvalidRequestError(f"{ON_WATER_SHAPES_ONLY}, not {what}")
 
 
+def check_outline_drawn(activity: str, what: str) -> None:
+    """Refuse `what` (an image, a drawing, an outline) where it is not drawn:
+    on the water, but for a swim (DRAWN_ON_WATER, TASK-323)."""
+    if activity not in DRAWN_ON_WATER:
+        check_drawn_on_land(activity, what)
+
+
+def check_laps(laps: int | None, activity: str) -> None:
+    """None, or 1 to MAX_SWIM_LAPS for a swim (TASK-323)."""
+    if laps is None:
+        return
+    if activity != "swimming":
+        raise InvalidRequestError(LAPS_SWIM_ONLY)
+    if not 1 <= laps <= MAX_SWIM_LAPS:
+        raise InvalidRequestError(
+            f"a swim goes round its shape 1 to {MAX_SWIM_LAPS} times, got {laps}"
+        )
+
+
 @dataclass(frozen=True)
 class RouteResult:
     points: list[tuple[float, float]]
@@ -220,3 +288,8 @@ class RouteResult:
     # upright (optimizer.shown_rotation, TASK-232, ADR-0195). 0 for a shape
     # that turns freely, like the circle, and without a search.
     rotation_deg: float = 0.0
+    # A swim (TASK-323): how many times round its shape, and its turns, in
+    # order, every lap's, each with the place on the shore to turn opposite
+    # (swim_turns.py, shore_names.py). 1 and none for any other route.
+    laps: int = 1
+    turns: list[SwimTurn] = field(default_factory=list)

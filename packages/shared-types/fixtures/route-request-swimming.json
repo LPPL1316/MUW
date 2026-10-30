@@ -1,0 +1,11 @@
+{
+  "start": [44.0007, 12.6513],
+  "shape": "heart",
+  "word": null,
+  "distance_m": 1000,
+  "activity": "swimming",
+  "style": "round",
+  "pen_up": false,
+  "near": null,
+  "laps": 3
+}

@@ -302,6 +302,58 @@ docs/STATUS.md
 4. Sul server, **col sì dell'utente**: l'estratto dei nomi e, per
    «Explore», un `draw_examples --water` per il nuoto.
 
+#### B, dove si è (2026-10-30)
+
+Scritta nella stessa sessione cloud, su richiesta dell'utente («passa alla
+parte B»), branch `feat/TASK-323-b-swim-api` allineato a `main` dopo A2
+(rockydalbianco/shaperoute#640 e LPPL1316/MUW#11). «File toccati» mandati
+al Coordinatore prima del codice. Aggiunta ad ADR-0283.
+
+- Punto 1: `swimming` nel contratto del motore e dell'API, coi giri
+  (`laps`) nella richiesta e giri e curve (`laps`, `turns`) nella risposta;
+  in `shared-types` `API_ACTIVITIES` e le fixture del nuoto. `Activity`
+  dell'app resta a tre fino alla parte C (decisione 2 dell'aggiunta).
+- Punto 2: `0039_swimming.sql` (preferiti, corse, corse di gruppo); il
+  gioco e i disegni leggono `runs.activity` e non hanno un elenco loro.
+- Punto 3: `shore_extract.py`, i posti con nome lungo la riva da un
+  estratto, nei file che il motore legge.
+- In più: un disegno a nuoto da `/image-route-jobs`; i nuoti tenuti con
+  un'impronta loro; il GPX di `POST /gpx` con le curve; Strava `Swim`;
+  `--activity swimming --laps N` nel comando del motore.
+- Punto 4 e **il blocco**: col sì dell'utente, sul server l'estratto dei
+  nomi, `draw_examples` (l'impronta degli esempi cambia) e
+  `paddleExamples.json` rifatto con l'acqua del server. Dalla sessione
+  cloud non si raggiunge: `test_paddle_examples` resta rosso finché il
+  Mac non lo rifà. `draw_examples --water` per il nuoto serve a «Explore»,
+  quindi va con la parte C.
+- Impronte dopo B: esempi tenuti `6f2cb10229f1` (i nuoti `7f83fc6aa067`),
+  esempi della canoa `fa42c9b81a1e` (il file dell'app dice ancora
+  `1b6759cb3cc4`). Il codice che disegna la canoa non cambia: rifatti,
+  gli esempi dovrebbero cambiare solo nel campo `engine`.
+
+File toccati da B:
+
+```
+services/route-engine/route_engine/models.py, __main__.py, swimming.py,
+  swim_turns.py, shore_names.py
+services/route-engine/tests/test_swimming.py, test_contract.py,
+  test_better_distance.py, test_bike_network.py, test_cli.py,
+  test_paddling.py (il nuoto non è più «un'attività che non c'è»)
+services/api/shaperoute_api/paddling.py, jobs.py, images.py, schemas.py,
+  app.py, activities.py, strava.py, route_store.py, shore_extract.py (nuovo)
+services/api/migrations/0039_swimming.sql (nuovo)
+services/api/tests/test_swimming_api.py, test_shore_extract.py (nuovi),
+  test_contract.py, test_cycling.py, test_route_store.py,
+  test_swim_fingerprint.py, test_better_distance.py, test_rotation.py,
+  test_request_log.py (i campi nuovi `laps` e `turns`)
+packages/shared-types/src/index.ts, test/contract.test.ts,
+  fixtures/contract.json, fixtures/route-request-swimming.json (nuovo),
+  fixtures/route-result-swimming.json (nuovo)
+apps/mobile/assets/engine/engine.zip (rifatto)
+docs/API.md, docs/DATABASE.md, docs/ROUTE_ENGINE.md, docs/DECISIONS.md,
+docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ### C — App: lo sport
 
 1. «Open water swim» 🏊 in «Settings» e nel menu degli sport di «Draw»

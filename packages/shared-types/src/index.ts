@@ -48,12 +48,20 @@ export const PEN_UP_SHAPES = [
 ] as const satisfies readonly Shape[];
 export type PenUpShape = (typeof PEN_UP_SHAPES)[number];
 
-/** What a route is for: on foot, by bike on the roads a bike may ride,
- * one-way streets kept (TASK-190, ADR-0153), or paddling on a lake or the
- * sea within 1 km of the shore, a shape of the catalogue only (TASK-191,
- * ADR-0161). */
+/** What a route is for in the app: on foot, by bike on the roads a bike
+ * may ride, one-way streets kept (TASK-190, ADR-0153), or paddling on a lake
+ * or the sea within 1 km of the shore, a shape of the catalogue only
+ * (TASK-191, ADR-0161). */
 export const ACTIVITIES = ["running", "cycling", "paddling"] as const;
 export type Activity = (typeof ACTIVITIES)[number];
+
+/** The activities of the API (route_engine/models.py SUPPORTED_ACTIVITIES):
+ * those of the app, and swimming in open water 20–150 m from the shore, lap
+ * after lap, a shape of the catalogue or a drawing (TASK-323, ADR-0283). The
+ * app offers a swim from part C of TASK-323: its Activity widens then, with
+ * the tables keyed on it (distances, names, Apple Health of TASK-321). */
+export const API_ACTIVITIES = [...ACTIVITIES, "swimming"] as const;
+export type ApiActivity = (typeof API_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
  * the app; "file", a GPX, TCX or FIT file of another app, read on the phone
@@ -68,15 +76,21 @@ export const MAX_DISTANCE_M = 50_000;
 
 /** The target distances of each activity, [lowest, highest] in metres:
  * running as above, cycling 10–30 km (TASK-190), paddling 1–5 km
- * (TASK-191). Outside them the API answers `invalid_request`, with the
+ * (TASK-191), swimming 0.5–3 km, every lap and the legs from the shore
+ * (TASK-323). Outside them the API answers `invalid_request`, with the
  * limits in the message. */
 export const DISTANCE_LIMITS_M: Readonly<
-  Record<Activity, readonly [lowest: number, highest: number]>
+  Record<ApiActivity, readonly [lowest: number, highest: number]>
 > = {
   running: [MIN_DISTANCE_M, MAX_DISTANCE_M],
   cycling: [10_000, 30_000],
   paddling: [1_000, 5_000],
+  swimming: [500, 3_000],
 };
+
+/** A swim goes round its shape at most this many times (TASK-323): 130 m of
+ * band hold about half a kilometre of shape. */
+export const MAX_SWIM_LAPS = 5;
 
 /**
  * The letters a word may use (route_engine/letters.json, ADR-0044): A to Z
@@ -131,6 +145,12 @@ interface RouteRequestFields {
    * another activity; absent or null leaves the place to the engine.
    */
   near?: LatLon | null;
+  /**
+   * A swim (TASK-323): how many times round its shape, 1 to MAX_SWIM_LAPS;
+   * fewer for a larger shape, the distance staying the same. Absent or null:
+   * the fewest it fits in. Refused with another activity.
+   */
+  laps?: number | null;
 }
 
 /** A shape of the catalogue, or a word written one letter at a time: one
@@ -172,6 +192,34 @@ export type Walk = [from: number, to: number];
  * ADR-0167): [from, to] indices into `RouteResult.points`, both included.
  */
 export type Stretch = [from: number, to: number];
+
+/** A place with a name on the shore, to turn opposite during a swim
+ * (route_engine/shore_names.py, TASK-323): data from OpenStreetMap. */
+export interface Landmark {
+  name: string;
+  /** From OpenStreetMap, like "beach_resort", "pier", "lighthouse". */
+  kind: string;
+  point: LatLon;
+  /** From the turn. */
+  distance_m: number;
+  /** Where to look from the turn, degrees clockwise from north. */
+  bearing_deg: number;
+}
+
+/** Where a swim turns (route_engine/swim_turns.py, TASK-323): where the
+ * direction changes by more than 45°, in order, every lap's. */
+export interface SwimTurn {
+  point: LatLon;
+  /** Along the swim from its start, in metres. */
+  at_m: number;
+  side: "left" | "right";
+  /** How much it turns, 0–180°. */
+  angle_deg: number;
+  /** The lap it is in, from 1. */
+  lap: number;
+  /** The place on the shore to turn opposite; null without one. */
+  landmark?: Landmark | null;
+}
 
 export interface RouteResult {
   /**
@@ -230,6 +278,17 @@ export interface RouteResult {
    * stays north-up.
    */
   rotation_deg?: number;
+  /**
+   * A swim (TASK-323): how many times round its shape; 1 for any other
+   * route. Missing from an older API.
+   */
+  laps?: number;
+  /**
+   * A swim (TASK-323): where it turns, in order, every lap's, each with the
+   * place on the shore to turn opposite when there is one. Empty for any
+   * other route; missing from an older API.
+   */
+  turns?: SwimTurn[];
 }
 
 /** Routes besides the one chosen by the engine: three to choose from. */
@@ -502,6 +561,8 @@ export interface ImageRouteRequest {
   activity: Activity;
   /** No letters to draw with the pen up: true is refused (TASK-197). */
   pen_up?: false;
+  /** A swim of a drawing (TASK-323): as RouteRequest.laps. */
+  laps?: number | null;
 }
 
 /** The most points of all the strokes of an outline together, as the

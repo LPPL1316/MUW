@@ -41,6 +41,7 @@ import alternativeLimits from "../fixtures/route-alternatives.json" with { type:
 import cyclingRequest from "../fixtures/route-request-cycling.json" with { type: "json" };
 import paddlingNearRequest from "../fixtures/route-request-paddling-near.json" with { type: "json" };
 import paddlingRequest from "../fixtures/route-request-paddling.json" with { type: "json" };
+import swimmingRequest from "../fixtures/route-request-swimming.json" with { type: "json" };
 import penUpShapeRequest from "../fixtures/route-request-pen-up-shape.json" with { type: "json" };
 import penUpRequest from "../fixtures/route-request-pen-up.json" with { type: "json" };
 import wordRequest from "../fixtures/route-request-word.json" with { type: "json" };
@@ -49,6 +50,7 @@ import betterResult from "../fixtures/route-result-better-distance.json" with { 
 import cyclingResult from "../fixtures/route-result-cycling.json" with { type: "json" };
 import imageResult from "../fixtures/route-result-image.json" with { type: "json" };
 import paddlingResult from "../fixtures/route-result-paddling.json" with { type: "json" };
+import swimmingResult from "../fixtures/route-result-swimming.json" with { type: "json" };
 import penUpResult from "../fixtures/route-result-pen-up.json" with { type: "json" };
 import tiltedResult from "../fixtures/route-result-tilted.json" with { type: "json" };
 import wordResult from "../fixtures/route-result-word.json" with { type: "json" };
@@ -61,6 +63,8 @@ import trackScoreRequest from "../fixtures/track-score-request.json" with { type
 import trackWalksRequest from "../fixtures/track-score-request-walks.json" with { type: "json" };
 import {
   ACTIVITIES,
+  API_ACTIVITIES,
+  MAX_SWIM_LAPS,
   API_ERROR_CODES,
   DISTANCE_LIMITS_M,
   EDIT_REASONS,
@@ -476,11 +480,13 @@ test("the error fixture uses a known code, and the codes match the API", () => {
 test("shapes, activities and distance limits match the route engine", () => {
   assert.deepEqual([...SHAPES], contract.shapes);
   assert.deepEqual([...PEN_UP_SHAPES], contract.pen_up_shapes);
-  assert.deepEqual([...ACTIVITIES], contract.activities);
+  // The API's; the app offers them all but swimming until TASK-323 part C.
+  assert.deepEqual([...API_ACTIVITIES], contract.activities);
+  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES, "swimming"]);
   assert.equal(MIN_DISTANCE_M, contract.min_distance_m);
   assert.equal(MAX_DISTANCE_M, contract.max_distance_m);
   assert.deepEqual(DISTANCE_LIMITS_M, contract.distance_limits_m);
-  assert.deepEqual(Object.keys(DISTANCE_LIMITS_M), [...ACTIVITIES]);
+  assert.deepEqual(Object.keys(DISTANCE_LIMITS_M), [...API_ACTIVITIES]);
   assert.deepEqual([...LETTERS], contract.letters);
   assert.equal(MAX_WORD_LETTERS, contract.max_word_letters);
   assert.equal(LETTER_DISTANCE_M, contract.letter_distance_m);
@@ -520,6 +526,38 @@ test("a paddling request is a request with a shape and the water's distances", (
   );
   assert.ok(isShape(paddlingRequest.shape));
   assert.equal(paddlingRequest.word, null);
+});
+
+test("a swim is a request on the water with its laps, its result has the turns", () => {
+  // TASK-323: 0.5-3 km, the shape swum `laps` times, each turn with the
+  // place on the shore to turn opposite.
+  assert.equal(swimmingRequest.activity, "swimming");
+  assert.ok((API_ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
+  assert.ok(!(ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
+  assert.deepEqual(DISTANCE_LIMITS_M.swimming, [500, 3_000]);
+  const [lowest, highest] = DISTANCE_LIMITS_M.swimming;
+  assert.ok(
+    lowest <= swimmingRequest.distance_m && swimmingRequest.distance_m <= highest,
+  );
+  assert.ok(1 <= swimmingRequest.laps && swimmingRequest.laps <= MAX_SWIM_LAPS);
+  const swum = swimmingResult as unknown as RouteResult;
+  assert.equal(swum.laps, swimmingRequest.laps);
+  assert.ok(swum.turns && swum.turns.length > 0);
+  let before = 0;
+  for (const turn of swum.turns) {
+    assert.ok(turn.side === "left" || turn.side === "right");
+    assert.ok(0 < turn.angle_deg && turn.angle_deg <= 180);
+    assert.ok(1 <= turn.lap && turn.lap <= (swum.laps ?? 1));
+    assert.ok(turn.at_m >= before && turn.at_m <= swum.distance_m);
+    before = turn.at_m;
+  }
+  const named = swum.turns.filter((turn) => turn.landmark);
+  assert.ok(named.length > 0);
+  for (const { landmark } of named) {
+    assert.ok(landmark && landmark.name.length > 0 && landmark.distance_m <= 300);
+    assert.ok(0 <= landmark.bearing_deg && landmark.bearing_deg < 360);
+  }
+  assert.deepEqual(swum.points[0], swum.points[swum.points.length - 1]);
 });
 
 test("a shape on the water says where it is, and may be asked elsewhere", () => {
