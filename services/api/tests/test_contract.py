@@ -83,7 +83,7 @@ ROTATION = {"rotation_deg"}
 # for, and the laps and turns it answers; the fixtures written before are
 # what an older app sends and an older API answers.
 LAPS = {"laps"}
-SWIM = {"laps", "turns"}
+SWIM = {"laps", "lap_m", "turns"}
 
 
 def _with_no_walks(result: dict[str, Any]) -> dict[str, Any]:
@@ -99,8 +99,9 @@ def _with_no_walks(result: dict[str, Any]) -> dict[str, Any]:
         "better_distance_m": None,
         "centre": None,
         "rotation_deg": 0.0,
-        # Not a swim (TASK-323): one lap, no turns.
+        # Not a swim (TASK-323): one lap, no lap length, no turns.
         "laps": 1,
+        "lap_m": None,
         "turns": [],
     }
 
@@ -115,8 +116,9 @@ def _with_no_better(result: dict[str, Any]) -> dict[str, Any]:
         "better_distance_m": None,
         "centre": None,
         "rotation_deg": 0.0,
-        # Not a swim (TASK-323): one lap, no turns.
+        # Not a swim (TASK-323): one lap, no lap length, no turns.
         "laps": 1,
+        "lap_m": None,
         "turns": [],
     }
 
@@ -291,8 +293,9 @@ def test_the_api_passes_the_pen_up_on_and_answers_its_walks() -> None:
         "better_distance_m": None,
         "centre": None,
         "rotation_deg": 0.0,
-        # Not a swim (TASK-323): one lap, no turns.
+        # Not a swim (TASK-323): one lap, no lap length, no turns.
         "laps": 1,
+        "lap_m": None,
         "turns": [],
     }
     assert asked[0].pen_up and asked[0].word == "io"
@@ -429,8 +432,14 @@ def test_a_moved_shape_and_its_centre_are_in_the_contract() -> None:
     )
     assert response.status_code == 200, response.json()
     assert asked[0].near == body.near
-    # Upright, and not a swim (TASK-323): one lap, no turns.
-    assert response.json() == {**data, "rotation_deg": 0.0, "laps": 1, "turns": []}
+    # Upright, and not a swim (TASK-323): one lap, no lap length, no turns.
+    assert response.json() == {
+        **data,
+        "rotation_deg": 0.0,
+        "laps": 1,
+        "lap_m": None,
+        "turns": [],
+    }
 
 
 def test_image_fixtures_are_valid_bodies() -> None:

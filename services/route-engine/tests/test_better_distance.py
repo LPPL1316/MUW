@@ -227,7 +227,8 @@ def test_the_contract_fixture_has_every_field_of_the_result() -> None:
     )
     # Every field of its day: the rotation came after (TASK-232), the laps
     # and the turns of a swim too (TASK-323).
-    names = {f.name for f in fields(RouteResult)} - {"rotation_deg", "laps", "turns"}
+    later = {"rotation_deg", "laps", "lap_m", "turns"}
+    names = {f.name for f in fields(RouteResult)} - later
     for each in (data, *data["alternatives"]):
         assert set(each) == names
     assert data["better_distance_m"] == 12_000

@@ -304,6 +304,14 @@ class RouteResultBody(BaseModel):
         default=1,
         description="A swim (TASK-323): how many times round its shape; 1 else.",
     )
+    lap_m: float | None = Field(
+        default=None,
+        ge=0,
+        description=(
+            "A swim (TASK-323): how long one lap is, in metres, the shape "
+            "without the legs from the shore and back; null for any other route."
+        ),
+    )
     turns: list[SwimTurnBody] = Field(
         default_factory=list,
         description=(

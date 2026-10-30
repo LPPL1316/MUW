@@ -326,6 +326,10 @@ def test_the_fewer_the_laps_the_larger_the_shape() -> None:
     assert more.laps == 4
     assert more.lap_m < fewest.lap_m
     assert abs(more.result.distance_m - 1000) <= 100
+    # The result says how long a lap is: «3 laps of 300 m» in the app.
+    assert (fewest.result.laps, fewest.result.lap_m) == (3, fewest.lap_m)
+    assert more.result.lap_m == more.lap_m
+    assert more.lap_m * more.laps < more.result.distance_m
 
 
 def test_too_few_laps_say_how_many_fit() -> None:

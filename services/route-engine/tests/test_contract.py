@@ -51,7 +51,7 @@ ROTATION = {"rotation_deg"}
 # Added by TASK-323 part B (ADR-0283), optional too: the laps a swim asks
 # for, and the laps and turns it answers.
 LAPS = {"laps"}
-SWIM = {"laps", "turns"}
+SWIM = {"laps", "lap_m", "turns"}
 
 
 def test_request_fixtures_are_valid_requests() -> None:

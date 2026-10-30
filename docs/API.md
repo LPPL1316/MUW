@@ -993,8 +993,10 @@ motore.)
   5 laps: it fits at 1.7 km`, con `suggested_distance_m` al mezzo km
   (1500), come la canoa. `laps` con un'altra attività è `422
   invalid_request`, `laps are for a swim`.
-- **Il `RouteResult`** ha due campi in più: `laps`, quanti giri (1 per ogni
-  altro percorso), e `turns`, le curve in ordine, di tutti i giri: `point`,
+- **Il `RouteResult`** ha tre campi in più: `laps`, quanti giri (1 per ogni
+  altro percorso), `lap_m`, quanto è lungo un giro, la forma senza i tratti
+  dalla riva e ritorno (`null` per ogni altro percorso: l'app scrive «3 laps
+  of 320 m»), e `turns`, le curve in ordine, di tutti i giri: `point`,
   `at_m` dalla partenza, `side` (`left`, `right`), `angle_deg`, `lap`, e
   `landmark`, il posto con un nome più vicino entro 300 m (`name`, `kind`,
   `point`, `distance_m`, `bearing_deg` da nord), o `null`. I posti sono
@@ -1011,8 +1013,8 @@ motore.)
   `swimming` (migrazione `0039`, `DATABASE.md`); Strava lo riceve come
   `Swim`. Un nuoto dai punti dei laghi e delle spiagge si tiene come la
   canoa, con un'impronta sua (`route_store`).
-- **Campi facoltativi**: un'app di prima non manda `laps` e ignora `laps` e
-  `turns` della risposta; un'API di prima rifiuta `swimming` e `laps`.
+- **Campi facoltativi**: un'app di prima non manda `laps` e ignora `laps`,
+  `lap_m` e `turns` della risposta; un'API di prima rifiuta `swimming` e `laps`.
   L'app mostra il nuoto con la parte C di TASK-323 (`ready: false` fino
   ad allora): in `shared-types` `Activity` resta quella dell'app, e
   `API_ACTIVITIES` ha anche `swimming`.

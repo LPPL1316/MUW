@@ -288,8 +288,11 @@ class RouteResult:
     # upright (optimizer.shown_rotation, TASK-232, ADR-0195). 0 for a shape
     # that turns freely, like the circle, and without a search.
     rotation_deg: float = 0.0
-    # A swim (TASK-323): how many times round its shape, and its turns, in
-    # order, every lap's, each with the place on the shore to turn opposite
-    # (swim_turns.py, shore_names.py). 1 and none for any other route.
+    # A swim (TASK-323): how many times round its shape, how long one lap is
+    # (the shape, without the legs from the shore and back), and its turns,
+    # in order, every lap's, each with the place on the shore to turn
+    # opposite (swim_turns.py, shore_names.py). 1, None and none for any
+    # other route.
     laps: int = 1
+    lap_m: float | None = None
     turns: list[SwimTurn] = field(default_factory=list)
