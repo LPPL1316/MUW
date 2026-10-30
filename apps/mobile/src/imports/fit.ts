@@ -44,6 +44,7 @@ const MIN_DATE = 0x10000000;
 const SPORTS: ReadonlyMap<number, Activity> = new Map([
   [1, "running"],
   [2, "cycling"],
+  [5, "swimming"], // open water has the positions; a pool's file has none
   [19, "paddling"],
   [21, "cycling"], // e_biking
   [37, "paddling"], // stand_up_paddleboarding

@@ -18,6 +18,7 @@ import { t, tLater } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
 import { bearingOf } from "../map/turnedMap";
 import { paddlePaceLabel } from "../navigation/paddle";
+import { swimPaceLabel } from "../navigation/swim";
 import { durationLabel } from "../screens/FinishScreen";
 import { SPORTS } from "../settings/sport";
 import { useBlockedNow } from "../social/blockedNow";
@@ -79,6 +80,9 @@ export function shapeLabel(shape: string): string {
  * the app's language («Pagaia», «Bici»; TASK-210, part H). */
 const PADDLE = SPORTS.find((sport) => sport.id === "paddle")?.name ?? tLater("Paddle");
 const BIKE = SPORTS.find((sport) => sport.id === "bike")?.name ?? tLater("Bike");
+// Its row is «Soon» in a store build until the app swims (TASK-323 D).
+const SWIM =
+  SPORTS.find((sport) => sport.id === "swim")?.name ?? tLater("Open water swim");
 
 /**
  * "Moon · 4.9 km · 27 min · 5:32 /km": what was drawn, how far, how long,
@@ -102,12 +106,20 @@ export function postFacts(post: SamplePost): string {
     durationLabel(post.minutes * 60_000),
     post.activity === "paddling"
       ? paddlePaceLabel(post.route_m, ms)
-      : paceLabel(post.route_m, ms),
+      : post.activity === "swimming"
+        ? swimPaceLabel(post.route_m, ms)
+        : paceLabel(post.route_m, ms),
   ]
     .filter((fact): fact is string => fact !== null)
     .join(" · ");
   const sport =
-    post.activity === "paddling" ? PADDLE : post.activity === "cycling" ? BIKE : null;
+    post.activity === "paddling"
+      ? PADDLE
+      : post.activity === "cycling"
+        ? BIKE
+        : post.activity === "swimming"
+          ? SWIM
+          : null;
   const withSport = sport === null ? facts : `${t(sport)} · ${facts}`;
   return isImportedPost(post) ? `${t("Imported")} · ${withSport}` : withSport;
 }

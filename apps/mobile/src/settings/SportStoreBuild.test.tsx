@@ -63,6 +63,9 @@ test("«Settings» of a store build has no «Soon» row", async () => {
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
   expect(screen.queryByText("🪂")).toBeNull();
+  // Swimming too, until the app swims (TASK-323 C).
+  expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
+  expect(screen.queryByText("🏊")).toBeNull();
 });
 
 test("the sport menu of «Draw» in a store build has no «Soon» row", async () => {

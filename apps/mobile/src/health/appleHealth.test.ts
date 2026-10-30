@@ -45,6 +45,8 @@ test("the sheet asks to write only, what the phone has", async () => {
       "HKWorkoutRouteTypeIdentifier",
       "HKQuantityTypeIdentifierDistanceWalkingRunning",
       "HKQuantityTypeIdentifierDistanceCycling",
+      // A swim's (TASK-323 C2).
+      "HKQuantityTypeIdentifierDistanceSwimming",
       "HKQuantityTypeIdentifierActiveEnergyBurned",
     ],
   });

@@ -4,11 +4,13 @@ import { File, Paths } from "expo-file-system";
 
 import { t, tLater } from "../i18n";
 
-/** What a route is for: a run, a bike ride since TASK-190, or paddling on a
- * lake or the sea since TASK-191 (a canoe, a kayak, a SUP). Paragliding is
- * only «Soon» for now (TASK-305 D0, ADR-0265): never chosen, so never a
- * route, and wherever the sports are told apart it goes as a run. */
-export type Sport = "run" | "bike" | "paddle" | "paragliding";
+/** What a route is for: a run, a bike ride since TASK-190, paddling on a
+ * lake or the sea since TASK-191 (a canoe, a kayak, a SUP), or swimming in
+ * open water (TASK-323 part C, ADR-0283), «Soon» until the server swims.
+ * Paragliding (TASK-305 D0, ADR-0265) is only «Soon» for now: never chosen,
+ * so never a route, and wherever the sports are told apart it goes as a
+ * run. */
+export type Sport = "run" | "bike" | "paddle" | "swim" | "paragliding";
 
 export type SportOption = {
   id: Sport;
@@ -28,6 +30,9 @@ export const ALL_SPORTS: readonly SportOption[] = [
   { id: "run", emoji: "🏃‍♂️", name: tLater("Run"), ready: true },
   { id: "bike", emoji: "🚴", name: tLater("Bike"), ready: true },
   { id: "paddle", emoji: "🛶", name: tLater("Paddle"), ready: true },
+  // Asked as "swimming" since TASK-323 C2 (activityOf); on once the server
+  // swims.
+  { id: "swim", emoji: "🏊", name: tLater("Open water swim"), ready: false },
   { id: "paragliding", emoji: "🪂", name: tLater("Paragliding"), ready: false },
 ];
 
@@ -118,7 +123,8 @@ export function saveSport(sport: Sport): void {
 /**
  * What «Draw» asks the API for (TASK-190, ADR-0153): a route on the roads a
  * bike may ride for «Bike», a shape on the water for «Paddle» (TASK-191,
- * ADR-0164), a run for «Run».
+ * ADR-0164), a swim within 150 m of the shore for «Open water swim»
+ * (TASK-323), a run for «Run».
  */
 export function activityOf(sport: Sport): Activity {
   switch (sport) {
@@ -126,19 +132,24 @@ export function activityOf(sport: Sport): Activity {
       return "cycling";
     case "paddle":
       return "paddling";
+    case "swim":
+      return "swimming";
     default:
       return "running";
   }
 }
 
 /** The way out of «Draw» with the track only (TASK-149), in the sport's
- * words: «Ride» by bike (TASK-190), «Paddle» on the water (TASK-191). */
+ * words: «Ride» by bike (TASK-190), «Paddle» on the water (TASK-191),
+ * «Swim» in open water (TASK-323). */
 export function withoutRouteLabel(sport: Sport): string {
   switch (sport) {
     case "bike":
       return t("Ride without a route");
     case "paddle":
       return t("Paddle without a route");
+    case "swim":
+      return t("Swim without a route");
     default:
       return t("Run without a route");
   }

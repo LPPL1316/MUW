@@ -337,6 +337,50 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   e i waypoint nel GPX; in `SwimPlan`, impronte come in `main`. **Prossimo**:
   A2 in `main`, poi B (contratto, migrazione, estratto dei nomi sul
   server, esempi della canoa rifatti).
+  **A2 in `main`** con LPPL1316/MUW#11 (2026-10-30). **B scritta**
+  (2026-10-30, stessa sessione, branch `feat/TASK-323-b-swim-api`):
+  `swimming` nel contratto coi giri e le curve, un disegno a nuoto, la
+  migrazione `0039_swimming.sql`, `shore_extract.py`; l'app resta a tre
+  attività fino a C. **Blocco**: `paddleExamples.json` va rifatto con
+  l'acqua del server (dal Mac), poi server, estratto dei nomi e
+  `draw_examples` col sì dell'utente. **Prossimo**: C, lo sport nell'app.
+  **C1 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c-swim-app`, partito da quello di B): 🏊 «Open water swim»
+  con `ready: false` in `sport.ts`, e in `src/swim/` l'avviso «Before you
+  swim», la riga sotto il giro e l'elenco delle curve coi nomi a riva;
+  testi, curve e traduzioni approvati dall'utente il 2026-10-30.
+  **Prossimo**: C2 dopo B in `main`, cioè `Activity`
+  con `swimming` (tocca i file di TASK-321: via del Coordinatore),
+  il collegamento in `App.tsx`, `ready: true` col server.
+  **C2 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c2-swim-on`, partito da C1): `Activity` con `swimming`
+  (con il sì dell'utente le righe del nuoto in Apple Salute e Health
+  Connect di TASK-321), le distanze a mezzo km da 1 km, «Bigger shape» e
+  «Smaller shape» coi giri sul risultato, l'avviso del nuoto a ogni
+  «Start», `lap_m` nella risposta (aggiunto a B). Testi e traduzioni
+  approvati. Riga ancora «Soon». **Prossimo**: B in `main` e sul server,
+  C4 («Explore» a nuoto), poi `ready: true`; D (la corsa a nuoto).
+  **C4 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c4-swim-explore`, partito da C2): «Explore» con il nuoto
+  è la pagina dei laghi e delle spiagge della canoa, le otto forme a nuoto
+  a 1 km chieste all'API (`SWIM_EXAMPLES`), il sottotitolo approvato;
+  `draw_examples --swim` per disegnarle sul server. **Prossimo**: B, C1,
+  C2, C4 in `main`; col sì dell'utente server, migrazione 0039, estratto
+  dei nomi a riva, `draw_examples --swim`, poi `ready: true`; D.
+  **D scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-d-swim-run`, partito da C4): un nuoto non parla e non
+  vibra, si mette in pausa da fermo dopo 30 s, è fermo sotto 1 km/h; la
+  schermata della canoa col passo di 100 m; Feed, «My activities» e la
+  scheda col passo di 100 m; i file dell'orologio col nuoto. Proposta e
+  traduzioni approvate. Solo JavaScript. **Prossimo**: B, C1, C2, C4, D in
+  `main` in quest'ordine; poi server col sì dell'utente, `ready: true`; la
+  prova in acqua (primavera 2027) e la parte E (Apple Watch, col sì
+  dell'utente su dipendenza e build).
+  **E, il piano** (2026-10-30, branch `docs/TASK-323-e-watch-plan`): sì
+  dell'utente alle due dipendenze (`@bacons/apple-targets`,
+  `react-native-watch-connectivity`), il codice dopo TASK-321 B in `main`,
+  in una sessione sul Mac con Xcode («Wait for B, then the Mac»). Il piano
+  in `tasks/TASK-323.md`, «E, il piano».
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

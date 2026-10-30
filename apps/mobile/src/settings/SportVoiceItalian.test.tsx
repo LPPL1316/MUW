@@ -80,8 +80,9 @@ test("«Sport» in «Settings» speaks Italian", async () => {
 test("a sport not ready says «Soon» in Italian", async () => {
   await render(<SportSetting sports={RUN_ONLY} />);
   expect(screen.getByLabelText("Bici, in arrivo")).toBeOnTheScreen();
-  // Bici, Pagaia and Parapendio (TASK-305 D0).
-  expect(screen.getAllByText("In arrivo")).toHaveLength(3);
+  // Bici, Pagaia, Nuoto in acque libere (TASK-323 C) and Parapendio (TASK-305 D0).
+  expect(screen.getAllByText("In arrivo")).toHaveLength(4);
+  expect(screen.getByLabelText("Nuoto in acque libere, in arrivo")).toBeOnTheScreen();
 });
 
 test("the sport's button and its menu speak Italian", async () => {
