@@ -331,7 +331,8 @@ in §7. Questi dettagli li ha decisi l'agente su delega dell'utente
 - **Il regolamento** (`ContestRules.tsx`) si apre sopra l'app: «MuW
   contest», il titolo «Official rules», poi i paragrafi approvati, con le
   date scritte come i giorni dei disegni (`dayLabel`, nella lingua
-  dell'app).
+  dell'app). Ha un suo `SafeAreaProvider`: la scheda sta in una pagina del
+  `Pager`, che ha il margine alto a zero (TASK-360).
 - **I numeri al singolare**: «1 reaction» e «Your best post: #1, 1
   reaction», approvati dall'utente con gli altri testi (2026-10-26).
 - **La push** `contest_won` porta `drawing_id`: `notificationTap` la apriva
