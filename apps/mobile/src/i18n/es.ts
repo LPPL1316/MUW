@@ -527,7 +527,6 @@ export const ES: Table = {
   Image: "Imagen",
   Round: "Redondas",
   Square: "Cuadradas",
-  DRAW: "DIBUJA",
   LETTERS: "LETRAS",
   DISTANCE: "DISTANCIA",
   "heart, star, horse…": "corazón, estrella, caballo…",
@@ -1698,4 +1697,8 @@ export const ES: Table = {
   "Type another shape": "Escribe otra forma",
   "Write a shape that is not among the tiles":
     "Escribe una forma que no está entre las casillas",
+
+  // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
+  "WHAT YOU DRAW": "QUÉ DIBUJAS",
+  "Write a word, e.g. CIAO": "Escribe una palabra, p. ej. CIAO",
 };

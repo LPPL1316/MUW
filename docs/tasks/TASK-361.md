@@ -1,10 +1,11 @@
 # TASK-361 — «Draw» si capisce in 3 secondi: partenza, cosa disegni, quanto corri, «Draw»
 
-**Stato**: In lavorazione · **parte A in PR** (i pezzi nuovi e
-`ChooseScreen`); la parte B aspetta il merge della #661 (TASK-340)
-**Fase**: 4 · **Branch**: `claude/muw-draw-screen-redesign-n6gh3x` (il nome
-lo impone la sessione cloud, non segue la convenzione `feat/`) · **ADR**:
-ADR-0307
+**Stato**: In lavorazione · **parte A in PR**, #675 (i pezzi nuovi e
+`ChooseScreen`); **parte B pronta** col via del Coordinatore del
+2026-10-31, dopo il merge della #661 (TASK-340)
+**Fase**: 4 · **Branch**: parte A `feat/TASK-356-draw-redesign` (nome del
+numero di prima); parte B `feat/TASK-361-b-draw-wiring`, da `main` dopo la
+#675 · **ADR**: ADR-0307
 
 Numeri dal Coordinatore (2026-10-30, sulla #675): **TASK-361**, **ADR-0307**
 confermato. Prima l'agente, senza Coordinatore raggiungibile, aveva preso
@@ -179,7 +180,29 @@ Parte A:
 - [x] Impronta iOS `83793e26` invariata.
 - [x] jest, lint, typecheck e format verdi.
 
-Parte B: si scrivono qui quando parte.
+Parte B:
+
+- [x] «2 WHAT YOU DRAW» e «3 DISTANCE» con `StepTitle`; «DRAW» esce dalle
+      tabelle.
+- [x] In «Shape» la griglia a due righe (`ShapeGrid`) al posto della fila,
+      il campo dietro «Type another shape» con le note sotto, la forma in
+      scala quando c'è una forma e una distanza valida.
+- [x] In «Word» il segnaposto «Write a word, e.g. CIAO».
+- [x] `DistanceDial` al posto di `DistanceStepper`, col tempo stimato solo
+      per la corsa; il ritmo da «My activities» (`list` di
+      `useActivitiesDoor`), o 6:00 senza corse.
+- [x] «Draw route» dice cosa disegna (`drawLabel`, `drawWhat`), su una riga
+      che si stringe; `testID="draw-route"` per i test, perché le parole
+      cambiano.
+- [x] L'icona dello sport accanto a «… without a route» (🏃 🚴 🛶 🪂).
+- [x] `Segmented`: le scelte non prese nel colore del testo, più leggere;
+      la presa in grassetto.
+- [x] jest di tutto `src` (4323 test) e di 29 file delle schermate
+      intere verdi su questa macchina, lint, typecheck e format verdi.
+      `App.test.tsx`, `AppFavoriteActivity`, `AppBikeNavigation`,
+      `AppDrawingStart` e `AppPenUpSaved` qui si bloccano anche senza la
+      parte B (provati sulla testa della #675, verde in CI): li prova la
+      CI.
 
 ## File toccati
 
@@ -210,7 +233,36 @@ docs/DECISIONS.md                        (ADR-0307)
 docs/STATUS.md                           (una riga in «In lavorazione»)
 ```
 
-Parte B: `RoutePanel.tsx`, `App.tsx`, `Segmented.tsx`, `docs/UI.md`.
+Parte B:
+
+```
+apps/mobile/App.tsx
+apps/mobile/src/route/RoutePanel.tsx
+apps/mobile/src/route/drawLabel.ts          (drawWhat)
+apps/mobile/src/route/DistanceDial.tsx      (via il riquadro «adjustable»)
+apps/mobile/src/route/DistanceDial.test.tsx
+apps/mobile/src/screens/Segmented.tsx
+apps/mobile/src/screens/RunNoRouteButton.tsx (withoutRouteIcon)
+apps/mobile/src/route/OtherShapeField.tsx   (il campo resta aperto, e mostra
+                                            il nome di una tessera scritto)
+apps/mobile/src/route/OtherShapeField.test.tsx
+apps/mobile/src/route/testing.ts            (nuovo: aiuti per i test)
+apps/mobile/src/i18n/{it,de,es,fr}.ts       (due testi, via «DRAW»)
+docs/UI.md, docs/DECISIONS.md (ADR-0307), docs/STATUS.md, questo file
+```
+
+E i test che cercavano «Draw route» per le sue parole, ora per
+`testID="draw-route"` (solo quella riga cambia): `__tests__/App*.test.tsx`
+(16 file), `src/account/Profile.test.tsx`,
+`src/location/PickStartApp.test.tsx`, `src/mapdraw/ChangeFigureApp.test.tsx`,
+`src/mapdraw/DrawOnMapApp.test.tsx`, `src/screens/ProfileLayer.test.tsx`;
+con le attese nuove (mezzo km, «COSA DISEGNI», «WHAT YOU DRAW», la
+griglia, il campo dietro il link, con gli aiuti di `src/route/testing.ts`):
+`src/route/RoutePanelMiles.test.tsx`, `RoutePanelBike.test.tsx`,
+`RoutePanelPaddle.test.tsx`, `DrawItalian.test.tsx`,
+`src/units/DrawDistanceMiles.test.tsx`,
+`__tests__/App.test.tsx`, `AppDrawAgain.test.tsx`, `AppPaddle.test.tsx`,
+`AppPlay.test.tsx`.
 
 ## Fuori scope
 

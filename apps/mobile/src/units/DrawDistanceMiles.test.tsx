@@ -102,10 +102,10 @@ test("«Try» with «Miles»: the field shows its miles, the API gets its metres
   expect(screen.getByText("mi")).toBeOnTheScreen();
   expect(screen.queryByText("km")).toBeNull();
   expect(asked()).toBe("11265 m");
-  // From there − and + go by the mile, as ever.
+  // From there − and + go by half a mile (TASK-361).
   await fireEvent.press(screen.getByRole("button", { name: "Longer" }));
-  expect(shown("mi")).toBe("8");
-  expect(asked()).toBe("12875 m");
+  expect(shown("mi")).toBe("7.5");
+  expect(asked()).toBe("12070 m");
 });
 
 test("«Try» at a tenth of a mile shows that tenth", async () => {
@@ -125,10 +125,10 @@ test("a small lake with «Miles»: 0.9 mi on the field, its 1500 m asked, no ref
   expect(shown("mi")).toBe("0.9");
   expect(asked()).toBe("1500 m");
   expect(screen.queryByText("Enter a distance between 1 and 3 mi.")).toBeNull();
-  // + adds a mile to it, as to what is typed.
+  // + adds half a mile to it (TASK-361), as to what is typed.
   await fireEvent.press(screen.getByRole("button", { name: "Longer" }));
-  expect(shown("mi")).toBe("1.9");
-  expect(asked()).toBe("3058 m");
+  expect(shown("mi")).toBe("1.4");
+  expect(asked()).toBe("2253 m");
 });
 
 test("in kilometres a «Try» writes its km, as before", async () => {

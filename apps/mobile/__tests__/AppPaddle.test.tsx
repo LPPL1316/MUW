@@ -16,6 +16,7 @@ import { forgetWaterChoice } from "../src/paddle/PaddleExplore";
 import { NOTICE_TITLE } from "../src/paddle/PaddleNotice";
 import { forgetNoticeSeen } from "../src/paddle/safetyNotice";
 import { loadSport, saveSport } from "../src/settings/sport";
+import { typeShape } from "../src/route/testing";
 
 jest.mock("react-native-webview");
 jest.mock(
@@ -124,7 +125,7 @@ function distanceField() {
 }
 
 async function draw() {
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   // The first poll comes after 500 ms.
   await act(() => jest.advanceTimersByTimeAsync(500));
 }
@@ -180,7 +181,7 @@ test("on the water the distances are 1 to 5 km", async () => {
   for (const text of ["0,5", "5,5", "10"]) {
     await fireEvent.changeText(distanceField(), text);
     expect(screen.getByText("Enter a distance between 1 and 5 km.")).toBeOnTheScreen();
-    expect(screen.getByRole("button", { name: "Draw route" })).toBeDisabled();
+    expect(screen.getByTestId("draw-route")).toBeDisabled();
   }
   await fireEvent.changeText(distanceField(), "3,5");
   await draw();
@@ -237,7 +238,7 @@ test("a word chosen before «Paddle» is not sent: the shape is, at 2 km", async
 test("a shape in pieces is asked piece by piece on the water, by itself", async () => {
   apiAnswers(waterDone);
   await atRiccione();
-  await fireEvent.changeText(screen.getByLabelText("Shape"), "cat");
+  await typeShape("cat");
   // The pen goes up by itself on the water (TASK-226): nothing to switch.
   expect(screen.queryByRole("switch")).toBeNull();
   await draw();

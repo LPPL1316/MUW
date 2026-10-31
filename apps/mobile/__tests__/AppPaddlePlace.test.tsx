@@ -141,7 +141,7 @@ test("with «Paddle», the user's text finds the lake above the streets, and it 
   expect(screen.getByText("Starting from Lago di Levico.")).toBeOnTheScreen();
   expect(distanceField()).toHaveDisplayValue("2");
 
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   await act(() => jest.advanceTimersByTimeAsync(500));
   const [body] = routeBodies() as { start: [number, number] }[];
   expect(body).toMatchObject({
@@ -164,7 +164,7 @@ test("a small lake brings the distance down to the one its shapes fit at", async
   await fireEvent.press(screen.getByText(small.name));
   expect(distanceField()).toHaveDisplayValue("1");
 
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   await act(() => jest.advanceTimersByTimeAsync(500));
   expect(routeBodies()[0]).toMatchObject({ distance_m: 1000, activity: "paddling" });
 });

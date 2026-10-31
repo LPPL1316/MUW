@@ -74,7 +74,7 @@ async function drawAtTrento() {
   await fireEvent(screen.getByTestId("map"), "message", {
     nativeEvent: { data: '{"type":"ready"}' },
   });
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   // The first poll comes after 500 ms.
   await act(() => jest.advanceTimersByTimeAsync(500));
 }

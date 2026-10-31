@@ -95,7 +95,7 @@ async function drawn(done: unknown) {
   await render(<App />);
   await screen.findByText("Starting from your position.");
   await pagePosts('{"type":"ready"}');
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   await act(() => jest.advanceTimersByTimeAsync(2000));
 }
 
