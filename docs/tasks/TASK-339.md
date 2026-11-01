@@ -1,10 +1,11 @@
 # TASK-339 — L'interfaccia premium ed elegante: tipografia, neutri caldi, immagini, movimento, dettagli
 
-**Stato**: In lavorazione · **parte A pronta, in PR dal 2026-10-30**
-(branch `feat/TASK-339-premium-look-a`); numeri e condizioni dal
-Coordinatore il 2026-10-30
-**Fase**: 4 · **Branch**: `feat/TASK-339-premium-look-a` (A), poi uno per
-parte · **ADR**: ADR-0293
+**Stato**: In lavorazione · parte A in `main` (#658, 2026-10-30) ·
+**parte B pronta, in PR dal 2026-10-30** (branch
+`feat/TASK-339-premium-look-b`); numeri e condizioni dal Coordinatore il
+2026-10-30
+**Fase**: 4 · **Branch**: `feat/TASK-339-premium-look-a` (A, in `main`),
+`feat/TASK-339-premium-look-b` (B), poi uno per parte · **ADR**: ADR-0293
 
 ## Obiettivo
 
@@ -80,6 +81,11 @@ task in lavorazione aspetta che quel task entri in `main`.
 bordo, le parole sulla foto su `Scrim`, titolo `font.cardTitle`; sui
 disegni le parole restano sotto, per non coprire la figura. Attenzione a
 TASK-336 (il video nei post, `FeedPost`) e TASK-309 B (`FeedScreen`).
+Fatta sopra la #666 (TASK-350, ADR-0302: nelle schede di «Explore» prima
+il disegno e con uno swipe la foto), entrata in `main` prima della B: la
+foto di una scheda di «Explore» è una pagina dopo il disegno, sotto le
+stesse parole, quindi `Scrim` e le parole sopra la foto stanno solo in
+«Feed».
 
 **C — stati vuoti e separatori**: `EmptyState` in Favorites, My
 activities, messaggi, liste follow, Feed senza account (testi nuovi da
@@ -124,6 +130,20 @@ Coordinatore del 2026-10-30).
   per ultima. Haptics solo con la build nativa, col sì dell'utente.
 - «#NNN pronta» al Coordinatore con la testa.
 
+## Condizioni del Coordinatore (2026-10-30, parte B)
+
+- Via dato il 2026-10-30 (il primo messaggio delle 15:40 era rimasto in
+  coda; ripetuto alle 15:55), a patto di partire da `main` con dentro la
+  #658 (parte A) e la #666 (TASK-350, `RouteCard` con le due pagine).
+- Le stesse condizioni della A: nessuna dipendenza, nessun file nativo,
+  impronta iOS `83793e26` su una copia pulita della testa; prima e dopo
+  di «Feed» ed «Explore» nei due toni in testa alla PR; nessun testo nuovo.
+- `FeedPost.tsx`, `RouteCard.tsx`, `ThemedCard.tsx`, `ExploredCard.tsx`,
+  `DrawingCard.tsx` sono della B finché è aperta (TASK-336 A, 309 B e 348
+  aspettano); la #660 (TASK-345 A, le calorie) è entrata in `main` prima,
+  e la B la tiene (`postEnergy` nei fatti).
+- «#NNN pronta» al Coordinatore con la testa; lui mergia al verde.
+
 ## Criteri di accettazione
 
 Parte A:
@@ -146,7 +166,36 @@ Parte A:
 - [x] `UI.md` («Il tema», «Il look premium»), ADR-0293, `STATUS.md`
       aggiornati.
 
-Parti B–E: i loro criteri si scrivono qui quando partono.
+Parte B:
+
+- [x] `FeedPost`, `RouteCard`: raggio `radius.xl` (20), nessun bordo,
+      fondo `surface`; il titolo in `font.cardTitle` sotto il disegno, i
+      fatti e il dettaglio in `textMuted` (in «Explore» il dettaglio resta
+      a 12: a mezza larghezza «Best Views · 8.1 km» non ci starebbe).
+- [x] In «Feed», sulle pagine delle foto le parole stanno sopra la foto,
+      in `font.heading` e `font.small` chiare (`onScrim`) su `Scrim` alto
+      150; sotto il disegno restano sotto. La pagina è alta quanto il
+      disegno con le sue parole, la foto la riempie.
+- [x] Avatar e nomi in `fontWeight.medium`, non grassetto; l'avatar senza
+      bordo; i nomi taggati in `DrawingCard` medium.
+- [x] Il tocco sulle schede, sulle loro pagine e sui loro bottoni passa da
+      `Tap` (niente più `opacity: 0.6` in questi file); gli altri
+      `pressed` dell'app restano per la C.
+- [x] `Hairline` prima delle azioni in `ThemedCard`, `ExploredCard` e
+      `DrawingCard` (prima delle reazioni); il giallo resta solo a «Start»
+      e a «Make it near me», che ne prende il posto.
+- [x] La distanza delle schede di «Explore» (`ThemedCard`, `ExploredCard`)
+      in `font.display` con le cifre tabulari.
+- [x] Test deterministici per ogni scheda: lo stile (raggio, pesi, le
+      parole sulla foto, lo scrim), un `Hairline` solo, `Animated.timing`
+      chiamato con `motion.pressMs` alla pressione.
+- [x] Nessun testo nuovo, nessuna dipendenza, niente di nativo: impronta
+      iOS su una copia pulita della testa (`npm ci`), invariata.
+- [x] In testa alla PR: prima e dopo di «Feed» ed «Explore» (la testa e
+      la fila «Ideas from Europe») nei due toni, dal simulatore; le
+      schermate in `tasks/TASK-339/b-*.jpg`.
+
+Parti C–E: i loro criteri si scrivono qui quando partono.
 
 ## File toccati
 
@@ -169,6 +218,18 @@ docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/INDEX.md, docs/tasks/TASK-33
 docs/tasks/TASK-339/*.jpg                                (12 schermate prima/dopo dal simulatore, nuove)
 ```
 
+Parte B:
+
+```
+apps/mobile/src/feed/FeedPost.tsx, FeedPost.test.tsx, FeedPostPhotos.test.tsx
+apps/mobile/src/explore/RouteCard.tsx, RouteCard.test.tsx
+apps/mobile/src/explore/ThemedCard.tsx, ThemedCard.test.tsx
+apps/mobile/src/explore/ExploredCard.tsx, ExploredCard.test.tsx
+apps/mobile/src/social/DrawingCard.tsx, DrawingCardStart.test.tsx
+docs/UI.md, docs/STATUS.md, docs/tasks/TASK-339.md
+docs/tasks/TASK-339/b-*.jpg                              (12 schermate prima/dopo dal simulatore, nuove)
+```
+
 ## Fuori scope
 
 - Un carattere tipografico proprio: il font di sistema ha già i pesi
@@ -188,3 +249,21 @@ EmptyState), i tre nomi in alto; 538 test dell'app più gli 11 nuovi verdi;
 impronta iOS `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` su una copia pulita
 (`npm ci`); le 12 schermate prima/dopo in `docs/tasks/TASK-339/`. Non vista
 su un iPhone vero: arriva con la prossima preview.
+
+Parte B, 2026-10-30: le cinque schede col raggio 20 e senza bordo, le
+parole di «Feed» sulla foto su `Scrim` (150) e sotto il disegno in
+`cardTitle`, i nomi medium, `Tap` al posto dell'opacità, `Hairline` prima
+delle azioni, la distanza di «Explore» in `display`; una scelta presa su
+delega: le parole sopra la foto sono nascoste allo screen reader, che
+sente la scheda come una cosa sola, così il titolo non si ripete (e le
+pagine di «Feed» restano verdi). Nelle schede di «Explore» il dettaglio
+resta a 12 punti: a mezza larghezza un punto in più tagliava «8.1 km».
+Verificato: le 105 suite attorno alle schede e alle loro pagine (734
+test) più i 24 test nuovi o cambiati, `tsc`, Prettier, `expo lint`;
+impronta iOS `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` su una copia
+pulita (`npm ci`); le 12 schermate `b-*.jpg` dal simulatore (iPhone 17e,
+Expo Go). Non vista su un iPhone vero: arriva con la prossima preview.
+
+Parte B in `main` con la PR #677 (`4faeceb2`, 2026-10-30 23:16 CET), mergiata
+al verde; prima del merge tutte le 557 suite dell'app verdi nella copia
+pulita. Il branch `feat/TASK-339-premium-look-b` è cancellato.

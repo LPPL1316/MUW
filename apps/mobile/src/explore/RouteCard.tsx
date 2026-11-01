@@ -4,7 +4,6 @@ import {
   Image,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,12 +18,14 @@ import { turnedLine } from "../feed/turnedLine";
 import { bearingOf } from "../map/turnedMap";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   radius,
   route as routeLine,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { thumbSegments } from "./RouteThumb";
 import { useTapNotSwipe } from "./useTapNotSwipe";
 
@@ -144,7 +145,9 @@ type Props = {
  * touched it (TASK-196, `useTapNotSwipe`). A route whose shape is turned is
  * drawn turned back, as the map shows it once opened (TASK-232). With
  * `photo`, the drawing comes first and the photo a swipe after it, two dots
- * saying which is shown (TASK-350).
+ * saying which is shown (TASK-350). The card has the large radius and no
+ * border, its words under the drawing in the card's title style, and it
+ * answers the finger through `Tap` (TASK-339, ADR-0293).
  */
 export function RouteCard({
   width,
@@ -250,24 +253,24 @@ export function RouteCard({
             >
               {/* The touch is taken inside the pages, as in «Feed»: a card
                   taking it around them would stop them from sliding. */}
-              <Pressable
-                style={({ pressed }) => [{ width, height }, pressed && styles.pressed]}
+              <Tap
+                style={{ width, height }}
                 onPressIn={tap.onPressIn}
                 onPress={tap.onPress}
                 accessible={false}
                 testID="route-card-first-page"
               >
                 {drawingPage}
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [{ width, height }, pressed && styles.pressed]}
+              </Tap>
+              <Tap
+                style={{ width, height }}
                 onPressIn={tap.onPressIn}
                 onPress={tap.onPress}
                 accessible={false}
                 testID="route-card-second-page"
               >
                 {photoPage}
-              </Pressable>
+              </Tap>
             </ScrollView>
             <View style={styles.dots} pointerEvents="none" testID="route-card-dots">
               <View style={[StyleSheet.absoluteFill, styles.photoCreditShade]} />
@@ -311,8 +314,8 @@ export function RouteCard({
     );
   }
   return (
-    <Pressable
-      style={({ pressed }) => [styles.card, { width }, pressed && styles.pressed]}
+    <Tap
+      style={[styles.card, { width }]}
       onPressIn={tap.onPressIn}
       onPress={tap.onPress}
       testID="route-card"
@@ -320,20 +323,16 @@ export function RouteCard({
       accessibilityLabel={accessibilityLabel}
     >
       {body}
-    </Pressable>
+    </Tap>
   );
 }
 
 const styles = StyleSheet.create({
+  // A drawing or a photo at its face: the large radius, no border (TASK-339).
   card: {
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.border,
+    borderRadius: radius.xl,
     backgroundColor: color.surface,
     overflow: "hidden",
-  },
-  pressed: {
-    opacity: 0.6,
   },
   drawing: {
     backgroundColor: color.map.background,
@@ -421,12 +420,13 @@ const styles = StyleSheet.create({
     paddingVertical: space.sm,
   },
   title: {
+    ...font.cardTitle,
     color: color.text,
-    fontSize: fontSize.body,
-    fontWeight: fontWeight.semibold,
   },
+  // The detail keeps the smaller size: half a phone wide, "Best Views ·
+  // 8.1 km" would not fit a size up.
   detail: {
+    ...font.detail,
     color: color.textMuted,
-    fontSize: fontSize.detail,
   },
 });

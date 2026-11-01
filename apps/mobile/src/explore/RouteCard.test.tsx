@@ -1,7 +1,9 @@
 import type { LatLon } from "@shaperoute/shared-types";
 import { fireEvent, render, screen, within } from "@testing-library/react-native";
+import { Animated, StyleSheet } from "react-native";
 
 import { lineCamera } from "../feed/feedMapPage";
+import { color, font, motion, radius } from "../theme/tokens";
 import { FeedMapShooter, forgetFeedMaps } from "../feed/FeedMaps";
 import {
   cardMapsCredit,
@@ -278,4 +280,63 @@ test("the makers of the maps are named as they ask, once for the cards", async (
   );
   await render(<CardMapsCredit />);
   expect(screen.getByText(cardMapsCredit())).toBeOnTheScreen();
+});
+
+test("the large radius and no border, the words in the card's title style (TASK-339)", async () => {
+  await render(
+    <RouteCard
+      width={173}
+      line={SQUARE}
+      title="Star · 5.1 km"
+      detail="Trento · 450 m away"
+      onPress={jest.fn()}
+    />,
+  );
+  const card = screen.getByTestId("route-card");
+  expect(card).toHaveStyle({ borderRadius: radius.xl, backgroundColor: color.surface });
+  expect(
+    (StyleSheet.flatten(card.props.style) as { borderWidth?: number }).borderWidth,
+  ).toBeUndefined();
+  expect(screen.getByText("Star · 5.1 km")).toHaveStyle({
+    fontSize: font.cardTitle.fontSize,
+    fontWeight: font.cardTitle.fontWeight,
+    color: color.text,
+  });
+  expect(screen.getByText("Trento · 450 m away")).toHaveStyle({
+    fontSize: font.detail.fontSize,
+    color: color.textMuted,
+  });
+});
+
+test("the card and its pages answer the finger through Tap (TASK-339)", async () => {
+  // Seen, not run: an animation left running would spill into the next test.
+  const timing = jest
+    .spyOn(Animated, "timing")
+    .mockReturnValue({ start: jest.fn(), stop: jest.fn(), reset: jest.fn() });
+  const down = { nativeEvent: { pageX: 100, pageY: 10 } };
+  await render(
+    <RouteCard width={173} line={SQUARE} title="Star" onPress={jest.fn()} />,
+  );
+  await fireEvent(screen.getByTestId("route-card"), "pressIn", down);
+  expect(timing).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.objectContaining({
+      toValue: 1,
+      duration: motion.pressMs,
+      useNativeDriver: true,
+    }),
+  );
+  timing.mockClear();
+  await render(
+    <RouteCard
+      width={173}
+      line={SQUARE}
+      photo={{ source: { uri: "http://api.test/city-photos/Q1.jpg" }, credit: null }}
+      title="Viana"
+      onPress={jest.fn()}
+    />,
+  );
+  await fireEvent(screen.getByTestId("route-card-second-page"), "pressIn", down);
+  expect(timing).toHaveBeenCalledTimes(1);
+  timing.mockRestore();
 });

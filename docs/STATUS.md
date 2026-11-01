@@ -160,6 +160,37 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
+  dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
+  `docs/TASK-365-muw-routes-in-feed` (documenti). Dodici bozze in bici in
+  `out/muw-bike-drafts/`, nessuna approvata e nessuna pubblicata. Le scelte
+  dell'utente sono tutte aperte; il codice parte col via del Coordinatore, dopo
+  TASK-362 e TASK-355 A. `tasks/TASK-365.md`.
+
+- **TASK-356 — La posizione nel Feed: arrotondata, e detta nella privacy**
+  (ADR-0306, punto 4; testo approvato dall'utente il 2026-10-30). Branch
+  `fix/TASK-356-feed-position`. Sito e OTA di produzione con il suo sì.
+  `tasks/TASK-356.md`.
+  **Chiuso il 2026-10-31**: #682 in `main`; sito e OTA di produzione ancora da pubblicare.
+- **TASK-363 — Dove va la posizione del telefono: la verifica e il testo**
+  (ADR-0306, punto 4; numero dal Coordinatore). Verifica fatta, proposta
+  unica all'utente; codice solo col suo sì. Branch
+  `docs/TASK-363-position-audit`. `tasks/TASK-363.md`.
+  Approvata il 2026-10-30 («Sì, approvo tutto»); codice in
+  `fix/TASK-363-position`. Server, sito e OTA: tre sì a parte.
+- **TASK-362 — Le schede del Feed: «Tutti» e «Seguiti»** (ADR-0308, proposta;
+  richiesta dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
+  `docs/TASK-362-feed-tabs` (documenti). Sostituiscono i filtri di TASK-355 B
+  («Sì, sostituiscono»). Le scelte dell'utente stanno nel task file; il codice parte col via
+  del Coordinatore, primo nella coda su `FeedScreen.tsx`. `tasks/TASK-362.md`.
+
+- **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
+  scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
+  passi 1 e 2»; numeri dal Coordinatore). Branch `feat/TASK-353-chat-look`.
+  `unread_count` nella lista dell'API, senza migrazione; l'app funziona
+  anche con il server di oggi, con il pallino. Testi da approvare. Dopo il
+  merge, TASK-354 (invio ottimistico, coda offline). File
+  `tasks/TASK-353.md`.
 - **TASK-351 — Il video della corsa con la mappa sotto: il look premium,
   il 3D e tre stili** (ADR-0303, proposta; richiesta dell'utente del
   2026-10-30; numeri e condizioni dal Coordinatore). Branch
@@ -168,9 +199,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   e la fattibilità del 3D misurata nel simulatore e nel WebView nascosto
   dell'app (la mappa può stare nella pagina del video: uno scatto a
   `idle`, la linea sopra; la camera che gira costa una resa per
-  fotogramma; sul telefono da rimisurare con l'utente). Aspettano
-  l'utente: la scelta sulla privacy (la mappa nel video mostra dove si è
-  corso) e i nomi degli stili nelle cinque lingue. Senza mappa il video
+  fotogramma; sul telefono da rimisurare con l'utente). La scelta
+  sulla privacy (la mappa nel video mostra dove si è corso) è dell'utente
+  («Sì, va bene», 2026-10-30); i nomi degli stili sono
+  suoi («Sì, questi», 2026-10-30). La B è la PR #679 (testa
+  `a6d8cf1d (il codice; poi la privacy e i documenti)`): la mappa sotto nel look Night, la riserva gialla senza mappa,
+  provata in Expo Go, impronta `83793e26` invariata; prima dell'OTA di
+  produzione l'utente esporta un video vero sull'iPhone dalla preview e
+  vede la mappa (condizione del Coordinatore). Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
@@ -198,6 +234,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `Tap`), D (Profile, Settings, i fogli), E («Draw» e il risultato, dopo
   TASK-311 B, 331 e 335). Niente di nativo: la vibrazione al tocco solo
   con una build, col sì dell'utente. File `tasks/TASK-339.md`.
+  **Parte B in PR dal 2026-10-30**, branch `feat/TASK-339-premium-look-b`
+  (via del Coordinatore del 2026-10-30, dopo la #658 e la #666 di
+  TASK-350 in `main`): le schede di «Feed» ed «Explore» (`FeedPost`,
+  `RouteCard`, `ThemedCard`, `ExploredCard`, `DrawingCard`) col raggio
+  20 e senza bordo, le parole di «Feed» sulla foto su `Scrim`, i titoli
+  `cardTitle` e i nomi medium, `Tap` al posto dell'opacità, `Hairline`
+  prima delle azioni, la distanza delle schede di «Explore» in `display`;
+  prima/dopo in `tasks/TASK-339/b-*.jpg`. Poi C.
+- **TASK-343 B — Le sfide del mese nell'app** (branch
+  `feat/TASK-343-b-themed-contest-app`): scheda, pagina, galleria, «Past
+  challenges», interruttore nel modulo, tocco delle tre push, regolamento. Con
+  l'API di oggi (c7a83347, senza 0039) l'app resta com'è. Testi e regolamento
+  approvati dall'utente (2026-10-30, «Approve them all» e «sì testi 667»); provata
+  nel simulatore con un tema e col server di oggi (esito nel task file). Dopo il
+  merge resta una riga: montare `EnterOnPost` in `DrawingCard`, dopo TASK-339 B e
+  su parola del Coordinatore.
+  Il server con la 0039 lo decide l'utente, insieme a questa parte.
+  **Parte B in `main` dal 2026-10-30** con la #677 (`4faeceb2`, 23:16 CET,
+  mergiata al verde: tutte le 557 suite dell'app verdi anche nella copia
+  pulita). Poi C.
 - **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
   la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
   dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;
@@ -210,8 +266,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `tasks/TASK-343.md`. **A in `main`** (#657, `5303a198`, 2026-10-30, migrazione
   0039): **il server non è aggiornato**, serve la 0039 e lo decide l'utente.
   I testi delle tre push: sì dell'autopilota, «accettati su delega
-  dell'utente del 2026-10-29, da rivedere»; parlano solo di corsa. **B da
-  fare**, i file prima al Coordinatore (TASK-339 B).
+  dell'utente del 2026-10-29, da rivedere»; parlano solo di corsa. **B nella
+  PR #667**, la voce sopra.
 - **TASK-341 — I badge sul profilo: primo disegno, 10 disegni, 30 km**
   (ADR-0294; richiesta dell'utente del 2026-10-29, proposta approvata con
   «Yes, as proposed»; numeri dal Coordinatore). Branch
@@ -248,6 +304,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Resta**: il merge dei documenti, poi la parte A nella sua sessione.
   Non si sovrappone a TASK-346 (i nodi della traccia vera). File
   `tasks/TASK-347.md`.
+  **Parte A** (branch `feat/TASK-347-a-engine-anchored`, 2026-10-30): nel
+  motore due moduli nuovi e nessun file di prima toccato, così l'impronta
+  del motore e gli esempi tenuti restano (`route_store.ANCHORED_ONLY`,
+  condizione del Coordinatore): `stroke_match.snap_stroke` (zone e corridoio
+  su un tratto aperto, magnete `fit` fra lo 0,5 % e il 2 % della lunghezza,
+  64 ancore, `away_m`, `off_roads`) e `anchored.plan_anchored` (il disegno
+  dov'è, tracciato una volta, distanza controllata e non corretta,
+  `placed_outline`), con `python -m route_engine.anchored`. API: `POST` e la
+  sonda `GET /stroke-matches`, `placement`/`fit` sulle richieste e
+  `placed_outline` sui risultati (campi dell'API: `AnchoredRouteRequest`,
+  `ImageRequest`), indicazioni anche senza ricerca, `on_phone.match_json`
+  per la parte B; l'archivio non tiene un disegno ancorato. Contratto e
+  fixture in `shared-types`; `engine.zip` rifatto. Tempi in
+  `tasks/TASK-347.md`. **Prossimo**: parte B (il telefono).
 - **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297;
   richiesta dell'utente del 2026-10-29, sei scelte approvate con «Sì,
   vai»; numeri dal Coordinatore). Prima questa PR dei documenti
@@ -2122,6 +2192,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **App** — TASK-340 (aggiunta ad ADR-0288; scelta dell'utente del 2026-10-29: «TOGLI LA FUNZIONE MODIFICA IL DISEGNO IN DRAW, TIENI SOLO LA FUNZIONE DISEGNA A MANO L'IBERA SU MAPPA E METTILA PER PRUMA TRA FORMA PAROLA ED IMMAGINE»): in «Draw» l'interruttore è «Freehand | Shape | Word | Image» e «Freehand» apre subito la mappa per disegnare a mano (prima il tasto «Draw on the map» sotto l'interruttore); sotto il risultato di «Draw» non c'è più «Edit the drawing», che resta sulle schede di «Explore» e del Feed. Solo app, nessun testo nuovo («Freehand» con le traduzioni approvate per il TASK-320). Visto sul simulatore; manca la prova sull'iPhone con la prossima preview. `tasks/TASK-340.md`, «Esito».
+- **TASK-358 — Nei messaggi «Photo» e «Video» aprono la galleria** (2026-10-30; numero dal
+  Coordinatore; bloccava l'update `production`). Su iOS la galleria presentata mentre il
+  foglio del «+» si chiudeva non compariva: ora parte da `onDismiss`. Provato nel simulatore
+  fino alla foto nella chat; sul telefono con la preview. Solo app, nessun testo nuovo.
+  File: `tasks/TASK-358.md`.
 - **App** — TASK-350 (ADR-0302; richiesta dell'utente del 2026-10-30): nelle schede di «Explore» con una foto, in «NEARBY TOWNS» e «IDEAS FROM EUROPE», prima il disegno sulla mappa e con uno swipe la foto col credito; due pallini dicono quale si vede, un tocco su tutte e due apre la scheda. Provato nel simulatore; Android no. Solo app, nessun testo nuovo, impronta iOS 83793e26. **Da vedere sull'iPhone** con la prossima preview. `tasks/TASK-350.md`.
 - **App** — TASK-352 (ADR-0304; richiesta dell'utente del 2026-10-30, «Dopo la
   prima scelta»): «Who can see it» parte da «Only me» finché l'account non
@@ -4663,6 +4739,10 @@ corsa.gpx`. Il seguito è **TASK-112** (registrare la traccia nell'app),
 - **Regole** — TASK-357 (2026-10-30, richiesta dell'utente): con l'utente ogni
   sessione scrive in italiano (`CLAUDE.md`, «Convenzioni»). File
   `tasks/TASK-357.md`.
+
+- **Lavoro in parallelo** — TASK-359 (2026-10-30): `STATUS.md`, `DECISIONS.md` e
+  `INDEX.md` si uniscono con `merge=union`, per non far ripartire la CI a ogni
+  aggiunta. File `tasks/TASK-359.md`.
 
 ## Bloccato
 

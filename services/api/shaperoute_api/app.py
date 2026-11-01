@@ -28,7 +28,6 @@ from route_engine.image_outline import InvalidImageError
 from route_engine.models import (
     PEN_UP_WITHOUT_WORD,
     InvalidRequestError,
-    RouteRequest,
     RouteResult,
 )
 from route_engine.optimizer import ShapeNotDrawableError
@@ -72,8 +71,11 @@ from shaperoute_api.images import (
     ImageRequest,
     decode_image,
     outline_of,
+    placed_outlines,
     plan_request,
+    route_request_of,
     trace,
+    with_placed,
 )
 from shaperoute_api.insights import Insights, route_fields
 from shaperoute_api.jobs import Job, JobEnd, Planner, RouteJobs
@@ -130,6 +132,7 @@ from shaperoute_api.sign_in_providers import (
 from shaperoute_api.signals import SignalBody, SignalGate, event_of
 from shaperoute_api.strava import install_strava
 from shaperoute_api.strava_client import Strava
+from shaperoute_api.stroke_matches_api import install_stroke_matches
 from shaperoute_api.themed import ThemedJobBody, ThemedJobs, ThemedRequestBody
 from shaperoute_api.track_scores import score_run
 from shaperoute_api.user_photos import install_user_photos
@@ -198,17 +201,10 @@ def to_request(body: RouteRequestBody | ImageRouteRequestBody) -> AnyRequest:
             outline=outline_of(body.outline, body.strokes),
             distance_m=body.distance_m,
             activity=body.activity,
+            placement=body.placement,
+            fit=body.fit,
         )
-    return RouteRequest(
-        start=body.start,
-        shape=body.shape,
-        word=body.word,
-        distance_m=body.distance_m,
-        activity=body.activity,
-        style=body.style,  # type: ignore[arg-type]  # RouteRequest checks it
-        pen_up=body.pen_up,
-        near=body.near,
-    )
+    return route_request_of(body)
 
 
 def gpx_file_name(request: AnyRequest, when: datetime) -> str:
@@ -220,11 +216,13 @@ def gpx_file_name(request: AnyRequest, when: datetime) -> str:
 
 
 def job_body(job: Job) -> RouteJobBody:
+    result = None
+    if job.result is not None:
+        # Where the engine placed the drawing (TASK-347): the job's, not the
+        # engine's result's.
+        result = with_placed(RouteResultBody.from_result(job.result), job.placed)
     return RouteJobBody(
-        job_id=job.job_id,
-        status=job.status,
-        result=None if job.result is None else RouteResultBody.from_result(job.result),
-        error=job.error,
+        job_id=job.job_id, status=job.status, result=result, error=job.error
     )
 
 
@@ -390,6 +388,9 @@ def create_app(
     # Group runs on a route, «I'm going» and the reminder an hour before
     # (TASK-309); they need a token.
     install_group_runs(app)
+    # A stroke drawn on the map, anchored to the roads as the finger lifts
+    # (TASK-347 A), and the probe that says this server does it.
+    install_stroke_matches(app, source)
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -675,6 +676,7 @@ def create_app(
             plan = planner(request, ground_for(source, request.activity))
             others = [other.result for other in plan.alternatives]
             result = replace(plan.result, alternatives=others)
+            placed = placed_outlines(plan, request)
         except Exception as exc:
             elapsed = time.perf_counter() - started
             log.info("route %s: %s after %.1f s", what, type(exc).__name__, elapsed)
@@ -701,7 +703,7 @@ def create_app(
         insights.record(
             "route", ms=round((time.perf_counter() - started) * 1000), **fields
         )
-        return RouteResultBody.from_result(result)
+        return with_placed(RouteResultBody.from_result(result), placed)
 
     @app.exception_handler(RequestValidationError)
     def invalid_body(_: Request, exc: RequestValidationError) -> JSONResponse:

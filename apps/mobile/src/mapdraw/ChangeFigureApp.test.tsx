@@ -233,7 +233,7 @@ test("on the water only the shapes, and a shape left somewhere stays there", asy
 
 test("from «Draw on the map» the new figure takes the place of the old; «Undo» brings it back", async () => {
   await startingAt(TRENTO);
-  await fireEvent.press(screen.getByRole("button", { name: "Draw on the map" }));
+  await fireEvent.press(screen.getByRole("button", { name: "Freehand" }));
   await fireEvent(screen.getByTestId("map"), "message", {
     nativeEvent: { data: '{"type":"centre","lngLat":[11.13,46.07]}' },
   });

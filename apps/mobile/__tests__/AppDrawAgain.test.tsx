@@ -49,7 +49,7 @@ const store = jest.requireMock<MemorySecureStore>("expo-secure-store");
 const API = "http://192.168.1.23:8000";
 const SESSION_KEY = "shaperoute.session";
 // Asked from where «Draw» starts: the position of the phone.
-const FEED = "/feed?lat=46.067&lon=11.1215";
+const FEED = "/feed?lat=46.07&lon=11.12";
 
 // The second drawing of the sample feed, opened as a route of «Explore».
 const POST = SAMPLE_FEED[1];

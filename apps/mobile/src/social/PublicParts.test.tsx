@@ -1,10 +1,12 @@
 import people from "@shaperoute/shared-types/fixtures/people.json";
+import open from "@shaperoute/shared-types/fixtures/contest.json";
 import session from "@shaperoute/shared-types/fixtures/session.json";
-import { DRAWING_MAX_TAGS, type Session } from "@shaperoute/shared-types";
+import { type Contest, DRAWING_MAX_TAGS, type Session } from "@shaperoute/shared-types";
 import { fireEvent, render, screen } from "@testing-library/react-native";
 
 import { answers } from "../account/testing";
-import { NOT_CHOSEN } from "../api/drawings";
+import { type DrawingChoice, NOT_CHOSEN } from "../api/drawings";
+import { forgetContest, setContest } from "../contest/contestKept";
 import { FollowsContext } from "./followsDoor";
 import type { PhotoShown } from "./drawingsDoor";
 import type { PickedDrawingPhoto } from "./pickDrawingPhoto";
@@ -176,4 +178,75 @@ test("the form: the title and «How did it go?» as typed, trimmed; a warning fo
   expect(screen.getByText(ONLY_ME_PHOTOS)).toBeTruthy();
   await fireEvent.press(screen.getByRole("radio", { name: "Everyone" }));
   expect(onChoice).toHaveBeenLastCalledWith({ ...NOT_CHOSEN, visibility: "everyone" });
+});
+
+describe("«Enter “{theme}”» (TASK-343 part B)", () => {
+  const THEME = {
+    ...(open as Contest),
+    starts_at: "2020-01-01T00:00:00Z",
+    ends_at: "2999-12-31T23:59:59Z",
+    theme: { en: { title: "Animals", description: "Draw an animal." } },
+  } as Contest;
+  const FOR_EVERYONE = { ...NOT_CHOSEN, visibility: "everyone" as const };
+
+  async function form(
+    choice: DrawingChoice,
+    onChoice: (next: DrawingChoice) => void = jest.fn(),
+    imported = false,
+  ) {
+    await render(
+      <FollowsContext.Provider value={follows(answers())}>
+        <DrawingForm
+          choice={choice}
+          onChoice={onChoice}
+          photos={[]}
+          onAddPhoto={jest.fn()}
+          onRemovePhoto={jest.fn()}
+          imported={imported}
+        />
+      </FollowsContext.Provider>,
+    );
+  }
+
+  afterEach(() => {
+    forgetContest();
+  });
+
+  test("with a challenge open and «Everyone», it changes the choice", async () => {
+    setContest({ account: null, contest: THEME });
+    const onChoice = jest.fn();
+    await form(FOR_EVERYONE, onChoice);
+    const name = "Enter “Animals”";
+    expect(screen.getByRole("switch", { name }).props.accessibilityState.checked).toBe(
+      false,
+    );
+    await fireEvent.press(screen.getByRole("switch", { name }));
+    expect(onChoice).toHaveBeenLastCalledWith({
+      ...FOR_EVERYONE,
+      entry: { contest: THEME.id, entered: true },
+    });
+  });
+
+  test("not for «Followers» or «Only me»", async () => {
+    setContest({ account: null, contest: THEME });
+    await form({ ...NOT_CHOSEN, visibility: "followers" });
+    expect(screen.queryByRole("switch")).toBeNull();
+  });
+
+  test("not for a run from a file of another app", async () => {
+    setContest({ account: null, contest: THEME });
+    await form(FOR_EVERYONE, jest.fn(), true);
+    expect(screen.queryByRole("switch")).toBeNull();
+  });
+
+  test("not without a theme, as with today's API", async () => {
+    setContest({ account: null, contest: open as Contest });
+    await form(FOR_EVERYONE);
+    expect(screen.queryByRole("switch")).toBeNull();
+  });
+
+  test("not on a phone that never heard of a contest", async () => {
+    await form(FOR_EVERYONE);
+    expect(screen.queryByRole("switch")).toBeNull();
+  });
 });

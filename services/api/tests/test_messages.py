@@ -38,6 +38,7 @@ from shaperoute_api.messages import (
     NOT_YOUR_MESSAGE,
     NOT_YOURSELF,
     TOO_MANY_MESSAGES,
+    UNREAD_COUNT_MAX,
     WAITING,
     ConversationsBody,
     MessageBody,
@@ -498,6 +499,36 @@ def test_a_hidden_message_is_seen_only_by_who_wrote_it(
 
 
 # --- Read and unread ---
+
+
+def test_the_list_counts_what_was_not_read(client: TestClient) -> None:
+    ada, bob = signed_up(client, "ada"), signed_up(client, "bob")
+    follow(client, bob, ada)
+    sent(client, ada, bob, "One")
+    sent(client, ada, bob, "Two")
+    conversation = box(client, bob)["conversations"][0]
+    assert (conversation["unread"], conversation["unread_count"]) == (True, 2)
+    # One's own do not count.
+    mine = box(client, ada)["conversations"][0]
+    assert (mine["unread"], mine["unread_count"]) == (False, 0)
+    read = client.put(f"/conversations/{pid(client, ada)}/read", headers=bob)
+    assert read.status_code == 204
+    client.app.state.accounts.now.later()  # type: ignore[attr-defined]
+    conversation = box(client, bob)["conversations"][0]
+    assert (conversation["unread"], conversation["unread_count"]) == (False, 0)
+    sent(client, ada, bob, "Three")
+    assert box(client, bob)["conversations"][0]["unread_count"] == 1
+    # The number of «Messages» still counts conversations, not messages.
+    assert unread(client, bob)["unread"] == 1
+
+
+def test_the_count_stops_at_its_most(client: TestClient) -> None:
+    ada, bob = signed_up(client, "ada"), signed_up(client, "bob")
+    follow(client, bob, ada)
+    for number in range(UNREAD_COUNT_MAX + 2):
+        sent(client, ada, bob, f"Message {number}")
+    conversation = box(client, bob)["conversations"][0]
+    assert conversation["unread_count"] == UNREAD_COUNT_MAX
 
 
 def test_reading_takes_the_dot_away(client: TestClient) -> None:

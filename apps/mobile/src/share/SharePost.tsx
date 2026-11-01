@@ -64,8 +64,8 @@ type Props = {
  * Strava, where the emoji and the results go as the activity's text. Once
  * shared, the post goes to the API with its saved run (TASK-258), and
  * opens as it was the next time. «Export video» shares the same post as a
- * short video of the run drawing itself (TASK-295), with the track chosen
- * in «Music» (TASK-301).
+ * short video of the run drawing itself over the map of the run (TASK-295,
+ * TASK-351), with the track chosen in «Music» (TASK-301).
  */
 export function SharePost({ run, onClose }: Props) {
   const insets = useSafeAreaInsets();
@@ -89,9 +89,12 @@ export function SharePost({ run, onClose }: Props) {
   const [problem, setProblem] = useState<string | null>(null);
   // The video's music, none when the post opens (TASK-301).
   const [music, setMusic] = useState<Music | null>(null);
-  // The video being made, with its music, and how much of it is (TASK-295).
+  // The video being made, with its music, and how much of it is (TASK-295);
+  // the map under it, and the post on yellow for when the map does not
+  // come (TASK-351).
   const [video, setVideo] = useState<{
     scene: VideoScene;
+    fallback: VideoScene;
     music: Music | null;
   } | null>(null);
   const [made, setMade] = useState(0);
@@ -135,7 +138,11 @@ export function SharePost({ run, onClose }: Props) {
     }
     hearMusic(null);
     setMade(0);
-    setVideo({ scene: videoScene(run, shown, stickers), music });
+    setVideo({
+      scene: videoScene(run, shown, stickers, "night"),
+      fallback: videoScene(run, shown, stickers, "paper"),
+      music,
+    });
   }
 
   function videoEnded(outcome: VideoOutcome) {
@@ -271,6 +278,7 @@ export function SharePost({ run, onClose }: Props) {
         {video !== null && (
           <RunVideo
             scene={video.scene}
+            fallback={video.fallback}
             music={video.music}
             onProgress={setMade}
             onEnd={videoEnded}

@@ -67,7 +67,6 @@ import { CanvasTop } from "./src/mapdraw/CanvasTop";
 import { DrawOnMap } from "./src/mapdraw/DrawOnMap";
 import { drawingOf, type FigureLines } from "./src/mapdraw/edit";
 import { FigureTiles } from "./src/mapdraw/FigureTiles";
-import { MapDrawButton } from "./src/mapdraw/MapDrawButton";
 import {
   changedRequest,
   drawnTile,
@@ -118,7 +117,6 @@ import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
 import { drawingTrack, requestLines, type TrackInPlace } from "./src/route/figureLines";
-import { EditDrawingButton } from "./src/route/EditDrawingButton";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
 import { samplePicture } from "./src/route/samplePictures";
@@ -601,16 +599,6 @@ function MuW() {
       : fromCanvas
         ? placedTile(mapDraw.placed)
         : drawnTile(view.request);
-  // «Edit the drawing» under the route drawn (TASK-320): the lines of the
-  // figure asked for, to put on the map (TASK-331); none for a word, nor on
-  // the water, where only the catalogue is drawn.
-  const resultLines = useMemo(
-    () =>
-      view.status === "done"
-        ? cardFigure(requestLines(view.request), sportActivity)
-        : null,
-    [view, sportActivity],
-  );
   // «Edit the drawing» on the card of a route of «Explore» (an example, a
   // search, a favorite) and of a member's drawing: the figure it puts on
   // the map. None for a word, nor for a drawing without a planned figure.
@@ -1105,7 +1093,8 @@ function MuW() {
     setScreen("map");
   }
 
-  /** «Draw on the map» (TASK-281): the map of the start, to draw on. */
+  /** «Freehand» in «Draw» (TASK-281, TASK-340): the map of the start, to
+   * draw on. */
   function onOpenCanvas() {
     Keyboard.dismiss();
     mapDraw.open();
@@ -1166,17 +1155,6 @@ function MuW() {
       image.show(samplePicture(choice.sample), choice.sample.outline);
     }
     draw(changedRequest(view.request, choice, penUp));
-  }
-
-  /** «Edit the drawing» under the route drawn: the figure the route was
-   * asked for on the map, as long as the route asked; from the map, the
-   * figure is there as it was. */
-  function onEditResult() {
-    if (fromCanvas) {
-      setScreen("canvas");
-    } else if (view.status === "done" && resultLines !== null) {
-      onEditLines(resultLines, view.request.distance_m);
-    }
   }
 
   /** A run of «My activities» leaves the map for the list it came from. */
@@ -1632,17 +1610,13 @@ function MuW() {
             chosen={chosenIndex}
             onChoose={(index) => answer && setPicked({ of: answer, index })}
             figures={
-              <>
-                <FigureTiles
-                  chosen={resultTile}
-                  onChoose={onChangeFigure}
-                  // On the water only the shapes, as in «Draw».
-                  pictures={sportActivity !== "paddling"}
-                  testID="result-figures"
-                />
-                {/* The figure of the route on the map (TASK-331). */}
-                {resultLines !== null && <EditDrawingButton onPress={onEditResult} />}
-              </>
+              <FigureTiles
+                chosen={resultTile}
+                onChoose={onChangeFigure}
+                // On the water only the shapes, as in «Draw».
+                pictures={sportActivity !== "paddling"}
+                testID="result-figures"
+              />
             }
           />
         )}
@@ -1764,7 +1738,7 @@ function MuW() {
                       distanceM={distanceM}
                       onDistanceText={distance.type}
                       activity={sportActivity}
-                      underKinds={<MapDrawButton onPress={onOpenCanvas} />}
+                      onFreehand={onOpenCanvas}
                     />
                   </ImageEditsContext.Provider>
                   {/* The shape game, right under the distance (the user's

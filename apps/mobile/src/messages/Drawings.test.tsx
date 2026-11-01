@@ -40,6 +40,11 @@ import { MessagesContext, type MessagesDoor } from "./messagesDoor";
 import { SendDrawingButton } from "./SendDrawingButton";
 import { peopleOf, SendToFriend } from "./SendToFriend";
 
+jest.mock("react-native/Libraries/Modal/Modal", () => ({
+  __esModule: true,
+  default: jest.requireActual("./dismissingModal").default,
+}));
+
 // The drawings of the private messages (TASK-333 part C, ADR-0289): a copy
 // of the route, a run cut at its ends; sent from the map, a card or the «+»
 // of a conversation; opened on the map as a favorite, «←» back to the
@@ -407,7 +412,7 @@ test("a drawing touched opens on the map, and «←» comes back", async () => {
     </SafeAreaProvider>,
   );
   await fireEvent.press(
-    await screen.findByRole("button", { name: "Drawing: Heart, 5.1 km" }),
+    await screen.findByRole("button", { name: /^Drawing: Heart, 5.1 km, \d\d:\d\d$/ }),
   );
   await waitFor(() => expect(show).toHaveBeenCalled());
   const [detail, back] = show.mock.calls[0] as [FavoriteDetail, () => void];

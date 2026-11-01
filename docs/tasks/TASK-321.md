@@ -464,8 +464,8 @@ l'approvazione di Apple, così nel frattempo `main` continua a raggiungere la
 1.0.0 (7) con gli update. Finché la #620 non è in `main`, chi ha la 1.0.1 non
 riceve gli update da `main`.
 
-- **Riallineata** su `main` `477bdb68`. Data della privacy:
-  30 ottobre 2026, il giorno del taglio, con `site/privacy/` rifatto.
+- **Riallineata** su `main` `bd9af711` (2026-11-01). Data della privacy:
+  1° novembre 2026, il giorno del taglio, con `site/privacy/` rifatto.
 - **La riga dello store**, «Saves your activities to Apple Health.», è nella
   descrizione di `store.config.json`, che ha solo l'inglese: il sì dell'utente
   del 2026-10-29 la copre, e niente da tradurre.

@@ -13,7 +13,8 @@
         "mine": false,
         "attachment": null
       },
-      "unread": true
+      "unread": true,
+      "unread_count": 1
     }
   ],
   "next": null,

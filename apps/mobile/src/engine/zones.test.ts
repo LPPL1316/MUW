@@ -107,6 +107,19 @@ test("the file name comes from Content-Disposition, only when it is a zone's", (
   expect(fileNameOf(null)).toBeNull();
 });
 
+test("a place kept is asked at its very point: its zone has no room to spare", async () => {
+  const download = answering(200, zipHeaders(TRENTO), "0123456789");
+  await downloadZone(URL_BASE, "foot", HERE, {
+    apiKey: "key",
+    now: () => 1000,
+    download,
+    kept: true,
+  });
+  expect(download.mock.calls[0][0]).toBe(
+    `${URL_BASE}/phone-zones/foot?lat=${HERE[0]}&lon=${HERE[1]}`,
+  );
+});
+
 test("a downloaded zone is saved under the API's name, with its ETag", async () => {
   const download = answering(200, zipHeaders(TRENTO), "0123456789");
   const answer = await downloadZone(URL_BASE, "foot", HERE, {
@@ -115,7 +128,7 @@ test("a downloaded zone is saved under the API's name, with its ETag", async () 
     download,
   });
   expect(download).toHaveBeenCalledWith(
-    `${URL_BASE}/phone-zones/foot?lat=46.0679&lon=11.1211`,
+    `${URL_BASE}/phone-zones/foot?lat=46.07&lon=11.12`,
     expect.stringContaining(".foot.download"),
     { headers: { "X-API-Key": "key" } },
     undefined,
@@ -165,7 +178,7 @@ describe("more room around the phone (part E)", () => {
       marginM: AROUND_MARGIN_M,
     });
     expect(download.mock.calls[0][0]).toBe(
-      `${URL_BASE}/phone-zones/foot?lat=46.0679&lon=11.1211&margin_m=6000`,
+      `${URL_BASE}/phone-zones/foot?lat=46.07&lon=11.12&margin_m=6000`,
     );
     expect(answer).toMatchObject({ kind: "saved", zone: { name: TRENTO } });
     expect(savedZones().map((zone) => zone.name)).toEqual([CENTRE, TRENTO]);
@@ -382,7 +395,7 @@ test("a zone ahead says so, with the phone's id; the zone around it does not", a
     prefetch: true,
   });
   const [around, ahead] = download.mock.calls;
-  expect(around[0]).toBe(`${URL_BASE}/phone-zones/foot?lat=46.0679&lon=11.1211`);
+  expect(around[0]).toBe(`${URL_BASE}/phone-zones/foot?lat=46.07&lon=11.12`);
   expect(around[2]).toEqual({ headers: { "X-API-Key": "k" } });
   expect(ahead[0]).toBe(`${URL_BASE}/phone-zones/foot?lat=45.4642&lon=9.19&prefetch=1`);
   expect(ahead[2]).toEqual({

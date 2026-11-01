@@ -105,7 +105,7 @@ test("signed in, the page shows the drawings the members published", async () =>
   expect(screen.queryByTestId("feed-loading")).toBeNull();
   expect(screen.queryByText(SAMPLE_FEED[0].user)).toBeNull();
   // Asked once, with the token, from where the phone is.
-  expect(asked()).toEqual(["/feed?lat=46.0671&lon=11.1214"]);
+  expect(asked()).toEqual(["/feed?lat=46.07&lon=11.12"]);
   expect(fetchSpy.mock.calls[0][1]).toMatchObject({
     headers: { Authorization: `Bearer ${SESSION.token}` },
   });

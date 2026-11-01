@@ -1,16 +1,19 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import { MoveShape } from "../paddle/MoveShape";
 import type { MoveExample } from "../paddle/useMoveExample";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
+import { Tap } from "../ui/Tap";
 import { PenSplit } from "../route/RoutePanel";
 import { RouteTiles } from "../route/RouteTiles";
 import type { ExportState } from "../route/useGpxExport";
@@ -42,7 +45,11 @@ type Props = {
   onEditDrawing?: () => void;
 };
 
-/** Under the map: a route of "Explore", to run, look at and export (TASK-126). */
+/**
+ * Under the map: a route of "Explore", to run, look at and export (TASK-126).
+ * The distance is the large light number, the actions come after a hairline
+ * and answer the finger through `Tap` (TASK-339, ADR-0293).
+ */
 export function ExploredCard({
   explored,
   exporting,
@@ -118,27 +125,21 @@ export function ExploredCard({
           onChoose={start.status === "loading" ? keepChoice : open.choose}
         />
       )}
+      {/* The actions, after a hairline. */}
+      <Hairline />
       {open !== null && <ExploreStart start={start} onStart={onStart} />}
       {open !== null && onDrawAgain !== undefined && (
-        <Pressable
-          style={styles.secondary}
-          onPress={onDrawAgain}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.secondary} onPress={onDrawAgain} accessibilityRole="button">
           <Text style={styles.secondaryText}>{t("Draw it near me")}</Text>
-        </Pressable>
+        </Tap>
       )}
       {open !== null && move?.available && (
-        <Pressable
-          style={styles.secondary}
-          onPress={move.begin}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.secondary} onPress={move.begin} accessibilityRole="button">
           <Text style={styles.secondaryText}>{t("Move the shape")}</Text>
-        </Pressable>
+        </Tap>
       )}
       {open !== null && (
-        <Pressable
+        <Tap
           style={styles.secondary}
           onPress={onExport}
           disabled={exporting.status === "preparing"}
@@ -147,24 +148,24 @@ export function ExploredCard({
           <Text style={styles.secondaryText}>
             {exporting.status === "preparing" ? t("Preparing GPX…") : t("Export GPX")}
           </Text>
-        </Pressable>
+        </Tap>
       )}
       {exporting.status === "failed" && (
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
       )}
       {/* After «Start», «Draw it near me» and «Export GPX», which stay put. */}
       {open !== null && onEditDrawing !== undefined && (
-        <Pressable
+        <Tap
           style={styles.secondary}
           onPress={onEditDrawing}
           accessibilityRole="button"
         >
           <Text style={styles.secondaryText}>{t("Edit the drawing")}</Text>
-        </Pressable>
+        </Tap>
       )}
-      <Pressable style={styles.secondary} onPress={onList} accessibilityRole="button">
+      <Tap style={styles.secondary} onPress={onList} accessibilityRole="button">
         <Text style={styles.secondaryText}>{t("Back to the list")}</Text>
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -175,18 +176,19 @@ const styles = StyleSheet.create({
   panel: {
     gap: space.md,
   },
+  // The number people look for: large and light, its digits lined up.
   result: {
+    ...font.display,
+    fontVariant: ["tabular-nums"],
     color: color.text,
-    fontSize: fontSize.display,
-    fontWeight: fontWeight.bold,
   },
   target: {
+    ...font.small,
     color: color.textMuted,
-    fontSize: fontSize.small,
   },
   error: {
+    ...font.small,
     color: color.error,
-    fontSize: fontSize.small,
   },
   secondary: {
     minHeight: MIN_TAP_SIZE,

@@ -53,12 +53,17 @@ import { favoriteOfMessage } from "./messageDrawing";
 import { MediaViewer } from "./MediaViewer";
 import { MessageMedia } from "./MessageMedia";
 import { MessageSheet, type SheetFor } from "./MessageSheet";
+import { dayTitle, opensDay, timeLabel } from "./messageTime";
 import { useMessagesDoor } from "./messagesDoor";
 import { type MessageFile, pickMessageFile } from "./pickMessageMedia";
 import { VideoPoster } from "./VideoPoster";
 
 /** How often an open conversation is read again: a reply within seconds. */
 export const CONVERSATION_EVERY_MS = 5_000;
+
+/** How far from the top the older messages are asked for, in screens of the
+ * list: they are there before the scroll gets to them. */
+const OLDER_WITHIN_SCREENS = 0.5;
 
 /** The side of the other's picture in the title. */
 const PHOTO_SIDE = 36;
@@ -155,10 +160,13 @@ export function merged(held: Message[], page: Message[]): Message[] {
  * and under them what who reads may do, as the API's `state` says: write
  * («open»); write one message, which the other gets as a request
  * («first»); wait for the other to accept («waiting»); or answer the
- * other's request with «Accept», «Delete» or «Block» («request»). Read
- * again every few seconds while it is on screen, and marked read when the
- * other wrote. A message touched long is deleted (one's own) or reported
- * (the other's); the «…» of the title reports or blocks the member.
+ * other's request with «Accept», «Delete» or «Block» («request»). Each
+ * message says its time, and a title opens each day (TASK-353). The older
+ * pages come while scrolling up; «Show earlier messages» stays for when
+ * that fails. Read again every few seconds while it is on screen, and
+ * marked read when the other wrote. A message touched long is deleted
+ * (one's own) or reported (the other's); the «…» of the title reports or
+ * blocks the member.
  */
 export function ConversationScreen({
   person,
@@ -545,7 +553,13 @@ export function ConversationScreen({
   }
 
   function loadOlder() {
-    if (token === null || apiUrl === null || held === null || held.next === null) {
+    if (
+      token === null ||
+      apiUrl === null ||
+      held === null ||
+      held.next === null ||
+      loadingOlder
+    ) {
       return;
     }
     setLoadingOlder(true);
@@ -619,15 +633,23 @@ export function ConversationScreen({
             </View>
           ) : (
             <FlatList
+              testID="conversation-messages"
               style={styles.messages}
               contentContainerStyle={styles.messagesContent}
               data={shown.messages}
               keyExtractor={(m) => m.id}
               // The latest at the bottom, where the box is.
               inverted
-              renderItem={({ item }) => (
+              onEndReached={loadOlder}
+              onEndReachedThreshold={OLDER_WITHIN_SCREENS}
+              renderItem={({ item, index }) => (
                 <Bubble
                   message={item}
+                  day={
+                    opensDay(shown.messages, index)
+                      ? dayTitle(item.created_at, new Date())
+                      : null
+                  }
                   media={
                     item.attachment && token !== null && apiUrl !== null ? (
                       <MessageMedia
@@ -649,19 +671,17 @@ export function ConversationScreen({
                 />
               )}
               ListFooterComponent={
-                shown.next !== null ? (
+                shown.next === null ? null : loadingOlder ? (
+                  <Text style={styles.note}>{t("Loading…")}</Text>
+                ) : (
                   <Pressable
-                    style={({ pressed }) => [
-                      styles.older,
-                      (pressed || loadingOlder) && styles.pressed,
-                    ]}
+                    style={({ pressed }) => [styles.older, pressed && styles.pressed]}
                     onPress={loadOlder}
-                    disabled={loadingOlder}
                     accessibilityRole="button"
                   >
                     <Text style={styles.olderText}>{t("Show earlier messages")}</Text>
                   </Pressable>
-                ) : null
+                )
               }
             />
           )}
@@ -750,11 +770,14 @@ export function ConversationScreen({
 
 function Bubble({
   message,
+  day,
   media,
   onOpen,
   onLongPress,
 }: {
   message: Message;
+  /** The title of the day this message opens; null inside a day. */
+  day: string | null;
   /** What it carries (TASK-333), above its text. */
   media: ReactNode;
   /** A photo or a video: opened on the whole screen. */
@@ -767,28 +790,34 @@ function Bubble({
   ]
     .filter((part) => part !== "")
     .join(", ");
+  const said = message.mine ? t("You: {text}", { text: words }) : words;
+  const time = timeLabel(message.created_at);
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.bubble,
-        message.mine ? styles.mine : styles.theirs,
-        pressed && styles.pressed,
-      ]}
-      onPress={onOpen ?? undefined}
-      onLongPress={onLongPress}
-      accessibilityRole={onOpen === null ? "text" : "button"}
-      accessibilityLabel={message.mine ? t("You: {text}", { text: words }) : words}
-      accessibilityHint={
-        message.mine
-          ? t("Touch and hold to delete it")
-          : t("Touch and hold to report it")
-      }
-      accessibilityActions={[{ name: "longpress" }]}
-      onAccessibilityAction={onLongPress}
-    >
-      {media}
-      {message.text !== "" && <Text style={styles.bubbleText}>{message.text}</Text>}
-    </Pressable>
+    <View style={styles.message}>
+      {day !== null && day !== "" && <Text style={styles.day}>{day}</Text>}
+      <Pressable
+        style={({ pressed }) => [
+          styles.bubble,
+          message.mine ? styles.mine : styles.theirs,
+          pressed && styles.pressed,
+        ]}
+        onPress={onOpen ?? undefined}
+        onLongPress={onLongPress}
+        accessibilityRole={onOpen === null ? "text" : "button"}
+        accessibilityLabel={time === "" ? said : `${said}, ${time}`}
+        accessibilityHint={
+          message.mine
+            ? t("Touch and hold to delete it")
+            : t("Touch and hold to report it")
+        }
+        accessibilityActions={[{ name: "longpress" }]}
+        onAccessibilityAction={onLongPress}
+      >
+        {media}
+        {message.text !== "" && <Text style={styles.bubbleText}>{message.text}</Text>}
+        {time !== "" && <Text style={styles.time}>{time}</Text>}
+      </Pressable>
+    </View>
   );
 }
 
@@ -949,6 +978,16 @@ const styles = StyleSheet.create({
     gap: space.sm,
     paddingVertical: space.sm,
   },
+  message: {
+    gap: space.sm,
+  },
+  day: {
+    alignSelf: "center",
+    paddingVertical: space.xs,
+    color: color.textMuted,
+    fontSize: fontSize.detail,
+    fontWeight: fontWeight.semibold,
+  },
   // Neutral, both: the yellow belongs to the route.
   bubble: {
     maxWidth: "80%",
@@ -970,6 +1009,11 @@ const styles = StyleSheet.create({
   bubbleText: {
     color: color.text,
     fontSize: fontSize.body,
+  },
+  time: {
+    alignSelf: "flex-end",
+    color: color.textMuted,
+    fontSize: fontSize.label,
   },
   older: {
     minHeight: MIN_TAP_SIZE,

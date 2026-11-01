@@ -1268,8 +1268,10 @@ export const ES: Table = {
   Trophy: "Trofeo",
   Bone: "Hueso",
 
-  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
-  "Draw on the map": "Dibujar en el mapa",
+  // src/route/RoutePanel.tsx (TASK-340: first in «Draw», it opens the map
+  // to draw on)
+  Freehand: "A mano alzada",
+  // src/mapdraw/DrawOnMap.tsx (TASK-281)
   Move: "Mover",
   "Draw with one finger. End where you started to close it. Two fingers move the map.":
     "Dibuja con un dedo. Termina donde empezaste para cerrarla. Con dos dedos mueves el mapa.",
@@ -1487,6 +1489,35 @@ export const ES: Table = {
     "Apple y Google no patrocinan este concurso y no participan en él de ninguna manera.",
   Winner: "Ganador",
   "{name} won the MuW contest": "{name} ha ganado el concurso MuW",
+  // src/contest/ (TASK-343 B: the monthly challenge, not Play's «Challenges»)
+  "Monthly challenge": "Reto del mes",
+  "See the challenge": "Ver el reto",
+  "Publish a run and enter it to take part.":
+    "Publica una carrera e inscríbela para participar.",
+  "Enter “{theme}”": "Inscribir en “{theme}”",
+  "From {start} to {end}": "Del {start} al {end}",
+  Ended: "Terminado",
+  "{count} person taking part": "{count} persona participa",
+  "{count} people taking part": "{count} personas participan",
+  "You entered {count} drawing": "Has inscrito {count} dibujo",
+  "You entered {count} drawings": "Has inscrito {count} dibujos",
+  "Prize: the Winner badge on your profile and your post at the top of the Feed for a week.":
+    "Premio: la insignia Ganador en tu perfil y tu publicación arriba del Feed durante una semana.",
+  Top: "Top",
+  New: "Recientes",
+  "Past challenges": "Retos del mes anteriores",
+  "No past challenges yet.": "Aún no hay retos del mes anteriores.",
+  "No drawings entered yet.": "Aún no hay dibujos inscritos.",
+  "This challenge takes no entries now.": "Este reto no admite inscripciones ahora.",
+  "This run cannot take part: it must be for everyone, recorded with MuW and published during the challenge.":
+    "Esta carrera no puede participar: debe ser para todos, grabada con MuW y publicada durante el reto.",
+  "The theme is “{theme}”.": "El tema es “{theme}”.",
+  "Anyone with a MuW account can take part, for free: publish a run recorded with MuW for everyone during the challenge, and enter it. You can enter as many drawings as you like, and withdraw them until the challenge ends.":
+    "Puede participar gratis cualquier persona con una cuenta MuW: publica para todos una carrera grabada con MuW durante el reto e inscríbela. Puedes inscribir todos los dibujos que quieras y retirarlos hasta que termine el reto.",
+  "At the end, the entered post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "Al final gana, entre las publicaciones inscritas, la que tenga más reacciones de otros miembros. Cuenta una reacción por miembro; la tuya no cuenta. En caso de empate, gana la que tenga más corazones de MuW y, después, la publicada primero.",
+  "MuW may leave out a post that does not fit the theme or breaks the community rules.":
+    "MuW puede excluir una publicación que no se ajuste al tema o que incumpla las normas de la comunidad.",
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "CERCA DE TI",
   "SHAPES TO TRY": "FORMAS PARA PROBAR",
@@ -1567,9 +1598,9 @@ export const ES: Table = {
   "Write a message…": "Escribe un mensaje…",
   "Delete this message for both of you?": "¿Eliminar este mensaje para los dos?",
   "Report this message": "Denunciar este mensaje",
-  // src/route/EditDrawingButton.tsx, mapdraw/DrawOnMap.tsx, RoutePanel.tsx,
-  // favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure drawn by hand
-  // on the map)
+  // src/explore/ExploredCard.tsx, social/DrawingCard.tsx, mapdraw/DrawOnMap.tsx,
+  // RoutePanel.tsx, favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure
+  // drawn by hand on the map)
   "Edit the drawing": "Editar el dibujo",
   Erase: "Borrar",
   Drawing: "Dibujo",
@@ -1632,4 +1663,9 @@ export const ES: Table = {
   "10 drawings": "10 dibujos",
   "{distance} drawing": "Dibujo de {distance}",
   "Not earned yet: {badge}": "Aún no conseguido: {badge}",
+  // src/messages/messageTime.ts, ConversationList.tsx (TASK-353: times in the chat)
+  Today: "Hoy",
+  Yesterday: "Ayer",
+  "{day} {month}": "{day} {month}",
+  "{name}, {count} new messages: {text}": "{name}, {count} mensajes nuevos: {text}",
 };

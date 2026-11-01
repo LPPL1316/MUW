@@ -98,7 +98,7 @@ const API = "http://192.168.1.23:8000";
 const SESSION_KEY = "shaperoute.session";
 const BEGAN = Date.UTC(2026, 9, 26, 7, 0, 0);
 // Asked from where «Draw» starts: the position of the phone.
-const FEED = "/feed?lat=46.067&lon=11.1215";
+const FEED = "/feed?lat=46.07&lon=11.12";
 const [[START_LAT, START_LON]] = drawing.track;
 /** A metre to the east, in degrees, at the drawing's latitude. */
 const METRE_EAST = 1 / (111_320 * Math.cos((START_LAT * Math.PI) / 180));

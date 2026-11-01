@@ -99,6 +99,9 @@ if TYPE_CHECKING:
 MAX_MESSAGE_LENGTH = 1000
 # A chat goes faster than comments; more is a script.
 MAX_MESSAGES_PER_MINUTE = 20
+# The most a conversation of the list counts as not read: the app says «9+»
+# from ten on (TASK-353; CONVERSATION_UNREAD_COUNT_MAX in shared-types).
+UNREAD_COUNT_MAX = 10
 
 # Where who asks stands in a conversation:
 # - "open": it writes freely;
@@ -291,6 +294,8 @@ class ConversationBody(BaseModel):
     last: MessageBody
     unread: bool
     """The other wrote since who asks last read it."""
+    unread_count: int
+    """How many it wrote since, up to UNREAD_COUNT_MAX (TASK-353)."""
 
 
 class ConversationsBody(BaseModel):
@@ -327,6 +332,15 @@ UNREAD = (
     "EXISTS (SELECT 1 FROM messages m WHERE m.conversation_id = cm.conversation_id"
     f" AND m.sender_id = cm.other_id AND {SEEN}"
     " AND (cm.read_at IS NULL OR m.created_at > cm.read_at))"
+)
+# How many of them, the latest first: never more than UNREAD_COUNT_MAX rows
+# read for each conversation of a page (TASK-353).
+UNREAD_COUNT = (
+    "(SELECT count(*) FROM (SELECT 1 FROM messages m"
+    " WHERE m.conversation_id = cm.conversation_id"
+    f" AND m.sender_id = cm.other_id AND {SEEN}"
+    " AND (cm.read_at IS NULL OR m.created_at > cm.read_at)"
+    f" ORDER BY m.created_at DESC LIMIT {UNREAD_COUNT_MAX}) AS news)"
 )
 # The conversations of a box, as the member of `cm` sees them: one
 # placeholder, its users.id, then the box's condition.
@@ -572,22 +586,34 @@ class Messages:
         now = self.now()
         with self.database.connect() as conn:
             rows = conn.execute(
-                f"SELECT cm.conversation_id, {PERSON_COLUMNS}, {LAST_COLUMNS},"
-                f" {UNREAD} AS unread FROM {paged}"
+                f"SELECT cm.conversation_id, {PERSON_COLUMNS}, {LAST_COLUMNS}"
+                f" FROM {paged}"
                 " ORDER BY last.created_at DESC, cm.conversation_id DESC LIMIT %s",
                 (*values, limit + 1),
             ).fetchall()
             count = conn.execute(
                 f"SELECT count(*) AS n FROM {where}", (user_id,)
             ).fetchone()
+            page, more = rows[:limit], len(rows) > limit
+            # Asked apart, for this page only: the query above reads every
+            # conversation of the box to sort them (measured in TASK-353).
+            news = {
+                row["conversation_id"]: row["unread_count"]
+                for row in conn.execute(
+                    f"SELECT cm.conversation_id, {UNREAD_COUNT} AS unread_count"
+                    " FROM conversation_members cm"
+                    " WHERE cm.user_id = %s AND cm.conversation_id = ANY(%s)",
+                    (user_id, [row["conversation_id"] for row in page]),
+                ).fetchall()
+            }
         assert count is not None
-        page, more = rows[:limit], len(rows) > limit
         return ConversationsBody(
             conversations=[
                 ConversationBody(
                     person=_person(row),
                     last=_message(row, user_id, now, with_attachments),
-                    unread=row["unread"],
+                    unread=news[row["conversation_id"]] > 0,
+                    unread_count=news[row["conversation_id"]],
                 )
                 for row in page
             ],

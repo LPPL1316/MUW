@@ -201,7 +201,8 @@ class PlaceBuilds:
                     target=self._work, name="place-zones", daemon=True
                 )
                 self._worker.start()
-        log.info("place zone %s %s queued", network, bbox)
+        # Never the box: it is a place someone keeps (TASK-363).
+        log.info("place zone %s queued", network)
         return "preparing", 0
 
     def held(self) -> bool:
@@ -245,14 +246,13 @@ class PlaceBuilds:
                 raise RuntimeError("no zone saved for the place")
             self._finish(source, zone)
         except Exception:
-            log.exception("place zone %s %s not prepared", network, bbox)
+            log.exception("place zone %s not prepared", network)
             with self._lock:
                 self._failed[(network, bbox)] = self._clock() + FAILED_FOR_S
             return
         log.info(
-            "place zone %s %s prepared in %.1f s",
+            "place zone %s prepared in %.1f s",
             network,
-            bbox,
             time.perf_counter() - started,
         )
 

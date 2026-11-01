@@ -804,6 +804,29 @@ alto), le app installate lo ignorano, e il `GpxRequest` lo accetta con o
 senza; fuori da [−180, 180] è un `422`. Esempio:
 `fixtures/route-result-tilted.json`.
 
+**`placement` e `fit`** nella richiesta, **`placed_outline`** nella
+risposta (TASK-347 parte A, ADR-0300): `placement` è `free` (il motore
+cerca dove le strade disegnano meglio la forma, come sempre; è il valore
+senza il campo) o `anchored` (la forma resta dove e come è stata disegnata:
+primo punto su `start`, dritta, alla scala di `distance_m`, tracciata una
+volta e mai riscalata; se la distanza sulle strade sbaglia di più del 10 %
+lo dice un avviso, non un rifiuto). `fit`, da 0 a 1, è il magnete di un
+disegno ancorato (`ROUTE_ENGINE.md` §4, «Il disegno ancorato e i tratti»):
+0 fedele al disegno, 1 i valori di oggi; senza, il default del motore.
+`fit` con `placement: "free"` è `422 invalid_request` («fit is the magnet
+of an anchored placement»), `anchored` in canoa pure («a shape is anchored
+to the roads only»). Un disegno ancorato non ha partenze vicine né
+alternative, e l'archivio dei percorsi non lo tiene né lo risponde: è
+dell'utente, come il contorno di una foto. `placed_outline` è la forma come
+il motore l'ha piazzata, in linee `[lat, lon]`: dove la ricerca l'ha messa
+in `free`, dove era disegnata in `anchored`; una linea chiusa per una forma,
+una per lettera o pezzo a penna alzata; vuota sull'acqua e per un percorso
+risposto dall'archivio. L'app la disegna come fantasma sotto il percorso.
+Un'API precedente non sa i due campi (li rifiuta: l'app li manda solo dopo
+la sonda `GET /stroke-matches`, sotto) e non manda `placed_outline`; i tre
+sono facoltativi in `shared-types`. Esempi: `fixtures/route-request-anchored.json`,
+`fixtures/image-route-request-anchored.json`, `fixtures/route-result-anchored.json`.
+
 La richiesta è sincrona: la risposta arriva quando il percorso è pronto
 (tempi sotto). Resta per `/docs`, `curl` e le misure; l'app usa
 `/route-jobs`.
@@ -1120,6 +1143,10 @@ un'immagine oltre il limite sono `invalid_request`.
   9,2 km, somiglianza 0,94, in 27 s.
 - Il GPX si chiede a `POST /gpx` con questa richiesta al posto del
   `RouteRequest`; il file si chiama `sgrava-image-15km-2026-09-26.gpx`.
+- `placement` e `fit` (dal TASK-347, facoltativi): come in `POST /routes`.
+  Un disegno fatto a mano sulla mappa (TASK-331) arriva così, `anchored`:
+  il contorno normalizzato con `start` sul suo primo punto e `distance_m`
+  la sua lunghezza, e il motore lo traccia dov'è, senza cercare.
 - `strokes` (dal TASK-079, facoltativo): gli altri soggetti della foto
   (TASK-084) e i dettagli disegnati a mano, gli `strokes` di un
   `ImageOutline`, senza cambiarli. Si controllano come il contorno: numeri
@@ -2421,7 +2448,8 @@ esempio in `fixtures/feed.json`; il codice in `feed.py`.
   traccia intera, mai il percorso pianificato) più **`author`**
   (`public_id` e `username`, mai l'email). Per aprirlo intero, con le sue
   reazioni e i suoi commenti, `GET /drawings/{id}`.
-- **I vicini**: con `lat` e `lon`, dove sta il telefono, il terzo gruppo
+- **I vicini**: con `lat` e `lon`, dove sta il telefono (l'app li manda con
+  due decimali, circa 1 km: TASK-356), il terzo gruppo
   tiene solo i disegni la cui traccia tagliata passa entro **50 km**
   (`FEED_NEAR_M`; `ST_DWithin` in geografia) dal punto; i propri e quelli
   di chi si segue ci sono ovunque siano. **Senza il punto, niente è
@@ -2645,7 +2673,11 @@ endpoint vogliono il token: senza, `401 not_signed_in`; senza database,
 - **Un messaggio** ha `id`, `text`, `created_at` e `mine` (l'ha scritto
   chi chiede, che lo può cancellare). **Nessuna conferma di lettura**:
   `read_at` serve solo al pallino di chi riceve (`unread` nella lista,
-  `GET /me/conversations/unread`); scrivere segna letto.
+  `GET /me/conversations/unread`); scrivere segna letto. Nella lista
+  `unread_count` dice quanti messaggi nuovi ha la conversazione, fino a 10
+  (`CONVERSATION_UNREAD_COUNT_MAX`; TASK-353, ADR-0305): `unread` è
+  `unread_count > 0`. Un server di prima non lo manda, e l'app mostra il
+  pallino.
 - **Le pagine**: i messaggi **dall'ultimo**, `limit` da 1 a 50, `next`
   porta ai più vecchi; le conversazioni dall'ultimo messaggio, con `next` e
   `total`. Cursore `microsecondi-uuid`, come gli elenchi di «Follow». Prima
@@ -3247,6 +3279,65 @@ posto con i suoi indirizzi).
   mandate restano su Strava.
 - Ognuno manda solo le sue corse: la chiave di un altro dà `404`.
 
+### Stroke matches (TASK-347 parte A, ADR-0300)
+
+Chi disegna a mano sulla mappa vede ogni tratto seguire le strade appena
+alza il dito: l'app lo manda qui (o prima al motore sul telefono, parte B)
+e riceve il tratto agganciato. Sincrono e piccolo: un tratto è pochi km,
+tracciato una volta, senza ricerca (`ROUTE_ENGINE.md` §4, «Il disegno
+ancorato e i tratti»). Tipi in `shared-types` (`StrokeMatchRequest`,
+`StrokeMatchResult`, `MAX_STROKE_POINTS`, `MAX_STROKE_M`), esempi in
+`fixtures/stroke-match-request.json` e `fixtures/stroke-match.json`; il
+codice in `stroke_matches.py` (i corpi e l'aggancio, senza FastAPI: gira
+anche in Pyodide, `on_phone.match_json`) e `stroke_matches_api.py` (la rotta).
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /stroke-matches` | la **sonda** dell'app: questo server aggancia i tratti e sa `placement`, `fit` e `placed_outline` | `204` |
+| `POST /stroke-matches` | un tratto disegnato, agganciato alle strade | `200`, uno `StrokeMatchResult` |
+
+```json
+{ "activity": "running", "fit": 0.5,
+  "line": [[46.0702, 11.1265], [46.0706, 11.1278], [46.0712, 11.1291]],
+  "from": [46.0699, 11.1259] }
+```
+
+- **Il corpo**: `line`, il tratto come disegnato, da 2 a **500** punti
+  `[lat, lon]` (`MAX_STROKE_POINTS`) e lungo al più **10 km** lungo i suoi
+  punti (`MAX_STROKE_M`): l'app semplifica la linea del dito prima e spezza
+  un tratto più lungo (ADR-0300). `activity` (`running` o `cycling`: in
+  canoa non ci sono strade, `422`), `fit` (il magnete, 0–1, facoltativo) e
+  `from` (facoltativo): dov'è finito il tratto prima; il percorso parte dal
+  nodo stradale più vicino a quel punto, così i tratti si collegano lungo
+  le strade da soli. Un campo in più, un punto fuori dal mondo, un `fit`
+  fuori da [0, 1], un tratto troppo lungo o con troppi punti: `422
+  invalid_request`, col messaggio del motore.
+- **La risposta**: `points`, il percorso lungo le strade dal nodo di `from`
+  (o dal più vicino al primo punto) fin presso l'ultimo punto, arrotondati a
+  6 decimali; `away_m`, per ogni punto di `line` nell'ordine, quanto il
+  percorso ne passa lontano, in metri a un decimale (l'app colora quelli
+  oltre una soglia); `off_roads`, vero quando i punti disegnati sono in
+  media a più di 150 m da un nodo stradale: il tratto è in campagna,
+  l'aggancio è un'ipotesi che l'app può lasciare come fantasma.
+- **Il grafo** è il ritaglio della zona attorno al tratto e a `from`, con il
+  margine di 500 m di ogni percorso: zona non in cache e Overpass che non
+  risponde, `503 map_data_unavailable`. Tutti i punti con lo stesso nodo
+  più vicino e nessun `from`: `422 shape_not_drawable` («the stroke
+  collapses onto a single road node»).
+- **La sonda**: `GET /stroke-matches` risponde `204` qui e `404
+  http_error` su un'API precedente. L'app chiede l'aggancio dei tratti, e
+  manda `placement`, `fit` e si aspetta `placed_outline`, solo dopo questa
+  risposta: un'API precedente rifiuta i campi che non conosce
+  (`extra="forbid"`). Senza la sonda il tratto resta geometria libera e
+  «Draw route» chiede la ricerca di sempre.
+- **Tempi** (Mac, zona di Trento in cache, un tratto per richiesta, misure
+  in `tasks/TASK-347.md`): il ritaglio e l'aggancio di un tratto di 1–4 km
+  stanno sotto il mezzo secondo sul server; in Pyodide sul Mac l'aggancio a
+  freddo sta fra 0,2 e 0,45 s. Il telefono è più lento del Mac: la parte B
+  misura dove conviene agganciare prima.
+- **Nessuna migrazione**, niente nel database, niente nei log oltre alla
+  riga con punti, metri e secondi.
+
 ### Zone per il telefono (TASK-214, ADR-0177)
 
 La zona in cache intorno a un punto, perché il telefono disegni da sé. Il
@@ -3360,6 +3451,9 @@ motore, in una parola.
 | Un'immagine senza un contorno chiaro (TASK-073) | 422 | `image_not_usable` |
 | Una linea disegnata che non dà un contorno solo (TASK-079) | 422 | `outline_edit_rejected` |
 | Immagine non in base64 o oltre 10 MB; contorno di `/image-route-jobs` non valido | 422 | `invalid_request` |
+| `placement` sconosciuto; `fit` con `placement: "free"` o fuori da [0, 1]; `anchored` in canoa (TASK-347) | 422 | `invalid_request` |
+| `/stroke-matches`: meno di 2 o più di 500 punti, oltre 10 km, `fit` fuori da [0, 1], in canoa (TASK-347) | 422 | `invalid_request` |
+| `/stroke-matches`: ogni punto del tratto sullo stesso nodo stradale (TASK-347) | 422 | `shape_not_drawable` |
 | Il motore viola le sue regole (ADR-0026) o altro imprevisto | 500 | `engine_error` |
 | Indirizzo o metodo sbagliato | 404, 405 | `http_error` |
 | Con `SHAPEROUTE_API_KEY` impostata: `X-API-Key` mancante o sbagliata (TASK-081) | 401 | `unauthorized` |

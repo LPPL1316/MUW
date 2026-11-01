@@ -14,10 +14,12 @@ import time
 import uuid
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import Any, Protocol, runtime_checkable
 
+from route_engine.anchored import AnchoredPlan
 from route_engine.directions import guidance
+from route_engine.geo import LatLon
 from route_engine.models import WATER_ACTIVITIES, RouteResult
 from route_engine.nearby_starts import NearbyPlan
 from route_engine.network import BBox, Graph
@@ -29,7 +31,7 @@ from shaperoute_api.activity_graphs import Graphs, Ground, source_for, water_for
 from shaperoute_api.alongs import NamedRoads, with_alongs
 from shaperoute_api.errors import error_of
 from shaperoute_api.graphs import MapDataUnavailableError
-from shaperoute_api.images import AnyRequest
+from shaperoute_api.images import AnyRequest, placed_outlines
 from shaperoute_api.job_times import JobTimes, line
 from shaperoute_api.schemas import ErrorDetail, JobStatus
 
@@ -105,6 +107,10 @@ class Job:
     finished_at: float | None = None
     # The request as it arrived, for the request log (TASK-090).
     body: dict[str, Any] | None = None
+    # Where the engine placed the drawing of the result and of each of its
+    # alternatives (images.placed_outlines, TASK-347): the API's body says
+    # it, the engine's result does not. Empty from the archive.
+    placed: list[list[list[LatLon]]] = field(default_factory=list)
 
 
 # Told how a job ended, cancelled ones too (neither result nor error when
@@ -188,6 +194,7 @@ class RouteJobs:
         # Answered from a route kept nearby (ADR-0256): not kept again.
         from_archive = False
         plan: Plan | None = None  # on the roads, where its routes were placed
+        placed: list[list[list[LatLon]]] = []
         try:
             if activity in WATER_ACTIVITIES:
                 # On the water (TASK-191): no graph, so no directions.
@@ -219,6 +226,7 @@ class RouteJobs:
                     began = self._clock()
                     result = with_choices(plan, source.graphs, named)
                     times.directions_s = self._clock() - began
+                    placed = placed_outlines(plan, job.request)
         except _Dropped:
             log.info("job %s: dropped before computing", job.job_id)
             self._log_times(job, times, self._clock() - started)
@@ -238,7 +246,7 @@ class RouteJobs:
             self._log_times(job, times, self._clock() - started)
             self._tell(job, None, error, self._clock() - started)
             return
-        self._set(job, status="done", result=result)
+        self._set(job, status="done", result=result, placed=placed)
         log.info(
             "job %s: %.0f m on roads, similarity %.2f, in %.1f s",
             job.job_id,
@@ -319,12 +327,14 @@ class RouteJobs:
         status: JobStatus,
         result: RouteResult | None = None,
         error: ErrorDetail | None = None,
+        placed: list[list[list[LatLon]]] | None = None,
     ) -> bool:
         """Updates the job; False if it was cancelled in the meantime."""
         with self._lock:
             if job.job_id not in self._jobs:
                 return False
             job.status, job.result, job.error = status, result, error
+            job.placed = placed or []
             if status in ("done", "failed"):
                 job.finished_at = self._clock()
             return True
@@ -444,14 +454,21 @@ def with_directions(
 ) -> RouteResult:
     """The plan's result with its directions (TASK-048), computed on the
     graph the route was traced on: the last one loaded when the route comes
-    from the search farther away (ADR-0040), else the first. A route that
-    was not searched has no nodes, and no directions. Unnamed roads get the
-    street they run along (`along`, ADR-0057), also from `named_roads`."""
-    if plan.search is None or not graphs:
+    from the search farther away (ADR-0040), else the first. A route traced
+    without a search, anchored where it was drawn (TASK-347), has its nodes
+    in the plan (anchored.AnchoredPlan); one with neither has no directions.
+    Unnamed roads get the street they run along (`along`, ADR-0057), also
+    from `named_roads`."""
+    if isinstance(plan, AnchoredPlan):
+        nodes = plan.nodes
+    elif plan.search is not None:
+        nodes = plan.search.best.route.nodes
+    else:
+        nodes = []
+    if not nodes or not graphs:
         return plan.result
     graph = (
         graphs[-1] if plan.far is not None and plan.search is plan.far else graphs[0]
     )
-    nodes = plan.search.best.route.nodes
     directions = with_alongs(graph, nodes, guidance(graph, nodes), named_roads)
     return replace(plan.result, directions=directions)

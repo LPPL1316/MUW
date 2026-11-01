@@ -100,7 +100,7 @@ test("«Messages» counts what waits and opens the list", async () => {
   expect(
     screen.getByRole("button", { name: /^Ada_runs, new message: Yes, but the bridge/ }),
   ).toBeOnTheScreen();
-  expect(screen.getByTestId("conversation-unread")).toBeOnTheScreen();
+  expect(screen.getByTestId("conversation-unread-count")).toHaveTextContent("1");
   expect(
     screen.getByRole("button", { name: "Message requests, 2 waiting" }),
   ).toBeOnTheScreen();

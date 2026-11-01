@@ -1275,8 +1275,10 @@ export const DE: Table = {
   Trophy: "Pokal",
   Bone: "Knochen",
 
-  // src/mapdraw/DrawOnMap.tsx, MapDrawButton.tsx (TASK-281)
-  "Draw on the map": "Auf der Karte zeichnen",
+  // src/route/RoutePanel.tsx (TASK-340: first in «Draw», it opens the map
+  // to draw on)
+  Freehand: "Freihand",
+  // src/mapdraw/DrawOnMap.tsx (TASK-281)
   Move: "Verschieben",
   "Draw with one finger. End where you started to close it. Two fingers move the map.":
     "Zeichne mit einem Finger. Ende, wo du begonnen hast, um sie zu schließen. Zwei Finger bewegen die Karte.",
@@ -1495,6 +1497,36 @@ export const DE: Table = {
     "Apple und Google sind keine Sponsoren dieses Wettbewerbs und in keiner Weise daran beteiligt.",
   Winner: "Gewinner",
   "{name} won the MuW contest": "{name} hat den MuW-Wettbewerb gewonnen",
+  // src/contest/ (TASK-343 B: the monthly challenge, not Play's «Challenges»)
+  "Monthly challenge": "Herausforderung des Monats",
+  "See the challenge": "Zur Herausforderung",
+  "Publish a run and enter it to take part.":
+    "Veröffentliche einen Lauf und melde ihn an, um mitzumachen.",
+  "Enter “{theme}”": "Bei „{theme}“ anmelden",
+  "From {start} to {end}": "{start} bis {end}",
+  Ended: "Beendet",
+  "{count} person taking part": "{count} Person macht mit",
+  "{count} people taking part": "{count} Personen machen mit",
+  "You entered {count} drawing": "Du hast {count} Zeichnung angemeldet",
+  "You entered {count} drawings": "Du hast {count} Zeichnungen angemeldet",
+  "Prize: the Winner badge on your profile and your post at the top of the Feed for a week.":
+    "Preis: das Gewinner-Abzeichen in deinem Profil und dein Beitrag eine Woche lang oben im Feed.",
+  Top: "Top",
+  New: "Neu",
+  "Past challenges": "Frühere Herausforderungen des Monats",
+  "No past challenges yet.": "Noch keine früheren Herausforderungen des Monats.",
+  "No drawings entered yet.": "Noch keine Zeichnung angemeldet.",
+  "This challenge takes no entries now.":
+    "Diese Herausforderung nimmt gerade keine Anmeldungen an.",
+  "This run cannot take part: it must be for everyone, recorded with MuW and published during the challenge.":
+    "Dieser Lauf kann nicht mitmachen: Er muss für alle sichtbar, mit MuW aufgezeichnet und während der Herausforderung veröffentlicht sein.",
+  "The theme is “{theme}”.": "Das Thema ist „{theme}“.",
+  "Anyone with a MuW account can take part, for free: publish a run recorded with MuW for everyone during the challenge, and enter it. You can enter as many drawings as you like, and withdraw them until the challenge ends.":
+    "Mitmachen kann kostenlos jede Person mit einem MuW-Konto: Veröffentliche während der Herausforderung einen mit MuW aufgezeichneten Lauf für alle und melde ihn an. Du kannst beliebig viele Zeichnungen anmelden und sie zurückziehen, bis die Herausforderung endet.",
+  "At the end, the entered post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "Am Ende gewinnt unter den angemeldeten Beiträgen der mit den meisten Reaktionen anderer Mitglieder. Es zählt eine Reaktion pro Mitglied, die eigene zählt nicht. Bei Gleichstand gewinnt der Beitrag mit mehr MuW-Herzen, dann der zuerst veröffentlichte.",
+  "MuW may leave out a post that does not fit the theme or breaks the community rules.":
+    "MuW kann einen Beitrag ausschließen, der nicht zum Thema passt oder gegen die Community-Regeln verstößt.",
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "IN DEINER NÄHE",
   "SHAPES TO TRY": "FORMEN ZUM AUSPROBIEREN",
@@ -1576,9 +1608,9 @@ export const DE: Table = {
   "Write a message…": "Schreib eine Nachricht…",
   "Delete this message for both of you?": "Diese Nachricht für euch beide löschen?",
   "Report this message": "Diese Nachricht melden",
-  // src/route/EditDrawingButton.tsx, mapdraw/DrawOnMap.tsx, RoutePanel.tsx,
-  // favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure drawn by hand
-  // on the map)
+  // src/explore/ExploredCard.tsx, social/DrawingCard.tsx, mapdraw/DrawOnMap.tsx,
+  // RoutePanel.tsx, favorites/favoriteRoute.ts (TASK-320, TASK-331: the figure
+  // drawn by hand on the map)
   "Edit the drawing": "Zeichnung bearbeiten",
   Erase: "Radieren",
   Drawing: "Zeichnung",
@@ -1641,4 +1673,9 @@ export const DE: Table = {
   "10 drawings": "10 Zeichnungen",
   "{distance} drawing": "{distance}-Zeichnung",
   "Not earned yet: {badge}": "Noch nicht erreicht: {badge}",
+  // src/messages/messageTime.ts, ConversationList.tsx (TASK-353: times in the chat)
+  Today: "Heute",
+  Yesterday: "Gestern",
+  "{day} {month}": "{day}. {month}",
+  "{name}, {count} new messages: {text}": "{name}, {count} neue Nachrichten: {text}",
 };

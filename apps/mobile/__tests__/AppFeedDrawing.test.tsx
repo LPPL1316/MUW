@@ -77,7 +77,7 @@ const ACCOUNT: Answers = {
   "GET /me/activities": () => Response.json({ activities: [], next: null, total: 0 }),
 };
 // Asked from where «Draw» starts: the position of the phone.
-const FEED = "/feed?lat=46.067&lon=11.1215";
+const FEED = "/feed?lat=46.07&lon=11.12";
 
 async function onFeed() {
   store.kept.set(SESSION_KEY, JSON.stringify(session));

@@ -1,5 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { Animated, StyleSheet } from "react-native";
 
+import { color, font, fontWeight, motion, radius } from "../theme/tokens";
 import { FeedMapShooter, forgetFeedMaps } from "./FeedMaps";
 import { FeedPost, MAP_CREDIT, postFacts, shapeLabel } from "./FeedPost";
 import type { SamplePost } from "./sampleFeed";
@@ -128,6 +130,36 @@ test("a tap opens its route, and a screen reader hears where it leads", async ()
   expect(card).toHaveProp("accessibilityHint", "Opens the route on the map");
   await fireEvent.press(card);
   expect(onOpen).toHaveBeenCalledTimes(1);
+});
+
+test("the large radius and no border; the names medium; the finger answered through Tap (TASK-339)", async () => {
+  // Seen, not run: an animation left running would spill into the next test.
+  const timing = jest
+    .spyOn(Animated, "timing")
+    .mockReturnValue({ start: jest.fn(), stop: jest.fn(), reset: jest.fn() });
+  await render(<FeedPost post={POST} width={358} onOpen={jest.fn()} />);
+  const card = screen.getByTestId("feed-post");
+  expect(card).toHaveStyle({ borderRadius: radius.xl, backgroundColor: color.surface });
+  expect(
+    (StyleSheet.flatten(card.props.style) as { borderWidth?: number }).borderWidth,
+  ).toBeUndefined();
+  expect(screen.getByText("F")).toHaveStyle({ fontWeight: fontWeight.medium });
+  expect(screen.getByText("fede_km")).toHaveStyle({ fontWeight: fontWeight.medium });
+  expect(screen.getByText("Dog walk, without the dog")).toHaveStyle({
+    fontSize: font.cardTitle.fontSize,
+    fontWeight: font.cardTitle.fontWeight,
+  });
+  // Pressed, the card shrinks and dims in `motion.pressMs`, on the native driver.
+  await fireEvent(card, "pressIn", { nativeEvent: { pageX: 80, pageY: 300 } });
+  expect(timing).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.objectContaining({
+      toValue: 1,
+      duration: motion.pressMs,
+      useNativeDriver: true,
+    }),
+  );
+  timing.mockRestore();
 });
 
 test("a swipe that ends on the card is not a tap", async () => {

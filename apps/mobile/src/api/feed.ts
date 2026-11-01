@@ -21,12 +21,18 @@ export type FeedQuery = {
   near?: LatLon | null;
 };
 
+/** Two decimals, about a kilometre: the 50 km of «nearby» ask for no more,
+ * and the privacy text says so (TASK-356). */
+function rounded(degrees: number): string {
+  return String(Math.round(degrees * 100) / 100);
+}
+
 /** The query of a page: the point first, so the pages of one read agree. */
 export function feedPath({ cursor = null, near = null }: FeedQuery): string {
   const query = new URLSearchParams();
   if (near !== null) {
-    query.set("lat", String(near[0]));
-    query.set("lon", String(near[1]));
+    query.set("lat", rounded(near[0]));
+    query.set("lon", rounded(near[1]));
   }
   if (cursor !== null) {
     query.set("cursor", cursor);

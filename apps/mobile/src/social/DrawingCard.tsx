@@ -1,6 +1,6 @@
 import type { DrawingDetail, DrawingPhoto } from "@shaperoute/shared-types";
 import { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { dayLabel } from "../activities/activityText";
 import { useWinnerDrawingId } from "../contest/contestKept";
@@ -13,12 +13,15 @@ import { drawingOfDrawing } from "../messages/messageDrawing";
 import { SendDrawingButton } from "../messages/SendDrawingButton";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
+import { Tap } from "../ui/Tap";
 import { runDistanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { DrawingComments } from "./DrawingComments";
@@ -64,7 +67,9 @@ export const PHOTO_HEIGHT = 160;
  * and «Edit the drawing», its figure on the map (TASK-320, TASK-331).
  * The drawing that won the contest kept on the phone has the «Winner» band
  * on top (TASK-299). An activity added from a file of another app says
- * «Imported» under its facts (TASK-312).
+ * «Imported» under its facts (TASK-312). The title is the card's, medium
+ * and not bold, the reactions and the buttons come after a hairline and
+ * answer the finger through `Tap` (TASK-339, ADR-0293).
  */
 export function DrawingCard({
   drawing,
@@ -116,7 +121,7 @@ export function DrawingCard({
       {tags.length > 0 && (
         <View style={styles.tags} accessibilityLabel={t("Tagged")}>
           {tags.map((tag) => (
-            <Pressable
+            <Tap
               key={tag.public_id}
               style={styles.tag}
               onPress={() =>
@@ -130,10 +135,12 @@ export function DrawingCard({
               accessibilityLabel={t("{name}'s profile", { name: tag.username })}
             >
               <Text style={styles.tagText}>{tag.username}</Text>
-            </Pressable>
+            </Tap>
           ))}
         </View>
       )}
+      {/* The reactions and the actions, after a hairline. */}
+      <Hairline />
       <DrawingReactions
         drawingId={drawing.id}
         onSuperLiked={() => setSuperLikes((count) => count + 1)}
@@ -148,7 +155,7 @@ export function DrawingCard({
         </>
       )}
       {followable(drawing) && (
-        <Pressable
+        <Tap
           style={styles.button}
           onPress={() => exportGpx(drawing)}
           disabled={exported === "preparing"}
@@ -157,7 +164,7 @@ export function DrawingCard({
           <Text style={styles.buttonText}>
             {exported === "preparing" ? t("Preparing GPX…") : t("Export GPX")}
           </Text>
-        </Pressable>
+        </Tap>
       )}
       {exported === "failed" && (
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
@@ -172,26 +179,18 @@ export function DrawingCard({
         />
       )}
       {onDrawAgain !== undefined && (
-        <Pressable
-          style={styles.button}
-          onPress={onDrawAgain}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.button} onPress={onDrawAgain} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
-        </Pressable>
+        </Tap>
       )}
       {onEditDrawing !== undefined && (
-        <Pressable
-          style={styles.button}
-          onPress={onEditDrawing}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.button} onPress={onEditDrawing} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Edit the drawing")}</Text>
-        </Pressable>
+        </Tap>
       )}
-      <Pressable style={styles.button} onPress={onBack} accessibilityRole="button">
+      <Tap style={styles.button} onPress={onBack} accessibilityRole="button">
         <Text style={styles.buttonText}>{t("Back to the profile")}</Text>
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -229,23 +228,22 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
+  // The card's title, medium and not bold (ADR-0293).
   title: {
+    ...font.cardTitle,
     color: color.text,
-    fontSize: fontSize.input,
-    fontWeight: fontWeight.semibold,
   },
   message: {
+    ...font.small,
     color: color.textMuted,
-    fontSize: fontSize.small,
   },
   error: {
+    ...font.small,
     color: color.error,
-    fontSize: fontSize.small,
   },
   facts: {
+    ...font.body,
     color: color.text,
-    fontSize: fontSize.input,
-    fontWeight: fontWeight.semibold,
   },
   photos: {
     gap: space.sm,
@@ -256,8 +254,8 @@ const styles = StyleSheet.create({
     backgroundColor: color.surfaceRaised,
   },
   description: {
+    ...font.body,
     color: color.text,
-    fontSize: fontSize.body,
   },
   tags: {
     flexDirection: "row",
@@ -273,10 +271,11 @@ const styles = StyleSheet.create({
     borderColor: color.borderStrong,
     backgroundColor: color.surfaceRaised,
   },
+  // A name is medium, not bold.
   tagText: {
     color: color.text,
     fontSize: fontSize.body,
-    fontWeight: fontWeight.semibold,
+    fontWeight: fontWeight.medium,
   },
   button: {
     minHeight: MIN_TAP_SIZE,

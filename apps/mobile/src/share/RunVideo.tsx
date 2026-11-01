@@ -16,17 +16,29 @@ import {
   type VideoOutcome,
 } from "./videoFile";
 import { type Music, musicTrack } from "./videoMusic";
-import { makeCall, VIDEO_PAGE, VIDEO_PAGE_BASE } from "./videoPage";
+import {
+  makeCall,
+  type PageTimes,
+  prepareMapCall,
+  VIDEO_PAGE,
+  VIDEO_PAGE_BASE,
+} from "./videoPage";
 import type { VideoScene } from "./videoScene";
 
 type Props = {
   scene: VideoScene;
+  /** The same post on the yellow of before, for when the map does not come
+   * (TASK-351): the video always comes out. */
+  fallback: VideoScene;
   /** The track that goes with the pictures; null for none (TASK-301). */
   music: Music | null;
   /** How much of the video is made, from 0 to 1. */
   onProgress: (share: number) => void;
   /** Once, when the share sheet closes or the video could not be made. */
   onEnd: (outcome: VideoOutcome) => void;
+  /** How long the page's steps took, in milliseconds, once the pictures are
+   * all made: the map, its picture, the encoding (TASK-351's measures). */
+  onTimes?: (ms: PageTimes) => void;
 };
 
 /**
@@ -36,24 +48,38 @@ type Props = {
  * Instagram is in the sheet (Reels, Story), and «Save Video» keeps it in
  * Photos. Mounted while the video is made; it lives inside the post's
  * Modal, where iOS keeps it on screen. The music's file is read while the
- * pictures are made, and goes into the MP4 as its second track.
+ * pictures are made, and goes into the MP4 as its second track. On a map
+ * look the page draws the map first (TASK-351); when it cannot, within its
+ * own time, the `fallback` scene is made instead.
  */
-export function RunVideo({ scene, music, onProgress, onEnd }: Props) {
+export function RunVideo({
+  scene,
+  fallback,
+  music,
+  onProgress,
+  onEnd,
+  onTimes,
+}: Props) {
   const webView = useRef<WebView>(null);
   const avcC = useRef<Uint8Array | null>(null);
   const samples = useRef<VideoSample[]>([]);
   const ended = useRef(false);
   const silence = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sceneJson = useMemo(() => JSON.stringify(scene), [scene]);
+  const fallbackJson = useMemo(() => JSON.stringify(fallback), [fallback]);
+  const mapJson = useMemo(
+    () => (scene.map === null ? null : JSON.stringify(scene.map)),
+    [scene],
+  );
   // The music's packets, read once while the pictures are made; null when
   // they could not be read.
   const [audio] = useState<Promise<AudioTrack | null> | null>(() =>
     music === null ? null : musicTrack(music).catch(() => null),
   );
   // The latest callbacks, for the timer and the page's messages.
-  const callbacks = useRef({ onProgress, onEnd });
+  const callbacks = useRef({ onProgress, onEnd, onTimes });
   useEffect(() => {
-    callbacks.current = { onProgress, onEnd };
+    callbacks.current = { onProgress, onEnd, onTimes };
   });
 
   function end(outcome: VideoOutcome) {
@@ -141,9 +167,19 @@ export function RunVideo({ scene, music, onProgress, onEnd }: Props) {
         case "ready":
           if (message.codec === null) {
             end("unsupported");
-          } else {
+          } else if (mapJson === null) {
             webView.current?.injectJavaScript(makeCall(sceneJson));
+          } else {
+            webView.current?.injectJavaScript(prepareMapCall(mapJson));
           }
+          break;
+        case "waiting":
+          // Tiles still coming: the page is alive.
+          break;
+        case "map":
+          webView.current?.injectJavaScript(
+            makeCall(message.ok ? sceneJson : fallbackJson),
+          );
           break;
         case "config":
           avcC.current = bytesOfBase64(message.avcC);
@@ -156,6 +192,7 @@ export function RunVideo({ scene, music, onProgress, onEnd }: Props) {
           break;
         case "done":
           callbacks.current.onProgress(1);
+          callbacks.current.onTimes?.(message.ms);
           void share();
           break;
         case "failed":

@@ -2,7 +2,7 @@
 
 **Stato**: Todo — documenti ora, codice col via del Coordinatore
 **Fase**: 4 · **Branch**: `docs/TASK-355-feed-clarity` (documenti),
-`feat/TASK-355-a-feed-card` (A), `feat/TASK-355-b-feed-counts-filters` (B)
+`feat/TASK-355-a-feed-card` (A), `feat/TASK-355-b-feed-counts` (B)
 · **ADR**: ADR-0306 · numeri dal Coordinatore (2026-10-30)
 
 ## Obiettivo
@@ -29,7 +29,7 @@ Letto il codice di `main` e la testa di TASK-339 B il 2026-10-30.
 
 | Voce del brief | Cosa c'è oggi | Manca davvero? | Dove |
 |---|---|---|---|
-| Lente su una riga intera | Riga propria sopra le schede | Sì; 344 B cambia cosa apre, non dove sta | B, accanto ai filtri |
+| Lente su una riga intera | Riga propria sopra le schede | Sì; 344 B cambia cosa apre, non dove sta | TASK-362, con le schede |
 | Header sticky e separato | Già fermo e opaco: `Pager` sta sopra le pagine e le schede non ci passano sotto | Solo il filo sotto | A, `Hairline`, dopo la #658 |
 | Titolo e forma ripetuti | `title` e `what` entrambi nella scheda | Sì | A |
 | Data | Mai sulla scheda; il canvas la mostra («Trento · 2 h ago») | Sì | A, da `started_at` |
@@ -49,7 +49,7 @@ Letto il codice di `main` e la testa di TASK-339 B il 2026-10-30.
 | Pull-to-refresh | C'è, con l'account | No | — |
 | Skeleton | Uno spinner. Né TASK-339 né `UI.md` lo prevedono | Sì | B (`FeedScreen`) |
 | Stato vuoto | Il Feed vuoto mostra gli esempi (ADR-0127); «Feed senza account» è in 339 C | **No, resta a 339 C** | — |
-| Filtri | `GET /feed` non ne ha | Sì, serve l'API | B |
+| Filtri | `GET /feed` non ne ha | **No**: le schede «Tutti» e «Seguiti» di TASK-362 li sostituiscono | TASK-362 |
 | Tocco minimo, etichette | `MIN_TAP_SIZE` e `Tap` ci sono | Le voci nuove, e il «…» | A |
 | `expo-blur` | Non installato, nativo | **No**: impronta `83793e26` | — |
 
@@ -105,14 +105,21 @@ Chiuse il 2026-10-30, una alla volta, con le sue parole.
    inside a run you save, with a search for a place, to put the places near
    you first, and, rounded to about 1 km, to show you drawings nearby in the
    Feed.» L'app arrotonda il punto a due decimali prima di mandarlo. Vale
-   anche per il filtro «Near me». Sito e OTA di produzione: due sì a parte.
+   Sito e OTA di produzione: due sì a parte.
    — *Risposta:* «Sì, approvo».
 8. **I testi nuovi.** La data riusa l'età dei commenti («{count} h ago»; in
    italiano «2 h fa»). Quattro testi, in inglese, italiano, tedesco, francese
    e spagnolo: All, Tutti, Alle, Tous, Todos; Friends, Amici, Freunde, Amis,
    Amigos; Mine, Le mie, Meine, Les miennes, Las mías; Reactions, Reazioni,
    Reaktionen, Réactions, Reacciones.
-   — *Risposta:* «Sì, approvo».
+   — *Risposta:* «Sì, approvo». All, Friends e Mine non servono più (TASK-362,
+   sotto): resta Reactions.
+
+## Le schede al posto dei filtri
+
+L'utente ha deciso in TASK-362 («Sì, sostituiscono», riferito dal Coordinatore
+il 2026-10-30): le schede «Tutti» e «Seguiti» prendono il posto dei filtri e
+di `filter`. La parte B tiene foto dell'autore, conteggi e skeleton.
 
 ## Cosa fare
 
@@ -134,15 +141,15 @@ riservata, 0041 di TASK-348 A).
    foto, le etichette.
 4. `Pager`: `Hairline` sotto i nomi, quella riga sola.
 
-**B — Conteggi, foto, filtri, API e app.**
+**B — Conteggi, foto, skeleton, API e app.**
 
 1. `feed.py` e `shared-types`: nell'autore `photo` come in `Person` (128 px),
-   `reactions` (totale e la propria) e `comments` sul post; `filter`
-   (`following`, `near`, `mine`), facoltativi: un'app di prima non cambia.
+   `reactions` (totale e la propria) e `comments` sul post, facoltativi: un'app
+   di prima non cambia.
    Misurare la pagina prima e dopo: 20 foto da 128 px pesano, e TASK-288 ha
    stretto questo percorso. Se pesano troppo, una rotta per la foto.
-2. `FeedScreen`: una riga con filtri e lente, lo skeleton. «Near me» è spento
-   senza posizione.
+2. `FeedScreen`: lo skeleton. La lente sta dove la mette TASK-362, con le
+   schede.
 3. `ActionBar`: i conteggi. Server solo col sì dell'utente.
 
 ## Criteri di accettazione
@@ -163,11 +170,9 @@ Parte A:
 
 Parte B:
 
-- [ ] `filter` e i campi nuovi nel contratto, con le fixture; un'app di
+- [ ] I campi nuovi nel contratto, con le fixture; un'app di
       prima legge il feed come prima.
 - [ ] Il tempo e il peso di una pagina, prima e dopo, scritti nella PR.
-- [ ] «Friends», «Near me», «Mine» danno pagine complete, non filtrate sul
-      telefono.
 - [ ] Lo skeleton compare solo durante il primo caricamento.
 
 ## File toccati
@@ -207,7 +212,8 @@ docs/API.md, docs/UI.md, docs/STATUS.md, docs/tasks/TASK-355.md
 ## Fuori scope
 
 - Il punteggio, in qualsiasi forma (ADR-0207).
-- La logica del caricamento di `useFeed`, oltre al `filter`.
+- La logica del caricamento di `useFeed`.
+- Le schede «Tutti» e «Seguiti»: TASK-362.
 - Il contatore delle slide e l'ordine: TASK-348 A.
 - Lo stato vuoto e il Feed senza account: TASK-339 C.
 - Cosa apre la lente: TASK-344 B.

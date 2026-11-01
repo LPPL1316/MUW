@@ -19,6 +19,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from route_engine.errors import ShapeNotDrawableError
 from route_engine.models import InvalidRequestError, RouteRequest
 from route_engine.nearby_starts import ShapeJob, plan_nearby
 from route_engine.network import NETWORKS, area_around
@@ -27,7 +28,13 @@ from route_engine.optimizer import GraphLoader, Plan
 from shaperoute_api.activity_graphs import ROAD_ACTIVITIES, ActivityGraphs, Ground
 from shaperoute_api.errors import error_of
 from shaperoute_api.graphs import MapDataUnavailableError, ZoneGraphs
-from shaperoute_api.images import AnyRequest
+from shaperoute_api.images import (
+    AnyRequest,
+    placement_of,
+    plan_anchored,
+    route_request_of,
+    with_placed,
+)
 from shaperoute_api.jobs import RouteJobs
 from shaperoute_api.phone_zones import PhoneZones
 from shaperoute_api.schemas import (
@@ -35,6 +42,11 @@ from shaperoute_api.schemas import (
     RouteJobBody,
     RouteRequestBody,
     RouteResultBody,
+)
+from shaperoute_api.stroke_matches import (
+    StrokeMatchBody,
+    StrokeMatchRequestBody,
+    match_stroke,
 )
 from shaperoute_api.way_back import WayBackBody, WayBackRequestBody, find_way_back
 
@@ -49,25 +61,20 @@ WARM_MARGIN_M = 2000.0
 
 def to_request(body: RouteRequestBody) -> RouteRequest:
     """app.to_request for a shape or a word, without importing FastAPI;
-    test_on_phone checks the two give the same request."""
-    return RouteRequest(
-        start=body.start,
-        shape=body.shape,
-        word=body.word,
-        distance_m=body.distance_m,
-        activity=body.activity,
-        style=body.style,  # type: ignore[arg-type]  # RouteRequest checks it
-        pen_up=body.pen_up,
-        near=body.near,
-    )
+    test_on_phone checks the two give the same request. An anchored one
+    (TASK-347) is an AnchoredRouteRequest, as on the server."""
+    return route_request_of(body)
 
 
 def plan_on_phone(request: AnyRequest, source: Ground) -> Plan:
     """images.plan_request for a shape or a word on roads, with the nearby
-    starts in this process."""
+    starts in this process; an anchored one traced once where it was drawn,
+    as on the server (TASK-347)."""
     if not isinstance(request, RouteRequest):
         raise InvalidRequestError(ON_THE_SERVER)
     roads: GraphLoader = source  # type: ignore[assignment]  # water refused before
+    if placement_of(request) == "anchored":
+        return plan_anchored(request, roads)
     job = ShapeJob.of_request(request)
     return plan_nearby(job, request.start, roads, processes=False).plan
 
@@ -121,11 +128,11 @@ def plan_json(body_json: str, jobs: PhoneJobs) -> str:
     submitted = jobs.submit(request)
     job = jobs.get(submitted.job_id)
     assert job is not None and job.status in ("done", "failed")
+    result = None
+    if job.result is not None:
+        result = with_placed(RouteResultBody.from_result(job.result), job.placed)
     return RouteJobBody(
-        job_id=job.job_id,
-        status=job.status,
-        result=None if job.result is None else RouteResultBody.from_result(job.result),
-        error=job.error,
+        job_id=job.job_id, status=job.status, result=result, error=job.error
     ).model_dump_json()
 
 
@@ -142,3 +149,19 @@ def way_back_json(body_json: str, graphs: ActivityGraphs) -> str:
         _, detail = error_of(exc)
         return ErrorBody(error=detail).model_dump_json()
     return WayBackBody.of(way).model_dump_json()
+
+
+def match_json(body_json: str, graphs: ActivityGraphs) -> str:
+    """The JSON POST /stroke-matches answers for its JSON, on the phone's
+    zones (TASK-347, part B calls it): the match, or the error the API would
+    give. With no zone here, map_data_unavailable, and the app asks the
+    server; a stroke on a single road node, shape_not_drawable, as the
+    server would say. A body the API would refuse raises, as the API
+    answers 422."""
+    body = StrokeMatchRequestBody.model_validate_json(body_json)
+    try:
+        found = match_stroke(body, graphs.for_activity(body.activity))
+    except (InvalidRequestError, ShapeNotDrawableError, MapDataUnavailableError) as exc:
+        _, detail = error_of(exc)
+        return ErrorBody(error=detail).model_dump_json()
+    return StrokeMatchBody.of(found).model_dump_json()

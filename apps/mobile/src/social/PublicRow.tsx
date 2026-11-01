@@ -28,6 +28,8 @@ export const CARD_FORM_SHARE = 0.4;
 
 type Props = {
   activityKey: string;
+  /** A run from a file of another app: it cannot enter a monthly challenge. */
+  imported?: boolean;
   /** The fakes of the tests. */
   pick?: PickPhoto;
   fetchFn?: typeof fetch;
@@ -45,7 +47,7 @@ type Props = {
  * they go to the API while others see the run, and come back here when
  * only the owner does (ADR-0170).
  */
-export function PublicRow({ activityKey, pick, fetchFn, apiKey }: Props) {
+export function PublicRow({ activityKey, imported, pick, fetchFn, apiKey }: Props) {
   const { choiceOf, choose, photosOf, keepPhotoOf, removePhotoOf } = useDrawingsDoor();
   const { height } = useWindowDimensions();
   const [shown, setShown] = useState<ChoiceShown | null>(null);
@@ -125,9 +127,16 @@ export function PublicRow({ activityKey, pick, fetchFn, apiKey }: Props) {
       switch (chosen.kind) {
         case "saved": {
           const now = choiceOfDrawing(chosen.drawing);
-          setKept(now);
+          // The API's answer says nothing of the challenge. An entry refused
+          // goes back to what it was, in the form too.
+          const entry =
+            chosen.entryProblem === undefined ? next.entry : keptRef.current?.entry;
+          setKept({ ...now, ...(entry === undefined ? {} : { entry }) });
           setApiPhotos(chosen.drawing.photos ?? []);
-          if (photosLeave) {
+          if (chosen.entryProblem !== undefined) {
+            setChoice((was) => (was === null ? was : { ...was, entry }));
+            setLine({ text: chosen.entryProblem, alert: true });
+          } else if (photosLeave) {
             setLine({ text: t(PHOTOS_LEAVE), alert: false });
           }
           return;
@@ -204,6 +213,7 @@ export function PublicRow({ activityKey, pick, fetchFn, apiKey }: Props) {
             }
           }}
           disabled={busy > 0}
+          imported={imported}
           pick={pick}
           fetchFn={fetchFn}
           apiKey={apiKey}

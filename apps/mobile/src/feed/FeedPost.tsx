@@ -1,10 +1,9 @@
-import { Fragment, type ReactNode, useMemo, useRef, useState } from "react";
+import { type ReactNode, useMemo, useRef, useState } from "react";
 import {
   type GestureResponderEvent,
   Image,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -25,6 +24,7 @@ import { useFollowsDoor } from "../social/followsDoor";
 import { ReportMenu } from "../social/ReportMenu";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
@@ -32,6 +32,8 @@ import {
   route as routeLine,
   space,
 } from "../theme/tokens";
+import { Scrim } from "../ui/Scrim";
+import { Tap } from "../ui/Tap";
 import { distanceLabel, paceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { useFeedMap } from "./FeedMaps";
@@ -50,6 +52,8 @@ const DRAWING_PAD = space.xl;
 const TAP_SLOP = 12;
 /** The side of a dot under the photos. */
 const DOT = 6;
+/** How far up a photo the dark under its words reaches (TASK-339). */
+export const SCRIM_HEIGHT = 150;
 
 /** How tall the drawing of a card `width` wide is. */
 export function drawingHeight(width: number): number {
@@ -130,7 +134,10 @@ export function postFacts(post: SamplePost): string {
  * blocks its author (TASK-121): once blocked, the card goes away at once.
  * A drawing with photos shows them in the card, after the drawing, one
  * whole width each, to swipe sideways, and under them a dot for each with
- * the one shown lit (TASK-315).
+ * the one shown lit (TASK-315). The card has the large radius and no
+ * border, and answers the finger through `Tap` (TASK-339, ADR-0293): under
+ * the drawing its words stay below it, so as not to cover the figure; on a
+ * photo they lie over it, light on the dark that rises from its foot.
  */
 export function FeedPost({ post, width, onOpen }: Props) {
   // The line of facts is written again when «Settings» changes the units
@@ -204,22 +211,27 @@ export function FeedPost({ post, width, onOpen }: Props) {
       : [];
   // Each page of the photos takes a tap itself (TASK-330): were the card
   // the one touched, iOS would not let the photos scroll inside it, and the
-  // swipe would turn the app's page to «Draw» instead.
+  // swipe would turn the app's page to «Draw» instead. A page is as wide as
+  // the card and as tall as the tallest, the drawing with its words.
   function tappable(key: string | number, shown: ReactNode) {
     if (onOpen === undefined) {
-      return <Fragment key={key}>{shown}</Fragment>;
+      return (
+        <View key={key} style={{ width }}>
+          {shown}
+        </View>
+      );
     }
     return (
-      <Pressable
+      <Tap
         key={key}
-        style={({ pressed }) => pressed && styles.pressed}
+        style={{ width }}
         onPressIn={onPressIn}
         onPress={onPress}
         accessible={false}
         testID="feed-page-tap"
       >
         {shown}
-      </Pressable>
+      </Tap>
     );
   }
   function onPaged({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) {
@@ -268,6 +280,31 @@ export function FeedPost({ post, width, onOpen }: Props) {
       {map !== null && <Text style={styles.credit}>{t(MAP_CREDIT)}</Text>}
     </View>
   );
+  // Under the drawing, so as not to cover the figure.
+  const words = (
+    <View style={styles.words}>
+      <Text style={styles.title}>{post.title}</Text>
+      <Text style={styles.facts}>{postFacts(post)}</Text>
+    </View>
+  );
+  // Over a photo, light on the dark that rises from its foot. The same
+  // words as under the drawing: a screen reader hears the card as one
+  // thing, so these are hidden from it.
+  const wordsOnPhoto = (
+    <>
+      <Scrim height={SCRIM_HEIGHT} />
+      <View
+        style={styles.wordsOnPhoto}
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        testID="feed-photo-words"
+      >
+        <Text style={styles.titleOnPhoto}>{post.title}</Text>
+        <Text style={styles.factsOnPhoto}>{postFacts(post)}</Text>
+      </View>
+    </>
+  );
   const body = (
     <>
       <View style={styles.who}>
@@ -281,36 +318,49 @@ export function FeedPost({ post, width, onOpen }: Props) {
         {menu}
       </View>
       {photos.length === 0 ? (
-        drawing
+        <>
+          {drawing}
+          {words}
+        </>
       ) : (
         <>
           {/* It bounces at its ends, as by default: a swipe past the last
               photo stays here and never turns the app's page. */}
           <ScrollView
-            style={{ width, height }}
+            style={{ width }}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={onPaged}
             testID="feed-pages"
           >
-            {tappable("drawing", drawing)}
+            {tappable(
+              "drawing",
+              <>
+                {drawing}
+                {words}
+              </>,
+            )}
             {photos.map((photo, i) =>
               tappable(
                 photo.n,
                 // Photo i is page i + 1: loaded once the page before it was
                 // shown, never further on (the phone's data is the runner's).
                 i <= reached ? (
-                  <Image
-                    testID="feed-photo"
-                    style={[styles.photo, { width, height }]}
-                    source={photo.source}
-                    accessible={false}
-                  />
+                  <>
+                    <Image
+                      testID="feed-photo"
+                      style={[StyleSheet.absoluteFill, styles.photo]}
+                      source={photo.source}
+                      resizeMode="cover"
+                      accessible={false}
+                    />
+                    {wordsOnPhoto}
+                  </>
                 ) : (
                   <View
                     testID="feed-photo-later"
-                    style={[styles.photo, { width, height }]}
+                    style={[StyleSheet.absoluteFill, styles.photo]}
                   />
                 ),
               ),
@@ -327,10 +377,6 @@ export function FeedPost({ post, width, onOpen }: Props) {
           </View>
         </>
       )}
-      <View style={styles.words}>
-        <Text style={styles.title}>{post.title}</Text>
-        <Text style={styles.facts}>{postFacts(post)}</Text>
-      </View>
     </>
   );
   if (onOpen === undefined) {
@@ -346,8 +392,8 @@ export function FeedPost({ post, width, onOpen }: Props) {
     );
   }
   return (
-    <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+    <Tap
+      style={styles.card}
       onPressIn={onPressIn}
       onPress={onPress}
       testID="feed-post"
@@ -356,18 +402,16 @@ export function FeedPost({ post, width, onOpen }: Props) {
       accessibilityHint={t("Opens the route on the map")}
     >
       {body}
-    </Pressable>
+    </Tap>
   );
 }
 
 const styles = StyleSheet.create({
+  // A drawing or a photo at its face: the large radius, no border (TASK-339).
   card: {
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     backgroundColor: color.surface,
     overflow: "hidden",
-  },
-  pressed: {
-    opacity: 0.6,
   },
   who: {
     flexDirection: "row",
@@ -381,27 +425,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: color.borderStrong,
     backgroundColor: color.surfaceRaised,
   },
+  // Names are medium, not bold: the weight is the yellow controls' (ADR-0293).
   initial: {
     color: color.text,
     fontSize: fontSize.body,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.medium,
   },
   names: {
     flex: 1,
     gap: 2,
   },
   user: {
+    ...font.body,
     color: color.text,
-    fontSize: fontSize.body,
-    fontWeight: fontWeight.semibold,
+    fontWeight: fontWeight.medium,
   },
   city: {
+    ...font.detail,
     color: color.textMuted,
-    fontSize: fontSize.detail,
   },
   drawing: {
     backgroundColor: color.map.background,
@@ -428,7 +471,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: space.xs,
-    paddingTop: space.sm,
+    paddingBottom: space.md,
   },
   dot: {
     width: DOT,
@@ -444,12 +487,28 @@ const styles = StyleSheet.create({
     padding: space.md,
   },
   title: {
+    ...font.cardTitle,
     color: color.text,
-    fontSize: fontSize.body,
-    fontWeight: fontWeight.semibold,
   },
   facts: {
+    ...font.small,
     color: color.textMuted,
-    fontSize: fontSize.small,
+  },
+  // On `Scrim`: light in both tones, since the dark under them is.
+  wordsOnPhoto: {
+    position: "absolute",
+    left: space.lg,
+    right: space.lg,
+    bottom: space.lg,
+    gap: space.xs,
+  },
+  titleOnPhoto: {
+    ...font.heading,
+    color: color.onScrim,
+  },
+  factsOnPhoto: {
+    ...font.small,
+    color: color.onScrim,
+    opacity: 0.85,
   },
 });

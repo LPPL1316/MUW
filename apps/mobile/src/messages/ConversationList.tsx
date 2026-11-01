@@ -21,7 +21,9 @@ import {
   space,
 } from "../theme/tokens";
 import { messageLine } from "./attachmentText";
+import { listWhen } from "./messageTime";
 import { useMessagesDoor } from "./messagesDoor";
+import { countLabel } from "./MessagesRow";
 
 /** The side of a member's picture in the list, as in the lists of who follows. */
 const PHOTO_SIDE = 48;
@@ -50,8 +52,9 @@ export function previewOf(conversation: Conversation): string {
 /**
  * The conversations of «Messages», or the message requests (TASK-319,
  * ADR-0279), the latest message first, each with the other's picture and
- * name, the latest message on one line and a dot when the other wrote since
- * it was read. In «Messages», «Message requests» at the top, with their
+ * name, the latest message on one line, when it was sent (TASK-353) and how
+ * many the other wrote since it was read; a dot for a server that does not
+ * say how many. In «Messages», «Message requests» at the top, with their
  * number. Read when it opens, and again when it comes back to the screen.
  */
 export function ConversationList({ box, onOpen, fetchFn, apiKey }: Props) {
@@ -204,19 +207,25 @@ function Row({
   conversation: Conversation;
   onPress: () => void;
 }) {
-  const { person, unread } = conversation;
+  const { person, unread, unread_count: count = 0 } = conversation;
   const preview = previewOf(conversation);
+  const when = listWhen(conversation.last.created_at, new Date());
+  // One name for the whole row: who, whether it is new, what it says, when.
+  const words = !unread
+    ? `${person.username}: ${preview}`
+    : count > 1
+      ? t("{name}, {count} new messages: {text}", {
+          name: person.username,
+          count: countLabel(count),
+          text: preview,
+        })
+      : t("{name}, new message: {text}", { name: person.username, text: preview });
   return (
     <Pressable
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
       onPress={onPress}
       accessibilityRole="button"
-      // One name for the whole row: who, whether it is new, and what it says.
-      accessibilityLabel={
-        unread
-          ? t("{name}, new message: {text}", { name: person.username, text: preview })
-          : `${person.username}: ${preview}`
-      }
+      accessibilityLabel={when === "" ? words : `${words}, ${when}`}
     >
       <Avatar name={person.username} size={PHOTO_SIDE} photo={personPhotoUri(person)} />
       <View style={styles.words}>
@@ -227,7 +236,17 @@ function Row({
           {preview}
         </Text>
       </View>
-      {unread && <View style={styles.dot} testID="conversation-unread" />}
+      <View style={styles.side}>
+        <Text style={[styles.when, unread && styles.whenNew]}>{when}</Text>
+        {unread &&
+          (count > 0 ? (
+            <View style={styles.count} testID="conversation-unread-count">
+              <Text style={styles.countText}>{countLabel(count)}</Text>
+            </View>
+          ) : (
+            <View style={styles.dot} testID="conversation-unread" />
+          ))}
+      </View>
     </Pressable>
   );
 }
@@ -292,6 +311,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize.body,
   },
   previewNew: {
+    color: color.text,
+    fontWeight: fontWeight.semibold,
+  },
+  side: {
+    alignItems: "flex-end",
+    gap: space.xs,
+  },
+  when: {
+    color: color.textMuted,
+    fontSize: fontSize.detail,
+  },
+  whenNew: {
     color: color.text,
     fontWeight: fontWeight.semibold,
   },

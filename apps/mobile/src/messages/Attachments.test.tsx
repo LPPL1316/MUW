@@ -24,6 +24,11 @@ import { MessagesContext, type MessagesDoor } from "./messagesDoor";
 import type { PickedMessageFile } from "./pickMessageMedia";
 import { VideoPoster } from "./VideoPoster";
 
+jest.mock("react-native/Libraries/Modal/Modal", () => ({
+  __esModule: true,
+  default: jest.requireActual("./dismissingModal").default,
+}));
+
 // Photos and videos in a conversation (TASK-333, ADR-0289): the «+» only
 // when the page says what may go (never on a server before, never in a
 // request); a file sent first, then its message; a send that failed tried
@@ -192,7 +197,7 @@ test("a photo goes first, then its message with what was written", async () => {
   // The box is back, and the photo is in the conversation.
   expect(screen.queryByPlaceholderText("Add a message…")).toBeNull();
   expect(
-    screen.getByRole("button", { name: "You: Photo, The river" }),
+    screen.getByRole("button", { name: /^You: Photo, The river, \d\d:\d\d$/ }),
   ).toBeOnTheScreen();
 });
 
@@ -264,10 +269,10 @@ test("a photo opens on the whole screen, and a video expired says so", async () 
   // The expired one cannot be opened.
   expect(
     screen.queryByRole("button", {
-      name: "You: This video has expired., Last month's sunrise",
+      name: /^You: This video has expired\., Last month's sunrise, \d\d:\d\d$/,
     }),
   ).toBeNull();
-  await fireEvent.press(screen.getByRole("button", { name: "Photo" }));
+  await fireEvent.press(screen.getByRole("button", { name: /^Photo, \d\d:\d\d$/ }));
   expect(screen.getByRole("button", { name: "Share" })).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole("button", { name: "Close" }));
   expect(screen.queryByRole("button", { name: "Share" })).toBeNull();

@@ -298,7 +298,8 @@ export function isConversation(body: unknown): body is Conversation {
     isRecord(body) &&
     isPerson(body.person) &&
     isMessage(body.last) &&
-    typeof body.unread === "boolean"
+    typeof body.unread === "boolean" &&
+    (body.unread_count === undefined || typeof body.unread_count === "number")
   );
 }
 

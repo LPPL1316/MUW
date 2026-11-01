@@ -14,6 +14,11 @@ import { useMessagesDoor } from "./messagesDoor";
 /** The most the row counts: beyond it, «9+», as the badge of «Profile». */
 const COUNT_MAX = 9;
 
+/** A count in a red badge: «9+» beyond the most it says. */
+export function countLabel(count: number): string {
+  return count > COUNT_MAX ? `${COUNT_MAX}+` : String(count);
+}
+
 /**
  * «Messages» on the first page of «Profile» (TASK-319, ADR-0279): a row
  * that opens the conversations over the app, with a red number for the
@@ -42,9 +47,7 @@ export function MessagesRow() {
       <Text style={styles.rowText}>{name}</Text>
       {count > 0 && (
         <View style={styles.count}>
-          <Text style={styles.countText}>
-            {count > COUNT_MAX ? `${COUNT_MAX}+` : String(count)}
-          </Text>
+          <Text style={styles.countText}>{countLabel(count)}</Text>
         </View>
       )}
       <Text style={styles.rowArrow}>›</Text>

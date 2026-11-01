@@ -2,7 +2,9 @@ import type { RouteResult } from "@shaperoute/shared-types";
 import detail from "@shaperoute/shared-types/fixtures/recommended-route.json";
 import listed from "@shaperoute/shared-types/fixtures/recommended-routes.json";
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { Animated, type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 
+import { color, font, motion } from "../theme/tokens";
 import { type Explored, optionsOf } from "./explored";
 import { ExploredCard } from "./ExploredCard";
 import { isRecommendedList, type RecommendedRouteDetail } from "./recommendedRoutes";
@@ -10,6 +12,19 @@ import type { MoveExample } from "../paddle/useMoveExample";
 import type { StartView } from "./useStartDirections";
 
 const [route] = isRecommendedList(listed) ? listed.routes : [];
+
+/** The rendered tree as JSON, and every node in it `where` says. */
+type Json = { props: Record<string, unknown>; children: (Json | string)[] | null };
+function nodes(
+  node: Json | string | null | undefined,
+  where: (node: Json) => boolean,
+): Json[] {
+  if (node == null || typeof node === "string") {
+    return [];
+  }
+  const own = where(node) ? [node] : [];
+  return [...own, ...(node.children ?? []).flatMap((child) => nodes(child, where))];
+}
 const whole = detail as RecommendedRouteDetail;
 const shorter: RecommendedRouteDetail = {
   ...whole,
@@ -175,4 +190,35 @@ test("a shape that did not fit, or a move that failed, says so above Start", asy
   );
   expect(screen.getByText("The API did not answer.")).toBeOnTheScreen();
   expect(screen.getByRole("button", MOVE)).toBeOnTheScreen();
+});
+
+test("the distance large and light; the actions after a hairline, answering through Tap (TASK-339)", async () => {
+  // Seen, not run: an animation left running would spill into the next test.
+  const timing = jest
+    .spyOn(Animated, "timing")
+    .mockReturnValue({ start: jest.fn(), stop: jest.fn(), reset: jest.fn() });
+  const { explored } = opened([]);
+  await card(explored);
+  expect(screen.getByText("5.1 km")).toHaveStyle({
+    fontSize: font.display.fontSize,
+    fontWeight: font.display.fontWeight,
+  });
+  // One hairline, before the actions.
+  expect(
+    nodes(
+      screen.toJSON() as unknown as Json | null,
+      (node) =>
+        (
+          StyleSheet.flatten(node.props.style as StyleProp<ViewStyle>) as {
+            backgroundColor?: string;
+          }
+        )?.backgroundColor === color.hairline,
+    ),
+  ).toHaveLength(1);
+  await fireEvent(screen.getByText("Export GPX"), "pressIn");
+  expect(timing).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.objectContaining({ toValue: 1, duration: motion.pressMs }),
+  );
+  timing.mockRestore();
 });

@@ -4,7 +4,7 @@ import {
   type Shape,
   SHAPES,
 } from "@shaperoute/shared-types";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { t } from "../i18n";
 import { shapeWord } from "../i18n/shapeNames";
 
@@ -12,12 +12,15 @@ import type { ExportState } from "../route/useGpxExport";
 import type { AnyRouteRequest } from "../route/useRouteRequest";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
+import { Tap } from "../ui/Tap";
 import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { ExploreStart } from "./ExploreStart";
@@ -95,7 +98,11 @@ type Props = {
   onPlace?: (point: LatLon) => void;
 };
 
-/** Under the map: a shape through the places of a theme (TASK-129). */
+/**
+ * Under the map: a shape through the places of a theme (TASK-129). The
+ * distance is the large light number, the actions come after a hairline
+ * and answer the finger through `Tap` (TASK-339, ADR-0293).
+ */
 export function ThemedCard({
   state,
   exporting,
@@ -121,13 +128,9 @@ export function ThemedCard({
             "Finding the places and drawing the shape through them… This can take a minute.",
           )}
         </Text>
-        <Pressable
-          style={styles.secondary}
-          onPress={onCancel}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.secondary} onPress={onCancel} accessibilityRole="button">
           <Text style={styles.secondaryText}>{t("Cancel")}</Text>
-        </Pressable>
+        </Tap>
       </View>
     );
   }
@@ -135,13 +138,9 @@ export function ThemedCard({
     return (
       <View style={styles.panel}>
         <Text style={styles.error}>{state.message}</Text>
-        <Pressable
-          style={styles.secondary}
-          onPress={onCancel}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.secondary} onPress={onCancel} accessibilityRole="button">
           <Text style={styles.secondaryText}>{t("Back to Explore")}</Text>
-        </Pressable>
+        </Tap>
       </View>
     );
   }
@@ -162,18 +161,16 @@ export function ThemedCard({
       <Text style={styles.body}>{passedText(result)}</Text>
       {/* The places passed by, numbered as on the map, with their photos. */}
       <StopPhotos stops={result.stops} apiUrl={apiUrl} onPlace={onPlace} />
+      {/* The actions, after a hairline. */}
+      <Hairline />
       {onNearMe !== undefined ? (
-        <Pressable
-          style={({ pressed }) => [styles.nearMe, pressed && styles.pressed]}
-          onPress={onNearMe}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.nearMe} onPress={onNearMe} accessibilityRole="button">
           <Text style={styles.nearMeText}>{t("Make it near me")}</Text>
-        </Pressable>
+        </Tap>
       ) : (
         <ExploreStart start={start} onStart={onStart} />
       )}
-      <Pressable
+      <Tap
         style={styles.secondary}
         onPress={onExport}
         disabled={exporting.status === "preparing"}
@@ -182,13 +179,13 @@ export function ThemedCard({
         <Text style={styles.secondaryText}>
           {exporting.status === "preparing" ? t("Preparing GPX…") : t("Export GPX")}
         </Text>
-      </Pressable>
+      </Tap>
       {exporting.status === "failed" && (
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
       )}
-      <Pressable style={styles.secondary} onPress={onCancel} accessibilityRole="button">
+      <Tap style={styles.secondary} onPress={onCancel} accessibilityRole="button">
         <Text style={styles.secondaryText}>{t("Back to Explore")}</Text>
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -197,22 +194,23 @@ const styles = StyleSheet.create({
   panel: {
     gap: space.md,
   },
+  // The number people look for: large and light, its digits lined up.
   result: {
+    ...font.display,
+    fontVariant: ["tabular-nums"],
     color: color.text,
-    fontSize: fontSize.display,
-    fontWeight: fontWeight.bold,
   },
   target: {
+    ...font.small,
     color: color.textMuted,
-    fontSize: fontSize.small,
   },
   body: {
+    ...font.body,
     color: color.text,
-    fontSize: fontSize.body,
   },
   error: {
+    ...font.body,
     color: color.error,
-    fontSize: fontSize.body,
   },
   // Yellow as «Start», whose place it takes: it produces a route.
   nearMe: {
@@ -227,10 +225,6 @@ const styles = StyleSheet.create({
     color: color.onAccent,
     fontWeight: fontWeight.bold,
     fontSize: fontSize.input,
-  },
-  // A light touch: what is pressed dims, nothing moves.
-  pressed: {
-    opacity: 0.6,
   },
   secondary: {
     minHeight: MIN_TAP_SIZE,

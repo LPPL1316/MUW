@@ -131,6 +131,8 @@ def test_a_shape_is_recorded_with_its_request_and_its_outcome(
         "style": "round",
         "pen_up": False,  # TASK-197
         "near": None,  # TASK-238
+        "placement": "free",  # TASK-347
+        "fit": None,
     }
     outcome = line["outcome"]
     assert outcome.pop("elapsed_s") >= 0

@@ -1,5 +1,5 @@
-import { type ReactNode, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { type ReactNode, useRef, useState } from "react";
+import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { t } from "../i18n";
@@ -26,17 +26,34 @@ type Props = {
  * The «+» beside the box of an open conversation (TASK-333): a sheet with
  * «Photo» and «Video» from the library, as the page of the conversation
  * offers them (a full server leaves the video out), «Drawing» (a favorite
- * or a run of one's own), and «Cancel».
+ * or a run of one's own), and «Cancel». On iOS what was chosen opens only
+ * once the sheet is really gone (TASK-358): the system's library, shown
+ * while a sheet is closing, never comes up. Android has no such wait, and
+ * no `onDismiss` to wait for.
  */
 export function AttachButton({ kinds, disabled, onPick }: Props) {
   const [open, setOpen] = useState(false);
+  // Chosen on iOS, until the sheet has gone.
+  const chosen = useRef<AttachKind | null>(null);
   if (kinds.length === 0) {
     return null;
   }
 
   function pick(kind: AttachKind) {
     setOpen(false);
-    onPick(kind);
+    if (Platform.OS === "ios") {
+      chosen.current = kind;
+    } else {
+      onPick(kind);
+    }
+  }
+
+  function dismissed() {
+    const kind = chosen.current;
+    chosen.current = null;
+    if (kind !== null) {
+      onPick(kind);
+    }
   }
 
   return (
@@ -51,35 +68,34 @@ export function AttachButton({ kinds, disabled, onPick }: Props) {
       >
         <Text style={styles.plusText}>+</Text>
       </Pressable>
-      {open && (
-        <Modal
-          visible
-          transparent
-          animationType="slide"
-          statusBarTranslucent
-          onRequestClose={() => setOpen(false)}
-        >
-          <Pressable
-            style={styles.backdrop}
-            onPress={() => setOpen(false)}
-            accessible={false}
-            importantForAccessibility="no"
-            testID="attach-sheet-backdrop"
-          />
-          <Sheet>
-            {kinds.includes("photo") && (
-              <Choice label={t("Photo")} onPress={() => pick("photo")} />
-            )}
-            {kinds.includes("video") && (
-              <Choice label={t("Video")} onPress={() => pick("video")} />
-            )}
-            {kinds.includes("drawing") && (
-              <Choice label={t("Drawing")} onPress={() => pick("drawing")} />
-            )}
-            <Choice label={t("Cancel")} onPress={() => setOpen(false)} />
-          </Sheet>
-        </Modal>
-      )}
+      <Modal
+        visible={open}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setOpen(false)}
+        onDismiss={dismissed}
+      >
+        <Pressable
+          style={styles.backdrop}
+          onPress={() => setOpen(false)}
+          accessible={false}
+          importantForAccessibility="no"
+          testID="attach-sheet-backdrop"
+        />
+        <Sheet>
+          {kinds.includes("photo") && (
+            <Choice label={t("Photo")} onPress={() => pick("photo")} />
+          )}
+          {kinds.includes("video") && (
+            <Choice label={t("Video")} onPress={() => pick("video")} />
+          )}
+          {kinds.includes("drawing") && (
+            <Choice label={t("Drawing")} onPress={() => pick("drawing")} />
+          )}
+          <Choice label={t("Cancel")} onPress={() => setOpen(false)} />
+        </Sheet>
+      </Modal>
     </>
   );
 }

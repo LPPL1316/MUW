@@ -19,7 +19,7 @@ const DAYS = [
   tLater("Fri"),
   tLater("Sat"),
 ];
-const MONTHS = [
+export const MONTHS = [
   tLater("Jan"),
   tLater("Feb"),
   tLater("Mar"),

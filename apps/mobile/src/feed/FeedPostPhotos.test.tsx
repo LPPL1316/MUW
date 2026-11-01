@@ -1,14 +1,15 @@
 import feed from "@shaperoute/shared-types/fixtures/feed.json";
 import session from "@shaperoute/shared-types/fixtures/session.json";
 import type { FeedPost as Post, Session } from "@shaperoute/shared-types";
-import { act, fireEvent, render, screen } from "@testing-library/react-native";
-import { Text } from "react-native";
+import { act, fireEvent, render, screen, within } from "@testing-library/react-native";
+import { type ImageStyle, type StyleProp, StyleSheet, Text } from "react-native";
 
 import type { AccountState } from "../account/useAccount";
 import { Pager } from "../screens/Pager";
 import { forgetBlocked } from "../social/blockedNow";
 import { FollowsContext } from "../social/followsDoor";
-import { FeedPost } from "./FeedPost";
+import { color, font } from "../theme/tokens";
+import { FeedPost, postFacts, SCRIM_HEIGHT } from "./FeedPost";
 import { forgetFeedMaps } from "./FeedMaps";
 import { shownPost } from "./feedPosts";
 
@@ -53,6 +54,19 @@ beforeEach(() => {
   forgetBlocked();
 });
 
+/** The rendered tree as JSON, and every node in it `where` says. */
+type Json = { props: Record<string, unknown>; children: (Json | string)[] | null };
+function nodes(
+  node: Json | string | null | undefined,
+  where: (node: Json) => boolean,
+): Json[] {
+  if (node == null || typeof node === "string") {
+    return [];
+  }
+  const own = where(node) ? [node] : [];
+  return [...own, ...(node.children ?? []).flatMap((child) => nodes(child, where))];
+}
+
 async function swipeTo(page: number) {
   await act(() =>
     fireEvent(screen.getByTestId("feed-pages"), "momentumScrollEnd", {
@@ -74,8 +88,69 @@ test("a drawing with photos shows them after it, read with the token", async () 
   expect(screen.getByTestId("feed-pages")).toBeOnTheScreen();
   expect(screen.getByTestId("feed-drawing")).toBeOnTheScreen();
   expect(sources()).toEqual([SOURCES[0]]);
-  // As wide as the card, as tall as the drawing.
-  expect(screen.getByTestId("feed-photo")).toHaveStyle({ width: WIDTH, height: 222 });
+  // A page as wide as the card, the photo filling it.
+  const pages = within(screen.getByTestId("feed-pages")).getAllByTestId(
+    "feed-page-tap",
+  );
+  expect(pages[1]).toHaveStyle({ width: WIDTH });
+  expect(screen.getByTestId("feed-photo")).toHaveStyle({
+    position: "absolute",
+    left: 0,
+    top: 0,
+  });
+});
+
+test("the words stay under the drawing, and lie over a photo on a scrim (TASK-339)", async () => {
+  await show(WITH_PHOTO);
+  const post = shownPost(WITH_PHOTO);
+  const [drawingPage, photoPage] = within(
+    screen.getByTestId("feed-pages"),
+  ).getAllByTestId("feed-page-tap");
+  // Under the drawing, so as not to cover the figure: the card's title, the
+  // facts muted.
+  expect(within(drawingPage).queryByTestId("feed-photo-words")).toBeNull();
+  expect(within(drawingPage).getByText(post.title)).toHaveStyle({
+    fontSize: font.cardTitle.fontSize,
+    fontWeight: font.cardTitle.fontWeight,
+    color: color.text,
+  });
+  expect(within(drawingPage).getByText(postFacts(post))).toHaveStyle({
+    color: color.textMuted,
+  });
+  // Over the photo: light in both tones, on the dark that rises from its
+  // foot, out of the way of the finger, and not read twice (the card is
+  // read as one thing).
+  const hidden = { includeHiddenElements: true };
+  const words = within(photoPage).getByTestId("feed-photo-words", hidden);
+  expect(words).toHaveProp("pointerEvents", "none");
+  expect(words).toHaveProp("accessibilityElementsHidden", true);
+  expect(within(drawingPage).getByText(post.title)).toBeOnTheScreen();
+  expect(screen.getAllByText(post.title)).toHaveLength(1);
+  expect(within(words).getByText(post.title, hidden)).toHaveStyle({
+    fontSize: font.heading.fontSize,
+    fontWeight: font.heading.fontWeight,
+    color: color.onScrim,
+  });
+  expect(within(words).getByText(postFacts(post), hidden)).toHaveStyle({
+    color: color.onScrim,
+  });
+  // The scrim: an image stretched over the foot of the photo, and none
+  // over the drawing.
+  const [drawingJson, photoJson] = nodes(
+    screen.toJSON() as unknown as Json | null,
+    (node) => node.props.testID === "feed-page-tap",
+  );
+  const stretched = (page: Json) =>
+    nodes(page, (node) => node.props.resizeMode === "stretch");
+  expect(stretched(photoJson)).toHaveLength(1);
+  expect(
+    StyleSheet.flatten(stretched(photoJson)[0].props.style as StyleProp<ImageStyle>),
+  ).toMatchObject({
+    position: "absolute",
+    bottom: 0,
+    height: SCRIM_HEIGHT,
+  });
+  expect(stretched(drawingJson)).toHaveLength(0);
 });
 
 test("only the photo after the one shown is loaded, and those seen stay", async () => {

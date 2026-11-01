@@ -156,6 +156,82 @@ test("after the choice go the run's photos, while others see it", async () => {
   expect(loadDrawingPhotos().map((item) => item.sent)).toEqual([true, true]);
 });
 
+describe("an entry in a monthly challenge (TASK-343 part B)", () => {
+  const ENTRY = { contest: "the-contest", entered: true };
+  const NOTHING = { status: 204 };
+  const ENTRY_URL = `http://api/contests/the-contest/entries/${myDrawing.id}`;
+
+  test("it waits in the file with its choice, and a choice without one has none", () => {
+    keepForDrawing({ ...HEART, entry: ENTRY });
+    expect(waitingDrawing(1, "a")?.entry).toEqual(ENTRY);
+    keepForDrawing({ ...HEART, key: "b" });
+    expect(waitingDrawing(1, "b")).not.toHaveProperty("entry");
+  });
+
+  test("it goes after the drawing, and is not part of the drawing", async () => {
+    keepForDrawing({ ...HEART, entry: ENTRY });
+    const fetchFn = answers({ status: 200, body: myDrawing }, NOTHING);
+    expect(await sendWaitingDrawings(URL, TOKEN, 1, options(fetchFn))).toBe("done");
+    expect(fetchFn.mock.calls.map(([url]) => url)).toEqual([
+      "http://api/me/activities/a/drawing",
+      ENTRY_URL,
+    ]);
+    expect(bodyOf(fetchFn, 0)).not.toHaveProperty("entry");
+    expect(fetchFn.mock.calls[1][1]?.method).toBe("PUT");
+    expect(loadDrawingOutbox()).toEqual([]);
+  });
+
+  test("a withdrawal is a DELETE", async () => {
+    keepForDrawing({ ...HEART, entry: { ...ENTRY, entered: false } });
+    const fetchFn = answers({ status: 200, body: myDrawing }, NOTHING);
+    expect(await sendWaitingDrawings(URL, TOKEN, 1, options(fetchFn))).toBe("done");
+    expect(fetchFn.mock.calls[1][1]?.method).toBe("DELETE");
+    expect(loadDrawingOutbox()).toEqual([]);
+  });
+
+  test("a drawing no longer for everyone sends no entry", async () => {
+    keepForDrawing({ ...HEART, visibility: "followers", entry: ENTRY });
+    const fetchFn = answers({ status: 200, body: myDrawing });
+    expect(await sendWaitingDrawings(URL, TOKEN, 1, options(fetchFn))).toBe("done");
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+
+  test("without a network it stays, to go again", async () => {
+    keepForDrawing({ ...HEART, entry: ENTRY });
+    const fetchFn = jest
+      .fn()
+      .mockResolvedValueOnce(Response.json(myDrawing))
+      .mockRejectedValueOnce(new Error("offline"));
+    expect(await sendWaitingDrawings(URL, TOKEN, 1, options(fetchFn))).toBe("done");
+    expect(waitingDrawing(1, "a")?.entry).toEqual(ENTRY);
+  });
+
+  test("refused, or an API that has no such endpoint: it leaves, the drawing stays", async () => {
+    for (const refusal of [
+      { status: 409, body: apiError("not_entrant", "No.") },
+      { status: 404, body: apiError("http_error", "Not Found") },
+    ]) {
+      keepForDrawing({ ...HEART, entry: ENTRY });
+      const fetchFn = answers({ status: 200, body: myDrawing }, refusal);
+      expect(await sendWaitingDrawings(URL, TOKEN, 1, options(fetchFn))).toBe("done");
+      expect(fetchFn).toHaveBeenCalledTimes(2);
+      expect(loadDrawingOutbox()).toEqual([]);
+    }
+  });
+
+  test("an ended session stops and says so", async () => {
+    keepForDrawing({ ...HEART, entry: ENTRY });
+    const fetchFn = answers(
+      { status: 200, body: myDrawing },
+      { status: 401, body: apiError("session_expired", "Log in again.") },
+    );
+    expect(await sendWaitingDrawings(URL, TOKEN, 1, options(fetchFn))).toBe(
+      "session_ended",
+    );
+    expect(waitingDrawing(1, "a")?.entry).toEqual(ENTRY);
+  });
+});
+
 test("with «Only me» the photos stay on the phone, and nothing more is sent", async () => {
   keepForDrawing({ ...HEART, visibility: "only_me" });
   keepPhoto(1, "a", 1, "AAAA");

@@ -120,9 +120,10 @@ beforeEach(() => {
   Object.values(mockPlayer).forEach((call) => call.mockClear());
 });
 
-/** The page makes two pictures and is done. */
+/** The page has the map, makes two pictures and is done. */
 async function twoPictures() {
   await page({ type: "ready", codec: "avc1.42e028" });
+  await page({ type: "map", ok: true, why: null, ms: {} });
   await page({ type: "config", avcC: base64([1, 0x42, 0xe0, 0x28]) });
   await page({
     type: "chunks",
@@ -131,7 +132,7 @@ async function twoPictures() {
       { key: false, time: 33_333, data: base64([0, 0, 0, 1, 0x41]) },
     ],
   });
-  await page({ type: "done", frames: 360 });
+  await page({ type: "done", frames: 360, ms: {} });
 }
 
 function shared(): Uint8Array {
@@ -210,9 +211,18 @@ describe("Export video", () => {
     expect(screen.getByTestId("run-video")).toBeOnTheScreen();
 
     await page({ type: "ready", codec: "avc1.42e028" });
+    // The map first (TASK-351), then the scene once the page has it.
     expect(inject).toHaveBeenCalledTimes(1);
-    const call = inject.mock.calls[0][0];
+    const first = inject.mock.calls[0][0];
+    expect(first.startsWith("window.muwVideo.prepareMap({")).toBe(true);
+    expect(first).toContain('"pixelRatio":3');
+    await page({ type: "waiting", ms: 4000 });
+    expect(inject).toHaveBeenCalledTimes(1);
+    await page({ type: "map", ok: true, why: null, ms: { map: 700 } });
+    expect(inject).toHaveBeenCalledTimes(2);
+    const call = inject.mock.calls[1][0];
     expect(call.startsWith("window.muwVideo.make({")).toBe(true);
+    expect(call).toContain('"look":"night"');
     expect(call).toContain('"width":1080');
     expect(call).toContain("Heart in Trento");
 
@@ -228,7 +238,7 @@ describe("Export video", () => {
     expect(screen.getByText("Making the video… 50%")).toBeOnTheScreen();
     expect(screen.getByRole("button", { name: "Instagram" })).toBeDisabled();
 
-    await page({ type: "done", frames: 360 });
+    await page({ type: "done", frames: 360, ms: { encode: 7000 } });
     expect(share).toHaveBeenCalledWith(
       `file:///cache/${VIDEO_FILE}`,
       expect.objectContaining({ mimeType: "video/mp4", UTI: "public.mpeg-4" }),
@@ -242,6 +252,51 @@ describe("Export video", () => {
     expect(keepPost).toHaveBeenCalledWith("run-1", expect.anything());
     expect(screen.queryByTestId("run-video")).toBeNull();
     expect(screen.getByRole("button", { name: "Export video" })).toBeEnabled();
+  });
+
+  it("falls back on the post on yellow when the map does not come, and still shares", async () => {
+    await shown();
+    await exportVideo();
+    await page({ type: "ready", codec: "avc1.42e028" });
+    await page({ type: "map", ok: false, why: "timeout", ms: { map: 15_000 } });
+    expect(inject).toHaveBeenCalledTimes(2);
+    const call = inject.mock.calls[1][0];
+    expect(call.startsWith("window.muwVideo.make({")).toBe(true);
+    expect(call).toContain('"look":"paper"');
+    expect(call).not.toContain('"look":"night"');
+    expect(call).toContain("Heart in Trento");
+    await page({ type: "config", avcC: base64([1, 0x42, 0xe0, 0x28]) });
+    await page({
+      type: "chunks",
+      list: [{ key: true, time: 0, data: base64([0, 0, 0, 2, 0x65, 0x88]) }],
+    });
+    await page({ type: "done", frames: 360, ms: {} });
+    expect(share).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("The video could not be made. Try again.")).toBeNull();
+    expect(keepPost).toHaveBeenCalledWith("run-1", expect.anything());
+  });
+
+  it("keeps waiting while the page says the tiles are still coming", async () => {
+    jest.useFakeTimers();
+    try {
+      await shown();
+      await exportVideo();
+      await page({ type: "ready", codec: "avc1.42e028" });
+      await act(async () => {
+        jest.advanceTimersByTime(VIDEO_SILENCE_MS - 2000);
+      });
+      await page({ type: "waiting", ms: VIDEO_SILENCE_MS - 2000 });
+      await act(async () => {
+        jest.advanceTimersByTime(VIDEO_SILENCE_MS - 2000);
+      });
+      expect(screen.getByTestId("run-video")).toBeOnTheScreen();
+      await act(async () => {
+        jest.advanceTimersByTime(3000);
+      });
+      expect(screen.queryByTestId("run-video")).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("says so when the phone cannot make videos, and shares nothing", async () => {
@@ -270,7 +325,7 @@ describe("Export video", () => {
     await shown();
     await exportVideo();
     await page({ type: "ready", codec: "avc1.42e028" });
-    await page({ type: "done", frames: 360 });
+    await page({ type: "done", frames: 360, ms: {} });
     expect(
       screen.getByText("The video could not be made. Try again."),
     ).toBeOnTheScreen();

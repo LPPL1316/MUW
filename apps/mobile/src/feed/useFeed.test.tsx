@@ -69,7 +69,7 @@ test("the first page is asked once «Feed» is on the screen, from where the pho
   expect(fetchFn).not.toHaveBeenCalled();
   await rerender({ active: true, near: TRENTO });
   expect(result.current.shown).toEqual({ kind: "loading" });
-  expect(asked(fetchFn)).toEqual(["/feed?lat=46.0671&lon=11.1214"]);
+  expect(asked(fetchFn)).toEqual(["/feed?lat=46.07&lon=11.12"]);
   expect(fetchFn.mock.calls[0][1]).toMatchObject({
     headers: { Authorization: `Bearer ${SESSION.token}` },
   });
@@ -102,8 +102,8 @@ test("the next page follows the cursor from the same point, and adds its posts",
     }),
   );
   expect(asked(fetchFn)).toEqual([
-    "/feed?lat=46.0671&lon=11.1214",
-    `/feed?lat=46.0671&lon=11.1214&cursor=${page.next}`,
+    "/feed?lat=46.07&lon=11.12",
+    `/feed?lat=46.07&lon=11.12&cursor=${page.next}`,
   ]);
   // No page left: nothing more is asked.
   await act(async () => result.current.more());
@@ -144,7 +144,7 @@ test("a pull reads the first page again from where the phone is now; one that fa
     posts: [page.posts[1]],
     next: null,
   });
-  expect(asked(fetchFn)[1]).toBe("/feed?lat=46.0671&lon=11.1214");
+  expect(asked(fetchFn)[1]).toBe("/feed?lat=46.07&lon=11.12");
   // Offline: the pull ends, the posts stay.
   await act(async () => result.current.refresh());
   await waitFor(() => expect(result.current.refreshing).toBe(false));
