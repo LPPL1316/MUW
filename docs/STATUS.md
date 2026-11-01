@@ -164,6 +164,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (ADR-0306, punto 4; testo approvato dall'utente il 2026-10-30). Branch
   `fix/TASK-356-feed-position`. Sito e OTA di produzione con il suo sì.
   `tasks/TASK-356.md`.
+  **Chiuso il 2026-10-31**: #682 in `main`; sito e OTA di produzione ancora da pubblicare.
+- **TASK-363 — Dove va la posizione del telefono: la verifica e il testo**
+  (ADR-0306, punto 4; numero dal Coordinatore). Verifica fatta, proposta
+  unica all'utente; codice solo col suo sì. Branch
+  `docs/TASK-363-position-audit`. `tasks/TASK-363.md`.
+  Approvata il 2026-10-30 («Sì, approvo tutto»); codice in
+  `fix/TASK-363-position`. Server, sito e OTA: tre sì a parte.
 - **TASK-362 — Le schede del Feed: «Tutti» e «Seguiti»** (ADR-0308, proposta;
   richiesta dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
   `docs/TASK-362-feed-tabs` (documenti). Sostituiscono i filtri di TASK-355 B

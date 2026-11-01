@@ -398,7 +398,7 @@ const privacy: AboutDocument = {
     {
       heading: "Dein Standort",
       blocks: [
-        "Der Standort des Handys wird auf dem Handy genutzt, um eine Route dort zu beginnen, wo du bist, und um deinem Lauf zu folgen. Er geht an unseren Server als Start einer Route, die du anforderst, innerhalb eines Laufs, den du speicherst, mit der Suche nach einem Ort, um die Orte in deiner Nähe zuerst zu zeigen, und, auf etwa 1 km gerundet, um dir Zeichnungen in deiner Nähe im Feed zu zeigen.",
+        "Der Standort des Handys wird auf dem Handy genutzt, um eine Route dort zu beginnen, wo du bist, und um deinem Lauf zu folgen. Er geht genau an unseren Server als Start einer Route, die du anforderst, als Start der Formen, die die App dir in der Nähe vorbereitet, wenn das Handy sie nicht selbst zeichnen kann, und innerhalb eines Laufs, den du speicherst. Auf etwa 1 km gerundet geht er an den Server, um die Offline-Karte um dich herum, empfohlene Routen, Orte und Zeichnungen in der Nähe zu finden und bei einer Suche die Orte in deiner Nähe zuerst zu zeigen; so gerundet bleibt er nicht mit deinem Konto verbunden.",
         "Auf dem iPhone folgt die App während eines Laufs, den du gestartet hast, deinem Standort auch bei gesperrtem Handy oder wenn eine andere App offen ist, bis du den Lauf beendest; das iPhone zeigt das mit einer blauen Markierung oben auf dem Bildschirm. MuW fragt nur nach dem Standort, während du die App benutzt, nie «Immer».",
         "Wie jeder Internetdienst sieht unser Server die Internetadresse (IP), von der eine Anfrage kommt, während er sie beantwortet. Das Protokoll des Servers schreibt keine Positionen, und die Datenbank enthält keine IP-Adressen.",
         "Ein Register der Routenanfragen mit ihrem Start gibt es, um einen Fehler nachzustellen. Auf unserem Server ist es ausgeschaltet; eingeschaltet fasst es höchstens 10 MB, dann gehen die ältesten Zeilen verloren.",
@@ -422,8 +422,10 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Hetzner betreibt unseren Server und seine Sicherungskopien, in Deutschland.",
-            "Geoapify erhält die Suchen nach Orten und nach den Orten in deiner Nähe, mit der Position, und, um den Ort eines gespeicherten Laufs zu benennen, seinen auf etwa 1 km gerundeten Start: nie deine Haustür, den Lauf oder wer du bist. Antwortet unser Server nicht, geht eine Ortssuche stattdessen an Photon (komoot).",
+            "Geoapify erhält die Suchen nach Orten, nach Orten in deiner Nähe und nach den Plätzen einer Themenroute, mit der auf etwa 1 km gerundeten Position, und, um den Ort eines gespeicherten Laufs zu benennen, seinen ebenso gerundeten Start: nie deine Haustür, den Lauf oder wer du bist. Antwortet unser Server nicht, geht eine Ortssuche stattdessen an Photon (komoot).",
             "OpenFreeMap liefert die Karte: Wie jeder Kartendienst sieht es, welche Gegend du anschaust.",
+            "Wikimedia liefert unserem Server die Fotos der Orte: Es sieht welchen Ort, nicht wer fragt.",
+            "Bei der Karte «Satellit» liefert Esri die Bilder und bei der Karte «3D» liefert Amazon Web Services die Höhen: Wie jeder Kartendienst sehen sie, welches Gebiet du ansiehst.",
             "Den Overpass-Dienst für OpenStreetMap-Daten fragt unser Server nach der Karte einer Gegend, die er noch nicht hat: Er sieht, welche Gegend, nicht wer gefragt hat.",
             "unpkg liefert die Kartenbibliothek, wenn die App startet.",
             "Expo liefert die Updates der App.",

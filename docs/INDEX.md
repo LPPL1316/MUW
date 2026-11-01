@@ -46,6 +46,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Il nuoto in acque libere, «Open water swim», la guida con l'Apple Watch | `tasks/TASK-323.md`, `ROUTE_ENGINE.md` §8 |
 | Apple Salute e Fitness, Health Connect: l'attività finita scritta sul telefono | `tasks/TASK-321.md`, `DECISIONS.md` ADR-0281 |
 | Allegati nei messaggi privati: disegni, foto, video | `tasks/TASK-333.md`, `DECISIONS.md` ADR-0279 e ADR-0289, `API.md` «Messages» |
+| Dove va la posizione del telefono: ogni richiesta, la precisione, il testo «Your position» | `tasks/TASK-363.md`, `DECISIONS.md` ADR-0306 |
 | La chat: orari, giorni, quanti messaggi nuovi, i vecchi scorrendo | `tasks/TASK-353.md`, `DECISIONS.md` ADR-0279 e ADR-0305, `API.md` «Messages», `UI.md` |
 | Il look premium: la scala del testo (`font`), i grigi caldi, `src/ui/` (Tap, Hairline, Scrim, EmptyState), le pagine vuote | `UI.md` «Il tema» e «Il look premium», `tasks/TASK-339.md`, `DECISIONS.md` ADR-0293 |
 | Calorie e battito nei post del Feed, «Show heart rate» | `tasks/TASK-345.md`, `DECISIONS.md` ADR-0298 |

@@ -1,6 +1,6 @@
 # TASK-356 — La posizione nel Feed: arrotondata, e detta nella privacy
 
-**Stato**: In corso
+**Stato**: Done · 2026-10-31 (PR #682)
 **Fase**: 4 · **Branch**: `fix/TASK-356-feed-position` · numero dal
 Coordinatore (2026-10-30), nessun ADR nuovo: la decisione è ADR-0306, punto 4
 
@@ -39,8 +39,8 @@ merge.
 - [x] `feedPath` non scrive mai più di due decimali: test.
 - [x] Le pagine di una lettura dicono lo stesso punto: test.
 - [x] La frase nelle cinque lingue, nell'app e in `site/privacy`.
-- [ ] CI verde; impronta iOS `83793e26` su una copia pulita.
-- [ ] La data della privacy è il giorno del merge.
+- [x] CI verde; impronta iOS `83793e26` su una copia pulita.
+- [x] La data della privacy è il giorno del merge.
 
 ## File toccati
 
@@ -64,4 +64,4 @@ docs/API.md, docs/STATUS.md, docs/tasks/TASK-356.md
 
 ## Esito
 
-*(al merge)*
+In `main` con la #682. Il punto di `GET /feed` parte con due decimali e la frase è nelle cinque lingue, con la data del 31 ottobre. Sito e OTA di produzione non sono pubblicati: aspettano il sì dell'utente. La stessa frase è poi riscritta da TASK-363.
