@@ -160,6 +160,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
+  dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
+  `docs/TASK-365-muw-routes-in-feed` (documenti). Dodici bozze in bici in
+  `out/muw-bike-drafts/`, nessuna approvata e nessuna pubblicata. Le scelte
+  dell'utente sono tutte aperte; il codice parte col via del Coordinatore, dopo
+  TASK-362 e TASK-355 A. `tasks/TASK-365.md`.
+
 - **TASK-356 — La posizione nel Feed: arrotondata, e detta nella privacy**
   (ADR-0306, punto 4; testo approvato dall'utente il 2026-10-30). Branch
   `fix/TASK-356-feed-position`. Sito e OTA di produzione con il suo sì.

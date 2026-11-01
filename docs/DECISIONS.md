@@ -20563,3 +20563,48 @@ servirà, lo chiede l'utente. TASK-347 modifica solo i tratti disegnati e li
 riaggancia, come ADR-0300 dice. ADR-0300 resta com'è.
 
 ---
+
+## ADR-0310 — I percorsi di MuW nel Feed: un tipo a parte, da file, senza account né tempi
+
+**Stato**: Proposta · 2026-10-31 · deciso dall'agente su delega dell'utente per
+la parte tecnica; le scelte di prodotto restano aperte in `tasks/TASK-365.md`.
+Numero dal Coordinatore.
+
+**Contesto**: l'utente vuole nel Feed percorsi-disegno originali di MuW, soprattutto
+in bici, che non sembrino attività di utenti reali. Un post di oggi è un `drawings`
+su un `runs`, con utente, `started_at` e `duration_s` obbligatori, senza stato
+«bozza». Le app già pubblicate leggono `GET /feed` e non devono rompersi.
+
+**Decisione**:
+
+1. **Fuori da `GET /feed`**: un endpoint proprio, `GET /muw-routes`. Un'app già
+   pubblicata non lo chiede e non vede nulla di nuovo; la nuova app, col server
+   di oggi, riceve `404` e mostra il Feed di sempre. `feed.py` non si tocca.
+2. **Da file, come ADR-0097**: `catalog/muw_routes/<id>.json`, letti all'avvio
+   dell'API, nessuna migrazione. **La bozza non è uno stato nel database**: resta
+   fuori dal repository finché l'utente non la approva. Togliere un percorso è
+   togliere un file.
+3. **Le linee vengono dal motore** (`plan_nearby`, `activity: cycling`), mai
+   scritte a mano. Fatte a mano sono solo le sagome di partenza, che non entrano nel
+   catalogo delle forme (ADR-0036).
+4. **Nessun account «MuW»**, salvo scelta dell'utente. Quindi sul post: niente
+   reazioni né commenti (non c'è un `drawings` a cui attaccarli), niente profilo,
+   follow o messaggi. `POST /reports` non si estende: il contenuto è nostro e
+   non di un iscritto, e la correzione è togliere il file.
+5. **Niente che sembri una corsa fatta**: nessuna persona, data di uscita, tempo,
+   passo o calorie, e l'etichetta sempre sulla card. Il dislivello è detto come
+   stima.
+6. **Un componente nuovo**, `feed/MuwPost.tsx`: `FeedScreen` si tocca il minimo,
+   `FeedPost` per niente.
+
+**Scartate**: righe finte in `runs` e `drawings` (vorrebbe dire inventare tempi e
+un utente); un campo `kind` in `GET /feed` (un'app già pubblicata lo mostrerebbe
+come una corsa, e quella risposta è di TASK-362); un utente «MuW» nel database
+(porta con sé follow, messaggi e segnalazioni che nessuno gestisce).
+
+**Conseguenze**: nessuna migrazione e nessuna dipendenza. Un percorso nuovo vuole
+una PR e un riavvio dell'API. Il punteggio del motore non basta a dire se una
+forma si legge, quindi ogni percorso passa dall'occhio. `sampleFeed.json` e gli
+esempi restano fuori: la scelta è aperta col Coordinatore (TASK-362, scelta 4).
+
+---
