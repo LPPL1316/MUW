@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import shutil
 import time
 from pathlib import Path
@@ -107,6 +108,18 @@ def test_a_place_it_has_not_is_prepared_then_downloaded(
     )
     assert zone.status_code == 200
     assert f"{name}{SUFFIX}" in zone.headers["content-disposition"]
+
+
+def test_the_log_never_says_where_a_kept_place_is(
+    client: TestClient, builds: PlaceBuilds, caplog: pytest.LogCaptureFixture
+) -> None:
+    with caplog.at_level(logging.INFO, logger="shaperoute_api"):
+        assert keep(client, TRENTO).status_code == 202
+        assert builds.work_once()
+    lines = [r.getMessage() for r in caplog.records if "place zone" in r.getMessage()]
+    assert lines
+    for line in lines:
+        assert "46." not in line and "11." not in line
 
 
 def test_three_new_places_a_day_for_each_phone(client: TestClient) -> None:

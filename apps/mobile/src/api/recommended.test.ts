@@ -15,7 +15,7 @@ function answering(response: Response | Error) {
 
 test("the row is asked near a point, as the other rows, ten at most", () => {
   expect(recommendedRowUrl(API, TRENTO)).toBe(
-    `${API}/recommended?lat=46.067&lon=11.1215&radius_m=5000&limit=${ROW_SIZE}`,
+    `${API}/recommended?lat=46.07&lon=11.12&radius_m=5000&limit=${ROW_SIZE}`,
   );
   expect(ROW_SIZE).toBe(10);
 });
