@@ -20573,6 +20573,9 @@ tiene quindi un suo `SafeAreaProvider`, con `initialWindowMetrics`, come
 `Tour.tsx`. Scartato: cambiare `Pager.tsx`, su cui lavora TASK-339, e far
 scegliere il margine a chi apre il regolamento, che lo farebbe sbagliare al
 prossimo che lo apre da un'altra pagina.
+
+---
+
 ## ADR-0310 — I percorsi di MuW nel Feed: un tipo a parte, da file, senza account né tempi
 
 **Stato**: Proposta · 2026-10-31 · deciso dall'agente su delega dell'utente per
