@@ -34,7 +34,7 @@ function api(bodies: Record<string, unknown>) {
   return { fetchFn, asked };
 }
 
-const NEAR = `/recommended-routes?lat=${POST.line[0][0]}&lon=${POST.line[0][1]}&radius_m=5000`;
+const NEAR = `/recommended-routes?lat=${POST.line[0][0].toFixed(2)}&lon=${POST.line[0][1].toFixed(2)}&radius_m=5000`;
 
 test("a post is a route of «Explore» while its own is fetched", () => {
   expect(postRoute(POST)).toEqual({

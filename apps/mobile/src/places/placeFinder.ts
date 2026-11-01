@@ -1,7 +1,7 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
 import { apiKey, apiUrl, keyHeaders } from "../api/apiUrl";
-import { type Place, searchPlaces } from "./photon";
+import { nearParams, type Place, searchPlaces } from "./photon";
 
 /** An API that does not answer by then is skipped for Photon: the PC may
  * be off, and a suggestion late by seconds is no suggestion. */
@@ -81,7 +81,8 @@ async function fromApi(
 
 export function placesUrl(baseUrl: string, query: string, near: LatLon | null): string {
   const url = `${baseUrl}/places?q=${encodeURIComponent(query.trim())}`;
-  return near ? `${url}&lat=${near[0]}&lon=${near[1]}` : url;
+  // It only orders the places: about a kilometre is enough (TASK-363).
+  return near ? `${url}&${nearParams(near)}` : url;
 }
 
 /** The body of GET /places (packages/shared-types/fixtures/places.json). */

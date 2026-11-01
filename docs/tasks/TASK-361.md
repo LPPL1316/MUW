@@ -79,7 +79,9 @@ resta). La risposta dell'utente, parola per parola:
 nell'app (`about/content/*.ts`) e sul sito (`site/privacy/`, rifatto con
 `site/tools/make_privacy.mjs`). La data resta il 30 ottobre 2026, già messa
 da TASK-352 lo stesso giorno. Se TASK-356 (la posizione del Feed) cambia la
-privacy dopo, chi arriva secondo riallinea.
+privacy dopo, chi arriva secondo riallinea. Riallineata al testo di TASK-363
+il 2026-11-01, su indicazione del Coordinatore: la riga resta quella approvata,
+e la data della privacy passa al 1° novembre 2026 nelle cinque lingue.
 
 - en: «Apple on an iPhone, or Google on Android, through the phone's own
   address service, receives the position «Draw» starts from, to write the
@@ -228,6 +230,9 @@ apps/mobile/src/screens/ChooseScreen.test.tsx
 apps/mobile/src/i18n/{it,de,es,fr}.ts    (solo righe aggiunte in fondo)
 apps/mobile/src/about/content/{en,it,de,es,fr}.ts (la riga di privacy)
 site/privacy/**/index.html               (rifatte da make_privacy.mjs)
+apps/mobile/src/about/AboutPage.test.tsx (la data della privacy)
+apps/mobile/src/about/documents.test.ts  (la data della privacy)
+site/tests/privacy.test.mjs              (la data della privacy)
 docs/tasks/TASK-361.md
 docs/DECISIONS.md                        (ADR-0307)
 docs/STATUS.md                           (una riga in «In lavorazione»)
