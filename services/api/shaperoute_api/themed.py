@@ -145,7 +145,9 @@ def search_radius_m(distance_m: int) -> int:
 
 
 def places_url(key: str, theme: Theme, centre: LatLon, radius_m: int) -> str:
-    lat, lon = centre
+    # About a kilometre, as every position sent to Geoapify (TASK-363): the
+    # radius is kilometres wide, and the route still starts at the centre.
+    lat, lon = round(centre[0], 2), round(centre[1], 2)
     params = {
         "categories": theme.categories,
         "conditions": "named",

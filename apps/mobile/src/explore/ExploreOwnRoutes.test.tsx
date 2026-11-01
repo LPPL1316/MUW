@@ -145,11 +145,19 @@ test("a hamlet of the neighbour is a place of its own too", async () => {
 });
 
 test("a city with routes of its own: a neighbour's come after them, under the label", async () => {
-  fetchMock.mockImplementation(withCatalog(routes));
   const vercelli: Place = {
     label: "Vercelli, Piedmont, Italy",
     point: [45.3252, 8.4228],
   };
+  // The phone measures how far they are: the fixture's routes, in Vercelli.
+  fetchMock.mockImplementation(
+    withCatalog(
+      routes.map((r) => ({
+        ...r,
+        start: [vercelli.point[0] + r.away_m / 111_195, vercelli.point[1]],
+      })),
+    ),
+  );
   await render(
     <ExploreScreen
       apiUrl="http://api"
