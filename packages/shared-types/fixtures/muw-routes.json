@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "id": "star",
+      "city": "Trento",
+      "activity": "cycling",
+      "titles": {
+        "en": "Star",
+        "de": "Stern",
+        "it": "Stella",
+        "es": "Estrella",
+        "fr": "Étoile"
+      },
+      "route_m": 22300,
+      "climb_m": 341,
+      "difficulty": "easy",
+      "start": [46.067, 11.1215],
+      "preview": [
+        [46.067, 11.1215],
+        [46.07, 11.123],
+        [46.071, 11.126],
+        [46.068, 11.127],
+        [46.067, 11.1215]
+      ],
+      "rotation_deg": -30
+    }
+  ]
+}
