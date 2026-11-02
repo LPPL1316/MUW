@@ -20661,6 +20661,19 @@ prossimo che lo apre da un'altra pagina.
 
 ---
 
+## ADR-0074, precisazione — La tavola del contorno legge i margini veri del telefono
+
+**Stato**: Attiva · 2026-11-02 · deciso dall'agente su delega dell'utente
+(TASK-366). La tavola di «Edit the outline» si apre da «Draw», una pagina del
+`Pager`, e il titolo finiva sopra l'orologio. Come per il regolamento
+(ADR-0260, precisazione), il `Modal` tiene un suo `SafeAreaProvider` con
+`initialWindowMetrics`. Le altre sei finestre elencate da TASK-360 restano
+come sono: aperte nel simulatore, nessuna si apre da una pagina del `Pager`.
+Scartato: un provider in ogni `Modal` che legge i margini, «per sicurezza»,
+che toccherebbe file di altri task senza un difetto da correggere.
+
+---
+
 ## ADR-0310 — I percorsi di MuW nel Feed: un tipo a parte, da file, senza account né tempi
 
 **Stato**: Proposta · 2026-10-31 · deciso dall'agente su delega dell'utente per
