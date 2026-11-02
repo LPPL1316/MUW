@@ -57,7 +57,8 @@ def test_a_route_on_the_levico_test_graph() -> None:
     response = client.post("/routes", json=LEVICO_CIRCLE)
     assert response.status_code == 200
     body = response.json()
-    assert set(body) == {f.name for f in fields(RouteResult)}
+    # The API adds where the drawing was placed (TASK-347): the engine has not.
+    assert set(body) == {f.name for f in fields(RouteResult)} | {"placed_outline"}
     assert body["shape"] == "circle"
     assert body["points"][0] == body["points"][-1]
     assert len(body["points"]) > 10

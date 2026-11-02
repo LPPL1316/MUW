@@ -1,0 +1,32 @@
+{
+  "points": [
+    [46.0671, 11.1214],
+    [46.0671, 11.1344],
+    [46.0761, 11.1344],
+    [46.0761, 11.1214],
+    [46.0671, 11.1214]
+  ],
+  "distance_m": 5610.0,
+  "similarity": 0.78,
+  "shape": null,
+  "warnings": [
+    "on the roads the drawing is 5.6 km, 12% longer than the 5 km drawn; anchored, it is not rescaled"
+  ],
+  "directions": [],
+  "word": null,
+  "alternatives": [],
+  "walks": [],
+  "on_foot": [],
+  "better_distance_m": null,
+  "centre": null,
+  "rotation_deg": 0.0,
+  "placed_outline": [
+    [
+      [46.0671, 11.1214],
+      [46.0671, 11.134],
+      [46.0758, 11.134],
+      [46.0758, 11.1214],
+      [46.0671, 11.1214]
+    ]
+  ]
+}

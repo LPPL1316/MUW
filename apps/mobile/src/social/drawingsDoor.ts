@@ -31,6 +31,9 @@ import {
   saveDrawing,
   worthAgain,
 } from "../api/drawings";
+import { themedOf } from "../contest/contestApi";
+import { enteredIn, keptContest } from "../contest/contestKept";
+import { sendEntry } from "../contest/sendEntry";
 import { t } from "../i18n";
 import { forgetForDrawing, keepForDrawing, waitingDrawing } from "./drawingOutbox";
 import {
@@ -53,7 +56,9 @@ export type ChoiceShown =
 
 /** What came of a choice. */
 export type Chosen =
-  | { kind: "saved"; drawing: MyDrawing }
+  /** `entryProblem`: the drawing was saved, its entry in a monthly challenge
+   * was refused (TASK-343 part B). */
+  | { kind: "saved"; drawing: MyDrawing; entryProblem?: string }
   /** No network: on the phone, it goes with the next one. */
   | { kind: "waiting" }
   | { kind: "failed"; problem: string };
@@ -163,6 +168,8 @@ export function useDrawingsOf(
   const { state, sessionEnded: endSession } = account;
   const token = state.status === "signedIn" ? state.session.token : null;
   const owner = state.status === "signedIn" ? state.session.user.id : null;
+  const publicId =
+    state.status === "signedIn" ? (state.session.user.public_id ?? null) : null;
   const { fetchFn, key } = options;
   const [held, setHeld] = useState<Held | null>(null);
 
@@ -224,9 +231,19 @@ export function useDrawingsOf(
       }
       const outcome = await fetchMyDrawing(baseUrl, token, runKey, { fetchFn, key });
       if (outcome.kind === "ok") {
+        // Entered in the monthly challenge: the switch of the form starts on.
+        const kept = keptContest();
+        const contest = kept === null ? null : themedOf(kept.contest);
+        const entered =
+          contest !== null &&
+          outcome.value.id !== null &&
+          enteredIn(kept, publicId).includes(outcome.value.id);
         return {
           kind: "known",
-          choice: choiceOfDrawing(outcome.value),
+          choice: {
+            ...choiceOfDrawing(outcome.value),
+            ...(entered ? { entry: { contest: contest.id, entered: true } } : {}),
+          },
           waiting: false,
           photos: outcome.value.photos ?? [],
         };
@@ -240,7 +257,7 @@ export function useDrawingsOf(
       }
       return { kind: "failed", problem: drawingProblem(outcome) ?? "" };
     },
-    [baseUrl, ended, fetchFn, key, owner, token],
+    [baseUrl, ended, fetchFn, key, owner, publicId, token],
   );
 
   const choose = useCallback(
@@ -282,7 +299,12 @@ export function useDrawingsOf(
         if (photos === "session_ended") {
           endSession(token);
         } else if (photos === "waits") {
-          keepForDrawing({ owner, key: runKey, ...kept });
+          keepForDrawing({
+            owner,
+            key: runKey,
+            ...kept,
+            ...(choice.entry === undefined ? {} : { entry: choice.entry }),
+          });
         }
         // The answer came before the photos went: without the places
         // emptied since, which the API has let go or will.
@@ -290,6 +312,24 @@ export function useDrawingsOf(
           ...outcome.value,
           photos: (outcome.value.photos ?? []).filter((photo) => !emptied.has(photo.n)),
         };
+        // And its entry in a monthly challenge (TASK-343 part B), once the
+        // drawing is there: one that cannot go now waits with the choice.
+        const entry = await sendEntry(baseUrl, token, drawing.id, choice, {
+          fetchFn,
+          key,
+        });
+        if (entry.kind === "session_ended") {
+          endSession(token);
+        } else if (entry.kind === "waits") {
+          keepForDrawing({
+            owner,
+            key: runKey,
+            ...kept,
+            ...(choice.entry === undefined ? {} : { entry: choice.entry }),
+          });
+        } else if (entry.kind === "refused") {
+          return { kind: "saved", drawing, entryProblem: entry.problem };
+        }
         return { kind: "saved", drawing };
       }
       if (ended(token, outcome)) {

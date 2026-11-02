@@ -1,7 +1,7 @@
 # TASK-343 — Le sfide del mese: un tema per concorso, l'iscrizione, la galleria, l'archivio
 
 **Stato**: In lavorazione — documenti in `main` (#648), parte A in `main`
-(#657, `5303a198`), parte B da fare
+(#657, `5303a198`), parte B nella PR #667
 **Fase**: 4 · **Branch**: `feat/TASK-343-a-themed-contest-api` (A),
 `feat/TASK-343-b-themed-contest-app` (B)
 **ADR**: ADR-0296 (estende ADR-0260) · **Migrazione**: una, in A; il
@@ -127,11 +127,11 @@ Notifiche: nuova challenge, ultimi 3 giorni, risultati». La proposta
       pagina con `cursor`; l'archivio dà i concorsi chiusi.
 - [x] Ognuna delle tre push parte una volta sola e solo a chi deve
       (test con un `pusher` finto e l'orologio finto).
-- [ ] App: scheda con il tema, pagina, galleria nei due ordini,
+- [x] App: scheda con il tema, pagina, galleria nei due ordini,
       archivio, interruttore solo quando vale, tocco della push; con
       un'API senza tema tutto come oggi.
 - [ ] Testi e regolamento approvati dall'utente; server e push solo con
-      il sì dell'utente.
+      il sì dell'utente. (Testi e regolamento sì; server e push no.)
 
 ## File toccati
 
@@ -168,12 +168,75 @@ apps/mobile/src/i18n/de.ts
 apps/mobile/src/i18n/es.ts
 apps/mobile/src/i18n/fr.ts
 apps/mobile/src/i18n/it.ts
+apps/mobile/src/contest/contestDoor.ts            (nuovo)
+apps/mobile/src/contest/sendEntry.ts              (nuovo)
+apps/mobile/src/contest/FeedContest.tsx
+apps/mobile/src/contest/contestKept.ts
+apps/mobile/src/contest/useClock.ts               (nuovo)
+apps/mobile/src/screens/ProfileLayerContest.test.tsx (nuovo)
+apps/mobile/src/contest/EnterOnPost.tsx           (nuovo)
+apps/mobile/src/social/DrawingCard.tsx            (una riga, dopo TASK-339 B, su parola del Coordinatore: non in questa PR)
+docs/CONCORSI.md
+apps/mobile/src/screens/ProfileLayer.tsx          (monta ContestPage, ok del Coordinatore 2026-10-30)
+apps/mobile/src/notifications/usePushNotifications.ts
+apps/mobile/src/social/drawingsDoor.ts
+apps/mobile/src/social/PublicRow.tsx
+apps/mobile/src/activities/RunEnd.tsx
+apps/mobile/src/activities/ActivityCard.tsx
 (e i test accanto a ogni file)
 # Tutte e due
 docs/STATUS.md
 docs/DECISIONS.md
 docs/tasks/TASK-343.md
 ```
+
+## Parte B: esito della PR (2026-10-30)
+
+Scheda col titolo del tema, pagina della sfida, galleria «Top» | «New», «Past
+challenges», interruttore «Enter “{theme}”» nel modulo (fine corsa e «My
+activities»), iscrizione anche dalla coda di `drawingOutbox`, tocco delle tre
+push, regolamento della sfida. Con l'API di oggi (c7a83347, senza 0039)
+l'app resta com'è: lo provano `fixtures/contest.json` e gli endpoint nuovi che
+rispondono 404. I dettagli sono in `CONCORSI.md` §15.
+
+**Resta aperto, il task non è `Done`:**
+
+1. ~~i testi nelle cinque lingue e il regolamento~~: **approvati dall'utente il
+   2026-10-30** con «Approve them all», sull'elenco nella PR #667, e con «sì
+   testi 667» nella chat del Coordinatore (riferito dal Coordinatore: copre i
+   testi e il regolamento alla testa `2af16096`). Da allora i testi non sono
+   cambiati; un cambio vuole un sì nuovo;
+2. la riga che monta `EnterOnPost` in `DrawingCard`: dopo TASK-339 B, su parola
+   del Coordinatore. Il componente ha i suoi test ma oggi nessuno lo mostra;
+   sul post già pubblicato si iscrive e si ritira da «My activities»;
+3. il server con la migrazione 0039: lo decide l'utente, insieme a questa parte.
+
+**Prova nel simulatore** (2026-10-30, chiesta dal Coordinatore; iPhone Air, Expo
+Go, API vera in locale su un database usa e getta):
+
+- **Con un tema** (API del branch, `open --theme`, sfida «Animals», due account):
+  la scheda del Feed ha il titolo; la pagina si apre con date, partecipanti,
+  premio, regolamento e galleria «Top» | «New»; un post aperto dalla galleria
+  torna alla pagina com'era, e «Start» non resta sotto la pagina. Da «My
+  activities» e dal modulo di fine corsa (corsa col GPS simulato) iscrizione e
+  ritiro arrivano all'API (`entered`, `entrants`, galleria letti dall'API).
+- **Col server di oggi** (API di c7a83347, migrazioni fino alla 0038, il
+  concorso senza tema aperto e prima di aprirlo): niente di nuovo. Prima del
+  concorso nessuna scheda; dopo «MuW contest», «How it works» e il regolamento
+  di prima; nessun interruttore nel modulo; nessuna richiesta di galleria o
+  archivio.
+
+**La prova ha trovato tre difetti, corretti**: l'interruttore nativo si accendeva
+e non si spegneva (ora è `SwitchRow`, con «On» e «Off», testi già approvati);
+il modulo non conosceva la sfida se «Feed» non era stato aperto (`ProfileLayer`
+la chiede all'accesso); dopo un'iscrizione la scheda restava vecchia fino al pull
+(`tellEntered`). I testi approvati non sono cambiati.
+
+**Non provato**: il tocco sulle tre push (Expo Go non riceve push: solo test) e
+l'interruttore sul post aperto, che non è montato. **Difetto di prima, non
+corretto qui**: il regolamento aperto dalla scheda del Feed sta sotto la barra
+di stato, perché il Pager azzera il margine in alto; col tema si apre dalla
+pagina e il problema non c'è.
 
 ## Fuori scope
 
@@ -237,5 +300,4 @@ dentro lo zip.
 
 ### Parte B
 
-Da fare, in una sessione nuova: i file vanno mandati prima al Coordinatore,
-`FeedPost` e `PublicParts` potrebbero essere occupati da TASK-339 B.
+Nella PR #667: vedi «Parte B: esito della PR», sopra.

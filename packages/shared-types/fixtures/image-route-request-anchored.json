@@ -1,0 +1,15 @@
+{
+  "start": [46.0671, 11.1214],
+  "outline": [
+    [-1.0, -0.8],
+    [1.0, -0.8],
+    [0.0, 0.9],
+    [-1.0, -0.8]
+  ],
+  "strokes": [],
+  "distance_m": 5000,
+  "activity": "running",
+  "pen_up": false,
+  "placement": "anchored",
+  "fit": 0.3
+}

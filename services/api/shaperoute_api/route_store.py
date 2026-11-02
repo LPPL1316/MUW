@@ -81,6 +81,11 @@ NOT_ROUTES = frozenset({"way_back.py"})
 SWIM_ONLY = frozenset(
     {"shore_names.py", "swim_turns.py", "swim_water.py", "swimming.py"}
 )
+# Files of the engine that trace only what is never kept (TASK-347,
+# ADR-0300): a drawing anchored where the user drew it, and a stroke of one.
+# Changing them keeps the routes kept; a test fails when a module that
+# draws other routes imports one.
+ANCHORED_ONLY = frozenset({"anchored.py", "stroke_match.py"})
 
 
 def engine_fingerprint(folder: Path | None = None) -> str:
@@ -90,7 +95,8 @@ def engine_fingerprint(folder: Path | None = None) -> str:
     folder = Path(route_engine.__file__).parent if folder is None else folder
     digest = hashlib.sha256()
     for path in sorted(folder.rglob("*")):
-        if path.relative_to(folder).as_posix() in NOT_ROUTES | SWIM_ONLY:
+        left_out = NOT_ROUTES | SWIM_ONLY | ANCHORED_ONLY
+        if path.relative_to(folder).as_posix() in left_out:
             continue
         if path.suffix in (".py", ".json") and path.is_file():
             digest.update(path.relative_to(folder).as_posix().encode())
@@ -289,6 +295,8 @@ class RouteStore:
             return None  # an image: its outline is the user's own
         if request.near is not None:
             return None  # a shape moved by the user (TASK-238): theirs too
+        if getattr(request, "placement", "free") != "free":
+            return None  # anchored where the user drew it (TASK-347): theirs
         same = json.dumps([self._engine, self._same(request)], sort_keys=True)
         name = hashlib.sha256(same.encode()).hexdigest()[:24]
         on_water = cell(request.start) in self._water

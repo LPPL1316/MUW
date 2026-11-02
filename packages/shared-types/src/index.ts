@@ -48,6 +48,11 @@ export const PEN_UP_SHAPES = [
 ] as const satisfies readonly Shape[];
 export type PenUpShape = (typeof PEN_UP_SHAPES)[number];
 
+/** Where a drawing goes (TASK-347, ADR-0300): searched for by the engine,
+ * or left where the finger drew it. The same names as the route engine. */
+export const PLACEMENTS = ["free", "anchored"] as const;
+export type Placement = (typeof PLACEMENTS)[number];
+
 /** What a route is for: on foot, by bike on the roads a bike may ride,
  * one-way streets kept (TASK-190, ADR-0153), or paddling on a lake or the
  * sea within 1 km of the shore, a shape of the catalogue only (TASK-191,
@@ -131,6 +136,23 @@ interface RouteRequestFields {
    * another activity; absent or null leaves the place to the engine.
    */
   near?: LatLon | null;
+  /**
+   * Where the shape goes (TASK-347, ADR-0300): "free", the search turns,
+   * scales and moves it to where the roads draw it best, as before;
+   * "anchored", it stays where and as it was drawn (its first point on
+   * `start`, upright, at the scale of `distance_m`), traced once and never
+   * rescaled: a distance off by more than 10% is a warning, not a refusal.
+   * Only on the roads. Absent means "free", as an older app sends it; an API
+   * older than TASK-347 refuses the field, so the app sends it only after
+   * the probe (GET /stroke-matches).
+   */
+  placement?: Placement;
+  /**
+   * With `placement` "anchored": the magnet, from 0 (faithful to the
+   * drawing: tight zones and corridor) to 1 (today's tracing, wide); absent,
+   * the engine's default. Refused with "free".
+   */
+  fit?: number;
 }
 
 /** A shape of the catalogue, or a word written one letter at a time: one
@@ -230,6 +252,15 @@ export interface RouteResult {
    * stays north-up.
    */
   rotation_deg?: number;
+  /**
+   * The drawing as the engine placed it, in WGS84 lines (TASK-347,
+   * ADR-0300): turned, scaled and moved by the search when `placement` was
+   * "free", left where it was drawn when "anchored"; one closed line for a
+   * shape, one open line per letter or piece drawn with the pen up. The app
+   * draws it as a ghost under the route, so the drawing never disappears
+   * when the route arrives. Empty on the water; missing from an older API.
+   */
+  placed_outline?: LatLon[][];
 }
 
 /** Routes besides the one chosen by the engine: three to choose from. */
@@ -512,6 +543,53 @@ export interface ImageRouteRequest {
   activity: Activity;
   /** No letters to draw with the pen up: true is refused (TASK-197). */
   pen_up?: false;
+  /** As in RouteRequest (TASK-347): "anchored" leaves the outline where it
+   * was drawn, its first point on `start`, at the scale of `distance_m`.
+   * This is what «Draw route» sends for a drawing made on the map. */
+  placement?: Placement;
+  /** As in RouteRequest: the magnet of an anchored outline, 0 to 1. */
+  fit?: number;
+}
+
+/** The most points of one stroke sent to POST /stroke-matches (TASK-347):
+ * the app simplifies the finger's line first, and splits a longer stroke. */
+export const MAX_STROKE_POINTS = 500;
+/** The longest stroke, in metres along its points; a longer one is split. */
+export const MAX_STROKE_M = 10_000;
+
+/**
+ * One stroke drawn on the map, to anchor to the roads as the finger lifts
+ * (TASK-347, ADR-0300): what the app sends to POST /stroke-matches, or to
+ * the engine on the phone first. Sent only to a server that knows it: GET
+ * /stroke-matches answers 204 there and 404 on an older API.
+ */
+export interface StrokeMatchRequest {
+  activity: Activity;
+  /** The magnet, 0 (faithful to the drawing) to 1 (today's tracing, wide);
+   * absent, the engine's default. */
+  fit?: number;
+  /** The stroke as drawn, in order: 2 to MAX_STROKE_POINTS points, at most
+   * MAX_STROKE_M long. */
+  line: LatLon[];
+  /** Where the stroke before ended: the route starts at the road node
+   * nearest to it, so the strokes join along the roads. Absent for the
+   * first stroke. */
+  from?: LatLon;
+}
+
+/** The roads that draw a stroke: the answer of POST /stroke-matches. */
+export interface StrokeMatchResult {
+  /** The route along the roads, from the node of `from` (or the one nearest
+   * to the first point) to the roads near the last point; the last point is
+   * the next stroke's `from`. */
+  points: LatLon[];
+  /** For each point of the stroke as sent, in order, how far the route runs
+   * from it, in metres: the app colours the far ones. */
+  away_m: number[];
+  /** True when the drawn points are, on average, farther from a road than
+   * the engine's sparse-network threshold: the stroke is in the fields, the
+   * match is a guess, and the app may leave the stroke as a ghost. */
+  off_roads: boolean;
 }
 
 /** The most points of all the strokes of an outline together, as the

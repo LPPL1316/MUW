@@ -81,7 +81,11 @@ def test_without_advice_the_field_is_null() -> None:
 def test_the_fixture_of_the_contract_is_a_valid_body() -> None:
     data = _load("route-result-better-distance.json")
     # Every field of its day: the rotation came after (TASK-232).
-    assert set(data) == set(RouteResultBody.model_fields) - {"rotation_deg"}
+    # Without the fields of TASK-232 and TASK-347, which came after.
+    assert set(data) == set(RouteResultBody.model_fields) - {
+        "rotation_deg",
+        "placed_outline",
+    }
     body = RouteResultBody.model_validate(data)
     assert body.better_distance_m == 12_000
     assert [other.better_distance_m for other in body.alternatives] == [None]
@@ -101,6 +105,7 @@ def test_an_older_app_reads_the_answer_as_before(advised: TestClient) -> None:
         "better_distance_m",
         "centre",
         "rotation_deg",
+        "placed_outline",  # TASK-347
     }
 
 

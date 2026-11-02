@@ -8,6 +8,7 @@ import {
   saveDrawing,
   worthAgain,
 } from "../api/drawings";
+import { sendEntry } from "../contest/sendEntry";
 import { keptList } from "../storage/keptList";
 import { syncPhotos } from "./drawingPhotos";
 
@@ -19,7 +20,7 @@ import { syncPhotos } from "./drawingPhotos";
  * without a network joins it at once. Only the latest choice for a run
  * waits: it is the choice whole, and sending it again changes nothing.
  * After the choice go the run's photos (drawingPhotos.ts), while others
- * see the drawing.
+ * see the drawing, then its entry in a monthly challenge (TASK-343 part B).
  */
 
 export const DRAWING_OUTBOX_FILE = "drawings-outbox.json";
@@ -93,6 +94,7 @@ export function keepForDrawing(choice: DrawingWaiting): boolean {
           username: tag.username,
         })),
         visibility: choice.visibility,
+        ...(choice.entry === undefined ? {} : { entry: choice.entry }),
       },
     ].slice(-MAX_DRAWINGS_WAITING),
   );
@@ -141,10 +143,12 @@ type Options = { fetchFn?: typeof fetch; key?: string | null };
  * Sends the choices of `owner` that wait, the oldest first, each followed
  * by the photos of its run (drawingPhotos.ts). With no network, or the API
  * silent or busy, they wait on; a choice whose photos still wait stays
- * too, to be sent again before them. A choice the API refuses leaves the
- * file: sending it again would change nothing. A run too short to publish
- * keeps the rest of its choice, for its owner only (ADR-0159, point 4).
- * "session_ended" when the token opens no session any more.
+ * too, to be sent again before them, and one whose entry in a monthly
+ * challenge could not go yet. A choice the API refuses leaves the file:
+ * sending it again would change nothing; so does an entry refused, the
+ * drawing stays published. A run too short to publish keeps the rest of its
+ * choice, for its owner only (ADR-0159, point 4). "session_ended" when the
+ * token opens no session any more.
  */
 export async function sendWaitingDrawings(
   baseUrl: string,
@@ -173,6 +177,13 @@ export async function sendWaitingDrawings(
         return "session_ended";
       }
       if (photos === "waits") {
+        break;
+      }
+      const entry = await sendEntry(baseUrl, token, outcome.value.id, choice, options);
+      if (entry.kind === "session_ended") {
+        return "session_ended";
+      }
+      if (entry.kind === "waits") {
         break;
       }
     } else if (

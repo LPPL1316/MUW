@@ -7,6 +7,7 @@ import {
 } from "expo-file-system/legacy";
 
 import { apiKey as configuredKey, keyHeaders } from "../api/apiUrl";
+import { nearParams } from "../places/photon";
 import type { PageZone } from "./page";
 import {
   PHONE_HEADER,
@@ -395,7 +396,12 @@ export async function downloadZone(
     // Its own partial file: a place may download while the zones around
     // the phone do.
     const partial = new File(folder, `.${network}${kept ? ".place" : ""}.download`);
-    const query = `lat=${lat}&lon=${lon}${prefetch ? "&prefetch=1" : ""}${
+    // Around the phone, about a kilometre (TASK-363): the zone has kilometres
+    // around the point. Not a town ahead, which says nothing of the phone, nor
+    // a place kept: its zone was prepared around that very point, with no room
+    // to spare, and the user chose it.
+    const point = kept || prefetch ? `lat=${lat}&lon=${lon}` : nearParams([lat, lon]);
+    const query = `${point}${prefetch ? "&prefetch=1" : ""}${
       marginM === undefined ? "" : `&margin_m=${marginM}`
     }`;
     const answer = await download(

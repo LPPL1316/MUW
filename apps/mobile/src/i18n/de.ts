@@ -1497,6 +1497,36 @@ export const DE: Table = {
     "Apple und Google sind keine Sponsoren dieses Wettbewerbs und in keiner Weise daran beteiligt.",
   Winner: "Gewinner",
   "{name} won the MuW contest": "{name} hat den MuW-Wettbewerb gewonnen",
+  // src/contest/ (TASK-343 B: the monthly challenge, not Play's «Challenges»)
+  "Monthly challenge": "Herausforderung des Monats",
+  "See the challenge": "Zur Herausforderung",
+  "Publish a run and enter it to take part.":
+    "Veröffentliche einen Lauf und melde ihn an, um mitzumachen.",
+  "Enter “{theme}”": "Bei „{theme}“ anmelden",
+  "From {start} to {end}": "{start} bis {end}",
+  Ended: "Beendet",
+  "{count} person taking part": "{count} Person macht mit",
+  "{count} people taking part": "{count} Personen machen mit",
+  "You entered {count} drawing": "Du hast {count} Zeichnung angemeldet",
+  "You entered {count} drawings": "Du hast {count} Zeichnungen angemeldet",
+  "Prize: the Winner badge on your profile and your post at the top of the Feed for a week.":
+    "Preis: das Gewinner-Abzeichen in deinem Profil und dein Beitrag eine Woche lang oben im Feed.",
+  Top: "Top",
+  New: "Neu",
+  "Past challenges": "Frühere Herausforderungen des Monats",
+  "No past challenges yet.": "Noch keine früheren Herausforderungen des Monats.",
+  "No drawings entered yet.": "Noch keine Zeichnung angemeldet.",
+  "This challenge takes no entries now.":
+    "Diese Herausforderung nimmt gerade keine Anmeldungen an.",
+  "This run cannot take part: it must be for everyone, recorded with MuW and published during the challenge.":
+    "Dieser Lauf kann nicht mitmachen: Er muss für alle sichtbar, mit MuW aufgezeichnet und während der Herausforderung veröffentlicht sein.",
+  "The theme is “{theme}”.": "Das Thema ist „{theme}“.",
+  "Anyone with a MuW account can take part, for free: publish a run recorded with MuW for everyone during the challenge, and enter it. You can enter as many drawings as you like, and withdraw them until the challenge ends.":
+    "Mitmachen kann kostenlos jede Person mit einem MuW-Konto: Veröffentliche während der Herausforderung einen mit MuW aufgezeichneten Lauf für alle und melde ihn an. Du kannst beliebig viele Zeichnungen anmelden und sie zurückziehen, bis die Herausforderung endet.",
+  "At the end, the entered post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "Am Ende gewinnt unter den angemeldeten Beiträgen der mit den meisten Reaktionen anderer Mitglieder. Es zählt eine Reaktion pro Mitglied, die eigene zählt nicht. Bei Gleichstand gewinnt der Beitrag mit mehr MuW-Herzen, dann der zuerst veröffentlichte.",
+  "MuW may leave out a post that does not fit the theme or breaks the community rules.":
+    "MuW kann einen Beitrag ausschließen, der nicht zum Thema passt oder gegen die Community-Regeln verstößt.",
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "IN DEINER NÄHE",
   "SHAPES TO TRY": "FORMEN ZUM AUSPROBIEREN",
@@ -1657,4 +1687,34 @@ export const DE: Table = {
   "The people you follow have not published anything yet.":
     "Die Personen, denen du folgst, haben noch nichts veröffentlicht.",
   "Couldn't load the Feed.": "Der Feed konnte nicht geladen werden.",
+
+  // src/route/runTime.ts (TASK-361: the time under the distance of «Draw»)
+  "≈ {time} at {pace}": "≈ {time} bei {pace}",
+  "≈ {time} at {pace} (a usual pace)": "≈ {time} bei {pace} (ein übliches Tempo)",
+
+  // src/route/ShapePreview.tsx (TASK-361: the shape to scale)
+  "{name}, about {size} on the map": "{name}, etwa {size} auf der Karte",
+
+  // src/route/ShapeGrid.tsx (TASK-361: the shapes in two rows)
+  "Show fewer shapes": "Weniger Formen zeigen",
+  "See all {count} shapes": "Alle {count} Formen ansehen",
+  "Show fewer": "Weniger",
+  "See all": "Alle ansehen",
+
+  // src/route/DistanceDial.tsx (TASK-361: the distance by half a km)
+  "Tap to type the distance": "Tippen, um die Distanz einzugeben",
+
+  // src/screens/RunNoRouteButton.tsx (TASK-361)
+  "Records the run without drawing a route first":
+    "Zeichnet den Lauf auf, ohne vorher eine Route zu zeichnen",
+
+  // src/route/drawLabel.ts (TASK-361: the words of «Draw route»)
+  "Draw a {distance} {name}": "Zeichnen: {name}, {distance}",
+  "Draw “{word}”, {distance}": "„{word}“ zeichnen, {distance}",
+  "Draw the picture, {distance}": "Das Bild zeichnen, {distance}",
+
+  // src/route/OtherShapeField.tsx (TASK-361: «Type another shape»)
+  "Type another shape": "Andere Form eingeben",
+  "Write a shape that is not among the tiles":
+    "Eine Form schreiben, die nicht unter den Kacheln ist",
 };

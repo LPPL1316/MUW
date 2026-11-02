@@ -2,9 +2,11 @@ import type { LatLon } from "@shaperoute/shared-types";
 
 import {
   isRecommendedList,
+  measuredFrom,
   NEAR_RADIUS_M,
   type RecommendedRoute,
 } from "../explore/recommendedRoutes";
+import { nearParams } from "../places/photon";
 import { authHeaders } from "./accounts";
 import { apiKey, keyHeaders } from "./apiUrl";
 
@@ -23,12 +25,10 @@ export const ROW_SIZE = 10;
 
 export function recommendedRowUrl(baseUrl: string, near: LatLon): string {
   const query = new URLSearchParams({
-    lat: String(near[0]),
-    lon: String(near[1]),
     radius_m: String(NEAR_RADIUS_M),
     limit: String(ROW_SIZE),
   });
-  return `${baseUrl}/recommended?${query.toString()}`;
+  return `${baseUrl}/recommended?${nearParams(near)}&${query.toString()}`;
 }
 
 /**
@@ -51,7 +51,9 @@ export async function fetchRecommendedRow(
       return [];
     }
     const body: unknown = await response.json();
-    return isRecommendedList(body) ? body.routes.slice(0, ROW_SIZE) : [];
+    return isRecommendedList(body)
+      ? measuredFrom(near, body.routes.slice(0, ROW_SIZE))
+      : [];
   } catch {
     return [];
   }

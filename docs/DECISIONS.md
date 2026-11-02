@@ -19722,6 +19722,24 @@ tema (il tema non varrebbe niente); un voto separato dalle reazioni (due
 gesti per la stessa cosa); un cron sul server per gli ultimi 3 giorni
 (l'API ha già i suoi orologi, nessun pezzo nuovo da far partire).
 
+**Aggiunta, parte B** (2026-10-30). Decise dall'agente su delega dell'utente,
+descritte in `CONCORSI.md` §15: la pagina della sfida sta sopra l'app, montata
+da `ProfileLayer` accanto a «Find friends» (`contestDoor`, nessun cambio in
+`App.tsx`), perché «Feed» viene smontato quando la mappa prende lo schermo;
+l'iscrizione è un campo della scelta del disegno (`DrawingChoice.entry`), che
+non va nel corpo del disegno e parte dopo il suo salvataggio; senza rete
+aspetta con la scelta, rifiutata se ne va e il disegno resta pubblicato; una
+sfida si riconosce solo da un `theme` leggibile, altrimenti è un concorso come
+prima. Sul post già pubblicato si iscrive e si ritira dal modulo di «My
+activities»; l'interruttore sul post aperto (`EnterOnPost`) è pronto e si monta
+in `DrawingCard` dopo TASK-339 B, su parola del Coordinatore. `FeedPost` non
+cambia: il suo «…» c'è solo sui post degli altri. Dopo la prova nel simulatore
+(2026-10-30), sempre su delega: l'interruttore è quello dell'app e non il nativo
+(il tocco spegneva solo con un trascinamento), `ProfileLayer` chiede la sfida
+all'accesso (il modulo deve conoscerla senza «Feed»: una richiesta in più per
+ogni apertura con un account, un 404 finché il server non ha un concorso), e
+dopo un'iscrizione la sfida si richiede.
+
 **Conseguenze**: una migrazione; tre tipi di push e i loro testi; il
 regolamento ufficiale cambia e va riapprovato. «Challenge» è già una
 parola del gioco «Play» (TASK-296): i testi dell'app devono tenerle
@@ -19924,6 +19942,42 @@ server si aggiorna col sì dell'utente prima dell'OTA; l'app resta OTA
 modalità ancorata. La somiglianza di un disegno ancorato sarà per
 costruzione più bassa di quella della ricerca: il numero va spiegato, non
 dato come voto.
+
+**Aggiunta — parte A** (2026-10-30, deciso dall'agente su delega
+dell'utente; la condizione sull'impronta è del Coordinatore):
+
+1. **Nessun file del motore di prima cambia.** La modalità ancorata sta in
+   due moduli nuovi, `stroke_match.py` e `anchored.py`, esclusi
+   dall'impronta del motore dell'API (`route_store.ANCHORED_ONLY`, come
+   `SWIM_ONLY`): l'impronta resta `abaea5bb82b3` e gli esempi tenuti sul
+   server restano validi. È lecito perché niente di ancorato viene mai
+   tenuto: `route_store` e `route_archive` lasciano fuori un disegno
+   ancorato come il contorno di una foto. Di conseguenza `placement`,
+   `fit` e `placed_outline` sono campi **dell'API** (`AnchoredRouteRequest`,
+   un `RouteRequest` del motore con il magnete; `ImageRequest`;
+   `RouteResultBody`), non di `models.py`; `plan_anchored` ripete i passi di
+   `plan_shape` dopo il tracciamento, come già `ShapeJob.here` (ADR-0071);
+   la riga di comando è `python -m route_engine.anchored`, non flag di
+   `__main__`. Scartato: i campi in `models.py` e il ramo in `plan_shape`
+   (fatto e tolto: cambiava l'impronta, ore di `draw_examples` sul server).
+2. **Il magnete**: zone e fascia una stessa quota della lunghezza del
+   disegno, dallo **0,5 %** (`fit` 0) al **2 %** (`fit` 1, i valori di
+   oggi), mai sotto **10 m**; default 1. Le ancore di un tratto sono i
+   vertici di Douglas-Peucker entro un quarto della fascia, al più **64**.
+3. **La sonda** è `GET /stroke-matches` → `204` (come `GET /feedback`), e
+   copre anche `placement`, `fit` e `placed_outline`: una rotta nuova dice
+   da sola che il server è nuovo; un `POST` vuoto come sonda avrebbe speso
+   una richiesta del limite al minuto.
+4. **I limiti** di un tratto: 500 punti e 10 km, per ogni attività; oltre,
+   l'app spezza (ADR-0300, «tratto lungo»). `fit` con `free` è un `422`,
+   come `style` con una forma: un campo che non fa nulla è un errore
+   dell'app, non va ignorato.
+5. **Le indicazioni** di un percorso ancorato vengono dai nodi del piano
+   (`AnchoredPlan.nodes`), non da `/route-directions`: «Start» le vuole
+   subito come per ogni percorso.
+6. **Il piazzamento in `free`** lo dà l'API da `plan.search.best.shape`:
+   il motore non cambia, l'app ha il fantasma anche per le forme cercate
+   (TASK-282 assorbito).
 
 ## ADR-0297 — Cercare i disegni dalla lente del Feed: `GET /search/drawings`, le parole senza accenti, la complessità dalla linea
 
@@ -20494,3 +20548,148 @@ lascerebbe la chat ferma).
 **Conseguenze**: nessuna migrazione, nessuna dipendenza, niente di nativo. Il
 numero si vede solo dopo l'aggiornamento del server, col sì dell'utente;
 fino ad allora orari, giorni e scorrimento funzionano con il pallino.
+
+---
+
+## ADR-0307 — «Draw» in tre secondi: un solo giallo, la via della partenza, la forma in scala, mezzo km per passo, la vibrazione solo dove c'è
+
+**Stato**: Accettata · 2026-10-30 · la richiesta è **dell'utente**
+(TASK-361, «Obiettivo»: i sette problemi e i miglioramenti, parola per
+parola); l'ordine dei lavori è **dell'utente** («Dopo la #661»); i punti
+tecnici sono **decisi dall'agente su delega dell'utente**. Numeri dal
+Coordinatore (TASK-361, ADR-0307 confermato, 2026-10-30).
+
+**Contesto**: «Draw» aveva due pulsanti gialli («Run without a route» in
+alto, ADR-0183, e «Draw route» in basso), una fila di forme tagliata a
+destra (ADR-0084), un campo che ripeteva la forma scelta, «Starting from
+your position.» al posto di un posto vero, e la scheda «Play» sotto il
+pulsante fisso.
+
+**Decisione**:
+
+1. **Un solo giallo**: «Run without a route» con contorno
+   (`borderStrong`), 🏃 (🚴 con la bici) e testo in un pulsante
+   (`RunNoRouteButton`). **Supera ADR-0183** per questo pulsante: la scelta
+   dell'utente del 2026-10-30 sostituisce quella di TASK-220.
+2. **La via della partenza** dal geocoder del telefono (`expo-location`
+   `reverseGeocodeAsync`, già nell'app): via e paese, mai il numero
+   civico (il GPS non è così preciso); chiesta di nuovo solo dopo 75 m;
+   senza risposta la riga di prima. Solo col GPS come partenza. Scartati:
+   Photon e Geoapify (scartati già da ADR-0252 per il punto sulla
+   mappa: rete in più, un servizio terzo che vede la posizione; il
+   geocoder del telefono non vuole chiavi). **Conseguenza**:
+   la posizione va ad Apple o Google; una riga nuova nella privacy
+   («Others who receive data»), nell'app e sul sito, approvata dall'utente
+   il 2026-10-30 (TASK-361, «Le risposte dell'utente»).
+3. **La forma in scala** senza SVG: il contorno del catalogo
+   (`catalogueShapes.json`, lo stesso di «Draw on the map») misurato con
+   `lookOf`, la sua lunghezza = la distanza; disegnato coi segmenti di
+   `ImagePreview` su un pezzo di mappa finto; una barra di scala rotonda
+   (50 m–10 km, al più il 40 % del riquadro) e «≈ L × A km».
+4. **Mezzo km per passo** (mezzo miglio con «Miles») con
+   `steppedDistance`: tenuto premuto, dopo 400 ms un passo ogni 150 ms,
+   poi 70, poi 40 (da 1 a 21 km in meno di 3 s); al rilascio nessun passo
+   in più. Il numero resta un campo; per VoiceOver «adjustable».
+5. **Il tempo stimato**: tutti i metri su tutti i secondi delle ultime 10
+   corse a piedi, ognuna di almeno 1 km e fra 2:30 e 15:00 al km (fuori:
+   una bici salvata come corsa, una registrazione dimenticata); senza
+   corse 6:00 al km, e la riga lo dice («a usual pace»).
+6. **La griglia**: quattro per riga, sette forme e «See all» chiusa; la
+   forma scelta, se è fra le altre dieci, prende il settimo posto.
+   Supera ADR-0084 (la fila che scorre) per «Draw».
+7. **La vibrazione**: `expo-haptics` nel `package.json` ma **escluso
+   dall'autolinking** e caricato solo se `ExpoHaptics` c'è
+   (`requireOptionalNativeModule`), come `expo-contacts` (TASK-262 C): in
+   Expo Go vibra, nella 1.0 dello Store no, nella prossima build nativa sì
+   togliendolo dall'esclusione. Impronta iOS `83793e26` misurata
+   invariata. Una scelta: `selectionAsync`; un passo: `impactAsync`
+   leggero.
+8. **Il pulsante in fondo** è ancorato sopra la pagina, e la pagina
+   finisce più in basso della sua altezza misurata (con l'area sicura) +
+   24: l'ultima scheda («Play», «Near you») si vede sempre. Ancorato in una
+   scatola dentro il `KeyboardAvoidingView`, non nel `KeyboardAvoidingView`:
+   `bottom: 0` ignora il padding che fa posto alla tastiera, e il pulsante
+   finirebbe sotto di lei.
+
+9. **Il campo della forma** in «Shape» non c'è più sotto la griglia: sta
+   dietro «Type another shape» (`OtherShapeField`), **scelta dell'utente
+   del 2026-10-30**, perché senza campo una forma fuori catalogo
+   («prancing horse», ADR-0012) non si potrebbe più scrivere. Si apre al
+   tocco, vuoto; o da solo quando le parole scritte non sono il nome della
+   forma scelta, così una parola che l'AI legge non resta nascosta.
+
+**Conseguenza**: testi nuovi nelle cinque lingue (righe aggiunte in fondo
+alle tabelle); solo app, OTA; motore, API e contratti invariati. Il
+collegamento in `RoutePanel` e `App.tsx` (parte B) aspetta la #661.
+
+---
+
+## ADR-0300, precisazione — Modificare i nodi della traccia vera non è in nessun task
+
+**Stato**: Attiva · 2026-10-30 · precisazione del Coordinatore, registrata
+dalla sessione della parte A di TASK-347. ADR-0300 (punto 7) e
+`tasks/TASK-347.md` dicevano che modificare i nodi di una traccia vera (il
+percorso registrato o calcolato) è del TASK-346. Non è così: la #655 di
+TASK-346 non ha nodi, perché l'utente ha scelto «Traccia dov'è» e ha
+scartato «Trascinare il percorso». Quel lavoro **non è in nessun task**; se
+servirà, lo chiede l'utente. TASK-347 modifica solo i tratti disegnati e li
+riaggancia, come ADR-0300 dice. ADR-0300 resta com'è.
+
+---
+
+## ADR-0260, precisazione — Il regolamento legge i margini veri del telefono
+
+**Stato**: Attiva · 2026-10-31 · deciso dall'agente su delega dell'utente
+(TASK-360). `ContestRules` copre tutto lo schermo ma si apre anche dalla scheda
+del Feed, in una pagina del `Pager`, che ha il margine alto a zero. Il `Modal`
+tiene quindi un suo `SafeAreaProvider`, con `initialWindowMetrics`, come
+`Tour.tsx`. Scartato: cambiare `Pager.tsx`, su cui lavora TASK-339, e far
+scegliere il margine a chi apre il regolamento, che lo farebbe sbagliare al
+prossimo che lo apre da un'altra pagina.
+
+---
+
+## ADR-0310 — I percorsi di MuW nel Feed: un tipo a parte, da file, senza account né tempi
+
+**Stato**: Proposta · 2026-10-31 · deciso dall'agente su delega dell'utente per
+la parte tecnica; le scelte di prodotto restano aperte in `tasks/TASK-365.md`.
+Numero dal Coordinatore.
+
+**Contesto**: l'utente vuole nel Feed percorsi-disegno originali di MuW, soprattutto
+in bici, che non sembrino attività di utenti reali. Un post di oggi è un `drawings`
+su un `runs`, con utente, `started_at` e `duration_s` obbligatori, senza stato
+«bozza». Le app già pubblicate leggono `GET /feed` e non devono rompersi.
+
+**Decisione**:
+
+1. **Fuori da `GET /feed`**: un endpoint proprio, `GET /muw-routes`. Un'app già
+   pubblicata non lo chiede e non vede nulla di nuovo; la nuova app, col server
+   di oggi, riceve `404` e mostra il Feed di sempre. `feed.py` non si tocca.
+2. **Da file, come ADR-0097**: `catalog/muw_routes/<id>.json`, letti all'avvio
+   dell'API, nessuna migrazione. **La bozza non è uno stato nel database**: resta
+   fuori dal repository finché l'utente non la approva. Togliere un percorso è
+   togliere un file.
+3. **Le linee vengono dal motore** (`plan_nearby`, `activity: cycling`), mai
+   scritte a mano. Fatte a mano sono solo le sagome di partenza, che non entrano nel
+   catalogo delle forme (ADR-0036).
+4. **Nessun account «MuW»**, salvo scelta dell'utente. Quindi sul post: niente
+   reazioni né commenti (non c'è un `drawings` a cui attaccarli), niente profilo,
+   follow o messaggi. `POST /reports` non si estende: il contenuto è nostro e
+   non di un iscritto, e la correzione è togliere il file.
+5. **Niente che sembri una corsa fatta**: nessuna persona, data di uscita, tempo,
+   passo o calorie, e l'etichetta sempre sulla card. Il dislivello è detto come
+   stima.
+6. **Un componente nuovo**, `feed/MuwPost.tsx`: `FeedScreen` si tocca il minimo,
+   `FeedPost` per niente.
+
+**Scartate**: righe finte in `runs` e `drawings` (vorrebbe dire inventare tempi e
+un utente); un campo `kind` in `GET /feed` (un'app già pubblicata lo mostrerebbe
+come una corsa, e quella risposta è di TASK-362); un utente «MuW» nel database
+(porta con sé follow, messaggi e segnalazioni che nessuno gestisce).
+
+**Conseguenze**: nessuna migrazione e nessuna dipendenza. Un percorso nuovo vuole
+una PR e un riavvio dell'API. Il punteggio del motore non basta a dire se una
+forma si legge, quindi ogni percorso passa dall'occhio. `sampleFeed.json` e gli
+esempi restano fuori: la scelta è aperta col Coordinatore (TASK-362, scelta 4).
+
+---

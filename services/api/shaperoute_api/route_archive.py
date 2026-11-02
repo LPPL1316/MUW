@@ -563,9 +563,14 @@ class _Loaded:
 
 
 def _kept(request: object) -> bool:
-    """A shape or a word, not moved by hand: what the archive keeps. An
-    image's outline is the user's own (ADR-0136)."""
-    return isinstance(request, RouteRequest) and request.near is None
+    """A shape or a word, not moved by hand nor anchored where the user drew
+    it (TASK-347): what the archive keeps. An image's outline is the user's
+    own (ADR-0136)."""
+    return (
+        isinstance(request, RouteRequest)
+        and request.near is None
+        and getattr(request, "placement", "free") == "free"
+    )
 
 
 def _answer(rows: Sequence[DictRow]) -> RouteResult:

@@ -76,7 +76,7 @@ const ACCOUNT: Answers = {
   "GET /me/favorites": () => Response.json({ favorites: [] }),
   "GET /me/activities": () => Response.json({ activities: [], next: null, total: 0 }),
 };
-// Asked from where «Draw» starts: the position of the phone.
+// The «All» tab: never with the phone's position (TASK-362).
 const FEED = "/feed?filter=all";
 
 async function onFeed() {

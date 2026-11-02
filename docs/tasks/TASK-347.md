@@ -2,8 +2,9 @@
 
 **Stato**: Proposta approvata · 2026-10-30 · le cinque scelte di prodotto
 fatte dall'utente lo stesso giorno (§«Scelte di prodotto»); i documenti
-in questo branch; le parti partono una alla volta, ognuna nella sua
-sessione, dalla A
+in `main`; le parti partono una alla volta, ognuna nella sua sessione:
+**parte A fatta** (branch `feat/TASK-347-a-engine-anchored`, §«Esito»),
+la B è la prossima
 **Fase**: 5 · **Branch**: `docs/TASK-347-pro-freehand` (documenti); le
 parti `feat/TASK-347-a-engine-anchored` e così via
 **Dipende da**: TASK-331 (a mano solo sulla mappa, in `main`), TASK-214
@@ -283,19 +284,43 @@ docs/STATUS.md (righe nuove)
 docs/tasks/TASK-347.md
 ```
 
-Le parti elencheranno i propri: A `services/route-engine/route_engine/`
-(`optimizer.py`, `network.py`, un modulo nuovo `stroke_match.py`,
-`__main__.py`, test), `services/api/` (route e modelli),
-`packages/shared-types`; B `apps/mobile/src/engine/`; C–F
-`apps/mobile/src/mapdraw/`, `apps/mobile/src/map/mapPage.ts`,
-`messages.ts`, `MapView.tsx`, `App.tsx` (poche righe), `i18n/`, `UI.md`.
+Le parti elencano i propri. **Parte A** (fatta: nessun file del motore di
+prima toccato, condizione del Coordinatore sull'impronta):
+
+```
+services/route-engine/route_engine/anchored.py          (nuovo)
+services/route-engine/route_engine/stroke_match.py      (nuovo)
+services/route-engine/tests/test_anchored.py            (nuovo)
+services/route-engine/tests/test_stroke_match.py        (nuovo)
+services/route-engine/tests/test_contract_anchored.py   (nuovo)
+services/api/shaperoute_api/stroke_matches.py           (nuovo)
+services/api/shaperoute_api/stroke_matches_api.py       (nuovo)
+services/api/shaperoute_api/schemas.py, images.py, app.py, jobs.py,
+    on_phone.py, route_store.py, route_archive.py
+services/api/tests/test_stroke_matches.py, test_anchored_requests.py,
+    test_anchored_fingerprint.py                        (nuovi)
+services/api/tests/test_contract.py, test_routes.py, test_request_log.py,
+    test_better_distance.py, test_rotation.py
+packages/shared-types/src/index.ts, test/contract.test.ts,
+    test/strokeMatch.test.ts (nuovo), fixtures/*-anchored.json e
+    stroke-match*.json (nuove)
+apps/mobile/assets/engine/engine.zip                    (rifatto)
+docs/ROUTE_ENGINE.md, docs/API.md, docs/DECISIONS.md, docs/STATUS.md,
+    docs/INDEX.md, docs/tasks/TASK-347.md
+```
+
+Le altre: B `apps/mobile/src/engine/`; C–F `apps/mobile/src/mapdraw/`,
+`apps/mobile/src/map/mapPage.ts`, `messages.ts`, `MapView.tsx`, `App.tsx`
+(poche righe), `i18n/`, `UI.md`.
 
 ## Fuori scope
 
 - **Modificare i nodi della traccia vera** (il percorso registrato o
-  calcolato): è del TASK-346 («Edit the drawing» sulla traccia vera,
-  sessione local_e2f58775). Qui si modificano i tratti **disegnati** e si
-  riaggancia; non si tocca una traccia corsa.
+  calcolato): non è in nessun task. TASK-346 (#655) non ha nodi: l'utente ha
+  scelto «Traccia dov'è» e scartato «Trascinare il percorso» (precisazione
+  del Coordinatore, 2026-10-30; in `DECISIONS.md` in fondo). Qui si
+  modificano i tratti **disegnati** e si riaggancia; non si tocca una
+  traccia corsa.
 - Un servizio esterno di map matching, per le ragioni sopra.
 - Dipendenze native (Skia, gesture-handler, haptics, svg): alla build
   successiva, se mai.
@@ -305,4 +330,58 @@ Le parti elencheranno i propri: A `services/route-engine/route_engine/`
 
 ## Esito
 
-*(a fine task)*
+### Parte A — motore ancorato e API (2026-10-30)
+
+Branch `feat/TASK-347-a-engine-anchored`. Quel che c'è e come, in
+`ROUTE_ENGINE.md` §4 «Il disegno ancorato e i tratti» e `API.md` «Stroke
+matches»; le scelte in `DECISIONS.md`, ADR-0300 «Aggiunta — parte A».
+
+- **Il motore non cambia**: la modalità ancorata sta in due moduli nuovi
+  (`stroke_match.py`, `anchored.py`), esclusi dall'impronta del motore
+  dell'API (`route_store.ANCHORED_ONLY`); l'impronta resta `abaea5bb82b3`
+  su `main` e sul branch (`services/api/tests/test_anchored_fingerprint.py`
+  lo tiene così), e gli esempi tenuti sul server restano validi. Per
+  questo `placement`, `fit` e `placed_outline` sono campi dell'API
+  (`AnchoredRouteRequest`, `ImageRequest`, `RouteResultBody`) e la riga di
+  comando è `python -m route_engine.anchored`.
+- **`engine.zip`** rifatto (i due moduli e `stroke_matches.py`, senza
+  FastAPI, per `on_phone.match_json`); impronta iOS su copia pulita
+  (`npm ci`, `APP_VARIANT=production`): `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3`,
+  invariata.
+- **Test**: motore 1735 verdi e uno rosso che è rosso anche su `main` nel
+  venv locale (`test_first_placement[levico heart 1000]`, l'impronta della
+  ricerca di prima; verde in CI, non c'entra col task); API: i file
+  toccati e quelli nuovi verdi (la suite intera in CI); `shared-types`
+  tipi e test verdi; ruff, black, tsc, Prettier verdi.
+
+**Tempi.** Tratti disegnati lungo strade vere di Trento (un punto ogni
+60 m, rumore fino a 30 m: `out/TASK-347/` nelle note della sessione), zona
+di Trento in cache, un tratto per richiesta come fa l'app, mediane di 3.
+«A freddo» è il primo aggancio su un ritaglio nuovo (paga i campioni del
+grafo), «a caldo» il secondo sullo stesso ritaglio.
+
+| Tratto | punti | ritaglio (nodi) | server a freddo, fit 1 / 0 | server a caldo | Pyodide sul Mac a freddo, fit 1 / 0 | Pyodide a caldo |
+|---|---|---|---|---|---|---|
+| 1,3 km | 24 | 2121 | 0,36 / 0,30 s | 0,03 s | 0,20 / 0,47 s | 0,02 s |
+| 3,7 km | 62 | 3620 | 0,57 / 0,44 s | 0,06 s | 0,56 / 0,56 s | 0,07 s |
+| 4,0 km | 67 | 5338 | 0,66 / 0,30 s | 0,07 s | 1,15 / 1,12 s | 0,14 s |
+
+Il ritaglio della zona costa 0,08 s sul server e 0,03–0,24 s in Pyodide; la
+prima lettura della zona del telefono (2,7 MB, gzip) 0,9 s a Mac libero,
+5,3 s in questa misura. **Queste misure sono con il Mac saturo** (load
+average 40–50: altre sessioni con `npm ci`, un simulatore e una VM); a Mac
+libero, prima, il server a freddo faceva **0,06 / 0,18 / 0,29 s** per gli
+stessi tre tratti e il ritaglio 0,02–0,07 s. Pyodide sul Mac sta in ogni
+caso sotto la soglia di **1,5 s** per tratti fino a 4 km; il telefono è
+più lento del Mac di un fattore che per questo lavoro non è misurato
+(TASK-335 misurava la ricerca intera, 7,7 s per un cuore da 5 km). Per la
+parte B: **prima il telefono** per i tratti fino a circa 3 km, con la zona
+già in memoria dopo il primo; se un tratto supera 1,5 s sul telefono, i
+successivi vanno al server; da misurare sul telefono col banco di TASK-335.
+
+Per il disegno intero (`plan_anchored`): un cuore da 5 km ancorato a
+Trento (46.0702, 11.1265), magnete 0,5, dalla CLI: 7,6 km sulle strade
+(+53 %, detto in `warnings`), somiglianza 0,91, 619 punti, sotto il secondo.
+
+**Non in questa parte**: il server (si aggiorna col sì dell'utente, insieme
+alla parte C), le parti B–G.

@@ -29,6 +29,9 @@ type Opens = {
   /** Shows the conversation with `person`: a message, a message request
    * (TASK-319). Without it, their profile. */
   openConversation?: (person: Person) => void;
+  /** Shows the page of the monthly challenge `id` (TASK-343 part B): a new
+   * one, its last days, its results. */
+  openContest?: (id: string) => void;
 };
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
@@ -110,6 +113,8 @@ export function usePushNotifications(
         (openConversation ?? openProfile)(target.person);
       } else if (target.kind === "challenge") {
         latest.current.opens.openChallenge(target.id);
+      } else if (target.kind === "contest") {
+        latest.current.opens.openContest?.(target.id);
       } else {
         latest.current.opens.openPlay();
       }

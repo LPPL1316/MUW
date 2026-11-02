@@ -17,6 +17,24 @@ test("a shape of the game unlocked opens «Play», whoever the data names (TASK-
   expect(tapTarget({ kind: "shape_unlocked" })).toEqual({ kind: "play" });
 });
 
+test("a monthly challenge's three notifications open its page (TASK-343 part B)", () => {
+  const contest = "c1a2b3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d";
+  for (const kind of ["contest_open", "contest_last_days", "contest_results"]) {
+    expect(tapTarget({ kind, contest_id: contest })).toEqual({
+      kind: "contest",
+      id: contest,
+    });
+    // Without a good id, nothing: not «Play», whose challenges are another thing.
+    expect(tapTarget({ kind })).toBeNull();
+    expect(tapTarget({ kind, contest_id: "nope" })).toBeNull();
+  }
+  // The winner's still opens the post.
+  const drawing = "6d0e5c4a-2b1f-4a3e-9c8d-7e6f5a4b3c2d";
+  expect(
+    tapTarget({ kind: "contest_won", contest_id: contest, drawing_id: drawing }),
+  ).toEqual({ kind: "drawing", id: drawing });
+});
+
 test("a challenge's notification opens the challenge it names (TASK-296 part D)", () => {
   const id = "6d0e5c4a-2b1f-4a3e-9c8d-7e6f5a4b3c2d";
   for (const kind of ["piece_done", "challenge_done", "challenge_ending"]) {
