@@ -2403,7 +2403,18 @@ esempio in `fixtures/feed.json`; il codice in `feed.py`.
 | Endpoint | Cosa | Risposta |
 |---|---|---|
 | `GET /feed?limit=20&cursor=…&lat=…&lon=…` | una pagina dei disegni che chi chiede può vedere | `200` `FeedPage` |
+| `GET /feed?filter=all&limit=20&cursor=…` | la scheda «All» (TASK-362, ADR-0308) | `200` `FeedPage` |
+| `GET /feed?filter=following&limit=20&cursor=…` | la scheda «Following» | `200` `FollowingFeedPage` |
 
+- **Le schede** (TASK-362, ADR-0308): con `filter` l'ordine è solo
+  `published_at`, dal più recente, senza gruppi; `lat` e `lon` non contano.
+  `all` sono i disegni per `everyone`, anche i propri. `following` sono i
+  propri e quelli di chi si segue con la richiesta accettata, `everyone` e
+  `followers`; il corpo ha in più `follows_anyone`, vero se chi chiede segue
+  almeno una persona (`fixtures/feed-following.json`). Blocchi e disegni
+  nascosti restano fuori come sempre. Un altro valore: `422`. **Senza `filter`
+  tutto resta come sotto**, per le app già installate: per loro valgono i tre
+  gruppi e i vicini.
 - **L'ordine** (scelta dell'utente del 2026-10-07: «ok va bene questo
   semplice»): tre gruppi, uno dopo l'altro: **i propri**, poi quelli di
   **chi si segue** con la richiesta accettata («Follow», sopra), poi

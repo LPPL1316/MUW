@@ -1,6 +1,6 @@
 # TASK-362 — Le schede del Feed: «Tutti» e «Seguiti»
 
-**Stato**: Todo — documenti ora, codice col via del Coordinatore e le scelte chiuse
+**Stato**: In corso — documenti in main (#681), codice su `feat/TASK-362-feed-tabs`
 **Fase**: 4 · **Branch**: `docs/TASK-362-feed-tabs` (documenti),
 `feat/TASK-362-feed-tabs` (codice) · **ADR**: ADR-0308 · numeri dal
 Coordinatore (2026-10-30)
@@ -164,7 +164,9 @@ services/api/tests/test_feed.py
 services/api/tests/test_feed_tabs.py                  (nuovo)
 packages/shared-types/src/index.ts
 packages/shared-types/fixtures/feed*.json
-apps/mobile/App.tsx                                   (solo se `near` va tolto)
+apps/mobile/App.tsx
+apps/mobile/__tests__/AppFeedDrawing.test.tsx, AppDrawingStart.test.tsx,
+AppEditDrawing.test.tsx, AppDrawAgain.test.tsx        (la query del Feed)
 apps/mobile/src/api/feed.ts
 apps/mobile/src/feed/useFeed.ts, useFeed.test.tsx
 apps/mobile/src/feed/FeedTabs.tsx, FeedTabs.test.tsx  (nuovi)

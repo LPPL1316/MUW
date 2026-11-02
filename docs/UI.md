@@ -587,13 +587,20 @@ disegni si rileggono, come quando «Profile» si apriva.
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
 - **«Feed»** è la pagina dei disegni che gli iscritti pubblicano
-  (TASK-118, ADR-0227; l'ordine è scelta dell'utente del 2026-10-07): con
-  un account, appena la pagina è sullo schermo, legge dall'API i disegni
-  che l'account può vedere, **i propri** prima, poi quelli **di chi
-  segue**, poi **i vicini** (entro 50 km da dove parte «Draw»; tutti,
-  senza posizione), dal più recente in ogni gruppo; tirando in giù si
-  rilegge dall'alto, arrivati in fondo si caricano gli altri, venti alla
-  volta. La scheda è quella degli esempi: nome di chi ha corso e luogo
+  (TASK-118, ADR-0227). Con un account ha **due schede** in alto, ferme mentre
+  la lista scorre, con la lente accanto (TASK-362, ADR-0308): **«All»**, i
+  disegni per tutti, e **«Following»**, i propri e quelli di chi si segue; in
+  entrambe dal più recente, senza gruppi e senza posizione. Ogni scheda ha la
+  sua lista, la sua posizione e le sue pagine: cambiare scheda non rilegge, e
+  l'ultima scelta si riapre al prossimo avvio (un file sul telefono, mai al
+  server). Tirando in giù si rilegge la scheda aperta, arrivati in fondo si
+  caricano altri venti disegni. In «Following»: chi non segue nessuno legge
+  «Follow people to see their drawings here.» e il pulsante «Find people to
+  follow», che apre «Find friends», sopra i propri disegni se ne ha; chi segue
+  qualcuno senza disegni ha il suo messaggio; gli esempi qui non compaiono mai.
+  Se una lettura non arriva, «Couldn't load the Feed.» con «Try again», al posto
+  degli esempi. Senza account non ci sono schede: solo «All» con gli esempi
+  (ADR-0127), che con un account restano solo a «All» vuoto. La scheda è quella degli esempi: nome di chi ha corso e luogo
   (senza luogo, solo il nome), la linea gialla sulla mappa, il titolo o,
   senza titolo, il giorno della corsa, e «Star · 4.0 km · 19 min»; una
   parola o il titolo del percorso al posto della forma, niente per una
