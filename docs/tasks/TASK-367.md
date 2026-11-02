@@ -77,8 +77,9 @@ Una alla volta, con le sue parole.
    in Explore vengono con la parte B.
    — *Risposta:* «Sì, approvo».
 5. **Le statistiche del Profilo.** Il brief chiede corse, km totali e disegni;
-   oggi sono distanza, dislivello e like (ADR-0284). **Aperta**: si chiede
-   all'utente prima della parte A.
+   oggi sono distanza, dislivello e like (ADR-0284). Proposta: restano come
+   oggi; corse e disegni vorrebbero un cambio all'API e testi nuovi.
+   — *Risposta:* «Sì, restano».
 
 ## Cosa fare
 
@@ -90,7 +91,9 @@ viene dopo.
 
 1. `assets/ui/tabs/`: house, pencil, send, search, settings da Lucide, in PNG
    bianche @1x @2x @3x, contorno per le inattive e pieno o tratto più spesso per
-   l'attiva, con `LICENSE-lucide.txt`. Il colore viene da `tintColor` e dai token.
+   l'attiva. Lucide è sotto licenza ISC: il suo testo sta accanto alle PNG, in
+   `assets/ui/tabs/LICENSE-lucide.txt`. Il colore viene da `tintColor` e dai
+   token.
 2. `tabs/TabBar.tsx` (nuovo): cinque `Tap`, `accessibilityRole="tab"`, sopra
    l'home indicator (`insets.bottom`); sfondo `surface` semitrasparente e una
    `hairline` sopra. Il cerchio del profilo con la foto, un bordo `text` quando

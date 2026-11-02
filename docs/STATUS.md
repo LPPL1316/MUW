@@ -165,7 +165,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
   Scelte dell'utente: l'immagine («Sì, così»), la campanella con una lista vera
   in una parte C («Aspetta la lista vera»), icone PNG da Lucide, testi della
-  parte A («Sì, approvo»). Aperta: le statistiche del Profilo. Parte A (solo
+  parte A («Sì, approvo»), le statistiche del Profilo come oggi («Sì,
+  restano»). Parte A (solo
   app, `App.tsx`) col via del Coordinatore dopo TASK-355 A e 362; B dopo 344 B;
   C con server e migrazione, col sì dell'utente. `tasks/TASK-367.md`.
 
