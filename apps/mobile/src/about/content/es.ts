@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 de octubre de 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "31 de octubre de 2026";
+const PRIVACY_UPDATED = "1 de noviembre de 2026";
 
 const help: AboutDocument = {
   title: "Cómo funciona MuW",
@@ -424,6 +424,7 @@ const privacy: AboutDocument = {
             "Hetzner aloja nuestro servidor y sus copias de seguridad, en Alemania.",
             "Geoapify recibe las búsquedas de lugares, de pueblos cercanos y de los lugares de una ruta temática, con la posición redondeada a cerca de 1 km, y, para nombrar el lugar de una carrera guardada, su inicio redondeado igual: nunca tu puerta, la carrera ni quién eres. Si nuestro servidor no responde, la búsqueda de un lugar va entonces a Photon (komoot).",
             "OpenFreeMap sirve el mapa: como cualquier servicio de mapas, ve qué zona miras.",
+            "Apple en el iPhone, o Google en Android, a través del servicio de direcciones del teléfono, recibe la posición desde la que empieza «Dibuja», para escribir el nombre de la calle. MuW no le envía nada más y no guarda el nombre.",
             "Wikimedia da a nuestro servidor las fotos de los pueblos: ve qué pueblo, no quién pregunta.",
             "Con el mapa «Satélite» Esri da las imágenes, y con el mapa «3D» Amazon Web Services da las alturas: como cualquier servicio de mapas, ven qué zona miras.",
             "Nuestro servidor pide al servicio Overpass de datos de OpenStreetMap el mapa de una zona que aún no tiene: ve qué zona, no quién la pidió.",

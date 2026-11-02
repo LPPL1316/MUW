@@ -254,6 +254,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte B in `main` dal 2026-10-30** con la #677 (`4faeceb2`, 23:16 CET,
   mergiata al verde: tutte le 557 suite dell'app verdi anche nella copia
   pulita). Poi C.
+- **TASK-361 — «Draw» in tre secondi** (ADR-0307; richiesta dell'utente
+  del 2026-10-30; numeri dal Coordinatore). Un solo giallo («Run without a route» con contorno e 🏃),
+  la via della partenza, la griglia a due righe, la forma in scala, mezzo
+  km per passo col tempo stimato, il testo del pulsante, la vibrazione
+  solo dove c'è il nativo (`expo-haptics` escluso dall'autolinking,
+  impronta iOS `83793e26` invariata). **Parte A in PR, #675**, bozza
+  (branch `feat/TASK-356-draw-redesign`, nome rimasto dal numero di
+  prima): i pezzi in file nuovi e `ChooseScreen`. **Parte B** (`RoutePanel`,
+  `App.tsx`) dopo il merge della #661 (TASK-340) e col via del
+  Coordinatore. Prende il posto della parte E
+  di TASK-339. La riga di privacy sul geocoder del telefono e i testi
+  nuovi approvati dall'utente il 2026-10-30 («sì 1 e sì 2»), nell'app e
+  sul sito. `tasks/TASK-361.md`.
 - **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
   la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
   dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;

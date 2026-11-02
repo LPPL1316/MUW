@@ -20551,6 +20551,79 @@ fino ad allora orari, giorni e scorrimento funzionano con il pallino.
 
 ---
 
+## ADR-0307 — «Draw» in tre secondi: un solo giallo, la via della partenza, la forma in scala, mezzo km per passo, la vibrazione solo dove c'è
+
+**Stato**: Accettata · 2026-10-30 · la richiesta è **dell'utente**
+(TASK-361, «Obiettivo»: i sette problemi e i miglioramenti, parola per
+parola); l'ordine dei lavori è **dell'utente** («Dopo la #661»); i punti
+tecnici sono **decisi dall'agente su delega dell'utente**. Numeri dal
+Coordinatore (TASK-361, ADR-0307 confermato, 2026-10-30).
+
+**Contesto**: «Draw» aveva due pulsanti gialli («Run without a route» in
+alto, ADR-0183, e «Draw route» in basso), una fila di forme tagliata a
+destra (ADR-0084), un campo che ripeteva la forma scelta, «Starting from
+your position.» al posto di un posto vero, e la scheda «Play» sotto il
+pulsante fisso.
+
+**Decisione**:
+
+1. **Un solo giallo**: «Run without a route» con contorno
+   (`borderStrong`), 🏃 (🚴 con la bici) e testo in un pulsante
+   (`RunNoRouteButton`). **Supera ADR-0183** per questo pulsante: la scelta
+   dell'utente del 2026-10-30 sostituisce quella di TASK-220.
+2. **La via della partenza** dal geocoder del telefono (`expo-location`
+   `reverseGeocodeAsync`, già nell'app): via e paese, mai il numero
+   civico (il GPS non è così preciso); chiesta di nuovo solo dopo 75 m;
+   senza risposta la riga di prima. Solo col GPS come partenza. Scartati:
+   Photon e Geoapify (scartati già da ADR-0252 per il punto sulla
+   mappa: rete in più, un servizio terzo che vede la posizione; il
+   geocoder del telefono non vuole chiavi). **Conseguenza**:
+   la posizione va ad Apple o Google; una riga nuova nella privacy
+   («Others who receive data»), nell'app e sul sito, approvata dall'utente
+   il 2026-10-30 (TASK-361, «Le risposte dell'utente»).
+3. **La forma in scala** senza SVG: il contorno del catalogo
+   (`catalogueShapes.json`, lo stesso di «Draw on the map») misurato con
+   `lookOf`, la sua lunghezza = la distanza; disegnato coi segmenti di
+   `ImagePreview` su un pezzo di mappa finto; una barra di scala rotonda
+   (50 m–10 km, al più il 40 % del riquadro) e «≈ L × A km».
+4. **Mezzo km per passo** (mezzo miglio con «Miles») con
+   `steppedDistance`: tenuto premuto, dopo 400 ms un passo ogni 150 ms,
+   poi 70, poi 40 (da 1 a 21 km in meno di 3 s); al rilascio nessun passo
+   in più. Il numero resta un campo; per VoiceOver «adjustable».
+5. **Il tempo stimato**: tutti i metri su tutti i secondi delle ultime 10
+   corse a piedi, ognuna di almeno 1 km e fra 2:30 e 15:00 al km (fuori:
+   una bici salvata come corsa, una registrazione dimenticata); senza
+   corse 6:00 al km, e la riga lo dice («a usual pace»).
+6. **La griglia**: quattro per riga, sette forme e «See all» chiusa; la
+   forma scelta, se è fra le altre dieci, prende il settimo posto.
+   Supera ADR-0084 (la fila che scorre) per «Draw».
+7. **La vibrazione**: `expo-haptics` nel `package.json` ma **escluso
+   dall'autolinking** e caricato solo se `ExpoHaptics` c'è
+   (`requireOptionalNativeModule`), come `expo-contacts` (TASK-262 C): in
+   Expo Go vibra, nella 1.0 dello Store no, nella prossima build nativa sì
+   togliendolo dall'esclusione. Impronta iOS `83793e26` misurata
+   invariata. Una scelta: `selectionAsync`; un passo: `impactAsync`
+   leggero.
+8. **Il pulsante in fondo** è ancorato sopra la pagina, e la pagina
+   finisce più in basso della sua altezza misurata (con l'area sicura) +
+   24: l'ultima scheda («Play», «Near you») si vede sempre. Ancorato in una
+   scatola dentro il `KeyboardAvoidingView`, non nel `KeyboardAvoidingView`:
+   `bottom: 0` ignora il padding che fa posto alla tastiera, e il pulsante
+   finirebbe sotto di lei.
+
+9. **Il campo della forma** in «Shape» non c'è più sotto la griglia: sta
+   dietro «Type another shape» (`OtherShapeField`), **scelta dell'utente
+   del 2026-10-30**, perché senza campo una forma fuori catalogo
+   («prancing horse», ADR-0012) non si potrebbe più scrivere. Si apre al
+   tocco, vuoto; o da solo quando le parole scritte non sono il nome della
+   forma scelta, così una parola che l'AI legge non resta nascosta.
+
+**Conseguenza**: testi nuovi nelle cinque lingue (righe aggiunte in fondo
+alle tabelle); solo app, OTA; motore, API e contratti invariati. Il
+collegamento in `RoutePanel` e `App.tsx` (parte B) aspetta la #661.
+
+---
+
 ## ADR-0300, precisazione — Modificare i nodi della traccia vera non è in nessun task
 
 **Stato**: Attiva · 2026-10-30 · precisazione del Coordinatore, registrata

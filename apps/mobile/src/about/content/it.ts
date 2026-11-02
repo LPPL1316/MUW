@@ -9,7 +9,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 ottobre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "31 ottobre 2026";
+const PRIVACY_UPDATED = "1° novembre 2026";
 
 const help: AboutDocument = {
   title: "Come funziona MuW",
@@ -422,6 +422,7 @@ const privacy: AboutDocument = {
             "Hetzner ospita il nostro server e le sue copie di sicurezza, in Germania.",
             "Geoapify riceve le ricerche di luoghi, dei paesi vicini e dei posti di un percorso a tema, con la posizione arrotondata a circa 1 km, e, per dare il nome al luogo di una corsa salvata, la sua partenza arrotondata allo stesso modo: mai la tua porta, la corsa o chi sei. Se il nostro server non risponde, la ricerca di un luogo va invece a Photon (komoot).",
             "OpenFreeMap serve la mappa: come ogni servizio di mappe, vede quale zona guardi.",
+            "Apple su iPhone, o Google su Android, tramite il servizio di indirizzi del telefono, riceve la posizione da cui parte «Disegna», per scrivere il nome della via. MuW non gli manda nient'altro e non conserva il nome.",
             "Wikimedia dà al nostro server le foto dei paesi: vede quale paese, non chi lo chiede.",
             "Con la mappa «Satellite» Esri fornisce le immagini, e con la mappa «3D» Amazon Web Services fornisce le altezze: come ogni servizio di mappe, vedono quale area guardi.",
             "Il servizio Overpass dei dati di OpenStreetMap riceve dal nostro server la richiesta della mappa di una zona che non ha ancora: vede quale zona, non chi l'ha chiesta.",

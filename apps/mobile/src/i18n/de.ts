@@ -1678,4 +1678,34 @@ export const DE: Table = {
   Yesterday: "Gestern",
   "{day} {month}": "{day}. {month}",
   "{name}, {count} new messages: {text}": "{name}, {count} neue Nachrichten: {text}",
+
+  // src/route/runTime.ts (TASK-361: the time under the distance of «Draw»)
+  "≈ {time} at {pace}": "≈ {time} bei {pace}",
+  "≈ {time} at {pace} (a usual pace)": "≈ {time} bei {pace} (ein übliches Tempo)",
+
+  // src/route/ShapePreview.tsx (TASK-361: the shape to scale)
+  "{name}, about {size} on the map": "{name}, etwa {size} auf der Karte",
+
+  // src/route/ShapeGrid.tsx (TASK-361: the shapes in two rows)
+  "Show fewer shapes": "Weniger Formen zeigen",
+  "See all {count} shapes": "Alle {count} Formen ansehen",
+  "Show fewer": "Weniger",
+  "See all": "Alle ansehen",
+
+  // src/route/DistanceDial.tsx (TASK-361: the distance by half a km)
+  "Tap to type the distance": "Tippen, um die Distanz einzugeben",
+
+  // src/screens/RunNoRouteButton.tsx (TASK-361)
+  "Records the run without drawing a route first":
+    "Zeichnet den Lauf auf, ohne vorher eine Route zu zeichnen",
+
+  // src/route/drawLabel.ts (TASK-361: the words of «Draw route»)
+  "Draw a {distance} {name}": "Zeichnen: {name}, {distance}",
+  "Draw “{word}”, {distance}": "„{word}“ zeichnen, {distance}",
+  "Draw the picture, {distance}": "Das Bild zeichnen, {distance}",
+
+  // src/route/OtherShapeField.tsx (TASK-361: «Type another shape»)
+  "Type another shape": "Andere Form eingeben",
+  "Write a shape that is not among the tiles":
+    "Eine Form schreiben, die nicht unter den Kacheln ist",
 };
