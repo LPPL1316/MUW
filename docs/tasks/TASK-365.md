@@ -73,6 +73,45 @@ Una alla volta, con le sue parole. **Aperte, tranne la 2.**
    «MuW», reazioni, commenti, profilo, follow o messaggi; si apre il percorso e
    si parte. La scelta dell'utente può cambiarlo.
 
+## I candidati del secondo giro (2026-11-02)
+
+Richiesta dell'utente, riportata dal Coordinatore: «almeno 30 percorsi in città
+diverse, lunghezze diverse, sport differenti, con la canoa mi raccomando, fai
+qualche sbavatura, non possono essere perfette le forme». Sono **33 candidati**
+in `out/muw-bike-drafts/` (`candidates.json`, `contact_sheet_all.png`, un
+`posts/<id>/` ciascuno), tutti `approved: false`: nel repository entrano solo
+quelli che l'utente approva dal foglio di contatto.
+
+- **Sport e luoghi**: 16 a piedi (5–21 km, una città ciascuno), 13 in bici
+  (11–28 km: le 9 bozze del primo giro senza Ghost, Bat e Pumpkin, che sono di
+  TASK-364, più 4 città nuove), 4 in canoa (1,2–2 km, in tre laghi del Trentino).
+- **Come sono fatte le sbavature**: solo linee del motore, mai rumore aggiunto. A
+  piedi il motore parte solo dalla piazza scelta, senza le partenze vicine
+  (`nearby=0`): si tiene la sua prima risposta, non la migliore fra molte, e si
+  tiene anche a similarità bassa (0,85–0,87 a Pisa, Padova, Parma) se si legge.
+  In bici il primo giro aveva le partenze vicine; le 4 nuove pure.
+- **In canoa la forma è perfetta per forza**: sull'acqua non ci sono strade a
+  piegarla, e il motore la mette intera (similarità 1). Le sbavature lì non
+  vengono.
+- **Il controllo a occhio** è in `candidates.json` (`eye_check`): 10 buoni, 15
+  discreti, 8 deboli. I deboli si leggono poco anche con similarità alte (il
+  cavallo di Roma ha 0,997): li giudica l'utente.
+- **Limiti del motore e del Mac**: in bici oltre 30 km il motore rifiuta
+  (ADR-0153), quindi niente 40 km; in canoa da 1 a 5 km, e solo dove
+  `data/cache/water` copre già la zona (`download=False`: nessun download
+  d'acqua, nessuna lettura dal server). Per questo le canoe stanno in tre laghi
+  e sono corte. I grafi scaricati stanno in `out/muw-bike-drafts/cache/`
+  (`CACHE.md`), mai in `data/cache/`.
+
+**Tempi del motore per città** (secondi, la prova tenuta; comprendono il
+download da Overpass la prima volta, che quel giorno rispondeva spesso 502):
+
+| Sport | Città e secondi |
+|---|---|
+| Piedi | Firenze 245, Verona 84, Padova 249, Roma 124, Parma 142, Ferrara 90, Bergamo 73, Sevilla 237, Zaragoza 77, Salamanca 107, Granada 113, Paris 100, Modena 80, Brescia 108, Pisa 109, Lecce 64 |
+| Bici | Barcelona 738, Torino 77, Valencia 6 e 186, Milano 166, Madrid 137, Burgos 73, León 141, Bologna 88, Vitoria-Gasteiz 168, Valladolid 160, Reggio Emilia 136, Cremona 162 |
+| Canoa | Caldonazzo 1 e 1, Toblino 0, Serraia 0 (acqua già in cache) |
+
 ## Cosa fare
 
 Il codice parte col via del Coordinatore, dopo il merge di questi documenti.
