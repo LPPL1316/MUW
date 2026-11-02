@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
+  un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
+  numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
+  Scelte dell'utente: l'immagine («Sì, così»), la campanella con una lista vera
+  in una parte C («Aspetta la lista vera»), icone PNG da Lucide, testi della
+  parte A («Sì, approvo»). Aperta: le statistiche del Profilo. Parte A (solo
+  app, `App.tsx`) col via del Coordinatore dopo TASK-355 A e 362; B dopo 344 B;
+  C con server e migrazione, col sì dell'utente. `tasks/TASK-367.md`.
+
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
   `docs/TASK-365-muw-routes-in-feed` (documenti). Dodici bozze in bici in

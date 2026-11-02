@@ -20705,3 +20705,48 @@ forma si legge, quindi ogni percorso passa dall'occhio. `sampleFeed.json` e gli
 esempi restano fuori: la scelta è aperta col Coordinatore (TASK-362, scelta 4).
 
 ---
+
+## ADR-0311 — La navigazione come Instagram: una barra di schede in basso, un header solo
+
+**Stato**: Proposta · 2026-11-02 · TASK-367. La richiesta è dell'utente (un
+brief del 2026-11-02); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-367.md`; il resto è deciso dall'agente su delega
+dell'utente. Sostituisce ADR-0124 (le pagine affiancate) e il `Pager` di
+TASK-339 A.
+
+**Contesto**: le pagine stanno una accanto all'altra, con i nomi «Feed · Draw ·
+Explore» sotto la Dynamic Island e il profilo dietro un cerchio. I messaggi si
+aprono dal Profilo, le impostazioni da una riga del Profilo. L'utente vuole la
+struttura di Instagram: cinque schede in basso e un header uguale ovunque.
+Sull'immagine della barra e dell'header, nei due toni coi colori dei token, ha
+risposto «Sì, così».
+
+**Decisione** (proposta):
+
+1. Una barra in basso con cinque icone senza testo: Feed, Draw, Messages,
+   Explore, il cerchio del profilo. La scheda attiva in `text`, le altre in
+   `textFaint`: il giallo resta del percorso (ADR-0293). Il cerchio attivo ha un
+   bordo `text`.
+2. Un header solo: il cuore e «MuW» a sinistra, lo sport a destra. Nessun nome
+   di pagina.
+3. Niente swipe fra le pagine. Le pagine restano montate dopo la prima visita,
+   come oggi; il tocco sulla scheda attiva torna in cima o alla radice.
+4. La barra e l'header spariscono dove oggi sparisce il Pager: mappa, corsa,
+   «Play», la corsa riaperta.
+5. Icone PNG prese da Lucide (licenza ISC), colorate dai token («PNG da
+   Lucide»): nessuna dipendenza nuova, l'impronta iOS non cambia, arriva con un
+   OTA. Lo sfondo della barra è semitrasparente senza blur: `expo-blur` è nativo.
+6. La campanella aspetta una lista vera di notifiche sul server, in una parte a
+   sé con una migrazione («Aspetta la lista vera»): niente schermate
+   segnaposto agli utenti.
+7. Messages diventa una scheda con la lista di oggi; le impostazioni si aprono
+   dall'ingranaggio del Profilo. Nessuna funzione si perde.
+8. Nella prima parte nessun testo nuovo: le etichette di VoiceOver riusano nomi
+   già tradotti («Sì, approvo»).
+
+**Conseguenze**: tre parti: A la barra (solo app, dopo TASK-355 A e 362), B la
+ricerca in Explore (dopo 344 B), C le notifiche (API, migrazione, app). Le
+schermate dell'App Store (TASK-328) vanno rifatte. Chi aveva imparato lo swipe
+fra le pagine non lo trova più.
+
+---
