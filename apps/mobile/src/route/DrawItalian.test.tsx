@@ -49,7 +49,7 @@ function choice(kind: "shape" | "word", wordText = "") {
 
 test("the panel's labels, switch and notes are in Italian", async () => {
   await render(choice("shape"));
-  expect(screen.getByText("DISEGNA")).toBeTruthy();
+  expect(screen.getByText("COSA DISEGNI")).toBeTruthy();
   expect(screen.getByText("Forma")).toBeTruthy();
   expect(screen.getByText("Parola")).toBeTruthy();
   expect(screen.getByText("Immagine")).toBeTruthy();

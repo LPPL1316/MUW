@@ -12,7 +12,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 October 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320), the activities added from a file (TASK-312 B) and Apple Health and Health Connect (TASK-321 B) entered. */
-const PRIVACY_UPDATED = "1 November 2026";
+const PRIVACY_UPDATED = "2 November 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -431,6 +431,7 @@ const privacy: AboutDocument = {
             "Hetzner hosts our server and its backups, in Germany.",
             "Geoapify receives the searches for places, for the towns near you and for the places of a themed route, with the position rounded to about 1 km, and, to name the place of a saved run, its start rounded the same way: never your door, the run or who you are. If our server does not answer, a place search goes to Photon (komoot) instead.",
             "OpenFreeMap serves the map: like any map service, it sees which area you look at.",
+            "Apple on an iPhone, or Google on Android, through the phone's own address service, receives the position «Draw» starts from, to write the name of its street. MuW sends it nothing else and does not keep the name.",
             "Wikimedia serves our server the photos of towns: it sees which town, not who asked.",
             "With the «Satellite» map Esri serves the images, and with the «3D» map Amazon Web Services serves the heights: like any map service, they see which area you look at.",
             "The Overpass service of OpenStreetMap data is asked by our server for the map of an area it does not have yet: it sees which area, not who asked.",
