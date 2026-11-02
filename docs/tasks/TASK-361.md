@@ -1,8 +1,8 @@
 # TASK-361 — «Draw» si capisce in 3 secondi: partenza, cosa disegni, quanto corri, «Draw»
 
-**Stato**: In lavorazione · **parte A in PR**, #675 (i pezzi nuovi e
-`ChooseScreen`); **parte B pronta** col via del Coordinatore del
-2026-10-31, dopo il merge della #661 (TASK-340)
+**Stato**: In lavorazione · **parte A in `main`**, #675 (i pezzi nuovi e
+`ChooseScreen`); **parte B in `main`**, #688; manca la pubblicazione e la
+data della privacy da sistemare (vedi «Esito»)
 **Fase**: 4 · **Branch**: parte A `feat/TASK-356-draw-redesign` (nome del
 numero di prima); parte B `feat/TASK-361-b-draw-wiring`, da `main` dopo la
 #675 · **ADR**: ADR-0307
@@ -279,4 +279,20 @@ griglia, il campo dietro il link, con gli aiuti di `src/route/testing.ts`):
 
 ## Esito
 
-*(a fine task)*
+**2026-11-02, non ancora chiuso.** La parte A è in `main` con la #675
+(`d2dd7435`, 12:04 UTC, alla testa `99570990` con la CI verde, impronta iOS
+`83793e26` invariata); la parte B con la #688 (`74f34e79`, 12:24 UTC).
+
+Ancora aperto:
+
+- **La data della privacy**: dice 1° novembre 2026 nelle cinque lingue
+  (app e sito), ma il testo nuovo è entrato in `main` il 2 novembre. Da
+  sistemare con un sì dell'utente, perché tocca il testo della privacy.
+- **La pubblicazione**: prima una preview di `main` che l'utente prova, poi
+  l'OTA di produzione. La preview la pubblica il Coordinatore; l'OTA di
+  produzione la lancia l'utente a mano, dalla copia pulita che il
+  Coordinatore ha preparato (2026-11-02). Il server
+  resta a `c7a83347` (migrazioni fino alla 0038): secondo il Coordinatore
+  non blocca, perché senza tema le sfide di TASK-343 B non si vedono.
+- **La vibrazione** resta spenta nella build dello Store finché una build
+  nativa non toglie `expo-haptics` dall'esclusione dell'autolinking.
