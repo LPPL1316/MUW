@@ -174,7 +174,7 @@ apps/mobile/src/feed/feedTabChoice.ts, .test.ts       (nuovi)
 apps/mobile/src/screens/FeedScreen.tsx, FeedScreen*.test.tsx
 apps/mobile/src/i18n/*.ts
 docs/API.md, docs/UI.md, docs/DATABASE.md (se migrazione)
-docs/STATUS.md, docs/tasks/TASK-362.md
+docs/STATUS.md, docs/DECISIONS.md (ADR-0308), docs/tasks/TASK-362.md
 ```
 
 ## Fuori scope
