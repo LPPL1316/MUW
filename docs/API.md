@@ -2472,6 +2472,32 @@ esempio in `fixtures/feed.json`; il codice in `feed.py`.
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app
   mostra i disegni d'esempio.
 
+### MuW routes (TASK-365, ADR-0310)
+
+I percorsi disegnati da MuW per il Feed: percorsi, non corse. Nessun token: non
+dicono nulla di chi chiede. Tipi in `shared-types` (`MuwRoute`, `MuwRoutesPage`,
+`MuwRouteDetail`), esempi in `fixtures/muw-routes.json` e `muw-route.json`; il
+codice in `muw_routes.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /muw-routes` | tutti, per `id`, ognuno con un'anteprima di al più 64 punti | `200` `MuwRoutesPage` |
+| `GET /muw-routes/{id}` | uno intero (`points`, `on_foot`, `license`) | `200` `MuwRouteDetail`, o `404 http_error` |
+
+- **Fuori da `GET /feed`**, che non cambia: un'app già pubblicata non li chiede.
+  Un'API precedente non ha l'endpoint (`404`): la nuova app non mostra nulla di
+  più.
+- **Da file**: `catalog/muw_routes/<id>.json`, nella forma di `muw-route.json`,
+  letti all'avvio; un file nuovo vuole un riavvio dell'API. Senza cartella
+  l'elenco è vuoto. **Ci entrano solo le bozze che l'utente ha approvato**, ed è
+  contenuto pubblicato: sul server solo col suo sì.
+- **Un file con un campo in più o in meno è lasciato fuori**, e detto nel log:
+  così un tempo, un passo o una persona non entrano. Lasciato fuori anche senza
+  attribuzione a OpenStreetMap, con un titolo mancante in una delle cinque lingue
+  o con un nome che non è il suo `id`.
+- **`climb_m` è una stima** da tessere di elevazione, non una misura: nessuno ha
+  pedalato questi percorsi. La somiglianza non si manda.
+
 ### Drawing search (TASK-344, ADR-0297)
 
 La ricerca dei disegni dalla lente del Feed: le stesse regole del feed su

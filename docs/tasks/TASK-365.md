@@ -40,7 +40,7 @@ persona, data di uscita, tempo, passo o calorie. La richiesta è dell'utente
 
 ## Scelte dell'utente
 
-Una alla volta, con le sue parole. **Tutte aperte.**
+Una alla volta, con le sue parole. **Aperte, tranne la 2.**
 
 1. **Quali percorsi.** Proposta: si parte dai sette giudicati buoni a occhio,
    senza i tre di Halloween, fuori stagione dal 1° novembre, e senza quelli
@@ -52,6 +52,9 @@ Una alla volta, con le sue parole. **Tutte aperte.**
    in Explore **o** nel Feed, mai doppio senza motivo. TASK-364 propone cinque
    bozze per Explore; l'elenco si decide con quella sessione (`local_ef39e13c`)
    e con l'utente.
+   — *Risposta* (2026-11-01, su Autumn Mushroom e GO, che erano nelle due
+   proposte): «Nel Feed». Ghost, Bat e Pumpkin vanno in Explore con TASK-364
+   (scelta dell'utente in quella sessione: «Sì, questi 5»).
 3. **Dove stanno nel Feed.** Proposta: uno ogni dieci post, solo nella scheda
    «Tutti», mai in «Seguiti», e pochi: non devono coprire i post degli iscritti.
 4. **Senza account.** Proposta: si vedono anche senza account, dopo gli esempi
@@ -134,6 +137,8 @@ services/api/shaperoute_api/app.py
 services/api/tests/test_muw_routes.py                 (nuovo)
 packages/shared-types/src/index.ts
 packages/shared-types/fixtures/muw-routes.json        (nuovo)
+packages/shared-types/fixtures/muw-route.json         (nuovo)
+packages/shared-types/test/muwRoutes.test.ts          (nuovo)
 apps/mobile/src/api/muwRoutes.ts                      (nuovo)
 apps/mobile/src/feed/useMuwRoutes.ts, .test.tsx       (nuovi)
 apps/mobile/src/feed/MuwPost.tsx, MuwPost.test.tsx    (nuovi)
