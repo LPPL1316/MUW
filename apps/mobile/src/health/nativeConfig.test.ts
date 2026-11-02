@@ -1,3 +1,6 @@
+import { readFileSync } from "fs";
+import path from "path";
+
 import appJson from "../../app.json";
 import de from "../../locales/de.json";
 import en from "../../locales/en.json";
@@ -12,8 +15,8 @@ import packageJson from "../../package.json";
  * read the heart rate (TASK-345 C), straight in app.json, not through the
  * library's config plugin, which would also add background delivery. The
  * iPhone's libraries are linked on iOS only; Health Connect waits for part C.
- * The contacts (TASK-262 C) and the file picker (TASK-312 B) are switched on
- * with this build.
+ * The contacts (TASK-262 C), the file picker (TASK-312 B) and the touch
+ * that buzzes (TASK-361, `expo-haptics`) are switched on with this build.
  */
 
 type Dependency = { platforms: Record<string, null> };
@@ -146,4 +149,36 @@ test("Health Connect stays out of every build until part C", () => {
     });
   }
   expect(packageJson.expo.autolinking.exclude).toContain("react-native-health-connect");
+});
+
+/** The native module a file of ours asks for (its `NATIVE_MODULE`). */
+function askedFor(file: string): string {
+  const source = readFileSync(path.join(__dirname, "..", file), "utf8");
+  return source.match(/const NATIVE_MODULE = "([^"]+)";/)![1];
+}
+
+/** The name the library's iPhone module registers (`Name("…")`). */
+function registered(library: string, swiftFile: string): string {
+  const root = path.dirname(require.resolve(`${library}/package.json`));
+  const source = readFileSync(path.join(root, "ios", swiftFile), "utf8");
+  return source.match(/Name\("([^"]+)"\)/)![1];
+}
+
+test("the 1.0.1 links the haptics, the contacts and the picker, under the names the app asks for", () => {
+  const exclude: string[] = packageJson.expo.autolinking.exclude;
+  for (const library of ["expo-haptics", "expo-contacts", "expo-document-picker"]) {
+    expect(Object.keys(packageJson.dependencies)).toContain(library);
+    expect(exclude).not.toContain(library);
+  }
+  // A name that does not match would hide the feature in the build as if the
+  // module were missing.
+  expect(askedFor("haptics/haptics.ts")).toBe(
+    registered("expo-haptics", "HapticsModule.swift"),
+  );
+  expect(askedFor("contacts/phoneContacts.ts")).toBe(
+    registered("expo-contacts", "next/ContactsNextModule.swift"),
+  );
+  expect(askedFor("imports/pickActivityFile.ts")).toBe(
+    registered("expo-document-picker", "DocumentPickerModule.swift"),
+  );
 });
