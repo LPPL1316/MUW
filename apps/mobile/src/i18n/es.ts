@@ -827,6 +827,9 @@ export const ES: Table = {
   "{name}, {ago}: {text}": "{name}, {ago}: {text}",
   "Touch and hold to delete.": "Mantén pulsado para eliminar.",
 
+  // src/feed/ActionBar.tsx
+  Reactions: "Reacciones",
+
   // src/social/DrawingReactions.tsx
   React: "Reaccionar",
   "Your reaction: {name}": "Tu reacción: {name}",
