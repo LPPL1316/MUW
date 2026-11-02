@@ -40,7 +40,7 @@ persona, data di uscita, tempo, passo o calorie. La richiesta è dell'utente
 
 ## Scelte dell'utente
 
-Una alla volta, con le sue parole. **Aperte, tranne la 2.**
+Una alla volta, con le sue parole. **Chiuse la 1 e la 2, e i titoli della 5.**
 
 1. **Quali percorsi.** Proposta: si parte dai sette giudicati buoni a occhio,
    senza i tre di Halloween, fuori stagione dal 1° novembre, e senza quelli
@@ -48,6 +48,11 @@ Una alla volta, con le sue parole. **Aperte, tranne la 2.**
    **Oggi restano solo due**, Autumn Mushroom e GO: l'albero e la freccia tornano
    controllati i tunnel, gli altri cinque sono discreti a occhio e li giudica
    l'utente. Sono anche fra i cinque che TASK-364 propone per Explore (scelta 2).
+   — *Risposta* (2026-11-02, sul foglio dei 33 candidati del secondo giro):
+   «Buoni e discreti». Sono 25 percorsi, in `catalog/muw_routes/`: 9 in bici
+   del primo giro, 10 a piedi, 2 in bici nuovi e 4 in canoa. Fuori gli 8
+   deboli. Tre in bici passano quasi 1 km o più in galleria (Madrid, Valencia
+   due volte): nessuno li ha percorsi.
 2. **Chi pubblica cosa con TASK-364.** Proposta di questo task: un percorso sta
    in Explore **o** nel Feed, mai doppio senza motivo. TASK-364 propone cinque
    bozze per Explore; l'elenco si decide con quella sessione (`local_ef39e13c`)
@@ -69,6 +74,10 @@ Una alla volta, con le sue parole. **Aperte, tranne la 2.**
 
    Anche i titoli dei percorsi sono testi: si approvano con l'elenco della
    scelta 1. Nel codice il testo di base è l'inglese (ADR-0172).
+   — *Risposta sui titoli* (2026-11-02): «Sì, approvo», per i titoli dei 25
+   file nelle cinque lingue, dove possibile i nomi delle forme già tradotti
+   nell'app. L'etichetta resta da approvare, con le varianti per la corsa
+   («corrilo tu») e la canoa («pagaialo tu»).
 6. **Cosa si può fare sul post.** Proposta, ADR-0310 punto 4: niente account
    «MuW», reazioni, commenti, profilo, follow o messaggi; si apre il percorso e
    si parte. La scelta dell'utente può cambiarlo.
