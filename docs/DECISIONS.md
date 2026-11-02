@@ -20492,6 +20492,9 @@ domanda se le schede li sostituissero l'utente ha risposto «Sì, sostituiscono�
 3. Nell'app una lettura e un cursore per scheda e due `FlatList` montate:
    cambiare scheda non rilegge e non perde la posizione.
 4. L'ultima scheda sta in un file del telefono, come lo sport; non va al server.
+   Le schede sono il `Segmented` di «Draw» (in codice: il componente che c'era).
+   Il nome «Following» della scheda non passa da `t`: la chiave è già del
+   pulsante «Segui già».
 5. Con le schede l'app non manda più la posizione al Feed. La riga di privacy di
    TASK-356 resta vera per le app già installate; si toglie più avanti, col sì
    dell'utente.

@@ -1,6 +1,6 @@
 # TASK-362 — Le schede del Feed: «Tutti» e «Seguiti»
 
-**Stato**: In corso — documenti in main (#681), codice su `feat/TASK-362-feed-tabs`
+**Stato**: Done — codice in PR da `feat/TASK-362-feed-tabs` (documenti #681)
 **Fase**: 4 · **Branch**: `docs/TASK-362-feed-tabs` (documenti),
 `feat/TASK-362-feed-tabs` (codice) · **ADR**: ADR-0308 · numeri dal
 Coordinatore (2026-10-30)
@@ -188,4 +188,27 @@ docs/STATUS.md, docs/tasks/TASK-362.md
 
 ## Esito
 
-*(a fine task)*
+`GET /feed?filter=all|following` sul server; nell'app le schede «All» e
+«Following» sul `Segmented` già usato in «Draw», una lista per scheda,
+l'ultima scelta in un file sul telefono, gli stati di «Following» e «Try
+again». Senza `filter` il feed resta quello di prima per le app già
+installate.
+
+- **Nessuna migrazione.** Su 10.000 disegni (200 autori, 50 seguiti, Docker
+  locale) una pagina di `all` o di `following` sta in ~0,2 s contro ~1,2 s
+  della lettura a gruppi; il caso peggiore, `following` senza nessun follow
+  (scorre tutto l'indice), ha la query in 117 ms e la pagina in 0,3 s. Usa
+  `drawings_published_idx`; `follows` ha già la chiave da `follower_id`.
+- **Test**: `test_feed_tabs.py` (con follow, senza, richiesta in attesa, smettere
+  di seguire, blocco, `followers`, `only_me`, i propri, pagine senza
+  ripetizioni) e `test_feed.py` verdi; app: `useFeed`, `FeedTabs`,
+  `feedTabChoice`, `FeedScreenTabs` e i test `App*` del Feed, 242 verdi.
+- **Simulatore** (iPhone 17, Expo Go, API locale con account di prova):
+  senza account niente schede e gli esempi; con account «All» e «Following»
+  con i post giusti, e cambiare scheda non fa nessuna richiesta nuova. Visto
+  solo in scuro: il chiaro non è stato controllato.
+- Impronta iOS `83793e26` su una copia pulita; `tsc` pulito lì.
+- **Da fare fuori da questo task**: il server con `filter` va aggiornato prima
+  dell'OTA dell'app (un'API vecchia ignora `filter` e darebbe il feed a gruppi
+  in tutte e due le schede), col sì dell'utente; la riga di privacy si toglie
+  più avanti (scelta 7); gli esempi restano aperti col Coordinatore (scelta 4).
