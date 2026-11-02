@@ -8,12 +8,12 @@ afterEach(() => saveLanguageChoice("en"));
 test("two tabs, the chosen one said to the screen reader, each choosing itself", async () => {
   const onChoose = jest.fn();
   await render(<FeedTabs tab="following" onChoose={onChoose} />);
-  expect(screen.getByTestId("feed-tab-following").props.accessibilityState).toEqual({
-    selected: true,
-  });
-  expect(screen.getByTestId("feed-tab-all").props.accessibilityState).toEqual({
-    selected: false,
-  });
+  expect(
+    screen.getByRole("button", { name: "Following", selected: true }),
+  ).toBeOnTheScreen();
+  expect(
+    screen.getByRole("button", { name: "All", selected: false }),
+  ).toBeOnTheScreen();
   await fireEvent.press(screen.getByText("All"));
   expect(onChoose).toHaveBeenCalledWith("all");
 });

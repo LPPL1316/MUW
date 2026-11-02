@@ -342,6 +342,7 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: "row",
     alignItems: "center",
+    gap: space.md,
     paddingHorizontal: space.lg,
     paddingBottom: space.md,
   },

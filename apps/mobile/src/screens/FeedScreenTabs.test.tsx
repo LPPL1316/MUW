@@ -100,14 +100,14 @@ test("going from tab to tab asks each once and leaves both lists built", async (
   expect(asked()).toEqual(["/feed?filter=all"]);
   // «Following» is not read until it is opened.
   expect(screen.queryByTestId("feed-list-following")).toBeNull();
-  await fireEvent.press(screen.getByTestId("feed-tab-following"));
+  await fireEvent.press(screen.getByText("Following"));
   expect(await screen.findByText("adam.trento")).toBeOnTheScreen();
   expect(asked()).toEqual(["/feed?filter=all", "/feed?filter=following"]);
   // Hidden, not gone: the same list keeps its place.
   const hidden = { includeHiddenElements: true };
   const list = screen.getByTestId("feed-list", hidden);
-  await fireEvent.press(screen.getByTestId("feed-tab-all"));
-  await fireEvent.press(screen.getByTestId("feed-tab-following"));
+  await fireEvent.press(screen.getByText("All"));
+  await fireEvent.press(screen.getByText("Following"));
   expect(screen.getByTestId("feed-list", hidden)).toBe(list);
   expect(asked()).toHaveLength(2);
   expect(saveFeedTab).toHaveBeenLastCalledWith("following");
@@ -120,7 +120,7 @@ test("a pull reads only the tab on the screen", async () => {
     </Around>,
   );
   await screen.findByText("Sunday heart by the river");
-  await fireEvent.press(screen.getByTestId("feed-tab-following"));
+  await fireEvent.press(screen.getByText("Following"));
   await screen.findByText("adam.trento");
   fetchSpy.mockClear();
   const { refreshControl } = screen.getByTestId("feed-list-following").props;
@@ -188,7 +188,7 @@ test("without an account: no tabs, only the examples, whatever was chosen", asyn
       <FeedScreen onOpen={() => {}} />
     </Around>,
   );
-  expect(screen.queryByTestId("feed-tab-all")).toBeNull();
+  expect(screen.queryByText("Following")).toBeNull();
   expect(screen.queryByTestId("feed-list-following")).toBeNull();
   expect(await screen.findByText(SAMPLE_FEED[0].user)).toBeOnTheScreen();
   expect(asked()).toEqual([]);
