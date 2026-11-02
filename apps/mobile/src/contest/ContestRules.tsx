@@ -1,6 +1,10 @@
 import type { Contest } from "@shaperoute/shared-types";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { dayLabel } from "../activities/activityText";
 import { t, tLater } from "../i18n";
@@ -71,9 +75,6 @@ type Props = {
  * «Close», or Android's back, goes back to «Feed».
  */
 export function ContestRules({ contest, visible, onClose }: Props) {
-  const insets = useSafeAreaInsets();
-  const language = useLanguage();
-  const themed = themedOf(contest);
   return (
     <Modal
       visible={visible}
@@ -81,50 +82,62 @@ export function ContestRules({ contest, visible, onClose }: Props) {
       statusBarTranslucent
       onRequestClose={onClose}
     >
-      <View
-        style={[
-          styles.screen,
-          {
-            paddingTop: insets.top + space.xl,
-            paddingBottom: insets.bottom + space.lg,
-          },
-        ]}
-      >
-        <ScrollView contentContainerStyle={styles.words}>
-          <Text style={styles.eyebrow}>
-            {themed === null ? t("MuW contest") : t("Monthly challenge")}
-          </Text>
-          <Text style={styles.title} accessibilityRole="header">
-            {t("Official rules")}
-          </Text>
+      {/* Over the whole screen: the Pager's pages have no top edge of their own. */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <RulesPage contest={contest} onClose={onClose} />
+      </SafeAreaProvider>
+    </Modal>
+  );
+}
+
+function RulesPage({ contest, onClose }: Omit<Props, "visible">) {
+  const insets = useSafeAreaInsets();
+  const language = useLanguage();
+  const themed = themedOf(contest);
+  return (
+    <View
+      style={[
+        styles.screen,
+        {
+          paddingTop: insets.top + space.xl,
+          paddingBottom: insets.bottom + space.lg,
+        },
+      ]}
+    >
+      <ScrollView contentContainerStyle={styles.words}>
+        <Text style={styles.eyebrow}>
+          {themed === null ? t("MuW contest") : t("Monthly challenge")}
+        </Text>
+        <Text style={styles.title} accessibilityRole="header">
+          {t("Official rules")}
+        </Text>
+        <Text style={styles.text}>
+          {t("Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.", {
+            start: dayLabel(contest.starts_at),
+            end: dayLabel(contest.ends_at),
+          })}
+        </Text>
+        {themed !== null && (
           <Text style={styles.text}>
-            {t("Organised by MuW (Luca Pallaoro). Runs from {start} to {end}.", {
-              start: dayLabel(contest.starts_at),
-              end: dayLabel(contest.ends_at),
+            {t("The theme is “{theme}”.", {
+              theme: themeText(themed.theme, language).title,
             })}
           </Text>
-          {themed !== null && (
-            <Text style={styles.text}>
-              {t("The theme is “{theme}”.", {
-                theme: themeText(themed.theme, language).title,
-              })}
-            </Text>
-          )}
-          {(themed === null ? RULES : THEMED_RULES).map((rule) => (
-            <Text key={rule} style={styles.text}>
-              {t(rule)}
-            </Text>
-          ))}
-        </ScrollView>
-        <Pressable
-          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
-          onPress={onClose}
-          accessibilityRole="button"
-        >
-          <Text style={styles.closeText}>{t("Close")}</Text>
-        </Pressable>
-      </View>
-    </Modal>
+        )}
+        {(themed === null ? RULES : THEMED_RULES).map((rule) => (
+          <Text key={rule} style={styles.text}>
+            {t(rule)}
+          </Text>
+        ))}
+      </ScrollView>
+      <Pressable
+        style={({ pressed }) => [styles.close, pressed && styles.pressed]}
+        onPress={onClose}
+        accessibilityRole="button"
+      >
+        <Text style={styles.closeText}>{t("Close")}</Text>
+      </Pressable>
+    </View>
   );
 }
 

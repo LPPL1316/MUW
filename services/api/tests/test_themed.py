@@ -139,6 +139,14 @@ def test_places_url_asks_named_places_of_the_theme_around_the_point() -> None:
     assert search_radius_m(3_000) == 800
 
 
+def test_geoapify_is_told_the_centre_to_about_a_kilometre() -> None:
+    url = places_url("K", THEMES["food"], (44.49372, 11.34268), 2500)
+    q = parse_qs(urlparse(url).query)
+    assert q["filter"] == ["circle:11.34,44.49,2500"]
+    assert q["bias"] == ["proximity:11.34,44.49"]
+    assert "44.49372" not in url and "11.34268" not in url
+
+
 def test_the_city_is_its_centre_and_labelled() -> None:
     search = CitySearch("K", fetch=lambda url: CITIES)
     first = search.search("Milano")[0]

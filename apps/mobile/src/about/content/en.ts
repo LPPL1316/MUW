@@ -12,7 +12,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 October 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320) and the activities added from a file (TASK-312 B) entered. */
-const PRIVACY_UPDATED = "31 October 2026";
+const PRIVACY_UPDATED = "1 November 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -399,7 +399,7 @@ const privacy: AboutDocument = {
     {
       heading: "Your position",
       blocks: [
-        "The phone's position is used on the phone, to start a route where you are and to follow your run. It goes to our server as the start of a route you ask for, inside a run you save, with a search for a place, to put the places near you first, and, rounded to about 1 km, to show you drawings nearby in the Feed.",
+        "The phone's position is used on the phone, to start a route where you are and to follow your run. It goes to our server exactly as it is as the start of a route you ask for, as the start of the shapes the app prepares for you nearby when the phone cannot draw them itself, and inside a run you save. It goes rounded to about 1 km to find the offline map around you, recommended routes, towns and drawings nearby, and to put the places near you first in a search; rounded like this it is not kept with your account.",
         "On iPhone, during a run you started, the app keeps following your position also with the phone locked or another app open, until you stop the run; the iPhone shows it with a blue mark at the top of the screen. MuW asks for the position only while you use the app, never «Always».",
         "Like any internet service, our server sees the internet (IP) address a request comes from while it answers it. The server's log does not write positions, and the database holds no IP addresses.",
         "A register of the route requests, with their start, exists to reproduce a defect. It is off on our server; switched on, it holds at most 10 MB, then the oldest lines are lost.",
@@ -423,8 +423,11 @@ const privacy: AboutDocument = {
         {
           bullets: [
             "Hetzner hosts our server and its backups, in Germany.",
-            "Geoapify receives the searches for places and for the towns near you, with the position, and, to name the place of a saved run, its start rounded to about 1 km: never your door, the run or who you are. If our server does not answer, a place search goes to Photon (komoot) instead.",
+            "Geoapify receives the searches for places, for the towns near you and for the places of a themed route, with the position rounded to about 1 km, and, to name the place of a saved run, its start rounded the same way: never your door, the run or who you are. If our server does not answer, a place search goes to Photon (komoot) instead.",
             "OpenFreeMap serves the map: like any map service, it sees which area you look at.",
+            "Apple on an iPhone, or Google on Android, through the phone's own address service, receives the position «Draw» starts from, to write the name of its street. MuW sends it nothing else and does not keep the name.",
+            "Wikimedia serves our server the photos of towns: it sees which town, not who asked.",
+            "With the «Satellite» map Esri serves the images, and with the «3D» map Amazon Web Services serves the heights: like any map service, they see which area you look at.",
             "The Overpass service of OpenStreetMap data is asked by our server for the map of an area it does not have yet: it sees which area, not who asked.",
             "unpkg serves the map library when the app starts.",
             "Expo serves the app's updates.",

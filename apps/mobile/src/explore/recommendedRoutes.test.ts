@@ -7,6 +7,8 @@ import {
   fetchRecommendedRoute,
   isRecommendedDetail,
   isRecommendedList,
+  measuredFrom,
+  type RecommendedRoute,
   recommendedUrl,
   routeTitle,
 } from "./recommendedRoutes";
@@ -26,10 +28,16 @@ test("a route with both a shape and a word, or neither, does not pass", () => {
   expect(isRecommendedDetail({ ...detail, points: "no" })).toBe(false);
 });
 
-test("the url carries the start and the radius", () => {
+test("the url carries the start to about a kilometre, and the radius", () => {
   expect(recommendedUrl("http://api", [46.067, 11.1215])).toBe(
-    "http://api/recommended-routes?lat=46.067&lon=11.1215&radius_m=5000",
+    "http://api/recommended-routes?lat=46.07&lon=11.12&radius_m=5000",
   );
+});
+
+test("how far a route is, is measured from the real point on the phone", () => {
+  const first = list.routes[0] as RecommendedRoute;
+  const [measured] = measuredFrom(first.start, [{ ...first, away_m: 700 }]);
+  expect(measured.away_m).toBe(0);
 });
 
 test("fetches the list and one route, and never throws", async () => {
@@ -38,7 +46,7 @@ test("fetches the list and one route, and never throws", async () => {
     await fetchRecommended("http://api", [46, 11], { fetchFn: ok, key: null }),
   ).toEqual({
     kind: "routes",
-    routes: list.routes,
+    routes: measuredFrom([46, 11], list.routes as RecommendedRoute[]),
   });
   const one = jest.fn().mockResolvedValue(Response.json(detail));
   expect(
