@@ -20637,6 +20637,18 @@ riaggancia, come ADR-0300 dice. ADR-0300 resta com'è.
 
 ---
 
+## ADR-0260, precisazione — Il regolamento legge i margini veri del telefono
+
+**Stato**: Attiva · 2026-10-31 · deciso dall'agente su delega dell'utente
+(TASK-360). `ContestRules` copre tutto lo schermo ma si apre anche dalla scheda
+del Feed, in una pagina del `Pager`, che ha il margine alto a zero. Il `Modal`
+tiene quindi un suo `SafeAreaProvider`, con `initialWindowMetrics`, come
+`Tour.tsx`. Scartato: cambiare `Pager.tsx`, su cui lavora TASK-339, e far
+scegliere il margine a chi apre il regolamento, che lo farebbe sbagliare al
+prossimo che lo apre da un'altra pagina.
+
+---
+
 ## ADR-0310 — I percorsi di MuW nel Feed: un tipo a parte, da file, senza account né tempi
 
 **Stato**: Proposta · 2026-10-31 · deciso dall'agente su delega dell'utente per
