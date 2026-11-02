@@ -1,5 +1,5 @@
 import type { EditKind, ImageOutline, OutlinePoint } from "@shaperoute/shared-types";
-import { useRef, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import {
   type GestureResponderEvent,
   Image,
@@ -9,7 +9,11 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { t, tLater } from "../i18n";
 import {
@@ -103,7 +107,6 @@ export function OutlineBoard({
   const [view, setView] = useState<BoardView>(FIT);
   const [line, setLine] = useState<OutlinePoint[]>([]);
   const gesture = useRef<Gesture>({ kind: "none" });
-  const insets = useSafeAreaInsets();
   const box: Box = fitBox(size[0], size[1], outline.aspect);
   const sending = edits.edit.status === "sending";
   const refused =
@@ -166,12 +169,7 @@ export function OutlineBoard({
       presentationStyle="fullScreen"
       onRequestClose={onClose}
     >
-      <View
-        style={[
-          styles.screen,
-          { paddingTop: insets.top, paddingBottom: insets.bottom },
-        ]}
-      >
+      <BoardScreen>
         <View style={styles.header}>
           <Text style={styles.title}>{t("Edit the outline")}</Text>
           {zoomed && (
@@ -294,8 +292,31 @@ export function OutlineBoard({
             <Text style={styles.buttonText}>{t("Save")}</Text>
           </Pressable>
         </View>
-      </View>
+      </BoardScreen>
     </Modal>
+  );
+}
+
+/**
+ * The board's screen, inside the phone's edges: its own, since «Draw» is a
+ * page of the Pager, which gives its pages no top edge (TASK-366).
+ */
+function BoardScreen({ children }: { children: ReactNode }) {
+  return (
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <Edges>{children}</Edges>
+    </SafeAreaProvider>
+  );
+}
+
+function Edges({ children }: { children: ReactNode }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
+    >
+      {children}
+    </View>
   );
 }
 

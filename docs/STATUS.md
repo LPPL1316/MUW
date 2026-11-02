@@ -2179,6 +2179,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-366 — Le finestre aperte dal Pager: solo «Edit the outline» stava sotto la barra di stato**
+  (2026-11-02; numero dal Coordinatore; seguito di TASK-360). Le sette finestre elencate da
+  TASK-360 aperte nel simulatore da dove si aprono davvero: solo `OutlineBoard` («Draw» → «Image»)
+  è dentro il `Pager` e aveva il difetto; ora ha un suo `SafeAreaProvider`. Le altre sei sono
+  fuori dal `Pager` e restano com'erano. Android no. Solo app, nessun testo nuovo, impronta iOS
+  83793e26. File: `tasks/TASK-366.md`.
 - **TASK-360 — Il regolamento del concorso senza tema non sta più sotto la barra di stato**
   (2026-10-31; numero dal Coordinatore; difetto trovato provando TASK-343 B). Il `Pager` azzera
   il margine alto delle sue pagine: `ContestRules` ora ha un suo `SafeAreaProvider`. Provato nel
