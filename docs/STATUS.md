@@ -474,6 +474,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   («Health» in App Privacy e la frase nuova della privacy vanno con l'update
   che accende TASK-345 C, scelta dell'utente); prima, sull'iPhone, l'anello Movimento, la rubrica
   e «From a file». Dettagli in `tasks/TASK-321.md`.
+  **Riallineata** il 2026-11-01 su `main` `bd9af711` (testa `7ee6091e`):
+  privacy datata 1° novembre 2026, impronte invariate (iOS `67253126…`,
+  Android `8aac71c3…`), test locali verdi.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
