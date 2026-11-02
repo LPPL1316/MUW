@@ -289,7 +289,9 @@ Ancora aperto:
   (app e sito), ma il testo nuovo è entrato in `main` il 2 novembre. Da
   sistemare con un sì dell'utente, perché tocca il testo della privacy.
 - **La pubblicazione**: prima una preview di `main` che l'utente prova, poi
-  l'OTA di produzione; le pubblica il Coordinatore (2026-11-02). Il server
+  l'OTA di produzione. La preview la pubblica il Coordinatore; l'OTA di
+  produzione la lancia l'utente a mano, dalla copia pulita che il
+  Coordinatore ha preparato (2026-11-02). Il server
   resta a `c7a83347` (migrazioni fino alla 0038): secondo il Coordinatore
   non blocca, perché senza tema le sfide di TASK-343 B non si vedono.
 - **La vibrazione** resta spenta nella build dello Store finché una build
