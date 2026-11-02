@@ -76,6 +76,11 @@ Una alla volta, con le sue parole.
    (Profilo), Settings (Impostazioni); il logo è «MuW». I testi della ricerca
    in Explore vengono con la parte B.
    — *Risposta:* «Sì, approvo».
+   **Da rivedere prima del codice**: la Guida (`about/content/*.ts`) descrive
+   la navigazione di oggi: «quattro pagine affiancate… scorri a sinistra o a
+   destra», i messaggi «in Profile, Messages», lo sport «accanto al profilo».
+   Con la parte A queste frasi diventano false: vanno riscritte nelle cinque
+   lingue, testi nuovi da far approvare all'utente prima della parte A.
 5. **Le statistiche del Profilo.** Il brief chiede corse, km totali e disegni;
    oggi sono distanza, dislivello e like (ADR-0284). Proposta: restano come
    oggi; corse e disegni vorrebbero un cambio all'API e testi nuovi.
@@ -174,6 +179,7 @@ apps/mobile/src/messages/messagesDoor.ts, MessagesOverlay.tsx
 apps/mobile/src/profile/ProfileHome.tsx, ProfileHome.test.tsx
 apps/mobile/src/screens/ProfileLayer.tsx               (se il Profilo lo chiede)
 apps/mobile/src/tour/tourSteps.ts, tourParts.ts, i loro test
+apps/mobile/src/about/content/*.ts                    (le frasi della Guida)
 apps/mobile/src/screens/Pager.tsx, Pager.test.tsx     (tolti quando nessuno li usa)
 docs/UI.md, docs/STATUS.md, docs/tasks/TASK-367.md
 ```
