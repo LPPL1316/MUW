@@ -125,3 +125,11 @@ def test_the_feed_of_a_published_app_has_nothing_new() -> None:
     fields = set(FeedPostBody.model_fields)
     assert "kind" not in fields
     assert not fields & {"titles", "difficulty", "climb_m"}
+
+
+def test_every_file_of_the_repository_reads() -> None:
+    """catalog/muw_routes/ holds only routes the user approved: each must read,
+    or the API would leave it out without a word."""
+    directory = HERE.parents[2] / "catalog" / "muw_routes"
+    files = sorted(p.stem for p in directory.glob("*.json"))
+    assert list(MuwRouteCatalog.from_dir(directory).routes) == files
