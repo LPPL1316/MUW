@@ -160,6 +160,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
+  proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
+  Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
+  fatte: distanze a piedi (5K–60K, maratona compresa) e in bici (10–160 km),
+  tutte le attività anche private e importate, visibili a tutti con tempo e
+  data, la corsa privata resta chiusa, testi di Guida e privacy approvati.
+  Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
+  via del Coordinatore; server, migrazione e sito col sì dell'utente.
+  `tasks/TASK-368.md`.
+
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
   `docs/TASK-365-muw-routes-in-feed` (documenti). Dodici bozze in bici in

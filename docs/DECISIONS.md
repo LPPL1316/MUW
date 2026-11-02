@@ -20718,3 +20718,40 @@ forma si legge, quindi ogni percorso passa dall'occhio. `sampleFeed.json` e gli
 esempi restano fuori: la scelta è aperta col Coordinatore (TASK-362, scelta 4).
 
 ---
+
+## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
+
+**Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
+(2026-11-02); numeri dal Coordinatore. Le scelte di prodotto sono dell'utente,
+in `tasks/TASK-368.md`; il resto è deciso dall'agente su delega dell'utente.
+Estende ADR-0284 (i totali del profilo).
+
+**Contesto**: il Profilo mostra distanza, dislivello e like. L'utente vuole i
+record sulle distanze classiche, come i «best effort» di Strava. Ogni attività
+salvata con un account è già sul server con la traccia a tempi e le pause.
+
+**Decisione** (proposta):
+
+1. A piedi 5K, 10K, 15K, mezza, 30K, maratona, 60K («Sì, con la maratona»); in
+   bici 10, 20, 40, 50, 100, 160 km («Sì, queste»). La canoa no.
+2. Contano tutte le attività dell'account: private, di gruppo, importate
+   («tutte anche quelle importate», «e anche le private tutte»).
+3. Il record è il tratto più veloce dentro un'attività, in movimento: pause
+   tolte, pezzi con salti del GPS scartati, nessun tempo sotto il record del
+   mondo («Sì, così»).
+4. Il calcolo sta sul server, in un modulo puro, con una tabella di cache
+   aggiornata a ogni attività salvata, cambiata o cancellata, e uno script che
+   riempie la cache dalle attività già salvate.
+5. Gli altri vedono tempo e data («Anche data e corsa»); la corsa si apre solo
+   a chi può già vederla: un record di una corsa privata mostra tempo e data e
+   resta chiuso («Sì, corsa chiusa»). L'API manda la chiave della corsa solo in
+   quel caso.
+6. La Guida e la privacy lo dicono, con il testo approvato («Sì, approvo»).
+
+**Conseguenze**: una migrazione e un aggiornamento del server, col sì
+dell'utente. Un record di una corsa privata dice agli altri che quel giorno
+l'utente ha corso: è la scelta dell'utente, scritta nella privacy. Un file
+importato modificato può dare un record falso, visibile a tutti: accettato con
+la scelta 2.
+
+---
