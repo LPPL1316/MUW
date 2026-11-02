@@ -20618,6 +20618,17 @@ pulsante fisso.
    tocco, vuoto; o da solo quando le parole scritte non sono il nome della
    forma scelta, così una parola che l'AI legge non resta nascosta.
 
+10. **Parte B** (col via del Coordinatore del 2026-10-31): il pulsante
+   giallo ha `testID="draw-route"` perché le sue parole cambiano con la
+   scelta, e i test lo cercano per quello; il campo della distanza **non**
+   è dentro un riquadro «adjustable» (lo nasconderebbe a VoiceOver, e il
+   numero non si potrebbe più scrivere): bastano − e + coi loro nomi. In
+   `Segmented` le scelte non prese passano da `textMuted` al colore del
+   testo, più leggere (la richiesta dell'utente: «troppo spente»; l'AA
+   c'era già); la presa si riconosce da superficie, bordo e grassetto.
+   Al limite della distanza − e + non chiamano più `onText`: niente si
+   muove, niente vibra.
+
 **Conseguenza**: testi nuovi nelle cinque lingue (righe aggiunte in fondo
 alle tabelle); solo app, OTA; motore, API e contratti invariati. Il
 collegamento in `RoutePanel` e `App.tsx` (parte B) aspetta la #661.
@@ -20636,6 +20647,7 @@ servirà, lo chiede l'utente. TASK-347 modifica solo i tratti disegnati e li
 riaggancia, come ADR-0300 dice. ADR-0300 resta com'è.
 
 ---
+alle tabelle); solo app, OTA; motore, API e contratti invariati.
 
 ## ADR-0260, precisazione — Il regolamento legge i margini veri del telefono
 

@@ -107,9 +107,12 @@ async function startingAt(where: [number, number]) {
   });
 }
 
-/** «Draw route», and the route at the first poll, after 500 ms. */
+/** «Draw route», and the route at the first poll, after 500 ms: the button
+ * of «Draw» (its words say what it draws, TASK-361), or of the map. */
 async function drawRoute() {
-  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
+  await fireEvent.press(
+    screen.queryByTestId("draw-route") ?? screen.getByText("Draw route"),
+  );
   await act(() => jest.advanceTimersByTimeAsync(500));
 }
 
@@ -178,9 +181,9 @@ test("from «Draw» a shape of the row is drawn from the same start, as long; «
   // asked for again.
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
   expect(
-    within(screen.getByTestId("shape-tiles")).getByRole("button", { name: "star" }),
+    within(screen.getByTestId("shape-grid")).getByRole("button", { name: "star" }),
   ).toBeSelected();
-  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   expect(posted("/route-jobs")).toHaveLength(2);
   expect(screen.getByRole("button", { name: "Start" })).toBeOnTheScreen();
 });
@@ -205,7 +208,7 @@ test("from «Draw» a picture of the row sends its outline and puts «Draw» on 
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
   expect(screen.getByRole("button", { name: "Image" })).toBeSelected();
   expect(screen.getByTestId("image-preview")).toBeOnTheScreen();
-  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   expect(posted("/image-route-jobs")).toHaveLength(1);
 });
 
@@ -260,7 +263,7 @@ test("from «Draw on the map» the new figure takes the place of the old; «Undo
   expect(tiles().getByRole("button", { name: "star" })).toBeSelected();
   expect(screen.getByText("≈ 5.0 km")).toBeOnTheScreen();
   // The same figure: its route shown again, not asked for again.
-  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
+  await fireEvent.press(screen.getByText("Draw route"));
   expect(posted("/route-jobs")).toHaveLength(2);
   expect(screen.getByRole("button", { name: "Start" })).toBeOnTheScreen();
 

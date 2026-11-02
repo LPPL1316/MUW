@@ -115,7 +115,7 @@ test("the point under the pin is the start of the route", async () => {
     lngLat: [11.125, 46.072],
   });
 
-  await act(async () => fireEvent.press(screen.getByText("Draw route")));
+  await act(async () => fireEvent.press(screen.getByTestId("draw-route")));
   expect(requestRouteOnPhoneFirst).toHaveBeenCalledTimes(1);
   expect(askedStart()).toEqual([46.072, 11.125]);
 });
@@ -134,7 +134,7 @@ test("«←» leaves the start as it was", async () => {
   expect(screen.getByText("Starting from a point on the map.")).toBeOnTheScreen();
   expect(sent("setPick").at(-1)).toEqual({ type: "setPick", on: false });
 
-  await act(async () => fireEvent.press(screen.getByText("Draw route")));
+  await act(async () => fireEvent.press(screen.getByTestId("draw-route")));
   expect(askedStart()).toEqual([46.07, 11.12]);
 });
 

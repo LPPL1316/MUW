@@ -102,9 +102,10 @@ test("with the game on the API, «Play» is a row of «Draw» under the distance
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   // Right after «DISTANCE»: the queries find in the order of the screen.
   const labels = within(screen.getByTestId("pager"))
-    .getAllByText(/^(DRAW|DISTANCE|PLAY|NEAR YOU|SHAPES TO TRY)$/)
+    .getAllByText(/^(WHAT YOU DRAW|DISTANCE|PLAY|NEAR YOU|SHAPES TO TRY)$/)
     .map((node) => node.props.children);
-  expect(labels.slice(0, 3)).toEqual(["DRAW", "DISTANCE", "PLAY"]);
+  // «WHAT YOU DRAW» and «DISTANCE» are steps 2 and 3 of «Draw» (TASK-361).
+  expect(labels.slice(0, 3)).toEqual(["WHAT YOU DRAW", "DISTANCE", "PLAY"]);
 });
 
 test("the row opens the game over the app, and «←» goes back to «Draw»", async () => {

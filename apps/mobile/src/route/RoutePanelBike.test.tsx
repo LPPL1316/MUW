@@ -53,17 +53,18 @@ test("by bike a run's distance is out: the field says 10 to 30 km", async () => 
   expect(onDistanceText).toHaveBeenLastCalledWith("10");
 });
 
-test("by bike − and + stay within 10 and 30 km", async () => {
+test("by bike − and + stay within 10 and 30 km, half a km a step", async () => {
   const onDistanceText = jest.fn();
   const { rerender } = await render(choice("30", onDistanceText, "cycling"));
   expect(screen.queryByText(/Enter a distance/)).toBeNull();
+  // At the limit nothing moves (TASK-361): nothing is asked, nothing felt.
   await fireEvent.press(screen.getByRole("button", { name: "Longer" }));
-  expect(onDistanceText).toHaveBeenLastCalledWith("30");
+  expect(onDistanceText).not.toHaveBeenCalled();
   await fireEvent.press(screen.getByRole("button", { name: "Shorter" }));
-  expect(onDistanceText).toHaveBeenLastCalledWith("29");
+  expect(onDistanceText).toHaveBeenLastCalledWith("29.5");
   await rerender(choice("10", onDistanceText, "cycling"));
   await fireEvent.press(screen.getByRole("button", { name: "Shorter" }));
-  expect(onDistanceText).toHaveBeenLastCalledWith("10");
+  expect(onDistanceText).toHaveBeenCalledTimes(1);
 });
 
 test("without an activity the field is a run's, as before", async () => {

@@ -262,8 +262,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   impronta iOS `83793e26` invariata). **Parte A in PR, #675**, bozza
   (branch `feat/TASK-356-draw-redesign`, nome rimasto dal numero di
   prima): i pezzi in file nuovi e `ChooseScreen`. **Parte B** (`RoutePanel`,
-  `App.tsx`) dopo il merge della #661 (TASK-340) e col via del
-  Coordinatore. Prende il posto della parte E
+  `App.tsx`, `Segmented`) pronta col via del Coordinatore del 2026-10-31,
+  dopo la #661: entra da `main` dopo la #675. Prende il posto della parte E
   di TASK-339. La riga di privacy sul geocoder del telefono e i testi
   nuovi approvati dall'utente il 2026-10-30 («sì 1 e sì 2»), nell'app e
   sul sito. `tasks/TASK-361.md`.
