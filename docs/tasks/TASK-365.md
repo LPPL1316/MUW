@@ -50,7 +50,7 @@ Una alla volta, con le sue parole. **Chiuse la 1 e la 2, e i titoli della 5.**
    l'utente. Sono anche fra i cinque che TASK-364 propone per Explore (scelta 2).
    — *Risposta* (2026-11-02, sul foglio dei 33 candidati del secondo giro):
    «Buoni e discreti». Sono 25 percorsi, in `catalog/muw_routes/`: 9 in bici
-   del primo giro, 12 a piedi, 2 in bici nuovi e 4 in canoa. Fuori gli 8
+   del primo giro, 10 a piedi, 2 in bici nuovi e 4 in canoa. Fuori gli 8
    deboli. Tre in bici passano quasi 1 km o più in galleria (Madrid, Valencia
    due volte): nessuno li ha percorsi.
 2. **Chi pubblica cosa con TASK-364.** Proposta di questo task: un percorso sta
