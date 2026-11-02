@@ -490,6 +490,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Riallineata** il 2026-11-01 su `main` `bd9af711` (testa `7ee6091e`):
   privacy datata 1° novembre 2026, impronte invariate (iOS `67253126…`,
   Android `8aac71c3…`), test locali verdi.
+  **Pronta per la build** (2026-11-02, l'utente ha chiesto la build): su
+  `main` `74f34e79`, con `expo-haptics` acceso (scelta dell'utente), privacy
+  datata 2 novembre 2026; impronta iOS `6f8bba4c…`, Android `227457f3…`.
+  Simulatore con build Release: Salute, lettura, rubrica, selettore e
+  vibrazione funzionano. Resta in bozza; la build la lancia l'utente.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).

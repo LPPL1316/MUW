@@ -464,8 +464,17 @@ l'approvazione di Apple, così nel frattempo `main` continua a raggiungere la
 1.0.0 (7) con gli update. Finché la #620 non è in `main`, chi ha la 1.0.1 non
 riceve gli update da `main`.
 
-- **Riallineata** su `main` `bd9af711` (2026-11-01). Data della privacy:
-  1° novembre 2026, il giorno del taglio, con `site/privacy/` rifatto.
+- **Riallineata** su `main` `74f34e79` (2026-11-02), quando l'utente ha
+  chiesto la build. Data della privacy: 2 novembre 2026, il giorno del
+  riallineamento, perché la 1.0.1 porta il testo di oggi; `site/privacy/`
+  rifatto.
+- **`expo-haptics` acceso** (scelta dell'utente nella chat del Coordinatore,
+  «Sì, accendila»): fuori da `autolinking.exclude`, come ADR-0307 prevedeva
+  per la prossima build nativa. `nativeConfig.test.ts` controlla che i tre
+  moduli accesi siano collegati e che i nomi chiesti dall'app (`ExpoHaptics`,
+  `ExpoContactsNext`, `ExpoDocumentPicker`) siano quelli registrati dalle
+  librerie: un nome sbagliato nasconderebbe la funzione come se il modulo
+  mancasse.
 - **La riga dello store**, «Saves your activities to Apple Health.», è nella
   descrizione di `store.config.json`, che ha solo l'inglese: il sì dell'utente
   del 2026-10-29 la copre, e niente da tradurre.
@@ -501,9 +510,9 @@ riceve gli update da `main`.
   TASK-345 C a runtime, nei suoi file. Senza questa chiave la richiesta
   chiude l'app, quindi C resta spenta sulla 1.0.0 (7), con un test suo.
 - **Le impronte** (copia pulita, `npm ci`, `APP_VARIANT=production`): iOS
-  `672531263738861d26b6d724234458a95be95aff`, Android
-  `8aac71c30d004d989635aeba8e3c13cec3f1b34a`. Quella di `main` non cambia
-  fino al merge. `android.blockedPermissions` conta anche nell'impronta iOS
+  `6f8bba4cf1b6f95fc3c1c84ba9812d950a2232a1`, Android
+  `227457f35da5e70e923f4589c2bb2242102943dc` (con `expo-haptics`; prima
+  `67253126…` e `8aac71c3…`). Quella di `main` non cambia fino al merge. `android.blockedPermissions` conta anche nell'impronta iOS
   (era `f10c31a4…`): il codice nativo dell'iPhone è lo stesso, e aggiungerlo
   dopo la build avrebbe tagliato fuori dagli update chi ha la 1.0.1.
 - **Sul simulatore** (Xcode 27, iOS 27, build Release 1.0.1 con
@@ -524,6 +533,13 @@ riceve gli update da `main`.
   - **Selettore**: «Add past activity» → «From a file» apre il selettore di
     iOS; un GPX scelto da «On My iPhone» dà la data giusta, la forma e
     l'etichetta «Imported». Non provati su questo giro TCX e FIT reali.
+- **Di nuovo sul simulatore il 2026-11-02**, con la build Release della testa
+  riallineata: Salute (foglio di scrittura, «Allow», «Save», 3,01 km e la
+  sessione MuW in Fitness), lettura del battito (foglio «Read Access» col
+  testo approvato, nessun errore, zero campioni), rubrica (11 hash all'API,
+  la persona trovata), selettore (un GPX letto, «Imported») e vibrazione
+  (`ExpoHaptics` presente, `impactAsync` va a buon fine; sul simulatore non si
+  sente).
 - **Restano, prima dell'invio**: sull'iPhone dell'utente l'anello Movimento,
   la rubrica vera (`tasks/TASK-152.md` lo chiede prima di Apple) e «From a
   file» con un GPX di Strava, un TCX e un FIT di Garmin. Build, invio e update

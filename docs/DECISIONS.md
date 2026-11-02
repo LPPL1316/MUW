@@ -20775,3 +20775,18 @@ dentro la #620 o tutto nella 1.0.2.
 **Conseguenze**: impronta iOS `67253126…`, Android `8aac71c3…` al merge. Fino
 al merge chi ha la 1.0.1 non riceve gli update da `main`. Sul simulatore
 scrittura, lettura, contatti e selettore funzionano con la build Release.
+
+## ADR-0281 — aggiunta, la build della 1.0.1: anche la vibrazione
+
+**Stato**: Accettata · **Data**: 2026-11-02 · **Deciso**: dall'utente
+(`expo-haptics` nella 1.0.1, «Sì, accendila», nella chat del Coordinatore),
+dall'agente su delega per il resto (TASK-321 parte B). Aggiunta ad ADR-0281,
+senza numero nuovo.
+
+**Decisione**: `expo-haptics` esce da `autolinking.exclude` con contatti e
+selettore, come ADR-0307 diceva per la prossima build nativa. Un test
+confronta il nome del modulo che l'app chiede con quello registrato da ogni
+libreria. La privacy porta la data del riallineamento, il 2 novembre 2026.
+
+**Conseguenze**: impronta iOS `6f8bba4c…`, Android `227457f3…`. Sul
+simulatore la build Release ha i quattro moduli nativi e ognuno risponde.
