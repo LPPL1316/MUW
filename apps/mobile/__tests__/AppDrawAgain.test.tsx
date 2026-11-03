@@ -16,6 +16,7 @@ import App from "../App";
 import { apiError, type MemorySecureStore } from "../src/account/testing";
 import { forgetFeed } from "../src/feed/useFeed";
 import { SAMPLE_FEED } from "../src/feed/sampleFeed";
+import { chosenShape } from "../src/route/testing";
 
 // Every test renders the whole app, and the first one loads it cold.
 jest.setTimeout(20_000);
@@ -81,7 +82,7 @@ function expectDraw(distance: string) {
   expect(screen.getByLabelText("Distance in km")).toHaveDisplayValue(distance);
   // From where «Draw» starts, as before.
   expect(screen.getByText("Starting from your position.")).toBeOnTheScreen();
-  expect(screen.getByRole("button", { name: "Draw route" })).toBeEnabled();
+  expect(screen.getByTestId("draw-route")).toBeEnabled();
 }
 
 beforeEach(() => {
@@ -134,7 +135,7 @@ test("a route of «Explore» gives «Draw» its shape and its distance, asking f
   expect(
     screen.getByRole("button", { name: "Shape", selected: true }),
   ).toBeOnTheScreen();
-  expect(screen.getByLabelText("Shape")).toHaveDisplayValue("star");
+  expect(chosenShape()).toBe("star");
   // The route is left: no card of it, and nothing drawn yet.
   expect(screen.queryByText("Back to the list")).toBeNull();
   expect(asked("POST", "/route-jobs")).toHaveLength(0);
@@ -179,7 +180,7 @@ test("a member's drawing gives «Draw» its shape, the drawing left for good", a
   expect(drawing.shape).toBe("star");
   expect(drawing.distance_m).toBe(4004);
   expectDraw("4");
-  expect(screen.getByLabelText("Shape")).toHaveDisplayValue("star");
+  expect(chosenShape()).toBe("star");
   expect(screen.queryByText(String(drawing.description))).toBeNull();
   expect(screen.queryByRole("button", { name: "Back to the profile" })).toBeNull();
   // Nothing of the other's route travels, and nothing is drawn yet.

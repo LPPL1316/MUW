@@ -86,6 +86,7 @@ from shaperoute_api.line_directions import (
 )
 from shaperoute_api.messages import install_messages
 from shaperoute_api.moderation import install_moderation
+from shaperoute_api.muw_routes import MuwRouteCatalog, install_muw_routes
 from shaperoute_api.notifications import install_notifications
 from shaperoute_api.outline_edits import edit_outline
 from shaperoute_api.places import (
@@ -251,6 +252,7 @@ def create_app(
     request_log: RequestLog | None = None,
     places: PlaceSearch | None = None,
     recommended: RecommendedCatalog | None = None,
+    muw_routes: MuwRouteCatalog | None = None,
     themed: ThemedJobs | None = None,
     cities: CitySearch | None = None,
     insights: Insights | None = None,
@@ -496,6 +498,8 @@ def create_app(
     # The «Recommended» row: the same routes, the best drawn first, then the
     # most liked and run (TASK-092, ADR-0229); it needs a token.
     install_best_routes(app, catalog)
+    # The routes MuW draws for the Feed, apart from it (TASK-365, ADR-0310).
+    install_muw_routes(app, muw_routes)
 
     @app.get("/recommended-routes")
     def list_recommended_routes(

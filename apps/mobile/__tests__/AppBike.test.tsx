@@ -90,7 +90,7 @@ function distanceField() {
 }
 
 async function draw() {
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   // The first poll comes after 500 ms.
   await act(() => jest.advanceTimersByTimeAsync(500));
 }
@@ -128,7 +128,7 @@ test("with «Run» the distances are still 1 to 21 km", async () => {
   await atTrento();
   await fireEvent.changeText(distanceField(), "22");
   expect(screen.getByText("Enter a distance between 1 and 21 km.")).toBeOnTheScreen();
-  expect(screen.getByRole("button", { name: "Draw route" })).toBeDisabled();
+  expect(screen.getByTestId("draw-route")).toBeDisabled();
 });
 
 test("with «Bike» on the phone, «Draw» starts at 10 km and asks for cycling", async () => {
@@ -155,7 +155,7 @@ test("by bike the distances are 10 to 30 km", async () => {
     expect(
       screen.getByText("Enter a distance between 10 and 30 km."),
     ).toBeOnTheScreen();
-    expect(screen.getByRole("button", { name: "Draw route" })).toBeDisabled();
+    expect(screen.getByTestId("draw-route")).toBeDisabled();
   }
   await fireEvent.changeText(distanceField(), "30");
   expect(screen.queryByText(/Enter a distance/)).not.toBeOnTheScreen();

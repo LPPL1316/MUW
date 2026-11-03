@@ -81,16 +81,18 @@ test("without an account the app opens on «Draw» as before, and asks the API n
   accountApi({});
   await render(<App />);
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeTruthy();
-  expect(screen.getByText("Draw route")).toBeTruthy();
+  expect(screen.getByTestId("draw-route")).toBeTruthy();
   await openProfile();
   expect(screen.getByTestId("account-submit")).toBeTruthy();
   onProfilePage();
   // «Draw» is two pages away, as it was left, and out of reach.
-  expect(screen.queryByText("Draw route")).toBeNull();
-  expect(screen.getByText("Draw route", { includeHiddenElements: true })).toBeTruthy();
+  expect(screen.queryByTestId("draw-route")).toBeNull();
+  expect(
+    screen.getByTestId("draw-route", { includeHiddenElements: true }),
+  ).toBeTruthy();
   await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.queryByTestId("account-submit")).toBeNull();
-  expect(screen.getByText("Draw route")).toBeTruthy();
+  expect(screen.getByTestId("draw-route")).toBeTruthy();
   // Nothing but the shape game's catalog, asked as the app opens to know
   // whether to show «Play» (TASK-296).
   expect(
@@ -137,7 +139,7 @@ test("an expired token asks to log in again, without a crash", async () => {
   // «Profile» shows it needs a look, from «Draw».
   expect(await screen.findByTestId("profile-attention")).toBeTruthy();
   expect(screen.getByRole("button", { name: "Profile, log in again" })).toBeTruthy();
-  expect(screen.getByText("Draw route")).toBeTruthy();
+  expect(screen.getByTestId("draw-route")).toBeTruthy();
   await openProfile();
   expect(screen.getByText("Your session has ended. Log in again.")).toBeTruthy();
   expect(screen.getByRole("button", { name: "Log in", selected: true })).toBeTruthy();
@@ -244,7 +246,7 @@ test("drawing a route, the map takes the whole screen; back, the pages return", 
   });
   await render(<App />);
   await screen.findByText("Starting from your position.");
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   expect(calls("POST", "/route-jobs")).toHaveLength(1);
   // Neither the names of the pages nor the way to «Profile» over the map.
   expect(screen.queryByRole("tab")).toBeNull();

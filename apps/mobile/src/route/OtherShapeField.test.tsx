@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { useState } from "react";
 import { Text } from "react-native";
 
 import { OtherShapeField, typedOtherShape } from "./OtherShapeField";
@@ -48,4 +49,32 @@ test("typed or picked", () => {
   expect(typedOtherShape("  Heart ", "heart")).toBe(false);
   expect(typedOtherShape("rocket", null)).toBe(true);
   expect(typedOtherShape("prancing horse", "horse")).toBe(true);
+});
+
+test("a tile's name typed in the field stays in it", async () => {
+  function Kept() {
+    const [text, setText] = useState("heart");
+    const shape = text === "cat" ? "cat" : text === "heart" ? "heart" : null;
+    return (
+      <OtherShapeField text={text} shape={shape} onText={setText} onDone={() => {}} />
+    );
+  }
+  await render(<Kept />);
+  await fireEvent.press(screen.getByTestId("other-shape-link"));
+  await fireEvent.changeText(screen.getByLabelText("Type another shape"), "ca");
+  await fireEvent.changeText(screen.getByLabelText("Type another shape"), "cat");
+  expect(screen.getByLabelText("Type another shape")).toHaveProp("value", "cat");
+});
+
+test("opened by itself and emptied, it stays open: no field closing under the finger", async () => {
+  function Kept() {
+    const [text, setText] = useState("rocket");
+    return (
+      <OtherShapeField text={text} shape={null} onText={setText} onDone={() => {}} />
+    );
+  }
+  await render(<Kept />);
+  await fireEvent.changeText(screen.getByLabelText("Type another shape"), "");
+  expect(screen.getByLabelText("Type another shape")).toHaveProp("value", "");
+  expect(screen.queryByTestId("other-shape-link")).toBeNull();
 });

@@ -150,7 +150,7 @@ test.each([
           Response.json({ ...BIKE_LISTED, id: DRAWN_KEY }, { status: 201 }),
       });
       await open();
-      await fireEvent.press(screen.getByText("Draw route"));
+      await fireEvent.press(screen.getByTestId("draw-route"));
       // The first poll comes after 500 ms.
       await act(() => jest.advanceTimersByTimeAsync(500));
       await fireEvent.press(screen.getByRole("button", { name: "Add to favorites" }));

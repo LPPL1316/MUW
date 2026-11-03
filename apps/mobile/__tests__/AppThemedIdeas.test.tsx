@@ -134,7 +134,7 @@ afterEach(() => {
 
 test("«Draw» has no city tours and no pictures any more", async () => {
   await atTrento();
-  expect(screen.getByRole("button", { name: "Draw route" })).toBeOnTheScreen();
+  expect(screen.getByTestId("draw-route")).toBeOnTheScreen();
   expect(screen.queryByTestId("city-tours")).toBeNull();
   expect(screen.queryByTestId("pictures")).toBeNull();
   expect(screen.queryByText("CITY TOURS")).toBeNull();

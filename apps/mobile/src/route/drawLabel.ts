@@ -12,6 +12,23 @@ export type DrawWhat =
   | { kind: "image" }
   | { kind: "none" };
 
+/** What «Draw» asks for, as the app builds it (`drawn` in App.tsx), told
+ * the way the button says it. */
+export function drawWhat(
+  drawn: { shape: Shape } | { word: string } | { outline: unknown } | null,
+): DrawWhat {
+  if (drawn === null) {
+    return { kind: "none" };
+  }
+  if ("shape" in drawn) {
+    return { kind: "shape", shape: drawn.shape };
+  }
+  if ("word" in drawn) {
+    return { kind: "word", word: drawn.word };
+  }
+  return { kind: "image" };
+}
+
 /**
  * The words of the yellow button at the foot of «Draw» (TASK-361): what
  * will be drawn and how far, «Draw a 7.8 km circle», so the last look

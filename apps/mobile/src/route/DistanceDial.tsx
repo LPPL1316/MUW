@@ -31,8 +31,7 @@ type Props = {
 /**
  * The distance of «Draw» (TASK-361), in place of `DistanceStepper`: − and +
  * by half a km (or mile), held down they run on, faster and faster; the
- * number is a field, a tap types it. Each step is felt (`haptics`). For a
- * screen reader the number is adjustable: swipe up and down.
+ * number is a field, a tap types it. Each step is felt (`haptics`).
  */
 export function DistanceDial({ text, onText, activity = "running", timeText }: Props) {
   const units = useUnits();
@@ -59,17 +58,10 @@ export function DistanceDial({ text, onText, activity = "running", timeText }: P
     <View style={styles.box}>
       <View ref={tourRef} collapsable={false} style={styles.row}>
         <HoldStep label="−" name={t("Shorter")} onStep={() => step(-1)} />
-        <View
-          style={styles.value}
-          accessible
-          accessibilityRole="adjustable"
-          accessibilityLabel={unitName}
-          accessibilityValue={{ text: `${shownNumber(text, units)} ${units}` }}
-          accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
-          onAccessibilityAction={(event) =>
-            step(event.nativeEvent.actionName === "increment" ? 1 : -1)
-          }
-        >
+        {/* No «adjustable» box around the field: it would hide the field
+            from VoiceOver, and the number could not be typed. − and + have
+            their names. */}
+        <View style={styles.value}>
           <TextInput
             style={styles.field}
             value={shownNumber(text, units)}

@@ -260,19 +260,26 @@ pagine»):
 
 1. **«What to draw»**, all'apertura: la pagina «Draw». Dall'alto: il nome
    «MuW», con a sinistra il cuore su giallo (TASK-221, sopra), e il
-   pulsante «Run without a route» (TASK-149, sotto; «Ride
-   without a route» con «Bike», TASK-190); una
-   scheda che dice da dove partirà il percorso,
+   pulsante «🏃 Run without a route» (TASK-149, sotto; «🚴 Ride
+   without a route» con «Bike», TASK-190), col bordo e senza giallo dal
+   TASK-361 (ADR-0307): il giallo pieno è solo di «Draw route». Tre passi
+   numerati (TASK-361): **«1 START»**, la
+   scheda che dice da dove partirà il percorso («📍 Via Roma, Levico
+   Terme» col GPS),
    con, quando servono, il rimando alle Impostazioni e la ricerca del
-   luogo; l'errore della mappa; le forme del catalogo come tessere, con un
-   simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +; subito sotto la
+   luogo; l'errore della mappa; **«2 WHAT YOU DRAW»**, le forme del
+   catalogo in una griglia di due righe con «See all» (quella scelta ha il
+   bordo chiaro), «Type another shape» per un'altra parola e la forma in
+   scala; **«3 DISTANCE»**, grande, fra − e + di mezzo km, col tempo
+   stimato sotto; subito sotto la
    distanza, mentre il server ha il gioco, la riga «PLAY» (TASK-327, sotto
    «“Play”: la collezione delle forme»); poi, con la corsa, «NEAR YOU»
    (TASK-306, sotto «Le forme pronte vicino a te»). Le due righe «CITY
    TOURS» e «PICTURES» di TASK-280 non ci sono più (TASK-329, ADR-0287): le
    idee stanno in «Ask for a route» di «Explore». In fondo, fermo mentre
-   il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
+   il resto scorre, «Draw route», che dice cosa disegna («Draw a 7.8 km
+   circle», TASK-361); la pagina finisce sotto di lui, così l'ultima
+   scheda non resta coperta. Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
    signal.», con il peso vero; finito il download, sparisce.
@@ -1923,16 +1930,35 @@ insieme, e l'interruttore mostra quale. Di partenza «Shape».
 Passare dall'uno all'altro non cancella quanto scritto o scelto negli altri.
 
 La forma si sceglie toccando una tessera, che scrive il nome nel campo, o
-scrivendo nel campo. I simboli delle tessere sono caratteri (♥ ★ ◯ ☾ e le
+scrivendo nel campo, che dal TASK-361 sta dietro «Type another shape»
+(scelta dell'utente del 2026-10-30): si apre con un tocco, vuoto, o da solo
+quando le parole scritte non sono il nome della tessera scelta (una parola
+che l'AI legge resta in vista); le tessere dicono già la forma scelta, e
+il campo non la ripete. I simboli delle tessere sono caratteri (♥ ★ ◯ ☾ e le
 emoji di gatto, pesce, cavallo, farfalla, lumaca, cane, coniglio, zucca,
 albero di Natale, e 🙂 👻 🍩 ☀️ per faccina, fantasmino, ciambella e sole,
 TASK-223):
 disegnare i contorni veri vuole `react-native-svg`, una dipendenza non
 ancora chiesta.
-Le tessere stanno in una riga sola che scorre di lato col dito (TASK-088,
-ADR-0084, chiesto dall'utente): se ne vedono poco meno di quattro, e la
-tessera tagliata sul bordo dice che ce ne sono altre. Una forma scritta nel
-campo porta la sua tessera in vista.
+Le tessere stanno in una griglia di due righe, quattro per riga (TASK-361,
+ADR-0307; prima una riga che scorreva di lato, TASK-088, ADR-0084): sette
+forme e l'ottava tessera «See all», che apre tutte e diciassette; «Show
+fewer» richiude. La forma scelta è sempre in vista: se non è fra le prime
+sette, prende il settimo posto. Toccare una tessera fa vibrare il telefono,
+dove l'app è costruita con `expo-haptics`. Sotto, la forma scelta **in
+scala** su un pezzo di mappa (`ShapePreview`): il contorno del catalogo,
+una barra di scala tonda e «≈ 1.9 × 2.1 km», che seguono forma e
+distanza.
+
+**La distanza** (TASK-361): − e + di mezzo km (mezzo miglio con «Miles»),
+tenuti premuti scorrono sempre più veloci; il numero è un campo, un tocco
+lo scrive. Al limite niente si muove e niente vibra. Sotto, per la corsa,
+il tempo stimato: «≈ 42 min at 5:20/km» col ritmo delle ultime corse
+salvate, o «≈ 47 min at 6:00/km (a usual pace)» senza.
+
+**La parola** ha il segnaposto «Write a word, e.g. CIAO». Le scelte non
+prese degli interruttori sono nel colore del testo, più leggere; quella
+presa ha la superficie chiara, il bordo e il grassetto.
 
 La **forma** è una parola, in inglese o in italiano (ADR-0036). Le forme
 sono quelle del catalogo, le sole che l'utente ha giudicato riconoscibili

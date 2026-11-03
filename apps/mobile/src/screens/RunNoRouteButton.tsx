@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 
 import { t } from "../i18n";
+import type { Sport } from "../settings/sport";
 import {
   color,
   fontSize,
@@ -9,6 +10,20 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+
+/** The sport's sign beside «… without a route» (TASK-361). */
+export function withoutRouteIcon(sport: Sport): string {
+  switch (sport) {
+    case "bike":
+      return "🚴";
+    case "paddle":
+      return "🛶";
+    case "paragliding":
+      return "🪂";
+    default:
+      return "🏃";
+  }
+}
 
 /**
  * «🏃 Run without a route» in the header of «Draw» (TASK-361): outlined, no

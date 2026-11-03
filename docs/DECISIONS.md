@@ -20618,6 +20618,17 @@ pulsante fisso.
    tocco, vuoto; o da solo quando le parole scritte non sono il nome della
    forma scelta, così una parola che l'AI legge non resta nascosta.
 
+10. **Parte B** (col via del Coordinatore del 2026-10-31): il pulsante
+   giallo ha `testID="draw-route"` perché le sue parole cambiano con la
+   scelta, e i test lo cercano per quello; il campo della distanza **non**
+   è dentro un riquadro «adjustable» (lo nasconderebbe a VoiceOver, e il
+   numero non si potrebbe più scrivere): bastano − e + coi loro nomi. In
+   `Segmented` le scelte non prese passano da `textMuted` al colore del
+   testo, più leggere (la richiesta dell'utente: «troppo spente»; l'AA
+   c'era già); la presa si riconosce da superficie, bordo e grassetto.
+   Al limite della distanza − e + non chiamano più `onText`: niente si
+   muove, niente vibra.
+
 **Conseguenza**: testi nuovi nelle cinque lingue (righe aggiunte in fondo
 alle tabelle); solo app, OTA; motore, API e contratti invariati. Il
 collegamento in `RoutePanel` e `App.tsx` (parte B) aspetta la #661.
@@ -20636,6 +20647,7 @@ servirà, lo chiede l'utente. TASK-347 modifica solo i tratti disegnati e li
 riaggancia, come ADR-0300 dice. ADR-0300 resta com'è.
 
 ---
+alle tabelle); solo app, OTA; motore, API e contratti invariati.
 
 ## ADR-0260, precisazione — Il regolamento legge i margini veri del telefono
 
@@ -20646,6 +20658,19 @@ tiene quindi un suo `SafeAreaProvider`, con `initialWindowMetrics`, come
 `Tour.tsx`. Scartato: cambiare `Pager.tsx`, su cui lavora TASK-339, e far
 scegliere il margine a chi apre il regolamento, che lo farebbe sbagliare al
 prossimo che lo apre da un'altra pagina.
+
+---
+
+## ADR-0074, precisazione — La tavola del contorno legge i margini veri del telefono
+
+**Stato**: Attiva · 2026-11-02 · deciso dall'agente su delega dell'utente
+(TASK-366). La tavola di «Edit the outline» si apre da «Draw», una pagina del
+`Pager`, e il titolo finiva sopra l'orologio. Come per il regolamento
+(ADR-0260, precisazione), il `Modal` tiene un suo `SafeAreaProvider` con
+`initialWindowMetrics`. Le altre sei finestre elencate da TASK-360 restano
+come sono: aperte nel simulatore, nessuna si apre da una pagina del `Pager`.
+Scartato: un provider in ogni `Modal` che legge i margini, «per sicurezza»,
+che toccherebbe file di altri task senza un difetto da correggere.
 
 ---
 
@@ -20691,5 +20716,84 @@ come una corsa, e quella risposta è di TASK-362); un utente «MuW» nel databas
 una PR e un riavvio dell'API. Il punteggio del motore non basta a dire se una
 forma si legge, quindi ogni percorso passa dall'occhio. `sampleFeed.json` e gli
 esempi restano fuori: la scelta è aperta col Coordinatore (TASK-362, scelta 4).
+
+---
+
+## ADR-0311 — La navigazione come Instagram: una barra di schede in basso, un header solo
+
+**Stato**: Proposta · 2026-11-02 · TASK-367. La richiesta è dell'utente (un
+brief del 2026-11-02); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-367.md`; il resto è deciso dall'agente su delega
+dell'utente. Sostituisce ADR-0124 (le pagine affiancate) e il `Pager` di
+TASK-339 A.
+
+**Contesto**: le pagine stanno una accanto all'altra, con i nomi «Feed · Draw ·
+Explore» sotto la Dynamic Island e il profilo dietro un cerchio. I messaggi si
+aprono dal Profilo, le impostazioni da una riga del Profilo. L'utente vuole la
+struttura di Instagram: cinque schede in basso e un header uguale ovunque.
+Sull'immagine della barra e dell'header, nei due toni coi colori dei token, ha
+risposto «Sì, così».
+
+**Decisione** (proposta):
+
+1. Una barra in basso con cinque icone senza testo: Feed, Draw, Messages,
+   Explore, il cerchio del profilo. La scheda attiva in `text`, le altre in
+   `textFaint`: il giallo resta del percorso (ADR-0293). Il cerchio attivo ha un
+   bordo `text`.
+2. Un header solo: il cuore e «MuW» a sinistra, lo sport a destra. Nessun nome
+   di pagina.
+3. Niente swipe fra le pagine. Le pagine restano montate dopo la prima visita,
+   come oggi; il tocco sulla scheda attiva torna in cima o alla radice.
+4. La barra e l'header spariscono dove oggi sparisce il Pager: mappa, corsa,
+   «Play», la corsa riaperta.
+5. Icone PNG prese da Lucide (licenza ISC), colorate dai token («PNG da
+   Lucide»): nessuna dipendenza nuova, l'impronta iOS non cambia, arriva con un
+   OTA. Lo sfondo della barra è semitrasparente senza blur: `expo-blur` è nativo.
+6. La campanella aspetta una lista vera di notifiche sul server, in una parte a
+   sé con una migrazione («Aspetta la lista vera»): niente schermate
+   segnaposto agli utenti.
+7. Messages diventa una scheda con la lista di oggi; le impostazioni si aprono
+   dall'ingranaggio del Profilo. Nessuna funzione si perde.
+8. Nella prima parte nessun testo nuovo: le etichette di VoiceOver riusano nomi
+   già tradotti («Sì, approvo»).
+
+**Conseguenze**: tre parti: A la barra (solo app, dopo TASK-355 A e 362), B la
+ricerca in Explore (dopo 344 B), C le notifiche (API, migrazione, app). Le
+schermate dell'App Store (TASK-328) vanno rifatte. Chi aveva imparato lo swipe
+fra le pagine non lo trova più.
+## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
+
+**Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
+(2026-11-02); numeri dal Coordinatore. Le scelte di prodotto sono dell'utente,
+in `tasks/TASK-368.md`; il resto è deciso dall'agente su delega dell'utente.
+Estende ADR-0284 (i totali del profilo).
+
+**Contesto**: il Profilo mostra distanza, dislivello e like. L'utente vuole i
+record sulle distanze classiche, come i «best effort» di Strava. Ogni attività
+salvata con un account è già sul server con la traccia a tempi e le pause.
+
+**Decisione** (proposta):
+
+1. A piedi 5K, 10K, 15K, mezza, 30K, maratona, 60K («Sì, con la maratona»); in
+   bici 10, 20, 40, 50, 100, 160 km («Sì, queste»). La canoa no.
+2. Contano tutte le attività dell'account: private, di gruppo, importate
+   («tutte anche quelle importate», «e anche le private tutte»).
+3. Il record è il tratto più veloce dentro un'attività, in movimento: pause
+   tolte, pezzi con salti del GPS scartati, nessun tempo sotto il record del
+   mondo («Sì, così»).
+4. Il calcolo sta sul server, in un modulo puro, con una tabella di cache
+   aggiornata a ogni attività salvata, cambiata o cancellata, e uno script che
+   riempie la cache dalle attività già salvate.
+5. Gli altri vedono tempo e data («Anche data e corsa»); la corsa si apre solo
+   a chi può già vederla: un record di una corsa privata mostra tempo e data e
+   resta chiuso («Sì, corsa chiusa»). L'API manda la chiave della corsa solo in
+   quel caso.
+6. La Guida e la privacy lo dicono, con il testo approvato («Sì, approvo»).
+
+**Conseguenze**: una migrazione e un aggiornamento del server, col sì
+dell'utente. Un record di una corsa privata dice agli altri che quel giorno
+l'utente ha corso: è la scelta dell'utente, scritta nella privacy. Un file
+importato modificato può dare un record falso, visibile a tutti: accettato con
+la scelta 2.
 
 ---

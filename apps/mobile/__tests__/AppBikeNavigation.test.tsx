@@ -95,7 +95,7 @@ async function open() {
 /** «Draw route», the answer at the first poll, then «Start». */
 async function drawAndStart() {
   await open();
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   // The first poll comes after 500 ms.
   await act(() => jest.advanceTimersByTimeAsync(500));
   await fireEvent.press(screen.getByText("Start"));
