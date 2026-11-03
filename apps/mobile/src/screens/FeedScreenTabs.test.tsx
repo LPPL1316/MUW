@@ -72,14 +72,14 @@ function Around({
 beforeEach(() => {
   forgetFeed();
   saveFeedTab("all");
-  following = { posts: [WORD], next: null, follows_anyone: true };
+  following = { posts: [WORD], next: null, filter: "following", follows_anyone: true };
   fetchSpy = jest.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
     const url = String(input);
     if (url.includes("filter=following")) {
       return Response.json(following);
     }
     if (url.startsWith(`${API}/feed`)) {
-      return Response.json({ posts: [STAR], next: null });
+      return Response.json({ posts: [STAR], next: null, filter: "all" });
     }
     return Response.json(
       { error: { code: "http_error", message: url } },
@@ -141,7 +141,7 @@ test("the tab chosen last opens again, and it alone is read", async () => {
 });
 
 test("following nobody: says so, offers to find people, and shows no example", async () => {
-  following = { posts: [], next: null, follows_anyone: false };
+  following = { posts: [], next: null, filter: "following", follows_anyone: false };
   saveFeedTab("following");
   const findPeople = jest.fn();
   await render(
@@ -156,7 +156,7 @@ test("following nobody: says so, offers to find people, and shows no example", a
 });
 
 test("following nobody with drawings of one's own: those, under the same offer", async () => {
-  following = { posts: [WORD], next: null, follows_anyone: false };
+  following = { posts: [WORD], next: null, filter: "following", follows_anyone: false };
   saveFeedTab("following");
   await render(
     <Around>
@@ -168,7 +168,7 @@ test("following nobody with drawings of one's own: those, under the same offer",
 });
 
 test("following people who have published nothing has its own words", async () => {
-  following = { posts: [], next: null, follows_anyone: true };
+  following = { posts: [], next: null, filter: "following", follows_anyone: true };
   saveFeedTab("following");
   await render(
     <Around>
@@ -192,4 +192,26 @@ test("without an account: no tabs, only the examples, whatever was chosen", asyn
   expect(screen.queryByTestId("feed-list-following")).toBeNull();
   expect(await screen.findByText(SAMPLE_FEED[0].user)).toBeOnTheScreen();
   expect(asked()).toEqual([]);
+});
+
+test("an API before the tabs: the feed it sends, without tabs, whatever was chosen", async () => {
+  saveFeedTab("following");
+  // It ignores `filter` and sends the feed of before, without saying a tab.
+  following = { posts: [WORD], next: null };
+  fetchSpy.mockImplementation(async (input) => {
+    const url = String(input);
+    return url.startsWith(`${API}/feed`)
+      ? Response.json({ posts: [STAR, WORD], next: null })
+      : Response.json({ error: { code: "http_error", message: url } }, { status: 404 });
+  });
+  await render(
+    <Around>
+      <FeedScreen onOpen={() => {}} />
+    </Around>,
+  );
+  expect(await screen.findByText("Sunday heart by the river")).toBeOnTheScreen();
+  expect(screen.queryByText("Following")).toBeNull();
+  expect(screen.queryByTestId("feed-list-following")).toBeNull();
+  // The chosen tab asked first; then «All», which shows the feed of before.
+  expect(asked()).toEqual(["/feed?filter=following", "/feed?filter=all"]);
 });

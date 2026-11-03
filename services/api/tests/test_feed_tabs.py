@@ -69,6 +69,8 @@ def test_all_is_what_everyone_may_see_the_last_published_first(
     page = feed(client, me, filter="all")
     assert titles(page) == ["Stranger new", "Friend", "Mine", "Stranger old"]
     assert "follows_anyone" not in page
+    # The page says its tab: the app knows the API has the tabs.
+    assert page["filter"] == "all"
 
 
 def test_all_does_not_care_where_the_phone_is(
@@ -98,6 +100,7 @@ def test_following_with_follows_is_theirs_and_the_readers_own(
     published(client, wall, me, OTHER_KEY, "Private", visibility="only_me")
     page = feed(client, me, filter="following")
     assert titles(page) == ["For followers", "Mine", "Friend old"]
+    assert page["filter"] == "following"
     assert page["follows_anyone"] is True
 
 

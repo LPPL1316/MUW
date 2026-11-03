@@ -16,6 +16,9 @@ export type FeedShown =
       next: string | null;
       /** In «Following»: whether the account follows anyone. */
       followsAnyone?: boolean;
+      /** The API said the page is of this tab. False from an API before the
+       * tabs, which ignores `filter` and sends the feed of before. */
+      filtered?: boolean;
       /** The next page did not come: `more` asks again. */
       moreFailed?: boolean;
     }
@@ -105,6 +108,7 @@ export function useFeed(
               posts: outcome.value.posts,
               next: outcome.value.next,
               followsAnyone: outcome.value.follows_anyone,
+              filtered: outcome.value.filter === filter,
             },
           });
           return;

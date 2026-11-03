@@ -208,7 +208,9 @@ installate.
   con i post giusti, e cambiare scheda non fa nessuna richiesta nuova. Visto
   solo in scuro: il chiaro non è stato controllato.
 - Impronta iOS `83793e26` su una copia pulita; `tsc` pulito lì.
-- **Da fare fuori da questo task**: il server con `filter` va aggiornato prima
-  dell'OTA dell'app (un'API vecchia ignora `filter` e darebbe il feed a gruppi
-  in tutte e due le schede), col sì dell'utente; la riga di privacy si toglie
-  più avanti (scelta 7); gli esempi restano aperti col Coordinatore (scelta 4).
+- **Server e app in qualsiasi ordine**: la pagina con `filter` ripete la sua
+  scheda; un'API di prima non la ripete e l'app mostra il feed che riceve, senza
+  schede (richiesta del Coordinatore, 2026-11-03). Il server resta un sì
+  dell'utente.
+- **Da fare fuori da questo task**: la riga di privacy si toglie più avanti
+  (scelta 7); gli esempi restano aperti col Coordinatore (scelta 4).

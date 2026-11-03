@@ -99,7 +99,15 @@ class FeedBody(BaseModel):
     """The `cursor` of the next page; null on the last one."""
 
 
-class FollowingFeedBody(FeedBody):
+class FilteredFeedBody(FeedBody):
+    """GET /feed?filter=…: a page of one tab, which says its tab. An API
+    before the tabs ignores `filter` and leaves this out: the app then shows
+    the feed without tabs."""
+
+    filter: FeedFilter
+
+
+class FollowingFeedBody(FilteredFeedBody):
     """GET /feed?filter=following: the page says apart a reader who follows
     nobody from one whose people have published nothing."""
 
@@ -225,8 +233,13 @@ class Feed:
         after = _cursor(page[-1]) if more else None
         if feed_filter == "following":
             return FollowingFeedBody(
-                posts=posts, next=after, follows_anyone=follows_anyone
+                posts=posts,
+                next=after,
+                filter=feed_filter,
+                follows_anyone=follows_anyone,
             )
+        if feed_filter is not None:
+            return FilteredFeedBody(posts=posts, next=after, filter=feed_filter)
         return FeedBody(posts=posts, next=after)
 
 
@@ -247,7 +260,7 @@ def feed_routes() -> APIRouter:
         lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
         lon: Annotated[float | None, Query(ge=-180, le=180)] = None,
         feed_filter: Annotated[FeedFilter | None, Query(alias="filter")] = None,
-    ) -> FollowingFeedBody | FeedBody:
+    ) -> FollowingFeedBody | FilteredFeedBody | FeedBody:
         if (lat is None) != (lon is None):
             raise AccountError(422, "invalid_request", HALF_A_POINT)
         point = None if lat is None or lon is None else (lat, lon)

@@ -606,7 +606,8 @@ disegni si rileggono, come quando «Profile» si apriva.
   follow», che apre «Find friends», sopra i propri disegni se ne ha; chi segue
   qualcuno senza disegni ha il suo messaggio; gli esempi qui non compaiono mai.
   Se una lettura non arriva, «Couldn't load the Feed.» con «Try again», al posto
-  degli esempi. Senza account non ci sono schede: solo «All» con gli esempi
+  degli esempi. Con un'API che non conosce ancora le schede (la pagina non dice
+  la sua scheda) le schede spariscono e resta il feed che l'API manda. Senza account non ci sono schede: solo «All» con gli esempi
   (ADR-0127), che con un account restano solo a «All» vuoto. La scheda è quella degli esempi: nome di chi ha corso e luogo
   (senza luogo, solo il nome), la linea gialla sulla mappa, il titolo o,
   senza titolo, il giorno della corsa, e «Star · 4.0 km · 19 min»; una

@@ -20498,6 +20498,10 @@ domanda se le schede li sostituissero l'utente ha risposto «Sì, sostituiscono�
 5. Con le schede l'app non manda più la posizione al Feed. La riga di privacy di
    TASK-356 resta vera per le app già installate; si toglie più avanti, col sì
    dell'utente.
+5b. La pagina con `filter` ripete la sua scheda in `filter`. Un'API di prima
+   ignora il parametro e non lo manda: l'app mostra il feed che riceve, senza
+   schede, così l'OTA non dipende dall'aggiornamento del server (richiesta del
+   Coordinatore, 2026-11-03).
 6. Un indice nuovo solo se l'`EXPLAIN` su 10.000 disegni lo chiede: la chiave di
    `follows` e gli indici di `drawings` e `runs` ci sono già.
 

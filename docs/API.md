@@ -2438,7 +2438,9 @@ esempio in `fixtures/feed.json`; il codice in `feed.py`.
   `all` sono i disegni per `everyone`, anche i propri. `following` sono i
   propri e quelli di chi si segue con la richiesta accettata, `everyone` e
   `followers`; il corpo ha in più `follows_anyone`, vero se chi chiede segue
-  almeno una persona (`fixtures/feed-following.json`). Blocchi e disegni
+  almeno una persona (`fixtures/feed-following.json`). Con `filter` la pagina
+  ripete la sua scheda in `filter`: un'API di prima ignora il parametro e non
+  lo manda, e l'app mostra allora il feed senza schede. Blocchi e disegni
   nascosti restano fuori come sempre. Un altro valore: `422`. **Senza `filter`
   tutto resta come sotto**, per le app già installate: per loro valgono i tre
   gruppi e i vicini.

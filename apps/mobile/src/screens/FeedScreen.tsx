@@ -94,11 +94,18 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
   const [chosen, setChosen] = useState(loadFeedTab);
   // Built the first time it is opened, and kept from then on.
   const [opened, setOpened] = useState(chosen === "following");
-  const all = useFeed(active && chosen === "all", "all");
+  // An API before the tabs ignores `filter` (TASK-362): the app shows the feed
+  // it sends, as before, without tabs, until the server is updated. «All»
+  // then reads in place of «Following», even when that was the choice.
   const following = useFeed(active && chosen === "following", "following");
-  const { signedIn } = all;
+  const olderApi = (shown: FeedShown) =>
+    shown.kind === "ready" && shown.filtered === false;
+  const all = useFeed(active && (chosen === "all" || olderApi(following.shown)), "all");
+  const tabsKnown = !olderApi(following.shown) && !olderApi(all.shown);
+  const signedIn = all.signedIn;
+  const withTabs = signedIn && tabsKnown;
   // Without an account there is only «All»; the choice waits for the next one.
-  const tab = signedIn ? chosen : "all";
+  const tab = withTabs ? chosen : "all";
   const { open, openProblem } = useDrawingsDoor();
   const { open: findPeople } = usePeopleDoor();
   const contest = useContest(active);
@@ -125,7 +132,7 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
       <FeedMapShooter width={cardWidth} height={drawingHeight(cardWidth)} />
       <View style={[StyleSheet.absoluteFill, styles.screen]}>
         <View style={[styles.bar, { paddingTop: insets.top + space.lg }]}>
-          {signedIn && <FeedTabs tab={tab} onChoose={onChoose} />}
+          {withTabs && <FeedTabs tab={tab} onChoose={onChoose} />}
           <View style={styles.lens}>
             <FindFriendsButton />
           </View>
@@ -151,7 +158,7 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
           }
           empty={null}
         />
-        {signedIn && opened && (
+        {withTabs && opened && (
           <FeedList
             {...shared}
             tab="following"

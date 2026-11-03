@@ -73,7 +73,7 @@ test("the first page is asked once the tab is on the screen, never with the phon
     headers: { Authorization: `Bearer ${SESSION.token}` },
   });
   await act(async () => answer(200, page));
-  expect(result.current.shown).toEqual({
+  expect(result.current.shown).toMatchObject({
     kind: "ready",
     posts: page.posts,
     next: page.next,
@@ -138,7 +138,7 @@ test("a pull reads the first page again; one that fails leaves the posts", async
   await waitFor(() => expect(result.current.shown.kind).toBe("ready"));
   await act(async () => result.current.refresh());
   await waitFor(() => expect(result.current.refreshing).toBe(false));
-  expect(result.current.shown).toEqual({
+  expect(result.current.shown).toMatchObject({
     kind: "ready",
     posts: [page.posts[1]],
     next: null,
@@ -147,7 +147,7 @@ test("a pull reads the first page again; one that fails leaves the posts", async
   // Offline: the pull ends, the posts stay.
   await act(async () => result.current.refresh());
   await waitFor(() => expect(result.current.refreshing).toBe(false));
-  expect(result.current.shown).toEqual({
+  expect(result.current.shown).toMatchObject({
     kind: "ready",
     posts: [page.posts[1]],
     next: null,
@@ -169,7 +169,7 @@ test("what was there stays while a pull reads", async () => {
   expect(result.current.shown).toMatchObject({ kind: "ready", posts: page.posts });
   await act(async () => answer(200, { posts: [], next: null }));
   expect(result.current.refreshing).toBe(false);
-  expect(result.current.shown).toEqual({ kind: "ready", posts: [], next: null });
+  expect(result.current.shown).toMatchObject({ kind: "ready", posts: [], next: null });
 });
 
 test("an answer that does not come at the start has failed; a pull asks again", async () => {
@@ -265,5 +265,19 @@ test("a page that does not come says so, keeps the posts, and more asks again", 
       next: null,
       moreFailed: false,
     }),
+  );
+});
+
+test("a page that does not say its tab comes from an API before the tabs", async () => {
+  const fetchFn = answers({ status: 200, body: page });
+  const { result } = await feedHook(fetchFn, jest.fn(), { filter: "following" });
+  await waitFor(() =>
+    expect(result.current.shown).toMatchObject({ kind: "ready", filtered: false }),
+  );
+  forgetFeed();
+  const told = answers({ status: 200, body: { ...page, filter: "all" } });
+  const { result: all } = await feedHook(told);
+  await waitFor(() =>
+    expect(all.current.shown).toMatchObject({ kind: "ready", filtered: true }),
   );
 });

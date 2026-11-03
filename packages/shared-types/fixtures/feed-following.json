@@ -1,5 +1,6 @@
 {
   "posts": [],
   "next": null,
+  "filter": "following",
   "follows_anyone": false
 }

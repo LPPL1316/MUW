@@ -1303,9 +1303,15 @@ export interface FeedPage {
  */
 export type FeedFilter = "all" | "following";
 
+/** GET /feed?filter=…: a page of one tab, which says its tab. An API before
+ * the tabs ignores `filter` and leaves `filter` out of the page. */
+export interface FilteredFeedPage extends FeedPage {
+  filter: FeedFilter;
+}
+
 /** GET /feed?filter=following: a page that says apart a reader who follows
  * nobody from one whose people have published nothing. */
-export interface FollowingFeedPage extends FeedPage {
+export interface FollowingFeedPage extends FilteredFeedPage {
   follows_anyone: boolean;
 }
 
