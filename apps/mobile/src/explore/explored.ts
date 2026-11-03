@@ -9,6 +9,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 
 import { isPenUpShape } from "../route/penUpShapes";
 import type { AnyRouteRequest } from "../route/useRouteRequest";
+import { bikeIdeaDetail } from "./bikeIdeas";
 import { type ExampleDetail, exampleDetail } from "./exampleRoutes";
 import {
   type DetailOutcome,
@@ -92,6 +93,10 @@ export function toRequest(detail: RecommendedRouteDetail): AnyRouteRequest | nul
     distance_m: detail.distance_m,
     activity: detail.activity ?? "running",
   };
+  // A figure the catalogue does not have (TASK-364): its own outline.
+  if (detail.outline !== undefined) {
+    return { ...base, outline: detail.outline };
+  }
   if (detail.word !== null) {
     const style: LetterStyle = detail.style === "block" ? "block" : "round";
     return { ...base, word: detail.word, style };
@@ -151,9 +156,15 @@ export function useExplored(apiUrl: string | null): {
   const open = useCallback(
     (route: RecommendedRoute, fetchWhole: FetchWhole = fetchRecommendedRoute) => {
       asked.current = route.id;
+      const bikeIdea = bikeIdeaDetail(route.id);
       const example = exampleDetail(route.id);
+      // On the phone already: no server asked (TASK-364).
       const examples =
-        example === undefined ? [] : optionsOf(route, example, example.alternatives);
+        bikeIdea !== undefined
+          ? optionsOf(route, bikeIdea)
+          : example === undefined
+            ? []
+            : optionsOf(route, example, example.alternatives);
       if (examples.length > 0) {
         setOpened({ status: "done", options: examples, chosen: 0 });
         return;

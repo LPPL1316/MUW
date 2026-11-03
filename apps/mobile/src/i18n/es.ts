@@ -1701,4 +1701,12 @@ export const ES: Table = {
   // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
   "WHAT YOU DRAW": "QUÉ DIBUJAS",
   "Write a word, e.g. CIAO": "Escribe una palabra, p. ej. CIAO",
+
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "RECÓRRELO EN BICI",
+  "Routes drawn by MuW. Nobody has ridden them yet.": "Rutas dibujadas por MuW. Nadie las ha recorrido todavía.",
+  "By bike": "En bici",
+  Bat: "Murciélago",
+  Madrid: "Madrid",
+  Turin: "Turín",
 };
