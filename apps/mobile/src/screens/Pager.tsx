@@ -16,6 +16,7 @@ import {
 } from "react-native-safe-area-context";
 
 import { color, font, MIN_TAP_SIZE, radius, space } from "../theme/tokens";
+import { Hairline } from "../ui/Hairline";
 import { pageName, tabName, tourPart, useTourPager } from "../tour/tourParts";
 import { TOUR_PART } from "../tour/tourSteps";
 
@@ -183,6 +184,7 @@ export function Pager({ pages, page, onPage, action }: Props) {
           </View>
         )}
       </View>
+      <Hairline />
       <ScrollView
         ref={scroller}
         testID="pager"

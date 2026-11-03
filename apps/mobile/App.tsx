@@ -58,6 +58,7 @@ import {
   themedKeepable,
 } from "./src/favorites/favoriteRoute";
 import { useFavoritesDoor } from "./src/favorites/favoritesDoor";
+import { DrawAgainContext, useDrawAgainOf } from "./src/feed/drawAgainDoor";
 import { fetchPostRoute, postRoute } from "./src/feed/feedRoute";
 import { PhoneEngineView } from "./src/engine/PhoneEngineView";
 import { usePhoneZones } from "./src/engine/usePhoneZones";
@@ -1037,6 +1038,9 @@ function MuW() {
     setScreen("choose");
   }
 
+  // The same for the cards of «Feed» (TASK-355).
+  const drawAgainDoor = useDrawAgainOf(sportActivity, onDrawAgain);
+
   /** The button's action for `again`, when «Draw» can draw it. */
   function drawAgainOf(again: DrawAgain | null): (() => void) | undefined {
     return drawsAgain(again, sportActivity) ? () => onDrawAgain(again) : undefined;
@@ -1657,15 +1661,17 @@ function MuW() {
             {
               title: pageTitle("feed"),
               render: () => (
-                <FeedScreen
-                  active={screen === "feed"}
-                  onOpen={(post) => {
-                    closeExplore();
-                    openExplored(postRoute(post), fetchPostRoute(post));
-                    setRouteList("feed");
-                    setScreen("map");
-                  }}
-                />
+                <DrawAgainContext.Provider value={drawAgainDoor}>
+                  <FeedScreen
+                    active={screen === "feed"}
+                    onOpen={(post) => {
+                      closeExplore();
+                      openExplored(postRoute(post), fetchPostRoute(post));
+                      setRouteList("feed");
+                      setScreen("map");
+                    }}
+                  />
+                </DrawAgainContext.Provider>
               ),
             },
             {
