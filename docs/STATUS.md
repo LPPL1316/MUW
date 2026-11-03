@@ -239,7 +239,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   già la posizione e «Your position» non lo dice: lo chiude TASK-356, dopo
   la #668, con il testo già approvato; sito e OTA di produzione con il suo
   sì. `tasks/TASK-355.md`.
-  **Parte A in PR** (2026-11-03, branch `feat/TASK-355-a-feed-card`): la
+  **Parte A in PR #700** (2026-11-03, branch `feat/TASK-355-a-feed-card`): la
   scheda con luogo e data, un titolo solo, pallino e bandierina sulla traccia
   tagliata, il credito in una riga, la miniatura sulle foto, la barra
   «Comments», «Reactions», «Share» (solo i propri), «Draw it near me»
