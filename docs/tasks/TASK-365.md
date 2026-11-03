@@ -79,7 +79,9 @@ Una alla volta, con le sue parole. **Chiuse la 1, la 2 e la 5.**
    nell'app. L'etichetta, con le varianti per la corsa («corrilo tu») e la
    canoa («pagaialo tu»), nelle cinque lingue: — *Risposta* (2026-11-03):
    «CONFERMO», riportata con le sue parole dalla sessione «Sessioni archiviate
-   incomplete».
+   incomplete». Sulla frase intera, nella chat del Coordinatore: «OK METTI
+   PERCORSO CREATO DA MUW». Il testo di base è l'inglese («Route created by MuW
+   – ride it yourself», «– run it yourself», «– paddle it yourself»).
 6. **Cosa si può fare sul post.** Proposta, ADR-0310 punto 4: niente account
    «MuW», reazioni, commenti, profilo, follow o messaggi; si apre il percorso e
    si parte. La scelta dell'utente può cambiarlo.
@@ -199,6 +201,8 @@ packages/shared-types/fixtures/muw-routes.json        (nuovo)
 packages/shared-types/fixtures/muw-route.json         (nuovo)
 packages/shared-types/test/muwRoutes.test.ts          (nuovo)
 apps/mobile/src/api/muwRoutes.ts                      (nuovo)
+apps/mobile/src/api/muwRoutes.test.ts                 (nuovo)
+apps/mobile/src/feed/muwLabel.ts                      (nuovo)
 apps/mobile/src/feed/useMuwRoutes.ts, .test.tsx       (nuovi)
 apps/mobile/src/feed/MuwPost.tsx, MuwPost.test.tsx    (nuovi)
 apps/mobile/src/screens/FeedScreen.tsx                (il minimo)
