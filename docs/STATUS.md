@@ -160,6 +160,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-364 — «RIDE IT YOURSELF» in «Explore»: percorsi in bici di MuW**
+  (ADR-0309; richiesta dell'utente del 2026-10-30/31; numeri dal Coordinatore).
+  Branch `feat/TASK-364-bike-ideas`. Ghost, Bat e Pumpkin dalle bozze di
+  `out/muw-bike-drafts/` («Sì, questi 5»; Mushroom e GO al Feed, «Nel Feed»),
+  testi approvati («Sì, approvo»). «MARRY ME» solo se passa dal motore.
+  Solo app, OTA. `tasks/TASK-364.md`.
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
   numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
@@ -242,6 +248,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   già la posizione e «Your position» non lo dice: lo chiude TASK-356, dopo
   la #668, con il testo già approvato; sito e OTA di produzione con il suo
   sì. `tasks/TASK-355.md`.
+  **Parte A in PR #700** (2026-11-03, branch `feat/TASK-355-a-feed-card`): la
+  scheda con luogo e data, un titolo solo, pallino e bandierina sulla traccia
+  tagliata, il credito in una riga, la miniatura sulle foto, la barra
+  «Comments», «Reactions», «Share» (solo i propri), «Draw it near me»
+  (`feed/RouteMap.tsx`, `ActionBar.tsx`, `drawAgainDoor.ts`), il filo sotto i
+  nomi in `Pager`. Impronta iOS `83793e26`. Prossimo: la parte B (conteggi,
+  foto dell'autore, skeleton), dopo 344 B.
 - **TASK-339 — L'interfaccia premium ed elegante** (ADR-0293, proposta;
   brief dell'utente del 2026-10-29; il canvas della proposta, 16 tavole,
   visto e approvato a voce la sera stessa, «BELLISSIMO»:

@@ -832,6 +832,9 @@ export const DE: Table = {
   "{name}, {ago}: {text}": "{name}, {ago}: {text}",
   "Touch and hold to delete.": "Zum Löschen gedrückt halten.",
 
+  // src/feed/ActionBar.tsx
+  Reactions: "Reaktionen",
+
   // src/social/DrawingReactions.tsx
   React: "Reagieren",
   "Your reaction: {name}": "Deine Reaktion: {name}",
@@ -1720,4 +1723,13 @@ export const DE: Table = {
   // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
   "WHAT YOU DRAW": "WAS DU ZEICHNEST",
   "Write a word, e.g. CIAO": "Schreib ein Wort, z. B. CIAO",
+
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "FAHR ES SELBST",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Von MuW gezeichnete Routen. Noch niemand ist sie gefahren.",
+  "By bike": "Mit dem Rad",
+  Bat: "Fledermaus",
+  Madrid: "Madrid",
+  Turin: "Turin",
 };
