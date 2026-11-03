@@ -558,7 +558,8 @@ Test: il `requestAnimationFrame` della pagina messo prima di MapLibre e
 provato in jest (richiama con un tempo, si annulla); una mappa finta che
 non dice mai `idle` ma ha le tegole dopo due disegni, finita dal
 battito; le suite del video e di «Share your run» verdi. Prova nel
-simulatore con il harness senza fotogrammi, prima e dopo.
+simulatore con il harness senza fotogrammi, prima e dopo. Solo JS:
+impronta iOS su copia pulita con `npm ci` `83793e26…`, invariata. PR #703.
 
 **Resta aperto**, finché l'utente non riprova dalla preview: se anche con
 il fix il video esce senza mappa, la causa è un'altra (timer fermi,
