@@ -1700,7 +1700,8 @@ export const FR: Table = {
 
   // src/explore/RideItYourself.tsx (TASK-364)
   "RIDE IT YOURSELF": "À TOI DE PÉDALER",
-  "Routes drawn by MuW. Nobody has ridden them yet.": "Parcours dessinés par MuW. Personne ne les a encore faits.",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Parcours dessinés par MuW. Personne ne les a encore faits.",
   "By bike": "À vélo",
   Bat: "Chauve-souris",
   Madrid: "Madrid",

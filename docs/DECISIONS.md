@@ -20797,3 +20797,40 @@ importato modificato può dare un record falso, visibile a tutti: accettato con
 la scelta 2.
 
 ---
+
+## ADR-0309 — «RIDE IT YOURSELF»: percorsi in bici di MuW in «Explore», da un file nell'app
+
+**Stato**: Attiva · 2026-11-03 · deciso dall'agente su delega dell'utente per la
+parte tecnica; numero dal Coordinatore; scelte e testi dell'utente in
+`tasks/TASK-364.md`.
+
+**Contesto**: l'utente vuole in «Explore» le migliori bozze in bici di MuW. Le
+idee di ADR-0287 sono a tema, con tappe e «Make it near me» che richiede le
+stesse parole all'API: queste no. Non sono state pedalate.
+
+**Decisione**:
+
+1. **Una fila nuova con dati fissi**, `RideItYourself` sotto «IDEAS FROM EUROPE»;
+   `themedIdeas.json` non si tocca.
+2. **Dal motore, non a mano**: i percorsi sono quelli che il motore ha
+   pianificato sulla rete bici; `tools/bike_ideas.py` li sceglie e toglie punti
+   entro 2 m. Una traccia fatta da uno script fuori dal motore non entra
+   (lo studio di «MARRY ME» in `out/marry-me/`).
+3. **Aperti dal telefono**: `useExplored` trova un percorso della fila prima di
+   chiedere al server; nessun endpoint nuovo, nessuna foto, solo app.
+4. **Una figura fuori catalogo** porta il suo contorno (`outline`) nel dettaglio:
+   la richiesta che «Start» e «Export GPX» leggono è quella di un contorno, in
+   bici.
+5. **Niente numeri non veri**: la scheda dice città, figura, «In bici» e la
+   distanza; sotto la fila, che nessuno li ha ancora pedalati.
+6. **Un percorso sta in Explore o nel Feed**, non in tutti e due senza una
+   scelta dell'utente (con ADR-0310).
+
+**Motivo**: la stessa strada degli esempi di «Explore» già sul telefono, senza
+toccare il server né le app pubblicate; il principio di ADR-0001 resta intero.
+
+**Conseguenza**: aggiungere un percorso vuol dire rigenerare il file con lo
+strumento e una PR; togliere la nota quando qualcuno li avrà pedalati è una
+scelta dell'utente.
+
+---
