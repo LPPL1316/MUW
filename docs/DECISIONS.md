@@ -20362,6 +20362,24 @@ nell'OTA di produzione finché l'utente non ha esportato un video vero
 sull'iPhone e visto la mappa (condizione del Coordinatore): il rischio da
 guardare è un telefono che ricade sul giallo in silenzio.
 
+**Aggiunta (il fix del 2026-11-03, deciso dall'agente su delega
+dell'utente)**: sul telefono dell'utente il video è uscito senza mappa.
+Un WebView tenuto fuori vista può non ricevere da iOS i fotogrammi di
+animazione, e MapLibre carica lo stile e disegna su quelli: la mappa non
+arrivava mai e, passati i 15 s, il video usciva sul giallo come previsto.
+La pagina del video si dà quindi i fotogrammi da sola, con un
+`requestAnimationFrame` fatto di timer messo prima di MapLibre: i timer
+della pagina girano ovunque stia, come l'encoder dimostra da TASK-295, e
+nessuno in quella pagina ha bisogno di un fotogramma fluido. In più la
+mappa è disegnata anche da un battito di 100 ms e la foto è presa quando
+è intera da tre battiti, e il WebView è un punto 1 × 1 a opacità piena
+nell'angolo, non più a opacità zero fuori dallo schermo, come la pagina
+delle mappe del Feed, che sul telefono le mappe le fa. Riprodotto e
+provato nel simulatore con un harness che toglie i fotogrammi alla
+pagina: prima 15,2 s e il giallo, dopo la mappa in 1,5 s. Se sul telefono
+non basta, la prova seguente mette il WebView a grandezza piena sotto una
+vista opaca, come il Feed.
+
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
 con la linea in prospettiva non si fa); la linea come layer di MapLibre

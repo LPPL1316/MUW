@@ -519,6 +519,54 @@ PR #679, branch `feat/TASK-351-b-video-map` (worktree `TASK-351-b`), da
   +1,3–2,4 s. A tegole fredde +4–10 s (dal bench): lì può raddoppiare, e
   si vede solo lo stato di attesa.
 
+## Il fix del 2026-11-03: la mappa che sul telefono non arrivava
+
+**Che cosa ha visto l'utente**, provando la B dalla preview sull'iPhone
+(riferito dalla sessione «Sessioni archiviate incomplete», parole sue):
+«NON C'È SOTTO LA MAPPA E NON POSSO MODIFICARE LO STILE DEL VIDEO». Lo
+stile non si può ancora scegliere perché la riga «Style» arriva con la
+parte C; la mappa invece doveva esserci.
+
+**La causa, riprodotta nel simulatore.** Il WebView del video sta fuori
+vista (un punto 1 × 1 a opacità zero); su un telefono iOS può non dare a
+quella pagina i fotogrammi di animazione (`requestAnimationFrame`), e
+MapLibre carica lo stile e disegna proprio su quelli: la mappa non arriva
+mai, dopo 15 s la pagina rinuncia e il video esce sul giallo, in
+silenzio, com'è previsto quando la mappa manca. Nel simulatore, con il
+harness che toglie `requestAnimationFrame` alla pagina prima che carichi,
+succede lo stesso: 15,2 s di attesa, nessuno stile caricato, video giallo
+da 1,9 MB. Disegnare la mappa da un timer (`map.redraw()`) non basta:
+anche il caricamento dello stile passa da un fotogramma.
+
+**Il fix** (branch `fix/TASK-351-video-map-hidden`, worktree
+`TASK-351-fix`):
+
+1. `videoPage.ts`: prima di MapLibre la pagina si dà i fotogrammi da sola,
+   con un `requestAnimationFrame` fatto di timer (16 ms), che girano
+   ovunque la pagina stia, come l'encoder dimostra da TASK-295. Con lo
+   stesso harness senza fotogrammi: mappa in 1,5 s, scatto 12 ms, video
+   da 4,8 MB con la mappa sotto (`out/TASK-351-fix/frames-fixed/`).
+2. In più, la mappa è disegnata anche da un battito di 100 ms
+   (`redraw()`), e la foto è presa quando è intera da tre battiti, con
+   `idle` come via breve; prima della foto un ultimo `redraw()`.
+3. `RunVideo.tsx`: il WebView è un punto 1 × 1 a opacità piena
+   nell'angolo, non più a opacità zero fuori dallo schermo: nella finestra
+   e visibile per iOS, come la pagina delle mappe del Feed che sta sotto
+   ciò che la copre e sul telefono le mappe le fa.
+
+Test: il `requestAnimationFrame` della pagina messo prima di MapLibre e
+provato in jest (richiama con un tempo, si annulla); una mappa finta che
+non dice mai `idle` ma ha le tegole dopo due disegni, finita dal
+battito; le suite del video e di «Share your run» verdi. Prova nel
+simulatore con il harness senza fotogrammi, prima e dopo.
+
+**Resta aperto**, finché l'utente non riprova dalla preview: se anche con
+il fix il video esce senza mappa, la causa è un'altra (timer fermi,
+WebGL non disegnato fuori vista) e la prossima prova sposta il WebView
+sotto una vista opaca a grandezza piena, come il Feed. Da chiedere
+all'utente: il video uscito era giallo (la riserva) o scuro senza strade
+(uno scatto vuoto).
+
 ## Dove si è (2026-10-30, sera)
 
 Fatto: il canvas; il bench in Safari del simulatore e nell'app (Expo Go,
@@ -528,6 +576,10 @@ bench» (spento), il worktree staccato `.claude/worktrees/video-bench` con
 il harness (file temporanei, mai da committare), il bench in
 `out/video-restyle/`.
 
+2026-11-03: la B è in `main` (#679, merge 5f76d415); sul telefono il
+video è uscito senza mappa: il fix è sopra, in una PR da `main`; la
+prova dalla preview è dell'utente, e l'OTA di produzione aspetta che veda
+la mappa. L'utente ha detto «INIZIALE» per C e D: la C parte dopo il fix.
 Arrivate le scelte 5 (privacy, «Sì, va bene») e 1 (i nomi, «Sì,
 questi»). La B ha il via del Coordinatore ed è la PR #679
 (`feat/TASK-351-b-video-map`, worktree `TASK-351-b`): la mappa sotto nel
