@@ -79,6 +79,7 @@ traduzioni dell'agente degli stessi testi.
   bici) non la disegna a Chicago: a 12, 16, 24 e 28 km «cannot be drawn
   here», la forma migliore resta 5–14 km sotto. Segnalato al Coordinatore;
   lo studio resta in `out/marry-me/`.
-- [x] Impronta iOS su copia pulita: **ff4397a8**, la stessa di `origin/main`
-  misurata con gli stessi pacchetti. Questo branch non la cambia; main non è
-  più a 83793e26 per lavori di altri task.
+- [x] Impronta iOS su copia pulita (`npm ci` alla radice, misura in
+  `apps/mobile`, `APP_VARIANT=production`): **83793e26**, come main 064470b5.
+  Una prima misura dalla radice del repository dava ff4397a8: era il posto
+  sbagliato, non il branch.
