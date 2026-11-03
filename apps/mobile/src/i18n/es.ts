@@ -1714,6 +1714,15 @@ export const ES: Table = {
   "WHAT YOU DRAW": "QUÉ DIBUJAS",
   "Write a word, e.g. CIAO": "Escribe una palabra, p. ej. CIAO",
 
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "RECÓRRELO EN BICI",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Rutas dibujadas por MuW. Nadie las ha recorrido todavía.",
+  "By bike": "En bici",
+  Bat: "Murciélago",
+  Madrid: "Madrid",
+  Turin: "Turín",
+
   // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
   "Route created by MuW – ride it yourself": "Ruta creada por MuW – recórrela tú",
   "Route created by MuW – run it yourself": "Ruta creada por MuW – córrela tú",

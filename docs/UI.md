@@ -2410,6 +2410,16 @@ all'API coi loro elementi (`GET /place-photos`). Un'API più vecchia non le
 ha: i posti col solo nome e le schede con la mappa, come prima. Nessun
 testo nuovo: numeri, nomi dei posti, autori e licenze.
 
+### Pedalalo tu (TASK-364, ADR-0309)
+
+Sotto «IDEAS FROM EUROPE», la fila **«RIDE IT YOURSELF»** («PEDALALO TU»), con
+le stesse schede: percorsi in bici disegnati da MuW, oggi tre, «Barcellona ·
+Fantasma», «Madrid · Pipistrello», «Torino · Zucca», e sotto il titolo «In bici
+· 24,4 km». Sotto la fila il credito delle mappe, la nota «Percorsi disegnati da
+MuW. Nessuno li ha ancora pedalati.» e «© OpenStreetMap contributors». Un tocco
+apre il percorso sulla mappa **subito, senza rete**, in bici, con «Start» ed
+«Export GPX» come ogni percorso di «Explore». Nessun tempo, velocità o calorie.
+
 ### Le forme pronte vicino a te (TASK-306, ADR-0266)
 
 Chiesto dall'utente il 2026-10-26 («sotto a distanza 5 km metti una

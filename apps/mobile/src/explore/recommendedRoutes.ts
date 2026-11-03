@@ -1,4 +1,4 @@
-import type { Activity, LatLon, Walk } from "@shaperoute/shared-types";
+import type { Activity, LatLon, OutlinePoint, Walk } from "@shaperoute/shared-types";
 
 import { apiKey, keyHeaders } from "../api/apiUrl";
 import { shapeWord } from "../i18n/shapeNames";
@@ -67,6 +67,12 @@ export type RecommendedRouteDetail = {
    * (TASK-226), as RouteResult.walks: an example's only, when it has some.
    */
   walks?: Walk[];
+  /**
+   * The outline of a figure the catalogue does not have, for a route of
+   * «RIDE IT YOURSELF» (TASK-364): what its request sends. The API's routes
+   * do not say.
+   */
+  outline?: OutlinePoint[];
   /**
    * How far its shape is turned, as RouteResult.rotation_deg (TASK-232): the
    * map turns the other way, also while it is run. Absent for a route that
