@@ -54,7 +54,11 @@ export function loadDrawingOrders(): OrderKept[] {
 
 /** Keeps `order` for the run `key` of `owner`, in place of the one before;
  * the API does not have it yet. False when the phone refused the file. */
-export function keepOrder(owner: number, key: string, order: readonly string[]): boolean {
+export function keepOrder(
+  owner: number,
+  key: string,
+  order: readonly string[],
+): boolean {
   const list = loadDrawingOrders().filter((item) => !same(item, owner, key));
   return kept.save([...list, { owner, key, order: [...order], sent: false }]);
 }

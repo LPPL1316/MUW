@@ -979,11 +979,11 @@ export type Visibility = (typeof VISIBILITIES)[number];
 export const DRAWING_DESCRIPTION_MAX_LENGTH = 500;
 export const DRAWING_MAX_TAGS = 10;
 /**
- * Besides the map, what the app offers today. It goes to
- * DRAWING_PHOTO_PLACES with TASK-348's app part: a phone on a server not yet
- * updated must not ask for a place the server refuses.
+ * Besides the map, the photos the app offers in a post: 9, so the post has
+ * at most 10 pages with the map among them (TASK-348, the user's choice «10
+ * col disegno»). The API keeps DRAWING_PHOTO_PLACES places.
  */
-export const DRAWING_MAX_PHOTOS = 3;
+export const DRAWING_MAX_PHOTOS = 9;
 /** The places of the photos of a drawing on the API (TASK-348, ADR-0301). */
 export const DRAWING_PHOTO_PLACES = 10;
 

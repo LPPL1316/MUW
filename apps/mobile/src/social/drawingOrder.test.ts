@@ -68,20 +68,24 @@ test("a run or an account gone takes its orders with it", () => {
   forgetOrderOf(1, "a");
   expect(orderOnPhone(1, "a")).toBeNull();
   forgetAllOrdersOf(1);
-  expect(loadDrawingOrders()).toEqual([{ owner: 2, key: "a", order: ORDER, sent: false }]);
+  expect(loadDrawingOrders()).toEqual([
+    { owner: 2, key: "a", order: ORDER, sent: false },
+  ]);
 });
 
 test("the order goes once while others see the drawing, then is sent", async () => {
   keepOrder(1, "a", ORDER);
   const fetchFn = answers({ status: 200, body: { ...myDrawing, order: ORDER } });
-  await expect(syncOrder(URL, TOKEN, 1, "a", "followers", options(fetchFn))).resolves.toBe(
-    "done",
-  );
+  await expect(
+    syncOrder(URL, TOKEN, 1, "a", "followers", options(fetchFn)),
+  ).resolves.toBe("done");
   const [url, init] = fetchFn.mock.calls[0] as [string, RequestInit];
   expect(url).toBe(`${URL}/me/activities/a/drawing/order`);
   expect(init.method).toBe("PUT");
   expect(JSON.parse(String(init.body))).toEqual({ order: ORDER });
-  expect(loadDrawingOrders()).toEqual([{ owner: 1, key: "a", order: ORDER, sent: true }]);
+  expect(loadDrawingOrders()).toEqual([
+    { owner: 1, key: "a", order: ORDER, sent: true },
+  ]);
   // Sent: nothing more to do.
   const again = answers();
   await expect(syncOrder(URL, TOKEN, 1, "a", "everyone", options(again))).resolves.toBe(
@@ -92,11 +96,22 @@ test("the order goes once while others see the drawing, then is sent", async () 
 
 test("made «Only me», the order stays here, to go again when it opens", async () => {
   keepOrder(1, "a", ORDER);
-  await syncOrder(URL, TOKEN, 1, "a", "everyone", options(answers({ status: 200, body: myDrawing })));
+  await syncOrder(
+    URL,
+    TOKEN,
+    1,
+    "a",
+    "everyone",
+    options(answers({ status: 200, body: myDrawing })),
+  );
   const none = answers();
-  await expect(syncOrder(URL, TOKEN, 1, "a", "only_me", options(none))).resolves.toBe("done");
+  await expect(syncOrder(URL, TOKEN, 1, "a", "only_me", options(none))).resolves.toBe(
+    "done",
+  );
   expect(none).not.toHaveBeenCalled();
-  expect(loadDrawingOrders()).toEqual([{ owner: 1, key: "a", order: ORDER, sent: false }]);
+  expect(loadDrawingOrders()).toEqual([
+    { owner: 1, key: "a", order: ORDER, sent: false },
+  ]);
 });
 
 test("no network or a 409 leaves it waiting; a 422 lets it go", async () => {
@@ -130,8 +145,8 @@ test("no network or a 409 leaves it waiting; a 422 lets it go", async () => {
 
 test("a run with no order chosen here asks nothing", async () => {
   const fetchFn = answers();
-  await expect(syncOrder(URL, TOKEN, 1, "a", "everyone", options(fetchFn))).resolves.toBe(
-    "done",
-  );
+  await expect(
+    syncOrder(URL, TOKEN, 1, "a", "everyone", options(fetchFn)),
+  ).resolves.toBe("done");
   expect(fetchFn).not.toHaveBeenCalled();
 });

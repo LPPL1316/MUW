@@ -260,6 +260,7 @@ export function PostComposer({
                   </View>
                 ) : (
                   <Image
+                    testID={`photo-image-${photo.n}`}
                     source={photo.source}
                     style={[styles.thumb, selected === photo.n && styles.thumbOn]}
                   />
