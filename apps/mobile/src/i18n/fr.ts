@@ -1667,6 +1667,15 @@ export const FR: Table = {
   "{day} {month}": "{day} {month}",
   "{name}, {count} new messages: {text}": "{name}, {count} nouveaux messages : {text}",
 
+  // The tabs of «Feed» (TASK-362).
+  All: "Tous",
+  "Follow people to see their drawings here.":
+    "Suis des personnes pour voir leurs dessins ici.",
+  "Find people to follow": "Trouver des personnes à suivre",
+  "The people you follow have not published anything yet.":
+    "Les personnes que tu suis n'ont encore rien publié.",
+  "Couldn't load the Feed.": "Impossible de charger le Feed.",
+
   // src/route/runTime.ts (TASK-361: the time under the distance of «Draw»)
   "≈ {time} at {pace}": "≈ {time} à {pace}",
   "≈ {time} at {pace} (a usual pace)": "≈ {time} à {pace} (une allure habituelle)",

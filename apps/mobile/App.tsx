@@ -1664,8 +1664,6 @@ function MuW() {
                 <DrawAgainContext.Provider value={drawAgainDoor}>
                   <FeedScreen
                     active={screen === "feed"}
-                    // For the drawings nearby (TASK-118), as «Explore».
-                    near={start?.point ?? null}
                     onOpen={(post) => {
                       closeExplore();
                       openExplored(postRoute(post), fetchPostRoute(post));
