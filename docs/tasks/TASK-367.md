@@ -81,6 +81,19 @@ Una alla volta, con le sue parole.
    destra», i messaggi «in Profile, Messages», lo sport «accanto al profilo».
    Con la parte A queste frasi diventano false: vanno riscritte nelle cinque
    lingue, testi nuovi da far approvare all'utente prima della parte A.
+6. **Le frasi nuove della Guida**, in italiano (le altre lingue con lo stesso
+   senso, nel codice della parte A):
+   - «Cos'è MuW»: «In basso ci sono cinque schede: «Feed», «Disegna»,
+     «Messaggi», «Esplora» e il tuo profilo, il cerchio con la tua foto. Tocca
+     una scheda per andarci, toccala di nuovo per tornare in cima. Le
+     «Impostazioni» sono sotto l'ingranaggio in alto a destra del tuo profilo.»
+   - «Messaggi»: «Le tue conversazioni sono in «Messaggi», la scheda con
+     l'aereo di carta, con «Richieste di messaggio» in cima…» (il resto uguale).
+   - «Corsa, bici, canoa»: «Scegli lo sport con il pulsante in alto a destra, o
+     in «Impostazioni».»
+   Le due frasi sulla lente del Feed (Guida e privacy, «Find friends in your
+   contacts») cambiano con la parte B, insieme alla data della privacy.
+   — *Risposta:* «Sì, approvo» (2026-11-03).
 5. **Le statistiche del Profilo.** Il brief chiede corse, km totali e disegni;
    oggi sono distanza, dislivello e like (ADR-0284). Proposta: restano come
    oggi; corse e disegni vorrebbero un cambio all'API e testi nuovi.
