@@ -160,6 +160,25 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
+  un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
+  numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
+  Scelte dell'utente: l'immagine («Sì, così»), la campanella con una lista vera
+  in una parte C («Aspetta la lista vera»), icone PNG da Lucide, testi della
+  parte A («Sì, approvo»), le statistiche del Profilo come oggi («Sì,
+  restano»). Parte A (solo
+  app, `App.tsx`) col via del Coordinatore dopo TASK-355 A e 362; B dopo 344 B;
+  C con server e migrazione, col sì dell'utente. `tasks/TASK-367.md`.
+- **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
+  proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
+  Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
+  fatte: distanze a piedi (5K–60K, maratona compresa) e in bici (10–160 km),
+  tutte le attività anche private e importate, visibili a tutti con tempo e
+  data, la corsa privata resta chiusa, testi di Guida e privacy approvati.
+  Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
+  via del Coordinatore; server, migrazione e sito col sì dell'utente.
+  `tasks/TASK-368.md`.
+
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
   `docs/TASK-365-muw-routes-in-feed` (documenti). Dodici bozze in bici in
@@ -265,8 +284,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   impronta iOS `83793e26` invariata). **Parte A in PR, #675**, bozza
   (branch `feat/TASK-356-draw-redesign`, nome rimasto dal numero di
   prima): i pezzi in file nuovi e `ChooseScreen`. **Parte B** (`RoutePanel`,
-  `App.tsx`) dopo il merge della #661 (TASK-340) e col via del
-  Coordinatore. Prende il posto della parte E
+  `App.tsx`, `Segmented`) pronta col via del Coordinatore del 2026-10-31,
+  dopo la #661: entra da `main` dopo la #675. Prende il posto della parte E
   di TASK-339. La riga di privacy sul geocoder del telefono e i testi
   nuovi approvati dall'utente il 2026-10-30 («sì 1 e sì 2»), nell'app e
   sul sito. `tasks/TASK-361.md`.
@@ -2182,6 +2201,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-366 — Le finestre aperte dal Pager: solo «Edit the outline» stava sotto la barra di stato**
+  (2026-11-02; numero dal Coordinatore; seguito di TASK-360). Le sette finestre elencate da
+  TASK-360 aperte nel simulatore da dove si aprono davvero: solo `OutlineBoard` («Draw» → «Image»)
+  è dentro il `Pager` e aveva il difetto; ora ha un suo `SafeAreaProvider`. Le altre sei sono
+  fuori dal `Pager` e restano com'erano. Android no. Solo app, nessun testo nuovo, impronta iOS
+  83793e26. File: `tasks/TASK-366.md`.
 - **TASK-360 — Il regolamento del concorso senza tema non sta più sotto la barra di stato**
   (2026-10-31; numero dal Coordinatore; difetto trovato provando TASK-343 B). Il `Pager` azzera
   il margine alto delle sue pagine: `ContestRules` ora ha un suo `SafeAreaProvider`. Provato nel

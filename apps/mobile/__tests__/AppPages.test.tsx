@@ -101,7 +101,7 @@ test("opens on «Draw», between «Feed» and «Explore», and asks the API noth
     ["Feed", "Draw", "Explore"],
   );
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
-  expect(screen.getByText("Draw route")).toBeOnTheScreen();
+  expect(screen.getByTestId("draw-route")).toBeOnTheScreen();
   // «Explore» is one swipe away, and has not asked for its routes yet.
   expect(screen.queryByText("Best near you")).toBeNull();
   expect(askedBesidesTheGame()).toEqual([]);
@@ -119,11 +119,11 @@ test("a swipe to the left goes to «Explore», which asks for its routes then", 
   expect(await screen.findByText("Star · 5.1 km")).toBeOnTheScreen();
   expect(listCalls()).toBe(1);
   // «Draw» is the page beside it now: out of sight, as it was left.
-  expect(screen.queryByText("Draw route")).toBeNull();
+  expect(screen.queryByTestId("draw-route")).toBeNull();
   expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
 
   await swipeTo(1);
-  expect(screen.getByText("Draw route")).toBeOnTheScreen();
+  expect(screen.getByTestId("draw-route")).toBeOnTheScreen();
   expect(screen.queryByText("Best near you")).toBeNull();
   // Back on «Explore» the list is still there: it is not asked for again.
   await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
@@ -137,11 +137,11 @@ test("a swipe to the right goes to «Feed», with its example drawings", async (
   expect(screen.getByRole("tab", { name: "Feed", selected: true })).toBeOnTheScreen();
   expect(screen.getByText("A horse through Levico")).toBeOnTheScreen();
   expect(screen.getAllByTestId("feed-post").length).toBeGreaterThanOrEqual(2);
-  expect(screen.queryByText("Draw route")).toBeNull();
+  expect(screen.queryByTestId("draw-route")).toBeNull();
   // «Explore» was never in view: it asked nothing.
   expect(askedBesidesTheGame()).toEqual([]);
   await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
-  expect(screen.getByText("Draw route")).toBeOnTheScreen();
+  expect(screen.getByTestId("draw-route")).toBeOnTheScreen();
 });
 
 test("what was chosen on «Draw» is still there after a look at the other pages", async () => {
@@ -169,5 +169,5 @@ test("a route of «Explore» takes the whole screen; back, «Explore» is the pa
     screen.getByRole("tab", { name: "Explore", selected: true }),
   ).toBeOnTheScreen();
   expect(screen.getByText("Best near you")).toBeOnTheScreen();
-  expect(screen.queryByText("Draw route")).toBeNull();
+  expect(screen.queryByTestId("draw-route")).toBeNull();
 });

@@ -45,12 +45,25 @@ type Props = {
  * the words in it are not a tile's.
  */
 export function OtherShapeField({ text, shape, onText, onDone, children }: Props) {
+  // Shown once, it stays: emptied while typing, it must not close under
+  // the finger. `tapped`: opened by the link, so the keyboard comes up.
   const [opened, setOpened] = useState(false);
-  if (!opened && !typedOtherShape(text, shape)) {
+  const [tapped, setTapped] = useState(false);
+  // Typed in since it opened: the field shows what was typed, even a tile's
+  // name («cat»), which a picked tile would not show.
+  const [typed, setTyped] = useState(false);
+  const other = typedOtherShape(text, shape);
+  if (other && !opened) {
+    setOpened(true);
+  }
+  if (!opened && !other) {
     return (
       <Pressable
         style={styles.link}
-        onPress={() => setOpened(true)}
+        onPress={() => {
+          setOpened(true);
+          setTapped(true);
+        }}
         accessibilityRole="button"
         accessibilityHint={t("Write a shape that is not among the tiles")}
         testID="other-shape-link"
@@ -64,8 +77,11 @@ export function OtherShapeField({ text, shape, onText, onDone, children }: Props
       <TextInput
         style={styles.field}
         // A picked tile's name is not something typed: the field starts empty.
-        value={typedOtherShape(text, shape) ? text : ""}
-        onChangeText={onText}
+        value={typed || other ? text : ""}
+        onChangeText={(next) => {
+          setTyped(true);
+          onText(next);
+        }}
         onEndEditing={onDone}
         maxLength={MAX_SHAPE_TEXT_LENGTH}
         placeholder={t("heart, star, horse…")}
@@ -74,7 +90,7 @@ export function OtherShapeField({ text, shape, onText, onDone, children }: Props
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="done"
-        autoFocus={opened}
+        autoFocus={tapped}
         accessibilityLabel={t("Type another shape")}
       />
       {children}

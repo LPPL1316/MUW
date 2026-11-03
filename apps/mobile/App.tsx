@@ -112,7 +112,9 @@ import { ImageEditsContext } from "./src/route/imageEdits";
 import type { ChoiceKind } from "./src/route/problems";
 import { withPenUp } from "./src/route/penUpHint";
 import { shapeAsked } from "./src/route/penUpShapes";
+import { drawLabel, drawWhat } from "./src/route/drawLabel";
 import { DrawButton, RouteChoice, RouteOutcome } from "./src/route/RoutePanel";
+import { averagePace } from "./src/route/runTime";
 import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
@@ -157,6 +159,7 @@ import { usePaddleNotice } from "./src/paddle/safetyNotice";
 import { useMoveExample } from "./src/paddle/useMoveExample";
 import { useMoveShape } from "./src/paddle/useMoveShape";
 import { activityOf, withoutRouteLabel } from "./src/settings/sport";
+import { withoutRouteIcon } from "./src/screens/RunNoRouteButton";
 import { SportButton } from "./src/settings/SportButton";
 import { useSport } from "./src/settings/useSport";
 import { DrawingCard } from "./src/social/DrawingCard";
@@ -371,7 +374,11 @@ function MuW() {
     remove: removeActivity,
     record: recordRun,
     signedIn,
+    list: savedRuns,
   } = useActivitiesDoor();
+  // The time under the distance of «Draw» (TASK-361): the pace of the last
+  // runs saved, or a usual one.
+  const pace = useMemo(() => averagePace(savedRuns), [savedRuns]);
   // And so does a drawing opened from a profile (TASK-117).
   const {
     opened: drawing,
@@ -1701,7 +1708,13 @@ function MuW() {
                   footer={
                     <>
                       <ZoneNotice bytes={firstMaps} />
-                      <DrawButton enabled={request !== null} onDraw={onDraw} />
+                      <DrawButton
+                        enabled={request !== null}
+                        onDraw={onDraw}
+                        // What it draws and how far (TASK-361).
+                        label={drawLabel(drawWhat(drawn), distanceM)}
+                        testID="draw-route"
+                      />
                     </>
                   }
                   onRun={() => {
@@ -1709,6 +1722,7 @@ function MuW() {
                     setScreen("run");
                   }}
                   runLabel={withoutRouteLabel(sport)}
+                  runIcon={withoutRouteIcon(sport)}
                 >
                   <ImageEditsContext.Provider value={imageEdits}>
                     <RouteChoice
@@ -1737,6 +1751,7 @@ function MuW() {
                       onDistanceText={distance.type}
                       activity={sportActivity}
                       onFreehand={onOpenCanvas}
+                      pace={pace}
                     />
                   </ImageEditsContext.Provider>
                   {/* The shape game, right under the distance (the user's

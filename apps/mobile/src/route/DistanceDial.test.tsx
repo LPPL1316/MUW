@@ -71,14 +71,13 @@ test("the number is typed with a tap", async () => {
   expect(onText).toHaveBeenCalledWith("12,5");
 });
 
-test("for a screen reader the number is adjustable", async () => {
-  const onText = jest.fn();
-  await render(<DistanceDial text="7" onText={onText} />);
-  const dial = screen.getByRole("adjustable");
-  await fireEvent(dial, "accessibilityAction", {
-    nativeEvent: { actionName: "increment" },
-  });
-  expect(onText).toHaveBeenLastCalledWith("7.5");
+test("for a screen reader: − and + by name, and the field to type in", async () => {
+  await render(<DistanceDial text="7" onText={() => {}} />);
+  expect(screen.getByRole("button", { name: "Shorter" })).toBeOnTheScreen();
+  expect(screen.getByRole("button", { name: "Longer" })).toBeOnTheScreen();
+  // One element only by that name: the field itself.
+  expect(screen.getAllByLabelText("Distance in km")).toHaveLength(1);
+  expect(screen.queryByRole("adjustable")).toBeNull();
 });
 
 test("the time under the number, when there is one", async () => {

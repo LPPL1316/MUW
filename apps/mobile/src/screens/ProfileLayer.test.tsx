@@ -181,9 +181,9 @@ test.each(["Feed", "Draw", "Explore"])(
     expect(screen.getByTestId("account-submit")).toBeOnTheScreen();
     // The pages are there, one swipe apart, as they were left.
     expect(
-      screen.getByText("Draw route", { includeHiddenElements: true }),
+      screen.getByTestId("draw-route", { includeHiddenElements: true }),
     ).toBeTruthy();
-    expect(screen.queryByText("Draw route")).toBeNull();
+    expect(screen.queryByTestId("draw-route")).toBeNull();
     // Touched again, it stays there.
     await fireEvent.press(circle());
     onProfilePage();

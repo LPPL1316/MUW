@@ -241,7 +241,7 @@ test("a member's drawing of a picture puts the track it ran on the map where it 
   expect(fetchSpy.mock.calls.length).toBe(before);
 
   // «Draw route»: the figure goes as a drawing, from where the run started.
-  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
+  await fireEvent.press(screen.getByText("Draw route"));
   expect(
     await screen.findByText(
       "Drawing · on roads · target 2.9 km",

@@ -84,18 +84,18 @@ test("the distance starts at 3 mi, and a typed one is asked in whole metres", as
   expect(asked()).toBe("20921 m");
 });
 
-test("− and + step by a mile, within the miles of the sport", async () => {
+test("− and + step by half a mile (TASK-361), within the miles of the sport", async () => {
   saveUnitsChoice("mi");
   await render(<Draw />);
   await fireEvent.press(screen.getByRole("button", { name: "Longer" }));
-  expect(screen.getByLabelText("Distance in miles").props.value).toBe("4");
-  expect(asked()).toBe("6437 m");
-  for (let i = 0; i < 4; i++) {
+  expect(screen.getByLabelText("Distance in miles").props.value).toBe("3.5");
+  expect(asked()).toBe("5633 m");
+  for (let i = 0; i < 6; i++) {
     await fireEvent.press(screen.getByRole("button", { name: "Shorter" }));
   }
   expect(screen.getByLabelText("Distance in miles").props.value).toBe("1");
   expect(asked()).toBe("1609 m");
-  // A decimal typed keeps its decimal.
+  // A decimal typed keeps its separator.
   await fireEvent.changeText(screen.getByLabelText("Distance in miles"), "12,5");
   await fireEvent.press(screen.getByRole("button", { name: "Longer" }));
   expect(screen.getByLabelText("Distance in miles").props.value).toBe("13");

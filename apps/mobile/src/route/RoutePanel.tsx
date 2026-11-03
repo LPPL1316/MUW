@@ -1,7 +1,6 @@
 import {
   type Activity,
   type LetterStyle,
-  MAX_SHAPE_TEXT_LENGTH,
   type RouteResult,
   type Shape,
   SHAPES,
@@ -23,6 +22,7 @@ import { drawnOf, sendSignal } from "../api/signals";
 import { decimal, t, tLater, tPlural } from "../i18n";
 import { isDrawnOutline } from "../mapdraw/canvasRequest";
 import { Segmented } from "../screens/Segmented";
+import { StepTitle } from "../screens/StepTitle";
 import { milesAtLeast, tenthsToM, unitsNumber } from "../units/distanceInput";
 import { distanceLabel, inUnits, METRES_PER_MILE } from "../units/format";
 import { appUnits, type Units } from "../units/units";
@@ -39,15 +39,18 @@ import {
   LONG_DISTANCE_KM,
   switchDistance,
 } from "./distance";
-import { DistanceStepper } from "./DistanceStepper";
+import { DistanceDial } from "./DistanceDial";
 import { ImageChoice } from "./ImageChoice";
 import { LoadingBar, ReadingBar } from "./LoadingBar";
 import { penUpHint } from "./penUpHint";
 import { offersPenUp } from "./penUpShapes";
 import type { ImageSource } from "./pickImage";
 import { type ChoiceKind, problemText } from "./problems";
+import { OtherShapeField } from "./OtherShapeField";
 import { RouteTiles } from "./RouteTiles";
-import { ShapeTiles } from "./ShapeTiles";
+import { type Pace, runTimeText } from "./runTime";
+import { ShapeGrid } from "./ShapeGrid";
+import { ShapePreview } from "./ShapePreview";
 import { shapeList, shapeName } from "./shapeWords";
 import type { ExportState } from "./useGpxExport";
 import type { ImageState } from "./useImageOutline";
@@ -125,6 +128,9 @@ type ChoiceProps = {
   /** «Freehand», first in the switch off the water (TASK-340): the map of
    * the start, to draw on (TASK-281). Without it the switch has three. */
   onFreehand?: () => void;
+  /** The runner's pace (`runTime.ts`), for the time under the distance of
+   * a run (TASK-361); none: no time. */
+  pace?: Pace;
 };
 
 /**
@@ -155,6 +161,7 @@ export function RouteChoice({
   onDistanceText,
   activity = "running",
   onFreehand,
+  pace,
 }: ChoiceProps) {
   // The distance is asked in the app's units, at once (TASK-182).
   const units = useUnits();
@@ -171,7 +178,8 @@ export function RouteChoice({
   const shapesOnly = activity === "paddling";
   return (
     <View style={styles.panel}>
-      <Text style={styles.label}>{t("DRAW")}</Text>
+      {/* The steps of «Draw» (TASK-361): «1 START» is the start's card. */}
+      <StepTitle number={2} label={t("WHAT YOU DRAW")} />
       {shapesOnly ? (
         <Text style={styles.note}>{t("On the water, a shape of the catalogue.")}</Text>
       ) : (
@@ -184,23 +192,21 @@ export function RouteChoice({
       )}
       {kind === "shape" || shapesOnly ? (
         <>
-          <ShapeTiles chosen={shape} onPick={onShapeText} />
-          <TextInput
-            style={styles.field}
-            value={shapeText}
-            onChangeText={onShapeText}
-            onEndEditing={onShapeDone}
-            maxLength={MAX_SHAPE_TEXT_LENGTH}
-            placeholder={t("heart, star, horse…")}
-            placeholderTextColor={color.textFaint}
-            keyboardAppearance="dark"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="done"
-            selectTextOnFocus
-            accessibilityLabel={t("Shape")}
-          />
-          <ShapeNote text={shapeText} shape={shape} reading={reading} />
+          {/* Two rows, nothing cut at the edge (TASK-361); the field for a
+              shape out of the catalogue behind «Type another shape», the
+              user's choice of 2026-10-30. */}
+          <ShapeGrid chosen={shape} onPick={onShapeText} />
+          <OtherShapeField
+            text={shapeText}
+            shape={shape}
+            onText={onShapeText}
+            onDone={onShapeDone}
+          >
+            <ShapeNote text={shapeText} shape={shape} reading={reading} />
+          </OtherShapeField>
+          {shape !== null && distanceM !== null && (
+            <ShapePreview shape={shape} distanceM={distanceM} />
+          )}
           {onPenUp && !shapesOnly && offersPenUp(shape) && (
             <PenSwitch
               label={t("Lift the pen between parts")}
@@ -218,8 +224,8 @@ export function RouteChoice({
             value={wordText}
             onChangeText={onWordText}
             maxLength={MAX_WORD_FIELD_LENGTH}
-            placeholder="CIAO"
-            placeholderTextColor={color.textFaint}
+            placeholder={t("Write a word, e.g. CIAO")}
+            placeholderTextColor={color.textMuted}
             keyboardAppearance="dark"
             autoCapitalize="characters"
             autoCorrect={false}
@@ -255,12 +261,18 @@ export function RouteChoice({
           )}
         </>
       )}
-      <Text style={[styles.label, styles.section]}>{t("DISTANCE")}</Text>
-      <DistanceStepper
+      <View style={styles.section}>
+        <StepTitle number={3} label={t("DISTANCE")} />
+      </View>
+      {/* Half a km a step, held it runs on, the number typed with a tap; the
+          time under it for a run (TASK-361). */}
+      <DistanceDial
         text={distanceText}
         onText={onDistanceText}
-        editable
         activity={activity}
+        timeText={
+          pace && activity === "running" ? runTimeText(distanceM, pace, units) : null
+        }
       />
       {distanceM === null ? (
         <Text style={styles.problem}>
@@ -289,9 +301,16 @@ export function RouteChoice({
 export function DrawButton({
   enabled,
   onDraw,
+  label = t("Draw route"),
+  testID,
 }: {
   enabled: boolean;
   onDraw: () => void;
+  /** What it draws and how far (TASK-361, `drawLabel.ts`): «Draw a 7.8 km
+   * circle». «Draw route» unless said. */
+  label?: string;
+  /** «Draw»'s own, for the tests: its words change with the choice. */
+  testID?: string;
 }) {
   return (
     <Pressable
@@ -300,8 +319,11 @@ export function DrawButton({
       disabled={!enabled}
       accessibilityRole="button"
       accessibilityState={{ disabled: !enabled }}
+      testID={testID}
     >
-      <Text style={styles.drawText}>{t("Draw route")}</Text>
+      <Text style={styles.drawText} numberOfLines={1} adjustsFontSizeToFit>
+        {label}
+      </Text>
     </Pressable>
   );
 }

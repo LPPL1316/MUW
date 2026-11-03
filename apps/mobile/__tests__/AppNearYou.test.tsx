@@ -151,7 +151,7 @@ test("the three shapes from the position; one opens on the map, «←» goes bac
   expect(screen.queryByText("NEAR YOU")).toBeNull();
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
   expect(screen.getByText("NEAR YOU")).toBeOnTheScreen();
-  expect(screen.getByRole("button", { name: "Draw route" })).toBeOnTheScreen();
+  expect(screen.getByTestId("draw-route")).toBeOnTheScreen();
 });
 
 test("with «Bike» there is no row, and nothing near is asked", async () => {

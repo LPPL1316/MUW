@@ -72,12 +72,15 @@ const styles = StyleSheet.create({
     borderColor: color.borderStrong,
   },
   // On two lines when a label does not fit (TASK-340: «A mano libera»).
+  // The choices not taken in the text's colour, lighter (TASK-361: in
+  // `textMuted` they read as switched off); the one taken is told by its
+  // surface, its border and a bolder weight.
   modeText: {
     textAlign: "center",
-    color: color.textMuted,
-    fontWeight: fontWeight.semibold,
+    color: color.text,
+    fontWeight: fontWeight.medium,
   },
   modeTextSelected: {
-    color: color.text,
+    fontWeight: fontWeight.bold,
   },
 });
