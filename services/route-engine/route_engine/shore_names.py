@@ -24,7 +24,7 @@ import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from route_engine.geo import LatLon, haversine_m, latlon_to_local
 from route_engine.swim_turns import Landmark, SwimTurn
@@ -48,7 +48,11 @@ class ShorePlace:
     point: LatLon
 
 
+@runtime_checkable
 class ShoreNameSource(Protocol):
+    """Where the places with a name come from: a file, the cache's folder,
+    or the API's water, which has its folder (TASK-323 part B)."""
+
     def places(self, bbox: BBox) -> list[ShorePlace]: ...
 
 

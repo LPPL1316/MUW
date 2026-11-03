@@ -22,13 +22,13 @@ from __future__ import annotations
 import math
 import xml.etree.ElementTree as ET
 from collections.abc import Sequence
-from dataclasses import dataclass, replace
-from typing import Literal
+from dataclasses import replace
 
 import numpy as np
 
 from route_engine.export_gpx import COORDINATE_DECIMALS, GPX_NAMESPACE
 from route_engine.geo import LatLon, latlon_to_local_array
+from route_engine.models import Landmark, SwimTurn
 
 # A change of direction larger than this is a turn: a swimmer lifts the
 # head to find the next point.
@@ -37,35 +37,6 @@ TURN_MIN_DEG = 45.0
 # a sharp corner turns within it, the curve of a circle (100 m across or
 # more) turns by less than 20° in it.
 TURN_WINDOW_M = 15.0
-
-Side = Literal["left", "right"]
-
-
-@dataclass(frozen=True)
-class Landmark:
-    """A place with a name on the shore, to turn opposite (shore_names)."""
-
-    name: str
-    # What it is, from OpenStreetMap: "beach_resort", "pier", "lighthouse"...
-    kind: str
-    point: LatLon
-    # From the turn, and the direction to look, clockwise from north.
-    distance_m: float
-    bearing_deg: float
-
-
-@dataclass(frozen=True)
-class SwimTurn:
-    """Where the route turns: the point, metres from the start of the
-    swim, which way and by how much (0-180°), the lap (from 1), and the
-    place on the shore to turn opposite, when there is one."""
-
-    point: LatLon
-    at_m: float
-    side: Side
-    angle_deg: float
-    lap: int = 1
-    landmark: Landmark | None = None
 
 
 def swim_turns(

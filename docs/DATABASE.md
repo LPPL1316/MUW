@@ -796,6 +796,19 @@ dato dal Coordinatore):
   ogni ora (`message_media.MessageMedia.sweep`). Test in
   `test_message_media.py`.
 
+Migrazione `0042_swimming.sql` (TASK-323 parte B, ADR-0283; il numero è
+quello dopo l'ultima in `main` al 2026-11-03, la `0041`: la `0040` non c'è,
+e dopo la `0041` l'ordine resta lo stesso su ogni database):
+
+- I vincoli dell'attività di `favorites` (`0010`), `runs` (`0014`) e
+  `group_runs` (`0032`) prendono anche `'swimming'`: il nuoto in acque
+  libere è un'attività dell'API, e un nuoto si tiene col cuore, si salva
+  come corsa e si propone come corsa di gruppo. Gli stessi nomi
+  (`*_activity_check`), tolti e rimessi; nessuna riga cambia.
+- `drawn_routes.activity` (`0026`) non ha un elenco, solo la lunghezza: non
+  cambia. I giri e le curve di un nuoto stanno nel corpo del risultato
+  (`RouteResult.laps`, `.turns`), dove già sta il resto del percorso.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno
