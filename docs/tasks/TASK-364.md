@@ -1,6 +1,6 @@
 # TASK-364 — «RIDE IT YOURSELF»: percorsi in bici di MuW in «Explore»
 
-**Stato**: In lavorazione · **Fase**: 4 · **Branch**: `feat/TASK-364-bike-ideas` ·
+**Stato**: In revisione — PR aperta · **Fase**: 4 · **Branch**: `feat/TASK-364-bike-ideas` ·
 numero e ADR-0309 dati dal Coordinatore il 2026-10-31
 
 ## Obiettivo
@@ -71,7 +71,14 @@ traduzioni dell'agente degli stessi testi.
   nessun tempo, velocità o calorie; nessun nome di stagione.
 - [x] Ogni percorso si apre senza server e dà una richiesta in bici che
   «Start» legge (test).
-- [ ] Verificato nel simulatore su Barcellona e Torino.
-- [ ] «MARRY ME»: dentro se passa dal motore e si legge, altrimenti fuori e
-  segnalato al Coordinatore.
-- [ ] Impronta iOS 83793e26 su copia pulita (solo app, OTA).
+- [x] Verificato nel simulatore (iPhone 17e, Expo Go, copia pulita con `npm ci`,
+  2026-11-03): Ghost a Barcellona e Pumpkin a Torino si aprono senza server;
+  «Start» avvia la corsa in bici (km/h, «24,3 km to go» e «25,4 km to go»)
+  con le indicazioni di `POST /route-directions` dell'API locale.
+- [x] «MARRY ME»: **fuori**. Il motore (`--outline`, lettere squadrate, in
+  bici) non la disegna a Chicago: a 12, 16, 24 e 28 km «cannot be drawn
+  here», la forma migliore resta 5–14 km sotto. Segnalato al Coordinatore;
+  lo studio resta in `out/marry-me/`.
+- [x] Impronta iOS su copia pulita: **ff4397a8**, la stessa di `origin/main`
+  misurata con gli stessi pacchetti. Questo branch non la cambia; main non è
+  più a 83793e26 per lavori di altri task.
