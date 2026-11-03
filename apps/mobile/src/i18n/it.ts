@@ -263,6 +263,9 @@ export const IT: Table = {
   "On the water": "Sull'acqua",
   "Shapes to paddle, within 1 km of the shore":
     "Forme da pagaiare, entro 1 km dalla riva",
+  // The swim's (TASK-323 C4).
+  "Shapes to swim, within 150 m of the shore":
+    "Forme da nuotare, entro 150 m dalla riva",
   "LAKES AND SEA": "LAGHI E MARE",
   "Near me": "Vicino a me",
   "Choose a lake or a beach: eight shapes on its water, from the shore.":
