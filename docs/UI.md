@@ -605,6 +605,26 @@ disegni si rileggono, come quando «Profile» si apriva.
   a «Feed» com'era, senza rileggere, e «Profile» resta chiuso; se nel
   frattempo è sparito, sopra l'elenco: «This drawing is no longer
   public.». Mentre la prima pagina arriva, una rotella e niente altro.
+  **La scheda di un iscritto** (TASK-355 A, ADR-0306, scelte dell'utente
+  del 2026-10-30): sotto il nome il luogo e quando è stata corsa, con le
+  parole dell'età dei commenti, «Caldonazzo · 2 h fa» («1 g fa», dopo una
+  settimana il giorno); un titolo solo, perché la riga dei numeri non
+  ripete la forma quando il titolo la dice già («Horse», poi «19.2 km ·
+  …»); sulla linea un pallino a un capo e una bandierina all'altro, nel
+  colore del testo con il bordo scuro, distinti dalla forma e non dal
+  colore: sono gli estremi della traccia già tagliata, mai la partenza o
+  l'arrivo veri, e nessun testo li chiama così; il credito della mappa in
+  una riga a 10 pt, nel margine dove la linea non entra; sulle foto la
+  figura piccola in un angolo. Sotto la scheda, oltre un filo: «Comments»
+  e «Reactions» aprono il disegno (i conteggi arrivano con la parte B),
+  «Share» solo sui propri disegni (il post della corsa, dalla traccia già
+  tagliata, che il post taglia ancora; non tenuto come post di una
+  corsa), e in giallo «Draw it near me», la stessa forma o parola in
+  «Draw» con lo sport di «Draw», solo quando «Draw» la sa disegnare
+  (TASK-313). Il «…» e i pulsanti stanno fuori dal pulsante della scheda,
+  dove VoiceOver li raggiunge; la data si sente anche nell'etichetta.
+  Gli esempi non hanno né segni né pulsanti. Sotto i nomi delle pagine un
+  filo (`Hairline`).
   **Senza account, e finché nessuno ha pubblicato qualcosa che si può
   vedere** (o l'API non risponde, o è di prima del feed), mostra
   **quindici disegni di esempio**
