@@ -286,6 +286,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   di TASK-339. La riga di privacy sul geocoder del telefono e i testi
   nuovi approvati dall'utente il 2026-10-30 («sì 1 e sì 2»), nell'app e
   sul sito. `tasks/TASK-361.md`.
+  Data della privacy corretta al 2 novembre 2026 (2026-11-03, sì
+  dell'utente), app e sito, branch `fix/TASK-361-privacy-date`.
 - **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
   la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
   dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;
