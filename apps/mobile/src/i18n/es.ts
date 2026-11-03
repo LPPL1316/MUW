@@ -1713,4 +1713,10 @@ export const ES: Table = {
   // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
   "WHAT YOU DRAW": "QUÉ DIBUJAS",
   "Write a word, e.g. CIAO": "Escribe una palabra, p. ej. CIAO",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Ruta creada por MuW – recórrela tú",
+  "Route created by MuW – run it yourself": "Ruta creada por MuW – córrela tú",
+  "Route created by MuW – paddle it yourself":
+    "Ruta creada por MuW – recórrela remando",
 };
