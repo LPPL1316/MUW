@@ -1,6 +1,6 @@
 import type { LatLon } from "@shaperoute/shared-types";
 import { forwardRef, useMemo } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, type ImageSourcePropType, StyleSheet, View } from "react-native";
 
 import { fitLines, type Segment } from "../../activities/fitLines";
 import { bearingOf } from "../../map/turnedMap";
@@ -19,8 +19,8 @@ export function composedLine(track: readonly LatLon[]): LatLon[] {
 }
 
 type Props = {
-  /** The photo, as an `Image` shows it. */
-  uri: string;
+  /** The photo as taken, as an `Image` shows it. */
+  source: ImageSourcePropType;
   layout: PostLayout;
   track: readonly LatLon[];
   /** The planned route's turn (TASK-232): the drawing reads upright. */
@@ -38,7 +38,7 @@ type Props = {
  * The ref is the View the picture is made of.
  */
 export const ComposedPhoto = forwardRef<View, Props>(function ComposedPhoto(
-  { uri, layout, track, rotationDeg, width, onLoad, onError },
+  { source, layout, track, rotationDeg, width, onLoad, onError },
   ref,
 ) {
   const frame = layoutFrame(layout, width);
@@ -51,7 +51,7 @@ export const ComposedPhoto = forwardRef<View, Props>(function ComposedPhoto(
   const photo = (
     <Image
       key="photo"
-      source={{ uri }}
+      source={source}
       style={[styles.absolute, boxStyle(frame.photo)]}
       resizeMode="cover"
       onLoad={onLoad}

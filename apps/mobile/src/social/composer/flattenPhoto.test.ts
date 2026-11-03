@@ -37,6 +37,8 @@ test("no picture when the view is not there, the capture fails or it is too larg
     throw new Error("no window");
   });
   await expect(flattenPhoto(shown(), failing)).resolves.toBeNull();
-  const huge = jest.fn(async () => "A".repeat(Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 8));
+  const huge = jest.fn(async () =>
+    "A".repeat(Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 8),
+  );
   await expect(flattenPhoto(shown(), huge)).resolves.toBeNull();
 });

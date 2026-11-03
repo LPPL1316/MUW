@@ -82,7 +82,12 @@ export function moved<T>(list: readonly T[], from: number, to: number): T[] {
 
 /** Where a tile dragged by `dx` from `from` lands, in a row of `count`
  * tiles `step` apart: the nearest place, never off the row. */
-export function dropIndex(from: number, dx: number, step: number, count: number): number {
+export function dropIndex(
+  from: number,
+  dx: number,
+  step: number,
+  count: number,
+): number {
   if (step <= 0 || count <= 0) {
     return Math.max(0, Math.min(from, count - 1));
   }
