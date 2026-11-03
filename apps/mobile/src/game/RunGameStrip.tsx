@@ -5,6 +5,7 @@ import { StyleSheet, Text } from "react-native";
 import { useLanguage } from "../i18n/useLanguage";
 import { isPaddle } from "../navigation/paddle";
 import { isRide } from "../navigation/ride";
+import { isSwim } from "../navigation/swim";
 import type { Track } from "../navigation/trackRecorder";
 import { useFollowsDoor } from "../social/followsDoor";
 import { color, fontSize, fontWeight } from "../theme/tokens";
@@ -43,7 +44,7 @@ export function useRunGameStrip(
   const catalog = useGameCatalog();
   const units = useUnits();
   const language = useLanguage();
-  const onFoot = !isRide(activity) && !isPaddle(activity);
+  const onFoot = !isRide(activity) && !isPaddle(activity) && !isSwim(activity);
   const [data, setData] = useState<RunStripData | null>(null);
   // Once for the run: not again while it goes on, whatever changes.
   const asked = useRef(false);

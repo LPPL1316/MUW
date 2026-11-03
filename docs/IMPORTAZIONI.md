@@ -56,8 +56,11 @@ build dopo) «From a file» è nascosto e resta «Photos only».
    punto tenuto. Prima del 2020 l'API rifiuta già (`422`): l'app lo dice
    prima di mandarla.
 4. **Senza percorso, senza punteggio**: come una corsa libera. Lo sport
-   (`running`, `cycling`, `paddling`) è quello del file quando lo dice,
-   altrimenti quello di «Settings»; si cambia nel modulo, come sempre.
+   (`running`, `cycling`, `paddling`, `swimming`) è quello del file quando
+   lo dice, altrimenti quello di «Settings»; si cambia nel modulo, come
+   sempre. Un nuoto (TASK-323 D): `swimming` nel `<type>` del GPX o nello
+   Sport del TCX, `sport` 5 nel FIT; in acque libere l'orologio scrive le
+   posizioni, il file di una piscina non ne ha e non diventa un disegno.
 5. **La traccia la pulisce l'API**, con `clean_track` come ogni corsa. Un
    buco di più di 60 s fra due punti diventa una pausa `auto`: il tempo
    non conta, i metri sì. Più di 20 000 punti: il telefono ne tiene uno
