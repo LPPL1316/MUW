@@ -202,6 +202,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `docs/TASK-362-feed-tabs` (documenti). Sostituiscono i filtri di TASK-355 B
   («Sì, sostituiscono»). Le scelte dell'utente stanno nel task file; il codice parte col via
   del Coordinatore, primo nella coda su `FeedScreen.tsx`. `tasks/TASK-362.md`.
+  2026-11-02: codice pronto in PR da `feat/TASK-362-feed-tabs` (filtro sul
+  server, schede sul `Segmented`, nessuna migrazione). Prima dell'OTA va
+  aggiornato il server, col sì dell'utente. Dopo: 344 B, 355 B ridotta, 309 B.
 
 - **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
   scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
