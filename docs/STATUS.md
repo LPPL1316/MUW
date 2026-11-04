@@ -2396,6 +2396,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   novembre; impronta iOS invariata (`6f8bba4c` da #620). Restano
   all'utente, col Coordinatore: i tre stili dall'anteprima, la copia del
   sito con la riga delle Terrain Tiles, l'OTA. `tasks/TASK-351.md`.
+- **TASK-372 — Sci di fondo: la rete delle piste non disegna forme**
+  (ADR-0316, 2026-11-04). Benchmark su Fiemme, Asiago e Dobbiaco: nessuna
+  delle 45 forme a 0,90, il cerchio mai sopra 0,49. Nessuna rete `nordic`,
+  nessun codice. L'utente ha scelto «Record only»: `xc_skiing` entra con
+  TASK-375 insieme a `skiing`. `tasks/TASK-372.md`.
 - **TASK-369 — «Edit the drawing» su ogni disegno** (ADR-0313; 2026-11-04;
   numeri dal Coordinatore): documenti #712, parte A #719 (`3e7c7d28`), parte
   B #722 (`bacd7c7b`). Il tasto c'è su ogni disegno con una linea, anche
