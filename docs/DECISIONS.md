@@ -20987,7 +20987,10 @@ sull'acqua.
    modifica; il post originale non cambia mai. La copia **non dice da chi
    viene** («No, niente scritta») e l'autore **non può impedirla** («Sì,
    nessun blocco»): non resta nessun legame fra copia e originale, né
-   nell'app né sul server.
+   nell'app né sul server. Se l'autore blocca chi ha copiato, rende privato
+   o cancella l'originale, **la copia resta di chi l'ha fatta** (l'utente, il
+   2026-11-04: «si si»); chi è bloccato non vede più il disegno e non ne fa
+   altre copie.
 7. **Sull'acqua** (parte B, «Voglio anche Pagaia», «Sì, parte separata»):
    l'API accetta un'immagine con «paddling» (solo `placement` «free») e il
    motore la mette dove c'è posto vicino alla partenza, con

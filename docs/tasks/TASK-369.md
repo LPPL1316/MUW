@@ -1,6 +1,6 @@
 # TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa dov'è
 
-**Stato**: Proposta — documenti in PR; parte A dopo il merge di TASK-367 A,
+**Stato**: Proposta — documenti in PR, scelte dell'utente tutte fatte; parte A dopo il merge di TASK-367 A,
 col via del Coordinatore; parte B dopo la A
 **Fase**: 4 · **Branch**: `docs/TASK-369-edit-every-drawing` (documenti),
 `feat/TASK-369-a-edit-every-drawing` (parte A),
@@ -80,16 +80,15 @@ Una per volta, con una proposta pronta:
    scritta** («No, niente scritta»).
 9. **L'autore può impedire la modifica**: **no, nessun blocco** («Sì,
    nessun blocco»).
+10. **La copia quando l'autore blocca, rende privato o cancella
+    l'originale** (domanda del Coordinatore, 2026-11-04): **resta di chi
+    l'ha fatta**. Risposta dell'utente nella chat del Coordinatore: «si si».
+    Nessun legame resta fra la copia e l'originale (niente scritta, niente
+    campo sul server): la copia è un percorso suo come un altro. Chi è
+    bloccato non vede più il disegno e non può farne altre copie.
 
 Per i disegni degli altri la modifica crea sempre una **copia** dell'utente:
 il post originale non cambia mai (dalla richiesta).
-
-**Domanda aperta** (dal Coordinatore, 2026-11-04): se l'autore blocca chi ha
-copiato, o il disegno originale diventa privato o viene cancellato, la copia
-resta di chi l'ha fatta? Proposta: **sì, resta sua sempre**. Nessun legame
-resta fra la copia e l'originale (niente scritta, niente campo sul server):
-la copia è un percorso suo come un altro. Chi è bloccato non vede più il
-disegno e non può farne altre copie.
 
 ## Cosa fare
 
