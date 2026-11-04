@@ -20983,7 +20983,7 @@ dati sulla salute (GDPR art. 9).
 4. Senza nessun dato, una corsa in piano dà `1,0 × km × 70`, cioè −3,5%
    rispetto a oggi (1,036). Su una corsa con salita il valore cresce.
 5. Il Feed usa i dati solo per i post propri. Per i post degli altri resta la
-   formula senza dati, finché non c'è la parte C.
+   formula senza dati (70 kg): i dati non lasciano il telefono.
 6. **Zone** (deciso dall'agente): FC max = 208 − 0,7 × età (Tanaka 2001),
    oppure inserita a mano. Le cinque zone vanno dal 50 al 100% della FC max, a
    passi del 10%. Con la FC a riposo si usa Karvonen: riposo + % × (max −
@@ -21002,4 +21002,4 @@ altezza nel solo punto in cui contano senza il battito.
 battito, le spostano di pochi punti percentuali: in un'ora a 70 kg, pochi kcal.
 Bisogna dirlo senza promettere di più. Una formula che usa sesso ed età col
 battito (Keytel 2005) è possibile solo con la parte D. Le kcal dei post altrui
-restano approssimate finché i dati non sono sul server (parte C).
+restano a 70 kg, perché i dati restano sul telefono.
