@@ -1763,4 +1763,9 @@ export const DE: Table = {
   "No drawings found": "Keine Zeichnungen gefunden",
   "Try other words, or change the filters.":
     "Versuche andere Wörter oder ändere die Filter.",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Route von MuW – fahr sie selbst",
+  "Route created by MuW – run it yourself": "Route von MuW – lauf sie selbst",
+  "Route created by MuW – paddle it yourself": "Route von MuW – paddel sie selbst",
 };

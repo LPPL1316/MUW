@@ -1,6 +1,6 @@
 # TASK-364 — «RIDE IT YOURSELF»: percorsi in bici di MuW in «Explore»
 
-**Stato**: In revisione — PR aperta · **Fase**: 4 · **Branch**: `feat/TASK-364-bike-ideas` ·
+**Stato**: Done — PR #699 in main (081f6d82, 2026-11-03); nella preview di main 081f6d82, produzione con la #700 lanciata dall'utente · **Fase**: 4 · **Branch**: `feat/TASK-364-bike-ideas` ·
 numero e ADR-0309 dati dal Coordinatore il 2026-10-31
 
 ## Obiettivo
@@ -83,3 +83,11 @@ traduzioni dell'agente degli stessi testi.
   `apps/mobile`, `APP_VARIANT=production`): **83793e26**, come main 064470b5.
   Una prima misura dalla radice del repository dava ff4397a8: era il posto
   sbagliato, non il branch.
+
+## Esito
+
+In main con la #699 (merge 081f6d82, 2026-11-03), dopo la #700. In «Explore» la fila
+«PEDALALO TU» ha Ghost, Bat e Pumpkin, in bici, aperti dal telefono senza server.
+«MARRY ME» resta fuori: il motore non la disegna. Impronta 83793e26. L'OTA di
+produzione, unica con la #700, la lancia l'utente dopo la preview.
+

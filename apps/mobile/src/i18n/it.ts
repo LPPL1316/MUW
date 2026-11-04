@@ -1737,4 +1737,9 @@ export const IT: Table = {
   Reset: "Azzera",
   "No drawings found": "Nessun disegno trovato",
   "Try other words, or change the filters.": "Prova altre parole, o cambia i filtri.",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Percorso creato da MuW – pedalalo tu",
+  "Route created by MuW – run it yourself": "Percorso creato da MuW – corrilo tu",
+  "Route created by MuW – paddle it yourself": "Percorso creato da MuW – pagaialo tu",
 };
