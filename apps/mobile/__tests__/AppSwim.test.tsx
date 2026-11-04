@@ -270,7 +270,7 @@ test("a shape too big for the band offers the half km it fits at, in the water's
 test("«Explore» has the lakes and the beaches to swim; a swim of theirs starts through the notice", async () => {
   apiAnswers(swimDone);
   await atRiccione();
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   expect(
     screen.getByText("Shapes to swim, within 150 m of the shore"),
   ).toBeOnTheScreen();

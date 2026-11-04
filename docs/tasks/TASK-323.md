@@ -540,7 +540,7 @@ this»).
   risposta.
 - **Per accendere il nuoto** (`ready: true` in `sport.ts`, una riga): B,
   C1, C2 e C4 in `main`, poi col sì dell'utente il server (migrazione
-  0039), l'estratto dei nomi a riva e `draw_examples --swim`.
+  0040), l'estratto dei nomi a riva e `draw_examples --swim`.
 
 File toccati da C4:
 
