@@ -13,7 +13,7 @@ import {
 const URL = "http://api";
 
 function answering(response: () => Response) {
-  return jest.fn(async (_input: string, _init?: RequestInit) => response());
+  return jest.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => response());
 }
 
 test("the example of the API is a page", () => {
@@ -39,7 +39,7 @@ test("the first page, the next one, and reading up to a line", async () => {
     (await fetchNotifications(URL, "tok", null, { fetchFn: pages, key: null })).kind,
   ).toBe("ok");
   await fetchNotifications(URL, "tok", 41, { fetchFn: pages, key: null });
-  expect(pages.mock.calls.map(([url]) => url)).toEqual([
+  expect(pages.mock.calls.map(([url]) => String(url))).toEqual([
     `${URL}/notifications`,
     `${URL}/notifications?before=41`,
   ]);
@@ -51,7 +51,7 @@ test("the first page, the next one, and reading up to a line", async () => {
   const outcome = await readNotifications(URL, "tok", 42, { fetchFn: read, key: null });
   expect(outcome.kind).toBe("ok");
   const [url, init] = read.mock.calls[0];
-  expect(url).toBe(`${URL}/notifications/read`);
+  expect(String(url)).toBe(`${URL}/notifications/read`);
   expect(init?.method).toBe("POST");
   expect(JSON.parse(String(init?.body))).toEqual({ up_to: 42 });
 });
