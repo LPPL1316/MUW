@@ -187,5 +187,6 @@ In `main`: #137 (TASK-136), #112 (088), #148 (140), #142 (142), #149 (147),
 | Coordinatore Sport | TASK-376 A: banco e `docs/sports/` (PR #736), misure di base di corsa, bici, canoa | TASK-376 B, il registro, dopo TASK-371 A+B, 375 A+B, 323 C2 in `main` | `tools/sport_bench/`, `docs/sports/`, `docs/tasks/TASK-376.md`; righe proprie in `STATUS.md`, `DECISIONS.md`, `INDEX.md` e questa sezione |
 
 Fase 1 (dopo TASK-376 B in `main`), numeri riservati: TASK-377 / ADR-0321
-Escursionismo, TASK-378 / ADR-0322 Gravel/MTB; il terzo sport è da
+Escursionismo (il pilota, scelta dell'utente), TASK-378 / ADR-0322
+Gravel/MTB; il terzo sport è da
 scegliere con l'utente (lo sci di fondo è già «Record only», TASK-372).

@@ -21521,6 +21521,7 @@ nuovi più una riga per registro, e tre sessioni possono lavorarci insieme.
 Il prezzo è un refactor ampio dell'app (circa venti file) in un momento in
 cui nessun altro tocca quei file, e un aggiornamento del server rimandato
 fino al primo sport nuovo. Il pilota della struttura non è la camminata
-(già TASK-371 con la struttura di oggi), ma il primo sport della fase 1.
+(già TASK-371 con la struttura di oggi), ma l'Escursionismo (TASK-377),
+scelta dell'utente del 2026-11-04.
 
 ---

@@ -170,8 +170,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Coordinatore, un banco alla volta. Parte B (ogni sport nei suoi file) dopo
   TASK-371 A+B, 375 A+B e 323 C2 in `main`; il server con la parte B solo
   insieme al primo sport della fase 1 (una notte di esempi). Riservati per
-  la fase 1: TASK-377 / ADR-0321 (Escursionismo), TASK-378 / ADR-0322
-  (Gravel/MTB). `tasks/TASK-376.md`.
+  la fase 1: TASK-377 / ADR-0321 (Escursionismo, il pilota della nuova
+  struttura per scelta dell'utente), TASK-378 / ADR-0322 (Gravel/MTB).
+  `tasks/TASK-376.md`.
 
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch

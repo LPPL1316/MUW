@@ -84,8 +84,9 @@ Coordinatore blocca gli altri lavori su quei file per la durata della PR.
 ### Parte C — la ricetta definitiva e il pilota
 
 1. `docs/sports/COME-AGGIUNGERE.md` riscritto sulla struttura della parte B.
-2. Il pilota della struttura è il primo sport della fase 1 (proposta:
-   Escursionismo, TASK-377), al posto della camminata che è già TASK-371.
+2. Il pilota della struttura è l'**Escursionismo** (TASK-377, ADR-0321),
+   al posto della camminata che è già TASK-371: scelta dell'utente del
+   2026-11-04 («ok si»).
 
 ## Criteri di accettazione
 
