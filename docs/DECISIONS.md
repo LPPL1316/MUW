@@ -21974,3 +21974,48 @@ il margine da `ActionBar`, che lascerebbe il difetto al prossimo che apre il
 post da un'altra pagina, e cambiare il `Pager`.
 
 ---
+
+## ADR-0325 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
+
+**Stato**: Proposta · 2026-11-04 · TASK-384. Le scelte di prodotto sono
+dell'utente (tema, frequenza, strumento, partenza prima della società:
+`tasks/TASK-384.md`); il come è deciso dall'agente su delega dell'utente.
+Numero da confermare col Coordinatore.
+
+**Contesto**: l'utente vuole nel Feed post di MuW con modelli generati dall'AI
+in outfit sportivi e tag che portano a comprare i capi con link affiliati.
+Un post del Feed è un `drawings` su un `runs`, con un utente e dei tempi; i
+percorsi di MuW (ADR-0310) stanno già fuori da `GET /feed`. Termini e Privacy
+oggi dicono che MuW non mostra pubblicità (TASK-267).
+
+**Decisione**:
+
+1. **Tabelle proprie**, `style_posts`, `post_product_tags` e
+   `product_tag_clicks`, e un endpoint proprio, `GET /style`: `GET /feed` e
+   `drawings` non cambiano, un'app già pubblicata non vede niente di nuovo.
+2. **Le etichette «AI-generated» e «Affiliate links» sono fisse sul post**, e
+   la scheda del tag dice che il capo nella foto è simile, non il prodotto:
+   AI Act art. 50, pubblicità riconoscibile, niente pratica ingannevole.
+3. **I clic si contano per giorno e per tag**, senza utente, IP o
+   identificativo: niente tracciamento, niente ATT, nessun dato nuovo
+   nell'App Privacy.
+4. **Uscita a data** (`publish_at`, 2–3 al giorno) e **controllo dei link**
+   prima dell'uscita, dal feed prodotti del programma affiliato quando c'è;
+   un tag senza prodotto si spegne, un post senza tag non esce.
+5. **Le immagini si generano da testo**, con persone inventate e capi senza
+   loghi; nessuna foto dei negozi, nemmeno come riferimento.
+6. **Nel Feed al massimo 1 su 8, solo «All»**, con un interruttore per
+   toglierli e la lente «Style».
+
+**Scartato**: un account MuW con post `drawings` finti (vorrebbe corse e tempi
+inventati, come in ADR-0310); scaricare le foto di Zalando (diritti del
+negozio, e l'utente l'ha escluso); contare i clic per utente (tracciamento,
+consenso, App Privacy).
+
+**Conseguenze**:
+- Servono testi legali nuovi e le dichiarazioni negli store prima della
+  prima build con Style.
+- Il catalogo preparato invecchia in giorni: prezzi e disponibilità vanno
+  riletti prima di ogni uscita.
+
+---

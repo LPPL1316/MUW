@@ -160,6 +160,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
+  (2026-11-04; numero dal Coordinatore, ADR-0325). Proposta in `docs/STYLE.md`, solo documenti;
+  materiali in `out/TASK-384/` (100 outfit da zalando.it, 100 prompt). Scelte dell'utente:
+  sport dell'app, 1 ogni 8 solo «All», Google Imagen / Gemini, Style prima della società.
+  Prossimo: il sì sulla proposta, i testi e i Termini nuovi, poi le parti A–C. Nessuna immagine
+  né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
+
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
   (TASK-355 A) apre `SharePost` dentro il `Pager`, che azzera il margine alto: ora il `Modal` ha
