@@ -160,6 +160,29 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
+  ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
+  Coordinatore; sessione «Coordinatore Sport»). Parte A in
+  `feat/TASK-376-a-sport-bench`: il banco `tools/sport_bench/` (rete, forme
+  del catalogo e tempi su sei zone fisse, `compare` fra due misure), la
+  cartella `docs/sports/` (regole, scoperte comuni, ricetta in bozza, un
+  file per sport). Le misure di base di corsa, bici e canoa col turno del
+  Coordinatore, un banco alla volta. Parte B (ogni sport nei suoi file) dopo
+  TASK-371 A+B, 375 A+B e 323 C2 in `main`; il server con la parte B solo
+  insieme al primo sport della fase 1 (una notte di esempi). Riservati per
+  la fase 1: TASK-377 / ADR-0321 (Escursionismo, il pilota della nuova
+  struttura per scelta dell'utente), TASK-378 / ADR-0322 (Gravel/MTB); il
+  terzo sport della fase 1 è il Roller (scelta dell'utente), TASK-380 / ADR-0324,
+  riservati dal Coordinatore. `tasks/TASK-376.md`.
+
+- **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
+  senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
+  2026-11-04). L'utente ha scelto la categoria prima dello sci, «Ski» ⛷️
+  separato dal fondo e tutte le metriche proposte; il fondo entra anche
+  lui (TASK-372, solo documenti). Parti A (API, migrazione 0044) e B (app)
+  in parallelo, poi C (metriche), D (nomi di impianti e piste), E (prova
+  sul campo). Prossimo passo: i «File toccati» di A al Coordinatore
+  (`tasks/TASK-375.md`).
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -168,6 +191,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   API, migrazione 0043) dopo #709 e prima della notte degli esempi; B (app)
   dopo TASK-367 A con la lista dei file al Coordinatore; C (gioco) col sì
   dell'utente. Testi della parte B ancora da approvare. `tasks/TASK-371.md`.
+  **Parte A** (2026-11-04, branch `feat/TASK-371-a-walk-engine-api`):
+  `walking` nell'API, 1–30 km, disegnata come corsa sulla rete foot da
+  `route_engine/walking.py`, fuori dall'impronta del motore (invariata);
+  `<type>walking</type>` nel GPX solo della camminata, Strava «Walk»,
+  migrazione `0043_walking`. Server e migrazione col sì dell'utente.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
@@ -204,6 +232,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Words», che l'app mostra solo quando la risposta lo dichiara. 28
   testi nuovi approvati dall'utente il 2026-11-04 («Sì, approvati»); il server (col sì) in
   qualsiasi ordine con l'OTA. Su `FeedScreen.tsx` (una riga) entra dopo TASK-367 A.
+  **Chiuso il 2026-11-04**: B in `main` con la #717 (`f23ec332`), server con
+  `shape=word` (`bacd7c7b`), produzione con l'OTA `f607dcf5`; vedi «Completato».
 
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
@@ -248,7 +278,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   tempo in zona a fine corsa, sezione nelle Impostazioni, testi di A e B
   approvati. Parte A (dati del corpo e kcal per corsa, bici e paddle, solo
   app, OTA) e B (zone) dopo TASK-367, col via del Coordinatore; C (lettura da
-  Salute) e D (tempo in zona) con TASK-345 C nella 1.0.2. `tasks/TASK-374.md`.
+  Salute) e D (tempo in zona) con TASK-345 C nella 1.0.2.
+  Parte A (2026-11-04, branch `feat/TASK-374-a-body-calories`): «Body» nelle
+  Impostazioni, kcal di ogni sport nella corsa, nel Feed e in Salute; entra
+  dopo il nuoto (#734). Prossimo: parte B, la pagina delle zone. `tasks/TASK-374.md`.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
@@ -724,6 +757,30 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Prossimo**: C2 dopo B in `main`, cioè `Activity`
   con `swimming` (tocca i file di TASK-321: via del Coordinatore),
   il collegamento in `App.tsx`, `ready: true` col server.
+  **C2 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c2-swim-on`, partito da C1): `Activity` con `swimming`
+  (con il sì dell'utente le righe del nuoto in Apple Salute e Health
+  Connect di TASK-321), le distanze a mezzo km da 1 km, «Bigger shape» e
+  «Smaller shape» coi giri sul risultato, l'avviso del nuoto a ogni
+  «Start», `lap_m` nella risposta (aggiunto a B). Testi e traduzioni
+  approvati. Riga ancora «Soon». **Prossimo**: B in `main` e sul server,
+  C4 («Explore» a nuoto), poi `ready: true`; D (la corsa a nuoto).
+  **C4 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c4-swim-explore`, partito da C2): «Explore» con il nuoto
+  è la pagina dei laghi e delle spiagge della canoa, le otto forme a nuoto
+  a 1 km chieste all'API (`SWIM_EXAMPLES`), il sottotitolo approvato;
+  `draw_examples --swim` per disegnarle sul server. **Prossimo**: B, C1,
+  C2, C4 in `main`; col sì dell'utente server, migrazione 0039, estratto
+  dei nomi a riva, `draw_examples --swim`, poi `ready: true`; D.
+  **D scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-d-swim-run`, partito da C4): un nuoto non parla e non
+  vibra, si mette in pausa da fermo dopo 30 s, è fermo sotto 1 km/h; la
+  schermata della canoa col passo di 100 m; Feed, «My activities» e la
+  scheda col passo di 100 m; i file dell'orologio col nuoto. Proposta e
+  traduzioni approvate. Solo JavaScript. **Prossimo**: B, C1, C2, C4, D in
+  `main` in quest'ordine; poi server col sì dell'utente, `ready: true`; la
+  prova in acqua (primavera 2027) e la parte E (Apple Watch, col sì
+  dell'utente su dipendenza e build).
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
@@ -2409,6 +2466,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297): documenti
+  #653, A #659 (`GET /search/drawings`), B #705 (entrata con #717, `f23ec332`).
+  La lente apre la ricerca a tutto schermo con schede, filtri, ricerche recenti
+  e pagine infinite; «Words» solo quando il server dichiara `shape=word`.
+  Server `bacd7c7b` e OTA di produzione `f607dcf5` del 2026-11-04. Con TASK-367
+  B la lente passa a «Explore». `tasks/TASK-344.md`.
 - **TASK-351 — Il video della corsa con la mappa sotto: il look premium,
   il 3D e tre stili** (ADR-0303): A #669 (documenti), B #679 (la mappa
   sotto, Night), C #706 (la riga «Style», Day), D #724 (il 3D con la camera

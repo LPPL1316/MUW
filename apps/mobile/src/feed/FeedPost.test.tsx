@@ -36,9 +36,9 @@ test("a shape is written as it is read", () => {
 });
 
 test("the facts of a drawing: what, how far, how long", () => {
-  expect(postFacts(POST)).toBe("Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 762 kcal");
+  expect(postFacts(POST)).toBe("Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 736 kcal");
   expect(postFacts({ ...POST, shape: "moon", route_m: 4884, minutes: 27 })).toBe(
-    "Moon · 4.9 km · 27 min · 5:32 /km · 354 kcal",
+    "Moon · 4.9 km · 27 min · 5:32 /km · 342 kcal",
   );
 });
 
@@ -49,7 +49,7 @@ test("shows who ran it and where, the title and the facts", async () => {
   expect(screen.getByText("Firenze")).toBeOnTheScreen();
   expect(screen.getByText("Dog walk, without the dog")).toBeOnTheScreen();
   expect(
-    screen.getByText("Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 762 kcal"),
+    screen.getByText("Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 736 kcal"),
   ).toBeOnTheScreen();
 });
 
@@ -112,7 +112,7 @@ test("a screen reader hears the drawing as one thing", async () => {
   await render(<FeedPost post={POST} width={358} />);
   expect(
     screen.getByLabelText(
-      "fede_km in Firenze: Dog walk, without the dog. Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 762 kcal.",
+      "fede_km in Firenze: Dog walk, without the dog. Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 736 kcal.",
     ),
   ).toBeOnTheScreen();
 });
@@ -126,7 +126,7 @@ test("a tap opens its route, and a screen reader hears where it leads", async ()
   const onOpen = jest.fn();
   await render(<FeedPost post={POST} width={358} onOpen={onOpen} />);
   const card = screen.getByRole("button", {
-    name: "fede_km in Firenze: Dog walk, without the dog. Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 762 kcal.",
+    name: "fede_km in Firenze: Dog walk, without the dog. Dog head · 10.5 km · 1 h 04 min · 6:05 /km · 736 kcal.",
   });
   expect(card).toHaveProp("accessibilityHint", "Opens the route on the map");
   await fireEvent.press(card);
@@ -195,15 +195,15 @@ describe("a drawing on the water (TASK-228)", () => {
 
   test("says its sport before the facts, on the card and to who listens", async () => {
     expect(postFacts(PADDLED)).toBe(
-      "Paddle · Dog head · 2.0 km · 30 min · 7:30 /500 m",
+      "Paddle · Dog head · 2.0 km · 30 min · 7:30 /500 m · 66 kcal",
     );
     await render(<FeedPost post={PADDLED} width={358} onOpen={() => {}} />);
     expect(screen.getByText("Riccione")).toBeOnTheScreen();
     expect(
-      screen.getByText("Paddle · Dog head · 2.0 km · 30 min · 7:30 /500 m"),
+      screen.getByText("Paddle · Dog head · 2.0 km · 30 min · 7:30 /500 m · 66 kcal"),
     ).toBeOnTheScreen();
     expect(screen.getByRole("button")).toHaveAccessibleName(
-      "ale.paddle in Riccione: Dog paddle off Riccione. Paddle · Dog head · 2.0 km · 30 min · 7:30 /500 m.",
+      "ale.paddle in Riccione: Dog paddle off Riccione. Paddle · Dog head · 2.0 km · 30 min · 7:30 /500 m · 66 kcal.",
     );
   });
 

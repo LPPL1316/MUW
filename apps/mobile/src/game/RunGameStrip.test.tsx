@@ -222,8 +222,8 @@ test("an API without the teams yet shows the shape by distance", async () => {
   expect(screen.getByTestId("game-strip")).toHaveTextContent("Hexagon 14.5 / 20 km");
 });
 
-test("no line, and no request, on a bike or on the water", async () => {
-  for (const activity of ["cycling", "paddling"] as const) {
+test("no line, and no request, on a bike or on the water, paddled or swum", async () => {
+  for (const activity of ["cycling", "paddling", "swimming"] as const) {
     const fetchFn = answers();
     await shown(fetchFn, north(300), { activity });
     await waitFor(() => expect(fetchFn).not.toHaveBeenCalled());

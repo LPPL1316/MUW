@@ -831,6 +831,14 @@ database finisce applicata una volta sola):
   cambia. I giri e le curve di un nuoto stanno nel corpo del risultato
   (`RouteResult.laps`, `.turns`), dove già sta il resto del percorso.
 
+Migrazione `0043_walking.sql` (TASK-371 parte A, ADR-0315; numero del
+Coordinatore, la `0042` è di TASK-368 A):
+
+- Gli stessi tre vincoli (`favorites`, `runs`, `group_runs`) prendono anche
+  `'walking'`: una camminata si tiene col cuore, si salva e si propone come
+  corsa di gruppo come camminata, anche se il motore la disegna come una
+  corsa. Nessuna riga cambia.
+
 Migrazione `0045_notifications.sql` (TASK-367 parte C1, ADR-0311, `API.md`
 «The bell»; il numero è del Coordinatore: la `0043` è della camminata, la
 `0044` di «Record only»):

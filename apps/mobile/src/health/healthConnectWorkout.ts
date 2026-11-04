@@ -21,6 +21,8 @@ const EXERCISE_TYPE: Readonly<Record<Activity, number>> = {
   running: 56,
   cycling: 8,
   paddling: 46,
+  // EXERCISE_TYPE_SWIMMING_OPEN_WATER (TASK-323).
+  swimming: 73,
 };
 
 /** ExerciseSegment.EXERCISE_SEGMENT_TYPE_PAUSE: right for every exercise. */

@@ -33,6 +33,7 @@ from route_engine.models import (
 from route_engine.optimizer import ShapeNotDrawableError
 from route_engine.outline_edits import InvalidEditError
 from route_engine.swim_turns import with_turns
+from route_engine.walking import engine_activity
 from shaperoute_ai.reading import (
     InvalidTextError,
     ModelUnavailableError,
@@ -111,6 +112,7 @@ from shaperoute_api.recommended import (
 )
 from shaperoute_api.request_log import RequestLog
 from shaperoute_api.route_store import RouteStore
+from shaperoute_api.run_gpx import with_type
 from shaperoute_api.schemas import (
     ErrorBody,
     ErrorCode,
@@ -194,7 +196,7 @@ def to_request(body: RouteRequestBody | ImageRouteRequestBody) -> AnyRequest:
     """The engine's RouteRequest checks the values, and ImageRequest those of
     an image route: InvalidRequestError. An image has no letters to draw
     with the pen up (TASK-197). The activity is one of the contract's: the
-    engine may draw more (TASK-190)."""
+    engine may draw more (TASK-190); a walk is asked as a run (TASK-371)."""
     check_supported(body.activity)
     if isinstance(body, ImageRouteRequestBody):
         if body.pen_up:
@@ -203,7 +205,7 @@ def to_request(body: RouteRequestBody | ImageRouteRequestBody) -> AnyRequest:
             start=body.start,
             outline=outline_of(body.outline, body.strokes),
             distance_m=body.distance_m,
-            activity=body.activity,
+            activity=engine_activity(body.activity, body.distance_m),
             laps=body.laps,
             placement=body.placement,
             fit=body.fit,
@@ -476,6 +478,8 @@ def create_app(
             # A swim's turns as waypoints, the first lap's (TASK-323).
             turns = [turn.to_turn() for turn in body.result.turns]
             document = with_turns(document, turns)
+        # A walk says it is one (TASK-371); every other file is as before.
+        document = with_type(document, body.request.activity)
         return Response(
             document,
             media_type="application/gpx+xml",

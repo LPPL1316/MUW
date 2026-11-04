@@ -264,6 +264,9 @@ export const ES: Table = {
   "On the water": "En el agua",
   "Shapes to paddle, within 1 km of the shore":
     "Formas para remar, a menos de 1 km de la orilla",
+  // The swim's (TASK-323 C4).
+  "Shapes to swim, within 150 m of the shore":
+    "Formas para nadar, a menos de 150 m de la orilla",
   "LAKES AND SEA": "LAGOS Y MAR",
   "Near me": "Cerca de mí",
   "Choose a lake or a beach: eight shapes on its water, from the shore.":
@@ -317,6 +320,18 @@ export const ES: Table = {
   "{distance} from the start": "A {distance} de la salida",
   "The same turns every lap, {laps} laps, then back to the shore.":
     "Los mismos giros en cada vuelta, {laps} vueltas, y luego vuelta a la orilla.",
+
+  // src/swim/SwimResult.tsx, src/route/RoutePanel.tsx, src/settings/sport.ts
+  // (TASK-323 C2: the laps of a swim, its size, the way out with the track)
+  "Swim without a route": "Nadar sin ruta",
+  "{count} lap of {distance}": "{count} vuelta de {distance}",
+  "{count} laps of {distance}": "{count} vueltas de {distance}",
+  "Bigger shape": "Forma más grande",
+  "Smaller shape": "Forma más pequeña",
+  "{drawn} km of drawing + {between} km swimming between the parts":
+    "{drawn} km de dibujo + {between} km nadando entre las partes",
+  "{drawn} mi of drawing + {between} mi swimming between the parts":
+    "{drawn} mi de dibujo + {between} mi nadando entre las partes",
 
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Mover la forma",
@@ -742,6 +757,7 @@ export const ES: Table = {
   "Mile {mile}: {pace}": "Milla {mile}: {pace}",
   "Mile {mile}: {speed} mph": "Milla {mile}: {speed} mph",
   "Your first 500 metres will show here.": "Tus primeros 500 metros aparecerán aquí.",
+  "Your first 100 metres will show here.": "Tus primeros 100 metros aparecerán aquí.",
   "{metres} metres: {pace}": "{metres} metros: {pace}",
 
   // src/screens/RunPanel.tsx
@@ -751,6 +767,9 @@ export const ES: Table = {
   "Last mi": "Última mi",
   "Avg /500 m": "Med. /500 m",
   "Last 500 m": "Últ. 500 m",
+  // A swim's (TASK-323 D).
+  "Avg /100 m": "Med. /100 m",
+  "Last 100 m": "Últ. 100 m",
 
   // src/screens/SignInScreen.tsx
   "Sign up": "Registrarse",
@@ -771,6 +790,25 @@ export const ES: Table = {
   Kilometres: "Kilómetros",
   Miles: "Millas",
   "Phone units": "Unidades del teléfono",
+
+  // src/settings/BodySetting.tsx, BodyPage.tsx, src/body/bodyFields.ts (TASK-374)
+  Body: "Cuerpo",
+  "Not set": "Sin definir",
+  "Used only to estimate your calories and heart rate zones. It stays on this phone.":
+    "Solo se usa para estimar tus calorías y zonas de frecuencia cardíaca. Se queda en este teléfono.",
+  Sex: "Sexo",
+  Male: "Hombre",
+  Female: "Mujer",
+  "Prefer not to say": "Prefiero no decirlo",
+  Weight: "Peso",
+  Height: "Altura",
+  "Year of birth": "Año de nacimiento",
+  "Calories are an estimate. Weight matters most.":
+    "Las calorías son una estimación. Lo que más cuenta es el peso.",
+  "Enter a weight between {min} and {max} {unit}.":
+    "Escribe un peso entre {min} y {max} {unit}.",
+  "Enter a height between {min} and {max}.": "Escribe una altura entre {min} y {max}.",
+  "Enter a year between {min} and {max}.": "Escribe un año entre {min} y {max}.",
 
   // src/settings/ToneSetting.tsx
   Tone: "Tono",

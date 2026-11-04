@@ -18420,6 +18420,144 @@ percorsi della canoa non cambiano, e lo si è misurato:
 ridisegnano davvero, con l'acqua del server, la prima volta che il motore
 della canoa cambia (il test lo chiede di nuovo).
 
+## ADR-0283 — aggiunta, parte C2: il nuoto è un'attività dell'app, a mezzo km, coi giri sul risultato
+
+**Stato**: Attiva · 2026-10-30 · le scelte di prodotto le ha fatte
+l'utente (i passi di mezzo km, i pulsanti sul risultato, i testi e le
+traduzioni, le righe del nuoto in Apple Salute e Health Connect); il resto
+è deciso dall'agente su delega dell'utente (TASK-323 parte C2, su
+richiesta dell'utente «passa alla parte C2»). Aggiunta ad ADR-0283.
+
+**Contesto**: C1 ha messo lo sport e i suoi pezzi in file nuovi. C2 li
+collega: l'app deve chiedere un nuoto all'API e mostrarlo. Il tipo
+`Activity` è la chiave di tabelle dell'app e dei file di Apple Salute di
+TASK-321, ancora in lavorazione (condizione 3 del Coordinatore, che era
+archiviato).
+
+**Decisione dell'utente** (2026-10-30, una domanda per volta):
+
+- **Le righe del nuoto nei file di TASK-321**: sì, solo quelle (Apple Salute
+  `.swimming` 46 con la distanza a nuoto, Health Connect «nuoto in acque
+  libere» 73) e un test; il resto di TASK-321 non cambia.
+- **Le distanze a mezzo km**: − e + di 0,5 km, da 0,5 a 3 km (in miglia
+  0,5–1,5 di mezzo miglio), da 1 km.
+- **La forma più grande o più piccola sul risultato**: il motore sceglie i
+  giri; sotto il nuoto «3 laps of 320 m» e i pulsanti «Bigger shape» (un
+  giro in meno) e «Smaller shape» (un giro in più). Se non ci sta, il
+  messaggio di sempre.
+- **I testi nuovi e le traduzioni** come proposti: «Swim without a route»,
+  «{count} laps of {distance}», «Bigger shape», «Smaller shape», «… km
+  swimming between the parts».
+
+**Decisione dell'agente**:
+
+1. **`Activity` ha `swimming`** in `shared-types`; `API_ACTIVITIES` resta
+   come nome dello stesso elenco. `activityOf("swim")` è `"swimming"`; la
+   riga resta `ready: false` finché il server non nuota.
+2. **`lap_m` nella risposta** (in B, prima del merge): quanto è lungo un
+   giro, senza i tratti dalla riva. Le impronte cambiano ancora una volta,
+   prima che il Mac rifaccia gli esempi della canoa.
+3. **Sull'acqua come la canoa** (`swim/water.ts`, `isOnWater`): nessuna
+   indicazione, «Start» senza `/route-directions`, i messaggi d'errore
+   dell'acqua, la ricerca dei laghi e delle spiagge, una forma a pezzi
+   sempre a pezzi, nessuna parola nelle corse da rifare.
+4. **Un nuoto disegna una forma o un disegno**, mai una parola: «Word» non
+   c'è, una parola scelta prima aspetta un altro sport. «Image» e «Draw on
+   the map» sì.
+5. **I giri non sono uno stato in più**: «Bigger shape» rimanda la stessa
+   richiesta con `laps`. `sameRequest` non guarda i giri (come `near`):
+   il nuoto resta quello sullo schermo, «Draw route» lo mostra di nuovo;
+   un'altra forma, distanza o partenza torna ai giri del motore.
+6. **L'avviso** è quello del nuoto (`swim-notice.json`) a ogni «Start» di
+   un nuoto: dal risultato, da «Explore» e da un disegno aperto.
+7. **Non ancora**: «Explore» a nuoto (C4, con `draw_examples --water` sul
+   server), la schermata della corsa a nuoto (D: niente voce, il passo per
+   100 m). Prima di `ready: true` servono B sul server e C4.
+
+**Conseguenze**: con la riga ancora «Soon», nessun telefono chiede un
+nuoto. Il foglio dei permessi di Apple Salute chiederà anche la distanza a
+nuoto quando TASK-321 B lo accende. Solo JavaScript: l'impronta iOS non
+cambia.
+
+## ADR-0283 — aggiunta, parte C4: «Explore» a nuoto, i posti della canoa, gli esempi dall'API
+
+**Stato**: Attiva · 2026-10-30 · il sottotitolo e le traduzioni li ha
+approvati l'utente («Yes, like this»); il resto è deciso dall'agente su
+delega dell'utente (TASK-323 parte C4, su richiesta dell'utente «passa
+alla parte C4»). Aggiunta ad ADR-0283.
+
+**Contesto**: con lo sport del nuoto «Explore» mostrava gli esempi della
+corsa. Gli esempi della canoa dei posti scelti a mano vengono con l'app
+(`paddleExamples.json`, TASK-227), disegnati sul Mac con l'acqua del
+server; gli altri li disegna l'API, che li tiene.
+
+**Decisione**:
+
+1. **Gli stessi posti della canoa**: «Explore» con «Open water swim» è
+   la pagina della canoa (`PaddleExplore` con `swim`), i laghi e le
+   spiagge, «Near me», i filtri; il sottotitolo «Shapes to swim, within
+   150 m of the shore».
+2. **Gli esempi a nuoto** (`SWIM_EXAMPLES`): le otto forme della corsa,
+   1 km da ogni punto (anche dove la canoa ne fa meno, su un lago
+   piccolo), i giri scelti dal motore, una forma a pezzi a pezzi. Tenuti a
+   parte da quelli della canoa dello stesso punto (`prefix`).
+3. **Nessun esempio con l'app**: li disegna l'API e li tiene; prima di
+   ogni telefono li disegna `draw_examples --swim` sul server, col sì
+   dell'utente. Un file come `paddleExamples.json` vorrebbe l'acqua del
+   server sul Mac e un'impronta in più da rifare a ogni cambio del motore:
+   non serve finché l'API risponde.
+4. **Una forma che non ci sta è una risposta**: entro 150 m dalla riva
+   capita; `draw_examples --swim` conta il punto come fatto, e l'app
+   mostra la scheda come per la canoa.
+
+**Conseguenze**: per vedere gli esempi a nuoto serve il server col nuoto
+(B). Il nuoto si accende (`ready: true`) quando B è sul server e
+`draw_examples --swim` è passato.
+
+## ADR-0283 — aggiunta, parte D: il nuoto col telefono nella boa, senza voce, il passo di 100 m
+
+**Stato**: Attiva · 2026-10-30 · la proposta e le traduzioni le ha
+approvate l'utente («Yes, like this», due volte); il resto è deciso
+dall'agente su delega dell'utente (TASK-323 parte D, su richiesta
+dell'utente «passa alla parte D»). Aggiunta ad ADR-0283.
+
+**Contesto**: in acqua il telefono sta nella boa di sicurezza: non si
+guarda, non si sente, non si sente vibrare. La corsa della canoa (TASK-251)
+ha già le velocità e un passo di 500 m. Un nuotatore va a 2–4 km/h: per
+l'app, sotto i 3 km/h (STANDING_S_PER_KM) si è fermi, e la pausa da fermi
+viene dopo 10 s.
+
+**Decisione dell'utente** (2026-10-30): niente voce né interruttore della
+voce; la pausa da fermi dopo 30 s; la schermata della canoa col passo di
+100 m («Avg /100 m», «Last 100 m», i parziali ogni 100 m); nel Feed, in «My
+activities» e nella scheda da condividere «Open water swim · 1.02 km ·
+25:10 · 2:28 /100 m»; un nuoto in acque libere dai file dell'orologio.
+
+**Decisione dell'agente**:
+
+1. **Il silenzio** è nei due registratori (`useNavigation`, `useFreeRun`):
+   ogni frase e ogni vibrazione di un nuoto passano da una funzione che
+   per il nuoto non fa niente, anche «pausa» e «riprendi» del controllo
+   della corsa. La scelta della voce resta quella di prima per le corse
+   dopo.
+2. **La pausa da fermi** è un'opzione di `controlRun` (`stillMs`): 10 s
+   per tutti, 30 s per un nuoto (SWIM_AUTO_PAUSE_AFTER_MS).
+3. **Fermo sotto 1 km/h**: `recentPaceS` prende la soglia; per un nuoto
+   60 min/km (6:00 ogni 100 m), altrimenti «Speed now» sarebbe vuoto a ogni
+   nuotata tranquilla.
+4. **I numeri** sono quelli della canoa (`RunNumbers.swim`, `pace100`), e
+   i parziali di `Splits` hanno i metri dell'acqua: 500 per la canoa, 100
+   per il nuoto.
+5. **I file**: `sportOfWord` legge «swim», il FIT `sport` 5; nient'altro
+   cambia nei lettori. Il gioco delle forme non conta un nuoto (non è a
+   piedi), come la canoa.
+6. **Niente codice nativo**: D è solo JavaScript; la prova in acqua col
+   telefono in una boa resta per la primavera del 2027, con l'utente.
+
+**Conseguenze**: l'impronta iOS non cambia. Il nuoto si accende
+(`ready: true`) come detto in C4; la prova in acqua dirà se i 30 s e la
+soglia di 1 km/h vanno bene.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
@@ -21271,6 +21409,21 @@ non costa memoria né download e tiene il principio di ADR-0001 intero.
 dell'utente; l'impronta del motore cambia insieme a quella del nuoto. Nel
 gioco, chi cammina raccoglie metri come chi corre: le regole lo accettano per
 scelta dell'utente.
+
+**Aggiunta (parte A, 2026-11-04)** · deciso dall'agente su delega
+dell'utente, approvato dal Coordinatore: **il motore non cambia impronta**.
+Gli esempi si ridisegnano la notte del nuoto, e un secondo ridisegno
+chiederebbe il sì dell'utente. Quindi `models.py`, `network.py`,
+`__main__.py` ed `export_gpx.py` restano come sono: la camminata vive in un
+file nuovo, `route_engine/walking.py` (`API_ACTIVITIES`, 1–30 km,
+`engine_activity` che la chiede al motore come corsa, la riga di comando
+`python -m route_engine.walking`), lasciato fuori dall'impronta da
+`route_store.WALK_ONLY`, come i file del nuoto e dei disegni ancorati. Un
+test tiene le impronte 5b5e026cea9b e b9d00c37d28d. Una camminata e una
+corsa con la stessa richiesta sono lo stesso percorso tenuto. Il `<type>`
+del GPX c'è solo per la camminata: gli altri file restano byte per byte
+quelli di prima (punto 3). La «Conseguenza» sull'impronta del motore qui sopra
+non vale più.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
@@ -21334,7 +21487,19 @@ dati sulla salute (GDPR art. 9).
     30–120 bpm. Fuori dai limiti il campo non si salva e dice perché.
 11. I testi delle parti A e B sono approvati (scelta dell'utente, «Sì,
     approvo», 2026-11-04), in `tasks/TASK-374.md`.
-12. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+12. L'età è l'anno in corso meno l'anno di nascita.
+13. Fatto nella parte A (deciso dall'agente su delega dell'utente): i MET sono
+    quelli del Compendium 2024 (pacompendium.com), bici 4,0 sotto i 10 mph,
+    6,8 / 8,0 / 10,0 / 12,0 per fasce di 2–4 mph, 15,8 da 20 mph; canoa e
+    kayak 2,8 sotto i 4 mph, 5,8 fino a 6, 12,5 oltre. Senza metri l'energia è
+    zero (da fermi è riposo). Nel Feed il tempo è quello del post (`minutes`),
+    la salita non c'è; i post in bici e in canoa ora hanno le kcal. In Salute e
+    Health Connect le kcal si scrivono per ogni sport: il testo di
+    `NSHealthUpdateUsageDescription` della 1.0.1 dice ancora «for runs» e si
+    corregge nella 1.0.2, con la parte C.
+14. Il nuoto (TASK-323 C2, entrato prima) non ha ancora una formula: zero kcal,
+    nessun riquadro «Calories» e nessuna energia in Salute, come aveva deciso
+    il suo task. Una formula per il nuoto è una scelta a parte. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
@@ -21559,6 +21724,115 @@ o due con lo sci di fondo è dell'utente.
 
 ---
 
+## ADR-0320 — Il registro degli sport: ogni sport nei suoi file, un banco di misura comune
+
+**Stato**: Proposto · 2026-11-04 · TASK-376 (sessione «Coordinatore Sport»).
+Le scelte tecniche sono dell'agente su delega dell'utente; il ridisegno
+degli esempi (punto 3) vuole il sì dell'utente al momento del server, come
+ogni aggiornamento
+
+**Contesto**: l'utente vuole molti sport nuovi, aggiunti con più sessioni in
+parallelo. Oggi uno sport tocca gli stessi file di tutti gli altri: nel
+motore `models.py` (`SUPPORTED_ACTIVITIES`, `DISTANCE_LIMITS_M`,
+`WATER_ACTIVITIES`) e `network.py` (`NETWORKS`, `FILTERS`, le regole di
+foot e bike); nell'API `activity_graphs.py`, `activities.py`, `strava.py`,
+`prefetch_zones.py`, `personal_bests.py`; in `shared-types` `index.ts`;
+nell'app `settings/sport.ts` e una ventina di file con 53 confronti
+`activity ===`/`sport ===` (pannello di Draw, distanze, schermata di corsa,
+voce, penna alzata, Feed, importazione, Salute, zone sul telefono). Due
+sport insieme sono due sessioni sugli stessi file. TASK-372 e TASK-373 hanno
+anche mostrato che misurare la rete **prima** del codice risparmia lavoro:
+ognuno ha scritto il suo banco.
+
+L'impronta del motore (`route_store.engine_fingerprint`) è l'hash del
+percorso relativo e del contenuto di ogni file `.py` e `.json` di
+`route_engine/`: spostare codice da `network.py` a `networks/foot.py` la
+cambia anche senza cambiare un solo percorso, e con lei tutti gli esempi
+(8–16 ore di `draw_examples`) e le risposte dell'archivio.
+
+**Decisione**:
+
+1. **Un registro per strato, un file per sport.** Motore:
+   `route_engine/networks/<rete>.py` (filtro Overpass, regole dei tag,
+   sensi unici) e `route_engine/activities/<attività>.py` (rete o acqua,
+   limiti di distanza, tipo GPX); `models.py` e `network.py` derivano dal
+   registro gli stessi valori, nello stesso ordine. Contratto:
+   `shared-types/src/sports/<attività>.ts`. API:
+   `shaperoute_api/sports/<attività>.py` (Strava, zone in memoria, record).
+   App: `src/sports/<sport>.ts` con un `SportProfile` (emoji, nome, attività,
+   `ready`, `drawable` per «Record only», come si segue il percorso, ritmo o
+   velocità, testo «… without a route», tipo di allenamento in Salute,
+   codici FIT, etichetta del Feed, rete delle zone sul telefono); testi di
+   ogni sport in file propri. I file condivisi restano elenchi di import,
+   **una riga per sport**.
+2. **Il refactor non cambia comportamento** e parte solo quando i lavori
+   aperti sugli stessi file (TASK-371 A+B, TASK-375 A+B, TASK-323 C2) sono
+   in `main`, in una sessione sola, con i file bloccati dal Coordinatore:
+   test esistenti invariati, test di uguaglianza dei valori derivati,
+   impronta iOS invariata, banco prima e dopo senza peggioramenti.
+3. **L'impronta del motore: un ridisegno solo, insieme al primo sport.**
+   Fra un'impronta che regga gli spostamenti (che la cambierebbe comunque
+   una volta, e un'impronta sul comportamento rischia di non vedere un
+   cambiamento vero e di servire percorsi vecchi) e un ridisegno accettato,
+   si sceglie il ridisegno, ma **senza una notte in più**: il refactor del
+   motore entra in `main` e il server si aggiorna solo insieme al motore
+   del primo sport della fase 1 (Escursionismo o Gravel/MTB), che cambia
+   l'impronta in ogni caso. Una notte di esempi, col sì dell'utente.
+4. **Un banco comune**, `tools/sport_bench/`: per un'attività (o una rete
+   non ancora registrata, `--loader FILE:FUNCTION`) su sei zone fisse
+   (Trento, Valsugana, Milano, Val di Fiemme, Asiago, Pianura mantovana)
+   misura la rete, le forme del catalogo (riuscite ≥ 0,60, buone ≥ 0,90) e
+   i tempi; `compare` dice cosa è peggiorato fra due misure. Le misure di
+   ogni sport stanno in `docs/sports/<sport>.md`, un file per sport, così
+   nessuno scrive nel file di un altro; le scoperte comuni in
+   `docs/sports/CONDIVISO.md`, che tiene solo il Coordinatore Sport. Sul Mac
+   un banco alla volta, col turno del Coordinatore.
+5. **Le righe di registrazione non le scrivono le sessioni degli sport**:
+   le raccoglie il Coordinatore Sport in una PR di integrazione unica a fine
+   fase, una alla volta e con i test.
+
+**Conseguenze**: dopo la parte B uno sport nuovo è una manciata di file
+nuovi più una riga per registro, e tre sessioni possono lavorarci insieme.
+Il prezzo è un refactor ampio dell'app (circa venti file) in un momento in
+cui nessun altro tocca quei file, e un aggiornamento del server rimandato
+fino al primo sport nuovo. Il pilota della struttura non è la camminata
+(già TASK-371 con la struttura di oggi), ma l'Escursionismo (TASK-377),
+scelta dell'utente del 2026-11-04.
+## ADR-0319 — Gli sport «Record only»: si registrano senza forma, il motore non li vede
+
+**Stato**: Proposto · 2026-11-04 · TASK-375. Scelte dell'utente lo stesso
+giorno: la categoria prima dello sci («Prima la categoria»), lo sci alpino
+«Ski» ⛷️ separato dal fondo («Sì, separati»), tutte le metriche proposte
+(«Sì, tutte»); per il fondo «Record only» anche lui (scelta in TASK-372)
+
+**Contesto**: lo sci alpino (ADR-0317) e lo sci di fondo (TASK-372,
+ADR-0316) non hanno forme da proporre: il motore di oggi non ne trova
+nessuna sulle piste. Serve un modo di avere uno sport in MuW che si
+registra e si pubblica senza passare dal Route Engine.
+
+**Decisione** (il disegno tecnico è deciso dall'agente su delega
+dell'utente):
+
+1. Le attività senza forma hanno un tipo a parte in `shared-types`,
+   `RECORD_ACTIVITIES` = `skiing`, `xc_skiing`; ciò che si salva è
+   `RunActivity` = `ApiActivity | RecordActivity`. `Activity` e
+   `ApiActivity` non cambiano, quindi il motore, la sua impronta e le
+   tabelle chiavate sulle attività dei percorsi restano come sono.
+2. Il server le salva come le altre corse: una migrazione sola, 0044, per
+   tutte e due, sul CHECK di `runs` soltanto (preferiti e corse di gruppo
+   tengono un percorso da rifare).
+3. Nell'app uno sport `recordOnly` porta «Draw» alla registrazione libera
+   (TASK-220); le metriche di fine giornata dipendono dallo sport.
+4. Le risalite in impianto si riconoscono sul telefono; i nomi di impianti
+   e piste li dà il server dalle linee di OSM, senza mandare la posizione a
+   servizi esterni.
+5. Niente moduli nativi: l'impronta iOS resta 6f8bba4c e tutto arriva con
+   aggiornamenti OTA.
+
+**Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
+scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
+testi. La neve buona e le recensioni dei comprensori non sono in questa
+decisione: si chiedono all'utente più avanti, una alla volta.
 ## ADR-0316 — Lo sci di fondo senza rete propria: le piste non disegnano forme, lo sport va in «Record only»
 
 **Stato**: Accettato · 2026-11-04 · TASK-372. La richiesta è dell'utente; i

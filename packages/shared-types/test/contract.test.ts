@@ -39,6 +39,7 @@ import jobRunning from "../fixtures/route-job-running.json" with { type: "json" 
 import jobStatuses from "../fixtures/route-job-statuses.json" with { type: "json" };
 import alternativeLimits from "../fixtures/route-alternatives.json" with { type: "json" };
 import cyclingRequest from "../fixtures/route-request-cycling.json" with { type: "json" };
+import walkingRequest from "../fixtures/route-request-walking.json" with { type: "json" };
 import paddlingNearRequest from "../fixtures/route-request-paddling-near.json" with { type: "json" };
 import paddlingRequest from "../fixtures/route-request-paddling.json" with { type: "json" };
 import swimmingRequest from "../fixtures/route-request-swimming.json" with { type: "json" };
@@ -139,6 +140,8 @@ const wordFields: Same<keyof typeof wordRequest, keyof OlderRequest> &
 const cyclingFields: Same<keyof typeof cyclingRequest, keyof OlderRequest> = true;
 // A paddling route (TASK-191): the same fields again.
 const paddlingFields: Same<keyof typeof paddlingRequest, keyof OlderRequest> = true;
+// A walk (TASK-371): the same fields as a run, another activity.
+const walkingFields: Same<keyof typeof walkingRequest, keyof OlderRequest> = true;
 type PenUpRequest = Omit<RouteRequest, "near" | "laps" | "placement" | "fit">;
 const penUpFields: Same<keyof typeof penUpRequest, keyof PenUpRequest> &
   Same<keyof typeof penUpShapeRequest, keyof PenUpRequest> &
@@ -263,7 +266,9 @@ test("the fixtures have the fields of the types", () => {
   assert.ok(requestFields && resultFields && errorFields && errorDetailFields);
   assert.ok(jobFields && jobResultFields && jobErrorFields && gpxFields);
   assert.ok(shapeReadingFields && directionFields && wordFields);
-  assert.ok(penUpFields && trackFields && cyclingFields && paddlingFields);
+  assert.ok(
+    penUpFields && trackFields && cyclingFields && paddlingFields && walkingFields,
+  );
   assert.ok(cyclingResultFields && betterFields && movedFields && tiltedFields);
 });
 
@@ -515,9 +520,10 @@ test("the error fixture uses a known code, and the codes match the API", () => {
 test("shapes, activities and distance limits match the route engine", () => {
   assert.deepEqual([...SHAPES], contract.shapes);
   assert.deepEqual([...PEN_UP_SHAPES], contract.pen_up_shapes);
-  // The API's; the app offers them all but swimming until TASK-323 part C.
+  // The API's: since TASK-323 part C2 the app's, swimming too, and walking,
+  // which the app offers from TASK-371 part B.
   assert.deepEqual([...API_ACTIVITIES], contract.activities);
-  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES, "swimming"]);
+  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES, "walking"]);
   assert.equal(MIN_DISTANCE_M, contract.min_distance_m);
   assert.equal(MAX_DISTANCE_M, contract.max_distance_m);
   assert.deepEqual(DISTANCE_LIMITS_M, contract.distance_limits_m);
@@ -549,6 +555,21 @@ test("a cycling request is a request with the bike's distances", () => {
   assert.deepEqual(DISTANCE_LIMITS_M.running, [MIN_DISTANCE_M, MAX_DISTANCE_M]);
 });
 
+test("a walk is a request of the API with its own distances, within a run's", () => {
+  // TASK-371: drawn as a run on the foot network; the app offers it from
+  // part B.
+  assert.equal(walkingRequest.activity, "walking");
+  assert.ok((API_ACTIVITIES as readonly string[]).includes(walkingRequest.activity));
+  assert.ok(!(ACTIVITIES as readonly string[]).includes(walkingRequest.activity));
+  const [lowest, highest] = DISTANCE_LIMITS_M.walking;
+  assert.deepEqual([lowest, highest], [1_000, 30_000]);
+  assert.ok(
+    lowest <= walkingRequest.distance_m && walkingRequest.distance_m <= highest,
+  );
+  assert.ok(MIN_DISTANCE_M <= lowest && highest <= MAX_DISTANCE_M);
+  assert.ok(isShape(walkingRequest.shape));
+});
+
 test("a paddling request is a request with a shape and the water's distances", () => {
   // TASK-191: the activity is the only difference; on the water a shape of
   // the catalogue, never a word or an image (ADR-0161).
@@ -567,8 +588,7 @@ test("a swim is a request on the water with its laps, its result has the turns",
   // TASK-323: 0.5-3 km, the shape swum `laps` times, each turn with the
   // place on the shore to turn opposite.
   assert.equal(swimmingRequest.activity, "swimming");
-  assert.ok((API_ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
-  assert.ok(!(ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
+  assert.ok((ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
   assert.deepEqual(DISTANCE_LIMITS_M.swimming, [500, 3_000]);
   const [lowest, highest] = DISTANCE_LIMITS_M.swimming;
   assert.ok(

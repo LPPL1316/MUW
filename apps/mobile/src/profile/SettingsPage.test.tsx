@@ -78,15 +78,16 @@ test("every row works: only the sports to come say «Soon»", async () => {
   expect(screen.getByLabelText("Paragliding, coming soon")).toBeOnTheScreen();
   // The picture (TASK-178), the email and the phone number (TASK-183), the
   // language (TASK-210), «Add a place» (TASK-334), the units (TASK-182),
-  // the tone (TASK-263), the three texts of «ABOUT» (TASK-184) and the ways
-  // out are buttons. «Send feedback» waits for a server that takes it
-  // (TASK-308, below).
-  expect(screen.getAllByRole("button")).toHaveLength(12);
+  // the body (TASK-374), the tone (TASK-263), the three texts of «ABOUT»
+  // (TASK-184) and the ways out are buttons. «Send feedback» waits for a
+  // server that takes it (TASK-308, below).
+  expect(screen.getAllByRole("button")).toHaveLength(13);
   expect(screen.getByRole("button", { name: "Profile picture" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Change email" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Phone number, Add" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Language, English" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Units, Kilometres" })).toBeOnTheScreen();
+  expect(screen.getByRole("button", { name: "Body, Not set" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Tone, Dark" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Log out" })).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Delete account" })).toBeOnTheScreen();
@@ -113,7 +114,7 @@ test("on the server of today, which answers 404, there is no «FEEDBACK» to wri
   expect(fetchFn).toHaveBeenCalledTimes(1);
   expect(screen.queryByText("FEEDBACK")).toBeNull();
   expect(screen.queryByRole("button", { name: "Send feedback" })).toBeNull();
-  expect(screen.getAllByRole("button")).toHaveLength(12);
+  expect(screen.getAllByRole("button")).toHaveLength(13);
 });
 
 test("without a network nothing is shown either (TASK-308)", async () => {
