@@ -81,8 +81,12 @@ Una alla volta, con le sue parole. *(da fare)*
    −161, media −78; vuoto = 1 MET standard a riposo).
    — *Risposta (2026-11-04):* «Male, Female, Prefer not».
 3. **Leggere peso, altezza e data di nascita da Apple Health / Health
-   Connect**: sì o no. Su iPhone è possibile già con la 1.0.1, insieme a
-   TASK-345 C; il testo della chiave si allarga nella 1.0.2.
+   Connect**. Proposta: sì, nella 1.0.2, non con un OTA sulla 1.0.1: il testo
+   di `NSHealthShareUsageDescription` oggi parla solo del battito (regola
+   5.1.1) e la voce «Health» di App Privacy si aggiorna una volta sola,
+   insieme a TASK-345 C. Un pulsante riempie solo i campi vuoti. Nella parte A
+   i dati si inseriscono a mano.
+   — *Risposta (2026-11-04):* «Sì, nella 1.0.2».
 4. **Le zone**: solo la tabella, o anche il tempo in ogni zona a fine corsa
    (dai campioni di battito che TASK-345 C già legge), o il battito in tempo
    reale (orologio o fascia Bluetooth)?
@@ -96,8 +100,13 @@ Una alla volta, con le sue parole. *(da fare)*
   da Health. Fingerprint iOS invariato: si può pubblicare con un OTA.
 - **B — pagina delle zone.** Calcolo puro (FC max, Karvonen), tabella
   modificabile, salvata sul telefono.
-- ~~**C — server e sincronizzazione**~~: esclusa dalla scelta 1 («Solo sul
+- ~~Server e sincronizzazione~~: esclusa dalla scelta 1 («Solo sul
   telefono»).
+- **C — lettura da Apple Salute / Health Connect, nella 1.0.2** (scelta 3):
+  peso, altezza e data di nascita riempiono i campi vuoti, senza sovrascrivere
+  quelli inseriti a mano. Il testo della chiave di lettura si allarga e App
+  Privacy si aggiorna insieme a TASK-345 C, col sì dell'utente su ogni testo.
+  Android dopo TASK-321 C.
 - **D — battito**, solo se la scelta 4 lo chiede: il tempo in ogni zona a
   fine corsa dai campioni di TASK-345 C; il tempo reale è un'altra cosa
   (orologio o fascia, dipendenza nuova).
@@ -185,8 +194,9 @@ apps/mobile/src/i18n/{it,de,es,fr}.ts
 
 - Server, sincronizzazione, migrazioni, privacy policy: parte C, solo con il sì
   dell'utente.
-- Lettura da Apple Health / Health Connect e battito: parti C/D, solo con il
-  sì dell'utente e coordinate con TASK-345 C.
+- Lettura da Apple Health / Health Connect nella parte A: arriva con la parte
+  C, nella 1.0.2.
+- Battito: parte D, solo con il sì dell'utente e coordinata con TASK-345 C.
 - Fasce Bluetooth: dipendenza nuova, da chiedere.
 - Le kcal dei post di altri utenti calcolate col loro peso: richiede il server
   (scelta 1).

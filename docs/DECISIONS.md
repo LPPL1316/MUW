@@ -20992,7 +20992,12 @@ dati sulla salute (GDPR art. 9).
    riposo), con le stesse percentuali. I limiti cambiati a mano restano e
    tengono le zone contigue: cambiare il limite alto di una zona sposta il
    limite basso di quella dopo.
-7. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+7. Peso, altezza e data di nascita si leggono da Apple Salute / Health
+   Connect solo dalla 1.0.2 (scelta dell'utente, «Sì, nella 1.0.2»,
+   2026-11-04): riempiono i campi vuoti, mai quelli inseriti a mano. Il testo
+   della chiave di lettura e App Privacy cambiano una volta sola, con TASK-345
+   C.
+8. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
