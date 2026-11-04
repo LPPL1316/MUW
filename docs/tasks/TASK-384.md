@@ -56,6 +56,99 @@ Una alla volta, con le sue parole.
    — *Risposta* (2026-11-04): «Sì, approvo». Non copre i testi del punto 5,
    che si approvano a parte.
 
+## Testi proposti (da approvare)
+
+Bozze dell'agente, 2026-11-04, nelle cinque lingue (ADR-0172: nel codice la
+base è l'inglese). Nessuno entra nel codice o sul sito prima del sì
+dell'utente. Il tono segue i testi di oggi: frasi brevi, «tu», «MuW» come
+soggetto.
+
+### A. Nell'app
+
+1. **Etichetta fissa sul post (immagine AI)**
+   - EN: AI-generated
+   - IT: Generata con l'AI
+   - DE: KI-generiert
+   - FR: Générée par IA
+   - ES: Generada con IA
+2. **Etichetta fissa sul post (pubblicità)**
+   - EN: Ad · Affiliate links
+   - IT: Pubblicità · Link affiliati
+   - DE: Werbung · Affiliate-Links
+   - FR: Publicité · Liens affiliés
+   - ES: Publicidad · Enlaces de afiliado
+3. **Pulsante nella scheda del prodotto** (`{store}` = Zalando, Amazon…)
+   - EN: Shop on {store}
+   - IT: Compra su {store}
+   - DE: Bei {store} kaufen
+   - FR: Acheter sur {store}
+   - ES: Comprar en {store}
+4. **Prezzo nella scheda** (`{price}` già formattato, `{date}` giorno e mese)
+   - EN: {price} on {date}
+   - IT: {price} il {date}
+   - DE: {price} am {date}
+   - FR: {price} le {date}
+   - ES: {price} el {date}
+5. **Al posto del prezzo, se letto più di 7 giorni prima**
+   - EN: See price
+   - IT: Vedi il prezzo
+   - DE: Preis ansehen
+   - FR: Voir le prix
+   - ES: Ver el precio
+6. **Riga fissa nella scheda, sulla foto**
+   - EN: The photo is AI-generated: the item shown is similar, not the exact product.
+   - IT: La foto è generata con l'AI: il capo che vedi è simile, non è esattamente il prodotto.
+   - DE: Das Foto ist KI-generiert: Das gezeigte Teil ist ähnlich, nicht genau das Produkt.
+   - FR : La photo est générée par IA : l'article montré est similaire, pas exactement le produit.
+   - ES: La foto está generada con IA: la prenda que ves es parecida, no es exactamente el producto.
+7. **Riga fissa nella scheda, sul link**
+   - EN: If you buy through this link, MuW earns a commission. The price for you stays the same.
+   - IT: Se compri da questo link, MuW riceve una commissione. Per te il prezzo non cambia.
+   - DE: Wenn du über diesen Link kaufst, erhält MuW eine Provision. Für dich bleibt der Preis gleich.
+   - FR : Si tu achètes via ce lien, MuW reçoit une commission. Pour toi, le prix ne change pas.
+   - ES: Si compras desde este enlace, MuW recibe una comisión. Para ti el precio no cambia.
+8. **La lente / scheda del Feed**
+   - EN: Style · IT: Style · DE: Style · FR: Style · ES: Style (nome proprio,
+     non si traduce)
+9. **Filtri nella lente**: i temi e il genere
+   - EN: Running · Trail · Bike · Gym · Athleisure · Women · Men
+   - IT: Corsa · Trail · Bici · Palestra · Tempo libero · Donna · Uomo
+   - DE: Laufen · Trail · Rad · Gym · Freizeit · Damen · Herren
+   - FR : Course · Trail · Vélo · Salle · Loisirs · Femme · Homme
+   - ES: Correr · Trail · Bici · Gimnasio · Tiempo libre · Mujer · Hombre
+10. **Lente vuota**
+    - EN: No Style posts yet.
+    - IT: Ancora nessun post Style.
+    - DE: Noch keine Style-Beiträge.
+    - FR : Pas encore de posts Style.
+    - ES: Todavía no hay publicaciones Style.
+11. **Interruttore in «Settings» / «Impostazioni»** (titolo e riga sotto; acceso all'inizio)
+    - EN: Style posts in the Feed — Outfits made with AI, with links to shops. They stay in Style.
+    - IT: Post Style nel Feed — Outfit fatti con l'AI, con i link ai negozi. Restano in Style.
+    - DE: Style-Beiträge im Feed — Mit KI erstellte Outfits, mit Links zu Shops. Sie bleiben in Style.
+    - FR : Posts Style dans le Feed — Des tenues créées par IA, avec des liens vers les boutiques. Elles restent dans Style.
+    - ES: Publicaciones Style en el Feed — Outfits creados con IA, con enlaces a tiendas. Siguen en Style.
+
+### B. Termini, sezione «Pubblicità» (sostituisce «MuW non mostra pubblicità.»)
+
+- **EN**: MuW shows posts of its own, marked «Ad · Affiliate links», with links to shops (MuW Style). If you buy through one of these links, the shop pays MuW a commission; the price for you does not change. The sale is between you and the shop: MuW does not sell these products and does not answer for their price, availability, delivery or returns. The photos of these posts are made with AI and say so: the people in them do not exist, and the items shown are similar to the products, not the products themselves. You can hide these posts from the Feed in «Settings». MuW shows no other advertising.
+- **IT**: MuW mostra dei post suoi, segnati «Pubblicità · Link affiliati», con i link ai negozi (MuW Style). Se compri da uno di questi link, il negozio paga a MuW una commissione; per te il prezzo non cambia. La vendita è fra te e il negozio: MuW non vende questi prodotti e non risponde di prezzo, disponibilità, consegna o resi. Le foto di questi post sono fatte con l'AI e lo dicono: le persone che vedi non esistono, e i capi sono simili ai prodotti, non sono i prodotti. Puoi togliere questi post dal Feed in «Impostazioni». MuW non mostra altra pubblicità.
+- **DE**: MuW zeigt eigene Beiträge, gekennzeichnet mit «Werbung · Affiliate-Links», mit Links zu Shops (MuW Style). Wenn du über einen dieser Links kaufst, zahlt der Shop MuW eine Provision; für dich ändert sich der Preis nicht. Der Kauf findet zwischen dir und dem Shop statt: MuW verkauft diese Produkte nicht und haftet nicht für Preis, Verfügbarkeit, Lieferung oder Rücksendung. Die Fotos dieser Beiträge sind mit KI erstellt und als solche gekennzeichnet: Die Personen darauf gibt es nicht, und die gezeigten Teile ähneln den Produkten, sind aber nicht die Produkte selbst. Du kannst diese Beiträge in «Einstellungen» aus dem Feed ausblenden. Andere Werbung zeigt MuW nicht.
+- **FR** : MuW affiche ses propres posts, marqués « Publicité · Liens affiliés », avec des liens vers des boutiques (MuW Style). Si tu achètes via l'un de ces liens, la boutique verse une commission à MuW ; pour toi, le prix ne change pas. La vente se fait entre toi et la boutique : MuW ne vend pas ces produits et ne répond pas de leur prix, de leur disponibilité, de la livraison ni des retours. Les photos de ces posts sont créées par IA et l'indiquent : les personnes qu'on y voit n'existent pas, et les articles montrés ressemblent aux produits sans être les produits eux-mêmes. Tu peux masquer ces posts du Feed dans «Réglages». MuW n'affiche aucune autre publicité.
+- **ES**: MuW muestra publicaciones propias, marcadas «Publicidad · Enlaces de afiliado», con enlaces a tiendas (MuW Style). Si compras desde uno de estos enlaces, la tienda paga a MuW una comisión; para ti el precio no cambia. La venta es entre tú y la tienda: MuW no vende estos productos y no responde de su precio, disponibilidad, entrega o devoluciones. Las fotos de estas publicaciones están hechas con IA y lo indican: las personas que aparecen no existen, y las prendas son parecidas a los productos, no son los productos. Puedes quitar estas publicaciones del Feed en «Ajustes». MuW no muestra otra publicidad.
+
+### C. Privacy, sezione «Pubblicità» (sostituisce il paragrafo di oggi)
+
+- **EN**: MuW shows its own Style posts with links to shops, marked «Ad · Affiliate links». MuW uses no advertising network, and the app never asks to track you across other apps. When you open a product or tap «Shop», our server only adds one to that day's count for that product: it does not know who you are or which phone it was. «Shop» opens the shop's site in your browser through the link of our affiliate network, Awin: from there Awin and the shop record the click and any purchase, with their cookies and under their own privacy policies, so that MuW can be paid its commission. From them MuW receives only totals of clicks, sales and commissions, never who you are.
+- **IT**: MuW mostra i suoi post Style con i link ai negozi, segnati «Pubblicità · Link affiliati». MuW non usa reti pubblicitarie, e l'app non chiede mai di tracciarti nelle altre app. Quando apri un prodotto o tocchi «Compra», il nostro server aggiunge solo uno al conteggio di quel giorno per quel prodotto: non sa chi sei né quale telefono era. «Compra» apre il sito del negozio nel tuo browser passando dal link della nostra rete di affiliazione, Awin: da lì Awin e il negozio registrano il clic e l'eventuale acquisto, con i loro cookie e secondo le loro informative, perché MuW riceva la commissione. Da loro MuW riceve solo i totali di clic, vendite e commissioni, mai chi sei.
+- **DE**: MuW zeigt eigene Style-Beiträge mit Links zu Shops, gekennzeichnet mit «Werbung · Affiliate-Links». MuW nutzt kein Werbenetzwerk, und die App fragt nie, ob sie dich über andere Apps hinweg verfolgen darf. Wenn du ein Produkt öffnest oder auf «Kaufen» tippst, zählt unser Server nur für diesen Tag und dieses Produkt eins dazu: Er weiß nicht, wer du bist oder welches Telefon es war. «Kaufen» öffnet die Seite des Shops in deinem Browser über den Link unseres Affiliate-Netzwerks Awin: Ab dort erfassen Awin und der Shop den Klick und einen möglichen Kauf, mit ihren Cookies und nach ihren eigenen Datenschutzerklärungen, damit MuW seine Provision erhält. Von ihnen bekommt MuW nur Summen von Klicks, Verkäufen und Provisionen, nie, wer du bist.
+- **FR** : MuW affiche ses propres posts Style avec des liens vers des boutiques, marqués « Publicité · Liens affiliés ». MuW n'utilise aucun réseau publicitaire, et l'app ne demande jamais à te suivre à travers d'autres apps. Quand tu ouvres un produit ou touches « Acheter », notre serveur ajoute seulement un au compte de ce jour pour ce produit : il ne sait pas qui tu es ni de quel téléphone il s'agit. « Acheter » ouvre le site de la boutique dans ton navigateur via le lien de notre réseau d'affiliation, Awin : à partir de là, Awin et la boutique enregistrent le clic et l'éventuel achat, avec leurs cookies et selon leurs propres politiques de confidentialité, pour que MuW reçoive sa commission. D'eux, MuW ne reçoit que des totaux de clics, de ventes et de commissions, jamais qui tu es.
+- **ES**: MuW muestra sus propias publicaciones Style con enlaces a tiendas, marcadas «Publicidad · Enlaces de afiliado». MuW no usa redes publicitarias, y la app nunca pide rastrearte a través de otras apps. Cuando abres un producto o tocas «Comprar», nuestro servidor solo suma uno al recuento de ese día para ese producto: no sabe quién eres ni qué teléfono era. «Comprar» abre la web de la tienda en tu navegador a través del enlace de nuestra red de afiliación, Awin: desde ahí Awin y la tienda registran el clic y la posible compra, con sus cookies y según sus propias políticas de privacidad, para que MuW reciba su comisión. De ellos MuW solo recibe totales de clics, ventas y comisiones, nunca quién eres.
+
+Nota: «Shop» nel resto dei documenti è il pulsante; il testo vero è quello
+del punto 3 («Shop on {store}» / «Compra su {store}» …). La Privacy lo cita
+con la parola breve della lingua.
+
 ## Prerequisiti fuori dal codice (dell'utente)
 
 - Iscrizione ad Awin come publisher e candidatura al programma Zalando.
