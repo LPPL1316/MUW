@@ -174,3 +174,50 @@ test("«Edit the drawing» on a lake's example paddled from the shore, then «Dr
   expect(sentOutline(before, [])).toEqual(sent.outline);
   expect({ ...touching, outline: sent.outline }).toEqual(sent);
 });
+
+test("on the roads too: a drawing with a slit a hair wide, which rounding shuts, goes without it", () => {
+  // A run's drawing on the map: a square with a slit from its top side,
+  // 4 cm wide in a square of 1 km, simple as the app drew it.
+  const slit: OutlinePoint[] = [
+    [-1, -1],
+    [1, -1],
+    [1, 1],
+    [0.00002, 1],
+    [0.00002, -0.5],
+    [-0.00002, -0.5],
+    [-0.00002, 1],
+    [-1, 1],
+    [-1, -1],
+  ];
+  const drawing = drawingOf({ outline: slit, details: [] });
+  if (drawing === null) {
+    throw new Error("no drawing");
+  }
+  expect(drawing.outline).toBe(slit);
+  const request = canvasRequest(
+    { figure: drawing, centre: [46.0671, 11.1214], unitM: 500 },
+    false,
+    "running",
+    "km",
+  );
+  if (!("outline" in request)) {
+    throw new Error("not a drawing's request");
+  }
+  // Rounded as it was, the two sides of the slit lie on each other.
+  const rounded = slit.map(([x, y]): OutlinePoint => [
+    Math.round(x * 1e4) / 1e4 || 0,
+    y,
+  ]);
+  expect(firstMeeting(cornersOf(rounded))).not.toBeNull();
+  expect(firstMeeting(cornersOf(request.outline))).toBeNull();
+  expect(request.outline).toEqual([
+    [-1, -1],
+    [1, -1],
+    [1, 1],
+    [0, 1],
+    [-1, 1],
+    [-1, -1],
+  ]);
+  // The distance is the figure's, as the map says it: the slit too.
+  expect(request).toMatchObject({ activity: "running", distance_m: 5500 });
+});

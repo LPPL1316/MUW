@@ -78,7 +78,16 @@ Funziona col server di oggi.
       the drawing» → «Draw route», dà il corpo della fixture; senza la
       correzione il test fallisce. Più i casi della regola (incrocio,
       contatto, ritorno indietro) e della riparazione (punta, inizio,
-      dettaglio, troppo poco).
+      dettaglio, troppo poco). A terra (richiesta del Coordinatore): un
+      disegno da corsa con una fessura larga 4 cm, che l'arrotondamento
+      chiude, parte senza la fessura; senza la correzione il test fallisce.
+- [x] Gli esempi d'acqua forniti con l'app (`paddleExamples.json`: Riva del
+      Garda, Como, il litorale veneto, Riccione; 20 con «Edit the drawing»,
+      alternative comprese) passano tutti all'API, prima e dopo: non sono
+      loro il disegno della segnalazione. Il log del Coordinatore (server
+      `bacd7c7b`, un solo `POST /image-route-jobs` del telefono, il 422 delle
+      20:32:00Z, nessun `GET /drawings/{id}`) indica un percorso pagaiato
+      disegnato dal server o un preferito: la classe che la correzione copre.
 - [x] Test deterministico lato API (`test_paddle_edit_outline.py`): il corpo
       di prima dà il 422 esatto, quello di adesso è pagaiato sul lago.
 - [x] Test delle suite che usano `canvasRequest` (`src/mapdraw`,
