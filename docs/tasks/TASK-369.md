@@ -212,6 +212,10 @@ Parte B:
   della parte A che escludevano la canoa; col sì del Coordinatore)
 - `apps/mobile/src/route/problems.ts`, `problems.test.ts` (il ripiego col
   server di prima; col sì del Coordinatore, dopo TASK-323 C2)
+- `apps/mobile/assets/engine/engine.zip` (il motore del telefono ricostruito
+  con `tools/phone_engine/phone_engine.py engine`: ha tutto `route_engine`,
+  `drawn_water.py` compreso, e `images.py`; la CI lo controlla; impronta iOS
+  6f8bba4c invariata)
 - `docs/API.md`, `docs/ROUTE_ENGINE.md`, `docs/UI.md` (una frase della parte
   A), `docs/STATUS.md`, `docs/tasks/TASK-369.md`
 
