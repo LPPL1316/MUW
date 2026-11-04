@@ -468,6 +468,93 @@ apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
 docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
 ```
 
+#### C2, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+C2»), branch `feat/TASK-323-c2-swim-on` partito da C1. Aggiunta ad
+ADR-0283. Le scelte dell'utente, una domanda per volta: le righe del nuoto
+nei file di Apple Salute di TASK-321 («Add the entries»), le distanze a
+mezzo km («Half-km steps»), i pulsanti sul risultato («Buttons on the
+result»), i testi e le traduzioni («Yes, like this»).
+
+- `Activity` con `swimming`; `activityOf("swim")` = `"swimming"`, la riga
+  ancora `ready: false`.
+- Le distanze: 0,5–3 km di mezzo km da 1 km, 0,5–1,5 mi di mezzo miglio
+  (`distanceStep`, `SWIMMING_START_KM`).
+- Sul risultato (`SwimResult`): «3 laps of 320 m», «Bigger shape» e
+  «Smaller shape», la riga sotto il giro, le curve. `lap_m` aggiunto alla
+  risposta in B (`ec03204`).
+- Sull'acqua come la canoa (`isOnWater`): niente indicazioni, gli errori
+  dell'acqua, la ricerca delle spiagge, le forme a pezzi; «Word» no,
+  «Image» e «Draw on the map» sì.
+- L'avviso del nuoto a ogni «Start» di un nuoto (risultato, «Explore», un
+  disegno aperto).
+- **Prima di `ready: true`**: B in `main` e sul server col sì dell'utente,
+  C4 («Explore» a nuoto: oggi con lo sport del nuoto mostrerebbe gli esempi
+  della corsa). La corsa a nuoto (niente voce, passo per 100 m) è D.
+
+- **2026-11-04, dal Mac**: le righe del nuoto in Apple Salute («Nuoto»,
+  `HKWorkoutActivityType.swimming`, la distanza in «Distanza a nuoto») e in
+  Health Connect (`EXERCISE_TYPE_SWIMMING_OPEN_WATER`) approvate
+  dall'utente («Sì, così»); il via del Coordinatore sui due file di
+  TASK-321 (la parte C è ferma). Impronta iOS `6f8bba4c`, invariata.
+
+File toccati da C2:
+
+```
+packages/shared-types/src/index.ts, test/contract.test.ts
+apps/mobile/App.tsx (l'avviso, i giri, la ricerca sull'acqua)
+apps/mobile/src/swim/water.ts, SwimResult.tsx e i loro test (nuovi)
+apps/mobile/src/settings/sport.ts, sport.test.ts
+apps/mobile/src/route/RoutePanel.tsx, distance.ts, problems.ts,
+  WhileRouting.tsx, drawAgain.ts, penUpShapes.ts, distanceMiles.test.ts,
+  swimDistance.test.ts (nuovo)
+apps/mobile/src/health/appleWorkout.ts, healthConnectWorkout.ts,
+  appleHealth.test.ts (TASK-321, col sì dell'utente), swimWorkout.test.ts
+  (nuovo)
+apps/mobile/src/social/PublicParts.tsx
+apps/mobile/src/search/searchFilters.ts (TASK-344, col via del Coordinatore:
+  il chip «Open water swim» nella ricerca del Feed, subito, scelta
+  dell'utente del 2026-11-04)
+apps/mobile/src/api/favorites.test.ts, src/favorites/favoriteRoute.test.ts
+  (il nuoto non è più «un'attività che non c'è»)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/__tests__/AppSwim.test.tsx (nuovo)
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
+#### C4, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+C4»), branch `feat/TASK-323-c4-swim-explore` partito da C2. Aggiunta ad
+ADR-0283. Il sottotitolo e le traduzioni approvati dall'utente («Yes, like
+this»).
+
+- «Explore» con «Open water swim» è `PaddleExplore` con `swim`: gli stessi
+  laghi e spiagge, «Near me», i filtri; «Shapes to swim, within 150 m of
+  the shore».
+- `SWIM_EXAMPLES` (`src/swim/swimExamples.ts`): le otto forme a 1 km da
+  ogni punto, `swimming`, a pezzi quelle a pezzi, nessuna con l'app.
+- `draw_examples --swim` (con `--water-name` per pochi punti): i nuoti
+  dei punti prima di ogni telefono; una forma che non ci sta è una
+  risposta.
+- **Per accendere il nuoto** (`ready: true` in `sport.ts`, una riga): B,
+  C1, C2 e C4 in `main`, poi col sì dell'utente il server (migrazione
+  0040), l'estratto dei nomi a riva e `draw_examples --swim`.
+
+File toccati da C4:
+
+```
+apps/mobile/src/swim/swimExamples.ts, SwimExplore.test.tsx (nuovi)
+apps/mobile/src/paddle/PaddleExplore.tsx (il nuoto con `swim`)
+apps/mobile/src/explore/exampleRoutes.ts (le forme a pezzi anche a nuoto)
+apps/mobile/App.tsx (la pagina «Explore» col nuoto)
+apps/mobile/__tests__/AppSwim.test.tsx
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+services/api/shaperoute_api/draw_examples.py, tests/test_draw_swims.py (nuovo)
+docs/API.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ### D — App: nuotare con il telefono nella boa
 
 1. La schermata della corsa per il nuoto: niente voce, il passo per 100 m,

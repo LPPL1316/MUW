@@ -831,6 +831,14 @@ database finisce applicata una volta sola):
   cambia. I giri e le curve di un nuoto stanno nel corpo del risultato
   (`RouteResult.laps`, `.turns`), dove già sta il resto del percorso.
 
+Migrazione `0043_walking.sql` (TASK-371 parte A, ADR-0315; numero del
+Coordinatore, la `0042` è di TASK-368 A):
+
+- Gli stessi tre vincoli (`favorites`, `runs`, `group_runs`) prendono anche
+  `'walking'`: una camminata si tiene col cuore, si salva e si propone come
+  corsa di gruppo come camminata, anche se il motore la disegna come una
+  corsa. Nessuna riga cambia.
+
 Migrazione `0044_record_only.sql` (TASK-375 parte A, ADR-0319; il numero
 dal Coordinatore, uno solo per lo sci alpino e quello di fondo):
 
@@ -838,8 +846,7 @@ dal Coordinatore, uno solo per lo sci alpino e quello di fondo):
   `'xc_skiing'`: una giornata sulla neve si salva come corsa. La
   migrazione **rilegge** il vincolo che trova (`pg_get_constraintdef`) e lo
   riscrive con i due nomi in più, invece di ripetere l'elenco: le attività
-  aggiunte prima (la `0043` della camminata, TASK-371) restano, in
-  qualunque ordine le due entrino. Lo riscrive come elenco di nomi fra
+  aggiunte prima (la `0043` della camminata, TASK-371) restano. Lo riscrive come elenco di nomi fra
   apici, come gli altri, così la prossima lo rilegge allo stesso modo.
 - `favorites` e `group_runs` no: tengono un percorso da rifare, e queste
   attività non ne hanno.

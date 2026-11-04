@@ -163,8 +163,9 @@ test("on the water the speed is in km/h and the pace is of 500 m", async () => {
   // A lake does not climb: the pace has the place of the metres climbed.
   expect(screen.queryByText("Elev. gain")).toBeNull();
   expect(screen.queryByText("Last km")).toBeNull();
-  // The energy is a runner's: no tile on the water (TASK-255).
-  expect(screen.queryByLabelText(/^Calories: /)).toBeNull();
+  // On the water its own energy (ADR-0318): 5.3 km/h is 2.8 MET for 14.6
+  // minutes at 70 kg, 50 kcal, less 18 at rest.
+  expect(screen.getByLabelText("Calories: 32 kcal")).toBeOnTheScreen();
   // A run along the same line: its pace for a kilometre, as before.
   expect(screen.getByLabelText("Pace now: 12:00 /km")).toBeOnTheScreen();
 });

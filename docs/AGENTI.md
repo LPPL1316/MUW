@@ -172,3 +172,22 @@ In `main`: #137 (TASK-136), #112 (088), #148 (140), #142 (142), #149 (147),
 210 A, 211 A, 212, 213, 215, 120, 208 A, 209, 214 (A, B, C), 216, 218,
 219, 220, 221, 222, 223, 224, 225, 226 (A, B), 227, 228, 233, 234, 235, 236, 237 (A, A2), 211 B, 214 (A2, B2), 229, 230, 231 (A, B),
 119 (A, B), 217 e 191 C.
+
+## Sport (Coordinatore Sport)
+
+> Sezione tenuta dalla sessione «Coordinatore Sport» (ADR-0320), col
+> permesso del Coordinatore del 2026-11-04. Il resto del file è del
+> Coordinatore. Le liste dei file vanno comunque al Coordinatore prima del
+> codice: il controllo dei conflitti con le sessioni non sport lo fa lui.
+
+**Ultimo aggiornamento**: 2026-11-04.
+
+| Sessione | Adesso | Dopo | File toccati |
+|---|---|---|---|
+| Coordinatore Sport | TASK-376 A: banco e `docs/sports/` (PR #736), misure di base di corsa, bici, canoa | TASK-376 B, il registro, dopo TASK-371 A+B, 375 A+B, 323 C2 in `main` | `tools/sport_bench/`, `docs/sports/`, `docs/tasks/TASK-376.md`; righe proprie in `STATUS.md`, `DECISIONS.md`, `INDEX.md` e questa sezione |
+
+Fase 1 (dopo TASK-376 B in `main`), numeri riservati: TASK-377 / ADR-0321
+Escursionismo (il pilota, scelta dell'utente), TASK-378 / ADR-0322
+Gravel/MTB; il terzo è il **Roller** (scelta
+dell'utente del 2026-11-04, «Sì, Roller», al posto dello sci di fondo che è
+già «Record only», TASK-372): TASK-380 / ADR-0324.

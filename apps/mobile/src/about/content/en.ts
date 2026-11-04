@@ -81,7 +81,7 @@ const help: AboutDocument = {
       heading: "Feed and friends",
       blocks: [
         "«Feed» shows drawings to take ideas from: tap one to open its route and start it.",
-        "The lens at the top of «Feed» finds other members by name. On a profile you can tap «Follow»; your requests, your followers and who you follow are in «Profile».",
+        "The search at the top of «Explore» finds other members by name. On a profile you can tap «Follow»; your requests, your followers and who you follow are in «Profile».",
         "On a member's public drawing you can react with an emoji, send a super like and write a comment. Negative comments are not accepted.",
       ],
     },
@@ -317,7 +317,7 @@ const privacy: AboutDocument = {
     {
       heading: "Friends from your contacts",
       blocks: [
-        "Under the lens at the top of «Feed», «Find friends in your contacts» looks for the members whose number is in your phone's contacts. The app asks the phone for the contacts only when you tap it, and reads only their phone numbers: never names, emails or pictures.",
+        "In «Feed», «Find people to follow» leads to «Find friends in your contacts», which looks for the members whose number is in your phone's contacts. The app asks the phone for the contacts only when you tap it, and reads only their phone numbers: never names, emails or pictures.",
         "Each number leaves the phone coded: written with its country code and turned into a hash (SHA-256). Our server compares the codes with those of the numbers members added, answers with the members it found, and keeps nothing it received: not in the database, not in a log.",
         "A hash of a phone number is not a secret: whoever had the codes could find the numbers again by trying every possible number. That is why the real protection is that our server keeps none of them; they travel only over the encrypted connection.",
         "Your contacts' numbers are other people's data: they are compared once, to find accounts, and forgotten. To stop anyone from trying numbers one by one, the server counts the searches of each account in an hour, in memory only. Only members who added their number can be found, and never someone you blocked or who blocked you.",
@@ -433,6 +433,7 @@ const privacy: AboutDocument = {
             "Hetzner hosts our server and its backups, in Germany.",
             "Geoapify receives the searches for places, for the towns near you and for the places of a themed route, with the position rounded to about 1 km, and, to name the place of a saved run, its start rounded the same way: never your door, the run or who you are. If our server does not answer, a place search goes to Photon (komoot) instead.",
             "OpenFreeMap serves the map: like any map service, it sees which area you look at.",
+            "The hills of the 3D map, and of a video in the «3D» style, come from the Terrain Tiles kept on Amazon Web Services: like any map service, it sees which area you look at.",
             "Apple on an iPhone, or Google on Android, through the phone's own address service, receives the position «Draw» starts from, to write the name of its street. MuW sends it nothing else and does not keep the name.",
             "Wikimedia serves our server the photos of towns: it sees which town, not who asked.",
             "With the «Satellite» map Esri serves the images, and with the «3D» map Amazon Web Services serves the heights: like any map service, they see which area you look at.",

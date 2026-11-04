@@ -9,6 +9,7 @@ migration added before it (0043 walking, TASK-371) stays.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any, get_args
@@ -16,7 +17,8 @@ from typing import Any, get_args
 import pytest
 import route_engine
 from fastapi.testclient import TestClient
-from route_engine.models import SUPPORTED_ACTIVITIES, InvalidRequestError
+from route_engine.models import InvalidRequestError
+from route_engine.walking import API_ACTIVITIES
 from test_personal_bests import (
     KEYS,
     client,  # noqa: F401  (the fixtures of the bests' tests)
@@ -47,12 +49,12 @@ def test_the_activities_of_a_run_are_those_of_shared_types() -> None:
     fixture = _fixture()
     assert list(RECORD_ACTIVITIES) == fixture["record_activities"]
     assert list(get_args(RunActivity)) == fixture["run_activities"]
-    assert list(get_args(RunActivity)) == [*SUPPORTED_ACTIVITIES, *RECORD_ACTIVITIES]
+    assert list(get_args(RunActivity)) == [*API_ACTIVITIES, *RECORD_ACTIVITIES]
 
 
 @pytest.mark.parametrize("activity", RECORD_ACTIVITIES)
 def test_no_route_is_planned_for_a_day_on_the_snow(activity: str) -> None:
-    assert activity not in SUPPORTED_ACTIVITIES
+    assert activity not in API_ACTIVITIES
     with pytest.raises(InvalidRequestError):
         check_supported(activity)
 
@@ -150,31 +152,23 @@ def test_the_migration_lets_every_activity_of_a_run_in(database_url: str) -> Non
     assert not any("skiing" in other for other in others)
 
 
-def test_the_migration_keeps_an_activity_added_before_it(
+def test_the_migration_keeps_the_walk_of_0043(
     database_url: str, tmp_path: Path
 ) -> None:
-    # As 0043 walking of TASK-371 does: a migration before this one widens
-    # the check by hand, and this one keeps what it finds.
+    # The real migrations before this one, 0043 walking of TASK-371 among
+    # them, then this one alone: it keeps the walk 0043 wrote by hand.
     record = [path for path in migrations() if path.name == MIGRATION]
     assert len(record) == 1
-    for path in migrations():
-        if path not in record and path.name < MIGRATION:
-            shutil.copy(path, tmp_path / path.name)
+    earlier = [path for path in migrations() if path.name < MIGRATION]
+    assert "0043_walking.sql" in [path.name for path in earlier]
+    for path in earlier:
+        shutil.copy(path, tmp_path / path.name)
     migrated = Database(database_url)
     migrated.migrate(tmp_path)
-    before = [*SUPPORTED_ACTIVITIES, "rowing"]
-    with migrated.connect() as conn:
-        conn.execute(
-            "ALTER TABLE runs DROP CONSTRAINT runs_activity_check,"
-            " ADD CONSTRAINT runs_activity_check CHECK (activity IN ("
-            + ", ".join(f"'{activity}'" for activity in before)
-            + "))"
-        )
+    before = re.findall(r"'([a-z_]+)'", _runs_check(migrated))
+    assert before == list(API_ACTIVITIES)
     shutil.copy(record[0], tmp_path / MIGRATION)
     assert migrated.migrate(tmp_path) == [MIGRATION.removesuffix(".sql")]
-    check = _runs_check(migrated)
-    for activity in before:
-        assert f"'{activity}'" in check
-    assert "'skiing'" in check and "'xc_skiing'" in check
-    # Each name once, even when the migration runs on a check that had one.
-    assert check.count("'skiing'") == 1
+    after = re.findall(r"'([a-z_]+)'", _runs_check(migrated))
+    # Each name once, in the order of RunActivity: the walk kept, then the snow.
+    assert after == list(get_args(RunActivity))

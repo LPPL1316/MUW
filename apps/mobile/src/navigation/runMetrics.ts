@@ -106,13 +106,4 @@ export function climbM(track: Track): number | null {
   return from === null ? null : climbed;
 }
 
-/** The weight the energy is worked out for until the profile has the
- * runner's own, in kilograms. */
-export const DEFAULT_WEIGHT_KG = 70;
-/** Kilocalories for each kilogram carried one kilometre, running. */
-export const KCAL_PER_KG_KM = 1.036;
-
-/** About how much energy `metres` of running take, in kilocalories. */
-export function kcal(metres: number, weightKg: number = DEFAULT_WEIGHT_KG): number {
-  return Math.round((Math.max(0, metres) / 1000) * weightKg * KCAL_PER_KG_KM);
-}
+// The energy of an activity is in `../body/energy` (TASK-374, ADR-0318).

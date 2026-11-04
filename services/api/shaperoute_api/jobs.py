@@ -234,7 +234,9 @@ class RouteJobs:
             self._tell(job, None, None, self._clock() - started)
             return
         except Exception as exc:
-            _, error = error_of(exc, activity)
+            # In the limits of the activity asked: a walk's, not a run's.
+            asked = (job.body or {}).get("activity", activity)
+            _, error = error_of(exc, asked)
             if error.code == "engine_error":
                 log.exception("job %s: the engine failed", job.job_id, exc_info=exc)
             self._set(job, status="failed", error=error)

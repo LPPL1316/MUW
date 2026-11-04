@@ -34,7 +34,8 @@ export const MIN_DISTANCE_KM = MIN_DISTANCE_M / 1000;
  * limits, 10–30 km (TASK-190, the user's choice). Outside the bike zones
  * downloaded ahead a bike route downloads 23–26 km of map, and may take
  * longer than the 5 minutes the app waits (ADR-0153). Paddling its contract
- * limits too, 1–5 km (TASK-191, the user's choice).
+ * limits too, 1–5 km (TASK-191, the user's choice), and a swim its own,
+ * 0.5–3 km, by half a km (TASK-323 C2).
  */
 export const APP_DISTANCE_LIMITS_KM: Readonly<
   Record<Activity, readonly [lowest: number, highest: number]>
@@ -45,6 +46,10 @@ export const APP_DISTANCE_LIMITS_KM: Readonly<
     DISTANCE_LIMITS_M.paddling[0] / 1000,
     DISTANCE_LIMITS_M.paddling[1] / 1000,
   ],
+  swimming: [
+    DISTANCE_LIMITS_M.swimming[0] / 1000,
+    DISTANCE_LIMITS_M.swimming[1] / 1000,
+  ],
 };
 
 /** Above this the panel warns that the route takes longer (ADR-0034). */
@@ -53,12 +58,14 @@ export const LONG_DISTANCE_KM = 15;
 /**
  * The same in whole miles, with «Miles» (TASK-182 part B, the user's choice
  * of 2026-10-05): the whole miles inside the limits in km, so a run goes
- * from 1 to 13 mi, a bike route from 7 to 18, paddling from 1 to 3.
+ * from 1 to 13 mi, a bike route from 7 to 18, paddling from 1 to 3. A swim
+ * by half a mile, 0.5 to 1.5 (0.8 to 2.4 km: 2 mi are past the 3 km).
  */
 export const APP_DISTANCE_LIMITS_MI: Readonly<Record<Activity, Limits>> = {
   running: milesWithin("running"),
   cycling: milesWithin("cycling"),
   paddling: milesWithin("paddling"),
+  swimming: [0.5, 1.5],
 };
 
 function milesWithin(activity: Activity): Limits {
@@ -124,12 +131,22 @@ export function toDistanceM(
 /** What − and + add to the distance; a mile with «Miles». */
 export const DISTANCE_STEP_KM = 1;
 
+/** A swim goes by half a km, or half a mile (TASK-323 C2, the user's
+ * choice): 0.5 to 3 km are six steps, whole km would be three. */
+export const SWIM_STEP = 0.5;
+
+/** How far − and + go for `activity`, in its units: one, half for a swim. */
+export function distanceStep(activity: Activity): number {
+  return activity === "swimming" ? SWIM_STEP : DISTANCE_STEP_KM;
+}
+
 /**
  * The distance field after pressing − (steps < 0) or + (steps > 0): one
- * DISTANCE_STEP_KM each, or one mile with «Miles», held within the limits of
- * `activity` (for a run MIN_DISTANCE_KM to MAX_APP_DISTANCE_KM, or 1 to 13
- * mi). A value out of range is brought back into it; text that is not a
- * number starts from the lowest. The decimal keeps the separator typed.
+ * DISTANCE_STEP_KM each, or one mile with «Miles», half of either for a swim
+ * (distanceStep), held within the limits of `activity` (for a run
+ * MIN_DISTANCE_KM to MAX_APP_DISTANCE_KM, or 1 to 13 mi). A value out of
+ * range is brought back into it; text that is not a number starts from the
+ * lowest. The decimal keeps the separator typed.
  */
 export function stepDistance(
   text: string,
@@ -139,7 +156,7 @@ export function stepDistance(
 ): string {
   return steppedDistance(
     text.trim(),
-    steps * DISTANCE_STEP_KM,
+    steps * distanceStep(activity),
     units,
     distanceLimits(activity, units),
   );
@@ -204,6 +221,10 @@ export function offeredDistanceM(
  */
 export const PADDLING_START_KM = 2;
 
+/** Where it starts for a swim (TASK-323 C2, the user's choice): 1 km, two
+ * laps of most shapes on a straight coast (ADR-0283). */
+export const SWIMMING_START_KM = 1;
+
 /**
  * The distance field for a sport, at the opening or just chosen: paddling
  * starts from PADDLING_START_KM; a run and a bike route keep the distance
@@ -215,7 +236,10 @@ export function distanceForSport(
   activity: Activity,
   units: Units = appUnits(),
 ): string {
-  return activity === "paddling"
-    ? fitDistance(String(PADDLING_START_KM), activity, units)
+  if (activity === "paddling") {
+    return fitDistance(String(PADDLING_START_KM), activity, units);
+  }
+  return activity === "swimming"
+    ? fitDistance(String(SWIMMING_START_KM), activity, units)
     : fitDistance(text, activity, units);
 }

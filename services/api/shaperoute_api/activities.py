@@ -124,10 +124,10 @@ MAX_ALTITUDE_M = 10_000.0
 
 LatLon = tuple[float, float]
 Key = Annotated[str, Path(pattern=KEY_PATTERN)]
-# What a run was (TASK-208): the activities of the API, SUPPORTED_ACTIVITIES,
+# What a run was (TASK-208): the activities of the API, walking.API_ACTIVITIES,
 # and those recorded without a shape, RECORD_ACTIVITIES (TASK-375, ADR-0319).
 RunActivity = Literal[
-    "running", "cycling", "paddling", "swimming", "skiing", "xc_skiing"
+    "running", "cycling", "paddling", "swimming", "walking", "skiing", "xc_skiing"
 ]
 # A day on the snow: recorded and shown, never planned by the engine. Its
 # speeds are no runner's nor rider's, so it gives no personal best.

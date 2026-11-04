@@ -157,3 +157,37 @@ test("a route no longer in the catalogue says so, and no other route opens", asy
   await fireEvent.press(screen.getByText("Back to the list"));
   expect(screen.getByRole("tab", { name: "Feed", selected: true })).toBeOnTheScreen();
 });
+
+test("a drawing found by the search at the top of «Explore» is fetched as «Feed» fetches it; back is «Explore»", async () => {
+  // The most liked drawing is the first featured one (TASK-367 part B).
+  const found = [...SAMPLE_FEED].sort((a, b) => b.score - a.score)[0];
+  // Under its id there is another route by now, and none like it nearby:
+  // as from «Feed», it says so, and that other route does not open.
+  const answer = fetchSpy.getMockImplementation()!;
+  fetchSpy.mockImplementation(async (input, init) =>
+    String(input) === `${API}/recommended-routes/${found.id}`
+      ? Response.json({ ...detail, id: found.id, shape: "circle", route_m: 4727 })
+      : answer(input, init),
+  );
+  await onFeed();
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
+  await fireEvent.press(await screen.findByTestId("explore-search"));
+  await fireEvent.press(await screen.findByTestId(`featured-${found.id}`));
+
+  expect(
+    await screen.findByText("The route could not load. Try again."),
+  ).toBeOnTheScreen();
+  expect(screen.queryByText("Start")).toBeNull();
+  const [lat, lon] = found.line[0];
+  expect(asked()).toEqual(
+    expect.arrayContaining([
+      `/recommended-routes/${found.id}`,
+      `/recommended-routes?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&radius_m=5000`,
+    ]),
+  );
+  // Back where the search was.
+  await fireEvent.press(screen.getByText("Back to the list"));
+  expect(
+    screen.getByRole("tab", { name: "Explore", selected: true }),
+  ).toBeOnTheScreen();
+});

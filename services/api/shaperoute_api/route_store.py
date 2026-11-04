@@ -92,6 +92,10 @@ ANCHORED_ONLY = frozenset({"anchored.py", "stroke_match.py"})
 # (TASK-369, ADR-0313), never kept either: changing them keeps the routes
 # kept; a test fails when a module that draws other routes imports one.
 DRAWN_WATER_ONLY = frozenset({"drawn_water.py"})
+# The walk (TASK-371, ADR-0315): the API's own activity, drawn as a run on the
+# foot network, so a walk is a run kept. Changing it keeps the routes kept; a
+# test fails when a module that draws routes imports it.
+WALK_ONLY = frozenset({"walking.py"})
 
 
 def engine_fingerprint(folder: Path | None = None, swims: bool = False) -> str:
@@ -100,9 +104,10 @@ def engine_fingerprint(folder: Path | None = None, swims: bool = False) -> str:
     the same code keeps what it drew. `folder`: the engine's own. Without
     `swims` the files that draw only swims are left out (SWIM_ONLY): the
     fingerprint of every route but a swim. The files of what is never kept
-    are always left out (ANCHORED_ONLY, DRAWN_WATER_ONLY)."""
+    are always left out (ANCHORED_ONLY, DRAWN_WATER_ONLY), and the walk's,
+    which draws as a run (WALK_ONLY)."""
     folder = Path(route_engine.__file__).parent if folder is None else folder
-    never_kept = NOT_ROUTES | ANCHORED_ONLY | DRAWN_WATER_ONLY
+    never_kept = NOT_ROUTES | ANCHORED_ONLY | DRAWN_WATER_ONLY | WALK_ONLY
     left_out = never_kept if swims else never_kept | SWIM_ONLY
     digest = hashlib.sha256()
     for path in sorted(folder.rglob("*")):

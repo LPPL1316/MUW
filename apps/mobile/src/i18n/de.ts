@@ -267,6 +267,9 @@ export const DE: Table = {
   "On the water": "Auf dem Wasser",
   "Shapes to paddle, within 1 km of the shore":
     "Formen zum Paddeln, höchstens 1 km vom Ufer",
+  // The swim's (TASK-323 C4).
+  "Shapes to swim, within 150 m of the shore":
+    "Formen zum Schwimmen, höchstens 150 m vom Ufer",
   "LAKES AND SEA": "SEEN UND MEER",
   "Near me": "In meiner Nähe",
   "Choose a lake or a beach: eight shapes on its water, from the shore.":
@@ -320,6 +323,18 @@ export const DE: Table = {
   "{distance} from the start": "{distance} nach dem Start",
   "The same turns every lap, {laps} laps, then back to the shore.":
     "Jede Runde dieselben Kurven, {laps} Runden, dann zurück zum Ufer.",
+
+  // src/swim/SwimResult.tsx, src/route/RoutePanel.tsx, src/settings/sport.ts
+  // (TASK-323 C2: the laps of a swim, its size, the way out with the track)
+  "Swim without a route": "Ohne Route schwimmen",
+  "{count} lap of {distance}": "{count} Runde zu {distance}",
+  "{count} laps of {distance}": "{count} Runden zu {distance}",
+  "Bigger shape": "Größere Form",
+  "Smaller shape": "Kleinere Form",
+  "{drawn} km of drawing + {between} km swimming between the parts":
+    "{drawn} km Zeichnung + {between} km Schwimmen zwischen den Teilen",
+  "{drawn} mi of drawing + {between} mi swimming between the parts":
+    "{drawn} mi Zeichnung + {between} mi Schwimmen zwischen den Teilen",
 
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Form verschieben",
@@ -777,6 +792,26 @@ export const DE: Table = {
   Kilometres: "Kilometer",
   Miles: "Meilen",
   "Phone units": "Einheiten des Handys",
+
+  // src/settings/BodySetting.tsx, BodyPage.tsx, src/body/bodyFields.ts (TASK-374)
+  Body: "Körper",
+  "Not set": "Nicht festgelegt",
+  "Used only to estimate your calories and heart rate zones. It stays on this phone.":
+    "Wird nur verwendet, um deine Kalorien und Herzfrequenzzonen zu schätzen. Bleibt auf diesem Handy.",
+  Sex: "Geschlecht",
+  Male: "Männlich",
+  Female: "Weiblich",
+  "Prefer not to say": "Keine Angabe",
+  Weight: "Gewicht",
+  Height: "Größe",
+  "Year of birth": "Geburtsjahr",
+  "Calories are an estimate. Weight matters most.":
+    "Kalorien sind eine Schätzung. Am meisten zählt das Gewicht.",
+  "Enter a weight between {min} and {max} {unit}.":
+    "Gib ein Gewicht zwischen {min} und {max} {unit} ein.",
+  "Enter a height between {min} and {max}.":
+    "Gib eine Größe zwischen {min} und {max} ein.",
+  "Enter a year between {min} and {max}.": "Gib ein Jahr zwischen {min} und {max} ein.",
 
   // src/settings/ToneSetting.tsx
   Tone: "Darstellung",

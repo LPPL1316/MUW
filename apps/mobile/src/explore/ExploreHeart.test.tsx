@@ -67,5 +67,8 @@ test("it is as wide as the button of «Profile» above it", async () => {
 test("only a picture: VoiceOver does not find it, and nothing is pressed", async () => {
   await renderExplore();
   expect(screen.queryByTestId("heart-badge")).toBeNull();
-  expect(screen.queryAllByRole("button")).toHaveLength(0);
+  // The only button is the search at the top (TASK-367 part B).
+  expect(
+    screen.queryAllByRole("button").map((button) => button.props.accessibilityLabel),
+  ).toEqual(["Search"]);
 });
