@@ -1,4 +1,4 @@
-import type { Activity } from "@shaperoute/shared-types";
+import type { RunActivity } from "@shaperoute/shared-types";
 import type {
   ActiveCaloriesBurnedRecord,
   DistanceRecord,
@@ -15,12 +15,19 @@ import { SYNC_VERSION, type Workout } from "./workout";
  * Pure: only types come from the library, never its code.
  */
 
-/** ExerciseSessionRecord.EXERCISE_TYPE_…, Health Connect's own numbers
- * (WALKING is 79, for when MuW has walks). */
-const EXERCISE_TYPE: Readonly<Record<Activity, number>> = {
+/** ExerciseSessionRecord.EXERCISE_TYPE_…, Health Connect's own numbers. */
+const EXERCISE_TYPE: Readonly<Record<RunActivity, number>> = {
   running: 56,
   cycling: 8,
   paddling: 46,
+  // EXERCISE_TYPE_SWIMMING_OPEN_WATER (TASK-323).
+  swimming: 73,
+  // EXERCISE_TYPE_WALKING (TASK-371).
+  walking: 79,
+  // EXERCISE_TYPE_SKIING, downhill and cross-country alike: Health Connect
+  // has no type of its own for the second (TASK-375).
+  skiing: 61,
+  xc_skiing: 61,
 };
 
 /** ExerciseSegment.EXERCISE_SEGMENT_TYPE_PAUSE: right for every exercise. */

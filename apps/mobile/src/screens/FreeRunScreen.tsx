@@ -15,7 +15,7 @@ import {
 } from "../navigation/runStats";
 import { emptyTrack, type Track } from "../navigation/trackRecorder";
 import type { FreeRunState } from "../navigation/useFreeRun";
-import { activityOf } from "../settings/sport";
+import { runActivityOf } from "../settings/sport";
 import { useSport } from "../settings/useSport";
 import { postOfTrack } from "../share/postRun";
 import { SharePostButton } from "../share/SharePost";
@@ -133,7 +133,7 @@ export function FreeRunCard({
 }) {
   // With «Paddle» in «Settings» the numbers are a paddler's (TASK-251),
   // with «Bike» speeds, as along a route (TASK-251 C); a run's as before.
-  const sport = activityOf(useSport());
+  const sport = runActivityOf(useSport());
   return (
     <RunCard
       track={track}

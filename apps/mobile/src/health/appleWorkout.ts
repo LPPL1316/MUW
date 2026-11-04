@@ -4,7 +4,7 @@ import type {
   QuantityTypeIdentifierWriteable,
   WorkoutActivityType,
 } from "@kingstinct/react-native-healthkit";
-import type { Activity } from "@shaperoute/shared-types";
+import type { Activity, RunActivity } from "@shaperoute/shared-types";
 
 import { SYNC_VERSION, type Workout } from "./workout";
 
@@ -15,15 +15,24 @@ import { SYNC_VERSION, type Workout } from "./workout";
  * library, never its code (it needs its native module).
  */
 
-/** HKWorkoutActivityType, Apple's own numbers (`.walking` is 52, for when
- * MuW has walks). */
-const ACTIVITY_TYPE: Readonly<Record<Activity, WorkoutActivityType>> = {
+/** HKWorkoutActivityType, Apple's own numbers. */
+const ACTIVITY_TYPE: Readonly<Record<RunActivity, WorkoutActivityType>> = {
   running: 37 as WorkoutActivityType,
   cycling: 13 as WorkoutActivityType,
   paddling: 31 as WorkoutActivityType,
+  // `.swimming`; that it was in open water is TASK-321's to add
+  // (HKMetadataKeySwimmingLocationType), with TASK-323 E.
+  swimming: 46 as WorkoutActivityType,
+  // `.walking` (TASK-371).
+  walking: 52 as WorkoutActivityType,
+  // `.downhillSkiing` and `.crossCountrySkiing` (TASK-375).
+  skiing: 61 as WorkoutActivityType,
+  xc_skiing: 60 as WorkoutActivityType,
 };
 
-/** The distance of each activity, as Apple Health counts it a day. */
+/** The distance of each activity, as Apple Health counts it a day. A day on
+ * the snow (TASK-375) has none here: its own distances would be a new
+ * permission to ask, so the workout keeps its total only. */
 export const DISTANCE_TYPE: Readonly<
   Record<Activity, QuantityTypeIdentifierWriteable>
 > = {
@@ -31,6 +40,9 @@ export const DISTANCE_TYPE: Readonly<
   cycling: "HKQuantityTypeIdentifierDistanceCycling",
   // From iOS 18: before it, the workout keeps its total only.
   paddling: "HKQuantityTypeIdentifierDistancePaddleSports",
+  swimming: "HKQuantityTypeIdentifierDistanceSwimming",
+  // A walk counts with the runs, as Apple's own Workout app does.
+  walking: "HKQuantityTypeIdentifierDistanceWalkingRunning",
 };
 
 export const ENERGY_TYPE: QuantityTypeIdentifierWriteable =
@@ -60,13 +72,21 @@ export type AppleWorkout = {
   locations: LocationForSaving[];
 };
 
+/** One of the activities with a route, whose distance Apple Health counts. */
+function isRouteActivity(activity: RunActivity): activity is Activity {
+  return activity in DISTANCE_TYPE;
+}
+
 export function appleWorkout(workout: Workout): AppleWorkout {
   const startDate = new Date(workout.startMs);
   const endDate = new Date(workout.endMs);
   const quantities: QuantitySampleForSaving[] = [];
-  if (workout.distanceM > 0) {
+  const distanceType = isRouteActivity(workout.activity)
+    ? DISTANCE_TYPE[workout.activity]
+    : null;
+  if (workout.distanceM > 0 && distanceType !== null) {
     quantities.push({
-      quantityType: DISTANCE_TYPE[workout.activity],
+      quantityType: distanceType,
       quantity: workout.distanceM,
       unit: "m",
       startDate,

@@ -1,15 +1,20 @@
-import type { Activity } from "@shaperoute/shared-types";
+import type { Activity, RunActivity } from "@shaperoute/shared-types";
 import Constants from "expo-constants";
 import { File, Paths } from "expo-file-system";
 
 import { t, tLater } from "../i18n";
 
-/** What a route is for: a run, a bike ride since TASK-190, or paddling on a
- * lake or the sea since TASK-191 (a canoe, a kayak, a SUP). Swimming in open
- * water (TASK-323 part C, ADR-0283) and paragliding (TASK-305 D0, ADR-0265)
- * are only «Soon» for now: never chosen, so never a route, and wherever the
- * sports are told apart they go as a run. */
-export type Sport = "run" | "bike" | "paddle" | "swim" | "paragliding";
+/** What a route is for: a run, a bike ride since TASK-190, paddling on a
+ * lake or the sea since TASK-191 (a canoe, a kayak, a SUP), a walk on the
+ * foot network of a run (TASK-371 part B, ADR-0315), «Soon» until the server
+ * walks, or swimming in open water (TASK-323 part C, ADR-0283), «Soon» until
+ * the server swims.
+ * Paragliding (TASK-305 D0, ADR-0265) is only «Soon» for now: never chosen,
+ * so never a route, and wherever the sports are told apart it goes as a
+ * run. A day of alpine skiing («Ski») or of cross-country skiing is
+ * recorded without a shape (TASK-375, ADR-0319): `recordOnly`. */
+export type Sport =
+  "run" | "bike" | "paddle" | "walk" | "swim" | "ski" | "xc_ski" | "paragliding";
 
 export type SportOption = {
   id: Sport;
@@ -22,6 +27,12 @@ export type SportOption = {
    * turns this on and gives it its activity (activityOf).
    */
   ready: boolean;
+  /**
+   * Recorded without a shape (TASK-375, ADR-0319): «Draw» offers only
+   * «Record your day», the Route Engine never sees it, and the run is saved
+   * as its runActivityOf.
+   */
+  recordOnly?: boolean;
 };
 
 /** Every sport, in the order they are shown; the ones not ready included. */
@@ -29,11 +40,38 @@ export const ALL_SPORTS: readonly SportOption[] = [
   { id: "run", emoji: "🏃‍♂️", name: tLater("Run"), ready: true },
   { id: "bike", emoji: "🚴", name: tLater("Bike"), ready: true },
   { id: "paddle", emoji: "🛶", name: tLater("Paddle"), ready: true },
-  // On once the API swims and the app asks it for a swim (TASK-323 C2): its
-  // activity is "swimming" from then on (activityOf).
+  // Asked as "swimming" since TASK-323 C2 (activityOf); on once the server
+  // swims.
   { id: "swim", emoji: "🏊", name: tLater("Open water swim"), ready: false },
+  // Asked as "walking" (activityOf), 1-30 km; on once the server has
+  // TASK-371 part A and its migration 0043.
+  { id: "walk", emoji: "🚶", name: tLater("Walk"), ready: false },
+  // Saved as "skiing" and "xc_skiing" (runActivityOf); on once the server
+  // has TASK-375 part A and its migration 0044, and the day has its numbers
+  // (part C).
+  { id: "ski", emoji: "⛷️", name: tLater("Ski"), ready: false, recordOnly: true },
+  {
+    id: "xc_ski",
+    emoji: "🎿",
+    name: tLater("Cross-country ski"),
+    ready: false,
+    recordOnly: true,
+  },
   { id: "paragliding", emoji: "🪂", name: tLater("Paragliding"), ready: false },
 ];
+
+/**
+ * Whether `activity` is offered where a run's sport is chosen or looked for
+ * (the form to publish, the search's filters): a walk once «Walk» is ready,
+ * the server keeping walks (TASK-371), so the two come together; every other
+ * as before.
+ */
+export function activityOffered(
+  activity: Activity,
+  sports: readonly SportOption[] = ALL_SPORTS,
+): boolean {
+  return activity !== "walking" || sports.some((s) => s.id === "walk" && s.ready);
+}
 
 /**
  * True in the App Store and Google Play builds, and in the updates made for
@@ -122,7 +160,8 @@ export function saveSport(sport: Sport): void {
 /**
  * What «Draw» asks the API for (TASK-190, ADR-0153): a route on the roads a
  * bike may ride for «Bike», a shape on the water for «Paddle» (TASK-191,
- * ADR-0164), a run for «Run».
+ * ADR-0164), a swim within 150 m of the shore for «Open water swim»
+ * (TASK-323), a run for «Run».
  */
 export function activityOf(sport: Sport): Activity {
   switch (sport) {
@@ -130,19 +169,57 @@ export function activityOf(sport: Sport): Activity {
       return "cycling";
     case "paddle":
       return "paddling";
+    case "walk":
+      return "walking";
+    case "swim":
+      return "swimming";
     default:
       return "running";
   }
 }
 
+/** True when `sport` is recorded without a shape (TASK-375): «Draw» shows
+ * only «Record your day». */
+export function isRecordOnly(
+  sport: Sport,
+  sports: readonly SportOption[] = ALL_SPORTS,
+): boolean {
+  return sports.some((option) => option.id === sport && option.recordOnly === true);
+}
+
+/**
+ * What a run of `sport` is saved as (TASK-375, ADR-0319): a day on the snow
+ * as "skiing" or "xc_skiing", which no route asks; every other sport as the
+ * route it would ask (activityOf), a walk as "walking".
+ */
+export function runActivityOf(sport: Sport): RunActivity {
+  switch (sport) {
+    case "ski":
+      return "skiing";
+    case "xc_ski":
+      return "xc_skiing";
+    default:
+      return activityOf(sport);
+  }
+}
+
 /** The way out of «Draw» with the track only (TASK-149), in the sport's
- * words: «Ride» by bike (TASK-190), «Paddle» on the water (TASK-191). */
+ * words: «Ride» by bike (TASK-190), «Paddle» on the water (TASK-191),
+ * «Walk» on foot (TASK-371), «Swim» in open water (TASK-323). */
 export function withoutRouteLabel(sport: Sport): string {
   switch (sport) {
     case "bike":
       return t("Ride without a route");
     case "paddle":
       return t("Paddle without a route");
+    case "walk":
+      return t("Walk without a route");
+    case "swim":
+      return t("Swim without a route");
+    case "ski":
+    case "xc_ski":
+      // No shapes on the slopes (TASK-375): the only way to go.
+      return t("Record your day");
     default:
       return t("Run without a route");
   }

@@ -831,6 +831,53 @@ database finisce applicata una volta sola):
   cambia. I giri e le curve di un nuoto stanno nel corpo del risultato
   (`RouteResult.laps`, `.turns`), dove già sta il resto del percorso.
 
+Migrazione `0043_walking.sql` (TASK-371 parte A, ADR-0315; numero del
+Coordinatore, la `0042` è di TASK-368 A):
+
+- Gli stessi tre vincoli (`favorites`, `runs`, `group_runs`) prendono anche
+  `'walking'`: una camminata si tiene col cuore, si salva e si propone come
+  corsa di gruppo come camminata, anche se il motore la disegna come una
+  corsa. Nessuna riga cambia.
+
+Migrazione `0044_record_only.sql` (TASK-375 parte A, ADR-0319; il numero
+dal Coordinatore, uno solo per lo sci alpino e quello di fondo):
+
+- Il vincolo `runs_activity_check` prende anche `'skiing'` e
+  `'xc_skiing'`: una giornata sulla neve si salva come corsa. La
+  migrazione **rilegge** il vincolo che trova (`pg_get_constraintdef`) e lo
+  riscrive con i due nomi in più, invece di ripetere l'elenco: le attività
+  aggiunte prima (la `0043` della camminata, TASK-371) restano. Lo riscrive come elenco di nomi fra
+  apici, come gli altri, così la prossima lo rilegge allo stesso modo.
+- `favorites` e `group_runs` no: tengono un percorso da rifare, e queste
+  attività non ne hanno.
+- Nessuna riga cambia. Test in `test_record_only.py`.
+
+Migrazione `0045_notification_list.sql` (TASK-367 parte C1, ADR-0311, `API.md`
+«The bell»; il numero è del Coordinatore: la `0043` è della camminata, la
+`0044` di «Record only»):
+
+- `notifications`: le righe della campanella. Una per ogni evento che
+  `push.py` lascia passare (non il proprio, salvo i suoi tipi, una volta al
+  giorno), **qualunque** sia l'interruttore delle push: la lista si legge
+  nell'app, non si manda. Non i messaggi privati, che hanno la loro scheda.
+  `id`, `recipient_id` e `actor_id` (`ON DELETE CASCADE` su `users`),
+  `kind` (quello della push), `drawing_id` e `comment_id` (`CASCADE` su
+  `drawings` e `comments`), `same` (cosa distingue due eventi dello stesso
+  tipo fra le stesse persone: il disegno, il commento, la sfida, la corsa di
+  gruppo, il concorso, il numero), `extra` (`jsonb`: il resto dell'evento
+  per il testo e per cosa apre), `at`, `read_at` (vuota finché non è letta).
+- `UNIQUE (recipient_id, actor_id, kind, same)`: lo stesso evento di nuovo
+  (una reazione cambiata, una corsa di gruppo cambiata due volte) prende il
+  posto di quello prima, non letto e in cima.
+- **Nessun testo**: si scrive quando la lista si legge, nella lingua
+  dell'account, e quello che non è più vero resta fuori (come l'email delle
+  notizie). Le righe vanno via dopo `KEPT_DAYS` (90 giorni, approvati
+  dall'utente con la frase della privacy), con l'account, con chi ha agito, con il
+  disegno o il commento.
+- Indici: `(recipient_id, id DESC)` per la lista, `at` per le righe
+  vecchie, `actor_id`, `drawing_id` e `comment_id` per le cancellazioni.
+  Test in `test_notification_list.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

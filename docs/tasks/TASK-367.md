@@ -1,6 +1,6 @@
 # TASK-367 — La navigazione come Instagram: la barra in basso e un header solo
 
-**Stato**: Todo — documenti ora, codice col via del Coordinatore
+**Stato**: In lavorazione — parti A e B in main; C col via del Coordinatore dopo la C2 del nuoto
 **Fase**: 4 · **Branch**: `docs/TASK-367-tab-bar` (documenti),
 `feat/TASK-367-a-tab-bar` (parte A) · **ADR**: ADR-0311 · numeri dal
 Coordinatore (2026-11-02)
@@ -144,6 +144,44 @@ Dopo 344 B e coordinata con TASK-362, che ha la lente accanto alle schede del
 Feed: la barra di ricerca in cima a Explore, la lente esce dal Feed. Testi da
 approvare.
 
+Fatta così (2026-11-04, via del Coordinatore): in cima a «Explore», anche
+sull'acqua, un campo con la lente della barra e il testo già tradotto
+«Search drawings, people, places» apre la ricerca di TASK-344; la lente esce
+dal Feed (`FindFriendsButton` tolto). Un esempio del Feed trovato da
+«Explore» si apre come dal Feed (`fetchPostRoute`): due props in `App.tsx`,
+dopo la #722. Nessun testo nuovo nell'app; la frase della Guida sulla lente e
+quella della privacy su «Trova amici nella rubrica» con il sì dell'utente.
+
+Testi approvati dall'utente il 2026-11-04, nelle 5 lingue di `about/content`:
+
+- Guida, alla proposta «La ricerca in cima a «Esplora» trova gli altri
+  iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti
+  segue e chi segui sono in «Profilo».» l'utente ha risposto: «Sì, approvo».
+- Privacy, alla proposta «In «Feed», «Trova persone da seguire» porta a
+  «Trova amici nella rubrica», che cerca gli iscritti il cui numero è nella
+  rubrica del tuo telefono. L'app chiede la rubrica al telefono solo quando lo
+  tocchi, e ne legge solo i numeri di telefono: mai nomi, email o foto.»
+  l'utente ha risposto: «Sì, approvo».
+
+`site/privacy` rigenerato con `make_privacy.mjs` su main dopo la #724
+(ac3f1228). Copia del sito e OTA: le chiede il Coordinatore all'utente.
+
+File toccati della parte B (approvati dal Coordinatore):
+
+```
+apps/mobile/src/explore/ExploreSearch.tsx                    (nuovo)
+apps/mobile/src/explore/ExploreScreen.tsx, ExploreScreen.test.tsx, ExploreHeart.test.tsx
+apps/mobile/src/paddle/PaddleExplore.tsx
+apps/mobile/src/screens/FeedScreen.tsx, FeedScreen.test.tsx, ProfileLayer.test.tsx
+apps/mobile/src/social/FindFriendsButton.tsx, .test.tsx      (tolti)
+apps/mobile/src/search/Glyphs.tsx                            (un commento)
+apps/mobile/src/search/SearchScreen.tsx, SearchScreenInset.test.tsx (nuovo)  (sotto la barra di stato, via del Coordinatore)
+apps/mobile/App.tsx                                          (dopo la #722: onOpenExample)
+apps/mobile/__tests__/AppFeed.test.tsx                       (il test di onOpenExample)
+apps/mobile/src/about/content/*.ts, site/privacy/**          (col sì dell'utente; il sito dopo la #724)
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
+```
+
 ### Parte C — la campanella con le notifiche vere
 
 Il server tiene una riga per ogni evento che oggi manda una push (reazioni,
@@ -152,6 +190,37 @@ loro scheda), `GET /notifications` con il conto dei non letti e la lettura.
 Nell'app la campanella con il badge `badge`, la lista, e ogni riga apre ciò che
 apre oggi la push (`notificationTap`). Migrazione col primo numero libero al
 merge; server e migrazione con il sì dell'utente; testi da approvare.
+
+Divisa dal Coordinatore il 2026-11-04 in **C1** (solo API, adesso) e **C2**
+(la campanella nell'app, dopo la #734). C1: `notification_list.py`, un
+«listener» del `Pusher` come `notice_email.py`, scrive una riga per ogni
+evento lasciato passare (tutti i tipi delle push tranne i messaggi, push
+accese o spente); `GET /notifications` (30 alla volta, `before`, `unread`,
+il testo della push nella lingua dell'account, `opens` = il `data` della
+push, fuori quello che non è più vero) e `POST /notifications/read`
+(`up_to`). Migrazione `0045_notification_list` (numero del Coordinatore). Le
+righe si tengono `KEPT_DAYS` = 90 giorni. Alla proposta «Le notifiche della
+campanella restano sul server per 90 giorni, poi si cancellano», con la frase
+della privacy «La lista della campanella: chi ha fatto cosa, su quale post,
+sfida, concorso o corsa di gruppo, e se l'hai già letta, come te lo dicono le
+notifiche push, anche con le push spente. La vedi solo tu. Ogni riga resta 90
+giorni; quello che non è più vero, come una reazione tolta o un post che non
+vedi più, non compare.», l'utente ha risposto il 2026-11-04: «Sì, approvo».
+Nelle 5 lingue di `about/content`, `site/privacy` rigenerato.
+
+File toccati della parte C1:
+
+```
+services/api/migrations/0045_notification_list.sql               (nuovo)
+services/api/shaperoute_api/notification_list.py             (nuovo)
+services/api/tests/test_notification_list.py                 (nuovo)
+services/api/shaperoute_api/app.py                           (una riga, dopo install_push)
+packages/shared-types/src/index.ts                           (un blocco in fondo)
+packages/shared-types/fixtures/notifications.json            (nuovo)
+packages/shared-types/test/notifications.test.ts             (nuovo)
+docs/API.md, docs/DATABASE.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
+apps/mobile/src/about/content/*.ts, site/privacy/**          (la frase sulla durata, col sì dell'utente)
+```
 
 ## Criteri di accettazione (parte A)
 
@@ -226,3 +295,17 @@ sport nell'header e poi Explore e Feed. Il «prima» (main `6dc89cfa`) è in
 Profilo con l'account (ingranaggio) e la scheda Messages piena, coperti dai
 test. Draw ed Explore tengono il loro logo nella pagina, sotto quello nuovo
 dell'header: scelta dell'utente del 2026-11-04 («Lascialo»).
+
+**Parte B** (2026-11-04, PR #729, in main 99bca40c): in cima a «Explore», anche
+sull'acqua, il campo con la lente apre la ricerca di TASK-344; il Feed non ha
+più la lente. Un disegno del Feed trovato lì si apre con `fetchPostRoute`, come
+dal Feed, e «Indietro» torna a «Explore» (test in `__tests__/AppFeed.test.tsx`
+che fallisce senza la modifica). La pagina della ricerca ha un suo
+`SafeAreaProvider`: prima finiva sotto la barra di stato, difetto già in
+produzione con la lente del Feed (`SearchScreenInset.test.tsx`). Testi della
+Guida e della privacy approvati dall'utente («Sì, approvo» per entrambi),
+`site/privacy` rigenerato su main dopo la #724. Impronta iOS `6f8bba4c`.
+Simulatore (iPhone 17e, Expo Go): la ricerca in cima a «Explore», il ritorno a
+«Explore», il Feed senza lente; il caricamento riuscito di un disegno trovato
+non visto (nessuna API locale), coperto dal test. Copia del sito e OTA: le
+chiede il Coordinatore all'utente.

@@ -14,10 +14,8 @@ from route_engine.anchored import PLACEMENTS
 from route_engine.directions import GROUP_M, Turn
 from route_engine.image_outline import MAX_POINTS as MAX_OUTLINE_POINTS
 from route_engine.models import (
-    DISTANCE_LIMITS_M,
     MAX_DISTANCE_M,
     MAX_SWIM_LAPS,
-    SUPPORTED_ACTIVITIES,
     Landmark,
     RouteResult,
     SwimTurn,
@@ -26,6 +24,7 @@ from route_engine.outline_edits import MAX_DETAIL_POINTS, MAX_DRAWN_POINTS
 from route_engine.pen_up import walks_problem
 from route_engine.pieces import compose_shape
 from route_engine.shapes import SUPPORTED_SHAPES, in_pieces
+from route_engine.walking import API_ACTIVITIES, API_DISTANCE_LIMITS_M
 from route_engine.words import (
     ALPHABET,
     LETTER_DISTANCE_M,
@@ -59,15 +58,16 @@ MAX_ON_FOOT = 1000
 # Each activity has its own distances (TASK-190): "1000–50000 for running,
 # 10000–30000 for cycling".
 DISTANCE_DESCRIPTION = "Target distance in metres, " + ", ".join(
-    f"{DISTANCE_LIMITS_M[a][0]}–{DISTANCE_LIMITS_M[a][1]} for {a}"
-    for a in SUPPORTED_ACTIVITIES
+    f"{API_DISTANCE_LIMITS_M[a][0]}–{API_DISTANCE_LIMITS_M[a][1]} for {a}"
+    for a in API_ACTIVITIES
 )
 ACTIVITY_DESCRIPTION = (
-    f"One of: {', '.join(SUPPORTED_ACTIVITIES)}; cycling is drawn on the "
+    f"One of: {', '.join(API_ACTIVITIES)}; cycling is drawn on the "
     f"roads a bike may ride, one-way streets kept (TASK-190); paddling on a "
     f"lake or the sea within 1 km of the shore, from a start on the shore, "
     f"a shape of the catalogue only (TASK-191); swimming 20-150 m from the "
-    f"shore, lap after lap, a shape of the catalogue or a drawing (TASK-323)."
+    f"shore, lap after lap, a shape of the catalogue or a drawing (TASK-323); "
+    f"walking on the foot network of a run (TASK-371)."
 )
 LAPS_DESCRIPTION = (
     f"A swim (TASK-323): how many times round its shape, 1 to {MAX_SWIM_LAPS}; "

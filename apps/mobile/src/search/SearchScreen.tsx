@@ -9,7 +9,11 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import type { SamplePost } from "../feed/sampleFeed";
 import { t, tLater } from "../i18n";
@@ -85,8 +89,15 @@ export function SearchScreen({ visible, onClose, onOpenExample }: Props) {
       statusBarTranslucent
       onRequestClose={onClose}
     >
-      {/* Mounted with the page: each opening starts from an empty field. */}
-      {visible && <SearchPage onClose={onClose} onOpenExample={onOpenExample} />}
+      {/* Mounted with the page: each opening starts from an empty field. Its
+          own edges: opened from a page of the tab bar, the one around it
+          says top 0, the header keeping the status bar (TASK-367, as
+          TASK-366 for OutlineBoard). */}
+      {visible && (
+        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+          <SearchPage onClose={onClose} onOpenExample={onOpenExample} />
+        </SafeAreaProvider>
+      )}
     </Modal>
   );
 }

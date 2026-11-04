@@ -80,8 +80,9 @@ test("a sport not ready is not a choice in the menu", async () => {
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
   expect(screen.getAllByRole("radio")).toHaveLength(1);
   expect(screen.getByLabelText("Bike, coming soon")).toBeOnTheScreen();
-  // Bike, Paddle, Open water swim (TASK-323 C) and Paragliding (TASK-305 D0).
-  expect(screen.getAllByText("Soon")).toHaveLength(4);
+  // Bike, Paddle, Open water swim (TASK-323 C), Walk (TASK-371), Ski and
+  // Cross-country ski (TASK-375) and Paragliding (TASK-305 D0).
+  expect(screen.getAllByText("Soon")).toHaveLength(7);
 });
 
 test("in the menu «Open water swim» says «Soon» and takes no tap (TASK-323 C)", async () => {

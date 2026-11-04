@@ -95,12 +95,12 @@ test("signed in, the page shows the drawings the members published", async () =>
   expect(screen.getByText("Sunday heart by the river")).toBeOnTheScreen();
   expect(screen.getByText("Trento")).toBeOnTheScreen();
   expect(
-    screen.getByText("Star · 4.0 km · 19 min · 4:45 /km · 290 kcal"),
+    screen.getByText("Star · 4.0 km · 19 min · 4:45 /km · 280 kcal"),
   ).toBeOnTheScreen();
   // The second, a word on a bike without a title, named by its day.
   expect(screen.getByText("adam.trento")).toBeOnTheScreen();
   expect(
-    screen.getByText("Bike · ciao · 6.1 km · 34 min · 5:28 /km"),
+    screen.getByText("Bike · ciao · 6.1 km · 34 min · 5:28 /km · 125 kcal"),
   ).toBeOnTheScreen();
   expect(screen.queryByTestId("feed-loading")).toBeNull();
   expect(screen.queryByText(SAMPLE_FEED[0].user)).toBeNull();

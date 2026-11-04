@@ -54,19 +54,37 @@ export const PLACEMENTS = ["free", "anchored"] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
 /** What a route is for in the app: on foot, by bike on the roads a bike
- * may ride, one-way streets kept (TASK-190, ADR-0153), or paddling on a lake
+ * may ride, one-way streets kept (TASK-190, ADR-0153), paddling on a lake
  * or the sea within 1 km of the shore, a shape of the catalogue only
- * (TASK-191, ADR-0161). */
-export const ACTIVITIES = ["running", "cycling", "paddling"] as const;
+ * (TASK-191, ADR-0161), swimming in open water 20–150 m from the shore,
+ * lap after lap, a shape of the catalogue or a drawing (TASK-323,
+ * ADR-0283), or walking, drawn as a run on the same foot network (TASK-371,
+ * ADR-0315). */
+export const ACTIVITIES = [
+  "running",
+  "cycling",
+  "paddling",
+  "swimming",
+  "walking",
+] as const;
 export type Activity = (typeof ACTIVITIES)[number];
 
-/** The activities of the API (route_engine/models.py SUPPORTED_ACTIVITIES):
- * those of the app, and swimming in open water 20–150 m from the shore, lap
- * after lap, a shape of the catalogue or a drawing (TASK-323, ADR-0283). The
- * app offers a swim from part C of TASK-323: its Activity widens then, with
- * the tables keyed on it (distances, names, Apple Health of TASK-321). */
-export const API_ACTIVITIES = [...ACTIVITIES, "swimming"] as const;
+/** The activities of the API (route_engine/walking.py API_ACTIVITIES):
+ * the app's, since part C2 of TASK-323 for swimming and part B of TASK-371
+ * for walking. */
+export const API_ACTIVITIES = ACTIVITIES;
 export type ApiActivity = (typeof API_ACTIVITIES)[number];
+
+/** The activities recorded without a shape (TASK-375, ADR-0319): alpine
+ * skiing and cross-country skiing. The route engine plans none of them, so
+ * they are no ApiActivity: only a saved run says them. */
+export const RECORD_ACTIVITIES = ["skiing", "xc_skiing"] as const;
+export type RecordActivity = (typeof RECORD_ACTIVITIES)[number];
+
+/** What a saved run was (PUT /me/activities/{key}): an activity of the API,
+ * or one recorded without a shape. */
+export const RUN_ACTIVITIES = [...API_ACTIVITIES, ...RECORD_ACTIVITIES] as const;
+export type RunActivity = (typeof RUN_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
  * the app; "file", a GPX, TCX or FIT file of another app, read on the phone
@@ -82,8 +100,8 @@ export const MAX_DISTANCE_M = 50_000;
 /** The target distances of each activity, [lowest, highest] in metres:
  * running as above, cycling 10–30 km (TASK-190), paddling 1–5 km
  * (TASK-191), swimming 0.5–3 km, every lap and the legs from the shore
- * (TASK-323). Outside them the API answers `invalid_request`, with the
- * limits in the message. */
+ * (TASK-323), walking 1–30 km (TASK-371). Outside them the API answers
+ * `invalid_request`, with the limits in the message. */
 export const DISTANCE_LIMITS_M: Readonly<
   Record<ApiActivity, readonly [lowest: number, highest: number]>
 > = {
@@ -91,6 +109,7 @@ export const DISTANCE_LIMITS_M: Readonly<
   cycling: [10_000, 30_000],
   paddling: [1_000, 5_000],
   swimming: [500, 3_000],
+  walking: [1_000, 30_000],
 };
 
 /** A swim goes round its shape at most this many times (TASK-323): 130 m of
@@ -1114,8 +1133,9 @@ export interface DrawingRequest {
    * lines and all; null or "": none; missing: as it was.
    */
   description?: string | null;
-  /** What the run was; missing: as it was. */
-  activity?: Activity;
+  /** What the run was; missing: as it was. A day on the snow too
+   * (TASK-375, RunActivity). */
+  activity?: RunActivity;
   /** The public_id of the members tagged, in order; []: none; missing: as they were. */
   tags?: string[];
 }
@@ -1174,7 +1194,9 @@ export interface MyDrawing {
   /** The fields of TASK-208: an API before has none. */
   visibility?: Visibility;
   description?: string | null;
-  activity?: Activity;
+  /** What the run was: the owner's own keeps a day on the snow (TASK-375,
+   * RunActivity). */
+  activity?: RunActivity;
   /** The run's (TASK-312); missing from an API before it: "muw". */
   source?: RunSource;
   tags?: DrawingTag[];
@@ -2377,4 +2399,50 @@ export interface MuwRouteDetail extends Omit<MuwRoute, "start" | "preview"> {
   /** The figure's own outline when the catalogue does not have it: what is
    * the request the route opens with; the line is still `points`. */
   outline?: OutlinePoint[] | null;
+}
+
+// --- The bell (TASK-367 part C, ADR-0311; docs/API.md, «The bell») ---
+
+/**
+ * One line of the bell (GET /notifications): what a push told the account,
+ * kept for it to read in the app. `kind` is the push's (reaction, comment,
+ * tag, follow_request, contest_open, …: every kind but the private
+ * messages'); `text` is the push's text in the account's language; `opens`
+ * is the push's `data`: what the app opens when the line is touched.
+ */
+export interface NotificationLine {
+  /** Ascending: a newer line has a larger id. */
+  id: number;
+  kind: string;
+  text: string;
+  at: string;
+  read: boolean;
+  /** Who acted; the account itself for its own kinds (the game, a contest). */
+  actor: Person;
+  opens: NotificationOpens;
+}
+
+/**
+ * What a line of the bell opens, as the API's push.data_of says it: a
+ * monthly challenge, a group run, a challenge of the game, a drawing, or
+ * the profile of who acted.
+ */
+export type NotificationOpens =
+  | { kind: string; contest_id: string }
+  | { kind: string; group_run_id: string }
+  | { kind: string; challenge_id: string }
+  | { kind: string; drawing_id: string }
+  | { kind: string; public_id: string; username: string };
+
+/** GET /notifications: the newest first, with how many are unread. */
+export interface NotificationsPage {
+  notifications: NotificationLine[];
+  unread: number;
+  /** Ask with ?before= for the next page; null at the end. */
+  before: number | null;
+}
+
+/** POST /notifications/read: the newest line the app showed; 204. */
+export interface NotificationsReadRequest {
+  up_to: number;
 }

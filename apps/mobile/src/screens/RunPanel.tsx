@@ -9,7 +9,9 @@ import { isPaddle, PADDLE_PACE_M, per500S } from "../navigation/paddle";
 import { distanceLabel } from "../navigation/phrases";
 import { isRide, speedNumber } from "../navigation/ride";
 import { useRunControl } from "../navigation/runControl";
-import { climbM, kcal } from "../navigation/runMetrics";
+import { activeKcal } from "../body/energy";
+import { useBody } from "../body/useBody";
+import { climbM } from "../navigation/runMetrics";
 import {
   aboutMinutes,
   averagePaceS,
@@ -17,7 +19,14 @@ import {
   lastKmS,
   paceClock,
   recentPaceS,
+  STANDING_S_PER_KM,
 } from "../navigation/runStats";
+import {
+  isSwim,
+  per100S,
+  SWIM_PACE_M,
+  SWIM_STANDING_S_PER_KM,
+} from "../navigation/swim";
 import { activeMs, openPause, type Track } from "../navigation/trackRecorder";
 import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
 import { metresPer } from "../units/format";
@@ -37,7 +46,8 @@ import { useUnits } from "../units/useUnits";
  * water (TASK-251) the speed takes the place of the pace now and of the
  * average pace, as on a bike, and the pace is a paddler's: the average time
  * of 500 m and the last 500 m, with miles too, where a run has the last
- * kilometre and the metres climbed, which a lake does not have.
+ * kilometre and the metres climbed, which a lake does not have. A swim
+ * (TASK-323 D) is the paddle's with a swimmer's pace, of 100 m.
  */
 
 /** The clock ticks once a second. */
@@ -77,6 +87,8 @@ export type RunNumbers = {
   /** On the water (TASK-251): `average` and `recent` are speeds, `lastKm`
    * is the time of the last whole 500 m. */
   paddle: boolean;
+  /** A swim (TASK-323 D): as `paddle`, `lastKm` the last whole 100 m. */
+  swim: boolean;
   /** "5:21", or NO_NUMBER before the pace means anything; on a bike
    * "24.3", in km/h. With miles, a mile's pace and mph. */
   average: string;
@@ -85,12 +97,15 @@ export type RunNumbers = {
   lastKm: string;
   /** "5:00": the average time of 500 m, a paddler's pace (TASK-251). */
   pace500: string;
+  /** "2:05": the average time of 100 m, a swimmer's pace (TASK-323 D). */
+  pace100: string;
   /** "12:34". */
   time: string;
   /** "42", metres, or NO_NUMBER when the phone gives no height. */
   climb: string;
-  /** "187", kilocalories. */
-  energy: string;
+  /** "187", kilocalories; null for a swim, which has no formula yet
+   * (TASK-374): no tile. */
+  energy: string | null;
   /** "3.2 km to go" and "about 17 min", along a route; with miles
    * "2.0 mi to go". */
   toGo: string | null;
@@ -113,6 +128,7 @@ export function useRunNumbers(
 ): RunNumbers {
   const { phase } = useRunControl();
   const units = useUnits();
+  const body = useBody();
   const pause = openPause(track);
   const ticking =
     live && pause === null && phase !== "countdown" && track.fixes.length > 0;
@@ -121,13 +137,16 @@ export function useRunNumbers(
   const at = pause !== null ? pause.fromMs : ticking ? now : (last?.timeMs ?? 0);
   const ms = activeMs(track, at);
   const average = averagePaceS(track, ms);
-  const recent = pause === null ? recentPaceS(track, at) : null;
+  // A swimmer is slower than a walker and still swimming (TASK-323 D).
+  const standing = isSwim(activity) ? SWIM_STANDING_S_PER_KM : STANDING_S_PER_KM;
+  const recent = pause === null ? recentPaceS(track, at, standing) : null;
   // Every fix of the run, once per fix and not once per second.
   const ride = isRide(activity);
   const paddle = isPaddle(activity);
+  const swim = isSwim(activity);
   // The last whole kilometre; with miles, the last whole mile; on the
-  // water, the last whole 500 m.
-  const lastM = paddle ? PADDLE_PACE_M : metresPer(units);
+  // water, the last whole 500 m, or 100 m swum.
+  const lastM = paddle ? PADDLE_PACE_M : swim ? SWIM_PACE_M : metresPer(units);
   const lastKm = useMemo(() => lastKmS(track, lastM), [track, lastM]);
   const climbed = useMemo(() => climbM(track), [track]);
   const eta = route ? etaMs(route.remainingM, track, ms) : null;
@@ -135,7 +154,7 @@ export function useRunNumbers(
   const said = (seconds: number | null) =>
     seconds === null
       ? NO_NUMBER
-      : ride || paddle
+      : ride || paddle || swim
         ? speedNumber(seconds)
         : paceClock(seconds);
   // A time as it is: the last 500 m, and the average of 500 m.
@@ -149,13 +168,29 @@ export function useRunNumbers(
     units,
     ride,
     paddle,
+    swim,
     average: said(perUnit(average)),
     recent: said(perUnit(recent)),
-    lastKm: paddle ? clock(lastKm) : said(lastKm),
+    lastKm: paddle || swim ? clock(lastKm) : said(lastKm),
     pace500: clock(average === null ? null : per500S(average)),
+    pace100: clock(average === null ? null : per100S(average)),
     time: clockLabel(ms),
     climb: climbed === null ? NO_NUMBER : String(Math.round(climbed)),
-    energy: String(kcal(track.distanceM)),
+    energy:
+      activity === "swimming"
+        ? null
+        : String(
+            activeKcal(
+              {
+                activity: activity ?? "running",
+                metres: track.distanceM,
+                seconds: ms / 1000,
+                climbM: climbed,
+              },
+              body,
+              new Date(at).getFullYear(),
+            ),
+          ),
     toGo: route
       ? t("{distance} to go", { distance: distanceLabel(route.remainingM, units) })
       : null,
@@ -163,9 +198,10 @@ export function useRunNumbers(
   };
 }
 
-/** Whether `recent` and `average` are speeds: on a bike and on the water. */
+/** Whether `recent` and `average` are speeds: on a bike and on the water,
+ * paddled or swum. */
 function speeds(numbers: RunNumbers): boolean {
-  return numbers.ride || numbers.paddle;
+  return numbers.ride || numbers.paddle || numbers.swim;
 }
 
 /** The unit of a pace, or on a bike and on the water of a speed: "/km" and
@@ -278,6 +314,15 @@ export function RunGrid({ numbers }: { numbers: RunNumbers }) {
         <View style={styles.tiles}>
           <Tile label={t("Avg /500 m")} value={numbers.pace500} />
           <Tile label={t("Last 500 m")} value={numbers.lastKm} />
+          {numbers.energy !== null && (
+            <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
+          )}
+        </View>
+      ) : numbers.swim ? (
+        // A swim: a swimmer's pace, of 100 m (TASK-323 D).
+        <View style={styles.tiles}>
+          <Tile label={t("Avg /100 m")} value={numbers.pace100} />
+          <Tile label={t("Last 100 m")} value={numbers.lastKm} />
         </View>
       ) : (
         <View style={styles.tiles}>
@@ -287,10 +332,9 @@ export function RunGrid({ numbers }: { numbers: RunNumbers }) {
             unit={unitOf(numbers)}
           />
           <Tile label={t("Elev. gain")} value={numbers.climb} unit="m" />
-          {/* The energy is a runner's (KCAL_PER_KG_KM): on a bike it would
-              read about three times the truth. Off a run, no tile
-              (TASK-255, the user's choice). */}
-          {!numbers.ride && (
+          {/* Each sport its own energy (TASK-374, ADR-0318): the tile is
+              back on a bike, where the runner's formula had taken it off. */}
+          {numbers.energy !== null && (
             <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
           )}
         </View>

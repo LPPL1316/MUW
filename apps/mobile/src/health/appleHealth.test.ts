@@ -45,6 +45,8 @@ test("the sheet asks to write only, what the phone has", async () => {
       "HKWorkoutRouteTypeIdentifier",
       "HKQuantityTypeIdentifierDistanceWalkingRunning",
       "HKQuantityTypeIdentifierDistanceCycling",
+      // A swim's (TASK-323 C2).
+      "HKQuantityTypeIdentifierDistanceSwimming",
       "HKQuantityTypeIdentifierActiveEnergyBurned",
     ],
   });
@@ -113,14 +115,17 @@ test("what the Health app turned off is not written", async () => {
   expect(saveWorkoutRoute).not.toHaveBeenCalled();
 });
 
-test("a paddle before iOS 18: the workout keeps its total, no sample", async () => {
+test("a paddle before iOS 18: the workout keeps its distance as a total, the energy as a sample", async () => {
   const { kit, typed } = fakeKit(ALL_ALLOWED);
   await appleHealthPhone(typed).write(workoutOf(TRACK, "paddling")!);
   const [type, quantities, , , totals] = kit.saveWorkoutSample.mock
-    .calls[0] as unknown as [number, unknown[], Date, Date, object];
+    .calls[0] as unknown as [number, { quantityType: string }[], Date, Date, object];
   expect(type).toBe(31);
-  expect(quantities).toEqual([]);
-  expect(totals).toEqual({ distance: 1200 });
+  // 14.4 km/h for five minutes: 12.5 MET (ADR-0318).
+  expect(quantities.map((sample) => sample.quantityType)).toEqual([
+    "HKQuantityTypeIdentifierActiveEnergyBurned",
+  ]);
+  expect(totals).toEqual({ distance: 1200, energyBurned: 70 });
 });
 
 test("the workout turned off: nothing is written", async () => {

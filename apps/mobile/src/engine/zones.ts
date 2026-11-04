@@ -38,6 +38,8 @@ export type Network = "foot" | "bike";
 export const NETWORKS: Readonly<Partial<Record<Activity, Network>>> = {
   running: "foot",
   cycling: "bike",
+  // A walk is drawn as a run, on the foot zones (TASK-371).
+  walking: "foot",
 };
 
 export type ZoneEntry = {

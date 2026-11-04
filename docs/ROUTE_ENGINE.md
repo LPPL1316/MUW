@@ -1594,6 +1594,19 @@ python -m route_engine --shape heart --distance 20000 \
 Con `--activity paddling` una forma del catalogo sull'acqua di un lago o
 del mare, 1–5 km, dalla riva (§8).
 
+Una camminata (TASK-371, ADR-0315) è una corsa sulla stessa rete foot, con
+le sue distanze, 1–30 km: `python -m route_engine.walking` prende gli
+argomenti di `python -m route_engine` senza `--activity`, controlla la
+distanza e disegna una corsa. `models.py` non la conosce: l'attività
+`walking` è dell'API (`walking.API_ACTIVITIES`), e `walking.py` resta fuori
+dall'impronta del motore (`route_store.WALK_ONLY`), quindi nessun percorso
+tenuto si ridisegna.
+
+```
+python -m route_engine.walking --shape heart --distance 5000 \
+    --start 46.0671,11.1214 --out heart_a_piedi_trento.gpx
+```
+
 Il GPX si apre in un visualizzatore (gpx.studio, geojson.io) e si guarda.
 Questo è il ciclo di lavoro di tutta la fase 1: **generare, guardare,
 correggere**. Finché non produce un cuore riconoscibile, non si costruisce

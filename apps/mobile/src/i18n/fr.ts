@@ -266,6 +266,9 @@ export const FR: Table = {
   "On the water": "Sur l'eau",
   "Shapes to paddle, within 1 km of the shore":
     "Des formes à pagayer, à moins de 1 km du rivage",
+  // The swim's (TASK-323 C4).
+  "Shapes to swim, within 150 m of the shore":
+    "Des formes à nager, à moins de 150 m du rivage",
   "LAKES AND SEA": "LACS ET MER",
   "Near me": "Près de moi",
   "Choose a lake or a beach: eight shapes on its water, from the shore.":
@@ -320,6 +323,18 @@ export const FR: Table = {
   "{distance} from the start": "À {distance} du départ",
   "The same turns every lap, {laps} laps, then back to the shore.":
     "Les mêmes virages à chaque tour, {laps} tours, puis retour au rivage.",
+
+  // src/swim/SwimResult.tsx, src/route/RoutePanel.tsx, src/settings/sport.ts
+  // (TASK-323 C2: the laps of a swim, its size, the way out with the track)
+  "Swim without a route": "Nager sans parcours",
+  "{count} lap of {distance}": "{count} tour de {distance}",
+  "{count} laps of {distance}": "{count} tours de {distance}",
+  "Bigger shape": "Forme plus grande",
+  "Smaller shape": "Forme plus petite",
+  "{drawn} km of drawing + {between} km swimming between the parts":
+    "{drawn} km de dessin + {between} km à la nage entre les parties",
+  "{drawn} mi of drawing + {between} mi swimming between the parts":
+    "{drawn} mi de dessin + {between} mi à la nage entre les parties",
 
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Déplacer la forme",
@@ -741,6 +756,7 @@ export const FR: Table = {
   "Mile {mile}: {pace}": "Mile {mile} : {pace}",
   "Mile {mile}: {speed} mph": "Mile {mile} : {speed} mph",
   "Your first 500 metres will show here.": "Tes 500 premiers mètres s'afficheront ici.",
+  "Your first 100 metres will show here.": "Tes 100 premiers mètres s'afficheront ici.",
   "{metres} metres: {pace}": "{metres} mètres : {pace}",
 
   // src/screens/RunPanel.tsx
@@ -750,6 +766,9 @@ export const FR: Table = {
   "Last mi": "Dernier mi",
   "Avg /500 m": "Moy. /500 m",
   "Last 500 m": "Dern. 500 m",
+  // A swim's (TASK-323 D).
+  "Avg /100 m": "Moy. /100 m",
+  "Last 100 m": "Dern. 100 m",
 
   // src/screens/SignInScreen.tsx
   "Sign up": "S'inscrire",
@@ -771,6 +790,42 @@ export const FR: Table = {
   Miles: "Miles",
   "Phone units": "Unités du téléphone",
 
+  // src/settings/BodySetting.tsx, BodyPage.tsx, src/body/bodyFields.ts (TASK-374)
+  Body: "Corps",
+  "Not set": "Non défini",
+  "Used only to estimate your calories and heart rate zones. It stays on this phone.":
+    "Sert uniquement à estimer tes calories et tes zones de fréquence cardiaque. Reste sur ce téléphone.",
+  Sex: "Sexe",
+  Male: "Homme",
+  Female: "Femme",
+  "Prefer not to say": "Je préfère ne pas le dire",
+  Weight: "Poids",
+  Height: "Taille",
+  "Year of birth": "Année de naissance",
+  "Calories are an estimate. Weight matters most.":
+    "Les calories sont une estimation. C'est surtout le poids qui compte.",
+  "Enter a weight between {min} and {max} {unit}.":
+    "Saisis un poids entre {min} et {max} {unit}.",
+  "Enter a height between {min} and {max}.": "Saisis une taille entre {min} et {max}.",
+  "Enter a year between {min} and {max}.": "Saisis une année entre {min} et {max}.",
+
+  // src/settings/HeartZonesPage.tsx, BodyPage.tsx (TASK-374 part B)
+  "Heart rate zones": "Zones de fréquence cardiaque",
+  "Max heart rate": "Fréquence cardiaque maximale",
+  "Estimated from your age": "Estimée d'après ton âge",
+  "Set by you": "Définie par toi",
+  "Resting heart rate": "Fréquence cardiaque au repos",
+  "Zone 1 Recovery": "Zone 1 Récupération",
+  "Zone 2 Endurance": "Zone 2 Endurance",
+  "Zone 3 Tempo": "Zone 3 Tempo",
+  "Zone 4 Threshold": "Zone 4 Seuil",
+  "Zone 5 Max": "Zone 5 Maximum",
+  "Back to calculated zones": "Revenir aux zones calculées",
+  "Add your year of birth or your max heart rate to see your zones.":
+    "Ajoute ton année de naissance ou ta fréquence maximale pour voir tes zones.",
+  "Enter a heart rate between {min} and {max} bpm.":
+    "Saisis une fréquence cardiaque entre {min} et {max} bpm.",
+
   // src/settings/ToneSetting.tsx
   Tone: "Apparence",
   Dark: "Sombre",
@@ -790,6 +845,8 @@ export const FR: Table = {
   // src/settings/sport.ts
   "Ride without a route": "Rouler sans parcours",
   "Paddle without a route": "Pagayer sans parcours",
+  "Walk without a route": "Marcher sans parcours",
+  "Record your day": "Enregistrer la journée",
   "Run without a route": "Courir sans parcours",
 
   // src/share/PostImage.tsx
@@ -1073,6 +1130,13 @@ export const FR: Table = {
     "Enregistrée sur le téléphone. Les autres la voient quand tu seras de nouveau en ligne.",
   Bike: "Vélo",
   Paddle: "Pagaie",
+  Walk: "Marche",
+  // src/settings/sport.ts, social/PublicParts.tsx (TASK-375: a day on the snow)
+  Ski: "Ski",
+  "Cross-country ski": "Ski de fond",
+  // src/screens/ChooseScreen.tsx (TASK-375)
+  "No shapes on the slopes: MuW records your day.":
+    "Pas de formes sur les pistes : MuW enregistre ta journée.",
   Title: "Titre",
   "Give it a name": "Donne-lui un nom",
   "How did it go?": "Comment ça s'est passé ?",

@@ -46,6 +46,7 @@ from route_engine.outline_edits import MAX_DETAIL_POINTS, travelled_points
 from route_engine.pieces import compose
 from route_engine.shapes.outline import InvalidOutlineError, Outline, parse_outline
 from route_engine.swimming import SwimRequest
+from route_engine.walking import engine_activity
 from route_engine.water import WaterSource
 from route_engine.words import Word
 
@@ -147,13 +148,15 @@ def route_request_of(body: RouteRequestBody) -> RouteRequest:
     """The engine's request for the body of POST /routes and /route-jobs:
     RouteRequest checks the values (InvalidRequestError); an anchored one is
     an AnchoredRouteRequest (TASK-347), and `fit` with a free placement is
-    refused. Without FastAPI: on_phone.to_request calls it too."""
+    refused. Without FastAPI: on_phone.to_request calls it too. A walk is
+    asked of the engine as a run, within its own distances (TASK-371)."""
+    activity = engine_activity(body.activity, body.distance_m)
     fields: dict[str, Any] = {
         "start": body.start,
         "shape": body.shape,
         "word": body.word,
         "distance_m": body.distance_m,
-        "activity": body.activity,
+        "activity": activity,
         "style": body.style,  # RouteRequest checks it
         "pen_up": body.pen_up,
         "near": body.near,
@@ -162,7 +165,7 @@ def route_request_of(body: RouteRequestBody) -> RouteRequest:
     }
     if body.placement == "anchored":
         return AnchoredRouteRequest(**fields, fit=body.fit)
-    check_placement(body.placement, body.fit, body.activity)
+    check_placement(body.placement, body.fit, activity)
     return RouteRequest(**fields)
 
 

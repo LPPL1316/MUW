@@ -80,7 +80,7 @@ const help: AboutDocument = {
       heading: "Fil et amis",
       blocks: [
         "«Fil» montre des dessins pour trouver des idées : touches-en un pour ouvrir son parcours et le démarrer.",
-        "La loupe en haut de «Fil» trouve les autres membres par leur nom. Sur un profil, tu peux toucher «Suivre» ; tes demandes, tes abonnés et les personnes que tu suis sont dans «Profil».",
+        "La recherche en haut de «Explorer» trouve les autres membres par leur nom. Sur un profil, tu peux toucher «Suivre» ; tes demandes, tes abonnés et les personnes que tu suis sont dans «Profil».",
         "Sur le dessin public d'un membre, tu peux réagir avec un emoji, envoyer un super like et écrire un commentaire. Les commentaires négatifs ne sont pas acceptés.",
       ],
     },
@@ -286,6 +286,7 @@ const privacy: AboutDocument = {
             "Le jour de ton inscription et le moment où tu as confirmé avoir au moins 16 ans.",
             "La session de chaque téléphone depuis lequel tu t'es connecté : le téléphone garde un jeton dans son stockage sécurisé, le serveur n'en garde qu'un hash. Une session prend fin 90 jours après sa dernière utilisation, ou quand tu te déconnectes.",
             "Tes trois choix de notifications dans «Réglages» : «Notifications par e-mail» et «Notifications push», éteints jusqu'à ce que tu les allumes, et «E-mail en cas d'absence», allumé jusqu'à ce que tu l'éteignes. Avec le push allumé, le jeton push de ton téléphone, s'il s'agit d'un iPhone ou d'un Android, et la langue de l'app, pour t'envoyer des notifications via le service push d'Expo, qui les transmet à Apple ou à Google. Une notification dit qui a fait quoi, avec le début d'un commentaire. Le jeton est supprimé quand tu éteins le push, te déconnectes ou supprimes ton compte.",
+            "La liste de la cloche : qui a fait quoi, sur quelle publication, quel défi, quel concours ou quelle course en groupe, et si tu l'as déjà lue, comme te le disent les notifications push, même avec le push éteint. Toi seul la vois. Chaque ligne est gardée 90 jours ; ce qui n'est plus vrai, comme une réaction retirée ou une publication que tu ne vois plus, n'apparaît pas.",
             "La langue de l'app quand tu t'es inscrit, pour t'écrire nos e-mails dans cette langue.",
           ],
         },
@@ -316,7 +317,7 @@ const privacy: AboutDocument = {
     {
       heading: "Des amis dans tes contacts",
       blocks: [
-        "Sous la loupe en haut de «Feed», «Trouver des amis dans tes contacts» cherche les membres dont le numéro est dans les contacts de ton téléphone. L'app demande les contacts au téléphone seulement quand tu le touches, et n'en lit que les numéros de téléphone : jamais les noms, les e-mails ni les photos.",
+        "Dans «Fil», «Trouver des personnes à suivre» mène à «Trouver des amis dans tes contacts», qui cherche les membres dont le numéro est dans les contacts de ton téléphone. L'app demande les contacts au téléphone seulement quand tu le touches, et n'en lit que les numéros de téléphone : jamais les noms, les e-mails ni les photos.",
         "Chaque numéro quitte le téléphone codé : écrit avec l'indicatif du pays et transformé en hash (SHA-256). Notre serveur compare les codes à ceux des numéros ajoutés par les membres, répond avec les membres trouvés et ne garde rien de ce qu'il a reçu : ni dans la base de données ni dans un journal.",
         "Le hash d'un numéro de téléphone n'est pas un secret : qui aurait les codes pourrait retrouver les numéros en essayant tous les numéros possibles. C'est pourquoi la vraie protection est que notre serveur n'en garde aucun ; ils ne passent que par la connexion chiffrée.",
         "Les numéros de tes contacts sont les données d'autres personnes : ils sont comparés une fois, pour trouver des comptes, puis oubliés. Pour empêcher quiconque d'essayer les numéros un à un, le serveur compte les recherches de chaque compte sur une heure, en mémoire seulement. Seuls les membres qui ont ajouté leur numéro peuvent être trouvés, et jamais quelqu'un que tu as bloqué ou qui t'a bloqué.",
@@ -432,6 +433,7 @@ const privacy: AboutDocument = {
             "Hetzner héberge notre serveur et ses sauvegardes, en Allemagne.",
             "Geoapify reçoit les recherches de lieux, de villes près de toi et de lieux d'un parcours à thème, avec la position arrondie à environ 1 km, et, pour nommer le lieu d'une course enregistrée, son départ arrondi de la même façon : jamais ta porte, la course ni qui tu es. Si notre serveur ne répond pas, une recherche de lieu va à Photon (komoot) à la place.",
             "OpenFreeMap fournit la carte : comme tout service de cartes, il voit quelle zone tu regardes.",
+            "Les collines de la carte 3D, et d'une vidéo dans le style «3D», viennent des Terrain Tiles hébergées sur Amazon Web Services : comme tout service de cartes, il voit quelle zone tu regardes.",
             "Apple sur iPhone, ou Google sur Android, via le service d'adresses du téléphone, reçoit la position d'où part «Dessiner», pour écrire le nom de la rue. MuW ne lui envoie rien d'autre et ne garde pas le nom.",
             "Wikimedia fournit à notre serveur les photos des villes : il voit quelle ville, pas qui demande.",
             "Avec la carte « Satellite », Esri fournit les images, et avec la carte « 3D », Amazon Web Services fournit les altitudes : comme tout service de cartes, ils voient quelle zone tu regardes.",

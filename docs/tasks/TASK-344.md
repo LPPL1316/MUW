@@ -1,7 +1,7 @@
 # TASK-344 — Cercare i disegni dalla lente del Feed
 
-**Stato**: In corso — documenti (#653) e A (#659) in `main`; B (app)
-nella #705, testi approvati, entra dopo TASK-367 A
+**Stato**: Done — documenti (#653), A (#659) e B (#705, entrata con #717,
+`f23ec332`) in `main`; server con `shape=word` dal 2026-11-04
 **Fase**: 4 · **Branch**: `feat/TASK-344-a-drawing-search` (A),
 `feat/TASK-344-b-search-screen` (B) · **ADR**: ADR-0297 · numeri dal
 coordinatore (2026-10-29)
@@ -215,4 +215,13 @@ Parte B, in più: `apps/mobile/src/search/*` (nuovi, con i test),
 
 ## Esito
 
-*(si compila a fine task)*
+Fatto il 2026-11-04. La lente apre la ricerca a tutto schermo: disegni dei
+membri e d'esempio, persone e percorsi d'esempio, con schede, filtri,
+ricerche recenti e pagine infinite; «Words» compare solo quando il server
+dichiara `shape=word`. B è entrata in `main` con la #717 (`f23ec332`), dopo
+TASK-367 A; uscita in produzione con l'OTA `f607dcf5` del 2026-11-04, dopo
+l'«ok produzione» dell'utente sull'anteprima. Server aggiornato il
+2026-11-04 (`fe4e9499`, poi `bacd7c7b`): `shape=word` e le parole attive.
+Impronta iOS 6f8bba4c. Chiuso dal Coordinatore: la sessione del task è stata
+archiviata su richiesta dell'utente. Con TASK-367 B la lente passa dal Feed a
+«Explore».

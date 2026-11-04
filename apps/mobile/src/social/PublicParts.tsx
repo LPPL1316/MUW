@@ -7,6 +7,8 @@ import {
   type DrawingTag,
   type LatLon,
   type Person,
+  RECORD_ACTIVITIES,
+  type RunActivity,
   VISIBILITIES,
   type Visibility,
 } from "@shaperoute/shared-types";
@@ -17,6 +19,7 @@ import type { DrawingChoice } from "../api/drawings";
 import { EnterSwitch } from "../contest/EnterSwitch";
 import { t, tLater } from "../i18n";
 import type { ImageSource } from "../route/pickImage";
+import { activityOffered } from "../settings/sport";
 import {
   color,
   fontSize,
@@ -76,8 +79,8 @@ export function waitingText(visibility: Visibility): string {
     : t("Saved on the phone. Others see it when you are back online.");
 }
 
-/** What a run was, as a word. */
-export function activityName(activity: Activity): string {
+/** What a run was, as a word: a day on the snow by its sport (TASK-375). */
+export function activityName(activity: RunActivity): string {
   switch (activity) {
     case "running":
       return t("Run");
@@ -85,6 +88,14 @@ export function activityName(activity: Activity): string {
       return t("Bike");
     case "paddling":
       return t("Paddle");
+    case "swimming":
+      return t("Open water swim");
+    case "walking":
+      return t("Walk");
+    case "skiing":
+      return t("Ski");
+    case "xc_skiing":
+      return t("Cross-country ski");
   }
 }
 
@@ -232,22 +243,35 @@ function Chips<T extends string>({
   );
 }
 
-const ACTIVITIES_SHOWN: readonly Activity[] = ["running", "cycling", "paddling"];
+// A walk once «Walk» can be chosen (activityOffered, TASK-371).
+const ACTIVITIES_SHOWN: readonly Activity[] = (
+  ["running", "cycling", "paddling", "walking"] as const
+).filter((activity) => activityOffered(activity));
 
-/** «Activity»: what the run was, Run, Bike or Paddle. */
+/** A day on the snow is one or the other (TASK-375): never a run, a ride
+ * or a paddle, which have a route. */
+function isRecordActivity(activity: RunActivity): boolean {
+  return (RECORD_ACTIVITIES as readonly string[]).includes(activity);
+}
+
+/** «Activity»: what the run was, Run, Bike or Paddle; for a day on the snow,
+ * Ski or Cross-country ski (TASK-375). */
 export function ActivityChips({
   value,
   onChange,
   disabled,
 }: {
-  value: Activity;
-  onChange: (activity: Activity) => void;
+  value: RunActivity;
+  onChange: (activity: RunActivity) => void;
   disabled?: boolean;
 }) {
+  const shown: readonly RunActivity[] = isRecordActivity(value)
+    ? RECORD_ACTIVITIES
+    : ACTIVITIES_SHOWN;
   return (
     <Chips
       label={t("Activity")}
-      options={ACTIVITIES_SHOWN.map((id) => ({ id, text: activityName(id) }))}
+      options={shown.map((id) => ({ id, text: activityName(id) }))}
       value={value}
       onChange={onChange}
       disabled={disabled}

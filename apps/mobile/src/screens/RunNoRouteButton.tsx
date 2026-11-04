@@ -18,6 +18,12 @@ export function withoutRouteIcon(sport: Sport): string {
       return "🚴";
     case "paddle":
       return "🛶";
+    case "walk":
+      return "🚶";
+    case "ski":
+      return "⛷️";
+    case "xc_ski":
+      return "🎿";
     case "paragliding":
       return "🪂";
     default:

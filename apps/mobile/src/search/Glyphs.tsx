@@ -11,7 +11,7 @@ const STROKE = 2;
  * screen reader: the control around it says what it does.
  */
 
-/** A magnifying glass, as FindFriendsButton draws it. */
+/** A magnifying glass, drawn: the app has no icons (no react-native-svg). */
 export function LensGlyph({
   side = 15,
   tint = color.text,

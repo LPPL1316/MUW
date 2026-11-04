@@ -124,8 +124,14 @@ MAX_ALTITUDE_M = 10_000.0
 
 LatLon = tuple[float, float]
 Key = Annotated[str, Path(pattern=KEY_PATTERN)]
-# What a run was (TASK-208): the activities of the API, SUPPORTED_ACTIVITIES.
-RunActivity = Literal["running", "cycling", "paddling", "swimming"]
+# What a run was (TASK-208): the activities of the API, walking.API_ACTIVITIES,
+# and those recorded without a shape, RECORD_ACTIVITIES (TASK-375, ADR-0319).
+RunActivity = Literal[
+    "running", "cycling", "paddling", "swimming", "walking", "skiing", "xc_skiing"
+]
+# A day on the snow: recorded and shown, never planned by the engine. Its
+# speeds are no runner's nor rider's, so it gives no personal best.
+RECORD_ACTIVITIES: tuple[RunActivity, ...] = ("skiing", "xc_skiing")
 # Where a run comes from (TASK-312, ADR-0272): recorded by the app, or a file
 # of another app read on the phone. Only `muw` counts for the shape game and
 # the contest.
@@ -766,7 +772,11 @@ class Activities:
         run = recorded(body, self.now())
         # Counted before the transaction, as the place: it keeps the lock
         # of the account short.
-        found = run_bests(run.track, run.pauses)
+        found = (
+            []
+            if body.activity in RECORD_ACTIVITIES
+            else run_bests(run.track, run.pauses)
+        )
         # Asked before the transaction: the service may take seconds.
         place = self.places.name_of(run.start)
         with self.database.connect() as conn:

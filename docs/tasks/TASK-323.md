@@ -468,6 +468,93 @@ apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
 docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
 ```
 
+#### C2, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+C2»), branch `feat/TASK-323-c2-swim-on` partito da C1. Aggiunta ad
+ADR-0283. Le scelte dell'utente, una domanda per volta: le righe del nuoto
+nei file di Apple Salute di TASK-321 («Add the entries»), le distanze a
+mezzo km («Half-km steps»), i pulsanti sul risultato («Buttons on the
+result»), i testi e le traduzioni («Yes, like this»).
+
+- `Activity` con `swimming`; `activityOf("swim")` = `"swimming"`, la riga
+  ancora `ready: false`.
+- Le distanze: 0,5–3 km di mezzo km da 1 km, 0,5–1,5 mi di mezzo miglio
+  (`distanceStep`, `SWIMMING_START_KM`).
+- Sul risultato (`SwimResult`): «3 laps of 320 m», «Bigger shape» e
+  «Smaller shape», la riga sotto il giro, le curve. `lap_m` aggiunto alla
+  risposta in B (`ec03204`).
+- Sull'acqua come la canoa (`isOnWater`): niente indicazioni, gli errori
+  dell'acqua, la ricerca delle spiagge, le forme a pezzi; «Word» no,
+  «Image» e «Draw on the map» sì.
+- L'avviso del nuoto a ogni «Start» di un nuoto (risultato, «Explore», un
+  disegno aperto).
+- **Prima di `ready: true`**: B in `main` e sul server col sì dell'utente,
+  C4 («Explore» a nuoto: oggi con lo sport del nuoto mostrerebbe gli esempi
+  della corsa). La corsa a nuoto (niente voce, passo per 100 m) è D.
+
+- **2026-11-04, dal Mac**: le righe del nuoto in Apple Salute («Nuoto»,
+  `HKWorkoutActivityType.swimming`, la distanza in «Distanza a nuoto») e in
+  Health Connect (`EXERCISE_TYPE_SWIMMING_OPEN_WATER`) approvate
+  dall'utente («Sì, così»); il via del Coordinatore sui due file di
+  TASK-321 (la parte C è ferma). Impronta iOS `6f8bba4c`, invariata.
+
+File toccati da C2:
+
+```
+packages/shared-types/src/index.ts, test/contract.test.ts
+apps/mobile/App.tsx (l'avviso, i giri, la ricerca sull'acqua)
+apps/mobile/src/swim/water.ts, SwimResult.tsx e i loro test (nuovi)
+apps/mobile/src/settings/sport.ts, sport.test.ts
+apps/mobile/src/route/RoutePanel.tsx, distance.ts, problems.ts,
+  WhileRouting.tsx, drawAgain.ts, penUpShapes.ts, distanceMiles.test.ts,
+  swimDistance.test.ts (nuovo)
+apps/mobile/src/health/appleWorkout.ts, healthConnectWorkout.ts,
+  appleHealth.test.ts (TASK-321, col sì dell'utente), swimWorkout.test.ts
+  (nuovo)
+apps/mobile/src/social/PublicParts.tsx
+apps/mobile/src/search/searchFilters.ts (TASK-344, col via del Coordinatore:
+  il chip «Open water swim» nella ricerca del Feed, subito, scelta
+  dell'utente del 2026-11-04)
+apps/mobile/src/api/favorites.test.ts, src/favorites/favoriteRoute.test.ts
+  (il nuoto non è più «un'attività che non c'è»)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+apps/mobile/__tests__/AppSwim.test.tsx (nuovo)
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
+#### C4, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+C4»), branch `feat/TASK-323-c4-swim-explore` partito da C2. Aggiunta ad
+ADR-0283. Il sottotitolo e le traduzioni approvati dall'utente («Yes, like
+this»).
+
+- «Explore» con «Open water swim» è `PaddleExplore` con `swim`: gli stessi
+  laghi e spiagge, «Near me», i filtri; «Shapes to swim, within 150 m of
+  the shore».
+- `SWIM_EXAMPLES` (`src/swim/swimExamples.ts`): le otto forme a 1 km da
+  ogni punto, `swimming`, a pezzi quelle a pezzi, nessuna con l'app.
+- `draw_examples --swim` (con `--water-name` per pochi punti): i nuoti
+  dei punti prima di ogni telefono; una forma che non ci sta è una
+  risposta.
+- **Per accendere il nuoto** (`ready: true` in `sport.ts`, una riga): B,
+  C1, C2 e C4 in `main`, poi col sì dell'utente il server (migrazione
+  0040), l'estratto dei nomi a riva e `draw_examples --swim`.
+
+File toccati da C4:
+
+```
+apps/mobile/src/swim/swimExamples.ts, SwimExplore.test.tsx (nuovi)
+apps/mobile/src/paddle/PaddleExplore.tsx (il nuoto con `swim`)
+apps/mobile/src/explore/exampleRoutes.ts (le forme a pezzi anche a nuoto)
+apps/mobile/App.tsx (la pagina «Explore» col nuoto)
+apps/mobile/__tests__/AppSwim.test.tsx
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+services/api/shaperoute_api/draw_examples.py, tests/test_draw_swims.py (nuovo)
+docs/API.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ### D — App: nuotare con il telefono nella boa
 
 1. La schermata della corsa per il nuoto: niente voce, il passo per 100 m,
@@ -478,6 +565,42 @@ docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
 4. Il codice nativo che serve (condizione 3) va nella build 1.0.1 con E e
    con Apple Salute di TASK-321; quello solo JavaScript può uscire prima,
    con l'impronta iOS misurata su una copia pulita.
+
+#### D, dove si è (2026-10-30)
+
+Scritta nella stessa sessione, su richiesta dell'utente («passa alla parte
+D»), branch `feat/TASK-323-d-swim-run` partito da C4. Aggiunta ad
+ADR-0283. La proposta e le traduzioni approvate dall'utente («Yes, like
+this», due volte). TASK-312 B è in `main` e la sua parte C non tocca
+`src/imports/`.
+
+- **In acqua**: niente voce né vibrazioni (le indicazioni, i chilometri,
+  «pausa»), niente interruttore «Voice»; la pausa da fermi dopo 30 s
+  (`stillMs` di `controlRun`); fermo sotto 1 km/h.
+- **La schermata**: quella della canoa col passo di 100 m: «Avg /100 m»,
+  «Last 100 m», i parziali ogni 100 m (`navigation/swim.ts`).
+- **Dopo**: Feed, «My activities», la scheda da condividere con «Open water
+  swim» e il passo di 100 m; il gioco non conta un nuoto.
+- **I file dell'orologio**: GPX e TCX con «swim», FIT `sport` 5; la
+  piscina non ha traccia.
+- **Resta**: la prova in acqua col telefono nella boa (primavera 2027); il
+  codice nativo non serve.
+
+File toccati da D:
+
+```
+apps/mobile/src/navigation/swim.ts, swim.test.ts, swimRun.test.ts (nuovi)
+apps/mobile/src/navigation/runControl.ts, runStats.ts, useNavigation.ts,
+  useFreeRun.ts
+apps/mobile/src/screens/RunPanel.tsx, RunDashboard.tsx, RunSwim.test.tsx
+  (nuovo)
+apps/mobile/src/feed/FeedPost.tsx, src/activities/activityText.ts,
+  src/share/postRun.ts, src/game/RunGameStrip.tsx, RunGameStrip.test.tsx
+apps/mobile/src/imports/fit.ts, fileTrack.ts, swimImport.test.ts (nuovo)
+apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
+docs/IMPORTAZIONI.md, docs/DECISIONS.md, docs/STATUS.md,
+  docs/tasks/TASK-323.md
+```
 
 ### E — Apple Watch (solo col sì dell'utente su dipendenze e build)
 
@@ -492,6 +615,76 @@ docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
 4. La lettura dei nuoti dell'Apple Watch da Apple Salute, per chi non usa
    la nostra app dell'orologio: è di TASK-321 e dello studio D di TASK-312;
    qui si usa quello che decidono, senza toccare i loro file.
+
+#### E, il piano (2026-10-30)
+
+L'utente, alla richiesta «passa alla parte E», ha scelto «Wait for B, then
+the Mac»: **sì alle due dipendenze**, ma il codice parte dopo. Dalla
+sessione cloud non si può: non c'è Xcode per compilare e provare lo Swift
+dell'orologio, e `app.json`, `package.json` e `react-native.config.js` sono
+della parte B di TASK-321 (la build 1.0.1, branch
+`feat/TASK-321-b-health-ios`), che li sta cambiando adesso. Questo è il
+piano per la sessione che lo farà.
+
+**Quando parte**: TASK-321 B in `main` (HealthKit acceso, gli entitlements,
+il testo del permesso), le parti B, C1, C2, C4 e D di questo task in
+`main`, una sessione sul Mac con Xcode e un Apple Watch per provare. Il
+nuoto acceso (`ready: true`) non serve per scrivere il codice, serve per
+la prova.
+
+**Le dipendenze** (sì dell'utente del 2026-10-30; versioni da ricontrollare
+quando si parte, una sola riga in `package.json` ciascuna):
+
+- `@bacons/apple-targets` 5.0.0: il plugin di Expo che aggiunge il target
+  dell'orologio da una cartella `targets/watch/` (il suo
+  `expo-target.config.js` e i sorgenti Swift) a ogni `prebuild`;
+- `react-native-watch-connectivity` 2.0.0: `WCSession` dal JavaScript, per
+  mandare il giro all'orologio e ricevere la traccia.
+
+**Come è fatto**:
+
+1. **Il telefono** (`src/watch/`, file nuovi): `watchSwim.ts`, puro, fa il
+   pacchetto per l'orologio dal risultato del nuoto: i punti (diradati
+   come le anteprime, entro il limite di un messaggio di `WCSession`), le
+   curve del primo giro con il lato, i metri dalla partenza e il nome a
+   riva, i giri, `lap_m`, la distanza. `useWatch.ts`: se c'è un orologio
+   con l'app, al «Start» di un nuoto (dopo l'avviso) manda il pacchetto e
+   dice sul telefono «On your watch» (testo da approvare); alla fine riceve
+   la traccia e la mette nella corsa come quella del telefono, con «Save»
+   e il modulo di sempre.
+2. **L'orologio** (`targets/watch/`, Swift e SwiftUI): un
+   `HKWorkoutSession` `.swimming` con `swimmingLocationType` `.openWater`
+   (l'orologio salva l'allenamento in Salute: «un'attività, un
+   allenamento», il telefono non lo riscrive, regola di TASK-321); il GPS
+   dell'orologio; il blocco dell'acqua all'avvio. `SwimGuide.swift`, puro:
+   dove si è lungo il giro, i metri alla prossima curva, fuori rotta oltre
+   25 m. Le vibrazioni: prima di una curva a destra e a sinistra con due
+   schemi diversi, fuori rotta un terzo (da provare in acqua e da far
+   scegliere all'utente). Lo schermo: una freccia grande e i metri alla
+   prossima curva, per chi alza la testa. Alla fine la traccia al
+   telefono (`transferFile`, anche se il telefono non c'è subito).
+3. **I test**: `jest` per `src/watch/`; XCTest per `SwimGuide` (la
+   posizione lungo il giro, la curva che viene, il fuori rotta), sul Mac.
+4. **La prova in acqua** (primavera 2027) dice se le vibrazioni si sentono
+   nuotando e se i 25 m vanno bene; poi la build 1.0.1 con TASK-321 B e
+   l'invio ad Apple, col sì dell'utente.
+
+**Da chiedere all'utente quando si parte** (una domanda per volta): gli
+schemi delle vibrazioni, i pochi testi dell'orologio e del telefono nelle
+cinque lingue, la riga della privacy (la posizione dell'orologio durante il
+nuoto).
+
+File toccati da E (previsti, da confermare quando parte):
+
+```
+apps/mobile/targets/watch/ (nuova: il target, lo Swift, i test XCTest)
+apps/mobile/src/watch/ (nuova: watchSwim.ts, useWatch.ts e i test)
+apps/mobile/package.json (le due dipendenze), app.json (il plugin), con
+  TASK-321 B già in main
+apps/mobile/App.tsx (il «Start» di un nuoto con l'orologio)
+apps/mobile/src/i18n/*.ts, site/privacy/ (testi e privacy, col sì)
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
 
 ## Criteri di accettazione (del task intero)
 

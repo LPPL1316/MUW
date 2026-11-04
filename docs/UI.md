@@ -613,7 +613,7 @@ vale la barra qui sopra.
   erano dopo un giro sulle altre pagine.
 - **«Feed»** è la pagina dei disegni che gli iscritti pubblicano
   (TASK-118, ADR-0227). Con un account ha **due schede** in alto, ferme mentre
-  la lista scorre, con la lente accanto (TASK-362, ADR-0308): **«All»**, i
+  la lista scorre (TASK-362, ADR-0308; la lente accanto fino a TASK-367 B): **«All»**, i
   disegni per tutti, e **«Following»**, i propri e quelli di chi si segue; in
   entrambe dal più recente, senza gruppi e senza posizione. Ogni scheda ha la
   sua lista, la sua posizione e le sue pagine: cambiare scheda non rilegge, e
@@ -630,9 +630,11 @@ vale la barra qui sopra.
   (senza luogo, solo il nome), la linea gialla sulla mappa, il titolo o,
   senza titolo, il giorno della corsa, e «Star · 4.0 km · 19 min»; una
   parola o il titolo del percorso al posto della forma, niente per una
-  corsa senza percorso; in bici «Bike · …», in canoa «Paddle · …». Una
-  corsa finisce con le calorie, contate dalla distanza come nella schermata
-  della corsa: «… · 4:45 /km · 290 kcal» (TASK-345, ADR-0298). **Un
+  corsa senza percorso; in bici «Bike · …», in canoa «Paddle · …». Ogni
+  sport finisce con le calorie, contate come nella schermata della corsa:
+  «… · 4:45 /km · 280 kcal» (TASK-345, ADR-0298; ogni sport con la sua
+  formula e, per i propri post, il corpo di «Settings»: TASK-374, ADR-0318).
+  **Un
   tocco apre il disegno intero sulla mappa**, con foto, racconto, tag,
   reazioni e commenti, come dal profilo (TASK-117, 119, 120); «←» torna
   a «Feed» com'era, senza rileggere, e «Profile» resta chiuso; se nel
@@ -703,13 +705,14 @@ vale la barra qui sopra.
   disegno vero di un altro, il «…» a destra del nome segnala il disegno o
   blocca chi l'ha corso (TASK-121, sotto in «Profile», «Segnalare e
   bloccare»).
-  **In cima, sopra i disegni, a destra, la lente** (TASK-215, ADR-0178;
-  TASK-219, ADR-0182: solo la lente, scelta dell'utente): un cerchio come
-  quello di «Profile», con una lente disegnata e nessun testo, sotto il
-  bottone di «Profile»; VoiceOver lo legge «Search». Non sta
-  nell'intestazione delle pagine: lì, accanto a sport e profilo, su un
-  iPhone da 390 pt non c'è posto. Scorre con l'elenco.
-  **La lente apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
+  **La ricerca è in cima a «Explore»** (TASK-367 parte B, ADR-0311): fino
+  ad allora era la lente in cima al Feed (TASK-215, TASK-219), che non c'è
+  più. In cima a «Explore», anche sull'acqua, sotto l'intestazione, un
+  campo largo come la pagina con la lente della barra in basso e il testo
+  «Search drawings, people, places»: non si scrive lì, il tocco apre la
+  ricerca qui sotto. VoiceOver lo legge «Search». Un «Explore» con il suo
+  «←» non ce l'ha.
+  **Il campo apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
   2026-10-29): una pagina sopra tutta l'app, che arriva dalla lente in
   `motion.sheetMs` (un poco più piccola e più in alto, poi al suo posto;
   ferma con «Reduce Motion»). In alto il campo «Search drawings, people,
@@ -1123,7 +1126,19 @@ mappa è quella di prima.
   «Draw», «Start» ed «Explore» (sotto, «Sull'acqua»), e dal TASK-251 i
   numeri della schermata della corsa (sotto, «Velocità e andatura»);
   «Feed» resta quello della corsa. I quattro disegni sull'acqua di
-  «Feed» (TASK-228, sopra) ci sono con ogni sport.
+  «Feed» (TASK-228, sopra) ci sono con ogni sport. **«Walk»** (🚶,
+  TASK-371, ADR-0315; it «Camminata», de «Gehen», fr «Marche», es
+  «Caminata») viene dopo il nuoto e dice «Soon» finché il server non ha la
+  parte A con la migrazione 0043. Poi si sceglie, e cambia poco: una corsa
+  sulla stessa rete a piedi, 1–30 km (in miglia 1–18). Sotto la distanza il
+  tempo è calcolato sul ritmo delle proprie camminate (fra 6:00 e 25:00 al
+  km), oppure su 12:00 al km se non ce ne sono. La schermata e la voce danno
+  il ritmo in min/km, come per la corsa. Il pulsante dice «🚶 Walk without a
+  route». In «Feed» la scheda comincia con «Walk ·». Il modulo per
+  pubblicare e i filtri della ricerca offrono «Walk» solo quando lo sport è
+  pronto. Apple Salute e Health Connect la ricevono
+  come camminata, con le calorie della camminata. «NEAR YOU» resta solo per
+  la corsa (scelta dell'utente).
 - **«Strava»** (TASK-187), solo se l'API ha Strava: «Connect with
   Strava» (il pulsante ufficiale di Strava, TASK-218, come a fine corsa)
   con «Send the runs you save in Sgrava to your Strava
@@ -1163,6 +1178,29 @@ mappa è quella di prima.
   motore detti così: «Shapes to paddle, within 1 km of the shore» e
   l'avviso di sicurezza sull'acqua. Con «Kilometres» niente cambia. Il
   GPX, l'API e il motore restano in metri.
+  Sotto, **«Body»** (⚖️, TASK-374, ADR-0318), con in fondo il peso
+  («72.5 kg», con le miglia «160 lb») o «Not set». Un tocco apre una pagina
+  intera, «Back» in alto: «Used only to estimate your calories and heart rate
+  zones. It stays on this phone.», poi «Sex» («Male», «Female», «Prefer not to
+  say»), «Weight» (kg o lb), «Height» (cm, o ft e in con le miglia), «Year of
+  birth», e in fondo, piccolo, «Calories are an estimate. Weight matters
+  most.». Ogni campo si tiene appena scritto, ha «Clear» accanto al nome
+  quando è pieno, e fuori dai limiti dice perché («Enter a weight between 30
+  and 300 kg.») senza tenerlo. Tutto resta sul telefono.
+  In fondo alla pagina, la riga **«Heart rate zones»** (TASK-374 parte B,
+  ADR-0318 §6 e §15) apre un'altra pagina intera, «Back» in alto: «Max heart
+  rate» (in bpm, dall'età con sotto «Estimated from your age», o scritta a
+  mano con «Set by you» e «Clear» accanto al nome, che torna all'età),
+  «Resting heart rate» (facoltativa, con «Clear»), poi la tabella delle cinque
+  zone: «Zone 1 Recovery», «Zone 2 Endurance», «Zone 3 Tempo», «Zone 4
+  Threshold», «Zone 5 Max», ognuna con «108 –» e il limite alto in una
+  casella. Il limite alto delle zone 1–4 si scrive a mano e diventa l'inizio
+  della zona dopo; quello della zona 5 è la FC massima. Sotto la tabella, solo
+  se un limite è stato cambiato, «Back to calculated zones». Senza anno di
+  nascita né FC massima, al posto della tabella: «Add your year of birth or
+  your max heart rate to see your zones.». Una FC fuori dai limiti dice
+  «Enter a heart rate between 100 and 230 bpm.» (a riposo 30 e 120) e non si
+  tiene. Tutto resta sul telefono, in `heart.json`.
   **«Notifications»**: «Email
   notifications» e «Push notifications», due interruttori salvati
   nell'account (TASK-185, ADR-0206, sotto). **«Feedback»** (TASK-308,
@@ -3288,8 +3326,8 @@ corsa, e un percorso senza attività, restano come prima, parola per parola.
 
 - **La velocità al posto del passo**: su «Map» «Speed now» (km/h, sugli
   ultimi 200 m, come «Pace now»); su «Data» e in pausa «Speed now», «Avg
-  speed», «Last km» (la velocità dell'ultimo km intero), «Elev. gain»,
-  senza «Calories» (la stima è di una corsa: TASK-255); i km uno per uno
+  speed», «Last km» (la velocità dell'ultimo km intero), «Elev. gain» e
+  «Calories» (con la formula della bici: TASK-374, ADR-0318); i km uno per uno
   sono «Km · Speed · Change», con la velocità
   a un decimale («24.0») e la differenza col km prima in km/h («-4.0» più
   lento, «+1.5» più veloce). In italiano «Vel. ora», «Vel. media», «Ultimo
@@ -3324,7 +3362,8 @@ corsa, e un percorso senza attività, restano come prima, parola per parola.
   quando la parola non dice quale); «Pen down: draw the U.» come a piedi.
   La pausa «penna» è la stessa.
 - **Come nella corsa**, per ora: la fine della corsa (il riepilogo col
-  passo), le calorie (stimate per la corsa), la corsa senza percorso.
+  passo), la corsa senza percorso. Le calorie hanno la formula della bici
+  (TASK-374).
 
 **L'aspetto della corsa** (TASK-204, ADR-0163; chiesto dall'utente il
 2026-10-03: «migliora la parte grafica», e confermato lo stesso giorno,
@@ -3362,9 +3401,10 @@ sei riquadri e ne prende l'aspetto.
 I passi compaiono dopo 100 m, prima c'è «–»; «Pace now» torna «–» anche da
 fermi (più lenti di 20:00 /km). «Elev. gain» è «–» se il telefono non dà
 la quota; conta le salite di almeno 3 m, perché la quota del GPS oscilla.
-«Calories» è una stima da 70 kg (il peso non è ancora nel profilo): circa
-una kilocaloria per kg e per km, e si vede solo correndo (in bici sarebbe
-il triplo del vero: TASK-255, scelta dell'utente). Il battito non c'è: il telefono non lo
+«Calories» è una stima dell'energia attiva, con la formula di ogni sport e
+il corpo di «Settings» → «Body» (TASK-374, ADR-0318): senza dati, 70 kg, circa
+una kilocaloria per kg e per km di corsa in piano, di più in salita; in bici e
+in canoa dalla velocità media. Il battito non c'è: il telefono non lo
 misura, e un sensore si collega solo in una build propria (seguiti in
 `tasks/TASK-169.md`). Sotto il banner della svolta restano le due
 etichette piccole di TASK-164: «42% drawn» e il punto cardinale («NE»).
@@ -3855,17 +3895,25 @@ run», con «Close» in alto a sinistra:
   non si toccano; poi si apre il foglio di condivisione con il video
   («Save Video» lo tiene in Foto). Errori: «This phone cannot make the
   video.», «The video could not be made. Try again.», «This phone cannot
-  open the share sheet.». Lo stile è quello scelto in «Style»; la mappa
-  inclinata del «3D» arriva con la parte D di TASK-351.
+  open the share sheet.». Lo stile è quello scelto in «Style». Nel «3D»
+  (parte D) la mappa scura è inclinata di 55° con le colline (le altezze
+  delle Terrain Tiles, come la mappa 3D dell'app) e la linea è posata
+  sulle colline dalla pagina stessa, fotogramma per fotogramma; la camera
+  gira da −10° a +10° attorno alla corsa nei 12 s, lenta alle estremità,
+  se un fotogramma della mappa inclinata costa al telefono meno di 25 ms
+  (la pagina lo misura in un giro a vuoto prima del video); altrimenti lo
+  scatto resta fermo e si avvicina piano (1,00 → 1,06). In fondo il
+  credito dice anche «Terrain Tiles».
 - **«Style»**, sopra «Music» (TASK-351, ADR-0303; nomi scelti
   dall'utente): una tessera per stile, alta come il video, con il disegno
   della corsa nei colori dello stile sul fondo della sua mappa: «Night», la
   mappa scura dell'app al suo passo più scuro, con la linea gialla e le
   parole chiare su un velo scuro; «Day», la mappa chiara al suo passo più
   chiaro, con la linea sul suo bordo scuro e le parole scure su un velo
-  chiaro, qualunque tono abbia l'app. «Night» è accesa all'apertura; la
-  scelta non si salva col post, come la musica. La tessera «3D» arriva con
-  la parte D.
+  chiaro, qualunque tono abbia l'app; «3D», la mappa scura inclinata con
+  le colline, e nella tessera il disegno è inclinato come lo sarà la
+  mappa. «Night» è accesa all'apertura; la scelta non si salva col post,
+  come la musica.
 - **«Music»**, sopra «Instagram» ed «Export video» (TASK-301,
   ADR-0262; scelte dell'utente, al posto del «Niente musica» qui sopra):
   «None» e dieci brani nostri, «Energy», «Chill», «Epic», «Sprint»,
@@ -3974,7 +4022,7 @@ l'API: ADR-0164). Con «Run» e «Bike» niente di quanto segue cambia.
   sotto la mappa «Speed now» in km/h; su «Data» e in pausa «Speed now»,
   «Avg speed», «Time», poi «Avg /500 m» (l'andatura media, «5:37»: l'unità
   è nel nome, perché accanto al numero lo rimpiccioliva), «Last 500 m» (il
-  tempo degli ultimi 500 m interi), senza «Calories» (TASK-255). «Last km» ed
+  tempo degli ultimi 500 m interi), e «Calories» (TASK-374). «Last km» ed
   «Elev. gain» non ci sono. I parziali sono **ogni 500 m**: «m · /500 m ·
   Change», le righe «500», «1000», … col loro tempo e la differenza dal
   precedente; prima, «Your first 500 metres will show here.» Con le miglia
@@ -4222,7 +4270,7 @@ ADR-0215; scelta dell'utente del 2026-10-08) la scheda e la fine della
 corsa mostrano i numeri di un percorso in bici («In bici», sopra), con lo
 stesso componente: sotto la mappa «Speed now» in km/h; su «Data», in pausa
 e a fine corsa «Speed now», «Avg speed», «Time», «Last km» (in km/h),
-«Elev. gain», senza «Calories»; i km uno per uno in km/h con la
+«Elev. gain», «Calories» (TASK-374); i km uno per uno in km/h con la
 differenza. Con le miglia mph. Lo sport è quello di «Settings» alla
 partenza, tenuto nel file della corsa. La voce resta quella della corsa
 senza percorso (ogni km, col passo medio), il post scrive il passo al km

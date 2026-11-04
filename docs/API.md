@@ -245,6 +245,19 @@ un punto senza acqua sul disco dell'API si salta alla prima forma
 (`map_data_unavailable`), come fa il telefono. Una forma che non ci sta
 (`shape_not_drawable`) resta scritta nella riga e non ferma il punto.
 
+**A nuoto** (TASK-323 C4): `--swim` chiede gli stessi punti come li chiede
+«Explore» con «Open water swim», le otto forme a 1 km da ogni punto,
+`"activity": "swimming"`, i giri scelti dal motore; con `--water-name`
+solo i punti nominati, e senza `--water` non si pagaia. Entro 150 m dalla
+riva una forma può non starci: `shape_not_drawable` lì è una risposta, e
+il punto conta come fatto. I nuoti si tengono con la loro impronta
+(`route_store`, TASK-323 B).
+
+```
+python -m shaperoute_api.draw_examples --api http://127.0.0.1:8000 --swim
+python -m shaperoute_api.draw_examples --api … --swim --water-name Riccione
+```
+
 **Tempi** (2026-10-09, Mac scarico, motore di `main` a `89287a0a`, acqua
 dei laghi d'Italia in cache): le 24 forme di un telefono nuovo a Levico
 Terme (Lago di Levico, Lago di Caldonazzo, Lago della Serraia) costano
@@ -878,9 +891,10 @@ La richiesta è sincrona: la risposta arriva quando il percorso è pronto
   cycling, got 5000`. La corsa resta 1–50 km, con il messaggio di prima.
   La distanza suggerita di `shape_not_drawable` resta in quei limiti.
 - **Solo le attività del contratto**, `running`, `cycling` e, dalla parte
-  B di TASK-191, `paddling`, dalla parte B di TASK-323 `swimming`
-  (`SUPPORTED_ACTIVITIES`): un'altra è `422 invalid_request`, `unsupported
-  activity 'hiking'; choose one of: running, cycling, paddling, swimming`.
+  B di TASK-191, `paddling`, dalla parte B di TASK-323 `swimming`, dalla
+  parte A di TASK-371 `walking` (`walking.API_ACTIVITIES`): un'altra è `422
+  invalid_request`, `unsupported activity 'hiking'; choose one of: running,
+  cycling, paddling, swimming, walking`.
 - **Le zone**: l'API ha le zone della bici accanto a quelle a piedi,
   `bike_*` in `data/cache/` (`MAPS.md`, «Cache»), e ne tiene in memoria una
   sola (sotto, «Grafi»). Le città con la zona della bici già fatta
@@ -1047,6 +1061,51 @@ motore.)
   L'app mostra il nuoto con la parte C di TASK-323 (`ready: false` fino
   ad allora): in `shared-types` `Activity` resta quella dell'app, e
   `API_ACTIVITIES` ha anche `swimming`.
+
+### A piedi, camminando: `"activity": "walking"` (TASK-371, ADR-0315)
+
+```json
+{ "start": [46.0671, 11.1214], "shape": "heart", "word": null,
+  "distance_m": 5000, "activity": "walking", "style": "round" }
+```
+
+(`fixtures/route-request-walking.json`.)
+
+- **Come una corsa**: gli stessi campi, una forma, una parola, un disegno, e
+  la stessa risposta. L'API chiede al motore una corsa
+  (`route_engine/walking.py`, `engine_activity`): la **rete foot**, le zone
+  a piedi già in memoria, nessuna rete né zona in più; i percorsi tenuti
+  sono quelli della corsa, e l'impronta del motore non cambia
+  (`route_store.WALK_ONLY`). `/routes`, `/route-jobs`, `/gpx`,
+  `/stroke-matches` e `/way-back` la prendono; il telefono la disegna come
+  il server (`on_phone`).
+- **Da 1 a 30 km** (`DISTANCE_LIMITS_M.walking`, scelta dell'utente): fuori
+  è `422 invalid_request`, `distance must be between 1000 and 30000 metres
+  for walking, got 31000`. La distanza suggerita di `shape_not_drawable`
+  resta in quei limiti, anche per un job.
+- **Il GPX** di una camminata dice `<type>walking</type>`, quelli degli
+  altri sport restano com'erano (`GPX.md`, «La camminata dice che è una
+  camminata»); una camminata salvata va su Strava come `Walk`.
+
+### Senza forma: `skiing` e `xc_skiing` (TASK-375, ADR-0319)
+
+Una giornata di sci alpino (`skiing`) o di sci di fondo (`xc_skiing`) si
+registra e si salva, ma nessun percorso la disegna:
+
+- **Solo nelle corse**: `PUT /me/activities/{key}` prende `"activity":
+  "skiing"` o `"xc_skiing"`, la lista e la corsa aperta lo dicono, il
+  disegno nel Feed lo porta; Strava lo riceve come `AlpineSki` o
+  `NordicSki`. `POST /routes` e gli altri percorsi lo rifiutano come
+  un'attività sconosciuta (`unsupported activity 'skiing'`): il motore non
+  li conosce. Preferiti e corse di gruppo no (migrazione `0044`,
+  `DATABASE.md`).
+- **Nessun record personale**: la velocità di una discesa non è quella di
+  chi corre o pedala, quindi una giornata sulla neve non conta per i
+  record del profilo (TASK-368).
+- **In `shared-types`**: `RECORD_ACTIVITIES` e `RecordActivity` a parte;
+  `RunActivity` = `ApiActivity | RecordActivity` per ciò che si salva
+  (`fixtures/run-activities.json`). `Activity` e `ApiActivity` non
+  cambiano. Un'API di prima rifiuta le due attività con `422`.
 
 ### Una parola invece di una forma (TASK-056)
 
@@ -2026,6 +2085,40 @@ subito); la lingua come l'email di ritorno. Il codice in
   `SHAPEROUTE_EMAIL_SECRET`, `SHAPEROUTE_DOMAIN`). A mano: `python -m
   shaperoute_api.notice_email` conta chi la riceverebbe adesso, `--send`
   fa un giro.
+
+### The bell (TASK-367 parte C, ADR-0311)
+
+La lista della campanella: quello che le push hanno detto all'account,
+tenuto per leggerlo nell'app (`notification_list.py`, tabella
+`notifications`, `DATABASE.md`). La campanella nell'app è la parte C2.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /notifications?before=` | le righe dell'account, le più recenti prima, 30 alla volta; `before` è l'`id` dato dalla pagina prima | `200` `NotificationsPage` (`fixtures/notifications.json`); `401` senza token; `422` con `before` < 1 |
+| `POST /notifications/read` | `{"up_to": id}`: segna lette le righe fino a quella, la più recente che l'app ha mostrato; una arrivata dopo resta non letta | `204`; `422` senza `up_to` o con altri campi |
+
+- **Cosa si tiene**: ogni evento che `push.py` lascia passare (non il
+  proprio, salvo i suoi tipi del gioco, dei concorsi e delle corse di
+  gruppo, una volta al giorno) arriva a `notification_list.py` (un
+  «listener» del `Pusher`, come l'email delle notizie). Per tutti, push
+  accese o spente. **Non i messaggi privati**: hanno la loro scheda. Lo
+  stesso evento di nuovo prende il posto di quello prima, non letto e in
+  cima.
+- **Ogni riga**: `id` (crescente), `kind` (quello della push), `text` (il
+  testo della push nella lingua dell'account: dell'iscrizione, poi del
+  telefono, poi inglese), `at`, `read`, `actor` (`Person`: chi ha agito;
+  l'account stesso per i suoi tipi) e `opens` (il `data` della push: il
+  concorso, la corsa di gruppo, la sfida, il disegno o il profilo). Con
+  `unread`, quante non lette in tutto, e `before`, per la pagina dopo
+  (`null` alla fine).
+- **Quello che non è più vero resta fuori**, come nell'email delle
+  notizie: una richiesta ritirata, un follow finito, una reazione tolta,
+  un commento cancellato o nascosto, un tag tolto, un disegno che non si
+  vede più; niente attraverso un blocco o da un account nascosto per una
+  segnalazione. Il commento e la reazione si leggono come sono adesso.
+- **Per quanto**: `KEPT_DAYS`, 90 giorni dall'evento (durata e frase della
+  privacy approvate dall'utente il 2026-11-04: «Sì, approvo»); le righe più vecchie non si mostrano e vanno via
+  alla prima riga scritta dopo.
 
 ### Confirmed email and forgotten password (TASK-300, ADR-0261)
 

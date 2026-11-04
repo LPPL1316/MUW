@@ -80,7 +80,7 @@ const help: AboutDocument = {
       heading: "Feed y amigos",
       blocks: [
         "«Feed» muestra dibujos de los que sacar ideas: toca uno para abrir su ruta y empezarla.",
-        "La lupa de arriba en «Feed» encuentra a otros miembros por su nombre. En un perfil puedes tocar «Seguir»; tus solicitudes, tus seguidores y a quién sigues están en «Perfil».",
+        "La búsqueda de arriba en «Explora» encuentra a otros miembros por su nombre. En un perfil puedes tocar «Seguir»; tus solicitudes, tus seguidores y a quién sigues están en «Perfil».",
         "En el dibujo público de un miembro puedes reaccionar con un emoji, enviar un súper like y escribir un comentario. No se aceptan comentarios negativos.",
       ],
     },
@@ -286,6 +286,7 @@ const privacy: AboutDocument = {
             "El día en que te registraste y cuándo confirmaste que tienes al menos 16 años.",
             "La sesión de cada teléfono desde el que entraste: el teléfono guarda un token en su almacenamiento seguro, el servidor solo un hash de él. Una sesión termina 90 días después de su último uso, o cuando cierras sesión.",
             "Tus tres elecciones de notificaciones en «Ajustes»: «Notificaciones por correo» y «Notificaciones push», apagadas hasta que las enciendas, y «Correo cuando no estoy», encendida hasta que la apagues. Con push encendido, el token push de tu teléfono, si es un iPhone o un Android y el idioma de la app, para enviarte notificaciones a través del servicio push de Expo, que las pasa a Apple o a Google. Una notificación dice quién hizo qué, con el principio de un comentario. El token se borra cuando apagas push, cierras sesión o borras tu cuenta.",
+            "La lista de la campana: quién hizo qué, en qué publicación, reto, concurso o carrera en grupo, y si ya la has leído, como te lo dicen las notificaciones push, también con las push apagadas. Solo la ves tú. Cada línea se guarda 90 días; lo que ya no es cierto, como una reacción quitada o una publicación que ya no ves, no aparece.",
             "El idioma de la app cuando te registraste, para escribirte nuestros correos en él.",
           ],
         },
@@ -316,7 +317,7 @@ const privacy: AboutDocument = {
     {
       heading: "Amigos de tus contactos",
       blocks: [
-        "Bajo la lupa arriba de «Feed», «Buscar amigos en tus contactos» busca a los miembros cuyo número está en los contactos de tu teléfono. La app pide los contactos al teléfono solo cuando lo tocas, y lee solo sus números de teléfono: nunca nombres, correos ni fotos.",
+        "En «Feed», «Buscar personas a las que seguir» lleva a «Buscar amigos en tus contactos», que busca a los miembros cuyo número está en los contactos de tu teléfono. La app pide los contactos al teléfono solo cuando lo tocas, y lee solo sus números de teléfono: nunca nombres, correos ni fotos.",
         "Cada número sale del teléfono cifrado: escrito con el prefijo del país y convertido en un hash (SHA-256). Nuestro servidor compara los códigos con los de los números que añadieron los miembros, responde con los miembros encontrados y no conserva nada de lo recibido: ni en la base de datos ni en un registro.",
         "El hash de un número de teléfono no es un secreto: quien tuviera los códigos podría volver a encontrar los números probando todos los números posibles. Por eso la verdadera protección es que nuestro servidor no conserva ninguno; solo viajan por la conexión cifrada.",
         "Los números de tus contactos son datos de otras personas: se comparan una vez, para encontrar cuentas, y se olvidan. Para impedir que alguien pruebe números uno a uno, el servidor cuenta las búsquedas de cada cuenta en una hora, solo en memoria. Solo se puede encontrar a quien añadió su número, y nunca a alguien que bloqueaste o que te bloqueó.",
@@ -432,6 +433,7 @@ const privacy: AboutDocument = {
             "Hetzner aloja nuestro servidor y sus copias de seguridad, en Alemania.",
             "Geoapify recibe las búsquedas de lugares, de pueblos cercanos y de los lugares de una ruta temática, con la posición redondeada a cerca de 1 km, y, para nombrar el lugar de una carrera guardada, su inicio redondeado igual: nunca tu puerta, la carrera ni quién eres. Si nuestro servidor no responde, la búsqueda de un lugar va entonces a Photon (komoot).",
             "OpenFreeMap sirve el mapa: como cualquier servicio de mapas, ve qué zona miras.",
+            "Las colinas del mapa 3D, y de un vídeo en el estilo «3D», vienen de las Terrain Tiles alojadas en Amazon Web Services: como cualquier servicio de mapas, ve qué zona miras.",
             "Apple en el iPhone, o Google en Android, a través del servicio de direcciones del teléfono, recibe la posición desde la que empieza «Dibuja», para escribir el nombre de la calle. MuW no le envía nada más y no guarda el nombre.",
             "Wikimedia da a nuestro servidor las fotos de los pueblos: ve qué pueblo, no quién pregunta.",
             "Con el mapa «Satélite» Esri da las imágenes, y con el mapa «3D» Amazon Web Services da las alturas: como cualquier servicio de mapas, ven qué zona miras.",
