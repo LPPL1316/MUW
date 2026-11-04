@@ -128,8 +128,9 @@ l'app non conosce non fa cadere la pagina. `apps/mobile/src/api/drawings.ts`,
 `packages/shared-types/src/index.ts`, approvato, alla fine non serve: i
 tipi dei disegni restano `Activity` (ADR-0319, punto 6).
 
-Parte B1 (2026-11-04, la lista di B più ciò che è servito, da approvare
-dal Coordinatore): `apps/mobile/src/settings/sport.ts`,
+Parte B1 (2026-11-04, la lista di B più ciò che è servito, approvata dal
+Coordinatore lo stesso giorno; i testi sono quelli approvati dall'utente
+con «Sì, approvati», nella tabella sopra): `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/screens/ChooseScreen.tsx`,
 `apps/mobile/src/screens/RunNoRouteButton.tsx`,
 `apps/mobile/src/navigation/freeSport.ts`,
