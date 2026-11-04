@@ -80,7 +80,7 @@ const help: AboutDocument = {
       heading: "Fil et amis",
       blocks: [
         "«Fil» montre des dessins pour trouver des idées : touches-en un pour ouvrir son parcours et le démarrer.",
-        "La loupe en haut de «Fil» trouve les autres membres par leur nom. Sur un profil, tu peux toucher «Suivre» ; tes demandes, tes abonnés et les personnes que tu suis sont dans «Profil».",
+        "La recherche en haut de «Explorer» trouve les autres membres par leur nom. Sur un profil, tu peux toucher «Suivre» ; tes demandes, tes abonnés et les personnes que tu suis sont dans «Profil».",
         "Sur le dessin public d'un membre, tu peux réagir avec un emoji, envoyer un super like et écrire un commentaire. Les commentaires négatifs ne sont pas acceptés.",
       ],
     },
@@ -316,7 +316,7 @@ const privacy: AboutDocument = {
     {
       heading: "Des amis dans tes contacts",
       blocks: [
-        "Sous la loupe en haut de «Feed», «Trouver des amis dans tes contacts» cherche les membres dont le numéro est dans les contacts de ton téléphone. L'app demande les contacts au téléphone seulement quand tu le touches, et n'en lit que les numéros de téléphone : jamais les noms, les e-mails ni les photos.",
+        "Dans «Fil», «Trouver des personnes à suivre» mène à «Trouver des amis dans tes contacts», qui cherche les membres dont le numéro est dans les contacts de ton téléphone. L'app demande les contacts au téléphone seulement quand tu le touches, et n'en lit que les numéros de téléphone : jamais les noms, les e-mails ni les photos.",
         "Chaque numéro quitte le téléphone codé : écrit avec l'indicatif du pays et transformé en hash (SHA-256). Notre serveur compare les codes à ceux des numéros ajoutés par les membres, répond avec les membres trouvés et ne garde rien de ce qu'il a reçu : ni dans la base de données ni dans un journal.",
         "Le hash d'un numéro de téléphone n'est pas un secret : qui aurait les codes pourrait retrouver les numéros en essayant tous les numéros possibles. C'est pourquoi la vraie protection est que notre serveur n'en garde aucun ; ils ne passent que par la connexion chiffrée.",
         "Les numéros de tes contacts sont les données d'autres personnes : ils sont comparés une fois, pour trouver des comptes, puis oubliés. Pour empêcher quiconque d'essayer les numéros un à un, le serveur compte les recherches de chaque compte sur une heure, en mémoire seulement. Seuls les membres qui ont ajouté leur numéro peuvent être trouvés, et jamais quelqu'un que tu as bloqué ou qui t'a bloqué.",

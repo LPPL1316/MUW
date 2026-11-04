@@ -78,7 +78,7 @@ const help: AboutDocument = {
       heading: "Feed e amici",
       blocks: [
         "«Feed» mostra disegni da cui prendere idee: toccane uno per aprire il suo percorso e correrlo.",
-        "La lente in cima a «Feed» trova gli altri iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti segue e chi segui sono in «Profilo».",
+        "La ricerca in cima a «Esplora» trova gli altri iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti segue e chi segui sono in «Profilo».",
         "Sul disegno pubblico di un iscritto puoi reagire con un'emoji, mandare un super like e scrivere un commento. I commenti negativi non sono accettati.",
       ],
     },
@@ -314,7 +314,7 @@ const privacy: AboutDocument = {
     {
       heading: "Amici dalla rubrica",
       blocks: [
-        "Sotto la lente in cima a «Feed», «Trova amici nella rubrica» cerca gli iscritti il cui numero è nella rubrica del tuo telefono. L'app chiede la rubrica al telefono solo quando lo tocchi, e ne legge solo i numeri di telefono: mai nomi, email o foto.",
+        "In «Feed», «Trova persone da seguire» porta a «Trova amici nella rubrica», che cerca gli iscritti il cui numero è nella rubrica del tuo telefono. L'app chiede la rubrica al telefono solo quando lo tocchi, e ne legge solo i numeri di telefono: mai nomi, email o foto.",
         "Ogni numero esce dal telefono in codice: scritto con il prefisso del paese e trasformato in un hash (SHA-256). Il nostro server confronta i codici con quelli dei numeri aggiunti dagli iscritti, risponde con gli iscritti trovati e non tiene nulla di ciò che ha ricevuto: né nel database né in un registro.",
         "L'hash di un numero di telefono non è un segreto: chi avesse i codici potrebbe ritrovare i numeri provando tutti i numeri possibili. Per questo la vera protezione è che il nostro server non ne tiene nessuno; viaggiano solo sulla connessione cifrata.",
         "I numeri della tua rubrica sono dati di altre persone: si confrontano una volta, per trovare gli account, e si dimenticano. Per impedire a chiunque di provare i numeri uno a uno, il server conta le ricerche di ogni account in un'ora, solo in memoria. Si trova solo chi ha aggiunto il proprio numero, e mai chi hai bloccato o chi ti ha bloccato.",

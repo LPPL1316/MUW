@@ -20371,7 +20371,8 @@ Nessun testo nuovo, nessuna dipendenza, niente di nativo, server non toccato.
 
 ## ADR-0303 — Il video della corsa con la mappa sotto: la mappa nella pagina del video, uno scatto e la linea sopra, il giallo come riserva, tre stili dai token, il 3D proiettato dalla pagina
 
-**Stato**: Proposta · 2026-10-30 · TASK-351. La richiesta è dell'utente
+**Stato**: Accettata e realizzata · 2026-11-04 (A #669, B #679, C #706,
+D #724; proposta il 2026-10-30) · TASK-351. La richiesta è dell'utente
 (2026-10-30: «fai anche lo restyle del video post corsa con questo stile
 aggiungendo la mappa sotto, magari la mappa in 3d come strava... e la
 possibilità di avere 3 stili per il video»); la scelta sulla privacy (la
@@ -21079,6 +21080,29 @@ dell'utente):
   un colore derivato dai token, non scritto a mano.
 - Android: il tasto indietro torna alla scheda mostrata prima (una pila delle
   schede viste), poi lascia uscire.
+
+**Parte B, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- Il campo in cima a «Explore» non è un campo vero: apre la pagina della
+  ricerca di TASK-344, che ha già il suo campo con la tastiera aperta. Riusa
+  il testo «Search drawings, people, places» e la lente della barra: nessun
+  testo nuovo, nessuna icona nuova.
+- C'è anche nell'«Explore» della canoa: senza, chi pagaia avrebbe perso la
+  ricerca con la lente del Feed.
+- Un esempio del Feed trovato dalla ricerca si apre come dal Feed
+  (`fetchPostRoute`, che controlla che il percorso sia ancora lo stesso):
+  `ExploreScreen` e `PaddleExplore` ricevono `onOpenExample` da `App.tsx`.
+- Da lì «Indietro» e «Back to the list» tornano a «Explore», dove era la
+  ricerca, non al Feed (`routeList` «explore»). Sull'acqua l'esempio trovato
+  si può quindi spostare come quelli di «Explore» (TASK-244): è lo stesso
+  percorso dell'app.
+- La pagina della ricerca è un Modal aperto da una pagina della barra di
+  schede, che riceve `top: 0` (l'intestazione tiene la barra di stato): il
+  suo campo finiva sotto l'ora. Il difetto c'era già in produzione con la
+  lente del Feed. Rimedio come TASK-366 per OutlineBoard: dentro il Modal un
+  `SafeAreaProvider` proprio con `initialWindowMetrics`.
+
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
@@ -21184,6 +21208,46 @@ scelta dell'utente.
 
 ---
 
+## ADR-0315 — La camminata: un'attività dell'API sulla rete foot della corsa, nel gioco ma non nei record
+
+**Stato**: Proposta · 2026-11-04 · TASK-371. La richiesta è dell'utente
+(2026-11-04); numeri dal Coordinatore. Le scelte di prodotto sono dell'utente,
+in `tasks/TASK-371.md`; il resto è deciso dall'agente su delega dell'utente.
+
+**Contesto**: l'utente vuole lo sport «Walk». La corsa usa già la rete «foot»
+di `network.py`; il nuoto (ADR-0283, #709) ha introdotto `API_ACTIVITIES` per
+le attività dell'API prima che l'app le offra. Ogni cambio di `models.py`
+sposta l'impronta del motore e fa rifare gli esempi della canoa.
+
+**Decisione** (proposta):
+
+1. **`walking` è un'attività dell'API** come le altre, 1–30 km (scelta
+   dell'utente), disegnata sulla **rete foot della corsa**: stesso grafo,
+   stessa cache, nessuna rete nuova; sul server il grafo già in memoria della
+   corsa.
+2. **Tre parti**: A motore, contratto, API e migrazione 0043, dopo #709 e
+   prima della notte degli esempi, così si rifanno una volta sola; B l'app,
+   dopo TASK-367 A, con `ACTIVITIES` che si allarga solo allora; C il gioco
+   delle forme sul server.
+3. **Il GPX di una camminata lo dice**: `<type>walking</type>` nella traccia,
+   nel GPX del percorso e in quello della corsa salvata; i file degli altri
+   sport restano quelli di prima, byte per byte (condizione del
+   Coordinatore).
+4. **Ritmo in min/km** come la corsa; tempo previsto su 12:00 /km finché non ci
+   sono camminate salvate.
+5. **Apple Salute `.walking`, Health Connect WALKING, Strava «Walk»**, con le
+   calorie stimate da camminata (scelta dell'utente).
+6. **Nel gioco delle forme sì, nei record personali no** (scelta
+   dell'utente): una camminata dà metri al gioco con una nuova versione delle
+   regole; i record di ADR-0312 restano della corsa.
+
+**Motivo**: la camminata cammina sulle stesse vie della corsa; riusare la rete
+non costa memoria né download e tiene il principio di ADR-0001 intero.
+
+**Conseguenze**: una migrazione e un aggiornamento del server, col sì
+dell'utente; l'impronta del motore cambia insieme a quella del nuoto. Nel
+gioco, chi cammina raccoglie metri come chi corre: le regole lo accettano per
+scelta dell'utente.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono

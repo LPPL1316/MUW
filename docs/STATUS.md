@@ -160,6 +160,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
+  dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
+  #709 (nuoto nell'API), ritmo in min/km, le camminate contano nel gioco delle
+  forme ma non nei record, calorie stimate in Apple Salute. Parte A (motore,
+  API, migrazione 0043) dopo #709 e prima della notte degli esempi; B (app)
+  dopo TASK-367 A con la lista dei file al Coordinatore; C (gioco) col sì
+  dell'utente. Testi della parte B ancora da approvare. `tasks/TASK-371.md`.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
@@ -336,6 +344,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   ha avuto il sì dell'utente («Sì, questa», 2026-11-04) ed è nella D, nei
   cinque testi e nelle pagine del sito rigenerate; la D è riallineata su
   `main` 1c085d26 dopo la #723, che toccava gli stessi file.
+  **Chiuso il 2026-11-04**: la D è in `main` (#724, ac3f1228) e TASK-351
+  è fatto, con i documenti di chiusura nella #737: vedi «Completato».
 - **TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio**
   (ADR-0306, estende ADR-0293; richiesta dell'utente del 2026-10-30, numeri
   dal Coordinatore). Branch `docs/TASK-355-feed-clarity` (documenti). Parte
@@ -2394,6 +2404,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   e pagine infinite; «Words» solo quando il server dichiara `shape=word`.
   Server `bacd7c7b` e OTA di produzione `f607dcf5` del 2026-11-04. Con TASK-367
   B la lente passa a «Explore». `tasks/TASK-344.md`.
+- **TASK-351 — Il video della corsa con la mappa sotto: il look premium,
+  il 3D e tre stili** (ADR-0303): A #669 (documenti), B #679 (la mappa
+  sotto, Night), C #706 (la riga «Style», Day), D #724 (il 3D con la camera
+  che gira; in `main` ac3f1228 il 2026-11-04), con i fix #703 e #707 della
+  pagina fuori vista; la mappa vista dall'utente sul telefono il 4
+  novembre; impronta iOS invariata (`6f8bba4c` da #620). Restano
+  all'utente, col Coordinatore: i tre stili dall'anteprima, la copia del
+  sito con la riga delle Terrain Tiles, l'OTA. `tasks/TASK-351.md`.
 - **TASK-372 — Sci di fondo: la rete delle piste non disegna forme**
   (ADR-0316, 2026-11-04). Benchmark su Fiemme, Asiago e Dobbiaco: nessuna
   delle 45 forme a 0,90, il cerchio mai sopra 0,49. Nessuna rete `nordic`,

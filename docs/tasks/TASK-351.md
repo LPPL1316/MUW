@@ -1,6 +1,8 @@
 # TASK-351 — Il video della corsa con la mappa sotto: il look premium, il 3D e tre stili
 
-**Stato**: Proposta · 2026-10-30 · la richiesta è dell'utente (2026-10-30);
+**Stato**: Done · 2026-11-04 · le quattro parti in `main`: A #669, B #679,
+C #706, D #724 (ac3f1228), con i fix #703 e #707; proposta il 2026-10-30;
+la richiesta è dell'utente (2026-10-30);
 le scelte 2, 3, 4 e 6 qui sotto sono la raccomandazione, accettata su
 delega dell'utente del 2026-10-29, da rivedere; la scelta sulla privacy (5)
 è dell'utente («Sì, va bene», 2026-10-30), come i nomi degli stili
@@ -392,34 +394,38 @@ Della proposta (parte A):
 
 Delle parti:
 
-- [ ] B: «Export video» fa il video con la mappa scura sotto la linea
+- [x] B: «Export video» fa il video con la mappa scura sotto la linea
       gialla, il titolo, i numeri e le etichette nella scala premium, il
       velo, le emoji, il credito; l'ultimo fotogramma è come la tavola
       «Night»; senza tegole in 15 s il video esce sul giallo di oggi;
       le estremità della linea sono tagliate di 200 m (test); durata e
       memoria non dipendono dalla corsa (ADR-0254, punto 9); il tempo di
       export misurato e scritto, prima e dopo.
-- [ ] C: la riga «Style» con tre tessere, «Night» accesa all'apertura; Day
+- [x] C: la riga «Style» con tre tessere, «Night» accesa all'apertura; Day
       fa la mappa chiara con il bordo scuro sulla linea e il velo chiaro,
       qualunque tono abbia l'app; i testi nelle cinque lingue col sì
       dell'utente.
-- [ ] D: 3D fa la mappa inclinata con le colline, la linea in prospettiva;
+- [x] D: 3D fa la mappa inclinata con le colline, la linea in prospettiva;
       la camera gira solo se un fotogramma costa meno di 25 ms sul
       telefono, altrimenti lo zoom lento.
-- [ ] **Prima dell'OTA di produzione della B** (condizione del Coordinatore,
+- [x] **Prima dell'OTA di produzione della B** (condizione del Coordinatore,
       2026-10-30): l'utente ha esportato un video vero sull'iPhone, dalla
       preview, e ha visto la mappa sotto la linea. Il rischio da guardare
       è un telefono che ricade sul giallo in silenzio.
-- [ ] **Prima dell'OTA di produzione della B**, se non è entrata con la B:
+- [x] **Prima dell'OTA di produzione della B**, se non è entrata con la B:
       la riga di privacy estesa al video, col sì dell'utente (scelta 7).
-- [ ] Test deterministici verdi in locale e in CI: la scena (stile,
+- [x] Test deterministici verdi in locale e in CI: la scena (stile,
       camera, quote, il taglio), la pagina con MapLibre e WebCodecs finti
       (scatto, proiezione, riserva, 360 pezzi), i colori solo dai token.
-- [ ] Nessuna dipendenza nuova; impronta iOS
+- [x] Nessuna dipendenza nuova; impronta iOS
       `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` invariata su una copia
-      pulita con `npm ci`, a ogni parte.
+      pulita con `npm ci`, a ogni parte (dalla #620 quella di `main` è
+      `6f8bba4c`: misurata uguale per la C e la D).
 - [ ] Provato nel simulatore (Expo Go) e dall'utente sull'iPhone: un
-      video per stile accettato da Instagram.
+      video per stile accettato da Instagram. Il simulatore: sì, per B, C
+      e D; l'utente: la mappa vista sul telefono il 4 novembre; i tre
+      stili e Instagram con l'anteprima che il Coordinatore pubblica da
+      `main` ac3f1228.
 
 ## File toccati
 
@@ -831,3 +837,29 @@ telefono: l'iPhone dell'utente ha Expo Go SDK 58, che non apre i progetti
 SDK 57, quindi il video vero si prova dalla preview dopo il merge, e i
 numeri di MapLibre per il 3D si prendono con la pagina del bench in
 Safari sulla rete locale.
+
+## Esito (2026-11-04)
+
+Fatto, in quattro parti più due fix, tutte in `main`:
+
+- A, i documenti: #669. B, la mappa sotto e il look premium (Night):
+  #679. C, i tre stili e la riga «Style» (Day): #706. D, il 3D con la
+  camera che gira: #724 (ac3f1228). I fix della pagina fuori vista: #703
+  (i fotogrammi da un timer) e #707 (la pagina a grandezza piena sotto una
+  copertura, la riga di diagnosi solo sulla preview).
+- Le scelte dell'utente, con le sue parole: la privacy (5, «Sì, va bene»),
+  i nomi (1, «Sì, questi»), la riga di privacy estesa al video (7, «sì»),
+  la riga sulle Terrain Tiles (8, «Sì, questa»); «Aspetto la mappa» prima
+  della C; la mappa vista sul telefono («ok la mappa funziona»).
+- Le misure: sul telefono (30 ottobre) la camera che gira costa il doppio
+  dello scatto fermo; nel simulatore il 3D 10,5 s contro 4,1 della notte.
+  Nessuna dipendenza, impronta iOS invariata (`6f8bba4c` da #620).
+
+Restano all'utente, col Coordinatore: i tre stili dall'anteprima pubblicata
+da `main` ac3f1228 (e Instagram), la copia del sito con la riga delle
+Terrain Tiles, l'OTA di produzione. Fuori scope, da proporre a parte: la
+riga di privacy sulle foto aeree di Esri; TASK-336 B prende questo video.
+Sul Mac, da cancellare quando l'utente vuole: il simulatore «MuW video
+bench» (4,4 GB, non si avvia più), il worktree staccato
+`.claude/worktrees/video-bench`, `out/video-restyle/` e `out/TASK-351-*`
+(il bench, i harness, i fotogrammi).

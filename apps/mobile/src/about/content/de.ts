@@ -80,7 +80,7 @@ const help: AboutDocument = {
       heading: "Feed und Freunde",
       blocks: [
         "«Feed» zeigt Zeichnungen, die dich auf Ideen bringen: Tippe auf eine, um ihre Route zu öffnen und loszulaufen.",
-        "Die Lupe oben in «Feed» findet andere Mitglieder über ihren Namen. Auf einem Profil kannst du auf «Folgen» tippen; deine Anfragen, deine Follower und wem du folgst, findest du in «Profil».",
+        "Die Suche oben in «Entdecken» findet andere Mitglieder über ihren Namen. Auf einem Profil kannst du auf «Folgen» tippen; deine Anfragen, deine Follower und wem du folgst, findest du in «Profil».",
         "Auf der öffentlichen Zeichnung eines Mitglieds kannst du mit einem Emoji reagieren, ein Super Like senden und einen Kommentar schreiben. Negative Kommentare werden nicht angenommen.",
       ],
     },
@@ -316,7 +316,7 @@ const privacy: AboutDocument = {
     {
       heading: "Freunde aus deinen Kontakten",
       blocks: [
-        "Unter der Lupe oben in «Feed» sucht «Freunde in deinen Kontakten finden» die Mitglieder, deren Nummer in den Kontakten deines Handys steht. Die App fragt das Handy erst nach den Kontakten, wenn du darauf tippst, und liest nur die Telefonnummern: nie Namen, E-Mails oder Bilder.",
+        "In «Feed» führt «Personen zum Folgen finden» zu «Freunde in deinen Kontakten finden», das die Mitglieder sucht, deren Nummer in den Kontakten deines Handys steht. Die App fragt das Handy erst nach den Kontakten, wenn du darauf tippst, und liest nur die Telefonnummern: nie Namen, E-Mails oder Bilder.",
         "Jede Nummer verlässt das Handy verschlüsselt: mit Ländervorwahl geschrieben und in einen Hash (SHA-256) umgewandelt. Unser Server vergleicht die Codes mit denen der Nummern, die Mitglieder hinzugefügt haben, antwortet mit den gefundenen Mitgliedern und behält nichts von dem, was er erhalten hat: weder in der Datenbank noch in einem Protokoll.",
         "Ein Hash einer Telefonnummer ist kein Geheimnis: Wer die Codes hätte, könnte die Nummern wiederfinden, indem er alle möglichen Nummern ausprobiert. Deshalb ist der eigentliche Schutz, dass unser Server keinen davon behält; sie gehen nur über die verschlüsselte Verbindung.",
         "Die Nummern deiner Kontakte sind Daten anderer Menschen: Sie werden einmal verglichen, um Konten zu finden, und dann vergessen. Damit niemand Nummern einzeln ausprobiert, zählt der Server die Suchen jedes Kontos in einer Stunde, nur im Arbeitsspeicher. Gefunden wird nur, wer seine Nummer hinzugefügt hat, und nie jemand, den du blockiert hast oder der dich blockiert hat.",
