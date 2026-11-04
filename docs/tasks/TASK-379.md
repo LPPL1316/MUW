@@ -159,8 +159,6 @@ Fatto (2026-11-04, PR #764). Le pagine stanno su una striscia lunga dello
 `ScrollView` a pagine di React Native: la pagina segue il dito, il giro continua
 dal profilo al Feed e all'indietro, il tocco sulla barra resta istantaneo.
 Con VoiceOver o TalkBack acceso lo swipe è spento. `App.tsx` non cambia.
-I documenti (#757) li ha uniti questa sessione, a CI verde e CLEAN, come per
-ogni PR di soli documenti.
 
 Test: 49 in `src/tabs` (striscia, swipe, giro, VoiceOver, ogni scroll
 orizzontale dell'app), più typecheck, lint, Prettier. Simulatore iPhone 17e con
