@@ -20943,3 +20943,57 @@ strumento e una PR; togliere la nota quando qualcuno li avrà pedalati è una
 scelta dell'utente.
 
 ---
+
+---
+
+## ADR-0NNN — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
+
+**Stato**: Proposta · 2026-11-04 · TASK-374. La richiesta è dell'utente
+(2026-11-04); numero del task dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-374.md`. La formula e il calcolo delle zone sono
+decisi dall'agente su delega dell'utente.
+
+**Contesto**: le kcal sono `km × 70 kg × 1,036` per qualunque sport, anche
+bici e paddle nella schermata di corsa. In Health vanno solo per la corsa.
+L'app non conosce il corpo dell'utente.
+
+**Decisione** (proposta; i punti 1, 6 e 7 aspettano le scelte dell'utente):
+
+1. Sesso, peso, altezza e anno di nascita sono facoltativi e restano sul
+   telefono (parte A). Ogni dato che manca torna al valore di oggi.
+2. **Energia totale** (deciso dall'agente):
+   - *Corsa*: equazione ACSM della corsa, VO₂ = 3,5 + 0,2·v + 0,9·v·pendenza
+     (ml/kg/min, v in m/min). Sommata sulla corsa diventa
+     `peso × (0,0175 × minuti + 1,0 × km + 0,0045 × metri di salita)` kcal,
+     con 5 kcal per litro di O₂. La salita viene da `climbM()`.
+   - *Bici e paddle*: MET dal *Compendium of Physical Activities* 2024, per
+     fasce di velocità media in movimento. Le fasce sono copiate nel codice con
+     il codice attività del Compendium. Energia = `MET × 0,0175 × peso × minuti`.
+3. **Energia attiva**, quella mostrata e scritta in Health come «active
+   energy»: totale meno il consumo a riposo nello stesso tempo in movimento.
+   A riposo vale Mifflin-St Jeor (sesso, età, peso, altezza) diviso 1440. Se
+   manca sesso, età o altezza, vale 1 MET standard (`0,0175 × peso` al minuto).
+   Con «preferisco non dirlo» si usa la media delle due costanti (−78).
+4. Senza nessun dato, una corsa in piano dà `1,0 × km × 70`, cioè −3,5%
+   rispetto a oggi (1,036). Su una corsa con salita il valore cresce.
+5. Il Feed usa i dati solo per i post propri. Per i post degli altri resta la
+   formula senza dati, finché non c'è la parte C.
+6. **Zone** (deciso dall'agente): FC max = 208 − 0,7 × età (Tanaka 2001),
+   oppure inserita a mano. Le cinque zone vanno dal 50 al 100% della FC max, a
+   passi del 10%. Con la FC a riposo si usa Karvonen: riposo + % × (max −
+   riposo), con le stesse percentuali. I limiti cambiati a mano restano e
+   tengono le zone contigue: cambiare il limite alto di una zona sposta il
+   limite basso di quella dopo.
+7. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+   Mifflin, e non chiede la data intera.
+
+**Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
+verificano a mano nei test. Togliere il consumo a riposo dà l'«energia attiva»
+come la intendono Apple Health e Health Connect, e porta dentro sesso, età e
+altezza nel solo punto in cui contano senza il battito.
+
+**Conseguenze**: il peso cambia le kcal in proporzione. Sesso ed età, senza il
+battito, le spostano di pochi punti percentuali: in un'ora a 70 kg, pochi kcal.
+Bisogna dirlo senza promettere di più. Una formula che usa sesso ed età col
+battito (Keytel 2005) è possibile solo con la parte D. Le kcal dei post altrui
+restano approssimate finché i dati non sono sul server (parte C).
