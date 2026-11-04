@@ -144,6 +144,44 @@ Dopo 344 B e coordinata con TASK-362, che ha la lente accanto alle schede del
 Feed: la barra di ricerca in cima a Explore, la lente esce dal Feed. Testi da
 approvare.
 
+Fatta così (2026-11-04, via del Coordinatore): in cima a «Explore», anche
+sull'acqua, un campo con la lente della barra e il testo già tradotto
+«Search drawings, people, places» apre la ricerca di TASK-344; la lente esce
+dal Feed (`FindFriendsButton` tolto). Un esempio del Feed trovato da
+«Explore» si apre come dal Feed (`fetchPostRoute`): due props in `App.tsx`,
+dopo la #722. Nessun testo nuovo nell'app; la frase della Guida sulla lente e
+quella della privacy su «Trova amici nella rubrica» con il sì dell'utente.
+
+Testi approvati dall'utente il 2026-11-04, nelle 5 lingue di `about/content`:
+
+- Guida, alla proposta «La ricerca in cima a «Esplora» trova gli altri
+  iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti
+  segue e chi segui sono in «Profilo».» l'utente ha risposto: «Sì, approvo».
+- Privacy, alla proposta «In «Feed», «Trova persone da seguire» porta a
+  «Trova amici nella rubrica», che cerca gli iscritti il cui numero è nella
+  rubrica del tuo telefono. L'app chiede la rubrica al telefono solo quando lo
+  tocchi, e ne legge solo i numeri di telefono: mai nomi, email o foto.»
+  l'utente ha risposto: «Sì, approvo».
+
+`site/privacy` rigenerato con `make_privacy.mjs` su main dopo la #724
+(ac3f1228). Copia del sito e OTA: le chiede il Coordinatore all'utente.
+
+File toccati della parte B (approvati dal Coordinatore):
+
+```
+apps/mobile/src/explore/ExploreSearch.tsx                    (nuovo)
+apps/mobile/src/explore/ExploreScreen.tsx, ExploreScreen.test.tsx, ExploreHeart.test.tsx
+apps/mobile/src/paddle/PaddleExplore.tsx
+apps/mobile/src/screens/FeedScreen.tsx, FeedScreen.test.tsx, ProfileLayer.test.tsx
+apps/mobile/src/social/FindFriendsButton.tsx, .test.tsx      (tolti)
+apps/mobile/src/search/Glyphs.tsx                            (un commento)
+apps/mobile/src/search/SearchScreen.tsx, SearchScreenInset.test.tsx (nuovo)  (sotto la barra di stato, via del Coordinatore)
+apps/mobile/App.tsx                                          (dopo la #722: onOpenExample)
+apps/mobile/__tests__/AppFeed.test.tsx                       (il test di onOpenExample)
+apps/mobile/src/about/content/*.ts, site/privacy/**          (col sì dell'utente; il sito dopo la #724)
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
+```
+
 ### Parte C — la campanella con le notifiche vere
 
 Il server tiene una riga per ogni evento che oggi manda una push (reazioni,
