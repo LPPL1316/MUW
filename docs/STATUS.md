@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
+  «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
+  fuori dal riquadro; scelta dell'utente «Dentro il riquadro»: «kg»/«cm», con
+  le miglia «lb» e «ft» + «in», accanto al numero, e un tocco sull'unità apre
+  la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
+  la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
+  nessun testo nuovo. `tasks/TASK-383.md`.
+
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
   (TASK-355 A) apre `SharePost` dentro il `Pager`, che azzera il margine alto: ora il `Modal` ha

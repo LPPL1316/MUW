@@ -21958,3 +21958,17 @@ il margine da `ActionBar`, che lascerebbe il difetto al prossimo che apre il
 post da un'altra pagina, e cambiare il `Pager`.
 
 ---
+
+## ADR-0318, precisazione — L'unità di peso e altezza sta dentro il riquadro
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Dentro il riquadro»),
+il resto deciso dall'agente su delega dell'utente (TASK-383). In «Body»
+l'unità stava a destra del riquadro, piccola e grigia, e sul telefono non si
+notava. Ora «kg» e «cm» (con le miglia «lb», «ft» e «in») stanno dentro il
+riquadro, dopo il numero e nella sua stessa dimensione; il riquadro è un
+`Pressable` e un tocco ovunque, anche sull'unità, apre la tastiera del campo.
+I valori restano in kg e cm (punto 10). Scartati: l'unità nel nome del campo
+(«Weight (kg)»), che con le miglia cambia il nome, e un segnaposto, che sparisce
+appena si scrive.
+
+---

@@ -1184,9 +1184,11 @@ mappa è quella di prima.
   zones. It stays on this phone.», poi «Sex» («Male», «Female», «Prefer not to
   say»), «Weight» (kg o lb), «Height» (cm, o ft e in con le miglia), «Year of
   birth», e in fondo, piccolo, «Calories are an estimate. Weight matters
-  most.». Ogni campo si tiene appena scritto, ha «Clear» accanto al nome
-  quando è pieno, e fuori dai limiti dice perché («Enter a weight between 30
-  and 300 kg.») senza tenerlo. Tutto resta sul telefono.
+  most.». L'unità sta dentro il riquadro, dopo il numero, e un tocco su di
+  essa apre la tastiera (TASK-383). Ogni campo si tiene appena scritto, ha
+  «Clear» accanto al nome quando è pieno, e fuori dai limiti dice perché
+  («Enter a weight between 30 and 300 kg.») senza tenerlo. Tutto resta sul
+  telefono.
   In fondo alla pagina, la riga **«Heart rate zones»** (TASK-374 parte B,
   ADR-0318 §6 e §15) apre un'altra pagina intera, «Back» in alto: «Max heart
   rate» (in bpm, dall'età con sotto «Estimated from your age», o scritta a
