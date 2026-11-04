@@ -390,7 +390,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   fino a B. File `tasks/TASK-348.md`. Limite scelto dall'utente il
   2026-10-30: 10 elementi col disegno. Parte A, API: #665 (migrazione 0041,
   server non aggiornato); la parte app aspetta il via del Coordinatore.
-  fino a B. File `tasks/TASK-348.md`.
+  2026-11-04, parte A app: branch `feat/TASK-348-a-composer-app` (via del
+  Coordinatore dopo la #700). Nel modulo di fine corsa e in «My
+  activities»: fino a 9 foto e il disegno in fila, scelta di più foto
+  insieme, riordino tenendo premuto (e «Move left»/«Move right» per
+  VoiceOver), i quattro layout per ogni foto aggiunta, la foto composta
+  subito con `view-shot`; l'ordine va al server dopo le foto
+  (`drawing-orders.json` sul telefono). Nel Feed le pagine nell'ordine del
+  post e «2/5» in alto a sinistra. Testi tradotti, Help e privacy approvati
+  con la data del 4 novembre, pagine del sito rigenerate. **Resta**: la
+  prova sul telefono, l'impronta iOS su una copia pulita, il merge.
 - **TASK-346 — «Edit the drawing» nel Feed: la traccia sulla mappa dov'è
   stata corsa** (ADR-0299; richiesta dell'utente del 2026-10-29, «nel Feed
   quando premo modifica il disegno devo poter modificare la traccia sulla
