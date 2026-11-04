@@ -17,7 +17,7 @@ import type { DrawingChoice } from "../api/drawings";
 import { EnterSwitch } from "../contest/EnterSwitch";
 import { t, tLater } from "../i18n";
 import type { ImageSource } from "../route/pickImage";
-import { ALL_SPORTS } from "../settings/sport";
+import { activityOffered } from "../settings/sport";
 import {
   color,
   fontSize,
@@ -237,15 +237,10 @@ function Chips<T extends string>({
   );
 }
 
-// A walk once «Walk» can be chosen, the server keeping walks (TASK-371).
-const ACTIVITIES_SHOWN: readonly Activity[] = [
-  "running",
-  "cycling",
-  "paddling",
-  ...(ALL_SPORTS.some((sport) => sport.id === "walk" && sport.ready)
-    ? (["walking"] as const)
-    : []),
-];
+// A walk once «Walk» can be chosen (activityOffered, TASK-371).
+const ACTIVITIES_SHOWN: readonly Activity[] = (
+  ["running", "cycling", "paddling", "walking"] as const
+).filter((activity) => activityOffered(activity));
 
 /** «Activity»: what the run was, Run, Bike or Paddle. */
 export function ActivityChips({

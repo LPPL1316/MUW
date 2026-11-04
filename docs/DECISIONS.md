@@ -21410,8 +21410,10 @@ dell'utente:
   `ACTIVITIES`.
 - «Walk» 🚶 viene dopo il nuoto (il suo test vuole il nuoto subito dopo
   «Paddle») ed entra con `ready: false`, come il nuoto, finché il server non
-  ha la parte A e la 0043. Con `ready: false` il modulo per pubblicare non
-  offre «Walk».
+  ha la parte A e la 0043. Con `ready: false` né il modulo per pubblicare
+  né i filtri della ricerca offrono «Walk» (`sport.activityOffered`,
+  condizione del Coordinatore: l'OTA non dipende dal server). Quando lo
+  sport si accende, compaiono insieme.
 - Il ritmo usuale è 12:00 al km. Contano le camminate fra 6:00 e 25:00 al km
   (`averagePace().walking`), così `App.tsx` non cambia.
 - Le calorie usano l'equazione ACSM del cammino: 0,1 ml/kg per metro e 1,8

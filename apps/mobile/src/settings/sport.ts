@@ -42,6 +42,19 @@ export const ALL_SPORTS: readonly SportOption[] = [
 ];
 
 /**
+ * Whether `activity` is offered where a run's sport is chosen or looked for
+ * (the form to publish, the search's filters): a walk once «Walk» is ready,
+ * the server keeping walks (TASK-371), so the two come together; every other
+ * as before.
+ */
+export function activityOffered(
+  activity: Activity,
+  sports: readonly SportOption[] = ALL_SPORTS,
+): boolean {
+  return activity !== "walking" || sports.some((s) => s.id === "walk" && s.ready);
+}
+
+/**
  * True in the App Store and Google Play builds, and in the updates made for
  * them: their runtime version is the fingerprint of the native code
  * (app.config.ts with APP_VARIANT=production), never the "exposdk:" one of

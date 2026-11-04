@@ -1134,8 +1134,9 @@ mappa è quella di prima.
   tempo è calcolato sul ritmo delle proprie camminate (fra 6:00 e 25:00 al
   km), oppure su 12:00 al km se non ce ne sono. La schermata e la voce danno
   il ritmo in min/km, come per la corsa. Il pulsante dice «🚶 Walk without a
-  route». In «Feed» la scheda comincia con «Walk ·», e il modulo per
-  pubblicare ha la scelta «Walk». Apple Salute e Health Connect la ricevono
+  route». In «Feed» la scheda comincia con «Walk ·». Il modulo per
+  pubblicare e i filtri della ricerca offrono «Walk» solo quando lo sport è
+  pronto. Apple Salute e Health Connect la ricevono
   come camminata, con le calorie della camminata. «NEAR YOU» resta solo per
   la corsa (scelta dell'utente).
 - **«Strava»** (TASK-187), solo se l'API ha Strava: «Connect with

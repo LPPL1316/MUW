@@ -1,10 +1,12 @@
-import type {
-  Activity,
-  DrawingComplexity,
-  DrawingSort,
+import {
+  ACTIVITIES,
+  type Activity,
+  type DrawingComplexity,
+  type DrawingSort,
 } from "@shaperoute/shared-types";
 
 import { tLater } from "../i18n";
+import { activityOffered } from "../settings/sport";
 import type { CategoryKey } from "./categories";
 
 /** The distances the sheet offers, in metres: `max` null is open. */
@@ -53,6 +55,12 @@ export const COMPLEXITY_LABELS: Readonly<Record<DrawingComplexity, string>> = {
   medium: tLater("Medium"),
   complex: tLater("Complex"),
 };
+
+/** The sports the sheet offers: a walk once «Walk» is ready, so the API
+ * never answers 422 to a filter the app shows (TASK-371). */
+export const SEARCH_ACTIVITIES: readonly Activity[] = ACTIVITIES.filter((activity) =>
+  activityOffered(activity),
+);
 
 export const ACTIVITY_LABELS: Readonly<Record<Activity, string>> = {
   running: tLater("Run"),

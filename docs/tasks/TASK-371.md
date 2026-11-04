@@ -150,13 +150,15 @@ il server con la parte A prima che lo sport diventi `ready`.
 - Le calorie della camminata sono in `body/energy.ts` (ACSM a piedi).
 - Apple Salute (52), Health Connect (79), le zone del telefono
   (`zones.NETWORKS`) e l'importazione (GPX `walking`, Strava «10», FIT 11).
-- Feed «Walk ·», `activityName`, la scelta «Walk» nel modulo per pubblicare
-  (solo con lo sport pronto), il filtro «Walk» della ricerca, l'icona 🚶 del
-  pulsante «senza percorso».
+- Feed «Walk ·», `activityName`, l'icona 🚶 del pulsante «senza
+  percorso». La scelta «Walk» nel modulo per pubblicare e il filtro «Walk»
+  della ricerca compaiono solo con lo sport pronto (`activityOffered`), così
+  un filtro mostrato non riceve mai un 422.
 - Testi approvati dall'utente: «Walk» (Camminata, Gehen, Marche, Caminata) e
   «Walk without a route» (Cammina senza percorso, Ohne Route gehen, Marcher
   sans parcours, Caminar sin ruta).
-- File in più rispetto alla lista: `screens/RunNoRouteButton.tsx` (l'icona),
+- File in più rispetto alla lista: `search/FilterSheet.tsx` (di TASK-344,
+  chiuso; via del Coordinatore), `screens/RunNoRouteButton.tsx` (l'icona),
   i test che contano le righe «Soon» (`SportButton`, `SportSetting`,
   `SportVoiceItalian`, `SettingsPage`) e `docs/UI.md`.
 - Resta fuori: «NEAR YOU» per la camminata (l'utente: «Solo corsa, per
