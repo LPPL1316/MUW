@@ -553,6 +553,19 @@ con il fix di #703.
   run» con «Day» scelto, le tabelle delle traduzioni.
 - La tessera «3D» arriva con la D, che la fa davvero.
 
+Riallineata il 2026-11-04 sera su `main` f23ec332 (la raccolta #717, che
+porta il codice della #707: la pagina a grandezza piena e la riga di
+diagnosi solo sulla preview) e con il commit di documenti della #707
+ancora aperta (l'esito: la mappa vista con i fotogrammi a timer), preso
+pari pari così i due rami non confliggono al merge. Conflitti risolti a
+mano: le quattro tabelle (le righe di TASK-348 prima, «Style», «Night»,
+«Day» in fondo) e i test della scena (la scena di giorno e `withNote`,
+uno dopo l'altro). 26 suite verdi (241 test), eslint e prettier puliti;
+impronta iOS sulla copia pulita `6f8bba4cf1b6f95fc3c1c84ba9812d950a2232a1`, quella di `main`. Il via
+alla C è arrivato con la mappa vista dall'utente sul telefono («ok la
+mappa funziona»); alla domanda se volesse la riga «Style» anche senza
+mappa aveva scelto «Aspetto la mappa».
+
 ## Il fix del 2026-11-03: la mappa che sul telefono non arrivava
 
 **Che cosa ha visto l'utente**, provando la B dalla preview sull'iPhone

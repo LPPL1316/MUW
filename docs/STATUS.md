@@ -248,7 +248,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-11-04: il fix è in `main` (#703); la C è in PR
   (`feat/TASK-351-c-video-styles`): la riga «Style» con «Night» e «Day»,
   il look chiaro col bordo scuro sulla linea e il velo chiaro, i tre testi;
-  la tessera «3D» con la D. Senza mappa il video
+  la tessera «3D» con la D. Sera: la C è riallineata su `main` f23ec332
+  (#717, col codice della #707), 26 suite verdi, impronta iOS sulla copia
+  pulita `6f8bba4c`; «#706 pronta» al Coordinatore.
   2026-11-04: il fix è in `main` (#703) e sulla preview fb15613e, ma sul
   telefono il video è ancora senza mappa: prova successiva in
   `fix/TASK-351-video-map-under-cover`, PR #707 (WebView a grandezza piena
