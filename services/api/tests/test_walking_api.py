@@ -32,7 +32,7 @@ from route_engine.walking import (
 )
 from test_cycling import RESULT, TOWN, Network, finished, loading, two_networks
 
-from shaperoute_api.activities import RunActivity
+from shaperoute_api.activities import RECORD_ACTIVITIES, RunActivity
 from shaperoute_api.activity_graphs import ActivityGraphs, check_supported
 from shaperoute_api.app import create_app
 from shaperoute_api.db import Database, migrations
@@ -206,8 +206,8 @@ def test_a_walk_saved_has_its_type_and_goes_to_strava_as_a_walk() -> None:
         assert run_gpx(fixes, [], WHEN, "Heart", other) == plain
     assert gpx_type("walking") == "walking" and gpx_type("running") is None
     assert SPORT_TYPES["walking"] == "Walk"
-    assert set(SPORT_TYPES) == set(API_ACTIVITIES)
-    assert set(get_args(RunActivity)) == set(API_ACTIVITIES)
+    assert set(SPORT_TYPES) == set(API_ACTIVITIES) | set(RECORD_ACTIVITIES)
+    assert set(get_args(RunActivity)) == set(API_ACTIVITIES) | set(RECORD_ACTIVITIES)
 
 
 # --- the migration ----------------------------------------------------------------

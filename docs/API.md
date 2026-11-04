@@ -1087,6 +1087,26 @@ motore.)
   altri sport restano com'erano (`GPX.md`, «La camminata dice che è una
   camminata»); una camminata salvata va su Strava come `Walk`.
 
+### Senza forma: `skiing` e `xc_skiing` (TASK-375, ADR-0319)
+
+Una giornata di sci alpino (`skiing`) o di sci di fondo (`xc_skiing`) si
+registra e si salva, ma nessun percorso la disegna:
+
+- **Solo nelle corse**: `PUT /me/activities/{key}` prende `"activity":
+  "skiing"` o `"xc_skiing"`, la lista e la corsa aperta lo dicono, il
+  disegno nel Feed lo porta; Strava lo riceve come `AlpineSki` o
+  `NordicSki`. `POST /routes` e gli altri percorsi lo rifiutano come
+  un'attività sconosciuta (`unsupported activity 'skiing'`): il motore non
+  li conosce. Preferiti e corse di gruppo no (migrazione `0044`,
+  `DATABASE.md`).
+- **Nessun record personale**: la velocità di una discesa non è quella di
+  chi corre o pedala, quindi una giornata sulla neve non conta per i
+  record del profilo (TASK-368).
+- **In `shared-types`**: `RECORD_ACTIVITIES` e `RecordActivity` a parte;
+  `RunActivity` = `ApiActivity | RecordActivity` per ciò che si salva
+  (`fixtures/run-activities.json`). `Activity` e `ApiActivity` non
+  cambiano. Un'API di prima rifiuta le due attività con `422`.
+
 ### Una parola invece di una forma (TASK-056)
 
 Un `RouteRequest` ha `shape` **oppure** `word`: l'altro manca o è `null`.

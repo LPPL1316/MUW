@@ -117,7 +117,9 @@ no, perché il `test_contract.py` del motore confronta il contratto intero),
 `services/api/shaperoute_api/activities.py`,
 `services/api/shaperoute_api/strava.py`, `services/api/tests/test_strava.py`,
 `services/api/tests/test_record_only.py` (nuovo), `docs/API.md`,
-`docs/DATABASE.md`.
+`docs/DATABASE.md`; dopo il merge di TASK-371 A, con il sì del
+Coordinatore, `services/api/tests/test_walking_api.py` (due righe: le
+attività salvate e Strava hanno anche quelle senza forma) e questa lista.
 
 Parte B: `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/navigation/freeSport.ts`,
