@@ -21490,8 +21490,10 @@ dati sulla salute (GDPR art. 9).
     l'ordine. Una FC a riposo pari o sopra la massima non conta (zone in % della
     massima). La casella svuotata torna al calcolo; un testo che non è un numero
     lascia il valore di prima. Tutto in `heart.json` accanto a `body.json`;
-    senza niente di scritto a mano il file non c'è. Il testo d'errore delle FC
-    è una proposta che aspetta il sì dell'utente prima del merge.
+    senza niente di scritto a mano il file non c'è. Il testo d'errore delle FC,
+    «Enter a heart rate between {min} and {max} bpm.» → «Scrivi una frequenza
+    tra {min} e {max} bpm.», è approvato (scelta dell'utente, «Sì, approvo»,
+    2026-11-04).
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
 verificano a mano nei test. Togliere il consumo a riposo dà l'«energia attiva»

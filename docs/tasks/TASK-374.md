@@ -239,9 +239,10 @@ docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-374.md
 La pagina sta in `settings/` accanto a `BodyPage.tsx`, non in `body/`: così
 l'elenco del via del Coordinatore (2026-11-04).
 
-Testo da approvare (parte B): l'errore di una FC fuori dai limiti, proposto
+Testo della parte B fuori dalla tabella: l'errore di una FC fuori dai limiti,
 «Enter a heart rate between {min} and {max} bpm.» → «Scrivi una frequenza tra
-{min} e {max} bpm.». Il merge aspetta il sì dell'utente.
+{min} e {max} bpm.».
+— *Risposta (2026-11-04):* «Sì, approvo».
 
 ## Fuori scope
 
