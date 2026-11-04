@@ -49,6 +49,19 @@ tutto: è corto apposta.
 - Un grafo di rete sbagliata viene rifiutato (`network.check_network`):
   una rete nuova ha il suo nome nel grafo (`graph.graph["network"]`).
 
+## Il banco e Overpass
+
+- **2026-11-04, TASK-376 — Overpass rifiuta spesso** (502 «pieno», 429
+  «troppe richieste», timeout). Il banco riprova solo gli errori di rete,
+  dopo 60, 120 e 240 s, e se la zona non arriva la lascia fuori dicendolo.
+  Sull'acqua il motore scarica l'acqua dentro il calcolo di ogni percorso:
+  il banco la scarica **una volta per zona**, prima dei percorsi. Un primo
+  giro che riprovava subito ha preso una serie di 429 ed è stato fermato:
+  dopo un 429, almeno 10 minuti di pausa.
+- I tempi del banco sono del solo motore, con la zona già in cache: corsa
+  0,6 s di mediana, bici 1,6 s (Milano fino a 12,7 s a 30 km), canoa sotto
+  0,3 s. Servono a confrontare prima e dopo, non a promettere tempi.
+
 ## Le misure
 
 Le misure di base di corsa, bici e canoa stanno in `run.md`, `bike.md`,
