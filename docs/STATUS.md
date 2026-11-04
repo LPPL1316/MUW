@@ -531,6 +531,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   datata 2 novembre 2026; impronta iOS `6f8bba4c…`, Android `227457f3…`.
   Simulatore con build Release: Salute, lettura, rubrica, selettore e
   vibrazione funzionano. Resta in bozza; la build la lancia l'utente.
+  **Apple ha approvato la 1.0.1** (build 8, da `1b58707a`); «ok unisci»
+  dell'utente il 2026-11-04. Riallineata su `main` `8cc5005b`, impronta iOS
+  `6f8bba4c…` invariata; il merge lo fa il Coordinatore a CI verde. Da quel
+  momento gli update di produzione vanno alla 1.0.1.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).

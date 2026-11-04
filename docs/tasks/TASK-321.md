@@ -540,6 +540,14 @@ riceve gli update da `main`.
   la persona trovata), selettore (un GPX letto, «Imported») e vibrazione
   (`ExpoHaptics` presente, `impactAsync` va a buon fine; sul simulatore non si
   sente).
+- **Apple ha approvato la 1.0.1** (build 8, fatta da `1b58707a`); l'utente
+  ha detto «ok unisci» per la #620 (2026-11-04, nella chat del Coordinatore).
+  Riallineata su `main` `8cc5005b` per il merge: la privacy tiene data e
+  testo di `main` (2 novembre 2026) più la sezione «Apple Health and Health
+  Connect» e la riga del consenso, che erano già nella #620; impronta iOS
+  sulla copia pulita `6f8bba4cf1b6f95fc3c1c84ba9812d950a2232a1`, la stessa
+  della build 8, Android `227457f3…`. Con il merge gli update di `main`
+  raggiungono la 1.0.1 e non più la 1.0.0 (7).
 - **Restano, prima dell'invio**: sull'iPhone dell'utente l'anello Movimento,
   la rubrica vera (`tasks/TASK-152.md` lo chiede prima di Apple) e «From a
   file» con un GPX di Strava, un TCX e un FIT di Garmin. Build, invio e update
