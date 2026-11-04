@@ -11,7 +11,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 octobre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "2 novembre 2026";
+const PRIVACY_UPDATED = "4 novembre 2026";
 
 const help: AboutDocument = {
   title: "Comment fonctionne MuW",
@@ -72,6 +72,7 @@ const help: AboutDocument = {
       heading: "Publier et partager",
       blocks: [
         "Une course enregistrée est privée : toi seul la vois. Les autres membres voient sur ton profil seulement les totaux de toutes tes courses enregistrées, distance et dénivelé, jamais les courses elles-mêmes. Choisis «Tout le monde» ou «Abonnés» sous «Qui peut la voir», à la fin de la course ou sur une course de «Mes activités», et ils la voient comme un dessin sur ton profil, sans ses 200 premiers et 200 derniers mètres. La prochaine course que tu termines part de ton dernier choix enregistré : tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
+        "Une course que tu publies peut avoir jusqu'à 9 photos et le dessin. Maintiens-en une et fais-la glisser pour changer l'ordre : la première est celle qu'on voit dans le Feed. Choisis une mise en page pour mettre le dessin sur une photo.",
         "«Partager» crée une image de ta course à envoyer où tu veux.",
       ],
     },
@@ -335,6 +336,7 @@ const privacy: AboutDocument = {
         "Si tu ajoutes une activité passée depuis un fichier, nous gardons sa trace et ses heures comme pour une course enregistrée avec MuW. Nous ne gardons pas le fichier.",
         "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres qu'après que tu as choisi «Tout le monde» ou «Abonnés» sous «Qui peut la voir», et ils voient alors la trace sans ses 200 premiers et 200 derniers mètres, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu. Ton choix reste sur ce téléphone pour la course suivante : elle part du dernier enregistré, tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
         "Qui peut voir une de tes courses peut aussi la suivre avec «Démarrer» et enregistrer cette même trace comme fichier GPX : toujours sans ses 200 premiers et 200 derniers mètres et sans les temps.",
+        "Une photo que tu publies peut contenir le dessin de ta course dans l'image. C'est le même dessin que celui du Feed, coupé au début et à la fin.",
       ],
     },
     {

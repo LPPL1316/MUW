@@ -1724,4 +1724,19 @@ export const FR: Table = {
   "Route created by MuW – run it yourself": "Parcours créé par MuW – à toi de courir",
   "Route created by MuW – paddle it yourself":
     "Parcours créé par MuW – à toi de pagayer",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Ta publication",
+  Drawing: "Dessin",
+  "Hold and drag to reorder": "Maintiens et fais glisser pour changer l'ordre",
+  "Move left": "Déplacer à gauche",
+  "Move right": "Déplacer à droite",
+  Layout: "Mise en page",
+  "Drawing in the corner": "Dessin dans le coin",
+  "Line on the photo": "Ligne sur la photo",
+  "Half and half": "Moitié-moitié",
+  "Photo in the corner": "Photo dans le coin",
+  "Up to 10 in a post.": "Jusqu'à 10 par publication.",
+  "Could not prepare this photo. Try again.":
+    "Impossible de préparer cette photo. Réessaie.",
 };
