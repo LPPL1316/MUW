@@ -21002,7 +21002,12 @@ dati sulla salute (GDPR art. 9).
    tempo in zona», 2026-11-04). Niente battito in tempo reale.
 9. La sezione sta nelle Impostazioni, sotto «Units», non nel Profilo
    (scelta dell'utente, «Nelle Impostazioni», 2026-11-04).
-10. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+10. Limiti dei campi (deciso dall'agente): peso 30–300 kg, altezza 100–250
+    cm, anno di nascita da 100 a 13 anni fa; FC massima 100–230 bpm, a riposo
+    30–120 bpm. Fuori dai limiti il campo non si salva e dice perché.
+11. I testi delle parti A e B sono approvati (scelta dell'utente, «Sì,
+    approvo», 2026-11-04), in `tasks/TASK-374.md`.
+12. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si

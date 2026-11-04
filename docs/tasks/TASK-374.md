@@ -1,6 +1,7 @@
 # TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca
 
-**Stato**: Todo: documenti ora, codice dopo le scelte dell'utente
+**Stato**: Todo: scelte dell'utente tutte fatte; codice dopo TASK-367, col via
+del Coordinatore
 **Fase**: 4 · **Branch**: `docs/TASK-374-body-calories-hr-zones` (documenti),
 `feat/TASK-374-a-body-calories` (parte A), `feat/TASK-374-b-hr-zones` (parte B)
 · **ADR**: ADR-0318 · numeri dal Coordinatore (2026-11-04)
@@ -69,7 +70,7 @@ Letto il codice di `main` (`6dc89cfa`) il 2026-11-04.
 
 ## Scelte dell'utente
 
-Una alla volta, con le sue parole. *(da fare)*
+Una alla volta, con le sue parole.
 
 1. **Dove stanno i dati.** Proposta: solo sul telefono; le kcal dei post
    altrui restano a 70 kg; niente migrazione, niente consenso in più, privacy
@@ -124,6 +125,9 @@ Una alla volta, con le sue parole. *(da fare)*
    | Zone (B) | Zone 1 Recovery · Zone 2 Endurance · Zone 3 Tempo · Zone 4 Threshold · Zone 5 Max | Zona 1 Recupero · Zona 2 Fondo · Zona 3 Ritmo · Zona 4 Soglia · Zona 5 Massimo |
    | Pulsante (B) | Back to calculated zones | Torna alle zone calcolate |
    | Senza età né FC max (B) | Add your year of birth or your max heart rate to see your zones. | Aggiungi l'anno di nascita o la frequenza massima per vedere le zone. |
+
+   — *Risposta (2026-11-04):* «Sì, approvo». La frase «It stays on this phone»
+   vale finché i dati restano sul telefono (scelta 1).
 
 ## Divisione proposta
 
