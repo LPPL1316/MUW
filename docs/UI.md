@@ -630,9 +630,11 @@ vale la barra qui sopra.
   (senza luogo, solo il nome), la linea gialla sulla mappa, il titolo o,
   senza titolo, il giorno della corsa, e «Star · 4.0 km · 19 min»; una
   parola o il titolo del percorso al posto della forma, niente per una
-  corsa senza percorso; in bici «Bike · …», in canoa «Paddle · …». Una
-  corsa finisce con le calorie, contate dalla distanza come nella schermata
-  della corsa: «… · 4:45 /km · 290 kcal» (TASK-345, ADR-0298). **Un
+  corsa senza percorso; in bici «Bike · …», in canoa «Paddle · …». Ogni
+  sport finisce con le calorie, contate come nella schermata della corsa:
+  «… · 4:45 /km · 280 kcal» (TASK-345, ADR-0298; ogni sport con la sua
+  formula e, per i propri post, il corpo di «Settings»: TASK-374, ADR-0318).
+  **Un
   tocco apre il disegno intero sulla mappa**, con foto, racconto, tag,
   reazioni e commenti, come dal profilo (TASK-117, 119, 120); «←» torna
   a «Feed» com'era, senza rileggere, e «Profile» resta chiuso; se nel
@@ -1164,6 +1166,15 @@ mappa è quella di prima.
   motore detti così: «Shapes to paddle, within 1 km of the shore» e
   l'avviso di sicurezza sull'acqua. Con «Kilometres» niente cambia. Il
   GPX, l'API e il motore restano in metri.
+  Sotto, **«Body»** (⚖️, TASK-374, ADR-0318), con in fondo il peso
+  («72.5 kg», con le miglia «160 lb») o «Not set». Un tocco apre una pagina
+  intera, «Back» in alto: «Used only to estimate your calories and heart rate
+  zones. It stays on this phone.», poi «Sex» («Male», «Female», «Prefer not to
+  say»), «Weight» (kg o lb), «Height» (cm, o ft e in con le miglia), «Year of
+  birth», e in fondo, piccolo, «Calories are an estimate. Weight matters
+  most.». Ogni campo si tiene appena scritto, ha «Clear» accanto al nome
+  quando è pieno, e fuori dai limiti dice perché («Enter a weight between 30
+  and 300 kg.») senza tenerlo. Tutto resta sul telefono.
   **«Notifications»**: «Email
   notifications» e «Push notifications», due interruttori salvati
   nell'account (TASK-185, ADR-0206, sotto). **«Feedback»** (TASK-308,
@@ -3289,8 +3300,8 @@ corsa, e un percorso senza attività, restano come prima, parola per parola.
 
 - **La velocità al posto del passo**: su «Map» «Speed now» (km/h, sugli
   ultimi 200 m, come «Pace now»); su «Data» e in pausa «Speed now», «Avg
-  speed», «Last km» (la velocità dell'ultimo km intero), «Elev. gain»,
-  senza «Calories» (la stima è di una corsa: TASK-255); i km uno per uno
+  speed», «Last km» (la velocità dell'ultimo km intero), «Elev. gain» e
+  «Calories» (con la formula della bici: TASK-374, ADR-0318); i km uno per uno
   sono «Km · Speed · Change», con la velocità
   a un decimale («24.0») e la differenza col km prima in km/h («-4.0» più
   lento, «+1.5» più veloce). In italiano «Vel. ora», «Vel. media», «Ultimo
@@ -3325,7 +3336,8 @@ corsa, e un percorso senza attività, restano come prima, parola per parola.
   quando la parola non dice quale); «Pen down: draw the U.» come a piedi.
   La pausa «penna» è la stessa.
 - **Come nella corsa**, per ora: la fine della corsa (il riepilogo col
-  passo), le calorie (stimate per la corsa), la corsa senza percorso.
+  passo), la corsa senza percorso. Le calorie hanno la formula della bici
+  (TASK-374).
 
 **L'aspetto della corsa** (TASK-204, ADR-0163; chiesto dall'utente il
 2026-10-03: «migliora la parte grafica», e confermato lo stesso giorno,
@@ -3363,9 +3375,10 @@ sei riquadri e ne prende l'aspetto.
 I passi compaiono dopo 100 m, prima c'è «–»; «Pace now» torna «–» anche da
 fermi (più lenti di 20:00 /km). «Elev. gain» è «–» se il telefono non dà
 la quota; conta le salite di almeno 3 m, perché la quota del GPS oscilla.
-«Calories» è una stima da 70 kg (il peso non è ancora nel profilo): circa
-una kilocaloria per kg e per km, e si vede solo correndo (in bici sarebbe
-il triplo del vero: TASK-255, scelta dell'utente). Il battito non c'è: il telefono non lo
+«Calories» è una stima dell'energia attiva, con la formula di ogni sport e
+il corpo di «Settings» → «Body» (TASK-374, ADR-0318): senza dati, 70 kg, circa
+una kilocaloria per kg e per km di corsa in piano, di più in salita; in bici e
+in canoa dalla velocità media. Il battito non c'è: il telefono non lo
 misura, e un sensore si collega solo in una build propria (seguiti in
 `tasks/TASK-169.md`). Sotto il banner della svolta restano le due
 etichette piccole di TASK-164: «42% drawn» e il punto cardinale («NE»).
@@ -3983,7 +3996,7 @@ l'API: ADR-0164). Con «Run» e «Bike» niente di quanto segue cambia.
   sotto la mappa «Speed now» in km/h; su «Data» e in pausa «Speed now»,
   «Avg speed», «Time», poi «Avg /500 m» (l'andatura media, «5:37»: l'unità
   è nel nome, perché accanto al numero lo rimpiccioliva), «Last 500 m» (il
-  tempo degli ultimi 500 m interi), senza «Calories» (TASK-255). «Last km» ed
+  tempo degli ultimi 500 m interi), e «Calories» (TASK-374). «Last km» ed
   «Elev. gain» non ci sono. I parziali sono **ogni 500 m**: «m · /500 m ·
   Change», le righe «500», «1000», … col loro tempo e la differenza dal
   precedente; prima, «Your first 500 metres will show here.» Con le miglia
@@ -4231,7 +4244,7 @@ ADR-0215; scelta dell'utente del 2026-10-08) la scheda e la fine della
 corsa mostrano i numeri di un percorso in bici («In bici», sopra), con lo
 stesso componente: sotto la mappa «Speed now» in km/h; su «Data», in pausa
 e a fine corsa «Speed now», «Avg speed», «Time», «Last km» (in km/h),
-«Elev. gain», senza «Calories»; i km uno per uno in km/h con la
+«Elev. gain», «Calories» (TASK-374); i km uno per uno in km/h con la
 differenza. Con le miglia mph. Lo sport è quello di «Settings» alla
 partenza, tenuto nel file della corsa. La voce resta quella della corsa
 senza percorso (ogni km, col passo medio), il post scrive il passo al km

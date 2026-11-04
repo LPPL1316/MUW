@@ -118,7 +118,7 @@ test("with «Run», a drawing on the water opens its route on the water, asking 
   await onFeed();
   expect(POST.user).toBe("greta_kayak");
   expect(
-    screen.getByText(/^Paddle · Heart · 2\.0 km · 26 min · \d:\d\d \/500 m$/),
+    screen.getByText(/^Paddle · Heart · 2\.0 km · 26 min · \d:\d\d \/500 m · 57 kcal$/),
   ).toBeOnTheScreen();
   await fireEvent.press(screen.getByText(POST.title));
 

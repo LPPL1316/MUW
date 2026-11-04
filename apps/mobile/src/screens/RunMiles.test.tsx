@@ -201,7 +201,7 @@ test("the numbers of a run in miles: the distance, the paces for a mile, the las
   // The time is the time; the climb stays in metres and the energy in kcal.
   expect(screen.getAllByLabelText("Time: 16:30")).toHaveLength(2);
   expect(screen.getByLabelText("Elev. gain: – m")).toBeOnTheScreen();
-  expect(screen.getByLabelText("Calories: 239 kcal")).toBeOnTheScreen();
+  expect(screen.getByLabelText("Calories: 231 kcal")).toBeOnTheScreen();
 });
 
 test("the last mile is the last whole one, and none before the first", async () => {

@@ -1,7 +1,6 @@
 # TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca
 
-**Stato**: Todo: scelte dell'utente tutte fatte; codice dopo TASK-367, col via
-del Coordinatore
+**Stato**: In corso: parte A in PR (entra dopo il nuoto, #734); poi B
 **Fase**: 4 · **Branch**: `docs/TASK-374-body-calories-hr-zones` (documenti),
 `feat/TASK-374-a-body-calories` (parte A), `feat/TASK-374-b-hr-zones` (parte B)
 · **ADR**: ADR-0318 · numeri dal Coordinatore (2026-11-04)
@@ -199,25 +198,32 @@ docs/STATUS.md
 docs/INDEX.md
 ```
 
-Parte A (previsti):
+Parte A (fatti, branch `feat/TASK-374-a-body-calories`; via del Coordinatore
+del 2026-11-04 anche per `postEnergy.ts` e `health/workout.ts`):
 
 ```
-apps/mobile/src/body/bodyProfile.ts            (nuovo)
-apps/mobile/src/body/bodyProfile.test.ts       (nuovo)
-apps/mobile/src/body/energy.ts                 (nuovo)
-apps/mobile/src/body/energy.test.ts            (nuovo)
-apps/mobile/src/settings/BodySetting.tsx       (nuovo)
-apps/mobile/src/settings/BodySetting.test.tsx  (nuovo)
+apps/mobile/src/body/bodyProfile.ts            (nuovo, + test)
+apps/mobile/src/body/bodyUnits.ts              (nuovo, + test)
+apps/mobile/src/body/bodyFields.ts             (nuovo, + test)
+apps/mobile/src/body/energy.ts                 (nuovo, + test)
+apps/mobile/src/body/useBody.ts                (nuovo)
+apps/mobile/src/settings/BodySetting.tsx       (nuovo, + test)
 apps/mobile/src/settings/BodyPage.tsx          (nuovo)
-apps/mobile/src/settings/BodyPage.test.tsx     (nuovo)
-apps/mobile/src/profile/SettingsPage.tsx
-apps/mobile/src/navigation/runMetrics.ts
+apps/mobile/src/profile/SettingsPage.tsx       (+ test: una riga sotto Units)
+apps/mobile/src/navigation/runMetrics.ts       (+ test: via la vecchia kcal())
 apps/mobile/src/screens/RunPanel.tsx
-apps/mobile/src/feed/postEnergy.ts
-apps/mobile/src/health/workout.ts
-apps/mobile/src/health/workout.test.ts
+apps/mobile/src/feed/postEnergy.ts             (+ test)
+apps/mobile/src/health/workout.ts              (+ test)
 apps/mobile/src/i18n/{it,de,es,fr}.ts
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-374.md
 ```
+
+Test che cambiano solo i numeri delle kcal (o le kcal nuove in bici e in
+canoa): `screens/{RunPanel,RunPaddle,RunMiles,RunDashboard,FreeRunScreen,
+FeedScreenPosts}.test.tsx`, `feed/{FeedPost,feedPosts}.test.*`,
+`units/cardsInMiles.test.tsx`, `i18n/LastTextsItalian.test.tsx`,
+`health/{appleHealth,healthConnect}.test.ts`, `__tests__/AppFeedDrawing.test.tsx`,
+`__tests__/AppFeedPaddle.test.tsx`.
 
 Parte B (previsti):
 
