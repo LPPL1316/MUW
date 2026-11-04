@@ -234,9 +234,12 @@ Parte C2 (divisioni e tocco, senza testi):
       dei 34 file e nega il `pressed` e le divisioni in `color.border`;
       `UnitsSettingLook.test.tsx` (una hairline sopra ogni scelta, il tocco
       in `motion.pressMs`); `GuideRowTap.test.tsx`; il `ref` in
-      `Tap.test.tsx`.
+      `TapRef.test.tsx`.
 - [x] Nessun testo nuovo, nessuna dipendenza, niente di nativo: impronta
-      iOS `83793e26` su una copia pulita della testa (`npm ci`).
+      iOS `83793e26` su una copia pulita della testa (`npm ci`). Riallineata
+      il 2026-11-04 su `main` con la #620: nessun file nativo né
+      `package.json` toccato, l'impronta resta quella di `main`
+      (`6f8bba4c`, la 1.0.1).
 - [x] `tsc`, Prettier, `expo lint`; la suite intera verde nella copia
       pulita; prima e dopo di una pagina di «Settings» nei due toni in
       `tasks/TASK-339/c2-*.jpg`.
@@ -280,7 +283,7 @@ docs/tasks/TASK-339/b-*.jpg                              (12 schermate prima/dop
 Parte C2:
 
 ```
-apps/mobile/src/ui/Tap.tsx, Tap.test.tsx                         (il ref)
+apps/mobile/src/ui/Tap.tsx, TapRef.test.tsx                      (il ref; TapRef nuovo)
 apps/mobile/src/ui/premiumLookC.test.ts                          (nuovo)
 apps/mobile/src/settings/UnitsSettingLook.test.tsx               (nuovo)
 apps/mobile/src/tour/GuideRowTap.test.tsx                        (nuovo)

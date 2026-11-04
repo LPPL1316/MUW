@@ -292,7 +292,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   via del Coordinatore della sera sulla lista esatta dei file): nei 34 file
   liberi i 51 `pressed` passano a `Tap`, le divisioni a `Hairline` o a un
   pixel di `hairline`, `Tap` prende un `ref`. La C1 (pagine vuote, testi
-  nuovi) aspetta il sì dell'utente sui testi; poi D.
+  nuovi) aspetta il sì dell'utente sui testi; poi D. Il 2026-11-04,
+  su richiesta dell'utente, riallineata su `main` (con la #620) e aperta.
 - **TASK-361 — «Draw» in tre secondi** (ADR-0307; richiesta dell'utente
   del 2026-10-30; numeri dal Coordinatore). Un solo giallo («Run without a route» con contorno e 🏃),
   la via della partenza, la griglia a due righe, la forma in scala, mezzo
