@@ -432,6 +432,7 @@ const privacy: AboutDocument = {
             "Hetzner héberge notre serveur et ses sauvegardes, en Allemagne.",
             "Geoapify reçoit les recherches de lieux, de villes près de toi et de lieux d'un parcours à thème, avec la position arrondie à environ 1 km, et, pour nommer le lieu d'une course enregistrée, son départ arrondi de la même façon : jamais ta porte, la course ni qui tu es. Si notre serveur ne répond pas, une recherche de lieu va à Photon (komoot) à la place.",
             "OpenFreeMap fournit la carte : comme tout service de cartes, il voit quelle zone tu regardes.",
+            "Les collines de la carte 3D, et d'une vidéo dans le style «3D», viennent des Terrain Tiles hébergées sur Amazon Web Services : comme tout service de cartes, il voit quelle zone tu regardes.",
             "Apple sur iPhone, ou Google sur Android, via le service d'adresses du téléphone, reçoit la position d'où part «Dessiner», pour écrire le nom de la rue. MuW ne lui envoie rien d'autre et ne garde pas le nom.",
             "Wikimedia fournit à notre serveur les photos des villes : il voit quelle ville, pas qui demande.",
             "Avec la carte « Satellite », Esri fournit les images, et avec la carte « 3D », Amazon Web Services fournit les altitudes : comme tout service de cartes, ils voient quelle zone tu regardes.",
