@@ -183,6 +183,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in parallelo, poi C (metriche), D (nomi di impianti e piste), E (prova
   sul campo). Prossimo passo: i «File toccati» di A al Coordinatore
   (`tasks/TASK-375.md`).
+  - 2026-11-04: A (#735) in main. **B0** (aggiunta dal Coordinatore): un
+    post con un'attività che l'app non conosce (camminata, sci) si legge
+    come senza attività e si mostra come una corsa, invece di far cadere la
+    pagina intera del Feed, dei profili e della ricerca. Va in produzione
+    con un OTA prima che camminata o sci si possano salvare; le build senza
+    quell'OTA restano esposte (proposta lato server nella PR). Poi B1 dopo
+    371 B.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta

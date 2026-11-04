@@ -21830,6 +21830,14 @@ dell'utente):
    servizi esterni.
 5. Niente moduli nativi: l'impronta iOS resta 6f8bba4c e tutto arriva con
    aggiornamenti OTA.
+6. (B0, 2026-11-04, deciso dall'agente su delega dell'utente) Un disegno
+   con un'attività che l'app non conosce si legge come senza attività: il
+   campo cade dal corpo letto, il post si mostra come una corsa e la pagina
+   resta intera. Prima una sola camminata o giornata di sci faceva rifiutare
+   tutta la pagina del Feed, dei profili e della ricerca. I tipi di
+   `shared-types` dei disegni restano `Activity`, cioè ciò che l'app sa
+   mostrare: allargarli a `RunActivity` toccava sei file di altri task, e
+   si fa con la parte che mostra lo sci (B2).
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i

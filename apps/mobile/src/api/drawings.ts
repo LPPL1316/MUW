@@ -411,12 +411,31 @@ export function isDrawingPhoto(value: unknown): value is DrawingPhoto {
   );
 }
 
+/**
+ * True when `body.activity` is one this app knows, or absent. An activity
+ * added to the API after this app (a walk of TASK-371, a day on the snow of
+ * TASK-375) is read as none, so the drawing shows as a run and the page it is
+ * in still loads: one post this app cannot name never takes the whole Feed
+ * with it (TASK-375 B0). The field is dropped from the body as read; any
+ * other value still refuses the drawing.
+ */
+function readsActivity(body: Record<string, unknown>): boolean {
+  if (body.activity === undefined || isActivity(body.activity)) {
+    return true;
+  }
+  if (typeof body.activity !== "string") {
+    return false;
+  }
+  delete body.activity;
+  return true;
+}
+
 /** The fields of TASK-208, when the API has them: each right, or absent. */
 function hasDetailFields(body: Record<string, unknown>): boolean {
   return (
     (body.visibility === undefined || isVisibility(body.visibility)) &&
     (body.description === undefined || isStringOrNull(body.description)) &&
-    (body.activity === undefined || isActivity(body.activity)) &&
+    readsActivity(body) &&
     (body.tags === undefined ||
       (Array.isArray(body.tags) && body.tags.every(isDrawingTag))) &&
     (body.photos === undefined ||
