@@ -168,6 +168,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   volta, poi la lista dei file al Coordinatore. `tasks/TASK-379.md`.
   **Scelte fatte** (2026-11-04): la pagina segue il dito, giro continuo dal
   profilo al Feed, su tutte e cinque le schede. Documenti nella #757.
+- **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-369 B). Su un esempio di «Explore» sui
+  laghi, con «Paddle», «Draw route» dopo «Edit the drawing» diceva «Something went wrong». Il
+  server rispondeva 422 «outline: the outline crosses itself»: il tratto dalla riva lascia nel
+  contorno una punta o un nastro, e l'arrotondamento di `canvasRequest.framed` ne fa toccare i
+  lati dopo il controllo dell'app. Ora `mapdraw/sentOutline.ts` controlla il contorno come parte,
+  con la regola del motore, e ne toglie gli angoli che si toccano. Solo JS: server, motore,
+  contratto e testi invariati, impronta iOS 6f8bba4c. Branch `fix/TASK-382-paddle-edit-422`;
+  prova sul telefono e OTA col sì dell'utente. `tasks/TASK-382.md`.
 
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
