@@ -9,6 +9,10 @@ written when it is sent and kept nowhere.
 A pause closes a track segment and the next point opens another, as GPX
 wants for a receiver switched off: what the runner did in a pause is not of
 the run, so the points taken inside one are left out.
+
+The track says its sport, `<type>` after its name: the activity's name of the
+API, "walking" for a walk (TASK-371, ADR-0315). The route's GPX gets it too,
+from `with_type`.
 """
 
 from __future__ import annotations
@@ -59,10 +63,12 @@ def run_gpx(
     pauses: Sequence[Span],
     started_at: datetime,
     name: str | None = None,
+    activity: str | None = None,
 ) -> str:
     """The run as a GPX 1.1 document: one track, a segment for each stretch
-    between two pauses, a time on every point. `started_at` is the time of
-    the first fix and must be timezone-aware."""
+    between two pauses, a time on every point, the track's `<type>` its
+    `activity`. `started_at` is the time of the first fix and must be
+    timezone-aware."""
     if started_at.tzinfo is None:
         raise ValueError("GPX time must be timezone-aware")
 
@@ -77,6 +83,8 @@ def run_gpx(
     trk = ET.SubElement(gpx, f"{ns}trk")
     if name is not None:
         ET.SubElement(trk, f"{ns}name").text = name
+    if activity is not None:
+        ET.SubElement(trk, f"{ns}type").text = activity
     for segment in segments(fixes, pauses):
         trkseg = ET.SubElement(trk, f"{ns}trkseg")
         for lat, lon, at_s in segment:
@@ -94,4 +102,20 @@ def run_gpx(
 
     ET.indent(gpx)
     body = ET.tostring(gpx, encoding="unicode")
+    return f'<?xml version="1.0" encoding="UTF-8"?>\n{body}\n'
+
+
+def with_type(gpx: str, activity: str) -> str:
+    """The GPX document `gpx` (export_gpx.to_gpx) with the `<type>` of each
+    track its `activity`, after the track's name as GPX 1.1 orders them."""
+    ET.register_namespace("", GPX_NAMESPACE)
+    ns = f"{{{GPX_NAMESPACE}}}"
+    root = ET.fromstring(gpx)
+    for trk in root.iter(f"{ns}trk"):
+        named = trk.find(f"{ns}name") is not None
+        kind = ET.Element(f"{ns}type")
+        kind.text = activity
+        trk.insert(1 if named else 0, kind)
+    ET.indent(root)
+    body = ET.tostring(root, encoding="unicode")
     return f'<?xml version="1.0" encoding="UTF-8"?>\n{body}\n'

@@ -23,6 +23,7 @@ GPX **1.1**, namespace `http://www.topografix.com/GPX/1/1`.
   </metadata>
   <trk>
     <name>heart 5 km · 2026-09-22</name>
+    <type>running</type>
     <trkseg>
       <trkpt lat="46.0122000" lon="11.2986000"/>
       …
@@ -42,6 +43,17 @@ GPX **1.1**, namespace `http://www.topografix.com/GPX/1/1`.
   sposterebbe i punti in modo visibile a zoom stradale.
 - **Niente quote** (`<ele>`) e niente tempi per punto: non esiste ancora una
   sorgente altimetrica, e un tempo inventato sarebbe un dato falso.
+
+## Lo sport (TASK-371, ADR-0315)
+
+Il `<trk>` dice lo sport in `<type>`, dopo il nome come GPX 1.1 vuole:
+il nome dell'attività dell'API, `running`, `cycling`, `paddling`,
+`swimming`, `walking`. Il GPX del percorso (`POST /gpx`) lo prende dalla
+richiesta (`run_gpx.with_type`, dopo `export_gpx.to_gpx`, che resta com'è:
+il motore non cambia impronta); quello della corsa fatta, che va a Strava,
+dall'attività salvata (`run_gpx`). L'importazione dell'app legge già
+`<type>` (`imports/gpx.ts`). Il disegno di un altro, scritto dal telefono,
+non lo ha ancora: è della parte B di TASK-371.
 
 ## La penna alzata (TASK-197, ADR-0157)
 
@@ -107,6 +119,7 @@ stato e quando, quindi ha quello che là manca e non ha quello che là c'è.
   </metadata>
   <trk>
     <name>Heart in Trento</name>
+    <type>running</type>
     <trkseg>
       <trkpt lat="46.0671000" lon="11.1214000">
         <time>2026-09-21T14:13:20.000Z</time>

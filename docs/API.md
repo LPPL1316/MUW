@@ -878,9 +878,10 @@ La richiesta è sincrona: la risposta arriva quando il percorso è pronto
   cycling, got 5000`. La corsa resta 1–50 km, con il messaggio di prima.
   La distanza suggerita di `shape_not_drawable` resta in quei limiti.
 - **Solo le attività del contratto**, `running`, `cycling` e, dalla parte
-  B di TASK-191, `paddling`, dalla parte B di TASK-323 `swimming`
-  (`SUPPORTED_ACTIVITIES`): un'altra è `422 invalid_request`, `unsupported
-  activity 'hiking'; choose one of: running, cycling, paddling, swimming`.
+  B di TASK-191, `paddling`, dalla parte B di TASK-323 `swimming`, dalla
+  parte A di TASK-371 `walking` (`walking.API_ACTIVITIES`): un'altra è `422
+  invalid_request`, `unsupported activity 'hiking'; choose one of: running,
+  cycling, paddling, swimming, walking`.
 - **Le zone**: l'API ha le zone della bici accanto a quelle a piedi,
   `bike_*` in `data/cache/` (`MAPS.md`, «Cache»), e ne tiene in memoria una
   sola (sotto, «Grafi»). Le città con la zona della bici già fatta
@@ -1047,6 +1048,30 @@ motore.)
   L'app mostra il nuoto con la parte C di TASK-323 (`ready: false` fino
   ad allora): in `shared-types` `Activity` resta quella dell'app, e
   `API_ACTIVITIES` ha anche `swimming`.
+
+### A piedi, camminando: `"activity": "walking"` (TASK-371, ADR-0315)
+
+```json
+{ "start": [46.0671, 11.1214], "shape": "heart", "word": null,
+  "distance_m": 5000, "activity": "walking", "style": "round" }
+```
+
+(`fixtures/route-request-walking.json`.)
+
+- **Come una corsa**: gli stessi campi, una forma, una parola, un disegno, e
+  la stessa risposta. L'API chiede al motore una corsa
+  (`route_engine/walking.py`, `engine_activity`): la **rete foot**, le zone
+  a piedi già in memoria, nessuna rete né zona in più; i percorsi tenuti
+  sono quelli della corsa, e l'impronta del motore non cambia
+  (`route_store.WALK_ONLY`). `/routes`, `/route-jobs`, `/gpx`,
+  `/stroke-matches` e `/way-back` la prendono; il telefono la disegna come
+  il server (`on_phone`).
+- **Da 1 a 30 km** (`DISTANCE_LIMITS_M.walking`, scelta dell'utente): fuori
+  è `422 invalid_request`, `distance must be between 1000 and 30000 metres
+  for walking, got 31000`. La distanza suggerita di `shape_not_drawable`
+  resta in quei limiti, anche per un job.
+- **Il GPX** dice `<type>walking</type>` (`GPX.md`, «Lo sport»); una
+  camminata salvata va su Strava come `Walk`.
 
 ### Una parola invece di una forma (TASK-056)
 
