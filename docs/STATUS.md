@@ -314,6 +314,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   riposo (Karvonen), cinque zone con la cima delle zone 1–4 modificabile e
   «Back to calculated zones», in `heart.json` sul telefono; solo app, OTA.
   Testo d'errore delle FC approvato dall'utente. Poi C e D nella 1.0.2.
+  Parte B in `main` con la PR #746 (`a1ff05da`); impronta all'anteprima e OTA
+  col Coordinatore. Prossimo: C (lettura da Salute) e D (tempo in zona) con
+  TASK-345 C nella 1.0.2.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
