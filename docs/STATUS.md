@@ -170,8 +170,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nessuna delle 19 forme chieste (0,22–0,58, minimo 0,60; 27–43% del
   percorso sugli impianti). Proposta: A, la giornata registrata senza forma
   (4–6 sessioni); B, forme di discese a penna alzata, solo dopo un
-  prototipo; C, «Soon», no da sola (ADR-0278). Prossimo passo: la scelta
-  dell'utente, una domanda alla volta (`tasks/TASK-373.md`).
+  prototipo; C, «Soon», no da sola (ADR-0278). **L'utente ha scelto A**
+  il 2026-11-04. Prossimo passo: le domande 2–4, una alla volta
+  (`tasks/TASK-373.md`).
 
 - **TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa
   dov'è** (ADR-0313, proposta; richiesta dell'utente del 2026-11-03; numeri dal

@@ -21319,8 +21319,9 @@ dall'agente su delega dell'utente, dentro le scelte già fatte dall'utente
 ## ADR-0317 — Lo sci alpino in MuW: prima la giornata registrata, le forme solo dopo un prototipo
 
 **Stato**: Proposto · 2026-11-04 · studio con misure (TASK-373,
-`out/TASK-373/` del Mac). Nessuna parte parte senza la scelta
-dell'utente fra le tre opzioni di `tasks/TASK-373.md`
+`out/TASK-373/` del Mac). Scelta dell'utente lo stesso giorno: «A,
+giornata registrata» (punto 1); B e C non si fanno ora. Le altre scelte
+(domande 2–4 di `tasks/TASK-373.md`) sono ancora aperte
 
 **Contesto**: l'utente vuole lo sport «Ski» (sci alpino). Le piste da
 discesa di OSM (`piste:type=downhill`) si fanno solo in discesa e si

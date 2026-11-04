@@ -1,7 +1,8 @@
 # TASK-373 — Sci alpino: proposta e misure
 
-**Stato**: Proposto · solo documenti e misure (questa PR). Nessun codice
-finché l'utente non sceglie un'opzione
+**Stato**: Proposto · solo documenti e misure (questa PR). L'utente il
+2026-11-04 ha scelto l'opzione A (la giornata registrata, senza forma);
+nessun codice prima delle risposte alle domande 2–4
 **Fase**: 5 · **Branch**: `docs/TASK-373-ski-proposal` (documenti); le
 parti, se si fanno, `feat/TASK-373-a-…` e così via
 **Dipende da**: nulla per lo studio. L'opzione A si appoggia alla
@@ -341,13 +342,17 @@ restano all'utente uno sport o due, e un avviso comune o due.
 Una domanda alla volta, dopo la PR:
 
 1. **Quale opzione**: A, B o C (proposta: A, poi forse il prototipo di B).
+   **Scelta dell'utente il 2026-11-04: «A, giornata registrata».** Lo sci
+   entra come sport che si registra senza forma (opzione A); B e C non si
+   fanno ora.
 2. Solo con A o B: la categoria «Record only» a parte, o lo sci da solo.
 3. Il nome e l'emoji («Ski» ⛷️; Sci, Ski, Ski, Esquí) e il rapporto con lo
    sci di fondo (TASK-372).
 4. Le metriche mostrate e le risalite sulla mappa (proposta: discese,
    km sciati, dislivello, velocità massima; risalite tratteggiate).
 
-Nessuna parte parte senza la risposta alla domanda 1.
+Le parti di A partono dopo le risposte alle domande 2–4 (testi e
+server con il sì dell'utente, come sempre).
 
 ## File toccati
 
@@ -366,4 +371,4 @@ loro lista dopo la scelta dell'utente.
 - [x] Allineamento con TASK-372 sullo sci di fondo.
 - [x] Tre opzioni con costo, limiti e cosa vede l'utente, e la
       raccomandazione.
-- [ ] La scelta dell'utente (domanda 1).
+- [x] La scelta dell'utente (domanda 1): A.
