@@ -169,6 +169,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   col suo sì). Parte A (solo app) dopo TASK-367 A, col via del Coordinatore.
   Nota: `tasks/TASK-346.md` dice ancora «In corso», ma la #655 è in `main` dal
   2026-10-30. `tasks/TASK-369.md`.
+  **2026-11-04**: documenti in `main` (#712); parte A in `main` (#719,
+  `3e7c7d28`, impronta iOS 6f8bba4c, arriva con un OTA); parte B in PR (#722):
+  il disegno sull'acqua da `drawn_water.py`, fuori dall'impronta del motore
+  (uguale a `main`, niente notte di `draw_examples --water`); si unisce dopo
+  TASK-323 C2, poi il server col sì dell'utente.
 - **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
   (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
   `src/search/`, la lente apre la ricerca, `shape=word` sul server per
