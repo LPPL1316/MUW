@@ -18583,6 +18583,32 @@ delle vibrazioni, i testi e la riga della privacy si chiedono all'utente
 quando E parte; la build e l'invio ad Apple col suo sì, dopo la prova in
 acqua.
 
+## ADR-0283 — aggiunta, il nuoto acceso: per tutti, anche nelle build dello store
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Subito per tutti»,
+alla domanda su come accendere il nuoto; poi «Dopo lo sci» sull'ordine).
+Aggiunta ad ADR-0283.
+
+**Contesto**: B, C1, C2, C4, D ed E in `main` e il server con la `0040`
+il 2026-11-04. La riga del nuoto era ancora `ready: false`: «Soon» in Expo
+Go e in preview, nascosta nelle build dello store (TASK-318). Le strade
+erano tre: prima solo in preview per la prova in acqua, subito per tutti,
+oppure aspettare i nomi a riva.
+
+**Decisione dell'utente**:
+
+1. **Subito per tutti**: `ready: true` in `sport.ts`, con il prossimo OTA
+   anche nelle build dello store, senza prima la prova in acqua.
+2. **Dopo lo sci**: la riga tocca gli stessi file di TASK-375 B1, in
+   lavorazione; la PR del nuoto entra dopo quella, con `main` unito dentro.
+3. Prima dell'OTA, sul server, `draw_examples --swim`: gli esempi di
+   «Explore» a nuoto.
+
+**Conseguenze**: le curve restano senza il nome del posto a riva finché
+`shore_extract` non gira sul server: «Turn left», non «Turn left · Bagno
+54». Il codice lo regge già (`swim/turns.ts`). La prova in acqua resta per
+la primavera 2027, con l'utente.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,

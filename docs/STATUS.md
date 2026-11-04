@@ -827,6 +827,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `paddleExamples.json` a ridisegno finito; il codice di E (Apple Watch,
   ora che TASK-321 B è in `main`, sul Mac con Xcode); la prova in acqua
   (primavera 2027).
+  **Acceso per tutti** (2026-11-04, scelta dell'utente, «Subito per
+  tutti»): branch `feat/TASK-323-swim-ready`, `ready: true` e i test che lo
+  davano «Soon». Entra **dopo TASK-375 B1**, che tocca gli stessi file
+  («Dopo lo sci»), con `main` unito dentro; prima dell'OTA,
+  `draw_examples --swim` sul server. Le curve senza nome a riva finché non
+  gira `shore_extract`. Aggiunta ad ADR-0283.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
