@@ -1,6 +1,6 @@
 # TASK-368 — I record personali nel Profilo, a piedi e in bici
 
-**Stato**: In lavorazione — parte A (server) in PR, parte B dopo
+**Stato**: Done — parte A #721, parte B #723 (2026-11-04); il backfill sul server lo lancia l'utente; privacy sul sito e OTA col suo sì
 **Fase**: 4 · **Branch**: `docs/TASK-368-personal-bests` (documenti),
 `feat/TASK-368-a-personal-bests-api` (parte A), `feat/TASK-368-b-personal-bests-app`
 (parte B) · **ADR**: ADR-0312 · numeri dal Coordinatore (2026-11-02)

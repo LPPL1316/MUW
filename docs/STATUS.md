@@ -219,6 +219,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte B** (2026-11-04): branch `feat/TASK-368-b-personal-bests-app`, il
   riquadro dei record nel Profilo, testi approvati, Guida e privacy nelle
   cinque lingue e sul sito (pubblicazione col sì dell'utente).
+  **Chiuso** (2026-11-04): A #721 e B #723 in main, server con la 0042
+  (fe4e9499). Restano all'utente: il backfill dei record delle corse già
+  salvate, la privacy sul sito e l'OTA.
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
