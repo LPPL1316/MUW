@@ -21069,6 +21069,11 @@ dell'utente):
 - Un esempio del Feed trovato dalla ricerca si apre come dal Feed
   (`fetchPostRoute`, che controlla che il percorso sia ancora lo stesso):
   `ExploreScreen` e `PaddleExplore` ricevono `onOpenExample` da `App.tsx`.
+- Da lì «Indietro» e «Back to the list» tornano a «Explore», dove era la
+  ricerca, non al Feed (`routeList` «explore»). Sull'acqua l'esempio trovato
+  si può quindi spostare come quelli di «Explore» (TASK-244): è lo stesso
+  percorso dell'app.
+
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
