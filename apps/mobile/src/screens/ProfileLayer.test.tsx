@@ -272,10 +272,11 @@ test("a drawing opened from the page goes back to it", async () => {
   expect(await screen.findByText("Drawings")).toBeOnTheScreen();
 });
 
-test("from the search of «Feed» without an account «People» goes to the page, saying why", async () => {
+test("from the search of «Explore» without an account «People» goes to the page, saying why", async () => {
   await open();
-  await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
-  // The lens opens the search (TASK-344); its tab «People» says why first.
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
+  // The search at the top of «Explore» (TASK-367 part B, the lens of «Feed»
+  // before, TASK-344); its tab «People» says why first.
   await fireEvent.press(screen.getByRole("button", { name: "Search" }));
   await fireEvent.press(screen.getByTestId("search-tab-people"));
   await fireEvent.press(screen.getByText("Log in to find your friends."));
