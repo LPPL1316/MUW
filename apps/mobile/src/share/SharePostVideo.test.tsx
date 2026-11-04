@@ -159,7 +159,7 @@ describe("Music", () => {
     expect(screen.getByText("Music")).toBeOnTheScreen();
     expect(screen.getByText("Tap a track to hear it.")).toBeOnTheScreen();
     // «None» and the ten tracks, and the two styles of the video.
-    expect(screen.getAllByRole("radio")).toHaveLength(13);
+    expect(screen.getAllByRole("radio")).toHaveLength(14);
     expect(screen.getByRole("radio", { name: "None" })).toBeChecked();
     await fireEvent.press(screen.getByRole("radio", { name: "Energy" }));
     expect(screen.getByRole("radio", { name: "Energy" })).toBeChecked();
@@ -284,6 +284,23 @@ describe("Export video", () => {
     expect(first).toContain(DAY.map.background);
     await page({ type: "map", ok: true, why: null, ms: {} });
     expect(inject.mock.calls[1][0]).toContain('"look":"day"');
+  });
+
+  it("makes the video in 3D after a tap on its tile: the map leaning on its hills, the turn for the page to try", async () => {
+    await shown();
+    await fireEvent.press(screen.getByRole("radio", { name: "3D" }));
+    expect(screen.getByRole("radio", { name: "3D" })).toBeChecked();
+    await exportVideo();
+    await page({ type: "ready", codec: "avc1.42e028" });
+    const first = inject.mock.calls[0][0];
+    expect(first.startsWith("window.muwVideo.prepareMap({")).toBe(true);
+    expect(first).toContain('"pitch":55');
+    expect(first).toContain('"terrain":{"source":"terrain","exaggeration":1.3}');
+    expect(first).toContain('"turn":{"from":-10,"to":10}');
+    expect(first).toContain('"line":[[');
+    await page({ type: "map", ok: true, why: null, ms: { frame: 4 }, mode: "orbit" });
+    expect(inject.mock.calls[1][0]).toContain('"look":"3d"');
+    expect(inject.mock.calls[1][0]).toContain("Terrain Tiles");
   });
 
   it("falls back on the post on yellow when the map does not come, and still shares", async () => {

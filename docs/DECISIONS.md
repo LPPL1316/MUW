@@ -20541,6 +20541,29 @@ della preview fb15613e era «giallo», con l'app riaperta due volte: la
 riserva con il fix #703 caricato. PR #707, riallineata su `main` dopo la
 #620: da lì l'impronta iOS di `main` è `6f8bba4c`.
 
+**Aggiunta (2026-11-04, la parte D, deciso dall'agente su delega
+dell'utente)**: il 3D com'è nella pagina del video. La linea sulle colline
+la proietta la pagina (`map.project` col terreno), non l'app: una resa in
+prospettiva non si fa in piano. La traccia per il 3D è ridotta a 150 punti
+in metri, perché la proiezione col terreno costa 80 µs a punto sul
+telefono (misurato il 30 ottobre) e con la camera che gira si rifà a ogni
+fotogramma: 2000 punti sarebbero 160 ms. Il fit inclinato è a due passate
+di proiezione, perché la prospettiva cambia con lo zoom. Il giro a vuoto è
+doppio: una passata per le tegole di ogni rotazione (al primo giro mancano
+tutte, misurato), una misurata, e vale la mediana; lo scatto si prende
+prima del giro, così lo scadere dei 15 s dà il modo fermo e non il giallo.
+La mappa resta viva durante la codifica solo nel modo `orbit`. La tessera
+«3D» inclina il disegno con `perspective` e `rotateX`, senza colline. Il
+testo «3D» è quello già in tabella per la mappa 3D. La riga di privacy
+sulle tegole del terreno (scelta 8) entra con la D col sì dell'utente
+(«Sì, questa», 2026-11-04), e
+i file della D nell'elenco del task crescono di conseguenza (la tessera e
+il flusso, lasciati dalla C). Scartate: la proiezione una volta sola con
+le quote dal terreno attraverso le API interne di MapLibre (fragili alla
+versione); la linea come layer della mappa (una resa per fotogramma anche
+da ferma); il giro senza prova (sul simulatore un fotogramma inclinato
+costa 15–25 ms, sopra o sotto la soglia a seconda del momento).
+
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
 con la linea in prospettiva non si fa); la linea come layer di MapLibre
@@ -21184,6 +21207,83 @@ scelta dell'utente.
 
 ---
 
+---
+
+## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
+
+**Stato**: Proposta · 2026-11-04 · TASK-374. La richiesta è dell'utente
+(2026-11-04); numero del task dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-374.md`. La formula e il calcolo delle zone sono
+decisi dall'agente su delega dell'utente. Supera ADR-0219 §3 (calorie solo
+correndo) ed estende ADR-0298 (le calorie nel Feed).
+
+**Contesto**: le kcal sono `km × 70 kg × 1,036`, solo per la corsa: nel
+riquadro della corsa, nel Feed (TASK-345 A) e in Health. ADR-0219 aveva
+tolto il riquadro in bici e in canoa aspettando «una formula per sport».
+L'app non conosce il corpo dell'utente. Sesso, peso, altezza, età e zone sono
+dati sulla salute (GDPR art. 9).
+
+**Decisione** (proposta; le scelte dell'utente ancora aperte sono in
+`tasks/TASK-374.md`):
+
+1. Sesso, peso, altezza e anno di nascita sono facoltativi e restano **solo
+   sul telefono** (scelta dell'utente, «Solo sul telefono», 2026-11-04):
+   niente server, niente migrazione, privacy invariata. Ogni dato che manca
+   torna al valore di oggi.
+2. **Energia totale** (deciso dall'agente):
+   - *Corsa*: equazione ACSM della corsa, VO₂ = 3,5 + 0,2·v + 0,9·v·pendenza
+     (ml/kg/min, v in m/min). Sommata sulla corsa diventa
+     `peso × (0,0175 × minuti + 1,0 × km + 0,0045 × metri di salita)` kcal,
+     con 5 kcal per litro di O₂. La salita viene da `climbM()`.
+   - *Bici e paddle*: MET dal *Compendium of Physical Activities* 2024, per
+     fasce di velocità media in movimento. Le fasce sono copiate nel codice con
+     il codice attività del Compendium. Energia = `MET × 0,0175 × peso × minuti`.
+3. **Energia attiva**, quella mostrata e scritta in Health come «active
+   energy»: totale meno il consumo a riposo nello stesso tempo in movimento.
+   A riposo vale Mifflin-St Jeor (sesso, età, peso, altezza) diviso 1440. Se
+   manca sesso, età o altezza, vale 1 MET standard (`0,0175 × peso` al minuto).
+   Il sesso ha tre valori più il vuoto: «Male» (+5), «Female» (−161),
+   «Prefer not to say», che usa la media delle due costanti (−78) (scelta
+   dell'utente, «Male, Female, Prefer not», 2026-11-04).
+4. Senza nessun dato, una corsa in piano dà `1,0 × km × 70`, cioè −3,5%
+   rispetto a oggi (1,036). Su una corsa con salita il valore cresce.
+5. Il Feed usa i dati solo per i post propri. Per i post degli altri resta la
+   formula senza dati (70 kg): i dati non lasciano il telefono.
+6. **Zone** (deciso dall'agente): FC max = 208 − 0,7 × età (Tanaka 2001),
+   oppure inserita a mano. Le cinque zone vanno dal 50 al 100% della FC max, a
+   passi del 10%. Con la FC a riposo si usa Karvonen: riposo + % × (max −
+   riposo), con le stesse percentuali. I limiti cambiati a mano restano e
+   tengono le zone contigue: cambiare il limite alto di una zona sposta il
+   limite basso di quella dopo.
+7. Peso, altezza e data di nascita si leggono da Apple Salute / Health
+   Connect solo dalla 1.0.2 (scelta dell'utente, «Sì, nella 1.0.2»,
+   2026-11-04): riempiono i campi vuoti, mai quelli inseriti a mano. Il testo
+   della chiave di lettura e App Privacy cambiano una volta sola, con TASK-345
+   C.
+8. Le zone servono come tabella e per il tempo in ogni zona a fine corsa,
+   dai campioni di battito di TASK-345 C (scelta dell'utente, «Tabella +
+   tempo in zona», 2026-11-04). Niente battito in tempo reale.
+9. La sezione sta nelle Impostazioni, sotto «Units», non nel Profilo
+   (scelta dell'utente, «Nelle Impostazioni», 2026-11-04).
+10. Limiti dei campi (deciso dall'agente): peso 30–300 kg, altezza 100–250
+    cm, anno di nascita da 100 a 13 anni fa; FC massima 100–230 bpm, a riposo
+    30–120 bpm. Fuori dai limiti il campo non si salva e dice perché.
+11. I testi delle parti A e B sono approvati (scelta dell'utente, «Sì,
+    approvo», 2026-11-04), in `tasks/TASK-374.md`.
+12. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+   Mifflin, e non chiede la data intera.
+
+**Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
+verificano a mano nei test. Togliere il consumo a riposo dà l'«energia attiva»
+come la intendono Apple Health e Health Connect, e porta dentro sesso, età e
+altezza nel solo punto in cui contano senza il battito.
+
+**Conseguenze**: il peso cambia le kcal in proporzione. Sesso ed età, senza il
+battito, le spostano di pochi punti percentuali: in un'ora a 70 kg, pochi kcal.
+Bisogna dirlo senza promettere di più. Una formula che usa sesso ed età col
+battito (Keytel 2005) resta fuori: il battito arriva solo a corsa finita e
+non sempre. Le kcal dei post altrui
+restano a 70 kg, perché i dati restano sul telefono.
 ## ADR-0313 — «Edit the drawing» su ogni disegno: la traccia dov'è, una copia senza legami, l'acqua a parte
 
 **Stato**: Proposta · 2026-11-04 · TASK-369. Le scelte di prodotto sono
