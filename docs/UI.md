@@ -1195,7 +1195,10 @@ mappa è quella di prima.
   zone: «Zone 1 Recovery», «Zone 2 Endurance», «Zone 3 Tempo», «Zone 4
   Threshold», «Zone 5 Max», ognuna con «108 –» e il limite alto in una
   casella. Il limite alto delle zone 1–4 si scrive a mano e diventa l'inizio
-  della zona dopo; quello della zona 5 è la FC massima. Sotto la tabella, solo
+  della zona dopo; quello della zona 5 è la FC massima. In ogni casella
+  «bpm» sta dentro il riquadro, dopo il numero, e un tocco su di esso apre la
+  tastiera; il limite della zona 5, che non si scrive, non ha riquadro ma
+  tiene «bpm» allo stesso posto (TASK-386). Sotto la tabella, solo
   se un limite è stato cambiato, «Back to calculated zones». Senza anno di
   nascita né FC massima, al posto della tabella: «Add your year of birth or
   your max heart rate to see your zones.». Una FC fuori dai limiti dice

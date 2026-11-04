@@ -1,7 +1,9 @@
-import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, within } from "@testing-library/react-native";
+import { TextInput } from "react-native";
 
 import { NO_BODY, saveBody } from "../body/bodyProfile";
 import { appHeart, NO_HEART, saveHeart } from "../body/heartZones";
+import { color, fontSize } from "../theme/tokens";
 import { HeartZonesPage } from "./HeartZonesPage";
 
 jest.mock(
@@ -39,6 +41,7 @@ jest.mock("expo-file-system", () => {
 const YEAR = new Date().getFullYear();
 
 afterEach(async () => {
+  jest.restoreAllMocks();
   await act(async () => {
     saveBody(NO_BODY);
     saveHeart(NO_HEART);
@@ -60,6 +63,39 @@ async function type(label: string, text: string) {
   await fireEvent.changeText(input, text);
   await fireEvent(input, "endEditing");
 }
+
+/** The box a heart rate is typed in, which holds «bpm» (TASK-386). */
+function boxOf(label: string) {
+  const box = screen.getByLabelText(label).parent;
+  if (box === null) {
+    throw new Error(`No box around «${label}»`);
+  }
+  return box;
+}
+
+/** «bpm» is in the frame around the field `label`, as big as its number;
+ * the field itself has no frame. */
+function expectBpmInBox(label: string) {
+  const box = boxOf(label);
+  expect(box).toHaveStyle({
+    borderColor: color.border,
+    backgroundColor: color.surface,
+  });
+  expect(screen.getByLabelText(label)).not.toHaveStyle({ borderColor: color.border });
+  expect(within(box).getByText("bpm")).toHaveStyle({
+    fontSize: fontSize.input,
+    color: color.textMuted,
+  });
+}
+
+const FIELDS = [
+  "Max heart rate",
+  "Resting heart rate",
+  "Zone 1 Recovery",
+  "Zone 2 Endurance",
+  "Zone 3 Tempo",
+  "Zone 4 Threshold",
+];
 
 /** The tops of zones 1 to 4, as their boxes show them. */
 function tops(): string[] {
@@ -162,4 +198,38 @@ test("a zone's top emptied is calculated again; one that does not read stays", a
   await type("Zone 1 Recovery", "");
   expect(tops()[0]).toBe("108");
   expect(appHeart()).toEqual(NO_HEART);
+});
+
+test("bpm sits inside the box of every heart rate, as big as the number", async () => {
+  await openPage(40);
+  for (const label of FIELDS) {
+    expectBpmInBox(label);
+  }
+  // Zone 5's top is not typed: «bpm» stays beside its number.
+  const top = screen.getByText("180").parent;
+  expect(top).not.toBeNull();
+  expect(within(top!).getByText("bpm")).toHaveStyle({ fontSize: fontSize.input });
+  // No «bpm» anywhere else.
+  expect(screen.getAllByText("bpm")).toHaveLength(FIELDS.length + 1);
+});
+
+test("empty, the boxes already say bpm", async () => {
+  await openPage(null);
+  for (const label of ["Max heart rate", "Resting heart rate"]) {
+    expect(screen.getByLabelText(label)).toHaveDisplayValue("");
+    expectBpmInBox(label);
+  }
+  expect(screen.getAllByText("bpm")).toHaveLength(2);
+});
+
+test("a tap on bpm types in its box", async () => {
+  const focus = jest.spyOn(
+    (TextInput as unknown as { prototype: { focus: () => void } }).prototype,
+    "focus",
+  );
+  await openPage(40);
+  await fireEvent.press(within(boxOf("Resting heart rate")).getByText("bpm"));
+  expect(focus).toHaveBeenCalledTimes(1);
+  await fireEvent.press(within(boxOf("Zone 3 Tempo")).getByText("bpm"));
+  expect(focus).toHaveBeenCalledTimes(2);
 });
