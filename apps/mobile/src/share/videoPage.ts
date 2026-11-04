@@ -178,6 +178,16 @@ const SCRIPT = String.raw`
       clearInterval(pulse);
       mapTimes.map = Math.round(now() - t0);
       mapTimes.pulses = pulses;
+      try {
+        var loads = performance.getEntriesByType("resource").filter(function (entry) {
+          return entry.name.indexOf("maplibre") >= 0;
+        });
+        if (loads.length > 0) {
+          mapTimes.lib = Math.round(loads[0].duration);
+        }
+      } catch (error) {
+        // No timing of the library: nothing lost.
+      }
       if (ok) {
         var t = now();
         // Drawn once more right now, so the picture is of the whole map

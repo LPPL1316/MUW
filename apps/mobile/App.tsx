@@ -142,14 +142,17 @@ import {
 } from "./src/screens/FreeRunScreen";
 import { MapScreen } from "./src/screens/MapScreen";
 import { NavigationBanner, NavigationCard } from "./src/screens/NavigateScreen";
-import { Pager } from "./src/screens/Pager";
 import { pageTitle } from "./src/screens/pageTitles";
 import {
   OwnProfile,
-  ProfileButton,
+  ProfileFace,
   ProfileLayer,
   useOwnPage,
+  useProfileTab,
 } from "./src/screens/ProfileLayer";
+import { useInboxTab, useMessagesDoor } from "./src/messages/messagesDoor";
+import { MessagesPage } from "./src/tabs/MessagesPage";
+import { TabShell } from "./src/tabs/TabShell";
 import { StretchReminder } from "./src/screens/StretchReminder";
 import { StretchScreen } from "./src/stretch/StretchScreen";
 import { PaddleExplore } from "./src/paddle/PaddleExplore";
@@ -167,7 +170,8 @@ import { DrawingCard } from "./src/social/DrawingCard";
 import { drawingDoubleTapped } from "./src/social/DrawingReactions";
 import { drawnOf, followedOf } from "./src/social/drawingRoute";
 import { useDrawingsDoor } from "./src/social/drawingsDoor";
-import { color, space, statusBarStyle } from "./src/theme/tokens";
+import { t } from "./src/i18n";
+import { color, statusBarStyle } from "./src/theme/tokens";
 import { useDrawDistance } from "./src/units/useDrawDistance";
 import { useUnits } from "./src/units/useUnits";
 
@@ -195,16 +199,18 @@ type Screen =
   | "runFinish"
   | "feed"
   | "profile"
+  | "messages"
   | "canvas"
   | "pickStart"
   | "play";
 
-/** The screens that are pages side by side, left to right, one swipe apart
- * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
- * take the whole screen. «Play», the shape game (TASK-296, ADR-0255), is
- * not among them since 2026-10-29 (the user's choice): it opens from its
- * row under the distance of «Draw», over the app. */
-const PAGES: readonly Screen[] = ["feed", "choose", "explore", "profile"];
+/** The screens that are pages of the tab bar, in the order of their tabs
+ * (TASK-367, ADR-0311): «Feed», «Draw», «Messages», «Explore», «Profile».
+ * The others take the whole screen, the bar and the header with them.
+ * «Play», the shape game (TASK-296, ADR-0255), is not among them since
+ * 2026-10-29 (the user's choice): it opens from its row under the distance
+ * of «Draw», over the app. */
+const PAGES: readonly Screen[] = ["feed", "choose", "messages", "explore", "profile"];
 
 /** A run that ended, shown on the finish screen. */
 type Finished = {
@@ -1234,7 +1240,19 @@ function MuW() {
     [],
   );
 
-  /** Another page, by a swipe, its name or the profile's circle. */
+  // The list of «Messages» asked for from elsewhere is its tab's (TASK-367):
+  // only while a page is on screen, never over a run.
+  useInboxTab(() => {
+    if (latestPage.current.onPage) {
+      latestPage.current.showPage("messages");
+    }
+  });
+  const messages = useMessagesDoor();
+  const messagesWaiting =
+    messages.unread === null ? 0 : messages.unread.unread + messages.unread.requests;
+  const profileTab = useProfileTab();
+
+  /** Another page, by its tab. */
   function showPage(next: Screen) {
     // A keyboard left open would follow to the next page.
     Keyboard.dismiss();
@@ -1643,23 +1661,21 @@ function MuW() {
       {/* Over the map, opposite the way back: keep the route shown. */}
       <FavoriteHeart route={onMap} />
       {page !== -1 && (
-        <Pager
+        <TabShell
           page={page}
-          onPage={(index) => showPage(pages[index])}
-          action={
-            // The sport at the left of the way to «Profile» (TASK-205),
-            // whose circle is the name of the profile's page (TASK-278).
-            <View style={styles.actions}>
-              <SportButton />
-              <ProfileButton
-                selected={screen === "profile"}
-                onPress={() => showPage("profile")}
-              />
-            </View>
+          onPage={(index) =>
+            // Nobody signed in has no messages: their tab is the way to sign in.
+            showPage(
+              pages[index] === "messages" && !signedIn ? "profile" : pages[index],
+            )
           }
+          // The sport at the right of the header (TASK-205, TASK-367).
+          action={<SportButton />}
           pages={[
             {
               title: pageTitle("feed"),
+              label: pageTitle("feed"),
+              icon: "house",
               render: () => (
                 <DrawAgainContext.Provider value={drawAgainDoor}>
                   <FeedScreen
@@ -1676,6 +1692,8 @@ function MuW() {
             },
             {
               title: pageTitle("draw"),
+              label: pageTitle("draw"),
+              icon: "pencil",
               render: () => (
                 <ChooseScreen
                   status={startStatus(startMode, position, start)}
@@ -1782,7 +1800,21 @@ function MuW() {
               ),
             },
             {
+              title: pageTitle("messages"),
+              label:
+                messagesWaiting > 0
+                  ? t("Messages, {count} waiting", { count: messagesWaiting })
+                  : pageTitle("messages"),
+              icon: "send",
+              count: messagesWaiting,
+              // It asks the API for the conversations as it opens.
+              lazy: true,
+              render: () => <MessagesPage active={screen === "messages"} />,
+            },
+            {
               title: pageTitle("explore"),
+              label: pageTitle("explore"),
+              icon: "search",
               // It asks the API for its routes as it opens: not before.
               lazy: true,
               render: () =>
@@ -1837,10 +1869,11 @@ function MuW() {
                 ),
             },
             {
-              // The account's own profile, after «Explore» (TASK-278): no
-              // name in the header, where its circle is.
+              // The account's own profile (TASK-278): its picture is its tab.
               title: pageTitle("profile"),
-              unnamed: true,
+              label: profileTab.label,
+              face: (selected) => <ProfileFace selected={selected} />,
+              count: profileTab.requests,
               lazy: true,
               render: () => (
                 <OwnProfile
@@ -1879,10 +1912,5 @@ const styles = StyleSheet.create({
     flex: 1,
     // Under the page while the WebView starts, so it never flashes white.
     backgroundColor: color.map.background,
-  },
-  actions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: space.sm,
   },
 });

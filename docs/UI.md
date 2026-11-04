@@ -166,13 +166,16 @@ https://claude.ai/artifact/XRMFiZ9BWbWnKkdJ9Udtjf. Sei regole, tutte in
    `src/ui/outlines.ts`; le altre sagome vengono dal catalogo.
 
 Arriva in parti, una PR ciascuna (`tasks/TASK-339.md`): A le fondamenta
-e i tre nomi in alto (in `main` dal 2026-10-30); B Feed ed Explore (in PR
-dal 2026-10-30: `FeedPost`, `RouteCard`, `ThemedCard`, `ExploredCard` e
+e i tre nomi in alto (in `main` dal 2026-10-30); B Feed ed Explore (in `main` dal
+2026-10-30: `FeedPost`, `RouteCard`, `ThemedCard`, `ExploredCard` e
 `DrawingCard` col raggio `xl` e senza bordo, le parole di «Feed» sulla
 foto su `Scrim` in `heading`, sotto i disegni in `cardTitle`, i nomi
 medium, `Tap` al posto dell'opacità, `Hairline` prima delle azioni, la
-distanza delle schede di «Explore» in `display`); C stati vuoti e
-divisioni; D Profile, Settings e i fogli; E «Draw» e il risultato.
+distanza delle schede di «Explore» in `display`); C stati vuoti (C1, coi
+testi) e divisioni e tocco (C2, in PR dal 2026-10-30: nei file liberi
+`Hairline` al posto delle divisioni in `border`, i bordi di riga a un pixel
+di `hairline`, ogni comando con un aspetto alla pressione su `Tap`, che
+prende anche un `ref`); D Profile, Settings e i fogli; E «Draw» e il risultato.
 
 ## Il logo e l'icona (TASK-159, ADR-0129; «MuW» da TASK-260, ADR-0224)
 
@@ -565,31 +568,46 @@ non la ricarica. La scheda sta sotto la mappa, non sopra, così non copre
 l'attribuzione; i margini seguono la tacca e la barra in basso di ogni
 telefono.
 
-## Le pagine: «Feed», «Draw», «Explore» e il profilo (TASK-154, ADR-0124; TASK-278)
+## Le pagine e la barra di schede (TASK-367, ADR-0311; prima TASK-154, ADR-0124, e TASK-278)
 
-Tre pagine affiancate, scelta dell'utente: **«Feed»** a sinistra,
-**«Draw»** al centro, **«Explore»** a destra. Si passa dall'una all'altra
-con uno swipe a destra o a sinistra, oppure toccando il nome in alto. I tre
-nomi stanno in alto a sinistra, nell'ordine in cui sono le pagine: dicono
-dove porta lo swipe. Il nome della pagina sullo schermo è chiaro, con una
-lineetta sotto; gli altri sono grigi. Niente giallo: è del percorso.
+Con TASK-367 parte A (scelta dell'utente) le pagine non stanno
+più affiancate: **una barra di schede in basso**, come Instagram, cinque
+icone senza parole sopra l'home indicator: **casa** «Feed», **matita**
+«Draw», **aereo di carta** «Messages», **lente** «Explore», **la propria
+foto** (o l'iniziale, o una figura) il profilo. Le icone sono di Lucide (ISC,
+`assets/ui/tabs/LICENSE-lucide.txt`), PNG bianche colorate dai token: la
+scheda sullo schermo ha il tratto più spesso e il colore del testo, le altre
+il tratto sottile e `textFaint`; la foto del profilo attivo ha un bordo
+sottile del colore del testo. Niente giallo: è del percorso. Su «Messages»
+un numero rosso con le conversazioni nuove e le richieste; sul profilo
+quello delle richieste di follow. VoiceOver legge ogni scheda col suo nome
+(«Messages, 3 waiting») e quella sullo schermo come selezionata. La barra è
+quasi opaca (`background` al 95%): il blur vero chiede `expo-blur`, una
+build.
 
-**Dopo «Explore», il proprio profilo** (TASK-278, aggiunta ad ADR-0124;
-scelta dell'utente del 2026-10-11): una quarta pagina a destra di
-«Explore», a uno swipe a sinistra da lì; uno swipe a destra torna a
-«Explore». In alto i nomi restano tre: la quarta pagina non ha un nome, ha
-**il cerchio di «Profile»** in alto a destra (sotto, «Profile»). Quando il
-profilo è sullo schermo il cerchio ha la lineetta della pagina accesa,
-bianca come quella dei nomi, subito sotto di sé (l'intestazione resta alta
-com'era), e nessun nome è chiaro; VoiceOver legge il cerchio come
-selezionato. Un tocco sul cerchio, da qualunque pagina, porta lì scorrendo,
-come un tocco su un nome; non apre più un foglio sopra l'app. La pagina è
-la prima di «Profile»: senza account «Sign up» e «Log in», con l'account il
-profilo con le sue righe; **senza «←» e senza titolo**, come le altre
-pagine. Si costruisce la prima volta che ci si arriva, come «Explore», e si
-rifà ogni volta che torna sullo schermo (dopo uno swipe o un tocco, o
-chiusa una pagina che si era aperta sopra): gli elenchi di chi segue e i
-disegni si rileggono, come quando «Profile» si apriva.
+**Un header uguale su tutte le pagine**: il cuore giallo e «MuW» a
+sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
+(lo dice la barra). La campanella arriva con la parte C.
+
+- Un tocco su una scheda mostra la sua pagina **subito, senza swipe** fra le
+  pagine. Ogni pagina resta costruita dopo la prima visita: scroll, campi e
+  scelte restano come erano. «Explore», «Messages» e il profilo si
+  costruiscono la prima volta che ci si arriva.
+- **Il tocco sulla scheda già attiva** riporta la pagina in cima (Feed,
+  Draw, Explore, Messages) o alla sua prima vista (il profilo).
+- Su Android il tasto indietro torna alla scheda di prima, poi esce.
+- **«Messages»** è la lista delle conversazioni con «Message requests» in
+  cima (TASK-319); una conversazione e le richieste si aprono sopra come
+  prima, e «←» torna alla scheda. Si rilegge ogni volta che torna sullo
+  schermo. Senza account la scheda porta al profilo, a «Sign up» e «Log in».
+  «Message» su un profilo e le notifiche aprono la conversazione come prima.
+- **Il profilo**: le **«Settings» sono sotto l'ingranaggio in alto a destra**;
+  la riga «Messages» non c'è più (c'è la scheda), la riga «Settings» neanche.
+- Barra e header non ci sono su mappa, corsa, corsa senza percorso, «Play»,
+  corsa interrotta riaperta: lì la schermata è intera, come prima.
+
+Quello che segue descrive le pagine; dove parla di swipe e di nomi in alto
+vale la barra qui sopra.
 
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
@@ -688,10 +706,57 @@ disegni si rileggono, come quando «Profile» si apriva.
   **In cima, sopra i disegni, a destra, la lente** (TASK-215, ADR-0178;
   TASK-219, ADR-0182: solo la lente, scelta dell'utente): un cerchio come
   quello di «Profile», con una lente disegnata e nessun testo, sotto il
-  bottone di «Profile»; VoiceOver lo legge «Find friends». Non sta
+  bottone di «Profile»; VoiceOver lo legge «Search». Non sta
   nell'intestazione delle pagine: lì, accanto a sport e profilo, su un
-  iPhone da 390 pt non c'è posto. Scorre con l'elenco. Apre
-  sopra l'app, come «Profile», la pagina **«Find friends»**: «←», un campo
+  iPhone da 390 pt non c'è posto. Scorre con l'elenco.
+  **La lente apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
+  2026-10-29): una pagina sopra tutta l'app, che arriva dalla lente in
+  `motion.sheetMs` (un poco più piccola e più in alto, poi al suo posto;
+  ferma con «Reduce Motion»). In alto il campo «Search drawings, people,
+  places» con la tastiera già aperta e «✕» per svuotarlo, il bottone dei
+  filtri (tre cursori disegnati, col numero dei filtri accesi in un
+  badge giallo) e «Cancel». Sotto, le schede a chip **«All · Drawings ·
+  People · Routes»**: «Drawings» i disegni dei membri
+  (`GET /search/drawings`), poi gli esempi del Feed; «Routes» solo gli
+  esempi, che si aprono come percorso; «People» i membri per nome (la
+  ricerca di «Find friends»); «All» i primi tre membri sopra i disegni.
+  Una categoria scelta si vede come chip giallo con «✕» dopo le schede.
+  - **Prima di scrivere**: «Recent searches» (al più 8, sul telefono in
+    `recent-searches.json`, ognuna con «✕»), le categorie a chip
+    «Animals · Hearts · Words · Symbols · Emoji» (solo quelle che il
+    catalogo ha: ogni forma sta in una sola; «Words» sono le parole
+    disegnate) e «Featured drawings», una riga che scorre di lato: i più
+    amati dei membri, poi gli esempi col punteggio più alto.
+  - **Mentre si scrive**: la ricerca parte 300 ms dopo l'ultima lettera o
+    l'ultimo filtro; intanto, sei schede grigie che respirano piano (ferme
+    con «Reduce Motion»). Maiuscole e accenti non contano; le parole che
+    nominano una forma nella lingua dell'app («cuore», «cane») la trovano
+    anche dove non sono scritte (ADR-0297, punto 3). Gli esempi si
+    cercano sul telefono con le stesse regole del server
+    (`search/drawingMatch.ts`).
+  - **I risultati**: due per riga, ognuno con il disegno giallo sul fondo
+    della mappa, il titolo, chi l'ha disegnato e i km; la pagina dopo
+    arriva verso la fine della griglia, con due schede grigie sotto.
+    Toccato, la ricerca si chiude e il disegno di un membro si apre sulla
+    mappa con il suo autore, come dal Feed; un esempio si apre come
+    percorso; un membro apre il suo profilo. La ricerca toccata o mandata
+    col tasto «Search» entra fra le recenti.
+  - **Niente trovato**: la lente disegnata piano, «No drawings found» e
+    «Try other words, or change the filters.»; con filtri accesi, «Reset».
+  - **I filtri**, in un foglio dal basso: «Distance» («Up to 10 km»,
+    «10–30 km», «30–50 km», «Over 50 km», nelle unità dell'app),
+    «Sport» («Run», «Bike», «Paddle»), «Place» (una parte del nome,
+    «Town or region»), «Complexity» («Simple», «Medium», «Complex»: la
+    linea lunga rispetto al suo riquadro, ADR-0297 punto 5) e «Sort by»
+    («Most recent», «Longest», «Most popular»). Ciò che si tocca aspetta
+    «Apply», che dice quanti filtri accende («Apply (2)»); «Reset» li
+    spegne tutti; toccando fuori il foglio si chiude senza cambiare
+    niente.
+  - **Senza account**, o con un server prima di TASK-344: solo gli
+    esempi; «People» dice «Log in to find your friends.» e, toccato,
+    chiude la ricerca e porta alla quarta pagina, come prima la lente.
+  La pagina **«Find friends»** si apre da «Find people to follow» (sopra,
+  la scheda «Following»), sopra l'app come «Profile»: «←», un campo
   «Name» con la tastiera già aperta e, sotto, gli iscritti trovati, al più
   20, ognuno con la foto (o l'iniziale) e il nome; mai l'email. La ricerca
   parte con 2 lettere, 300 ms dopo l'ultima, o subito con il tasto «cerca»
@@ -790,8 +855,8 @@ Le pagine che si aprono da lì («Settings», «Favorites», «My activities»,
 «Edit profile», «Guide», il profilo di un altro, un disegno) si aprono
 sopra l'app come prima, e «←» (o «Back to the profile») torna alla quarta
 pagina. **Anche le altre parti dell'app portano alla quarta pagina**
-(TASK-278 parte B, scelte dell'utente del 2026-10-13): la lente di «Feed»
-senza account, e il cuore sulla mappa e la riga sotto la fine della corsa
+(TASK-278 parte B, scelte dell'utente del 2026-10-13): «People» nella
+ricerca della lente di «Feed» senza account (da TASK-344), e il cuore sulla mappa e la riga sotto la fine della corsa
 senza account, ognuno con la sua riga sopra «Sign up». Dalla mappa e dalla
 fine della corsa, che prendono tutto lo schermo, la pagina ha anche «←» e
 il titolo «Profile» finché nessuno entra: «←» torna lì senza tenere niente,

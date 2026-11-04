@@ -15,6 +15,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { runDistanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { type RefusedRun, useActivitiesDoor } from "./activitiesDoor";
@@ -252,8 +253,8 @@ function ActivityRow({
   const facts = runFacts(activity);
   return (
     <View style={styles.row} testID="activity-row">
-      <Pressable
-        style={({ pressed }) => [styles.open, pressed && styles.pressed]}
+      <Tap
+        style={styles.open}
         onPress={onOpen}
         accessibilityRole="button"
         accessibilityLabel={t(
@@ -291,7 +292,7 @@ function ActivityRow({
             </View>
           )}
         </View>
-      </Pressable>
+      </Tap>
       {confirming ? (
         <View style={styles.confirm}>
           <Text style={styles.confirmText}>
@@ -355,9 +356,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: space.md,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   words: {
     flex: 1,

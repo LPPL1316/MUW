@@ -1,6 +1,6 @@
 import type { Person } from "@shaperoute/shared-types";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { sessionEnded } from "../account/messages";
 import { fetchBlocked, unblockMember } from "../api/moderation";
@@ -15,6 +15,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { markUnblocked } from "./blockedNow";
 import { useFollowsDoor } from "./followsDoor";
 import { moderationProblem } from "./ReportMenu";
@@ -145,8 +146,8 @@ export function BlockedPeople({ fetchFn, apiKey }: Props) {
 
   return (
     <View style={styles.section}>
-      <Pressable
-        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      <Tap
+        style={styles.row}
         onPress={() => {
           setProblem(null);
           setOpen(!open);
@@ -158,7 +159,7 @@ export function BlockedPeople({ fetchFn, apiKey }: Props) {
       >
         <Text style={styles.rowText}>{t("Blocked people")}</Text>
         <Text style={styles.rowArrow}>{open ? "⌄" : "›"}</Text>
-      </Pressable>
+      </Tap>
       {open && (
         <View style={styles.list}>
           {problem !== null && (
@@ -186,11 +187,8 @@ export function BlockedPeople({ fetchFn, apiKey }: Props) {
                   <Text style={styles.name} numberOfLines={1}>
                     {person.username}
                   </Text>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.action,
-                      (pressed || waiting) && styles.pressed,
-                    ]}
+                  <Tap
+                    style={[styles.action, waiting && styles.dim]}
                     onPress={() => unblock(person)}
                     disabled={waiting}
                     accessibilityRole="button"
@@ -198,22 +196,19 @@ export function BlockedPeople({ fetchFn, apiKey }: Props) {
                     accessibilityState={{ disabled: waiting }}
                   >
                     <Text style={styles.actionText}>{t("Unblock")}</Text>
-                  </Pressable>
+                  </Tap>
                 </View>
               );
             })}
           {list?.kind === "ready" && list.next !== null && (
-            <Pressable
-              style={({ pressed }) => [
-                styles.more,
-                (pressed || loadingMore) && styles.pressed,
-              ]}
+            <Tap
+              style={[styles.more, loadingMore && styles.dim]}
               onPress={loadMore}
               disabled={loadingMore}
               accessibilityRole="button"
             >
               <Text style={styles.moreText}>{t("Show more")}</Text>
-            </Pressable>
+            </Tap>
           )}
         </View>
       )}
@@ -237,7 +232,7 @@ const styles = StyleSheet.create({
     borderColor: color.border,
     backgroundColor: color.surface,
   },
-  pressed: {
+  dim: {
     opacity: 0.6,
   },
   rowText: {

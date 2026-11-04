@@ -53,12 +53,20 @@ export type PenUpShape = (typeof PEN_UP_SHAPES)[number];
 export const PLACEMENTS = ["free", "anchored"] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
-/** What a route is for: on foot, by bike on the roads a bike may ride,
- * one-way streets kept (TASK-190, ADR-0153), or paddling on a lake or the
- * sea within 1 km of the shore, a shape of the catalogue only (TASK-191,
- * ADR-0161). */
+/** What a route is for in the app: on foot, by bike on the roads a bike
+ * may ride, one-way streets kept (TASK-190, ADR-0153), or paddling on a lake
+ * or the sea within 1 km of the shore, a shape of the catalogue only
+ * (TASK-191, ADR-0161). */
 export const ACTIVITIES = ["running", "cycling", "paddling"] as const;
 export type Activity = (typeof ACTIVITIES)[number];
+
+/** The activities of the API (route_engine/models.py SUPPORTED_ACTIVITIES):
+ * those of the app, and swimming in open water 20–150 m from the shore, lap
+ * after lap, a shape of the catalogue or a drawing (TASK-323, ADR-0283). The
+ * app offers a swim from part C of TASK-323: its Activity widens then, with
+ * the tables keyed on it (distances, names, Apple Health of TASK-321). */
+export const API_ACTIVITIES = [...ACTIVITIES, "swimming"] as const;
+export type ApiActivity = (typeof API_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
  * the app; "file", a GPX, TCX or FIT file of another app, read on the phone
@@ -73,15 +81,21 @@ export const MAX_DISTANCE_M = 50_000;
 
 /** The target distances of each activity, [lowest, highest] in metres:
  * running as above, cycling 10–30 km (TASK-190), paddling 1–5 km
- * (TASK-191). Outside them the API answers `invalid_request`, with the
+ * (TASK-191), swimming 0.5–3 km, every lap and the legs from the shore
+ * (TASK-323). Outside them the API answers `invalid_request`, with the
  * limits in the message. */
 export const DISTANCE_LIMITS_M: Readonly<
-  Record<Activity, readonly [lowest: number, highest: number]>
+  Record<ApiActivity, readonly [lowest: number, highest: number]>
 > = {
   running: [MIN_DISTANCE_M, MAX_DISTANCE_M],
   cycling: [10_000, 30_000],
   paddling: [1_000, 5_000],
+  swimming: [500, 3_000],
 };
+
+/** A swim goes round its shape at most this many times (TASK-323): 130 m of
+ * band hold about half a kilometre of shape. */
+export const MAX_SWIM_LAPS = 5;
 
 /**
  * The letters a word may use (route_engine/letters.json, ADR-0044): A to Z
@@ -136,6 +150,12 @@ interface RouteRequestFields {
    * another activity; absent or null leaves the place to the engine.
    */
   near?: LatLon | null;
+  /**
+   * A swim (TASK-323): how many times round its shape, 1 to MAX_SWIM_LAPS;
+   * fewer for a larger shape, the distance staying the same. Absent or null:
+   * the fewest it fits in. Refused with another activity.
+   */
+  laps?: number | null;
   /**
    * Where the shape goes (TASK-347, ADR-0300): "free", the search turns,
    * scales and moves it to where the roads draw it best, as before;
@@ -195,6 +215,34 @@ export type Walk = [from: number, to: number];
  */
 export type Stretch = [from: number, to: number];
 
+/** A place with a name on the shore, to turn opposite during a swim
+ * (route_engine/shore_names.py, TASK-323): data from OpenStreetMap. */
+export interface Landmark {
+  name: string;
+  /** From OpenStreetMap, like "beach_resort", "pier", "lighthouse". */
+  kind: string;
+  point: LatLon;
+  /** From the turn. */
+  distance_m: number;
+  /** Where to look from the turn, degrees clockwise from north. */
+  bearing_deg: number;
+}
+
+/** Where a swim turns (route_engine/swim_turns.py, TASK-323): where the
+ * direction changes by more than 45°, in order, every lap's. */
+export interface SwimTurn {
+  point: LatLon;
+  /** Along the swim from its start, in metres. */
+  at_m: number;
+  side: "left" | "right";
+  /** How much it turns, 0–180°. */
+  angle_deg: number;
+  /** The lap it is in, from 1. */
+  lap: number;
+  /** The place on the shore to turn opposite; null without one. */
+  landmark?: Landmark | null;
+}
+
 export interface RouteResult {
   /**
    * The route, closed: the last point is the first. A word with the pen up
@@ -252,6 +300,23 @@ export interface RouteResult {
    * stays north-up.
    */
   rotation_deg?: number;
+  /**
+   * A swim (TASK-323): how many times round its shape; 1 for any other
+   * route. Missing from an older API.
+   */
+  laps?: number;
+  /**
+   * A swim (TASK-323): how long one lap is, in metres, the shape without the
+   * legs from the shore and back; null for any other route. Missing from an
+   * older API.
+   */
+  lap_m?: number | null;
+  /**
+   * A swim (TASK-323): where it turns, in order, every lap's, each with the
+   * place on the shore to turn opposite when there is one. Empty for any
+   * other route; missing from an older API.
+   */
+  turns?: SwimTurn[];
   /**
    * The drawing as the engine placed it, in WGS84 lines (TASK-347,
    * ADR-0300): turned, scaled and moved by the search when `placement` was
@@ -543,6 +608,8 @@ export interface ImageRouteRequest {
   activity: Activity;
   /** No letters to draw with the pen up: true is refused (TASK-197). */
   pen_up?: false;
+  /** A swim of a drawing (TASK-323): as RouteRequest.laps. */
+  laps?: number | null;
   /** As in RouteRequest (TASK-347): "anchored" leaves the outline where it
    * was drawn, its first point on `start`, at the scale of `distance_m`.
    * This is what «Draw route» sends for a drawing made on the map. */
@@ -979,11 +1046,11 @@ export type Visibility = (typeof VISIBILITIES)[number];
 export const DRAWING_DESCRIPTION_MAX_LENGTH = 500;
 export const DRAWING_MAX_TAGS = 10;
 /**
- * Besides the map, what the app offers today. It goes to
- * DRAWING_PHOTO_PLACES with TASK-348's app part: a phone on a server not yet
- * updated must not ask for a place the server refuses.
+ * Besides the map, the photos the app offers in a post: 9, so the post has
+ * at most 10 pages with the map among them (TASK-348, the user's choice «10
+ * col disegno»). The API keeps DRAWING_PHOTO_PLACES places.
  */
-export const DRAWING_MAX_PHOTOS = 3;
+export const DRAWING_MAX_PHOTOS = 9;
 /** The places of the photos of a drawing on the API (TASK-348, ADR-0301). */
 export const DRAWING_PHOTO_PLACES = 10;
 
@@ -1344,7 +1411,13 @@ export const DRAWING_SEARCH_PAGE_SIZE = 20;
  * filter is sent once for each value. Never a private one. A page is the
  * feed's.
  */
-export type DrawingSearchPage = FeedPage;
+export interface DrawingSearchPage extends FeedPage {
+  /**
+   * `shape=word` finds the words drawn (TASK-344 part B). An API before
+   * it leaves this out and finds nothing for it: the app hides «Words».
+   */
+  words?: boolean;
+}
 
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing
@@ -2239,6 +2312,11 @@ export interface MuwRoute {
   preview: LatLon[];
   /** As `RouteResult.rotation_deg`. */
   rotation_deg: number;
+  /** What it draws, as a route request says it: a shape, or a word with its
+   * style; null and null from a file without its figure. */
+  shape?: string | null;
+  word?: string | null;
+  style?: string | null;
 }
 
 /** GET /muw-routes. An older server answers 404: no routes. */
@@ -2252,4 +2330,7 @@ export interface MuwRouteDetail extends Omit<MuwRoute, "start" | "preview"> {
   /** As `RouteResult.on_foot`. */
   on_foot: Stretch[];
   license: string;
+  /** The figure's own outline when the catalogue does not have it: what is
+   * the request the route opens with; the line is still `points`. */
+  outline?: OutlinePoint[] | null;
 }

@@ -30,9 +30,9 @@ export type MessagesScreen =
 
 /**
  * The private messages (TASK-319, ADR-0279) as the whole app reaches them:
- * the list and the conversations over the app, opened from «Profile», from
- * «Message» on another's profile and from a notification; and what the dot
- * of «Messages» counts.
+ * the list in its tab (TASK-367), the requests and the conversations over
+ * the app, opened from «Message» on another's profile and from a
+ * notification; and what the red number of «Messages» counts.
  */
 export type MessagesDoor = {
   apiUrl: string | null;
@@ -70,6 +70,32 @@ export const MessagesContext = createContext<MessagesDoor>(NOTHING);
 
 export function useMessagesDoor(): MessagesDoor {
   return useContext(MessagesContext);
+}
+
+/** The tab of «Messages» while the tab bar is on screen (TASK-367): it shows
+ * the list of the inbox, so nothing is opened over the app for it. */
+let inboxTab: (() => void) | null = null;
+
+/** Hands the tab of «Messages» to the door: `show` brings it on screen. */
+export function useInboxTab(show: () => void): void {
+  const latest = useRef(show);
+  useEffect(() => {
+    latest.current = show;
+  });
+  useEffect(() => {
+    const mine = () => latest.current();
+    inboxTab = mine;
+    return () => {
+      if (inboxTab === mine) {
+        inboxTab = null;
+      }
+    };
+  }, []);
+}
+
+/** A list to go back to: the inbox is its tab's, under what closes. */
+function listOf(box: ConversationBox): MessagesScreen | null {
+  return box === "inbox" && inboxTab !== null ? null : { kind: "list", box };
 }
 
 /** How often the app asks while it is open, as the follow requests. */
@@ -156,10 +182,15 @@ export function useMessagesOf(
     setScreen(null);
   }
 
-  const openList = useCallback(
-    (box: ConversationBox = "inbox") => setScreen({ kind: "list", box }),
-    [],
-  );
+  const openList = useCallback((box: ConversationBox = "inbox") => {
+    // «Messages» is a tab (TASK-367): the list is there, nothing over it.
+    if (box === "inbox" && inboxTab !== null) {
+      inboxTab();
+      setScreen(null);
+      return;
+    }
+    setScreen({ kind: "list", box });
+  }, []);
   const openConversation = useCallback(
     (person: Person) =>
       setScreen((was) => ({
@@ -173,9 +204,9 @@ export function useMessagesOf(
     () =>
       setScreen((was) =>
         was?.kind === "conversation" && was.fromList !== null
-          ? { kind: "list", box: was.fromList }
+          ? listOf(was.fromList)
           : was?.kind === "list" && was.box === "requests"
-            ? { kind: "list", box: "inbox" }
+            ? listOf("inbox")
             : null,
       ),
     [],

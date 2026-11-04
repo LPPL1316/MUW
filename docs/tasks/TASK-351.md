@@ -602,6 +602,50 @@ sotto una vista opaca a grandezza piena, come il Feed. Da chiedere
 all'utente: il video uscito era giallo (la riserva) o scuro senza strade
 (uno scatto vuoto).
 
+## La prova successiva (2026-11-04): il WebView sotto una copertura, e il motivo nel video
+
+Con la preview `fb15613e` (main 8cc5005b, con il fix #703) l'utente ha
+provato il video di un'attività di prima: «ho provato con un'attività già
+fatta in precedenza e non funziona» (riferito dal Coordinatore). Alla
+domanda su com'era il video ha risposto «giallo», e che l'app l'aveva
+riaperta due volte dopo l'aggiornamento («sì, l'avevo fatto»): era la
+riserva gialla con il fix #703 caricato, quindi la mappa non arriva
+neanche con i fotogrammi da timer.
+
+La prova successiva (branch `fix/TASK-351-video-map-under-cover`,
+worktree `TASK-351-fix2`):
+
+1. `RunVideo.tsx`: il WebView a grandezza piena, 360 × 640 punti (la
+   misura della mappa che disegna), sotto una vista opaca del colore dello
+   schermo, montato per primo nello schermo del post (`SharePost.tsx`):
+   com'è tenuta la pagina delle mappe del Feed, che sul telefono le mappe
+   le fa. Per iOS la pagina è in finestra, grande e disegnata.
+2. Nel video di riserva giallo, **una riga piccola in fondo** con il motivo
+   dato dalla pagina («no map: timeout {"map":15234,…}», «no library»,
+   «tiles», o l'errore di WebGL) e i tempi, compreso il caricamento di
+   MapLibre: così la prossima prova dalla preview dice la causa anche senza
+   una rete di diagnosi. **Solo sul canale preview**: `isPreview()` in
+   `src/updates/channel.ts` legge `Updates.channel` di `expo-updates`
+   («preview» sulla build dei tester, «production» su quella degli store,
+   `null` in Expo Go e nelle build di sviluppo), e la build degli store non
+   la mostra mai, con un test che lo prova. Condizione del Coordinatore:
+   `main` va in produzione con altro lavoro prima che il video sia risolto,
+   quindi la riga non può dipendere dal ricordarsi di toglierla. Si toglie
+   quando la causa è trovata; la produzione del video resta ferma finché
+   l'utente non vede la mappa.
+
+Test: `withNote` (la riga in ogni fotogramma, il resto uguale); il flusso
+con la riserva senza il motivo, com'è sulla build degli store, e con il
+motivo sulla preview; `channel.test.ts` (preview sì, production e `null`
+no; sotto jest il canale è «mock»); le suite del video e di «Share your
+run». Solo JS. PR #707, riallineata su `main` dopo la #620 (Apple Salute):
+da lì l'impronta iOS di `main` è `6f8bba4c`, e quella misurata sulla copia
+pulita di questa PR è in STATUS. Le preview si pubblicano col runtime
+`exposdk:57.0.0` della variante preview, non con l'impronta di produzione:
+l'app di prova dell'utente le riceve anche dopo la #620, e la prova del
+video si fa dalla preview che il Coordinatore pubblica appena la #707 è in
+`main`.
+
 ## Dove si è (2026-10-30, sera)
 
 Fatto: il canvas; il bench in Safari del simulatore e nell'app (Expo Go,

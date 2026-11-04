@@ -106,7 +106,7 @@ async function openedFromExplore() {
   await fireEvent(screen.getByTestId("map"), "message", {
     nativeEvent: { data: '{"type":"ready"}' },
   });
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   await fireEvent.press(await screen.findByText("Star · 5.1 km"));
   await screen.findByText("Back to the list");
 }

@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { t } from "../i18n";
 
 import type { Place } from "../places/photon";
@@ -11,6 +11,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { CATEGORIES, exampleFor, requestFor, whereFor } from "./presets";
 
 /** The longest request the API reads (themed.py). */
@@ -49,9 +50,9 @@ export function AskForRoute({ city = null, where, onAsk, ideas }: Props) {
       </Text>
       <View style={styles.grid}>
         {shown.map((category) => (
-          <Pressable
+          <Tap
             key={category}
-            style={({ pressed }) => [styles.category, pressed && styles.pressed]}
+            style={styles.category}
             onPress={() => onAsk(requestFor(category, city))}
             accessibilityRole="button"
             accessibilityLabel={requestFor(category, city)}
@@ -60,11 +61,11 @@ export function AskForRoute({ city = null, where, onAsk, ideas }: Props) {
             <Text style={styles.categoryWhere} numberOfLines={1}>
               {place}
             </Text>
-          </Pressable>
+          </Tap>
         ))}
         {!all && (
-          <Pressable
-            style={({ pressed }) => [styles.category, pressed && styles.pressed]}
+          <Tap
+            style={styles.category}
             onPress={() => setAll(true)}
             accessibilityRole="button"
             accessibilityLabel={t("More categories")}
@@ -73,7 +74,7 @@ export function AskForRoute({ city = null, where, onAsk, ideas }: Props) {
             <Text style={styles.categoryWhere} numberOfLines={1}>
               {t("{count} more", { count: CATEGORIES.length - QUICK_CATEGORIES })}
             </Text>
-          </Pressable>
+          </Tap>
         )}
       </View>
       <Text style={styles.label}>{t("OR IN YOUR WORDS")}</Text>
@@ -91,19 +92,15 @@ export function AskForRoute({ city = null, where, onAsk, ideas }: Props) {
       <Text style={styles.note}>
         {t("From {where}. Name a city in the words to go elsewhere.", { where })}
       </Text>
-      <Pressable
-        style={({ pressed }) => [
-          styles.make,
-          !ready && styles.makeOff,
-          pressed && styles.pressed,
-        ]}
+      <Tap
+        style={[styles.make, !ready && styles.makeOff]}
         onPress={() => onAsk(text.trim())}
         disabled={!ready}
         accessibilityRole="button"
         accessibilityState={{ disabled: !ready }}
       >
         <Text style={styles.makeText}>{t("Make my route")}</Text>
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -127,9 +124,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.small,
   },
   // A light touch: what is pressed dims, nothing moves.
-  pressed: {
-    opacity: 0.6,
-  },
   // Two columns on a phone, more where there is room.
   grid: {
     flexDirection: "row",

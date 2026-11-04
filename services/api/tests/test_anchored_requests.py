@@ -237,5 +237,7 @@ def test_the_shared_fixtures_are_valid_bodies() -> None:
     image = _load("image-route-request-anchored.json")
     assert ImageRouteRequestBody.model_validate(image).placement == "anchored"
     result = _load("route-result-anchored.json")
-    assert set(result) == set(RouteResultBody.model_fields)
+    # Every field but a swim's, which came after (TASK-323).
+    swim = {"laps", "lap_m", "turns"}
+    assert set(result) == set(RouteResultBody.model_fields) - swim
     assert RouteResultBody.model_validate(result).placed_outline

@@ -39,6 +39,20 @@ export function ContactField({ label, ref, ...input }: Props) {
 
 /** What the two rows share: a row of «Settings» and the form under it. */
 export const contactStyles = StyleSheet.create({
+  /** The division over a form or between rows, one physical pixel (TASK-339). */
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    marginHorizontal: space.md,
+    backgroundColor: color.hairline,
+  },
+  /** A division set in from the card's edge, for a `Hairline`. */
+  inset: {
+    marginHorizontal: space.md,
+  },
+  /** The flat press look of the rows not yet on `Tap` (NotificationsSetting). */
+  pressed: {
+    opacity: 0.6,
+  },
   // As the other rows of «Settings» (`../profile/SettingsPage`).
   menu: {
     borderRadius: radius.lg,
@@ -53,9 +67,6 @@ export const contactStyles = StyleSheet.create({
     gap: space.md,
     paddingHorizontal: space.md,
   },
-  pressed: {
-    opacity: 0.6,
-  },
   emoji: {
     fontSize: fontSize.input + space.xs,
   },
@@ -68,11 +79,6 @@ export const contactStyles = StyleSheet.create({
   value: {
     color: color.textMuted,
     fontSize: fontSize.body,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: space.md,
-    backgroundColor: color.border,
   },
   form: {
     gap: space.md,

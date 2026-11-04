@@ -22,7 +22,10 @@
         [46.068, 11.127],
         [46.067, 11.1215]
       ],
-      "rotation_deg": -30
+      "rotation_deg": -30,
+      "shape": "star",
+      "word": null,
+      "style": null
     }
   ]
 }

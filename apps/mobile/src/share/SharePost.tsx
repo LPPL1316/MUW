@@ -168,6 +168,16 @@ export function SharePost({ run, onClose }: Props) {
       onRequestClose={onClose}
     >
       <View style={[styles.screen, { paddingTop: insets.top }]}>
+        {/* Under the screen's content, at the top corner (RunVideo). */}
+        {video !== null && (
+          <RunVideo
+            scene={video.scene}
+            fallback={video.fallback}
+            music={video.music}
+            onProgress={setMade}
+            onEnd={videoEnded}
+          />
+        )}
         <View style={styles.header}>
           <Pressable style={styles.close} onPress={onClose} accessibilityRole="button">
             <Text style={styles.link}>{t("Close")}</Text>
@@ -281,15 +291,6 @@ export function SharePost({ run, onClose }: Props) {
             <StravaPostRow runKey={run.key} caption={caption} onSent={keep} />
           </View>
         </ScrollView>
-        {video !== null && (
-          <RunVideo
-            scene={video.scene}
-            fallback={video.fallback}
-            music={video.music}
-            onProgress={setMade}
-            onEnd={videoEnded}
-          />
-        )}
       </View>
     </Modal>
   );

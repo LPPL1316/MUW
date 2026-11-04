@@ -1733,11 +1733,56 @@ export const DE: Table = {
   Madrid: "Madrid",
   Turin: "Turin",
 
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Zeichnungen, Leute, Orte suchen",
+  Clear: "Löschen",
+  People: "Leute",
+  Routes: "Routen",
+  Filters: "Filter",
+  "Recent searches": "Letzte Suchen",
+  Categories: "Kategorien",
+  "Featured drawings": "Ausgewählte Zeichnungen",
+  Animals: "Tiere",
+  Hearts: "Herzen",
+  Words: "Wörter",
+  Symbols: "Symbole",
+  Emoji: "Emoji",
+  Place: "Ort",
+  "Town or region": "Stadt oder Region",
+  Complexity: "Komplexität",
+  Simple: "Einfach",
+  Medium: "Mittel",
+  Complex: "Komplex",
+  "Sort by": "Sortieren nach",
+  "Most recent": "Neueste",
+  Longest: "Längste",
+  "Most popular": "Beliebteste",
+  "Up to {distance}": "Bis {distance}",
+  "Over {distance}": "Über {distance}",
+  Reset: "Zurücksetzen",
+  "No drawings found": "Keine Zeichnungen gefunden",
+  "Try other words, or change the filters.":
+    "Versuche andere Wörter oder ändere die Filter.",
+
   // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
   "Route created by MuW – ride it yourself": "Route von MuW – fahr sie selbst",
   "Route created by MuW – run it yourself": "Route von MuW – lauf sie selbst",
   "Route created by MuW – paddle it yourself": "Route von MuW – paddel sie selbst",
 
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Dein Beitrag",
+  "Hold and drag to reorder":
+    "Gedrückt halten und ziehen, um die Reihenfolge zu ändern",
+  "Move left": "Nach links",
+  "Move right": "Nach rechts",
+  Layout: "Layout",
+  "Drawing in the corner": "Zeichnung in der Ecke",
+  "Line on the photo": "Linie auf dem Foto",
+  "Half and half": "Halb und halb",
+  "Photo in the corner": "Foto in der Ecke",
+  "Up to 10 in a post.": "Bis zu 10 in einem Beitrag.",
+  "Could not prepare this photo. Try again.":
+    "Dieses Foto konnte nicht vorbereitet werden. Versuche es noch einmal.",
   // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
   Style: "Stil",
   Night: "Nacht",

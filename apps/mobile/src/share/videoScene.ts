@@ -780,3 +780,33 @@ export function videoScene(
     ),
   };
 }
+
+/** The note's letters and its room from the bottom edge, as shares. */
+const NOTE = 0.02;
+const NOTE_BOTTOM = 0.008;
+
+/**
+ * The scene with `note` written small at the foot of every picture, in
+ * the ink of the look: what the page said when the map did not come,
+ * while the cause on the phone is looked for (TASK-351, 2026-11-04; to be
+ * taken out once found).
+ */
+export function withNote(scene: VideoScene, note: string): VideoScene {
+  const w = scene.width;
+  const h = scene.height;
+  const op: VideoOp = {
+    k: "text",
+    text: note,
+    x: round(w / 2),
+    y: round(h * (1 - NOTE_BOTTOM) - w * NOTE * LINE_HEIGHT),
+    size: round(w * NOTE),
+    weight: 400,
+    tracking: 0,
+    color: "ink",
+    align: "center",
+    maxWidth: round(w * (1 - 2 * SIDE)),
+    lines: 1,
+    alpha: 1,
+  };
+  return { ...scene, frames: scene.frames.map((frame) => [...frame, op]) };
+}

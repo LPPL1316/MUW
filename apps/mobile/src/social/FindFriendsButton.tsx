@@ -1,30 +1,46 @@
+import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
+import type { SamplePost } from "../feed/sampleFeed";
 import { t } from "../i18n";
+import { SearchScreen } from "../search/SearchScreen";
 import { color, MIN_TAP_SIZE, radius } from "../theme/tokens";
-import { usePeopleDoor } from "./peopleDoor";
 
 /** The side of the lens's glass. */
 const GLASS = 15;
 /** The thickness of its rim and of its handle. */
 const RIM = 2;
 
+type Props = {
+  /** An example of «Feed» found and touched: its route, as «Feed» opens it. */
+  onOpenExample: (post: SamplePost) => void;
+};
+
 /**
- * The way to the search for members, at the top of «Feed» (TASK-215, asked
- * by the user): only a lens, in a circle like the button of «Profile»
- * (TASK-219, the user's choice). VoiceOver reads «Find friends».
+ * The lens at the top of «Feed» (TASK-215, TASK-219): only a lens, in a
+ * circle like the button of «Profile». Since TASK-344 (ADR-0297, the
+ * user's choice) it opens the search of drawings, members and routes over
+ * the whole app; the members are its tab «People». VoiceOver reads
+ * «Search».
  */
-export function FindFriendsButton() {
-  const { open } = usePeopleDoor();
+export function FindFriendsButton({ onOpenExample }: Props) {
+  const [searching, setSearching] = useState(false);
   return (
-    <Pressable
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      onPress={open}
-      accessibilityRole="button"
-      accessibilityLabel={t("Find friends")}
-    >
-      <Lens />
-    </Pressable>
+    <>
+      <Pressable
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+        onPress={() => setSearching(true)}
+        accessibilityRole="button"
+        accessibilityLabel={t("Search")}
+      >
+        <Lens />
+      </Pressable>
+      <SearchScreen
+        visible={searching}
+        onClose={() => setSearching(false)}
+        onOpenExample={onOpenExample}
+      />
+    </>
   );
 }
 
