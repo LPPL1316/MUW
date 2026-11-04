@@ -95,9 +95,9 @@ def test_a_placement_out_of_the_rules_is_refused(
     body = {**CIRCLE, "distance_m": 2000, **changes}
     with pytest.raises(InvalidRequestError, match=message):
         to_request(RouteRequestBody(**body))
-    # An image is refused on the water before its placement is looked at.
-    on_image = "not an image" if changes.get("activity") == "paddling" else message
-    with pytest.raises(InvalidRequestError, match=on_image):
+    # An image too: on the water it is paddled, but never anchored
+    # (TASK-369, ADR-0313).
+    with pytest.raises(InvalidRequestError, match=message):
         to_request(ImageRouteRequestBody(**{**IMAGE, "distance_m": 2000, **changes}))
     # Over the wire: 422 invalid_request, the message of the engine.
     graphs = ActivityGraphs({}, water=FileWaterSource(WATER_FIXTURE))
@@ -237,5 +237,7 @@ def test_the_shared_fixtures_are_valid_bodies() -> None:
     image = _load("image-route-request-anchored.json")
     assert ImageRouteRequestBody.model_validate(image).placement == "anchored"
     result = _load("route-result-anchored.json")
-    assert set(result) == set(RouteResultBody.model_fields)
+    # Every field but a swim's, which came after (TASK-323).
+    swim = {"laps", "lap_m", "turns"}
+    assert set(result) == set(RouteResultBody.model_fields) - swim
     assert RouteResultBody.model_validate(result).placed_outline

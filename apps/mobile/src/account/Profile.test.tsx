@@ -56,13 +56,13 @@ function calls(method: string, path: string) {
 /** «Profile» is the page after «Explore», where the circle in the header of
  * the pages goes (TASK-154, TASK-278). */
 async function openProfile() {
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
 }
 
 /** The profile is the page on screen: its circle has the page's mark. */
 function onProfilePage() {
-  expect(screen.getByRole("button", { name: /^Profile/, selected: true })).toBeTruthy();
-  expect(screen.getByTestId("profile-page-mark")).toBeTruthy();
+  expect(screen.getByRole("tab", { name: /^Profile/, selected: true })).toBeTruthy();
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toBeSelected();
 }
 
 beforeEach(() => {
@@ -138,7 +138,7 @@ test("an expired token asks to log in again, without a crash", async () => {
   await render(<App />);
   // «Profile» shows it needs a look, from «Draw».
   expect(await screen.findByTestId("profile-attention")).toBeTruthy();
-  expect(screen.getByRole("button", { name: "Profile, log in again" })).toBeTruthy();
+  expect(screen.getByRole("tab", { name: "Profile, log in again" })).toBeTruthy();
   expect(screen.getByTestId("draw-route")).toBeTruthy();
   await openProfile();
   expect(screen.getByText("Your session has ended. Log in again.")).toBeTruthy();
@@ -250,8 +250,8 @@ test("drawing a route, the map takes the whole screen; back, the pages return", 
   expect(calls("POST", "/route-jobs")).toHaveLength(1);
   // Neither the names of the pages nor the way to «Profile» over the map.
   expect(screen.queryByRole("tab")).toBeNull();
-  expect(screen.queryByRole("button", { name: /^Profile/ })).toBeNull();
+  expect(screen.queryByRole("tab", { name: /^Profile/ })).toBeNull();
   await fireEvent.press(screen.getByLabelText("Back"));
-  expect(screen.getAllByRole("tab")).toHaveLength(3);
-  expect(screen.getByRole("button", { name: "Profile" })).toBeTruthy();
+  expect(screen.getAllByRole("tab")).toHaveLength(5);
+  expect(screen.getByRole("tab", { name: "Profile" })).toBeTruthy();
 });

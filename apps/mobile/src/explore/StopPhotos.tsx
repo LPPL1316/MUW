@@ -1,9 +1,10 @@
 import type { LatLon } from "@shaperoute/shared-types";
 import { useMemo, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { keyHeaders } from "../api/apiUrl";
 import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import type { TownPhoto } from "./nearbyCities";
 import { apiPhoto, usePlacePhotos } from "./placePhotos";
 import { creditParts } from "./RouteCard";
@@ -94,13 +95,9 @@ export function StopPhotos({ stops, apiUrl, onPlace, fetchFn }: Props) {
             photo !== null && source !== undefined && !broken.has(photo.url);
           const label = `${stop.n} ${stop.name}`;
           return (
-            <Pressable
+            <Tap
               key={stop.n}
-              style={({ pressed }) => [
-                styles.card,
-                !shown && styles.nameAlone,
-                pressed && styles.pressed,
-              ]}
+              style={[styles.card, !shown && styles.nameAlone]}
               onPress={onPlace && (() => onPlace(stop.point))}
               disabled={onPlace === undefined}
               accessibilityRole="button"
@@ -139,7 +136,7 @@ export function StopPhotos({ stops, apiUrl, onPlace, fetchFn }: Props) {
               <Text style={styles.name} numberOfLines={shown ? 2 : 4}>
                 {label}
               </Text>
-            </Pressable>
+            </Tap>
           );
         })}
       </View>
@@ -166,9 +163,6 @@ const styles = StyleSheet.create({
     minHeight: PHOTO_HEIGHT,
     justifyContent: "center",
     backgroundColor: color.surfaceRaised,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   photo: {
     width: "100%",

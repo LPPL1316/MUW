@@ -293,6 +293,31 @@ export const IT: Table = {
   "I understand": "Ho capito",
   "Not now": "Non ora",
 
+  // src/swim/SwimNotice.tsx, src/swim/SwimRouteNote.tsx (TASK-323 C: the swim's
+  // notice and the line under every swim, approved by the user in English)
+  "Before you swim": "Prima di nuotare",
+  "Never swim alone. Tow a bright swim buoy and wear a bright cap.":
+    "Non nuotare mai da solo. Porta con te una boa di sicurezza ben visibile e indossa una cuffia colorata.",
+  "Check the water, the weather, the flags and the local rules: swimming areas, boat lanes, harbours. MuW does not know them.":
+    "Controlla l'acqua, il meteo, le bandiere e le regole del posto: zone di balneazione, corridoi di lancio, porti. MuW non le conosce.",
+  "The route stays between 20 and 150 m from the shore. That does not make it safe or allowed.":
+    "Il percorso resta fra 20 e 150 m dalla riva. Questo non lo rende sicuro né permesso.",
+  "If you feel tired or cold, head for the shore at once.":
+    "Se ti senti stanco o hai freddo, torna subito verso riva.",
+  "Within 150 m of the shore. Never swim alone.":
+    "Entro 150 m dalla riva. Non nuotare mai da solo.",
+
+  // src/swim/SwimTurns.tsx, src/swim/turns.ts (TASK-323 C: the turns of a
+  // swim before «Start», the place's name as OpenStreetMap writes it)
+  TURNS: "CURVE",
+  "Turn left": "Gira a sinistra",
+  "Turn right": "Gira a destra",
+  "Turn left · {place}": "Gira a sinistra · {place}",
+  "Turn right · {place}": "Gira a destra · {place}",
+  "{distance} from the start": "A {distance} dalla partenza",
+  "The same turns every lap, {laps} laps, then back to the shore.":
+    "Le stesse curve a ogni giro, {laps} giri, poi di nuovo a riva.",
+
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Sposta la forma",
   "Drag the shape where you want it, then let go.":
@@ -843,6 +868,11 @@ export const IT: Table = {
   "No photos yet.": "Ancora nessuna foto.",
   "No photos yet. Add some to a public drawing in My activities.":
     "Ancora nessuna foto. Aggiungine a un disegno pubblico in Le mie attività.",
+
+  // src/profile/PersonalBests.tsx (TASK-368)
+  "Personal bests": "Record personali",
+  "Half marathon": "Mezza maratona",
+  Marathon: "Maratona",
 
   // src/social/SuperLikeSheet.tsx
   "Super like": "Super like",
@@ -1541,6 +1571,8 @@ export const IT: Table = {
   FEEDBACK: "FEEDBACK",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Parapendio",
+  // src/settings/sport.ts (TASK-323 C: swimming in open water, «Soon» in «Sport»)
+  "Open water swim": "Nuoto in acque libere",
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313: la
   // stessa forma in «Draw»)
   "Draw it near me": "Disegnala vicino a me",
@@ -1708,8 +1740,56 @@ export const IT: Table = {
   Madrid: "Madrid",
   Turin: "Torino",
 
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Cerca disegni, persone, luoghi",
+  Clear: "Cancella",
+  People: "Persone",
+  Routes: "Percorsi",
+  Filters: "Filtri",
+  "Recent searches": "Ricerche recenti",
+  Categories: "Categorie",
+  "Featured drawings": "Disegni in evidenza",
+  Animals: "Animali",
+  Hearts: "Cuori",
+  Words: "Scritte",
+  Symbols: "Simboli",
+  Emoji: "Emoji",
+  Place: "Luogo",
+  "Town or region": "Città o regione",
+  Complexity: "Complessità",
+  Simple: "Semplice",
+  Medium: "Media",
+  Complex: "Complessa",
+  "Sort by": "Ordina per",
+  "Most recent": "Più recenti",
+  Longest: "Più lunghi",
+  "Most popular": "Più popolari",
+  "Up to {distance}": "Fino a {distance}",
+  "Over {distance}": "Oltre {distance}",
+  Reset: "Azzera",
+  "No drawings found": "Nessun disegno trovato",
+  "Try other words, or change the filters.": "Prova altre parole, o cambia i filtri.",
+
   // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
   "Route created by MuW – ride it yourself": "Percorso creato da MuW – pedalalo tu",
   "Route created by MuW – run it yourself": "Percorso creato da MuW – corrilo tu",
   "Route created by MuW – paddle it yourself": "Percorso creato da MuW – pagaialo tu",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Il tuo post",
+  "Hold and drag to reorder": "Tieni premuto e trascina per riordinare",
+  "Move left": "Sposta a sinistra",
+  "Move right": "Sposta a destra",
+  Layout: "Layout",
+  "Drawing in the corner": "Disegno nell'angolo",
+  "Line on the photo": "Linea sulla foto",
+  "Half and half": "Metà e metà",
+  "Photo in the corner": "Foto nell'angolo",
+  "Up to 10 in a post.": "Fino a 10 in un post.",
+  "Could not prepare this photo. Try again.":
+    "Impossibile preparare questa foto. Riprova.",
+  // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
+  Style: "Stile",
+  Night: "Notte",
+  Day: "Giorno",
 };

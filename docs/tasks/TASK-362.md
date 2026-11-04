@@ -1,6 +1,6 @@
 # TASK-362 — Le schede del Feed: «Tutti» e «Seguiti»
 
-**Stato**: Done — codice in PR da `feat/TASK-362-feed-tabs` (documenti #681)
+**Stato**: Done — documenti #681, codice #697 (in main e in produzione dal 2026-11-03)
 **Fase**: 4 · **Branch**: `docs/TASK-362-feed-tabs` (documenti),
 `feat/TASK-362-feed-tabs` (codice) · **ADR**: ADR-0308 · numeri dal
 Coordinatore (2026-10-30)
@@ -214,3 +214,6 @@ installate.
   dell'utente.
 - **Da fare fuori da questo task**: la riga di privacy si toglie più avanti
   (scelta 7); gli esempi restano aperti col Coordinatore (scelta 4).
+- **In produzione**: server 36c6b2da e OTA a91869b6 (da 081f6d82) del
+  2026-11-03; il 2026-11-04 l'utente vede le due schede sul telefono («Sì, le
+  vedo»).

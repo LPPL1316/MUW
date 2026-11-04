@@ -95,6 +95,9 @@ FOLDED_TO = "".join(plain * len(marked) for plain, marked in _FOLDED.items())
 _FOLD = str.maketrans(FOLDED_FROM, FOLDED_TO)
 
 SHAPE_PATTERN = r"^[a-z0-9_]{1,40}$"
+# In `shape`, the words drawn instead of a shape: the category «Words» of
+# the app (TASK-344 part B). No shape of the catalogue has this name.
+WORD_SHAPE = "word"
 # Where a page ended: the order, the value it is in order of (microseconds
 # of publication, metres, reactions) and the random id of the last one.
 CURSOR_PATTERN = r"^(recent|longest|popular)-\d{1,17}-[0-9a-f]{32}$"
@@ -189,6 +192,16 @@ ORDER_SQL: dict[Sort, str] = {
 }
 
 
+class DrawingSearchBody(FeedBody):
+    """GET /search/drawings: a page, as the feed's, that says what this API
+    knows. An API before TASK-344 part B leaves `words` out, and finds
+    nothing for `shape=word`: the app then hides the category «Words»
+    instead of saying that no word was ever drawn."""
+
+    words: bool = True
+    """`shape=word` finds the words drawn."""
+
+
 @dataclass(frozen=True)
 class Filters:
     """What a search asks besides its words; empty lists leave nothing out."""
@@ -225,7 +238,11 @@ def _where(words: Sequence[str], filters: Filters, values: dict[str, Any]) -> st
         found.append(every)
     if filters.shapes:
         values["shapes"] = list(filters.shapes)
-        found.append("r.shape = ANY (%(shapes)s)")
+        shapes = "r.shape = ANY (%(shapes)s)"
+        if WORD_SHAPE in filters.shapes:
+            # A word drawn: a run with a word and no shape (TASK-344 B).
+            shapes = f"({shapes} OR (r.shape IS NULL AND r.word IS NOT NULL))"
+        found.append(shapes)
     if filters.activities:
         values["activities"] = list(filters.activities)
         found.append("r.activity = ANY (%(activities)s)")
@@ -277,14 +294,14 @@ class DrawingSearch:
         sort: Sort = "recent",
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
-    ) -> FeedBody:
+    ) -> DrawingSearchBody:
         """A page of the drawings `viewer_id` may see that hold every word
         of `q` (or are of a shape in `filters.named`) and pass the filters,
         in the order `sort`."""
         filters = filters or Filters()
         words = words_of(q)
         if words is None or len(filters.place.strip()) > MAX_QUERY_LENGTH:
-            return FeedBody(posts=[], next=None)
+            return DrawingSearchBody(posts=[], next=None)
         values: dict[str, Any] = {"viewer": viewer_id, "limit": limit + 1}
         where = _where(words, filters, values)
         if cursor is not None:
@@ -301,7 +318,7 @@ class DrawingSearch:
             rows = conn.execute(search_sql(sort, where), values).fetchall()
             page, more = rows[:limit], len(rows) > limit
             details = _details(conn, [row["id"] for row in page])
-        return FeedBody(
+        return DrawingSearchBody(
             posts=[
                 FeedPostBody(
                     **_seen(row, details),
@@ -355,7 +372,7 @@ def drawing_search_routes() -> APIRouter:
         sort: Sort = "recent",
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
-    ) -> FeedBody:
+    ) -> DrawingSearchBody:
         _few(named, shape, activity, complexity)
         if min_m is not None and max_m is not None and min_m > max_m:
             raise AccountError(422, "invalid_request", DISTANCE_UPSIDE_DOWN)

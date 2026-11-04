@@ -2,8 +2,9 @@
  * «Edit the drawing» on the cards (TASK-320 part B, TASK-331): the track
  * of a member's drawing goes on the map of «Draw on the map» at once,
  * where it was run and as big (TASK-346, ADR-0299), and nothing is asked
- * before «Draw route». A shape of the catalogue — an emoji — has no «Edit
- * the drawing» (ADR-0288). What a drawing puts on the map is in
+ * before «Draw route». Since TASK-369 (ADR-0313) so does the line of every
+ * drawing and route, an emoji's and a word's too, and on the water (part
+ * B); not a post of photos alone. What a drawing puts on the map is in
  * src/route/figureLines.test.ts.
  */
 import drawing from "@shaperoute/shared-types/fixtures/drawing-details.json";
@@ -200,12 +201,35 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test("a route of «Explore» of an emoji has «Draw it near me» but no «Edit the drawing»", async () => {
+test("an example of the Feed of an emoji puts the line of its route on the map where it is, then «Draw route» asks for it there as a drawing", async () => {
   await onFeed();
   await fireEvent.press(screen.getByText(POST.title));
   await screen.findByText("Start");
   expect(screen.getByRole("button", { name: "Draw it near me" })).toBeOnTheScreen();
-  expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
+  const before = fetchSpy.mock.calls.length;
+
+  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
+
+  // The map of «Draw on the map» at once, the route's line on it, ready to
+  // draw on; nothing travels before «Draw route».
+  expect(screen.getByText("Undo")).toBeOnTheScreen();
+  expect(
+    screen.getByText("Each new line joins the drawing. Two fingers move the map."),
+  ).toBeOnTheScreen();
+  expect(screen.queryByRole("button", { name: "Draw it near me" })).toBeNull();
+  expect(posted()).toHaveLength(0);
+  expect(fetchSpy.mock.calls.length).toBe(before);
+
+  // «Draw route»: a drawing, not the star, from where the route starts.
+  await fireEvent.press(screen.getByText("Draw route"));
+  await screen.findByText(/^Drawing · on roads · target/, {}, { timeout: 3000 });
+  const sent = posted();
+  expect(sent).toHaveLength(1);
+  expect(String(sent[0][0])).toBe(`${API}/image-route-jobs`);
+  const body = JSON.parse(String(sent[0][1]?.body));
+  expect(body).not.toHaveProperty("shape");
+  expect(body.activity).toBe("running");
+  expect(metresApart(body.start, detail.points[0] as [number, number])).toBeLessThan(5);
 });
 
 test("a member's drawing of a picture puts the track it ran on the map where it was run, then «Draw route» asks for it there as a drawing", async () => {
@@ -261,7 +285,7 @@ test("a member's drawing of a picture puts the track it ran on the map where it 
   expect(screen.getByText("≈ 2.9 km")).toBeOnTheScreen();
 });
 
-test("a word of «Explore» has «Draw it near me» but no «Edit the drawing»", async () => {
+test("a word of «Explore» has «Draw it near me» and «Edit the drawing», which puts its line on the map", async () => {
   underItsId = () =>
     Response.json({ ...detail, shape: null, word: "CIAO", style: "block" });
   await onFeed();
@@ -269,7 +293,9 @@ test("a word of «Explore» has «Draw it near me» but no «Edit the drawing»"
   await fireEvent.press(await screen.findByText("Star · 5.1 km"));
   await screen.findByText("Start");
   expect(screen.getByRole("button", { name: "Draw it near me" })).toBeOnTheScreen();
-  expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
+  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
+  expect(screen.getByText("Undo")).toBeOnTheScreen();
+  expect(posted()).toHaveLength(0);
 });
 
 test.each([
@@ -277,17 +303,44 @@ test.each([
   ["a word", { shape: null, word: "ciao", style: "round" }],
   ["a run without a planned route", { shape: null, word: null, route_title: null }],
   ["a run imported from another app", imported],
-  [
-    "a post of photos alone",
-    { shape: null, word: null, route_title: "Image", track: [] },
-  ],
-])("a member's drawing of %s has no «Edit the drawing»", async (_what, fields) => {
-  theDrawing = () => Response.json({ ...drawing, ...fields, id: drawing.id });
+])(
+  "a member's drawing of %s puts its track on the map where it was run",
+  async (_what, fields) => {
+    theDrawing = () =>
+      Response.json({ ...drawing, ...fields, id: drawing.id, track: ROVERETO_RING });
+    await onDrawing();
+    await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
+    // As big as the loop is, where it was run: not around the start of «Draw».
+    expect(screen.getByText("Undo")).toBeOnTheScreen();
+    expect(screen.getByText("≈ 2.9 km")).toBeOnTheScreen();
+    expect(posted()).toHaveLength(0);
+  },
+);
+
+test("a member's drawing of a post of photos alone has no «Edit the drawing»", async () => {
+  theDrawing = () =>
+    Response.json({
+      ...drawing,
+      shape: null,
+      word: null,
+      route_title: "Image",
+      track: [],
+      id: drawing.id,
+    });
   await onDrawing();
   expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
 });
 
-test("with «Paddle» a drawing's card has no «Edit the drawing», even of a picture", async () => {
+test("a member's drawing paddled puts its track on the map where it was paddled (part B)", async () => {
+  theDrawing = () =>
+    Response.json({ ...drawing, activity: "paddling", track: RING, id: drawing.id });
+  await onDrawing();
+  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
+  expect(screen.getByText("Undo")).toBeOnTheScreen();
+  expect(posted()).toHaveLength(0);
+});
+
+test("with «Paddle» «Draw route» asks for the drawing on the water, paddled (part B)", async () => {
   jest.mocked(loadSport).mockReturnValue("paddle");
   theDrawing = () =>
     Response.json({
@@ -299,5 +352,17 @@ test("with «Paddle» a drawing's card has no «Edit the drawing», even of a pi
       track: RING,
     });
   await onDrawing();
-  expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
+  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
+  // On the water as on the roads: where it was, as big (within 1-5 km).
+  expect(screen.getByText("≈ 2.8 km")).toBeOnTheScreen();
+  expect(posted()).toHaveLength(0);
+  await fireEvent.press(screen.getByText("Draw route"));
+  await screen.findByText(/^Drawing · /, {}, { timeout: 3000 });
+  const sent = posted();
+  expect(sent).toHaveLength(1);
+  expect(String(sent[0][0])).toBe(`${API}/image-route-jobs`);
+  const body = JSON.parse(String(sent[0][1]?.body));
+  expect(body).toMatchObject({ distance_m: 2800, activity: "paddling" });
+  expect(body).not.toHaveProperty("placement", "anchored");
+  expect(metresApart(body.start, RING[0])).toBeLessThan(5);
 });

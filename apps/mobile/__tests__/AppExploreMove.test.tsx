@@ -147,7 +147,7 @@ const HEART_CARD = "Heart, 2.0 km, on the water";
 /** «Explore» with «Paddle» at Riccione, and the heart of its beach open. */
 async function heartOpen() {
   await atRiccione();
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   await fireEvent.press(screen.getByLabelText(HEART_CARD));
 }
 
@@ -286,7 +286,7 @@ test("a drawing of «Feed» on the water is not moved", async () => {
   } as Location.LocationObject);
   apiAnswers(waterDone(CENTRE, 0));
   await atRiccione();
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   expect(screen.getByLabelText(HEART_CARD)).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
   // The list draws two drawings at first, and the others once it knows how

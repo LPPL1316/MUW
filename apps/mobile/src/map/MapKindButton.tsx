@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import {
@@ -10,6 +10,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { MAP_KINDS, type MapKind, saveMapKind, useMapKind } from "./mapKind";
 
 /** The side of a sheet of the icon, before it is laid flat. */
@@ -37,9 +38,9 @@ export function MapKindButton() {
   return (
     // Beside the button and its choices a finger is on the map.
     <View style={styles.box} pointerEvents="box-none">
-      <Pressable
+      <Tap
         testID="map-kind"
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+        style={styles.button}
         onPress={() => setOpen(!open)}
         accessibilityRole="button"
         accessibilityLabel={t("Map type")}
@@ -47,16 +48,16 @@ export function MapKindButton() {
         accessibilityState={{ expanded: open }}
       >
         <Sheets />
-      </Pressable>
+      </Tap>
       {open && (
         <View style={styles.menu}>
           {MAP_KINDS.map((each) => {
             const chosen = each === kind;
             return (
-              <Pressable
+              <Tap
                 key={each}
                 testID={`map-kind-${each}`}
-                style={({ pressed }) => [styles.option, pressed && styles.pressed]}
+                style={styles.option}
                 onPress={() => {
                   saveMapKind(each);
                   setOpen(false);
@@ -68,7 +69,7 @@ export function MapKindButton() {
                   {kindName(each)}
                 </Text>
                 <Text style={styles.check}>{chosen ? "✓" : ""}</Text>
-              </Pressable>
+              </Tap>
             );
           })}
         </View>
@@ -102,9 +103,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.borderStrong,
     backgroundColor: color.surfaceRaised,
-  },
-  pressed: {
-    backgroundColor: color.surface,
   },
   icon: {
     width: SHEET * 1.5,

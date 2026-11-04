@@ -39,6 +39,8 @@ function door(...pages: AccountOutcome<DrawingsPage>[]) {
     photosOf: () => [],
     keepPhotoOf: () => false,
     removePhotoOf: () => {},
+    orderOf: () => null,
+    keepOrderOf: () => false,
     photoSource: () => null,
     pageOf,
     opening: null,

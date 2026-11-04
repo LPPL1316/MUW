@@ -1,6 +1,6 @@
 import type { Person } from "@shaperoute/shared-types";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Keyboard, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { accountProblem, NO_API, sessionEnded } from "../account/messages";
 import type { Account } from "../account/useAccount";
@@ -16,6 +16,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 
 type Failed = Exclude<AccountOutcome<unknown>, { kind: "ok" }>;
 
@@ -166,9 +167,9 @@ export function PeopleSearch({ apiUrl, account, onPick, fetchFn, apiKey }: Props
       )}
       {found.status === "found" &&
         found.people.map((person) => (
-          <Pressable
+          <Tap
             key={person.public_id}
-            style={({ pressed }) => [styles.person, pressed && styles.personPressed]}
+            style={styles.person}
             onPress={() => pick(person)}
             accessibilityRole="button"
             accessibilityLabel={person.username}
@@ -181,7 +182,7 @@ export function PeopleSearch({ apiUrl, account, onPick, fetchFn, apiKey }: Props
             <Text style={styles.name} numberOfLines={1}>
               {person.username}
             </Text>
-          </Pressable>
+          </Tap>
         ))}
     </View>
   );
@@ -217,10 +218,7 @@ const styles = StyleSheet.create({
     gap: space.md,
     paddingVertical: space.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.border,
-  },
-  personPressed: {
-    backgroundColor: color.surfaceRaised,
+    borderBottomColor: color.hairline,
   },
   name: {
     flex: 1,

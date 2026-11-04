@@ -306,7 +306,7 @@ test("a shape too big for the water offers the half km it fits at", async () => 
 test("«Explore» has the lakes and the beaches; their routes start without directions", async () => {
   apiAnswers(waterDone);
   await atRiccione();
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   expect(
     screen.getByText("Shapes to paddle, within 1 km of the shore"),
   ).toBeOnTheScreen();
@@ -329,7 +329,7 @@ test("with «Run», «Explore» is the one of before", async () => {
   jest.mocked(loadSport).mockReturnValue("run");
   fetchSpy.mockImplementation(async () => Response.json({ routes: [] }));
   await atRiccione();
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   expect(screen.getByText("Best near you")).toBeOnTheScreen();
   expect(screen.queryByText("On the water")).toBeNull();
 });
