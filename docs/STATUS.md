@@ -254,6 +254,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`feed/RouteMap.tsx`, `ActionBar.tsx`, `drawAgainDoor.ts`), il filo sotto i
   nomi in `Pager`. Impronta iOS `83793e26`. Prossimo: la parte B (conteggi,
   foto dell'autore, skeleton), dopo 344 B.
+  **Parte A in main** (#700, 2026-11-03, testa `f4975e0f`, riallineata una
+  volta dopo la #697 di TASK-362). Arriva al telefono con la prossima OTA del
+  Feed. Prossimo: la parte B, dopo 344 B.
 - **TASK-339 — L'interfaccia premium ed elegante** (ADR-0293, proposta;
   brief dell'utente del 2026-10-29; il canvas della proposta, 16 tavole,
   visto e approvato a voce la sera stessa, «BELLISSIMO»:
