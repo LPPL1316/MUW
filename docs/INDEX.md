@@ -54,6 +54,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | La scheda del Feed: titolo, data, estremi, barra azioni, conteggi, filtri | `tasks/TASK-355.md`, `DECISIONS.md` ADR-0306 e ADR-0293 |
 | Le schede del Feed «Tutti» e «Seguiti», il `filter` di `GET /feed`, la scheda ricordata | `tasks/TASK-362.md`, `DECISIONS.md` ADR-0308, `API.md` «Feed» |
 | I percorsi di MuW nel Feed: `GET /muw-routes`, `MuwPost`, l'etichetta, le bozze | `tasks/TASK-365.md`, `DECISIONS.md` ADR-0310, `API.md` «Feed» |
+| «MuW Style»: post con modelli AI, tag prodotto e «Shop», link affiliati, la lente «Style» | `STYLE.md`, `tasks/TASK-384.md`, `DECISIONS.md` ADR-0326 |
 | «RIDE IT YOURSELF» in «Explore»: i percorsi in bici di MuW, `bikeIdeas.json`, `tools/bike_ideas.py` | `tasks/TASK-364.md`, `DECISIONS.md` ADR-0309, `UI.md` «Pedalalo tu» |
 | La barra di schede in basso, l'header solo, Messages come scheda, l'ingranaggio del Profilo, la campanella | `tasks/TASK-367.md`, `DECISIONS.md` ADR-0311, `UI.md` |
 | Lo swipe fra le schede della barra, i gesti orizzontali dentro le pagine | `tasks/TASK-379.md`, `DECISIONS.md` ADR-0323 e ADR-0311, `UI.md` |

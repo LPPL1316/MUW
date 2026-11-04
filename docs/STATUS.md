@@ -160,6 +160,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
+  (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
+  materiali in `out/TASK-384/` (100 outfit da zalando.it, 100 prompt). Scelte dell'utente:
+  sport dell'app, 1 ogni 8 solo «All», Google Imagen / Gemini, Style prima della società.
+  Prossimo: il sì sulla proposta, i testi e i Termini nuovi, poi le parti A–C. Nessuna immagine
+  né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
+  **Proposta approvata dall'utente il 2026-11-04** («Sì, approvo»); prossimo: i testi in cinque
+  lingue e i nuovi Termini e Privacy, poi la parte A.
 - **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
   proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
   Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
@@ -313,6 +321,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   /notifications/read`, migrazione `0045_notification_list`; server e
   migrazione col sì dell'utente; durata (90 giorni) e frase della privacy
   approvate («Sì, approvo»), `site/privacy` rigenerato. C2 (la campanella nell'app) dopo la #734.
+  **Parte C2** (2026-11-04, branch `feat/TASK-367-c2-bell`): la campanella
+  nell'header con il numero dei non letti e la lista sopra l'app; ogni riga
+  apre quello che apre la sua push; niente campanella con un server senza
+  lista. Tre testi approvati. Solo app: arriva con un OTA, col sì
+  dell'utente, dopo il server con la `0045`.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
@@ -340,6 +353,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   riposo (Karvonen), cinque zone con la cima delle zone 1–4 modificabile e
   «Back to calculated zones», in `heart.json` sul telefono; solo app, OTA.
   Testo d'errore delle FC approvato dall'utente. Poi C e D nella 1.0.2.
+  Parte B in `main` con la PR #746 (`a1ff05da`); impronta all'anteprima e OTA
+  col Coordinatore. Prossimo: C (lettura da Salute) e D (tempo in zona) con
+  TASK-345 C nella 1.0.2.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
@@ -506,6 +522,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pixel di `hairline`, `Tap` prende un `ref`. La C1 (pagine vuote, testi
   nuovi) aspetta il sì dell'utente sui testi; poi D. Il 2026-11-04,
   su richiesta dell'utente, riallineata su `main` (con la #620) e aperta.
+  **Parte C2 in `main` dal 2026-11-04** (#715, nel lotto #717 del
+  Coordinatore). **Parte D in PR dal 2026-11-04** (branch
+  `feat/TASK-339-premium-look-d`): il nome del profilo come titolo leggero,
+  i totali leggeri in cifre tabulari, «Settings» senza bordi, i due fogli
+  (super like, messaggi) col titolo `heading` e un pixel in cima, `Tap` sui
+  pulsanti. Senza testi; `ProfileHome` e `UserProfilePage` restano a
+  TASK-309 B. Poi C1 (testi da approvare) ed E.
 - **TASK-361 — «Draw» in tre secondi** (ADR-0307; richiesta dell'utente
   del 2026-10-30; numeri dal Coordinatore). Un solo giallo («Run without a route» con contorno e 🏃),
   la via della partenza, la griglia a due righe, la forma in scala, mezzo

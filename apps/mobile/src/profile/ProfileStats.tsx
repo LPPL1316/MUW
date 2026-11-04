@@ -6,7 +6,15 @@ import { sessionEnded } from "../account/messages";
 import { fetchProfile } from "../api/profiles";
 import { decimal, t } from "../i18n";
 import { useFollowsDoor } from "../social/followsDoor";
-import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
+import {
+  color,
+  font,
+  fontSize,
+  fontWeight,
+  radius,
+  space,
+  tracking,
+} from "../theme/tokens";
 import { inUnits } from "../units/format";
 import type { Units } from "../units/units";
 import { useUnits } from "../units/useUnits";
@@ -133,23 +141,25 @@ const styles = StyleSheet.create({
     paddingVertical: space.md,
     paddingHorizontal: space.sm,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.border,
     backgroundColor: color.surface,
   },
+  // The totals light and in tabular digits, as the distances of the cards
+  // (TASK-339 D): the number is the picture, the bold is for the route.
   value: {
     color: color.text,
     fontSize: fontSize.title,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.light,
+    letterSpacing: tracking.title,
+    fontVariant: ["tabular-nums"],
   },
   unit: {
     color: color.textMuted,
     fontSize: fontSize.body,
-    fontWeight: fontWeight.semibold,
+    fontWeight: fontWeight.regular,
+    letterSpacing: 0,
   },
   label: {
+    ...font.small,
     color: color.textMuted,
-    fontSize: fontSize.small,
-    fontWeight: fontWeight.semibold,
   },
 });

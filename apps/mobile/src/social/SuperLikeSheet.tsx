@@ -20,12 +20,14 @@ import { t } from "../i18n";
 import { HeartBadge } from "../intro/HeartBadge";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 
 /** The side of the Sgrava heart that comes up over the drawing. */
 export const BIG_HEART_SIDE = 128;
@@ -142,14 +144,10 @@ function SheetBody({ sending, problem, onSend, onCancel }: Omit<Props, "visible"
           )}
         </View>
         <View style={styles.buttons}>
-          <Pressable
-            style={styles.button}
-            onPress={onCancel}
-            accessibilityRole="button"
-          >
+          <Tap style={styles.button} onPress={onCancel} accessibilityRole="button">
             <Text style={styles.buttonText}>{t("Cancel")}</Text>
-          </Pressable>
-          <Pressable
+          </Tap>
+          <Tap
             style={[styles.button, !canSend && styles.buttonOff]}
             onPress={() => onSend(text)}
             disabled={!canSend}
@@ -157,7 +155,7 @@ function SheetBody({ sending, problem, onSend, onCancel }: Omit<Props, "visible"
             accessibilityState={{ disabled: !canSend, busy: sending }}
           >
             <Text style={styles.buttonText}>{t("Send")}</Text>
-          </Pressable>
+          </Tap>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -270,14 +268,14 @@ const styles = StyleSheet.create({
     gap: space.sm,
     borderTopLeftRadius: radius.sheet,
     borderTopRightRadius: radius.sheet,
-    borderTopWidth: 1,
-    borderColor: color.border,
+    // One physical pixel at the top, as the rows (TASK-339 D).
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: color.hairline,
     backgroundColor: color.surface,
   },
   title: {
+    ...font.heading,
     color: color.text,
-    fontSize: fontSize.input,
-    fontWeight: fontWeight.semibold,
   },
   field: {
     minHeight: MIN_TAP_SIZE,

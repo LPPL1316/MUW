@@ -21289,6 +21289,24 @@ dell'utente; la divisione in C1 API e C2 app è del Coordinatore):
 - Le righe più vecchie di `KEPT_DAYS` si cancellano alla prima scrittura
   dopo, per tutti, con un indice su `at`; in lettura non si mostrano già.
 
+**Parte C2, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente; i tre testi sono dell'utente):
+
+- La campanella sta nell'header (`AppHeader`) e legge un contesto che dà
+  «Profile» (`bell/bellDoor.ts`), come i messaggi: `App.tsx` non cambia.
+- Senza lista da aprire non c'è: un 404 su `/notifications` (server di prima)
+  la toglie e non si chiede più per quell'account. È la scelta dell'utente
+  «Aspetta la lista vera»: mai una pagina vuota segnaposto.
+- Il numero si chiede ogni 5 minuti, non ogni minuto come i messaggi: una
+  pagina porta le foto di chi ha agito. Più all'avvio, al ritorno dell'app e
+  quando la lista si chiude.
+- Quello che apre una riga è quello che apre la sua push: `tapTarget` legge
+  `opens`, e `openTarget` (nuovo, usato anche dalle push) apre la porta.
+- La lista è letta fino alla riga più nuova appena la prima pagina è sullo
+  schermo; le righe nuove restano marcate finché la lista è aperta.
+- L'icona è la `bell` di Lucide, resa in PNG bianca a 26 pt con tratto 1,75
+  come le altre (`out/TASK-367-c2/icon.swift`).
+
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
@@ -22064,6 +22082,49 @@ Testi nuovi in cinque lingue (interfaccia, 91 esercizi, sette figure), una
 riga della privacy per esercizi e classifica. Il codice parte dopo la #758 e
 TASK-376 B2 e B3, con le righe di registrazione raccolte dal Coordinatore
 Sport. Server, migrazione e OTA di produzione col sì dell'utente.
+## ADR-0326 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
+
+**Stato**: Accettata · 2026-11-04 · TASK-384 («Sì, approvo» dell'utente
+sulla proposta). Le scelte di prodotto sono
+dell'utente (tema, frequenza, strumento, partenza prima della società:
+`tasks/TASK-384.md`); il come è deciso dall'agente su delega dell'utente.
+Numeri dal Coordinatore.
+
+**Contesto**: l'utente vuole nel Feed post di MuW con modelli generati dall'AI
+in outfit sportivi e tag che portano a comprare i capi con link affiliati.
+Un post del Feed è un `drawings` su un `runs`, con un utente e dei tempi; i
+percorsi di MuW (ADR-0310) stanno già fuori da `GET /feed`. Termini e Privacy
+oggi dicono che MuW non mostra pubblicità (TASK-267).
+
+**Decisione**:
+
+1. **Tabelle proprie**, `style_posts`, `post_product_tags` e
+   `product_tag_clicks`, e un endpoint proprio, `GET /style`: `GET /feed` e
+   `drawings` non cambiano, un'app già pubblicata non vede niente di nuovo.
+2. **Le etichette «AI-generated» e «Affiliate links» sono fisse sul post**, e
+   la scheda del tag dice che il capo nella foto è simile, non il prodotto:
+   AI Act art. 50, pubblicità riconoscibile, niente pratica ingannevole.
+3. **I clic si contano per giorno e per tag**, senza utente, IP o
+   identificativo: niente tracciamento, niente ATT, nessun dato nuovo
+   nell'App Privacy.
+4. **Uscita a data** (`publish_at`, 2–3 al giorno) e **controllo dei link**
+   prima dell'uscita, dal feed prodotti del programma affiliato quando c'è;
+   un tag senza prodotto si spegne, un post senza tag non esce.
+5. **Le immagini si generano da testo**, con persone inventate e capi senza
+   loghi; nessuna foto dei negozi, nemmeno come riferimento.
+6. **Nel Feed al massimo 1 su 8, solo «All»**, con un interruttore per
+   toglierli e la lente «Style».
+
+**Scartato**: un account MuW con post `drawings` finti (vorrebbe corse e tempi
+inventati, come in ADR-0310); scaricare le foto di Zalando (diritti del
+negozio, e l'utente l'ha escluso); contare i clic per utente (tracciamento,
+consenso, App Privacy).
+
+**Conseguenze**:
+- Servono testi legali nuovi e le dichiarazioni negli store prima della
+  prima build con Style.
+- Il catalogo preparato invecchia in giorni: prezzi e disponibilità vanno
+  riletti prima di ogni uscita.
 ## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
 
 **Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
