@@ -23,6 +23,8 @@ senza forme.
 - 2026-11-04, domanda 3: «Sì, separati». Lo sci alpino si chiama «Ski» ⛷️
   (Sci, Ski, Ski, Esquí) ed è uno sport distinto dallo sci di fondo
   (TASK-372).
+- 2026-11-04, il nome dello sci di fondo nell'app: «Cross-country ski»
+  (proposto con 🎿; le traduzioni con gli altri testi della parte B).
 - 2026-11-04, domanda 4: «Sì, tutte». A fine giornata di sci alpino:
   numero di discese, km sciati (solo le discese), dislivello sciato,
   velocità massima e media in km/h, impianti e piste usati con il nome e
