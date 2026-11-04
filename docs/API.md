@@ -1070,8 +1070,9 @@ motore.)
   è `422 invalid_request`, `distance must be between 1000 and 30000 metres
   for walking, got 31000`. La distanza suggerita di `shape_not_drawable`
   resta in quei limiti, anche per un job.
-- **Il GPX** dice `<type>walking</type>` (`GPX.md`, «Lo sport»); una
-  camminata salvata va su Strava come `Walk`.
+- **Il GPX** di una camminata dice `<type>walking</type>`, quelli degli
+  altri sport restano com'erano (`GPX.md`, «La camminata dice che è una
+  camminata»); una camminata salvata va su Strava come `Walk`.
 
 ### Una parola invece di una forma (TASK-056)
 

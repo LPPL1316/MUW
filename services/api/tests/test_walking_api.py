@@ -19,6 +19,7 @@ from typing import Any, get_args
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
+from route_engine.export_gpx import route_name, to_gpx
 from route_engine.models import InvalidRequestError
 from route_engine.network import BIKE_NETWORK_NAME, FOOT_NETWORK_NAME
 from route_engine.optimizer import ShapeNotDrawableError
@@ -36,7 +37,7 @@ from shaperoute_api.activity_graphs import ActivityGraphs, check_supported
 from shaperoute_api.app import create_app
 from shaperoute_api.db import Database, migrations
 from shaperoute_api.errors import suggested_distance
-from shaperoute_api.run_gpx import run_gpx, with_type
+from shaperoute_api.run_gpx import gpx_type, run_gpx, with_type
 from shaperoute_api.schemas import RouteRequestBody
 from shaperoute_api.strava import SPORT_TYPES
 from shaperoute_api.stroke_matches import StrokeMatchRequestBody
@@ -170,15 +171,21 @@ def test_the_gpx_of_a_walk_says_walking_after_the_name() -> None:
     assert len(ET.fromstring(gpx.content).findall(".//g:trkpt", NS)) == 3
 
 
-def test_the_gpx_of_a_run_says_running() -> None:
+@pytest.mark.parametrize("activity", ["running", "cycling"])
+def test_the_gpx_of_another_sport_is_as_before_byte_for_byte(activity: str) -> None:
+    # Only the walk says its sport: every other file is the engine's to_gpx.
     graphs, _, _ = two_networks()
     client = TestClient(
         create_app(graphs, planner=loading(RESULT, []), now=lambda: WHEN)
     )
-    run = {**WALK_HEART, "activity": "running"}
-    result = client.post("/routes", json=run).json()
-    gpx = client.post("/gpx", json={"request": run, "result": result})
-    assert _types(gpx.content) == ["running"]
+    asked = {**WALK_HEART, "activity": activity, "distance_m": 20_000}
+    result = client.post("/routes", json=asked).json()
+    gpx = client.post("/gpx", json={"request": asked, "result": result})
+    assert gpx.status_code == 200
+    points = [tuple(point) for point in result["points"]]
+    engine = to_gpx(points, route_name("heart", 20_000, WHEN), WHEN, [])
+    assert gpx.content == engine.encode()
+    assert with_type(engine, activity) is engine
 
 
 def test_with_type_keeps_the_rest_of_the_document() -> None:
@@ -193,7 +200,11 @@ def test_a_walk_saved_has_its_type_and_goes_to_strava_as_a_walk() -> None:
         [(46.0, 11.0, 0.0), (46.001, 11.0, 30.0)], [], WHEN, "Heart", "walking"
     )
     assert _types(gpx) == ["walking"]
-    assert _types(run_gpx([(46.0, 11.0, 0.0)], [], WHEN)) == [None]
+    plain = run_gpx([(46.0, 11.0, 0.0), (46.001, 11.0, 30.0)], [], WHEN, "Heart")
+    for other in ("running", "cycling", "paddling", "swimming"):
+        fixes = [(46.0, 11.0, 0.0), (46.001, 11.0, 30.0)]
+        assert run_gpx(fixes, [], WHEN, "Heart", other) == plain
+    assert gpx_type("walking") == "walking" and gpx_type("running") is None
     assert SPORT_TYPES["walking"] == "Walk"
     assert set(SPORT_TYPES) == set(API_ACTIVITIES)
     assert set(get_args(RunActivity)) == set(API_ACTIVITIES)

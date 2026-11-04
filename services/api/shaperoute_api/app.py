@@ -474,7 +474,7 @@ def create_app(
             # A swim's turns as waypoints, the first lap's (TASK-323).
             turns = [turn.to_turn() for turn in body.result.turns]
             document = with_turns(document, turns)
-        # The sport the route was asked for, a walk's too (TASK-371).
+        # A walk says it is one (TASK-371); every other file is as before.
         document = with_type(document, body.request.activity)
         return Response(
             document,
