@@ -781,6 +781,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `react-native-watch-connectivity`), il codice dopo TASK-321 B in `main`,
   in una sessione sul Mac con Xcode («Wait for B, then the Mac»). Il piano
   in `tasks/TASK-323.md`, «E, il piano».
+  **B, C1, C2, C4, D ed E in `main` il 2026-11-04**, dal Mac (la sessione
+  cloud non poteva spingere): B con la #709 nella raccolta #717
+  (`f23ec332`, migrazione `0040_swimming.sql`, il numero tenuto dal
+  Coordinatore), C1 #718 (`459fb732`), C2 #734 (`1b53a0a0`), C4 #740
+  (`4febe864`), D #742 (`eb1f7eaf`), E #744 (`97254e3d`). Impronta iOS
+  `6f8bba4c` invariata (D è solo JavaScript). **Server** aggiornato il
+  2026-11-04 con la `0040`; l'impronta del motore cambia con B, quindi
+  il ridisegno degli esempi tenuti (terra, paesi, acqua) l'ha lanciato
+  l'utente la sera stessa («B, la notte del server» nel task file).
+  **Resta**: accendere il nuoto (`ready: true` in `sport.ts`, domanda
+  all'utente) e allora `draw_examples --swim` col suo sì; l'estratto dei
+  nomi a riva (`shore_extract`) sul server; il controllo di
+  `paddleExamples.json` a ridisegno finito; il codice di E (Apple Watch,
+  ora che TASK-321 B è in `main`, sul Mac con Xcode); la prova in acqua
+  (primavera 2027).
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
