@@ -54,6 +54,9 @@ import {
   type WaterSpot,
 } from "./waterSpots";
 import { useScrollToTopOnReselect } from "../tabs/tabReselect";
+import { ExploreSearch } from "../explore/ExploreSearch";
+import { postRoute } from "../feed/feedRoute";
+import type { SamplePost } from "../feed/sampleFeed";
 
 /** Where the examples come from: a spot chosen, or «Near me», from the
  * start of «Draw» as it was when «Near me» began (null: there was none).
@@ -109,6 +112,9 @@ type Props = {
   /** The start of «Draw», for «Near me». */
   near: LatLon | null;
   onOpen: (route: RecommendedRoute) => void;
+  /** An example of «Feed» found by the search at the top (TASK-367 part B);
+   * left out, its route opens as a route of «Explore». */
+  onOpenExample?: (post: SamplePost) => void;
 };
 
 /**
@@ -128,7 +134,7 @@ type Props = {
  * activities», else the start «Near me» began from. «Lakes» and «Sea» show
  * one kind alone, and «Show more» the next places.
  */
-export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
+export function PaddleExplore({ apiUrl, near, onOpen, onOpenExample }: Props) {
   // The places say how far in the app's units, at once (TASK-182).
   useUnits();
   const insets = useSafeAreaInsets();
@@ -204,7 +210,13 @@ export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
       : searchSpots(WATER_SPOTS, typed, near).slice(0, SUGGESTIONS_SHOWN);
   return (
     <View style={[StyleSheet.absoluteFill, styles.screen]}>
-      <View style={[styles.header, { paddingTop: insets.top + space.sm }]}>
+      {/* The search, as on the run's «Explore» (TASK-367 part B). */}
+      <View style={[styles.search, { paddingTop: insets.top + space.sm }]}>
+        <ExploreSearch
+          onOpenExample={onOpenExample ?? ((post) => onOpen(postRoute(post)))}
+        />
+      </View>
+      <View style={[styles.header, { paddingTop: space.sm }]}>
         <View style={styles.titles}>
           <Text style={styles.title}>{t("On the water")}</Text>
           <Text style={styles.subtitle}>
@@ -464,6 +476,9 @@ function PlaceChip({
 }
 
 const styles = StyleSheet.create({
+  search: {
+    paddingHorizontal: space.lg,
+  },
   screen: {
     backgroundColor: color.background,
   },
