@@ -21289,6 +21289,24 @@ dell'utente; la divisione in C1 API e C2 app è del Coordinatore):
 - Le righe più vecchie di `KEPT_DAYS` si cancellano alla prima scrittura
   dopo, per tutti, con un indice su `at`; in lettura non si mostrano già.
 
+**Parte C2, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente; i tre testi sono dell'utente):
+
+- La campanella sta nell'header (`AppHeader`) e legge un contesto che dà
+  «Profile» (`bell/bellDoor.ts`), come i messaggi: `App.tsx` non cambia.
+- Senza lista da aprire non c'è: un 404 su `/notifications` (server di prima)
+  la toglie e non si chiede più per quell'account. È la scelta dell'utente
+  «Aspetta la lista vera»: mai una pagina vuota segnaposto.
+- Il numero si chiede ogni 5 minuti, non ogni minuto come i messaggi: una
+  pagina porta le foto di chi ha agito. Più all'avvio, al ritorno dell'app e
+  quando la lista si chiude.
+- Quello che apre una riga è quello che apre la sua push: `tapTarget` legge
+  `opens`, e `openTarget` (nuovo, usato anche dalle push) apre la porta.
+- La lista è letta fino alla riga più nuova appena la prima pagina è sullo
+  schermo; le righe nuove restano marcate finché la lista è aperta.
+- L'icona è la `bell` di Lucide, resa in PNG bianca a 26 pt con tratto 1,75
+  come le altre (`out/TASK-367-c2/icon.swift`).
+
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente

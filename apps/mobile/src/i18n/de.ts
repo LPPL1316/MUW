@@ -1858,4 +1858,9 @@ export const DE: Table = {
   Style: "Stil",
   Night: "Nacht",
   Day: "Tag",
+  // src/bell/BellButton.tsx, BellOverlay.tsx (TASK-367 part C: the bell)
+  Notifications: "Benachrichtigungen",
+  "Notifications, {count} new": "Benachrichtigungen, {count} neu",
+  "No notifications yet. Reactions, comments, follows and tags will show up here.":
+    "Noch keine Benachrichtigungen. Reaktionen, Kommentare, Follows und Markierungen erscheinen hier.",
 };

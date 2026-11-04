@@ -261,6 +261,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   /notifications/read`, migrazione `0045_notification_list`; server e
   migrazione col sì dell'utente; durata (90 giorni) e frase della privacy
   approvate («Sì, approvo»), `site/privacy` rigenerato. C2 (la campanella nell'app) dopo la #734.
+  **Parte C2** (2026-11-04, branch `feat/TASK-367-c2-bell`): la campanella
+  nell'header con il numero dei non letti e la lista sopra l'app; ogni riga
+  apre quello che apre la sua push; niente campanella con un server senza
+  lista. Tre testi approvati. Solo app: arriva con un OTA, col sì
+  dell'utente, dopo il server con la `0045`.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
