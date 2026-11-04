@@ -1,7 +1,7 @@
 # TASK-344 — Cercare i disegni dalla lente del Feed
 
 **Stato**: In corso — documenti (#653) e A (#659) in `main`; B (app)
-in PR, testi da approvare
+nella #705, testi approvati, entra dopo TASK-367 A
 **Fase**: 4 · **Branch**: `feat/TASK-344-a-drawing-search` (A),
 `feat/TASK-344-b-search-screen` (B) · **ADR**: ADR-0297 · numeri dal
 coordinatore (2026-10-29)
@@ -103,7 +103,9 @@ Condizioni del coordinatore (2026-10-29):
    una risposta che lo dichiara (condizione del Coordinatore): il server
    va aggiornato col sì dell'utente, in qualsiasi ordine con l'OTA.
 5. 28 testi nuovi in inglese, italiano, tedesco, spagnolo e francese in
-   `src/i18n/*.ts` (mai in `locales/`): **da approvare dall'utente**.
+   `src/i18n/*.ts` (mai in `locales/`): **approvati dall'utente** il
+   2026-11-04, con le sue parole «Sì, approvati», sulla tabella inglese →
+   italiano della sessione.
 
 ## Criteri di accettazione
 
@@ -175,7 +177,7 @@ di partenza, «meno di 300 ms», vale per le ricerche che si fermano presto
 - [x] Senza quella risposta (server di prima, nessun account) «Words»
       non c'è; con quella, c'è e chiede `shape=word`
       (`SearchScreen.test.tsx`).
-- [ ] I testi nuovi approvati dall'utente.
+- [x] I testi nuovi approvati dall'utente (2026-11-04, «Sì, approvati»).
 - [ ] Prova sul simulatore o sull'iPhone (preview).
 
 ## File toccati
