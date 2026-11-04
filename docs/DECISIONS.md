@@ -22149,7 +22149,11 @@ OTA.
    raggio pieno) dietro la scheda attiva scivola alla nuova con `snappy` e si
    allunga a metà corsa (8% per scheda attraversata, al massimo 20%), come
    una goccia. Con lo swipe di TASK-379 segue la posizione del dito (prop
-   `drag` da `TabShell`, pagine dal posto a riposo); una pagina arrivata col
+   `drag`: `TabShell` la mette dal suo `onScroll`, già in JS ogni 16 ms, in
+   pagine dalla pagina dell'app contate da quella che la striscia ha sullo
+   schermo, col giro più vicino all'ultimo valore, così anche più swipe di
+   fila senza fermarsi vanno avanti; un `Animated.event` sul driver nativo
+   è scartato perché `TabBar` deve leggere `drag` da JS); una pagina arrivata col
    dito trova la capsula già lì, e non parte nessuna molla. Nel giro dal
    profilo al Feed una seconda capsula, a una barra di distanza, entra da
    sinistra mentre la prima esce a destra. L'icona che prende la scheda sale

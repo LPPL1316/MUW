@@ -66,8 +66,11 @@ via del Coordinatore, dopo il merge della #764.
 - Fatto così (deciso dall'agente su delega dell'utente): lo `ScrollView` di
   TASK-379 resta com'è. Il suo `onScroll`, che riceve già ogni evento
   (`scrollEventThrottle={16}`), mette in un `Animated.Value` `drag` la
-  distanza dal posto della pagina dell'app, in pagine:
-  `(x − posto × width) / width`, con posto = `around.get(page) ?? now.place`.
+  distanza dalla pagina dell'app, in pagine (`pagesFromPage`):
+  `x / width − now.place + now.page − page`, col giro della barra più vicino
+  all'ultimo valore. Con più swipe di fila la striscia porta le pagine
+  lontano da quella dell'app, che cambia solo a riposo: contare da
+  `now` tiene la capsula in avanti (visto nel simulatore il 2026-11-04).
   Il valore va a `TabBar`. Scartato un `Animated.event` sul driver nativo:
   avrebbe cambiato lo `ScrollView` della striscia in `Animated.ScrollView`,
   e `TabBar` non avrebbe più potuto leggere `drag` da JS, che le serve per
