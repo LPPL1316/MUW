@@ -1665,6 +1665,19 @@ forma del catalogo: una parola, un'immagine o un contorno da file sono
 `InvalidRequestError` («on the water only a shape of the catalogue is
 drawn, not a word»).
 
+**Un disegno sull'acqua** (TASK-369 parte B, ADR-0313): «Edit the drawing»
+fa un disegno di ogni percorso, e la canoa lo pagaia con
+`drawn_water.plan_drawn_water(outline, distance_m, start, source, pen_up)`,
+un modulo nuovo accanto a `paddling.py`: lo stesso
+`water_fit.plan_on_water` di una forma (dove ci sta nella fascia vicino
+alla partenza, girato e riscalato, non esattamente dov'era disegnato), lo
+stesso `check_on_water`; i dettagli si fanno andata e ritorno, con la penna
+alzata i pezzi uno per uno. `paddling.py`, `water_fit.py` e `models.py` non
+cambiano: il rifiuto «not an image» lo toglie l'API per la sola canoa
+(`images.ImageRequest`). Il modulo resta fuori dall'impronta del motore
+(`route_store.DRAWN_WATER_ONLY`, come `ANCHORED_ONLY`), perché nessun
+percorso tenuto è un disegno: gli esempi tenuti restano.
+
 **Una forma a pezzi sull'acqua** (TASK-226, ADR-0188): con la penna alzata
 (`pen_up` nella richiesta, §2 «Pezzi staccati dal contorno») il contorno e
 i pezzi, per esempio gli occhi di un gatto, si piazzano insieme, tutti

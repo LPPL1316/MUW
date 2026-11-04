@@ -15,6 +15,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import {
   type ImportedRun,
   importedRun,
@@ -151,11 +152,8 @@ export function AddPastActivity({
       </Pressable>
       {open && (
         <>
-          <Pressable
-            style={({ pressed }) => [
-              styles.choice,
-              (pressed || reading) && styles.pressed,
-            ]}
+          <Tap
+            style={[styles.choice, reading && styles.dim]}
             onPress={() => void fromFile()}
             disabled={reading}
             accessibilityRole="button"
@@ -167,7 +165,7 @@ export function AddPastActivity({
             <Text style={styles.choiceDetail}>
               {t("GPX, TCX or FIT from Strava, Garmin, Komoot…")}
             </Text>
-          </Pressable>
+          </Tap>
           <Text style={styles.help}>
             {t(
               "Export the activity as a file from the other app or its website, save it in Files, then pick it here.",
@@ -229,7 +227,7 @@ const styles = StyleSheet.create({
     borderColor: color.border,
     backgroundColor: color.surface,
   },
-  pressed: {
+  dim: {
     opacity: 0.6,
   },
   choiceTitle: {

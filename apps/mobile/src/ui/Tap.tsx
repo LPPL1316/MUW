@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type Ref, useState } from "react";
 import {
   Animated,
   Easing,
@@ -6,6 +6,7 @@ import {
   Pressable,
   type PressableProps,
   type StyleProp,
+  type View,
   type ViewStyle,
 } from "react-native";
 
@@ -13,6 +14,8 @@ import { motion } from "../theme/tokens";
 import { useReduceMotion } from "./useReduceMotion";
 
 type Props = Omit<PressableProps, "style"> & {
+  /** The Pressable itself, for a caller that measures or scrolls to it. */
+  ref?: Ref<View>;
   /** The control's own look; the press lays its scale and opacity over it. */
   style?: StyleProp<ViewStyle>;
 };
@@ -29,13 +32,14 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
  * everything a Pressable takes, except a `style` function: the pressed
  * look is this component's.
  */
-export function Tap({ style, onPressIn, onPressOut, ...rest }: Props) {
+export function Tap({ ref, style, onPressIn, onPressOut, ...rest }: Props) {
   const [pressed] = useState(() => new Animated.Value(0));
   const still = useReduceMotion();
 
   if (still) {
     return (
       <Pressable
+        ref={ref}
         {...rest}
         style={({ pressed: held }) => [style, held && styles.held]}
         onPressIn={onPressIn}
@@ -64,6 +68,7 @@ export function Tap({ style, onPressIn, onPressOut, ...rest }: Props) {
 
   return (
     <AnimatedPressable
+      ref={ref}
       {...rest}
       style={[style, { opacity, transform: [{ scale }] }]}
       onPressIn={(event: GestureResponderEvent) => {

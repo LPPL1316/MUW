@@ -13,6 +13,7 @@ import { ReportMenu } from "../social/ReportMenu";
 import { color, fontSize, space } from "../theme/tokens";
 import { ProfileGallery } from "./ProfileGallery";
 import { ProfileHeader } from "./ProfileHeader";
+import { PersonalBests } from "./PersonalBests";
 import { ProfileStats, totalsOf } from "./ProfileStats";
 
 type Failed = Exclude<AccountOutcome<unknown>, { kind: "ok" }>;
@@ -211,6 +212,8 @@ export function UserProfilePage({ apiUrl, account, publicId, fetchFn, apiKey }: 
         )}
       </View>
       {totals !== null && <ProfileStats totals={totals} />}
+      {/* The personal bests (TASK-368): none from an older API. */}
+      {profile.personal_bests && <PersonalBests bests={profile.personal_bests} />}
       <ProfileGallery
         publicId={profile.public_id}
         own={false}

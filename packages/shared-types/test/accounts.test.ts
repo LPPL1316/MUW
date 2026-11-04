@@ -5,17 +5,21 @@ import changeEmail from "../fixtures/change-email-request.json" with { type: "js
 import changePhone from "../fixtures/change-phone-request.json" with { type: "json" };
 import editProfile from "../fixtures/edit-profile-request.json" with { type: "json" };
 import notifications from "../fixtures/notifications-request.json" with { type: "json" };
+import personalBests from "../fixtures/personal-bests.json" with { type: "json" };
 import publicProfile from "../fixtures/public-profile.json" with { type: "json" };
 import session from "../fixtures/session.json" with { type: "json" };
 import signUp from "../fixtures/sign-up-request.json" with { type: "json" };
 import {
   BIO_MAX_LENGTH,
+  CYCLING_BEST_DISTANCES,
   type ChangeEmailRequest,
   type ChangePhoneRequest,
   type EditProfileRequest,
   type NotificationsRequest,
   PASSWORD_LENGTH,
+  type PersonalBest,
   type PublicProfile,
+  RUNNING_BEST_DISTANCES,
   USER_ROLES,
   type Session,
   type SignInRequest,
@@ -62,6 +66,8 @@ test("a session carries the token and the user, nothing else", () => {
 // The same JSON is validated by the API's test_profiles.py (TASK-116).
 const edited: EditProfileRequest = editProfile;
 const seen: PublicProfile = { ...publicProfile, follow: "following" };
+// The same JSON is validated by the API's test_personal_bests.py (TASK-368).
+const bests = personalBests as PersonalBest[];
 
 test("the profile change keeps the API's limits", () => {
   assert.match(edited.username ?? "", /^[A-Za-z0-9_.]{3,20}$/);
@@ -79,12 +85,24 @@ test("a profile seen by the others has no email, role or internal id", () => {
     "follow",
     "followers",
     "following",
+    "personal_bests",
     "photo",
     "public_id",
     "reactions",
     "username",
   ]);
   assert.equal(seen.public_id, signedIn.user.public_id);
+});
+
+test("a personal best is of a distance of its sport", () => {
+  for (const best of bests) {
+    const distances: readonly string[] =
+      best.sport === "running" ? RUNNING_BEST_DISTANCES : CYCLING_BEST_DISTANCES;
+    assert.ok(distances.includes(best.distance), best.distance);
+    assert.ok(best.seconds > 0);
+    // The run opens for its owner only; this profile is another's.
+    assert.equal(best.key, null);
+  }
 });
 
 // The same JSON is validated by the API's test_contact.py (TASK-183).

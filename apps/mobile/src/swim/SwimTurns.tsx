@@ -5,7 +5,7 @@ import { t } from "../i18n";
 import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
 import { useUnits } from "../units/useUnits";
 
-import { firstLapTurns, lapsNote, turnAt, turnLabel } from "./swimTurns";
+import { firstLapTurns, lapsNote, turnAt, turnLabel } from "./turns";
 
 /**
  * On a swim's result, before «Start» (TASK-323 C): where it turns, the

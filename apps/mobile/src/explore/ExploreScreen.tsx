@@ -34,6 +34,7 @@ import type { Place } from "../places/photon";
 import { AskForRoute } from "./AskForRoute";
 import type { ThemedIdea } from "./themedIdeas";
 import { IdeasFromEurope } from "./IdeasFromEurope";
+import { RideItYourself } from "./RideItYourself";
 import {
   addedExamples,
   cityKey,
@@ -53,6 +54,10 @@ import { RecommendedRow } from "./RecommendedRow";
 import { CardMapsCredit, cardWidth, RouteCard } from "./RouteCard";
 import type { ThemedRequest } from "./themedRoutes";
 import { stillDrawing, useWaited, WhileDrawing } from "./WhileDrawing";
+import { useScrollToTopOnReselect } from "../tabs/tabReselect";
+import { postRoute } from "../feed/feedRoute";
+import type { SamplePost } from "../feed/sampleFeed";
+import { ExploreSearch } from "./ExploreSearch";
 
 type ListState =
   | { status: "loading" }
@@ -76,6 +81,9 @@ type Props = {
   onAsk?: (request: ThemedRequest) => void;
   /** One of our ideas in the cities of Europe, opened as it is. */
   onIdea?: (idea: ThemedIdea) => void;
+  /** An example of «Feed» found by the search at the top (TASK-367 part B);
+   * left out, its route opens as a route of «Explore». */
+  onOpenExample?: (post: SamplePost) => void;
 };
 
 const NO_ROUTES: RecommendedRoute[] = [];
@@ -120,10 +128,13 @@ export function ExploreScreen({
   recent = [],
   onAsk,
   onIdea,
+  onOpenExample,
 }: Props) {
   // A city searched for takes the place of the start (TASK-129).
   const near = city?.point ?? start;
   const insets = useSafeAreaInsets();
+  // Its tab touched again: back to the top (TASK-367).
+  const scroll = useScrollToTopOnReselect<ScrollView>();
   // The cards are written again when «Settings» changes the units (TASK-182).
   const units = useUnits();
   // What the page has between its side margins: two cards side by side.
@@ -254,7 +265,21 @@ export function ExploreScreen({
 
   return (
     <View style={[StyleSheet.absoluteFill, styles.screen]}>
-      <View style={[styles.header, { paddingTop: insets.top + space.sm }]}>
+      {/* The search of drawings, people and places (TASK-367 part B): the
+          lens of «Feed» before. Not on a screen with its own way back. */}
+      {!onBack && (
+        <View style={[styles.search, { paddingTop: insets.top + space.sm }]}>
+          <ExploreSearch
+            onOpenExample={onOpenExample ?? ((post) => onOpen(postRoute(post)))}
+          />
+        </View>
+      )}
+      <View
+        style={[
+          styles.header,
+          { paddingTop: onBack ? insets.top + space.sm : space.sm },
+        ]}
+      >
         {onBack && (
           <Pressable
             style={styles.back}
@@ -279,6 +304,7 @@ export function ExploreScreen({
         <HeartBadge size={MIN_TAP_SIZE} />
       </View>
       <ScrollView
+        ref={scroll}
         contentContainerStyle={[
           styles.list,
           { paddingBottom: insets.bottom + space.lg },
@@ -383,12 +409,19 @@ export function ExploreScreen({
             ideas={
               onIdea && (
                 // Their maps after those of the routes above them.
-                <IdeasFromEurope
-                  width={contentWidth - 2 * space.md}
-                  onIdea={onIdea}
-                  maps={list.status !== "loading"}
-                  apiUrl={apiUrl}
-                />
+                <>
+                  <IdeasFromEurope
+                    width={contentWidth - 2 * space.md}
+                    onIdea={onIdea}
+                    maps={list.status !== "loading"}
+                    apiUrl={apiUrl}
+                  />
+                  <RideItYourself
+                    width={contentWidth - 2 * space.md}
+                    onOpen={onOpen}
+                    maps={list.status !== "loading"}
+                  />
+                </>
               )
             }
           />
@@ -405,6 +438,9 @@ function capitalised(text: string): string {
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: color.background,
+  },
+  search: {
+    paddingHorizontal: space.lg,
   },
   header: {
     flexDirection: "row",

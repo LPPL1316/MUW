@@ -1,6 +1,6 @@
 # TASK-367 — La navigazione come Instagram: la barra in basso e un header solo
 
-**Stato**: Todo — documenti ora, codice col via del Coordinatore
+**Stato**: In lavorazione — parti A e B in main; C col via del Coordinatore dopo la C2 del nuoto
 **Fase**: 4 · **Branch**: `docs/TASK-367-tab-bar` (documenti),
 `feat/TASK-367-a-tab-bar` (parte A) · **ADR**: ADR-0311 · numeri dal
 Coordinatore (2026-11-02)
@@ -144,6 +144,44 @@ Dopo 344 B e coordinata con TASK-362, che ha la lente accanto alle schede del
 Feed: la barra di ricerca in cima a Explore, la lente esce dal Feed. Testi da
 approvare.
 
+Fatta così (2026-11-04, via del Coordinatore): in cima a «Explore», anche
+sull'acqua, un campo con la lente della barra e il testo già tradotto
+«Search drawings, people, places» apre la ricerca di TASK-344; la lente esce
+dal Feed (`FindFriendsButton` tolto). Un esempio del Feed trovato da
+«Explore» si apre come dal Feed (`fetchPostRoute`): due props in `App.tsx`,
+dopo la #722. Nessun testo nuovo nell'app; la frase della Guida sulla lente e
+quella della privacy su «Trova amici nella rubrica» con il sì dell'utente.
+
+Testi approvati dall'utente il 2026-11-04, nelle 5 lingue di `about/content`:
+
+- Guida, alla proposta «La ricerca in cima a «Esplora» trova gli altri
+  iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti
+  segue e chi segui sono in «Profilo».» l'utente ha risposto: «Sì, approvo».
+- Privacy, alla proposta «In «Feed», «Trova persone da seguire» porta a
+  «Trova amici nella rubrica», che cerca gli iscritti il cui numero è nella
+  rubrica del tuo telefono. L'app chiede la rubrica al telefono solo quando lo
+  tocchi, e ne legge solo i numeri di telefono: mai nomi, email o foto.»
+  l'utente ha risposto: «Sì, approvo».
+
+`site/privacy` rigenerato con `make_privacy.mjs` su main dopo la #724
+(ac3f1228). Copia del sito e OTA: le chiede il Coordinatore all'utente.
+
+File toccati della parte B (approvati dal Coordinatore):
+
+```
+apps/mobile/src/explore/ExploreSearch.tsx                    (nuovo)
+apps/mobile/src/explore/ExploreScreen.tsx, ExploreScreen.test.tsx, ExploreHeart.test.tsx
+apps/mobile/src/paddle/PaddleExplore.tsx
+apps/mobile/src/screens/FeedScreen.tsx, FeedScreen.test.tsx, ProfileLayer.test.tsx
+apps/mobile/src/social/FindFriendsButton.tsx, .test.tsx      (tolti)
+apps/mobile/src/search/Glyphs.tsx                            (un commento)
+apps/mobile/src/search/SearchScreen.tsx, SearchScreenInset.test.tsx (nuovo)  (sotto la barra di stato, via del Coordinatore)
+apps/mobile/App.tsx                                          (dopo la #722: onOpenExample)
+apps/mobile/__tests__/AppFeed.test.tsx                       (il test di onOpenExample)
+apps/mobile/src/about/content/*.ts, site/privacy/**          (col sì dell'utente; il sito dopo la #724)
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
+```
+
 ### Parte C — la campanella con le notifiche vere
 
 Il server tiene una riga per ogni evento che oggi manda una push (reazioni,
@@ -182,19 +220,27 @@ docs/STATUS.md
 docs/INDEX.md
 ```
 
-Parte A:
+Parte A (lista aggiornata il 2026-11-04 e mandata al Coordinatore prima della
+PR):
 
 ```
 apps/mobile/App.tsx
 apps/mobile/assets/ui/tabs/**                         (nuovi)
 apps/mobile/src/tabs/**                               (nuovi)
-apps/mobile/src/messages/messagesDoor.ts, MessagesOverlay.tsx
-apps/mobile/src/profile/ProfileHome.tsx, ProfileHome.test.tsx
-apps/mobile/src/screens/ProfileLayer.tsx               (se il Profilo lo chiede)
-apps/mobile/src/tour/tourSteps.ts, tourParts.ts, i loro test
+apps/mobile/src/messages/messagesDoor.ts
+apps/mobile/src/profile/ProfileHome.tsx
+apps/mobile/src/screens/ProfileLayer.tsx, pageTitles.ts
+apps/mobile/src/screens/FeedScreen.tsx                (una riga: in cima al tocco)
+apps/mobile/src/explore/ExploreScreen.tsx             (una riga: in cima al tocco)
+apps/mobile/src/paddle/PaddleExplore.tsx              (una riga: in cima al tocco)
+apps/mobile/src/tour/TourScrollView.tsx               (una riga: in cima al tocco)
 apps/mobile/src/about/content/*.ts                    (le frasi della Guida)
-apps/mobile/src/screens/Pager.tsx, Pager.test.tsx     (tolti quando nessuno li usa)
-docs/UI.md, docs/STATUS.md, docs/tasks/TASK-367.md
+apps/mobile/src/screens/Pager.tsx, Pager.test.tsx     (tolti)
+test che premevano le pagine per nome o il cerchio del profilo:
+  apps/mobile/__tests__/App*.test.tsx, src/screens/ProfileLayer.test.tsx,
+  ProfileEntryPoints.test.tsx, src/account/Profile.test.tsx,
+  src/tour/GuideInProfile.test.tsx, src/feed/FeedPostPhotos.test.tsx
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
 ```
 
 ## Fuori scope
@@ -207,4 +253,28 @@ docs/UI.md, docs/STATUS.md, docs/tasks/TASK-367.md
 
 ## Esito
 
-*(a fine task)*
+**Parte A** (2026-11-04, PR #716, al posto della #714): barra in basso, header unico, «Messages»
+come scheda, ingranaggio nel Profilo, Pager tolto. Suite dell'app verde (590
+file di test), impronta iOS `83793e26` prima del riallineamento e `6f8bba4c`
+dopo la #620. Simulatore (iPhone 17e, Expo Go): schermate in
+`docs/tasks/TASK-367/` (scuro e chiaro); il tocco sulla scheda attiva riporta
+Draw in cima; «Messages» senza account porta al profilo; il tour indica lo
+sport nell'header e poi Explore e Feed. Il «prima» (main `6dc89cfa`) è in
+`before-*.jpg` nella stessa cartella, Draw e Feed nei due toni. Non visto nel simulatore: il
+Profilo con l'account (ingranaggio) e la scheda Messages piena, coperti dai
+test. Draw ed Explore tengono il loro logo nella pagina, sotto quello nuovo
+dell'header: scelta dell'utente del 2026-11-04 («Lascialo»).
+
+**Parte B** (2026-11-04, PR #729, in main 99bca40c): in cima a «Explore», anche
+sull'acqua, il campo con la lente apre la ricerca di TASK-344; il Feed non ha
+più la lente. Un disegno del Feed trovato lì si apre con `fetchPostRoute`, come
+dal Feed, e «Indietro» torna a «Explore» (test in `__tests__/AppFeed.test.tsx`
+che fallisce senza la modifica). La pagina della ricerca ha un suo
+`SafeAreaProvider`: prima finiva sotto la barra di stato, difetto già in
+produzione con la lente del Feed (`SearchScreenInset.test.tsx`). Testi della
+Guida e della privacy approvati dall'utente («Sì, approvo» per entrambi),
+`site/privacy` rigenerato su main dopo la #724. Impronta iOS `6f8bba4c`.
+Simulatore (iPhone 17e, Expo Go): la ricerca in cima a «Explore», il ritorno a
+«Explore», il Feed senza lente; il caricamento riuscito di un disegno trovato
+non visto (nessuna API locale), coperto dal test. Copia del sito e OTA: le
+chiede il Coordinatore all'utente.

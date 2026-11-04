@@ -337,34 +337,49 @@ def test_a_word_on_the_water_is_refused(tmp_path: Path) -> None:
         )
 
 
-@pytest.mark.parametrize("distance", [3000, 12_000])
-def test_an_image_on_the_water_is_refused_whatever_its_distance(
-    tmp_path: Path, distance: int
-) -> None:
+def test_an_image_on_the_water_is_paddled_where_it_fits(tmp_path: Path) -> None:
+    # Since TASK-369 (ADR-0313) a canoe paddles a drawing as it does a
+    # shape: «Edit the drawing» makes one of every route. The water of the
+    # largest heart covers the square's.
+    client = api(cached(tmp_path, COAST, _request(COAST_START, 5000)))
+    image = {
+        "start": list(COAST_START),
+        "outline": SQUARE,
+        "distance_m": 2000,
+        "activity": "paddling",
+    }
+    answer = client.post("/image-route-jobs", json=image)
+    assert answer.status_code == 202, answer.text
+    job = finished(client, answer.json()["job_id"])
+    assert job["status"] == "done", job
+    result = job["result"]
+    assert result["shape"] is None
+    points = points_of(result)
+    assert points[0] == points[-1]
+    assert abs(result["distance_m"] - 2000) <= 200
+    # No search on the water: no alternatives.
+    assert not result.get("alternatives")
+    gpx = client.post("/gpx", json={"request": image, "result": result})
+    assert gpx.status_code == 200, gpx.text
+
+
+def test_an_image_on_the_water_keeps_the_limits_of_the_canoe(tmp_path: Path) -> None:
     client = api(tmp_path)
     image = {
         "start": list(COAST_START),
         "outline": SQUARE,
-        "distance_m": distance,
+        "distance_m": 12_000,
         "activity": "paddling",
     }
     answer = client.post("/image-route-jobs", json=image)
     assert answer.status_code == 422
-    error = answer.json()["error"]
-    assert error["code"] == "invalid_request"
-    assert error["message"] == (
-        "on the water only a shape of the catalogue is drawn, not an image"
-    )
-    result = {
-        "points": [list(COAST_START), [44.002, 12.652], list(COAST_START)],
-        "distance_m": 3010.0,
-        "similarity": 1.0,
-        "shape": None,
-        "warnings": [],
-    }
-    gpx = client.post("/gpx", json={"request": image, "result": result})
-    assert gpx.status_code == 422
-    assert gpx.json()["error"]["message"] == error["message"]
+    assert answer.json()["error"]["code"] == "invalid_request"
+    assert "not an image" not in answer.json()["error"]["message"]
+    # Left where it was drawn it is refused: no route on the water is.
+    anchored = {**image, "distance_m": 2000, "placement": "anchored"}
+    refused = client.post("/image-route-jobs", json=anchored)
+    assert refused.status_code == 422
+    assert refused.json()["error"]["code"] == "invalid_request"
 
 
 # --- the water of the cache: read, downloaded, refused ---

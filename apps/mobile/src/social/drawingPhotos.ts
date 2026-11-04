@@ -9,6 +9,7 @@ import {
   worthAgain,
 } from "../api/drawings";
 import { keptList } from "../storage/keptList";
+import { forgetAllOrdersOf, forgetOrderOf } from "./drawingOrder";
 
 /**
  * The photos of the runs, on the phone (TASK-208, ADR-0170; the user's
@@ -31,7 +32,8 @@ export type PhotoKept = {
   owner: number;
   /** The run's key in «My activities». */
   key: string;
-  /** Its place, 1 to DRAWING_MAX_PHOTOS. */
+  /** Its place, 1 to DRAWING_MAX_PHOTOS: which photo, not where it stands
+   * in the post (drawingOrder.ts). */
   n: number;
   /** The API has it, in that place. */
   sent: boolean;
@@ -175,8 +177,10 @@ export function removePhoto(
   );
 }
 
-/** The run is gone: its photos go with it, here and (with it) on the API. */
+/** The run is gone: its photos go with it, here and (with it) on the API,
+ * and their order (TASK-348). */
 export function forgetPhotosOf(owner: number, key: string): void {
+  forgetOrderOf(owner, key);
   const list = loadDrawingPhotos();
   const mine = list.filter((item) => same(item, owner, key));
   if (mine.length === 0) {
@@ -186,8 +190,10 @@ export function forgetPhotosOf(owner: number, key: string): void {
   save(list.filter((item) => !same(item, owner, key)));
 }
 
-/** The account is deleted: every photo of its runs leaves the phone. */
+/** The account is deleted: every photo of its runs leaves the phone, and
+ * their orders. */
 export function forgetAllPhotosOf(owner: number): void {
+  forgetAllOrdersOf(owner);
   const list = loadDrawingPhotos();
   const mine = list.filter((item) => item.owner === owner);
   if (mine.length === 0) {

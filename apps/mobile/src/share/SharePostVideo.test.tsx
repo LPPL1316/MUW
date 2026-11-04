@@ -9,16 +9,19 @@ import type { ReactNode } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ActivitiesContext, useActivitiesDoor } from "../activities/activitiesDoor";
+import { isPreview } from "../updates/channel";
 import { audioTrackOf } from "./m4a";
 import type { PostRun } from "./postRun";
 import { SharePost } from "./SharePost";
 import { VIDEO_FILE, VIDEO_SILENCE_MS } from "./videoFile";
 import { musicTrack } from "./videoMusic";
+import { DAY } from "./videoStyle";
 import type { VideoPageMessage } from "./videoPage";
 
 jest.mock("expo-file-system");
 jest.mock("react-native-view-shot");
 jest.mock("react-native-webview");
+jest.mock("../updates/channel");
 jest.mock("expo-sharing", () => ({
   isAvailableAsync: jest.fn(async () => true),
   shareAsync: jest.fn(async () => {}),
@@ -47,6 +50,8 @@ const { injectJavaScript: inject } =
 const share = jest.mocked(Sharing.shareAsync);
 const available = jest.mocked(Sharing.isAvailableAsync);
 const track = jest.mocked(musicTrack);
+/** Whether this copy is the testers' preview: off, as on the stores' build. */
+const preview = jest.mocked(isPreview);
 /** The app's «Energy», as the phone reads it. */
 const ENERGY = audioTrackOf(
   new Uint8Array(readFileSync(join(__dirname, "../../assets/music/energy.m4a"))),
@@ -100,9 +105,13 @@ function base64(bytes: number[]): string {
 
 /** What the hidden page would say. */
 async function page(message: VideoPageMessage) {
-  await fireEvent(screen.getByTestId("run-video"), "message", {
-    nativeEvent: { data: JSON.stringify(message) },
-  });
+  await fireEvent(
+    screen.getByTestId("run-video", { includeHiddenElements: true }),
+    "message",
+    {
+      nativeEvent: { data: JSON.stringify(message) },
+    },
+  );
 }
 
 async function exportVideo() {
@@ -149,7 +158,8 @@ describe("Music", () => {
     await shown();
     expect(screen.getByText("Music")).toBeOnTheScreen();
     expect(screen.getByText("Tap a track to hear it.")).toBeOnTheScreen();
-    expect(screen.getAllByRole("radio")).toHaveLength(11);
+    // «None» and the ten tracks, and the two styles of the video.
+    expect(screen.getAllByRole("radio")).toHaveLength(14);
     expect(screen.getByRole("radio", { name: "None" })).toBeChecked();
     await fireEvent.press(screen.getByRole("radio", { name: "Energy" }));
     expect(screen.getByRole("radio", { name: "Energy" })).toBeChecked();
@@ -206,9 +216,13 @@ describe("Music", () => {
 describe("Export video", () => {
   it("makes the video in the hidden page, writes an MP4 and shares it", async () => {
     await shown();
-    expect(screen.queryByTestId("run-video")).toBeNull();
+    expect(
+      screen.queryByTestId("run-video", { includeHiddenElements: true }),
+    ).toBeNull();
     await exportVideo();
-    expect(screen.getByTestId("run-video")).toBeOnTheScreen();
+    expect(
+      screen.getByTestId("run-video", { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
 
     await page({ type: "ready", codec: "avc1.42e028" });
     // The map first (TASK-351), then the scene once the page has it.
@@ -250,8 +264,43 @@ describe("Export video", () => {
       0, 0, 0, 2, 0x65, 0x88, 0, 0, 0, 1, 0x41,
     ]);
     expect(keepPost).toHaveBeenCalledWith("run-1", expect.anything());
-    expect(screen.queryByTestId("run-video")).toBeNull();
+    expect(
+      screen.queryByTestId("run-video", { includeHiddenElements: true }),
+    ).toBeNull();
     expect(screen.getByRole("button", { name: "Export video" })).toBeEnabled();
+  });
+
+  it("makes the video in the style chosen: Day after a tap on its tile", async () => {
+    await shown();
+    expect(screen.getByText("Style")).toBeOnTheScreen();
+    expect(screen.getByRole("radio", { name: "Night" })).toBeChecked();
+    await fireEvent.press(screen.getByRole("radio", { name: "Day" }));
+    expect(screen.getByRole("radio", { name: "Day" })).toBeChecked();
+    await exportVideo();
+    await page({ type: "ready", codec: "avc1.42e028" });
+    const first = inject.mock.calls[0][0];
+    expect(first.startsWith("window.muwVideo.prepareMap({")).toBe(true);
+    // The light map's ground, in the style the page gets.
+    expect(first).toContain(DAY.map.background);
+    await page({ type: "map", ok: true, why: null, ms: {} });
+    expect(inject.mock.calls[1][0]).toContain('"look":"day"');
+  });
+
+  it("makes the video in 3D after a tap on its tile: the map leaning on its hills, the turn for the page to try", async () => {
+    await shown();
+    await fireEvent.press(screen.getByRole("radio", { name: "3D" }));
+    expect(screen.getByRole("radio", { name: "3D" })).toBeChecked();
+    await exportVideo();
+    await page({ type: "ready", codec: "avc1.42e028" });
+    const first = inject.mock.calls[0][0];
+    expect(first.startsWith("window.muwVideo.prepareMap({")).toBe(true);
+    expect(first).toContain('"pitch":55');
+    expect(first).toContain('"terrain":{"source":"terrain","exaggeration":1.3}');
+    expect(first).toContain('"turn":{"from":-10,"to":10}');
+    expect(first).toContain('"line":[[');
+    await page({ type: "map", ok: true, why: null, ms: { frame: 4 }, mode: "orbit" });
+    expect(inject.mock.calls[1][0]).toContain('"look":"3d"');
+    expect(inject.mock.calls[1][0]).toContain("Terrain Tiles");
   });
 
   it("falls back on the post on yellow when the map does not come, and still shares", async () => {
@@ -265,6 +314,9 @@ describe("Export video", () => {
     expect(call).toContain('"look":"paper"');
     expect(call).not.toContain('"look":"night"');
     expect(call).toContain("Heart in Trento");
+    // The stores' build never says why: the reason is for the preview only.
+    expect(preview).toHaveBeenCalled();
+    expect(call).not.toContain("no map");
     await page({ type: "config", avcC: base64([1, 0x42, 0xe0, 0x28]) });
     await page({
       type: "chunks",
@@ -274,6 +326,19 @@ describe("Export video", () => {
     expect(share).toHaveBeenCalledTimes(1);
     expect(screen.queryByText("The video could not be made. Try again.")).toBeNull();
     expect(keepPost).toHaveBeenCalledWith("run-1", expect.anything());
+  });
+
+  it("says why at the foot of the yellow video on the testers' preview", async () => {
+    preview.mockReturnValueOnce(true);
+    await shown();
+    await exportVideo();
+    await page({ type: "ready", codec: "avc1.42e028" });
+    await page({ type: "map", ok: false, why: "timeout", ms: { map: 15_000 } });
+    expect(inject).toHaveBeenCalledTimes(2);
+    const call = inject.mock.calls[1][0];
+    expect(call).toContain('"look":"paper"');
+    // The page's reason, written at the foot while the cause is looked for.
+    expect(call).toContain('no map: timeout {\\"map\\":15000}');
   });
 
   it("keeps waiting while the page says the tiles are still coming", async () => {
@@ -289,11 +354,15 @@ describe("Export video", () => {
       await act(async () => {
         jest.advanceTimersByTime(VIDEO_SILENCE_MS - 2000);
       });
-      expect(screen.getByTestId("run-video")).toBeOnTheScreen();
+      expect(
+        screen.getByTestId("run-video", { includeHiddenElements: true }),
+      ).toBeOnTheScreen();
       await act(async () => {
         jest.advanceTimersByTime(3000);
       });
-      expect(screen.queryByTestId("run-video")).toBeNull();
+      expect(
+        screen.queryByTestId("run-video", { includeHiddenElements: true }),
+      ).toBeNull();
     } finally {
       jest.useRealTimers();
     }
@@ -305,7 +374,9 @@ describe("Export video", () => {
     await page({ type: "ready", codec: null });
     expect(inject).not.toHaveBeenCalled();
     expect(screen.getByText("This phone cannot make the video.")).toBeOnTheScreen();
-    expect(screen.queryByTestId("run-video")).toBeNull();
+    expect(
+      screen.queryByTestId("run-video", { includeHiddenElements: true }),
+    ).toBeNull();
     expect(share).not.toHaveBeenCalled();
     expect(keepPost).not.toHaveBeenCalled();
   });
@@ -341,11 +412,15 @@ describe("Export video", () => {
       await act(async () => {
         jest.advanceTimersByTime(VIDEO_SILENCE_MS - 1000);
       });
-      expect(screen.getByTestId("run-video")).toBeOnTheScreen();
+      expect(
+        screen.getByTestId("run-video", { includeHiddenElements: true }),
+      ).toBeOnTheScreen();
       await act(async () => {
         jest.advanceTimersByTime(1000);
       });
-      expect(screen.queryByTestId("run-video")).toBeNull();
+      expect(
+        screen.queryByTestId("run-video", { includeHiddenElements: true }),
+      ).toBeNull();
       expect(
         screen.getByText("The video could not be made. Try again."),
       ).toBeOnTheScreen();
@@ -358,7 +433,9 @@ describe("Export video", () => {
     available.mockResolvedValueOnce(false);
     await shown();
     await exportVideo();
-    expect(screen.queryByTestId("run-video")).toBeNull();
+    expect(
+      screen.queryByTestId("run-video", { includeHiddenElements: true }),
+    ).toBeNull();
     expect(
       screen.getByText("This phone cannot open the share sheet."),
     ).toBeOnTheScreen();

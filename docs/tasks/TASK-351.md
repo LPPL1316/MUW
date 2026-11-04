@@ -1,6 +1,8 @@
 # TASK-351 — Il video della corsa con la mappa sotto: il look premium, il 3D e tre stili
 
-**Stato**: Proposta · 2026-10-30 · la richiesta è dell'utente (2026-10-30);
+**Stato**: Done · 2026-11-04 · le quattro parti in `main`: A #669, B #679,
+C #706, D #724 (ac3f1228), con i fix #703 e #707; proposta il 2026-10-30;
+la richiesta è dell'utente (2026-10-30);
 le scelte 2, 3, 4 e 6 qui sotto sono la raccomandazione, accettata su
 delega dell'utente del 2026-10-29, da rivedere; la scelta sulla privacy (5)
 è dell'utente («Sì, va bene», 2026-10-30), come i nomi degli stili
@@ -189,6 +191,37 @@ qui con le parole dell'utente.
    TASK-356 tocca gli stessi file: chi arriva secondo riallinea.
    — *Risposta (2026-10-30):* **sì**: entra con la B (#679).
 
+8. **La riga di privacy sulle tegole del terreno** (condizione 3 del
+   Coordinatore; prima della parte D, che le usa nel video; la mappa 3D
+   di TASK-264 le scarica già oggi senza nominarle). Proposta: in «Others
+   who receive data», dopo la riga di OpenFreeMap, in `src/about/content/*.ts`
+   e nelle pagine di `site/privacy` rigenerate:
+
+   - en: «The hills of the 3D map, and of a video in the «3D» style, come
+     from the Terrain Tiles kept on Amazon Web Services: like any map
+     service, it sees which area you look at.»
+   - it: «Le colline della mappa 3D, e di un video nello stile «3D»,
+     vengono dalle Terrain Tiles tenute su Amazon Web Services: come ogni
+     servizio di mappe, vede quale zona guardi.»
+   - de: «Die Hügel der 3D-Karte und eines Videos im Stil «3D» kommen von
+     den Terrain Tiles auf Amazon Web Services: wie jeder Kartendienst
+     sieht er, welches Gebiet du ansiehst.»
+   - es: «Las colinas del mapa 3D, y de un vídeo en el estilo «3D», vienen
+     de las Terrain Tiles alojadas en Amazon Web Services: como cualquier
+     servicio de mapas, ve qué zona miras.»
+   - fr: «Les collines de la carte 3D, et d'une vidéo dans le style «3D»,
+     viennent des Terrain Tiles hébergées sur Amazon Web Services : comme
+     tout service de cartes, il voit quelle zone tu regardes.»
+
+   Le foto aeree di Esri (la mappa satellite di TASK-264) restano fuori:
+   una riga a parte, da proporre dopo.
+   — *Risposta (2026-11-04, nella chat di questo task, alla domanda «Va
+   bene la riga di privacy sulle Terrain Tiles (cinque lingue, scelta 8
+   nel task file)?»):* **«Sì, questa»**: la riga entra nella D (#724)
+   nei cinque testi, dopo quella di OpenFreeMap, con le pagine di
+   `site/privacy` rigenerate da `make_privacy.mjs` sopra la riga della
+   #723 (TASK-368 B), che era entrata prima.
+
 **La privacy in `about/content`** (controllata il 2026-10-30, condizione
 3): in «Others who receive data» ci sono OpenFreeMap («serves the map:
 like any map service, it sees which area you look at»), Overpass e unpkg;
@@ -249,6 +282,22 @@ dato 360 pezzi in ogni modo: le tegole di OpenFreeMap, del terreno e di
 Esri arrivano con CORS e non sporcano il canvas (nel simulatore; da
 ripetere sul telefono). Il video pesa 4,4 MB con la mappa ferma e 8,6 MB
 con la camera che gira, a 6 Mbit/s.
+
+**Sul telefono** (condizione 1; iPhone dell'utente, iOS 26.6, la pagina
+del bench in Safari sulla rete locale, 2026-10-30 alle 23:23;
+`out/video-restyle/bench/phone-2026-10-30.txt`): MapLibre 148 ms; le
+tegole della mappa piatta al primo `idle` 0,97 s a freddo; lo scatto
+3 ms; la traccia proiettata piatta (99 punti) 1 ms, con il terreno 8 ms
+(80 µs a punto); 360 fotogrammi composti in 2D 10 ms; la codifica di 360
+fotogrammi fermi 2,7 s (2,7 MB); il terreno e le colline del 3D a `idle`
+2,5 s a freddo; un fotogramma inclinato reso dalla mappa 1,0–1,2 ms più
+2,4–2,5 ms di copia (le tegole mancanti solo al primo passaggio: 60/60,
+poi 1/60); la codifica di 360 fotogrammi con la camera che gira 5,4 s
+(6,2 MB), il doppio di quella ferma; a 540 × 960 un fotogramma 0,9 ms più
+0,4 di copia. WebCodecs c'era anche su http. Quindi la camera che gira
+costa sul telefono circa 3,5 ms a fotogramma più la proiezione della
+linea: ben sotto i 25 ms con una linea di qualche centinaio di punti, e
+la D la fa, con la misura dal vivo che decide.
 
 **Che cosa ne segue.** La mappa può stare nella pagina del video, in uno
 scatto preso una volta: il video costa come oggi più le tegole (0,5–0,8 s
@@ -339,39 +388,44 @@ Della proposta (parte A):
       con le parole dell'utente.
 - [x] La fattibilità del 3D misurata nel simulatore e nel WebView nascosto
       dell'app, scritta qui; il bench fuori dal repository (`out/`).
-- [ ] La misura sul telefono dell'utente scritta qui (condizione 1).
+- [x] La misura sul telefono dell'utente scritta qui (condizione 1): il
+      2026-10-30 sotto «Fattibilità», «Sul telefono».
 - [x] ADR-0303 scritto; `STATUS.md` e `INDEX.md` aggiornati.
 
 Delle parti:
 
-- [ ] B: «Export video» fa il video con la mappa scura sotto la linea
+- [x] B: «Export video» fa il video con la mappa scura sotto la linea
       gialla, il titolo, i numeri e le etichette nella scala premium, il
       velo, le emoji, il credito; l'ultimo fotogramma è come la tavola
       «Night»; senza tegole in 15 s il video esce sul giallo di oggi;
       le estremità della linea sono tagliate di 200 m (test); durata e
       memoria non dipendono dalla corsa (ADR-0254, punto 9); il tempo di
       export misurato e scritto, prima e dopo.
-- [ ] C: la riga «Style» con tre tessere, «Night» accesa all'apertura; Day
+- [x] C: la riga «Style» con tre tessere, «Night» accesa all'apertura; Day
       fa la mappa chiara con il bordo scuro sulla linea e il velo chiaro,
       qualunque tono abbia l'app; i testi nelle cinque lingue col sì
       dell'utente.
-- [ ] D: 3D fa la mappa inclinata con le colline, la linea in prospettiva;
+- [x] D: 3D fa la mappa inclinata con le colline, la linea in prospettiva;
       la camera gira solo se un fotogramma costa meno di 25 ms sul
       telefono, altrimenti lo zoom lento.
-- [ ] **Prima dell'OTA di produzione della B** (condizione del Coordinatore,
+- [x] **Prima dell'OTA di produzione della B** (condizione del Coordinatore,
       2026-10-30): l'utente ha esportato un video vero sull'iPhone, dalla
       preview, e ha visto la mappa sotto la linea. Il rischio da guardare
       è un telefono che ricade sul giallo in silenzio.
-- [ ] **Prima dell'OTA di produzione della B**, se non è entrata con la B:
+- [x] **Prima dell'OTA di produzione della B**, se non è entrata con la B:
       la riga di privacy estesa al video, col sì dell'utente (scelta 7).
-- [ ] Test deterministici verdi in locale e in CI: la scena (stile,
+- [x] Test deterministici verdi in locale e in CI: la scena (stile,
       camera, quote, il taglio), la pagina con MapLibre e WebCodecs finti
       (scatto, proiezione, riserva, 360 pezzi), i colori solo dai token.
-- [ ] Nessuna dipendenza nuova; impronta iOS
+- [x] Nessuna dipendenza nuova; impronta iOS
       `83793e26fc0da7cdc7d8c7f7b1b7ad09e6f823b3` invariata su una copia
-      pulita con `npm ci`, a ogni parte.
+      pulita con `npm ci`, a ogni parte (dalla #620 quella di `main` è
+      `6f8bba4c`: misurata uguale per la C e la D).
 - [ ] Provato nel simulatore (Expo Go) e dall'utente sull'iPhone: un
-      video per stile accettato da Instagram.
+      video per stile accettato da Instagram. Il simulatore: sì, per B, C
+      e D; l'utente: la mappa vista sul telefono il 4 novembre; i tre
+      stili e Instagram con l'anteprima che il Coordinatore pubblica da
+      `main` ac3f1228.
 
 ## File toccati
 
@@ -436,7 +490,8 @@ docs/tasks/TASK-351.md
 docs/STATUS.md
 ```
 
-Parte D:
+Parte D (l'elenco esteso il 2026-11-04 con la tessera e il testo «3D»,
+che la C ha lasciato alla D, e con la riga di privacy della scelta 8):
 
 ```
 apps/mobile/src/share/videoMap.ts
@@ -445,6 +500,21 @@ apps/mobile/src/share/videoScene.ts
 apps/mobile/src/share/videoScene.test.ts
 apps/mobile/src/share/videoPage.ts
 apps/mobile/src/share/videoPage.test.ts
+apps/mobile/src/share/videoStyle.ts
+apps/mobile/src/share/videoStyle.test.ts
+apps/mobile/src/share/StyleRow.tsx
+apps/mobile/src/share/StyleRow.test.tsx
+apps/mobile/src/share/SharePostVideo.test.tsx
+apps/mobile/src/about/content/en.ts               (la riga di privacy, scelta 8, col sì)
+apps/mobile/src/about/content/it.ts
+apps/mobile/src/about/content/de.ts
+apps/mobile/src/about/content/es.ts
+apps/mobile/src/about/content/fr.ts
+site/privacy/index.html                           (rigenerate da make_privacy.mjs)
+site/privacy/it/index.html
+site/privacy/de/index.html
+site/privacy/es/index.html
+site/privacy/fr/index.html
 docs/UI.md
 docs/DECISIONS.md
 docs/tasks/TASK-351.md
@@ -519,6 +589,231 @@ PR #679, branch `feat/TASK-351-b-video-map` (worktree `TASK-351-b`), da
   +1,3–2,4 s. A tegole fredde +4–10 s (dal bench): lì può raddoppiare, e
   si vede solo lo stato di attesa.
 
+## La parte C, com'è fatta (2026-11-04)
+
+Branch `feat/TASK-351-c-video-styles` (worktree `TASK-351-c`), da `main`
+con il fix di #703.
+
+- `videoStyle.ts` (nuovo): `VideoStyle` («night», «day»), `NIGHT` (il tono
+  scuro al passo più scuro, spostato qui da `videoMap.ts`) e `DAY` (il tono
+  chiaro al passo più chiaro) da `paletteOf`, `stylePalette`, `styleName`
+  (i testi «Night» e «Day», approvati dall'utente il 2026-10-30).
+- `videoScene.ts`: `VideoLook` = «paper» o uno stile; il look della mappa
+  prende la palette dello stile; per il giorno il velo è `map.background`
+  della palette chiara al 94 % (`peak` nell'op `scrim`, che la pagina
+  usa al posto dell'82 % di `Scrim`), e la linea corre sul suo bordo
+  scuro: una seconda linea `onAccent` sotto quella gialla, larga
+  `routeCasingOf("light")` in più (3 punti su 390, 25,6 px su 1080) e
+  opaca all'85 %, come sulla mappa chiara (ADR-0231). Lo stesso
+  `videoMap` con la palette dello stile: la camera non cambia.
+- `StyleRow.tsx` (nuovo): la riga «Style» sopra «Music», una tessera 9:16
+  per stile (104 × 185 pt, tre ci stanno in una riga) con il disegno
+  della corsa (lo stesso `fitLines` del post, le estremità tagliate) nei
+  colori dello stile sul fondo della sua mappa, il bordo scuro sotto la
+  linea nella tessera «Day»; la tessera scelta ha il bordo `text`, le
+  altre `hairline`; radio per VoiceOver, «Night» all'apertura.
+- `SharePost.tsx`: lo stato dello stile, la riga, la scena nello stile
+  scelto; la riserva resta il giallo.
+- i18n: «Style», «Night», «Day» in fondo alle quattro tabelle (fr «Style»
+  resta «Style»).
+- Test: `videoStyle.test.ts`, la scena di giorno (colori solo dalla
+  palette chiara, velo al 94 %, il bordo sotto la linea che cresce con
+  lei, per il resto lo stesso video della notte), la pagina (il velo opaco
+  quanto chiede la scena), `StyleRow.test.tsx`, il flusso di «Share your
+  run» con «Day» scelto, le tabelle delle traduzioni.
+- La tessera «3D» arriva con la D, che la fa davvero.
+
+Riallineata il 2026-11-04 sera su `main` f23ec332 (la raccolta #717, che
+porta il codice della #707: la pagina a grandezza piena e la riga di
+diagnosi solo sulla preview) e con il commit di documenti della #707
+ancora aperta (l'esito: la mappa vista con i fotogrammi a timer), preso
+pari pari così i due rami non confliggono al merge. Conflitti risolti a
+mano: le quattro tabelle (le righe di TASK-348 prima, «Style», «Night»,
+«Day» in fondo) e i test della scena (la scena di giorno e `withNote`,
+uno dopo l'altro). 26 suite verdi (241 test), eslint e prettier puliti;
+impronta iOS sulla copia pulita `6f8bba4cf1b6f95fc3c1c84ba9812d950a2232a1`, quella di `main`. Il via
+alla C è arrivato con la mappa vista dall'utente sul telefono («ok la
+mappa funziona»); alla domanda se volesse la riga «Style» anche senza
+mappa aveva scelto «Aspetto la mappa».
+
+## La parte D, com'è fatta (2026-11-04)
+
+Branch `feat/TASK-351-d-video-3d` (worktree `TASK-351-d`), da `main`
+f2180242 con la #706 e la #707 dentro.
+
+- `videoStyle.ts`: il terzo stile «3d» (la palette della notte,
+  `styleRelief`), il nome «3D»: il testo c'era già nelle tabelle, per la
+  mappa 3D di TASK-264, quindi nessuna riga nuova.
+- `videoMap.ts`: `reliefStyle` è lo stile della mappa con le due sorgenti
+  delle altezze (le Terrain Tiles, codifica terrarium, come
+  `mapKindStyle`) e il layer delle colline sopra l'ultimo riempimento,
+  nei colori della palette (`hillshadeOf("dark", NIGHT)`); la camera con
+  `pitch` 55 (`PITCH_3D`), `terrain` (`TERRAIN_SPEC`), il giro `turn`
+  da −10° a +10° (`TURN_DEG`), il budget di 25 ms a fotogramma
+  (`FRAME_BUDGET_MS`), lo zoom dello scatto fermo 1 → 1,06
+  (`STILL_ZOOM`), `pad` e la linea della corsa in longitudine e
+  latitudine; il credito «Terrain Tiles».
+- `videoScene.ts`: il look 3D è quello della notte con `relief`; la
+  traccia per la pagina ridotta a 150 punti in metri (`thinnedTrack`,
+  `MAX_POINTS_3D`: la proiezione col terreno costa 80 µs a punto sul
+  telefono); nell'op `map` di ogni fotogramma `turn` (la rotazione,
+  `easeInOut` sui 12 s) e `zoom` (lo zoom dello scatto fermo); la linea
+  della corsa e la punta della penna con `share` (la quota, da 0 a 1),
+  perché i pixel li decide la pagina; il credito con «Terrain Tiles».
+- `videoPage.ts`: la mappa con `pitch`; a `load` (o al primo battito con
+  lo stile caricato) `setTerrain`; dopo il primo `idle` il fit inclinato
+  (`fitLeaning`: due passate, la linea proiettata, zoom e centro corretti
+  perché riempia il riquadro meno la larghezza della linea, come la
+  piatta); di nuovo intera, lo scatto e la linea proiettata a riposo; poi
+  il giro a vuoto (`dryRun`: 12 rotazioni per due passate, la prima per
+  le tegole di ogni rotazione, un'attesa delle tegole, la seconda
+  misurata, mappa resa, copiata, linea proiettata; la mediana); sotto il
+  budget il modo `orbit` (la mappa resta viva e si ridisegna a ogni
+  fotogramma con la rotazione dell'op, la linea riproiettata), altrimenti
+  `still` (lo scatto zoomato attorno al centro del riquadro, la linea a
+  riposo scalata uguale); il messaggio `map` dice `mode` e `ms.frame`,
+  `done` dice `mode`. Allo scadere dei 15 s con lo scatto già preso:
+  `still`; senza: la riserva gialla come prima. La mappa viva si lascia
+  andare a video finito.
+- `StyleRow.tsx`: la terza tessera, con il disegno inclinato di 55° in
+  prospettiva (`perspective` 400, `rotateX`).
+- Test: `videoStyle` (tre stili), `videoMap` (le sorgenti e il layer
+  delle colline al posto giusto, i colori solo dalla palette, la camera
+  inclinata, la linea), `videoScene` (`thinnedTrack`; la scena 3D: la
+  rotazione da −10 a +10 lenta ai capi, lo zoom, le quote della linea e
+  della punta, il credito, per il resto il video della notte),
+  `videoPage` (la mappa finta che proietta piatta attorno al centro con
+  il padding: le colline accese, il fit nel riquadro, il giro provato da
+  un capo all'altro e la mappa tenuta, 359 ridisegni e l'ultima rotazione
+  a +10°; con un budget impossibile il modo fermo, lo zoom fino a 1,06
+  attorno al centro, la mappa lasciata subito), `StyleRow` (tre radio, la
+  tessera inclinata), il flusso di «Share your run» con «3D», le tabelle.
+- Provato nel simulatore (Expo Go 57, «MuW TASK-301», iOS 27, la GPU del
+  Mac, tegole in cache): il video 3D con la camera che gira, 7,3 MB; la
+  mappa con il terreno, il fit e il giro a vuoto pronta in 2,2 s, il giro
+  a vuoto 11 ms a fotogramma (sotto i 25: modo `orbit`), la codifica 7,1 s
+  per 360 fotogrammi, 10,5 s in tutto dal montaggio; la notte nello stesso
+  giro 0,46 s di mappa, 3,2 s di codifica, 4,1 s in tutto: il 3D costa due
+  volte e mezzo. I fotogrammi in `out/TASK-351-d/frames-3d/` (sul Mac): la
+  mappa inclinata con le colline, la linea sulle colline che si disegna con
+  la punta, il cuore intero con le emoji, il credito con «Terrain Tiles»,
+  la camera che ha girato. Il harness ha scovato un errore: MapLibre dà
+  `idle` dentro `redraw()`, e il passo si riavviava da solo migliaia di
+  volte (la pagina muta per 20 s, e la prima volta il simulatore si è
+  spento); risolto con `busy`, e la mappa finta dei test ora dice `idle`
+  dentro `redraw` come la vera.
+- L'export (il Coordinatore ha chiesto di scriverlo se raddoppia): sul
+  telefono (30 ottobre) la camera che gira costa il doppio dello scatto
+  fermo, 5,4 s contro 2,7 s per 360 fotogrammi; il modo fermo costa come
+  la notte più le tegole del terreno (2,5 s a freddo).
+
+## Il fix del 2026-11-03: la mappa che sul telefono non arrivava
+
+**Che cosa ha visto l'utente**, provando la B dalla preview sull'iPhone
+(riferito dalla sessione «Sessioni archiviate incomplete», parole sue):
+«NON C'È SOTTO LA MAPPA E NON POSSO MODIFICARE LO STILE DEL VIDEO». Lo
+stile non si può ancora scegliere perché la riga «Style» arriva con la
+parte C; la mappa invece doveva esserci.
+
+**La causa, riprodotta nel simulatore.** Il WebView del video sta fuori
+vista (un punto 1 × 1 a opacità zero); su un telefono iOS può non dare a
+quella pagina i fotogrammi di animazione (`requestAnimationFrame`), e
+MapLibre carica lo stile e disegna proprio su quelli: la mappa non arriva
+mai, dopo 15 s la pagina rinuncia e il video esce sul giallo, in
+silenzio, com'è previsto quando la mappa manca. Nel simulatore, con il
+harness che toglie `requestAnimationFrame` alla pagina prima che carichi,
+succede lo stesso: 15,2 s di attesa, nessuno stile caricato, video giallo
+da 1,9 MB. Disegnare la mappa da un timer (`map.redraw()`) non basta:
+anche il caricamento dello stile passa da un fotogramma.
+
+**Il fix** (branch `fix/TASK-351-video-map-hidden`, worktree
+`TASK-351-fix`):
+
+1. `videoPage.ts`: prima di MapLibre la pagina si dà i fotogrammi da sola,
+   con un `requestAnimationFrame` fatto di timer (16 ms), che girano
+   ovunque la pagina stia, come l'encoder dimostra da TASK-295. Con lo
+   stesso harness senza fotogrammi: mappa in 1,5 s, scatto 12 ms, video
+   da 4,8 MB con la mappa sotto (`out/TASK-351-fix/frames-fixed/`).
+2. In più, la mappa è disegnata anche da un battito di 100 ms
+   (`redraw()`), e la foto è presa quando è intera da tre battiti, con
+   `idle` come via breve; prima della foto un ultimo `redraw()`.
+3. `RunVideo.tsx`: il WebView è un punto 1 × 1 a opacità piena
+   nell'angolo, non più a opacità zero fuori dallo schermo: nella finestra
+   e visibile per iOS, come la pagina delle mappe del Feed che sta sotto
+   ciò che la copre e sul telefono le mappe le fa.
+
+Test: il `requestAnimationFrame` della pagina messo prima di MapLibre e
+provato in jest (richiama con un tempo, si annulla); una mappa finta che
+non dice mai `idle` ma ha le tegole dopo due disegni, finita dal
+battito; le suite del video e di «Share your run» verdi. Prova nel
+simulatore con il harness senza fotogrammi, prima e dopo. Solo JS:
+impronta iOS su copia pulita con `npm ci` `83793e26…`, invariata. PR #703.
+
+**Resta aperto**, finché l'utente non riprova dalla preview: se anche con
+il fix il video esce senza mappa, la causa è un'altra (timer fermi,
+WebGL non disegnato fuori vista) e la prossima prova sposta il WebView
+sotto una vista opaca a grandezza piena, come il Feed. Da chiedere
+all'utente: il video uscito era giallo (la riserva) o scuro senza strade
+(uno scatto vuoto).
+
+## La prova successiva (2026-11-04): il WebView sotto una copertura, e il motivo nel video
+
+Con la preview `fb15613e` (main 8cc5005b, con il fix #703) l'utente ha
+provato il video di un'attività di prima: «ho provato con un'attività già
+fatta in precedenza e non funziona» (riferito dal Coordinatore). Alla
+domanda su com'era il video ha risposto «giallo», e che l'app l'aveva
+riaperta due volte dopo l'aggiornamento («sì, l'avevo fatto»): era la
+riserva gialla con il fix #703 caricato, quindi la mappa non arriva
+neanche con i fotogrammi da timer.
+
+La prova successiva (branch `fix/TASK-351-video-map-under-cover`,
+worktree `TASK-351-fix2`):
+
+1. `RunVideo.tsx`: il WebView a grandezza piena, 360 × 640 punti (la
+   misura della mappa che disegna), sotto una vista opaca del colore dello
+   schermo, montato per primo nello schermo del post (`SharePost.tsx`):
+   com'è tenuta la pagina delle mappe del Feed, che sul telefono le mappe
+   le fa. Per iOS la pagina è in finestra, grande e disegnata.
+2. Nel video di riserva giallo, **una riga piccola in fondo** con il motivo
+   dato dalla pagina («no map: timeout {"map":15234,…}», «no library»,
+   «tiles», o l'errore di WebGL) e i tempi, compreso il caricamento di
+   MapLibre: così la prossima prova dalla preview dice la causa anche senza
+   una rete di diagnosi. **Solo sul canale preview**: `isPreview()` in
+   `src/updates/channel.ts` legge `Updates.channel` di `expo-updates`
+   («preview» sulla build dei tester, «production» su quella degli store,
+   `null` in Expo Go e nelle build di sviluppo), e la build degli store non
+   la mostra mai, con un test che lo prova. Condizione del Coordinatore:
+   `main` va in produzione con altro lavoro prima che il video sia risolto,
+   quindi la riga non può dipendere dal ricordarsi di toglierla. Si toglie
+   quando la causa è trovata; la produzione del video resta ferma finché
+   l'utente non vede la mappa.
+
+Test: `withNote` (la riga in ogni fotogramma, il resto uguale); il flusso
+con la riserva senza il motivo, com'è sulla build degli store, e con il
+motivo sulla preview; `channel.test.ts` (preview sì, production e `null`
+no; sotto jest il canale è «mock»); le suite del video e di «Share your
+run». Solo JS. PR #707, riallineata su `main` dopo la #620 (Apple Salute):
+da lì l'impronta iOS di `main` è `6f8bba4c`, e quella misurata sulla copia
+pulita di questa PR è in STATUS. Le preview si pubblicano col runtime
+`exposdk:57.0.0` della variante preview, non con l'impronta di produzione:
+l'app di prova dell'utente le riceve anche dopo la #620, e la prova del
+video si fa dalla preview che il Coordinatore pubblica appena la #707 è in
+`main`.
+
+**Esito (2026-11-04, sera)**: prima che la #707 fosse in `main`, con la
+stessa preview `fb15613e` (il fix #703, i fotogrammi a timer) l'utente ha
+riprovato: «ok la mappa funziona». Quindi la pagina nascosta sul telefono
+si disegna e MapLibre carica con i fotogrammi a timer; il video giallo del
+mattino stava nei 15 s di attesa (`MAP_WAIT_MS`): la prima esportazione
+dopo l'aggiornamento, con la libreria (1 MB) e le tegole non ancora in
+cache, o una rete lenta. La riga di diagnosi (solo preview) dirà quale,
+la prossima volta che esce giallo; la pagina a grandezza piena resta
+(innocua, com'è nel Feed). La condizione del Coordinatore per la
+produzione del video — la mappa vista sul telefono — è soddisfatta;
+l'OTA resta una scelta dell'utente. La C (#706) si riallinea su `main`
+dopo la #707. L'utente, alla domanda se volesse la riga «Style» anche
+senza mappa, aveva scelto «Aspetto la mappa»; ora la mappa c'è.
+
 ## Dove si è (2026-10-30, sera)
 
 Fatto: il canvas; il bench in Safari del simulatore e nell'app (Expo Go,
@@ -528,6 +823,11 @@ bench» (spento), il worktree staccato `.claude/worktrees/video-bench` con
 il harness (file temporanei, mai da committare), il bench in
 `out/video-restyle/`.
 
+2026-11-03: la B è in `main` (#679, merge 5f76d415); sul telefono il
+video è uscito senza mappa: il fix è #703, in `main` dal 2026-11-04; la
+prova dalla preview è dell'utente, e l'OTA di produzione aspetta che veda
+la mappa. L'utente ha detto «INIZIALE» per C e D: la C è in PR
+(`feat/TASK-351-c-video-styles`); poi la D.
 Arrivate le scelte 5 (privacy, «Sì, va bene») e 1 (i nomi, «Sì,
 questi»). La B ha il via del Coordinatore ed è la PR #679
 (`feat/TASK-351-b-video-map`, worktree `TASK-351-b`): la mappa sotto nel
@@ -537,3 +837,29 @@ telefono: l'iPhone dell'utente ha Expo Go SDK 58, che non apre i progetti
 SDK 57, quindi il video vero si prova dalla preview dopo il merge, e i
 numeri di MapLibre per il 3D si prendono con la pagina del bench in
 Safari sulla rete locale.
+
+## Esito (2026-11-04)
+
+Fatto, in quattro parti più due fix, tutte in `main`:
+
+- A, i documenti: #669. B, la mappa sotto e il look premium (Night):
+  #679. C, i tre stili e la riga «Style» (Day): #706. D, il 3D con la
+  camera che gira: #724 (ac3f1228). I fix della pagina fuori vista: #703
+  (i fotogrammi da un timer) e #707 (la pagina a grandezza piena sotto una
+  copertura, la riga di diagnosi solo sulla preview).
+- Le scelte dell'utente, con le sue parole: la privacy (5, «Sì, va bene»),
+  i nomi (1, «Sì, questi»), la riga di privacy estesa al video (7, «sì»),
+  la riga sulle Terrain Tiles (8, «Sì, questa»); «Aspetto la mappa» prima
+  della C; la mappa vista sul telefono («ok la mappa funziona»).
+- Le misure: sul telefono (30 ottobre) la camera che gira costa il doppio
+  dello scatto fermo; nel simulatore il 3D 10,5 s contro 4,1 della notte.
+  Nessuna dipendenza, impronta iOS invariata (`6f8bba4c` da #620).
+
+Restano all'utente, col Coordinatore: i tre stili dall'anteprima pubblicata
+da `main` ac3f1228 (e Instagram), la copia del sito con la riga delle
+Terrain Tiles, l'OTA di produzione. Fuori scope, da proporre a parte: la
+riga di privacy sulle foto aeree di Esri; TASK-336 B prende questo video.
+Sul Mac, da cancellare quando l'utente vuole: il simulatore «MuW video
+bench» (4,4 GB, non si avvia più), il worktree staccato
+`.claude/worktrees/video-bench`, `out/video-restyle/` e `out/TASK-351-*`
+(il bench, i harness, i fotogrammi).

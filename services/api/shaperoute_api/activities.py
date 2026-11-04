@@ -16,7 +16,9 @@ its drawing shows it, and Strava takes it (drawings.py, strava.py). A run
 along a route whose shape the engine turned keeps the turn (TASK-232,
 ADR-0195): the app shows the run turned back, so the drawing reads upright.
 A fix may carry the phone's height (TASK-324, ADR-0284): the API counts the
-metres climbed itself (run_climb.py), for the totals of the profile.
+metres climbed itself (run_climb.py), for the totals of the profile. It
+counts the run's bests over the distances of the profile too (TASK-368,
+personal_bests.py): deleting the run deletes them.
 """
 
 from __future__ import annotations
@@ -71,6 +73,7 @@ from shaperoute_api.best_routes import line_key
 from shaperoute_api.db import Database
 from shaperoute_api.game import after_run_saved, notify_unlocked
 from shaperoute_api.insights import Insights
+from shaperoute_api.personal_bests import keep_run_bests, run_bests
 from shaperoute_api.places import KEY_VARIABLE, Fetch, fetch_json
 from shaperoute_api.recommended import preview
 from shaperoute_api.route_archive import count_run
@@ -761,6 +764,9 @@ class Activities:
         if saved is not None:
             return _listed(saved), False
         run = recorded(body, self.now())
+        # Counted before the transaction, as the place: it keeps the lock
+        # of the account short.
+        found = run_bests(run.track, run.pauses)
         # Asked before the transaction: the service may take seconds.
         place = self.places.name_of(run.start)
         with self.database.connect() as conn:
@@ -816,6 +822,8 @@ class Activities:
                 ),
             ).fetchone()
             assert row is not None
+            # Its personal bests, of any run (TASK-368, ADR-0312).
+            keep_run_bests(conn, row["id"], found)
             # What the run is worth to the shape game, in the same
             # transaction (TASK-296, game.py). A run of another app is
             # worth nothing to it (TASK-312, ADR-0272).
