@@ -63,17 +63,20 @@ elastiche). Il resto di ADR-0293 resta.
 Concordato con TASK-379 il 2026-11-04; `TabShell` passa a questo task col
 via del Coordinatore, dopo il merge della #764.
 
-- `ScrollView` → `Animated.ScrollView`, `onScroll` =
-  `Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }],
-  { useNativeDriver: true, listener: onScroll })`. Il suo `onScroll` resta
-  intero come listener (costruisce le pagine pigre, sposta le vicine a metà
-  gesto), `scrollEventThrottle={16}`.
-- `restX` = `(around.get(page) ?? now.place) * width`, in un
-  `useLayoutEffect` su `[around.get(page), width]`. Una pagina cambia posto
-  solo fuori vista, quindi `restX` resta fermo per tutto lo swipe. A un tocco,
-  al giro guidato e a «indietro» la pagina nuova arriva nello stesso posto,
-  quindi `drag` resta 0 e la capsula va con la molla.
-- `drag = (scrollX − restX) / width`, passato a `TabBar`.
+- Fatto così (deciso dall'agente su delega dell'utente): lo `ScrollView` di
+  TASK-379 resta com'è. Il suo `onScroll`, che riceve già ogni evento
+  (`scrollEventThrottle={16}`), mette in un `Animated.Value` `drag` la
+  distanza dal posto della pagina dell'app, in pagine:
+  `(x − posto × width) / width`, con posto = `around.get(page) ?? now.place`.
+  Il valore va a `TabBar`. Scartato un `Animated.event` sul driver nativo:
+  avrebbe cambiato lo `ScrollView` della striscia in `Animated.ScrollView`,
+  e `TabBar` non avrebbe più potuto leggere `drag` da JS, che le serve per
+  capire se una pagina è arrivata col dito.
+- Un `useLayoutEffect` su posto e `width` ricalcola `drag` dall'ultima
+  posizione della striscia. Una pagina cambia posto solo fuori vista, quindi
+  il posto resta fermo per tutto lo swipe. A un tocco, al giro guidato e a
+  «indietro» la pagina nuova arriva nello stesso posto: `drag` resta 0 e la
+  capsula va con la molla.
 - «Messages» senza account: lo swipe arriva a Messages e l'app manda al
   profilo. La capsula si mette su Messages, dove il dito l'ha portata, e da
   lì va al profilo con la molla.
@@ -82,7 +85,7 @@ via del Coordinatore, dopo il merge della #764.
   resta 0. Ai capi della striscia lo swipe si ferma e non serve altro.
 - I test di TASK-379 in `TabShell.test.tsx` (`tab-pages`, `scroll`,
   `momentumScrollEnd`, `scrollEndDrag`, le prop della striscia) restano
-  sull'`Animated.ScrollView`. Dopo il cambio va rilanciato `jest src/tabs`.
+  verdi senza cambi: `jest src/tabs`, 59 test.
 
 ### B — L'«isola» per i messaggi brevi
 

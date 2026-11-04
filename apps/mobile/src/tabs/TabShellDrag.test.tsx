@@ -6,7 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { runAnimationsOnJs } from "../ui/animationsOnJs.testing";
 import { useReduceMotion } from "../ui/useReduceMotion";
 import { TAB_CAPSULE_WIDTH } from "./TabBar";
-import { type ShellPage, TabShell } from "./TabShell";
+import { pagesFromPage, type ShellPage, TabShell } from "./TabShell";
 import { STRIP_START } from "./tabStrip";
 
 // The bar's capsule under a finger sliding the pages (TASK-388 with the
@@ -132,4 +132,32 @@ test("slid to a page the app sends elsewhere, the capsule goes on from where the
   // From «Messages», never back towards «Draw», to «Explore».
   expect(Math.min(...xs)).toBeGreaterThan(under(2) - 1);
   expect(capsuleX()).toBeCloseTo(under(3), 1);
+});
+
+test("flicks one after the other, before the strip rests: the capsule goes on round, and the page found there", async () => {
+  await render(<Shell />);
+  // «Draw» on screen; three pages on without a rest, the strip handing its
+  // places on half way, as a fast thumb does.
+  const steps = [0.5, 1, 1.5, 2, 2.5, 3];
+  for (const plus of steps) {
+    await slide(STRIP_START, plus);
+    // Always onwards, never back towards «Draw».
+    expect(capsuleX()).toBeCloseTo(under(1 + plus), 3);
+  }
+  // Three on from «Draw» is «Feed», round the bar: the twin is there.
+  expect(capsuleX("tab-capsule-0")).toBeCloseTo(under(0), 3);
+
+  await rest(STRIP_START + 3);
+  expect(screen.getByRole("tab", { name: "Feed" })).toBeSelected();
+  await frames(10, () => expect(capsuleX()).toBeCloseTo(under(0), 3));
+});
+
+test("the pages from the app's page: counted from the strip's, the round nearest the last", () => {
+  const now = { page: 3, place: 1002 };
+  // The strip at rest on «Explore», two places on from «Draw».
+  expect(pagesFromPage(1002 * 100, 100, now, 1, 4, 1.9)).toBeCloseTo(2);
+  // Half way past it, still onwards.
+  expect(pagesFromPage(1002.5 * 100, 100, now, 1, 4, 2)).toBeCloseTo(2.5);
+  // The same strip seen from the other way round, when that is nearer.
+  expect(pagesFromPage(1002 * 100, 100, now, 1, 4, -1.8)).toBeCloseTo(-2);
 });

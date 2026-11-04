@@ -46,6 +46,27 @@ export type ShellPage = BarTab & {
   render: () => ReactNode;
 };
 
+/**
+ * How many pages the strip at `x` stands from the app's `page`, signed, for
+ * the bar's capsule (TASK-388). A page holds a place on the strip only near
+ * the one on screen, and the app's page changes only when the strip rests:
+ * flicks one after the other carry the strip pages away from it. So it is
+ * counted from the page the strip has on screen, whose distance from the
+ * app's page is known up to whole rounds of the bar; the round nearest
+ * `last` keeps the capsule going the way the finger went.
+ */
+export function pagesFromPage(
+  x: number,
+  width: number,
+  now: Strip,
+  page: number,
+  count: number,
+  last: number,
+): number {
+  const along = x / width - now.place + now.page - page;
+  return along + Math.round((last - along) / count) * count;
+}
+
 type Props = {
   /** The pages, in the order of their tabs. */
   pages: readonly ShellPage[];
@@ -118,15 +139,19 @@ export function TabShell({ pages, page, onPage, action }: Props) {
   const around = pagesAround(now, count);
   // How far a finger has slid the strip from the app's page, in pages: the
   // bar's capsule follows it (TASK-388), set by `onScroll` as the strip
-  // moves. The app's page keeps its place all through a swipe, and moves
-  // only in the commit that brings a new page, after the bar has taken it:
-  // the capsule never shows a frame behind.
+  // moves. Counted again in the commit that brings a new page, after the
+  // bar has taken it: the capsule never shows a frame behind.
   const [drag] = useState(() => new Animated.Value(0));
-  const scrolledTo = useRef(start.x);
-  const restPlace = around.get(page) ?? now.place;
+  const scrolled = useRef({ x: start.x, drag: 0, page });
   useLayoutEffect(() => {
-    drag.setValue((scrolledTo.current - restPlace * width) / width);
-  }, [drag, restPlace, width]);
+    const { x, drag: last, page: was } = scrolled.current;
+    // A new page stands where the strip is, or right by it: the round
+    // nearest none. The same page, the round the finger was on.
+    const near = page === was ? last : 0;
+    const away = pagesFromPage(x, width, now, page, count, near);
+    scrolled.current = { x, drag: away, page };
+    drag.setValue(away);
+  }, [drag, now, page, count, width]);
   // By title, not by place, as the pager kept them.
   const [seen, setSeen] = useState<readonly string[]>(() =>
     pages.flatMap((each, index) => (each.lazy && index !== page ? [] : [each.title])),
@@ -208,8 +233,9 @@ export function TabShell({ pages, page, onPage, action }: Props) {
 
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
     const x = event.nativeEvent.contentOffset.x;
-    scrolledTo.current = x;
-    drag.setValue((x - restPlace * width) / width);
+    const away = pagesFromPage(x, width, now, page, count, scrolled.current.drag);
+    scrolled.current = { x, drag: away, page };
+    drag.setValue(away);
     // The first pixels of a page build it: it slides in whole.
     const inView = placesInView(x, width);
     const reached = pages
