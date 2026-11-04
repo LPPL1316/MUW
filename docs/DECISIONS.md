@@ -20371,7 +20371,8 @@ Nessun testo nuovo, nessuna dipendenza, niente di nativo, server non toccato.
 
 ## ADR-0303 — Il video della corsa con la mappa sotto: la mappa nella pagina del video, uno scatto e la linea sopra, il giallo come riserva, tre stili dai token, il 3D proiettato dalla pagina
 
-**Stato**: Proposta · 2026-10-30 · TASK-351. La richiesta è dell'utente
+**Stato**: Accettata e realizzata · 2026-11-04 (A #669, B #679, C #706,
+D #724; proposta il 2026-10-30) · TASK-351. La richiesta è dell'utente
 (2026-10-30: «fai anche lo restyle del video post corsa con questo stile
 aggiungendo la mappa sotto, magari la mappa in 3d come strava... e la
 possibilità di avere 3 stili per il video»); la scelta sulla privacy (la

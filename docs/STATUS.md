@@ -277,63 +277,6 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   anche con il server di oggi, con il pallino. Testi da approvare. Dopo il
   merge, TASK-354 (invio ottimistico, coda offline). File
   `tasks/TASK-353.md`.
-- **TASK-351 — Il video della corsa con la mappa sotto: il look premium,
-  il 3D e tre stili** (ADR-0303, proposta; richiesta dell'utente del
-  2026-10-30; numeri e condizioni dal Coordinatore). Branch
-  `docs/TASK-351-video-map-styles` (worktree `TASK-351-docs`): i
-  documenti, il canvas https://claude.ai/artifact/MEGmg4FJp4mBKKFJriFkMV
-  e la fattibilità del 3D misurata nel simulatore e nel WebView nascosto
-  dell'app (la mappa può stare nella pagina del video: uno scatto a
-  `idle`, la linea sopra; la camera che gira costa una resa per
-  fotogramma; sul telefono da rimisurare con l'utente). La scelta
-  sulla privacy (la mappa nel video mostra dove si è corso) è dell'utente
-  («Sì, va bene», 2026-10-30); i nomi degli stili sono
-  suoi («Sì, questi», 2026-10-30). La B è la PR #679 (testa
-  `a6d8cf1d (il codice; poi la privacy e i documenti)`): la mappa sotto nel look Night, la riserva gialla senza mappa,
-  provata in Expo Go, impronta `83793e26` invariata; prima dell'OTA di
-  produzione l'utente esporta un video vero sull'iPhone dalla preview e
-  vede la mappa (condizione del Coordinatore). 2026-11-03: la B è in
-  `main` (#679) ma sul telefono il video è uscito senza mappa: il WebView
-  fuori vista non riceve fotogrammi di animazione e MapLibre non carica;
-  fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
-  un timer, il WebView è un punto visibile), riprodotto e provato nel
-  simulatore; la prova dalla preview è dell'utente. Poi la C.
-  2026-11-04: il fix è in `main` (#703); la C è in PR
-  (`feat/TASK-351-c-video-styles`): la riga «Style» con «Night» e «Day»,
-  il look chiaro col bordo scuro sulla linea e il velo chiaro, i tre testi;
-  la tessera «3D» con la D. Sera: la C è riallineata su `main` f23ec332
-  (#717, col codice della #707), 26 suite verdi, impronta iOS sulla copia
-  pulita `6f8bba4c`; «#706 pronta» al Coordinatore.
-  2026-11-04: il fix è in `main` (#703) e sulla preview fb15613e, ma sul
-  telefono il video è ancora senza mappa: prova successiva in
-  `fix/TASK-351-video-map-under-cover`, PR #707 (WebView a grandezza piena
-  sotto una copertura, come il Feed; nel video giallo di riserva una riga
-  con il motivo dato dalla pagina, solo sul canale preview, con un test che
-  su production non compaia). L'utente: il video della preview era
-  «giallo», app riaperta due volte. Riallineata su `main` dopo la #620:
-  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706. Sera: con la stessa
-  preview fb15613e l'utente vede la mappa («ok la mappa funziona»): i
-  fotogrammi a timer bastano, il giallo di prima stava nei 15 s di attesa
-  (libreria e tegole non in cache, o rete lenta); la riga di diagnosi
-  (solo preview) lo dirà la prossima volta. La #706 si riallinea su
-  `main` dopo la #707; la condizione per la produzione del video (mappa
-  vista sul telefono) è soddisfatta, l'OTA resta una scelta dell'utente. Senza mappa il video
-  esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
-  sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
-  (il 3D), una PR ciascuna da `main` con la #658 e col via del
-  Coordinatore. Solo app, impronta iOS `83793e26` invariata. File
-  `tasks/TASK-351.md`. 2026-11-04, sera: la #706 e la #707 sono in `main`;
-  la D (il 3D) è la PR #724 (`feat/TASK-351-d-video-3d`, testa 5f0d197f, poi i documenti):
-  lo stile «3D», la mappa scura inclinata con le colline, la linea posata
-  sulle colline dalla pagina, la camera che gira da −10° a +10° se un
-  fotogramma costa meno di 25 ms (misurato dalla pagina in un giro a
-  vuoto) altrimenti lo scatto fermo con lo zoom lento, la tessera
-  inclinata, il credito «Terrain Tiles»; nel simulatore il 3D esce con la camera che gira (11 ms a
-  fotogramma, 7,1 s di codifica, 10,5 s in tutto contro 4,1 della notte); impronta iOS sulla copia pulita `6f8bba4c`, quella di `main`; 616 suite, 4937 test verdi.
-  La riga di privacy sulle tegole del terreno (scelta 8 nel task file)
-  ha avuto il sì dell'utente («Sì, questa», 2026-11-04) ed è nella D, nei
-  cinque testi e nelle pagine del sito rigenerate; la D è riallineata su
-  `main` 1c085d26 dopo la #723, che toccava gli stessi file.
 - **TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio**
   (ADR-0306, estende ADR-0293; richiesta dell'utente del 2026-10-30, numeri
   dal Coordinatore). Branch `docs/TASK-355-feed-clarity` (documenti). Parte
@@ -2386,6 +2329,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-351 — Il video della corsa con la mappa sotto: il look premium,
+  il 3D e tre stili** (ADR-0303): A #669 (documenti), B #679 (la mappa
+  sotto, Night), C #706 (la riga «Style», Day), D #724 (il 3D con la camera
+  che gira; in `main` ac3f1228 il 2026-11-04), con i fix #703 e #707 della
+  pagina fuori vista; la mappa vista dall'utente sul telefono il 4
+  novembre; impronta iOS invariata (`6f8bba4c` da #620). Restano
+  all'utente, col Coordinatore: i tre stili dall'anteprima, la copia del
+  sito con la riga delle Terrain Tiles, l'OTA. `tasks/TASK-351.md`.
 - **TASK-369 — «Edit the drawing» su ogni disegno** (ADR-0313; 2026-11-04;
   numeri dal Coordinatore): documenti #712, parte A #719 (`3e7c7d28`), parte
   B #722 (`bacd7c7b`). Il tasto c'è su ogni disegno con una linea, anche
