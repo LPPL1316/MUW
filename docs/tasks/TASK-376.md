@@ -185,8 +185,11 @@ nove percorsi fissi offline) è identica fra il motore di `main`
 quello spostato (`c9702b94404d` / `11647a97e632` / `fb16815e3876`): tre
 righe in `SAME_ROUTES_AS`, nessuna notte di esempi. `engine.zip` rifatto.
 Sul Mac `test_first_placement[levico heart 1000]` fallisce anche sul
-motore di `main` (verde in CI): non è di B1. Restano il banco su `main` e
-sul branch (`compare --same`) col turno del Coordinatore, poi B2 e B3.
+motore di `main` (verde in CI): non è di B1. Banco col turno del
+Coordinatore, `main` (motore esportato a 961fe194) e poi il branch, sei
+zone: `compare --same` **nessuna differenza**: corsa 54/54 e bici 54/54
+identiche punto per punto, canoa 10 percorsi identici e gli stessi 17
+rifiuti (`out/TASK-376/b1-main`, `b1-branch`). Poi B2 e B3.
 `__main__.py` e `anchored.py` scelgono ancora la rete con un `if` sulla
 bici: il primo sport con una rete nuova li passa a
 `OsmnxSource.for_activity`.
