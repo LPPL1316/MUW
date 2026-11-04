@@ -22064,3 +22064,38 @@ Testi nuovi in cinque lingue (interfaccia, 91 esercizi, sette figure), una
 riga della privacy per esercizi e classifica. Il codice parte dopo la #758 e
 TASK-376 B2 e B3, con le righe di registrazione raccolte dal Coordinatore
 Sport. Server, migrazione e OTA di produzione col sì dell'utente.
+## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
+
+**Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
+(2026-11-04); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-379.md`; il resto è deciso dall'agente su delega
+dell'utente. **Corregge il punto 3 di ADR-0311** («niente swipe fra le
+pagine»); il resto di ADR-0311 resta.
+
+**Contesto**: con TASK-367 parte A le pagine sono sotto una barra di schede e
+si cambiano solo toccandola. L'utente vuole anche «poter swippare da una
+scheda all'altra slidando verso destra e sinistra con il dito», come si
+faceva con le pagine affiancate di TASK-154 (ADR-0124).
+
+**Decisione** (proposta):
+
+1. Uno swipe orizzontale sulla pagina porta alla scheda accanto, e la barra
+   segue; il tocco sulla barra resta e mostra la pagina subito. Le scelte
+   dell'utente: la pagina **segue il dito**, con le pagine affiancate
+   («Segue il dito»); dal profilo si va al Feed e dal Feed al profilo, **in
+   giro continuo** («Torna alla prima»); vale su **tutte e cinque** le schede
+   («Tutte e cinque»).
+2. Nessuna dipendenza nativa: React Native di base, come il `Pager` di
+   TASK-154. L'impronta iOS non cambia e arriva con un OTA.
+3. Un gesto che parte su un carosello o su una fila di schede resta suo. Dentro
+   le pagine non c'è una mappa da trascinare: le mappe di Feed, Explore e
+   Profilo sono immagini, e la mappa vera prende lo schermo senza barra.
+4. Resta tutto quello che fa `TabShell`: pagine costruite al primo arrivo e
+   tenute, tocco sulla scheda attiva che torna in cima, «indietro» di Android,
+   il giro guidato, VoiceOver con le schede `tab` e lo stato `selected`.
+
+**Conseguenze**: chi aveva imparato lo swipe prima di TASK-367 lo ritrova.
+La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
+prova solo con i test.
+
+---
