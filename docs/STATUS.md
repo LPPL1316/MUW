@@ -188,6 +188,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   il disegno sull'acqua da `drawn_water.py`, fuori dall'impronta del motore
   (uguale a `main`, niente notte di `draw_examples --water`); si unisce dopo
   TASK-323 C2, poi il server col sì dell'utente.
+  **Chiuso il 2026-11-04**: parte B in `main` (#722, `bacd7c7b`), unita prima
+  di TASK-323 C2; vedi «Completato».
 - **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
   (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
   `src/search/`, la lente apre la ricerca, `shape=word` sul server per
@@ -2359,6 +2361,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-369 — «Edit the drawing» su ogni disegno** (ADR-0313; 2026-11-04;
+  numeri dal Coordinatore): documenti #712, parte A #719 (`3e7c7d28`), parte
+  B #722 (`bacd7c7b`). Il tasto c'è su ogni disegno con una linea, anche
+  emoji, parole, percorsi a tema, corse libere e importate e disegni pagaiati;
+  la traccia va sulla mappa dov'è, e si modifica sempre una copia mia. Senza
+  tasto i post di sole foto e il risultato di «Draw». Impronta iOS 6f8bba4c,
+  impronta del motore invariata. Restano, col sì dell'utente: il server con la
+  parte B (sì dato il 2026-11-04, lo fa il Coordinatore; prima l'app mostra «On
+  the water, a shape of the catalogue.») e l'OTA di produzione. `tasks/TASK-369.md`.
 - **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
   (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
   «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;
