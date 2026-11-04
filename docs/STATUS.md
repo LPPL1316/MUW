@@ -205,6 +205,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-11-02: codice pronto in PR da `feat/TASK-362-feed-tabs` (filtro sul
   server, schede sul `Segmented`, nessuna migrazione). Prima dell'OTA va
   aggiornato il server, col sì dell'utente. Dopo: 344 B, 355 B ridotta, 309 B.
+  2026-11-04: **chiuso.** #697 in main (2026-11-03), server a 36c6b2da, OTA di
+  produzione a91869b6 da 081f6d82; l'utente vede «All» e «Following» sul
+  telefono. Restano: la riga di privacy più avanti (scelta 7), gli esempi
+  col Coordinatore (scelta 4).
 
 - **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
   scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
