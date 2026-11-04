@@ -40,7 +40,7 @@ test("the tests run as Expo Go: every sport, «Paragliding» included", () => {
 });
 
 test("a store build leaves out the sports not ready, and keeps the order", () => {
-  expect(STORE.map((option) => option.id)).toEqual(["run", "bike", "paddle"]);
+  expect(STORE.map((option) => option.id)).toEqual(["run", "bike", "paddle", "swim"]);
   expect(STORE.every((option) => option.ready)).toBe(true);
   expect(shownSports(ALL_SPORTS, false)).toBe(ALL_SPORTS);
 });
@@ -53,25 +53,31 @@ test("in a store build `SPORTS` itself has no «Paragliding»", () => {
     }));
     const store = jest.requireActual<typeof import("./sport")>("./sport");
     expect(store.isStoreBuild()).toBe(true);
-    expect(store.SPORTS.map((option) => option.id)).toEqual(["run", "bike", "paddle"]);
+    expect(store.SPORTS.map((option) => option.id)).toEqual([
+      "run",
+      "bike",
+      "paddle",
+      "swim",
+    ]);
   });
 });
 
 test("«Settings» of a store build has no «Soon» row", async () => {
   await render(<SportSetting sports={STORE} />);
-  expect(screen.getAllByRole("radio")).toHaveLength(3);
+  expect(screen.getAllByRole("radio")).toHaveLength(4);
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
   expect(screen.queryByText("🪂")).toBeNull();
-  // Swimming too, until the app swims (TASK-323 C).
-  expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
-  expect(screen.queryByText("🏊")).toBeNull();
+  // Swimming is a sport of the store builds since the server swims
+  // (TASK-323), a row like the others.
+  expect(screen.getByRole("radio", { name: "Open water swim" })).toBeOnTheScreen();
+  expect(screen.getByText("🏊")).toBeOnTheScreen();
 });
 
 test("the sport menu of «Draw» in a store build has no «Soon» row", async () => {
   await render(<SportButton sports={STORE} />);
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
-  expect(screen.getAllByRole("radio")).toHaveLength(3);
+  expect(screen.getAllByRole("radio")).toHaveLength(4);
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
 });

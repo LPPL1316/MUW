@@ -7,8 +7,8 @@ import { t, tLater } from "../i18n";
 /** What a route is for: a run, a bike ride since TASK-190, paddling on a
  * lake or the sea since TASK-191 (a canoe, a kayak, a SUP), a walk on the
  * foot network of a run (TASK-371 part B, ADR-0315), «Soon» until the server
- * walks, or swimming in open water (TASK-323 part C, ADR-0283), «Soon» until
- * the server swims.
+ * walks, or swimming in open water (TASK-323, ADR-0283) since the server
+ * swims.
  * Paragliding (TASK-305 D0, ADR-0265) is only «Soon» for now: never chosen,
  * so never a route, and wherever the sports are told apart it goes as a
  * run. */
@@ -32,9 +32,9 @@ export const ALL_SPORTS: readonly SportOption[] = [
   { id: "run", emoji: "🏃‍♂️", name: tLater("Run"), ready: true },
   { id: "bike", emoji: "🚴", name: tLater("Bike"), ready: true },
   { id: "paddle", emoji: "🛶", name: tLater("Paddle"), ready: true },
-  // Asked as "swimming" since TASK-323 C2 (activityOf); on once the server
-  // swims.
-  { id: "swim", emoji: "🏊", name: tLater("Open water swim"), ready: false },
+  // Asked as "swimming" since TASK-323 C2 (activityOf); on since the server
+  // swims (TASK-323, 2026-11-04), in the store builds too.
+  { id: "swim", emoji: "🏊", name: tLater("Open water swim"), ready: true },
   // Asked as "walking" (activityOf), 1-30 km; on once the server has
   // TASK-371 part A and its migration 0043.
   { id: "walk", emoji: "🚶", name: tLater("Walk"), ready: false },

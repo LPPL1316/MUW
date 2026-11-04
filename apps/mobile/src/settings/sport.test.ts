@@ -56,7 +56,7 @@ beforeEach(() => {
   disk.state.failing = false;
 });
 
-test("run, bike and paddle, all three can be chosen (TASK-190, TASK-191)", () => {
+test("run, bike, paddle and swim can be chosen (TASK-190, TASK-191, TASK-323)", () => {
   expect(SPORTS.map((option) => option.name)).toEqual([
     "Run",
     "Bike",
@@ -69,10 +69,12 @@ test("run, bike and paddle, all three can be chosen (TASK-190, TASK-191)", () =>
     "run",
     "bike",
     "paddle",
+    "swim",
   ]);
   expect(canChoose("run")).toBe(true);
   expect(canChoose("bike")).toBe(true);
   expect(canChoose("paddle")).toBe(true);
+  expect(canChoose("swim")).toBe(true);
   expect(canChoose("golf")).toBe(false);
 });
 
@@ -92,18 +94,20 @@ test("«Paragliding» comes last, only «Soon»: never chosen, never a route (TA
   expect(withoutRouteLabel("paragliding")).toBe("Run without a route");
 });
 
-test("«Open water swim» 🏊 comes after «Paddle», «Soon» until the server swims (TASK-323 C)", () => {
+test("«Open water swim» 🏊 comes after «Paddle», on since the server swims (TASK-323)", () => {
   const index = SPORTS.findIndex((option) => option.id === "swim");
   expect(SPORTS[index - 1]?.id).toBe("paddle");
   expect(SPORTS[index]).toEqual({
     id: "swim",
     emoji: "🏊",
     name: "Open water swim",
-    ready: false,
+    ready: true,
   });
-  expect(canChoose("swim")).toBe(false);
+  expect(canChoose("swim")).toBe(true);
+  // Kept for the next opening, as any sport that is ready.
   saveSport("swim");
-  expect(loadSport()).toBe("run");
+  expect(loadSport()).toBe("swim");
+  expect(loadSport(RUN_ONLY)).toBe("run");
   // Asked as a swim since C2, in its own words.
   expect(activityOf("swim")).toBe("swimming");
   expect(withoutRouteLabel("swim")).toBe("Swim without a route");
