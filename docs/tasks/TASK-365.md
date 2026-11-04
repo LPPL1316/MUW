@@ -161,7 +161,7 @@ app.
 Per aprire un percorso dalla card e partire, l'app lo pianifica di nuovo con la
 sua richiesta (`explored.toRequest`): le serve la figura. I 25 file ora la dicono
 (`shape`, `word` con `style`, `outline` per le figure fuori catalogo), e l'API la
-manda; un file senza figura si legge ancora, ma non si apre. I sette contorni
+manda; un file senza figura si legge ancora, ma non si apre. I cinque contorni
 disegnati per MuW (fungo, foglia, baffi, scarpone, freccia larga) sono rifatti
 esattamente dal codice che li aveva scritti: la cartella `out/muw-bike-drafts/`
 è stata tolta da una pulizia del disco il 2026-11-03/04, con le bozze non
