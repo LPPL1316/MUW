@@ -22100,3 +22100,31 @@ prova solo con i test.
   `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
 
 ---
+
+## ADR-0326, precisazione — L'API di MuW Style (TASK-384 parte A)
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente,
+dentro la proposta approvata; migrazione e righe condivise col via del
+Coordinatore.
+
+1. **I post entrano solo con `style_import.py`**, da un file con i campi
+   esatti e una foto JPEG: nessun endpoint scrive un post. Un post caricato
+   non si sovrascrive; si nasconde.
+2. **Il link affiliato si fa a ogni «Shop»** dalla pagina del negozio
+   tenuta nella riga: cambiare programma o ID è cambiare `.env`, non le
+   righe. La pagina deve essere di un sito del negozio, così una riga
+   sbagliata non manda il telefono altrove.
+3. **«Shop» è un `POST` che risponde il link**: lo stesso tocco conta e dà
+   l'indirizzo, e l'elenco dei post non porta link che l'app potrebbe aprire
+   senza contare.
+4. **Un limite per indirizzo solo in memoria** (120 tocchi l'ora) tiene i
+   conteggi puliti senza scrivere l'indirizzo, come per «Send feedback».
+5. **Le foto in `data/media/style`**, sotto il `--media-dir` di sempre
+   (ADR-0289): non sono nelle copie del database, e si rigenerano dai
+   prompt.
+
+Scartato: un endpoint di amministrazione per caricare i post (una
+superficie in più sul server pubblico per una cosa che si fa a mano e di
+rado); il link affiliato scritto nella riga (legato all'ID di oggi).
+
+---

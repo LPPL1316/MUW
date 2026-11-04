@@ -160,6 +160,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
+  `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
+  in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
+  migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
+
 - **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
   (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
   materiali in `out/TASK-384/` (100 outfit da zalando.it, 100 prompt). Scelte dell'utente:

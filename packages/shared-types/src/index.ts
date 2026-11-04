@@ -2446,3 +2446,50 @@ export interface NotificationsPage {
 export interface NotificationsReadRequest {
   up_to: number;
 }
+
+// --- MuW Style (TASK-384, ADR-0326): our posts with an AI photo and shop
+// links, apart from GET /feed. An API before them answers 404. ---
+
+export const STYLE_THEMES = ["running", "trail", "bike", "gym", "athleisure"] as const;
+export type StyleTheme = (typeof STYLE_THEMES)[number];
+export type StyleGender = "women" | "men";
+
+/** A dot on the photo and its product. */
+export interface StyleTag {
+  id: number;
+  /** From the left and the top of the photo, 0–1. */
+  x: number;
+  y: number;
+  item: string;
+  brand: string;
+  product_name: string;
+  retailer: "zalando" | "amazon" | "decathlon";
+  /** null when read more than 7 days ago: the app says «See price». */
+  price_eur: number | null;
+  price_seen_on: string | null;
+}
+
+/** GET /style/{id}: the photo is at image_url, a JPEG. */
+export interface StylePost {
+  id: string;
+  theme: StyleTheme;
+  gender: StyleGender;
+  /** In the five languages of the app. */
+  title: Record<string, string>;
+  image_url: string;
+  image_tool: string;
+  published_at: string;
+  tags: StyleTag[];
+}
+
+/** GET /style?theme=&gender=&before=&limit=: the newest first. */
+export interface StylePage {
+  posts: StylePost[];
+  /** Ask with ?before= for the next page; null at the end. */
+  before: string | null;
+}
+
+/** POST /style/tags/{id}/shop: what the app opens in the browser. */
+export interface StyleShop {
+  url: string;
+}
