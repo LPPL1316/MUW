@@ -19,6 +19,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { markBlocked } from "./blockedNow";
 
 /** The reasons as the sheet says them, in English: shown with `t()`. */
@@ -124,8 +125,8 @@ export function ReportMenu({
 
   return (
     <>
-      <Pressable
-        style={({ pressed }) => [styles.more, pressed && styles.pressed]}
+      <Tap
+        style={styles.more}
         onPress={() => setStep({ kind: "menu" })}
         accessibilityRole="button"
         accessibilityLabel={t("More")}
@@ -134,7 +135,7 @@ export function ReportMenu({
         testID="report-menu"
       >
         <Text style={styles.moreText}>…</Text>
-      </Pressable>
+      </Tap>
       <Modal
         visible={step.kind !== "closed"}
         transparent
@@ -227,13 +228,9 @@ function Choice({
   danger?: boolean;
 }) {
   return (
-    <Pressable
-      style={({ pressed }) => [styles.choice, pressed && styles.pressed]}
-      onPress={onPress}
-      accessibilityRole="button"
-    >
+    <Tap style={styles.choice} onPress={onPress} accessibilityRole="button">
       <Text style={[styles.choiceText, danger && styles.danger]}>{label}</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -248,9 +245,6 @@ const styles = StyleSheet.create({
     color: color.textMuted,
     fontSize: fontSize.title,
     fontWeight: fontWeight.bold,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   // Clear, as over the super like: a tap on it closes the sheet.
   backdrop: {

@@ -99,7 +99,7 @@ async function openStar() {
 }
 
 async function openFavorites() {
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: /^Favorites/ }));
 }
 
@@ -189,7 +189,7 @@ test("without an account the heart goes to the page of the profile, and the rout
   await openStar();
   await fireEvent.press(screen.getByRole("button", { name: "Add to favorites" }));
   // The fourth page (TASK-278 part B), saying why.
-  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toBeSelected();
   expect(screen.getByText(SIGN_IN_TO_KEEP)).toBeOnTheScreen();
   expect(calls("PUT", `/me/favorites/${STAR}`)).toHaveLength(0);
 
@@ -217,7 +217,7 @@ test("«Profile» closed without an account drops the route that waited", async 
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
   // Back to «Explore», and an account made later from the header keeps nothing.
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   expect(screen.queryByText(SIGN_IN_TO_KEEP)).toBeNull();
   await fireEvent.changeText(screen.getByLabelText("email"), signUpRequest.email);
   await fireEvent.changeText(screen.getByLabelText("username"), signUpRequest.username);
@@ -236,7 +236,7 @@ test("«Favorites» in «Profile» lists them, and one opens on the map", async 
     [`GET /me/favorites/${KEPT_STAR.id}`]: () => Response.json(favorite),
   });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: "Favorites, 2" }));
   expect(screen.getByRole("header", { name: "Favorites" })).toBeOnTheScreen();
   expect(screen.getByText("Star · 5.1 km")).toBeOnTheScreen();
@@ -264,7 +264,7 @@ test("«Favorites» in «Profile» lists them, and one opens on the map", async 
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
   expect(screen.queryByRole("header", { name: "Favorites" })).toBeNull();
   expect(
-    screen.getByRole("button", { name: /^Profile/, selected: true }),
+    screen.getByRole("tab", { name: /^Profile/, selected: true }),
   ).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();

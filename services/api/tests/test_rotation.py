@@ -85,9 +85,10 @@ def test_an_upright_route_answers_0() -> None:
 
 def test_the_fixture_of_the_contract_is_a_valid_body() -> None:
     data = _load("route-result-tilted.json")
-    assert set(data) == set(RouteResultBody.model_fields) - {
-        "placed_outline"
-    }  # TASK-347
+    # Every field of its day: the laps and the turns of a swim (TASK-323) and
+    # the placed outline (TASK-347) came after.
+    later = {"laps", "lap_m", "turns", "placed_outline"}
+    assert set(data) == set(RouteResultBody.model_fields) - later
     body = RouteResultBody.model_validate(data)
     assert body.rotation_deg == 30.0
     assert [other.rotation_deg for other in body.alternatives] == [0.0]
@@ -99,7 +100,13 @@ def test_an_older_app_reads_the_answer_as_before(tilted: TestClient) -> None:
     body = done(tilted)
     older = _load("route-result-better-distance.json")
     assert set(older) <= set(body)
-    assert set(body) - set(older) == {"rotation_deg", "placed_outline"}
+    assert set(body) - set(older) == {
+        "rotation_deg",
+        "laps",
+        "lap_m",
+        "turns",
+        "placed_outline",
+    }
 
 
 def _track(gpx: str) -> str:

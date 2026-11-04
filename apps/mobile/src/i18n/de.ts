@@ -296,6 +296,31 @@ export const DE: Table = {
   "I understand": "Verstanden",
   "Not now": "Nicht jetzt",
 
+  // src/swim/SwimNotice.tsx, src/swim/SwimRouteNote.tsx (TASK-323 C: the swim's
+  // notice and the line under every swim, approved by the user in English)
+  "Before you swim": "Bevor du schwimmst",
+  "Never swim alone. Tow a bright swim buoy and wear a bright cap.":
+    "Schwimm nie allein. Zieh eine gut sichtbare Schwimmboje hinter dir her und trag eine auffällige Badekappe.",
+  "Check the water, the weather, the flags and the local rules: swimming areas, boat lanes, harbours. MuW does not know them.":
+    "Prüf das Wasser, das Wetter, die Flaggen und die Regeln vor Ort: Badezonen, Fahrrinnen, Häfen. MuW kennt sie nicht.",
+  "The route stays between 20 and 150 m from the shore. That does not make it safe or allowed.":
+    "Die Route bleibt zwischen 20 und 150 m vom Ufer entfernt. Das macht sie weder sicher noch erlaubt.",
+  "If you feel tired or cold, head for the shore at once.":
+    "Wenn du müde wirst oder frierst, schwimm sofort zum Ufer.",
+  "Within 150 m of the shore. Never swim alone.":
+    "Höchstens 150 m vom Ufer. Schwimm nie allein.",
+
+  // src/swim/SwimTurns.tsx, src/swim/turns.ts (TASK-323 C: the turns of a
+  // swim before «Start», the place's name as OpenStreetMap writes it)
+  TURNS: "KURVEN",
+  "Turn left": "Nach links",
+  "Turn right": "Nach rechts",
+  "Turn left · {place}": "Nach links · {place}",
+  "Turn right · {place}": "Nach rechts · {place}",
+  "{distance} from the start": "{distance} nach dem Start",
+  "The same turns every lap, {laps} laps, then back to the shore.":
+    "Jede Runde dieselben Kurven, {laps} Runden, dann zurück zum Ufer.",
+
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Form verschieben",
   "Drag the shape where you want it, then let go.":
@@ -1563,6 +1588,8 @@ export const DE: Table = {
   FEEDBACK: "FEEDBACK",
   // src/settings/sport.ts (TASK-305 D0: paragliding, «Soon» in «Sport»)
   Paragliding: "Gleitschirmfliegen",
+  // src/settings/sport.ts (TASK-323 C: swimming in open water, «Soon» in «Sport»)
+  "Open water swim": "Freiwasserschwimmen",
   // src/explore/ExploredCard.tsx, src/social/DrawingCard.tsx (TASK-313)
   "Draw it near me": "In meiner Nähe zeichnen",
   // src/route/RoutePanel.tsx (TASK-311 B: a word in one line that did not come out)
@@ -1733,8 +1760,54 @@ export const DE: Table = {
   Madrid: "Madrid",
   Turin: "Turin",
 
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Zeichnungen, Leute, Orte suchen",
+  Clear: "Löschen",
+  People: "Leute",
+  Routes: "Routen",
+  Filters: "Filter",
+  "Recent searches": "Letzte Suchen",
+  Categories: "Kategorien",
+  "Featured drawings": "Ausgewählte Zeichnungen",
+  Animals: "Tiere",
+  Hearts: "Herzen",
+  Words: "Wörter",
+  Symbols: "Symbole",
+  Emoji: "Emoji",
+  Place: "Ort",
+  "Town or region": "Stadt oder Region",
+  Complexity: "Komplexität",
+  Simple: "Einfach",
+  Medium: "Mittel",
+  Complex: "Komplex",
+  "Sort by": "Sortieren nach",
+  "Most recent": "Neueste",
+  Longest: "Längste",
+  "Most popular": "Beliebteste",
+  "Up to {distance}": "Bis {distance}",
+  "Over {distance}": "Über {distance}",
+  Reset: "Zurücksetzen",
+  "No drawings found": "Keine Zeichnungen gefunden",
+  "Try other words, or change the filters.":
+    "Versuche andere Wörter oder ändere die Filter.",
+
   // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
   "Route created by MuW – ride it yourself": "Route von MuW – fahr sie selbst",
   "Route created by MuW – run it yourself": "Route von MuW – lauf sie selbst",
   "Route created by MuW – paddle it yourself": "Route von MuW – paddel sie selbst",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Dein Beitrag",
+  "Hold and drag to reorder":
+    "Gedrückt halten und ziehen, um die Reihenfolge zu ändern",
+  "Move left": "Nach links",
+  "Move right": "Nach rechts",
+  Layout: "Layout",
+  "Drawing in the corner": "Zeichnung in der Ecke",
+  "Line on the photo": "Linie auf dem Foto",
+  "Half and half": "Halb und halb",
+  "Photo in the corner": "Foto in der Ecke",
+  "Up to 10 in a post.": "Bis zu 10 in einem Beitrag.",
+  "Could not prepare this photo. Try again.":
+    "Dieses Foto konnte nicht vorbereitet werden. Versuche es noch einmal.",
 };

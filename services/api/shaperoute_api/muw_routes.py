@@ -7,8 +7,9 @@ already published never asks for them and sees nothing new.
 Every route is a file of catalog/muw_routes/, written from a draft the user
 approved, and read once when the API starts: a draft is not in the repository,
 so it cannot reach here, and taking a route away is taking its file away. A
-file holds what MUW_ROUTE_FIELDS says and nothing else: a time, a pace or a
-person in it is an error, because nobody ran these routes. The lines are the
+file holds what MUW_ROUTE_FIELDS says, and what it draws (MUW_FIGURE_FIELDS),
+and nothing else: a time, a pace or a person in it is an error, because nobody
+ran these routes. The lines are the
 route engine's.
 """
 
@@ -53,9 +54,16 @@ MUW_ROUTE_FIELDS = frozenset(
         "rotation_deg",
     }
 )
+# What the route draws, as a route request says it (TASK-365, to open it):
+# a shape or a word, one of the two; the style of a word; and the outline of a
+# figure the catalogue does not have. The app needs it to open the route; the
+# line it shows and runs is still the file's.
+MUW_FIGURE_FIELDS = frozenset({"shape", "word", "style", "outline"})
+STYLES = frozenset({"round", "block"})
 
 Difficulty = Literal["easy", "moderate", "hard"]
 Stretch = tuple[int, int]
+OutlinePoint = tuple[float, float]
 
 
 class MuwRouteBody(BaseModel):
@@ -74,6 +82,10 @@ class MuwRouteBody(BaseModel):
     preview: list[LatLon]
     rotation_deg: float
     """As RouteResult.rotation_deg: the app draws it turned back."""
+    shape: str | None = None
+    """What it draws: a shape, or None for a word."""
+    word: str | None = None
+    style: str | None = None
 
 
 class MuwRoutesBody(BaseModel):
@@ -97,6 +109,12 @@ class MuwRouteDetailBody(BaseModel):
     as RouteResult.on_foot."""
     license: str
     rotation_deg: float
+    shape: str | None = None
+    word: str | None = None
+    style: str | None = None
+    outline: list[OutlinePoint] | None = None
+    """The figure's own outline when the catalogue does not have it, as the
+    engine's outline files: the request the app opens the route with."""
 
 
 @dataclass(frozen=True)
@@ -112,6 +130,10 @@ class MuwRoute:
     on_foot: tuple[Stretch, ...]
     license: str
     rotation_deg: float
+    shape: str | None = None
+    word: str | None = None
+    style: str | None = None
+    outline: tuple[OutlinePoint, ...] | None = None
 
 
 def _point(raw: Any) -> LatLon:
@@ -124,8 +146,10 @@ def _point(raw: Any) -> LatLon:
 def parse_route(body: dict[str, Any]) -> MuwRoute:
     """The route of one file; ValueError, KeyError or TypeError when it is not
     what the file must be."""
-    if set(body) != MUW_ROUTE_FIELDS:
-        raise ValueError(f"fields not as asked: {set(body) ^ MUW_ROUTE_FIELDS}")
+    fields = set(body)
+    if not MUW_ROUTE_FIELDS <= fields or fields - MUW_ROUTE_FIELDS - MUW_FIGURE_FIELDS:
+        raise ValueError(f"fields not as asked: {fields ^ MUW_ROUTE_FIELDS}")
+    shape, word, style, outline = _figure(body)
     route_id = str(body["id"])
     if not ID_PATTERN.fullmatch(route_id):
         raise ValueError(f"not an id: {route_id}")
@@ -159,7 +183,43 @@ def parse_route(body: dict[str, Any]) -> MuwRoute:
         on_foot=on_foot,
         license=str(body["license"]),
         rotation_deg=turn_of(body),
+        shape=shape,
+        word=word,
+        style=style,
+        outline=outline,
     )
+
+
+def _figure(
+    body: dict[str, Any],
+) -> tuple[str | None, str | None, str | None, tuple[OutlinePoint, ...] | None]:
+    """What the route of `body` draws. A file of before TASK-365's figures
+    says nothing, and draws nothing the app can plan again: kept, with none."""
+    shape, word = body.get("shape"), body.get("word")
+    if shape is None and word is None and body.get("outline") is None:
+        return None, None, None, None
+    if (shape is None) == (word is None):
+        raise ValueError("a shape or a word, one of the two")
+    if word is not None:
+        if not isinstance(word, str) or not word.isalpha():
+            raise ValueError(f"not a word: {word}")
+        style = body.get("style") or "round"
+        if style not in STYLES:
+            raise ValueError(f"not a style: {style}")
+        if body.get("outline") is not None:
+            raise ValueError("a word has its letters, not an outline")
+        return None, word.upper(), str(style), None
+    if not isinstance(shape, str) or not ID_PATTERN.fullmatch(shape):
+        raise ValueError(f"not a shape: {shape}")
+    if body.get("style") is not None:
+        raise ValueError("a style is for a word")
+    raw = body.get("outline")
+    if raw is None:
+        return shape, None, None, None
+    outline = tuple((float(x), float(y)) for x, y in raw)
+    if len(outline) < 4 or not all(abs(v) <= 1.5 for p in outline for v in p):
+        raise ValueError("an outline has four points in the unit square")
+    return shape, None, None, outline
 
 
 class MuwRouteCatalog:
@@ -199,6 +259,9 @@ class MuwRouteCatalog:
                 start=r.points[0],
                 preview=preview(r.points),
                 rotation_deg=r.rotation_deg,
+                shape=r.shape,
+                word=r.word,
+                style=r.style,
             )
             for _, r in sorted(self.routes.items())
         ]
@@ -219,6 +282,10 @@ class MuwRouteCatalog:
             on_foot=list(r.on_foot),
             license=r.license,
             rotation_deg=r.rotation_deg,
+            shape=r.shape,
+            word=r.word,
+            style=r.style,
+            outline=None if r.outline is None else list(r.outline),
         )
 
 

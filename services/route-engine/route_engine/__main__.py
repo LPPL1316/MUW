@@ -15,7 +15,10 @@ of a lake or the sea, from a start on the shore; the water is cached in
 `<cache-dir>/water/` (TASK-191). With `--pen-up` a shape in pieces is drawn
 piece by piece there too, the pen up between them (TASK-226). `--near
 LAT,LON` asks for the shape on the water near that point, where its centre
-is wanted (TASK-238).
+is wanted (TASK-238). `--activity swimming` draws an open-water swim,
+0.5-3 km, 20-150 m from the shore, lap after lap (`--laps N`), its turns
+named after the places of `<cache-dir>/shore_names/` (TASK-323); a drawing
+on the water is swum with `python -m route_engine.swimming --outline`.
 """
 
 from __future__ import annotations
@@ -77,6 +80,9 @@ from route_engine.shapes.outline import (
     parse_outline,
     read_outline,
 )
+from route_engine.shore_names import FolderShoreNames
+from route_engine.swim_turns import turn_label, with_turns
+from route_engine.swimming import SwimRequest, plan_swimming, swim_bbox
 from route_engine.track_score import (
     TrackNotScorableError,
     TrackPoint,
@@ -207,9 +213,15 @@ def _build_parser() -> argparse.ArgumentParser:
         "--near",
         type=_parse_start,
         metavar="LAT,LON",
-        help="with --activity paddling: where the centre of the shape is "
+        help="with --activity paddling or swimming: where the centre of the shape is "
         "wanted, e.g. the centre printed for a route before, moved; the shape "
         "is placed at the nearest place to it where it fits",
+    )
+    parser.add_argument(
+        "--laps",
+        type=int,
+        help="with --activity swimming: how many times round the shape, "
+        "fewer for a larger shape (default: the fewest it fits in)",
     )
     parser.add_argument(
         "--out", type=Path, help="write the route to this GPX file (never overwritten)"
@@ -234,7 +246,9 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"one of: {', '.join(ACTIVITIES)}; cycling routes are "
         f"{_km(DISTANCE_LIMITS_M['cycling'])} km, on the bike network; "
         f"paddling routes {_km(DISTANCE_LIMITS_M['paddling'])} km, a shape on "
-        "the water within 1 km of the shore (default: running)",
+        "the water within 1 km of the shore; swims "
+        f"{_km(DISTANCE_LIMITS_M['swimming'])} km, 20-150 m from it "
+        "(default: running)",
     )
     parser.add_argument(
         "--cache-dir",
@@ -351,6 +365,7 @@ def parse_args(
                 # pieces are composed below, as a word's letters.
                 pen_up=args.pen_up and args.activity in WATER_ACTIVITIES,
                 near=args.near,
+                laps=args.laps,
             )
         else:
             request = OutlineRequest(
@@ -426,6 +441,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Wrote {args.save_outline}: the traced outline")
     if args.out is None and args.track is None:
         return 0
+    if request.activity == "swimming":
+        assert isinstance(request, RouteRequest)  # words, outlines refused
+        return _main_swimming(request, args)
     if request.activity in WATER_ACTIVITIES:
         assert isinstance(request, RouteRequest)  # words, outlines refused
         return _main_on_water(request, args)
@@ -600,6 +618,50 @@ def _main_on_water(request: RouteRequest, args: argparse.Namespace) -> int:
     )
     for warning in route.warnings:
         print(f"  warning: {warning}")
+    if args.track is not None:
+        return _print_track_score(
+            args.track, route.points, route.similarity, route.walks
+        )
+    return 0
+
+
+def _main_swimming(request: RouteRequest, args: argparse.Namespace) -> int:
+    """A swim (TASK-323): the shape lap after lap in the bathers' band, with
+    its turns, as `python -m route_engine.swimming` prints it."""
+    swim = SwimRequest.of(request)
+    source = OverpassWaterSource(args.cache_dir)
+    if source.is_cached(swim_bbox(swim)):
+        print("Water: from the cache")
+    else:
+        print("Water: downloading from OpenStreetMap...")
+    try:
+        plan = plan_swimming(swim, source, names=FolderShoreNames(args.cache_dir))
+    except ShapeNotDrawableError as exc:
+        print(f"No route: {exc}", file=sys.stderr)
+        return 1
+    route, result = plan.result, plan.route
+    if args.out is not None:
+        when = datetime.now(UTC)
+        name = route_name(request.name, request.distance_m, when)
+        document = with_turns(to_gpx(route.points, name, when, route.walks), plan.turns)
+        args.out.write_text(document, encoding="utf-8")
+        print(f"Wrote {args.out}: {len(route.points)} points")
+    laps = "1 lap" if plan.laps == 1 else f"{plan.laps} laps"
+    print(f"  laps:       {laps} of {plan.lap_m:.0f} m")
+    print(
+        f"  shore:      {result.shore_start[0]:.5f}, {result.shore_start[1]:.5f} "
+        f"({result.shore_access}), {result.move_m:.0f} m from the start"
+    )
+    print(f"  leg:        {result.approach_m:.0f} m each way, shore to shape")
+    print(f"  in water:   {route.distance_m:.0f} m (target {request.distance_m} m)")
+    print(
+        f"  checks:     the swim {result.farthest_shore_m:.0f} m from the shore "
+        "at the farthest"
+    )
+    first = [turn for turn in plan.turns if turn.lap == 1]
+    print(f"  turns:      {len(first)} in the first lap")
+    for turn in first:
+        print(f"    {turn.at_m:5.0f} m  {turn_label(turn)}, {turn.angle_deg:.0f}°")
     if args.track is not None:
         return _print_track_score(
             args.track, route.points, route.similarity, route.walks

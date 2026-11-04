@@ -236,7 +236,7 @@ test("the form shows what the API has, and a chip sends the choice whole at once
   expect(screen.getByRole("radio", { name: "Followers", checked: true })).toBeTruthy();
   expect(screen.getByRole("button", { name: "Remove adam.trento" })).toBeTruthy();
   // The API's photo, read with the token.
-  const photo = screen.getByLabelText("Photo 1");
+  const photo = screen.getByTestId("photo-image-1");
   expect(photo.props.source).toEqual({
     uri: `${URL}${MINE.photos?.[0].url}`,
     headers: { Authorization: `Bearer ${signedIn.token}` },
@@ -350,4 +350,42 @@ test("a choice the API refuses is said, and the form goes back to what it kept",
   await fireEvent.press(await screen.findByRole("radio", { name: "Everyone" }));
   expect(await screen.findByText("This run is too short to publish.")).toBeTruthy();
   expect(screen.getByRole("radio", { name: "Followers", checked: true })).toBeTruthy();
+});
+
+// The order of the post (TASK-348, ADR-0301).
+
+test("the pages show in the API's order, and a move sends the order after the drawing", async () => {
+  const photo = MINE.photos?.[0];
+  if (photo === undefined) {
+    throw new Error("the example has a photo");
+  }
+  const second = { ...photo, n: 2, url: photo.url.replace("/photos/1", "/photos/2") };
+  const ordered: MyDrawing = {
+    ...MINE,
+    photos: [second, photo],
+    order: ["photo:2", "drawing", "photo:1"],
+  };
+  const { fetchFn, names, calls } = api({
+    [`GET ${DRAWING}`]: () => Response.json(ordered),
+    [`PUT ${DRAWING}`]: () => Response.json(ordered),
+    [`PUT ${DRAWING}/order`]: (init) =>
+      Response.json({ ...ordered, order: JSON.parse(String(init?.body)).order }),
+  });
+  await render(<Row fetchFn={fetchFn} />);
+  expect(await screen.findByDisplayValue("Sunday heart by the river")).toBeTruthy();
+  const tiles = screen
+    .getAllByLabelText(/^(Drawing|Photo \d)$/)
+    .map((tile) => tile.props.testID as string);
+  expect(tiles).toEqual(["tile-photo-2", "tile-drawing", "tile-photo-1"]);
+
+  await fireEvent(screen.getByTestId("tile-drawing"), "accessibilityAction", {
+    nativeEvent: { actionName: "moveLeft" },
+  });
+  await waitFor(() => expect(names()).toContain(`PUT ${DRAWING}/order`));
+  expect(names().indexOf(`PUT ${DRAWING}`)).toBeLessThan(
+    names().indexOf(`PUT ${DRAWING}/order`),
+  );
+  expect(calls.find((call) => call.name === `PUT ${DRAWING}/order`)?.body).toEqual({
+    order: ["drawing", "photo:2", "photo:1"],
+  });
 });

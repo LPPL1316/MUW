@@ -54,6 +54,7 @@ import { RecommendedRow } from "./RecommendedRow";
 import { CardMapsCredit, cardWidth, RouteCard } from "./RouteCard";
 import type { ThemedRequest } from "./themedRoutes";
 import { stillDrawing, useWaited, WhileDrawing } from "./WhileDrawing";
+import { useScrollToTopOnReselect } from "../tabs/tabReselect";
 
 type ListState =
   | { status: "loading" }
@@ -125,6 +126,8 @@ export function ExploreScreen({
   // A city searched for takes the place of the start (TASK-129).
   const near = city?.point ?? start;
   const insets = useSafeAreaInsets();
+  // Its tab touched again: back to the top (TASK-367).
+  const scroll = useScrollToTopOnReselect<ScrollView>();
   // The cards are written again when «Settings» changes the units (TASK-182).
   const units = useUnits();
   // What the page has between its side margins: two cards side by side.
@@ -280,6 +283,7 @@ export function ExploreScreen({
         <HeartBadge size={MIN_TAP_SIZE} />
       </View>
       <ScrollView
+        ref={scroll}
         contentContainerStyle={[
           styles.list,
           { paddingBottom: insets.bottom + space.lg },

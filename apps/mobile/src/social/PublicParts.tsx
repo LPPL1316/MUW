@@ -5,25 +5,17 @@ import {
   DRAWING_MAX_TAGS,
   DRAWING_TITLE_MAX_LENGTH,
   type DrawingTag,
+  type LatLon,
   type Person,
   VISIBILITIES,
   type Visibility,
 } from "@shaperoute/shared-types";
 import { type ReactNode, useState } from "react";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { DrawingChoice } from "../api/drawings";
 import { EnterSwitch } from "../contest/EnterSwitch";
 import { t, tLater } from "../i18n";
-import { OpenSettings } from "../permissions/OpenSettings";
 import type { ImageSource } from "../route/pickImage";
 import {
   color,
@@ -33,8 +25,15 @@ import {
   radius,
   space,
 } from "../theme/tokens";
-import type { PhotoShown } from "./drawingsDoor";
-import { pickDrawingPhoto, type PickedDrawingPhoto } from "./pickDrawingPhoto";
+import type { Flattened } from "./composer/flattenPhoto";
+import type { PostLayout } from "./composer/layoutFrame";
+import {
+  type ComposerPhoto,
+  type PickMany,
+  PostComposer,
+} from "./composer/PostComposer";
+import type { PostItem } from "./composer/postOrder";
+import type { PickedDrawingPhoto } from "./pickDrawingPhoto";
 import { TagPeople } from "./TagPeople";
 
 /**
@@ -101,6 +100,19 @@ export function nextPlace(photos: readonly { n: number }[]): number | null {
 }
 
 export type PickPhoto = (source: ImageSource) => Promise<PickedDrawingPhoto>;
+
+/** A picker of one photo, as the composer asks for several: the fakes of
+ * the tests, and a phone that hands over one at a time. */
+export function oneAtATime(pick: PickPhoto): PickMany {
+  return async (source) => {
+    const one = await pick(source);
+    if (one.kind !== "picked") {
+      return one;
+    }
+    const { base64, width, height } = one;
+    return { kind: "picked", photos: [{ base64, width, height }], tooLarge: false };
+  };
+}
 
 /** A line under the form: what the others see, or what went wrong. */
 export function PublicLine({ text, alert }: { text: string; alert?: boolean }) {
@@ -337,143 +349,22 @@ export function TagsField({
   );
 }
 
-/** Words for a photo that did not come; null when it was only not chosen. */
-function pickProblem(
-  kind: Exclude<PickedDrawingPhoto["kind"], "picked">,
-): string | null {
-  switch (kind) {
-    case "cancelled":
-      return null;
-    case "denied":
-      return t(
-        "The camera is off for this app. Allow it in Settings, or choose a picture instead.",
-      );
-    case "too_large":
-      return t("This picture is too large. Choose a smaller one.");
-    case "pick_failed":
-      return t("Could not open the picture. Try again.");
-  }
-}
-
-/** The side of a photo in the row. */
-export const PHOTO_THUMB = 72;
-
-/**
- * The photos of the run, up to DRAWING_MAX_PHOTOS, each with its ×, and
- * «Add photo», which asks for the library or the camera.
- */
-export function PhotosRow({
-  photos,
-  onAdd,
-  onRemove,
-  disabled,
-  pick = pickDrawingPhoto,
-}: {
-  photos: readonly PhotoShown[];
-  /** A photo chosen and shrunk, JPEG in base64. */
-  onAdd: (base64: string) => void;
-  onRemove: (photo: PhotoShown) => void;
-  disabled?: boolean;
-  pick?: PickPhoto;
-}) {
-  const [choosing, setChoosing] = useState(false);
-  const [picking, setPicking] = useState(false);
-  const [problem, setProblem] = useState<Exclude<
-    PickedDrawingPhoto["kind"],
-    "picked"
-  > | null>(null);
-  async function choose(source: ImageSource) {
-    setChoosing(false);
-    setPicking(true);
-    setProblem(null);
-    const picked = await pick(source);
-    setPicking(false);
-    if (picked.kind === "picked") {
-      onAdd(picked.base64);
-    } else {
-      setProblem(picked.kind);
-    }
-  }
-  const problemText = problem === null ? null : pickProblem(problem);
-  const busy = disabled || picking;
-  return (
-    <View style={styles.field}>
-      <View style={styles.photos}>
-        {photos.map((photo) => (
-          <View key={photo.n} style={styles.photo}>
-            <Image
-              source={photo.source}
-              style={styles.thumb}
-              accessibilityLabel={t("Photo {n}", { n: photo.n })}
-            />
-            <Pressable
-              style={styles.remove}
-              onPress={() => onRemove(photo)}
-              disabled={busy}
-              accessibilityRole="button"
-              accessibilityLabel={t("Remove photo {n}", { n: photo.n })}
-            >
-              <Text style={styles.removeText}>×</Text>
-            </Pressable>
-          </View>
-        ))}
-        {photos.length < DRAWING_MAX_PHOTOS && !choosing && (
-          <Pressable
-            style={[styles.add, busy && styles.busy]}
-            onPress={() => setChoosing(true)}
-            disabled={busy}
-            accessibilityRole="button"
-            accessibilityState={{ disabled: busy, busy: picking }}
-          >
-            <Text style={styles.chipText}>
-              {picking ? t("Opening…") : t("Add photo")}
-            </Text>
-          </Pressable>
-        )}
-      </View>
-      {choosing && (
-        <View style={styles.chips}>
-          <Pressable
-            style={styles.chip}
-            onPress={() => void choose("library")}
-            accessibilityRole="button"
-          >
-            <Text style={styles.chipText}>{t("Choose a picture")}</Text>
-          </Pressable>
-          <Pressable
-            style={styles.chip}
-            onPress={() => void choose("camera")}
-            accessibilityRole="button"
-          >
-            <Text style={styles.chipText}>{t("Take a photo")}</Text>
-          </Pressable>
-          <Pressable
-            style={styles.chip}
-            onPress={() => setChoosing(false)}
-            accessibilityRole="button"
-          >
-            <Text style={styles.chipText}>{t("Cancel")}</Text>
-          </Pressable>
-        </View>
-      )}
-      {problemText !== null && (
-        <>
-          <PublicLine text={problemText} alert />
-          {problem === "denied" && <OpenSettings />}
-        </>
-      )}
-    </View>
-  );
-}
-
 export type DrawingFormProps = {
   choice: DrawingChoice;
   onChoice: (next: DrawingChoice) => void;
   /** Typing in the title or the description is over (the keyboard closed). */
   onTextDone?: () => void;
-  photos: readonly PhotoShown[];
-  onAddPhoto: (base64: string) => void;
-  onRemovePhoto: (photo: PhotoShown) => void;
+  /** The pages of the post, the map among the photos (TASK-348). */
+  items: readonly PostItem[];
+  photos: readonly ComposerPhoto[];
+  onOrder: (items: PostItem[]) => void;
+  /** Photos chosen and shrunk, JPEG in base64, in the order tapped. */
+  onAddPhotos: (photos: string[]) => void;
+  onRemovePhoto: (n: number) => void;
+  /** The run's line and turn: with them, a photo can carry its drawing. */
+  track?: readonly LatLon[] | null;
+  rotationDeg?: number | null;
+  onLayout?: (n: number, layout: PostLayout | null, made: Flattened | null) => void;
   disabled?: boolean;
   /** A run from a file of another app: it cannot enter a monthly challenge. */
   imported?: boolean;
@@ -494,9 +385,14 @@ export function DrawingForm({
   choice,
   onChoice,
   onTextDone,
+  items,
   photos,
-  onAddPhoto,
+  onOrder,
+  onAddPhotos,
   onRemovePhoto,
+  track,
+  rotationDeg,
+  onLayout,
   disabled,
   imported = false,
   pick,
@@ -509,12 +405,17 @@ export function DrawingForm({
   const seen = seenText(choice.visibility);
   return (
     <View style={styles.form}>
-      <PhotosRow
+      <PostComposer
+        items={items}
         photos={photos}
-        onAdd={onAddPhoto}
+        onOrder={onOrder}
+        onAdd={onAddPhotos}
         onRemove={onRemovePhoto}
+        track={track}
+        rotationDeg={rotationDeg}
+        onLayout={onLayout}
         disabled={disabled}
-        pick={pick}
+        pick={pick === undefined ? undefined : oneAtATime(pick)}
       />
       <DrawingTitle
         value={title}
@@ -642,51 +543,6 @@ const styles = StyleSheet.create({
   },
   busy: {
     opacity: 0.6,
-  },
-  photos: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: space.sm,
-  },
-  photo: {
-    width: PHOTO_THUMB,
-    height: PHOTO_THUMB,
-  },
-  thumb: {
-    width: PHOTO_THUMB,
-    height: PHOTO_THUMB,
-    borderRadius: radius.md,
-    backgroundColor: color.surfaceRaised,
-  },
-  remove: {
-    position: "absolute",
-    top: -space.xs,
-    right: -space.xs,
-    width: 24,
-    height: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: color.borderStrong,
-    backgroundColor: color.surfaceRaised,
-  },
-  removeText: {
-    color: color.text,
-    fontSize: fontSize.body,
-    fontWeight: fontWeight.bold,
-    lineHeight: fontSize.body + 2,
-  },
-  add: {
-    height: PHOTO_THUMB,
-    justifyContent: "center",
-    paddingHorizontal: space.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: color.borderStrong,
-    backgroundColor: color.surface,
   },
   line: {
     color: color.textMuted,

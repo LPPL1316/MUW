@@ -82,7 +82,12 @@ function WithDoor({
 }
 
 function spies() {
-  return { toDrawing: jest.fn(), toPhotos: jest.fn(), toStrava: jest.fn() };
+  return {
+    toDrawing: jest.fn(),
+    toPhotos: jest.fn(),
+    toOrder: jest.fn(),
+    toStrava: jest.fn(),
+  };
 }
 
 async function save() {
@@ -199,6 +204,21 @@ test("the title, how it went and who can see it go whole with «Save»", async (
   });
 });
 
+test("the map moved after a photo: «Save» sends the photos and the order", async () => {
+  const door = spies();
+  await render(<WithDoor door={door} />);
+  await fireEvent.press(screen.getByRole("button", { name: "Add photo" }));
+  await fireEvent.press(screen.getByRole("button", { name: "Choose a picture" }));
+  expect(await screen.findByLabelText("Photo 1")).toBeTruthy();
+  // VoiceOver's «Move right» on the map, as a drag would.
+  await fireEvent(screen.getByTestId("tile-drawing"), "accessibilityAction", {
+    nativeEvent: { actionName: "moveRight" },
+  });
+  await save();
+  expect(door.toPhotos).toHaveBeenCalledWith(["c2hydW5r"]);
+  expect(door.toOrder).toHaveBeenCalledWith(["photo:1", "drawing"]);
+});
+
 test("the photos chosen go with «Save», in order, and «Only me» warns they stay here", async () => {
   const door = spies();
   await render(<WithDoor door={door} />);
@@ -211,9 +231,13 @@ test("the photos chosen go with «Save», in order, and «Only me» warns they s
   await fireEvent.press(screen.getByRole("button", { name: "Take a photo" }));
   expect(await screen.findByLabelText("Photo 2")).toBeTruthy();
   await fireEvent.press(screen.getByRole("button", { name: "Remove photo 1" }));
-  expect(screen.queryByLabelText("Photo 1")).toBeNull();
+  // The photos are counted as the post shows them: one is left.
+  expect(screen.queryByLabelText("Photo 2")).toBeNull();
+  expect(screen.getByLabelText("Photo 1")).toBeTruthy();
   await save();
   expect(door.toPhotos).toHaveBeenCalledWith(["c2hydW5r"]);
+  // The map first, as every post before TASK-348: no order to send.
+  expect(door.toOrder).toHaveBeenCalledWith(null);
   // Nothing else chosen: the photos are the phone's, no drawing is sent.
   expect(door.toDrawing).toHaveBeenCalledWith(null);
 });
