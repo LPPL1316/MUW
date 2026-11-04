@@ -513,6 +513,9 @@ apps/mobile/src/health/appleWorkout.ts, healthConnectWorkout.ts,
   appleHealth.test.ts (TASK-321, col sì dell'utente), swimWorkout.test.ts
   (nuovo)
 apps/mobile/src/social/PublicParts.tsx
+apps/mobile/src/search/searchFilters.ts (TASK-344, col via del Coordinatore:
+  il chip «Open water swim» nella ricerca del Feed, subito, scelta
+  dell'utente del 2026-11-04)
 apps/mobile/src/api/favorites.test.ts, src/favorites/favoriteRoute.test.ts
   (il nuoto non è più «un'attività che non c'è»)
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
