@@ -98,20 +98,17 @@ function openLines(units: readonly [number, number][]): FigureLines | null {
 }
 
 /** What a member's drawing says of its figure (GET /drawings/{id}). */
-type DrawnRun = Pick<DrawingDetail, "track" | "activity">;
+type DrawnRun = Pick<DrawingDetail, "track">;
 
 /**
  * The track of a member's drawing (TASK-320 part B), where it was run
  * (TASK-346): the one line the API gives of it, whatever it draws — a
  * picture, a figure drawn by hand, an emoji, a word, a free run, one
- * imported from another app (TASK-369, ADR-0313). Null for a post of photos
- * alone, a track too short to follow, and a drawing paddled: on the water
- * only the catalogue is drawn (ADR-0161).
+ * imported from another app, a drawing paddled (TASK-369, ADR-0313). Null
+ * for a post of photos alone and a track too short to follow.
  */
 export function drawingTrack(drawing: DrawnRun): TrackInPlace | null {
-  return drawing.activity !== "paddling" && drawing.track.length >= 2
-    ? trackInPlace(drawing.track)
-    : null;
+  return drawing.track.length >= 2 ? trackInPlace(drawing.track) : null;
 }
 
 /**

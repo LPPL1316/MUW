@@ -925,10 +925,16 @@ motore.)
 - **Da 1 a 5 km** (`DISTANCE_LIMITS_M.paddling`, scelta dell'utente):
   fuori è `422 invalid_request`, `distance must be between 1000 and 5000
   metres for paddling, got 5001`.
-- **Solo una forma del catalogo**: una parola è `422 invalid_request`, `on
-  the water only a shape of the catalogue is drawn, not a word` (dal
-  motore); un'immagine (`/image-route-jobs`, anche dentro `/gpx`) `… not an
-  image`, prima di guardare la distanza.
+- **Una forma del catalogo o un disegno**: una parola è `422
+  invalid_request`, `on the water only a shape of the catalogue is drawn,
+  not a word` (dal motore). Un'immagine (`/image-route-jobs`, anche dentro
+  `/gpx`) dal TASK-369 (ADR-0313) **si pagaia**: «Edit the drawing» fa un
+  disegno di ogni percorso, e la canoa lo piazza dove ci sta vicino alla
+  partenza, come una forma (`drawn_water.plan_drawn_water`), con gli stessi
+  controlli, gli stessi limiti di 1–5 km, niente indicazioni né
+  alternative; il `RouteResult` ha `shape` `null`. Solo con `placement`
+  `free`: ancorata è `422 invalid_request` (nessun percorso sull'acqua è
+  ancorato). Prima del TASK-369 era `… not an image`.
 - **Lontano dall'acqua**: `422 shape_not_drawable`, `there is no lake or
   sea to paddle on within 2 km of here`, `suggested_distance_m` `null`.
 - **La forma non ci sta** (al mare oltre circa 3 km): `422

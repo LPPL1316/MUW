@@ -2735,9 +2735,10 @@ Quello che sopra dice «non c'è mai per una forma del catalogo, né per una
 parola» e «nel mezzo della partenza di "Draw"» per le schede non vale più.
 Una traccia che finisce lontano dalla partenza resta una linea aperta, come
 la prima linea disegnata sulla mappa (TASK-331). Il tasto non c'è per un
-post di sole foto, sotto il risultato di «Draw» (TASK-340) e sull'acqua:
-con lo sport «Paddle», o per un disegno o un percorso in canoa, finché la
-parte B non porta il disegno sull'acqua. Un disegno di un altro si modifica
+post di sole foto e sotto il risultato di «Draw» (TASK-340). Dalla parte
+B c'è anche sull'acqua: con lo sport «Paddle» «Draw route» chiede il disegno
+in canoa, e la canoa lo pagaia dove ci sta vicino alla partenza, non
+esattamente dov'era. Un disegno di un altro si modifica
 sempre in una copia propria: il suo post non cambia, e la copia non dice da
 chi viene.
 
