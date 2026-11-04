@@ -1,15 +1,17 @@
 import type { ProfileBadge } from "@shaperoute/shared-types";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { Avatar } from "./Avatar";
 import { BadgeRow } from "./BadgeRow";
 
@@ -69,8 +71,8 @@ export function ProfileHeader({
       {photoButton === undefined ? (
         avatar
       ) : (
-        <Pressable
-          style={({ pressed }) => [styles.circle, pressed && styles.pressed]}
+        <Tap
+          style={styles.circle}
           onPress={photoButton.onPress}
           disabled={photoButton.busy}
           accessibilityRole="button"
@@ -86,7 +88,7 @@ export function ProfileHeader({
           <View style={styles.plus} testID="photo-plus">
             <Text style={styles.plusText}>+</Text>
           </View>
-        </Pressable>
+        </Tap>
       )}
       <Text style={styles.username}>{username}</Text>
       <BadgeRow winner={winner} badges={badges} own={photoButton !== undefined} />
@@ -105,9 +107,6 @@ const styles = StyleSheet.create({
   circle: {
     width: PROFILE_AVATAR_SIZE,
     height: PROFILE_AVATAR_SIZE,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   // White on the dark ring of the page: the yellow belongs to the route.
   plus: {
@@ -129,20 +128,20 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.bold,
     lineHeight: fontSize.input + space.sm,
   },
+  // The name large and light, as a page's title (TASK-339 D).
   username: {
+    ...font.title,
     marginTop: space.sm,
     color: color.text,
-    fontSize: fontSize.title,
-    fontWeight: fontWeight.bold,
   },
   detail: {
+    ...font.small,
     color: color.textMuted,
-    fontSize: fontSize.body,
   },
   bio: {
+    ...font.body,
     marginTop: space.sm,
     color: color.text,
-    fontSize: fontSize.body,
     textAlign: "center",
   },
 });

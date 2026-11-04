@@ -21,12 +21,14 @@ import {
 } from "../social/ReportMenu";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 
 /** What the sheet is about: a message touched long, or blocking who wrote. */
 export type SheetFor =
@@ -207,37 +209,30 @@ function Choice({
   danger?: boolean;
 }) {
   return (
-    <Pressable
-      style={({ pressed }) => [styles.choice, pressed && styles.pressed]}
-      onPress={onPress}
-      accessibilityRole="button"
-    >
+    <Tap style={styles.choice} onPress={onPress} accessibilityRole="button">
       <Text style={[styles.choiceText, danger && styles.danger]}>{label}</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
 // As the sheet of ReportMenu.tsx.
 const styles = StyleSheet.create({
-  pressed: {
-    opacity: 0.6,
-  },
   backdrop: {
     flex: 1,
   },
   sheet: {
     gap: space.sm,
     padding: space.lg,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    borderTopWidth: 1,
-    borderColor: color.border,
+    // The app's sheet: its radius, one physical pixel at the top (TASK-339 D).
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: color.hairline,
     backgroundColor: color.surface,
   },
   title: {
+    ...font.heading,
     color: color.text,
-    fontSize: fontSize.input,
-    fontWeight: fontWeight.semibold,
   },
   words: {
     color: color.textMuted,
