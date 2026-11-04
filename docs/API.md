@@ -1688,6 +1688,31 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   nascosti dalla moderazione, solo di corse registrate dall'app
   (`source = 'muw'`). «Winner» resta `contest_wins`. `badges.py`; un'API
   precedente non li ha.
+- **I record personali** (TASK-368, ADR-0312): `personal_bests`, il tempo
+  più veloce su ogni distanza, preso dal tratto migliore dentro **tutte** le
+  corse dell'account, private, di gruppo e importate comprese (scelta
+  dell'utente). A piedi `5k`, `10k`, `15k`, `half` (21 097,5 m), `30k`,
+  `marathon` (42 195 m), `60k`; in bici `10k`, `20k`, `40k`, `50k`, `100k`,
+  `160k`; la canoa e il nuoto no. In ordine: a piedi, poi in bici, per
+  distanza; solo le distanze che hanno un record, `[]` senza. Ogni
+  `PersonalBest` ha `sport`, `distance`, `distance_m`, `seconds` (in
+  movimento, le pause tolte), `started_at` (l'inizio della corsa: il suo
+  giorno), `drawing` (l'id del disegno di quella corsa solo se chi guarda
+  può vederlo, con la regola della griglia; altrimenti `null`: la corsa
+  resta chiusa) e `key` (la chiave della corsa, solo al proprietario, per
+  «My activities»). Conta lo sport che la corsa ha adesso; fra due tempi
+  uguali, il primo fatto. Come si misura: il tratto parte da un punto della
+  traccia e finisce al metro esatto della distanza; i metri sono quelli di
+  `distance_m`, nessuno dentro una pausa del corridore; un tratto con un
+  salto del GPS (più di 25 km/h a piedi, più di 90 km/h in bici fra due
+  punti) non conta; un tempo sotto il record del mondo della distanza si
+  scarta (in bici il limite è 90 km/h di media). I record di ogni corsa si
+  contano al salvataggio (`run_bests`, migrazione `0042`), mai a ogni
+  richiesta; cancellata una corsa, i suoi record vanno con lei e resta il
+  migliore dopo. Esempi `fixtures/personal-bests.json`;
+  `personal_bests.py`, `profile_bests.py`; un'API precedente non li ha. Le
+  corse salvate prima: `python -m shaperoute_api.personal_bests_backfill`,
+  una volta, sul server, col sì dell'utente.
 - **`GET /users/{public_id}/photos`** (TASK-324): le foto dei disegni che
   chi guarda vede sul profilo, dalla corsa più recente e nello stesso
   disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima

@@ -1,6 +1,6 @@
 # TASK-368 — I record personali nel Profilo, a piedi e in bici
 
-**Stato**: Todo — documenti ora, codice col via del Coordinatore dopo TASK-367 A
+**Stato**: In lavorazione — parte A (server) in PR, parte B dopo
 **Fase**: 4 · **Branch**: `docs/TASK-368-personal-bests` (documenti),
 `feat/TASK-368-a-personal-bests-api` (parte A), `feat/TASK-368-b-personal-bests-app`
 (parte B) · **ADR**: ADR-0312 · numeri dal Coordinatore (2026-11-02)
@@ -147,19 +147,24 @@ docs/STATUS.md
 docs/INDEX.md
 ```
 
-Parte A:
+Parte A (lista aggiornata il 2026-11-04 con il codice):
 
 ```
-services/api/shaperoute_api/personal_bests.py              (nuovo)
+services/api/shaperoute_api/personal_bests.py              (nuovo: il calcolo)
+services/api/shaperoute_api/profile_bests.py               (nuovo: la lettura del profilo)
+services/api/shaperoute_api/personal_bests_backfill.py     (nuovo: lo script una tantum)
 services/api/shaperoute_api/activities.py
 services/api/shaperoute_api/profiles.py
-services/api/shaperoute_api/imports*.py                    (se l'importazione passa da lì)
-services/api/migrations/NNNN_personal_bests.sql            (nuovo, numero al merge)
-services/api/scripts/fill_personal_bests.py                (nuovo)
-services/api/tests/test_personal_bests*.py                 (nuovi)
-packages/shared-types/src/index.ts, fixtures/profile*.json
-docs/API.md, docs/DATABASE.md, docs/STATUS.md, docs/tasks/TASK-368.md
+services/api/migrations/0042_run_bests.sql                 (nuovo)
+services/api/tests/test_personal_bests.py                  (nuovo)
+services/api/tests/test_profiles.py                        (il corpo esatto del profilo)
+packages/shared-types/src/index.ts, test/accounts.test.ts
+packages/shared-types/fixtures/public-profile.json, personal-bests.json (nuovo)
+docs/API.md, docs/DATABASE.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-368.md
 ```
+
+L'importazione passa da `PUT /me/activities/{key}` come ogni corsa: nessun
+`imports*.py`. Lo script è un modulo come `game_backfill`, non in `scripts/`.
 
 Parte B:
 
@@ -182,4 +187,8 @@ docs/UI.md, docs/STATUS.md, docs/tasks/TASK-368.md
 
 ## Esito
 
-*(a fine task)*
+**Parte A** (2026-11-04): calcolo, tabella `run_bests` (migrazione 0042),
+`personal_bests` in `GET /users/{public_id}`, script una tantum. Tempi: meno
+di 10 ms per corsa anche a 25 000 punti; la lettura del profilo circa 10 ms a
+1000 corse (`out/TASK-368/bench.txt` e la PR). Server, migrazione e script
+col sì dell'utente; la parte B (il Profilo nell'app) dopo.

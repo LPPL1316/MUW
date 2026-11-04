@@ -21091,6 +21091,37 @@ l'utente ha corso: è la scelta dell'utente, scritta nella privacy. Un file
 importato modificato può dare un record falso, visibile a tutti: accettato con
 la scelta 2.
 
+**Parte A, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- **Una riga per corsa, non per record**: `run_bests` tiene i tempi di ogni
+  corsa per tutti e due gli sport, qualunque fosse, e il profilo prende il
+  migliore fra le corse dello sport che hanno adesso. Il task diceva una
+  tabella `personal_bests` con una riga per record: così invece cancellare
+  una corsa lascia da solo il migliore dopo (la chiave esterna), e cambiare
+  lo sport pubblicando il disegno non chiede di ricontare (`drawings.py` non
+  cambia). Il costo: circa 14 righe per corsa, 10 ms di lettura a 1000 corse.
+- **I metri come `distance_m`**: lungo la traccia con `haversine_m`, nessuno
+  dentro una pausa del corridore, come li conta `activities.recorded`. Una
+  corsa che dice 10,00 km ha il suo 10K: mezzo metro sotto la distanza conta
+  ancora (l'arrotondamento di `distance_m`).
+- **Il limite del record del mondo in bici**: per queste distanze non c'è un
+  record su strada, e una discesa va più veloce del record dell'ora; il
+  limite è la velocità del salto del GPS, 90 km/h di media. A piedi i record
+  di World Athletics dove ci sono, e per 15, 30 e 60 km un tempo tondo più
+  basso di quanto si sia mai corso: un limite basso non scarta mai un tempo
+  vero.
+- **Il calcolo** è vettoriale (numpy, già dell'API): meno di 10 ms per 25 000
+  punti; fatto prima di aprire la transazione del salvataggio, che tiene il
+  blocco dell'account.
+- Il codice del profilo sta in `profile_bests.py`: `personal_bests.py` resta
+  puro e non importa `drawings.py`, che importa `activities.py`.
+- Lo script una tantum è un modulo, `python -m
+  shaperoute_api.personal_bests_backfill`, come `game_backfill`: una corsa
+  per transazione, così i profili rispondono mentre gira.
+- Nota: `clean_track` scarta già le posizioni oltre 12 m/s (43 km/h), anche
+  in bici: il salto dei 90 km/h raramente scatta. Non cambiato qui.
+
 ---
 
 ## ADR-0309 — «RIDE IT YOURSELF»: percorsi in bici di MuW in «Explore», da un file nell'app
