@@ -62,6 +62,7 @@ test("run, bike and paddle, all three can be chosen (TASK-190, TASK-191)", () =>
     "Bike",
     "Paddle",
     "Open water swim",
+    "Walk",
     "Paragliding",
   ]);
   expect(SPORTS.filter((option) => option.ready).map((option) => option.id)).toEqual([
@@ -106,6 +107,23 @@ test("«Open water swim» 🏊 comes after «Paddle», «Soon» until the server
   // Asked as a swim since C2, in its own words.
   expect(activityOf("swim")).toBe("swimming");
   expect(withoutRouteLabel("swim")).toBe("Swim without a route");
+});
+
+test("«Walk» 🚶 comes after the swim, «Soon» until the server walks (TASK-371 B)", () => {
+  const index = SPORTS.findIndex((option) => option.id === "walk");
+  expect(SPORTS[index - 1]?.id).toBe("swim");
+  expect(SPORTS[index]).toEqual({
+    id: "walk",
+    emoji: "🚶",
+    name: "Walk",
+    ready: false,
+  });
+  expect(canChoose("walk")).toBe(false);
+  saveSport("walk");
+  expect(loadSport()).toBe("run");
+  // Asked as a walk, drawn as a run on the foot network (part A).
+  expect(activityOf("walk")).toBe("walking");
+  expect(withoutRouteLabel("walk")).toBe("Walk without a route");
 });
 
 test("«Draw» asks for a bike route with «Bike», the water with «Paddle»", () => {

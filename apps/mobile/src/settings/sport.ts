@@ -5,12 +5,14 @@ import { File, Paths } from "expo-file-system";
 import { t, tLater } from "../i18n";
 
 /** What a route is for: a run, a bike ride since TASK-190, paddling on a
- * lake or the sea since TASK-191 (a canoe, a kayak, a SUP), or swimming in
- * open water (TASK-323 part C, ADR-0283), «Soon» until the server swims.
+ * lake or the sea since TASK-191 (a canoe, a kayak, a SUP), a walk on the
+ * foot network of a run (TASK-371 part B, ADR-0315), «Soon» until the server
+ * walks, or swimming in open water (TASK-323 part C, ADR-0283), «Soon» until
+ * the server swims.
  * Paragliding (TASK-305 D0, ADR-0265) is only «Soon» for now: never chosen,
  * so never a route, and wherever the sports are told apart it goes as a
  * run. */
-export type Sport = "run" | "bike" | "paddle" | "swim" | "paragliding";
+export type Sport = "run" | "bike" | "paddle" | "walk" | "swim" | "paragliding";
 
 export type SportOption = {
   id: Sport;
@@ -33,6 +35,9 @@ export const ALL_SPORTS: readonly SportOption[] = [
   // Asked as "swimming" since TASK-323 C2 (activityOf); on once the server
   // swims.
   { id: "swim", emoji: "🏊", name: tLater("Open water swim"), ready: false },
+  // Asked as "walking" (activityOf), 1-30 km; on once the server has
+  // TASK-371 part A and its migration 0043.
+  { id: "walk", emoji: "🚶", name: tLater("Walk"), ready: false },
   { id: "paragliding", emoji: "🪂", name: tLater("Paragliding"), ready: false },
 ];
 
@@ -132,6 +137,8 @@ export function activityOf(sport: Sport): Activity {
       return "cycling";
     case "paddle":
       return "paddling";
+    case "walk":
+      return "walking";
     case "swim":
       return "swimming";
     default:
@@ -141,13 +148,15 @@ export function activityOf(sport: Sport): Activity {
 
 /** The way out of «Draw» with the track only (TASK-149), in the sport's
  * words: «Ride» by bike (TASK-190), «Paddle» on the water (TASK-191),
- * «Swim» in open water (TASK-323). */
+ * «Walk» on foot (TASK-371), «Swim» in open water (TASK-323). */
 export function withoutRouteLabel(sport: Sport): string {
   switch (sport) {
     case "bike":
       return t("Ride without a route");
     case "paddle":
       return t("Paddle without a route");
+    case "walk":
+      return t("Walk without a route");
     case "swim":
       return t("Swim without a route");
     default:

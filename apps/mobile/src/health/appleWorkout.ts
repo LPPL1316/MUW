@@ -15,8 +15,7 @@ import { SYNC_VERSION, type Workout } from "./workout";
  * library, never its code (it needs its native module).
  */
 
-/** HKWorkoutActivityType, Apple's own numbers (`.walking` is 52, for when
- * MuW has walks). */
+/** HKWorkoutActivityType, Apple's own numbers. */
 const ACTIVITY_TYPE: Readonly<Record<Activity, WorkoutActivityType>> = {
   running: 37 as WorkoutActivityType,
   cycling: 13 as WorkoutActivityType,
@@ -24,6 +23,8 @@ const ACTIVITY_TYPE: Readonly<Record<Activity, WorkoutActivityType>> = {
   // `.swimming`; that it was in open water is TASK-321's to add
   // (HKMetadataKeySwimmingLocationType), with TASK-323 E.
   swimming: 46 as WorkoutActivityType,
+  // `.walking` (TASK-371).
+  walking: 52 as WorkoutActivityType,
 };
 
 /** The distance of each activity, as Apple Health counts it a day. */
@@ -35,6 +36,8 @@ export const DISTANCE_TYPE: Readonly<
   // From iOS 18: before it, the workout keeps its total only.
   paddling: "HKQuantityTypeIdentifierDistancePaddleSports",
   swimming: "HKQuantityTypeIdentifierDistanceSwimming",
+  // A walk counts with the runs, as Apple's own Workout app does.
+  walking: "HKQuantityTypeIdentifierDistanceWalkingRunning",
 };
 
 export const ENERGY_TYPE: QuantityTypeIdentifierWriteable =

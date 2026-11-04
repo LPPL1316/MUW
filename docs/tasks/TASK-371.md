@@ -139,6 +139,29 @@ il server con la parte A prima che lo sport diventi `ready`.
 6. Le zone del motore sul telefono: la camminata usa le zone foot della corsa.
 7. Testi in `i18n` (en, it, de, fr, es) e nella voce, col sì dell'utente.
 
+#### Com'è venuta la parte B (2026-11-04)
+
+- `ACTIVITIES` dell'app ha `walking`. `API_ACTIVITIES` è `ACTIVITIES`.
+- In `sport.ts` c'è «Walk» 🚶 dopo il nuoto, con `ready: false` finché il
+  server non ha la parte A e la 0043: accenderla è una riga, dopo il server.
+- `runTime.averagePace` dà anche `walking`: il ritmo delle camminate fra
+  6:00 e 25:00 al km, 12:00 di base. `RoutePanel` lo mostra sotto la
+  distanza, e `App.tsx` non cambia.
+- Le calorie della camminata sono in `body/energy.ts` (ACSM a piedi).
+- Apple Salute (52), Health Connect (79), le zone del telefono
+  (`zones.NETWORKS`) e l'importazione (GPX `walking`, Strava «10», FIT 11).
+- Feed «Walk ·», `activityName`, la scelta «Walk» nel modulo per pubblicare
+  (solo con lo sport pronto), il filtro «Walk» della ricerca, l'icona 🚶 del
+  pulsante «senza percorso».
+- Testi approvati dall'utente: «Walk» (Camminata, Gehen, Marche, Caminata) e
+  «Walk without a route» (Cammina senza percorso, Ohne Route gehen, Marcher
+  sans parcours, Caminar sin ruta).
+- File in più rispetto alla lista: `screens/RunNoRouteButton.tsx` (l'icona),
+  i test che contano le righe «Soon» (`SportButton`, `SportSetting`,
+  `SportVoiceItalian`, `SettingsPage`) e `docs/UI.md`.
+- Resta fuori: «NEAR YOU» per la camminata (l'utente: «Solo corsa, per
+  ora»), il gioco delle forme (parte C).
+
 ### Parte C — il gioco delle forme
 
 Server, col sì dell'utente sulle regole e sul deploy.

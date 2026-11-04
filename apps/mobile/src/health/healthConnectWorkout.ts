@@ -15,14 +15,15 @@ import { SYNC_VERSION, type Workout } from "./workout";
  * Pure: only types come from the library, never its code.
  */
 
-/** ExerciseSessionRecord.EXERCISE_TYPE_…, Health Connect's own numbers
- * (WALKING is 79, for when MuW has walks). */
+/** ExerciseSessionRecord.EXERCISE_TYPE_…, Health Connect's own numbers. */
 const EXERCISE_TYPE: Readonly<Record<Activity, number>> = {
   running: 56,
   cycling: 8,
   paddling: 46,
   // EXERCISE_TYPE_SWIMMING_OPEN_WATER (TASK-323).
   swimming: 73,
+  // EXERCISE_TYPE_WALKING (TASK-371).
+  walking: 79,
 };
 
 /** ExerciseSegment.EXERCISE_SEGMENT_TYPE_PAUSE: right for every exercise. */

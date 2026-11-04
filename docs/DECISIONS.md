@@ -21401,6 +21401,27 @@ corsa con la stessa richiesta sono lo stesso percorso tenuto. Il `<type>`
 del GPX c'è solo per la camminata: gli altri file restano byte per byte
 quelli di prima (punto 3). La «Conseguenza» sull'impronta del motore qui sopra
 non vale più.
+
+**Aggiunta (parte B, 2026-11-04)** · deciso dall'agente su delega
+dell'utente, col via del Coordinatore; testi e NEAR YOU sono scelte
+dell'utente:
+
+- `walking` entra in `ACTIVITIES` dell'app, e `API_ACTIVITIES` diventa
+  `ACTIVITIES`.
+- «Walk» 🚶 viene dopo il nuoto (il suo test vuole il nuoto subito dopo
+  «Paddle») ed entra con `ready: false`, come il nuoto, finché il server non
+  ha la parte A e la 0043. Con `ready: false` il modulo per pubblicare non
+  offre «Walk».
+- Il ritmo usuale è 12:00 al km. Contano le camminate fra 6:00 e 25:00 al km
+  (`averagePace().walking`), così `App.tsx` non cambia.
+- Le calorie usano l'equazione ACSM del cammino: 0,1 ml/kg per metro e 1,8
+  per metro di salita. Il nuoto resta a 0.
+- Apple Salute la riceve come `.walking` (52), con la distanza
+  `DistanceWalkingRunning`; Health Connect come `WALKING` (79).
+- Il telefono la disegna sulle sue zone a piedi (`NETWORKS.walking`).
+- Nei file importati è camminata il `walking` del GPX, il «10» di Strava e
+  lo sport FIT 11. L'escursionismo no: è di TASK-377.
+- «NEAR YOU» resta solo per la corsa («Solo corsa, per ora»).
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
