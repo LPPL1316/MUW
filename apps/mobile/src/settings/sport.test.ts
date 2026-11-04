@@ -63,6 +63,8 @@ test("run, bike, paddle and swim can be chosen (TASK-190, TASK-191, TASK-323)", 
     "Paddle",
     "Open water swim",
     "Walk",
+    "Ski",
+    "Cross-country ski",
     "Paragliding",
   ]);
   expect(SPORTS.filter((option) => option.ready).map((option) => option.id)).toEqual([

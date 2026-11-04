@@ -21575,6 +21575,22 @@ dati sulla salute (GDPR art. 9).
     nessun riquadro «Calories» e nessuna energia in Salute, come aveva deciso
     il suo task. Una formula per il nuoto è una scelta a parte. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
+15. Fatto nella parte B (deciso dall'agente su delega dell'utente): le zone
+    hanno sei limiti condivisi (inizio della zona 1, cima delle zone 1–4, FC
+    massima), così restano contigue per costruzione. La pagina fa scrivere la
+    cima delle zone 1–4; l'inizio della zona 1 segue il calcolo (il modulo
+    accetta anche quello). Un limite scritto fuori ordine non dà errore: si
+    ferma un battito sotto la cima della zona dopo, o sopra quella della zona
+    prima. Un limite cambiato a mano resta in bpm anche se cambiano FC massima
+    o a riposo; i limiti calcolati gli stanno intorno, e se la FC massima
+    scende sotto un limite fissato lo spinge giù quanto basta per tenere
+    l'ordine. Una FC a riposo pari o sopra la massima non conta (zone in % della
+    massima). La casella svuotata torna al calcolo; un testo che non è un numero
+    lascia il valore di prima. Tutto in `heart.json` accanto a `body.json`;
+    senza niente di scritto a mano il file non c'è. Il testo d'errore delle FC,
+    «Enter a heart rate between {min} and {max} bpm.» → «Scrivi una frequenza
+    tra {min} e {max} bpm.», è approvato (scelta dell'utente, «Sì, approvo»,
+    2026-11-04).
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
 verificano a mano nei test. Togliere il consumo a riposo dà l'«energia attiva»
@@ -21910,6 +21926,22 @@ dell'utente):
    `shared-types` dei disegni restano `Activity`, cioè ciò che l'app sa
    mostrare: allargarli a `RunActivity` toccava sei file di altri task, e
    si fa con la parte che mostra lo sci (B2).
+7. (B1, 2026-11-04, deciso dall'agente su delega dell'utente) «Ski» e
+   «Cross-country ski» nascono `recordOnly` e `ready: false`, come la
+   camminata prima del server: «Soon» in Expo Go e preview, assenti dalle
+   build di negozio, finché il server non ha la 0044 e la giornata non ha
+   le sue metriche (parte C). «Draw» di uno sport `recordOnly` è il solo
+   «Record your day» giallo con la riga sotto; `ChooseScreen` legge lo
+   sport da sé, così `App.tsx` non cambia. «Save» manda `skiing` o
+   `xc_skiing` (`runActivityOf`); il file della corsa resta quello di
+   oggi, e fino alla parte C i numeri sono quelli di una pedalata in
+   discesa (km/h) e di una corsa sul fondo (passo). I disegni propri e la
+   coda sul telefono tengono `skiing`, così cambiare chi li vede non li fa
+   diventare corse. In Apple Salute vanno come `downhillSkiing` (61) e
+   `crossCountrySkiing` (60), con la sola distanza totale: le loro distanze
+   giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
+   vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
+   sono, finché manca una stima.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i

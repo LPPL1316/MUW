@@ -12,7 +12,7 @@ import { t } from "../i18n";
 import { ImportedMark } from "../imports/ImportedMark";
 import { showSavedLogo } from "../intro/SavedLogo";
 import { loadRun } from "../navigation/trackStore";
-import { activityOf } from "../settings/sport";
+import { runActivityOf } from "../settings/sport";
 import { useSport } from "../settings/useSport";
 import { phonePhotoUri } from "../social/drawingPhotos";
 import type { PostLayout } from "../social/composer/layoutFrame";
@@ -132,7 +132,7 @@ export function RunEnd({
   // The activity is the sport chosen in «Settings», or the one the file says.
   const [choice, setChoice] = useState<DrawingChoice>(() => ({
     ...NOT_CHOSEN,
-    activity: imported?.sport ?? activityOf(sport),
+    activity: imported?.sport ?? runActivityOf(sport),
     visibility: imported === undefined ? loadVisibility(owner) : "only_me",
   }));
   // Started from a remembered «Everyone» or «Followers»: the form scrolls, so

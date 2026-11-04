@@ -27,8 +27,9 @@ test("«Run» is chosen, «Bike» (TASK-190), «Paddle» (TASK-191) and «Open w
   expect(screen.getByRole("radio", { name: "Paddle" })).not.toBeChecked();
   expect(screen.getByRole("radio", { name: "Open water swim" })).not.toBeChecked();
   expect(screen.getAllByRole("radio")).toHaveLength(4);
-  // «Walk» (TASK-371) and «Paragliding» (TASK-305 D0) say «Soon».
-  expect(screen.getAllByText("Soon")).toHaveLength(2);
+  // «Walk» (TASK-371), «Ski» and «Cross-country ski» (TASK-375) and
+  // «Paragliding» (TASK-305 D0) say «Soon».
+  expect(screen.getAllByText("Soon")).toHaveLength(4);
 });
 
 test("«Open water swim» 🏊 is chosen with a tap, and kept (TASK-323)", async () => {
@@ -56,9 +57,9 @@ test("a sport not ready says «Soon» and takes no tap", async () => {
   await render(<SportSetting sports={RUN_ONLY} />);
   expect(screen.getAllByRole("radio")).toHaveLength(1);
   expect(screen.getByLabelText("Bike, coming soon")).toBeOnTheScreen();
-  // Bike, Paddle, Open water swim (TASK-323), Walk (TASK-371) and
-  // Paragliding (TASK-305 D0).
-  expect(screen.getAllByText("Soon")).toHaveLength(5);
+  // Bike, Paddle, Open water swim (TASK-323), Walk (TASK-371), Ski and
+  // Cross-country ski (TASK-375) and Paragliding (TASK-305 D0).
+  expect(screen.getAllByText("Soon")).toHaveLength(7);
 });
 
 test("a sport that is ready is chosen with a tap, and kept", async () => {

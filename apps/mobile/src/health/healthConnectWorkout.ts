@@ -1,4 +1,4 @@
-import type { Activity } from "@shaperoute/shared-types";
+import type { RunActivity } from "@shaperoute/shared-types";
 import type {
   ActiveCaloriesBurnedRecord,
   DistanceRecord,
@@ -16,7 +16,7 @@ import { SYNC_VERSION, type Workout } from "./workout";
  */
 
 /** ExerciseSessionRecord.EXERCISE_TYPE_…, Health Connect's own numbers. */
-const EXERCISE_TYPE: Readonly<Record<Activity, number>> = {
+const EXERCISE_TYPE: Readonly<Record<RunActivity, number>> = {
   running: 56,
   cycling: 8,
   paddling: 46,
@@ -24,6 +24,10 @@ const EXERCISE_TYPE: Readonly<Record<Activity, number>> = {
   swimming: 73,
   // EXERCISE_TYPE_WALKING (TASK-371).
   walking: 79,
+  // EXERCISE_TYPE_SKIING, downhill and cross-country alike: Health Connect
+  // has no type of its own for the second (TASK-375).
+  skiing: 61,
+  xc_skiing: 61,
 };
 
 /** ExerciseSegment.EXERCISE_SEGMENT_TYPE_PAUSE: right for every exercise. */
