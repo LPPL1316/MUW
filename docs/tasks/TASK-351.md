@@ -606,9 +606,11 @@ motivo sulla preview; `channel.test.ts` (preview sì, production e `null`
 no; sotto jest il canale è «mock»); le suite del video e di «Share your
 run». Solo JS. PR #707, riallineata su `main` dopo la #620 (Apple Salute):
 da lì l'impronta iOS di `main` è `6f8bba4c`, e quella misurata sulla copia
-pulita di questa PR è in STATUS. Nota del Coordinatore: dopo la #620 l'app
-di prova dell'utente (runtime 1.0) non riceve più le preview di `main`;
-serve una nuova build preview sulla 1.0.1, che propone all'utente.
+pulita di questa PR è in STATUS. Le preview si pubblicano col runtime
+`exposdk:57.0.0` della variante preview, non con l'impronta di produzione:
+l'app di prova dell'utente le riceve anche dopo la #620, e la prova del
+video si fa dalla preview che il Coordinatore pubblica appena la #707 è in
+`main`.
 
 ## Dove si è (2026-10-30, sera)
 
