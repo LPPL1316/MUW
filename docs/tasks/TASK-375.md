@@ -33,8 +33,12 @@ senza forme.
 - La migrazione dei CHECK è una sola, 0044, per `skiing` e `xc_skiing`;
   se la categoria ne vuole una sua, il numero (0045) si chiede al
   Coordinatore.
-- Se anche lo sci di fondo diventa «Record only», la categoria serve tutti
-  e due e la coordina questo task con TASK-372.
+- Lo sci di fondo entra anche lui: l'utente di TASK-372 ha scelto «Record
+  only» (2026-11-04). Accordo con TASK-372: questo task aggiunge `skiing`
+  e `xc_skiing` in un passaggio solo (shared-types, API, migrazione 0044,
+  `sport.ts`, testi in tutte le lingue); TASK-372 resta di sola
+  documentazione (ADR-0316, niente rete «nordic»). Il nome del fondo,
+  proposto «Cross-country ski», si chiede all'utente con i testi.
 
 ## Domande aperte (una alla volta)
 
