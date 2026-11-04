@@ -1719,9 +1719,54 @@ export const FR: Table = {
   Madrid: "Madrid",
   Turin: "Turin",
 
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Rechercher dessins, personnes, lieux",
+  Clear: "Effacer",
+  People: "Personnes",
+  Routes: "Parcours",
+  Filters: "Filtres",
+  "Recent searches": "Recherches récentes",
+  Categories: "Catégories",
+  "Featured drawings": "Dessins à la une",
+  Animals: "Animaux",
+  Hearts: "Cœurs",
+  Words: "Mots",
+  Symbols: "Symboles",
+  Emoji: "Emoji",
+  Place: "Lieu",
+  "Town or region": "Ville ou région",
+  Complexity: "Complexité",
+  Simple: "Simple",
+  Medium: "Moyenne",
+  Complex: "Complexe",
+  "Sort by": "Trier par",
+  "Most recent": "Les plus récents",
+  Longest: "Les plus longs",
+  "Most popular": "Les plus populaires",
+  "Up to {distance}": "Jusqu'à {distance}",
+  "Over {distance}": "Plus de {distance}",
+  Reset: "Réinitialiser",
+  "No drawings found": "Aucun dessin trouvé",
+  "Try other words, or change the filters.":
+    "Essaie d'autres mots ou change les filtres.",
+
   // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
   "Route created by MuW – ride it yourself": "Parcours créé par MuW – à toi de pédaler",
   "Route created by MuW – run it yourself": "Parcours créé par MuW – à toi de courir",
   "Route created by MuW – paddle it yourself":
     "Parcours créé par MuW – à toi de pagayer",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Ta publication",
+  "Hold and drag to reorder": "Maintiens et fais glisser pour changer l'ordre",
+  "Move left": "Déplacer à gauche",
+  "Move right": "Déplacer à droite",
+  Layout: "Mise en page",
+  "Drawing in the corner": "Dessin dans le coin",
+  "Line on the photo": "Ligne sur la photo",
+  "Half and half": "Moitié-moitié",
+  "Photo in the corner": "Photo dans le coin",
+  "Up to 10 in a post.": "Jusqu'à 10 par publication.",
+  "Could not prepare this photo. Try again.":
+    "Impossible de préparer cette photo. Réessaie.",
 };

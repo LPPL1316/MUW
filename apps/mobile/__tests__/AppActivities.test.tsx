@@ -165,7 +165,7 @@ async function open() {
 }
 
 async function openActivities() {
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: /^My activities/ }));
 }
 
@@ -194,7 +194,7 @@ test("«My activities» in «Profile» lists the runs, with how many they are", 
   signedIn();
   api({ ...ACCOUNT, "GET /me/activities": () => Response.json(activities) });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   // Under «Favorites», with its number.
   expect(screen.getByRole("button", { name: "Favorites, 0" })).toBeOnTheScreen();
   await fireEvent.press(
@@ -224,7 +224,7 @@ test("«My activities» in «Profile» lists the runs, with how many they are", 
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
   expect(screen.queryByRole("header", { name: "My activities" })).toBeNull();
   expect(
-    screen.getByRole("button", { name: /^Profile/, selected: true }),
+    screen.getByRole("tab", { name: /^Profile/, selected: true }),
   ).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole("tab", { name: "Draw" }));
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
@@ -409,7 +409,7 @@ test("«Show more» brings the next page", async () => {
       Response.json({ activities: [FREE], next: null, total: 2 }),
   });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   // All of them are counted, not the page.
   await fireEvent.press(
     await screen.findByRole("button", { name: "My activities, 2" }),
@@ -464,7 +464,7 @@ test("a session that ended while listing signs the app out", async () => {
         : Response.json(activities),
   });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await screen.findByRole("button", { name: "My activities, 2" });
   ended = true;
   await fireEvent.press(screen.getByRole("button", { name: "My activities, 2" }));
@@ -476,7 +476,7 @@ test("a session that ended while listing signs the app out", async () => {
 test("without an account there are no activities, and nothing is asked", async () => {
   api({});
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   expect(screen.queryByRole("button", { name: /^My activities/ })).toBeNull();
   expect(calls("GET", "/me/activities")).toHaveLength(0);
 });
@@ -546,7 +546,7 @@ test("«Save» keeps the run: the fixes and the route, never the app's numbers",
   // Saved: nothing waits on the phone, and «Profile» counts it.
   await waitFor(() => expect(loadOutbox()).toEqual([]));
   expect(loadRun()).toBeNull();
-  await fireEvent.press(await screen.findByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(await screen.findByRole("tab", { name: /^Profile/ }));
   expect(
     await screen.findByRole("button", { name: "My activities, 1" }),
   ).toBeOnTheScreen();
@@ -658,7 +658,7 @@ test("without a network the run waits on the phone", async () => {
   await waitFor(() => expect(loadOutbox().map((run) => run.id)).toEqual([KEY]));
   expect(loadOutbox()[0].owner).toBe(session.user.id);
   expect(loadOutbox()[0].request.track).toHaveLength(5);
-  await fireEvent.press(await screen.findByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(await screen.findByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: /^My activities/ }));
   expect(
     await screen.findByText("1 run is on this phone, waiting for a connection."),
@@ -695,7 +695,7 @@ test("what waited goes at the next opening with a network, once", async () => {
   // Nobody touched anything: it went with the opening.
   await waitFor(() => expect(calls("PUT", `/me/activities/${KEY}`)).toHaveLength(1));
   await waitFor(() => expect(loadOutbox()).toEqual([]));
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(
     await screen.findByRole("button", { name: "My activities, 1" }),
   );
@@ -713,7 +713,7 @@ test("with nothing waiting, an opening sends nothing", async () => {
     "GET /me/activities": () => Response.json(activities),
   });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await screen.findByRole("button", { name: "My activities, 2" });
   expect(fetchSpy.mock.calls.filter(([, init]) => init?.method === "PUT")).toEqual([]);
 });
@@ -818,7 +818,7 @@ test("without an account the run ends with «Done», as before, and a line invit
   // The line goes to the page of the profile (TASK-278 part B), which says
   // why, with «←» back to the run.
   await fireEvent.press(screen.getByRole("button", { name: SIGN_IN_TO_KEEP_RUNS }));
-  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toBeSelected();
   expect(screen.getByRole("header", { name: "Profile" })).toBeOnTheScreen();
   expect(screen.getByText(SIGN_IN_TO_KEEP_RUNS)).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole("button", { name: "Back" }));
@@ -838,7 +838,7 @@ test("signed up from that line, the end of the run comes back with «Save» and 
   await openOnRun(FREE_ENDED);
   await fireEvent.press(screen.getByRole("button", { name: SIGN_IN_TO_KEEP_RUNS }));
   // The page of the profile (TASK-278 part B); the run waits under it.
-  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toBeSelected();
   expect(screen.queryByText("Your run")).toBeNull();
 
   await fireEvent.changeText(screen.getByLabelText("email"), signUpRequest.email);
@@ -852,7 +852,7 @@ test("signed up from that line, the end of the run comes back with «Save» and 
   ).toBeOnTheScreen();
   expect(screen.getByRole("button", { name: "Discard" })).toBeOnTheScreen();
   expect(screen.getByText("Your run")).toBeOnTheScreen();
-  expect(screen.queryByTestId("profile-page-mark")).toBeNull();
+  expect(screen.queryByRole("tab", { name: /^Profile/, selected: true })).toBeNull();
   expect(loadRun()).not.toBeNull();
   expect(calls("PUT", `/me/activities/${KEY}`)).toHaveLength(0);
 });

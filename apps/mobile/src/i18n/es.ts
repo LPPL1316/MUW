@@ -1723,9 +1723,54 @@ export const ES: Table = {
   Madrid: "Madrid",
   Turin: "Turín",
 
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Busca dibujos, personas, lugares",
+  Clear: "Borrar",
+  People: "Personas",
+  Routes: "Rutas",
+  Filters: "Filtros",
+  "Recent searches": "Búsquedas recientes",
+  Categories: "Categorías",
+  "Featured drawings": "Dibujos destacados",
+  Animals: "Animales",
+  Hearts: "Corazones",
+  Words: "Palabras",
+  Symbols: "Símbolos",
+  Emoji: "Emoji",
+  Place: "Lugar",
+  "Town or region": "Ciudad o región",
+  Complexity: "Complejidad",
+  Simple: "Sencilla",
+  Medium: "Media",
+  Complex: "Compleja",
+  "Sort by": "Ordenar por",
+  "Most recent": "Más recientes",
+  Longest: "Más largos",
+  "Most popular": "Más populares",
+  "Up to {distance}": "Hasta {distance}",
+  "Over {distance}": "Más de {distance}",
+  Reset: "Restablecer",
+  "No drawings found": "No se encontraron dibujos",
+  "Try other words, or change the filters.":
+    "Prueba otras palabras o cambia los filtros.",
+
   // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
   "Route created by MuW – ride it yourself": "Ruta creada por MuW – recórrela tú",
   "Route created by MuW – run it yourself": "Ruta creada por MuW – córrela tú",
   "Route created by MuW – paddle it yourself":
     "Ruta creada por MuW – recórrela remando",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Tu publicación",
+  "Hold and drag to reorder": "Mantén pulsado y arrastra para cambiar el orden",
+  "Move left": "Mover a la izquierda",
+  "Move right": "Mover a la derecha",
+  Layout: "Diseño",
+  "Drawing in the corner": "Dibujo en la esquina",
+  "Line on the photo": "Línea sobre la foto",
+  "Half and half": "Mitad y mitad",
+  "Photo in the corner": "Foto en la esquina",
+  "Up to 10 in a post.": "Hasta 10 en una publicación.",
+  "Could not prepare this photo. Try again.":
+    "No se ha podido preparar esta foto. Inténtalo de nuevo.",
 };

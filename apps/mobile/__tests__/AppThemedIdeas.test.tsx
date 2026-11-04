@@ -143,7 +143,7 @@ test("«Draw» has no city tours and no pictures any more", async () => {
 
 test("an idea opens at once on the map; from Trento, «Make it near me» asks it here", async () => {
   await atTrento();
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   expect(await screen.findByText("ASK FOR A ROUTE")).toBeOnTheScreen();
   const ideas = within(screen.getByTestId("themed-ideas"));
   await fireEvent.press(ideas.getAllByRole("button")[0]);
@@ -169,7 +169,7 @@ test("an idea opens at once on the map; from Trento, «Make it near me» asks it
 
 test("an idea's places, numbered on the map and under it; a tap takes the map there", async () => {
   await atTrento();
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   const ideas = within(await screen.findByTestId("themed-ideas"));
   await fireEvent.press(ideas.getAllByRole("button")[0]);
   await act(() => jest.advanceTimersByTimeAsync(0));

@@ -99,7 +99,7 @@ async function open() {
 }
 
 async function openPhotoRow() {
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: "Settings" }));
   await fireEvent.press(screen.getByRole("button", { name: /^Profile picture/ }));
 }
@@ -141,7 +141,7 @@ afterEach(() => {
 test("a picture chosen in «Settings» shows in the row, in «Profile» and in the header", async () => {
   await open();
   // No picture yet: the letter.
-  expect(screen.getByRole("button", { name: /^Profile/ })).toHaveTextContent("R");
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toHaveTextContent("R");
   expect(calls("GET")).toHaveLength(1);
 
   await openPhotoRow();
@@ -157,16 +157,16 @@ test("a picture chosen in «Settings» shows in the row, in «Profile» and in t
     uri: photoUri(KEPT),
   });
   await toDraw();
-  expect(screen.getByTestId("profile-button-photo")).toHaveProp("source", {
+  expect(screen.getByTestId("profile-tab-photo")).toHaveProp("source", {
     uri: photoUri(KEPT),
   });
-  expect(screen.getByRole("button", { name: /^Profile/ })).not.toHaveTextContent("R");
+  expect(screen.getByRole("tab", { name: /^Profile/ })).not.toHaveTextContent("R");
 });
 
 test("the picture is there again when the app opens, and can be removed", async () => {
   onApi = KEPT;
   await open();
-  expect(await screen.findByTestId("profile-button-photo")).toHaveProp("source", {
+  expect(await screen.findByTestId("profile-tab-photo")).toHaveProp("source", {
     uri: photoUri(KEPT),
   });
 
@@ -179,19 +179,19 @@ test("the picture is there again when the app opens, and can be removed", async 
 
   await back();
   await toDraw();
-  expect(screen.queryByTestId("profile-button-photo")).toBeNull();
-  expect(screen.getByRole("button", { name: /^Profile/ })).toHaveTextContent("R");
+  expect(screen.queryByTestId("profile-tab-photo")).toBeNull();
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toHaveTextContent("R");
 });
 
 test("logged out, the header shows the figure, not the picture of who left", async () => {
   onApi = KEPT;
   await open();
-  await screen.findByTestId("profile-button-photo");
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await screen.findByTestId("profile-tab-photo");
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: "Settings" }));
   await fireEvent.press(screen.getByRole("button", { name: "Log out" }));
   // Out of the account, back on the page of the profile (TASK-278).
   await toDraw();
-  expect(screen.queryByTestId("profile-button-photo")).toBeNull();
-  expect(screen.getByRole("button", { name: /^Profile/ })).not.toHaveTextContent("R");
+  expect(screen.queryByTestId("profile-tab-photo")).toBeNull();
+  expect(screen.getByRole("tab", { name: /^Profile/ })).not.toHaveTextContent("R");
 });

@@ -34,10 +34,10 @@ test("a tap on a drawing opens its route (TASK-188)", async () => {
   const onOpen = jest.fn();
   await render(<FeedScreen onOpen={onOpen} />);
   const [first, second] = SAMPLE_FEED;
-  // Nothing else to touch but «Find friends» (TASK-215): no likes, no
+  // Nothing else to touch but the lens (TASK-215, TASK-344): no likes, no
   // comments (TASK-118).
   const [find, ...cards] = screen.getAllByRole("button");
-  expect(find).toHaveAccessibleName("Find friends");
+  expect(find).toHaveAccessibleName("Search");
   expect(cards).toHaveLength(screen.getAllByTestId("feed-post").length);
   await fireEvent.press(cards[1]);
   expect(onOpen).toHaveBeenCalledTimes(1);
@@ -46,15 +46,17 @@ test("a tap on a drawing opens its route (TASK-188)", async () => {
   expect(onOpen).toHaveBeenLastCalledWith(first);
 });
 
-test("«Find friends» is above the drawings, and opens the search (TASK-215)", async () => {
+test("the lens is above the drawings, and opens the search (TASK-344)", async () => {
   const open = jest.fn();
   await render(
     <PeopleContext.Provider value={{ open }}>
       <FeedScreen onOpen={noOpen} />
     </PeopleContext.Provider>,
   );
-  await fireEvent.press(screen.getByRole("button", { name: "Find friends" }));
-  expect(open).toHaveBeenCalledTimes(1);
+  await fireEvent.press(screen.getByRole("button", { name: "Search" }));
+  expect(screen.getByTestId("search-page")).toBeOnTheScreen();
+  // The members' search is a tab of it, not the lens's own page.
+  expect(open).not.toHaveBeenCalled();
 });
 
 test("takes a picture of the map of each drawing, and lays it under its line", async () => {

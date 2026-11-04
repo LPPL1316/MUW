@@ -2,7 +2,6 @@ import type { LatLon } from "@shaperoute/shared-types";
 import { useEffect, useState } from "react";
 import {
   Keyboard,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,6 +27,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { distanceLabel, inUnits } from "../units/format";
 import { appUnits } from "../units/units";
 import { useUnits } from "../units/useUnits";
@@ -53,6 +53,7 @@ import {
   WATER_SPOTS,
   type WaterSpot,
 } from "./waterSpots";
+import { useScrollToTopOnReselect } from "../tabs/tabReselect";
 
 /** Where the examples come from: a spot chosen, or «Near me», from the
  * start of «Draw» as it was when «Near me» began (null: there was none).
@@ -131,6 +132,8 @@ export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
   // The places say how far in the app's units, at once (TASK-182).
   useUnits();
   const insets = useSafeAreaInsets();
+  // Its tab touched again: back to the top (TASK-367).
+  const scroll = useScrollToTopOnReselect<ScrollView>();
   const { width } = useWindowDimensions();
   const [chosen, setChosen] = useState<Chosen>(() => kept);
   const [started, setStarted] = useState<LatLon | null>(() => firstStart ?? near);
@@ -212,6 +215,7 @@ export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
         <HeartBadge size={MIN_TAP_SIZE} />
       </View>
       <ScrollView
+        ref={scroll}
         contentContainerStyle={[
           styles.list,
           { paddingBottom: insets.bottom + space.lg },
@@ -275,9 +279,9 @@ export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
             accessibilityLabel={t("Type a lake or a beach")}
           />
           {suggestions?.map((found) => (
-            <Pressable
+            <Tap
               key={found.spot.name}
-              style={({ pressed }) => [styles.choice, pressed && styles.pressed]}
+              style={styles.choice}
               onPress={() => choose({ kind: "spot", spot: found.spot })}
               accessibilityRole="button"
               accessibilityLabel={found.spot.name}
@@ -290,7 +294,7 @@ export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
                   {whereText(found)}
                 </Text>
               )}
-            </Pressable>
+            </Tap>
           ))}
           {suggestions !== null && suggestions.length === 0 && (
             <Text style={styles.hint}>
@@ -421,13 +425,9 @@ function WaterExamples({
         </Text>
       ))}
       {failed.length > 0 && (
-        <Pressable
-          style={({ pressed }) => [styles.retry, pressed && styles.pressed]}
-          onPress={onRetry}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.retry} onPress={onRetry} accessibilityRole="button">
           <Text style={styles.retryText}>{t("Try again")}</Text>
-        </Pressable>
+        </Tap>
       )}
     </View>
   );
@@ -447,12 +447,8 @@ function PlaceChip({
   onPress: () => void;
 }) {
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.chip,
-        on && styles.chipOn,
-        pressed && styles.pressed,
-      ]}
+    <Tap
+      style={[styles.chip, on && styles.chipOn]}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: on }}
@@ -463,7 +459,7 @@ function PlaceChip({
         </View>
       )}
       <Text style={[styles.chipText, on && styles.chipTextOn]}>{label}</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -607,9 +603,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: space.md,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   retry: {
     minHeight: MIN_TAP_SIZE,

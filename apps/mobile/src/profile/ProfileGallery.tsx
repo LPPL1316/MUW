@@ -17,6 +17,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 
 /** Three photos a row, as the drawings. */
 const COLUMNS = 3;
@@ -203,11 +204,11 @@ export function ProfileGallery({
             <>
               <View style={styles.grid}>
                 {shown.photos.map((photo) => (
-                  <Pressable
+                  <Tap
                     key={photoKey(photo)}
-                    style={({ pressed }) => [
+                    style={[
                       { width: cell, height: cell },
-                      (pressed || opening === photo.drawing_id) && styles.pressed,
+                      opening === photo.drawing_id && styles.dim,
                     ]}
                     onPress={() => open({ id: photo.drawing_id })}
                     disabled={opening !== null}
@@ -224,12 +225,12 @@ export function ProfileGallery({
                       accessibilityIgnoresInvertColors
                       testID="photo-image"
                     />
-                  </Pressable>
+                  </Tap>
                 ))}
               </View>
               {shown.next !== null && (
-                <Pressable
-                  style={[styles.button, loadingMore && styles.pressed]}
+                <Tap
+                  style={[styles.button, loadingMore && styles.dim]}
                   onPress={loadMore}
                   disabled={loadingMore}
                   accessibilityRole="button"
@@ -238,7 +239,7 @@ export function ProfileGallery({
                   <Text style={styles.buttonText}>
                     {t(loadingMore ? "Loading…" : "Show more")}
                   </Text>
-                </Pressable>
+                </Tap>
               )}
             </>
           ) : null}
@@ -287,8 +288,8 @@ const styles = StyleSheet.create({
   },
   tabs: {
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: color.border,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: color.hairline,
   },
   // Neutral, as the rest of «Profile»: the yellow belongs to the route.
   tab: {
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     backgroundColor: color.surface,
   },
-  pressed: {
+  dim: {
     opacity: 0.6,
   },
   message: {

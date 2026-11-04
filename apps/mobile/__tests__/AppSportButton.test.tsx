@@ -61,7 +61,7 @@ afterEach(() => {
 
 test("the sport sits next to «Profile», and «Bike» chosen there takes «Draw»", async () => {
   await atTrento();
-  expect(screen.getByRole("button", { name: "Profile" })).toBeOnTheScreen();
+  expect(screen.getByRole("tab", { name: "Profile" })).toBeOnTheScreen();
   expect(screen.getByLabelText("Distance in km")).toHaveDisplayValue("5");
 
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
@@ -81,6 +81,6 @@ test("on every page the sport is next to «Profile»", async () => {
   for (const page of ["Feed", "Explore", "Draw"]) {
     await fireEvent.press(screen.getByRole("tab", { name: page }));
     expect(screen.getByRole("button", { name: "Sport, Run" })).toBeOnTheScreen();
-    expect(screen.getByRole("button", { name: "Profile" })).toBeOnTheScreen();
+    expect(screen.getByRole("tab", { name: "Profile" })).toBeOnTheScreen();
   }
 });
