@@ -321,6 +321,18 @@ export const FR: Table = {
   "The same turns every lap, {laps} laps, then back to the shore.":
     "Les mêmes virages à chaque tour, {laps} tours, puis retour au rivage.",
 
+  // src/swim/SwimResult.tsx, src/route/RoutePanel.tsx, src/settings/sport.ts
+  // (TASK-323 C2: the laps of a swim, its size, the way out with the track)
+  "Swim without a route": "Nager sans parcours",
+  "{count} lap of {distance}": "{count} tour de {distance}",
+  "{count} laps of {distance}": "{count} tours de {distance}",
+  "Bigger shape": "Forme plus grande",
+  "Smaller shape": "Forme plus petite",
+  "{drawn} km of drawing + {between} km swimming between the parts":
+    "{drawn} km de dessin + {between} km à la nage entre les parties",
+  "{drawn} mi of drawing + {between} mi swimming between the parts":
+    "{drawn} mi de dessin + {between} mi à la nage entre les parties",
+
   // src/paddle/MoveShape.tsx, src/route/RoutePanel.tsx
   "Move the shape": "Déplacer la forme",
   "Drag the shape where you want it, then let go.":
