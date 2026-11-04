@@ -76,7 +76,10 @@ Una alla volta, con le sue parole. *(da fare)*
    invariata.
    — *Risposta (2026-11-04):* «Solo sul telefono». La parte C (server) esce
    dal piano.
-2. **Il sesso**: quali opzioni.
+2. **Il sesso.** Proposta: «Male», «Female», «Prefer not to say», più il campo
+   vuoto (non impostato). Cambia solo la costante di Mifflin-St Jeor (+5,
+   −161, media −78; vuoto = 1 MET standard a riposo).
+   — *Risposta (2026-11-04):* «Male, Female, Prefer not».
 3. **Leggere peso, altezza e data di nascita da Apple Health / Health
    Connect**: sì o no. Su iPhone è possibile già con la 1.0.1, insieme a
    TASK-345 C; il testo della chiave si allarga nella 1.0.2.

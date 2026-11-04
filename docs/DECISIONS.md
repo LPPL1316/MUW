@@ -20979,7 +20979,9 @@ dati sulla salute (GDPR art. 9).
    energy»: totale meno il consumo a riposo nello stesso tempo in movimento.
    A riposo vale Mifflin-St Jeor (sesso, età, peso, altezza) diviso 1440. Se
    manca sesso, età o altezza, vale 1 MET standard (`0,0175 × peso` al minuto).
-   Con «preferisco non dirlo» si usa la media delle due costanti (−78).
+   Il sesso ha tre valori più il vuoto: «Male» (+5), «Female» (−161),
+   «Prefer not to say», che usa la media delle due costanti (−78) (scelta
+   dell'utente, «Male, Female, Prefer not», 2026-11-04).
 4. Senza nessun dato, una corsa in piano dà `1,0 × km × 70`, cioè −3,5%
    rispetto a oggi (1,036). Su una corsa con salita il valore cresce.
 5. Il Feed usa i dati solo per i post propri. Per i post degli altri resta la
