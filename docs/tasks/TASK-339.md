@@ -1,13 +1,15 @@
 # TASK-339 — L'interfaccia premium ed elegante: tipografia, neutri caldi, immagini, movimento, dettagli
 
 **Stato**: In lavorazione · parte A in `main` (#658, 2026-10-30) · parte B
-in `main` (#677, 2026-10-30) · **parte C2 (divisioni e tocco) in PR dal
-2026-10-30** (branch `feat/TASK-339-premium-look-c2`) · parte C1 (pagine
+in `main` (#677, 2026-10-30) · parte C2 (divisioni e tocco) in `main`
+(#715, 2026-11-04) · **parte D (Profile, Settings, i fogli) in PR dal
+2026-11-04** (branch `feat/TASK-339-premium-look-d`) · parte C1 (pagine
 vuote) dopo il sì dell'utente sui testi; numeri e condizioni dal
 Coordinatore il 2026-10-30
 **Fase**: 4 · **Branch**: `feat/TASK-339-premium-look-a` (A, in `main`),
 `feat/TASK-339-premium-look-b` (B, in `main`),
-`feat/TASK-339-premium-look-c2` (C2), poi uno per parte · **ADR**: ADR-0293
+`feat/TASK-339-premium-look-c2` (C2, in `main`),
+`feat/TASK-339-premium-look-d` (D), poi uno per parte · **ADR**: ADR-0293
 
 ## Obiettivo
 
@@ -244,7 +246,28 @@ Parte C2 (divisioni e tocco, senza testi):
       pulita; prima e dopo di una pagina di «Settings» nei due toni in
       `tasks/TASK-339/c2-*.jpg`.
 
-Parte C1 (pagine vuote, coi testi) e parti D–E: i loro criteri si scrivono
+Parte D (Profile, Settings, i fogli, senza testi):
+
+- [x] Il nome di un profilo in `font.title` (30 regular, −0,6), la riga
+      sotto in `font.small`, la bio in `font.body`; il cerchio della foto
+      è `Tap`.
+- [x] I totali del profilo leggeri (`fontWeight.light`) in cifre
+      tabulari, senza bordo; le etichette in `font.small`.
+- [x] «Settings»: le etichette delle sezioni in `font.label`, la scheda
+      dell'account senza bordo col nome in `font.heading`, i pulsanti
+      dell'account (`Log out`, eliminazione) `Tap`.
+- [x] I due fogli (`SuperLikeSheet`, `MessageSheet`): titolo in
+      `font.heading`, bordo in cima di un pixel in `color.hairline`, i
+      pulsanti `Tap`; `MessageSheet` prende il raggio `radius.sheet` degli
+      altri fogli.
+- [x] `ProfileHome.tsx` e `UserProfilePage.tsx` restano fuori: li elenca
+      TASK-309 B (le corse di gruppo).
+- [x] Test deterministico `src/profile/premiumLookD.test.tsx`; i test di
+      profilo, fogli e messaggi verdi in locale; la suite intera in CI.
+- [x] Nessun testo nuovo, nessuna dipendenza, niente di nativo: impronta
+      di `main` (`6f8bba4c`) invariata.
+
+Parte C1 (pagine vuote, coi testi) e parte E: i loro criteri si scrivono
 qui quando partono.
 
 ## File toccati
@@ -307,6 +330,16 @@ apps/mobile/src/tour/GuideRow.tsx
 apps/mobile/src/voice/VoiceSetting.tsx
 docs/UI.md, docs/STATUS.md, docs/tasks/TASK-339.md
 docs/tasks/TASK-339/c2-*.jpg                                     (schermate, nuove)
+```
+
+Parte D:
+
+```
+apps/mobile/src/profile/ProfileHeader.tsx, ProfileStats.tsx, SettingsPage.tsx
+apps/mobile/src/profile/premiumLookD.test.tsx                    (nuovo)
+apps/mobile/src/social/SuperLikeSheet.tsx
+apps/mobile/src/messages/MessageSheet.tsx
+docs/STATUS.md, docs/tasks/TASK-339.md
 ```
 
 ## Fuori scope

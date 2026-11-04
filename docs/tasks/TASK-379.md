@@ -1,7 +1,6 @@
 # TASK-379 — Lo swipe fra le schede, con la barra in basso
 
-**Stato**: In corso — documenti e scelte dell'utente fatte (2026-11-04);
-codice dopo la lista dei file mandata al Coordinatore
+**Stato**: Done · 2026-11-04 — documenti #757, codice #764
 **Fase**: 4 · **Branch**: `docs/TASK-379-tab-swipe` (documenti),
 `feat/TASK-379-tab-swipe` (codice) · **ADR**: ADR-0323 · numeri dal
 Coordinatore (2026-11-04)
@@ -50,17 +49,22 @@ Letto il codice di `main` (`c79a97b1`) il 2026-11-04.
 Un gesto che parte su uno di questi resta suo. L'elenco è fatto su `main`;
 con il codice ogni riga ha l'esito e, dove si può, un test.
 
-| Pagina | Cosa | Componente | Oggi |
+| Dove | Cosa | Componente | Esito |
 |---|---|---|---|
-| Feed | foto e disegno di un post | `feed/FeedPost.tsx` | `ScrollView` a pagine, rimbalza ai bordi: «uno swipe oltre l'ultima foto resta qui» (scritto per il `Pager`) |
-| Feed | post dei concorsi | `contest/ContestGallery.tsx`, `ContestPage.tsx`, `WinnerCard.tsx` | usano `FeedPost` |
-| Draw | le forme, le figure | `route/ShapeTiles.tsx`, `ShapeGrid.tsx`, `mapdraw/FigureTiles.tsx` | righe orizzontali |
-| Draw | «NEAR YOU», l'attesa del percorso | `route/NearYou.tsx`, `route/WhileRouting.tsx` | righe di schede |
-| Explore | le file di schede | `explore/RecommendedRow.tsx`, `CityWords.tsx`, `NearbyTowns.tsx`, `IdeasFromEurope.tsx`, `RideItYourself.tsx`, `ExploreTools.tsx` | righe orizzontali |
-| Explore | il disegno e poi la foto | `explore/RouteCard.tsx` (TASK-350) | `ScrollView` a pagine con `bounces={false}`: dall'ultima pagina passa alla fila |
-| Explore | la ricerca | `search/SearchScreen.tsx`, `StartState.tsx` | righe orizzontali |
-| Explore sull'acqua | le file di schede | `paddle/PaddleExplore.tsx` | righe orizzontali |
-| Profilo | disegni, preferiti | `social/DrawingsGrid.tsx`, `favorites/FavoritesList.tsx` | schede `RouteCard` |
+| Feed | foto e disegno di un post, anche nei concorsi | `feed/FeedPost.tsx` (`contest/ContestGallery.tsx` lo usa) | rimbalza ai bordi, il dito resta suo: test del sorgente. Nel simulatore il Feed locale era vuoto |
+| Draw | «NEAR YOU» | `route/NearYou.tsx` | rimbalza: test del sorgente |
+| Explore | le città | `explore/ExploreTools.tsx` (`CityPicker`) | simulatore: scorre senza cambiare pagina, alla fine rimbalza |
+| Explore | le file di schede | `explore/RecommendedRow.tsx`, `CityWords.tsx`, `NearbyTowns.tsx`, `IdeasFromEurope.tsx`, `RideItYourself.tsx` | simulatore («IDEAS FROM EUROPE»): scorre, alla fine rimbalza e la pagina resta; test del sorgente per tutte |
+| Explore | il disegno e poi la foto | `explore/RouteCard.tsx` (TASK-350) | simulatore: va alla foto, poi passa alla fila; test: sta solo dentro le due file che rimbalzano |
+| Explore | la ricerca, Explore sull'acqua | `search/SearchScreen.tsx`, `StartState.tsx`, `paddle/PaddleExplore.tsx` | rimbalzano: test del sorgente |
+| Fuori dalle pagine | sulla mappa, nel gioco, nel pannello del percorso | `mapdraw/FigureTiles.tsx`, `route/ShapeTiles.tsx`, `social/DrawingCard.tsx`, `explore/StopPhotos.tsx`, `game/NewChallenge.tsx`, `route/WhileRouting.tsx` | la barra lì non c'è; rimbalzano comunque: test del sorgente |
+
+Il test `tabs/TabSwipeOwners.test.ts` trova ogni scroll orizzontale dell'app: uno nuovo
+che non rimbalza, o una mappa da trascinare dentro una pagina, lo fanno fallire.
+
+**Limite**: una seconda scivolata veloce mentre una fila rimbalza ancora alla sua
+fine passa alla pagina accanto. Lo decide UIKit, con lo stesso meccanismo del `Pager`
+di TASK-154; toglierlo vorrebbe cambiare i componenti delle file, fuori da questo task.
 
 - **Mappe**: dentro le pagine non ce n'è una che si trascina. Le mappe del
   Feed, di Explore e del Profilo sono immagini (`feed/FeedMaps.tsx` le scatta
@@ -70,7 +74,8 @@ con il codice ogni riga ha l'esito e, dove si può, un test.
 - **Slider**: nessuno nelle pagine (`search/FilterButton.tsx` lo nomina solo).
 - **`PanResponder`**: `OutlineBoard`, `PostImage`, `PostComposer` stanno in un
   `Modal`, `RunDashboard` nella corsa: fuori dalle pagine.
-- **Campi di testo**: un dito che sposta il cursore non deve cambiare pagina.
+- **Campi di testo**: su iOS il cursore si sposta tenendo premuto, non con una
+  scivolata: lo swipe sopra un campo cambia pagina e chiude la tastiera.
 
 ## Scelte dell'utente
 
@@ -103,18 +108,18 @@ Una alla volta, con la proposta già pronta; le risposte con le sue parole.
 
 ## Criteri di accettazione
 
-- [ ] Uno swipe a destra o a sinistra porta alla scheda accanto, la pagina
+- [x] Uno swipe a destra o a sinistra porta alla scheda accanto, la pagina
       segue il dito e la barra la segue: test.
-- [ ] Dal profilo si va al Feed e dal Feed al profilo, in giro: test.
-- [ ] Le pagine costruite restano con scroll e campi; una pagina pigra si
+- [x] Dal profilo si va al Feed e dal Feed al profilo, in giro: test.
+- [x] Le pagine costruite restano con scroll e campi; una pagina pigra si
       costruisce quando ci si arriva, non prima: test.
-- [ ] Tocco sulla scheda attiva, «indietro» di Android, giro guidato, stato
+- [x] Tocco sulla scheda attiva, «indietro» di Android, giro guidato, stato
       `selected` per VoiceOver come prima: test.
-- [ ] Un gesto che parte su un carosello o una fila resta suo: elenco con
-      l'esito di ogni riga.
-- [ ] Nessun colore a mano, nessuna dipendenza nuova, impronta iOS
-      `6f8bba4cf1b6f95fc3c1c84ba9812d950a2232a1` su una copia pulita.
-- [ ] Prima e dopo dal simulatore, in scuro e in chiaro.
+- [x] Un gesto che parte su un carosello o una fila resta suo: elenco con
+      l'esito di ogni riga (sopra), con il limite scritto.
+- [x] Nessun colore a mano, nessuna dipendenza nuova. Impronta iOS: solo JS in
+      `src/tabs`, la misura il Coordinatore all'anteprima (sua scelta).
+- [x] Prima e dopo dal simulatore, in scuro e in chiaro.
 
 ## File toccati
 
@@ -127,7 +132,17 @@ docs/STATUS.md                        (righe aggiunte)
 docs/INDEX.md                         (una riga)
 ```
 
-Codice: la lista va al Coordinatore prima di scriverlo.
+Codice (lista approvata dal Coordinatore il 2026-11-04), PR #764:
+
+```
+apps/mobile/src/tabs/TabShell.tsx
+apps/mobile/src/tabs/TabShell.test.tsx
+apps/mobile/src/tabs/tabStrip.ts                (nuovo)
+apps/mobile/src/tabs/tabStrip.test.ts           (nuovo)
+apps/mobile/src/tabs/TabSwipeOwners.test.ts     (nuovo)
+docs/UI.md
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-379.md
+```
 
 ## Fuori scope
 
@@ -140,4 +155,20 @@ Codice: la lista va al Coordinatore prima di scriverlo.
 
 ## Esito
 
-*(da scrivere)*
+Fatto (2026-11-04, PR #764). Le pagine stanno su una striscia lunga dello
+`ScrollView` a pagine di React Native: la pagina segue il dito, il giro continua
+dal profilo al Feed e all'indietro, il tocco sulla barra resta istantaneo.
+Con VoiceOver o TalkBack acceso lo swipe è spento. `App.tsx` non cambia.
+
+Test: 49 in `src/tabs` (striscia, swipe, giro, VoiceOver, ogni scroll
+orizzontale dell'app), più typecheck, lint, Prettier. Simulatore iPhone 17e con
+Expo Go, scuro e chiaro: Draw → Messages → Explore → profilo → Feed e dal Feed
+al profilo; la fila delle città e «IDEAS FROM EUROPE» scorrono senza cambiare
+pagina e alla fine rimbalzano; la scheda con la foto passa alla fila. Con
+`main` lo stesso gesto non muove niente. I fotogrammi sono in `out/TASK-379/`
+del Mac (non nel repository).
+
+Non provati: Android (solo i test), il carosello delle foto nel Feed (il Feed
+locale era vuoto; coperto dal test del sorgente e uguale alle file).
+Seguito possibile, solo se l'utente lo nota sul telefono: la seconda
+scivolata veloce alla fine di una fila.

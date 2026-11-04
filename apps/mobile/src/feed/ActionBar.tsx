@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
+import { isOnSnow } from "../activities/snow";
 import { t } from "../i18n";
 import { SharePost } from "../share/SharePost";
 import type { PostRun } from "../share/postRun";
@@ -69,7 +70,8 @@ export function ActionBar({ post, onOpen }: Props) {
             <Text style={styles.actionText}>{t("Share")}</Text>
           </Tap>
         )}
-        {drawAgain !== undefined && (
+        {/* Not on the snow: no route to draw again (TASK-375). */}
+        {drawAgain !== undefined && !isOnSnow(post.drawing.activity) && (
           <Tap style={styles.again} onPress={drawAgain} accessibilityRole="button">
             <Text style={styles.againText} numberOfLines={1}>
               {t("Draw it near me")}

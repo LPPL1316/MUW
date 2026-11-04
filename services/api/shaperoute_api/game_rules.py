@@ -22,8 +22,8 @@ from dataclasses import dataclass, field
 from route_engine.geo import haversine_m
 
 # Raised whenever a rule below changes: game_backfill.py computes the runs
-# again.
-RULES_VERSION = 1
+# again. 2: a walk counts its metres (TASK-371).
+RULES_VERSION = 2
 
 # A stretch of at least VEHICLE_WINDOW_M covered faster than this is not
 # run: 2:23 a kilometre, quicker than a world record over 1500 m.
@@ -53,6 +53,10 @@ VEHICLE = "vehicle"
 OVERLAP = "overlap"
 DAILY_CAP = "daily_cap"
 RUNNING = "running"
+# A walk counts its metres as a run does, with the same checks, but no best
+# times: the pace shapes, like the personal bests, are a run's (TASK-371,
+# ADR-0315, the user's choice).
+WALKING = "walking"
 
 
 @dataclass(frozen=True)
@@ -101,9 +105,10 @@ class _Step:
 def evaluate(
     fixes: Sequence[Fix], pauses: Sequence[RunPause], activity: str
 ) -> RunGame:
-    """The run as the game sees it. Only runs on foot count."""
+    """The run as the game sees it. Only runs and walks on foot count, and
+    only a run has best times."""
     elapsed_s = fixes[-1].t_s - fixes[0].t_s if fixes else 0.0
-    if activity != RUNNING:
+    if activity not in (RUNNING, WALKING):
         return RunGame(False, NOT_RUNNING, 0, {}, elapsed_s)
     if len(fixes) < 2:
         return RunGame(True, None, 0, {}, elapsed_s)
@@ -127,7 +132,7 @@ def evaluate(
         moving_s <= 0 or run_m / moving_s > MAX_MEAN_SPEED_MPS
     ):
         return RunGame(False, VEHICLE, 0, {}, elapsed_s)
-    best = best_times(steps, fast, clock)
+    best = best_times(steps, fast, clock) if activity == RUNNING else {}
     return RunGame(True, None, round(run_m - vehicle_m), best, elapsed_s)
 
 

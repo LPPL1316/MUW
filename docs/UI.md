@@ -568,7 +568,7 @@ non la ricarica. La scheda sta sotto la mappa, non sopra, così non copre
 l'attribuzione; i margini seguono la tacca e la barra in basso di ogni
 telefono.
 
-## Le pagine e la barra di schede (TASK-367, ADR-0311; prima TASK-154, ADR-0124, e TASK-278)
+## Le pagine e la barra di schede (TASK-367, ADR-0311; lo swipe TASK-379, ADR-0323; prima TASK-154, ADR-0124, e TASK-278)
 
 Con TASK-367 parte A (scelta dell'utente) le pagine non stanno
 più affiancate: **una barra di schede in basso**, come Instagram, cinque
@@ -598,10 +598,24 @@ letta fino alla più nuova. Una riga chiude la lista e apre quello che apre la
 sua push; vuota dice «No notifications yet. Reactions, comments, follows and
 tags will show up here.».
 
-- Un tocco su una scheda mostra la sua pagina **subito, senza swipe** fra le
-  pagine. Ogni pagina resta costruita dopo la prima visita: scroll, campi e
-  scelte restano come erano. «Explore», «Messages» e il profilo si
-  costruiscono la prima volta che ci si arriva.
+- Un tocco su una scheda mostra la sua pagina **subito**, senza scorrere
+  sopra quelle in mezzo. Ogni pagina resta costruita dopo la prima visita:
+  scroll, campi e scelte restano come erano. «Explore», «Messages» e il
+  profilo si costruiscono la prima volta che ci si arriva.
+- **Lo swipe** (TASK-379, scelte dell'utente): uno swipe a sinistra o a
+  destra porta alla scheda accanto, e la pagina segue il dito con quella
+  accanto che entra; la barra cambia quando la pagina si ferma. **In giro
+  continuo**: dopo il profilo viene «Feed», prima di «Feed» il profilo. Vale
+  su tutte e cinque le schede. Senza account lo swipe che si ferma su
+  «Messages» mostra subito il profilo, come il tocco.
+- Un dito che parte su una fila che scorre di lato (le città, le schede di
+  «Explore», «NEAR YOU», le foto di un post) resta alla fila, anche alla sua
+  fine, dove rimbalza; la scheda con il disegno e poi la foto passa alla sua
+  fila (TASK-350). Una seconda scivolata veloce mentre una fila rimbalza
+  alla fine passa invece alla pagina accanto: lo decide iOS. Dentro le
+  pagine non ci sono mappe da trascinare: sono immagini.
+- Con VoiceOver o TalkBack acceso lo swipe fra le pagine è spento: si va
+  con le schede, come prima. Lo swipe chiude la tastiera.
 - **Il tocco sulla scheda già attiva** riporta la pagina in cima (Feed,
   Draw, Explore, Messages) o alla sua prima vista (il profilo).
 - Su Android il tasto indietro torna alla scheda di prima, poi esce.
@@ -615,8 +629,8 @@ tags will show up here.».
 - Barra e header non ci sono su mappa, corsa, corsa senza percorso, «Play»,
   corsa interrotta riaperta: lì la schermata è intera, come prima.
 
-Quello che segue descrive le pagine; dove parla di swipe e di nomi in alto
-vale la barra qui sopra.
+Quello che segue descrive le pagine; dove parla di nomi in alto vale la
+barra qui sopra, e lo swipe è quello qui sopra.
 
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
@@ -1193,9 +1207,11 @@ mappa è quella di prima.
   zones. It stays on this phone.», poi «Sex» («Male», «Female», «Prefer not to
   say»), «Weight» (kg o lb), «Height» (cm, o ft e in con le miglia), «Year of
   birth», e in fondo, piccolo, «Calories are an estimate. Weight matters
-  most.». Ogni campo si tiene appena scritto, ha «Clear» accanto al nome
-  quando è pieno, e fuori dai limiti dice perché («Enter a weight between 30
-  and 300 kg.») senza tenerlo. Tutto resta sul telefono.
+  most.». L'unità sta dentro il riquadro, dopo il numero, e un tocco su di
+  essa apre la tastiera (TASK-383). Ogni campo si tiene appena scritto, ha
+  «Clear» accanto al nome quando è pieno, e fuori dai limiti dice perché
+  («Enter a weight between 30 and 300 kg.») senza tenerlo. Tutto resta sul
+  telefono.
   In fondo alla pagina, la riga **«Heart rate zones»** (TASK-374 parte B,
   ADR-0318 §6 e §15) apre un'altra pagina intera, «Back» in alto: «Max heart
   rate» (in bpm, dall'età con sotto «Estimated from your age», o scritta a

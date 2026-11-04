@@ -21490,6 +21490,19 @@ dell'utente:
 - Nei file importati è camminata il `walking` del GPX, il «10» di Strava e
   lo sport FIT 11. L'escursionismo no: è di TASK-377.
 - «NEAR YOU» resta solo per la corsa («Solo corsa, per ora»).
+
+**Aggiunta (parte C, 2026-11-04)** · scelta dell'utente per i ritmi
+(«Solo i metri»), il resto deciso dall'agente su delega dell'utente col via
+del Coordinatore:
+
+- Nel gioco delle forme una camminata conta i suoi metri come una corsa,
+  con gli stessi controlli, ma senza tempi migliori: le forme col ritmo non
+  si sbloccano camminando.
+- `RULES_VERSION` passa a 2, così `game_backfill` ricalcola le corse già
+  tenute.
+- I concorsi non filtrano per sport, quindi i post a piedi c'erano già.
+- L'app non cambia: la striscia del gioco conta già «a piedi» tutto ciò che
+  non è bici, canoa o nuoto.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
@@ -21880,6 +21893,30 @@ cui nessun altro tocca quei file, e un aggiornamento del server rimandato
 fino al primo sport nuovo. Il pilota della struttura non è la camminata
 (già TASK-371 con la struttura di oggi), ma l'Escursionismo (TASK-377),
 scelta dell'utente del 2026-11-04.
+
+**Aggiornamento 2026-11-04 (parte B1, approvato dal Coordinatore): il punto
+3 cambia.** Niente notte di esempi per uno spostamento: `route_store.py` ha
+`SAME_ROUTES_AS`, {impronta del codice spostato: impronta di prima}, e
+`engine_fingerprint` (anche quello degli esempi della canoa,
+`paddle_examples.engine_fingerprint`) dà quella di prima, seguendo le righe
+a catena. Una riga entra solo con la sua prova:
+`services/api/tests/test_same_routes.py` disegna offline nove percorsi
+fissi (corsa, bici, canoa, nuoto) e ne scrive l'hash del risultato intero
+in `tests/fixtures/same_routes/<impronta>.json`; un test vieta una riga
+senza le prove delle sue due impronte, fatte sulla stessa piattaforma, con
+gli stessi hash, e un altro controlla che il motore di adesso disegni la
+sua prova (solo sulla piattaforma della prova: il Mac arm64 e Linux in CI
+disegnano alcuni di questi percorsi diversi nelle ultime cifre). Basta
+perché uno spostamento di codice non cambia le operazioni in virgola
+mobile: una differenza di piattaforma è la stessa prima e dopo, e la prova
+su una piattaforma più il banco bastano. Non bastano per un cambiamento di
+comportamento, che per questo non usa mai l'alias. In più il banco
+su `main` e sul branch, `compare --same`, punto per punto. **Un cambiamento
+di comportamento non usa mai `SAME_ROUTES_AS`**: i suoi percorsi si
+ridisegnano, col sì dell'utente. Così il server si può aggiornare da `main`
+quando serve. Il primo sport della fase 1 cambia l'impronta con il suo
+codice nuovo: se può avere anche lui una riga (nessun percorso di prima
+cambia) o se serve la notte di esempi, si decide allora col Coordinatore.
 ## ADR-0319 — Gli sport «Record only»: si registrano senza forma, il motore non li vede
 
 **Stato**: Proposto · 2026-11-04 · TASK-375. Scelte dell'utente lo stesso
@@ -21934,6 +21971,18 @@ dell'utente):
    giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
    vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
    sono, finché manca una stima.
+8. (B2, 2026-11-04; la scelta di prodotto è dell'utente, «Sì, così», il
+   modo è deciso dall'agente su delega dell'utente) Ogni lettore dei
+   disegni conosce la neve, e l'attività di `Drawing` e `DrawingDetail` è
+   `RunActivity`; un'attività che l'app non conosce cade ancora come in
+   B0. Una regola sola, `activities/snow.ts` (`isOnSnow`, `routeActivity`),
+   toglie alla neve ciò che si fa con un percorso: «Start» e «Send to a
+   friend» (`runnable`), «Draw it near me» e «Edit the drawing». Toglie
+   anche le calorie stimate. La scheda dice il nome dello sport; un filtro
+   per attività della ricerca la lascia fuori, perché nessun filtro di oggi
+   è la neve. L'export GPX resta, perché non era tra le azioni escluse.
+   `App.tsx` non cambia: `followedOf` non dà mai alla neve l'attività di
+   un percorso.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -22010,6 +22059,63 @@ TASK-383 finché #759 non è in `main`.
 
 ---
 
+## ADR-0318, precisazione — L'unità di peso e altezza sta dentro il riquadro
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Dentro il riquadro»),
+il resto deciso dall'agente su delega dell'utente (TASK-383). In «Body»
+l'unità stava a destra del riquadro, piccola e grigia, e sul telefono non si
+notava. Ora «kg» e «cm» (con le miglia «lb», «ft» e «in») stanno dentro il
+riquadro, dopo il numero e nella sua stessa dimensione; il riquadro è un
+`Pressable` e un tocco ovunque, anche sull'unità, apre la tastiera del campo.
+I valori restano in kg e cm (punto 10). Scartati: l'unità nel nome del campo
+(«Weight (kg)»), che con le miglia cambia il nome, e un segnaposto, che sparisce
+appena si scrive.
+
+---
+
+## ADR-0326 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
+
+**Stato**: Accettata · 2026-11-04 · TASK-384 («Sì, approvo» dell'utente
+sulla proposta). Le scelte di prodotto sono
+dell'utente (tema, frequenza, strumento, partenza prima della società:
+`tasks/TASK-384.md`); il come è deciso dall'agente su delega dell'utente.
+Numeri dal Coordinatore.
+
+**Contesto**: l'utente vuole nel Feed post di MuW con modelli generati dall'AI
+in outfit sportivi e tag che portano a comprare i capi con link affiliati.
+Un post del Feed è un `drawings` su un `runs`, con un utente e dei tempi; i
+percorsi di MuW (ADR-0310) stanno già fuori da `GET /feed`. Termini e Privacy
+oggi dicono che MuW non mostra pubblicità (TASK-267).
+
+**Decisione**:
+
+1. **Tabelle proprie**, `style_posts`, `post_product_tags` e
+   `product_tag_clicks`, e un endpoint proprio, `GET /style`: `GET /feed` e
+   `drawings` non cambiano, un'app già pubblicata non vede niente di nuovo.
+2. **Le etichette «AI-generated» e «Affiliate links» sono fisse sul post**, e
+   la scheda del tag dice che il capo nella foto è simile, non il prodotto:
+   AI Act art. 50, pubblicità riconoscibile, niente pratica ingannevole.
+3. **I clic si contano per giorno e per tag**, senza utente, IP o
+   identificativo: niente tracciamento, niente ATT, nessun dato nuovo
+   nell'App Privacy.
+4. **Uscita a data** (`publish_at`, 2–3 al giorno) e **controllo dei link**
+   prima dell'uscita, dal feed prodotti del programma affiliato quando c'è;
+   un tag senza prodotto si spegne, un post senza tag non esce.
+5. **Le immagini si generano da testo**, con persone inventate e capi senza
+   loghi; nessuna foto dei negozi, nemmeno come riferimento.
+6. **Nel Feed al massimo 1 su 8, solo «All»**, con un interruttore per
+   toglierli e la lente «Style».
+
+**Scartato**: un account MuW con post `drawings` finti (vorrebbe corse e tempi
+inventati, come in ADR-0310); scaricare le foto di Zalando (diritti del
+negozio, e l'utente l'ha escluso); contare i clic per utente (tracciamento,
+consenso, App Privacy).
+
+**Conseguenze**:
+- Servono testi legali nuovi e le dichiarazioni negli store prima della
+  prima build con Style.
+- Il catalogo preparato invecchia in giorni: prezzi e disponibilità vanno
+  riletti prima di ogni uscita.
 ## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
 
 **Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
@@ -22043,5 +22149,90 @@ faceva con le pagine affiancate di TASK-154 (ADR-0124).
 **Conseguenze**: chi aveva imparato lo swipe prima di TASK-367 lo ritrova.
 La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
 prova solo con i test.
+
+**Scelte tecniche** (2026-11-04, decise dall'agente su delega dell'utente):
+
+- Lo `ScrollView` orizzontale a pagine di React Native, come il `Pager` di
+  TASK-154: uno scroll orizzontale dentro una pagina si tiene il dito che parte
+  su di lui (UIKit lo dà alla vista più interna, e una che rimbalza lo tiene
+  anche ai bordi). Scartato `PanResponder` con `Animated`: con Fabric uno
+  `ScrollView` interno scorre anche quando il responder JS è un genitore, e le
+  due cose si muoverebbero insieme.
+- Il giro senza salti: le pagine stanno su una striscia di 2000 posti larghi
+  uno schermo (`tabs/tabStrip.ts`). La pagina sullo schermo ha un posto e le due
+  vicine quelli ai lati; una pagina cambia posto solo fuori vista, così lo
+  scroll non torna mai indietro. Mille swipe nella stessa direzione prima di un
+  capo, dove lo swipe si ferma; non di più, perché il layout conta in float a
+  32 bit.
+- Tocco sulla barra, giro guidato, «indietro» di Android, e il profilo al posto
+  di «Messages» senza account: la pagina arriva subito dove sta la striscia,
+  senza scorrere su quelle in mezzo e senza costruirle. La barra cambia quando
+  lo swipe si ferma.
+- Una pagina pigra si costruisce ai primi pixel che entrano nello schermo, come
+  nel `Pager`: «Explore» e il profilo, la prima volta, entrano vuoti per un
+  attimo.
+- Con VoiceOver o TalkBack acceso lo swipe è spento: tre dita direbbero
+  «pagina 1001 di 2000». Le schede restano `tab` con lo stato `selected`.
+- `scrollsToTop={false}` sulla striscia: il tocco sull'orologio va allo scroll
+  della pagina.
+- Il limite: una seconda scivolata veloce mentre una fila rimbalza ancora alla
+  fine passa alla pagina accanto (UIKit). Toglierlo vorrebbe cambiare le file;
+  `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
+
+---
+
+## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-382). Dopo «Edit the drawing» su un esempio sull'acqua (TASK-369 B),
+«Draw route» riceveva un 422 «outline: the outline crosses itself»: l'app
+controllava il contorno prima che `canvasRequest.framed` lo arrotondasse al
+decimillesimo, e l'arrotondamento faceva toccare i due lati della punta o del
+nastro lasciati dal tratto dalla riva.
+
+**Decisione**:
+
+1. **Il contorno si controlla con i numeri che partono**, dopo
+   l'arrotondamento, e con la regola del motore copiata operazione per
+   operazione (`shapes/outline.py`: `_ring`, `_orient`, `_meet`,
+   `_folds_back`, `_first_crossing`), in `mapdraw/sentOutline.ts`: sugli
+   stessi numeri app e motore danno lo stesso verdetto.
+2. **Dove due lati si incontrano si tolgono gli angoli fra loro**, dal lato
+   con meno angoli, finché nessuno si incontra; mai un punto nuovo, così non
+   si riarrotonda niente. Il contorno riparte dall'angolo più vicino al suo
+   primo punto.
+3. **Se resterebbe troppo poco, o un dettaglio non partirebbe più sul
+   contorno** (`ATTACH_TOLERANCE`), il contorno va com'era: l'API dice
+   perché, come prima.
+
+**Alternative scartate**: mandare i numeri senza arrotondare (in un caso su
+otto il solo cambio di riquadro fa già toccare i lati); un controllo con
+tolleranza nel motore (cambia l'impronta del motore e vuole il server);
+rifare `outlineOf` sul contorno arrotondato (crea punti nuovi, da
+riarrotondare); un testo nuovo per questo 422 (non serve se il 422 non c'è
+più, e vorrebbe il sì dell'utente).
+
+**Conseguenze**: vale per ogni figura della mappa, sull'acqua e sulle strade;
+un contorno che il motore prende già parte identico a prima. Solo JS, nessun
+testo, impronta iOS invariata; funziona col server di oggi.
+
+---
+
+## ADR-0249, precisazione — I test della pool contano solo le connessioni dei client
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-389). `test_the_pool_closes_when_the_app_never_started` contava una
+volta sola ogni riga di `pg_stat_activity` del database del test, e a volte
+trovava tre righe invece di due. La terza era un autovacuum worker, che
+analizza `spatial_ref_sys` dopo che PostGIS l'ha riempita (migrazione 0002),
+nel momento che sceglie lui: provato sul Mac dai log del server. Ora
+`others()` conta solo i `client backend`. Il test aspetta che il conteggio
+arrivi a `POOL_MIN_SIZE`, perché una connessione chiusa da `migrate()` può
+restare un attimo, e verifica anche il conteggio della pool stessa
+(`get_stats`). Resta severo: una connessione in più della pool non se ne va
+da sola, e due varianti della pool con una connessione in più lo fanno ancora
+fallire. Scartato: un margine come «da 2 a 3», che lascerebbe passare proprio
+la connessione in più, e il nome dell'applicazione sulle connessioni della
+pool, che avrebbe cambiato il server.
 
 ---

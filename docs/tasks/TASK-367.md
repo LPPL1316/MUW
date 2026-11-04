@@ -1,6 +1,6 @@
 # TASK-367 — La navigazione come Instagram: la barra in basso e un header solo
 
-**Stato**: In lavorazione — parti A e B in main; C col via del Coordinatore dopo la C2 del nuoto
+**Stato**: Done — parti A, B, C1 e C2 in main (2026-11-04); server con la `0045`, copia del sito e OTA col sì dell'utente
 **Fase**: 4 · **Branch**: `docs/TASK-367-tab-bar` (documenti),
 `feat/TASK-367-a-tab-bar` (parte A) · **ADR**: ADR-0311 · numeri dal
 Coordinatore (2026-11-02)
@@ -342,3 +342,23 @@ Simulatore (iPhone 17e, Expo Go): la ricerca in cima a «Explore», il ritorno a
 «Explore», il Feed senza lente; il caricamento riuscito di un disegno trovato
 non visto (nessuna API locale), coperto dal test. Copia del sito e OTA: le
 chiede il Coordinatore all'utente.
+
+**Parte C1** (2026-11-04, PR #745, in main 3677c229): la lista della
+campanella sul server, `notification_list.py` come «listener» del `Pusher`,
+`GET /notifications` e `POST /notifications/read`, migrazione
+`0045_notification_list` (rinominata dalla `0045_notifications`: il test degli
+interruttori trova la sua migrazione dalla fine del nome). Le righe si tengono
+90 giorni; durata e frase della privacy approvate dall'utente («Sì, approvo»),
+`site/privacy` rigenerato. 14 test su PostgreSQL. Server e migrazione col sì
+dell'utente.
+
+**Parte C2** (2026-11-04, PR #756, in main 065e3479): la campanella di Lucide
+nell'header, prima dello sport, con il numero rosso dei non letti; la lista
+sopra l'app, letta appena si apre; ogni riga apre quello che apre la sua push
+(`openTarget`, condiviso con le push). Con un server senza la lista niente
+campanella e nessun errore. Tre testi approvati dall'utente («Sì, approvo»).
+Impronta iOS `6f8bba4c`. Simulatore (iPhone 17e, Expo Go) con un'API e un
+database locali e quattro eventi veri: il 4 rosso nell'header, la lista, il
+commento che apre il disegno, la campanella senza numero dopo la lettura;
+schermate in `out/TASK-367-c2/`. Arriva con un OTA dopo il server con la
+`0045`, col sì dell'utente.

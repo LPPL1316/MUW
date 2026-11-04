@@ -42,7 +42,14 @@ collezione e le barre di avanzamento.
 ## 3. Che cosa conta
 
 - Solo le corse a piedi salvate nell'account (`runs.activity =
-  'running'`). Bici e pagaia no.
+  'running'`) e, dalle regole 2 (TASK-371, ADR-0315), le camminate
+  (`'walking'`). Bici, pagaia, nuoto e sci no. Una camminata conta i suoi
+  metri con gli stessi controlli di una corsa (veicolo, sovrapposizione,
+  tetto del giorno), ma **senza tempi migliori** (`best_s` vuoto): le forme
+  col ritmo restano della corsa, come i record (scelta dell'utente, «Solo i
+  metri»). I suoi metri entrano però nella corsa più lunga (`longest_m`), che
+  muove la barra di una forma col ritmo finché la distanza non è stata
+  corsa: la barra si muove, la forma non si sblocca.
 - Solo le corse **registrate dall'app** (`runs.source = 'muw'`, TASK-312,
   ADR-0272). Un'attività aggiunta dal file di un'altra app (`file`, con
   «Imported») non entra in `after_run_saved` né in `game_backfill`: niente
