@@ -182,19 +182,27 @@ docs/STATUS.md
 docs/INDEX.md
 ```
 
-Parte A:
+Parte A (lista aggiornata il 2026-11-04 e mandata al Coordinatore prima della
+PR):
 
 ```
 apps/mobile/App.tsx
 apps/mobile/assets/ui/tabs/**                         (nuovi)
 apps/mobile/src/tabs/**                               (nuovi)
-apps/mobile/src/messages/messagesDoor.ts, MessagesOverlay.tsx
-apps/mobile/src/profile/ProfileHome.tsx, ProfileHome.test.tsx
-apps/mobile/src/screens/ProfileLayer.tsx               (se il Profilo lo chiede)
-apps/mobile/src/tour/tourSteps.ts, tourParts.ts, i loro test
+apps/mobile/src/messages/messagesDoor.ts
+apps/mobile/src/profile/ProfileHome.tsx
+apps/mobile/src/screens/ProfileLayer.tsx, pageTitles.ts
+apps/mobile/src/screens/FeedScreen.tsx                (una riga: in cima al tocco)
+apps/mobile/src/explore/ExploreScreen.tsx             (una riga: in cima al tocco)
+apps/mobile/src/paddle/PaddleExplore.tsx              (una riga: in cima al tocco)
+apps/mobile/src/tour/TourScrollView.tsx               (una riga: in cima al tocco)
 apps/mobile/src/about/content/*.ts                    (le frasi della Guida)
-apps/mobile/src/screens/Pager.tsx, Pager.test.tsx     (tolti quando nessuno li usa)
-docs/UI.md, docs/STATUS.md, docs/tasks/TASK-367.md
+apps/mobile/src/screens/Pager.tsx, Pager.test.tsx     (tolti)
+test che premevano le pagine per nome o il cerchio del profilo:
+  apps/mobile/__tests__/App*.test.tsx, src/screens/ProfileLayer.test.tsx,
+  ProfileEntryPoints.test.tsx, src/account/Profile.test.tsx,
+  src/tour/GuideInProfile.test.tsx, src/feed/FeedPostPhotos.test.tsx
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
 ```
 
 ## Fuori scope
@@ -207,4 +215,14 @@ docs/UI.md, docs/STATUS.md, docs/tasks/TASK-367.md
 
 ## Esito
 
-*(a fine task)*
+**Parte A** (2026-11-04, PR #714): barra in basso, header unico, «Messages»
+come scheda, ingranaggio nel Profilo, Pager tolto. Suite dell'app verde (590
+file di test), impronta iOS `83793e26` prima del riallineamento e `6f8bba4c`
+dopo la #620. Simulatore (iPhone 17e, Expo Go): schermate in
+`docs/tasks/TASK-367/` (scuro e chiaro); il tocco sulla scheda attiva riporta
+Draw in cima; «Messages» senza account porta al profilo; il tour indica lo
+sport nell'header e poi Explore e Feed. Il «prima» è nelle schermate di
+TASK-355 (`docs/tasks/TASK-355/before-*.jpg`). Non visto nel simulatore: il
+Profilo con l'account (ingranaggio) e la scheda Messages piena, coperti dai
+test. Da decidere: Draw ed Explore hanno ancora il loro logo nella pagina,
+sotto quello nuovo dell'header.

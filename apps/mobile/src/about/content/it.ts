@@ -20,7 +20,7 @@ const help: AboutDocument = {
       heading: "Che cos'è MuW",
       blocks: [
         "MuW disegna percorsi veri che sulla mappa tracciano una forma. Scegli la forma, la distanza e da dove partire: ottieni un percorso su strade vere, con il suo file GPX.",
-        "L'app ha quattro pagine affiancate, «Feed», «Disegna», «Esplora» e il tuo profilo: scorri a destra o a sinistra, oppure tocca un nome in alto. Il cerchio in alto porta al tuo profilo.",
+        "In basso ci sono cinque schede: «Feed», «Disegna», «Messaggi», «Esplora» e il tuo profilo, il cerchio con la tua foto. Tocca una scheda per andarci, toccala di nuovo per tornare in cima. Le «Impostazioni» sono sotto l'ingranaggio in alto a destra del tuo profilo.",
       ],
     },
     {
@@ -85,7 +85,7 @@ const help: AboutDocument = {
       heading: "Messaggi",
       blocks: [
         "«Messaggio» sul profilo di un iscritto gli scrive. Se ti segue, il messaggio arriva nei suoi «Messaggi»; se no, arriva come richiesta, e puoi mandare un solo messaggio finché non la accetta.",
-        "Le tue conversazioni sono in «Profilo», «Messaggi», con «Richieste di messaggio» in cima. Accetta una richiesta per scrivervi, eliminala (chi ha scritto non lo sa) o blocca chi ha scritto.",
+        "Le tue conversazioni sono in «Messaggi», la scheda con l'aereo di carta, con «Richieste di messaggio» in cima. Accetta una richiesta per scrivervi, eliminala (chi ha scritto non lo sa) o blocca chi ha scritto.",
         "Tieni premuto un messaggio per eliminare il tuo, per tutti e due, o per segnalarne uno che hai ricevuto. Nessuno vede se hai letto un messaggio. Con le push accese, MuW ti avvisa di ogni messaggio e di ogni richiesta.",
         "In una conversazione tocca + per inviare una foto, un video fino a 60 secondi o un disegno, oppure tocca Invia agli amici su un percorso o un disegno. Puoi inviarli quando l'altra persona ha accettato il tuo messaggio. I video restano 30 giorni, o meno quando il nostro spazio per i video è pieno: i più vecchi vanno via per primi. Tocca un disegno per aprirlo sulla mappa, partire, esportarne il GPX o tenerlo nei preferiti.",
       ],
@@ -93,7 +93,7 @@ const help: AboutDocument = {
     {
       heading: "Corsa, bici, canoa",
       blocks: [
-        "Scegli lo sport con il pulsante accanto al profilo, o in «Impostazioni».",
+        "Scegli lo sport con il pulsante in alto a destra, o in «Impostazioni».",
         {
           bullets: [
             "Corsa: fino a 21 km su strade vere, con la voce svolta per svolta.",
