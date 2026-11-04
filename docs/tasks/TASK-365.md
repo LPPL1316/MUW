@@ -143,6 +143,12 @@ app.
    nel codice prima di scrivere; se non basta, ci si ferma e si segnala.
 7. I testi approvati in `i18n/*.ts`.
 
+## L'etichetta nelle cinque lingue
+
+Risposta dell'utente (2026-11-03, nella chat del Coordinatore), sulle 15
+varianti esatte di `apps/mobile/src/i18n/*.ts` (bici, corsa, canoa in en, it,
+de, es, fr): «SI ETICHETTE».
+
 ## Criteri di accettazione
 
 - [ ] **App già pubblicata**: `GET /feed` risponde come prima, nessun tipo e
