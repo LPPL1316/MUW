@@ -22071,3 +22071,22 @@ La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
 prova solo con i test.
 
 ---
+
+## ADR-0249, precisazione — I test della pool contano solo le connessioni dei client
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-389). `test_the_pool_closes_when_the_app_never_started` contava una
+volta sola ogni riga di `pg_stat_activity` del database del test, e a volte
+trovava tre righe invece di due. La terza era un autovacuum worker, che
+analizza `spatial_ref_sys` dopo che PostGIS l'ha riempita (migrazione 0002),
+nel momento che sceglie lui: provato sul Mac dai log del server. Ora
+`others()` conta solo i `client backend`. Il test aspetta che il conteggio
+arrivi a `POOL_MIN_SIZE`, perché una connessione chiusa da `migrate()` può
+restare un attimo, e verifica anche il conteggio della pool stessa
+(`get_stats`). Resta severo: una connessione in più della pool non se ne va
+da sola, e due varianti della pool con una connessione in più lo fanno ancora
+fallire. Scartato: un margine come «da 2 a 3», che lascerebbe passare proprio
+la connessione in più, e il nome dell'applicazione sulle connessioni della
+pool, che avrebbe cambiato il server.
+
+---

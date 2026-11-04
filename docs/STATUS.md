@@ -177,6 +177,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Scelte fatte** (2026-11-04): la pagina segue il dito, giro continuo dal
   profilo al Feed, su tutte e cinque le schede. Documenti nella #757.
 
+- **TASK-389 — Il test della pool che a volte contava tre connessioni**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-288 B; ADR-0249, precisazione).
+  `test_the_pool_closes_when_the_app_never_started` falliva in CI con «assert 3 == 2» (7 volte
+  dal 26 al 30 ottobre, anche su PR senza codice dell'API). La terza riga di `pg_stat_activity`
+  era un autovacuum worker su `spatial_ref_sys`, riempita da PostGIS: si vede nei log del server
+  sul Mac. Il test conta solo i client, aspetta il numero giusto e legge il conteggio della pool.
+  Cambia solo il test. Branch `fix/TASK-389-flaky-pool-test`; la unisce il Coordinatore a CI
+  verde. `tasks/TASK-389.md`.
+  **Chiuso il 2026-11-04**: con la fusione della sua PR; vedi «Completato».
+
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
   (TASK-355 A) apre `SharePost` dentro il `Pager`, che azzera il margine alto: ora il `Modal` ha
@@ -2556,6 +2566,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-389 — Il test della pool che a volte contava tre connessioni** (2026-11-04; seguito di
+  TASK-288 B). La terza riga era un autovacuum worker su `spatial_ref_sys`: il test conta solo i
+  client, aspetta il numero giusto e legge il conteggio della pool. Sul Mac il file è passato
+  da 49 a 50 verdi su 50. Cambia solo il test. `tasks/TASK-389.md`.
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; seguito di TASK-366). #750 in main (9e2089a9): il `Modal` di `SharePost` ha un suo
   `SafeAreaProvider`. Solo JS, impronta dal Coordinatore con l'anteprima. Prova Feed → «Share» →

@@ -56,11 +56,15 @@ GONE_WITHIN_S = 10.0
 
 
 def others(url: str) -> int:
-    """The connections to this database, besides the one that counts."""
+    """The connections to this database, besides the one that counts. Not
+    PostgreSQL's own workers: autovacuum comes to analyse spatial_ref_sys,
+    filled by the migrations' PostGIS, at a moment of its choosing
+    (TASK-389)."""
     with psycopg.connect(url) as conn:
         row = conn.execute(
             "SELECT count(*) FROM pg_stat_activity"
             " WHERE datname = current_database() AND pid <> pg_backend_pid()"
+            " AND backend_type = 'client backend'"
         ).fetchone()
     assert row is not None
     return int(row[0])
@@ -327,14 +331,21 @@ def test_the_pool_closes_when_the_app_never_started(
 ) -> None:
     def run(app: FastAPI, host: str, port: int) -> None:
         database: Database = app.state.accounts.database
-        started["pool"] = the_pool(database)
+        pool = the_pool(database)
+        started["pool"] = pool
         started["url"] = database.url
-        started["open"] = others(database.url)
+        # migrate()'s connection, closed just before, may not have left yet;
+        # the pool's never leave on their own.
+        started["open"] = wait_for_others(database.url, POOL_MIN_SIZE)
+        started["stats"] = pool.get_stats()
         raise SystemExit("address already in use")
 
     monkeypatch.setattr(entry.uvicorn, "run", run)
     with pytest.raises(SystemExit, match="address already in use"):
         entry.main(["--no-insights"])
     assert started["open"] == POOL_MIN_SIZE
+    # The pool's own count: it opened that many, and no more.
+    assert started["stats"]["pool_size"] == POOL_MIN_SIZE
+    assert started["stats"]["connections_num"] == POOL_MIN_SIZE
     assert started["pool"].closed
     assert wait_for_others(started["url"], 0) == 0
