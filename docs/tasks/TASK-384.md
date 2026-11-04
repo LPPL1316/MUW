@@ -52,15 +52,19 @@ Una alla volta, con le sue parole.
 5. **Aperte, da chiedere prima del codice**: i testi (etichette, scheda,
    «Shop», l'interruttore in «Settings») in cinque lingue; i nuovi Termini e
    Privacy al posto di «MuW non mostra pubblicità».
+   — *Risposta* (2026-11-04): «Sì, approvo tutti», sui testi di «Testi
+   approvati» qui sotto.
 6. **La proposta intera** (`docs/STYLE.md`).
    — *Risposta* (2026-11-04): «Sì, approvo». Non copre i testi del punto 5,
    che si approvano a parte.
 
-## Testi proposti (da approvare)
+## Testi approvati
 
 Bozze dell'agente, 2026-11-04, nelle cinque lingue (ADR-0172: nel codice la
-base è l'inglese). Nessuno entra nel codice o sul sito prima del sì
-dell'utente. Il tono segue i testi di oggi: frasi brevi, «tu», «MuW» come
+base è l'inglese). **Approvati dall'utente il 2026-11-04** («Sì, approvo
+tutti», sull'anteprima in italiano). Termini e Privacy nuovi entrano **insieme
+alla prima versione con Style** (app e server), non prima: fino ad allora i
+testi di oggi restano veri. La copia sul sito la chiede il Coordinatore. Il tono segue i testi di oggi: frasi brevi, «tu», «MuW» come
 soggetto.
 
 ### A. Nell'app
