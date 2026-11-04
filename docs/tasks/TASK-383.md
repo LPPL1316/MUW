@@ -1,6 +1,6 @@
 # TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro
 
-**Stato**: In revisione · 2026-11-04
+**Stato**: Done · 2026-11-05
 **Fase**: 4 · **Branch**: `fix/TASK-383-body-units`
 **Numeri**: TASK-383, assegnato dal Coordinatore. Seguito di TASK-374 A
 (ADR-0318), unità di TASK-182.
@@ -50,7 +50,7 @@ punto 8), nessuna dipendenza, solo JS: impronta iOS invariata (`6f8bba4c`).
       se si toglie).
 - [x] Test di `BodyPage` e `BodySetting`, typecheck, lint e Prettier verdi
       in locale.
-- [ ] CI verde.
+- [x] CI verde.
 
 ## File toccati
 
@@ -71,4 +71,9 @@ docs/UI.md
 
 ## Esito
 
-(da scrivere a merge fatto)
+#759 in `main` il 2026-11-04 (`a5c1d5b2`). Nella pagina «Body» l'unità sta
+dentro il riquadro, dopo il numero: «kg» e «cm», con le miglia «lb», «ft» e
+«in»; un tocco sull'unità apre la tastiera. Si tiene sempre in kg e cm.
+Solo JS: l'impronta la controlla il Coordinatore con l'anteprima; l'OTA di
+produzione parte col sì dell'utente. I «bpm» di «Heart rate zones» sono
+TASK-386 (#761).
