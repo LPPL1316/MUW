@@ -177,6 +177,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
   **Proposta approvata dall'utente il 2026-11-04** («Sì, approvo»); prossimo: i testi in cinque
   lingue e i nuovi Termini e Privacy, poi la parte A.
+  **Testi approvati il 2026-11-04** («Sì, approvo tutti»), in `tasks/TASK-384.md`; Termini e
+  Privacy cambiano con la prima versione con Style. Prossimo: la parte A (API), con la lista dei
+  file al Coordinatore prima del codice.
 - **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
   proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
   Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
