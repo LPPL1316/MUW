@@ -222,7 +222,8 @@ Test che cambiano solo i numeri delle kcal (o le kcal nuove in bici e in
 canoa): `screens/{RunPanel,RunPaddle,RunMiles,RunDashboard,FreeRunScreen,
 FeedScreenPosts}.test.tsx`, `feed/{FeedPost,feedPosts}.test.*`,
 `units/cardsInMiles.test.tsx`, `i18n/LastTextsItalian.test.tsx`,
-`health/{appleHealth,healthConnect}.test.ts`, `__tests__/AppFeedDrawing.test.tsx`.
+`health/{appleHealth,healthConnect}.test.ts`, `__tests__/AppFeedDrawing.test.tsx`,
+`__tests__/AppFeedPaddle.test.tsx`.
 
 Parte B (previsti):
 
