@@ -194,6 +194,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Words», che l'app mostra solo quando la risposta lo dichiara. 28
   testi nuovi approvati dall'utente il 2026-11-04 («Sì, approvati»); il server (col sì) in
   qualsiasi ordine con l'OTA. Su `FeedScreen.tsx` (una riga) entra dopo TASK-367 A.
+  **Chiuso il 2026-11-04**: B in `main` con la #717 (`f23ec332`), server con
+  `shape=word` (`bacd7c7b`), produzione con l'OTA `f607dcf5`; vedi «Completato».
 
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
@@ -2359,6 +2361,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297): documenti
+  #653, A #659 (`GET /search/drawings`), B #705 (entrata con #717, `f23ec332`).
+  La lente apre la ricerca a tutto schermo con schede, filtri, ricerche recenti
+  e pagine infinite; «Words» solo quando il server dichiara `shape=word`.
+  Server `bacd7c7b` e OTA di produzione `f607dcf5` del 2026-11-04. Con TASK-367
+  B la lente passa a «Explore». `tasks/TASK-344.md`.
 - **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
   (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
   «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;
