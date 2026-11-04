@@ -21900,6 +21900,22 @@ dell'utente):
    `shared-types` dei disegni restano `Activity`, cioè ciò che l'app sa
    mostrare: allargarli a `RunActivity` toccava sei file di altri task, e
    si fa con la parte che mostra lo sci (B2).
+7. (B1, 2026-11-04, deciso dall'agente su delega dell'utente) «Ski» e
+   «Cross-country ski» nascono `recordOnly` e `ready: false`, come la
+   camminata prima del server: «Soon» in Expo Go e preview, assenti dalle
+   build di negozio, finché il server non ha la 0044 e la giornata non ha
+   le sue metriche (parte C). «Draw» di uno sport `recordOnly` è il solo
+   «Record your day» giallo con la riga sotto; `ChooseScreen` legge lo
+   sport da sé, così `App.tsx` non cambia. «Save» manda `skiing` o
+   `xc_skiing` (`runActivityOf`); il file della corsa resta quello di
+   oggi, e fino alla parte C i numeri sono quelli di una pedalata in
+   discesa (km/h) e di una corsa sul fondo (passo). I disegni propri e la
+   coda sul telefono tengono `skiing`, così cambiare chi li vede non li fa
+   diventare corse. In Apple Salute vanno come `downhillSkiing` (61) e
+   `crossCountrySkiing` (60), con la sola distanza totale: le loro distanze
+   giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
+   vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
+   sono, finché manca una stima.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i

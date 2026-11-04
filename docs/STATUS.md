@@ -197,6 +197,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     con un OTA prima che camminata o sci si possano salvare; le build senza
     quell'OTA restano esposte (proposta lato server nella PR). Poi B1 dopo
     371 B.
+  - 2026-11-04: B0 (#749) e 371 B (#747) in main. **B1**: «Ski» e
+    «Cross-country ski» in `sport.ts` (`recordOnly`, ancora «Soon»), «Draw»
+    con il solo «Record your day», salvataggio come `skiing`/`xc_skiing`,
+    Apple Salute e Health Connect (ADR-0319, punto 7). Prossimo: B2, cioè
+    lo sci nel Feed, nelle schede e nei messaggi.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta

@@ -854,6 +854,7 @@ export const DE: Table = {
   "Ride without a route": "Ohne Route fahren",
   "Paddle without a route": "Ohne Route paddeln",
   "Walk without a route": "Ohne Route gehen",
+  "Record your day": "Tag aufzeichnen",
   "Run without a route": "Ohne Route laufen",
 
   // src/share/PostImage.tsx
@@ -1139,6 +1140,12 @@ export const DE: Table = {
   Bike: "Rad",
   Paddle: "Paddeln",
   Walk: "Gehen",
+  // src/settings/sport.ts, social/PublicParts.tsx (TASK-375: a day on the snow)
+  Ski: "Ski",
+  "Cross-country ski": "Langlauf",
+  // src/screens/ChooseScreen.tsx (TASK-375)
+  "No shapes on the slopes: MuW records your day.":
+    "Keine Formen auf der Piste: MuW zeichnet deinen Tag auf.",
   Title: "Titel",
   "Give it a name": "Gib ihm einen Namen",
   "How did it go?": "Wie war's?",

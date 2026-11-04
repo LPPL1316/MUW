@@ -1,4 +1,9 @@
-import type { Activity, LatLon } from "@shaperoute/shared-types";
+import {
+  ACTIVITIES,
+  type Activity,
+  type LatLon,
+  type RunActivity,
+} from "@shaperoute/shared-types";
 
 import { activityKey } from "../activities/activityKey";
 import { appBody, type BodyProfile } from "../body/bodyProfile";
@@ -25,7 +30,7 @@ export type WorkoutPoint = {
 
 export type Workout = {
   /** What it was, as the end of the run says (running, cycling, paddling). */
-  activity: Activity;
+  activity: RunActivity;
   /** The first and the last fix, in milliseconds. */
   startMs: number;
   endMs: number;
@@ -48,13 +53,18 @@ export type Workout = {
 /** The version of what is written for a run: there is only one so far. */
 export const SYNC_VERSION = 1;
 
+/** One of the activities with a route, whose energy MuW estimates. */
+function isRouteActivity(activity: RunActivity): activity is Activity {
+  return (ACTIVITIES as readonly string[]).includes(activity);
+}
+
 /**
  * The workout of a finished `track`, done as `activity` by `body`; null
  * with less than two fixes, or no time between the first and the last.
  */
 export function workoutOf(
   track: Track,
-  activity: Activity,
+  activity: RunActivity,
   body: BodyProfile = appBody(),
 ): Workout | null {
   const first = track.fixes[0];
@@ -64,16 +74,19 @@ export function workoutOf(
   }
   const startMs = first.timeMs;
   const endMs = last.timeMs;
-  const energy = activeKcal(
-    {
-      activity,
-      metres: track.distanceM,
-      seconds: activeMs(track, endMs) / 1000,
-      climbM: climbM(track),
-    },
-    body,
-    new Date(startMs).getFullYear(),
-  );
+  // A day on the snow has no estimate yet (TASK-375 part C): no energy.
+  const energy = !isRouteActivity(activity)
+    ? 0
+    : activeKcal(
+        {
+          activity,
+          metres: track.distanceM,
+          seconds: activeMs(track, endMs) / 1000,
+          climbM: climbM(track),
+        },
+        body,
+        new Date(startMs).getFullYear(),
+      );
   return {
     activity,
     startMs,
