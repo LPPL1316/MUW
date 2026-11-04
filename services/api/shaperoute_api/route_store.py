@@ -102,7 +102,12 @@ WALK_ONLY = frozenset({"walking.py"})
 # with its proof in tests/fixtures/same_routes/ (test_same_routes.py: the
 # same points for a fixed set of routes), never for a change of behaviour.
 # Read in a chain: a later move points at the fingerprint before it.
-SAME_ROUTES_AS: dict[str, str] = {}
+SAME_ROUTES_AS: dict[str, str] = {
+    # TASK-376 B1: the networks and the activities moved to their registers.
+    "c9702b94404d": "5b5e026cea9b",  # every route but a swim
+    "11647a97e632": "b9d00c37d28d",  # the swims
+    "fb16815e3876": "574fbfba41eb",  # the app's paddling examples
+}
 
 
 def same_routes_as(fingerprint: str, aliases: dict[str, str] | None = None) -> str:

@@ -48,6 +48,21 @@ tutto: è corto apposta.
   (come `ANCHORED_ONLY`, `DRAWN_WATER_ONLY`). ADR-0320, punto 3.
 - Un grafo di rete sbagliata viene rifiutato (`network.check_network`):
   una rete nuova ha il suo nome nel grafo (`graph.graph["network"]`).
+- **2026-11-04, TASK-376 B1 — i registri del motore.** Una rete è un
+  modulo di `route_engine/networks/` (nome, filtro Overpass, come si scarica:
+  `networks/base.py` `Network`), un'attività un modulo di
+  `route_engine/activities/` (nome, distanze, rete o acqua); una riga in
+  ciascun `__init__.py`. `network.py` e `models.py` ne ricavano le tabelle.
+  I moduli dei registri non importano nulla che disegna.
+- **2026-11-04, TASK-376 B1 — `SAME_ROUTES_AS`** (`route_store.py`): un
+  motore che sposta solo codice tiene l'impronta di prima, se
+  `services/api/tests/test_same_routes.py` registra per la nuova impronta
+  gli stessi hash di nove percorsi fissi (`python tests/test_same_routes.py`
+  da `services/api`, poi una riga per impronta). Mai per un cambiamento di
+  comportamento. Il banco lo conferma con `compare --same`.
+- **2026-11-04, TASK-371 — un modulo che nessun file di disegno importa**
+  si tiene fuori dall'impronta (`WALK_ONLY`, come `ANCHORED_ONLY`,
+  `DRAWN_WATER_ONLY`): la camminata è entrata senza ridisegnare nulla.
 
 ## Il banco e Overpass
 

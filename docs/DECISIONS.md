@@ -21862,6 +21862,24 @@ cui nessun altro tocca quei file, e un aggiornamento del server rimandato
 fino al primo sport nuovo. Il pilota della struttura non è la camminata
 (già TASK-371 con la struttura di oggi), ma l'Escursionismo (TASK-377),
 scelta dell'utente del 2026-11-04.
+
+**Aggiornamento 2026-11-04 (parte B1, approvato dal Coordinatore): il punto
+3 cambia.** Niente notte di esempi per uno spostamento: `route_store.py` ha
+`SAME_ROUTES_AS`, {impronta del codice spostato: impronta di prima}, e
+`engine_fingerprint` (anche quello degli esempi della canoa,
+`paddle_examples.engine_fingerprint`) dà quella di prima, seguendo le righe
+a catena. Una riga entra solo con la sua prova:
+`services/api/tests/test_same_routes.py` disegna offline nove percorsi
+fissi (corsa, bici, canoa, nuoto) e ne scrive l'hash del risultato intero
+in `tests/fixtures/same_routes/<impronta>.json`; un test vieta una riga
+senza le prove delle sue due impronte con gli stessi hash, e un altro
+controlla che il motore di adesso disegni la sua prova. In più il banco
+su `main` e sul branch, `compare --same`, punto per punto. **Un cambiamento
+di comportamento non usa mai `SAME_ROUTES_AS`**: i suoi percorsi si
+ridisegnano, col sì dell'utente. Così il server si può aggiornare da `main`
+quando serve. Il primo sport della fase 1 cambia l'impronta con il suo
+codice nuovo: se può avere anche lui una riga (nessun percorso di prima
+cambia) o se serve la notte di esempi, si decide allora col Coordinatore.
 ## ADR-0319 — Gli sport «Record only»: si registrano senza forma, il motore non li vede
 
 **Stato**: Proposto · 2026-11-04 · TASK-375. Scelte dell'utente lo stesso

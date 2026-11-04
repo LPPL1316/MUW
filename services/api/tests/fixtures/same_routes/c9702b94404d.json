@@ -1,0 +1,18 @@
+{
+  "fingerprints": {
+    "engine": "c9702b94404d",
+    "paddle": "fb16815e3876",
+    "swims": "11647a97e632"
+  },
+  "routes": {
+    "cycling-town-circle-10km": "dc1c63adddae70bc",
+    "cycling-town-heart-10km": "0893432e55f849d6",
+    "paddling-coast-heart-2km": "881e525ad3e59dcd",
+    "paddling-lake-circle-2km": "e0f7bdcdd09a492e",
+    "running-levico-circle-1km": "8c21768abaf89038",
+    "running-town-heart-3km": "a092e1cf3718e1cb",
+    "running-town-star-5km": "ad51d2dd50f6cb01",
+    "swimming-coast-star": "c2f0d7a64ee3afb5",
+    "swimming-lake-star": "51efc632c8a77acc"
+  }
+}

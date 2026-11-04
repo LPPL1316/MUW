@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from route_engine.activities import ENGINE_ACTIVITIES, running
 from route_engine.directions import Direction
 from route_engine.shapes import SUPPORTED_SHAPES, in_pieces
 from route_engine.words import (
@@ -21,35 +22,30 @@ from route_engine.words import (
 # the API's part of TASK-190 (ADR-0153), "paddling" with that of TASK-191
 # (ADR-0164), "swimming" with that of TASK-323 (ADR-0283); an activity the
 # engine draws joins them only when the API gives it its network, or its
-# water.
-SUPPORTED_ACTIVITIES: tuple[str, ...] = ("running", "cycling", "paddling", "swimming")
+# water. Each is a module of activities/, the register (TASK-376, ADR-0320).
+SUPPORTED_ACTIVITIES: tuple[str, ...] = tuple(a.name for a in ENGINE_ACTIVITIES)
 
 # Plausible target distances for running, in metres.
-MIN_DISTANCE_M = 1_000
-MAX_DISTANCE_M = 50_000
+MIN_DISTANCE_M, MAX_DISTANCE_M = running.ACTIVITY.distance_m
 
 # Every activity the engine draws, each on its own network
 # (network.NETWORKS) or on the water (WATER_ACTIVITIES), and its target
-# distances in metres: a bike route is 10-30 km, the user's choice for a
-# first step (TASK-190, ADR-0153); a paddling route 1-5 km, the user's choice
-# too (TASK-191, ADR-0161): within 1 km of the shore a shape fits up to about
-# 3 km at sea and 5-6 on a lake, and beyond that the error says what fits;
-# an open-water swim 0.5-3 km, every lap and the legs from the shore
-# (TASK-323, ADR-0283).
+# distances in metres (activities/).
 DISTANCE_LIMITS_M: dict[str, tuple[int, int]] = {
-    "running": (MIN_DISTANCE_M, MAX_DISTANCE_M),
-    "cycling": (10_000, 30_000),
-    "paddling": (1_000, 5_000),
-    "swimming": (500, 3_000),
+    a.name: a.distance_m for a in ENGINE_ACTIVITIES
 }
 ACTIVITIES: tuple[str, ...] = tuple(DISTANCE_LIMITS_M)
 
 # The activities drawn on a lake or the sea, with no road network: where the
 # shape fits on the water it is the route (water_fit.py, ADR-0154).
-WATER_ACTIVITIES: frozenset[str] = frozenset({"paddling", "swimming"})
+WATER_ACTIVITIES: frozenset[str] = frozenset(
+    a.name for a in ENGINE_ACTIVITIES if a.on_water
+)
 # Those that also take a drawn outline, an image's or one drawn by hand:
 # a swim (TASK-323, the user's ask of 2026-10-29).
-DRAWN_ON_WATER: frozenset[str] = frozenset({"swimming"})
+DRAWN_ON_WATER: frozenset[str] = frozenset(
+    a.name for a in ENGINE_ACTIVITIES if a.drawn_on_water
+)
 # A swim goes round its shape this many times at most (TASK-323, the user's
 # choice): 130 m of band hold about half a kilometre of shape.
 MAX_SWIM_LAPS = 5

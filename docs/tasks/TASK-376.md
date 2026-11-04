@@ -1,7 +1,7 @@
 # TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la ricetta
 
-**Stato**: In corso — parte A in `main` (#736); parte B (il refactor)
-dopo 371 B, 375 A+B e 323 D in `main`
+**Stato**: In corso — parte A in `main` (#736); parte B1 (il registro del
+motore) in PR; B2 (contratto e API) e B3 (app) dopo la #758
 **Fase**: 4 · **Branch**: `feat/TASK-376-a-sport-bench` (parte A),
 `feat/TASK-376-b-sport-registry` (parte B) · **ADR**: ADR-0320 · numeri dal
 Coordinatore (2026-11-04) · sessione «Coordinatore Sport»
@@ -81,6 +81,9 @@ Coordinatore blocca gli altri lavori su quei file per la durata della PR.
    **insieme** al motore del primo sport della fase 1, una notte di esempi
    sola, col sì dell'utente.
 
+Divisa per strato (Coordinatore, 2026-11-04), così i file restano bloccati
+meno a lungo: **B1** il motore, **B2** contratto e API, **B3** l'app.
+
 ### Parte C — la ricetta definitiva e il pilota
 
 1. `docs/sports/COME-AGGIUNGERE.md` riscritto sulla struttura della parte B.
@@ -126,7 +129,39 @@ docs/INDEX.md                             (una riga)
 docs/AGENTI.md                            (solo la sezione «Sport (Coordinatore Sport)»)
 ```
 
-Parte B: la lista va al Coordinatore prima del codice.
+Parte B1 (il motore; approvata dal Coordinatore il 2026-11-04 con
+`SAME_ROUTES_AS`, la prova automatica e il motore del telefono rifatto):
+
+```
+services/route-engine/route_engine/networks/__init__.py      (nuovo)
+services/route-engine/route_engine/networks/base.py          (nuovo)
+services/route-engine/route_engine/networks/foot.py          (nuovo)
+services/route-engine/route_engine/networks/bike.py          (nuovo)
+services/route-engine/route_engine/activities/__init__.py    (nuovo)
+services/route-engine/route_engine/activities/base.py        (nuovo)
+services/route-engine/route_engine/activities/running.py     (nuovo)
+services/route-engine/route_engine/activities/cycling.py     (nuovo)
+services/route-engine/route_engine/activities/paddling.py    (nuovo)
+services/route-engine/route_engine/activities/swimming.py    (nuovo)
+services/route-engine/route_engine/network.py
+services/route-engine/route_engine/models.py
+services/route-engine/tests/test_sport_registry.py           (nuovo)
+services/api/shaperoute_api/route_store.py
+services/api/shaperoute_api/paddle_examples.py               (condizione 2 del Coordinatore)
+services/api/tests/test_same_routes.py                       (nuovo)
+services/api/tests/fixtures/same_routes/5b5e026cea9b.json    (nuovo)
+services/api/tests/fixtures/same_routes/c9702b94404d.json    (nuovo)
+apps/mobile/assets/engine/engine.zip
+tools/sport_bench/sport_bench.py
+tools/sport_bench/test_sport_bench.py
+docs/tasks/TASK-376.md, docs/DECISIONS.md (ADR-0320), docs/STATUS.md,
+docs/sports/CONDIVISO.md, docs/sports/README.md
+```
+
+`base.py` dei due registri non era nella lista mandata: sono file nuovi,
+per evitare un ciclo di import fra il registro e i suoi moduli.
+
+Parti B2 e B3: la lista va al Coordinatore prima del codice, dopo la #758.
 
 ## Dove si è
 
@@ -140,3 +175,18 @@ Parte A in `main` (#736, `638d1ee2`). Scelte dell'utente: pilota
 Escursionismo, Roller nella fase 1. Prossimo: la parte B dopo 371 B,
 375 A+B e 323 D in `main` (condizione del Coordinatore), con la lista dei
 file al Coordinatore prima del codice.
+
+2026-11-04 sera, parte B1: reti e attività del motore nei registri
+`networks/` e `activities/`; `network.py` e `models.py` ne ricavano gli
+stessi valori nello stesso ordine (`test_sport_registry.py`), e i nomi di
+prima si leggono ancora da `network.py`. La prova (`test_same_routes.py`,
+nove percorsi fissi offline) è identica fra il motore di `main`
+(`5b5e026cea9b` / nuoto `b9d00c37d28d` / esempi canoa `574fbfba41eb`) e
+quello spostato (`c9702b94404d` / `11647a97e632` / `fb16815e3876`): tre
+righe in `SAME_ROUTES_AS`, nessuna notte di esempi. `engine.zip` rifatto.
+Sul Mac `test_first_placement[levico heart 1000]` fallisce anche sul
+motore di `main` (verde in CI): non è di B1. Restano il banco su `main` e
+sul branch (`compare --same`) col turno del Coordinatore, poi B2 e B3.
+`__main__.py` e `anchored.py` scelgono ancora la rete con un `if` sulla
+bici: il primo sport con una rete nuova li passa a
+`OsmnxSource.for_activity`.
