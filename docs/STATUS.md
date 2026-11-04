@@ -173,8 +173,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Poi B (l'«isola», un solo punto dell'app) e C (fogli e liste, dopo la #760).
   `tasks/TASK-388.md`.
   Parte A in PR, la #770, in bozza; aspetto approvato dall'utente il
-  2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Manca il cablaggio di
-  `drag` in `TabShell` dopo la #764.
+  2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Dopo la #764 `TabShell`
+  passa a `TabBar` lo spostamento del dito (`drag`): la capsula segue lo swipe.
+  La unisce il Coordinatore a CI verde.
 
 - **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
   (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;

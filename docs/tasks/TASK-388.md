@@ -115,7 +115,9 @@ successiva, al massimo 6 righe animate). Dopo la #760 di TASK-339, che tocca
 - [x] Impronta iOS invariata su una copia pulita: `6f8bba4c`.
 - [x] Video prima/dopo della barra in `out/TASK-388/`, e l'ok dell'utente:
       «Sì, approvo» (2026-11-04).
-- [ ] La capsula segue lo swipe: cablaggio di `drag` in `TabShell` dopo la #764.
+- [x] La capsula segue lo swipe: `drag` cablato in `TabShell` dopo la #764
+      (`TabShellDrag.test.tsx`: segue il dito, il giro, il tocco, la pagina
+      che l'app manda altrove).
 
 ## File toccati
 
@@ -132,6 +134,7 @@ apps/mobile/src/tabs/TabBar.tsx
 apps/mobile/src/tabs/TabBarMotion.test.tsx     (nuovo)
 apps/mobile/src/tour/GuideRowTap.test.tsx      (il rilascio con la molla; sì del Coordinatore)
 apps/mobile/src/tabs/TabShell.tsx              (la prop drag, dopo il merge della #764)
+apps/mobile/src/tabs/TabShellDrag.test.tsx     (nuovo)
 docs/tasks/TASK-388.md                         (nuovo)
 docs/DECISIONS.md                              (ADR-0329, righe aggiunte)
 docs/STATUS.md                                 (righe aggiunte)
