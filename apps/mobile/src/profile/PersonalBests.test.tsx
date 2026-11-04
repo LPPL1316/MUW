@@ -94,7 +94,7 @@ test("another member's profile shows its bests under the totals; an older API no
         apiUrl="http://api"
         account={{ state: signedIn, sessionEnded: jest.fn() }}
         publicId={profile.public_id}
-        fetchFn={answers({ status: 200, body })}
+        fetchFn={answers({ status: 200, body }) as jest.Mock}
         apiKey={null}
       />,
     );
