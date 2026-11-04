@@ -520,10 +520,10 @@ test("the error fixture uses a known code, and the codes match the API", () => {
 test("shapes, activities and distance limits match the route engine", () => {
   assert.deepEqual([...SHAPES], contract.shapes);
   assert.deepEqual([...PEN_UP_SHAPES], contract.pen_up_shapes);
-  // The API's; the app offers them all but swimming until TASK-323 part C
-  // and walking until TASK-371 part B.
+  // The API's: since TASK-323 part C2 the app's, swimming too, and walking,
+  // which the app offers from TASK-371 part B.
   assert.deepEqual([...API_ACTIVITIES], contract.activities);
-  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES, "swimming", "walking"]);
+  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES, "walking"]);
   assert.equal(MIN_DISTANCE_M, contract.min_distance_m);
   assert.equal(MAX_DISTANCE_M, contract.max_distance_m);
   assert.deepEqual(DISTANCE_LIMITS_M, contract.distance_limits_m);
@@ -588,8 +588,7 @@ test("a swim is a request on the water with its laps, its result has the turns",
   // TASK-323: 0.5-3 km, the shape swum `laps` times, each turn with the
   // place on the shore to turn opposite.
   assert.equal(swimmingRequest.activity, "swimming");
-  assert.ok((API_ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
-  assert.ok(!(ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
+  assert.ok((ACTIVITIES as readonly string[]).includes(swimmingRequest.activity));
   assert.deepEqual(DISTANCE_LIMITS_M.swimming, [500, 3_000]);
   const [lowest, highest] = DISTANCE_LIMITS_M.swimming;
   assert.ok(

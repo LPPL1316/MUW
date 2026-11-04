@@ -58,6 +58,7 @@ export const ACTIVITY_LABELS: Readonly<Record<Activity, string>> = {
   running: tLater("Run"),
   cycling: tLater("Bike"),
   paddling: tLater("Paddle"),
+  swimming: tLater("Open water swim"),
 };
 
 export function bandOf(key: string | null): DistanceBand | null {

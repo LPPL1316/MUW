@@ -11,6 +11,7 @@ import { postFacts } from "../feed/FeedPost";
 import { SAMPLE_FEED, type SamplePost } from "../feed/sampleFeed";
 import { turnedLine } from "../feed/turnedLine";
 import { t } from "../i18n";
+import { isOnWater } from "../swim/water";
 import { bearingOf } from "../map/turnedMap";
 import {
   color,
@@ -47,8 +48,9 @@ export function postsWhileRouting(
   feed: readonly SamplePost[] = SAMPLE_FEED,
   most: number = POSTS_SHOWN,
 ): SamplePost[] {
-  const onWater = request.activity === "paddling";
-  const same = feed.filter((post) => (post.activity === "paddling") === onWater);
+  // On the water, paddled or swum (TASK-323): drawings on the water.
+  const onWater = isOnWater(request.activity);
+  const same = feed.filter((post) => isOnWater(post.activity) === onWater);
   const what = isImageRequest(request) ? "picture" : (request.word ?? request.shape);
   return postsFor(`${what}-${request.distance_m}`, same, most);
 }

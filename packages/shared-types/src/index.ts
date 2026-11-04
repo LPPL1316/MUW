@@ -54,20 +54,20 @@ export const PLACEMENTS = ["free", "anchored"] as const;
 export type Placement = (typeof PLACEMENTS)[number];
 
 /** What a route is for in the app: on foot, by bike on the roads a bike
- * may ride, one-way streets kept (TASK-190, ADR-0153), or paddling on a lake
+ * may ride, one-way streets kept (TASK-190, ADR-0153), paddling on a lake
  * or the sea within 1 km of the shore, a shape of the catalogue only
- * (TASK-191, ADR-0161). */
-export const ACTIVITIES = ["running", "cycling", "paddling"] as const;
+ * (TASK-191, ADR-0161), or swimming in open water 20–150 m from the shore,
+ * lap after lap, a shape of the catalogue or a drawing (TASK-323,
+ * ADR-0283). */
+export const ACTIVITIES = ["running", "cycling", "paddling", "swimming"] as const;
 export type Activity = (typeof ACTIVITIES)[number];
 
 /** The activities of the API (route_engine/walking.py API_ACTIVITIES):
- * those of the app, swimming in open water 20–150 m from the shore, lap
- * after lap, a shape of the catalogue or a drawing (TASK-323, ADR-0283), and
+ * the app's, since part C2 of TASK-323 (B had swimming here alone), and
  * walking, drawn as a run on the same foot network (TASK-371, ADR-0315). The
- * app offers a swim from part C of TASK-323 and a walk from part B of
- * TASK-371: its Activity widens then, with the tables keyed on it
- * (distances, names, Apple Health of TASK-321). */
-export const API_ACTIVITIES = [...ACTIVITIES, "swimming", "walking"] as const;
+ * app offers a walk from part B of TASK-371: its Activity widens then, with
+ * the tables keyed on it (distances, names, Apple Health of TASK-321). */
+export const API_ACTIVITIES = [...ACTIVITIES, "walking"] as const;
 export type ApiActivity = (typeof API_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
