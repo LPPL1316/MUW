@@ -1,8 +1,8 @@
 # TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa dov'è
 
-**Stato**: In lavorazione — documenti in `main` (#712, `fe4e9499`); parte A
-in `main` (#719, `3e7c7d28`); parte B in PR (#722), da unire dopo TASK-323 C2;
-server con la parte B solo col sì dell'utente
+**Stato**: Done — documenti in `main` (#712, `fe4e9499`); parte A in `main`
+(#719, `3e7c7d28`); parte B in `main` (#722, `bacd7c7b`); server con la parte
+B col sì dell'utente, in un prossimo giro
 **Fase**: 4 · **Branch**: `docs/TASK-369-edit-every-drawing` (documenti),
 `feat/TASK-369-a-edit-every-drawing` (parte A),
 `feat/TASK-369-b-edit-on-water` (parte B) · **ADR**: ADR-0313
@@ -231,8 +231,8 @@ Parte B:
   accetta un'immagine «paddling» solo libera; l'app toglie l'esclusione
   dell'acqua. Impronta iOS 6f8bba4c. Nel motore
   `test_first_placement[levico heart 1000]` fallisce uguale su `main`: non
-  è di questo task. Resta: merge dopo TASK-323 C2, poi il server col sì
-  dell'utente.
+  è di questo task. Unita il 2026-11-04 (`bacd7c7b`) dal Coordinatore
+  prima di TASK-323 C2, che era ferma e si riallinea lei.
 - **Ripiego col server di prima** (deciso dall'agente su delega dell'utente,
   2026-11-04, approvato dal Coordinatore): l'OTA può arrivare prima del
   server, che rifiuta un disegno sull'acqua con `422 invalid_request` «… not
@@ -244,4 +244,13 @@ Parte B:
 
 ## Esito
 
-*(a fine task)*
+Fatto il 2026-11-04. «Edit the drawing» c'è su ogni disegno con una linea:
+Feed, profilo, concorsi, «Explore», NEAR YOU, preferiti, messaggi, percorsi a
+tema, emoji, parole, corse libere e importate, e sull'acqua con «Paddle»; la
+traccia va sulla mappa dov'è e grande com'è, e si modifica sempre una copia
+mia. Restano senza tasto, per scelta dell'utente, i post di sole foto e il
+risultato di «Draw» (TASK-340). Impronta iOS 6f8bba4c; impronta del motore
+uguale a prima. Restano, ognuno col sì dell'utente: il server con la parte B
+(l'utente ha detto «si» il 2026-11-04; il Coordinatore lo fa in un prossimo
+giro, e fino ad allora un disegno sull'acqua mostra «On the water, a shape of
+the catalogue.») e l'OTA di produzione con le parti A e B.
