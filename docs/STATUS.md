@@ -160,6 +160,29 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
+  richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
+  finché l'utente non sceglie. Studio in `out/TASK-373/` del Mac (ignorato
+  da git), con la pagina `ski-study.html`. Misurato su Paganella,
+  Campiglio–Pinzolo–Folgarida e Sella Ronda: la rete piste + impianti c'è
+  (pezzo utile 35, 97,5 e 265,5 km), ma il motore di oggi non propone
+  nessuna delle 19 forme chieste (0,22–0,58, minimo 0,60; 27–43% del
+  percorso sugli impianti). Proposta: A, la giornata registrata senza forma
+  (4–6 sessioni); B, forme di discese a penna alzata, solo dopo un
+  prototipo; C, «Soon», no da sola (ADR-0278). **L'utente ha scelto A**
+  il 2026-11-04. Prossimo passo: le domande 2–4, una alla volta
+  (`tasks/TASK-373.md`).
+
+- **TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa
+  dov'è** (ADR-0313, proposta; richiesta dell'utente del 2026-11-03; numeri dal
+  Coordinatore). Branch `docs/TASK-369-edit-every-drawing` (documenti). Scelte
+  dell'utente: emoji, parole, percorsi a tema, corse libere e importate sì (la
+  traccia); post di sole foto e risultato di «Draw» no; nessuna scritta «basato
+  su» e nessun blocco dell'autore; Pagaia sì, come parte B (motore e API, server
+  col suo sì). Parte A (solo app) dopo TASK-367 A, col via del Coordinatore.
+  Nota: `tasks/TASK-346.md` dice ancora «In corso», ma la #655 è in `main` dal
+  2026-10-30. `tasks/TASK-369.md`.
 - **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
   (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
   `src/search/`, la lente apre la ricerca, `shape=word` sul server per
@@ -193,6 +216,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
   Poi la parte B, l'app.
+  **Parte B** (2026-11-04): branch `feat/TASK-368-b-personal-bests-app`, il
+  riquadro dei record nel Profilo, testi approvati, Guida e privacy nelle
+  cinque lingue e sul sito (pubblicazione col sì dell'utente).
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch

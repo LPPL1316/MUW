@@ -21183,6 +21183,73 @@ scelta dell'utente.
 
 ---
 
+## ADR-0313 — «Edit the drawing» su ogni disegno: la traccia dov'è, una copia senza legami, l'acqua a parte
+
+**Stato**: Proposta · 2026-11-04 · TASK-369. Le scelte di prodotto sono
+dell'utente (2026-11-03 e 2026-11-04, una per volta, in `tasks/TASK-369.md`);
+i punti tecnici sono decisi dall'agente su delega dell'utente. Numero dal
+Coordinatore. Estende ADR-0299 a ogni scheda; cambia ADR-0288 per le emoji e
+le parole; cambia ADR-0161 per i disegni sull'acqua (parte B). ADR-0288 per
+il risultato di «Draw» (TASK-340) resta.
+
+**Contesto**: l'utente il 2026-11-03 vuole «Modifica il disegno» su tutti i
+disegni dell'app, anche su quelli degli altri nel Feed, così ogni disegno si
+modifica e poi si corre. Prima il tasto c'era sulla scheda di un disegno di
+un membro (la traccia dov'è stata corsa, ADR-0299) e sulla scheda di
+«Explore» solo per un contorno (nel mezzo della partenza, ADR-0288); mai per
+un'emoji, una parola, un percorso a tema, una corsa libera o importata,
+sull'acqua.
+
+**Decisione**:
+
+1. Ogni scheda con una linea sulla mappa ha «Edit the drawing», che mette
+   **la traccia, o la linea del percorso, dov'è e grande com'è** su «Draw on
+   the map» (`figureLines.trackInPlace`, in metri sul piano): un disegno di
+   un membro, un'emoji, una parola, un percorso a tema, una corsa libera o
+   importata, un esempio di «Explore» o del Feed, un preferito, un disegno
+   ricevuto in un messaggio. Scelte dell'utente: emoji, parole, percorsi a
+   tema, corse libere e importate «Sì, la traccia».
+2. Anche la scheda di «Explore» passa dalla figura chiesta nel mezzo della
+   partenza alla linea del risultato dov'è (deciso dall'agente su delega
+   dell'utente: una regola sola per ogni scheda, come le scelte del punto 1).
+   Per portarla vicino a sé resta «Draw it near me».
+3. Una traccia che finisce lontano dalla partenza resta aperta, con la regola
+   di ADR-0288 (`CLOSED_SHARE`, l'anello minuscolo e la linea come
+   dettaglio); una più lunga dei limiti di «Draw» si rimpicciolisce attorno
+   al suo mezzo (ADR-0299, punto 2).
+4. Una parola modificata è un disegno a mano: niente più tratti a penna
+   alzata. Un percorso a tema modificato perde i luoghi del tema e la riga
+   «Passes by N of M places».
+5. Niente tasto per un post di sole foto («Sì, niente tasto») e sotto il
+   risultato di «Draw» («No, resta tolto», TASK-340).
+6. Un disegno di un altro si modifica sempre in una **copia** di chi lo
+   modifica; il post originale non cambia mai. La copia **non dice da chi
+   viene** («No, niente scritta») e l'autore **non può impedirla** («Sì,
+   nessun blocco»): non resta nessun legame fra copia e originale, né
+   nell'app né sul server. Se l'autore blocca chi ha copiato, rende privato
+   o cancella l'originale, **la copia resta di chi l'ha fatta** (l'utente, il
+   2026-11-04: «si si»); chi è bloccato non vede più il disegno e non ne fa
+   altre copie.
+7. **Sull'acqua** (parte B, «Voglio anche Pagaia», «Sì, parte separata»):
+   l'API accetta un'immagine con «paddling» (solo `placement` «free») e il
+   motore la mette dove c'è posto vicino alla partenza, con
+   `water_fit.plan_on_water` da un file nuovo (`drawn_water.py`) escluso
+   dall'impronta come `ANCHORED_ONLY` (ADR-0300): l'impronta del motore non
+   cambia e i percorsi tenuti restano. Se non si può, la parte B va di notte
+   col sì dell'utente. Niente «Freehand» sull'acqua in «Draw».
+
+**Alternative scartate**: la figura chiesta invece della traccia per le
+emoji (la scelta del 2026-10-29, «non serve a nulla»); tenere i luoghi del
+tema in un disegno a mano (un campo nuovo nel contratto e nel motore); la
+scritta «Based on @name's drawing» (un campo del post sul server e una riga
+di privacy); un'impostazione dell'autore che vieti le copie (server,
+contratto, testi); la Pagaia nella parte A (l'API la rifiuta); cambiare
+`paddling.py` (impronta nuova, ore di `draw_examples --water`).
+
+**Conseguenze**: la parte A non cambia contratto, API, motore, testi,
+dipendenze né nativo: arriva con un OTA, impronta iOS 6f8bba4c. La parte B
+cambia il comportamento dell'API (accetta quello che rifiutava), non la forma
+del contratto, e vuole l'aggiornamento del server col sì dell'utente.
 ## ADR-0297, aggiunta — La schermata della ricerca (TASK-344 parte B)
 
 **Stato**: Attiva · 2026-11-04 · TASK-344 parte B. Deciso dall'agente su
@@ -21268,5 +21335,61 @@ dall'agente su delega dell'utente, dentro le scelte già fatte dall'utente
 7. **Limite dell'app**: `DRAWING_MAX_PHOTOS` = 9 (10 pagine col disegno);
    l'API tiene 10 posti (`DRAWING_PHOTO_PLACES`). Il server ha la 0041 dal
    2026-11-03.
+
+---
+
+## ADR-0317 — Lo sci alpino in MuW: prima la giornata registrata, le forme solo dopo un prototipo
+
+**Stato**: Proposto · 2026-11-04 · studio con misure (TASK-373,
+`out/TASK-373/` del Mac). Scelta dell'utente lo stesso giorno: «A,
+giornata registrata» (punto 1); B e C non si fanno ora. Le altre scelte
+(domande 2–4 di `tasks/TASK-373.md`) sono ancora aperte
+
+**Contesto**: l'utente vuole lo sport «Ski» (sci alpino). Le piste da
+discesa di OSM (`piste:type=downhill`) si fanno solo in discesa e si
+risale con gli impianti (`aerialway=*`). La struttura è quella della rete
+`bike`, un grafo a sensi unici con il pezzo in cui ogni nodo si raggiunge
+da ogni altro (ADR-0153). Misurato su Paganella, Campiglio–Pinzolo–
+Folgarida e Sella Ronda: la rete c'è ed è coerente (pezzo utile di 35,
+97,5 e 265,5 km di piste, con le stazioni collegate a piedi fino a 100 m e
+il verso controllato sul terreno), ma il motore di oggi, su 19 richieste
+(cerchio e cuore da 5 a 40 km), **non ne propone nessuna**: somiglianza
+0,22–0,58 contro il minimo di 0,60, percorsi due-cinque volte più lunghi
+del chiesto, il 27–43% della lunghezza sugli impianti, che sono linee
+dritte attraverso la figura. Ogni lato di una forma dovrebbe essere una
+discesa. TASK-372 (ADR-0316) trova lo stesso per lo sci di fondo.
+
+**Decisione proposta**:
+
+1. **Opzione A, adesso**: «Ski» è uno sport che si registra senza forma.
+   «Draw» apre la registrazione libera; il riepilogo dà discese, km
+   sciati, dislivello in discesa e velocità massima, con le risalite
+   riconosciute (salita a velocità costante) e tratteggiate sulla mappa;
+   Feed, video e Salute come le altre attività; gioco e concorsi non la
+   contano. Un'attività nuova `skiing` nel contratto e nel database. 4–6
+   sessioni, probabilmente in OTA.
+2. **Opzione B, dopo e solo se un prototipo lo regge**: forme fatte di
+   discese, con le risalite a penna alzata (come TASK-197). Prima un
+   prototipo di soli motore (3–4 sessioni); se su tre comprensori almeno
+   metà delle richieste non arriva a 0,60, ci si ferma. Tutto compreso
+   12–18 sessioni.
+3. **Opzione C («Soon») no da sola**: le build dello store non mostrano
+   gli sport «Soon» (ADR-0278), quindi chi scia non la vedrebbe.
+4. Il motore resta una libreria pura: con B la rete «piste» (comune con lo
+   sci di fondo, TASK-372) entra come le altre (OSM e terreno da file),
+   l'AI interpreta soltanto. Attività `skiing` e `xc_skiing` con una sola
+   migrazione.
+5. **Sicurezza**: mai un tratto fuori pista né una `freeride`; un livello
+   si filtra sulla difficoltà di OSM, che torna col terreno (tratto più
+   ripido: blu 19%, rosse 31%, nere 43% di mediana); OSM non sa se una
+   pista è aperta, quindi A non propone piste e B direbbe sempre di
+   verificarlo; nessuna guida a voce in discesa. Gli impianti in un
+   percorso valgono come penna alzata, non come distanza.
+
+**Conseguenze**: con A MuW in montagna è un registratore come gli altri,
+con il video in 3D come pezzo distintivo, e arriva per la stagione
+(dicembre–aprile). Nulla in OSM dice se una pista è aperta o adatta a chi
+scia: nessuna opzione propone piste come «da fare». La scelta fra uno sport
+o due con lo sci di fondo è dell'utente.
 
 ---
