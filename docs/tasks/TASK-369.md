@@ -210,6 +210,8 @@ Parte B:
 - `apps/mobile/App.tsx`, `apps/mobile/__tests__/AppEditDrawing.test.tsx`
 - `apps/mobile/src/route/figureLines.ts`, `figureLines.test.ts` (le righe
   della parte A che escludevano la canoa; col sì del Coordinatore)
+- `apps/mobile/src/route/problems.ts`, `problems.test.ts` (il ripiego col
+  server di prima; col sì del Coordinatore, dopo TASK-323 C2)
 - `docs/API.md`, `docs/ROUTE_ENGINE.md`, `docs/UI.md` (una frase della parte
   A), `docs/STATUS.md`, `docs/tasks/TASK-369.md`
 
@@ -227,6 +229,14 @@ Parte B:
   `test_first_placement[levico heart 1000]` fallisce uguale su `main`: non
   è di questo task. Resta: merge dopo TASK-323 C2, poi il server col sì
   dell'utente.
+- **Ripiego col server di prima** (deciso dall'agente su delega dell'utente,
+  2026-11-04, approvato dal Coordinatore): l'OTA può arrivare prima del
+  server, che rifiuta un disegno sull'acqua con `422 invalid_request` «… not
+  an image». Invece di «Something went wrong on our side» con un «Try again»
+  che fallirebbe sempre, `problems.ts` dice il testo che c'è già, «On the
+  water, a shape of the catalogue.», senza «Try again»; col server nuovo non
+  compare mai. Scartati un campo o una versione nell'API (server e una
+  chiamata in più, solo per il passaggio).
 
 ## Esito
 
