@@ -42,6 +42,7 @@ import {
 import { Tap } from "../ui/Tap";
 import type { Units } from "../units/units";
 import { useUnits } from "../units/useUnits";
+import { HeartZonesPage } from "./HeartZonesPage";
 
 // In English; shown with t() in the app's language (TASK-210).
 const SEX_NAMES: Readonly<Record<Sex, string>> = {
@@ -60,6 +61,7 @@ type Props = {
  * birth, each optional, each kept on this phone as soon as it is typed. A
  * value out of its limits says why and is not kept; «Clear» empties a field,
  * and an empty field counts as before (70 kg, one standard MET at rest).
+ * At the bottom, «Heart rate zones» opens their page (part B).
  */
 export function BodyPage({ visible, onClose }: Props) {
   return (
@@ -90,6 +92,7 @@ function Page({ onClose }: { onClose: () => void }) {
   const insets = useSafeAreaInsets();
   const body = useBody();
   const units = useUnits();
+  const [zonesOpen, setZonesOpen] = useState(false);
   return (
     <View style={[styles.page, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -146,7 +149,16 @@ function Page({ onClose }: { onClose: () => void }) {
         <Text style={styles.note}>
           {t("Calories are an estimate. Weight matters most.")}
         </Text>
+        {/* The zones count with the year of birth above (TASK-374 part B). */}
+        <Tap
+          style={styles.zonesRow}
+          onPress={() => setZonesOpen(true)}
+          accessibilityRole="button"
+        >
+          <Text style={styles.zonesText}>{t("Heart rate zones")}</Text>
+        </Tap>
       </ScrollView>
+      <HeartZonesPage visible={zonesOpen} onClose={() => setZonesOpen(false)} />
     </View>
   );
 }
@@ -465,5 +477,20 @@ const styles = StyleSheet.create({
   note: {
     color: color.textMuted,
     fontSize: fontSize.small,
+  },
+  // A row of «Settings», as «Body» is there.
+  zonesRow: {
+    minHeight: MIN_TAP_SIZE + space.sm,
+    justifyContent: "center",
+    paddingHorizontal: space.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: color.border,
+    backgroundColor: color.surface,
+  },
+  zonesText: {
+    color: color.text,
+    fontSize: fontSize.input,
+    fontWeight: fontWeight.medium,
   },
 });

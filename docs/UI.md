@@ -1135,7 +1135,19 @@ mappa è quella di prima.
   «Draw», «Start» ed «Explore» (sotto, «Sull'acqua»), e dal TASK-251 i
   numeri della schermata della corsa (sotto, «Velocità e andatura»);
   «Feed» resta quello della corsa. I quattro disegni sull'acqua di
-  «Feed» (TASK-228, sopra) ci sono con ogni sport.
+  «Feed» (TASK-228, sopra) ci sono con ogni sport. **«Walk»** (🚶,
+  TASK-371, ADR-0315; it «Camminata», de «Gehen», fr «Marche», es
+  «Caminata») viene dopo il nuoto e dice «Soon» finché il server non ha la
+  parte A con la migrazione 0043. Poi si sceglie, e cambia poco: una corsa
+  sulla stessa rete a piedi, 1–30 km (in miglia 1–18). Sotto la distanza il
+  tempo è calcolato sul ritmo delle proprie camminate (fra 6:00 e 25:00 al
+  km), oppure su 12:00 al km se non ce ne sono. La schermata e la voce danno
+  il ritmo in min/km, come per la corsa. Il pulsante dice «🚶 Walk without a
+  route». In «Feed» la scheda comincia con «Walk ·». Il modulo per
+  pubblicare e i filtri della ricerca offrono «Walk» solo quando lo sport è
+  pronto. Apple Salute e Health Connect la ricevono
+  come camminata, con le calorie della camminata. «NEAR YOU» resta solo per
+  la corsa (scelta dell'utente).
 - **«Strava»** (TASK-187), solo se l'API ha Strava: «Connect with
   Strava» (il pulsante ufficiale di Strava, TASK-218, come a fine corsa)
   con «Send the runs you save in Sgrava to your Strava
@@ -1184,6 +1196,20 @@ mappa è quella di prima.
   most.». Ogni campo si tiene appena scritto, ha «Clear» accanto al nome
   quando è pieno, e fuori dai limiti dice perché («Enter a weight between 30
   and 300 kg.») senza tenerlo. Tutto resta sul telefono.
+  In fondo alla pagina, la riga **«Heart rate zones»** (TASK-374 parte B,
+  ADR-0318 §6 e §15) apre un'altra pagina intera, «Back» in alto: «Max heart
+  rate» (in bpm, dall'età con sotto «Estimated from your age», o scritta a
+  mano con «Set by you» e «Clear» accanto al nome, che torna all'età),
+  «Resting heart rate» (facoltativa, con «Clear»), poi la tabella delle cinque
+  zone: «Zone 1 Recovery», «Zone 2 Endurance», «Zone 3 Tempo», «Zone 4
+  Threshold», «Zone 5 Max», ognuna con «108 –» e il limite alto in una
+  casella. Il limite alto delle zone 1–4 si scrive a mano e diventa l'inizio
+  della zona dopo; quello della zona 5 è la FC massima. Sotto la tabella, solo
+  se un limite è stato cambiato, «Back to calculated zones». Senza anno di
+  nascita né FC massima, al posto della tabella: «Add your year of birth or
+  your max heart rate to see your zones.». Una FC fuori dai limiti dice
+  «Enter a heart rate between 100 and 230 bpm.» (a riposo 30 e 120) e non si
+  tiene. Tutto resta sul telefono, in `heart.json`.
   **«Notifications»**: «Email
   notifications» e «Push notifications», due interruttori salvati
   nell'account (TASK-185, ADR-0206, sotto). **«Feedback»** (TASK-308,

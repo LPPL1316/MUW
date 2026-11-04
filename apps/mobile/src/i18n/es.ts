@@ -810,6 +810,23 @@ export const ES: Table = {
   "Enter a height between {min} and {max}.": "Escribe una altura entre {min} y {max}.",
   "Enter a year between {min} and {max}.": "Escribe un año entre {min} y {max}.",
 
+  // src/settings/HeartZonesPage.tsx, BodyPage.tsx (TASK-374 part B)
+  "Heart rate zones": "Zonas de frecuencia cardíaca",
+  "Max heart rate": "Frecuencia cardíaca máxima",
+  "Estimated from your age": "Estimada a partir de tu edad",
+  "Set by you": "Fijada por ti",
+  "Resting heart rate": "Frecuencia cardíaca en reposo",
+  "Zone 1 Recovery": "Zona 1 Recuperación",
+  "Zone 2 Endurance": "Zona 2 Resistencia",
+  "Zone 3 Tempo": "Zona 3 Ritmo",
+  "Zone 4 Threshold": "Zona 4 Umbral",
+  "Zone 5 Max": "Zona 5 Máximo",
+  "Back to calculated zones": "Volver a las zonas calculadas",
+  "Add your year of birth or your max heart rate to see your zones.":
+    "Añade tu año de nacimiento o tu frecuencia máxima para ver tus zonas.",
+  "Enter a heart rate between {min} and {max} bpm.":
+    "Escribe una frecuencia cardíaca entre {min} y {max} bpm.",
+
   // src/settings/ToneSetting.tsx
   Tone: "Tono",
   Dark: "Oscuro",
@@ -829,6 +846,7 @@ export const ES: Table = {
   // src/settings/sport.ts
   "Ride without a route": "Rodar sin ruta",
   "Paddle without a route": "Remar sin ruta",
+  "Walk without a route": "Caminar sin ruta",
   "Run without a route": "Correr sin ruta",
 
   // src/share/PostImage.tsx
@@ -1112,6 +1130,7 @@ export const ES: Table = {
     "Guardada en el teléfono. Los demás la ven cuando vuelvas a estar en línea.",
   Bike: "Bici",
   Paddle: "Remo",
+  Walk: "Caminata",
   Title: "Título",
   "Give it a name": "Ponle un nombre",
   "How did it go?": "¿Cómo ha ido?",

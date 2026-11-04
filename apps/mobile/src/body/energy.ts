@@ -10,6 +10,10 @@ import { ageIn, type BodyProfile, type Sex } from "./bodyProfile";
  * - Running: the ACSM running equation, VO₂ = 3.5 + 0.2·v + 0.9·v·grade
  *   (ml/kg/min), added up over the run: 0.2 ml/kg for each metre, 0.9 for
  *   each metre climbed, 3.5 for each minute.
+ * - Walking (TASK-371, ADR-0315): the ACSM walking equation, VO₂ = 3.5 +
+ *   0.1·v + 1.8·v·grade, added up the same way: 0.1 ml/kg for each metre,
+ *   1.8 for each metre climbed. About half a run's, 0.5 kcal per kilogram
+ *   and kilometre on the flat.
  * - Cycling and paddling: the MET of the Compendium of Physical Activities
  *   (2024) for the average moving speed.
  * - At rest: Mifflin-St Jeor with sex, age, weight and height; with any of
@@ -31,6 +35,9 @@ const MET_ML_KG_MIN = 3.5;
 /** ACSM running: oxygen for each metre run and each metre climbed, ml/kg. */
 const RUN_ML_KG_PER_M = 0.2;
 const RUN_ML_KG_PER_M_UP = 0.9;
+/** ACSM walking: the same, for each metre walked and each metre climbed. */
+const WALK_ML_KG_PER_M = 0.1;
+const WALK_ML_KG_PER_M_UP = 1.8;
 
 /** Mifflin-St Jeor's last term, kcal a day: «Prefer not to say» takes the
  * mean of the other two (the user's choice). */
@@ -76,8 +83,8 @@ export type Effort = {
   activity: Activity;
   metres: number;
   /** In movement, pauses left out; null when not known (a post of the Feed
-   * without its time): a run is then counted from its metres alone, a ride
-   * or a paddle not at all. */
+   * without its time): a run or a walk is then counted from its metres
+   * alone, a ride or a paddle not at all. */
   seconds: number | null;
   /** Metres climbed; null when not known. */
   climbM: number | null;
@@ -98,9 +105,13 @@ export function restKcalPerMin(body: BodyProfile, year: number): number {
 /** The oxygen of the activity, in ml for each kilogram. */
 function oxygenMlKg(effort: Effort, minutes: number): number {
   const metres = Math.max(0, effort.metres);
-  if (effort.activity === "running") {
+  if (effort.activity === "running" || effort.activity === "walking") {
     const up = Math.max(0, effort.climbM ?? 0);
-    return MET_ML_KG_MIN * minutes + RUN_ML_KG_PER_M * metres + RUN_ML_KG_PER_M_UP * up;
+    const [perM, perMUp] =
+      effort.activity === "running"
+        ? [RUN_ML_KG_PER_M, RUN_ML_KG_PER_M_UP]
+        : [WALK_ML_KG_PER_M, WALK_ML_KG_PER_M_UP];
+    return MET_ML_KG_MIN * minutes + perM * metres + perMUp * up;
   }
   if (minutes <= 0 || effort.activity === "swimming") {
     return 0;

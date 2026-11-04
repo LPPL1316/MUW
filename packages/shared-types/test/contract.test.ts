@@ -520,10 +520,10 @@ test("the error fixture uses a known code, and the codes match the API", () => {
 test("shapes, activities and distance limits match the route engine", () => {
   assert.deepEqual([...SHAPES], contract.shapes);
   assert.deepEqual([...PEN_UP_SHAPES], contract.pen_up_shapes);
-  // The API's: since TASK-323 part C2 the app's, swimming too, and walking,
-  // which the app offers from TASK-371 part B.
+  // The API's, and the app's: swimming since TASK-323 part C2, walking
+  // since TASK-371 part B.
   assert.deepEqual([...API_ACTIVITIES], contract.activities);
-  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES, "walking"]);
+  assert.deepEqual([...API_ACTIVITIES], [...ACTIVITIES]);
   assert.equal(MIN_DISTANCE_M, contract.min_distance_m);
   assert.equal(MAX_DISTANCE_M, contract.max_distance_m);
   assert.deepEqual(DISTANCE_LIMITS_M, contract.distance_limits_m);
@@ -556,11 +556,11 @@ test("a cycling request is a request with the bike's distances", () => {
 });
 
 test("a walk is a request of the API with its own distances, within a run's", () => {
-  // TASK-371: drawn as a run on the foot network; the app offers it from
+  // TASK-371: drawn as a run on the foot network; the app offers it since
   // part B.
   assert.equal(walkingRequest.activity, "walking");
   assert.ok((API_ACTIVITIES as readonly string[]).includes(walkingRequest.activity));
-  assert.ok(!(ACTIVITIES as readonly string[]).includes(walkingRequest.activity));
+  assert.ok((ACTIVITIES as readonly string[]).includes(walkingRequest.activity));
   const [lowest, highest] = DISTANCE_LIMITS_M.walking;
   assert.deepEqual([lowest, highest], [1_000, 30_000]);
   assert.ok(

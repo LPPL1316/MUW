@@ -21467,6 +21467,29 @@ corsa con la stessa richiesta sono lo stesso percorso tenuto. Il `<type>`
 del GPX c'è solo per la camminata: gli altri file restano byte per byte
 quelli di prima (punto 3). La «Conseguenza» sull'impronta del motore qui sopra
 non vale più.
+
+**Aggiunta (parte B, 2026-11-04)** · deciso dall'agente su delega
+dell'utente, col via del Coordinatore; testi e NEAR YOU sono scelte
+dell'utente:
+
+- `walking` entra in `ACTIVITIES` dell'app, e `API_ACTIVITIES` diventa
+  `ACTIVITIES`.
+- «Walk» 🚶 viene dopo il nuoto (il suo test vuole il nuoto subito dopo
+  «Paddle») ed entra con `ready: false`, come il nuoto, finché il server non
+  ha la parte A e la 0043. Con `ready: false` né il modulo per pubblicare
+  né i filtri della ricerca offrono «Walk» (`sport.activityOffered`,
+  condizione del Coordinatore: l'OTA non dipende dal server). Quando lo
+  sport si accende, compaiono insieme.
+- Il ritmo usuale è 12:00 al km. Contano le camminate fra 6:00 e 25:00 al km
+  (`averagePace().walking`), così `App.tsx` non cambia.
+- Le calorie usano l'equazione ACSM del cammino: 0,1 ml/kg per metro e 1,8
+  per metro di salita. Il nuoto resta a 0.
+- Apple Salute la riceve come `.walking` (52), con la distanza
+  `DistanceWalkingRunning`; Health Connect come `WALKING` (79).
+- Il telefono la disegna sulle sue zone a piedi (`NETWORKS.walking`).
+- Nei file importati è camminata il `walking` del GPX, il «10» di Strava e
+  lo sport FIT 11. L'escursionismo no: è di TASK-377.
+- «NEAR YOU» resta solo per la corsa («Solo corsa, per ora»).
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
@@ -21544,6 +21567,22 @@ dati sulla salute (GDPR art. 9).
     nessun riquadro «Calories» e nessuna energia in Salute, come aveva deciso
     il suo task. Una formula per il nuoto è una scelta a parte. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
+15. Fatto nella parte B (deciso dall'agente su delega dell'utente): le zone
+    hanno sei limiti condivisi (inizio della zona 1, cima delle zone 1–4, FC
+    massima), così restano contigue per costruzione. La pagina fa scrivere la
+    cima delle zone 1–4; l'inizio della zona 1 segue il calcolo (il modulo
+    accetta anche quello). Un limite scritto fuori ordine non dà errore: si
+    ferma un battito sotto la cima della zona dopo, o sopra quella della zona
+    prima. Un limite cambiato a mano resta in bpm anche se cambiano FC massima
+    o a riposo; i limiti calcolati gli stanno intorno, e se la FC massima
+    scende sotto un limite fissato lo spinge giù quanto basta per tenere
+    l'ordine. Una FC a riposo pari o sopra la massima non conta (zone in % della
+    massima). La casella svuotata torna al calcolo; un testo che non è un numero
+    lascia il valore di prima. Tutto in `heart.json` accanto a `body.json`;
+    senza niente di scritto a mano il file non c'è. Il testo d'errore delle FC,
+    «Enter a heart rate between {min} and {max} bpm.» → «Scrivi una frequenza
+    tra {min} e {max} bpm.», è approvato (scelta dell'utente, «Sì, approvo»,
+    2026-11-04).
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
 verificano a mano nei test. Togliere il consumo a riposo dà l'«energia attiva»
@@ -21871,6 +21910,14 @@ dell'utente):
    servizi esterni.
 5. Niente moduli nativi: l'impronta iOS resta 6f8bba4c e tutto arriva con
    aggiornamenti OTA.
+6. (B0, 2026-11-04, deciso dall'agente su delega dell'utente) Un disegno
+   con un'attività che l'app non conosce si legge come senza attività: il
+   campo cade dal corpo letto, il post si mostra come una corsa e la pagina
+   resta intera. Prima una sola camminata o giornata di sci faceva rifiutare
+   tutta la pagina del Feed, dei profili e della ricerca. I tipi di
+   `shared-types` dei disegni restano `Activity`, cioè ciò che l'app sa
+   mostrare: allargarli a `RunActivity` toccava sei file di altri task, e
+   si fa con la parte che mostra lo sci (B2).
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -21914,5 +21961,18 @@ Lo sci alpino trova lo stesso (ADR-0317).
   proposto.
 - OSM non dice se una pista è battuta o aperta: MuW non propone piste da fare.
 - Stagione ed estate restano scelte dell'utente, in TASK-375.
+
+---
+
+## ADR-0194, precisazione — Il post da condividere legge i margini veri del telefono
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-381). Dalla #700 «Share» sulla card del Feed apre il post da una pagina
+del `Pager`, e «Close» finiva sotto l'orologio. Come per il regolamento
+(ADR-0260, precisazione) e la tavola del contorno (ADR-0074, precisazione), il
+`Modal` di `SharePost` tiene un suo `SafeAreaProvider` con
+`initialWindowMetrics`, per ogni punto da cui si apre. Scartato: far passare
+il margine da `ActionBar`, che lascerebbe il difetto al prossimo che apre il
+post da un'altra pagina, e cambiare il `Pager`.
 
 ---

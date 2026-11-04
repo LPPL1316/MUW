@@ -160,6 +160,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
+  (TASK-355 A) apre `SharePost` dentro il `Pager`, che azzera il margine alto: ora il `Modal` ha
+  un suo `SafeAreaProvider`. Branch `fix/TASK-381-share-post-inset`; la unisce il Coordinatore a
+  CI verde; OTA col sì dell'utente. Solo app, nessun testo nuovo. `tasks/TASK-381.md`.
+  **Chiuso il 2026-11-04**: #750 in main (9e2089a9); vedi «Completato».
+
 - **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
   ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
   Coordinatore; sessione «Coordinatore Sport»). **Parte A in `main`** (#736,
@@ -183,6 +190,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in parallelo, poi C (metriche), D (nomi di impianti e piste), E (prova
   sul campo). Prossimo passo: i «File toccati» di A al Coordinatore
   (`tasks/TASK-375.md`).
+  - 2026-11-04: A (#735) in main. **B0** (aggiunta dal Coordinatore): un
+    post con un'attività che l'app non conosce (camminata, sci) si legge
+    come senza attività e si mostra come una corsa, invece di far cadere la
+    pagina intera del Feed, dei profili e della ricerca. Va in produzione
+    con un OTA prima che camminata o sci si possano salvare; le build senza
+    quell'OTA restano esposte (proposta lato server nella PR). Poi B1 dopo
+    371 B.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -196,6 +210,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `route_engine/walking.py`, fuori dall'impronta del motore (invariata);
   `<type>walking</type>` nel GPX solo della camminata, Strava «Walk»,
   migrazione `0043_walking`. Server e migrazione col sì dell'utente.
+  **Parte A in main** (#741, f5897cf7). **Parte B** (2026-11-04, branch
+  `feat/TASK-371-b-walk-app`): «Walk» 🚶 nell'app, «Soon» finché il server
+  non ha A e 0043. Distanze 1–30 km, tempo previsto sul ritmo delle
+  camminate (12:00 al km di base), calorie ACSM, Apple Salute `.walking`,
+  Health Connect `WALKING`, zone a piedi del telefono, importazione, Feed,
+  modulo per pubblicare, filtri. Testi approvati dall'utente; NEAR YOU solo
+  per la corsa.
+  **Parti A e B chiuse il 2026-11-04**: B #747 in main (`224a023d`), dopo
+  la 375 B0 (#749). «Walk» resta «Soon». Si accende, con una riga in
+  `sport.ts`, dopo tre cose: l'OTA della B0 in produzione da qualche giorno,
+  il server con la 0043, il sì dell'utente. Resta la parte C (il gioco):
+  prima va chiesto all'utente se le camminate contano anche nei concorsi.
+  Vedi `tasks/TASK-371.md`, «Esito».
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
@@ -287,6 +314,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (2026-11-04, branch `feat/TASK-374-a-body-calories`): «Body» nelle
   Impostazioni, kcal di ogni sport nella corsa, nel Feed e in Salute; entra
   dopo il nuoto (#734). Prossimo: parte B, la pagina delle zone. `tasks/TASK-374.md`.
+  Parte A in `main` con la PR #739 (`22ec9572`).
+  Parte B (2026-11-04, branch `feat/TASK-374-b-hr-zones`): la pagina «Heart
+  rate zones» in fondo a «Body», FC massima dall'età (Tanaka) o a mano, FC a
+  riposo (Karvonen), cinque zone con la cima delle zone 1–4 modificabile e
+  «Back to calculated zones», in `heart.json` sul telefono; solo app, OTA.
+  Testo d'errore delle FC approvato dall'utente. Poi C e D nella 1.0.2.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
@@ -2491,6 +2524,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
+  (2026-11-04; seguito di TASK-366). #750 in main (9e2089a9): il `Modal` di `SharePost` ha un suo
+  `SafeAreaProvider`. Solo JS, impronta dal Coordinatore con l'anteprima. Prova Feed → «Share» →
+  «Close» sul telefono e OTA di produzione col sì dell'utente. `tasks/TASK-381.md`.
 - **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297): documenti
   #653, A #659 (`GET /search/drawings`), B #705 (entrata con #717, `f23ec332`).
   La lente apre la ricerca a tutto schermo con schede, filtri, ricerche recenti

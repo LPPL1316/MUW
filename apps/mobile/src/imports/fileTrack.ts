@@ -76,17 +76,21 @@ function offsetMs(zone: string | undefined): number {
 
 /**
  * The sport a file names, as one of MuW's: GPX's <type> («running»,
- * «cycling», Strava's «9» and «1»), TCX's Sport («Running», «Biking»).
+ * «cycling», «walking», Strava's «9», «1» and «10»), TCX's Sport
+ * («Running», «Biking»).
  * null for the others: the form starts from the sport of «Settings».
  */
 export function sportOfWord(word: string): Activity | null {
   const name = word.trim().toLowerCase();
-  // Strava's own numbers in its GPX: 9 a run, 1 a ride.
+  // Strava's own numbers in its GPX: 9 a run, 1 a ride, 10 a walk.
   if (name === "9") {
     return "running";
   }
   if (name === "1") {
     return "cycling";
+  }
+  if (name === "10") {
+    return "walking";
   }
   if (name.includes("run")) {
     return "running";
@@ -105,6 +109,10 @@ export function sportOfWord(word: string): Activity | null {
   // Open water (TASK-323 D): a pool's file has no track to draw.
   if (name.includes("swim")) {
     return "swimming";
+  }
+  // A walk (TASK-371); a hike is not one yet.
+  if (name.includes("walk")) {
+    return "walking";
   }
   return null;
 }

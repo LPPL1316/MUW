@@ -274,13 +274,20 @@ export function RouteChoice({
         <StepTitle number={3} label={t("DISTANCE")} />
       </View>
       {/* Half a km a step, held it runs on, the number typed with a tap; the
-          time under it for a run (TASK-361). */}
+          time under it for a run (TASK-361) and a walk, at the walker's pace
+          (TASK-371). */}
       <DistanceDial
         text={distanceText}
         onText={onDistanceText}
         activity={activity}
         timeText={
-          pace && activity === "running" ? runTimeText(distanceM, pace, units) : null
+          !pace
+            ? null
+            : activity === "running"
+              ? runTimeText(distanceM, pace, units)
+              : activity === "walking" && pace.walking
+                ? runTimeText(distanceM, pace.walking, units)
+                : null
         }
       />
       {distanceM === null ? (
