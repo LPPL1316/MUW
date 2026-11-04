@@ -21289,6 +21289,24 @@ dell'utente; la divisione in C1 API e C2 app è del Coordinatore):
 - Le righe più vecchie di `KEPT_DAYS` si cancellano alla prima scrittura
   dopo, per tutti, con un indice su `at`; in lettura non si mostrano già.
 
+**Parte C2, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente; i tre testi sono dell'utente):
+
+- La campanella sta nell'header (`AppHeader`) e legge un contesto che dà
+  «Profile» (`bell/bellDoor.ts`), come i messaggi: `App.tsx` non cambia.
+- Senza lista da aprire non c'è: un 404 su `/notifications` (server di prima)
+  la toglie e non si chiede più per quell'account. È la scelta dell'utente
+  «Aspetta la lista vera»: mai una pagina vuota segnaposto.
+- Il numero si chiede ogni 5 minuti, non ogni minuto come i messaggi: una
+  pagina porta le foto di chi ha agito. Più all'avvio, al ritorno dell'app e
+  quando la lista si chiude.
+- Quello che apre una riga è quello che apre la sua push: `tapTarget` legge
+  `opens`, e `openTarget` (nuovo, usato anche dalle push) apre la porta.
+- La lista è letta fino alla riga più nuova appena la prima pagina è sullo
+  schermo; le righe nuove restano marcate finché la lista è aperta.
+- L'icona è la `bell` di Lucide, resa in PNG bianca a 26 pt con tratto 1,75
+  come le altre (`out/TASK-367-c2/icon.swift`).
+
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
@@ -21989,5 +22007,38 @@ limite della zona 5, che non si scrive, resta senza riquadro, ma il numero e
 che manca). Scartati: un riquadro anche sulla zona 5, che sembrerebbe da
 scrivere, e per ora un componente comune con `NumberInput` di «Body», che è di
 TASK-383 finché #759 non è in `main`.
+## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
+
+**Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
+(2026-11-04); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-379.md`; il resto è deciso dall'agente su delega
+dell'utente. **Corregge il punto 3 di ADR-0311** («niente swipe fra le
+pagine»); il resto di ADR-0311 resta.
+
+**Contesto**: con TASK-367 parte A le pagine sono sotto una barra di schede e
+si cambiano solo toccandola. L'utente vuole anche «poter swippare da una
+scheda all'altra slidando verso destra e sinistra con il dito», come si
+faceva con le pagine affiancate di TASK-154 (ADR-0124).
+
+**Decisione** (proposta):
+
+1. Uno swipe orizzontale sulla pagina porta alla scheda accanto, e la barra
+   segue; il tocco sulla barra resta e mostra la pagina subito. Le scelte
+   dell'utente: la pagina **segue il dito**, con le pagine affiancate
+   («Segue il dito»); dal profilo si va al Feed e dal Feed al profilo, **in
+   giro continuo** («Torna alla prima»); vale su **tutte e cinque** le schede
+   («Tutte e cinque»).
+2. Nessuna dipendenza nativa: React Native di base, come il `Pager` di
+   TASK-154. L'impronta iOS non cambia e arriva con un OTA.
+3. Un gesto che parte su un carosello o su una fila di schede resta suo. Dentro
+   le pagine non c'è una mappa da trascinare: le mappe di Feed, Explore e
+   Profilo sono immagini, e la mappa vera prende lo schermo senza barra.
+4. Resta tutto quello che fa `TabShell`: pagine costruite al primo arrivo e
+   tenute, tocco sulla scheda attiva che torna in cima, «indietro» di Android,
+   il giro guidato, VoiceOver con le schede `tab` e lo stato `selected`.
+
+**Conseguenze**: chi aveva imparato lo swipe prima di TASK-367 lo ritrova.
+La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
+prova solo con i test.
 
 ---

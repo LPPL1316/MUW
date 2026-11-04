@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { BellButton } from "../bell/BellButton";
 import { color, font, MIN_TAP_SIZE, space, tracking } from "../theme/tokens";
 import { tourPart } from "../tour/tourParts";
 import { TOUR_PART } from "../tour/tourSteps";
@@ -18,8 +19,8 @@ type Props = {
 
 /**
  * The header of the pages of the tab bar (TASK-367, ADR-0311): the yellow
- * heart and «MuW» at the left, the sport at the right, under the status
- * bar and the Dynamic Island. The same on every page: what page is on
+ * heart and «MuW» at the left, the bell (part C) and the sport at the
+ * right, under the status bar and the Dynamic Island. The same on every page: what page is on
  * screen the tab bar says.
  */
 export function AppHeader({ action }: Props) {
@@ -31,12 +32,15 @@ export function AppHeader({ action }: Props) {
         <Image source={HEART} style={styles.heart} />
         <Text style={styles.name}>MuW</Text>
       </View>
-      {action && (
-        // The sport, shown by the tour (TASK-266).
-        <View ref={tourPart(TOUR_PART.header)} collapsable={false}>
-          {action}
-        </View>
-      )}
+      <View style={styles.right}>
+        <BellButton />
+        {action && (
+          // The sport, shown by the tour (TASK-266).
+          <View ref={tourPart(TOUR_PART.header)} collapsable={false}>
+            {action}
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -56,6 +60,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: space.xs + space.xs / 2,
     minHeight: MIN_TAP_SIZE,
+  },
+  right: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.xs,
   },
   // The brand's yellow, as the launch's (TASK-181): the logo, not a route.
   heart: {

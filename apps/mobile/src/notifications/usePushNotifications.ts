@@ -1,4 +1,3 @@
-import type { Person } from "@shaperoute/shared-types";
 import { useEffect, useRef } from "react";
 
 import type { Account } from "../account/useAccount";
@@ -6,6 +5,7 @@ import { sessionEnded } from "../account/messages";
 import { forgetPushToken, keepPushToken } from "../api/pushToken";
 import { useLanguage } from "../i18n/useLanguage";
 import { tapTarget } from "./notificationTap";
+import { type Opens, openTarget } from "./openTarget";
 import {
   devicePushToken,
   onNotificationTapped,
@@ -15,24 +15,6 @@ import {
 } from "./pushDevice";
 import { type PushDeps, sendPushToken, takeBackPushToken } from "./pushRegistration";
 import { forgetPushSent, loadPushSent, savePushSent } from "./pushSent";
-
-type Opens = {
-  /** Shows the drawing `id` on the map, fetched whole. */
-  openDrawing: (id: string) => void;
-  /** Shows the profile of `person`. */
-  openProfile: (person: Person) => void;
-  /** Shows the «Play» page: a shape of the game unlocked (TASK-296). */
-  openPlay: () => void;
-  /** Shows the challenge `id` of the game (TASK-296 part D): a piece done,
-   * a shape completed, a day left. */
-  openChallenge: (id: string) => void;
-  /** Shows the conversation with `person`: a message, a message request
-   * (TASK-319). Without it, their profile. */
-  openConversation?: (person: Person) => void;
-  /** Shows the page of the monthly challenge `id` (TASK-343 part B): a new
-   * one, its last days, its results. */
-  openContest?: (id: string) => void;
-};
 
 type Options = { fetchFn?: typeof fetch; key?: string | null };
 
@@ -104,20 +86,7 @@ export function usePushNotifications(
       if (target === null || !latest.current.signedIn) {
         return;
       }
-      if (target.kind === "drawing") {
-        latest.current.opens.openDrawing(target.id);
-      } else if (target.kind === "profile") {
-        latest.current.opens.openProfile(target.person);
-      } else if (target.kind === "conversation") {
-        const { openConversation, openProfile } = latest.current.opens;
-        (openConversation ?? openProfile)(target.person);
-      } else if (target.kind === "challenge") {
-        latest.current.opens.openChallenge(target.id);
-      } else if (target.kind === "contest") {
-        latest.current.opens.openContest?.(target.id);
-      } else {
-        latest.current.opens.openPlay();
-      }
+      openTarget(target, latest.current.opens);
     });
   }, []);
 }

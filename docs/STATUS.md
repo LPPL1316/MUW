@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
+  proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
+  Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
+  (documenti), poi `feat/TASK-379-tab-swipe` (`TabShell`, solo app, nessuna
+  dipendenza nuova). Prossimo passo: le tre scelte dell'utente, una alla
+  volta, poi la lista dei file al Coordinatore. `tasks/TASK-379.md`.
+  **Scelte fatte** (2026-11-04): la pagina segue il dito, giro continuo dal
+  profilo al Feed, su tutte e cinque le schede. Documenti nella #757.
+
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
   (TASK-355 A) apre `SharePost` dentro il `Pager`, che azzera il margine alto: ora il `Modal` ha
@@ -302,6 +311,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   /notifications/read`, migrazione `0045_notification_list`; server e
   migrazione col sì dell'utente; durata (90 giorni) e frase della privacy
   approvate («Sì, approvo»), `site/privacy` rigenerato. C2 (la campanella nell'app) dopo la #734.
+  **Parte C2** (2026-11-04, branch `feat/TASK-367-c2-bell`): la campanella
+  nell'header con il numero dei non letti e la lista sopra l'app; ogni riga
+  apre quello che apre la sua push; niente campanella con un server senza
+  lista. Tre testi approvati. Solo app: arriva con un OTA, col sì
+  dell'utente, dopo il server con la `0045`.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
@@ -329,6 +343,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   riposo (Karvonen), cinque zone con la cima delle zone 1–4 modificabile e
   «Back to calculated zones», in `heart.json` sul telefono; solo app, OTA.
   Testo d'errore delle FC approvato dall'utente. Poi C e D nella 1.0.2.
+  Parte B in `main` con la PR #746 (`a1ff05da`); impronta all'anteprima e OTA
+  col Coordinatore. Prossimo: C (lettura da Salute) e D (tempo in zona) con
+  TASK-345 C nella 1.0.2.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
