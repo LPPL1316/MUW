@@ -287,6 +287,7 @@ const privacy: AboutDocument = {
             "The day you signed up and when you confirmed that you are at least 16.",
             "The session of each phone you logged in from: the phone keeps a token in its secure storage, the server keeps only a hash of it. A session ends 90 days after its last use, or when you log out.",
             "Your three notification choices in «Settings»: «Email notifications» and «Push notifications», off until you turn them on, and «Email when I'm away», on until you turn it off. With push on, your phone's push token, whether it is an iPhone or Android and the app's language, to send you notifications through Expo's push service, which hands them to Apple or Google. A notification says who did what, with the beginning of a comment. The token goes when you turn push off, log out or delete your account.",
+            "The bell's list: who did what, on which post, challenge, contest or group run, and whether you have read it, as the push notifications tell you, even with push off. Only you see it. Each line is kept 90 days; what is no longer true, such as a reaction taken back or a post you no longer see, does not show.",
             "The app's language when you signed up, to write our emails in it.",
           ],
         },

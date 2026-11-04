@@ -191,6 +191,37 @@ Nell'app la campanella con il badge `badge`, la lista, e ogni riga apre ciò che
 apre oggi la push (`notificationTap`). Migrazione col primo numero libero al
 merge; server e migrazione con il sì dell'utente; testi da approvare.
 
+Divisa dal Coordinatore il 2026-11-04 in **C1** (solo API, adesso) e **C2**
+(la campanella nell'app, dopo la #734). C1: `notification_list.py`, un
+«listener» del `Pusher` come `notice_email.py`, scrive una riga per ogni
+evento lasciato passare (tutti i tipi delle push tranne i messaggi, push
+accese o spente); `GET /notifications` (30 alla volta, `before`, `unread`,
+il testo della push nella lingua dell'account, `opens` = il `data` della
+push, fuori quello che non è più vero) e `POST /notifications/read`
+(`up_to`). Migrazione `0045_notification_list` (numero del Coordinatore). Le
+righe si tengono `KEPT_DAYS` = 90 giorni. Alla proposta «Le notifiche della
+campanella restano sul server per 90 giorni, poi si cancellano», con la frase
+della privacy «La lista della campanella: chi ha fatto cosa, su quale post,
+sfida, concorso o corsa di gruppo, e se l'hai già letta, come te lo dicono le
+notifiche push, anche con le push spente. La vedi solo tu. Ogni riga resta 90
+giorni; quello che non è più vero, come una reazione tolta o un post che non
+vedi più, non compare.», l'utente ha risposto il 2026-11-04: «Sì, approvo».
+Nelle 5 lingue di `about/content`, `site/privacy` rigenerato.
+
+File toccati della parte C1:
+
+```
+services/api/migrations/0045_notification_list.sql               (nuovo)
+services/api/shaperoute_api/notification_list.py             (nuovo)
+services/api/tests/test_notification_list.py                 (nuovo)
+services/api/shaperoute_api/app.py                           (una riga, dopo install_push)
+packages/shared-types/src/index.ts                           (un blocco in fondo)
+packages/shared-types/fixtures/notifications.json            (nuovo)
+packages/shared-types/test/notifications.test.ts             (nuovo)
+docs/API.md, docs/DATABASE.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
+apps/mobile/src/about/content/*.ts, site/privacy/**          (la frase sulla durata, col sì dell'utente)
+```
+
 ## Criteri di accettazione (parte A)
 
 - [ ] Nessun nome di pagina in alto; header uguale su Feed, Draw, Messages,

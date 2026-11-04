@@ -21266,6 +21266,29 @@ dell'utente):
   lente del Feed. Rimedio come TASK-366 per OutlineBoard: dentro il Modal un
   `SafeAreaProvider` proprio con `initialWindowMetrics`.
 
+**Parte C1, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente; la divisione in C1 API e C2 app è del Coordinatore):
+
+- La lista si riempie come l'email delle notizie: un «listener» del
+  `Pusher` (`notification_list.py`). Così prende esattamente gli eventi
+  che le push lasciano passare (non i propri, uno al giorno), senza toccare
+  i moduli che li scrivono; a differenza dell'email, per tutti, push
+  accese o spente.
+- Nessun testo nel database: il testo è quello della push (`text_of`),
+  scritto alla lettura nella lingua dell'account; cosa apre è il `data`
+  della push (`data_of`). L'app riceve righe già pronte e apre quello che
+  apre oggi la push.
+- Quello che non è più vero resta fuori con le stesse condizioni
+  dell'email delle notizie, riscritte nel modulo invece di cambiare
+  `notice_email.py`.
+- Lo stesso evento di nuovo cancella la riga di prima e ne scrive una
+  nuova: l'ordine per `id` resta l'ordine nel tempo, e la pagina usa `id`
+  come segnalibro.
+- La lettura segna fino all'`id` mostrato, non «tutto adesso»: una riga
+  arrivata fra la lettura della lista e il segno resta non letta.
+- Le righe più vecchie di `KEPT_DAYS` si cancellano alla prima scrittura
+  dopo, per tutti, con un indice su `at`; in lettura non si mostrano già.
+
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente

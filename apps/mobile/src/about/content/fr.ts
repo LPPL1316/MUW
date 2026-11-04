@@ -286,6 +286,7 @@ const privacy: AboutDocument = {
             "Le jour de ton inscription et le moment où tu as confirmé avoir au moins 16 ans.",
             "La session de chaque téléphone depuis lequel tu t'es connecté : le téléphone garde un jeton dans son stockage sécurisé, le serveur n'en garde qu'un hash. Une session prend fin 90 jours après sa dernière utilisation, ou quand tu te déconnectes.",
             "Tes trois choix de notifications dans «Réglages» : «Notifications par e-mail» et «Notifications push», éteints jusqu'à ce que tu les allumes, et «E-mail en cas d'absence», allumé jusqu'à ce que tu l'éteignes. Avec le push allumé, le jeton push de ton téléphone, s'il s'agit d'un iPhone ou d'un Android, et la langue de l'app, pour t'envoyer des notifications via le service push d'Expo, qui les transmet à Apple ou à Google. Une notification dit qui a fait quoi, avec le début d'un commentaire. Le jeton est supprimé quand tu éteins le push, te déconnectes ou supprimes ton compte.",
+            "La liste de la cloche : qui a fait quoi, sur quelle publication, quel défi, quel concours ou quelle course en groupe, et si tu l'as déjà lue, comme te le disent les notifications push, même avec le push éteint. Toi seul la vois. Chaque ligne est gardée 90 jours ; ce qui n'est plus vrai, comme une réaction retirée ou une publication que tu ne vois plus, n'apparaît pas.",
             "La langue de l'app quand tu t'es inscrit, pour t'écrire nos e-mails dans cette langue.",
           ],
         },

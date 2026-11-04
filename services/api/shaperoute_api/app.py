@@ -89,6 +89,7 @@ from shaperoute_api.line_directions import (
 from shaperoute_api.messages import install_messages
 from shaperoute_api.moderation import install_moderation
 from shaperoute_api.muw_routes import MuwRouteCatalog, install_muw_routes
+from shaperoute_api.notification_list import install_notification_list
 from shaperoute_api.notifications import install_notifications
 from shaperoute_api.outline_edits import edit_outline
 from shaperoute_api.places import (
@@ -355,6 +356,9 @@ def create_app(
     # The phones of an account, and the push notifications sent to them
     # (TASK-262); the tokens need a token.
     install_push(app)
+    # The bell's list: what push.py told an account, to read in the app
+    # (TASK-367 C); it needs a token.
+    install_notification_list(app)
     # The runs an account publishes as drawings, cut for the others
     # (TASK-117); they need a token.
     install_drawings(app)

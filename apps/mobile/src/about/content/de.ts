@@ -286,6 +286,7 @@ const privacy: AboutDocument = {
             "Der Tag deiner Registrierung und wann du bestätigt hast, dass du mindestens 16 bist.",
             "Die Sitzung jedes Handys, mit dem du dich angemeldet hast: Das Handy bewahrt ein Token in seinem sicheren Speicher auf, der Server nur einen Hash davon. Eine Sitzung endet 90 Tage nach ihrer letzten Nutzung oder wenn du dich abmeldest.",
             "Deine drei Einstellungen zu Benachrichtigungen in «Einstellungen»: «E-Mail-Benachrichtigungen» und «Push-Benachrichtigungen», aus, bis du sie einschaltest, und «E-Mail, wenn ich weg bin», an, bis du ihn ausschaltest. Mit Push an: der Push-Token deines Telefons, ob es ein iPhone oder ein Android ist, und die Sprache der App, um dir Benachrichtigungen über den Push-Dienst von Expo zu senden, der sie an Apple oder Google weitergibt. Eine Benachrichtigung sagt, wer was getan hat, mit dem Anfang eines Kommentars. Der Token wird gelöscht, wenn du Push ausschaltest, dich abmeldest oder dein Konto löschst.",
+            "Die Liste der Glocke: wer was getan hat, bei welchem Beitrag, welcher Challenge, welchem Wettbewerb oder Gruppenlauf, und ob du es schon gelesen hast, so wie es dir die Push-Benachrichtigungen sagen, auch mit Push aus. Nur du siehst sie. Jede Zeile bleibt 90 Tage; was nicht mehr stimmt, etwa eine zurückgenommene Reaktion oder ein Beitrag, den du nicht mehr siehst, erscheint nicht.",
             "Die Sprache der App bei deiner Anmeldung, um dir unsere E-Mails in dieser Sprache zu schreiben.",
           ],
         },
