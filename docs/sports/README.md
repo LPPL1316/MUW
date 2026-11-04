@@ -64,6 +64,9 @@ python tools/sport_bench/sport_bench.py compare \
   oggetto con `load(bbox)` che dà un grafo OSMnx).
 - I risultati vanno in `out/sport-bench/<label>/<attività>.json` (ignorato
   da git); le tabelle stampate si incollano nel file dello sport.
+- Ogni percorso ha l'hash dei suoi punti: `compare --same` dice ogni
+  percorso non identico punto per punto, per un refactor che non deve
+  cambiare nulla (ADR-0320, aggiornamento della parte B1).
 - Soglie: «riuscito» da 0,60 (il minimo del motore), «buono» da 0,90.
   `compare` lascia passare 0,02 di somiglianza e tempi fino a 1,5 volte o
   2 s in più.

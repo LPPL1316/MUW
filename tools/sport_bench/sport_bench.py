@@ -33,6 +33,7 @@ the tests need no network and no zone.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import statistics
@@ -205,6 +206,9 @@ class Row:
     # shape shrank to fit (1: not at all).
     move_m: float | None = None
     scale: float | None = None
+    # The route's points as a few letters (points_hash): the same in two
+    # runs only if the route is the same, point by point.
+    points: str | None = None
 
     @property
     def drawn(self) -> bool:
@@ -372,6 +376,32 @@ def compare(before: Sequence[Row], after: Sequence[Row]) -> list[Change]:
     return changes
 
 
+def different(before: Sequence[Row], after: Sequence[Row]) -> list[Change]:
+    """Every route not the same point by point from `before` to `after`
+    (`compare --same`, for an engine that only moved its code): another
+    error, other points, or no points to tell."""
+    old = {(r.zone, r.shape, r.target_m): r for r in before}
+    new = {(r.zone, r.shape, r.target_m): r for r in after}
+    changes: list[Change] = []
+    for key in sorted(old.keys() | new.keys()):
+        a, b = old.get(key), new.get(key)
+        if a is None or b is None:
+            changes.append(Change(*key, "only before" if b is None else "only after"))
+        elif a.error != b.error:
+            changes.append(Change(*key, f"error {a.error} -> {b.error}"))
+        elif a.error is None and (a.points is None or b.points is None):
+            changes.append(Change(*key, "no points to compare"))
+        elif a.points != b.points:
+            changes.append(Change(*key, "other points"))
+    return changes
+
+
+def points_hash(points: Sequence[Sequence[float]]) -> str:
+    """A route's points as a few letters, every digit counted."""
+    text = json.dumps([list(point) for point in points])
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
 def read_rows(path: Path) -> list[Row]:
     data = json.loads(path.read_text(encoding="utf-8"))
     return [Row(**row) for row in data["rows"]]
@@ -480,6 +510,7 @@ def engine_planner(
             round(time.perf_counter() - began, 1),
             real_m=round(result.distance_m),
             similarity=round(result.similarity, 3),
+            points=points_hash(result.points),
             **extra,
         )
 
@@ -653,7 +684,10 @@ def _run(args: argparse.Namespace) -> int:
 
 
 def _compare(args: argparse.Namespace) -> int:
-    changes = compare(read_rows(args.before), read_rows(args.after))
+    before, after = read_rows(args.before), read_rows(args.after)
+    changes = compare(before, after)
+    if args.same:
+        changes += different(before, after)
     for change in changes:
         print(
             f"{change.zone} {change.shape} {change.target_m / 1000:g} km: "
@@ -690,6 +724,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     compared = commands.add_parser("compare", help="what got worse between two runs")
     compared.add_argument("before", type=Path)
     compared.add_argument("after", type=Path)
+    compared.add_argument(
+        "--same", action="store_true", help="every route the same, point by point"
+    )
     compared.set_defaults(func=_compare)
     return parser.parse_args(argv)
 
