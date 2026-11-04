@@ -18,6 +18,8 @@ import type { LatLon } from "@shaperoute/shared-types";
 
 import type { Place } from "../places/photon";
 import type { StartMode } from "../location/startMode";
+import { isRecordOnly } from "../settings/sport";
+import { useSport } from "../settings/useSport";
 import {
   color,
   fontSize,
@@ -104,6 +106,9 @@ export function ChooseScreen({
   runIcon,
 }: Props) {
   const insets = useSafeAreaInsets();
+  // A day on the snow has no shape to draw (TASK-375, ADR-0319): «Draw» is
+  // its recording only.
+  const recordOnly = isRecordOnly(useSport()) && onRun !== undefined;
   // The start by its street (TASK-361): only while the GPS is the start and
   // answers; any other line (searching, refused, a place) says more.
   const onGps = mode === "gps" && !searching && !denied;
@@ -145,72 +150,118 @@ export function ChooseScreen({
               {/* The whole of it: "Run" alone read as running the route
                 drawn below (TASK-158). Outlined: the yellow is the
                 route's (TASK-361). */}
-              {onRun && (
+              {onRun && !recordOnly && (
                 <RunNoRouteButton label={runLabel} icon={runIcon} onPress={onRun} />
               )}
             </View>
           </View>
-          <TourPartView name={TOUR_PART.start} style={styles.startCard}>
-            <StepTitle number={1} label={t("START")} />
-            <Segmented
-              options={START_MODES.map((option) => ({
-                ...option,
-                label: t(option.label),
-              }))}
-              value={mode}
-              onChange={onMode}
-            />
-            {address !== null ? (
-              <Text
-                style={styles.address}
-                numberOfLines={2}
-                accessibilityLabel={t("Starting from {place}.", { place: address })}
-                testID="start-address"
-              >
-                📍 {address}
-              </Text>
-            ) : (
-              <Text style={styles.status}>{status}</Text>
-            )}
-            {denied && <OpenSettings />}
-            {searching && (
-              <PlaceSearch
-                onSelect={onPlace}
-                near={near}
-                suggest={suggest}
-                placeholder={searchHint}
-              />
-            )}
-            {/* No street to write: the start chosen on the map (TASK-292). */}
-            {searching && onPickOnMap && (
-              <Pressable
-                style={styles.linkButton}
-                onPress={onPickOnMap}
-                accessibilityRole="button"
-              >
-                <Text style={styles.link}>{t("Choose on the map")}</Text>
-              </Pressable>
-            )}
-          </TourPartView>
-          {mapError && <MapError onRetry={onMapRetry} />}
-          {children}
+          {recordOnly ? (
+            <RecordDay label={runLabel} icon={runIcon} onPress={onRun} />
+          ) : (
+            <>
+              <TourPartView name={TOUR_PART.start} style={styles.startCard}>
+                <StepTitle number={1} label={t("START")} />
+                <Segmented
+                  options={START_MODES.map((option) => ({
+                    ...option,
+                    label: t(option.label),
+                  }))}
+                  value={mode}
+                  onChange={onMode}
+                />
+                {address !== null ? (
+                  <Text
+                    style={styles.address}
+                    numberOfLines={2}
+                    accessibilityLabel={t("Starting from {place}.", { place: address })}
+                    testID="start-address"
+                  >
+                    📍 {address}
+                  </Text>
+                ) : (
+                  <Text style={styles.status}>{status}</Text>
+                )}
+                {denied && <OpenSettings />}
+                {searching && (
+                  <PlaceSearch
+                    onSelect={onPlace}
+                    near={near}
+                    suggest={suggest}
+                    placeholder={searchHint}
+                  />
+                )}
+                {/* No street to write: the start chosen on the map (TASK-292). */}
+                {searching && onPickOnMap && (
+                  <Pressable
+                    style={styles.linkButton}
+                    onPress={onPickOnMap}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.link}>{t("Choose on the map")}</Text>
+                  </Pressable>
+                )}
+              </TourPartView>
+              {mapError && <MapError onRetry={onMapRetry} />}
+              {children}
+            </>
+          )}
         </TourScrollView>
         {/* Docked over the page's foot: the page's own padding keeps its last
-          card above it, however tall the button and the notices get. */}
-        <View
-          style={styles.footerDock}
-          testID="draw-footer"
-          onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
-        >
-          <TourPartView
-            name={TOUR_PART.draw}
-            style={[styles.footer, { paddingBottom: insets.bottom + space.sm }]}
+          card above it, however tall the button and the notices get. No
+          route, no button for it, on the snow. */}
+        {!recordOnly && (
+          <View
+            style={styles.footerDock}
+            testID="draw-footer"
+            onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
           >
-            {footer}
-          </TourPartView>
-        </View>
+            <TourPartView
+              name={TOUR_PART.draw}
+              style={[styles.footer, { paddingBottom: insets.bottom + space.sm }]}
+            >
+              {footer}
+            </TourPartView>
+          </View>
+        )}
       </View>
     </KeyboardAvoidingView>
+  );
+}
+
+/**
+ * «Draw» for a sport recorded without a shape (TASK-375, ADR-0319): no start,
+ * no shape, no distance, only the yellow «Record your day» and the line
+ * that says why.
+ */
+export function RecordDay({
+  label,
+  icon,
+  onPress,
+}: {
+  label: string;
+  icon?: string;
+  onPress: () => void;
+}) {
+  return (
+    <View style={styles.recordCard} testID="record-day">
+      <Pressable
+        style={({ pressed }) => [styles.recordButton, pressed && styles.recordPressed]}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        testID="run-no-route"
+      >
+        {icon !== undefined && (
+          <Text style={styles.recordText} importantForAccessibility="no">
+            {icon}
+          </Text>
+        )}
+        <Text style={styles.recordText}>{label}</Text>
+      </Pressable>
+      <Text style={styles.status}>
+        {t("No shapes on the slopes: MuW records your day.")}
+      </Text>
+    </View>
   );
 }
 
@@ -295,6 +346,29 @@ const styles = StyleSheet.create({
   },
   mapError: {
     gap: space.xs,
+  },
+  recordCard: {
+    gap: space.md,
+    padding: space.md,
+    borderRadius: radius.lg,
+    backgroundColor: color.surface,
+  },
+  recordButton: {
+    minHeight: MIN_TAP_SIZE,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space.sm,
+    borderRadius: radius.pill,
+    backgroundColor: color.accent,
+  },
+  recordPressed: {
+    opacity: 0.85,
+  },
+  recordText: {
+    color: color.onAccent,
+    fontSize: fontSize.body,
+    fontWeight: fontWeight.bold,
   },
   error: {
     color: color.error,

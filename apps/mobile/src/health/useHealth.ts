@@ -1,4 +1,4 @@
-import type { Activity } from "@shaperoute/shared-types";
+import type { RunActivity } from "@shaperoute/shared-types";
 import { useCallback, useEffect, useState } from "react";
 
 import type { Track } from "../navigation/trackRecorder";
@@ -86,7 +86,7 @@ export function useHealth(phone: HealthPhone | null): HealthState {
 export async function saveToHealth(
   phone: HealthPhone | null,
   track: Track,
-  activity: Activity,
+  activity: RunActivity,
 ): Promise<boolean> {
   if (phone === null || !loadHealthOn()) {
     return false;

@@ -168,6 +168,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
   la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
   nessun testo nuovo. `tasks/TASK-383.md`.
+- **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
+  proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
+  Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
+  (documenti), poi `feat/TASK-379-tab-swipe` (`TabShell`, solo app, nessuna
+  dipendenza nuova). Prossimo passo: le tre scelte dell'utente, una alla
+  volta, poi la lista dei file al Coordinatore. `tasks/TASK-379.md`.
+  **Scelte fatte** (2026-11-04): la pagina segue il dito, giro continuo dal
+  profilo al Feed, su tutte e cinque le schede. Documenti nella #757.
 
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
@@ -206,6 +214,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     con un OTA prima che camminata o sci si possano salvare; le build senza
     quell'OTA restano esposte (proposta lato server nella PR). Poi B1 dopo
     371 B.
+  - 2026-11-04: B0 (#749) e 371 B (#747) in main. **B1**: «Ski» e
+    «Cross-country ski» in `sport.ts` (`recordOnly`, ancora «Soon»), «Draw»
+    con il solo «Record your day», salvataggio come `skiing`/`xc_skiing`,
+    Apple Salute e Health Connect (ADR-0319, punto 7). Prossimo: B2, cioè
+    lo sci nel Feed, nelle schede e nei messaggi.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta

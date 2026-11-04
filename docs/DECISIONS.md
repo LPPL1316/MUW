@@ -21900,6 +21900,22 @@ dell'utente):
    `shared-types` dei disegni restano `Activity`, cioè ciò che l'app sa
    mostrare: allargarli a `RunActivity` toccava sei file di altri task, e
    si fa con la parte che mostra lo sci (B2).
+7. (B1, 2026-11-04, deciso dall'agente su delega dell'utente) «Ski» e
+   «Cross-country ski» nascono `recordOnly` e `ready: false`, come la
+   camminata prima del server: «Soon» in Expo Go e preview, assenti dalle
+   build di negozio, finché il server non ha la 0044 e la giornata non ha
+   le sue metriche (parte C). «Draw» di uno sport `recordOnly` è il solo
+   «Record your day» giallo con la riga sotto; `ChooseScreen` legge lo
+   sport da sé, così `App.tsx` non cambia. «Save» manda `skiing` o
+   `xc_skiing` (`runActivityOf`); il file della corsa resta quello di
+   oggi, e fino alla parte C i numeri sono quelli di una pedalata in
+   discesa (km/h) e di una corsa sul fondo (passo). I disegni propri e la
+   coda sul telefono tengono `skiing`, così cambiare chi li vede non li fa
+   diventare corse. In Apple Salute vanno come `downhillSkiing` (61) e
+   `crossCountrySkiing` (60), con la sola distanza totale: le loro distanze
+   giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
+   vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
+   sono, finché manca una stima.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -21970,5 +21986,38 @@ riquadro, dopo il numero e nella sua stessa dimensione; il riquadro è un
 I valori restano in kg e cm (punto 10). Scartati: l'unità nel nome del campo
 («Weight (kg)»), che con le miglia cambia il nome, e un segnaposto, che sparisce
 appena si scrive.
+## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
+
+**Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
+(2026-11-04); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-379.md`; il resto è deciso dall'agente su delega
+dell'utente. **Corregge il punto 3 di ADR-0311** («niente swipe fra le
+pagine»); il resto di ADR-0311 resta.
+
+**Contesto**: con TASK-367 parte A le pagine sono sotto una barra di schede e
+si cambiano solo toccandola. L'utente vuole anche «poter swippare da una
+scheda all'altra slidando verso destra e sinistra con il dito», come si
+faceva con le pagine affiancate di TASK-154 (ADR-0124).
+
+**Decisione** (proposta):
+
+1. Uno swipe orizzontale sulla pagina porta alla scheda accanto, e la barra
+   segue; il tocco sulla barra resta e mostra la pagina subito. Le scelte
+   dell'utente: la pagina **segue il dito**, con le pagine affiancate
+   («Segue il dito»); dal profilo si va al Feed e dal Feed al profilo, **in
+   giro continuo** («Torna alla prima»); vale su **tutte e cinque** le schede
+   («Tutte e cinque»).
+2. Nessuna dipendenza nativa: React Native di base, come il `Pager` di
+   TASK-154. L'impronta iOS non cambia e arriva con un OTA.
+3. Un gesto che parte su un carosello o su una fila di schede resta suo. Dentro
+   le pagine non c'è una mappa da trascinare: le mappe di Feed, Explore e
+   Profilo sono immagini, e la mappa vera prende lo schermo senza barra.
+4. Resta tutto quello che fa `TabShell`: pagine costruite al primo arrivo e
+   tenute, tocco sulla scheda attiva che torna in cima, «indietro» di Android,
+   il giro guidato, VoiceOver con le schede `tab` e lo stato `selected`.
+
+**Conseguenze**: chi aveva imparato lo swipe prima di TASK-367 lo ritrova.
+La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
+prova solo con i test.
 
 ---
