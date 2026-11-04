@@ -34,7 +34,7 @@ from route_engine.walking import API_ACTIVITIES
 
 from shaperoute_api.access import OPEN_PATHS
 from shaperoute_api.accounts import Accounts
-from shaperoute_api.activities import PlaceNames
+from shaperoute_api.activities import RECORD_ACTIVITIES, PlaceNames
 from shaperoute_api.app import create_app
 from shaperoute_api.db import Database, DictConnection, migrations
 from shaperoute_api.drawings import MAX_DESCRIPTION_LENGTH
@@ -1057,8 +1057,9 @@ def test_without_a_typed_description_strava_gets_the_drawings(
 
 
 def test_every_activity_has_a_strava_sport() -> None:
-    # The activities of the API, the walk among them (TASK-371).
-    assert set(SPORT_TYPES) == set(API_ACTIVITIES)
+    # The activities of the API, the walk among them (TASK-371), and those
+    # recorded without a shape (TASK-375).
+    assert set(SPORT_TYPES) == set(API_ACTIVITIES) | set(RECORD_ACTIVITIES)
 
 
 def test_a_typed_description_keeps_its_lines_and_is_cut_not_refused() -> None:

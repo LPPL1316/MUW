@@ -75,6 +75,17 @@ export type Activity = (typeof ACTIVITIES)[number];
 export const API_ACTIVITIES = ACTIVITIES;
 export type ApiActivity = (typeof API_ACTIVITIES)[number];
 
+/** The activities recorded without a shape (TASK-375, ADR-0319): alpine
+ * skiing and cross-country skiing. The route engine plans none of them, so
+ * they are no ApiActivity: only a saved run says them. */
+export const RECORD_ACTIVITIES = ["skiing", "xc_skiing"] as const;
+export type RecordActivity = (typeof RECORD_ACTIVITIES)[number];
+
+/** What a saved run was (PUT /me/activities/{key}): an activity of the API,
+ * or one recorded without a shape. */
+export const RUN_ACTIVITIES = [...API_ACTIVITIES, ...RECORD_ACTIVITIES] as const;
+export type RunActivity = (typeof RUN_ACTIVITIES)[number];
+
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
  * the app; "file", a GPX, TCX or FIT file of another app, read on the phone
  * and saved with the same PUT /me/activities/{key}. Only "muw" counts for
