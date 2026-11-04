@@ -778,6 +778,26 @@ export const DE: Table = {
   Miles: "Meilen",
   "Phone units": "Einheiten des Handys",
 
+  // src/settings/BodySetting.tsx, BodyPage.tsx, src/body/bodyFields.ts (TASK-374)
+  Body: "Körper",
+  "Not set": "Nicht festgelegt",
+  "Used only to estimate your calories and heart rate zones. It stays on this phone.":
+    "Wird nur verwendet, um deine Kalorien und Herzfrequenzzonen zu schätzen. Bleibt auf diesem Handy.",
+  Sex: "Geschlecht",
+  Male: "Männlich",
+  Female: "Weiblich",
+  "Prefer not to say": "Keine Angabe",
+  Weight: "Gewicht",
+  Height: "Größe",
+  "Year of birth": "Geburtsjahr",
+  "Calories are an estimate. Weight matters most.":
+    "Kalorien sind eine Schätzung. Am meisten zählt das Gewicht.",
+  "Enter a weight between {min} and {max} {unit}.":
+    "Gib ein Gewicht zwischen {min} und {max} {unit} ein.",
+  "Enter a height between {min} and {max}.":
+    "Gib eine Größe zwischen {min} und {max} ein.",
+  "Enter a year between {min} and {max}.": "Gib ein Jahr zwischen {min} und {max} ein.",
+
   // src/settings/ToneSetting.tsx
   Tone: "Darstellung",
   Dark: "Dunkel",

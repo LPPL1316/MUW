@@ -12,7 +12,12 @@ describe("running", () => {
   test("with no body, a flat run is 1.0 kcal per kg and km for 70 kg", () => {
     // (3.5 × 50 + 0.2 × 10 000) ml/kg = 2.175 L/kg → 761.25 kcal; at rest
     // 1.225 kcal/min × 50 = 61.25.
-    const effort = { activity: "running", metres: 10_000, seconds: 3000, climbM: 0 } as const;
+    const effort = {
+      activity: "running",
+      metres: 10_000,
+      seconds: 3000,
+      climbM: 0,
+    } as const;
     expect(activeKcal(effort, NO_BODY, YEAR)).toBe(700);
   });
 
@@ -27,24 +32,44 @@ describe("running", () => {
   });
 
   test("each metre climbed adds 0.0045 kcal a kilogram", () => {
-    const effort = { activity: "running", metres: 10_000, seconds: 3000, climbM: 200 } as const;
+    const effort = {
+      activity: "running",
+      metres: 10_000,
+      seconds: 3000,
+      climbM: 200,
+    } as const;
     expect(activeKcal(effort, NO_BODY, YEAR)).toBe(763);
   });
 
   test("without its time, a run is counted from its metres", () => {
-    const effort = { activity: "running", metres: 10_000, seconds: null, climbM: null } as const;
+    const effort = {
+      activity: "running",
+      metres: 10_000,
+      seconds: null,
+      climbM: null,
+    } as const;
     expect(activeKcal(effort, NO_BODY, YEAR)).toBe(700);
   });
 
   test("the weight counts in proportion", () => {
-    const effort = { activity: "running", metres: 10_000, seconds: null, climbM: null } as const;
+    const effort = {
+      activity: "running",
+      metres: 10_000,
+      seconds: null,
+      climbM: null,
+    } as const;
     expect(activeKcal(effort, { ...NO_BODY, weightKg: 90 }, YEAR)).toBe(900);
   });
 
   test("sex, age and height take off Mifflin-St Jeor at rest", () => {
     // 80 kg: 2.175 × 5 × 80 = 870 kcal. At rest, a man of 36, 180 cm:
     // 800 + 1125 − 180 + 5 = 1750 kcal a day, 60.76 in 50 minutes.
-    const effort = { activity: "running", metres: 10_000, seconds: 3000, climbM: 0 } as const;
+    const effort = {
+      activity: "running",
+      metres: 10_000,
+      seconds: 3000,
+      climbM: 0,
+    } as const;
     expect(activeKcal(effort, MAN, YEAR)).toBe(809);
     // A woman: 1750 − 166 = 1584 a day, 55 in 50 minutes.
     expect(activeKcal(effort, { ...MAN, sex: "female" }, YEAR)).toBe(815);
@@ -54,22 +79,40 @@ describe("running", () => {
 describe("cycling and paddling", () => {
   test("a ride at 20 km/h is 8.0 MET", () => {
     // 8 × 3.5 × 30 = 840 ml/kg → 294 kcal; at rest 36.75.
-    const effort = { activity: "cycling", metres: 10_000, seconds: 1800, climbM: 0 } as const;
+    const effort = {
+      activity: "cycling",
+      metres: 10_000,
+      seconds: 1800,
+      climbM: 0,
+    } as const;
     expect(activeKcal(effort, NO_BODY, YEAR)).toBe(257);
   });
 
   test("a paddle at 5 km/h is 2.8 MET", () => {
     // 2.8 × 3.5 × 60 = 588 ml/kg → 205.8 kcal; at rest 73.5.
-    const effort = { activity: "paddling", metres: 5000, seconds: 3600, climbM: null } as const;
+    const effort = {
+      activity: "paddling",
+      metres: 5000,
+      seconds: 3600,
+      climbM: null,
+    } as const;
     expect(activeKcal(effort, NO_BODY, YEAR)).toBe(132);
   });
 
   test("without its time, a ride or a paddle has none", () => {
     expect(
-      activeKcal({ activity: "cycling", metres: 30_000, seconds: null, climbM: null }, NO_BODY, YEAR),
+      activeKcal(
+        { activity: "cycling", metres: 30_000, seconds: null, climbM: null },
+        NO_BODY,
+        YEAR,
+      ),
     ).toBe(0);
     expect(
-      activeKcal({ activity: "paddling", metres: 3000, seconds: 0, climbM: null }, NO_BODY, YEAR),
+      activeKcal(
+        { activity: "paddling", metres: 3000, seconds: 0, climbM: null },
+        NO_BODY,
+        YEAR,
+      ),
     ).toBe(0);
   });
 
@@ -98,7 +141,12 @@ describe("at rest", () => {
   });
 
   test("no metres, no energy", () => {
-    const effort = { activity: "running", metres: 0, seconds: 600, climbM: null } as const;
+    const effort = {
+      activity: "running",
+      metres: 0,
+      seconds: 600,
+      climbM: null,
+    } as const;
     expect(activeKcal(effort, MAN, YEAR)).toBe(0);
   });
 });

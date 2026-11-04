@@ -87,8 +87,8 @@ test("all the numbers: paces, clock, last kilometre, climb and energy", async ()
   expect(screen.getByLabelText("Avg pace: 6:00 /km")).toBeOnTheScreen();
   expect(screen.getByLabelText("Last km: 6:00 /km")).toBeOnTheScreen();
   expect(screen.getByLabelText("Elev. gain: 30 m")).toBeOnTheScreen();
-  // 1.5 km at 70 kg.
-  expect(screen.getByLabelText("Calories: 109 kcal")).toBeOnTheScreen();
+  // 1.5 km and 30 m up at 70 kg: 70 × (1.5 + 0.0045 × 30) (ADR-0318).
+  expect(screen.getByLabelText("Calories: 114 kcal")).toBeOnTheScreen();
   // No route: nothing to go, no bar.
   expect(screen.queryByText(/to go/)).toBeNull();
   expect(screen.queryByTestId("route-done")).toBeNull();

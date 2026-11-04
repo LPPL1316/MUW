@@ -59,7 +59,12 @@ test("with nothing kept, the body is empty", () => {
 });
 
 test("what is saved is read back at the next opening", () => {
-  const body = { sex: "female", weightKg: 58.5, heightCm: 165, birthYear: 1994 } as const;
+  const body = {
+    sex: "female",
+    weightKg: 58.5,
+    heightCm: 165,
+    birthYear: 1994,
+  } as const;
   saveBody(body, YEAR);
   expect(loadBody(YEAR)).toEqual(body);
   expect(appBody()).toEqual(body);

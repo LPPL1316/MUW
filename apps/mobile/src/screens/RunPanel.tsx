@@ -9,7 +9,9 @@ import { isPaddle, PADDLE_PACE_M, per500S } from "../navigation/paddle";
 import { distanceLabel } from "../navigation/phrases";
 import { isRide, speedNumber } from "../navigation/ride";
 import { useRunControl } from "../navigation/runControl";
-import { climbM, kcal } from "../navigation/runMetrics";
+import { activeKcal } from "../body/energy";
+import { useBody } from "../body/useBody";
+import { climbM } from "../navigation/runMetrics";
 import {
   aboutMinutes,
   averagePaceS,
@@ -113,6 +115,7 @@ export function useRunNumbers(
 ): RunNumbers {
   const { phase } = useRunControl();
   const units = useUnits();
+  const body = useBody();
   const pause = openPause(track);
   const ticking =
     live && pause === null && phase !== "countdown" && track.fixes.length > 0;
@@ -155,7 +158,18 @@ export function useRunNumbers(
     pace500: clock(average === null ? null : per500S(average)),
     time: clockLabel(ms),
     climb: climbed === null ? NO_NUMBER : String(Math.round(climbed)),
-    energy: String(kcal(track.distanceM)),
+    energy: String(
+      activeKcal(
+        {
+          activity: activity ?? "running",
+          metres: track.distanceM,
+          seconds: ms / 1000,
+          climbM: climbed,
+        },
+        body,
+        new Date(at).getFullYear(),
+      ),
+    ),
     toGo: route
       ? t("{distance} to go", { distance: distanceLabel(route.remainingM, units) })
       : null,
@@ -278,6 +292,7 @@ export function RunGrid({ numbers }: { numbers: RunNumbers }) {
         <View style={styles.tiles}>
           <Tile label={t("Avg /500 m")} value={numbers.pace500} />
           <Tile label={t("Last 500 m")} value={numbers.lastKm} />
+          <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
         </View>
       ) : (
         <View style={styles.tiles}>
@@ -287,12 +302,9 @@ export function RunGrid({ numbers }: { numbers: RunNumbers }) {
             unit={unitOf(numbers)}
           />
           <Tile label={t("Elev. gain")} value={numbers.climb} unit="m" />
-          {/* The energy is a runner's (KCAL_PER_KG_KM): on a bike it would
-              read about three times the truth. Off a run, no tile
-              (TASK-255, the user's choice). */}
-          {!numbers.ride && (
-            <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
-          )}
+          {/* Each sport its own energy (TASK-374, ADR-0318): the tile is
+              back on a bike, where the runner's formula had taken it off. */}
+          <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
         </View>
       )}
     </View>
