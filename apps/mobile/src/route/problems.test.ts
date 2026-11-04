@@ -415,3 +415,30 @@ test("a line refused without a known reason still says something", () => {
     problemText({ ...problem, code: "image_not_usable", reason: "short" }).text,
   ).toMatch(/one clear outline/);
 });
+
+test("an outline the engine cannot draw says it does not fit, with no «Try again» (TASK-382)", () => {
+  const CROSSES =
+    "outline: the outline crosses itself: the sides starting at points 1 and 38 meet";
+  const refused: RouteProblem = {
+    kind: "api_error",
+    code: "invalid_request",
+    message: CROSSES,
+  };
+  expect(problemText(refused, "image", "running")).toEqual({
+    text: "This outline does not fit the roads here. Try another distance, another start, or a simpler picture.",
+    detail: CROSSES,
+  });
+  expect(problemText(refused, "image", "paddling")).toEqual({
+    text: "This shape does not fit on the water here. Try a shorter distance, another shape, or another start:",
+    detail: CROSSES,
+    pickShape: true,
+  });
+  // Any other refusal is still ours to fix.
+  expect(
+    problemText(
+      { kind: "api_error", code: "invalid_request", message: "distance_m: missing" },
+      "image",
+      "paddling",
+    ).retry,
+  ).toBe(true);
+});

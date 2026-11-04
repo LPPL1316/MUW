@@ -1243,7 +1243,7 @@ interface DrawingFields {
   /** The fields of TASK-208: an API before has none. */
   visibility?: Visibility;
   description?: string | null;
-  activity?: Activity;
+  activity?: RunActivity;
   /** The run's (TASK-312): "file" is shown with «Imported». Missing from an
    * API before it: "muw". */
   source?: RunSource;

@@ -4,6 +4,7 @@ import {
   type DrawingComplexity,
   type DrawingSort,
   type LatLon,
+  type RunActivity,
   SHAPES,
 } from "@shaperoute/shared-types";
 
@@ -151,7 +152,8 @@ export function exampleMatches(
   }
   if (
     filters.activities.length > 0 &&
-    !filters.activities.includes(post.activity ?? "running")
+    // A day on the snow is in none of the filters (TASK-375).
+    !(filters.activities as readonly RunActivity[]).includes(post.activity ?? "running")
   ) {
     return false;
   }

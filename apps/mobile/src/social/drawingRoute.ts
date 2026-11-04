@@ -1,6 +1,7 @@
-import type { DrawingDetail, LatLon } from "@shaperoute/shared-types";
+import type { Activity, DrawingDetail, LatLon } from "@shaperoute/shared-types";
 
 import type { Drawn } from "../activities/recordedRun";
+import { isOnSnow, routeActivity } from "../activities/snow";
 import { shapeName } from "../i18n/shapeNames";
 
 /**
@@ -37,6 +38,12 @@ export function followable(drawing: Pick<DrawingDetail, "track">): boolean {
   return drawing.track.length >= 2;
 }
 
+/** Whether it is a route somebody else may run or be sent: a line, and not
+ * a day on the snow (TASK-375, the user's choice), which only records. */
+export function runnable(drawing: Pick<DrawingDetail, "track" | "activity">): boolean {
+  return followable(drawing) && !isOnSnow(drawing.activity);
+}
+
 /** What the drawing draws, for the run that follows it: «My activities»
  * and its post say it as the drawing does. */
 export function drawnOf(drawing: Followed): Drawn {
@@ -55,13 +62,15 @@ export function drawnOf(drawing: Followed): Drawn {
 export function followedOf(drawing: Followed): {
   points: LatLon[];
   similarity: number;
-  activity?: DrawingDetail["activity"];
+  activity?: Activity;
   rotation_deg?: number;
 } {
+  // A day on the snow is never followed (runnable): it has no route's.
+  const activity = routeActivity(drawing.activity);
   return {
     points: drawing.track,
     similarity: (drawing.score ?? 0) / 100,
-    ...(drawing.activity !== undefined ? { activity: drawing.activity } : {}),
+    ...(activity !== undefined ? { activity } : {}),
     ...(drawing.rotation_deg != null ? { rotation_deg: drawing.rotation_deg } : {}),
   };
 }

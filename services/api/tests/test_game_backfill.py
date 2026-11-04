@@ -148,10 +148,11 @@ def test_newer_rules_compute_every_run_again(
 ) -> None:
     me = signed_up(client, "ada")
     save(client, me, run_body(SIX_KM))
-    monkeypatch.setattr(game_module, "RULES_VERSION", 2)
-    monkeypatch.setattr(game_backfill, "RULES_VERSION", 2)
+    newer = game_backfill.RULES_VERSION + 1
+    monkeypatch.setattr(game_module, "RULES_VERSION", newer)
+    monkeypatch.setattr(game_backfill, "RULES_VERSION", newer)
     assert backfill(database) == Backfilled(accounts=1, runs=1, unlocked=0)
-    assert [row["rules_version"] for row in game_rows(database)] == [2]
+    assert [row["rules_version"] for row in game_rows(database)] == [newer]
     # The shape stays, once.
     assert [shape for shape, _ in unlocks(database)] == ["triangle"]
 
@@ -176,5 +177,6 @@ def test_the_command_says_what_it_did(
     monkeypatch.setenv(DATABASE_VARIABLE, database.url)
     assert main([]) == 0
     assert capsys.readouterr().out.strip() == (
-        "game_backfill: rules 1, 1 account(s), 1 run(s), 1 shape(s) unlocked"
+        f"game_backfill: rules {game_backfill.RULES_VERSION}, 1 account(s),"
+        " 1 run(s), 1 shape(s) unlocked"
     )

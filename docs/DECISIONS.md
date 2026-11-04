@@ -21490,6 +21490,19 @@ dell'utente:
 - Nei file importati è camminata il `walking` del GPX, il «10» di Strava e
   lo sport FIT 11. L'escursionismo no: è di TASK-377.
 - «NEAR YOU» resta solo per la corsa («Solo corsa, per ora»).
+
+**Aggiunta (parte C, 2026-11-04)** · scelta dell'utente per i ritmi
+(«Solo i metri»), il resto deciso dall'agente su delega dell'utente col via
+del Coordinatore:
+
+- Nel gioco delle forme una camminata conta i suoi metri come una corsa,
+  con gli stessi controlli, ma senza tempi migliori: le forme col ritmo non
+  si sbloccano camminando.
+- `RULES_VERSION` passa a 2, così `game_backfill` ricalcola le corse già
+  tenute.
+- I concorsi non filtrano per sport, quindi i post a piedi c'erano già.
+- L'app non cambia: la striscia del gioco conta già «a piedi» tutto ciò che
+  non è bici, canoa o nuoto.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
@@ -21880,6 +21893,30 @@ cui nessun altro tocca quei file, e un aggiornamento del server rimandato
 fino al primo sport nuovo. Il pilota della struttura non è la camminata
 (già TASK-371 con la struttura di oggi), ma l'Escursionismo (TASK-377),
 scelta dell'utente del 2026-11-04.
+
+**Aggiornamento 2026-11-04 (parte B1, approvato dal Coordinatore): il punto
+3 cambia.** Niente notte di esempi per uno spostamento: `route_store.py` ha
+`SAME_ROUTES_AS`, {impronta del codice spostato: impronta di prima}, e
+`engine_fingerprint` (anche quello degli esempi della canoa,
+`paddle_examples.engine_fingerprint`) dà quella di prima, seguendo le righe
+a catena. Una riga entra solo con la sua prova:
+`services/api/tests/test_same_routes.py` disegna offline nove percorsi
+fissi (corsa, bici, canoa, nuoto) e ne scrive l'hash del risultato intero
+in `tests/fixtures/same_routes/<impronta>.json`; un test vieta una riga
+senza le prove delle sue due impronte, fatte sulla stessa piattaforma, con
+gli stessi hash, e un altro controlla che il motore di adesso disegni la
+sua prova (solo sulla piattaforma della prova: il Mac arm64 e Linux in CI
+disegnano alcuni di questi percorsi diversi nelle ultime cifre). Basta
+perché uno spostamento di codice non cambia le operazioni in virgola
+mobile: una differenza di piattaforma è la stessa prima e dopo, e la prova
+su una piattaforma più il banco bastano. Non bastano per un cambiamento di
+comportamento, che per questo non usa mai l'alias. In più il banco
+su `main` e sul branch, `compare --same`, punto per punto. **Un cambiamento
+di comportamento non usa mai `SAME_ROUTES_AS`**: i suoi percorsi si
+ridisegnano, col sì dell'utente. Così il server si può aggiornare da `main`
+quando serve. Il primo sport della fase 1 cambia l'impronta con il suo
+codice nuovo: se può avere anche lui una riga (nessun percorso di prima
+cambia) o se serve la notte di esempi, si decide allora col Coordinatore.
 ## ADR-0319 — Gli sport «Record only»: si registrano senza forma, il motore non li vede
 
 **Stato**: Proposto · 2026-11-04 · TASK-375. Scelte dell'utente lo stesso
@@ -21934,6 +21971,18 @@ dell'utente):
    giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
    vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
    sono, finché manca una stima.
+8. (B2, 2026-11-04; la scelta di prodotto è dell'utente, «Sì, così», il
+   modo è deciso dall'agente su delega dell'utente) Ogni lettore dei
+   disegni conosce la neve, e l'attività di `Drawing` e `DrawingDetail` è
+   `RunActivity`; un'attività che l'app non conosce cade ancora come in
+   B0. Una regola sola, `activities/snow.ts` (`isOnSnow`, `routeActivity`),
+   toglie alla neve ciò che si fa con un percorso: «Start» e «Send to a
+   friend» (`runnable`), «Draw it near me» e «Edit the drawing». Toglie
+   anche le calorie stimate. La scheda dice il nome dello sport; un filtro
+   per attività della ricerca la lascia fuori, perché nessun filtro di oggi
+   è la neve. L'export GPX resta, perché non era tra le azioni escluse.
+   `App.tsx` non cambia: `followedOf` non dà mai alla neve l'attività di
+   un percorso.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -21990,6 +22039,20 @@ del `Pager`, e «Close» finiva sotto l'orologio. Come per il regolamento
 `initialWindowMetrics`, per ogni punto da cui si apre. Scartato: far passare
 il margine da `ActionBar`, che lascerebbe il difetto al prossimo che apre il
 post da un'altra pagina, e cambiare il `Pager`.
+
+---
+
+## ADR-0318, precisazione — L'unità di peso e altezza sta dentro il riquadro
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Dentro il riquadro»),
+il resto deciso dall'agente su delega dell'utente (TASK-383). In «Body»
+l'unità stava a destra del riquadro, piccola e grigia, e sul telefono non si
+notava. Ora «kg» e «cm» (con le miglia «lb», «ft» e «in») stanno dentro il
+riquadro, dopo il numero e nella sua stessa dimensione; il riquadro è un
+`Pressable` e un tocco ovunque, anche sull'unità, apre la tastiera del campo.
+I valori restano in kg e cm (punto 10). Scartati: l'unità nel nome del campo
+(«Weight (kg)»), che con le miglia cambia il nome, e un segnaposto, che sparisce
+appena si scrive.
 
 ---
 
@@ -22126,5 +22189,39 @@ Coordinatore.
 Scartato: un endpoint di amministrazione per caricare i post (una
 superficie in più sul server pubblico per una cosa che si fa a mano e di
 rado); il link affiliato scritto nella riga (legato all'ID di oggi).
+## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-382). Dopo «Edit the drawing» su un esempio sull'acqua (TASK-369 B),
+«Draw route» riceveva un 422 «outline: the outline crosses itself»: l'app
+controllava il contorno prima che `canvasRequest.framed` lo arrotondasse al
+decimillesimo, e l'arrotondamento faceva toccare i due lati della punta o del
+nastro lasciati dal tratto dalla riva.
+
+**Decisione**:
+
+1. **Il contorno si controlla con i numeri che partono**, dopo
+   l'arrotondamento, e con la regola del motore copiata operazione per
+   operazione (`shapes/outline.py`: `_ring`, `_orient`, `_meet`,
+   `_folds_back`, `_first_crossing`), in `mapdraw/sentOutline.ts`: sugli
+   stessi numeri app e motore danno lo stesso verdetto.
+2. **Dove due lati si incontrano si tolgono gli angoli fra loro**, dal lato
+   con meno angoli, finché nessuno si incontra; mai un punto nuovo, così non
+   si riarrotonda niente. Il contorno riparte dall'angolo più vicino al suo
+   primo punto.
+3. **Se resterebbe troppo poco, o un dettaglio non partirebbe più sul
+   contorno** (`ATTACH_TOLERANCE`), il contorno va com'era: l'API dice
+   perché, come prima.
+
+**Alternative scartate**: mandare i numeri senza arrotondare (in un caso su
+otto il solo cambio di riquadro fa già toccare i lati); un controllo con
+tolleranza nel motore (cambia l'impronta del motore e vuole il server);
+rifare `outlineOf` sul contorno arrotondato (crea punti nuovi, da
+riarrotondare); un testo nuovo per questo 422 (non serve se il 422 non c'è
+più, e vorrebbe il sì dell'utente).
+
+**Conseguenze**: vale per ogni figura della mappa, sull'acqua e sulle strade;
+un contorno che il motore prende già parte identico a prima. Solo JS, nessun
+testo, impronta iOS invariata; funziona col server di oggi.
 
 ---

@@ -164,6 +164,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
   migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
+- **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
+  «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
+  fuori dal riquadro; scelta dell'utente «Dentro il riquadro»: «kg»/«cm», con
+  le miglia «lb» e «ft» + «in», accanto al numero, e un tocco sull'unità apre
+  la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
+  la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
+  nessun testo nuovo. `tasks/TASK-383.md`.
 
 - **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
   (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
@@ -187,6 +195,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   all'anteprima (Coordinatore), la prova sul telefono, l'OTA col sì
   dell'utente. Limite scritto nel task file: una seconda scivolata veloce
   alla fine di una fila passa alla pagina accanto.
+- **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-369 B). Su un esempio di «Explore» sui
+  laghi, con «Paddle», «Draw route» dopo «Edit the drawing» diceva «Something went wrong». Il
+  server rispondeva 422 «outline: the outline crosses itself»: il tratto dalla riva lascia nel
+  contorno una punta o un nastro, e l'arrotondamento di `canvasRequest.framed` ne fa toccare i
+  lati dopo il controllo dell'app. Ora `mapdraw/sentOutline.ts` controlla il contorno come parte,
+  con la regola del motore, e ne toglie gli angoli che si toccano. Solo JS: server, motore,
+  contratto e testi invariati, impronta iOS 6f8bba4c. Branch `fix/TASK-382-paddle-edit-422`;
+  prova sul telefono e OTA col sì dell'utente. `tasks/TASK-382.md`.
 
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
@@ -209,6 +226,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   struttura per scelta dell'utente), TASK-378 / ADR-0322 (Gravel/MTB); il
   terzo sport della fase 1 è il Roller (scelta dell'utente), TASK-380 / ADR-0324,
   riservati dal Coordinatore. `tasks/TASK-376.md`.
+  **Parte B1 in PR** (2026-11-04, `feat/TASK-376-b-sport-registry`): reti e
+  attività del motore nei registri `networks/` e `activities/`, gli stessi
+  valori; la prova `test_same_routes.py` dà percorsi identici, quindi
+  `SAME_ROUTES_AS` tiene le impronte di prima (5b5e026cea9b, b9d00c37d28d,
+  574fbfba41eb): **nessuna notte di esempi**, il server si aggiorna da `main`
+  come prima. B2 (contratto e API) e B3 (app) dopo la #758.
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
@@ -230,6 +253,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     con il solo «Record your day», salvataggio come `skiing`/`xc_skiing`,
     Apple Salute e Health Connect (ADR-0319, punto 7). Prossimo: B2, cioè
     lo sci nel Feed, nelle schede e nei messaggi.
+  - 2026-11-04: **B2**: lo sci nel Feed e nei profili come un post qualsiasi,
+    con il nome dello sport, senza le azioni da percorso (scelta
+    dell'utente, ADR-0319 punto 8). Prossimo: la parte C (le metriche della
+    giornata), con i testi da approvare.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -256,6 +283,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   il server con la 0043, il sì dell'utente. Resta la parte C (il gioco):
   prima va chiesto all'utente se le camminate contano anche nei concorsi.
   Vedi `tasks/TASK-371.md`, «Esito».
+  **Parte C** (2026-11-04, branch `feat/TASK-371-c-walk-game`): le
+  camminate danno i metri al gioco, senza tempi migliori («Solo i metri»,
+  scelta dell'utente), con `RULES_VERSION` 2. I concorsi le accettano già.
+  Il server e `game_backfill` vanno nel giro delle migrazioni 0043–0045,
+  col sì dell'utente.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
