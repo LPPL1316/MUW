@@ -17,6 +17,7 @@ import {
   VIDEO_WIDTH,
   type VideoOp,
   videoScene,
+  withNote,
 } from "./videoScene";
 
 /** A straight line north, a point every 50 m. */
@@ -313,6 +314,28 @@ describe("videoScene, at night", () => {
     }
     expect(night.frames).toHaveLength(VIDEO_SECONDS * VIDEO_FPS);
     expect(Math.max(...night.frames.map((frame) => frame.length))).toBeLessThan(24);
+  });
+});
+
+describe("withNote", () => {
+  it("writes the note small at the foot of every picture, and changes nothing else", () => {
+    const noted = withNote(scene, "no map: timeout");
+    expect(noted.frames).toHaveLength(scene.frames.length);
+    for (let i = 0; i < noted.frames.length; i += 1) {
+      const frame = noted.frames[i];
+      expect(frame.slice(0, -1)).toEqual(scene.frames[i]);
+      expect(frame[frame.length - 1]).toMatchObject({
+        k: "text",
+        text: "no map: timeout",
+        align: "center",
+        color: "ink",
+        size: 21.6,
+        alpha: 1,
+      });
+      expect((frame[frame.length - 1] as Words).y).toBeGreaterThan(1920 * 0.95);
+    }
+    expect(noted.paths).toBe(scene.paths);
+    expect(noted.look).toBe("paper");
   });
 });
 
