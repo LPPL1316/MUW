@@ -160,6 +160,34 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
+  richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
+  finché l'utente non sceglie. Studio in `out/TASK-373/` del Mac (ignorato
+  da git), con la pagina `ski-study.html`. Misurato su Paganella,
+  Campiglio–Pinzolo–Folgarida e Sella Ronda: la rete piste + impianti c'è
+  (pezzo utile 35, 97,5 e 265,5 km), ma il motore di oggi non propone
+  nessuna delle 19 forme chieste (0,22–0,58, minimo 0,60; 27–43% del
+  percorso sugli impianti). Proposta: A, la giornata registrata senza forma
+  (4–6 sessioni); B, forme di discese a penna alzata, solo dopo un
+  prototipo; C, «Soon», no da sola (ADR-0278). **L'utente ha scelto A**
+  il 2026-11-04. Prossimo passo: le domande 2–4, una alla volta
+  (`tasks/TASK-373.md`).
+
+- **TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa
+  dov'è** (ADR-0313, proposta; richiesta dell'utente del 2026-11-03; numeri dal
+  Coordinatore). Branch `docs/TASK-369-edit-every-drawing` (documenti). Scelte
+  dell'utente: emoji, parole, percorsi a tema, corse libere e importate sì (la
+  traccia); post di sole foto e risultato di «Draw» no; nessuna scritta «basato
+  su» e nessun blocco dell'autore; Pagaia sì, come parte B (motore e API, server
+  col suo sì). Parte A (solo app) dopo TASK-367 A, col via del Coordinatore.
+  Nota: `tasks/TASK-346.md` dice ancora «In corso», ma la #655 è in `main` dal
+  2026-10-30. `tasks/TASK-369.md`.
+  **2026-11-04**: documenti in `main` (#712); parte A in `main` (#719,
+  `3e7c7d28`, impronta iOS 6f8bba4c, arriva con un OTA); parte B in PR (#722):
+  il disegno sull'acqua da `drawn_water.py`, fuori dall'impronta del motore
+  (uguale a `main`, niente notte di `draw_examples --water`); si unisce dopo
+  TASK-323 C2, poi il server col sì dell'utente.
 - **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
   (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
   `src/search/`, la lente apre la ricerca, `shape=word` sul server per
@@ -189,6 +217,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
   via del Coordinatore; server, migrazione e sito col sì dell'utente.
   `tasks/TASK-368.md`.
+  **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
+  migrazione `0042_run_bests`, `personal_bests` nel profilo, script
+  `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
+  Poi la parte B, l'app.
+  **Parte B** (2026-11-04): branch `feat/TASK-368-b-personal-bests-app`, il
+  riquadro dei record nel Profilo, testi approvati, Guida e privacy nelle
+  cinque lingue e sul sito (pubblicazione col sì dell'utente).
+  **Chiuso** (2026-11-04): A #721 e B #723 in main, server con la 0042
+  (fe4e9499). Restano all'utente: il backfill dei record delle corse già
+  salvate, la privacy sul sito e l'OTA.
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
@@ -216,6 +254,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-11-02: codice pronto in PR da `feat/TASK-362-feed-tabs` (filtro sul
   server, schede sul `Segmented`, nessuna migrazione). Prima dell'OTA va
   aggiornato il server, col sì dell'utente. Dopo: 344 B, 355 B ridotta, 309 B.
+  2026-11-04: **chiuso.** #697 in main (2026-11-03), server a 36c6b2da, OTA di
+  produzione a91869b6 da 081f6d82; l'utente vede «All» e «Following» sul
+  telefono. Restano: la riga di privacy più avanti (scelta 7), gli esempi
+  col Coordinatore (scelta 4).
 
 - **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
   scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
@@ -245,6 +287,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
   un timer, il WebView è un punto visibile), riprodotto e provato nel
   simulatore; la prova dalla preview è dell'utente. Poi la C.
+  2026-11-04: il fix è in `main` (#703); la C è in PR
+  (`feat/TASK-351-c-video-styles`): la riga «Style» con «Night» e «Day»,
+  il look chiaro col bordo scuro sulla linea e il velo chiaro, i tre testi;
+  la tessera «3D» con la D. Sera: la C è riallineata su `main` f23ec332
+  (#717, col codice della #707), 26 suite verdi, impronta iOS sulla copia
+  pulita `6f8bba4c`; «#706 pronta» al Coordinatore.
   2026-11-04: il fix è in `main` (#703) e sulla preview fb15613e, ma sul
   telefono il video è ancora senza mappa: prova successiva in
   `fix/TASK-351-video-map-under-cover`, PR #707 (WebView a grandezza piena
@@ -252,8 +300,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con il motivo dato dalla pagina, solo sul canale preview, con un test che
   su production non compaia). L'utente: il video della preview era
   «giallo», app riaperta due volte. Riallineata su `main` dopo la #620:
-  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706; la #706 e la
-  produzione aspettano. Senza mappa il video
+  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706. Sera: con la stessa
+  preview fb15613e l'utente vede la mappa («ok la mappa funziona»): i
+  fotogrammi a timer bastano, il giallo di prima stava nei 15 s di attesa
+  (libreria e tegole non in cache, o rete lenta); la riga di diagnosi
+  (solo preview) lo dirà la prossima volta. La #706 si riallinea su
+  `main` dopo la #707; la condizione per la produzione del video (mappa
+  vista sul telefono) è soddisfatta, l'OTA resta una scelta dell'utente. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
@@ -274,6 +327,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`feed/RouteMap.tsx`, `ActionBar.tsx`, `drawAgainDoor.ts`), il filo sotto i
   nomi in `Pager`. Impronta iOS `83793e26`. Prossimo: la parte B (conteggi,
   foto dell'autore, skeleton), dopo 344 B.
+  **Parte A in main** (#700, 2026-11-03, testa `f4975e0f`, riallineata una
+  volta dopo la #697 di TASK-362). Arriva al telefono con la prossima OTA del
+  Feed. Prossimo: la parte B, dopo 344 B.
 - **TASK-339 — L'interfaccia premium ed elegante** (ADR-0293, proposta;
   brief dell'utente del 2026-10-29; il canvas della proposta, 16 tavole,
   visto e approvato a voce la sera stessa, «BELLISSIMO»:

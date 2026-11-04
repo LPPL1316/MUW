@@ -925,10 +925,16 @@ motore.)
 - **Da 1 a 5 km** (`DISTANCE_LIMITS_M.paddling`, scelta dell'utente):
   fuori è `422 invalid_request`, `distance must be between 1000 and 5000
   metres for paddling, got 5001`.
-- **Solo una forma del catalogo**: una parola è `422 invalid_request`, `on
-  the water only a shape of the catalogue is drawn, not a word` (dal
-  motore); un'immagine (`/image-route-jobs`, anche dentro `/gpx`) `… not an
-  image`, prima di guardare la distanza.
+- **Una forma del catalogo o un disegno**: una parola è `422
+  invalid_request`, `on the water only a shape of the catalogue is drawn,
+  not a word` (dal motore). Un'immagine (`/image-route-jobs`, anche dentro
+  `/gpx`) dal TASK-369 (ADR-0313) **si pagaia**: «Edit the drawing» fa un
+  disegno di ogni percorso, e la canoa lo piazza dove ci sta vicino alla
+  partenza, come una forma (`drawn_water.plan_drawn_water`), con gli stessi
+  controlli, gli stessi limiti di 1–5 km, niente indicazioni né
+  alternative; il `RouteResult` ha `shape` `null`. Solo con `placement`
+  `free`: ancorata è `422 invalid_request` (nessun percorso sull'acqua è
+  ancorato). Prima del TASK-369 era `… not an image`.
 - **Lontano dall'acqua**: `422 shape_not_drawable`, `there is no lake or
   sea to paddle on within 2 km of here`, `suggested_distance_m` `null`.
 - **La forma non ci sta** (al mare oltre circa 3 km): `422
@@ -1688,6 +1694,31 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   nascosti dalla moderazione, solo di corse registrate dall'app
   (`source = 'muw'`). «Winner» resta `contest_wins`. `badges.py`; un'API
   precedente non li ha.
+- **I record personali** (TASK-368, ADR-0312): `personal_bests`, il tempo
+  più veloce su ogni distanza, preso dal tratto migliore dentro **tutte** le
+  corse dell'account, private, di gruppo e importate comprese (scelta
+  dell'utente). A piedi `5k`, `10k`, `15k`, `half` (21 097,5 m), `30k`,
+  `marathon` (42 195 m), `60k`; in bici `10k`, `20k`, `40k`, `50k`, `100k`,
+  `160k`; la canoa e il nuoto no. In ordine: a piedi, poi in bici, per
+  distanza; solo le distanze che hanno un record, `[]` senza. Ogni
+  `PersonalBest` ha `sport`, `distance`, `distance_m`, `seconds` (in
+  movimento, le pause tolte), `started_at` (l'inizio della corsa: il suo
+  giorno), `drawing` (l'id del disegno di quella corsa solo se chi guarda
+  può vederlo, con la regola della griglia; altrimenti `null`: la corsa
+  resta chiusa) e `key` (la chiave della corsa, solo al proprietario, per
+  «My activities»). Conta lo sport che la corsa ha adesso; fra due tempi
+  uguali, il primo fatto. Come si misura: il tratto parte da un punto della
+  traccia e finisce al metro esatto della distanza; i metri sono quelli di
+  `distance_m`, nessuno dentro una pausa del corridore; un tratto con un
+  salto del GPS (più di 25 km/h a piedi, più di 90 km/h in bici fra due
+  punti) non conta; un tempo sotto il record del mondo della distanza si
+  scarta (in bici il limite è 90 km/h di media). I record di ogni corsa si
+  contano al salvataggio (`run_bests`, migrazione `0042`), mai a ogni
+  richiesta; cancellata una corsa, i suoi record vanno con lei e resta il
+  migliore dopo. Esempi `fixtures/personal-bests.json`;
+  `personal_bests.py`, `profile_bests.py`; un'API precedente non li ha. Le
+  corse salvate prima: `python -m shaperoute_api.personal_bests_backfill`,
+  una volta, sul server, col sì dell'utente.
 - **`GET /users/{public_id}/photos`** (TASK-324): le foto dei disegni che
   chi guarda vede sul profilo, dalla corsa più recente e nello stesso
   disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima

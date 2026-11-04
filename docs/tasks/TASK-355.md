@@ -1,6 +1,6 @@
 # TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio
 
-**Stato**: In lavorazione — parte A in PR #700 (2026-11-03), B dopo
+**Stato**: In lavorazione — parte A in main (#700, 2026-11-03), B dopo 344 B
 **Fase**: 4 · **Branch**: `docs/TASK-355-feed-clarity` (documenti),
 `feat/TASK-355-a-feed-card` (A), `feat/TASK-355-b-feed-counts` (B)
 · **ADR**: ADR-0306 · numeri dal Coordinatore (2026-10-30)
@@ -251,4 +251,8 @@ Prese dall'agente su delega dell'utente; non cambiano nessuna scelta sua.
 
 ## Esito
 
-*(a fine task)*
+- **Parte A** in main con la #700 (2026-11-03): tutti i criteri della parte A
+  soddisfatti, CI verde, suite mobile completa verde, impronta iOS `83793e26`.
+  Riallineata una volta dopo la #697 (TASK-362): in `App.tsx` il `FeedScreen`
+  delle schede sta dentro `DrawAgainContext.Provider`.
+- **Parte B**: da fare, dopo 344 B.

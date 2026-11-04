@@ -491,6 +491,30 @@ describe("the video page, with a fake map", () => {
     expect(map.removed).toBe(true);
   });
 
+  it("raises the veil as opaque as the scene asks", async () => {
+    const maplibre = fakeMapLibre("idle");
+    const { posted, context, make, prepareMap } = page(
+      fakeEncoder([VIDEO_CODECS[0]]).FakeEncoder,
+      FakeFrame,
+      maplibre,
+    );
+    await until(posted, "ready");
+    const day = videoScene(RUN, POST_RESULTS, STICKERS, "day");
+    prepareMap(day.map);
+    await until(posted, "map");
+    make(day);
+    await until(posted, "done", "failed");
+    expect(posted[posted.length - 1]).toEqual(
+      expect.objectContaining({ type: "done" }),
+    );
+    const gradient = context.createLinearGradient.mock.results[0].value as {
+      addColorStop: jest.Mock;
+    };
+    const stops = gradient.addColorStop.mock.calls;
+    expect(stops[0]).toEqual([0, expect.stringMatching(/, 0\)$/)]);
+    expect(stops[stops.length - 1]).toEqual([1, expect.stringMatching(/, 0\.94\)$/)]);
+  });
+
   it("gives the map up when a tile fails: a hole is worse than no map", async () => {
     const maplibre = fakeMapLibre("error");
     const { posted, prepareMap } = page(

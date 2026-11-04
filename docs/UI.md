@@ -1001,6 +1001,20 @@ vuota «No photos yet.», sul proprio «No photos yet. Add some to a public
 drawing in My activities.»; non arrivate, il motivo e «Try again». Con
 un'API senza i totali niente riquadri né schede, come prima.
 
+**I record personali** (TASK-368, ADR-0312, testi approvati il 2026-11-04).
+Sotto i totali, sul proprio profilo e su quello di un altro, un riquadro
+**«Personal bests»** («Record personali»): due gruppi, **RUN** e **BIKE**
+(«Corsa», «Bici»), solo quelli con almeno un record; in ognuno le distanze
+che hanno un record, nell'ordine delle distanze: a piedi coi nomi delle gare
+(«5K», «10K», «15K», «Half marathon», «30K», «Marathon», «60K»), in bici
+sempre in chilometri («10 km» … «160 km»). Per ogni record il nome e il
+giorno a sinistra, il tempo in movimento a destra, grande e con le cifre
+allineate. Dove la corsa si apre c'è «›» e il tocco la apre: il disegno per
+chi può vederlo, «My activities» sulla mappa per il proprietario; un record
+di una corsa che chi guarda non vede si legge e basta. VoiceOver legge
+«Half marathon, 1:50:18, Sun 27 Sep 2026». Senza record, o con un'API
+precedente, il riquadro non c'è.
+
 **La figura da cambiare** (TASK-320 parte B, ADR-0280, proposte approvate
 dall'utente il 2026-10-28; sulla mappa dal TASK-331, ADR-0288): nelle
 stesse due schede, dopo «Start», «Draw it near me» ed «Export GPX» (che
@@ -2722,6 +2736,26 @@ traccia sulla mappa dove è stata corsa e alla sua grandezza, non nel mezzo
 della partenza di «Draw»: l'utente il 2026-10-29, «devo poter modificare la
 traccia sulla mappa, non il disegno in sé».
 
+**Su ogni disegno, dal TASK-369** (ADR-0313, scelte dell'utente del
+2026-11-03 e 2026-11-04): «Edit the drawing» c'è su ogni scheda con una
+linea sulla mappa e mette **la traccia, o la linea del percorso, dov'è e
+grande com'è**, mai la figura chiesta: la scheda di un disegno di un membro
+(anche un'emoji, una parola, una corsa libera, una importata da un'altra
+app), la scheda di «Explore» (un esempio, una ricerca, un preferito, un
+disegno ricevuto in un messaggio, un esempio del Feed, una forma di «NEAR
+YOU»: la linea del risultato) e la scheda di un percorso a tema, dopo
+«Export GPX» e prima di «Back to Explore» (i luoghi del tema non restano).
+Quello che sopra dice «non c'è mai per una forma del catalogo, né per una
+parola» e «nel mezzo della partenza di "Draw"» per le schede non vale più.
+Una traccia che finisce lontano dalla partenza resta una linea aperta, come
+la prima linea disegnata sulla mappa (TASK-331). Il tasto non c'è per un
+post di sole foto e sotto il risultato di «Draw» (TASK-340). Dalla parte
+B c'è anche sull'acqua: con lo sport «Paddle» «Draw route» chiede il disegno
+in canoa, e la canoa lo pagaia dove ci sta vicino alla partenza, non
+esattamente dov'era. Un disegno di un altro si modifica
+sempre in una copia propria: il suo post non cambia, e la copia non dice da
+chi viene.
+
 Quello che segue è la tavola del TASK-320, tolta dal TASK-331: resta come
 storia delle scelte approvate allora.
 
@@ -3821,8 +3855,17 @@ run», con «Close» in alto a sinistra:
   non si toccano; poi si apre il foglio di condivisione con il video
   («Save Video» lo tiene in Foto). Errori: «This phone cannot make the
   video.», «The video could not be made. Try again.», «This phone cannot
-  open the share sheet.». I tre stili fra cui scegliere (Night, Day, 3D)
-  arrivano con le parti C e D di TASK-351.
+  open the share sheet.». Lo stile è quello scelto in «Style»; la mappa
+  inclinata del «3D» arriva con la parte D di TASK-351.
+- **«Style»**, sopra «Music» (TASK-351, ADR-0303; nomi scelti
+  dall'utente): una tessera per stile, alta come il video, con il disegno
+  della corsa nei colori dello stile sul fondo della sua mappa: «Night», la
+  mappa scura dell'app al suo passo più scuro, con la linea gialla e le
+  parole chiare su un velo scuro; «Day», la mappa chiara al suo passo più
+  chiaro, con la linea sul suo bordo scuro e le parole scure su un velo
+  chiaro, qualunque tono abbia l'app. «Night» è accesa all'apertura; la
+  scelta non si salva col post, come la musica. La tessera «3D» arriva con
+  la parte D.
 - **«Music»**, sopra «Instagram» ed «Export video» (TASK-301,
   ADR-0262; scelte dell'utente, al posto del «Niente musica» qui sopra):
   «None» e dieci brani nostri, «Energy», «Chill», «Epic», «Sprint»,

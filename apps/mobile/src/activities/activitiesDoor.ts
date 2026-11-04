@@ -127,8 +127,9 @@ export type ActivitiesDoor = ActivitiesState & {
   signIn: () => void;
   /** The run of the list being fetched whole, by id; null when none. */
   opening: string | null;
-  /** Fetches the run whole and shows it on the map. */
-  open: (activity: Activity) => void;
+  /** Fetches the run whole and shows it on the map: only its id is read,
+   * so a record of the profile opens its run by key (TASK-368). */
+  open: (activity: Pick<Activity, "id">) => void;
   /** The run on the map; null when none. */
   opened: ActivityDetail | null;
   /** The map lets the run go. */
@@ -564,7 +565,7 @@ export function useActivitiesOf(
   // The last run asked for wins.
   const asked = useRef<string | null>(null);
   const open = useCallback(
-    (activity: Activity) => {
+    (activity: Pick<Activity, "id">) => {
       if (token === null || baseUrl === null) {
         return;
       }

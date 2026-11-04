@@ -959,6 +959,50 @@ export interface PublicProfile {
    * sees. «Winner» is `contest_wins`. Missing from an API older than TASK-341.
    */
   badges?: ProfileBadge[];
+  /**
+   * The personal bests (TASK-368, ADR-0312): on foot, then by bike, by
+   * distance; only the distances it has a best of. Missing from an API
+   * older than TASK-368.
+   */
+  personal_bests?: PersonalBest[];
+}
+
+/** The distances of the personal bests on foot (TASK-368), in their order. */
+export const RUNNING_BEST_DISTANCES = [
+  "5k",
+  "10k",
+  "15k",
+  "half",
+  "30k",
+  "marathon",
+  "60k",
+] as const;
+/** By bike: 160k is the hundred miles. */
+export const CYCLING_BEST_DISTANCES = [
+  "10k",
+  "20k",
+  "40k",
+  "50k",
+  "100k",
+  "160k",
+] as const;
+
+/**
+ * The fastest stretch of a distance inside any run of the account, private
+ * ones too (TASK-368): moving seconds, the pauses left out.
+ */
+export interface PersonalBest {
+  sport: "running" | "cycling";
+  distance:
+    (typeof RUNNING_BEST_DISTANCES)[number] | (typeof CYCLING_BEST_DISTANCES)[number];
+  distance_m: number;
+  seconds: number;
+  /** When the run it was made in began: its day. */
+  started_at: string;
+  /** The drawing of that run, for who may see it (GET /drawings/{id}); else null. */
+  drawing: string | null;
+  /** The run's key, for its owner only (GET /me/activities/{key}); else null. */
+  key: string | null;
 }
 
 /**

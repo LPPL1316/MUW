@@ -30,6 +30,10 @@ export type ChoiceKind = DrawKind | "image";
  * way out, when there is one to tap (TASK-031): a distance the shape fits,
  * or the shapes of the catalogue.
  */
+/** How an API before TASK-369 part B refuses a drawing on the water
+ * (images.ImageRequest, ADR-0161). */
+const NOT_AN_IMAGE = "only a shape of the catalogue is drawn, not an image";
+
 export type ProblemText = {
   text: string;
   /** For whoever develops the app: the API's words, an address, a code.
@@ -243,6 +247,16 @@ export function problemText(
             ),
             detail: devDetail(problem.message),
           };
+        case "invalid_request":
+          // A drawing paddled (TASK-369 B) asked of an API from before it,
+          // which refuses it: said as «Draw» says it, with no «Try again».
+          if (activity === "paddling" && problem.message.includes(NOT_AN_IMAGE)) {
+            return {
+              text: t("On the water, a shape of the catalogue."),
+              detail: devDetail(problem.message),
+            };
+          }
+          return ourSide(`${problem.code}: ${problem.message}`);
         default:
           return ourSide(`${problem.code}: ${problem.message}`);
       }

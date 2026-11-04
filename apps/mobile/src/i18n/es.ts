@@ -885,6 +885,11 @@ export const ES: Table = {
   "No photos yet. Add some to a public drawing in My activities.":
     "Aún no hay fotos. Añade algunas a un dibujo público en Mis actividades.",
 
+  // src/profile/PersonalBests.tsx (TASK-368)
+  "Personal bests": "Mejores marcas",
+  "Half marathon": "Media maratón",
+  Marathon: "Maratón",
+
   // src/social/SuperLikeSheet.tsx
   "Super like": "Super like",
   "Write a comment to send your super like":
@@ -1812,4 +1817,8 @@ export const ES: Table = {
   "Up to 10 in a post.": "Hasta 10 en una publicación.",
   "Could not prepare this photo. Try again.":
     "No se ha podido preparar esta foto. Inténtalo de nuevo.",
+  // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
+  Style: "Estilo",
+  Night: "Noche",
+  Day: "Día",
 };

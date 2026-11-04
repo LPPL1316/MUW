@@ -8,9 +8,9 @@ import {
   MAP_PIXEL_RATIO,
   MAP_WAIT_MS,
   MAP_WIDTH,
-  NIGHT,
   videoMap,
 } from "./videoMap";
+import { NIGHT } from "./videoStyle";
 
 /** A straight line north, a point every 50 m. */
 function north(metres: number): LatLon[] {
