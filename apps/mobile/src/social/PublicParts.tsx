@@ -85,6 +85,8 @@ export function activityName(activity: Activity): string {
       return t("Bike");
     case "paddling":
       return t("Paddle");
+    case "swimming":
+      return t("Open water swim");
   }
 }
 
