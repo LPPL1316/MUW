@@ -156,6 +156,17 @@ app.
    nel codice prima di scrivere; se non basta, ci si ferma e si segnala.
 7. I testi approvati in `i18n/*.ts`.
 
+## Cosa disegna ogni percorso (2026-11-04)
+
+Per aprire un percorso dalla card e partire, l'app lo pianifica di nuovo con la
+sua richiesta (`explored.toRequest`): le serve la figura. I 25 file ora la dicono
+(`shape`, `word` con `style`, `outline` per le figure fuori catalogo), e l'API la
+manda; un file senza figura si legge ancora, ma non si apre. I sette contorni
+disegnati per MuW (fungo, foglia, baffi, scarpone, freccia larga) sono rifatti
+esattamente dal codice che li aveva scritti: la cartella `out/muw-bike-drafts/`
+è stata tolta da una pulizia del disco il 2026-11-03/04, con le bozze non
+approvate, le anteprime e le zone scaricate. I 25 approvati non ne dipendono.
+
 ## L'etichetta nelle cinque lingue
 
 Risposta dell'utente (2026-11-03, nella chat del Coordinatore), sulle 15
@@ -209,6 +220,7 @@ packages/shared-types/test/muwRoutes.test.ts          (nuovo)
 apps/mobile/src/api/muwRoutes.ts                      (nuovo)
 apps/mobile/src/api/muwRoutes.test.ts                 (nuovo)
 apps/mobile/src/feed/muwLabel.ts                      (nuovo)
+apps/mobile/src/feed/muwRoute.ts, muwRoute.test.ts     (nuovi)
 apps/mobile/src/feed/useMuwRoutes.ts, .test.tsx       (nuovi)
 apps/mobile/src/feed/MuwPost.tsx, MuwPost.test.tsx    (nuovi)
 apps/mobile/src/screens/FeedScreen.tsx                (il minimo)
