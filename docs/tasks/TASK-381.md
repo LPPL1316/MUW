@@ -1,6 +1,6 @@
 # TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato
 
-**Stato**: In corso · 2026-11-04
+**Stato**: Done · 2026-11-04
 **Fase**: 4 · **Branch**: `fix/TASK-381-share-post-inset`
 **Numeri**: TASK-381, assegnato dal Coordinatore. Seguito di TASK-360 e TASK-366.
 
@@ -28,7 +28,7 @@ nativo, nessuna modifica al server.
       zero, senza la correzione lo spazio sopra «Close» è 0, con la
       correzione 59.
 - [x] Test della condivisione, typecheck, lint e Prettier verdi.
-- [ ] CI verde.
+- [x] CI verde (#750 in main, 9e2089a9).
 
 ## File toccati
 
@@ -44,3 +44,9 @@ docs/tasks/TASK-381.md
 
 - **Simulatore e Android non provati**: la prova è il test.
 - **L'OTA di produzione**, che parte col sì dell'utente.
+
+## Esito
+
+`SharePost` legge i margini veri del telefono da ogni punto da cui si apre,
+anche dal Feed dentro il `Pager`. Il test lo prova; la prova sul telefono
+(Feed → «Share» → «Close») è dell'utente nell'anteprima, prima dell'OTA.
