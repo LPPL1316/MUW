@@ -568,7 +568,7 @@ non la ricarica. La scheda sta sotto la mappa, non sopra, così non copre
 l'attribuzione; i margini seguono la tacca e la barra in basso di ogni
 telefono.
 
-## Le pagine e la barra di schede (TASK-367, ADR-0311; prima TASK-154, ADR-0124, e TASK-278)
+## Le pagine e la barra di schede (TASK-367, ADR-0311; lo swipe TASK-379, ADR-0323; prima TASK-154, ADR-0124, e TASK-278)
 
 Con TASK-367 parte A (scelta dell'utente) le pagine non stanno
 più affiancate: **una barra di schede in basso**, come Instagram, cinque
@@ -587,12 +587,35 @@ build.
 
 **Un header uguale su tutte le pagine**: il cuore giallo e «MuW» a
 sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
-(lo dice la barra). La campanella arriva con la parte C.
+(lo dice la barra). **La campanella** (parte C) sta a destra, prima dello
+sport: l'icona di Lucide, con il numero rosso delle righe non lette come le
+schede; VoiceOver la legge «Notifications, 3 new». C'è solo con un account e
+un server che ha la lista: senza, niente campanella e nessun errore. Un tocco
+apre la lista sopra l'app, come «Messages»: «←» e «Notifications», poi le
+righe, le più nuove prima, ognuna con la foto di chi ha agito, il testo della
+push e quando; quella non letta più marcata e con un pallino rosso. Aperta, è
+letta fino alla più nuova. Una riga chiude la lista e apre quello che apre la
+sua push; vuota dice «No notifications yet. Reactions, comments, follows and
+tags will show up here.».
 
-- Un tocco su una scheda mostra la sua pagina **subito, senza swipe** fra le
-  pagine. Ogni pagina resta costruita dopo la prima visita: scroll, campi e
-  scelte restano come erano. «Explore», «Messages» e il profilo si
-  costruiscono la prima volta che ci si arriva.
+- Un tocco su una scheda mostra la sua pagina **subito**, senza scorrere
+  sopra quelle in mezzo. Ogni pagina resta costruita dopo la prima visita:
+  scroll, campi e scelte restano come erano. «Explore», «Messages» e il
+  profilo si costruiscono la prima volta che ci si arriva.
+- **Lo swipe** (TASK-379, scelte dell'utente): uno swipe a sinistra o a
+  destra porta alla scheda accanto, e la pagina segue il dito con quella
+  accanto che entra; la barra cambia quando la pagina si ferma. **In giro
+  continuo**: dopo il profilo viene «Feed», prima di «Feed» il profilo. Vale
+  su tutte e cinque le schede. Senza account lo swipe che si ferma su
+  «Messages» mostra subito il profilo, come il tocco.
+- Un dito che parte su una fila che scorre di lato (le città, le schede di
+  «Explore», «NEAR YOU», le foto di un post) resta alla fila, anche alla sua
+  fine, dove rimbalza; la scheda con il disegno e poi la foto passa alla sua
+  fila (TASK-350). Una seconda scivolata veloce mentre una fila rimbalza
+  alla fine passa invece alla pagina accanto: lo decide iOS. Dentro le
+  pagine non ci sono mappe da trascinare: sono immagini.
+- Con VoiceOver o TalkBack acceso lo swipe fra le pagine è spento: si va
+  con le schede, come prima. Lo swipe chiude la tastiera.
 - **Il tocco sulla scheda già attiva** riporta la pagina in cima (Feed,
   Draw, Explore, Messages) o alla sua prima vista (il profilo).
 - Su Android il tasto indietro torna alla scheda di prima, poi esce.
@@ -606,8 +629,8 @@ sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
 - Barra e header non ci sono su mappa, corsa, corsa senza percorso, «Play»,
   corsa interrotta riaperta: lì la schermata è intera, come prima.
 
-Quello che segue descrive le pagine; dove parla di swipe e di nomi in alto
-vale la barra qui sopra.
+Quello che segue descrive le pagine; dove parla di nomi in alto vale la
+barra qui sopra, e lo swipe è quello qui sopra.
 
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
