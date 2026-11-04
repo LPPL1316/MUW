@@ -1046,11 +1046,11 @@ export type Visibility = (typeof VISIBILITIES)[number];
 export const DRAWING_DESCRIPTION_MAX_LENGTH = 500;
 export const DRAWING_MAX_TAGS = 10;
 /**
- * Besides the map, what the app offers today. It goes to
- * DRAWING_PHOTO_PLACES with TASK-348's app part: a phone on a server not yet
- * updated must not ask for a place the server refuses.
+ * Besides the map, the photos the app offers in a post: 9, so the post has
+ * at most 10 pages with the map among them (TASK-348, the user's choice «10
+ * col disegno»). The API keeps DRAWING_PHOTO_PLACES places.
  */
-export const DRAWING_MAX_PHOTOS = 3;
+export const DRAWING_MAX_PHOTOS = 9;
 /** The places of the photos of a drawing on the API (TASK-348, ADR-0301). */
 export const DRAWING_PHOTO_PLACES = 10;
 
@@ -1411,7 +1411,13 @@ export const DRAWING_SEARCH_PAGE_SIZE = 20;
  * filter is sent once for each value. Never a private one. A page is the
  * feed's.
  */
-export type DrawingSearchPage = FeedPage;
+export interface DrawingSearchPage extends FeedPage {
+  /**
+   * `shape=word` finds the words drawn (TASK-344 part B). An API before
+   * it leaves this out and finds nothing for it: the app hides «Words».
+   */
+  words?: boolean;
+}
 
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing
@@ -2306,6 +2312,11 @@ export interface MuwRoute {
   preview: LatLon[];
   /** As `RouteResult.rotation_deg`. */
   rotation_deg: number;
+  /** What it draws, as a route request says it: a shape, or a word with its
+   * style; null and null from a file without its figure. */
+  shape?: string | null;
+  word?: string | null;
+  style?: string | null;
 }
 
 /** GET /muw-routes. An older server answers 404: no routes. */
@@ -2319,4 +2330,7 @@ export interface MuwRouteDetail extends Omit<MuwRoute, "start" | "preview"> {
   /** As `RouteResult.on_foot`. */
   on_foot: Stretch[];
   license: string;
+  /** The figure's own outline when the catalogue does not have it: what is
+   * the request the route opens with; the line is still `points`. */
+  outline?: OutlinePoint[] | null;
 }

@@ -162,7 +162,7 @@ test("a favorite kept by bike is followed by bike, with «Run» chosen", async (
       }),
   });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: "Favorites, 2" }));
   await fireEvent.press(
     screen.getByRole("button", { name: "Heart · 20.5 km, open on the map" }),

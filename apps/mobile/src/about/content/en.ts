@@ -11,8 +11,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 October 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320) and the activities added from a file (TASK-312 B) entered. */
-const PRIVACY_UPDATED = "2 November 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320), the activities added from a file (TASK-312 B), Apple Health and Health Connect (TASK-321 B) and the drawing inside a published photo (TASK-348) entered. */
+const PRIVACY_UPDATED = "4 November 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -23,7 +23,7 @@ const help: AboutDocument = {
       heading: "What MuW is",
       blocks: [
         "MuW draws real routes that trace a shape on the map. You choose the shape, the distance and where to start; you get a route on real streets, with its GPX file.",
-        "The app has four pages side by side, «Feed», «Draw», «Explore» and your profile: swipe left or right, or tap a name at the top. The circle at the top takes you to your profile.",
+        "At the bottom there are five tabs: «Feed», «Draw», «Messages», «Explore» and your profile, the circle with your picture. Tap a tab to go there, tap it again to go back to the top. «Settings» is under the gear at the top right of your profile.",
       ],
     },
     {
@@ -73,6 +73,7 @@ const help: AboutDocument = {
       heading: "Publish and share",
       blocks: [
         "A saved run is private: only you see it. Other members see on your profile only the totals of all your saved runs, distance and elevation gain, never the runs themselves. Choose «Everyone» or «Followers» under «Who can see it», at the end of the run or on a run in «My activities», and they see it as a drawing on your profile, without its first and last 200 m. The next run you finish starts from the last choice you saved: you see it before «Save» and can change it. An activity added from a file always starts on «Only me».",
+        "A run you publish can have up to 9 photos and the drawing. Hold one and drag it to change the order: the first is what people see in the Feed. Choose a layout to put the drawing on a photo.",
         "«Share» makes a picture of your run to send wherever you like.",
       ],
     },
@@ -88,7 +89,7 @@ const help: AboutDocument = {
       heading: "Messages",
       blocks: [
         "«Message» on a member's profile writes to them. If they follow you, your message arrives in their «Messages»; if not, it arrives as a request, and you can send one message until they accept it.",
-        "Your conversations are in «Profile», «Messages», with «Message requests» at the top. Accept a request and you both write freely; delete it (who wrote is not told), or block who wrote.",
+        "Your conversations are in «Messages», the tab with the paper plane, with «Message requests» at the top. Accept a request and you both write freely; delete it (who wrote is not told), or block who wrote.",
         "Hold a message to delete yours, for both of you, or to report one you received. Nobody sees whether you read a message. With push on, MuW tells you of each message and of each request.",
         "In a conversation, tap + to send a photo, a video of up to 60 seconds or a drawing, or tap Send to a friend on a route or a drawing. You can send them once the other person has accepted your message. Videos are kept for 30 days, or less when our space for videos is full: the oldest go first. Tap a drawing to open it on the map, start it, export its GPX or keep it in your favorites.",
       ],
@@ -96,7 +97,7 @@ const help: AboutDocument = {
     {
       heading: "Run, Bike, Paddle",
       blocks: [
-        "Choose your sport with the button next to your profile, or in «Settings».",
+        "Choose your sport with the button at the top right, or in «Settings».",
         {
           bullets: [
             "Run: up to 21 km on real streets, with the voice turn by turn.",
@@ -336,6 +337,7 @@ const privacy: AboutDocument = {
         "If you add a past activity from a file, we keep its track and times like a run recorded with MuW. We do not keep the file.",
         "A run often starts and ends at your door. This is why a run becomes visible to the other members only after you choose «Everyone» or «Followers» under «Who can see it», and then they see the track without its first and last 200 m, with the title you gave it, and without times, pauses or the planned route. Your choice is kept on this phone for your next run: it starts from the last one you saved, you see it before «Save», and you can change it. An activity added from a file always starts on «Only me».",
         "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file: still without its first and last 200 m and without times.",
+        "A photo you publish can have the drawing of your run inside the picture. It is the same drawing the Feed shows, cut at its start and end.",
       ],
     },
     {
@@ -418,6 +420,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Health and Health Connect",
+      blocks: [
+        "Once you turn on «Save to Apple Health» (iPhone) or «Save to Health Connect» (Android), every activity you save is also written there, on your phone: the sport, when it started and ended, the distance, the route and, for a run, the estimated active calories. MuW never reads your health data, and nothing from them reaches our server or any advertising. You can stop it in the Health app or in Health Connect. What is already there stays until you delete it there, also when you delete the run or your account.",
+      ],
+    },
+    {
       heading: "Others who receive data",
       blocks: [
         {
@@ -460,7 +468,7 @@ const privacy: AboutDocument = {
           bullets: [
             "To give you the service you ask for (contract): your account, your profile, the routes you ask for, the runs, favorites, comments, reactions and follows you save, the emails of the notifications you turned on, and the shape game.",
             "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them; the email when you are away, which you can refuse at sign-up, in «Settings» or in each email; the reports' emails, to keep MuW safe; the archive of drawn routes, which says nothing about who you are; the messages of «Send feedback», to read them and answer you.",
-            "Your consent: the phone number you choose to add and the connection to Strava. You can take a consent back at any time; what was done before stays lawful.",
+            "Your consent: the phone number you choose to add, the connection to Strava and saving your activities to Apple Health or Health Connect. You can take a consent back at any time; what was done before stays lawful.",
             "A legal obligation, when a law asks us to keep or hand over data.",
           ],
         },

@@ -10,6 +10,7 @@ import {
 } from "../api/drawings";
 import { sendEntry } from "../contest/sendEntry";
 import { keptList } from "../storage/keptList";
+import { syncOrder } from "./drawingOrder";
 import { syncPhotos } from "./drawingPhotos";
 
 /**
@@ -177,6 +178,21 @@ export async function sendWaitingDrawings(
         return "session_ended";
       }
       if (photos === "waits") {
+        break;
+      }
+      // Then where the map stands among them (TASK-348).
+      const order = await syncOrder(
+        baseUrl,
+        token,
+        owner,
+        choice.key,
+        choice.visibility,
+        options,
+      );
+      if (order === "session_ended") {
+        return "session_ended";
+      }
+      if (order === "waits") {
         break;
       }
       const entry = await sendEntry(baseUrl, token, outcome.value.id, choice, options);

@@ -151,6 +151,8 @@ test("Run records a run without a route, and Stop shows it", async () => {
 
   expect(await screen.findByText("Finding your position…")).toBeOnTheScreen();
   expect(screen.getByText("Stop")).toBeOnTheScreen();
+  // The whole screen is the run's: no tab bar (TASK-367).
+  expect(screen.queryByTestId("tab-bar")).toBeNull();
   // The countdown covers the screen, then the run begins (TASK-169).
   expect(screen.getByText("Get ready")).toBeOnTheScreen();
   const now = Date.now();
@@ -278,6 +280,7 @@ test("a free run left when the app closed a while ago opens again, paused (TASK-
   expect(await screen.findByText("Paused")).toBeOnTheScreen();
   expect(screen.getByLabelText("Distance: 0.50 km")).toBeOnTheScreen();
   expect(screen.queryByText("Get ready")).toBeNull();
+  expect(screen.queryByTestId("tab-bar")).toBeNull();
 
   // «Resume» goes on: the time closed is a pause, not time of the run.
   const resumed = Date.now();

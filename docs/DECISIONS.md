@@ -18331,7 +18331,7 @@ file di Apple Salute di TASK-321, che il task non deve toccare.
    importa il nuoto ma l'API no: il test dell'import lo lascia fuori.
 6. **Strava** riceve un nuoto come `Swim` (non ha un tipo per le acque
    libere); il gioco lo conta come ogni attività che non è corsa.
-7. **La migrazione `0042_swimming.sql`** apre i tre vincoli che elencano
+7. **La migrazione `0040_swimming.sql`** apre i tre vincoli che elencano
    le attività (preferiti, corse, corse di gruppo); `drawn_routes` non ha
    un elenco.
 
@@ -20134,9 +20134,12 @@ del Feed sono una ventina, sul telefono.
 2. **Le parole** (`q`) si cercano nel titolo, nella descrizione, nella
    forma (`dog_head` come «dog head»), nella parola disegnata, nel titolo
    del percorso, nel posto e nel nome dell'autore; **tutte** devono
-   esserci. Maiuscole e accenti non contano: una sola tabella di lettere
-   piega le parole in Python e i campi in SQL (`translate(lower(…))`).
-   Niente `unaccent`, che vorrebbe una migrazione.
+   esserci. Maiuscole e accenti non contano: la parola è piegata in
+   Python a lettere semplici, poi ogni lettera diventa la classe di sé e
+   delle sue accentate in un'espressione regolare di PostgreSQL sul testo
+   in minuscolo («citta» → `c[cçćč]i[iì…]…`). Piegare ogni testo con
+   `translate` costava dieci volte tanto; `unaccent` vorrebbe una
+   migrazione.
 3. **Le forme nella lingua dell'app**: le forme sono id inglesi; l'app
    manda in `named` quelle che le parole nominano nella sua lingua
    («cuore» → `heart`), e un disegno di una di esse è trovato anche se le
@@ -20145,7 +20148,8 @@ del Feed sono una ventina, sul telefono.
    `activity`, `min_m`/`max_m`, `place`, `complexity`. Più valori di uno
    si sommano, filtri diversi valgono tutti.
 5. **La complessità** si legge dall'anteprima della traccia (al più 64
-   punti): lunghezza diviso diagonale del rettangolo che la contiene;
+   punti), su un piano con le longitudini accorciate dal coseno della
+   latitudine: lunghezza diviso diagonale del rettangolo che la contiene;
    sotto 3,6 semplice, sotto 4,5 media, oltre complessa. Le soglie sono
    tarate sugli esempi del Feed e stanno in `shared-types`, così l'app
    classifica gli esempi allo stesso modo.
@@ -20155,10 +20159,16 @@ del Feed sono una ventina, sul telefono.
    può spostare un disegno: accettato, come nel feed chi comincia a
    seguire.
 
+7. **La pagina in due passi**: prima gli id, dalle colonne leggere e
+   nell'ordine delle colonne vere (l'indice dei disegni pubblicati per
+   `recent`), poi i campi da mostrare solo dei venti trovati. La query
+   gira con `SET LOCAL jit = off`: compilarla costava più che eseguirla.
+
 **Alternative scartate**: cercare sul telefono nelle pagine del feed già
 lette (trova solo ciò che si è già scorso); un indice di testo di
-PostgreSQL con migrazione (da aggiungere solo se i tempi su 10.000 disegni
-non bastano); tradurre i nomi delle forme sul server (le lingue stanno
+PostgreSQL con migrazione (le parole stanno in tre tabelle, disegno,
+corsa e autore: un indice trigram su una sola non basta, e su 10.000
+disegni metà del tempo è il controllo dei blocchi, lo stesso del feed); tradurre i nomi delle forme sul server (le lingue stanno
 nell'app); salvare la complessità in una colonna (vorrebbe una migrazione,
 e si calcola in fretta dall'anteprima).
 
@@ -20494,6 +20504,42 @@ l'export può raddoppiare (misure in `tasks/TASK-351.md`). La B non va
 nell'OTA di produzione finché l'utente non ha esportato un video vero
 sull'iPhone e visto la mappa (condizione del Coordinatore): il rischio da
 guardare è un telefono che ricade sul giallo in silenzio.
+
+**Aggiunta (il fix del 2026-11-03, deciso dall'agente su delega
+dell'utente)**: sul telefono dell'utente il video è uscito senza mappa.
+Un WebView tenuto fuori vista può non ricevere da iOS i fotogrammi di
+animazione, e MapLibre carica lo stile e disegna su quelli: la mappa non
+arrivava mai e, passati i 15 s, il video usciva sul giallo come previsto.
+La pagina del video si dà quindi i fotogrammi da sola, con un
+`requestAnimationFrame` fatto di timer messo prima di MapLibre: i timer
+della pagina girano ovunque stia, come l'encoder dimostra da TASK-295, e
+nessuno in quella pagina ha bisogno di un fotogramma fluido. In più la
+mappa è disegnata anche da un battito di 100 ms e la foto è presa quando
+è intera da tre battiti, e il WebView è un punto 1 × 1 a opacità piena
+nell'angolo, non più a opacità zero fuori dallo schermo, come la pagina
+delle mappe del Feed, che sul telefono le mappe le fa. Riprodotto e
+provato nel simulatore con un harness che toglie i fotogrammi alla
+pagina: prima 15,2 s e il giallo, dopo la mappa in 1,5 s. Se sul telefono
+non basta, la prova seguente mette il WebView a grandezza piena sotto una
+vista opaca, come il Feed.
+
+**Aggiunta (2026-11-04, deciso dall'agente su delega dell'utente)**: con
+il fix del 3 novembre in `main` e sulla preview, sul telefono il video è
+ancora senza mappa. Prova successiva: il WebView del video a grandezza
+piena (360 × 640 punti) sotto una vista opaca del colore dello schermo,
+montato per primo nello schermo del post, com'è tenuta la pagina delle
+mappe del Feed, che sul telefono le mappe le fa; e, finché la causa non è
+trovata, il video giallo di riserva porta in fondo una riga piccola con il
+motivo che la pagina ha dato e i suoi tempi, **solo sul canale preview**
+(`isPreview()` in `src/updates/channel.ts`, da `Updates.channel` di
+`expo-updates`; un test prova che sulla build degli store non compare):
+condizione del Coordinatore, perché `main` va in produzione con altro
+lavoro prima che il video sia risolto, e la riga non può dipendere dal
+ricordarsi di toglierla. La produzione del video resta ferma finché
+l'utente non vede la mappa sul telefono. L'utente ha risposto che il video
+della preview fb15613e era «giallo», con l'app riaperta due volte: la
+riserva con il fix #703 caricato. PR #707, riallineata su `main` dopo la
+#620: da lì l'impronta iOS di `main` è `6f8bba4c`.
 
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
@@ -20859,6 +20905,90 @@ esempi restano fuori: la scelta è aperta col Coordinatore (TASK-362, scelta 4).
 
 ---
 
+## ADR-0281 — aggiunta, parte B: HealthKit nella 1.0.1, le librerie solo su iOS
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-321 parte B). Aggiunta ad ADR-0281, senza numero nuovo.
+
+**Contesto**: B porta nella build iOS quello che A ha lasciato fuori: le
+librerie dentro il linking, la capability, il testo del permesso e la
+privacy. Restano da decidere il modo e i confini.
+
+**Decisione**:
+
+1. **Le tre librerie dell'iPhone collegate solo su iOS**
+   (`platforms: { android: null }` in `react-native.config.js`):
+   `@kingstinct/react-native-healthkit`, `@react-native-healthkit/core` e
+   `react-native-nitro-modules`. Su Android non servono a niente e
+   sposterebbero la build Android; `react-native-health-connect` resta
+   fuori da tutte e due, fino a C.
+2. **Gli entitlements e il testo in `app.json`, senza il plugin della
+   libreria**, come previsto: `com.apple.developer.healthkit` e
+   `…healthkit.access` vuoto (niente cartelle cliniche), niente consegne in
+   background, niente `NSHealthShareUsageDescription`: MuW non legge, e
+   iOS vuole il testo per leggere solo da chi chiede di leggere. Il testo
+   approvato in `app.json` e nelle cinque `locales/*.json`.
+3. **La privacy entra con B**, intera (anche la riga di Health Connect,
+   com'è stata approvata), con la data del giorno del merge al taglio
+   della 1.0.1 (condizione del Coordinatore): così non va online prima che
+   la 1.0.1 sia sull'App Store. Le traduzioni del testo del permesso e
+   della privacy le ha approvate l'utente il 2026-10-29.
+4. **La PR resta in bozza fino al taglio della 1.0.1**: l'impronta iOS
+   passa da `83793e26…` a `fd0cbb43…`, e in `main` gli `eas update` non
+   arriverebbero più alla 1.0.0 (7).
+
+**Conseguenze**: anche l'impronta Android si muove (`e2d33497…` →
+`e9a0bda0…`), solo per la configurazione dell'app: le chiavi `ios` di
+`app.json` contano nell'impronta di tutti e due i telefoni, come le
+impostazioni Android contavano in quella dell'iPhone prima di
+`ANDROID_ONLY` (TASK-294). Tenerla ferma vorrebbe un elenco gemello in
+`fingerprint.config.js`, che è di TASK-294: il Coordinatore ha scelto di
+no, perché Android ha comunque la sua build 1.0.1 (contatti, document
+picker, accesso con Google) e la sua impronta si muove con quella iOS.
+Sul simulatore, dopo «Save», l'allenamento è in Fitness con la mappa, il
+tempo, la distanza e le calorie di MuW.
+
+## ADR-0281 — aggiunta, il taglio della 1.0.1: Apple Salute con contatti e selettore, e il testo per leggere il battito
+
+**Stato**: Accettata · **Data**: 2026-10-30 · **Deciso**: dall'utente (la
+separazione dall'accesso con Apple e Google, il testo), dal Coordinatore (la
+build dal branch), dall'agente su delega per il resto (TASK-321 parte B,
+TASK-345 C). Aggiunta ad ADR-0281, senza numero nuovo.
+
+**Contesto**: la parte B era di sola scrittura e diceva che MuW non chiede di
+leggere. TASK-345 C vuole leggere il battito, e una sola modifica nativa:
+dentro la #620 o tutto nella 1.0.2.
+
+**Decisione**:
+
+1. **La chiave entra nella 1.0.1**, il codice no. Nel binario c'è
+   `NSHealthShareUsageDescription`; il tipo si chiede a runtime, quindi C può
+   arrivare dopo con un update sulla 1.0.1. Gli entitlements non cambiano.
+2. **La privacy della #620 non cambia**: «MuW never reads your health data»
+   resta vera finché C non legge. La frase nuova va con C.
+3. **`expo-contacts` col suo plugin**, come chiede il promemoria di TASK-262:
+   togliere l'esclusione da sola lascerebbe l'app senza il testo della domanda.
+4. **La build dal branch, il merge dopo Apple**: finché è in revisione, `main`
+   continua a raggiungere la 1.0.0 (7).
+
+**Conseguenze**: impronta iOS `67253126…`, Android `8aac71c3…` al merge. Fino
+al merge chi ha la 1.0.1 non riceve gli update da `main`. Sul simulatore
+scrittura, lettura, contatti e selettore funzionano con la build Release.
+
+## ADR-0281 — aggiunta, la build della 1.0.1: anche la vibrazione
+
+**Stato**: Accettata · **Data**: 2026-11-02 · **Deciso**: dall'utente
+(`expo-haptics` nella 1.0.1, «Sì, accendila», nella chat del Coordinatore),
+dall'agente su delega per il resto (TASK-321 parte B). Aggiunta ad ADR-0281,
+senza numero nuovo.
+
+**Decisione**: `expo-haptics` esce da `autolinking.exclude` con contatti e
+selettore, come ADR-0307 diceva per la prossima build nativa. Un test
+confronta il nome del modulo che l'app chiede con quello registrato da ogni
+libreria. La privacy porta la data del riallineamento, il 2 novembre 2026.
+
+**Conseguenze**: impronta iOS `6f8bba4c…`, Android `227457f3…`. Sul
+simulatore la build Release ha i quattro moduli nativi e ognuno risponde.
 ## ADR-0311 — La navigazione come Instagram: una barra di schede in basso, un header solo
 
 **Stato**: Proposta · 2026-11-02 · TASK-367. La richiesta è dell'utente (un
@@ -20901,6 +21031,31 @@ risposto «Sì, così».
 ricerca in Explore (dopo 344 B), C le notifiche (API, migrazione, app). Le
 schermate dell'App Store (TASK-328) vanno rifatte. Chi aveva imparato lo swipe
 fra le pagine non lo trova più.
+
+**Parte A, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- `TabShell` al posto di `Pager`: le pagine sovrapposte, quella fuori vista
+  con `display: none`, così restano montate senza uno ScrollView orizzontale.
+  Il tour usa gli stessi nomi di prima (`tab:` e `page:`), quindi i suoi testi
+  non cambiano.
+- Il tocco sulla scheda attiva passa per un contesto per pagina
+  (`useTabReselect`): Feed, Draw, Explore (anche sull'acqua) e Messages
+  tornano in cima con una riga ciascuno; il profilo si ricostruisce, come già
+  faceva a ogni ritorno. Questo aggiunge al task `FeedScreen.tsx`,
+  `ExploreScreen.tsx`, `PaddleExplore.tsx` e `TourScrollView.tsx`, una riga
+  ciascuno: dentro le pagine non cambia altro.
+- La lista di «Messages» aperta da altrove va alla scheda (`useInboxTab`); le
+  richieste e le conversazioni restano sopra l'app, e «←» torna alla scheda.
+  Senza account la scheda porta al profilo, a «Sign up» e «Log in»: nessun
+  testo nuovo.
+- Le icone attive hanno il tratto più spesso (2,5 contro 1,75), non il pieno:
+  Lucide non ha icone piene. Il cuore dell'header è il cuore di Lucide pieno,
+  nel giallo del marchio come al lancio.
+- La barra usa `background` al 95% (`F2`), come `hairline` usa `text` al 20%:
+  un colore derivato dai token, non scritto a mano.
+- Android: il tasto indietro torna alla scheda mostrata prima (una pila delle
+  schede viste), poi lascia uscire.
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
@@ -20935,5 +21090,130 @@ dell'utente. Un record di una corsa privata dice agli altri che quel giorno
 l'utente ha corso: è la scelta dell'utente, scritta nella privacy. Un file
 importato modificato può dare un record falso, visibile a tutti: accettato con
 la scelta 2.
+
+---
+
+## ADR-0309 — «RIDE IT YOURSELF»: percorsi in bici di MuW in «Explore», da un file nell'app
+
+**Stato**: Attiva · 2026-11-03 · deciso dall'agente su delega dell'utente per la
+parte tecnica; numero dal Coordinatore; scelte e testi dell'utente in
+`tasks/TASK-364.md`.
+
+**Contesto**: l'utente vuole in «Explore» le migliori bozze in bici di MuW. Le
+idee di ADR-0287 sono a tema, con tappe e «Make it near me» che richiede le
+stesse parole all'API: queste no. Non sono state pedalate.
+
+**Decisione**:
+
+1. **Una fila nuova con dati fissi**, `RideItYourself` sotto «IDEAS FROM EUROPE»;
+   `themedIdeas.json` non si tocca.
+2. **Dal motore, non a mano**: i percorsi sono quelli che il motore ha
+   pianificato sulla rete bici; `tools/bike_ideas.py` li sceglie e toglie punti
+   entro 2 m. Una traccia fatta da uno script fuori dal motore non entra
+   (lo studio di «MARRY ME» in `out/marry-me/`).
+3. **Aperti dal telefono**: `useExplored` trova un percorso della fila prima di
+   chiedere al server; nessun endpoint nuovo, nessuna foto, solo app.
+4. **Una figura fuori catalogo** porta il suo contorno (`outline`) nel dettaglio:
+   la richiesta che «Start» e «Export GPX» leggono è quella di un contorno, in
+   bici.
+5. **Niente numeri non veri**: la scheda dice città, figura, «In bici» e la
+   distanza; sotto la fila, che nessuno li ha ancora pedalati.
+6. **Un percorso sta in Explore o nel Feed**, non in tutti e due senza una
+   scelta dell'utente (con ADR-0310).
+
+**Motivo**: la stessa strada degli esempi di «Explore» già sul telefono, senza
+toccare il server né le app pubblicate; il principio di ADR-0001 resta intero.
+
+**Conseguenza**: aggiungere un percorso vuol dire rigenerare il file con lo
+strumento e una PR; togliere la nota quando qualcuno li avrà pedalati è una
+scelta dell'utente.
+
+---
+
+## ADR-0297, aggiunta — La schermata della ricerca (TASK-344 parte B)
+
+**Stato**: Attiva · 2026-11-04 · TASK-344 parte B. Deciso dall'agente su
+delega dell'utente, dentro le sei scelte approvate il 2026-10-29.
+
+**Decisione**:
+
+1. **La ricerca è un `Modal` aperto dalla lente** (`FindFriendsButton`),
+   non una pagina di `ProfileLayer`: così `ProfileLayer.tsx` non cambia.
+   Per aprire un esempio come percorso la lente riceve da `FeedScreen` il
+   suo `onOpen`, una riga. Toccato un risultato, la ricerca si chiude
+   prima di aprire il disegno, il percorso o il profilo.
+2. **«Find friends» resta**, raggiungibile da «Find people to follow»;
+   la scheda «People» della ricerca usa la stessa API (`findPeople`) e,
+   senza account, porta alla quarta pagina come prima la lente.
+3. **«Words» è `shape=word`** sul server: una corsa con una parola e
+   senza forma. Le altre quattro categorie sono elenchi di forme del
+   catalogo, decisi nell'app (`categories.ts`); ogni forma sta in una
+   sola. **La risposta lo dichiara** (`words: true`, condizione del
+   Coordinatore, come le schede di TASK-362): l'app offre «Words» solo
+   dopo una risposta che lo dice. La ricerca di «Featured drawings» parte
+   all'apertura, quindi la conferma arriva subito. Col server di prima,
+   o senza account, «Words» non c'è: mai un «No drawings found» falso, e
+   l'OTA non dipende dall'ordine col server.
+4. **Gli esempi senza campi nuovi**: categoria dalla forma, posto dal
+   nome della città, complessità dalla linea con la stessa formula del
+   server (`drawingMatch.complexityOf`), popolarità dal punteggio;
+   «Most recent» tiene l'ordine del Feed. `sampleFeed.json` non cambia.
+5. **«Routes» sono gli esempi** (si aprono come percorso); «Drawings» i
+   disegni dei membri e poi gli esempi; «All» anche i primi tre membri.
+6. **Gli stati si ricavano**, non si impostano negli effetti: ogni
+   risposta porta la chiave della ricerca a cui risponde, e una ricerca
+   nuova mostra «loading» finché non arriva la sua (regola
+   `react-hooks/set-state-in-effect`).
+7. **Le animazioni dentro i `Modal` girano in JS** (`useNativeDriver:
+   false`), come `SuperLikeSheet`: col driver nativo, su iOS con la nuova
+   architettura, dentro un `Modal` non si muove niente.
+
+**Conseguenze**: il server va aggiornato (`shape=word` e `words`,
+nessuna migrazione) col sì dell'utente, in qualsiasi ordine con l'OTA:
+fino ad allora «Words» non si vede. Impronta iOS invariata:
+nessun file nativo, nessuna dipendenza.
+## ADR-0301, aggiunta — Parte A app: come il compositore compone, ordina e manda
+
+**Stato**: Accettata · 2026-11-04 · TASK-348, parte A app. Deciso
+dall'agente su delega dell'utente, dentro le scelte già fatte dall'utente
+(«Sì, i quattro», «Sì, spostabile», «Sì, appiattire», «10 col disegno»,
+«Approvo così»).
+
+**Decisione**:
+
+1. **Il disegno dentro la foto è la linea, non la mappa**: nera sul giallo
+   di MuW nei tre layout con il riquadro, gialla con un bordo scuro nella
+   «Line on the photo», come il post condiviso (`PostImage`). Una mappa con
+   le strade dentro la foto vorrebbe la WebView, che `view-shot` non
+   fotografa con certezza. La linea è sempre quella tagliata del Feed
+   (`withoutEnds`, 200 m per parte), con un test.
+2. **La foto si compone appena si sceglie il layout**, non al tocco di
+   «Save»: `ComposedPhoto` disegnata fuori dallo schermo a 288 punti e
+   fotografata a 864 × 1080 px (4:5, il lato lungo che l'API tiene).
+   «Save» resta immediato e la foto parte come ogni altra; se la foto non
+   si compone, il modulo lo dice e la tiene com'era.
+3. **Il layout si cambia finché la foto è nel modulo**: a fine corsa per
+   tutte, in «My activities» per le foto aggiunte su quella scheda (l'app
+   ne tiene l'originale finché la scheda è aperta). Dopo, la foto è quella
+   pubblicata: per cambiarla si toglie e si rimette, come detto all'utente
+   con la scelta «Sì, appiattire».
+4. **L'ordine**: a fine corsa le foto prendono i posti 1… nell'ordine del
+   post e l'ordine va solo se il disegno non è primo; in «My activities»
+   l'ordine nomina i posti come sono. Sul telefono in
+   `drawing-orders.json`, mandato dopo le foto (outbox e `choose`), con le
+   stesse regole delle foto: solo mentre gli altri vedono il disegno, un
+   409 aspetta, un 422 lo lascia andare. Toglie la corsa o l'account, va
+   via con le foto.
+5. **Riordino** con `PanResponder` e `Animated` di React Native (nessuna
+   dipendenza nuova): si tiene premuto 250 ms e si trascina; VoiceOver ha
+   «Move left» e «Move right». Le foto si contano tra le foto («Photo 2» è
+   la seconda foto del post), non per posto.
+6. **Nel Feed** le pagine seguono `order` (il disegno primo se manca); si
+   carica la pagina vista e quella dopo, come prima. Il contatore «2/5» sta
+   in alto a sinistra, perché in alto a destra c'è la figura piccola;
+   VoiceOver non lo legge, come i puntini.
+7. **Limite dell'app**: `DRAWING_MAX_PHOTOS` = 9 (10 pagine col disegno);
+   l'API tiene 10 posti (`DRAWING_PHOTO_PLACES`). Il server ha la 0041 dal
+   2026-11-03.
 
 ---

@@ -87,12 +87,15 @@ test.each([
   },
 );
 
-test("with an account «Guide» is the row right under «Settings»", async () => {
+test("with an account «Settings» is the gear at the top, «Guide» a row under it", async () => {
   await render(<Profile of={SIGNED_IN} first="account" />);
   const names = screen
     .getAllByRole("button")
     .map((button) => button.props.accessibilityLabel as string | undefined);
-  expect(names.indexOf("Guide")).toBe(names.indexOf("Settings") + 1);
+  // The gear at the top right (TASK-367), before the rows; «Guide» further down.
+  expect(names.indexOf("Settings")).toBeGreaterThanOrEqual(0);
+  expect(names.indexOf("Settings")).toBeLessThan(names.indexOf("Guide"));
+  expect(screen.getAllByRole("button", { name: "Settings" })).toHaveLength(1);
   expect(screen.getAllByRole("button", { name: "Guide" })).toHaveLength(1);
 });
 

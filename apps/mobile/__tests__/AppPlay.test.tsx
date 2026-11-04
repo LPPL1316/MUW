@@ -43,8 +43,6 @@ jest.mock("expo-location", () => ({
 }));
 
 const API = "http://192.168.1.23:8000";
-// The window of the tests (react-native's jest setup): a page is this wide.
-const WIDTH = 750;
 
 let fetchSpy: jest.SpiedFunction<typeof fetch>;
 
@@ -52,15 +50,11 @@ function tabs(): string[] {
   return screen.getAllByRole("tab").map((tab) => String(tab.props.accessibilityLabel));
 }
 
-/** A swipe that comes to rest on the page at `index`. */
+/** The page at `index` as the pages lay side by side before TASK-367
+ * («Feed», «Draw», «Explore», the profile): its tab touched. */
 async function swipeTo(index: number) {
-  const pager = screen.getByTestId("pager");
-  await fireEvent.scroll(pager, {
-    nativeEvent: { contentOffset: { x: index * WIDTH, y: 0 } },
-  });
-  await fireEvent(pager, "momentumScrollEnd", {
-    nativeEvent: { contentOffset: { x: index * WIDTH, y: 0 } },
-  });
+  const tabs = ["Feed", "Draw", "Explore", /^Profile/];
+  await fireEvent.press(screen.getByRole("tab", { name: tabs[index] }));
 }
 
 beforeEach(() => {
@@ -97,11 +91,11 @@ test("with the game on the API, «Play» is a row of «Draw» under the distance
   expect(
     fetchSpy.mock.calls.filter(([url]) => String(url).endsWith("/game/catalog")),
   ).toHaveLength(1);
-  // Three names in the header, as without the game, and still on «Draw».
-  expect(tabs()).toEqual(["Feed", "Draw", "Explore"]);
+  // The five tabs, as without the game, and still on «Draw» (TASK-367).
+  expect(tabs()).toEqual(["Feed", "Draw", "Messages", "Explore", "Profile"]);
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   // Right after «DISTANCE»: the queries find in the order of the screen.
-  const labels = within(screen.getByTestId("pager"))
+  const labels = within(screen.getByTestId("tab-pages"))
     .getAllByText(/^(WHAT YOU DRAW|DISTANCE|PLAY|NEAR YOU|SHAPES TO TRY)$/)
     .map((node) => node.props.children);
   // «WHAT YOU DRAW» and «DISTANCE» are steps 2 and 3 of «Draw» (TASK-361).
@@ -120,7 +114,7 @@ test("the row opens the game over the app, and «←» goes back to «Draw»", a
   expect(within(game).getByTestId("shape-card-triangle")).toBeOnTheScreen();
   expect(within(game).getByText("Sign in to collect shapes.")).toBeOnTheScreen();
   // The pages are not under it: the game takes the whole screen.
-  expect(screen.queryByTestId("pager")).toBeNull();
+  expect(screen.queryByTestId("tab-bar")).toBeNull();
 
   await fireEvent.press(within(game).getByLabelText("Back"));
   expect(screen.queryByTestId("play-overlay")).toBeNull();

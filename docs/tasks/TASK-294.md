@@ -142,6 +142,11 @@ plugin caricato entrano nell'impronta di ogni piattaforma
 e i contatti vanno dichiarati in «Sicurezza dei dati» con l'avviso in app
 che Google chiede.
 
+*Aggiunta (TASK-321 B, 2026-10-30, col sì del Coordinatore):*
+`androidFingerprint.test.ts` si aspetta ora anche `READ_CONTACTS` e
+`WRITE_CONTACTS`, che il plugin `expo-contacts` mette nella configurazione
+con la 1.0.1. `WRITE_CONTACTS` è bloccato con `android.blockedPermissions`.
+
 ### Parte C — La pagina per cancellare l'account (ADR-0253)
 
 Dopo la B. Solo file nuovi, `site/account-deletion/` nelle cinque lingue
