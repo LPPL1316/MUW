@@ -1,4 +1,11 @@
 {
   "record_activities": ["skiing", "xc_skiing"],
-  "run_activities": ["running", "cycling", "paddling", "swimming", "skiing", "xc_skiing"]
+  "run_activities": [
+    "running",
+    "cycling",
+    "paddling",
+    "swimming",
+    "skiing",
+    "xc_skiing"
+  ]
 }
