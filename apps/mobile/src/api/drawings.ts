@@ -9,9 +9,10 @@ import type {
   DrawingTag,
   LatLon,
   MyDrawing,
+  RunActivity,
   Visibility,
 } from "@shaperoute/shared-types";
-import { ACTIVITIES, VISIBILITIES } from "@shaperoute/shared-types";
+import { ACTIVITIES, RUN_ACTIVITIES, VISIBILITIES } from "@shaperoute/shared-types";
 
 import { accountProblem, SESSION_ENDED } from "../account/messages";
 import { t } from "../i18n";
@@ -37,7 +38,7 @@ type Options = { fetchFn?: typeof fetch; key?: string | null };
 export type DrawingChoice = {
   title: string | null;
   description: string | null;
-  activity: Activity;
+  activity: RunActivity;
   /** The members tagged, in order; their names are what the form shows. */
   tags: DrawingTag[];
   visibility: Visibility;
@@ -148,7 +149,7 @@ export function choiceFrom(value: unknown): DrawingChoice | null {
   if (typeof item.public === "boolean" && item.visibility === undefined) {
     return { ...NOT_CHOSEN, title, visibility: item.public ? "everyone" : "only_me" };
   }
-  if (!isVisibility(item.visibility) || !isActivity(item.activity)) {
+  if (!isVisibility(item.visibility) || !isRunActivity(item.activity)) {
     return null;
   }
   const tags = Array.isArray(item.tags) ? item.tags.filter(isDrawingTag) : null;
@@ -393,6 +394,14 @@ function isActivity(value: unknown): value is Activity {
   return typeof value === "string" && (ACTIVITIES as readonly string[]).includes(value);
 }
 
+/** What a run of this app's may be saved as: a day on the snow too
+ * (TASK-375, RUN_ACTIVITIES). */
+function isRunActivity(value: unknown): value is RunActivity {
+  return (
+    typeof value === "string" && (RUN_ACTIVITIES as readonly string[]).includes(value)
+  );
+}
+
 export function isDrawingTag(value: unknown): value is DrawingTag {
   return (
     isRecord(value) &&
@@ -417,10 +426,15 @@ export function isDrawingPhoto(value: unknown): value is DrawingPhoto {
  * TASK-375) is read as none, so the drawing shows as a run and the page it is
  * in still loads: one post this app cannot name never takes the whole Feed
  * with it (TASK-375 B0). The field is dropped from the body as read; any
- * other value still refuses the drawing.
+ * other value still refuses the drawing. `known` tells which: the owner's
+ * own drawing keeps a day on the snow (B1), so changing who sees it never
+ * makes it a run.
  */
-function readsActivity(body: Record<string, unknown>): boolean {
-  if (body.activity === undefined || isActivity(body.activity)) {
+function readsActivity(
+  body: Record<string, unknown>,
+  known: (value: unknown) => boolean,
+): boolean {
+  if (body.activity === undefined || known(body.activity)) {
     return true;
   }
   if (typeof body.activity !== "string") {
@@ -431,11 +445,14 @@ function readsActivity(body: Record<string, unknown>): boolean {
 }
 
 /** The fields of TASK-208, when the API has them: each right, or absent. */
-function hasDetailFields(body: Record<string, unknown>): boolean {
+function hasDetailFields(
+  body: Record<string, unknown>,
+  known: (value: unknown) => boolean = isActivity,
+): boolean {
   return (
     (body.visibility === undefined || isVisibility(body.visibility)) &&
     (body.description === undefined || isStringOrNull(body.description)) &&
-    readsActivity(body) &&
+    readsActivity(body, known) &&
     (body.tags === undefined ||
       (Array.isArray(body.tags) && body.tags.every(isDrawingTag))) &&
     (body.photos === undefined ||
@@ -464,7 +481,7 @@ export function isMyDrawing(body: unknown): body is MyDrawing {
     isStringOrNull(body.title) &&
     typeof body.public === "boolean" &&
     isStringOrNull(body.published_at) &&
-    hasDetailFields(body)
+    hasDetailFields(body, isRunActivity)
   );
 }
 

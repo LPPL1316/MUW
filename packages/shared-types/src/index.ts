@@ -1133,8 +1133,9 @@ export interface DrawingRequest {
    * lines and all; null or "": none; missing: as it was.
    */
   description?: string | null;
-  /** What the run was; missing: as it was. */
-  activity?: Activity;
+  /** What the run was; missing: as it was. A day on the snow too
+   * (TASK-375, RunActivity). */
+  activity?: RunActivity;
   /** The public_id of the members tagged, in order; []: none; missing: as they were. */
   tags?: string[];
 }
@@ -1193,7 +1194,9 @@ export interface MyDrawing {
   /** The fields of TASK-208: an API before has none. */
   visibility?: Visibility;
   description?: string | null;
-  activity?: Activity;
+  /** What the run was: the owner's own keeps a day on the snow (TASK-375,
+   * RunActivity). */
+  activity?: RunActivity;
   /** The run's (TASK-312); missing from an API before it: "muw". */
   source?: RunSource;
   tags?: DrawingTag[];

@@ -255,11 +255,43 @@ test.each(UNKNOWN)(
     const one = { ...structuredClone(detail), activity };
     expect(isDrawingDetail(one)).toBe(true);
     expect(one).not.toHaveProperty("activity");
-    const mine = { ...structuredClone(myDetails), activity };
-    expect(isMyDrawing(mine)).toBe(true);
-    expect(mine).not.toHaveProperty("activity");
   },
 );
+
+test("the owner's own drawing keeps a day on the snow, not an activity unknown", () => {
+  // B1: so changing who sees it never sends it back as a run.
+  for (const activity of ["skiing", "xc_skiing"]) {
+    const mine = { ...structuredClone(myDetails), activity };
+    expect(isMyDrawing(mine)).toBe(true);
+    expect(mine.activity).toBe(activity);
+    expect(choiceOf(mine as MyDrawing).activity).toBe(activity);
+  }
+  const rowing = { ...structuredClone(myDetails), activity: "rowing" };
+  expect(isMyDrawing(rowing)).toBe(true);
+  expect(rowing).not.toHaveProperty("activity");
+});
+
+test("a day on the snow waiting on the phone keeps its activity", () => {
+  expect(choiceFrom({ ...CHOSEN, activity: "skiing" })).toEqual({
+    ...CHOSEN,
+    activity: "skiing",
+  });
+  expect(choiceFrom({ ...CHOSEN, activity: "xc_skiing" })?.activity).toBe("xc_skiing");
+});
+
+test("a day on the snow is sent as itself", async () => {
+  const fetchFn = answers({ status: 200, body: myDetails });
+  await saveDrawing(
+    URL,
+    TOKEN,
+    KEY,
+    { ...CHOSEN, activity: "skiing" },
+    options(fetchFn),
+  );
+  expect(JSON.parse(String(fetchFn.mock.calls[0][1]?.body))).toMatchObject({
+    activity: "skiing",
+  });
+});
 
 test("an activity this app knows stays, one that is no name still refuses", () => {
   const listed = drawings.drawings[0];

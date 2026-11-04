@@ -128,7 +128,28 @@ l'app non conosce non fa cadere la pagina. `apps/mobile/src/api/drawings.ts`,
 `packages/shared-types/src/index.ts`, approvato, alla fine non serve: i
 tipi dei disegni restano `Activity` (ADR-0319, punto 6).
 
-Parte B: `apps/mobile/src/settings/sport.ts`,
+Parte B1 (2026-11-04, la lista di B più ciò che è servito, da approvare
+dal Coordinatore): `apps/mobile/src/settings/sport.ts`,
+`apps/mobile/src/screens/ChooseScreen.tsx`,
+`apps/mobile/src/screens/RunNoRouteButton.tsx`,
+`apps/mobile/src/navigation/freeSport.ts`,
+`apps/mobile/src/navigation/useFreeRun.ts`,
+`apps/mobile/src/screens/FreeRunScreen.tsx`,
+`apps/mobile/src/activities/RunEnd.tsx`, `apps/mobile/src/health/workout.ts`,
+`apps/mobile/src/health/useHealth.ts`, `apps/mobile/src/health/appleWorkout.ts`,
+`apps/mobile/src/health/healthConnectWorkout.ts`, i quattro file di
+`apps/mobile/src/i18n/`; in più `apps/mobile/src/api/drawings.ts` (di B0),
+`apps/mobile/src/social/PublicParts.tsx` (i chip «Activity») e
+`packages/shared-types/src/index.ts` (`DrawingRequest` e `MyDrawing` →
+`RunActivity`). Test: nuovi `settings/snowSport.test.ts`,
+`health/snowWorkout.test.ts`, `screens/RecordDay.test.tsx` e
+`social/snowChips.test.tsx`; `api/drawings.test.ts`; il conteggio dei
+«Soon» in `settings/sport.test.ts`, `SportSetting.test.tsx`,
+`SportButton.test.tsx` e `SportVoiceItalian.test.tsx`. Documenti:
+`docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 7) e questa lista.
+`trackStore.ts` e `api/activities.ts` alla fine non servono.
+
+Parte B (la lista di partenza): `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/navigation/freeSport.ts`,
 `apps/mobile/src/navigation/useFreeRun.ts`,
 `apps/mobile/src/health/recordWorkout.ts` (nuovo),

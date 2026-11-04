@@ -4,7 +4,7 @@ import type {
   QuantityTypeIdentifierWriteable,
   WorkoutActivityType,
 } from "@kingstinct/react-native-healthkit";
-import type { Activity } from "@shaperoute/shared-types";
+import type { Activity, RunActivity } from "@shaperoute/shared-types";
 
 import { SYNC_VERSION, type Workout } from "./workout";
 
@@ -16,7 +16,7 @@ import { SYNC_VERSION, type Workout } from "./workout";
  */
 
 /** HKWorkoutActivityType, Apple's own numbers. */
-const ACTIVITY_TYPE: Readonly<Record<Activity, WorkoutActivityType>> = {
+const ACTIVITY_TYPE: Readonly<Record<RunActivity, WorkoutActivityType>> = {
   running: 37 as WorkoutActivityType,
   cycling: 13 as WorkoutActivityType,
   paddling: 31 as WorkoutActivityType,
@@ -25,9 +25,14 @@ const ACTIVITY_TYPE: Readonly<Record<Activity, WorkoutActivityType>> = {
   swimming: 46 as WorkoutActivityType,
   // `.walking` (TASK-371).
   walking: 52 as WorkoutActivityType,
+  // `.downhillSkiing` and `.crossCountrySkiing` (TASK-375).
+  skiing: 61 as WorkoutActivityType,
+  xc_skiing: 60 as WorkoutActivityType,
 };
 
-/** The distance of each activity, as Apple Health counts it a day. */
+/** The distance of each activity, as Apple Health counts it a day. A day on
+ * the snow (TASK-375) has none here: its own distances would be a new
+ * permission to ask, so the workout keeps its total only. */
 export const DISTANCE_TYPE: Readonly<
   Record<Activity, QuantityTypeIdentifierWriteable>
 > = {
@@ -67,13 +72,21 @@ export type AppleWorkout = {
   locations: LocationForSaving[];
 };
 
+/** One of the activities with a route, whose distance Apple Health counts. */
+function isRouteActivity(activity: RunActivity): activity is Activity {
+  return activity in DISTANCE_TYPE;
+}
+
 export function appleWorkout(workout: Workout): AppleWorkout {
   const startDate = new Date(workout.startMs);
   const endDate = new Date(workout.endMs);
   const quantities: QuantitySampleForSaving[] = [];
-  if (workout.distanceM > 0) {
+  const distanceType = isRouteActivity(workout.activity)
+    ? DISTANCE_TYPE[workout.activity]
+    : null;
+  if (workout.distanceM > 0 && distanceType !== null) {
     quantities.push({
-      quantityType: DISTANCE_TYPE[workout.activity],
+      quantityType: distanceType,
       quantity: workout.distanceM,
       unit: "m",
       startDate,

@@ -3,7 +3,7 @@ import * as Location from "expo-location";
 import * as Speech from "expo-speech";
 import { useEffect, useState } from "react";
 
-import { activityOf, loadSport } from "../settings/sport";
+import { loadSport, runActivityOf } from "../settings/sport";
 import { appUnits } from "../units/units";
 import { endRunAudio, startRunAudio } from "../voice/runAudio";
 import { loadVoices, speaking } from "../voice/voiceChoice";
@@ -70,7 +70,7 @@ export function useFreeRun(active: boolean): FreeRunState {
         // On the water the pace is a paddler's (TASK-251), on a bike the
         // numbers are speeds (TASK-251 C): the sport is the one «Settings»
         // has when the outing starts, kept in the run's file.
-        const activity = freeRunActivity(activityOf(loadSport()));
+        const activity = freeRunActivity(runActivityOf(loadSport()));
         const recorder = startRun(FREE_ROUTE, Date.now(), undefined, [], activity);
         stopRecording = recorder.stop;
         // A run that goes on does not say again the kilometres it has said;
