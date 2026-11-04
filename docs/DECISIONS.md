@@ -20555,7 +20555,8 @@ prima del giro, così lo scadere dei 15 s dà il modo fermo e non il giallo.
 La mappa resta viva durante la codifica solo nel modo `orbit`. La tessera
 «3D» inclina il disegno con `perspective` e `rotateX`, senza colline. Il
 testo «3D» è quello già in tabella per la mappa 3D. La riga di privacy
-sulle tegole del terreno (scelta 8) entra con la D col sì dell'utente, e
+sulle tegole del terreno (scelta 8) entra con la D col sì dell'utente
+(«Sì, questa», 2026-11-04), e
 i file della D nell'elenco del task crescono di conseguenza (la tessera e
 il flusso, lasciati dalla C). Scartate: la proiezione una volta sola con
 le quote dal terreno attraverso le API interne di MapLibre (fragili alla

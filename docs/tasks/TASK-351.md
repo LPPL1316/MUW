@@ -213,8 +213,12 @@ qui con le parole dell'utente.
 
    Le foto aeree di Esri (la mappa satellite di TASK-264) restano fuori:
    una riga a parte, da proporre dopo.
-   — *Risposta:* da chiedere all'utente con la parte D; la riga entra
-   nella D col suo sì.
+   — *Risposta (2026-11-04, nella chat di questo task, alla domanda «Va
+   bene la riga di privacy sulle Terrain Tiles (cinque lingue, scelta 8
+   nel task file)?»):* **«Sì, questa»**: la riga entra nella D (#724)
+   nei cinque testi, dopo quella di OpenFreeMap, con le pagine di
+   `site/privacy` rigenerate da `make_privacy.mjs` sopra la riga della
+   #723 (TASK-368 B), che era entrata prima.
 
 **La privacy in `about/content`** (controllata il 2026-10-30, condizione
 3): in «Others who receive data» ci sono OpenFreeMap («serves the map:

@@ -312,7 +312,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   inclinata, il credito «Terrain Tiles»; nel simulatore il 3D esce con la camera che gira (11 ms a
   fotogramma, 7,1 s di codifica, 10,5 s in tutto contro 4,1 della notte); impronta iOS sulla copia pulita `6f8bba4c`, quella di `main`; 616 suite, 4937 test verdi.
   La riga di privacy sulle tegole del terreno (scelta 8 nel task file)
-  aspetta il sì dell'utente ed entra nella D.
+  ha avuto il sì dell'utente («Sì, questa», 2026-11-04) ed è nella D, nei
+  cinque testi e nelle pagine del sito rigenerate; la D è riallineata su
+  `main` 1c085d26 dopo la #723, che toccava gli stessi file.
 - **TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio**
   (ADR-0306, estende ADR-0293; richiesta dell'utente del 2026-10-30, numeri
   dal Coordinatore). Branch `docs/TASK-355-feed-clarity` (documenti). Parte
