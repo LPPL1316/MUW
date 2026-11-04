@@ -20960,11 +20960,13 @@ tolto il riquadro in bici e in canoa aspettando «una formula per sport».
 L'app non conosce il corpo dell'utente. Sesso, peso, altezza, età e zone sono
 dati sulla salute (GDPR art. 9).
 
-**Decisione** (proposta; i punti 1, 6 e 7 aspettano le scelte dell'utente):
+**Decisione** (proposta; le scelte dell'utente ancora aperte sono in
+`tasks/TASK-374.md`):
 
-1. Sesso, peso, altezza e anno di nascita sono facoltativi e restano sul
-   telefono (parte A). Ogni dato che manca torna al valore di oggi. Il server
-   solo se serve davvero, con un consenso esplicito separato.
+1. Sesso, peso, altezza e anno di nascita sono facoltativi e restano **solo
+   sul telefono** (scelta dell'utente, «Solo sul telefono», 2026-11-04):
+   niente server, niente migrazione, privacy invariata. Ogni dato che manca
+   torna al valore di oggi.
 2. **Energia totale** (deciso dall'agente):
    - *Corsa*: equazione ACSM della corsa, VO₂ = 3,5 + 0,2·v + 0,9·v·pendenza
      (ml/kg/min, v in m/min). Sommata sulla corsa diventa

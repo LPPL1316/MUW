@@ -71,7 +71,11 @@ Letto il codice di `main` (`6dc89cfa`) il 2026-11-04.
 
 Una alla volta, con le sue parole. *(da fare)*
 
-1. **Dove stanno i dati**: solo sul telefono, o anche sul server?
+1. **Dove stanno i dati.** Proposta: solo sul telefono; le kcal dei post
+   altrui restano a 70 kg; niente migrazione, niente consenso in più, privacy
+   invariata.
+   — *Risposta (2026-11-04):* «Solo sul telefono». La parte C (server) esce
+   dal piano.
 2. **Il sesso**: quali opzioni.
 3. **Leggere peso, altezza e data di nascita da Apple Health / Health
    Connect**: sì o no. Su iPhone è possibile già con la 1.0.1, insieme a
@@ -89,8 +93,8 @@ Una alla volta, con le sue parole. *(da fare)*
   da Health. Fingerprint iOS invariato: si può pubblicare con un OTA.
 - **B — pagina delle zone.** Calcolo puro (FC max, Karvonen), tabella
   modificabile, salvata sul telefono.
-- **C — server e sincronizzazione**, solo se la scelta 1 lo chiede: migrazione,
-  API, privacy policy e App Privacy.
+- ~~**C — server e sincronizzazione**~~: esclusa dalla scelta 1 («Solo sul
+  telefono»).
 - **D — battito**, solo se la scelta 4 lo chiede: il tempo in ogni zona a
   fine corsa dai campioni di TASK-345 C; il tempo reale è un'altra cosa
   (orologio o fascia, dipendenza nuova).
