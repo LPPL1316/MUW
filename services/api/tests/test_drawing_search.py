@@ -35,6 +35,7 @@ from shaperoute_api.drawing_search import (
     MAX_QUERY_LENGTH,
     NOT_A_SHAPE,
     SORT_MISMATCH,
+    WORD_SHAPE,
     complexity_of,
     folded,
     pattern_of,
@@ -228,6 +229,23 @@ def test_each_filter_leaves_out_what_is_not_its_own(
     assert found(client, me, q="star", activity=["cycling"], max_m=30_000) == {
         "Star ride"
     }
+
+
+def test_the_words_drawn_are_a_shape_of_their_own(
+    client: TestClient,  # noqa: F811
+) -> None:
+    me, author = signed_up(client), other(client)
+    published(client, author, "searchk01", "Heart", shape="heart")
+    saved(client, author, "searchk02", shape=None, word="CIAO")
+    drawn(client, author, "searchk02", title="Ciao")
+    saved(client, author, "searchk03", shape=None, word=None)
+    drawn(client, author, "searchk03", title="Free run")
+    assert found(client, me, shape=[WORD_SHAPE]) == {"Ciao"}
+    assert found(client, me, shape=[WORD_SHAPE, "heart"]) == {"Ciao", "Heart"}
+    assert found(client, me, shape=["heart"]) == {"Heart"}
+    # The answer says so: an API before it leaves `words` out.
+    assert search(client, me)["words"] is True
+    assert search(client, me, q="x" * (MAX_QUERY_LENGTH + 1))["words"] is True
 
 
 def test_the_complexity_is_read_from_the_line(

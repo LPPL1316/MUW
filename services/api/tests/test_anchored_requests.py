@@ -95,9 +95,9 @@ def test_a_placement_out_of_the_rules_is_refused(
     body = {**CIRCLE, "distance_m": 2000, **changes}
     with pytest.raises(InvalidRequestError, match=message):
         to_request(RouteRequestBody(**body))
-    # An image is refused on the water before its placement is looked at.
-    on_image = "not an image" if changes.get("activity") == "paddling" else message
-    with pytest.raises(InvalidRequestError, match=on_image):
+    # An image too: on the water it is paddled, but never anchored
+    # (TASK-369, ADR-0313).
+    with pytest.raises(InvalidRequestError, match=message):
         to_request(ImageRouteRequestBody(**{**IMAGE, "distance_m": 2000, **changes}))
     # Over the wire: 422 invalid_request, the message of the engine.
     graphs = ActivityGraphs({}, water=FileWaterSource(WATER_FIXTURE))

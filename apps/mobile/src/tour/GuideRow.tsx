@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { StyleSheet, Text } from "react-native";
 
 import {
   color,
@@ -8,6 +8,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { tourTexts } from "./tourTexts";
 
 type Props = {
@@ -23,8 +24,8 @@ type Props = {
 export function GuideRow({ onOpen }: Props) {
   const name = tourTexts().guide;
   return (
-    <Pressable
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    <Tap
+      style={styles.row}
       onPress={onOpen}
       accessibilityRole="button"
       // One name for the row: the emoji and the arrow are not read.
@@ -33,7 +34,7 @@ export function GuideRow({ onOpen }: Props) {
       <Text style={styles.emoji}>❓</Text>
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.arrow}>›</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -44,14 +45,14 @@ export function GuideRow({ onOpen }: Props) {
 export function WatchTourButton({ onWatch }: { onWatch: () => void }) {
   const name = tourTexts().watch;
   return (
-    <Pressable
-      style={({ pressed }) => [styles.watch, pressed && styles.pressed]}
+    <Tap
+      style={styles.watch}
       onPress={onWatch}
       accessibilityRole="button"
       accessibilityLabel={name}
     >
       <Text style={styles.watchText}>▶︎ {name}</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -66,9 +67,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.border,
     backgroundColor: color.surface,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   emoji: {
     fontSize: fontSize.input + space.xs,

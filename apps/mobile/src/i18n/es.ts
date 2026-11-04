@@ -310,7 +310,7 @@ export const ES: Table = {
   "Within 150 m of the shore. Never swim alone.":
     "A menos de 150 m de la orilla. No nades nunca solo.",
 
-  // src/swim/SwimTurns.tsx, src/swim/swimTurns.ts (TASK-323 C: the turns of a
+  // src/swim/SwimTurns.tsx, src/swim/turns.ts (TASK-323 C: the turns of a
   // swim before «Start», the place's name as OpenStreetMap writes it)
   TURNS: "GIROS",
   "Turn left": "Gira a la izquierda",
@@ -866,6 +866,9 @@ export const ES: Table = {
   "{name}, {ago}: {text}": "{name}, {ago}: {text}",
   "Touch and hold to delete.": "Mantén pulsado para eliminar.",
 
+  // src/feed/ActionBar.tsx
+  Reactions: "Reacciones",
+
   // src/social/DrawingReactions.tsx
   React: "Reaccionar",
   "Your reaction: {name}": "Tu reacción: {name}",
@@ -884,6 +887,11 @@ export const ES: Table = {
   "No photos yet.": "Aún no hay fotos.",
   "No photos yet. Add some to a public drawing in My activities.":
     "Aún no hay fotos. Añade algunas a un dibujo público en Mis actividades.",
+
+  // src/profile/PersonalBests.tsx (TASK-368)
+  "Personal bests": "Mejores marcas",
+  "Half marathon": "Media maratón",
+  Marathon: "Maratón",
 
   // src/social/SuperLikeSheet.tsx
   "Super like": "Super like",
@@ -1752,4 +1760,68 @@ export const ES: Table = {
   // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
   "WHAT YOU DRAW": "QUÉ DIBUJAS",
   "Write a word, e.g. CIAO": "Escribe una palabra, p. ej. CIAO",
+
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "RECÓRRELO EN BICI",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Rutas dibujadas por MuW. Nadie las ha recorrido todavía.",
+  "By bike": "En bici",
+  Bat: "Murciélago",
+  Madrid: "Madrid",
+  Turin: "Turín",
+
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Busca dibujos, personas, lugares",
+  Clear: "Borrar",
+  People: "Personas",
+  Routes: "Rutas",
+  Filters: "Filtros",
+  "Recent searches": "Búsquedas recientes",
+  Categories: "Categorías",
+  "Featured drawings": "Dibujos destacados",
+  Animals: "Animales",
+  Hearts: "Corazones",
+  Words: "Palabras",
+  Symbols: "Símbolos",
+  Emoji: "Emoji",
+  Place: "Lugar",
+  "Town or region": "Ciudad o región",
+  Complexity: "Complejidad",
+  Simple: "Sencilla",
+  Medium: "Media",
+  Complex: "Compleja",
+  "Sort by": "Ordenar por",
+  "Most recent": "Más recientes",
+  Longest: "Más largos",
+  "Most popular": "Más populares",
+  "Up to {distance}": "Hasta {distance}",
+  "Over {distance}": "Más de {distance}",
+  Reset: "Restablecer",
+  "No drawings found": "No se encontraron dibujos",
+  "Try other words, or change the filters.":
+    "Prueba otras palabras o cambia los filtros.",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Ruta creada por MuW – recórrela tú",
+  "Route created by MuW – run it yourself": "Ruta creada por MuW – córrela tú",
+  "Route created by MuW – paddle it yourself":
+    "Ruta creada por MuW – recórrela remando",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Tu publicación",
+  "Hold and drag to reorder": "Mantén pulsado y arrastra para cambiar el orden",
+  "Move left": "Mover a la izquierda",
+  "Move right": "Mover a la derecha",
+  Layout: "Diseño",
+  "Drawing in the corner": "Dibujo en la esquina",
+  "Line on the photo": "Línea sobre la foto",
+  "Half and half": "Mitad y mitad",
+  "Photo in the corner": "Foto en la esquina",
+  "Up to 10 in a post.": "Hasta 10 en una publicación.",
+  "Could not prepare this photo. Try again.":
+    "No se ha podido preparar esta foto. Inténtalo de nuevo.",
+  // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
+  Style: "Estilo",
+  Night: "Noche",
+  Day: "Día",
 };

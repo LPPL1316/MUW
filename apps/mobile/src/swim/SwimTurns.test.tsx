@@ -5,7 +5,7 @@ import { act, render, screen } from "@testing-library/react-native";
 import { saveLanguageChoice } from "../i18n/language";
 import { saveUnitsChoice } from "../units/units";
 
-import { firstLapTurns, lapsNote, turnAt, turnLabel } from "./swimTurns";
+import { firstLapTurns, lapsNote, turnAt, turnLabel } from "./turns";
 import { SwimTurns } from "./SwimTurns";
 
 jest.mock("expo-file-system");

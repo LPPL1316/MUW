@@ -9,7 +9,8 @@ GET /users/{public_id} is the profile as every member sees it: username,
 bio, picture (profile_photos.py), number of drawings published
 (drawings.py), how many it follows and how many follow it, and where the one
 who asks stands towards it (follows.py); since TASK-324 its totals: metres,
-climb and reactions received (profile_totals.py). Never the email, the role, the
+climb and reactions received (profile_totals.py); since TASK-368 its
+personal bests (profile_bests.py). Never the email, the role, the
 internal id or when the account was made. It needs the token of an account:
 what members share is for members, as the feed (ADR-0114, point 4). The id
 is the random `public_id` of the account, not `id`: a sequence would let
@@ -53,6 +54,7 @@ from shaperoute_api.follows import (
     followers_count_sql,
     following_count_sql,
 )
+from shaperoute_api.profile_bests import PersonalBestBody, personal_bests_sql
 from shaperoute_api.profile_totals import (
     climb_total_sql,
     distance_total_sql,
@@ -114,6 +116,11 @@ class PublicProfileBody(BaseModel):
     # who asks sees; «Winner» is contest_wins.
     badges: list[Badge] = Field(
         description="The badges it earned, in a fixed order; [] without one."
+    )
+    # The personal bests (TASK-368, ADR-0312): of every run, private ones
+    # too, the user's choice; the run opens only for who may see it.
+    personal_bests: list[PersonalBestBody] = Field(
+        description="On foot, then by bike, by distance; [] without one."
     )
 
 
@@ -182,12 +189,13 @@ class Profiles:
                 f" {distance_total_sql('u.id')} AS distance_m,"
                 f" {climb_total_sql('u.id')} AS climb_m,"
                 f" {reactions_received_sql('u.id', '%s')} AS reactions,"
-                f" {badges_sql('u.id', '%s')} AS badges"
+                f" {badges_sql('u.id', '%s')} AS badges,"
+                f" {personal_bests_sql('u.id', '%s')} AS personal_bests"
                 " FROM users u LEFT JOIN profile_photos p ON p.user_id = u.id"
                 " WHERE u.public_id = %s"
                 # Across a block the profile is not there (TASK-121).
                 f" AND NOT {apart_sql('%s', 'u.id')}",
-                (viewer_id,) * 5 + (wanted, viewer_id),
+                (viewer_id,) * 7 + (wanted, viewer_id),
             ).fetchone()
         if row is None:
             return None
@@ -206,6 +214,7 @@ class Profiles:
             climb_m=row["climb_m"],
             reactions=row["reactions"],
             badges=row["badges"],
+            personal_bests=row["personal_bests"],
         )
 
 

@@ -1,6 +1,6 @@
 import type { FollowState, Person } from "@shaperoute/shared-types";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { sessionEnded } from "../account/messages";
 import type { AccountOutcome } from "../api/accounts";
@@ -25,6 +25,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { useFollowsDoor } from "./followsDoor";
 
 /** What the app has of one list. */
@@ -318,13 +319,9 @@ export function FollowLists({ fetchFn, apiKey }: Props) {
           const count = of.kind === "ready" ? of.total : null;
           const name = t(NAMES[list]);
           return (
-            <Pressable
+            <Tap
               key={list}
-              style={({ pressed }) => [
-                styles.count,
-                open === list && styles.countOpen,
-                pressed && styles.pressed,
-              ]}
+              style={[styles.count, open === list && styles.countOpen]}
               onPress={() => {
                 setProblem(null);
                 setRemoving(null);
@@ -347,7 +344,7 @@ export function FollowLists({ fetchFn, apiKey }: Props) {
               <Text style={styles.countName} numberOfLines={1}>
                 {name}
               </Text>
-            </Pressable>
+            </Tap>
           );
         })}
       </View>
@@ -372,8 +369,8 @@ export function FollowLists({ fetchFn, apiKey }: Props) {
               return (
                 <View key={person.public_id} style={styles.member}>
                   <View style={styles.row}>
-                    <Pressable
-                      style={({ pressed }) => [styles.who, pressed && styles.pressed]}
+                    <Tap
+                      style={styles.who}
                       onPress={() => openProfile(person)}
                       accessibilityRole="button"
                       accessibilityLabel={person.username}
@@ -386,7 +383,7 @@ export function FollowLists({ fetchFn, apiKey }: Props) {
                       <Text style={styles.name} numberOfLines={1}>
                         {person.username}
                       </Text>
-                    </Pressable>
+                    </Tap>
                     {back === "none" && (
                       <Action
                         text={t("Follow back")}
@@ -449,17 +446,14 @@ export function FollowLists({ fetchFn, apiKey }: Props) {
               );
             })}
           {shown.kind === "ready" && shown.next !== null && (
-            <Pressable
-              style={({ pressed }) => [
-                styles.more,
-                (pressed || loadingMore) && styles.pressed,
-              ]}
+            <Tap
+              style={[styles.more, loadingMore && styles.dim]}
               onPress={() => loadMore(open)}
               disabled={loadingMore}
               accessibilityRole="button"
             >
               <Text style={styles.moreText}>{t("Show more")}</Text>
-            </Pressable>
+            </Tap>
           )}
         </View>
       )}
@@ -485,12 +479,8 @@ function Action({
   onPress: () => void;
 }) {
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.action,
-        strong && styles.actionStrong,
-        (pressed || disabled) && styles.pressed,
-      ]}
+    <Tap
+      style={[styles.action, strong && styles.actionStrong, disabled && styles.dim]}
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
@@ -506,7 +496,7 @@ function Action({
       >
         {text}
       </Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -534,7 +524,7 @@ const styles = StyleSheet.create({
     borderColor: color.borderStrong,
     backgroundColor: color.surfaceRaised,
   },
-  pressed: {
+  dim: {
     opacity: 0.6,
   },
   numberRow: {
@@ -577,7 +567,7 @@ const styles = StyleSheet.create({
     gap: space.sm,
     paddingVertical: space.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.border,
+    borderBottomColor: color.hairline,
   },
   row: {
     flexDirection: "row",

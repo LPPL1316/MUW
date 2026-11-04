@@ -217,9 +217,13 @@ Ogni parte ha la sua PR e parte da `main` solo col via del Coordinatore.
 - [ ] Ogni dipendenza nuova ha il sì dell'utente scritto qui.
 - [ ] Parte A: un post con 9 foto e il disegno, riordinato, si pubblica e
       si vede nel Feed nello stesso ordine; un'app vecchia vede le foto.
-- [ ] Parte A: un test dimostra che il disegno nella foto usa la linea tagliata del Feed.
-- [ ] Parte A: `layoutFrame` ha test deterministici per ogni layout.
-- [ ] Parte A: l'impronta iOS resta `83793e26` su una copia pulita.
+- [x] Parte A: un test dimostra che il disegno nella foto usa la linea tagliata del Feed
+      (`composer/ComposedPhoto.test.tsx`).
+- [x] Parte A: `layoutFrame` ha test deterministici per ogni layout
+      (`composer/layoutFrame.test.ts`).
+- [x] Parte A: l'impronta iOS resta quella di `main` su una copia pulita:
+      `83793e26` prima della 1.0.1; dopo l'unione con la #620 (Apple Health)
+      `6f8bba4c`, uguale a `main` (misurata il 2026-11-04).
 - [ ] Parti B e C: entrano solo nella build 1.0.2.
 
 ## File toccati
@@ -254,6 +258,63 @@ services/api/tests/test_drawings.py
 services/api/tests/test_feed.py
 ```
 
+Parte A, app (via del Coordinatore del 2026-11-03, dopo la #700; nessun
+`App.tsx`):
+
+```
+apps/mobile/src/about/AboutPage.test.tsx
+apps/mobile/src/about/content/de.ts
+apps/mobile/src/about/content/en.ts
+apps/mobile/src/about/content/es.ts
+apps/mobile/src/about/content/fr.ts
+apps/mobile/src/about/content/it.ts
+apps/mobile/src/about/documents.test.ts
+apps/mobile/src/activities/ActivityCard.tsx
+apps/mobile/src/activities/RunEnd.tsx
+apps/mobile/src/activities/RunEndForm.test.tsx
+apps/mobile/src/activities/activitiesDoor.ts
+apps/mobile/src/api/drawingOrder.ts
+apps/mobile/src/feed/FeedPost.tsx
+apps/mobile/src/feed/FeedPostOrder.test.tsx
+apps/mobile/src/i18n/de.ts
+apps/mobile/src/i18n/es.ts
+apps/mobile/src/i18n/fr.ts
+apps/mobile/src/i18n/it.ts
+apps/mobile/src/profile/ProfileGallery.test.tsx
+apps/mobile/src/social/DrawingsGrid.test.tsx
+apps/mobile/src/social/PublicParts.test.tsx
+apps/mobile/src/social/PublicParts.tsx
+apps/mobile/src/social/PublicRow.test.tsx
+apps/mobile/src/social/PublicRow.tsx
+apps/mobile/src/social/composer/ComposedPhoto.test.tsx
+apps/mobile/src/social/composer/ComposedPhoto.tsx
+apps/mobile/src/social/composer/PostComposer.test.tsx
+apps/mobile/src/social/composer/PostComposer.tsx
+apps/mobile/src/social/composer/flattenPhoto.test.ts
+apps/mobile/src/social/composer/flattenPhoto.ts
+apps/mobile/src/social/composer/layoutFrame.test.ts
+apps/mobile/src/social/composer/layoutFrame.ts
+apps/mobile/src/social/composer/pickPhotos.ts
+apps/mobile/src/social/composer/pickPhotos.test.ts
+apps/mobile/src/social/composer/postOrder.test.ts
+apps/mobile/src/social/composer/postOrder.ts
+apps/mobile/src/social/drawingOrder.test.ts
+apps/mobile/src/social/drawingOrder.ts
+apps/mobile/src/social/drawingOutbox.ts
+apps/mobile/src/social/drawingPhotos.ts
+apps/mobile/src/social/drawingsDoor.ts
+docs/DECISIONS.md
+docs/STATUS.md
+docs/tasks/TASK-348.md
+packages/shared-types/src/index.ts
+site/privacy/de/index.html
+site/privacy/es/index.html
+site/privacy/fr/index.html
+site/privacy/index.html
+site/privacy/it/index.html
+site/tests/privacy.test.mjs
+```
+
 Le parti elencano i loro file prima del codice e li mandano al
 Coordinatore; `PublicParts.tsx` e `drawingsDoor.ts` sono anche di
 TASK-336, `FeedPost.tsx` anche di TASK-336 B, TASK-339 B e TASK-345 A:
@@ -271,3 +332,8 @@ l'ordine lo decide il Coordinatore.
 ## Esito
 
 *(a fine task)*
+
+- 2026-11-04, parte A: API con la #665 (migrazione 0041), app con la #711
+  (testa `348d1ed0`, CI verde, impronta iOS `6f8bba4c` uguale a `main`).
+  Manca la prova sul telefono del primo criterio di A; l'OTA di
+  produzione col sì dell'utente (il server è già alla 0041). Parti B, C e D aperte.

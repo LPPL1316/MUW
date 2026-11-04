@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { t, tLater } from "../i18n";
 
 import { shapeName } from "../i18n/shapeNames";
@@ -11,6 +11,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { EXAMPLE_DISTANCE_M, type Example, shownExamples } from "./exampleRoutes";
@@ -108,13 +109,9 @@ export function CityExamples({ city, examples, onOpen, onRetry, width }: Props) 
         </Text>
       ))}
       {failed.length > 0 && (
-        <Pressable
-          style={({ pressed }) => [styles.retry, pressed && styles.pressed]}
-          onPress={onRetry}
-          accessibilityRole="button"
-        >
+        <Tap style={styles.retry} onPress={onRetry} accessibilityRole="button">
           <Text style={styles.retryText}>{t("Try again")}</Text>
-        </Pressable>
+        </Tap>
       )}
     </View>
   );
@@ -146,9 +143,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: space.md,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   retry: {
     minHeight: MIN_TAP_SIZE,

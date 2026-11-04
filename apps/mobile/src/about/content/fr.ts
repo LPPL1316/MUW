@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 octobre 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "2 novembre 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
+const PRIVACY_UPDATED = "4 novembre 2026";
 
 const help: AboutDocument = {
   title: "Comment fonctionne MuW",
@@ -22,7 +22,7 @@ const help: AboutDocument = {
       heading: "Ce qu'est MuW",
       blocks: [
         "MuW dessine de vrais parcours qui tracent une forme sur la carte. Tu choisis la forme, la distance et le point de départ ; tu obtiens un parcours sur de vraies rues, avec son fichier GPX.",
-        "L'app a quatre pages côte à côte, «Fil», «Dessiner», «Explorer» et ton profil : glisse vers la gauche ou la droite, ou touche un nom en haut. Le cercle en haut t'amène à ton profil.",
+        "En bas, il y a cinq onglets : «Fil», «Dessiner», «Messages», «Explorer» et ton profil, le cercle avec ta photo. Touche un onglet pour y aller, touche-le encore pour revenir en haut. Les «Réglages» sont sous l'engrenage en haut à droite de ton profil.",
       ],
     },
     {
@@ -71,7 +71,8 @@ const help: AboutDocument = {
     {
       heading: "Publier et partager",
       blocks: [
-        "Une course enregistrée est privée : toi seul la vois. Les autres membres voient sur ton profil seulement les totaux de toutes tes courses enregistrées, distance et dénivelé, jamais les courses elles-mêmes. Choisis «Tout le monde» ou «Abonnés» sous «Qui peut la voir», à la fin de la course ou sur une course de «Mes activités», et ils la voient comme un dessin sur ton profil, sans ses 200 premiers et 200 derniers mètres. La prochaine course que tu termines part de ton dernier choix enregistré : tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
+        "Une course enregistrée est privée : toi seul la vois. Les autres membres voient sur ton profil les totaux de toutes tes courses enregistrées, distance et dénivelé, et tes records (le 5K, le 10K et tes autres distances les plus rapides, à pied et à vélo) avec le temps et la date. Une course privée reste fermée même quand elle contient un record. Choisis «Tout le monde» ou «Abonnés» sous «Qui peut la voir», à la fin de la course ou sur une course de «Mes activités», et ils la voient comme un dessin sur ton profil, sans ses 200 premiers et 200 derniers mètres. La prochaine course que tu termines part de ton dernier choix enregistré : tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
+        "Une course que tu publies peut avoir jusqu'à 9 photos et le dessin. Maintiens-en une et fais-la glisser pour changer l'ordre : la première est celle qu'on voit dans le Feed. Choisis une mise en page pour mettre le dessin sur une photo.",
         "«Partager» crée une image de ta course à envoyer où tu veux.",
       ],
     },
@@ -79,7 +80,7 @@ const help: AboutDocument = {
       heading: "Fil et amis",
       blocks: [
         "«Fil» montre des dessins pour trouver des idées : touches-en un pour ouvrir son parcours et le démarrer.",
-        "La loupe en haut de «Fil» trouve les autres membres par leur nom. Sur un profil, tu peux toucher «Suivre» ; tes demandes, tes abonnés et les personnes que tu suis sont dans «Profil».",
+        "La recherche en haut de «Explorer» trouve les autres membres par leur nom. Sur un profil, tu peux toucher «Suivre» ; tes demandes, tes abonnés et les personnes que tu suis sont dans «Profil».",
         "Sur le dessin public d'un membre, tu peux réagir avec un emoji, envoyer un super like et écrire un commentaire. Les commentaires négatifs ne sont pas acceptés.",
       ],
     },
@@ -87,7 +88,7 @@ const help: AboutDocument = {
       heading: "Messages",
       blocks: [
         "«Message» sur le profil d'un membre lui écrit. S'il te suit, ton message arrive dans ses «Messages» ; sinon, il arrive comme demande, et tu peux envoyer un seul message tant qu'elle n'est pas acceptée.",
-        "Tes conversations sont dans «Profil», «Messages», avec «Demandes de message» en haut. Accepte une demande pour vous écrire, supprime-la (la personne qui a écrit n'est pas prévenue) ou bloque-la.",
+        "Tes conversations sont dans «Messages», l'onglet avec l'avion en papier, avec «Demandes de message» en haut. Accepte une demande pour vous écrire, supprime-la (la personne qui a écrit n'est pas prévenue) ou bloque-la.",
         "Maintiens appuyé un message pour supprimer le tien, pour vous deux, ou pour signaler un message reçu. Personne ne voit si tu as lu un message. Avec le push allumé, MuW te prévient de chaque message et de chaque demande.",
         "Dans une conversation, touche + pour envoyer une photo, une vidéo de 60 secondes au maximum ou un dessin, ou touche Envoyer à des amis sur un parcours ou un dessin. Tu peux les envoyer quand l'autre personne a accepté ton message. Les vidéos sont gardées 30 jours, ou moins quand notre espace pour les vidéos est plein : les plus anciennes partent d'abord. Touche un dessin pour l'ouvrir sur la carte, le lancer, exporter son GPX ou le garder dans tes favoris.",
       ],
@@ -95,7 +96,7 @@ const help: AboutDocument = {
     {
       heading: "Course, vélo, pagaie",
       blocks: [
-        "Choisis ton sport avec le bouton à côté de ton profil, ou dans «Réglages».",
+        "Choisis ton sport avec le bouton en haut à droite, ou dans «Réglages».",
         {
           bullets: [
             "Course : jusqu'à 21 km sur de vraies rues, avec la voix virage par virage.",
@@ -315,7 +316,7 @@ const privacy: AboutDocument = {
     {
       heading: "Des amis dans tes contacts",
       blocks: [
-        "Sous la loupe en haut de «Feed», «Trouver des amis dans tes contacts» cherche les membres dont le numéro est dans les contacts de ton téléphone. L'app demande les contacts au téléphone seulement quand tu le touches, et n'en lit que les numéros de téléphone : jamais les noms, les e-mails ni les photos.",
+        "Dans «Fil», «Trouver des personnes à suivre» mène à «Trouver des amis dans tes contacts», qui cherche les membres dont le numéro est dans les contacts de ton téléphone. L'app demande les contacts au téléphone seulement quand tu le touches, et n'en lit que les numéros de téléphone : jamais les noms, les e-mails ni les photos.",
         "Chaque numéro quitte le téléphone codé : écrit avec l'indicatif du pays et transformé en hash (SHA-256). Notre serveur compare les codes à ceux des numéros ajoutés par les membres, répond avec les membres trouvés et ne garde rien de ce qu'il a reçu : ni dans la base de données ni dans un journal.",
         "Le hash d'un numéro de téléphone n'est pas un secret : qui aurait les codes pourrait retrouver les numéros en essayant tous les numéros possibles. C'est pourquoi la vraie protection est que notre serveur n'en garde aucun ; ils ne passent que par la connexion chiffrée.",
         "Les numéros de tes contacts sont les données d'autres personnes : ils sont comparés une fois, pour trouver des comptes, puis oubliés. Pour empêcher quiconque d'essayer les numéros un à un, le serveur compte les recherches de chaque compte sur une heure, en mémoire seulement. Seuls les membres qui ont ajouté leur numéro peuvent être trouvés, et jamais quelqu'un que tu as bloqué ou qui t'a bloqué.",
@@ -331,10 +332,11 @@ const privacy: AboutDocument = {
       heading: "Tes courses et leurs traces GPS",
       blocks: [
         "Avec un compte, quand tu touches «Enregistrer» à la fin d'une course, toute la course part vers notre serveur : chaque position avec son heure et son altitude, les pauses, le parcours suivi, la distance, la durée, un score de la fidélité de la trace au parcours (calculé par notre serveur et non affiché dans l'app) et le nom du lieu. Avec «Ignorer», rien n'est envoyé.",
-        "Une course enregistrée est privée, sauf si tu choisis autrement : seul ton compte la voit. Les autres membres voient sur ton profil seulement les totaux de toutes tes courses enregistrées, distance et dénivelé, jamais les courses elles-mêmes. Elle reste jusqu'à ce que tu la supprimes de «Mes activités» ou que tu supprimes ton compte.",
+        "Une course enregistrée est privée, sauf si tu choisis autrement : seul ton compte la voit. Les autres membres voient sur ton profil les totaux de toutes tes courses enregistrées, distance et dénivelé, et tes records, à pied et à vélo, avec le temps et la date où tu les as faits : aussi ceux d'une course privée, qui ne s'ouvre pourtant pas. Elle reste jusqu'à ce que tu la supprimes de «Mes activités» ou que tu supprimes ton compte.",
         "Si tu ajoutes une activité passée depuis un fichier, nous gardons sa trace et ses heures comme pour une course enregistrée avec MuW. Nous ne gardons pas le fichier.",
         "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres qu'après que tu as choisi «Tout le monde» ou «Abonnés» sous «Qui peut la voir», et ils voient alors la trace sans ses 200 premiers et 200 derniers mètres, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu. Ton choix reste sur ce téléphone pour la course suivante : elle part du dernier enregistré, tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
         "Qui peut voir une de tes courses peut aussi la suivre avec «Démarrer» et enregistrer cette même trace comme fichier GPX : toujours sans ses 200 premiers et 200 derniers mètres et sans les temps.",
+        "Une photo que tu publies peut contenir le dessin de ta course dans l'image. C'est le même dessin que celui du Feed, coupé au début et à la fin.",
       ],
     },
     {
@@ -417,6 +419,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Santé et Health Connect",
+      blocks: [
+        "Dès que tu actives «Enregistrer dans Apple Santé» (iPhone) ou «Enregistrer dans Health Connect» (Android), chaque activité que tu enregistres y est aussi écrite, sur ton téléphone : le sport, quand elle a commencé et fini, la distance, le parcours et, pour une course, les calories actives estimées. MuW ne lit jamais tes données de santé, et rien de celles-ci n'atteint notre serveur ni aucune publicité. Tu peux l'arrêter dans l'app Santé ou dans Health Connect. Ce qui y est déjà reste jusqu'à ce que tu l'y supprimes, même quand tu supprimes la course ou ton compte.",
+      ],
+    },
+    {
       heading: "Les autres qui reçoivent des données",
       blocks: [
         {
@@ -424,6 +432,7 @@ const privacy: AboutDocument = {
             "Hetzner héberge notre serveur et ses sauvegardes, en Allemagne.",
             "Geoapify reçoit les recherches de lieux, de villes près de toi et de lieux d'un parcours à thème, avec la position arrondie à environ 1 km, et, pour nommer le lieu d'une course enregistrée, son départ arrondi de la même façon : jamais ta porte, la course ni qui tu es. Si notre serveur ne répond pas, une recherche de lieu va à Photon (komoot) à la place.",
             "OpenFreeMap fournit la carte : comme tout service de cartes, il voit quelle zone tu regardes.",
+            "Les collines de la carte 3D, et d'une vidéo dans le style «3D», viennent des Terrain Tiles hébergées sur Amazon Web Services : comme tout service de cartes, il voit quelle zone tu regardes.",
             "Apple sur iPhone, ou Google sur Android, via le service d'adresses du téléphone, reçoit la position d'où part «Dessiner», pour écrire le nom de la rue. MuW ne lui envoie rien d'autre et ne garde pas le nom.",
             "Wikimedia fournit à notre serveur les photos des villes : il voit quelle ville, pas qui demande.",
             "Avec la carte « Satellite », Esri fournit les images, et avec la carte « 3D », Amazon Web Services fournit les altitudes : comme tout service de cartes, ils voient quelle zone tu regardes.",
@@ -459,7 +468,7 @@ const privacy: AboutDocument = {
           bullets: [
             "Pour te fournir le service que tu demandes (contrat) : ton compte, ton profil, les parcours que tu demandes, et les courses, favoris, commentaires, réactions et abonnements que tu enregistres, les e-mails des notifications que tu as allumées, et le jeu des formes.",
             "Notre intérêt légitime à faire fonctionner MuW, à la garder sûre et à l'améliorer : les courts journaux du serveur, les comptages qui limitent les téléchargements de cartes et les événements de recherche, qui ne disent rien de qui tu es ; la comparaison des numéros de tes contacts, dont aucun n'est gardé ; l'e-mail en cas d'absence, que tu peux refuser à l'inscription, dans «Réglages» ou dans chaque e-mail ; les e-mails des signalements, pour garder MuW sûre ; l'archive des parcours dessinés, qui ne dit rien de qui tu es ; les messages de «Envoie-nous ton avis», pour les lire et te répondre.",
-            "Ton consentement : le numéro de téléphone que tu choisis d'ajouter et la connexion à Strava. Tu peux retirer un consentement à tout moment ; ce qui a été fait avant reste licite.",
+            "Ton consentement : le numéro de téléphone que tu choisis d'ajouter, la connexion à Strava et l'enregistrement de tes activités dans Apple Santé ou Health Connect. Tu peux retirer un consentement à tout moment ; ce qui a été fait avant reste licite.",
             "Une obligation légale, quand une loi nous demande de conserver ou de remettre des données.",
           ],
         },

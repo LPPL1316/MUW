@@ -160,6 +160,51 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
+  dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
+  #709 (nuoto nell'API), ritmo in min/km, le camminate contano nel gioco delle
+  forme ma non nei record, calorie stimate in Apple Salute. Parte A (motore,
+  API, migrazione 0043) dopo #709 e prima della notte degli esempi; B (app)
+  dopo TASK-367 A con la lista dei file al Coordinatore; C (gioco) col sì
+  dell'utente. Testi della parte B ancora da approvare. `tasks/TASK-371.md`.
+- **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
+  richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
+  finché l'utente non sceglie. Studio in `out/TASK-373/` del Mac (ignorato
+  da git), con la pagina `ski-study.html`. Misurato su Paganella,
+  Campiglio–Pinzolo–Folgarida e Sella Ronda: la rete piste + impianti c'è
+  (pezzo utile 35, 97,5 e 265,5 km), ma il motore di oggi non propone
+  nessuna delle 19 forme chieste (0,22–0,58, minimo 0,60; 27–43% del
+  percorso sugli impianti). Proposta: A, la giornata registrata senza forma
+  (4–6 sessioni); B, forme di discese a penna alzata, solo dopo un
+  prototipo; C, «Soon», no da sola (ADR-0278). **L'utente ha scelto A**
+  il 2026-11-04. Prossimo passo: le domande 2–4, una alla volta
+  (`tasks/TASK-373.md`).
+
+- **TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa
+  dov'è** (ADR-0313, proposta; richiesta dell'utente del 2026-11-03; numeri dal
+  Coordinatore). Branch `docs/TASK-369-edit-every-drawing` (documenti). Scelte
+  dell'utente: emoji, parole, percorsi a tema, corse libere e importate sì (la
+  traccia); post di sole foto e risultato di «Draw» no; nessuna scritta «basato
+  su» e nessun blocco dell'autore; Pagaia sì, come parte B (motore e API, server
+  col suo sì). Parte A (solo app) dopo TASK-367 A, col via del Coordinatore.
+  Nota: `tasks/TASK-346.md` dice ancora «In corso», ma la #655 è in `main` dal
+  2026-10-30. `tasks/TASK-369.md`.
+  **2026-11-04**: documenti in `main` (#712); parte A in `main` (#719,
+  `3e7c7d28`, impronta iOS 6f8bba4c, arriva con un OTA); parte B in PR (#722):
+  il disegno sull'acqua da `drawn_water.py`, fuori dall'impronta del motore
+  (uguale a `main`, niente notte di `draw_examples --water`); si unisce dopo
+  TASK-323 C2, poi il server col sì dell'utente.
+  **Chiuso il 2026-11-04**: parte B in `main` (#722, `bacd7c7b`), unita prima
+  di TASK-323 C2; vedi «Completato».
+- **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
+  (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
+  `src/search/`, la lente apre la ricerca, `shape=word` sul server per
+  «Words», che l'app mostra solo quando la risposta lo dichiara. 28
+  testi nuovi approvati dall'utente il 2026-11-04 («Sì, approvati»); il server (col sì) in
+  qualsiasi ordine con l'OTA. Su `FeedScreen.tsx` (una riga) entra dopo TASK-367 A.
+
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
   numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
@@ -169,6 +214,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   restano»). Parte A (solo
   app, `App.tsx`) col via del Coordinatore dopo TASK-355 A e 362; B dopo 344 B;
   C con server e migrazione, col sì dell'utente. `tasks/TASK-367.md`.
+  **Parte A** (2026-11-04): branch `feat/TASK-367-a-tab-bar`, la barra in
+  basso con cinque schede, un header solo, «Messages» come scheda,
+  l'ingranaggio del Profilo, il Pager tolto; suite dell'app verde. Dopo il
+  merge: un OTA di produzione col sì dell'utente; poi la 368 A riprende.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
@@ -178,6 +227,25 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
   via del Coordinatore; server, migrazione e sito col sì dell'utente.
   `tasks/TASK-368.md`.
+- **TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca**
+  (ADR-0318, proposta; richiesta dell'utente del 2026-11-04; numero dal
+  Coordinatore). Branch `docs/TASK-374-body-calories-hr-zones` (documenti).
+  Scelte dell'utente tutte fatte: dati solo sul telefono, sesso Male / Female /
+  Prefer not to say, lettura da Salute nella 1.0.2, tabella delle zone più
+  tempo in zona a fine corsa, sezione nelle Impostazioni, testi di A e B
+  approvati. Parte A (dati del corpo e kcal per corsa, bici e paddle, solo
+  app, OTA) e B (zone) dopo TASK-367, col via del Coordinatore; C (lettura da
+  Salute) e D (tempo in zona) con TASK-345 C nella 1.0.2. `tasks/TASK-374.md`.
+  **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
+  migrazione `0042_run_bests`, `personal_bests` nel profilo, script
+  `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
+  Poi la parte B, l'app.
+  **Parte B** (2026-11-04): branch `feat/TASK-368-b-personal-bests-app`, il
+  riquadro dei record nel Profilo, testi approvati, Guida e privacy nelle
+  cinque lingue e sul sito (pubblicazione col sì dell'utente).
+  **Chiuso** (2026-11-04): A #721 e B #723 in main, server con la 0042
+  (fe4e9499). Restano all'utente: il backfill dei record delle corse già
+  salvate, la privacy sul sito e l'OTA.
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
@@ -205,6 +273,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-11-02: codice pronto in PR da `feat/TASK-362-feed-tabs` (filtro sul
   server, schede sul `Segmented`, nessuna migrazione). Prima dell'OTA va
   aggiornato il server, col sì dell'utente. Dopo: 344 B, 355 B ridotta, 309 B.
+  2026-11-04: **chiuso.** #697 in main (2026-11-03), server a 36c6b2da, OTA di
+  produzione a91869b6 da 081f6d82; l'utente vede «All» e «Following» sul
+  telefono. Restano: la riga di privacy più avanti (scelta 7), gli esempi
+  col Coordinatore (scelta 4).
 
 - **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
   scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
@@ -228,12 +300,48 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `a6d8cf1d (il codice; poi la privacy e i documenti)`): la mappa sotto nel look Night, la riserva gialla senza mappa,
   provata in Expo Go, impronta `83793e26` invariata; prima dell'OTA di
   produzione l'utente esporta un video vero sull'iPhone dalla preview e
-  vede la mappa (condizione del Coordinatore). Senza mappa il video
+  vede la mappa (condizione del Coordinatore). 2026-11-03: la B è in
+  `main` (#679) ma sul telefono il video è uscito senza mappa: il WebView
+  fuori vista non riceve fotogrammi di animazione e MapLibre non carica;
+  fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
+  un timer, il WebView è un punto visibile), riprodotto e provato nel
+  simulatore; la prova dalla preview è dell'utente. Poi la C.
+  2026-11-04: il fix è in `main` (#703); la C è in PR
+  (`feat/TASK-351-c-video-styles`): la riga «Style» con «Night» e «Day»,
+  il look chiaro col bordo scuro sulla linea e il velo chiaro, i tre testi;
+  la tessera «3D» con la D. Sera: la C è riallineata su `main` f23ec332
+  (#717, col codice della #707), 26 suite verdi, impronta iOS sulla copia
+  pulita `6f8bba4c`; «#706 pronta» al Coordinatore.
+  2026-11-04: il fix è in `main` (#703) e sulla preview fb15613e, ma sul
+  telefono il video è ancora senza mappa: prova successiva in
+  `fix/TASK-351-video-map-under-cover`, PR #707 (WebView a grandezza piena
+  sotto una copertura, come il Feed; nel video giallo di riserva una riga
+  con il motivo dato dalla pagina, solo sul canale preview, con un test che
+  su production non compaia). L'utente: il video della preview era
+  «giallo», app riaperta due volte. Riallineata su `main` dopo la #620:
+  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706. Sera: con la stessa
+  preview fb15613e l'utente vede la mappa («ok la mappa funziona»): i
+  fotogrammi a timer bastano, il giallo di prima stava nei 15 s di attesa
+  (libreria e tegole non in cache, o rete lenta); la riga di diagnosi
+  (solo preview) lo dirà la prossima volta. La #706 si riallinea su
+  `main` dopo la #707; la condizione per la produzione del video (mappa
+  vista sul telefono) è soddisfatta, l'OTA resta una scelta dell'utente. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
   Coordinatore. Solo app, impronta iOS `83793e26` invariata. File
-  `tasks/TASK-351.md`.
+  `tasks/TASK-351.md`. 2026-11-04, sera: la #706 e la #707 sono in `main`;
+  la D (il 3D) è la PR #724 (`feat/TASK-351-d-video-3d`, testa 5f0d197f, poi i documenti):
+  lo stile «3D», la mappa scura inclinata con le colline, la linea posata
+  sulle colline dalla pagina, la camera che gira da −10° a +10° se un
+  fotogramma costa meno di 25 ms (misurato dalla pagina in un giro a
+  vuoto) altrimenti lo scatto fermo con lo zoom lento, la tessera
+  inclinata, il credito «Terrain Tiles»; nel simulatore il 3D esce con la camera che gira (11 ms a
+  fotogramma, 7,1 s di codifica, 10,5 s in tutto contro 4,1 della notte); impronta iOS sulla copia pulita `6f8bba4c`, quella di `main`; 616 suite, 4937 test verdi.
+  La riga di privacy sulle tegole del terreno (scelta 8 nel task file)
+  ha avuto il sì dell'utente («Sì, questa», 2026-11-04) ed è nella D, nei
+  cinque testi e nelle pagine del sito rigenerate; la D è riallineata su
+  `main` 1c085d26 dopo la #723, che toccava gli stessi file.
 - **TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio**
   (ADR-0306, estende ADR-0293; richiesta dell'utente del 2026-10-30, numeri
   dal Coordinatore). Branch `docs/TASK-355-feed-clarity` (documenti). Parte
@@ -242,6 +350,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   già la posizione e «Your position» non lo dice: lo chiude TASK-356, dopo
   la #668, con il testo già approvato; sito e OTA di produzione con il suo
   sì. `tasks/TASK-355.md`.
+  **Parte A in PR #700** (2026-11-03, branch `feat/TASK-355-a-feed-card`): la
+  scheda con luogo e data, un titolo solo, pallino e bandierina sulla traccia
+  tagliata, il credito in una riga, la miniatura sulle foto, la barra
+  «Comments», «Reactions», «Share» (solo i propri), «Draw it near me»
+  (`feed/RouteMap.tsx`, `ActionBar.tsx`, `drawAgainDoor.ts`), il filo sotto i
+  nomi in `Pager`. Impronta iOS `83793e26`. Prossimo: la parte B (conteggi,
+  foto dell'autore, skeleton), dopo 344 B.
+  **Parte A in main** (#700, 2026-11-03, testa `f4975e0f`, riallineata una
+  volta dopo la #697 di TASK-362). Arriva al telefono con la prossima OTA del
+  Feed. Prossimo: la parte B, dopo 344 B.
 - **TASK-339 — L'interfaccia premium ed elegante** (ADR-0293, proposta;
   brief dell'utente del 2026-10-29; il canvas della proposta, 16 tavole,
   visto e approvato a voce la sera stessa, «BELLISSIMO»:
@@ -276,6 +394,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte B in `main` dal 2026-10-30** con la #677 (`4faeceb2`, 23:16 CET,
   mergiata al verde: tutte le 557 suite dell'app verdi anche nella copia
   pulita). Poi C.
+  **Parte C2 in PR dal 2026-10-30** (branch `feat/TASK-339-premium-look-c2`;
+  via del Coordinatore della sera sulla lista esatta dei file): nei 34 file
+  liberi i 51 `pressed` passano a `Tap`, le divisioni a `Hairline` o a un
+  pixel di `hairline`, `Tap` prende un `ref`. La C1 (pagine vuote, testi
+  nuovi) aspetta il sì dell'utente sui testi; poi D. Il 2026-11-04,
+  su richiesta dell'utente, riallineata su `main` (con la #620) e aperta.
 - **TASK-361 — «Draw» in tre secondi** (ADR-0307; richiesta dell'utente
   del 2026-10-30; numeri dal Coordinatore). Un solo giallo («Run without a route» con contorno e 🏃),
   la via della partenza, la griglia a due righe, la forma in scala, mezzo
@@ -378,7 +502,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   fino a B. File `tasks/TASK-348.md`. Limite scelto dall'utente il
   2026-10-30: 10 elementi col disegno. Parte A, API: #665 (migrazione 0041,
   server non aggiornato); la parte app aspetta il via del Coordinatore.
-  fino a B. File `tasks/TASK-348.md`.
+  2026-11-04, parte A app: branch `feat/TASK-348-a-composer-app` (via del
+  Coordinatore dopo la #700). Nel modulo di fine corsa e in «My
+  activities»: fino a 9 foto e il disegno in fila, scelta di più foto
+  insieme, riordino tenendo premuto (e «Move left»/«Move right» per
+  VoiceOver), i quattro layout per ogni foto aggiunta, la foto composta
+  subito con `view-shot`; l'ordine va al server dopo le foto
+  (`drawing-orders.json` sul telefono). Nel Feed le pagine nell'ordine del
+  post e «2/5» in alto a sinistra. Testi tradotti, Help e privacy approvati
+  con la data del 4 novembre, pagine del sito rigenerate. **Resta**: la
+  prova sul telefono, l'impronta iOS su una copia pulita, il merge.
+  2026-11-04: parte A app in `main` con la #711 (testa `348d1ed0`, CI
+  verde, impronta iOS `6f8bba4c` come `main`). Il server è già alla
+  migrazione 0041; l'OTA di produzione col sì dell'utente. **Resta**: la prova sul telefono (9 foto e
+  il disegno, riordinati, nel Feed nello stesso ordine), poi B, C e D
+  nella 1.0.2.
 - **TASK-346 — «Edit the drawing» nel Feed: la traccia sulla mappa dov'è
   stata corsa** (ADR-0299; richiesta dell'utente del 2026-10-29, «nel Feed
   quando premo modifica il disegno devo poter modificare la traccia sulla
@@ -485,6 +623,44 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   MuW non ha («Per C» nel task file).
   A in `main`: #615, merge `8d8c4dde` (2026-10-28), impronte misurate anche
   sull'albero unito con `main`: iOS `83793e26…`, Android `e2d33497…`.
+  **B scritta** (2026-10-29, branch `feat/TASK-321-b-health-ios`, PR in
+  bozza): entitlement HealthKit e testo del permesso in `app.json` e nelle
+  cinque lingue, le tre librerie dell'iPhone collegate solo su iOS, la
+  privacy approvata (anche `site/privacy/`). Impronta iOS nuova
+  `fd0cbb43…`; si muove anche quella Android (`e9a0bda0…`, solo per la
+  configurazione). **Non si unisce prima del taglio della 1.0.1**, che
+  decide il Coordinatore. Capability, build, invio e riga dello store col
+  sì dell'utente, ognuno.
+  Sul simulatore (2026-10-29), dopo «Save», l'allenamento è in Fitness con
+  la mappa; testo del permesso e privacy nelle cinque lingue approvati
+  dall'utente; la data della privacy sarà quella del merge. L'impronta
+  Android si muove con la 1.0.1 (scelta del Coordinatore). Resta l'anello
+  Movimento sull'iPhone. Il 2026-10-29 l'utente ha detto sì anche a
+  capability HealthKit, build, invio ad Apple e riga dell'App Store: valgono
+  al taglio della 1.0.1.
+  **Pronta per il taglio della 1.0.1** (2026-10-30, #620 in bozza, riallineata
+  su `main` `477bdb68`): Apple Salute, contatti e selettore di file, senza
+  l'accesso con Apple e Google (scelta dell'utente), più il testo per leggere
+  il battito di TASK-345 C, approvato dall'utente nelle cinque lingue. Impronta
+  iOS `67253126…`, Android `8aac71c3…`; `main` resta `83793e26…` fino al merge,
+  che arriva dopo l'approvazione di Apple: la build si fa dal branch. Provate
+  sul simulatore con la build nativa scrittura, lettura, contatti e selettore.
+  Prossimo: build e invio, ognuno col sì dell'utente chiesto dal Coordinatore
+  («Health» in App Privacy e la frase nuova della privacy vanno con l'update
+  che accende TASK-345 C, scelta dell'utente); prima, sull'iPhone, l'anello Movimento, la rubrica
+  e «From a file». Dettagli in `tasks/TASK-321.md`.
+  **Riallineata** il 2026-11-01 su `main` `bd9af711` (testa `7ee6091e`):
+  privacy datata 1° novembre 2026, impronte invariate (iOS `67253126…`,
+  Android `8aac71c3…`), test locali verdi.
+  **Pronta per la build** (2026-11-02, l'utente ha chiesto la build): su
+  `main` `74f34e79`, con `expo-haptics` acceso (scelta dell'utente), privacy
+  datata 2 novembre 2026; impronta iOS `6f8bba4c…`, Android `227457f3…`.
+  Simulatore con build Release: Salute, lettura, rubrica, selettore e
+  vibrazione funzionano. Resta in bozza; la build la lancia l'utente.
+  **Apple ha approvato la 1.0.1** (build 8, da `1b58707a`); «ok unisci»
+  dell'utente il 2026-11-04. Riallineata su `main` `8cc5005b`, impronta iOS
+  `6f8bba4c…` invariata; il merge lo fa il Coordinatore a CI verde. Da quel
+  momento gli update di produzione vanno alla 1.0.1.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
@@ -521,7 +697,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **A2 in `main`** con LPPL1316/MUW#11 (2026-10-30). **B scritta**
   (2026-10-30, stessa sessione, branch `feat/TASK-323-b-swim-api`):
   `swimming` nel contratto coi giri e le curve, un disegno a nuoto, la
-  migrazione `0042_swimming.sql`, `shore_extract.py`; l'app resta a tre
+  migrazione `0040_swimming.sql`, `shore_extract.py`; l'app resta a tre
   attività fino a C. **Blocco**: `paddleExamples.json` va rifatto con
   l'acqua del server (dal Mac), poi server, estratto dei nomi e
   `draw_examples` col sì dell'utente. **Prossimo**: C, lo sport nell'app.
@@ -2233,6 +2409,24 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-372 — Sci di fondo: la rete delle piste non disegna forme**
+  (ADR-0316, 2026-11-04). Benchmark su Fiemme, Asiago e Dobbiaco: nessuna
+  delle 45 forme a 0,90, il cerchio mai sopra 0,49. Nessuna rete `nordic`,
+  nessun codice. L'utente ha scelto «Record only»: `xc_skiing` entra con
+  TASK-375 insieme a `skiing`. `tasks/TASK-372.md`.
+- **TASK-369 — «Edit the drawing» su ogni disegno** (ADR-0313; 2026-11-04;
+  numeri dal Coordinatore): documenti #712, parte A #719 (`3e7c7d28`), parte
+  B #722 (`bacd7c7b`). Il tasto c'è su ogni disegno con una linea, anche
+  emoji, parole, percorsi a tema, corse libere e importate e disegni pagaiati;
+  la traccia va sulla mappa dov'è, e si modifica sempre una copia mia. Senza
+  tasto i post di sole foto e il risultato di «Draw». Impronta iOS 6f8bba4c,
+  impronta del motore invariata. Restano, col sì dell'utente: il server con la
+  parte B (sì dato il 2026-11-04, lo fa il Coordinatore; prima l'app mostra «On
+  the water, a shape of the catalogue.») e l'OTA di produzione. `tasks/TASK-369.md`.
+- **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
+  (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
+  «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;
+  produzione con la #700, lanciata dall'utente. `tasks/TASK-364.md`.
 - **TASK-366 — Le finestre aperte dal Pager: solo «Edit the outline» stava sotto la barra di stato**
   (2026-11-02; numero dal Coordinatore; seguito di TASK-360). Le sette finestre elencate da
   TASK-360 aperte nel simulatore da dove si aprono davvero: solo `OutlineBoard` («Draw» → «Image»)

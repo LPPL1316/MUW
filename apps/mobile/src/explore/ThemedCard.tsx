@@ -96,6 +96,9 @@ type Props = {
   apiUrl?: string | null;
   /** A tap on a place's photo: the map goes there. */
   onPlace?: (point: LatLon) => void;
+  /** «Edit the drawing» (TASK-369, ADR-0313): the line of the route on the
+   * map of «Draw on the map», where it is; the places are not kept. */
+  onEditDrawing?: () => void;
 };
 
 /**
@@ -113,6 +116,7 @@ export function ThemedCard({
   onNearMe,
   apiUrl = null,
   onPlace,
+  onEditDrawing,
 }: Props) {
   // Written again when «Settings» changes the units (TASK-182); with a
   // point, as the texts here, still in English.
@@ -182,6 +186,16 @@ export function ThemedCard({
       </Tap>
       {exporting.status === "failed" && (
         <Text style={styles.error}>{t("The GPX could not be made. Try again.")}</Text>
+      )}
+      {/* After «Export GPX», as on the card of «Explore». */}
+      {onEditDrawing !== undefined && (
+        <Tap
+          style={styles.secondary}
+          onPress={onEditDrawing}
+          accessibilityRole="button"
+        >
+          <Text style={styles.secondaryText}>{t("Edit the drawing")}</Text>
+        </Tap>
       )}
       <Tap style={styles.secondary} onPress={onCancel} accessibilityRole="button">
         <Text style={styles.secondaryText}>{t("Back to Explore")}</Text>

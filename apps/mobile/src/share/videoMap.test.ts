@@ -1,16 +1,21 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
+import { PITCH_3D, TERRAIN_SPEC, TERRAIN_TILES_URL } from "../map/mapKindStyle";
 import { BRIGHTNESS_STEPS } from "../theme/tone";
 import { paletteOf, SHADES } from "../theme/tokens";
 import {
+  FRAME_BUDGET_MS,
   MAP_CREDIT,
   MAP_HEIGHT,
   MAP_PIXEL_RATIO,
   MAP_WAIT_MS,
   MAP_WIDTH,
-  NIGHT,
+  STILL_ZOOM,
+  TERRAIN_CREDIT,
+  TURN_DEG,
   videoMap,
 } from "./videoMap";
+import { NIGHT } from "./videoStyle";
 
 /** A straight line north, a point every 50 m. */
 function north(metres: number): LatLon[] {
@@ -80,8 +85,58 @@ describe("videoMap", () => {
     expect(NIGHT.text).toBe(SHADES.dark.darkest.text);
   });
 
-  it("credits the map's makers, as their licences ask", () => {
+  it("credits the map's makers, as their licences ask; on 3D the hills' heights too", () => {
     expect(MAP_CREDIT).toContain("OpenStreetMap");
     expect(MAP_CREDIT).toContain("OpenFreeMap");
+    expect(TERRAIN_CREDIT).toBe("Terrain Tiles");
+  });
+
+  it("lies flat, with nothing for the page to lay on hills", () => {
+    const map = videoMap(north(4800), BOX, 0);
+    expect(map?.camera.pitch).toBe(0);
+    expect(map?.terrain).toBeNull();
+    expect(map?.turn).toBeNull();
+    expect(map?.line).toEqual([]);
+    expect(map?.pad).toBe(BOX.pad);
+    expect(map?.budgetMs).toBe(FRAME_BUDGET_MS);
+    expect(JSON.stringify(map?.style)).not.toContain("hillshade");
+  });
+
+  it("leans on its hills on 3D, the line given to the page as longitude and latitude", () => {
+    const line = north(4800);
+    const map = videoMap(line, BOX, -45, NIGHT, "en", { line });
+    expect(map?.camera.pitch).toBe(PITCH_3D);
+    expect(map?.camera.bearing).toBe(-45);
+    expect(map?.camera.zoom).toBe(videoMap(line, BOX, -45)?.camera.zoom);
+    expect(map?.terrain).toEqual(TERRAIN_SPEC);
+    expect(map?.turn).toEqual({ from: -TURN_DEG, to: TURN_DEG });
+    expect(STILL_ZOOM).toBeGreaterThan(1);
+    expect(map?.line).toHaveLength(line.length);
+    expect(map?.line[0]).toEqual([11.12, 46.07]);
+    const style = map?.style as unknown as {
+      sources: Record<string, { type: string; tiles?: string[]; encoding?: string }>;
+      layers: { id: string; type: string }[];
+    };
+    expect(style.sources.terrain).toEqual(
+      expect.objectContaining({
+        type: "raster-dem",
+        tiles: [TERRAIN_TILES_URL],
+        encoding: "terrarium",
+      }),
+    );
+    expect(style.sources.hillshade).toEqual(style.sources.terrain);
+    // The shading over the land, under the roads and the names.
+    const types = style.layers.map((layer) => layer.type);
+    expect(types.indexOf("hillshade")).toBe(types.lastIndexOf("fill") + 1);
+    expect(style.layers.filter((layer) => layer.type === "hillshade")).toHaveLength(1);
+    // Its colours from the night's palette, nothing hand-written.
+    const known = new Set<string>([
+      ...Object.values(NIGHT.map),
+      NIGHT.background,
+      NIGHT.borderStrong,
+    ]);
+    for (const hex of JSON.stringify(style).match(/#[0-9A-Fa-f]{6}/g) ?? []) {
+      expect(known.has(hex)).toBe(true);
+    }
   });
 });

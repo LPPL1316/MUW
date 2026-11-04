@@ -16,13 +16,19 @@ import {
 } from "./videoPage";
 import { videoScene } from "./videoScene";
 
-/** The script of the page, as the WebView runs it. */
+/** The scripts of the page without a source, as the WebView runs them:
+ * the frames from a timer, then the page's own. */
+function scripts(): string[] {
+  return Array.from(VIDEO_PAGE.matchAll(/<script>([\s\S]*?)<\/script>/g), (m) => m[1]);
+}
+
+/** The page's own script. */
 function script(): string {
-  const match = /<script>([\s\S]*)<\/script>/.exec(VIDEO_PAGE);
-  if (match === null) {
+  const found = scripts();
+  if (found.length < 2) {
     throw new Error("no script");
   }
-  return match[1];
+  return found[found.length - 1];
 }
 
 type Init = {
@@ -106,31 +112,93 @@ class FakeFrame {
   close() {}
 }
 
-/** What a fake map does once made: settles at once, fails a tile first, or never. */
-type MapOutcome = "idle" | "error" | "never";
+/** What a fake map does once made: settles at once, fails a tile first,
+ * never says a word, or has its tiles after two drawings but never says
+ * idle (a page with no animation frames). */
+type MapOutcome = "idle" | "error" | "never" | "silent";
 
 type Handler = () => void;
 
-/** A stand-in for MapLibre's map: made, it says `idle` (or an error first),
- * and remembers the camera it was given. */
+type Camera = {
+  center: [number, number];
+  zoom: number;
+  bearing: number;
+  pitch: number;
+};
+type Padding = { top: number; bottom: number; left: number; right: number };
+
+/** A stand-in for MapLibre's map: made, it says `load` and `idle` (or an
+ * error first), remembers the camera it was given, and projects the world
+ * flat about the padded middle of its 360 × 640 points, a degree being
+ * 1000 · 2^(zoom − 13) points: enough for the page's fit to converge. */
 function fakeMapLibre(outcome: MapOutcome) {
   const made: FakeMap[] = [];
   class FakeMap {
     handlers: Record<string, Handler[]> = {};
-    padding: unknown = null;
+    padding: Padding = { top: 0, bottom: 0, left: 0, right: 0 };
     jumped: unknown = null;
+    jumps: Record<string, unknown>[] = [];
+    camera: Camera;
+    terrain: unknown = null;
     removed = false;
+    redraws = 0;
 
     constructor(public options: Record<string, unknown>) {
       made.push(this);
-      if (outcome !== "never") {
+      this.camera = {
+        center: options.center as [number, number],
+        zoom: options.zoom as number,
+        bearing: options.bearing as number,
+        pitch: options.pitch as number,
+      };
+      if (outcome !== "never" && outcome !== "silent") {
         setTimeout(() => {
           if (outcome === "error") {
             this.emit("error");
           }
+          this.emit("load");
           this.emit("idle");
         }, 10);
       }
+    }
+
+    middle(): [number, number] {
+      const p = this.padding;
+      return [(p.left + 360 - p.right) / 2, (p.top + 640 - p.bottom) / 2];
+    }
+
+    scale(): number {
+      return 1000 * 2 ** (this.camera.zoom - 13);
+    }
+
+    project([lng, lat]: [number, number]) {
+      const [mx, my] = this.middle();
+      const k = this.scale();
+      return {
+        x: mx + (lng - this.camera.center[0]) * k,
+        y: my - (lat - this.camera.center[1]) * k,
+      };
+    }
+
+    unproject([x, y]: [number, number]) {
+      const [mx, my] = this.middle();
+      const k = this.scale();
+      return {
+        lng: this.camera.center[0] + (x - mx) / k,
+        lat: this.camera.center[1] - (y - my) / k,
+      };
+    }
+
+    getZoom() {
+      return this.camera.zoom;
+    }
+
+    setTerrain(spec: unknown) {
+      this.terrain = spec;
+    }
+
+    isStyleLoaded() {
+      return this.loaded();
     }
 
     on(event: string, handler: Handler) {
@@ -147,16 +215,34 @@ function fakeMapLibre(outcome: MapOutcome) {
       }
     }
 
-    setPadding(padding: unknown) {
+    setPadding(padding: Padding) {
       this.padding = padding;
     }
 
-    jumpTo(camera: unknown) {
+    jumpTo(camera: Record<string, unknown>) {
       this.jumped = camera;
+      this.jumps.push(camera);
+      Object.assign(this.camera, camera);
     }
 
     getCanvas() {
       return { width: 1080, height: 1920 };
+    }
+
+    redraw() {
+      this.redraws += 1;
+      // As MapLibre does: idle again from inside a drawing, when whole.
+      if (outcome === "idle" && this.loaded()) {
+        this.emit("idle");
+      }
+    }
+
+    loaded() {
+      return outcome === "silent" ? this.redraws >= 2 : outcome !== "never";
+    }
+
+    areTilesLoaded() {
+      return this.loaded();
     }
 
     remove() {
@@ -221,9 +307,9 @@ function page(
   return { posted, written, context, make: api.make, prepareMap: api.prepareMap };
 }
 
-/** Until the page says `type`, or a second goes by. */
+/** Until the page says `type`, or three seconds go by. */
 async function until(posted: VideoPageMessage[], ...types: string[]) {
-  for (let i = 0; i < 200 && !posted.some((m) => types.includes(m.type)); i += 1) {
+  for (let i = 0; i < 600 && !posted.some((m) => types.includes(m.type)); i += 1) {
     await new Promise((resolve) => setTimeout(resolve, 5));
   }
 }
@@ -245,11 +331,30 @@ const RUN = {
 const STICKERS = [{ id: 1, emoji: "🔥", x: 0.5, y: 0.5 }];
 const SCENE = videoScene(RUN, POST_RESULTS, STICKERS, "paper");
 const NIGHT_SCENE = videoScene(RUN, POST_RESULTS, STICKERS, "night");
+const RELIEF_SCENE = videoScene(RUN, POST_RESULTS, STICKERS, "3d");
 
 describe("the video page", () => {
   it("is plain JavaScript the WebView can run", () => {
     // Compiled, not run: a mistake in the template string fails here.
     expect(() => new Function(script())).not.toThrow();
+  });
+
+  it("gives itself animation frames from a timer before MapLibre loads, so a page kept out of sight still draws", async () => {
+    const [frames] = scripts();
+    expect(VIDEO_PAGE.indexOf(frames)).toBeLessThan(
+      VIDEO_PAGE.indexOf(MAPLIBRE_JS_URL),
+    );
+    const window: Record<string, unknown> = {};
+    new Function("window", "performance", frames)(window, { now: () => 42 });
+    const request = window.requestAnimationFrame as (cb: (t: number) => void) => number;
+    const cancel = window.cancelAnimationFrame as (id: number) => void;
+    const given: number[] = [];
+    const first = request((at) => given.push(at));
+    const second = request((at) => given.push(at + 1));
+    cancel(second);
+    expect(first).not.toBe(second);
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    expect(given).toEqual([42]);
   });
 
   it("asks only for Baseline H.264, at a level that holds 1080 × 1920", () => {
@@ -311,6 +416,7 @@ describe("the video page, with a fake encoder", () => {
       type: "done",
       frames: 360,
       ms: { encode: expect.any(Number) },
+      mode: "flat",
     });
     expect(posted.filter((m) => m.type === "progress").length).toBeGreaterThan(10);
 
@@ -388,6 +494,7 @@ describe("the video page, with a fake map", () => {
       type: "map",
       ok: true,
       why: null,
+      mode: "flat",
       ms: expect.objectContaining({
         map: expect.any(Number),
         snapshot: expect.any(Number),
@@ -408,7 +515,9 @@ describe("the video page, with a fake map", () => {
       center: NIGHT_SCENE.map?.camera.center,
       zoom: NIGHT_SCENE.map?.camera.zoom,
       bearing: 0,
+      pitch: 0,
     });
+    expect(map.terrain).toBeNull();
     // Taken as a picture, then let go.
     expect(context.drawImage).toHaveBeenCalledTimes(1);
     expect(map.removed).toBe(true);
@@ -419,11 +528,62 @@ describe("the video page, with a fake map", () => {
       type: "done",
       frames: 360,
       ms: expect.objectContaining({ encode: expect.any(Number) }),
+      mode: "flat",
     });
     // The picture under every one of the 360 but the first, where the map
     // has not come in yet: 359, and the snapshot before them.
     expect(context.drawImage).toHaveBeenCalledTimes(360);
     expect(context.createLinearGradient).toHaveBeenCalled();
+  });
+
+  it("draws the map from a timer when the page gets no animation frames, and takes the picture once it is whole", async () => {
+    const maplibre = fakeMapLibre("silent");
+    const { posted, context, prepareMap } = page(
+      fakeEncoder([VIDEO_CODECS[0]]).FakeEncoder,
+      FakeFrame,
+      maplibre,
+    );
+    await until(posted, "ready");
+    prepareMap(NIGHT_SCENE.map);
+    await until(posted, "map");
+    expect(posted[posted.length - 1]).toEqual(
+      expect.objectContaining({
+        type: "map",
+        ok: true,
+        why: null,
+        ms: expect.objectContaining({ pulses: expect.any(Number) }),
+      }),
+    );
+    const map = maplibre.made[0];
+    // Drawn on the beats until its tiles were there, kept a few beats more,
+    // then drawn once again for the picture.
+    expect(map.redraws).toBeGreaterThanOrEqual(5);
+    expect(context.drawImage).toHaveBeenCalledTimes(1);
+    expect(map.removed).toBe(true);
+  });
+
+  it("raises the veil as opaque as the scene asks", async () => {
+    const maplibre = fakeMapLibre("idle");
+    const { posted, context, make, prepareMap } = page(
+      fakeEncoder([VIDEO_CODECS[0]]).FakeEncoder,
+      FakeFrame,
+      maplibre,
+    );
+    await until(posted, "ready");
+    const day = videoScene(RUN, POST_RESULTS, STICKERS, "day");
+    prepareMap(day.map);
+    await until(posted, "map");
+    make(day);
+    await until(posted, "done", "failed");
+    expect(posted[posted.length - 1]).toEqual(
+      expect.objectContaining({ type: "done" }),
+    );
+    const gradient = context.createLinearGradient.mock.results[0].value as {
+      addColorStop: jest.Mock;
+    };
+    const stops = gradient.addColorStop.mock.calls;
+    expect(stops[0]).toEqual([0, expect.stringMatching(/, 0\)$/)]);
+    expect(stops[stops.length - 1]).toEqual([1, expect.stringMatching(/, 0\.94\)$/)]);
   });
 
   it("gives the map up when a tile fails: a hole is worse than no map", async () => {
@@ -472,6 +632,25 @@ describe("the video page, with a fake map", () => {
       ok: false,
       why: "no library",
       ms: expect.any(Object),
+      mode: null,
+    });
+  });
+
+  it("says why when the map's description cannot be read, so the video still comes", async () => {
+    const { posted, prepareMap } = page(
+      fakeEncoder([VIDEO_CODECS[0]]).FakeEncoder,
+      FakeFrame,
+      fakeMapLibre("idle"),
+    );
+    await until(posted, "ready");
+    prepareMap({ width: 360 });
+    await until(posted, "map");
+    expect(posted[posted.length - 1]).toEqual({
+      type: "map",
+      ok: false,
+      why: expect.any(String),
+      ms: expect.any(Object),
+      mode: null,
     });
   });
 
@@ -489,5 +668,109 @@ describe("the video page, with a fake map", () => {
     );
     expect(context.drawImage).not.toHaveBeenCalled();
     expect(context.createLinearGradient).not.toHaveBeenCalled();
+  });
+});
+
+describe("the video page, with a fake map, in 3D", () => {
+  /** Where the fake map lays the scene's line now, in points. */
+  function laid(map: { project: (p: [number, number]) => { x: number; y: number } }) {
+    const points = RELIEF_SCENE.map?.line.map((p) => map.project(p)) ?? [];
+    const xs = points.map((p) => p.x);
+    const ys = points.map((p) => p.y);
+    return {
+      left: Math.min(...xs),
+      right: Math.max(...xs),
+      top: Math.min(...ys),
+      bottom: Math.max(...ys),
+    };
+  }
+
+  it("raises the hills, fits the leaning line in its box, tries the turn and, cheap, turns the camera for every picture", async () => {
+    const maplibre = fakeMapLibre("idle");
+    const { posted, context, make, prepareMap } = page(
+      fakeEncoder([VIDEO_CODECS[0]]).FakeEncoder,
+      FakeFrame,
+      maplibre,
+    );
+    await until(posted, "ready");
+    prepareMap(RELIEF_SCENE.map);
+    await until(posted, "map");
+    expect(posted[posted.length - 1]).toEqual({
+      type: "map",
+      ok: true,
+      why: null,
+      mode: "orbit",
+      ms: expect.objectContaining({
+        frame: expect.any(Number),
+        snapshot: expect.any(Number),
+      }),
+    });
+    const map = maplibre.made[0];
+    expect(map.options.pitch).toBe(55);
+    expect(map.terrain).toEqual(RELIEF_SCENE.map?.terrain);
+    // The line fills the drawing's box, less the line's width, as the flat
+    // one does: a straight line north as tall as the box.
+    const spec = RELIEF_SCENE.map;
+    if (spec === null) {
+      throw new Error("no map");
+    }
+    const p = spec.camera.padding;
+    const box = laid(map);
+    expect(box.left).toBeGreaterThanOrEqual(p.left + spec.pad - 0.5);
+    expect(box.right).toBeLessThanOrEqual(360 - p.right - spec.pad + 0.5);
+    expect(box.top).toBeCloseTo(p.top + spec.pad, 0);
+    expect(box.bottom).toBeCloseTo(640 - p.bottom - spec.pad, 0);
+    // Tried from one end of the turn to the other, then back; and kept.
+    const bearings = map.jumps.flatMap((j) =>
+      typeof j.bearing === "number" ? [j.bearing] : [],
+    );
+    expect(Math.min(...bearings)).toBeCloseTo(-10, 5);
+    expect(Math.max(...bearings)).toBeCloseTo(10, 5);
+    expect(map.camera.bearing).toBe(0);
+    expect(map.removed).toBe(false);
+
+    const drawnBefore = context.drawImage.mock.calls.length;
+    make(RELIEF_SCENE);
+    await until(posted, "done", "failed");
+    expect(posted[posted.length - 1]).toEqual(
+      expect.objectContaining({ type: "done", frames: 360, mode: "orbit" }),
+    );
+    // Drawn again for every picture but the first, where the map has not
+    // come in yet, the camera turning up to the last picture; then let go.
+    expect(context.drawImage.mock.calls.length - drawnBefore).toBe(359);
+    const last = map.jumps[map.jumps.length - 1];
+    expect(last.bearing).toBeCloseTo(10, 1);
+    expect(map.removed).toBe(true);
+  });
+
+  it("stands still with a slow zoom about the drawing when a picture of the turn costs more than the budget", async () => {
+    const maplibre = fakeMapLibre("idle");
+    const { posted, context, make, prepareMap } = page(
+      fakeEncoder([VIDEO_CODECS[0]]).FakeEncoder,
+      FakeFrame,
+      maplibre,
+    );
+    await until(posted, "ready");
+    // A budget no picture meets: the fake's cost rounds to 0 ms.
+    prepareMap({ ...RELIEF_SCENE.map, budgetMs: -1 });
+    await until(posted, "map");
+    expect(posted[posted.length - 1]).toEqual(
+      expect.objectContaining({ type: "map", ok: true, mode: "still" }),
+    );
+    // The one picture is enough: let go at once.
+    expect(maplibre.made[0].removed).toBe(true);
+    make(RELIEF_SCENE);
+    await until(posted, "done", "failed");
+    expect(posted[posted.length - 1]).toEqual(
+      expect.objectContaining({ type: "done", frames: 360, mode: "still" }),
+    );
+    // Zoomed on every picture but the first ones, where the zoom still
+    // rounds to 1 and the map has not come in.
+    const zooms = context.scale.mock.calls.map((call) => call[0] as number);
+    expect(zooms.length).toBeGreaterThan(300);
+    expect(Math.min(...zooms)).toBeGreaterThan(1);
+    expect(Math.max(...zooms)).toBeCloseTo(1.06, 2);
+    // About the middle of the drawing's box, in pixels.
+    expect(context.translate).toHaveBeenCalledWith(540, 864);
   });
 });

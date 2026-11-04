@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10. Oktober 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "2. November 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
+const PRIVACY_UPDATED = "4. November 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
@@ -22,7 +22,7 @@ const help: AboutDocument = {
       heading: "Was MuW ist",
       blocks: [
         "MuW zeichnet echte Routen, die auf der Karte eine Form ergeben. Du wählst die Form, die Distanz und den Start; du bekommst eine Route auf echten Straßen, mit ihrer GPX-Datei.",
-        "Die App hat vier Seiten nebeneinander, «Feed», «Zeichnen», «Entdecken» und dein Profil: Wische nach links oder rechts oder tippe oben auf einen Namen. Der Kreis oben bringt dich zu deinem Profil.",
+        "Unten gibt es fünf Tabs: «Feed», «Zeichnen», «Nachrichten», «Entdecken» und dein Profil, der Kreis mit deinem Foto. Tippe auf einen Tab, um dorthin zu gehen, tippe noch einmal darauf, um nach oben zurückzukehren. Die «Einstellungen» findest du unter dem Zahnrad oben rechts in deinem Profil.",
       ],
     },
     {
@@ -71,7 +71,8 @@ const help: AboutDocument = {
     {
       heading: "Veröffentlichen und teilen",
       blocks: [
-        "Ein gespeicherter Lauf ist privat: Nur du siehst ihn. Andere Mitglieder sehen auf deinem Profil nur die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, nie die Läufe selbst. Wähle unter «Wer kann es sehen» «Alle» oder «Follower», am Ende des Laufs oder bei einem Lauf in «Meine Aktivitäten», und sie sehen ihn als Zeichnung auf deinem Profil, ohne seine ersten und letzten 200 m. Der nächste Lauf, den du beendest, beginnt mit deiner zuletzt gespeicherten Wahl: Du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
+        "Ein gespeicherter Lauf ist privat: Nur du siehst ihn. Andere Mitglieder sehen auf deinem Profil die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, und deine Bestzeiten (die 5K, die 10K und deine anderen schnellsten Distanzen, zu Fuß und mit dem Rad) mit Zeit und Datum. Ein privater Lauf bleibt geschlossen, auch wenn er eine Bestzeit enthält. Wähle unter «Wer kann es sehen» «Alle» oder «Follower», am Ende des Laufs oder bei einem Lauf in «Meine Aktivitäten», und sie sehen ihn als Zeichnung auf deinem Profil, ohne seine ersten und letzten 200 m. Der nächste Lauf, den du beendest, beginnt mit deiner zuletzt gespeicherten Wahl: Du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
+        "Ein Lauf, den du veröffentlichst, kann bis zu 9 Fotos und die Zeichnung haben. Halte eines gedrückt und zieh es, um die Reihenfolge zu ändern: Das erste sieht man im Feed. Wähle ein Layout, um die Zeichnung auf ein Foto zu legen.",
         "«Teilen» macht ein Bild deines Laufs, das du verschicken kannst, wohin du willst.",
       ],
     },
@@ -79,7 +80,7 @@ const help: AboutDocument = {
       heading: "Feed und Freunde",
       blocks: [
         "«Feed» zeigt Zeichnungen, die dich auf Ideen bringen: Tippe auf eine, um ihre Route zu öffnen und loszulaufen.",
-        "Die Lupe oben in «Feed» findet andere Mitglieder über ihren Namen. Auf einem Profil kannst du auf «Folgen» tippen; deine Anfragen, deine Follower und wem du folgst, findest du in «Profil».",
+        "Die Suche oben in «Entdecken» findet andere Mitglieder über ihren Namen. Auf einem Profil kannst du auf «Folgen» tippen; deine Anfragen, deine Follower und wem du folgst, findest du in «Profil».",
         "Auf der öffentlichen Zeichnung eines Mitglieds kannst du mit einem Emoji reagieren, ein Super Like senden und einen Kommentar schreiben. Negative Kommentare werden nicht angenommen.",
       ],
     },
@@ -87,7 +88,7 @@ const help: AboutDocument = {
       heading: "Nachrichten",
       blocks: [
         "«Nachricht» auf dem Profil eines Mitglieds schreibt ihm. Folgt es dir, landet deine Nachricht in seinen «Nachrichten»; sonst kommt sie als Anfrage an, und du kannst eine Nachricht schicken, bis die Anfrage angenommen ist.",
-        "Deine Unterhaltungen sind in «Profil», «Nachrichten», mit «Nachrichtenanfragen» oben. Nimm eine Anfrage an, um euch zu schreiben, lösche sie (wer geschrieben hat, erfährt es nicht) oder blockiere, wer geschrieben hat.",
+        "Deine Unterhaltungen sind in «Nachrichten», dem Tab mit dem Papierflieger, mit «Nachrichtenanfragen» oben. Nimm eine Anfrage an, um euch zu schreiben, lösche sie (wer geschrieben hat, erfährt es nicht) oder blockiere, wer geschrieben hat.",
         "Halte eine Nachricht gedrückt, um deine für euch beide zu löschen oder eine erhaltene zu melden. Niemand sieht, ob du eine Nachricht gelesen hast. Mit Push meldet dir MuW jede Nachricht und jede Anfrage.",
         "Tippe in einer Unterhaltung auf +, um ein Foto, ein Video bis 60 Sekunden oder eine Zeichnung zu senden, oder tippe bei einer Route oder einer Zeichnung auf An Freunde senden. Du kannst sie senden, sobald die andere Person deine Nachricht angenommen hat. Videos bleiben 30 Tage, oder kürzer, wenn unser Platz für Videos voll ist: Die ältesten gehen zuerst. Tippe auf eine Zeichnung, um sie auf der Karte zu öffnen, zu starten, als GPX zu exportieren oder in deinen Favoriten zu behalten.",
       ],
@@ -95,7 +96,7 @@ const help: AboutDocument = {
     {
       heading: "Laufen, Rad, Paddeln",
       blocks: [
-        "Wähle deinen Sport mit der Taste neben deinem Profil oder in «Einstellungen».",
+        "Wähle deinen Sport mit der Taste oben rechts oder in «Einstellungen».",
         {
           bullets: [
             "Laufen: bis zu 21 km auf echten Straßen, mit der Stimme Abbiegung für Abbiegung.",
@@ -315,7 +316,7 @@ const privacy: AboutDocument = {
     {
       heading: "Freunde aus deinen Kontakten",
       blocks: [
-        "Unter der Lupe oben in «Feed» sucht «Freunde in deinen Kontakten finden» die Mitglieder, deren Nummer in den Kontakten deines Handys steht. Die App fragt das Handy erst nach den Kontakten, wenn du darauf tippst, und liest nur die Telefonnummern: nie Namen, E-Mails oder Bilder.",
+        "In «Feed» führt «Personen zum Folgen finden» zu «Freunde in deinen Kontakten finden», das die Mitglieder sucht, deren Nummer in den Kontakten deines Handys steht. Die App fragt das Handy erst nach den Kontakten, wenn du darauf tippst, und liest nur die Telefonnummern: nie Namen, E-Mails oder Bilder.",
         "Jede Nummer verlässt das Handy verschlüsselt: mit Ländervorwahl geschrieben und in einen Hash (SHA-256) umgewandelt. Unser Server vergleicht die Codes mit denen der Nummern, die Mitglieder hinzugefügt haben, antwortet mit den gefundenen Mitgliedern und behält nichts von dem, was er erhalten hat: weder in der Datenbank noch in einem Protokoll.",
         "Ein Hash einer Telefonnummer ist kein Geheimnis: Wer die Codes hätte, könnte die Nummern wiederfinden, indem er alle möglichen Nummern ausprobiert. Deshalb ist der eigentliche Schutz, dass unser Server keinen davon behält; sie gehen nur über die verschlüsselte Verbindung.",
         "Die Nummern deiner Kontakte sind Daten anderer Menschen: Sie werden einmal verglichen, um Konten zu finden, und dann vergessen. Damit niemand Nummern einzeln ausprobiert, zählt der Server die Suchen jedes Kontos in einer Stunde, nur im Arbeitsspeicher. Gefunden wird nur, wer seine Nummer hinzugefügt hat, und nie jemand, den du blockiert hast oder der dich blockiert hat.",
@@ -331,10 +332,11 @@ const privacy: AboutDocument = {
       heading: "Deine Läufe und ihre GPS-Spuren",
       blocks: [
         "Mit einem Konto geht der ganze Lauf an unseren Server, wenn du am Ende eines Laufs auf «Speichern» tippst: jede Position mit ihrer Uhrzeit und Höhe, die Pausen, die Route, der du gefolgt bist, Distanz, Dauer, eine Punktzahl dafür, wie genau die Spur der Route folgt (von unserem Server berechnet und in der App nicht angezeigt), und der Name des Ortes. Mit «Verwerfen» wird nichts gesendet.",
-        "Ein gespeicherter Lauf ist privat, solange du nichts anderes wählst: Nur dein Konto sieht ihn. Andere Mitglieder sehen auf deinem Profil nur die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, nie die Läufe selbst. Er bleibt, bis du ihn in «Meine Aktivitäten» löschst oder dein Konto löschst.",
+        "Ein gespeicherter Lauf ist privat, solange du nichts anderes wählst: Nur dein Konto sieht ihn. Andere Mitglieder sehen auf deinem Profil die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, und deine Bestzeiten, zu Fuß und mit dem Rad, mit der Zeit und dem Datum, an dem du sie aufgestellt hast: auch die eines privaten Laufs, der sich aber nicht öffnet. Er bleibt, bis du ihn in «Meine Aktivitäten» löschst oder dein Konto löschst.",
         "Wenn du eine frühere Aktivität aus einer Datei hinzufügst, speichern wir ihre Spur und ihre Uhrzeiten wie bei einem mit MuW aufgezeichneten Lauf. Die Datei selbst speichern wir nicht.",
         "Ein Lauf beginnt und endet oft an deiner Haustür. Deshalb wird ein Lauf für die anderen Mitglieder erst sichtbar, nachdem du unter «Wer kann es sehen» «Alle» oder «Follower» gewählt hast, und dann sehen sie die Spur ohne ihre ersten und letzten 200 m, mit dem Titel, den du ihr gegeben hast, und ohne Zeiten, Pausen oder die geplante Route. Deine Wahl bleibt für den nächsten Lauf auf diesem Telefon: Er beginnt mit der zuletzt gespeicherten, du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
         "Wer einen deiner Läufe sehen kann, kann ihm auch mit «Start» folgen und dieselbe Spur als GPX-Datei speichern: immer ohne ihre ersten und letzten 200 m und ohne Zeiten.",
+        "Ein Foto, das du veröffentlichst, kann die Zeichnung deines Laufs im Bild enthalten. Es ist dieselbe Zeichnung wie im Feed, am Anfang und am Ende gekürzt.",
       ],
     },
     {
@@ -417,6 +419,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Health und Health Connect",
+      blocks: [
+        "Sobald du «In Apple Health speichern» (iPhone) oder «In Health Connect speichern» (Android) einschaltest, wird jede Aktivität, die du speicherst, auch dort geschrieben, auf deinem Telefon: die Sportart, wann sie begann und endete, die Distanz, die Route und, bei einem Lauf, die geschätzten aktiven Kalorien. MuW liest nie deine Gesundheitsdaten, und nichts davon erreicht unseren Server oder irgendeine Werbung. Du kannst es in der Health-App oder in Health Connect beenden. Was schon dort ist, bleibt, bis du es dort löschst, auch wenn du den Lauf oder dein Konto löschst.",
+      ],
+    },
+    {
       heading: "Andere, die Daten erhalten",
       blocks: [
         {
@@ -424,6 +432,7 @@ const privacy: AboutDocument = {
             "Hetzner betreibt unseren Server und seine Sicherungskopien, in Deutschland.",
             "Geoapify erhält die Suchen nach Orten, nach Orten in deiner Nähe und nach den Plätzen einer Themenroute, mit der auf etwa 1 km gerundeten Position, und, um den Ort eines gespeicherten Laufs zu benennen, seinen ebenso gerundeten Start: nie deine Haustür, den Lauf oder wer du bist. Antwortet unser Server nicht, geht eine Ortssuche stattdessen an Photon (komoot).",
             "OpenFreeMap liefert die Karte: Wie jeder Kartendienst sieht es, welche Gegend du anschaust.",
+            "Die Hügel der 3D-Karte und eines Videos im Stil «3D» kommen von den Terrain Tiles auf Amazon Web Services: Wie jeder Kartendienst sieht es, welche Gegend du anschaust.",
             "Apple auf dem iPhone oder Google auf Android erhält über den Adressdienst des Telefons die Position, von der «Zeichnen» startet, um den Namen der Straße anzuzeigen. MuW sendet sonst nichts und speichert den Namen nicht.",
             "Wikimedia liefert unserem Server die Fotos der Orte: Es sieht welchen Ort, nicht wer fragt.",
             "Bei der Karte «Satellit» liefert Esri die Bilder und bei der Karte «3D» liefert Amazon Web Services die Höhen: Wie jeder Kartendienst sehen sie, welches Gebiet du ansiehst.",
@@ -459,7 +468,7 @@ const privacy: AboutDocument = {
           bullets: [
             "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst, die E-Mails der Benachrichtigungen, die du eingeschaltet hast, und das Formenspiel.",
             "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist; die Nachrichten von «Feedback senden», um sie zu lesen und dir zu antworten.",
-            "Deine Einwilligung: die Telefonnummer, die du hinzufügst, und die Verbindung mit Strava. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
+            "Deine Einwilligung: die Telefonnummer, die du hinzufügst, die Verbindung mit Strava und das Speichern deiner Aktivitäten in Apple Health oder Health Connect. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
             "Eine rechtliche Pflicht, wenn ein Gesetz von uns verlangt, Daten aufzubewahren oder herauszugeben.",
           ],
         },

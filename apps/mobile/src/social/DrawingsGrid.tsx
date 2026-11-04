@@ -17,6 +17,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { useDrawingsDoor } from "./drawingsDoor";
 import { useSeen } from "./scrollSight";
 
@@ -234,14 +235,10 @@ function DrawingCell({ drawing, size, opening, disabled, onOpen }: CellProps) {
     bearingOf(drawing.rotation_deg),
   );
   return (
-    <Pressable
+    <Tap
       ref={place}
       onLayout={look}
-      style={({ pressed }) => [
-        styles.cell,
-        { width: size },
-        (pressed || opening) && styles.pressed,
-      ]}
+      style={[styles.cell, { width: size }, opening && styles.dim]}
       onPress={onOpen}
       disabled={disabled}
       accessibilityRole="button"
@@ -258,7 +255,7 @@ function DrawingCell({ drawing, size, opening, disabled, onOpen }: CellProps) {
         rotationDeg={drawing.rotation_deg}
         map={map}
       />
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -279,7 +276,7 @@ const styles = StyleSheet.create({
   cell: {
     gap: space.xs,
   },
-  pressed: {
+  dim: {
     opacity: 0.6,
   },
   message: {

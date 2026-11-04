@@ -133,3 +133,37 @@ def test_every_file_of_the_repository_reads() -> None:
     directory = HERE.parents[2] / "catalog" / "muw_routes"
     files = sorted(p.stem for p in directory.glob("*.json"))
     assert list(MuwRouteCatalog.from_dir(directory).routes) == files
+
+
+def test_a_file_of_before_the_figures_is_kept_with_none() -> None:
+    body = route_file()
+    for field in ("shape", "word", "style", "outline"):
+        del body[field]
+    route = parse_route(body)
+    assert (route.shape, route.word, route.outline) == (None, None, None)
+
+
+def test_a_word_and_an_outline_read() -> None:
+    word = parse_route({**route_file(), "shape": None, "word": "go"})
+    assert (word.word, word.style) == ("GO", "round")
+    square = [[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]
+    drawn = parse_route({**route_file(), "shape": "boot", "outline": square})
+    assert drawn.outline is not None and len(drawn.outline) == 5
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"shape": "star", "word": "GO"},
+        {"shape": None, "word": None, "outline": [[0, 0]] * 5},
+        {"shape": None, "word": "G0"},
+        {"shape": None, "word": "GO", "style": "italic"},
+        {"shape": None, "word": "GO", "outline": [[0, 0]] * 5},
+        {"style": "round"},
+        {"outline": [[0, 0], [1, 1]]},
+        {"outline": [[0, 0], [9, 0], [1, 1], [0, 0]]},
+    ],
+)
+def test_a_figure_that_is_wrong_is_refused(change: dict[str, Any]) -> None:
+    with pytest.raises(ValueError):
+        parse_route({**route_file(), **change})

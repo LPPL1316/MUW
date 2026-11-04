@@ -44,6 +44,31 @@ test("shows the route, the places it passes by, and exports", async () => {
   expect(screen.queryByText("Run with Strava")).toBeNull();
 });
 
+test("«Edit the drawing» only with its action, after «Export GPX» (TASK-369)", async () => {
+  const onEditDrawing = jest.fn();
+  const card = (edit?: () => void) => (
+    <ThemedCard
+      state={{ status: "done", request, result }}
+      exporting={{ status: "idle" }}
+      onExport={jest.fn()}
+      onCancel={jest.fn()}
+      start={{ status: "idle" }}
+      onStart={jest.fn()}
+      onEditDrawing={edit}
+    />
+  );
+  const { rerender } = await render(card());
+  expect(screen.queryByRole("button", { name: "Edit the drawing" })).toBeNull();
+  await rerender(card(onEditDrawing));
+  await fireEvent.press(screen.getByRole("button", { name: "Edit the drawing" }));
+  expect(onEditDrawing).toHaveBeenCalledTimes(1);
+  // «Export GPX», «Edit the drawing», «Back to Explore», in this order.
+  const order = ["Export GPX", "Edit the drawing", "Back to Explore"].map((label) =>
+    screen.getAllByRole("button").indexOf(screen.getByRole("button", { name: label })),
+  );
+  expect(order).toEqual([...order].sort((a, b) => a - b));
+});
+
 test("waiting, it can be cancelled; failed, it says why", async () => {
   const onCancel = jest.fn();
   const { rerender } = await render(
