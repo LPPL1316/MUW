@@ -80,7 +80,7 @@ const help: AboutDocument = {
       heading: "Feed und Freunde",
       blocks: [
         "«Feed» zeigt Zeichnungen, die dich auf Ideen bringen: Tippe auf eine, um ihre Route zu öffnen und loszulaufen.",
-        "Die Lupe oben in «Feed» findet andere Mitglieder über ihren Namen. Auf einem Profil kannst du auf «Folgen» tippen; deine Anfragen, deine Follower und wem du folgst, findest du in «Profil».",
+        "Die Suche oben in «Entdecken» findet andere Mitglieder über ihren Namen. Auf einem Profil kannst du auf «Folgen» tippen; deine Anfragen, deine Follower und wem du folgst, findest du in «Profil».",
         "Auf der öffentlichen Zeichnung eines Mitglieds kannst du mit einem Emoji reagieren, ein Super Like senden und einen Kommentar schreiben. Negative Kommentare werden nicht angenommen.",
       ],
     },

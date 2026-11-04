@@ -81,7 +81,7 @@ const help: AboutDocument = {
       heading: "Feed and friends",
       blocks: [
         "«Feed» shows drawings to take ideas from: tap one to open its route and start it.",
-        "The lens at the top of «Feed» finds other members by name. On a profile you can tap «Follow»; your requests, your followers and who you follow are in «Profile».",
+        "The search at the top of «Explore» finds other members by name. On a profile you can tap «Follow»; your requests, your followers and who you follow are in «Profile».",
         "On a member's public drawing you can react with an emoji, send a super like and write a comment. Negative comments are not accepted.",
       ],
     },

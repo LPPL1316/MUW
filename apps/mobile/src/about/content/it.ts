@@ -78,7 +78,7 @@ const help: AboutDocument = {
       heading: "Feed e amici",
       blocks: [
         "«Feed» mostra disegni da cui prendere idee: toccane uno per aprire il suo percorso e correrlo.",
-        "La lente in cima a «Feed» trova gli altri iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti segue e chi segui sono in «Profilo».",
+        "La ricerca in cima a «Esplora» trova gli altri iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti segue e chi segui sono in «Profilo».",
         "Sul disegno pubblico di un iscritto puoi reagire con un'emoji, mandare un super like e scrivere un commento. I commenti negativi non sono accettati.",
       ],
     },
