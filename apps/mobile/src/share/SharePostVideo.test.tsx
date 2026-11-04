@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ActivitiesContext, useActivitiesDoor } from "../activities/activitiesDoor";
+import { isPreview } from "../updates/channel";
 import { audioTrackOf } from "./m4a";
 import type { PostRun } from "./postRun";
 import { SharePost } from "./SharePost";
@@ -19,6 +20,7 @@ import type { VideoPageMessage } from "./videoPage";
 jest.mock("expo-file-system");
 jest.mock("react-native-view-shot");
 jest.mock("react-native-webview");
+jest.mock("../updates/channel");
 jest.mock("expo-sharing", () => ({
   isAvailableAsync: jest.fn(async () => true),
   shareAsync: jest.fn(async () => {}),
@@ -47,6 +49,8 @@ const { injectJavaScript: inject } =
 const share = jest.mocked(Sharing.shareAsync);
 const available = jest.mocked(Sharing.isAvailableAsync);
 const track = jest.mocked(musicTrack);
+/** Whether this copy is the testers' preview: off, as on the stores' build. */
+const preview = jest.mocked(isPreview);
 /** The app's «Energy», as the phone reads it. */
 const ENERGY = audioTrackOf(
   new Uint8Array(readFileSync(join(__dirname, "../../assets/music/energy.m4a"))),
@@ -275,8 +279,9 @@ describe("Export video", () => {
     expect(call).toContain('"look":"paper"');
     expect(call).not.toContain('"look":"night"');
     expect(call).toContain("Heart in Trento");
-    // The page's reason, written at the foot while the cause is looked for.
-    expect(call).toContain('no map: timeout {\\"map\\":15000}');
+    // The stores' build never says why: the reason is for the preview only.
+    expect(preview).toHaveBeenCalled();
+    expect(call).not.toContain("no map");
     await page({ type: "config", avcC: base64([1, 0x42, 0xe0, 0x28]) });
     await page({
       type: "chunks",
@@ -286,6 +291,19 @@ describe("Export video", () => {
     expect(share).toHaveBeenCalledTimes(1);
     expect(screen.queryByText("The video could not be made. Try again.")).toBeNull();
     expect(keepPost).toHaveBeenCalledWith("run-1", expect.anything());
+  });
+
+  it("says why at the foot of the yellow video on the testers' preview", async () => {
+    preview.mockReturnValueOnce(true);
+    await shown();
+    await exportVideo();
+    await page({ type: "ready", codec: "avc1.42e028" });
+    await page({ type: "map", ok: false, why: "timeout", ms: { map: 15_000 } });
+    expect(inject).toHaveBeenCalledTimes(2);
+    const call = inject.mock.calls[1][0];
+    expect(call).toContain('"look":"paper"');
+    // The page's reason, written at the foot while the cause is looked for.
+    expect(call).toContain('no map: timeout {\\"map\\":15000}');
   });
 
   it("keeps waiting while the page says the tiles are still coming", async () => {

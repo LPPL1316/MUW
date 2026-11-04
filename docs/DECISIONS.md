@@ -20387,8 +20387,16 @@ piena (360 × 640 punti) sotto una vista opaca del colore dello schermo,
 montato per primo nello schermo del post, com'è tenuta la pagina delle
 mappe del Feed, che sul telefono le mappe le fa; e, finché la causa non è
 trovata, il video giallo di riserva porta in fondo una riga piccola con il
-motivo che la pagina ha dato e i suoi tempi, da togliere dopo. La
-produzione resta ferma finché l'utente non vede la mappa sul telefono.
+motivo che la pagina ha dato e i suoi tempi, **solo sul canale preview**
+(`isPreview()` in `src/updates/channel.ts`, da `Updates.channel` di
+`expo-updates`; un test prova che sulla build degli store non compare):
+condizione del Coordinatore, perché `main` va in produzione con altro
+lavoro prima che il video sia risolto, e la riga non può dipendere dal
+ricordarsi di toglierla. La produzione del video resta ferma finché
+l'utente non vede la mappa sul telefono. L'utente ha risposto che il video
+della preview fb15613e era «giallo», con l'app riaperta due volte: la
+riserva con il fix #703 caricato. PR #707, riallineata su `main` dopo la
+#620: da lì l'impronta iOS di `main` è `6f8bba4c`.
 
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D

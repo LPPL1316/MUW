@@ -6,6 +6,7 @@ import { WebView } from "react-native-webview";
 
 import { t } from "../i18n";
 import { color } from "../theme/tokens";
+import { isPreview } from "../updates/channel";
 import type { AudioTrack } from "./m4a";
 import { mp4Of, type VideoSample } from "./mp4";
 import {
@@ -56,8 +57,9 @@ type Props = {
  * under what covers it. The music's file is read while the pictures are
  * made, and goes into the MP4 as its second track. On a map look the page
  * draws the map first (TASK-351); when it cannot, within its own time, the
- * `fallback` scene is made instead, with a line saying why at its foot,
- * while the cause on the phone is looked for (to take out after).
+ * `fallback` scene is made instead. On the testers' preview channel only
+ * (`isPreview`), a line at its foot says why, while the cause on the phone
+ * is looked for: the stores' build never shows it.
  */
 export function RunVideo({
   scene,
@@ -188,10 +190,12 @@ export function RunVideo({
               message.ok
                 ? sceneJson
                 : JSON.stringify(
-                    withNote(
-                      fallback,
-                      `no map: ${message.why ?? "?"} ${JSON.stringify(message.ms)}`,
-                    ),
+                    isPreview()
+                      ? withNote(
+                          fallback,
+                          `no map: ${message.why ?? "?"} ${JSON.stringify(message.ms)}`,
+                        )
+                      : fallback,
                   ),
             ),
           );

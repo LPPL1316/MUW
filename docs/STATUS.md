@@ -236,9 +236,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   simulatore; la prova dalla preview è dell'utente. Poi la C.
   2026-11-04: il fix è in `main` (#703) e sulla preview fb15613e, ma sul
   telefono il video è ancora senza mappa: prova successiva in
-  `fix/TASK-351-video-map-under-cover` (WebView a grandezza piena sotto una
-  copertura, come il Feed; nel video giallo di riserva una riga temporanea
-  con il motivo dato dalla pagina). La C è la PR #706; la #706 e la
+  `fix/TASK-351-video-map-under-cover`, PR #707 (WebView a grandezza piena
+  sotto una copertura, come il Feed; nel video giallo di riserva una riga
+  con il motivo dato dalla pagina, solo sul canale preview, con un test che
+  su production non compaia). L'utente: il video della preview era
+  «giallo», app riaperta due volte. Riallineata su `main` dopo la #620:
+  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706; la #706 e la
   produzione aspettano. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D

@@ -572,9 +572,11 @@ all'utente: il video uscito era giallo (la riserva) o scuro senza strade
 
 Con la preview `fb15613e` (main 8cc5005b, con il fix #703) l'utente ha
 provato il video di un'attività di prima: «ho provato con un'attività già
-fatta in precedenza e non funziona» (riferito dal Coordinatore). Quindi i
-fotogrammi da timer non bastano, o la preview non si era caricata: non si
-sa se il video era giallo o scuro, né se era uscito. Chiesto all'utente.
+fatta in precedenza e non funziona» (riferito dal Coordinatore). Alla
+domanda su com'era il video ha risposto «giallo», e che l'app l'aveva
+riaperta due volte dopo l'aggiornamento («sì, l'avevo fatto»): era la
+riserva gialla con il fix #703 caricato, quindi la mappa non arriva
+neanche con i fotogrammi da timer.
 
 La prova successiva (branch `fix/TASK-351-video-map-under-cover`,
 worktree `TASK-351-fix2`):
@@ -588,12 +590,25 @@ worktree `TASK-351-fix2`):
    dato dalla pagina («no map: timeout {"map":15234,…}», «no library»,
    «tiles», o l'errore di WebGL) e i tempi, compreso il caricamento di
    MapLibre: così la prossima prova dalla preview dice la causa anche senza
-   una rete di diagnosi. **Temporanea**: si toglie appena la causa è
-   trovata, e la produzione resta ferma finché l'utente non vede la mappa.
+   una rete di diagnosi. **Solo sul canale preview**: `isPreview()` in
+   `src/updates/channel.ts` legge `Updates.channel` di `expo-updates`
+   («preview» sulla build dei tester, «production» su quella degli store,
+   `null` in Expo Go e nelle build di sviluppo), e la build degli store non
+   la mostra mai, con un test che lo prova. Condizione del Coordinatore:
+   `main` va in produzione con altro lavoro prima che il video sia risolto,
+   quindi la riga non può dipendere dal ricordarsi di toglierla. Si toglie
+   quando la causa è trovata; la produzione del video resta ferma finché
+   l'utente non vede la mappa.
 
-Test: `withNote` (la riga in ogni fotogramma, il resto uguale), il flusso
-con la riserva che porta il motivo, le suite del video e di «Share your
-run». Solo JS.
+Test: `withNote` (la riga in ogni fotogramma, il resto uguale); il flusso
+con la riserva senza il motivo, com'è sulla build degli store, e con il
+motivo sulla preview; `channel.test.ts` (preview sì, production e `null`
+no; sotto jest il canale è «mock»); le suite del video e di «Share your
+run». Solo JS. PR #707, riallineata su `main` dopo la #620 (Apple Salute):
+da lì l'impronta iOS di `main` è `6f8bba4c`, e quella misurata sulla copia
+pulita di questa PR è in STATUS. Nota del Coordinatore: dopo la #620 l'app
+di prova dell'utente (runtime 1.0) non riceve più le preview di `main`;
+serve una nuova build preview sulla 1.0.1, che propone all'utente.
 
 ## Dove si è (2026-10-30, sera)
 
