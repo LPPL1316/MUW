@@ -160,6 +160,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
+  (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
+  materiali in `out/TASK-384/` (100 outfit da zalando.it, 100 prompt). Scelte dell'utente:
+  sport dell'app, 1 ogni 8 solo «All», Google Imagen / Gemini, Style prima della società.
+  Prossimo: il sì sulla proposta, i testi e i Termini nuovi, poi le parti A–C. Nessuna immagine
+  né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
+  **Proposta approvata dall'utente il 2026-11-04** («Sì, approvo»); prossimo: i testi in cinque
+  lingue e i nuovi Termini e Privacy, poi la parte A.
 - **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
   proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
   Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
