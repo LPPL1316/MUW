@@ -15,6 +15,7 @@ from route_engine.models import (
     InvalidRequestError,
 )
 from route_engine.optimizer import ShapeNotDrawableError
+from route_engine.walking import API_DISTANCE_LIMITS_M
 from shaperoute_ai.reading import InvalidTextError, ModelUnavailableError
 
 from shaperoute_api.graphs import MapDataUnavailableError
@@ -51,12 +52,12 @@ def suggested_distance(
 ) -> int | None:
     """The distance of the engine's best route, to the whole km and within
     the limits of a request of `activity`: one the user can ask for
-    (TASK-031); 10-30 km by bike (TASK-190). On the water, down to the half
-    km it fits at, and None when that is below the shortest route: a
-    shorter one cannot be asked (TASK-191)."""
+    (TASK-031); 10-30 km by bike (TASK-190), 1-30 km on a walk (TASK-371).
+    On the water, down to the half km it fits at, and None when that is
+    below the shortest route: a shorter one cannot be asked (TASK-191)."""
     if best_distance_m is None:
         return None
-    low, high = DISTANCE_LIMITS_M.get(activity, DISTANCE_LIMITS_M["running"])
+    low, high = API_DISTANCE_LIMITS_M.get(activity, DISTANCE_LIMITS_M["running"])
     if activity in WATER_ACTIVITIES:
         fits = math.floor(best_distance_m / WATER_STEP_M) * WATER_STEP_M
         return None if fits < low else min(fits, high)

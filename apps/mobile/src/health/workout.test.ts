@@ -1,5 +1,4 @@
 import { activityKey } from "../activities/activityKey";
-import { kcal } from "../navigation/runMetrics";
 import type { Track } from "../navigation/trackRecorder";
 import { appleWorkout } from "./appleWorkout";
 import { healthConnectWorkout } from "./healthConnectWorkout";
@@ -36,7 +35,7 @@ describe("workoutOf", () => {
       startMs: START,
       endMs: START + 600_000,
       distanceM: 2480,
-      kcal: kcal(2480),
+      kcal: 176,
       route: [
         { point: [46.0679, 11.1211], timeMs: START, accuracyM: 5, altitudeM: 194 },
         {
@@ -55,12 +54,15 @@ describe("workoutOf", () => {
       pauses: [{ fromMs: START + 200_000, toMs: START + 260_000 }],
       syncId: activityKey(TRACK.fixes[0]),
     });
-    expect(workout?.kcal).toBe(180);
+    // 2480 m and 7.5 m up in nine minutes, at 70 kg: 70 × (2.48 + 0.0045 ×
+    // 7.5) (ADR-0318).
+    expect(workout?.kcal).toBe(176);
   });
 
-  test("calories only for a run: a ride and a paddle have none", () => {
-    expect(workoutOf(TRACK, "cycling")?.kcal).toBeNull();
-    expect(workoutOf(TRACK, "paddling")?.kcal).toBeNull();
+  test("a ride and a paddle have their own calories, from their speed", () => {
+    // 16.5 km/h for nine minutes: 6.8 MET on a bike, 12.5 on the water.
+    expect(workoutOf(TRACK, "cycling")?.kcal).toBe(64);
+    expect(workoutOf(TRACK, "paddling")?.kcal).toBe(127);
     expect(workoutOf(TRACK, "cycling")?.activity).toBe("cycling");
   });
 
@@ -96,6 +98,12 @@ describe("workoutOf", () => {
     };
     expect(workoutOf(short, "running")).toMatchObject({ pauses: [], kcal: null });
   });
+
+  test("the body on the phone counts", () => {
+    const body = { sex: null, weightKg: 90, heightCm: null, birthYear: null };
+    // 70 × 2.51375 at 70 kg; 90 × 2.51375 at 90.
+    expect(workoutOf(TRACK, "running", body)?.kcal).toBe(226);
+  });
 });
 
 describe("appleWorkout", () => {
@@ -116,13 +124,13 @@ describe("appleWorkout", () => {
       },
       {
         quantityType: "HKQuantityTypeIdentifierActiveEnergyBurned",
-        quantity: 180,
+        quantity: 176,
         unit: "kcal",
         startDate: new Date(START),
         endDate: new Date(START + 600_000),
       },
     ]);
-    expect(apple.totals).toEqual({ distance: 2480, energyBurned: 180 });
+    expect(apple.totals).toEqual({ distance: 2480, energyBurned: 176 });
     expect(apple.metadata).toEqual({
       HKSyncIdentifier: workout.syncId,
       HKSyncVersion: 1,
@@ -130,17 +138,19 @@ describe("appleWorkout", () => {
     });
   });
 
-  test("a ride and a paddle: their own type and distance, no energy", () => {
+  test("a ride and a paddle: their own type, distance and energy (ADR-0318)", () => {
     const ride = appleWorkout(workoutOf(TRACK, "cycling")!);
     expect(ride.activityType).toBe(13);
     expect(ride.quantities.map((sample) => sample.quantityType)).toEqual([
       "HKQuantityTypeIdentifierDistanceCycling",
+      "HKQuantityTypeIdentifierActiveEnergyBurned",
     ]);
-    expect(ride.totals).toEqual({ distance: 2480 });
+    expect(ride.totals).toEqual({ distance: 2480, energyBurned: 64 });
     const paddle = appleWorkout(workoutOf(TRACK, "paddling")!);
     expect(paddle.activityType).toBe(31);
     expect(paddle.quantities.map((sample) => sample.quantityType)).toEqual([
       "HKQuantityTypeIdentifierDistancePaddleSports",
+      "HKQuantityTypeIdentifierActiveEnergyBurned",
     ]);
   });
 
@@ -222,18 +232,18 @@ describe("healthConnectWorkout", () => {
     });
     expect(records.calories).toMatchObject({
       recordType: "ActiveCaloriesBurned",
-      energy: { value: 180, unit: "kilocalories" },
+      energy: { value: 176, unit: "kilocalories" },
       metadata: { clientRecordId: `${workout.syncId}-calories` },
     });
   });
 
-  test("a ride and a paddle: their exercise type, no calories", () => {
+  test("a ride and a paddle: their exercise type and their calories (ADR-0318)", () => {
     const ride = healthConnectWorkout(workoutOf(TRACK, "cycling")!);
     expect(ride.session.exerciseType).toBe(8);
-    expect(ride.calories).toBeNull();
+    expect(ride.calories?.energy).toEqual({ value: 64, unit: "kilocalories" });
     const paddle = healthConnectWorkout(workoutOf(TRACK, "paddling")!);
     expect(paddle.session.exerciseType).toBe(46);
-    expect(paddle.calories).toBeNull();
+    expect(paddle.calories?.energy).toEqual({ value: 127, unit: "kilocalories" });
   });
 
   test("no metres, no distance record", () => {

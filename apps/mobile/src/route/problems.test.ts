@@ -222,6 +222,25 @@ describe("on the water (TASK-191)", () => {
   const TOO_SMALL =
     "the heart does not fit on the water within 1 km of the shore here, even at 0.6 km";
 
+  test("a drawing refused by an API before TASK-369 B says the water takes a shape, with no «Try again»", () => {
+    const OLD = "on the water only a shape of the catalogue is drawn, not an image";
+    expect(
+      problemText(
+        { kind: "api_error", code: "invalid_request", message: OLD },
+        "shape",
+        "paddling",
+      ),
+    ).toEqual({ text: "On the water, a shape of the catalogue.", detail: OLD });
+    // On the roads the same words are still ours to fix.
+    expect(
+      problemText(
+        { kind: "api_error", code: "invalid_request", message: OLD },
+        "shape",
+        "running",
+      ).retry,
+    ).toBe(true);
+  });
+
   test("no water near the start says so, with no distance nor shapes", () => {
     expect(
       problemText(

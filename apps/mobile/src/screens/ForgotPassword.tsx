@@ -11,6 +11,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 
 type Props = {
   /** What «Log in» had in its email field, to start from. */
@@ -94,13 +95,9 @@ export function ForgotPassword({ email: written, askReset, onBack }: Props) {
           {problem !== null && <Text style={styles.problem}>{problem}</Text>}
         </>
       )}
-      <Pressable
-        style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-        onPress={onBack}
-        accessibilityRole="button"
-      >
+      <Tap style={styles.back} onPress={onBack} accessibilityRole="button">
         <Text style={styles.backText}>{t("Back to Log in")}</Text>
-      </Pressable>
+      </Tap>
     </View>
   );
 }
@@ -145,9 +142,6 @@ const styles = StyleSheet.create({
     minHeight: MIN_TAP_SIZE,
     alignSelf: "flex-start",
     justifyContent: "center",
-  },
-  pressed: {
-    opacity: 0.6,
   },
   backText: {
     color: color.textMuted,

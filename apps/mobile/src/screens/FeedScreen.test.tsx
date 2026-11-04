@@ -9,7 +9,6 @@ import { FAKE_AD_VIEWS, fakeNativeAd } from "../ads/testing";
 import { forgetFeedMaps } from "../feed/FeedMaps";
 import { adSlots, type FeedItem } from "../feed/feedWithAds";
 import { SAMPLE_FEED } from "../feed/sampleFeed";
-import { PeopleContext } from "../social/peopleDoor";
 import { FeedScreen } from "./FeedScreen";
 
 jest.mock(
@@ -34,10 +33,9 @@ test("a tap on a drawing opens its route (TASK-188)", async () => {
   const onOpen = jest.fn();
   await render(<FeedScreen onOpen={onOpen} />);
   const [first, second] = SAMPLE_FEED;
-  // Nothing else to touch but «Find friends» (TASK-215): no likes, no
-  // comments (TASK-118).
-  const [find, ...cards] = screen.getAllByRole("button");
-  expect(find).toHaveAccessibleName("Find friends");
+  // Nothing else to touch: no likes, no comments (TASK-118), and the lens is
+  // the search at the top of «Explore» since TASK-367 part B.
+  const cards = screen.getAllByRole("button");
   expect(cards).toHaveLength(screen.getAllByTestId("feed-post").length);
   await fireEvent.press(cards[1]);
   expect(onOpen).toHaveBeenCalledTimes(1);
@@ -46,15 +44,9 @@ test("a tap on a drawing opens its route (TASK-188)", async () => {
   expect(onOpen).toHaveBeenLastCalledWith(first);
 });
 
-test("«Find friends» is above the drawings, and opens the search (TASK-215)", async () => {
-  const open = jest.fn();
-  await render(
-    <PeopleContext.Provider value={{ open }}>
-      <FeedScreen onOpen={noOpen} />
-    </PeopleContext.Provider>,
-  );
-  await fireEvent.press(screen.getByRole("button", { name: "Find friends" }));
-  expect(open).toHaveBeenCalledTimes(1);
+test("no lens over the drawings: the search is at the top of «Explore» (TASK-367)", async () => {
+  await render(<FeedScreen onOpen={noOpen} />);
+  expect(screen.queryByRole("button", { name: "Search" })).toBeNull();
 });
 
 test("takes a picture of the map of each drawing, and lays it under its line", async () => {

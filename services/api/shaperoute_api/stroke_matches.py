@@ -32,6 +32,7 @@ from route_engine.stroke_match import (
     snap_stroke,
     stroke_length_m,
 )
+from route_engine.walking import drawn_as
 
 from shaperoute_api.activity_graphs import check_supported
 from shaperoute_api.schemas import ACTIVITY_DESCRIPTION
@@ -93,7 +94,8 @@ class StrokeMatchRequestBody(BaseModel):
         # The same checks as a route request's: InvalidRequestError, 422.
         check_supported(self.activity)
         check_drawn_on_land(self.activity, "a stroke")
-        check_activity(self.activity)
+        # A walk is matched as a run, on the foot network (TASK-371).
+        check_activity(drawn_as(self.activity))
         for point in self.line:
             check_start(point)
         if self.from_ is not None:
@@ -150,4 +152,5 @@ def match_stroke(body: StrokeMatchRequestBody, roads: GraphLoader) -> StrokeMatc
     start_node = None
     if body.from_ is not None:
         [start_node], _ = nearest_nodes(graph, [body.from_])
-    return snap_stroke(list(body.line), graph, body.activity, body.fit, start_node)
+    activity = drawn_as(body.activity)
+    return snap_stroke(list(body.line), graph, activity, body.fit, start_node)

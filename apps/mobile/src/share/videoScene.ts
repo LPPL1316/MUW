@@ -1,8 +1,18 @@
+import type { LatLon } from "@shaperoute/shared-types";
+
 import { fitLines, type Segment } from "../activities/fitLines";
 import { appLanguage } from "../i18n/language";
+import type { Language } from "../i18n/languages";
 import { HEART_BOX, HEART_POINTS, heartHeight } from "../intro/heartLine";
 import { bearingOf } from "../map/turnedMap";
-import { color, font, type Palette, tracking } from "../theme/tokens";
+import {
+  color,
+  font,
+  type Palette,
+  route,
+  routeCasingOf,
+  tracking,
+} from "../theme/tokens";
 import {
   POST_RESULTS,
   type PostResult,
@@ -15,20 +25,28 @@ import type { Sticker } from "./stickers";
 import {
   MAP_CREDIT,
   MAP_PIXEL_RATIO,
-  NIGHT,
+  STILL_ZOOM,
+  TERRAIN_CREDIT,
+  TURN_DEG,
   type VideoMap,
   videoMap,
 } from "./videoMap";
+import { styleRelief, stylePalette, type VideoStyle } from "./videoStyle";
 
 /**
  * The video of a run (TASK-295, ADR-0254; TASK-351, ADR-0303), as what to
- * draw in each of its pictures. In the «night» look the map of the run lies
- * under everything, dark and warm, and the line draws itself in the yellow
- * of a route while distance and time count up, the words in the type scale
- * of the premium look (ADR-0293); then the whole drawing stays, with the
- * results and the emoji the runner chose for the post. The «paper» look is
- * the post on the yellow of MuW coming to life, as the video was before:
- * the page falls back on it when the map does not come.
+ * draw in each of its pictures. In the map looks («night», dark and warm;
+ * «day», light, with the line on its dark edge and the words on a light
+ * veil) the map of the run lies under everything, and the line draws itself
+ * in the yellow of a route while distance and time count up, the words in
+ * the type scale of the premium look (ADR-0293); then the whole drawing
+ * stays, with the results and the emoji the runner chose for the post. The
+ * «paper» look is the post on the yellow of MuW coming to life, as the
+ * video was before: the page falls back on it when the map does not come.
+ * On «3D» the map leans on its hills and the camera turns a little around
+ * the run, or the one picture is zoomed slowly when a turning picture costs
+ * the phone too much (part D, the user's choice 4): the page lays the line
+ * on the hills itself then, from the points this scene gives it.
  *
  * Only numbers and words here: the hidden WebView (videoPage) draws them on
  * a canvas and encodes them, so what the video shows is decided, and
@@ -43,8 +61,9 @@ export const VIDEO_FPS = 30;
 /** About 12 seconds, the user's choice. */
 export const VIDEO_SECONDS = 12;
 
-/** The two looks of the video: the map under the line, or the yellow post. */
-export type VideoLook = "paper" | "night";
+/** The looks of the video: a style with the map under the line, or the
+ * yellow post. */
+export type VideoLook = "paper" | VideoStyle;
 
 /** When each part starts and how long the line takes, in seconds. */
 const INTRO_S = 1;
@@ -74,8 +93,12 @@ const HEART_RING_SHARE = 1 / 24;
 /** The corner of the yellow square behind the heart (HeartBadge). */
 const BADGE_CORNER_SHARE = 0.22;
 
-/** Where the dark rises from, on the map looks, as a share of the height. */
+/** Where the veil rises from, on the map looks, as a share of the height;
+ * how opaque it is at the bottom edge: the dark of `Scrim` (ADR-0293), or
+ * the light veil of «Day», almost whole so the dark words read on the map. */
 const SCRIM_TOP = 0.6;
+const SCRIM_PEAK = 0.82;
+const DAY_SCRIM_PEAK = 0.94;
 /** The credit's letters and its room from the bottom edge. */
 const CREDIT = 0.02;
 const CREDIT_BOTTOM = 0.012;
@@ -105,10 +128,13 @@ export type VideoColors = {
 /** One thing to draw. Places and sizes in pixels of the video, y down;
  * `alpha` from 0 (not there) to 1. */
 export type VideoOp =
-  /** The map's picture, once the page has it. */
-  | { k: "map"; alpha: number }
-  /** The dark rising from `top` to the bottom edge. */
-  | { k: "scrim"; top: number; alpha: number }
+  /** The map's picture, once the page has it. On «3D», `turn` is where the
+   * camera has turned to, in degrees about the drawing's bearing, when it
+   * turns, and `zoom` how far the one picture is zoomed about the drawing's
+   * middle when the map stands still: the page knows which. */
+  | { k: "map"; alpha: number; turn?: number; zoom?: number }
+  /** The veil rising from `top` to the bottom edge, `peak` opaque there. */
+  | { k: "scrim"; top: number; peak: number; alpha: number }
   /** A filled square with round corners. */
   | {
       k: "rect";
@@ -120,7 +146,9 @@ export type VideoOp =
       color: ColorRole;
       alpha: number;
     }
-  /** A path of the scene, from its start to `upTo` pixels along it. */
+  /** A path of the scene, from its start to `upTo` pixels along it. On
+   * «3D» the run's path is the line as the map lays it on the hills, as far
+   * as `share` of it (0 to 1): the page projects it itself. */
   | {
       k: "line";
       path: number;
@@ -128,8 +156,10 @@ export type VideoOp =
       width: number;
       color: ColorRole;
       alpha: number;
+      share?: number;
     }
-  /** A round dot, `ring` pixels of `ringColor` inside its edge. */
+  /** A round dot, `ring` pixels of `ringColor` inside its edge; on «3D»
+   * at `share` of `path` as the map lays it, instead of at x, y. */
   | {
       k: "dot";
       x: number;
@@ -139,6 +169,8 @@ export type VideoOp =
       ring: number;
       ringColor: ColorRole;
       alpha: number;
+      path?: number;
+      share?: number;
     }
   /** Words, from the top of their first line; at most `lines` lines
    * `maxWidth` wide, the last one cut with «…». `tracking` in pixels
@@ -205,9 +237,16 @@ type Look = {
   label: TextStyle & { upper: boolean; color: ColorRole };
   value: TextStyle;
   line: { width: number; color: ColorRole };
+  /** A wider line under the run's, in `onAccent`: the route's dark edge on
+   * the light map (ADR-0231); `extra` is its width beyond the line's, as a
+   * share of the width. */
+  casing: { extra: number; alpha: number } | null;
+  /** The map leaning on its hills, the line laid on them by the page. */
+  relief: boolean;
   /** The yellow square behind the logo's heart. */
   badge: boolean;
   scrim: boolean;
+  scrimPeak: number;
   credit: string | null;
   /** The results' room from the bottom edge, as a share of the height; the
    * gap between their rows, of the width. */
@@ -257,8 +296,11 @@ const PAPER: Look = {
   },
   value: { size: 0.075, weight: 700, tracking: 0, lineHeight: LINE_HEIGHT },
   line: { width: 0.02, color: "ink" },
+  casing: null,
+  relief: false,
   badge: false,
   scrim: false,
+  scrimPeak: SCRIM_PEAK,
   credit: null,
   resultsBottom: 0.04,
   rowGap: 0.023,
@@ -266,8 +308,12 @@ const PAPER: Look = {
 
 /** The map under the line, in the colours of `palette` and the type scale
  * of the premium look (ADR-0293): large light numbers, small spaced labels,
- * a regular title, the line in the yellow of a route. */
-function mapLook(palette: Palette): Look {
+ * a regular title, the line in the yellow of a route. By `day` the veil is
+ * the light map's own ground, almost whole, and the line runs on its dark
+ * edge, as on the light map (ADR-0231). On «3D» (`relief`) the credit
+ * names the hills' heights too. */
+function mapLook(palette: Palette, day: boolean, relief: boolean): Look {
+  const casing = routeCasingOf("light");
   return {
     colors: {
       paper: palette.map.background,
@@ -277,15 +323,21 @@ function mapLook(palette: Palette): Look {
       accent: palette.accent,
       onAccent: palette.onAccent,
       dot: palette.text,
-      scrim: palette.scrim,
+      scrim: day ? palette.map.background : palette.scrim,
     },
     title: textStyle(font.title, tracking.title),
     label: { ...textStyle(font.label, tracking.label), upper: true, color: "muted" },
     value: textStyle(font.display, tracking.display),
     line: { width: 0.016, color: "accent" },
+    casing:
+      day && casing !== null
+        ? { extra: ofPhone(casing.width - route.width), alpha: casing.opacity }
+        : null,
+    relief,
     badge: true,
     scrim: true,
-    credit: MAP_CREDIT,
+    scrimPeak: day ? DAY_SCRIM_PEAK : SCRIM_PEAK,
+    credit: relief ? `${MAP_CREDIT} · ${TERRAIN_CREDIT}` : MAP_CREDIT,
     resultsBottom: 0.06,
     rowGap: 0.036,
   };
@@ -366,6 +418,43 @@ export function thinned(
   return kept;
 }
 
+/** The most points of the run's line on «3D», where the page lays each of
+ * them on the hills for every picture of a turning camera: about 80 µs a
+ * point on an iPhone (measured 2026-10-30), so 150 cost 12 ms. */
+export const MAX_POINTS_3D = 150;
+/** Points of a track closer than this, in metres, are GPS noise. */
+const MIN_STEP_M = 2;
+
+/**
+ * `track` with at most `most` points (and its two ends), each at least a
+ * step from the one kept before, in metres: the line the page lays on the
+ * hills, as `thinned` does in pixels for the flat one.
+ */
+export function thinnedTrack(
+  track: readonly LatLon[],
+  most: number = MAX_POINTS_3D,
+): LatLon[] {
+  if (track.length <= 2) {
+    return [...track];
+  }
+  const k = Math.cos((track[0][0] * Math.PI) / 180);
+  const metres = (a: LatLon, b: LatLon): number =>
+    Math.hypot((b[1] - a[1]) * k, b[0] - a[0]) * 111_195;
+  let length = 0;
+  for (let i = 1; i < track.length; i += 1) {
+    length += metres(track[i - 1], track[i]);
+  }
+  const step = Math.max(MIN_STEP_M, length / Math.max(1, most - 2));
+  const kept: LatLon[] = [track[0]];
+  for (let i = 1; i < track.length - 1; i += 1) {
+    if (metres(kept[kept.length - 1], track[i]) >= step) {
+      kept.push(track[i]);
+    }
+  }
+  kept.push(track[track.length - 1]);
+  return kept;
+}
+
 /** How long a path is, in pixels. */
 export function lengthOf(path: readonly number[]): number {
   let length = 0;
@@ -413,12 +502,13 @@ function valueAt(run: PostRun, result: PostResult, share: number): string | null
 }
 
 /** The parts that do not move: the logo, the drawing's path, the places,
- * and the map under them. */
+ * and the map under them, in `palette` when there is one. */
 function layoutOf(
   run: PostRun,
   shown: readonly PostResult[],
   look: Look,
-  withMap: boolean,
+  palette: Palette | null,
+  language: Language,
 ) {
   const w = VIDEO_WIDTH;
   const h = VIDEO_HEIGHT;
@@ -444,19 +534,23 @@ function layoutOf(
     round(h * DRAWING_TOP + y),
   ]);
   // The same fit, in points of the map, so the map lies under the line.
-  const map = withMap
-    ? videoMap(
-        cut,
-        {
-          left: (w * SIDE) / MAP_PIXEL_RATIO,
-          top: (h * DRAWING_TOP) / MAP_PIXEL_RATIO,
-          width: boxWidth / MAP_PIXEL_RATIO,
-          height: boxHeight / MAP_PIXEL_RATIO,
-          pad: line / MAP_PIXEL_RATIO,
-        },
-        bearing,
-      )
-    : null;
+  const map =
+    palette !== null
+      ? videoMap(
+          cut,
+          {
+            left: (w * SIDE) / MAP_PIXEL_RATIO,
+            top: (h * DRAWING_TOP) / MAP_PIXEL_RATIO,
+            width: boxWidth / MAP_PIXEL_RATIO,
+            height: boxHeight / MAP_PIXEL_RATIO,
+            pad: line / MAP_PIXEL_RATIO,
+          },
+          bearing,
+          palette,
+          language,
+          look.relief ? { line: thinnedTrack(cut) } : null,
+        )
+      : null;
 
   const results = resultsShown(run, shown);
   const labelHeight = w * look.label.size * look.label.lineHeight;
@@ -555,7 +649,18 @@ function frameAt(
   // The map comes in with the logo, and the dark under the words with it.
   const ground = round3(ramp(t, 0, 0.5));
   if (layout.map !== null) {
-    ops.push({ k: "map", alpha: ground });
+    if (look.relief) {
+      // The camera's turn, or the picture's zoom, slow at both ends.
+      const u = easeInOut(ramp(t, 0, VIDEO_SECONDS));
+      ops.push({
+        k: "map",
+        alpha: ground,
+        turn: round3(-TURN_DEG + 2 * TURN_DEG * u),
+        zoom: round3(1 + (STILL_ZOOM - 1) * u),
+      });
+    } else {
+      ops.push({ k: "map", alpha: ground });
+    }
   }
 
   const brand = round3(ramp(t, 0, 0.5));
@@ -618,6 +723,16 @@ function frameAt(
   const share = easeInOut(ramp(t, INTRO_S, HOLD_FROM_S));
   if (layout.trackLength > 0 && share > 0) {
     const upTo = layout.trackLength * share;
+    if (look.casing !== null) {
+      ops.push({
+        k: "line",
+        path: RUN_PATH,
+        upTo: round(upTo),
+        width: round(layout.line + w * look.casing.extra),
+        color: "onAccent",
+        alpha: round3(look.casing.alpha),
+      });
+    }
     ops.push({
       k: "line",
       path: RUN_PATH,
@@ -625,6 +740,7 @@ function frameAt(
       width: round(layout.line),
       color: look.line.color,
       alpha: 1,
+      ...(look.relief ? { share: round3(share) } : {}),
     });
     // The pen's tip while it draws, gone once the drawing is whole.
     const tip = 1 - ramp(t, HOLD_FROM_S, HOLD_FROM_S + 0.3);
@@ -639,12 +755,18 @@ function frameAt(
         fill: "accent",
         ringColor: "onAccent",
         alpha: round3(tip),
+        ...(look.relief ? { path: RUN_PATH, share: round3(share) } : {}),
       });
     }
   }
 
   if (look.scrim) {
-    ops.push({ k: "scrim", top: round(h * SCRIM_TOP), alpha: ground });
+    ops.push({
+      k: "scrim",
+      top: round(h * SCRIM_TOP),
+      peak: look.scrimPeak,
+      alpha: ground,
+    });
   }
 
   const numbers = ramp(t, 0.6, 1);
@@ -722,9 +844,13 @@ export function videoScene(
   stickers: readonly Sticker[],
   look: VideoLook,
 ): VideoScene {
-  const spec = look === "paper" ? PAPER : mapLook(NIGHT);
-  const layout = layoutOf(run, shown, spec, look !== "paper");
+  const palette = look === "paper" ? null : stylePalette(look);
+  const spec =
+    look === "paper" || palette === null
+      ? PAPER
+      : mapLook(palette, look === "day", styleRelief(look));
   const language = appLanguage();
+  const layout = layoutOf(run, shown, spec, palette, language);
   const count = VIDEO_SECONDS * VIDEO_FPS;
   return {
     width: VIDEO_WIDTH,
@@ -738,4 +864,34 @@ export function videoScene(
       frameAt(i / VIDEO_FPS, run, stickers, layout, spec, language),
     ),
   };
+}
+
+/** The note's letters and its room from the bottom edge, as shares. */
+const NOTE = 0.02;
+const NOTE_BOTTOM = 0.008;
+
+/**
+ * The scene with `note` written small at the foot of every picture, in
+ * the ink of the look: what the page said when the map did not come,
+ * while the cause on the phone is looked for (TASK-351, 2026-11-04; to be
+ * taken out once found).
+ */
+export function withNote(scene: VideoScene, note: string): VideoScene {
+  const w = scene.width;
+  const h = scene.height;
+  const op: VideoOp = {
+    k: "text",
+    text: note,
+    x: round(w / 2),
+    y: round(h * (1 - NOTE_BOTTOM) - w * NOTE * LINE_HEIGHT),
+    size: round(w * NOTE),
+    weight: 400,
+    tracking: 0,
+    color: "ink",
+    align: "center",
+    maxWidth: round(w * (1 - 2 * SIDE)),
+    lines: 1,
+    alpha: 1,
+  };
+  return { ...scene, frames: scene.frames.map((frame) => [...frame, op]) };
 }

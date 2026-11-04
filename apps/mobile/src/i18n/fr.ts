@@ -313,7 +313,7 @@ export const FR: Table = {
   "Within 150 m of the shore. Never swim alone.":
     "À moins de 150 m du rivage. Ne nage jamais seul.",
 
-  // src/swim/SwimTurns.tsx, src/swim/swimTurns.ts (TASK-323 C: the turns of a
+  // src/swim/SwimTurns.tsx, src/swim/turns.ts (TASK-323 C: the turns of a
   // swim before «Start», the place's name as OpenStreetMap writes it)
   TURNS: "VIRAGES",
   "Turn left": "Tourne à gauche",
@@ -790,6 +790,25 @@ export const FR: Table = {
   Miles: "Miles",
   "Phone units": "Unités du téléphone",
 
+  // src/settings/BodySetting.tsx, BodyPage.tsx, src/body/bodyFields.ts (TASK-374)
+  Body: "Corps",
+  "Not set": "Non défini",
+  "Used only to estimate your calories and heart rate zones. It stays on this phone.":
+    "Sert uniquement à estimer tes calories et tes zones de fréquence cardiaque. Reste sur ce téléphone.",
+  Sex: "Sexe",
+  Male: "Homme",
+  Female: "Femme",
+  "Prefer not to say": "Je préfère ne pas le dire",
+  Weight: "Poids",
+  Height: "Taille",
+  "Year of birth": "Année de naissance",
+  "Calories are an estimate. Weight matters most.":
+    "Les calories sont une estimation. C'est surtout le poids qui compte.",
+  "Enter a weight between {min} and {max} {unit}.":
+    "Saisis un poids entre {min} et {max} {unit}.",
+  "Enter a height between {min} and {max}.": "Saisis une taille entre {min} et {max}.",
+  "Enter a year between {min} and {max}.": "Saisis une année entre {min} et {max}.",
+
   // src/settings/ToneSetting.tsx
   Tone: "Apparence",
   Dark: "Sombre",
@@ -869,6 +888,9 @@ export const FR: Table = {
   "{name}, {ago}: {text}": "{name}, {ago} : {text}",
   "Touch and hold to delete.": "Maintiens appuyé pour supprimer.",
 
+  // src/feed/ActionBar.tsx
+  Reactions: "Réactions",
+
   // src/social/DrawingReactions.tsx
   React: "Réagir",
   "Your reaction: {name}": "Ta réaction : {name}",
@@ -887,6 +909,11 @@ export const FR: Table = {
   "No photos yet.": "Pas encore de photos.",
   "No photos yet. Add some to a public drawing in My activities.":
     "Pas encore de photos. Ajoutes-en à un dessin public dans Mes activités.",
+
+  // src/profile/PersonalBests.tsx (TASK-368)
+  "Personal bests": "Records personnels",
+  "Half marathon": "Semi-marathon",
+  Marathon: "Marathon",
 
   // src/social/SuperLikeSheet.tsx
   "Super like": "Super like",
@@ -1752,4 +1779,68 @@ export const FR: Table = {
   // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
   "WHAT YOU DRAW": "CE QUE TU DESSINES",
   "Write a word, e.g. CIAO": "Écris un mot, par ex. CIAO",
+
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "À TOI DE PÉDALER",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Parcours dessinés par MuW. Personne ne les a encore faits.",
+  "By bike": "À vélo",
+  Bat: "Chauve-souris",
+  Madrid: "Madrid",
+  Turin: "Turin",
+
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Rechercher dessins, personnes, lieux",
+  Clear: "Effacer",
+  People: "Personnes",
+  Routes: "Parcours",
+  Filters: "Filtres",
+  "Recent searches": "Recherches récentes",
+  Categories: "Catégories",
+  "Featured drawings": "Dessins à la une",
+  Animals: "Animaux",
+  Hearts: "Cœurs",
+  Words: "Mots",
+  Symbols: "Symboles",
+  Emoji: "Emoji",
+  Place: "Lieu",
+  "Town or region": "Ville ou région",
+  Complexity: "Complexité",
+  Simple: "Simple",
+  Medium: "Moyenne",
+  Complex: "Complexe",
+  "Sort by": "Trier par",
+  "Most recent": "Les plus récents",
+  Longest: "Les plus longs",
+  "Most popular": "Les plus populaires",
+  "Up to {distance}": "Jusqu'à {distance}",
+  "Over {distance}": "Plus de {distance}",
+  Reset: "Réinitialiser",
+  "No drawings found": "Aucun dessin trouvé",
+  "Try other words, or change the filters.":
+    "Essaie d'autres mots ou change les filtres.",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Parcours créé par MuW – à toi de pédaler",
+  "Route created by MuW – run it yourself": "Parcours créé par MuW – à toi de courir",
+  "Route created by MuW – paddle it yourself":
+    "Parcours créé par MuW – à toi de pagayer",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Ta publication",
+  "Hold and drag to reorder": "Maintiens et fais glisser pour changer l'ordre",
+  "Move left": "Déplacer à gauche",
+  "Move right": "Déplacer à droite",
+  Layout: "Mise en page",
+  "Drawing in the corner": "Dessin dans le coin",
+  "Line on the photo": "Ligne sur la photo",
+  "Half and half": "Moitié-moitié",
+  "Photo in the corner": "Photo dans le coin",
+  "Up to 10 in a post.": "Jusqu'à 10 par publication.",
+  "Could not prepare this photo. Try again.":
+    "Impossible de préparer cette photo. Réessaie.",
+  // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
+  Style: "Style",
+  Night: "Nuit",
+  Day: "Jour",
 };

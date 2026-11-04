@@ -1,6 +1,8 @@
 {
   "ios": {
     "NSLocationWhenInUseUsageDescription": "MuW usa tu ubicación para dibujar rutas cerca de ti y registrar tus actividades. Durante una actividad sigue registrando también con el teléfono bloqueado, y iOS muestra la barra azul.",
-    "NSMicrophoneUsageDescription": "MuW nunca graba sonido: durante tu actividad solo dice las indicaciones."
+    "NSMicrophoneUsageDescription": "MuW nunca graba sonido: durante tu actividad solo dice las indicaciones.",
+    "NSHealthUpdateUsageDescription": "MuW guarda tus actividades terminadas en Apple Salud, con su tiempo, distancia, ruta y, en las carreras, las calorías estimadas, para que también aparezcan en la app Fitness.",
+    "NSHealthShareUsageDescription": "MuW lee tu frecuencia cardíaca de Apple Salud durante cada actividad, para mostrarla con la actividad y en tu publicación. Puedes ocultarla antes de publicar."
   }
 }

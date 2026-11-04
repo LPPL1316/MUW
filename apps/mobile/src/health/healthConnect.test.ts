@@ -93,12 +93,13 @@ test("what Health Connect did not grant is not written", async () => {
   expect(inserted[0][0]).not.toHaveProperty("exerciseRoute");
 });
 
-test("a ride: no calories", async () => {
+test("a ride: its own calories too (ADR-0318)", async () => {
   const { typed, inserted } = fakeConnect(ALL);
   await healthConnectPhone(typed).write(workoutOf(TRACK, "cycling")!);
   expect(inserted.map((records) => records[0].recordType)).toEqual([
     "ExerciseSession",
     "Distance",
+    "ActiveCaloriesBurned",
   ]);
 });
 

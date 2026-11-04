@@ -1,6 +1,6 @@
 # TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio
 
-**Stato**: Todo — documenti ora, codice col via del Coordinatore
+**Stato**: In lavorazione — parte A in main (#700, 2026-11-03), B dopo 344 B
 **Fase**: 4 · **Branch**: `docs/TASK-355-feed-clarity` (documenti),
 `feat/TASK-355-a-feed-card` (A), `feat/TASK-355-b-feed-counts` (B)
 · **ADR**: ADR-0306 · numeri dal Coordinatore (2026-10-30)
@@ -156,17 +156,17 @@ riservata, 0041 di TASK-348 A).
 
 Parte A:
 
-- [ ] Nessun titolo ripetuto: test su `title` uguale a `what`.
-- [ ] La data della corsa in ogni scheda di un membro, nelle cinque lingue.
-- [ ] Pallino e bandierina sulla traccia già tagliata, nessun punto nuovo
+- [x] Nessun titolo ripetuto: test su `title` uguale a `what`.
+- [x] La data della corsa in ogni scheda di un membro, nelle cinque lingue.
+- [x] Pallino e bandierina sulla traccia già tagliata, nessun punto nuovo
       mandato o letto.
-- [ ] L'attribuzione non è più di una riga, con contrasto AA, e il
+- [x] L'attribuzione non è più di una riga, con contrasto AA, e il
       margine `DRAWING_PAD` la tiene fuori dal tracciato.
-- [ ] Ogni pulsante nuovo ha almeno `MIN_TAP_SIZE`, `Tap` ed etichetta.
-- [ ] Nessun colore a mano, nessuna dipendenza nuova, impronta `83793e26`
+- [x] Ogni pulsante nuovo ha almeno `MIN_TAP_SIZE`, `Tap` ed etichetta.
+- [x] Nessun colore a mano, nessuna dipendenza nuova, impronta `83793e26`
       su una copia pulita.
-- [ ] Prima e dopo dal simulatore, in scuro e in chiaro, in testa alla PR.
-- [ ] Nessuna traccia del punteggio: né a schermo né a voce (ADR-0207).
+- [x] Prima e dopo dal simulatore, in scuro e in chiaro, in testa alla PR.
+- [x] Nessuna traccia del punteggio: né a schermo né a voce (ADR-0207).
 
 Parte B:
 
@@ -197,6 +197,10 @@ apps/mobile/src/i18n/*.ts
 docs/UI.md, docs/STATUS.md, docs/tasks/TASK-355.md
 ```
 
+Aggiunti col sì del Coordinatore (2026-10-31): `apps/mobile/src/feed/drawAgainDoor.ts`
+e il suo test (nuovi), cinque righe in `apps/mobile/App.tsx`. Nuove, le
+schermate in `docs/tasks/TASK-355/`.
+
 Parte B:
 
 ```
@@ -221,6 +225,34 @@ docs/API.md, docs/UI.md, docs/STATUS.md, docs/tasks/TASK-355.md
   hanno una, e sarebbe un punteggio senza numero.
 - Vibrazione e sfocatura: native, solo con una build e il sì dell'utente.
 
+## Decisioni della parte A
+
+Prese dall'agente su delega dell'utente; non cambiano nessuna scelta sua.
+
+- **«Draw it near me» da un context nuovo** (`feed/drawAgainDoor.ts`), non
+  dal `drawingsDoor`, che non conosce l'azione: la tiene `App.tsx`
+  (`onDrawAgain`). Il valore resta lo stesso finché non cambia lo sport di
+  «Draw» (test), così le pagine non si ridisegnano con l'app. Vale la regola
+  del pulsante della scheda aperta (`drawsAgain`): conta lo sport di «Draw»,
+  non quello del post; una parola sull'acqua non ha pulsante.
+- **Segni solo sui disegni degli iscritti**: un esempio del catalogo è una
+  figura chiusa, senza estremi da segnare. I punti vengono dai primi e dagli
+  ultimi tratti già disegnati: nessun dato nuovo letto o mandato.
+- **Luogo e data in due testi affiancati**: il luogo si accorcia per primo su
+  un nome lungo, e i test di `FeedScreen` (di TASK-362) restano com'erano.
+- **«Share» apre il post della corsa** (TASK-231) con la traccia della scheda,
+  già tagliata, senza chiave: il post la taglia ancora e non lo tiene come
+  post di una corsa dell'account.
+- **Il «…» fuori dal pulsante della scheda**, sopra la riga del nome: dentro,
+  VoiceOver non lo raggiungeva.
+- **Il credito a 10 pt** in `textFaint` sul fondo della mappa: AA (test).
+- Per le schermate la copia pulita aveva dati finti solo sul Mac (un account,
+  tre disegni con le linee degli esempi, una foto disegnata), poi tolti.
+
 ## Esito
 
-*(a fine task)*
+- **Parte A** in main con la #700 (2026-11-03): tutti i criteri della parte A
+  soddisfatti, CI verde, suite mobile completa verde, impronta iOS `83793e26`.
+  Riallineata una volta dopo la #697 (TASK-362): in `App.tsx` il `FeedScreen`
+  delle schede sta dentro `DrawAgainContext.Provider`.
+- **Parte B**: da fare, dopo 344 B.

@@ -58,14 +58,16 @@ import {
   themedKeepable,
 } from "./src/favorites/favoriteRoute";
 import { useFavoritesDoor } from "./src/favorites/favoritesDoor";
+import { DrawAgainContext, useDrawAgainOf } from "./src/feed/drawAgainDoor";
 import { fetchPostRoute, postRoute } from "./src/feed/feedRoute";
+import type { SamplePost } from "./src/feed/sampleFeed";
 import { PhoneEngineView } from "./src/engine/PhoneEngineView";
 import { usePhoneZones } from "./src/engine/usePhoneZones";
 import { ZoneNotice } from "./src/engine/ZoneNotice";
 import { useLanguage } from "./src/i18n/useLanguage";
 import { CanvasTop } from "./src/mapdraw/CanvasTop";
 import { DrawOnMap } from "./src/mapdraw/DrawOnMap";
-import { drawingOf, type FigureLines } from "./src/mapdraw/edit";
+import { drawingOf } from "./src/mapdraw/edit";
 import { FigureTiles } from "./src/mapdraw/FigureTiles";
 import {
   changedRequest,
@@ -100,7 +102,7 @@ import { trackOf, useFreeRun } from "./src/navigation/useFreeRun";
 import { trackOfNavigation, useNavigation } from "./src/navigation/useNavigation";
 import type { Place } from "./src/places/photon";
 import { choicesOf, type Picked, pickedIndex } from "./src/route/choices";
-import { APP_DISTANCE_LIMITS_KM, distanceLimitsM } from "./src/route/distance";
+import { distanceLimitsM } from "./src/route/distance";
 import {
   againDistanceM,
   againOfDrawing,
@@ -118,7 +120,7 @@ import { averagePace } from "./src/route/runTime";
 import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
-import { drawingTrack, requestLines, type TrackInPlace } from "./src/route/figureLines";
+import { drawingTrack, routeTrack, type TrackInPlace } from "./src/route/figureLines";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
 import { samplePicture } from "./src/route/samplePictures";
@@ -141,14 +143,17 @@ import {
 } from "./src/screens/FreeRunScreen";
 import { MapScreen } from "./src/screens/MapScreen";
 import { NavigationBanner, NavigationCard } from "./src/screens/NavigateScreen";
-import { Pager } from "./src/screens/Pager";
 import { pageTitle } from "./src/screens/pageTitles";
 import {
   OwnProfile,
-  ProfileButton,
+  ProfileFace,
   ProfileLayer,
   useOwnPage,
+  useProfileTab,
 } from "./src/screens/ProfileLayer";
+import { useInboxTab, useMessagesDoor } from "./src/messages/messagesDoor";
+import { MessagesPage } from "./src/tabs/MessagesPage";
+import { TabShell } from "./src/tabs/TabShell";
 import { StretchReminder } from "./src/screens/StretchReminder";
 import { StretchScreen } from "./src/stretch/StretchScreen";
 import { useSwimNotice } from "./src/swim/safetyNotice";
@@ -169,7 +174,8 @@ import { DrawingCard } from "./src/social/DrawingCard";
 import { drawingDoubleTapped } from "./src/social/DrawingReactions";
 import { drawnOf, followedOf } from "./src/social/drawingRoute";
 import { useDrawingsDoor } from "./src/social/drawingsDoor";
-import { color, space, statusBarStyle } from "./src/theme/tokens";
+import { t } from "./src/i18n";
+import { color, statusBarStyle } from "./src/theme/tokens";
 import { useDrawDistance } from "./src/units/useDrawDistance";
 import { useUnits } from "./src/units/useUnits";
 
@@ -197,16 +203,18 @@ type Screen =
   | "runFinish"
   | "feed"
   | "profile"
+  | "messages"
   | "canvas"
   | "pickStart"
   | "play";
 
-/** The screens that are pages side by side, left to right, one swipe apart
- * (TASK-154, ADR-0124; the profile after «Explore», TASK-278); the others
- * take the whole screen. «Play», the shape game (TASK-296, ADR-0255), is
- * not among them since 2026-10-29 (the user's choice): it opens from its
- * row under the distance of «Draw», over the app. */
-const PAGES: readonly Screen[] = ["feed", "choose", "explore", "profile"];
+/** The screens that are pages of the tab bar, in the order of their tabs
+ * (TASK-367, ADR-0311): «Feed», «Draw», «Messages», «Explore», «Profile».
+ * The others take the whole screen, the bar and the header with them.
+ * «Play», the shape game (TASK-296, ADR-0255), is not among them since
+ * 2026-10-29 (the user's choice): it opens from its row under the distance
+ * of «Draw», over the app. */
+const PAGES: readonly Screen[] = ["feed", "choose", "messages", "explore", "profile"];
 
 /** A run that ended, shown on the finish screen. */
 type Finished = {
@@ -295,23 +303,13 @@ function leftFreeRun(): FreeFinished | null {
   return run === null ? null : freeFinishedRun(run, canResume(run, Date.now()));
 }
 
-/** The lines «Edit the drawing» puts on the map, of a route or a drawing
- * on a card (TASK-320, TASK-331): none for lines that make no drawing
- * (`drawingOf`), and none on the water, where only the catalogue is
- * drawn. */
-function cardFigure(lines: FigureLines | null, activity: Activity): FigureLines | null {
-  return lines === null || activity === "paddling" || drawingOf(lines) === null
-    ? null
-    : lines;
-}
-
-/** The distance of a figure edited from a card: as «Draw it near me» takes
- * a shape's (`againDistanceM`, ADR-0273), the route's or the run's to the
- * tenth of a km, within the limits of the sport of «Draw». */
-function cardDistanceM(distanceM: number, activity: Activity): number {
-  const [lowest, highest] = APP_DISTANCE_LIMITS_KM[activity];
-  const stepped = Math.round(distanceM / 100) * 100;
-  return Math.min(Math.max(stepped, lowest * 1000), highest * 1000);
+/** The track «Edit the drawing» puts on the map, of a route or a drawing
+ * on a card (TASK-320, TASK-331, TASK-369): none for lines that make no
+ * drawing (`drawingOf`). On the water too (TASK-369 part B, ADR-0313):
+ * «Draw route» asks for it with the sport of «Draw», as every drawing of
+ * the map, and a canoe paddles it where it fits. */
+function cardTrack(track: TrackInPlace | null): TrackInPlace | null {
+  return track === null || drawingOf(track.lines) === null ? null : track;
 }
 
 export default function App() {
@@ -614,23 +612,29 @@ function MuW() {
         ? placedTile(mapDraw.placed)
         : drawnTile(view.request);
   // «Edit the drawing» on the card of a route of «Explore» (an example, a
-  // search, a favorite) and of a member's drawing: the figure it puts on
-  // the map. None for a word, nor for a drawing without a planned figure.
-  const exploredFigure = useMemo(
+  // search, a favorite, a message's drawing, an example of the Feed) and of
+  // a themed route: the line of the route, where it is and as big, an
+  // emoji's and a word's too (TASK-369, ADR-0313).
+  const exploredTrack = useMemo(
     () =>
       explored?.status === "done"
-        ? cardFigure(requestLines(explored.request), sportActivity)
+        ? cardTrack(routeTrack(explored.result.points))
         : null,
-    [explored, sportActivity],
+    [explored],
+  );
+  const themedTrack = useMemo(
+    () =>
+      themed.state.status === "done"
+        ? cardTrack(routeTrack(themed.state.result.points))
+        : null,
+    [themed.state],
   );
   // A member's drawing gives its track, where it was run and as big
   // (TASK-346, ADR-0299).
-  const drawingTrackInPlace = useMemo(() => {
-    const track = drawing !== null ? drawingTrack(drawing) : null;
-    return track !== null && cardFigure(track.lines, sportActivity) !== null
-      ? track
-      : null;
-  }, [drawing, sportActivity]);
+  const drawingTrackInPlace = useMemo(
+    () => cardTrack(drawing !== null ? drawingTrack(drawing) : null),
+    [drawing],
+  );
   const others = useMemo(
     () =>
       choices.length < 2
@@ -944,6 +948,18 @@ function MuW() {
     setExploreRun(null);
   }
 
+  /**
+   * A drawing of «Feed» found by the search at the top of «Explore»
+   * (TASK-367 part B): fetched whole as «Feed» fetches it, and back goes to
+   * «Explore», where the search was.
+   */
+  function openFoundExample(post: SamplePost) {
+    closeExplore();
+    openExplored(postRoute(post), fetchPostRoute(post));
+    setRouteList("explore");
+    setScreen("map");
+  }
+
   /** Start on a route of "Explore": its directions first (TASK-145). A
    * favorite of a word with the pen up brings its walks (TASK-199), a bike
    * route its stretches with the bike on foot (TASK-206), and is followed
@@ -1051,25 +1067,20 @@ function MuW() {
     setScreen("choose");
   }
 
+  // The same for the cards of «Feed» (TASK-355).
+  const drawAgainDoor = useDrawAgainOf(sportActivity, onDrawAgain);
+
   /** The button's action for `again`, when «Draw» can draw it. */
   function drawAgainOf(again: DrawAgain | null): (() => void) | undefined {
     return drawsAgain(again, sportActivity) ? () => onDrawAgain(again) : undefined;
   }
 
-  /** «Edit the drawing» (TASK-320): `lines` on the map of «Draw on the map»
-   * as a drawing, in the middle of the start, as long as `distanceM`
-   * (TASK-331). Drawing on it, moving it and «Draw route» are the map's;
-   * nothing is asked before «Draw route», and «←» goes to «Draw». */
-  function onEditLines(lines: FigureLines, distanceM: number) {
-    Keyboard.dismiss();
-    if (mapDraw.edit(lines, distanceM)) {
-      setScreen("canvas");
-    }
-  }
-
-  /** «Edit the drawing» on a member's drawing (TASK-346, ADR-0299): its
-   * track on the map where it was run and as big, to change there; the
-   * drawing is left as «Draw it near me» leaves it. */
+  /** «Edit the drawing» on a card (TASK-346, ADR-0299, TASK-369): the
+   * track of a member's drawing, or the line of a route, on the map of
+   * «Draw on the map» where it is and as big, to change there; the card is
+   * left as «Draw it near me» leaves it. Drawing on it, moving it and «Draw
+   * route» are the map's; nothing is asked before «Draw route», and «←» goes
+   * to «Draw». */
   function editTrackOf(track: TrackInPlace | null): (() => void) | undefined {
     if (track === null) {
       return undefined;
@@ -1082,23 +1093,6 @@ function MuW() {
         setScreen("canvas");
       }
     };
-  }
-
-  /** «Edit the drawing» on a card: the figure of the route of «Explore», at
-   * the distance «Draw it near me» would choose; the route is left as «Draw
-   * it near me» leaves it. */
-  function onEditCard(lines: FigureLines, distanceM: number) {
-    closeExplore();
-    leaveDrawing();
-    onEditLines(lines, cardDistanceM(distanceM, sportActivity));
-  }
-
-  /** The button's action for `lines`, when the card has them. */
-  function editCardOf(
-    lines: FigureLines | null,
-    distanceM: number,
-  ): (() => void) | undefined {
-    return lines !== null ? () => onEditCard(lines, distanceM) : undefined;
   }
 
   function onDraw() {
@@ -1244,7 +1238,19 @@ function MuW() {
     [],
   );
 
-  /** Another page, by a swipe, its name or the profile's circle. */
+  // The list of «Messages» asked for from elsewhere is its tab's (TASK-367):
+  // only while a page is on screen, never over a run.
+  useInboxTab(() => {
+    if (latestPage.current.onPage) {
+      latestPage.current.showPage("messages");
+    }
+  });
+  const messages = useMessagesDoor();
+  const messagesWaiting =
+    messages.unread === null ? 0 : messages.unread.unread + messages.unread.requests;
+  const profileTab = useProfileTab();
+
+  /** Another page, by its tab. */
   function showPage(next: Screen) {
     // A keyboard left open would follow to the next page.
     Keyboard.dismiss();
@@ -1524,6 +1530,7 @@ function MuW() {
                 onStartExplore(themed.state.result);
               }
             }}
+            onEditDrawing={editTrackOf(themedTrack)}
           />
         ) : exploring ? (
           <ExploredCard
@@ -1551,11 +1558,7 @@ function MuW() {
                 ? drawAgainOf(againOfRequest(explored.request))
                 : undefined
             }
-            onEditDrawing={
-              explored.status === "done"
-                ? editCardOf(exploredFigure, explored.request.distance_m)
-                : undefined
-            }
+            onEditDrawing={editTrackOf(exploredTrack)}
           />
         ) : finishing ? (
           <FinishCard
@@ -1668,37 +1671,39 @@ function MuW() {
       {/* Over the map, opposite the way back: keep the route shown. */}
       <FavoriteHeart route={onMap} />
       {page !== -1 && (
-        <Pager
+        <TabShell
           page={page}
-          onPage={(index) => showPage(pages[index])}
-          action={
-            // The sport at the left of the way to «Profile» (TASK-205),
-            // whose circle is the name of the profile's page (TASK-278).
-            <View style={styles.actions}>
-              <SportButton />
-              <ProfileButton
-                selected={screen === "profile"}
-                onPress={() => showPage("profile")}
-              />
-            </View>
+          onPage={(index) =>
+            // Nobody signed in has no messages: their tab is the way to sign in.
+            showPage(
+              pages[index] === "messages" && !signedIn ? "profile" : pages[index],
+            )
           }
+          // The sport at the right of the header (TASK-205, TASK-367).
+          action={<SportButton />}
           pages={[
             {
               title: pageTitle("feed"),
+              label: pageTitle("feed"),
+              icon: "house",
               render: () => (
-                <FeedScreen
-                  active={screen === "feed"}
-                  onOpen={(post) => {
-                    closeExplore();
-                    openExplored(postRoute(post), fetchPostRoute(post));
-                    setRouteList("feed");
-                    setScreen("map");
-                  }}
-                />
+                <DrawAgainContext.Provider value={drawAgainDoor}>
+                  <FeedScreen
+                    active={screen === "feed"}
+                    onOpen={(post) => {
+                      closeExplore();
+                      openExplored(postRoute(post), fetchPostRoute(post));
+                      setRouteList("feed");
+                      setScreen("map");
+                    }}
+                  />
+                </DrawAgainContext.Provider>
               ),
             },
             {
               title: pageTitle("draw"),
+              label: pageTitle("draw"),
+              icon: "pencil",
               render: () => (
                 <ChooseScreen
                   status={startStatus(startMode, position, start)}
@@ -1804,7 +1809,21 @@ function MuW() {
               ),
             },
             {
+              title: pageTitle("messages"),
+              label:
+                messagesWaiting > 0
+                  ? t("Messages, {count} waiting", { count: messagesWaiting })
+                  : pageTitle("messages"),
+              icon: "send",
+              count: messagesWaiting,
+              // It asks the API for the conversations as it opens.
+              lazy: true,
+              render: () => <MessagesPage active={screen === "messages"} />,
+            },
+            {
               title: pageTitle("explore"),
+              label: pageTitle("explore"),
+              icon: "search",
               // It asks the API for its routes as it opens: not before.
               lazy: true,
               render: () =>
@@ -1821,6 +1840,7 @@ function MuW() {
                       setRouteList("explore");
                       setScreen("map");
                     }}
+                    onOpenExample={openFoundExample}
                   />
                 ) : (
                   <ExploreScreen
@@ -1832,6 +1852,7 @@ function MuW() {
                       setRouteList("explore");
                       setScreen("map");
                     }}
+                    onOpenExample={openFoundExample}
                     city={exploreCity}
                     onCity={(city) => {
                       setExploreCity(city);
@@ -1861,10 +1882,11 @@ function MuW() {
                 ),
             },
             {
-              // The account's own profile, after «Explore» (TASK-278): no
-              // name in the header, where its circle is.
+              // The account's own profile (TASK-278): its picture is its tab.
               title: pageTitle("profile"),
-              unnamed: true,
+              label: profileTab.label,
+              face: (selected) => <ProfileFace selected={selected} />,
+              count: profileTab.requests,
               lazy: true,
               render: () => (
                 <OwnProfile
@@ -1909,10 +1931,5 @@ const styles = StyleSheet.create({
     flex: 1,
     // Under the page while the WebView starts, so it never flashes white.
     backgroundColor: color.map.background,
-  },
-  actions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: space.sm,
   },
 });

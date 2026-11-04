@@ -76,12 +76,14 @@ RECORDED = "Recorded with MuW"
 MAX_NAME = 100
 # What Strava calls each activity of a run (TASK-208); paddling as stand-up
 # paddling, the user's choice (2026-10-03); a swim in open water is Strava's
-# "Swim" (TASK-323), which has no open-water type of its own.
+# "Swim" (TASK-323), which has no open-water type of its own; a walk is
+# Strava's "Walk" (TASK-371).
 SPORT_TYPES = {
     "running": "Run",
     "cycling": "Ride",
     "paddling": "StandUpPaddling",
     "swimming": "Swim",
+    "walking": "Walk",
 }
 
 STATE_BYTES = 32
@@ -603,6 +605,7 @@ class StravaRuns:
             [(pause["from_s"], pause["to_s"]) for pause in run["pauses"]],
             run["started_at"],
             name,
+            run["activity"],
         )
         # A run that followed no route drew nothing: it was only recorded.
         description = strava_description(

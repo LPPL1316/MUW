@@ -216,6 +216,9 @@ test("the run the app was closed during opens again, paused, on its route", asyn
   expect(screen.getByLabelText("Resume")).toBeOnTheScreen();
   expect(screen.getByLabelText("Stop")).toBeOnTheScreen();
   expect(screen.getByLabelText("Distance: 1.00 km")).toBeOnTheScreen();
+  // The whole screen is the run's: no tab bar, no header (TASK-367).
+  expect(screen.queryByTestId("tab-bar")).toBeNull();
+  expect(screen.queryByLabelText("MuW")).toBeNull();
   // No countdown and no «Head out»: the run goes on, it does not start.
   expect(screen.queryByText("Get ready")).toBeNull();
   expect(said()).not.toContainEqual("Head out on Via Roma");

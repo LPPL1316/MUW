@@ -891,9 +891,10 @@ La richiesta è sincrona: la risposta arriva quando il percorso è pronto
   cycling, got 5000`. La corsa resta 1–50 km, con il messaggio di prima.
   La distanza suggerita di `shape_not_drawable` resta in quei limiti.
 - **Solo le attività del contratto**, `running`, `cycling` e, dalla parte
-  B di TASK-191, `paddling`, dalla parte B di TASK-323 `swimming`
-  (`SUPPORTED_ACTIVITIES`): un'altra è `422 invalid_request`, `unsupported
-  activity 'hiking'; choose one of: running, cycling, paddling, swimming`.
+  B di TASK-191, `paddling`, dalla parte B di TASK-323 `swimming`, dalla
+  parte A di TASK-371 `walking` (`walking.API_ACTIVITIES`): un'altra è `422
+  invalid_request`, `unsupported activity 'hiking'; choose one of: running,
+  cycling, paddling, swimming, walking`.
 - **Le zone**: l'API ha le zone della bici accanto a quelle a piedi,
   `bike_*` in `data/cache/` (`MAPS.md`, «Cache»), e ne tiene in memoria una
   sola (sotto, «Grafi»). Le città con la zona della bici già fatta
@@ -938,10 +939,16 @@ motore.)
 - **Da 1 a 5 km** (`DISTANCE_LIMITS_M.paddling`, scelta dell'utente):
   fuori è `422 invalid_request`, `distance must be between 1000 and 5000
   metres for paddling, got 5001`.
-- **Solo una forma del catalogo**: una parola è `422 invalid_request`, `on
-  the water only a shape of the catalogue is drawn, not a word` (dal
-  motore); un'immagine (`/image-route-jobs`, anche dentro `/gpx`) `… not an
-  image`, prima di guardare la distanza.
+- **Una forma del catalogo o un disegno**: una parola è `422
+  invalid_request`, `on the water only a shape of the catalogue is drawn,
+  not a word` (dal motore). Un'immagine (`/image-route-jobs`, anche dentro
+  `/gpx`) dal TASK-369 (ADR-0313) **si pagaia**: «Edit the drawing» fa un
+  disegno di ogni percorso, e la canoa lo piazza dove ci sta vicino alla
+  partenza, come una forma (`drawn_water.plan_drawn_water`), con gli stessi
+  controlli, gli stessi limiti di 1–5 km, niente indicazioni né
+  alternative; il `RouteResult` ha `shape` `null`. Solo con `placement`
+  `free`: ancorata è `422 invalid_request` (nessun percorso sull'acqua è
+  ancorato). Prima del TASK-369 era `… not an image`.
 - **Lontano dall'acqua**: `422 shape_not_drawable`, `there is no lake or
   sea to paddle on within 2 km of here`, `suggested_distance_m` `null`.
 - **La forma non ci sta** (al mare oltre circa 3 km): `422
@@ -1046,7 +1053,7 @@ motore.)
 - **Il GPX** (`POST /gpx`) di un nuoto ha un waypoint per ogni curva del
   primo giro, «Turn left · Bagno 54», tipo `turn`, prima della traccia.
 - **Salvati e tenuti**: preferiti, corse e corse di gruppo prendono
-  `swimming` (migrazione `0042`, `DATABASE.md`); Strava lo riceve come
+  `swimming` (migrazione `0040`, `DATABASE.md`); Strava lo riceve come
   `Swim`. Un nuoto dai punti dei laghi e delle spiagge si tiene come la
   canoa, con un'impronta sua (`route_store`).
 - **Campi facoltativi**: un'app di prima non manda `laps` e ignora `laps`,
@@ -1054,6 +1061,31 @@ motore.)
   L'app mostra il nuoto con la parte C di TASK-323 (`ready: false` fino
   ad allora): in `shared-types` `Activity` resta quella dell'app, e
   `API_ACTIVITIES` ha anche `swimming`.
+
+### A piedi, camminando: `"activity": "walking"` (TASK-371, ADR-0315)
+
+```json
+{ "start": [46.0671, 11.1214], "shape": "heart", "word": null,
+  "distance_m": 5000, "activity": "walking", "style": "round" }
+```
+
+(`fixtures/route-request-walking.json`.)
+
+- **Come una corsa**: gli stessi campi, una forma, una parola, un disegno, e
+  la stessa risposta. L'API chiede al motore una corsa
+  (`route_engine/walking.py`, `engine_activity`): la **rete foot**, le zone
+  a piedi già in memoria, nessuna rete né zona in più; i percorsi tenuti
+  sono quelli della corsa, e l'impronta del motore non cambia
+  (`route_store.WALK_ONLY`). `/routes`, `/route-jobs`, `/gpx`,
+  `/stroke-matches` e `/way-back` la prendono; il telefono la disegna come
+  il server (`on_phone`).
+- **Da 1 a 30 km** (`DISTANCE_LIMITS_M.walking`, scelta dell'utente): fuori
+  è `422 invalid_request`, `distance must be between 1000 and 30000 metres
+  for walking, got 31000`. La distanza suggerita di `shape_not_drawable`
+  resta in quei limiti, anche per un job.
+- **Il GPX** di una camminata dice `<type>walking</type>`, quelli degli
+  altri sport restano com'erano (`GPX.md`, «La camminata dice che è una
+  camminata»); una camminata salvata va su Strava come `Walk`.
 
 ### Una parola invece di una forma (TASK-056)
 
@@ -1701,6 +1733,31 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   nascosti dalla moderazione, solo di corse registrate dall'app
   (`source = 'muw'`). «Winner» resta `contest_wins`. `badges.py`; un'API
   precedente non li ha.
+- **I record personali** (TASK-368, ADR-0312): `personal_bests`, il tempo
+  più veloce su ogni distanza, preso dal tratto migliore dentro **tutte** le
+  corse dell'account, private, di gruppo e importate comprese (scelta
+  dell'utente). A piedi `5k`, `10k`, `15k`, `half` (21 097,5 m), `30k`,
+  `marathon` (42 195 m), `60k`; in bici `10k`, `20k`, `40k`, `50k`, `100k`,
+  `160k`; la canoa e il nuoto no. In ordine: a piedi, poi in bici, per
+  distanza; solo le distanze che hanno un record, `[]` senza. Ogni
+  `PersonalBest` ha `sport`, `distance`, `distance_m`, `seconds` (in
+  movimento, le pause tolte), `started_at` (l'inizio della corsa: il suo
+  giorno), `drawing` (l'id del disegno di quella corsa solo se chi guarda
+  può vederlo, con la regola della griglia; altrimenti `null`: la corsa
+  resta chiusa) e `key` (la chiave della corsa, solo al proprietario, per
+  «My activities»). Conta lo sport che la corsa ha adesso; fra due tempi
+  uguali, il primo fatto. Come si misura: il tratto parte da un punto della
+  traccia e finisce al metro esatto della distanza; i metri sono quelli di
+  `distance_m`, nessuno dentro una pausa del corridore; un tratto con un
+  salto del GPS (più di 25 km/h a piedi, più di 90 km/h in bici fra due
+  punti) non conta; un tempo sotto il record del mondo della distanza si
+  scarta (in bici il limite è 90 km/h di media). I record di ogni corsa si
+  contano al salvataggio (`run_bests`, migrazione `0042`), mai a ogni
+  richiesta; cancellata una corsa, i suoi record vanno con lei e resta il
+  migliore dopo. Esempi `fixtures/personal-bests.json`;
+  `personal_bests.py`, `profile_bests.py`; un'API precedente non li ha. Le
+  corse salvate prima: `python -m shaperoute_api.personal_bests_backfill`,
+  una volta, sul server, col sì dell'utente.
 - **`GET /users/{public_id}/photos`** (TASK-324): le foto dei disegni che
   chi guarda vede sul profilo, dalla corsa più recente e nello stesso
   disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima
@@ -2576,6 +2633,11 @@ codice in `muw_routes.py`.
   così un tempo, un passo o una persona non entrano. Lasciato fuori anche senza
   attribuzione a OpenStreetMap, con un titolo mancante in una delle cinque lingue
   o con un nome che non è il suo `id`.
+- **Cosa disegna** (per aprirlo e partire): `shape`, oppure `word` con `style`,
+  e nel percorso intero `outline` quando la figura non è nel catalogo, come i
+  file dei contorni del motore. Un file senza questi campi si legge lo stesso,
+  con `null`, ma l'app non lo apre. La linea che si apre e si corre è sempre
+  quella del file: la figura non la fa ripianificare.
 - **`climb_m` è una stima** da tessere di elevazione, non una misura: nessuno ha
   pedalato questi percorsi. La somiglianza non si manda.
 
@@ -2602,8 +2664,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   parole nominano nella lingua dell'app; un disegno di una di esse è
   trovato anche senza le parole. Senza `q` non chiede niente.
 - **I filtri**, ognuno ripetuto per ogni valore (`shape=heart&shape=star`),
-  al più 50 valori: `shape` (le forme), `activity` (`running`, `cycling`,
-  `paddling`), `min_m` e `max_m` (la distanza della corsa, inclusi),
+  al più 50 valori: `shape` (le forme; `word` per le parole disegnate,
+  cioè una corsa con una parola e senza forma, da TASK-344 parte B),
+  `activity` (`running`, `cycling`, `paddling`), `min_m` e `max_m` (la distanza della corsa, inclusi),
   `place` (una parte del nome del posto, senza accenti), `complexity`
   (`simple`, `medium`, `complex`: lunghezza dell'anteprima diviso la
   diagonale del suo rettangolo, sotto 3,6 e sotto 4,5). Più valori di un
@@ -2620,6 +2683,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   Un cursore di un altro ordine: `422` «This cursor is of another order:
   start again without it.». In `popular` una reazione lasciata fra due
   pagine può spostare un disegno.
+- **`words: true`** nella risposta (TASK-344 parte B): `shape=word`
+  trova le parole disegnate. Un'API di prima lo lascia fuori e per
+  `shape=word` non trova niente: l'app allora non offre «Words».
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app cerca
   solo negli esempi.
 

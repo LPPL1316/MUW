@@ -313,7 +313,7 @@ al Coordinatore prima del codice. Aggiunta ad ADR-0283.
   (`laps`) nella richiesta e giri e curve (`laps`, `turns`) nella risposta;
   in `shared-types` `API_ACTIVITIES` e le fixture del nuoto. `Activity`
   dell'app resta a tre fino alla parte C (decisione 2 dell'aggiunta).
-- Punto 2: `0042_swimming.sql` (preferiti, corse, corse di gruppo); il
+- Punto 2: `0040_swimming.sql` (preferiti, corse, corse di gruppo); il
   gioco e i disegni leggono `runs.activity` e non hanno un elenco loro.
 - Punto 3: `shore_extract.py`, i posti con nome lungo la riva da un
   estratto, nei file che il motore legge.
@@ -333,11 +333,59 @@ al Coordinatore prima del codice. Aggiunta ad ADR-0283.
   esempi della canoa `574fbfba41eb`.
 - **Il 2026-11-03**, `main` di rockydalbianco/shaperoute unito dentro B (216
   commit, i campi di TASK-347 accanto a quelli del nuoto); la migrazione
-  diventa `0042_swimming.sql` (la `0039` l'ha presa TASK-343). Il campo
+  diventa `0040_swimming.sql`, il numero tenuto dal Coordinatore (la
+  `0039` l'ha presa TASK-343, la `0042` TASK-368 A; 2026-11-04). Il campo
   `engine` di `paddleExamples.json` aggiornato a `574fbfba41eb` senza
   ridisegnarlo: i percorsi della canoa escono identici (aggiunta ad
   ADR-0283 del 2026-11-03). Il codice che disegna la canoa non cambia: rifatti,
   gli esempi dovrebbero cambiare solo nel campo `engine`.
+
+#### B, la notte del server (2026-11-04)
+
+L'impronta del motore cambia con B (`models.py`, il contratto: lo sport, i
+giri, le curve; `__main__.py`, la riga di comando): percorsi
+`abaea5bb82b3` → `5b5e026cea9b`, nuoti `d4fa96ff74ea` → `b9d00c37d28d`.
+C1, C2, C4, D ed E non toccano il motore: l'impronta resta quella di B. Il
+Coordinatore ha scelto di non tenerla invariata con un alias (un alias fra
+impronte diverse va mantenuto a mano a ogni modifica): gli esempi tenuti
+si ridisegnano di notte, all'orario che sceglie l'utente. Quella notte,
+dopo il merge di B, C1, C2 e C4, col sì dell'utente e il via del
+Coordinatore (i comandi li lancia l'utente), in quest'ordine:
+
+1. **Aggiornamento e migrazione `0040`** (5–10 minuti, la build
+   dell'immagine): `git pull`, `docker compose up -d --build`; nel log
+   dell'API la `0040_swimming` fra le migrazioni applicate, senza errori.
+   La migrazione apre tre vincoli: un istante.
+2. **`draw_examples` a terra** (stima 1–2 ore: erano circa 40 minuti con le
+   città di ottobre, oggi sono di più): `--preset italy --preset featured`,
+   cerchio, cuore e stella di ogni città.
+3. **I paesi** (stima 1–2 ore, mai misurato sul server: TASK-316 C):
+   `--all Trento Caldonazzo --around Trento --around Caldonazzo`.
+4. **`draw_examples --water`** (stima 4–8 ore, da TASK-246 B): le otto
+   forme della canoa da ogni punto dei laghi e delle spiagge.
+5. **`draw_examples --swim`** (stima 2–4 ore: gli stessi punti, otto
+   forme da 1 km, più corte della canoa). Una forma che a un punto non sta
+   nella fascia è la risposta del motore, non un errore.
+6. **`paddleExamples.json`, il controllo** (pochi minuti): nel container,
+   `python -m shaperoute_api.paddle_examples --cache-dir data/cache --out
+   /tmp/paddleExamples.json`, poi confrontarlo col file in `main`. B ha
+   già messo il campo `engine` a `574fbfba41eb` senza ridisegnare, perché
+   il codice della canoa non cambia: ci si aspetta lo stesso file. Se
+   cambiano i percorsi, serve una PR a parte (file dell'app, OTA col sì
+   dell'utente).
+
+I passi 2–5 vanno uno dopo l'altro, mai due insieme. La stima totale è
+8–16 ore: i passi 4 e 5 possono andare anche nella notte dopo. Fino a
+quando un esempio non è ridisegnato, il primo telefono che lo chiede
+aspetta il motore, come in una città nuova.
+
+**L'archivio di TASK-297 non perde niente.** Le righe di `drawn_routes`
+restano nel database col loro `engine`. Con l'impronta nuova non
+rispondono più così come sono: `nearby` prende la migliore di un altro
+motore entro `NEARBY_M` e la ridisegna dal suo punto, provando prima il
+posizionamento salvato (`put_plan`, ADR-0257), e la riga nuova si
+aggiunge. Si cancellano solo oltre il tetto di 50 000 righe, le più
+vecchie mai corse né messe nei preferiti, come sempre.
 
 File toccati da B:
 
@@ -349,7 +397,7 @@ services/route-engine/tests/test_swimming.py, test_contract.py,
   test_paddling.py (il nuoto non è più «un'attività che non c'è»)
 services/api/shaperoute_api/paddling.py, jobs.py, images.py, schemas.py,
   app.py, activities.py, strava.py, route_store.py, shore_extract.py (nuovo)
-services/api/migrations/0042_swimming.sql (nuovo)
+services/api/migrations/0040_swimming.sql (nuovo)
 services/api/tests/test_swimming_api.py, test_shore_extract.py (nuovi),
   test_contract.py, test_cycling.py, test_route_store.py,
   test_swim_fingerprint.py, test_better_distance.py, test_rotation.py,
@@ -391,7 +439,7 @@ Aggiunta ad ADR-0283.
   finché è «Soon» va come una corsa, come il parapendio); in `src/swim/`
   l'avviso col suo file `swim-notice.json` e `useSwimNotice`, la riga sotto
   il giro (`SwimRouteNote`), l'elenco delle curve del primo giro
-  (`SwimTurns`, `swimTurns.ts`). Test con la fixture del contratto.
+  (`SwimTurns`, `turns.ts`). Test con la fixture del contratto.
 - **Approvati dall'utente** il 2026-10-30 («Sì, così», seconda domanda):
   i testi delle curve («TURNS», «Turn left · {place}», «{distance} from the
   start», «The same turns every lap, {laps} laps, then back to the
@@ -410,7 +458,7 @@ File toccati da C1:
 
 ```
 apps/mobile/src/swim/safetyNotice.ts, SwimNotice.tsx, SwimRouteNote.tsx,
-  swimTurns.ts, SwimTurns.tsx, safetyNotice.test.tsx, SwimTurns.test.tsx
+  turns.ts, SwimTurns.tsx, safetyNotice.test.tsx, SwimTurns.test.tsx
   (nuovi)
 apps/mobile/src/settings/sport.ts, sport.test.ts, SportSetting.test.tsx,
   SportButton.test.tsx, SportStoreBuild.test.tsx,
@@ -445,6 +493,12 @@ result»), i testi e le traduzioni («Yes, like this»).
   C4 («Explore» a nuoto: oggi con lo sport del nuoto mostrerebbe gli esempi
   della corsa). La corsa a nuoto (niente voce, passo per 100 m) è D.
 
+- **2026-11-04, dal Mac**: le righe del nuoto in Apple Salute («Nuoto»,
+  `HKWorkoutActivityType.swimming`, la distanza in «Distanza a nuoto») e in
+  Health Connect (`EXERCISE_TYPE_SWIMMING_OPEN_WATER`) approvate
+  dall'utente («Sì, così»); il via del Coordinatore sui due file di
+  TASK-321 (la parte C è ferma). Impronta iOS `6f8bba4c`, invariata.
+
 File toccati da C2:
 
 ```
@@ -459,6 +513,9 @@ apps/mobile/src/health/appleWorkout.ts, healthConnectWorkout.ts,
   appleHealth.test.ts (TASK-321, col sì dell'utente), swimWorkout.test.ts
   (nuovo)
 apps/mobile/src/social/PublicParts.tsx
+apps/mobile/src/search/searchFilters.ts (TASK-344, col via del Coordinatore:
+  il chip «Open water swim» nella ricerca del Feed, subito, scelta
+  dell'utente del 2026-11-04)
 apps/mobile/src/api/favorites.test.ts, src/favorites/favoriteRoute.test.ts
   (il nuoto non è più «un'attività che non c'è»)
 apps/mobile/src/i18n/de.ts, es.ts, fr.ts, it.ts
@@ -483,7 +540,7 @@ this»).
   risposta.
 - **Per accendere il nuoto** (`ready: true` in `sport.ts`, una riga): B,
   C1, C2 e C4 in `main`, poi col sì dell'utente il server (migrazione
-  0039), l'estratto dei nomi a riva e `draw_examples --swim`.
+  0040), l'estratto dei nomi a riva e `draw_examples --swim`.
 
 File toccati da C4:
 

@@ -1,6 +1,6 @@
 import type { FollowState } from "@shaperoute/shared-types";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { sessionEnded } from "../account/messages";
 import { askToFollow, followProblem, stopFollowing } from "../api/follows";
@@ -13,6 +13,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 
 type Props = {
   apiUrl: string;
@@ -82,40 +83,28 @@ export function FollowButton({
           {t("Stop following {name}?", { name: username })}
         </Text>
         <View style={styles.choices}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              styles.choice,
-              pressed && styles.pressed,
-            ]}
+          <Tap
+            style={[styles.button, styles.choice]}
             onPress={() => setConfirming(false)}
             accessibilityRole="button"
           >
             <Text style={styles.text}>{t("Keep it")}</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              styles.choice,
-              pressed && styles.pressed,
-            ]}
+          </Tap>
+          <Tap
+            style={[styles.button, styles.choice]}
             onPress={() => change("stop")}
             accessibilityRole="button"
           >
             <Text style={[styles.text, styles.stop]}>{t("Unfollow")}</Text>
-          </Pressable>
+          </Tap>
         </View>
       </View>
     );
   }
   return (
     <View style={styles.box}>
-      <Pressable
-        style={({ pressed }) => [
-          styles.button,
-          follow === "none" && styles.ask,
-          (pressed || busy) && styles.pressed,
-        ]}
+      <Tap
+        style={[styles.button, follow === "none" && styles.ask, busy && styles.dim]}
         onPress={() => {
           if (follow === "none") {
             change("follow");
@@ -139,7 +128,7 @@ export function FollowButton({
               ? t("Requested")
               : t("Following")}
         </Text>
-      </Pressable>
+      </Tap>
       {problem !== null && (
         <Text style={styles.problem} accessibilityRole="alert">
           {problem}
@@ -169,7 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.text,
     borderColor: color.text,
   },
-  pressed: {
+  dim: {
     opacity: 0.6,
   },
   text: {

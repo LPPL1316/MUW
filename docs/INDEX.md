@@ -54,8 +54,15 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | La scheda del Feed: titolo, data, estremi, barra azioni, conteggi, filtri | `tasks/TASK-355.md`, `DECISIONS.md` ADR-0306 e ADR-0293 |
 | Le schede del Feed «Tutti» e «Seguiti», il `filter` di `GET /feed`, la scheda ricordata | `tasks/TASK-362.md`, `DECISIONS.md` ADR-0308, `API.md` «Feed» |
 | I percorsi di MuW nel Feed: `GET /muw-routes`, `MuwPost`, l'etichetta, le bozze | `tasks/TASK-365.md`, `DECISIONS.md` ADR-0310, `API.md` «Feed» |
+| «RIDE IT YOURSELF» in «Explore»: i percorsi in bici di MuW, `bikeIdeas.json`, `tools/bike_ideas.py` | `tasks/TASK-364.md`, `DECISIONS.md` ADR-0309, `UI.md` «Pedalalo tu» |
 | La barra di schede in basso, l'header solo, Messages come scheda, l'ingranaggio del Profilo, la campanella | `tasks/TASK-367.md`, `DECISIONS.md` ADR-0311, `UI.md` |
 | I record personali nel Profilo, a piedi e in bici: il calcolo, la cache, chi li vede | `tasks/TASK-368.md`, `DECISIONS.md` ADR-0312, `API.md` «Profile» |
+| La camminata «Walk»: `walking` sulla rete foot, 1–30 km, il `<type>` del GPX, Apple Salute, il gioco | `tasks/TASK-371.md`, `DECISIONS.md` ADR-0315, `ROUTE_ENGINE.md` (le reti) |
+| Il mio corpo: dati del corpo, kcal di corsa/bici/paddle, zone del battito | `tasks/TASK-374.md`, `DECISIONS.md` ADR-0318 |
+| Lo sci alpino, «Ski»: piste e impianti, le tre opzioni, la giornata registrata | `tasks/TASK-373.md`, `DECISIONS.md` ADR-0317 e ADR-0278 |
+| Gli sport «Record only» senza forma: sci alpino e di fondo, `RECORD_ACTIVITIES`, le metriche della giornata, impianti e piste per nome | `tasks/TASK-375.md`, `DECISIONS.md` ADR-0319 e ADR-0317 |
+| «Edit the drawing» su ogni disegno: emoji, parole, percorsi a tema, corse libere e importate, sull'acqua; la copia senza legami | `tasks/TASK-369.md`, `DECISIONS.md` ADR-0313 e ADR-0299, `UI.md` «Edit the drawing: la figura sulla mappa» |
+| Aggiungere uno sport: il registro, il banco `tools/sport_bench/`, le zone fisse, le misure di ogni sport | `tasks/TASK-376.md`, `DECISIONS.md` ADR-0320, `sports/README.md`, `sports/COME-AGGIUNGERE.md`, `sports/CONDIVISO.md` |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti

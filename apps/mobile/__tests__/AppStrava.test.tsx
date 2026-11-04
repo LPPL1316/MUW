@@ -415,7 +415,7 @@ test("saved without a network, the run goes to the API and then to Strava at the
   await waitFor(() => expect(loadStravaOutbox()).toEqual([]));
   expect(loadOutbox()).toEqual([]);
   // Asked again with the list: nothing goes twice.
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: /^My activities/ }));
   await waitFor(() => expect(calls("GET", "/me/activities").length).toBeGreaterThan(1));
   expect(calls("PUT", `/me/activities/${KEY}`)).toHaveLength(1);
@@ -447,7 +447,7 @@ async function openStar(answers: Answers) {
     [`GET /me/activities/${STAR.id}`]: () => Response.json(activity),
   });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: /^My activities/ }));
   await fireEvent.press(
     await screen.findByRole("button", {
@@ -518,7 +518,7 @@ test("an access taken back on Strava brings «Connect with Strava» back", async
 
 async function openSettings() {
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: "Settings" }));
 }
 

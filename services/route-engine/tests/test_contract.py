@@ -11,12 +11,12 @@ from route_engine.models import (
     DISTANCE_LIMITS_M,
     MAX_DISTANCE_M,
     MIN_DISTANCE_M,
-    SUPPORTED_ACTIVITIES,
     RouteRequest,
     RouteResult,
 )
 from route_engine.pen_up import drawn_pieces, walks_problem
 from route_engine.shapes import SUPPORTED_SHAPES, in_pieces
+from route_engine.walking import API_ACTIVITIES, API_DISTANCE_LIMITS_M
 from route_engine.words import ALPHABET, LETTER_DISTANCE_M, MAX_WORD_LETTERS, STYLES
 
 REPO = Path(__file__).resolve().parents[3]
@@ -114,13 +114,14 @@ def test_shapes_activities_and_limits_match() -> None:
         "shapes": list(SUPPORTED_SHAPES),
         # The shapes that may be asked with the pen up (TASK-223).
         "pen_up_shapes": [name for name in SUPPORTED_SHAPES if in_pieces(name)],
-        "activities": list(SUPPORTED_ACTIVITIES),
+        # The API's: the engine's and the walk, drawn as a run (TASK-371).
+        "activities": list(API_ACTIVITIES),
         "min_distance_m": MIN_DISTANCE_M,
         "max_distance_m": MAX_DISTANCE_M,
         # Those of each activity of the contract (TASK-190).
         "distance_limits_m": {
-            activity: list(DISTANCE_LIMITS_M[activity])
-            for activity in SUPPORTED_ACTIVITIES
+            activity: list(API_DISTANCE_LIMITS_M[activity])
+            for activity in API_ACTIVITIES
         },
         "letters": sorted(ALPHABET),
         "max_word_letters": MAX_WORD_LETTERS,

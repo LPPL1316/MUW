@@ -796,9 +796,31 @@ dato dal Coordinatore):
   ogni ora (`message_media.MessageMedia.sweep`). Test in
   `test_message_media.py`.
 
-Migrazione `0042_swimming.sql` (TASK-323 parte B, ADR-0283; il numero è
-quello dopo l'ultima in `main` al 2026-11-03, la `0041`: la `0040` non c'è,
-e dopo la `0041` l'ordine resta lo stesso su ogni database):
+Migrazione `0042_run_bests.sql` (TASK-368 parte A, ADR-0312, `API.md`
+«Profile»; il numero è del Coordinatore, la `0040` era del nuoto):
+
+- `run_bests`: i record di ogni corsa, una riga per sport e distanza che la
+  corsa copre: `run_id` (`ON DELETE CASCADE`), `sport` (`running` o
+  `cycling`), `distance` (il nome: `5k`, `half`, `marathon`, `160k`),
+  `seconds` (`> 0`, in movimento). Chiave `(run_id, sport, distance)`.
+- **Per corsa, non per account**: ogni corsa tiene i suoi tempi per tutti e
+  due gli sport, qualunque fosse; il profilo prende il migliore fra le corse
+  dello sport che hanno adesso (`runs.activity`). Così cambiare lo sport di
+  una corsa pubblicandola non chiede di ricontare niente, e cancellarla
+  porta via i suoi tempi lasciando il migliore dopo.
+- Si scrivono nella transazione del salvataggio (`activities.save`), dal
+  calcolo fatto prima di aprirla. Le corse salvate prima della `0042` non ne
+  hanno finché non gira `python -m shaperoute_api.personal_bests_backfill`
+  (una volta, col sì dell'utente; ripetuto non cambia niente).
+- Nessun indice oltre la chiave: il profilo legge le corse di un account con
+  `runs_user_started_idx` e i loro tempi per chiave. Con 1000 corse e 14 000
+  righe la parte dei record costa circa 10 ms (TASK-368, PR). Test in
+  `test_personal_bests.py`.
+
+Migrazione `0040_swimming.sql` (TASK-323 parte B, ADR-0283; il numero è
+quello che il Coordinatore teneva per il nuoto dal 2026-10-30. Entra dopo la
+`0041`: il runner applica per nome quelle che mancano, quindi su ogni
+database finisce applicata una volta sola):
 
 - I vincoli dell'attività di `favorites` (`0010`), `runs` (`0014`) e
   `group_runs` (`0032`) prendono anche `'swimming'`: il nuoto in acque
@@ -808,6 +830,14 @@ e dopo la `0041` l'ordine resta lo stesso su ogni database):
 - `drawn_routes.activity` (`0026`) non ha un elenco, solo la lunghezza: non
   cambia. I giri e le curve di un nuoto stanno nel corpo del risultato
   (`RouteResult.laps`, `.turns`), dove già sta il resto del percorso.
+
+Migrazione `0043_walking.sql` (TASK-371 parte A, ADR-0315; numero del
+Coordinatore, la `0042` è di TASK-368 A):
+
+- Gli stessi tre vincoli (`favorites`, `runs`, `group_runs`) prendono anche
+  `'walking'`: una camminata si tiene col cuore, si salva e si propone come
+  corsa di gruppo come camminata, anche se il motore la disegna come una
+  corsa. Nessuna riga cambia.
 
 ## Come si memorizza una traccia
 

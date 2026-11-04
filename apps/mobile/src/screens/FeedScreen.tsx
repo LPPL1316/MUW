@@ -29,12 +29,12 @@ import { type FeedItem, feedWithAds } from "../feed/feedWithAds";
 import { type Feed, type FeedShown, useFeed } from "../feed/useFeed";
 import { t } from "../i18n";
 import { useDrawingsDoor } from "../social/drawingsDoor";
-import { FindFriendsButton } from "../social/FindFriendsButton";
 import { usePeopleDoor } from "../social/peopleDoor";
 import { color, font, fontSize, MIN_TAP_SIZE, radius, space } from "../theme/tokens";
 import { EmptyState } from "../ui/EmptyState";
 import { HEART } from "../ui/outlines";
 import { Tap } from "../ui/Tap";
+import { useScrollToTopOnReselect } from "../tabs/tabReselect";
 
 type Props = {
   /** An example drawing was tapped: its route goes on the map. */
@@ -81,8 +81,8 @@ function postsOf(tab: FeedFilter, shown: FeedShown): readonly Post[] {
  * its streets (TASK-162): a picture, taken by a map page that the list
  * covers. A tap on a member's drawing opens it whole on the map, with its
  * reactions and comments, as from a profile (TASK-117); one on an example
- * opens its route (TASK-188). Next to the tabs, at the right, the lens that
- * finds friends by name (TASK-215, TASK-219); above the drawings of «All»,
+ * opens its route (TASK-188). The search that was its lens is at the top
+ * of «Explore» since TASK-367 part B; above the drawings of «All»,
  * while the API has a contest, its card (TASK-299, docs/CONCORSI.md §7),
  * asked with the feed and with each pull. Between the drawings, one ad every
  * 5 (TASK-235, ADR-0198).
@@ -131,12 +131,12 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
     <View style={StyleSheet.absoluteFill}>
       <FeedMapShooter width={cardWidth} height={drawingHeight(cardWidth)} />
       <View style={[StyleSheet.absoluteFill, styles.screen]}>
-        <View style={[styles.bar, { paddingTop: insets.top + space.lg }]}>
-          {withTabs && <FeedTabs tab={tab} onChoose={onChoose} />}
-          <View style={styles.lens}>
-            <FindFriendsButton />
+        {/* The tabs, with an account (TASK-362). */}
+        {withTabs && (
+          <View style={[styles.bar, { paddingTop: insets.top + space.lg }]}>
+            <FeedTabs tab={tab} onChoose={onChoose} />
           </View>
-        </View>
+        )}
         <FeedList
           {...shared}
           tab="all"
@@ -265,9 +265,12 @@ function FeedList({
     },
     [see],
   );
+  // Its tab touched again: back to the newest drawings (TASK-367).
+  const scroll = useScrollToTopOnReselect<FlatList<Item>>();
   return (
     <View style={visible ? styles.list : styles.hidden}>
       <FlatList<Item>
+        ref={scroll}
         contentContainerStyle={[
           styles.content,
           { paddingBottom: insetBottom + space.xl },
@@ -352,10 +355,6 @@ const styles = StyleSheet.create({
     gap: space.md,
     paddingHorizontal: space.lg,
     paddingBottom: space.md,
-  },
-  // The lens at the right, under the button of «Profile».
-  lens: {
-    marginLeft: "auto",
   },
   list: {
     flex: 1,

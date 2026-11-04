@@ -1,0 +1,29 @@
+[
+  {
+    "sport": "running",
+    "distance": "5k",
+    "distance_m": 5000,
+    "seconds": 1394,
+    "started_at": "2026-10-18T07:12:40Z",
+    "drawing": null,
+    "key": null
+  },
+  {
+    "sport": "running",
+    "distance": "half",
+    "distance_m": 21097.5,
+    "seconds": 6618,
+    "started_at": "2026-09-27T06:30:05Z",
+    "drawing": "3f2b9c1e-7a4d-4e58-b0c6-91d2e8a7f450",
+    "key": null
+  },
+  {
+    "sport": "cycling",
+    "distance": "40k",
+    "distance_m": 40000,
+    "seconds": 4710,
+    "started_at": "2026-10-04T13:02:11Z",
+    "drawing": null,
+    "key": null
+  }
+]

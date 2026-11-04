@@ -1,6 +1,6 @@
 # TASK-368 — I record personali nel Profilo, a piedi e in bici
 
-**Stato**: Todo — documenti ora, codice col via del Coordinatore dopo TASK-367 A
+**Stato**: Done — parte A #721, parte B #723 (2026-11-04); il backfill sul server lo lancia l'utente; privacy sul sito e OTA col suo sì
 **Fase**: 4 · **Branch**: `docs/TASK-368-personal-bests` (documenti),
 `feat/TASK-368-a-personal-bests-api` (parte A), `feat/TASK-368-b-personal-bests-app`
 (parte B) · **ADR**: ADR-0312 · numeri dal Coordinatore (2026-11-02)
@@ -81,6 +81,14 @@ Una alla volta, con le sue parole.
    dell'utente.
    — *Risposta:* «Sì, approvo».
 
+10. **I testi nuovi del Profilo** (parte B): il titolo «Record personali»
+    (en «Personal bests», de «Persönliche Bestzeiten», es «Mejores marcas», fr
+    «Records personnels»), «Mezza maratona» («Half marathon», «Halbmarathon»,
+    «Media maratón», «Semi-marathon»), «Maratona» («Marathon», «Marathon»,
+    «Maratón», «Marathon»). I gruppi riusano «Corsa» e «Bici»; a piedi i nomi
+    delle gare (5K, 10K…), in bici sempre i chilometri («40 km»).
+    — *Risposta:* «Sì, approvo» (2026-11-04).
+
 ## Cosa fare
 
 Il codice parte col via del Coordinatore, dopo TASK-367 A: l'app tocca il
@@ -147,19 +155,24 @@ docs/STATUS.md
 docs/INDEX.md
 ```
 
-Parte A:
+Parte A (lista aggiornata il 2026-11-04 con il codice):
 
 ```
-services/api/shaperoute_api/personal_bests.py              (nuovo)
+services/api/shaperoute_api/personal_bests.py              (nuovo: il calcolo)
+services/api/shaperoute_api/profile_bests.py               (nuovo: la lettura del profilo)
+services/api/shaperoute_api/personal_bests_backfill.py     (nuovo: lo script una tantum)
 services/api/shaperoute_api/activities.py
 services/api/shaperoute_api/profiles.py
-services/api/shaperoute_api/imports*.py                    (se l'importazione passa da lì)
-services/api/migrations/NNNN_personal_bests.sql            (nuovo, numero al merge)
-services/api/scripts/fill_personal_bests.py                (nuovo)
-services/api/tests/test_personal_bests*.py                 (nuovi)
-packages/shared-types/src/index.ts, fixtures/profile*.json
-docs/API.md, docs/DATABASE.md, docs/STATUS.md, docs/tasks/TASK-368.md
+services/api/migrations/0042_run_bests.sql                 (nuovo)
+services/api/tests/test_personal_bests.py                  (nuovo)
+services/api/tests/test_profiles.py                        (il corpo esatto del profilo)
+packages/shared-types/src/index.ts, test/accounts.test.ts
+packages/shared-types/fixtures/public-profile.json, personal-bests.json (nuovo)
+docs/API.md, docs/DATABASE.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-368.md
 ```
+
+L'importazione passa da `PUT /me/activities/{key}` come ogni corsa: nessun
+`imports*.py`. Lo script è un modulo come `game_backfill`, non in `scripts/`.
 
 Parte B:
 
@@ -167,6 +180,7 @@ Parte B:
 apps/mobile/src/profile/PersonalBests.tsx, .test.tsx       (nuovi)
 apps/mobile/src/profile/ProfileHome.tsx
 apps/mobile/src/profile/UserProfilePage.tsx
+apps/mobile/src/activities/activitiesDoor.ts               (open legge solo l'id)
 apps/mobile/src/i18n/*.ts
 apps/mobile/src/about/content/*.ts
 site/privacy/**, site/tests/privacy.test.mjs
@@ -182,4 +196,16 @@ docs/UI.md, docs/STATUS.md, docs/tasks/TASK-368.md
 
 ## Esito
 
-*(a fine task)*
+**Parte A** (2026-11-04): calcolo, tabella `run_bests` (migrazione 0042),
+`personal_bests` in `GET /users/{public_id}`, script una tantum. Tempi: meno
+di 10 ms per corsa anche a 25 000 punti; la lettura del profilo circa 10 ms a
+1000 corse (`out/TASK-368/bench.txt` e la PR). Server, migrazione e script
+col sì dell'utente; la parte B (il Profilo nell'app) dopo.
+
+**Parte B** (2026-11-04): `profile/PersonalBests.tsx` sotto i totali, nel
+proprio Profilo e in quello degli altri; il tocco apre la corsa (il disegno
+per chi può vederlo, «My activities» per il proprietario). Testi approvati
+(scelta 10), Guida e privacy nelle cinque lingue, copia del sito rifatta con
+`site/tools/make_privacy.mjs` (la pubblicazione col sì dell'utente).
+Simulatore con dati di prova, scuro e chiaro: `docs/tasks/TASK-368/`. I
+record si vedono davvero solo dopo il server con la 0042 e il backfill.
