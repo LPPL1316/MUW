@@ -1,6 +1,14 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   AccessibilityInfo,
+  Animated,
   BackHandler,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -108,6 +116,20 @@ export function TabShell({ pages, page, onPage, action }: Props) {
   // Where the scroll starts: one object, or each render would move it.
   const [start] = useState(() => ({ x: STRIP_START * width, y: 0 }));
   const around = pagesAround(now, count);
+  // How far a finger has slid the strip from the app's page, in pages: the
+  // bar's capsule follows it (TASK-388). The app's page keeps its place all
+  // through a swipe, and moves only in the commit that brings a new page,
+  // after the bar has taken it: the capsule never shows a frame behind.
+  const [scrollX] = useState(() => new Animated.Value(start.x));
+  const [restX] = useState(() => new Animated.Value(start.x));
+  const restPlace = around.get(page) ?? now.place;
+  useLayoutEffect(() => {
+    restX.setValue(restPlace * width);
+  }, [restX, restPlace, width]);
+  const drag = useMemo(
+    () => Animated.divide(Animated.subtract(scrollX, restX), width),
+    [scrollX, restX, width],
+  );
   // By title, not by place, as the pager kept them.
   const [seen, setSeen] = useState<readonly string[]>(() =>
     pages.flatMap((each, index) => (each.lazy && index !== page ? [] : [each.title])),
@@ -231,6 +253,19 @@ export function TabShell({ pages, page, onPage, action }: Props) {
     }
   }
 
+  // The strip's offset goes to `scrollX` on the native driver; `onScroll`
+  // hears every event as before, through the last render's handler.
+  const hear = useRef(onScroll);
+  useLayoutEffect(() => {
+    hear.current = onScroll;
+  });
+  const [onStripScroll] = useState(() =>
+    Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
+      useNativeDriver: true,
+      listener: (event: NativeSyntheticEvent<NativeScrollEvent>) => hear.current(event),
+    }),
+  );
+
   function onLayout() {
     // Android may not start where `contentOffset` says.
     scroller.current?.scrollTo({ x: standsOn.current * width, y: 0, animated: false });
@@ -240,7 +275,7 @@ export function TabShell({ pages, page, onPage, action }: Props) {
     <View style={[StyleSheet.absoluteFill, styles.shell]}>
       <AppHeader action={action} />
       <Hairline />
-      <ScrollView
+      <Animated.ScrollView
         ref={scroller}
         testID="tab-pages"
         style={styles.pages}
@@ -259,7 +294,7 @@ export function TabShell({ pages, page, onPage, action }: Props) {
         contentOffset={start}
         onLayout={onLayout}
         scrollEventThrottle={16}
-        onScroll={onScroll}
+        onScroll={onStripScroll}
         onMomentumScrollEnd={onMomentumEnd}
         onScrollEndDrag={onDragEnd}
       >
@@ -295,8 +330,8 @@ export function TabShell({ pages, page, onPage, action }: Props) {
             );
           })}
         </SafeAreaInsetsContext.Provider>
-      </ScrollView>
-      <TabBar tabs={pages} page={page} onTab={onTab} />
+      </Animated.ScrollView>
+      <TabBar tabs={pages} page={page} onTab={onTab} drag={drag} />
     </View>
   );
 }
