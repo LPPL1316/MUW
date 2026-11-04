@@ -1126,7 +1126,19 @@ mappa è quella di prima.
   «Draw», «Start» ed «Explore» (sotto, «Sull'acqua»), e dal TASK-251 i
   numeri della schermata della corsa (sotto, «Velocità e andatura»);
   «Feed» resta quello della corsa. I quattro disegni sull'acqua di
-  «Feed» (TASK-228, sopra) ci sono con ogni sport.
+  «Feed» (TASK-228, sopra) ci sono con ogni sport. **«Walk»** (🚶,
+  TASK-371, ADR-0315; it «Camminata», de «Gehen», fr «Marche», es
+  «Caminata») viene dopo il nuoto e dice «Soon» finché il server non ha la
+  parte A con la migrazione 0043. Poi si sceglie, e cambia poco: una corsa
+  sulla stessa rete a piedi, 1–30 km (in miglia 1–18). Sotto la distanza il
+  tempo è calcolato sul ritmo delle proprie camminate (fra 6:00 e 25:00 al
+  km), oppure su 12:00 al km se non ce ne sono. La schermata e la voce danno
+  il ritmo in min/km, come per la corsa. Il pulsante dice «🚶 Walk without a
+  route». In «Feed» la scheda comincia con «Walk ·». Il modulo per
+  pubblicare e i filtri della ricerca offrono «Walk» solo quando lo sport è
+  pronto. Apple Salute e Health Connect la ricevono
+  come camminata, con le calorie della camminata. «NEAR YOU» resta solo per
+  la corsa (scelta dell'utente).
 - **«Strava»** (TASK-187), solo se l'API ha Strava: «Connect with
   Strava» (il pulsante ufficiale di Strava, TASK-218, come a fine corsa)
   con «Send the runs you save in Sgrava to your Strava

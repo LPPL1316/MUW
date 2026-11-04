@@ -825,6 +825,7 @@ export const IT: Table = {
   // src/settings/sport.ts
   "Ride without a route": "Pedala senza percorso",
   "Paddle without a route": "Pagaia senza percorso",
+  "Walk without a route": "Cammina senza percorso",
   "Run without a route": "Corri senza percorso",
 
   // src/share/PostImage.tsx
@@ -1107,6 +1108,7 @@ export const IT: Table = {
     "Salvata sul telefono. Gli altri la vedono quando torni online.",
   Bike: "Bici",
   Paddle: "Pagaia",
+  Walk: "Camminata",
   Title: "Titolo",
   "Give it a name": "Dalle un nome",
   "How did it go?": "Com'è andata?",

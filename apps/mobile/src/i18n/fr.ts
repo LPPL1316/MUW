@@ -828,6 +828,7 @@ export const FR: Table = {
   // src/settings/sport.ts
   "Ride without a route": "Rouler sans parcours",
   "Paddle without a route": "Pagayer sans parcours",
+  "Walk without a route": "Marcher sans parcours",
   "Run without a route": "Courir sans parcours",
 
   // src/share/PostImage.tsx
@@ -1111,6 +1112,7 @@ export const FR: Table = {
     "Enregistrée sur le téléphone. Les autres la voient quand tu seras de nouveau en ligne.",
   Bike: "Vélo",
   Paddle: "Pagaie",
+  Walk: "Marche",
   Title: "Titre",
   "Give it a name": "Donne-lui un nom",
   "How did it go?": "Comment ça s'est passé ?",

@@ -1,8 +1,4 @@
-import {
-  ACTIVITIES,
-  DRAWING_COMPLEXITIES,
-  DRAWING_SORTS,
-} from "@shaperoute/shared-types";
+import { DRAWING_COMPLEXITIES, DRAWING_SORTS } from "@shaperoute/shared-types";
 import { useState } from "react";
 import {
   Modal,
@@ -35,6 +31,7 @@ import {
   DISTANCE_BANDS,
   type DistanceBand,
   NO_FILTERS,
+  SEARCH_ACTIVITIES,
   type SearchFilters,
   SORT_LABELS,
   toggled,
@@ -119,7 +116,7 @@ function SheetBody({ filters, onApply, onClose }: Omit<Props, "visible">) {
             ))}
           </Section>
           <Section title={t("Sport")}>
-            {ACTIVITIES.map((activity) => (
+            {SEARCH_ACTIVITIES.map((activity) => (
               <FilterChip
                 key={activity}
                 label={t(ACTIVITY_LABELS[activity])}

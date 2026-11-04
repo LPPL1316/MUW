@@ -203,6 +203,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `route_engine/walking.py`, fuori dall'impronta del motore (invariata);
   `<type>walking</type>` nel GPX solo della camminata, Strava «Walk»,
   migrazione `0043_walking`. Server e migrazione col sì dell'utente.
+  **Parte A in main** (#741, f5897cf7). **Parte B** (2026-11-04, branch
+  `feat/TASK-371-b-walk-app`): «Walk» 🚶 nell'app, «Soon» finché il server
+  non ha A e 0043. Distanze 1–30 km, tempo previsto sul ritmo delle
+  camminate (12:00 al km di base), calorie ACSM, Apple Salute `.walking`,
+  Health Connect `WALKING`, zone a piedi del telefono, importazione, Feed,
+  modulo per pubblicare, filtri. Testi approvati dall'utente; NEAR YOU solo
+  per la corsa.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**

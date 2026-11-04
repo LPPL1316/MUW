@@ -34,8 +34,10 @@ export const MIN_DISTANCE_KM = MIN_DISTANCE_M / 1000;
  * limits, 10–30 km (TASK-190, the user's choice). Outside the bike zones
  * downloaded ahead a bike route downloads 23–26 km of map, and may take
  * longer than the 5 minutes the app waits (ADR-0153). Paddling its contract
- * limits too, 1–5 km (TASK-191, the user's choice), and a swim its own,
- * 0.5–3 km, by half a km (TASK-323 C2).
+ * limits too, 1–5 km (TASK-191, the user's choice), a swim its own,
+ * 0.5–3 km, by half a km (TASK-323 C2), and a walk its contract limits,
+ * 1–30 km (TASK-371, the user's choice): past 21 km the foot zone may take
+ * longer to download, as for a run, and the panel warns from 15 km.
  */
 export const APP_DISTANCE_LIMITS_KM: Readonly<
   Record<Activity, readonly [lowest: number, highest: number]>
@@ -50,6 +52,7 @@ export const APP_DISTANCE_LIMITS_KM: Readonly<
     DISTANCE_LIMITS_M.swimming[0] / 1000,
     DISTANCE_LIMITS_M.swimming[1] / 1000,
   ],
+  walking: [DISTANCE_LIMITS_M.walking[0] / 1000, DISTANCE_LIMITS_M.walking[1] / 1000],
 };
 
 /** Above this the panel warns that the route takes longer (ADR-0034). */
@@ -59,13 +62,15 @@ export const LONG_DISTANCE_KM = 15;
  * The same in whole miles, with «Miles» (TASK-182 part B, the user's choice
  * of 2026-10-05): the whole miles inside the limits in km, so a run goes
  * from 1 to 13 mi, a bike route from 7 to 18, paddling from 1 to 3. A swim
- * by half a mile, 0.5 to 1.5 (0.8 to 2.4 km: 2 mi are past the 3 km).
+ * by half a mile, 0.5 to 1.5 (0.8 to 2.4 km: 2 mi are past the 3 km). A
+ * walk from 1 to 18.
  */
 export const APP_DISTANCE_LIMITS_MI: Readonly<Record<Activity, Limits>> = {
   running: milesWithin("running"),
   cycling: milesWithin("cycling"),
   paddling: milesWithin("paddling"),
   swimming: [0.5, 1.5],
+  walking: milesWithin("walking"),
 };
 
 function milesWithin(activity: Activity): Limits {

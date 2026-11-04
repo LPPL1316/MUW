@@ -10,6 +10,9 @@ import type { Units } from "../units/units";
 
 /** The pace assumed with no runs saved: 6:00 a km, in seconds. */
 export const USUAL_PACE_S_PER_KM = 360;
+/** The pace assumed with no walks saved: 12:00 a km (TASK-371, the user's
+ * choice). */
+export const USUAL_WALK_S_PER_KM = 720;
 
 /** Runs shorter than this say little about a pace. */
 const SHORTEST_RUN_M = 1000;
@@ -19,16 +22,48 @@ const RUNS_COUNTED = 10;
 const SLOWEST_S_PER_KM = 900;
 /** Faster than 2:30 a km is a ride saved as a run. */
 const FASTEST_S_PER_KM = 150;
+/** A walk between 6:00 and 25:00 a km: faster is a run, slower a walk left
+ * recording. */
+const FASTEST_WALK_S_PER_KM = 360;
+const SLOWEST_WALK_S_PER_KM = 1500;
 
-/** A pace in seconds a km, and whether it is the runner's or the usual one. */
-export type Pace = { sPerKm: number; own: boolean };
+/** A pace in seconds a km, and whether it is the runner's or the usual one;
+ * with the walker's too (TASK-371), for the time under the distance of a
+ * walk. */
+export type Pace = { sPerKm: number; own: boolean; walking?: Pace };
+
+/** The kinds of outing on foot a pace is read from. */
+type OnFoot = "running" | "walking";
+
+const BOUNDS: Readonly<
+  Record<OnFoot, { fastest: number; slowest: number; usual: number }>
+> = {
+  running: {
+    fastest: FASTEST_S_PER_KM,
+    slowest: SLOWEST_S_PER_KM,
+    usual: USUAL_PACE_S_PER_KM,
+  },
+  walking: {
+    fastest: FASTEST_WALK_S_PER_KM,
+    slowest: SLOWEST_WALK_S_PER_KM,
+    usual: USUAL_WALK_S_PER_KM,
+  },
+};
 
 /**
  * The runner's pace: all the metres over all the seconds of the last
  * runs on foot, each between 1 km and 2:30–15:00 a km. Imported activities
- * count: they are runs too. The usual pace when no run qualifies.
+ * count: they are runs too. The usual pace when no run qualifies. Beside
+ * it the walker's, from the walks between 6:00 and 25:00 a km, 12:00 a km
+ * before there is any (TASK-371).
  */
 export function averagePace(runs: readonly SavedRun[]): Pace {
+  return { ...paceOf(runs, "running"), walking: paceOf(runs, "walking") };
+}
+
+/** The pace of the last outings of `kind`, as averagePace says it. */
+function paceOf(runs: readonly SavedRun[], kind: OnFoot): Pace {
+  const { fastest, slowest, usual } = BOUNDS[kind];
   let metres = 0;
   let seconds = 0;
   let counted = 0;
@@ -36,11 +71,11 @@ export function averagePace(runs: readonly SavedRun[]): Pace {
     if (counted === RUNS_COUNTED) {
       break;
     }
-    if ((run.activity ?? "running") !== "running" || run.distance_m < SHORTEST_RUN_M) {
+    if ((run.activity ?? "running") !== kind || run.distance_m < SHORTEST_RUN_M) {
       continue;
     }
     const sPerKm = run.duration_s / (run.distance_m / 1000);
-    if (sPerKm < FASTEST_S_PER_KM || sPerKm > SLOWEST_S_PER_KM) {
+    if (sPerKm < fastest || sPerKm > slowest) {
       continue;
     }
     metres += run.distance_m;
@@ -48,7 +83,7 @@ export function averagePace(runs: readonly SavedRun[]): Pace {
     counted += 1;
   }
   return counted === 0
-    ? { sPerKm: USUAL_PACE_S_PER_KM, own: false }
+    ? { sPerKm: usual, own: false }
     : { sPerKm: Math.round(seconds / (metres / 1000)), own: true };
 }
 

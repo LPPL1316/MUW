@@ -76,6 +76,8 @@ const BIKE = SPORTS.find((sport) => sport.id === "bike")?.name ?? tLater("Bike")
 // Its row is «Soon» in a store build until the app swims (TASK-323 D).
 const SWIM =
   SPORTS.find((sport) => sport.id === "swim")?.name ?? tLater("Open water swim");
+// «Soon» too, in a store build, until the server walks (TASK-371).
+const WALK = SPORTS.find((sport) => sport.id === "walk")?.name ?? tLater("Walk");
 
 function sameWords(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -119,7 +121,9 @@ export function postFacts(post: SamplePost): string {
         ? BIKE
         : post.activity === "swimming"
           ? SWIM
-          : null;
+          : post.activity === "walking"
+            ? WALK
+            : null;
   const withSport = sport === null ? facts : `${t(sport)} · ${facts}`;
   return isImportedPost(post) ? `${t("Imported")} · ${withSport}` : withSport;
 }
