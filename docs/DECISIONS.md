@@ -20869,3 +20869,40 @@ strumento e una PR; togliere la nota quando qualcuno li avrà pedalati è una
 scelta dell'utente.
 
 ---
+
+## ADR-0297, aggiunta — La schermata della ricerca (TASK-344 parte B)
+
+**Stato**: Attiva · 2026-11-04 · TASK-344 parte B. Deciso dall'agente su
+delega dell'utente, dentro le sei scelte approvate il 2026-10-29.
+
+**Decisione**:
+
+1. **La ricerca è un `Modal` aperto dalla lente** (`FindFriendsButton`),
+   non una pagina di `ProfileLayer`: così `ProfileLayer.tsx` non cambia.
+   Per aprire un esempio come percorso la lente riceve da `FeedScreen` il
+   suo `onOpen`, una riga. Toccato un risultato, la ricerca si chiude
+   prima di aprire il disegno, il percorso o il profilo.
+2. **«Find friends» resta**, raggiungibile da «Find people to follow»;
+   la scheda «People» della ricerca usa la stessa API (`findPeople`) e,
+   senza account, porta alla quarta pagina come prima la lente.
+3. **«Words» è `shape=word`** sul server: una corsa con una parola e
+   senza forma. Le altre quattro categorie sono elenchi di forme del
+   catalogo, decisi nell'app (`categories.ts`); ogni forma sta in una
+   sola.
+4. **Gli esempi senza campi nuovi**: categoria dalla forma, posto dal
+   nome della città, complessità dalla linea con la stessa formula del
+   server (`drawingMatch.complexityOf`), popolarità dal punteggio;
+   «Most recent» tiene l'ordine del Feed. `sampleFeed.json` non cambia.
+5. **«Routes» sono gli esempi** (si aprono come percorso); «Drawings» i
+   disegni dei membri e poi gli esempi; «All» anche i primi tre membri.
+6. **Gli stati si ricavano**, non si impostano negli effetti: ogni
+   risposta porta la chiave della ricerca a cui risponde, e una ricerca
+   nuova mostra «loading» finché non arriva la sua (regola
+   `react-hooks/set-state-in-effect`).
+7. **Le animazioni dentro i `Modal` girano in JS** (`useNativeDriver:
+   false`), come `SuperLikeSheet`: col driver nativo, su iOS con la nuova
+   architettura, dentro un `Modal` non si muove niente.
+
+**Conseguenze**: il server va aggiornato (solo `shape=word`, nessuna
+migrazione) prima dell'OTA, col sì dell'utente. Impronta iOS invariata:
+nessun file nativo, nessuna dipendenza.

@@ -1,6 +1,7 @@
 # TASK-344 — Cercare i disegni dalla lente del Feed
 
-**Stato**: In corso — documenti, poi parte A (server), poi B (app)
+**Stato**: In corso — documenti (#653) e A (#659) in `main`; B (app)
+in PR, testi da approvare
 **Fase**: 4 · **Branch**: `feat/TASK-344-a-drawing-search` (A),
 `feat/TASK-344-b-search-screen` (B) · **ADR**: ADR-0297 · numeri dal
 coordinatore (2026-10-29)
@@ -78,17 +79,29 @@ Condizioni del coordinatore (2026-10-29):
 
 ### Parte B — l'app
 
-1. Cartella nuova `src/search/`: `SearchScreen`, `searchDoor`,
-   `SearchBar`, `FilterChip`, `FilterButton`, `FilterSheet`,
+1. Cartella nuova `src/search/`: `SearchScreen` (un `Modal` sopra tutta
+   l'app), `SearchBar`, `FilterChip`, `FilterButton`, `FilterSheet`,
    `StartState`, `ResultsGrid`, `DrawingResultCard`, `SkeletonCard`,
-   `EmptyResults`, `useDrawingSearch` (attesa di 300 ms), `drawingMatch`
-   (gli esempi, con le stesse regole del server), `searchFilters`,
-   `recentSearches` (con `keptList`), `categories`; `api/searchDrawings.ts`.
-2. La lente (`FindFriendsButton.tsx`, `ProfileLayer.tsx`) apre la ricerca.
-3. Gli esempi (`tools/sample_feed.py`, `sampleFeed.json`): categoria e
-   paese.
-4. Testi in inglese, italiano, tedesco, spagnolo e francese in
-   `src/i18n/*.ts` (mai in `locales/`): vanno approvati dall'utente.
+   `EmptyResults`, `Glyphs` (lente, cursori, croce, disegnati con le
+   View), `useDrawingSearch` (attesa di 300 ms), `drawingMatch` (gli
+   esempi, con le stesse regole del server), `searchFilters`,
+   `recentSearches` (con `keptList`), `categories`;
+   `api/searchDrawings.ts`. Fatto.
+2. La lente (`FindFriendsButton.tsx`) apre la ricerca; `FeedScreen.tsx`
+   le passa `onOpen`, una riga, per aprire un esempio come percorso.
+   `ProfileLayer.tsx` non cambia: un membro si apre con
+   `useFollowsDoor().openProfile`, un disegno con
+   `useDrawingsDoor().open`, e «Find friends» resta raggiungibile da
+   «Find people to follow». Fatto.
+3. Gli esempi non hanno campi nuovi: categoria dalla forma
+   (`categories.ts`), posto dal nome della città (`cityName`),
+   complessità dalla linea, popolarità dal punteggio. `sampleFeed.json`
+   e `tools/sample_feed.py` non cambiano. Fatto.
+4. Server: `shape=word` per la categoria «Words» (una corsa con una
+   parola e senza forma), in `drawing_search.py`, con il suo test. Va sul
+   server col sì dell'utente, **prima** dell'OTA.
+5. 28 testi nuovi in inglese, italiano, tedesco, spagnolo e francese in
+   `src/i18n/*.ts` (mai in `locales/`): **da approvare dall'utente**.
 
 ## Criteri di accettazione
 
@@ -137,7 +150,27 @@ di partenza, «meno di 300 ms», vale per le ricerche che si fermano presto
 
 ### Parte B
 
-- [ ] *(da scrivere quando parte: testi, schermate, prove)*
+- [x] La lente apre la ricerca con la tastiera già aperta; «Cancel» la
+      chiude (`FindFriendsButton.test.tsx`, `FeedScreen.test.tsx`).
+- [x] Prima di scrivere: ricerche recenti eliminabili, le cinque
+      categorie, «Featured drawings» (`SearchScreen.test.tsx`).
+- [x] Una richiesta 300 ms dopo l'ultima lettera, non una per lettera;
+      intanto le schede grigie; la pagina dopo una volta sola
+      (`useDrawingSearch.test.tsx`).
+- [x] Gli esempi si trovano sul telefono con le regole del server:
+      accenti, forme nominate nella lingua dell'app, filtri, ordini,
+      complessità (`drawingMatch.test.ts`).
+- [x] I filtri aspettano «Apply», il badge conta i filtri accesi,
+      «Reset» li spegne (`SearchScreen.test.tsx`, `searchFilters.test.ts`).
+- [x] Niente trovato: la lente disegnata, «No drawings found» e il
+      suggerimento (`SearchScreen.test.tsx`).
+- [x] Con un account i disegni dei membri prima degli esempi, e uno
+      toccato si apre sulla mappa; un esempio come percorso; un membro col
+      suo profilo. Senza account, o con un server precedente, solo gli
+      esempi (`SearchScreen.test.tsx`, `useDrawingSearch.test.tsx`).
+- [x] `shape=word` trova le parole disegnate (`test_drawing_search.py`).
+- [ ] I testi nuovi approvati dall'utente.
+- [ ] Prova sul simulatore o sull'iPhone (preview).
 
 ## File toccati
 
@@ -152,12 +185,17 @@ services/api/tests/test_drawing_search.py
 packages/shared-types/src/index.ts
 ```
 
-Parte B, in più: `apps/mobile/src/search/*` (nuovi),
-`apps/mobile/src/api/searchDrawings.ts` (nuovo),
-`apps/mobile/src/social/FindFriendsButton.tsx`,
-`apps/mobile/src/screens/ProfileLayer.tsx`,
-`apps/mobile/src/feed/sampleFeed.json`, `tools/sample_feed.py`,
-`apps/mobile/src/i18n/{it,de,es,fr}.ts`, `docs/UI.md`.
+Parte B, in più: `apps/mobile/src/search/*` (nuovi, con i test),
+`apps/mobile/src/api/searchDrawings.ts` e il suo test (nuovi),
+`apps/mobile/src/social/FindFriendsButton.tsx` e il suo test,
+`apps/mobile/src/social/FindFriendsFlow.test.tsx`,
+`apps/mobile/src/screens/FeedScreen.tsx` (una riga) e il suo test,
+`apps/mobile/src/screens/ProfileLayer.test.tsx`,
+`apps/mobile/src/i18n/{it,de,es,fr}.ts`,
+`services/api/shaperoute_api/drawing_search.py`,
+`services/api/tests/test_drawing_search.py`, `docs/UI.md`, `docs/API.md`,
+`docs/DECISIONS.md`, `docs/STATUS.md`, questo file. Non più
+`ProfileLayer.tsx`, `sampleFeed.json` né `tools/sample_feed.py`.
 
 ## Fuori scope
 
