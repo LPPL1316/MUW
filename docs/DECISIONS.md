@@ -22007,6 +22007,9 @@ limite della zona 5, che non si scrive, resta senza riquadro, ma il numero e
 che manca). Scartati: un riquadro anche sulla zona 5, che sembrerebbe da
 scrivere, e per ora un componente comune con `NumberInput` di «Body», che è di
 TASK-383 finché #759 non è in `main`.
+
+---
+
 ## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
 
 **Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
