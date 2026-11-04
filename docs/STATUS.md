@@ -168,6 +168,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
   **Proposta approvata dall'utente il 2026-11-04** («Sì, approvo»); prossimo: i testi in cinque
   lingue e i nuovi Termini e Privacy, poi la parte A.
+- **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
+  proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
+  Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
+  (documenti), poi `feat/TASK-379-tab-swipe` (`TabShell`, solo app, nessuna
+  dipendenza nuova). Prossimo passo: le tre scelte dell'utente, una alla
+  volta, poi la lista dei file al Coordinatore. `tasks/TASK-379.md`.
+  **Scelte fatte** (2026-11-04): la pagina segue il dito, giro continuo dal
+  profilo al Feed, su tutte e cinque le schede. Documenti nella #757.
 
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
