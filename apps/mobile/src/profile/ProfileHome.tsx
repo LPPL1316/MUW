@@ -1,6 +1,6 @@
 import type { User } from "@shaperoute/shared-types";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import {
@@ -12,17 +12,21 @@ import {
   space,
 } from "../theme/tokens";
 import { tourTexts } from "../tour/tourTexts";
-import { MessagesRow } from "../messages/MessagesRow";
 import { BlockedPeople } from "../social/BlockedPeople";
 import { useBlocksVersion } from "../social/blockedNow";
 import { FollowLists } from "../social/FollowLists";
 import { useFollowsDoor } from "../social/followsDoor";
+import { TAB_ICON_SIZE } from "../tabs/TabBar";
+import { Tap } from "../ui/Tap";
 import { photoBusyText, PhotoChoices } from "./PhotoChoices";
 import { ProfileGallery } from "./ProfileGallery";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileStats, totalsOf, useOwnProfile } from "./ProfileStats";
 import { bioOf } from "./profileFields";
 import { useProfilePhoto } from "./useProfilePhoto";
+
+/** The gear of «Settings», from Lucide as the tab bar's icons (TASK-367). */
+const GEAR = require("../../assets/ui/tabs/settings.png");
 
 /** What «Profile» opens from its first page. */
 export type ProfileSection = "favorites" | "activities" | "settings";
@@ -51,13 +55,13 @@ type Props = {
  * The first page of «Profile» with an account (TASK-177): who it is, with
  * the bio and «Edit profile» (TASK-116), who asks to follow it, who does
  * and whom it follows (TASK-211), what it keeps in two tiles with their
- * number, the way to «Settings», and the drawings it made public
+ * number, the way to «Settings» (its gear at the top right since
+ * TASK-367), and the drawings it made public
  * (TASK-117), as the others see them. A tap on the circle opens the ways
  * to change the picture under it, as the row of «Settings» (TASK-207).
- * Under «Settings», «Guide» (TASK-266), then «Blocked people», to unblock
- * (TASK-121); after a block the lists of who follows are read again: a
- * block ends every follow. Over «Settings», «Messages» (TASK-319), with
- * the number of what waits for an answer. Its totals under «Edit profile»,
+ * «Guide» (TASK-266), then «Blocked people», to unblock (TASK-121); after
+ * a block the lists of who follows are read again: a block ends every
+ * follow. «Messages» is a tab of its own (TASK-367). Its totals under «Edit profile»,
  * and its drawings and photos at the bottom, as the others see them
  * (TASK-324).
  */
@@ -80,6 +84,16 @@ export function ProfileHome({
   const busyText = photoBusyText(photo.busy);
   return (
     <View style={styles.home}>
+      {/* «Settings» at the top right, as Instagram's (TASK-367, ADR-0311). */}
+      <Tap
+        style={styles.gear}
+        onPress={() => onOpen("settings")}
+        accessibilityRole="button"
+        accessibilityLabel={t("Settings")}
+        hitSlop={space.xs}
+      >
+        <Image source={GEAR} style={styles.gearIcon} />
+      </Tap>
       <View style={styles.top}>
         <ProfileHeader
           username={user.username}
@@ -130,12 +144,6 @@ export function ProfileHome({
           onPress={() => onOpen("activities")}
         />
       </View>
-      <MessagesRow />
-      <SectionRow
-        emoji={SECTION_EMOJI.settings}
-        name={t("Settings")}
-        onPress={() => onOpen("settings")}
-      />
       {onGuide && <SectionRow emoji="❓" name={tourTexts().guide} onPress={onGuide} />}
       <BlockedPeople />
       <ProfileGallery
@@ -210,6 +218,21 @@ function SectionRow({
 }
 
 const styles = StyleSheet.create({
+  gear: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    zIndex: 1,
+    width: MIN_TAP_SIZE,
+    height: MIN_TAP_SIZE,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  gearIcon: {
+    width: TAB_ICON_SIZE,
+    height: TAB_ICON_SIZE,
+    tintColor: color.text,
+  },
   home: {
     gap: space.lg,
   },

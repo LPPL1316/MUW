@@ -20786,6 +20786,31 @@ risposto «Sì, così».
 ricerca in Explore (dopo 344 B), C le notifiche (API, migrazione, app). Le
 schermate dell'App Store (TASK-328) vanno rifatte. Chi aveva imparato lo swipe
 fra le pagine non lo trova più.
+
+**Parte A, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- `TabShell` al posto di `Pager`: le pagine sovrapposte, quella fuori vista
+  con `display: none`, così restano montate senza uno ScrollView orizzontale.
+  Il tour usa gli stessi nomi di prima (`tab:` e `page:`), quindi i suoi testi
+  non cambiano.
+- Il tocco sulla scheda attiva passa per un contesto per pagina
+  (`useTabReselect`): Feed, Draw, Explore (anche sull'acqua) e Messages
+  tornano in cima con una riga ciascuno; il profilo si ricostruisce, come già
+  faceva a ogni ritorno. Questo aggiunge al task `FeedScreen.tsx`,
+  `ExploreScreen.tsx`, `PaddleExplore.tsx` e `TourScrollView.tsx`, una riga
+  ciascuno: dentro le pagine non cambia altro.
+- La lista di «Messages» aperta da altrove va alla scheda (`useInboxTab`); le
+  richieste e le conversazioni restano sopra l'app, e «←» torna alla scheda.
+  Senza account la scheda porta al profilo, a «Sign up» e «Log in»: nessun
+  testo nuovo.
+- Le icone attive hanno il tratto più spesso (2,5 contro 1,75), non il pieno:
+  Lucide non ha icone piene. Il cuore dell'header è il cuore di Lucide pieno,
+  nel giallo del marchio come al lancio.
+- La barra usa `background` al 95% (`F2`), come `hairline` usa `text` al 20%:
+  un colore derivato dai token, non scritto a mano.
+- Android: il tasto indietro torna alla scheda mostrata prima (una pila delle
+  schede viste), poi lascia uscire.
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente

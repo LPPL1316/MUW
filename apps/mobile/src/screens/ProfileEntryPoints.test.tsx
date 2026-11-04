@@ -118,16 +118,16 @@ async function open() {
 
 /** The circle at the right of the names. */
 function circle() {
-  return screen.getByRole("button", { name: /^Profile/ });
+  return screen.getByRole("tab", { name: /^Profile/ });
 }
 
 /** The profile is the page on screen, with the three names over it. */
 function onProfilePage() {
   expect(
-    screen.getByRole("button", { name: /^Profile/, selected: true }),
+    screen.getByRole("tab", { name: /^Profile/, selected: true }),
   ).toBeOnTheScreen();
-  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
-  expect(screen.getAllByRole("tab")).toHaveLength(3);
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toBeSelected();
+  expect(screen.getAllByRole("tab")).toHaveLength(5);
 }
 
 /** The drawing of the tests, opened on the map from the fourth page. */
@@ -253,7 +253,7 @@ test("a notification of a member opens over the page, and «←» shows the page
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   expect(screen.queryByText(/0 followers/)).toBeNull();
   expect(screen.queryByRole("header", { name: "Profile" })).toBeNull();
-  expect(screen.queryByTestId("profile-page-mark")).toBeNull();
+  expect(screen.queryByRole("tab", { name: /^Profile/, selected: true })).toBeNull();
 });
 
 test("a drawing of a notification over «Settings» goes back to the page", async () => {

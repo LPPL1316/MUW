@@ -258,7 +258,7 @@ test("a saved run with walks opens with them dashed; one of before as one line",
     [`GET /me/activities/${STAR.id}`]: () => Response.json(STAR),
   });
   await open();
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
   await fireEvent.press(await screen.findByRole("button", { name: /^My activities/ }));
 
   await fireEvent.press(
@@ -293,7 +293,7 @@ test("a favorite with the pen up starts with its walks, pauses at a letter's end
       "POST /track-scores": () => Response.json(trackScore),
     });
     await open();
-    await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+    await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
     await fireEvent.press(await screen.findByRole("button", { name: "Favorites, 1" }));
     await fireEvent.press(
       screen.getByRole("button", { name: "SUN · 1.3 km, open on the map" }),

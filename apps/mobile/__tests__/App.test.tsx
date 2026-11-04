@@ -153,7 +153,8 @@ afterEach(() => {
 test("opens on the choice, with the app name and a heart", async () => {
   requestPermission.mockReturnValue(new Promise(() => {}));
   await render(<App />);
-  expect(screen.getByText("MuW")).toBeOnTheScreen();
+  // In the header of the pages (TASK-367).
+  expect(screen.getByLabelText("MuW")).toBeOnTheScreen();
   expect(
     screen.getByRole("button", { name: "heart", selected: true }),
   ).toBeOnTheScreen();
