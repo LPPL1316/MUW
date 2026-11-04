@@ -20541,6 +20541,29 @@ della preview fb15613e era «giallo», con l'app riaperta due volte: la
 riserva con il fix #703 caricato. PR #707, riallineata su `main` dopo la
 #620: da lì l'impronta iOS di `main` è `6f8bba4c`.
 
+**Aggiunta (2026-11-04, la parte D, deciso dall'agente su delega
+dell'utente)**: il 3D com'è nella pagina del video. La linea sulle colline
+la proietta la pagina (`map.project` col terreno), non l'app: una resa in
+prospettiva non si fa in piano. La traccia per il 3D è ridotta a 150 punti
+in metri, perché la proiezione col terreno costa 80 µs a punto sul
+telefono (misurato il 30 ottobre) e con la camera che gira si rifà a ogni
+fotogramma: 2000 punti sarebbero 160 ms. Il fit inclinato è a due passate
+di proiezione, perché la prospettiva cambia con lo zoom. Il giro a vuoto è
+doppio: una passata per le tegole di ogni rotazione (al primo giro mancano
+tutte, misurato), una misurata, e vale la mediana; lo scatto si prende
+prima del giro, così lo scadere dei 15 s dà il modo fermo e non il giallo.
+La mappa resta viva durante la codifica solo nel modo `orbit`. La tessera
+«3D» inclina il disegno con `perspective` e `rotateX`, senza colline. Il
+testo «3D» è quello già in tabella per la mappa 3D. La riga di privacy
+sulle tegole del terreno (scelta 8) entra con la D col sì dell'utente
+(«Sì, questa», 2026-11-04), e
+i file della D nell'elenco del task crescono di conseguenza (la tessera e
+il flusso, lasciati dalla C). Scartate: la proiezione una volta sola con
+le quote dal terreno attraverso le API interne di MapLibre (fragili alla
+versione); la linea come layer della mappa (una resa per fotogramma anche
+da ferma); il giro senza prova (sul simulatore un fotogramma inclinato
+costa 15–25 ms, sopra o sotto la soglia a seconda del momento).
+
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
 con la linea in prospettiva non si fa); la linea come layer di MapLibre
