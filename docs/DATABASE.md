@@ -831,6 +831,20 @@ database finisce applicata una volta sola):
   cambia. I giri e le curve di un nuoto stanno nel corpo del risultato
   (`RouteResult.laps`, `.turns`), dove già sta il resto del percorso.
 
+Migrazione `0044_record_only.sql` (TASK-375 parte A, ADR-0319; il numero
+dal Coordinatore, uno solo per lo sci alpino e quello di fondo):
+
+- Il vincolo `runs_activity_check` prende anche `'skiing'` e
+  `'xc_skiing'`: una giornata sulla neve si salva come corsa. La
+  migrazione **rilegge** il vincolo che trova (`pg_get_constraintdef`) e lo
+  riscrive con i due nomi in più, invece di ripetere l'elenco: le attività
+  aggiunte prima (la `0043` della camminata, TASK-371) restano, in
+  qualunque ordine le due entrino. Lo riscrive come elenco di nomi fra
+  apici, come gli altri, così la prossima lo rilegge allo stesso modo.
+- `favorites` e `group_runs` no: tengono un percorso da rifare, e queste
+  attività non ne hanno.
+- Nessuna riga cambia. Test in `test_record_only.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

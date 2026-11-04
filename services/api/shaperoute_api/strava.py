@@ -76,12 +76,15 @@ RECORDED = "Recorded with MuW"
 MAX_NAME = 100
 # What Strava calls each activity of a run (TASK-208); paddling as stand-up
 # paddling, the user's choice (2026-10-03); a swim in open water is Strava's
-# "Swim" (TASK-323), which has no open-water type of its own.
+# "Swim" (TASK-323), which has no open-water type of its own; a day of alpine
+# or cross-country skiing is Strava's "AlpineSki" or "NordicSki" (TASK-375).
 SPORT_TYPES = {
     "running": "Run",
     "cycling": "Ride",
     "paddling": "StandUpPaddling",
     "swimming": "Swim",
+    "skiing": "AlpineSki",
+    "xc_skiing": "NordicSki",
 }
 
 STATE_BYTES = 32
