@@ -1731,7 +1731,6 @@ export const ES: Table = {
 
   // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
   "Your post": "Tu publicación",
-  Drawing: "Dibujo",
   "Hold and drag to reorder": "Mantén pulsado y arrastra para cambiar el orden",
   "Move left": "Mover a la izquierda",
   "Move right": "Mover a la derecha",

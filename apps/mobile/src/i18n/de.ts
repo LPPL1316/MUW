@@ -1740,7 +1740,6 @@ export const DE: Table = {
 
   // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
   "Your post": "Dein Beitrag",
-  Drawing: "Zeichnung",
   "Hold and drag to reorder":
     "Gedrückt halten und ziehen, um die Reihenfolge zu ändern",
   "Move left": "Nach links",
