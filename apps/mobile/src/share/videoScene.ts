@@ -1,5 +1,8 @@
+import type { LatLon } from "@shaperoute/shared-types";
+
 import { fitLines, type Segment } from "../activities/fitLines";
 import { appLanguage } from "../i18n/language";
+import type { Language } from "../i18n/languages";
 import { HEART_BOX, HEART_POINTS, heartHeight } from "../intro/heartLine";
 import { bearingOf } from "../map/turnedMap";
 import {
@@ -19,8 +22,16 @@ import {
   withoutEnds,
 } from "./postRun";
 import type { Sticker } from "./stickers";
-import { MAP_CREDIT, MAP_PIXEL_RATIO, type VideoMap, videoMap } from "./videoMap";
-import { stylePalette, type VideoStyle } from "./videoStyle";
+import {
+  MAP_CREDIT,
+  MAP_PIXEL_RATIO,
+  STILL_ZOOM,
+  TERRAIN_CREDIT,
+  TURN_DEG,
+  type VideoMap,
+  videoMap,
+} from "./videoMap";
+import { styleRelief, stylePalette, type VideoStyle } from "./videoStyle";
 
 /**
  * The video of a run (TASK-295, ADR-0254; TASK-351, ADR-0303), as what to
@@ -32,6 +43,10 @@ import { stylePalette, type VideoStyle } from "./videoStyle";
  * stays, with the results and the emoji the runner chose for the post. The
  * «paper» look is the post on the yellow of MuW coming to life, as the
  * video was before: the page falls back on it when the map does not come.
+ * On «3D» the map leans on its hills and the camera turns a little around
+ * the run, or the one picture is zoomed slowly when a turning picture costs
+ * the phone too much (part D, the user's choice 4): the page lays the line
+ * on the hills itself then, from the points this scene gives it.
  *
  * Only numbers and words here: the hidden WebView (videoPage) draws them on
  * a canvas and encodes them, so what the video shows is decided, and
@@ -113,8 +128,11 @@ export type VideoColors = {
 /** One thing to draw. Places and sizes in pixels of the video, y down;
  * `alpha` from 0 (not there) to 1. */
 export type VideoOp =
-  /** The map's picture, once the page has it. */
-  | { k: "map"; alpha: number }
+  /** The map's picture, once the page has it. On «3D», `turn` is where the
+   * camera has turned to, in degrees about the drawing's bearing, when it
+   * turns, and `zoom` how far the one picture is zoomed about the drawing's
+   * middle when the map stands still: the page knows which. */
+  | { k: "map"; alpha: number; turn?: number; zoom?: number }
   /** The veil rising from `top` to the bottom edge, `peak` opaque there. */
   | { k: "scrim"; top: number; peak: number; alpha: number }
   /** A filled square with round corners. */
@@ -128,7 +146,9 @@ export type VideoOp =
       color: ColorRole;
       alpha: number;
     }
-  /** A path of the scene, from its start to `upTo` pixels along it. */
+  /** A path of the scene, from its start to `upTo` pixels along it. On
+   * «3D» the run's path is the line as the map lays it on the hills, as far
+   * as `share` of it (0 to 1): the page projects it itself. */
   | {
       k: "line";
       path: number;
@@ -136,8 +156,10 @@ export type VideoOp =
       width: number;
       color: ColorRole;
       alpha: number;
+      share?: number;
     }
-  /** A round dot, `ring` pixels of `ringColor` inside its edge. */
+  /** A round dot, `ring` pixels of `ringColor` inside its edge; on «3D»
+   * at `share` of `path` as the map lays it, instead of at x, y. */
   | {
       k: "dot";
       x: number;
@@ -147,6 +169,8 @@ export type VideoOp =
       ring: number;
       ringColor: ColorRole;
       alpha: number;
+      path?: number;
+      share?: number;
     }
   /** Words, from the top of their first line; at most `lines` lines
    * `maxWidth` wide, the last one cut with «…». `tracking` in pixels
@@ -217,6 +241,8 @@ type Look = {
    * the light map (ADR-0231); `extra` is its width beyond the line's, as a
    * share of the width. */
   casing: { extra: number; alpha: number } | null;
+  /** The map leaning on its hills, the line laid on them by the page. */
+  relief: boolean;
   /** The yellow square behind the logo's heart. */
   badge: boolean;
   scrim: boolean;
@@ -271,6 +297,7 @@ const PAPER: Look = {
   value: { size: 0.075, weight: 700, tracking: 0, lineHeight: LINE_HEIGHT },
   line: { width: 0.02, color: "ink" },
   casing: null,
+  relief: false,
   badge: false,
   scrim: false,
   scrimPeak: SCRIM_PEAK,
@@ -283,8 +310,9 @@ const PAPER: Look = {
  * of the premium look (ADR-0293): large light numbers, small spaced labels,
  * a regular title, the line in the yellow of a route. By `day` the veil is
  * the light map's own ground, almost whole, and the line runs on its dark
- * edge, as on the light map (ADR-0231). */
-function mapLook(palette: Palette, day: boolean): Look {
+ * edge, as on the light map (ADR-0231). On «3D» (`relief`) the credit
+ * names the hills' heights too. */
+function mapLook(palette: Palette, day: boolean, relief: boolean): Look {
   const casing = routeCasingOf("light");
   return {
     colors: {
@@ -305,10 +333,11 @@ function mapLook(palette: Palette, day: boolean): Look {
       day && casing !== null
         ? { extra: ofPhone(casing.width - route.width), alpha: casing.opacity }
         : null,
+    relief,
     badge: true,
     scrim: true,
     scrimPeak: day ? DAY_SCRIM_PEAK : SCRIM_PEAK,
-    credit: MAP_CREDIT,
+    credit: relief ? `${MAP_CREDIT} · ${TERRAIN_CREDIT}` : MAP_CREDIT,
     resultsBottom: 0.06,
     rowGap: 0.036,
   };
@@ -389,6 +418,43 @@ export function thinned(
   return kept;
 }
 
+/** The most points of the run's line on «3D», where the page lays each of
+ * them on the hills for every picture of a turning camera: about 80 µs a
+ * point on an iPhone (measured 2026-10-30), so 150 cost 12 ms. */
+export const MAX_POINTS_3D = 150;
+/** Points of a track closer than this, in metres, are GPS noise. */
+const MIN_STEP_M = 2;
+
+/**
+ * `track` with at most `most` points (and its two ends), each at least a
+ * step from the one kept before, in metres: the line the page lays on the
+ * hills, as `thinned` does in pixels for the flat one.
+ */
+export function thinnedTrack(
+  track: readonly LatLon[],
+  most: number = MAX_POINTS_3D,
+): LatLon[] {
+  if (track.length <= 2) {
+    return [...track];
+  }
+  const k = Math.cos((track[0][0] * Math.PI) / 180);
+  const metres = (a: LatLon, b: LatLon): number =>
+    Math.hypot((b[1] - a[1]) * k, b[0] - a[0]) * 111_195;
+  let length = 0;
+  for (let i = 1; i < track.length; i += 1) {
+    length += metres(track[i - 1], track[i]);
+  }
+  const step = Math.max(MIN_STEP_M, length / Math.max(1, most - 2));
+  const kept: LatLon[] = [track[0]];
+  for (let i = 1; i < track.length - 1; i += 1) {
+    if (metres(kept[kept.length - 1], track[i]) >= step) {
+      kept.push(track[i]);
+    }
+  }
+  kept.push(track[track.length - 1]);
+  return kept;
+}
+
 /** How long a path is, in pixels. */
 export function lengthOf(path: readonly number[]): number {
   let length = 0;
@@ -442,6 +508,7 @@ function layoutOf(
   shown: readonly PostResult[],
   look: Look,
   palette: Palette | null,
+  language: Language,
 ) {
   const w = VIDEO_WIDTH;
   const h = VIDEO_HEIGHT;
@@ -480,6 +547,8 @@ function layoutOf(
           },
           bearing,
           palette,
+          language,
+          look.relief ? { line: thinnedTrack(cut) } : null,
         )
       : null;
 
@@ -580,7 +649,18 @@ function frameAt(
   // The map comes in with the logo, and the dark under the words with it.
   const ground = round3(ramp(t, 0, 0.5));
   if (layout.map !== null) {
-    ops.push({ k: "map", alpha: ground });
+    if (look.relief) {
+      // The camera's turn, or the picture's zoom, slow at both ends.
+      const u = easeInOut(ramp(t, 0, VIDEO_SECONDS));
+      ops.push({
+        k: "map",
+        alpha: ground,
+        turn: round3(-TURN_DEG + 2 * TURN_DEG * u),
+        zoom: round3(1 + (STILL_ZOOM - 1) * u),
+      });
+    } else {
+      ops.push({ k: "map", alpha: ground });
+    }
   }
 
   const brand = round3(ramp(t, 0, 0.5));
@@ -660,6 +740,7 @@ function frameAt(
       width: round(layout.line),
       color: look.line.color,
       alpha: 1,
+      ...(look.relief ? { share: round3(share) } : {}),
     });
     // The pen's tip while it draws, gone once the drawing is whole.
     const tip = 1 - ramp(t, HOLD_FROM_S, HOLD_FROM_S + 0.3);
@@ -674,6 +755,7 @@ function frameAt(
         fill: "accent",
         ringColor: "onAccent",
         alpha: round3(tip),
+        ...(look.relief ? { path: RUN_PATH, share: round3(share) } : {}),
       });
     }
   }
@@ -763,9 +845,12 @@ export function videoScene(
   look: VideoLook,
 ): VideoScene {
   const palette = look === "paper" ? null : stylePalette(look);
-  const spec = palette === null ? PAPER : mapLook(palette, look === "day");
-  const layout = layoutOf(run, shown, spec, palette);
+  const spec =
+    look === "paper" || palette === null
+      ? PAPER
+      : mapLook(palette, look === "day", styleRelief(look));
   const language = appLanguage();
+  const layout = layoutOf(run, shown, spec, palette, language);
   const count = VIDEO_SECONDS * VIDEO_FPS;
   return {
     width: VIDEO_WIDTH,

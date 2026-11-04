@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { fitLines, type Segment } from "../activities/fitLines";
 import { t } from "../i18n";
+import { PITCH_3D } from "../map/mapKindStyle";
 import { bearingOf } from "../map/turnedMap";
 import {
   color,
@@ -14,7 +15,13 @@ import {
   space,
 } from "../theme/tokens";
 import { type PostRun, withoutEnds } from "./postRun";
-import { styleName, stylePalette, VIDEO_STYLES, type VideoStyle } from "./videoStyle";
+import {
+  styleName,
+  stylePalette,
+  styleRelief,
+  VIDEO_STYLES,
+  type VideoStyle,
+} from "./videoStyle";
 
 /** A tile has the video's shape, 9 wide and 16 tall: three fit in a row. */
 const TILE_WIDTH = 104;
@@ -26,6 +33,9 @@ const DRAWING_TOP = 0.2;
 const DRAWING_BOTTOM = 0.7;
 /** The line in the tile, in points. */
 const LINE = 2;
+/** How far the eye is from the «3D» tile's drawing, in points, for it to
+ * lean as the map does. */
+const EYE = 400;
 
 type Props = {
   run: PostRun;
@@ -50,7 +60,8 @@ function placed(s: Segment, thickness: number) {
  * «Style» in «Share your run» (TASK-351, ADR-0303): a tile for each style
  * of the video, with the run's drawing in the style's colours on its map's
  * ground, one of them chosen; «Night» when the post opens. The tiles are
- * the video's shape, so what they show is where the drawing will be.
+ * the video's shape, so what they show is where the drawing will be; in
+ * the «3D» tile the drawing leans as the map will (part D).
  */
 export function StyleRow({ run, style, onChange }: Props) {
   const bearing = bearingOf(run.rotationDeg);
@@ -90,7 +101,11 @@ export function StyleRow({ run, style, onChange }: Props) {
                 accessibilityState={{ checked: on }}
                 accessibilityLabel={styleName(each)}
               >
-                <View style={styles.drawing} pointerEvents="none">
+                <View
+                  style={[styles.drawing, styleRelief(each) && styles.leaning]}
+                  testID={`style-drawing-${each}`}
+                  pointerEvents="none"
+                >
                   {each === "day" &&
                     casing !== null &&
                     edge !== null &&
@@ -160,6 +175,9 @@ const styles = StyleSheet.create({
     top: TILE_HEIGHT * DRAWING_TOP,
     width: TILE_WIDTH * (1 - 2 * SIDE),
     height: TILE_HEIGHT * (DRAWING_BOTTOM - DRAWING_TOP),
+  },
+  leaning: {
+    transform: [{ perspective: EYE }, { rotateX: `${PITCH_3D}deg` }],
   },
   line: {
     position: "absolute",

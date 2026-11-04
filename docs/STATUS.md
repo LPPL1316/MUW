@@ -160,6 +160,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
+  dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
+  #709 (nuoto nell'API), ritmo in min/km, le camminate contano nel gioco delle
+  forme ma non nei record, calorie stimate in Apple Salute. Parte A (motore,
+  API, migrazione 0043) dopo #709 e prima della notte degli esempi; B (app)
+  dopo TASK-367 A con la lista dei file al Coordinatore; C (gioco) col sì
+  dell'utente. Testi della parte B ancora da approvare. `tasks/TASK-371.md`.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
@@ -188,6 +196,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   il disegno sull'acqua da `drawn_water.py`, fuori dall'impronta del motore
   (uguale a `main`, niente notte di `draw_examples --water`); si unisce dopo
   TASK-323 C2, poi il server col sì dell'utente.
+  **Chiuso il 2026-11-04**: parte B in `main` (#722, `bacd7c7b`), unita prima
+  di TASK-323 C2; vedi «Completato».
 - **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
   (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
   `src/search/`, la lente apre la ricerca, `shape=word` sul server per
@@ -217,6 +227,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
   via del Coordinatore; server, migrazione e sito col sì dell'utente.
   `tasks/TASK-368.md`.
+- **TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca**
+  (ADR-0318, proposta; richiesta dell'utente del 2026-11-04; numero dal
+  Coordinatore). Branch `docs/TASK-374-body-calories-hr-zones` (documenti).
+  Scelte dell'utente tutte fatte: dati solo sul telefono, sesso Male / Female /
+  Prefer not to say, lettura da Salute nella 1.0.2, tabella delle zone più
+  tempo in zona a fine corsa, sezione nelle Impostazioni, testi di A e B
+  approvati. Parte A (dati del corpo e kcal per corsa, bici e paddle, solo
+  app, OTA) e B (zone) dopo TASK-367, col via del Coordinatore; C (lettura da
+  Salute) e D (tempo in zona) con TASK-345 C nella 1.0.2. `tasks/TASK-374.md`.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
@@ -311,7 +330,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
   Coordinatore. Solo app, impronta iOS `83793e26` invariata. File
-  `tasks/TASK-351.md`.
+  `tasks/TASK-351.md`. 2026-11-04, sera: la #706 e la #707 sono in `main`;
+  la D (il 3D) è la PR #724 (`feat/TASK-351-d-video-3d`, testa 5f0d197f, poi i documenti):
+  lo stile «3D», la mappa scura inclinata con le colline, la linea posata
+  sulle colline dalla pagina, la camera che gira da −10° a +10° se un
+  fotogramma costa meno di 25 ms (misurato dalla pagina in un giro a
+  vuoto) altrimenti lo scatto fermo con lo zoom lento, la tessera
+  inclinata, il credito «Terrain Tiles»; nel simulatore il 3D esce con la camera che gira (11 ms a
+  fotogramma, 7,1 s di codifica, 10,5 s in tutto contro 4,1 della notte); impronta iOS sulla copia pulita `6f8bba4c`, quella di `main`; 616 suite, 4937 test verdi.
+  La riga di privacy sulle tegole del terreno (scelta 8 nel task file)
+  ha avuto il sì dell'utente («Sì, questa», 2026-11-04) ed è nella D, nei
+  cinque testi e nelle pagine del sito rigenerate; la D è riallineata su
+  `main` 1c085d26 dopo la #723, che toccava gli stessi file.
 - **TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio**
   (ADR-0306, estende ADR-0293; richiesta dell'utente del 2026-10-30, numeri
   dal Coordinatore). Branch `docs/TASK-355-feed-clarity` (documenti). Parte
@@ -482,6 +512,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   post e «2/5» in alto a sinistra. Testi tradotti, Help e privacy approvati
   con la data del 4 novembre, pagine del sito rigenerate. **Resta**: la
   prova sul telefono, l'impronta iOS su una copia pulita, il merge.
+  2026-11-04: parte A app in `main` con la #711 (testa `348d1ed0`, CI
+  verde, impronta iOS `6f8bba4c` come `main`). Il server è già alla
+  migrazione 0041; l'OTA di produzione col sì dell'utente. **Resta**: la prova sul telefono (9 foto e
+  il disegno, riordinati, nel Feed nello stesso ordine), poi B, C e D
+  nella 1.0.2.
 - **TASK-346 — «Edit the drawing» nel Feed: la traccia sulla mappa dov'è
   stata corsa** (ADR-0299; richiesta dell'utente del 2026-10-29, «nel Feed
   quando premo modifica il disegno devo poter modificare la traccia sulla
@@ -2359,6 +2394,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-372 — Sci di fondo: la rete delle piste non disegna forme**
+  (ADR-0316, 2026-11-04). Benchmark su Fiemme, Asiago e Dobbiaco: nessuna
+  delle 45 forme a 0,90, il cerchio mai sopra 0,49. Nessuna rete `nordic`,
+  nessun codice. L'utente ha scelto «Record only»: `xc_skiing` entra con
+  TASK-375 insieme a `skiing`. `tasks/TASK-372.md`.
+- **TASK-369 — «Edit the drawing» su ogni disegno** (ADR-0313; 2026-11-04;
+  numeri dal Coordinatore): documenti #712, parte A #719 (`3e7c7d28`), parte
+  B #722 (`bacd7c7b`). Il tasto c'è su ogni disegno con una linea, anche
+  emoji, parole, percorsi a tema, corse libere e importate e disegni pagaiati;
+  la traccia va sulla mappa dov'è, e si modifica sempre una copia mia. Senza
+  tasto i post di sole foto e il risultato di «Draw». Impronta iOS 6f8bba4c,
+  impronta del motore invariata. Restano, col sì dell'utente: il server con la
+  parte B (sì dato il 2026-11-04, lo fa il Coordinatore; prima l'app mostra «On
+  the water, a shape of the catalogue.») e l'OTA di produzione. `tasks/TASK-369.md`.
 - **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
   (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
   «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;

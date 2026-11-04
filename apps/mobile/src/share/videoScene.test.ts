@@ -1,17 +1,26 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
 import { fitLines } from "../activities/fitLines";
+import { PITCH_3D } from "../map/mapKindStyle";
 import { color, SHADES } from "../theme/tokens";
 import { POST_RESULTS, type PostRun, resultValue } from "./postRun";
 import type { Sticker } from "./stickers";
-import { MAP_CREDIT, MAP_WAIT_MS } from "./videoMap";
+import {
+  MAP_CREDIT,
+  MAP_WAIT_MS,
+  STILL_ZOOM,
+  TERRAIN_CREDIT,
+  TURN_DEG,
+} from "./videoMap";
 import { DAY, NIGHT } from "./videoStyle";
 import {
   lengthOf,
   MAX_POINTS,
+  MAX_POINTS_3D,
   pointAlong,
   pointsOf,
   thinned,
+  thinnedTrack,
   VIDEO_FPS,
   VIDEO_HEIGHT,
   VIDEO_SECONDS,
@@ -491,5 +500,91 @@ describe("lengthOf and pointAlong", () => {
     expect(pointAlong(path, 15)).toEqual([15, 0]);
     expect(pointAlong(path, 50)).toEqual([30, 20]);
     expect(pointAlong(path, 999)).toEqual([30, 40]);
+  });
+});
+
+describe("thinnedTrack", () => {
+  it("keeps a short track whole, and at most the points asked of a long one, with its ends", () => {
+    const short = north(2000);
+    expect(thinnedTrack(short)).toEqual(short);
+    const long = north(20_000);
+    const kept = thinnedTrack(long);
+    expect(kept.length).toBeLessThanOrEqual(MAX_POINTS_3D);
+    expect(kept.length).toBeGreaterThan(MAX_POINTS_3D / 2);
+    expect(kept[0]).toEqual(long[0]);
+    expect(kept[kept.length - 1]).toEqual(long[long.length - 1]);
+    expect(thinnedTrack(long, 50).length).toBeLessThanOrEqual(50);
+    expect(thinnedTrack([long[0], long[1]])).toEqual([long[0], long[1]]);
+    expect(thinnedTrack([])).toEqual([]);
+  });
+});
+
+describe("videoScene, in 3D", () => {
+  const relief = videoScene(RUN, POST_RESULTS, STICKERS, "3d");
+  const end = relief.frames[relief.frames.length - 1];
+  const night = videoScene(RUN, POST_RESULTS, STICKERS, "night");
+  type Ground = Extract<VideoOp, { k: "map" }>;
+  type Dot = Extract<VideoOp, { k: "dot" }>;
+  const ground = (frame: VideoOp[]) => frame.find((op): op is Ground => op.k === "map");
+
+  it("is the night's map leaning on its hills, the line given to the page in steps of metres", () => {
+    expect(relief.look).toBe("3d");
+    expect(relief.colors).toEqual(night.colors);
+    expect(relief.map?.camera.pitch).toBe(PITCH_3D);
+    expect(relief.map?.terrain).not.toBeNull();
+    expect(relief.map?.camera.center).toEqual(night.map?.camera.center);
+    expect(relief.map?.camera.zoom).toEqual(night.map?.camera.zoom);
+    expect(relief.map?.camera.bearing).toEqual(night.map?.camera.bearing);
+    expect(night.map?.line).toEqual([]);
+    const line = relief.map?.line ?? [];
+    expect(line.length).toBeLessThanOrEqual(MAX_POINTS_3D);
+    expect(line.length).toBeGreaterThan(2);
+    // The track with its ends cut by 200 m, as the flat line is (choice 5).
+    for (const [lon, lat] of line) {
+      expect(lon).toBe(11.12);
+      expect(lat).toBeGreaterThanOrEqual(46.07 + 200 / 111_195 - 1e-9);
+      expect(lat).toBeLessThanOrEqual(46.07 + 5000 / 111_195 + 1e-9);
+    }
+    expect(line[0][1]).toBeCloseTo(46.07 + 200 / 111_195, 6);
+    expect(line[line.length - 1][1]).toBeCloseTo(46.07 + 5000 / 111_195, 6);
+  });
+
+  it("turns the camera from one side to the other, slow at both ends, or zooms the picture slowly", () => {
+    const turnAt = (s: number) => ground(relief.frames[s * VIDEO_FPS])?.turn ?? NaN;
+    const zoomAt = (s: number) => ground(relief.frames[s * VIDEO_FPS])?.zoom ?? NaN;
+    expect(ground(relief.frames[0])).toEqual({
+      k: "map",
+      alpha: 0,
+      turn: -TURN_DEG,
+      zoom: 1,
+    });
+    expect(turnAt(6)).toBeCloseTo(0, 1);
+    expect(zoomAt(6)).toBeCloseTo(1 + (STILL_ZOOM - 1) / 2, 2);
+    expect(ground(end)?.turn).toBeCloseTo(TURN_DEG, 1);
+    expect(ground(end)?.zoom).toBeCloseTo(STILL_ZOOM, 2);
+    expect(turnAt(1) - turnAt(0)).toBeLessThan(turnAt(6) - turnAt(5));
+    expect(ground(night.frames[0])).toEqual({ k: "map", alpha: 0 });
+  });
+
+  it("gives the page the run's line as a share of itself, and the pen's tip along it", () => {
+    expect(runLine(end)?.share).toBe(1);
+    // Midway through the 8 seconds of drawing.
+    expect(runLine(relief.frames[5 * VIDEO_FPS])?.share).toBeCloseTo(0.5, 2);
+    const drawing = relief.frames[3 * VIDEO_FPS];
+    const tip = drawing
+      .filter((op): op is Dot => op.k === "dot")
+      .find((op) => op.fill === "accent");
+    expect(tip).toMatchObject({ path: 1, share: runLine(drawing)?.share });
+    expect(runLine(night.frames[3 * VIDEO_FPS])?.share).toBeUndefined();
+  });
+
+  it("credits the hills' heights with the map, and is otherwise the night's video", () => {
+    expect(words(end)).toContain(`${MAP_CREDIT} · ${TERRAIN_CREDIT}`);
+    const nightEnd = night.frames[night.frames.length - 1];
+    const butCredit = (frame: VideoOp[]) =>
+      words(frame).filter((text) => !text.includes(MAP_CREDIT));
+    expect(butCredit(end)).toEqual(butCredit(nightEnd));
+    expect(relief.frames).toHaveLength(night.frames.length);
+    expect(relief.paths).toEqual(night.paths);
   });
 });

@@ -284,8 +284,11 @@ test("no filters: every route near the start is a card (TASK-176)", async () => 
   expect(screen.queryByText(/^Shape/)).toBeNull();
   expect(screen.queryByText(/^Distance/)).toBeNull();
   expect(screen.getAllByTestId("route-card")).toHaveLength(routes.length);
-  // The cards are the only buttons of the page: nothing to set first.
-  expect(screen.getAllByRole("button")).toHaveLength(routes.length);
+  // The cards are the only buttons of the page but the search at its top
+  // (TASK-367 part B): nothing to set first.
+  const buttons = screen.getAllByRole("button");
+  expect(buttons[0]).toHaveAccessibleName("Search");
+  expect(buttons).toHaveLength(routes.length + 1);
 });
 
 test("the routes are cards, two side by side between the page's margins", async () => {
@@ -410,4 +413,25 @@ test("under «Near me», the towns around the start; a chosen city has none", as
   expect(onCity).toHaveBeenCalledWith({ label: town.label, point: town.point });
   await view.rerender(page(vercelli));
   expect(screen.queryByText("NEARBY TOWNS")).toBeNull();
+});
+
+test("the search at the top opens the search of drawings, people and places (TASK-367)", async () => {
+  await render(
+    <ExploreScreen apiUrl="http://api" near={[46.067, 11.1215]} onOpen={jest.fn()} />,
+  );
+  expect(screen.getByText("Search drawings, people, places")).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole("button", { name: "Search" }));
+  expect(screen.getByTestId("search-page")).toBeOnTheScreen();
+});
+
+test("a screen with its own way back has no search at the top", async () => {
+  await render(
+    <ExploreScreen
+      apiUrl="http://api"
+      near={[46.067, 11.1215]}
+      onOpen={jest.fn()}
+      onBack={jest.fn()}
+    />,
+  );
+  expect(screen.queryByTestId("explore-search")).toBeNull();
 });

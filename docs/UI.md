@@ -613,7 +613,7 @@ vale la barra qui sopra.
   erano dopo un giro sulle altre pagine.
 - **«Feed»** è la pagina dei disegni che gli iscritti pubblicano
   (TASK-118, ADR-0227). Con un account ha **due schede** in alto, ferme mentre
-  la lista scorre, con la lente accanto (TASK-362, ADR-0308): **«All»**, i
+  la lista scorre (TASK-362, ADR-0308; la lente accanto fino a TASK-367 B): **«All»**, i
   disegni per tutti, e **«Following»**, i propri e quelli di chi si segue; in
   entrambe dal più recente, senza gruppi e senza posizione. Ogni scheda ha la
   sua lista, la sua posizione e le sue pagine: cambiare scheda non rilegge, e
@@ -703,13 +703,14 @@ vale la barra qui sopra.
   disegno vero di un altro, il «…» a destra del nome segnala il disegno o
   blocca chi l'ha corso (TASK-121, sotto in «Profile», «Segnalare e
   bloccare»).
-  **In cima, sopra i disegni, a destra, la lente** (TASK-215, ADR-0178;
-  TASK-219, ADR-0182: solo la lente, scelta dell'utente): un cerchio come
-  quello di «Profile», con una lente disegnata e nessun testo, sotto il
-  bottone di «Profile»; VoiceOver lo legge «Search». Non sta
-  nell'intestazione delle pagine: lì, accanto a sport e profilo, su un
-  iPhone da 390 pt non c'è posto. Scorre con l'elenco.
-  **La lente apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
+  **La ricerca è in cima a «Explore»** (TASK-367 parte B, ADR-0311): fino
+  ad allora era la lente in cima al Feed (TASK-215, TASK-219), che non c'è
+  più. In cima a «Explore», anche sull'acqua, sotto l'intestazione, un
+  campo largo come la pagina con la lente della barra in basso e il testo
+  «Search drawings, people, places»: non si scrive lì, il tocco apre la
+  ricerca qui sotto. VoiceOver lo legge «Search». Un «Explore» con il suo
+  «←» non ce l'ha.
+  **Il campo apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
   2026-10-29): una pagina sopra tutta l'app, che arriva dalla lente in
   `motion.sheetMs` (un poco più piccola e più in alto, poi al suo posto;
   ferma con «Reduce Motion»). In alto il campo «Search drawings, people,
@@ -3855,17 +3856,25 @@ run», con «Close» in alto a sinistra:
   non si toccano; poi si apre il foglio di condivisione con il video
   («Save Video» lo tiene in Foto). Errori: «This phone cannot make the
   video.», «The video could not be made. Try again.», «This phone cannot
-  open the share sheet.». Lo stile è quello scelto in «Style»; la mappa
-  inclinata del «3D» arriva con la parte D di TASK-351.
+  open the share sheet.». Lo stile è quello scelto in «Style». Nel «3D»
+  (parte D) la mappa scura è inclinata di 55° con le colline (le altezze
+  delle Terrain Tiles, come la mappa 3D dell'app) e la linea è posata
+  sulle colline dalla pagina stessa, fotogramma per fotogramma; la camera
+  gira da −10° a +10° attorno alla corsa nei 12 s, lenta alle estremità,
+  se un fotogramma della mappa inclinata costa al telefono meno di 25 ms
+  (la pagina lo misura in un giro a vuoto prima del video); altrimenti lo
+  scatto resta fermo e si avvicina piano (1,00 → 1,06). In fondo il
+  credito dice anche «Terrain Tiles».
 - **«Style»**, sopra «Music» (TASK-351, ADR-0303; nomi scelti
   dall'utente): una tessera per stile, alta come il video, con il disegno
   della corsa nei colori dello stile sul fondo della sua mappa: «Night», la
   mappa scura dell'app al suo passo più scuro, con la linea gialla e le
   parole chiare su un velo scuro; «Day», la mappa chiara al suo passo più
   chiaro, con la linea sul suo bordo scuro e le parole scure su un velo
-  chiaro, qualunque tono abbia l'app. «Night» è accesa all'apertura; la
-  scelta non si salva col post, come la musica. La tessera «3D» arriva con
-  la parte D.
+  chiaro, qualunque tono abbia l'app; «3D», la mappa scura inclinata con
+  le colline, e nella tessera il disegno è inclinato come lo sarà la
+  mappa. «Night» è accesa all'apertura; la scelta non si salva col post,
+  come la musica.
 - **«Music»**, sopra «Instagram» ed «Export video» (TASK-301,
   ADR-0262; scelte dell'utente, al posto del «Niente musica» qui sopra):
   «None» e dieci brani nostri, «Energy», «Chill», «Epic», «Sprint»,
