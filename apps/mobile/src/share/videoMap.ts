@@ -4,8 +4,8 @@ import { lineCamera } from "../feed/feedMapPage";
 import { appLanguage } from "../i18n/language";
 import type { Language } from "../i18n/languages";
 import { mapStyleFor } from "../map/mapStyle";
-import { BRIGHTNESS_STEPS } from "../theme/tone";
-import { type Palette, paletteOf } from "../theme/tokens";
+import type { Palette } from "../theme/tokens";
+import { NIGHT } from "./videoStyle";
 
 /**
  * The map under a run's video (TASK-351, ADR-0303): the app's own map
@@ -29,14 +29,6 @@ export const MAP_WAIT_MS = 15_000;
 /** The credit the map's licences ask for wherever the map shows: the last
  * line of the video. */
 export const MAP_CREDIT = "© OpenStreetMap contributors · OpenFreeMap";
-
-/** The dark tone at its darkest: the night of the video, whatever tone the
- * app is shown in, since the video is for whoever watches it. */
-export const NIGHT: Palette = paletteOf({
-  tone: "dark",
-  dark: 0,
-  light: BRIGHTNESS_STEPS - 1,
-});
 
 /** Where the drawing lies on the map, in points: a box with its padding. */
 export type MapBox = {

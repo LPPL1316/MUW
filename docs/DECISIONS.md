@@ -18342,6 +18342,58 @@ va rifatto con l'acqua del server (`python -m shaperoute_api.paddle_examples
 dalla sessione cloud non si può. L'estratto dei nomi e il deploy col sì
 dell'utente.
 
+## ADR-0283 — aggiunta, parte C: i testi approvati, C in due tempi, lo sport ancora una corsa finché è «Soon»
+
+**Stato**: Attiva · 2026-10-30 · i testi inglesi li ha scelti l'utente
+(«Sì, così» alla proposta di ADR-0283, punto 6); il resto è deciso
+dall'agente su delega dell'utente (TASK-323 parte C, su richiesta
+dell'utente «passa alla parte C»). Aggiunta ad ADR-0283.
+
+**Contesto**: C porta lo sport nell'app. Per chiedere un nuoto all'API,
+`Activity` dell'app deve avere `swimming`; ma `Activity` è la chiave di
+`Record` nei due file di Apple Salute di TASK-321 (`appleWorkout.ts`,
+`healthConnectWorkout.ts`), che è in lavorazione e che per la condizione 3
+del Coordinatore nessuna parte tocca. `App.tsx` e `RoutePanel.tsx`, dove
+l'avviso, la riga e l'elenco si collegano, sono contesi con altri task. B
+non è ancora in `main`.
+
+**Decisione dell'utente** (2026-10-30): il nome 🏊 «Open water swim»;
+l'avviso «Before you swim» con i quattro punti di ADR-0283 al primo «Start»
+di un nuoto su questo telefono, come per la canoa, con «I understand» e
+«Not now»; sotto ogni giro «Within 150 m of the shore. Never swim alone.».
+
+**Decisione dell'agente**:
+
+1. **C in due tempi.** C1, adesso, in file nuovi (`src/swim/`) più la riga
+   di `sport.ts`: lo sport con `ready: false`, l'avviso col suo file
+   (`swim-notice.json`, separato da quello della canoa), la riga sotto il
+   giro, l'elenco delle curve, i testi nelle cinque lingue. C2, dopo B in
+   `main`: `Activity` con `swimming` insieme a TASK-321 (il tipo di
+   allenamento del nuoto in Salute e in Health Connect), `activityOf("swim")`
+   = `"swimming"`, il collegamento in `App.tsx` e nel pannello del
+   percorso, `ready: true` quando il server nuota.
+2. **Finché è «Soon» lo sport va come una corsa**, come il parapendio
+   (TASK-305 D0): non si sceglie mai, quindi non chiede mai un percorso.
+   Nelle build dello store non si vede (TASK-318).
+3. **L'elenco delle curve è quello del primo giro**: ogni giro passa dagli
+   stessi angoli della forma, e il GPX tiene le curve del primo giro.
+   Ogni curva si scrive come il suo waypoint del GPX («Turn left ·
+   Bagno 54») con i metri dalla partenza nelle unità dell'app; sopra, per più
+   giri, «The same turns every lap, {laps} laps, then back to the shore.».
+   Un nuoto senza curve (un cerchio) non ha elenco. Il nome del posto resta
+   come lo scrive OpenStreetMap, in ogni lingua.
+4. **La riga sotto il giro ha la striscia gialla** delle note da tenere
+   d'occhio del pannello (`NoteRow`, `caution`), e c'è sempre, avviso letto
+   o no.
+5. **«Explore» a nuoto (punto 4 di C) aspetta** gli esempi disegnati
+   sull'acqua del server (`draw_examples --water`), col sì dell'utente.
+
+**Conseguenze**: C1 cambia l'app solo dove si vede «Soon» (Expo Go e
+`preview`): una riga in più in «Settings» e nel menu di «Draw». Solo
+JavaScript, nessuna dipendenza: l'impronta iOS non cambia. I testi delle
+curve e le traduzioni nelle quattro lingue li ha approvati l'utente lo
+stesso giorno («Sì, così»). C2 chiede il via del Coordinatore per i file di
+TASK-321.
 ## ADR-0283 — aggiunta, parte B: l'impronta degli esempi della canoa aggiornata, i percorsi gli stessi
 
 **Stato**: Attiva · 2026-11-03 · deciso dall'agente su delega dell'utente
@@ -21039,6 +21091,37 @@ l'utente ha corso: è la scelta dell'utente, scritta nella privacy. Un file
 importato modificato può dare un record falso, visibile a tutti: accettato con
 la scelta 2.
 
+**Parte A, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- **Una riga per corsa, non per record**: `run_bests` tiene i tempi di ogni
+  corsa per tutti e due gli sport, qualunque fosse, e il profilo prende il
+  migliore fra le corse dello sport che hanno adesso. Il task diceva una
+  tabella `personal_bests` con una riga per record: così invece cancellare
+  una corsa lascia da solo il migliore dopo (la chiave esterna), e cambiare
+  lo sport pubblicando il disegno non chiede di ricontare (`drawings.py` non
+  cambia). Il costo: circa 14 righe per corsa, 10 ms di lettura a 1000 corse.
+- **I metri come `distance_m`**: lungo la traccia con `haversine_m`, nessuno
+  dentro una pausa del corridore, come li conta `activities.recorded`. Una
+  corsa che dice 10,00 km ha il suo 10K: mezzo metro sotto la distanza conta
+  ancora (l'arrotondamento di `distance_m`).
+- **Il limite del record del mondo in bici**: per queste distanze non c'è un
+  record su strada, e una discesa va più veloce del record dell'ora; il
+  limite è la velocità del salto del GPS, 90 km/h di media. A piedi i record
+  di World Athletics dove ci sono, e per 15, 30 e 60 km un tempo tondo più
+  basso di quanto si sia mai corso: un limite basso non scarta mai un tempo
+  vero.
+- **Il calcolo** è vettoriale (numpy, già dell'API): meno di 10 ms per 25 000
+  punti; fatto prima di aprire la transazione del salvataggio, che tiene il
+  blocco dell'account.
+- Il codice del profilo sta in `profile_bests.py`: `personal_bests.py` resta
+  puro e non importa `drawings.py`, che importa `activities.py`.
+- Lo script una tantum è un modulo, `python -m
+  shaperoute_api.personal_bests_backfill`, come `game_backfill`: una corsa
+  per transazione, così i profili rispondono mentre gira.
+- Nota: `clean_track` scarta già le posizioni oltre 12 m/s (43 km/h), anche
+  in bici: il salto dei 90 km/h raramente scatta. Non cambiato qui.
+
 ---
 
 ## ADR-0309 — «RIDE IT YOURSELF»: percorsi in bici di MuW in «Explore», da un file nell'app
@@ -21078,6 +21161,73 @@ scelta dell'utente.
 
 ---
 
+## ADR-0313 — «Edit the drawing» su ogni disegno: la traccia dov'è, una copia senza legami, l'acqua a parte
+
+**Stato**: Proposta · 2026-11-04 · TASK-369. Le scelte di prodotto sono
+dell'utente (2026-11-03 e 2026-11-04, una per volta, in `tasks/TASK-369.md`);
+i punti tecnici sono decisi dall'agente su delega dell'utente. Numero dal
+Coordinatore. Estende ADR-0299 a ogni scheda; cambia ADR-0288 per le emoji e
+le parole; cambia ADR-0161 per i disegni sull'acqua (parte B). ADR-0288 per
+il risultato di «Draw» (TASK-340) resta.
+
+**Contesto**: l'utente il 2026-11-03 vuole «Modifica il disegno» su tutti i
+disegni dell'app, anche su quelli degli altri nel Feed, così ogni disegno si
+modifica e poi si corre. Prima il tasto c'era sulla scheda di un disegno di
+un membro (la traccia dov'è stata corsa, ADR-0299) e sulla scheda di
+«Explore» solo per un contorno (nel mezzo della partenza, ADR-0288); mai per
+un'emoji, una parola, un percorso a tema, una corsa libera o importata,
+sull'acqua.
+
+**Decisione**:
+
+1. Ogni scheda con una linea sulla mappa ha «Edit the drawing», che mette
+   **la traccia, o la linea del percorso, dov'è e grande com'è** su «Draw on
+   the map» (`figureLines.trackInPlace`, in metri sul piano): un disegno di
+   un membro, un'emoji, una parola, un percorso a tema, una corsa libera o
+   importata, un esempio di «Explore» o del Feed, un preferito, un disegno
+   ricevuto in un messaggio. Scelte dell'utente: emoji, parole, percorsi a
+   tema, corse libere e importate «Sì, la traccia».
+2. Anche la scheda di «Explore» passa dalla figura chiesta nel mezzo della
+   partenza alla linea del risultato dov'è (deciso dall'agente su delega
+   dell'utente: una regola sola per ogni scheda, come le scelte del punto 1).
+   Per portarla vicino a sé resta «Draw it near me».
+3. Una traccia che finisce lontano dalla partenza resta aperta, con la regola
+   di ADR-0288 (`CLOSED_SHARE`, l'anello minuscolo e la linea come
+   dettaglio); una più lunga dei limiti di «Draw» si rimpicciolisce attorno
+   al suo mezzo (ADR-0299, punto 2).
+4. Una parola modificata è un disegno a mano: niente più tratti a penna
+   alzata. Un percorso a tema modificato perde i luoghi del tema e la riga
+   «Passes by N of M places».
+5. Niente tasto per un post di sole foto («Sì, niente tasto») e sotto il
+   risultato di «Draw» («No, resta tolto», TASK-340).
+6. Un disegno di un altro si modifica sempre in una **copia** di chi lo
+   modifica; il post originale non cambia mai. La copia **non dice da chi
+   viene** («No, niente scritta») e l'autore **non può impedirla** («Sì,
+   nessun blocco»): non resta nessun legame fra copia e originale, né
+   nell'app né sul server. Se l'autore blocca chi ha copiato, rende privato
+   o cancella l'originale, **la copia resta di chi l'ha fatta** (l'utente, il
+   2026-11-04: «si si»); chi è bloccato non vede più il disegno e non ne fa
+   altre copie.
+7. **Sull'acqua** (parte B, «Voglio anche Pagaia», «Sì, parte separata»):
+   l'API accetta un'immagine con «paddling» (solo `placement` «free») e il
+   motore la mette dove c'è posto vicino alla partenza, con
+   `water_fit.plan_on_water` da un file nuovo (`drawn_water.py`) escluso
+   dall'impronta come `ANCHORED_ONLY` (ADR-0300): l'impronta del motore non
+   cambia e i percorsi tenuti restano. Se non si può, la parte B va di notte
+   col sì dell'utente. Niente «Freehand» sull'acqua in «Draw».
+
+**Alternative scartate**: la figura chiesta invece della traccia per le
+emoji (la scelta del 2026-10-29, «non serve a nulla»); tenere i luoghi del
+tema in un disegno a mano (un campo nuovo nel contratto e nel motore); la
+scritta «Based on @name's drawing» (un campo del post sul server e una riga
+di privacy); un'impostazione dell'autore che vieti le copie (server,
+contratto, testi); la Pagaia nella parte A (l'API la rifiuta); cambiare
+`paddling.py` (impronta nuova, ore di `draw_examples --water`).
+
+**Conseguenze**: la parte A non cambia contratto, API, motore, testi,
+dipendenze né nativo: arriva con un OTA, impronta iOS 6f8bba4c. La parte B
+cambia il comportamento dell'API (accetta quello che rifiutava), non la forma
+del contratto, e vuole l'aggiornamento del server col sì dell'utente.
 ## ADR-0297, aggiunta — La schermata della ricerca (TASK-344 parte B)
 
 **Stato**: Attiva · 2026-11-04 · TASK-344 parte B. Deciso dall'agente su

@@ -62,7 +62,8 @@ const WAITING_EVERY_MS = 4000;
 const PULSE_MS = 100;
 const PULSES_STILL = 3;
 /** The dark under the words: as opaque as this at the bottom edge, along a
- * smoothstep from clear at the top (tools/ui_scrim.py). */
+ * smoothstep from clear at the top (tools/ui_scrim.py), unless the scene's
+ * op says how opaque (the light veil of «Day», TASK-351 part C). */
 const SCRIM_PEAK = 0.82;
 
 /** The app's own font on each phone, then any. */
@@ -395,9 +396,10 @@ const SCRIPT = String.raw`
       } else if (op.k === "scrim") {
         var shade = g.createLinearGradient(0, op.top, 0, scene.height);
         var rgb = rgbOf(scene.colors.scrim);
+        var peak = typeof op.peak === "number" ? op.peak : SCRIM_PEAK;
         for (var s = 0; s <= 8; s += 1) {
           var t = s / 8;
-          shade.addColorStop(t, "rgba(" + rgb + ", " + SCRIM_PEAK * t * t * (3 - 2 * t) + ")");
+          shade.addColorStop(t, "rgba(" + rgb + ", " + peak * t * t * (3 - 2 * t) + ")");
         }
         g.fillStyle = shade;
         g.fillRect(0, op.top, scene.width, scene.height - op.top);

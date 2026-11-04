@@ -173,6 +173,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   prototipo; C, «Soon», no da sola (ADR-0278). Prossimo passo: la scelta
   dell'utente, una domanda alla volta (`tasks/TASK-373.md`).
 
+- **TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa
+  dov'è** (ADR-0313, proposta; richiesta dell'utente del 2026-11-03; numeri dal
+  Coordinatore). Branch `docs/TASK-369-edit-every-drawing` (documenti). Scelte
+  dell'utente: emoji, parole, percorsi a tema, corse libere e importate sì (la
+  traccia); post di sole foto e risultato di «Draw» no; nessuna scritta «basato
+  su» e nessun blocco dell'autore; Pagaia sì, come parte B (motore e API, server
+  col suo sì). Parte A (solo app) dopo TASK-367 A, col via del Coordinatore.
+  Nota: `tasks/TASK-346.md` dice ancora «In corso», ma la #655 è in `main` dal
+  2026-10-30. `tasks/TASK-369.md`.
 - **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
   (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
   `src/search/`, la lente apre la ricerca, `shape=word` sul server per
@@ -202,6 +211,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
   via del Coordinatore; server, migrazione e sito col sì dell'utente.
   `tasks/TASK-368.md`.
+  **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
+  migrazione `0042_run_bests`, `personal_bests` nel profilo, script
+  `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
+  Poi la parte B, l'app.
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
@@ -229,6 +242,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   2026-11-02: codice pronto in PR da `feat/TASK-362-feed-tabs` (filtro sul
   server, schede sul `Segmented`, nessuna migrazione). Prima dell'OTA va
   aggiornato il server, col sì dell'utente. Dopo: 344 B, 355 B ridotta, 309 B.
+  2026-11-04: **chiuso.** #697 in main (2026-11-03), server a 36c6b2da, OTA di
+  produzione a91869b6 da 081f6d82; l'utente vede «All» e «Following» sul
+  telefono. Restano: la riga di privacy più avanti (scelta 7), gli esempi
+  col Coordinatore (scelta 4).
 
 - **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
   scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
@@ -258,6 +275,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
   un timer, il WebView è un punto visibile), riprodotto e provato nel
   simulatore; la prova dalla preview è dell'utente. Poi la C.
+  2026-11-04: il fix è in `main` (#703); la C è in PR
+  (`feat/TASK-351-c-video-styles`): la riga «Style» con «Night» e «Day»,
+  il look chiaro col bordo scuro sulla linea e il velo chiaro, i tre testi;
+  la tessera «3D» con la D. Sera: la C è riallineata su `main` f23ec332
+  (#717, col codice della #707), 26 suite verdi, impronta iOS sulla copia
+  pulita `6f8bba4c`; «#706 pronta» al Coordinatore.
   2026-11-04: il fix è in `main` (#703) e sulla preview fb15613e, ma sul
   telefono il video è ancora senza mappa: prova successiva in
   `fix/TASK-351-video-map-under-cover`, PR #707 (WebView a grandezza piena
@@ -265,8 +288,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con il motivo dato dalla pagina, solo sul canale preview, con un test che
   su production non compaia). L'utente: il video della preview era
   «giallo», app riaperta due volte. Riallineata su `main` dopo la #620:
-  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706; la #706 e la
-  produzione aspettano. Senza mappa il video
+  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706. Sera: con la stessa
+  preview fb15613e l'utente vede la mappa («ok la mappa funziona»): i
+  fotogrammi a timer bastano, il giallo di prima stava nei 15 s di attesa
+  (libreria e tegole non in cache, o rete lenta); la riga di diagnosi
+  (solo preview) lo dirà la prossima volta. La #706 si riallinea su
+  `main` dopo la #707; la condizione per la produzione del video (mappa
+  vista sul telefono) è soddisfatta, l'OTA resta una scelta dell'utente. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
@@ -287,6 +315,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (`feed/RouteMap.tsx`, `ActionBar.tsx`, `drawAgainDoor.ts`), il filo sotto i
   nomi in `Pager`. Impronta iOS `83793e26`. Prossimo: la parte B (conteggi,
   foto dell'autore, skeleton), dopo 344 B.
+  **Parte A in main** (#700, 2026-11-03, testa `f4975e0f`, riallineata una
+  volta dopo la #697 di TASK-362). Arriva al telefono con la prossima OTA del
+  Feed. Prossimo: la parte B, dopo 344 B.
 - **TASK-339 — L'interfaccia premium ed elegante** (ADR-0293, proposta;
   brief dell'utente del 2026-10-29; il canvas della proposta, 16 tavole,
   visto e approvato a voce la sera stessa, «BELLISSIMO»:
@@ -623,6 +654,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   attività fino a C. **Blocco**: `paddleExamples.json` va rifatto con
   l'acqua del server (dal Mac), poi server, estratto dei nomi e
   `draw_examples` col sì dell'utente. **Prossimo**: C, lo sport nell'app.
+  **C1 scritta** (2026-10-30, stessa sessione, branch
+  `feat/TASK-323-c-swim-app`, partito da quello di B): 🏊 «Open water swim»
+  con `ready: false` in `sport.ts`, e in `src/swim/` l'avviso «Before you
+  swim», la riga sotto il giro e l'elenco delle curve coi nomi a riva;
+  testi, curve e traduzioni approvati dall'utente il 2026-10-30.
+  **Prossimo**: C2 dopo B in `main`, cioè `Activity`
+  con `swimming` (tocca i file di TASK-321: via del Coordinatore),
+  il collegamento in `App.tsx`, `ready: true` col server.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

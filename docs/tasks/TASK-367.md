@@ -224,5 +224,5 @@ Draw in cima; «Messages» senza account porta al profilo; il tour indica lo
 sport nell'header e poi Explore e Feed. Il «prima» (main `6dc89cfa`) è in
 `before-*.jpg` nella stessa cartella, Draw e Feed nei due toni. Non visto nel simulatore: il
 Profilo con l'account (ingranaggio) e la scheda Messages piena, coperti dai
-test. Da decidere: Draw ed Explore hanno ancora il loro logo nella pagina,
-sotto quello nuovo dell'header.
+test. Draw ed Explore tengono il loro logo nella pagina, sotto quello nuovo
+dell'header: scelta dell'utente del 2026-11-04 («Lascialo»).
