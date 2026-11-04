@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { dayLabel } from "../activities/activityText";
+import { isOnSnow } from "../activities/snow";
 import { useWinnerDrawingId } from "../contest/contestKept";
 import { WinnerBadge } from "../contest/WinnerBadge";
 import { ExploreStart } from "../explore/ExploreStart";
@@ -26,7 +27,7 @@ import { runDistanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { DrawingComments } from "./DrawingComments";
 import { DrawingReactions } from "./DrawingReactions";
-import { followable } from "./drawingRoute";
+import { followable, runnable } from "./drawingRoute";
 import { useDrawingsDoor } from "./drawingsDoor";
 import { useFollowsDoor } from "./followsDoor";
 import { activityName } from "./PublicParts";
@@ -146,7 +147,7 @@ export function DrawingCard({
         onSuperLiked={() => setSuperLikes((count) => count + 1)}
         beside={<DrawingComments key={superLikes} drawingId={drawing.id} />}
       />
-      {followable(drawing) && onStart !== undefined && (
+      {runnable(drawing) && onStart !== undefined && (
         <>
           <ExploreStart start={READY} onStart={onStart} />
           <Text style={styles.message}>
@@ -171,19 +172,19 @@ export function DrawingCard({
       )}
       {/* «Send to a friend» (TASK-333): the track as the map shows it, in a
           message. */}
-      {followable(drawing) && (
+      {runnable(drawing) && (
         <SendDrawingButton
           drawing={() => drawingOfDrawing(drawing)}
           style={styles.button}
           textStyle={styles.buttonText}
         />
       )}
-      {onDrawAgain !== undefined && (
+      {onDrawAgain !== undefined && !isOnSnow(drawing.activity) && (
         <Tap style={styles.button} onPress={onDrawAgain} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
         </Tap>
       )}
-      {onEditDrawing !== undefined && (
+      {onEditDrawing !== undefined && !isOnSnow(drawing.activity) && (
         <Tap style={styles.button} onPress={onEditDrawing} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Edit the drawing")}</Text>
         </Tap>

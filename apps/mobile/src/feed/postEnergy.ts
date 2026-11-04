@@ -1,6 +1,7 @@
 import { loadSession } from "../account/sessionStore";
 import { appBody, type BodyProfile, NO_BODY } from "../body/bodyProfile";
 import { activeKcal } from "../body/energy";
+import { isOnSnow } from "../activities/snow";
 import type { SamplePost } from "./sampleFeed";
 
 /**
@@ -15,9 +16,14 @@ export function postEnergy(
   body: BodyProfile = bodyFor(post),
   year: number = new Date().getFullYear(),
 ): string | null {
+  // A day on the snow has no estimate yet (TASK-375 part C).
+  const activity = isOnSnow(post.activity) ? null : (post.activity ?? "running");
+  if (activity === null) {
+    return null;
+  }
   const energy = activeKcal(
     {
-      activity: post.activity ?? "running",
+      activity,
       metres: post.route_m,
       seconds: post.minutes > 0 ? post.minutes * 60 : null,
       climbM: null,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { routeActivity } from "../activities/snow";
 import { type AnyRouteRequest, isImageRequest } from "../api/routes";
 import { cityName } from "../explore/recommendedRoutes";
 import { CardMapsCredit } from "../explore/RouteCard";
@@ -50,7 +51,9 @@ export function postsWhileRouting(
 ): SamplePost[] {
   // On the water, paddled or swum (TASK-323): drawings on the water.
   const onWater = isOnWater(request.activity);
-  const same = feed.filter((post) => isOnWater(post.activity) === onWater);
+  const same = feed.filter(
+    (post) => isOnWater(routeActivity(post.activity)) === onWater,
+  );
   const what = isImageRequest(request) ? "picture" : (request.word ?? request.shape);
   return postsFor(`${what}-${request.distance_m}`, same, most);
 }
