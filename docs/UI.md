@@ -3855,17 +3855,25 @@ run», con «Close» in alto a sinistra:
   non si toccano; poi si apre il foglio di condivisione con il video
   («Save Video» lo tiene in Foto). Errori: «This phone cannot make the
   video.», «The video could not be made. Try again.», «This phone cannot
-  open the share sheet.». Lo stile è quello scelto in «Style»; la mappa
-  inclinata del «3D» arriva con la parte D di TASK-351.
+  open the share sheet.». Lo stile è quello scelto in «Style». Nel «3D»
+  (parte D) la mappa scura è inclinata di 55° con le colline (le altezze
+  delle Terrain Tiles, come la mappa 3D dell'app) e la linea è posata
+  sulle colline dalla pagina stessa, fotogramma per fotogramma; la camera
+  gira da −10° a +10° attorno alla corsa nei 12 s, lenta alle estremità,
+  se un fotogramma della mappa inclinata costa al telefono meno di 25 ms
+  (la pagina lo misura in un giro a vuoto prima del video); altrimenti lo
+  scatto resta fermo e si avvicina piano (1,00 → 1,06). In fondo il
+  credito dice anche «Terrain Tiles».
 - **«Style»**, sopra «Music» (TASK-351, ADR-0303; nomi scelti
   dall'utente): una tessera per stile, alta come il video, con il disegno
   della corsa nei colori dello stile sul fondo della sua mappa: «Night», la
   mappa scura dell'app al suo passo più scuro, con la linea gialla e le
   parole chiare su un velo scuro; «Day», la mappa chiara al suo passo più
   chiaro, con la linea sul suo bordo scuro e le parole scure su un velo
-  chiaro, qualunque tono abbia l'app. «Night» è accesa all'apertura; la
-  scelta non si salva col post, come la musica. La tessera «3D» arriva con
-  la parte D.
+  chiaro, qualunque tono abbia l'app; «3D», la mappa scura inclinata con
+  le colline, e nella tessera il disegno è inclinato come lo sarà la
+  mappa. «Night» è accesa all'apertura; la scelta non si salva col post,
+  come la musica.
 - **«Music»**, sopra «Instagram» ed «Export video» (TASK-301,
   ADR-0262; scelte dell'utente, al posto del «Niente musica» qui sopra):
   «None» e dieci brani nostri, «Energy», «Chill», «Epic», «Sprint»,

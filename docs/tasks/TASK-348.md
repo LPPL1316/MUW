@@ -332,3 +332,8 @@ l'ordine lo decide il Coordinatore.
 ## Esito
 
 *(a fine task)*
+
+- 2026-11-04, parte A: API con la #665 (migrazione 0041), app con la #711
+  (testa `348d1ed0`, CI verde, impronta iOS `6f8bba4c` uguale a `main`).
+  Manca la prova sul telefono del primo criterio di A; l'OTA di
+  produzione col sì dell'utente (il server è già alla 0041). Parti B, C e D aperte.
