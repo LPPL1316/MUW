@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 de octubre de 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "2 de noviembre de 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
+const PRIVACY_UPDATED = "4 de noviembre de 2026";
 
 const help: AboutDocument = {
   title: "Cómo funciona MuW",
@@ -22,7 +22,7 @@ const help: AboutDocument = {
       heading: "Qué es MuW",
       blocks: [
         "MuW dibuja rutas reales que trazan una forma en el mapa. Tú eliges la forma, la distancia y dónde empezar; obtienes una ruta por calles reales, con su archivo GPX.",
-        "La app tiene cuatro páginas, una al lado de otra, «Feed», «Dibuja», «Explora» y tu perfil: desliza a la izquierda o a la derecha, o toca un nombre arriba. El círculo de arriba te lleva a tu perfil.",
+        "Abajo hay cinco pestañas: «Feed», «Dibuja», «Mensajes», «Explora» y tu perfil, el círculo con tu foto. Toca una pestaña para ir allí, tócala otra vez para volver arriba. Los «Ajustes» están bajo el engranaje arriba a la derecha de tu perfil.",
       ],
     },
     {
@@ -72,6 +72,7 @@ const help: AboutDocument = {
       heading: "Publicar y compartir",
       blocks: [
         "Una carrera guardada es privada: solo la ves tú. Los demás miembros ven en tu perfil solo los totales de todas tus carreras guardadas, distancia y desnivel, nunca las carreras. Elige «Todos» o «Seguidores» en «Quién puede verla», al final de la carrera o en una carrera de «Mis actividades», y la ven como un dibujo en tu perfil, sin sus primeros y últimos 200 m. La próxima carrera que termines empieza con tu última elección guardada: la ves antes de «Guardar» y puedes cambiarla. Una actividad añadida desde un archivo siempre empieza en «Solo yo».",
+        "Una carrera que publiques puede tener hasta 9 fotos y el dibujo. Mantén pulsada una y arrástrala para cambiar el orden: la primera es la que se ve en el Feed. Elige un diseño para poner el dibujo sobre una foto.",
         "«Compartir» crea una imagen de tu carrera para enviarla donde quieras.",
       ],
     },
@@ -87,7 +88,7 @@ const help: AboutDocument = {
       heading: "Mensajes",
       blocks: [
         "«Mensaje» en el perfil de un miembro le escribe. Si te sigue, tu mensaje llega a sus «Mensajes»; si no, llega como solicitud, y puedes enviar un solo mensaje hasta que la acepte.",
-        "Tus conversaciones están en «Perfil», «Mensajes», con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
+        "Tus conversaciones están en «Mensajes», la pestaña del avión de papel, con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
         "Mantén pulsado un mensaje para borrar el tuyo, para los dos, o para denunciar uno que has recibido. Nadie ve si has leído un mensaje. Con las push encendidas, MuW te avisa de cada mensaje y de cada solicitud.",
         "En una conversación, toca + para enviar una foto, un vídeo de hasta 60 segundos o un dibujo, o toca Enviar a amigos en una ruta o un dibujo. Puedes enviarlos cuando la otra persona haya aceptado tu mensaje. Los vídeos se guardan 30 días, o menos cuando nuestro espacio para vídeos se llena: los más antiguos se van primero. Toca un dibujo para abrirlo en el mapa, empezarlo, exportar su GPX o guardarlo en tus favoritos.",
       ],
@@ -95,7 +96,7 @@ const help: AboutDocument = {
     {
       heading: "Correr, bici, remo",
       blocks: [
-        "Elige tu deporte con el botón junto a tu perfil, o en «Ajustes».",
+        "Elige tu deporte con el botón de arriba a la derecha, o en «Ajustes».",
         {
           bullets: [
             "Correr: hasta 21 km por calles reales, con la voz giro a giro.",
@@ -335,6 +336,7 @@ const privacy: AboutDocument = {
         "Si añades una actividad pasada desde un archivo, guardamos su recorrido y sus horas como los de una carrera registrada con MuW. No guardamos el archivo.",
         "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros después de que elijas «Todos» o «Seguidores» en «Quién puede verla», y entonces ven el recorrido sin sus primeros y últimos 200 m, con el título que le diste, y sin tiempos, pausas ni la ruta prevista. Tu elección se queda en este teléfono para la siguiente carrera: empieza con la última guardada, la ves antes de «Guardar» y puedes cambiarla. Una actividad añadida desde un archivo siempre empieza en «Solo yo».",
         "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX: siempre sin sus primeros y últimos 200 m y sin tiempos.",
+        "Una foto que publiques puede llevar dentro de la imagen el dibujo de tu carrera. Es el mismo dibujo que muestra el Feed, cortado al principio y al final.",
       ],
     },
     {
@@ -417,6 +419,12 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Salud y Health Connect",
+      blocks: [
+        "Cuando activas «Guardar en Apple Salud» (iPhone) o «Guardar en Health Connect» (Android), cada actividad que guardas se escribe también allí, en tu teléfono: el deporte, cuándo empezó y terminó, la distancia, la ruta y, en una carrera, las calorías activas estimadas. MuW nunca lee tus datos de salud, y nada de ellos llega a nuestro servidor ni a ninguna publicidad. Puedes detenerlo en la app Salud o en Health Connect. Lo que ya está allí se queda hasta que lo borres allí, también cuando borras la carrera o tu cuenta.",
+      ],
+    },
+    {
       heading: "Otros que reciben datos",
       blocks: [
         {
@@ -459,7 +467,7 @@ const privacy: AboutDocument = {
           bullets: [
             "Para darte el servicio que pides (contrato): tu cuenta, tu perfil, las rutas que pides, y las carreras, favoritos, comentarios, reacciones y seguimientos que guardas, los correos de las notificaciones que encendiste, y el juego de las formas.",
             "Nuestro interés legítimo en que MuW funcione, sea segura y mejore: los registros breves del servidor, los recuentos que limitan las descargas de mapas y los eventos de búsqueda, que no dicen nada de quién eres; la comparación de los números de tus contactos, que no conserva ninguno; el correo cuando no estás, que puedes rechazar al registrarte, en «Ajustes» o en cada correo; los correos de las denuncias, para que MuW sea segura; el archivo de las rutas dibujadas, que no dice nada de quién eres; los mensajes de «Envíanos tus comentarios», para leerlos y responderte.",
-            "Tu consentimiento: el número de teléfono que decides añadir y la conexión con Strava. Puedes retirar un consentimiento en cualquier momento; lo que se hizo antes sigue siendo lícito.",
+            "Tu consentimiento: el número de teléfono que decides añadir, la conexión con Strava y el guardado de tus actividades en Apple Salud o Health Connect. Puedes retirar un consentimiento en cualquier momento; lo que se hizo antes sigue siendo lícito.",
             "Una obligación legal, cuando una ley nos pide conservar o entregar datos.",
           ],
         },

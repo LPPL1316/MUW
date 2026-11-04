@@ -307,7 +307,7 @@ export const IT: Table = {
   "Within 150 m of the shore. Never swim alone.":
     "Entro 150 m dalla riva. Non nuotare mai da solo.",
 
-  // src/swim/SwimTurns.tsx, src/swim/swimTurns.ts (TASK-323 C: the turns of a
+  // src/swim/SwimTurns.tsx, src/swim/turns.ts (TASK-323 C: the turns of a
   // swim before «Start», the place's name as OpenStreetMap writes it)
   TURNS: "CURVE",
   "Turn left": "Gira a sinistra",
@@ -858,6 +858,9 @@ export const IT: Table = {
   "Show more comments": "Mostra altri commenti",
   "{name}, {ago}: {text}": "{name}, {ago}: {text}",
   "Touch and hold to delete.": "Tieni premuto per eliminare.",
+
+  // src/feed/ActionBar.tsx
+  Reactions: "Reazioni",
 
   // src/social/DrawingReactions.tsx
   React: "Reagisci",
@@ -1734,4 +1737,62 @@ export const IT: Table = {
   // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
   "WHAT YOU DRAW": "COSA DISEGNI",
   "Write a word, e.g. CIAO": "Scrivi una parola, es. CIAO",
+
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "PEDALALO TU",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Percorsi disegnati da MuW. Nessuno li ha ancora pedalati.",
+  "By bike": "In bici",
+  Bat: "Pipistrello",
+  Madrid: "Madrid",
+  Turin: "Torino",
+
+  // src/search (TASK-344 part B: the search of «Feed»'s lens)
+  "Search drawings, people, places": "Cerca disegni, persone, luoghi",
+  Clear: "Cancella",
+  People: "Persone",
+  Routes: "Percorsi",
+  Filters: "Filtri",
+  "Recent searches": "Ricerche recenti",
+  Categories: "Categorie",
+  "Featured drawings": "Disegni in evidenza",
+  Animals: "Animali",
+  Hearts: "Cuori",
+  Words: "Scritte",
+  Symbols: "Simboli",
+  Emoji: "Emoji",
+  Place: "Luogo",
+  "Town or region": "Città o regione",
+  Complexity: "Complessità",
+  Simple: "Semplice",
+  Medium: "Media",
+  Complex: "Complessa",
+  "Sort by": "Ordina per",
+  "Most recent": "Più recenti",
+  Longest: "Più lunghi",
+  "Most popular": "Più popolari",
+  "Up to {distance}": "Fino a {distance}",
+  "Over {distance}": "Oltre {distance}",
+  Reset: "Azzera",
+  "No drawings found": "Nessun disegno trovato",
+  "Try other words, or change the filters.": "Prova altre parole, o cambia i filtri.",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Percorso creato da MuW – pedalalo tu",
+  "Route created by MuW – run it yourself": "Percorso creato da MuW – corrilo tu",
+  "Route created by MuW – paddle it yourself": "Percorso creato da MuW – pagaialo tu",
+
+  // src/social/composer (TASK-348: the post composer, texts approved with «Approvo così»)
+  "Your post": "Il tuo post",
+  "Hold and drag to reorder": "Tieni premuto e trascina per riordinare",
+  "Move left": "Sposta a sinistra",
+  "Move right": "Sposta a destra",
+  Layout: "Layout",
+  "Drawing in the corner": "Disegno nell'angolo",
+  "Line on the photo": "Linea sulla foto",
+  "Half and half": "Metà e metà",
+  "Photo in the corner": "Foto nell'angolo",
+  "Up to 10 in a post.": "Fino a 10 in un post.",
+  "Could not prepare this photo. Try again.":
+    "Impossibile preparare questa foto. Riprova.",
 };

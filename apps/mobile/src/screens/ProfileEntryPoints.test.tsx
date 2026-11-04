@@ -118,16 +118,16 @@ async function open() {
 
 /** The circle at the right of the names. */
 function circle() {
-  return screen.getByRole("button", { name: /^Profile/ });
+  return screen.getByRole("tab", { name: /^Profile/ });
 }
 
 /** The profile is the page on screen, with the three names over it. */
 function onProfilePage() {
   expect(
-    screen.getByRole("button", { name: /^Profile/, selected: true }),
+    screen.getByRole("tab", { name: /^Profile/, selected: true }),
   ).toBeOnTheScreen();
-  expect(screen.getByTestId("profile-page-mark")).toBeOnTheScreen();
-  expect(screen.getAllByRole("tab")).toHaveLength(3);
+  expect(screen.getByRole("tab", { name: /^Profile/ })).toBeSelected();
+  expect(screen.getAllByRole("tab")).toHaveLength(5);
 }
 
 /** The drawing of the tests, opened on the map from the fourth page. */
@@ -253,7 +253,7 @@ test("a notification of a member opens over the page, and «←» shows the page
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   expect(screen.queryByText(/0 followers/)).toBeNull();
   expect(screen.queryByRole("header", { name: "Profile" })).toBeNull();
-  expect(screen.queryByTestId("profile-page-mark")).toBeNull();
+  expect(screen.queryByRole("tab", { name: /^Profile/, selected: true })).toBeNull();
 });
 
 test("a drawing of a notification over «Settings» goes back to the page", async () => {
@@ -270,4 +270,34 @@ test("a drawing of a notification over «Settings» goes back to the page", asyn
   onProfilePage();
   expect(screen.queryByRole("header", { name: "Settings" })).toBeNull();
   expect(screen.queryByRole("header", { name: "Profile" })).toBeNull();
+});
+
+// TASK-367: the notifications open what they opened before, over the tab
+// bar, and «←» comes back to the page and its tabs.
+
+test("a message's notification opens the conversation over the tabs; «←» comes back to them", async () => {
+  signedIn();
+  api(ACCOUNT);
+  await open();
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
+  await act(async () =>
+    phone.tap({ kind: "message", public_id: adam.public_id, username: adam.username }),
+  );
+  // The conversation over the app: its «←», and the tabs out of sight.
+  await fireEvent.press(await screen.findByRole("button", { name: "Back" }));
+  expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
+  expect(
+    screen.getByRole("tab", { name: "Explore", selected: true }),
+  ).toBeOnTheScreen();
+});
+
+test("a drawing's notification takes the whole screen, without the tab bar; back, the bar", async () => {
+  signedIn();
+  api(ACCOUNT);
+  await open();
+  await act(async () => phone.tap({ kind: "reaction", drawing_id: drawing.id }));
+  expect(await screen.findByText("Back to the profile")).toBeOnTheScreen();
+  expect(screen.queryByTestId("tab-bar")).toBeNull();
+  await fireEvent.press(screen.getByRole("button", { name: "Back to the profile" }));
+  expect(screen.getByTestId("tab-bar")).toBeOnTheScreen();
 });

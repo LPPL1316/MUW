@@ -26,6 +26,7 @@ from test_paddling import COAST, COAST_START, CONTRACT, SQUARE, WATER_FIXTURES, 
 
 from shaperoute_api.activity_graphs import ActivityGraphs, check_supported
 from shaperoute_api.app import create_app
+from shaperoute_api.db import Database, migrations
 from shaperoute_api.errors import suggested_distance
 from shaperoute_api.schemas import RouteRequestBody, RouteResultBody
 
@@ -188,3 +189,30 @@ def test_the_gpx_of_a_swim_has_its_turns(tmp_path: Path) -> None:
     first = [t for t in result["turns"] if t["lap"] == 1]
     assert len(names) == len(first) and all(n.startswith("Turn ") for n in names)
     assert len(root.findall(".//g:trkpt", NS)) == len(result["points"])
+
+
+# --- the migration ----------------------------------------------------------------
+
+
+def test_the_migration_applies_after_the_later_ones(
+    database_url: str, tmp_path: Path
+) -> None:
+    # 0040 enters after 0041 (the number kept for the swim): a database at
+    # every other migration takes it alone, by its name.
+    database = Database(database_url)
+    swim = [path for path in migrations() if path.name == "0040_swimming.sql"]
+    assert len(swim) == 1
+    for path in migrations():
+        if path not in swim:
+            shutil.copy(path, tmp_path / path.name)
+    assert "0040_swimming" not in database.migrate(tmp_path)
+    shutil.copy(swim[0], tmp_path / swim[0].name)
+    assert database.migrate(tmp_path) == ["0040_swimming"]
+    assert database.migrate(tmp_path) == []
+    with database.connect() as conn:
+        checks = conn.execute(
+            "SELECT pg_get_constraintdef(oid) AS check FROM pg_constraint"
+            " WHERE conname IN ('favorites_activity_check', 'runs_activity_check',"
+            " 'group_runs_activity_check')"
+        ).fetchall()
+    assert len(checks) == 3 and all("swimming" in row["check"] for row in checks)

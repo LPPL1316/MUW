@@ -26,6 +26,7 @@ import { t, tLater } from "../i18n";
 import { metresBetween } from "../map/coordinates";
 import type { SavedRun } from "../navigation/trackStore";
 import { keepForDrawing, sendWaitingDrawings } from "../social/drawingOutbox";
+import { keepOrder } from "../social/drawingOrder";
 import { forgetPhotosOf, keepPhotos } from "../social/drawingPhotos";
 import { keepForStrava, sendWaitingToStrava } from "../strava/stravaOutbox";
 import {
@@ -105,6 +106,8 @@ export type ActivitiesDoor = ActivitiesState & {
    * others see it. Told just before «Save», forgotten by `record`.
    */
   toPhotos: (photos: readonly string[]) => void;
+  /** And where the map stands among them (TASK-348); null: first. */
+  toOrder: (order: readonly string[] | null) => void;
   /** The runs of this account still on the phone, waiting for the API;
    * those it refused too. */
   waiting: number;
@@ -159,6 +162,7 @@ const NOTHING: ActivitiesDoor = {
   toStrava: () => {},
   toDrawing: () => {},
   toPhotos: () => {},
+  toOrder: () => {},
   waiting: 0,
   full: false,
   refused: [],
@@ -447,6 +451,12 @@ export function useActivitiesOf(
     nextPhotos.current = photos;
   }, []);
 
+  // And for the order of the post (TASK-348).
+  const nextOrder = useRef<readonly string[] | null>(null);
+  const toOrder = useCallback((order: readonly string[] | null) => {
+    nextOrder.current = order;
+  }, []);
+
   // What `record` and `recordImported` share: the run on the phone, with
   // what was told for it just before «Save».
   const keep = useCallback(
@@ -457,6 +467,8 @@ export function useActivitiesOf(
       nextDrawing.current = null;
       const photos = nextPhotos.current;
       nextPhotos.current = [];
+      const order = nextOrder.current;
+      nextOrder.current = null;
       if (owner === null || recorded === null) {
         return false;
       }
@@ -475,6 +487,9 @@ export function useActivitiesOf(
       // Its photos beside it (TASK-208): with the run safe, a photo the
       // phone will not write is a photo lost, not a run.
       keepPhotos(owner, recorded.id, photos);
+      if (order !== null) {
+        keepOrder(owner, recorded.id, order);
+      }
       recount();
       justKept.current.set(recorded.id, Date.now());
       void send();
@@ -638,6 +653,7 @@ export function useActivitiesOf(
       toStrava,
       toDrawing,
       toPhotos,
+      toOrder,
       waiting,
       full: waiting >= MAX_WAITING,
       refused: refusedRuns,
@@ -666,6 +682,7 @@ export function useActivitiesOf(
       toStrava,
       toDrawing,
       toPhotos,
+      toOrder,
       waiting,
       refusedRuns,
       discard,

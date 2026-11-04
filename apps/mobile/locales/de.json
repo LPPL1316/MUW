@@ -1,6 +1,8 @@
 {
   "ios": {
     "NSLocationWhenInUseUsageDescription": "MuW nutzt deinen Standort, um Routen in deiner Nähe zu zeichnen und deine Aktivitäten aufzuzeichnen. Während einer Aktivität zeichnet MuW auch bei gesperrtem Telefon weiter auf, und iOS zeigt die blaue Leiste.",
-    "NSMicrophoneUsageDescription": "MuW nimmt nie Ton auf: Während deiner Aktivität sagt MuW nur die Anweisungen an."
+    "NSMicrophoneUsageDescription": "MuW nimmt nie Ton auf: Während deiner Aktivität sagt MuW nur die Anweisungen an.",
+    "NSHealthUpdateUsageDescription": "MuW speichert deine beendeten Aktivitäten in Apple Health, mit Zeit, Distanz, Route und, bei Läufen, den geschätzten Kalorien, damit sie auch in der Fitness-App erscheinen.",
+    "NSHealthShareUsageDescription": "MuW liest deine Herzfrequenz aus Apple Health während jeder Aktivität, um sie mit der Aktivität und in deinem Beitrag zu zeigen. Du kannst sie vor dem Veröffentlichen ausblenden."
   }
 }

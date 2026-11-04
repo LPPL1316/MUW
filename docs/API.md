@@ -1033,7 +1033,7 @@ motore.)
 - **Il GPX** (`POST /gpx`) di un nuoto ha un waypoint per ogni curva del
   primo giro, «Turn left · Bagno 54», tipo `turn`, prima della traccia.
 - **Salvati e tenuti**: preferiti, corse e corse di gruppo prendono
-  `swimming` (migrazione `0042`, `DATABASE.md`); Strava lo riceve come
+  `swimming` (migrazione `0040`, `DATABASE.md`); Strava lo riceve come
   `Swim`. Un nuoto dai punti dei laghi e delle spiagge si tiene come la
   canoa, con un'impronta sua (`route_store`).
 - **Campi facoltativi**: un'app di prima non manda `laps` e ignora `laps`,
@@ -2563,6 +2563,11 @@ codice in `muw_routes.py`.
   così un tempo, un passo o una persona non entrano. Lasciato fuori anche senza
   attribuzione a OpenStreetMap, con un titolo mancante in una delle cinque lingue
   o con un nome che non è il suo `id`.
+- **Cosa disegna** (per aprirlo e partire): `shape`, oppure `word` con `style`,
+  e nel percorso intero `outline` quando la figura non è nel catalogo, come i
+  file dei contorni del motore. Un file senza questi campi si legge lo stesso,
+  con `null`, ma l'app non lo apre. La linea che si apre e si corre è sempre
+  quella del file: la figura non la fa ripianificare.
 - **`climb_m` è una stima** da tessere di elevazione, non una misura: nessuno ha
   pedalato questi percorsi. La somiglianza non si manda.
 
@@ -2589,8 +2594,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   parole nominano nella lingua dell'app; un disegno di una di esse è
   trovato anche senza le parole. Senza `q` non chiede niente.
 - **I filtri**, ognuno ripetuto per ogni valore (`shape=heart&shape=star`),
-  al più 50 valori: `shape` (le forme), `activity` (`running`, `cycling`,
-  `paddling`), `min_m` e `max_m` (la distanza della corsa, inclusi),
+  al più 50 valori: `shape` (le forme; `word` per le parole disegnate,
+  cioè una corsa con una parola e senza forma, da TASK-344 parte B),
+  `activity` (`running`, `cycling`, `paddling`), `min_m` e `max_m` (la distanza della corsa, inclusi),
   `place` (una parte del nome del posto, senza accenti), `complexity`
   (`simple`, `medium`, `complex`: lunghezza dell'anteprima diviso la
   diagonale del suo rettangolo, sotto 3,6 e sotto 4,5). Più valori di un
@@ -2607,6 +2613,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   Un cursore di un altro ordine: `422` «This cursor is of another order:
   start again without it.». In `popular` una reazione lasciata fra due
   pagine può spostare un disegno.
+- **`words: true`** nella risposta (TASK-344 parte B): `shape=word`
+  trova le parole disegnate. Un'API di prima lo lascia fuori e per
+  `shape=word` non trova niente: l'app allora non offre «Words».
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app cerca
   solo negli esempi.
 

@@ -4,6 +4,8 @@ import { Pressable, Text, View } from "react-native";
 
 import type { Account } from "../account/useAccount";
 import { t } from "../i18n";
+import { Hairline } from "../ui/Hairline";
+import { Tap } from "../ui/Tap";
 import { ContactField, contactStyles as styles } from "./ContactField";
 import { checkPhone, phoneOfUser } from "./contactFields";
 
@@ -67,8 +69,8 @@ export function PhoneSetting({ user, account }: Props) {
   const value = kept ?? t("Add");
   return (
     <View style={styles.menu}>
-      <Pressable
-        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      <Tap
+        style={styles.row}
         onPress={toggle}
         disabled={busy !== null}
         accessibilityRole="button"
@@ -79,10 +81,10 @@ export function PhoneSetting({ user, account }: Props) {
         <Text style={styles.emoji}>📱</Text>
         <Text style={styles.rowText}>{t("Phone number")}</Text>
         <Text style={styles.value}>{value}</Text>
-      </Pressable>
+      </Tap>
       {open && (
         <View>
-          <View style={styles.divider} />
+          <Hairline style={styles.inset} />
           <View style={styles.form}>
             <ContactField
               label={t("PHONE NUMBER")}

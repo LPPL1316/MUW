@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   },
   divided: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: color.border,
+    borderTopColor: color.hairline,
   },
   optionWords: {
     flex: 1,

@@ -55,6 +55,12 @@ const QUEUE = 3;
 const BATCH = 10;
 /** While the map's tiles come, a word to the app this often. */
 const WAITING_EVERY_MS = 4000;
+/** The map is drawn from a timer this often while its tiles come, and the
+ * picture is taken once it has been whole for this many beats: the WebView
+ * is kept out of sight, and iOS may then stop the page's animation frames,
+ * which MapLibre draws on (TASK-351, the fix of 2026-11-03). */
+const PULSE_MS = 100;
+const PULSES_STILL = 3;
 /** The dark under the words: as opaque as this at the bottom edge, along a
  * smoothstep from clear at the top (tools/ui_scrim.py). */
 const SCRIM_PEAK = 0.82;
@@ -72,6 +78,8 @@ const SCRIPT = String.raw`
   var QUEUE = ${QUEUE};
   var BATCH = ${BATCH};
   var WAITING_EVERY_MS = ${WAITING_EVERY_MS};
+  var PULSE_MS = ${PULSE_MS};
+  var PULSES_STILL = ${PULSES_STILL};
   var SCRIM_PEAK = ${SCRIM_PEAK};
   var FONT = ${JSON.stringify(FONT)};
   var codec = null;
@@ -155,6 +163,8 @@ const SCRIPT = String.raw`
     var errors = 0;
     var timer = null;
     var beat = null;
+    var pulse = null;
+    var pulses = 0;
     var box = null;
     var map = null;
     function finish(ok, why) {
@@ -164,9 +174,28 @@ const SCRIPT = String.raw`
       settled = true;
       clearTimeout(timer);
       clearInterval(beat);
+      clearInterval(pulse);
       mapTimes.map = Math.round(now() - t0);
+      mapTimes.pulses = pulses;
+      try {
+        var loads = performance.getEntriesByType("resource").filter(function (entry) {
+          return entry.name.indexOf("maplibre") >= 0;
+        });
+        if (loads.length > 0) {
+          mapTimes.lib = Math.round(loads[0].duration);
+        }
+      } catch (error) {
+        // No timing of the library: nothing lost.
+      }
       if (ok) {
         var t = now();
+        // Drawn once more right now, so the picture is of the whole map
+        // whatever the page's frames did.
+        try {
+          map.redraw();
+        } catch (error) {
+          // The picture is taken as it is.
+        }
         var picture = document.createElement("canvas");
         picture.width = spec.width * spec.pixelRatio;
         picture.height = spec.height * spec.pixelRatio;
@@ -224,6 +253,30 @@ const SCRIPT = String.raw`
     });
     timer = setTimeout(function () { finish(false, "timeout"); }, spec.waitMs);
     beat = setInterval(function () { post({ type: "waiting", ms: Math.round(now() - t0) }); }, WAITING_EVERY_MS);
+    // The map drawn from a timer as well, and the picture taken once every
+    // tile in view has been there for a few beats: with no animation frames
+    // MapLibre would neither ask for its tiles nor say idle.
+    var still = 0;
+    pulse = setInterval(function () {
+      if (settled) {
+        return;
+      }
+      pulses += 1;
+      try {
+        map.redraw();
+      } catch (error) {
+        finish(false, messageOf(error));
+        return;
+      }
+      if (map.loaded() && map.areTilesLoaded()) {
+        still += 1;
+        if (still >= PULSES_STILL) {
+          finish(errors === 0, errors === 0 ? null : "tiles");
+        }
+      } else {
+        still = 0;
+      }
+    }, PULSE_MS);
   }
 
   // The path from its start to upTo pixels along it.
@@ -487,15 +540,50 @@ const SCRIPT = String.raw`
 })();
 `;
 
+/** A frame of animation from a timer, every this many milliseconds. */
+const FRAME_MS = 16;
+
 /**
- * The whole page: MapLibre GL JS from the same pinned address as the map
- * page, for the map under the video, then the script. Nothing else from the
- * network: the tiles come through the map, and only once the app asks.
+ * Animation frames from a timer, put in place before MapLibre loads
+ * (TASK-351, the fix of 2026-11-03): iOS gives a page it keeps out of
+ * sight no animation frames, and MapLibre loads its style and draws on
+ * them, so the map never came and the video fell back on the yellow. The
+ * page's timers run wherever it is, as the pictures' encoding has shown
+ * since TASK-295. Nothing here needs a smooth frame: a timer is enough.
+ */
+const FRAMES = String.raw`
+(function () {
+  "use strict";
+  var FRAME_MS = ${FRAME_MS};
+  var next = 0;
+  var timers = {};
+  window.requestAnimationFrame = function (callback) {
+    next += 1;
+    var id = next;
+    timers[id] = setTimeout(function () {
+      delete timers[id];
+      callback(performance.now());
+    }, FRAME_MS);
+    return id;
+  };
+  window.cancelAnimationFrame = function (id) {
+    clearTimeout(timers[id]);
+    delete timers[id];
+  };
+})();
+`;
+
+/**
+ * The whole page: the frames from a timer, MapLibre GL JS from the same
+ * pinned address as the map page, for the map under the video, then the
+ * script. Nothing else from the network: the tiles come through the map,
+ * and only once the app asks.
  */
 export const VIDEO_PAGE = `<!doctype html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
 <body>
+<script>${FRAMES}</script>
 <script src="${MAPLIBRE_JS_URL}" integrity="${MAPLIBRE_JS_SRI}" crossorigin="anonymous"></script>
 <script>${SCRIPT}</script>
 </body>
