@@ -503,6 +503,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pixel di `hairline`, `Tap` prende un `ref`. La C1 (pagine vuote, testi
   nuovi) aspetta il sì dell'utente sui testi; poi D. Il 2026-11-04,
   su richiesta dell'utente, riallineata su `main` (con la #620) e aperta.
+  **Parte C2 in `main` dal 2026-11-04** (#715, nel lotto #717 del
+  Coordinatore). **Parte D in PR dal 2026-11-04** (branch
+  `feat/TASK-339-premium-look-d`): il nome del profilo come titolo leggero,
+  i totali leggeri in cifre tabulari, «Settings» senza bordi, i due fogli
+  (super like, messaggi) col titolo `heading` e un pixel in cima, `Tap` sui
+  pulsanti. Senza testi; `ProfileHome` e `UserProfilePage` restano a
+  TASK-309 B. Poi C1 (testi da approvare) ed E.
 - **TASK-361 — «Draw» in tre secondi** (ADR-0307; richiesta dell'utente
   del 2026-10-30; numeri dal Coordinatore). Un solo giallo («Run without a route» con contorno e 🏃),
   la via della partenza, la griglia a due righe, la forma in scala, mezzo

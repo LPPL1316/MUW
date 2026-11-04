@@ -1,6 +1,6 @@
 import type { User } from "@shaperoute/shared-types";
 import { type ReactNode, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { AboutRows } from "../about/AboutRows";
 import type { AboutId } from "../about/documents";
@@ -21,12 +21,14 @@ import { useFeedbackService } from "../settings/useFeedbackService";
 import { StravaSetting } from "../strava/StravaSetting";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { PhotoRow } from "./PhotoRow";
 
 type Props = {
@@ -109,14 +111,14 @@ export function SettingsPage({
       </Section>
       {/* The ways out of the account, last. */}
       <View style={styles.section}>
-        <Pressable
+        <Tap
           style={styles.button}
           onPress={account.signOut}
           disabled={deleting}
           accessibilityRole="button"
         >
           <Text style={styles.buttonText}>{t("Log out")}</Text>
-        </Pressable>
+        </Tap>
         {confirming ? (
           <View style={styles.confirm}>
             <Text style={styles.confirmText}>
@@ -124,7 +126,7 @@ export function SettingsPage({
                 "Delete your account? Everything that is yours goes with it, at once. It cannot be undone.",
               )}
             </Text>
-            <Pressable
+            <Tap
               style={[styles.button, styles.danger, deleting && styles.busy]}
               onPress={account.deleteAccount}
               disabled={deleting}
@@ -134,8 +136,8 @@ export function SettingsPage({
               <Text style={[styles.buttonText, styles.dangerText]}>
                 {t(deleting ? "Deleting…" : "Delete my account")}
               </Text>
-            </Pressable>
-            <Pressable
+            </Tap>
+            <Tap
               style={styles.button}
               onPress={() => {
                 setConfirming(false);
@@ -145,16 +147,16 @@ export function SettingsPage({
               accessibilityRole="button"
             >
               <Text style={styles.buttonText}>{t("Keep my account")}</Text>
-            </Pressable>
+            </Tap>
           </View>
         ) : (
-          <Pressable
+          <Tap
             style={styles.quiet}
             onPress={() => setConfirming(true)}
             accessibilityRole="button"
           >
             <Text style={styles.dangerText}>{t("Delete account")}</Text>
-          </Pressable>
+          </Tap>
         )}
         {account.problem && <Text style={styles.problem}>{account.problem}</Text>}
       </View>
@@ -170,27 +172,23 @@ const styles = StyleSheet.create({
     gap: space.lg,
   },
   label: {
+    ...font.label,
     color: color.textMuted,
-    fontSize: fontSize.label,
-    fontWeight: fontWeight.semibold,
-    letterSpacing: 1.2,
   },
+  // The account as a quiet card: no border, the name as a heading (TASK-339 D).
   card: {
     gap: space.xs,
     padding: space.md,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.border,
     backgroundColor: color.surface,
   },
   username: {
+    ...font.heading,
     color: color.text,
-    fontSize: fontSize.input,
-    fontWeight: fontWeight.semibold,
   },
   email: {
+    ...font.small,
     color: color.textMuted,
-    fontSize: fontSize.body,
   },
   // Neutral: the yellow belongs to the route (docs/UI.md, «Il tema»).
   button: {
