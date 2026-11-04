@@ -20,20 +20,28 @@ from shaperoute_api.personal_bests import SPORTS, Sport
 
 # The order of the profile: the sport, then the distance.
 _ORDER = [
-    (sport, d.name, d.metres) for sport, rules in SPORTS.items() for d in rules.distances
+    (sport, d.name, d.metres)
+    for sport, rules in SPORTS.items()
+    for d in rules.distances
 ]
-_ORDER_SQL = "(VALUES " + ", ".join(
-    f"('{sport}', '{name}', {metres}::double precision, {i})"
-    for i, (sport, name, metres) in enumerate(_ORDER)
-) + ") AS o (sport, distance, distance_m, n)"
+_ORDER_SQL = (
+    "(VALUES "
+    + ", ".join(
+        f"('{sport}', '{name}', {metres}::double precision, {i})"
+        for i, (sport, name, metres) in enumerate(_ORDER)
+    )
+    + ") AS o (sport, distance, distance_m, n)"
+)
 
 
 class PersonalBestBody(BaseModel):
     """packages/shared-types/fixtures/public-profile.json, `personal_bests`."""
 
     sport: Sport
-    distance: str = Field(description="5k, 10k, 15k, half, 30k, marathon, 60k on foot;"
-                          " 10k, 20k, 40k, 50k, 100k, 160k by bike.")
+    distance: str = Field(
+        description="5k, 10k, 15k, half, 30k, marathon, 60k on foot;"
+        " 10k, 20k, 40k, 50k, 100k, 160k by bike."
+    )
     distance_m: float
     seconds: int = Field(description="Moving seconds over the distance.")
     started_at: datetime = Field(description="When the run it was made in began.")

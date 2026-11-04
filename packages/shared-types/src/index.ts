@@ -995,8 +995,7 @@ export const CYCLING_BEST_DISTANCES = [
 export interface PersonalBest {
   sport: "running" | "cycling";
   distance:
-    | (typeof RUNNING_BEST_DISTANCES)[number]
-    | (typeof CYCLING_BEST_DISTANCES)[number];
+    (typeof RUNNING_BEST_DISTANCES)[number] | (typeof CYCLING_BEST_DISTANCES)[number];
   distance_m: number;
   seconds: number;
   /** When the run it was made in began: its day. */

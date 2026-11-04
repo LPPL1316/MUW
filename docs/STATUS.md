@@ -189,6 +189,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
   via del Coordinatore; server, migrazione e sito col sì dell'utente.
   `tasks/TASK-368.md`.
+  **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
+  migrazione `0042_run_bests`, `personal_bests` nel profilo, script
+  `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
+  Poi la parte B, l'app.
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch

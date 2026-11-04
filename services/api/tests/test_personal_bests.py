@@ -34,6 +34,7 @@ from shaperoute_api.personal_bests import (
     bests,
     run_bests,
 )
+from shaperoute_api.personal_bests_backfill import backfill
 from shaperoute_api.profile_bests import PersonalBestBody
 from shaperoute_api.profiles import PublicProfileBody
 
@@ -246,7 +247,9 @@ def published(client: TestClient, headers: Headers, key: str, visibility: str) -
 
 
 def follows(client: TestClient, follower: Headers, followed: Headers) -> None:
-    asked = client.post(f"/users/{public_id(client, followed)}/follow", headers=follower)
+    asked = client.post(
+        f"/users/{public_id(client, followed)}/follow", headers=follower
+    )
     assert asked.status_code == 200, asked.text
     who = public_id(client, follower)
     accepted = client.post(f"/me/follow-requests/{who}/accept", headers=followed)
@@ -342,3 +345,34 @@ def test_across_a_block_there_is_no_profile_and_so_no_bests(
     assert blocked.status_code == 204
     answer = client.get(f"/users/{public_id(client, owner)}", headers=other)
     assert answer.status_code == 404
+
+
+def _kept(database: Database) -> list[tuple[int, str, str, int]]:
+    with database.connect() as conn:
+        rows = conn.execute(
+            "SELECT run_id, sport, distance, seconds FROM run_bests"
+            " ORDER BY run_id, sport, distance"
+        ).fetchall()
+    return [(r["run_id"], r["sport"], r["distance"], r["seconds"]) for r in rows]
+
+
+def test_the_backfill_counts_the_runs_saved_before_as_the_save_does(
+    client: TestClient, database: Database
+) -> None:
+    owner = signed_up(client, 1)
+    saved(client, owner, KEYS[0], five_k(30))
+    saved(client, owner, KEYS[1], five_k(27, day=1, source="file"))
+    counted = _kept(database)
+    assert len(counted) == 2
+    # The runs as they were before part A: no bests kept.
+    with database.connect() as conn:
+        conn.execute("DELETE FROM run_bests")
+    assert bests_seen(client, owner, owner) == []
+
+    done = backfill(database)
+    assert (done.runs, done.bests) == (2, 2)
+    assert _kept(database) == counted
+    assert [b["seconds"] for b in bests_seen(client, owner, owner)] == [1_350]
+    # Twice, the same.
+    backfill(database)
+    assert _kept(database) == counted

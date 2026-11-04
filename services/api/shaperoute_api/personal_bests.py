@@ -232,7 +232,9 @@ def run_bests(
     ]
 
 
-def keep_run_bests(conn: Connection[DictRow], run_id: int, found: list[RunBest]) -> None:
+def keep_run_bests(
+    conn: Connection[DictRow], run_id: int, found: list[RunBest]
+) -> None:
     """The bests of a run, over those it had: in the run's transaction."""
     conn.execute("DELETE FROM run_bests WHERE run_id = %s", (run_id,))
     if found:
