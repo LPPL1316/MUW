@@ -21182,8 +21182,10 @@ sposta l'impronta del motore e fa rifare gli esempi della canoa.
    prima della notte degli esempi, così si rifanno una volta sola; B l'app,
    dopo TASK-367 A, con `ACTIVITIES` che si allarga solo allora; C il gioco
    delle forme sul server.
-3. **Il GPX dice lo sport**: `<type>` nella traccia col nome dell'attività,
-   nel GPX del percorso e in quello della corsa salvata, per ogni attività.
+3. **Il GPX di una camminata lo dice**: `<type>walking</type>` nella traccia,
+   nel GPX del percorso e in quello della corsa salvata; i file degli altri
+   sport restano quelli di prima, byte per byte (condizione del
+   Coordinatore).
 4. **Ritmo in min/km** come la corsa; tempo previsto su 12:00 /km finché non ci
    sono camminate salvate.
 5. **Apple Salute `.walking`, Health Connect WALKING, Strava «Walk»**, con le

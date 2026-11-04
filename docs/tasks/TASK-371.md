@@ -73,10 +73,11 @@ Dopo #709 in `main`, col via del Coordinatore, prima della notte degli esempi.
    `models.py`; in `network.py` la camminata usa la rete **foot** della corsa
    (stessa rete, stessi file di cache, nessuna rete nuova); `--activity
    walking` da riga di comando.
-3. GPX col tipo: `<type>` nella traccia, col nome dell'attività
-   (`running`, `cycling`, `paddling`, `walking`, `swimming`), nel GPX del
-   percorso (`export_gpx.py`, `POST /gpx`) e in quello della corsa salvata
-   (`run_gpx.py`). `imports/gpx.ts` legge già `<type>`.
+3. GPX col tipo, **solo per la camminata**: `<type>walking</type>` nella
+   traccia, nel GPX del percorso (`POST /gpx`) e in quello della corsa
+   salvata (`run_gpx.py`); gli altri sport restano identici byte per byte,
+   con un test (condizione del Coordinatore). `imports/gpx.ts` legge già
+   `<type>`.
 4. API: validazione delle distanze da `DISTANCE_LIMITS_M`; `RunActivity` di
    `activities.py`; Strava `walking: "Walk"`; `activity_graphs.py` dà alla
    camminata il grafo **già in memoria** della corsa, senza zone in più.
@@ -124,7 +125,8 @@ Server, col sì dell'utente sulle regole e sul deploy.
       fuori con `invalid_request`; il percorso è disegnato sulla rete foot.
 - [ ] A: il motore non costruisce né carica una rete nuova per la camminata
       (test sul nome della rete e sul grafo in memoria).
-- [ ] A: i GPX del percorso e della corsa salvata hanno `<type>` giusto.
+- [ ] A: i GPX del percorso e della corsa salvata di una camminata hanno
+      `<type>walking</type>`; quelli degli altri sport non cambiano.
 - [ ] A: una camminata salvata va su Strava come «Walk».
 - [ ] A: la migrazione 0043 accetta `walking` nelle tre tabelle.
 - [ ] B: «Walk» si sceglie in Settings e in Draw, il percorso arriva, la
