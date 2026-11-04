@@ -1,5 +1,5 @@
 import type {
-  Activity as Sport,
+  RunActivity,
   LatLon,
   RunSource,
   TrackFix,
@@ -38,7 +38,7 @@ export type Activity = {
   fidelity: number | null;
   /** What the run was (TASK-251): on the water its pace is a paddler's.
    * Absent from an API before TASK-251, which only knew runs. */
-  activity?: Sport;
+  activity?: RunActivity;
   /**
    * How far the planned route's shape is turned, as RouteResult.rotation_deg
    * (TASK-232): the drawing is shown turned back. Null for a run without a

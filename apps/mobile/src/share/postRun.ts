@@ -1,6 +1,7 @@
-import type { Activity, LatLon } from "@shaperoute/shared-types";
+import type { Activity, LatLon, RunActivity } from "@shaperoute/shared-types";
 
 import { whereAndWhat } from "../activities/activityText";
+import { routeActivity } from "../activities/snow";
 import type { ActivityDetail, RunPost, RunPostRequest } from "../api/activities";
 import { turnOf } from "../explore/recommendedRoutes";
 import { t } from "../i18n";
@@ -28,7 +29,7 @@ export type PostRun = {
   durationMs: number;
   /** What the run was, when the post knows: on the water its pace is of
    * 500 m (TASK-251). Absent, a run's. */
-  activity?: Activity;
+  activity?: RunActivity;
   /** How far the route's shape is turned (TASK-232): the drawing on the
    * post is turned back, so it reads upright. Absent, north up. */
   rotationDeg?: number;
@@ -134,7 +135,7 @@ export function resultValue(run: PostRun, result: PostResult): string | null {
         // A swimmer's pace, of 100 m (TASK-323 D).
         return swimPaceLabel(run.distanceM, run.durationMs);
       }
-      return isPaddle(run.activity)
+      return isPaddle(routeActivity(run.activity))
         ? paddlePaceLabel(run.distanceM, run.durationMs)
         : paceLabel(run.distanceM, run.durationMs);
   }

@@ -237,9 +237,9 @@ test("the drawings of a profile come a page at a time", async () => {
   expect(fetchFn.mock.calls[1][1]).toMatchObject({ method: "GET", headers: AUTH });
 });
 
-// Activities this app does not know: a day on the snow (TASK-375), and one
-// the API may add one day.
-const UNKNOWN = ["skiing", "xc_skiing", "rowing"];
+// Activities this app does not know: one the API may add one day, and one
+// that is no name at all.
+const UNKNOWN = ["rowing", "sledging"];
 
 test.each(UNKNOWN)(
   "a drawing of %s is read as one of no activity, and its page still loads",
@@ -255,6 +255,21 @@ test.each(UNKNOWN)(
     const one = { ...structuredClone(detail), activity };
     expect(isDrawingDetail(one)).toBe(true);
     expect(one).not.toHaveProperty("activity");
+  },
+);
+
+test.each(["skiing", "xc_skiing"])(
+  "a drawing of %s keeps it, in a profile page and whole (TASK-375 B2)",
+  (activity) => {
+    const page = structuredClone({
+      ...drawings,
+      drawings: [{ ...drawings.drawings[0], activity }, ...drawings.drawings.slice(1)],
+    });
+    expect(isDrawingsPage(page)).toBe(true);
+    expect(page.drawings[0]).toHaveProperty("activity", activity);
+    const one = { ...structuredClone(detail), activity };
+    expect(isDrawingDetail(one)).toBe(true);
+    expect(one.activity).toBe(activity);
   },
 );
 

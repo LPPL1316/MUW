@@ -33,7 +33,7 @@ test("the example of the API is what the app reads", () => {
   expect(FEED_PAGE_SIZE).toBe(20);
 });
 
-test.each(["skiing", "xc_skiing", "rowing"])(
+test.each(["rowing", "sledging"])(
   "a page with a post of %s, an activity this app does not know, loads; the post shows as a run",
   (activity) => {
     // The guard drops the field from the body it reads: its own copy.
@@ -45,6 +45,17 @@ test.each(["skiing", "xc_skiing", "rowing"])(
     expect(shownPost(read.posts[1] as FeedPost).activity).toBe("running");
     // The other post keeps its own.
     expect(read.posts[0].activity).toBe("running");
+  },
+);
+
+test.each(["skiing", "xc_skiing"])(
+  "a post of %s keeps it, and its card says its sport (TASK-375 B2)",
+  (activity) => {
+    const read = structuredClone(page);
+    read.posts[1] = { ...read.posts[1], activity };
+    expect(isFeedPage(read)).toBe(true);
+    expect(read.posts[1].activity).toBe(activity);
+    expect(shownPost(read.posts[1] as FeedPost).activity).toBe(activity);
   },
 );
 

@@ -202,6 +202,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     con il solo «Record your day», salvataggio come `skiing`/`xc_skiing`,
     Apple Salute e Health Connect (ADR-0319, punto 7). Prossimo: B2, cioè
     lo sci nel Feed, nelle schede e nei messaggi.
+  - 2026-11-04: **B2**: lo sci nel Feed e nei profili come un post qualsiasi,
+    con il nome dello sport, senza le azioni da percorso (scelta
+    dell'utente, ADR-0319 punto 8). Prossimo: la parte C (le metriche della
+    giornata), con i testi da approvare.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
