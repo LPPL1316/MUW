@@ -21490,6 +21490,19 @@ dell'utente:
 - Nei file importati è camminata il `walking` del GPX, il «10» di Strava e
   lo sport FIT 11. L'escursionismo no: è di TASK-377.
 - «NEAR YOU» resta solo per la corsa («Solo corsa, per ora»).
+
+**Aggiunta (parte C, 2026-11-04)** · scelta dell'utente per i ritmi
+(«Solo i metri»), il resto deciso dall'agente su delega dell'utente col via
+del Coordinatore:
+
+- Nel gioco delle forme una camminata conta i suoi metri come una corsa,
+  con gli stessi controlli, ma senza tempi migliori: le forme col ritmo non
+  si sbloccano camminando.
+- `RULES_VERSION` passa a 2, così `game_backfill` ricalcola le corse già
+  tenute.
+- I concorsi non filtrano per sport, quindi i post a piedi c'erano già.
+- L'app non cambia: la striscia del gioco conta già «a piedi» tutto ciò che
+  non è bici, canoa o nuoto.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono

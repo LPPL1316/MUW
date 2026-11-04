@@ -260,6 +260,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   il server con la 0043, il sì dell'utente. Resta la parte C (il gioco):
   prima va chiesto all'utente se le camminate contano anche nei concorsi.
   Vedi `tasks/TASK-371.md`, «Esito».
+  **Parte C** (2026-11-04, branch `feat/TASK-371-c-walk-game`): le
+  camminate danno i metri al gioco, senza tempi migliori («Solo i metri»,
+  scelta dell'utente), con `RULES_VERSION` 2. I concorsi le accettano già.
+  Il server e `game_backfill` vanno nel giro delle migrazioni 0043–0045,
+  col sì dell'utente.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
