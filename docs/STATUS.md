@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa
+  dov'è** (ADR-0313, proposta; richiesta dell'utente del 2026-11-03; numeri dal
+  Coordinatore). Branch `docs/TASK-369-edit-every-drawing` (documenti). Scelte
+  dell'utente: emoji, parole, percorsi a tema, corse libere e importate sì (la
+  traccia); post di sole foto e risultato di «Draw» no; nessuna scritta «basato
+  su» e nessun blocco dell'autore; Pagaia sì, come parte B (motore e API, server
+  col suo sì). Parte A (solo app) dopo TASK-367 A, col via del Coordinatore.
+  Nota: `tasks/TASK-346.md` dice ancora «In corso», ma la #655 è in `main` dal
+  2026-10-30. `tasks/TASK-369.md`.
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
   numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
