@@ -3,7 +3,7 @@
 **Stato**: Todo: documenti ora, codice dopo le scelte dell'utente
 **Fase**: 4 · **Branch**: `docs/TASK-374-body-calories-hr-zones` (documenti),
 `feat/TASK-374-a-body-calories` (parte A), `feat/TASK-374-b-hr-zones` (parte B)
-· **ADR**: ADR-0NNN · numero del task dal Coordinatore (2026-11-04)
+· **ADR**: ADR-0318 · numeri dal Coordinatore (2026-11-04)
 
 ## Obiettivo
 
@@ -26,6 +26,24 @@ calcolate, e l'utente le può modificare a mano. La richiesta è dell'utente
   come una scelta resta sul telefono e come appare nelle Impostazioni
   (TASK-182, ADR-0149).
 - `docs/TESTING.md`.
+- `tasks/TASK-345.md` e ADR-0298 (calorie e battito nel Feed): la parte A ha
+  fatto `feed/postEnergy.ts`; la parte C legge il battito da Apple Salute a
+  corsa finita. Le zone e la lettura da Salute vanno coordinate con quella.
+- ADR-0219 §3: il riquadro «Calories» solo correndo, «una formula per sport
+  quando l'utente la vorrà». Questo task è quella richiesta.
+- `tasks/TASK-321.md` (Apple Salute, ADR-0281): chi possiede `health/`.
+
+## Ordine e privacy (Coordinatore, 2026-11-04)
+
+- Documenti adesso; il codice **dopo TASK-367** (la navigazione) e coordinato
+  con TASK-345 C su Salute.
+- Sesso, peso, altezza, anno di nascita e zone sono **dati sulla salute**
+  (GDPR art. 9). Proposta: restano sul telefono. Il server (parte C) solo se
+  serve davvero, con un **consenso esplicito separato**.
+- Ogni testo di privacy, App Privacy e Data safety vuole il sì dell'utente.
+- Facoltativi davvero: senza dati l'app resta com'è oggi.
+- Una migrazione, se servirà, si chiede al Coordinatore (oggi la libera è la
+  0045).
 
 ## Cosa c'è oggi
 
@@ -33,14 +51,20 @@ Letto il codice di `main` (`6dc89cfa`) il 2026-11-04.
 
 - `kcal(metres, weightKg = 70)` = km × peso × 1,036, arrotondato. Non conta né
   il tempo, né la salita, né il sesso, né l'età.
-- `RunPanel.tsx` la mostra per ogni sport, quindi anche in bici e in paddle,
-  dove la formula della corsa non vale.
-- `postEnergy.ts` la calcola dalla sola distanza del post (`route_m`), con
-  70 kg, per i post di chiunque.
+- `RunPanel.tsx` mostra il riquadro «Calories» solo correndo: in bici e in
+  paddle non c'è (ADR-0219 §3, la formula della corsa darebbe il triplo).
+- `postEnergy.ts` (TASK-345 A) la calcola dalla sola distanza del post
+  (`route_m`), con 70 kg, solo per la corsa, per i post di chiunque.
 - `health/workout.ts` la scrive in Health solo per la corsa. Per bici e paddle
   scrive `null`.
-- L'app non legge mai dati dalla salute: `appleHealth.ts` e `healthConnect.ts`
-  chiedono soltanto il permesso di scrittura.
+- L'app non legge ancora dati dalla salute: `appleHealth.ts` e
+  `healthConnect.ts` chiedono soltanto il permesso di scrittura. Ma la 1.0.1
+  (build 8) ha già `NSHealthShareUsageDescription`, messa per TASK-345 C, con
+  un testo che parla solo del battito. Su iPhone, quindi, leggere peso,
+  altezza e data di nascita non chiede una build nativa: basta un OTA, ma il
+  testo della chiave andrebbe allargato nella 1.0.2. Mai sulla 1.0 build 7, che
+  non ha la chiave e crasha (TASK-345 C §3). Su Android la lettura
+  aspetta TASK-321 C, che è bloccata.
 - Nessun dato del corpo né delle zone, né nell'app né sul server.
 
 ## Scelte dell'utente
@@ -50,9 +74,11 @@ Una alla volta, con le sue parole. *(da fare)*
 1. **Dove stanno i dati**: solo sul telefono, o anche sul server?
 2. **Il sesso**: quali opzioni.
 3. **Leggere peso, altezza e data di nascita da Apple Health / Health
-   Connect**: sì o no (vuol dire build nativa 1.0.2).
-4. **Le zone**: solo la tabella, o anche il battito durante la corsa e il
-   tempo in ogni zona alla fine?
+   Connect**: sì o no. Su iPhone è possibile già con la 1.0.1, insieme a
+   TASK-345 C; il testo della chiave si allarga nella 1.0.2.
+4. **Le zone**: solo la tabella, o anche il tempo in ogni zona a fine corsa
+   (dai campioni di battito che TASK-345 C già legge), o il battito in tempo
+   reale (orologio o fascia Bluetooth)?
 5. **Dove sta la sezione**: Impostazioni o Profilo.
 6. **I testi dell'interfaccia** (in inglese, più le traduzioni).
 
@@ -65,18 +91,23 @@ Una alla volta, con le sue parole. *(da fare)*
   modificabile, salvata sul telefono.
 - **C — server e sincronizzazione**, solo se la scelta 1 lo chiede: migrazione,
   API, privacy policy e App Privacy.
-- **D — battito in tempo reale**, solo se la scelta 4 lo chiede: build nativa.
+- **D — battito**, solo se la scelta 4 lo chiede: il tempo in ogni zona a
+  fine corsa dai campioni di TASK-345 C; il tempo reale è un'altra cosa
+  (orologio o fascia, dipendenza nuova).
 
 ## Cosa fare (parte A)
 
 1. Modulo puro `body/bodyProfile.ts`: tipo dei dati del corpo, lettura e
    scrittura sul telefono come `units.ts`, conversioni kg/lb e cm/ft-in.
-2. Modulo puro `body/energy.ts`: la formula di ADR-0NNN, per sport, con i dati
+2. Modulo puro `body/energy.ts`: la formula di ADR-0318, per sport, con i dati
    del corpo o i valori di oggi se mancano.
 3. Sezione nelle Impostazioni (o nel Profilo, scelta 5) per inserire i dati,
    nelle unità di TASK-182.
 4. `RunPanel.tsx`, `postEnergy.ts` e `health/workout.ts` passano da `kcal()` a
-   `energy.ts`. In Health si scrivono le kcal anche per bici e paddle.
+   `energy.ts`. Il riquadro «Calories» torna in bici e in paddle (supera
+   ADR-0219 §3) e in Health si scrivono le kcal anche per loro. **Prima di
+   toccare `postEnergy.ts` (TASK-345) e `health/workout.ts` (TASK-321)
+   scrivere al Coordinatore.**
 5. Testi in inglese e traduzioni in `i18n/`, dopo l'approvazione dei testi.
 
 ## Cosa fare (parte B)
@@ -91,7 +122,7 @@ Una alla volta, con le sue parole. *(da fare)*
 - [ ] Senza dati del corpo, una corsa dà le stesse kcal di oggi, con una
       tolleranza di ±5%. C'è un test che lo verifica.
 - [ ] Con i dati del corpo, le kcal di corsa, bici e paddle seguono la formula
-      di ADR-0NNN: test deterministici con casi calcolati a mano.
+      di ADR-0318: test deterministici con casi calcolati a mano.
 - [ ] Le stesse kcal compaiono nella schermata di corsa, nel Feed (per le
       proprie corse) e nell'allenamento salvato in Health.
 - [ ] Peso e altezza si inseriscono e si mostrano nelle unità scelte
@@ -147,8 +178,8 @@ apps/mobile/src/i18n/{it,de,es,fr}.ts
 
 - Server, sincronizzazione, migrazioni, privacy policy: parte C, solo con il sì
   dell'utente.
-- Lettura da Apple Health / Health Connect e battito in tempo reale: build
-  nativa, parti C/D, solo con il sì dell'utente.
+- Lettura da Apple Health / Health Connect e battito: parti C/D, solo con il
+  sì dell'utente e coordinate con TASK-345 C.
 - Fasce Bluetooth: dipendenza nuova, da chiedere.
 - Le kcal dei post di altri utenti calcolate col loro peso: richiede il server
   (scelta 1).

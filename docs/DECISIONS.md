@@ -20946,21 +20946,25 @@ scelta dell'utente.
 
 ---
 
-## ADR-0NNN — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
+## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
 
 **Stato**: Proposta · 2026-11-04 · TASK-374. La richiesta è dell'utente
 (2026-11-04); numero del task dal Coordinatore. Le scelte di prodotto sono
 dell'utente, in `tasks/TASK-374.md`. La formula e il calcolo delle zone sono
-decisi dall'agente su delega dell'utente.
+decisi dall'agente su delega dell'utente. Supera ADR-0219 §3 (calorie solo
+correndo) ed estende ADR-0298 (le calorie nel Feed).
 
-**Contesto**: le kcal sono `km × 70 kg × 1,036` per qualunque sport, anche
-bici e paddle nella schermata di corsa. In Health vanno solo per la corsa.
-L'app non conosce il corpo dell'utente.
+**Contesto**: le kcal sono `km × 70 kg × 1,036`, solo per la corsa: nel
+riquadro della corsa, nel Feed (TASK-345 A) e in Health. ADR-0219 aveva
+tolto il riquadro in bici e in canoa aspettando «una formula per sport».
+L'app non conosce il corpo dell'utente. Sesso, peso, altezza, età e zone sono
+dati sulla salute (GDPR art. 9).
 
 **Decisione** (proposta; i punti 1, 6 e 7 aspettano le scelte dell'utente):
 
 1. Sesso, peso, altezza e anno di nascita sono facoltativi e restano sul
-   telefono (parte A). Ogni dato che manca torna al valore di oggi.
+   telefono (parte A). Ogni dato che manca torna al valore di oggi. Il server
+   solo se serve davvero, con un consenso esplicito separato.
 2. **Energia totale** (deciso dall'agente):
    - *Corsa*: equazione ACSM della corsa, VO₂ = 3,5 + 0,2·v + 0,9·v·pendenza
      (ml/kg/min, v in m/min). Sommata sulla corsa diventa

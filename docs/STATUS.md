@@ -179,13 +179,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   via del Coordinatore; server, migrazione e sito col sì dell'utente.
   `tasks/TASK-368.md`.
 - **TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca**
-  (ADR-0NNN, proposta; richiesta dell'utente del 2026-11-04; numero dal
+  (ADR-0318, proposta; richiesta dell'utente del 2026-11-04; numero dal
   Coordinatore). Branch `docs/TASK-374-body-calories-hr-zones` (documenti).
   Scelte dell'utente da fare, una per volta: dove stanno i dati, le opzioni del
   sesso, lettura da Health, zone solo tabella o battito in corsa, dove sta la
   sezione, testi. Parte A (dati del corpo e kcal, solo app, fingerprint
-  invariato) e B (zone) dopo le scelte; C (server) e D (battito, build nativa)
-  solo col sì dell'utente. `tasks/TASK-374.md`.
+  invariato) e B (zone) dopo le scelte e dopo TASK-367, coordinate con
+  TASK-345 C; C (server, consenso separato) e D (battito) solo col sì
+  dell'utente. `tasks/TASK-374.md`.
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
