@@ -284,10 +284,14 @@ test("a drawing opened from the page goes back to it", async () => {
   expect(await screen.findByText("Drawings")).toBeOnTheScreen();
 });
 
-test("from «Feed» without an account «Find friends» goes to the page, saying why", async () => {
+test("from the search of «Feed» without an account «People» goes to the page, saying why", async () => {
   await open();
   await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
-  await fireEvent.press(screen.getByRole("button", { name: "Find friends" }));
+  // The lens opens the search (TASK-344); its tab «People» says why first.
+  await fireEvent.press(screen.getByRole("button", { name: "Search" }));
+  await fireEvent.press(screen.getByTestId("search-tab-people"));
+  await fireEvent.press(screen.getByText("Log in to find your friends."));
+  expect(screen.queryByTestId("search-page")).toBeNull();
   // The page, as from the circle (TASK-278 part B): no «←», no title.
   onProfilePage();
   expect(screen.queryByRole("header", { name: "Profile" })).toBeNull();

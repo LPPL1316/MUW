@@ -134,7 +134,7 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
         <View style={[styles.bar, { paddingTop: insets.top + space.lg }]}>
           {withTabs && <FeedTabs tab={tab} onChoose={onChoose} />}
           <View style={styles.lens}>
-            <FindFriendsButton />
+            <FindFriendsButton onOpenExample={onOpen} />
           </View>
         </View>
         <FeedList

@@ -20001,9 +20001,12 @@ del Feed sono una ventina, sul telefono.
 2. **Le parole** (`q`) si cercano nel titolo, nella descrizione, nella
    forma (`dog_head` come «dog head»), nella parola disegnata, nel titolo
    del percorso, nel posto e nel nome dell'autore; **tutte** devono
-   esserci. Maiuscole e accenti non contano: una sola tabella di lettere
-   piega le parole in Python e i campi in SQL (`translate(lower(…))`).
-   Niente `unaccent`, che vorrebbe una migrazione.
+   esserci. Maiuscole e accenti non contano: la parola è piegata in
+   Python a lettere semplici, poi ogni lettera diventa la classe di sé e
+   delle sue accentate in un'espressione regolare di PostgreSQL sul testo
+   in minuscolo («citta» → `c[cçćč]i[iì…]…`). Piegare ogni testo con
+   `translate` costava dieci volte tanto; `unaccent` vorrebbe una
+   migrazione.
 3. **Le forme nella lingua dell'app**: le forme sono id inglesi; l'app
    manda in `named` quelle che le parole nominano nella sua lingua
    («cuore» → `heart`), e un disegno di una di esse è trovato anche se le
@@ -20012,7 +20015,8 @@ del Feed sono una ventina, sul telefono.
    `activity`, `min_m`/`max_m`, `place`, `complexity`. Più valori di uno
    si sommano, filtri diversi valgono tutti.
 5. **La complessità** si legge dall'anteprima della traccia (al più 64
-   punti): lunghezza diviso diagonale del rettangolo che la contiene;
+   punti), su un piano con le longitudini accorciate dal coseno della
+   latitudine: lunghezza diviso diagonale del rettangolo che la contiene;
    sotto 3,6 semplice, sotto 4,5 media, oltre complessa. Le soglie sono
    tarate sugli esempi del Feed e stanno in `shared-types`, così l'app
    classifica gli esempi allo stesso modo.
@@ -20022,10 +20026,16 @@ del Feed sono una ventina, sul telefono.
    può spostare un disegno: accettato, come nel feed chi comincia a
    seguire.
 
+7. **La pagina in due passi**: prima gli id, dalle colonne leggere e
+   nell'ordine delle colonne vere (l'indice dei disegni pubblicati per
+   `recent`), poi i campi da mostrare solo dei venti trovati. La query
+   gira con `SET LOCAL jit = off`: compilarla costava più che eseguirla.
+
 **Alternative scartate**: cercare sul telefono nelle pagine del feed già
 lette (trova solo ciò che si è già scorso); un indice di testo di
-PostgreSQL con migrazione (da aggiungere solo se i tempi su 10.000 disegni
-non bastano); tradurre i nomi delle forme sul server (le lingue stanno
+PostgreSQL con migrazione (le parole stanno in tre tabelle, disegno,
+corsa e autore: un indice trigram su una sola non basta, e su 10.000
+disegni metà del tempo è il controllo dei blocchi, lo stesso del feed); tradurre i nomi delle forme sul server (le lingue stanno
 nell'app); salvare la complessità in una colonna (vorrebbe una migrazione,
 e si calcola in fretta dall'anteprima).
 
@@ -20943,3 +20953,46 @@ strumento e una PR; togliere la nota quando qualcuno li avrà pedalati è una
 scelta dell'utente.
 
 ---
+
+## ADR-0297, aggiunta — La schermata della ricerca (TASK-344 parte B)
+
+**Stato**: Attiva · 2026-11-04 · TASK-344 parte B. Deciso dall'agente su
+delega dell'utente, dentro le sei scelte approvate il 2026-10-29.
+
+**Decisione**:
+
+1. **La ricerca è un `Modal` aperto dalla lente** (`FindFriendsButton`),
+   non una pagina di `ProfileLayer`: così `ProfileLayer.tsx` non cambia.
+   Per aprire un esempio come percorso la lente riceve da `FeedScreen` il
+   suo `onOpen`, una riga. Toccato un risultato, la ricerca si chiude
+   prima di aprire il disegno, il percorso o il profilo.
+2. **«Find friends» resta**, raggiungibile da «Find people to follow»;
+   la scheda «People» della ricerca usa la stessa API (`findPeople`) e,
+   senza account, porta alla quarta pagina come prima la lente.
+3. **«Words» è `shape=word`** sul server: una corsa con una parola e
+   senza forma. Le altre quattro categorie sono elenchi di forme del
+   catalogo, decisi nell'app (`categories.ts`); ogni forma sta in una
+   sola. **La risposta lo dichiara** (`words: true`, condizione del
+   Coordinatore, come le schede di TASK-362): l'app offre «Words» solo
+   dopo una risposta che lo dice. La ricerca di «Featured drawings» parte
+   all'apertura, quindi la conferma arriva subito. Col server di prima,
+   o senza account, «Words» non c'è: mai un «No drawings found» falso, e
+   l'OTA non dipende dall'ordine col server.
+4. **Gli esempi senza campi nuovi**: categoria dalla forma, posto dal
+   nome della città, complessità dalla linea con la stessa formula del
+   server (`drawingMatch.complexityOf`), popolarità dal punteggio;
+   «Most recent» tiene l'ordine del Feed. `sampleFeed.json` non cambia.
+5. **«Routes» sono gli esempi** (si aprono come percorso); «Drawings» i
+   disegni dei membri e poi gli esempi; «All» anche i primi tre membri.
+6. **Gli stati si ricavano**, non si impostano negli effetti: ogni
+   risposta porta la chiave della ricerca a cui risponde, e una ricerca
+   nuova mostra «loading» finché non arriva la sua (regola
+   `react-hooks/set-state-in-effect`).
+7. **Le animazioni dentro i `Modal` girano in JS** (`useNativeDriver:
+   false`), come `SuperLikeSheet`: col driver nativo, su iOS con la nuova
+   architettura, dentro un `Modal` non si muove niente.
+
+**Conseguenze**: il server va aggiornato (`shape=word` e `words`,
+nessuna migrazione) col sì dell'utente, in qualsiasi ordine con l'OTA:
+fino ad allora «Words» non si vede. Impronta iOS invariata:
+nessun file nativo, nessuna dipendenza.

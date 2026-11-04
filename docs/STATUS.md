@@ -160,6 +160,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-344 parte B — La schermata della ricerca dalla lente del Feed**
+  (ADR-0297 e la sua aggiunta). Branch `feat/TASK-344-b-search-screen`:
+  `src/search/`, la lente apre la ricerca, `shape=word` sul server per
+  «Words», che l'app mostra solo quando la risposta lo dichiara. 28
+  testi nuovi approvati dall'utente il 2026-11-04 («Sì, approvati»); il server (col sì) in
+  qualsiasi ordine con l'OTA. Su `FeedScreen.tsx` (una riga) entra dopo TASK-367 A.
+
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
   numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).

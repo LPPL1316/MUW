@@ -2534,8 +2534,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   parole nominano nella lingua dell'app; un disegno di una di esse è
   trovato anche senza le parole. Senza `q` non chiede niente.
 - **I filtri**, ognuno ripetuto per ogni valore (`shape=heart&shape=star`),
-  al più 50 valori: `shape` (le forme), `activity` (`running`, `cycling`,
-  `paddling`), `min_m` e `max_m` (la distanza della corsa, inclusi),
+  al più 50 valori: `shape` (le forme; `word` per le parole disegnate,
+  cioè una corsa con una parola e senza forma, da TASK-344 parte B),
+  `activity` (`running`, `cycling`, `paddling`), `min_m` e `max_m` (la distanza della corsa, inclusi),
   `place` (una parte del nome del posto, senza accenti), `complexity`
   (`simple`, `medium`, `complex`: lunghezza dell'anteprima diviso la
   diagonale del suo rettangolo, sotto 3,6 e sotto 4,5). Più valori di un
@@ -2552,6 +2553,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   Un cursore di un altro ordine: `422` «This cursor is of another order:
   start again without it.». In `popular` una reazione lasciata fra due
   pagine può spostare un disegno.
+- **`words: true`** nella risposta (TASK-344 parte B): `shape=word`
+  trova le parole disegnate. Un'API di prima lo lascia fuori e per
+  `shape=word` non trova niente: l'app allora non offre «Words».
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app cerca
   solo negli esempi.
 
