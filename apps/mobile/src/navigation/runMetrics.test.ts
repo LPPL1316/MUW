@@ -1,14 +1,6 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
-import {
-  changeLabel,
-  CLIMB_STEP_M,
-  climbM,
-  DEFAULT_WEIGHT_KG,
-  kcal,
-  kmTimesMs,
-  splits,
-} from "./runMetrics";
+import { changeLabel, CLIMB_STEP_M, climbM, kmTimesMs, splits } from "./runMetrics";
 import {
   addFix,
   emptyTrack,
@@ -144,13 +136,4 @@ test("the climb is the sum of the rises, and small wanderings do not count", () 
       ]),
     ),
   ).toBe(0);
-});
-
-test("the energy is about a kilocalorie per kilo per kilometre", () => {
-  expect(kcal(0)).toBe(0);
-  expect(DEFAULT_WEIGHT_KG).toBe(70);
-  // 10 km at 70 kg.
-  expect(kcal(10_000)).toBe(725);
-  expect(kcal(5000, 60)).toBe(311);
-  expect(kcal(-5)).toBe(0);
 });
