@@ -160,6 +160,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
+  richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
+  finché l'utente non sceglie. Studio in `out/TASK-373/` del Mac (ignorato
+  da git), con la pagina `ski-study.html`. Misurato su Paganella,
+  Campiglio–Pinzolo–Folgarida e Sella Ronda: la rete piste + impianti c'è
+  (pezzo utile 35, 97,5 e 265,5 km), ma il motore di oggi non propone
+  nessuna delle 19 forme chieste (0,22–0,58, minimo 0,60; 27–43% del
+  percorso sugli impianti). Proposta: A, la giornata registrata senza forma
+  (4–6 sessioni); B, forme di discese a penna alzata, solo dopo un
+  prototipo; C, «Soon», no da sola (ADR-0278). **L'utente ha scelto A**
+  il 2026-11-04. Prossimo passo: le domande 2–4, una alla volta
+  (`tasks/TASK-373.md`).
+
 - **TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa
   dov'è** (ADR-0313, proposta; richiesta dell'utente del 2026-11-03; numeri dal
   Coordinatore). Branch `docs/TASK-369-edit-every-drawing` (documenti). Scelte
