@@ -168,6 +168,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   API, migrazione 0043) dopo #709 e prima della notte degli esempi; B (app)
   dopo TASK-367 A con la lista dei file al Coordinatore; C (gioco) col sì
   dell'utente. Testi della parte B ancora da approvare. `tasks/TASK-371.md`.
+  **Parte A** (2026-11-04, branch `feat/TASK-371-a-walk-engine-api`):
+  `walking` nell'API, 1–30 km, disegnata come corsa sulla rete foot da
+  `route_engine/walking.py`, fuori dall'impronta del motore (invariata);
+  `<type>walking</type>` nel GPX solo della camminata, Strava «Walk»,
+  migrazione `0043_walking`. Server e migrazione col sì dell'utente.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**

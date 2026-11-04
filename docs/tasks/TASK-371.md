@@ -88,6 +88,33 @@ Dopo #709 in `main`, col via del Coordinatore, prima della notte degli esempi.
 7. Test deterministici: limiti 1–30 km, `walking` sulla rete foot (lo stesso
    grafo della corsa), il `<type>` dei due GPX, Strava «Walk», la migrazione.
 
+#### Com'è venuta la parte A (2026-11-04)
+
+Il Coordinatore ha chiesto l'impronta del motore invariata: gli esempi si
+ridisegnano una volta sola, la notte del nuoto. I punti 2, 3 e 6 qui sopra
+sono cambiati così:
+
+- **Il motore non conosce la camminata**: `models.py`, `network.py`,
+  `__main__.py` ed `export_gpx.py` restano come sono. Un file nuovo,
+  `route_engine/walking.py`, ha `API_ACTIVITIES`, i limiti 1–30 km,
+  `engine_activity` (la camminata chiesta come corsa) e la riga di comando
+  `python -m route_engine.walking`. `route_store.WALK_ONLY` lo lascia fuori
+  dall'impronta (`test_walk_fingerprint.py`: 5b5e026cea9b e b9d00c37d28d).
+- **L'API** chiede la corsa in `images.route_request_of` (e quindi anche
+  `on_phone`) e in `app.to_request`. Dà alla camminata il grafo foot
+  (`activity_graphs`), la prende in `/stroke-matches` e `/way-back`, e
+  suggerisce distanze da camminata anche nei job (`errors`, `jobs`).
+- **Il GPX**: `<type>walking</type>` solo per la camminata
+  (`run_gpx.gpx_type`, `with_type`); gli altri sport restano identici byte
+  per byte, con un test.
+- `engine.zip` rifatto con lo strumento, perché `walking.py` sta nel
+  pacchetto del motore. L'impronta iOS resta 6f8bba4c.
+- File in più rispetto all'elenco previsto: `route_engine/walking.py`,
+  `images.py`, `errors.py`, `jobs.py`, `route_store.py`, `stroke_matches.py`,
+  `tests/test_walk_fingerprint.py`, `docs/GPX.md`. File in meno:
+  `models.py`, `network.py`, `__main__.py`, `export_gpx.py`. La lista è
+  stata approvata dal Coordinatore prima della PR.
+
 ### Parte B — l'app
 
 Dopo TASK-367 A in `main`; lista dei file al Coordinatore prima del codice;
