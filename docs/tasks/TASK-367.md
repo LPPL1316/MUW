@@ -161,6 +161,7 @@ apps/mobile/src/paddle/PaddleExplore.tsx
 apps/mobile/src/screens/FeedScreen.tsx, FeedScreen.test.tsx, ProfileLayer.test.tsx
 apps/mobile/src/social/FindFriendsButton.tsx, .test.tsx      (tolti)
 apps/mobile/src/search/Glyphs.tsx                            (un commento)
+apps/mobile/src/search/SearchScreen.tsx, SearchScreenInset.test.tsx (nuovo)  (sotto la barra di stato, via del Coordinatore)
 apps/mobile/App.tsx                                          (dopo la #722: onOpenExample)
 apps/mobile/__tests__/AppFeed.test.tsx                       (il test di onOpenExample)
 apps/mobile/src/about/content/*.ts, site/privacy/**          (col sì dell'utente; il sito dopo la #724)

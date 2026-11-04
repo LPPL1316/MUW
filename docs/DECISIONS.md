@@ -21073,6 +21073,11 @@ dell'utente):
   ricerca, non al Feed (`routeList` «explore»). Sull'acqua l'esempio trovato
   si può quindi spostare come quelli di «Explore» (TASK-244): è lo stesso
   percorso dell'app.
+- La pagina della ricerca è un Modal aperto da una pagina della barra di
+  schede, che riceve `top: 0` (l'intestazione tiene la barra di stato): il
+  suo campo finiva sotto l'ora. Il difetto c'era già in produzione con la
+  lente del Feed. Rimedio come TASK-366 per OutlineBoard: dentro il Modal un
+  `SafeAreaProvider` proprio con `initialWindowMetrics`.
 
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
