@@ -58,6 +58,32 @@ elastiche). Il resto di ADR-0293 resta.
 5. `Tap` torna su con la stessa molla `snappy`: tutta l'app risponde al dito
    allo stesso modo.
 
+#### Il cablaggio di `drag` in `TabShell` (dopo la #764)
+
+Concordato con TASK-379 il 2026-11-04; `TabShell` passa a questo task col
+via del Coordinatore, dopo il merge della #764.
+
+- `ScrollView` → `Animated.ScrollView`, `onScroll` =
+  `Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }],
+  { useNativeDriver: true, listener: onScroll })`. Il suo `onScroll` resta
+  intero come listener (costruisce le pagine pigre, sposta le vicine a metà
+  gesto), `scrollEventThrottle={16}`.
+- `restX` = `(around.get(page) ?? now.place) * width`, in un
+  `useLayoutEffect` su `[around.get(page), width]`. Una pagina cambia posto
+  solo fuori vista, quindi `restX` resta fermo per tutto lo swipe. A un tocco,
+  al giro guidato e a «indietro» la pagina nuova arriva nello stesso posto,
+  quindi `drag` resta 0 e la capsula va con la molla.
+- `drag = (scrollX − restX) / width`, passato a `TabBar`.
+- «Messages» senza account: lo swipe arriva a Messages e l'app manda al
+  profilo. La capsula si mette su Messages, dove il dito l'ha portata, e da
+  lì va al profilo con la molla.
+- Gli `scrollTo` (layout, `now.asked`, rotazione) riportano `drag` a 0 senza
+  cambiare pagina. Con VoiceOver o TalkBack lo scroll è spento e `drag`
+  resta 0. Ai capi della striscia lo swipe si ferma e non serve altro.
+- I test di TASK-379 in `TabShell.test.tsx` (`tab-pages`, `scroll`,
+  `momentumScrollEnd`, `scrollEndDrag`, le prop della striscia) restano
+  sull'`Animated.ScrollView`. Dopo il cambio va rilanciato `jest src/tabs`.
+
 ### B — L'«isola» per i messaggi brevi
 
 Una capsula scura in alto al centro che nasce piccola, si gonfia in
