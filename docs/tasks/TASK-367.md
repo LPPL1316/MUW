@@ -221,8 +221,8 @@ file di test), impronta iOS `83793e26` prima del riallineamento e `6f8bba4c`
 dopo la #620. Simulatore (iPhone 17e, Expo Go): schermate in
 `docs/tasks/TASK-367/` (scuro e chiaro); il tocco sulla scheda attiva riporta
 Draw in cima; «Messages» senza account porta al profilo; il tour indica lo
-sport nell'header e poi Explore e Feed. Il «prima» è nelle schermate di
-TASK-355 (`docs/tasks/TASK-355/before-*.jpg`). Non visto nel simulatore: il
+sport nell'header e poi Explore e Feed. Il «prima» (main `6dc89cfa`) è in
+`before-*.jpg` nella stessa cartella, Draw e Feed nei due toni. Non visto nel simulatore: il
 Profilo con l'account (ingranaggio) e la scheda Messages piena, coperti dai
 test. Da decidere: Draw ed Explore hanno ancora il loro logo nella pagina,
 sotto quello nuovo dell'header.
