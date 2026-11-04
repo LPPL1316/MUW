@@ -166,6 +166,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (documenti), poi `feat/TASK-379-tab-swipe` (`TabShell`, solo app, nessuna
   dipendenza nuova). Prossimo passo: le tre scelte dell'utente, una alla
   volta, poi la lista dei file al Coordinatore. `tasks/TASK-379.md`.
+  **Scelte fatte** (2026-11-04): la pagina segue il dito, giro continuo dal
+  profilo al Feed, su tutte e cinque le schede. Documenti nella #757.
 
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed

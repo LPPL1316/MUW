@@ -1,7 +1,7 @@
 # TASK-379 — Lo swipe fra le schede, con la barra in basso
 
-**Stato**: In corso — documenti; scelte dell'utente da fare, codice dopo la
-lista dei file mandata al Coordinatore
+**Stato**: In corso — documenti e scelte dell'utente fatte (2026-11-04);
+codice dopo la lista dei file mandata al Coordinatore
 **Fase**: 4 · **Branch**: `docs/TASK-379-tab-swipe` (documenti),
 `feat/TASK-379-tab-swipe` (codice) · **ADR**: ADR-0323 · numeri dal
 Coordinatore (2026-11-04)
@@ -79,12 +79,13 @@ Una alla volta, con la proposta già pronta; le risposte con le sue parole.
 1. **La pagina segue il dito**, con le pagine affiancate che scorrono come
    prima di TASK-367, oppure cambia di colpo alla fine del gesto.
    Proposta: segue il dito.
-   — *Risposta:* da chiedere.
+   — *Risposta:* «Segue il dito».
 2. **Dall'ultima scheda si torna alla prima?** Proposta: no, si ferma.
-   — *Risposta:* da chiedere.
+   — *Risposta:* «Torna alla prima»: dal profilo uno swipe porta al Feed, e
+   dal Feed all'indietro al profilo, in giro continuo.
 3. **Su quali schede funziona.** Proposta: tutte e cinque, salvo quando il
    gesto parte su un carosello o una fila di schede.
-   — *Risposta:* da chiedere.
+   — *Risposta:* «Tutte e cinque».
 
 ## Cosa fare
 
@@ -102,8 +103,9 @@ Una alla volta, con la proposta già pronta; le risposte con le sue parole.
 
 ## Criteri di accettazione
 
-- [ ] Uno swipe a destra o a sinistra porta alla scheda accanto, e la barra lo
-      segue: test.
+- [ ] Uno swipe a destra o a sinistra porta alla scheda accanto, la pagina
+      segue il dito e la barra la segue: test.
+- [ ] Dal profilo si va al Feed e dal Feed al profilo, in giro: test.
 - [ ] Le pagine costruite restano con scroll e campi; una pagina pigra si
       costruisce quando ci si arriva, non prima: test.
 - [ ] Tocco sulla scheda attiva, «indietro» di Android, giro guidato, stato

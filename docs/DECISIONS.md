@@ -21975,9 +21975,11 @@ faceva con le pagine affiancate di TASK-154 (ADR-0124).
 **Decisione** (proposta):
 
 1. Uno swipe orizzontale sulla pagina porta alla scheda accanto, e la barra
-   segue; il tocco sulla barra resta e mostra la pagina subito. Come scorre la
-   pagina, cosa succede all'ultima scheda e su quali schede vale sono le tre
-   scelte dell'utente nel task file.
+   segue; il tocco sulla barra resta e mostra la pagina subito. Le scelte
+   dell'utente: la pagina **segue il dito**, con le pagine affiancate
+   («Segue il dito»); dal profilo si va al Feed e dal Feed al profilo, **in
+   giro continuo** («Torna alla prima»); vale su **tutte e cinque** le schede
+   («Tutte e cinque»).
 2. Nessuna dipendenza nativa: React Native di base, come il `Pager` di
    TASK-154. L'impronta iOS non cambia e arriva con un OTA.
 3. Un gesto che parte su un carosello o su una fila di schede resta suo. Dentro
