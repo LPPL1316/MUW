@@ -21161,6 +21161,73 @@ scelta dell'utente.
 
 ---
 
+## ADR-0313 — «Edit the drawing» su ogni disegno: la traccia dov'è, una copia senza legami, l'acqua a parte
+
+**Stato**: Proposta · 2026-11-04 · TASK-369. Le scelte di prodotto sono
+dell'utente (2026-11-03 e 2026-11-04, una per volta, in `tasks/TASK-369.md`);
+i punti tecnici sono decisi dall'agente su delega dell'utente. Numero dal
+Coordinatore. Estende ADR-0299 a ogni scheda; cambia ADR-0288 per le emoji e
+le parole; cambia ADR-0161 per i disegni sull'acqua (parte B). ADR-0288 per
+il risultato di «Draw» (TASK-340) resta.
+
+**Contesto**: l'utente il 2026-11-03 vuole «Modifica il disegno» su tutti i
+disegni dell'app, anche su quelli degli altri nel Feed, così ogni disegno si
+modifica e poi si corre. Prima il tasto c'era sulla scheda di un disegno di
+un membro (la traccia dov'è stata corsa, ADR-0299) e sulla scheda di
+«Explore» solo per un contorno (nel mezzo della partenza, ADR-0288); mai per
+un'emoji, una parola, un percorso a tema, una corsa libera o importata,
+sull'acqua.
+
+**Decisione**:
+
+1. Ogni scheda con una linea sulla mappa ha «Edit the drawing», che mette
+   **la traccia, o la linea del percorso, dov'è e grande com'è** su «Draw on
+   the map» (`figureLines.trackInPlace`, in metri sul piano): un disegno di
+   un membro, un'emoji, una parola, un percorso a tema, una corsa libera o
+   importata, un esempio di «Explore» o del Feed, un preferito, un disegno
+   ricevuto in un messaggio. Scelte dell'utente: emoji, parole, percorsi a
+   tema, corse libere e importate «Sì, la traccia».
+2. Anche la scheda di «Explore» passa dalla figura chiesta nel mezzo della
+   partenza alla linea del risultato dov'è (deciso dall'agente su delega
+   dell'utente: una regola sola per ogni scheda, come le scelte del punto 1).
+   Per portarla vicino a sé resta «Draw it near me».
+3. Una traccia che finisce lontano dalla partenza resta aperta, con la regola
+   di ADR-0288 (`CLOSED_SHARE`, l'anello minuscolo e la linea come
+   dettaglio); una più lunga dei limiti di «Draw» si rimpicciolisce attorno
+   al suo mezzo (ADR-0299, punto 2).
+4. Una parola modificata è un disegno a mano: niente più tratti a penna
+   alzata. Un percorso a tema modificato perde i luoghi del tema e la riga
+   «Passes by N of M places».
+5. Niente tasto per un post di sole foto («Sì, niente tasto») e sotto il
+   risultato di «Draw» («No, resta tolto», TASK-340).
+6. Un disegno di un altro si modifica sempre in una **copia** di chi lo
+   modifica; il post originale non cambia mai. La copia **non dice da chi
+   viene** («No, niente scritta») e l'autore **non può impedirla** («Sì,
+   nessun blocco»): non resta nessun legame fra copia e originale, né
+   nell'app né sul server. Se l'autore blocca chi ha copiato, rende privato
+   o cancella l'originale, **la copia resta di chi l'ha fatta** (l'utente, il
+   2026-11-04: «si si»); chi è bloccato non vede più il disegno e non ne fa
+   altre copie.
+7. **Sull'acqua** (parte B, «Voglio anche Pagaia», «Sì, parte separata»):
+   l'API accetta un'immagine con «paddling» (solo `placement` «free») e il
+   motore la mette dove c'è posto vicino alla partenza, con
+   `water_fit.plan_on_water` da un file nuovo (`drawn_water.py`) escluso
+   dall'impronta come `ANCHORED_ONLY` (ADR-0300): l'impronta del motore non
+   cambia e i percorsi tenuti restano. Se non si può, la parte B va di notte
+   col sì dell'utente. Niente «Freehand» sull'acqua in «Draw».
+
+**Alternative scartate**: la figura chiesta invece della traccia per le
+emoji (la scelta del 2026-10-29, «non serve a nulla»); tenere i luoghi del
+tema in un disegno a mano (un campo nuovo nel contratto e nel motore); la
+scritta «Based on @name's drawing» (un campo del post sul server e una riga
+di privacy); un'impostazione dell'autore che vieti le copie (server,
+contratto, testi); la Pagaia nella parte A (l'API la rifiuta); cambiare
+`paddling.py` (impronta nuova, ore di `draw_examples --water`).
+
+**Conseguenze**: la parte A non cambia contratto, API, motore, testi,
+dipendenze né nativo: arriva con un OTA, impronta iOS 6f8bba4c. La parte B
+cambia il comportamento dell'API (accetta quello che rifiutava), non la forma
+del contratto, e vuole l'aggiornamento del server col sì dell'utente.
 ## ADR-0297, aggiunta — La schermata della ricerca (TASK-344 parte B)
 
 **Stato**: Attiva · 2026-11-04 · TASK-344 parte B. Deciso dall'agente su
