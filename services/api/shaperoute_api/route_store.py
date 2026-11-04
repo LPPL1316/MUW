@@ -96,6 +96,26 @@ DRAWN_WATER_ONLY = frozenset({"drawn_water.py"})
 # foot network, so a walk is a run kept. Changing it keeps the routes kept; a
 # test fails when a module that draws routes imports it.
 WALK_ONLY = frozenset({"walking.py"})
+# An engine whose code moved without drawing anything else (TASK-376,
+# ADR-0320): its fingerprint and the earlier one it draws the same routes
+# as, {moved: earlier}, so the routes kept and the examples stay. A line only
+# with its proof in tests/fixtures/same_routes/ (test_same_routes.py: the
+# same points for a fixed set of routes), never for a change of behaviour.
+# Read in a chain: a later move points at the fingerprint before it.
+SAME_ROUTES_AS: dict[str, str] = {}
+
+
+def same_routes_as(fingerprint: str, aliases: dict[str, str] | None = None) -> str:
+    """The earliest fingerprint whose routes `fingerprint` draws the same,
+    following SAME_ROUTES_AS (or `aliases`) from line to line."""
+    aliases = SAME_ROUTES_AS if aliases is None else aliases
+    seen = {fingerprint}
+    while fingerprint in aliases:
+        fingerprint = aliases[fingerprint]
+        if fingerprint in seen:
+            raise ValueError(f"SAME_ROUTES_AS goes round at {fingerprint}")
+        seen.add(fingerprint)
+    return fingerprint
 
 
 def engine_fingerprint(folder: Path | None = None, swims: bool = False) -> str:
@@ -105,7 +125,14 @@ def engine_fingerprint(folder: Path | None = None, swims: bool = False) -> str:
     `swims` the files that draw only swims are left out (SWIM_ONLY): the
     fingerprint of every route but a swim. The files of what is never kept
     are always left out (ANCHORED_ONLY, DRAWN_WATER_ONLY), and the walk's,
-    which draws as a run (WALK_ONLY)."""
+    which draws as a run (WALK_ONLY). An engine that only moved its code
+    keeps the earlier fingerprint (SAME_ROUTES_AS)."""
+    return same_routes_as(code_fingerprint(folder, swims))
+
+
+def code_fingerprint(folder: Path | None = None, swims: bool = False) -> str:
+    """The fingerprint of the engine's files as they are, before
+    SAME_ROUTES_AS (engine_fingerprint)."""
     folder = Path(route_engine.__file__).parent if folder is None else folder
     never_kept = NOT_ROUTES | ANCHORED_ONLY | DRAWN_WATER_ONLY | WALK_ONLY
     left_out = never_kept if swims else never_kept | SWIM_ONLY

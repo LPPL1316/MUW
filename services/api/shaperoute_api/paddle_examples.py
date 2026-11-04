@@ -51,6 +51,7 @@ from route_engine.shapes import in_pieces
 from route_engine.water import OverpassWaterSource, WaterNotCachedError, WaterSource
 
 from shaperoute_api.paddling import plan_water
+from shaperoute_api.route_store import same_routes_as
 
 REPO = Path(__file__).resolve().parents[3]
 WATER_PLACES = REPO / "apps" / "mobile" / "src" / "paddle" / "waterPlaces.ts"
@@ -161,7 +162,13 @@ def engine_files(shapes: Sequence[str] = SHAPES) -> list[Path]:
 
 def engine_fingerprint(shapes: Sequence[str] = SHAPES) -> str:
     """`engine_files` as a few letters, from their content (as
-    route_store.engine_fingerprint does for the whole engine)."""
+    route_store.engine_fingerprint does for the whole engine); an engine
+    that only moved its code keeps the earlier one (SAME_ROUTES_AS)."""
+    return same_routes_as(code_fingerprint(shapes))
+
+
+def code_fingerprint(shapes: Sequence[str] = SHAPES) -> str:
+    """The fingerprint of `engine_files` as they are, before SAME_ROUTES_AS."""
     digest = hashlib.sha256()
     for path in engine_files(shapes):
         digest.update(path.relative_to(ENGINE).as_posix().encode())
