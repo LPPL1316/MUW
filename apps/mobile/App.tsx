@@ -60,6 +60,7 @@ import {
 import { useFavoritesDoor } from "./src/favorites/favoritesDoor";
 import { DrawAgainContext, useDrawAgainOf } from "./src/feed/drawAgainDoor";
 import { fetchPostRoute, postRoute } from "./src/feed/feedRoute";
+import type { SamplePost } from "./src/feed/sampleFeed";
 import { PhoneEngineView } from "./src/engine/PhoneEngineView";
 import { usePhoneZones } from "./src/engine/usePhoneZones";
 import { ZoneNotice } from "./src/engine/ZoneNotice";
@@ -947,6 +948,18 @@ function MuW() {
     setExploreRun(null);
   }
 
+  /**
+   * A drawing of «Feed» found by the search at the top of «Explore»
+   * (TASK-367 part B): fetched whole as «Feed» fetches it, and back goes to
+   * «Explore», where the search was.
+   */
+  function openFoundExample(post: SamplePost) {
+    closeExplore();
+    openExplored(postRoute(post), fetchPostRoute(post));
+    setRouteList("explore");
+    setScreen("map");
+  }
+
   /** Start on a route of "Explore": its directions first (TASK-145). A
    * favorite of a word with the pen up brings its walks (TASK-199), a bike
    * route its stretches with the bike on foot (TASK-206), and is followed
@@ -1825,6 +1838,7 @@ function MuW() {
                       setRouteList("explore");
                       setScreen("map");
                     }}
+                    onOpenExample={openFoundExample}
                   />
                 ) : (
                   <ExploreScreen
@@ -1836,6 +1850,7 @@ function MuW() {
                       setRouteList("explore");
                       setScreen("map");
                     }}
+                    onOpenExample={openFoundExample}
                     city={exploreCity}
                     onCity={(city) => {
                       setExploreCity(city);

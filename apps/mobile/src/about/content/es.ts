@@ -80,7 +80,7 @@ const help: AboutDocument = {
       heading: "Feed y amigos",
       blocks: [
         "«Feed» muestra dibujos de los que sacar ideas: toca uno para abrir su ruta y empezarla.",
-        "La lupa de arriba en «Feed» encuentra a otros miembros por su nombre. En un perfil puedes tocar «Seguir»; tus solicitudes, tus seguidores y a quién sigues están en «Perfil».",
+        "La búsqueda de arriba en «Explora» encuentra a otros miembros por su nombre. En un perfil puedes tocar «Seguir»; tus solicitudes, tus seguidores y a quién sigues están en «Perfil».",
         "En el dibujo público de un miembro puedes reaccionar con un emoji, enviar un súper like y escribir un comentario. No se aceptan comentarios negativos.",
       ],
     },
@@ -316,7 +316,7 @@ const privacy: AboutDocument = {
     {
       heading: "Amigos de tus contactos",
       blocks: [
-        "Bajo la lupa arriba de «Feed», «Buscar amigos en tus contactos» busca a los miembros cuyo número está en los contactos de tu teléfono. La app pide los contactos al teléfono solo cuando lo tocas, y lee solo sus números de teléfono: nunca nombres, correos ni fotos.",
+        "En «Feed», «Buscar personas a las que seguir» lleva a «Buscar amigos en tus contactos», que busca a los miembros cuyo número está en los contactos de tu teléfono. La app pide los contactos al teléfono solo cuando lo tocas, y lee solo sus números de teléfono: nunca nombres, correos ni fotos.",
         "Cada número sale del teléfono cifrado: escrito con el prefijo del país y convertido en un hash (SHA-256). Nuestro servidor compara los códigos con los de los números que añadieron los miembros, responde con los miembros encontrados y no conserva nada de lo recibido: ni en la base de datos ni en un registro.",
         "El hash de un número de teléfono no es un secreto: quien tuviera los códigos podría volver a encontrar los números probando todos los números posibles. Por eso la verdadera protección es que nuestro servidor no conserva ninguno; solo viajan por la conexión cifrada.",
         "Los números de tus contactos son datos de otras personas: se comparan una vez, para encontrar cuentas, y se olvidan. Para impedir que alguien pruebe números uno a uno, el servidor cuenta las búsquedas de cada cuenta en una hora, solo en memoria. Solo se puede encontrar a quien añadió su número, y nunca a alguien que bloqueaste o que te bloqueó.",
@@ -432,6 +432,7 @@ const privacy: AboutDocument = {
             "Hetzner aloja nuestro servidor y sus copias de seguridad, en Alemania.",
             "Geoapify recibe las búsquedas de lugares, de pueblos cercanos y de los lugares de una ruta temática, con la posición redondeada a cerca de 1 km, y, para nombrar el lugar de una carrera guardada, su inicio redondeado igual: nunca tu puerta, la carrera ni quién eres. Si nuestro servidor no responde, la búsqueda de un lugar va entonces a Photon (komoot).",
             "OpenFreeMap sirve el mapa: como cualquier servicio de mapas, ve qué zona miras.",
+            "Las colinas del mapa 3D, y de un vídeo en el estilo «3D», vienen de las Terrain Tiles alojadas en Amazon Web Services: como cualquier servicio de mapas, ve qué zona miras.",
             "Apple en el iPhone, o Google en Android, a través del servicio de direcciones del teléfono, recibe la posición desde la que empieza «Dibuja», para escribir el nombre de la calle. MuW no le envía nada más y no guarda el nombre.",
             "Wikimedia da a nuestro servidor las fotos de los pueblos: ve qué pueblo, no quién pregunta.",
             "Con el mapa «Satélite» Esri da las imágenes, y con el mapa «3D» Amazon Web Services da las alturas: como cualquier servicio de mapas, ven qué zona miras.",

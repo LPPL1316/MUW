@@ -21,11 +21,12 @@ const RUN: PostRun = {
 };
 
 describe("StyleRow", () => {
-  it("offers Night and Day, the chosen one checked, and tells which is tapped", async () => {
+  it("offers Night, Day and 3D, the chosen one checked, and tells which is tapped", async () => {
     const onChange = jest.fn();
     await render(<StyleRow run={RUN} style="night" onChange={onChange} />);
     expect(screen.getByText("Style")).toBeOnTheScreen();
-    expect(screen.getAllByRole("radio")).toHaveLength(2);
+    expect(screen.getAllByRole("radio")).toHaveLength(3);
+    expect(screen.getByRole("radio", { name: "3D" })).not.toBeChecked();
     expect(screen.getByRole("radio", { name: "Night" })).toBeChecked();
     expect(screen.getByRole("radio", { name: "Day" })).not.toBeChecked();
     await fireEvent.press(screen.getByRole("radio", { name: "Day" }));
@@ -48,6 +49,18 @@ describe("StyleRow", () => {
       />,
     );
     expect(screen.queryAllByTestId("style-line")).toHaveLength(0);
-    expect(screen.getAllByRole("radio")).toHaveLength(2);
+    expect(screen.getAllByRole("radio")).toHaveLength(3);
+  });
+
+  it("leans the drawing in the 3D tile, as the map will, and only there", async () => {
+    const onChange = jest.fn();
+    await render(<StyleRow run={RUN} style="3d" onChange={onChange} />);
+    expect(screen.getByRole("radio", { name: "3D" })).toBeChecked();
+    const leaning = { transform: [{ perspective: 400 }, { rotateX: "55deg" }] };
+    expect(screen.getByTestId("style-drawing-3d")).toHaveStyle(leaning);
+    expect(screen.getByTestId("style-drawing-night")).not.toHaveStyle(leaning);
+    expect(screen.getByTestId("style-drawing-day")).not.toHaveStyle(leaning);
+    await fireEvent.press(screen.getByRole("radio", { name: "Night" }));
+    expect(onChange).toHaveBeenCalledWith("night");
   });
 });
