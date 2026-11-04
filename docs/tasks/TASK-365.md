@@ -40,7 +40,7 @@ persona, data di uscita, tempo, passo o calorie. La richiesta è dell'utente
 
 ## Scelte dell'utente
 
-Una alla volta, con le sue parole. **Chiuse la 1 e la 2, e i titoli della 5.**
+Una alla volta, con le sue parole. **Chiuse la 1, la 2 e la 5.**
 
 1. **Quali percorsi.** Proposta: si parte dai sette giudicati buoni a occhio,
    senza i tre di Halloween, fuori stagione dal 1° novembre, e senza quelli
@@ -76,8 +76,12 @@ Una alla volta, con le sue parole. **Chiuse la 1 e la 2, e i titoli della 5.**
    scelta 1. Nel codice il testo di base è l'inglese (ADR-0172).
    — *Risposta sui titoli* (2026-11-02): «Sì, approvo», per i titoli dei 25
    file nelle cinque lingue, dove possibile i nomi delle forme già tradotti
-   nell'app. L'etichetta resta da approvare, con le varianti per la corsa
-   («corrilo tu») e la canoa («pagaialo tu»).
+   nell'app. L'etichetta, con le varianti per la corsa («corrilo tu») e la
+   canoa («pagaialo tu»), nelle cinque lingue: — *Risposta* (2026-11-03):
+   «CONFERMO», riportata con le sue parole dalla sessione «Sessioni archiviate
+   incomplete». Sulla frase intera, nella chat del Coordinatore: «OK METTI
+   PERCORSO CREATO DA MUW». Il testo di base è l'inglese («Route created by MuW
+   – ride it yourself», «– run it yourself», «– paddle it yourself»).
 6. **Cosa si può fare sul post.** Proposta, ADR-0310 punto 4: niente account
    «MuW», reazioni, commenti, profilo, follow o messaggi; si apre il percorso e
    si parte. La scelta dell'utente può cambiarlo.
@@ -121,6 +125,15 @@ download da Overpass la prima volta, che quel giorno rispondeva spesso 502):
 | Bici | Barcelona 738, Torino 77, Valencia 6 e 186, Milano 166, Madrid 137, Burgos 73, León 141, Bologna 88, Vitoria-Gasteiz 168, Valladolid 160, Reggio Emilia 136, Cremona 162 |
 | Canoa | Caldonazzo 1 e 1, Toblino 0, Serraia 0 (acqua già in cache) |
 
+## Il server
+
+Risposta dell'utente all'aggiornamento (2026-11-03, riportata come sopra):
+«SI GRAZIE». Il server gira già `main` 36c6b2da, che contiene la parte API
+(#689) e i 25 file (#695): `catalog/` è montato in sola lettura
+(`deploy/compose.yaml`). Da questa sessione non si legge il server, quindi lo
+conferma la sessione del server con una chiamata a `GET /muw-routes` (25
+percorsi attesi). L'OTA di produzione vuole un sì a parte.
+
 ## Cosa fare
 
 Il codice parte col via del Coordinatore, dopo il merge di questi documenti.
@@ -142,6 +155,12 @@ app.
 6. Aprire il percorso: lo stesso cammino di Explore per «Start», da verificare
    nel codice prima di scrivere; se non basta, ci si ferma e si segnala.
 7. I testi approvati in `i18n/*.ts`.
+
+## L'etichetta nelle cinque lingue
+
+Risposta dell'utente (2026-11-03, nella chat del Coordinatore), sulle 15
+varianti esatte di `apps/mobile/src/i18n/*.ts` (bici, corsa, canoa in en, it,
+de, es, fr): «SI ETICHETTE».
 
 ## Criteri di accettazione
 
@@ -188,6 +207,8 @@ packages/shared-types/fixtures/muw-routes.json        (nuovo)
 packages/shared-types/fixtures/muw-route.json         (nuovo)
 packages/shared-types/test/muwRoutes.test.ts          (nuovo)
 apps/mobile/src/api/muwRoutes.ts                      (nuovo)
+apps/mobile/src/api/muwRoutes.test.ts                 (nuovo)
+apps/mobile/src/feed/muwLabel.ts                      (nuovo)
 apps/mobile/src/feed/useMuwRoutes.ts, .test.tsx       (nuovi)
 apps/mobile/src/feed/MuwPost.tsx, MuwPost.test.tsx    (nuovi)
 apps/mobile/src/screens/FeedScreen.tsx                (il minimo)

@@ -160,12 +160,6 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
-- **TASK-364 — «RIDE IT YOURSELF» in «Explore»: percorsi in bici di MuW**
-  (ADR-0309; richiesta dell'utente del 2026-10-30/31; numeri dal Coordinatore).
-  Branch `feat/TASK-364-bike-ideas`. Ghost, Bat e Pumpkin dalle bozze di
-  `out/muw-bike-drafts/` («Sì, questi 5»; Mushroom e GO al Feed, «Nel Feed»),
-  testi approvati («Sì, approvo»). «MARRY ME» solo se passa dal motore.
-  Solo app, OTA. `tasks/TASK-364.md`.
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
   numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
@@ -234,7 +228,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `a6d8cf1d (il codice; poi la privacy e i documenti)`): la mappa sotto nel look Night, la riserva gialla senza mappa,
   provata in Expo Go, impronta `83793e26` invariata; prima dell'OTA di
   produzione l'utente esporta un video vero sull'iPhone dalla preview e
-  vede la mappa (condizione del Coordinatore). Senza mappa il video
+  vede la mappa (condizione del Coordinatore). 2026-11-03: la B è in
+  `main` (#679) ma sul telefono il video è uscito senza mappa: il WebView
+  fuori vista non riceve fotogrammi di animazione e MapLibre non carica;
+  fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
+  un timer, il WebView è un punto visibile), riprodotto e provato nel
+  simulatore; la prova dalla preview è dell'utente. Poi la C. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
@@ -2216,6 +2215,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
+  (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
+  «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;
+  produzione con la #700, lanciata dall'utente. `tasks/TASK-364.md`.
 - **TASK-366 — Le finestre aperte dal Pager: solo «Edit the outline» stava sotto la barra di stato**
   (2026-11-02; numero dal Coordinatore; seguito di TASK-360). Le sette finestre elencate da
   TASK-360 aperte nel simulatore da dove si aprono davvero: solo `OutlineBoard` («Draw» → «Image»)
