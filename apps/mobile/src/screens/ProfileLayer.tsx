@@ -23,6 +23,7 @@ import { ContestPageHost } from "../contest/ContestPage";
 import { FavoritesContext, useFavoritesOf } from "../favorites/favoritesDoor";
 import { t, tPlural } from "../i18n";
 import { MessagesContext, useMessagesOf } from "../messages/messagesDoor";
+import { useTabReselect } from "../tabs/tabReselect";
 import { MessagesOverlay } from "../messages/MessagesOverlay";
 import { usePushNotifications } from "../notifications/usePushNotifications";
 import { ProfilePhotoContext, useProfilePhotoOf } from "../profile/useProfilePhoto";
@@ -525,6 +526,8 @@ export function OwnProfile({
   const own = useContext(OwnContext);
   const shown = active && own !== null && !own.covered;
   const [visit, setVisit] = useState(0);
+  // Its tab touched again (TASK-367): built anew, at its top.
+  useTabReselect(() => setVisit((last) => last + 1));
   const [wasShown, setWasShown] = useState(shown);
   if (shown !== wasShown) {
     setWasShown(shown);
@@ -546,6 +549,57 @@ export function OwnProfile({
         onBack={onBack}
       />
     </FollowsContext.Provider>
+  );
+}
+
+/** What the screen reader says of the way to «Profile»: who asks to follow,
+ * or that the account must log in again. */
+function profileLabel(attention: boolean, requests: number): string {
+  return requests > 0
+    ? tPlural(
+        requests,
+        "Profile, {count} follow request",
+        "Profile, {count} follow requests",
+      )
+    : t(attention ? "Profile, log in again" : "Profile");
+}
+
+/** The tab of «Profile» in the tab bar (TASK-367): its name for the screen
+ * reader and the requests waiting, for the red number. */
+export function useProfileTab(): { label: string; requests: number } {
+  const { attention, requests } = useContext(DoorContext);
+  return { label: profileLabel(attention, requests), requests };
+}
+
+/** The side of the picture in the tab bar: as the icons, a little more. */
+const FACE_SIZE = 28;
+
+/**
+ * The picture of who is signed in as the icon of «Profile» in the tab bar
+ * (TASK-367), or their first letter, or a figure: with a thin border in the
+ * text's colour while the profile is on screen, as Instagram's.
+ */
+export function ProfileFace({ selected }: { selected: boolean }) {
+  const { attention, initial, photo } = useContext(DoorContext);
+  return (
+    <View style={[styles.face, selected && styles.faceSelected]}>
+      {initial !== null && photo !== null ? (
+        <Image
+          source={{ uri: photo }}
+          style={styles.facePhoto}
+          testID="profile-tab-photo"
+          accessibilityIgnoresInvertColors
+        />
+      ) : initial !== null ? (
+        <Text style={styles.faceInitial}>{initial}</Text>
+      ) : (
+        <View style={styles.figure}>
+          <View style={styles.head} />
+          <View style={styles.shoulders} />
+        </View>
+      )}
+      {attention && <View style={styles.dot} testID="profile-attention" />}
+    </View>
   );
 }
 
@@ -573,15 +627,7 @@ export function ProfileButton({ selected, onPress }: ButtonProps = {}) {
       onPress={onPress ?? open}
       accessibilityRole="button"
       accessibilityState={selected !== undefined ? { selected } : undefined}
-      accessibilityLabel={
-        requests > 0
-          ? tPlural(
-              requests,
-              "Profile, {count} follow request",
-              "Profile, {count} follow requests",
-            )
-          : t(attention ? "Profile, log in again" : "Profile")
-      }
+      accessibilityLabel={profileLabel(attention, requests)}
     >
       {initial !== null && photo !== null ? (
         <Image
@@ -663,6 +709,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.background,
     backgroundColor: color.warning,
+  },
+  face: {
+    width: FACE_SIZE,
+    height: FACE_SIZE,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: color.borderStrong,
+    backgroundColor: color.surfaceRaised,
+  },
+  faceSelected: {
+    borderWidth: 1.5,
+    borderColor: color.text,
+  },
+  facePhoto: {
+    width: FACE_SIZE - 3,
+    height: FACE_SIZE - 3,
+    borderRadius: radius.pill,
+  },
+  faceInitial: {
+    color: color.text,
+    fontSize: fontSize.small,
+    fontWeight: fontWeight.bold,
   },
   // The mark of the page on screen, as under the names (Pager.tsx), in the
   // room under the circle: the header keeps its height. Inside the border.

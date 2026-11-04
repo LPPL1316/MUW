@@ -1,6 +1,6 @@
 import type { ContactPerson, FollowState, Person } from "@shaperoute/shared-types";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { accountProblem, sessionEnded } from "../account/messages";
 import type { Account } from "../account/useAccount";
@@ -25,6 +25,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { FollowButton } from "./FollowButton";
 
 type Failed = Exclude<AccountOutcome<unknown>, { kind: "ok" }>;
@@ -149,13 +150,13 @@ export function ContactsFriends({
       </Text>
       {canAsk && (
         <>
-          <Pressable
-            style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+          <Tap
+            style={styles.button}
             onPress={() => void lookUp(url, signedIn)}
             accessibilityRole="button"
           >
             <Text style={styles.buttonText}>{t("Find friends in your contacts")}</Text>
-          </Pressable>
+          </Tap>
           <Text style={styles.note}>
             {t(
               "Only coded phone numbers leave the phone, never names. The server compares them with the numbers members saved and keeps none.",
@@ -186,8 +187,8 @@ export function ContactsFriends({
       {look.status === "found" &&
         look.people.map((person) => (
           <View key={person.public_id} style={styles.person}>
-            <Pressable
-              style={({ pressed }) => [styles.who, pressed && styles.pressed]}
+            <Tap
+              style={styles.who}
               onPress={() => onPick(person)}
               accessibilityRole="button"
               accessibilityLabel={person.username}
@@ -200,7 +201,7 @@ export function ContactsFriends({
               <Text style={styles.name} numberOfLines={1}>
                 {person.username}
               </Text>
-            </Pressable>
+            </Tap>
             <FollowButton
               apiUrl={url}
               token={signedIn}
@@ -238,9 +239,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.borderStrong,
   },
-  pressed: {
-    opacity: 0.6,
-  },
   buttonText: {
     color: color.text,
     fontSize: fontSize.body,
@@ -260,7 +258,7 @@ const styles = StyleSheet.create({
     gap: space.md,
     paddingVertical: space.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.border,
+    borderBottomColor: color.hairline,
   },
   who: {
     flex: 1,

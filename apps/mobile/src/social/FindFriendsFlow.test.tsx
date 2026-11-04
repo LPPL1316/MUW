@@ -9,11 +9,12 @@ import { Pressable, Text } from "react-native";
 import type { MemorySecureStore } from "../account/testing";
 import { OwnProfile, ProfileLayer } from "../screens/ProfileLayer";
 import { useDrawingsDoor } from "./drawingsDoor";
-import { FindFriendsButton } from "./FindFriendsButton";
+import { usePeopleDoor } from "./peopleDoor";
 
-// «Find friends» as the app has it (TASK-215): the button of «Feed» opens
-// the search over the app, a name opens the profile, and a drawing opened
-// from that profile comes back to it.
+// «Find friends» as the app has it (TASK-215): a way of «Feed» opens the
+// search over the app («Find people to follow»; the lens opens the search
+// of drawings since TASK-344), a name opens the profile, and a drawing
+// opened from that profile comes back to it.
 
 jest.mock(
   "react-native-safe-area-context",
@@ -58,10 +59,24 @@ function Map() {
   );
 }
 
+/** A way of «Feed» to the members' search, as «Find people to follow». */
+function FindFriends() {
+  const { open } = usePeopleDoor();
+  return (
+    <Pressable
+      onPress={open}
+      accessibilityRole="button"
+      accessibilityLabel="Find friends"
+    >
+      <Text>Find people to follow</Text>
+    </Pressable>
+  );
+}
+
 async function showFeed() {
   await render(
     <ProfileLayer apiUrl={API}>
-      <FindFriendsButton />
+      <FindFriends />
       <Map />
     </ProfileLayer>,
   );
@@ -113,7 +128,7 @@ test("without an account, the page of the profile comes first and says why", asy
   api({});
   await render(
     <ProfileLayer apiUrl={API}>
-      <FindFriendsButton />
+      <FindFriends />
       {/* The fourth page of the pager (TASK-278 part B). */}
       <OwnProfile active />
     </ProfileLayer>,

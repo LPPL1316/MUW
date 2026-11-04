@@ -35,6 +35,7 @@ import { themedOf } from "../contest/contestApi";
 import { enteredIn, keptContest } from "../contest/contestKept";
 import { sendEntry } from "../contest/sendEntry";
 import { t } from "../i18n";
+import { keepOrder, orderOnPhone, syncOrder } from "./drawingOrder";
 import { forgetForDrawing, keepForDrawing, waitingDrawing } from "./drawingOutbox";
 import {
   keepPhoto,
@@ -49,7 +50,15 @@ import {
 export type ChoiceShown =
   /** `waiting`: chosen on this phone, not on the API yet. `photos`: the
    * API's, for the places this phone has no photo of. */
-  | { kind: "known"; choice: DrawingChoice; waiting: boolean; photos: DrawingPhoto[] }
+  | {
+      kind: "known";
+      choice: DrawingChoice;
+      waiting: boolean;
+      photos: DrawingPhoto[];
+      /** The API's order of the post (TASK-348); null or absent: never
+       * ordered, or not known yet. */
+      order?: string[] | null;
+    }
   /** An API from before drawings: nothing to choose. */
   | { kind: "off" }
   | { kind: "failed"; problem: string };
@@ -95,6 +104,12 @@ export type DrawingsDoor = {
   /** Takes the photo `n` of the run `key` off this phone; `onApi` when the
    * API has it: `choose` then empties the place there. */
   removePhotoOf: (key: string, n: number, onApi: boolean) => void;
+  /** The order of the post of the run `key`: this phone's, or `fromApi`
+   * (TASK-348); null when none was chosen. */
+  orderOf: (key: string, fromApi: readonly string[] | null) => readonly string[] | null;
+  /** Keeps `order` for the run `key` on this phone; false when the phone
+   * refused. `choose` then sends it, while others see the run. */
+  keepOrderOf: (key: string, order: readonly string[]) => boolean;
   /** What an `Image` shows of a photo on the API; null with nobody signed in. */
   photoSource: (photo: DrawingPhoto) => PhotoShown["source"] | null;
   /** A page of the drawings of a profile; null with nobody signed in. */
@@ -127,6 +142,8 @@ const NOTHING: DrawingsDoor = {
   photosOf: () => [],
   keepPhotoOf: () => false,
   removePhotoOf: () => {},
+  orderOf: (_key, fromApi) => fromApi,
+  keepOrderOf: () => false,
   photoSource: () => null,
   pageOf: async () => null,
   opening: null,
@@ -246,6 +263,7 @@ export function useDrawingsOf(
           },
           waiting: false,
           photos: outcome.value.photos ?? [],
+          order: outcome.value.order ?? null,
         };
       }
       if (ended(token, outcome)) {
@@ -296,9 +314,17 @@ export function useDrawingsOf(
             key,
           },
         );
-        if (photos === "session_ended") {
+        // Then where the map stands among them (TASK-348), once they went.
+        const order =
+          photos === "done"
+            ? await syncOrder(baseUrl, token, owner, runKey, kept.visibility, {
+                fetchFn,
+                key,
+              })
+            : photos;
+        if (order === "session_ended") {
           endSession(token);
-        } else if (photos === "waits") {
+        } else if (order === "waits") {
           keepForDrawing({
             owner,
             key: runKey,
@@ -402,6 +428,18 @@ export function useDrawingsOf(
     [owner],
   );
 
+  const orderOf = useCallback(
+    (runKey: string, fromApi: readonly string[] | null) =>
+      (owner === null ? null : orderOnPhone(owner, runKey)) ?? fromApi,
+    [owner],
+  );
+
+  const keepOrderOf = useCallback(
+    (runKey: string, order: readonly string[]) =>
+      owner !== null && keepOrder(owner, runKey, order),
+    [owner],
+  );
+
   const pageOf = useCallback(
     async (publicId: string, cursor: string | null) => {
       if (token === null || baseUrl === null) {
@@ -481,6 +519,8 @@ export function useDrawingsOf(
       photosOf,
       keepPhotoOf,
       removePhotoOf,
+      orderOf,
+      keepOrderOf,
       photoSource,
       pageOf,
       opening: token === null ? null : opening,
@@ -498,6 +538,8 @@ export function useDrawingsOf(
       photosOf,
       keepPhotoOf,
       removePhotoOf,
+      orderOf,
+      keepOrderOf,
       photoSource,
       pageOf,
       opening,

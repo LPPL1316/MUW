@@ -111,7 +111,7 @@ test("an example of a city: A · B to choose, and Start on the one chosen", asyn
   await fireEvent(screen.getByTestId("map"), "message", {
     nativeEvent: { data: '{"type":"ready"}' },
   });
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   await fireEvent.press(screen.getByText("New York"));
   await fireEvent.press(await screen.findByLabelText(/^Heart, /));
 

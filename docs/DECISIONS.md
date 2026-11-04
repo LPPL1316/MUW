@@ -18287,6 +18287,139 @@ server è di B. Come A1, le impronte non devono cambiare.
 pesati per tipo (un faro prima di un bar), da riprendere coi posti veri se
 servirà.
 
+## ADR-0283 — aggiunta, parte B: il nuoto nel contratto, l'app ancora a tre attività, un'impronta per i nuoti tenuti
+
+**Stato**: Attiva · 2026-10-30 · deciso dall'agente su delega dell'utente
+(TASK-323 parte B, su richiesta dell'utente «passa alla parte B»).
+Aggiunta ad ADR-0283.
+
+**Contesto**: B porta il nuoto nell'API: il contratto, la migrazione,
+l'estratto dei nomi a riva. `models.py` cambia, e con lui le due impronte
+che A1 e A2 avevano tenuto ferme. I tipi condivisi (`shared-types`) sono
+anche quelli dell'app: `Activity` è la chiave di tabelle dell'app e dei
+file di Apple Salute di TASK-321, che il task non deve toccare.
+
+**Decisione**:
+
+1. **Il contratto**: `swimming` in `SUPPORTED_ACTIVITIES`,
+   `WATER_ACTIVITIES` e `DISTANCE_LIMITS_M` (500–3000 m);
+   `RouteRequest.laps` (1–5, solo nuoto, `laps are for a swim`);
+   `RouteResult.laps`, `.lap_m` (quanto è lungo un giro, senza i tratti
+   dalla riva: per «3 laps of 320 m» della parte C) e `.turns`. I tipi
+   delle curve (`SwimTurn`,
+   `Landmark`) passano da `swim_turns.py` a `models.py`: sono dati del
+   contratto, e così `models.py` non importa un modulo del nuoto.
+2. **L'app resta a tre attività**: in `shared-types` `Activity` non cambia
+   e un `API_ACTIVITIES` nuovo ha anche `swimming`, come `contract.json`;
+   `DISTANCE_LIMITS_M` ha le quattro. Allargare `Activity` rompe
+   `distance.ts`, `PublicParts.tsx` e i due file di Apple Salute: è lavoro
+   della parte C (lo schermo, i testi da approvare) e di TASK-321 (il tipo
+   di allenamento del nuoto, condiviso con la parte E). L'app compila
+   senza cambiare.
+3. **Un disegno si nuota come un'immagine**: `/image-route-jobs` con
+   `swimming` (anche coi giri) va a `plan_swim`; per la canoa resta il
+   rifiuto (`check_outline_drawn`). Il comando principale nuota solo le
+   forme; un disegno da `python -m route_engine.swimming --outline`.
+4. **I nomi a riva sul server**: `ServerWater.places` legge
+   `<cache>/shore_names/`, e il job li passa al motore
+   (`_ReportingWater.places`). `shore_extract.py` li scrive da un estratto,
+   come `water_extract.py`: i posti con un nome di `KINDS` entro 300 m
+   dalla costa o dal bordo di un lago.
+5. **Le impronte**: `route_store` tiene i nuoti con
+   `engine_fingerprint(swims=True)`, gli altri senza i file del nuoto; i
+   giri sono parte di cosa è uguale (`_same`). Il comando principale
+   importa il nuoto ma l'API no: il test dell'import lo lascia fuori.
+6. **Strava** riceve un nuoto come `Swim` (non ha un tipo per le acque
+   libere); il gioco lo conta come ogni attività che non è corsa.
+7. **La migrazione `0040_swimming.sql`** apre i tre vincoli che elencano
+   le attività (preferiti, corse, corse di gruppo); `drawn_routes` non ha
+   un elenco.
+
+**Conseguenze**: dopo il merge e l'aggiornamento del server gli esempi
+tenuti si ridisegnano (`draw_examples`). `apps/mobile/src/paddle/paddleExamples.json`
+va rifatto con l'acqua del server (`python -m shaperoute_api.paddle_examples
+--cache-dir …`): finché non lo si rifà, `test_paddle_examples` è rosso, e
+dalla sessione cloud non si può. L'estratto dei nomi e il deploy col sì
+dell'utente.
+
+## ADR-0283 — aggiunta, parte C: i testi approvati, C in due tempi, lo sport ancora una corsa finché è «Soon»
+
+**Stato**: Attiva · 2026-10-30 · i testi inglesi li ha scelti l'utente
+(«Sì, così» alla proposta di ADR-0283, punto 6); il resto è deciso
+dall'agente su delega dell'utente (TASK-323 parte C, su richiesta
+dell'utente «passa alla parte C»). Aggiunta ad ADR-0283.
+
+**Contesto**: C porta lo sport nell'app. Per chiedere un nuoto all'API,
+`Activity` dell'app deve avere `swimming`; ma `Activity` è la chiave di
+`Record` nei due file di Apple Salute di TASK-321 (`appleWorkout.ts`,
+`healthConnectWorkout.ts`), che è in lavorazione e che per la condizione 3
+del Coordinatore nessuna parte tocca. `App.tsx` e `RoutePanel.tsx`, dove
+l'avviso, la riga e l'elenco si collegano, sono contesi con altri task. B
+non è ancora in `main`.
+
+**Decisione dell'utente** (2026-10-30): il nome 🏊 «Open water swim»;
+l'avviso «Before you swim» con i quattro punti di ADR-0283 al primo «Start»
+di un nuoto su questo telefono, come per la canoa, con «I understand» e
+«Not now»; sotto ogni giro «Within 150 m of the shore. Never swim alone.».
+
+**Decisione dell'agente**:
+
+1. **C in due tempi.** C1, adesso, in file nuovi (`src/swim/`) più la riga
+   di `sport.ts`: lo sport con `ready: false`, l'avviso col suo file
+   (`swim-notice.json`, separato da quello della canoa), la riga sotto il
+   giro, l'elenco delle curve, i testi nelle cinque lingue. C2, dopo B in
+   `main`: `Activity` con `swimming` insieme a TASK-321 (il tipo di
+   allenamento del nuoto in Salute e in Health Connect), `activityOf("swim")`
+   = `"swimming"`, il collegamento in `App.tsx` e nel pannello del
+   percorso, `ready: true` quando il server nuota.
+2. **Finché è «Soon» lo sport va come una corsa**, come il parapendio
+   (TASK-305 D0): non si sceglie mai, quindi non chiede mai un percorso.
+   Nelle build dello store non si vede (TASK-318).
+3. **L'elenco delle curve è quello del primo giro**: ogni giro passa dagli
+   stessi angoli della forma, e il GPX tiene le curve del primo giro.
+   Ogni curva si scrive come il suo waypoint del GPX («Turn left ·
+   Bagno 54») con i metri dalla partenza nelle unità dell'app; sopra, per più
+   giri, «The same turns every lap, {laps} laps, then back to the shore.».
+   Un nuoto senza curve (un cerchio) non ha elenco. Il nome del posto resta
+   come lo scrive OpenStreetMap, in ogni lingua.
+4. **La riga sotto il giro ha la striscia gialla** delle note da tenere
+   d'occhio del pannello (`NoteRow`, `caution`), e c'è sempre, avviso letto
+   o no.
+5. **«Explore» a nuoto (punto 4 di C) aspetta** gli esempi disegnati
+   sull'acqua del server (`draw_examples --water`), col sì dell'utente.
+
+**Conseguenze**: C1 cambia l'app solo dove si vede «Soon» (Expo Go e
+`preview`): una riga in più in «Settings» e nel menu di «Draw». Solo
+JavaScript, nessuna dipendenza: l'impronta iOS non cambia. I testi delle
+curve e le traduzioni nelle quattro lingue li ha approvati l'utente lo
+stesso giorno («Sì, così»). C2 chiede il via del Coordinatore per i file di
+TASK-321.
+## ADR-0283 — aggiunta, parte B: l'impronta degli esempi della canoa aggiornata, i percorsi gli stessi
+
+**Stato**: Attiva · 2026-11-03 · deciso dall'agente su delega dell'utente
+(«continua tu qui, dobbiamo finire e poi caricarlo»). Aggiunta ad ADR-0283.
+
+**Contesto**: B cambia `models.py`, che è fra i 25 file con cui la canoa
+disegna (`paddle_examples.engine_files`): l'impronta di
+`paddleExamples.json` passa da `1b6759cb3cc4` a `574fbfba41eb` e il test lo
+vuole rifatto con l'acqua del server. Né il server né il Mac si
+raggiungono da questa sessione.
+
+**Decisione**: si aggiorna solo il campo `engine` del file, perché i
+percorsi della canoa non cambiano, e lo si è misurato:
+
+1. dei 25 file della canoa, `main` e B differiscono solo in `models.py`, e
+   lì B aggiunge soltanto: `swimming` negli elenchi delle attività e
+   dell'acqua, i campi del nuoto con un valore di partenza, i loro tipi e
+   un controllo che rifiuta i giri fuori dal nuoto;
+2. le otto forme degli esempi, a 1,5 e 2 km, sull'acqua di prova del mare e
+   del lago (32 percorsi), escono identiche byte per byte dal motore di
+   `main` e da quello di B.
+
+**Conseguenze**: `test_paddle_examples` torna verde. Gli esempi si
+ridisegnano davvero, con l'acqua del server, la prima volta che il motore
+della canoa cambia (il test lo chiede di nuovo).
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
@@ -20001,9 +20134,12 @@ del Feed sono una ventina, sul telefono.
 2. **Le parole** (`q`) si cercano nel titolo, nella descrizione, nella
    forma (`dog_head` come «dog head»), nella parola disegnata, nel titolo
    del percorso, nel posto e nel nome dell'autore; **tutte** devono
-   esserci. Maiuscole e accenti non contano: una sola tabella di lettere
-   piega le parole in Python e i campi in SQL (`translate(lower(…))`).
-   Niente `unaccent`, che vorrebbe una migrazione.
+   esserci. Maiuscole e accenti non contano: la parola è piegata in
+   Python a lettere semplici, poi ogni lettera diventa la classe di sé e
+   delle sue accentate in un'espressione regolare di PostgreSQL sul testo
+   in minuscolo («citta» → `c[cçćč]i[iì…]…`). Piegare ogni testo con
+   `translate` costava dieci volte tanto; `unaccent` vorrebbe una
+   migrazione.
 3. **Le forme nella lingua dell'app**: le forme sono id inglesi; l'app
    manda in `named` quelle che le parole nominano nella sua lingua
    («cuore» → `heart`), e un disegno di una di esse è trovato anche se le
@@ -20012,7 +20148,8 @@ del Feed sono una ventina, sul telefono.
    `activity`, `min_m`/`max_m`, `place`, `complexity`. Più valori di uno
    si sommano, filtri diversi valgono tutti.
 5. **La complessità** si legge dall'anteprima della traccia (al più 64
-   punti): lunghezza diviso diagonale del rettangolo che la contiene;
+   punti), su un piano con le longitudini accorciate dal coseno della
+   latitudine: lunghezza diviso diagonale del rettangolo che la contiene;
    sotto 3,6 semplice, sotto 4,5 media, oltre complessa. Le soglie sono
    tarate sugli esempi del Feed e stanno in `shared-types`, così l'app
    classifica gli esempi allo stesso modo.
@@ -20022,10 +20159,16 @@ del Feed sono una ventina, sul telefono.
    può spostare un disegno: accettato, come nel feed chi comincia a
    seguire.
 
+7. **La pagina in due passi**: prima gli id, dalle colonne leggere e
+   nell'ordine delle colonne vere (l'indice dei disegni pubblicati per
+   `recent`), poi i campi da mostrare solo dei venti trovati. La query
+   gira con `SET LOCAL jit = off`: compilarla costava più che eseguirla.
+
 **Alternative scartate**: cercare sul telefono nelle pagine del feed già
 lette (trova solo ciò che si è già scorso); un indice di testo di
-PostgreSQL con migrazione (da aggiungere solo se i tempi su 10.000 disegni
-non bastano); tradurre i nomi delle forme sul server (le lingue stanno
+PostgreSQL con migrazione (le parole stanno in tre tabelle, disegno,
+corsa e autore: un indice trigram su una sola non basta, e su 10.000
+disegni metà del tempo è il controllo dei blocchi, lo stesso del feed); tradurre i nomi delle forme sul server (le lingue stanno
 nell'app); salvare la complessità in una colonna (vorrebbe una migrazione,
 e si calcola in fretta dall'anteprima).
 
@@ -20379,6 +20522,24 @@ provato nel simulatore con un harness che toglie i fotogrammi alla
 pagina: prima 15,2 s e il giallo, dopo la mappa in 1,5 s. Se sul telefono
 non basta, la prova seguente mette il WebView a grandezza piena sotto una
 vista opaca, come il Feed.
+
+**Aggiunta (2026-11-04, deciso dall'agente su delega dell'utente)**: con
+il fix del 3 novembre in `main` e sulla preview, sul telefono il video è
+ancora senza mappa. Prova successiva: il WebView del video a grandezza
+piena (360 × 640 punti) sotto una vista opaca del colore dello schermo,
+montato per primo nello schermo del post, com'è tenuta la pagina delle
+mappe del Feed, che sul telefono le mappe le fa; e, finché la causa non è
+trovata, il video giallo di riserva porta in fondo una riga piccola con il
+motivo che la pagina ha dato e i suoi tempi, **solo sul canale preview**
+(`isPreview()` in `src/updates/channel.ts`, da `Updates.channel` di
+`expo-updates`; un test prova che sulla build degli store non compare):
+condizione del Coordinatore, perché `main` va in produzione con altro
+lavoro prima che il video sia risolto, e la riga non può dipendere dal
+ricordarsi di toglierla. La produzione del video resta ferma finché
+l'utente non vede la mappa sul telefono. L'utente ha risposto che il video
+della preview fb15613e era «giallo», con l'app riaperta due volte: la
+riserva con il fix #703 caricato. PR #707, riallineata su `main` dopo la
+#620: da lì l'impronta iOS di `main` è `6f8bba4c`.
 
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
@@ -20870,6 +21031,31 @@ risposto «Sì, così».
 ricerca in Explore (dopo 344 B), C le notifiche (API, migrazione, app). Le
 schermate dell'App Store (TASK-328) vanno rifatte. Chi aveva imparato lo swipe
 fra le pagine non lo trova più.
+
+**Parte A, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- `TabShell` al posto di `Pager`: le pagine sovrapposte, quella fuori vista
+  con `display: none`, così restano montate senza uno ScrollView orizzontale.
+  Il tour usa gli stessi nomi di prima (`tab:` e `page:`), quindi i suoi testi
+  non cambiano.
+- Il tocco sulla scheda attiva passa per un contesto per pagina
+  (`useTabReselect`): Feed, Draw, Explore (anche sull'acqua) e Messages
+  tornano in cima con una riga ciascuno; il profilo si ricostruisce, come già
+  faceva a ogni ritorno. Questo aggiunge al task `FeedScreen.tsx`,
+  `ExploreScreen.tsx`, `PaddleExplore.tsx` e `TourScrollView.tsx`, una riga
+  ciascuno: dentro le pagine non cambia altro.
+- La lista di «Messages» aperta da altrove va alla scheda (`useInboxTab`); le
+  richieste e le conversazioni restano sopra l'app, e «←» torna alla scheda.
+  Senza account la scheda porta al profilo, a «Sign up» e «Log in»: nessun
+  testo nuovo.
+- Le icone attive hanno il tratto più spesso (2,5 contro 1,75), non il pieno:
+  Lucide non ha icone piene. Il cuore dell'header è il cuore di Lucide pieno,
+  nel giallo del marchio come al lancio.
+- La barra usa `background` al 95% (`F2`), come `hairline` usa `text` al 20%:
+  un colore derivato dai token, non scritto a mano.
+- Android: il tasto indietro torna alla scheda mostrata prima (una pila delle
+  schede viste), poi lascia uscire.
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
@@ -20904,6 +21090,37 @@ dell'utente. Un record di una corsa privata dice agli altri che quel giorno
 l'utente ha corso: è la scelta dell'utente, scritta nella privacy. Un file
 importato modificato può dare un record falso, visibile a tutti: accettato con
 la scelta 2.
+
+**Parte A, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- **Una riga per corsa, non per record**: `run_bests` tiene i tempi di ogni
+  corsa per tutti e due gli sport, qualunque fosse, e il profilo prende il
+  migliore fra le corse dello sport che hanno adesso. Il task diceva una
+  tabella `personal_bests` con una riga per record: così invece cancellare
+  una corsa lascia da solo il migliore dopo (la chiave esterna), e cambiare
+  lo sport pubblicando il disegno non chiede di ricontare (`drawings.py` non
+  cambia). Il costo: circa 14 righe per corsa, 10 ms di lettura a 1000 corse.
+- **I metri come `distance_m`**: lungo la traccia con `haversine_m`, nessuno
+  dentro una pausa del corridore, come li conta `activities.recorded`. Una
+  corsa che dice 10,00 km ha il suo 10K: mezzo metro sotto la distanza conta
+  ancora (l'arrotondamento di `distance_m`).
+- **Il limite del record del mondo in bici**: per queste distanze non c'è un
+  record su strada, e una discesa va più veloce del record dell'ora; il
+  limite è la velocità del salto del GPS, 90 km/h di media. A piedi i record
+  di World Athletics dove ci sono, e per 15, 30 e 60 km un tempo tondo più
+  basso di quanto si sia mai corso: un limite basso non scarta mai un tempo
+  vero.
+- **Il calcolo** è vettoriale (numpy, già dell'API): meno di 10 ms per 25 000
+  punti; fatto prima di aprire la transazione del salvataggio, che tiene il
+  blocco dell'account.
+- Il codice del profilo sta in `profile_bests.py`: `personal_bests.py` resta
+  puro e non importa `drawings.py`, che importa `activities.py`.
+- Lo script una tantum è un modulo, `python -m
+  shaperoute_api.personal_bests_backfill`, come `game_backfill`: una corsa
+  per transazione, così i profili rispondono mentre gira.
+- Nota: `clean_track` scarta già le posizioni oltre 12 m/s (43 km/h), anche
+  in bici: il salto dei 90 km/h raramente scatta. Non cambiato qui.
 
 ---
 
@@ -20982,5 +21199,213 @@ non costa memoria né download e tiene il principio di ADR-0001 intero.
 dell'utente; l'impronta del motore cambia insieme a quella del nuoto. Nel
 gioco, chi cammina raccoglie metri come chi corre: le regole lo accettano per
 scelta dell'utente.
+## ADR-0313 — «Edit the drawing» su ogni disegno: la traccia dov'è, una copia senza legami, l'acqua a parte
+
+**Stato**: Proposta · 2026-11-04 · TASK-369. Le scelte di prodotto sono
+dell'utente (2026-11-03 e 2026-11-04, una per volta, in `tasks/TASK-369.md`);
+i punti tecnici sono decisi dall'agente su delega dell'utente. Numero dal
+Coordinatore. Estende ADR-0299 a ogni scheda; cambia ADR-0288 per le emoji e
+le parole; cambia ADR-0161 per i disegni sull'acqua (parte B). ADR-0288 per
+il risultato di «Draw» (TASK-340) resta.
+
+**Contesto**: l'utente il 2026-11-03 vuole «Modifica il disegno» su tutti i
+disegni dell'app, anche su quelli degli altri nel Feed, così ogni disegno si
+modifica e poi si corre. Prima il tasto c'era sulla scheda di un disegno di
+un membro (la traccia dov'è stata corsa, ADR-0299) e sulla scheda di
+«Explore» solo per un contorno (nel mezzo della partenza, ADR-0288); mai per
+un'emoji, una parola, un percorso a tema, una corsa libera o importata,
+sull'acqua.
+
+**Decisione**:
+
+1. Ogni scheda con una linea sulla mappa ha «Edit the drawing», che mette
+   **la traccia, o la linea del percorso, dov'è e grande com'è** su «Draw on
+   the map» (`figureLines.trackInPlace`, in metri sul piano): un disegno di
+   un membro, un'emoji, una parola, un percorso a tema, una corsa libera o
+   importata, un esempio di «Explore» o del Feed, un preferito, un disegno
+   ricevuto in un messaggio. Scelte dell'utente: emoji, parole, percorsi a
+   tema, corse libere e importate «Sì, la traccia».
+2. Anche la scheda di «Explore» passa dalla figura chiesta nel mezzo della
+   partenza alla linea del risultato dov'è (deciso dall'agente su delega
+   dell'utente: una regola sola per ogni scheda, come le scelte del punto 1).
+   Per portarla vicino a sé resta «Draw it near me».
+3. Una traccia che finisce lontano dalla partenza resta aperta, con la regola
+   di ADR-0288 (`CLOSED_SHARE`, l'anello minuscolo e la linea come
+   dettaglio); una più lunga dei limiti di «Draw» si rimpicciolisce attorno
+   al suo mezzo (ADR-0299, punto 2).
+4. Una parola modificata è un disegno a mano: niente più tratti a penna
+   alzata. Un percorso a tema modificato perde i luoghi del tema e la riga
+   «Passes by N of M places».
+5. Niente tasto per un post di sole foto («Sì, niente tasto») e sotto il
+   risultato di «Draw» («No, resta tolto», TASK-340).
+6. Un disegno di un altro si modifica sempre in una **copia** di chi lo
+   modifica; il post originale non cambia mai. La copia **non dice da chi
+   viene** («No, niente scritta») e l'autore **non può impedirla** («Sì,
+   nessun blocco»): non resta nessun legame fra copia e originale, né
+   nell'app né sul server. Se l'autore blocca chi ha copiato, rende privato
+   o cancella l'originale, **la copia resta di chi l'ha fatta** (l'utente, il
+   2026-11-04: «si si»); chi è bloccato non vede più il disegno e non ne fa
+   altre copie.
+7. **Sull'acqua** (parte B, «Voglio anche Pagaia», «Sì, parte separata»):
+   l'API accetta un'immagine con «paddling» (solo `placement` «free») e il
+   motore la mette dove c'è posto vicino alla partenza, con
+   `water_fit.plan_on_water` da un file nuovo (`drawn_water.py`) escluso
+   dall'impronta come `ANCHORED_ONLY` (ADR-0300): l'impronta del motore non
+   cambia e i percorsi tenuti restano. Se non si può, la parte B va di notte
+   col sì dell'utente. Niente «Freehand» sull'acqua in «Draw».
+
+**Alternative scartate**: la figura chiesta invece della traccia per le
+emoji (la scelta del 2026-10-29, «non serve a nulla»); tenere i luoghi del
+tema in un disegno a mano (un campo nuovo nel contratto e nel motore); la
+scritta «Based on @name's drawing» (un campo del post sul server e una riga
+di privacy); un'impostazione dell'autore che vieti le copie (server,
+contratto, testi); la Pagaia nella parte A (l'API la rifiuta); cambiare
+`paddling.py` (impronta nuova, ore di `draw_examples --water`).
+
+**Conseguenze**: la parte A non cambia contratto, API, motore, testi,
+dipendenze né nativo: arriva con un OTA, impronta iOS 6f8bba4c. La parte B
+cambia il comportamento dell'API (accetta quello che rifiutava), non la forma
+del contratto, e vuole l'aggiornamento del server col sì dell'utente.
+## ADR-0297, aggiunta — La schermata della ricerca (TASK-344 parte B)
+
+**Stato**: Attiva · 2026-11-04 · TASK-344 parte B. Deciso dall'agente su
+delega dell'utente, dentro le sei scelte approvate il 2026-10-29.
+
+**Decisione**:
+
+1. **La ricerca è un `Modal` aperto dalla lente** (`FindFriendsButton`),
+   non una pagina di `ProfileLayer`: così `ProfileLayer.tsx` non cambia.
+   Per aprire un esempio come percorso la lente riceve da `FeedScreen` il
+   suo `onOpen`, una riga. Toccato un risultato, la ricerca si chiude
+   prima di aprire il disegno, il percorso o il profilo.
+2. **«Find friends» resta**, raggiungibile da «Find people to follow»;
+   la scheda «People» della ricerca usa la stessa API (`findPeople`) e,
+   senza account, porta alla quarta pagina come prima la lente.
+3. **«Words» è `shape=word`** sul server: una corsa con una parola e
+   senza forma. Le altre quattro categorie sono elenchi di forme del
+   catalogo, decisi nell'app (`categories.ts`); ogni forma sta in una
+   sola. **La risposta lo dichiara** (`words: true`, condizione del
+   Coordinatore, come le schede di TASK-362): l'app offre «Words» solo
+   dopo una risposta che lo dice. La ricerca di «Featured drawings» parte
+   all'apertura, quindi la conferma arriva subito. Col server di prima,
+   o senza account, «Words» non c'è: mai un «No drawings found» falso, e
+   l'OTA non dipende dall'ordine col server.
+4. **Gli esempi senza campi nuovi**: categoria dalla forma, posto dal
+   nome della città, complessità dalla linea con la stessa formula del
+   server (`drawingMatch.complexityOf`), popolarità dal punteggio;
+   «Most recent» tiene l'ordine del Feed. `sampleFeed.json` non cambia.
+5. **«Routes» sono gli esempi** (si aprono come percorso); «Drawings» i
+   disegni dei membri e poi gli esempi; «All» anche i primi tre membri.
+6. **Gli stati si ricavano**, non si impostano negli effetti: ogni
+   risposta porta la chiave della ricerca a cui risponde, e una ricerca
+   nuova mostra «loading» finché non arriva la sua (regola
+   `react-hooks/set-state-in-effect`).
+7. **Le animazioni dentro i `Modal` girano in JS** (`useNativeDriver:
+   false`), come `SuperLikeSheet`: col driver nativo, su iOS con la nuova
+   architettura, dentro un `Modal` non si muove niente.
+
+**Conseguenze**: il server va aggiornato (`shape=word` e `words`,
+nessuna migrazione) col sì dell'utente, in qualsiasi ordine con l'OTA:
+fino ad allora «Words» non si vede. Impronta iOS invariata:
+nessun file nativo, nessuna dipendenza.
+## ADR-0301, aggiunta — Parte A app: come il compositore compone, ordina e manda
+
+**Stato**: Accettata · 2026-11-04 · TASK-348, parte A app. Deciso
+dall'agente su delega dell'utente, dentro le scelte già fatte dall'utente
+(«Sì, i quattro», «Sì, spostabile», «Sì, appiattire», «10 col disegno»,
+«Approvo così»).
+
+**Decisione**:
+
+1. **Il disegno dentro la foto è la linea, non la mappa**: nera sul giallo
+   di MuW nei tre layout con il riquadro, gialla con un bordo scuro nella
+   «Line on the photo», come il post condiviso (`PostImage`). Una mappa con
+   le strade dentro la foto vorrebbe la WebView, che `view-shot` non
+   fotografa con certezza. La linea è sempre quella tagliata del Feed
+   (`withoutEnds`, 200 m per parte), con un test.
+2. **La foto si compone appena si sceglie il layout**, non al tocco di
+   «Save»: `ComposedPhoto` disegnata fuori dallo schermo a 288 punti e
+   fotografata a 864 × 1080 px (4:5, il lato lungo che l'API tiene).
+   «Save» resta immediato e la foto parte come ogni altra; se la foto non
+   si compone, il modulo lo dice e la tiene com'era.
+3. **Il layout si cambia finché la foto è nel modulo**: a fine corsa per
+   tutte, in «My activities» per le foto aggiunte su quella scheda (l'app
+   ne tiene l'originale finché la scheda è aperta). Dopo, la foto è quella
+   pubblicata: per cambiarla si toglie e si rimette, come detto all'utente
+   con la scelta «Sì, appiattire».
+4. **L'ordine**: a fine corsa le foto prendono i posti 1… nell'ordine del
+   post e l'ordine va solo se il disegno non è primo; in «My activities»
+   l'ordine nomina i posti come sono. Sul telefono in
+   `drawing-orders.json`, mandato dopo le foto (outbox e `choose`), con le
+   stesse regole delle foto: solo mentre gli altri vedono il disegno, un
+   409 aspetta, un 422 lo lascia andare. Toglie la corsa o l'account, va
+   via con le foto.
+5. **Riordino** con `PanResponder` e `Animated` di React Native (nessuna
+   dipendenza nuova): si tiene premuto 250 ms e si trascina; VoiceOver ha
+   «Move left» e «Move right». Le foto si contano tra le foto («Photo 2» è
+   la seconda foto del post), non per posto.
+6. **Nel Feed** le pagine seguono `order` (il disegno primo se manca); si
+   carica la pagina vista e quella dopo, come prima. Il contatore «2/5» sta
+   in alto a sinistra, perché in alto a destra c'è la figura piccola;
+   VoiceOver non lo legge, come i puntini.
+7. **Limite dell'app**: `DRAWING_MAX_PHOTOS` = 9 (10 pagine col disegno);
+   l'API tiene 10 posti (`DRAWING_PHOTO_PLACES`). Il server ha la 0041 dal
+   2026-11-03.
+
+---
+
+## ADR-0317 — Lo sci alpino in MuW: prima la giornata registrata, le forme solo dopo un prototipo
+
+**Stato**: Proposto · 2026-11-04 · studio con misure (TASK-373,
+`out/TASK-373/` del Mac). Scelta dell'utente lo stesso giorno: «A,
+giornata registrata» (punto 1); B e C non si fanno ora. Le altre scelte
+(domande 2–4 di `tasks/TASK-373.md`) sono ancora aperte
+
+**Contesto**: l'utente vuole lo sport «Ski» (sci alpino). Le piste da
+discesa di OSM (`piste:type=downhill`) si fanno solo in discesa e si
+risale con gli impianti (`aerialway=*`). La struttura è quella della rete
+`bike`, un grafo a sensi unici con il pezzo in cui ogni nodo si raggiunge
+da ogni altro (ADR-0153). Misurato su Paganella, Campiglio–Pinzolo–
+Folgarida e Sella Ronda: la rete c'è ed è coerente (pezzo utile di 35,
+97,5 e 265,5 km di piste, con le stazioni collegate a piedi fino a 100 m e
+il verso controllato sul terreno), ma il motore di oggi, su 19 richieste
+(cerchio e cuore da 5 a 40 km), **non ne propone nessuna**: somiglianza
+0,22–0,58 contro il minimo di 0,60, percorsi due-cinque volte più lunghi
+del chiesto, il 27–43% della lunghezza sugli impianti, che sono linee
+dritte attraverso la figura. Ogni lato di una forma dovrebbe essere una
+discesa. TASK-372 (ADR-0316) trova lo stesso per lo sci di fondo.
+
+**Decisione proposta**:
+
+1. **Opzione A, adesso**: «Ski» è uno sport che si registra senza forma.
+   «Draw» apre la registrazione libera; il riepilogo dà discese, km
+   sciati, dislivello in discesa e velocità massima, con le risalite
+   riconosciute (salita a velocità costante) e tratteggiate sulla mappa;
+   Feed, video e Salute come le altre attività; gioco e concorsi non la
+   contano. Un'attività nuova `skiing` nel contratto e nel database. 4–6
+   sessioni, probabilmente in OTA.
+2. **Opzione B, dopo e solo se un prototipo lo regge**: forme fatte di
+   discese, con le risalite a penna alzata (come TASK-197). Prima un
+   prototipo di soli motore (3–4 sessioni); se su tre comprensori almeno
+   metà delle richieste non arriva a 0,60, ci si ferma. Tutto compreso
+   12–18 sessioni.
+3. **Opzione C («Soon») no da sola**: le build dello store non mostrano
+   gli sport «Soon» (ADR-0278), quindi chi scia non la vedrebbe.
+4. Il motore resta una libreria pura: con B la rete «piste» (comune con lo
+   sci di fondo, TASK-372) entra come le altre (OSM e terreno da file),
+   l'AI interpreta soltanto. Attività `skiing` e `xc_skiing` con una sola
+   migrazione.
+5. **Sicurezza**: mai un tratto fuori pista né una `freeride`; un livello
+   si filtra sulla difficoltà di OSM, che torna col terreno (tratto più
+   ripido: blu 19%, rosse 31%, nere 43% di mediana); OSM non sa se una
+   pista è aperta, quindi A non propone piste e B direbbe sempre di
+   verificarlo; nessuna guida a voce in discesa. Gli impianti in un
+   percorso valgono come penna alzata, non come distanza.
+
+**Conseguenze**: con A MuW in montagna è un registratore come gli altri,
+con il video in 3D come pezzo distintivo, e arriva per la stagione
+(dicembre–aprile). Nulla in OSM dice se una pista è aperta o adatta a chi
+scia: nessuna opzione propone piste come «da fare». La scelta fra uno sport
+o due con lo sci di fondo è dell'utente.
 
 ---

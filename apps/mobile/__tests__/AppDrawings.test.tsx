@@ -229,7 +229,7 @@ async function open() {
 }
 
 async function openProfile() {
-  await fireEvent.press(screen.getByRole("button", { name: /^Profile/ }));
+  await fireEvent.press(screen.getByRole("tab", { name: /^Profile/ }));
 }
 
 /** The star of «My activities», opened on the map. */

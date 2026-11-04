@@ -519,6 +519,53 @@ PR #679, branch `feat/TASK-351-b-video-map` (worktree `TASK-351-b`), da
   +1,3–2,4 s. A tegole fredde +4–10 s (dal bench): lì può raddoppiare, e
   si vede solo lo stato di attesa.
 
+## La parte C, com'è fatta (2026-11-04)
+
+Branch `feat/TASK-351-c-video-styles` (worktree `TASK-351-c`), da `main`
+con il fix di #703.
+
+- `videoStyle.ts` (nuovo): `VideoStyle` («night», «day»), `NIGHT` (il tono
+  scuro al passo più scuro, spostato qui da `videoMap.ts`) e `DAY` (il tono
+  chiaro al passo più chiaro) da `paletteOf`, `stylePalette`, `styleName`
+  (i testi «Night» e «Day», approvati dall'utente il 2026-10-30).
+- `videoScene.ts`: `VideoLook` = «paper» o uno stile; il look della mappa
+  prende la palette dello stile; per il giorno il velo è `map.background`
+  della palette chiara al 94 % (`peak` nell'op `scrim`, che la pagina
+  usa al posto dell'82 % di `Scrim`), e la linea corre sul suo bordo
+  scuro: una seconda linea `onAccent` sotto quella gialla, larga
+  `routeCasingOf("light")` in più (3 punti su 390, 25,6 px su 1080) e
+  opaca all'85 %, come sulla mappa chiara (ADR-0231). Lo stesso
+  `videoMap` con la palette dello stile: la camera non cambia.
+- `StyleRow.tsx` (nuovo): la riga «Style» sopra «Music», una tessera 9:16
+  per stile (104 × 185 pt, tre ci stanno in una riga) con il disegno
+  della corsa (lo stesso `fitLines` del post, le estremità tagliate) nei
+  colori dello stile sul fondo della sua mappa, il bordo scuro sotto la
+  linea nella tessera «Day»; la tessera scelta ha il bordo `text`, le
+  altre `hairline`; radio per VoiceOver, «Night» all'apertura.
+- `SharePost.tsx`: lo stato dello stile, la riga, la scena nello stile
+  scelto; la riserva resta il giallo.
+- i18n: «Style», «Night», «Day» in fondo alle quattro tabelle (fr «Style»
+  resta «Style»).
+- Test: `videoStyle.test.ts`, la scena di giorno (colori solo dalla
+  palette chiara, velo al 94 %, il bordo sotto la linea che cresce con
+  lei, per il resto lo stesso video della notte), la pagina (il velo opaco
+  quanto chiede la scena), `StyleRow.test.tsx`, il flusso di «Share your
+  run» con «Day» scelto, le tabelle delle traduzioni.
+- La tessera «3D» arriva con la D, che la fa davvero.
+
+Riallineata il 2026-11-04 sera su `main` f23ec332 (la raccolta #717, che
+porta il codice della #707: la pagina a grandezza piena e la riga di
+diagnosi solo sulla preview) e con il commit di documenti della #707
+ancora aperta (l'esito: la mappa vista con i fotogrammi a timer), preso
+pari pari così i due rami non confliggono al merge. Conflitti risolti a
+mano: le quattro tabelle (le righe di TASK-348 prima, «Style», «Night»,
+«Day» in fondo) e i test della scena (la scena di giorno e `withNote`,
+uno dopo l'altro). 26 suite verdi (241 test), eslint e prettier puliti;
+impronta iOS sulla copia pulita `6f8bba4cf1b6f95fc3c1c84ba9812d950a2232a1`, quella di `main`. Il via
+alla C è arrivato con la mappa vista dall'utente sul telefono («ok la
+mappa funziona»); alla domanda se volesse la riga «Style» anche senza
+mappa aveva scelto «Aspetto la mappa».
+
 ## Il fix del 2026-11-03: la mappa che sul telefono non arrivava
 
 **Che cosa ha visto l'utente**, provando la B dalla preview sull'iPhone
@@ -568,6 +615,64 @@ sotto una vista opaca a grandezza piena, come il Feed. Da chiedere
 all'utente: il video uscito era giallo (la riserva) o scuro senza strade
 (uno scatto vuoto).
 
+## La prova successiva (2026-11-04): il WebView sotto una copertura, e il motivo nel video
+
+Con la preview `fb15613e` (main 8cc5005b, con il fix #703) l'utente ha
+provato il video di un'attività di prima: «ho provato con un'attività già
+fatta in precedenza e non funziona» (riferito dal Coordinatore). Alla
+domanda su com'era il video ha risposto «giallo», e che l'app l'aveva
+riaperta due volte dopo l'aggiornamento («sì, l'avevo fatto»): era la
+riserva gialla con il fix #703 caricato, quindi la mappa non arriva
+neanche con i fotogrammi da timer.
+
+La prova successiva (branch `fix/TASK-351-video-map-under-cover`,
+worktree `TASK-351-fix2`):
+
+1. `RunVideo.tsx`: il WebView a grandezza piena, 360 × 640 punti (la
+   misura della mappa che disegna), sotto una vista opaca del colore dello
+   schermo, montato per primo nello schermo del post (`SharePost.tsx`):
+   com'è tenuta la pagina delle mappe del Feed, che sul telefono le mappe
+   le fa. Per iOS la pagina è in finestra, grande e disegnata.
+2. Nel video di riserva giallo, **una riga piccola in fondo** con il motivo
+   dato dalla pagina («no map: timeout {"map":15234,…}», «no library»,
+   «tiles», o l'errore di WebGL) e i tempi, compreso il caricamento di
+   MapLibre: così la prossima prova dalla preview dice la causa anche senza
+   una rete di diagnosi. **Solo sul canale preview**: `isPreview()` in
+   `src/updates/channel.ts` legge `Updates.channel` di `expo-updates`
+   («preview» sulla build dei tester, «production» su quella degli store,
+   `null` in Expo Go e nelle build di sviluppo), e la build degli store non
+   la mostra mai, con un test che lo prova. Condizione del Coordinatore:
+   `main` va in produzione con altro lavoro prima che il video sia risolto,
+   quindi la riga non può dipendere dal ricordarsi di toglierla. Si toglie
+   quando la causa è trovata; la produzione del video resta ferma finché
+   l'utente non vede la mappa.
+
+Test: `withNote` (la riga in ogni fotogramma, il resto uguale); il flusso
+con la riserva senza il motivo, com'è sulla build degli store, e con il
+motivo sulla preview; `channel.test.ts` (preview sì, production e `null`
+no; sotto jest il canale è «mock»); le suite del video e di «Share your
+run». Solo JS. PR #707, riallineata su `main` dopo la #620 (Apple Salute):
+da lì l'impronta iOS di `main` è `6f8bba4c`, e quella misurata sulla copia
+pulita di questa PR è in STATUS. Le preview si pubblicano col runtime
+`exposdk:57.0.0` della variante preview, non con l'impronta di produzione:
+l'app di prova dell'utente le riceve anche dopo la #620, e la prova del
+video si fa dalla preview che il Coordinatore pubblica appena la #707 è in
+`main`.
+
+**Esito (2026-11-04, sera)**: prima che la #707 fosse in `main`, con la
+stessa preview `fb15613e` (il fix #703, i fotogrammi a timer) l'utente ha
+riprovato: «ok la mappa funziona». Quindi la pagina nascosta sul telefono
+si disegna e MapLibre carica con i fotogrammi a timer; il video giallo del
+mattino stava nei 15 s di attesa (`MAP_WAIT_MS`): la prima esportazione
+dopo l'aggiornamento, con la libreria (1 MB) e le tegole non ancora in
+cache, o una rete lenta. La riga di diagnosi (solo preview) dirà quale,
+la prossima volta che esce giallo; la pagina a grandezza piena resta
+(innocua, com'è nel Feed). La condizione del Coordinatore per la
+produzione del video — la mappa vista sul telefono — è soddisfatta;
+l'OTA resta una scelta dell'utente. La C (#706) si riallinea su `main`
+dopo la #707. L'utente, alla domanda se volesse la riga «Style» anche
+senza mappa, aveva scelto «Aspetto la mappa»; ora la mappa c'è.
+
 ## Dove si è (2026-10-30, sera)
 
 Fatto: il canvas; il bench in Safari del simulatore e nell'app (Expo Go,
@@ -578,9 +683,10 @@ il harness (file temporanei, mai da committare), il bench in
 `out/video-restyle/`.
 
 2026-11-03: la B è in `main` (#679, merge 5f76d415); sul telefono il
-video è uscito senza mappa: il fix è sopra, in una PR da `main`; la
+video è uscito senza mappa: il fix è #703, in `main` dal 2026-11-04; la
 prova dalla preview è dell'utente, e l'OTA di produzione aspetta che veda
-la mappa. L'utente ha detto «INIZIALE» per C e D: la C parte dopo il fix.
+la mappa. L'utente ha detto «INIZIALE» per C e D: la C è in PR
+(`feat/TASK-351-c-video-styles`); poi la D.
 Arrivate le scelte 5 (privacy, «Sì, va bene») e 1 (i nomi, «Sì,
 questi»). La B ha il via del Coordinatore ed è la PR #679
 (`feat/TASK-351-b-video-map`, worktree `TASK-351-b`): la mappa sotto nel

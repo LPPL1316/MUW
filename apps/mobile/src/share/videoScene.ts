@@ -2,7 +2,14 @@ import { fitLines, type Segment } from "../activities/fitLines";
 import { appLanguage } from "../i18n/language";
 import { HEART_BOX, HEART_POINTS, heartHeight } from "../intro/heartLine";
 import { bearingOf } from "../map/turnedMap";
-import { color, font, type Palette, tracking } from "../theme/tokens";
+import {
+  color,
+  font,
+  type Palette,
+  route,
+  routeCasingOf,
+  tracking,
+} from "../theme/tokens";
 import {
   POST_RESULTS,
   type PostResult,
@@ -12,23 +19,19 @@ import {
   withoutEnds,
 } from "./postRun";
 import type { Sticker } from "./stickers";
-import {
-  MAP_CREDIT,
-  MAP_PIXEL_RATIO,
-  NIGHT,
-  type VideoMap,
-  videoMap,
-} from "./videoMap";
+import { MAP_CREDIT, MAP_PIXEL_RATIO, type VideoMap, videoMap } from "./videoMap";
+import { stylePalette, type VideoStyle } from "./videoStyle";
 
 /**
  * The video of a run (TASK-295, ADR-0254; TASK-351, ADR-0303), as what to
- * draw in each of its pictures. In the «night» look the map of the run lies
- * under everything, dark and warm, and the line draws itself in the yellow
- * of a route while distance and time count up, the words in the type scale
- * of the premium look (ADR-0293); then the whole drawing stays, with the
- * results and the emoji the runner chose for the post. The «paper» look is
- * the post on the yellow of MuW coming to life, as the video was before:
- * the page falls back on it when the map does not come.
+ * draw in each of its pictures. In the map looks («night», dark and warm;
+ * «day», light, with the line on its dark edge and the words on a light
+ * veil) the map of the run lies under everything, and the line draws itself
+ * in the yellow of a route while distance and time count up, the words in
+ * the type scale of the premium look (ADR-0293); then the whole drawing
+ * stays, with the results and the emoji the runner chose for the post. The
+ * «paper» look is the post on the yellow of MuW coming to life, as the
+ * video was before: the page falls back on it when the map does not come.
  *
  * Only numbers and words here: the hidden WebView (videoPage) draws them on
  * a canvas and encodes them, so what the video shows is decided, and
@@ -43,8 +46,9 @@ export const VIDEO_FPS = 30;
 /** About 12 seconds, the user's choice. */
 export const VIDEO_SECONDS = 12;
 
-/** The two looks of the video: the map under the line, or the yellow post. */
-export type VideoLook = "paper" | "night";
+/** The looks of the video: a style with the map under the line, or the
+ * yellow post. */
+export type VideoLook = "paper" | VideoStyle;
 
 /** When each part starts and how long the line takes, in seconds. */
 const INTRO_S = 1;
@@ -74,8 +78,12 @@ const HEART_RING_SHARE = 1 / 24;
 /** The corner of the yellow square behind the heart (HeartBadge). */
 const BADGE_CORNER_SHARE = 0.22;
 
-/** Where the dark rises from, on the map looks, as a share of the height. */
+/** Where the veil rises from, on the map looks, as a share of the height;
+ * how opaque it is at the bottom edge: the dark of `Scrim` (ADR-0293), or
+ * the light veil of «Day», almost whole so the dark words read on the map. */
 const SCRIM_TOP = 0.6;
+const SCRIM_PEAK = 0.82;
+const DAY_SCRIM_PEAK = 0.94;
 /** The credit's letters and its room from the bottom edge. */
 const CREDIT = 0.02;
 const CREDIT_BOTTOM = 0.012;
@@ -107,8 +115,8 @@ export type VideoColors = {
 export type VideoOp =
   /** The map's picture, once the page has it. */
   | { k: "map"; alpha: number }
-  /** The dark rising from `top` to the bottom edge. */
-  | { k: "scrim"; top: number; alpha: number }
+  /** The veil rising from `top` to the bottom edge, `peak` opaque there. */
+  | { k: "scrim"; top: number; peak: number; alpha: number }
   /** A filled square with round corners. */
   | {
       k: "rect";
@@ -205,9 +213,14 @@ type Look = {
   label: TextStyle & { upper: boolean; color: ColorRole };
   value: TextStyle;
   line: { width: number; color: ColorRole };
+  /** A wider line under the run's, in `onAccent`: the route's dark edge on
+   * the light map (ADR-0231); `extra` is its width beyond the line's, as a
+   * share of the width. */
+  casing: { extra: number; alpha: number } | null;
   /** The yellow square behind the logo's heart. */
   badge: boolean;
   scrim: boolean;
+  scrimPeak: number;
   credit: string | null;
   /** The results' room from the bottom edge, as a share of the height; the
    * gap between their rows, of the width. */
@@ -257,8 +270,10 @@ const PAPER: Look = {
   },
   value: { size: 0.075, weight: 700, tracking: 0, lineHeight: LINE_HEIGHT },
   line: { width: 0.02, color: "ink" },
+  casing: null,
   badge: false,
   scrim: false,
+  scrimPeak: SCRIM_PEAK,
   credit: null,
   resultsBottom: 0.04,
   rowGap: 0.023,
@@ -266,8 +281,11 @@ const PAPER: Look = {
 
 /** The map under the line, in the colours of `palette` and the type scale
  * of the premium look (ADR-0293): large light numbers, small spaced labels,
- * a regular title, the line in the yellow of a route. */
-function mapLook(palette: Palette): Look {
+ * a regular title, the line in the yellow of a route. By `day` the veil is
+ * the light map's own ground, almost whole, and the line runs on its dark
+ * edge, as on the light map (ADR-0231). */
+function mapLook(palette: Palette, day: boolean): Look {
+  const casing = routeCasingOf("light");
   return {
     colors: {
       paper: palette.map.background,
@@ -277,14 +295,19 @@ function mapLook(palette: Palette): Look {
       accent: palette.accent,
       onAccent: palette.onAccent,
       dot: palette.text,
-      scrim: palette.scrim,
+      scrim: day ? palette.map.background : palette.scrim,
     },
     title: textStyle(font.title, tracking.title),
     label: { ...textStyle(font.label, tracking.label), upper: true, color: "muted" },
     value: textStyle(font.display, tracking.display),
     line: { width: 0.016, color: "accent" },
+    casing:
+      day && casing !== null
+        ? { extra: ofPhone(casing.width - route.width), alpha: casing.opacity }
+        : null,
     badge: true,
     scrim: true,
+    scrimPeak: day ? DAY_SCRIM_PEAK : SCRIM_PEAK,
     credit: MAP_CREDIT,
     resultsBottom: 0.06,
     rowGap: 0.036,
@@ -413,12 +436,12 @@ function valueAt(run: PostRun, result: PostResult, share: number): string | null
 }
 
 /** The parts that do not move: the logo, the drawing's path, the places,
- * and the map under them. */
+ * and the map under them, in `palette` when there is one. */
 function layoutOf(
   run: PostRun,
   shown: readonly PostResult[],
   look: Look,
-  withMap: boolean,
+  palette: Palette | null,
 ) {
   const w = VIDEO_WIDTH;
   const h = VIDEO_HEIGHT;
@@ -444,19 +467,21 @@ function layoutOf(
     round(h * DRAWING_TOP + y),
   ]);
   // The same fit, in points of the map, so the map lies under the line.
-  const map = withMap
-    ? videoMap(
-        cut,
-        {
-          left: (w * SIDE) / MAP_PIXEL_RATIO,
-          top: (h * DRAWING_TOP) / MAP_PIXEL_RATIO,
-          width: boxWidth / MAP_PIXEL_RATIO,
-          height: boxHeight / MAP_PIXEL_RATIO,
-          pad: line / MAP_PIXEL_RATIO,
-        },
-        bearing,
-      )
-    : null;
+  const map =
+    palette !== null
+      ? videoMap(
+          cut,
+          {
+            left: (w * SIDE) / MAP_PIXEL_RATIO,
+            top: (h * DRAWING_TOP) / MAP_PIXEL_RATIO,
+            width: boxWidth / MAP_PIXEL_RATIO,
+            height: boxHeight / MAP_PIXEL_RATIO,
+            pad: line / MAP_PIXEL_RATIO,
+          },
+          bearing,
+          palette,
+        )
+      : null;
 
   const results = resultsShown(run, shown);
   const labelHeight = w * look.label.size * look.label.lineHeight;
@@ -618,6 +643,16 @@ function frameAt(
   const share = easeInOut(ramp(t, INTRO_S, HOLD_FROM_S));
   if (layout.trackLength > 0 && share > 0) {
     const upTo = layout.trackLength * share;
+    if (look.casing !== null) {
+      ops.push({
+        k: "line",
+        path: RUN_PATH,
+        upTo: round(upTo),
+        width: round(layout.line + w * look.casing.extra),
+        color: "onAccent",
+        alpha: round3(look.casing.alpha),
+      });
+    }
     ops.push({
       k: "line",
       path: RUN_PATH,
@@ -644,7 +679,12 @@ function frameAt(
   }
 
   if (look.scrim) {
-    ops.push({ k: "scrim", top: round(h * SCRIM_TOP), alpha: ground });
+    ops.push({
+      k: "scrim",
+      top: round(h * SCRIM_TOP),
+      peak: look.scrimPeak,
+      alpha: ground,
+    });
   }
 
   const numbers = ramp(t, 0.6, 1);
@@ -722,8 +762,9 @@ export function videoScene(
   stickers: readonly Sticker[],
   look: VideoLook,
 ): VideoScene {
-  const spec = look === "paper" ? PAPER : mapLook(NIGHT);
-  const layout = layoutOf(run, shown, spec, look !== "paper");
+  const palette = look === "paper" ? null : stylePalette(look);
+  const spec = palette === null ? PAPER : mapLook(palette, look === "day");
+  const layout = layoutOf(run, shown, spec, palette);
   const language = appLanguage();
   const count = VIDEO_SECONDS * VIDEO_FPS;
   return {
@@ -738,4 +779,34 @@ export function videoScene(
       frameAt(i / VIDEO_FPS, run, stickers, layout, spec, language),
     ),
   };
+}
+
+/** The note's letters and its room from the bottom edge, as shares. */
+const NOTE = 0.02;
+const NOTE_BOTTOM = 0.008;
+
+/**
+ * The scene with `note` written small at the foot of every picture, in
+ * the ink of the look: what the page said when the map did not come,
+ * while the cause on the phone is looked for (TASK-351, 2026-11-04; to be
+ * taken out once found).
+ */
+export function withNote(scene: VideoScene, note: string): VideoScene {
+  const w = scene.width;
+  const h = scene.height;
+  const op: VideoOp = {
+    k: "text",
+    text: note,
+    x: round(w / 2),
+    y: round(h * (1 - NOTE_BOTTOM) - w * NOTE * LINE_HEIGHT),
+    size: round(w * NOTE),
+    weight: 400,
+    tracking: 0,
+    color: "ink",
+    align: "center",
+    maxWidth: round(w * (1 - 2 * SIDE)),
+    lines: 1,
+    alpha: 1,
+  };
+  return { ...scene, frames: scene.frames.map((frame) => [...frame, op]) };
 }

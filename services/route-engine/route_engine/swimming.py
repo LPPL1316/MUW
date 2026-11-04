@@ -17,11 +17,11 @@ is made larger or smaller without changing the distance (the user's ask of
 the same day). The shape is one of the catalogue or a drawing of the user's,
 an outline as «Freehand» sends it (TASK-320).
 
-A swim is not yet an activity of `models.RouteRequest` (ADR-0283): adding it
-there changes the fingerprint of the routes kept and of the app's paddling
-examples, and part B, which brings swimming to the API's contract, changes
-it anyway. Until then a `SwimRequest` asks for a swim. Nothing else in the
-engine imports this module (`route_store.SWIM_ONLY`).
+A swim is an activity of the contract since part B (`models.RouteRequest`
+with `activity="swimming"`, ADR-0283): `SwimRequest.of` reads one, and a
+drawing comes as an outline (the API's image request). The kept routes of a
+swim have a fingerprint of their own (`route_store`): a change here keeps
+the others.
 
     python -m route_engine.swimming --shape star --distance 1000 \\
         --start 44.0007195,12.6512502 \\
@@ -52,9 +52,13 @@ from route_engine.errors import ShapeNotDrawableError
 from route_engine.export_gpx import route_name, to_gpx
 from route_engine.geo import LatLon, latlon_to_local_array
 from route_engine.models import (
+    DISTANCE_LIMITS_M,
+    MAX_SWIM_LAPS,
     PEN_UP_WITHOUT_PIECES,
     InvalidRequestError,
+    RouteRequest,
     RouteResult,
+    check_laps,
     check_start,
 )
 from route_engine.paddling import WATER_SHAPE_POINTS, _cut, _length
@@ -88,14 +92,14 @@ from route_engine.water_fit import (
     water_bbox,
 )
 
-# What part B adds to the contract's activities (models.SUPPORTED_ACTIVITIES).
+# The activity of the contract (models.SUPPORTED_ACTIVITIES).
 ACTIVITY = "swimming"
 # The target distances of a swim, in metres, every lap and both legs: the
 # user's choice, with the laps (ADR-0283).
-SWIM_DISTANCE_M = (500, 3_000)
+SWIM_DISTANCE_M = DISTANCE_LIMITS_M[ACTIVITY]
 # A swim goes round its shape this many times at most (the user's choice of
-# 2026-10-29): with half a kilometre of shape, about 2.5 km.
-MAX_LAPS = 5
+# 2026-10-29): with half a kilometre of shape, about 2 km.
+MAX_LAPS = MAX_SWIM_LAPS
 # The band's buffers are polygons, 16 segments a quarter (shapely): 200 m
 # drawn so are up to 1 m short of a circle. Validation forgives this much.
 SWIM_TOLERANCE_M = 2.0
@@ -136,15 +140,27 @@ class SwimRequest:
                 f"unknown shape {self.shape!r}; "
                 f"choose one of: {', '.join(SUPPORTED_SHAPES)}"
             )
-        if self.laps is not None and not 1 <= self.laps <= MAX_LAPS:
-            raise InvalidRequestError(
-                f"a swim goes round its shape 1 to {MAX_LAPS} times, "
-                f"got {self.laps}"
-            )
+        check_laps(self.laps, ACTIVITY)
         if self.pen_up and not self.in_pieces:
             raise InvalidRequestError(f"{PEN_UP_WITHOUT_PIECES}; {self.name} has none")
         if self.near is not None:
             check_start(self.near)
+
+    @classmethod
+    def of(cls, request: RouteRequest, outline: Outline | None = None) -> SwimRequest:
+        """The swim a RouteRequest of the contract asks for, of its shape or,
+        for a drawing, of `outline` (the API's image request)."""
+        if request.activity != ACTIVITY:
+            raise ValueError(f"a {request.activity} route is not a swim")
+        return cls(
+            start=request.start,
+            distance_m=request.distance_m,
+            shape=None if outline is not None else request.shape,
+            outline=outline,
+            laps=request.laps,
+            pen_up=request.pen_up,
+            near=request.near,
+        )
 
     @property
     def in_pieces(self) -> bool:
@@ -164,16 +180,18 @@ class SwimRequest:
 @dataclass(frozen=True)
 class SwimPlan:
     """The route of a swim, how it lies on the water, and the water: the
-    shape `laps` times, each lap `lap_m` long (the shape, without the legs),
-    and its turns in order, every lap's (TASK-323 A2). Part B moves the
-    turns into RouteResult, with the contract."""
+    shape `laps` times, each lap `lap_m` long (the shape, without the legs).
+    The result has the laps and the turns, every lap's (TASK-323 A2, B)."""
 
     result: RouteResult
     route: WaterRoute
     water: SwimWater
     laps: int
     lap_m: float
-    turns: tuple[SwimTurn, ...] = ()
+
+    @property
+    def turns(self) -> tuple[SwimTurn, ...]:
+        return tuple(self.result.turns)
 
 
 def swim_lines(request: SwimRequest) -> tuple[list[XY], list[list[XY]]]:
@@ -218,7 +236,7 @@ def plan_swimming(
     if names is None or not plan.turns:
         return plan
     found = landmarks(plan.turns, names.places(bbox))
-    return replace(plan, turns=tuple(named(plan.turns, found)))
+    return replace(plan, result=replace(plan.result, turns=named(plan.turns, found)))
 
 
 def swim_on(water: SwimWater, request: SwimRequest) -> SwimPlan:
@@ -333,6 +351,7 @@ def _length_m(points: Sequence[LatLon], water: SwimWater) -> float:
 def _plan(
     request: SwimRequest, route: WaterRoute, water: SwimWater, laps: int
 ) -> SwimPlan:
+    lap_m = (route.distance_m - 2 * route.approach_m) / laps
     result = RouteResult(
         points=route.points,
         distance_m=route.distance_m,
@@ -343,10 +362,11 @@ def _plan(
         centre=route.centre,
         # Within ±45°, counterclockwise; 0 for the circle (TASK-232).
         rotation_deg=route.rotation_deg + 0.0,
+        laps=laps,
+        lap_m=lap_m,
+        turns=swim_turns(route.points, laps=laps, leg_m=route.approach_m, lap_m=lap_m),
     )
-    lap_m = (route.distance_m - 2 * route.approach_m) / laps
-    turns = swim_turns(route.points, laps=laps, leg_m=route.approach_m, lap_m=lap_m)
-    return SwimPlan(result, route, water, laps, lap_m, tuple(turns))
+    return SwimPlan(result, route, water, laps, lap_m)
 
 
 def _band(band: SwimBand) -> str:

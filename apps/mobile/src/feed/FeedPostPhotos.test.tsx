@@ -5,7 +5,7 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react-n
 import { type ImageStyle, type StyleProp, StyleSheet, Text } from "react-native";
 
 import type { AccountState } from "../account/useAccount";
-import { Pager } from "../screens/Pager";
+import { TabShell } from "../tabs/TabShell";
 import { forgetBlocked } from "../social/blockedNow";
 import { FollowsContext } from "../social/followsDoor";
 import { color, font } from "../theme/tokens";
@@ -206,13 +206,20 @@ test("swiping the photos to the last never turns the app's page", async () => {
         openProfile: jest.fn(),
       }}
     >
-      <Pager
+      <TabShell
         pages={[
           {
             title: "Feed",
+            label: "Feed",
+            icon: "house",
             render: () => <FeedPost post={shownPost(TWO_PHOTOS)} width={WIDTH} />,
           },
-          { title: "Draw", render: () => <Text>Draw</Text> },
+          {
+            title: "Draw",
+            label: "Draw",
+            icon: "pencil",
+            render: () => <Text>Draw</Text>,
+          },
         ]}
         page={0}
         onPage={onPage}
@@ -224,10 +231,9 @@ test("swiping the photos to the last never turns the app's page", async () => {
   expect(screen.getAllByTestId(/^feed-dot(-on)?$/).at(-1)?.props.testID).toBe(
     "feed-dot-on",
   );
-  // The photos bounce at their ends, where the pages do not: a swipe past
-  // the last photo stays in the card.
+  // The photos bounce at their ends; the pages of the tab bar do not
+  // slide at all (TASK-367): a swipe past the last photo stays in the card.
   expect(screen.getByTestId("feed-pages").props.bounces).not.toBe(false);
-  expect(screen.getByTestId("pager").props.bounces).toBe(false);
 });
 
 test("a tap on a card with photos still opens the drawing", async () => {
