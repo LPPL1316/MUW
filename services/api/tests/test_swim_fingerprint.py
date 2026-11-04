@@ -1,6 +1,7 @@
-"""The swims of TASK-323 change no route kept (ADR-0283): the engine's
+"""The swims of TASK-323 change no other route kept (ADR-0283): the engine's
 fingerprint, which keeps the examples drawn, leaves the files that draw only
-swims out, and no module that draws other routes imports them."""
+swims out, and no module that draws other routes imports them. A swim kept
+has a fingerprint of its own, with those files (part B)."""
 
 from __future__ import annotations
 
@@ -56,14 +57,29 @@ def _imported(path: Path) -> set[str]:
     return found
 
 
+# The command line draws a swim too (`--activity swimming`); the API never
+# imports it, so it draws none of the routes kept.
+COMMAND_LINE = "__main__.py"
+
+
 def test_no_module_that_draws_other_routes_imports_a_swim() -> None:
     # If one did, the swims would draw the routes kept: take it out of
     # SWIM_ONLY.
     swims = {f"route_engine.{name.removesuffix('.py')}" for name in SWIM_ONLY}
     for path in sorted(ENGINE.rglob("*.py")):
-        if path.relative_to(ENGINE).as_posix() in NOT_ROUTES | SWIM_ONLY:
+        name = path.relative_to(ENGINE).as_posix()
+        if name in NOT_ROUTES | SWIM_ONLY or name == COMMAND_LINE:
             continue
         assert not _imported(path) & swims, path.name
+
+
+def test_a_swim_kept_has_a_fingerprint_with_the_swims(tmp_path: Path) -> None:
+    folder = _copy(tmp_path)
+    before = engine_fingerprint(folder, swims=True)
+    assert before != engine_fingerprint(folder)
+    with (folder / "swim_turns.py").open("a", encoding="utf-8") as file:
+        file.write("\n# other turns\n")
+    assert engine_fingerprint(folder, swims=True) != before
 
 
 def test_the_paddling_examples_are_drawn_without_the_swims() -> None:

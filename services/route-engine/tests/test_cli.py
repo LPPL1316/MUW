@@ -56,7 +56,7 @@ def test_boundary_coordinates_are_accepted() -> None:
         ({"distance": "500000"}, "distance must be between"),
         ({"distance": "5km"}, "invalid int value"),
         ({"shape": "triangle"}, "unknown shape 'triangle'"),
-        ({"activity": "swimming"}, "unsupported activity 'swimming'"),
+        ({"activity": "hiking"}, "unsupported activity 'hiking'"),
     ],
 )
 def test_invalid_arguments_exit_with_readable_error(

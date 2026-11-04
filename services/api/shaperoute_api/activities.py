@@ -122,7 +122,7 @@ MAX_ALTITUDE_M = 10_000.0
 LatLon = tuple[float, float]
 Key = Annotated[str, Path(pattern=KEY_PATTERN)]
 # What a run was (TASK-208): the activities of the API, SUPPORTED_ACTIVITIES.
-RunActivity = Literal["running", "cycling", "paddling"]
+RunActivity = Literal["running", "cycling", "paddling", "swimming"]
 # Where a run comes from (TASK-312, ADR-0272): recorded by the app, or a file
 # of another app read on the phone. Only `muw` counts for the shape game and
 # the contest.
