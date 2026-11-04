@@ -26,6 +26,7 @@ from sport_bench import (
     routes_table,
     shapes_table,
     summarize,
+    with_retries,
     write_results,
 )
 
@@ -209,3 +210,25 @@ def test_the_engine_planner_without_water_says_so() -> None:
     plan = engine_planner("paddling", object())
     row = plan(ZONES[0], "circle", 2000)  # Trento has no water start
     assert row.error is not None and row.error.startswith("NoStart")
+
+
+def test_retries_wait_longer_each_time_then_give_up() -> None:
+    waits: list[float] = []
+    calls = iter([OSError("502"), OSError("502"), "graph"])
+
+    def task() -> object:
+        answer = next(calls)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+    assert with_retries(task, (1.0, 2.0, 4.0), sleep=waits.append) == "graph"
+    assert waits == [1.0, 2.0]
+
+    def always() -> None:
+        raise OSError("504")
+
+    waits.clear()
+    with pytest.raises(OSError, match="504"):
+        with_retries(always, (1.0, 2.0), sleep=waits.append)
+    assert waits == [1.0, 2.0]

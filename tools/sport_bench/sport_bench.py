@@ -72,6 +72,9 @@ OUT_DIR = Path("out/sport-bench")
 SIMILARITY_SLACK = 0.02
 SLOWER_FACTOR = 1.5
 SLOWER_SLACK_S = 2.0
+# Overpass, when full (502, 504, 429), asks to retry with a wait doubled
+# each time; a zone still refused after the last one is left out of the run.
+RETRY_WAITS_S: tuple[float, ...] = (60.0, 120.0, 240.0)
 
 
 @dataclass(frozen=True)
@@ -426,7 +429,7 @@ def engine_planner(activity: str, source: Any) -> Planner:
     """A Planner that asks the Route Engine as its CLI does: plan_route on
     the roads, plan_paddling on the water."""
     from route_engine.models import RouteRequest
-    from route_engine.optimizer import ShapeNotDrawableError, plan_route
+    from route_engine.optimizer import plan_route
     from route_engine.paddling import plan_paddling
 
     on_water = activity in WATER_ACTIVITIES
@@ -450,7 +453,7 @@ def engine_planner(activity: str, source: Any) -> Planner:
             else:
                 result = plan_route(request, source).result
                 extra = {}
-        except (ShapeNotDrawableError, ValueError, LookupError) as exc:
+        except Exception as exc:  # noqa: BLE001 - every refusal is a result
             return Row(
                 zone.key,
                 shape,
@@ -469,6 +472,25 @@ def engine_planner(activity: str, source: Any) -> Planner:
         )
 
     return plan
+
+
+def with_retries(
+    task: Callable[[], Any],
+    waits_s: Sequence[float] = RETRY_WAITS_S,
+    sleep: Callable[[float], None] = time.sleep,
+    echo: Callable[[str], None] = lambda line: None,
+) -> Any:
+    """`task()`, tried again after each wait of `waits_s` when it raises; the
+    last error is raised."""
+    for wait_s in (*waits_s, None):
+        try:
+            return task()
+        except Exception as exc:
+            if wait_s is None:
+                raise
+            echo(f"{type(exc).__name__}: {str(exc)[:80]!r}, again in {wait_s:g} s")
+            sleep(wait_s)
+    raise AssertionError("unreachable")
 
 
 def zone_network(
@@ -512,9 +534,21 @@ def _run(args: argparse.Namespace) -> int:
         source = OsmnxSource.for_activity(args.cache_dir, activity)
     stats: dict[str, NetworkStats] = {}
     if not on_water:
+        reachable: list[Zone] = []
         for zone in zones:
             print(f"Network of {zone.key}...", file=sys.stderr, flush=True)
-            stats[zone.key] = zone_network(source, zone, args.shapes, distances)
+            try:
+                stats[zone.key] = with_retries(
+                    lambda zone=zone: zone_network(
+                        source, zone, args.shapes, distances
+                    ),
+                    echo=lambda line: print(line, file=sys.stderr, flush=True),
+                )
+            except Exception as exc:  # noqa: BLE001 - said, and the zone left out
+                print(f"Left out {zone.key}: {exc!r}"[:300], file=sys.stderr)
+                continue
+            reachable.append(zone)
+        zones = reachable
     rows = measure(
         zones,
         args.shapes,
