@@ -189,6 +189,33 @@ qui con le parole dell'utente.
    TASK-356 tocca gli stessi file: chi arriva secondo riallinea.
    — *Risposta (2026-10-30):* **sì**: entra con la B (#679).
 
+8. **La riga di privacy sulle tegole del terreno** (condizione 3 del
+   Coordinatore; prima della parte D, che le usa nel video; la mappa 3D
+   di TASK-264 le scarica già oggi senza nominarle). Proposta: in «Others
+   who receive data», dopo la riga di OpenFreeMap, in `src/about/content/*.ts`
+   e nelle pagine di `site/privacy` rigenerate:
+
+   - en: «The hills of the 3D map, and of a video in the «3D» style, come
+     from the Terrain Tiles kept on Amazon Web Services: like any map
+     service, it sees which area you look at.»
+   - it: «Le colline della mappa 3D, e di un video nello stile «3D»,
+     vengono dalle Terrain Tiles tenute su Amazon Web Services: come ogni
+     servizio di mappe, vede quale zona guardi.»
+   - de: «Die Hügel der 3D-Karte und eines Videos im Stil «3D» kommen von
+     den Terrain Tiles auf Amazon Web Services: wie jeder Kartendienst
+     sieht er, welches Gebiet du ansiehst.»
+   - es: «Las colinas del mapa 3D, y de un vídeo en el estilo «3D», vienen
+     de las Terrain Tiles alojadas en Amazon Web Services: como cualquier
+     servicio de mapas, ve qué zona miras.»
+   - fr: «Les collines de la carte 3D, et d'une vidéo dans le style «3D»,
+     viennent des Terrain Tiles hébergées sur Amazon Web Services : comme
+     tout service de cartes, il voit quelle zone tu regardes.»
+
+   Le foto aeree di Esri (la mappa satellite di TASK-264) restano fuori:
+   una riga a parte, da proporre dopo.
+   — *Risposta:* da chiedere all'utente con la parte D; la riga entra
+   nella D col suo sì.
+
 **La privacy in `about/content`** (controllata il 2026-10-30, condizione
 3): in «Others who receive data» ci sono OpenFreeMap («serves the map:
 like any map service, it sees which area you look at»), Overpass e unpkg;
@@ -249,6 +276,22 @@ dato 360 pezzi in ogni modo: le tegole di OpenFreeMap, del terreno e di
 Esri arrivano con CORS e non sporcano il canvas (nel simulatore; da
 ripetere sul telefono). Il video pesa 4,4 MB con la mappa ferma e 8,6 MB
 con la camera che gira, a 6 Mbit/s.
+
+**Sul telefono** (condizione 1; iPhone dell'utente, iOS 26.6, la pagina
+del bench in Safari sulla rete locale, 2026-10-30 alle 23:23;
+`out/video-restyle/bench/phone-2026-10-30.txt`): MapLibre 148 ms; le
+tegole della mappa piatta al primo `idle` 0,97 s a freddo; lo scatto
+3 ms; la traccia proiettata piatta (99 punti) 1 ms, con il terreno 8 ms
+(80 µs a punto); 360 fotogrammi composti in 2D 10 ms; la codifica di 360
+fotogrammi fermi 2,7 s (2,7 MB); il terreno e le colline del 3D a `idle`
+2,5 s a freddo; un fotogramma inclinato reso dalla mappa 1,0–1,2 ms più
+2,4–2,5 ms di copia (le tegole mancanti solo al primo passaggio: 60/60,
+poi 1/60); la codifica di 360 fotogrammi con la camera che gira 5,4 s
+(6,2 MB), il doppio di quella ferma; a 540 × 960 un fotogramma 0,9 ms più
+0,4 di copia. WebCodecs c'era anche su http. Quindi la camera che gira
+costa sul telefono circa 3,5 ms a fotogramma più la proiezione della
+linea: ben sotto i 25 ms con una linea di qualche centinaio di punti, e
+la D la fa, con la misura dal vivo che decide.
 
 **Che cosa ne segue.** La mappa può stare nella pagina del video, in uno
 scatto preso una volta: il video costa come oggi più le tegole (0,5–0,8 s
@@ -339,7 +382,8 @@ Della proposta (parte A):
       con le parole dell'utente.
 - [x] La fattibilità del 3D misurata nel simulatore e nel WebView nascosto
       dell'app, scritta qui; il bench fuori dal repository (`out/`).
-- [ ] La misura sul telefono dell'utente scritta qui (condizione 1).
+- [x] La misura sul telefono dell'utente scritta qui (condizione 1): il
+      2026-10-30 sotto «Fattibilità», «Sul telefono».
 - [x] ADR-0303 scritto; `STATUS.md` e `INDEX.md` aggiornati.
 
 Delle parti:
@@ -436,7 +480,8 @@ docs/tasks/TASK-351.md
 docs/STATUS.md
 ```
 
-Parte D:
+Parte D (l'elenco esteso il 2026-11-04 con la tessera e il testo «3D»,
+che la C ha lasciato alla D, e con la riga di privacy della scelta 8):
 
 ```
 apps/mobile/src/share/videoMap.ts
@@ -445,6 +490,21 @@ apps/mobile/src/share/videoScene.ts
 apps/mobile/src/share/videoScene.test.ts
 apps/mobile/src/share/videoPage.ts
 apps/mobile/src/share/videoPage.test.ts
+apps/mobile/src/share/videoStyle.ts
+apps/mobile/src/share/videoStyle.test.ts
+apps/mobile/src/share/StyleRow.tsx
+apps/mobile/src/share/StyleRow.test.tsx
+apps/mobile/src/share/SharePostVideo.test.tsx
+apps/mobile/src/about/content/en.ts               (la riga di privacy, scelta 8, col sì)
+apps/mobile/src/about/content/it.ts
+apps/mobile/src/about/content/de.ts
+apps/mobile/src/about/content/es.ts
+apps/mobile/src/about/content/fr.ts
+site/privacy/index.html                           (rigenerate da make_privacy.mjs)
+site/privacy/it/index.html
+site/privacy/de/index.html
+site/privacy/es/index.html
+site/privacy/fr/index.html
 docs/UI.md
 docs/DECISIONS.md
 docs/tasks/TASK-351.md
@@ -565,6 +625,77 @@ impronta iOS sulla copia pulita `6f8bba4cf1b6f95fc3c1c84ba9812d950a2232a1`, quel
 alla C è arrivato con la mappa vista dall'utente sul telefono («ok la
 mappa funziona»); alla domanda se volesse la riga «Style» anche senza
 mappa aveva scelto «Aspetto la mappa».
+
+## La parte D, com'è fatta (2026-11-04)
+
+Branch `feat/TASK-351-d-video-3d` (worktree `TASK-351-d`), da `main`
+f2180242 con la #706 e la #707 dentro.
+
+- `videoStyle.ts`: il terzo stile «3d» (la palette della notte,
+  `styleRelief`), il nome «3D»: il testo c'era già nelle tabelle, per la
+  mappa 3D di TASK-264, quindi nessuna riga nuova.
+- `videoMap.ts`: `reliefStyle` è lo stile della mappa con le due sorgenti
+  delle altezze (le Terrain Tiles, codifica terrarium, come
+  `mapKindStyle`) e il layer delle colline sopra l'ultimo riempimento,
+  nei colori della palette (`hillshadeOf("dark", NIGHT)`); la camera con
+  `pitch` 55 (`PITCH_3D`), `terrain` (`TERRAIN_SPEC`), il giro `turn`
+  da −10° a +10° (`TURN_DEG`), il budget di 25 ms a fotogramma
+  (`FRAME_BUDGET_MS`), lo zoom dello scatto fermo 1 → 1,06
+  (`STILL_ZOOM`), `pad` e la linea della corsa in longitudine e
+  latitudine; il credito «Terrain Tiles».
+- `videoScene.ts`: il look 3D è quello della notte con `relief`; la
+  traccia per la pagina ridotta a 150 punti in metri (`thinnedTrack`,
+  `MAX_POINTS_3D`: la proiezione col terreno costa 80 µs a punto sul
+  telefono); nell'op `map` di ogni fotogramma `turn` (la rotazione,
+  `easeInOut` sui 12 s) e `zoom` (lo zoom dello scatto fermo); la linea
+  della corsa e la punta della penna con `share` (la quota, da 0 a 1),
+  perché i pixel li decide la pagina; il credito con «Terrain Tiles».
+- `videoPage.ts`: la mappa con `pitch`; a `load` (o al primo battito con
+  lo stile caricato) `setTerrain`; dopo il primo `idle` il fit inclinato
+  (`fitLeaning`: due passate, la linea proiettata, zoom e centro corretti
+  perché riempia il riquadro meno la larghezza della linea, come la
+  piatta); di nuovo intera, lo scatto e la linea proiettata a riposo; poi
+  il giro a vuoto (`dryRun`: 12 rotazioni per due passate, la prima per
+  le tegole di ogni rotazione, un'attesa delle tegole, la seconda
+  misurata, mappa resa, copiata, linea proiettata; la mediana); sotto il
+  budget il modo `orbit` (la mappa resta viva e si ridisegna a ogni
+  fotogramma con la rotazione dell'op, la linea riproiettata), altrimenti
+  `still` (lo scatto zoomato attorno al centro del riquadro, la linea a
+  riposo scalata uguale); il messaggio `map` dice `mode` e `ms.frame`,
+  `done` dice `mode`. Allo scadere dei 15 s con lo scatto già preso:
+  `still`; senza: la riserva gialla come prima. La mappa viva si lascia
+  andare a video finito.
+- `StyleRow.tsx`: la terza tessera, con il disegno inclinato di 55° in
+  prospettiva (`perspective` 400, `rotateX`).
+- Test: `videoStyle` (tre stili), `videoMap` (le sorgenti e il layer
+  delle colline al posto giusto, i colori solo dalla palette, la camera
+  inclinata, la linea), `videoScene` (`thinnedTrack`; la scena 3D: la
+  rotazione da −10 a +10 lenta ai capi, lo zoom, le quote della linea e
+  della punta, il credito, per il resto il video della notte),
+  `videoPage` (la mappa finta che proietta piatta attorno al centro con
+  il padding: le colline accese, il fit nel riquadro, il giro provato da
+  un capo all'altro e la mappa tenuta, 359 ridisegni e l'ultima rotazione
+  a +10°; con un budget impossibile il modo fermo, lo zoom fino a 1,06
+  attorno al centro, la mappa lasciata subito), `StyleRow` (tre radio, la
+  tessera inclinata), il flusso di «Share your run» con «3D», le tabelle.
+- Provato nel simulatore (Expo Go 57, «MuW TASK-301», iOS 27, la GPU del
+  Mac, tegole in cache): il video 3D con la camera che gira, 7,3 MB; la
+  mappa con il terreno, il fit e il giro a vuoto pronta in 2,2 s, il giro
+  a vuoto 11 ms a fotogramma (sotto i 25: modo `orbit`), la codifica 7,1 s
+  per 360 fotogrammi, 10,5 s in tutto dal montaggio; la notte nello stesso
+  giro 0,46 s di mappa, 3,2 s di codifica, 4,1 s in tutto: il 3D costa due
+  volte e mezzo. I fotogrammi in `out/TASK-351-d/frames-3d/` (sul Mac): la
+  mappa inclinata con le colline, la linea sulle colline che si disegna con
+  la punta, il cuore intero con le emoji, il credito con «Terrain Tiles»,
+  la camera che ha girato. Il harness ha scovato un errore: MapLibre dà
+  `idle` dentro `redraw()`, e il passo si riavviava da solo migliaia di
+  volte (la pagina muta per 20 s, e la prima volta il simulatore si è
+  spento); risolto con `busy`, e la mappa finta dei test ora dice `idle`
+  dentro `redraw` come la vera.
+- L'export (il Coordinatore ha chiesto di scriverlo se raddoppia): sul
+  telefono (30 ottobre) la camera che gira costa il doppio dello scatto
+  fermo, 5,4 s contro 2,7 s per 360 fotogrammi; il modo fermo costa come
+  la notte più le tegole del terreno (2,5 s a freddo).
 
 ## Il fix del 2026-11-03: la mappa che sul telefono non arrivava
 

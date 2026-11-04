@@ -277,7 +277,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
   Coordinatore. Solo app, impronta iOS `83793e26` invariata. File
-  `tasks/TASK-351.md`.
+  `tasks/TASK-351.md`. 2026-11-04, sera: la #706 e la #707 sono in `main`;
+  la D (il 3D) è la PR PR_D (`feat/TASK-351-d-video-3d`, testa HEAD_D):
+  lo stile «3D», la mappa scura inclinata con le colline, la linea posata
+  sulle colline dalla pagina, la camera che gira da −10° a +10° se un
+  fotogramma costa meno di 25 ms (misurato dalla pagina in un giro a
+  vuoto) altrimenti lo scatto fermo con lo zoom lento, la tessera
+  inclinata, il credito «Terrain Tiles»; nel simulatore il 3D esce con la camera che gira (11 ms a
+  fotogramma, 7,1 s di codifica, 10,5 s in tutto contro 4,1 della notte); impronta iOS FP_D.
+  La riga di privacy sulle tegole del terreno (scelta 8 nel task file)
+  aspetta il sì dell'utente ed entra nella D.
 - **TASK-355 — Una scheda del Feed che si capisce in un colpo d'occhio**
   (ADR-0306, estende ADR-0293; richiesta dell'utente del 2026-10-30, numeri
   dal Coordinatore). Branch `docs/TASK-355-feed-clarity` (documenti). Parte
