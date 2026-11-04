@@ -219,6 +219,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
   via del Coordinatore; server, migrazione e sito col sì dell'utente.
   `tasks/TASK-368.md`.
+- **TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca**
+  (ADR-0318, proposta; richiesta dell'utente del 2026-11-04; numero dal
+  Coordinatore). Branch `docs/TASK-374-body-calories-hr-zones` (documenti).
+  Scelte dell'utente tutte fatte: dati solo sul telefono, sesso Male / Female /
+  Prefer not to say, lettura da Salute nella 1.0.2, tabella delle zone più
+  tempo in zona a fine corsa, sezione nelle Impostazioni, testi di A e B
+  approvati. Parte A (dati del corpo e kcal per corsa, bici e paddle, solo
+  app, OTA) e B (zone) dopo TASK-367, col via del Coordinatore; C (lettura da
+  Salute) e D (tempo in zona) con TASK-345 C nella 1.0.2. `tasks/TASK-374.md`.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.

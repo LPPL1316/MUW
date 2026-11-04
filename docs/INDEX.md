@@ -57,6 +57,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | «RIDE IT YOURSELF» in «Explore»: i percorsi in bici di MuW, `bikeIdeas.json`, `tools/bike_ideas.py` | `tasks/TASK-364.md`, `DECISIONS.md` ADR-0309, `UI.md` «Pedalalo tu» |
 | La barra di schede in basso, l'header solo, Messages come scheda, l'ingranaggio del Profilo, la campanella | `tasks/TASK-367.md`, `DECISIONS.md` ADR-0311, `UI.md` |
 | I record personali nel Profilo, a piedi e in bici: il calcolo, la cache, chi li vede | `tasks/TASK-368.md`, `DECISIONS.md` ADR-0312, `API.md` «Profile» |
+| Il mio corpo: dati del corpo, kcal di corsa/bici/paddle, zone del battito | `tasks/TASK-374.md`, `DECISIONS.md` ADR-0318 |
 | Lo sci alpino, «Ski»: piste e impianti, le tre opzioni, la giornata registrata | `tasks/TASK-373.md`, `DECISIONS.md` ADR-0317 e ADR-0278 |
 | «Edit the drawing» su ogni disegno: emoji, parole, percorsi a tema, corse libere e importate, sull'acqua; la copia senza legami | `tasks/TASK-369.md`, `DECISIONS.md` ADR-0313 e ADR-0299, `UI.md` «Edit the drawing: la figura sulla mappa» |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
