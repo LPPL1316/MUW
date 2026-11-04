@@ -439,7 +439,7 @@ Aggiunta ad ADR-0283.
   finché è «Soon» va come una corsa, come il parapendio); in `src/swim/`
   l'avviso col suo file `swim-notice.json` e `useSwimNotice`, la riga sotto
   il giro (`SwimRouteNote`), l'elenco delle curve del primo giro
-  (`SwimTurns`, `swimTurns.ts`). Test con la fixture del contratto.
+  (`SwimTurns`, `turns.ts`). Test con la fixture del contratto.
 - **Approvati dall'utente** il 2026-10-30 («Sì, così», seconda domanda):
   i testi delle curve («TURNS», «Turn left · {place}», «{distance} from the
   start», «The same turns every lap, {laps} laps, then back to the
@@ -458,7 +458,7 @@ File toccati da C1:
 
 ```
 apps/mobile/src/swim/safetyNotice.ts, SwimNotice.tsx, SwimRouteNote.tsx,
-  swimTurns.ts, SwimTurns.tsx, safetyNotice.test.tsx, SwimTurns.test.tsx
+  turns.ts, SwimTurns.tsx, safetyNotice.test.tsx, SwimTurns.test.tsx
   (nuovi)
 apps/mobile/src/settings/sport.ts, sport.test.ts, SportSetting.test.tsx,
   SportButton.test.tsx, SportStoreBuild.test.tsx,

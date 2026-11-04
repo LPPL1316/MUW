@@ -310,7 +310,7 @@ export const FR: Table = {
   "Within 150 m of the shore. Never swim alone.":
     "À moins de 150 m du rivage. Ne nage jamais seul.",
 
-  // src/swim/SwimTurns.tsx, src/swim/swimTurns.ts (TASK-323 C: the turns of a
+  // src/swim/SwimTurns.tsx, src/swim/turns.ts (TASK-323 C: the turns of a
   // swim before «Start», the place's name as OpenStreetMap writes it)
   TURNS: "VIRAGES",
   "Turn left": "Tourne à gauche",
