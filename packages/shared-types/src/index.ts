@@ -2378,3 +2378,49 @@ export interface MuwRouteDetail extends Omit<MuwRoute, "start" | "preview"> {
    * the request the route opens with; the line is still `points`. */
   outline?: OutlinePoint[] | null;
 }
+
+// --- The bell (TASK-367 part C, ADR-0311; docs/API.md, «The bell») ---
+
+/**
+ * One line of the bell (GET /notifications): what a push told the account,
+ * kept for it to read in the app. `kind` is the push's (reaction, comment,
+ * tag, follow_request, contest_open, …: every kind but the private
+ * messages'); `text` is the push's text in the account's language; `opens`
+ * is the push's `data`: what the app opens when the line is touched.
+ */
+export interface NotificationLine {
+  /** Ascending: a newer line has a larger id. */
+  id: number;
+  kind: string;
+  text: string;
+  at: string;
+  read: boolean;
+  /** Who acted; the account itself for its own kinds (the game, a contest). */
+  actor: Person;
+  opens: NotificationOpens;
+}
+
+/**
+ * What a line of the bell opens, as the API's push.data_of says it: a
+ * monthly challenge, a group run, a challenge of the game, a drawing, or
+ * the profile of who acted.
+ */
+export type NotificationOpens =
+  | { kind: string; contest_id: string }
+  | { kind: string; group_run_id: string }
+  | { kind: string; challenge_id: string }
+  | { kind: string; drawing_id: string }
+  | { kind: string; public_id: string; username: string };
+
+/** GET /notifications: the newest first, with how many are unread. */
+export interface NotificationsPage {
+  notifications: NotificationLine[];
+  unread: number;
+  /** Ask with ?before= for the next page; null at the end. */
+  before: number | null;
+}
+
+/** POST /notifications/read: the newest line the app showed; 204. */
+export interface NotificationsReadRequest {
+  up_to: number;
+}

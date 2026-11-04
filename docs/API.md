@@ -2027,6 +2027,40 @@ subito); la lingua come l'email di ritorno. Il codice in
   shaperoute_api.notice_email` conta chi la riceverebbe adesso, `--send`
   fa un giro.
 
+### The bell (TASK-367 parte C, ADR-0311)
+
+La lista della campanella: quello che le push hanno detto all'account,
+tenuto per leggerlo nell'app (`notification_list.py`, tabella
+`notifications`, `DATABASE.md`). La campanella nell'app è la parte C2.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /notifications?before=` | le righe dell'account, le più recenti prima, 30 alla volta; `before` è l'`id` dato dalla pagina prima | `200` `NotificationsPage` (`fixtures/notifications.json`); `401` senza token; `422` con `before` < 1 |
+| `POST /notifications/read` | `{"up_to": id}`: segna lette le righe fino a quella, la più recente che l'app ha mostrato; una arrivata dopo resta non letta | `204`; `422` senza `up_to` o con altri campi |
+
+- **Cosa si tiene**: ogni evento che `push.py` lascia passare (non il
+  proprio, salvo i suoi tipi del gioco, dei concorsi e delle corse di
+  gruppo, una volta al giorno) arriva a `notification_list.py` (un
+  «listener» del `Pusher`, come l'email delle notizie). Per tutti, push
+  accese o spente. **Non i messaggi privati**: hanno la loro scheda. Lo
+  stesso evento di nuovo prende il posto di quello prima, non letto e in
+  cima.
+- **Ogni riga**: `id` (crescente), `kind` (quello della push), `text` (il
+  testo della push nella lingua dell'account: dell'iscrizione, poi del
+  telefono, poi inglese), `at`, `read`, `actor` (`Person`: chi ha agito;
+  l'account stesso per i suoi tipi) e `opens` (il `data` della push: il
+  concorso, la corsa di gruppo, la sfida, il disegno o il profilo). Con
+  `unread`, quante non lette in tutto, e `before`, per la pagina dopo
+  (`null` alla fine).
+- **Quello che non è più vero resta fuori**, come nell'email delle
+  notizie: una richiesta ritirata, un follow finito, una reazione tolta,
+  un commento cancellato o nascosto, un tag tolto, un disegno che non si
+  vede più; niente attraverso un blocco o da un account nascosto per una
+  segnalazione. Il commento e la reazione si leggono come sono adesso.
+- **Per quanto**: `KEPT_DAYS`, 90 giorni dall'evento (da approvare con la
+  frase della privacy); le righe più vecchie non si mostrano e vanno via
+  alla prima riga scritta dopo.
+
 ### Confirmed email and forgotten password (TASK-300, ADR-0261)
 
 La email che conferma l'indirizzo, all'iscrizione e al cambio in

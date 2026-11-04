@@ -1,0 +1,39 @@
+{
+  "notifications": [
+    {
+      "id": 42,
+      "kind": "comment",
+      "text": "other_runner commented on your post: Great run",
+      "at": "2026-11-04T18:20:00Z",
+      "read": false,
+      "actor": {
+        "public_id": "8f14e45f-ceea-467f-a0e6-b6f1c2d3e4f5",
+        "username": "other_runner",
+        "photo": null
+      },
+      "opens": {
+        "kind": "comment",
+        "drawing_id": "1c9d3b2a-5e4f-4a6b-8c7d-9e0f1a2b3c4d"
+      }
+    },
+    {
+      "id": 41,
+      "kind": "follow_request",
+      "text": "third_runner asked to follow you.",
+      "at": "2026-11-04T17:05:00Z",
+      "read": true,
+      "actor": {
+        "public_id": "2b7e1516-28ae-4d2a-abf7-158809cf4f3c",
+        "username": "third_runner",
+        "photo": null
+      },
+      "opens": {
+        "kind": "follow_request",
+        "public_id": "2b7e1516-28ae-4d2a-abf7-158809cf4f3c",
+        "username": "third_runner"
+      }
+    }
+  ],
+  "unread": 1,
+  "before": null
+}
