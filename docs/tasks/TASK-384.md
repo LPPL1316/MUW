@@ -3,7 +3,7 @@
 **Stato**: Todo — proposta in `docs/STYLE.md`; niente codice prima del sì
 dell'utente sulla proposta
 **Fase**: 4 · **Branch**: `docs/TASK-384-muw-style` (proposta) · **ADR**:
-ADR-0325 (da confermare col Coordinatore) · numero del task dal Coordinatore
+ADR-0326 · numero del task dal Coordinatore
 (2026-11-04)
 
 ## Obiettivo

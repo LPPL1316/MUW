@@ -21975,12 +21975,12 @@ post da un'altra pagina, e cambiare il `Pager`.
 
 ---
 
-## ADR-0325 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
+## ADR-0326 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
 
 **Stato**: Proposta · 2026-11-04 · TASK-384. Le scelte di prodotto sono
 dell'utente (tema, frequenza, strumento, partenza prima della società:
 `tasks/TASK-384.md`); il come è deciso dall'agente su delega dell'utente.
-Numero da confermare col Coordinatore.
+Numeri dal Coordinatore.
 
 **Contesto**: l'utente vuole nel Feed post di MuW con modelli generati dall'AI
 in outfit sportivi e tag che portano a comprare i capi con link affiliati.

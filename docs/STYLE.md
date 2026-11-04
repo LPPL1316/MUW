@@ -1,7 +1,7 @@
 # MuW Style — proposta
 
 > Stato: **proposta**, nessun codice. Task: `tasks/TASK-384.md`.
-> Decisione tecnica: `DECISIONS.md` ADR-0325 (numero da confermare col Coordinatore). Materiali preparati (fuori dal
+> Decisione tecnica: `DECISIONS.md` ADR-0326. Materiali preparati (fuori dal
 > repository, `out/` è in `.gitignore`): `out/TASK-384/`.
 
 ## Che cos'è
@@ -203,6 +203,38 @@ CREATE TABLE product_tag_clicks (
    immagini non finiscano ad addestrare altro, e che lo strumento accetti
    persone realistiche inventate (alcuni piani le limitano). Si genera da
    testo, con i prompt di `image-prompts.md`, mai da foto.
+
+## I cinque punti del Coordinatore
+
+Il Coordinatore (2026-11-04) chiede che la proposta li metta in chiaro come
+scelte per l'utente. Come stanno:
+
+1. **Persone generate dall'AI dichiarate come tali**, mai presentate come
+   vere, mai il volto di una persona reale. Già nella richiesta dell'utente
+   (etichetta fissa «AI-generated») e nei prompt (persona inventata, nessuna
+   somiglianza): non serve un'altra domanda.
+2. **I link affiliati segnalati come pubblicità in ogni post**, come per gli
+   influencer in Italia (AGCM, Digital Chart IAP). Già nella richiesta
+   dell'utente (etichetta fissa «Affiliate links»); si aggiunge che il testo
+   dell'etichetta, nelle cinque lingue, deve dire «pubblicità» in modo chiaro
+   («Ad · Affiliate links», «Pubblicità · Link affiliati»): è uno dei testi
+   da far approvare.
+3. **Il programma affiliato e la società.** Chiesto all'utente il
+   2026-11-04: «No, Style parte prima» (`tasks/TASK-384.md`, scelta 4).
+   Awin di solito vuole dati fiscali: l'iscrizione la fa l'utente, e se il
+   programma Zalando chiede una partita IVA si torna da lui.
+4. **Le immagini dei prodotti solo come le permette il programma**, dal
+   feed ufficiale. Oggi la proposta non ne usa nessuna: la scheda ha nome,
+   marca, prezzo e «Shop». Una miniatura del prodotto nella scheda si
+   aggiunge solo dal feed prodotti di Awin e con le sue condizioni, ed è una
+   scelta da chiedere quando ci sarà l'iscrizione.
+5. **Privacy e App Store.** La Privacy dirà che l'app contiene link
+   d'acquisto affiliati, che MuW conta per giorno le aperture e i tocchi
+   senza sapere chi sei, e che **il negozio e Awin registrano il clic** con
+   i loro cookie, sotto la loro privacy, per pagare la commissione. Gli
+   acquisti sono di beni fisici fuori dall'app: per Apple non passano
+   dall'acquisto in-app (3.1.3(e)), e Apple non ne prende una
+   percentuale. I testi nuovi vogliono il sì dell'utente.
 
 ## Cosa non si fa
 
