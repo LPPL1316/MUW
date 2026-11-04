@@ -111,7 +111,11 @@ sono cambiati così:
   pacchetto del motore. L'impronta iOS resta 6f8bba4c.
 - File in più rispetto all'elenco previsto: `route_engine/walking.py`,
   `images.py`, `errors.py`, `jobs.py`, `route_store.py`, `stroke_matches.py`,
-  `tests/test_walk_fingerprint.py`, `docs/GPX.md`. File in meno:
+  `tests/test_walk_fingerprint.py`, `docs/GPX.md`, e quattro test vecchi
+  che avevano l'elenco delle attività senza la camminata:
+  `tests/test_cycling.py`, `test_strava.py`, `test_favorites.py`
+  (`ACTIVITY_MIGRATIONS` con la 0043), `test_drawing_search.py` (il filtro
+  sbagliato ora è `hiking`). File in meno:
   `models.py`, `network.py`, `__main__.py`, `export_gpx.py`. La lista è
   stata approvata dal Coordinatore prima della PR.
 
