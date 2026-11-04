@@ -277,6 +277,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (2026-11-04, branch `feat/TASK-374-a-body-calories`): «Body» nelle
   Impostazioni, kcal di ogni sport nella corsa, nel Feed e in Salute; entra
   dopo il nuoto (#734). Prossimo: parte B, la pagina delle zone. `tasks/TASK-374.md`.
+  Parte A in `main` con la PR #739 (`22ec9572`).
+  Parte B (2026-11-04, branch `feat/TASK-374-b-hr-zones`): la pagina «Heart
+  rate zones» in fondo a «Body», FC massima dall'età (Tanaka) o a mano, FC a
+  riposo (Karvonen), cinque zone con la cima delle zone 1–4 modificabile e
+  «Back to calculated zones», in `heart.json` sul telefono; solo app, OTA.
+  Il testo d'errore delle FC aspetta il sì dell'utente. Poi C e D nella 1.0.2.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.

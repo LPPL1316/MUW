@@ -817,6 +817,23 @@ export const DE: Table = {
     "Gib eine Größe zwischen {min} und {max} ein.",
   "Enter a year between {min} and {max}.": "Gib ein Jahr zwischen {min} und {max} ein.",
 
+  // src/settings/HeartZonesPage.tsx, BodyPage.tsx (TASK-374 part B)
+  "Heart rate zones": "Herzfrequenzzonen",
+  "Max heart rate": "Maximale Herzfrequenz",
+  "Estimated from your age": "Aus deinem Alter geschätzt",
+  "Set by you": "Von dir festgelegt",
+  "Resting heart rate": "Ruheherzfrequenz",
+  "Zone 1 Recovery": "Zone 1 Erholung",
+  "Zone 2 Endurance": "Zone 2 Grundlage",
+  "Zone 3 Tempo": "Zone 3 Tempo",
+  "Zone 4 Threshold": "Zone 4 Schwelle",
+  "Zone 5 Max": "Zone 5 Maximum",
+  "Back to calculated zones": "Zurück zu den berechneten Zonen",
+  "Add your year of birth or your max heart rate to see your zones.":
+    "Gib dein Geburtsjahr oder deine maximale Herzfrequenz ein, um deine Zonen zu sehen.",
+  "Enter a heart rate between {min} and {max} bpm.":
+    "Gib eine Herzfrequenz zwischen {min} und {max} bpm ein.",
+
   // src/settings/ToneSetting.tsx
   Tone: "Darstellung",
   Dark: "Dunkel",

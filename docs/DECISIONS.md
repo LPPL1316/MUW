@@ -21478,6 +21478,20 @@ dati sulla salute (GDPR art. 9).
     nessun riquadro «Calories» e nessuna energia in Salute, come aveva deciso
     il suo task. Una formula per il nuoto è una scelta a parte. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
+15. Fatto nella parte B (deciso dall'agente su delega dell'utente): le zone
+    hanno sei limiti condivisi (inizio della zona 1, cima delle zone 1–4, FC
+    massima), così restano contigue per costruzione. La pagina fa scrivere la
+    cima delle zone 1–4; l'inizio della zona 1 segue il calcolo (il modulo
+    accetta anche quello). Un limite scritto fuori ordine non dà errore: si
+    ferma un battito sotto la cima della zona dopo, o sopra quella della zona
+    prima. Un limite cambiato a mano resta in bpm anche se cambiano FC massima
+    o a riposo; i limiti calcolati gli stanno intorno, e se la FC massima
+    scende sotto un limite fissato lo spinge giù quanto basta per tenere
+    l'ordine. Una FC a riposo pari o sopra la massima non conta (zone in % della
+    massima). La casella svuotata torna al calcolo; un testo che non è un numero
+    lascia il valore di prima. Tutto in `heart.json` accanto a `body.json`;
+    senza niente di scritto a mano il file non c'è. Il testo d'errore delle FC
+    è una proposta che aspetta il sì dell'utente prima del merge.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
 verificano a mano nei test. Togliere il consumo a riposo dà l'«energia attiva»

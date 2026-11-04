@@ -1,6 +1,6 @@
 # TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca
 
-**Stato**: In corso: parte A in PR (entra dopo il nuoto, #734); poi B
+**Stato**: In corso: parte A in `main` (#739, `22ec9572`); parte B in PR; poi C e D nella 1.0.2
 **Fase**: 4 · **Branch**: `docs/TASK-374-body-calories-hr-zones` (documenti),
 `feat/TASK-374-a-body-calories` (parte A), `feat/TASK-374-b-hr-zones` (parte B)
 · **ADR**: ADR-0318 · numeri dal Coordinatore (2026-11-04)
@@ -228,13 +228,20 @@ FeedScreenPosts}.test.tsx`, `feed/{FeedPost,feedPosts}.test.*`,
 Parte B (previsti):
 
 ```
-apps/mobile/src/body/heartZones.ts             (nuovo)
-apps/mobile/src/body/heartZones.test.ts        (nuovo)
-apps/mobile/src/body/HeartZonesPage.tsx        (nuovo)
-apps/mobile/src/body/HeartZonesPage.test.tsx   (nuovo)
-apps/mobile/src/settings/BodyPage.tsx
+apps/mobile/src/body/heartZones.ts             (nuovo, + test)
+apps/mobile/src/settings/HeartZonesPage.tsx    (nuovo, + test)
+apps/mobile/src/settings/BodyPage.tsx          (la riga in fondo)
+apps/mobile/src/settings/BodySetting.test.tsx
 apps/mobile/src/i18n/{it,de,es,fr}.ts
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-374.md
 ```
+
+La pagina sta in `settings/` accanto a `BodyPage.tsx`, non in `body/`: così
+l'elenco del via del Coordinatore (2026-11-04).
+
+Testo da approvare (parte B): l'errore di una FC fuori dai limiti, proposto
+«Enter a heart rate between {min} and {max} bpm.» → «Scrivi una frequenza tra
+{min} e {max} bpm.». Il merge aspetta il sì dell'utente.
 
 ## Fuori scope
 
@@ -251,4 +258,7 @@ apps/mobile/src/i18n/{it,de,es,fr}.ts
 
 ## Esito
 
-*(si compila a fine task)*
+- Parte A (2026-11-04): in `main` con la PR #739 (`22ec9572`).
+- Parte B (2026-11-04): `body/heartZones.ts` (Tanaka, Karvonen, limiti a mano
+  condivisi fra zone vicine, `heart.json`) e `settings/HeartZonesPage.tsx`,
+  aperta dalla riga in fondo a «Body». Scelte tecniche in ADR-0318 §15.
