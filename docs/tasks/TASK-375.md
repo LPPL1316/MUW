@@ -146,7 +146,8 @@ con «Sì, approvati», nella tabella sopra): `apps/mobile/src/settings/sport.ts
 `health/snowWorkout.test.ts`, `screens/RecordDay.test.tsx` e
 `social/snowChips.test.tsx`; `api/drawings.test.ts`; il conteggio dei
 «Soon» in `settings/sport.test.ts`, `SportSetting.test.tsx`,
-`SportButton.test.tsx` e `SportVoiceItalian.test.tsx`. Documenti:
+`SportButton.test.tsx`, `SportVoiceItalian.test.tsx` e
+`profile/SettingsPage.test.tsx`. Documenti:
 `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 7) e questa lista.
 `trackStore.ts` e `api/activities.ts` alla fine non servono.
 
