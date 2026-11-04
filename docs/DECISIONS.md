@@ -22070,6 +22070,35 @@ faceva con le pagine affiancate di TASK-154 (ADR-0124).
 La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
 prova solo con i test.
 
+**Scelte tecniche** (2026-11-04, decise dall'agente su delega dell'utente):
+
+- Lo `ScrollView` orizzontale a pagine di React Native, come il `Pager` di
+  TASK-154: uno scroll orizzontale dentro una pagina si tiene il dito che parte
+  su di lui (UIKit lo dà alla vista più interna, e una che rimbalza lo tiene
+  anche ai bordi). Scartato `PanResponder` con `Animated`: con Fabric uno
+  `ScrollView` interno scorre anche quando il responder JS è un genitore, e le
+  due cose si muoverebbero insieme.
+- Il giro senza salti: le pagine stanno su una striscia di 2000 posti larghi
+  uno schermo (`tabs/tabStrip.ts`). La pagina sullo schermo ha un posto e le due
+  vicine quelli ai lati; una pagina cambia posto solo fuori vista, così lo
+  scroll non torna mai indietro. Mille swipe nella stessa direzione prima di un
+  capo, dove lo swipe si ferma; non di più, perché il layout conta in float a
+  32 bit.
+- Tocco sulla barra, giro guidato, «indietro» di Android, e il profilo al posto
+  di «Messages» senza account: la pagina arriva subito dove sta la striscia,
+  senza scorrere su quelle in mezzo e senza costruirle. La barra cambia quando
+  lo swipe si ferma.
+- Una pagina pigra si costruisce ai primi pixel che entrano nello schermo, come
+  nel `Pager`: «Explore» e il profilo, la prima volta, entrano vuoti per un
+  attimo.
+- Con VoiceOver o TalkBack acceso lo swipe è spento: tre dita direbbero
+  «pagina 1001 di 2000». Le schede restano `tab` con lo stato `selected`.
+- `scrollsToTop={false}` sulla striscia: il tocco sull'orologio va allo scroll
+  della pagina.
+- Il limite: una seconda scivolata veloce mentre una fila rimbalza ancora alla
+  fine passa alla pagina accanto (UIKit). Toglierlo vorrebbe cambiare le file;
+  `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
+
 ---
 
 ## ADR-0329 — I movimenti come iOS: molle condivise con un rimbalzo appena percettibile
