@@ -22239,5 +22239,39 @@ interrompe con la velocità).
 resta in `motion` finché le PR aperte che lo leggono sono in `main`; poi va
 tolto. Le parti B (l'«isola») e C (fogli, `Modal`, liste) usano `island` e
 `smooth`.
+## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-382). Dopo «Edit the drawing» su un esempio sull'acqua (TASK-369 B),
+«Draw route» riceveva un 422 «outline: the outline crosses itself»: l'app
+controllava il contorno prima che `canvasRequest.framed` lo arrotondasse al
+decimillesimo, e l'arrotondamento faceva toccare i due lati della punta o del
+nastro lasciati dal tratto dalla riva.
+
+**Decisione**:
+
+1. **Il contorno si controlla con i numeri che partono**, dopo
+   l'arrotondamento, e con la regola del motore copiata operazione per
+   operazione (`shapes/outline.py`: `_ring`, `_orient`, `_meet`,
+   `_folds_back`, `_first_crossing`), in `mapdraw/sentOutline.ts`: sugli
+   stessi numeri app e motore danno lo stesso verdetto.
+2. **Dove due lati si incontrano si tolgono gli angoli fra loro**, dal lato
+   con meno angoli, finché nessuno si incontra; mai un punto nuovo, così non
+   si riarrotonda niente. Il contorno riparte dall'angolo più vicino al suo
+   primo punto.
+3. **Se resterebbe troppo poco, o un dettaglio non partirebbe più sul
+   contorno** (`ATTACH_TOLERANCE`), il contorno va com'era: l'API dice
+   perché, come prima.
+
+**Alternative scartate**: mandare i numeri senza arrotondare (in un caso su
+otto il solo cambio di riquadro fa già toccare i lati); un controllo con
+tolleranza nel motore (cambia l'impronta del motore e vuole il server);
+rifare `outlineOf` sul contorno arrotondato (crea punti nuovi, da
+riarrotondare); un testo nuovo per questo 422 (non serve se il 422 non c'è
+più, e vorrebbe il sì dell'utente).
+
+**Conseguenze**: vale per ogni figura della mappa, sull'acqua e sulle strade;
+un contorno che il motore prende già parte identico a prima. Solo JS, nessun
+testo, impronta iOS invariata; funziona col server di oggi.
 
 ---
