@@ -11,9 +11,14 @@ written into by the engine of that fingerprint:
 
     cd services/api && python tests/test_same_routes.py
 
-A line of SAME_ROUTES_AS needs the proofs of both its fingerprints, with
-the same hashes. A change of behaviour never gets a line: its routes are
-drawn again.
+A line of SAME_ROUTES_AS needs the proofs of both its fingerprints, made
+on the same platform, with the same hashes. A change of behaviour never
+gets a line: its routes are drawn again.
+
+The last digits of a route are the platform's: the Mac (arm64) and Linux in
+CI draw some of these routes apart, as they do the search of
+test_first_placement. So a proof says where it was made, and the engine of
+now is checked against it only there.
 """
 
 from __future__ import annotations
@@ -21,6 +26,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import platform
 import sys
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -50,6 +56,11 @@ LEVICO = (46.0122, 11.2986)
 # The fingerprints a proof is written for: every route but a swim, the
 # swims', and that of the paddling examples of the app.
 KINDS = ("engine", "swims", "paddle")
+
+
+def platform_now() -> str:
+    """Where the routes are drawn: "darwin-arm64", "linux-x86_64"."""
+    return f"{sys.platform}-{platform.machine()}"
 
 
 def _module(name: str, path: Path) -> ModuleType:
@@ -169,7 +180,7 @@ def record() -> Path:
     fingerprints = fingerprints_now()
     PROOFS.mkdir(parents=True, exist_ok=True)
     path = PROOFS / f"{fingerprints['engine']}.json"
-    proof = {"fingerprints": fingerprints, "routes": routes}
+    proof = {"fingerprints": fingerprints, "platform": platform_now(), "routes": routes}
     path.write_text(json.dumps(proof, indent=2, sort_keys=True) + "\n", "utf-8")
     return path
 
@@ -185,6 +196,7 @@ def test_every_line_has_the_proof_of_its_two_fingerprints() -> None:
         assert before is not None, f"no proof of {earlier} in {PROOFS}"
         kind = next(k for k, v in after["fingerprints"].items() if v == moved)
         assert before["fingerprints"][kind] == earlier, (moved, earlier)
+        assert after["platform"] == before["platform"], (moved, earlier)
         assert after["routes"] == before["routes"], (moved, earlier)
 
 
@@ -195,6 +207,8 @@ def test_the_engine_of_now_draws_what_its_proof_says(
     proof = proof_of(code_fingerprint())
     if proof is None:
         pytest.skip("no proof of this engine: it needs none without a line")
+    if proof["platform"] != platform_now():
+        pytest.skip(f"the proof was made on {proof['platform']}")
     assert proof["fingerprints"] == fingerprints_now()
     assert drawn_now(monkeypatch, tmp_path) == proof["routes"]
 

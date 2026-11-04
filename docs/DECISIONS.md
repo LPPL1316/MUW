@@ -21872,8 +21872,10 @@ a catena. Una riga entra solo con la sua prova:
 `services/api/tests/test_same_routes.py` disegna offline nove percorsi
 fissi (corsa, bici, canoa, nuoto) e ne scrive l'hash del risultato intero
 in `tests/fixtures/same_routes/<impronta>.json`; un test vieta una riga
-senza le prove delle sue due impronte con gli stessi hash, e un altro
-controlla che il motore di adesso disegni la sua prova. In più il banco
+senza le prove delle sue due impronte, fatte sulla stessa piattaforma, con
+gli stessi hash, e un altro controlla che il motore di adesso disegni la
+sua prova (solo sulla piattaforma della prova: il Mac arm64 e Linux in CI
+disegnano alcuni di questi percorsi diversi nelle ultime cifre). In più il banco
 su `main` e sul branch, `compare --same`, punto per punto. **Un cambiamento
 di comportamento non usa mai `SAME_ROUTES_AS`**: i suoi percorsi si
 ridisegnano, col sì dell'utente. Così il server si può aggiornare da `main`

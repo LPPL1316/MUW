@@ -4,6 +4,7 @@
     "paddle": "574fbfba41eb",
     "swims": "b9d00c37d28d"
   },
+  "platform": "darwin-arm64",
   "routes": {
     "cycling-town-circle-10km": "dc1c63adddae70bc",
     "cycling-town-heart-10km": "0893432e55f849d6",
