@@ -162,6 +162,7 @@ apps/mobile/src/screens/FeedScreen.tsx, FeedScreen.test.tsx, ProfileLayer.test.t
 apps/mobile/src/social/FindFriendsButton.tsx, .test.tsx      (tolti)
 apps/mobile/src/search/Glyphs.tsx                            (un commento)
 apps/mobile/App.tsx                                          (dopo la #722: onOpenExample)
+apps/mobile/__tests__/AppFeed.test.tsx                       (il test di onOpenExample)
 apps/mobile/src/about/content/*.ts, site/privacy/**          (col sì dell'utente; il sito dopo la #724)
 docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
 ```
