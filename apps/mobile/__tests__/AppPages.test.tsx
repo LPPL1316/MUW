@@ -31,8 +31,6 @@ jest.mock("expo-location", () => ({
 }));
 
 const API = "http://192.168.1.23:8000";
-// The window of the tests (react-native's jest setup): a page is this wide.
-const WIDTH = 750;
 
 let fetchSpy: jest.SpiedFunction<typeof fetch>;
 
@@ -52,16 +50,11 @@ function askedBesidesTheGame(): string[] {
     .filter((path) => path !== "/game/catalog" && path !== "/contests/current");
 }
 
-/** A swipe that comes to rest on the page at `index`. */
+/** The page at `index` as the pages lay side by side before TASK-367
+ * («Feed», «Draw», «Explore», the profile): its tab touched. */
 async function swipeTo(index: number) {
-  const pager = screen.getByTestId("pager");
-  // On the way the next page comes into view, then the scroll rests.
-  await fireEvent.scroll(pager, {
-    nativeEvent: { contentOffset: { x: index * WIDTH, y: 0 } },
-  });
-  await fireEvent(pager, "momentumScrollEnd", {
-    nativeEvent: { contentOffset: { x: index * WIDTH, y: 0 } },
-  });
+  const tabs = ["Feed", "Draw", "Explore", /^Profile/];
+  await fireEvent.press(screen.getByRole("tab", { name: tabs[index] }));
 }
 
 async function atTrento() {
@@ -95,10 +88,10 @@ afterEach(() => {
   fetchSpy.mockRestore();
 });
 
-test("opens on «Draw», between «Feed» and «Explore», and asks the API nothing", async () => {
+test("opens on «Draw», the second of the five tabs, and asks the API nothing", async () => {
   await atTrento();
   expect(screen.getAllByRole("tab").map((tab) => tab.props.accessibilityLabel)).toEqual(
-    ["Feed", "Draw", "Explore"],
+    ["Feed", "Draw", "Messages", "Explore", "Profile"],
   );
   expect(screen.getByRole("tab", { name: "Draw", selected: true })).toBeOnTheScreen();
   expect(screen.getByTestId("draw-route")).toBeOnTheScreen();
