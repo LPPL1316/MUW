@@ -1033,7 +1033,7 @@ motore.)
 - **Il GPX** (`POST /gpx`) di un nuoto ha un waypoint per ogni curva del
   primo giro, «Turn left · Bagno 54», tipo `turn`, prima della traccia.
 - **Salvati e tenuti**: preferiti, corse e corse di gruppo prendono
-  `swimming` (migrazione `0042`, `DATABASE.md`); Strava lo riceve come
+  `swimming` (migrazione `0040`, `DATABASE.md`); Strava lo riceve come
   `Swim`. Un nuoto dai punti dei laghi e delle spiagge si tiene come la
   canoa, con un'impronta sua (`route_store`).
 - **Campi facoltativi**: un'app di prima non manda `laps` e ignora `laps`,

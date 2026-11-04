@@ -521,7 +521,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **A2 in `main`** con LPPL1316/MUW#11 (2026-10-30). **B scritta**
   (2026-10-30, stessa sessione, branch `feat/TASK-323-b-swim-api`):
   `swimming` nel contratto coi giri e le curve, un disegno a nuoto, la
-  migrazione `0042_swimming.sql`, `shore_extract.py`; l'app resta a tre
+  migrazione `0040_swimming.sql`, `shore_extract.py`; l'app resta a tre
   attività fino a C. **Blocco**: `paddleExamples.json` va rifatto con
   l'acqua del server (dal Mac), poi server, estratto dei nomi e
   `draw_examples` col sì dell'utente. **Prossimo**: C, lo sport nell'app.

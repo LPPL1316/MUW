@@ -796,9 +796,10 @@ dato dal Coordinatore):
   ogni ora (`message_media.MessageMedia.sweep`). Test in
   `test_message_media.py`.
 
-Migrazione `0042_swimming.sql` (TASK-323 parte B, ADR-0283; il numero è
-quello dopo l'ultima in `main` al 2026-11-03, la `0041`: la `0040` non c'è,
-e dopo la `0041` l'ordine resta lo stesso su ogni database):
+Migrazione `0040_swimming.sql` (TASK-323 parte B, ADR-0283; il numero è
+quello che il Coordinatore teneva per il nuoto dal 2026-10-30. Entra dopo la
+`0041`: il runner applica per nome quelle che mancano, quindi su ogni
+database finisce applicata una volta sola):
 
 - I vincoli dell'attività di `favorites` (`0010`), `runs` (`0014`) e
   `group_runs` (`0032`) prendono anche `'swimming'`: il nuoto in acque

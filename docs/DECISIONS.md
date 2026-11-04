@@ -18331,7 +18331,7 @@ file di Apple Salute di TASK-321, che il task non deve toccare.
    importa il nuoto ma l'API no: il test dell'import lo lascia fuori.
 6. **Strava** riceve un nuoto come `Swim` (non ha un tipo per le acque
    libere); il gioco lo conta come ogni attività che non è corsa.
-7. **La migrazione `0042_swimming.sql`** apre i tre vincoli che elencano
+7. **La migrazione `0040_swimming.sql`** apre i tre vincoli che elencano
    le attività (preferiti, corse, corse di gruppo); `drawn_routes` non ha
    un elenco.
 

@@ -313,7 +313,7 @@ al Coordinatore prima del codice. Aggiunta ad ADR-0283.
   (`laps`) nella richiesta e giri e curve (`laps`, `turns`) nella risposta;
   in `shared-types` `API_ACTIVITIES` e le fixture del nuoto. `Activity`
   dell'app resta a tre fino alla parte C (decisione 2 dell'aggiunta).
-- Punto 2: `0042_swimming.sql` (preferiti, corse, corse di gruppo); il
+- Punto 2: `0040_swimming.sql` (preferiti, corse, corse di gruppo); il
   gioco e i disegni leggono `runs.activity` e non hanno un elenco loro.
 - Punto 3: `shore_extract.py`, i posti con nome lungo la riva da un
   estratto, nei file che il motore legge.
@@ -333,7 +333,8 @@ al Coordinatore prima del codice. Aggiunta ad ADR-0283.
   esempi della canoa `574fbfba41eb`.
 - **Il 2026-11-03**, `main` di rockydalbianco/shaperoute unito dentro B (216
   commit, i campi di TASK-347 accanto a quelli del nuoto); la migrazione
-  diventa `0042_swimming.sql` (la `0039` l'ha presa TASK-343). Il campo
+  diventa `0040_swimming.sql`, il numero tenuto dal Coordinatore (la
+  `0039` l'ha presa TASK-343, la `0042` TASK-368 A; 2026-11-04). Il campo
   `engine` di `paddleExamples.json` aggiornato a `574fbfba41eb` senza
   ridisegnarlo: i percorsi della canoa escono identici (aggiunta ad
   ADR-0283 del 2026-11-03). Il codice che disegna la canoa non cambia: rifatti,
@@ -349,7 +350,7 @@ services/route-engine/tests/test_swimming.py, test_contract.py,
   test_paddling.py (il nuoto non è più «un'attività che non c'è»)
 services/api/shaperoute_api/paddling.py, jobs.py, images.py, schemas.py,
   app.py, activities.py, strava.py, route_store.py, shore_extract.py (nuovo)
-services/api/migrations/0042_swimming.sql (nuovo)
+services/api/migrations/0040_swimming.sql (nuovo)
 services/api/tests/test_swimming_api.py, test_shore_extract.py (nuovi),
   test_contract.py, test_cycling.py, test_route_store.py,
   test_swim_fingerprint.py, test_better_distance.py, test_rotation.py,
