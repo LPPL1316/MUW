@@ -221,7 +221,9 @@ Ogni parte ha la sua PR e parte da `main` solo col via del Coordinatore.
       (`composer/ComposedPhoto.test.tsx`).
 - [x] Parte A: `layoutFrame` ha test deterministici per ogni layout
       (`composer/layoutFrame.test.ts`).
-- [ ] Parte A: l'impronta iOS resta `83793e26` su una copia pulita.
+- [x] Parte A: l'impronta iOS resta quella di `main` su una copia pulita:
+      `83793e26` prima della 1.0.1; dopo l'unione con la #620 (Apple Health)
+      `6f8bba4c`, uguale a `main` (misurata il 2026-11-04).
 - [ ] Parti B e C: entrano solo nella build 1.0.2.
 
 ## File toccati
