@@ -1001,6 +1001,20 @@ vuota «No photos yet.», sul proprio «No photos yet. Add some to a public
 drawing in My activities.»; non arrivate, il motivo e «Try again». Con
 un'API senza i totali niente riquadri né schede, come prima.
 
+**I record personali** (TASK-368, ADR-0312, testi approvati il 2026-11-04).
+Sotto i totali, sul proprio profilo e su quello di un altro, un riquadro
+**«Personal bests»** («Record personali»): due gruppi, **RUN** e **BIKE**
+(«Corsa», «Bici»), solo quelli con almeno un record; in ognuno le distanze
+che hanno un record, nell'ordine delle distanze: a piedi coi nomi delle gare
+(«5K», «10K», «15K», «Half marathon», «30K», «Marathon», «60K»), in bici
+sempre in chilometri («10 km» … «160 km»). Per ogni record il nome e il
+giorno a sinistra, il tempo in movimento a destra, grande e con le cifre
+allineate. Dove la corsa si apre c'è «›» e il tocco la apre: il disegno per
+chi può vederlo, «My activities» sulla mappa per il proprietario; un record
+di una corsa che chi guarda non vede si legge e basta. VoiceOver legge
+«Half marathon, 1:50:18, Sun 27 Sep 2026». Senza record, o con un'API
+precedente, il riquadro non c'è.
+
 **La figura da cambiare** (TASK-320 parte B, ADR-0280, proposte approvate
 dall'utente il 2026-10-28; sulla mappa dal TASK-331, ADR-0288): nelle
 stesse due schede, dopo «Start», «Draw it near me» ed «Export GPX» (che

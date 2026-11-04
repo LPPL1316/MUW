@@ -872,6 +872,11 @@ export const FR: Table = {
   "No photos yet. Add some to a public drawing in My activities.":
     "Pas encore de photos. Ajoutes-en à un dessin public dans Mes activités.",
 
+  // src/profile/PersonalBests.tsx (TASK-368)
+  "Personal bests": "Records personnels",
+  "Half marathon": "Semi-marathon",
+  Marathon: "Marathon",
+
   // src/social/SuperLikeSheet.tsx
   "Super like": "Super like",
   "Write a comment to send your super like":

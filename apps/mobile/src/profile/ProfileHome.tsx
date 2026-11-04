@@ -21,6 +21,7 @@ import { Tap } from "../ui/Tap";
 import { photoBusyText, PhotoChoices } from "./PhotoChoices";
 import { ProfileGallery } from "./ProfileGallery";
 import { ProfileHeader } from "./ProfileHeader";
+import { PersonalBests } from "./PersonalBests";
 import { ProfileStats, totalsOf, useOwnProfile } from "./ProfileStats";
 import { bioOf } from "./profileFields";
 import { useProfilePhoto } from "./useProfilePhoto";
@@ -127,6 +128,8 @@ export function ProfileHome({
           <Text style={styles.editText}>{t("Edit profile")}</Text>
         </Pressable>
         {totals !== null && <ProfileStats totals={totals} />}
+        {/* The personal bests (TASK-368): none from an older API. */}
+        {own?.personal_bests && <PersonalBests bests={own.personal_bests} />}
       </View>
       {/* Built again at every block and unblock: it reads its lists anew. */}
       <FollowLists key={blocks} />
