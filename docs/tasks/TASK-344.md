@@ -98,8 +98,10 @@ Condizioni del coordinatore (2026-10-29):
    complessità dalla linea, popolarità dal punteggio. `sampleFeed.json`
    e `tools/sample_feed.py` non cambiano. Fatto.
 4. Server: `shape=word` per la categoria «Words» (una corsa con una
-   parola e senza forma), in `drawing_search.py`, con il suo test. Va sul
-   server col sì dell'utente, **prima** dell'OTA.
+   parola e senza forma), e `words: true` nella risposta, in
+   `drawing_search.py`, con il suo test. L'app offre «Words» solo dopo
+   una risposta che lo dichiara (condizione del Coordinatore): il server
+   va aggiornato col sì dell'utente, in qualsiasi ordine con l'OTA.
 5. 28 testi nuovi in inglese, italiano, tedesco, spagnolo e francese in
    `src/i18n/*.ts` (mai in `locales/`): **da approvare dall'utente**.
 
@@ -168,7 +170,11 @@ di partenza, «meno di 300 ms», vale per le ricerche che si fermano presto
       toccato si apre sulla mappa; un esempio come percorso; un membro col
       suo profilo. Senza account, o con un server precedente, solo gli
       esempi (`SearchScreen.test.tsx`, `useDrawingSearch.test.tsx`).
-- [x] `shape=word` trova le parole disegnate (`test_drawing_search.py`).
+- [x] `shape=word` trova le parole disegnate, e la risposta dice
+      `words: true` (`test_drawing_search.py`).
+- [x] Senza quella risposta (server di prima, nessun account) «Words»
+      non c'è; con quella, c'è e chiede `shape=word`
+      (`SearchScreen.test.tsx`).
 - [ ] I testi nuovi approvati dall'utente.
 - [ ] Prova sul simulatore o sull'iPhone (preview).
 

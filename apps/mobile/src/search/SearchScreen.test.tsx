@@ -96,9 +96,11 @@ async function open(
 test("before anything is typed: the categories and the featured drawings", async () => {
   await open();
   expect(screen.getByTestId("search-field").props.autoFocus).toBe(true);
-  for (const name of ["Animals", "Hearts", "Words", "Symbols", "Emoji"]) {
+  for (const name of ["Animals", "Hearts", "Symbols", "Emoji"]) {
     expect(screen.getByRole("button", { name })).toBeOnTheScreen();
   }
+  // No API said it finds the words drawn: no «Words» (TASK-344 part B).
+  expect(screen.queryByRole("button", { name: "Words" })).toBeNull();
   // The best scored examples first: without an account, there are only those.
   const best = [...SAMPLE_FEED].sort((a, b) => b.score - a.score)[0];
   expect(screen.getByTestId(`featured-${best.id}`)).toBeOnTheScreen();
@@ -200,6 +202,41 @@ test("with an account, the members' drawings first; one opens on the map", async
   expect(screen.getByTestId(`result-${first.id}`)).toBeOnTheScreen();
   await fireEvent.press(screen.getByTestId(`result-${first.id}`));
   expect(opened).toHaveBeenCalledWith(first);
+});
+
+/** The search with an account, its API answering `page` to every search. */
+async function openSignedIn(page: object) {
+  fetchSpy.mockImplementation(async (input) => {
+    const path = String(input).replace(API, "");
+    return Response.json(path.startsWith("/search/drawings") ? page : { people: [] });
+  });
+  await open({}, (children) => (
+    <FollowsContext.Provider
+      value={{
+        apiUrl: API,
+        account: { state: SIGNED_IN, sessionEnded: () => {} },
+        openProfile: () => {},
+      }}
+    >
+      {children}
+    </FollowsContext.Provider>
+  ));
+  await pause();
+}
+
+test("«Words» comes once the API says it finds the words drawn", async () => {
+  await openSignedIn({ ...PAGE, words: true });
+  await fireEvent.press(screen.getByRole("button", { name: "Words" }));
+  await pause();
+  const asked = fetchSpy.mock.calls.map(([url]) => String(url));
+  expect(asked.some((url) => url.includes("shape=word"))).toBe(true);
+});
+
+test("an API before it hides «Words»: nothing wrong to show", async () => {
+  // The server of before part B: the page without `words`.
+  await openSignedIn(PAGE);
+  expect(screen.getByRole("button", { name: "Hearts" })).toBeOnTheScreen();
+  expect(screen.queryByRole("button", { name: "Words" })).toBeNull();
 });
 
 /** The drawings' door of the app, with `open` watched. */

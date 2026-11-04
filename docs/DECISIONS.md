@@ -20888,7 +20888,12 @@ delega dell'utente, dentro le sei scelte approvate il 2026-10-29.
 3. **«Words» è `shape=word`** sul server: una corsa con una parola e
    senza forma. Le altre quattro categorie sono elenchi di forme del
    catalogo, decisi nell'app (`categories.ts`); ogni forma sta in una
-   sola.
+   sola. **La risposta lo dichiara** (`words: true`, condizione del
+   Coordinatore, come le schede di TASK-362): l'app offre «Words» solo
+   dopo una risposta che lo dice. La ricerca di «Featured drawings» parte
+   all'apertura, quindi la conferma arriva subito. Col server di prima,
+   o senza account, «Words» non c'è: mai un «No drawings found» falso, e
+   l'OTA non dipende dall'ordine col server.
 4. **Gli esempi senza campi nuovi**: categoria dalla forma, posto dal
    nome della città, complessità dalla linea con la stessa formula del
    server (`drawingMatch.complexityOf`), popolarità dal punteggio;
@@ -20903,6 +20908,7 @@ delega dell'utente, dentro le sei scelte approvate il 2026-10-29.
    false`), come `SuperLikeSheet`: col driver nativo, su iOS con la nuova
    architettura, dentro un `Modal` non si muove niente.
 
-**Conseguenze**: il server va aggiornato (solo `shape=word`, nessuna
-migrazione) prima dell'OTA, col sì dell'utente. Impronta iOS invariata:
+**Conseguenze**: il server va aggiornato (`shape=word` e `words`,
+nessuna migrazione) col sì dell'utente, in qualsiasi ordine con l'OTA:
+fino ad allora «Words» non si vede. Impronta iOS invariata:
 nessun file nativo, nessuna dipendenza.

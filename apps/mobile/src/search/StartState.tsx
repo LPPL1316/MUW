@@ -17,6 +17,8 @@ type Props = {
   onRecent: (search: string) => void;
   onRemoveRecent: (search: string) => void;
   onCategory: (key: CategoryKey) => void;
+  /** The API finds the words drawn: «Words» is offered. */
+  wordsKnown: boolean;
   /** The drawings most liked, members' first, then the examples. */
   featured: readonly Result[];
   onPick: (result: Result) => void;
@@ -32,6 +34,7 @@ export function StartState({
   onRecent,
   onRemoveRecent,
   onCategory,
+  wordsKnown,
   featured,
   onPick,
 }: Props) {
@@ -75,15 +78,17 @@ export function StartState({
           {t("Categories")}
         </Text>
         <View style={styles.chips}>
-          {CATEGORIES.map((category) => (
-            <FilterChip
-              key={category.key}
-              label={t(category.label)}
-              selected={false}
-              onPress={() => onCategory(category.key)}
-              testID={`category-${category.key}`}
-            />
-          ))}
+          {CATEGORIES.filter((category) => wordsKnown || category.key !== "words").map(
+            (category) => (
+              <FilterChip
+                key={category.key}
+                label={t(category.label)}
+                selected={false}
+                onPress={() => onCategory(category.key)}
+                testID={`category-${category.key}`}
+              />
+            ),
+          )}
         </View>
       </View>
       {featured.length > 0 && (

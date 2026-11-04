@@ -243,6 +243,9 @@ def test_the_words_drawn_are_a_shape_of_their_own(
     assert found(client, me, shape=[WORD_SHAPE]) == {"Ciao"}
     assert found(client, me, shape=[WORD_SHAPE, "heart"]) == {"Ciao", "Heart"}
     assert found(client, me, shape=["heart"]) == {"Heart"}
+    # The answer says so: an API before it leaves `words` out.
+    assert search(client, me)["words"] is True
+    assert search(client, me, q="x" * (MAX_QUERY_LENGTH + 1))["words"] is True
 
 
 def test_the_complexity_is_read_from_the_line(

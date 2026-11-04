@@ -2553,6 +2553,9 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   Un cursore di un altro ordine: `422` «This cursor is of another order:
   start again without it.». In `popular` una reazione lasciata fra due
   pagine può spostare un disegno.
+- **`words: true`** nella risposta (TASK-344 parte B): `shape=word`
+  trova le parole disegnate. Un'API di prima lo lascia fuori e per
+  `shape=word` non trova niente: l'app allora non offre «Words».
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app cerca
   solo negli esempi.
 

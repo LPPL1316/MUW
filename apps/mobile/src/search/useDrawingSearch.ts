@@ -43,6 +43,9 @@ export type DrawingSearch = {
   people: PeopleShown;
   /** Reads the next page of the members' drawings, when there is one. */
   more: () => void;
+  /** An answer of this API said it finds the words drawn
+   * (`shape=word`): only then does the search offer «Words». */
+  wordsKnown: boolean;
 };
 
 /** An answer, with the search it was to. */
@@ -127,6 +130,7 @@ export function useDrawingSearch(
   // The cursor of the page on its way: asked once, however often the end
   // of the grid comes near.
   const nextAsked = useRef<string | null>(null);
+  const [wordsKnown, setWordsKnown] = useState(false);
 
   const failed = useCallback(
     (outcome: Exclude<AccountOutcome<unknown>, { kind: "ok" }>, of: string) => {
@@ -154,6 +158,9 @@ export function useDrawingSearch(
           return;
         }
         if (outcome.kind === "ok") {
+          if (outcome.value.words === true) {
+            setWordsKnown(true);
+          }
           setMembersRead((was) => ({
             key: of,
             shown: {
@@ -246,5 +253,13 @@ export function useDrawingSearch(
     askPage(membersKey, members.next);
   }, [askPage, members, membersKey]);
 
-  return { asked: asked.typed, waiting, examples: found, members, people, more };
+  return {
+    asked: asked.typed,
+    waiting,
+    examples: found,
+    members,
+    people,
+    more,
+    wordsKnown: signedIn && wordsKnown,
+  };
 }

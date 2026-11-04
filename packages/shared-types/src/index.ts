@@ -1344,7 +1344,13 @@ export const DRAWING_SEARCH_PAGE_SIZE = 20;
  * filter is sent once for each value. Never a private one. A page is the
  * feed's.
  */
-export type DrawingSearchPage = FeedPage;
+export interface DrawingSearchPage extends FeedPage {
+  /**
+   * `shape=word` finds the words drawn (TASK-344 part B). An API before
+   * it leaves this out and finds nothing for it: the app hides «Words».
+   */
+  words?: boolean;
+}
 
 /**
  * What a member reports with POST /reports (TASK-121, ADR-0228): a drawing

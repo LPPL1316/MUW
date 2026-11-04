@@ -102,6 +102,8 @@ test("one request once the typing pauses, not one per letter", async () => {
   ]);
   expect(result.current.waiting).toBe(false);
   expect(result.current.members).toMatchObject({ kind: "ready", posts: PAGE.posts });
+  // The fixture is of an API before part B: it does not say `words`.
+  expect(result.current.wordsKnown).toBe(false);
   expect(result.current.people).toEqual({ kind: "ready", people: people.people });
   // The examples are found on the phone, at once with the pause.
   expect(result.current.examples.every((post) => post.shape === "star")).toBe(true);

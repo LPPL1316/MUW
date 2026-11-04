@@ -279,6 +279,9 @@ function SearchPage({ onClose, onOpenExample }: Omit<Props, "visible">) {
             })
           }
           onCategory={chooseCategory}
+          // An API before TASK-344 part B finds nothing for
+          // `shape=word`: «Words» waits for an answer that knows it.
+          wordsKnown={search.wordsKnown || featured.wordsKnown}
           featured={featuredResults}
           onPick={pick}
         />
