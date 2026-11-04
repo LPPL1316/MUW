@@ -1295,6 +1295,26 @@ export interface FeedPage {
   next: string | null;
 }
 
+/**
+ * The tabs of «Feed» (TASK-362, ADR-0308), as GET /feed?filter=… names them:
+ * `all` is what everyone may see, `following` the reader's own and those of
+ * the people it follows. Either way the last published first, with no groups
+ * and no point.
+ */
+export type FeedFilter = "all" | "following";
+
+/** GET /feed?filter=…: a page of one tab, which says its tab. An API before
+ * the tabs ignores `filter` and leaves `filter` out of the page. */
+export interface FilteredFeedPage extends FeedPage {
+  filter: FeedFilter;
+}
+
+/** GET /feed?filter=following: a page that says apart a reader who follows
+ * nobody from one whose people have published nothing. */
+export interface FollowingFeedPage extends FilteredFeedPage {
+  follows_anyone: boolean;
+}
+
 /** The orders of GET /search/drawings (TASK-344, ADR-0297): the last
  * published, the longest, the one with the most reactions first. */
 export const DRAWING_SORTS = ["recent", "longest", "popular"] as const;
@@ -2201,4 +2221,35 @@ export interface UserPhotosPage {
   photos: UserPhoto[];
   /** The `cursor` of the next page; null on the last one. */
   next: string | null;
+}
+
+/** A route MuW draws for the Feed (TASK-365, ADR-0310): nobody ran it, so it has no person, date, time or pace. */
+export interface MuwRoute {
+  id: string;
+  city: string;
+  activity: string;
+  /** The title in every language of the app, by language id. */
+  titles: Record<string, string>;
+  route_m: number;
+  /** An estimate from elevation tiles, not a measure. */
+  climb_m: number;
+  difficulty: "easy" | "moderate" | "hard";
+  start: LatLon;
+  /** At most 64 points of the line. */
+  preview: LatLon[];
+  /** As `RouteResult.rotation_deg`. */
+  rotation_deg: number;
+}
+
+/** GET /muw-routes. An older server answers 404: no routes. */
+export interface MuwRoutesPage {
+  routes: MuwRoute[];
+}
+
+/** GET /muw-routes/{id}: the route whole. */
+export interface MuwRouteDetail extends Omit<MuwRoute, "start" | "preview"> {
+  points: LatLon[];
+  /** As `RouteResult.on_foot`. */
+  on_foot: Stretch[];
+  license: string;
 }

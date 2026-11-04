@@ -594,13 +594,21 @@ disegni si rileggono, come quando «Profile» si apriva.
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
 - **«Feed»** è la pagina dei disegni che gli iscritti pubblicano
-  (TASK-118, ADR-0227; l'ordine è scelta dell'utente del 2026-10-07): con
-  un account, appena la pagina è sullo schermo, legge dall'API i disegni
-  che l'account può vedere, **i propri** prima, poi quelli **di chi
-  segue**, poi **i vicini** (entro 50 km da dove parte «Draw»; tutti,
-  senza posizione), dal più recente in ogni gruppo; tirando in giù si
-  rilegge dall'alto, arrivati in fondo si caricano gli altri, venti alla
-  volta. La scheda è quella degli esempi: nome di chi ha corso e luogo
+  (TASK-118, ADR-0227). Con un account ha **due schede** in alto, ferme mentre
+  la lista scorre, con la lente accanto (TASK-362, ADR-0308): **«All»**, i
+  disegni per tutti, e **«Following»**, i propri e quelli di chi si segue; in
+  entrambe dal più recente, senza gruppi e senza posizione. Ogni scheda ha la
+  sua lista, la sua posizione e le sue pagine: cambiare scheda non rilegge, e
+  l'ultima scelta si riapre al prossimo avvio (un file sul telefono, mai al
+  server). Tirando in giù si rilegge la scheda aperta, arrivati in fondo si
+  caricano altri venti disegni. In «Following»: chi non segue nessuno legge
+  «Follow people to see their drawings here.» e il pulsante «Find people to
+  follow», che apre «Find friends», sopra i propri disegni se ne ha; chi segue
+  qualcuno senza disegni ha il suo messaggio; gli esempi qui non compaiono mai.
+  Se una lettura non arriva, «Couldn't load the Feed.» con «Try again», al posto
+  degli esempi. Con un'API che non conosce ancora le schede (la pagina non dice
+  la sua scheda) le schede spariscono e resta il feed che l'API manda. Senza account non ci sono schede: solo «All» con gli esempi
+  (ADR-0127), che con un account restano solo a «All» vuoto. La scheda è quella degli esempi: nome di chi ha corso e luogo
   (senza luogo, solo il nome), la linea gialla sulla mappa, il titolo o,
   senza titolo, il giorno della corsa, e «Star · 4.0 km · 19 min»; una
   parola o il titolo del percorso al posto della forma, niente per una
@@ -612,6 +620,26 @@ disegni si rileggono, come quando «Profile» si apriva.
   a «Feed» com'era, senza rileggere, e «Profile» resta chiuso; se nel
   frattempo è sparito, sopra l'elenco: «This drawing is no longer
   public.». Mentre la prima pagina arriva, una rotella e niente altro.
+  **La scheda di un iscritto** (TASK-355 A, ADR-0306, scelte dell'utente
+  del 2026-10-30): sotto il nome il luogo e quando è stata corsa, con le
+  parole dell'età dei commenti, «Caldonazzo · 2 h fa» («1 g fa», dopo una
+  settimana il giorno); un titolo solo, perché la riga dei numeri non
+  ripete la forma quando il titolo la dice già («Horse», poi «19.2 km ·
+  …»); sulla linea un pallino a un capo e una bandierina all'altro, nel
+  colore del testo con il bordo scuro, distinti dalla forma e non dal
+  colore: sono gli estremi della traccia già tagliata, mai la partenza o
+  l'arrivo veri, e nessun testo li chiama così; il credito della mappa in
+  una riga a 10 pt, nel margine dove la linea non entra; sulle foto la
+  figura piccola in un angolo. Sotto la scheda, oltre un filo: «Comments»
+  e «Reactions» aprono il disegno (i conteggi arrivano con la parte B),
+  «Share» solo sui propri disegni (il post della corsa, dalla traccia già
+  tagliata, che il post taglia ancora; non tenuto come post di una
+  corsa), e in giallo «Draw it near me», la stessa forma o parola in
+  «Draw» con lo sport di «Draw», solo quando «Draw» la sa disegnare
+  (TASK-313). Il «…» e i pulsanti stanno fuori dal pulsante della scheda,
+  dove VoiceOver li raggiunge; la data si sente anche nell'etichetta.
+  Gli esempi non hanno né segni né pulsanti. Sotto i nomi delle pagine un
+  filo (`Hairline`).
   **Senza account, e finché nessuno ha pubblicato qualcosa che si può
   vedere** (o l'API non risponde, o è di prima del feed), mostra
   **quindici disegni di esempio**
@@ -2381,6 +2409,16 @@ Wikimedia: un percorso chiesto le ha nella risposta, le idee le chiedono
 all'API coi loro elementi (`GET /place-photos`). Un'API più vecchia non le
 ha: i posti col solo nome e le schede con la mappa, come prima. Nessun
 testo nuovo: numeri, nomi dei posti, autori e licenze.
+
+### Pedalalo tu (TASK-364, ADR-0309)
+
+Sotto «IDEAS FROM EUROPE», la fila **«RIDE IT YOURSELF»** («PEDALALO TU»), con
+le stesse schede: percorsi in bici disegnati da MuW, oggi tre, «Barcellona ·
+Fantasma», «Madrid · Pipistrello», «Torino · Zucca», e sotto il titolo «In bici
+· 24,4 km». Sotto la fila il credito delle mappe, la nota «Percorsi disegnati da
+MuW. Nessuno li ha ancora pedalati.» e «© OpenStreetMap contributors». Un tocco
+apre il percorso sulla mappa **subito, senza rete**, in bici, con «Start» ed
+«Export GPX» come ogni percorso di «Explore». Nessun tempo, velocità o calorie.
 
 ### Le forme pronte vicino a te (TASK-306, ADR-0266)
 

@@ -2430,7 +2430,20 @@ esempio in `fixtures/feed.json`; il codice in `feed.py`.
 | Endpoint | Cosa | Risposta |
 |---|---|---|
 | `GET /feed?limit=20&cursor=…&lat=…&lon=…` | una pagina dei disegni che chi chiede può vedere | `200` `FeedPage` |
+| `GET /feed?filter=all&limit=20&cursor=…` | la scheda «All» (TASK-362, ADR-0308) | `200` `FeedPage` |
+| `GET /feed?filter=following&limit=20&cursor=…` | la scheda «Following» | `200` `FollowingFeedPage` |
 
+- **Le schede** (TASK-362, ADR-0308): con `filter` l'ordine è solo
+  `published_at`, dal più recente, senza gruppi; `lat` e `lon` non contano.
+  `all` sono i disegni per `everyone`, anche i propri. `following` sono i
+  propri e quelli di chi si segue con la richiesta accettata, `everyone` e
+  `followers`; il corpo ha in più `follows_anyone`, vero se chi chiede segue
+  almeno una persona (`fixtures/feed-following.json`). Con `filter` la pagina
+  ripete la sua scheda in `filter`: un'API di prima ignora il parametro e non
+  lo manda, e l'app mostra allora il feed senza schede. Blocchi e disegni
+  nascosti restano fuori come sempre. Un altro valore: `422`. **Senza `filter`
+  tutto resta come sotto**, per le app già installate: per loro valgono i tre
+  gruppi e i vicini.
 - **L'ordine** (scelta dell'utente del 2026-10-07: «ok va bene questo
   semplice»): tre gruppi, uno dopo l'altro: **i propri**, poi quelli di
   **chi si segue** con la richiesta accettata («Follow», sopra), poi
@@ -2471,6 +2484,32 @@ esempio in `fixtures/feed.json`; il codice in `feed.py`.
   (`tests/test_feed.py`): nell'elenco viaggia l'anteprima, non la traccia.
 - **Un'API precedente** non ha l'endpoint (`404 http_error`): l'app
   mostra i disegni d'esempio.
+
+### MuW routes (TASK-365, ADR-0310)
+
+I percorsi disegnati da MuW per il Feed: percorsi, non corse. Nessun token: non
+dicono nulla di chi chiede. Tipi in `shared-types` (`MuwRoute`, `MuwRoutesPage`,
+`MuwRouteDetail`), esempi in `fixtures/muw-routes.json` e `muw-route.json`; il
+codice in `muw_routes.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /muw-routes` | tutti, per `id`, ognuno con un'anteprima di al più 64 punti | `200` `MuwRoutesPage` |
+| `GET /muw-routes/{id}` | uno intero (`points`, `on_foot`, `license`) | `200` `MuwRouteDetail`, o `404 http_error` |
+
+- **Fuori da `GET /feed`**, che non cambia: un'app già pubblicata non li chiede.
+  Un'API precedente non ha l'endpoint (`404`): la nuova app non mostra nulla di
+  più.
+- **Da file**: `catalog/muw_routes/<id>.json`, nella forma di `muw-route.json`,
+  letti all'avvio; un file nuovo vuole un riavvio dell'API. Senza cartella
+  l'elenco è vuoto. **Ci entrano solo le bozze che l'utente ha approvato**, ed è
+  contenuto pubblicato: sul server solo col suo sì.
+- **Un file con un campo in più o in meno è lasciato fuori**, e detto nel log:
+  così un tempo, un passo o una persona non entrano. Lasciato fuori anche senza
+  attribuzione a OpenStreetMap, con un titolo mancante in una delle cinque lingue
+  o con un nome che non è il suo `id`.
+- **`climb_m` è una stima** da tessere di elevazione, non una misura: nessuno ha
+  pedalato questi percorsi. La somiglianza non si manda.
 
 ### Drawing search (TASK-344, ADR-0297)
 

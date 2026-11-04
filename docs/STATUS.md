@@ -160,6 +160,25 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
+  un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
+  numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
+  Scelte dell'utente: l'immagine («Sì, così»), la campanella con una lista vera
+  in una parte C («Aspetta la lista vera»), icone PNG da Lucide, testi della
+  parte A («Sì, approvo»), le statistiche del Profilo come oggi («Sì,
+  restano»). Parte A (solo
+  app, `App.tsx`) col via del Coordinatore dopo TASK-355 A e 362; B dopo 344 B;
+  C con server e migrazione, col sì dell'utente. `tasks/TASK-367.md`.
+- **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
+  proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
+  Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
+  fatte: distanze a piedi (5K–60K, maratona compresa) e in bici (10–160 km),
+  tutte le attività anche private e importate, visibili a tutti con tempo e
+  data, la corsa privata resta chiusa, testi di Guida e privacy approvati.
+  Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
+  via del Coordinatore; server, migrazione e sito col sì dell'utente.
+  `tasks/TASK-368.md`.
+
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
   `docs/TASK-365-muw-routes-in-feed` (documenti). Dodici bozze in bici in
@@ -183,6 +202,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `docs/TASK-362-feed-tabs` (documenti). Sostituiscono i filtri di TASK-355 B
   («Sì, sostituiscono»). Le scelte dell'utente stanno nel task file; il codice parte col via
   del Coordinatore, primo nella coda su `FeedScreen.tsx`. `tasks/TASK-362.md`.
+  2026-11-02: codice pronto in PR da `feat/TASK-362-feed-tabs` (filtro sul
+  server, schede sul `Segmented`, nessuna migrazione). Prima dell'OTA va
+  aggiornato il server, col sì dell'utente. Dopo: 344 B, 355 B ridotta, 309 B.
 
 - **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
   scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
@@ -206,7 +228,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `a6d8cf1d (il codice; poi la privacy e i documenti)`): la mappa sotto nel look Night, la riserva gialla senza mappa,
   provata in Expo Go, impronta `83793e26` invariata; prima dell'OTA di
   produzione l'utente esporta un video vero sull'iPhone dalla preview e
-  vede la mappa (condizione del Coordinatore). Senza mappa il video
+  vede la mappa (condizione del Coordinatore). 2026-11-03: la B è in
+  `main` (#679) ma sul telefono il video è uscito senza mappa: il WebView
+  fuori vista non riceve fotogrammi di animazione e MapLibre non carica;
+  fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
+  un timer, il WebView è un punto visibile), riprodotto e provato nel
+  simulatore; la prova dalla preview è dell'utente. Poi la C. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
@@ -220,6 +247,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   già la posizione e «Your position» non lo dice: lo chiude TASK-356, dopo
   la #668, con il testo già approvato; sito e OTA di produzione con il suo
   sì. `tasks/TASK-355.md`.
+  **Parte A in PR #700** (2026-11-03, branch `feat/TASK-355-a-feed-card`): la
+  scheda con luogo e data, un titolo solo, pallino e bandierina sulla traccia
+  tagliata, il credito in una riga, la miniatura sulle foto, la barra
+  «Comments», «Reactions», «Share» (solo i propri), «Draw it near me»
+  (`feed/RouteMap.tsx`, `ActionBar.tsx`, `drawAgainDoor.ts`), il filo sotto i
+  nomi in `Pager`. Impronta iOS `83793e26`. Prossimo: la parte B (conteggi,
+  foto dell'autore, skeleton), dopo 344 B.
 - **TASK-339 — L'interfaccia premium ed elegante** (ADR-0293, proposta;
   brief dell'utente del 2026-10-29; il canvas della proposta, 16 tavole,
   visto e approvato a voce la sera stessa, «BELLISSIMO»:
@@ -267,6 +301,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   di TASK-339. La riga di privacy sul geocoder del telefono e i testi
   nuovi approvati dall'utente il 2026-10-30 («sì 1 e sì 2»), nell'app e
   sul sito. `tasks/TASK-361.md`.
+  Data della privacy corretta al 2 novembre 2026 (2026-11-03, sì
+  dell'utente), app e sito, branch `fix/TASK-361-privacy-date`.
 - **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
   la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
   dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;
@@ -2213,6 +2249,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
+  (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
+  «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;
+  produzione con la #700, lanciata dall'utente. `tasks/TASK-364.md`.
+- **TASK-366 — Le finestre aperte dal Pager: solo «Edit the outline» stava sotto la barra di stato**
+  (2026-11-02; numero dal Coordinatore; seguito di TASK-360). Le sette finestre elencate da
+  TASK-360 aperte nel simulatore da dove si aprono davvero: solo `OutlineBoard` («Draw» → «Image»)
+  è dentro il `Pager` e aveva il difetto; ora ha un suo `SafeAreaProvider`. Le altre sei sono
+  fuori dal `Pager` e restano com'erano. Android no. Solo app, nessun testo nuovo, impronta iOS
+  83793e26. File: `tasks/TASK-366.md`.
 - **TASK-360 — Il regolamento del concorso senza tema non sta più sotto la barra di stato**
   (2026-10-31; numero dal Coordinatore; difetto trovato provando TASK-343 B). Il `Pager` azzera
   il margine alto delle sue pagine: `ContestRules` ora ha un suo `SafeAreaProvider`. Provato nel

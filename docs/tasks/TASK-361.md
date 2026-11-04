@@ -1,8 +1,9 @@
 # TASK-361 — «Draw» si capisce in 3 secondi: partenza, cosa disegni, quanto corri, «Draw»
 
-**Stato**: In lavorazione · **parte A in PR**, #675 (i pezzi nuovi e
-`ChooseScreen`); **parte B pronta** col via del Coordinatore del
-2026-10-31, dopo il merge della #661 (TASK-340)
+**Stato**: In lavorazione · **parte A in `main`**, #675 (i pezzi nuovi e
+`ChooseScreen`); **parte B in `main`**, #688; data della privacy al
+2 novembre con la PR `fix/TASK-361-privacy-date`; manca la pubblicazione
+(vedi «Esito»)
 **Fase**: 4 · **Branch**: parte A `feat/TASK-356-draw-redesign` (nome del
 numero di prima); parte B `feat/TASK-361-b-draw-wiring`, da `main` dopo la
 #675 · **ADR**: ADR-0307
@@ -82,6 +83,8 @@ da TASK-352 lo stesso giorno. Se TASK-356 (la posizione del Feed) cambia la
 privacy dopo, chi arriva secondo riallinea. Riallineata al testo di TASK-363
 il 2026-11-01, su indicazione del Coordinatore: la riga resta quella approvata,
 e la data della privacy passa al 1° novembre 2026 nelle cinque lingue.
+Corretta al **2 novembre 2026** il 2026-11-03, col sì dell'utente: è il
+giorno in cui il testo è entrato in `main` (#675).
 
 - en: «Apple on an iPhone, or Google on Android, through the phone's own
   address service, receives the position «Draw» starts from, to write the
@@ -279,4 +282,22 @@ griglia, il campo dietro il link, con gli aiuti di `src/route/testing.ts`):
 
 ## Esito
 
-*(a fine task)*
+**2026-11-02, non ancora chiuso.** La parte A è in `main` con la #675
+(`d2dd7435`, 12:04 UTC, alla testa `99570990` con la CI verde, impronta iOS
+`83793e26` invariata); la parte B con la #688 (`74f34e79`, 12:24 UTC).
+
+Ancora aperto:
+
+- **La data della privacy**: sistemata il 2026-11-03 col sì dell'utente
+  («OK PROCEDI»): 2 novembre 2026 nelle cinque lingue, app e sito
+  (`site/privacy/` rifatto con `make_privacy.mjs`), branch
+  `fix/TASK-361-privacy-date`. Il sito va ricopiato sul server insieme
+  alla pubblicazione, con un sì dell'utente.
+- **La pubblicazione**: prima una preview di `main` che l'utente prova, poi
+  l'OTA di produzione. La preview la pubblica il Coordinatore; l'OTA di
+  produzione la lancia l'utente a mano, dalla copia pulita che il
+  Coordinatore ha preparato (2026-11-02). Il server
+  resta a `c7a83347` (migrazioni fino alla 0038): secondo il Coordinatore
+  non blocca, perché senza tema le sfide di TASK-343 B non si vedono.
+- **La vibrazione** resta spenta nella build dello Store finché una build
+  nativa non toglie `expo-haptics` dall'esclusione dell'autolinking.

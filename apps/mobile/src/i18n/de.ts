@@ -832,6 +832,9 @@ export const DE: Table = {
   "{name}, {ago}: {text}": "{name}, {ago}: {text}",
   "Touch and hold to delete.": "Zum Löschen gedrückt halten.",
 
+  // src/feed/ActionBar.tsx
+  Reactions: "Reaktionen",
+
   // src/social/DrawingReactions.tsx
   React: "Reagieren",
   "Your reaction: {name}": "Deine Reaktion: {name}",
@@ -1678,6 +1681,15 @@ export const DE: Table = {
   "{day} {month}": "{day}. {month}",
   "{name}, {count} new messages: {text}": "{name}, {count} neue Nachrichten: {text}",
 
+  // The tabs of «Feed» (TASK-362).
+  All: "Alle",
+  "Follow people to see their drawings here.":
+    "Folge anderen, um ihre Zeichnungen hier zu sehen.",
+  "Find people to follow": "Personen zum Folgen finden",
+  "The people you follow have not published anything yet.":
+    "Die Personen, denen du folgst, haben noch nichts veröffentlicht.",
+  "Couldn't load the Feed.": "Der Feed konnte nicht geladen werden.",
+
   // src/route/runTime.ts (TASK-361: the time under the distance of «Draw»)
   "≈ {time} at {pace}": "≈ {time} bei {pace}",
   "≈ {time} at {pace} (a usual pace)": "≈ {time} bei {pace} (ein übliches Tempo)",
@@ -1711,4 +1723,18 @@ export const DE: Table = {
   // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
   "WHAT YOU DRAW": "WAS DU ZEICHNEST",
   "Write a word, e.g. CIAO": "Schreib ein Wort, z. B. CIAO",
+
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "FAHR ES SELBST",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Von MuW gezeichnete Routen. Noch niemand ist sie gefahren.",
+  "By bike": "Mit dem Rad",
+  Bat: "Fledermaus",
+  Madrid: "Madrid",
+  Turin: "Turin",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Route von MuW – fahr sie selbst",
+  "Route created by MuW – run it yourself": "Route von MuW – lauf sie selbst",
+  "Route created by MuW – paddle it yourself": "Route von MuW – paddel sie selbst",
 };

@@ -20362,6 +20362,24 @@ nell'OTA di produzione finché l'utente non ha esportato un video vero
 sull'iPhone e visto la mappa (condizione del Coordinatore): il rischio da
 guardare è un telefono che ricade sul giallo in silenzio.
 
+**Aggiunta (il fix del 2026-11-03, deciso dall'agente su delega
+dell'utente)**: sul telefono dell'utente il video è uscito senza mappa.
+Un WebView tenuto fuori vista può non ricevere da iOS i fotogrammi di
+animazione, e MapLibre carica lo stile e disegna su quelli: la mappa non
+arrivava mai e, passati i 15 s, il video usciva sul giallo come previsto.
+La pagina del video si dà quindi i fotogrammi da sola, con un
+`requestAnimationFrame` fatto di timer messo prima di MapLibre: i timer
+della pagina girano ovunque stia, come l'encoder dimostra da TASK-295, e
+nessuno in quella pagina ha bisogno di un fotogramma fluido. In più la
+mappa è disegnata anche da un battito di 100 ms e la foto è presa quando
+è intera da tre battiti, e il WebView è un punto 1 × 1 a opacità piena
+nell'angolo, non più a opacità zero fuori dallo schermo, come la pagina
+delle mappe del Feed, che sul telefono le mappe le fa. Riprodotto e
+provato nel simulatore con un harness che toglie i fotogrammi alla
+pagina: prima 15,2 s e il giallo, dopo la mappa in 1,5 s. Se sul telefono
+non basta, la prova seguente mette il WebView a grandezza piena sotto una
+vista opaca, come il Feed.
+
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
 con la linea in prospettiva non si fa); la linea come layer di MapLibre
@@ -20492,9 +20510,16 @@ domanda se le schede li sostituissero l'utente ha risposto «Sì, sostituiscono�
 3. Nell'app una lettura e un cursore per scheda e due `FlatList` montate:
    cambiare scheda non rilegge e non perde la posizione.
 4. L'ultima scheda sta in un file del telefono, come lo sport; non va al server.
+   Le schede sono il `Segmented` di «Draw» (in codice: il componente che c'era).
+   Il nome «Following» della scheda non passa da `t`: la chiave è già del
+   pulsante «Segui già».
 5. Con le schede l'app non manda più la posizione al Feed. La riga di privacy di
    TASK-356 resta vera per le app già installate; si toglie più avanti, col sì
    dell'utente.
+5b. La pagina con `filter` ripete la sua scheda in `filter`. Un'API di prima
+   ignora il parametro e non lo manda: l'app mostra il feed che riceve, senza
+   schede, così l'OTA non dipende dall'aggiornamento del server (richiesta del
+   Coordinatore, 2026-11-03).
 6. Un indice nuovo solo se l'`EXPLAIN` su 10.000 disegni lo chiede: la chiave di
    `follows` e gli indici di `drawings` e `runs` ci sono già.
 
@@ -20661,6 +20686,19 @@ prossimo che lo apre da un'altra pagina.
 
 ---
 
+## ADR-0074, precisazione — La tavola del contorno legge i margini veri del telefono
+
+**Stato**: Attiva · 2026-11-02 · deciso dall'agente su delega dell'utente
+(TASK-366). La tavola di «Edit the outline» si apre da «Draw», una pagina del
+`Pager`, e il titolo finiva sopra l'orologio. Come per il regolamento
+(ADR-0260, precisazione), il `Modal` tiene un suo `SafeAreaProvider` con
+`initialWindowMetrics`. Le altre sei finestre elencate da TASK-360 restano
+come sono: aperte nel simulatore, nessuna si apre da una pagina del `Pager`.
+Scartato: un provider in ogni `Modal` che legge i margini, «per sicurezza»,
+che toccherebbe file di altri task senza un difetto da correggere.
+
+---
+
 ## ADR-0310 — I percorsi di MuW nel Feed: un tipo a parte, da file, senza account né tempi
 
 **Stato**: Proposta · 2026-10-31 · deciso dall'agente su delega dell'utente per
@@ -20790,3 +20828,118 @@ libreria. La privacy porta la data del riallineamento, il 2 novembre 2026.
 
 **Conseguenze**: impronta iOS `6f8bba4c…`, Android `227457f3…`. Sul
 simulatore la build Release ha i quattro moduli nativi e ognuno risponde.
+## ADR-0311 — La navigazione come Instagram: una barra di schede in basso, un header solo
+
+**Stato**: Proposta · 2026-11-02 · TASK-367. La richiesta è dell'utente (un
+brief del 2026-11-02); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-367.md`; il resto è deciso dall'agente su delega
+dell'utente. Sostituisce ADR-0124 (le pagine affiancate) e il `Pager` di
+TASK-339 A.
+
+**Contesto**: le pagine stanno una accanto all'altra, con i nomi «Feed · Draw ·
+Explore» sotto la Dynamic Island e il profilo dietro un cerchio. I messaggi si
+aprono dal Profilo, le impostazioni da una riga del Profilo. L'utente vuole la
+struttura di Instagram: cinque schede in basso e un header uguale ovunque.
+Sull'immagine della barra e dell'header, nei due toni coi colori dei token, ha
+risposto «Sì, così».
+
+**Decisione** (proposta):
+
+1. Una barra in basso con cinque icone senza testo: Feed, Draw, Messages,
+   Explore, il cerchio del profilo. La scheda attiva in `text`, le altre in
+   `textFaint`: il giallo resta del percorso (ADR-0293). Il cerchio attivo ha un
+   bordo `text`.
+2. Un header solo: il cuore e «MuW» a sinistra, lo sport a destra. Nessun nome
+   di pagina.
+3. Niente swipe fra le pagine. Le pagine restano montate dopo la prima visita,
+   come oggi; il tocco sulla scheda attiva torna in cima o alla radice.
+4. La barra e l'header spariscono dove oggi sparisce il Pager: mappa, corsa,
+   «Play», la corsa riaperta.
+5. Icone PNG prese da Lucide (licenza ISC), colorate dai token («PNG da
+   Lucide»): nessuna dipendenza nuova, l'impronta iOS non cambia, arriva con un
+   OTA. Lo sfondo della barra è semitrasparente senza blur: `expo-blur` è nativo.
+6. La campanella aspetta una lista vera di notifiche sul server, in una parte a
+   sé con una migrazione («Aspetta la lista vera»): niente schermate
+   segnaposto agli utenti.
+7. Messages diventa una scheda con la lista di oggi; le impostazioni si aprono
+   dall'ingranaggio del Profilo. Nessuna funzione si perde.
+8. Nella prima parte nessun testo nuovo: le etichette di VoiceOver riusano nomi
+   già tradotti («Sì, approvo»).
+
+**Conseguenze**: tre parti: A la barra (solo app, dopo TASK-355 A e 362), B la
+ricerca in Explore (dopo 344 B), C le notifiche (API, migrazione, app). Le
+schermate dell'App Store (TASK-328) vanno rifatte. Chi aveva imparato lo swipe
+fra le pagine non lo trova più.
+## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
+
+**Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
+(2026-11-02); numeri dal Coordinatore. Le scelte di prodotto sono dell'utente,
+in `tasks/TASK-368.md`; il resto è deciso dall'agente su delega dell'utente.
+Estende ADR-0284 (i totali del profilo).
+
+**Contesto**: il Profilo mostra distanza, dislivello e like. L'utente vuole i
+record sulle distanze classiche, come i «best effort» di Strava. Ogni attività
+salvata con un account è già sul server con la traccia a tempi e le pause.
+
+**Decisione** (proposta):
+
+1. A piedi 5K, 10K, 15K, mezza, 30K, maratona, 60K («Sì, con la maratona»); in
+   bici 10, 20, 40, 50, 100, 160 km («Sì, queste»). La canoa no.
+2. Contano tutte le attività dell'account: private, di gruppo, importate
+   («tutte anche quelle importate», «e anche le private tutte»).
+3. Il record è il tratto più veloce dentro un'attività, in movimento: pause
+   tolte, pezzi con salti del GPS scartati, nessun tempo sotto il record del
+   mondo («Sì, così»).
+4. Il calcolo sta sul server, in un modulo puro, con una tabella di cache
+   aggiornata a ogni attività salvata, cambiata o cancellata, e uno script che
+   riempie la cache dalle attività già salvate.
+5. Gli altri vedono tempo e data («Anche data e corsa»); la corsa si apre solo
+   a chi può già vederla: un record di una corsa privata mostra tempo e data e
+   resta chiuso («Sì, corsa chiusa»). L'API manda la chiave della corsa solo in
+   quel caso.
+6. La Guida e la privacy lo dicono, con il testo approvato («Sì, approvo»).
+
+**Conseguenze**: una migrazione e un aggiornamento del server, col sì
+dell'utente. Un record di una corsa privata dice agli altri che quel giorno
+l'utente ha corso: è la scelta dell'utente, scritta nella privacy. Un file
+importato modificato può dare un record falso, visibile a tutti: accettato con
+la scelta 2.
+
+---
+
+## ADR-0309 — «RIDE IT YOURSELF»: percorsi in bici di MuW in «Explore», da un file nell'app
+
+**Stato**: Attiva · 2026-11-03 · deciso dall'agente su delega dell'utente per la
+parte tecnica; numero dal Coordinatore; scelte e testi dell'utente in
+`tasks/TASK-364.md`.
+
+**Contesto**: l'utente vuole in «Explore» le migliori bozze in bici di MuW. Le
+idee di ADR-0287 sono a tema, con tappe e «Make it near me» che richiede le
+stesse parole all'API: queste no. Non sono state pedalate.
+
+**Decisione**:
+
+1. **Una fila nuova con dati fissi**, `RideItYourself` sotto «IDEAS FROM EUROPE»;
+   `themedIdeas.json` non si tocca.
+2. **Dal motore, non a mano**: i percorsi sono quelli che il motore ha
+   pianificato sulla rete bici; `tools/bike_ideas.py` li sceglie e toglie punti
+   entro 2 m. Una traccia fatta da uno script fuori dal motore non entra
+   (lo studio di «MARRY ME» in `out/marry-me/`).
+3. **Aperti dal telefono**: `useExplored` trova un percorso della fila prima di
+   chiedere al server; nessun endpoint nuovo, nessuna foto, solo app.
+4. **Una figura fuori catalogo** porta il suo contorno (`outline`) nel dettaglio:
+   la richiesta che «Start» e «Export GPX» leggono è quella di un contorno, in
+   bici.
+5. **Niente numeri non veri**: la scheda dice città, figura, «In bici» e la
+   distanza; sotto la fila, che nessuno li ha ancora pedalati.
+6. **Un percorso sta in Explore o nel Feed**, non in tutti e due senza una
+   scelta dell'utente (con ADR-0310).
+
+**Motivo**: la stessa strada degli esempi di «Explore» già sul telefono, senza
+toccare il server né le app pubblicate; il principio di ADR-0001 resta intero.
+
+**Conseguenza**: aggiungere un percorso vuol dire rigenerare il file con lo
+strumento e una PR; togliere la nota quando qualcuno li avrà pedalati è una
+scelta dell'utente.
+
+---
