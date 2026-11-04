@@ -613,7 +613,7 @@ vale la barra qui sopra.
   erano dopo un giro sulle altre pagine.
 - **«Feed»** è la pagina dei disegni che gli iscritti pubblicano
   (TASK-118, ADR-0227). Con un account ha **due schede** in alto, ferme mentre
-  la lista scorre, con la lente accanto (TASK-362, ADR-0308): **«All»**, i
+  la lista scorre (TASK-362, ADR-0308; la lente accanto fino a TASK-367 B): **«All»**, i
   disegni per tutti, e **«Following»**, i propri e quelli di chi si segue; in
   entrambe dal più recente, senza gruppi e senza posizione. Ogni scheda ha la
   sua lista, la sua posizione e le sue pagine: cambiare scheda non rilegge, e
@@ -703,13 +703,14 @@ vale la barra qui sopra.
   disegno vero di un altro, il «…» a destra del nome segnala il disegno o
   blocca chi l'ha corso (TASK-121, sotto in «Profile», «Segnalare e
   bloccare»).
-  **In cima, sopra i disegni, a destra, la lente** (TASK-215, ADR-0178;
-  TASK-219, ADR-0182: solo la lente, scelta dell'utente): un cerchio come
-  quello di «Profile», con una lente disegnata e nessun testo, sotto il
-  bottone di «Profile»; VoiceOver lo legge «Search». Non sta
-  nell'intestazione delle pagine: lì, accanto a sport e profilo, su un
-  iPhone da 390 pt non c'è posto. Scorre con l'elenco.
-  **La lente apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
+  **La ricerca è in cima a «Explore»** (TASK-367 parte B, ADR-0311): fino
+  ad allora era la lente in cima al Feed (TASK-215, TASK-219), che non c'è
+  più. In cima a «Explore», anche sull'acqua, sotto l'intestazione, un
+  campo largo come la pagina con la lente della barra in basso e il testo
+  «Search drawings, people, places»: non si scrive lì, il tocco apre la
+  ricerca qui sotto. VoiceOver lo legge «Search». Un «Explore» con il suo
+  «←» non ce l'ha.
+  **Il campo apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
   2026-10-29): una pagina sopra tutta l'app, che arriva dalla lente in
   `motion.sheetMs` (un poco più piccola e più in alto, poi al suo posto;
   ferma con «Reduce Motion»). In alto il campo «Search drawings, people,

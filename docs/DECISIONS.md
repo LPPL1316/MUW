@@ -21056,6 +21056,19 @@ dell'utente):
   un colore derivato dai token, non scritto a mano.
 - Android: il tasto indietro torna alla scheda mostrata prima (una pila delle
   schede viste), poi lascia uscire.
+
+**Parte B, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente):
+
+- Il campo in cima a «Explore» non è un campo vero: apre la pagina della
+  ricerca di TASK-344, che ha già il suo campo con la tastiera aperta. Riusa
+  il testo «Search drawings, people, places» e la lente della barra: nessun
+  testo nuovo, nessuna icona nuova.
+- C'è anche nell'«Explore» della canoa: senza, chi pagaia avrebbe perso la
+  ricerca con la lente del Feed.
+- Un esempio del Feed trovato dalla ricerca si apre come dal Feed
+  (`fetchPostRoute`, che controlla che il percorso sia ancora lo stesso):
+  `ExploreScreen` e `PaddleExplore` ricevono `onOpenExample` da `App.tsx`.
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
