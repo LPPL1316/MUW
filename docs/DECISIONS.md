@@ -21875,7 +21875,11 @@ in `tests/fixtures/same_routes/<impronta>.json`; un test vieta una riga
 senza le prove delle sue due impronte, fatte sulla stessa piattaforma, con
 gli stessi hash, e un altro controlla che il motore di adesso disegni la
 sua prova (solo sulla piattaforma della prova: il Mac arm64 e Linux in CI
-disegnano alcuni di questi percorsi diversi nelle ultime cifre). In più il banco
+disegnano alcuni di questi percorsi diversi nelle ultime cifre). Basta
+perché uno spostamento di codice non cambia le operazioni in virgola
+mobile: una differenza di piattaforma è la stessa prima e dopo, e la prova
+su una piattaforma più il banco bastano. Non bastano per un cambiamento di
+comportamento, che per questo non usa mai l'alias. In più il banco
 su `main` e sul branch, `compare --same`, punto per punto. **Un cambiamento
 di comportamento non usa mai `SAME_ROUTES_AS`**: i suoi percorsi si
 ridisegnano, col sì dell'utente. Così il server si può aggiornare da `main`

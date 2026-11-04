@@ -163,6 +163,30 @@ per evitare un ciclo di import fra il registro e i suoi moduli.
 
 Parti B2 e B3: la lista va al Coordinatore prima del codice, dopo la #758.
 
+## Dopo il deploy di B1 sul server (Linux x86)
+
+Il server si aggiorna col sì dell'utente; i comandi sono suoi o del
+Coordinatore. Tre controlli, nel contenitore dell'API e nel suo log:
+
+1. **Subito, l'impronta.** `python -c "from shaperoute_api import
+   paddle_examples, route_store as r; print(r.code_fingerprint(),
+   r.engine_fingerprint(), r.engine_fingerprint(swims=True),
+   paddle_examples.engine_fingerprint())"` deve dare
+   `c9702b94404d 5b5e026cea9b b9d00c37d28d 574fbfba41eb`. Se il primo è
+   un altro, il codice sul server non è quello di B1; se uno degli altri
+   tre è diverso, l'alias non vale e gli esempi tenuti non rispondono più.
+2. **Il primo giorno, il log.** Le richieste trovate fra quelle tenute
+   scrivono `job <id>: <forma> <metri> m already drawn` (`jobs.py`), le
+   altre `... queued`. La quota `already drawn / (already drawn + queued)`
+   del giorno dopo il deploy deve restare quella del giorno prima (stesso
+   ordine, qualche punto in più o in meno per il traffico). Se cade quasi
+   a zero, l'alias non vale: si torna all'immagine di prima e si cerca il
+   perché, non si ridisegna.
+3. **I percorsi tenuti nuovi.** Ogni file `routes/*.json` e
+   `routes/water/*.json` scritto dopo il deploy ha `"engine"`
+   `5b5e026cea9b` (o `b9d00c37d28d` per il nuoto): nessun file con
+   `c9702b94404d` o `11647a97e632`.
+
 ## Dove si è
 
 2026-11-04: banco scritto e provato (16 test, uno sul motore vero col grafo
