@@ -20754,6 +20754,90 @@ esempi restano fuori: la scelta è aperta col Coordinatore (TASK-362, scelta 4).
 
 ---
 
+## ADR-0281 — aggiunta, parte B: HealthKit nella 1.0.1, le librerie solo su iOS
+
+**Stato**: Attiva · 2026-10-29 · deciso dall'agente su delega dell'utente
+(TASK-321 parte B). Aggiunta ad ADR-0281, senza numero nuovo.
+
+**Contesto**: B porta nella build iOS quello che A ha lasciato fuori: le
+librerie dentro il linking, la capability, il testo del permesso e la
+privacy. Restano da decidere il modo e i confini.
+
+**Decisione**:
+
+1. **Le tre librerie dell'iPhone collegate solo su iOS**
+   (`platforms: { android: null }` in `react-native.config.js`):
+   `@kingstinct/react-native-healthkit`, `@react-native-healthkit/core` e
+   `react-native-nitro-modules`. Su Android non servono a niente e
+   sposterebbero la build Android; `react-native-health-connect` resta
+   fuori da tutte e due, fino a C.
+2. **Gli entitlements e il testo in `app.json`, senza il plugin della
+   libreria**, come previsto: `com.apple.developer.healthkit` e
+   `…healthkit.access` vuoto (niente cartelle cliniche), niente consegne in
+   background, niente `NSHealthShareUsageDescription`: MuW non legge, e
+   iOS vuole il testo per leggere solo da chi chiede di leggere. Il testo
+   approvato in `app.json` e nelle cinque `locales/*.json`.
+3. **La privacy entra con B**, intera (anche la riga di Health Connect,
+   com'è stata approvata), con la data del giorno del merge al taglio
+   della 1.0.1 (condizione del Coordinatore): così non va online prima che
+   la 1.0.1 sia sull'App Store. Le traduzioni del testo del permesso e
+   della privacy le ha approvate l'utente il 2026-10-29.
+4. **La PR resta in bozza fino al taglio della 1.0.1**: l'impronta iOS
+   passa da `83793e26…` a `fd0cbb43…`, e in `main` gli `eas update` non
+   arriverebbero più alla 1.0.0 (7).
+
+**Conseguenze**: anche l'impronta Android si muove (`e2d33497…` →
+`e9a0bda0…`), solo per la configurazione dell'app: le chiavi `ios` di
+`app.json` contano nell'impronta di tutti e due i telefoni, come le
+impostazioni Android contavano in quella dell'iPhone prima di
+`ANDROID_ONLY` (TASK-294). Tenerla ferma vorrebbe un elenco gemello in
+`fingerprint.config.js`, che è di TASK-294: il Coordinatore ha scelto di
+no, perché Android ha comunque la sua build 1.0.1 (contatti, document
+picker, accesso con Google) e la sua impronta si muove con quella iOS.
+Sul simulatore, dopo «Save», l'allenamento è in Fitness con la mappa, il
+tempo, la distanza e le calorie di MuW.
+
+## ADR-0281 — aggiunta, il taglio della 1.0.1: Apple Salute con contatti e selettore, e il testo per leggere il battito
+
+**Stato**: Accettata · **Data**: 2026-10-30 · **Deciso**: dall'utente (la
+separazione dall'accesso con Apple e Google, il testo), dal Coordinatore (la
+build dal branch), dall'agente su delega per il resto (TASK-321 parte B,
+TASK-345 C). Aggiunta ad ADR-0281, senza numero nuovo.
+
+**Contesto**: la parte B era di sola scrittura e diceva che MuW non chiede di
+leggere. TASK-345 C vuole leggere il battito, e una sola modifica nativa:
+dentro la #620 o tutto nella 1.0.2.
+
+**Decisione**:
+
+1. **La chiave entra nella 1.0.1**, il codice no. Nel binario c'è
+   `NSHealthShareUsageDescription`; il tipo si chiede a runtime, quindi C può
+   arrivare dopo con un update sulla 1.0.1. Gli entitlements non cambiano.
+2. **La privacy della #620 non cambia**: «MuW never reads your health data»
+   resta vera finché C non legge. La frase nuova va con C.
+3. **`expo-contacts` col suo plugin**, come chiede il promemoria di TASK-262:
+   togliere l'esclusione da sola lascerebbe l'app senza il testo della domanda.
+4. **La build dal branch, il merge dopo Apple**: finché è in revisione, `main`
+   continua a raggiungere la 1.0.0 (7).
+
+**Conseguenze**: impronta iOS `67253126…`, Android `8aac71c3…` al merge. Fino
+al merge chi ha la 1.0.1 non riceve gli update da `main`. Sul simulatore
+scrittura, lettura, contatti e selettore funzionano con la build Release.
+
+## ADR-0281 — aggiunta, la build della 1.0.1: anche la vibrazione
+
+**Stato**: Accettata · **Data**: 2026-11-02 · **Deciso**: dall'utente
+(`expo-haptics` nella 1.0.1, «Sì, accendila», nella chat del Coordinatore),
+dall'agente su delega per il resto (TASK-321 parte B). Aggiunta ad ADR-0281,
+senza numero nuovo.
+
+**Decisione**: `expo-haptics` esce da `autolinking.exclude` con contatti e
+selettore, come ADR-0307 diceva per la prossima build nativa. Un test
+confronta il nome del modulo che l'app chiede con quello registrato da ogni
+libreria. La privacy porta la data del riallineamento, il 2 novembre 2026.
+
+**Conseguenze**: impronta iOS `6f8bba4c…`, Android `227457f3…`. Sul
+simulatore la build Release ha i quattro moduli nativi e ognuno risponde.
 ## ADR-0311 — La navigazione come Instagram: una barra di schede in basso, un header solo
 
 **Stato**: Proposta · 2026-11-02 · TASK-367. La richiesta è dell'utente (un
