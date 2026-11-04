@@ -96,12 +96,14 @@ A e B si possono fare in parallelo; C dopo B; D dopo A; E con la neve.
 Questa PR (documenti): `docs/tasks/TASK-375.md` (nuovo), `docs/DECISIONS.md`
 (ADR-0319), `docs/STATUS.md` (una voce), `docs/INDEX.md` (una riga).
 
-Parte A: `packages/shared-types/src/index.ts`,
-`packages/shared-types/fixtures/contract.json`,
-`packages/shared-types/test/contract.test.ts`,
+Parte A (approvata dal Coordinatore il 2026-11-04):
+`packages/shared-types/src/index.ts`,
+`packages/shared-types/fixtures/run-activities.json` (nuovo),
+`packages/shared-types/test/runActivities.test.ts` (nuovo; `contract.json`
+no, perché il `test_contract.py` del motore confronta il contratto intero),
 `services/api/migrations/0044_record_only.sql` (nuovo),
 `services/api/shaperoute_api/activities.py`,
-`services/api/shaperoute_api/strava.py`,
+`services/api/shaperoute_api/strava.py`, `services/api/tests/test_strava.py`,
 `services/api/tests/test_record_only.py` (nuovo), `docs/API.md`,
 `docs/DATABASE.md`.
 
