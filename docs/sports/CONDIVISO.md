@@ -77,6 +77,23 @@ tutto: è corto apposta.
   0,6 s di mediana, bici 1,6 s (Milano fino a 12,7 s a 30 km), canoa sotto
   0,3 s. Servono a confrontare prima e dopo, non a promettere tempi.
 
+## Gli sport senza traccia («Record only», Palestra)
+
+- **2026-11-04, TASK-385 (Palestra, ADR-0327) — un'attività senza linea
+  rompe le app di oggi.** `runs.track` è NOT NULL (migrazione 0003) e un
+  disegno visibile deve avere la traccia (0014). Nell'app `isDrawing` vuole
+  `track_preview` e `isDrawingsPage` usa `every`: **un solo post senza linea
+  fa scartare l'intera pagina** di Feed, profilo e ricerca (la B0 di
+  TASK-375 non lo copre). ADR-0327: traccia facoltativa solo per le
+  attività `TRACKLESS_ACTIVITIES`, e i post senza traccia solo alle app che
+  mandano l'header `X-MuW-Reads: trackless`. `docs/sports/gym.md`.
+- **Salute: il tipo di allenamento non è un permesso.** Un allenamento di
+  forza (HealthKit `.traditionalStrengthTraining`, Health Connect
+  `EXERCISE_TYPE_STRENGTH_TRAINING`; i numeri vanno verificati sulle
+  librerie) non chiede permessi nuovi né codice nativo.
+- **Già nella 1.0.1**: notifiche locali (`expo-notifications`), vibrazione,
+  keep-awake e audio. Un timer che avvisa a schermo bloccato è solo JS.
+
 ## Le misure
 
 Le misure di base di corsa, bici e canoa stanno in `run.md`, `bike.md`,
