@@ -501,6 +501,44 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   MuW non ha («Per C» nel task file).
   A in `main`: #615, merge `8d8c4dde` (2026-10-28), impronte misurate anche
   sull'albero unito con `main`: iOS `83793e26…`, Android `e2d33497…`.
+  **B scritta** (2026-10-29, branch `feat/TASK-321-b-health-ios`, PR in
+  bozza): entitlement HealthKit e testo del permesso in `app.json` e nelle
+  cinque lingue, le tre librerie dell'iPhone collegate solo su iOS, la
+  privacy approvata (anche `site/privacy/`). Impronta iOS nuova
+  `fd0cbb43…`; si muove anche quella Android (`e9a0bda0…`, solo per la
+  configurazione). **Non si unisce prima del taglio della 1.0.1**, che
+  decide il Coordinatore. Capability, build, invio e riga dello store col
+  sì dell'utente, ognuno.
+  Sul simulatore (2026-10-29), dopo «Save», l'allenamento è in Fitness con
+  la mappa; testo del permesso e privacy nelle cinque lingue approvati
+  dall'utente; la data della privacy sarà quella del merge. L'impronta
+  Android si muove con la 1.0.1 (scelta del Coordinatore). Resta l'anello
+  Movimento sull'iPhone. Il 2026-10-29 l'utente ha detto sì anche a
+  capability HealthKit, build, invio ad Apple e riga dell'App Store: valgono
+  al taglio della 1.0.1.
+  **Pronta per il taglio della 1.0.1** (2026-10-30, #620 in bozza, riallineata
+  su `main` `477bdb68`): Apple Salute, contatti e selettore di file, senza
+  l'accesso con Apple e Google (scelta dell'utente), più il testo per leggere
+  il battito di TASK-345 C, approvato dall'utente nelle cinque lingue. Impronta
+  iOS `67253126…`, Android `8aac71c3…`; `main` resta `83793e26…` fino al merge,
+  che arriva dopo l'approvazione di Apple: la build si fa dal branch. Provate
+  sul simulatore con la build nativa scrittura, lettura, contatti e selettore.
+  Prossimo: build e invio, ognuno col sì dell'utente chiesto dal Coordinatore
+  («Health» in App Privacy e la frase nuova della privacy vanno con l'update
+  che accende TASK-345 C, scelta dell'utente); prima, sull'iPhone, l'anello Movimento, la rubrica
+  e «From a file». Dettagli in `tasks/TASK-321.md`.
+  **Riallineata** il 2026-11-01 su `main` `bd9af711` (testa `7ee6091e`):
+  privacy datata 1° novembre 2026, impronte invariate (iOS `67253126…`,
+  Android `8aac71c3…`), test locali verdi.
+  **Pronta per la build** (2026-11-02, l'utente ha chiesto la build): su
+  `main` `74f34e79`, con `expo-haptics` acceso (scelta dell'utente), privacy
+  datata 2 novembre 2026; impronta iOS `6f8bba4c…`, Android `227457f3…`.
+  Simulatore con build Release: Salute, lettura, rubrica, selettore e
+  vibrazione funzionano. Resta in bozza; la build la lancia l'utente.
+  **Apple ha approvato la 1.0.1** (build 8, da `1b58707a`); «ok unisci»
+  dell'utente il 2026-11-04. Riallineata su `main` `8cc5005b`, impronta iOS
+  `6f8bba4c…` invariata; il merge lo fa il Coordinatore a CI verde. Da quel
+  momento gli update di produzione vanno alla 1.0.1.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
