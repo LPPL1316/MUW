@@ -140,6 +140,111 @@ risalite). Nelle figure di `ski-study.html` si vede perché.
 Il motore così com'è, quindi, non serve. Servirebbe un pianificatore
 apposta (opzione B), e anche quello avrebbe solo le discese per disegnare.
 
+### La sicurezza
+
+Richiesta dal Coordinatore: pendenze, piste chiuse, fuoripista.
+
+**Pendenze** (`out/TASK-373/slopes.py` nel worktree del task: i 100 m più
+ripidi di ogni pista sul terreno, Terrarium z13; i tre comprensori
+insieme):
+
+| Difficoltà OSM | Piste | Tratto più ripido, mediana | 90° percentile | Oltre il 40% |
+|---|---|---|---|---|
+| `novice` | 8 | 13% | 24% | 0% |
+| `easy` (blu) | 272 | 19% | 30% | 1% |
+| `intermediate` (rossa) | 252 | 31% | 45% | 18% |
+| `advanced` (nera) | 51 | 43% | 58% | 65% |
+| `freeride` | 6 | 36% | 83% | 50% |
+
+La difficoltà scritta in OSM torna col terreno: se mai si propone una
+pista (opzione B), si filtra per livello sulla difficoltà, mai sulla
+pendenza misurata da noi, che su 13 m al pixel è approssimata. Le
+`freeride` restano sempre fuori.
+
+**Piste chiuse**: OSM non le conosce. Su 67 + 184 + 615 piste nessuna ha
+`opening_hours`; due impianti su 147 al Sella, nessuno negli altri due.
+Aperture, chiusure per vento o neve, gare e battitura stanno nei siti dei
+comprensori, non in un dato aperto e uniforme. Quindi: **l'opzione A non
+propone mai piste** (registra quello che lo sciatore fa); l'opzione B
+direbbe sempre «verifica che piste e impianti siano aperti», e una pista
+chiusa trovata sul posto romperebbe la figura.
+
+**Fuoripista**: MuW non propone mai un tratto fuori dalle piste
+`piste:type=downhill` (fuori `freeride`, `skitour` e le aree). I soli
+tratti a piedi sono i collegamenti di OSM e i 100 m alle stazioni. La
+registrazione non giudica dove si scia, ma nulla nel riepilogo o nel Feed
+premia un fuoripista (nessuna forma, nessun record di velocità in
+classifica). In Italia il D.Lgs. 40/2021 (a memoria, da far verificare)
+chiede assicurazione RC sulle piste, casco ai minori di 18 anni e ARTVA,
+pala e sonda fuoripista con rischio valanghe: l'avviso lo ricorda senza
+fare da consulente.
+
+**In pista il telefono non si guarda**: nessuna guida a voce in discesa,
+nessuna notifica che chiede di guardare lo schermo; i numeri si leggono
+sull'impianto o alla fine. Un avviso la prima volta, come per la canoa
+(testo da approvare, comune con lo sci di fondo).
+
+### Gli impianti in un percorso
+
+Si possono includere, tecnicamente: nel grafo sono archi a senso unico in
+salita, come nelle misure sopra, e OSM dà spesso la durata della corsa
+(`aerialway:duration` su 46 impianti su 50 a Campiglio, 101 su 147 al
+Sella). Ma:
+
+- **la distanza non è la misura giusta**: una richiesta «10 km» con il
+  40% in seggiovia non dice niente. Con gli impianti la misura è il numero
+  di discese o le ore;
+- **nella figura non devono contare**: sono linee dritte. Vanno tenuti
+  come la penna alzata delle parole (TASK-197), tratteggiati sulla mappa e
+  nel GPX con «Pause» e «Resume» (`GPX.md`);
+- **OSM non dice se sono aperti né che skipass servono**: un percorso che
+  passa da un comprensorio all'altro può chiedere un altro biglietto.
+
+Nell'opzione A gli impianti non sono un percorso: sono riconosciuti nella
+traccia registrata (salita a velocità costante) e tratteggiati.
+
+### Impronta e disco
+
+- **Questa PR**: solo documenti, nessun effetto.
+- **Opzione A**: nessun modulo nativo nuovo (registrazione in background,
+  Salute e video ci sono già; il tipo «Downhill Skiing» è una riga in
+  JavaScript), quindi l'impronta della 1.0.1 non dovrebbe cambiare: si
+  misura su una copia pulita prima della PR di A2, come per le altre. Il
+  motore non cambia. Sul server: una migrazione dei `CHECK`, nessun file
+  nuovo; ogni giornata salvata è più lunga di una corsa (6 ore invece di
+  una), quindi più punti nella stessa tabella, nell'ordine delle centinaia
+  di kB per giornata se la traccia si salva come oggi.
+- **Opzione B**: il motore cambia (rete `ski`, pianificatore), ma resta sul
+  server, come la canoa: il motore sul telefono (TASK-214) disegna solo a
+  piedi e in bici, e il suo codice viaggia con l'app come risorsa, non come
+  modulo nativo (TASK-347 A non ha cambiato l'impronta), quindi l'impronta
+  resta; da rimisurare comunque prima della PR. Disco: i grafi di prova, con un nodo ogni
+  10 m, pesano 0,5 MB (Paganella), 1,4 MB (Campiglio) e 3,7 MB (Sella
+  Ronda); semplificati come quelli delle strade, meno della metà. Il
+  terreno serve solo a costruirli (58 tile, 6,9 MB per i tre) e non resta
+  sul server. Cento comprensori alpini starebbero sotto i 100 MB.
+
+### Con lo sci di fondo (TASK-372)
+
+Allineato con la sessione di TASK-372 (ADR-0316) il 2026-11-04, perché non
+nascano due modi di trattare le piste:
+
+- **Rete**: una sola rete «piste» in `network.py`, con il filtro per tipo
+  (`downhill` orientata col terreno e con gli impianti in salita; `nordic`
+  nei due sensi salvo `oneway`), le stazioni collegate a piedi fino a
+  100 m e le `piste:type=connection` nei due sensi. Solo se una delle due
+  fa le forme: per registrare non serve nessuna rete.
+- **Attività**: due valori distinti, `skiing` (alpino) e `xc_skiing`
+  (fondo), con **una sola migrazione** dei `CHECK` per tutte e due, col
+  primo numero libero in `main` quando entra (`AGENTI.md`, punto 10).
+- **Da decidere dall'utente, non fra le sessioni**: se tutti e due sono
+  sport «che si registrano senza forma» con lo stesso percorso in app; un
+  solo avviso di sicurezza sulla neve per tutti e due; uno sport con due
+  modi o due sport; la stagione come scadenza (dicembre–aprile).
+  TASK-372 propone di fermare il fondo e tenere il benchmark; le sue
+  alternative sono gli anelli già segnati del centro o la registrazione
+  senza forma, come qui.
+
 ## Le opzioni
 
 ### A — Solo registrazione della giornata, con il video (raccomandata)
@@ -157,7 +262,8 @@ forma**: gioco delle forme e concorsi non la contano.
 
 **Costo**: 4–6 sessioni.
 - A1 API: l'attività `skiing` (shared-types, `RunActivity`, una
-  migrazione dei `CHECK` come la 0040, l'etichetta del Feed). Server col sì
+  migrazione dei `CHECK` come la 0040, condivisa con `xc_skiing` di
+  TASK-372 se anche il fondo si fa, l'etichetta del Feed). Server col sì
   dell'utente.
 - A2 app: lo sport, «Draw» che apre la registrazione, il riconoscimento
   delle risalite (salita a velocità costante: non sono discese e non
@@ -227,9 +333,8 @@ bello. **B dopo, solo come prototipo del motore**, con il criterio
 d'arresto scritto sopra, e provato sulle giornate vere registrate con A.
 **C no** da sola: nelle build dello store non si vede.
 
-Con TASK-372 (sci di fondo) conviene una scelta sola: o due sport
-(«Ski» e quello del fondo) o uno con due modi. È una scelta di prodotto
-dell'utente.
+Con TASK-372 (sci di fondo) la parte tecnica è già allineata (sopra);
+restano all'utente uno sport o due, e un avviso comune o due.
 
 ## Le scelte dell'utente
 
@@ -256,6 +361,9 @@ loro lista dopo la scelta dell'utente.
 - [x] Come sono fatti gli sport letto in `sport.ts`, `ACTIVITIES` e
       `network.py`.
 - [x] Misure su tre comprensori: rete, verso, pezzo utile, motore di oggi.
+- [x] Sicurezza (pendenze, piste chiuse, fuoripista), impianti nel
+      percorso, impronta e disco (richiesti dal Coordinatore).
+- [x] Allineamento con TASK-372 sullo sci di fondo.
 - [x] Tre opzioni con costo, limiti e cosa vede l'utente, e la
       raccomandazione.
 - [ ] La scelta dell'utente (domanda 1).

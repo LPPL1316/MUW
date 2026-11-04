@@ -21202,8 +21202,16 @@ discesa. TASK-372 (ADR-0316) trova lo stesso per lo sci di fondo.
    12–18 sessioni.
 3. **Opzione C («Soon») no da sola**: le build dello store non mostrano
    gli sport «Soon» (ADR-0278), quindi chi scia non la vedrebbe.
-4. Il motore resta una libreria pura: con B la rete `ski` entra come le
-   altre (OSM e terreno da file), l'AI interpreta soltanto.
+4. Il motore resta una libreria pura: con B la rete «piste» (comune con lo
+   sci di fondo, TASK-372) entra come le altre (OSM e terreno da file),
+   l'AI interpreta soltanto. Attività `skiing` e `xc_skiing` con una sola
+   migrazione.
+5. **Sicurezza**: mai un tratto fuori pista né una `freeride`; un livello
+   si filtra sulla difficoltà di OSM, che torna col terreno (tratto più
+   ripido: blu 19%, rosse 31%, nere 43% di mediana); OSM non sa se una
+   pista è aperta, quindi A non propone piste e B direbbe sempre di
+   verificarlo; nessuna guida a voce in discesa. Gli impianti in un
+   percorso valgono come penna alzata, non come distanza.
 
 **Conseguenze**: con A MuW in montagna è un registratore come gli altri,
 con il video in 3D come pezzo distintivo, e arriva per la stagione
