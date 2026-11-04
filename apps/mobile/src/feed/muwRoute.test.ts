@@ -2,7 +2,7 @@ import route from "@shaperoute/shared-types/fixtures/muw-route.json";
 import list from "@shaperoute/shared-types/fixtures/muw-routes.json";
 import type { MuwRoute } from "@shaperoute/shared-types";
 
-import { toRequest } from "../explore/explored";
+import { optionsOf, toRequest } from "../explore/explored";
 import { fetchMuwRoute, muwCardRoute, muwDetail } from "./muwRoute";
 
 const CARD = list.routes[0] as unknown as MuwRoute;
@@ -17,7 +17,7 @@ test("a card opens as a route of «Explore», never with a catalogue id", () => 
   expect(shown.rotation_deg).toBe(-30);
 });
 
-test("whole, it is planned again as a bike route of its shape", async () => {
+test("whole, it opens with the request of a bike route of its shape", async () => {
   const fetchFn = answering(route);
   const whole = await fetchMuwRoute(CARD, { fetchFn, key: "k" })("http://api", "x");
   expect(fetchFn).toHaveBeenCalledWith("http://api/muw-routes/star", {
@@ -61,4 +61,11 @@ test.each([
 ])("%s fails as a route that does not load", async (_, fetchFn) => {
   const whole = await fetchMuwRoute(CARD, { fetchFn })("http://api", "x");
   expect(whole).toEqual({ kind: "failed" });
+});
+
+test("the line that opens and is run is the saved one, not a new plan", () => {
+  const detail = muwDetail(route as never);
+  const [option] = optionsOf(muwCardRoute(CARD), detail);
+  expect(option.result.points).toEqual(route.points);
+  expect(option.route.start).toEqual(route.points[0]);
 });

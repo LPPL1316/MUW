@@ -2258,6 +2258,6 @@ export interface MuwRouteDetail extends Omit<MuwRoute, "start" | "preview"> {
   on_foot: Stretch[];
   license: string;
   /** The figure's own outline when the catalogue does not have it: what is
-   * sent to plan the route again. */
+   * the request the route opens with; the line is still `points`. */
   outline?: OutlinePoint[] | null;
 }

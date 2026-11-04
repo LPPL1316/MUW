@@ -37,7 +37,11 @@ export function muwCardRoute(route: MuwRoute): RecommendedRoute {
   };
 }
 
-/** The route whole, as the map opens it and Start plans it again. */
+/**
+ * The route whole, as the map opens it: its saved line is the route shown,
+ * run and exported (`explored.toResult`; Start asks only for its directions).
+ * Its figure gives it the request a route of «Explore» needs to open at all.
+ */
 export function muwDetail(detail: MuwRouteDetail): RecommendedRouteDetail {
   return {
     id: muwRouteId(detail),
@@ -73,7 +77,7 @@ function isDetail(body: unknown): body is MuwRouteDetail {
 
 /**
  * How a MuW route is fetched whole: GET /muw-routes/{id}. One without its
- * figure cannot be planned again, and fails as one that does not load.
+ * figure has no request, cannot open, and fails as one that does not load.
  */
 export function fetchMuwRoute(route: MuwRoute, options: Options = {}): FetchWhole {
   const { fetchFn = fetch, key = apiKey() } = options;

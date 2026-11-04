@@ -158,8 +158,10 @@ app.
 
 ## Cosa disegna ogni percorso (2026-11-04)
 
-Per aprire un percorso dalla card e partire, l'app lo pianifica di nuovo con la
-sua richiesta (`explored.toRequest`): le serve la figura. I 25 file ora la dicono
+Per aprire un percorso dalla card l'app vuole la sua richiesta
+(`explored.toRequest`): senza, `optionsOf` lo scarta. Non lo ripianifica: la
+linea mostrata, corsa ed esportata è quella salvata (`toResult`), e Start chiede
+solo le indicazioni lungo i suoi punti (`POST /route-directions`). I 25 file ora la dicono
 (`shape`, `word` con `style`, `outline` per le figure fuori catalogo), e l'API la
 manda; un file senza figura si legge ancora, ma non si apre. I cinque contorni
 disegnati per MuW (fungo, foglia, baffi, scarpone, freccia larga) sono rifatti

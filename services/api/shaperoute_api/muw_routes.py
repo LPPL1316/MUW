@@ -56,7 +56,8 @@ MUW_ROUTE_FIELDS = frozenset(
 )
 # What the route draws, as a route request says it (TASK-365, to open it):
 # a shape or a word, one of the two; the style of a word; and the outline of a
-# figure the catalogue does not have, which the app sends to plan it again.
+# figure the catalogue does not have. The app needs it to open the route; the
+# line it shows and runs is still the file's.
 MUW_FIGURE_FIELDS = frozenset({"shape", "word", "style", "outline"})
 STYLES = frozenset({"round", "block"})
 
@@ -113,7 +114,7 @@ class MuwRouteDetailBody(BaseModel):
     style: str | None = None
     outline: list[OutlinePoint] | None = None
     """The figure's own outline when the catalogue does not have it, as the
-    engine's outline files: what the app sends to plan the route again."""
+    engine's outline files: the request the app opens the route with."""
 
 
 @dataclass(frozen=True)
