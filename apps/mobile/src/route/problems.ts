@@ -33,6 +33,9 @@ export type ChoiceKind = DrawKind | "image";
 /** How an API before TASK-369 part B refuses a drawing on the water
  * (images.ImageRequest, ADR-0161). */
 const NOT_AN_IMAGE = "only a shape of the catalogue is drawn, not an image";
+/** How the API refuses an outline the engine cannot draw, one that crosses
+ * itself for one (images.outline_of, `parse_outline`; TASK-382). */
+const OUTLINE_REFUSED = "outline: ";
 
 export type ProblemText = {
   text: string;
@@ -253,6 +256,19 @@ export function problemText(
           if (activity === "paddling" && problem.message.includes(NOT_AN_IMAGE)) {
             return {
               text: t("On the water, a shape of the catalogue."),
+              detail: devDetail(problem.message),
+            };
+          }
+          // An outline the engine cannot draw (TASK-382): said as one that
+          // does not fit, with no «Try again», which would ask it again.
+          if (problem.message.startsWith(OUTLINE_REFUSED)) {
+            if (isOnWater(activity)) {
+              return waterProblemText(problem.message, null, units);
+            }
+            return {
+              text: t(
+                "This outline does not fit the roads here. Try another distance, another start, or a simpler picture.",
+              ),
               detail: devDetail(problem.message),
             };
           }
