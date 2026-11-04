@@ -21471,3 +21471,44 @@ scia: nessuna opzione propone piste come «da fare». La scelta fra uno sport
 o due con lo sci di fondo è dell'utente.
 
 ---
+
+## ADR-0316 — Lo sci di fondo senza rete propria: le piste non disegnano forme, lo sport va in «Record only»
+
+**Stato**: Accettato · 2026-11-04 · TASK-372. La richiesta è dell'utente; i
+numeri vengono dal Coordinatore. La scelta di prodotto («Sì, Record only») è
+dell'utente; il benchmark e il modo di dividere il lavoro con TASK-375 sono
+decisi dall'agente su delega dell'utente.
+
+**Contesto**: l'utente voleva lo sport «Cross-country ski» sul modello della
+bici (ADR-0153). La rete sarebbe stata `nordic`: le vie OSM con
+`piste:type=nordic` e le relazioni `route=piste`, `piste:oneway` rispettato,
+niente strade normali. Prima del codice un benchmark su Val di Fiemme, Asiago
+e Dobbiaco (`tasks/TASK-372.md`):
+- la rete c'è: 81–178 km di pista, pezzo connesso più grande di 54–65 km;
+- il motore di oggi però non disegna forme. Su 45 richieste (cerchio, cuore e
+  stella da 3 a 20 km, piste nei due sensi) nessuna arriva a 0,90 e sei
+  superano 0,60, irriconoscibili; il cerchio resta sotto 0,49;
+- le forme piccole non vanno meglio: le piste sono lunghe e seguono la valle,
+  con pochi incroci vicini.
+
+Lo sci alpino trova lo stesso (ADR-0317).
+
+**Decisione**:
+
+1. **Nessuna rete `nordic` nel motore**, né un filtro delle piste: il
+   motore e la sua impronta non cambiano.
+2. **Lo sci di fondo è uno sport che si registra senza forma**, nella
+   categoria «Record only» di TASK-375 (ADR-0319), come lo sci alpino.
+3. **L'attività `xc_skiing`** entra nel contratto, nell'API e nei vincoli del
+   database insieme a `skiing`, con TASK-375 e una sola migrazione (la 0044):
+   quei file hanno un solo padrone.
+4. Se un giorno si faranno le forme sulle piste, sarà con una rete «piste»
+   unica per i due sci (ADR-0317 punto 4), dopo un prototipo che le regga.
+
+**Conseguenze**:
+- Chi fa fondo registra l'uscita come le altre attività, senza un percorso
+  proposto.
+- OSM non dice se una pista è battuta o aperta: MuW non propone piste da fare.
+- Stagione ed estate restano scelte dell'utente, in TASK-375.
+
+---
