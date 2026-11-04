@@ -57,6 +57,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | «RIDE IT YOURSELF» in «Explore»: i percorsi in bici di MuW, `bikeIdeas.json`, `tools/bike_ideas.py` | `tasks/TASK-364.md`, `DECISIONS.md` ADR-0309, `UI.md` «Pedalalo tu» |
 | La barra di schede in basso, l'header solo, Messages come scheda, l'ingranaggio del Profilo, la campanella | `tasks/TASK-367.md`, `DECISIONS.md` ADR-0311, `UI.md` |
 | I record personali nel Profilo, a piedi e in bici: il calcolo, la cache, chi li vede | `tasks/TASK-368.md`, `DECISIONS.md` ADR-0312, `API.md` «Profile» |
+| La camminata «Walk»: `walking` sulla rete foot, 1–30 km, il `<type>` del GPX, Apple Salute, il gioco | `tasks/TASK-371.md`, `DECISIONS.md` ADR-0315, `ROUTE_ENGINE.md` (le reti) |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti

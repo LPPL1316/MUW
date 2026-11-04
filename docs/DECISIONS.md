@@ -20943,3 +20943,44 @@ strumento e una PR; togliere la nota quando qualcuno li avrà pedalati è una
 scelta dell'utente.
 
 ---
+
+## ADR-0315 — La camminata: un'attività dell'API sulla rete foot della corsa, nel gioco ma non nei record
+
+**Stato**: Proposta · 2026-11-04 · TASK-371. La richiesta è dell'utente
+(2026-11-04); numeri dal Coordinatore. Le scelte di prodotto sono dell'utente,
+in `tasks/TASK-371.md`; il resto è deciso dall'agente su delega dell'utente.
+
+**Contesto**: l'utente vuole lo sport «Walk». La corsa usa già la rete «foot»
+di `network.py`; il nuoto (ADR-0283, #709) ha introdotto `API_ACTIVITIES` per
+le attività dell'API prima che l'app le offra. Ogni cambio di `models.py`
+sposta l'impronta del motore e fa rifare gli esempi della canoa.
+
+**Decisione** (proposta):
+
+1. **`walking` è un'attività dell'API** come le altre, 1–30 km (scelta
+   dell'utente), disegnata sulla **rete foot della corsa**: stesso grafo,
+   stessa cache, nessuna rete nuova; sul server il grafo già in memoria della
+   corsa.
+2. **Tre parti**: A motore, contratto, API e migrazione 0043, dopo #709 e
+   prima della notte degli esempi, così si rifanno una volta sola; B l'app,
+   dopo TASK-367 A, con `ACTIVITIES` che si allarga solo allora; C il gioco
+   delle forme sul server.
+3. **Il GPX dice lo sport**: `<type>` nella traccia col nome dell'attività,
+   nel GPX del percorso e in quello della corsa salvata, per ogni attività.
+4. **Ritmo in min/km** come la corsa; tempo previsto su 12:00 /km finché non ci
+   sono camminate salvate.
+5. **Apple Salute `.walking`, Health Connect WALKING, Strava «Walk»**, con le
+   calorie stimate da camminata (scelta dell'utente).
+6. **Nel gioco delle forme sì, nei record personali no** (scelta
+   dell'utente): una camminata dà metri al gioco con una nuova versione delle
+   regole; i record di ADR-0312 restano della corsa.
+
+**Motivo**: la camminata cammina sulle stesse vie della corsa; riusare la rete
+non costa memoria né download e tiene il principio di ADR-0001 intero.
+
+**Conseguenze**: una migrazione e un aggiornamento del server, col sì
+dell'utente; l'impronta del motore cambia insieme a quella del nuoto. Nel
+gioco, chi cammina raccoglie metri come chi corre: le regole lo accettano per
+scelta dell'utente.
+
+---

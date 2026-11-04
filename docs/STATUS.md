@@ -160,6 +160,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
+  dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
+  #709 (nuoto nell'API), ritmo in min/km, le camminate contano nel gioco delle
+  forme ma non nei record, calorie stimate in Apple Salute. Parte A (motore,
+  API, migrazione 0043) dopo #709 e prima della notte degli esempi; B (app)
+  dopo TASK-367 A con la lista dei file al Coordinatore; C (gioco) col sì
+  dell'utente. Testi della parte B ancora da approvare. `tasks/TASK-371.md`.
 - **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
   un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
   numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
