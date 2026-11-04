@@ -117,6 +117,7 @@ docs/tasks/TASK-376.md                    (nuovo)
 docs/DECISIONS.md                         (solo ADR-0320, in fondo)
 docs/STATUS.md                            (solo righe di TASK-376)
 docs/INDEX.md                             (una riga)
+docs/AGENTI.md                            (solo la sezione «Sport (Coordinatore Sport)»)
 ```
 
 Parte B: la lista va al Coordinatore prima del codice.
