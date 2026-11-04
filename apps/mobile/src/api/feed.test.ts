@@ -1,7 +1,8 @@
 import page from "@shaperoute/shared-types/fixtures/feed.json";
-import { FEED_PAGE_SIZE } from "@shaperoute/shared-types";
+import { FEED_PAGE_SIZE, type FeedPost } from "@shaperoute/shared-types";
 
 import { answers, apiError } from "../account/testing";
+import { shownPost } from "../feed/feedPosts";
 import { feedPath, fetchFeed, isFeedPage, isFeedPost } from "./feed";
 
 const URL = "http://api";
@@ -30,6 +31,29 @@ test("the example of the API is what the app reads", () => {
   expect(isFeedPage({ posts: [{}], next: null })).toBe(false);
   expect(isFeedPage({ next: null })).toBe(false);
   expect(FEED_PAGE_SIZE).toBe(20);
+});
+
+test.each(["skiing", "xc_skiing", "rowing"])(
+  "a page with a post of %s, an activity this app does not know, loads; the post shows as a run",
+  (activity) => {
+    // The guard drops the field from the body it reads: its own copy.
+    const read = structuredClone(page);
+    read.posts[1] = { ...read.posts[1], activity };
+    expect(isFeedPage(read)).toBe(true);
+    expect(read.posts).toHaveLength(2);
+    expect(read.posts[1]).not.toHaveProperty("activity");
+    expect(shownPost(read.posts[1] as FeedPost).activity).toBe("running");
+    // The other post keeps its own.
+    expect(read.posts[0].activity).toBe("running");
+  },
+);
+
+test("a page with a day on the snow comes whole from the API", async () => {
+  const body = structuredClone(page);
+  body.posts[0] = { ...body.posts[0], activity: "skiing" };
+  const fetchFn = answers({ status: 200, body });
+  const got = await fetchFeed(URL, TOKEN, {}, options(fetchFn));
+  expect(got.kind === "ok" && got.value.posts).toHaveLength(2);
 });
 
 test("the query says where the phone is, then the cursor", () => {

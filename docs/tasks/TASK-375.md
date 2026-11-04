@@ -121,6 +121,13 @@ no, perché il `test_contract.py` del motore confronta il contratto intero),
 Coordinatore, `services/api/tests/test_walking_api.py` (due righe: le
 attività salvate e Strava hanno anche quelle senza forma) e questa lista.
 
+Parte B0 (approvata dal Coordinatore il 2026-11-04): un'attività che
+l'app non conosce non fa cadere la pagina. `apps/mobile/src/api/drawings.ts`,
+`apps/mobile/src/api/drawings.test.ts`, `apps/mobile/src/api/feed.test.ts`,
+`docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 6) e questa lista.
+`packages/shared-types/src/index.ts`, approvato, alla fine non serve: i
+tipi dei disegni restano `Activity` (ADR-0319, punto 6).
+
 Parte B: `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/navigation/freeSport.ts`,
 `apps/mobile/src/navigation/useFreeRun.ts`,
