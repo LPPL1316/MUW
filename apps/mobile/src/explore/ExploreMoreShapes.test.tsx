@@ -99,11 +99,19 @@ test("after the first three examples, other shapes while they are looked at", as
   expect(onOpen.mock.calls[0][0]).toMatchObject({ shape: LAST, city: "Vercelli" });
 });
 
+/** The fixture's routes in `vercelli`: the phone measures how far they are. */
+const atVercelli = {
+  routes: routes.map((r) => ({
+    ...r,
+    start: [vercelli.point[0] + r.away_m / 111_195, vercelli.point[1]],
+  })),
+};
+
 /** The API with the catalog of the fixture, and every route done at once. */
 function catalog(input: RequestInfo | URL): Promise<Response> {
   return Promise.resolve(
     String(input).includes("/recommended-routes")
-      ? Response.json(list)
+      ? Response.json(atVercelli)
       : Response.json(jobDone, { status: 202 }),
   );
 }
@@ -169,7 +177,7 @@ test("a city with recommended routes: the shape being drawn is the next card", a
   // The catalog answers; the first route never does.
   fetchMock.mockImplementation((input) =>
     String(input).includes("/recommended-routes")
-      ? Promise.resolve(Response.json(list))
+      ? Promise.resolve(Response.json(atVercelli))
       : new Promise<Response>(() => {}),
   );
   await render(
@@ -192,7 +200,7 @@ test("a city's shapes that fail say nothing when it has routes of its own", asyn
   fetchMock.mockImplementation((input) =>
     Promise.resolve(
       String(input).includes("/recommended-routes")
-        ? Response.json(list)
+        ? Response.json(atVercelli)
         : Response.json(
             {
               error: {

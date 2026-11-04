@@ -152,7 +152,7 @@ test("a route no longer in the catalogue says so, and no other route opens", asy
   const [lat, lon] = POST.line[0];
   expect(asked()).toEqual([
     `/recommended-routes/${POST.id}`,
-    `/recommended-routes?lat=${lat}&lon=${lon}&radius_m=5000`,
+    `/recommended-routes?lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}&radius_m=5000`,
   ]);
   await fireEvent.press(screen.getByText("Back to the list"));
   expect(screen.getByRole("tab", { name: "Feed", selected: true })).toBeOnTheScreen();

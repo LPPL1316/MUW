@@ -34,6 +34,7 @@ import type { Place } from "../places/photon";
 import { AskForRoute } from "./AskForRoute";
 import type { ThemedIdea } from "./themedIdeas";
 import { IdeasFromEurope } from "./IdeasFromEurope";
+import { RideItYourself } from "./RideItYourself";
 import {
   addedExamples,
   cityKey,
@@ -383,12 +384,19 @@ export function ExploreScreen({
             ideas={
               onIdea && (
                 // Their maps after those of the routes above them.
-                <IdeasFromEurope
-                  width={contentWidth - 2 * space.md}
-                  onIdea={onIdea}
-                  maps={list.status !== "loading"}
-                  apiUrl={apiUrl}
-                />
+                <>
+                  <IdeasFromEurope
+                    width={contentWidth - 2 * space.md}
+                    onIdea={onIdea}
+                    maps={list.status !== "loading"}
+                    apiUrl={apiUrl}
+                  />
+                  <RideItYourself
+                    width={contentWidth - 2 * space.md}
+                    onOpen={onOpen}
+                    maps={list.status !== "loading"}
+                  />
+                </>
               )
             }
           />

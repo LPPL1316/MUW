@@ -88,7 +88,7 @@ afterEach(() => {
 test("signed in, the page shows the drawings the members published", async () => {
   await render(
     <Around>
-      <FeedScreen onOpen={() => {}} near={[46.0671, 11.1214]} />
+      <FeedScreen onOpen={() => {}} />
     </Around>,
   );
   expect(await screen.findByText("Ada_runs")).toBeOnTheScreen();
@@ -104,8 +104,8 @@ test("signed in, the page shows the drawings the members published", async () =>
   ).toBeOnTheScreen();
   expect(screen.queryByTestId("feed-loading")).toBeNull();
   expect(screen.queryByText(SAMPLE_FEED[0].user)).toBeNull();
-  // Asked once, with the token, from where the phone is.
-  expect(asked()).toEqual(["/feed?lat=46.0671&lon=11.1214"]);
+  // Asked once, with the token, never with the phone's position.
+  expect(asked()).toEqual(["/feed?filter=all"]);
   expect(fetchSpy.mock.calls[0][1]).toMatchObject({
     headers: { Authorization: `Bearer ${SESSION.token}` },
   });
@@ -171,15 +171,19 @@ test("with nothing published yet, the examples take the place of the drawings", 
   expect(onOpen).toHaveBeenCalledWith(SAMPLE_FEED[0]);
 });
 
-test("an API without a feed, or one that does not answer, leaves the examples", async () => {
+test("an answer that does not come offers to ask again, in place of the examples", async () => {
   feedAnswer = () => Response.json(apiError("http_error"), { status: 404 });
   await render(
     <Around>
       <FeedScreen onOpen={() => {}} />
     </Around>,
   );
-  expect(await screen.findByText(SAMPLE_FEED[0].user)).toBeOnTheScreen();
-  expect(asked()).toEqual(["/feed"]);
+  expect(await screen.findByTestId("feed-failed")).toBeOnTheScreen();
+  expect(screen.queryByText(SAMPLE_FEED[0].user)).toBeNull();
+  feedAnswer = () => Response.json(page);
+  await fireEvent.press(screen.getByText("Try again"));
+  expect(await screen.findByText("Ada_runs")).toBeOnTheScreen();
+  expect(asked()).toEqual(["/feed?filter=all", "/feed?filter=all"]);
 });
 
 test("built behind «Draw», the page asks for no drawings until it is on the screen", async () => {
@@ -197,7 +201,7 @@ test("built behind «Draw», the page asks for no drawings until it is on the sc
     </Around>,
   );
   expect(await screen.findByText("Ada_runs")).toBeOnTheScreen();
-  expect(asked()).toEqual(["/feed"]);
+  expect(asked()).toEqual(["/feed?filter=all"]);
 });
 
 test("the end of the list asks for the next page after the cursor", async () => {
@@ -216,7 +220,12 @@ test("the end of the list asks for the next page after the cursor", async () => 
     screen.getByTestId("feed-list").props.onEndReached();
   });
   expect(await screen.findByText("Another")).toBeOnTheScreen();
-  await waitFor(() => expect(asked()).toEqual(["/feed", `/feed?cursor=${page.next}`]));
+  await waitFor(() =>
+    expect(asked()).toEqual([
+      "/feed?filter=all",
+      `/feed?filter=all&cursor=${page.next}`,
+    ]),
+  );
   // The drawings read so far all stay.
   expect(screen.getByText("Ada_runs")).toBeOnTheScreen();
 });

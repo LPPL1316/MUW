@@ -51,13 +51,14 @@ test("on the water there is no word nor picture to choose: the shapes only", asy
   expect(screen.getByText("On the water, a shape of the catalogue.")).toBeTruthy();
   expect(screen.queryByRole("button", { name: "Word" })).toBeNull();
   expect(screen.queryByRole("button", { name: "Image" })).toBeNull();
-  expect(screen.getByLabelText("Shape")).toBeTruthy();
+  expect(screen.getByTestId("shape-grid")).toBeTruthy();
+  expect(screen.getByTestId("other-shape-link")).toBeTruthy();
 });
 
 test("a word chosen before «Paddle» shows the shapes, not the word", async () => {
   await render(choice("2", jest.fn(), { kind: "word" }));
   expect(screen.queryByLabelText("Word")).toBeNull();
-  expect(screen.getByLabelText("Shape")).toBeTruthy();
+  expect(screen.getByTestId("shape-grid")).toBeTruthy();
 });
 
 test("the distance keeps to 1–5 km, in half km too", async () => {
@@ -67,10 +68,12 @@ test("the distance keeps to 1–5 km, in half km too", async () => {
   await rerender(choice("2,5", onDistanceText));
   expect(screen.queryByText(/Enter a distance/)).toBeNull();
   await fireEvent.press(screen.getByRole("button", { name: "Longer" }));
-  expect(onDistanceText).toHaveBeenLastCalledWith("3,5");
+  // Half a km a step (TASK-361).
+  expect(onDistanceText).toHaveBeenLastCalledWith("3");
   await rerender(choice("5", onDistanceText));
   await fireEvent.press(screen.getByRole("button", { name: "Longer" }));
-  expect(onDistanceText).toHaveBeenLastCalledWith("5");
+  // At the limit nothing moves.
+  expect(onDistanceText).toHaveBeenCalledTimes(1);
 });
 
 const paddleHeart: RouteRequest = {

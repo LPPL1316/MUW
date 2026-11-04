@@ -1,7 +1,9 @@
-import type { Activity, LatLon, Walk } from "@shaperoute/shared-types";
+import type { Activity, LatLon, OutlinePoint, Walk } from "@shaperoute/shared-types";
 
 import { apiKey, keyHeaders } from "../api/apiUrl";
 import { shapeWord } from "../i18n/shapeNames";
+import { metresBetween } from "../map/coordinates";
+import { nearParams } from "../places/photon";
 
 /**
  * The best routes already planned near a point, for "Explore" (TASK-126,
@@ -66,6 +68,12 @@ export type RecommendedRouteDetail = {
    */
   walks?: Walk[];
   /**
+   * The outline of a figure the catalogue does not have, for a route of
+   * «RIDE IT YOURSELF» (TASK-364): what its request sends. The API's routes
+   * do not say.
+   */
+  outline?: OutlinePoint[];
+  /**
    * How far its shape is turned, as RouteResult.rotation_deg (TASK-232): the
    * map turns the other way, also while it is run. Absent for a route that
    * does not say, which stays north up.
@@ -102,7 +110,21 @@ export function recommendedUrl(
   near: LatLon,
   radiusM: number = NEAR_RADIUS_M,
 ): string {
-  return `${baseUrl}/recommended-routes?lat=${near[0]}&lon=${near[1]}&radius_m=${radiusM}`;
+  return `${baseUrl}/recommended-routes?${nearParams(near)}&radius_m=${radiusM}`;
+}
+
+/**
+ * How far each route is from the real `near`: the API was told about a
+ * kilometre (TASK-363), so its `away_m` is measured from the rounded point.
+ */
+export function measuredFrom(
+  near: LatLon,
+  routes: RecommendedRoute[],
+): RecommendedRoute[] {
+  return routes.map((route) => ({
+    ...route,
+    away_m: Math.round(metresBetween(near, route.start)),
+  }));
 }
 
 /** The routes near `near`, the best first. Never throws. */
@@ -118,7 +140,7 @@ export async function fetchRecommended(
     });
     const body: unknown = await response.json();
     return response.ok && isRecommendedList(body)
-      ? { kind: "routes", routes: body.routes }
+      ? { kind: "routes", routes: measuredFrom(near, body.routes) }
       : { kind: "failed" };
   } catch {
     return { kind: "failed" };

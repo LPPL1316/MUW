@@ -41,7 +41,31 @@ export type DrawingChoice = {
   /** The members tagged, in order; their names are what the form shows. */
   tags: DrawingTag[];
   visibility: Visibility;
+  /** The monthly challenge chosen in the form (TASK-343 part B): not part of
+   * the drawing, its call goes after the drawing is saved. Left out: none. */
+  entry?: DrawingEntry;
 };
+
+/** In or out of a monthly challenge. Sending it again changes nothing. */
+export type DrawingEntry = { contest: string; entered: boolean };
+
+/** The entry to send with `choice`: only a drawing for everyone can take part.
+ * One hidden by another visibility waits, the same on the way back. */
+export function entryToSend(choice: DrawingChoice): DrawingEntry | null {
+  return choice.visibility === "everyone" ? (choice.entry ?? null) : null;
+}
+
+function sameEntry(a: DrawingEntry | undefined, b: DrawingEntry | undefined): boolean {
+  return a?.contest === b?.contest && a?.entered === b?.entered;
+}
+
+function isDrawingEntry(value: unknown): value is DrawingEntry {
+  return (
+    isRecord(value) &&
+    typeof value.contest === "string" &&
+    typeof value.entered === "boolean"
+  );
+}
 
 /** Nothing chosen yet: no title, a run, nobody tagged, only the owner. */
 export const NOT_CHOSEN: DrawingChoice = {
@@ -92,6 +116,7 @@ export function sameChoice(a: DrawingChoice, b: DrawingChoice): boolean {
     a.description === b.description &&
     a.activity === b.activity &&
     a.visibility === b.visibility &&
+    sameEntry(a.entry, b.entry) &&
     a.tags.length === b.tags.length &&
     a.tags.every((tag, i) => tag.public_id === b.tags[i].public_id)
   );
@@ -139,6 +164,7 @@ export function choiceFrom(value: unknown): DrawingChoice | null {
     activity: item.activity,
     tags,
     visibility: item.visibility,
+    ...(isDrawingEntry(item.entry) ? { entry: item.entry } : {}),
   };
 }
 

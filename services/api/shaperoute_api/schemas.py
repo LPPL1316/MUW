@@ -10,6 +10,7 @@ from dataclasses import asdict
 from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from route_engine.anchored import PLACEMENTS
 from route_engine.directions import GROUP_M, Turn
 from route_engine.image_outline import MAX_POINTS as MAX_OUTLINE_POINTS
 from route_engine.models import (
@@ -89,6 +90,22 @@ def _check_walks(walks: list[Walk], count: int, what: str = "walk") -> None:
         raise ValueError(problem)
 
 
+# Where the shape goes (TASK-347, ADR-0300) and the magnet of an anchored one.
+PLACEMENT_DESCRIPTION = (
+    f"One of: {', '.join(PLACEMENTS)}. free: the search turns, scales and moves "
+    "the shape to where the roads draw it best, as before. anchored: the shape "
+    "stays where and as it was drawn (its first point on start, upright, at the "
+    "scale of distance_m), traced once with the magnet fit and never rescaled; "
+    "a distance off by more than 10% is a warning, not a refusal. Only on the "
+    "roads: on the water, invalid_request."
+)
+FIT_DESCRIPTION = (
+    "With placement anchored: the magnet, from 0 (faithful to the drawing: "
+    "tight zones and corridor) to 1 (today's tracing, wide); the engine's "
+    "default when missing. With placement free, invalid_request."
+)
+
+
 class RouteRequestBody(BaseModel):
     """What the app sends: RouteRequest in packages/shared-types."""
 
@@ -144,6 +161,11 @@ class RouteRequestBody(BaseModel):
             "activity, invalid_request."
         ),
         examples=[None],
+    )
+    # Missing from an app of before TASK-347.
+    placement: str = Field(default="free", description=PLACEMENT_DESCRIPTION)
+    fit: float | None = Field(
+        default=None, description=FIT_DESCRIPTION, examples=[None]
     )
 
 
@@ -245,6 +267,18 @@ class RouteResultBody(BaseModel):
             "opposite (a MapLibre bearing of -rotation_deg) so the drawing "
             "reads upright. 0 for a shape that turns freely, like the "
             "circle; each alternative has its own."
+        ),
+    )
+
+    # Missing from an older API, and in a GPX request from an older app.
+    placed_outline: list[list[tuple[float, float]]] = Field(
+        default_factory=list,
+        description=(
+            "The drawing as the engine placed it, in [lat, lon] lines (TASK-347, "
+            "ADR-0300): turned, scaled and moved by the search when free, left "
+            "where it was drawn when anchored; one closed line for a shape, one "
+            "open line per letter or piece with the pen up. The app draws it as "
+            "a ghost under the route. Empty on the water."
         ),
     )
 
@@ -537,6 +571,11 @@ class ImageRouteRequestBody(BaseModel):
     pen_up: bool = Field(
         default=False,
         description="Only for a word (TASK-197): true is refused, invalid_request.",
+    )
+    # Missing from an app of before TASK-347.
+    placement: str = Field(default="free", description=PLACEMENT_DESCRIPTION)
+    fit: float | None = Field(
+        default=None, description=FIT_DESCRIPTION, examples=[None]
     )
 
 

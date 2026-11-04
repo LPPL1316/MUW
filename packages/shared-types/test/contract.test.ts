@@ -107,16 +107,22 @@ type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 // the stretches with the bike on foot, optional too (TASK-206); nor the
 // distance where the shape comes out better (TASK-234); nor where a shape
 // on the water is wanted and where it is (TASK-238); nor how far the
-// shape is turned (TASK-232).
+// shape is turned (TASK-232); nor where the drawing goes and was placed
+// (TASK-347: `placement`, `fit`, `placed_outline`).
 // Member by member: a shape's request and a word's stay apart.
 type OlderRequest = RouteRequest extends infer R
   ? R extends RouteRequest
-    ? Omit<R, "pen_up" | "near">
+    ? Omit<R, "pen_up" | "near" | "placement" | "fit">
     : never
   : never;
 type OlderResult = Omit<
   RouteResult,
-  "walks" | "on_foot" | "better_distance_m" | "centre" | "rotation_deg"
+  | "walks"
+  | "on_foot"
+  | "better_distance_m"
+  | "centre"
+  | "rotation_deg"
+  | "placed_outline"
 >;
 const requestFields: Same<keyof typeof request, keyof OlderRequest> = true;
 const resultFields: Same<keyof typeof result, keyof OlderResult> = true;
@@ -126,29 +132,43 @@ const wordFields: Same<keyof typeof wordRequest, keyof OlderRequest> &
 const cyclingFields: Same<keyof typeof cyclingRequest, keyof OlderRequest> = true;
 // A paddling route (TASK-191): the same fields again.
 const paddlingFields: Same<keyof typeof paddlingRequest, keyof OlderRequest> = true;
-const penUpFields: Same<keyof typeof penUpRequest, keyof Omit<RouteRequest, "near">> &
-  Same<keyof typeof penUpShapeRequest, keyof Omit<RouteRequest, "near">> &
+type PenUpRequest = Omit<RouteRequest, "near" | "placement" | "fit">;
+const penUpFields: Same<keyof typeof penUpRequest, keyof PenUpRequest> &
+  Same<keyof typeof penUpShapeRequest, keyof PenUpRequest> &
   Same<
     keyof typeof penUpResult,
-    keyof Omit<RouteResult, "on_foot" | "better_distance_m" | "centre" | "rotation_deg">
+    keyof Omit<
+      RouteResult,
+      "on_foot" | "better_distance_m" | "centre" | "rotation_deg" | "placed_outline"
+    >
   > = true;
 // A shape moved on the water (TASK-238): every field of the request, and of
 // the result that says where the shape is, before TASK-232.
-const movedFields: Same<keyof typeof paddlingNearRequest, keyof RouteRequest> &
-  Same<keyof typeof paddlingResult, keyof Omit<RouteResult, "rotation_deg">> = true;
+const movedFields: Same<
+  keyof typeof paddlingNearRequest,
+  keyof Omit<RouteRequest, "placement" | "fit">
+> &
+  Same<
+    keyof typeof paddlingResult,
+    keyof Omit<RouteResult, "rotation_deg" | "placed_outline">
+  > = true;
 // A bike route walked in part (TASK-206): every field before TASK-234, its
 // alternative too.
-type BikeResult = Omit<RouteResult, "better_distance_m" | "centre" | "rotation_deg">;
+type BikeResult = Omit<
+  RouteResult,
+  "better_distance_m" | "centre" | "rotation_deg" | "placed_outline"
+>;
 const cyclingResultFields: Same<keyof typeof cyclingResult, keyof BikeResult> &
   Same<keyof (typeof cyclingResult.alternatives)[number], keyof BikeResult> = true;
 // A route with a better distance (TASK-234): every field before TASK-232,
 // its alternative too.
-type BetterResult = Omit<RouteResult, "rotation_deg">;
+type BetterResult = Omit<RouteResult, "rotation_deg" | "placed_outline">;
 const betterFields: Same<keyof typeof betterResult, keyof BetterResult> &
   Same<keyof (typeof betterResult.alternatives)[number], keyof BetterResult> = true;
-// A tilted route (TASK-232): every field, its alternative too.
-const tiltedFields: Same<keyof typeof tiltedResult, keyof RouteResult> &
-  Same<keyof (typeof tiltedResult.alternatives)[number], keyof RouteResult> = true;
+// A tilted route (TASK-232): every field before TASK-347, its alternative too.
+type TiltedResult = Omit<RouteResult, "placed_outline">;
+const tiltedFields: Same<keyof typeof tiltedResult, keyof TiltedResult> &
+  Same<keyof (typeof tiltedResult.alternatives)[number], keyof TiltedResult> = true;
 const trackFields: Same<
   keyof typeof trackScoreRequest,
   keyof Omit<TrackScoreRequest, "walks">
@@ -186,7 +206,7 @@ const imageFields: Same<keyof typeof imageOutlineRequest, keyof ImageOutlineRequ
   > &
   Same<
     keyof typeof imageRouteRequest,
-    keyof Omit<ImageRouteRequest, "strokes" | "pen_up">
+    keyof Omit<ImageRouteRequest, "strokes" | "pen_up" | "placement" | "fit">
   > &
   Same<keyof typeof imageResult, keyof OlderResult> &
   Same<keyof typeof imageError.error, keyof ApiError["error"]> = true;

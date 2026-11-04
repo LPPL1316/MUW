@@ -43,13 +43,14 @@ function locationOptions(config: Record<string, any>): Record<string, unknown> {
   return entry[1];
 }
 
-it("the iPhone fingerprint reads the config as build 7 had it", () => {
+it("the iPhone fingerprint reads the config without the Android settings", () => {
   const config = expoConfig();
   // The package name of part B is in app.json: taken out as well.
   expect(config.android.package).toBe("app.getmuw.android");
   const read = JSON.parse(transform("expoConfig", stringifyJsonSorted(config))!);
 
-  // The options and the Android permissions of the 1.0 build, no more.
+  // The options of the 1.0 build, and its Android permissions with those the
+  // contacts' plugin adds since the 1.0.1 (TASK-321 B).
   expect(Object.keys(locationOptions(read)).sort()).toEqual([
     "isIosBackgroundLocationEnabled",
     "locationWhenInUsePermission",
@@ -58,6 +59,8 @@ it("the iPhone fingerprint reads the config as build 7 had it", () => {
     "android.permission.ACCESS_COARSE_LOCATION",
     "android.permission.ACCESS_FINE_LOCATION",
     "android.permission.MODIFY_AUDIO_SETTINGS",
+    "android.permission.READ_CONTACTS",
+    "android.permission.WRITE_CONTACTS",
   ]);
   expect(read.android.package).toBeUndefined();
   // Written as the fingerprint writes a config that never had them.

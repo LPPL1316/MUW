@@ -714,6 +714,103 @@ Su 4 percorsi appena pianificati (Trento, Bologna, con le alternative) le
 indicazioni ricavate dai punti sono identiche a quelle del motore: nodo,
 svolta, via, `along` e distanza.
 
+### Il disegno ancorato e i tratti (TASK-347 parte A)
+
+Chi disegna a mano sulla mappa (TASK-331) vuole «la strada che disegna
+questa forma qui», non una forma spostata, girata e riscalata dove le
+strade la disegnano meglio (§5). Dal TASK-347 (ADR-0300) il motore ha una
+**modalità ancorata**, in due moduli nuovi accanto ai suoi:
+`stroke_match.py` e `anchored.py`. Nessun file del motore di prima cambia:
+i due moduli restano fuori dall'impronta del motore che l'API usa per
+tenere gli esempi disegnati (`route_store.ANCHORED_ONLY`, come
+`SWIM_ONLY` per il nuoto), perché niente di ciò che disegnano viene mai
+tenuto: un disegno ancorato è dell'utente, come il contorno di una foto.
+
+**Un tratto** (`stroke_match.snap_stroke(line, graph, activity, fit,
+start_node)`): la stessa procedura di §4, zone e corridoio, su una
+polilinea **aperta** in WGS84, senza chiusura e senza ricerca. Il percorso
+parte da `start_node`, il nodo dove è finito il tratto prima (così i tratti
+si collegano lungo le strade da soli), o dal nodo più vicino al primo
+punto; passa per una zona attorno a ogni **ancora** del tratto e finisce
+nella zona dell'ultimo punto. Le ancore sono i vertici che Douglas-Peucker
+tiene entro un quarto della fascia (`thin`), al più 64 (`MAX_ANCHORS`,
+quanti i punti di una forma): un tratto di centinaia di punti costa al più
+64 passi di routing. Dove il tratto torna su sé stesso entro la fascia le
+strade appena usate non costano di più (come i tratti di una forma,
+ADR-0039): si torna sulla stessa strada. Gli speroni interni si potano
+come per una forma; restano le **punte** (dove il tratto gira più di 60°)
+e i due capi, che sono ciò che lo disegna, e il capo finale è da dove
+parte il tratto dopo. Il risultato (`StrokeMatch`) dà i punti del
+percorso, per ogni punto disegnato la distanza dal percorso (`away_m`: l'app
+colora i punti lontani) e `off_roads`, vero quando la distanza media
+punto→nodo supera la soglia della rete rada di §4 (`SPARSE_THRESHOLD_M`,
+150 m): il tratto è in campagna, l'aggancio è un'ipotesi. Tutti i punti
+col medesimo nodo più vicino, e nessun altro nodo di partenza:
+`CollapsedShapeError`, come per un contorno. Un grafo della rete sbagliata
+è rifiutato come sempre (`check_network`).
+
+**Il magnete** (`fit`, in [0, 1]) è la forza con cui le strade seguono il
+disegno: raggio delle zone e fascia del corridoio sono una stessa quota
+della **lunghezza del tratto**, fra lo **0,5 %** a `fit` 0 (`TIGHT_SHARE`,
+fedele al disegno: su 3 km, 15 m, un dito a zoom 16) e il **2 %** a `fit` 1
+(`LOOSE_SHARE`, i valori di oggi, `ZONE_RADIUS` e `CORRIDOR_BAND`: 60 m, un
+dito a zoom 13–14, dove si disegnano i 5 km), in proporzione; mai meno di
+**10 m** (`FLOOR_M`: un dito non è più preciso, e una fascia di un metro
+peserebbe ogni strada solo per la sua distanza). Senza `fit`, 1
+(`DEFAULT_FIT`): un disegno ancorato senza magnete è il tracciamento di
+`--no-optimize` (TASK-017), punto per punto. Il magnete stretto segue il
+dito anche dove fa un giro che la strada dritta non fa; quello largo prende
+la strada dritta a 60 m dal dito. Le due quote e il pavimento sono scelte
+dell'agente su delega dell'utente (ADR-0300, aggiunta parte A), da tarare
+sul telefono nella parte C.
+
+**Il disegno intero** (`anchored.plan_anchored(shape, name, start,
+distance_m, source, fit=, activity=, one_way=, word=)`): `plan_shape`
+senza ricerca. La forma si proietta come il piazzamento iniziale (§3):
+primo punto sulla partenza, dritta, alla scala per cui il perimetro è la
+distanza chiesta (il doppio per una linea `one_way`, di cui si tiene
+l'andata, TASK-041); si aggancia una volta con zone e fascia del magnete;
+la distanza si **controlla e non si corregge**: oltre il ±10 %
+(`DISTANCE_TOLERANCE`) il risultato lo dice in `warnings` («on the roads
+the drawing is 5.6 km, 12% longer than the 5 km drawn; anchored, it is not
+rescaled») e il percorso arriva comunque. Riscalare la figura ancorata per
+far tornare la distanza tradirebbe «l'ho disegnato qui» (ADR-0300). Una
+parola a penna alzata si traccia lettera per lettera con `pen_up.trace` e
+le sue zone (il magnete non la tocca). I passi dopo il tracciamento
+(controlli, misure, `on_foot`) ripetono quelli di `plan_shape`, come fa
+già `ShapeJob.here` (ADR-0071). Il piano (`AnchoredPlan`, un `Plan` senza
+`search`) porta i nodi del percorso, per le indicazioni, e **la forma come
+piazzata** (`placed`): l'API la manda all'app come `placed_outline`, una
+linea chiusa, o una per lettera o pezzo a penna alzata (`placed_lines`), e
+fa lo stesso per un percorso cercato con la forma dove la ricerca l'ha
+messa (`plan.search.best.shape`): così il disegno resta sulla mappa come
+fantasma sotto il percorso, e non sparisce più quando il percorso arriva
+(TASK-282, assorbito). Sull'acqua niente ancoraggio: non ci sono strade
+(`ANCHORED_ON_LAND_ONLY`); il magnete solo con un disegno ancorato
+(`FIT_WITH_ANCHORED_ONLY`): la ricerca ha le sue zone (ADR-0039).
+
+Da riga di comando, offline coi grafi in cache (§7):
+
+```
+python -m route_engine.anchored --stroke tratto.json --from 46.0702,11.1265 \
+    --fit 0.5 --cache-dir data/cache
+python -m route_engine.anchored --shape heart --distance 5000 \
+    --start 46.0671,11.1214 --fit 0.5 --out heart_anchored.gpx --json
+```
+
+`--stroke` legge una lista JSON di punti `[lat, lon]` (o il corpo di una
+`StrokeMatchRequest`) e stampa il `StrokeMatch` come JSON; `--shape` e
+`--outline` stampano il resoconto e, con `--json`, il risultato con
+`placed_outline`. I tempi misurati stanno in `tasks/TASK-347.md`, parte A.
+
+Test deterministici: `tests/test_stroke_match.py` (griglie: un tratto
+dritto, una W con le punte, il tratto che parte dal nodo di prima, magnete
+stretto contro largo, andata e ritorno, campagna, un nodo solo, 451 punti
+in 64 ancore, una strada vera di Levico), `tests/test_anchored.py` (il
+disegno dove è, la distanza non corretta, lo stesso tracciamento di
+`--no-optimize`, una parola a penna alzata, la CLI) e
+`tests/test_contract_anchored.py` (le fixture del contratto).
+
 ## 5. Ottimizzazione e somiglianza
 
 La forma non si disegna a scala e rotazione fisse: si adatta alle strade

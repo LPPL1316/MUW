@@ -222,6 +222,7 @@ export function RunEnd({
             onRemovePhoto={(photo) =>
               setPhotos((was) => was.filter((other) => other.n !== photo.n))
             }
+            imported={imported !== undefined}
             pick={pick}
             fetchFn={fetchFn}
             apiKey={apiKey}

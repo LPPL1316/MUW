@@ -37,7 +37,7 @@ test("signed in: the routes the API recommends, in its order, in one row", async
   const shown = screen.getAllByText(/ @/).map((node) => String(node.props.children));
   expect(shown).toEqual(reversed.map((r) => `${r.id} @${width}`));
   const [url, init] = fetchFn.mock.calls[0];
-  expect(String(url)).toContain("/recommended?lat=46.067&lon=11.1215");
+  expect(String(url)).toContain("/recommended?lat=46.07&lon=11.12");
   expect((init?.headers as Record<string, string>).Authorization).toBe("Bearer tok");
 });
 

@@ -35,11 +35,24 @@ test("the example of the API is what the app reads", () => {
 test("the query says where the phone is, then the cursor", () => {
   expect(feedPath({})).toBe("/feed");
   expect(feedPath({ cursor: null, near: null })).toBe("/feed");
-  expect(feedPath({ near: [46.0671, 11.1214] })).toBe("/feed?lat=46.0671&lon=11.1214");
+  expect(feedPath({ near: [46.0671, 11.1214] })).toBe("/feed?lat=46.07&lon=11.12");
   expect(feedPath({ cursor: page.next })).toBe(`/feed?cursor=${page.next}`);
   expect(feedPath({ cursor: page.next, near: [46.0671, 11.1214] })).toBe(
-    `/feed?lat=46.0671&lon=11.1214&cursor=${page.next}`,
+    `/feed?lat=46.07&lon=11.12&cursor=${page.next}`,
   );
+});
+
+test("the point never leaves the phone with more than two decimals", () => {
+  expect(feedPath({ near: [-33.86785, 151.20732] })).toBe(
+    "/feed?lat=-33.87&lon=151.21",
+  );
+  expect(feedPath({ near: [46.5, -0.001] })).toBe("/feed?lat=46.5&lon=0");
+  // Every page of one read says the same point.
+  const near: [number, number] = [46.0671, 11.1214];
+  const first = new URLSearchParams(feedPath({ near }).split("?")[1]);
+  const next = new URLSearchParams(feedPath({ near, cursor: page.next }).split("?")[1]);
+  expect(next.get("lat")).toBe(first.get("lat"));
+  expect(next.get("lon")).toBe(first.get("lon"));
 });
 
 test("a page is asked with the token, the next after the cursor", async () => {
@@ -62,10 +75,10 @@ test("a page is asked with the token, the next after the cursor", async () => {
   );
   expect(second).toEqual({ kind: "ok", value: { ...page, next: null } });
   const [url, init] = fetchFn.mock.calls[0];
-  expect(url).toBe("http://api/feed?lat=46.0671&lon=11.1214");
+  expect(url).toBe("http://api/feed?lat=46.07&lon=11.12");
   expect(init).toMatchObject({ method: "GET", headers: AUTH });
   expect(fetchFn.mock.calls[1][0]).toBe(
-    `http://api/feed?lat=46.0671&lon=11.1214&cursor=${page.next}`,
+    `http://api/feed?lat=46.07&lon=11.12&cursor=${page.next}`,
   );
 });
 

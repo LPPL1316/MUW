@@ -65,7 +65,7 @@ export function ActivityCard({ activity, onList, onDelete }: Props) {
         )}
       </Text>
       {!confirming && <SharePostButton makeRun={() => postOfActivity(activity)} />}
-      {!confirming && <PublicRow activityKey={activity.id} />}
+      {!confirming && <PublicRow activityKey={activity.id} imported={imported} />}
       {!confirming && !imported && <StravaActivityRow activity={activity} />}
       {!confirming && (
         <SendDrawingButton

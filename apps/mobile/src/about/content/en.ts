@@ -11,8 +11,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 October 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320) and the activities added from a file (TASK-312 B) entered. */
-const PRIVACY_UPDATED = "30 October 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320), the activities added from a file (TASK-312 B) and Apple Health and Health Connect (TASK-321 B) entered. */
+const PRIVACY_UPDATED = "2 November 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -399,7 +399,7 @@ const privacy: AboutDocument = {
     {
       heading: "Your position",
       blocks: [
-        "The phone's position is used on the phone, to start a route where you are and to follow your run. It goes to our server as the start of a route you ask for, inside a run you save, and with a search for a place, to put the places near you first.",
+        "The phone's position is used on the phone, to start a route where you are and to follow your run. It goes to our server exactly as it is as the start of a route you ask for, as the start of the shapes the app prepares for you nearby when the phone cannot draw them itself, and inside a run you save. It goes rounded to about 1 km to find the offline map around you, recommended routes, towns and drawings nearby, and to put the places near you first in a search; rounded like this it is not kept with your account.",
         "On iPhone, during a run you started, the app keeps following your position also with the phone locked or another app open, until you stop the run; the iPhone shows it with a blue mark at the top of the screen. MuW asks for the position only while you use the app, never «Always».",
         "Like any internet service, our server sees the internet (IP) address a request comes from while it answers it. The server's log does not write positions, and the database holds no IP addresses.",
         "A register of the route requests, with their start, exists to reproduce a defect. It is off on our server; switched on, it holds at most 10 MB, then the oldest lines are lost.",
@@ -418,13 +418,22 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Health and Health Connect",
+      blocks: [
+        "Once you turn on «Save to Apple Health» (iPhone) or «Save to Health Connect» (Android), every activity you save is also written there, on your phone: the sport, when it started and ended, the distance, the route and, for a run, the estimated active calories. MuW never reads your health data, and nothing from them reaches our server or any advertising. You can stop it in the Health app or in Health Connect. What is already there stays until you delete it there, also when you delete the run or your account.",
+      ],
+    },
+    {
       heading: "Others who receive data",
       blocks: [
         {
           bullets: [
             "Hetzner hosts our server and its backups, in Germany.",
-            "Geoapify receives the searches for places and for the towns near you, with the position, and, to name the place of a saved run, its start rounded to about 1 km: never your door, the run or who you are. If our server does not answer, a place search goes to Photon (komoot) instead.",
+            "Geoapify receives the searches for places, for the towns near you and for the places of a themed route, with the position rounded to about 1 km, and, to name the place of a saved run, its start rounded the same way: never your door, the run or who you are. If our server does not answer, a place search goes to Photon (komoot) instead.",
             "OpenFreeMap serves the map: like any map service, it sees which area you look at.",
+            "Apple on an iPhone, or Google on Android, through the phone's own address service, receives the position «Draw» starts from, to write the name of its street. MuW sends it nothing else and does not keep the name.",
+            "Wikimedia serves our server the photos of towns: it sees which town, not who asked.",
+            "With the «Satellite» map Esri serves the images, and with the «3D» map Amazon Web Services serves the heights: like any map service, they see which area you look at.",
             "The Overpass service of OpenStreetMap data is asked by our server for the map of an area it does not have yet: it sees which area, not who asked.",
             "unpkg serves the map library when the app starts.",
             "Expo serves the app's updates.",
@@ -457,7 +466,7 @@ const privacy: AboutDocument = {
           bullets: [
             "To give you the service you ask for (contract): your account, your profile, the routes you ask for, the runs, favorites, comments, reactions and follows you save, the emails of the notifications you turned on, and the shape game.",
             "Our legitimate interest in keeping MuW working, safe and better: the server's short logs, the counts that cap the map downloads, and the search events, which say nothing about who you are; the comparison of your contacts' numbers, which keeps none of them; the email when you are away, which you can refuse at sign-up, in «Settings» or in each email; the reports' emails, to keep MuW safe; the archive of drawn routes, which says nothing about who you are; the messages of «Send feedback», to read them and answer you.",
-            "Your consent: the phone number you choose to add and the connection to Strava. You can take a consent back at any time; what was done before stays lawful.",
+            "Your consent: the phone number you choose to add, the connection to Strava and saving your activities to Apple Health or Health Connect. You can take a consent back at any time; what was done before stays lawful.",
             "A legal obligation, when a law asks us to keep or hand over data.",
           ],
         },

@@ -160,11 +160,51 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-367 — La navigazione come Instagram: la barra di schede in basso e
+  un header solo** (ADR-0311, proposta; brief dell'utente del 2026-11-02;
+  numeri dal Coordinatore). Branch `docs/TASK-367-tab-bar` (documenti).
+  Scelte dell'utente: l'immagine («Sì, così»), la campanella con una lista vera
+  in una parte C («Aspetta la lista vera»), icone PNG da Lucide, testi della
+  parte A («Sì, approvo»), le statistiche del Profilo come oggi («Sì,
+  restano»). Parte A (solo
+  app, `App.tsx`) col via del Coordinatore dopo TASK-355 A e 362; B dopo 344 B;
+  C con server e migrazione, col sì dell'utente. `tasks/TASK-367.md`.
+- **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
+  proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
+  Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
+  fatte: distanze a piedi (5K–60K, maratona compresa) e in bici (10–160 km),
+  tutte le attività anche private e importate, visibili a tutti con tempo e
+  data, la corsa privata resta chiusa, testi di Guida e privacy approvati.
+  Parte A (calcolo, cache, API, migrazione) e B (Profilo) dopo TASK-367 A, col
+  via del Coordinatore; server, migrazione e sito col sì dell'utente.
+  `tasks/TASK-368.md`.
+
+- **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
+  dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
+  `docs/TASK-365-muw-routes-in-feed` (documenti). Dodici bozze in bici in
+  `out/muw-bike-drafts/`, nessuna approvata e nessuna pubblicata. Le scelte
+  dell'utente sono tutte aperte; il codice parte col via del Coordinatore, dopo
+  TASK-362 e TASK-355 A. `tasks/TASK-365.md`.
+
+- **TASK-356 — La posizione nel Feed: arrotondata, e detta nella privacy**
+  (ADR-0306, punto 4; testo approvato dall'utente il 2026-10-30). Branch
+  `fix/TASK-356-feed-position`. Sito e OTA di produzione con il suo sì.
+  `tasks/TASK-356.md`.
+  **Chiuso il 2026-10-31**: #682 in `main`; sito e OTA di produzione ancora da pubblicare.
+- **TASK-363 — Dove va la posizione del telefono: la verifica e il testo**
+  (ADR-0306, punto 4; numero dal Coordinatore). Verifica fatta, proposta
+  unica all'utente; codice solo col suo sì. Branch
+  `docs/TASK-363-position-audit`. `tasks/TASK-363.md`.
+  Approvata il 2026-10-30 («Sì, approvo tutto»); codice in
+  `fix/TASK-363-position`. Server, sito e OTA: tre sì a parte.
 - **TASK-362 — Le schede del Feed: «Tutti» e «Seguiti»** (ADR-0308, proposta;
   richiesta dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
   `docs/TASK-362-feed-tabs` (documenti). Sostituiscono i filtri di TASK-355 B
   («Sì, sostituiscono»). Le scelte dell'utente stanno nel task file; il codice parte col via
   del Coordinatore, primo nella coda su `FeedScreen.tsx`. `tasks/TASK-362.md`.
+  2026-11-02: codice pronto in PR da `feat/TASK-362-feed-tabs` (filtro sul
+  server, schede sul `Segmented`, nessuna migrazione). Prima dell'OTA va
+  aggiornato il server, col sì dell'utente. Dopo: 344 B, 355 B ridotta, 309 B.
 
 - **TASK-353 — La chat: orari, giorni, quanti messaggi nuovi, i vecchi
   scorrendo** (ADR-0305; piano confermato dall'utente il 2026-10-30, «Sì,
@@ -188,7 +228,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `a6d8cf1d (il codice; poi la privacy e i documenti)`): la mappa sotto nel look Night, la riserva gialla senza mappa,
   provata in Expo Go, impronta `83793e26` invariata; prima dell'OTA di
   produzione l'utente esporta un video vero sull'iPhone dalla preview e
-  vede la mappa (condizione del Coordinatore). Senza mappa il video
+  vede la mappa (condizione del Coordinatore). 2026-11-03: la B è in
+  `main` (#679) ma sul telefono il video è uscito senza mappa: il WebView
+  fuori vista non riceve fotogrammi di animazione e MapLibre non carica;
+  fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
+  un timer, il WebView è un punto visibile), riprodotto e provato nel
+  simulatore; la prova dalla preview è dell'utente. Poi la C. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
@@ -202,6 +247,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   già la posizione e «Your position» non lo dice: lo chiude TASK-356, dopo
   la #668, con il testo già approvato; sito e OTA di produzione con il suo
   sì. `tasks/TASK-355.md`.
+  **Parte A in PR #700** (2026-11-03, branch `feat/TASK-355-a-feed-card`): la
+  scheda con luogo e data, un titolo solo, pallino e bandierina sulla traccia
+  tagliata, il credito in una riga, la miniatura sulle foto, la barra
+  «Comments», «Reactions», «Share» (solo i propri), «Draw it near me»
+  (`feed/RouteMap.tsx`, `ActionBar.tsx`, `drawAgainDoor.ts`), il filo sotto i
+  nomi in `Pager`. Impronta iOS `83793e26`. Prossimo: la parte B (conteggi,
+  foto dell'autore, skeleton), dopo 344 B.
 - **TASK-339 — L'interfaccia premium ed elegante** (ADR-0293, proposta;
   brief dell'utente del 2026-10-29; il canvas della proposta, 16 tavole,
   visto e approvato a voce la sera stessa, «BELLISSIMO»:
@@ -224,6 +276,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `cardTitle` e i nomi medium, `Tap` al posto dell'opacità, `Hairline`
   prima delle azioni, la distanza delle schede di «Explore» in `display`;
   prima/dopo in `tasks/TASK-339/b-*.jpg`. Poi C.
+- **TASK-343 B — Le sfide del mese nell'app** (branch
+  `feat/TASK-343-b-themed-contest-app`): scheda, pagina, galleria, «Past
+  challenges», interruttore nel modulo, tocco delle tre push, regolamento. Con
+  l'API di oggi (c7a83347, senza 0039) l'app resta com'è. Testi e regolamento
+  approvati dall'utente (2026-10-30, «Approve them all» e «sì testi 667»); provata
+  nel simulatore con un tema e col server di oggi (esito nel task file). Dopo il
+  merge resta una riga: montare `EnterOnPost` in `DrawingCard`, dopo TASK-339 B e
+  su parola del Coordinatore.
+  Il server con la 0039 lo decide l'utente, insieme a questa parte.
   **Parte B in `main` dal 2026-10-30** con la #677 (`4faeceb2`, 23:16 CET,
   mergiata al verde: tutte le 557 suite dell'app verdi anche nella copia
   pulita). Poi C.
@@ -232,6 +293,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   liberi i 51 `pressed` passano a `Tap`, le divisioni a `Hairline` o a un
   pixel di `hairline`, `Tap` prende un `ref`. La C1 (pagine vuote, testi
   nuovi) aspetta il sì dell'utente sui testi; poi D.
+- **TASK-361 — «Draw» in tre secondi** (ADR-0307; richiesta dell'utente
+  del 2026-10-30; numeri dal Coordinatore). Un solo giallo («Run without a route» con contorno e 🏃),
+  la via della partenza, la griglia a due righe, la forma in scala, mezzo
+  km per passo col tempo stimato, il testo del pulsante, la vibrazione
+  solo dove c'è il nativo (`expo-haptics` escluso dall'autolinking,
+  impronta iOS `83793e26` invariata). **Parte A in PR, #675**, bozza
+  (branch `feat/TASK-356-draw-redesign`, nome rimasto dal numero di
+  prima): i pezzi in file nuovi e `ChooseScreen`. **Parte B** (`RoutePanel`,
+  `App.tsx`, `Segmented`) pronta col via del Coordinatore del 2026-10-31,
+  dopo la #661: entra da `main` dopo la #675. Prende il posto della parte E
+  di TASK-339. La riga di privacy sul geocoder del telefono e i testi
+  nuovi approvati dall'utente il 2026-10-30 («sì 1 e sì 2»), nell'app e
+  sul sito. `tasks/TASK-361.md`.
+  Data della privacy corretta al 2 novembre 2026 (2026-11-03, sì
+  dell'utente), app e sito, branch `fix/TASK-361-privacy-date`.
 - **TASK-343 — Le sfide del mese: un tema sul concorso, l'iscrizione,
   la galleria, l'archivio** (ADR-0296, estende ADR-0260; richiesta
   dell'utente del 2026-10-29, proposta approvata con «Yes, as proposed»;
@@ -244,8 +320,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `tasks/TASK-343.md`. **A in `main`** (#657, `5303a198`, 2026-10-30, migrazione
   0039): **il server non è aggiornato**, serve la 0039 e lo decide l'utente.
   I testi delle tre push: sì dell'autopilota, «accettati su delega
-  dell'utente del 2026-10-29, da rivedere»; parlano solo di corsa. **B da
-  fare**, i file prima al Coordinatore (TASK-339 B).
+  dell'utente del 2026-10-29, da rivedere»; parlano solo di corsa. **B nella
+  PR #667**, la voce sopra.
 - **TASK-341 — I badge sul profilo: primo disegno, 10 disegni, 30 km**
   (ADR-0294; richiesta dell'utente del 2026-10-29, proposta approvata con
   «Yes, as proposed»; numeri dal Coordinatore). Branch
@@ -282,6 +358,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Resta**: il merge dei documenti, poi la parte A nella sua sessione.
   Non si sovrappone a TASK-346 (i nodi della traccia vera). File
   `tasks/TASK-347.md`.
+  **Parte A** (branch `feat/TASK-347-a-engine-anchored`, 2026-10-30): nel
+  motore due moduli nuovi e nessun file di prima toccato, così l'impronta
+  del motore e gli esempi tenuti restano (`route_store.ANCHORED_ONLY`,
+  condizione del Coordinatore): `stroke_match.snap_stroke` (zone e corridoio
+  su un tratto aperto, magnete `fit` fra lo 0,5 % e il 2 % della lunghezza,
+  64 ancore, `away_m`, `off_roads`) e `anchored.plan_anchored` (il disegno
+  dov'è, tracciato una volta, distanza controllata e non corretta,
+  `placed_outline`), con `python -m route_engine.anchored`. API: `POST` e la
+  sonda `GET /stroke-matches`, `placement`/`fit` sulle richieste e
+  `placed_outline` sui risultati (campi dell'API: `AnchoredRouteRequest`,
+  `ImageRequest`), indicazioni anche senza ricerca, `on_phone.match_json`
+  per la parte B; l'archivio non tiene un disegno ancorato. Contratto e
+  fixture in `shared-types`; `engine.zip` rifatto. Tempi in
+  `tasks/TASK-347.md`. **Prossimo**: parte B (il telefono).
 - **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297;
   richiesta dell'utente del 2026-10-29, sei scelte approvate con «Sì,
   vai»; numeri dal Coordinatore). Prima questa PR dei documenti
@@ -412,6 +502,44 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   MuW non ha («Per C» nel task file).
   A in `main`: #615, merge `8d8c4dde` (2026-10-28), impronte misurate anche
   sull'albero unito con `main`: iOS `83793e26…`, Android `e2d33497…`.
+  **B scritta** (2026-10-29, branch `feat/TASK-321-b-health-ios`, PR in
+  bozza): entitlement HealthKit e testo del permesso in `app.json` e nelle
+  cinque lingue, le tre librerie dell'iPhone collegate solo su iOS, la
+  privacy approvata (anche `site/privacy/`). Impronta iOS nuova
+  `fd0cbb43…`; si muove anche quella Android (`e9a0bda0…`, solo per la
+  configurazione). **Non si unisce prima del taglio della 1.0.1**, che
+  decide il Coordinatore. Capability, build, invio e riga dello store col
+  sì dell'utente, ognuno.
+  Sul simulatore (2026-10-29), dopo «Save», l'allenamento è in Fitness con
+  la mappa; testo del permesso e privacy nelle cinque lingue approvati
+  dall'utente; la data della privacy sarà quella del merge. L'impronta
+  Android si muove con la 1.0.1 (scelta del Coordinatore). Resta l'anello
+  Movimento sull'iPhone. Il 2026-10-29 l'utente ha detto sì anche a
+  capability HealthKit, build, invio ad Apple e riga dell'App Store: valgono
+  al taglio della 1.0.1.
+  **Pronta per il taglio della 1.0.1** (2026-10-30, #620 in bozza, riallineata
+  su `main` `477bdb68`): Apple Salute, contatti e selettore di file, senza
+  l'accesso con Apple e Google (scelta dell'utente), più il testo per leggere
+  il battito di TASK-345 C, approvato dall'utente nelle cinque lingue. Impronta
+  iOS `67253126…`, Android `8aac71c3…`; `main` resta `83793e26…` fino al merge,
+  che arriva dopo l'approvazione di Apple: la build si fa dal branch. Provate
+  sul simulatore con la build nativa scrittura, lettura, contatti e selettore.
+  Prossimo: build e invio, ognuno col sì dell'utente chiesto dal Coordinatore
+  («Health» in App Privacy e la frase nuova della privacy vanno con l'update
+  che accende TASK-345 C, scelta dell'utente); prima, sull'iPhone, l'anello Movimento, la rubrica
+  e «From a file». Dettagli in `tasks/TASK-321.md`.
+  **Riallineata** il 2026-11-01 su `main` `bd9af711` (testa `7ee6091e`):
+  privacy datata 1° novembre 2026, impronte invariate (iOS `67253126…`,
+  Android `8aac71c3…`), test locali verdi.
+  **Pronta per la build** (2026-11-02, l'utente ha chiesto la build): su
+  `main` `74f34e79`, con `expo-haptics` acceso (scelta dell'utente), privacy
+  datata 2 novembre 2026; impronta iOS `6f8bba4c…`, Android `227457f3…`.
+  Simulatore con build Release: Salute, lettura, rubrica, selettore e
+  vibrazione funzionano. Resta in bozza; la build la lancia l'utente.
+  **Apple ha approvato la 1.0.1** (build 8, da `1b58707a`); «ok unisci»
+  dell'utente il 2026-11-04. Riallineata su `main` `8cc5005b`, impronta iOS
+  `6f8bba4c…` invariata; il merge lo fa il Coordinatore a CI verde. Da quel
+  momento gli update di produzione vanno alla 1.0.1.
 - **TASK-323 — Nuoto in acque libere, «Open water swim»** (ADR-0283,
   proposta; richiesta dell'utente del 2026-10-28, «parti proprio con il
   progetto secondo me funziona»; numeri e condizioni dal Coordinatore).
@@ -2130,6 +2258,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
+  (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
+  «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;
+  produzione con la #700, lanciata dall'utente. `tasks/TASK-364.md`.
+- **TASK-366 — Le finestre aperte dal Pager: solo «Edit the outline» stava sotto la barra di stato**
+  (2026-11-02; numero dal Coordinatore; seguito di TASK-360). Le sette finestre elencate da
+  TASK-360 aperte nel simulatore da dove si aprono davvero: solo `OutlineBoard` («Draw» → «Image»)
+  è dentro il `Pager` e aveva il difetto; ora ha un suo `SafeAreaProvider`. Le altre sei sono
+  fuori dal `Pager` e restano com'erano. Android no. Solo app, nessun testo nuovo, impronta iOS
+  83793e26. File: `tasks/TASK-366.md`.
+- **TASK-360 — Il regolamento del concorso senza tema non sta più sotto la barra di stato**
+  (2026-10-31; numero dal Coordinatore; difetto trovato provando TASK-343 B). Il `Pager` azzera
+  il margine alto delle sue pagine: `ContestRules` ora ha un suo `SafeAreaProvider`. Provato nel
+  simulatore con e senza tema; Android no. Solo app, nessun testo nuovo, impronta iOS 83793e26.
+  Altre finestre da guardare in `tasks/TASK-360.md`, «Fuori scope». File: `tasks/TASK-360.md`.
 - **App** — TASK-340 (aggiunta ad ADR-0288; scelta dell'utente del 2026-10-29: «TOGLI LA FUNZIONE MODIFICA IL DISEGNO IN DRAW, TIENI SOLO LA FUNZIONE DISEGNA A MANO L'IBERA SU MAPPA E METTILA PER PRUMA TRA FORMA PAROLA ED IMMAGINE»): in «Draw» l'interruttore è «Freehand | Shape | Word | Image» e «Freehand» apre subito la mappa per disegnare a mano (prima il tasto «Draw on the map» sotto l'interruttore); sotto il risultato di «Draw» non c'è più «Edit the drawing», che resta sulle schede di «Explore» e del Feed. Solo app, nessun testo nuovo («Freehand» con le traduzioni approvate per il TASK-320). Visto sul simulatore; manca la prova sull'iPhone con la prossima preview. `tasks/TASK-340.md`, «Esito».
 - **TASK-358 — Nei messaggi «Photo» e «Video» aprono la galleria** (2026-10-30; numero dal
   Coordinatore; bloccava l'update `production`). Su iOS la galleria presentata mentre il

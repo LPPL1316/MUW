@@ -4,12 +4,13 @@ import type {
   ContestMine,
   FeedPost,
 } from "@shaperoute/shared-types";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { RouteThumb } from "../explore/RouteThumb";
 import { turnedLine } from "../feed/turnedLine";
 import { t, tPlural } from "../i18n";
+import { useLanguage } from "../i18n/useLanguage";
 import { bearingOf } from "../map/turnedMap";
 import { useBlockedNow } from "../social/blockedNow";
 import {
@@ -20,15 +21,15 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { themedOf, themeText } from "./contestApi";
+import { openContestPage } from "./contestDoor";
 import { ContestRules } from "./ContestRules";
 import { contestTime, daysLeftText } from "./daysLeft";
+import { useClock } from "./useClock";
 
 /** The drawing of one of the first three, small. */
 const THUMB_WIDTH = 64;
 const THUMB_HEIGHT = 40;
-/** How often the phone's clock is read again: the last day turns into
- * «Ends today», and the end into «Ended», while the card is on the screen. */
-const CLOCK_MS = 60_000;
 
 type Props = {
   contest: Contest;
@@ -46,31 +47,52 @@ type Props = {
  * (a tap opens the post), the account's best post or how to take part,
  * and «How it works», which opens the official rules. Without an account
  * the card has no line of its own; once the contest has ended, until the
- * winner is proclaimed, it says so and no longer asks to take part.
+ * winner is proclaimed, it says so and no longer asks to take part. A
+ * monthly challenge (TASK-343 part B, recognised by its `theme`) has its
+ * title in place of «MuW contest», and its head and «See the challenge» open
+ * its page, where «How it works» is.
  */
 export function ContestCard({ contest, mine, onOpen }: Props) {
   const [rules, setRules] = useState(false);
   const now = useClock();
+  const language = useLanguage();
+  const themed = themedOf(contest);
   const ended = contestTime(contest.ends_at, now).kind === "ended";
   const own =
     mine === undefined || (mine === null && ended)
       ? null
       : mine === null
-        ? t("Publish a run to take part.")
+        ? themed === null
+          ? t("Publish a run to take part.")
+          : t("Publish a run and enter it to take part.")
         : tPlural(
             mine.reactions,
             "Your best post: #{rank}, {count} reaction",
             "Your best post: #{rank}, {count} reactions",
             { rank: mine.rank },
           );
+  const head = (
+    <View style={styles.head}>
+      <Text style={styles.title} accessibilityRole="header">
+        {themed === null ? t("MuW contest") : themeText(themed.theme, language).title}
+      </Text>
+      <Text style={styles.left}>{daysLeftText(contest.ends_at, now)}</Text>
+    </View>
+  );
   return (
     <View style={styles.card} testID="contest-card">
-      <View style={styles.head}>
-        <Text style={styles.title} accessibilityRole="header">
-          {t("MuW contest")}
-        </Text>
-        <Text style={styles.left}>{daysLeftText(contest.ends_at, now)}</Text>
-      </View>
+      {themed === null ? (
+        head
+      ) : (
+        <Pressable
+          style={({ pressed }) => [styles.opens, pressed && styles.pressed]}
+          onPress={() => openContestPage(contest.id)}
+          testID="contest-card-head"
+        >
+          <Text style={styles.what}>{t("Monthly challenge")}</Text>
+          {head}
+        </Pressable>
+      )}
       <Text style={styles.what}>{t("The post with the most reactions wins.")}</Text>
       {contest.top.length > 0 && (
         <View style={styles.top}>
@@ -80,31 +102,44 @@ export function ContestCard({ contest, mine, onOpen }: Props) {
         </View>
       )}
       {own !== null && <Text style={styles.own}>{own}</Text>}
-      <Pressable
-        style={({ pressed }) => [styles.how, pressed && styles.pressed]}
-        onPress={() => setRules(true)}
-        accessibilityRole="button"
-      >
-        <Text style={styles.howText}>{t("How it works")}</Text>
-      </Pressable>
-      <ContestRules contest={contest} visible={rules} onClose={() => setRules(false)} />
+      {themed !== null ? (
+        <SeeChallenge contestId={contest.id} />
+      ) : (
+        <>
+          <Pressable
+            style={({ pressed }) => [styles.how, pressed && styles.pressed]}
+            onPress={() => setRules(true)}
+            accessibilityRole="button"
+          >
+            <Text style={styles.howText}>{t("How it works")}</Text>
+          </Pressable>
+          <ContestRules
+            contest={contest}
+            visible={rules}
+            onClose={() => setRules(false)}
+          />
+        </>
+      )}
     </View>
   );
 }
 
-/** The phone's clock, read again every minute. */
-function useClock(): number {
-  const [now, setNow] = useState(Date.now);
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), CLOCK_MS);
-    return () => clearInterval(timer);
-  }, []);
-  return now;
+/** «See the challenge»: the page of a monthly challenge (TASK-343 part B). */
+export function SeeChallenge({ contestId }: { contestId: string }) {
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.how, pressed && styles.pressed]}
+      onPress={() => openContestPage(contestId)}
+      accessibilityRole="button"
+    >
+      <Text style={styles.howText}>{t("See the challenge")}</Text>
+    </Pressable>
+  );
 }
 
 /** One of the first three: its place, its drawing, who ran it, its
  * reactions. Gone at once when its author is blocked, as its post. */
-function TopRow({
+export function TopRow({
   entry,
   onOpen,
 }: {
@@ -157,6 +192,9 @@ const styles = StyleSheet.create({
     padding: space.md,
     borderRadius: radius.lg,
     backgroundColor: color.surface,
+  },
+  opens: {
+    gap: space.xs,
   },
   head: {
     flexDirection: "row",

@@ -263,19 +263,26 @@ pagine»):
 
 1. **«What to draw»**, all'apertura: la pagina «Draw». Dall'alto: il nome
    «MuW», con a sinistra il cuore su giallo (TASK-221, sopra), e il
-   pulsante «Run without a route» (TASK-149, sotto; «Ride
-   without a route» con «Bike», TASK-190); una
-   scheda che dice da dove partirà il percorso,
+   pulsante «🏃 Run without a route» (TASK-149, sotto; «🚴 Ride
+   without a route» con «Bike», TASK-190), col bordo e senza giallo dal
+   TASK-361 (ADR-0307): il giallo pieno è solo di «Draw route». Tre passi
+   numerati (TASK-361): **«1 START»**, la
+   scheda che dice da dove partirà il percorso («📍 Via Roma, Levico
+   Terme» col GPS),
    con, quando servono, il rimando alle Impostazioni e la ricerca del
-   luogo; l'errore della mappa; le forme del catalogo come tessere, con un
-   simbolo e il nome (quella scelta ha il bordo chiaro); il campo per
-   un'altra parola; la distanza, grande, fra − e +; subito sotto la
+   luogo; l'errore della mappa; **«2 WHAT YOU DRAW»**, le forme del
+   catalogo in una griglia di due righe con «See all» (quella scelta ha il
+   bordo chiaro), «Type another shape» per un'altra parola e la forma in
+   scala; **«3 DISTANCE»**, grande, fra − e + di mezzo km, col tempo
+   stimato sotto; subito sotto la
    distanza, mentre il server ha il gioco, la riga «PLAY» (TASK-327, sotto
    «“Play”: la collezione delle forme»); poi, con la corsa, «NEAR YOU»
    (TASK-306, sotto «Le forme pronte vicino a te»). Le due righe «CITY
    TOURS» e «PICTURES» di TASK-280 non ci sono più (TASK-329, ADR-0287): le
    idee stanno in «Ask for a route» di «Explore». In fondo, fermo mentre
-   il resto scorre, «Draw route». Sopra, solo mentre il telefono scarica
+   il resto scorre, «Draw route», che dice cosa disegna («Draw a 7.8 km
+   circle», TASK-361); la pagina finisce sotto di lui, così l'ultima
+   scheda non resta coperta. Sopra, solo mentre il telefono scarica
    le sue prime mappe (TASK-214, parte C), una riga piccola e grigia:
    «Downloading the maps of your area (10 MB) so routes work without
    signal.», con il peso vero; finito il download, sparisce.
@@ -590,13 +597,21 @@ disegni si rileggono, come quando «Profile» si apriva.
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
 - **«Feed»** è la pagina dei disegni che gli iscritti pubblicano
-  (TASK-118, ADR-0227; l'ordine è scelta dell'utente del 2026-10-07): con
-  un account, appena la pagina è sullo schermo, legge dall'API i disegni
-  che l'account può vedere, **i propri** prima, poi quelli **di chi
-  segue**, poi **i vicini** (entro 50 km da dove parte «Draw»; tutti,
-  senza posizione), dal più recente in ogni gruppo; tirando in giù si
-  rilegge dall'alto, arrivati in fondo si caricano gli altri, venti alla
-  volta. La scheda è quella degli esempi: nome di chi ha corso e luogo
+  (TASK-118, ADR-0227). Con un account ha **due schede** in alto, ferme mentre
+  la lista scorre, con la lente accanto (TASK-362, ADR-0308): **«All»**, i
+  disegni per tutti, e **«Following»**, i propri e quelli di chi si segue; in
+  entrambe dal più recente, senza gruppi e senza posizione. Ogni scheda ha la
+  sua lista, la sua posizione e le sue pagine: cambiare scheda non rilegge, e
+  l'ultima scelta si riapre al prossimo avvio (un file sul telefono, mai al
+  server). Tirando in giù si rilegge la scheda aperta, arrivati in fondo si
+  caricano altri venti disegni. In «Following»: chi non segue nessuno legge
+  «Follow people to see their drawings here.» e il pulsante «Find people to
+  follow», che apre «Find friends», sopra i propri disegni se ne ha; chi segue
+  qualcuno senza disegni ha il suo messaggio; gli esempi qui non compaiono mai.
+  Se una lettura non arriva, «Couldn't load the Feed.» con «Try again», al posto
+  degli esempi. Con un'API che non conosce ancora le schede (la pagina non dice
+  la sua scheda) le schede spariscono e resta il feed che l'API manda. Senza account non ci sono schede: solo «All» con gli esempi
+  (ADR-0127), che con un account restano solo a «All» vuoto. La scheda è quella degli esempi: nome di chi ha corso e luogo
   (senza luogo, solo il nome), la linea gialla sulla mappa, il titolo o,
   senza titolo, il giorno della corsa, e «Star · 4.0 km · 19 min»; una
   parola o il titolo del percorso al posto della forma, niente per una
@@ -608,6 +623,26 @@ disegni si rileggono, come quando «Profile» si apriva.
   a «Feed» com'era, senza rileggere, e «Profile» resta chiuso; se nel
   frattempo è sparito, sopra l'elenco: «This drawing is no longer
   public.». Mentre la prima pagina arriva, una rotella e niente altro.
+  **La scheda di un iscritto** (TASK-355 A, ADR-0306, scelte dell'utente
+  del 2026-10-30): sotto il nome il luogo e quando è stata corsa, con le
+  parole dell'età dei commenti, «Caldonazzo · 2 h fa» («1 g fa», dopo una
+  settimana il giorno); un titolo solo, perché la riga dei numeri non
+  ripete la forma quando il titolo la dice già («Horse», poi «19.2 km ·
+  …»); sulla linea un pallino a un capo e una bandierina all'altro, nel
+  colore del testo con il bordo scuro, distinti dalla forma e non dal
+  colore: sono gli estremi della traccia già tagliata, mai la partenza o
+  l'arrivo veri, e nessun testo li chiama così; il credito della mappa in
+  una riga a 10 pt, nel margine dove la linea non entra; sulle foto la
+  figura piccola in un angolo. Sotto la scheda, oltre un filo: «Comments»
+  e «Reactions» aprono il disegno (i conteggi arrivano con la parte B),
+  «Share» solo sui propri disegni (il post della corsa, dalla traccia già
+  tagliata, che il post taglia ancora; non tenuto come post di una
+  corsa), e in giallo «Draw it near me», la stessa forma o parola in
+  «Draw» con lo sport di «Draw», solo quando «Draw» la sa disegnare
+  (TASK-313). Il «…» e i pulsanti stanno fuori dal pulsante della scheda,
+  dove VoiceOver li raggiunge; la data si sente anche nell'etichetta.
+  Gli esempi non hanno né segni né pulsanti. Sotto i nomi delle pagine un
+  filo (`Hairline`).
   **Senza account, e finché nessuno ha pubblicato qualcosa che si può
   vedere** (o l'API non risponde, o è di prima del feed), mostra
   **quindici disegni di esempio**
@@ -1906,16 +1941,35 @@ insieme, e l'interruttore mostra quale. Di partenza «Shape».
 Passare dall'uno all'altro non cancella quanto scritto o scelto negli altri.
 
 La forma si sceglie toccando una tessera, che scrive il nome nel campo, o
-scrivendo nel campo. I simboli delle tessere sono caratteri (♥ ★ ◯ ☾ e le
+scrivendo nel campo, che dal TASK-361 sta dietro «Type another shape»
+(scelta dell'utente del 2026-10-30): si apre con un tocco, vuoto, o da solo
+quando le parole scritte non sono il nome della tessera scelta (una parola
+che l'AI legge resta in vista); le tessere dicono già la forma scelta, e
+il campo non la ripete. I simboli delle tessere sono caratteri (♥ ★ ◯ ☾ e le
 emoji di gatto, pesce, cavallo, farfalla, lumaca, cane, coniglio, zucca,
 albero di Natale, e 🙂 👻 🍩 ☀️ per faccina, fantasmino, ciambella e sole,
 TASK-223):
 disegnare i contorni veri vuole `react-native-svg`, una dipendenza non
 ancora chiesta.
-Le tessere stanno in una riga sola che scorre di lato col dito (TASK-088,
-ADR-0084, chiesto dall'utente): se ne vedono poco meno di quattro, e la
-tessera tagliata sul bordo dice che ce ne sono altre. Una forma scritta nel
-campo porta la sua tessera in vista.
+Le tessere stanno in una griglia di due righe, quattro per riga (TASK-361,
+ADR-0307; prima una riga che scorreva di lato, TASK-088, ADR-0084): sette
+forme e l'ottava tessera «See all», che apre tutte e diciassette; «Show
+fewer» richiude. La forma scelta è sempre in vista: se non è fra le prime
+sette, prende il settimo posto. Toccare una tessera fa vibrare il telefono,
+dove l'app è costruita con `expo-haptics`. Sotto, la forma scelta **in
+scala** su un pezzo di mappa (`ShapePreview`): il contorno del catalogo,
+una barra di scala tonda e «≈ 1.9 × 2.1 km», che seguono forma e
+distanza.
+
+**La distanza** (TASK-361): − e + di mezzo km (mezzo miglio con «Miles»),
+tenuti premuti scorrono sempre più veloci; il numero è un campo, un tocco
+lo scrive. Al limite niente si muove e niente vibra. Sotto, per la corsa,
+il tempo stimato: «≈ 42 min at 5:20/km» col ritmo delle ultime corse
+salvate, o «≈ 47 min at 6:00/km (a usual pace)» senza.
+
+**La parola** ha il segnaposto «Write a word, e.g. CIAO». Le scelte non
+prese degli interruttori sono nel colore del testo, più leggere; quella
+presa ha la superficie chiara, il bordo e il grassetto.
 
 La **forma** è una parola, in inglese o in italiano (ADR-0036). Le forme
 sono quelle del catalogo, le sole che l'utente ha giudicato riconoscibili
@@ -2358,6 +2412,16 @@ Wikimedia: un percorso chiesto le ha nella risposta, le idee le chiedono
 all'API coi loro elementi (`GET /place-photos`). Un'API più vecchia non le
 ha: i posti col solo nome e le schede con la mappa, come prima. Nessun
 testo nuovo: numeri, nomi dei posti, autori e licenze.
+
+### Pedalalo tu (TASK-364, ADR-0309)
+
+Sotto «IDEAS FROM EUROPE», la fila **«RIDE IT YOURSELF»** («PEDALALO TU»), con
+le stesse schede: percorsi in bici disegnati da MuW, oggi tre, «Barcellona ·
+Fantasma», «Madrid · Pipistrello», «Torino · Zucca», e sotto il titolo «In bici
+· 24,4 km». Sotto la fila il credito delle mappe, la nota «Percorsi disegnati da
+MuW. Nessuno li ha ancora pedalati.» e «© OpenStreetMap contributors». Un tocco
+apre il percorso sulla mappa **subito, senza rete**, in bici, con «Start» ed
+«Export GPX» come ogni percorso di «Explore». Nessun tempo, velocità o calorie.
 
 ### Le forme pronte vicino a te (TASK-306, ADR-0266)
 

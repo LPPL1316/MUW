@@ -1,0 +1,12 @@
+{
+  "start": [46.0671, 11.1214],
+  "shape": "heart",
+  "word": null,
+  "distance_m": 5000,
+  "activity": "running",
+  "style": "round",
+  "pen_up": false,
+  "near": null,
+  "placement": "anchored",
+  "fit": 0.5
+}

@@ -108,7 +108,7 @@ test("a word switched to one line that came out roughly is drawn again with the 
   await atTrento();
   await drawWord("io", "6");
   await fireEvent.press(screen.getByRole("switch", { name: PEN_SWITCH }));
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   await firstPoll();
   expect(screen.getByText(HINT)).toBeTruthy();
 
@@ -161,7 +161,7 @@ test("a word that does not fit in one line is offered the pen up under the probl
   await atTrento();
   await drawWord("io", "6");
   await fireEvent.press(screen.getByRole("switch", { name: PEN_SWITCH }));
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   await firstPoll();
   expect(
     screen.getByText(
@@ -178,7 +178,7 @@ test("with the switch left on the word is asked with the pen up, and no line is 
   apiAnswers(ROUGH_LINE);
   await atTrento();
   await drawWord("io", "6");
-  await fireEvent.press(screen.getByText("Draw route"));
+  await fireEvent.press(screen.getByTestId("draw-route"));
   await firstPoll();
   expect(routeRequests()).toEqual([expect.objectContaining({ pen_up: true })]);
   expect(screen.queryByText(HINT)).toBeNull();

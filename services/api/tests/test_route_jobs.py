@@ -72,7 +72,10 @@ def test_a_job_is_accepted_at_once_and_ends_with_the_route(client_for: Any) -> N
     body = finished(client, job["job_id"])
     assert body["status"] == "done"
     assert body["error"] is None
-    assert set(body["result"]) == {f.name for f in fields(RouteResult)}
+    # The API adds where the drawing was placed (TASK-347): the engine has not.
+    assert set(body["result"]) == {f.name for f in fields(RouteResult)} | {
+        "placed_outline"
+    }
     assert body["result"]["warnings"] == ["120 m of the route on steps"]
 
 

@@ -527,7 +527,6 @@ export const FR: Table = {
   Image: "Image",
   Round: "Rondes",
   Square: "Carrées",
-  DRAW: "DESSINER",
   LETTERS: "LETTRES",
   DISTANCE: "DISTANCE",
   "heart, star, horse…": "cœur, étoile, cheval…",
@@ -825,6 +824,9 @@ export const FR: Table = {
   "Show more comments": "Afficher plus de commentaires",
   "{name}, {ago}: {text}": "{name}, {ago} : {text}",
   "Touch and hold to delete.": "Maintiens appuyé pour supprimer.",
+
+  // src/feed/ActionBar.tsx
+  Reactions: "Réactions",
 
   // src/social/DrawingReactions.tsx
   React: "Réagir",
@@ -1486,6 +1488,36 @@ export const FR: Table = {
     "Apple et Google ne sont pas sponsors de ce concours et n'y sont impliqués d'aucune manière.",
   Winner: "Gagnant",
   "{name} won the MuW contest": "{name} a gagné le concours MuW",
+  // src/contest/ (TASK-343 B: the monthly challenge, not Play's «Challenges»)
+  "Monthly challenge": "Défi du mois",
+  "See the challenge": "Voir le défi",
+  "Publish a run and enter it to take part.":
+    "Publie une course et inscris-la pour participer.",
+  "Enter “{theme}”": "Inscrire à « {theme} »",
+  "From {start} to {end}": "Du {start} au {end}",
+  Ended: "Terminé",
+  "{count} person taking part": "{count} personne participe",
+  "{count} people taking part": "{count} personnes participent",
+  "You entered {count} drawing": "Tu as inscrit {count} dessin",
+  "You entered {count} drawings": "Tu as inscrit {count} dessins",
+  "Prize: the Winner badge on your profile and your post at the top of the Feed for a week.":
+    "Prix : le badge Gagnant sur ton profil et ta publication en haut du Feed pendant une semaine.",
+  Top: "Top",
+  New: "Récents",
+  "Past challenges": "Défis du mois passés",
+  "No past challenges yet.": "Pas encore de défi du mois passé.",
+  "No drawings entered yet.": "Pas encore de dessin inscrit.",
+  "This challenge takes no entries now.":
+    "Ce défi n'accepte pas d'inscriptions pour l'instant.",
+  "This run cannot take part: it must be for everyone, recorded with MuW and published during the challenge.":
+    "Cette course ne peut pas participer : elle doit être visible par tous, enregistrée avec MuW et publiée pendant le défi.",
+  "The theme is “{theme}”.": "Le thème est « {theme} ».",
+  "Anyone with a MuW account can take part, for free: publish a run recorded with MuW for everyone during the challenge, and enter it. You can enter as many drawings as you like, and withdraw them until the challenge ends.":
+    "Toute personne ayant un compte MuW peut participer gratuitement : publie pendant le défi une course enregistrée avec MuW et visible par tous, puis inscris-la. Tu peux inscrire autant de dessins que tu veux, et les retirer jusqu'à la fin du défi.",
+  "At the end, the entered post with the most reactions from other members wins. One reaction per member counts; your own does not. If two posts tie, the one with more MuW hearts wins, then the one published first.":
+    "À la fin, parmi les publications inscrites, celle qui a le plus de réactions des autres membres gagne. Une réaction par membre compte ; la tienne ne compte pas. En cas d'égalité, la publication avec le plus de cœurs MuW gagne, puis celle publiée en premier.",
+  "MuW may leave out a post that does not fit the theme or breaks the community rules.":
+    "MuW peut écarter une publication hors sujet ou qui enfreint les règles de la communauté.",
   // src/route/NearYou.tsx (TASK-306: shapes ready near you, or in other cities)
   "NEAR YOU": "PRÈS DE VOUS",
   "SHAPES TO TRY": "FORMES À ESSAYER",
@@ -1634,4 +1666,62 @@ export const FR: Table = {
   Yesterday: "Hier",
   "{day} {month}": "{day} {month}",
   "{name}, {count} new messages: {text}": "{name}, {count} nouveaux messages : {text}",
+
+  // The tabs of «Feed» (TASK-362).
+  All: "Tous",
+  "Follow people to see their drawings here.":
+    "Suis des personnes pour voir leurs dessins ici.",
+  "Find people to follow": "Trouver des personnes à suivre",
+  "The people you follow have not published anything yet.":
+    "Les personnes que tu suis n'ont encore rien publié.",
+  "Couldn't load the Feed.": "Impossible de charger le Feed.",
+
+  // src/route/runTime.ts (TASK-361: the time under the distance of «Draw»)
+  "≈ {time} at {pace}": "≈ {time} à {pace}",
+  "≈ {time} at {pace} (a usual pace)": "≈ {time} à {pace} (une allure habituelle)",
+
+  // src/route/ShapePreview.tsx (TASK-361: the shape to scale)
+  "{name}, about {size} on the map": "{name}, environ {size} sur la carte",
+
+  // src/route/ShapeGrid.tsx (TASK-361: the shapes in two rows)
+  "Show fewer shapes": "Afficher moins de formes",
+  "See all {count} shapes": "Voir les {count} formes",
+  "Show fewer": "Moins",
+  "See all": "Tout voir",
+
+  // src/route/DistanceDial.tsx (TASK-361: the distance by half a km)
+  "Tap to type the distance": "Touchez pour saisir la distance",
+
+  // src/screens/RunNoRouteButton.tsx (TASK-361)
+  "Records the run without drawing a route first":
+    "Enregistre la course sans dessiner d'abord un parcours",
+
+  // src/route/drawLabel.ts (TASK-361: the words of «Draw route»)
+  "Draw a {distance} {name}": "Dessiner : {name} de {distance}",
+  "Draw “{word}”, {distance}": "Dessiner « {word} », {distance}",
+  "Draw the picture, {distance}": "Dessiner l'image, {distance}",
+
+  // src/route/OtherShapeField.tsx (TASK-361: «Type another shape»)
+  "Type another shape": "Saisir une autre forme",
+  "Write a shape that is not among the tiles":
+    "Écrire une forme qui n'est pas parmi les vignettes",
+
+  // src/route/RoutePanel.tsx (TASK-361 part B: the steps of «Draw»)
+  "WHAT YOU DRAW": "CE QUE TU DESSINES",
+  "Write a word, e.g. CIAO": "Écris un mot, par ex. CIAO",
+
+  // src/explore/RideItYourself.tsx (TASK-364)
+  "RIDE IT YOURSELF": "À TOI DE PÉDALER",
+  "Routes drawn by MuW. Nobody has ridden them yet.":
+    "Parcours dessinés par MuW. Personne ne les a encore faits.",
+  "By bike": "À vélo",
+  Bat: "Chauve-souris",
+  Madrid: "Madrid",
+  Turin: "Turin",
+
+  // src/feed/muwLabel.ts (TASK-365: the routes MuW draws, labels approved)
+  "Route created by MuW – ride it yourself": "Parcours créé par MuW – à toi de pédaler",
+  "Route created by MuW – run it yourself": "Parcours créé par MuW – à toi de courir",
+  "Route created by MuW – paddle it yourself":
+    "Parcours créé par MuW – à toi de pagayer",
 };

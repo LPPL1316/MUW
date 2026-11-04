@@ -61,8 +61,8 @@ const store = jest.requireMock<MemorySecureStore>("expo-secure-store");
 const API = "http://192.168.1.23:8000";
 const SESSION_KEY = "shaperoute.session";
 const HERE: [number, number] = [46.067, 11.1215];
-// Asked from where «Draw» starts: the position of the phone.
-const FEED = "/feed?lat=46.067&lon=11.1215";
+// The «All» tab: never with the phone's position (TASK-362).
+const FEED = "/feed?filter=all";
 
 // The second drawing of the sample feed, opened as a route of «Explore».
 const POST = SAMPLE_FEED[1];
@@ -241,7 +241,7 @@ test("a member's drawing of a picture puts the track it ran on the map where it 
   expect(fetchSpy.mock.calls.length).toBe(before);
 
   // «Draw route»: the figure goes as a drawing, from where the run started.
-  await fireEvent.press(screen.getByRole("button", { name: "Draw route" }));
+  await fireEvent.press(screen.getByText("Draw route"));
   expect(
     await screen.findByText(
       "Drawing · on roads · target 2.9 km",

@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10. Oktober 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "30. Oktober 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
+const PRIVACY_UPDATED = "2. November 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
@@ -398,7 +398,7 @@ const privacy: AboutDocument = {
     {
       heading: "Dein Standort",
       blocks: [
-        "Der Standort des Handys wird auf dem Handy genutzt, um eine Route dort zu beginnen, wo du bist, und um deinem Lauf zu folgen. Er geht an unseren Server als Start einer Route, die du anforderst, innerhalb eines Laufs, den du speicherst, und mit der Suche nach einem Ort, um die Orte in deiner Nähe zuerst zu zeigen.",
+        "Der Standort des Handys wird auf dem Handy genutzt, um eine Route dort zu beginnen, wo du bist, und um deinem Lauf zu folgen. Er geht genau an unseren Server als Start einer Route, die du anforderst, als Start der Formen, die die App dir in der Nähe vorbereitet, wenn das Handy sie nicht selbst zeichnen kann, und innerhalb eines Laufs, den du speicherst. Auf etwa 1 km gerundet geht er an den Server, um die Offline-Karte um dich herum, empfohlene Routen, Orte und Zeichnungen in der Nähe zu finden und bei einer Suche die Orte in deiner Nähe zuerst zu zeigen; so gerundet bleibt er nicht mit deinem Konto verbunden.",
         "Auf dem iPhone folgt die App während eines Laufs, den du gestartet hast, deinem Standort auch bei gesperrtem Handy oder wenn eine andere App offen ist, bis du den Lauf beendest; das iPhone zeigt das mit einer blauen Markierung oben auf dem Bildschirm. MuW fragt nur nach dem Standort, während du die App benutzt, nie «Immer».",
         "Wie jeder Internetdienst sieht unser Server die Internetadresse (IP), von der eine Anfrage kommt, während er sie beantwortet. Das Protokoll des Servers schreibt keine Positionen, und die Datenbank enthält keine IP-Adressen.",
         "Ein Register der Routenanfragen mit ihrem Start gibt es, um einen Fehler nachzustellen. Auf unserem Server ist es ausgeschaltet; eingeschaltet fasst es höchstens 10 MB, dann gehen die ältesten Zeilen verloren.",
@@ -417,13 +417,22 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Health und Health Connect",
+      blocks: [
+        "Sobald du «In Apple Health speichern» (iPhone) oder «In Health Connect speichern» (Android) einschaltest, wird jede Aktivität, die du speicherst, auch dort geschrieben, auf deinem Telefon: die Sportart, wann sie begann und endete, die Distanz, die Route und, bei einem Lauf, die geschätzten aktiven Kalorien. MuW liest nie deine Gesundheitsdaten, und nichts davon erreicht unseren Server oder irgendeine Werbung. Du kannst es in der Health-App oder in Health Connect beenden. Was schon dort ist, bleibt, bis du es dort löschst, auch wenn du den Lauf oder dein Konto löschst.",
+      ],
+    },
+    {
       heading: "Andere, die Daten erhalten",
       blocks: [
         {
           bullets: [
             "Hetzner betreibt unseren Server und seine Sicherungskopien, in Deutschland.",
-            "Geoapify erhält die Suchen nach Orten und nach den Orten in deiner Nähe, mit der Position, und, um den Ort eines gespeicherten Laufs zu benennen, seinen auf etwa 1 km gerundeten Start: nie deine Haustür, den Lauf oder wer du bist. Antwortet unser Server nicht, geht eine Ortssuche stattdessen an Photon (komoot).",
+            "Geoapify erhält die Suchen nach Orten, nach Orten in deiner Nähe und nach den Plätzen einer Themenroute, mit der auf etwa 1 km gerundeten Position, und, um den Ort eines gespeicherten Laufs zu benennen, seinen ebenso gerundeten Start: nie deine Haustür, den Lauf oder wer du bist. Antwortet unser Server nicht, geht eine Ortssuche stattdessen an Photon (komoot).",
             "OpenFreeMap liefert die Karte: Wie jeder Kartendienst sieht es, welche Gegend du anschaust.",
+            "Apple auf dem iPhone oder Google auf Android erhält über den Adressdienst des Telefons die Position, von der «Zeichnen» startet, um den Namen der Straße anzuzeigen. MuW sendet sonst nichts und speichert den Namen nicht.",
+            "Wikimedia liefert unserem Server die Fotos der Orte: Es sieht welchen Ort, nicht wer fragt.",
+            "Bei der Karte «Satellit» liefert Esri die Bilder und bei der Karte «3D» liefert Amazon Web Services die Höhen: Wie jeder Kartendienst sehen sie, welches Gebiet du ansiehst.",
             "Den Overpass-Dienst für OpenStreetMap-Daten fragt unser Server nach der Karte einer Gegend, die er noch nicht hat: Er sieht, welche Gegend, nicht wer gefragt hat.",
             "unpkg liefert die Kartenbibliothek, wenn die App startet.",
             "Expo liefert die Updates der App.",
@@ -456,7 +465,7 @@ const privacy: AboutDocument = {
           bullets: [
             "Um dir den Dienst zu geben, um den du bittest (Vertrag): dein Konto, dein Profil, die Routen, die du anfragst, und die Läufe, Favoriten, Kommentare, Reaktionen und das Folgen, die du speicherst, die E-Mails der Benachrichtigungen, die du eingeschaltet hast, und das Formenspiel.",
             "Unser berechtigtes Interesse, MuW funktionsfähig, sicher und besser zu halten: die kurzen Protokolle des Servers, die Zählungen, die die Kartendownloads begrenzen, und die Suchereignisse, die nichts darüber sagen, wer du bist; der Abgleich der Nummern deiner Kontakte, von denen keine behalten wird; die E-Mail, wenn du weg bist, die du bei der Anmeldung, in «Einstellungen» oder in jeder E-Mail ablehnen kannst; die E-Mails der Meldungen, um MuW sicher zu halten; das Archiv der gezeichneten Routen, das nichts darüber sagt, wer du bist; die Nachrichten von «Feedback senden», um sie zu lesen und dir zu antworten.",
-            "Deine Einwilligung: die Telefonnummer, die du hinzufügst, und die Verbindung mit Strava. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
+            "Deine Einwilligung: die Telefonnummer, die du hinzufügst, die Verbindung mit Strava und das Speichern deiner Aktivitäten in Apple Health oder Health Connect. Du kannst eine Einwilligung jederzeit widerrufen; was vorher geschah, bleibt rechtmäßig.",
             "Eine rechtliche Pflicht, wenn ein Gesetz von uns verlangt, Daten aufzubewahren oder herauszugeben.",
           ],
         },

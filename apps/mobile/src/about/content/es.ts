@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 de octubre de 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts entered (TASK-262 C). */
-const PRIVACY_UPDATED = "30 de octubre de 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
+const PRIVACY_UPDATED = "2 de noviembre de 2026";
 
 const help: AboutDocument = {
   title: "Cómo funciona MuW",
@@ -398,7 +398,7 @@ const privacy: AboutDocument = {
     {
       heading: "Tu posición",
       blocks: [
-        "La posición del teléfono se usa en el teléfono, para empezar una ruta donde estás y para seguir tu carrera. Va a nuestro servidor como inicio de una ruta que pides, dentro de una carrera que guardas, y con la búsqueda de un lugar, para poner primero los lugares cercanos.",
+        "La posición del teléfono se usa en el teléfono, para empezar una ruta donde estás y para seguir tu carrera. Va a nuestro servidor exacta como inicio de una ruta que pides, como inicio de las formas que la app te prepara cerca cuando el teléfono no puede dibujarlas por sí mismo, y dentro de una carrera que guardas. Va redondeada a cerca de 1 km para encontrar el mapa sin conexión a tu alrededor, las rutas recomendadas, los pueblos y los dibujos cercanos, y para poner primero los lugares cercanos en una búsqueda; así redondeada no queda ligada a tu cuenta.",
         "En iPhone, durante una carrera que has empezado, la app sigue tu posición también con el teléfono bloqueado o con otra app abierta, hasta que detienes la carrera; el iPhone lo muestra con una marca azul en la parte de arriba de la pantalla. MuW pide la posición solo mientras usas la app, nunca «Siempre».",
         "Como cualquier servicio de internet, nuestro servidor ve la dirección de internet (IP) de la que viene una petición mientras la responde. El registro del servidor no escribe posiciones, y la base de datos no guarda direcciones IP.",
         "Existe un registro de las peticiones de rutas, con su inicio, para reproducir un fallo. Está apagado en nuestro servidor; encendido, guarda como máximo 10 MB, y después se pierden las líneas más antiguas.",
@@ -417,13 +417,22 @@ const privacy: AboutDocument = {
       ],
     },
     {
+      heading: "Apple Salud y Health Connect",
+      blocks: [
+        "Cuando activas «Guardar en Apple Salud» (iPhone) o «Guardar en Health Connect» (Android), cada actividad que guardas se escribe también allí, en tu teléfono: el deporte, cuándo empezó y terminó, la distancia, la ruta y, en una carrera, las calorías activas estimadas. MuW nunca lee tus datos de salud, y nada de ellos llega a nuestro servidor ni a ninguna publicidad. Puedes detenerlo en la app Salud o en Health Connect. Lo que ya está allí se queda hasta que lo borres allí, también cuando borras la carrera o tu cuenta.",
+      ],
+    },
+    {
       heading: "Otros que reciben datos",
       blocks: [
         {
           bullets: [
             "Hetzner aloja nuestro servidor y sus copias de seguridad, en Alemania.",
-            "Geoapify recibe las búsquedas de lugares y de los pueblos cercanos, con la posición, y, para nombrar el lugar de una carrera guardada, su inicio redondeado a alrededor de 1 km: nunca tu puerta, la carrera ni quién eres. Si nuestro servidor no responde, la búsqueda de un lugar va entonces a Photon (komoot).",
+            "Geoapify recibe las búsquedas de lugares, de pueblos cercanos y de los lugares de una ruta temática, con la posición redondeada a cerca de 1 km, y, para nombrar el lugar de una carrera guardada, su inicio redondeado igual: nunca tu puerta, la carrera ni quién eres. Si nuestro servidor no responde, la búsqueda de un lugar va entonces a Photon (komoot).",
             "OpenFreeMap sirve el mapa: como cualquier servicio de mapas, ve qué zona miras.",
+            "Apple en el iPhone, o Google en Android, a través del servicio de direcciones del teléfono, recibe la posición desde la que empieza «Dibuja», para escribir el nombre de la calle. MuW no le envía nada más y no guarda el nombre.",
+            "Wikimedia da a nuestro servidor las fotos de los pueblos: ve qué pueblo, no quién pregunta.",
+            "Con el mapa «Satélite» Esri da las imágenes, y con el mapa «3D» Amazon Web Services da las alturas: como cualquier servicio de mapas, ven qué zona miras.",
             "Nuestro servidor pide al servicio Overpass de datos de OpenStreetMap el mapa de una zona que aún no tiene: ve qué zona, no quién la pidió.",
             "unpkg sirve la biblioteca del mapa cuando arranca la app.",
             "Expo sirve las actualizaciones de la app.",
@@ -456,7 +465,7 @@ const privacy: AboutDocument = {
           bullets: [
             "Para darte el servicio que pides (contrato): tu cuenta, tu perfil, las rutas que pides, y las carreras, favoritos, comentarios, reacciones y seguimientos que guardas, los correos de las notificaciones que encendiste, y el juego de las formas.",
             "Nuestro interés legítimo en que MuW funcione, sea segura y mejore: los registros breves del servidor, los recuentos que limitan las descargas de mapas y los eventos de búsqueda, que no dicen nada de quién eres; la comparación de los números de tus contactos, que no conserva ninguno; el correo cuando no estás, que puedes rechazar al registrarte, en «Ajustes» o en cada correo; los correos de las denuncias, para que MuW sea segura; el archivo de las rutas dibujadas, que no dice nada de quién eres; los mensajes de «Envíanos tus comentarios», para leerlos y responderte.",
-            "Tu consentimiento: el número de teléfono que decides añadir y la conexión con Strava. Puedes retirar un consentimiento en cualquier momento; lo que se hizo antes sigue siendo lícito.",
+            "Tu consentimiento: el número de teléfono que decides añadir, la conexión con Strava y el guardado de tus actividades en Apple Salud o Health Connect. Puedes retirar un consentimiento en cualquier momento; lo que se hizo antes sigue siendo lícito.",
             "Una obligación legal, cuando una ley nos pide conservar o entregar datos.",
           ],
         },

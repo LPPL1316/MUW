@@ -1,5 +1,6 @@
 import type {
   ChallengePushKind,
+  ContestPushKind,
   MessagePushKind,
   Person,
 } from "@shaperoute/shared-types";
@@ -13,14 +14,17 @@ import type {
  * in the collection. The challenge for a piece done, a shape completed or
  * a day left (TASK-296 part C): its data names the challenge; without a
  * good id, «Play» on its «Challenges» tab. The conversation with who wrote
- * for a message or a message request (TASK-319). Anything else: nothing.
+ * for a message or a message request (TASK-319). The page of a monthly
+ * challenge for its three notifications (TASK-343 part B): not the game's
+ * challenge above. Anything else: nothing.
  */
 export type TapTarget =
   | { kind: "drawing"; id: string }
   | { kind: "profile"; person: Person }
   | { kind: "conversation"; person: Person }
   | { kind: "play" }
-  | { kind: "challenge"; id: string };
+  | { kind: "challenge"; id: string }
+  | { kind: "contest"; id: string };
 
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -33,6 +37,13 @@ const CHALLENGE_KINDS: readonly ChallengePushKind[] = [
 
 /** The kinds of a private message's notifications (TASK-319). */
 const MESSAGE_KINDS: readonly MessagePushKind[] = ["message", "message_request"];
+
+/** The kinds of a monthly challenge's notifications (TASK-343). */
+const CONTEST_KINDS: readonly ContestPushKind[] = [
+  "contest_open",
+  "contest_last_days",
+  "contest_results",
+];
 
 function field(data: object, name: string): string | null {
   const value: unknown = (data as Record<string, unknown>)[name];
@@ -52,6 +63,12 @@ export function tapTarget(data: unknown): TapTarget | null {
     return challenge !== null && ID.test(challenge)
       ? { kind: "challenge", id: challenge }
       : { kind: "play" };
+  }
+  if (kind !== null && (CONTEST_KINDS as readonly string[]).includes(kind)) {
+    const contest = field(data, "contest_id");
+    return contest !== null && ID.test(contest)
+      ? { kind: "contest", id: contest }
+      : null;
   }
   const drawing = field(data, "drawing_id");
   if (drawing !== null && ID.test(drawing)) {

@@ -21,6 +21,7 @@ import {
 } from "react-native";
 
 import type { DrawingChoice } from "../api/drawings";
+import { EnterSwitch } from "../contest/EnterSwitch";
 import { t, tLater } from "../i18n";
 import { OpenSettings } from "../permissions/OpenSettings";
 import type { ImageSource } from "../route/pickImage";
@@ -474,6 +475,8 @@ export type DrawingFormProps = {
   onAddPhoto: (base64: string) => void;
   onRemovePhoto: (photo: PhotoShown) => void;
   disabled?: boolean;
+  /** A run from a file of another app: it cannot enter a monthly challenge. */
+  imported?: boolean;
   /** The fakes of the tests. */
   pick?: PickPhoto;
   fetchFn?: typeof fetch;
@@ -483,8 +486,9 @@ export type DrawingFormProps = {
 /**
  * The whole form, in the user's order (2026-10-03): the photos by the map,
  * the title, «How did it go?», the people tagged, the activity and who can
- * see it. The title and the description are written as typed; the rest
- * changes the choice at once.
+ * see it, and under that the switch that enters a monthly challenge, while
+ * one is open (TASK-343 part B). The title and the description are written
+ * as typed; the rest changes the choice at once.
  */
 export function DrawingForm({
   choice,
@@ -494,6 +498,7 @@ export function DrawingForm({
   onAddPhoto,
   onRemovePhoto,
   disabled,
+  imported = false,
   pick,
   fetchFn,
   apiKey,
@@ -546,6 +551,13 @@ export function DrawingForm({
         onChange={(visibility) => onChoice({ ...choice, visibility })}
         disabled={disabled}
       />
+      {choice.visibility === "everyone" && !imported && (
+        <EnterSwitch
+          entry={choice.entry}
+          onEntry={(entry) => onChoice({ ...choice, entry })}
+          disabled={disabled}
+        />
+      )}
       {seen !== null && <PublicLine text={seen} />}
       {choice.visibility === "only_me" && photos.length > 0 && (
         <PublicLine text={t(ONLY_ME_PHOTOS)} />

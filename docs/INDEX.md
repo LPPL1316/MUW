@@ -41,17 +41,22 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Il compositore del post: fino a 10 foto, video e disegno, i layout, l'editor | `tasks/TASK-348.md`, `DECISIONS.md` ADR-0301 e ADR-0292, `API.md` «Drawings» |
 | Disegnare a mano in «Draw» («Freehand»), «Edit the drawing» sulle figure proposte | `UI.md`, `tasks/TASK-320.md` |
 | A mano solo sulla mappa: la linea aperta, «Erase», «Edit the drawing» sulla mappa, niente per le emoji | `UI.md` «Disegnare sulla mappa», `tasks/TASK-331.md`, `DECISIONS.md` ADR-0288 |
-| Il disegno libero ancorato alle strade: map matching per tratto col nostro motore, fantasma e punteggio, strumenti da professionista, guide | `tasks/TASK-347.md`, `DECISIONS.md` ADR-0300, `ROUTE_ENGINE.md` §4–5 |
+| Il disegno libero ancorato alle strade: map matching per tratto col nostro motore, fantasma e punteggio, strumenti da professionista, guide | `tasks/TASK-347.md`, `DECISIONS.md` ADR-0300, `ROUTE_ENGINE.md` §4 («Il disegno ancorato e i tratti») e §5, `API.md` («Stroke matches») |
 | «Edit the drawing» su un disegno del Feed: la traccia dov'è stata corsa | `UI.md` «Edit the drawing: la figura sulla mappa», `tasks/TASK-346.md`, `DECISIONS.md` ADR-0299 |
 | Il nuoto in acque libere, «Open water swim», la guida con l'Apple Watch | `tasks/TASK-323.md`, `ROUTE_ENGINE.md` §8 |
 | Apple Salute e Fitness, Health Connect: l'attività finita scritta sul telefono | `tasks/TASK-321.md`, `DECISIONS.md` ADR-0281 |
 | Allegati nei messaggi privati: disegni, foto, video | `tasks/TASK-333.md`, `DECISIONS.md` ADR-0279 e ADR-0289, `API.md` «Messages» |
+| Dove va la posizione del telefono: ogni richiesta, la precisione, il testo «Your position» | `tasks/TASK-363.md`, `DECISIONS.md` ADR-0306 |
 | La chat: orari, giorni, quanti messaggi nuovi, i vecchi scorrendo | `tasks/TASK-353.md`, `DECISIONS.md` ADR-0279 e ADR-0305, `API.md` «Messages», `UI.md` |
 | Il look premium: la scala del testo (`font`), i grigi caldi, `src/ui/` (Tap, Hairline, Scrim, EmptyState), le pagine vuote | `UI.md` «Il tema» e «Il look premium», `tasks/TASK-339.md`, `DECISIONS.md` ADR-0293 |
 | Calorie e battito nei post del Feed, «Show heart rate» | `tasks/TASK-345.md`, `DECISIONS.md` ADR-0298 |
 | Il video della corsa con la mappa sotto, i tre stili, il 3D | `tasks/TASK-351.md`, `DECISIONS.md` ADR-0303, ADR-0254 e ADR-0262, `UI.md` «Il post da condividere» |
 | La scheda del Feed: titolo, data, estremi, barra azioni, conteggi, filtri | `tasks/TASK-355.md`, `DECISIONS.md` ADR-0306 e ADR-0293 |
 | Le schede del Feed «Tutti» e «Seguiti», il `filter` di `GET /feed`, la scheda ricordata | `tasks/TASK-362.md`, `DECISIONS.md` ADR-0308, `API.md` «Feed» |
+| I percorsi di MuW nel Feed: `GET /muw-routes`, `MuwPost`, l'etichetta, le bozze | `tasks/TASK-365.md`, `DECISIONS.md` ADR-0310, `API.md` «Feed» |
+| «RIDE IT YOURSELF» in «Explore»: i percorsi in bici di MuW, `bikeIdeas.json`, `tools/bike_ideas.py` | `tasks/TASK-364.md`, `DECISIONS.md` ADR-0309, `UI.md` «Pedalalo tu» |
+| La barra di schede in basso, l'header solo, Messages come scheda, l'ingranaggio del Profilo, la campanella | `tasks/TASK-367.md`, `DECISIONS.md` ADR-0311, `UI.md` |
+| I record personali nel Profilo, a piedi e in bici: il calcolo, la cache, chi li vede | `tasks/TASK-368.md`, `DECISIONS.md` ADR-0312, `API.md` «Profile» |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |
 
 ## Stato dei documenti
