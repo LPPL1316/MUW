@@ -688,10 +688,57 @@ disegni si rileggono, come quando «Profile» si apriva.
   **In cima, sopra i disegni, a destra, la lente** (TASK-215, ADR-0178;
   TASK-219, ADR-0182: solo la lente, scelta dell'utente): un cerchio come
   quello di «Profile», con una lente disegnata e nessun testo, sotto il
-  bottone di «Profile»; VoiceOver lo legge «Find friends». Non sta
+  bottone di «Profile»; VoiceOver lo legge «Search». Non sta
   nell'intestazione delle pagine: lì, accanto a sport e profilo, su un
-  iPhone da 390 pt non c'è posto. Scorre con l'elenco. Apre
-  sopra l'app, come «Profile», la pagina **«Find friends»**: «←», un campo
+  iPhone da 390 pt non c'è posto. Scorre con l'elenco.
+  **La lente apre la ricerca** (TASK-344, ADR-0297, scelte dell'utente del
+  2026-10-29): una pagina sopra tutta l'app, che arriva dalla lente in
+  `motion.sheetMs` (un poco più piccola e più in alto, poi al suo posto;
+  ferma con «Reduce Motion»). In alto il campo «Search drawings, people,
+  places» con la tastiera già aperta e «✕» per svuotarlo, il bottone dei
+  filtri (tre cursori disegnati, col numero dei filtri accesi in un
+  badge giallo) e «Cancel». Sotto, le schede a chip **«All · Drawings ·
+  People · Routes»**: «Drawings» i disegni dei membri
+  (`GET /search/drawings`), poi gli esempi del Feed; «Routes» solo gli
+  esempi, che si aprono come percorso; «People» i membri per nome (la
+  ricerca di «Find friends»); «All» i primi tre membri sopra i disegni.
+  Una categoria scelta si vede come chip giallo con «✕» dopo le schede.
+  - **Prima di scrivere**: «Recent searches» (al più 8, sul telefono in
+    `recent-searches.json`, ognuna con «✕»), le categorie a chip
+    «Animals · Hearts · Words · Symbols · Emoji» (solo quelle che il
+    catalogo ha: ogni forma sta in una sola; «Words» sono le parole
+    disegnate) e «Featured drawings», una riga che scorre di lato: i più
+    amati dei membri, poi gli esempi col punteggio più alto.
+  - **Mentre si scrive**: la ricerca parte 300 ms dopo l'ultima lettera o
+    l'ultimo filtro; intanto, sei schede grigie che respirano piano (ferme
+    con «Reduce Motion»). Maiuscole e accenti non contano; le parole che
+    nominano una forma nella lingua dell'app («cuore», «cane») la trovano
+    anche dove non sono scritte (ADR-0297, punto 3). Gli esempi si
+    cercano sul telefono con le stesse regole del server
+    (`search/drawingMatch.ts`).
+  - **I risultati**: due per riga, ognuno con il disegno giallo sul fondo
+    della mappa, il titolo, chi l'ha disegnato e i km; la pagina dopo
+    arriva verso la fine della griglia, con due schede grigie sotto.
+    Toccato, la ricerca si chiude e il disegno di un membro si apre sulla
+    mappa con il suo autore, come dal Feed; un esempio si apre come
+    percorso; un membro apre il suo profilo. La ricerca toccata o mandata
+    col tasto «Search» entra fra le recenti.
+  - **Niente trovato**: la lente disegnata piano, «No drawings found» e
+    «Try other words, or change the filters.»; con filtri accesi, «Reset».
+  - **I filtri**, in un foglio dal basso: «Distance» («Up to 10 km»,
+    «10–30 km», «30–50 km», «Over 50 km», nelle unità dell'app),
+    «Sport» («Run», «Bike», «Paddle»), «Place» (una parte del nome,
+    «Town or region»), «Complexity» («Simple», «Medium», «Complex»: la
+    linea lunga rispetto al suo riquadro, ADR-0297 punto 5) e «Sort by»
+    («Most recent», «Longest», «Most popular»). Ciò che si tocca aspetta
+    «Apply», che dice quanti filtri accende («Apply (2)»); «Reset» li
+    spegne tutti; toccando fuori il foglio si chiude senza cambiare
+    niente.
+  - **Senza account**, o con un server prima di TASK-344: solo gli
+    esempi; «People» dice «Log in to find your friends.» e, toccato,
+    chiude la ricerca e porta alla quarta pagina, come prima la lente.
+  La pagina **«Find friends»** si apre da «Find people to follow» (sopra,
+  la scheda «Following»), sopra l'app come «Profile»: «←», un campo
   «Name» con la tastiera già aperta e, sotto, gli iscritti trovati, al più
   20, ognuno con la foto (o l'iniziale) e il nome; mai l'email. La ricerca
   parte con 2 lettere, 300 ms dopo l'ultima, o subito con il tasto «cerca»
@@ -790,8 +837,8 @@ Le pagine che si aprono da lì («Settings», «Favorites», «My activities»,
 «Edit profile», «Guide», il profilo di un altro, un disegno) si aprono
 sopra l'app come prima, e «←» (o «Back to the profile») torna alla quarta
 pagina. **Anche le altre parti dell'app portano alla quarta pagina**
-(TASK-278 parte B, scelte dell'utente del 2026-10-13): la lente di «Feed»
-senza account, e il cuore sulla mappa e la riga sotto la fine della corsa
+(TASK-278 parte B, scelte dell'utente del 2026-10-13): «People» nella
+ricerca della lente di «Feed» senza account (da TASK-344), e il cuore sulla mappa e la riga sotto la fine della corsa
 senza account, ognuno con la sua riga sopra «Sign up». Dalla mappa e dalla
 fine della corsa, che prendono tutto lo schermo, la pagina ha anche «←» e
 il titolo «Profile» finché nessuno entra: «←» torna lì senza tenere niente,

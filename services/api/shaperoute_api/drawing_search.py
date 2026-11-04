@@ -95,6 +95,9 @@ FOLDED_TO = "".join(plain * len(marked) for plain, marked in _FOLDED.items())
 _FOLD = str.maketrans(FOLDED_FROM, FOLDED_TO)
 
 SHAPE_PATTERN = r"^[a-z0-9_]{1,40}$"
+# In `shape`, the words drawn instead of a shape: the category «Words» of
+# the app (TASK-344 part B). No shape of the catalogue has this name.
+WORD_SHAPE = "word"
 # Where a page ended: the order, the value it is in order of (microseconds
 # of publication, metres, reactions) and the random id of the last one.
 CURSOR_PATTERN = r"^(recent|longest|popular)-\d{1,17}-[0-9a-f]{32}$"
@@ -225,7 +228,11 @@ def _where(words: Sequence[str], filters: Filters, values: dict[str, Any]) -> st
         found.append(every)
     if filters.shapes:
         values["shapes"] = list(filters.shapes)
-        found.append("r.shape = ANY (%(shapes)s)")
+        shapes = "r.shape = ANY (%(shapes)s)"
+        if WORD_SHAPE in filters.shapes:
+            # A word drawn: a run with a word and no shape (TASK-344 B).
+            shapes = f"({shapes} OR (r.shape IS NULL AND r.word IS NOT NULL))"
+        found.append(shapes)
     if filters.activities:
         values["activities"] = list(filters.activities)
         found.append("r.activity = ANY (%(activities)s)")
