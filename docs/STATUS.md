@@ -164,6 +164,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
   migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
+- **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
+  l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
+  brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
+  ciascuna, solo `Animated` di React Native sul driver nativo, impronta iOS
+  invariata; video prima/dopo e ok dell'utente prima di ogni merge.
+  **Parte A** (branch `feat/TASK-388-a-springs-tab-bar`): `motion.spring`
+  (`snappy`, `smooth`, `island`), `src/ui/motion.ts`, `Tap` che torna con la
+  molla, la capsula della `TabBar` che scivola, icone che salgono e si
+  riempiono, vibrazione al cambio di scheda. La prop `drag` (la capsula segue
+  lo swipe) si cabla in `TabShell` dopo il merge della #764 di TASK-379.
+  Poi B (l'«isola», un solo punto dell'app) e C (fogli e liste, dopo la #760).
+  `tasks/TASK-388.md`.
+  Parte A in PR, la #770, in bozza; aspetto approvato dall'utente il
+  2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Dopo la #764 `TabShell`
+  passa a `TabBar` lo spostamento del dito (`drag`): la capsula segue lo swipe.
+  La unisce il Coordinatore a CI verde.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
@@ -181,6 +197,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
   **Proposta approvata dall'utente il 2026-11-04** («Sì, approvo»); prossimo: i testi in cinque
   lingue e i nuovi Termini e Privacy, poi la parte A.
+  **Testi approvati il 2026-11-04** («Sì, approvo tutti»), in `tasks/TASK-384.md`; Termini e
+  Privacy cambiano con la prima versione con Style. Prossimo: la parte A (API), con la lista dei
+  file al Coordinatore prima del codice.
 - **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
   proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
   Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
@@ -204,6 +223,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con la regola del motore, e ne toglie gli angoli che si toccano. Solo JS: server, motore,
   contratto e testi invariati, impronta iOS 6f8bba4c. Branch `fix/TASK-382-paddle-edit-422`;
   prova sul telefono e OTA col sì dell'utente. `tasks/TASK-382.md`.
+
+- **TASK-389 — Il test della pool che a volte contava tre connessioni**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-288 B; ADR-0249, precisazione).
+  `test_the_pool_closes_when_the_app_never_started` falliva in CI con «assert 3 == 2» (7 volte
+  dal 26 al 30 ottobre, anche su PR senza codice dell'API). La terza riga di `pg_stat_activity`
+  era un autovacuum worker su `spatial_ref_sys`, riempita da PostGIS: si vede nei log del server
+  sul Mac. Il test conta solo i client, aspetta il numero giusto e legge il conteggio della pool.
+  Cambia solo il test. Branch `fix/TASK-389-flaky-pool-test`; la unisce il Coordinatore a CI
+  verde. `tasks/TASK-389.md`.
+  **Chiuso il 2026-11-04**: con la fusione della sua PR; vedi «Completato».
 
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
@@ -358,6 +387,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   apre quello che apre la sua push; niente campanella con un server senza
   lista. Tre testi approvati. Solo app: arriva con un OTA, col sì
   dell'utente, dopo il server con la `0045`.
+  **Chiuso** (2026-11-04): A #716, B #729, C1 #745, C2 #756 in main. Restano
+  fuori dal codice, col sì dell'utente: il server con la
+  `0045_notification_list`, la copia del sito (privacy) e l'OTA.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
@@ -2599,6 +2631,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-389 — Il test della pool che a volte contava tre connessioni** (2026-11-04; seguito di
+  TASK-288 B). La terza riga era un autovacuum worker su `spatial_ref_sys`: il test conta solo i
+  client, aspetta il numero giusto e legge il conteggio della pool. Sul Mac il file è passato
+  da 49 a 50 verdi su 50. Cambia solo il test. `tasks/TASK-389.md`.
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; seguito di TASK-366). #750 in main (9e2089a9): il `Modal` di `SharePost` ha un suo
   `SafeAreaProvider`. Solo JS, impronta dal Coordinatore con l'anteprima. Prova Feed → «Share» →
