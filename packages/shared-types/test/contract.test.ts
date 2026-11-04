@@ -266,7 +266,9 @@ test("the fixtures have the fields of the types", () => {
   assert.ok(requestFields && resultFields && errorFields && errorDetailFields);
   assert.ok(jobFields && jobResultFields && jobErrorFields && gpxFields);
   assert.ok(shapeReadingFields && directionFields && wordFields);
-  assert.ok(penUpFields && trackFields && cyclingFields && paddlingFields && walkingFields);
+  assert.ok(
+    penUpFields && trackFields && cyclingFields && paddlingFields && walkingFields,
+  );
   assert.ok(cyclingResultFields && betterFields && movedFields && tiltedFields);
 });
 
@@ -561,7 +563,9 @@ test("a walk is a request of the API with its own distances, within a run's", ()
   assert.ok(!(ACTIVITIES as readonly string[]).includes(walkingRequest.activity));
   const [lowest, highest] = DISTANCE_LIMITS_M.walking;
   assert.deepEqual([lowest, highest], [1_000, 30_000]);
-  assert.ok(lowest <= walkingRequest.distance_m && walkingRequest.distance_m <= highest);
+  assert.ok(
+    lowest <= walkingRequest.distance_m && walkingRequest.distance_m <= highest,
+  );
   assert.ok(MIN_DISTANCE_M <= lowest && highest <= MAX_DISTANCE_M);
   assert.ok(isShape(walkingRequest.shape));
 });
