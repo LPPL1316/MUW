@@ -160,6 +160,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
+  senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
+  2026-11-04). L'utente ha scelto la categoria prima dello sci, «Ski» ⛷️
+  separato dal fondo e tutte le metriche proposte; il fondo entra anche
+  lui (TASK-372, solo documenti). Parti A (API, migrazione 0044) e B (app)
+  in parallelo, poi C (metriche), D (nomi di impianti e piste), E (prova
+  sul campo). Prossimo passo: i «File toccati» di A al Coordinatore
+  (`tasks/TASK-375.md`).
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta

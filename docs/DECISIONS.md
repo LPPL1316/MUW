@@ -21595,6 +21595,41 @@ o due con lo sci di fondo è dell'utente.
 
 ---
 
+## ADR-0319 — Gli sport «Record only»: si registrano senza forma, il motore non li vede
+
+**Stato**: Proposto · 2026-11-04 · TASK-375. Scelte dell'utente lo stesso
+giorno: la categoria prima dello sci («Prima la categoria»), lo sci alpino
+«Ski» ⛷️ separato dal fondo («Sì, separati»), tutte le metriche proposte
+(«Sì, tutte»); per il fondo «Record only» anche lui (scelta in TASK-372)
+
+**Contesto**: lo sci alpino (ADR-0317) e lo sci di fondo (TASK-372,
+ADR-0316) non hanno forme da proporre: il motore di oggi non ne trova
+nessuna sulle piste. Serve un modo di avere uno sport in MuW che si
+registra e si pubblica senza passare dal Route Engine.
+
+**Decisione** (il disegno tecnico è deciso dall'agente su delega
+dell'utente):
+
+1. Le attività senza forma hanno un tipo a parte in `shared-types`,
+   `RECORD_ACTIVITIES` = `skiing`, `xc_skiing`; ciò che si salva è
+   `RunActivity` = `ApiActivity | RecordActivity`. `Activity` e
+   `ApiActivity` non cambiano, quindi il motore, la sua impronta e le
+   tabelle chiavate sulle attività dei percorsi restano come sono.
+2. Il server le salva come le altre corse: una migrazione sola, 0044, per
+   tutte e due, sul CHECK di `runs` soltanto (preferiti e corse di gruppo
+   tengono un percorso da rifare).
+3. Nell'app uno sport `recordOnly` porta «Draw» alla registrazione libera
+   (TASK-220); le metriche di fine giornata dipendono dallo sport.
+4. Le risalite in impianto si riconoscono sul telefono; i nomi di impianti
+   e piste li dà il server dalle linee di OSM, senza mandare la posizione a
+   servizi esterni.
+5. Niente moduli nativi: l'impronta iOS resta 6f8bba4c e tutto arriva con
+   aggiornamenti OTA.
+
+**Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
+scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
+testi. La neve buona e le recensioni dei comprensori non sono in questa
+decisione: si chiedono all'utente più avanti, una alla volta.
 ## ADR-0316 — Lo sci di fondo senza rete propria: le piste non disegnano forme, lo sport va in «Record only»
 
 **Stato**: Accettato · 2026-11-04 · TASK-372. La richiesta è dell'utente; i
