@@ -180,6 +180,7 @@ Parte B:
 apps/mobile/src/profile/PersonalBests.tsx, .test.tsx       (nuovi)
 apps/mobile/src/profile/ProfileHome.tsx
 apps/mobile/src/profile/UserProfilePage.tsx
+apps/mobile/src/activities/activitiesDoor.ts               (open legge solo l'id)
 apps/mobile/src/i18n/*.ts
 apps/mobile/src/about/content/*.ts
 site/privacy/**, site/tests/privacy.test.mjs
@@ -200,3 +201,11 @@ docs/UI.md, docs/STATUS.md, docs/tasks/TASK-368.md
 di 10 ms per corsa anche a 25 000 punti; la lettura del profilo circa 10 ms a
 1000 corse (`out/TASK-368/bench.txt` e la PR). Server, migrazione e script
 col sì dell'utente; la parte B (il Profilo nell'app) dopo.
+
+**Parte B** (2026-11-04): `profile/PersonalBests.tsx` sotto i totali, nel
+proprio Profilo e in quello degli altri; il tocco apre la corsa (il disegno
+per chi può vederlo, «My activities» per il proprietario). Testi approvati
+(scelta 10), Guida e privacy nelle cinque lingue, copia del sito rifatta con
+`site/tools/make_privacy.mjs` (la pubblicazione col sì dell'utente).
+Simulatore con dati di prova, scuro e chiaro: `docs/tasks/TASK-368/`. I
+record si vedono davvero solo dopo il server con la 0042 e il backfill.

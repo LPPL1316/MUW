@@ -120,7 +120,13 @@ function Row({ best, onOpen }: { best: PersonalBest; onOpen: (() => void) | null
         {day !== "" && <Text style={styles.day}>{day}</Text>}
       </View>
       <Text style={styles.time}>{time}</Text>
-      {onOpen !== null && <Text style={styles.arrow}>›</Text>}
+      {/* Its room kept on every row, so the times line up. */}
+      <Text
+        style={[styles.arrow, onOpen === null && styles.noArrow]}
+        importantForAccessibility="no"
+      >
+        ›
+      </Text>
     </>
   );
   // A best of a run who looks cannot see is read, never opened.
@@ -189,7 +195,11 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   arrow: {
+    width: space.sm,
     color: color.textFaint,
     fontSize: fontSize.heading,
+  },
+  noArrow: {
+    opacity: 0,
   },
 });

@@ -193,6 +193,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
   Poi la parte B, l'app.
+  **Parte B** (2026-11-04): branch `feat/TASK-368-b-personal-bests-app`, il
+  riquadro dei record nel Profilo, testi approvati, Guida e privacy nelle
+  cinque lingue e sul sito (pubblicazione col sì dell'utente).
 
 - **TASK-365 — I percorsi di MuW nel Feed** (ADR-0310, proposta; richiesta
   dell'utente del 2026-10-30; numeri dal Coordinatore). Branch
