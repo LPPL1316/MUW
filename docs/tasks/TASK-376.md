@@ -88,6 +88,7 @@ Coordinatore blocca gli altri lavori su quei file per la durata della PR.
    al posto della camminata che è già TASK-371: scelta dell'utente del
    2026-11-04 («ok si»).
 3. La fase 1 è Escursionismo (TASK-377), Gravel/MTB (TASK-378) e **Roller**
+   (TASK-380, ADR-0324)
    (scelta dell'utente del 2026-11-04, «Sì, Roller»: asfalto liscio e
    `inline_skates=yes`, prima si misura quanta rete resta), al posto dello
    sci di fondo, già «Record only» (TASK-372).

@@ -190,4 +190,4 @@ Fase 1 (dopo TASK-376 B in `main`), numeri riservati: TASK-377 / ADR-0321
 Escursionismo (il pilota, scelta dell'utente), TASK-378 / ADR-0322
 Gravel/MTB; il terzo è il **Roller** (scelta
 dell'utente del 2026-11-04, «Sì, Roller», al posto dello sci di fondo che è
-già «Record only», TASK-372), numero dal Coordinatore.
+già «Record only», TASK-372): TASK-380 / ADR-0324.
