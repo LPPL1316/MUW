@@ -218,6 +218,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   basso con cinque schede, un header solo, «Messages» come scheda,
   l'ingranaggio del Profilo, il Pager tolto; suite dell'app verde. Dopo il
   merge: un OTA di produzione col sì dell'utente; poi la 368 A riprende.
+  **Parte B** (2026-11-04, PR #729, in main 99bca40c): la ricerca in cima a
+  «Explore» (anche sull'acqua), la lente tolta dal Feed; un disegno trovato si
+  apre come dal Feed e «Indietro» torna a «Explore»; la pagina della ricerca
+  non va più sotto la barra di stato (difetto già in produzione). Testi di
+  Guida e privacy approvati («Sì, approvo»), `site/privacy` rigenerato; copia
+  del sito e OTA le chiede il Coordinatore all'utente. Impronta iOS 6f8bba4c.
+  Prossimo: parte C (la campanella) col via del Coordinatore dopo la C2 del
+  nuoto, perché tocca `App.tsx`.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte

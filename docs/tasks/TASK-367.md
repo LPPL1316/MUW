@@ -1,6 +1,6 @@
 # TASK-367 — La navigazione come Instagram: la barra in basso e un header solo
 
-**Stato**: Todo — documenti ora, codice col via del Coordinatore
+**Stato**: In lavorazione — parti A e B in main; C col via del Coordinatore dopo la C2 del nuoto
 **Fase**: 4 · **Branch**: `docs/TASK-367-tab-bar` (documenti),
 `feat/TASK-367-a-tab-bar` (parte A) · **ADR**: ADR-0311 · numeri dal
 Coordinatore (2026-11-02)
@@ -264,3 +264,17 @@ sport nell'header e poi Explore e Feed. Il «prima» (main `6dc89cfa`) è in
 Profilo con l'account (ingranaggio) e la scheda Messages piena, coperti dai
 test. Draw ed Explore tengono il loro logo nella pagina, sotto quello nuovo
 dell'header: scelta dell'utente del 2026-11-04 («Lascialo»).
+
+**Parte B** (2026-11-04, PR #729, in main 99bca40c): in cima a «Explore», anche
+sull'acqua, il campo con la lente apre la ricerca di TASK-344; il Feed non ha
+più la lente. Un disegno del Feed trovato lì si apre con `fetchPostRoute`, come
+dal Feed, e «Indietro» torna a «Explore» (test in `__tests__/AppFeed.test.tsx`
+che fallisce senza la modifica). La pagina della ricerca ha un suo
+`SafeAreaProvider`: prima finiva sotto la barra di stato, difetto già in
+produzione con la lente del Feed (`SearchScreenInset.test.tsx`). Testi della
+Guida e della privacy approvati dall'utente («Sì, approvo» per entrambi),
+`site/privacy` rigenerato su main dopo la #724. Impronta iOS `6f8bba4c`.
+Simulatore (iPhone 17e, Expo Go): la ricerca in cima a «Explore», il ritorno a
+«Explore», il Feed senza lente; il caricamento riuscito di un disegno trovato
+non visto (nessuna API locale), coperto dal test. Copia del sito e OTA: le
+chiede il Coordinatore all'utente.
