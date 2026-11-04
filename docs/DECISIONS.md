@@ -21986,6 +21986,9 @@ riquadro, dopo il numero e nella sua stessa dimensione; il riquadro è un
 I valori restano in kg e cm (punto 10). Scartati: l'unità nel nome del campo
 («Weight (kg)»), che con le miglia cambia il nome, e un segnaposto, che sparisce
 appena si scrive.
+
+---
+
 ## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
 
 **Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente

@@ -168,6 +168,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
   la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
   nessun testo nuovo. `tasks/TASK-383.md`.
+
 - **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
   proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
   Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
