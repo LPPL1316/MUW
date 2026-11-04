@@ -1,7 +1,7 @@
 {
   "configVersion": 0,
   "apple": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "copyright": "2026 Luca Pallaoro",
     "categories": ["HEALTH_AND_FITNESS", "NAVIGATION"],
     "info": {
@@ -9,7 +9,7 @@
         "title": "MuW",
         "subtitle": "Draw a shape, then run it",
         "promoText": "Pick a heart, a star or a word, set the distance, and MuW draws it on the real streets around you. Then run it, ride it or paddle it.",
-        "description": "Draw a shape on the map, then run it.\n\nMuW turns a shape into a real route on the streets around you. Pick a shape, a word or your own photo, set the distance, and MuW draws the route for you. Run it, ride it or paddle it, with voice directions turn by turn.\n\nExplore routes already drawn near you, share your drawings in the Feed and follow your friends.\n\nMap data © OpenStreetMap contributors.\nRecording a run with the screen locked uses GPS in the background, which uses more battery.",
+        "description": "Draw a shape on the map, then run it.\n\nMuW turns a shape into a real route on the streets around you. Pick a shape, a word or your own photo, set the distance, and MuW draws the route for you. Run it, ride it or paddle it, with voice directions turn by turn.\n\nExplore routes already drawn near you, share your drawings in the Feed and follow your friends.\n\nSaves your activities to Apple Health.\n\nMap data © OpenStreetMap contributors.\nRecording a run with the screen locked uses GPS in the background, which uses more battery.",
         "keywords": [
           "gps art",
           "route planner",
