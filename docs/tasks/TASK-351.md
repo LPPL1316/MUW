@@ -646,6 +646,20 @@ l'app di prova dell'utente le riceve anche dopo la #620, e la prova del
 video si fa dalla preview che il Coordinatore pubblica appena la #707 è in
 `main`.
 
+**Esito (2026-11-04, sera)**: prima che la #707 fosse in `main`, con la
+stessa preview `fb15613e` (il fix #703, i fotogrammi a timer) l'utente ha
+riprovato: «ok la mappa funziona». Quindi la pagina nascosta sul telefono
+si disegna e MapLibre carica con i fotogrammi a timer; il video giallo del
+mattino stava nei 15 s di attesa (`MAP_WAIT_MS`): la prima esportazione
+dopo l'aggiornamento, con la libreria (1 MB) e le tegole non ancora in
+cache, o una rete lenta. La riga di diagnosi (solo preview) dirà quale,
+la prossima volta che esce giallo; la pagina a grandezza piena resta
+(innocua, com'è nel Feed). La condizione del Coordinatore per la
+produzione del video — la mappa vista sul telefono — è soddisfatta;
+l'OTA resta una scelta dell'utente. La C (#706) si riallinea su `main`
+dopo la #707. L'utente, alla domanda se volesse la riga «Style» anche
+senza mappa, aveva scelto «Aspetto la mappa»; ora la mappa c'è.
+
 ## Dove si è (2026-10-30, sera)
 
 Fatto: il canvas; il bench in Safari del simulatore e nell'app (Expo Go,

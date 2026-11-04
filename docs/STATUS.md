@@ -256,8 +256,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con il motivo dato dalla pagina, solo sul canale preview, con un test che
   su production non compaia). L'utente: il video della preview era
   «giallo», app riaperta due volte. Riallineata su `main` dopo la #620:
-  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706; la #706 e la
-  produzione aspettano. Senza mappa il video
+  impronta iOS misurata sulla copia pulita `6f8bba4c`, quella di `main`. La C è la PR #706. Sera: con la stessa
+  preview fb15613e l'utente vede la mappa («ok la mappa funziona»): i
+  fotogrammi a timer bastano, il giallo di prima stava nei 15 s di attesa
+  (libreria e tegole non in cache, o rete lenta); la riga di diagnosi
+  (solo preview) lo dirà la prossima volta. La #706 si riallinea su
+  `main` dopo la #707; la condizione per la produzione del video (mappa
+  vista sul telefono) è soddisfatta, l'OTA resta una scelta dell'utente. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
