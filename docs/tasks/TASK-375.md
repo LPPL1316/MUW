@@ -30,6 +30,16 @@ senza forme.
   velocità massima e media in km/h, impianti e piste usati con il nome e
   quante volte (dalle linee di OSM); sulla mappa le discese piene e le
   risalite tratteggiate.
+- 2026-11-04, i testi della parte B: «Sì, approvati».
+
+  | Dove | en · it · de · fr · es |
+  |---|---|
+  | Sport | «Ski» ⛷️ · Sci · Ski · Ski · Esquí |
+  | Sport | «Cross-country ski» 🎿 · Sci di fondo · Langlauf · Ski de fond · Esquí de fondo |
+  | Pulsante in «Draw» | «Record your day» · Registra la giornata · Tag aufzeichnen · Enregistrer la journée · Registra tu jornada |
+  | Riga sotto | «No shapes on the slopes: MuW records your day.» · Niente forme sulle piste: MuW registra la tua giornata. · Keine Formen auf der Piste: MuW zeichnet deinen Tag auf. · Pas de formes sur les pistes : MuW enregistre ta journée. · Sin formas en las pistas: MuW registra tu jornada. |
+
+  Nel Feed e nell'elenco delle attività lo sport ha lo stesso nome.
 
 ## Vincoli (dal Coordinatore, 2026-11-04)
 
