@@ -199,8 +199,14 @@ accese o spente); `GET /notifications` (30 alla volta, `before`, `unread`,
 il testo della push nella lingua dell'account, `opens` = il `data` della
 push, fuori quello che non è più vero) e `POST /notifications/read`
 (`up_to`). Migrazione `0045_notifications` (numero del Coordinatore). Le
-righe si tengono `KEPT_DAYS` = 90 giorni: la durata e la frase della
-privacy sono da approvare con l'utente.
+righe si tengono `KEPT_DAYS` = 90 giorni. Alla proposta «Le notifiche della
+campanella restano sul server per 90 giorni, poi si cancellano», con la frase
+della privacy «La lista della campanella: chi ha fatto cosa, su quale post,
+sfida, concorso o corsa di gruppo, e se l'hai già letta, come te lo dicono le
+notifiche push, anche con le push spente. La vedi solo tu. Ogni riga resta 90
+giorni; quello che non è più vero, come una reazione tolta o un post che non
+vedi più, non compare.», l'utente ha risposto il 2026-11-04: «Sì, approvo».
+Nelle 5 lingue di `about/content`, `site/privacy` rigenerato.
 
 File toccati della parte C1:
 

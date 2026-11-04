@@ -286,6 +286,7 @@ const privacy: AboutDocument = {
             "El día en que te registraste y cuándo confirmaste que tienes al menos 16 años.",
             "La sesión de cada teléfono desde el que entraste: el teléfono guarda un token en su almacenamiento seguro, el servidor solo un hash de él. Una sesión termina 90 días después de su último uso, o cuando cierras sesión.",
             "Tus tres elecciones de notificaciones en «Ajustes»: «Notificaciones por correo» y «Notificaciones push», apagadas hasta que las enciendas, y «Correo cuando no estoy», encendida hasta que la apagues. Con push encendido, el token push de tu teléfono, si es un iPhone o un Android y el idioma de la app, para enviarte notificaciones a través del servicio push de Expo, que las pasa a Apple o a Google. Una notificación dice quién hizo qué, con el principio de un comentario. El token se borra cuando apagas push, cierras sesión o borras tu cuenta.",
+            "La lista de la campana: quién hizo qué, en qué publicación, reto, concurso o carrera en grupo, y si ya la has leído, como te lo dicen las notificaciones push, también con las push apagadas. Solo la ves tú. Cada línea se guarda 90 días; lo que ya no es cierto, como una reacción quitada o una publicación que ya no ves, no aparece.",
             "El idioma de la app cuando te registraste, para escribirte nuestros correos en él.",
           ],
         },

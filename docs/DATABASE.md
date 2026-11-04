@@ -850,8 +850,8 @@ Migrazione `0045_notifications.sql` (TASK-367 parte C1, ADR-0311, `API.md`
   posto di quello prima, non letto e in cima.
 - **Nessun testo**: si scrive quando la lista si legge, nella lingua
   dell'account, e quello che non è più vero resta fuori (come l'email delle
-  notizie). Le righe vanno via dopo `KEPT_DAYS` (90 giorni, da approvare
-  con la frase della privacy), con l'account, con chi ha agito, con il
+  notizie). Le righe vanno via dopo `KEPT_DAYS` (90 giorni, approvati
+  dall'utente con la frase della privacy), con l'account, con chi ha agito, con il
   disegno o il commento.
 - Indici: `(recipient_id, id DESC)` per la lista, `at` per le righe
   vecchie, `actor_id`, `drawing_id` e `comment_id` per le cancellazioni.

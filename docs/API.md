@@ -2057,8 +2057,8 @@ tenuto per leggerlo nell'app (`notification_list.py`, tabella
   un commento cancellato o nascosto, un tag tolto, un disegno che non si
   vede più; niente attraverso un blocco o da un account nascosto per una
   segnalazione. Il commento e la reazione si leggono come sono adesso.
-- **Per quanto**: `KEPT_DAYS`, 90 giorni dall'evento (da approvare con la
-  frase della privacy); le righe più vecchie non si mostrano e vanno via
+- **Per quanto**: `KEPT_DAYS`, 90 giorni dall'evento (durata e frase della
+  privacy approvate dall'utente il 2026-11-04: «Sì, approvo»); le righe più vecchie non si mostrano e vanno via
   alla prima riga scritta dopo.
 
 ### Confirmed email and forgotten password (TASK-300, ADR-0261)
