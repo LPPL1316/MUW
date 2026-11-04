@@ -22010,3 +22010,77 @@ La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
 prova solo con i test.
 
 ---
+
+## ADR-0329 — I movimenti come iOS: molle condivise con un rimbalzo appena percettibile
+
+**Stato**: Proposta · 2026-11-04 · TASK-388. Il brief è dell'utente
+(2026-11-04): movimenti «fluidi ed eleganti, nello stile Apple (Dynamic
+Island, molle naturali, niente effetti da cartone animato)»; numeri dal
+Coordinatore. Le scelte tecniche qui sotto sono decise dall'agente su delega
+dell'utente; l'aspetto lo approva l'utente sui video, prima di ogni merge.
+**Aggiorna il punto 4 di ADR-0293** («Mai rimbalzi») solo per i movimenti:
+il resto di ADR-0293 resta.
+
+**Contesto**: ADR-0293 aveva dato all'app movimenti brevi su curve fisse
+(`Animated.timing`). Una curva fissa non si lascia interrompere bene e non
+ha l'assestamento che su iOS dice «questa cosa ha un peso». Il brief chiede
+molle «con un rimbalzo appena percettibile, mai elastiche», senza dipendenze
+nuove: `react-native-reanimated` cambierebbe l'impronta iOS e fermerebbe gli
+OTA.
+
+**Decisione** (proposta):
+
+1. **Tre molle con un nome** in `motion.spring` (`tokens.ts`), massa 1, nelle
+   misure di SwiftUI (risposta = 2π/√rigidità, frazione di smorzamento =
+   smorzamento/(2√rigidità)):
+   - `snappy` (270/25): risposta ~0,38 s, oltre il segno ~2,5%. Un
+     controllo lasciato, la capsula della barra, un'icona che prende la
+     scheda.
+   - `smooth` (170/24): ~0,48 s, oltre il segno meno dello 0,1%. Fogli e
+     pagine (parte C).
+   - `island` (160/20): ~0,5 s, ~1,7%. L'«isola» (parte B).
+   Nessuna schermata scrive i suoi numeri: passano tutte da `src/ui/motion.ts`
+   (`springTo`, `fadeTo`), che le mette sul driver nativo. Un test controlla
+   che ognuna risponda in 0,35–0,5 s e superi il segno al massimo del 3%.
+2. **Solo `transform` e `opacity`, sul driver nativo** (`Animated` di React
+   Native): niente larghezze, altezze o posizioni animate sul thread JS.
+   L'allungamento della capsula è un `scaleX`.
+3. **Ogni movimento si interrompe**: una molla avviata su un valore che si
+   muove riparte da dov'è, con la sua velocità. Un tocco a metà corsa non
+   salta.
+4. **«Riduci movimento»** (`useReduceMotion`): nessuna molla e nessuno
+   spostamento; restano dissolvenze brevi (`fadeTo`, `motion.pressMs`). `Tap`
+   resta una `Pressable` che si scurisce sotto il dito, come con ADR-0293.
+5. **`Tap`**: premuto scende come prima in `pressMs` con la curva; lasciato
+   torna con `snappy`, appena oltre la sua misura. La luce non va mai oltre
+   il pieno (opacità limitata a 1). `Tap` prende `pressScale`: le icone della
+   barra scendono a 0,88, il resto dell'app resta a `motion.pressScale`.
+6. **La barra in basso**: una capsula morbida (`color.surfaceRaised`, 56×34,
+   raggio pieno) dietro la scheda attiva scivola alla nuova con `snappy` e si
+   allunga a metà corsa (8% per scheda attraversata, al massimo 20%), come
+   una goccia. Con lo swipe di TASK-379 segue la posizione del dito (prop
+   `drag` da `TabShell`, pagine dal posto a riposo); una pagina arrivata col
+   dito trova la capsula già lì, e non parte nessuna molla. Nel giro dal
+   profilo al Feed una seconda capsula, a una barra di distanza, entra da
+   sinistra mentre la prima esce a destra. L'icona che prende la scheda sale
+   di 1,5 pt e passa dal contorno al pieno in dissolvenza incrociata.
+7. **La vibrazione**: `selectionFeel()` (TASK-361, `selectionAsync`) solo
+   quando un tocco cambia scheda, non sulla scheda già attiva né allo swipe
+   (iOS non vibra scorrendo le pagine). Senza `expo-haptics` nella build non
+   succede niente: nessuna dipendenza nuova, l'impronta non cambia.
+8. **I test vedono le molle**: sotto jest il driver nativo è uno stub che non
+   muove niente; `src/ui/animationsOnJs.testing.ts` fa girare le stesse
+   animazioni su JS, fotogramma per fotogramma con i timer finti, ancora
+   chieste con `useNativeDriver: true`.
+
+**Alternative scartate**: Reanimated (impronta nuova, build nativa, niente
+OTA); molle diverse per ogni schermata (è il modo in cui un'app smette di
+sembrare una sola); `Animated.timing` con una curva che rimbalza (non si
+interrompe con la velocità).
+
+**Conseguenze**: tutta l'app risponde al dito con la stessa molla. `releaseMs`
+resta in `motion` finché le PR aperte che lo leggono sono in `main`; poi va
+tolto. Le parti B (l'«isola») e C (fogli, `Modal`, liste) usano `island` e
+`smooth`.
+
+---

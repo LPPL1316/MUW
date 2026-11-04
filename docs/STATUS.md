@@ -160,6 +160,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
+  l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
+  brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
+  ciascuna, solo `Animated` di React Native sul driver nativo, impronta iOS
+  invariata; video prima/dopo e ok dell'utente prima di ogni merge.
+  **Parte A** (branch `feat/TASK-388-a-springs-tab-bar`): `motion.spring`
+  (`snappy`, `smooth`, `island`), `src/ui/motion.ts`, `Tap` che torna con la
+  molla, la capsula della `TabBar` che scivola, icone che salgono e si
+  riempiono, vibrazione al cambio di scheda. La prop `drag` (la capsula segue
+  lo swipe) si cabla in `TabShell` dopo il merge della #764 di TASK-379.
+  Poi B (l'«isola», un solo punto dell'app) e C (fogli e liste, dopo la #760).
+  `tasks/TASK-388.md`.
+
 - **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
   proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
   Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
