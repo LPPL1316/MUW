@@ -160,6 +160,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
+  ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
+  Coordinatore; sessione «Coordinatore Sport»). Parte A in
+  `feat/TASK-376-a-sport-bench`: il banco `tools/sport_bench/` (rete, forme
+  del catalogo e tempi su sei zone fisse, `compare` fra due misure), la
+  cartella `docs/sports/` (regole, scoperte comuni, ricetta in bozza, un
+  file per sport). Le misure di base di corsa, bici e canoa col turno del
+  Coordinatore, un banco alla volta. Parte B (ogni sport nei suoi file) dopo
+  TASK-371 A+B, 375 A+B e 323 C2 in `main`; il server con la parte B solo
+  insieme al primo sport della fase 1 (una notte di esempi). Riservati per
+  la fase 1: TASK-377 / ADR-0321 (Escursionismo), TASK-378 / ADR-0322
+  (Gravel/MTB). `tasks/TASK-376.md`.
+
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**

@@ -21371,3 +21371,79 @@ scia: nessuna opzione propone piste come «da fare». La scelta fra uno sport
 o due con lo sci di fondo è dell'utente.
 
 ---
+
+## ADR-0320 — Il registro degli sport: ogni sport nei suoi file, un banco di misura comune
+
+**Stato**: Proposto · 2026-11-04 · TASK-376 (sessione «Coordinatore Sport»).
+Le scelte tecniche sono dell'agente su delega dell'utente; il ridisegno
+degli esempi (punto 3) vuole il sì dell'utente al momento del server, come
+ogni aggiornamento
+
+**Contesto**: l'utente vuole molti sport nuovi, aggiunti con più sessioni in
+parallelo. Oggi uno sport tocca gli stessi file di tutti gli altri: nel
+motore `models.py` (`SUPPORTED_ACTIVITIES`, `DISTANCE_LIMITS_M`,
+`WATER_ACTIVITIES`) e `network.py` (`NETWORKS`, `FILTERS`, le regole di
+foot e bike); nell'API `activity_graphs.py`, `activities.py`, `strava.py`,
+`prefetch_zones.py`, `personal_bests.py`; in `shared-types` `index.ts`;
+nell'app `settings/sport.ts` e una ventina di file con 53 confronti
+`activity ===`/`sport ===` (pannello di Draw, distanze, schermata di corsa,
+voce, penna alzata, Feed, importazione, Salute, zone sul telefono). Due
+sport insieme sono due sessioni sugli stessi file. TASK-372 e TASK-373 hanno
+anche mostrato che misurare la rete **prima** del codice risparmia lavoro:
+ognuno ha scritto il suo banco.
+
+L'impronta del motore (`route_store.engine_fingerprint`) è l'hash del
+percorso relativo e del contenuto di ogni file `.py` e `.json` di
+`route_engine/`: spostare codice da `network.py` a `networks/foot.py` la
+cambia anche senza cambiare un solo percorso, e con lei tutti gli esempi
+(8–16 ore di `draw_examples`) e le risposte dell'archivio.
+
+**Decisione**:
+
+1. **Un registro per strato, un file per sport.** Motore:
+   `route_engine/networks/<rete>.py` (filtro Overpass, regole dei tag,
+   sensi unici) e `route_engine/activities/<attività>.py` (rete o acqua,
+   limiti di distanza, tipo GPX); `models.py` e `network.py` derivano dal
+   registro gli stessi valori, nello stesso ordine. Contratto:
+   `shared-types/src/sports/<attività>.ts`. API:
+   `shaperoute_api/sports/<attività>.py` (Strava, zone in memoria, record).
+   App: `src/sports/<sport>.ts` con un `SportProfile` (emoji, nome, attività,
+   `ready`, `drawable` per «Record only», come si segue il percorso, ritmo o
+   velocità, testo «… without a route», tipo di allenamento in Salute,
+   codici FIT, etichetta del Feed, rete delle zone sul telefono); testi di
+   ogni sport in file propri. I file condivisi restano elenchi di import,
+   **una riga per sport**.
+2. **Il refactor non cambia comportamento** e parte solo quando i lavori
+   aperti sugli stessi file (TASK-371 A+B, TASK-375 A+B, TASK-323 C2) sono
+   in `main`, in una sessione sola, con i file bloccati dal Coordinatore:
+   test esistenti invariati, test di uguaglianza dei valori derivati,
+   impronta iOS invariata, banco prima e dopo senza peggioramenti.
+3. **L'impronta del motore: un ridisegno solo, insieme al primo sport.**
+   Fra un'impronta che regga gli spostamenti (che la cambierebbe comunque
+   una volta, e un'impronta sul comportamento rischia di non vedere un
+   cambiamento vero e di servire percorsi vecchi) e un ridisegno accettato,
+   si sceglie il ridisegno, ma **senza una notte in più**: il refactor del
+   motore entra in `main` e il server si aggiorna solo insieme al motore
+   del primo sport della fase 1 (Escursionismo o Gravel/MTB), che cambia
+   l'impronta in ogni caso. Una notte di esempi, col sì dell'utente.
+4. **Un banco comune**, `tools/sport_bench/`: per un'attività (o una rete
+   non ancora registrata, `--loader FILE:FUNCTION`) su sei zone fisse
+   (Trento, Valsugana, Milano, Val di Fiemme, Asiago, Pianura mantovana)
+   misura la rete, le forme del catalogo (riuscite ≥ 0,60, buone ≥ 0,90) e
+   i tempi; `compare` dice cosa è peggiorato fra due misure. Le misure di
+   ogni sport stanno in `docs/sports/<sport>.md`, un file per sport, così
+   nessuno scrive nel file di un altro; le scoperte comuni in
+   `docs/sports/CONDIVISO.md`, che tiene solo il Coordinatore Sport. Sul Mac
+   un banco alla volta, col turno del Coordinatore.
+5. **Le righe di registrazione non le scrivono le sessioni degli sport**:
+   le raccoglie il Coordinatore Sport in una PR di integrazione unica a fine
+   fase, una alla volta e con i test.
+
+**Conseguenze**: dopo la parte B uno sport nuovo è una manciata di file
+nuovi più una riga per registro, e tre sessioni possono lavorarci insieme.
+Il prezzo è un refactor ampio dell'app (circa venti file) in un momento in
+cui nessun altro tocca quei file, e un aggiornamento del server rimandato
+fino al primo sport nuovo. Il pilota della struttura non è la camminata
+(già TASK-371 con la struttura di oggi), ma il primo sport della fase 1.
+
+---
