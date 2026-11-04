@@ -177,5 +177,6 @@ def test_the_command_says_what_it_did(
     monkeypatch.setenv(DATABASE_VARIABLE, database.url)
     assert main([]) == 0
     assert capsys.readouterr().out.strip() == (
-        "game_backfill: rules 1, 1 account(s), 1 run(s), 1 shape(s) unlocked"
+        f"game_backfill: rules {game_backfill.RULES_VERSION}, 1 account(s),"
+        " 1 run(s), 1 shape(s) unlocked"
     )
