@@ -21490,6 +21490,19 @@ dell'utente:
 - Nei file importati è camminata il `walking` del GPX, il «10» di Strava e
   lo sport FIT 11. L'escursionismo no: è di TASK-377.
 - «NEAR YOU» resta solo per la corsa («Solo corsa, per ora»).
+
+**Aggiunta (parte C, 2026-11-04)** · scelta dell'utente per i ritmi
+(«Solo i metri»), il resto deciso dall'agente su delega dell'utente col via
+del Coordinatore:
+
+- Nel gioco delle forme una camminata conta i suoi metri come una corsa,
+  con gli stessi controlli, ma senza tempi migliori: le forme col ritmo non
+  si sbloccano camminando.
+- `RULES_VERSION` passa a 2, così `game_backfill` ricalcola le corse già
+  tenute.
+- I concorsi non filtrano per sport, quindi i post a piedi c'erano già.
+- L'app non cambia: la striscia del gioco conta già «a piedi» tutto ciò che
+  non è bici, canoa o nuoto.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
@@ -21880,6 +21893,30 @@ cui nessun altro tocca quei file, e un aggiornamento del server rimandato
 fino al primo sport nuovo. Il pilota della struttura non è la camminata
 (già TASK-371 con la struttura di oggi), ma l'Escursionismo (TASK-377),
 scelta dell'utente del 2026-11-04.
+
+**Aggiornamento 2026-11-04 (parte B1, approvato dal Coordinatore): il punto
+3 cambia.** Niente notte di esempi per uno spostamento: `route_store.py` ha
+`SAME_ROUTES_AS`, {impronta del codice spostato: impronta di prima}, e
+`engine_fingerprint` (anche quello degli esempi della canoa,
+`paddle_examples.engine_fingerprint`) dà quella di prima, seguendo le righe
+a catena. Una riga entra solo con la sua prova:
+`services/api/tests/test_same_routes.py` disegna offline nove percorsi
+fissi (corsa, bici, canoa, nuoto) e ne scrive l'hash del risultato intero
+in `tests/fixtures/same_routes/<impronta>.json`; un test vieta una riga
+senza le prove delle sue due impronte, fatte sulla stessa piattaforma, con
+gli stessi hash, e un altro controlla che il motore di adesso disegni la
+sua prova (solo sulla piattaforma della prova: il Mac arm64 e Linux in CI
+disegnano alcuni di questi percorsi diversi nelle ultime cifre). Basta
+perché uno spostamento di codice non cambia le operazioni in virgola
+mobile: una differenza di piattaforma è la stessa prima e dopo, e la prova
+su una piattaforma più il banco bastano. Non bastano per un cambiamento di
+comportamento, che per questo non usa mai l'alias. In più il banco
+su `main` e sul branch, `compare --same`, punto per punto. **Un cambiamento
+di comportamento non usa mai `SAME_ROUTES_AS`**: i suoi percorsi si
+ridisegnano, col sì dell'utente. Così il server si può aggiornare da `main`
+quando serve. Il primo sport della fase 1 cambia l'impronta con il suo
+codice nuovo: se può avere anche lui una riga (nessun percorso di prima
+cambia) o se serve la notte di esempi, si decide allora col Coordinatore.
 ## ADR-0319 — Gli sport «Record only»: si registrano senza forma, il motore non li vede
 
 **Stato**: Proposto · 2026-11-04 · TASK-375. Scelte dell'utente lo stesso
@@ -21934,6 +21971,18 @@ dell'utente):
    giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
    vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
    sono, finché manca una stima.
+8. (B2, 2026-11-04; la scelta di prodotto è dell'utente, «Sì, così», il
+   modo è deciso dall'agente su delega dell'utente) Ogni lettore dei
+   disegni conosce la neve, e l'attività di `Drawing` e `DrawingDetail` è
+   `RunActivity`; un'attività che l'app non conosce cade ancora come in
+   B0. Una regola sola, `activities/snow.ts` (`isOnSnow`, `routeActivity`),
+   toglie alla neve ciò che si fa con un percorso: «Start» e «Send to a
+   friend» (`runnable`), «Draw it near me» e «Edit the drawing». Toglie
+   anche le calorie stimate. La scheda dice il nome dello sport; un filtro
+   per attività della ricerca la lascia fuori, perché nessun filtro di oggi
+   è la neve. L'export GPX resta, perché non era tra le azioni escluse.
+   `App.tsx` non cambia: `followedOf` non dà mai alla neve l'attività di
+   un percorso.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -22082,6 +22131,20 @@ Testi nuovi in cinque lingue (interfaccia, 91 esercizi, sette figure), una
 riga della privacy per esercizi e classifica. Il codice parte dopo la #758 e
 TASK-376 B2 e B3, con le righe di registrazione raccolte dal Coordinatore
 Sport. Server, migrazione e OTA di produzione col sì dell'utente.
+## ADR-0318, precisazione — L'unità di peso e altezza sta dentro il riquadro
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Dentro il riquadro»),
+il resto deciso dall'agente su delega dell'utente (TASK-383). In «Body»
+l'unità stava a destra del riquadro, piccola e grigia, e sul telefono non si
+notava. Ora «kg» e «cm» (con le miglia «lb», «ft» e «in») stanno dentro il
+riquadro, dopo il numero e nella sua stessa dimensione; il riquadro è un
+`Pressable` e un tocco ovunque, anche sull'unità, apre la tastiera del campo.
+I valori restano in kg e cm (punto 10). Scartati: l'unità nel nome del campo
+(«Weight (kg)»), che con le miglia cambia il nome, e un segnaposto, che sparisce
+appena si scrive.
+
+---
+
 ## ADR-0326 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
 
 **Stato**: Accettata · 2026-11-04 · TASK-384 («Sì, approvo» dell'utente
@@ -22158,5 +22221,34 @@ faceva con le pagine affiancate di TASK-154 (ADR-0124).
 **Conseguenze**: chi aveva imparato lo swipe prima di TASK-367 lo ritrova.
 La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
 prova solo con i test.
+
+**Scelte tecniche** (2026-11-04, decise dall'agente su delega dell'utente):
+
+- Lo `ScrollView` orizzontale a pagine di React Native, come il `Pager` di
+  TASK-154: uno scroll orizzontale dentro una pagina si tiene il dito che parte
+  su di lui (UIKit lo dà alla vista più interna, e una che rimbalza lo tiene
+  anche ai bordi). Scartato `PanResponder` con `Animated`: con Fabric uno
+  `ScrollView` interno scorre anche quando il responder JS è un genitore, e le
+  due cose si muoverebbero insieme.
+- Il giro senza salti: le pagine stanno su una striscia di 2000 posti larghi
+  uno schermo (`tabs/tabStrip.ts`). La pagina sullo schermo ha un posto e le due
+  vicine quelli ai lati; una pagina cambia posto solo fuori vista, così lo
+  scroll non torna mai indietro. Mille swipe nella stessa direzione prima di un
+  capo, dove lo swipe si ferma; non di più, perché il layout conta in float a
+  32 bit.
+- Tocco sulla barra, giro guidato, «indietro» di Android, e il profilo al posto
+  di «Messages» senza account: la pagina arriva subito dove sta la striscia,
+  senza scorrere su quelle in mezzo e senza costruirle. La barra cambia quando
+  lo swipe si ferma.
+- Una pagina pigra si costruisce ai primi pixel che entrano nello schermo, come
+  nel `Pager`: «Explore» e il profilo, la prima volta, entrano vuoti per un
+  attimo.
+- Con VoiceOver o TalkBack acceso lo swipe è spento: tre dita direbbero
+  «pagina 1001 di 2000». Le schede restano `tab` con lo stato `selected`.
+- `scrollsToTop={false}` sulla striscia: il tocco sull'orologio va allo scroll
+  della pagina.
+- Il limite: una seconda scivolata veloce mentre una fila rimbalza ancora alla
+  fine passa alla pagina accanto (UIKit). Toglierlo vorrebbe cambiare le file;
+  `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
 
 ---

@@ -1,6 +1,7 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import {
   Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -199,19 +200,26 @@ function Field({ label, filled, onClear, problem = null, children }: FieldProps)
   );
 }
 
-/** A number box with its unit after it. */
+/** A number box with its unit inside it, after the number (TASK-383): a tap
+ * anywhere in the box, the unit too, types in it. */
 function NumberInput({ unit, ...input }: TextInputProps & { unit: string }) {
+  const ref = useRef<TextInput>(null);
   return (
-    <View style={styles.inputRow}>
+    <Pressable
+      style={styles.box}
+      onPress={() => ref.current?.focus()}
+      accessible={false}
+    >
       <TextInput
+        ref={ref}
         style={styles.input}
         placeholderTextColor={color.textFaint}
         keyboardAppearance="dark"
         returnKeyType="done"
         {...input}
       />
-      <Text style={styles.unit}>{unit}</Text>
-    </View>
+      {unit !== "" && <Text style={styles.unit}>{unit}</Text>}
+    </Pressable>
   );
 }
 
@@ -445,30 +453,34 @@ const styles = StyleSheet.create({
     color: color.text,
     fontWeight: fontWeight.semibold,
   },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: space.sm,
-  },
   feetInches: {
     flexDirection: "row",
     gap: space.md,
   },
-  input: {
-    minWidth: 96,
+  box: {
+    alignSelf: "flex-start",
+    minWidth: 120,
     minHeight: MIN_TAP_SIZE,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.sm,
     borderWidth: 1,
     borderColor: color.border,
     borderRadius: radius.md,
     paddingHorizontal: space.md,
+    backgroundColor: color.surface,
+  },
+  input: {
+    flexGrow: 1,
+    minWidth: 48,
+    minHeight: MIN_TAP_SIZE,
     paddingVertical: space.sm,
     fontSize: fontSize.input,
     color: color.text,
-    backgroundColor: color.surface,
   },
   unit: {
     color: color.textMuted,
-    fontSize: fontSize.body,
+    fontSize: fontSize.input,
   },
   problem: {
     color: color.error,

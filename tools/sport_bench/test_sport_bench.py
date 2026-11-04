@@ -17,12 +17,14 @@ from sport_bench import (
     Row,
     Zone,
     compare,
+    different,
     engine_planner,
     main,
     measure,
     network_error,
     network_stats,
     network_table,
+    points_hash,
     read_rows,
     routes_table,
     shapes_table,
@@ -195,6 +197,41 @@ def test_compare_from_the_command_line(
     assert main(["compare", str(a), str(b)]) == 1
 
 
+def test_same_says_every_route_not_the_same_point_by_point(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    before = [
+        _row(points="aa"),
+        _row(shape="heart", points="bb"),
+        _row(shape="star", error="NoRoute: none"),
+        _row(target_m=3000, points=None),
+    ]
+    after = [
+        _row(points="aa"),
+        _row(shape="heart", points="cc"),
+        _row(shape="star", points="dd"),
+        _row(target_m=3000, points="ee"),
+    ]
+    found = {(c.shape, c.target_m): c.what for c in different(before, after)}
+    assert found == {
+        ("heart", 5000): "other points",
+        ("star", 5000): "error NoRoute: none -> None",
+        ("circle", 3000): "no points to compare",
+    }
+    a, b = tmp_path / "a.json", tmp_path / "b.json"
+    write_results(a, "running", "a", {}, before[:2], None)
+    write_results(b, "running", "b", {}, after[:2], None)
+    assert main(["compare", str(a), str(b)]) == 0  # as good, not the same
+    assert main(["compare", "--same", str(a), str(b)]) == 1
+    assert "heart 5 km: other points" in capsys.readouterr().out
+
+
+def test_the_points_hash_counts_every_digit() -> None:
+    route = [(46.0, 11.0), (46.001, 11.002)]
+    assert points_hash(route) == points_hash([list(p) for p in route])
+    assert points_hash(route) != points_hash([(46.0, 11.0), (46.001, 11.0020001)])
+
+
 def test_the_engine_planner_draws_on_a_real_graph() -> None:
     from route_engine.network import FileSource
 
@@ -204,6 +241,7 @@ def test_the_engine_planner_draws_on_a_real_graph() -> None:
     # The 1 km graph is small: the circle comes out, longer than asked.
     assert row.drawn and row.similarity is not None
     assert row.real_m is not None and row.real_m > 500
+    assert row.points is not None and len(row.points) == 16
     assert row.seconds >= 0
 
 

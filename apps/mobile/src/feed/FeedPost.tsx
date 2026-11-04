@@ -78,6 +78,10 @@ const SWIM =
   SPORTS.find((sport) => sport.id === "swim")?.name ?? tLater("Open water swim");
 // «Soon» too, in a store build, until the server walks (TASK-371).
 const WALK = SPORTS.find((sport) => sport.id === "walk")?.name ?? tLater("Walk");
+// A day on the snow (TASK-375): «Soon» too, until the day has its numbers.
+const SKI = SPORTS.find((sport) => sport.id === "ski")?.name ?? tLater("Ski");
+const XC_SKI =
+  SPORTS.find((sport) => sport.id === "xc_ski")?.name ?? tLater("Cross-country ski");
 
 function sameWords(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -123,7 +127,11 @@ export function postFacts(post: SamplePost): string {
           ? SWIM
           : post.activity === "walking"
             ? WALK
-            : null;
+            : post.activity === "skiing"
+              ? SKI
+              : post.activity === "xc_skiing"
+                ? XC_SKI
+                : null;
   const withSport = sport === null ? facts : `${t(sport)} · ${facts}`;
   return isImportedPost(post) ? `${t("Imported")} · ${withSport}` : withSport;
 }

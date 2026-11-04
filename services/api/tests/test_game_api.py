@@ -21,7 +21,7 @@ from shaperoute_api.app import create_app
 from shaperoute_api.db import Database
 from shaperoute_api.expo_push import Expo
 from shaperoute_api.game import record
-from shaperoute_api.game_rules import RunGame
+from shaperoute_api.game_rules import RULES_VERSION, RunGame
 from shaperoute_api.push import Pusher
 
 NOW = datetime(2026, 10, 23, 12, 0, tzinfo=UTC)
@@ -122,7 +122,7 @@ def test_the_catalog_needs_no_account(client: TestClient) -> None:
     answer = client.get("/game/catalog")
     assert answer.status_code == 200
     body = answer.json()
-    assert body["rules_version"] == 1
+    assert body["rules_version"] == RULES_VERSION
     shapes = {shape["id"]: shape for shape in body["shapes"]}
     assert len(shapes) == 12
     assert shapes["triangle"]["goal"] == {
