@@ -22,7 +22,7 @@ const help: AboutDocument = {
       heading: "Ce qu'est MuW",
       blocks: [
         "MuW dessine de vrais parcours qui tracent une forme sur la carte. Tu choisis la forme, la distance et le point de départ ; tu obtiens un parcours sur de vraies rues, avec son fichier GPX.",
-        "L'app a quatre pages côte à côte, «Fil», «Dessiner», «Explorer» et ton profil : glisse vers la gauche ou la droite, ou touche un nom en haut. Le cercle en haut t'amène à ton profil.",
+        "En bas, il y a cinq onglets : «Fil», «Dessiner», «Messages», «Explorer» et ton profil, le cercle avec ta photo. Touche un onglet pour y aller, touche-le encore pour revenir en haut. Les «Réglages» sont sous l'engrenage en haut à droite de ton profil.",
       ],
     },
     {
@@ -88,7 +88,7 @@ const help: AboutDocument = {
       heading: "Messages",
       blocks: [
         "«Message» sur le profil d'un membre lui écrit. S'il te suit, ton message arrive dans ses «Messages» ; sinon, il arrive comme demande, et tu peux envoyer un seul message tant qu'elle n'est pas acceptée.",
-        "Tes conversations sont dans «Profil», «Messages», avec «Demandes de message» en haut. Accepte une demande pour vous écrire, supprime-la (la personne qui a écrit n'est pas prévenue) ou bloque-la.",
+        "Tes conversations sont dans «Messages», l'onglet avec l'avion en papier, avec «Demandes de message» en haut. Accepte une demande pour vous écrire, supprime-la (la personne qui a écrit n'est pas prévenue) ou bloque-la.",
         "Maintiens appuyé un message pour supprimer le tien, pour vous deux, ou pour signaler un message reçu. Personne ne voit si tu as lu un message. Avec le push allumé, MuW te prévient de chaque message et de chaque demande.",
         "Dans une conversation, touche + pour envoyer une photo, une vidéo de 60 secondes au maximum ou un dessin, ou touche Envoyer à des amis sur un parcours ou un dessin. Tu peux les envoyer quand l'autre personne a accepté ton message. Les vidéos sont gardées 30 jours, ou moins quand notre espace pour les vidéos est plein : les plus anciennes partent d'abord. Touche un dessin pour l'ouvrir sur la carte, le lancer, exporter son GPX ou le garder dans tes favoris.",
       ],
@@ -96,7 +96,7 @@ const help: AboutDocument = {
     {
       heading: "Course, vélo, pagaie",
       blocks: [
-        "Choisis ton sport avec le bouton à côté de ton profil, ou dans «Réglages».",
+        "Choisis ton sport avec le bouton en haut à droite, ou dans «Réglages».",
         {
           bullets: [
             "Course : jusqu'à 21 km sur de vraies rues, avec la voix virage par virage.",

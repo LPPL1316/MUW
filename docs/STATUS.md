@@ -176,6 +176,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   restano»). Parte A (solo
   app, `App.tsx`) col via del Coordinatore dopo TASK-355 A e 362; B dopo 344 B;
   C con server e migrazione, col sì dell'utente. `tasks/TASK-367.md`.
+  **Parte A** (2026-11-04): branch `feat/TASK-367-a-tab-bar`, la barra in
+  basso con cinque schede, un header solo, «Messages» come scheda,
+  l'ingranaggio del Profilo, il Pager tolto; suite dell'app verde. Dopo il
+  merge: un OTA di produzione col sì dell'utente; poi la 368 A riprende.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte

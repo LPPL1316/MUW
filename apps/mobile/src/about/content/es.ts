@@ -22,7 +22,7 @@ const help: AboutDocument = {
       heading: "Qué es MuW",
       blocks: [
         "MuW dibuja rutas reales que trazan una forma en el mapa. Tú eliges la forma, la distancia y dónde empezar; obtienes una ruta por calles reales, con su archivo GPX.",
-        "La app tiene cuatro páginas, una al lado de otra, «Feed», «Dibuja», «Explora» y tu perfil: desliza a la izquierda o a la derecha, o toca un nombre arriba. El círculo de arriba te lleva a tu perfil.",
+        "Abajo hay cinco pestañas: «Feed», «Dibuja», «Mensajes», «Explora» y tu perfil, el círculo con tu foto. Toca una pestaña para ir allí, tócala otra vez para volver arriba. Los «Ajustes» están bajo el engranaje arriba a la derecha de tu perfil.",
       ],
     },
     {
@@ -88,7 +88,7 @@ const help: AboutDocument = {
       heading: "Mensajes",
       blocks: [
         "«Mensaje» en el perfil de un miembro le escribe. Si te sigue, tu mensaje llega a sus «Mensajes»; si no, llega como solicitud, y puedes enviar un solo mensaje hasta que la acepte.",
-        "Tus conversaciones están en «Perfil», «Mensajes», con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
+        "Tus conversaciones están en «Mensajes», la pestaña del avión de papel, con «Solicitudes de mensaje» arriba. Acepta una solicitud para escribiros, bórrala (quien escribió no se entera) o bloquea a quien escribió.",
         "Mantén pulsado un mensaje para borrar el tuyo, para los dos, o para denunciar uno que has recibido. Nadie ve si has leído un mensaje. Con las push encendidas, MuW te avisa de cada mensaje y de cada solicitud.",
         "En una conversación, toca + para enviar una foto, un vídeo de hasta 60 segundos o un dibujo, o toca Enviar a amigos en una ruta o un dibujo. Puedes enviarlos cuando la otra persona haya aceptado tu mensaje. Los vídeos se guardan 30 días, o menos cuando nuestro espacio para vídeos se llena: los más antiguos se van primero. Toca un dibujo para abrirlo en el mapa, empezarlo, exportar su GPX o guardarlo en tus favoritos.",
       ],
@@ -96,7 +96,7 @@ const help: AboutDocument = {
     {
       heading: "Correr, bici, remo",
       blocks: [
-        "Elige tu deporte con el botón junto a tu perfil, o en «Ajustes».",
+        "Elige tu deporte con el botón de arriba a la derecha, o en «Ajustes».",
         {
           bullets: [
             "Correr: hasta 21 km por calles reales, con la voz giro a giro.",

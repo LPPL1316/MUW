@@ -53,6 +53,7 @@ import {
   WATER_SPOTS,
   type WaterSpot,
 } from "./waterSpots";
+import { useScrollToTopOnReselect } from "../tabs/tabReselect";
 
 /** Where the examples come from: a spot chosen, or «Near me», from the
  * start of «Draw» as it was when «Near me» began (null: there was none).
@@ -131,6 +132,8 @@ export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
   // The places say how far in the app's units, at once (TASK-182).
   useUnits();
   const insets = useSafeAreaInsets();
+  // Its tab touched again: back to the top (TASK-367).
+  const scroll = useScrollToTopOnReselect<ScrollView>();
   const { width } = useWindowDimensions();
   const [chosen, setChosen] = useState<Chosen>(() => kept);
   const [started, setStarted] = useState<LatLon | null>(() => firstStart ?? near);
@@ -212,6 +215,7 @@ export function PaddleExplore({ apiUrl, near, onOpen }: Props) {
         <HeartBadge size={MIN_TAP_SIZE} />
       </View>
       <ScrollView
+        ref={scroll}
         contentContainerStyle={[
           styles.list,
           { paddingBottom: insets.bottom + space.lg },

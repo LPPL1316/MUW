@@ -568,31 +568,46 @@ non la ricarica. La scheda sta sotto la mappa, non sopra, così non copre
 l'attribuzione; i margini seguono la tacca e la barra in basso di ogni
 telefono.
 
-## Le pagine: «Feed», «Draw», «Explore» e il profilo (TASK-154, ADR-0124; TASK-278)
+## Le pagine e la barra di schede (TASK-367, ADR-0311; prima TASK-154, ADR-0124, e TASK-278)
 
-Tre pagine affiancate, scelta dell'utente: **«Feed»** a sinistra,
-**«Draw»** al centro, **«Explore»** a destra. Si passa dall'una all'altra
-con uno swipe a destra o a sinistra, oppure toccando il nome in alto. I tre
-nomi stanno in alto a sinistra, nell'ordine in cui sono le pagine: dicono
-dove porta lo swipe. Il nome della pagina sullo schermo è chiaro, con una
-lineetta sotto; gli altri sono grigi. Niente giallo: è del percorso.
+Con TASK-367 parte A (scelta dell'utente) le pagine non stanno
+più affiancate: **una barra di schede in basso**, come Instagram, cinque
+icone senza parole sopra l'home indicator: **casa** «Feed», **matita**
+«Draw», **aereo di carta** «Messages», **lente** «Explore», **la propria
+foto** (o l'iniziale, o una figura) il profilo. Le icone sono di Lucide (ISC,
+`assets/ui/tabs/LICENSE-lucide.txt`), PNG bianche colorate dai token: la
+scheda sullo schermo ha il tratto più spesso e il colore del testo, le altre
+il tratto sottile e `textFaint`; la foto del profilo attivo ha un bordo
+sottile del colore del testo. Niente giallo: è del percorso. Su «Messages»
+un numero rosso con le conversazioni nuove e le richieste; sul profilo
+quello delle richieste di follow. VoiceOver legge ogni scheda col suo nome
+(«Messages, 3 waiting») e quella sullo schermo come selezionata. La barra è
+quasi opaca (`background` al 95%): il blur vero chiede `expo-blur`, una
+build.
 
-**Dopo «Explore», il proprio profilo** (TASK-278, aggiunta ad ADR-0124;
-scelta dell'utente del 2026-10-11): una quarta pagina a destra di
-«Explore», a uno swipe a sinistra da lì; uno swipe a destra torna a
-«Explore». In alto i nomi restano tre: la quarta pagina non ha un nome, ha
-**il cerchio di «Profile»** in alto a destra (sotto, «Profile»). Quando il
-profilo è sullo schermo il cerchio ha la lineetta della pagina accesa,
-bianca come quella dei nomi, subito sotto di sé (l'intestazione resta alta
-com'era), e nessun nome è chiaro; VoiceOver legge il cerchio come
-selezionato. Un tocco sul cerchio, da qualunque pagina, porta lì scorrendo,
-come un tocco su un nome; non apre più un foglio sopra l'app. La pagina è
-la prima di «Profile»: senza account «Sign up» e «Log in», con l'account il
-profilo con le sue righe; **senza «←» e senza titolo**, come le altre
-pagine. Si costruisce la prima volta che ci si arriva, come «Explore», e si
-rifà ogni volta che torna sullo schermo (dopo uno swipe o un tocco, o
-chiusa una pagina che si era aperta sopra): gli elenchi di chi segue e i
-disegni si rileggono, come quando «Profile» si apriva.
+**Un header uguale su tutte le pagine**: il cuore giallo e «MuW» a
+sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
+(lo dice la barra). La campanella arriva con la parte C.
+
+- Un tocco su una scheda mostra la sua pagina **subito, senza swipe** fra le
+  pagine. Ogni pagina resta costruita dopo la prima visita: scroll, campi e
+  scelte restano come erano. «Explore», «Messages» e il profilo si
+  costruiscono la prima volta che ci si arriva.
+- **Il tocco sulla scheda già attiva** riporta la pagina in cima (Feed,
+  Draw, Explore, Messages) o alla sua prima vista (il profilo).
+- Su Android il tasto indietro torna alla scheda di prima, poi esce.
+- **«Messages»** è la lista delle conversazioni con «Message requests» in
+  cima (TASK-319); una conversazione e le richieste si aprono sopra come
+  prima, e «←» torna alla scheda. Si rilegge ogni volta che torna sullo
+  schermo. Senza account la scheda porta al profilo, a «Sign up» e «Log in».
+  «Message» su un profilo e le notifiche aprono la conversazione come prima.
+- **Il profilo**: le **«Settings» sono sotto l'ingranaggio in alto a destra**;
+  la riga «Messages» non c'è più (c'è la scheda), la riga «Settings» neanche.
+- Barra e header non ci sono su mappa, corsa, corsa senza percorso, «Play»,
+  corsa interrotta riaperta: lì la schermata è intera, come prima.
+
+Quello che segue descrive le pagine; dove parla di swipe e di nomi in alto
+vale la barra qui sopra.
 
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
