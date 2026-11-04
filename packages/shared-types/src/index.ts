@@ -2312,6 +2312,11 @@ export interface MuwRoute {
   preview: LatLon[];
   /** As `RouteResult.rotation_deg`. */
   rotation_deg: number;
+  /** What it draws, as a route request says it: a shape, or a word with its
+   * style; null and null from a file without its figure. */
+  shape?: string | null;
+  word?: string | null;
+  style?: string | null;
 }
 
 /** GET /muw-routes. An older server answers 404: no routes. */
@@ -2325,4 +2330,7 @@ export interface MuwRouteDetail extends Omit<MuwRoute, "start" | "preview"> {
   /** As `RouteResult.on_foot`. */
   on_foot: Stretch[];
   license: string;
+  /** The figure's own outline when the catalogue does not have it: what is
+   * the request the route opens with; the line is still `points`. */
+  outline?: OutlinePoint[] | null;
 }

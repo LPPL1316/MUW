@@ -21,5 +21,9 @@
   ],
   "on_foot": [[1, 2]],
   "license": "Route on OpenStreetMap data, (c) OpenStreetMap contributors, ODbL 1.0",
-  "rotation_deg": -30
+  "rotation_deg": -30,
+  "shape": "star",
+  "word": null,
+  "style": null,
+  "outline": null
 }

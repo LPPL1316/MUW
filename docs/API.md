@@ -2563,6 +2563,11 @@ codice in `muw_routes.py`.
   così un tempo, un passo o una persona non entrano. Lasciato fuori anche senza
   attribuzione a OpenStreetMap, con un titolo mancante in una delle cinque lingue
   o con un nome che non è il suo `id`.
+- **Cosa disegna** (per aprirlo e partire): `shape`, oppure `word` con `style`,
+  e nel percorso intero `outline` quando la figura non è nel catalogo, come i
+  file dei contorni del motore. Un file senza questi campi si legge lo stesso,
+  con `null`, ma l'app non lo apre. La linea che si apre e si corre è sempre
+  quella del file: la figura non la fa ripianificare.
 - **`climb_m` è una stima** da tessere di elevazione, non una misura: nessuno ha
   pedalato questi percorsi. La somiglianza non si manda.
 
