@@ -175,7 +175,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A in PR, la #770, in bozza; aspetto approvato dall'utente il
   2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Dopo la #764 `TabShell`
   passa a `TabBar` lo spostamento del dito (`drag`): la capsula segue lo swipe.
-  La unisce il Coordinatore a CI verde.
+  **Parte A in `main`** (#770, 0d7819c4, 2026-11-05, CI verde). Prossimo: la
+  parte B, l'«isola», in un contesto nuovo. L'OTA di produzione col sì
+  dell'utente.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
