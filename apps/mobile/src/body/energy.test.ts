@@ -140,6 +140,16 @@ describe("at rest", () => {
     expect(restKcalPerMin({ ...MAN, sex: "unsaid" }, YEAR)).toBeCloseTo(1667 / 1440);
   });
 
+  test("a swim has none yet (TASK-323 C2)", () => {
+    const effort = {
+      activity: "swimming",
+      metres: 1500,
+      seconds: 2700,
+      climbM: null,
+    } as const;
+    expect(activeKcal(effort, NO_BODY, YEAR)).toBe(0);
+  });
+
   test("no metres, no energy", () => {
     const effort = {
       activity: "running",

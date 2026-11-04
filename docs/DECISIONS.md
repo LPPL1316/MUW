@@ -21379,7 +21379,10 @@ dati sulla salute (GDPR art. 9).
     la salita non c'è; i post in bici e in canoa ora hanno le kcal. In Salute e
     Health Connect le kcal si scrivono per ogni sport: il testo di
     `NSHealthUpdateUsageDescription` della 1.0.1 dice ancora «for runs» e si
-    corregge nella 1.0.2, con la parte C. Basta per Tanaka e per
+    corregge nella 1.0.2, con la parte C.
+14. Il nuoto (TASK-323 C2, entrato prima) non ha ancora una formula: zero kcal,
+    nessun riquadro «Calories» e nessuna energia in Salute, come aveva deciso
+    il suo task. Una formula per il nuoto è una scelta a parte. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si

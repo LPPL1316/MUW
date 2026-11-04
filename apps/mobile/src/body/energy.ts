@@ -15,6 +15,8 @@ import { ageIn, type BodyProfile, type Sex } from "./bodyProfile";
  * - At rest: Mifflin-St Jeor with sex, age, weight and height; with any of
  *   them missing, one standard MET.
  *
+ * A swim has none yet (TASK-323 C2).
+ *
  * With no body at all a flat run is 1.0 kcal per kilogram and kilometre for
  * 70 kg, as near as the 1.036 of before (−3.5%).
  */
@@ -100,7 +102,7 @@ function oxygenMlKg(effort: Effort, minutes: number): number {
     const up = Math.max(0, effort.climbM ?? 0);
     return MET_ML_KG_MIN * minutes + RUN_ML_KG_PER_M * metres + RUN_ML_KG_PER_M_UP * up;
   }
-  if (minutes <= 0) {
+  if (minutes <= 0 || effort.activity === "swimming") {
     return 0;
   }
   const kmh = metres / 1000 / (minutes / 60);
@@ -112,7 +114,8 @@ function oxygenMlKg(effort: Effort, minutes: number): number {
  * never below zero, and none without metres: standing still is rest.
  */
 export function activeKcal(effort: Effort, body: BodyProfile, year: number): number {
-  if (!(effort.metres > 0)) {
+  // A swim has no formula yet: TASK-323 C2 writes it with no energy.
+  if (!(effort.metres > 0) || effort.activity === "swimming") {
     return 0;
   }
   const weight = body.weightKg ?? DEFAULT_WEIGHT_KG;

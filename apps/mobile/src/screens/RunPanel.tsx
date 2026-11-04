@@ -91,8 +91,9 @@ export type RunNumbers = {
   time: string;
   /** "42", metres, or NO_NUMBER when the phone gives no height. */
   climb: string;
-  /** "187", kilocalories. */
-  energy: string;
+  /** "187", kilocalories; null for a swim, which has no formula yet
+   * (TASK-374): no tile. */
+  energy: string | null;
   /** "3.2 km to go" and "about 17 min", along a route; with miles
    * "2.0 mi to go". */
   toGo: string | null;
@@ -158,18 +159,21 @@ export function useRunNumbers(
     pace500: clock(average === null ? null : per500S(average)),
     time: clockLabel(ms),
     climb: climbed === null ? NO_NUMBER : String(Math.round(climbed)),
-    energy: String(
-      activeKcal(
-        {
-          activity: activity ?? "running",
-          metres: track.distanceM,
-          seconds: ms / 1000,
-          climbM: climbed,
-        },
-        body,
-        new Date(at).getFullYear(),
-      ),
-    ),
+    energy:
+      activity === "swimming"
+        ? null
+        : String(
+            activeKcal(
+              {
+                activity: activity ?? "running",
+                metres: track.distanceM,
+                seconds: ms / 1000,
+                climbM: climbed,
+              },
+              body,
+              new Date(at).getFullYear(),
+            ),
+          ),
     toGo: route
       ? t("{distance} to go", { distance: distanceLabel(route.remainingM, units) })
       : null,
@@ -292,7 +296,9 @@ export function RunGrid({ numbers }: { numbers: RunNumbers }) {
         <View style={styles.tiles}>
           <Tile label={t("Avg /500 m")} value={numbers.pace500} />
           <Tile label={t("Last 500 m")} value={numbers.lastKm} />
-          <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
+          {numbers.energy !== null && (
+            <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
+          )}
         </View>
       ) : (
         <View style={styles.tiles}>
@@ -304,7 +310,9 @@ export function RunGrid({ numbers }: { numbers: RunNumbers }) {
           <Tile label={t("Elev. gain")} value={numbers.climb} unit="m" />
           {/* Each sport its own energy (TASK-374, ADR-0318): the tile is
               back on a bike, where the runner's formula had taken it off. */}
-          <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
+          {numbers.energy !== null && (
+            <Tile label={t("Calories")} value={numbers.energy} unit="kcal" />
+          )}
         </View>
       )}
     </View>
