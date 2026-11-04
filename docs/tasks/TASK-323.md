@@ -493,6 +493,12 @@ result»), i testi e le traduzioni («Yes, like this»).
   C4 («Explore» a nuoto: oggi con lo sport del nuoto mostrerebbe gli esempi
   della corsa). La corsa a nuoto (niente voce, passo per 100 m) è D.
 
+- **2026-11-04, dal Mac**: le righe del nuoto in Apple Salute («Nuoto»,
+  `HKWorkoutActivityType.swimming`, la distanza in «Distanza a nuoto») e in
+  Health Connect (`EXERCISE_TYPE_SWIMMING_OPEN_WATER`) approvate
+  dall'utente («Sì, così»); il via del Coordinatore sui due file di
+  TASK-321 (la parte C è ferma). Impronta iOS `6f8bba4c`, invariata.
+
 File toccati da C2:
 
 ```
