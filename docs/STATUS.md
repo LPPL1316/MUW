@@ -258,7 +258,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nuoto, perché tocca `App.tsx`.
   **Parte C1** (2026-11-04, branch `feat/TASK-367-c1-notifications-api`):
   la lista della campanella sul server, `GET /notifications` e `POST
-  /notifications/read`, migrazione `0045_notifications`; server e
+  /notifications/read`, migrazione `0045_notification_list`; server e
   migrazione col sì dell'utente; durata (90 giorni) e frase della privacy
   approvate («Sì, approvo»), `site/privacy` rigenerato. C2 (la campanella nell'app) dopo la #734.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,

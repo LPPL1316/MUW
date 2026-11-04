@@ -198,7 +198,7 @@ evento lasciato passare (tutti i tipi delle push tranne i messaggi, push
 accese o spente); `GET /notifications` (30 alla volta, `before`, `unread`,
 il testo della push nella lingua dell'account, `opens` = il `data` della
 push, fuori quello che non è più vero) e `POST /notifications/read`
-(`up_to`). Migrazione `0045_notifications` (numero del Coordinatore). Le
+(`up_to`). Migrazione `0045_notification_list` (numero del Coordinatore). Le
 righe si tengono `KEPT_DAYS` = 90 giorni. Alla proposta «Le notifiche della
 campanella restano sul server per 90 giorni, poi si cancellano», con la frase
 della privacy «La lista della campanella: chi ha fatto cosa, su quale post,
@@ -211,7 +211,7 @@ Nelle 5 lingue di `about/content`, `site/privacy` rigenerato.
 File toccati della parte C1:
 
 ```
-services/api/migrations/0045_notifications.sql               (nuovo)
+services/api/migrations/0045_notification_list.sql               (nuovo)
 services/api/shaperoute_api/notification_list.py             (nuovo)
 services/api/tests/test_notification_list.py                 (nuovo)
 services/api/shaperoute_api/app.py                           (una riga, dopo install_push)
