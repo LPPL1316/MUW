@@ -4,7 +4,8 @@ import { fitLines } from "../activities/fitLines";
 import { color, SHADES } from "../theme/tokens";
 import { POST_RESULTS, type PostRun, resultValue } from "./postRun";
 import type { Sticker } from "./stickers";
-import { MAP_CREDIT, MAP_WAIT_MS, NIGHT } from "./videoMap";
+import { MAP_CREDIT, MAP_WAIT_MS } from "./videoMap";
+import { DAY, NIGHT } from "./videoStyle";
 import {
   lengthOf,
   MAX_POINTS,
@@ -264,8 +265,10 @@ describe("videoScene, at night", () => {
     expect(end.find((op) => op.k === "scrim")).toEqual({
       k: "scrim",
       top: 1152,
+      peak: 0.82,
       alpha: 1,
     });
+    expect(end.filter((op) => op.k === "line" && op.path === 1)).toHaveLength(1);
     const credit = texts(end).find((op) => op.text === MAP_CREDIT);
     expect(credit).toMatchObject({ color: "faint", align: "center", weight: 400 });
     expect(credit?.y).toBeGreaterThan(1920 * 0.95);
@@ -313,6 +316,60 @@ describe("videoScene, at night", () => {
     }
     expect(night.frames).toHaveLength(VIDEO_SECONDS * VIDEO_FPS);
     expect(Math.max(...night.frames.map((frame) => frame.length))).toBeLessThan(24);
+  });
+});
+
+describe("videoScene, by day", () => {
+  const day = videoScene(RUN, POST_RESULTS, STICKERS, "day");
+  const end = day.frames[day.frames.length - 1];
+
+  it("takes every colour from the light tone at its brightest, the veil from its map's ground", () => {
+    expect(day.look).toBe("day");
+    expect(day.colors).toEqual({
+      paper: DAY.map.background,
+      ink: DAY.text,
+      muted: DAY.textMuted,
+      faint: DAY.textFaint,
+      accent: DAY.accent,
+      onAccent: DAY.onAccent,
+      dot: DAY.text,
+      scrim: DAY.map.background,
+    });
+    const known = new Set<string>(Object.values(DAY.map));
+    for (const hex of JSON.stringify(day.map?.style).match(/#[0-9A-Fa-f]{6}/g) ?? []) {
+      expect(known.has(hex)).toBe(true);
+    }
+    expect(end.find((op) => op.k === "scrim")).toEqual({
+      k: "scrim",
+      top: 1152,
+      peak: 0.94,
+      alpha: 1,
+    });
+  });
+
+  it("runs the line on its dark edge, as on the light map", () => {
+    const lines = end.filter((op): op is Line => op.k === "line" && op.path === 1);
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toMatchObject({ color: "onAccent", alpha: 0.85, width: 25.6 });
+    expect(lines[1]).toMatchObject({ color: "accent", width: 17.3 });
+    expect(lines[0].upTo).toBe(lines[1].upTo);
+    // The edge grows with the line, from the start.
+    const early = day.frames[3 * VIDEO_FPS].filter(
+      (op): op is Line => op.k === "line" && op.path === 1,
+    );
+    expect(early).toHaveLength(2);
+    expect(early[0].upTo).toBe(early[1].upTo);
+    expect(early[1].upTo).toBeLessThan(lines[1].upTo);
+  });
+
+  it("is otherwise the same video as at night", () => {
+    const night = videoScene(RUN, POST_RESULTS, STICKERS, "night");
+    expect(day.frames).toHaveLength(night.frames.length);
+    expect(day.paths).toEqual(night.paths);
+    expect(day.map?.camera).toEqual(night.map?.camera);
+    const texts = (frame: VideoOp[]) =>
+      frame.filter((op): op is Words => op.k === "text").map((op) => op.text);
+    expect(texts(end)).toEqual(texts(night.frames[night.frames.length - 1]));
   });
 });
 

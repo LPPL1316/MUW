@@ -14,6 +14,7 @@ import type { PostRun } from "./postRun";
 import { SharePost } from "./SharePost";
 import { VIDEO_FILE, VIDEO_SILENCE_MS } from "./videoFile";
 import { musicTrack } from "./videoMusic";
+import { DAY } from "./videoStyle";
 import type { VideoPageMessage } from "./videoPage";
 
 jest.mock("expo-file-system");
@@ -149,7 +150,8 @@ describe("Music", () => {
     await shown();
     expect(screen.getByText("Music")).toBeOnTheScreen();
     expect(screen.getByText("Tap a track to hear it.")).toBeOnTheScreen();
-    expect(screen.getAllByRole("radio")).toHaveLength(11);
+    // «None» and the ten tracks, and the two styles of the video.
+    expect(screen.getAllByRole("radio")).toHaveLength(13);
     expect(screen.getByRole("radio", { name: "None" })).toBeChecked();
     await fireEvent.press(screen.getByRole("radio", { name: "Energy" }));
     expect(screen.getByRole("radio", { name: "Energy" })).toBeChecked();
@@ -252,6 +254,22 @@ describe("Export video", () => {
     expect(keepPost).toHaveBeenCalledWith("run-1", expect.anything());
     expect(screen.queryByTestId("run-video")).toBeNull();
     expect(screen.getByRole("button", { name: "Export video" })).toBeEnabled();
+  });
+
+  it("makes the video in the style chosen: Day after a tap on its tile", async () => {
+    await shown();
+    expect(screen.getByText("Style")).toBeOnTheScreen();
+    expect(screen.getByRole("radio", { name: "Night" })).toBeChecked();
+    await fireEvent.press(screen.getByRole("radio", { name: "Day" }));
+    expect(screen.getByRole("radio", { name: "Day" })).toBeChecked();
+    await exportVideo();
+    await page({ type: "ready", codec: "avc1.42e028" });
+    const first = inject.mock.calls[0][0];
+    expect(first.startsWith("window.muwVideo.prepareMap({")).toBe(true);
+    // The light map's ground, in the style the page gets.
+    expect(first).toContain(DAY.map.background);
+    await page({ type: "map", ok: true, why: null, ms: {} });
+    expect(inject.mock.calls[1][0]).toContain('"look":"day"');
   });
 
   it("falls back on the post on yellow when the map does not come, and still shares", async () => {

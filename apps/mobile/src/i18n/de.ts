@@ -1737,4 +1737,9 @@ export const DE: Table = {
   "Route created by MuW – ride it yourself": "Route von MuW – fahr sie selbst",
   "Route created by MuW – run it yourself": "Route von MuW – lauf sie selbst",
   "Route created by MuW – paddle it yourself": "Route von MuW – paddel sie selbst",
+
+  // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
+  Style: "Stil",
+  Night: "Nacht",
+  Day: "Tag",
 };

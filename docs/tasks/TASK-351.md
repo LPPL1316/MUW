@@ -519,6 +519,40 @@ PR #679, branch `feat/TASK-351-b-video-map` (worktree `TASK-351-b`), da
   +1,3–2,4 s. A tegole fredde +4–10 s (dal bench): lì può raddoppiare, e
   si vede solo lo stato di attesa.
 
+## La parte C, com'è fatta (2026-11-04)
+
+Branch `feat/TASK-351-c-video-styles` (worktree `TASK-351-c`), da `main`
+con il fix di #703.
+
+- `videoStyle.ts` (nuovo): `VideoStyle` («night», «day»), `NIGHT` (il tono
+  scuro al passo più scuro, spostato qui da `videoMap.ts`) e `DAY` (il tono
+  chiaro al passo più chiaro) da `paletteOf`, `stylePalette`, `styleName`
+  (i testi «Night» e «Day», approvati dall'utente il 2026-10-30).
+- `videoScene.ts`: `VideoLook` = «paper» o uno stile; il look della mappa
+  prende la palette dello stile; per il giorno il velo è `map.background`
+  della palette chiara al 94 % (`peak` nell'op `scrim`, che la pagina
+  usa al posto dell'82 % di `Scrim`), e la linea corre sul suo bordo
+  scuro: una seconda linea `onAccent` sotto quella gialla, larga
+  `routeCasingOf("light")` in più (3 punti su 390, 25,6 px su 1080) e
+  opaca all'85 %, come sulla mappa chiara (ADR-0231). Lo stesso
+  `videoMap` con la palette dello stile: la camera non cambia.
+- `StyleRow.tsx` (nuovo): la riga «Style» sopra «Music», una tessera 9:16
+  per stile (104 × 185 pt, tre ci stanno in una riga) con il disegno
+  della corsa (lo stesso `fitLines` del post, le estremità tagliate) nei
+  colori dello stile sul fondo della sua mappa, il bordo scuro sotto la
+  linea nella tessera «Day»; la tessera scelta ha il bordo `text`, le
+  altre `hairline`; radio per VoiceOver, «Night» all'apertura.
+- `SharePost.tsx`: lo stato dello stile, la riga, la scena nello stile
+  scelto; la riserva resta il giallo.
+- i18n: «Style», «Night», «Day» in fondo alle quattro tabelle (fr «Style»
+  resta «Style»).
+- Test: `videoStyle.test.ts`, la scena di giorno (colori solo dalla
+  palette chiara, velo al 94 %, il bordo sotto la linea che cresce con
+  lei, per il resto lo stesso video della notte), la pagina (il velo opaco
+  quanto chiede la scena), `StyleRow.test.tsx`, il flusso di «Share your
+  run» con «Day» scelto, le tabelle delle traduzioni.
+- La tessera «3D» arriva con la D, che la fa davvero.
+
 ## Il fix del 2026-11-03: la mappa che sul telefono non arrivava
 
 **Che cosa ha visto l'utente**, provando la B dalla preview sull'iPhone
@@ -578,9 +612,10 @@ il harness (file temporanei, mai da committare), il bench in
 `out/video-restyle/`.
 
 2026-11-03: la B è in `main` (#679, merge 5f76d415); sul telefono il
-video è uscito senza mappa: il fix è sopra, in una PR da `main`; la
+video è uscito senza mappa: il fix è #703, in `main` dal 2026-11-04; la
 prova dalla preview è dell'utente, e l'OTA di produzione aspetta che veda
-la mappa. L'utente ha detto «INIZIALE» per C e D: la C parte dopo il fix.
+la mappa. L'utente ha detto «INIZIALE» per C e D: la C è in PR
+(`feat/TASK-351-c-video-styles`); poi la D.
 Arrivate le scelte 5 (privacy, «Sì, va bene») e 1 (i nomi, «Sì,
 questi»). La B ha il via del Coordinatore ed è la PR #679
 (`feat/TASK-351-b-video-map`, worktree `TASK-351-b`): la mappa sotto nel

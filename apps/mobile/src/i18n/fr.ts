@@ -1724,4 +1724,9 @@ export const FR: Table = {
   "Route created by MuW – run it yourself": "Parcours créé par MuW – à toi de courir",
   "Route created by MuW – paddle it yourself":
     "Parcours créé par MuW – à toi de pagayer",
+
+  // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
+  Style: "Style",
+  Night: "Nuit",
+  Day: "Jour",
 };
