@@ -47,10 +47,13 @@ type Props = {
  * the app puts them in an MP4 file in the cache folder and shares it.
  * Instagram is in the sheet (Reels, Story), and «Save Video» keeps it in
  * Photos. Mounted while the video is made; it lives inside the post's
- * Modal, where iOS keeps it on screen. The music's file is read while the
- * pictures are made, and goes into the MP4 as its second track. On a map
- * look the page draws the map first (TASK-351); when it cannot, within its
- * own time, the `fallback` scene is made instead.
+ * Modal, where iOS keeps it on screen, as one point in the corner at full
+ * opacity: a page out of sight, or see-through, may get no animation
+ * frames on a phone, and the map would never be drawn (TASK-351's fix of
+ * 2026-11-03). The music's file is read while the pictures are made, and
+ * goes into the MP4 as its second track. On a map look the page draws the
+ * map first (TASK-351); when it cannot, within its own time, the
+ * `fallback` scene is made instead.
  */
 export function RunVideo({
   scene,
@@ -223,12 +226,15 @@ export function RunVideo({
 }
 
 const styles = StyleSheet.create({
+  // One point under the screen's corner, fully opaque: in the window, so
+  // the page keeps its animation frames (the Feed's map page is kept the
+  // same way, under what covers it).
   hidden: {
     position: "absolute",
     width: 1,
     height: 1,
-    opacity: 0,
-    left: -10,
-    top: -10,
+    opacity: 1,
+    left: 0,
+    top: 0,
   },
 });

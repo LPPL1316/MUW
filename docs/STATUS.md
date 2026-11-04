@@ -234,7 +234,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `a6d8cf1d (il codice; poi la privacy e i documenti)`): la mappa sotto nel look Night, la riserva gialla senza mappa,
   provata in Expo Go, impronta `83793e26` invariata; prima dell'OTA di
   produzione l'utente esporta un video vero sull'iPhone dalla preview e
-  vede la mappa (condizione del Coordinatore). Senza mappa il video
+  vede la mappa (condizione del Coordinatore). 2026-11-03: la B è in
+  `main` (#679) ma sul telefono il video è uscito senza mappa: il WebView
+  fuori vista non riceve fotogrammi di animazione e MapLibre non carica;
+  fix in `fix/TASK-351-video-map-hidden` (la pagina si dà i fotogrammi da
+  un timer, il WebView è un punto visibile), riprodotto e provato nel
+  simulatore; la prova dalla preview è dell'utente. Poi la C. Senza mappa il video
   esce sul giallo di oggi (condizione del Coordinatore). Poi B (la mappa
   sotto e il look premium, Night), C (i tre stili e la riga «Style»), D
   (il 3D), una PR ciascuna da `main` con la #658 e col via del
