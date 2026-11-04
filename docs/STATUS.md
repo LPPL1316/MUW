@@ -2359,6 +2359,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-372 — Sci di fondo: la rete delle piste non disegna forme**
+  (ADR-0316, 2026-11-04). Benchmark su Fiemme, Asiago e Dobbiaco: nessuna
+  delle 45 forme a 0,90, il cerchio mai sopra 0,49. Nessuna rete `nordic`,
+  nessun codice. L'utente ha scelto «Record only»: `xc_skiing` entra con
+  TASK-375 insieme a `skiing`. `tasks/TASK-372.md`.
 - **TASK-364 — «RIDE IT YOURSELF» in «Explore»** (ADR-0309): #699 in main
   (081f6d82, 2026-11-03). Ghost, Bat e Pumpkin in bici, dal telefono senza server;
   «MARRY ME» fuori (il motore non la disegna). Preview da main 081f6d82;
