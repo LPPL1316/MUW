@@ -20997,7 +20997,10 @@ dati sulla salute (GDPR art. 9).
    2026-11-04): riempiono i campi vuoti, mai quelli inseriti a mano. Il testo
    della chiave di lettura e App Privacy cambiano una volta sola, con TASK-345
    C.
-8. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+8. Le zone servono come tabella e per il tempo in ogni zona a fine corsa,
+   dai campioni di battito di TASK-345 C (scelta dell'utente, «Tabella +
+   tempo in zona», 2026-11-04). Niente battito in tempo reale.
+9. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
@@ -21008,5 +21011,6 @@ altezza nel solo punto in cui contano senza il battito.
 **Conseguenze**: il peso cambia le kcal in proporzione. Sesso ed età, senza il
 battito, le spostano di pochi punti percentuali: in un'ora a 70 kg, pochi kcal.
 Bisogna dirlo senza promettere di più. Una formula che usa sesso ed età col
-battito (Keytel 2005) è possibile solo con la parte D. Le kcal dei post altrui
+battito (Keytel 2005) resta fuori: il battito arriva solo a corsa finita e
+non sempre. Le kcal dei post altrui
 restano a 70 kg, perché i dati restano sul telefono.

@@ -87,9 +87,12 @@ Una alla volta, con le sue parole. *(da fare)*
    insieme a TASK-345 C. Un pulsante riempie solo i campi vuoti. Nella parte A
    i dati si inseriscono a mano.
    — *Risposta (2026-11-04):* «Sì, nella 1.0.2».
-4. **Le zone**: solo la tabella, o anche il tempo in ogni zona a fine corsa
-   (dai campioni di battito che TASK-345 C già legge), o il battito in tempo
-   reale (orologio o fascia Bluetooth)?
+4. **Le zone.** Proposta: la tabella (parte B, con un OTA) e il tempo in ogni
+   zona a fine corsa (parte D), dagli stessi campioni che TASK-345 C legge da
+   Apple Salute; senza orologio la riga non c'è. Niente battito in tempo
+   reale: servirebbe un'app per Apple Watch o una fascia Bluetooth
+   (dipendenza nuova), task a parte se mai lo si vorrà.
+   — *Risposta (2026-11-04):* «Tabella + tempo in zona».
 5. **Dove sta la sezione**: Impostazioni o Profilo.
 6. **I testi dell'interfaccia** (in inglese, più le traduzioni).
 
@@ -107,9 +110,10 @@ Una alla volta, con le sue parole. *(da fare)*
   quelli inseriti a mano. Il testo della chiave di lettura si allarga e App
   Privacy si aggiorna insieme a TASK-345 C, col sì dell'utente su ogni testo.
   Android dopo TASK-321 C.
-- **D — battito**, solo se la scelta 4 lo chiede: il tempo in ogni zona a
-  fine corsa dai campioni di TASK-345 C; il tempo reale è un'altra cosa
-  (orologio o fascia, dipendenza nuova).
+- **D — tempo in ogni zona a fine corsa** (scelta 4): dai campioni di battito
+  che TASK-345 C legge da Apple Salute, con le zone della parte B; una riga per
+  zona alla fine della corsa, solo se ci sono campioni. Si accende con TASK-345
+  C (1.0.2). Niente battito in tempo reale.
 
 ## Cosa fare (parte A)
 
@@ -196,7 +200,8 @@ apps/mobile/src/i18n/{it,de,es,fr}.ts
   dell'utente.
 - Lettura da Apple Health / Health Connect nella parte A: arriva con la parte
   C, nella 1.0.2.
-- Battito: parte D, solo con il sì dell'utente e coordinata con TASK-345 C.
+- Battito in tempo reale durante la corsa (app per Apple Watch o fascia
+  Bluetooth): escluso dalla scelta 4, eventualmente un task a parte.
 - Fasce Bluetooth: dipendenza nuova, da chiedere.
 - Le kcal dei post di altri utenti calcolate col loro peso: richiede il server
   (scelta 1).
