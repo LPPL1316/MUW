@@ -5,7 +5,9 @@ import {
 } from "@shaperoute/shared-types";
 
 import { type AnyRouteRequest, isImageRequest } from "../api/routes";
+import { CLOSED_SHARE, firstLineOf } from "../mapdraw/drawing";
 import type { FigureLines } from "../mapdraw/edit";
+import { boxOf, dist } from "../mapdraw/geometry";
 import { fromPlane, toPlane } from "../mapdraw/plane";
 
 /**
@@ -15,7 +17,9 @@ import { fromPlane, toPlane } from "../mapdraw/plane";
  * `drawingOf` (mapdraw/edit.ts) makes the drawing of them. A shape of the
  * catalogue — an emoji — is not changed, so it has none (ADR-0288). The
  * track of a member's drawing goes on the map where it was run and as big
- * (TASK-346, ADR-0299): with its lines, its middle and its size.
+ * (TASK-346, ADR-0299): with its lines, its middle and its size. Since
+ * TASK-369 (ADR-0313) so does the line of every route and drawing, an emoji
+ * and a word too: the track, not the figure asked for.
  */
 
 /**
@@ -44,11 +48,14 @@ function spread<T>(points: readonly T[], size: number): T[] {
 }
 
 /**
- * The line of a route run as one closed outline of at most
- * MAX_OUTLINE_POINTS corners, as a favorite keeps the outline of an image
- * (`favoriteRoute.outlineOf`): centred on the middle of its box and scaled
- * into [-1, 1], y up, in metres on the plane (never in degrees), so it is
- * put back on the map just where it was and as big.
+ * The line of a route run where it was run and as big: centred on the
+ * middle of its box and scaled into [-1, 1], y up, in metres on the plane
+ * (never in degrees), so it is put back on the map just where it was. A
+ * line that ends near its start (CLOSED_SHARE) is one closed outline of at
+ * most MAX_OUTLINE_POINTS corners, as a favorite keeps the outline of an
+ * image (`favoriteRoute.outlineOf`); one that ends away from it stays open,
+ * as a first line drawn on the map does (`firstLineOf`, TASK-331): a ring
+ * at its start and the line hung on it (TASK-369).
  */
 export function trackInPlace(points: readonly LatLon[]): TrackInPlace {
   const origin = points[0];
@@ -66,34 +73,53 @@ export function trackInPlace(points: readonly LatLon[]): TrackInPlace {
     (Math.max(...ys) - Math.min(...ys)) / 2,
     1e-6,
   );
-  const outline = spread(
-    atCentre.map(([x, y]): [number, number] => [x / unitM, y / unitM]),
-    MAX_OUTLINE_POINTS,
-  );
+  const units = atCentre.map(([x, y]): [number, number] => [x / unitM, y / unitM]);
+  const open = openLines(units);
+  if (open !== null) {
+    return { lines: open, centre, unitM };
+  }
+  const outline = spread(units, MAX_OUTLINE_POINTS);
   const [first, last] = [outline[0], outline[outline.length - 1]];
   const closed =
     first[0] === last[0] && first[1] === last[1] ? outline : [...outline, first];
   return { lines: { outline: closed, details: [] }, centre, unitM };
 }
 
+/** The lines of a track that ends away from its start, as a first line
+ * drawn on the map that stays open; null for one that ends near it, and for
+ * one with more points than a route runs (it is then closed, as before). */
+function openLines(units: readonly [number, number][]): FigureLines | null {
+  const { size } = boxOf([units]);
+  if (dist(units[0], units[units.length - 1]) <= CLOSED_SHARE * size) {
+    return null;
+  }
+  const lines = firstLineOf(units);
+  return lines === null || "problem" in lines ? null : lines;
+}
+
 /** What a member's drawing says of its figure (GET /drawings/{id}). */
-type DrawnRun = Pick<
-  DrawingDetail,
-  "shape" | "word" | "route_title" | "source" | "track"
->;
+type DrawnRun = Pick<DrawingDetail, "track" | "activity">;
 
 /**
  * The track of a member's drawing (TASK-320 part B), where it was run
- * (TASK-346): a picture, a photo or a figure drawn by hand — a planned
- * route that says only its title — by the track run, the one line the API
- * gives of it. Null for a shape of the catalogue, a word, a run without a
- * planned route (a free run, one imported from another app, a post of
- * photos alone) and a track too short to follow.
+ * (TASK-346): the one line the API gives of it, whatever it draws — a
+ * picture, a figure drawn by hand, an emoji, a word, a free run, one
+ * imported from another app (TASK-369, ADR-0313). Null for a post of photos
+ * alone, a track too short to follow, and a drawing paddled: on the water
+ * only the catalogue is drawn (ADR-0161).
  */
 export function drawingTrack(drawing: DrawnRun): TrackInPlace | null {
-  if ((drawing.word !== null && drawing.word !== "") || drawing.shape !== null) {
-    return null;
-  }
-  const planned = drawing.route_title !== null && drawing.source !== "file";
-  return planned && drawing.track.length >= 2 ? trackInPlace(drawing.track) : null;
+  return drawing.activity !== "paddling" && drawing.track.length >= 2
+    ? trackInPlace(drawing.track)
+    : null;
+}
+
+/**
+ * The line of a route of «Explore» where it is (TASK-369, ADR-0313): an
+ * example, a search, a favorite, a drawing of a message, an example of the
+ * Feed, a shape «NEAR YOU», a themed route, by the points of its result.
+ * Null for a route too short to follow.
+ */
+export function routeTrack(points: readonly LatLon[]): TrackInPlace | null {
+  return points.length >= 2 ? trackInPlace(points) : null;
 }

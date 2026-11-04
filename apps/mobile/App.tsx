@@ -66,7 +66,7 @@ import { ZoneNotice } from "./src/engine/ZoneNotice";
 import { useLanguage } from "./src/i18n/useLanguage";
 import { CanvasTop } from "./src/mapdraw/CanvasTop";
 import { DrawOnMap } from "./src/mapdraw/DrawOnMap";
-import { drawingOf, type FigureLines } from "./src/mapdraw/edit";
+import { drawingOf } from "./src/mapdraw/edit";
 import { FigureTiles } from "./src/mapdraw/FigureTiles";
 import {
   changedRequest,
@@ -101,7 +101,7 @@ import { trackOf, useFreeRun } from "./src/navigation/useFreeRun";
 import { trackOfNavigation, useNavigation } from "./src/navigation/useNavigation";
 import type { Place } from "./src/places/photon";
 import { choicesOf, type Picked, pickedIndex } from "./src/route/choices";
-import { APP_DISTANCE_LIMITS_KM, distanceLimitsM } from "./src/route/distance";
+import { distanceLimitsM } from "./src/route/distance";
 import {
   againDistanceM,
   againOfDrawing,
@@ -119,7 +119,7 @@ import { averagePace } from "./src/route/runTime";
 import { shapeName, toShape } from "./src/route/shapeWords";
 import { type ExportState, useGpxExport } from "./src/route/useGpxExport";
 import { useImageOutline } from "./src/route/useImageOutline";
-import { drawingTrack, requestLines, type TrackInPlace } from "./src/route/figureLines";
+import { drawingTrack, routeTrack, type TrackInPlace } from "./src/route/figureLines";
 import { NearYou } from "./src/route/NearYou";
 import { useNearYou } from "./src/route/nearYouShapes";
 import { samplePicture } from "./src/route/samplePictures";
@@ -299,23 +299,19 @@ function leftFreeRun(): FreeFinished | null {
   return run === null ? null : freeFinishedRun(run, canResume(run, Date.now()));
 }
 
-/** The lines «Edit the drawing» puts on the map, of a route or a drawing
- * on a card (TASK-320, TASK-331): none for lines that make no drawing
- * (`drawingOf`), and none on the water, where only the catalogue is
- * drawn. */
-function cardFigure(lines: FigureLines | null, activity: Activity): FigureLines | null {
-  return lines === null || activity === "paddling" || drawingOf(lines) === null
+/** The track «Edit the drawing» puts on the map, of a route or a drawing
+ * on a card (TASK-320, TASK-331, TASK-369): none for lines that make no
+ * drawing (`drawingOf`), and none on the water, where only the catalogue
+ * is drawn (ADR-0161): not with «Paddle» chosen, nor for a route paddled. */
+function cardTrack(
+  track: TrackInPlace | null,
+  ...activities: Activity[]
+): TrackInPlace | null {
+  return track === null ||
+    activities.includes("paddling") ||
+    drawingOf(track.lines) === null
     ? null
-    : lines;
-}
-
-/** The distance of a figure edited from a card: as «Draw it near me» takes
- * a shape's (`againDistanceM`, ADR-0273), the route's or the run's to the
- * tenth of a km, within the limits of the sport of «Draw». */
-function cardDistanceM(distanceM: number, activity: Activity): number {
-  const [lowest, highest] = APP_DISTANCE_LIMITS_KM[activity];
-  const stepped = Math.round(distanceM / 100) * 100;
-  return Math.min(Math.max(stepped, lowest * 1000), highest * 1000);
+    : track;
 }
 
 export default function App() {
@@ -614,23 +610,33 @@ function MuW() {
         ? placedTile(mapDraw.placed)
         : drawnTile(view.request);
   // «Edit the drawing» on the card of a route of «Explore» (an example, a
-  // search, a favorite) and of a member's drawing: the figure it puts on
-  // the map. None for a word, nor for a drawing without a planned figure.
-  const exploredFigure = useMemo(
+  // search, a favorite, a message's drawing, an example of the Feed) and of
+  // a themed route: the line of the route, where it is and as big, an
+  // emoji's and a word's too (TASK-369, ADR-0313).
+  const exploredTrack = useMemo(
     () =>
       explored?.status === "done"
-        ? cardFigure(requestLines(explored.request), sportActivity)
+        ? cardTrack(
+            routeTrack(explored.result.points),
+            sportActivity,
+            explored.request.activity,
+          )
         : null,
     [explored, sportActivity],
   );
+  const themedTrack = useMemo(
+    () =>
+      themed.state.status === "done"
+        ? cardTrack(routeTrack(themed.state.result.points), sportActivity)
+        : null,
+    [themed.state, sportActivity],
+  );
   // A member's drawing gives its track, where it was run and as big
   // (TASK-346, ADR-0299).
-  const drawingTrackInPlace = useMemo(() => {
-    const track = drawing !== null ? drawingTrack(drawing) : null;
-    return track !== null && cardFigure(track.lines, sportActivity) !== null
-      ? track
-      : null;
-  }, [drawing, sportActivity]);
+  const drawingTrackInPlace = useMemo(
+    () => cardTrack(drawing !== null ? drawingTrack(drawing) : null, sportActivity),
+    [drawing, sportActivity],
+  );
   const others = useMemo(
     () =>
       choices.length < 2
@@ -1052,20 +1058,12 @@ function MuW() {
     return drawsAgain(again, sportActivity) ? () => onDrawAgain(again) : undefined;
   }
 
-  /** «Edit the drawing» (TASK-320): `lines` on the map of «Draw on the map»
-   * as a drawing, in the middle of the start, as long as `distanceM`
-   * (TASK-331). Drawing on it, moving it and «Draw route» are the map's;
-   * nothing is asked before «Draw route», and «←» goes to «Draw». */
-  function onEditLines(lines: FigureLines, distanceM: number) {
-    Keyboard.dismiss();
-    if (mapDraw.edit(lines, distanceM)) {
-      setScreen("canvas");
-    }
-  }
-
-  /** «Edit the drawing» on a member's drawing (TASK-346, ADR-0299): its
-   * track on the map where it was run and as big, to change there; the
-   * drawing is left as «Draw it near me» leaves it. */
+  /** «Edit the drawing» on a card (TASK-346, ADR-0299, TASK-369): the
+   * track of a member's drawing, or the line of a route, on the map of
+   * «Draw on the map» where it is and as big, to change there; the card is
+   * left as «Draw it near me» leaves it. Drawing on it, moving it and «Draw
+   * route» are the map's; nothing is asked before «Draw route», and «←» goes
+   * to «Draw». */
   function editTrackOf(track: TrackInPlace | null): (() => void) | undefined {
     if (track === null) {
       return undefined;
@@ -1078,23 +1076,6 @@ function MuW() {
         setScreen("canvas");
       }
     };
-  }
-
-  /** «Edit the drawing» on a card: the figure of the route of «Explore», at
-   * the distance «Draw it near me» would choose; the route is left as «Draw
-   * it near me» leaves it. */
-  function onEditCard(lines: FigureLines, distanceM: number) {
-    closeExplore();
-    leaveDrawing();
-    onEditLines(lines, cardDistanceM(distanceM, sportActivity));
-  }
-
-  /** The button's action for `lines`, when the card has them. */
-  function editCardOf(
-    lines: FigureLines | null,
-    distanceM: number,
-  ): (() => void) | undefined {
-    return lines !== null ? () => onEditCard(lines, distanceM) : undefined;
   }
 
   function onDraw() {
@@ -1532,6 +1513,7 @@ function MuW() {
                 onStartExplore(themed.state.result);
               }
             }}
+            onEditDrawing={editTrackOf(themedTrack)}
           />
         ) : exploring ? (
           <ExploredCard
@@ -1559,11 +1541,7 @@ function MuW() {
                 ? drawAgainOf(againOfRequest(explored.request))
                 : undefined
             }
-            onEditDrawing={
-              explored.status === "done"
-                ? editCardOf(exploredFigure, explored.request.distance_m)
-                : undefined
-            }
+            onEditDrawing={editTrackOf(exploredTrack)}
           />
         ) : finishing ? (
           <FinishCard
