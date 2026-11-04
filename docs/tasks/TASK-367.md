@@ -152,6 +152,20 @@ dal Feed (`FindFriendsButton` tolto). Un esempio del Feed trovato da
 dopo la #722. Nessun testo nuovo nell'app; la frase della Guida sulla lente e
 quella della privacy su «Trova amici nella rubrica» con il sì dell'utente.
 
+Testi approvati dall'utente il 2026-11-04, nelle 5 lingue di `about/content`:
+
+- Guida, alla proposta «La ricerca in cima a «Esplora» trova gli altri
+  iscritti per nome. Su un profilo puoi toccare «Segui»; le richieste, chi ti
+  segue e chi segui sono in «Profilo».» l'utente ha risposto: «Sì, approvo».
+- Privacy, alla proposta «In «Feed», «Trova persone da seguire» porta a
+  «Trova amici nella rubrica», che cerca gli iscritti il cui numero è nella
+  rubrica del tuo telefono. L'app chiede la rubrica al telefono solo quando lo
+  tocchi, e ne legge solo i numeri di telefono: mai nomi, email o foto.»
+  l'utente ha risposto: «Sì, approvo».
+
+`site/privacy` rigenerato con `make_privacy.mjs` su main dopo la #724
+(ac3f1228). Copia del sito e OTA: le chiede il Coordinatore all'utente.
+
 File toccati della parte B (approvati dal Coordinatore):
 
 ```
