@@ -806,6 +806,23 @@ export const IT: Table = {
   "Enter a height between {min} and {max}.": "Scrivi un'altezza tra {min} e {max}.",
   "Enter a year between {min} and {max}.": "Scrivi un anno tra {min} e {max}.",
 
+  // src/settings/HeartZonesPage.tsx, BodyPage.tsx (TASK-374 part B)
+  "Heart rate zones": "Zone del battito",
+  "Max heart rate": "Frequenza cardiaca massima",
+  "Estimated from your age": "Stimata dalla tua età",
+  "Set by you": "Impostata da te",
+  "Resting heart rate": "Frequenza cardiaca a riposo",
+  "Zone 1 Recovery": "Zona 1 Recupero",
+  "Zone 2 Endurance": "Zona 2 Fondo",
+  "Zone 3 Tempo": "Zona 3 Ritmo",
+  "Zone 4 Threshold": "Zona 4 Soglia",
+  "Zone 5 Max": "Zona 5 Massimo",
+  "Back to calculated zones": "Torna alle zone calcolate",
+  "Add your year of birth or your max heart rate to see your zones.":
+    "Aggiungi l'anno di nascita o la frequenza massima per vedere le zone.",
+  "Enter a heart rate between {min} and {max} bpm.":
+    "Scrivi una frequenza tra {min} e {max} bpm.",
+
   // src/settings/ToneSetting.tsx
   Tone: "Tono",
   Dark: "Scuro",

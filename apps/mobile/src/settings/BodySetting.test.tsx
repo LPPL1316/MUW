@@ -141,3 +141,16 @@ test("with miles, pounds and feet-inches; back in kilograms the same weight", as
   });
   expect(screen.getByRole("button", { name: "Body, 160 lb" })).toBeOnTheScreen();
 });
+
+test("Heart rate zones, at the bottom, opens the zones of the age typed above", async () => {
+  await openPage();
+  const year = screen.getByLabelText("Year of birth");
+  await fireEvent.changeText(year, String(new Date().getFullYear() - 40));
+  await fireEvent(year, "endEditing");
+  await fireEvent.press(screen.getByRole("button", { name: "Heart rate zones" }));
+  expect(screen.getByRole("header", { name: "Heart rate zones" })).toBeOnTheScreen();
+  expect(screen.getByLabelText("Max heart rate")).toHaveDisplayValue("180");
+  await fireEvent.press(screen.getAllByRole("button", { name: "Back" })[1]);
+  expect(screen.queryByRole("header", { name: "Heart rate zones" })).toBeNull();
+  expect(screen.getByRole("header", { name: "Body" })).toBeOnTheScreen();
+});
