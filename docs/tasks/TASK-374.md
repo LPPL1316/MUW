@@ -97,7 +97,33 @@ Una alla volta, con le sue parole. *(da fare)*
    «Units» che apre una pagina con i quattro dati e, in fondo, la riga delle
    zone. Non nel Profilo, che è anche la pagina vista dagli altri.
    — *Risposta (2026-11-04):* «Nelle Impostazioni».
-6. **I testi dell'interfaccia** (in inglese, più le traduzioni).
+6. **I testi dell'interfaccia** (parti A e B; quelli di C e D con le loro
+   parti). Proposta, inglese → italiano; tedesco, spagnolo e francese li
+   traduce l'agente:
+
+   | Dove | Inglese | Italiano |
+   |---|---|---|
+   | Riga e titolo della pagina | Body | Corpo |
+   | Valore della riga, senza dati | Not set | Non impostato |
+   | Sotto il titolo | Used only to estimate your calories and heart rate zones. It stays on this phone. | Serve solo a stimare calorie e zone del battito. Resta su questo telefono. |
+   | Campo | Sex | Sesso |
+   | Scelte | Male · Female · Prefer not to say | Uomo · Donna · Preferisco non dirlo |
+   | Campo | Weight | Peso |
+   | Campo | Height | Altezza |
+   | Campo | Year of birth | Anno di nascita |
+   | Svuota un campo | Clear | Cancella |
+   | Nota in fondo | Calories are an estimate. Weight matters most. | Le calorie sono una stima. Conta soprattutto il peso. |
+   | Errore del peso | Enter a weight between {min} and {max} {unit}. | Scrivi un peso tra {min} e {max} {unit}. |
+   | Errore dell'altezza | Enter a height between {min} and {max}. | Scrivi un'altezza tra {min} e {max}. |
+   | Errore dell'anno | Enter a year between {min} and {max}. | Scrivi un anno tra {min} e {max}. |
+   | Riga e titolo (B) | Heart rate zones | Zone del battito |
+   | Campo (B) | Max heart rate | Frequenza cardiaca massima |
+   | Sotto, se calcolata | Estimated from your age | Stimata dalla tua età |
+   | Sotto, se scritta | Set by you | Impostata da te |
+   | Campo (B) | Resting heart rate | Frequenza cardiaca a riposo |
+   | Zone (B) | Zone 1 Recovery · Zone 2 Endurance · Zone 3 Tempo · Zone 4 Threshold · Zone 5 Max | Zona 1 Recupero · Zona 2 Fondo · Zona 3 Ritmo · Zona 4 Soglia · Zona 5 Massimo |
+   | Pulsante (B) | Back to calculated zones | Torna alle zone calcolate |
+   | Senza età né FC max (B) | Add your year of birth or your max heart rate to see your zones. | Aggiungi l'anno di nascita o la frequenza massima per vedere le zone. |
 
 ## Divisione proposta
 
