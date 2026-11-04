@@ -151,6 +151,7 @@ test.each([
   ],
   ["a run on foot", { activity: "running" as const }],
   ["a ride", { activity: "cycling" as const }],
+  ["a drawing paddled, on the water (part B)", { activity: "paddling" as const }],
 ])("a member's drawing gives its track where it was run: %s", (_what, fields) => {
   expect(drawingTrack({ ...RUN, ...fields })).toEqual(trackInPlace(RING));
 });
@@ -158,7 +159,6 @@ test.each([
 test.each([
   ["a post of photos alone", { track: [] }],
   ["a track too short to follow", { track: [TRENTO] }],
-  ["a drawing paddled, on the water", { activity: "paddling" as const }],
 ])("a member's drawing puts nothing on the map: %s", (_what, fields) => {
   expect(drawingTrack({ ...RUN, ...fields })).toBeNull();
 });

@@ -1,7 +1,8 @@
 # TASK-369 — «Edit the drawing» su ogni disegno: la traccia sulla mappa dov'è
 
-**Stato**: Proposta — documenti in PR, scelte dell'utente tutte fatte; parte A dopo il merge di TASK-367 A,
-col via del Coordinatore; parte B dopo la A
+**Stato**: In lavorazione — documenti in `main` (#712, `fe4e9499`); parte A
+in `main` (#719, `3e7c7d28`); parte B in PR (#722), da unire dopo TASK-323 C2;
+server con la parte B solo col sì dell'utente
 **Fase**: 4 · **Branch**: `docs/TASK-369-edit-every-drawing` (documenti),
 `feat/TASK-369-a-edit-every-drawing` (parte A),
 `feat/TASK-369-b-edit-on-water` (parte B) · **ADR**: ADR-0313
@@ -201,11 +202,45 @@ Parte B:
   `services/route-engine/tests/test_drawn_water.py`
 - `services/api/shaperoute_api/route_store.py`,
   `services/api/shaperoute_api/images.py`
-- `services/api/tests/test_drawn_water_fingerprint.py`,
-  `services/api/tests/test_images_on_water.py`
+- `services/api/tests/test_drawn_water_fingerprint.py`
+- `services/api/tests/test_paddling.py`,
+  `services/api/tests/test_anchored_requests.py` (il vecchio rifiuto «not an
+  image» diventa il comportamento nuovo; aggiunti col sì del Coordinatore,
+  2026-11-04)
 - `apps/mobile/App.tsx`, `apps/mobile/__tests__/AppEditDrawing.test.tsx`
-- `docs/API.md`, `docs/ROUTE_ENGINE.md`, `docs/STATUS.md`,
-  `docs/tasks/TASK-369.md`
+- `apps/mobile/src/route/figureLines.ts`, `figureLines.test.ts` (le righe
+  della parte A che escludevano la canoa; col sì del Coordinatore)
+- `apps/mobile/src/route/problems.ts`, `problems.test.ts` (il ripiego col
+  server di prima; col sì del Coordinatore, dopo TASK-323 C2)
+- `apps/mobile/assets/engine/engine.zip` (il motore del telefono ricostruito
+  con `tools/phone_engine/phone_engine.py engine`: ha tutto `route_engine`,
+  `drawn_water.py` compreso, e `images.py`; la CI lo controlla; impronta iOS
+  6f8bba4c invariata)
+- `docs/API.md`, `docs/ROUTE_ENGINE.md`, `docs/UI.md` (una frase della parte
+  A), `docs/STATUS.md`, `docs/tasks/TASK-369.md`
+
+## Avanzamento
+
+- **Parte A** (2026-11-04, #719, `3e7c7d28`): «Edit the drawing» su ogni
+  scheda con una linea, la traccia dov'è (`figureLines.drawingTrack`,
+  `routeTrack`, la traccia aperta con `firstLineOf`), il tasto in
+  `ThemedCard`; impronta iOS 6f8bba4c; app 612 suite verdi.
+- **Parte B** (2026-11-04, PR #722): `drawn_water.py` fuori dall'impronta del
+  motore (`DRAWN_WATER_ONLY`): impronta uguale a `main`, `5b5e026cea9b` (con
+  i nuoti `b9d00c37d28d`), niente notte di `draw_examples --water`; l'API
+  accetta un'immagine «paddling» solo libera; l'app toglie l'esclusione
+  dell'acqua. Impronta iOS 6f8bba4c. Nel motore
+  `test_first_placement[levico heart 1000]` fallisce uguale su `main`: non
+  è di questo task. Resta: merge dopo TASK-323 C2, poi il server col sì
+  dell'utente.
+- **Ripiego col server di prima** (deciso dall'agente su delega dell'utente,
+  2026-11-04, approvato dal Coordinatore): l'OTA può arrivare prima del
+  server, che rifiuta un disegno sull'acqua con `422 invalid_request` «… not
+  an image». Invece di «Something went wrong on our side» con un «Try again»
+  che fallirebbe sempre, `problems.ts` dice il testo che c'è già, «On the
+  water, a shape of the catalogue.», senza «Try again»; col server nuovo non
+  compare mai. Scartati un campo o una versione nell'API (server e una
+  chiamata in più, solo per il passaggio).
 
 ## Esito
 

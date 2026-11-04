@@ -301,17 +301,11 @@ function leftFreeRun(): FreeFinished | null {
 
 /** The track «Edit the drawing» puts on the map, of a route or a drawing
  * on a card (TASK-320, TASK-331, TASK-369): none for lines that make no
- * drawing (`drawingOf`), and none on the water, where only the catalogue
- * is drawn (ADR-0161): not with «Paddle» chosen, nor for a route paddled. */
-function cardTrack(
-  track: TrackInPlace | null,
-  ...activities: Activity[]
-): TrackInPlace | null {
-  return track === null ||
-    activities.includes("paddling") ||
-    drawingOf(track.lines) === null
-    ? null
-    : track;
+ * drawing (`drawingOf`). On the water too (TASK-369 part B, ADR-0313):
+ * «Draw route» asks for it with the sport of «Draw», as every drawing of
+ * the map, and a canoe paddles it where it fits. */
+function cardTrack(track: TrackInPlace | null): TrackInPlace | null {
+  return track === null || drawingOf(track.lines) === null ? null : track;
 }
 
 export default function App() {
@@ -616,26 +610,22 @@ function MuW() {
   const exploredTrack = useMemo(
     () =>
       explored?.status === "done"
-        ? cardTrack(
-            routeTrack(explored.result.points),
-            sportActivity,
-            explored.request.activity,
-          )
+        ? cardTrack(routeTrack(explored.result.points))
         : null,
-    [explored, sportActivity],
+    [explored],
   );
   const themedTrack = useMemo(
     () =>
       themed.state.status === "done"
-        ? cardTrack(routeTrack(themed.state.result.points), sportActivity)
+        ? cardTrack(routeTrack(themed.state.result.points))
         : null,
-    [themed.state, sportActivity],
+    [themed.state],
   );
   // A member's drawing gives its track, where it was run and as big
   // (TASK-346, ADR-0299).
   const drawingTrackInPlace = useMemo(
-    () => cardTrack(drawing !== null ? drawingTrack(drawing) : null, sportActivity),
-    [drawing, sportActivity],
+    () => cardTrack(drawing !== null ? drawingTrack(drawing) : null),
+    [drawing],
   );
   const others = useMemo(
     () =>
