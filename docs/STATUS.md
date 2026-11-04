@@ -165,6 +165,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (TASK-355 A) apre `SharePost` dentro il `Pager`, che azzera il margine alto: ora il `Modal` ha
   un suo `SafeAreaProvider`. Branch `fix/TASK-381-share-post-inset`; la unisce il Coordinatore a
   CI verde; OTA col sì dell'utente. Solo app, nessun testo nuovo. `tasks/TASK-381.md`.
+  **Chiuso il 2026-11-04**: #750 in main (9e2089a9); vedi «Completato».
 
 - **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
   ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
@@ -313,6 +314,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A (2026-11-04, branch `feat/TASK-374-a-body-calories`): «Body» nelle
   Impostazioni, kcal di ogni sport nella corsa, nel Feed e in Salute; entra
   dopo il nuoto (#734). Prossimo: parte B, la pagina delle zone. `tasks/TASK-374.md`.
+  Parte A in `main` con la PR #739 (`22ec9572`).
+  Parte B (2026-11-04, branch `feat/TASK-374-b-hr-zones`): la pagina «Heart
+  rate zones» in fondo a «Body», FC massima dall'età (Tanaka) o a mano, FC a
+  riposo (Karvonen), cinque zone con la cima delle zone 1–4 modificabile e
+  «Back to calculated zones», in `heart.json` sul telefono; solo app, OTA.
+  Testo d'errore delle FC approvato dall'utente. Poi C e D nella 1.0.2.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
@@ -2517,6 +2524,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
+  (2026-11-04; seguito di TASK-366). #750 in main (9e2089a9): il `Modal` di `SharePost` ha un suo
+  `SafeAreaProvider`. Solo JS, impronta dal Coordinatore con l'anteprima. Prova Feed → «Share» →
+  «Close» sul telefono e OTA di produzione col sì dell'utente. `tasks/TASK-381.md`.
 - **TASK-344 — Cercare i disegni dalla lente del Feed** (ADR-0297): documenti
   #653, A #659 (`GET /search/drawings`), B #705 (entrata con #717, `f23ec332`).
   La lente apre la ricerca a tutto schermo con schede, filtri, ricerche recenti
