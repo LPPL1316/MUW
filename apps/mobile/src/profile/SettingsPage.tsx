@@ -8,6 +8,7 @@ import type { Account } from "../account/useAccount";
 import { apiUrl } from "../api/apiUrl";
 import { OfflineMapsSetting } from "../engine/OfflineMapsSetting";
 import { t } from "../i18n";
+import { BodySetting } from "../settings/BodySetting";
 import { EmailSetting } from "../settings/EmailSetting";
 import { FeedbackSetting } from "../settings/FeedbackSetting";
 import { LanguageSetting } from "../settings/LanguageSetting";
@@ -52,7 +53,7 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
  * email and phone number (TASK-183) and the ways out of it, the sport
  * (TASK-189), Strava (TASK-187), the language
  * (TASK-210), the offline maps (TASK-214) and the units (TASK-182) among
- * the preferences, the two notification switches (TASK-185), «Send
+ * the preferences with the body under them (TASK-374), the two notification switches (TASK-185), «Send
  * feedback» (TASK-308) and the texts of «ABOUT» (TASK-184). Every row
  * works: none says «Soon» any more.
  * «Delete account» asks first, on the screen (ADR-0120: the API does not).
@@ -85,6 +86,7 @@ export function SettingsPage({
         <LanguageSetting />
         <OfflineMapsSetting />
         <UnitsSetting />
+        <BodySetting />
         <ToneSetting />
       </Section>
       {/* Kept in the account; nothing is sent yet (TASK-185). */}

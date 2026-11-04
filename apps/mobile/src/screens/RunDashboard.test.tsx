@@ -182,7 +182,7 @@ test("Pause stops the clock and shows every number; Resume goes on", async () =>
   expect(screen.getByText("Paused")).toBeOnTheScreen();
   expect(screen.getByLabelText("Distance: 0.30 km")).toBeOnTheScreen();
   expect(screen.getByLabelText("Avg pace: 5:00 /km")).toBeOnTheScreen();
-  expect(screen.getByLabelText("Calories: 22 kcal")).toBeOnTheScreen();
+  expect(screen.getByLabelText("Calories: 21 kcal")).toBeOnTheScreen();
   expect(screen.getByLabelText("Elev. gain: – m")).toBeOnTheScreen();
   expect(screen.queryByLabelText("Pause")).toBeNull();
   // No pocket mode on a paused run: there is nothing to keep going.
@@ -272,7 +272,7 @@ test("Data is the page with every number, the turn and the kilometres one by one
   expect(screen.getByText("kilometres")).toBeOnTheScreen();
   expect(screen.getByLabelText("Avg pace: 5:00 /km")).toBeOnTheScreen();
   expect(screen.getByLabelText("Last km: 5:00 /km")).toBeOnTheScreen();
-  expect(screen.getByLabelText("Calories: 167 kcal")).toBeOnTheScreen();
+  expect(screen.getByLabelText("Calories: 161 kcal")).toBeOnTheScreen();
   expect(screen.getByLabelText("Kilometre 1: 5:00")).toBeOnTheScreen();
   expect(screen.getByLabelText("Kilometre 2: 5:00, 0:00")).toBeOnTheScreen();
   expect(screen.queryByText("Your first kilometre will show here.")).toBeNull();

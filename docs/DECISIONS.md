@@ -21405,7 +21405,19 @@ dati sulla salute (GDPR art. 9).
     30–120 bpm. Fuori dai limiti il campo non si salva e dice perché.
 11. I testi delle parti A e B sono approvati (scelta dell'utente, «Sì,
     approvo», 2026-11-04), in `tasks/TASK-374.md`.
-12. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+12. L'età è l'anno in corso meno l'anno di nascita.
+13. Fatto nella parte A (deciso dall'agente su delega dell'utente): i MET sono
+    quelli del Compendium 2024 (pacompendium.com), bici 4,0 sotto i 10 mph,
+    6,8 / 8,0 / 10,0 / 12,0 per fasce di 2–4 mph, 15,8 da 20 mph; canoa e
+    kayak 2,8 sotto i 4 mph, 5,8 fino a 6, 12,5 oltre. Senza metri l'energia è
+    zero (da fermi è riposo). Nel Feed il tempo è quello del post (`minutes`),
+    la salita non c'è; i post in bici e in canoa ora hanno le kcal. In Salute e
+    Health Connect le kcal si scrivono per ogni sport: il testo di
+    `NSHealthUpdateUsageDescription` della 1.0.1 dice ancora «for runs» e si
+    corregge nella 1.0.2, con la parte C.
+14. Il nuoto (TASK-323 C2, entrato prima) non ha ancora una formula: zero kcal,
+    nessun riquadro «Calories» e nessuna energia in Salute, come aveva deciso
+    il suo task. Una formula per il nuoto è una scelta a parte. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si

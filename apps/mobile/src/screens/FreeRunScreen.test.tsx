@@ -187,7 +187,7 @@ test("the end of a free run has its numbers, Keep running and Done", async () =>
   expect(screen.getByText("4.21 km")).toBeOnTheScreen();
   expect(screen.getByLabelText("Time: 25:00")).toBeOnTheScreen();
   expect(screen.getByLabelText("Avg pace: 5:56 /km")).toBeOnTheScreen();
-  expect(screen.getByLabelText("Calories: 305 kcal")).toBeOnTheScreen();
+  expect(screen.getByLabelText("Calories: 295 kcal")).toBeOnTheScreen();
   await fireEvent.press(screen.getByText("Keep running"));
   expect(onResume).toHaveBeenCalledTimes(1);
   await fireEvent.press(screen.getByText("Done"));
