@@ -21095,3 +21095,48 @@ delega dell'utente, dentro le sei scelte approvate il 2026-10-29.
 nessuna migrazione) col sì dell'utente, in qualsiasi ordine con l'OTA:
 fino ad allora «Words» non si vede. Impronta iOS invariata:
 nessun file nativo, nessuna dipendenza.
+## ADR-0301, aggiunta — Parte A app: come il compositore compone, ordina e manda
+
+**Stato**: Accettata · 2026-11-04 · TASK-348, parte A app. Deciso
+dall'agente su delega dell'utente, dentro le scelte già fatte dall'utente
+(«Sì, i quattro», «Sì, spostabile», «Sì, appiattire», «10 col disegno»,
+«Approvo così»).
+
+**Decisione**:
+
+1. **Il disegno dentro la foto è la linea, non la mappa**: nera sul giallo
+   di MuW nei tre layout con il riquadro, gialla con un bordo scuro nella
+   «Line on the photo», come il post condiviso (`PostImage`). Una mappa con
+   le strade dentro la foto vorrebbe la WebView, che `view-shot` non
+   fotografa con certezza. La linea è sempre quella tagliata del Feed
+   (`withoutEnds`, 200 m per parte), con un test.
+2. **La foto si compone appena si sceglie il layout**, non al tocco di
+   «Save»: `ComposedPhoto` disegnata fuori dallo schermo a 288 punti e
+   fotografata a 864 × 1080 px (4:5, il lato lungo che l'API tiene).
+   «Save» resta immediato e la foto parte come ogni altra; se la foto non
+   si compone, il modulo lo dice e la tiene com'era.
+3. **Il layout si cambia finché la foto è nel modulo**: a fine corsa per
+   tutte, in «My activities» per le foto aggiunte su quella scheda (l'app
+   ne tiene l'originale finché la scheda è aperta). Dopo, la foto è quella
+   pubblicata: per cambiarla si toglie e si rimette, come detto all'utente
+   con la scelta «Sì, appiattire».
+4. **L'ordine**: a fine corsa le foto prendono i posti 1… nell'ordine del
+   post e l'ordine va solo se il disegno non è primo; in «My activities»
+   l'ordine nomina i posti come sono. Sul telefono in
+   `drawing-orders.json`, mandato dopo le foto (outbox e `choose`), con le
+   stesse regole delle foto: solo mentre gli altri vedono il disegno, un
+   409 aspetta, un 422 lo lascia andare. Toglie la corsa o l'account, va
+   via con le foto.
+5. **Riordino** con `PanResponder` e `Animated` di React Native (nessuna
+   dipendenza nuova): si tiene premuto 250 ms e si trascina; VoiceOver ha
+   «Move left» e «Move right». Le foto si contano tra le foto («Photo 2» è
+   la seconda foto del post), non per posto.
+6. **Nel Feed** le pagine seguono `order` (il disegno primo se manca); si
+   carica la pagina vista e quella dopo, come prima. Il contatore «2/5» sta
+   in alto a sinistra, perché in alto a destra c'è la figura piccola;
+   VoiceOver non lo legge, come i puntini.
+7. **Limite dell'app**: `DRAWING_MAX_PHOTOS` = 9 (10 pagine col disegno);
+   l'API tiene 10 posti (`DRAWING_PHOTO_PLACES`). Il server ha la 0041 dal
+   2026-11-03.
+
+---

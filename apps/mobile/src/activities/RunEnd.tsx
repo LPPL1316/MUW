@@ -1,4 +1,4 @@
-import type { Activity } from "@shaperoute/shared-types";
+import type { Activity, LatLon } from "@shaperoute/shared-types";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
@@ -15,7 +15,9 @@ import { loadRun } from "../navigation/trackStore";
 import { activityOf } from "../settings/sport";
 import { useSport } from "../settings/useSport";
 import { phonePhotoUri } from "../social/drawingPhotos";
-import type { PhotoShown } from "../social/drawingsDoor";
+import type { PostLayout } from "../social/composer/layoutFrame";
+import type { ComposerPhoto } from "../social/composer/PostComposer";
+import { DRAWING_ITEM, type PostItem, renumbered } from "../social/composer/postOrder";
 import {
   DrawingForm,
   FormScroll,
@@ -64,8 +66,15 @@ type Props = {
  * keep the rest. */
 export const FORM_SHARE = 0.5;
 
-/** A photo chosen at the end of the run, on the phone until «Save». */
-type Chosen = { n: number; base64: string };
+/** A photo chosen at the end of the run, on the phone until «Save»: as
+ * it will go, and as it was taken, while its layout can still change
+ * (TASK-348). */
+type Chosen = {
+  n: number;
+  base64: string;
+  original: string;
+  layout: PostLayout | null;
+};
 
 /**
  * The way out of a run that ended, under its card (TASK-172): with an
@@ -73,7 +82,9 @@ type Chosen = { n: number; base64: string };
  * away, after asking. Nothing is saved without «Save». Without an account
  * the card keeps its «Done», and a line here says how to keep the next
  * runs. Over the buttons the form of the drawing, as Strava's (TASK-208,
- * ADR-0170): up to three photos, the title, «How did it go?», the people
+ * ADR-0170): up to 9 photos with the map among them, in the order held and
+ * dragged, each with a layout that can put the drawing in it (TASK-348),
+ * the title, «How did it go?», the people
  * tagged, what the run was (from the sport of «Settings») and who can see
  * it («Only me» until the account saves another choice, then the last one
  * saved, the user's choice, ADR-0304); then «Send to Strava»
@@ -100,6 +111,7 @@ export function RunEnd({
     toStrava,
     toDrawing,
     toPhotos,
+    toOrder,
     full,
     waiting,
     refused,
@@ -127,6 +139,13 @@ export function RunEnd({
   // its words stay over «Save» too, seen before the run goes public.
   const [startedSeen] = useState(() => isSeen(choice.visibility));
   const [photos, setPhotos] = useState<Chosen[]>([]);
+  // The pages of the post, the map among the photos (TASK-348).
+  const [items, setItems] = useState<PostItem[]>([{ kind: "drawing" }]);
+  // The line a photo can carry: the run just ended, never an imported one.
+  const [ended] = useState(() => (imported === undefined ? loadRun() : null));
+  const [line] = useState<LatLon[] | null>(
+    () => ended?.track.fixes.map((fix) => fix.point) ?? null,
+  );
 
   function save() {
     const sending =
@@ -136,7 +155,24 @@ export function RunEnd({
       send;
     toStrava(sending ? { name: choice.title } : null);
     toDrawing(isChosen(choice) ? choice : null);
-    toPhotos([...photos].sort((a, b) => a.n - b.n).map((photo) => photo.base64));
+    // The photos take the places of the post's order (keepPhotos), and the
+    // order goes beside them when the map is not first.
+    const byPlace = new Map(photos.map((photo) => [photo.n, photo.base64]));
+    const post = renumbered<string>(
+      items.flatMap(
+        (item): ({ kind: "drawing" } | { kind: "photo"; photo: string })[] => {
+          if (item.kind === "drawing") {
+            return [item];
+          }
+          const base64 = byPlace.get(item.n);
+          return base64 === undefined ? [] : [{ kind: "photo", photo: base64 }];
+        },
+      ),
+    );
+    toPhotos(post.photos);
+    toOrder(
+      post.photos.length > 0 && post.order[0] !== DRAWING_ITEM ? post.order : null,
+    );
     // The run as the phone keeps it, read before «Save» lets the file go:
     // only after the user's yes to the phone's health data.
     const run = health !== null && loadHealthOn() ? loadRun() : null;
@@ -190,13 +226,12 @@ export function RunEnd({
       </View>
     );
   }
-  const shown: PhotoShown[] = [...photos]
-    .sort((a, b) => a.n - b.n)
-    .map((photo) => ({
-      n: photo.n,
-      source: { uri: phonePhotoUri(photo.base64) },
-      onPhone: true,
-    }));
+  const shown: ComposerPhoto[] = photos.map((photo) => ({
+    n: photo.n,
+    source: { uri: phonePhotoUri(photo.base64) },
+    layout: photo.layout,
+    original: { uri: phonePhotoUri(photo.original) },
+  }));
   return (
     <View style={styles.end}>
       <FormScroll maxHeight={Math.round(height * FORM_SHARE)}>
@@ -212,15 +247,43 @@ export function RunEnd({
           <DrawingForm
             choice={choice}
             onChoice={setChoice}
+            items={items}
             photos={shown}
-            onAddPhoto={(base64) => {
-              const n = nextPlace(photos);
-              if (n !== null) {
-                setPhotos((was) => [...was, { n, base64 }]);
+            onOrder={setItems}
+            onAddPhotos={(added) => {
+              const now = [...photos];
+              const pages = [...items];
+              for (const base64 of added) {
+                const n = nextPlace(now);
+                if (n === null) {
+                  break;
+                }
+                now.push({ n, base64, original: base64, layout: null });
+                pages.push({ kind: "photo", n });
               }
+              setPhotos(now);
+              setItems(pages);
             }}
-            onRemovePhoto={(photo) =>
-              setPhotos((was) => was.filter((other) => other.n !== photo.n))
+            onRemovePhoto={(n) => {
+              setPhotos((was) => was.filter((other) => other.n !== n));
+              setItems((was) =>
+                was.filter((item) => item.kind === "drawing" || item.n !== n),
+              );
+            }}
+            track={line}
+            rotationDeg={ended?.rotation_deg ?? null}
+            onLayout={(n, layout, made) =>
+              setPhotos((was) =>
+                was.map((photo) =>
+                  photo.n !== n
+                    ? photo
+                    : {
+                        ...photo,
+                        base64: made?.base64 ?? photo.original,
+                        layout: made === null ? null : layout,
+                      },
+                ),
+              )
             }
             imported={imported !== undefined}
             pick={pick}

@@ -9,7 +9,7 @@ import type { AboutContent, AboutDocument } from "../documents";
 
 const UPDATED = "10 ottobre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
-const PRIVACY_UPDATED = "2 novembre 2026";
+const PRIVACY_UPDATED = "4 novembre 2026";
 
 const help: AboutDocument = {
   title: "Come funziona MuW",
@@ -70,6 +70,7 @@ const help: AboutDocument = {
       heading: "Pubblicare e condividere",
       blocks: [
         "Una corsa salvata è privata: la vedi solo tu. Gli altri iscritti vedono sul tuo profilo solo i totali di tutte le tue corse salvate, distanza e dislivello, mai le corse. Scegli «Tutti» o «Follower» sotto «Chi può vederla», a fine corsa o su una corsa di «Le mie attività», e la vedono come disegno sul tuo profilo, senza i primi e gli ultimi 200 m. La prossima corsa che finisci parte dall'ultima scelta che hai salvato: la vedi prima di «Salva» e puoi cambiarla. Un'attività aggiunta da un file parte sempre da «Solo io».",
+        "Una corsa che pubblichi può avere fino a 9 foto e il disegno. Tienine premuta una e trascinala per cambiare l'ordine: la prima è quella che si vede nel Feed. Scegli un layout per mettere il disegno su una foto.",
         "«Condividi» crea un'immagine della tua corsa da mandare dove vuoi.",
       ],
     },
@@ -333,6 +334,7 @@ const privacy: AboutDocument = {
         "Se aggiungi un'attività passata da un file, ne teniamo la traccia e gli orari come per una corsa registrata con MuW. Il file non lo teniamo.",
         "Una corsa spesso parte e finisce davanti a casa. Per questo diventa visibile agli altri iscritti solo dopo che hai scelto «Tutti» o «Follower» sotto «Chi può vederla», e allora vedono la traccia senza i primi e gli ultimi 200 m, con il titolo che le hai dato, e senza orari, pause né il percorso pianificato. La tua scelta resta su questo telefono per la corsa successiva: parte dall'ultima che hai salvato, la vedi prima di «Salva» e puoi cambiarla. Un'attività aggiunta da un file parte sempre da «Solo io».",
         "Chi può vedere una tua corsa può anche seguirla con «Parti» e salvarne la stessa traccia come file GPX: sempre senza i primi e gli ultimi 200 m e senza orari.",
+        "Una foto che pubblichi può avere dentro l'immagine il disegno della tua corsa. È lo stesso disegno che mostra il Feed, tagliato all'inizio e alla fine.",
       ],
     },
     {

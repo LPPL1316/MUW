@@ -20,6 +20,7 @@ import { paddlePaceLabel } from "../navigation/paddle";
 import { durationLabel } from "../screens/FinishScreen";
 import { SPORTS } from "../settings/sport";
 import { useBlockedNow } from "../social/blockedNow";
+import { itemsOf } from "../social/composer/postOrder";
 import { useFollowsDoor } from "../social/followsDoor";
 import { agoLabel } from "../social/commentText";
 import { ReportMenu } from "../social/ReportMenu";
@@ -125,9 +126,10 @@ export function postFacts(post: SamplePost): string {
  * it whole, with its reactions and comments, as from a profile. On a
  * member's drawing, but not on one's own, a «…» reports the drawing or
  * blocks its author (TASK-121): once blocked, the card goes away at once.
- * A drawing with photos shows them in the card, after the drawing, one
- * whole width each, to swipe sideways, and under them a dot for each with
- * the one shown lit (TASK-315). The card has the large radius and no
+ * A drawing with photos shows them in the card, one whole width each, to
+ * swipe sideways, in the post's order with the drawing among them (TASK-348;
+ * the drawing first when never ordered), a dot for each under them with
+ * the one shown lit (TASK-315), and over them which of how many it is. The card has the large radius and no
  * border, and answers the finger through `Tap` (TASK-339, ADR-0293): under
  * the drawing its words stay below it, so as not to cover the figure; on a
  * photo they lie over it, light on the dark that rises from its foot, with
@@ -195,6 +197,15 @@ export function FeedPost({ post, width, onOpen }: Props) {
           source: drawingPhotoSource(apiUrl, state.session.token, photo),
         }))
       : [];
+  // The pages in the post's order, the map among the photos (TASK-348,
+  // ADR-0301); never ordered, the map first.
+  const pages =
+    photos.length === 0
+      ? []
+      : itemsOf(
+          isShown(post) ? post.drawing.order : null,
+          photos.map((photo) => photo.n),
+        );
   // Each page of the photos takes a tap itself (TASK-330): were the card
   // the one touched, iOS would not let the photos scroll inside it, and the
   // swipe would turn the app's page to «Draw» instead. A page is as wide as
@@ -315,50 +326,66 @@ export function FeedPost({ post, width, onOpen }: Props) {
         <>
           {/* It bounces at its ends, as by default: a swipe past the last
               photo stays here and never turns the app's page. */}
-          <ScrollView
-            style={{ width }}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={onPaged}
-            testID="feed-pages"
-          >
-            {tappable(
-              "drawing",
-              <>
-                {drawing}
-                {words}
-              </>,
-            )}
-            {photos.map((photo, i) =>
-              tappable(
-                photo.n,
-                // Photo i is page i + 1: loaded once the page before it was
-                // shown, never further on (the phone's data is the runner's).
-                i <= reached ? (
-                  <>
-                    <Image
-                      testID="feed-photo"
+          <View>
+            <ScrollView
+              style={{ width }}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onMomentumScrollEnd={onPaged}
+              testID="feed-pages"
+            >
+              {pages.map((item, i) => {
+                if (item.kind === "drawing") {
+                  return tappable(
+                    "drawing",
+                    <>
+                      {drawing}
+                      {words}
+                    </>,
+                  );
+                }
+                const photo = photos.find((one) => one.n === item.n);
+                return tappable(
+                  item.n,
+                  // Loaded once the page before it was shown, never further
+                  // on (the phone's data is the runner's).
+                  photo !== undefined && i <= reached + 1 ? (
+                    <>
+                      <Image
+                        testID="feed-photo"
+                        style={[StyleSheet.absoluteFill, styles.photo]}
+                        source={photo.source}
+                        resizeMode="cover"
+                        accessible={false}
+                      />
+                      {wordsOnPhoto}
+                    </>
+                  ) : (
+                    <View
+                      testID="feed-photo-later"
                       style={[StyleSheet.absoluteFill, styles.photo]}
-                      source={photo.source}
-                      resizeMode="cover"
-                      accessible={false}
                     />
-                    {wordsOnPhoto}
-                  </>
-                ) : (
-                  <View
-                    testID="feed-photo-later"
-                    style={[StyleSheet.absoluteFill, styles.photo]}
-                  />
-                ),
-              ),
-            )}
-          </ScrollView>
+                  ),
+                );
+              })}
+            </ScrollView>
+            {/* Which page of how many, over the page's top left corner: the
+                figure is in the other. */}
+            <View
+              style={styles.counter}
+              pointerEvents="none"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+              testID="feed-counter"
+            >
+              <Text style={styles.counterText}>{`${page + 1}/${pages.length}`}</Text>
+            </View>
+          </View>
           <View style={styles.dots} testID="feed-dots">
-            {[0, ...photos.map((photo) => photo.n)].map((key, i) => (
+            {pages.map((item, i) => (
               <View
-                key={key}
+                key={item.kind === "drawing" ? "drawing" : item.n}
                 testID={i === page ? "feed-dot-on" : "feed-dot"}
                 style={[styles.dot, i === page && styles.dotOn]}
               />
@@ -462,6 +489,21 @@ const styles = StyleSheet.create({
   },
   photo: {
     backgroundColor: color.surfaceRaised,
+  },
+  counter: {
+    position: "absolute",
+    top: space.md,
+    left: space.md,
+    paddingHorizontal: space.sm,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    backgroundColor: color.scrim,
+    opacity: 0.75,
+  },
+  counterText: {
+    ...font.small,
+    color: color.onScrim,
+    fontWeight: fontWeight.semibold,
   },
   dots: {
     flexDirection: "row",

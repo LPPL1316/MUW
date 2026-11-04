@@ -28,6 +28,8 @@ function door() {
     photosOf: () => [],
     keepPhotoOf: () => false,
     removePhotoOf: () => {},
+    orderOf: () => null,
+    keepOrderOf: () => false,
     photoSource: () => null,
     pageOf: async () => ({ kind: "ok", value: { drawings: [], next: null, total: 0 } }),
     opening: null,
