@@ -307,6 +307,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   apre quello che apre la sua push; niente campanella con un server senza
   lista. Tre testi approvati. Solo app: arriva con un OTA, col sì
   dell'utente, dopo il server con la `0045`.
+  **Chiuso** (2026-11-04): A #716, B #729, C1 #745, C2 #756 in main. Restano
+  fuori dal codice, col sì dell'utente: il server con la
+  `0045_notification_list`, la copia del sito (privacy) e l'OTA.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
