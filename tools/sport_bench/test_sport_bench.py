@@ -20,6 +20,7 @@ from sport_bench import (
     engine_planner,
     main,
     measure,
+    network_error,
     network_stats,
     network_table,
     read_rows,
@@ -232,3 +233,23 @@ def test_retries_wait_longer_each_time_then_give_up() -> None:
     with pytest.raises(OSError, match="504"):
         with_retries(always, (1.0, 2.0), sleep=waits.append)
     assert waits == [1.0, 2.0]
+
+
+def test_only_network_errors_are_tried_again() -> None:
+    class ResponseStatusCodeError(ValueError):  # as OSMnx names it
+        pass
+
+    assert network_error(OSError("502"))
+    assert network_error(TimeoutError())
+    assert network_error(ResponseStatusCodeError("502 Bad Gateway"))
+    assert not network_error(ValueError("distance out of range"))
+    assert not network_error(LookupError("not cached"))
+
+    waits: list[float] = []
+
+    def refused() -> None:
+        raise ValueError("the shape does not fit")
+
+    with pytest.raises(ValueError):
+        with_retries(refused, (1.0,), sleep=waits.append, retry_if=network_error)
+    assert waits == []

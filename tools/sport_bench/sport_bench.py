@@ -425,9 +425,16 @@ def load_loader(spec: str, cache_dir: Path) -> Any:
     return getattr(module, function)(cache_dir)
 
 
-def engine_planner(activity: str, source: Any) -> Planner:
+def engine_planner(
+    activity: str,
+    source: Any,
+    sleep: Callable[[float], None] = time.sleep,
+    echo: Callable[[str], None] = lambda line: None,
+) -> Planner:
     """A Planner that asks the Route Engine as its CLI does: plan_route on
-    the roads, plan_paddling on the water."""
+    the roads, plan_paddling on the water. A download refused (the water is
+    fetched while planning) is tried again (`with_retries`); the time is the
+    last try's."""
     from route_engine.models import RouteRequest
     from route_engine.optimizer import plan_route
     from route_engine.paddling import plan_paddling
@@ -442,17 +449,22 @@ def engine_planner(activity: str, source: Any) -> Planner:
             start=start, distance_m=distance_m, shape=shape, activity=activity
         )
         began = time.perf_counter()
-        try:
+
+        def attempt() -> tuple[Any, dict[str, float]]:
+            nonlocal began
+            began = time.perf_counter()
             if on_water:
                 planned = plan_paddling(request, source)
-                result = planned.result
-                extra: dict[str, float] = {
+                return planned.result, {
                     "move_m": round(planned.route.move_m),
                     "scale": round(planned.route.scale, 3),
                 }
-            else:
-                result = plan_route(request, source).result
-                extra = {}
+            return plan_route(request, source).result, {}
+
+        try:
+            result, extra = with_retries(
+                attempt, sleep=sleep, echo=echo, retry_if=network_error
+            )
         except Exception as exc:  # noqa: BLE001 - every refusal is a result
             return Row(
                 zone.key,
@@ -474,19 +486,31 @@ def engine_planner(activity: str, source: Any) -> Planner:
     return plan
 
 
+# The errors of OSMnx when Overpass refuses or answers nothing: ValueErrors,
+# told apart from a request the engine refuses by their names.
+OVERPASS_ERRORS = frozenset({"ResponseStatusCodeError", "InsufficientResponseError"})
+
+
+def network_error(exc: BaseException) -> bool:
+    """Whether `exc` says the network failed (a download refused, a timeout),
+    not the request: only these are worth trying again."""
+    return isinstance(exc, OSError) or type(exc).__name__ in OVERPASS_ERRORS
+
+
 def with_retries(
     task: Callable[[], Any],
     waits_s: Sequence[float] = RETRY_WAITS_S,
     sleep: Callable[[float], None] = time.sleep,
     echo: Callable[[str], None] = lambda line: None,
+    retry_if: Callable[[BaseException], bool] = lambda exc: True,
 ) -> Any:
-    """`task()`, tried again after each wait of `waits_s` when it raises; the
-    last error is raised."""
+    """`task()`, tried again after each wait of `waits_s` when it raises an
+    error `retry_if` accepts; any other error, and the last, is raised."""
     for wait_s in (*waits_s, None):
         try:
             return task()
         except Exception as exc:
-            if wait_s is None:
+            if wait_s is None or not retry_if(exc):
                 raise
             echo(f"{type(exc).__name__}: {str(exc)[:80]!r}, again in {wait_s:g} s")
             sleep(wait_s)
@@ -513,6 +537,38 @@ def zone_network(
     return network_stats(
         (u, v, data.get("length", 0.0), data) for u, v, data in graph.edges(data=True)
     )
+
+
+def zone_water(
+    source: Any,
+    zone: Zone,
+    activity: str,
+    shapes: Sequence[str],
+    distances_m: Sequence[int],
+) -> None:
+    """The water the longest routes of `zone` need, fetched once into the
+    cache (the shorter ones read it from there): one request to Overpass for
+    the zone, not one for each route."""
+    from route_engine.models import RouteRequest
+    from route_engine.paddling import water_area
+    from route_engine.stops import union
+
+    assert zone.water_start is not None
+    longest = max(distances_m)
+    bbox = union(
+        [
+            water_area(
+                RouteRequest(
+                    start=zone.water_start,
+                    distance_m=longest,
+                    shape=shape,
+                    activity=activity,
+                )
+            )
+            for shape in shapes
+        ]
+    )
+    source.elements(bbox)
 
 
 def _run(args: argparse.Namespace) -> int:
@@ -543,17 +599,41 @@ def _run(args: argparse.Namespace) -> int:
                         source, zone, args.shapes, distances
                     ),
                     echo=lambda line: print(line, file=sys.stderr, flush=True),
+                    retry_if=network_error,
                 )
             except Exception as exc:  # noqa: BLE001 - said, and the zone left out
                 print(f"Left out {zone.key}: {exc!r}"[:300], file=sys.stderr)
                 continue
             reachable.append(zone)
         zones = reachable
+    elif not args.loader:
+        with_water: list[Zone] = []
+        for zone in zones:
+            if zone.water_start is None:
+                continue
+            print(f"Water of {zone.key}...", file=sys.stderr, flush=True)
+            try:
+                with_retries(
+                    lambda zone=zone: zone_water(
+                        source, zone, activity, args.shapes, distances
+                    ),
+                    echo=lambda line: print(line, file=sys.stderr, flush=True),
+                    retry_if=network_error,
+                )
+            except Exception as exc:  # noqa: BLE001 - said, and the zone left out
+                print(f"Left out {zone.key}: {exc!r}"[:300], file=sys.stderr)
+                continue
+            with_water.append(zone)
+        zones = with_water
     rows = measure(
         zones,
         args.shapes,
         distances,
-        engine_planner(activity, source),
+        engine_planner(
+            activity,
+            source,
+            echo=lambda line: print(line, file=sys.stderr, flush=True),
+        ),
         echo=lambda line: print(line, file=sys.stderr, flush=True),
     )
     out = args.out_dir / args.label / f"{activity}.json"
