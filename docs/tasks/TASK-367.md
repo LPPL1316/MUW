@@ -215,7 +215,7 @@ docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
 
 ## Esito
 
-**Parte A** (2026-11-04, PR #714): barra in basso, header unico, «Messages»
+**Parte A** (2026-11-04, PR #716, al posto della #714): barra in basso, header unico, «Messages»
 come scheda, ingranaggio nel Profilo, Pager tolto. Suite dell'app verde (590
 file di test), impronta iOS `83793e26` prima del riallineamento e `6f8bba4c`
 dopo la #620. Simulatore (iPhone 17e, Expo Go): schermate in
