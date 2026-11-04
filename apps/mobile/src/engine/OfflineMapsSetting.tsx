@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { apiUrl } from "../api/apiUrl";
 import { t } from "../i18n";
@@ -14,6 +14,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import {
   addPlace,
   ASK_AGAIN_MS,
@@ -95,13 +96,9 @@ export function OfflineMapsSetting({
             {t("Offline maps: {size}", { size: sizeText(bytes) })}
           </Text>
           {(bytes > 0 || places.length > 0) && (
-            <Pressable
-              style={({ pressed }) => [styles.delete, pressed && styles.pressed]}
-              onPress={deleteAll}
-              accessibilityRole="button"
-            >
+            <Tap style={styles.delete} onPress={deleteAll} accessibilityRole="button">
               <Text style={styles.deleteText}>{t("Delete")}</Text>
-            </Pressable>
+            </Tap>
           )}
         </View>
         {places.map((place, index) => (
@@ -113,23 +110,19 @@ export function OfflineMapsSetting({
             <Text style={styles.rowText} numberOfLines={1}>
               {placeLine(place, zoneBytes)}
             </Text>
-            <Pressable
-              style={({ pressed }) => [styles.delete, pressed && styles.pressed]}
+            <Tap
+              style={styles.delete}
               onPress={() => removePlace(index)}
               accessibilityRole="button"
               accessibilityLabel={t("Remove {name}", { name: shortName(place) })}
             >
               <Text style={styles.deleteText}>✕</Text>
-            </Pressable>
+            </Tap>
           </View>
         ))}
         {!full && (
-          <Pressable
-            style={({ pressed }) => [
-              styles.row,
-              styles.divided,
-              pressed && styles.pressed,
-            ]}
+          <Tap
+            style={[styles.row, styles.divided]}
             onPress={() => setAdding((now) => !now)}
             accessibilityRole="button"
             accessibilityLabel={t("Add a place")}
@@ -137,7 +130,7 @@ export function OfflineMapsSetting({
           >
             <Text style={styles.emoji}>＋</Text>
             <Text style={styles.rowText}>{t("Add a place")}</Text>
-          </Pressable>
+          </Tap>
         )}
         {adding && !full && (
           <View style={[styles.search, styles.divided]}>
@@ -206,8 +199,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.md,
   },
   divided: {
-    borderTopWidth: 1,
-    borderTopColor: color.border,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: color.hairline,
   },
   search: {
     padding: space.md,
@@ -231,9 +224,6 @@ const styles = StyleSheet.create({
     color: color.text,
     fontSize: fontSize.body,
     fontWeight: fontWeight.semibold,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   note: {
     paddingHorizontal: space.md,
