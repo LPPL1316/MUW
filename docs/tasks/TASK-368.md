@@ -81,6 +81,14 @@ Una alla volta, con le sue parole.
    dell'utente.
    — *Risposta:* «Sì, approvo».
 
+10. **I testi nuovi del Profilo** (parte B): il titolo «Record personali»
+    (en «Personal bests», de «Persönliche Bestzeiten», es «Mejores marcas», fr
+    «Records personnels»), «Mezza maratona» («Half marathon», «Halbmarathon»,
+    «Media maratón», «Semi-marathon»), «Maratona» («Marathon», «Marathon»,
+    «Maratón», «Marathon»). I gruppi riusano «Corsa» e «Bici»; a piedi i nomi
+    delle gare (5K, 10K…), in bici sempre i chilometri («40 km»).
+    — *Risposta:* «Sì, approvo» (2026-11-04).
+
 ## Cosa fare
 
 Il codice parte col via del Coordinatore, dopo TASK-367 A: l'app tocca il
