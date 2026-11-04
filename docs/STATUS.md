@@ -172,6 +172,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lo swipe) si cabla in `TabShell` dopo il merge della #764 di TASK-379.
   Poi B (l'«isola», un solo punto dell'app) e C (fogli e liste, dopo la #760).
   `tasks/TASK-388.md`.
+  Parte A in PR, la #770, in bozza; aspetto approvato dall'utente il
+  2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Manca il cablaggio di
+  `drag` in `TabShell` dopo la #764.
 
 - **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
   proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).

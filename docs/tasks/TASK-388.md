@@ -112,8 +112,10 @@ successiva, al massimo 6 righe animate). Dopo la #760 di TASK-339, che tocca
       dissolvenza dove va: test.
 - [x] Sotto il dito che scorre le pagine la capsula lo segue, anche nel giro
       profilo → Feed: test (con la prop `drag`).
-- [ ] Impronta iOS invariata su una copia pulita.
-- [ ] Video prima/dopo della barra in `out/TASK-388/`, e l'ok dell'utente.
+- [x] Impronta iOS invariata su una copia pulita: `6f8bba4c`.
+- [x] Video prima/dopo della barra in `out/TASK-388/`, e l'ok dell'utente:
+      «Sì, approvo» (2026-11-04).
+- [ ] La capsula segue lo swipe: cablaggio di `drag` in `TabShell` dopo la #764.
 
 ## File toccati
 
