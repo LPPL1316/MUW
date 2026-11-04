@@ -81,7 +81,12 @@ def test_a_steady_run_counts_whole_with_its_best_times() -> None:
     assert game.elapsed_s == pytest.approx(2_000)
 
 
-@pytest.mark.parametrize("activity", ["cycling", "paddling"])
+@pytest.mark.parametrize(
+    "activity",
+    # Swims (TASK-323) and the sports recorded without a shape (TASK-375)
+    # neither; walks do (test_walk_game.py).
+    ["cycling", "paddling", "swimming", "skiing", "xc_skiing"],
+)
 def test_only_runs_on_foot_count(activity: str) -> None:
     game = evaluate(Runner().run(6_000, 3.0).fixes, [], activity)
     assert not game.counted and game.reason == NOT_RUNNING

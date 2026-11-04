@@ -266,4 +266,14 @@ loro test, `docs/API.md`.
      parte A e la migrazione 0043, il sì dell'utente.
   2. **Parte C**, il gioco delle forme (sopra, «Parte C»): prima va chiesto
      all'utente se le camminate contano anche nei concorsi.
+
+**Parte C, 2026-11-04.** `game_rules.evaluate` conta `walking` come
+`running` per i metri e i controlli, con `best_s` vuoto («Solo i metri»,
+scelta dell'utente: le forme col ritmo restano della corsa). `RULES_VERSION`
+passa a 2. I concorsi non filtrano per sport, quindi la domanda sui concorsi
+non serviva: i post a piedi c'erano già. Test in `tests/test_walk_game.py`.
+`test_game_rules` controlla che nuoto e sci non contino; `test_game_api` e
+`test_game_backfill` leggono la versione invece del numero. Restano il
+server e `game_backfill`, col sì dell'utente, nel giro delle migrazioni
+0043–0045.
   3. «NEAR YOU» per la camminata: l'utente ha detto «Solo corsa, per ora».
