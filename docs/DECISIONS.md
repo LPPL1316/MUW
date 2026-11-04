@@ -21958,3 +21958,37 @@ il margine da `ActionBar`, che lascerebbe il difetto al prossimo che apre il
 post da un'altra pagina, e cambiare il `Pager`.
 
 ---
+
+## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
+
+**Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
+(2026-11-04); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-379.md`; il resto è deciso dall'agente su delega
+dell'utente. **Corregge il punto 3 di ADR-0311** («niente swipe fra le
+pagine»); il resto di ADR-0311 resta.
+
+**Contesto**: con TASK-367 parte A le pagine sono sotto una barra di schede e
+si cambiano solo toccandola. L'utente vuole anche «poter swippare da una
+scheda all'altra slidando verso destra e sinistra con il dito», come si
+faceva con le pagine affiancate di TASK-154 (ADR-0124).
+
+**Decisione** (proposta):
+
+1. Uno swipe orizzontale sulla pagina porta alla scheda accanto, e la barra
+   segue; il tocco sulla barra resta e mostra la pagina subito. Come scorre la
+   pagina, cosa succede all'ultima scheda e su quali schede vale sono le tre
+   scelte dell'utente nel task file.
+2. Nessuna dipendenza nativa: React Native di base, come il `Pager` di
+   TASK-154. L'impronta iOS non cambia e arriva con un OTA.
+3. Un gesto che parte su un carosello o su una fila di schede resta suo. Dentro
+   le pagine non c'è una mappa da trascinare: le mappe di Feed, Explore e
+   Profilo sono immagini, e la mappa vera prende lo schermo senza barra.
+4. Resta tutto quello che fa `TabShell`: pagine costruite al primo arrivo e
+   tenute, tocco sulla scheda attiva che torna in cima, «indietro» di Android,
+   il giro guidato, VoiceOver con le schede `tab` e lo stato `selected`.
+
+**Conseguenze**: chi aveva imparato lo swipe prima di TASK-367 lo ritrova.
+La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
+prova solo con i test.
+
+---
