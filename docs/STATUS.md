@@ -493,6 +493,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   post e «2/5» in alto a sinistra. Testi tradotti, Help e privacy approvati
   con la data del 4 novembre, pagine del sito rigenerate. **Resta**: la
   prova sul telefono, l'impronta iOS su una copia pulita, il merge.
+  2026-11-04: parte A app in `main` con la #711 (testa `348d1ed0`, CI
+  verde, impronta iOS `6f8bba4c` come `main`). Il server è già alla
+  migrazione 0041; l'OTA di produzione col sì dell'utente. **Resta**: la prova sul telefono (9 foto e
+  il disegno, riordinati, nel Feed nello stesso ordine), poi B, C e D
+  nella 1.0.2.
 - **TASK-346 — «Edit the drawing» nel Feed: la traccia sulla mappa dov'è
   stata corsa** (ADR-0299; richiesta dell'utente del 2026-10-29, «nel Feed
   quando premo modifica il disegno devo poter modificare la traccia sulla
