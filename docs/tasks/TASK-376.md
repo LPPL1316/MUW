@@ -95,11 +95,11 @@ Coordinatore blocca gli altri lavori su quei file per la durata della PR.
 
 ## Criteri di accettazione
 
-- [ ] A: `python tools/sport_bench/sport_bench.py zones|run|compare` funziona;
+- [x] A: `python tools/sport_bench/sport_bench.py zones|run|compare` funziona;
       test di `tools/` verdi in CI.
-- [ ] A: `docs/sports/` con README, CONDIVISO, COME-AGGIUNGERE (bozza) e le
-      misure di base di corsa, bici e canoa.
-- [ ] A: ADR-0320 scritto.
+- [x] A: `docs/sports/` con README, CONDIVISO, COME-AGGIUNGERE (bozza) e le
+      misure di base di corsa, bici e canoa (canoa a Milano da rifare).
+- [x] A: ADR-0320 scritto.
 - [ ] B: corsa, bici, canoa, nuoto, camminata, sci identici: suite intere
       verdi, `compare` del banco senza peggioramenti, impronta iOS invariata.
 - [ ] B: aggiungere uno sport di prova tocca solo file nuovi più una riga per
@@ -130,5 +130,12 @@ Parte B: la lista va al Coordinatore prima del codice.
 
 ## Dove si è
 
-2026-11-04: banco scritto e provato (14 test, uno sul motore vero col grafo
-di Levico). Misure di base in attesa del turno del Coordinatore.
+2026-11-04: banco scritto e provato (16 test, uno sul motore vero col grafo
+di Levico), con i nuovi tentativi per Overpass e l'acqua scaricata una volta
+per zona. Misure di base fatte col turno del Coordinatore: corsa e bici su
+sei zone (54/54 ciascuna), canoa su Valsugana e Mantova (10/18, il limite è
+l'acqua entro 1 km dalla riva). **Manca la canoa a Milano**: Overpass non ha
+dato l'acqua dell'Idroscalo (timeout, 502, poi il Mac senza rete); si rifà
+con `--zones milano` quando Overpass risponde. Scelte dell'utente: pilota
+Escursionismo, Roller nella fase 1. Prossimo: la parte B dopo 371 A+B,
+375 A+B e 323 C2 in `main`.
