@@ -1,7 +1,7 @@
 # TASK-371 — La camminata, «Walk»
 
-**Stato**: Todo — documenti ora; codice col via del Coordinatore, parte A dopo
-TASK-323 B (#709) in `main`
+**Stato**: In lavorazione — parti A (#741) e B (#747) Done il 2026-11-04;
+restano l'accensione di «Walk» e la parte C
 **Fase**: 4 · **Branch**: `docs/TASK-371-walk` (documenti),
 `feat/TASK-371-a-walk-engine-api` (parte A), `feat/TASK-371-b-walk-app`
 (parte B), `feat/TASK-371-c-walk-game` (parte C) · **ADR**: ADR-0315 ·
@@ -246,4 +246,24 @@ loro test, `docs/API.md`.
 
 ## Esito
 
-*(a fine task)*
+**Parti A e B, 2026-11-04.** Documenti #726, A #741 (`f5897cf7`), B #747
+(`224a023d`, dopo la 375 B0 #749).
+
+- **Cosa funziona**: l'API e il motore sul telefono disegnano la camminata
+  come una corsa sulla rete a piedi, 1–30 km, e l'impronta del motore non è
+  cambiata. Il GPX di una camminata dice `walking` e Strava la riceve come
+  «Walk». L'app conosce la camminata: distanze, tempo previsto, calorie,
+  Apple Salute, Health Connect, importazione, Feed. L'impronta iOS è sempre
+  6f8bba4c.
+- **Cosa è emerso**: le app già pubblicate facevano cadere l'intera pagina
+  del Feed per un'attività che non conoscevano. Lo ha corretto TASK-375 B0
+  (#749), prima che una camminata si possa salvare. Quattro test vecchi
+  avevano l'elenco delle attività scritto a mano: aggiornati.
+- **Cosa resta, e dove**:
+  1. **Accendere «Walk»** (`ready: true` in `apps/mobile/src/settings/
+     sport.ts`, una riga, con i suoi test «Soon»). Servono tre cose:
+     l'OTA della 375 B0 in produzione da qualche giorno, il server con la
+     parte A e la migrazione 0043, il sì dell'utente.
+  2. **Parte C**, il gioco delle forme (sopra, «Parte C»): prima va chiesto
+     all'utente se le camminate contano anche nei concorsi.
+  3. «NEAR YOU» per la camminata: l'utente ha detto «Solo corsa, per ora».

@@ -216,6 +216,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Health Connect `WALKING`, zone a piedi del telefono, importazione, Feed,
   modulo per pubblicare, filtri. Testi approvati dall'utente; NEAR YOU solo
   per la corsa.
+  **Parti A e B chiuse il 2026-11-04**: B #747 in main (`224a023d`), dopo
+  la 375 B0 (#749). «Walk» resta «Soon». Si accende, con una riga in
+  `sport.ts`, dopo tre cose: l'OTA della B0 in produzione da qualche giorno,
+  il server con la 0043, il sì dell'utente. Resta la parte C (il gioco):
+  prima va chiesto all'utente se le camminate contano anche nei concorsi.
+  Vedi `tasks/TASK-371.md`, «Esito».
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
