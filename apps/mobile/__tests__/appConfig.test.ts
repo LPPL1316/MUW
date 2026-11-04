@@ -49,7 +49,7 @@ it("loads app.config.ts with the Expo Go runtime and every plugin of app.json", 
   });
   expect(dynamicConfigPath).toMatch(/app\.config\.ts$/);
   // The store version (TASK-152) must not move Expo Go off its runtime.
-  expect(exp.version).toBe("1.0.0");
+  expect(exp.version).toBe("1.0.1");
   expect(exp.runtimeVersion).toBe("exposdk:57.0.0");
   expect(exp.runtimeVersion).toBe(appJson.expo.runtimeVersion);
   // iPhone only for the App Store (TASK-152): an iPad runs it as an iPhone app.

@@ -2,7 +2,7 @@
   "expo": {
     "name": "MuW",
     "slug": "shaperoute",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "runtimeVersion": "exposdk:57.0.0",
     "updates": {
       "url": "https://u.expo.dev/47bc672d-5824-4e77-84c4-b44132c6e87f"
@@ -18,7 +18,13 @@
       },
       "infoPlist": {
         "CFBundleAllowMixedLocalizations": true,
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": ["audio"],
+        "NSHealthUpdateUsageDescription": "MuW saves your finished activities to Apple Health, with their time, distance, route and, for runs, estimated calories, so they also appear in the Fitness app.",
+        "NSHealthShareUsageDescription": "MuW reads your heart rate from Apple Health during each activity, to show it with the activity and in your post. You can hide it before you publish."
+      },
+      "entitlements": {
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.access": []
       }
     },
     "locales": {
@@ -36,7 +42,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": ["android.permission.WRITE_CONTACTS"]
     },
     "plugins": [
       [
@@ -89,6 +96,12 @@
         {
           "icon": "./assets/android-icon-monochrome.png",
           "color": "#FFD02B"
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "MuW reads only the phone numbers of your contacts, when you tap «Find friends in your contacts», to find friends who are on MuW. The numbers leave the phone coded and the server keeps none."
         }
       ]
     ],
