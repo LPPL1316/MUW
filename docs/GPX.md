@@ -43,6 +43,16 @@ GPX **1.1**, namespace `http://www.topografix.com/GPX/1/1`.
 - **Niente quote** (`<ele>`) e niente tempi per punto: non esiste ancora una
   sorgente altimetrica, e un tempo inventato sarebbe un dato falso.
 
+## La camminata dice che è una camminata (TASK-371, ADR-0315)
+
+Solo il `<trk>` di una camminata ha `<type>walking</type>`, dopo il nome
+come GPX 1.1 vuole, così Strava e gli orologi la prendono per una
+camminata: nel GPX del percorso (`POST /gpx`, `run_gpx.with_type` dopo
+`export_gpx.to_gpx`, che resta com'è e lascia l'impronta del motore) e in
+quello della corsa fatta che va a Strava (`run_gpx`). I file degli altri
+sport sono quelli di prima, byte per byte (`run_gpx.gpx_type`, con un
+test). L'importazione dell'app legge già `<type>` (`imports/gpx.ts`).
+
 ## La penna alzata (TASK-197, ADR-0157)
 
 Una parola con la penna alzata ha i suoi tratti a piedi fra una lettera e

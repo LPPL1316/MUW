@@ -21,6 +21,7 @@ from route_engine.models import (
 )
 from route_engine.network import OsmnxSource
 from route_engine.optimizer import GraphLoader
+from route_engine.walking import API_ACTIVITIES, drawn_as
 from route_engine.water import WaterSource
 
 from shaperoute_api.graphs import MAX_ZONES, ZoneGraphs
@@ -39,13 +40,13 @@ ROAD_ACTIVITIES: tuple[str, ...] = tuple(
 
 
 def check_supported(activity: str) -> None:
-    """The activities of the contract (models.SUPPORTED_ACTIVITIES): the
-    engine may draw more, which the API does not offer before it gives them
-    their network."""
-    if activity not in SUPPORTED_ACTIVITIES:
+    """The activities of the contract (walking.API_ACTIVITIES: those of
+    models.SUPPORTED_ACTIVITIES and the walk, TASK-371): the engine may draw
+    more, which the API does not offer before it gives them their network."""
+    if activity not in API_ACTIVITIES:
         raise InvalidRequestError(
             f"unsupported activity {activity!r}; "
-            f"choose one of: {', '.join(SUPPORTED_ACTIVITIES)}"
+            f"choose one of: {', '.join(API_ACTIVITIES)}"
         )
 
 
@@ -77,7 +78,8 @@ class ActivityGraphs:
 
     def for_activity(self, activity: str) -> GraphLoader:
         check_supported(activity)
-        graphs = self._graphs.get(activity)
+        # A walk on the foot network of a run, its zones already in memory.
+        graphs = self._graphs.get(drawn_as(activity))
         if graphs is None:
             raise InvalidRequestError(f"no {activity} routes on this API")
         return graphs

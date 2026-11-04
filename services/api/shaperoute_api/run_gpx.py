@@ -9,6 +9,11 @@ written when it is sent and kept nowhere.
 A pause closes a track segment and the next point opens another, as GPX
 wants for a receiver switched off: what the runner did in a pause is not of
 the run, so the points taken inside one are left out.
+
+A walk's track says so, `<type>walking</type>` after its name (TASK-371,
+ADR-0315), so Strava and the watches take it as a walk; the route's GPX of a
+walk gets it too, from `with_type`. The other sports' files are as before,
+byte for byte (`gpx_type`).
 """
 
 from __future__ import annotations
@@ -26,6 +31,16 @@ Fix = tuple[float, float, float]
 """(lat, lon, seconds since the first point)."""
 Span = tuple[float, float]
 """A pause, (from, to), on the clock of the fixes."""
+
+# The activities whose track says its sport in `<type>`: the walk only, its
+# GPX otherwise a run's (TASK-371).
+GPX_TYPES = {"walking": "walking"}
+
+
+def gpx_type(activity: str | None) -> str | None:
+    """The `<type>` of a track of `activity`: None for every sport but the
+    walk, whose files stay as they were."""
+    return None if activity is None else GPX_TYPES.get(activity)
 
 
 def segments(fixes: Sequence[Fix], pauses: Sequence[Span]) -> list[list[Fix]]:
@@ -59,10 +74,12 @@ def run_gpx(
     pauses: Sequence[Span],
     started_at: datetime,
     name: str | None = None,
+    activity: str | None = None,
 ) -> str:
     """The run as a GPX 1.1 document: one track, a segment for each stretch
-    between two pauses, a time on every point. `started_at` is the time of
-    the first fix and must be timezone-aware."""
+    between two pauses, a time on every point, and the track's `<type>` for
+    a walk (gpx_type). `started_at` is the time of the first fix and must
+    be timezone-aware."""
     if started_at.tzinfo is None:
         raise ValueError("GPX time must be timezone-aware")
 
@@ -77,6 +94,9 @@ def run_gpx(
     trk = ET.SubElement(gpx, f"{ns}trk")
     if name is not None:
         ET.SubElement(trk, f"{ns}name").text = name
+    kind = gpx_type(activity)
+    if kind is not None:
+        ET.SubElement(trk, f"{ns}type").text = kind
     for segment in segments(fixes, pauses):
         trkseg = ET.SubElement(trk, f"{ns}trkseg")
         for lat, lon, at_s in segment:
@@ -94,4 +114,24 @@ def run_gpx(
 
     ET.indent(gpx)
     body = ET.tostring(gpx, encoding="unicode")
+    return f'<?xml version="1.0" encoding="UTF-8"?>\n{body}\n'
+
+
+def with_type(gpx: str, activity: str) -> str:
+    """The GPX document `gpx` (export_gpx.to_gpx) with the `<type>` of each
+    track, after the track's name as GPX 1.1 orders them, for a walk
+    (gpx_type); for every other activity `gpx` itself, unchanged."""
+    kind = gpx_type(activity)
+    if kind is None:
+        return gpx
+    ET.register_namespace("", GPX_NAMESPACE)
+    ns = f"{{{GPX_NAMESPACE}}}"
+    root = ET.fromstring(gpx)
+    for trk in root.iter(f"{ns}trk"):
+        named = trk.find(f"{ns}name") is not None
+        element = ET.Element(f"{ns}type")
+        element.text = kind
+        trk.insert(1 if named else 0, element)
+    ET.indent(root)
+    body = ET.tostring(root, encoding="unicode")
     return f'<?xml version="1.0" encoding="UTF-8"?>\n{body}\n'

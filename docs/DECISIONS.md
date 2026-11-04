@@ -21342,6 +21342,21 @@ non costa memoria né download e tiene il principio di ADR-0001 intero.
 dell'utente; l'impronta del motore cambia insieme a quella del nuoto. Nel
 gioco, chi cammina raccoglie metri come chi corre: le regole lo accettano per
 scelta dell'utente.
+
+**Aggiunta (parte A, 2026-11-04)** · deciso dall'agente su delega
+dell'utente, approvato dal Coordinatore: **il motore non cambia impronta**.
+Gli esempi si ridisegnano la notte del nuoto, e un secondo ridisegno
+chiederebbe il sì dell'utente. Quindi `models.py`, `network.py`,
+`__main__.py` ed `export_gpx.py` restano come sono: la camminata vive in un
+file nuovo, `route_engine/walking.py` (`API_ACTIVITIES`, 1–30 km,
+`engine_activity` che la chiede al motore come corsa, la riga di comando
+`python -m route_engine.walking`), lasciato fuori dall'impronta da
+`route_store.WALK_ONLY`, come i file del nuoto e dei disegni ancorati. Un
+test tiene le impronte 5b5e026cea9b e b9d00c37d28d. Una camminata e una
+corsa con la stessa richiesta sono lo stesso percorso tenuto. Il `<type>`
+del GPX c'è solo per la camminata: gli altri file restano byte per byte
+quelli di prima (punto 3). La «Conseguenza» sull'impronta del motore qui sopra
+non vale più.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono

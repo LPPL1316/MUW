@@ -62,9 +62,12 @@ export type Placement = (typeof PLACEMENTS)[number];
 export const ACTIVITIES = ["running", "cycling", "paddling", "swimming"] as const;
 export type Activity = (typeof ACTIVITIES)[number];
 
-/** The activities of the API (route_engine/models.py SUPPORTED_ACTIVITIES):
- * the app's, since part C2 of TASK-323 (B had swimming here alone). */
-export const API_ACTIVITIES = ACTIVITIES;
+/** The activities of the API (route_engine/walking.py API_ACTIVITIES):
+ * the app's, since part C2 of TASK-323 (B had swimming here alone), and
+ * walking, drawn as a run on the same foot network (TASK-371, ADR-0315). The
+ * app offers a walk from part B of TASK-371: its Activity widens then, with
+ * the tables keyed on it (distances, names, Apple Health of TASK-321). */
+export const API_ACTIVITIES = [...ACTIVITIES, "walking"] as const;
 export type ApiActivity = (typeof API_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
@@ -81,8 +84,8 @@ export const MAX_DISTANCE_M = 50_000;
 /** The target distances of each activity, [lowest, highest] in metres:
  * running as above, cycling 10–30 km (TASK-190), paddling 1–5 km
  * (TASK-191), swimming 0.5–3 km, every lap and the legs from the shore
- * (TASK-323). Outside them the API answers `invalid_request`, with the
- * limits in the message. */
+ * (TASK-323), walking 1–30 km (TASK-371). Outside them the API answers
+ * `invalid_request`, with the limits in the message. */
 export const DISTANCE_LIMITS_M: Readonly<
   Record<ApiActivity, readonly [lowest: number, highest: number]>
 > = {
@@ -90,6 +93,7 @@ export const DISTANCE_LIMITS_M: Readonly<
   cycling: [10_000, 30_000],
   paddling: [1_000, 5_000],
   swimming: [500, 3_000],
+  walking: [1_000, 30_000],
 };
 
 /** A swim goes round its shape at most this many times (TASK-323): 130 m of
