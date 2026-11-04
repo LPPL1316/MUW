@@ -93,7 +93,10 @@ Una alla volta, con le sue parole. *(da fare)*
    reale: servirebbe un'app per Apple Watch o una fascia Bluetooth
    (dipendenza nuova), task a parte se mai lo si vorrà.
    — *Risposta (2026-11-04):* «Tabella + tempo in zona».
-5. **Dove sta la sezione**: Impostazioni o Profilo.
+5. **Dove sta la sezione.** Proposta: nelle Impostazioni, una riga sotto
+   «Units» che apre una pagina con i quattro dati e, in fondo, la riga delle
+   zone. Non nel Profilo, che è anche la pagina vista dagli altri.
+   — *Risposta (2026-11-04):* «Nelle Impostazioni».
 6. **I testi dell'interfaccia** (in inglese, più le traduzioni).
 
 ## Divisione proposta
@@ -121,8 +124,8 @@ Una alla volta, con le sue parole. *(da fare)*
    scrittura sul telefono come `units.ts`, conversioni kg/lb e cm/ft-in.
 2. Modulo puro `body/energy.ts`: la formula di ADR-0318, per sport, con i dati
    del corpo o i valori di oggi se mancano.
-3. Sezione nelle Impostazioni (o nel Profilo, scelta 5) per inserire i dati,
-   nelle unità di TASK-182.
+3. Nelle Impostazioni (scelta 5), una riga sotto «Units» che apre la pagina dei
+   dati del corpo (`settings/BodyPage.tsx`, nuovo), nelle unità di TASK-182.
 4. `RunPanel.tsx`, `postEnergy.ts` e `health/workout.ts` passano da `kcal()` a
    `energy.ts`. Il riquadro «Calories» torna in bici e in paddle (supera
    ADR-0219 §3) e in Health si scrivono le kcal anche per loro. **Prima di
@@ -135,7 +138,8 @@ Una alla volta, con le sue parole. *(da fare)*
 1. Modulo puro `body/heartZones.ts`: FC max = 208 − 0,7 × età (Tanaka), oppure
    inserita a mano; con la FC a riposo, il metodo Karvonen; limiti modificati a
    mano, che restano finché l'utente non torna ai valori calcolati.
-2. Pagina «Heart rate zones» con le 5 zone, aperta dalla sezione della parte A.
+2. Pagina «Heart rate zones» con le 5 zone, aperta da una riga in fondo alla
+   pagina dei dati del corpo (parte A).
 
 ## Criteri di accettazione
 
@@ -174,6 +178,8 @@ apps/mobile/src/body/energy.ts                 (nuovo)
 apps/mobile/src/body/energy.test.ts            (nuovo)
 apps/mobile/src/settings/BodySetting.tsx       (nuovo)
 apps/mobile/src/settings/BodySetting.test.tsx  (nuovo)
+apps/mobile/src/settings/BodyPage.tsx          (nuovo)
+apps/mobile/src/settings/BodyPage.test.tsx     (nuovo)
 apps/mobile/src/profile/SettingsPage.tsx
 apps/mobile/src/navigation/runMetrics.ts
 apps/mobile/src/screens/RunPanel.tsx
@@ -190,7 +196,7 @@ apps/mobile/src/body/heartZones.ts             (nuovo)
 apps/mobile/src/body/heartZones.test.ts        (nuovo)
 apps/mobile/src/body/HeartZonesPage.tsx        (nuovo)
 apps/mobile/src/body/HeartZonesPage.test.tsx   (nuovo)
-apps/mobile/src/settings/BodySetting.tsx
+apps/mobile/src/settings/BodyPage.tsx
 apps/mobile/src/i18n/{it,de,es,fr}.ts
 ```
 

@@ -21000,7 +21000,9 @@ dati sulla salute (GDPR art. 9).
 8. Le zone servono come tabella e per il tempo in ogni zona a fine corsa,
    dai campioni di battito di TASK-345 C (scelta dell'utente, «Tabella +
    tempo in zona», 2026-11-04). Niente battito in tempo reale.
-9. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
+9. La sezione sta nelle Impostazioni, sotto «Units», non nel Profilo
+   (scelta dell'utente, «Nelle Impostazioni», 2026-11-04).
+10. L'età è l'anno in corso meno l'anno di nascita. Basta per Tanaka e per
    Mifflin, e non chiede la data intera.
 
 **Motivo**: l'equazione ACSM e il Compendium sono pubblici e citabili, e si
