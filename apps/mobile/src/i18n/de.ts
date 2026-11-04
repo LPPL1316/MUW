@@ -1810,4 +1810,8 @@ export const DE: Table = {
   "Up to 10 in a post.": "Bis zu 10 in einem Beitrag.",
   "Could not prepare this photo. Try again.":
     "Dieses Foto konnte nicht vorbereitet werden. Versuche es noch einmal.",
+  // src/share/StyleRow.tsx, videoStyle.ts (TASK-351 part C: the video's styles)
+  Style: "Stil",
+  Night: "Nacht",
+  Day: "Tag",
 };

@@ -45,9 +45,11 @@ import {
   stickersOf,
 } from "./stickers";
 import { StravaPostRow } from "./StravaPostRow";
+import { StyleRow } from "./StyleRow";
 import { type VideoOutcome, videoProblem } from "./videoFile";
 import { hearMusic, type Music } from "./videoMusic";
 import { type VideoScene, videoScene } from "./videoScene";
+import type { VideoStyle } from "./videoStyle";
 
 /** The share of the screen's height the post takes: the choices fit under it. */
 const POST_HEIGHT_SHARE = 0.5;
@@ -65,7 +67,8 @@ type Props = {
  * shared, the post goes to the API with its saved run (TASK-258), and
  * opens as it was the next time. «Export video» shares the same post as a
  * short video of the run drawing itself over the map of the run (TASK-295,
- * TASK-351), with the track chosen in «Music» (TASK-301).
+ * TASK-351), in the style chosen in «Style», with the track chosen in
+ * «Music» (TASK-301).
  */
 export function SharePost({ run, onClose }: Props) {
   const insets = useSafeAreaInsets();
@@ -89,6 +92,8 @@ export function SharePost({ run, onClose }: Props) {
   const [problem, setProblem] = useState<string | null>(null);
   // The video's music, none when the post opens (TASK-301).
   const [music, setMusic] = useState<Music | null>(null);
+  // The video's style, «Night» when the post opens (TASK-351).
+  const [style, setStyle] = useState<VideoStyle>("night");
   // The video being made, with its music, and how much of it is (TASK-295);
   // the map under it, and the post on yellow for when the map does not
   // come (TASK-351).
@@ -139,7 +144,7 @@ export function SharePost({ run, onClose }: Props) {
     hearMusic(null);
     setMade(0);
     setVideo({
-      scene: videoScene(run, shown, stickers, "night"),
+      scene: videoScene(run, shown, stickers, style),
       fallback: videoScene(run, shown, stickers, "paper"),
       music,
     });
@@ -252,6 +257,7 @@ export function SharePost({ run, onClose }: Props) {
             </Text>
           )}
 
+          <StyleRow run={run} style={style} onChange={setStyle} />
           <MusicRow music={music} onChange={setMusic} />
 
           <View style={styles.actions}>
