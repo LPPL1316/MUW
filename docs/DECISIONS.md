@@ -22100,7 +22100,6 @@ prova solo con i test.
   `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
 
 ---
----
 
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
@@ -22136,3 +22135,5 @@ più, e vorrebbe il sì dell'utente).
 **Conseguenze**: vale per ogni figura della mappa, sull'acqua e sulle strade;
 un contorno che il motore prende già parte identico a prima. Solo JS, nessun
 testo, impronta iOS invariata; funziona col server di oggi.
+
+---
