@@ -1,7 +1,7 @@
 # TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la ricetta
 
-**Stato**: In corso — parte A (banco e documenti) in PR; parte B (il
-refactor) dopo 371 A+B, 375 A+B e 323 C2 in `main`
+**Stato**: In corso — parte A in `main` (#736); parte B (il refactor)
+dopo 371 B, 375 A+B e 323 D in `main`
 **Fase**: 4 · **Branch**: `feat/TASK-376-a-sport-bench` (parte A),
 `feat/TASK-376-b-sport-registry` (parte B) · **ADR**: ADR-0320 · numeri dal
 Coordinatore (2026-11-04) · sessione «Coordinatore Sport»
@@ -98,7 +98,7 @@ Coordinatore blocca gli altri lavori su quei file per la durata della PR.
 - [x] A: `python tools/sport_bench/sport_bench.py zones|run|compare` funziona;
       test di `tools/` verdi in CI.
 - [x] A: `docs/sports/` con README, CONDIVISO, COME-AGGIUNGERE (bozza) e le
-      misure di base di corsa, bici e canoa (canoa a Milano da rifare).
+      misure di base di corsa, bici e canoa.
 - [x] A: ADR-0320 scritto.
 - [ ] B: corsa, bici, canoa, nuoto, camminata, sci identici: suite intere
       verdi, `compare` del banco senza peggioramenti, impronta iOS invariata.
@@ -134,8 +134,9 @@ Parte B: la lista va al Coordinatore prima del codice.
 di Levico), con i nuovi tentativi per Overpass e l'acqua scaricata una volta
 per zona. Misure di base fatte col turno del Coordinatore: corsa e bici su
 sei zone (54/54 ciascuna), canoa su Valsugana e Mantova (10/18, il limite è
-l'acqua entro 1 km dalla riva). **Manca la canoa a Milano**: Overpass non ha
-dato l'acqua dell'Idroscalo (timeout, 502, poi il Mac senza rete); si rifà
-con `--zones milano` quando Overpass risponde. Scelte dell'utente: pilota
-Escursionismo, Roller nella fase 1. Prossimo: la parte B dopo 371 A+B,
-375 A+B e 323 C2 in `main`.
+l'acqua entro 1 km dalla riva). La canoa a Milano è
+misurata la sera: 0 su 9 all'Idroscalo, bacino troppo stretto (`paddle.md`).
+Parte A in `main` (#736, `638d1ee2`). Scelte dell'utente: pilota
+Escursionismo, Roller nella fase 1. Prossimo: la parte B dopo 371 B,
+375 A+B e 323 D in `main` (condizione del Coordinatore), con la lista dei
+file al Coordinatore prima del codice.
