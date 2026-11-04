@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
+  «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
+  fuori dal riquadro; scelta dell'utente «Dentro il riquadro»: «kg»/«cm», con
+  le miglia «lb» e «ft» + «in», accanto al numero, e un tocco sull'unità apre
+  la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
+  la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
+  nessun testo nuovo. `tasks/TASK-383.md`.
+
 - **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
   (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
   materiali in `out/TASK-384/` (100 outfit da zalando.it, 100 prompt). Scelte dell'utente:
