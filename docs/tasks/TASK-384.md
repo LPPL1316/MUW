@@ -1,7 +1,7 @@
 # TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»
 
-**Stato**: Todo — proposta in `docs/STYLE.md`; niente codice prima del sì
-dell'utente sulla proposta
+**Stato**: Todo — proposta in `docs/STYLE.md` approvata dall'utente
+(2026-11-04, «Sì, approvo»); prima del codice restano i testi
 **Fase**: 4 · **Branch**: `docs/TASK-384-muw-style` (proposta) · **ADR**:
 ADR-0326 · numero del task dal Coordinatore
 (2026-11-04)
@@ -51,8 +51,10 @@ Una alla volta, con le sue parole.
    persona fisica, fatta dall'utente; il fisco col commercialista.
 5. **Aperte, da chiedere prima del codice**: i testi (etichette, scheda,
    «Shop», l'interruttore in «Settings») in cinque lingue; i nuovi Termini e
-   Privacy al posto di «MuW non mostra pubblicità»; il sì sulla proposta
-   intera (`docs/STYLE.md`).
+   Privacy al posto di «MuW non mostra pubblicità».
+6. **La proposta intera** (`docs/STYLE.md`).
+   — *Risposta* (2026-11-04): «Sì, approvo». Non copre i testi del punto 5,
+   che si approvano a parte.
 
 ## Prerequisiti fuori dal codice (dell'utente)
 
@@ -86,4 +88,5 @@ Una alla volta, con le sue parole.
 - [x] Proposta in `docs/STYLE.md` con etichette, tag, frequenza, uscita
       graduale, modello dati, clic, prerequisiti.
 - [x] Le tre scelte chieste all'utente, più quella sulla società.
-- [ ] Il sì dell'utente sulla proposta: poi le parti A–C.
+- [x] Il sì dell'utente sulla proposta (2026-11-04, «Sì, approvo»). Dopo:
+      i testi, poi le parti A–C.

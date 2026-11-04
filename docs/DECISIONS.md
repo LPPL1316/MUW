@@ -21977,7 +21977,8 @@ post da un'altra pagina, e cambiare il `Pager`.
 
 ## ADR-0326 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
 
-**Stato**: Proposta · 2026-11-04 · TASK-384. Le scelte di prodotto sono
+**Stato**: Accettata · 2026-11-04 · TASK-384 («Sì, approvo» dell'utente
+sulla proposta). Le scelte di prodotto sono
 dell'utente (tema, frequenza, strumento, partenza prima della società:
 `tasks/TASK-384.md`); il come è deciso dall'agente su delega dell'utente.
 Numeri dal Coordinatore.

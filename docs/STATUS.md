@@ -166,6 +166,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   sport dell'app, 1 ogni 8 solo «All», Google Imagen / Gemini, Style prima della società.
   Prossimo: il sì sulla proposta, i testi e i Termini nuovi, poi le parti A–C. Nessuna immagine
   né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
+  **Proposta approvata dall'utente il 2026-11-04** («Sì, approvo»); prossimo: i testi in cinque
+  lingue e i nuovi Termini e Privacy, poi la parte A.
 
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed

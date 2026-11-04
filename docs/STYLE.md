@@ -1,6 +1,7 @@
 # MuW Style — proposta
 
-> Stato: **proposta**, nessun codice. Task: `tasks/TASK-384.md`.
+> Stato: **proposta approvata dall'utente** (2026-11-04, «Sì, approvo»),
+> nessun codice; i testi si approvano a parte. Task: `tasks/TASK-384.md`.
 > Decisione tecnica: `DECISIONS.md` ADR-0326. Materiali preparati (fuori dal
 > repository, `out/` è in `.gitignore`): `out/TASK-384/`.
 
