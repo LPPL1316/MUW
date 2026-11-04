@@ -21165,3 +21165,50 @@ dall'agente su delega dell'utente, dentro le scelte già fatte dall'utente
    2026-11-03.
 
 ---
+
+## ADR-0317 — Lo sci alpino in MuW: prima la giornata registrata, le forme solo dopo un prototipo
+
+**Stato**: Proposto · 2026-11-04 · studio con misure (TASK-373,
+`out/TASK-373/` del Mac). Nessuna parte parte senza la scelta
+dell'utente fra le tre opzioni di `tasks/TASK-373.md`
+
+**Contesto**: l'utente vuole lo sport «Ski» (sci alpino). Le piste da
+discesa di OSM (`piste:type=downhill`) si fanno solo in discesa e si
+risale con gli impianti (`aerialway=*`). La struttura è quella della rete
+`bike`, un grafo a sensi unici con il pezzo in cui ogni nodo si raggiunge
+da ogni altro (ADR-0153). Misurato su Paganella, Campiglio–Pinzolo–
+Folgarida e Sella Ronda: la rete c'è ed è coerente (pezzo utile di 35,
+97,5 e 265,5 km di piste, con le stazioni collegate a piedi fino a 100 m e
+il verso controllato sul terreno), ma il motore di oggi, su 19 richieste
+(cerchio e cuore da 5 a 40 km), **non ne propone nessuna**: somiglianza
+0,22–0,58 contro il minimo di 0,60, percorsi due-cinque volte più lunghi
+del chiesto, il 27–43% della lunghezza sugli impianti, che sono linee
+dritte attraverso la figura. Ogni lato di una forma dovrebbe essere una
+discesa. TASK-372 (ADR-0316) trova lo stesso per lo sci di fondo.
+
+**Decisione proposta**:
+
+1. **Opzione A, adesso**: «Ski» è uno sport che si registra senza forma.
+   «Draw» apre la registrazione libera; il riepilogo dà discese, km
+   sciati, dislivello in discesa e velocità massima, con le risalite
+   riconosciute (salita a velocità costante) e tratteggiate sulla mappa;
+   Feed, video e Salute come le altre attività; gioco e concorsi non la
+   contano. Un'attività nuova `skiing` nel contratto e nel database. 4–6
+   sessioni, probabilmente in OTA.
+2. **Opzione B, dopo e solo se un prototipo lo regge**: forme fatte di
+   discese, con le risalite a penna alzata (come TASK-197). Prima un
+   prototipo di soli motore (3–4 sessioni); se su tre comprensori almeno
+   metà delle richieste non arriva a 0,60, ci si ferma. Tutto compreso
+   12–18 sessioni.
+3. **Opzione C («Soon») no da sola**: le build dello store non mostrano
+   gli sport «Soon» (ADR-0278), quindi chi scia non la vedrebbe.
+4. Il motore resta una libreria pura: con B la rete `ski` entra come le
+   altre (OSM e terreno da file), l'AI interpreta soltanto.
+
+**Conseguenze**: con A MuW in montagna è un registratore come gli altri,
+con il video in 3D come pezzo distintivo, e arriva per la stagione
+(dicembre–aprile). Nulla in OSM dice se una pista è aperta o adatta a chi
+scia: nessuna opzione propone piste come «da fare». La scelta fra uno sport
+o due con lo sci di fondo è dell'utente.
+
+---
