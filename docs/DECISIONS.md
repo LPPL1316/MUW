@@ -21929,3 +21929,16 @@ Lo sci alpino trova lo stesso (ADR-0317).
 - Stagione ed estate restano scelte dell'utente, in TASK-375.
 
 ---
+
+## ADR-0194, precisazione — Il post da condividere legge i margini veri del telefono
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-381). Dalla #700 «Share» sulla card del Feed apre il post da una pagina
+del `Pager`, e «Close» finiva sotto l'orologio. Come per il regolamento
+(ADR-0260, precisazione) e la tavola del contorno (ADR-0074, precisazione), il
+`Modal` di `SharePost` tiene un suo `SafeAreaProvider` con
+`initialWindowMetrics`, per ogni punto da cui si apre. Scartato: far passare
+il margine da `ActionBar`, che lascerebbe il difetto al prossimo che apre il
+post da un'altra pagina, e cambiare il `Pager`.
+
+---

@@ -9,7 +9,11 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import { useActivitiesDoor } from "../activities/activitiesDoor";
 import { t } from "../i18n";
@@ -71,6 +75,23 @@ type Props = {
  * «Music» (TASK-301).
  */
 export function SharePost({ run, onClose }: Props) {
+  return (
+    <Modal
+      visible
+      animationType="slide"
+      presentationStyle="fullScreen"
+      onRequestClose={onClose}
+    >
+      {/* Its own edges: from the Feed it opens inside the Pager, whose pages
+          have no top edge, and «Close» went under the status bar. */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <SharePage run={run} onClose={onClose} />
+      </SafeAreaProvider>
+    </Modal>
+  );
+}
+
+function SharePage({ run, onClose }: Props) {
   const insets = useSafeAreaInsets();
   const window = useWindowDimensions();
   const postWidth = Math.min(
@@ -161,138 +182,131 @@ export function SharePost({ run, onClose }: Props) {
   const busy = sharing || video !== null;
 
   return (
-    <Modal
-      visible
-      animationType="slide"
-      presentationStyle="fullScreen"
-      onRequestClose={onClose}
-    >
-      <View style={[styles.screen, { paddingTop: insets.top }]}>
-        {/* Under the screen's content, at the top corner (RunVideo). */}
-        {video !== null && (
-          <RunVideo
-            scene={video.scene}
-            fallback={video.fallback}
-            music={video.music}
-            onProgress={setMade}
-            onEnd={videoEnded}
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
+      {/* Under the screen's content, at the top corner (RunVideo). */}
+      {video !== null && (
+        <RunVideo
+          scene={video.scene}
+          fallback={video.fallback}
+          music={video.music}
+          onProgress={setMade}
+          onEnd={videoEnded}
+        />
+      )}
+      <View style={styles.header}>
+        <Pressable style={styles.close} onPress={onClose} accessibilityRole="button">
+          <Text style={styles.link}>{t("Close")}</Text>
+        </Pressable>
+        <Text style={styles.title} accessibilityRole="header">
+          {t("Share your run")}
+        </Text>
+      </View>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: insets.bottom + space.xxl },
+        ]}
+      >
+        <View style={styles.center}>
+          <PostImage
+            ref={post}
+            run={run}
+            shown={shown}
+            stickers={stickers}
+            width={postWidth}
+            onMoveSticker={(id, x, y) =>
+              setStickers((now) => moveSticker(now, id, x, y))
+            }
+            onRemoveSticker={(id) => setStickers((now) => removeSticker(now, id))}
           />
-        )}
-        <View style={styles.header}>
-          <Pressable style={styles.close} onPress={onClose} accessibilityRole="button">
-            <Text style={styles.link}>{t("Close")}</Text>
-          </Pressable>
-          <Text style={styles.title} accessibilityRole="header">
-            {t("Share your run")}
-          </Text>
         </View>
-        <ScrollView
-          contentContainerStyle={[
-            styles.content,
-            { paddingBottom: insets.bottom + space.xxl },
-          ]}
-        >
-          <View style={styles.center}>
-            <PostImage
-              ref={post}
-              run={run}
-              shown={shown}
-              stickers={stickers}
-              width={postWidth}
-              onMoveSticker={(id, x, y) =>
-                setStickers((now) => moveSticker(now, id, x, y))
+        {stickers.length > 0 && (
+          <Text style={styles.hint}>
+            {t("Drag the emoji to move them. Tap one to take it off.")}
+          </Text>
+        )}
+
+        {results.length > 0 && (
+          <>
+            <Text style={styles.label}>{t("Results")}</Text>
+            <View style={styles.chips}>
+              {results.map((result) => {
+                const on = shown.includes(result);
+                return (
+                  <Pressable
+                    key={result}
+                    style={[styles.chip, on && styles.chipOn]}
+                    onPress={() => toggle(result)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: on }}
+                  >
+                    <Text style={[styles.chipText, on && styles.chipTextOn]}>
+                      {resultName(result)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </>
+        )}
+
+        <Text style={styles.label}>{t("Add emoji")}</Text>
+        <View style={styles.emojiRow}>
+          {POST_EMOJI.map((emoji) => (
+            <Pressable
+              key={emoji}
+              style={styles.emoji}
+              onPress={() => setStickers((now) => addSticker(now, emoji))}
+              accessibilityRole="button"
+              accessibilityLabel={t("Add {emoji}", { emoji })}
+            >
+              <Text style={styles.emojiText}>{emoji}</Text>
+            </Pressable>
+          ))}
+        </View>
+        {stickers.length >= MAX_STICKERS && (
+          <Text style={styles.hint}>
+            {t("Up to {count} emoji: tap one on the post to take it off.", {
+              count: MAX_STICKERS,
+            })}
+          </Text>
+        )}
+
+        <StyleRow run={run} style={style} onChange={setStyle} />
+        <MusicRow music={music} onChange={setMusic} />
+
+        <View style={styles.actions}>
+          <View style={styles.buttons}>
+            <PostButton
+              text={sharing ? t("Making the picture…") : "Instagram"}
+              onPress={() => void share()}
+              busy={busy}
+              main
+            />
+            <PostButton
+              text={
+                video === null
+                  ? t("Export video")
+                  : t("Making the video… {percent}%", {
+                      percent: Math.round(made * 100),
+                    })
               }
-              onRemoveSticker={(id) => setStickers((now) => removeSticker(now, id))}
+              onPress={() => void exportVideo()}
+              busy={busy}
             />
           </View>
-          {stickers.length > 0 && (
-            <Text style={styles.hint}>
-              {t("Drag the emoji to move them. Tap one to take it off.")}
+          <Text style={styles.hint}>
+            {t("Pick Instagram in the list: Story, Feed or Messages.")}
+          </Text>
+          {problem !== null && (
+            <Text style={styles.problem} accessibilityRole="alert">
+              {problem}
             </Text>
           )}
-
-          {results.length > 0 && (
-            <>
-              <Text style={styles.label}>{t("Results")}</Text>
-              <View style={styles.chips}>
-                {results.map((result) => {
-                  const on = shown.includes(result);
-                  return (
-                    <Pressable
-                      key={result}
-                      style={[styles.chip, on && styles.chipOn]}
-                      onPress={() => toggle(result)}
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: on }}
-                    >
-                      <Text style={[styles.chipText, on && styles.chipTextOn]}>
-                        {resultName(result)}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </>
-          )}
-
-          <Text style={styles.label}>{t("Add emoji")}</Text>
-          <View style={styles.emojiRow}>
-            {POST_EMOJI.map((emoji) => (
-              <Pressable
-                key={emoji}
-                style={styles.emoji}
-                onPress={() => setStickers((now) => addSticker(now, emoji))}
-                accessibilityRole="button"
-                accessibilityLabel={t("Add {emoji}", { emoji })}
-              >
-                <Text style={styles.emojiText}>{emoji}</Text>
-              </Pressable>
-            ))}
-          </View>
-          {stickers.length >= MAX_STICKERS && (
-            <Text style={styles.hint}>
-              {t("Up to {count} emoji: tap one on the post to take it off.", {
-                count: MAX_STICKERS,
-              })}
-            </Text>
-          )}
-
-          <StyleRow run={run} style={style} onChange={setStyle} />
-          <MusicRow music={music} onChange={setMusic} />
-
-          <View style={styles.actions}>
-            <View style={styles.buttons}>
-              <PostButton
-                text={sharing ? t("Making the picture…") : "Instagram"}
-                onPress={() => void share()}
-                busy={busy}
-                main
-              />
-              <PostButton
-                text={
-                  video === null
-                    ? t("Export video")
-                    : t("Making the video… {percent}%", {
-                        percent: Math.round(made * 100),
-                      })
-                }
-                onPress={() => void exportVideo()}
-                busy={busy}
-              />
-            </View>
-            <Text style={styles.hint}>
-              {t("Pick Instagram in the list: Story, Feed or Messages.")}
-            </Text>
-            {problem !== null && (
-              <Text style={styles.problem} accessibilityRole="alert">
-                {problem}
-              </Text>
-            )}
-            <StravaPostRow runKey={run.key} caption={caption} onSent={keep} />
-          </View>
-        </ScrollView>
-      </View>
-    </Modal>
+          <StravaPostRow runKey={run.key} caption={caption} onSent={keep} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
