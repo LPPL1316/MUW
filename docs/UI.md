@@ -2722,6 +2722,25 @@ traccia sulla mappa dove è stata corsa e alla sua grandezza, non nel mezzo
 della partenza di «Draw»: l'utente il 2026-10-29, «devo poter modificare la
 traccia sulla mappa, non il disegno in sé».
 
+**Su ogni disegno, dal TASK-369** (ADR-0313, scelte dell'utente del
+2026-11-03 e 2026-11-04): «Edit the drawing» c'è su ogni scheda con una
+linea sulla mappa e mette **la traccia, o la linea del percorso, dov'è e
+grande com'è**, mai la figura chiesta: la scheda di un disegno di un membro
+(anche un'emoji, una parola, una corsa libera, una importata da un'altra
+app), la scheda di «Explore» (un esempio, una ricerca, un preferito, un
+disegno ricevuto in un messaggio, un esempio del Feed, una forma di «NEAR
+YOU»: la linea del risultato) e la scheda di un percorso a tema, dopo
+«Export GPX» e prima di «Back to Explore» (i luoghi del tema non restano).
+Quello che sopra dice «non c'è mai per una forma del catalogo, né per una
+parola» e «nel mezzo della partenza di "Draw"» per le schede non vale più.
+Una traccia che finisce lontano dalla partenza resta una linea aperta, come
+la prima linea disegnata sulla mappa (TASK-331). Il tasto non c'è per un
+post di sole foto, sotto il risultato di «Draw» (TASK-340) e sull'acqua:
+con lo sport «Paddle», o per un disegno o un percorso in canoa, finché la
+parte B non porta il disegno sull'acqua. Un disegno di un altro si modifica
+sempre in una copia propria: il suo post non cambia, e la copia non dice da
+chi viene.
+
 Quello che segue è la tavola del TASK-320, tolta dal TASK-331: resta come
 storia delle scelte approvate allora.
 
