@@ -568,6 +568,33 @@ sotto una vista opaca a grandezza piena, come il Feed. Da chiedere
 all'utente: il video uscito era giallo (la riserva) o scuro senza strade
 (uno scatto vuoto).
 
+## La prova successiva (2026-11-04): il WebView sotto una copertura, e il motivo nel video
+
+Con la preview `fb15613e` (main 8cc5005b, con il fix #703) l'utente ha
+provato il video di un'attività di prima: «ho provato con un'attività già
+fatta in precedenza e non funziona» (riferito dal Coordinatore). Quindi i
+fotogrammi da timer non bastano, o la preview non si era caricata: non si
+sa se il video era giallo o scuro, né se era uscito. Chiesto all'utente.
+
+La prova successiva (branch `fix/TASK-351-video-map-under-cover`,
+worktree `TASK-351-fix2`):
+
+1. `RunVideo.tsx`: il WebView a grandezza piena, 360 × 640 punti (la
+   misura della mappa che disegna), sotto una vista opaca del colore dello
+   schermo, montato per primo nello schermo del post (`SharePost.tsx`):
+   com'è tenuta la pagina delle mappe del Feed, che sul telefono le mappe
+   le fa. Per iOS la pagina è in finestra, grande e disegnata.
+2. Nel video di riserva giallo, **una riga piccola in fondo** con il motivo
+   dato dalla pagina («no map: timeout {"map":15234,…}», «no library»,
+   «tiles», o l'errore di WebGL) e i tempi, compreso il caricamento di
+   MapLibre: così la prossima prova dalla preview dice la causa anche senza
+   una rete di diagnosi. **Temporanea**: si toglie appena la causa è
+   trovata, e la produzione resta ferma finché l'utente non vede la mappa.
+
+Test: `withNote` (la riga in ogni fotogramma, il resto uguale), il flusso
+con la riserva che porta il motivo, le suite del video e di «Share your
+run». Solo JS.
+
 ## Dove si è (2026-10-30, sera)
 
 Fatto: il canvas; il bench in Safari del simulatore e nell'app (Expo Go,

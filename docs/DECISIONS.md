@@ -20380,6 +20380,16 @@ pagina: prima 15,2 s e il giallo, dopo la mappa in 1,5 s. Se sul telefono
 non basta, la prova seguente mette il WebView a grandezza piena sotto una
 vista opaca, come il Feed.
 
+**Aggiunta (2026-11-04, deciso dall'agente su delega dell'utente)**: con
+il fix del 3 novembre in `main` e sulla preview, sul telefono il video è
+ancora senza mappa. Prova successiva: il WebView del video a grandezza
+piena (360 × 640 punti) sotto una vista opaca del colore dello schermo,
+montato per primo nello schermo del post, com'è tenuta la pagina delle
+mappe del Feed, che sul telefono le mappe le fa; e, finché la causa non è
+trovata, il video giallo di riserva porta in fondo una riga piccola con il
+motivo che la pagina ha dato e i suoi tempi, da togliere dopo. La
+produzione resta ferma finché l'utente non vede la mappa sul telefono.
+
 **Alternative scartate**: la mappa scattata da `feedMapPage` e passata
 all'app in base64 (due WebView, 450 KB di testo attraverso l'app, e il 3D
 con la linea in prospettiva non si fa); la linea come layer di MapLibre

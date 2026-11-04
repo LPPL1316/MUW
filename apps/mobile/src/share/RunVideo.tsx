@@ -1,10 +1,11 @@
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { WebView } from "react-native-webview";
 
 import { t } from "../i18n";
+import { color } from "../theme/tokens";
 import type { AudioTrack } from "./m4a";
 import { mp4Of, type VideoSample } from "./mp4";
 import {
@@ -23,7 +24,8 @@ import {
   VIDEO_PAGE,
   VIDEO_PAGE_BASE,
 } from "./videoPage";
-import type { VideoScene } from "./videoScene";
+import { MAP_HEIGHT, MAP_WIDTH } from "./videoMap";
+import { type VideoScene, withNote } from "./videoScene";
 
 type Props = {
   scene: VideoScene;
@@ -47,13 +49,15 @@ type Props = {
  * the app puts them in an MP4 file in the cache folder and shares it.
  * Instagram is in the sheet (Reels, Story), and «Save Video» keeps it in
  * Photos. Mounted while the video is made; it lives inside the post's
- * Modal, where iOS keeps it on screen, as one point in the corner at full
- * opacity: a page out of sight, or see-through, may get no animation
- * frames on a phone, and the map would never be drawn (TASK-351's fix of
- * 2026-11-03). The music's file is read while the pictures are made, and
- * goes into the MP4 as its second track. On a map look the page draws the
- * map first (TASK-351); when it cannot, within its own time, the
- * `fallback` scene is made instead.
+ * Modal, at the size of the map it draws (360 × 640 points), under a cover
+ * of the screen's own colour: a page out of sight, or see-through, may get
+ * nothing drawn on a phone, and the map never came (TASK-351's fixes of
+ * 2026-11-03 and 2026-11-04); the Feed's map page is kept the same way,
+ * under what covers it. The music's file is read while the pictures are
+ * made, and goes into the MP4 as its second track. On a map look the page
+ * draws the map first (TASK-351); when it cannot, within its own time, the
+ * `fallback` scene is made instead, with a line saying why at its foot,
+ * while the cause on the phone is looked for (to take out after).
  */
 export function RunVideo({
   scene,
@@ -69,7 +73,6 @@ export function RunVideo({
   const ended = useRef(false);
   const silence = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sceneJson = useMemo(() => JSON.stringify(scene), [scene]);
-  const fallbackJson = useMemo(() => JSON.stringify(fallback), [fallback]);
   const mapJson = useMemo(
     () => (scene.map === null ? null : JSON.stringify(scene.map)),
     [scene],
@@ -181,7 +184,16 @@ export function RunVideo({
           break;
         case "map":
           webView.current?.injectJavaScript(
-            makeCall(message.ok ? sceneJson : fallbackJson),
+            makeCall(
+              message.ok
+                ? sceneJson
+                : JSON.stringify(
+                    withNote(
+                      fallback,
+                      `no map: ${message.why ?? "?"} ${JSON.stringify(message.ms)}`,
+                    ),
+                  ),
+            ),
           );
           break;
         case "config":
@@ -208,33 +220,52 @@ export function RunVideo({
   }
 
   return (
-    <WebView
-      ref={webView}
-      testID="run-video"
-      // The WebView's own container grows (flex 1): kept out of the layout too.
-      containerStyle={styles.hidden}
-      style={styles.hidden}
+    <View
+      style={styles.page}
       pointerEvents="none"
-      source={{ html: VIDEO_PAGE, baseUrl: VIDEO_PAGE_BASE }}
-      originWhitelist={["*"]}
-      javaScriptEnabled
-      onMessage={(event) => receive(event.nativeEvent.data)}
-      onContentProcessDidTerminate={() => end("failed")}
-      onRenderProcessGone={() => end("failed")}
-    />
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <WebView
+        ref={webView}
+        testID="run-video"
+        containerStyle={styles.web}
+        style={styles.web}
+        source={{ html: VIDEO_PAGE, baseUrl: VIDEO_PAGE_BASE }}
+        originWhitelist={["*"]}
+        javaScriptEnabled
+        scrollEnabled={false}
+        onMessage={(event) => receive(event.nativeEvent.data)}
+        onContentProcessDidTerminate={() => end("failed")}
+        onRenderProcessGone={() => end("failed")}
+      />
+      <View style={styles.cover} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // One point under the screen's corner, fully opaque: in the window, so
-  // the page keeps its animation frames (the Feed's map page is kept the
-  // same way, under what covers it).
-  hidden: {
+  // The page at the size of its map, in the window and drawn, at the top
+  // corner of the post's screen, where the cover and the screen's own
+  // content lie over it (SharePost mounts it first).
+  page: {
     position: "absolute",
-    width: 1,
-    height: 1,
-    opacity: 1,
     left: 0,
     top: 0,
+    width: MAP_WIDTH,
+    height: MAP_HEIGHT,
+  },
+  web: {
+    width: MAP_WIDTH,
+    height: MAP_HEIGHT,
+    backgroundColor: color.background,
+  },
+  cover: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: color.background,
   },
 });
