@@ -30,7 +30,8 @@ from route_engine.models import (
     RouteRequest,
     check_activity,
     check_distance,
-    check_drawn_on_land,
+    check_laps,
+    check_outline_drawn,
     check_start,
 )
 from route_engine.nearby_starts import ShapeJob, plan_nearby
@@ -43,11 +44,12 @@ from route_engine.optimizer import (
 from route_engine.outline_edits import MAX_DETAIL_POINTS, travelled_points
 from route_engine.pieces import compose
 from route_engine.shapes.outline import InvalidOutlineError, Outline, parse_outline
+from route_engine.swimming import SwimRequest
 from route_engine.water import WaterSource
 from route_engine.words import Word
 
 from shaperoute_api.job_times import noted
-from shaperoute_api.paddling import plan_water
+from shaperoute_api.paddling import plan_swim, plan_water
 from shaperoute_api.schemas import (
     MAX_IMAGE_BYTES,
     ImageOutlineBody,
@@ -81,6 +83,8 @@ class ImageRequest:
     # the image, one at a time, walking between them (TASK-297, ADR-0258);
     # an outline without pieces is drawn as without it.
     pen_up: bool = False
+    # A swim, how many times round the drawing (TASK-323): fewer, larger.
+    laps: int | None = None
     # Where the outline goes (TASK-347, ADR-0300): searched for ("free"), or
     # left where it was drawn ("anchored") with the magnet `fit`, as
     # AnchoredRouteRequest for a shape or a word.
@@ -90,11 +94,13 @@ class ImageRequest:
     def __post_init__(self) -> None:
         check_start(self.start)
         # Only a shape of the catalogue on the water (ADR-0161), whatever
-        # the distance: "... not an image".
-        check_drawn_on_land(self.activity, "an image")
+        # the distance: "... not an image"; but a swim takes a drawing
+        # (TASK-323, the user's ask).
+        check_outline_drawn(self.activity, "an image")
         # The limits of its activity: 10-30 km by bike (TASK-190).
         check_distance(self.distance_m, self.activity)
         check_activity(self.activity)
+        check_laps(self.laps, self.activity)
         check_placement(self.placement, self.fit, self.activity)
 
     @property
@@ -145,6 +151,8 @@ def route_request_of(body: RouteRequestBody) -> RouteRequest:
         "style": body.style,  # RouteRequest checks it
         "pen_up": body.pen_up,
         "near": body.near,
+        # A swim's laps (TASK-323): refused with another activity.
+        "laps": body.laps,
     }
     if body.placement == "anchored":
         return AnchoredRouteRequest(**fields, fit=body.fit)
@@ -284,9 +292,21 @@ def plan_request(request: AnyRequest, source: GraphLoader | WaterSource) -> Plan
     from its own start, with no search, no nearby starts and no
     alternatives: `plan_anchored`."""
     if request.activity in WATER_ACTIVITIES:
-        # ImageRequest and the words of RouteRequest refuse the water.
-        assert isinstance(request, RouteRequest)
-        return plan_water(request, cast(WaterSource, source))
+        water = cast(WaterSource, source)
+        if isinstance(request, ImageRequest):
+            # A swim's drawing (TASK-323): the canoe refuses an image.
+            return plan_swim(
+                SwimRequest(
+                    start=request.start,
+                    distance_m=request.distance_m,
+                    outline=request.outline,
+                    laps=request.laps,
+                    pen_up=request.pen_up and request.outline.in_pieces,
+                ),
+                water,
+            )
+        # The words of RouteRequest refuse the water.
+        return plan_water(request, water)
     roads = cast(GraphLoader, source)
     if placement_of(request) == "anchored":
         return plan_anchored(request, roads)

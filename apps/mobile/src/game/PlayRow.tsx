@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import { pageTitle } from "../screens/pageTitles";
 import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 
 /**
  * «Play» under the distance of «Draw» (the user's choice of 2026-10-29): no
@@ -13,8 +14,8 @@ import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
 export function PlayRow({ onPress }: { onPress: () => void }) {
   const detail = t("Collect shapes by running");
   return (
-    <Pressable
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    <Tap
+      style={styles.row}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${pageTitle("play")}, ${detail}`}
@@ -25,7 +26,7 @@ export function PlayRow({ onPress }: { onPress: () => void }) {
         <Text style={styles.detail}>{detail}</Text>
       </View>
       <Text style={styles.arrow}>›</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -40,9 +41,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: color.border,
     backgroundColor: color.surface,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   words: {
     flex: 1,

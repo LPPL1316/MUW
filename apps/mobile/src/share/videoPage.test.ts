@@ -16,13 +16,19 @@ import {
 } from "./videoPage";
 import { videoScene } from "./videoScene";
 
-/** The script of the page, as the WebView runs it. */
+/** The scripts of the page without a source, as the WebView runs them:
+ * the frames from a timer, then the page's own. */
+function scripts(): string[] {
+  return Array.from(VIDEO_PAGE.matchAll(/<script>([\s\S]*?)<\/script>/g), (m) => m[1]);
+}
+
+/** The page's own script. */
 function script(): string {
-  const match = /<script>([\s\S]*)<\/script>/.exec(VIDEO_PAGE);
-  if (match === null) {
+  const found = scripts();
+  if (found.length < 2) {
     throw new Error("no script");
   }
-  return match[1];
+  return found[found.length - 1];
 }
 
 type Init = {
@@ -106,8 +112,10 @@ class FakeFrame {
   close() {}
 }
 
-/** What a fake map does once made: settles at once, fails a tile first, or never. */
-type MapOutcome = "idle" | "error" | "never";
+/** What a fake map does once made: settles at once, fails a tile first,
+ * never says a word, or has its tiles after two drawings but never says
+ * idle (a page with no animation frames). */
+type MapOutcome = "idle" | "error" | "never" | "silent";
 
 type Handler = () => void;
 
@@ -120,10 +128,11 @@ function fakeMapLibre(outcome: MapOutcome) {
     padding: unknown = null;
     jumped: unknown = null;
     removed = false;
+    redraws = 0;
 
     constructor(public options: Record<string, unknown>) {
       made.push(this);
-      if (outcome !== "never") {
+      if (outcome !== "never" && outcome !== "silent") {
         setTimeout(() => {
           if (outcome === "error") {
             this.emit("error");
@@ -157,6 +166,18 @@ function fakeMapLibre(outcome: MapOutcome) {
 
     getCanvas() {
       return { width: 1080, height: 1920 };
+    }
+
+    redraw() {
+      this.redraws += 1;
+    }
+
+    loaded() {
+      return outcome === "silent" ? this.redraws >= 2 : outcome !== "never";
+    }
+
+    areTilesLoaded() {
+      return this.loaded();
     }
 
     remove() {
@@ -250,6 +271,24 @@ describe("the video page", () => {
   it("is plain JavaScript the WebView can run", () => {
     // Compiled, not run: a mistake in the template string fails here.
     expect(() => new Function(script())).not.toThrow();
+  });
+
+  it("gives itself animation frames from a timer before MapLibre loads, so a page kept out of sight still draws", async () => {
+    const [frames] = scripts();
+    expect(VIDEO_PAGE.indexOf(frames)).toBeLessThan(
+      VIDEO_PAGE.indexOf(MAPLIBRE_JS_URL),
+    );
+    const window: Record<string, unknown> = {};
+    new Function("window", "performance", frames)(window, { now: () => 42 });
+    const request = window.requestAnimationFrame as (cb: (t: number) => void) => number;
+    const cancel = window.cancelAnimationFrame as (id: number) => void;
+    const given: number[] = [];
+    const first = request((at) => given.push(at));
+    const second = request((at) => given.push(at + 1));
+    cancel(second);
+    expect(first).not.toBe(second);
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    expect(given).toEqual([42]);
   });
 
   it("asks only for Baseline H.264, at a level that holds 1080 × 1920", () => {
@@ -424,6 +463,32 @@ describe("the video page, with a fake map", () => {
     // has not come in yet: 359, and the snapshot before them.
     expect(context.drawImage).toHaveBeenCalledTimes(360);
     expect(context.createLinearGradient).toHaveBeenCalled();
+  });
+
+  it("draws the map from a timer when the page gets no animation frames, and takes the picture once it is whole", async () => {
+    const maplibre = fakeMapLibre("silent");
+    const { posted, context, prepareMap } = page(
+      fakeEncoder([VIDEO_CODECS[0]]).FakeEncoder,
+      FakeFrame,
+      maplibre,
+    );
+    await until(posted, "ready");
+    prepareMap(NIGHT_SCENE.map);
+    await until(posted, "map");
+    expect(posted[posted.length - 1]).toEqual(
+      expect.objectContaining({
+        type: "map",
+        ok: true,
+        why: null,
+        ms: expect.objectContaining({ pulses: expect.any(Number) }),
+      }),
+    );
+    const map = maplibre.made[0];
+    // Drawn on the beats until its tiles were there, kept a few beats more,
+    // then drawn once again for the picture.
+    expect(map.redraws).toBeGreaterThanOrEqual(5);
+    expect(context.drawImage).toHaveBeenCalledTimes(1);
+    expect(map.removed).toBe(true);
   });
 
   it("gives the map up when a tile fails: a hole is worse than no map", async () => {

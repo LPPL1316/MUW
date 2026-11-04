@@ -1,14 +1,6 @@
 import type { CityChosenSignal, Signal } from "@shaperoute/shared-types/src/signals";
 import { useEffect, useRef, useState } from "react";
-import {
-  Keyboard,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Keyboard, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { t } from "../i18n";
 
 import { sendSignal } from "../api/signals";
@@ -22,6 +14,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import { searchCities, suggestCities } from "./cities";
 import { cityShort, FEATURED_CITIES, isSpot, suggestionDetail } from "./presets";
 
@@ -222,9 +215,9 @@ export function CityPicker({
         accessibilityLabel={t("Type a city or a place")}
       />
       {suggestions?.map((place) => (
-        <Pressable
+        <Tap
           key={place.label}
-          style={({ pressed }) => [styles.choice, pressed && styles.pressed]}
+          style={styles.choice}
           onPress={() => choose(place, "suggestion")}
           accessibilityRole="button"
           accessibilityLabel={place.label}
@@ -235,7 +228,7 @@ export function CityPicker({
           <Text style={styles.choiceDetail} numberOfLines={1}>
             {suggestionDetail(place)}
           </Text>
-        </Pressable>
+        </Tap>
       ))}
       {suggestions !== null && suggestions.length === 0 && (
         <Text style={styles.note}>
@@ -264,12 +257,8 @@ function Chip({
   onPress: () => void;
 }) {
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.chip,
-        on && styles.chipOn,
-        pressed && styles.pressed,
-      ]}
+    <Tap
+      style={[styles.chip, on && styles.chipOn]}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: on }}
@@ -289,7 +278,7 @@ function Chip({
       <Text style={[styles.chipText, on && styles.chipTextOn]}>
         {recent ? `↺ ${label}` : label}
       </Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -356,9 +345,6 @@ const styles = StyleSheet.create({
     backgroundColor: color.background,
   },
   // A light touch: what is pressed dims, nothing moves.
-  pressed: {
-    opacity: 0.6,
-  },
   input: {
     minHeight: MIN_TAP_SIZE,
     paddingHorizontal: space.md,

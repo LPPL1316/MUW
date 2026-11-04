@@ -119,7 +119,7 @@ async function heartOpened(done: unknown) {
   await fireEvent(screen.getByTestId("map"), "message", {
     nativeEvent: { data: '{"type":"ready"}' },
   });
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   await fireEvent.press(screen.getByText("New York"));
   await fireEvent.press(await screen.findByLabelText(/^Heart, /));
   await screen.findByText("Back to the list");
@@ -172,7 +172,7 @@ test("the card of a turned example asks for its map turned the same way", async 
   answering(TURNED);
   await render(<App />);
   await screen.findByText("Starting from your position.");
-  await fireEvent.press(screen.getByText("Explore"));
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
   await fireEvent.press(screen.getByText("New York"));
   await screen.findByLabelText(/^Heart, /);
   // The page that takes the pictures, one at a time: those «Feed» asked

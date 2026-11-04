@@ -4,6 +4,7 @@ import { Animated, StyleSheet } from "react-native";
 import { color, font, fontWeight, motion, radius } from "../theme/tokens";
 import { FeedMapShooter, forgetFeedMaps } from "./FeedMaps";
 import { FeedPost, MAP_CREDIT, postFacts, shapeLabel } from "./FeedPost";
+import { creditLine } from "./RouteMap";
 import type { SamplePost } from "./sampleFeed";
 
 const POST: SamplePost = {
@@ -69,7 +70,7 @@ test("draws the line, one view for each stretch, as wide as the card", async () 
 test("until its picture is taken there is no map, and no credit for one", async () => {
   await render(<FeedPost post={POST} width={358} />);
   expect(screen.queryByTestId("feed-map")).toBeNull();
-  expect(screen.queryByText(MAP_CREDIT)).toBeNull();
+  expect(screen.queryByText(creditLine())).toBeNull();
 });
 
 test("lays the map under the line, and says whose it is", async () => {
@@ -104,7 +105,7 @@ test("lays the map under the line, and says whose it is", async () => {
   expect(MAP_CREDIT).toContain("OpenFreeMap");
   expect(MAP_CREDIT).toContain("© OpenMapTiles");
   expect(MAP_CREDIT).toContain("OpenStreetMap");
-  expect(screen.getByText(MAP_CREDIT)).toBeOnTheScreen();
+  expect(screen.getByText(creditLine())).toBeOnTheScreen();
 });
 
 test("a screen reader hears the drawing as one thing", async () => {

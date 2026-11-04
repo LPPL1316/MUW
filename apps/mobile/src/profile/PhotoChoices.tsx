@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { t } from "../i18n";
 import {
@@ -9,6 +9,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Tap } from "../ui/Tap";
 import type { PhotoBusy, ProfilePhotoState } from "./useProfilePhoto";
 
 /** What a change of the picture says while it is on its way. */
@@ -55,13 +56,9 @@ export function PhotoChoices({ photo, onChosen }: Props) {
 
 function Choice({ text, onPress }: { text: string; onPress: () => void }) {
   return (
-    <Pressable
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-      onPress={onPress}
-      accessibilityRole="button"
-    >
+    <Tap style={styles.button} onPress={onPress} accessibilityRole="button">
       <Text style={styles.buttonText}>{text}</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
@@ -78,9 +75,6 @@ const styles = StyleSheet.create({
     backgroundColor: color.surfaceRaised,
     borderWidth: 1,
     borderColor: color.borderStrong,
-  },
-  pressed: {
-    opacity: 0.6,
   },
   buttonText: {
     color: color.text,

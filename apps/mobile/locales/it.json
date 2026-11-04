@@ -1,6 +1,8 @@
 {
   "ios": {
     "NSLocationWhenInUseUsageDescription": "MuW usa la tua posizione per disegnare percorsi vicino a te e registrare le tue attività. Durante un'attività continua a registrare anche a telefono bloccato, e iOS mostra la barra blu.",
-    "NSMicrophoneUsageDescription": "MuW non registra mai suoni: durante la tua attività dice soltanto le indicazioni."
+    "NSMicrophoneUsageDescription": "MuW non registra mai suoni: durante la tua attività dice soltanto le indicazioni.",
+    "NSHealthUpdateUsageDescription": "MuW salva le tue attività finite in Apple Salute, con il tempo, la distanza, il percorso e, per le corse, le calorie stimate, così compaiono anche nell'app Fitness.",
+    "NSHealthShareUsageDescription": "MuW legge il tuo battito da Apple Salute durante ogni attività, per mostrarlo con l'attività e nel tuo post. Puoi nasconderlo prima di pubblicare."
   }
 }

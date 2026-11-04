@@ -23,7 +23,14 @@ from shapely.geometry import Point
 
 from route_engine import water
 from route_engine.geo import LatLon, latlon_to_local_array, local_to_latlon
-from route_engine.models import InvalidRequestError, RouteRequest
+from route_engine.models import (
+    DISTANCE_LIMITS_M,
+    SUPPORTED_ACTIVITIES,
+    WATER_ACTIVITIES,
+    InvalidRequestError,
+    RouteRequest,
+    check_outline_drawn,
+)
 from route_engine.paddling import plan_paddling
 from route_engine.shapes.outline import parse_outline
 from route_engine.swim_water import (
@@ -150,13 +157,49 @@ def test_a_swim_goes_round_its_shape_one_to_five_times() -> None:
             SwimRequest(start=COAST_START, distance_m=500, shape="star", laps=wrong)
 
 
-def test_a_swim_is_not_yet_an_activity_of_the_contract() -> None:
-    # Part B brings it there (ADR-0283): until then the routes kept and the
-    # app's paddling examples are drawn by the same engine as before.
-    with pytest.raises(InvalidRequestError, match="unsupported activity"):
+def test_a_swim_is_an_activity_of_the_contract() -> None:
+    # Part B brings it there (ADR-0283): 0.5-3 km on the water, with laps.
+    assert "swimming" in SUPPORTED_ACTIVITIES and "swimming" in WATER_ACTIVITIES
+    assert DISTANCE_LIMITS_M["swimming"] == (500, 3000)
+    request = RouteRequest(
+        start=COAST_START, shape="star", distance_m=1000, activity="swimming", laps=3
+    )
+    swim = SwimRequest.of(request)
+    assert (swim.shape, swim.distance_m, swim.laps) == ("star", 1000, 3)
+    assert SwimRequest.of(request, outline=DRAWING).outline is DRAWING
+    with pytest.raises(InvalidRequestError, match="laps are for a swim"):
         RouteRequest(
-            start=COAST_START, shape="star", distance_m=1000, activity="swimming"
+            start=COAST_START,
+            shape="star",
+            distance_m=2000,
+            activity="paddling",
+            laps=2,
         )
+    with pytest.raises(InvalidRequestError, match="1 to 5 times"):
+        RouteRequest(
+            start=COAST_START,
+            shape="star",
+            distance_m=1000,
+            activity="swimming",
+            laps=6,
+        )
+    with pytest.raises(InvalidRequestError, match="for swimming"):
+        RouteRequest(
+            start=COAST_START, shape="star", distance_m=400, activity="swimming"
+        )
+    with pytest.raises(InvalidRequestError, match="not a word"):
+        RouteRequest(
+            start=COAST_START, word="ciao", distance_m=1000, activity="swimming"
+        )
+    with pytest.raises(ValueError, match="not a swim"):
+        SwimRequest.of(RouteRequest(start=COAST_START, shape="star", distance_m=1000))
+
+
+def test_a_drawing_is_drawn_on_the_water_of_a_swim_only() -> None:
+    check_outline_drawn("swimming", "an image")
+    check_outline_drawn("running", "an image")
+    with pytest.raises(InvalidRequestError, match="not an image"):
+        check_outline_drawn("paddling", "an image")
 
 
 # --- The band ----------------------------------------------------------------
@@ -283,6 +326,10 @@ def test_the_fewer_the_laps_the_larger_the_shape() -> None:
     assert more.laps == 4
     assert more.lap_m < fewest.lap_m
     assert abs(more.result.distance_m - 1000) <= 100
+    # The result says how long a lap is: «3 laps of 300 m» in the app.
+    assert (fewest.result.laps, fewest.result.lap_m) == (3, fewest.lap_m)
+    assert more.result.lap_m == more.lap_m
+    assert more.lap_m * more.laps < more.result.distance_m
 
 
 def test_too_few_laps_say_how_many_fit() -> None:

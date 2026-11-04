@@ -21,6 +21,10 @@ FIXTURES = REPO / "packages" / "shared-types" / "fixtures"
 # older app sends neither, an older API answers without.
 PLACEMENT = {"placement", "fit"}
 PLACED = {"placed_outline"}
+# What a swim adds (TASK-323): not in the fixtures of TASK-347, written
+# before.
+LAPS = {"laps"}
+SWIM = {"laps", "lap_m", "turns"}
 
 
 def _load(name: str) -> Any:
@@ -33,7 +37,7 @@ def _names(model: type) -> set[str]:
 
 def test_an_anchored_request_is_the_engines_request_with_the_placement() -> None:
     data = _load("route-request-anchored.json")
-    assert set(data) == _names(RouteRequest) | PLACEMENT
+    assert set(data) == (_names(RouteRequest) - LAPS) | PLACEMENT
     assert data["placement"] in PLACEMENTS
     check_placement(data["placement"], data["fit"], data["activity"])
     request = RouteRequest(
@@ -45,7 +49,7 @@ def test_an_anchored_request_is_the_engines_request_with_the_placement() -> None
 
 def test_an_anchored_result_has_the_result_fields_and_the_placed_outline() -> None:
     data = _load("route-result-anchored.json")
-    assert set(data) == _names(RouteResult) | PLACED
+    assert set(data) == (_names(RouteResult) - SWIM) | PLACED
     points = [tuple(p) for p in data["points"]]
     result = RouteResult(
         **{k: v for k, v in data.items() if k not in PLACED | {"points"}}, points=points

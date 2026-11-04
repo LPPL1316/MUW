@@ -1,6 +1,8 @@
 {
   "ios": {
     "NSLocationWhenInUseUsageDescription": "MuW utilise ta position pour dessiner des parcours près de toi et enregistrer tes activités. Pendant une activité, MuW continue d'enregistrer même téléphone verrouillé, et iOS affiche la barre bleue.",
-    "NSMicrophoneUsageDescription": "MuW n'enregistre jamais de son : pendant ton activité, MuW annonce seulement les indications."
+    "NSMicrophoneUsageDescription": "MuW n'enregistre jamais de son : pendant ton activité, MuW annonce seulement les indications.",
+    "NSHealthUpdateUsageDescription": "MuW enregistre tes activités terminées dans Apple Santé, avec leur durée, leur distance, leur parcours et, pour les courses, les calories estimées, pour qu'elles apparaissent aussi dans l'app Forme.",
+    "NSHealthShareUsageDescription": "MuW lit ta fréquence cardiaque dans Apple Santé pendant chaque activité, pour l'afficher avec l'activité et dans ta publication. Tu peux la masquer avant de publier."
   }
 }
