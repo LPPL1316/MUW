@@ -1,5 +1,6 @@
 import type { DrawingDetail, LatLon, MessageDrawing } from "@shaperoute/shared-types";
 
+import { isOnSnow, routeActivity } from "../activities/snow";
 import type { ActivityDetail } from "../api/activities";
 import type { FavoriteDetail } from "../api/favorites";
 import { favoriteKey } from "../favorites/favoriteKey";
@@ -112,12 +113,22 @@ function drawingOfTrack(run: RunFields, points: LatLon[]): MessageDrawing | null
 /** One's own run of «My activities»: its track without its ends. Null for
  * a run too short to keep any of it. */
 export function drawingOfRun(run: ActivityDetail): MessageDrawing | null {
-  return drawingOfTrack(run, withoutEnds(run.track, POST_CUT_M));
+  // A day on the snow is no route to send (TASK-375, the user's choice).
+  if (isOnSnow(run.activity)) {
+    return null;
+  }
+  return drawingOfTrack(
+    { ...run, activity: routeActivity(run.activity) },
+    withoutEnds(run.track, POST_CUT_M),
+  );
 }
 
 /** A drawing of the Feed or of a profile: its track as the API gives it,
  * already cut. Null without a line. */
 export function drawingOfDrawing(drawing: DrawingDetail): MessageDrawing | null {
+  if (isOnSnow(drawing.activity)) {
+    return null;
+  }
   return drawingOfTrack(
     {
       place: drawing.place,
@@ -128,7 +139,7 @@ export function drawingOfDrawing(drawing: DrawingDetail): MessageDrawing | null 
       distance_m: drawing.distance_m,
       fidelity: drawing.fidelity,
       rotation_deg: drawing.rotation_deg ?? null,
-      activity: drawing.activity,
+      activity: routeActivity(drawing.activity),
     },
     drawing.track,
   );

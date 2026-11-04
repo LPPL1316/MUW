@@ -40,6 +40,12 @@ senza forme.
   | Riga sotto | «No shapes on the slopes: MuW records your day.» · Niente forme sulle piste: MuW registra la tua giornata. · Keine Formen auf der Piste: MuW zeichnet deinen Tag auf. · Pas de formes sur les pistes : MuW enregistre ta journée. · Sin formas en las pistas: MuW registra tu jornada. |
 
   Nel Feed e nell'elenco delle attività lo sport ha lo stesso nome.
+- 2026-11-04, la giornata sulla neve nel Feed (parte B2): «Sì, così». È un
+  post come gli altri: la scheda dice Ski o Cross-country ski con i suoi
+  numeri, ha commenti, reazioni e «Share» sui propri. Non ha le azioni da
+  percorso: niente «Draw it near me», niente «Start» sul disegno di un
+  altro, niente «Edit the drawing», niente invio come disegno in un
+  messaggio. Il cuore sta solo sui percorsi; l'export GPX resta.
 
 ## Vincoli (dal Coordinatore, 2026-11-04)
 
@@ -150,6 +156,21 @@ con «Sì, approvati», nella tabella sopra): `apps/mobile/src/settings/sport.ts
 `profile/SettingsPage.test.tsx`. Documenti:
 `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 7) e questa lista.
 `trackStore.ts` e `api/activities.ts` alla fine non servono.
+
+Parte B2 (approvata dal Coordinatore il 2026-11-04): `apps/mobile/src/activities/snow.ts`
+(nuovo), `packages/shared-types/src/index.ts` (`activity` dei disegni →
+`RunActivity`), `apps/mobile/src/api/drawings.ts`,
+`apps/mobile/src/api/activities.ts`, `apps/mobile/src/feed/sampleFeed.ts`,
+`apps/mobile/src/feed/FeedPost.tsx`, `apps/mobile/src/feed/ActionBar.tsx`,
+`apps/mobile/src/feed/postEnergy.ts`, `apps/mobile/src/share/postRun.ts`,
+`apps/mobile/src/social/DrawingCard.tsx`,
+`apps/mobile/src/social/drawingRoute.ts`,
+`apps/mobile/src/messages/messageDrawing.ts`,
+`apps/mobile/src/search/drawingMatch.ts`,
+`apps/mobile/src/route/WhileRouting.tsx`; test: `feed/snowFeed.test.tsx`
+(nuovo), `api/drawings.test.ts`, `api/feed.test.ts`; documenti:
+`docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 8) e questa lista.
+`App.tsx`, `feedPosts.ts` e `activityText.ts` alla fine non servono.
 
 Parte B (la lista di partenza): `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/navigation/freeSport.ts`,

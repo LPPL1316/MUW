@@ -1,5 +1,4 @@
 import type {
-  Activity,
   Drawing,
   DrawingDetail,
   DrawingPhoto,
@@ -12,7 +11,7 @@ import type {
   RunActivity,
   Visibility,
 } from "@shaperoute/shared-types";
-import { ACTIVITIES, RUN_ACTIVITIES, VISIBILITIES } from "@shaperoute/shared-types";
+import { RUN_ACTIVITIES, VISIBILITIES } from "@shaperoute/shared-types";
 
 import { accountProblem, SESSION_ENDED } from "../account/messages";
 import { t } from "../i18n";
@@ -390,10 +389,6 @@ function isVisibility(value: unknown): value is Visibility {
   );
 }
 
-function isActivity(value: unknown): value is Activity {
-  return typeof value === "string" && (ACTIVITIES as readonly string[]).includes(value);
-}
-
 /** What a run of this app's may be saved as: a day on the snow too
  * (TASK-375, RUN_ACTIVITIES). */
 function isRunActivity(value: unknown): value is RunActivity {
@@ -426,15 +421,11 @@ export function isDrawingPhoto(value: unknown): value is DrawingPhoto {
  * TASK-375) is read as none, so the drawing shows as a run and the page it is
  * in still loads: one post this app cannot name never takes the whole Feed
  * with it (TASK-375 B0). The field is dropped from the body as read; any
- * other value still refuses the drawing. `known` tells which: the owner's
- * own drawing keeps a day on the snow (B1), so changing who sees it never
- * makes it a run.
+ * other value still refuses the drawing. A day on the snow is one this app
+ * knows (B1 for the owner's own, B2 for everyone's).
  */
-function readsActivity(
-  body: Record<string, unknown>,
-  known: (value: unknown) => boolean,
-): boolean {
-  if (body.activity === undefined || known(body.activity)) {
+function readsActivity(body: Record<string, unknown>): boolean {
+  if (body.activity === undefined || isRunActivity(body.activity)) {
     return true;
   }
   if (typeof body.activity !== "string") {
@@ -445,14 +436,11 @@ function readsActivity(
 }
 
 /** The fields of TASK-208, when the API has them: each right, or absent. */
-function hasDetailFields(
-  body: Record<string, unknown>,
-  known: (value: unknown) => boolean = isActivity,
-): boolean {
+function hasDetailFields(body: Record<string, unknown>): boolean {
   return (
     (body.visibility === undefined || isVisibility(body.visibility)) &&
     (body.description === undefined || isStringOrNull(body.description)) &&
-    readsActivity(body, known) &&
+    readsActivity(body) &&
     (body.tags === undefined ||
       (Array.isArray(body.tags) && body.tags.every(isDrawingTag))) &&
     (body.photos === undefined ||
@@ -481,7 +469,7 @@ export function isMyDrawing(body: unknown): body is MyDrawing {
     isStringOrNull(body.title) &&
     typeof body.public === "boolean" &&
     isStringOrNull(body.published_at) &&
-    hasDetailFields(body, isRunActivity)
+    hasDetailFields(body)
   );
 }
 

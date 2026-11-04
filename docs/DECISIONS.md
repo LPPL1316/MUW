@@ -21947,6 +21947,18 @@ dell'utente):
    giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
    vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
    sono, finché manca una stima.
+8. (B2, 2026-11-04; la scelta di prodotto è dell'utente, «Sì, così», il
+   modo è deciso dall'agente su delega dell'utente) Ogni lettore dei
+   disegni conosce la neve, e l'attività di `Drawing` e `DrawingDetail` è
+   `RunActivity`; un'attività che l'app non conosce cade ancora come in
+   B0. Una regola sola, `activities/snow.ts` (`isOnSnow`, `routeActivity`),
+   toglie alla neve ciò che si fa con un percorso: «Start» e «Send to a
+   friend» (`runnable`), «Draw it near me» e «Edit the drawing». Toglie
+   anche le calorie stimate. La scheda dice il nome dello sport; un filtro
+   per attività della ricerca la lascia fuori, perché nessun filtro di oggi
+   è la neve. L'export GPX resta, perché non era tra le azioni escluse.
+   `App.tsx` non cambia: `followedOf` non dà mai alla neve l'attività di
+   un percorso.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
