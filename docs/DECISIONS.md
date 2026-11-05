@@ -22503,6 +22503,22 @@ il caso è raro).
 
 ---
 
+## ADR-0311, precisazione — Nell'header il logo di «Draw», che lascia la pagina
+
+**Stato**: Attiva · 2026-11-05 · scelta dell'utente (TASK-392); le misure
+decise dall'agente su delega dell'utente. Il punto 2 di ADR-0311 voleva
+nell'header «il cuore e «MuW»»: era il cuore pieno di Lucide, 22 punti, e
+«MuW» in `font.heading`. L'utente l'ha voluto «come logo come nella sezione
+disegno», col cuore stilizzato, e il logo tolto da «Draw» accanto a «Run
+without a route». Ora l'header ha `HeartBadge` da 32 punti e «MuW» in
+`fontSize.title` grassetto, le misure che il logo aveva in «Draw»; in
+«Draw» resta solo il pulsante, a destra. Cambia, solo per «Draw», la
+scelta di TASK-367 di lasciare i loghi dentro le pagine; «Explore» e
+«Paddle» tengono il loro. Scartato: un logo più piccolo dell'originale per
+tenere l'header basso (l'utente ha chiesto lo stesso logo).
+
+---
+
 ## ADR-0331 — La CI salta i test sulle PR di soli documenti e cancella i run superati
 
 **Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
