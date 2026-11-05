@@ -1,10 +1,11 @@
 import type { StyleTag } from "@shaperoute/shared-types";
 import { useEffect, useState } from "react";
-import { Linking, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { countStyleOpen, fetchStyleShop } from "../api/style";
 import { color, font, MIN_TAP_SIZE, radius, space } from "../theme/tokens";
+import { SheetModal } from "../ui/SheetModal";
 import { Tap } from "../ui/Tap";
 import { STORE_NAMES, stylePriceLine, styleShopLabel, styleWords } from "./styleWords";
 
@@ -37,6 +38,10 @@ export function StyleProductSheet({
   const insets = useSafeAreaInsets();
   const words = styleWords();
   const [busy, setBusy] = useState(false);
+  // Down first, then gone (TASK-388 C3): the post hears of it once the
+  // sheet has slid away, as the app's other sheets.
+  const [open, setOpen] = useState(true);
+  const close = () => setOpen(false);
   useEffect(() => {
     if (apiUrl !== null) {
       void countStyleOpen(apiUrl, tag.id, { fetchFn });
@@ -54,16 +59,10 @@ export function StyleProductSheet({
     setBusy(false);
   };
   return (
-    <Modal
-      visible
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
+    <SheetModal visible={open} onRequestClose={close} onHidden={onClose}>
       <Pressable
         style={styles.backdrop}
-        onPress={onClose}
+        onPress={close}
         accessible={false}
         importantForAccessibility="no"
         testID="style-sheet-backdrop"
@@ -92,7 +91,7 @@ export function StyleProductSheet({
         </Tap>
         <Text style={styles.line}>{words.linkLine}</Text>
       </View>
-    </Modal>
+    </SheetModal>
   );
 }
 

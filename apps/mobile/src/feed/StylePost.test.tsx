@@ -153,9 +153,11 @@ test("without an answer from the API nothing is opened", async () => {
   expect(openUrl).not.toHaveBeenCalled();
 });
 
-test("a touch outside closes the sheet", async () => {
+test("a touch outside closes the sheet, the post told once it is down", async () => {
   const onClose = jest.fn();
   await render(<StyleProductSheet tag={JACKET} apiUrl={API} onClose={onClose} />);
   await fireEvent.press(screen.getByTestId("style-sheet-backdrop"));
-  expect(onClose).toHaveBeenCalled();
+  // Still sliding away (TASK-388 C3).
+  expect(onClose).not.toHaveBeenCalled();
+  await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
 });
