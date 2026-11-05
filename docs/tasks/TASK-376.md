@@ -222,7 +222,51 @@ righe 1092 e 1280, lontane da queste: decide il Coordinatore. Il campo per gli
 sport senza traccia (TASK-385, Palestra) non lo aggiunge B2: lo aggiunge la
 Palestra nei file suoi, con una riga nel registro.
 
-Parte B3 (l'app): la lista va al Coordinatore dopo B2 in `main`.
+Parte B3 (l'app). Il Coordinatore ha approvato la lista il 2026-11-05;
+il codice parte dopo B2 in `main`. Ogni sport ha un `SportProfile` in un
+file suo. Le tabelle e le catene di confronti sull'attività diventano
+letture del profilo, con gli stessi valori. Tre PR:
+
+```
+B3a — il profilo e le tabelle
+apps/mobile/src/sports/base.ts                 (nuovo, SportProfile)
+apps/mobile/src/sports/<attività>.ts           (nuovi, uno per sport, sette)
+apps/mobile/src/sports/index.ts                (nuovo, il registro in ordine)
+apps/mobile/src/sports/sportProfiles.test.ts   (nuovo)
+apps/mobile/src/route/distance.ts
+apps/mobile/src/health/appleWorkout.ts
+apps/mobile/src/health/healthConnectWorkout.ts
+apps/mobile/src/search/searchFilters.ts
+apps/mobile/src/engine/zones.ts
+apps/mobile/src/body/energy.ts
+apps/mobile/src/navigation/freeSport.ts
+apps/mobile/src/feed/muwLabel.ts
+apps/mobile/src/favorites/favoriteRoute.ts
+
+B3b — le schermate
+apps/mobile/src/route/RoutePanel.tsx
+apps/mobile/src/feed/FeedPost.tsx
+apps/mobile/src/feed/MuwPost.tsx
+apps/mobile/src/activities/activityText.ts
+apps/mobile/src/profile/PersonalBests.tsx
+apps/mobile/src/screens/RunPanel.tsx
+apps/mobile/src/screens/SnowFinishCard.tsx
+
+B3c — a parte, quando i file si liberano
+apps/mobile/src/social/PublicParts.tsx         (dopo la #782)
+apps/mobile/src/settings/sport.ts              (dopo la #765, che aspetta a lungo)
+```
+
+Più `docs/tasks/TASK-376.md`, `docs/STATUS.md` (righe proprie) e
+`docs/sports/CONDIVISO.md`. Il Coordinatore segnala due file dove passeranno
+altri: `FeedPost.tsx` e `MuwPost.tsx`, con TASK-384 B e l'ultimo passo di
+TASK-365. Chi arriva secondo si riallinea. Restano fuori, apposta, i
+controlli che valgono per una funzione sola della canoa o del nuoto:
+`route/problems.ts`, `betterDistance.ts`, `penUpHint.ts`,
+`paddle/shapeMove.ts`, `feed/paddlePosts.ts`, `explore/exampleRoutes.ts`,
+`navigation/penUp.ts`, e i predicati di una riga `navigation/ride.ts`,
+`swim.ts`, `paddle.ts`, `swim/water.ts`. I testi restano nelle tabelle
+`i18n` di oggi (approvato); se ne riparla nella parte C col pilota.
 
 ## Dopo il deploy di B1 sul server (Linux x86)
 
