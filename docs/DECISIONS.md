@@ -22485,6 +22485,26 @@ Scartato: un'isola sola in cima all'app (sotto un `Modal` non si vede).
    uno nel foglio dei commenti, che resta aperto. Così `App.tsx` non si
    tocca. Il punto 3 resta com'è: «Send to a friend» tiene il suo
    `useIsland`, perché parla mentre il suo `Modal` è aperto.
+
+**Parte C, fogli e liste (2026-11-05, deciso dall'agente su delega
+dell'utente)**:
+1. **`SheetModal`**: `Modal` trasparente senza animazione nativa, il
+   contenuto sale e scende sulla molla `smooth` (`translateY` dall'altezza
+   della finestra a 0). Il `Modal` resta montato finché il foglio è giù:
+   così anche la chiusura è una molla e si interrompe. Il contenuto si
+   rimonta a ogni apertura, come prima. Solo i sette fogli trasparenti con
+   `slide`; i `Modal` a tutto schermo tengono la pagina nativa di iOS, che
+   è già il movimento del sistema.
+2. **Lo sfondo scuro sale con il foglio**, come con `slide`: è dentro il
+   contenuto di ogni foglio. Farlo sfumare a parte vorrebbe dire spostarlo
+   in `SheetModal` in tutti e sette i file; resta una scelta per dopo.
+3. **`MessageSheet`** si chiudeva solo smontandolo il genitore: ora tiene
+   un suo `open` e chiama `onClose` a foglio sparito (`onHidden`), senza
+   toccare `ConversationScreen`.
+4. **Cascata**: 25 ms fra una riga e l'altra, 6 punti di salita, solo le
+   prime 6 righe; una riga che arriva dopo (una pagina in più) entra da
+   sola. Su conversazioni, campanella, commenti e risultati della ricerca;
+   non su «Feed» (riga di TASK-365 in sospeso).
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
 **Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente

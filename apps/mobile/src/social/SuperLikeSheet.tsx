@@ -27,6 +27,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { SheetModal } from "../ui/SheetModal";
 import { Tap } from "../ui/Tap";
 
 /** The side of the Sgrava heart that comes up over the drawing. */
@@ -58,13 +59,7 @@ type Props = {
  */
 export function SuperLikeSheet({ visible, sending, problem, onSend, onCancel }: Props) {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={onCancel}
-    >
+    <SheetModal visible={visible} onRequestClose={onCancel}>
       {/* Mounted with the sheet: each opening starts from an empty field. */}
       <SheetBody
         sending={sending}
@@ -72,7 +67,7 @@ export function SuperLikeSheet({ visible, sending, problem, onSend, onCancel }: 
         onSend={onSend}
         onCancel={onCancel}
       />
-    </Modal>
+    </SheetModal>
   );
 }
 

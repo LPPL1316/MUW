@@ -174,8 +174,11 @@ test("a photo goes first, then its message with what was written", async () => {
   await fireEvent.changeText(screen.getByLabelText("Message"), "The river");
   await fireEvent.press(screen.getByRole("button", { name: PLUS }));
   await fireEvent.press(screen.getByRole("button", { name: "Photo" }));
-  // The text moved under the photo, ready to go with it.
-  expect(screen.getByPlaceholderText("Add a message…").props.value).toBe("The river");
+  // Once the sheet is down (TASK-388 C), the text moved under the photo,
+  // ready to go with it.
+  expect((await screen.findByPlaceholderText("Add a message…")).props.value).toBe(
+    "The river",
+  );
   await fireEvent.press(screen.getByRole("button", { name: "Send" }));
   await waitFor(() => expect(screen.getByText("The river")).toBeOnTheScreen());
   expect(upload).toHaveBeenCalledWith(`${URL}/me/message-media`, PHOTO.uri, {
@@ -213,6 +216,7 @@ test("a send that failed stays, and a tap tries again", async () => {
   await show(api(open).fetchFn, undefined, upload);
   await fireEvent.press(screen.getByRole("button", { name: PLUS }));
   await fireEvent.press(screen.getByRole("button", { name: "Photo" }));
+  await screen.findByPlaceholderText("Add a message…");
   await fireEvent.press(screen.getByRole("button", { name: "Send" }));
   const again = await screen.findByText("Couldn't send. Tap to try again.");
   await fireEvent.press(again);

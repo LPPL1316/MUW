@@ -4,7 +4,7 @@ import {
   REPORT_REASONS,
 } from "@shaperoute/shared-types";
 import { type ReactNode, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { sessionEnded } from "../account/messages";
@@ -29,6 +29,7 @@ import {
   space,
 } from "../theme/tokens";
 import { sayInIsland } from "../ui/IslandLayer";
+import { SheetModal } from "../ui/SheetModal";
 import { Tap } from "../ui/Tap";
 
 /** What the sheet is about: a message touched long, or blocking who wrote. */
@@ -77,6 +78,9 @@ export function MessageSheet({
   apiKey,
 }: Props) {
   const [step, setStep] = useState<Step>({ kind: "first" });
+  // Down on its spring first; then `onClose` takes it away (TASK-388 C).
+  const [open, setOpen] = useState(true);
+  const close = () => setOpen(false);
   const options = { fetchFn, key: apiKey };
 
   function sent(outcome: AccountOutcome<null>, done: () => void) {
@@ -95,7 +99,7 @@ export function MessageSheet({
     void deleteMessage(apiUrl, token, message.id, options).then((outcome) =>
       sent(outcome, () => {
         onDeleted(message);
-        onClose();
+        close();
       }),
     );
   }
@@ -104,7 +108,7 @@ export function MessageSheet({
     setStep({ kind: "sending" });
     void report(apiUrl, token, "message", message.id, reason, options).then((outcome) =>
       sent(outcome, () => {
-        onClose();
+        close();
         sayInIsland(t(REPORTED));
       }),
     );
@@ -115,23 +119,17 @@ export function MessageSheet({
     void blockMember(apiUrl, token, person.public_id, options).then((outcome) =>
       sent(outcome, () => {
         markBlocked(person.public_id);
-        onClose();
+        close();
         onBlocked();
       }),
     );
   }
 
   return (
-    <Modal
-      visible
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
+    <SheetModal visible={open} onRequestClose={close} onHidden={onClose}>
       <Pressable
         style={styles.backdrop}
-        onPress={onClose}
+        onPress={close}
         accessible={false}
         importantForAccessibility="no"
         testID="message-sheet-backdrop"
@@ -186,10 +184,10 @@ export function MessageSheet({
         )}
         <Choice
           label={step.kind === "said" ? t("Close") : t("Cancel")}
-          onPress={onClose}
+          onPress={close}
         />
       </Sheet>
-    </Modal>
+    </SheetModal>
   );
 }
 

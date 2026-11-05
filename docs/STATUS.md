@@ -224,6 +224,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Scelta dell'utente (2026-11-05): anche «Thanks for telling us…» dopo ogni
   segnalazione (post, profilo, messaggio, commento), con `sayInIsland` e un
   `IslandLayer` sopra l'app in `Root.tsx`; stessa PR, la #786.
+  **B in `main`** (#786, dde301bd, 2026-11-05); anteprima e OTA col
+  Coordinatore. **Parte C, fogli e liste** (2026-11-05, branch
+  `feat/TASK-388-c-sheets-lists`): `SheetModal` (i sette fogli dal basso
+  salgono e scendono sulla molla `smooth`) e `Cascade` (conversazioni,
+  campanella, commenti, risultati della ricerca entrano una riga dopo
+  l'altra). Impronta 6f8bba4c. Video in `out/TASK-388/c-*`; merge del
+  Coordinatore dopo l'ok dell'utente.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia

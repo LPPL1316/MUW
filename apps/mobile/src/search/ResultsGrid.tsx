@@ -5,6 +5,7 @@ import { FlatList, StyleSheet, useWindowDimensions, View } from "react-native";
 import { drawingName } from "../social/DrawingsGrid";
 import type { SamplePost } from "../feed/sampleFeed";
 import { space } from "../theme/tokens";
+import { Cascade } from "../ui/Cascade";
 import { DrawingResultCard } from "./DrawingResultCard";
 import { SkeletonCard } from "./SkeletonCard";
 
@@ -94,7 +95,9 @@ export function ResultsGrid({
       contentContainerStyle={styles.grid}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
-      renderItem={({ item }) => card(item, width, onPick)}
+      renderItem={({ item, index }) => (
+        <Cascade index={index}>{card(item, width, onPick)}</Cascade>
+      )}
       onEndReached={onEnd}
       onEndReachedThreshold={0.5}
       ListHeaderComponent={header}
