@@ -1,6 +1,6 @@
 /**
- * The app with «Open water swim» (TASK-323 C2), the sport set as if it were
- * ready: «Draw» asks for `activity: "swimming"` at 0.5–3 km by half a km,
+ * The app with «Open water swim» (TASK-323 C2), the sport chosen on the
+ * phone: «Draw» asks for `activity: "swimming"` at 0.5–3 km by half a km,
  * from 1 km, a shape or a drawing but no word; the swim says its laps, offers
  * «Bigger shape» and «Smaller shape», the line under every swim and its
  * turns; «Start» follows it without directions, through the swim's notice
@@ -47,8 +47,7 @@ jest.mock("expo-keep-awake", () => ({
   activateKeepAwakeAsync: jest.fn(() => Promise.resolve()),
   deactivateKeepAwake: jest.fn(() => Promise.resolve()),
 }));
-// The sport kept on the phone, as each test says: «Open water swim», which
-// no phone can choose yet («Soon»).
+// The sport kept on the phone, as each test says: «Open water swim».
 jest.mock("../src/settings/sport", () => ({
   ...jest.requireActual<typeof import("../src/settings/sport")>(
     "../src/settings/sport",

@@ -19,7 +19,7 @@ beforeEach(() => {
   jest.mocked(saveSport).mockClear();
 });
 
-test("«Run» is chosen, «Bike» (TASK-190), «Paddle» (TASK-191), «Ski» (TASK-375) and, in Expo Go, «Open water swim» (TASK-323) can be", async () => {
+test("«Run» is chosen, «Bike» (TASK-190), «Paddle» (TASK-191), «Open water swim» (TASK-323) and «Ski» (TASK-375) can be", async () => {
   await render(<SportSetting />);
   expect(screen.getByText("SPORT")).toBeOnTheScreen();
   expect(screen.getByRole("radio", { name: "Run" })).toBeChecked();
@@ -34,7 +34,7 @@ test("«Run» is chosen, «Bike» (TASK-190), «Paddle» (TASK-191), «Ski» (TA
   expect(screen.queryByLabelText("Ski, coming soon")).toBeNull();
 });
 
-test("in Expo Go and preview «Open water swim» 🏊 is chosen with a tap, and kept (TASK-323)", async () => {
+test("«Open water swim» 🏊 is chosen with a tap, and kept (TASK-323)", async () => {
   await render(<SportSetting />);
   expect(screen.getByText("🏊")).toBeOnTheScreen();
   expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
@@ -59,7 +59,7 @@ test("a sport not ready says «Soon» and takes no tap", async () => {
   await render(<SportSetting sports={RUN_ONLY} />);
   expect(screen.getAllByRole("radio")).toHaveLength(1);
   expect(screen.getByLabelText("Bike, coming soon")).toBeOnTheScreen();
-  // Bike, Paddle, Open water swim (TASK-323 C), Walk (TASK-371), Ski and
+  // Bike, Paddle, Open water swim (TASK-323), Walk (TASK-371), Ski and
   // Cross-country ski (TASK-375) and Paragliding (TASK-305 D0).
   expect(screen.getAllByText("Soon")).toHaveLength(7);
 });

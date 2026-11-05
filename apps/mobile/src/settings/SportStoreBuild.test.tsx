@@ -41,21 +41,29 @@ test("the tests run as Expo Go: every sport, «Paragliding» included", () => {
   expect(SPORTS.map((option) => option.id)).toContain("paragliding");
 });
 
-test("Expo Go and preview turn on the sports tried there first: the swim (TASK-323)", () => {
-  const shown = shownSports(ALL_SPORTS, false);
-  expect(shown.find((option) => option.id === "swim")?.ready).toBe(true);
-  // The others as they are.
-  for (const option of shown.filter((o) => o.id !== "swim")) {
-    expect(option).toBe(ALL_SPORTS.find((o) => o.id === option.id));
-  }
-  // A store build still leaves it out, until TASK-387 is on the server.
-  expect(shownSports(ALL_SPORTS, true).map((option) => option.id)).not.toContain(
-    "swim",
-  );
+test("Expo Go and preview turn on the sports tried there first (`preview`, TASK-323)", () => {
+  // The swim went this way before the store builds had it; none does now.
+  expect(ALL_SPORTS.some((option) => option.preview === true)).toBe(false);
+  const tried = {
+    id: "walk",
+    emoji: "🚶",
+    name: "Walk",
+    ready: false,
+    preview: true,
+  } as const;
+  expect(shownSports([tried], false)).toEqual([{ ...tried, ready: true }]);
+  // A store build still leaves it out, as any sport not ready.
+  expect(shownSports([tried], true)).toEqual([]);
 });
 
 test("a store build leaves out the sports not ready, and keeps the order", () => {
-  expect(STORE.map((option) => option.id)).toEqual(["run", "bike", "paddle", "ski"]);
+  expect(STORE.map((option) => option.id)).toEqual([
+    "run",
+    "bike",
+    "paddle",
+    "swim",
+    "ski",
+  ]);
   expect(STORE.every((option) => option.ready)).toBe(true);
 });
 
@@ -71,6 +79,7 @@ test("in a store build `SPORTS` itself has no «Paragliding»", () => {
       "run",
       "bike",
       "paddle",
+      "swim",
       "ski",
     ]);
   });
@@ -78,21 +87,22 @@ test("in a store build `SPORTS` itself has no «Paragliding»", () => {
 
 test("«Settings» of a store build has no «Soon» row", async () => {
   await render(<SportSetting sports={STORE} />);
-  // Run, bike, paddle and the alpine ski (TASK-375 D4).
-  expect(screen.getAllByRole("radio")).toHaveLength(4);
+  // Run, bike, paddle, the swim (TASK-323) and the alpine ski (TASK-375 D4).
+  expect(screen.getAllByRole("radio")).toHaveLength(5);
   expect(screen.getByRole("radio", { name: "Ski" })).toBeOnTheScreen();
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
   expect(screen.queryByText("🪂")).toBeNull();
-  // Swimming too, until the app swims (TASK-323 C).
-  expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
-  expect(screen.queryByText("🏊")).toBeNull();
+  // Swimming is a sport of the store builds since the server swims
+  // (TASK-323), a row like the others.
+  expect(screen.getByRole("radio", { name: "Open water swim" })).toBeOnTheScreen();
+  expect(screen.getByText("🏊")).toBeOnTheScreen();
 });
 
 test("the sport menu of «Draw» in a store build has no «Soon» row", async () => {
   await render(<SportButton sports={STORE} />);
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
-  expect(screen.getAllByRole("radio")).toHaveLength(4);
+  expect(screen.getAllByRole("radio")).toHaveLength(5);
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
 });

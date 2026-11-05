@@ -1,6 +1,5 @@
 import {
   activityOf,
-  ALL_SPORTS,
   canChoose,
   DEFAULT_SPORT,
   loadSport,
@@ -57,7 +56,7 @@ beforeEach(() => {
   disk.state.failing = false;
 });
 
-test("run, bike, paddle and the alpine ski can be chosen, and in Expo Go the swim (TASK-190, TASK-191, TASK-323, TASK-375)", () => {
+test("run, bike, paddle, swim and the alpine ski can be chosen (TASK-190, TASK-191, TASK-323, TASK-375)", () => {
   expect(SPORTS.map((option) => option.name)).toEqual([
     "Run",
     "Bike",
@@ -78,6 +77,7 @@ test("run, bike, paddle and the alpine ski can be chosen, and in Expo Go the swi
   expect(canChoose("run")).toBe(true);
   expect(canChoose("bike")).toBe(true);
   expect(canChoose("paddle")).toBe(true);
+  expect(canChoose("swim")).toBe(true);
   expect(canChoose("ski")).toBe(true);
   expect(canChoose("xc_ski")).toBe(false);
   expect(canChoose("golf")).toBe(false);
@@ -99,21 +99,17 @@ test("«Paragliding» comes last, only «Soon»: never chosen, never a route (TA
   expect(withoutRouteLabel("paragliding")).toBe("Run without a route");
 });
 
-test("«Open water swim» 🏊 comes after «Paddle», on in Expo Go and preview first (TASK-323)", () => {
-  // Not ready for the store builds yet (TASK-387), but tried in Expo Go and
-  // `preview`, which the tests are.
-  expect(ALL_SPORTS.find((option) => option.id === "swim")).toEqual({
+test("«Open water swim» 🏊 comes after «Paddle», on since the server swims (TASK-323)", () => {
+  const index = SPORTS.findIndex((option) => option.id === "swim");
+  expect(SPORTS[index - 1]?.id).toBe("paddle");
+  expect(SPORTS[index]).toEqual({
     id: "swim",
     emoji: "🏊",
     name: "Open water swim",
-    ready: false,
-    preview: true,
+    ready: true,
   });
-  const index = SPORTS.findIndex((option) => option.id === "swim");
-  expect(SPORTS[index - 1]?.id).toBe("paddle");
-  expect(SPORTS[index]?.ready).toBe(true);
   expect(canChoose("swim")).toBe(true);
-  // Kept for the next opening, as any sport that can be chosen.
+  // Kept for the next opening, as any sport that is ready.
   saveSport("swim");
   expect(loadSport()).toBe("swim");
   expect(loadSport(RUN_ONLY)).toBe("run");
