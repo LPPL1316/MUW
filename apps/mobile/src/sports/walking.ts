@@ -11,6 +11,8 @@ import type { SportProfile } from "./base";
 export const WALKING: SportProfile = {
   activity: "walking",
   name: tLater("Walk"),
+  emoji: "🚶",
+  timeAt: "walker",
   drawKm: [DISTANCE_LIMITS_M.walking[0] / 1000, DISTANCE_LIMITS_M.walking[1] / 1000],
   // `.walking`.
   appleWorkout: 52,

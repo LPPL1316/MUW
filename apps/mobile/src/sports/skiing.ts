@@ -9,6 +9,8 @@ import type { SportProfile } from "./base";
 export const SKIING: SportProfile = {
   activity: "skiing",
   name: tLater("Ski"),
+  emoji: "⛷️",
+  skied: true,
   // `.downhillSkiing`.
   appleWorkout: 61,
   // EXERCISE_TYPE_SKIING, downhill and cross-country alike.

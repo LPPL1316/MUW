@@ -19,6 +19,16 @@ export const SWIMMING_START_KM = 1;
 export const SWIMMING: SportProfile = {
   activity: "swimming",
   name: tLater("Open water swim"),
+  emoji: "🏊",
+  pace: "swim",
+  onWater: true,
+  noWords: true,
+  laps: true,
+  // Swum between the parts, lap after lap.
+  partsBetween: {
+    km: tLater("{drawn} km of drawing + {between} km swimming between the parts"),
+    mi: tLater("{drawn} mi of drawing + {between} mi swimming between the parts"),
+  },
   drawKm: [DISTANCE_LIMITS_M.swimming[0] / 1000, DISTANCE_LIMITS_M.swimming[1] / 1000],
   drawMi: [0.5, 1.5],
   step: SWIM_STEP,

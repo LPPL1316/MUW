@@ -26,6 +26,15 @@ const BANDS: readonly MetBand[] = [
 export const PADDLING: SportProfile = {
   activity: "paddling",
   name: tLater("Paddle"),
+  emoji: "🛶",
+  pace: "paddle",
+  onWater: true,
+  shapesOnly: true,
+  // On the water (TASK-226): the whole is the distance asked.
+  partsBetween: {
+    km: tLater("{drawn} km of drawing + {between} km paddling between the parts"),
+    mi: tLater("{drawn} mi of drawing + {between} mi paddling between the parts"),
+  },
   drawKm: [DISTANCE_LIMITS_M.paddling[0] / 1000, DISTANCE_LIMITS_M.paddling[1] / 1000],
   startKm: PADDLING_START_KM,
   appleWorkout: 31,

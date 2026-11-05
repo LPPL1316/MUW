@@ -251,6 +251,8 @@ apps/mobile/src/activities/activityText.ts
 apps/mobile/src/profile/PersonalBests.tsx
 apps/mobile/src/screens/RunPanel.tsx
 apps/mobile/src/screens/SnowFinishCard.tsx
+apps/mobile/src/sports/*.ts                    (campi nuovi del profilo; ok del Coordinatore 2026-11-05)
+apps/mobile/src/feed/muwLabel.ts               (muwSport; ok del Coordinatore 2026-11-05)
 
 B3c — a parte, quando i file si liberano
 apps/mobile/src/social/PublicParts.tsx         (dopo la #782)

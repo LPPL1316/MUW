@@ -23,6 +23,8 @@ import { decimal, t, tLater, tPlural } from "../i18n";
 import { isDrawnOutline } from "../mapdraw/canvasRequest";
 import { Segmented } from "../screens/Segmented";
 import { StepTitle } from "../screens/StepTitle";
+import { profileOf } from "../sports";
+import { ON_FOOT_LETTERS, ON_FOOT_PARTS } from "../sports/running";
 import { SwimResult } from "../swim/SwimResult";
 import { isOnWater } from "../swim/water";
 import { milesAtLeast, tenthsToM, unitsNumber } from "../units/distanceInput";
@@ -177,12 +179,12 @@ export function RouteChoice({
       onDistanceText(switchDistance(distanceText, activity, units));
     }
   }, [units, distanceText, activity, onDistanceText]);
-  const shapesOnly = activity === "paddling";
-  // A swim draws a shape or a drawing, never a word (TASK-323): a word
-  // chosen before «Open water swim» waits for another sport, as App.tsx asks.
-  const swim = activity === "swimming";
-  const shownKind = swim && kind === "word" ? "shape" : kind;
-  const kinds = swim
+  // Paddling draws shapes only (TASK-191); a swim a shape or a drawing,
+  // never a word (TASK-323): a word chosen before «Open water swim» waits
+  // for another sport, as App.tsx asks. Each sport says it in src/sports.
+  const { shapesOnly = false, noWords = false, timeAt } = profileOf(activity);
+  const shownKind = noWords && kind === "word" ? "shape" : kind;
+  const kinds = noWords
     ? DRAW_KINDS.filter((option) => option.value !== "word")
     : DRAW_KINDS;
   return (
@@ -283,9 +285,9 @@ export function RouteChoice({
         timeText={
           !pace
             ? null
-            : activity === "running"
+            : timeAt === "runner"
               ? runTimeText(distanceM, pace, units)
-              : activity === "walking" && pace.walking
+              : timeAt === "walker" && pace.walking
                 ? runTimeText(distanceM, pace.walking, units)
                 : null
         }
@@ -495,7 +497,7 @@ export function RouteOutcome({
               units={units}
             />
           </View>
-          {view.request.activity === "swimming" && (
+          {profileOf(view.request.activity).laps === true && (
             <SwimResult result={view.result} onLaps={onSwimLaps} />
           )}
           <RouteTiles choices={choices} chosen={chosen} onChoose={onChoose} />
@@ -652,79 +654,19 @@ export function PenSplit({
   }
   const drawn = decimal(inUnits(split.lettersM, units));
   const between = decimal(inUnits(split.walksM, units));
-  if (units === "mi") {
-    return (
-      <Text style={styles.target}>
-        {result.word !== null
-          ? activity === "cycling"
-            ? t("{letters} mi of letters + {between} mi riding between them", {
-                letters: drawn,
-                between,
-              })
-            : t("{letters} mi of letters + {between} mi walking between them", {
-                letters: drawn,
-                between,
-              })
-          : activity === "swimming"
-            ? t("{drawn} mi of drawing + {between} mi swimming between the parts", {
-                drawn,
-                between,
-              })
-            : activity === "paddling"
-              ? t("{drawn} mi of drawing + {between} mi paddling between the parts", {
-                  drawn,
-                  between,
-                })
-              : activity === "cycling"
-                ? t("{drawn} mi of drawing + {between} mi riding between the parts", {
-                    drawn,
-                    between,
-                  })
-                : t("{drawn} mi of drawing + {between} mi walking between the parts", {
-                    drawn,
-                    between,
-                  })}
-      </Text>
-    );
-  }
-  if (result.word === null) {
-    return (
-      <Text style={styles.target}>
-        {activity === "swimming"
-          ? // A swim (TASK-323): swum between the parts, lap after lap.
-            t("{drawn} km of drawing + {between} km swimming between the parts", {
-              drawn,
-              between,
-            })
-          : activity === "paddling"
-            ? // On the water (TASK-226): the whole is the distance asked.
-              t("{drawn} km of drawing + {between} km paddling between the parts", {
-                drawn,
-                between,
-              })
-            : activity === "cycling"
-              ? t("{drawn} km of drawing + {between} km riding between the parts", {
-                  drawn,
-                  between,
-                })
-              : t("{drawn} km of drawing + {between} km walking between the parts", {
-                  drawn,
-                  between,
-                })}
-      </Text>
-    );
-  }
+  // Ridden on a bike, paddled or swum on the water (TASK-226, TASK-323),
+  // walked on foot: each sport says it in src/sports.
+  const sport = profileOf(activity);
+  const texts =
+    result.word !== null
+      ? (sport.lettersBetween ?? ON_FOOT_LETTERS)
+      : (sport.partsBetween ?? ON_FOOT_PARTS);
   return (
     <Text style={styles.target}>
-      {activity === "cycling"
-        ? t("{letters} km of letters + {between} km riding between them", {
-            letters: drawn,
-            between,
-          })
-        : t("{letters} km of letters + {between} km walking between them", {
-            letters: drawn,
-            between,
-          })}
+      {t(
+        units === "mi" ? texts.mi : texts.km,
+        result.word !== null ? { letters: drawn, between } : { drawn, between },
+      )}
     </Text>
   );
 }
