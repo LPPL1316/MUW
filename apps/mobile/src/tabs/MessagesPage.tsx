@@ -19,7 +19,9 @@ type Props = {
  * «Messages» as a tab (TASK-367, ADR-0311): the conversations and, at the
  * top, the message requests (TASK-319). A conversation, or the requests,
  * open over the app as before, and «←» comes back here. Read again each
- * time it comes on screen, as «Messages» was each time it opened.
+ * time it comes on screen, as «Messages» was each time it opened: in place,
+ * the list on screen stays until the new one comes, so a swipe that lands
+ * here never shows «Loading…» over what it slid in.
  */
 export function MessagesPage({ active, fetchFn, apiKey }: Props) {
   const { screen, openConversation, recount } = useMessagesDoor();
@@ -45,7 +47,7 @@ export function MessagesPage({ active, fetchFn, apiKey }: Props) {
         {t("Messages")}
       </Text>
       <ConversationList
-        key={visit}
+        visit={visit}
         box="inbox"
         onOpen={openConversation}
         fetchFn={fetchFn}
