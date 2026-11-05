@@ -180,8 +180,8 @@ Parte C2 (approvata dal Coordinatore il 2026-11-05):
 (nuovi), `apps/mobile/src/map/messages.ts`, `apps/mobile/src/map/mapPage.ts`,
 `apps/mobile/src/map/MapView.tsx`, `apps/mobile/App.tsx` (il campo `lifts`
 e il prop di `MapView`), `apps/mobile/src/screens/FreeRunScreen.tsx`,
-`apps/mobile/src/screens/SnowFinishCard.test.tsx` (la riga del banner, chiesta
-al Coordinatore), `apps/mobile/src/i18n/{it,de,fr,es}.ts`; documenti:
+`apps/mobile/src/screens/SnowFinishCard.test.tsx` (la riga del banner, approvata
+dal Coordinatore), `apps/mobile/src/i18n/{it,de,fr,es}.ts`; documenti:
 `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 10) e questa lista.
 
 Parte C1 (approvata dal Coordinatore il 2026-11-05):
