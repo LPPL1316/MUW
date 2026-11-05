@@ -14,7 +14,8 @@ The gallery is the whole standings of a contest, by place or the latest
 published first, a page at a time; the archive the contests closed, the
 latest first, with their winner and their first three. Both are readings of
 contests.RANKED_SQL, the one rule for who leads; with a token the posts
-across a block with who asks are left out, keeping their places.
+across a block with who asks are left out, keeping their places. So are
+the posts of an activity the app does not read (reads.py, TASK-387).
 """
 
 from __future__ import annotations
@@ -57,6 +58,7 @@ from shaperoute_api.contests import (
 from shaperoute_api.db import Database
 from shaperoute_api.drawings import _details
 from shaperoute_api.follows import apart_sql
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.schemas import ErrorBody
 
 GALLERY_PAGE = 30
@@ -189,14 +191,17 @@ class ContestEntries:
         order: Order = "top",
         cursor: str | None = None,
         limit: int = GALLERY_PAGE,
+        reads: Reads = EVERYTHING,
     ) -> ContestEntriesBody:
-        """A page of the standings of any contest, as `viewer_id` sees it."""
+        """A page of the standings of any contest, as `viewer_id` sees it,
+        of the posts `reads` shows."""
         values: dict[str, Any] = {"viewer": viewer_id, "limit": limit + 1}
         where = (
             "TRUE"
             if viewer_id is None
             else f"NOT {apart_sql('%(viewer)s', 'ranked.user_id')}"
         )
+        where += f" AND {reads.sql('ranked.activity', 'ranked.tracked')}"
         by_place = re.fullmatch(PLACE_CURSOR, cursor or "") is not None
         if cursor is not None and by_place != (order == "top"):
             raise AccountError(422, "invalid_request", OTHER_ORDER)
@@ -244,8 +249,10 @@ class ContestEntries:
         viewer_id: int | None,
         cursor: str | None = None,
         limit: int = ARCHIVE_PAGE,
+        reads: Reads = EVERYTHING,
     ) -> PastContestsBody:
-        """A page of the contests closed, the latest first."""
+        """A page of the contests closed, the latest first, with the posts
+        `reads` shows."""
         values: dict[str, Any] = {"limit": limit + 1}
         where = "closed_at IS NOT NULL"
         if cursor is not None:
@@ -260,7 +267,7 @@ class ContestEntries:
             page, more = [_contest(row) for row in rows[:limit]], len(rows) > limit
             past: list[PastContestBody] = []
             for contest in page:
-                ranked, fields = leaders(conn, contest, viewer_id)
+                ranked, fields = leaders(conn, contest, viewer_id, reads)
                 assert contest.closed_at is not None
                 past.append(
                     PastContestBody(
@@ -327,20 +334,28 @@ def entry_routes() -> APIRouter:
         contest_id: UUID,
         entries: Them,
         viewer: Viewer,
+        reads: Shown,
         order: Order = "top",
         cursor: Annotated[str | None, Query(pattern=GALLERY_CURSOR)] = None,
     ) -> ContestEntriesBody:
         return entries.gallery(
-            None if viewer is None else viewer.id, contest_id, order, cursor
+            None if viewer is None else viewer.id,
+            contest_id,
+            order,
+            cursor,
+            reads=reads,
         )
 
     @router.get("/contests")
     def archive(
         entries: Them,
         viewer: Viewer,
+        reads: Shown,
         state: Literal["closed"],
         cursor: Annotated[str | None, Query(pattern=ARCHIVE_CURSOR)] = None,
     ) -> PastContestsBody:
-        return entries.archive(None if viewer is None else viewer.id, cursor)
+        return entries.archive(
+            None if viewer is None else viewer.id, cursor, reads=reads
+        )
 
     return router

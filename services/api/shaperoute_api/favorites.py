@@ -13,7 +13,9 @@ A favorite remembers the activity it was drawn for (TASK-200): a bike route
 reopens as one. Those kept before are runs. A bike route also keeps where it
 is walked with the bike on foot (TASK-206). A route whose shape the engine
 turned keeps the turn (TASK-232, ADR-0195): its card and the map show it
-turned back, so the drawing reads upright.
+turned back, so the drawing reads upright. The list leaves out the
+favorites of an activity the app does not read, as its header X-MuW-Reads
+says (reads.py, TASK-387): a phone with an older app on the same account.
 """
 
 from __future__ import annotations
@@ -43,6 +45,7 @@ from shaperoute_api.accounts import (
 from shaperoute_api.activity_graphs import check_supported
 from shaperoute_api.best_routes import line_key
 from shaperoute_api.db import Database
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.route_archive import count_favorite
 from shaperoute_api.schemas import (
@@ -236,11 +239,12 @@ class Favorites:
     database: Database
     now: Callable[[], datetime] = now_utc
 
-    def listing(self, user_id: int) -> FavoritesBody:
-        """The newest first."""
+    def listing(self, user_id: int, reads: Reads = EVERYTHING) -> FavoritesBody:
+        """The newest first, of the activities `reads` shows."""
         with self.database.connect() as conn:
             rows = conn.execute(
                 f"SELECT {COLUMNS} FROM favorites WHERE user_id = %s"
+                f" AND {reads.sql('activity')}"
                 " ORDER BY created_at DESC, id DESC",
                 (user_id,),
             ).fetchall()
@@ -339,8 +343,9 @@ def favorite_routes() -> APIRouter:
     def list_favorites(
         favorites: Annotated[Favorites, Depends(favorites_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
     ) -> FavoritesBody:
-        return favorites.listing(user.id)
+        return favorites.listing(user.id, reads)
 
     @router.get("/me/favorites/{key}", responses={404: {"model": ErrorBody}})
     def get_favorite(
