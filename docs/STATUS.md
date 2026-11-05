@@ -399,6 +399,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     rotta e nessuna migrazione. Prossimo: D2 (API e colonna 0048), con la
     sua lista al Coordinatore; poi D3 (app), con i testi e la riga della
     privacy col sì dell'utente.
+  - 2026-11-05: D1 in `main` (#802); testi e riga della privacy approvati
+    dall'utente (#804). **D2**: i nomi si scrivono in `runs.ski_names`
+    (migrazione 0048) quando si salva una giornata di sci, e il post li dà
+    con `GET /drawings/{id}/ski-names`, rispettando chi può vedere il post e
+    `X-MuW-Reads` (ADR-0319, punto 12). Per andare online servono il
+    deploy, la 0048 e gli estratti delle Alpi, comandi dell'utente col suo
+    sì. Prossimo: D3, l'elenco nel post dell'app e la riga della privacy,
+    con la lista al Coordinatore.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta

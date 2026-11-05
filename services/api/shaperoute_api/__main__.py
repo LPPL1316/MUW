@@ -84,6 +84,7 @@ from shaperoute_api.report_email import (
 from shaperoute_api.request_log import DEFAULT_DIR, ON_VARIABLE, RequestLog, wanted
 from shaperoute_api.route_archive import RouteArchive
 from shaperoute_api.route_store import STORE_FOLDER, RouteStore
+from shaperoute_api.ski_names_api import install_ski_names
 from shaperoute_api.themed import StopFinder, ThemedJobs
 from shaperoute_api.water_spots import read_spots
 
@@ -282,6 +283,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     install_city_photos(app, photos)
     # The cached zones, for the phone that draws on them (TASK-214).
     install_phone_zones(app, args.cache_dir)
+    # The lifts and pistes of a day of skiing, from the ski tiles (TASK-375).
+    install_ski_names(app, args.cache_dir)
     # The email to who has not opened the app for two weeks (TASK-284): off
     # without the database, Resend's key, the links' secret and the domain.
     away = (

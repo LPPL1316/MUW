@@ -210,7 +210,27 @@ volte), `services/api/tests/test_ski_extract.py`,
 `services/api/tests/fixtures/ski/`; documenti: `docs/MAPS.md` (come si fa
 il file dei comprensori), `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319,
 punto 11) e questa lista. Nessuna migrazione, nessuna rotta dell'API:
-vengono con D2.
+vengono con D2. **In `main` il 2026-11-05** (#802, 857a10ab); la fixture è
+`area.osm.xml`, perché `.gitignore` lascia fuori `*.osm`.
+
+Parte D2 (approvata dal Coordinatore il 2026-11-05). File nuovi:
+`services/api/migrations/0048_run_ski_names.sql` (la colonna
+`runs.ski_names`; non dipende dalla 0047 della palestra),
+`services/api/shaperoute_api/ski_names_api.py` (la rotta `GET
+/drawings/{id}/ski-names`, con `X-MuW-Reads`),
+`services/api/tests/test_ski_names_api.py`,
+`packages/shared-types/fixtures/ski-names.json` e
+`packages/shared-types/test/skiNames.test.ts`. File da cambiare:
+`services/api/shaperoute_api/activities.py` (i nomi al salvataggio di una
+giornata `skiing`), `services/api/shaperoute_api/__main__.py` (una riga,
+`install_ski_names`), `services/api/shaperoute_api/ski_names.py` (il JSON
+dei nomi) e `packages/shared-types/src/index.ts` (`SkiNames` e `SkiUse`;
+`DrawingDetail` non cambia). Documenti: `docs/DATABASE.md`, `docs/API.md`,
+`docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 12) e questa lista.
+`drawings.py` è uscito dalla lista con il sì del Coordinatore: la rotta a
+parte lascia com'è il test di contratto del dettaglio. TASK-385 A, la
+palestra, tocca `activities.py` e `index.ts` in parti diverse: chi arriva
+secondo unisce main e si riallinea.
 
 Questa PR (documenti): `docs/tasks/TASK-375.md` (nuovo), `docs/DECISIONS.md`
 (ADR-0319), `docs/STATUS.md` (una voce), `docs/INDEX.md` (una riga).
