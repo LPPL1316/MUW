@@ -2821,6 +2821,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `tasks/TASK-394.md`; Termini e Privacy cambiano con la parte B. Prossimo:
   la parte A (API), con l'ADR e la lista dei file al Coordinatore prima del
   codice. Prerequisito dell'utente: Google Cloud con Web Risk.
+  **Scelte e testi in `main`** (#808, 507e45dd); parte A con ADR-0333 e
+  migrazione 0050, in una sessione nuova. Approvata anche la frase della
+  Privacy «Pubblicità» per una parte B prima di Style (2026-11-05, «SI
+  APPROVO», `tasks/TASK-394.md` D.2b).
 - **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
   Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
   Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,
