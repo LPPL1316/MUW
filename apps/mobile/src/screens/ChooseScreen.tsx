@@ -10,7 +10,6 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { t, tLater } from "../i18n";
-import { HeartBadge } from "../intro/HeartBadge";
 import { useStartAddress } from "../location/startAddress";
 import { OpenSettings } from "../permissions/OpenSettings";
 import { PlaceSearch, type SuggestPlaces } from "../places/PlaceSearch";
@@ -42,9 +41,6 @@ const START_MODES = [
   { value: "gps", label: tLater("My position") },
   { value: "place", label: tLater("Another place") },
 ] as const;
-
-/** The heart beside the name: as tall as the title's letters and a little more. */
-const BADGE_SIZE = 32;
 
 type Props = {
   /** Where the route will start, in words (UI.md, «La partenza»). */
@@ -140,12 +136,8 @@ export function ChooseScreen({
           keyboardShouldPersistTaps="handled"
           testID="draw-page"
         >
+          {/* The logo is in the header above, once (TASK-392). */}
           <View style={styles.titleRow}>
-            <View style={styles.brand}>
-              {/* The heart of the launch on its yellow, as a logo (TASK-221). */}
-              <HeartBadge size={BADGE_SIZE} />
-              <Text style={styles.title}>MuW</Text>
-            </View>
             <View style={styles.titleButtons}>
               {/* The whole of it: "Run" alone read as running the route
                 drawn below (TASK-158). Outlined: the yellow is the
@@ -302,17 +294,7 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-  },
-  brand: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: space.sm,
-  },
-  title: {
-    color: color.text,
-    fontSize: fontSize.title,
-    fontWeight: fontWeight.bold,
+    justifyContent: "flex-end",
   },
   titleButtons: {
     flexDirection: "row",

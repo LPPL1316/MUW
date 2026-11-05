@@ -160,6 +160,21 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-392 — Il logo stilizzato nell'header, non più in cima a «Draw»**
+  (2026-11-05; numero dal Coordinatore; ADR-0311, precisazione). L'header delle pagine della
+  barra mostra il cuore su giallo (`HeartBadge`, 32 punti) e «MuW» grande in grassetto, al posto
+  del cuore di Lucide; in cima a «Draw» resta solo «Run without a route». Cambia la scelta di
+  TASK-367 sui loghi dentro le pagine, solo per «Draw». Solo app, nessun testo nuovo. Branch
+  `feat/TASK-392-header-logo`; la unisce il Coordinatore a CI verde; anteprima e OTA dal
+  Coordinatore. `tasks/TASK-392.md`.
+- **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; numeri dal
+  Coordinatore; ADR-0331; richiesta dell'utente). Ogni job di `ci.yml` comincia con
+  `tools/ci_changes.py`: se la PR cambia solo `docs/` e `.md` fuori dalle cartelle di codice,
+  gli altri passi saltano e i check obbligatori finiscono verdi con lo stesso nome; per il
+  codice e su `main` non cambia niente. Un push nuovo su una PR cancella il run vecchio
+  (`concurrency`, anche in `site.yml`). Branch `chore/TASK-393-ci-skip-docs-only`; la unisce
+  il Coordinatore a CI verde. `tasks/TASK-393.md`.
+  **Chiuso il 2026-11-05**: #788 in main (d99d2033); vedi «Completato».
 - **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
@@ -262,6 +277,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
   Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
 
+- **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
+  (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo
+  rinasceva vuoto e si riempiva di nuovo, e «Messages» mostrava «Loading…» al posto della
+  lista. Ora «Messages» rilegge sul posto e il profilo si ricostruisce quando lo si lascia.
+  Branch `fix/TASK-391-tab-landing-flash`; la unisce il Coordinatore a CI verde; OTA col sì
+  dell'utente. Solo app, nessun testo nuovo, `TabShell`/`TabBar` non toccati. `tasks/TASK-391.md`.
+
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
   «Dentro il riquadro» per peso e altezza: «Sì, task a parte». «bpm» stava piccolo e grigio a
@@ -270,6 +292,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   La zona 5, che non si scrive, resta senza riquadro con «bpm» allo stesso posto. Branch
   `fix/TASK-386-zones-bpm-box`; la unisce il Coordinatore a CI verde; OTA col sì dell'utente.
   Solo app, nessun testo nuovo, `BodyPage.tsx` non toccato. `tasks/TASK-386.md`.
+  **Chiuso il 2026-11-05**: #761 in main (cebe5412); vedi «Completato».
 
 - **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
   ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
@@ -291,6 +314,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `SAME_ROUTES_AS` tiene le impronte di prima (5b5e026cea9b, b9d00c37d28d,
   574fbfba41eb): **nessuna notte di esempi**, il server si aggiorna da `main`
   come prima. B2 (contratto e API) e B3 (app) dopo la #758.
+  **Parte B1 in `main`** (#763, 2026-11-04 sera). B2 (contratto e API):
+  lista dei file al Coordinatore il 2026-11-05, codice al suo via; poi B3.
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
@@ -321,6 +346,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     letti sul telefono; il fondo con distanza, passo e salita; niente
     calorie (testi approvati, ADR-0319 punto 9). Prossimo: C2, le risalite
     tratteggiate sulla mappa, col via del Coordinatore.
+  - 2026-11-05: **C2**: sulla mappa di fine giornata di sci le discese sono
+    piene e le risalite tratteggiate (ADR-0319 punto 10). Prossimo: la parte
+    D (nomi di impianti e piste sul server: server e riga privacy col sì
+    dell'utente).
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -2677,6 +2706,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; ADR-0331). #788 in
+  main (d99d2033): ogni job di `ci.yml` comincia con `tools/ci_changes.py`; se la PR cambia
+  solo `docs/` e `.md` fuori dalle cartelle di codice, i job finiscono verdi in 6–7 s con gli
+  stessi nomi, invece dei 30 minuti di `api`. Codice e `main` girano come prima. Un push nuovo
+  su una PR cancella il run vecchio (`ci.yml` e `site.yml`). `tasks/TASK-393.md`.
+- **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro** (2026-11-05; seguito di TASK-383 e
+  TASK-374 B). #761 in main (cebe5412): «bpm» dentro le caselle di FC massima, a riposo e zone
+  1–4, un tocco su «bpm» apre la tastiera; zona 5 senza riquadro, allineata. Solo JS, nessun
+  testo nuovo. Anteprima, prova sul telefono e OTA di produzione col Coordinatore, l'OTA col sì
+  dell'utente. `tasks/TASK-386.md`.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; seguito di TASK-374 A). #759 in main (`a5c1d5b2`): «kg» e «cm», con le miglia
   «lb», «ft» e «in», stanno nel riquadro dopo il numero; un tocco sull'unità apre la tastiera.

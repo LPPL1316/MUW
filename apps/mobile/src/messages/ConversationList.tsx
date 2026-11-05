@@ -35,6 +35,9 @@ type Shown =
 
 type Props = {
   box: ConversationBox;
+  /** Read again each time it changes, the list on screen kept until the
+   * new one comes. */
+  visit?: number;
   /** A conversation touched: it opens over the list. */
   onOpen: (person: Person) => void;
   /** The fake fetch of the tests. */
@@ -57,7 +60,7 @@ export function previewOf(conversation: Conversation): string {
  * say how many. In «Messages», «Message requests» at the top, with their
  * number. Read when it opens, and again when it comes back to the screen.
  */
-export function ConversationList({ box, onOpen, fetchFn, apiKey }: Props) {
+export function ConversationList({ box, visit, onOpen, fetchFn, apiKey }: Props) {
   const { apiUrl, account, unread, openList } = useMessagesDoor();
   const { state, sessionEnded: onSessionEnded } = account;
   const token = state.status === "signedIn" ? state.session.token : null;
@@ -94,7 +97,7 @@ export function ConversationList({ box, onOpen, fetchFn, apiKey }: Props) {
     return () => {
       live = false;
     };
-  }, [apiKey, apiUrl, asked, box, fetchFn, onSessionEnded, token]);
+  }, [apiKey, apiUrl, asked, box, fetchFn, onSessionEnded, token, visit]);
 
   if (token === null || apiUrl === null) {
     return null;

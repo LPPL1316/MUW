@@ -125,7 +125,8 @@ test("a run keeps its own end", async () => {
 });
 
 test.each<[Sport, string, string]>([
-  ["ski", "Your day", "White: where you skied."],
+  // A day of skiing has its lifts dashed on the map (part C2).
+  ["ski", "Your day", "White: your descents. Dashed: the lifts."],
   ["xc_ski", "Your day", "White: where you skied."],
   ["run", "Your run", "White: what you ran."],
 ])("over the map of %s: %s", async (sport, title, line) => {
@@ -150,4 +151,7 @@ test("the approved texts, in Italian", () => {
   expect(translate("it", "Vertical")).toBe("Dislivello");
   expect(translate("it", "Top speed")).toBe("Vel. max");
   expect(translate("it", "Lifts")).toBe("Risalite");
+  expect(translate("it", "White: your descents. Dashed: the lifts.")).toBe(
+    "Bianco: le discese. Tratteggio: gli impianti.",
+  );
 });

@@ -21998,6 +21998,18 @@ dell'utente):
    prima della stagione (parte E). Il fondo usa i numeri di una corsa,
    senza le calorie. `FreeFinishCard` sceglie la scheda dallo sport di
    «Settings»; `App.tsx` non cambia.
+10. (C2, 2026-11-05; il testo è dell'utente, approvato con gli altri della
+    parte C con «Sì, approvati», il modo è deciso dall'agente su delega
+    dell'utente) Sulla mappa di fine giornata di sci la traccia si taglia
+    agli impianti trovati da `snowDay`. Ciò che è stato sciato resta la
+    linea bianca piena di una corsa; le risalite sono la stessa linea,
+    tratteggiata come i tratti in bici a piedi (`onFoot.dash`): nessun
+    colore nuovo. `snowLiftsOf` le dà solo per lo sci alpino e solo se ce
+    ne sono; il fondo e gli altri sport restano una linea sola. Il banner
+    dello sci dice «White: your descents. Dashed: the lifts.» anche in una
+    giornata senza impianti trovati, perché non conosce la traccia: è un
+    caso raro, e non mostra niente di sbagliato. In `App.tsx` ci sono solo
+    il campo `lifts` di `FreeFinished` e il prop di `MapView`.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -22283,6 +22295,19 @@ prova solo con i test.
   fine passa alla pagina accanto (UIKit). Toglierlo vorrebbe cambiare le file;
   `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
 
+### Precisazione — TASK-391 (2026-11-05)
+
+**Deciso dall'agente su delega dell'utente**, numero dal Coordinatore. Una
+pagina che lo swipe porta sullo schermo non si ricostruisce più quando lo
+swipe si ferma: la si è vista scorrere intera e deve restare così.
+«Messages» rilegge la lista sul posto, tenendo quella vecchia finché arriva
+la nuova; il profilo si ricostruisce quando lascia lo schermo per un'altra
+scheda, fuori vista, e al ritorno da una sua pagina aperta sopra l'app come
+prima. Scartato: rileggere sul posto anche il profilo, che vorrebbe cambiare
+`useOwnProfile`, le liste di chi segue e la galleria; il prezzo della scelta
+è che un follow fatto su un'altra scheda si vede nei numeri del profilo alla
+visita dopo.
+
 ---
 
 ## ADR-0326, precisazione — L'API di MuW Style (TASK-384 parte A)
@@ -22557,5 +22582,68 @@ intero.
 l'API cambia per chi non manda l'header. Ogni sport nuovo aggiunge un valore
 in `reads.py`, nella fixture e nell'app (dal registro di TASK-376, quando ci
 sarà). Server e OTA di produzione col sì dell'utente.
+## ADR-0311, precisazione — Nell'header il logo di «Draw», che lascia la pagina
+
+**Stato**: Attiva · 2026-11-05 · scelta dell'utente (TASK-392); le misure
+decise dall'agente su delega dell'utente. Il punto 2 di ADR-0311 voleva
+nell'header «il cuore e «MuW»»: era il cuore pieno di Lucide, 22 punti, e
+«MuW» in `font.heading`. L'utente l'ha voluto «come logo come nella sezione
+disegno», col cuore stilizzato, e il logo tolto da «Draw» accanto a «Run
+without a route». Ora l'header ha `HeartBadge` da 32 punti e «MuW» in
+`fontSize.title` grassetto, le misure che il logo aveva in «Draw»; in
+«Draw» resta solo il pulsante, a destra. Cambia, solo per «Draw», la
+scelta di TASK-367 di lasciare i loghi dentro le pagine; «Explore» e
+«Paddle» tengono il loro. Scartato: un logo più piccolo dell'originale per
+tenere l'header basso (l'utente ha chiesto lo stesso logo).
+
+---
+
+## ADR-0331 — La CI salta i test sulle PR di soli documenti e cancella i run superati
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
+(TASK-393; richiesta dell'utente del 2026-11-05).
+
+**Contesto**: ogni PR faceva girare i cinque job di `ci.yml`, anche quelle
+di soli documenti (chiusure, righe di STATUS). Il job `api` dura 25–30
+minuti; con 8–11 run insieme la coda delle unioni si fermava per un'ora, e i
+run delle head vecchie dello stesso branch continuavano. Il ruleset «protect
+main» chiede i check `route-engine`, `mobile`, `api`, `ai`.
+
+**Decisione**:
+
+- ogni job di `ci.yml` comincia con `tools/ci_changes.py`: sul merge commit
+  della PR (checkout con `fetch-depth: 2`) confronta col primo genitore,
+  cioè `main`, senza rinomine e con `-z`. Se ogni percorso è un documento —
+  tutto `docs/`, e i `.md` fuori da `apps/`, `packages/`, `services/`,
+  `tools/`, `site/`, `deploy/` — gli altri passi hanno `if:` falso e il job
+  finisce verde con lo stesso nome. Nel dubbio (nessun merge commit, git che
+  fallisce, nessun file) gira tutto; su `main` gira sempre tutto;
+- `concurrency` in `ci.yml` e `site.yml`: per le PR il gruppo è
+  `ci-<ref>` / `site-<ref>` con `cancel-in-progress`; per i push su `main`
+  il gruppo è l'id del run, così nessun run di `main` aspetta o viene
+  cancellato. `mirror.yml` resta col suo gruppo `mirror`, senza
+  cancellazione.
+
+**Perché così**: un filtro `paths` in `on:` non fa partire il workflow e
+lascia i check obbligatori «Expected» per sempre. Un job saltato con `if:`
+a livello di job conta come riuscito, ma con un job `changes` in `needs:`
+un suo errore farebbe saltare, quindi passare, tutti gli altri senza test;
+con il controllo dentro ogni job, un errore del controllo fa fallire il job.
+I `.md` dentro `apps/` e `packages/` li controlla prettier
+(`format:check`), quelli del pacchetto `route_engine` finiscono in
+`engine.zip`: lì sono codice. Un gruppo `ci-${{ github.ref }}` anche per
+`main` avrebbe messo in fila i run di `main` e cancellato quelli in attesa.
+I gruppi valgono per tutto il repository: lo stesso prefisso in due
+workflow farebbe cancellare l'uno dall'altro.
+
+**Scartato**: un'azione di terzi per i percorsi (non serve, e vorrebbe il sì
+del Coordinatore); un job `changes` con `needs:` (sopra); saltare solo i job
+che una PR di codice non tocca (fuori scope: ogni PR di codice fa girare
+tutto come prima).
+
+**Conseguenze**: una PR di soli documenti finisce in pochi secondi per job.
+Se un test comincia a leggere un file di `docs/` o un `.md` fuori da quelle
+cartelle, la regola in `tools/ci_changes.py` cambia nella stessa PR. `site.yml`
+continua a girare quando cambia `docs/DEPLOY.md`, che i suoi test leggono.
 
 ---
