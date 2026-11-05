@@ -19,6 +19,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Cascade } from "../ui/Cascade";
 import { useBell } from "./bellDoor";
 
 const PHOTO_SIDE = 44;
@@ -160,8 +161,10 @@ function BellList({ opens, fetchFn, apiKey }: Props) {
         )}
         {list?.kind === "ready" && (
           <View style={styles.lines}>
-            {list.lines.map((line) => (
-              <Line key={line.id} line={line} now={now} onPress={() => touch(line)} />
+            {list.lines.map((line, index) => (
+              <Cascade key={line.id} index={index}>
+                <Line line={line} now={now} onPress={() => touch(line)} />
+              </Cascade>
             ))}
           </View>
         )}

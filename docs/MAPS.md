@@ -365,6 +365,30 @@ zona di 26 km dovrebbe stare fra 0,15 e 0,6 GB in memoria e 70–150 MB su
 disco; l'API ne tiene una alla volta (`API.md`, «Grafi»). Non ancora
 provata su una zona vera (task file di TASK-190).
 
+### Impianti e piste da sci da un estratto (TASK-375 parte D, ADR-0319)
+
+I nomi degli impianti presi e delle piste fatte in una giornata di sci
+(`ski_names.py`) vengono dalle linee di OSM. Come l'acqua, si prendono da
+un estratto Geofabrik, una volta per paese alpino: Italia, Austria,
+Svizzera, Francia, Germania, Slovenia. Per ogni estratto:
+
+```bash
+osmium tags-filter italy-latest.osm.pbf w/aerialway nwr/piste:type=downhill -o italy-ski.osm.pbf
+```
+
+Poi un solo comando per tutti:
+
+```bash
+python -m shaperoute_api.ski_extract --extract italy-ski.osm.pbf austria-ski.osm.pbf switzerland-ski.osm.pbf france-ski.osm.pbf germany-ski.osm.pbf slovenia-ski.osm.pbf --cache-dir data/cache
+```
+
+Il comando scrive riquadri di 0,25° in `data/cache/ski/<lat>_<lon>.json`.
+Un estratto passato di nuovo si unisce a ciò che c'è già, e una via con lo
+stesso id sostituisce la vecchia: un impianto di confine resta uno solo.
+Restano fuori le stazioni, i piloni, le teleferiche merci, le zip line e le
+piste di fondo. Sul server di produzione questi comandi li lancia
+l'utente.
+
 ## Dal disegno alla strada
 
 1. La partenza (primo punto della forma) si aggancia al **nodo più

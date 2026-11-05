@@ -18583,6 +18583,30 @@ delle vibrazioni, i testi e la riga della privacy si chiedono all'utente
 quando E parte; la build e l'invio ad Apple col suo sì, dopo la prova in
 acqua.
 
+## ADR-0283 — aggiunta, il nuoto prima in preview: acceso in Expo Go e `preview`, lo store dopo TASK-387
+
+**Stato**: Attiva · 2026-11-05 · scelta dell'utente («Subito in preview»,
+alla domanda sul nuoto ancora «Soon» in preview). Aggiunta ad ADR-0283; il
+punto tecnico è deciso dall'agente su delega dell'utente.
+
+**Contesto**: l'utente aveva scelto «Subito per tutti» (PR #765, `ready:
+true`). Il Coordinatore tiene ferma la #765 finché TASK-387 (l'header
+`X-MuW-Reads`, i post di nuoto solo alle app che li sanno leggere) non è in
+`main` e sul server: la 1.0 non conosce `swimming` e il suo Feed potrebbe
+non caricarsi. Intanto in preview il nuoto restava «Soon».
+
+**Decisione dell'utente**: il nuoto **subito in Expo Go e in `preview`**;
+le build dello store restano senza, fino alla #765. Finché TASK-387 non è
+sul server, un nuoto non si pubblica nel Feed dalla preview: lo sa
+l'utente, che è chi prova.
+
+**Decisione tecnica** (deciso dall'agente su delega dell'utente): un campo
+facoltativo `preview` in `SportOption`. `shownSports` accende in Expo Go e
+`preview` le righe con `preview: true`, mentre una build dello store le lascia
+fuori come ogni sport non pronto (TASK-318). La riga del nuoto ha `ready: false,
+preview: true`; la #765 la porta a `ready: true`, e allora `preview` non
+conta più. Solo JavaScript: l'impronta iOS `6f8bba4c` non cambia.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
@@ -22010,6 +22034,28 @@ dell'utente):
     giornata senza impianti trovati, perché non conosce la traccia: è un
     caso raro, e non mostra niente di sbagliato. In `App.tsx` ci sono solo
     il campo `lifts` di `FreeFinished` e il prop di `MapView`.
+11. (D1, 2026-11-05; le scelte sono dell'utente: «Nel post, per tutti» e
+    «Tutte le Alpi»; il modo è deciso dall'agente su delega dell'utente) I
+    nomi di impianti e piste vengono dagli estratti Geofabrik di Italia,
+    Austria, Svizzera, Francia, Germania e Slovenia, non da Overpass
+    (ADR-0154). Il filtro è `osmium tags-filter w/aerialway
+    nwr/piste:type=downhill`. `ski_extract.py` scrive le linee in riquadri
+    di 0,25° in `cache/ski/`, uniti estratto dopo estratto, così un
+    impianto di confine resta uno solo. `ski_names.py` confronta la traccia
+    con quelle linee, in metri, sul server:
+    - **una risalita** è un tratto entro 30 m da un impianto che lo percorre
+      dal basso in alto, come OSM disegna gli impianti, per almeno il 60%
+      della sua lunghezza. Fra due impianti vicini la prende il più vicino;
+      un impianto con stazione intermedia conta una sola volta;
+    - **una pista** si conta dopo 150 m fuori dagli impianti, entro 30 m da
+      una pista con quel nome. Una pista fatta di più vie è un nome solo, e
+      tre punti di GPS lontani non la spezzano;
+    - **senza nome:** le piste senza nome non si contano; gli impianti senza
+      nome restano, con il loro tipo.
+
+    Una giornata di 8.000 punti contro 2.000 linee richiede 0,19 s: con D2
+    il risultato si scrive una volta in `runs` (migrazione 0048, riservata),
+    invece di ricalcolarlo a ogni lettura del Feed.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -22461,6 +22507,26 @@ Scartato: un'isola sola in cima all'app (sotto un `Modal` non si vede).
    uno nel foglio dei commenti, che resta aperto. Così `App.tsx` non si
    tocca. Il punto 3 resta com'è: «Send to a friend» tiene il suo
    `useIsland`, perché parla mentre il suo `Modal` è aperto.
+
+**Parte C, fogli e liste (2026-11-05, deciso dall'agente su delega
+dell'utente)**:
+1. **`SheetModal`**: `Modal` trasparente senza animazione nativa, il
+   contenuto sale e scende sulla molla `smooth` (`translateY` dall'altezza
+   della finestra a 0). Il `Modal` resta montato finché il foglio è giù:
+   così anche la chiusura è una molla e si interrompe. Il contenuto si
+   rimonta a ogni apertura, come prima. Solo i sette fogli trasparenti con
+   `slide`; i `Modal` a tutto schermo tengono la pagina nativa di iOS, che
+   è già il movimento del sistema.
+2. **Lo sfondo scuro sale con il foglio**, come con `slide`: è dentro il
+   contenuto di ogni foglio. Farlo sfumare a parte vorrebbe dire spostarlo
+   in `SheetModal` in tutti e sette i file; resta una scelta per dopo.
+3. **`MessageSheet`** si chiudeva solo smontandolo il genitore: ora tiene
+   un suo `open` e chiama `onClose` a foglio sparito (`onHidden`), senza
+   toccare `ConversationScreen`.
+4. **Cascata**: 25 ms fra una riga e l'altra, 6 punti di salita, solo le
+   prime 6 righe; una riga che arriva dopo (una pagina in più) entra da
+   sola. Su conversazioni, campanella, commenti e risultati della ricerca;
+   non su «Feed» (riga di TASK-365 in sospeso).
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
 **Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
@@ -22780,5 +22846,77 @@ delega dell'utente; lista dei file approvata dal Coordinatore.
 del motore invariate. Server e migrazione 0047 in produzione col sì
 dell'utente, anche prima della B0: l'header tiene fuori i post senza
 traccia.
+## ADR-0332 — Il VO₂ max nel profilo pubblico: da Salute, se no stimato dai record, solo dopo un sì
+
+**Stato**: Proposto · 2026-11-05 · TASK-397. Fonte e visibilità sono
+**scelte dell'utente**; il come è deciso dall'agente su delega
+dell'utente.
+
+**Contesto**: l'utente, 2026-11-05: «Fai il conteggio del VO2 Max, magari
+prendi le informazioni da Apple, e pubblicalo nel profilo dell'utente, come
+valore che lo possono vedere tutti». Alle due domande ha scelto: il valore
+di Apple Salute / Health Connect quando c'è, se no una stima di MuW dai
+record di corsa con la scritta «stima»; visibile a chi apre il profilo,
+solo dopo un sì esplicito, spegnibile in Impostazioni. Il VO₂ max è un dato
+di Salute: Apple (linea guida 5.1.3) vuole il consenso prima di mostrarlo ad
+altri e vieta di usarlo per la pubblicità.
+
+**Decisione**:
+1. **Il sì sta sul server**: colonna `accounts.show_vo2max boolean NOT NULL
+   DEFAULT false` (migrazione col numero del Coordinatore). Si accende e si
+   spegne con `PATCH /me` (`show_vo2max`). Spento, `PublicProfile.vo2max` è
+   `null` per tutti, anche per il titolare visto da un altro account.
+2. **Il valore di Salute resta sul telefono fino al sì.** Dopo, il telefono
+   manda solo l'ultimo campione: `PUT /me/vo2max` con `value` (ml/kg/min,
+   accettato fra 10 e 90, se no `422`), `measured_on` (il giorno, non
+   l'ora) e `source` (`apple_health` o `health_connect`). Una riga per
+   account (`vo2max_readings`), sovrascritta. `PUT` con `show_vo2max`
+   spento è `409`. Spegnere, `DELETE /me/vo2max` o cancellare l'account
+   cancellano la riga.
+3. **La stima la fa il server**, dai record di `run_bests` (ADR-0312): per
+   ogni record di corsa degli ultimi 365 giorni fra 5K e maratona (il 60K
+   resta fuori, oltre le quattro ore la formula non vale) il VDOT di Daniels
+   e Gilbert, con `v` in m/min e `t` in minuti:
+   `VO₂ = −4,60 + 0,182258·v + 0,000104·v²`,
+   `%max = 0,8 + 0,1894393·e^(−0,012778·t) + 0,2989558·e^(−0,1932605·t)`,
+   `VDOT = VO₂ / %max`. Vale il più alto, arrotondato all'intero e tenuto
+   fra 20 e 90; fuori, nessuna stima. Funzione pura in
+   `vo2max_estimate.py`, calcolata a ogni lettura: niente da tenere in pari
+   quando un record cambia o una corsa si cancella. Esempio di test: 5K in
+   20:00 → 50.
+4. **Precedenza**: il valore di Salute con `measured_on` negli ultimi 365
+   giorni; se no la stima; se no `null`. Anche il valore di Salute si mostra
+   intero, come la stima.
+5. **Forma nel profilo**: `PublicProfile.vo2max` è `null` oppure
+   `{ value, source, measured_on, from_distance }`, dove `source` è
+   `apple_health`, `health_connect` o `estimate` e `from_distance` è il nome
+   del record (`5k`, `10k`, `15k`, `half`, `30k`, `marathon`) solo per la
+   stima. Un campo in più, facoltativo: le app che non lo conoscono lo
+   ignorano (`isPublicProfile` non guarda i campi in più), quindi niente
+   valore nuovo in `X-MuW-Reads`. `GET /me` porta `show_vo2max`.
+6. **La lettura da Salute** (parte C) chiede `HKQuantityTypeIdentifierVO2Max`
+   in `toRead` a runtime, solo dopo il sì nell'app, e manda l'ultimo
+   campione al massimo una volta al giorno e dopo ogni corsa salvata. Il
+   testo di `NSHealthShareUsageDescription` è nativo e oggi parla solo del
+   battito: il VO₂ max entra nel testo unico della 1.0.2 con TASK-345 C
+   (battito) e TASK-374 C (dati del corpo), e nella stessa voce «Health» di
+   App Privacy. L'ordine fra i tre è del Coordinatore. Android (Health
+   Connect, `Vo2MaxRecord`) con TASK-321 C.
+7. **Mai per la pubblicità**: il VO₂ max non entra nei dati passati agli
+   annunci (TASK-235) né nelle liste o nelle ricerche; si vede solo aprendo
+   il profilo.
+
+**Conseguenze**: le parti A (API) e B (app, solo stima) non leggono Salute e
+possono andare con un OTA prima della 1.0.2; la C aspetta la build. Il
+profilo pubblico porta un dato di salute: la riga dell'informativa (app e
+sito, cinque lingue) entra con la parte A per la stima e si allarga con la
+C per Salute, ogni volta col sì dell'utente.
+
+**Scartato**: tenere sul server la cronologia dei valori (basta l'ultimo;
+meno dati di salute tenuti); calcolare la stima sul telefono (i record sono
+già sul server, e la stima di un profilo non dipenderebbe dal telefono di
+chi lo apre); la stima dal battito a riposo (vuole il battito, che MuW non
+legge ancora, e l'età); mostrarlo senza un sì (scelta dell'utente, e Apple
+5.1.3).
 
 ---

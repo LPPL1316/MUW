@@ -1,17 +1,10 @@
 import { DRAWING_COMPLEXITIES, DRAWING_SORTS } from "@shaperoute/shared-types";
 import { useState } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { t } from "../i18n";
+import { SheetModal } from "../ui/SheetModal";
 import { Tap } from "../ui/Tap";
 import {
   color,
@@ -66,16 +59,10 @@ export function bandLabel(band: DistanceBand): string {
  */
 export function FilterSheet({ visible, filters, onApply, onClose }: Props) {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
+    <SheetModal visible={visible} onRequestClose={onClose}>
       {/* Mounted with the sheet: each opening starts from what is applied. */}
       <SheetBody filters={filters} onApply={onApply} onClose={onClose} />
-    </Modal>
+    </SheetModal>
   );
 }
 
