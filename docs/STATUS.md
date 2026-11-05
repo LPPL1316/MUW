@@ -2835,7 +2835,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Scelte e testi in `main`** (#808, 507e45dd); parte A con ADR-0333 e
   migrazione 0050, in una sessione nuova. Approvata anche la frase della
   Privacy «Pubblicità» per una parte B prima di Style (2026-11-05, «SI
-  APPROVO», `tasks/TASK-394.md` D.2b).
+  APPROVO», `tasks/TASK-394.md` D.2b). Sì anticipato sul nome della società
+  di Google per Web Risk (2026-11-05, «OK SI»): si copia dal contratto quando
+  l'utente lo attiva. Nessun testo di TASK-394 aspetta più un sì.
 - **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
   Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
   Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,
