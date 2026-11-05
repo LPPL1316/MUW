@@ -1,6 +1,9 @@
 # TASK-392 — Il logo stilizzato nell'header, non più in cima a «Draw»
 
-**Stato**: In revisione · 2026-11-05
+**Stato**: Done · 2026-11-05 · **Esito**: #787 in `main` (650d7685);
+l'header di ogni pagina della barra ha il cuore su giallo e «MuW» grande,
+«Draw» non ha più il logo. Anteprima pubblicata dal Coordinatore; l'altezza
+dell'header la guarda l'utente sul telefono; OTA di produzione col suo sì.
 **Fase**: 4 · **Branch**: `feat/TASK-392-header-logo`
 **Numeri**: TASK-392, assegnato dal Coordinatore. Precisazione di ADR-0311
 (TASK-367), nessun ADR nuovo.
@@ -47,7 +50,7 @@ Solo JS, nessun testo nuovo, nessuna dipendenza: impronta iOS invariata.
       c'è.
 - [x] I test di `ChooseScreen`, `TabShell`, `App` restano verdi; tsc, lint
       e Prettier verdi in locale sui file toccati.
-- [ ] CI verde.
+- [x] CI verde (#787, unita dal Coordinatore).
 - [ ] Visto sul telefono (anteprima del Coordinatore): in locale non è
       stato visto nel simulatore.
 

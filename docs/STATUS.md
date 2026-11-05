@@ -167,6 +167,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   TASK-367 sui loghi dentro le pagine, solo per «Draw». Solo app, nessun testo nuovo. Branch
   `feat/TASK-392-header-logo`; la unisce il Coordinatore a CI verde; anteprima e OTA dal
   Coordinatore. `tasks/TASK-392.md`.
+  **Chiuso il 2026-11-05**: #787 in main (650d7685); vedi «Completato».
 - **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; numeri dal
   Coordinatore; ADR-0331; richiesta dell'utente). Ogni job di `ci.yml` comincia con
   `tools/ci_changes.py`: se la PR cambia solo `docs/` e `.md` fuori dalle cartelle di codice,
@@ -2695,6 +2696,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-392 — Il logo stilizzato nell'header** (2026-11-05; ADR-0311, precisazione). #787 in
+  main (650d7685): l'header delle pagine della barra ha il cuore su giallo (`HeartBadge`, 32
+  punti) e «MuW» in `fontSize.title` grassetto; in cima a «Draw» resta solo «Run without a
+  route». Da fare: l'utente guarda l'altezza dell'header nell'anteprima; OTA col suo sì.
 - **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; ADR-0331). #788 in
   main (d99d2033): ogni job di `ci.yml` comincia con `tools/ci_changes.py`; se la PR cambia
   solo `docs/` e `.md` fuori dalle cartelle di codice, i job finiscono verdi in 6–7 s con gli
