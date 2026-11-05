@@ -126,6 +126,48 @@ senza forme.
 
 A e B si possono fare in parallelo; C dopo B; D dopo A; E con la neve.
 
+## La parte D — proposta (2026-11-05, «INIZIA LA PARTE D» dell'utente)
+
+Cosa vede chi scia: sotto la giornata, l'elenco degli impianti presi e
+delle piste fatte, con il nome e quante volte («Seggiovia Col Raiser ×3»).
+È la metrica scelta il 2026-11-04 («Sì, tutte»), l'unica rimasta.
+
+Il disegno tecnico (deciso dall'agente su delega dell'utente, da
+confermare con le risposte qui sotto):
+
+- **I dati da un estratto, non da Overpass.** Overpass rifiuta il server
+  (ADR-0154). Come l'acqua (TASK-225), un comando una tantum filtra
+  l'estratto Geofabrik con `osmium tags-filter w/aerialway
+  w/piste:type=downhill` e scrive un file compatto per comprensorio
+  (linea, nome, tipo d'impianto o colore della pista). Nessuna rete
+  quando si salva una giornata.
+- **Il confronto sul server, alla lettura della giornata salvata.** La
+  traccia è già sul server quando la giornata si salva (`runs.track`).
+  Una risalita va a un impianto se quasi tutti i suoi punti stanno entro
+  ~30 m dalla sua linea e salgono nel suo verso; una discesa va alla
+  pista su cui passa la maggior parte dei suoi punti. Senza un impianto o
+  una pista vicini, il tratto resta senza nome. La posizione non va a
+  servizi esterni.
+- **Dove si tiene.** Una colonna nuova di `runs`, scritta una volta
+  (migrazione con il numero dal Coordinatore), oppure il calcolo a ogni
+  lettura con una cache: lo decido con i tempi misurati.
+- **L'app** mostra l'elenco dove l'utente sceglie (domanda D1), coi testi
+  da approvare. Niente moduli nativi: l'impronta iOS resta 6f8bba4c.
+- **Le parti**: D1 l'estratto e il confronto (server, test sulle tracce
+  di C), D2 l'API, D3 l'app. Server, privacy e testi col sì dell'utente.
+
+Le domande, una alla volta:
+
+1. **Dove compaiono i nomi e chi li vede.** Proposta: nella scheda della
+   giornata (il post), per chi può vedere il post; la fine giornata resta
+   com'è, senza aspettare la rete.
+2. **Quali comprensori all'inizio.** Proposta: l'Italia, dall'estratto
+   che il server ha già; Austria, Svizzera, Francia dopo, con la memoria
+   del server misurata.
+3. **I testi** (titolo dell'elenco, la riga senza nomi), in cinque lingue.
+4. **La riga della privacy**: che la traccia della giornata si confronta,
+   sul server di MuW, con le linee di OpenStreetMap.
+
 ## File toccati
 
 Questa PR (documenti): `docs/tasks/TASK-375.md` (nuovo), `docs/DECISIONS.md`
