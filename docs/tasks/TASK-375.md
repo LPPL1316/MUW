@@ -230,7 +230,21 @@ dei nomi) e `packages/shared-types/src/index.ts` (`SkiNames` e `SkiUse`;
 `drawings.py` è uscito dalla lista con il sì del Coordinatore: la rotta a
 parte lascia com'è il test di contratto del dettaglio. TASK-385 A, la
 palestra, tocca `activities.py` e `index.ts` in parti diverse: chi arriva
-secondo unisce main e si riallinea.
+secondo unisce main e si riallinea. **In `main` il 2026-11-05** (#813,
+7637bbe5).
+
+Parte D3 (approvata dal Coordinatore il 2026-11-05). File nuovi:
+`apps/mobile/src/api/skiNames.ts` e `skiNames.test.ts`,
+`apps/mobile/src/social/SkiNamesList.tsx` e `SkiNamesList.test.tsx`,
+`apps/mobile/src/social/skiNamesCard.test.tsx`. File da cambiare:
+`apps/mobile/src/social/drawingsDoor.ts` (`skiNamesOf`, facoltativo, così
+le porte finte dei test di prima restano giuste),
+`apps/mobile/src/social/DrawingCard.tsx` (l'elenco per `skiing`),
+`apps/mobile/src/i18n/{it,de,fr,es}.ts` (i tre testi approvati), la riga
+della privacy approvata in `apps/mobile/src/about/content/{en,it,de,fr,es}.ts`
+e le pagine rigenerate `site/privacy/index.html` e
+`site/privacy/{it,de,fr,es}/index.html`. Documenti: `docs/STATUS.md`,
+`docs/DECISIONS.md` (ADR-0319, punto 13) e questa lista.
 
 Questa PR (documenti): `docs/tasks/TASK-375.md` (nuovo), `docs/DECISIONS.md`
 (ADR-0319), `docs/STATUS.md` (una voce), `docs/INDEX.md` (una riga).

@@ -22071,6 +22071,24 @@ dell'utente):
     attività e una giornata senza nomi danno due elenchi vuoti. Il server
     trova i riquadri nella sua cache (`install_ski_names` in
     `__main__.py`); senza i riquadri, la giornata si salva senza nomi.
+13. (D3, 2026-11-05; i testi e la riga della privacy sono dell'utente,
+    approvati con «Sì, approvati» e «Sì, approvata», il modo è deciso
+    dall'agente su delega dell'utente) Il post di una giornata di sci
+    (`skiing`) chiede i nomi quando si apre, e li mostra sotto la
+    descrizione e i tag: il titolo «Lifts and pistes», poi una riga
+    «{name} ×{times}» per ogni impianto e per ogni pista. VoiceOver legge
+    «{name}, {times} times» oppure «{name}, once», perché «×» non si legge
+    «volte».
+
+    Mentre i nomi arrivano non si vede niente, e niente si vede neanche in
+    una giornata senza nomi o se la rete non risponde: un elenco vuoto o un
+    errore non dicono niente a chi guarda. Il fondo e gli altri sport non
+    chiedono niente. La richiesta passa dalla porta dei post
+    (`skiNamesOf`), l'unico punto che ha l'account dentro la scheda, così
+    `App.tsx` resta com'è.
+
+    La riga della privacy approvata chiude la sezione sulle corse e le
+    tracce GPS, nell'app e nelle pagine del sito, che si rigenerano da lì.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
