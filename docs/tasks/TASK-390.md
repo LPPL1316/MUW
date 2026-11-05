@@ -72,6 +72,12 @@ Tocca una promessa fatta a chi ha già pubblicato:
   - Privacy, «Share»: «Il video mostra la mappa attorno alla corsa,
     partenza e arrivo compresi.»
   - Data dell'informativa: 5 novembre 2026.
+  - Due frasi in più con la stessa modifica, in attesa del sì dell'utente:
+    il paragrafo dei messaggi in «Privacy» («Un disegno è una copia del
+    percorso e arriva intero, con la sua partenza: sia una corsa che mandi,
+    come nel Feed, sia un percorso che hai pianificato.») e una frase di
+    «Help» («…e la vedono come disegno sul tuo profilo, intera.»). A e B
+    entrano insieme, dopo quel sì (Coordinatore).
 - Le pagine `site/privacy/` si rigenerano con `site/tools/make_privacy.mjs`.
 
 ## Criteri di accettazione
@@ -143,6 +149,11 @@ apps/mobile/src/about/content/fr.ts
 apps/mobile/src/about/documents.test.ts
 apps/mobile/__tests__/AppDrawings.test.tsx
 apps/mobile/src/activities/RunEndForm.test.tsx
+apps/mobile/src/about/AboutPage.test.tsx              (la data; ok del Coordinatore)
+apps/mobile/src/share/videoScene.test.ts              (ok del Coordinatore)
+apps/mobile/src/share/SharePost.test.tsx              (ok del Coordinatore)
+apps/mobile/src/share/StyleRow.test.tsx               (ok del Coordinatore)
+site/tests/privacy.test.mjs                           (la data; ok del Coordinatore)
 site/privacy/index.html
 site/privacy/it/index.html
 site/privacy/de/index.html
