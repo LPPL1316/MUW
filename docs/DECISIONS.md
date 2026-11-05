@@ -22491,6 +22491,9 @@ without a route». Ora l'header ha `HeartBadge` da 32 punti e «MuW» in
 scelta di TASK-367 di lasciare i loghi dentro le pagine; «Explore» e
 «Paddle» tengono il loro. Scartato: un logo più piccolo dell'originale per
 tenere l'header basso (l'utente ha chiesto lo stesso logo).
+
+---
+
 ## ADR-0331 — La CI salta i test sulle PR di soli documenti e cancella i run superati
 
 **Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
