@@ -160,6 +160,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-370 — L'app per Apple Watch, per tutti gli sport, anche senza telefono**
+  (2026-11-05; numeri riservati dal Coordinatore il 2026-11-04, ADR-0314 «Proposto»;
+  richiesta dell'utente «l'app per apple watch completa per tutti gli sport», scelta
+  «Subito anche senza telefono»). App SwiftUI come target dell'app, la guida riscritta in
+  Swift con gli stessi fixture del TypeScript, GPS e Salute dall'orologio, traccia al
+  telefono al rientro; l'orologio non disegna percorsi. Assorbe TASK-323 E e il battito in
+  tempo reale (169/374). Parti A (fondamenta), B (senza telefono), C (sport per sport,
+  nuoto spento fino alla prova in acqua), D (testi, privacy, build). Branch
+  `docs/TASK-370-apple-watch`, solo proposta; prossima scelta dell'utente: la build (1.0.2
+  o una sua, proposta 1.1). `tasks/TASK-370.md`.
 - **TASK-399 — Nel Feed il nome di chi ha pubblicato apre il suo profilo** (2026-11-05;
   numero dal Coordinatore; richiesta dell'utente). In `FeedPost` la riga del nome era dentro il
   pulsante della card e apriva il disegno; ora sul disegno di un iscritto è un pulsante a sé che
