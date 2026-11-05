@@ -34,7 +34,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Annotated, Any, Literal, NotRequired
+from typing import Annotated, Any, Literal, NotRequired, cast
 
 from fastapi import (
     APIRouter,
@@ -89,6 +89,7 @@ from shaperoute_api.schemas import (
     TrackFixBody,
     Walk,
 )
+from shaperoute_api.sports import API_SPORTS
 
 # Years of a run a day, and one account cannot fill the database.
 MAX_ACTIVITIES = 2_000
@@ -133,8 +134,12 @@ RunActivity = Literal[
     "running", "cycling", "paddling", "swimming", "walking", "skiing", "xc_skiing"
 ]
 # A day on the snow: recorded and shown, never planned by the engine. Its
-# speeds are no runner's nor rider's, so it gives no personal best.
-RECORD_ACTIVITIES: tuple[RunActivity, ...] = ("skiing", "xc_skiing")
+# speeds are no runner's nor rider's, so it gives no personal best. The
+# sports say it (shaperoute_api/sports, TASK-376); RunActivity stays a
+# Literal for the types, the same names (test_sport_registry_api.py).
+RECORD_ACTIVITIES: tuple[RunActivity, ...] = tuple(
+    cast(RunActivity, sport.activity) for sport in API_SPORTS if sport.record_only
+)
 # Where a run comes from (TASK-312, ADR-0272): recorded by the app, or a file
 # of another app read on the phone. Only `muw` counts for the shape game and
 # the contest.

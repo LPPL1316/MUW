@@ -26,12 +26,16 @@ from route_engine.water import WaterSource
 
 from shaperoute_api.graphs import MAX_ZONES, ZoneGraphs
 from shaperoute_api.paddling import ServerWater
+from shaperoute_api.sports import API_SPORTS
 
-# Zones kept in memory, for each activity. A bike zone for 30 km is about
-# 26 km a side (prefetch_zones.bike_zone_box), two to three times the area
-# of a foot zone: one at a time, and a bike request in another city reads
-# its zone from the disk again (docs/tasks/TASK-190.md, the memory).
-ZONES_IN_MEMORY: dict[str, int] = {"running": MAX_ZONES, "cycling": 1}
+# Zones kept in memory, for each activity on roads: each sport says it
+# (shaperoute_api/sports, TASK-376), MAX_ZONES when it does not. A bike zone
+# is two to three times the area of a foot zone: one at a time.
+ZONES_IN_MEMORY: dict[str, int] = {
+    sport.activity: sport.zones.in_memory or MAX_ZONES
+    for sport in API_SPORTS
+    if sport.zones is not None
+}
 # The activities of the contract drawn on roads, each on its network's zones;
 # the others are drawn on the water (TASK-191).
 ROAD_ACTIVITIES: tuple[str, ...] = tuple(
