@@ -2733,6 +2733,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (#765). `tasks/TASK-387.md`.
   **Chiuso il 2026-11-05**: #794 in main (`bf02766f`); vedi «Completato».
 
+- **TASK-394 — I capi che indossi: tag sui propri post con il link al
+  negozio** (2026-11-05; numero dal Coordinatore; idea dell'utente detta alla
+  sessione di TASK-384). Proposta, solo documenti: l'iscritto segna sulle foto
+  dei suoi post tipo, marca, modello e link; chi guarda apre la scheda di Style
+  e «Shop» nel browser. Riusa forma del tag, scheda e conteggi di TASK-384;
+  per ora nessun guadagno, né per MuW né per l'iscritto (il guadagno è un passo
+  di affari e di legge, solo nominato). Branch `docs/TASK-394-member-outfit-tags`;
+  la unisce il Coordinatore. Prossimo: le cinque scelte dell'utente, una alla
+  volta, poi il sì sulla proposta, i testi e l'ADR dal Coordinatore; la parte B
+  (app) dopo TASK-384 B. `tasks/TASK-394.md`.
+
 ## Completato
 
 - **TASK-384 A — L'API di MuW Style** (2026-11-05; ADR-0326). #773 in main (`fa027173`):
