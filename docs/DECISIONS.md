@@ -22979,7 +22979,16 @@ legge ancora, e l'età); mostrarlo senza un sì (scelta dell'utente, e Apple
 
 ## ADR-0321 — L'escursionismo: una rete sua, fuori dalle strade delle auto, sulla struttura degli sport
 
-**Stato**: Proposto · 2026-11-05 · TASK-377. Pilota della struttura degli
+**Stato**: Accettato · 2026-11-05 · TASK-377. Le scelte dell'utente, il
+2026-11-05, sono in `tasks/TASK-377.md`:
+
+- la rete senza strade delle auto (punto 2);
+- `sac_scale` fino a T3;
+- 1–30 km;
+- nel gioco come la camminata;
+- acceso appena pronto.
+
+Pilota della struttura degli
 sport (ADR-0320), scelta dell'utente del 2026-11-04; numeri dal
 Coordinatore. Le scelte di prodotto sono dell'utente, una alla volta, in
 `tasks/TASK-377.md`. I punti tecnici qui sotto sono decisi dall'agente su
