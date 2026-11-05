@@ -247,6 +247,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Sessione senza traccia: migrazione e post nascosti alle app vecchie
   (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
   Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
+- **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
+  «Dentro il riquadro» per peso e altezza: «Sì, task a parte». «bpm» stava piccolo e grigio a
+  destra delle caselle; ora sta dentro, dopo il numero e nella sua dimensione, in «Max heart
+  rate», «Resting heart rate» e nei limiti delle zone 1–4, e un tocco su «bpm» apre la tastiera.
+  La zona 5, che non si scrive, resta senza riquadro con «bpm» allo stesso posto. Branch
+  `fix/TASK-386-zones-bpm-box`; la unisce il Coordinatore a CI verde; OTA col sì dell'utente.
+  Solo app, nessun testo nuovo, `BodyPage.tsx` non toccato. `tasks/TASK-386.md`.
 
 - **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
   ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal

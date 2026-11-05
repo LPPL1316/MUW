@@ -22131,6 +22131,23 @@ Testi nuovi in cinque lingue (interfaccia, 91 esercizi, sette figure), una
 riga della privacy per esercizi e classifica. Il codice parte dopo la #758 e
 TASK-376 B2 e B3, con le righe di registrazione raccolte dal Coordinatore
 Sport. Server, migrazione e OTA di produzione col sì dell'utente.
+## ADR-0318, precisazione — «bpm» sta dentro il riquadro anche nelle zone del battito
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Sì, task a parte»,
+dopo «Dentro il riquadro» di TASK-383), il resto deciso dall'agente su delega
+dell'utente (TASK-386). Nella pagina «Heart rate zones» «bpm» stava a destra
+di ogni casella, piccolo e grigio. Ora sta dentro il riquadro, dopo il numero
+e nella sua stessa dimensione, come «kg» e «cm» in «Body»: in «Max heart
+rate», «Resting heart rate» e nel limite alto delle zone 1–4. Il riquadro è un
+`Pressable` e un tocco ovunque, anche su «bpm», apre la tastiera del campo. Il
+limite della zona 5, che non si scrive, resta senza riquadro, ma il numero e
+«bpm» stanno allo stesso posto delle caselle sopra (un margine pari al bordo
+che manca). Scartati: un riquadro anche sulla zona 5, che sembrerebbe da
+scrivere, e per ora un componente comune con `NumberInput` di «Body», che è di
+TASK-383 finché #759 non è in `main`.
+
+---
+
 ## ADR-0318, precisazione — L'unità di peso e altezza sta dentro il riquadro
 
 **Stato**: Attiva · 2026-11-04 · scelta dell'utente («Dentro il riquadro»),
