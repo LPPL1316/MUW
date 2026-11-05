@@ -32,9 +32,10 @@ test("the activities are those of before, in their order", () => {
   assert.deepEqual([...ACTIVITIES], BEFORE_ACTIVITIES);
   assert.deepEqual([...API_ACTIVITIES], BEFORE_ACTIVITIES);
   assert.deepEqual([...RECORD_ACTIVITIES], BEFORE_RECORD_ACTIVITIES);
+  // Then a workout at the gym, saved without a track (TASK-385 B0).
   assert.deepEqual(
     [...RUN_ACTIVITIES],
-    [...BEFORE_ACTIVITIES, ...BEFORE_RECORD_ACTIVITIES],
+    [...BEFORE_ACTIVITIES, ...BEFORE_RECORD_ACTIVITIES, "gym"],
   );
 });
 

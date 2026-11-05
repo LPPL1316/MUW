@@ -1148,6 +1148,11 @@ export const FR: Table = {
   // src/settings/sport.ts, social/PublicParts.tsx (TASK-375: a day on the snow)
   Ski: "Ski",
   "Cross-country ski": "Ski de fond",
+  // src/sports/gym.ts, src/gym/ (TASK-385 B0: a workout at the gym)
+  Gym: "Salle de sport",
+  "{n} exercises · {s} sets": "{n} exercices · {s} séries",
+  "{n} rests · avg {time} · {total} resting":
+    "{n} récups · moy. {time} · {total} de récup",
   // src/screens/ChooseScreen.tsx (TASK-375)
   "No shapes on the slopes: MuW records your day.":
     "Pas de formes sur les pistes : MuW enregistre ta journée.",

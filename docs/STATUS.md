@@ -315,6 +315,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dall'header di TASK-387 (`gym` + `trackless`), niente filtro proprio.
   Parte A (API e database, migrazione 0047) in PR da
   `feat/TASK-385-a-gym-api`; server col sì dell'utente.
+  Parte A in `main` (#812). Parte B0 (l'app legge i post senza traccia) in
+  PR da `feat/TASK-385-b0-trackless-posts`; OTA col sì, prima di B.
 
 - **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
   (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo

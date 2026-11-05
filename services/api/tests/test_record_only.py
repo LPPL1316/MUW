@@ -52,11 +52,9 @@ def _fixture() -> dict[str, Any]:
 def test_the_activities_of_a_run_are_those_of_shared_types() -> None:
     fixture = _fixture()
     assert list(RECORD_ACTIVITIES) == fixture["record_activities"]
-    # Then a workout at the gym, saved without a track (TASK-385).
-    assert list(get_args(RunActivity)) == [
-        *fixture["run_activities"],
-        *fixture["trackless_activities"],
-    ]
+    # The last, a workout at the gym, saved without a track (TASK-385).
+    assert list(get_args(RunActivity)) == fixture["run_activities"]
+    assert fixture["run_activities"][-1:] == fixture["trackless_activities"]
     assert list(get_args(RunActivity)) == [
         *API_ACTIVITIES,
         *RECORD_ACTIVITIES,
