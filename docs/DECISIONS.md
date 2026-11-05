@@ -22742,3 +22742,78 @@ ciascuno. L'ordine dei rilasci di ADR-0327 non cambia: la B0 in produzione
 prima della B.
 
 ---
+
+## ADR-0332 — Il VO₂ max nel profilo pubblico: da Salute, se no stimato dai record, solo dopo un sì
+
+**Stato**: Proposto · 2026-11-05 · TASK-397. Fonte e visibilità sono
+**scelte dell'utente**; il come è deciso dall'agente su delega
+dell'utente.
+
+**Contesto**: l'utente, 2026-11-05: «Fai il conteggio del VO2 Max, magari
+prendi le informazioni da Apple, e pubblicalo nel profilo dell'utente, come
+valore che lo possono vedere tutti». Alle due domande ha scelto: il valore
+di Apple Salute / Health Connect quando c'è, se no una stima di MuW dai
+record di corsa con la scritta «stima»; visibile a chi apre il profilo,
+solo dopo un sì esplicito, spegnibile in Impostazioni. Il VO₂ max è un dato
+di Salute: Apple (linea guida 5.1.3) vuole il consenso prima di mostrarlo ad
+altri e vieta di usarlo per la pubblicità.
+
+**Decisione**:
+1. **Il sì sta sul server**: colonna `accounts.show_vo2max boolean NOT NULL
+   DEFAULT false` (migrazione col numero del Coordinatore). Si accende e si
+   spegne con `PATCH /me` (`show_vo2max`). Spento, `PublicProfile.vo2max` è
+   `null` per tutti, anche per il titolare visto da un altro account.
+2. **Il valore di Salute resta sul telefono fino al sì.** Dopo, il telefono
+   manda solo l'ultimo campione: `PUT /me/vo2max` con `value` (ml/kg/min,
+   accettato fra 10 e 90, se no `422`), `measured_on` (il giorno, non
+   l'ora) e `source` (`apple_health` o `health_connect`). Una riga per
+   account (`vo2max_readings`), sovrascritta. `PUT` con `show_vo2max`
+   spento è `409`. Spegnere, `DELETE /me/vo2max` o cancellare l'account
+   cancellano la riga.
+3. **La stima la fa il server**, dai record di `run_bests` (ADR-0312): per
+   ogni record di corsa degli ultimi 365 giorni fra 5K e maratona (il 60K
+   resta fuori, oltre le quattro ore la formula non vale) il VDOT di Daniels
+   e Gilbert, con `v` in m/min e `t` in minuti:
+   `VO₂ = −4,60 + 0,182258·v + 0,000104·v²`,
+   `%max = 0,8 + 0,1894393·e^(−0,012778·t) + 0,2989558·e^(−0,1932605·t)`,
+   `VDOT = VO₂ / %max`. Vale il più alto, arrotondato all'intero e tenuto
+   fra 20 e 90; fuori, nessuna stima. Funzione pura in
+   `vo2max_estimate.py`, calcolata a ogni lettura: niente da tenere in pari
+   quando un record cambia o una corsa si cancella. Esempio di test: 5K in
+   20:00 → 50.
+4. **Precedenza**: il valore di Salute con `measured_on` negli ultimi 365
+   giorni; se no la stima; se no `null`. Anche il valore di Salute si mostra
+   intero, come la stima.
+5. **Forma nel profilo**: `PublicProfile.vo2max` è `null` oppure
+   `{ value, source, measured_on, from_distance }`, dove `source` è
+   `apple_health`, `health_connect` o `estimate` e `from_distance` è il nome
+   del record (`5k`, `10k`, `15k`, `half`, `30k`, `marathon`) solo per la
+   stima. Un campo in più, facoltativo: le app che non lo conoscono lo
+   ignorano (`isPublicProfile` non guarda i campi in più), quindi niente
+   valore nuovo in `X-MuW-Reads`. `GET /me` porta `show_vo2max`.
+6. **La lettura da Salute** (parte C) chiede `HKQuantityTypeIdentifierVO2Max`
+   in `toRead` a runtime, solo dopo il sì nell'app, e manda l'ultimo
+   campione al massimo una volta al giorno e dopo ogni corsa salvata. Il
+   testo di `NSHealthShareUsageDescription` è nativo e oggi parla solo del
+   battito: il VO₂ max entra nel testo unico della 1.0.2 con TASK-345 C
+   (battito) e TASK-374 C (dati del corpo), e nella stessa voce «Health» di
+   App Privacy. L'ordine fra i tre è del Coordinatore. Android (Health
+   Connect, `Vo2MaxRecord`) con TASK-321 C.
+7. **Mai per la pubblicità**: il VO₂ max non entra nei dati passati agli
+   annunci (TASK-235) né nelle liste o nelle ricerche; si vede solo aprendo
+   il profilo.
+
+**Conseguenze**: le parti A (API) e B (app, solo stima) non leggono Salute e
+possono andare con un OTA prima della 1.0.2; la C aspetta la build. Il
+profilo pubblico porta un dato di salute: la riga dell'informativa (app e
+sito, cinque lingue) entra con la parte A per la stima e si allarga con la
+C per Salute, ogni volta col sì dell'utente.
+
+**Scartato**: tenere sul server la cronologia dei valori (basta l'ultimo;
+meno dati di salute tenuti); calcolare la stima sul telefono (i record sono
+già sul server, e la stima di un profilo non dipenderebbe dal telefono di
+chi lo apre); la stima dal battito a riposo (vuole il battito, che MuW non
+legge ancora, e l'età); mostrarlo senza un sì (scelta dell'utente, e Apple
+5.1.3).
+
+---
