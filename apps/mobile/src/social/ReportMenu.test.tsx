@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react-native";
 import { Text } from "react-native";
 
 import { apiError } from "../account/testing";
+import { IslandLayer } from "../ui/IslandLayer";
 import { forgetBlocked, useBlockedNow } from "./blockedNow";
 import { BLOCK_EXPLAINED, ReportMenu } from "./ReportMenu";
 
@@ -60,6 +61,7 @@ async function show(fetchFn: jest.Mock) {
         fetchFn={fetchFn}
         apiKey={null}
       />
+      <IslandLayer />
     </>,
   );
   return { onBlocked, onSessionEnded };
@@ -77,7 +79,7 @@ test("closed, only the «…» is on the screen", async () => {
   expect(fetchFn).not.toHaveBeenCalled();
 });
 
-test("«Report» asks why, sends the reason and says thanks", async () => {
+test("«Report» asks why, sends the reason, closes and the island says thanks", async () => {
   const { fetchFn, asked } = api({ "POST /reports": done });
   await show(fetchFn);
   await open();
@@ -106,8 +108,13 @@ test("«Report» asks why, sends the reason and says thanks", async () => {
       body: { kind: "drawing", id: DRAWING, reason: "harassment" },
     },
   ]);
-  await fireEvent.press(screen.getByRole("button", { name: "Close" }));
-  expect(screen.queryByText("Thanks for telling us. We will look at it.")).toBeNull();
+  // The sheet is gone: the thanks is in the island, over the app (TASK-388).
+  expect(
+    screen.queryByRole("header", { name: "Why are you reporting this?" }),
+  ).toBeNull();
+  expect(screen.getByTestId("island")).toHaveTextContent(
+    "Thanks for telling us. We will look at it.",
+  );
 });
 
 test("«Block» asks first, saying what it does", async () => {

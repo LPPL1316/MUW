@@ -10,6 +10,7 @@ import { sessionEnded } from "../account/messages";
 import type { AccountOutcome } from "../api/accounts";
 import { blockMember, report } from "../api/moderation";
 import { t } from "../i18n";
+import { sayInIsland } from "../ui/IslandLayer";
 import { markBlocked } from "./blockedNow";
 import { useFollowsDoor } from "./followsDoor";
 import {
@@ -66,7 +67,7 @@ export function useCommentChoices(): CommentChoices | null {
       report: (comment) => {
         const send = (reason: ReportReason) => {
           void report(apiUrl, token, "comment", comment.id, reason).then((outcome) =>
-            answered(outcome, () => Alert.alert(t(REPORTED))),
+            answered(outcome, () => sayInIsland(t(REPORTED))),
           );
         };
         Alert.alert(t("Why are you reporting this?"), undefined, [

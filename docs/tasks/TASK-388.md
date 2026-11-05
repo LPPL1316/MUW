@@ -236,6 +236,11 @@ I problemi restano scritti sopra la lista; i testi non cambiano.
 - [x] Con «Riduci movimento» nessuna molla, solo la dissolvenza.
 - [x] Un solo punto dell'app: «Sent to {name}.»; `Drawings.test.tsx` lo
       trova ancora senza cambi.
+- [x] Scelta dell'utente: anche «Thanks for telling us. We will look at
+      it.» dopo ogni segnalazione andata a buon fine (post, profilo,
+      messaggio, commento). Il foglio si chiude e l'isola dice grazie; per i
+      commenti niente più `Alert` (`IslandLayer.test.tsx` e i test delle
+      segnalazioni).
 - [x] Impronta iOS invariata: `6f8bba4c`.
 - [ ] Video in `out/TASK-388/b-*` e l'ok dell'utente.
 
@@ -246,6 +251,17 @@ apps/mobile/src/ui/Island.tsx              (nuovo)
 apps/mobile/src/ui/useIsland.tsx           (nuovo)
 apps/mobile/src/ui/Island.test.tsx         (nuovo)
 apps/mobile/src/messages/SendToFriend.tsx
+apps/mobile/src/ui/IslandLayer.tsx         (nuovo)
+apps/mobile/src/ui/IslandLayer.test.tsx    (nuovo)
+apps/mobile/src/intro/Root.tsx             (una riga: <IslandLayer />)
+apps/mobile/src/social/ReportMenu.tsx
+apps/mobile/src/social/ReportMenu.test.tsx
+apps/mobile/src/social/commentChoices.ts
+apps/mobile/src/social/DrawingComments.tsx
+apps/mobile/src/social/DrawingComments.test.tsx
+apps/mobile/src/messages/MessageSheet.tsx
+apps/mobile/src/messages/Messages.test.tsx
+apps/mobile/src/profile/UserProfileReport.test.tsx
 docs/tasks/TASK-388.md
 docs/DECISIONS.md   (righe aggiunte in ADR-0329)
 docs/STATUS.md      (righe aggiunte)
@@ -260,6 +276,15 @@ nella copia del simulatore con un collegamento di prova solo locale (un
 tocco su una scheda fa dire all'isola «Sent to Ada_runs.»), perché lì
 l'account punta a un'API locale spenta e «Send to a friend» non si apre;
 nell'app il collegamento è solo su «Sent to». Aspetta l'ok dell'utente.
+
+Il 2026-11-05 l'utente ha scelto un secondo punto, «Anche «Thanks for…»».
+Il grazie di ogni segnalazione ora arriva nell'isola: `sayInIsland` parla
+nell'ultimo `IslandLayer` sullo schermo, cioè quello sopra l'app (`Root.tsx`)
+o quello nel foglio dei commenti. I test toccati sono verdi (57 + 39 di
+`src/intro`), `tsc` ed eslint puliti; solo JS, impronta invariata. Nessun
+video di questo collegamento: nella copia del simulatore l'API è spenta e
+una segnalazione non parte. L'isola è la stessa del video
+`b-island.mov`.
 
 ## Fuori scope
 

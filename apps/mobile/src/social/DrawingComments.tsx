@@ -28,6 +28,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { IslandLayer } from "../ui/IslandLayer";
 import { useBlockedNow } from "./blockedNow";
 import { useCommentChoices } from "./commentChoices";
 import { useCommentsDoor } from "./commentsDoor";
@@ -256,6 +257,8 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
             </Text>
           )}
         </View>
+        {/* «Thanks» of a report, over the sheet (TASK-388). */}
+        <IslandLayer />
       </KeyboardAvoidingView>
     </Modal>
   );

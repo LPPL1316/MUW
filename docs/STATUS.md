@@ -196,6 +196,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «Riduci movimento» solo una dissolvenza. Collegata a un solo punto:
   «Sent to {name}.» di «Send to a friend» (`SendToFriend`); dove altro
   usarla lo decide l'utente. Impronta 6f8bba4c. Video in `out/TASK-388/b-*`.
+  Scelta dell'utente (2026-11-05): anche «Thanks for telling us…» dopo ogni
+  segnalazione (post, profilo, messaggio, commento), con `sayInIsland` e un
+  `IslandLayer` sopra l'app in `Root.tsx`; stessa PR, la #786.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia

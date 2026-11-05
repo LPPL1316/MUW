@@ -28,6 +28,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { sayInIsland } from "../ui/IslandLayer";
 import { Tap } from "../ui/Tap";
 
 /** What the sheet is about: a message touched long, or blocking who wrote. */
@@ -102,7 +103,10 @@ export function MessageSheet({
   function reportFor(message: Message, reason: ReportReason) {
     setStep({ kind: "sending" });
     void report(apiUrl, token, "message", message.id, reason, options).then((outcome) =>
-      sent(outcome, () => setStep({ kind: "said", words: t(REPORTED) })),
+      sent(outcome, () => {
+        onClose();
+        sayInIsland(t(REPORTED));
+      }),
     );
   }
 

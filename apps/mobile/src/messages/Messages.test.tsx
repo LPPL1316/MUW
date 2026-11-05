@@ -13,6 +13,7 @@ import { Text } from "react-native";
 import { apiError } from "../account/testing";
 import type { AccountState } from "../account/useAccount";
 import { forgetBlocked, useBlockedNow } from "../social/blockedNow";
+import { IslandLayer } from "../ui/IslandLayer";
 import { MessageButton } from "./MessageButton";
 import { MessagesContext, useMessagesOf } from "./messagesDoor";
 import { MessagesOverlay } from "./MessagesOverlay";
@@ -77,6 +78,7 @@ function Harness({ fetchFn }: { fetchFn: jest.Mock }) {
       <MessagesRow />
       <MessageButton person={ada} />
       <MessagesOverlay fetchFn={fetchFn} apiKey={null} />
+      <IslandLayer />
     </MessagesContext.Provider>
   );
 }

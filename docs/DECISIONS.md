@@ -22425,6 +22425,17 @@ Impronta iOS invariata (6f8bba4c), nessuna dipendenza.
 4. Durata e misure sono costanti di `Island.tsx`, non in `tokens.ts`, che
    altri task stanno toccando.
 Scartato: un'isola sola in cima all'app (sotto un `Modal` non si vede).
+5. **Anche «Thanks for telling us. We will look at it.»** (scelta
+   dell'utente, 2026-11-05: «Anche «Thanks for…»»): ogni segnalazione andata
+   a buon fine, dal «…» di un post o di un profilo, da un messaggio e da un
+   commento. Il foglio si chiude e l'isola dice grazie; i problemi restano
+   nel foglio. Per i commenti l'isola prende il posto dell'`Alert`.
+   `sayInIsland` (`src/ui/IslandLayer.tsx`) parla nell'ultimo
+   `IslandLayer` montato: uno sopra l'app in `Root.tsx` (fuori dal
+   `SafeAreaProvider`, quindi prende i margini da `initialWindowMetrics`) e
+   uno nel foglio dei commenti, che resta aperto. Così `App.tsx` non si
+   tocca. Il punto 3 resta com'è: «Send to a friend» tiene il suo
+   `useIsland`, perché parla mentre il suo `Modal` è aperto.
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
 **Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente

@@ -605,8 +605,10 @@ solo sfumano.
 centro per una parola breve dopo un gesto, come la Dynamic Island. Nasce
 piccola, si allarga, poi si alza; le parole compaiono quando è aperta,
 restano un attimo, poi va via nello stesso modo. Non prende i tocchi. Con
-«Riduci movimento» compare e sparisce solo in dissolvenza. Oggi la usa solo
-«Sent to {name}.» di «Send to a friend»; dove altro, lo decide l'utente.
+«Riduci movimento» compare e sparisce solo in dissolvenza. La usano «Sent
+to {name}.» di «Send to a friend» e «Thanks for telling us. We will look at
+it.» dopo ogni segnalazione (post, profilo, messaggio, commento): il foglio
+si chiude e il grazie arriva nell'isola. Altri punti li decide l'utente.
 
 **Un header uguale su tutte le pagine**: il cuore giallo e «MuW» a
 sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
