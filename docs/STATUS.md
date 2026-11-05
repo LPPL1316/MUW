@@ -231,6 +231,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   campanella, commenti, risultati della ricerca entrano una riga dopo
   l'altra). Impronta 6f8bba4c. Video in `out/TASK-388/c-*`; merge del
   Coordinatore dopo l'ok dell'utente.
+  **C in `main`** (#803, fed77512, 2026-11-05). **C2** (branch
+  `fix/TASK-388-c2-sheet-scrim`): lo sfondo scuro dei filtri della ricerca
+  sfuma sul posto invece di salire con il foglio (`SheetModal` `dim`).
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia

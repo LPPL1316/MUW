@@ -22505,6 +22505,10 @@ dell'utente)**:
    prime 6 righe; una riga che arriva dopo (una pagina in più) entra da
    sola. Su conversazioni, campanella, commenti e risultati della ricerca;
    non su «Feed» (riga di TASK-365 in sospeso).
+5. **C2, lo sfondo che sfuma** (l'utente: «VA BENE», 2026-11-05): il punto
+   2 non resta per dopo. `SheetModal` ha `dim`, uno strato `color.scrim`
+   fermo dietro il foglio che segue la stessa molla del foglio fino a 0,5;
+   oggi lo usa solo `FilterSheet`, l'unico foglio con lo sfondo scuro.
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
 **Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente

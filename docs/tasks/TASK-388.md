@@ -1,6 +1,6 @@
 # TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso, l'«isola», fogli e liste
 
-**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); A2 in `main` (#780, 07d5833c); parte B in `main` (#786, dde301bd); parte C, fogli e liste, in PR
+**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); A2 in `main` (#780, 07d5833c); parte B in `main` (#786, dde301bd); parte C in `main` (#803, fed77512); C2, lo sfondo che sfuma, in PR
 **Fase**: 4 · **Branch**: `feat/TASK-388-a-springs-tab-bar` (parte A) ·
 **ADR**: ADR-0329 · numeri dal Coordinatore (2026-11-04)
 
@@ -372,6 +372,52 @@ banco di prova: i filtri della ricerca salgono in ~0,35 s e si fermano sul
 posto, si chiudono scendendo; i risultati «Hearts» entrano uno dopo l'altro
 (`c-sheet-frames.jpg`, `c-cascade-frames.jpg`). Approvato dall'utente il
 2026-11-05 («Sì, approvo»); merge del Coordinatore a CI verde.
+**C in `main`** il 2026-11-05 (#803, fed77512).
+
+## C2 — Lo sfondo che sfuma (2026-11-05)
+
+L'utente, alla proposta di far sfumare lo sfondo scuro invece di farlo salire
+con il foglio: «VA BENE». Branch `fix/TASK-388-c2-sheet-scrim` da `main`
+(fed77512); lista dei file approvata dal Coordinatore. Dei sette fogli solo i
+filtri della ricerca hanno uno sfondo scuro; gli altri sei sono trasparenti e
+non cambiano.
+
+- `SheetModal` ha `dim`: dietro il foglio uno strato `color.scrim` che resta
+  fermo e si scurisce fino a `SHEET_DIM_OPACITY` (0,5, il valore che aveva
+  `FilterSheet`) con la stessa molla del foglio, e si schiarisce quando
+  scende. Non prende tocchi.
+- `FilterSheet` passa `dim`; il suo `backdrop` resta solo per il tocco che
+  chiude, senza colore.
+
+### Criteri di accettazione (C2)
+
+- [x] Senza `dim` nessuno strato; con `dim` lo strato non scorre, cresce
+      solo mentre il foglio sale, mai oltre 0,5, e se ne va con il foglio
+      (`SheetModal.test.tsx`).
+- [x] Lo strato non prende tocchi: il tocco fuori dal foglio lo chiude
+      ancora.
+- [x] Solo JS, impronta `6f8bba4c` invariata; nessun colore a mano.
+- [ ] Video in `out/TASK-388/c2-*` e l'ok dell'utente.
+
+### File toccati (C2)
+
+```
+apps/mobile/src/ui/SheetModal.tsx
+apps/mobile/src/ui/SheetModal.test.tsx
+apps/mobile/src/search/FilterSheet.tsx
+docs/tasks/TASK-388.md
+docs/DECISIONS.md   (righe aggiunte in ADR-0329)
+docs/STATUS.md      (righe aggiunte)
+docs/UI.md
+```
+
+### Esito C2
+
+`SheetModal.test.tsx` 8 (3 nuovi sullo strato), `src/search` verde, `tsc` ed
+eslint puliti. Video `out/TASK-388/c2-scrim.mov` sull'app vera (ricerca, i
+filtri): lo schermo si scurisce in alto e in basso nello stesso momento, cioè
+sul posto, mentre il foglio sale (`c2-scrim-frames.jpg`); chiuso, schiarisce
+in ~0,4 s. Aspetta l'ok dell'utente.
 
 ## Fuori scope
 
