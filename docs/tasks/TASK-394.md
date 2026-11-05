@@ -1,10 +1,11 @@
 # TASK-394 — I capi che indossi: tag sui propri post con il link al negozio
 
 **Stato**: Proposta · 2026-11-05 · solo documenti, nessun codice. Le scelte
-di prodotto sono dell'utente (sotto, «Le scelte dell'utente»); il resto è
+di prodotto sono dell'utente (sotto, «Le scelte dell'utente»): le cinque
+fatte il 2026-11-05, manca il sì sulla proposta intera; il resto è
 deciso dall'agente su delega dell'utente
-**Fase**: 4 · **Branch**: `docs/TASK-394-member-outfit-tags` (questa
-proposta), poi una PR per parte
+**Fase**: 4 · **Branch**: `docs/TASK-394-member-outfit-tags` (proposta,
+#805), `docs/TASK-394-choices` (le scelte, #808), poi una PR per parte
 **Numeri**: TASK-394 assegnato dal Coordinatore (2026-11-05). L'ADR si
 chiede al Coordinatore dopo il sì dell'utente, con la parte A
 **Dipende da**: TASK-384 parte B (la scheda del prodotto nell'app, in
@@ -76,6 +77,18 @@ gli utenti), per ora solo i link.
 - VoiceOver: ogni puntino è un pulsante «{tipo}, {marca}»; l'icona dice
   quanti capi ci sono.
 
+### L'autore vede i conteggi (scelta 5)
+
+- Sotto le foto del suo post, **solo per l'autore**, una riga coi totali
+  da quando ha segnato i capi: quante volte sono stati aperti e quante
+  volte si è andati al negozio (testo da approvare, per esempio «Your items:
+  opened 15 times · 3 to the shop»). Nella scheda di ogni suo capo, gli
+  stessi due numeri per quel capo.
+- Gli altri non vedono numeri: né sul post, né nella scheda.
+- Sono totali, mai chi: il server non sa chi ha aperto un capo (sotto,
+  «Il disegno tecnico», punto 2). I tocchi dell'autore sui suoi capi non si
+  contano: l'app non li manda.
+
 ## Cosa si riusa da TASK-384
 
 | Pezzo | In Style | Per i capi degli iscritti |
@@ -106,10 +119,13 @@ in produzione.
 2. **`outfit_tag_clicks`**: come `product_tag_clicks` (tag, giorno, `opens`,
    `shops`), nient'altro.
 3. **API**: `PUT /me/activities/{key}/drawing/photos/{n}/tags` (la lista
-   intera, che sostituisce la vecchia); i capi di ogni foto in `GET
-   /drawings/{id}` e nel Feed, solo a chi vede la foto; `POST
-   /outfit-tags/{id}/open` e `/shop` come in Style. Un'app vecchia ignora il
-   campo nuovo; `X-MuW-Reads` non serve (non è un'attività nuova).
+   intera: un capo che resta, col suo `id`, si aggiorna e tiene i suoi
+   conteggi; uno che manca si toglie con i suoi); i capi di ogni foto in
+   `GET /drawings/{id}` e nel Feed, solo a chi vede la foto; `POST
+   /outfit-tags/{id}/open` e `/shop` come in Style. **I totali** (`opens`,
+   `shops`, per capo, dalla somma dei giorni) solo nella risposta per
+   l'autore (scelta 5), mai per gli altri. Un'app vecchia ignora i campi
+   nuovi; `X-MuW-Reads` non serve (non è un'attività nuova).
 4. **Il link** (scelta 1, «Ogni link https»): solo `https`, un nome di
    dominio (niente indirizzo IP, utente, password o porta), al più 1000
    caratteri. Rifiutati (`422`): gli accorciatori noti (bit.ly, tinyurl, t.co,
@@ -206,7 +222,9 @@ di oggi, dove «MuW non mostra pubblicità» resta vero.
   puoi segnare i capi che indossi (tipo, marca, modello, link); li vede chi
   vede la foto; se la corsa torna «Solo io», tornano sul telefono con la foto.
 - «Pubblicità» (il testo di TASK-384): il conteggio per giorno, senza sapere
-  chi sei, vale anche per i capi degli iscritti; il link di un iscritto va
+  chi sei, vale anche per i capi degli iscritti, e chi ha segnato un capo
+  vede quante volte è stato aperto e quante volte si è andati al negozio,
+  mai chi (scelta 5); il link di un iscritto va
   diritto al negozio, senza Awin, e da lì il negozio registra la visita con i
   suoi cookie.
 - «Segnalazioni»: «un capo segnato» fra le cose che si segnalano.
@@ -279,7 +297,9 @@ con le parole dell'utente.
    tiene senza persona, perché serviranno se arriva il guadagno.
    Alternativa: l'autore vede sul suo post quante volte sono stati aperti i
    suoi capi.
-   — *Risposta*: da chiedere.
+   — *Risposta* (2026-11-05): «L'autore del post». Totali di aperture e di
+   «Shop», sul post e nella scheda, solo per l'autore e mai chi:
+   «L'autore vede i conteggi».
 6. **La proposta intera**, poi **i testi** (app, Help, Termini e Privacy
    nelle cinque lingue), approvati a parte.
    — *Risposta*: da chiedere.
@@ -355,7 +375,8 @@ Questa PR:
 - [x] Proposta qui: cosa vede e fa l'iscritto, cosa si riusa di TASK-384,
       moderazione e abusi, Termini e Privacy, il guadagno nominato, le parti
       con i file.
-- [ ] Le scelte 1–5 hanno una risposta dell'utente scritta qui.
+- [x] Le scelte 1–5 hanno una risposta dell'utente scritta qui
+      (2026-11-05).
 - [ ] Il sì dell'utente sulla proposta intera (scelta 6).
 
 Le parti (scritti ora, controllati con loro):
@@ -372,6 +393,10 @@ Le parti (scritti ora, controllati con loro):
 - [ ] B: un capo segnato nel compositore si vede nel Feed sulla stessa foto e
       nello stesso punto, anche dopo aver riordinato le foto.
 - [ ] B: «Shop on {store}» apre il browser di sistema col link pulito.
+- [ ] A: i totali dei conteggi arrivano solo all'autore; aggiornare i capi
+      tiene i conteggi di quelli che restano.
+- [ ] B: l'autore vede i totali sul suo post e nella scheda dei suoi capi,
+      gli altri no; i tocchi dell'autore sui suoi capi non si contano.
 - [ ] B: l'impronta iOS resta quella di `main`.
 
 ## File toccati (questa PR)
