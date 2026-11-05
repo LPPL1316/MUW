@@ -160,6 +160,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
+  (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
+  anche le vecchie»; testi nuovi approvati il 2026-11-05. Parte A (API +
+  `drawing_retrack.py`, nessuna migrazione) in PR; parte B (app + testi +
+  `site/privacy`) dopo. Il ricalcolo in produzione è un comando dell'utente,
+  col suo sì, solo dopo che la privacy nuova è sul sito. `tasks/TASK-390.md`.
 - **TASK-392 — Il logo stilizzato nell'header, non più in cima a «Draw»**
   (2026-11-05; numero dal Coordinatore; ADR-0311, precisazione). L'header delle pagine della
   barra mostra il cuore su giallo (`HeartBadge`, 32 punti) e «MuW» grande in grassetto, al posto

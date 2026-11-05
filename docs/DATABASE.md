@@ -38,7 +38,7 @@ partenza: ogni task lo crea con la sua migrazione e aggiorna questo file.
 | `generated_routes` | ogni percorso dell'API (ADR-0086): richiesta, tipo (forma, parola, immagine), distanza, somiglianza, linea, **punto di partenza mostrato** (a più di 500 m da quello vero), centro, data; utente se era entrato, se no nessuno | TASK-092 |
 | `favorites` | percorso tenuto fra i preferiti: utente, chiave fatta dall'app sulla linea (unica per utente), città, forma o parola e stile, titolo, distanza chiesta e sulle strade, somiglianza, **linea intera**, data; i tratti a piedi di una parola con la penna alzata (TASK-199); i tratti con la bici a mano (TASK-206) | TASK-171, TASK-199, TASK-206 |
 | `runs` | corsa salvata: utente, chiave fatta dall'app, percorso pianificato, cosa disegna, traccia (`LineStringM`, M = secondi dall'inizio), pause, inizio, distanza, durata, punteggio, fedeltà, luogo (TASK-172); i tratti a piedi del percorso di una parola con la penna alzata (TASK-199); l'attività, a piedi, in bici o in canoa (TASK-208); il post condiviso, emoji e risultati, mai l'immagine (TASK-258); i metri saliti (TASK-324) | TASK-172, TASK-199, TASK-208, TASK-258, TASK-324 |
-| `drawings` | il disegno di una corsa: **traccia tagliata** (senza 200 m all'inizio e alla fine), titolo dato dall'utente (TASK-117); chi lo vede (tutti, chi segue, solo io) e la descrizione (TASK-208) | TASK-117, TASK-208 |
+| `drawings` | il disegno di una corsa: **traccia intera senza orari** (tagliata di 200 m all'inizio e alla fine fino ad ADR-0330), titolo dato dall'utente (TASK-117); chi lo vede (tutti, chi segue, solo io) e la descrizione (TASK-208) | TASK-117, TASK-208 |
 | `drawing_photos` | fino a 3 foto di un disegno oltre alla mappa: posto 1–3, JPEG al più 1080 px di lato, senza EXIF | TASK-208 |
 | `drawing_tags` | gli iscritti taggati in un disegno, in ordine, al più 10 | TASK-208 |
 | `reactions` | disegno, chi reagisce (coppia unica: una a testa), quale delle sei, data | TASK-119 |
@@ -206,11 +206,13 @@ Migrazione `0009_drawings.sql` (TASK-117, ADR-0159):
   (presente solo quando `public` è vero), `updated_at`. Una riga per una
   corsa che il suo iscritto ha titolato o pubblicato; una corsa mai
   toccata non ne ha, ed è privata.
-- `track` è quello che vedono gli altri: la traccia della corsa senza i
-  primi e gli ultimi 200 m lungo di lei, senza M (niente orari), tagliata
-  dall'API da `runs.track` a ogni `PUT` del disegno: la stessa corsa dà
-  la stessa linea. Assente quando non resta niente (meno di un metro):
-  allora la riga non può essere pubblica (un vincolo).
+- `track` è quello che vedono gli altri: la traccia intera della corsa,
+  partenza e arrivo compresi (ADR-0330; fino ad allora senza i primi e
+  gli ultimi 200 m), senza M (niente orari), presa dall'API da
+  `runs.track` a ogni `PUT` del disegno: la stessa corsa dà la stessa
+  linea. Assente sotto un metro: allora la riga non può essere pubblica
+  (un vincolo). Le righe tagliate di prima le ridisegna
+  `python -m shaperoute_api.drawing_retrack --apply` (TASK-390).
 - Una tabella sua, non colonne in `runs`: la riga si legge con chi ne è
   l'autore (`runs.user_id`) e cade con la corsa e con l'account. L'id del
   disegno è un altro dalla chiave della corsa, che è del telefono e unica
@@ -907,10 +909,10 @@ Migrazione `0046_style_posts.sql` (TASK-384 parte A, ADR-0326, `API.md`
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno
-nel database; il taglio dei 200 m nell'API, in metri. Una corsa salvata
-ha due linee: quella intera in `runs`, che vede solo il proprietario
-(TASK-172), e quella tagliata in `drawings`, calcolata quando la titola o
-la pubblica, che vedono gli altri (TASK-117). Gli orari stanno nella
+nel database. Una corsa salvata ha due linee: quella con gli orari in
+`runs`, che vede solo il proprietario (TASK-172), e quella senza orari in
+`drawings`, scritta quando la titola o la pubblica, che vedono gli altri
+(TASK-117; intera da ADR-0330). Gli orari stanno nella
 coordinata M della traccia intera. Il GPX si scrive al volo quando serve.
 
 ## Copie di sicurezza

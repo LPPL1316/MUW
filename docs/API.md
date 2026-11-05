@@ -2351,15 +2351,14 @@ nuovi. Il codice in `drawings.py` e `drawing_photos.py`.
   con la foto, così un telefono non mostra quella di prima dalla sua
   cache. A chi non vede il disegno, `404` «No drawing with this id.»; a
   chi lo vede, un posto vuoto è `404` «This drawing has no photo here.».
-- **Cosa vedono gli altri** (ADR-0114, punto 4): la traccia pulita della
-  corsa **senza i primi e gli ultimi 200 m lungo la traccia**
-  (`DRAWING_CUT_M`), tagliata dall'API e tenuta così nel database; senza
-  orari, senza pause, senza `walks` e **senza il percorso pianificato**,
-  che parte dalla porta di chi corre. Con meno di un metro rimasto la
-  corsa non si mostra agli altri (`everyone` o `followers`): `422
-  invalid_request`, «This run is too short to publish: its first and last
-  200 m are never shown, and nothing would be left.»; `only_me` si tiene
-  lo stesso.
+- **Cosa vedono gli altri** (ADR-0330, al posto del taglio dei 200 m di
+  ADR-0114): la traccia pulita della corsa **intera, partenza e arrivo
+  compresi**, tenuta così nel database; senza orari, senza pause, senza
+  `walks` e **senza il percorso pianificato**. Sotto un metro la corsa
+  non si mostra agli altri (`everyone` o `followers`): `422
+  invalid_request`, «This run is too short to publish.»; `only_me` si
+  tiene lo stesso. I disegni tenuti tagliati prima si ridisegnano con
+  `python -m shaperoute_api.drawing_retrack --apply` (TASK-390).
 - **Un disegno** ha `id`, `title`, `started_at`, `published_at`, `place`,
   `shape`, `word`, `style`, `route_title` (cosa disegna il percorso quando
   forma e parola non lo dicono: il `title` della corsa in «My

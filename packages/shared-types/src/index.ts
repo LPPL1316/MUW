@@ -1093,12 +1093,6 @@ export interface PeoplePage {
 export const DRAWING_TITLE_MAX_LENGTH = 60;
 
 /**
- * What the other members never see of a public run, from either end of its
- * track, in metres along it (ADR-0114, point 4): the API cuts it.
- */
-export const DRAWING_CUT_M = 200;
-
-/**
  * Who can see a drawing (TASK-208, ADR-0170): every member, the members who
  * follow its owner with the request accepted, or only its owner.
  */
@@ -1280,8 +1274,8 @@ export interface DrawingsPage {
 }
 
 /**
- * GET /drawings/{id}: one drawing whole. The track is cut: never its first
- * and last DRAWING_CUT_M metres, never its times or the planned route.
+ * GET /drawings/{id}: one drawing whole. The track is all of it, start and
+ * end too (ADR-0330), never its times or the planned route.
  */
 export interface DrawingDetail extends DrawingFields {
   author: DrawingAuthor;

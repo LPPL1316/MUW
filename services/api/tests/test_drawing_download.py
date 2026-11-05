@@ -3,14 +3,14 @@
 The app runs and writes as GPX the track of GET /drawings/{id}, nothing
 else: these are the four rules that make that safe, one test each, on that
 request. Only a drawing the reader may already see; never across a block;
-never a hidden one (TASK-121, TASK-291); always the cut track, without its
-first and last CUT_M metres and without times.
+never a hidden one (TASK-121, TASK-291); always the track without times,
+whole since ADR-0330.
 """
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
-from route_engine.geo import haversine_m, path_length_m
 from test_drawings import (
     KEY,
     client,  # noqa: F401  (the fixtures of the drawings' tests)
@@ -24,7 +24,6 @@ from test_drawings import (
 from test_moderation import block
 
 from shaperoute_api.db import Database
-from shaperoute_api.drawings import CUT_M
 
 
 def test_only_a_drawing_the_reader_may_see_gives_its_track(
@@ -68,7 +67,7 @@ def test_never_a_hidden_drawing(
     assert client.get(f"/drawings/{drawing_id}", headers=reader).status_code == 404
 
 
-def test_always_the_cut_track_without_times(
+def test_always_the_whole_track_without_times(
     client: TestClient,  # noqa: F811
 ) -> None:
     owner = signed_up(client)
@@ -82,8 +81,7 @@ def test_always_the_cut_track_without_times(
     assert all(len(point) == 2 for point in body["track"])
     assert "pauses" not in body
     track = [tuple(point) for point in body["track"]]
-    assert path_length_m(track) <= path_length_m(line) - 2 * CUT_M + 1
-    # The run starts and ends at the door: never within CUT_M of it.
-    for point in track:
-        assert haversine_m(line[0], point) >= CUT_M - 1
-        assert haversine_m(line[-1], point) >= CUT_M - 1
+    # From the start to the end, as the run was kept (ADR-0330).
+    assert track[0] == pytest.approx(line[0])
+    assert track[-1] == pytest.approx(line[-1])
+    assert len(track) == len(line)
