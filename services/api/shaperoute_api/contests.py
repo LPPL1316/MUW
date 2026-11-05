@@ -41,6 +41,10 @@ part and, with a token, the drawings of who asks entered. Three pushes: a
 new challenge, to whoever has the pushes on, when `open` opens it; its last
 days (contest_clock.py); its results at the close, to who took part. A
 contest without a theme is the one of ADR-0260, untouched.
+
+An app reads only the posts of the activities its header X-MuW-Reads says
+(reads.py, TASK-387): the others are left out of `top`, keeping their
+places, and a winner's post it does not read is `null`, as for none.
 """
 
 from __future__ import annotations
@@ -75,6 +79,7 @@ from shaperoute_api.drawings import LISTED_COLUMNS, AuthorBody, _details, _line,
 from shaperoute_api.feed import FeedPostBody
 from shaperoute_api.follows import apart_sql
 from shaperoute_api.push import Kind, Pusher, PushEvent
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.schemas import ErrorBody
 
@@ -240,7 +245,7 @@ RANKED_SQL = (
     "WITH entries AS ("
     f"SELECT {LISTED_COLUMNS}, r.user_id, u.public_id, u.username,"
     f" {counted_sql()} AS reactions, {counted_sql(HEARTS)} AS hearts,"
-    f" {counted_sql(YOUNG)} AS young"
+    f" {counted_sql(YOUNG)} AS young, r.track IS NOT NULL AS tracked"
     " FROM drawings d JOIN runs r ON r.id = d.run_id"
     " JOIN users u ON u.id = r.user_id"
     f" WHERE {PARTICIPATES_SQL} AND {ENTERED_SQL}),"
@@ -375,10 +380,14 @@ def entrants_of(rows: Sequence[DictRow]) -> int:
 
 
 def leaders(
-    conn: Connection[DictRow], contest: Contest, viewer_id: int | None
+    conn: Connection[DictRow],
+    contest: Contest,
+    viewer_id: int | None,
+    reads: Reads = EVERYTHING,
 ) -> tuple[list[DictRow], dict[str, Any]]:
     """The rows of _ranked for `viewer_id`, and the fields `top` and
-    `winner` of the contest's bodies (the winner only once closed)."""
+    `winner` of the contest's bodies (the winner only once closed), with
+    the posts `reads` shows."""
     rows = _ranked(
         conn, contest, viewer_id=viewer_id, winner_id=contest.winner_drawing_id
     )
@@ -391,15 +400,16 @@ def leaders(
                 drawing=_post(r, details),
             )
             for r in rows
-            if r["in_top"]
+            if r["in_top"] and reads.shows(r["activity"], r["tracked"])
         ],
         "winner": None,
     }
     if contest.closed_at is not None:
         won = next((r for r in rows if r["is_winner"]), None)
+        shown = won is not None and reads.shows(won["activity"], won["tracked"])
         fields["winner"] = ContestWinnerBody(
             reactions=0 if won is None else won["reactions"],
-            drawing=None if won is None else _post(won, details),
+            drawing=_post(won, details) if won is not None and shown else None,
         )
     return rows, fields
 
@@ -452,10 +462,12 @@ class Contests:
     database: Database
     now: Callable[[], datetime]
 
-    def current(self, viewer_id: int | None = None) -> ContestBody | None:
+    def current(
+        self, viewer_id: int | None = None, reads: Reads = EVERYTHING
+    ) -> ContestBody | None:
         """The contest open, or closed less than SHOWN_AFTER_CLOSE ago, as
-        `viewer_id` sees it; without an account, without `mine`. None
-        when there is none."""
+        `viewer_id` sees it with the posts `reads` shows; without an
+        account, without `mine`. None when there is none."""
         with self.database.connect() as conn:
             row = conn.execute(
                 f"SELECT {CONTEST_COLUMNS} FROM contests"
@@ -466,7 +478,7 @@ class Contests:
             if row is None:
                 return None
             contest = _contest(row)
-            rows, fields = leaders(conn, contest, viewer_id)
+            rows, fields = leaders(conn, contest, viewer_id, reads)
             entered: list[UUID] = []
             if contest.theme is not None and viewer_id is not None:
                 entered = [
@@ -844,8 +856,9 @@ def contest_routes() -> APIRouter:
     def current_contest(
         contests: Annotated[Contests, Depends(contests_of)],
         viewer: Annotated[UserBody | None, Depends(viewer_of)],
+        reads: Shown,
     ) -> ContestBody:
-        found = contests.current(None if viewer is None else viewer.id)
+        found = contests.current(None if viewer is None else viewer.id, reads)
         if found is None:
             raise AccountError(404, "no_contest", NO_CONTEST)
         return found

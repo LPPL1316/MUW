@@ -15,7 +15,9 @@ what the app opens when it is touched: push.py's data_of, the same as the
 push's. What is no longer true is left out, as in the email of the notices:
 a request withdrawn, a follow ended, a reaction taken back, a comment
 deleted or hidden, a tag removed, a drawing no longer seen, and anything
-across a block or from an account hidden from a report.
+across a block or from an account hidden from a report. Nor a row of a
+drawing of an activity the app does not read (reads.py, TASK-387): it
+would open a drawing that is not found.
 
 POST /notifications/read marks read every row up to the newest the app
 showed: one that came after stays unread. A row goes KEPT_DAYS after its
@@ -50,6 +52,7 @@ from shaperoute_api.db import Database
 from shaperoute_api.drawings import drawing_seen_sql
 from shaperoute_api.follows import PERSON_COLUMNS, PersonBody, _person, apart_sql
 from shaperoute_api.push import Kind, PushEvent, data_of, text_of
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 
 log = logging.getLogger(__name__)
 
@@ -108,51 +111,60 @@ RECORD_SQL = (
     " ON CONFLICT DO NOTHING"
 )
 
-# The events of %(reader)s since %(since)s that are still true, with who
-# acted, for a reaction its kind now, for a comment its text now.
-SHOWN_SQL = (
-    "SELECT n.id, n.kind, n.drawing_id, n.extra, n.at, n.read_at,"
-    f" {PERSON_COLUMNS}, re.kind AS reaction,"
-    " COALESCE(c.text, heart.text) AS comment_text"
-    " FROM notifications n JOIN users u ON u.id = n.actor_id"
-    " LEFT JOIN profile_photos p ON p.user_id = u.id"
-    " LEFT JOIN reactions re ON n.kind = 'reaction'"
-    " AND re.drawing_id = n.drawing_id AND re.user_id = n.actor_id"
-    " LEFT JOIN comments c ON c.id = n.comment_id"
-    # A super like's words: the comment written with it (reactions.py).
-    " LEFT JOIN LATERAL (SELECT h.text FROM comments h"
-    " WHERE re.kind = 'super_like' AND h.drawing_id = re.drawing_id"
-    " AND h.user_id = re.user_id AND h.created_at = re.created_at"
-    " AND h.hidden_at IS NULL"
-    " LIMIT 1) heart ON true"
-    " WHERE n.recipient_id = %(reader)s AND n.at > %(since)s"
-    f" AND NOT {apart_sql('%(reader)s', 'n.actor_id')}"
-    " AND CASE n.kind"
-    " WHEN 'follow_request' THEN EXISTS (SELECT 1 FROM follows f"
-    " WHERE f.follower_id = n.actor_id AND f.followed_id = n.recipient_id"
-    " AND f.status = 'pending')"
-    " WHEN 'follow_accepted' THEN EXISTS (SELECT 1 FROM follows f"
-    " WHERE f.follower_id = n.recipient_id AND f.followed_id = n.actor_id"
-    " AND f.status = 'accepted')"
-    " WHEN 'reaction' THEN re.user_id IS NOT NULL"
-    " WHEN 'comment' THEN c.id IS NOT NULL AND c.hidden_at IS NULL"
-    " WHEN 'tag' THEN EXISTS (SELECT 1 FROM drawing_tags t"
-    " WHERE t.drawing_id = n.drawing_id AND t.user_id = n.recipient_id)"
-    " ELSE true END"
-    " AND (n.drawing_id IS NULL OR EXISTS (SELECT 1 FROM drawings d"
-    " JOIN runs r ON r.id = d.run_id WHERE d.id = n.drawing_id"
-    f" AND {drawing_seen_sql('%(reader)s')}))"
-)
 
-PAGE_SQL = (
-    f"SELECT * FROM ({SHOWN_SQL}) shown"
-    " WHERE %(before)s::bigint IS NULL OR shown.id < %(before)s"
-    " ORDER BY shown.id DESC LIMIT %(limit)s"
-)
+def shown_sql(reads: Reads) -> str:
+    """The events of %(reader)s since %(since)s that are still true, of a
+    drawing `reads` shows or of none, with who acted, for a reaction its
+    kind now, for a comment its text now."""
+    return (
+        "SELECT n.id, n.kind, n.drawing_id, n.extra, n.at, n.read_at,"
+        f" {PERSON_COLUMNS}, re.kind AS reaction,"
+        " COALESCE(c.text, heart.text) AS comment_text"
+        " FROM notifications n JOIN users u ON u.id = n.actor_id"
+        " LEFT JOIN profile_photos p ON p.user_id = u.id"
+        " LEFT JOIN reactions re ON n.kind = 'reaction'"
+        " AND re.drawing_id = n.drawing_id AND re.user_id = n.actor_id"
+        " LEFT JOIN comments c ON c.id = n.comment_id"
+        # A super like's words: the comment written with it (reactions.py).
+        " LEFT JOIN LATERAL (SELECT h.text FROM comments h"
+        " WHERE re.kind = 'super_like' AND h.drawing_id = re.drawing_id"
+        " AND h.user_id = re.user_id AND h.created_at = re.created_at"
+        " AND h.hidden_at IS NULL"
+        " LIMIT 1) heart ON true"
+        " WHERE n.recipient_id = %(reader)s AND n.at > %(since)s"
+        f" AND NOT {apart_sql('%(reader)s', 'n.actor_id')}"
+        " AND CASE n.kind"
+        " WHEN 'follow_request' THEN EXISTS (SELECT 1 FROM follows f"
+        " WHERE f.follower_id = n.actor_id AND f.followed_id = n.recipient_id"
+        " AND f.status = 'pending')"
+        " WHEN 'follow_accepted' THEN EXISTS (SELECT 1 FROM follows f"
+        " WHERE f.follower_id = n.recipient_id AND f.followed_id = n.actor_id"
+        " AND f.status = 'accepted')"
+        " WHEN 'reaction' THEN re.user_id IS NOT NULL"
+        " WHEN 'comment' THEN c.id IS NOT NULL AND c.hidden_at IS NULL"
+        " WHEN 'tag' THEN EXISTS (SELECT 1 FROM drawing_tags t"
+        " WHERE t.drawing_id = n.drawing_id AND t.user_id = n.recipient_id)"
+        " ELSE true END"
+        " AND (n.drawing_id IS NULL OR EXISTS (SELECT 1 FROM drawings d"
+        " JOIN runs r ON r.id = d.run_id WHERE d.id = n.drawing_id"
+        f" AND {drawing_seen_sql('%(reader)s')}"
+        f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}))"
+    )
 
-UNREAD_SQL = (
-    f"SELECT count(*) AS n FROM ({SHOWN_SQL}) shown WHERE shown.read_at IS NULL"
-)
+
+def page_sql(reads: Reads) -> str:
+    return (
+        f"SELECT * FROM ({shown_sql(reads)}) shown"
+        " WHERE %(before)s::bigint IS NULL OR shown.id < %(before)s"
+        " ORDER BY shown.id DESC LIMIT %(limit)s"
+    )
+
+
+def unread_sql(reads: Reads) -> str:
+    return (
+        f"SELECT count(*) AS n FROM ({shown_sql(reads)}) shown"
+        " WHERE shown.read_at IS NULL"
+    )
 
 
 # --- The answers ---
@@ -270,7 +282,9 @@ class NotificationList:
             )
             conn.execute(RECORD_SQL, values)
 
-    def page(self, reader_id: int, before: int | None) -> NotificationsBody:
+    def page(
+        self, reader_id: int, before: int | None, reads: Reads = EVERYTHING
+    ) -> NotificationsBody:
         params = {
             "reader": reader_id,
             "since": self.now() - timedelta(days=KEPT_DAYS),
@@ -282,8 +296,8 @@ class NotificationList:
                 f"SELECT {language_sql('u')} AS language FROM users u WHERE u.id = %s",
                 (reader_id,),
             ).fetchone()
-            rows: list[DictRow] = conn.execute(PAGE_SQL, params).fetchall()
-            unread = conn.execute(UNREAD_SQL, params).fetchone()
+            rows: list[DictRow] = conn.execute(page_sql(reads), params).fetchall()
+            unread = conn.execute(unread_sql(reads), params).fetchone()
         said: Language = "en" if language is None else language["language"]
         shown = rows[:PAGE_SIZE]
         return NotificationsBody(
@@ -322,9 +336,10 @@ def notification_list_routes() -> APIRouter:
     def notifications(
         bell: Bell,
         user: Me,
+        reads: Shown,
         before: Annotated[int | None, Query(ge=1)] = None,
     ) -> NotificationsBody:
-        return bell.page(user.id, before)
+        return bell.page(user.id, before, reads)
 
     @router.post("/notifications/read", status_code=204)
     def read_notifications(body: ReadRequestBody, bell: Bell, user: Me) -> Response:

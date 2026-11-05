@@ -22503,6 +22503,85 @@ il caso è raro).
 
 ---
 
+## ADR-0328 — L'header `X-MuW-Reads`: le app vecchie non ricevono ciò che non sanno leggere
+
+**Stato**: Attiva · 2026-11-05 · TASK-387. La protezione è chiesta
+dall'utente («sì protezione», 2026-11-04) e il suo disegno (un header con i
+tipi in più, nessun header = app vecchia) viene dal Coordinatore; i dettagli
+qui sotto sono decisi dall'agente su delega dell'utente. Numeri dal
+Coordinatore. Usa ADR-0319 (punto 6, la tolleranza B0) e ADR-0327 (punto 3).
+
+**Contesto**: il nuoto (TASK-323), la camminata (TASK-371), lo sci e il
+fondo (TASK-375) e la palestra senza traccia (TASK-385) mettono nelle liste
+del server attività che le build di prima non conoscono. La B0 di TASK-375
+(#749) le legge come «senza attività» e le mostra come corse, ma solo nelle
+build che hanno quell'OTA; le altre rifiutano la pagina intera, e anche con
+la B0 un post di sci mostrato come una corsa è sbagliato. Contare solo
+sull'ordine degli OTA lascia esposto chi non aggiorna.
+
+**Decisione**:
+
+1. **Un header, una lista.** L'app manda `X-MuW-Reads` con i tipi in più che
+   sa mostrare, separati da virgole: `swimming`, `walking`, `skiing`,
+   `xc_skiing`, `trackless` (una corsa o un post senza traccia). Nome e
+   valori senza maiuscole/minuscole, spazi ignorati, più righe dell'header
+   unite, valori sconosciuti ignorati (un'app più nuova del server non
+   sbaglia). La lista sta in `packages/shared-types/fixtures/reads.json`,
+   letta dai test dei due lati.
+2. **Nessun header = una build vecchia**: corsa, bici e pagaia, con la
+   traccia. Un header vuoto vale lo stesso.
+3. **Una lista chiusa.** Passa un'attività delle tre di base o dichiarata;
+   tutto il resto esce, anche un'attività che il server imparerà dopo. Una
+   nuova entra con il suo valore: la palestra di TASK-385 vorrà `gym`
+   insieme a `trackless` (così si legge il punto 3 di ADR-0327). Senza
+   traccia vuol dire `runs.track` nullo: oggi nessuna corsa lo è, la
+   condizione c'è già e si prova sul frammento SQL e sul filtro in Python;
+   la prova sul database arriva con la migrazione della palestra.
+4. **Dove**: Feed (All e Following), ricerca, disegni di un profilo e
+   propri, galleria e podio dei concorsi, corse di gruppo, messaggi,
+   preferiti, «My activities», foto del profilo, lista della campanella. Un
+   dettaglio illeggibile (`GET /drawings/{id}`, `GET /group-runs/{id}`,
+   `GET /messages/{id}/drawing`) è 404, come uno che non c'è.
+5. **Come, caso per caso**: nelle liste a pagine il filtro sta nella query,
+   così una pagina resta piena e il cursore giusto. Nei concorsi i posti
+   restano quelli veri (un'app vecchia vede un buco nella numerazione, non
+   un podio falso) e un vincitore illeggibile resta con `drawing: null`, il
+   caso che la risposta ha già. In una conversazione il messaggio resta: il
+   disegno illeggibile diventa «[Drawing]» davanti al testo, come per
+   un'app senza allegati (TASK-333), perché togliere il messaggio cambierebbe
+   la conversazione.
+6. **Il frammento SQL nasce da una lista fissa** (`reads.py`), mai dal testo
+   dell'header: i valori sono letterali scelti dal server.
+7. **L'app** manda l'header in ogni richiesta di `ask` (`src/api/accounts.ts`),
+   da cui passano tutte le liste: il valore è `RUN_ACTIVITIES` meno le tre di
+   base, oggi `swimming,walking,skiing,xc_skiing`. Non `trackless`, finché
+   nessuna schermata sa mostrare un post senza linea. La tolleranza B0
+   resta, seconda linea di difesa.
+8. **L'ordine del rilascio** lo tiene il Coordinatore con l'utente: prima
+   il server con la guardia, poi l'OTA con l'header, poi il nuoto (#765).
+   Nessun passo rompe qualcosa: fra il server e l'OTA l'app di produzione è
+   trattata come vecchia e perde solo i post di nuoto salvati dalle build di
+   sviluppo (camminata e sci il server non li salva ancora: 0043 e 0044 non
+   ci sono); l'header senza la guardia non cambierebbe niente.
+
+**Fuori per scelta**: `/muw-routes` (il catalogo lo pubblica MuW: uno sport
+nuovo ci entra quando le app che lo leggono sono in produzione), `/style`
+(nessuna attività), il gioco (dà metri, non attività), reazioni e commenti
+(di un disegno che l'app vecchia non apre), le push (aprono il dettaglio, che
+dà 404), i conteggi del profilo (un'app vecchia può contare un disegno in più
+di quelli che vede).
+
+**Alternative scartate**: la versione dell'app in un header (il server
+dovrebbe sapere quale build legge cosa, e una build di sviluppo non ha un
+numero affidabile); una lista di ciò che l'app *non* legge (un'app vecchia
+non sa cosa verrà); filtrare in Python dopo la pagina (pagine corte, o vuote
+con un cursore, che un'app può leggere come la fine); togliere il messaggio
+intero.
+
+**Conseguenze**: nessuna migrazione, nessun testo nuovo, nessuna dipendenza;
+l'API cambia per chi non manda l'header. Ogni sport nuovo aggiunge un valore
+in `reads.py`, nella fixture e nell'app (dal registro di TASK-376, quando ci
+sarà). Server e OTA di produzione col sì dell'utente.
 ## ADR-0311, precisazione — Nell'header il logo di «Draw», che lascia la pagina
 
 **Stato**: Attiva · 2026-11-05 · scelta dell'utente (TASK-392); le misure

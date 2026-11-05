@@ -8,6 +8,7 @@ import {
 } from "@shaperoute/shared-types";
 
 import { apiKey, keyHeaders } from "./apiUrl";
+import { readsHeaders } from "./reads";
 import { isApiError } from "./routes";
 
 /**
@@ -94,7 +95,8 @@ export function deleteAccount(
 
 /**
  * One request of the account, or in its name with `token` (the favorites,
- * src/api/favorites.ts). Never throws.
+ * src/api/favorites.ts). Never throws. Every one says what this app reads
+ * (reads.ts, TASK-387): the API sends no activity it cannot show.
  */
 export async function ask<T>(
   baseUrl: string,
@@ -116,6 +118,7 @@ export async function ask<T>(
       headers: {
         ...(body === undefined ? {} : { "Content-Type": "application/json" }),
         ...keyHeaders(key),
+        ...readsHeaders(),
         ...(token === undefined ? {} : authHeaders(token)),
       },
       body: body === undefined ? undefined : JSON.stringify(body),

@@ -17,6 +17,7 @@ private run, not even its owner's, never across a block, the `followers`
 ones only to those who follow. The order is the last published first, the
 longest first or the one with the most reactions first; the pages follow a
 cursor of that order, so the next page neither repeats nor skips one.
+Nor a drawing of an activity the app does not read (reads.py, TASK-387).
 """
 
 from __future__ import annotations
@@ -49,6 +50,7 @@ from shaperoute_api.drawings import (
     shown_sql,
 )
 from shaperoute_api.feed import FeedBody, FeedPostBody
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 
 PAGE_SIZE = 20
@@ -294,16 +296,18 @@ class DrawingSearch:
         sort: Sort = "recent",
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
+        reads: Reads = EVERYTHING,
     ) -> DrawingSearchBody:
         """A page of the drawings `viewer_id` may see that hold every word
         of `q` (or are of a shape in `filters.named`) and pass the filters,
-        in the order `sort`."""
+        in the order `sort`; only those `reads` shows."""
         filters = filters or Filters()
         words = words_of(q)
         if words is None or len(filters.place.strip()) > MAX_QUERY_LENGTH:
             return DrawingSearchBody(posts=[], next=None)
         values: dict[str, Any] = {"viewer": viewer_id, "limit": limit + 1}
         where = _where(words, filters, values)
+        where += f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}"
         if cursor is not None:
             cursor_sort, rank, last = _after_cursor(cursor)
             if cursor_sort != sort:
@@ -361,6 +365,7 @@ def drawing_search_routes() -> APIRouter:
     def search_drawings(
         search: Annotated[DrawingSearch, Depends(search_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
         q: str = "",
         named: ShapeList = None,
         shape: ShapeList = None,
@@ -385,7 +390,7 @@ def drawing_search_routes() -> APIRouter:
             place=place,
             complexities=complexity or (),
         )
-        return search.page(user.id, q, filters, sort, limit, cursor)
+        return search.page(user.id, q, filters, sort, limit, cursor, reads)
 
     return router
 

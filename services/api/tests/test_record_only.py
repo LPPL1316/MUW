@@ -84,7 +84,9 @@ def test_a_day_on_the_snow_is_saved_and_opened_with_its_activity(
 ) -> None:
     me = signed_up(client, 1)
     saved(client, me, KEYS[0], five_k(30, activity=activity))
-    (listed,) = client.get("/me/activities", headers=me).json()["activities"]
+    (listed,) = client.get(
+        "/me/activities", headers={**me, "X-MuW-Reads": activity}
+    ).json()["activities"]
     assert listed["activity"] == activity
     whole = client.get(f"/me/activities/{KEYS[0]}", headers=me).json()
     assert whole["activity"] == activity

@@ -18,7 +18,9 @@ ADR-0195): the app shows the run turned back, so the drawing reads upright.
 A fix may carry the phone's height (TASK-324, ADR-0284): the API counts the
 metres climbed itself (run_climb.py), for the totals of the profile. It
 counts the run's bests over the distances of the profile too (TASK-368,
-personal_bests.py): deleting the run deletes them.
+personal_bests.py): deleting the run deletes them. The list leaves out the
+runs of an activity the app does not read, as its header X-MuW-Reads says
+(reads.py, TASK-387): a phone with an older app on the same account.
 """
 
 from __future__ import annotations
@@ -75,6 +77,7 @@ from shaperoute_api.game import after_run_saved, notify_unlocked
 from shaperoute_api.insights import Insights
 from shaperoute_api.personal_bests import keep_run_bests, run_bests
 from shaperoute_api.places import KEY_VARIABLE, Fetch, fetch_json
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.route_archive import count_run
 from shaperoute_api.run_climb import climb_m
@@ -723,12 +726,17 @@ class Activities:
     now: Callable[[], datetime] = now_utc
 
     def listing(
-        self, user_id: int, limit: int = PAGE_SIZE, cursor: str | None = None
+        self,
+        user_id: int,
+        limit: int = PAGE_SIZE,
+        cursor: str | None = None,
+        reads: Reads = EVERYTHING,
     ) -> ActivitiesBody:
-        """A page, the latest run first. The cursor is a place in the order,
-        not a row: the next page is right even after a run of this one was
+        """A page, the latest run first, of the activities `reads` shows;
+        `total` counts them all. The cursor is a place in the order, not a
+        row: the next page is right even after a run of this one was
         deleted, or a new one saved."""
-        where = "user_id = %s"
+        where = f"user_id = %s AND {reads.sql('activity', 'track IS NOT NULL')}"
         values: list[Any] = [user_id]
         if cursor is not None:
             where += " AND (started_at, id) < (%s, %s)"
@@ -891,10 +899,11 @@ def activity_routes() -> APIRouter:
     def list_activities(
         activities: Annotated[Activities, Depends(activities_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
     ) -> ActivitiesBody:
-        return activities.listing(user.id, limit, cursor)
+        return activities.listing(user.id, limit, cursor, reads)
 
     @router.get("/me/activities/{key}", responses={404: {"model": ErrorBody}})
     def get_activity(

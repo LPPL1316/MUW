@@ -32,7 +32,9 @@ A message of a conversation `open` to its writer may carry one attachment
 files on disk), or a drawing, a copy of the route as a favorite keeps it.
 With one the text may be empty. A request is text only (409). An app that
 does not ask `?with=attachments` reads «[Photo]», «[Video]» or «[Drawing]»
-before the text instead.
+before the text instead. So does an app that does not read the activity of
+a drawing attached, as its header X-MuW-Reads says (reads.py, TASK-387): it
+never receives the drawing, and GET /messages/{id}/drawing is 404 for it.
 """
 
 from __future__ import annotations
@@ -89,6 +91,7 @@ from shaperoute_api.follows import (
     follows_sql,
 )
 from shaperoute_api.push import PushEvent, notify
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.schemas import MAX_IMAGE_BYTES, ErrorBody, ErrorDetail
 
@@ -126,6 +129,8 @@ OLD_APP_LABELS: dict[str, str] = {
     "drawing": "[Drawing]",
 }
 WITH_ATTACHMENTS = "attachments"
+# The activity of the route a message carries (FavoriteRequestBody).
+DRAWN_ACTIVITY = "m.drawing->>'activity'"
 
 MESSAGE_EMPTY = "A message needs some words."
 MESSAGE_TOO_LONG = f"A message is at most {MAX_MESSAGE_LENGTH} characters."
@@ -501,11 +506,16 @@ def _attachment(row: DictRow, now: datetime) -> AttachmentBody | None:
 
 
 def _message(
-    row: DictRow, user_id: int, now: datetime, with_attachments: bool = True
+    row: DictRow,
+    user_id: int,
+    now: datetime,
+    with_attachments: bool = True,
+    reads: Reads = EVERYTHING,
 ) -> MessageBody:
     text: str = row["text"]
     kind = row["attachment"]
-    if kind is not None and not with_attachments:
+    unread = kind == "drawing" and not reads.shows(row["drawing_card"]["activity"])
+    if kind is not None and (unread or not with_attachments):
         # An app of before reads its text only.
         text = f"{OLD_APP_LABELS[kind]} {text}".rstrip()
     return MessageBody(
@@ -513,7 +523,7 @@ def _message(
         text=text,
         created_at=row["created_at"],
         mine=row["sender_id"] == user_id,
-        attachment=_attachment(row, now),
+        attachment=None if unread else _attachment(row, now),
     )
 
 
@@ -575,6 +585,7 @@ class Messages:
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
         with_attachments: bool = True,
+        reads: Reads = EVERYTHING,
     ) -> ConversationsBody:
         """A page of the box's conversations, the latest message first."""
         where = _box(box)
@@ -611,7 +622,7 @@ class Messages:
             conversations=[
                 ConversationBody(
                     person=_person(row),
-                    last=_message(row, user_id, now, with_attachments),
+                    last=_message(row, user_id, now, with_attachments, reads),
                     unread=news[row["conversation_id"]] > 0,
                     unread_count=news[row["conversation_id"]],
                 )
@@ -665,6 +676,7 @@ class Messages:
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
         with_attachments: bool = True,
+        reads: Reads = EVERYTHING,
     ) -> MessagesBody:
         """A page of the messages with `public_id`, the latest first; none
         before the first one is written."""
@@ -698,7 +710,9 @@ class Messages:
         return MessagesBody(
             person=person,
             state=state,
-            messages=[_message(row, user_id, now, with_attachments) for row in page],
+            messages=[
+                _message(row, user_id, now, with_attachments, reads) for row in page
+            ],
             next=_cursor(page[-1]["created_at"], page[-1]["id"]) if more else None,
             attachments=self.allowed(state),
         )
@@ -824,9 +838,12 @@ class Messages:
             kept,
         )
 
-    def drawing(self, user_id: int, message_id: str) -> FavoriteRequestBody | None:
+    def drawing(
+        self, user_id: int, message_id: str, reads: Reads = EVERYTHING
+    ) -> FavoriteRequestBody | None:
         """The drawing of a message whole, for a member who sees the
-        message; None otherwise, as for an id that is not there."""
+        message and reads its activity; None otherwise, as for an id that is
+        not there."""
         wanted = _uuid(message_id)
         if wanted is None:
             return None
@@ -835,6 +852,7 @@ class Messages:
                 "SELECT m.drawing FROM messages m JOIN conversation_members cm"
                 " ON cm.conversation_id = m.conversation_id AND cm.user_id = %s"
                 f" WHERE m.id = %s AND m.drawing IS NOT NULL AND {SEEN}"
+                f" AND {reads.sql(DRAWN_ACTIVITY)}"
                 f" AND NOT {apart_sql('cm.user_id', 'cm.other_id')}",
                 (user_id, wanted),
             ).fetchone()
@@ -940,12 +958,15 @@ def message_routes() -> APIRouter:
     def conversations(
         messages: Them,
         user: Me,
+        reads: Shown,
         box: Box = "inbox",
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
         with_: With = None,
     ) -> ConversationsBody:
-        return messages.conversations(user.id, box, limit, cursor, with_ is not None)
+        return messages.conversations(
+            user.id, box, limit, cursor, with_ is not None, reads
+        )
 
     @router.get("/me/conversations/unread")
     def unread(messages: Them, user: Me) -> UnreadBody:
@@ -956,11 +977,14 @@ def message_routes() -> APIRouter:
         public_id: str,
         messages: Them,
         user: Me,
+        reads: Shown,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
         with_: With = None,
     ) -> MessagesBody:
-        return messages.page(user.id, public_id, limit, cursor, with_ is not None)
+        return messages.page(
+            user.id, public_id, limit, cursor, with_ is not None, reads
+        )
 
     @router.post(
         "/conversations/{public_id}/messages",
@@ -1006,9 +1030,9 @@ def message_routes() -> APIRouter:
 
     @router.get("/messages/{message_id}/drawing", responses=NOT_FOUND)
     def message_drawing(
-        message_id: str, messages: Them, user: Me
+        message_id: str, messages: Them, user: Me, reads: Shown
     ) -> FavoriteRequestBody:
-        drawing = messages.drawing(user.id, message_id)
+        drawing = messages.drawing(user.id, message_id, reads)
         if drawing is None:
             raise HTTPException(404, NO_DRAWING)
         return drawing

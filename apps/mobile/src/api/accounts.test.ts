@@ -15,6 +15,7 @@ import {
   signOut,
   signUp,
 } from "./accounts";
+import { readsHeaders } from "./reads";
 
 const URL = "http://192.168.1.23:8000";
 // The fixtures are the contract: they must fit the types as they are.
@@ -47,7 +48,10 @@ test("signing up sends the contract's request and gets a session", async () => {
   const [url, init] = sent(fetchFn);
   expect(url).toBe(`${URL}/accounts`);
   expect(init.method).toBe("POST");
-  expect(init.headers).toEqual({ "Content-Type": "application/json" });
+  expect(init.headers).toEqual({
+    "Content-Type": "application/json",
+    "X-MuW-Reads": "swimming,walking,skiing,xc_skiing",
+  });
   expect(JSON.parse(init.body as string)).toEqual(signUpRequest);
 });
 
@@ -76,6 +80,7 @@ test("the token goes as a Bearer, beside the API key, and only where it is wante
   expect(init.headers).toEqual({
     Authorization: `Bearer ${TOKEN}`,
     "X-API-Key": "k3y",
+    ...readsHeaders(),
   });
   expect(init.body).toBeUndefined();
   expect(authHeaders("abc")).toEqual({ Authorization: "Bearer abc" });
@@ -94,7 +99,10 @@ test("logging out and deleting the account answer 204, with no body", async () =
   });
   expect(sent(out)[0]).toBe(`${URL}/session`);
   expect(sent(out)[1].method).toBe("DELETE");
-  expect(sent(out)[1].headers).toEqual({ Authorization: `Bearer ${TOKEN}` });
+  expect(sent(out)[1].headers).toEqual({
+    Authorization: `Bearer ${TOKEN}`,
+    ...readsHeaders(),
+  });
 
   const gone = answering(204);
   expect(await deleteAccount(URL, TOKEN, { fetchFn: gone, key: null })).toEqual({
