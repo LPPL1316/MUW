@@ -19,26 +19,27 @@ beforeEach(() => {
   jest.mocked(saveSport).mockClear();
 });
 
-test("«Run» is chosen, «Bike» (TASK-190) and «Paddle» (TASK-191) can be", async () => {
+test("«Run» is chosen, «Bike» (TASK-190), «Paddle» (TASK-191) and, in Expo Go, «Open water swim» (TASK-323) can be", async () => {
   await render(<SportSetting />);
   expect(screen.getByText("SPORT")).toBeOnTheScreen();
   expect(screen.getByRole("radio", { name: "Run" })).toBeChecked();
   expect(screen.getByRole("radio", { name: "Bike" })).not.toBeChecked();
   expect(screen.getByRole("radio", { name: "Paddle" })).not.toBeChecked();
-  expect(screen.getAllByRole("radio")).toHaveLength(3);
-  // «Open water swim» (TASK-323 C), «Walk» (TASK-371), «Ski» and
-  // «Cross-country ski» (TASK-375) and «Paragliding» (TASK-305 D0) say «Soon».
-  expect(screen.getAllByText("Soon")).toHaveLength(5);
+  expect(screen.getByRole("radio", { name: "Open water swim" })).not.toBeChecked();
+  expect(screen.getAllByRole("radio")).toHaveLength(4);
+  // «Walk» (TASK-371), «Ski» and «Cross-country ski» (TASK-375) and
+  // «Paragliding» (TASK-305 D0) say «Soon».
+  expect(screen.getAllByText("Soon")).toHaveLength(4);
 });
 
-test("«Open water swim» 🏊 says «Soon» and a tap changes nothing (TASK-323 C)", async () => {
+test("in Expo Go and preview «Open water swim» 🏊 is chosen with a tap, and kept (TASK-323)", async () => {
   await render(<SportSetting />);
-  const row = screen.getByLabelText("Open water swim, coming soon");
   expect(screen.getByText("🏊")).toBeOnTheScreen();
-  expect(screen.queryByRole("radio", { name: "Open water swim" })).toBeNull();
-  await fireEvent.press(row);
-  expect(saveSport).not.toHaveBeenCalled();
-  expect(screen.getByRole("radio", { name: "Run" })).toBeChecked();
+  expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
+  await fireEvent.press(screen.getByRole("radio", { name: "Open water swim" }));
+  expect(saveSport).toHaveBeenCalledWith("swim");
+  expect(screen.getByRole("radio", { name: "Open water swim" })).toBeChecked();
+  expect(screen.getByRole("radio", { name: "Run" })).not.toBeChecked();
 });
 
 test("«Paragliding» 🪂 is the last row, says «Soon» and a tap changes nothing (TASK-305 D0)", async () => {

@@ -1038,6 +1038,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `paddleExamples.json` a ridisegno finito; il codice di E (Apple Watch,
   ora che TASK-321 B è in `main`, sul Mac con Xcode); la prova in acqua
   (primavera 2027).
+  **Prima in preview** (2026-11-05, scelta dell'utente, «Subito in
+  preview»): branch `feat/TASK-323-swim-preview`, il nuoto acceso in Expo Go
+  e `preview` (`preview: true` in `sport.ts`), lo store ancora senza fino
+  alla #765 (ferma per TASK-387). Poi un OTA della sola `preview`. Niente
+  nuoti pubblicati nel Feed finché TASK-387 non è sul server. Aggiunta ad
+  ADR-0283.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima

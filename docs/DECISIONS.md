@@ -18583,6 +18583,30 @@ delle vibrazioni, i testi e la riga della privacy si chiedono all'utente
 quando E parte; la build e l'invio ad Apple col suo sì, dopo la prova in
 acqua.
 
+## ADR-0283 — aggiunta, il nuoto prima in preview: acceso in Expo Go e `preview`, lo store dopo TASK-387
+
+**Stato**: Attiva · 2026-11-05 · scelta dell'utente («Subito in preview»,
+alla domanda sul nuoto ancora «Soon» in preview). Aggiunta ad ADR-0283; il
+punto tecnico è deciso dall'agente su delega dell'utente.
+
+**Contesto**: l'utente aveva scelto «Subito per tutti» (PR #765, `ready:
+true`). Il Coordinatore tiene ferma la #765 finché TASK-387 (l'header
+`X-MuW-Reads`, i post di nuoto solo alle app che li sanno leggere) non è in
+`main` e sul server: la 1.0 non conosce `swimming` e il suo Feed potrebbe
+non caricarsi. Intanto in preview il nuoto restava «Soon».
+
+**Decisione dell'utente**: il nuoto **subito in Expo Go e in `preview`**;
+le build dello store restano senza, fino alla #765. Finché TASK-387 non è
+sul server, un nuoto non si pubblica nel Feed dalla preview: lo sa
+l'utente, che è chi prova.
+
+**Decisione tecnica** (deciso dall'agente su delega dell'utente): un campo
+facoltativo `preview` in `SportOption`. `shownSports` accende in Expo Go e
+`preview` le righe con `preview: true`, mentre una build dello store le lascia
+fuori come ogni sport non pronto (TASK-318). La riga del nuoto ha `ready: false,
+preview: true`; la #765 la porta a `ready: true`, e allora `preview` non
+conta più. Solo JavaScript: l'impronta iOS `6f8bba4c` non cambia.
+
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
 **Stato**: Proposta · 2026-10-28 · automatico, calorie solo per la corsa,
