@@ -1,8 +1,7 @@
 /**
  * A day on the snow (TASK-375, ADR-0319): «Ski» and «Cross-country ski» are
- * recorded without a shape, saved as "skiing" and "xc_skiing", and stay out
- * of the store builds until the server keeps them and the day has its
- * numbers (part C).
+ * recorded without a shape and saved as "skiing" and "xc_skiing". «Ski» is
+ * in the store builds since part D4; «Cross-country ski» stays out.
  */
 import { RECORD_ACTIVITIES, RUN_ACTIVITIES } from "@shaperoute/shared-types";
 
@@ -35,11 +34,11 @@ test("«Ski» ⛷️ and «Cross-country ski» 🎿 are recorded without a shape
   }
 });
 
-test("not ready yet: «Soon» in Expo Go and preview, absent from a store build", () => {
-  expect(canChoose("ski")).toBe(false);
+test("«Ski» is on, in the store builds too (D4); «Cross-country ski» still «Soon»", () => {
+  expect(canChoose("ski")).toBe(true);
   expect(canChoose("xc_ski")).toBe(false);
   const store = shownSports(ALL_SPORTS, true).map((option) => option.id);
-  expect(store).not.toContain("ski");
+  expect(store).toContain("ski");
   expect(store).not.toContain("xc_ski");
   // The day it is ready, it can be chosen like any other.
   const ready: SportOption[] = ALL_SPORTS.map((option) =>
