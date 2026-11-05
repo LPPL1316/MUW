@@ -1,6 +1,7 @@
 # TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota
 
-**Stato**: In revisione · 2026-11-05
+**Stato**: Done · 2026-11-05 · #785 in `main` (68fbd14b), nella preview del
+Coordinatore dello stesso giorno
 **Fase**: 4 · **Branch**: `fix/TASK-391-tab-landing-flash`
 **Numeri**: TASK-391, assegnato dal Coordinatore; nessun ADR nuovo, una
 precisazione sotto ADR-0323 (lo swipe di TASK-379).
@@ -47,7 +48,8 @@ quando lo swipe si fermava:
       ricostruisce: test.
 - [x] Test dei file toccati e dei vicini verdi (42 file, 300 test), `tsc`,
       lint e Prettier puliti.
-- [ ] Visto sul telefono con la preview (l'utente).
+- [ ] Visto sul telefono con la preview (l'utente); se resta uno scatto
+      nella barra in basso è di TASK-388, che lo guarda allora.
 
 ## File toccati
 
@@ -64,3 +66,11 @@ docs/STATUS.md                             (righe aggiunte)
 Solo app, nessun testo nuovo, nessuna dipendenza: impronta iOS invariata,
 arriva con un OTA. Il video dell'utente non si è potuto aprire (macOS blocca
 il file temporaneo di Foto): la causa è stata trovata nel codice.
+
+## Esito
+
+Arrivando con lo swipe, «Messages» tiene la lista mentre la rilegge e il
+profilo è già intero: niente più «Loading…» e niente pagina che si svuota.
+La #785 è unita (68fbd14b) ed è nella preview; l'OTA di produzione aspetta
+il sì dell'utente al Coordinatore. Il video non è servito (l'utente). La
+sessione di TASK-388 controlla la barra solo se sul telefono resta uno scatto.
