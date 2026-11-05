@@ -166,6 +166,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   chiama `openProfile`, come i tag (TASK-208) e i commenti (TASK-338). Solo app, nessun testo
   nuovo. Branch `fix/TASK-399-feed-author-profile`; la unisce il Coordinatore a CI verde; in
   produzione col prossimo OTA. `tasks/TASK-399.md`.
+  **Chiuso il 2026-11-05**: #830, chiusura nella stessa PR; vedi «Completato».
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
   anche le vecchie»; testi nuovi approvati il 2026-11-05. Parte A (API +
@@ -2876,6 +2877,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-399 — Nel Feed il nome di chi ha pubblicato apre il suo profilo** (2026-11-05;
+  richiesta dell'utente). #830: sul disegno di un iscritto la riga dell'iniziale e del nome è un
+  pulsante a sé, fuori da quello della card, e apre il profilo come i tag (TASK-208) e i commenti
+  (TASK-338); il resto della card apre il disegno, un esempio resta testo. Solo JS, nessun testo
+  nuovo. Prossimo, col sì dell'utente: il telefono con il prossimo OTA. `tasks/TASK-399.md`.
 - **TASK-395 — La ricerca non divide più per zero quando un percorso non disegna niente**
   (2026-11-05; seguito di TASK-297 C). #807 in main (`325f7d56`): in `optimizer.search` un
   tracciato che non disegna niente (ogni lettera con la penna alzata sul suo nodo, solo i tratti

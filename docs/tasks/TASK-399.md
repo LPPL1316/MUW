@@ -1,6 +1,6 @@
 # TASK-399 — Nel Feed il nome di chi ha pubblicato apre il suo profilo
 
-**Stato**: In review — PR `fix/TASK-399-feed-author-profile`
+**Stato**: Done — PR #830 `fix/TASK-399-feed-author-profile`
 **Fase**: 4 · **Branch**: `fix/TASK-399-feed-author-profile` · numero
 dato dal Coordinatore il 2026-11-05
 
