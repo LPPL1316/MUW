@@ -50,18 +50,21 @@ commenti, le push, i conteggi del profilo.
 
 ## Criteri di accettazione
 
-- [ ] `services/api/shaperoute_api/reads.py`: header letto senza
+- [x] `services/api/shaperoute_api/reads.py`: header letto senza
       maiuscole/minuscole, valori sconosciuti e spazi ignorati, più righe
       dell'header unite; nessun header = corsa, bici, pagaia.
-- [ ] Ogni richiesta della tabella ha un test deterministico con e senza
+- [x] Ogni richiesta della tabella ha un test deterministico con e senza
       header (`tests/test_reads_lists.py`), e il caso `trackless` ha il suo
-      test sul frammento SQL e sul filtro in Python.
-- [ ] Il frammento SQL nasce da una lista fissa, mai dal testo dell'header.
-- [ ] L'app manda `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in ogni
+      test sul frammento SQL (righe proprie in PostgreSQL) e sul filtro in
+      Python.
+- [x] Il frammento SQL nasce da una lista fissa, mai dal testo dell'header.
+- [x] L'app manda `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in ogni
       richiesta di `ask` (`src/api/reads.test.ts`, `accounts.test.ts`).
-- [ ] `packages/shared-types/fixtures/reads.json` è lo stesso per i due lati
+- [x] `packages/shared-types/fixtures/reads.json` è lo stesso per i due lati
       (un test per lato).
-- [ ] Test dei file toccati, `ruff`, `black`, `tsc` verdi in locale; CI verde.
+- [x] Test dei file toccati, `ruff`, `black`, `tsc` verdi in locale
+      (2026-11-05: 320 + 105 + 73 test dell'API, 307 di `src/api` nell'app).
+- [ ] CI verde.
 
 ## File toccati
 

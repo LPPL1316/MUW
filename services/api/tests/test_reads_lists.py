@@ -157,6 +157,54 @@ def test_the_search_finds_only_the_activities_the_app_reads(
     assert found(reading(reader)) == ["running", "skiing", "walking"]
 
 
+# --- The drawings of a profile, one's own, one alone ---
+
+
+def test_a_profile_lists_only_the_drawings_the_app_reads(
+    client: TestClient,  # noqa: F811
+) -> None:
+    me, reader = signed_up(client), other(client)
+    three_posts(client, me)
+
+    def listed(headers: Headers) -> list[str]:
+        answer = client.get(f"/users/{public_id(client, me)}/drawings", headers=headers)
+        assert answer.status_code == 200, answer.text
+        return activities_of(answer.json()["drawings"])
+
+    def mine(headers: Headers) -> list[str]:
+        answer = client.get("/me/drawings", headers=headers)
+        assert answer.status_code == 200, answer.text
+        return activities_of(answer.json()["drawings"])
+
+    assert listed(reader) == ["running"]
+    assert listed(reading(reader, "walking")) == ["running", "walking"]
+    assert listed(reading(reader)) == ["running", "skiing", "walking"]
+    assert mine(me) == ["running"]
+    assert mine(reading(me, "skiing")) == ["running", "skiing"]
+    assert mine(reading(me)) == ["running", "skiing", "walking"]
+
+
+def test_a_drawing_the_app_does_not_read_is_not_found(
+    client: TestClient,  # noqa: F811
+) -> None:
+    me, reader = signed_up(client), other(client)
+    posts = {activity: drawing for drawing, activity in three_posts(client, me).items()}
+    assert client.get(f"/drawings/{posts['running']}", headers=reader).is_success
+    for activity in ("walking", "skiing"):
+        path = f"/drawings/{posts[activity]}"
+        answer = client.get(path, headers=reader)
+        assert answer.status_code == 404
+        # As a drawing that is not there.
+        assert (
+            answer.json()
+            == client.get(
+                "/drawings/00000000-0000-0000-0000-000000000000", headers=reader
+            ).json()
+        )
+        seen = client.get(path, headers=reading(reader, activity))
+        assert seen.json()["activity"] == activity
+
+
 # --- Contests ---
 
 
