@@ -160,6 +160,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
+  (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
+  anche le vecchie»; testi nuovi approvati il 2026-11-05. Parte A (API +
+  `drawing_retrack.py`, nessuna migrazione) in PR; parte B (app + testi +
+  `site/privacy`) dopo. Il ricalcolo in produzione è un comando dell'utente,
+  col suo sì, solo dopo che la privacy nuova è sul sito. `tasks/TASK-390.md`.
 - **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,

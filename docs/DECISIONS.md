@@ -22352,3 +22352,44 @@ per il contorno che si incrocia (vorrebbe il sì dell'utente, e dopo #767
 il caso è raro).
 
 ---
+
+## ADR-0330 — Il disegno intero: gli altri vedono anche partenza e arrivo
+
+**Stato**: Attiva · 2026-11-05 · **scelta dell'utente** (TASK-390); il
+come deciso dall'agente su delega dell'utente. Cambia il punto 4 di
+ADR-0114 («senza i primi e gli ultimi 200 m») e il punto 4 di ADR-0159 (il
+taglio lungo la traccia).
+
+**Contesto**: dal 2026-10-01 gli altri vedevano una corsa pubblicata senza
+i primi e gli ultimi 200 m, perché spesso parte e finisce davanti a casa.
+L'utente, 2026-11-05: «togli la questione che il disegno non conteggia la
+prima e l'ultima parte per privacy, rovina il disegno...». Alla domanda su
+come, con tre proposte (solo i disegni nuovi; anche i vecchi; un'opzione
+nelle impostazioni), ha scelto **anche i vecchi**.
+
+**Decisione**:
+1. **La traccia intera**: `drawings.track` è la traccia pulita della corsa,
+   dal primo all'ultimo punto, sempre senza orari, pause, `walks` e
+   percorso pianificato (resta il punto 5 di ADR-0159). Sotto un metro
+   resta il `422`, ora «This run is too short to publish.».
+2. **L'app non taglia più**: immagine e video di «Share», la foto composta e
+   il disegno nei messaggi usano la traccia intera (parte B).
+3. **I disegni già pubblicati** si ridisegnano con
+   `python -m shaperoute_api.drawing_retrack --apply`, dalla corsa com'è
+   tenuta: la stessa linea che darebbe un `PUT` adesso. Uno script, non una
+   migrazione: è una scrittura sui dati di chi ha pubblicato, e parte solo
+   col sì dell'utente dopo che l'informativa nuova è sul sito (ordine del
+   Coordinatore). Senza `--apply` conta e non scrive; ripetuto non cambia
+   niente. `updated_at` non cambia, così le foto tengono il loro indirizzo;
+   `drawings.preview` è generata e segue.
+4. **I testi** (sotto «Who can see it» e nell'informativa, app e sito, in
+   cinque lingue) non promettono più il taglio e dicono che partenza e
+   arrivo si vedono; approvati dall'utente il 2026-11-05.
+
+**Scartato**: solo i disegni nuovi (proposto come più prudente: chi aveva
+pubblicato contava sul taglio; l'utente ha scelto anche i vecchi);
+un'opzione «Nascondi partenza e arrivo» (più lavoro, non scelta); una
+migrazione che ricalcola da sola al deploy (scriverebbe prima che
+l'informativa nuova sia sul sito).
+
+---
