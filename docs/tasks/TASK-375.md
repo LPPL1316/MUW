@@ -184,7 +184,18 @@ Le domande, una alla volta:
    mostrano, così non serve un testo per ogni tipo. In una giornata senza
    nomi trovati l'elenco non compare.
 4. **La riga della privacy**: che la traccia della giornata si confronta,
-   sul server di MuW, con le linee di OpenStreetMap.
+   sul server di MuW, con le linee di OpenStreetMap. **Risposta
+   dell'utente, 2026-11-05: «Sì, approvata».** Si aggiunge in fondo alla
+   sezione «Your runs and their GPS tracks» della pagina della privacy, in
+   ogni lingua. La pagina cambia con D3 e la pubblica il Coordinatore.
+
+   | Lingua | Testo |
+   |---|---|
+   | en | «For a day of skiing, our server compares the saved track with the lifts and pistes of OpenStreetMap, which it keeps itself, to write which ones you took and how many times. The names show on the post, for whoever can see it. Nothing goes to another service.» |
+   | it | «Per una giornata di sci, il nostro server confronta la traccia salvata con gli impianti e le piste di OpenStreetMap, che tiene da sé, per scrivere quali hai preso e quante volte. I nomi compaiono nel post, per chi può vederlo. Niente va a un altro servizio.» |
+   | de | «Bei einem Skitag vergleicht unser Server die gespeicherte Spur mit den Liften und Pisten von OpenStreetMap, die er selbst vorhält, um festzuhalten, welche du genommen hast und wie oft. Die Namen erscheinen im Beitrag, für alle, die ihn sehen können. Nichts geht an einen anderen Dienst.» |
+   | fr | «Pour une journée de ski, notre serveur compare la trace enregistrée aux remontées et pistes d'OpenStreetMap, qu'il garde lui-même, pour noter celles que tu as prises et combien de fois. Les noms apparaissent dans la publication, pour qui peut la voir. Rien ne part vers un autre service.» |
+   | es | «En una jornada de esquí, nuestro servidor compara la traza guardada con los remontes y pistas de OpenStreetMap, que guarda él mismo, para anotar cuáles tomaste y cuántas veces. Los nombres aparecen en la publicación, para quien pueda verla. Nada va a otro servicio.» |
 
 ## File toccati
 
