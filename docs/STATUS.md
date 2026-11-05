@@ -194,6 +194,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   browser, la lente «Style» con i filtri, l'interruttore in «Settings», Termini e Privacy nuovi;
   tutto solo quando GET /style ha un post. Branch `feat/TASK-384-b-style-app`. Prossimo: la C, i
   primi 6 post dalle foto di Gemini dell'utente. `tasks/TASK-384.md`.
+  **Parte B chiusa il 2026-11-05**: #809 in main (726791ff). Copia della privacy sul sito e OTA
+  col sì dell'utente; il foglio passa a `ui/SheetModal` con TASK-388.
 - **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
   l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
   brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
