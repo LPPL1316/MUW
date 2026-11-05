@@ -4,6 +4,7 @@ import { StyleSheet, View } from "react-native";
 import App from "../../App";
 import { UnlockLayer } from "../game/UnlockLayer";
 import { color } from "../theme/tokens";
+import { IslandLayer } from "../ui/IslandLayer";
 import { Tour } from "../tour/Tour";
 import { useTour } from "../tour/useTour";
 import { AppBoundary } from "./AppBoundary";
@@ -20,7 +21,8 @@ import { SavedLogoLayer } from "./SavedLogo";
  * anew, without the animation again. After the animation, the first time
  * and whenever the guide asks, the tour of the app (TASK-266). Under the
  * logo after «Save», the card of a shape the run unlocked (TASK-296): it
- * waits for the logo to go. When the animation ends, what the app does
+ * waits for the logo to go. Over the app, the island of `sayInIsland`
+ * (TASK-388). When the animation ends, what the app does
  * ahead of the user may start (TASK-306, firstPage.ts).
  */
 export function Root() {
@@ -32,6 +34,7 @@ export function Root() {
         <App />
         <UnlockLayer />
         <SavedLogoLayer />
+        <IslandLayer />
         {!intro && tour.on !== null ? (
           <Tour key={tour.on.key} lockSeconds={tour.on.lockSeconds} onEnd={tour.end} />
         ) : null}

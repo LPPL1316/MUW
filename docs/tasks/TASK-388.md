@@ -1,6 +1,6 @@
 # TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso, l'«isola», fogli e liste
 
-**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); A2, la barra più fluida, in PR; prossima la B
+**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); A2 in `main` (#780, 07d5833c); parte B, l'isola, in PR
 **Fase**: 4 · **Branch**: `feat/TASK-388-a-springs-tab-bar` (parte A) ·
 **ADR**: ADR-0329 · numeri dal Coordinatore (2026-11-04)
 
@@ -209,6 +209,82 @@ Fatto nel codice e nei test (`jest src/tabs src/ui src/tour`: 216 verdi,
 `tsc` pulito). Nei video del simulatore la capsula non si ferma più a metà
 mentre Explore si costruisce e non supera Feed al ritorno. Aspetta l'ok
 dell'utente sui video, poi il merge del Coordinatore.
+In `main` il 2026-11-05 (#780, 07d5833c); l'anteprima per il telefono la
+pubblica il Coordinatore.
+
+## Parte B — L'isola (2026-11-05)
+
+Branch `feat/TASK-388-b-island` da `main`; lista dei file mandata al
+Coordinatore prima del codice. Fatto così (ADR-0329, «Parte B»):
+`src/ui/Island.tsx` (la capsula, `color.scrim` con le parole in `onScrim`)
+e `src/ui/useIsland.tsx` (`const [island, say] = useIsland()`). Nasce al
+30% × 75%, si allarga, 120 ms dopo si alza, altri 120 ms e compaiono le
+parole, sulla molla `island`; resta 1,8 s e si chiude nell'ordine inverso.
+Un messaggio nuovo mentre è aperta cambia le parole senza richiuderla. Con
+«Riduci movimento» solo una dissolvenza, alla sua misura.
+
+Il punto scelto: «Sent to {name}.» di «Send to a friend» (`SendToFriend`).
+I problemi restano scritti sopra la lista; i testi non cambiano.
+
+### Criteri di accettazione (B)
+
+- [x] Nasce piccola, prima si allarga, poi si alza, poi le parole; mai oltre
+      il 3% della sua misura (`Island.test.tsx`).
+- [x] Resta un momento, poi si chiude (prima le parole) e sparisce.
+- [x] Un messaggio nuovo mentre è aperta: nessun salto, parole nuove, tempo
+      di nuovo da capo.
+- [x] Con «Riduci movimento» nessuna molla, solo la dissolvenza.
+- [x] Un solo punto dell'app: «Sent to {name}.»; `Drawings.test.tsx` lo
+      trova ancora senza cambi.
+- [x] Scelta dell'utente: anche «Thanks for telling us. We will look at
+      it.» dopo ogni segnalazione andata a buon fine (post, profilo,
+      messaggio, commento). Il foglio si chiude e l'isola dice grazie; per i
+      commenti niente più `Alert` (`IslandLayer.test.tsx` e i test delle
+      segnalazioni).
+- [x] Impronta iOS invariata: `6f8bba4c`.
+- [ ] Video in `out/TASK-388/b-*` e l'ok dell'utente.
+
+### File toccati (B)
+
+```
+apps/mobile/src/ui/Island.tsx              (nuovo)
+apps/mobile/src/ui/useIsland.tsx           (nuovo)
+apps/mobile/src/ui/Island.test.tsx         (nuovo)
+apps/mobile/src/messages/SendToFriend.tsx
+apps/mobile/src/ui/IslandLayer.tsx         (nuovo)
+apps/mobile/src/ui/IslandLayer.test.tsx    (nuovo)
+apps/mobile/src/intro/Root.tsx             (una riga: <IslandLayer />)
+apps/mobile/src/social/ReportMenu.tsx
+apps/mobile/src/social/ReportMenu.test.tsx
+apps/mobile/src/social/commentChoices.ts
+apps/mobile/src/social/DrawingComments.tsx
+apps/mobile/src/social/DrawingComments.test.tsx
+apps/mobile/src/messages/MessageSheet.tsx
+apps/mobile/src/messages/Messages.test.tsx
+apps/mobile/src/profile/UserProfileReport.test.tsx
+docs/tasks/TASK-388.md
+docs/DECISIONS.md   (righe aggiunte in ADR-0329)
+docs/STATUS.md      (righe aggiunte)
+docs/UI.md
+```
+
+### Esito B
+
+Fatto nel codice e nei test (`Island.test.tsx` 5, `Drawings.test.tsx` 10,
+`tsc` ed eslint puliti). Il video `out/TASK-388/b-island.mov` è girato
+nella copia del simulatore con un collegamento di prova solo locale (un
+tocco su una scheda fa dire all'isola «Sent to Ada_runs.»), perché lì
+l'account punta a un'API locale spenta e «Send to a friend» non si apre;
+nell'app il collegamento è solo su «Sent to». Aspetta l'ok dell'utente.
+
+Il 2026-11-05 l'utente ha scelto un secondo punto, «Anche «Thanks for…»».
+Il grazie di ogni segnalazione ora arriva nell'isola: `sayInIsland` parla
+nell'ultimo `IslandLayer` sullo schermo, cioè quello sopra l'app (`Root.tsx`)
+o quello nel foglio dei commenti. I test toccati sono verdi (57 + 39 di
+`src/intro`), `tsc` ed eslint puliti; solo JS, impronta invariata. Nessun
+video di questo collegamento: nella copia del simulatore l'API è spenta e
+una segnalazione non parte. L'isola è la stessa del video
+`b-island.mov`.
 
 ## Fuori scope
 

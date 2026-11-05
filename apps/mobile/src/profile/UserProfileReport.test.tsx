@@ -6,6 +6,7 @@ import { fireEvent, render, screen } from "@testing-library/react-native";
 import { answers } from "../account/testing";
 import type { AccountState } from "../account/useAccount";
 import { forgetBlocked } from "../social/blockedNow";
+import { IslandLayer } from "../ui/IslandLayer";
 import { UserProfilePage } from "./UserProfilePage";
 
 jest.mock(
@@ -24,13 +25,16 @@ const profile = { ...publicProfile, public_id: ID, follow: "none" } as PublicPro
 
 async function show(fetchFn: jest.Mock) {
   await render(
-    <UserProfilePage
-      apiUrl={URL}
-      account={{ state: signedIn, sessionEnded: jest.fn() }}
-      publicId={ID}
-      fetchFn={fetchFn}
-      apiKey={null}
-    />,
+    <>
+      <UserProfilePage
+        apiUrl={URL}
+        account={{ state: signedIn, sessionEnded: jest.fn() }}
+        publicId={ID}
+        fetchFn={fetchFn}
+        apiKey={null}
+      />
+      <IslandLayer />
+    </>,
   );
 }
 
