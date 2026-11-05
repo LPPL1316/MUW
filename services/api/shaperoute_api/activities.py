@@ -131,7 +131,14 @@ Key = Annotated[str, Path(pattern=KEY_PATTERN)]
 # What a run was (TASK-208): the activities of the API, walking.API_ACTIVITIES,
 # and those recorded without a shape, RECORD_ACTIVITIES (TASK-375, ADR-0319).
 RunActivity = Literal[
-    "running", "cycling", "paddling", "swimming", "walking", "skiing", "xc_skiing"
+    "running",
+    "cycling",
+    "paddling",
+    "swimming",
+    "walking",
+    "skiing",
+    "xc_skiing",
+    "gym",
 ]
 # A day on the snow: recorded and shown, never planned by the engine. Its
 # speeds are no runner's nor rider's, so it gives no personal best. The
@@ -139,6 +146,11 @@ RunActivity = Literal[
 # Literal for the types, the same names (test_sport_registry_api.py).
 RECORD_ACTIVITIES: tuple[RunActivity, ...] = tuple(
     cast(RunActivity, sport.activity) for sport in API_SPORTS if sport.record_only
+)
+# A workout at the gym (TASK-385, ADR-0327): saved without a track by
+# gym_sessions.py, never by PUT /me/activities/{key}, which wants one.
+TRACKLESS_ACTIVITIES: tuple[RunActivity, ...] = tuple(
+    cast(RunActivity, sport.activity) for sport in API_SPORTS if sport.trackless
 )
 # Where a run comes from (TASK-312, ADR-0272): recorded by the app, or a file
 # of another app read on the phone. Only `muw` counts for the shape game and
@@ -255,6 +267,8 @@ class ActivityRequestBody(BaseModel):
             raise ValueError("rotation_deg is the route's: there is none")
         if self.source != MUW and self.points is not None:
             raise ValueError("a run from another app followed no route of MuW")
+        if self.activity in TRACKLESS_ACTIVITIES:
+            raise ValueError("a workout at the gym is saved by /me/gym-sessions")
         # As POST /track-scores checks them (schemas.py).
         problem = walks_problem(self.walks, len(self.points or []))
         if problem is not None:
@@ -630,7 +644,10 @@ def _track_wkt(track: Sequence[TrackPoint]) -> str:
     )
 
 
-def _line(geojson: str) -> list[LatLon]:
+def _line(geojson: str | None) -> list[LatLon]:
+    # A workout at the gym has no track (TASK-385): no line.
+    if geojson is None:
+        return []
     coordinates: list[list[float]] = json.loads(geojson)["coordinates"]
     return [(lat, lon) for lon, lat in coordinates]
 

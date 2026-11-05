@@ -1125,7 +1125,10 @@ Il server toglie ciò che l'header non dichiara da `GET /feed`,
 `GET /conversations/{id}/messages` un disegno illeggibile diventa
 «[Drawing]» davanti al testo e `attachment` è `null`. `GET /drawings/{id}`,
 `GET /group-runs/{id}` e `GET /messages/{id}/drawing` rispondono `404`.
-L'app di oggi manda `swimming,walking,skiing,xc_skiing`.
+L'app di oggi manda `swimming,walking,skiing,xc_skiing`. Un allenamento in
+palestra (`gym`, TASK-385) non ha traccia: passa solo a chi dice **sia**
+`gym` **sia** `trackless`; l'app lo dirà con la parte B0, insieme alle
+schermate che mostrano un post senza linea.
 
 ### Una parola invece di una forma (TASK-056)
 
@@ -2751,6 +2754,52 @@ codice in `style_posts.py`, `style_links.py` e `style_import.py`.
   di `tests/fixtures/style/MS-001.json`, un campo in più o in meno è un
   errore, e un post già caricato non si sovrascrive. `--hide MS-001` lo
   nasconde.
+
+### Gym (TASK-385, ADR-0327)
+
+Un allenamento in palestra: una corsa dell'attività `gym` **senza traccia**,
+con le sue serie. Token richiesto; tipi in `shared-types/src/gym.ts`
+(`GymSessionRequest`, `GymSession`, `GymSet`, `GymExercises`), esempio in
+`fixtures/gym-session.json`, catalogo degli esercizi in
+`fixtures/gym-exercises.json` (lo stesso di `gym_catalog.py` e di
+`docs/sports/gym.md`); il codice in `gym_sessions.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `PUT /me/gym-sessions/{key}` | salva l'allenamento: inizio, fine, pause, recuperi sommati, serie | `201` `GymSession` la prima volta, poi `200` com'era; `409` se la chiave è di una corsa |
+| `GET /me/gym-sessions/{key}` | l'allenamento del suo proprietario | `200` `GymSession`, o `404` |
+| `PUT /me/gym-sessions/{key}/show-exercises` | `{"show": false}`: il post non mostra gli esercizi | `204`, o `404` |
+| `GET /drawings/{id}/exercises` | gli esercizi del post, per chi vede il disegno | `200` `GymExercises`, o `404` |
+
+- **Il tempo lo conta il server**: da `started_at` a `ended_at` meno le
+  pause (sovrapposte contate una volta); i recuperi restano dentro. Un
+  allenamento dura al più 24 ore; serie e pause stanno dentro di lui
+  (`at_s`, `from_s`, `to_s` in secondi dall'inizio). Fino a 500 serie.
+- **Una serie ha solo i campi del suo tipo**: `load` `reps` e `load_kg`
+  (per mano col manubrio), `bodyweight` `reps` e, se c'è, `load_kg` della
+  zavorra, `timed` `duration_s`, `cardio` `duration_s` e quello che la sua
+  macchina mostra (`distance_m`, `speed_kmh`, `incline_pct`, `level`,
+  `floors`, come dice il catalogo). Un esercizio del catalogo ha
+  `exercise`, uno scritto da chi si allena ha `name` (1–40 caratteri): mai
+  tutti e due. Un campo in più, un tipo diverso da quello del catalogo o
+  una chiave che il catalogo non ha sono `422`. Le risposte lasciano fuori
+  i campi vuoti.
+- **Pubblicato come ogni corsa**, con `PUT /me/activities/{key}/drawing`:
+  senza linea (`track: []`, `track_preview: []`). Il disegno non cambia
+  una corsa in un allenamento in palestra né il contrario (`422`).
+- **Solo a chi lo sa leggere**: `GET /me/activities`, il Feed, la ricerca,
+  i profili, `GET /drawings/{id}` e `GET /drawings/{id}/exercises` lo
+  mostrano solo con `X-MuW-Reads` che dice `gym` e `trackless`; senza,
+  come se non ci fosse (`404` sul dettaglio).
+- **Gli esercizi del post** si vedono finché il proprietario non li
+  nasconde («Show exercises»); il proprietario li vede sempre. Un disegno
+  che l'altro non vede è `404`, come uno che non c'è.
+- **Fuori per costruzione**: niente record personali, gioco delle forme,
+  GPX, Strava (`POST /me/activities/{key}/strava` è `422`, non ha una
+  traccia da caricare). `PUT /me/activities/{key}` con `activity: "gym"`
+  è `422`: un allenamento in palestra si salva solo qui.
+- Cancellare la corsa (`DELETE /me/activities/{key}`) o l'account cancella
+  le serie. Senza il database, `503`.
 
 ### Drawing search (TASK-344, ADR-0297)
 

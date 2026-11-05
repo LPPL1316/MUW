@@ -1,20 +1,89 @@
 {
   "started_at": "2026-11-05T17:00:00Z",
   "ended_at": "2026-11-05T18:05:00Z",
-  "pauses": [{"from_s": 1800, "to_s": 2100}],
+  "pauses": [{ "from_s": 1800, "to_s": 2100 }],
   "rests": 6,
   "rest_s": 540,
   "show_exercises": true,
   "sets": [
-    {"exercise": "treadmill", "kind": "cardio", "duration_s": 600, "distance_m": 1600, "speed_kmh": 9.6, "incline_pct": 1, "at_s": 600, "live": true},
-    {"exercise": "bench_press", "kind": "load", "reps": 10, "load_kg": 60, "at_s": 900, "live": true},
-    {"exercise": "bench_press", "kind": "load", "reps": 8, "load_kg": 70, "at_s": 1080, "live": true},
-    {"exercise": "bench_press", "kind": "load", "reps": 5, "load_kg": 80, "at_s": 1260, "live": true},
-    {"exercise": "lat_pulldown", "kind": "load", "reps": 10, "load_kg": 55, "at_s": 1500, "live": true},
-    {"exercise": "pull_up", "kind": "bodyweight", "reps": 6, "at_s": 2400, "live": true},
-    {"exercise": "dips", "kind": "bodyweight", "reps": 8, "load_kg": 10, "at_s": 2700, "live": true},
-    {"exercise": "plank", "kind": "timed", "duration_s": 90, "at_s": 3000, "live": true},
-    {"name": "Sled push", "kind": "timed", "duration_s": 45, "at_s": 3300, "live": true},
-    {"exercise": "dumbbell_curl", "kind": "load", "reps": 12, "load_kg": 12.5, "at_s": 3900, "live": false}
+    {
+      "exercise": "treadmill",
+      "kind": "cardio",
+      "duration_s": 600,
+      "distance_m": 1600,
+      "speed_kmh": 9.6,
+      "incline_pct": 1,
+      "at_s": 600,
+      "live": true
+    },
+    {
+      "exercise": "bench_press",
+      "kind": "load",
+      "reps": 10,
+      "load_kg": 60,
+      "at_s": 900,
+      "live": true
+    },
+    {
+      "exercise": "bench_press",
+      "kind": "load",
+      "reps": 8,
+      "load_kg": 70,
+      "at_s": 1080,
+      "live": true
+    },
+    {
+      "exercise": "bench_press",
+      "kind": "load",
+      "reps": 5,
+      "load_kg": 80,
+      "at_s": 1260,
+      "live": true
+    },
+    {
+      "exercise": "lat_pulldown",
+      "kind": "load",
+      "reps": 10,
+      "load_kg": 55,
+      "at_s": 1500,
+      "live": true
+    },
+    {
+      "exercise": "pull_up",
+      "kind": "bodyweight",
+      "reps": 6,
+      "at_s": 2400,
+      "live": true
+    },
+    {
+      "exercise": "dips",
+      "kind": "bodyweight",
+      "reps": 8,
+      "load_kg": 10,
+      "at_s": 2700,
+      "live": true
+    },
+    {
+      "exercise": "plank",
+      "kind": "timed",
+      "duration_s": 90,
+      "at_s": 3000,
+      "live": true
+    },
+    {
+      "name": "Sled push",
+      "kind": "timed",
+      "duration_s": 45,
+      "at_s": 3300,
+      "live": true
+    },
+    {
+      "exercise": "dumbbell_curl",
+      "kind": "load",
+      "reps": 12,
+      "load_kg": 12.5,
+      "at_s": 3900,
+      "live": false
+    }
   ]
 }
