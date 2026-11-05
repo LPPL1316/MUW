@@ -23225,3 +23225,75 @@ legate dai fixture; ogni correzione all'orologio richiede una build per
 l'App Store; serve un Apple Watch vero per le prove.
 
 ---
+
+## ADR-0322 — Gravel e MTB: la bici di oggi per il gravel, una rete sua per la MTB
+
+**Stato**: Proposto · 2026-11-05 · TASK-378. Numeri dal Coordinatore
+(2026-11-04). Le scelte di prodotto sono dell'utente, una alla volta, in
+`tasks/TASK-378.md`. I punti tecnici qui sotto sono decisi dall'agente su
+delega dell'utente, e restano proposti finché le scelte non ci sono.
+
+**Contesto**: la bici (`cycling`, ADR-0153, ADR-0167) pedala già ogni
+`track`. Un `path` lo pedala solo con `bicycle=designated`: negli altri casi
+lo fa a piedi con la bici, a 6 volte il costo. Il banco ha provato due reti
+senza toccare il motore (`docs/sports/gravel.md`):
+
+- **`gravel`** (`track` fino a grade3, sentieri con la bici ammessa fino a
+  `mtb:scale` 1): 54 percorsi su 54, come la bici. Lo sterrato è lo stesso,
+  22,7% contro 23,3%: i percorsi non cambiano.
+- **`mtb`** (in più ogni `track` e i sentieri non chiusi alle bici fino a
+  `mtb:scale` 2, o `sac_scale` T2 se non lo dicono): 49 su 54, 24 buoni
+  (la bici 23). A piedi con la bici scende dal 4,9% all'1,4% dei km. In
+  montagna si pedala il 24–39% di rete in più. Le 5 mancate sono a 30 km,
+  quattro stelle e un cuore, e sbagliano la distanza di 2,0–2,8 km.
+- **Lo sterrato lo decide il posto**: 35–45% a Fiemme e ad Asiago, 3–13% a
+  Milano e in pianura, con tutte le reti. Un metro d'asfalto che costa 2 o
+  4 volte lo alza di pochi punti (prova a Trento).
+
+**Decisione (proposta)**:
+
+1. **Gravel si disegna come la bici**, sulla rete bike, come la camminata
+   si disegna come una corsa (ADR-0315): l'API offre l'attività e chiede al
+   motore una bici. Nessuna rete nuova e nessun file nel motore fuori
+   dall'impronta. Le distanze e i nomi sono suoi.
+2. **MTB ha una rete nuova `mtb`** (`route_engine/networks/mtb.py`): la
+   rete bike con le regole di `mtb` qui sopra. I file di cache sono suoi
+   (`mtb_*`) e il grafo dice `network: mtb`. Un'attività nuova in
+   `activities/`, nei file nuovi di ogni strato, con una riga per registro
+   (`docs/sports/COME-AGGIUNGERE.md`).
+3. **La rete `mtb` tiene i sensi unici e i tratti a piedi come la bici.**
+   Oggi `network.one_way_streets` e i controlli di `validation.usability`
+   riconoscono solo il nome `bike`: la parte A li porta a una proprietà
+   della rete. È una deroga alla ricetta, da scrivere in `CONDIVISO.md`.
+4. **L'impronta del motore cambia** con la rete `mtb`: server, migrazione
+   (numero dal Coordinatore) e notte degli esempi solo col sì dell'utente.
+   Se arriva dopo 377-A, che porta già `__main__.py` e `anchored.py` a
+   `OsmnxSource.for_activity`, quel punto non si ripete.
+5. **Sul telefono**: un `SportProfile` per sport, con Apple `.cycling` (13)
+   e Health Connect `EXERCISE_TYPE_BIKING` (8), perché nessuno dei due ha
+   un tipo gravel o MTB (da verificare sulle librerie). Strava
+   `GravelRide` e `MountainBikeRide`. L'energia segue il Compendium, come
+   la bici. Solo JavaScript: l'impronta iOS non si muove.
+6. **Niente preferenza per lo sterrato nel costo**: cambierebbe la ricerca
+   del motore per poco sterrato in più.
+
+**Restano all'utente**:
+
+- uno sport o due;
+- nome ed emoji;
+- la rete;
+- le distanze (il banco ha provato 10–30 km);
+- il limite `mtb:scale`;
+- se conta nel gioco e nei record;
+- i testi;
+- quando si accende.
+
+**Alternative**:
+
+- **Una rete `gravel` sua**: misurata, dà i percorsi della bici. Costerebbe
+  un'altra cache e un altro download per zona, senza nulla in più.
+- **Gravel senza strade principali** (via `primary` e `secondary`): a
+  Trento a piedi con la bici sale al 10,3%, e la somiglianza scende.
+- **Preferire lo sterrato col costo degli archi**: vedi il punto 6.
+- **Un solo sport «Gravel/MTB» sulla rete `mtb`**: possibile, è la prima
+  domanda all'utente.

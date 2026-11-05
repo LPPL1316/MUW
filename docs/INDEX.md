@@ -67,6 +67,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | «Edit the drawing» su ogni disegno: emoji, parole, percorsi a tema, corse libere e importate, sull'acqua; la copia senza legami | `tasks/TASK-369.md`, `DECISIONS.md` ADR-0313 e ADR-0299, `UI.md` «Edit the drawing: la figura sulla mappa» |
 | Aggiungere uno sport: il registro, il banco `tools/sport_bench/`, le zone fisse, le misure di ogni sport | `tasks/TASK-376.md`, `DECISIONS.md` ADR-0320, `sports/README.md`, `sports/COME-AGGIUNGERE.md`, `sports/CONDIVISO.md` |
 | L'escursionismo «Hike» (pilota della struttura degli sport): la rete dei sentieri, le misure | `tasks/TASK-377.md`, `DECISIONS.md` ADR-0321, `sports/hike.md`, `sports/COME-AGGIUNGERE.md` |
+| Gravel e MTB: la bici su sterrati e sentieri, la rete `mtb`, `mtb:scale`, le misure | `tasks/TASK-378.md`, `DECISIONS.md` ADR-0322, `sports/gravel.md`, `sports/bike.md`, `sports/COME-AGGIUNGERE.md` |
 | La palestra «Gym»: sessione senza traccia, esercizi e serie, timer di recupero, traguardi, classifica mensile | `tasks/TASK-385.md`, `DECISIONS.md` ADR-0327, `sports/gym.md` |
 | I movimenti: le molle di `motion.spring`, `src/ui/motion.ts`, la capsula della barra, l'«isola», fogli e liste | `tasks/TASK-388.md`, `DECISIONS.md` ADR-0329 e ADR-0293 |
 | Cosa fare dopo | `ROADMAP.md`, `STATUS.md` |

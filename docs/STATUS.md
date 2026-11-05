@@ -177,6 +177,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   nuovo. Branch `fix/TASK-399-feed-author-profile`; la unisce il Coordinatore a CI verde; in
   produzione col prossimo OTA. `tasks/TASK-399.md`.
   **Chiuso il 2026-11-05**: #830, chiusura nella stessa PR; vedi «Completato».
+- **TASK-378 — Gravel e MTB** (2026-11-05; numeri dal Coordinatore,
+  ADR-0322 **proposto**). Parte 0, solo documenti: misurate col banco due
+  reti di prova.
+  - `gravel` dà i percorsi della bici di oggi: 54 su 54, sterrato 22,7%
+    contro 23,3%.
+  - `mtb` pedala i sentieri fino a `mtb:scale` 2: 49 su 54, 24 buoni, e
+    a piedi con la bici scende dal 4,9% all'1,4%.
+  - Lo sterrato lo decide il posto (35–45% in montagna, 3–13% in città e
+    in pianura), non la rete.
+
+  Proposta: Gravel sulla rete della bici, MTB con una rete sua. Prossimo:
+  le scelte dell'utente, una alla volta (`tasks/TASK-378.md`,
+  `sports/gravel.md`).
+
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
   anche le vecchie»; testi nuovi approvati il 2026-11-05. Parte A (API +
