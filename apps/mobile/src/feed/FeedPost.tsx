@@ -135,13 +135,15 @@ export function postFacts(post: SamplePost): string {
  * the figure small in a corner. A member's drawing says when it was run, as
  * a comment says when it was written, and has its actions under the card
  * (`ActionBar`, TASK-355); the «…» and the actions stay outside the card's
- * button, where a screen reader reaches them.
+ * button, where a screen reader reaches them. So does its author's name with
+ * the initial: a tap on them opens the author's profile, as a tagged name
+ * does (TASK-399).
  */
 export function FeedPost({ post, width, onOpen }: Props) {
   // The line of facts is written again when «Settings» changes the units
   // (TASK-182).
   useUnits();
-  const { apiUrl, account } = useFollowsDoor();
+  const { apiUrl, account, openProfile } = useFollowsDoor();
   // Which of the drawing (0) and its photos is shown, and the furthest
   // reached: the photos up to the one after it are loaded, and stay.
   const [page, setPage] = useState(0);
@@ -159,17 +161,21 @@ export function FeedPost({ post, width, onOpen }: Props) {
   function onPressIn({ nativeEvent }: GestureResponderEvent) {
     down.current = { x: nativeEvent.pageX, y: nativeEvent.pageY };
   }
-  function onPress({ nativeEvent }: GestureResponderEvent) {
-    const from = down.current;
-    down.current = null;
-    const moved =
-      from === null
-        ? 0
-        : Math.hypot(nativeEvent.pageX - from.x, nativeEvent.pageY - from.y);
-    if (moved <= TAP_SLOP) {
-      onOpen?.();
-    }
+  // A tap, not the end of a swipe, does what it is for.
+  function tapped(action: () => void) {
+    return ({ nativeEvent }: GestureResponderEvent) => {
+      const from = down.current;
+      down.current = null;
+      const moved =
+        from === null
+          ? 0
+          : Math.hypot(nativeEvent.pageX - from.x, nativeEvent.pageY - from.y);
+      if (moved <= TAP_SLOP) {
+        action();
+      }
+    };
   }
+  const onPress = tapped(() => onOpen?.());
   if (blocked) {
     return null;
   }
@@ -294,28 +300,55 @@ export function FeedPost({ post, width, onOpen }: Props) {
       </View>
     </>
   );
+  const whoBody = (
+    <>
+      <View style={styles.avatar}>
+        <Text style={styles.initial}>{post.user.charAt(0).toUpperCase()}</Text>
+      </View>
+      <View style={styles.names}>
+        <Text style={styles.user}>{post.user}</Text>
+        {(city !== "" || ago !== "") && (
+          <View style={styles.whereWhen}>
+            {city !== "" && (
+              <Text style={styles.city} numberOfLines={1}>
+                {city}
+              </Text>
+            )}
+            {ago !== "" && (
+              <Text style={styles.when}>{city === "" ? ago : `· ${ago}`}</Text>
+            )}
+          </View>
+        )}
+      </View>
+    </>
+  );
+  // A member's name opens their profile (TASK-399): a button of its own,
+  // outside the card's, or the tap would open the route. An example's
+  // name is only words.
+  const who =
+    author === null ? (
+      <View style={styles.who}>{whoBody}</View>
+    ) : (
+      <Tap
+        style={styles.who}
+        onPressIn={onPressIn}
+        onPress={tapped(() =>
+          openProfile({
+            public_id: author.public_id,
+            username: author.username,
+            photo: null,
+          }),
+        )}
+        accessibilityRole="button"
+        accessibilityLabel={t("{name}'s profile", { name: author.username })}
+        testID="feed-author"
+      >
+        {whoBody}
+      </Tap>
+    );
   const body = (
     <>
-      <View style={styles.who}>
-        <View style={styles.avatar}>
-          <Text style={styles.initial}>{post.user.charAt(0).toUpperCase()}</Text>
-        </View>
-        <View style={styles.names}>
-          <Text style={styles.user}>{post.user}</Text>
-          {(city !== "" || ago !== "") && (
-            <View style={styles.whereWhen}>
-              {city !== "" && (
-                <Text style={styles.city} numberOfLines={1}>
-                  {city}
-                </Text>
-              )}
-              {ago !== "" && (
-                <Text style={styles.when}>{city === "" ? ago : `· ${ago}`}</Text>
-              )}
-            </View>
-          )}
-        </View>
-      </View>
+      {author === null && who}
       {photos.length === 0 ? (
         <>
           {drawing}
@@ -397,7 +430,7 @@ export function FeedPost({ post, width, onOpen }: Props) {
   const card =
     onOpen === undefined ? (
       <View
-        style={styles.card}
+        style={[styles.card, author !== null && styles.under]}
         testID="feed-post"
         accessible
         accessibilityLabel={label}
@@ -406,7 +439,7 @@ export function FeedPost({ post, width, onOpen }: Props) {
       </View>
     ) : (
       <Tap
-        style={styles.card}
+        style={[styles.card, author !== null && styles.under]}
         onPressIn={onPressIn}
         onPress={onPress}
         testID="feed-post"
@@ -422,6 +455,7 @@ export function FeedPost({ post, width, onOpen }: Props) {
   }
   return (
     <View style={styles.card}>
+      {who}
       {card}
       {menu !== null && <View style={styles.menu}>{menu}</View>}
       {onOpen !== undefined && <ActionBar post={post} onOpen={onOpen} />}
@@ -435,6 +469,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: color.surface,
     overflow: "hidden",
+  },
+  // Under the author's name: the corners above are the post's.
+  under: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
   },
   who: {
     flexDirection: "row",

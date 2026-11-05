@@ -160,6 +160,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-399 — Nel Feed il nome di chi ha pubblicato apre il suo profilo** (2026-11-05;
+  numero dal Coordinatore; richiesta dell'utente). In `FeedPost` la riga del nome era dentro il
+  pulsante della card e apriva il disegno; ora sul disegno di un iscritto è un pulsante a sé che
+  chiama `openProfile`, come i tag (TASK-208) e i commenti (TASK-338). Solo app, nessun testo
+  nuovo. Branch `fix/TASK-399-feed-author-profile`; la unisce il Coordinatore a CI verde; in
+  produzione col prossimo OTA. `tasks/TASK-399.md`.
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
   anche le vecchie»; testi nuovi approvati il 2026-11-05. Parte A (API +

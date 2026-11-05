@@ -145,7 +145,8 @@ test("a tap on a member's drawing opens it whole, not as a route of «Explore»"
   await fireEvent.press(await screen.findByText("Sunday heart by the river"));
   expect(open).toHaveBeenCalledWith(STAR);
   expect(onOpen).not.toHaveBeenCalled();
-  await fireEvent.press(screen.getByText("adam.trento"));
+  // The second card; its author's name opens the profile (TASK-399).
+  await fireEvent.press(screen.getAllByTestId("feed-post")[1]!);
   expect(open).toHaveBeenLastCalledWith(WORD);
 });
 
