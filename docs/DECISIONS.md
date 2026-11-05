@@ -22281,6 +22281,27 @@ interrompe con la velocità).
 resta in `motion` finché le PR aperte che lo leggono sono in `main`; poi va
 tolto. Le parti B (l'«isola») e C (fogli, `Modal`, liste) usano `island` e
 `smooth`.
+
+**Aggiornamento A2 (2026-11-05, deciso dall'agente su delega dell'utente)**:
+l'utente ha provato la parte A sul telefono (anteprima 0fd6c1dc): «funziona
+[…] è un po' macchinosa rendila più fluida». Nel simulatore la capsula partiva
+solo nel commit della pagina nuova, cioè dopo che JS l'aveva costruita (Feed,
+Explore: decimi di secondo), e poi faceva due rimbalzi, quello di `snappy` e
+quello dell'allungamento. Ora:
+1. **La barra ha la sua molla, `glide`** (rigidità 256, smorzamento 32,
+   risposta ~0,39 s): smorzata criticamente, non passa mai il segno. Anche le
+   icone e il loro ritorno dopo il tocco (`Tap` con `settle`). Niente più
+   allungamento: un solo movimento. `snappy` resta per il resto dell'app.
+2. **Capsula e icona partono al tocco**, prima di `onTab`. Su iOS
+   `startAnimatingNode` va subito al thread UI (`queueFlushedOperationBlock`),
+   e in bridgeless `setImmediate` è una microtask messa in coda prima di
+   quella di React: la molla corre mentre JS costruisce la pagina. Se l'app
+   tiene la sua pagina («Messages» senza account, dal profilo) la capsula
+   torna indietro al primo giro dei timer.
+3. **Un tocco durante uno swipe**: la capsula parte da dove il dito l'ha
+   lasciata, e `TabShell` tiene `drag` a 0 finché un dito non riprende la
+   striscia, così il resto dello scorrimento non la sposta.
+Impronta iOS invariata (6f8bba4c), nessuna dipendenza.
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
 **Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente

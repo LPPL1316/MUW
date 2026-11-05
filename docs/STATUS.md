@@ -182,6 +182,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte A in `main`** (#770, 0d7819c4, 2026-11-05, CI verde). Prossimo: la
   parte B, l'«isola», in un contesto nuovo. L'OTA di produzione col sì
   dell'utente.
+  **A2, la barra più fluida** (2026-11-05, branch
+  `fix/TASK-388-a2-smoother-tab-bar`): l'utente l'ha trovata «un po'
+  macchinosa» sul telefono. Molla `glide` smorzata criticamente, niente
+  allungamento, capsula e icona che partono al tocco invece che dopo la
+  pagina, nessun salto se tocco e swipe si sovrappongono. Impronta 6f8bba4c.
+  Video in `out/TASK-388/a2-*`; merge del Coordinatore dopo l'ok dell'utente.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
