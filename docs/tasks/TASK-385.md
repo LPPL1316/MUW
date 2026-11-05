@@ -169,6 +169,10 @@ Questa PR (documenti): `docs/tasks/TASK-385.md` (nuovo),
     `docs/DATABASE.md` (0047), `docs/DECISIONS.md` (precisazione),
     `docs/STATUS.md` (righe proprie), questo file.
   `run_gpx.py` non cambia: il GPX di una corsa lo fa solo Strava.
+  `apps/mobile/assets/engine/engine.zip` rifatto
+  (`tools/phone_engine/phone_engine.py engine`): porta i moduli dell'API che
+  il motore del telefono importa, e fra questi il registro degli sport con
+  `sports/gym.py`. Solo un file dell'app, non nativo: impronta iOS invariata.
 - **B0**: `apps/mobile/src/api/drawings.ts` (+ test),
   `apps/mobile/src/api/reads.ts` (`gym` e `trackless` in `READS`, nello
   stesso OTA della card); `gym` in `RUN_ACTIVITIES` di `shared-types`, con
