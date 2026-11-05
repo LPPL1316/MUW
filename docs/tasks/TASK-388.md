@@ -1,6 +1,6 @@
 # TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso, l'«isola», fogli e liste
 
-**Stato**: In corso — parte A in PR (2026-11-04)
+**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); prossima la B
 **Fase**: 4 · **Branch**: `feat/TASK-388-a-springs-tab-bar` (parte A) ·
 **ADR**: ADR-0329 · numeri dal Coordinatore (2026-11-04)
 
