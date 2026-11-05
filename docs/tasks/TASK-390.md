@@ -113,6 +113,8 @@ services/api/tests/test_drawings.py
 services/api/tests/test_drawing_download.py
 services/api/tests/test_drawing_retrack.py           (nuovo)
 packages/shared-types/src/index.ts
+packages/shared-types/fixtures/drawing-details-imported.json  (la traccia intera; aggiunto dal Coordinatore)
+packages/shared-types/fixtures/feed-imported.json             (la traccia intera; aggiunto dal Coordinatore)
 docs/tasks/TASK-390.md                                (nuovo)
 docs/DECISIONS.md
 docs/API.md
