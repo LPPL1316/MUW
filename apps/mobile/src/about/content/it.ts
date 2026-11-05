@@ -8,8 +8,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 ottobre 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
-const PRIVACY_UPDATED = "4 novembre 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B); redated for the whole drawing (TASK-390). */
+const PRIVACY_UPDATED = "5 novembre 2026";
 
 const help: AboutDocument = {
   title: "Come funziona MuW",
@@ -69,7 +69,7 @@ const help: AboutDocument = {
     {
       heading: "Pubblicare e condividere",
       blocks: [
-        "Una corsa salvata è privata: la vedi solo tu. Gli altri iscritti vedono sul tuo profilo i totali di tutte le tue corse salvate, distanza e dislivello, e i tuoi record (il 5K, il 10K e le altre distanze più veloci, a piedi e in bici) con il tempo e la data. Una corsa privata resta chiusa anche quando contiene un record. Scegli «Tutti» o «Follower» sotto «Chi può vederla», a fine corsa o su una corsa di «Le mie attività», e la vedono come disegno sul tuo profilo, senza i primi e gli ultimi 200 m. La prossima corsa che finisci parte dall'ultima scelta che hai salvato: la vedi prima di «Salva» e puoi cambiarla. Un'attività aggiunta da un file parte sempre da «Solo io».",
+        "Una corsa salvata è privata: la vedi solo tu. Gli altri iscritti vedono sul tuo profilo i totali di tutte le tue corse salvate, distanza e dislivello, e i tuoi record (il 5K, il 10K e le altre distanze più veloci, a piedi e in bici) con il tempo e la data. Una corsa privata resta chiusa anche quando contiene un record. Scegli «Tutti» o «Follower» sotto «Chi può vederla», a fine corsa o su una corsa di «Le mie attività», e la vedono come disegno sul tuo profilo, intera. La prossima corsa che finisci parte dall'ultima scelta che hai salvato: la vedi prima di «Salva» e puoi cambiarla. Un'attività aggiunta da un file parte sempre da «Solo io».",
         "Una corsa che pubblichi può avere fino a 9 foto e il disegno. Tienine premuta una e trascinala per cambiare l'ordine: la prima è quella che si vede nel Feed. Scegli un layout per mettere il disegno su una foto.",
         "«Condividi» crea un'immagine della tua corsa da mandare dove vuoi.",
       ],
@@ -333,9 +333,9 @@ const privacy: AboutDocument = {
         "Con un account, quando tocchi «Salva» a fine corsa la corsa intera va al nostro server: ogni posizione con il suo orario e la sua altezza, le pause, il percorso seguito, distanza, durata, un punteggio di quanto la traccia segue il percorso (calcolato dal nostro server e non mostrato nell'app) e il nome del luogo. Con «Discard» non parte niente.",
         "Una corsa salvata è privata, se non scegli diversamente: la vede solo il tuo account. Gli altri iscritti vedono sul tuo profilo i totali di tutte le tue corse salvate, distanza e dislivello, e i tuoi record, a piedi e in bici, con il tempo e la data in cui li hai fatti: anche quelli di una corsa privata, che però non si apre. Resta finché non la elimini da «Le mie attività» o elimini l'account.",
         "Se aggiungi un'attività passata da un file, ne teniamo la traccia e gli orari come per una corsa registrata con MuW. Il file non lo teniamo.",
-        "Una corsa spesso parte e finisce davanti a casa. Per questo diventa visibile agli altri iscritti solo dopo che hai scelto «Tutti» o «Follower» sotto «Chi può vederla», e allora vedono la traccia senza i primi e gli ultimi 200 m, con il titolo che le hai dato, e senza orari, pause né il percorso pianificato. La tua scelta resta su questo telefono per la corsa successiva: parte dall'ultima che hai salvato, la vedi prima di «Salva» e puoi cambiarla. Un'attività aggiunta da un file parte sempre da «Solo io».",
-        "Chi può vedere una tua corsa può anche seguirla con «Parti» e salvarne la stessa traccia come file GPX: sempre senza i primi e gli ultimi 200 m e senza orari.",
-        "Una foto che pubblichi può avere dentro l'immagine il disegno della tua corsa. È lo stesso disegno che mostra il Feed, tagliato all'inizio e alla fine.",
+        "Una corsa spesso parte e finisce davanti a casa. Per questo diventa visibile agli altri iscritti solo dopo che hai scelto «Tutti» o «Follower» sotto «Chi può vederla», e allora vedono la traccia intera, partenza e arrivo compresi, con il titolo che le hai dato, e senza orari, pause né il percorso pianificato. La tua scelta resta su questo telefono per la corsa successiva: parte dall'ultima che hai salvato, la vedi prima di «Salva» e puoi cambiarla. Un'attività aggiunta da un file parte sempre da «Solo io».",
+        "Chi può vedere una tua corsa può anche seguirla con «Parti» e salvarne la stessa traccia come file GPX, senza orari.",
+        "Una foto che pubblichi può avere dentro l'immagine il disegno della tua corsa. È lo stesso disegno che mostra il Feed.",
       ],
     },
     {
@@ -354,7 +354,7 @@ const privacy: AboutDocument = {
       heading: "Messaggi privati",
       blocks: [
         "I tuoi messaggi privati stanno sul nostro server: chi ha scritto, a chi, il testo e quando, e per ognuno dei due se ha accettato la conversazione, quando l'ha letta l'ultima volta e fino a quando l'ha tolta dalla sua vista. Non sono cifrati end-to-end. Nell'app una conversazione la vedono solo i suoi due iscritti, e nessuno viene avvisato se un messaggio è stato letto. Li teniamo per darti il servizio che chiedi (contratto).",
-        "Un messaggio può portare una foto, un video o un disegno. Una foto la teniamo ridotta, senza i dati che il telefono le aggiunge, come dove e quando è stata scattata. Un video lo teniamo come lo manda il telefono, senza il luogo in cui è stato girato, e lo cancelliamo 30 giorni dopo l'invio, o prima, dai più vecchi, quando il nostro spazio per i video è pieno. Un disegno è una copia del percorso: una corsa che mandi arriva senza l'inizio e la fine, come nel Feed, un percorso che hai pianificato arriva intero, con la sua partenza. Foto e video non sono cifrati end-to-end, non sono nelle nostre copie di sicurezza e si cancellano con il loro messaggio, la conversazione o il tuo account. Quando segnali un messaggio, chi gestisce MuW vede anche la sua foto, il video o il disegno.",
+        "Un messaggio può portare una foto, un video o un disegno. Una foto la teniamo ridotta, senza i dati che il telefono le aggiunge, come dove e quando è stata scattata. Un video lo teniamo come lo manda il telefono, senza il luogo in cui è stato girato, e lo cancelliamo 30 giorni dopo l'invio, o prima, dai più vecchi, quando il nostro spazio per i video è pieno. Un disegno è una copia del percorso e arriva intero, con la sua partenza: sia una corsa che mandi, come nel Feed, sia un percorso che hai pianificato. Foto e video non sono cifrati end-to-end, non sono nelle nostre copie di sicurezza e si cancellano con il loro messaggio, la conversazione o il tuo account. Quando segnali un messaggio, chi gestisce MuW vede anche la sua foto, il video o il disegno.",
         "Un messaggio a chi non ti segue arriva come richiesta; il primo messaggio di una richiesta passa dallo stesso filtro di parole dei commenti.",
         "Puoi eliminare i tuoi messaggi, per tutti e due. Eliminare una conversazione la toglie dalla tua vista; un messaggio che nessuno dei due vede più viene cancellato. Un blocco cancella la conversazione; cancellare l'account cancella tutte le tue conversazioni, con i messaggi di tutti e due.",
         "Quando segnali un messaggio, l'email a chi gestisce MuW contiene solo quel messaggio, mai il resto della conversazione. Con le push accese, la notifica di un messaggio ne porta l'inizio, attraverso il servizio push di Expo e Apple o Google, come per i commenti.",
@@ -443,7 +443,7 @@ const privacy: AboutDocument = {
             "Strava, come detto sopra.",
           ],
         },
-        "Un'immagine o un video della tua corsa creati con «Condividi» si fanno sul telefono ed escono solo dal foglio di condivisione, dove li mandi tu. Il video mostra la mappa attorno alla corsa, senza i primi e gli ultimi 200 metri.",
+        "Un'immagine o un video della tua corsa creati con «Condividi» si fanno sul telefono ed escono solo dal foglio di condivisione, dove li mandi tu. Il video mostra la mappa attorno alla corsa, partenza e arrivo compresi.",
       ],
     },
     {

@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10. Oktober 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
-const PRIVACY_UPDATED = "4. November 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B); redated for the whole drawing (TASK-390). */
+const PRIVACY_UPDATED = "5. November 2026";
 
 const help: AboutDocument = {
   title: "So funktioniert MuW",
@@ -71,7 +71,7 @@ const help: AboutDocument = {
     {
       heading: "Veröffentlichen und teilen",
       blocks: [
-        "Ein gespeicherter Lauf ist privat: Nur du siehst ihn. Andere Mitglieder sehen auf deinem Profil die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, und deine Bestzeiten (die 5K, die 10K und deine anderen schnellsten Distanzen, zu Fuß und mit dem Rad) mit Zeit und Datum. Ein privater Lauf bleibt geschlossen, auch wenn er eine Bestzeit enthält. Wähle unter «Wer kann es sehen» «Alle» oder «Follower», am Ende des Laufs oder bei einem Lauf in «Meine Aktivitäten», und sie sehen ihn als Zeichnung auf deinem Profil, ohne seine ersten und letzten 200 m. Der nächste Lauf, den du beendest, beginnt mit deiner zuletzt gespeicherten Wahl: Du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
+        "Ein gespeicherter Lauf ist privat: Nur du siehst ihn. Andere Mitglieder sehen auf deinem Profil die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, und deine Bestzeiten (die 5K, die 10K und deine anderen schnellsten Distanzen, zu Fuß und mit dem Rad) mit Zeit und Datum. Ein privater Lauf bleibt geschlossen, auch wenn er eine Bestzeit enthält. Wähle unter «Wer kann es sehen» «Alle» oder «Follower», am Ende des Laufs oder bei einem Lauf in «Meine Aktivitäten», und sie sehen ihn als Zeichnung auf deinem Profil, ganz. Der nächste Lauf, den du beendest, beginnt mit deiner zuletzt gespeicherten Wahl: Du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
         "Ein Lauf, den du veröffentlichst, kann bis zu 9 Fotos und die Zeichnung haben. Halte eines gedrückt und zieh es, um die Reihenfolge zu ändern: Das erste sieht man im Feed. Wähle ein Layout, um die Zeichnung auf ein Foto zu legen.",
         "«Teilen» macht ein Bild deines Laufs, das du verschicken kannst, wohin du willst.",
       ],
@@ -335,9 +335,9 @@ const privacy: AboutDocument = {
         "Mit einem Konto geht der ganze Lauf an unseren Server, wenn du am Ende eines Laufs auf «Speichern» tippst: jede Position mit ihrer Uhrzeit und Höhe, die Pausen, die Route, der du gefolgt bist, Distanz, Dauer, eine Punktzahl dafür, wie genau die Spur der Route folgt (von unserem Server berechnet und in der App nicht angezeigt), und der Name des Ortes. Mit «Verwerfen» wird nichts gesendet.",
         "Ein gespeicherter Lauf ist privat, solange du nichts anderes wählst: Nur dein Konto sieht ihn. Andere Mitglieder sehen auf deinem Profil die Summen aller deiner gespeicherten Läufe, Distanz und Anstieg, und deine Bestzeiten, zu Fuß und mit dem Rad, mit der Zeit und dem Datum, an dem du sie aufgestellt hast: auch die eines privaten Laufs, der sich aber nicht öffnet. Er bleibt, bis du ihn in «Meine Aktivitäten» löschst oder dein Konto löschst.",
         "Wenn du eine frühere Aktivität aus einer Datei hinzufügst, speichern wir ihre Spur und ihre Uhrzeiten wie bei einem mit MuW aufgezeichneten Lauf. Die Datei selbst speichern wir nicht.",
-        "Ein Lauf beginnt und endet oft an deiner Haustür. Deshalb wird ein Lauf für die anderen Mitglieder erst sichtbar, nachdem du unter «Wer kann es sehen» «Alle» oder «Follower» gewählt hast, und dann sehen sie die Spur ohne ihre ersten und letzten 200 m, mit dem Titel, den du ihr gegeben hast, und ohne Zeiten, Pausen oder die geplante Route. Deine Wahl bleibt für den nächsten Lauf auf diesem Telefon: Er beginnt mit der zuletzt gespeicherten, du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
-        "Wer einen deiner Läufe sehen kann, kann ihm auch mit «Start» folgen und dieselbe Spur als GPX-Datei speichern: immer ohne ihre ersten und letzten 200 m und ohne Zeiten.",
-        "Ein Foto, das du veröffentlichst, kann die Zeichnung deines Laufs im Bild enthalten. Es ist dieselbe Zeichnung wie im Feed, am Anfang und am Ende gekürzt.",
+        "Ein Lauf beginnt und endet oft an deiner Haustür. Deshalb wird ein Lauf für die anderen Mitglieder erst sichtbar, nachdem du unter «Wer kann es sehen» «Alle» oder «Follower» gewählt hast, und dann sehen sie die ganze Spur, mit Start und Ziel, mit dem Titel, den du ihr gegeben hast, und ohne Zeiten, Pausen oder die geplante Route. Deine Wahl bleibt für den nächsten Lauf auf diesem Telefon: Er beginnt mit der zuletzt gespeicherten, du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
+        "Wer einen deiner Läufe sehen kann, kann ihm auch mit «Start» folgen und dieselbe Spur als GPX-Datei speichern, ohne Zeiten.",
+        "Ein Foto, das du veröffentlichst, kann die Zeichnung deines Laufs im Bild enthalten. Es ist dieselbe Zeichnung wie im Feed.",
       ],
     },
     {
@@ -356,7 +356,7 @@ const privacy: AboutDocument = {
       heading: "Private Nachrichten",
       blocks: [
         "Deine privaten Nachrichten liegen auf unserem Server: wer geschrieben hat, an wen, der Text und wann, und für jeden der beiden, ob er die Unterhaltung angenommen hat, wann er sie zuletzt gelesen hat und bis wann er sie aus seiner Ansicht gelöscht hat. Sie sind nicht Ende-zu-Ende-verschlüsselt. In der App sehen eine Unterhaltung nur ihre beiden Mitglieder, und niemand erfährt, ob eine Nachricht gelesen wurde. Wir speichern sie, um dir den Dienst zu geben, den du verlangst (Vertrag).",
-        "Eine Nachricht kann ein Foto, ein Video oder eine Zeichnung enthalten. Ein Foto speichern wir verkleinert, ohne die Daten, die dein Handy hinzufügt, etwa wo und wann es aufgenommen wurde. Ein Video speichern wir so, wie dein Handy es schickt, ohne den Ort, an dem es gedreht wurde, und löschen es 30 Tage nach dem Senden, oder früher, die ältesten zuerst, wenn unser Platz für Videos voll ist. Eine Zeichnung ist eine Kopie der Route: Ein Lauf, den du schickst, ist am Anfang und am Ende gekürzt wie im Feed, eine geplante Route geht ganz, mit ihrem Start. Fotos und Videos sind nicht Ende-zu-Ende-verschlüsselt, liegen nicht in unseren Sicherungskopien und werden mit ihrer Nachricht, der Unterhaltung oder deinem Konto gelöscht. Wenn du eine Nachricht meldest, sieht die Person, die MuW betreibt, auch ihr Foto, ihr Video oder ihre Zeichnung.",
+        "Eine Nachricht kann ein Foto, ein Video oder eine Zeichnung enthalten. Ein Foto speichern wir verkleinert, ohne die Daten, die dein Handy hinzufügt, etwa wo und wann es aufgenommen wurde. Ein Video speichern wir so, wie dein Handy es schickt, ohne den Ort, an dem es gedreht wurde, und löschen es 30 Tage nach dem Senden, oder früher, die ältesten zuerst, wenn unser Platz für Videos voll ist. Eine Zeichnung ist eine Kopie der Route und kommt ganz an, mit ihrem Start: ein Lauf, den du schickst, wie im Feed, ebenso wie eine geplante Route. Fotos und Videos sind nicht Ende-zu-Ende-verschlüsselt, liegen nicht in unseren Sicherungskopien und werden mit ihrer Nachricht, der Unterhaltung oder deinem Konto gelöscht. Wenn du eine Nachricht meldest, sieht die Person, die MuW betreibt, auch ihr Foto, ihr Video oder ihre Zeichnung.",
         "Eine Nachricht an jemanden, der dir nicht folgt, kommt als Anfrage an; die erste Nachricht einer Anfrage geht durch denselben Wortfilter wie die Kommentare.",
         "Du kannst deine eigenen Nachrichten für euch beide löschen. Eine Unterhaltung zu löschen nimmt sie aus deiner Ansicht; eine Nachricht, die keiner von euch mehr sieht, wird gelöscht. Eine Blockierung löscht die Unterhaltung; wenn du dein Konto löschst, werden alle deine Unterhaltungen gelöscht, mit den Nachrichten von beiden.",
         "Wenn du eine Nachricht meldest, enthält die E-Mail an die Person, die MuW betreibt, nur diese Nachricht, nie den Rest der Unterhaltung. Mit Push trägt die Benachrichtigung einer Nachricht ihren Anfang, über den Push-Dienst von Expo und Apple oder Google, wie bei Kommentaren.",
@@ -445,7 +445,7 @@ const privacy: AboutDocument = {
             "Strava, wie oben gesagt.",
           ],
         },
-        "Ein Bild oder ein Video deines Laufs, das du mit «Teilen» machst, entsteht auf dem Handy und verlässt es nur über das Teilen-Menü, dorthin, wohin du es sendest. Das Video zeigt die Karte rund um deinen Lauf, ohne seine ersten und letzten 200 Meter.",
+        "Ein Bild oder ein Video deines Laufs, das du mit «Teilen» machst, entsteht auf dem Handy und verlässt es nur über das Teilen-Menü, dorthin, wohin du es sendest. Das Video zeigt die Karte rund um deinen Lauf, mit Start und Ziel.",
       ],
     },
     {

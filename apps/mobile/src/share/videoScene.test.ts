@@ -143,9 +143,9 @@ describe("videoScene, on paper", () => {
     ]);
   });
 
-  it("leaves out the ends of the track: a short run has numbers only", () => {
+  it("draws no line of one fix: the run has numbers only", () => {
     const short = videoScene(
-      { ...RUN, track: north(350), distanceM: 350 },
+      { ...RUN, track: north(0), distanceM: 350 },
       POST_RESULTS,
       [],
       "paper",
@@ -201,7 +201,7 @@ describe("videoScene, at night", () => {
     expect(map?.camera.padding.bottom).toBeCloseTo(192, 5);
     expect(map?.camera.padding.left).toBeCloseTo(28.8, 5);
     expect(map?.camera.padding.right).toBeCloseTo(28.8, 5);
-    // The middle of the run without its ends: longitude first.
+    // The middle of the run: longitude first.
     expect(map?.camera.center[0]).toBeCloseTo(11.12, 6);
     expect(map?.camera.center[1]).toBeCloseTo(46.07 + 2600 / 111_195, 5);
     expect(map?.camera.zoom).toBeGreaterThan(11);
@@ -304,7 +304,7 @@ describe("videoScene, at night", () => {
 
   it("frames no map for a run too short to draw, and stays dark", () => {
     const short = videoScene(
-      { ...RUN, track: north(350), distanceM: 350 },
+      { ...RUN, track: north(0), distanceM: 350 },
       POST_RESULTS,
       [],
       "night",
@@ -539,14 +539,14 @@ describe("videoScene, in 3D", () => {
     const line = relief.map?.line ?? [];
     expect(line.length).toBeLessThanOrEqual(MAX_POINTS_3D);
     expect(line.length).toBeGreaterThan(2);
-    // The track with its ends cut by 200 m, as the flat line is (choice 5).
+    // The whole track, start and end too, as the flat line is (ADR-0330).
     for (const [lon, lat] of line) {
       expect(lon).toBe(11.12);
-      expect(lat).toBeGreaterThanOrEqual(46.07 + 200 / 111_195 - 1e-9);
-      expect(lat).toBeLessThanOrEqual(46.07 + 5000 / 111_195 + 1e-9);
+      expect(lat).toBeGreaterThanOrEqual(46.07 - 1e-9);
+      expect(lat).toBeLessThanOrEqual(46.07 + 5200 / 111_195 + 1e-9);
     }
-    expect(line[0][1]).toBeCloseTo(46.07 + 200 / 111_195, 6);
-    expect(line[line.length - 1][1]).toBeCloseTo(46.07 + 5000 / 111_195, 6);
+    expect(line[0][1]).toBeCloseTo(46.07, 6);
+    expect(line[line.length - 1][1]).toBeCloseTo(46.07 + 5200 / 111_195, 6);
   });
 
   it("turns the camera from one side to the other, slow at both ends, or zooms the picture slowly", () => {

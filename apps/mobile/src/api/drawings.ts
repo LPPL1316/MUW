@@ -22,8 +22,8 @@ import { apiKey, keyHeaders } from "./apiUrl";
  * Drawings (TASK-117, ADR-0159; TASK-208, ADR-0170): the calls of
  * docs/API.md, «Drawings», all with the session token. A saved run of «My
  * activities» gets a title, a description, the people tagged, what it was
- * and who can see it; seen by others, it is in their profile, cut by the
- * API: never its first and last 200 m, never the planned route. The bodies
+ * and who can see it; seen by others, it is in their profile, whole
+ * (ADR-0330) but never with its times or the planned route. The bodies
  * are packages/shared-types/fixtures/*drawing*.json.
  */
 
@@ -310,7 +310,7 @@ export function fetchUserDrawings(
   );
 }
 
-/** GET /drawings/{id}: one drawing whole, cut as the others see it. */
+/** GET /drawings/{id}: one drawing whole, as the others see it. */
 export function fetchDrawing(
   baseUrl: string,
   token: string,

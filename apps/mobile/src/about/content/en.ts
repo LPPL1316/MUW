@@ -11,8 +11,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 October 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320), the activities added from a file (TASK-312 B), Apple Health and Health Connect (TASK-321 B) and the drawing inside a published photo (TASK-348) entered. */
-const PRIVACY_UPDATED = "4 November 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320), the activities added from a file (TASK-312 B), Apple Health and Health Connect (TASK-321 B) and the drawing inside a published photo (TASK-348) entered; redated for the whole drawing (TASK-390). */
+const PRIVACY_UPDATED = "5 November 2026";
 
 const help: AboutDocument = {
   title: "How MuW works",
@@ -72,7 +72,7 @@ const help: AboutDocument = {
     {
       heading: "Publish and share",
       blocks: [
-        "A saved run is private: only you see it. Other members see on your profile the totals of all your saved runs, distance and elevation gain, and your personal bests (the 5K, the 10K and your other fastest distances, on foot and by bike) with their time and date. A private run stays closed even when it holds a best. Choose «Everyone» or «Followers» under «Who can see it», at the end of the run or on a run in «My activities», and they see it as a drawing on your profile, without its first and last 200 m. The next run you finish starts from the last choice you saved: you see it before «Save» and can change it. An activity added from a file always starts on «Only me».",
+        "A saved run is private: only you see it. Other members see on your profile the totals of all your saved runs, distance and elevation gain, and your personal bests (the 5K, the 10K and your other fastest distances, on foot and by bike) with their time and date. A private run stays closed even when it holds a best. Choose «Everyone» or «Followers» under «Who can see it», at the end of the run or on a run in «My activities», and they see it as a drawing on your profile, whole. The next run you finish starts from the last choice you saved: you see it before «Save» and can change it. An activity added from a file always starts on «Only me».",
         "A run you publish can have up to 9 photos and the drawing. Hold one and drag it to change the order: the first is what people see in the Feed. Choose a layout to put the drawing on a photo.",
         "«Share» makes a picture of your run to send wherever you like.",
       ],
@@ -336,9 +336,9 @@ const privacy: AboutDocument = {
         "With an account, when you tap «Save» at the end of a run the whole run goes to our server: every position with its time and height, the pauses, the route you followed, distance, duration, a score of how closely the track follows the route (worked out by our server and not shown in the app) and the name of the place. With «Discard», nothing is sent.",
         "A saved run is private unless you choose otherwise: only your account sees it. Other members see on your profile the totals of all your saved runs, distance and elevation gain, and your personal bests, on foot and by bike, with the time and the date you set them: those of a private run too, which still does not open. It stays until you delete it from «My activities» or delete your account.",
         "If you add a past activity from a file, we keep its track and times like a run recorded with MuW. We do not keep the file.",
-        "A run often starts and ends at your door. This is why a run becomes visible to the other members only after you choose «Everyone» or «Followers» under «Who can see it», and then they see the track without its first and last 200 m, with the title you gave it, and without times, pauses or the planned route. Your choice is kept on this phone for your next run: it starts from the last one you saved, you see it before «Save», and you can change it. An activity added from a file always starts on «Only me».",
-        "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file: still without its first and last 200 m and without times.",
-        "A photo you publish can have the drawing of your run inside the picture. It is the same drawing the Feed shows, cut at its start and end.",
+        "A run often starts and ends at your door. This is why a run becomes visible to the other members only after you choose «Everyone» or «Followers» under «Who can see it», and then they see the whole track, start and end included, with the title you gave it, and without times, pauses or the planned route. Your choice is kept on this phone for your next run: it starts from the last one you saved, you see it before «Save», and you can change it. An activity added from a file always starts on «Only me».",
+        "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file, without times.",
+        "A photo you publish can have the drawing of your run inside the picture. It is the same drawing the Feed shows.",
       ],
     },
     {
@@ -357,7 +357,7 @@ const privacy: AboutDocument = {
       heading: "Private messages",
       blocks: [
         "Your private messages are kept on our server: who wrote, to whom, the text and when, and for each of the two whether they accepted the conversation, when they last read it and up to when they deleted it from their view. They are not end-to-end encrypted. In the app only the two members of a conversation see it, and nobody is told whether a message was read. We keep them to give you the service you ask for (contract).",
-        "A message can carry a photo, a video or a drawing. A photo is kept resized, without the data your phone adds to it, such as where and when it was taken. A video is kept as your phone sends it, without the place it was shot, and is deleted 30 days after it was sent, or earlier, oldest first, when our space for videos is full. A drawing is a copy of the route: a run you send is cut at its start and end as in the Feed, a route you plan is sent whole, with its start. Photos and videos are not end-to-end encrypted, are not in our backup copies, and are deleted with their message, the conversation or your account. When you report a message, the person who runs MuW sees its photo, video or drawing too.",
+        "A message can carry a photo, a video or a drawing. A photo is kept resized, without the data your phone adds to it, such as where and when it was taken. A video is kept as your phone sends it, without the place it was shot, and is deleted 30 days after it was sent, or earlier, oldest first, when our space for videos is full. A drawing is a copy of the route and arrives whole, with its start: a run you send, as in the Feed, as well as a route you plan. Photos and videos are not end-to-end encrypted, are not in our backup copies, and are deleted with their message, the conversation or your account. When you report a message, the person who runs MuW sees its photo, video or drawing too.",
         "A message to someone who does not follow you arrives as a request; the first message of a request goes through the same word filter as comments.",
         "You can delete your own messages, for both of you. Deleting a conversation takes it out of your view; a message that neither of you sees any more is deleted. A block deletes the conversation; deleting your account deletes all your conversations, with the messages of both.",
         "When you report a message, the email to the person who runs MuW holds that message only, never the rest of the conversation. With push on, the notification of a message carries its beginning, through Expo's push service and Apple or Google, as for comments.",
@@ -446,7 +446,7 @@ const privacy: AboutDocument = {
             "Strava, as said above.",
           ],
         },
-        "A picture or a video of your run made with «Share» is made on the phone and leaves it only through the share sheet, where you send it. The video shows the map around your run, without its first and last 200 metres.",
+        "A picture or a video of your run made with «Share» is made on the phone and leaves it only through the share sheet, where you send it. The video shows the map around your run, start and end included.",
       ],
     },
     {

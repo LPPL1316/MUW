@@ -1127,10 +1127,9 @@ export const IT: Table = {
     "Le foto di una corsa che vedi solo tu restano su questo telefono. Se cancelli l'app o cambi telefono, si perdono.",
   "Its photos leave MuW and stay only on this phone.":
     "Le sue foto lasciano MuW e restano solo su questo telefono.",
-  "Every member sees it in your profile, without the first and last 200 m.":
-    "Ogni iscritto la vede nel tuo profilo, senza i primi e gli ultimi 200 m.",
-  "Your followers see it in your profile, without the first and last 200 m.":
-    "I tuoi follower la vedono nel tuo profilo, senza i primi e gli ultimi 200 m.",
+  "Every member sees it in your profile.": "Ogni iscritto la vede nel tuo profilo.",
+  "Your followers see it in your profile.":
+    "I tuoi follower la vedono nel tuo profilo.",
   "Saved on the phone. It is sent when you are back online.":
     "Salvata sul telefono. Viene inviata quando torni online.",
   "Saved on the phone. Others see it when you are back online.":

@@ -14,7 +14,7 @@ import {
   routeCasingOf,
   space,
 } from "../theme/tokens";
-import { type PostRun, withoutEnds } from "./postRun";
+import { postLine, type PostRun } from "./postRun";
 import {
   styleName,
   stylePalette,
@@ -68,7 +68,7 @@ export function StyleRow({ run, style, onChange }: Props) {
   const [segments] = useMemo(
     () =>
       fitLines(
-        [withoutEnds(run.track)],
+        [postLine(run.track)],
         TILE_WIDTH * (1 - 2 * SIDE),
         TILE_HEIGHT * (DRAWING_BOTTOM - DRAWING_TOP),
         LINE,

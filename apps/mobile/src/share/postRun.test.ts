@@ -1,19 +1,17 @@
 import type { LatLon } from "@shaperoute/shared-types";
 
 import type { ActivityDetail } from "../api/activities";
-import { metresBetween } from "../map/coordinates";
 import type { Track } from "../navigation/trackRecorder";
 import {
-  POST_CUT_M,
   POST_RESULTS,
   postCaption,
+  postLine,
   postOfActivity,
   postOfTrack,
   type PostRun,
   postRequestOf,
   resultsOf,
   resultValue,
-  withoutEnds,
 } from "./postRun";
 
 jest.mock("expo-file-system");
@@ -25,12 +23,6 @@ function north(metres: number, step = 50): LatLon[] {
     46.07 + (i * step) / degree,
     11.12,
   ]);
-}
-
-function length(line: LatLon[]): number {
-  return line
-    .slice(1)
-    .reduce((sum, point, i) => sum + metresBetween(line[i], point), 0);
 }
 
 const RUN: PostRun = {
@@ -70,27 +62,16 @@ describe("the text that goes to Strava", () => {
   });
 });
 
-describe("the ends of the track", () => {
-  it("lose their first and last 200 m along the track", () => {
+describe("the line of the post", () => {
+  it("is the whole track, start and end too (ADR-0330)", () => {
     const track = north(1000);
-    const kept = withoutEnds(track);
-    expect(POST_CUT_M).toBe(200);
-    expect(metresBetween(track[0], kept[0])).toBeCloseTo(200, 0);
-    expect(metresBetween(kept[kept.length - 1], track[track.length - 1])).toBeCloseTo(
-      200,
-      0,
-    );
-    expect(length(kept)).toBeCloseTo(600, 0);
+    expect(postLine(track)).toEqual(track);
+    expect(postLine(north(390))).toEqual(north(390));
   });
 
-  it("are cut between two fixes when no fix falls at 200 m", () => {
-    const kept = withoutEnds(north(1000, 300));
-    expect(length(kept)).toBeCloseTo(500, 0);
-  });
-
-  it("leave nothing of a run shorter than both ends together", () => {
-    expect(withoutEnds(north(390))).toEqual([]);
-    expect(withoutEnds([])).toEqual([]);
+  it("is nothing with fewer than two fixes", () => {
+    expect(postLine(north(390).slice(0, 1))).toEqual([]);
+    expect(postLine([])).toEqual([]);
   });
 });
 

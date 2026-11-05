@@ -7,7 +7,7 @@ import { shapeName } from "../i18n/shapeNames";
 /**
  * A drawing opened on the map as a route to run or take away (TASK-307):
  * its track as the map shows it, the only line the API gives of a run,
- * never its first and last DRAWING_CUT_M metres nor its times. The track is
+ * whole (ADR-0330) but never its times. The track is
  * where the runner went, not a planned route on the graph: it is followed
  * without turn directions.
  */

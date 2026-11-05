@@ -241,11 +241,7 @@ test("the form shows what the API has, and a chip sends the choice whole at once
     uri: `${URL}${MINE.photos?.[0].url}`,
     headers: { Authorization: `Bearer ${signedIn.token}` },
   });
-  expect(
-    screen.getByText(
-      "Your followers see it in your profile, without the first and last 200 m.",
-    ),
-  ).toBeTruthy();
+  expect(screen.getByText("Your followers see it in your profile.")).toBeTruthy();
 
   await fireEvent.press(screen.getByRole("radio", { name: "Everyone" }));
   await waitFor(() => expect(calls).toHaveLength(2));
@@ -253,11 +249,7 @@ test("the form shows what the API has, and a chip sends the choice whole at once
     name: `PUT ${DRAWING}`,
     body: { ...BODY, visibility: "everyone" },
   });
-  expect(
-    await screen.findByText(
-      "Every member sees it in your profile, without the first and last 200 m.",
-    ),
-  ).toBeTruthy();
+  expect(await screen.findByText("Every member sees it in your profile.")).toBeTruthy();
 });
 
 test("the title goes when typing is over, and only when it changed", async () => {

@@ -97,7 +97,7 @@ beforeEach(() => {
 });
 
 describe("the post", () => {
-  it("shows the title, the drawing without its ends, and every result", async () => {
+  it("shows the title, the drawing, and every result", async () => {
     await shown(<SharePost run={RUN} onClose={() => {}} />);
     expect(screen.getByText("Heart in Trento")).toBeOnTheScreen();
     expect(screen.getAllByTestId("post-drawing").length).toBeGreaterThan(0);
