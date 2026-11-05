@@ -14,8 +14,11 @@ from route_engine.walking import API_ACTIVITIES
 
 from shaperoute_api import prefetch_zones, sports
 from shaperoute_api.activities import RECORD_ACTIVITIES, RunActivity
+from shaperoute_api.activity_graphs import ZONES_IN_MEMORY
+from shaperoute_api.graphs import MAX_ZONES
 from shaperoute_api.personal_bests import SPORTS, Sport
 from shaperoute_api.run_gpx import GPX_TYPES
+from shaperoute_api.schemas import ACTIVITY_DESCRIPTION
 from shaperoute_api.sports import API_SPORTS, SPORTS_BY_ACTIVITY
 from shaperoute_api.sports.cycling import BY_BIKE
 from shaperoute_api.sports.running import ON_FOOT
@@ -128,3 +131,15 @@ def test_the_sports_import_nothing_but_the_sports() -> None:
             path.name,
             ours,
         )
+
+
+def test_the_zones_in_memory_and_the_description_are_those_of_before() -> None:
+    assert ZONES_IN_MEMORY == {"running": MAX_ZONES, "cycling": 1}
+    assert ACTIVITY_DESCRIPTION == (
+        f"One of: {', '.join(API_ACTIVITIES)}; cycling is drawn on the "
+        f"roads a bike may ride, one-way streets kept (TASK-190); paddling on a "
+        f"lake or the sea within 1 km of the shore, from a start on the shore, "
+        f"a shape of the catalogue only (TASK-191); swimming 20-150 m from the "
+        f"shore, lap after lap, a shape of the catalogue or a drawing (TASK-323); "
+        f"walking on the foot network of a run (TASK-371)."
+    )

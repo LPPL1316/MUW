@@ -33,6 +33,8 @@ from route_engine.words import (
 )
 from shaperoute_ai.reading import MAX_TEXT_LENGTH
 
+from shaperoute_api.sports import API_SPORTS
+
 # The largest image POST /image-outlines takes, and its length in base64
 # (ADR-0069): a phone photo re-encoded as JPEG is 1-4 MB.
 MAX_IMAGE_BYTES = 10_000_000
@@ -61,13 +63,11 @@ DISTANCE_DESCRIPTION = "Target distance in metres, " + ", ".join(
     f"{API_DISTANCE_LIMITS_M[a][0]}–{API_DISTANCE_LIMITS_M[a][1]} for {a}"
     for a in API_ACTIVITIES
 )
+# Each sport's words are in its file (shaperoute_api/sports, TASK-376).
 ACTIVITY_DESCRIPTION = (
-    f"One of: {', '.join(API_ACTIVITIES)}; cycling is drawn on the "
-    f"roads a bike may ride, one-way streets kept (TASK-190); paddling on a "
-    f"lake or the sea within 1 km of the shore, from a start on the shore, "
-    f"a shape of the catalogue only (TASK-191); swimming 20-150 m from the "
-    f"shore, lap after lap, a shape of the catalogue or a drawing (TASK-323); "
-    f"walking on the foot network of a run (TASK-371)."
+    f"One of: {', '.join(API_ACTIVITIES)}; "
+    + "; ".join(sport.description for sport in API_SPORTS if sport.description)
+    + "."
 )
 LAPS_DESCRIPTION = (
     f"A swim (TASK-323): how many times round its shape, 1 to {MAX_SWIM_LAPS}; "
