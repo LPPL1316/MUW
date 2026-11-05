@@ -179,7 +179,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Parte A in PR, la #770, in bozza; aspetto approvato dall'utente il
   2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Dopo la #764 `TabShell`
   passa a `TabBar` lo spostamento del dito (`drag`): la capsula segue lo swipe.
-  La unisce il Coordinatore a CI verde.
+  **Parte A in `main`** (#770, 0d7819c4, 2026-11-05, CI verde). Prossimo: la
+  parte B, l'«isola», in un contesto nuovo. L'OTA di produzione col sì
+  dell'utente.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
@@ -188,6 +190,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
   la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
   nessun testo nuovo. `tasks/TASK-383.md`.
+  **Chiuso il 2026-11-05**: #759 in main (`a5c1d5b2`); vedi «Completato».
 
 - **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
   (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
@@ -241,6 +244,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   un suo `SafeAreaProvider`. Branch `fix/TASK-381-share-post-inset`; la unisce il Coordinatore a
   CI verde; OTA col sì dell'utente. Solo app, nessun testo nuovo. `tasks/TASK-381.md`.
   **Chiuso il 2026-11-04**: #750 in main (9e2089a9); vedi «Completato».
+
+- **TASK-385 — «Gym» 🏋️, la palestra senza percorso** (ADR-0327 proposto;
+  richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-385-gym-proposal` (documenti). Scelte dell'utente fatte: nome,
+  kcal MET sempre, esercizi subito con il catalogo completo (anche tapis
+  roulant e macchine cardio), elenco nel post nascondibile, prima foto o
+  riquadro dei numeri, azioni tolte, traguardi con figure, classifica
+  mensile, video della serie (1.0.2), timer di recupero, testi approvati.
+  Sessione senza traccia: migrazione e post nascosti alle app vecchie
+  (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
+  Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
 
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
@@ -297,6 +311,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     con il nome dello sport, senza le azioni da percorso (scelta
     dell'utente, ADR-0319 punto 8). Prossimo: la parte C (le metriche della
     giornata), con i testi da approvare.
+  - 2026-11-05: **C1**: a fine giornata di sci i km delle discese, le
+    discese, il dislivello, la velocità massima e media e le risalite,
+    letti sul telefono; il fondo con distanza, passo e salita; niente
+    calorie (testi approvati, ADR-0319 punto 9). Prossimo: C2, le risalite
+    tratteggiate sulla mappa, col via del Coordinatore.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -2647,6 +2666,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   1–4, un tocco su «bpm» apre la tastiera; zona 5 senza riquadro, allineata. Solo JS, nessun
   testo nuovo. Anteprima, prova sul telefono e OTA di produzione col Coordinatore, l'OTA col sì
   dell'utente. `tasks/TASK-386.md`.
+- **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
+  (2026-11-04; seguito di TASK-374 A). #759 in main (`a5c1d5b2`): «kg» e «cm», con le miglia
+  «lb», «ft» e «in», stanno nel riquadro dopo il numero; un tocco sull'unità apre la tastiera.
+  Si tiene sempre in kg e cm. Solo JS, impronta dal Coordinatore con l'anteprima; in produzione
+  con il prossimo OTA del Coordinatore, dopo il server 0043–0046. `tasks/TASK-383.md`.
 - **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
   (2026-11-05; seguito di TASK-369 B). #767 in main (830a147e): `mapdraw/sentOutline.ts`
   controlla il contorno arrotondato con la regola del motore e ne toglie gli angoli che si
