@@ -2739,9 +2739,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   migrazione `0046_style_posts.sql`, `GET /style` con tema, genere e pagine, il post, la foto,
   `POST /style/tags/{id}/open` e `/shop` contati per giorno senza dati personali, il link di
   Awin solo con gli ID in `.env` (altrimenti la pagina del negozio), `style_import.py` per
-  caricare o nascondere un post approvato; tipi in `shared-types`. Testi #771 in main. Nessun
-  post caricato. Prossimo, col sì dell'utente: server, migrazione `0046` e `.env`; l'iscrizione
-  ad Awin (dell'utente); la parte B (app) e la C (immagini e post).
+  caricare o nascondere un post approvato; tipi in `shared-types`. Testi #771 in main.
+  Server: 0046 e il codice di A sono in produzione dal 2026-11-05 (f10033ce); restano, col sì
+  dell'utente, gli ID Awin nel `.env` del server e i post. Prossimo: l'iscrizione ad Awin
+  (dell'utente); la parte B (app) e la C (immagini e post).
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; ADR-0330). #781 in main (`ab1215a2`): il server tiene in
   `drawings.track` la traccia intera, senza orari (`shown_track`), e una corsa
