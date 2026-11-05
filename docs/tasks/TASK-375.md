@@ -149,8 +149,9 @@ confermare con le risposte qui sotto):
   una pista vicini, il tratto resta senza nome. La posizione non va a
   servizi esterni.
 - **Dove si tiene.** Una colonna nuova di `runs`, scritta una volta
-  (migrazione con il numero dal Coordinatore), oppure il calcolo a ogni
-  lettura con una cache: lo decido con i tempi misurati.
+  (migrazione 0048, numero dal Coordinatore il 2026-11-05; si libera se
+  non serve), oppure il calcolo a ogni lettura con una cache: lo decido
+  con i tempi misurati.
 - **L'app** mostra l'elenco dove l'utente sceglie (domanda D1), coi testi
   da approvare. Niente moduli nativi: l'impronta iOS resta 6f8bba4c.
 - **Le parti**: D1 l'estratto e il confronto (server, test sulle tracce
@@ -169,6 +170,18 @@ Le domande, una alla volta:
    sul server di MuW, con le linee di OpenStreetMap.
 
 ## File toccati
+
+Parte D1 (proposta al Coordinatore il 2026-11-05; solo file nuovi, nessun
+file esistente del server): `services/api/shaperoute_api/ski_extract.py`
+(il comando una tantum: dall'estratto filtrato con osmium al file degli
+impianti e delle piste), `services/api/shaperoute_api/ski_names.py` (il
+confronto di una traccia con quelle linee: risalite e discese, nomi e
+volte), `services/api/tests/test_ski_extract.py`,
+`services/api/tests/test_ski_names.py` e un piccolo estratto finto in
+`services/api/tests/fixtures/ski/`; documenti: `docs/MAPS.md` (come si fa
+il file dei comprensori), `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319,
+punto 11) e questa lista. Nessuna migrazione, nessuna rotta dell'API:
+vengono con D2.
 
 Questa PR (documenti): `docs/tasks/TASK-375.md` (nuovo), `docs/DECISIONS.md`
 (ADR-0319), `docs/STATUS.md` (una voce), `docs/INDEX.md` (una riga).
