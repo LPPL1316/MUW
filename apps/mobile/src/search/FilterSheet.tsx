@@ -59,7 +59,7 @@ export function bandLabel(band: DistanceBand): string {
  */
 export function FilterSheet({ visible, filters, onApply, onClose }: Props) {
   return (
-    <SheetModal visible={visible} onRequestClose={onClose}>
+    <SheetModal visible={visible} onRequestClose={onClose} dim>
       {/* Mounted with the sheet: each opening starts from what is applied. */}
       <SheetBody filters={filters} onApply={onApply} onClose={onClose} />
     </SheetModal>
@@ -194,10 +194,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
   },
+  // Clear: the dark behind is the sheet's own, and fades in place
+  // (`dim`, TASK-388 C2). It only takes the tap that closes.
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: color.scrim,
-    opacity: 0.5,
   },
   sheet: {
     maxHeight: "88%",
