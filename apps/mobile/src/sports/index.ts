@@ -2,6 +2,7 @@ import type { Activity, RunActivity } from "@shaperoute/shared-types";
 
 import type { SportProfile } from "./base";
 import { CYCLING } from "./cycling";
+import { GYM } from "./gym";
 import { PADDLING } from "./paddling";
 import { RUNNING } from "./running";
 import { SKIING } from "./skiing";
@@ -23,6 +24,7 @@ export const SPORT_PROFILES: readonly SportProfile[] = [
   WALKING,
   SKIING,
   XC_SKIING,
+  GYM,
 ];
 
 /** The activity a request without one is: its request keeps no field. */

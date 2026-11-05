@@ -1,7 +1,9 @@
-import type { LatLon } from "@shaperoute/shared-types";
+import type { LatLon, RunActivity } from "@shaperoute/shared-types";
 import { StyleSheet, Text, View } from "react-native";
 
 import { RunDrawing } from "../activities/RunDrawing";
+import { isTrackless } from "../activities/snow";
+import { GymTile } from "../gym/GymTile";
 import { Tap } from "../ui/Tap";
 import { color, font, radius, space } from "../theme/tokens";
 import { distanceLabel } from "../units/format";
@@ -18,6 +20,9 @@ type Props = {
   line: readonly LatLon[];
   /** How far its shape is turned (TASK-232): drawn turned back. */
   rotationDeg?: number | null;
+  /** What the run was: a workout at the gym shows its tile and no
+   * distance (TASK-385 B0); none, a run. */
+  activity?: RunActivity;
   width: number;
   onPress: () => void;
   testID?: string;
@@ -33,34 +38,41 @@ export function DrawingResultCard({
   distanceM,
   line,
   rotationDeg,
+  activity,
   width,
   onPress,
   testID,
 }: Props) {
-  const distance = distanceLabel(distanceM);
+  const gym = isTrackless(activity);
+  // Who drew it and how far; a workout at the gym, who only.
+  const said = gym ? [author] : [author, distanceLabel(distanceM)];
   return (
     <Tap
       style={[styles.card, { width }]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${title}, ${author}, ${distance}`}
+      accessibilityLabel={[title, ...said].join(", ")}
       testID={testID}
     >
       <View style={styles.preview}>
-        <RunDrawing
-          route={[...line]}
-          track={[]}
-          width={width}
-          height={width * PREVIEW_RATIO}
-          rotationDeg={rotationDeg}
-        />
+        {gym ? (
+          <GymTile width={width} height={width * PREVIEW_RATIO} />
+        ) : (
+          <RunDrawing
+            route={[...line]}
+            track={[]}
+            width={width}
+            height={width * PREVIEW_RATIO}
+            rotationDeg={rotationDeg}
+          />
+        )}
       </View>
       <View style={styles.words}>
         <Text style={styles.title} numberOfLines={1}>
           {title}
         </Text>
         <Text style={styles.detail} numberOfLines={1}>
-          {author} · {distance}
+          {said.join(" · ")}
         </Text>
       </View>
     </Tap>

@@ -36,8 +36,10 @@ FIXTURES = (
     Path(__file__).resolve().parents[3] / "packages" / "shared-types" / "fixtures"
 )
 GYM_KEY = "9a8b7c6d5e4f3021"
-THIS_APP = json.loads((FIXTURES / "reads.json").read_text(encoding="utf-8"))["this_app"]
-GYM_APP = f"{THIS_APP},gym,trackless"
+# The app of before TASK-385 B0, which says no workout at the gym, and the
+# app of today, which reads it.
+BEFORE_B0 = "swimming,walking,skiing,xc_skiing"
+GYM_APP = json.loads((FIXTURES / "reads.json").read_text(encoding="utf-8"))["this_app"]
 Headers = dict[str, str]
 
 
@@ -210,7 +212,7 @@ def test_my_activities_hold_it_for_an_app_that_reads_it(
         ]
 
     assert [a for a, _ in listed(me)] == ["running"]
-    assert [a for a, _ in listed(reading(me, THIS_APP))] == ["running"]
+    assert [a for a, _ in listed(reading(me, BEFORE_B0))] == ["running"]
     # `gym` alone is not enough: it has no track.
     assert [a for a, _ in listed(reading(me, "gym"))] == ["running"]
     assert listed(reading(me))[0] == ("gym", [])
@@ -276,7 +278,7 @@ def test_an_app_of_before_never_receives_it(
 
     # No header, the app of today, `gym` without `trackless`: a run only,
     # and the gym's drawing is not there.
-    for kinds in (None, THIS_APP, f"{THIS_APP},gym", f"{THIS_APP},trackless"):
+    for kinds in (None, BEFORE_B0, f"{BEFORE_B0},gym", f"{BEFORE_B0},trackless"):
         headers = reader if kinds is None else reading(reader, kinds)
         assert [a for a, _ in feed(headers)] == ["running"], kinds
         assert client.get(f"/drawings/{drawing_id}", headers=headers).status_code == 404

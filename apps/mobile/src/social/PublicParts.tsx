@@ -15,6 +15,7 @@ import {
 import { type ReactNode, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { isTrackless } from "../activities/snow";
 import type { DrawingChoice } from "../api/drawings";
 import { EnterSwitch } from "../contest/EnterSwitch";
 import { t, tLater } from "../i18n";
@@ -238,7 +239,8 @@ function isRecordActivity(activity: RunActivity): boolean {
 }
 
 /** «Activity»: what the run was, Run, Bike or Paddle; for a day on the snow,
- * Ski or Cross-country ski (TASK-375). */
+ * Ski or Cross-country ski (TASK-375); a workout at the gym stays one, Gym
+ * alone (TASK-385 B0): it has no track to be a run. */
 export function ActivityChips({
   value,
   onChange,
@@ -248,9 +250,11 @@ export function ActivityChips({
   onChange: (activity: RunActivity) => void;
   disabled?: boolean;
 }) {
-  const shown: readonly RunActivity[] = isRecordActivity(value)
-    ? RECORD_ACTIVITIES
-    : ACTIVITIES_SHOWN;
+  const shown: readonly RunActivity[] = isTrackless(value)
+    ? [value]
+    : isRecordActivity(value)
+      ? RECORD_ACTIVITIES
+      : ACTIVITIES_SHOWN;
   return (
     <Chips
       label={t("Activity")}
@@ -459,13 +463,16 @@ export function DrawingForm({
         onChange={(visibility) => onChoice({ ...choice, visibility })}
         disabled={disabled}
       />
-      {choice.visibility === "everyone" && !imported && (
-        <EnterSwitch
-          entry={choice.entry}
-          onEntry={(entry) => onChoice({ ...choice, entry })}
-          disabled={disabled}
-        />
-      )}
+      {/* A workout at the gym draws nothing for the contest (TASK-385 B0). */}
+      {choice.visibility === "everyone" &&
+        !imported &&
+        !isTrackless(choice.activity) && (
+          <EnterSwitch
+            entry={choice.entry}
+            onEntry={(entry) => onChoice({ ...choice, entry })}
+            disabled={disabled}
+          />
+        )}
       {seen !== null && <PublicLine text={seen} />}
       {choice.visibility === "only_me" && photos.length > 0 && (
         <PublicLine text={t(ONLY_ME_PHOTOS)} />

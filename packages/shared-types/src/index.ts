@@ -83,17 +83,21 @@ export type ApiActivity = (typeof API_ACTIVITIES)[number];
 export const RECORD_ACTIVITIES = activitiesOf(RECORDED_SPORTS);
 export type RecordActivity = (typeof RECORD_ACTIVITIES)[number];
 
-/** What a saved run was (PUT /me/activities/{key}): an activity of the API,
- * or one recorded without a shape. */
-export const RUN_ACTIVITIES = [...API_ACTIVITIES, ...RECORD_ACTIVITIES] as const;
-export type RunActivity = (typeof RUN_ACTIVITIES)[number];
-
 /** The activities saved without a track (TASK-385, ADR-0327): a workout at
- * the gym, PUT /me/gym-sessions/{key}. Not yet in RUN_ACTIVITIES: the app
- * takes them there with the screens that show a post without a line (part
- * B0), and with them `gym,trackless` in its X-MuW-Reads (api/reads.ts). */
+ * the gym, PUT /me/gym-sessions/{key}. The app reads them since part B0,
+ * which shows a post without a line. */
 export const TRACKLESS_ACTIVITIES = activitiesOf(TRACKLESS_SPORTS);
 export type TracklessActivity = (typeof TRACKLESS_ACTIVITIES)[number];
+
+/** What a saved run was: an activity of the API, one recorded without a
+ * shape (PUT /me/activities/{key}), or one saved without a track
+ * (PUT /me/gym-sessions/{key}). */
+export const RUN_ACTIVITIES = [
+  ...API_ACTIVITIES,
+  ...RECORD_ACTIVITIES,
+  ...TRACKLESS_ACTIVITIES,
+] as const;
+export type RunActivity = (typeof RUN_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
  * the app; "file", a GPX, TCX or FIT file of another app, read on the phone

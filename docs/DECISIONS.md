@@ -22977,6 +22977,40 @@ legge ancora, e l'età); mostrarlo senza un sì (scelta dell'utente, e Apple
 
 ---
 
+## ADR-0327, precisazione — La parte B0: come l'app mostra un post senza linea
+
+**Stato**: Attiva · 2026-11-05 · TASK-385 parte B0, decisa dall'agente su
+delega dell'utente dentro le sue scelte del 2026-11-04 («Prima foto, se no
+riquadro»); lista dei file approvata dal Coordinatore.
+
+**Decisione**:
+
+1. **`gym` entra in `RUN_ACTIVITIES`** e l'app manda `gym,trackless` in
+   `X-MuW-Reads` dalla stessa build che sa mostrarli. Il cancello è
+   `isTrackless` (`activities/snow.ts`), letto da `TRACKLESS_ACTIVITIES`,
+   accanto a quello dello sci; `routeActivity` dà `undefined` anche per la
+   palestra.
+2. **Nel Feed** il riquadro giallo (🏋️, «Gym», il tempo) sta al posto della
+   mappa; con le foto e senza un ordine scelto, la prima foto viene prima e
+   il riquadro per ultimo; nessuna miniatura della figura sulle foto. Le
+   kcal, il battito e gli esercizi principali nel riquadro vengono con le
+   parti C, G e D: in B0 nessuna richiesta in più per card.
+3. **Il dettaglio** resta `DrawingCard` sopra la mappa senza linea, come lo
+   sci coi suoi impianti: il tempo al posto dei km e gli esercizi
+   (`GET /drawings/{id}/exercises`) raggruppati per esercizio, i pesi in kg
+   o lb come le unità. Spariscono «Start», GPX, «Send to a friend», «Draw it
+   near me», «Edit the drawing», l'iscrizione al concorso e Strava.
+4. **Le miniature** (profilo, ricerca, «My activities») sono il riquadro
+   piccolo, solo 🏋️; nessuna distanza scritta a 0 m.
+5. **I nomi degli esercizi** stanno in `gym/catalog.ts` con le cinque lingue
+   (approvati il 2026-11-04), non nelle tabelle di `i18n`: sono dati del
+   catalogo, confrontati con la fixture del server.
+
+**Conseguenze**: nessuna dipendenza, nessun permesso, nessun file nativo;
+tre testi nuovi nelle tabelle, già approvati. L'OTA va in produzione col sì
+dell'utente prima della parte B, che fa registrare la palestra.
+
+---
 ## ADR-0321 — L'escursionismo: una rete sua, fuori dalle strade delle auto, sulla struttura degli sport
 
 **Stato**: Accettato · 2026-11-05 · TASK-377. Le scelte dell'utente, il
