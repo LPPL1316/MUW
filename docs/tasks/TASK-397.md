@@ -1,7 +1,8 @@
 # TASK-397 — Il VO₂ max nel profilo pubblico
 
-**Stato**: Proposto · solo documenti; due scelte dell'utente fatte; testi,
-privacy e App Privacy da approvare; nessun codice prima del sì sulla
+**Stato**: Proposto · proposta in main (#810); scelte e testi
+dell'interfaccia approvati; privacy e App Privacy da approvare; nessun
+codice prima del sì sulla
 proposta e della lista dei file data al Coordinatore
 **Fase**: 5 · **Branch**: `docs/TASK-397-vo2max-proposal` (documenti); il
 codice `feat/TASK-397-a-…`
@@ -52,14 +53,15 @@ titolare ha detto sì; si spegne in Impostazioni.
    mostrarlo; dopo il sì lo vede chiunque possa aprire il profilo; si spegne
    in Impostazioni. È il consenso esplicito che Apple chiede (linea guida
    5.1.3) per mostrare ad altri un dato di Salute.
+3. **Testi**: «Approvo così» (2026-11-05) — i testi inglesi qui sotto; le
+   traduzioni in it, de, fr, es le fa l'agente con la parte B.
 
 ## Domande aperte (ognuna col sì dell'utente)
 
-1. **I testi** dell'interfaccia, sotto, in cinque lingue.
-2. **La riga dell'informativa** (app e sito) e la voce «Health» di App
+1. **La riga dell'informativa** (app e sito) e la voce «Health» di App
    Privacy: con la parte A per la stima, con la parte C per il valore di
    Salute.
-3. **Il testo nuovo di `NSHealthShareUsageDescription`**: uno solo per
+2. **Il testo nuovo di `NSHealthShareUsageDescription`**: uno solo per
    battito (345 C), dati del corpo (374 C) e VO₂ max, scritto con quei due
    task.
 
@@ -101,7 +103,7 @@ fra i tre lo decide il Coordinatore.
 **A e B** non leggono Salute e possono andare prima, con un OTA: chi non ha
 l'orologio vede la stima, chi ce l'ha la vede finché arriva la 1.0.2.
 
-## Testi proposti (EN; da approvare, poi le traduzioni)
+## Testi (EN; approvati dall'utente il 2026-11-05)
 
 - Riga del profilo: «VO₂ max» · «52» · «ml/kg/min»; sotto, a seconda della
   fonte: «Apple Watch · 3 Nov», «Health Connect · 3 Nov», «Estimate from
