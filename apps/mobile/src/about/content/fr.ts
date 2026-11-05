@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 octobre 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
-const PRIVACY_UPDATED = "4 novembre 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B); redated for the whole drawing (TASK-390). */
+const PRIVACY_UPDATED = "5 novembre 2026";
 
 const help: AboutDocument = {
   title: "Comment fonctionne MuW",
@@ -71,7 +71,7 @@ const help: AboutDocument = {
     {
       heading: "Publier et partager",
       blocks: [
-        "Une course enregistrée est privée : toi seul la vois. Les autres membres voient sur ton profil les totaux de toutes tes courses enregistrées, distance et dénivelé, et tes records (le 5K, le 10K et tes autres distances les plus rapides, à pied et à vélo) avec le temps et la date. Une course privée reste fermée même quand elle contient un record. Choisis «Tout le monde» ou «Abonnés» sous «Qui peut la voir», à la fin de la course ou sur une course de «Mes activités», et ils la voient comme un dessin sur ton profil, sans ses 200 premiers et 200 derniers mètres. La prochaine course que tu termines part de ton dernier choix enregistré : tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
+        "Une course enregistrée est privée : toi seul la vois. Les autres membres voient sur ton profil les totaux de toutes tes courses enregistrées, distance et dénivelé, et tes records (le 5K, le 10K et tes autres distances les plus rapides, à pied et à vélo) avec le temps et la date. Une course privée reste fermée même quand elle contient un record. Choisis «Tout le monde» ou «Abonnés» sous «Qui peut la voir», à la fin de la course ou sur une course de «Mes activités», et ils la voient comme un dessin sur ton profil, entière. La prochaine course que tu termines part de ton dernier choix enregistré : tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
         "Une course que tu publies peut avoir jusqu'à 9 photos et le dessin. Maintiens-en une et fais-la glisser pour changer l'ordre : la première est celle qu'on voit dans le Feed. Choisis une mise en page pour mettre le dessin sur une photo.",
         "«Partager» crée une image de ta course à envoyer où tu veux.",
       ],
@@ -335,9 +335,9 @@ const privacy: AboutDocument = {
         "Avec un compte, quand tu touches «Enregistrer» à la fin d'une course, toute la course part vers notre serveur : chaque position avec son heure et son altitude, les pauses, le parcours suivi, la distance, la durée, un score de la fidélité de la trace au parcours (calculé par notre serveur et non affiché dans l'app) et le nom du lieu. Avec «Ignorer», rien n'est envoyé.",
         "Une course enregistrée est privée, sauf si tu choisis autrement : seul ton compte la voit. Les autres membres voient sur ton profil les totaux de toutes tes courses enregistrées, distance et dénivelé, et tes records, à pied et à vélo, avec le temps et la date où tu les as faits : aussi ceux d'une course privée, qui ne s'ouvre pourtant pas. Elle reste jusqu'à ce que tu la supprimes de «Mes activités» ou que tu supprimes ton compte.",
         "Si tu ajoutes une activité passée depuis un fichier, nous gardons sa trace et ses heures comme pour une course enregistrée avec MuW. Nous ne gardons pas le fichier.",
-        "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres qu'après que tu as choisi «Tout le monde» ou «Abonnés» sous «Qui peut la voir», et ils voient alors la trace sans ses 200 premiers et 200 derniers mètres, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu. Ton choix reste sur ce téléphone pour la course suivante : elle part du dernier enregistré, tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
-        "Qui peut voir une de tes courses peut aussi la suivre avec «Démarrer» et enregistrer cette même trace comme fichier GPX : toujours sans ses 200 premiers et 200 derniers mètres et sans les temps.",
-        "Une photo que tu publies peut contenir le dessin de ta course dans l'image. C'est le même dessin que celui du Feed, coupé au début et à la fin.",
+        "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres qu'après que tu as choisi «Tout le monde» ou «Abonnés» sous «Qui peut la voir», et ils voient alors la trace entière, départ et arrivée compris, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu. Ton choix reste sur ce téléphone pour la course suivante : elle part du dernier enregistré, tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
+        "Qui peut voir une de tes courses peut aussi la suivre avec «Démarrer» et enregistrer cette même trace comme fichier GPX, sans les temps.",
+        "Une photo que tu publies peut contenir le dessin de ta course dans l'image. C'est le même dessin que celui du Feed.",
       ],
     },
     {
@@ -356,7 +356,7 @@ const privacy: AboutDocument = {
       heading: "Messages privés",
       blocks: [
         "Tes messages privés sont gardés sur notre serveur : qui a écrit, à qui, le texte et quand, et pour chacun des deux s'il a accepté la conversation, quand il l'a lue pour la dernière fois et jusqu'à quand il l'a retirée de sa vue. Ils ne sont pas chiffrés de bout en bout. Dans l'app, seuls les deux membres d'une conversation la voient, et personne n'est prévenu qu'un message a été lu. Nous les gardons pour te fournir le service que tu demandes (contrat).",
-        "Un message peut porter une photo, une vidéo ou un dessin. Une photo est gardée réduite, sans les données que ton téléphone y ajoute, comme le lieu et le moment où elle a été prise. Une vidéo est gardée telle que ton téléphone l'envoie, sans le lieu où elle a été tournée, et elle est supprimée 30 jours après l'envoi, ou plus tôt, les plus anciennes d'abord, quand notre espace pour les vidéos est plein. Un dessin est une copie du parcours : une course que tu envoies est coupée au début et à la fin comme dans le Feed, un parcours que tu prévois part entier, avec son départ. Les photos et les vidéos ne sont pas chiffrées de bout en bout, ne sont pas dans nos copies de sauvegarde et sont supprimées avec leur message, la conversation ou ton compte. Quand tu signales un message, la personne qui gère MuW voit aussi sa photo, sa vidéo ou son dessin.",
+        "Un message peut porter une photo, une vidéo ou un dessin. Une photo est gardée réduite, sans les données que ton téléphone y ajoute, comme le lieu et le moment où elle a été prise. Une vidéo est gardée telle que ton téléphone l'envoie, sans le lieu où elle a été tournée, et elle est supprimée 30 jours après l'envoi, ou plus tôt, les plus anciennes d'abord, quand notre espace pour les vidéos est plein. Un dessin est une copie du parcours et arrive entier, avec son départ : une course que tu envoies, comme dans le Feed, comme un parcours que tu prévois. Les photos et les vidéos ne sont pas chiffrées de bout en bout, ne sont pas dans nos copies de sauvegarde et sont supprimées avec leur message, la conversation ou ton compte. Quand tu signales un message, la personne qui gère MuW voit aussi sa photo, sa vidéo ou son dessin.",
         "Un message à quelqu'un qui ne te suit pas arrive comme demande ; le premier message d'une demande passe par le même filtre de mots que les commentaires.",
         "Tu peux supprimer tes propres messages, pour vous deux. Supprimer une conversation la retire de ta vue ; un message que ni l'un ni l'autre ne voit plus est supprimé. Un blocage supprime la conversation ; supprimer ton compte supprime toutes tes conversations, avec les messages des deux.",
         "Quand tu signales un message, l'e-mail à la personne qui gère MuW ne contient que ce message, jamais le reste de la conversation. Avec le push allumé, la notification d'un message en porte le début, via le service push d'Expo et Apple ou Google, comme pour les commentaires.",
@@ -445,7 +445,7 @@ const privacy: AboutDocument = {
             "Strava, comme dit plus haut.",
           ],
         },
-        "Une image ou une vidéo de ta course faites avec «Partager» sont créées sur le téléphone et ne le quittent que par le menu de partage, vers l'endroit où tu les envoies. La vidéo montre la carte autour de ta course, sans ses 200 premiers et derniers mètres.",
+        "Une image ou une vidéo de ta course faites avec «Partager» sont créées sur le téléphone et ne le quittent que par le menu de partage, vers l'endroit où tu les envoies. La vidéo montre la carte autour de ta course, départ et arrivée compris.",
       ],
     },
     {

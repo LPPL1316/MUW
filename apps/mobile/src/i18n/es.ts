@@ -771,6 +771,17 @@ export const ES: Table = {
   "Avg /100 m": "Med. /100 m",
   "Last 100 m": "Últ. 100 m",
 
+  // src/screens/FreeRunScreen.tsx, SnowFinishCard.tsx (TASK-375 part C)
+  "Your day": "Tu jornada",
+  "White: where you skied.": "Blanco: donde esquiaste.",
+  "White: your descents. Dashed: the lifts.":
+    "Blanco: tus descensos. Discontinuo: los remontes.",
+  "Skied: {distance}": "Esquiado: {distance}",
+  Descents: "Descensos",
+  Vertical: "Desnivel",
+  "Top speed": "Vel. máx.",
+  Lifts: "Remontes",
+
   // src/screens/SignInScreen.tsx
   "Sign up": "Registrarse",
   "Log in": "Iniciar sesión",
@@ -1121,10 +1132,8 @@ export const ES: Table = {
     "Las fotos de una carrera que solo ves tú se quedan en este teléfono. Si borras la app o cambias de teléfono, se pierden.",
   "Its photos leave MuW and stay only on this phone.":
     "Sus fotos salen de MuW y se quedan solo en este teléfono.",
-  "Every member sees it in your profile, without the first and last 200 m.":
-    "Todos los miembros la ven en tu perfil, sin los primeros y últimos 200 m.",
-  "Your followers see it in your profile, without the first and last 200 m.":
-    "Tus seguidores la ven en tu perfil, sin los primeros y últimos 200 m.",
+  "Every member sees it in your profile.": "Todos los miembros la ven en tu perfil.",
+  "Your followers see it in your profile.": "Tus seguidores la ven en tu perfil.",
   "Saved on the phone. It is sent when you are back online.":
     "Guardada en el teléfono. Se envía cuando vuelvas a estar en línea.",
   "Saved on the phone. Others see it when you are back online.":
@@ -1873,4 +1882,9 @@ export const ES: Table = {
   Style: "Estilo",
   Night: "Noche",
   Day: "Día",
+  // src/bell/BellButton.tsx, BellOverlay.tsx (TASK-367 part C: the bell)
+  Notifications: "Notificaciones",
+  "Notifications, {count} new": "Notificaciones, {count} nuevas",
+  "No notifications yet. Reactions, comments, follows and tags will show up here.":
+    "Aún no hay notificaciones. Aquí aparecerán reacciones, comentarios, seguimientos y etiquetas.",
 };

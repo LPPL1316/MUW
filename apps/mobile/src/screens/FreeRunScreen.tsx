@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { isOnSnow } from "../activities/snow";
 import type { FreeRun } from "../navigation/freeRun";
 import { freeRunActivity } from "../navigation/freeSport";
 import { t } from "../i18n";
@@ -31,6 +32,7 @@ import { runDistanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { RunCard } from "./RunDashboard";
 import { RunGrid, useRunNumbers } from "./RunPanel";
+import { SnowFinishCard } from "./SnowFinishCard";
 
 /**
  * A run without a route (TASK-149): over the map that follows the runner,
@@ -146,10 +148,20 @@ export function FreeRunCard({
 }
 
 export function FreeFinishBanner() {
+  // A day on the snow is a day, not a run (TASK-375 part C); a day of
+  // skiing has its lifts dashed on the map (part C2).
+  const activity = runActivityOf(useSport());
+  const snow = isOnSnow(activity);
   return (
     <View style={styles.banner}>
-      <Text style={styles.title}>{t("Your run")}</Text>
-      <Text style={styles.message}>{t("White: what you ran.")}</Text>
+      <Text style={styles.title}>{snow ? t("Your day") : t("Your run")}</Text>
+      <Text style={styles.message}>
+        {activity === "skiing"
+          ? t("White: your descents. Dashed: the lifts.")
+          : snow
+            ? t("White: where you skied.")
+            : t("White: what you ran.")}
+      </Text>
     </View>
   );
 }
@@ -163,7 +175,18 @@ type FinishProps = {
   onDone?: () => void;
 };
 
-export function FreeFinishCard({ run, onResume, onDone }: FinishProps) {
+/** The end of a run without a route or, on the snow, of the day
+ * (TASK-375 part C): the sport of «Settings» says which. */
+export function FreeFinishCard(props: FinishProps) {
+  const activity = runActivityOf(useSport());
+  return isOnSnow(activity) ? (
+    <SnowFinishCard {...props} activity={activity} />
+  ) : (
+    <RunFinishCard {...props} />
+  );
+}
+
+function RunFinishCard({ run, onResume, onDone }: FinishProps) {
   const { track } = run;
   // A run that is over: its clock stands at the last fix.
   // On the water, a paddler's numbers: the file says so (TASK-251).

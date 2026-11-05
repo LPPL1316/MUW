@@ -10,8 +10,8 @@ import type { AboutContent, AboutDocument } from "../documents";
  */
 
 const UPDATED = "10 de octubre de 2026";
-/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B). */
-const PRIVACY_UPDATED = "4 de noviembre de 2026";
+/** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B); redated for the whole drawing (TASK-390). */
+const PRIVACY_UPDATED = "5 de noviembre de 2026";
 
 const help: AboutDocument = {
   title: "Cómo funciona MuW",
@@ -71,7 +71,7 @@ const help: AboutDocument = {
     {
       heading: "Publicar y compartir",
       blocks: [
-        "Una carrera guardada es privada: solo la ves tú. Los demás miembros ven en tu perfil los totales de todas tus carreras guardadas, distancia y desnivel, y tus mejores marcas (los 5K, los 10K y tus otras distancias más rápidas, a pie y en bici) con el tiempo y la fecha. Una carrera privada sigue cerrada aunque tenga una mejor marca. Elige «Todos» o «Seguidores» en «Quién puede verla», al final de la carrera o en una carrera de «Mis actividades», y la ven como un dibujo en tu perfil, sin sus primeros y últimos 200 m. La próxima carrera que termines empieza con tu última elección guardada: la ves antes de «Guardar» y puedes cambiarla. Una actividad añadida desde un archivo siempre empieza en «Solo yo».",
+        "Una carrera guardada es privada: solo la ves tú. Los demás miembros ven en tu perfil los totales de todas tus carreras guardadas, distancia y desnivel, y tus mejores marcas (los 5K, los 10K y tus otras distancias más rápidas, a pie y en bici) con el tiempo y la fecha. Una carrera privada sigue cerrada aunque tenga una mejor marca. Elige «Todos» o «Seguidores» en «Quién puede verla», al final de la carrera o en una carrera de «Mis actividades», y la ven como un dibujo en tu perfil, entera. La próxima carrera que termines empieza con tu última elección guardada: la ves antes de «Guardar» y puedes cambiarla. Una actividad añadida desde un archivo siempre empieza en «Solo yo».",
         "Una carrera que publiques puede tener hasta 9 fotos y el dibujo. Mantén pulsada una y arrástrala para cambiar el orden: la primera es la que se ve en el Feed. Elige un diseño para poner el dibujo sobre una foto.",
         "«Compartir» crea una imagen de tu carrera para enviarla donde quieras.",
       ],
@@ -335,9 +335,9 @@ const privacy: AboutDocument = {
         "Con una cuenta, cuando tocas «Guardar» al final de una carrera, la carrera entera va a nuestro servidor: cada posición con su hora y su altura, las pausas, la ruta que seguiste, distancia, duración, una puntuación de cuánto sigue la traza a la ruta (calculada por nuestro servidor y no mostrada en la app) y el nombre del lugar. Con «Descartar» no se envía nada.",
         "Una carrera guardada es privada, salvo que elijas otra cosa: solo la ve tu cuenta. Los demás miembros ven en tu perfil los totales de todas tus carreras guardadas, distancia y desnivel, y tus mejores marcas, a pie y en bici, con el tiempo y la fecha en que las hiciste: también las de una carrera privada, que sin embargo no se abre. Se queda hasta que la eliminas de «Mis actividades» o eliminas tu cuenta.",
         "Si añades una actividad pasada desde un archivo, guardamos su recorrido y sus horas como los de una carrera registrada con MuW. No guardamos el archivo.",
-        "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros después de que elijas «Todos» o «Seguidores» en «Quién puede verla», y entonces ven el recorrido sin sus primeros y últimos 200 m, con el título que le diste, y sin tiempos, pausas ni la ruta prevista. Tu elección se queda en este teléfono para la siguiente carrera: empieza con la última guardada, la ves antes de «Guardar» y puedes cambiarla. Una actividad añadida desde un archivo siempre empieza en «Solo yo».",
-        "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX: siempre sin sus primeros y últimos 200 m y sin tiempos.",
-        "Una foto que publiques puede llevar dentro de la imagen el dibujo de tu carrera. Es el mismo dibujo que muestra el Feed, cortado al principio y al final.",
+        "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros después de que elijas «Todos» o «Seguidores» en «Quién puede verla», y entonces ven el recorrido entero, con la salida y la llegada, con el título que le diste, y sin tiempos, pausas ni la ruta prevista. Tu elección se queda en este teléfono para la siguiente carrera: empieza con la última guardada, la ves antes de «Guardar» y puedes cambiarla. Una actividad añadida desde un archivo siempre empieza en «Solo yo».",
+        "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX, sin tiempos.",
+        "Una foto que publiques puede llevar dentro de la imagen el dibujo de tu carrera. Es el mismo dibujo que muestra el Feed.",
       ],
     },
     {
@@ -356,7 +356,7 @@ const privacy: AboutDocument = {
       heading: "Mensajes privados",
       blocks: [
         "Tus mensajes privados se guardan en nuestro servidor: quién escribió, a quién, el texto y cuándo, y para cada uno de los dos si aceptó la conversación, cuándo la leyó por última vez y hasta cuándo la quitó de su vista. No están cifrados de extremo a extremo. En la app una conversación solo la ven sus dos miembros, y nadie recibe aviso de si un mensaje se ha leído. Los guardamos para darte el servicio que pides (contrato).",
-        "Un mensaje puede llevar una foto, un vídeo o un dibujo. Una foto se guarda reducida, sin los datos que tu teléfono le añade, como dónde y cuándo se hizo. Un vídeo se guarda como lo envía tu teléfono, sin el lugar donde se grabó, y se borra 30 días después de enviarlo, o antes, los más antiguos primero, cuando nuestro espacio para vídeos se llena. Un dibujo es una copia de la ruta: una carrera que envías va recortada al principio y al final como en el Feed, una ruta que planeas va entera, con su salida. Las fotos y los vídeos no están cifrados de extremo a extremo, no están en nuestras copias de seguridad y se borran con su mensaje, la conversación o tu cuenta. Cuando denuncias un mensaje, la persona que gestiona MuW ve también su foto, su vídeo o su dibujo.",
+        "Un mensaje puede llevar una foto, un vídeo o un dibujo. Una foto se guarda reducida, sin los datos que tu teléfono le añade, como dónde y cuándo se hizo. Un vídeo se guarda como lo envía tu teléfono, sin el lugar donde se grabó, y se borra 30 días después de enviarlo, o antes, los más antiguos primero, cuando nuestro espacio para vídeos se llena. Un dibujo es una copia de la ruta y llega entero, con su salida: tanto una carrera que envías, como en el Feed, como una ruta que planeas. Las fotos y los vídeos no están cifrados de extremo a extremo, no están en nuestras copias de seguridad y se borran con su mensaje, la conversación o tu cuenta. Cuando denuncias un mensaje, la persona que gestiona MuW ve también su foto, su vídeo o su dibujo.",
         "Un mensaje a alguien que no te sigue llega como solicitud; el primer mensaje de una solicitud pasa por el mismo filtro de palabras que los comentarios.",
         "Puedes borrar tus propios mensajes, para los dos. Borrar una conversación la quita de tu vista; un mensaje que ya no ve ninguno de los dos se borra. Un bloqueo borra la conversación; borrar tu cuenta borra todas tus conversaciones, con los mensajes de los dos.",
         "Cuando denuncias un mensaje, el correo a la persona que gestiona MuW contiene solo ese mensaje, nunca el resto de la conversación. Con las push encendidas, la notificación de un mensaje lleva su comienzo, a través del servicio push de Expo y de Apple o Google, como con los comentarios.",
@@ -445,7 +445,7 @@ const privacy: AboutDocument = {
             "Strava, como se ha dicho arriba.",
           ],
         },
-        "Una imagen o un vídeo de tu carrera hechos con «Compartir» se crean en el teléfono y solo salen de él por el menú de compartir, hacia donde los envíes. El vídeo muestra el mapa alrededor de tu carrera, sin sus primeros y últimos 200 metros.",
+        "Una imagen o un vídeo de tu carrera hechos con «Compartir» se crean en el teléfono y solo salen de él por el menú de compartir, hacia donde los envíes. El vídeo muestra el mapa alrededor de tu carrera, con la salida y la llegada.",
       ],
     },
     {

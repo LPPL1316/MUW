@@ -11,8 +11,7 @@ import type { PostRun } from "./postRun";
 
 const RAD = Math.PI / 180;
 // A straight run of a kilometre from Trento, 30° west of north: the «up» of
-// a shape turned 30° counterclockwise, long enough to keep its middle once
-// the ends are left out (POST_CUT_M).
+// a shape turned 30° counterclockwise.
 const METRES = 1000;
 const DEGREE = 111_195;
 const K = Math.cos(46.06 * RAD);

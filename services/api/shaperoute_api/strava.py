@@ -48,6 +48,7 @@ from shaperoute_api.db import Database
 from shaperoute_api.drawings import MAX_DESCRIPTION_LENGTH
 from shaperoute_api.run_gpx import run_gpx
 from shaperoute_api.schemas import ErrorBody
+from shaperoute_api.sports import API_SPORTS
 from shaperoute_api.strava_client import (
     ACTIVITY_URL,
     CALLBACK_PATH,
@@ -74,20 +75,9 @@ RECORDED = "Recorded with MuW"
 # A name typed in the app longer than this is cut, not refused: the run
 # still goes.
 MAX_NAME = 100
-# What Strava calls each activity of a run (TASK-208); paddling as stand-up
-# paddling, the user's choice (2026-10-03); a swim in open water is Strava's
-# "Swim" (TASK-323), which has no open-water type of its own; a walk is
-# Strava's "Walk" (TASK-371); a day of alpine or cross-country skiing is
-# Strava's "AlpineSki" or "NordicSki" (TASK-375).
-SPORT_TYPES = {
-    "running": "Run",
-    "cycling": "Ride",
-    "paddling": "StandUpPaddling",
-    "swimming": "Swim",
-    "walking": "Walk",
-    "skiing": "AlpineSki",
-    "xc_skiing": "NordicSki",
-}
+# What Strava calls each activity of a run (TASK-208): in each sport's file
+# (shaperoute_api/sports, TASK-376).
+SPORT_TYPES = {sport.activity: sport.strava_type for sport in API_SPORTS}
 
 STATE_BYTES = 32
 STATE_LIFE = timedelta(minutes=10)

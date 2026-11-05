@@ -152,6 +152,11 @@ https://claude.ai/artifact/XRMFiZ9BWbWnKkdJ9Udtjf. Sei regole, tutte in
    arriva in dissolvenza in 220 ms salendo di 6 pt; i fogli salgono in
    280 ms e rallentano alla fine. Niente rimbalzi. La vibrazione al tocco
    vuole `expo-haptics`, nativo: con una build e il sì dell'utente.
+   **Aggiornato da TASK-388 (ADR-0329):** ciò che si muove si assesta su una
+   molla di `motion.spring` (`snappy`, `smooth`, `island`), appena oltre il
+   segno e mai elastica; `Tap` scende ancora in 120 ms e torna con
+   `snappy`. La vibrazione c'è dove la build ha `expo-haptics` (TASK-361),
+   altrimenti niente. Con «Riduci movimento» solo dissolvenze brevi.
 5. **I due toni disegnati**, non invertiti: la scala dei grigi è pensata
    due volte; `Scrim` è scuro in tutti e due; la linea gialla tiene il
    bordo scuro sul chiaro. Un tono «di sistema» che segue il telefono
@@ -195,8 +200,8 @@ trasparenza), con il tratto più sottile del badge perché il percorso si
 legga. Su Android il cuore sta nel cerchio sicuro dell'icona adattiva, il
 fondo è giallo e l'icona a un colore è il cuore bianco. In Expo Go sulla
 schermata di casa resta l'icona di Expo Go: la nostra si vede con una
-build propria. Dentro l'app il nome in cima a «Draw» resta un testo, con
-a sinistra il cuore su giallo (sotto).
+build propria. Dentro l'app il nome nell'header resta un testo, con a
+sinistra il cuore su giallo (sotto; fino a TASK-392 stava in cima a «Draw»).
 
 **La schermata di avvio** (TASK-165, ADR-0134; gialla da TASK-181): fondo
 giallo `accent`, il logo nero al centro. Su iOS la parola «MuW», larga 260
@@ -226,8 +231,9 @@ piccolo, come un logo. Un quadrato giallo `accent` con gli angoli
 arrotondati (22% del lato), dentro il cuore nero `onAccent` largo il 68%
 del lato, con il punto di partenza; il tratto è 1/16 del lato, più spesso
 di quello dell'avvio, perché il cuore si legga alla misura di una parola.
-In cima a «Draw» sta a sinistra di «MuW», 32 punti, alto quanto il
-titolo. È solo un'immagine: il lettore di schermo legge il nome accanto.
+In cima a «Draw» stava a sinistra di «MuW», 32 punti, alto quanto il
+titolo; da TASK-392 sta così nell'header delle pagine della barra, e
+«Draw» non ha più il logo. È solo un'immagine: il lettore di schermo legge il nome accanto.
 Un componente solo, `src/intro/HeartBadge.tsx` (`size`), per ogni posto
 dove il cuore su giallo compare.
 
@@ -568,7 +574,7 @@ non la ricarica. La scheda sta sotto la mappa, non sopra, così non copre
 l'attribuzione; i margini seguono la tacca e la barra in basso di ogni
 telefono.
 
-## Le pagine e la barra di schede (TASK-367, ADR-0311; prima TASK-154, ADR-0124, e TASK-278)
+## Le pagine e la barra di schede (TASK-367, ADR-0311; lo swipe TASK-379, ADR-0323; prima TASK-154, ADR-0124, e TASK-278)
 
 Con TASK-367 parte A (scelta dell'utente) le pagine non stanno
 più affiancate: **una barra di schede in basso**, come Instagram, cinque
@@ -585,14 +591,58 @@ quello delle richieste di follow. VoiceOver legge ogni scheda col suo nome
 quasi opaca (`background` al 95%): il blur vero chiede `expo-blur`, una
 build.
 
-**Un header uguale su tutte le pagine**: il cuore giallo e «MuW» a
-sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
-(lo dice la barra). La campanella arriva con la parte C.
+**Il movimento della barra** (TASK-388, ADR-0329): dietro la scheda attiva
+una capsula morbida (`surfaceRaised`) che scivola alla nuova con la molla
+`glide`, smorzata criticamente: parte al tocco, prima che la pagina sia
+costruita, e si ferma sulla scheda senza superarla (A2, 2026-11-05); con lo
+swipe segue il dito, e dal profilo al Feed fa il giro uscendo a destra ed
+entrando da sinistra. L'icona premuta scende a 0,9 e torna con la stessa
+molla; quella che prende la scheda sale di 1,5 pt e passa dal contorno al
+pieno in dissolvenza. Una vibrazione leggera solo quando un tocco cambia scheda. Con
+«Riduci movimento» la capsula compare in dissolvenza dove va, le icone
+solo sfumano.
 
-- Un tocco su una scheda mostra la sua pagina **subito, senza swipe** fra le
-  pagine. Ogni pagina resta costruita dopo la prima visita: scroll, campi e
-  scelte restano come erano. «Explore», «Messages» e il profilo si
-  costruiscono la prima volta che ci si arriva.
+**L'isola** (TASK-388 B, `src/ui/Island.tsx`): una capsula scura in alto al
+centro per una parola breve dopo un gesto, come la Dynamic Island. Nasce
+piccola, si allarga, poi si alza; le parole compaiono quando è aperta,
+restano un attimo, poi va via nello stesso modo. Non prende i tocchi. Con
+«Riduci movimento» compare e sparisce solo in dissolvenza. La usano «Sent
+to {name}.» di «Send to a friend» e «Thanks for telling us. We will look at
+it.» dopo ogni segnalazione (post, profilo, messaggio, commento): il foglio
+si chiude e il grazie arriva nell'isola. Altri punti li decide l'utente.
+
+**Un header uguale su tutte le pagine**: il logo a sinistra, cioè il
+cuore su giallo da 32 punti e «MuW» in `fontSize.title` grassetto (da
+TASK-392; prima il cuore pieno di Lucide), il pulsante dello sport a destra; nessun nome di pagina in alto
+(lo dice la barra). **La campanella** (parte C) sta a destra, prima dello
+sport: l'icona di Lucide, con il numero rosso delle righe non lette come le
+schede; VoiceOver la legge «Notifications, 3 new». C'è solo con un account e
+un server che ha la lista: senza, niente campanella e nessun errore. Un tocco
+apre la lista sopra l'app, come «Messages»: «←» e «Notifications», poi le
+righe, le più nuove prima, ognuna con la foto di chi ha agito, il testo della
+push e quando; quella non letta più marcata e con un pallino rosso. Aperta, è
+letta fino alla più nuova. Una riga chiude la lista e apre quello che apre la
+sua push; vuota dice «No notifications yet. Reactions, comments, follows and
+tags will show up here.».
+
+- Un tocco su una scheda mostra la sua pagina **subito**, senza scorrere
+  sopra quelle in mezzo. Ogni pagina resta costruita dopo la prima visita:
+  scroll, campi e scelte restano come erano. «Explore», «Messages» e il
+  profilo si costruiscono la prima volta che ci si arriva.
+- **Lo swipe** (TASK-379, scelte dell'utente): uno swipe a sinistra o a
+  destra porta alla scheda accanto, e la pagina segue il dito con quella
+  accanto che entra; la barra cambia quando la pagina si ferma. **In giro
+  continuo**: dopo il profilo viene «Feed», prima di «Feed» il profilo. Vale
+  su tutte e cinque le schede. Senza account lo swipe che si ferma su
+  «Messages» mostra subito il profilo, come il tocco.
+- Un dito che parte su una fila che scorre di lato (le città, le schede di
+  «Explore», «NEAR YOU», le foto di un post) resta alla fila, anche alla sua
+  fine, dove rimbalza; la scheda con il disegno e poi la foto passa alla sua
+  fila (TASK-350). Una seconda scivolata veloce mentre una fila rimbalza
+  alla fine passa invece alla pagina accanto: lo decide iOS. Dentro le
+  pagine non ci sono mappe da trascinare: sono immagini.
+- Con VoiceOver o TalkBack acceso lo swipe fra le pagine è spento: si va
+  con le schede, come prima. Lo swipe chiude la tastiera.
 - **Il tocco sulla scheda già attiva** riporta la pagina in cima (Feed,
   Draw, Explore, Messages) o alla sua prima vista (il profilo).
 - Su Android il tasto indietro torna alla scheda di prima, poi esce.
@@ -606,8 +656,8 @@ sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
 - Barra e header non ci sono su mappa, corsa, corsa senza percorso, «Play»,
   corsa interrotta riaperta: lì la schermata è intera, come prima.
 
-Quello che segue descrive le pagine; dove parla di swipe e di nomi in alto
-vale la barra qui sopra.
+Quello che segue descrive le pagine; dove parla di nomi in alto vale la
+barra qui sopra, e lo swipe è quello qui sopra.
 
 - L'app si apre su «Draw». Forma, parola, distanza e partenza restano come
   erano dopo un giro sulle altre pagine.
@@ -1184,9 +1234,11 @@ mappa è quella di prima.
   zones. It stays on this phone.», poi «Sex» («Male», «Female», «Prefer not to
   say»), «Weight» (kg o lb), «Height» (cm, o ft e in con le miglia), «Year of
   birth», e in fondo, piccolo, «Calories are an estimate. Weight matters
-  most.». Ogni campo si tiene appena scritto, ha «Clear» accanto al nome
-  quando è pieno, e fuori dai limiti dice perché («Enter a weight between 30
-  and 300 kg.») senza tenerlo. Tutto resta sul telefono.
+  most.». L'unità sta dentro il riquadro, dopo il numero, e un tocco su di
+  essa apre la tastiera (TASK-383). Ogni campo si tiene appena scritto, ha
+  «Clear» accanto al nome quando è pieno, e fuori dai limiti dice perché
+  («Enter a weight between 30 and 300 kg.») senza tenerlo. Tutto resta sul
+  telefono.
   In fondo alla pagina, la riga **«Heart rate zones»** (TASK-374 parte B,
   ADR-0318 §6 e §15) apre un'altra pagina intera, «Back» in alto: «Max heart
   rate» (in bpm, dall'età con sotto «Estimated from your age», o scritta a
@@ -1195,7 +1247,10 @@ mappa è quella di prima.
   zone: «Zone 1 Recovery», «Zone 2 Endurance», «Zone 3 Tempo», «Zone 4
   Threshold», «Zone 5 Max», ognuna con «108 –» e il limite alto in una
   casella. Il limite alto delle zone 1–4 si scrive a mano e diventa l'inizio
-  della zona dopo; quello della zona 5 è la FC massima. Sotto la tabella, solo
+  della zona dopo; quello della zona 5 è la FC massima. In ogni casella
+  «bpm» sta dentro il riquadro, dopo il numero, e un tocco su di esso apre la
+  tastiera; il limite della zona 5, che non si scrive, non ha riquadro ma
+  tiene «bpm» allo stesso posto (TASK-386). Sotto la tabella, solo
   se un limite è stato cambiato, «Back to calculated zones». Senza anno di
   nascita né FC massima, al posto della tabella: «Add your year of birth or
   your max heart rate to see your zones.». Una FC fuori dai limiti dice

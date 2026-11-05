@@ -18,7 +18,9 @@ ADR-0195): the app shows the run turned back, so the drawing reads upright.
 A fix may carry the phone's height (TASK-324, ADR-0284): the API counts the
 metres climbed itself (run_climb.py), for the totals of the profile. It
 counts the run's bests over the distances of the profile too (TASK-368,
-personal_bests.py): deleting the run deletes them.
+personal_bests.py): deleting the run deletes them. The list leaves out the
+runs of an activity the app does not read, as its header X-MuW-Reads says
+(reads.py, TASK-387): a phone with an older app on the same account.
 """
 
 from __future__ import annotations
@@ -32,7 +34,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Annotated, Any, Literal, NotRequired
+from typing import Annotated, Any, Literal, NotRequired, cast
 
 from fastapi import (
     APIRouter,
@@ -75,6 +77,7 @@ from shaperoute_api.game import after_run_saved, notify_unlocked
 from shaperoute_api.insights import Insights
 from shaperoute_api.personal_bests import keep_run_bests, run_bests
 from shaperoute_api.places import KEY_VARIABLE, Fetch, fetch_json
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.route_archive import count_run
 from shaperoute_api.run_climb import climb_m
@@ -86,6 +89,7 @@ from shaperoute_api.schemas import (
     TrackFixBody,
     Walk,
 )
+from shaperoute_api.sports import API_SPORTS
 
 # Years of a run a day, and one account cannot fill the database.
 MAX_ACTIVITIES = 2_000
@@ -130,8 +134,12 @@ RunActivity = Literal[
     "running", "cycling", "paddling", "swimming", "walking", "skiing", "xc_skiing"
 ]
 # A day on the snow: recorded and shown, never planned by the engine. Its
-# speeds are no runner's nor rider's, so it gives no personal best.
-RECORD_ACTIVITIES: tuple[RunActivity, ...] = ("skiing", "xc_skiing")
+# speeds are no runner's nor rider's, so it gives no personal best. The
+# sports say it (shaperoute_api/sports, TASK-376); RunActivity stays a
+# Literal for the types, the same names (test_sport_registry_api.py).
+RECORD_ACTIVITIES: tuple[RunActivity, ...] = tuple(
+    cast(RunActivity, sport.activity) for sport in API_SPORTS if sport.record_only
+)
 # Where a run comes from (TASK-312, ADR-0272): recorded by the app, or a file
 # of another app read on the phone. Only `muw` counts for the shape game and
 # the contest.
@@ -723,12 +731,17 @@ class Activities:
     now: Callable[[], datetime] = now_utc
 
     def listing(
-        self, user_id: int, limit: int = PAGE_SIZE, cursor: str | None = None
+        self,
+        user_id: int,
+        limit: int = PAGE_SIZE,
+        cursor: str | None = None,
+        reads: Reads = EVERYTHING,
     ) -> ActivitiesBody:
-        """A page, the latest run first. The cursor is a place in the order,
-        not a row: the next page is right even after a run of this one was
+        """A page, the latest run first, of the activities `reads` shows;
+        `total` counts them all. The cursor is a place in the order, not a
+        row: the next page is right even after a run of this one was
         deleted, or a new one saved."""
-        where = "user_id = %s"
+        where = f"user_id = %s AND {reads.sql('activity', 'track IS NOT NULL')}"
         values: list[Any] = [user_id]
         if cursor is not None:
             where += " AND (started_at, id) < (%s, %s)"
@@ -891,10 +904,11 @@ def activity_routes() -> APIRouter:
     def list_activities(
         activities: Annotated[Activities, Depends(activities_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
     ) -> ActivitiesBody:
-        return activities.listing(user.id, limit, cursor)
+        return activities.listing(user.id, limit, cursor, reads)
 
     @router.get("/me/activities/{key}", responses={404: {"model": ErrorBody}})
     def get_activity(

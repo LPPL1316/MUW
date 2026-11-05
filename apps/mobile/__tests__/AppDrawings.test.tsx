@@ -285,17 +285,9 @@ test("«Who can see it» starts at «Only me»; «Everyone», and «Save» publi
   expect(
     await screen.findByRole("radio", { name: "Only me", checked: true }),
   ).toBeOnTheScreen();
-  expect(
-    screen.queryByText(
-      "Every member sees it in your profile, without the first and last 200 m.",
-    ),
-  ).toBeNull();
+  expect(screen.queryByText("Every member sees it in your profile.")).toBeNull();
   await fireEvent.press(screen.getByRole("radio", { name: "Everyone" }));
-  expect(
-    screen.getByText(
-      "Every member sees it in your profile, without the first and last 200 m.",
-    ),
-  ).toBeOnTheScreen();
+  expect(screen.getByText("Every member sees it in your profile.")).toBeOnTheScreen();
   expect(screen.getByLabelText("Title").props.placeholder).toBe("Give it a name");
   await fireEvent.changeText(screen.getByLabelText("Title"), " Sunday heart ");
 
@@ -445,11 +437,7 @@ test("on a run of «My activities», «Public» publishes it and the title chang
     await screen.findByRole("radio", { name: "Everyone", checked: true }),
   ).toBeOnTheScreen();
   expect(bodyOf("PUT", STAR_DRAWING)).toEqual(choice({ visibility: "everyone" }));
-  expect(
-    screen.getByText(
-      "Every member sees it in your profile, without the first and last 200 m.",
-    ),
-  ).toBeOnTheScreen();
+  expect(screen.getByText("Every member sees it in your profile.")).toBeOnTheScreen();
 
   const title = screen.getByLabelText("Title");
   await fireEvent.changeText(title, "Star of Trento");

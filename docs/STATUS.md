@@ -160,12 +160,164 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
+  (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
+  anche le vecchie»; testi nuovi approvati il 2026-11-05. Parte A (API +
+  `drawing_retrack.py`, nessuna migrazione) in PR; parte B (app + testi +
+  `site/privacy`) dopo. Il ricalcolo in produzione è un comando dell'utente,
+  col suo sì, solo dopo che la privacy nuova è sul sito. `tasks/TASK-390.md`.
+  **Chiuso il 2026-11-05**: #781 (`ab1215a2`) e #782 (`cb80209a`) in main;
+  vedi «Completato».
+- **TASK-392 — Il logo stilizzato nell'header, non più in cima a «Draw»**
+  (2026-11-05; numero dal Coordinatore; ADR-0311, precisazione). L'header delle pagine della
+  barra mostra il cuore su giallo (`HeartBadge`, 32 punti) e «MuW» grande in grassetto, al posto
+  del cuore di Lucide; in cima a «Draw» resta solo «Run without a route». Cambia la scelta di
+  TASK-367 sui loghi dentro le pagine, solo per «Draw». Solo app, nessun testo nuovo. Branch
+  `feat/TASK-392-header-logo`; la unisce il Coordinatore a CI verde; anteprima e OTA dal
+  Coordinatore. `tasks/TASK-392.md`.
+  **Chiuso il 2026-11-05**: #787 in main (650d7685); vedi «Completato».
+- **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; numeri dal
+  Coordinatore; ADR-0331; richiesta dell'utente). Ogni job di `ci.yml` comincia con
+  `tools/ci_changes.py`: se la PR cambia solo `docs/` e `.md` fuori dalle cartelle di codice,
+  gli altri passi saltano e i check obbligatori finiscono verdi con lo stesso nome; per il
+  codice e su `main` non cambia niente. Un push nuovo su una PR cancella il run vecchio
+  (`concurrency`, anche in `site.yml`). Branch `chore/TASK-393-ci-skip-docs-only`; la unisce
+  il Coordinatore a CI verde. `tasks/TASK-393.md`.
+  **Chiuso il 2026-11-05**: #788 in main (d99d2033); vedi «Completato».
+- **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
+  `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
+  in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
+  migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
+  **Parte A chiusa il 2026-11-05**: #773 in main (fa027173); vedi «Completato».
+- **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
+  l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
+  brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
+  ciascuna, solo `Animated` di React Native sul driver nativo, impronta iOS
+  invariata; video prima/dopo e ok dell'utente prima di ogni merge.
+  **Parte A** (branch `feat/TASK-388-a-springs-tab-bar`): `motion.spring`
+  (`snappy`, `smooth`, `island`), `src/ui/motion.ts`, `Tap` che torna con la
+  molla, la capsula della `TabBar` che scivola, icone che salgono e si
+  riempiono, vibrazione al cambio di scheda. La prop `drag` (la capsula segue
+  lo swipe) si cabla in `TabShell` dopo il merge della #764 di TASK-379.
+  Poi B (l'«isola», un solo punto dell'app) e C (fogli e liste, dopo la #760).
+  `tasks/TASK-388.md`.
+  Parte A in PR, la #770, in bozza; aspetto approvato dall'utente il
+  2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Dopo la #764 `TabShell`
+  passa a `TabBar` lo spostamento del dito (`drag`): la capsula segue lo swipe.
+  **Parte A in `main`** (#770, 0d7819c4, 2026-11-05, CI verde). Prossimo: la
+  parte B, l'«isola», in un contesto nuovo. L'OTA di produzione col sì
+  dell'utente.
+  **A2, la barra più fluida** (2026-11-05, branch
+  `fix/TASK-388-a2-smoother-tab-bar`): l'utente l'ha trovata «un po'
+  macchinosa» sul telefono. Molla `glide` smorzata criticamente, niente
+  allungamento, capsula e icona che partono al tocco invece che dopo la
+  pagina, nessun salto se tocco e swipe si sovrappongono. Impronta 6f8bba4c.
+  Video in `out/TASK-388/a2-*`; merge del Coordinatore dopo l'ok dell'utente.
+  **A2 in `main`** (#780, 07d5833c, 2026-11-05); l'anteprima sul telefono la
+  pubblica il Coordinatore.
+  **Parte B, l'isola** (2026-11-05, branch `feat/TASK-388-b-island`):
+  `src/ui/Island.tsx` e `useIsland`, una capsula scura in alto che si allarga,
+  poi si alza, mostra le parole e si richiude, con la molla `island`; con
+  «Riduci movimento» solo una dissolvenza. Collegata a un solo punto:
+  «Sent to {name}.» di «Send to a friend» (`SendToFriend`); dove altro
+  usarla lo decide l'utente. Impronta 6f8bba4c. Video in `out/TASK-388/b-*`.
+  Scelta dell'utente (2026-11-05): anche «Thanks for telling us…» dopo ogni
+  segnalazione (post, profilo, messaggio, commento), con `sayInIsland` e un
+  `IslandLayer` sopra l'app in `Root.tsx`; stessa PR, la #786.
+- **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
+  «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
+  fuori dal riquadro; scelta dell'utente «Dentro il riquadro»: «kg»/«cm», con
+  le miglia «lb» e «ft» + «in», accanto al numero, e un tocco sull'unità apre
+  la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
+  la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
+  nessun testo nuovo. `tasks/TASK-383.md`.
+  **Chiuso il 2026-11-05**: #759 in main (`a5c1d5b2`); vedi «Completato».
+
+- **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
+  (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
+  materiali in `out/TASK-384/` (100 outfit da zalando.it, 100 prompt). Scelte dell'utente:
+  sport dell'app, 1 ogni 8 solo «All», Google Imagen / Gemini, Style prima della società.
+  Prossimo: il sì sulla proposta, i testi e i Termini nuovi, poi le parti A–C. Nessuna immagine
+  né post sul server senza il sì dell'utente. `tasks/TASK-384.md`.
+  **Proposta approvata dall'utente il 2026-11-04** («Sì, approvo»); prossimo: i testi in cinque
+  lingue e i nuovi Termini e Privacy, poi la parte A.
+  **Testi approvati il 2026-11-04** («Sì, approvo tutti»), in `tasks/TASK-384.md`; Termini e
+  Privacy cambiano con la prima versione con Style. Prossimo: la parte A (API), con la lista dei
+  file al Coordinatore prima del codice.
+- **TASK-379 — Lo swipe fra le schede, con la barra in basso** (ADR-0323,
+  proposta; richiesta dell'utente del 2026-11-04; numeri dal Coordinatore).
+  Corregge il «niente swipe» di ADR-0311. Branch `docs/TASK-379-tab-swipe`
+  (documenti), poi `feat/TASK-379-tab-swipe` (`TabShell`, solo app, nessuna
+  dipendenza nuova). Prossimo passo: le tre scelte dell'utente, una alla
+  volta, poi la lista dei file al Coordinatore. `tasks/TASK-379.md`.
+  **Scelte fatte** (2026-11-04): la pagina segue il dito, giro continuo dal
+  profilo al Feed, su tutte e cinque le schede. Documenti nella #757.
+  **Chiuso** (2026-11-04): codice nella #764 (`TabShell` sulla striscia di
+  `tabStrip.ts`, solo app, `App.tsx` non cambia), provato nel simulatore in
+  scuro e in chiaro; con VoiceOver lo swipe è spento. Restano: l'impronta
+  all'anteprima (Coordinatore), la prova sul telefono, l'OTA col sì
+  dell'utente. Limite scritto nel task file: una seconda scivolata veloce
+  alla fine di una fila passa alla pagina accanto.
+- **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-369 B). Su un esempio di «Explore» sui
+  laghi, con «Paddle», «Draw route» dopo «Edit the drawing» diceva «Something went wrong». Il
+  server rispondeva 422 «outline: the outline crosses itself»: il tratto dalla riva lascia nel
+  contorno una punta o un nastro, e l'arrotondamento di `canvasRequest.framed` ne fa toccare i
+  lati dopo il controllo dell'app. Ora `mapdraw/sentOutline.ts` controlla il contorno come parte,
+  con la regola del motore, e ne toglie gli angoli che si toccano. Solo JS: server, motore,
+  contratto e testi invariati, impronta iOS 6f8bba4c. Branch `fix/TASK-382-paddle-edit-422`;
+  prova sul telefono e OTA col sì dell'utente. `tasks/TASK-382.md`.
+  **Chiuso il 2026-11-05**: #767 (830a147e) e #769 (f4e7a2ad) in main; vedi «Completato».
+
+- **TASK-389 — Il test della pool che a volte contava tre connessioni**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-288 B; ADR-0249, precisazione).
+  `test_the_pool_closes_when_the_app_never_started` falliva in CI con «assert 3 == 2» (7 volte
+  dal 26 al 30 ottobre, anche su PR senza codice dell'API). La terza riga di `pg_stat_activity`
+  era un autovacuum worker su `spatial_ref_sys`, riempita da PostGIS: si vede nei log del server
+  sul Mac. Il test conta solo i client, aspetta il numero giusto e legge il conteggio della pool.
+  Cambia solo il test. Branch `fix/TASK-389-flaky-pool-test`; la unisce il Coordinatore a CI
+  verde. `tasks/TASK-389.md`.
+  **Chiuso il 2026-11-04**: con la fusione della sua PR; vedi «Completato».
+
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-366). «Share» sulla card del Feed
   (TASK-355 A) apre `SharePost` dentro il `Pager`, che azzera il margine alto: ora il `Modal` ha
   un suo `SafeAreaProvider`. Branch `fix/TASK-381-share-post-inset`; la unisce il Coordinatore a
   CI verde; OTA col sì dell'utente. Solo app, nessun testo nuovo. `tasks/TASK-381.md`.
   **Chiuso il 2026-11-04**: #750 in main (9e2089a9); vedi «Completato».
+
+- **TASK-385 — «Gym» 🏋️, la palestra senza percorso** (ADR-0327 proposto;
+  richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-385-gym-proposal` (documenti). Scelte dell'utente fatte: nome,
+  kcal MET sempre, esercizi subito con il catalogo completo (anche tapis
+  roulant e macchine cardio), elenco nel post nascondibile, prima foto o
+  riquadro dei numeri, azioni tolte, traguardi con figure, classifica
+  mensile, video della serie (1.0.2), timer di recupero, testi approvati.
+  Sessione senza traccia: migrazione e post nascosti alle app vecchie
+  (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
+  Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
+  2026-11-05: proposta in `main` (#766); i post senza traccia passano
+  dall'header di TASK-387 (`gym` + `trackless`), niente filtro proprio.
+
+- **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
+  (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo
+  rinasceva vuoto e si riempiva di nuovo, e «Messages» mostrava «Loading…» al posto della
+  lista. Ora «Messages» rilegge sul posto e il profilo si ricostruisce quando lo si lascia.
+  Branch `fix/TASK-391-tab-landing-flash`; la unisce il Coordinatore a CI verde; OTA col sì
+  dell'utente. Solo app, nessun testo nuovo, `TabShell`/`TabBar` non toccati. `tasks/TASK-391.md`.
+  **Done** (2026-11-05): #785 in `main` (68fbd14b), nella preview del Coordinatore; da vedere
+  sul telefono, OTA di produzione col sì dell'utente.
+
+- **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
+  «Dentro il riquadro» per peso e altezza: «Sì, task a parte». «bpm» stava piccolo e grigio a
+  destra delle caselle; ora sta dentro, dopo il numero e nella sua dimensione, in «Max heart
+  rate», «Resting heart rate» e nei limiti delle zone 1–4, e un tocco su «bpm» apre la tastiera.
+  La zona 5, che non si scrive, resta senza riquadro con «bpm» allo stesso posto. Branch
+  `fix/TASK-386-zones-bpm-box`; la unisce il Coordinatore a CI verde; OTA col sì dell'utente.
+  Solo app, nessun testo nuovo, `BodyPage.tsx` non toccato. `tasks/TASK-386.md`.
+  **Chiuso il 2026-11-05**: #761 in main (cebe5412); vedi «Completato».
 
 - **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
   ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
@@ -181,6 +333,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   struttura per scelta dell'utente), TASK-378 / ADR-0322 (Gravel/MTB); il
   terzo sport della fase 1 è il Roller (scelta dell'utente), TASK-380 / ADR-0324,
   riservati dal Coordinatore. `tasks/TASK-376.md`.
+  **Parte B1 in PR** (2026-11-04, `feat/TASK-376-b-sport-registry`): reti e
+  attività del motore nei registri `networks/` e `activities/`, gli stessi
+  valori; la prova `test_same_routes.py` dà percorsi identici, quindi
+  `SAME_ROUTES_AS` tiene le impronte di prima (5b5e026cea9b, b9d00c37d28d,
+  574fbfba41eb): **nessuna notte di esempi**, il server si aggiorna da `main`
+  come prima. B2 (contratto e API) e B3 (app) dopo la #758.
+  **Parte B1 in `main`** (#763, 2026-11-04 sera). B2 (contratto e API):
+  lista dei file al Coordinatore il 2026-11-05, codice al suo via; poi B3.
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
@@ -202,6 +362,22 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     con il solo «Record your day», salvataggio come `skiing`/`xc_skiing`,
     Apple Salute e Health Connect (ADR-0319, punto 7). Prossimo: B2, cioè
     lo sci nel Feed, nelle schede e nei messaggi.
+  - 2026-11-04: **B2**: lo sci nel Feed e nei profili come un post qualsiasi,
+    con il nome dello sport, senza le azioni da percorso (scelta
+    dell'utente, ADR-0319 punto 8). Prossimo: la parte C (le metriche della
+    giornata), con i testi da approvare.
+  - 2026-11-05: **C1**: a fine giornata di sci i km delle discese, le
+    discese, il dislivello, la velocità massima e media e le risalite,
+    letti sul telefono; il fondo con distanza, passo e salita; niente
+    calorie (testi approvati, ADR-0319 punto 9). Prossimo: C2, le risalite
+    tratteggiate sulla mappa, col via del Coordinatore.
+  - 2026-11-05: **C2**: sulla mappa di fine giornata di sci le discese sono
+    piene e le risalite tratteggiate (ADR-0319 punto 10). Prossimo: la parte
+    D (nomi di impianti e piste sul server: server e riga privacy col sì
+    dell'utente).
+  - 2026-11-05: **C2 in `main`** (#783, 9adb22d1), nell'anteprima del
+    Coordinatore. La parte C è chiusa. La parte D resta chiusa finché il
+    Coordinatore non ne ha parlato con l'utente; poi E (la prova sulla neve).
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -228,6 +404,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   il server con la 0043, il sì dell'utente. Resta la parte C (il gioco):
   prima va chiesto all'utente se le camminate contano anche nei concorsi.
   Vedi `tasks/TASK-371.md`, «Esito».
+  **Parte C** (2026-11-04, branch `feat/TASK-371-c-walk-game`): le
+  camminate danno i metri al gioco, senza tempi migliori («Solo i metri»,
+  scelta dell'utente), con `RULES_VERSION` 2. I concorsi le accettano già.
+  Il server e `game_backfill` vanno nel giro delle migrazioni 0043–0045,
+  col sì dell'utente.
 - **TASK-373 — Sci alpino: proposta e misure** (ADR-0317 **proposto**;
   richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-373-ski-proposal`: solo documenti e misure, **nessun codice**
@@ -293,6 +474,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   /notifications/read`, migrazione `0045_notification_list`; server e
   migrazione col sì dell'utente; durata (90 giorni) e frase della privacy
   approvate («Sì, approvo»), `site/privacy` rigenerato. C2 (la campanella nell'app) dopo la #734.
+  **Parte C2** (2026-11-04, branch `feat/TASK-367-c2-bell`): la campanella
+  nell'header con il numero dei non letti e la lista sopra l'app; ogni riga
+  apre quello che apre la sua push; niente campanella con un server senza
+  lista. Tre testi approvati. Solo app: arriva con un OTA, col sì
+  dell'utente, dopo il server con la `0045`.
+  **Chiuso** (2026-11-04): A #716, B #729, C1 #745, C2 #756 in main. Restano
+  fuori dal codice, col sì dell'utente: il server con la
+  `0045_notification_list`, la copia del sito (privacy) e l'OTA.
 - **TASK-368 — I record personali nel Profilo, a piedi e in bici** (ADR-0312,
   proposta; richiesta dell'utente del 2026-11-02; numeri dal Coordinatore).
   Branch `docs/TASK-368-personal-bests` (documenti). Scelte dell'utente tutte
@@ -320,6 +509,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   riposo (Karvonen), cinque zone con la cima delle zone 1–4 modificabile e
   «Back to calculated zones», in `heart.json` sul telefono; solo app, OTA.
   Testo d'errore delle FC approvato dall'utente. Poi C e D nella 1.0.2.
+  Parte B in `main` con la PR #746 (`a1ff05da`); impronta all'anteprima e OTA
+  col Coordinatore. Prossimo: C (lettura da Salute) e D (tempo in zona) con
+  TASK-345 C nella 1.0.2.
   **Parte A** (2026-11-04): branch `feat/TASK-368-a-personal-bests-api`,
   migrazione `0042_run_bests`, `personal_bests` nel profilo, script
   `personal_bests_backfill`; server, migrazione e script col sì dell'utente.
@@ -486,6 +678,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   pixel di `hairline`, `Tap` prende un `ref`. La C1 (pagine vuote, testi
   nuovi) aspetta il sì dell'utente sui testi; poi D. Il 2026-11-04,
   su richiesta dell'utente, riallineata su `main` (con la #620) e aperta.
+  **Parte C2 in `main` dal 2026-11-04** (#715, nel lotto #717 del
+  Coordinatore). **Parte D in PR dal 2026-11-04** (branch
+  `feat/TASK-339-premium-look-d`): il nome del profilo come titolo leggero,
+  i totali leggeri in cifre tabulari, «Settings» senza bordi, i due fogli
+  (super like, messaggi) col titolo `heading` e un pixel in cima, `Tap` sui
+  pulsanti. Senza testi; `ProfileHome` e `UserProfilePage` restano a
+  TASK-309 B. Poi C1 (testi da approvare) ed E.
 - **TASK-361 — «Draw» in tre secondi** (ADR-0307; richiesta dell'utente
   del 2026-10-30; numeri dal Coordinatore). Un solo giallo («Run without a route» con contorno e 🏃),
   la via della partenza, la griglia a due righe, la forma in scala, mezzo
@@ -845,6 +1044,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   («Dopo lo sci»), con `main` unito dentro; prima dell'OTA,
   `draw_examples --swim` sul server. Le curve senza nome a riva finché non
   gira `shore_extract`. Aggiunta ad ADR-0283.
+  **Prima in preview** (2026-11-05, scelta dell'utente, «Subito in
+  preview»): branch `feat/TASK-323-swim-preview`, il nuoto acceso in Expo Go
+  e `preview` (`preview: true` in `sport.ts`), lo store ancora senza fino
+  alla #765 (ferma per TASK-387). Poi un OTA della sola `preview`. Niente
+  nuoti pubblicati nel Feed finché TASK-387 non è sul server. Aggiunta ad
+  ADR-0283.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
@@ -2528,8 +2733,100 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso il 2026-10-29**: D in `main` con la #639 (dd607e89), quindi
   A–D tutte in `main`. Voce in «Completato».
 
+- **TASK-387 — Le app vecchie non ricevono le attività che non sanno
+  leggere** (ADR-0328; «sì protezione» dell'utente, 2026-11-04; numeri e
+  via dal Coordinatore). Branch `feat/TASK-387-reads-guard`, una PR per API
+  e app. L'app manda `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in
+  ogni richiesta di `ask`; il server toglie da Feed, ricerca, profili,
+  concorsi, corse di gruppo, messaggi, preferiti, «My activities», foto del
+  profilo e campanella ciò che l'header non dichiara; senza header solo
+  corsa, bici e pagaia. Nessuna migrazione, nessun testo nuovo. Dopo il
+  merge: server e OTA di produzione col sì dell'utente, poi il nuoto
+  (#765). `tasks/TASK-387.md`.
+  **Chiuso il 2026-11-05**: #794 in main (`bf02766f`); vedi «Completato».
+
+- **TASK-394 — I capi che indossi: tag sui propri post con il link al
+  negozio** (2026-11-05; numero dal Coordinatore; idea dell'utente detta alla
+  sessione di TASK-384). Proposta, solo documenti: l'iscritto segna sulle foto
+  dei suoi post tipo, marca, modello e link; chi guarda apre la scheda di Style
+  e «Shop» nel browser. Riusa forma del tag, scheda e conteggi di TASK-384;
+  per ora nessun guadagno, né per MuW né per l'iscritto (il guadagno è un passo
+  di affari e di legge, solo nominato). Branch `docs/TASK-394-member-outfit-tags`;
+  la unisce il Coordinatore. Prossimo: le cinque scelte dell'utente, una alla
+  volta, poi il sì sulla proposta, i testi e l'ADR dal Coordinatore; la parte B
+  (app) dopo TASK-384 B. `tasks/TASK-394.md`.
+- **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
+  Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
+  Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,
+  se no la stima di MuW dai record di corsa (VDOT di Daniels) con la scritta
+  «stima»; visibile a chi apre il profilo solo dopo un sì, spegnibile in
+  Impostazioni. A (API) e B (app, solo stima) possono andare con un OTA; C
+  (lettura da Salute) entra nel testo unico di `NSHealthShareUsageDescription`
+  della 1.0.2 con TASK-345 C e TASK-374 C. Branch
+  `docs/TASK-397-vo2max-proposal`; la unisce il Coordinatore. Prossimo: il sì
+  dell'utente sui testi, poi la lista dei file della parte A al Coordinatore.
+  `tasks/TASK-397.md`.
+
 ## Completato
 
+- **TASK-384 A — L'API di MuW Style** (2026-11-05; ADR-0326). #773 in main (`fa027173`):
+  migrazione `0046_style_posts.sql`, `GET /style` con tema, genere e pagine, il post, la foto,
+  `POST /style/tags/{id}/open` e `/shop` contati per giorno senza dati personali, il link di
+  Awin solo con gli ID in `.env` (altrimenti la pagina del negozio), `style_import.py` per
+  caricare o nascondere un post approvato; tipi in `shared-types`. Testi #771 in main.
+  Server: 0046 e il codice di A sono in produzione dal 2026-11-05 (f10033ce); restano, col sì
+  dell'utente, gli ID Awin nel `.env` del server e i post. Prossimo: l'iscrizione ad Awin
+  (dell'utente); la parte B (app) e la C (immagini e post).
+- **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
+  (2026-11-05; ADR-0330). #781 in main (`ab1215a2`): il server tiene in
+  `drawings.track` la traccia intera, senza orari (`shown_track`), e una corsa
+  di 300 m si pubblica; `python -m shaperoute_api.drawing_retrack` conta i
+  disegni tagliati e con `--apply` li ridisegna interi, lasciando chi li vede e
+  le date. #782 in main (`cb80209a`): immagine, video, foto composta e disegno
+  nei messaggi usano la traccia intera; testi e privacy (5 novembre 2026)
+  nelle cinque lingue, in app e in `site/privacy/`. Prossimo, del Coordinatore
+  col sì dell'utente: la privacy sul sito, il server, il ricalcolo (prima
+  conta, poi `--apply`), l'OTA.
+- **TASK-387 — Le app vecchie non ricevono le attività che non sanno leggere**
+  (2026-11-05; ADR-0328). #794 in main (`bf02766f`): l'app manda
+  `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in ogni richiesta di `ask`;
+  il server toglie ciò che l'header non dichiara da Feed, ricerca, profili,
+  concorsi (posti veri, vincitore illeggibile `null`), corse di gruppo,
+  messaggi («[Drawing]»), preferiti, «My activities», foto del profilo e
+  campanella; i dettagli illeggibili sono 404. Senza header solo corsa, bici
+  e pagaia. Prossimo, del Coordinatore col sì dell'utente: server, poi OTA
+  con l'header, poi il nuoto (#765).
+- **TASK-392 — Il logo stilizzato nell'header** (2026-11-05; ADR-0311, precisazione). #787 in
+  main (650d7685): l'header delle pagine della barra ha il cuore su giallo (`HeartBadge`, 32
+  punti) e «MuW» in `fontSize.title` grassetto; in cima a «Draw» resta solo «Run without a
+  route». Da fare: l'utente guarda l'altezza dell'header nell'anteprima; OTA col suo sì.
+- **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; ADR-0331). #788 in
+  main (d99d2033): ogni job di `ci.yml` comincia con `tools/ci_changes.py`; se la PR cambia
+  solo `docs/` e `.md` fuori dalle cartelle di codice, i job finiscono verdi in 6–7 s con gli
+  stessi nomi, invece dei 30 minuti di `api`. Codice e `main` girano come prima. Un push nuovo
+  su una PR cancella il run vecchio (`ci.yml` e `site.yml`). `tasks/TASK-393.md`.
+- **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro** (2026-11-05; seguito di TASK-383 e
+  TASK-374 B). #761 in main (cebe5412): «bpm» dentro le caselle di FC massima, a riposo e zone
+  1–4, un tocco su «bpm» apre la tastiera; zona 5 senza riquadro, allineata. Solo JS, nessun
+  testo nuovo. Anteprima, prova sul telefono e OTA di produzione col Coordinatore, l'OTA col sì
+  dell'utente. `tasks/TASK-386.md`.
+- **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
+  (2026-11-04; seguito di TASK-374 A). #759 in main (`a5c1d5b2`): «kg» e «cm», con le miglia
+  «lb», «ft» e «in», stanno nel riquadro dopo il numero; un tocco sull'unità apre la tastiera.
+  Si tiene sempre in kg e cm. Solo JS, impronta dal Coordinatore con l'anteprima; in produzione
+  con il prossimo OTA del Coordinatore, dopo il server 0043–0046. `tasks/TASK-383.md`.
+- **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
+  (2026-11-05; seguito di TASK-369 B). #767 in main (830a147e): `mapdraw/sentOutline.ts`
+  controlla il contorno arrotondato con la regola del motore e ne toglie gli angoli che si
+  toccano. #769 (f4e7a2ad): un 422 «outline: …» dice che il contorno non sta sulle strade (o
+  sull'acqua), mai «Something went wrong». Solo JS, testi esistenti. Prova sul telefono con
+  l'esempio del lago e OTA di produzione col sì dell'utente. `tasks/TASK-382.md`.
+  **Provato sul telefono** dall'utente il 2026-11-05 (anteprima di 0d7819c4): «funziona».
+  Resta l'OTA di produzione col sì dell'utente.
+- **TASK-389 — Il test della pool che a volte contava tre connessioni** (2026-11-04; seguito di
+  TASK-288 B). La terza riga era un autovacuum worker su `spatial_ref_sys`: il test conta solo i
+  client, aspetta il numero giusto e legge il conteggio della pool. Sul Mac il file è passato
+  da 49 a 50 verdi su 50. Cambia solo il test. `tasks/TASK-389.md`.
 - **TASK-381 — «Share your run» dal Feed: «Close» stava sotto la barra di stato**
   (2026-11-04; seguito di TASK-366). #750 in main (9e2089a9): il `Modal` di `SharePost` ha un suo
   `SafeAreaProvider`. Solo JS, impronta dal Coordinatore con l'anteprima. Prova Feed → «Share» →

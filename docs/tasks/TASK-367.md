@@ -1,6 +1,6 @@
 # TASK-367 — La navigazione come Instagram: la barra in basso e un header solo
 
-**Stato**: In lavorazione — parti A e B in main; C col via del Coordinatore dopo la C2 del nuoto
+**Stato**: Done — parti A, B, C1 e C2 in main (2026-11-04); server con la `0045`, copia del sito e OTA col sì dell'utente
 **Fase**: 4 · **Branch**: `docs/TASK-367-tab-bar` (documenti),
 `feat/TASK-367-a-tab-bar` (parte A) · **ADR**: ADR-0311 · numeri dal
 Coordinatore (2026-11-02)
@@ -222,6 +222,39 @@ docs/API.md, docs/DATABASE.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TAS
 apps/mobile/src/about/content/*.ts, site/privacy/**          (la frase sulla durata, col sì dell'utente)
 ```
 
+**C2** (via del Coordinatore dopo la #745, da `main` 3677c229): la campanella
+di Lucide nell'header, a sinistra dello sport, con il numero rosso delle righe
+non lette come le schede. C'è solo quando c'è una lista da aprire: con un
+account e un server che la conosce (un 404 su `/notifications`: niente
+campanella, niente errore, non si chiede più). Il numero si chiede all'avvio,
+ogni 5 minuti con l'app aperta, quando l'app torna davanti e quando la lista
+si chiude. Un tocco apre la lista sopra l'app, come «Messages»: «←» e
+«Notifications», le righe con la foto di chi ha agito, il testo e quando, la
+riga non letta più marcata con un pallino; «Show more» per la pagina dopo.
+Aperta, è letta fino alla riga più nuova. Una riga chiude la lista e apre
+quello che apre la sua push (`tapTarget`, `openTarget`, condiviso con le
+push); quella di una corsa di gruppo non apre niente, come la sua push.
+
+Testi approvati dall'utente il 2026-11-04 («Sì, approvo» a tutti e tre): il
+titolo «Notifiche» (en «Notifications»), VoiceOver «Notifiche, 3 nuove» (en
+«Notifications, {count} new»), la lista vuota «Ancora nessuna notifica. Qui
+arriveranno reazioni, commenti, follow e tag.»
+
+File toccati della parte C2:
+
+```
+apps/mobile/assets/ui/tabs/bell.png, bell@2x.png, bell@3x.png        (nuovi, Lucide)
+apps/mobile/src/api/notificationList.ts, .test.ts                     (nuovi)
+apps/mobile/src/bell/bellDoor.ts, BellButton.tsx, BellOverlay.tsx     (nuovi)
+apps/mobile/src/bell/Bell.test.tsx, BellInApp.test.tsx                (nuovi)
+apps/mobile/src/notifications/openTarget.ts                           (nuovo)
+apps/mobile/src/notifications/usePushNotifications.ts                 (usa openTarget)
+apps/mobile/src/tabs/AppHeader.tsx                                    (la campanella a destra)
+apps/mobile/src/screens/ProfileLayer.tsx                              (la porta e la lista)
+apps/mobile/src/i18n/it.ts, de.ts, fr.ts, es.ts                       (i tre testi)
+docs/UI.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-367.md
+```
+
 ## Criteri di accettazione (parte A)
 
 - [ ] Nessun nome di pagina in alto; header uguale su Feed, Draw, Messages,
@@ -309,3 +342,23 @@ Simulatore (iPhone 17e, Expo Go): la ricerca in cima a «Explore», il ritorno a
 «Explore», il Feed senza lente; il caricamento riuscito di un disegno trovato
 non visto (nessuna API locale), coperto dal test. Copia del sito e OTA: le
 chiede il Coordinatore all'utente.
+
+**Parte C1** (2026-11-04, PR #745, in main 3677c229): la lista della
+campanella sul server, `notification_list.py` come «listener» del `Pusher`,
+`GET /notifications` e `POST /notifications/read`, migrazione
+`0045_notification_list` (rinominata dalla `0045_notifications`: il test degli
+interruttori trova la sua migrazione dalla fine del nome). Le righe si tengono
+90 giorni; durata e frase della privacy approvate dall'utente («Sì, approvo»),
+`site/privacy` rigenerato. 14 test su PostgreSQL. Server e migrazione col sì
+dell'utente.
+
+**Parte C2** (2026-11-04, PR #756, in main 065e3479): la campanella di Lucide
+nell'header, prima dello sport, con il numero rosso dei non letti; la lista
+sopra l'app, letta appena si apre; ogni riga apre quello che apre la sua push
+(`openTarget`, condiviso con le push). Con un server senza la lista niente
+campanella e nessun errore. Tre testi approvati dall'utente («Sì, approvo»).
+Impronta iOS `6f8bba4c`. Simulatore (iPhone 17e, Expo Go) con un'API e un
+database locali e quattro eventi veri: il 4 rosso nell'header, la lista, il
+commento che apre il disegno, la campanella senza numero dopo la lettura;
+schermate in `out/TASK-367-c2/`. Arriva con un OTA dopo il server con la
+`0045`, col sì dell'utente.

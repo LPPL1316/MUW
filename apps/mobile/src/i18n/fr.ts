@@ -770,6 +770,17 @@ export const FR: Table = {
   "Avg /100 m": "Moy. /100 m",
   "Last 100 m": "Dern. 100 m",
 
+  // src/screens/FreeRunScreen.tsx, SnowFinishCard.tsx (TASK-375 part C)
+  "Your day": "Ta journée",
+  "White: where you skied.": "Blanc : là où tu as skié.",
+  "White: your descents. Dashed: the lifts.":
+    "Blanc : tes descentes. Pointillés : les remontées.",
+  "Skied: {distance}": "Skié : {distance}",
+  Descents: "Descentes",
+  Vertical: "Dénivelé",
+  "Top speed": "Vitesse max",
+  Lifts: "Remontées",
+
   // src/screens/SignInScreen.tsx
   "Sign up": "S'inscrire",
   "Log in": "Se connecter",
@@ -1120,10 +1131,8 @@ export const FR: Table = {
     "Les photos d'une course que toi seul vois restent sur ce téléphone. Si tu supprimes l'app ou changes de téléphone, elles sont perdues.",
   "Its photos leave MuW and stay only on this phone.":
     "Ses photos quittent MuW et restent seulement sur ce téléphone.",
-  "Every member sees it in your profile, without the first and last 200 m.":
-    "Chaque membre la voit dans ton profil, sans les 200 premiers et derniers mètres.",
-  "Your followers see it in your profile, without the first and last 200 m.":
-    "Tes abonnés la voient dans ton profil, sans les 200 premiers et derniers mètres.",
+  "Every member sees it in your profile.": "Chaque membre la voit dans ton profil.",
+  "Your followers see it in your profile.": "Tes abonnés la voient dans ton profil.",
   "Saved on the phone. It is sent when you are back online.":
     "Enregistrée sur le téléphone. Elle est envoyée quand tu seras de nouveau en ligne.",
   "Saved on the phone. Others see it when you are back online.":
@@ -1869,4 +1878,9 @@ export const FR: Table = {
   Style: "Style",
   Night: "Nuit",
   Day: "Jour",
+  // src/bell/BellButton.tsx, BellOverlay.tsx (TASK-367 part C: the bell)
+  Notifications: "Notifications",
+  "Notifications, {count} new": "Notifications, {count} nouvelles",
+  "No notifications yet. Reactions, comments, follows and tags will show up here.":
+    "Pas encore de notifications. Les réactions, commentaires, abonnements et identifications apparaîtront ici.",
 };

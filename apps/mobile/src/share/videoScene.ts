@@ -15,11 +15,11 @@ import {
 } from "../theme/tokens";
 import {
   POST_RESULTS,
+  postLine,
   type PostResult,
   type PostRun,
   resultName,
   resultValue,
-  withoutEnds,
 } from "./postRun";
 import type { Sticker } from "./stickers";
 import {
@@ -526,9 +526,9 @@ function layoutOf(
   const boxWidth = w * (1 - 2 * SIDE);
   const boxHeight = h * (DRAWING_BOTTOM - DRAWING_TOP);
   const line = w * look.line.width;
-  const cut = withoutEnds(run.track);
+  const whole = postLine(run.track);
   const bearing = bearingOf(run.rotationDeg);
-  const [segments] = fitLines([cut], boxWidth, boxHeight, line, bearing);
+  const [segments] = fitLines([whole], boxWidth, boxHeight, line, bearing);
   const track = thinned(pointsOf(segments)).flatMap(([x, y]) => [
     round(w * SIDE + x),
     round(h * DRAWING_TOP + y),
@@ -537,7 +537,7 @@ function layoutOf(
   const map =
     palette !== null
       ? videoMap(
-          cut,
+          whole,
           {
             left: (w * SIDE) / MAP_PIXEL_RATIO,
             top: (h * DRAWING_TOP) / MAP_PIXEL_RATIO,
@@ -548,7 +548,7 @@ function layoutOf(
           bearing,
           palette,
           language,
-          look.relief ? { line: thinnedTrack(cut) } : null,
+          look.relief ? { line: thinnedTrack(whole) } : null,
         )
       : null;
 

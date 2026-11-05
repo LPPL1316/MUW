@@ -1,6 +1,6 @@
 # TASK-374 — Il mio corpo: calorie giuste e zone di frequenza cardiaca
 
-**Stato**: In corso: parte A in `main` (#739, `22ec9572`); parte B in PR; poi C e D nella 1.0.2
+**Stato**: In corso: parti A (#739, `22ec9572`) e B (#746, `a1ff05da`) in `main`; poi C e D nella 1.0.2
 **Fase**: 4 · **Branch**: `docs/TASK-374-body-calories-hr-zones` (documenti),
 `feat/TASK-374-a-body-calories` (parte A), `feat/TASK-374-b-hr-zones` (parte B)
 · **ADR**: ADR-0318 · numeri dal Coordinatore (2026-11-04)
@@ -262,4 +262,6 @@ Testo della parte B fuori dalla tabella: l'errore di una FC fuori dai limiti,
 - Parte A (2026-11-04): in `main` con la PR #739 (`22ec9572`).
 - Parte B (2026-11-04): `body/heartZones.ts` (Tanaka, Karvonen, limiti a mano
   condivisi fra zone vicine, `heart.json`) e `settings/HeartZonesPage.tsx`,
-  aperta dalla riga in fondo a «Body». Scelte tecniche in ADR-0318 §15.
+  aperta dalla riga in fondo a «Body». Scelte tecniche in ADR-0318 §15. In
+  `main` con la PR #746 (`a1ff05da`); impronta all'anteprima e OTA col
+  Coordinatore.

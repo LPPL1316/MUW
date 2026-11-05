@@ -413,16 +413,37 @@ export const font = {
 } as const;
 
 /**
- * How the app moves (TASK-339, ADR-0293): short and eased, never bouncy.
- * Durations in milliseconds.
+ * How the app moves (TASK-339, ADR-0293; springs TASK-388, ADR-0329): short,
+ * and what moves settles on a spring that passes its mark by a hair, as
+ * iOS does, never elastic. Durations in milliseconds.
  */
 export const motion = {
   /** A control under the finger (`../ui/Tap`): this much smaller and dimmer,
-   * in `pressMs`; back in `releaseMs`. */
+   * in `pressMs`; let go, it comes back on `spring.snappy`. */
   pressScale: 0.97,
   pressOpacity: 0.85,
   pressMs: 120,
+  /** The release before the springs: `Tap` no longer uses it; it goes once
+   * the pull requests still open that read it are in (TASK-388). */
   releaseMs: 180,
+  /**
+   * The app's springs, for `Animated.spring` through `../ui/motion` only: no
+   * screen makes up its own. Mass 1. In the words of SwiftUI, `response` is
+   * 2π/√stiffness and the damping fraction damping/(2√stiffness):
+   * - `snappy`, ~0.38 s, passes its mark by ~2.5%: a control let go, the
+   *   tab bar's capsule, an icon taking its tab;
+   * - `smooth`, ~0.48 s, passes by less than 0.1%: a sheet, a page;
+   * - `island`, ~0.5 s, passes by ~1.7%: the island opening and closing.
+   */
+  spring: {
+    snappy: { stiffness: 270, damping: 25, mass: 1 },
+    smooth: { stiffness: 170, damping: 24, mass: 1 },
+    island: { stiffness: 160, damping: 20, mass: 1 },
+    /** ~0.39 s, critically damped, never passes its mark: the tab bar,
+     * where a bounce at every change of page read as clunky (TASK-388 A2).
+     * It has taken over from `snappy` there. */
+    glide: { stiffness: 256, damping: 32, mass: 1 },
+  },
   /** Something arriving on screen: a fade, rising this many points. */
   appearMs: 220,
   appearRise: 6,

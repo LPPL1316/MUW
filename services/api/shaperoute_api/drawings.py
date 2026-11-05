@@ -9,10 +9,10 @@ itself. The photos are kept here only while others can see the drawing:
 while only its owner does, they stay on the phone (the user's choice,
 2026-10-03).
 
-What the others see is cut: the track without its first and its last
-CUT_M metres along it, without times, without the planned route, which
-begins at the runner's door (ADR-0114, point 4). The owner keeps the whole
-run in My activities.
+What the others see is the whole track, start and end included (the
+user's choice, ADR-0330: the 200 m cut of ADR-0114 spoilt the drawing),
+without times and without the planned route. The owner keeps the whole
+run, times too, in My activities.
 
 Who may see a drawing is asked in one place, drawing_seen_sql: the
 drawing, its photos and its comments (TASK-120) follow it.
@@ -21,6 +21,10 @@ Score, metres and seconds are the run's, counted by the API when it was
 saved: nothing here takes them from the app. Deleting the run, or the
 account, deletes its drawing (ON DELETE CASCADE); deleting an account
 tagged takes its name off the drawing.
+
+The lists and the drawing alone leave out what the app does not read, as
+its header X-MuW-Reads says (reads.py, TASK-387): an app of before the walks
+and the days on the snow never receives one, and finds none by its id.
 """
 
 from __future__ import annotations
@@ -39,12 +43,7 @@ from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request
 from psycopg import errors as pg_errors
 from psycopg.rows import DictRow
 from pydantic import BaseModel, ConfigDict, Field
-from route_engine.geo import (
-    haversine_m,
-    latlon_to_local,
-    local_to_latlon,
-    path_length_m,
-)
+from route_engine.geo import path_length_m
 
 from shaperoute_api.accounts import (
     ACCOUNT_ERRORS,
@@ -66,15 +65,12 @@ from shaperoute_api.activities import (
 from shaperoute_api.db import Database
 from shaperoute_api.follows import apart_sql, follows_sql
 from shaperoute_api.push import notify_tagged, tagged_before
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.schemas import ErrorBody
 
-# What the others never see of a published run, from either end (ADR-0114).
-CUT_M = 200.0
-# Less is a rounding of the cut, not a drawing.
+# A shorter track is a rounding of a fix, not a drawing.
 MIN_LEFT_M = 1.0
-# Two points closer than this are one.
-SAME_POINT_M = 0.01
 MAX_TITLE_LENGTH = 60
 MAX_DESCRIPTION_LENGTH = 500
 MAX_TAGS = 10
@@ -106,10 +102,7 @@ VISIBILITY_TWICE = "Say who can see it once: visibility, or public, not both."
 TAG_UNKNOWN = "Only MuW members can be tagged: one of these is not."
 TAG_YOURSELF = "You cannot tag yourself."
 TAG_TWICE = "Each person is tagged once."
-TOO_SHORT = (
-    f"This run is too short to publish: its first and last {CUT_M:.0f} m are"
-    " never shown, and nothing would be left."
-)
+TOO_SHORT = "This run is too short to publish."
 NO_DRAWING = "No drawing with this id."
 PHOTOS_ON_THE_PHONE = (
     "Photos stay on the phone while only you see this run: choose Everyone or"
@@ -178,31 +171,12 @@ def published_count_sql(user_column: str, viewer: str | None = None) -> str:
 # --- What the others see of a track ---
 
 
-def _after(points: Sequence[LatLon], metres: float) -> list[LatLon]:
-    """The line from `metres` along it to its end; [] when it is shorter.
-    The first point is where those metres end, on the segment they end in."""
-    walked = 0.0
-    for i, (a, b) in enumerate(zip(points, points[1:], strict=False)):
-        step = haversine_m(a, b)
-        if walked + step > metres:
-            if walked + step - metres < SAME_POINT_M:
-                # The cut falls on `b`, give or take a rounding: not twice.
-                return list(points[i + 1 :])
-            # In metres on the plane around `a`, never in degrees.
-            share = (metres - walked) / step
-            x_m, y_m = latlon_to_local(a, b)
-            return [local_to_latlon(a, share * x_m, share * y_m), *points[i + 1 :]]
-        walked += step
-    return []
-
-
-def cut_track(points: Sequence[LatLon], cut_m: float = CUT_M) -> list[LatLon]:
-    """The track without its first and last `cut_m` metres along it; [] when
-    less than MIN_LEFT_M is left of it."""
-    if path_length_m(points) - 2 * cut_m < MIN_LEFT_M:
+def shown_track(points: Sequence[LatLon]) -> list[LatLon]:
+    """What the others see of the track: all of it (ADR-0330); [] when it is
+    shorter than MIN_LEFT_M."""
+    if path_length_m(points) < MIN_LEFT_M:
         return []
-    head_cut = _after(points, cut_m)
-    return _after(head_cut[::-1], cut_m)[::-1]
+    return list(points)
 
 
 def checked_title(value: str | None) -> str | None:
@@ -400,7 +374,7 @@ class SeenFields(BaseModel):
 
 class DrawingBody(SeenFields):
     """A drawing as the others see it in a list, with a light preview of its
-    cut track: packages/shared-types/fixtures/drawings-details.json."""
+    track: packages/shared-types/fixtures/drawings-details.json."""
 
     track_preview: list[LatLon]
 
@@ -424,8 +398,8 @@ class DrawingDetailBody(SeenFields):
     public: bool
     """Every member sees it: `visibility` is `everyone`."""
     track: list[LatLon]
-    """The cut track, every point of it; empty only for its owner's run
-    too short to publish."""
+    """The track, every point of it, without times; empty only for its
+    owner's run too short to publish."""
 
 
 # --- The drawings in the database ---
@@ -436,7 +410,7 @@ _SEEN_FIELDS = (
     " r.distance_m, r.duration_s, r.score, r.fidelity, r.activity,"
     " r.route_rotation_deg, r.source"
 )
-# One drawing, its cut track whole.
+# One drawing, its track whole.
 SEEN_COLUMNS = f"{_SEEN_FIELDS}, ST_AsGeoJSON(d.track, 15) AS track"
 # A drawing in a list: as `track`, the preview PostgreSQL keeps of it
 # (migration 0022, TASK-288), the points `preview` would take of the whole.
@@ -663,11 +637,14 @@ class Drawings:
             run_id = run_of(conn, user_id, key)
             return None if run_id is None else _mine_of_run(conn, run_id)
 
-    def all_mine(self, user_id: int) -> MyDrawingsBody:
+    def all_mine(self, user_id: int, reads: Reads = EVERYTHING) -> MyDrawingsBody:
+        """The drawings of the account's runs, of the activities `reads`
+        shows."""
         with self.database.connect() as conn:
             rows = conn.execute(
                 f"SELECT {MINE_COLUMNS} FROM drawings d"
                 " JOIN runs r ON r.id = d.run_id WHERE r.user_id = %s"
+                f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}"
                 " ORDER BY r.started_at DESC, r.id DESC",
                 (user_id,),
             ).fetchall()
@@ -696,10 +673,10 @@ class Drawings:
                 tagged = (
                     None if body.tags is None else _tagged(conn, user_id, body.tags)
                 )
-                # Cut again on every change, from the run as it is kept: the
+                # Again on every change, from the run as it is kept: the
                 # same run, the same line.
-                cut = cut_track(_line(run["track"]))
-                if visibility != "only_me" and not cut:
+                shown = shown_track(_line(run["track"]))
+                if visibility != "only_me" and not shown:
                     raise AccountError(422, "invalid_request", TOO_SHORT)
                 before = conn.execute(
                     "SELECT published_at FROM drawings"
@@ -725,7 +702,7 @@ class Drawings:
                         title,
                         visibility,
                         description,
-                        _line_wkt(cut) if cut else None,
+                        _line_wkt(shown) if shown else None,
                         published_at,
                         now,
                     ),
@@ -772,10 +749,12 @@ class Drawings:
         public_id: str,
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
+        reads: Reads = EVERYTHING,
     ) -> DrawingsBody | None:
-        """A page of the drawings of a profile that `viewer_id` sees, the
-        latest run first; None: no such profile, or one a block keeps apart
-        from `viewer_id` (TASK-121), as its profile."""
+        """A page of the drawings of a profile that `viewer_id` sees, of the
+        activities `reads` shows, the latest run first; `total` counts them
+        all. None: no such profile, or one a block keeps apart from
+        `viewer_id` (TASK-121), as its profile."""
         try:
             wanted = UUID(public_id)
         except ValueError:
@@ -788,7 +767,10 @@ class Drawings:
             ).fetchone()
             if user is None:
                 return None
-            where = f"r.user_id = %s AND {shown_sql('%s')}"
+            where = (
+                f"r.user_id = %s AND {shown_sql('%s')}"
+                f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}"
+            )
             values: list[Any] = [user["id"], viewer_id]
             if cursor is not None:
                 where += " AND (r.started_at, d.id) < (%s, %s)"
@@ -817,9 +799,12 @@ class Drawings:
             total=count["n"],
         )
 
-    def seen(self, viewer_id: int, drawing_id: str) -> DrawingDetailBody | None:
-        """The drawing as `viewer_id` may see it (drawing_seen_sql); None
-        otherwise, as for an id that is not there."""
+    def seen(
+        self, viewer_id: int, drawing_id: str, reads: Reads = EVERYTHING
+    ) -> DrawingDetailBody | None:
+        """The drawing as `viewer_id` may see it (drawing_seen_sql), of an
+        activity `reads` shows; None otherwise, as for an id that is not
+        there."""
         try:
             wanted = UUID(drawing_id)
         except ValueError:
@@ -828,7 +813,8 @@ class Drawings:
             row = conn.execute(
                 f"SELECT {SEEN_COLUMNS}, u.public_id, u.username FROM drawings d"
                 " JOIN runs r ON r.id = d.run_id JOIN users u ON u.id = r.user_id"
-                f" WHERE d.id = %s AND {drawing_seen_sql('%s')}",
+                f" WHERE d.id = %s AND {drawing_seen_sql('%s')}"
+                f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}",
                 (wanted, viewer_id),
             ).fetchone()
             if row is None:
@@ -854,8 +840,9 @@ def drawing_routes() -> APIRouter:
     def my_drawings(
         drawings: Annotated[Drawings, Depends(drawings_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
     ) -> MyDrawingsBody:
-        return drawings.all_mine(user.id)
+        return drawings.all_mine(user.id, reads)
 
     @router.get("/me/activities/{key}/drawing", responses={404: {"model": ErrorBody}})
     def my_drawing(
@@ -890,10 +877,11 @@ def drawing_routes() -> APIRouter:
         public_id: str,
         drawings: Annotated[Drawings, Depends(drawings_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
     ) -> DrawingsBody:
-        found = drawings.of_profile(user.id, public_id, limit, cursor)
+        found = drawings.of_profile(user.id, public_id, limit, cursor, reads)
         if found is None:
             raise HTTPException(404, NO_PROFILE)
         return found
@@ -903,8 +891,9 @@ def drawing_routes() -> APIRouter:
         drawing_id: str,
         drawings: Annotated[Drawings, Depends(drawings_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
     ) -> DrawingDetailBody:
-        found = drawings.seen(user.id, drawing_id)
+        found = drawings.seen(user.id, drawing_id, reads)
         if found is None:
             raise HTTPException(404, NO_DRAWING)
         return found

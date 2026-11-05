@@ -35,14 +35,24 @@ test("a store build is told by its runtime version, Expo Go and preview by «exp
 
 test("the tests run as Expo Go: every sport, «Paragliding» included", () => {
   expect(isStoreBuild()).toBe(false);
-  expect(SPORTS).toEqual(ALL_SPORTS);
+  expect(SPORTS.map((option) => option.id)).toEqual(
+    ALL_SPORTS.map((option) => option.id),
+  );
   expect(SPORTS.map((option) => option.id)).toContain("paragliding");
+});
+
+test("Expo Go and preview turn on the sports tried there first (`preview`, TASK-323)", () => {
+  // The swim went this way before the store builds had it; none does now.
+  expect(ALL_SPORTS.some((option) => option.preview === true)).toBe(false);
+  const tried = { id: "walk", emoji: "🚶", name: "Walk", ready: false, preview: true } as const;
+  expect(shownSports([tried], false)).toEqual([{ ...tried, ready: true }]);
+  // A store build still leaves it out, as any sport not ready.
+  expect(shownSports([tried], true)).toEqual([]);
 });
 
 test("a store build leaves out the sports not ready, and keeps the order", () => {
   expect(STORE.map((option) => option.id)).toEqual(["run", "bike", "paddle", "swim"]);
   expect(STORE.every((option) => option.ready)).toBe(true);
-  expect(shownSports(ALL_SPORTS, false)).toBe(ALL_SPORTS);
 });
 
 test("in a store build `SPORTS` itself has no «Paragliding»", () => {

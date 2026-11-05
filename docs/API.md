@@ -1107,6 +1107,26 @@ registra e si salva, ma nessun percorso la disegna:
   (`fixtures/run-activities.json`). `Activity` e `ApiActivity` non
   cambiano. Un'API di prima rifiuta le due attività con `422`.
 
+### Quello che un'app sa leggere: `X-MuW-Reads` (TASK-387, ADR-0328)
+
+Ogni richiesta dell'app dice nell'header `X-MuW-Reads` i tipi in più che sa
+mostrare, separati da virgole: `swimming`, `walking`, `skiing`,
+`xc_skiing`, `trackless` (una corsa o un post senza traccia). Nome e valori
+senza maiuscole/minuscole; spazi e valori sconosciuti ignorati
+(`fixtures/reads.json`). **Senza l'header** la richiesta è di una build
+vecchia: riceve solo `running`, `cycling` e `paddling`, con la traccia.
+
+Il server toglie ciò che l'header non dichiara da `GET /feed`,
+`GET /search/drawings`, `GET /users/{id}/drawings`, `GET /me/drawings`,
+`GET /contests/current`, `GET /contests`, `GET /contests/{id}/entries`
+(i posti restano quelli veri; un vincitore illeggibile ha `drawing: null`),
+`GET /group-runs`, `GET /users/{id}/group-runs`, `GET /me/favorites`,
+`GET /me/activities`, `GET /users/{id}/photos` e `GET /notifications`. In
+`GET /conversations/{id}/messages` un disegno illeggibile diventa
+«[Drawing]» davanti al testo e `attachment` è `null`. `GET /drawings/{id}`,
+`GET /group-runs/{id}` e `GET /messages/{id}/drawing` rispondono `404`.
+L'app di oggi manda `swimming,walking,skiing,xc_skiing`.
+
 ### Una parola invece di una forma (TASK-056)
 
 Un `RouteRequest` ha `shape` **oppure** `word`: l'altro manca o è `null`.
@@ -2331,15 +2351,14 @@ nuovi. Il codice in `drawings.py` e `drawing_photos.py`.
   con la foto, così un telefono non mostra quella di prima dalla sua
   cache. A chi non vede il disegno, `404` «No drawing with this id.»; a
   chi lo vede, un posto vuoto è `404` «This drawing has no photo here.».
-- **Cosa vedono gli altri** (ADR-0114, punto 4): la traccia pulita della
-  corsa **senza i primi e gli ultimi 200 m lungo la traccia**
-  (`DRAWING_CUT_M`), tagliata dall'API e tenuta così nel database; senza
-  orari, senza pause, senza `walks` e **senza il percorso pianificato**,
-  che parte dalla porta di chi corre. Con meno di un metro rimasto la
-  corsa non si mostra agli altri (`everyone` o `followers`): `422
-  invalid_request`, «This run is too short to publish: its first and last
-  200 m are never shown, and nothing would be left.»; `only_me` si tiene
-  lo stesso.
+- **Cosa vedono gli altri** (ADR-0330, al posto del taglio dei 200 m di
+  ADR-0114): la traccia pulita della corsa **intera, partenza e arrivo
+  compresi**, tenuta così nel database; senza orari, senza pause, senza
+  `walks` e **senza il percorso pianificato**. Sotto un metro la corsa
+  non si mostra agli altri (`everyone` o `followers`): `422
+  invalid_request`, «This run is too short to publish.»; `only_me` si
+  tiene lo stesso. I disegni tenuti tagliati prima si ridisegnano con
+  `python -m shaperoute_api.drawing_retrack --apply` (TASK-390).
 - **Un disegno** ha `id`, `title`, `started_at`, `published_at`, `place`,
   `shape`, `word`, `style`, `route_title` (cosa disegna il percorso quando
   forma e parola non lo dicono: il `title` della corsa in «My
@@ -2694,6 +2713,44 @@ codice in `muw_routes.py`.
   quella del file: la figura non la fa ripianificare.
 - **`climb_m` è una stima** da tessere di elevazione, non una misura: nessuno ha
   pedalato questi percorsi. La somiglianza non si manda.
+
+### Style (TASK-384, ADR-0326)
+
+I post di MuW Style: una foto generata con l'AI e i puntini dei capi, ognuno
+con il suo prodotto e «Shop» (`STYLE.md`). Nessun token: non dicono nulla di
+chi chiede. Tipi in `shared-types` (`StylePost`, `StylePage`, `StyleTag`,
+`StyleShop`), esempi in `fixtures/style-post.json` e `style-page.json`; il
+codice in `style_posts.py`, `style_links.py` e `style_import.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /style?theme=&gender=&before=&limit=` | i post usciti, dal più recente; `limit` 1–50, 20 di base | `200` `StylePage` |
+| `GET /style/{id}` | uno | `200` `StylePost`, o `404 http_error` |
+| `GET /style/{id}/image` | la sua foto | `200` `image/jpeg`, o `404` |
+| `POST /style/tags/{id}/open` | un prodotto aperto | `204`, o `404` |
+| `POST /style/tags/{id}/shop` | «Shop» toccato: cosa aprire nel browser | `200` `StyleShop`, o `404` |
+
+- **Fuori da `GET /feed`**, che non cambia: un'app già pubblicata non li
+  chiede. Un'API precedente risponde `404`: l'app non mostra nulla di più.
+  Senza il database, `503`.
+- **Si vede un post** da `publish_at`, finché non è nascosto, e solo con
+  almeno un puntino di un prodotto ancora venduto (`active`). Le pagine
+  vanno avanti con `before`, l'`id` dell'ultimo; `null` alla fine.
+- **Un prezzo letto più di 7 giorni prima non si dice**: `price_eur` e
+  `price_seen_on` sono `null`, e l'app scrive «Vedi il prezzo».
+- **«Shop»** risponde la pagina del negozio, o il deep link di Awin quando il
+  server ha `SHAPEROUTE_AWIN_PUBLISHER_ID` e l'id del negozio in
+  `SHAPEROUTE_AWIN_ADVERTISERS`. La pagina è sempre di un sito del negozio
+  (`style_links.RETAILER_HOSTS`): una riga con un altro indirizzo è `404`.
+- **I conteggi** (`open`, `shop`) sono un numero in più per puntino e per
+  giorno, e nient'altro: nessun account, indirizzo o telefono. Oltre 120
+  tocchi in un'ora da uno stesso indirizzo, contati solo in memoria, un
+  tocco ha la sua risposta ma non si conta.
+- **I post si caricano** con `python -m shaperoute_api.style_import
+  MS-001.json MS-001.jpg`, solo dopo il sì dell'utente: il file ha la forma
+  di `tests/fixtures/style/MS-001.json`, un campo in più o in meno è un
+  errore, e un post già caricato non si sovrascrive. `--hide MS-001` lo
+  nasconde.
 
 ### Drawing search (TASK-344, ADR-0297)
 

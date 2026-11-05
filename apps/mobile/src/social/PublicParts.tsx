@@ -60,13 +60,9 @@ export const PHOTOS_LEAVE = tLater("Its photos leave MuW and stay only on this p
 export function seenText(visibility: Visibility): string | null {
   switch (visibility) {
     case "everyone":
-      return t(
-        "Every member sees it in your profile, without the first and last 200 m.",
-      );
+      return t("Every member sees it in your profile.");
     case "followers":
-      return t(
-        "Your followers see it in your profile, without the first and last 200 m.",
-      );
+      return t("Your followers see it in your profile.");
     case "only_me":
       return null;
   }

@@ -18608,6 +18608,29 @@ oppure aspettare i nomi a riva.
 `shore_extract` non gira sul server: «Turn left», non «Turn left · Bagno
 54». Il codice lo regge già (`swim/turns.ts`). La prova in acqua resta per
 la primavera 2027, con l'utente.
+## ADR-0283 — aggiunta, il nuoto prima in preview: acceso in Expo Go e `preview`, lo store dopo TASK-387
+
+**Stato**: Attiva · 2026-11-05 · scelta dell'utente («Subito in preview»,
+alla domanda sul nuoto ancora «Soon» in preview). Aggiunta ad ADR-0283; il
+punto tecnico è deciso dall'agente su delega dell'utente.
+
+**Contesto**: l'utente aveva scelto «Subito per tutti» (PR #765, `ready:
+true`). Il Coordinatore tiene ferma la #765 finché TASK-387 (l'header
+`X-MuW-Reads`, i post di nuoto solo alle app che li sanno leggere) non è in
+`main` e sul server: la 1.0 non conosce `swimming` e il suo Feed potrebbe
+non caricarsi. Intanto in preview il nuoto restava «Soon».
+
+**Decisione dell'utente**: il nuoto **subito in Expo Go e in `preview`**;
+le build dello store restano senza, fino alla #765. Finché TASK-387 non è
+sul server, un nuoto non si pubblica nel Feed dalla preview: lo sa
+l'utente, che è chi prova.
+
+**Decisione tecnica** (deciso dall'agente su delega dell'utente): un campo
+facoltativo `preview` in `SportOption`. `shownSports` accende in Expo Go e
+`preview` le righe con `preview: true`, mentre una build dello store le lascia
+fuori come ogni sport non pronto (TASK-318). La riga del nuoto ha `ready: false,
+preview: true`; la #765 la porta a `ready: true`, e allora `preview` non
+conta più. Solo JavaScript: l'impronta iOS `6f8bba4c` non cambia.
 
 ## ADR-0281 — L'attività finita anche in Apple Salute e in Health Connect: un allenamento con il percorso, scritto sul telefono a ogni «Save» dopo il primo sì
 
@@ -21315,6 +21338,24 @@ dell'utente; la divisione in C1 API e C2 app è del Coordinatore):
 - Le righe più vecchie di `KEPT_DAYS` si cancellano alla prima scrittura
   dopo, per tutti, con un indice su `at`; in lettura non si mostrano già.
 
+**Parte C2, scelte tecniche** (2026-11-04, decise dall'agente su delega
+dell'utente; i tre testi sono dell'utente):
+
+- La campanella sta nell'header (`AppHeader`) e legge un contesto che dà
+  «Profile» (`bell/bellDoor.ts`), come i messaggi: `App.tsx` non cambia.
+- Senza lista da aprire non c'è: un 404 su `/notifications` (server di prima)
+  la toglie e non si chiede più per quell'account. È la scelta dell'utente
+  «Aspetta la lista vera»: mai una pagina vuota segnaposto.
+- Il numero si chiede ogni 5 minuti, non ogni minuto come i messaggi: una
+  pagina porta le foto di chi ha agito. Più all'avvio, al ritorno dell'app e
+  quando la lista si chiude.
+- Quello che apre una riga è quello che apre la sua push: `tapTarget` legge
+  `opens`, e `openTarget` (nuovo, usato anche dalle push) apre la porta.
+- La lista è letta fino alla riga più nuova appena la prima pagina è sullo
+  schermo; le righe nuove restano marcate finché la lista è aperta.
+- L'icona è la `bell` di Lucide, resa in PNG bianca a 26 pt con tratto 1,75
+  come le altre (`out/TASK-367-c2/icon.swift`).
+
 ## ADR-0312 — I record personali: calcolati sul server da ogni attività, a piedi e in bici, visibili a tutti con la corsa chiusa se privata
 
 **Stato**: Proposta · 2026-11-02 · TASK-368. La richiesta è dell'utente
@@ -21498,6 +21539,19 @@ dell'utente:
 - Nei file importati è camminata il `walking` del GPX, il «10» di Strava e
   lo sport FIT 11. L'escursionismo no: è di TASK-377.
 - «NEAR YOU» resta solo per la corsa («Solo corsa, per ora»).
+
+**Aggiunta (parte C, 2026-11-04)** · scelta dell'utente per i ritmi
+(«Solo i metri»), il resto deciso dall'agente su delega dell'utente col via
+del Coordinatore:
+
+- Nel gioco delle forme una camminata conta i suoi metri come una corsa,
+  con gli stessi controlli, ma senza tempi migliori: le forme col ritmo non
+  si sbloccano camminando.
+- `RULES_VERSION` passa a 2, così `game_backfill` ricalcola le corse già
+  tenute.
+- I concorsi non filtrano per sport, quindi i post a piedi c'erano già.
+- L'app non cambia: la striscia del gioco conta già «a piedi» tutto ciò che
+  non è bici, canoa o nuoto.
 ---
 
 ## ADR-0318 — Il mio corpo: kcal da peso, sesso ed età per corsa, bici e paddle, e zone del battito sul telefono
@@ -21888,6 +21942,30 @@ cui nessun altro tocca quei file, e un aggiornamento del server rimandato
 fino al primo sport nuovo. Il pilota della struttura non è la camminata
 (già TASK-371 con la struttura di oggi), ma l'Escursionismo (TASK-377),
 scelta dell'utente del 2026-11-04.
+
+**Aggiornamento 2026-11-04 (parte B1, approvato dal Coordinatore): il punto
+3 cambia.** Niente notte di esempi per uno spostamento: `route_store.py` ha
+`SAME_ROUTES_AS`, {impronta del codice spostato: impronta di prima}, e
+`engine_fingerprint` (anche quello degli esempi della canoa,
+`paddle_examples.engine_fingerprint`) dà quella di prima, seguendo le righe
+a catena. Una riga entra solo con la sua prova:
+`services/api/tests/test_same_routes.py` disegna offline nove percorsi
+fissi (corsa, bici, canoa, nuoto) e ne scrive l'hash del risultato intero
+in `tests/fixtures/same_routes/<impronta>.json`; un test vieta una riga
+senza le prove delle sue due impronte, fatte sulla stessa piattaforma, con
+gli stessi hash, e un altro controlla che il motore di adesso disegni la
+sua prova (solo sulla piattaforma della prova: il Mac arm64 e Linux in CI
+disegnano alcuni di questi percorsi diversi nelle ultime cifre). Basta
+perché uno spostamento di codice non cambia le operazioni in virgola
+mobile: una differenza di piattaforma è la stessa prima e dopo, e la prova
+su una piattaforma più il banco bastano. Non bastano per un cambiamento di
+comportamento, che per questo non usa mai l'alias. In più il banco
+su `main` e sul branch, `compare --same`, punto per punto. **Un cambiamento
+di comportamento non usa mai `SAME_ROUTES_AS`**: i suoi percorsi si
+ridisegnano, col sì dell'utente. Così il server si può aggiornare da `main`
+quando serve. Il primo sport della fase 1 cambia l'impronta con il suo
+codice nuovo: se può avere anche lui una riga (nessun percorso di prima
+cambia) o se serve la notte di esempi, si decide allora col Coordinatore.
 ## ADR-0319 — Gli sport «Record only»: si registrano senza forma, il motore non li vede
 
 **Stato**: Proposto · 2026-11-04 · TASK-375. Scelte dell'utente lo stesso
@@ -21942,6 +22020,45 @@ dell'utente):
    giornaliere sarebbero un permesso nuovo da chiedere. In Health Connect
    vanno tutti e due come `SKIING` (61), con la distanza. Le calorie non ci
    sono, finché manca una stima.
+8. (B2, 2026-11-04; la scelta di prodotto è dell'utente, «Sì, così», il
+   modo è deciso dall'agente su delega dell'utente) Ogni lettore dei
+   disegni conosce la neve, e l'attività di `Drawing` e `DrawingDetail` è
+   `RunActivity`; un'attività che l'app non conosce cade ancora come in
+   B0. Una regola sola, `activities/snow.ts` (`isOnSnow`, `routeActivity`),
+   toglie alla neve ciò che si fa con un percorso: «Start» e «Send to a
+   friend» (`runnable`), «Draw it near me» e «Edit the drawing». Toglie
+   anche le calorie stimate. La scheda dice il nome dello sport; un filtro
+   per attività della ricerca la lascia fuori, perché nessun filtro di oggi
+   è la neve. L'export GPX resta, perché non era tra le azioni escluse.
+   `App.tsx` non cambia: `followedOf` non dà mai alla neve l'attività di
+   un percorso.
+9. (C1, 2026-11-05; i testi sono dell'utente, «Sì, approvati», il modo è
+   deciso dall'agente su delega dell'utente) La giornata di sci si legge
+   sul telefono, in `activities/snowDay.ts`, dalla traccia con ora e
+   altitudine di ogni punto. La traccia si divide dove l'altezza, dopo
+   essere andata in un verso, torna indietro di 10 m. Un tratto che sale è
+   un impianto se dura almeno un minuto, sale almeno 0,3 m al secondo (più
+   di chi sale a piedi o con le pelli) e ha almeno il 60% dei passi vicino
+   alla sua velocità solita. Quello che sta fra due impianti è una discesa
+   se scende almeno 30 m. La velocità massima tiene almeno 5 secondi e
+   ignora ciò che supera i 200 km/h, cioè i salti del GPS. Senza altezze i
+   km sono quelli di tutta la giornata, e discese, dislivello e risalite
+   restano «–». Le soglie sono una prima stima, da tarare su tracce vere
+   prima della stagione (parte E). Il fondo usa i numeri di una corsa,
+   senza le calorie. `FreeFinishCard` sceglie la scheda dallo sport di
+   «Settings»; `App.tsx` non cambia.
+10. (C2, 2026-11-05; il testo è dell'utente, approvato con gli altri della
+    parte C con «Sì, approvati», il modo è deciso dall'agente su delega
+    dell'utente) Sulla mappa di fine giornata di sci la traccia si taglia
+    agli impianti trovati da `snowDay`. Ciò che è stato sciato resta la
+    linea bianca piena di una corsa; le risalite sono la stessa linea,
+    tratteggiata come i tratti in bici a piedi (`onFoot.dash`): nessun
+    colore nuovo. `snowLiftsOf` le dà solo per lo sci alpino e solo se ce
+    ne sono; il fondo e gli altri sport restano una linea sola. Il banner
+    dello sci dice «White: your descents. Dashed: the lifts.» anche in una
+    giornata senza impianti trovati, perché non conosce la traccia: è un
+    caso raro, e non mostra niente di sbagliato. In `App.tsx` ci sono solo
+    il campo `lifts` di `FreeFinished` e il prop di `MapView`.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -21998,5 +22115,754 @@ del `Pager`, e «Close» finiva sotto l'orologio. Come per il regolamento
 `initialWindowMetrics`, per ogni punto da cui si apre. Scartato: far passare
 il margine da `ActionBar`, che lascerebbe il difetto al prossimo che apre il
 post da un'altra pagina, e cambiare il `Pager`.
+
+---
+
+## ADR-0327 — «Gym»: una sessione senza traccia, le serie sul server, i post senza linea solo a chi li sa leggere
+
+**Stato**: Proposto · 2026-11-04 · TASK-385. Richiesta dell'utente del
+2026-11-04; numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, una alla volta, in `tasks/TASK-385.md`; i punti tecnici qui
+sotto sono decisi dall'agente su delega dell'utente. Usa ADR-0319 (Record
+only), ADR-0318 (calorie), ADR-0301 (composer), ADR-0281 (Salute), ADR-0320
+(registro degli sport).
+
+**Contesto**: la palestra non ha posizioni. Il server vuole una traccia per
+ogni corsa (`runs.track NOT NULL`) e per ogni disegno visibile; le app di oggi
+rifiutano una pagina del Feed, del profilo o della ricerca se un solo post
+non ha `track_preview`. «Record only» registra col GPS. L'utente vuole anche
+esercizi e serie, traguardi che sbloccano figure, una classifica mensile, un
+timer di recupero e il video della serie.
+
+**Decisione**:
+
+1. **Un'attività `gym`**, in un gruppo nuovo `TRACKLESS_ACTIVITIES`, dentro
+   `RunActivity`; `Activity` e `ApiActivity` non cambiano. Il motore e la
+   sua impronta non la vedono: niente banco, niente rete.
+2. **Database, una migrazione** (numero dal Coordinatore al merge):
+   `gym` nel CHECK di `runs`; `runs.track` facoltativa solo per le attività
+   senza traccia (`track IS NOT NULL OR activity = 'gym'`); il CHECK dei
+   disegni accetta un post senza traccia solo se la sua corsa non ne ha;
+   una tabella nuova `gym_sets` (corsa, posto, esercizio del catalogo o nome
+   libero, tipo, ripetizioni, peso in kg, secondi, metri, velocità,
+   pendenza, livello, piani, ora, `live`). `favorites` e `group_runs` no.
+3. **I post senza traccia solo a chi li sa leggere**: ogni risposta con
+   disegni (Feed, profilo, ricerca, dettaglio, messaggi, condivisione) li
+   lascia fuori se la richiesta non porta l'header `X-MuW-Reads:
+   trackless`; il dettaglio senza header è 404. Le app di oggi non li
+   ricevono mai, qualunque sia l'ordine degli aggiornamenti. L'ordine resta
+   comunque: prima l'OTA che legge (B0), poi quello che salva (B).
+4. **Fuori per costruzione**: record personali, gioco delle forme e
+   concorsi di disegno, km e dislivello del profilo (0 m), GPX, Strava,
+   video della corsa, «Draw it near me», «Start», «Edit the drawing».
+5. **Sul telefono**: «Gym» nel registro degli sport (TASK-376 B3) con
+   `trackless`, `ready: false` finché server e B0 non ci sono. Il tempo è
+   inizio, pause e fine in un file: nessun GPS, nessun permesso di posizione,
+   nessuna modalità in background. Il catalogo (91 esercizi, quattro tipi di
+   serie, scale e tetti) sta in un file TypeScript puro e testato, specchio di
+   `docs/sports/gym.md`; il server tiene la stessa tabella delle scale e dei
+   tetti per traguardi e classifica, con un test che confronta le due.
+6. **Timer di recupero solo JS**: lo stato è l'ora di fine; ad app aperta
+   vibrazione (`expo-haptics`) e un suono breve (`expo-audio`, file
+   nell'app); in background una notifica locale programmata
+   (`expo-notifications`, trigger a intervallo, suono di sistema), tolta se
+   il recupero cambia o finisce prima; schermo acceso con `expo-keep-awake`.
+   Sono tutti moduli della build 1.0.1: impronta iOS 6f8bba4c invariata.
+7. **Calorie** (energia attiva, ADR-0318): i blocchi cardio con la formula
+   della loro macchina (ACSM per il tapis roulant, MET del Compendium 2024
+   per le altre), il resto del tempo col MET del Compendium per i pesi.
+   Quel MET è la media di una sessione con i recuperi dentro: i recuperi non
+   si contano a parte a 1 MET, che li toglierebbe due volte (correzione della
+   formulazione mostrata all'utente nella domanda sui recuperi). Col battito
+   a sessione finita, Keytel 2005 se ci sono sesso, età e peso; altrimenti
+   MET. Le kcal dei post altrui restano a 70 kg.
+8. **Salute**: HealthKit `.traditionalStrengthTraining`, Health Connect
+   `EXERCISE_TYPE_STRENGTH_TRAINING` (i numeri si verificano sulle librerie
+   nella parte C), senza percorso né distanza, con l'energia attiva e la
+   chiave di sincronizzazione di ADR-0281. Nessun permesso nuovo. Se in
+   Salute c'è già un allenamento di forza di un'altra app nella stessa
+   finestra (l'orologio), il telefono non lo riscrive.
+9. **Traguardi e classifica dal server**, dalle serie salvate: per ogni
+   esercizio del catalogo il miglior valore del suo tipo, sotto il tetto.
+   La classifica è del mese di calendario, conta solo serie `live` di
+   sessioni pubblicate e visibili a tutti (come i concorsi), una riga per
+   persona; una riga segnalata e tolta dalla moderazione non conta. Il primo
+   del mese prende «Winner» (`CONCORSI.md`).
+10. **Battito in tempo reale e video della serie sono della 1.0.2**: il primo
+    vuole codice nativo per l'orologio (con TASK-345 C e la build), il secondo
+    `expo-video` (TASK-348 C / TASK-336). La scritta di esercizio e carico
+    sul video la disegna l'app sopra il lettore; dentro il file solo con il
+    modulo di esportazione di ADR-0301.
+
+**Alternative scartate**: una traccia finta di un punto per la palestra
+(dati falsi in Salute e nel profilo); allargare `isDrawing` e contare sul
+solo ordine degli OTA (chi non aggiorna perderebbe il Feed intero); mettere
+`gym` in `RECORD_ACTIVITIES` (lì si registra col GPS); esercizi solo sul
+telefono (persi cambiando telefono, niente traguardi né classifica);
+contare i recuperi a 1 MET.
+
+**Conseguenze**: un'attività che il server salva senza traccia e una
+tabella nuova; l'API cambia comportamento solo per chi manda l'header.
+Testi nuovi in cinque lingue (interfaccia, 91 esercizi, sette figure), una
+riga della privacy per esercizi e classifica. Il codice parte dopo la #758 e
+TASK-376 B2 e B3, con le righe di registrazione raccolte dal Coordinatore
+Sport. Server, migrazione e OTA di produzione col sì dell'utente.
+## ADR-0318, precisazione — «bpm» sta dentro il riquadro anche nelle zone del battito
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Sì, task a parte»,
+dopo «Dentro il riquadro» di TASK-383), il resto deciso dall'agente su delega
+dell'utente (TASK-386). Nella pagina «Heart rate zones» «bpm» stava a destra
+di ogni casella, piccolo e grigio. Ora sta dentro il riquadro, dopo il numero
+e nella sua stessa dimensione, come «kg» e «cm» in «Body»: in «Max heart
+rate», «Resting heart rate» e nel limite alto delle zone 1–4. Il riquadro è un
+`Pressable` e un tocco ovunque, anche su «bpm», apre la tastiera del campo. Il
+limite della zona 5, che non si scrive, resta senza riquadro, ma il numero e
+«bpm» stanno allo stesso posto delle caselle sopra (un margine pari al bordo
+che manca). Scartati: un riquadro anche sulla zona 5, che sembrerebbe da
+scrivere, e per ora un componente comune con `NumberInput` di «Body», che è di
+TASK-383 finché #759 non è in `main`.
+
+---
+
+## ADR-0318, precisazione — L'unità di peso e altezza sta dentro il riquadro
+
+**Stato**: Attiva · 2026-11-04 · scelta dell'utente («Dentro il riquadro»),
+il resto deciso dall'agente su delega dell'utente (TASK-383). In «Body»
+l'unità stava a destra del riquadro, piccola e grigia, e sul telefono non si
+notava. Ora «kg» e «cm» (con le miglia «lb», «ft» e «in») stanno dentro il
+riquadro, dopo il numero e nella sua stessa dimensione; il riquadro è un
+`Pressable` e un tocco ovunque, anche sull'unità, apre la tastiera del campo.
+I valori restano in kg e cm (punto 10). Scartati: l'unità nel nome del campo
+(«Weight (kg)»), che con le miglia cambia il nome, e un segnaposto, che sparisce
+appena si scrive.
+
+---
+
+## ADR-0326 — «MuW Style»: post nostri con immagini AI e tag affiliati, fuori da `GET /feed`
+
+**Stato**: Accettata · 2026-11-04 · TASK-384 («Sì, approvo» dell'utente
+sulla proposta). Le scelte di prodotto sono
+dell'utente (tema, frequenza, strumento, partenza prima della società:
+`tasks/TASK-384.md`); il come è deciso dall'agente su delega dell'utente.
+Numeri dal Coordinatore.
+
+**Contesto**: l'utente vuole nel Feed post di MuW con modelli generati dall'AI
+in outfit sportivi e tag che portano a comprare i capi con link affiliati.
+Un post del Feed è un `drawings` su un `runs`, con un utente e dei tempi; i
+percorsi di MuW (ADR-0310) stanno già fuori da `GET /feed`. Termini e Privacy
+oggi dicono che MuW non mostra pubblicità (TASK-267).
+
+**Decisione**:
+
+1. **Tabelle proprie**, `style_posts`, `post_product_tags` e
+   `product_tag_clicks`, e un endpoint proprio, `GET /style`: `GET /feed` e
+   `drawings` non cambiano, un'app già pubblicata non vede niente di nuovo.
+2. **Le etichette «AI-generated» e «Affiliate links» sono fisse sul post**, e
+   la scheda del tag dice che il capo nella foto è simile, non il prodotto:
+   AI Act art. 50, pubblicità riconoscibile, niente pratica ingannevole.
+3. **I clic si contano per giorno e per tag**, senza utente, IP o
+   identificativo: niente tracciamento, niente ATT, nessun dato nuovo
+   nell'App Privacy.
+4. **Uscita a data** (`publish_at`, 2–3 al giorno) e **controllo dei link**
+   prima dell'uscita, dal feed prodotti del programma affiliato quando c'è;
+   un tag senza prodotto si spegne, un post senza tag non esce.
+5. **Le immagini si generano da testo**, con persone inventate e capi senza
+   loghi; nessuna foto dei negozi, nemmeno come riferimento.
+6. **Nel Feed al massimo 1 su 8, solo «All»**, con un interruttore per
+   toglierli e la lente «Style».
+
+**Scartato**: un account MuW con post `drawings` finti (vorrebbe corse e tempi
+inventati, come in ADR-0310); scaricare le foto di Zalando (diritti del
+negozio, e l'utente l'ha escluso); contare i clic per utente (tracciamento,
+consenso, App Privacy).
+
+**Conseguenze**:
+- Servono testi legali nuovi e le dichiarazioni negli store prima della
+  prima build con Style.
+- Il catalogo preparato invecchia in giorni: prezzi e disponibilità vanno
+  riletti prima di ogni uscita.
+## ADR-0323 — Lo swipe fra le schede: le pagine si scorrono anche con la barra in basso
+
+**Stato**: Proposta · 2026-11-04 · TASK-379. La richiesta è dell'utente
+(2026-11-04); numeri dal Coordinatore. Le scelte di prodotto sono
+dell'utente, in `tasks/TASK-379.md`; il resto è deciso dall'agente su delega
+dell'utente. **Corregge il punto 3 di ADR-0311** («niente swipe fra le
+pagine»); il resto di ADR-0311 resta.
+
+**Contesto**: con TASK-367 parte A le pagine sono sotto una barra di schede e
+si cambiano solo toccandola. L'utente vuole anche «poter swippare da una
+scheda all'altra slidando verso destra e sinistra con il dito», come si
+faceva con le pagine affiancate di TASK-154 (ADR-0124).
+
+**Decisione** (proposta):
+
+1. Uno swipe orizzontale sulla pagina porta alla scheda accanto, e la barra
+   segue; il tocco sulla barra resta e mostra la pagina subito. Le scelte
+   dell'utente: la pagina **segue il dito**, con le pagine affiancate
+   («Segue il dito»); dal profilo si va al Feed e dal Feed al profilo, **in
+   giro continuo** («Torna alla prima»); vale su **tutte e cinque** le schede
+   («Tutte e cinque»).
+2. Nessuna dipendenza nativa: React Native di base, come il `Pager` di
+   TASK-154. L'impronta iOS non cambia e arriva con un OTA.
+3. Un gesto che parte su un carosello o su una fila di schede resta suo. Dentro
+   le pagine non c'è una mappa da trascinare: le mappe di Feed, Explore e
+   Profilo sono immagini, e la mappa vera prende lo schermo senza barra.
+4. Resta tutto quello che fa `TabShell`: pagine costruite al primo arrivo e
+   tenute, tocco sulla scheda attiva che torna in cima, «indietro» di Android,
+   il giro guidato, VoiceOver con le schede `tab` e lo stato `selected`.
+
+**Conseguenze**: chi aveva imparato lo swipe prima di TASK-367 lo ritrova.
+La Guida non cambia: «tocca una scheda per andarci» resta vero. Android si
+prova solo con i test.
+
+**Scelte tecniche** (2026-11-04, decise dall'agente su delega dell'utente):
+
+- Lo `ScrollView` orizzontale a pagine di React Native, come il `Pager` di
+  TASK-154: uno scroll orizzontale dentro una pagina si tiene il dito che parte
+  su di lui (UIKit lo dà alla vista più interna, e una che rimbalza lo tiene
+  anche ai bordi). Scartato `PanResponder` con `Animated`: con Fabric uno
+  `ScrollView` interno scorre anche quando il responder JS è un genitore, e le
+  due cose si muoverebbero insieme.
+- Il giro senza salti: le pagine stanno su una striscia di 2000 posti larghi
+  uno schermo (`tabs/tabStrip.ts`). La pagina sullo schermo ha un posto e le due
+  vicine quelli ai lati; una pagina cambia posto solo fuori vista, così lo
+  scroll non torna mai indietro. Mille swipe nella stessa direzione prima di un
+  capo, dove lo swipe si ferma; non di più, perché il layout conta in float a
+  32 bit.
+- Tocco sulla barra, giro guidato, «indietro» di Android, e il profilo al posto
+  di «Messages» senza account: la pagina arriva subito dove sta la striscia,
+  senza scorrere su quelle in mezzo e senza costruirle. La barra cambia quando
+  lo swipe si ferma.
+- Una pagina pigra si costruisce ai primi pixel che entrano nello schermo, come
+  nel `Pager`: «Explore» e il profilo, la prima volta, entrano vuoti per un
+  attimo.
+- Con VoiceOver o TalkBack acceso lo swipe è spento: tre dita direbbero
+  «pagina 1001 di 2000». Le schede restano `tab` con lo stato `selected`.
+- `scrollsToTop={false}` sulla striscia: il tocco sull'orologio va allo scroll
+  della pagina.
+- Il limite: una seconda scivolata veloce mentre una fila rimbalza ancora alla
+  fine passa alla pagina accanto (UIKit). Toglierlo vorrebbe cambiare le file;
+  `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
+
+### Precisazione — TASK-391 (2026-11-05)
+
+**Deciso dall'agente su delega dell'utente**, numero dal Coordinatore. Una
+pagina che lo swipe porta sullo schermo non si ricostruisce più quando lo
+swipe si ferma: la si è vista scorrere intera e deve restare così.
+«Messages» rilegge la lista sul posto, tenendo quella vecchia finché arriva
+la nuova; il profilo si ricostruisce quando lascia lo schermo per un'altra
+scheda, fuori vista, e al ritorno da una sua pagina aperta sopra l'app come
+prima. Scartato: rileggere sul posto anche il profilo, che vorrebbe cambiare
+`useOwnProfile`, le liste di chi segue e la galleria; il prezzo della scelta
+è che un follow fatto su un'altra scheda si vede nei numeri del profilo alla
+visita dopo.
+
+---
+
+## ADR-0326, precisazione — L'API di MuW Style (TASK-384 parte A)
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente,
+dentro la proposta approvata; migrazione e righe condivise col via del
+Coordinatore.
+
+1. **I post entrano solo con `style_import.py`**, da un file con i campi
+   esatti e una foto JPEG: nessun endpoint scrive un post. Un post caricato
+   non si sovrascrive; si nasconde.
+2. **Il link affiliato si fa a ogni «Shop»** dalla pagina del negozio
+   tenuta nella riga: cambiare programma o ID è cambiare `.env`, non le
+   righe. La pagina deve essere di un sito del negozio, così una riga
+   sbagliata non manda il telefono altrove.
+3. **«Shop» è un `POST` che risponde il link**: lo stesso tocco conta e dà
+   l'indirizzo, e l'elenco dei post non porta link che l'app potrebbe aprire
+   senza contare.
+4. **Un limite per indirizzo solo in memoria** (120 tocchi l'ora) tiene i
+   conteggi puliti senza scrivere l'indirizzo, come per «Send feedback».
+5. **Le foto in `data/media/style`**, sotto il `--media-dir` di sempre
+   (ADR-0289): non sono nelle copie del database, e si rigenerano dai
+   prompt.
+
+Scartato: un endpoint di amministrazione per caricare i post (una
+superficie in più sul server pubblico per una cosa che si fa a mano e di
+rado); il link affiliato scritto nella riga (legato all'ID di oggi).
+## ADR-0329 — I movimenti come iOS: molle condivise con un rimbalzo appena percettibile
+
+**Stato**: Proposta · 2026-11-04 · TASK-388. Il brief è dell'utente
+(2026-11-04): movimenti «fluidi ed eleganti, nello stile Apple (Dynamic
+Island, molle naturali, niente effetti da cartone animato)»; numeri dal
+Coordinatore. Le scelte tecniche qui sotto sono decise dall'agente su delega
+dell'utente; l'aspetto lo approva l'utente sui video, prima di ogni merge.
+**Aggiorna il punto 4 di ADR-0293** («Mai rimbalzi») solo per i movimenti:
+il resto di ADR-0293 resta.
+
+**Contesto**: ADR-0293 aveva dato all'app movimenti brevi su curve fisse
+(`Animated.timing`). Una curva fissa non si lascia interrompere bene e non
+ha l'assestamento che su iOS dice «questa cosa ha un peso». Il brief chiede
+molle «con un rimbalzo appena percettibile, mai elastiche», senza dipendenze
+nuove: `react-native-reanimated` cambierebbe l'impronta iOS e fermerebbe gli
+OTA.
+
+**Decisione** (proposta):
+
+1. **Tre molle con un nome** in `motion.spring` (`tokens.ts`), massa 1, nelle
+   misure di SwiftUI (risposta = 2π/√rigidità, frazione di smorzamento =
+   smorzamento/(2√rigidità)):
+   - `snappy` (270/25): risposta ~0,38 s, oltre il segno ~2,5%. Un
+     controllo lasciato, la capsula della barra, un'icona che prende la
+     scheda.
+   - `smooth` (170/24): ~0,48 s, oltre il segno meno dello 0,1%. Fogli e
+     pagine (parte C).
+   - `island` (160/20): ~0,5 s, ~1,7%. L'«isola» (parte B).
+   Nessuna schermata scrive i suoi numeri: passano tutte da `src/ui/motion.ts`
+   (`springTo`, `fadeTo`), che le mette sul driver nativo. Un test controlla
+   che ognuna risponda in 0,35–0,5 s e superi il segno al massimo del 3%.
+2. **Solo `transform` e `opacity`, sul driver nativo** (`Animated` di React
+   Native): niente larghezze, altezze o posizioni animate sul thread JS.
+   L'allungamento della capsula è un `scaleX`.
+3. **Ogni movimento si interrompe**: una molla avviata su un valore che si
+   muove riparte da dov'è, con la sua velocità. Un tocco a metà corsa non
+   salta.
+4. **«Riduci movimento»** (`useReduceMotion`): nessuna molla e nessuno
+   spostamento; restano dissolvenze brevi (`fadeTo`, `motion.pressMs`). `Tap`
+   resta una `Pressable` che si scurisce sotto il dito, come con ADR-0293.
+5. **`Tap`**: premuto scende come prima in `pressMs` con la curva; lasciato
+   torna con `snappy`, appena oltre la sua misura. La luce non va mai oltre
+   il pieno (opacità limitata a 1). `Tap` prende `pressScale`: le icone della
+   barra scendono a 0,88, il resto dell'app resta a `motion.pressScale`.
+6. **La barra in basso**: una capsula morbida (`color.surfaceRaised`, 56×34,
+   raggio pieno) dietro la scheda attiva scivola alla nuova con `snappy` e si
+   allunga a metà corsa (8% per scheda attraversata, al massimo 20%), come
+   una goccia. Con lo swipe di TASK-379 segue la posizione del dito (prop
+   `drag`: `TabShell` la mette dal suo `onScroll`, già in JS ogni 16 ms, in
+   pagine dalla pagina dell'app contate da quella che la striscia ha sullo
+   schermo, col giro più vicino all'ultimo valore, così anche più swipe di
+   fila senza fermarsi vanno avanti; un `Animated.event` sul driver nativo
+   è scartato perché `TabBar` deve leggere `drag` da JS); una pagina arrivata col
+   dito trova la capsula già lì, e non parte nessuna molla. Nel giro dal
+   profilo al Feed una seconda capsula, a una barra di distanza, entra da
+   sinistra mentre la prima esce a destra. L'icona che prende la scheda sale
+   di 1,5 pt e passa dal contorno al pieno in dissolvenza incrociata.
+7. **La vibrazione**: `selectionFeel()` (TASK-361, `selectionAsync`) solo
+   quando un tocco cambia scheda, non sulla scheda già attiva né allo swipe
+   (iOS non vibra scorrendo le pagine). Senza `expo-haptics` nella build non
+   succede niente: nessuna dipendenza nuova, l'impronta non cambia.
+8. **I test vedono le molle**: sotto jest il driver nativo è uno stub che non
+   muove niente; `src/ui/animationsOnJs.testing.ts` fa girare le stesse
+   animazioni su JS, fotogramma per fotogramma con i timer finti, ancora
+   chieste con `useNativeDriver: true`.
+
+**Alternative scartate**: Reanimated (impronta nuova, build nativa, niente
+OTA); molle diverse per ogni schermata (è il modo in cui un'app smette di
+sembrare una sola); `Animated.timing` con una curva che rimbalza (non si
+interrompe con la velocità).
+
+**Conseguenze**: tutta l'app risponde al dito con la stessa molla. `releaseMs`
+resta in `motion` finché le PR aperte che lo leggono sono in `main`; poi va
+tolto. Le parti B (l'«isola») e C (fogli, `Modal`, liste) usano `island` e
+`smooth`.
+
+**Aggiornamento A2 (2026-11-05, deciso dall'agente su delega dell'utente)**:
+l'utente ha provato la parte A sul telefono (anteprima 0fd6c1dc): «funziona
+[…] è un po' macchinosa rendila più fluida». Nel simulatore la capsula partiva
+solo nel commit della pagina nuova, cioè dopo che JS l'aveva costruita (Feed,
+Explore: decimi di secondo), e poi faceva due rimbalzi, quello di `snappy` e
+quello dell'allungamento. Ora:
+1. **La barra ha la sua molla, `glide`** (rigidità 256, smorzamento 32,
+   risposta ~0,39 s): smorzata criticamente, non passa mai il segno. Anche le
+   icone e il loro ritorno dopo il tocco (`Tap` con `settle`). Niente più
+   allungamento: un solo movimento. `snappy` resta per il resto dell'app.
+2. **Capsula e icona partono al tocco**, prima di `onTab`. Su iOS
+   `startAnimatingNode` va subito al thread UI (`queueFlushedOperationBlock`),
+   e in bridgeless `setImmediate` è una microtask messa in coda prima di
+   quella di React: la molla corre mentre JS costruisce la pagina. Se l'app
+   tiene la sua pagina («Messages» senza account, dal profilo) la capsula
+   torna indietro al primo giro dei timer.
+3. **Un tocco durante uno swipe**: la capsula parte da dove il dito l'ha
+   lasciata, e `TabShell` tiene `drag` a 0 finché un dito non riprende la
+   striscia, così il resto dello scorrimento non la sposta.
+Impronta iOS invariata (6f8bba4c), nessuna dipendenza.
+
+**Parte B, l'isola (2026-11-05, deciso dall'agente su delega dell'utente)**:
+1. **Solo `scaleX`/`scaleY` e opacità** su una sola capsula (`color.scrim`,
+   parole in `onScrim`: scura in tutti e due i temi, come quella di iOS).
+   Nasce al 30% della larghezza e al 75% dell'altezza; ogni passo parte 120
+   ms dopo il precedente (larghezza, altezza, parole), tutto sulla molla
+   `island`; resta 1,8 s, poi si chiude nell'ordine inverso. Le molle non
+   aspettano la fine della precedente: in sequenza la coda di ognuna
+   rallenterebbe tutto.
+2. **Qualcosa di nuovo detto mentre è aperta** cambia le parole e fa
+   ripartire il tempo, senza chiudere e riaprire: le molle partono da dove
+   sono.
+3. **Un solo punto, scelto dall'agente**: «Sent to {name}.» di «Send to a
+   friend», una conferma breve dopo un gesto, il caso tipico dell'isola. I
+   problemi restano scritti sopra la lista. Dentro un `Modal` l'isola va nel
+   `Modal` (`useIsland` restituisce l'elemento da mettere per ultimo).
+4. Durata e misure sono costanti di `Island.tsx`, non in `tokens.ts`, che
+   altri task stanno toccando.
+Scartato: un'isola sola in cima all'app (sotto un `Modal` non si vede).
+5. **Anche «Thanks for telling us. We will look at it.»** (scelta
+   dell'utente, 2026-11-05: «Anche «Thanks for…»»): ogni segnalazione andata
+   a buon fine, dal «…» di un post o di un profilo, da un messaggio e da un
+   commento. Il foglio si chiude e l'isola dice grazie; i problemi restano
+   nel foglio. Per i commenti l'isola prende il posto dell'`Alert`.
+   `sayInIsland` (`src/ui/IslandLayer.tsx`) parla nell'ultimo
+   `IslandLayer` montato: uno sopra l'app in `Root.tsx` (fuori dal
+   `SafeAreaProvider`, quindi prende i margini da `initialWindowMetrics`) e
+   uno nel foglio dei commenti, che resta aperto. Così `App.tsx` non si
+   tocca. Il punto 3 resta com'è: «Send to a friend» tiene il suo
+   `useIsland`, perché parla mentre il suo `Modal` è aperto.
+## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-382). Dopo «Edit the drawing» su un esempio sull'acqua (TASK-369 B),
+«Draw route» riceveva un 422 «outline: the outline crosses itself»: l'app
+controllava il contorno prima che `canvasRequest.framed` lo arrotondasse al
+decimillesimo, e l'arrotondamento faceva toccare i due lati della punta o del
+nastro lasciati dal tratto dalla riva.
+
+**Decisione**:
+
+1. **Il contorno si controlla con i numeri che partono**, dopo
+   l'arrotondamento, e con la regola del motore copiata operazione per
+   operazione (`shapes/outline.py`: `_ring`, `_orient`, `_meet`,
+   `_folds_back`, `_first_crossing`), in `mapdraw/sentOutline.ts`: sugli
+   stessi numeri app e motore danno lo stesso verdetto.
+2. **Dove due lati si incontrano si tolgono gli angoli fra loro**, dal lato
+   con meno angoli, finché nessuno si incontra; mai un punto nuovo, così non
+   si riarrotonda niente. Il contorno riparte dall'angolo più vicino al suo
+   primo punto.
+3. **Se resterebbe troppo poco, o un dettaglio non partirebbe più sul
+   contorno** (`ATTACH_TOLERANCE`), il contorno va com'era: l'API dice
+   perché, come prima.
+
+**Alternative scartate**: mandare i numeri senza arrotondare (in un caso su
+otto il solo cambio di riquadro fa già toccare i lati); un controllo con
+tolleranza nel motore (cambia l'impronta del motore e vuole il server);
+rifare `outlineOf` sul contorno arrotondato (crea punti nuovi, da
+riarrotondare); un testo nuovo per questo 422 (non serve se il 422 non c'è
+più, e vorrebbe il sì dell'utente).
+
+**Conseguenze**: vale per ogni figura della mappa, sull'acqua e sulle strade;
+un contorno che il motore prende già parte identico a prima. Solo JS, nessun
+testo, impronta iOS invariata; funziona col server di oggi.
+
+---
+
+## ADR-0249, precisazione — I test della pool contano solo le connessioni dei client
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
+(TASK-389). `test_the_pool_closes_when_the_app_never_started` contava una
+volta sola ogni riga di `pg_stat_activity` del database del test, e a volte
+trovava tre righe invece di due. La terza era un autovacuum worker, che
+analizza `spatial_ref_sys` dopo che PostGIS l'ha riempita (migrazione 0002),
+nel momento che sceglie lui: provato sul Mac dai log del server. Ora
+`others()` conta solo i `client backend`. Il test aspetta che il conteggio
+arrivi a `POOL_MIN_SIZE`, perché una connessione chiusa da `migrate()` può
+restare un attimo, e verifica anche il conteggio della pool stessa
+(`get_stats`). Resta severo: una connessione in più della pool non se ne va
+da sola, e due varianti della pool con una connessione in più lo fanno ancora
+fallire. Scartato: un margine come «da 2 a 3», che lascerebbe passare proprio
+la connessione in più, e il nome dell'applicazione sulle connessioni della
+pool, che avrebbe cambiato il server.
+
+---
+
+## ADR-0245, precisazione — Un contorno rifiutato dice perché, non «our side»
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
+(TASK-382, parte B, #769; richiesta del Coordinatore). Un 422
+`invalid_request` il cui messaggio comincia con «outline: » è un contorno
+che `parse_outline` rifiuta, che si incrocia per esempio: non è un guasto
+del server, e un «Try again» fallirebbe sempre. `route/problems.ts` lo
+riconosce dal prefisso: a terra mostra il testo che c'era già per un
+contorno che non sta sulle strade, sull'acqua quello dell'acqua
+(`waterProblemText`, con «pick a shape»). Nessun testo nuovo; gli altri
+`invalid_request` restano col messaggio generico. Scartato: un testo nuovo
+per il contorno che si incrocia (vorrebbe il sì dell'utente, e dopo #767
+il caso è raro).
+
+---
+
+## ADR-0330 — Il disegno intero: gli altri vedono anche partenza e arrivo
+
+**Stato**: Attiva · 2026-11-05 · **scelta dell'utente** (TASK-390); il
+come deciso dall'agente su delega dell'utente. Cambia il punto 4 di
+ADR-0114 («senza i primi e gli ultimi 200 m») e il punto 4 di ADR-0159 (il
+taglio lungo la traccia).
+
+**Contesto**: dal 2026-10-01 gli altri vedevano una corsa pubblicata senza
+i primi e gli ultimi 200 m, perché spesso parte e finisce davanti a casa.
+L'utente, 2026-11-05: «togli la questione che il disegno non conteggia la
+prima e l'ultima parte per privacy, rovina il disegno...». Alla domanda su
+come, con tre proposte (solo i disegni nuovi; anche i vecchi; un'opzione
+nelle impostazioni), ha scelto **anche i vecchi**.
+
+**Decisione**:
+1. **La traccia intera**: `drawings.track` è la traccia pulita della corsa,
+   dal primo all'ultimo punto, sempre senza orari, pause, `walks` e
+   percorso pianificato (resta il punto 5 di ADR-0159). Sotto un metro
+   resta il `422`, ora «This run is too short to publish.».
+2. **L'app non taglia più**: immagine e video di «Share», la foto composta e
+   il disegno nei messaggi usano la traccia intera (parte B).
+3. **I disegni già pubblicati** si ridisegnano con
+   `python -m shaperoute_api.drawing_retrack --apply`, dalla corsa com'è
+   tenuta: la stessa linea che darebbe un `PUT` adesso. Uno script, non una
+   migrazione: è una scrittura sui dati di chi ha pubblicato, e parte solo
+   col sì dell'utente dopo che l'informativa nuova è sul sito (ordine del
+   Coordinatore). Senza `--apply` conta e non scrive; ripetuto non cambia
+   niente. `updated_at` non cambia, così le foto tengono il loro indirizzo;
+   `drawings.preview` è generata e segue.
+4. **I testi** (sotto «Who can see it» e nell'informativa, app e sito, in
+   cinque lingue) non promettono più il taglio e dicono che partenza e
+   arrivo si vedono; approvati dall'utente il 2026-11-05.
+
+**Scartato**: solo i disegni nuovi (proposto come più prudente: chi aveva
+pubblicato contava sul taglio; l'utente ha scelto anche i vecchi);
+un'opzione «Nascondi partenza e arrivo» (più lavoro, non scelta); una
+migrazione che ricalcola da sola al deploy (scriverebbe prima che
+l'informativa nuova sia sul sito).
+## ADR-0328 — L'header `X-MuW-Reads`: le app vecchie non ricevono ciò che non sanno leggere
+
+**Stato**: Attiva · 2026-11-05 · TASK-387. La protezione è chiesta
+dall'utente («sì protezione», 2026-11-04) e il suo disegno (un header con i
+tipi in più, nessun header = app vecchia) viene dal Coordinatore; i dettagli
+qui sotto sono decisi dall'agente su delega dell'utente. Numeri dal
+Coordinatore. Usa ADR-0319 (punto 6, la tolleranza B0) e ADR-0327 (punto 3).
+
+**Contesto**: il nuoto (TASK-323), la camminata (TASK-371), lo sci e il
+fondo (TASK-375) e la palestra senza traccia (TASK-385) mettono nelle liste
+del server attività che le build di prima non conoscono. La B0 di TASK-375
+(#749) le legge come «senza attività» e le mostra come corse, ma solo nelle
+build che hanno quell'OTA; le altre rifiutano la pagina intera, e anche con
+la B0 un post di sci mostrato come una corsa è sbagliato. Contare solo
+sull'ordine degli OTA lascia esposto chi non aggiorna.
+
+**Decisione**:
+
+1. **Un header, una lista.** L'app manda `X-MuW-Reads` con i tipi in più che
+   sa mostrare, separati da virgole: `swimming`, `walking`, `skiing`,
+   `xc_skiing`, `trackless` (una corsa o un post senza traccia). Nome e
+   valori senza maiuscole/minuscole, spazi ignorati, più righe dell'header
+   unite, valori sconosciuti ignorati (un'app più nuova del server non
+   sbaglia). La lista sta in `packages/shared-types/fixtures/reads.json`,
+   letta dai test dei due lati.
+2. **Nessun header = una build vecchia**: corsa, bici e pagaia, con la
+   traccia. Un header vuoto vale lo stesso.
+3. **Una lista chiusa.** Passa un'attività delle tre di base o dichiarata;
+   tutto il resto esce, anche un'attività che il server imparerà dopo. Una
+   nuova entra con il suo valore: la palestra di TASK-385 vorrà `gym`
+   insieme a `trackless` (così si legge il punto 3 di ADR-0327). Senza
+   traccia vuol dire `runs.track` nullo: oggi nessuna corsa lo è, la
+   condizione c'è già e si prova sul frammento SQL e sul filtro in Python;
+   la prova sul database arriva con la migrazione della palestra.
+4. **Dove**: Feed (All e Following), ricerca, disegni di un profilo e
+   propri, galleria e podio dei concorsi, corse di gruppo, messaggi,
+   preferiti, «My activities», foto del profilo, lista della campanella. Un
+   dettaglio illeggibile (`GET /drawings/{id}`, `GET /group-runs/{id}`,
+   `GET /messages/{id}/drawing`) è 404, come uno che non c'è.
+5. **Come, caso per caso**: nelle liste a pagine il filtro sta nella query,
+   così una pagina resta piena e il cursore giusto. Nei concorsi i posti
+   restano quelli veri (un'app vecchia vede un buco nella numerazione, non
+   un podio falso) e un vincitore illeggibile resta con `drawing: null`, il
+   caso che la risposta ha già. In una conversazione il messaggio resta: il
+   disegno illeggibile diventa «[Drawing]» davanti al testo, come per
+   un'app senza allegati (TASK-333), perché togliere il messaggio cambierebbe
+   la conversazione.
+6. **Il frammento SQL nasce da una lista fissa** (`reads.py`), mai dal testo
+   dell'header: i valori sono letterali scelti dal server.
+7. **L'app** manda l'header in ogni richiesta di `ask` (`src/api/accounts.ts`),
+   da cui passano tutte le liste: il valore è `RUN_ACTIVITIES` meno le tre di
+   base, oggi `swimming,walking,skiing,xc_skiing`. Non `trackless`, finché
+   nessuna schermata sa mostrare un post senza linea. La tolleranza B0
+   resta, seconda linea di difesa.
+8. **L'ordine del rilascio** lo tiene il Coordinatore con l'utente: prima
+   il server con la guardia, poi l'OTA con l'header, poi il nuoto (#765).
+   Nessun passo rompe qualcosa: fra il server e l'OTA l'app di produzione è
+   trattata come vecchia e perde solo i post di nuoto salvati dalle build di
+   sviluppo (camminata e sci il server non li salva ancora: 0043 e 0044 non
+   ci sono); l'header senza la guardia non cambierebbe niente.
+
+**Fuori per scelta**: `/muw-routes` (il catalogo lo pubblica MuW: uno sport
+nuovo ci entra quando le app che lo leggono sono in produzione), `/style`
+(nessuna attività), il gioco (dà metri, non attività), reazioni e commenti
+(di un disegno che l'app vecchia non apre), le push (aprono il dettaglio, che
+dà 404), i conteggi del profilo (un'app vecchia può contare un disegno in più
+di quelli che vede).
+
+**Alternative scartate**: la versione dell'app in un header (il server
+dovrebbe sapere quale build legge cosa, e una build di sviluppo non ha un
+numero affidabile); una lista di ciò che l'app *non* legge (un'app vecchia
+non sa cosa verrà); filtrare in Python dopo la pagina (pagine corte, o vuote
+con un cursore, che un'app può leggere come la fine); togliere il messaggio
+intero.
+
+**Conseguenze**: nessuna migrazione, nessun testo nuovo, nessuna dipendenza;
+l'API cambia per chi non manda l'header. Ogni sport nuovo aggiunge un valore
+in `reads.py`, nella fixture e nell'app (dal registro di TASK-376, quando ci
+sarà). Server e OTA di produzione col sì dell'utente.
+## ADR-0311, precisazione — Nell'header il logo di «Draw», che lascia la pagina
+
+**Stato**: Attiva · 2026-11-05 · scelta dell'utente (TASK-392); le misure
+decise dall'agente su delega dell'utente. Il punto 2 di ADR-0311 voleva
+nell'header «il cuore e «MuW»»: era il cuore pieno di Lucide, 22 punti, e
+«MuW» in `font.heading`. L'utente l'ha voluto «come logo come nella sezione
+disegno», col cuore stilizzato, e il logo tolto da «Draw» accanto a «Run
+without a route». Ora l'header ha `HeartBadge` da 32 punti e «MuW» in
+`fontSize.title` grassetto, le misure che il logo aveva in «Draw»; in
+«Draw» resta solo il pulsante, a destra. Cambia, solo per «Draw», la
+scelta di TASK-367 di lasciare i loghi dentro le pagine; «Explore» e
+«Paddle» tengono il loro. Scartato: un logo più piccolo dell'originale per
+tenere l'header basso (l'utente ha chiesto lo stesso logo).
+
+---
+
+## ADR-0331 — La CI salta i test sulle PR di soli documenti e cancella i run superati
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
+(TASK-393; richiesta dell'utente del 2026-11-05).
+
+**Contesto**: ogni PR faceva girare i cinque job di `ci.yml`, anche quelle
+di soli documenti (chiusure, righe di STATUS). Il job `api` dura 25–30
+minuti; con 8–11 run insieme la coda delle unioni si fermava per un'ora, e i
+run delle head vecchie dello stesso branch continuavano. Il ruleset «protect
+main» chiede i check `route-engine`, `mobile`, `api`, `ai`.
+
+**Decisione**:
+
+- ogni job di `ci.yml` comincia con `tools/ci_changes.py`: sul merge commit
+  della PR (checkout con `fetch-depth: 2`) confronta col primo genitore,
+  cioè `main`, senza rinomine e con `-z`. Se ogni percorso è un documento —
+  tutto `docs/`, e i `.md` fuori da `apps/`, `packages/`, `services/`,
+  `tools/`, `site/`, `deploy/` — gli altri passi hanno `if:` falso e il job
+  finisce verde con lo stesso nome. Nel dubbio (nessun merge commit, git che
+  fallisce, nessun file) gira tutto; su `main` gira sempre tutto;
+- `concurrency` in `ci.yml` e `site.yml`: per le PR il gruppo è
+  `ci-<ref>` / `site-<ref>` con `cancel-in-progress`; per i push su `main`
+  il gruppo è l'id del run, così nessun run di `main` aspetta o viene
+  cancellato. `mirror.yml` resta col suo gruppo `mirror`, senza
+  cancellazione.
+
+**Perché così**: un filtro `paths` in `on:` non fa partire il workflow e
+lascia i check obbligatori «Expected» per sempre. Un job saltato con `if:`
+a livello di job conta come riuscito, ma con un job `changes` in `needs:`
+un suo errore farebbe saltare, quindi passare, tutti gli altri senza test;
+con il controllo dentro ogni job, un errore del controllo fa fallire il job.
+I `.md` dentro `apps/` e `packages/` li controlla prettier
+(`format:check`), quelli del pacchetto `route_engine` finiscono in
+`engine.zip`: lì sono codice. Un gruppo `ci-${{ github.ref }}` anche per
+`main` avrebbe messo in fila i run di `main` e cancellato quelli in attesa.
+I gruppi valgono per tutto il repository: lo stesso prefisso in due
+workflow farebbe cancellare l'uno dall'altro.
+
+**Scartato**: un'azione di terzi per i percorsi (non serve, e vorrebbe il sì
+del Coordinatore); un job `changes` con `needs:` (sopra); saltare solo i job
+che una PR di codice non tocca (fuori scope: ogni PR di codice fa girare
+tutto come prima).
+
+**Conseguenze**: una PR di soli documenti finisce in pochi secondi per job.
+Se un test comincia a leggere un file di `docs/` o un `.md` fuori da quelle
+cartelle, la regola in `tools/ci_changes.py` cambia nella stessa PR. `site.yml`
+continua a girare quando cambia `docs/DEPLOY.md`, che i suoi test leggono.
+
+---
+
+## ADR-0327, precisazione — La palestra usa l'header di ADR-0328
+
+**Stato**: Attiva · 2026-11-05 · TASK-385, decisa dall'agente su delega
+dell'utente. Il punto 3 di ADR-0327 voleva un header della palestra,
+`X-MuW-Reads: trackless`, e un filtro scritto dalla parte A. Nel frattempo
+TASK-387 (ADR-0328, in `main`) ha messo un header solo per tutti gli sport
+nuovi, con `trackless` già fra i valori e la condizione «senza traccia» già
+nel frammento SQL e nel filtro in Python di `reads.py`.
+
+**Decisione**: la palestra non scrive un filtro suo. La parte A aggiunge
+`gym` a `NEWER_ACTIVITIES` in `reads.py` e a `kinds` in
+`packages/shared-types/fixtures/reads.json`, e porta la prova sul database
+che ADR-0328 punto 3 rimanda alla migrazione della palestra. Un post di
+palestra passa solo se l'header dice **sia** `gym` **sia** `trackless`; il
+dettaglio senza i due valori è 404, come voleva ADR-0327. La parte B0
+aggiunge i due valori a `READS` in `apps/mobile/src/api/reads.ts` nello
+stesso OTA che sa mostrare la card e il dettaglio senza linea, non prima:
+fino a quel giorno l'app di produzione non riceve post di palestra.
+
+**Conseguenze**: dalla parte A esce il punto di registrazione «il filtro
+dei disegni (`drawings.py` `shown_sql`)», dalla B0 «il client che manda
+l'header»; entrano `reads.py`, `reads.json` e `reads.ts`, una riga
+ciascuno. L'ordine dei rilasci di ADR-0327 non cambia: la B0 in produzione
+prima della B.
+
+---
+
+## ADR-0332 — Il VO₂ max nel profilo pubblico: da Salute, se no stimato dai record, solo dopo un sì
+
+**Stato**: Proposto · 2026-11-05 · TASK-397. Fonte e visibilità sono
+**scelte dell'utente**; il come è deciso dall'agente su delega
+dell'utente.
+
+**Contesto**: l'utente, 2026-11-05: «Fai il conteggio del VO2 Max, magari
+prendi le informazioni da Apple, e pubblicalo nel profilo dell'utente, come
+valore che lo possono vedere tutti». Alle due domande ha scelto: il valore
+di Apple Salute / Health Connect quando c'è, se no una stima di MuW dai
+record di corsa con la scritta «stima»; visibile a chi apre il profilo,
+solo dopo un sì esplicito, spegnibile in Impostazioni. Il VO₂ max è un dato
+di Salute: Apple (linea guida 5.1.3) vuole il consenso prima di mostrarlo ad
+altri e vieta di usarlo per la pubblicità.
+
+**Decisione**:
+1. **Il sì sta sul server**: colonna `accounts.show_vo2max boolean NOT NULL
+   DEFAULT false` (migrazione col numero del Coordinatore). Si accende e si
+   spegne con `PATCH /me` (`show_vo2max`). Spento, `PublicProfile.vo2max` è
+   `null` per tutti, anche per il titolare visto da un altro account.
+2. **Il valore di Salute resta sul telefono fino al sì.** Dopo, il telefono
+   manda solo l'ultimo campione: `PUT /me/vo2max` con `value` (ml/kg/min,
+   accettato fra 10 e 90, se no `422`), `measured_on` (il giorno, non
+   l'ora) e `source` (`apple_health` o `health_connect`). Una riga per
+   account (`vo2max_readings`), sovrascritta. `PUT` con `show_vo2max`
+   spento è `409`. Spegnere, `DELETE /me/vo2max` o cancellare l'account
+   cancellano la riga.
+3. **La stima la fa il server**, dai record di `run_bests` (ADR-0312): per
+   ogni record di corsa degli ultimi 365 giorni fra 5K e maratona (il 60K
+   resta fuori, oltre le quattro ore la formula non vale) il VDOT di Daniels
+   e Gilbert, con `v` in m/min e `t` in minuti:
+   `VO₂ = −4,60 + 0,182258·v + 0,000104·v²`,
+   `%max = 0,8 + 0,1894393·e^(−0,012778·t) + 0,2989558·e^(−0,1932605·t)`,
+   `VDOT = VO₂ / %max`. Vale il più alto, arrotondato all'intero e tenuto
+   fra 20 e 90; fuori, nessuna stima. Funzione pura in
+   `vo2max_estimate.py`, calcolata a ogni lettura: niente da tenere in pari
+   quando un record cambia o una corsa si cancella. Esempio di test: 5K in
+   20:00 → 50.
+4. **Precedenza**: il valore di Salute con `measured_on` negli ultimi 365
+   giorni; se no la stima; se no `null`. Anche il valore di Salute si mostra
+   intero, come la stima.
+5. **Forma nel profilo**: `PublicProfile.vo2max` è `null` oppure
+   `{ value, source, measured_on, from_distance }`, dove `source` è
+   `apple_health`, `health_connect` o `estimate` e `from_distance` è il nome
+   del record (`5k`, `10k`, `15k`, `half`, `30k`, `marathon`) solo per la
+   stima. Un campo in più, facoltativo: le app che non lo conoscono lo
+   ignorano (`isPublicProfile` non guarda i campi in più), quindi niente
+   valore nuovo in `X-MuW-Reads`. `GET /me` porta `show_vo2max`.
+6. **La lettura da Salute** (parte C) chiede `HKQuantityTypeIdentifierVO2Max`
+   in `toRead` a runtime, solo dopo il sì nell'app, e manda l'ultimo
+   campione al massimo una volta al giorno e dopo ogni corsa salvata. Il
+   testo di `NSHealthShareUsageDescription` è nativo e oggi parla solo del
+   battito: il VO₂ max entra nel testo unico della 1.0.2 con TASK-345 C
+   (battito) e TASK-374 C (dati del corpo), e nella stessa voce «Health» di
+   App Privacy. L'ordine fra i tre è del Coordinatore. Android (Health
+   Connect, `Vo2MaxRecord`) con TASK-321 C.
+7. **Mai per la pubblicità**: il VO₂ max non entra nei dati passati agli
+   annunci (TASK-235) né nelle liste o nelle ricerche; si vede solo aprendo
+   il profilo.
+
+**Conseguenze**: le parti A (API) e B (app, solo stima) non leggono Salute e
+possono andare con un OTA prima della 1.0.2; la C aspetta la build. Il
+profilo pubblico porta un dato di salute: la riga dell'informativa (app e
+sito, cinque lingue) entra con la parte A per la stima e si allarga con la
+C per Salute, ogni volta col sì dell'utente.
+
+**Scartato**: tenere sul server la cronologia dei valori (basta l'ultimo;
+meno dati di salute tenuti); calcolare la stima sul telefono (i record sono
+già sul server, e la stima di un profilo non dipenderebbe dal telefono di
+chi lo apre); la stima dal battito a riposo (vuole il battito, che MuW non
+legge ancora, e l'età); mostrarlo senza un sì (scelta dell'utente, e Apple
+5.1.3).
 
 ---

@@ -19,6 +19,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { sayInIsland } from "../ui/IslandLayer";
 import { Tap } from "../ui/Tap";
 import { markBlocked } from "./blockedNow";
 
@@ -76,8 +77,8 @@ export function moderationProblem(failed: Failed): string {
 /**
  * The «…» of a post in «Feed» and of another member's profile (TASK-121,
  * ADR-0228): a small sheet with «Report» and «Block». «Report» asks why,
- * from a short list, and says thanks; the report is kept for whoever runs
- * the app. «Block» asks first, saying what it does; once blocked, the
+ * from a short list; once sent, the sheet closes and the island says thanks
+ * (TASK-388). The report is kept for whoever runs the app. «Block» asks first, saying what it does; once blocked, the
  * member's cards leave «Feed» at once and `onBlocked` is called.
  */
 export function ReportMenu({
@@ -108,7 +109,11 @@ export function ReportMenu({
   function reportFor(reason: ReportReason) {
     setStep({ kind: "sending" });
     void report(apiUrl, token, target.kind, target.id, reason, options).then(
-      (outcome) => sent(outcome, () => setStep({ kind: "said", words: t(REPORTED) })),
+      (outcome) =>
+        sent(outcome, () => {
+          close();
+          sayInIsland(t(REPORTED));
+        }),
     );
   }
 

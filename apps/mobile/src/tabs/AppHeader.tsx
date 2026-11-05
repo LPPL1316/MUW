@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { color, font, MIN_TAP_SIZE, space, tracking } from "../theme/tokens";
+import { BellButton } from "../bell/BellButton";
+import { HeartBadge } from "../intro/HeartBadge";
+import { color, fontSize, fontWeight, MIN_TAP_SIZE, space } from "../theme/tokens";
 import { tourPart } from "../tour/tourParts";
 import { TOUR_PART } from "../tour/tourSteps";
 
-const HEART = require("../../assets/ui/tabs/heart.png");
-
-/** The side of the heart of the logo, in points. */
-const HEART_SIZE = 22;
+/** The side of the logo's yellow square, in points: as at the top of «Draw»
+ * before it moved here. */
+const BADGE_SIZE = 32;
 
 type Props = {
   /** At the right: the sport (SportButton). */
@@ -17,10 +18,11 @@ type Props = {
 };
 
 /**
- * The header of the pages of the tab bar (TASK-367, ADR-0311): the yellow
- * heart and «MuW» at the left, the sport at the right, under the status
- * bar and the Dynamic Island. The same on every page: what page is on
- * screen the tab bar says.
+ * The header of the pages of the tab bar (TASK-367, ADR-0311): the logo,
+ * the heart of the launch on its yellow and «MuW» (TASK-221), at the left;
+ * the bell (part C) and the sport at the right, under the status bar and
+ * the Dynamic Island. The same on every page: what page is on screen the
+ * tab bar says.
  */
 export function AppHeader({ action }: Props) {
   const insets = useSafeAreaInsets();
@@ -28,15 +30,18 @@ export function AppHeader({ action }: Props) {
     <View style={[styles.header, { paddingTop: insets.top + space.xs }]}>
       {/* The brand, not a control: read once, as its name. */}
       <View style={styles.brand} accessible accessibilityLabel="MuW">
-        <Image source={HEART} style={styles.heart} />
+        <HeartBadge size={BADGE_SIZE} />
         <Text style={styles.name}>MuW</Text>
       </View>
-      {action && (
-        // The sport, shown by the tour (TASK-266).
-        <View ref={tourPart(TOUR_PART.header)} collapsable={false}>
-          {action}
-        </View>
-      )}
+      <View style={styles.right}>
+        <BellButton />
+        {action && (
+          // The sport, shown by the tour (TASK-266).
+          <View ref={tourPart(TOUR_PART.header)} collapsable={false}>
+            {action}
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -54,18 +59,17 @@ const styles = StyleSheet.create({
   brand: {
     flexDirection: "row",
     alignItems: "center",
-    gap: space.xs + space.xs / 2,
+    gap: space.sm,
     minHeight: MIN_TAP_SIZE,
   },
-  // The brand's yellow, as the launch's (TASK-181): the logo, not a route.
-  heart: {
-    width: HEART_SIZE,
-    height: HEART_SIZE,
-    tintColor: color.accent,
+  right: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.xs,
   },
   name: {
-    ...font.heading,
     color: color.text,
-    letterSpacing: tracking.heading,
+    fontSize: fontSize.title,
+    fontWeight: fontWeight.bold,
   },
 });

@@ -27,6 +27,10 @@ The tabs of «Feed» ask with a `filter` (TASK-362, ADR-0308): `all` is what
 everyone may see, `following` the reader's own and those of the people it
 follows, the last published first with no groups and no point. Without a
 `filter` the page is as above, for the apps already on the phones.
+
+A page holds only the drawings of the activities the app reads, as its
+header X-MuW-Reads says (reads.py, TASK-387): an app of before the walks
+and the days on the snow never receives one.
 """
 
 from __future__ import annotations
@@ -61,6 +65,7 @@ from shaperoute_api.drawings import (
     shown_sql,
 )
 from shaperoute_api.follows import follows_sql
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 
 PAGE_SIZE = 20
@@ -172,12 +177,14 @@ class Feed:
         cursor: str | None = None,
         point: LatLon | None = None,
         feed_filter: FeedFilter | None = None,
+        reads: Reads = EVERYTHING,
     ) -> FeedBody:
         """A page of the drawings `viewer_id` may see, its own first, then
         those of the members it follows, then the others' near `point`
         (all of them without one); the last published first in each. With
         `feed_filter` only that tab's, the last published first, whatever
-        `point` is: a single group, so the cursor keeps its form."""
+        `point` is: a single group, so the cursor keeps its form. Only
+        the drawings `reads` shows."""
         if feed_filter is not None:
             point = None
         values: dict[str, Any] = {"viewer": viewer_id, "limit": limit + 1}
@@ -208,7 +215,8 @@ class Feed:
                 # Implied by shown_sql, and said for the index of the
                 # published drawings (migration 0022).
                 " WHERE d.visibility <> 'only_me'"
-                f" AND {shown_sql('%(viewer)s')}{chosen}) feed"
+                f" AND {shown_sql('%(viewer)s')}{chosen}"
+                f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}) feed"
                 f" WHERE {where}"
                 " ORDER BY tier, published_at DESC, id DESC LIMIT %(limit)s",
                 values,
@@ -255,6 +263,7 @@ def feed_routes() -> APIRouter:
     def feed(
         feeds: Annotated[Feed, Depends(feed_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
         lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
@@ -264,7 +273,7 @@ def feed_routes() -> APIRouter:
         if (lat is None) != (lon is None):
             raise AccountError(422, "invalid_request", HALF_A_POINT)
         point = None if lat is None or lon is None else (lat, lon)
-        return feeds.page(user.id, limit, cursor, point, feed_filter)
+        return feeds.page(user.id, limit, cursor, point, feed_filter, reads)
 
     return router
 

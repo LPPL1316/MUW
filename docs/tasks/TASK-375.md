@@ -40,6 +40,29 @@ senza forme.
   | Riga sotto | «No shapes on the slopes: MuW records your day.» · Niente forme sulle piste: MuW registra la tua giornata. · Keine Formen auf der Piste: MuW zeichnet deinen Tag auf. · Pas de formes sur les pistes : MuW enregistre ta journée. · Sin formas en las pistas: MuW registra tu jornada. |
 
   Nel Feed e nell'elenco delle attività lo sport ha lo stesso nome.
+- 2026-11-04, la giornata sulla neve nel Feed (parte B2): «Sì, così». È un
+  post come gli altri: la scheda dice Ski o Cross-country ski con i suoi
+  numeri, ha commenti, reazioni e «Share» sui propri. Non ha le azioni da
+  percorso: niente «Draw it near me», niente «Start» sul disegno di un
+  altro, niente «Edit the drawing», niente invio come disegno in un
+  messaggio. Il cuore sta solo sui percorsi; l'export GPX resta.
+- 2026-11-05, i testi della parte C: «Sì, approvati».
+
+  | Dove | en · it · de · fr · es |
+  |---|---|
+  | Titolo sulla mappa | «Your day» · La tua giornata · Dein Tag · Ta journée · Tu jornada |
+  | Riga sotto (C1) | «White: where you skied.» · Bianco: dove hai sciato. · Weiß: wo du gefahren bist. · Blanc : là où tu as skié. · Blanco: donde esquiaste. |
+  | Riga sotto (C2, con gli impianti tratteggiati) | «White: your descents. Dashed: the lifts.» · Bianco: le discese. Tratteggio: gli impianti. · Weiß: deine Abfahrten. Gestrichelt: die Lifte. · Blanc : tes descentes. Pointillés : les remontées. · Blanco: tus descensos. Discontinuo: los remontes. |
+  | Casella | «Descents» · Discese · Abfahrten · Descentes · Descensos |
+  | Casella | «Vertical» · Dislivello · Höhenmeter · Dénivelé · Desnivel |
+  | Casella | «Top speed» · Vel. max · Höchsttempo · Vitesse max · Vel. máx. |
+  | Casella | «Lifts» · Risalite · Liftfahrten · Remontées · Remontes |
+  | VoiceOver dei km | «Skied: {distance}» · Sciati: {distance} · Gefahren: {distance} · Skié : {distance} · Esquiado: {distance} |
+
+  Lo sci alpino: in grande i km delle sole discese; sotto discese,
+  dislivello sciato, velocità massima e media (km/h, mph con le miglia),
+  risalite e tempo. Il fondo: distanza, passo medio, dislivello in salita e
+  tempo, etichette che l'app ha già. Niente calorie sulla neve.
 
 ## Vincoli (dal Coordinatore, 2026-11-04)
 
@@ -103,7 +126,91 @@ senza forme.
 
 A e B si possono fare in parallelo; C dopo B; D dopo A; E con la neve.
 
+## La parte D — proposta (2026-11-05, «INIZIA LA PARTE D» dell'utente)
+
+Cosa vede chi scia: sotto la giornata, l'elenco degli impianti presi e
+delle piste fatte, con il nome e quante volte («Seggiovia Col Raiser ×3»).
+È la metrica scelta il 2026-11-04 («Sì, tutte»), l'unica rimasta.
+
+Il disegno tecnico (deciso dall'agente su delega dell'utente, da
+confermare con le risposte qui sotto):
+
+- **I dati da un estratto, non da Overpass.** Overpass rifiuta il server
+  (ADR-0154). Come l'acqua (TASK-225), un comando una tantum filtra
+  l'estratto Geofabrik con `osmium tags-filter w/aerialway
+  w/piste:type=downhill` e scrive un file compatto per comprensorio
+  (linea, nome, tipo d'impianto o colore della pista). Nessuna rete
+  quando si salva una giornata.
+- **Il confronto sul server, alla lettura della giornata salvata.** La
+  traccia è già sul server quando la giornata si salva (`runs.track`).
+  Una risalita va a un impianto se quasi tutti i suoi punti stanno entro
+  ~30 m dalla sua linea e salgono nel suo verso; una discesa va alla
+  pista su cui passa la maggior parte dei suoi punti. Senza un impianto o
+  una pista vicini, il tratto resta senza nome. La posizione non va a
+  servizi esterni.
+- **Dove si tiene.** Una colonna nuova di `runs`, scritta una volta
+  (migrazione 0048, numero dal Coordinatore il 2026-11-05; si libera se
+  non serve), oppure il calcolo a ogni lettura con una cache: lo decido
+  con i tempi misurati.
+- **L'app** mostra l'elenco dove l'utente sceglie (domanda D1), coi testi
+  da approvare. Niente moduli nativi: l'impronta iOS resta 6f8bba4c.
+- **Le parti**: D1 l'estratto e il confronto (server, test sulle tracce
+  di C), D2 l'API, D3 l'app. Server, privacy e testi col sì dell'utente.
+
+Le domande, una alla volta:
+
+1. **Dove compaiono i nomi e chi li vede.** Proposta: nella scheda della
+   giornata (il post), per chi può vedere il post; la fine giornata resta
+   com'è, senza aspettare la rete. **Risposta dell'utente, 2026-11-05:
+   «Nel post, per tutti».** I nomi stanno nel post della giornata e li
+   vede chiunque può vedere il post.
+2. **Quali comprensori all'inizio.** Proposta: l'Italia, dall'estratto
+   che il server ha già; Austria, Svizzera, Francia dopo, con la memoria
+   del server misurata. **Risposta dell'utente, 2026-11-05: «Tutte le
+   Alpi».** Si parte con gli estratti Geofabrik di Italia, Austria,
+   Svizzera, Francia, Germania e Slovenia. Scaricarli e filtrarli sul
+   server sono comandi dell'utente.
+3. **I testi** (titolo dell'elenco, la riga senza nomi), in cinque lingue.
+   **Risposta dell'utente, 2026-11-05: «Sì, approvati».**
+
+   | Dove | en · it · de · fr · es |
+   |---|---|
+   | Titolo dell'elenco nel post | «Lifts and pistes» · Impianti e piste · Lifte und Pisten · Remontées et pistes · Remontes y pistas |
+   | Una riga | «{name} ×{times}», uguale in tutte le lingue |
+   | VoiceOver di una riga | «{name}, {times} times» · {name}, {times} volte · {name}, {times}-mal · {name}, {times} fois · {name}, {times} veces |
+   | VoiceOver, una volta sola | «{name}, once» · {name}, una volta · {name}, einmal · {name}, une fois · {name}, una vez |
+
+   Approvate con i testi anche due regole. Gli impianti senza nome non si
+   mostrano, così non serve un testo per ogni tipo. In una giornata senza
+   nomi trovati l'elenco non compare.
+4. **La riga della privacy**: che la traccia della giornata si confronta,
+   sul server di MuW, con le linee di OpenStreetMap. **Risposta
+   dell'utente, 2026-11-05: «Sì, approvata».** Si aggiunge in fondo alla
+   sezione «Your runs and their GPS tracks» della pagina della privacy, in
+   ogni lingua. La pagina cambia con D3 e la pubblica il Coordinatore.
+
+   | Lingua | Testo |
+   |---|---|
+   | en | «For a day of skiing, our server compares the saved track with the lifts and pistes of OpenStreetMap, which it keeps itself, to write which ones you took and how many times. The names show on the post, for whoever can see it. Nothing goes to another service.» |
+   | it | «Per una giornata di sci, il nostro server confronta la traccia salvata con gli impianti e le piste di OpenStreetMap, che tiene da sé, per scrivere quali hai preso e quante volte. I nomi compaiono nel post, per chi può vederlo. Niente va a un altro servizio.» |
+   | de | «Bei einem Skitag vergleicht unser Server die gespeicherte Spur mit den Liften und Pisten von OpenStreetMap, die er selbst vorhält, um festzuhalten, welche du genommen hast und wie oft. Die Namen erscheinen im Beitrag, für alle, die ihn sehen können. Nichts geht an einen anderen Dienst.» |
+   | fr | «Pour une journée de ski, notre serveur compare la trace enregistrée aux remontées et pistes d'OpenStreetMap, qu'il garde lui-même, pour noter celles que tu as prises et combien de fois. Les noms apparaissent dans la publication, pour qui peut la voir. Rien ne part vers un autre service.» |
+   | es | «En una jornada de esquí, nuestro servidor compara la traza guardada con los remontes y pistas de OpenStreetMap, que guarda él mismo, para anotar cuáles tomaste y cuántas veces. Los nombres aparecen en la publicación, para quien pueda verla. Nada va a otro servicio.» |
+
 ## File toccati
+
+Parte D1 (approvata dal Coordinatore il 2026-11-05; il codice dopo le
+risposte alle domande 1 e 2; solo file nuovi, nessun
+file esistente del server): `services/api/shaperoute_api/ski_extract.py`
+(il comando una tantum: dall'estratto filtrato con osmium al file degli
+impianti e delle piste), `services/api/shaperoute_api/ski_names.py` (il
+confronto di una traccia con quelle linee: risalite e discese, nomi e
+volte), `services/api/tests/test_ski_extract.py`,
+`services/api/tests/test_ski_names.py` e un piccolo estratto finto in
+`services/api/tests/fixtures/ski/`; documenti: `docs/MAPS.md` (come si fa
+il file dei comprensori), `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319,
+punto 11) e questa lista. Nessuna migrazione, nessuna rotta dell'API:
+vengono con D2.
 
 Questa PR (documenti): `docs/tasks/TASK-375.md` (nuovo), `docs/DECISIONS.md`
 (ADR-0319), `docs/STATUS.md` (una voce), `docs/INDEX.md` (una riga).
@@ -150,6 +257,42 @@ con «Sì, approvati», nella tabella sopra): `apps/mobile/src/settings/sport.ts
 `profile/SettingsPage.test.tsx`. Documenti:
 `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 7) e questa lista.
 `trackStore.ts` e `api/activities.ts` alla fine non servono.
+
+Parte C2 (approvata dal Coordinatore il 2026-11-05):
+`apps/mobile/src/activities/snowLifts.ts` e `snowLifts.test.ts` (nuovi),
+`apps/mobile/src/map/MapViewLifts.test.tsx` e `mapPageLifts.test.ts`
+(nuovi), `apps/mobile/src/map/messages.ts`, `apps/mobile/src/map/mapPage.ts`,
+`apps/mobile/src/map/MapView.tsx`, `apps/mobile/App.tsx` (il campo `lifts`
+e il prop di `MapView`), `apps/mobile/src/screens/FreeRunScreen.tsx`,
+`apps/mobile/src/screens/SnowFinishCard.test.tsx` (la riga del banner, approvata
+dal Coordinatore), `apps/mobile/src/i18n/{it,de,fr,es}.ts`; documenti:
+`docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 10) e questa lista.
+**In `main` il 2026-11-05** (#783, 9adb22d1); con C1 (#778) la parte C è
+chiusa.
+
+Parte C1 (approvata dal Coordinatore il 2026-11-05):
+`apps/mobile/src/activities/snowDay.ts` e `snowDay.test.ts` (nuovi),
+`apps/mobile/src/screens/SnowFinishCard.tsx` e `SnowFinishCard.test.tsx`
+(nuovi), `apps/mobile/src/screens/FreeRunScreen.tsx`,
+`apps/mobile/src/i18n/{it,de,fr,es}.ts`; documenti: `docs/STATUS.md`,
+`docs/DECISIONS.md` (ADR-0319, punto 9) e questa lista. C2 (le risalite
+tratteggiate: `App.tsx`, `src/map/MapView.tsx`) col via del Coordinatore
+dopo C1.
+
+Parte B2 (approvata dal Coordinatore il 2026-11-04): `apps/mobile/src/activities/snow.ts`
+(nuovo), `packages/shared-types/src/index.ts` (`activity` dei disegni →
+`RunActivity`), `apps/mobile/src/api/drawings.ts`,
+`apps/mobile/src/api/activities.ts`, `apps/mobile/src/feed/sampleFeed.ts`,
+`apps/mobile/src/feed/FeedPost.tsx`, `apps/mobile/src/feed/ActionBar.tsx`,
+`apps/mobile/src/feed/postEnergy.ts`, `apps/mobile/src/share/postRun.ts`,
+`apps/mobile/src/social/DrawingCard.tsx`,
+`apps/mobile/src/social/drawingRoute.ts`,
+`apps/mobile/src/messages/messageDrawing.ts`,
+`apps/mobile/src/search/drawingMatch.ts`,
+`apps/mobile/src/route/WhileRouting.tsx`; test: `feed/snowFeed.test.tsx`
+(nuovo), `api/drawings.test.ts`, `api/feed.test.ts`; documenti:
+`docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 8) e questa lista.
+`App.tsx`, `feedPosts.ts` e `activityText.ts` alla fine non servono.
 
 Parte B (la lista di partenza): `apps/mobile/src/settings/sport.ts`,
 `apps/mobile/src/navigation/freeSport.ts`,

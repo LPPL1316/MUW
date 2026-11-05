@@ -24,6 +24,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { useIsland } from "../ui/useIsland";
 import { useMessagesDoor } from "./messagesDoor";
 
 /** The side of a member's picture in the list. */
@@ -51,13 +52,13 @@ export function peopleOf(talking: Person[], following: Person[]): Person[] {
   });
 }
 
-type Said = { kind: "sent" | "problem"; text: string };
-
 /**
  * «Send to a friend» (TASK-333, the user's choice 5): the people one writes
  * to, then those one follows, or anyone found by name; a tap sends the
  * drawing as a message of its own. One who has not accepted a message
  * request gets nothing: a request is text only (the user's choice 1).
+ * «Sent» says so in the island at the top (TASK-388 B); a problem stays
+ * written over the list.
  */
 export function SendToFriend({ drawing, onClose, fetchFn, apiKey }: Props) {
   const insets = useSafeAreaInsets();
@@ -69,7 +70,8 @@ export function SendToFriend({ drawing, onClose, fetchFn, apiKey }: Props) {
   const [typed, setTyped] = useState("");
   const [found, setFound] = useState<Person[] | null>(null);
   const [sending, setSending] = useState<string | null>(null);
-  const [said, setSaid] = useState<Said | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [island, say] = useIsland();
 
   useEffect(() => {
     if (apiUrl === null || token === null) {
@@ -116,15 +118,12 @@ export function SendToFriend({ drawing, onClose, fetchFn, apiKey }: Props) {
       return;
     }
     setSending(person.public_id);
-    setSaid(null);
+    setProblem(null);
     void sendMessage(apiUrl, token, person.public_id, "", options, { drawing }).then(
       (outcome) => {
         setSending(null);
         if (outcome.kind === "ok") {
-          setSaid({
-            kind: "sent",
-            text: t("Sent to {name}.", { name: person.username }),
-          });
+          say(t("Sent to {name}.", { name: person.username }));
           return;
         }
         // 409: no conversation open with them yet, or one's request still
@@ -133,15 +132,14 @@ export function SendToFriend({ drawing, onClose, fetchFn, apiKey }: Props) {
           outcome.kind === "api_error" &&
           outcome.code === "http_error" &&
           CLOSED.some((start) => outcome.message.startsWith(start));
-        setSaid({
-          kind: "problem",
-          text: closed
+        setProblem(
+          closed
             ? t(
                 "Photos, videos and drawings can be sent once {name} accepts your message.",
                 { name: person.username },
               )
             : (messageProblem(outcome) ?? ""),
-        });
+        );
       },
     );
   }
@@ -172,12 +170,9 @@ export function SendToFriend({ drawing, onClose, fetchFn, apiKey }: Props) {
           autoCorrect={false}
           accessibilityLabel={t("Search people")}
         />
-        {said !== null && (
-          <Text
-            style={said.kind === "sent" ? styles.sent : styles.problem}
-            accessibilityRole="alert"
-          >
-            {said.text}
+        {problem !== null && (
+          <Text style={styles.problem} accessibilityRole="alert">
+            {problem}
           </Text>
         )}
         {near === null && !searchable(typed) ? (
@@ -214,6 +209,7 @@ export function SendToFriend({ drawing, onClose, fetchFn, apiKey }: Props) {
             )}
           />
         )}
+        {island}
       </View>
     </Modal>
   );
@@ -277,11 +273,6 @@ const styles = StyleSheet.create({
   },
   note: {
     color: color.textMuted,
-    fontSize: fontSize.body,
-    textAlign: "center",
-  },
-  sent: {
-    color: color.text,
     fontSize: fontSize.body,
     textAlign: "center",
   },

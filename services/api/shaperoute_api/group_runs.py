@@ -29,6 +29,9 @@ them goes to the daily email (notice_email.EMAIL_KINDS).
 
 Deleting an account deletes its group runs and its answers (ON DELETE
 CASCADE).
+
+A group run of an activity the app does not read, as its header X-MuW-Reads
+says (reads.py, TASK-387), is left out of the lists and not found alone.
 """
 
 from __future__ import annotations
@@ -79,6 +82,7 @@ from shaperoute_api.follows import (
     follows_sql,
 )
 from shaperoute_api.push import Kind, Pusher, PushEvent
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.schemas import ErrorBody, Stretch, Walk
 
@@ -461,11 +465,16 @@ class GroupRuns:
         return GroupRunBody(**self._fields(row, faces, now))
 
     def _seen_row(
-        self, conn: Connection[DictRow], viewer_id: int, group_run_id: UUID
+        self,
+        conn: Connection[DictRow],
+        viewer_id: int,
+        group_run_id: UUID,
+        reads: Reads = EVERYTHING,
     ) -> DictRow:
         row = conn.execute(
             f"SELECT {COLUMNS} FROM group_runs g"
-            f" WHERE g.id = %(id)s AND {seen_sql('%(viewer)s')}",
+            f" WHERE g.id = %(id)s AND {seen_sql('%(viewer)s')}"
+            f" AND {reads.sql('g.activity')}",
             {"id": group_run_id, "viewer": viewer_id},
         ).fetchone()
         if row is None:
@@ -531,10 +540,12 @@ class GroupRuns:
             next=people.next,
         )
 
-    def get(self, viewer_id: int, group_run_id: UUID) -> GroupRunDetailBody:
+    def get(
+        self, viewer_id: int, group_run_id: UUID, reads: Reads = EVERYTHING
+    ) -> GroupRunDetailBody:
         with self.database.connect() as conn:
             return self._detail(
-                conn, viewer_id, self._seen_row(conn, viewer_id, group_run_id)
+                conn, viewer_id, self._seen_row(conn, viewer_id, group_run_id, reads)
             )
 
     def going(
@@ -543,15 +554,22 @@ class GroupRuns:
         group_run_id: UUID,
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
+        reads: Reads = EVERYTHING,
     ) -> PeoplePageBody:
         with self.database.connect() as conn:
-            self._seen_row(conn, viewer_id, group_run_id)
+            self._seen_row(conn, viewer_id, group_run_id, reads)
             return self._people(conn, viewer_id, group_run_id, limit, cursor)
 
-    def row(self, viewer_id: int, point: LatLon | None = None) -> GroupRunsBody:
-        """The Feed's row (EVENTI.md §5): not over, not cancelled, seen; one's
-        own, of who one follows and those one goes to anywhere, the others'
-        within NEAR_M of `point` (all of them without one)."""
+    def row(
+        self,
+        viewer_id: int,
+        point: LatLon | None = None,
+        reads: Reads = EVERYTHING,
+    ) -> GroupRunsBody:
+        """The Feed's row (EVENTI.md §5): not over, not cancelled, seen, of
+        an activity `reads` shows; one's own, of who one follows and those
+        one goes to anywhere, the others' within NEAR_M of `point` (all of
+        them without one)."""
         values: dict[str, Any] = {
             "viewer": viewer_id,
             "over_before": self.now() - OVER_AFTER,
@@ -569,7 +587,7 @@ class GroupRuns:
             rows = conn.execute(
                 f"SELECT {COLUMNS} FROM group_runs g"
                 " WHERE g.cancelled_at IS NULL AND g.starts_at > %(over_before)s"
-                f" AND {seen_sql('%(viewer)s')}"
+                f" AND {seen_sql('%(viewer)s')} AND {reads.sql('g.activity')}"
                 " AND (g.owner_id = %(viewer)s"
                 f" OR {follows_sql('%(viewer)s', 'g.owner_id')}"
                 " OR EXISTS (SELECT 1 FROM group_run_going mine"
@@ -580,9 +598,12 @@ class GroupRuns:
             ).fetchall()
             return GroupRunsBody(group_runs=self._bodies(conn, viewer_id, rows))
 
-    def of_profile(self, viewer_id: int, public_id: str) -> ProfileGroupRunsBody:
-        """The group runs of a profile that `viewer_id` sees: 404 as for the
-        profile itself, across a block or for none."""
+    def of_profile(
+        self, viewer_id: int, public_id: str, reads: Reads = EVERYTHING
+    ) -> ProfileGroupRunsBody:
+        """The group runs of a profile that `viewer_id` sees, of an activity
+        `reads` shows: 404 as for the profile itself, across a block or for
+        none."""
         with self.database.connect() as conn:
             owner = _account(conn, public_id)
             if owner != viewer_id and _apart(conn, viewer_id, owner):
@@ -596,6 +617,7 @@ class GroupRuns:
             mine = (
                 f"SELECT {COLUMNS} FROM group_runs g WHERE g.owner_id = %(owner)s"
                 f" AND g.cancelled_at IS NULL AND {seen_sql('%(viewer)s')}"
+                f" AND {reads.sql('g.activity')}"
             )
             upcoming = conn.execute(
                 f"{mine} AND g.starts_at > %(over_before)s ORDER BY g.starts_at, g.id",
@@ -953,17 +975,20 @@ def group_run_routes() -> APIRouter:
     def row(
         runs: Them,
         user: Me,
+        reads: Shown,
         lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
         lon: Annotated[float | None, Query(ge=-180, le=180)] = None,
     ) -> GroupRunsBody:
         if (lat is None) != (lon is None):
             raise AccountError(422, "invalid_request", HALF_A_POINT)
         point = None if lat is None or lon is None else (lat, lon)
-        return runs.row(user.id, point)
+        return runs.row(user.id, point, reads)
 
     @router.get("/group-runs/{group_run_id}", responses=NOT_FOUND)
-    def get(group_run_id: UUID, runs: Them, user: Me) -> GroupRunDetailBody:
-        return runs.get(user.id, group_run_id)
+    def get(
+        group_run_id: UUID, runs: Them, user: Me, reads: Shown
+    ) -> GroupRunDetailBody:
+        return runs.get(user.id, group_run_id, reads)
 
     @router.put("/group-runs/{group_run_id}", responses=NOT_FOUND)
     def change(
@@ -995,14 +1020,17 @@ def group_run_routes() -> APIRouter:
         group_run_id: UUID,
         runs: Them,
         user: Me,
+        reads: Shown,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
     ) -> PeoplePageBody:
-        return runs.going(user.id, group_run_id, limit, cursor)
+        return runs.going(user.id, group_run_id, limit, cursor, reads)
 
     @router.get("/users/{public_id}/group-runs", responses=NOT_FOUND)
-    def of_profile(public_id: str, runs: Them, user: Me) -> ProfileGroupRunsBody:
-        return runs.of_profile(user.id, public_id)
+    def of_profile(
+        public_id: str, runs: Them, user: Me, reads: Shown
+    ) -> ProfileGroupRunsBody:
+        return runs.of_profile(user.id, public_id, reads)
 
     return router
 

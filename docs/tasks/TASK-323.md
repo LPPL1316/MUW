@@ -538,6 +538,16 @@ this»).
 - `draw_examples --swim` (con `--water-name` per pochi punti): i nuoti
   dei punti prima di ogni telefono; una forma che non ci sta è una
   risposta.
+- **Prima in preview, dove si è** (2026-11-05). In preview il nuoto era
+  ancora «Soon»: la #765 (`ready: true`, «Subito per tutti») è ferma per
+  TASK-387. L'utente ha scelto «Subito in preview»: acceso in Expo Go e
+  `preview` con `preview: true` nella riga, lo store senza fino alla #765;
+  niente nuoti pubblicati nel Feed finché TASK-387 non è sul server
+  (aggiunta ad ADR-0283). Branch `feat/TASK-323-swim-preview`, poi un OTA
+  della sola `preview`. File toccati: `apps/mobile/src/settings/sport.ts`,
+  `sport.test.ts`, `SportSetting.test.tsx`, `SportButton.test.tsx`,
+  `SportStoreBuild.test.tsx`, `apps/mobile/src/profile/SettingsPage.test.tsx`,
+  `docs/DECISIONS.md`, `docs/STATUS.md`, questo file.
 - **Per accendere il nuoto** (`ready: true` in `sport.ts`, una riga): B,
   C1, C2 e C4 in `main`, poi col sì dell'utente il server (migrazione
   0040), l'estratto dei nomi a riva e `draw_examples --swim`.

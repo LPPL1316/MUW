@@ -767,6 +767,17 @@ export const IT: Table = {
   "Avg /100 m": "Med. /100 m",
   "Last 100 m": "Ultimi 100 m",
 
+  // src/screens/FreeRunScreen.tsx, SnowFinishCard.tsx (TASK-375 part C)
+  "Your day": "La tua giornata",
+  "White: where you skied.": "Bianco: dove hai sciato.",
+  "White: your descents. Dashed: the lifts.":
+    "Bianco: le discese. Tratteggio: gli impianti.",
+  "Skied: {distance}": "Sciati: {distance}",
+  Descents: "Discese",
+  Vertical: "Dislivello",
+  "Top speed": "Vel. max",
+  Lifts: "Risalite",
+
   // src/screens/SignInScreen.tsx
   "Sign up": "Iscriviti",
   "Log in": "Accedi",
@@ -1116,10 +1127,9 @@ export const IT: Table = {
     "Le foto di una corsa che vedi solo tu restano su questo telefono. Se cancelli l'app o cambi telefono, si perdono.",
   "Its photos leave MuW and stay only on this phone.":
     "Le sue foto lasciano MuW e restano solo su questo telefono.",
-  "Every member sees it in your profile, without the first and last 200 m.":
-    "Ogni iscritto la vede nel tuo profilo, senza i primi e gli ultimi 200 m.",
-  "Your followers see it in your profile, without the first and last 200 m.":
-    "I tuoi follower la vedono nel tuo profilo, senza i primi e gli ultimi 200 m.",
+  "Every member sees it in your profile.": "Ogni iscritto la vede nel tuo profilo.",
+  "Your followers see it in your profile.":
+    "I tuoi follower la vedono nel tuo profilo.",
   "Saved on the phone. It is sent when you are back online.":
     "Salvata sul telefono. Viene inviata quando torni online.",
   "Saved on the phone. Others see it when you are back online.":
@@ -1856,4 +1866,9 @@ export const IT: Table = {
   Style: "Stile",
   Night: "Notte",
   Day: "Giorno",
+  // src/bell/BellButton.tsx, BellOverlay.tsx (TASK-367 part C: the bell)
+  Notifications: "Notifiche",
+  "Notifications, {count} new": "Notifiche, {count} nuove",
+  "No notifications yet. Reactions, comments, follows and tags will show up here.":
+    "Ancora nessuna notifica. Qui arriveranno reazioni, commenti, follow e tag.",
 };

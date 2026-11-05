@@ -777,6 +777,17 @@ export const DE: Table = {
   "Avg /100 m": "Ø /100 m",
   "Last 100 m": "Letzte 100",
 
+  // src/screens/FreeRunScreen.tsx, SnowFinishCard.tsx (TASK-375 part C)
+  "Your day": "Dein Tag",
+  "White: where you skied.": "Weiß: wo du gefahren bist.",
+  "White: your descents. Dashed: the lifts.":
+    "Weiß: deine Abfahrten. Gestrichelt: die Lifte.",
+  "Skied: {distance}": "Gefahren: {distance}",
+  Descents: "Abfahrten",
+  Vertical: "Höhenmeter",
+  "Top speed": "Höchsttempo",
+  Lifts: "Liftfahrten",
+
   // src/screens/SignInScreen.tsx
   "Sign up": "Registrieren",
   "Log in": "Anmelden",
@@ -1129,10 +1140,9 @@ export const DE: Table = {
     "Fotos eines Laufs, den nur du siehst, bleiben auf diesem Telefon. Löschst du die App oder wechselst das Telefon, sind sie weg.",
   "Its photos leave MuW and stay only on this phone.":
     "Seine Fotos verlassen MuW und bleiben nur auf diesem Telefon.",
-  "Every member sees it in your profile, without the first and last 200 m.":
-    "Jedes Mitglied sieht ihn in deinem Profil, ohne die ersten und letzten 200 m.",
-  "Your followers see it in your profile, without the first and last 200 m.":
-    "Deine Follower sehen ihn in deinem Profil, ohne die ersten und letzten 200 m.",
+  "Every member sees it in your profile.": "Jedes Mitglied sieht ihn in deinem Profil.",
+  "Your followers see it in your profile.":
+    "Deine Follower sehen ihn in deinem Profil.",
   "Saved on the phone. It is sent when you are back online.":
     "Auf dem Telefon gespeichert. Wird gesendet, sobald du wieder online bist.",
   "Saved on the phone. Others see it when you are back online.":
@@ -1884,4 +1894,9 @@ export const DE: Table = {
   Style: "Stil",
   Night: "Nacht",
   Day: "Tag",
+  // src/bell/BellButton.tsx, BellOverlay.tsx (TASK-367 part C: the bell)
+  Notifications: "Benachrichtigungen",
+  "Notifications, {count} new": "Benachrichtigungen, {count} neu",
+  "No notifications yet. Reactions, comments, follows and tags will show up here.":
+    "Noch keine Benachrichtigungen. Reaktionen, Kommentare, Follows und Markierungen erscheinen hier.",
 };

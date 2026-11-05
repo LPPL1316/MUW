@@ -295,9 +295,11 @@ test("another's comment is held to report it: the reasons, then thanks", async (
   ]);
   await tap("Why are you reporting this?", "Offensive or hateful");
   expect(report).toHaveBeenCalledWith(URL, ME.token, "comment", OTHERS.id, "offensive");
-  await waitFor(() =>
-    expect(alert).toHaveBeenCalledWith("Thanks for telling us. We will look at it."),
-  );
+  // Said in the island over the sheet, not in an alert (TASK-388).
+  expect(
+    await screen.findByText("Thanks for telling us. We will look at it."),
+  ).toBeOnTheScreen();
+  expect(alert).not.toHaveBeenCalledWith("Thanks for telling us. We will look at it.");
   // Reported, the comment stays: whoever runs the app looks at it.
   expect(screen.getByText(OTHERS.text)).toBeOnTheScreen();
   alert.mockRestore();
@@ -468,7 +470,7 @@ test("a report or a block that fails says why, and an ended session ends", async
   await tap("Report or block", "Report");
   await tap("Why are you reporting this?", "Spam");
   await waitFor(() => expect(sessionEnded).toHaveBeenCalledWith(ME.token));
-  expect(alert).not.toHaveBeenCalledWith("Thanks for telling us. We will look at it.");
+  expect(screen.queryByText("Thanks for telling us. We will look at it.")).toBeNull();
   await fireEvent(screen.getByText(OTHERS.text), "longPress");
   await tap("Report or block", "Block other_runner");
   await tap("Block other_runner?", "Block");

@@ -33,6 +33,13 @@ export type SportOption = {
    * as its runActivityOf.
    */
   recordOnly?: boolean;
+  /**
+   * On in Expo Go and `preview` while `ready` is still false: tried there
+   * before the store builds have it, which leave it out as any sport not
+   * ready (shownSports). The swim went this way until TASK-387 was on the
+   * server (TASK-323, ADR-0283); no sport does now.
+   */
+  preview?: boolean;
 };
 
 /** Every sport, in the order they are shown; the ones not ready included. */
@@ -90,12 +97,18 @@ export function isStoreBuild(
 }
 
 /** `sports` as this app shows them: a store build leaves out the ones not
- * ready, so its users are promised no «Soon» (TASK-318, ADR-0278). */
+ * ready, so its users are promised no «Soon» (TASK-318, ADR-0278); Expo Go
+ * and `preview` turn on the ones tried there first (`preview`, TASK-323). */
 export function shownSports(
   sports: readonly SportOption[],
   store: boolean,
 ): readonly SportOption[] {
-  return store ? sports.filter((option) => option.ready) : sports;
+  if (store) {
+    return sports.filter((option) => option.ready);
+  }
+  return sports.map((option) =>
+    option.preview === true && !option.ready ? { ...option, ready: true } : option,
+  );
 }
 
 /** The sports of «Settings» and of the sport menu of «Draw», in order. */

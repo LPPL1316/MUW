@@ -11,6 +11,7 @@ import { nearestTenths, tenthsToM } from "../units/distanceInput";
 import { appUnits, type Units } from "../units/units";
 import { distanceOf, type Figure, type Placed, placedStart } from "./figure";
 import { boxOf } from "./geometry";
+import { sentOutline } from "./sentOutline";
 
 /**
  * «Draw route» on the map (TASK-281, ADR-0245): the request for the figure
@@ -44,7 +45,9 @@ function rounded(value: number): number {
  * The outline and the details of a drawing or a picture as an
  * `ImageOutline.points` and its `strokes`: centred and scaled together into
  * [-1, 1], y up. Scaling leaves the shape and its proportions as they are:
- * the size goes with `distance_m`.
+ * the size goes with `distance_m`. The outline is checked as it is sent
+ * (TASK-382): where rounding makes two of its sides meet, the corners
+ * between them are left out (`sentOutline`).
  */
 export function framed(
   outline: readonly OutlinePoint[],
@@ -56,7 +59,8 @@ export function framed(
     rounded((x - middle[0]) / half),
     rounded((y - middle[1]) / half),
   ];
-  return { outline: outline.map(to), strokes: strokes.map((stroke) => stroke.map(to)) };
+  const details = strokes.map((stroke) => stroke.map(to));
+  return { outline: sentOutline(outline.map(to), details), strokes: details };
 }
 
 /** The framed outline of each figure, made once: the requests for the same

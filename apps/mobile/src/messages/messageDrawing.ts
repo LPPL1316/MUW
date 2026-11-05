@@ -1,17 +1,18 @@
 import type { DrawingDetail, LatLon, MessageDrawing } from "@shaperoute/shared-types";
 
+import { isOnSnow, routeActivity } from "../activities/snow";
 import type { ActivityDetail } from "../api/activities";
 import type { FavoriteDetail } from "../api/favorites";
 import { favoriteKey } from "../favorites/favoriteKey";
 import type { Keepable } from "../favorites/favoriteRoute";
-import { POST_CUT_M, withoutEnds } from "../share/postRun";
+import { postLine } from "../share/postRun";
 
 /**
  * A drawing sent in a message (TASK-333, ADR-0289, point 2): a copy of the
  * route, the body a favorite keeps (PUT /me/favorites/{key}). A route
  * planned (in «Draw», «Explore», the favorites) goes whole, with its start:
- * it is sent to be run. A run goes as the Feed shows it, without its first
- * and last 200 m (ADR-0159): one's own is cut here, another's comes cut.
+ * it is sent to be run. A run goes as the Feed shows it: whole, start and
+ * end too (ADR-0330).
  */
 
 /** The API's limits (favorites.py): longer texts are cut, never refused. */
@@ -109,15 +110,25 @@ function drawingOfTrack(run: RunFields, points: LatLon[]): MessageDrawing | null
   };
 }
 
-/** One's own run of «My activities»: its track without its ends. Null for
- * a run too short to keep any of it. */
+/** One's own run of «My activities»: its whole track. Null for a run of
+ * fewer than two fixes. */
 export function drawingOfRun(run: ActivityDetail): MessageDrawing | null {
-  return drawingOfTrack(run, withoutEnds(run.track, POST_CUT_M));
+  // A day on the snow is no route to send (TASK-375, the user's choice).
+  if (isOnSnow(run.activity)) {
+    return null;
+  }
+  return drawingOfTrack(
+    { ...run, activity: routeActivity(run.activity) },
+    postLine(run.track),
+  );
 }
 
-/** A drawing of the Feed or of a profile: its track as the API gives it,
- * already cut. Null without a line. */
+/** A drawing of the Feed or of a profile: its track as the API gives it.
+ * Null without a line. */
 export function drawingOfDrawing(drawing: DrawingDetail): MessageDrawing | null {
+  if (isOnSnow(drawing.activity)) {
+    return null;
+  }
   return drawingOfTrack(
     {
       place: drawing.place,
@@ -128,7 +139,7 @@ export function drawingOfDrawing(drawing: DrawingDetail): MessageDrawing | null 
       distance_m: drawing.distance_m,
       fidelity: drawing.fidelity,
       rotation_deg: drawing.rotation_deg ?? null,
-      activity: drawing.activity,
+      activity: routeActivity(drawing.activity),
     },
     drawing.track,
   );

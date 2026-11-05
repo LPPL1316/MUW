@@ -21,12 +21,15 @@ import {
 } from "../social/ReportMenu";
 import {
   color,
+  font,
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
   radius,
   space,
 } from "../theme/tokens";
+import { sayInIsland } from "../ui/IslandLayer";
+import { Tap } from "../ui/Tap";
 
 /** What the sheet is about: a message touched long, or blocking who wrote. */
 export type SheetFor =
@@ -100,7 +103,10 @@ export function MessageSheet({
   function reportFor(message: Message, reason: ReportReason) {
     setStep({ kind: "sending" });
     void report(apiUrl, token, "message", message.id, reason, options).then((outcome) =>
-      sent(outcome, () => setStep({ kind: "said", words: t(REPORTED) })),
+      sent(outcome, () => {
+        onClose();
+        sayInIsland(t(REPORTED));
+      }),
     );
   }
 
@@ -207,37 +213,30 @@ function Choice({
   danger?: boolean;
 }) {
   return (
-    <Pressable
-      style={({ pressed }) => [styles.choice, pressed && styles.pressed]}
-      onPress={onPress}
-      accessibilityRole="button"
-    >
+    <Tap style={styles.choice} onPress={onPress} accessibilityRole="button">
       <Text style={[styles.choiceText, danger && styles.danger]}>{label}</Text>
-    </Pressable>
+    </Tap>
   );
 }
 
 // As the sheet of ReportMenu.tsx.
 const styles = StyleSheet.create({
-  pressed: {
-    opacity: 0.6,
-  },
   backdrop: {
     flex: 1,
   },
   sheet: {
     gap: space.sm,
     padding: space.lg,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    borderTopWidth: 1,
-    borderColor: color.border,
+    // The app's sheet: its radius, one physical pixel at the top (TASK-339 D).
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: color.hairline,
     backgroundColor: color.surface,
   },
   title: {
+    ...font.heading,
     color: color.text,
-    fontSize: fontSize.input,
-    fontWeight: fontWeight.semibold,
   },
   words: {
     color: color.textMuted,

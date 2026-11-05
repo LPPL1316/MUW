@@ -48,6 +48,42 @@ tutto: è corto apposta.
   (come `ANCHORED_ONLY`, `DRAWN_WATER_ONLY`). ADR-0320, punto 3.
 - Un grafo di rete sbagliata viene rifiutato (`network.check_network`):
   una rete nuova ha il suo nome nel grafo (`graph.graph["network"]`).
+- **2026-11-04, TASK-376 B1 — i registri del motore.** Una rete è un
+  modulo di `route_engine/networks/` (nome, filtro Overpass, come si scarica:
+  `networks/base.py` `Network`), un'attività un modulo di
+  `route_engine/activities/` (nome, distanze, rete o acqua); una riga in
+  ciascun `__init__.py`. `network.py` e `models.py` ne ricavano le tabelle.
+  I moduli dei registri non importano nulla che disegna.
+- **2026-11-04, TASK-376 B1 — `SAME_ROUTES_AS`** (`route_store.py`): un
+  motore che sposta solo codice tiene l'impronta di prima, se
+  `services/api/tests/test_same_routes.py` registra per la nuova impronta
+  gli stessi hash di nove percorsi fissi (`python tests/test_same_routes.py`
+  da `services/api`, poi una riga per impronta). Mai per un cambiamento di
+  comportamento. Il banco lo conferma con `compare --same`.
+- **2026-11-04, TASK-371 — un modulo che nessun file di disegno importa**
+  si tiene fuori dall'impronta (`WALK_ONLY`, come `ANCHORED_ONLY`,
+  `DRAWN_WATER_ONLY`): la camminata è entrata senza ridisegnare nulla.
+
+## Il contratto e l'API
+
+- **2026-11-05, TASK-376 B2 — i registri del contratto e dell'API.** Uno
+  sport è un file di `packages/shared-types/src/sports/` (nome e distanze,
+  o `recordOnly`) e uno di `services/api/shaperoute_api/sports/` (`ApiSport`:
+  tipo Strava, frase della descrizione, zone in memoria e box di prefetch se
+  va su strada, record personali, `<type>` del GPX); una riga in ciascun
+  `index.ts` / `__init__.py`. `index.ts`, `strava.py`, `activity_graphs.py`,
+  `personal_bests.py`, `activities.py`, `prefetch_zones.py`, `run_gpx.py` e
+  `schemas.py` ne ricavano le tabelle di prima, nello stesso ordine.
+- **Il contratto importa valori con l'estensione `.ts`** (lo vuole `node
+  --test`): l'app compila solo con `allowImportingTsExtensions` nel suo
+  tsconfig (B2). Metro e jest risolvono il percorso esatto.
+- **I moduli `shaperoute_api/sports/` vanno sul telefono** (li importano
+  `activity_graphs.py` e `schemas.py`, dentro `engine.zip`): niente
+  database, niente fastapi, e lo zip si rifà quando cambiano
+  (`python tools/phone_engine/phone_engine.py engine`).
+- **I `Literal` restano scritti a mano** (`RunActivity`, `personal_bests.Sport`):
+  un tipo non si ricava da una tupla in Python. Uno sport nuovo li allunga di
+  un nome; `test_sport_registry_api.py` dice quando non coincidono.
 
 ## Il banco e Overpass
 
@@ -61,6 +97,23 @@ tutto: è corto apposta.
 - I tempi del banco sono del solo motore, con la zona già in cache: corsa
   0,6 s di mediana, bici 1,6 s (Milano fino a 12,7 s a 30 km), canoa sotto
   0,3 s. Servono a confrontare prima e dopo, non a promettere tempi.
+
+## Gli sport senza traccia («Record only», Palestra)
+
+- **2026-11-04, TASK-385 (Palestra, ADR-0327) — un'attività senza linea
+  rompe le app di oggi.** `runs.track` è NOT NULL (migrazione 0003) e un
+  disegno visibile deve avere la traccia (0014). Nell'app `isDrawing` vuole
+  `track_preview` e `isDrawingsPage` usa `every`: **un solo post senza linea
+  fa scartare l'intera pagina** di Feed, profilo e ricerca (la B0 di
+  TASK-375 non lo copre). ADR-0327: traccia facoltativa solo per le
+  attività `TRACKLESS_ACTIVITIES`, e i post senza traccia solo alle app che
+  mandano l'header `X-MuW-Reads: trackless`. `docs/sports/gym.md`.
+- **Salute: il tipo di allenamento non è un permesso.** Un allenamento di
+  forza (HealthKit `.traditionalStrengthTraining`, Health Connect
+  `EXERCISE_TYPE_STRENGTH_TRAINING`; i numeri vanno verificati sulle
+  librerie) non chiede permessi nuovi né codice nativo.
+- **Già nella 1.0.1**: notifiche locali (`expo-notifications`), vibrazione,
+  keep-awake e audio. Un timer che avvisa a schermo bloccato è solo JS.
 
 ## Le misure
 
