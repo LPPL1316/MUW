@@ -310,9 +310,10 @@ con le parole dell'utente.
 
 Bozze dell'agente, 2026-11-05, nelle cinque lingue (ADR-0172: nel codice la
 base è l'inglese). **Approvati dall'utente il 2026-11-05** («Sì, approvo
-tutti», sull'anteprima in italiano). Tornano per un sì solo la frase della
-Privacy «Pubblicità» riscritta, se la parte B esce prima di Style, e il nome
-della società di Google per Web Risk. Il tono segue i
+tutti», sull'anteprima in italiano). Anche la variante della Privacy
+«Pubblicità» per una parte B che esce prima di Style (D.2b) è approvata, lo
+stesso giorno («SI APPROVO»). Torna per un sì solo il nome della società di
+Google per Web Risk. Il tono segue i
 testi di oggi: frasi brevi, «tu», «MuW» come soggetto. «Shop on {store}» e
 «Report» ci sono già (TASK-384, TASK-121); `{store}` è il nome del negozio
 noto o il dominio. Termini e Privacy cambiano con la parte B, insieme alla
@@ -429,12 +430,21 @@ merge, e il sito la riprende.
    - FR : Sur les photos que tu publies, tu peux identifier les articles que tu portes : ce qu'est chacun, sa marque et, si tu veux, son modèle et un lien vers une boutique. Ceux qui voient la photo les voient. Si la course repasse en «Moi seulement», ils quittent notre serveur avec ses photos et restent sur ce téléphone.
    - ES: En las fotos que publiques puedes etiquetar las prendas que llevas: qué es cada una, su marca y, si quieres, su modelo y un enlace a una tienda. Las ve quien ve la foto. Si la carrera vuelve a «Solo yo», salen de nuestro servidor con sus fotos y se quedan en este teléfono.
 2. **«Pubblicità»**, in fondo al testo di TASK-384 (se Style non è ancora
-   uscito, la frase comincia da «MuW conta per giorno…» e torna per il sì):
+   uscito, la variante qui sotto, 2b):
    - EN: The same count, by day and without knowing who you are, applies to the items members tag on their posts: whoever tagged an item sees how many times it was opened and how many times someone went to the shop, never who. A member's link goes straight to the shop, without Awin: from there the shop records the visit with its cookies, under its own privacy policy.
    - IT: Lo stesso conteggio, per giorno e senza sapere chi sei, vale per i capi che gli iscritti segnano sui loro post: chi ha segnato un capo vede quante volte è stato aperto e quante volte si è andati al negozio, mai chi. Il link di un iscritto va diritto al negozio, senza Awin: da lì il negozio registra la visita con i suoi cookie, secondo la sua informativa.
    - DE: Dieselbe Zählung, pro Tag und ohne zu wissen, wer du bist, gilt für die Teile, die Mitglieder in ihren Beiträgen markieren: Wer ein Teil markiert hat, sieht, wie oft es geöffnet wurde und wie oft jemand zum Shop gegangen ist, nie wer. Der Link eines Mitglieds führt direkt zum Shop, ohne Awin: Ab dort erfasst der Shop den Besuch mit seinen Cookies, nach seiner eigenen Datenschutzerklärung.
    - FR : Le même comptage, par jour et sans savoir qui tu es, vaut pour les articles que les membres identifient sur leurs posts : celui qui a identifié un article voit combien de fois il a été ouvert et combien de fois quelqu'un est allé à la boutique, jamais qui. Le lien d'un membre va directement à la boutique, sans Awin : à partir de là, la boutique enregistre la visite avec ses cookies, selon sa propre politique de confidentialité.
    - ES: El mismo recuento, por día y sin saber quién eres, vale para las prendas que los miembros etiquetan en sus publicaciones: quien etiquetó una prenda ve cuántas veces se abrió y cuántas veces alguien fue a la tienda, nunca quién. El enlace de un miembro va directo a la tienda, sin Awin: desde ahí la tienda registra la visita con sus cookies, según su propia política de privacidad.
+
+   **2b. Se la parte B esce prima di Style**: il paragrafo «Pubblicità» di
+   oggi resta com'è e in fondo si aggiunge questa frase, senza «Lo stesso»
+   e senza Awin. **Approvata dall'utente il 2026-11-05** («SI APPROVO»).
+   - EN: For the items members tag on their posts, our server counts by day how many times they are opened and how many times someone goes to the shop, without knowing who you are or which phone it was: whoever tagged an item sees these totals, never who. A member's link goes straight to the shop: from there the shop records the visit with its cookies, under its own privacy policy.
+   - IT: Per i capi che gli iscritti segnano sui loro post, il nostro server conta per giorno quante volte vengono aperti e quante volte si va al negozio, senza sapere chi sei né quale telefono era: chi ha segnato un capo vede questi totali, mai chi. Il link di un iscritto va diritto al negozio: da lì il negozio registra la visita con i suoi cookie, secondo la sua informativa.
+   - DE: Für die Teile, die Mitglieder in ihren Beiträgen markieren, zählt unser Server pro Tag, wie oft sie geöffnet werden und wie oft jemand zum Shop geht, ohne zu wissen, wer du bist oder welches Telefon es war: Wer ein Teil markiert hat, sieht diese Summen, nie wer. Der Link eines Mitglieds führt direkt zum Shop: Ab dort erfasst der Shop den Besuch mit seinen Cookies, nach seiner eigenen Datenschutzerklärung.
+   - FR : Pour les articles que les membres identifient sur leurs posts, notre serveur compte par jour combien de fois ils sont ouverts et combien de fois quelqu'un va à la boutique, sans savoir qui tu es ni de quel téléphone il s'agit : celui qui a identifié un article voit ces totaux, jamais qui. Le lien d'un membre va directement à la boutique : à partir de là, la boutique enregistre la visite avec ses cookies, selon sa propre politique de confidentialité.
+   - ES: Para las prendas que los miembros etiquetan en sus publicaciones, nuestro servidor cuenta por día cuántas veces se abren y cuántas veces alguien va a la tienda, sin saber quién eres ni qué teléfono era: quien etiquetó una prenda ve esos totales, nunca quién. El enlace de un miembro va directo a la tienda: desde ahí la tienda registra la visita con sus cookies, según su propia política de privacidad.
 3. **«Segnalazioni»**, l'inizio della prima frase:
    - EN: When you report a drawing, a tagged item, a comment or a profile, …
    - IT: Quando segnali un disegno, un capo segnato, un commento o un profilo, …
