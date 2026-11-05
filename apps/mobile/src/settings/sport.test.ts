@@ -60,7 +60,7 @@ beforeEach(() => {
   disk.state.failing = false;
 });
 
-test("run, bike and paddle can be chosen, and in Expo Go the swim (TASK-190, TASK-191, TASK-323)", () => {
+test("run, bike, paddle and the alpine ski can be chosen, and in Expo Go the swim (TASK-190, TASK-191, TASK-323, TASK-375)", () => {
   expect(SPORTS.map((option) => option.name)).toEqual([
     "Run",
     "Bike",
@@ -77,11 +77,14 @@ test("run, bike and paddle can be chosen, and in Expo Go the swim (TASK-190, TAS
     "bike",
     "paddle",
     "swim",
+    "ski",
     "gym",
   ]);
   expect(canChoose("run")).toBe(true);
   expect(canChoose("bike")).toBe(true);
   expect(canChoose("paddle")).toBe(true);
+  expect(canChoose("ski")).toBe(true);
+  expect(canChoose("xc_ski")).toBe(false);
   expect(canChoose("golf")).toBe(false);
 });
 
