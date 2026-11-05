@@ -21983,6 +21983,21 @@ dell'utente):
    è la neve. L'export GPX resta, perché non era tra le azioni escluse.
    `App.tsx` non cambia: `followedOf` non dà mai alla neve l'attività di
    un percorso.
+9. (C1, 2026-11-05; i testi sono dell'utente, «Sì, approvati», il modo è
+   deciso dall'agente su delega dell'utente) La giornata di sci si legge
+   sul telefono, in `activities/snowDay.ts`, dalla traccia con ora e
+   altitudine di ogni punto. La traccia si divide dove l'altezza, dopo
+   essere andata in un verso, torna indietro di 10 m. Un tratto che sale è
+   un impianto se dura almeno un minuto, sale almeno 0,3 m al secondo (più
+   di chi sale a piedi o con le pelli) e ha almeno il 60% dei passi vicino
+   alla sua velocità solita. Quello che sta fra due impianti è una discesa
+   se scende almeno 30 m. La velocità massima tiene almeno 5 secondi e
+   ignora ciò che supera i 200 km/h, cioè i salti del GPS. Senza altezze i
+   km sono quelli di tutta la giornata, e discese, dislivello e risalite
+   restano «–». Le soglie sono una prima stima, da tarare su tracce vere
+   prima della stagione (parte E). Il fondo usa i numeri di una corsa,
+   senza le calorie. `FreeFinishCard` sceglie la scheda dallo sport di
+   «Settings»; `App.tsx` non cambia.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i

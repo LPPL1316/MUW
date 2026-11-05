@@ -46,6 +46,23 @@ senza forme.
   percorso: niente «Draw it near me», niente «Start» sul disegno di un
   altro, niente «Edit the drawing», niente invio come disegno in un
   messaggio. Il cuore sta solo sui percorsi; l'export GPX resta.
+- 2026-11-05, i testi della parte C: «Sì, approvati».
+
+  | Dove | en · it · de · fr · es |
+  |---|---|
+  | Titolo sulla mappa | «Your day» · La tua giornata · Dein Tag · Ta journée · Tu jornada |
+  | Riga sotto (C1) | «White: where you skied.» · Bianco: dove hai sciato. · Weiß: wo du gefahren bist. · Blanc : là où tu as skié. · Blanco: donde esquiaste. |
+  | Riga sotto (C2, con gli impianti tratteggiati) | «White: your descents. Dashed: the lifts.» · Bianco: le discese. Tratteggio: gli impianti. · Weiß: deine Abfahrten. Gestrichelt: die Lifte. · Blanc : tes descentes. Pointillés : les remontées. · Blanco: tus descensos. Discontinuo: los remontes. |
+  | Casella | «Descents» · Discese · Abfahrten · Descentes · Descensos |
+  | Casella | «Vertical» · Dislivello · Höhenmeter · Dénivelé · Desnivel |
+  | Casella | «Top speed» · Vel. max · Höchsttempo · Vitesse max · Vel. máx. |
+  | Casella | «Lifts» · Risalite · Liftfahrten · Remontées · Remontes |
+  | VoiceOver dei km | «Skied: {distance}» · Sciati: {distance} · Gefahren: {distance} · Skié : {distance} · Esquiado: {distance} |
+
+  Lo sci alpino: in grande i km delle sole discese; sotto discese,
+  dislivello sciato, velocità massima e media (km/h, mph con le miglia),
+  risalite e tempo. Il fondo: distanza, passo medio, dislivello in salita e
+  tempo, etichette che l'app ha già. Niente calorie sulla neve.
 
 ## Vincoli (dal Coordinatore, 2026-11-04)
 
@@ -156,6 +173,15 @@ con «Sì, approvati», nella tabella sopra): `apps/mobile/src/settings/sport.ts
 `profile/SettingsPage.test.tsx`. Documenti:
 `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 7) e questa lista.
 `trackStore.ts` e `api/activities.ts` alla fine non servono.
+
+Parte C1 (approvata dal Coordinatore il 2026-11-05):
+`apps/mobile/src/activities/snowDay.ts` e `snowDay.test.ts` (nuovi),
+`apps/mobile/src/screens/SnowFinishCard.tsx` e `SnowFinishCard.test.tsx`
+(nuovi), `apps/mobile/src/screens/FreeRunScreen.tsx`,
+`apps/mobile/src/i18n/{it,de,fr,es}.ts`; documenti: `docs/STATUS.md`,
+`docs/DECISIONS.md` (ADR-0319, punto 9) e questa lista. C2 (le risalite
+tratteggiate: `App.tsx`, `src/map/MapView.tsx`) col via del Coordinatore
+dopo C1.
 
 Parte B2 (approvata dal Coordinatore il 2026-11-04): `apps/mobile/src/activities/snow.ts`
 (nuovo), `packages/shared-types/src/index.ts` (`activity` dei disegni →
