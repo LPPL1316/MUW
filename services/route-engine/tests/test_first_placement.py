@@ -120,15 +120,18 @@ def _digest(found: Search) -> str:
 # heart comes out another way with the libraries of CI (Python 3.11, NumPy
 # 2.4, NetworkX 3.6) than with newer ones (3.13, 2.5, 3.7), already with the
 # code of before, as test_kept_per_graph's Levico heart: both are its search
-# of before. The grid's heart converges at once; the others spend their
-# budget, upright and tilted; the circle turns freely; «ciao» moves its
-# letters (fit_letters).
+# of before. The town's cat comes out another way on CI's ubuntu-26.04
+# image than on 24.04 and the Mac, with the same Python, libraries and code
+# (TASK-398): the system's floating point, not the search, which is the same
+# on every run of one machine. The grid's heart converges at once; the others
+# spend their budget, a count of traces, not time, upright and tilted; the
+# circle turns freely; «ciao» moves its letters (fit_letters).
 BEFORE: dict[str, str | tuple[str, ...]] = {
     "grid heart 5000": "eeff83340d44bae7",
     "levico heart 1000": "fd122d1e20852ee4",
     "town heart 5000": ("417cb19096621c8c", "1cabb151250ece13"),  # CI, newer
     "town star 5000": "40a06f58f54d2659",
-    "town cat 5000": "671bc212a66d021f",
+    "town cat 5000": ("671bc212a66d021f", "d080e87a95000aa5"),  # 24.04 and Mac, 26.04
     "town circle 8000": "8daaedc11a47b712",
     "town ciao 8000": "ae6c8a1dd1ea2335",
 }
