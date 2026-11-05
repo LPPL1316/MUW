@@ -128,6 +128,20 @@ Una alla volta, ciascuna con la proposta dell'agente:
 5. **Gioco e record** (2026-11-05): come la camminata, che era la
    proposta. I metri contano nel gioco come quelli di una corsa, con gli
    stessi controlli. Niente tempi migliori e niente record personali.
+6. **I testi** (2026-11-05), approvati come proposti. Il tono è quello
+   dell'app («tu», in tedesco «du»).
+
+   | en | it | de | fr | es |
+   |---|---|---|---|---|
+   | Hike | Escursione | Wandern | Randonnée | Senderismo |
+   | Hike without a route | Escursione senza percorso | Ohne Route wandern | Randonner sans parcours | Senderismo sin ruta |
+   | Trails can be demanding: check the route and the weather before you set off. | I sentieri possono essere impegnativi: controlla il percorso e il meteo prima di partire. | Wege können anspruchsvoll sein: Prüf Route und Wetter, bevor du losgehst. | Les sentiers peuvent être exigeants : vérifie le parcours et la météo avant de partir. | Los senderos pueden ser exigentes: revisa la ruta y el tiempo antes de salir. |
+
+   - «Hike» è il nome in «Impostazioni», nella ricerca e nei post.
+   - «Hike without a route» è il pulsante per partire senza percorso.
+   - L'avviso sta sotto il percorso in «Disegna» quando lo sport è Hike:
+     c'è perché i sentieri arrivano fino a T3. Per l'app è un punto in
+     più, e va nella lista della parte B.
 
 ## Criteri di accettazione
 
