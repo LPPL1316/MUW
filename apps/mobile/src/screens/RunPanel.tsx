@@ -28,6 +28,7 @@ import {
   SWIM_STANDING_S_PER_KM,
 } from "../navigation/swim";
 import { activeMs, openPause, type Track } from "../navigation/trackRecorder";
+import { DEFAULT_ACTIVITY, profileOf } from "../sports";
 import { color, fontSize, fontWeight, radius, space } from "../theme/tokens";
 import { metresPer } from "../units/format";
 import { paceUnit, perUnitS, runDistanceNumber, speedUnit } from "../units/runFormat";
@@ -176,8 +177,9 @@ export function useRunNumbers(
     pace100: clock(average === null ? null : per100S(average)),
     time: clockLabel(ms),
     climb: climbed === null ? NO_NUMBER : String(Math.round(climbed)),
+    // None for a sport that counts no energy (src/sports): a swim.
     energy:
-      activity === "swimming"
+      profileOf(activity ?? DEFAULT_ACTIVITY).energy === undefined
         ? null
         : String(
             activeKcal(

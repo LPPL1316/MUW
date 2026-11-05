@@ -3,6 +3,7 @@ import { t, tLater } from "../i18n";
 import { clockLabel } from "../navigation/freeRun";
 import { paddlePaceLabel } from "../navigation/paddle";
 import { swimPaceLabel } from "../navigation/swim";
+import { findProfile } from "../sports";
 import { paceLabel, runDistanceLabel } from "../units/format";
 
 /**
@@ -96,12 +97,25 @@ export function runFacts(run: {
   return [
     runDistanceLabel(run.distance_m),
     clockLabel(ms),
-    run.activity === "paddling"
-      ? paddlePaceLabel(run.distance_m, ms)
-      : run.activity === "swimming"
-        ? swimPaceLabel(run.distance_m, ms)
-        : paceLabel(run.distance_m, ms),
+    sportPaceLabel(run.activity, run.distance_m, ms),
   ]
     .filter((part): part is string => part !== null)
     .join(" · ");
+}
+
+/** The pace of `metres` in `ms` as the sport writes it (src/sports): per
+ * 500 m on the water, per 100 m swimming, per km otherwise. */
+export function sportPaceLabel(
+  activity: string | undefined,
+  metres: number,
+  ms: number,
+): string | null {
+  switch (findProfile(activity)?.pace) {
+    case "paddle":
+      return paddlePaceLabel(metres, ms);
+    case "swim":
+      return swimPaceLabel(metres, ms);
+    default:
+      return paceLabel(metres, ms);
+  }
 }

@@ -9,7 +9,7 @@ import { SWIMMING } from "./swimming";
 import { WALKING } from "./walking";
 import { XC_SKIING } from "./xc_skiing";
 
-export type { Energy, MetBand, Network, SportProfile } from "./base";
+export type { Energy, InUnits, MetBand, Network, SportProfile } from "./base";
 
 /**
  * Every sport of the app, in the order of RUN_ACTIVITIES (TASK-376 part B3,
@@ -34,6 +34,12 @@ export function profileOf(activity: RunActivity): SportProfile {
     throw new Error(`no sport profile for ${activity}`);
   }
   return profile;
+}
+
+/** The profile of `activity` as the API writes it, or undefined for one the
+ * app does not know (a sport newer than the app). */
+export function findProfile(activity: string | undefined): SportProfile | undefined {
+  return SPORT_PROFILES.find((sport) => sport.activity === activity);
 }
 
 /**

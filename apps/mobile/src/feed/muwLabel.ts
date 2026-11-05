@@ -2,8 +2,8 @@ import type { MuwRoute } from "@shaperoute/shared-types";
 
 import { t } from "../i18n";
 import type { Language } from "../i18n/languages";
-import { SPORT_PROFILES } from "../sports";
-import { RIDE_IT_YOURSELF } from "../sports/cycling";
+import { findProfile, type SportProfile } from "../sports";
+import { CYCLING, RIDE_IT_YOURSELF } from "../sports/cycling";
 
 /**
  * What every MuW route says on its card (TASK-365, ADR-0310), approved by the
@@ -12,8 +12,14 @@ import { RIDE_IT_YOURSELF } from "../sports/cycling";
  * that says none, a ride's.
  */
 export function muwLabel(activity: string): string {
-  const sport = SPORT_PROFILES.find((profile) => profile.activity === activity);
-  return t(sport?.muwLabel ?? RIDE_IT_YOURSELF);
+  return t(muwSport(activity).muwLabel ?? RIDE_IT_YOURSELF);
+}
+
+/** The sport a MuW route is shown as: its own when it says its label, a
+ * ride's otherwise. */
+export function muwSport(activity: string): SportProfile {
+  const sport = findProfile(activity);
+  return sport?.muwLabel === undefined ? CYCLING : sport;
 }
 
 /** The route's title in `language`, in English when the file has none. */

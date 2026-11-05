@@ -2792,8 +2792,34 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente sui testi, poi la lista dei file della parte A al Coordinatore.
   `tasks/TASK-397.md`.
 
+- **TASK-395 — La ricerca non divide più per zero quando un percorso non
+  disegna niente** (2026-11-05; numero dal Coordinatore; seguito di TASK-297
+  C). Una parola o una forma a pezzi con la penna alzata, su un grafo piccolo
+  (la ricerca lontana, ADR-0040, che ricarica lo stesso grafo), metteva ogni
+  lettera su un nodo suo: il percorso era fatto solo dei tratti a piedi, la
+  distanza disegnata 0, e `optimizer.next_scale` cadeva con
+  `ZeroDivisionError`. Ora quel tracciato si salta come uno caduto su un solo
+  nodo (TASK-277): la ricerca va avanti, e se niente disegna la risposta è
+  «cannot be drawn here, nor within 2 km». Solo `optimizer.py`, il test nuovo
+  `tests/test_next_scale.py` e `engine.zip` (dentro cambia solo
+  `optimizer.py`). Branch `fix/TASK-395-next-scale-zero`; la unisce il
+  Coordinatore a CI verde; niente server né OTA. `tasks/TASK-395.md`.
+  Le impronte del motore che si muovono (`e13ded92b52d`, `db4ee081c4a4`)
+  disegnano gli stessi nove percorsi fissi (prova in
+  `tests/fixtures/same_routes/`): due righe in `SAME_ROUTES_AS`, nessun
+  ridisegno sul server.
+  **Chiuso il 2026-11-05**: #807 in main (`325f7d56`); vedi «Completato».
+
 ## Completato
 
+- **TASK-395 — La ricerca non divide più per zero quando un percorso non disegna niente**
+  (2026-11-05; seguito di TASK-297 C). #807 in main (`325f7d56`): in `optimizer.search` un
+  tracciato che non disegna niente (ogni lettera con la penna alzata sul suo nodo, solo i tratti
+  a piedi) si salta come uno caduto su un solo nodo, invece di far cadere `next_scale` con
+  `ZeroDivisionError`; se niente disegna, «cannot be drawn here, nor within 2 km». Stessi nove
+  percorsi fissi (prova `e13ded92b52d`), due righe in `SAME_ROUTES_AS`: nessun ridisegno.
+  `engine.zip` rifatto. Prossimo, col sì dell'utente: il server al prossimo aggiornamento e il
+  telefono con il prossimo OTA. `tasks/TASK-395.md`.
 - **TASK-384 A — L'API di MuW Style** (2026-11-05; ADR-0326). #773 in main (`fa027173`):
   migrazione `0046_style_posts.sql`, `GET /style` con tema, genere e pagine, il post, la foto,
   `POST /style/tags/{id}/open` e `/shop` contati per giorno senza dati personali, il link di

@@ -1,4 +1,4 @@
-import { DISTANCE_LIMITS_M } from "@shaperoute/shared-types";
+import { CYCLING_BEST_DISTANCES, DISTANCE_LIMITS_M } from "@shaperoute/shared-types";
 
 import { tLater } from "../i18n";
 import type { MetBand, SportProfile } from "./base";
@@ -28,6 +28,16 @@ const BANDS: readonly MetBand[] = [
 export const CYCLING: SportProfile = {
   activity: "cycling",
   name: tLater("Bike"),
+  emoji: "🚴",
+  partsBetween: {
+    km: tLater("{drawn} km of drawing + {between} km riding between the parts"),
+    mi: tLater("{drawn} mi of drawing + {between} mi riding between the parts"),
+  },
+  lettersBetween: {
+    km: tLater("{letters} km of letters + {between} km riding between them"),
+    mi: tLater("{letters} mi of letters + {between} mi riding between them"),
+  },
+  bests: { distances: CYCLING_BEST_DISTANCES, named: "km" },
   drawKm: [DISTANCE_LIMITS_M.cycling[0] / 1000, DISTANCE_LIMITS_M.cycling[1] / 1000],
   appleWorkout: 13,
   appleDistance: "HKQuantityTypeIdentifierDistanceCycling",
