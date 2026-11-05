@@ -229,6 +229,22 @@ plugin `@bacons/apple-targets`), `apps/mobile/package.json` e
 `package-lock.json` (le due dipendenze), `app.config.ts` (via la variabile
 `MUW_WATCH`). Qui l'impronta iOS cambia, ed è voluto.
 
+**Le condizioni del Coordinatore** (2026-11-05, piano approvato):
+- `RunDashboard.tsx`, `FreeRunScreen.tsx`, `src/health/` e `app.config.ts`
+  oggi non li tiene nessuna PR. `src/health/` però è in fila per la 1.0.2
+  (374 C, 345 C, 397 C, la lettura da Salute) e forse per TASK-400 (nuoto
+  in piscina): le righe lì vanno in A3, il più tardi possibile; chi arriva
+  secondo unisce `main`.
+- `app.config.ts` con `MUW_WATCH=1` va bene se senza la variabile
+  l'impronta iOS resta **`6f8bba4c`**: misurarla in ogni PR su una copia
+  staccata e scriverla nella PR.
+- `watch.yml`: filtro sui percorsi (solo `apps/mobile/targets/watch/**` e
+  il workflow stesso), `timeout-minutes: 15`, `concurrency` che cancella i
+  giri vecchi come in `ci.yml`. Dei minuti macOS parla il Coordinatore
+  all'utente.
+- A-flip solo alla build 1.1, col sì dell'utente.
+- A1 parte in una sessione nuova.
+
 ## File toccati
 
 Parte 0 (questa proposta):
