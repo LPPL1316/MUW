@@ -12,12 +12,13 @@ test("the header and the activities of before are the API's", () => {
 
 test("this app says every activity it can save, and only values the API knows", () => {
   expect(readsHeaders()).toEqual({ "X-MuW-Reads": reads.this_app });
-  expect([...OLD_APP_ACTIVITIES, ...READS]).toEqual([...RUN_ACTIVITIES]);
+  expect([...OLD_APP_ACTIVITIES, ...READS]).toEqual([...RUN_ACTIVITIES, "trackless"]);
   for (const kind of READS) {
     expect(reads.kinds).toContain(kind);
   }
 });
 
-test("a post without a track is not said: no screen shows one yet", () => {
-  expect(READS).not.toContain("trackless");
+test("a post without a track is said, now that its screens show one (TASK-385 B0)", () => {
+  expect(READS).toContain("trackless");
+  expect(READS).toContain("gym");
 });

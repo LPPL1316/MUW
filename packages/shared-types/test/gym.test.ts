@@ -23,11 +23,11 @@ test("a workout at the gym is the activity saved without a track", () => {
     TRACKLESS_SPORTS.map((sport) => sport.trackless),
     [true],
   );
-  // Not yet one of RUN_ACTIVITIES: the app's X-MuW-Reads would say it
-  // before a screen shows it (part B0).
-  for (const activity of TRACKLESS_ACTIVITIES) {
-    assert.ok(!(RUN_ACTIVITIES as readonly string[]).includes(activity));
-  }
+  // One of RUN_ACTIVITIES since the app shows a post without a line (B0),
+  // after all those with a track.
+  assert.deepEqual(RUN_ACTIVITIES.slice(-TRACKLESS_ACTIVITIES.length), [
+    ...TRACKLESS_ACTIVITIES,
+  ]);
   const gym: TracklessActivity = "gym";
   assert.equal(gym, "gym");
 });

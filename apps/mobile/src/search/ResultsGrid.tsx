@@ -47,6 +47,7 @@ function card(result: Result, width: number, onPick: (result: Result) => void) {
         distanceM={post.distance_m}
         line={post.track_preview}
         rotationDeg={post.rotation_deg}
+        activity={post.activity}
         width={width}
         onPress={() => onPick(result)}
         testID={`result-${post.id}`}

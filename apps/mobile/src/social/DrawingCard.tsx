@@ -3,15 +3,17 @@ import { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { dayLabel } from "../activities/activityText";
-import { isOnSnow } from "../activities/snow";
+import { isOnSnow, isTrackless } from "../activities/snow";
 import { useWinnerDrawingId } from "../contest/contestKept";
 import { WinnerBadge } from "../contest/WinnerBadge";
 import { ExploreStart } from "../explore/ExploreStart";
+import { GymDetail } from "../gym/GymDetail";
 import type { StartView } from "../explore/useStartDirections";
 import { t } from "../i18n";
 import { ImportedMark } from "../imports/ImportedMark";
 import { drawingOfDrawing } from "../messages/messageDrawing";
 import { SendDrawingButton } from "../messages/SendDrawingButton";
+import { durationLabel } from "../screens/FinishScreen";
 import {
   color,
   font,
@@ -92,9 +94,13 @@ export function DrawingCard({
   const [superLikes, setSuperLikes] = useState(0);
   const photos = drawing.photos ?? [];
   const tags = drawing.tags ?? [];
+  // A workout at the gym has no distance: its time (TASK-385 B0).
+  const gym = isTrackless(drawing.activity);
   const facts = [
     ...(drawing.activity === undefined ? [] : [activityName(drawing.activity)]),
-    runDistanceLabel(drawing.distance_m, units),
+    gym
+      ? durationLabel(drawing.duration_s * 1000)
+      : runDistanceLabel(drawing.distance_m, units),
   ].join(" · ");
   return (
     <View style={styles.card}>
@@ -144,6 +150,8 @@ export function DrawingCard({
       )}
       {/* The lifts and pistes of a day of skiing (TASK-375 part D). */}
       {drawing.activity === "skiing" && <SkiNamesList drawingId={drawing.id} />}
+      {/* The exercises of a workout at the gym (TASK-385 B0). */}
+      {gym && <GymDetail drawingId={drawing.id} />}
       {/* The reactions and the actions, after a hairline. */}
       <Hairline />
       <DrawingReactions
@@ -183,12 +191,12 @@ export function DrawingCard({
           textStyle={styles.buttonText}
         />
       )}
-      {onDrawAgain !== undefined && !isOnSnow(drawing.activity) && (
+      {onDrawAgain !== undefined && !isOnSnow(drawing.activity) && !gym && (
         <Tap style={styles.button} onPress={onDrawAgain} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
         </Tap>
       )}
-      {onEditDrawing !== undefined && !isOnSnow(drawing.activity) && (
+      {onEditDrawing !== undefined && !isOnSnow(drawing.activity) && !gym && (
         <Tap style={styles.button} onPress={onEditDrawing} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Edit the drawing")}</Text>
         </Tap>

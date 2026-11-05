@@ -4,7 +4,7 @@ import { Animated, StyleSheet, Text, TextInput } from "react-native";
 
 import { motion } from "../theme/tokens";
 import { runAnimationsOnJs } from "./animationsOnJs.testing";
-import { SheetModal } from "./SheetModal";
+import { SHEET_DIM_OPACITY, SheetModal } from "./SheetModal";
 import { useReduceMotion } from "./useReduceMotion";
 
 // The sheets from the bottom (TASK-388 C), watched frame by frame on fake
@@ -44,12 +44,21 @@ function Body() {
   );
 }
 
-function Sheet({ visible, onHidden }: { visible: boolean; onHidden?: () => void }) {
+function Sheet({
+  visible,
+  onHidden,
+  dim,
+}: {
+  visible: boolean;
+  onHidden?: () => void;
+  dim?: boolean;
+}) {
   return (
     <SheetModal
       visible={visible}
       onRequestClose={() => {}}
       onHidden={onHidden}
+      dim={dim}
       testID="sheet"
     >
       <Body />
@@ -134,4 +143,42 @@ test("with Reduce Motion it only fades, in place", async () => {
   await frames(30);
   expect(look().opacity).toBeCloseTo(1, 2);
   expect(spring).not.toHaveBeenCalled();
+});
+
+describe("the dark behind (C2)", () => {
+  const dark = () =>
+    (StyleSheet.flatten(screen.getByTestId("sheet-dim").props.style) as Look).opacity ??
+    0;
+  const dimLift = () =>
+    (StyleSheet.flatten(screen.getByTestId("sheet-dim").props.style) as Look)
+      .transform?.[0].translateY ?? 0;
+
+  test("without `dim` there is none", async () => {
+    await render(<Sheet visible />);
+    expect(screen.queryByTestId("sheet-dim")).toBeNull();
+  });
+
+  test("it darkens in place as the sheet comes up, and clears as it goes", async () => {
+    const { rerender } = await render(<Sheet visible dim />);
+    expect(dark()).toBe(0);
+    let last = 0;
+    await frames(80, () => {
+      // It never slides, and only grows while the sheet comes.
+      expect(dimLift()).toBe(0);
+      expect(dark()).toBeGreaterThanOrEqual(last - 1e-6);
+      expect(dark()).toBeLessThanOrEqual(SHEET_DIM_OPACITY + 1e-6);
+      last = dark();
+    });
+    expect(dark()).toBeCloseTo(SHEET_DIM_OPACITY, 2);
+    await rerender(<Sheet visible={false} dim />);
+    await frames(4);
+    expect(dark()).toBeLessThan(SHEET_DIM_OPACITY);
+    await frames(120);
+    expect(screen.queryByTestId("sheet-dim")).toBeNull();
+  });
+
+  test("it takes no touches: the sheet's own backdrop does", async () => {
+    await render(<Sheet visible dim />);
+    expect(screen.getByTestId("sheet-dim")).toHaveProp("pointerEvents", "none");
+  });
 });

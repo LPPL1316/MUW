@@ -245,6 +245,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   campanella, commenti, risultati della ricerca entrano una riga dopo
   l'altra). Impronta 6f8bba4c. Video in `out/TASK-388/c-*`; merge del
   Coordinatore dopo l'ok dell'utente.
+  **C in `main`** (#803, fed77512, 2026-11-05). **C2** (branch
+  `fix/TASK-388-c2-sheet-scrim`): lo sfondo scuro dei filtri della ricerca
+  sfuma sul posto invece di salire con il foglio (`SheetModal` `dim`).
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
@@ -322,6 +325,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dall'header di TASK-387 (`gym` + `trackless`), niente filtro proprio.
   Parte A (API e database, migrazione 0047) in PR da
   `feat/TASK-385-a-gym-api`; server col sì dell'utente.
+  Parte A in `main` (#812). Parte B0 (l'app legge i post senza traccia) in
+  PR da `feat/TASK-385-b0-trackless-posts`; OTA col sì, prima di B.
 
 - **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
   (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo
@@ -452,6 +457,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
     Finché il server non ha la rotta, l'elenco non si vede. Lo sci resta
     `ready: false`. Prossimo: la parte E, la prova sulla neve.
+  - 2026-11-05: D3 in `main` (#817); il server è a 9c617cb5, con la 0048 e
+    la privacy sul sito. **D4**: lo sci alpino è acceso (`ready: true`),
+    anche nelle build dello store, perché l'utente vuole provarlo dall'app
+    pubblicata. Il fondo resta «Soon». Solo JavaScript, impronta 6f8bba4c.
+    Prossimo: l'OTA di produzione col sì dell'utente, gli estratti delle
+    Alpi (o del mondo, se l'utente dice sì), poi la parte E.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta

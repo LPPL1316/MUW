@@ -12,14 +12,19 @@ export const READS_HEADER = "X-MuW-Reads";
 /** What every app has always read: the API sends them without the header. */
 export const OLD_APP_ACTIVITIES: readonly string[] = ["running", "cycling", "paddling"];
 
+/** A run or a post without a track (TASK-385 B0): a workout at the gym,
+ * shown with its numbers in place of the line. */
+export const TRACKLESS = "trackless";
+
 /**
  * Every activity a run of this app may be (RUN_ACTIVITIES) but those of
- * before. Not `trackless`: no screen shows a post without a line yet
- * (TASK-385 will say it, with its screens).
+ * before, and `trackless`: the Feed, the profiles, the search and the
+ * drawing show a post without a line since TASK-385 B0.
  */
-export const READS: readonly string[] = RUN_ACTIVITIES.filter(
-  (activity) => !OLD_APP_ACTIVITIES.includes(activity),
-);
+export const READS: readonly string[] = [
+  ...RUN_ACTIVITIES.filter((activity) => !OLD_APP_ACTIVITIES.includes(activity)),
+  TRACKLESS,
+];
 
 /** The header, for `ask` (accounts.ts). */
 export function readsHeaders(): Record<string, string> {

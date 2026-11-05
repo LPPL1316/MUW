@@ -60,10 +60,10 @@ export const ALL_SPORTS: readonly SportOption[] = [
   // Asked as "walking" (activityOf), 1-30 km; on once the server has
   // TASK-371 part A and its migration 0043.
   { id: "walk", emoji: "🚶", name: tLater("Walk"), ready: false },
-  // Saved as "skiing" and "xc_skiing" (runActivityOf); on once the server
-  // has TASK-375 part A and its migration 0044, and the day has its numbers
-  // (part C).
-  { id: "ski", emoji: "⛷️", name: tLater("Ski"), ready: false, recordOnly: true },
+  // Saved as "skiing" and "xc_skiing" (runActivityOf). The alpine ski is on
+  // since TASK-375 D4: the server has parts A-D (migrations 0044 and 0048)
+  // and the day its numbers, lifts and pistes. The cross-country ski not yet.
+  { id: "ski", emoji: "⛷️", name: tLater("Ski"), ready: true, recordOnly: true },
   {
     id: "xc_ski",
     emoji: "🎿",

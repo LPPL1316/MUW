@@ -5,8 +5,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { accountProblem } from "../account/messages";
 import { dayLabel } from "../activities/activityText";
 import { RUN_DRAWING_PAD, RunDrawing } from "../activities/RunDrawing";
+import { isTrackless } from "../activities/snow";
 import { CardMapsCredit } from "../explore/RouteCard";
 import { useFeedMap } from "../feed/FeedMaps";
+import { GymTile } from "../gym/GymTile";
 import { t } from "../i18n";
 import { bearingOf } from "../map/turnedMap";
 import {
@@ -247,14 +249,19 @@ function DrawingCell({ drawing, size, opening, disabled, onOpen }: CellProps) {
       })}
       testID="drawing-cell"
     >
-      <RunDrawing
-        route={drawing.track_preview}
-        track={NO_TRACK}
-        width={size}
-        height={size}
-        rotationDeg={drawing.rotation_deg}
-        map={map}
-      />
+      {/* A workout at the gym has no line: its tile (TASK-385 B0). */}
+      {isTrackless(drawing.activity) ? (
+        <GymTile width={size} height={size} />
+      ) : (
+        <RunDrawing
+          route={drawing.track_preview}
+          track={NO_TRACK}
+          width={size}
+          height={size}
+          rotationDeg={drawing.rotation_deg}
+          map={map}
+        />
+      )}
     </Tap>
   );
 }
