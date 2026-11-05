@@ -196,8 +196,8 @@ in produzione.
 
 ## Termini e Privacy: cosa cambierebbe
 
-Le bozze nelle cinque lingue si scrivono dopo il sì sulla proposta e si
-approvano a parte (scelta 6), come per TASK-384. Partono dai testi nuovi di
+Le bozze nelle cinque lingue sono in «I testi», sotto, e si approvano a
+parte (scelta 6), come per TASK-384. Partono dai testi nuovi di
 TASK-384 («Testi approvati», B e C), che entrano con la prima versione con
 Style; se i capi degli iscritti uscissero prima di Style, si parte dai testi
 di oggi, dove «MuW non mostra pubblicità» resta vero.
@@ -304,6 +304,147 @@ con le parole dell'utente.
    nelle cinque lingue), approvati a parte.
    — *Risposta* (2026-11-05): «Sì, approvo», sulla proposta con le cinque
    scelte. Non copre i testi, che si approvano a parte («I testi», sotto).
+
+## I testi
+
+Bozze dell'agente, 2026-11-05, nelle cinque lingue (ADR-0172: nel codice la
+base è l'inglese). **Da approvare** (criteri di accettazione). Il tono segue i
+testi di oggi: frasi brevi, «tu», «MuW» come soggetto. «Shop on {store}» e
+«Report» ci sono già (TASK-384, TASK-121); `{store}` è il nome del negozio
+noto o il dominio. Termini e Privacy cambiano con la parte B, insieme alla
+prima versione con i capi degli iscritti; la data della Privacy è quella del
+merge, e il sito la riprende.
+
+### A. Nell'app
+
+1. **Pulsante nel compositore, su una foto**
+   - EN: Tag what you wear
+   - IT: Segna cosa indossi
+   - DE: Markiere, was du trägst
+   - FR: Identifie ce que tu portes
+   - ES: Etiqueta lo que llevas
+2. **Suggerimento sulla foto**
+   - EN: Tap what you're wearing on the photo.
+   - IT: Tocca sulla foto quello che indossi.
+   - DE: Tippe auf dem Foto auf das, was du trägst.
+   - FR: Touche sur la photo ce que tu portes.
+   - ES: Toca en la foto lo que llevas.
+3. **Il modulo**: campi e pulsanti
+   - EN: Item · Brand · Model (optional) · Link to the shop (optional) · Add · Remove
+   - IT: Capo · Marca · Modello (facoltativo) · Link al negozio (facoltativo) · Aggiungi · Togli
+   - DE: Teil · Marke · Modell (optional) · Link zum Shop (optional) · Hinzufügen · Entfernen
+   - FR : Article · Marque · Modèle (facultatif) · Lien vers la boutique (facultatif) · Ajouter · Retirer
+   - ES: Prenda · Marca · Modelo (opcional) · Enlace a la tienda (opcional) · Añadir · Quitar
+4. **I tipi**
+   - EN: Shoes · Top · Jacket · Shorts · Tights · Socks · Cap · Glasses · Watch · Backpack · Other
+   - IT: Scarpe · Maglia · Giacca · Pantaloncini · Tight · Calze · Cappello · Occhiali · Orologio · Zaino · Altro
+   - DE: Schuhe · Shirt · Jacke · Shorts · Tights · Socken · Kappe · Brille · Uhr · Rucksack · Sonstiges
+   - FR : Chaussures · Haut · Veste · Short · Collant · Chaussettes · Casquette · Lunettes · Montre · Sac à dos · Autre
+   - ES: Zapatillas · Camiseta · Chaqueta · Pantalón corto · Mallas · Calcetines · Gorra · Gafas · Reloj · Mochila · Otro
+5. **Gli errori nel modulo**
+   - a. EN: Use a link that starts with https:// · IT: Usa un link che inizia con https:// · DE: Verwende einen Link, der mit https:// beginnt · FR : Utilise un lien qui commence par https:// · ES: Usa un enlace que empiece por https://
+   - b. EN: Short links can't be used: paste the shop's full link. · IT: I link accorciati non si possono usare: incolla il link intero del negozio. · DE: Kurzlinks gehen nicht: Füge den vollständigen Link des Shops ein. · FR : Les liens raccourcis ne sont pas acceptés : colle le lien complet de la boutique. · ES: No se pueden usar enlaces acortados: pega el enlace completo de la tienda.
+   - c. (un dominio bloccato o segnalato da Web Risk; le regole di Google
+     chiedono di non dire che un sito è di certo pericoloso) EN: MuW can't
+     open this link. · IT: MuW non può aprire questo link. · DE: MuW kann
+     diesen Link nicht öffnen. · FR : MuW ne peut pas ouvrir ce lien. · ES:
+     MuW no puede abrir este enlace.
+   - d. (un indirizzo in marca o modello) EN: Put the link in the link box. · IT: Il link va nel riquadro del link. · DE: Der Link gehört ins Link-Feld. · FR : Le lien va dans le champ du lien. · ES: El enlace va en la casilla del enlace.
+   - e. EN: Up to 5 items on a photo. · IT: Al massimo 5 capi su una foto. · DE: Höchstens 5 Teile auf einem Foto. · FR : 5 articles au maximum sur une photo. · ES: Como máximo 5 prendas en una foto.
+   - f. EN: Up to 10 items in a post. · IT: Al massimo 10 capi in un post. · DE: Höchstens 10 Teile in einem Beitrag. · FR : 10 articles au maximum dans un post. · ES: Como máximo 10 prendas en una publicación.
+   - g. (il filtro di parole) EN: These words can't be used. Try other words. · IT: Queste parole non si possono usare. Prova con altre. · DE: Diese Wörter gehen nicht. Versuch es mit anderen. · FR : Ces mots ne sont pas acceptés. Essaie d'autres mots. · ES: Estas palabras no se pueden usar. Prueba con otras.
+6. **VoiceOver**: l'icona della gruccia (con il singolare per 1) e il puntino
+   - EN: {n} items tagged · 1 item tagged · {item}, {brand}
+   - IT: {n} capi segnati · 1 capo segnato · {item}, {brand}
+   - DE: {n} Teile markiert · 1 Teil markiert · {item}, {brand}
+   - FR : {n} articles identifiés · 1 article identifié · {item}, {brand}
+   - ES: {n} prendas etiquetadas · 1 prenda etiquetada · {item}, {brand}
+7. **Riga fissa nella scheda di un capo con link**
+   - EN: Link added by {name}. MuW doesn't check the products or the shops.
+   - IT: Link aggiunto da {name}. MuW non controlla i prodotti né i negozi.
+   - DE: Link hinzugefügt von {name}. MuW prüft weder die Produkte noch die Shops.
+   - FR : Lien ajouté par {name}. MuW ne vérifie ni les produits ni les boutiques.
+   - ES: Enlace añadido por {name}. MuW no comprueba los productos ni las tiendas.
+8. **Al posto di «Shop», se il link non si apre più**
+   - EN: This link isn't available.
+   - IT: Questo link non è disponibile.
+   - DE: Dieser Link ist nicht verfügbar.
+   - FR : Ce lien n'est pas disponible.
+   - ES: Este enlace no está disponible.
+9. **I conteggi, solo per l'autore**: sotto le foto del post, nella scheda di
+   un suo capo, e la riga sotto
+   - EN: Your items · Opens: {opens} · To the shop: {shops} — Opens: {opens} · To the shop: {shops} — Only you see these numbers.
+   - IT: I tuoi capi · Aperture: {opens} · Al negozio: {shops} — Aperture: {opens} · Al negozio: {shops} — Questi numeri li vedi solo tu.
+   - DE: Deine Teile · Geöffnet: {opens} · Zum Shop: {shops} — Geöffnet: {opens} · Zum Shop: {shops} — Diese Zahlen siehst nur du.
+   - FR : Tes articles · Ouvertures : {opens} · Vers la boutique : {shops} — Ouvertures : {opens} · Vers la boutique : {shops} — Toi seul vois ces chiffres.
+   - ES: Tus prendas · Aperturas: {opens} · A la tienda: {shops} — Aperturas: {opens} · A la tienda: {shops} — Estos números solo los ves tú.
+
+### B. Help, «Pubblicare e condividere» (un paragrafo nuovo, dopo quello delle foto)
+
+- **EN**: On a photo you publish you can tag what you're wearing: what it is, the brand and, if you like, the model and a link to the shop. Others tap the photo to see the items and open the shop. Under your post only you see how many times they were opened.
+- **IT**: Su una foto che pubblichi puoi segnare quello che indossi: cos'è, la marca e, se vuoi, il modello e il link al negozio. Gli altri toccano la foto per vedere i capi e aprire il negozio. Sotto il tuo post solo tu vedi quante volte sono stati aperti.
+- **DE**: Auf einem Foto, das du veröffentlichst, kannst du markieren, was du trägst: was es ist, die Marke und, wenn du willst, das Modell und einen Link zum Shop. Andere tippen auf das Foto, um die Teile zu sehen und den Shop zu öffnen. Unter deinem Beitrag siehst nur du, wie oft sie geöffnet wurden.
+- **FR** : Sur une photo que tu publies, tu peux identifier ce que tu portes : ce que c'est, la marque et, si tu veux, le modèle et un lien vers la boutique. Les autres touchent la photo pour voir les articles et ouvrir la boutique. Sous ton post, toi seul vois combien de fois ils ont été ouverts.
+- **ES**: En una foto que publiques puedes etiquetar lo que llevas: qué es, la marca y, si quieres, el modelo y un enlace a la tienda. Los demás tocan la foto para ver las prendas y abrir la tienda. Debajo de tu publicación solo tú ves cuántas veces se han abierto.
+
+### C. Termini
+
+1. **«Come usare MuW»**, un punto in più nell'elenco dei «non», prima
+   dell'ultimo:
+   - EN: use the items you tag for spam, for links to anything other than what you are wearing, for affiliate links of your own, or for advertising you do not declare;
+   - IT: usare i capi che segni per spam, per link a cose diverse da quello che indossi, per link affiliati tuoi o per pubblicità che non dichiari;
+   - DE: die Teile, die du markierst, für Spam nutzen, für Links zu etwas anderem als dem, was du trägst, für eigene Affiliate-Links oder für Werbung, die du nicht kennzeichnest;
+   - FR : utiliser les articles que tu identifies pour du spam, pour des liens vers autre chose que ce que tu portes, pour tes propres liens d'affiliation ou pour de la publicité que tu ne déclares pas ;
+   - ES: uses las prendas que etiquetas para spam, para enlaces a algo distinto de lo que llevas, para enlaces de afiliado tuyos o para publicidad que no declaras;
+2. **«Quello che pubblichi»**, una frase dopo la prima:
+   - EN: The items you tag on your photos, with their links, are part of what you publish.
+   - IT: I capi che segni sulle tue foto, con i loro link, sono parte di quello che pubblichi.
+   - DE: Die Teile, die du auf deinen Fotos markierst, gehören mit ihren Links zu dem, was du veröffentlichst.
+   - FR : Les articles que tu identifies sur tes photos, avec leurs liens, font partie de ce que tu publies.
+   - ES: Las prendas que etiquetas en tus fotos, con sus enlaces, forman parte de lo que publicas.
+3. **«Pubblicità»**, in fondo (dopo il testo di TASK-384, o dopo «MuW non
+   mostra pubblicità.» se Style non è ancora uscito):
+   - EN: The links members add to the items on their posts are theirs: MuW earns nothing from them and does not answer for the products or the shops. If a brand pays you or gives you what you tag, say so in the post's description.
+   - IT: I link che gli iscritti mettono sui capi dei loro post sono loro: MuW non ci guadagna e non risponde dei prodotti né dei negozi. Se un marchio ti paga o ti regala quello che segni, dillo nella descrizione del post.
+   - DE: Die Links, die Mitglieder an die Teile in ihren Beiträgen setzen, sind ihre: MuW verdient nichts daran und haftet nicht für die Produkte oder die Shops. Wenn eine Marke dich bezahlt oder dir schenkt, was du markierst, sag es in der Beschreibung des Beitrags.
+   - FR : Les liens que les membres ajoutent aux articles de leurs posts sont les leurs : MuW n'y gagne rien et ne répond ni des produits ni des boutiques. Si une marque te paie ou t'offre ce que tu identifies, dis-le dans la description du post.
+   - ES: Los enlaces que los miembros ponen en las prendas de sus publicaciones son suyos: MuW no gana nada con ellos y no responde de los productos ni de las tiendas. Si una marca te paga o te regala lo que etiquetas, dilo en la descripción de la publicación.
+4. **«Servizi di altri»**, un punto in più:
+   - EN: The link of a tagged item opens the shop's site in your browser: the shop has its own terms.
+   - IT: Il link di un capo segnato apre il sito del negozio nel tuo browser: il negozio ha le sue condizioni.
+   - DE: Der Link eines markierten Teils öffnet die Seite des Shops in deinem Browser: Der Shop hat seine eigenen Bedingungen.
+   - FR : Le lien d'un article identifié ouvre le site de la boutique dans ton navigateur : la boutique a ses propres conditions.
+   - ES: El enlace de una prenda etiquetada abre la web de la tienda en tu navegador: la tienda tiene sus propias condiciones.
+
+### D. Privacy
+
+1. **«Le tue corse e le loro tracce GPS»**, un paragrafo in fondo:
+   - EN: On the photos you publish you can tag the items you are wearing: what each one is, its brand and, if you like, its model and a link to a shop. Whoever sees the photo sees them. If the run goes back to «Only me», they leave our server with its photos and stay on this phone.
+   - IT: Sulle foto che pubblichi puoi segnare i capi che indossi: cos'è ognuno, la marca e, se vuoi, il modello e il link a un negozio. Li vede chi vede la foto. Se la corsa torna «Solo io», lasciano il nostro server con le sue foto e restano su questo telefono.
+   - DE: Auf den Fotos, die du veröffentlichst, kannst du die Teile markieren, die du trägst: was jedes ist, die Marke und, wenn du willst, das Modell und einen Link zu einem Shop. Wer das Foto sieht, sieht sie. Geht der Lauf zurück auf «Nur ich», verlassen sie mit seinen Fotos unseren Server und bleiben auf diesem Telefon.
+   - FR : Sur les photos que tu publies, tu peux identifier les articles que tu portes : ce qu'est chacun, sa marque et, si tu veux, son modèle et un lien vers une boutique. Ceux qui voient la photo les voient. Si la course repasse en «Moi seulement», ils quittent notre serveur avec ses photos et restent sur ce téléphone.
+   - ES: En las fotos que publiques puedes etiquetar las prendas que llevas: qué es cada una, su marca y, si quieres, su modelo y un enlace a una tienda. Las ve quien ve la foto. Si la carrera vuelve a «Solo yo», salen de nuestro servidor con sus fotos y se quedan en este teléfono.
+2. **«Pubblicità»**, in fondo al testo di TASK-384 (se Style non è ancora
+   uscito, la frase comincia da «MuW conta per giorno…» e torna per il sì):
+   - EN: The same count, by day and without knowing who you are, applies to the items members tag on their posts: whoever tagged an item sees how many times it was opened and how many times someone went to the shop, never who. A member's link goes straight to the shop, without Awin: from there the shop records the visit with its cookies, under its own privacy policy.
+   - IT: Lo stesso conteggio, per giorno e senza sapere chi sei, vale per i capi che gli iscritti segnano sui loro post: chi ha segnato un capo vede quante volte è stato aperto e quante volte si è andati al negozio, mai chi. Il link di un iscritto va diritto al negozio, senza Awin: da lì il negozio registra la visita con i suoi cookie, secondo la sua informativa.
+   - DE: Dieselbe Zählung, pro Tag und ohne zu wissen, wer du bist, gilt für die Teile, die Mitglieder in ihren Beiträgen markieren: Wer ein Teil markiert hat, sieht, wie oft es geöffnet wurde und wie oft jemand zum Shop gegangen ist, nie wer. Der Link eines Mitglieds führt direkt zum Shop, ohne Awin: Ab dort erfasst der Shop den Besuch mit seinen Cookies, nach seiner eigenen Datenschutzerklärung.
+   - FR : Le même comptage, par jour et sans savoir qui tu es, vaut pour les articles que les membres identifient sur leurs posts : celui qui a identifié un article voit combien de fois il a été ouvert et combien de fois quelqu'un est allé à la boutique, jamais qui. Le lien d'un membre va directement à la boutique, sans Awin : à partir de là, la boutique enregistre la visite avec ses cookies, selon sa propre politique de confidentialité.
+   - ES: El mismo recuento, por día y sin saber quién eres, vale para las prendas que los miembros etiquetan en sus publicaciones: quien etiquetó una prenda ve cuántas veces se abrió y cuántas veces alguien fue a la tienda, nunca quién. El enlace de un miembro va directo a la tienda, sin Awin: desde ahí la tienda registra la visita con sus cookies, según su propia política de privacidad.
+3. **«Segnalazioni»**, l'inizio della prima frase:
+   - EN: When you report a drawing, a tagged item, a comment or a profile, …
+   - IT: Quando segnali un disegno, un capo segnato, un commento o un profilo, …
+   - DE: Wenn du eine Zeichnung, ein markiertes Teil, einen Kommentar oder ein Profil meldest, …
+   - FR : Quand tu signales un dessin, un article identifié, un commentaire ou un profil, …
+   - ES: Cuando denuncias un dibujo, una prenda etiquetada, un comentario o un perfil, …
+4. **«Chi altro riceve dati»**, un punto in più (la società di Google che
+   firma il contratto di Web Risk si scrive quando l'utente lo attiva, come
+   «Google Ireland Limited» per Firebase):
+   - EN: Google, with its Web Risk service, receives from our server parts of the fingerprint (hash) of some links that members add to their items, to check that they do not lead to dangerous sites: never the whole link, nor who added it or who opens it.
+   - IT: Google, con il suo servizio Web Risk, riceve dal nostro server pezzi dell'impronta (hash) di alcuni link che gli iscritti mettono sui loro capi, per controllare che non portino a siti pericolosi: mai il link intero, né chi l'ha messo o chi lo apre.
+   - DE: Google erhält mit seinem Dienst Web Risk von unserem Server Teile des Fingerabdrucks (Hash) mancher Links, die Mitglieder an ihre Teile setzen, um zu prüfen, dass sie nicht zu gefährlichen Seiten führen: nie den ganzen Link, und nie, wer ihn gesetzt hat oder wer ihn öffnet.
+   - FR : Google, avec son service Web Risk, reçoit de notre serveur des morceaux de l'empreinte (hash) de certains liens que les membres ajoutent à leurs articles, pour vérifier qu'ils ne mènent pas à des sites dangereux : jamais le lien entier, ni qui l'a ajouté ou qui l'ouvre.
+   - ES: Google, con su servicio Web Risk, recibe de nuestro servidor partes de la huella (hash) de algunos enlaces que los miembros ponen en sus prendas, para comprobar que no llevan a sitios peligrosos: nunca el enlace entero, ni quién lo puso o quién lo abre.
 
 ## Prerequisiti dell'utente
 
