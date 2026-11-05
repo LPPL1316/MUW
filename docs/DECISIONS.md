@@ -23225,6 +23225,7 @@ legate dai fixture; ogni correzione all'orologio richiede una build per
 l'App Store; serve un Apple Watch vero per le prove.
 
 ---
+
 ## ADR-0322 — Gravel e MTB: la bici di oggi per il gravel, una rete sua per la MTB
 
 **Stato**: Proposto · 2026-11-05 · TASK-378. Numeri dal Coordinatore
