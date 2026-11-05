@@ -366,6 +366,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Parte C1 in PR** (2026-11-05): `docs/sports/COME-AGGIUNGERE.md`
   riscritto sulla struttura della parte B: file nuovi, una riga per
   registro e i punti fissi ancora scritti a mano. Poi il pilota TASK-377.
+  **C1 in `main`** (#820). **TASK-377 parte 0 in PR** (2026-11-05):
+  misurate col banco due reti per l'escursionismo. «foot» senza le strade
+  delle auto riesce 46 volte su 54 sulle sei zone; solo sentieri, 3 su 9 a
+  Trento. Scritti `hike.md` e ADR-0321 come proposto. Prossimo: le scelte
+  dell'utente, una alla volta (`tasks/TASK-377.md`).
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
