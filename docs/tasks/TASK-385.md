@@ -204,7 +204,7 @@ Questa PR (documenti): `docs/tasks/TASK-385.md` (nuovo),
     `activities/ActivitiesList.tsx`, `activities/ActivityCard.tsx` (niente
     linea, Strava né «Send to a friend»), `share/postRun.ts` (niente
     distanza per la palestra), `feed/postEnergy.ts` (niente kcal fino alla
-    parte C; aggiunto per tsc, da approvare);
+    parte C; aggiunto per tsc, approvato dal Coordinatore);
   - `contest/ContestCard.tsx` esce: un post di palestra non entra in un
     concorso. Le mappe di Salute leggono il profilo (TASK-376 B3a): non
     cambiano.
