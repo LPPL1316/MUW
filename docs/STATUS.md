@@ -247,6 +247,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Sessione senza traccia: migrazione e post nascosti alle app vecchie
   (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
   Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
+
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
   «Dentro il riquadro» per peso e altezza: «Sì, task a parte». «bpm» stava piccolo e grigio a
