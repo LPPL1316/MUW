@@ -160,6 +160,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-399 — Nel Feed il nome di chi ha pubblicato apre il suo profilo** (2026-11-05;
+  numero dal Coordinatore; richiesta dell'utente). In `FeedPost` la riga del nome era dentro il
+  pulsante della card e apriva il disegno; ora sul disegno di un iscritto è un pulsante a sé che
+  chiama `openProfile`, come i tag (TASK-208) e i commenti (TASK-338). Solo app, nessun testo
+  nuovo. Branch `fix/TASK-399-feed-author-profile`; la unisce il Coordinatore a CI verde; in
+  produzione col prossimo OTA. `tasks/TASK-399.md`.
+  **Chiuso il 2026-11-05**: #830, chiusura nella stessa PR; vedi «Completato».
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
   anche le vecchie»; testi nuovi approvati il 2026-11-05. Parte A (API +
@@ -1122,6 +1129,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `paddleExamples.json` a ridisegno finito; il codice di E (Apple Watch,
   ora che TASK-321 B è in `main`, sul Mac con Xcode); la prova in acqua
   (primavera 2027).
+  **Acceso per tutti** (2026-11-04, scelta dell'utente, «Subito per
+  tutti»): branch `feat/TASK-323-swim-ready`, `ready: true` e i test che lo
+  davano «Soon». Entra **dopo TASK-375 B1**, che tocca gli stessi file
+  («Dopo lo sci»), con `main` unito dentro; prima dell'OTA,
+  `draw_examples --swim` sul server. Le curve senza nome a riva finché non
+  gira `shore_extract`. Aggiunta ad ADR-0283.
   **Prima in preview** (2026-11-05, scelta dell'utente, «Subito in
   preview»): branch `feat/TASK-323-swim-preview`, il nuoto acceso in Expo Go
   e `preview` (`preview: true` in `sport.ts`), lo store ancora senza fino
@@ -2905,6 +2918,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-399 — Nel Feed il nome di chi ha pubblicato apre il suo profilo** (2026-11-05;
+  richiesta dell'utente). #830: sul disegno di un iscritto la riga dell'iniziale e del nome è un
+  pulsante a sé, fuori da quello della card, e apre il profilo come i tag (TASK-208) e i commenti
+  (TASK-338); il resto della card apre il disegno, un esempio resta testo. Solo JS, nessun testo
+  nuovo. Prossimo, col sì dell'utente: il telefono con il prossimo OTA. `tasks/TASK-399.md`.
 - **TASK-398 — «town cat 5000» rosso in CI: l'immagine ubuntu-26.04**
   (2026-11-05). #827 in main (`42e0433a`): dalle 16:00Z `ubuntu-latest` è
   ubuntu-26.04 e la ricerca del gatto del paese finto dà un altro digest con

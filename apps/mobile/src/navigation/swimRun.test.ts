@@ -18,7 +18,7 @@ import { useFreeRun } from "./useFreeRun";
 import { useNavigation } from "./useNavigation";
 
 jest.mock("expo-speech", () => ({ speak: jest.fn(), stop: jest.fn() }));
-// «Open water swim» chosen, though no phone can choose it yet («Soon»).
+// «Open water swim» chosen on the phone.
 jest.mock("../settings/sport", () => ({
   ...jest.requireActual<typeof import("../settings/sport")>("../settings/sport"),
   loadSport: jest.fn(),

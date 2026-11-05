@@ -565,6 +565,24 @@ services/api/shaperoute_api/draw_examples.py, tests/test_draw_swims.py (nuovo)
 docs/API.md, docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
 ```
 
+**Acceso, dove si è** (2026-11-04). L'utente ha scelto «Subito per tutti»:
+`ready: true`, con il prossimo OTA anche nelle build dello store, senza
+prima la prova in acqua. Poi «Dopo lo sci»: la PR entra dopo TASK-375 B1,
+che tocca gli stessi file, con `main` unito dentro. Prima dell'OTA,
+`draw_examples --swim` sul server; le curve restano senza il nome a riva
+finché non gira `shore_extract` (aggiunta ad ADR-0283). Branch
+`feat/TASK-323-swim-ready`. File toccati:
+
+```
+apps/mobile/src/settings/sport.ts (la riga del nuoto, `ready: true`)
+apps/mobile/src/settings/sport.test.ts, SportSetting.test.tsx,
+  SportButton.test.tsx, SportStoreBuild.test.tsx
+apps/mobile/src/profile/SettingsPage.test.tsx (le righe «Soon»)
+apps/mobile/__tests__/AppSwim.test.tsx, src/navigation/swimRun.test.ts
+  (solo i commenti)
+docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
+```
+
 ### D — App: nuotare con il telefono nella boa
 
 1. La schermata della corsa per il nuoto: niente voce, il passo per 100 m,
