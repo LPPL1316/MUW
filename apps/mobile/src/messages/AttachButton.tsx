@@ -1,5 +1,5 @@
 import { type ReactNode, useRef, useState } from "react";
-import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { t } from "../i18n";
@@ -11,6 +11,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { SheetModal } from "../ui/SheetModal";
 
 export type FileKind = "photo" | "video";
 export type AttachKind = FileKind | "drawing";
@@ -68,11 +69,8 @@ export function AttachButton({ kinds, disabled, onPick }: Props) {
       >
         <Text style={styles.plusText}>+</Text>
       </Pressable>
-      <Modal
+      <SheetModal
         visible={open}
-        transparent
-        animationType="slide"
-        statusBarTranslucent
         onRequestClose={() => setOpen(false)}
         onDismiss={dismissed}
       >
@@ -95,7 +93,7 @@ export function AttachButton({ kinds, disabled, onPick }: Props) {
           )}
           <Choice label={t("Cancel")} onPress={() => setOpen(false)} />
         </Sheet>
-      </Modal>
+      </SheetModal>
     </>
   );
 }
