@@ -262,6 +262,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
   Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
 
+- **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
+  (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo
+  rinasceva vuoto e si riempiva di nuovo, e «Messages» mostrava «Loading…» al posto della
+  lista. Ora «Messages» rilegge sul posto e il profilo si ricostruisce quando lo si lascia.
+  Branch `fix/TASK-391-tab-landing-flash`; la unisce il Coordinatore a CI verde; OTA col sì
+  dell'utente. Solo app, nessun testo nuovo, `TabShell`/`TabBar` non toccati. `tasks/TASK-391.md`.
+
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
   «Dentro il riquadro» per peso e altezza: «Sì, task a parte». «bpm» stava piccolo e grigio a

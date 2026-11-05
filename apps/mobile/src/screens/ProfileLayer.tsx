@@ -521,11 +521,12 @@ export function ProfileLayer({ apiUrl, children }: Props) {
 /**
  * The first page of «Profile» as the fourth page of the pager, after
  * «Explore» (TASK-278): sign up or log in, or the account with its rows.
- * What it opens comes over the app, and «←» comes back here. Built anew
- * each time it comes on screen, as «Profile» was each time it opened: the
- * lists of who follows and the drawings are read again. Asked for by the
- * heart or «Save» without an account, it says why over «Sign up», as
- * «Profile» did over the app (TASK-278 part B).
+ * What it opens comes over the app, and «←» comes back here, built anew:
+ * the lists of who follows and the drawings are read again. Left for
+ * another tab it is built anew there and then, out of sight: a swipe that
+ * comes back finds it whole at its top, never empty and filling again as
+ * it lands. Asked for by the heart or «Save» without an account, it says
+ * why over «Sign up», as «Profile» did over the app (TASK-278 part B).
  */
 export function OwnProfile({
   active,
@@ -538,14 +539,15 @@ export function OwnProfile({
   onBack?: () => void;
 }) {
   const own = useContext(OwnContext);
-  const shown = active && own !== null && !own.covered;
+  const covered = own !== null && own.covered;
   const [visit, setVisit] = useState(0);
   // Its tab touched again (TASK-367): built anew, at its top.
   useTabReselect(() => setVisit((last) => last + 1));
-  const [wasShown, setWasShown] = useState(shown);
-  if (shown !== wasShown) {
-    setWasShown(shown);
-    if (shown) {
+  const [was, setWas] = useState({ active, covered });
+  if (active !== was.active || covered !== was.covered) {
+    setWas({ active, covered });
+    // Another tab, or back from what it opened over the app.
+    if ((was.active && !active) || (active && was.covered && !covered)) {
       setVisit(visit + 1);
     }
   }
