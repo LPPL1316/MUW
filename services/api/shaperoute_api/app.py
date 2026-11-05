@@ -138,6 +138,7 @@ from shaperoute_api.signals import SignalBody, SignalGate, event_of
 from shaperoute_api.strava import install_strava
 from shaperoute_api.strava_client import Strava
 from shaperoute_api.stroke_matches_api import install_stroke_matches
+from shaperoute_api.style_posts import install_style_posts
 from shaperoute_api.themed import ThemedJobBody, ThemedJobs, ThemedRequestBody
 from shaperoute_api.track_scores import score_run
 from shaperoute_api.user_photos import install_user_photos
@@ -779,5 +780,9 @@ def create_app(
     def engine_error(request: Request, exc: Exception) -> JSONResponse:
         log.exception("route failed", exc_info=exc)
         return engine_answer(request, exc)
+
+    # MuW Style (TASK-384, ADR-0326): our posts with an AI photo and shop
+    # links, apart from GET /feed; the Awin ids from the environment.
+    install_style_posts(app)
 
     return app

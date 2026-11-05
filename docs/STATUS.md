@@ -160,6 +160,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
+  `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
+  in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
+  migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
 - **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
   l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
   brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR

@@ -878,6 +878,32 @@ Migrazione `0045_notification_list.sql` (TASK-367 parte C1, ADR-0311, `API.md`
   vecchie, `actor_id`, `drawing_id` e `comment_id` per le cancellazioni.
   Test in `test_notification_list.py`.
 
+Migrazione `0046_style_posts.sql` (TASK-384 parte A, ADR-0326, `API.md`
+«Style», `STYLE.md`; il numero è del Coordinatore):
+
+- **`style_posts`**: i post di MuW Style, caricati con `style_import.py`
+  solo dopo il sì dell'utente. `id` (`MS-001`…), `theme` (`running`,
+  `trail`, `bike`, `gym`, `athleisure`), `gender` (`women`, `men`), `title`
+  (`jsonb`, le cinque lingue), `image` (il nome del file sotto
+  `data/media/style`: la foto **non** è nel database né nelle copie),
+  `image_tool` (cosa l'ha generata), `publish_at` (da quando si vede),
+  `hidden_at` (nascosto: un post non si cancella, così i conteggi restano),
+  `created_at`. Indice `(publish_at DESC, id DESC)` sui non nascosti.
+- **`post_product_tags`**: i puntini. `id`, `post_id` (`ON DELETE CASCADE`),
+  `x` e `y` (0–1 dall'alto a sinistra), `item`, `brand`, `product_name`,
+  `price_eur` e `price_seen_at` (il prezzo e quando è stato letto),
+  `retailer` (`zalando`, `amazon`, `decathlon`), `url` (la pagina del
+  negozio, mai il link affiliato: quello si fa a ogni «Shop»),
+  `checked_at` (l'ultimo controllo del link, per il controllo giornaliero
+  che arriva col feed di Awin), `active` (falso per un prodotto finito: il
+  puntino sparisce, e un post senza puntini attivi non si vede).
+- **`product_tag_clicks`**: `(tag_id, day)` chiave, `opens` e `shops`. Solo
+  numeri per puntino e per giorno: **nessun account, nessun indirizzo,
+  nessun telefono** (ADR-0326 punto 3; `test_style_posts.py`,
+  `test_nothing_personal_is_kept`, lo controlla sulle colonne).
+- Nessuna riga di prima cambia, e `drawings` e `GET /feed` non si toccano.
+  Test in `test_style_posts.py` e `test_style_import.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno
