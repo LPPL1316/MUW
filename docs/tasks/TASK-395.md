@@ -1,6 +1,6 @@
 # TASK-395 — La ricerca non divide più per zero quando un percorso non disegna niente
 
-**Stato**: Done · 2026-11-05, alla fusione della sua PR
+**Stato**: Done · 2026-11-05, #807 in main (`325f7d56`)
 **Fase**: 4 · **Branch**: `fix/TASK-395-next-scale-zero`
 **Numeri**: TASK-395, assegnato dal Coordinatore. Nessun ADR: nessun
 comportamento documentato cambia. Seguito di TASK-297 C.
@@ -86,7 +86,7 @@ ridisegno sul server.
 - [x] Le impronte che si muovono hanno la loro prova e la loro riga in
       `SAME_ROUTES_AS`: stessi nove percorsi fissi, `test_same_routes` e i
       test delle impronte dell'API verdi.
-- [ ] CI verde.
+- [x] CI verde (#807, unita dal Coordinatore).
 
 ## File toccati
 
@@ -105,3 +105,8 @@ docs/STATUS.md
 Una parola o una forma a pezzi con la penna alzata su un grafo troppo piccolo
 non fa più cadere il motore: la ricerca salta i tracciati che non disegnano
 niente e, se non c'è altro, dice che la forma non si disegna lì.
+
+**Chiuso il 2026-11-05**: #807 in main (`325f7d56`). Le impronte nuove
+puntano alle vecchie con la prova dei percorsi uguali: percorsi tenuti ed
+esempi restano validi, nessun ridisegno. Il server prende il fix al prossimo
+aggiornamento, col sì dell'utente; il telefono con il prossimo OTA.
