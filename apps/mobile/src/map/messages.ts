@@ -44,6 +44,8 @@ export type ToPage =
   | { type: "showOthers"; lines: LngLat[][] }
   | { type: "showTrack"; coordinates: LngLat[] }
   | { type: "clearTrack" }
+  | { type: "showLifts"; skied: LngLat[][]; lifts: LngLat[][] }
+  | { type: "clearLifts" }
   | { type: "follow"; lngLat: LngLat; heading: number | null }
   | { type: "stopFollow" }
   | { type: "showStops"; stops: StopFeature[] }
@@ -207,6 +209,20 @@ export function showTrack(points: LatLon[]): ToPage {
 
 export function clearTrack(): ToPage {
   return { type: "clearTrack" };
+}
+
+/** A day of skiing (TASK-375 part C2): the track as what was skied, solid
+ * as a run's, and the lifts dashed. */
+export function showLifts(skied: LatLon[][], lifts: LatLon[][]): ToPage {
+  return {
+    type: "showLifts",
+    skied: skied.map((line) => line.map(toLngLat)),
+    lifts: lifts.map((line) => line.map(toLngLat)),
+  };
+}
+
+export function clearLifts(): ToPage {
+  return { type: "clearLifts" };
 }
 
 /** Marks the places of a themed route, named when the route passes by. */

@@ -21998,6 +21998,18 @@ dell'utente):
    prima della stagione (parte E). Il fondo usa i numeri di una corsa,
    senza le calorie. `FreeFinishCard` sceglie la scheda dallo sport di
    «Settings»; `App.tsx` non cambia.
+10. (C2, 2026-11-05; il testo è dell'utente, approvato con gli altri della
+    parte C con «Sì, approvati», il modo è deciso dall'agente su delega
+    dell'utente) Sulla mappa di fine giornata di sci la traccia si taglia
+    agli impianti trovati da `snowDay`. Ciò che è stato sciato resta la
+    linea bianca piena di una corsa; le risalite sono la stessa linea,
+    tratteggiata come i tratti in bici a piedi (`onFoot.dash`): nessun
+    colore nuovo. `snowLiftsOf` le dà solo per lo sci alpino e solo se ce
+    ne sono; il fondo e gli altri sport restano una linea sola. Il banner
+    dello sci dice «White: your descents. Dashed: the lifts.» anche in una
+    giornata senza impianti trovati, perché non conosce la traccia: è un
+    caso raro, e non mostra niente di sbagliato. In `App.tsx` ci sono solo
+    il campo `lifts` di `FreeFinished` e il prop di `MapView`.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i

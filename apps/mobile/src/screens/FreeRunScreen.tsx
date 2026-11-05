@@ -148,13 +148,19 @@ export function FreeRunCard({
 }
 
 export function FreeFinishBanner() {
-  // A day on the snow is a day, not a run (TASK-375 part C).
-  const snow = isOnSnow(runActivityOf(useSport()));
+  // A day on the snow is a day, not a run (TASK-375 part C); a day of
+  // skiing has its lifts dashed on the map (part C2).
+  const activity = runActivityOf(useSport());
+  const snow = isOnSnow(activity);
   return (
     <View style={styles.banner}>
       <Text style={styles.title}>{snow ? t("Your day") : t("Your run")}</Text>
       <Text style={styles.message}>
-        {snow ? t("White: where you skied.") : t("White: what you ran.")}
+        {activity === "skiing"
+          ? t("White: your descents. Dashed: the lifts.")
+          : snow
+            ? t("White: where you skied.")
+            : t("White: what you ran.")}
       </Text>
     </View>
   );
