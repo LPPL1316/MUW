@@ -107,7 +107,7 @@ in `problems.test.ts`.
       `AppEditDrawing`, `onPhoneFreehand`), tsc, eslint, Prettier, ruff e
       black verdi in locale; la suite intera è della CI.
 - [x] CI verde (#767 e #769).
-- [ ] Prova sul telefono, dall'utente, con l'anteprima: lo stesso esempio
+- [x] Prova sul telefono, dall'utente, con l'anteprima: lo stesso esempio
       del lago, «Edit the drawing», «Draw route».
 
 ## File toccati
@@ -151,6 +151,6 @@ Chiusura (PR dei documenti): `docs/tasks/TASK-382.md`, `docs/STATUS.md` e
 
 In `main` dal 2026-11-05: #767 (830a147e) manda il contorno come il motore lo
 prende; se il motore lo rifiuta lo stesso, #769 (f4e7a2ad) dice perché. Solo
-JS, testi esistenti, impronta del motore invariata. Restano all'utente,
-col Coordinatore: la prova sul telefono con l'anteprima (l'esempio del lago,
-«Edit the drawing», «Draw route») e l'OTA di produzione.
+JS, testi esistenti, impronta del motore invariata. Provato sul telefono
+dall'utente il 2026-11-05, nell'anteprima di 0d7819c4: «funziona». Resta
+l'OTA di produzione, col sì dell'utente e il Coordinatore.
