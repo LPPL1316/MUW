@@ -314,6 +314,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `SAME_ROUTES_AS` tiene le impronte di prima (5b5e026cea9b, b9d00c37d28d,
   574fbfba41eb): **nessuna notte di esempi**, il server si aggiorna da `main`
   come prima. B2 (contratto e API) e B3 (app) dopo la #758.
+  **Parte B1 in `main`** (#763, 2026-11-04 sera). B2 (contratto e API):
+  lista dei file al Coordinatore il 2026-11-05, codice al suo via; poi B3.
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
