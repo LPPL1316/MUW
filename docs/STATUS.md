@@ -371,6 +371,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   delle auto riesce 46 volte su 54 sulle sei zone; solo sentieri, 3 su 9 a
   Trento. Scritti `hike.md` e ADR-0321 come proposto. Prossimo: le scelte
   dell'utente, una alla volta (`tasks/TASK-377.md`).
+  **Parte 0 in `main`** (#821). **Scelte dell'utente** (2026-11-05):
+  - «Hike» ⛰️;
+  - la rete a piedi senza strade delle auto;
+  - da 1 a 30 km;
+  - sentieri fino a T3;
+  - nel gioco come la camminata;
+  - tre testi approvati in cinque lingue;
+  - acceso appena pronto.
+
+  ADR-0321 accettato. Prossimo: 377-A, motore, contratto e API, dopo la
+  lista al Coordinatore.
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il

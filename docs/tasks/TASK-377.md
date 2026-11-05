@@ -142,12 +142,27 @@ Una alla volta, ciascuna con la proposta dell'agente:
    - L'avviso sta sotto il percorso in «Disegna» quando lo sport è Hike:
      c'è perché i sentieri arrivano fino a T3. Per l'app è un punto in
      più, e va nella lista della parte B.
+7. **Quando si accende** (2026-11-05): appena pronto. «ready» diventa vero
+   quando il server ha la parte A (motore, migrazione, notte degli esempi)
+   e l'app ha la parte B, senza aspettare una prova sul telefono. La
+   proposta era accenderlo dopo una prova in anteprima in una zona di
+   montagna. Server, migrazione, notte degli esempi e aggiornamento di
+   produzione restano ciascuno col sì dell'utente.
+
+Le scelte toccano le liste di A e B in tre punti:
+
+- **Parte A:** `game_rules.py` deve contare Hike con la corsa e la
+  camminata. È una riga, ed è un punto fisso della ricetta («il gioco»).
+- **Parte B:** `route/RoutePanel.tsx` mostra l'avviso sui sentieri. È un
+  campo nuovo del profilo, letto in un punto solo.
+- **Parte B:** `ready: true` va in `settings/sport.ts` solo dopo che il
+  server ha la parte A.
 
 ## Criteri di accettazione
 
 - [x] 0: le misure delle reti sono in `hike.md`; ADR-0321 è proposto.
       `trails` è misurata solo a Trento, perché lì non regge.
-- [ ] 0: le scelte dell'utente sono scritte qui, una per una.
+- [x] 0: le scelte dell'utente sono scritte qui, una per una (2026-11-05).
 - [ ] A: un percorso d'escursione sul grafo di prova sta sui sentieri; test
       deterministici; corsa, bici e canoa invariate al banco (`compare`).
 - [ ] B: l'escursione si sceglie, si cammina, si salva e va in Salute; i
@@ -181,3 +196,16 @@ un comando per volta e `nice -n 10`:
 
 Le misure sono in `hike.md`, e ADR-0321 è scritto come proposto. Prossimo:
 la prima domanda all'utente, il nome e l'emoji.
+
+2026-11-05, le scelte dell'utente, una alla volta:
+
+1. «Hike» ⛰️;
+2. la rete a piedi senza strade delle auto;
+3. da 1 a 30 km;
+4. fino a T3;
+5. nel gioco come la camminata;
+6. i tre testi;
+7. acceso appena pronto.
+
+Prossimo: la lista di 377-A al Coordinatore, con `game_rules.py` in più e
+il numero della migrazione, prima del codice.
