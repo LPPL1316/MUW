@@ -1,7 +1,8 @@
 # TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la ricetta
 
 **Stato**: In corso — parte A in `main` (#736); parte B1 (il registro del
-motore) in PR; B2 (contratto e API) e B3 (app) dopo la #758
+motore) in `main` (#763); B2 (contratto e API) con la lista dei file al
+Coordinatore, poi B3 (app)
 **Fase**: 4 · **Branch**: `feat/TASK-376-a-sport-bench` (parte A),
 `feat/TASK-376-b-sport-registry` (parte B) · **ADR**: ADR-0320 · numeri dal
 Coordinatore (2026-11-04) · sessione «Coordinatore Sport»
@@ -161,7 +162,56 @@ docs/sports/CONDIVISO.md, docs/sports/README.md
 `base.py` dei due registri non era nella lista mandata: sono file nuovi,
 per evitare un ciclo di import fra il registro e i suoi moduli.
 
-Parti B2 e B3: la lista va al Coordinatore prima del codice, dopo la #758.
+Parte B2 (contratto e API), proposta al Coordinatore il 2026-11-05, prima
+del codice. Ogni sport dice in un file suo quello che oggi è una riga in una
+tabella condivisa; le tabelle se ne ricavano, uguali e nello stesso ordine:
+
+```
+packages/shared-types/src/sports/index.ts                   (nuovo, il registro in ordine)
+packages/shared-types/src/sports/base.ts                    (nuovo, il tipo SportContract)
+packages/shared-types/src/sports/running.ts                 (nuovo)
+packages/shared-types/src/sports/cycling.ts                 (nuovo)
+packages/shared-types/src/sports/paddling.ts                (nuovo)
+packages/shared-types/src/sports/swimming.ts                (nuovo)
+packages/shared-types/src/sports/walking.ts                 (nuovo)
+packages/shared-types/src/sports/skiing.ts                  (nuovo)
+packages/shared-types/src/sports/xc_skiing.ts               (nuovo)
+packages/shared-types/src/index.ts                          (solo le righe 55-115: ACTIVITIES,
+                                                             API_ACTIVITIES, RECORD_ACTIVITIES,
+                                                             RUN_ACTIVITIES, DISTANCE_LIMITS_M)
+packages/shared-types/test/sportRegistry.test.ts            (nuovo)
+services/api/shaperoute_api/sports/__init__.py              (nuovo, il registro in ordine)
+services/api/shaperoute_api/sports/base.py                  (nuovo: ApiSport, SportBests, Distance)
+services/api/shaperoute_api/sports/running.py               (nuovo)
+services/api/shaperoute_api/sports/cycling.py               (nuovo)
+services/api/shaperoute_api/sports/paddling.py              (nuovo)
+services/api/shaperoute_api/sports/swimming.py              (nuovo)
+services/api/shaperoute_api/sports/walking.py               (nuovo)
+services/api/shaperoute_api/sports/skiing.py                (nuovo)
+services/api/shaperoute_api/sports/xc_skiing.py             (nuovo)
+services/api/shaperoute_api/strava.py                       (SPORT_TYPES dal registro)
+services/api/shaperoute_api/activity_graphs.py              (ZONES_IN_MEMORY dal registro)
+services/api/shaperoute_api/personal_bests.py               (SPORTS dal registro; ON_FOOT, BY_BIKE
+                                                             nei file dello sport, nomi ri-esportati)
+services/api/shaperoute_api/activities.py                   (RECORD_ACTIVITIES dal registro;
+                                                             RunActivity resta un Literal, provato)
+services/api/shaperoute_api/prefetch_zones.py               (ZONE_BOXES, STREET_NAMES dal registro)
+services/api/shaperoute_api/run_gpx.py                      (GPX_TYPES dal registro)
+services/api/shaperoute_api/schemas.py                      (ACTIVITY_DESCRIPTION: una frase per sport)
+services/api/tests/test_sport_registry_api.py               (nuovo)
+docs/tasks/TASK-376.md, docs/STATUS.md (righe proprie), docs/sports/CONDIVISO.md
+```
+
+Restano fuori, apposta: `route_engine/walking.py` (la camminata resta fuori
+dall'impronta del motore, WALK_ONLY), `themes.py` (parole delle sfide, non lo
+sport), `errors.py` (legge già `API_DISTANCE_LIMITS_M`). Nessuna migrazione,
+nessun cambiamento visibile: i test di oggi passano senza toccarli, l'impronta
+iOS non cambia (solo JS e Python). La #781 (TASK-390) tocca `index.ts` alle
+righe 1092 e 1280, lontane da queste: decide il Coordinatore. Il campo per gli
+sport senza traccia (TASK-385, Palestra) non lo aggiunge B2: lo aggiunge la
+Palestra nei file suoi, con una riga nel registro.
+
+Parte B3 (l'app): la lista va al Coordinatore dopo B2 in `main`.
 
 ## Dopo il deploy di B1 sul server (Linux x86)
 
@@ -217,3 +267,7 @@ rifiuti (`out/TASK-376/b1-main`, `b1-branch`). Poi B2 e B3.
 `__main__.py` e `anchored.py` scelgono ancora la rete con un `if` sulla
 bici: il primo sport con una rete nuova li passa a
 `OsmnxSource.for_activity`.
+
+2026-11-05: parte B1 in `main` (#763, 2026-11-04 sera), con la #758. Lista
+dei file di B2 mandata al Coordinatore (sopra, «File toccati»); il codice
+parte dal suo via.
