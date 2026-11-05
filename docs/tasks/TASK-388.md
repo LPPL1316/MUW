@@ -333,7 +333,7 @@ TASK-365); `tokens.ts` (le costanti stanno nei file nuovi).
       (TASK-358, `Attachments.test.tsx`).
 - [x] Testi invariati, nessun colore a mano, nessuna dipendenza; solo JS,
       impronta iOS `6f8bba4c` invariata.
-- [ ] Video in `out/TASK-388/c-*` e l'ok dell'utente.
+- [x] Video in `out/TASK-388/c-*` e l'ok dell'utente («Sì, approvo», 2026-11-05).
 
 ### File toccati (C)
 
@@ -370,7 +370,8 @@ giù: `Attachments.test.tsx` (la libreria dopo il foglio) e
 `out/TASK-388/c-sheet-list.mov` nella copia del simulatore, app vera senza
 banco di prova: i filtri della ricerca salgono in ~0,35 s e si fermano sul
 posto, si chiudono scendendo; i risultati «Hearts» entrano uno dopo l'altro
-(`c-sheet-frames.jpg`, `c-cascade-frames.jpg`). Aspetta l'ok dell'utente.
+(`c-sheet-frames.jpg`, `c-cascade-frames.jpg`). Approvato dall'utente il
+2026-11-05 («Sì, approvo»); merge del Coordinatore a CI verde.
 
 ## Fuori scope
 
