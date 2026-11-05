@@ -109,7 +109,7 @@ describe("«Terms» is a draft", () => {
   test.each(CONTENTS)("in «%s», with its day", (_, content) => {
     expect(content.terms.draft).toBe(true);
     expect(content.terms.updated).toMatch(
-      /^10 (October|ottobre) 2026$|^10\. Oktober 2026$|^10 de octubre de 2026$|^10 octobre 2026$/,
+      /^5 (November|novembre) 2026$|^5\. November 2026$|^5 de noviembre de 2026$/,
     );
   });
 

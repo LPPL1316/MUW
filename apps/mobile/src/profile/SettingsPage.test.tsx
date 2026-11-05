@@ -143,7 +143,17 @@ test("the notifications are three switches kept in the account, email and push o
   expect(screen.getByText("NOTIFICATIONS")).toBeOnTheScreen();
   const email = screen.getByRole("switch", { name: "Email notifications" });
   const push = screen.getByRole("switch", { name: "Push notifications" });
-  expect(screen.getAllByRole("switch")).toHaveLength(3);
+  // The three of the notifications; MuW Style's is in «Preferences» (TASK-384).
+  const notifications = [
+    "Email notifications",
+    "Push notifications",
+    "Email when I'm away",
+  ];
+  expect(
+    screen
+      .getAllByRole("switch")
+      .filter((row) => notifications.includes(row.props.accessibilityLabel)),
+  ).toHaveLength(3);
   expect(email).not.toBeChecked();
   expect(push).not.toBeChecked();
   expect(screen.getByRole("switch", { name: "Email when I'm away" })).toBeChecked();
