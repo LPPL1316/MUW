@@ -229,6 +229,10 @@ Questa PR (documenti): `docs/tasks/TASK-385.md` (nuovo),
     prop), `screens/RunNoRouteButton.tsx` (l'icona), `App.tsx` (due import,
     `<GymWorkoutHost />` e l'`onRun` della palestra), `i18n/it.ts`, `de.ts`,
     `fr.ts`, `es.ts` (i testi approvati);
+  - i test che contano gli sport, una riga ciascuno (approvati dal
+    Coordinatore dopo la lista): `settings/SportButton.test.tsx`,
+    `SportSetting.test.tsx`, `SportVoiceItalian.test.tsx`,
+    `SportStoreBuild.test.tsx`, `snowSport.test.ts`;
   - `RunEnd.tsx` esce: vuole una traccia, la palestra ha `GymEnd.tsx`. In B
     «Save» salva l'allenamento e lo mette in «My activities»; il post nel
     Feed è la parte D, le kcal e Salute la parte C.

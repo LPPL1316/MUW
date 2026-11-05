@@ -41,11 +41,12 @@ test("the tests run as Expo Go: every sport, «Paragliding» included", () => {
   expect(SPORTS.map((option) => option.id)).toContain("paragliding");
 });
 
-test("Expo Go and preview turn on the sports tried there first: the swim (TASK-323)", () => {
+test("Expo Go and preview turn on the sports tried there first: the swim (TASK-323) and the gym (TASK-385 B)", () => {
   const shown = shownSports(ALL_SPORTS, false);
   expect(shown.find((option) => option.id === "swim")?.ready).toBe(true);
+  expect(shown.find((option) => option.id === "gym")?.ready).toBe(true);
   // The others as they are.
-  for (const option of shown.filter((o) => o.id !== "swim")) {
+  for (const option of shown.filter((o) => o.id !== "swim" && o.id !== "gym")) {
     expect(option).toBe(ALL_SPORTS.find((o) => o.id === option.id));
   }
   // A store build still leaves it out, until TASK-387 is on the server.

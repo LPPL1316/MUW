@@ -81,8 +81,8 @@ test("a sport not ready says «Soon» in Italian", async () => {
   await render(<SportSetting sports={RUN_ONLY} />);
   expect(screen.getByLabelText("Bici, in arrivo")).toBeOnTheScreen();
   // Bici, Pagaia, Nuoto in acque libere (TASK-323 C), Camminata (TASK-371),
-  // Sci e Sci di fondo (TASK-375) and Parapendio (TASK-305 D0).
-  expect(screen.getAllByText("In arrivo")).toHaveLength(7);
+  // Sci e Sci di fondo (TASK-375), Palestra (TASK-385 B) and Parapendio (TASK-305 D0).
+  expect(screen.getAllByText("In arrivo")).toHaveLength(8);
   expect(screen.getByLabelText("Camminata, in arrivo")).toBeOnTheScreen();
   expect(screen.getByLabelText("Nuoto in acque libere, in arrivo")).toBeOnTheScreen();
 });
