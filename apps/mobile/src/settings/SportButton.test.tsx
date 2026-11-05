@@ -85,18 +85,22 @@ test("a sport not ready is not a choice in the menu", async () => {
   expect(screen.getAllByText("Soon")).toHaveLength(7);
 });
 
-test("in the menu «Open water swim» says «Soon» and takes no tap (TASK-323 C)", async () => {
+test("in Expo Go and preview «Open water swim» is a choice of the menu (TASK-323)", async () => {
   await render(<SportButton />);
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
-  await fireEvent.press(screen.getByLabelText("Open water swim, coming soon"));
-  expect(saveSport).not.toHaveBeenCalled();
-  expect(screen.getByRole("radio", { name: "Run" })).toBeChecked();
+  expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
+  await fireEvent.press(screen.getByRole("radio", { name: "Open water swim" }));
+  expect(saveSport).toHaveBeenCalledWith("swim");
+  expect(
+    screen.getByRole("button", { name: "Sport, Open water swim" }),
+  ).toBeOnTheScreen();
+  expect(screen.getByText("🏊")).toBeOnTheScreen();
 });
 
 test("the app's menu ends with «Paragliding» «Soon», as «Settings» (TASK-305 D0)", async () => {
   await render(<SportButton />);
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
-  expect(screen.getAllByRole("radio")).toHaveLength(3);
+  expect(screen.getAllByRole("radio")).toHaveLength(4);
   await fireEvent.press(screen.getByLabelText("Paragliding, coming soon"));
   expect(saveSport).not.toHaveBeenCalled();
   expect(screen.getByRole("radio", { name: "Run" })).toBeChecked();
