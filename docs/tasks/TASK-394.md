@@ -1,7 +1,8 @@
 # TASK-394 — I capi che indossi: tag sui propri post con il link al negozio
 
 **Stato**: Todo — proposta approvata dall'utente (2026-11-05, «Sì,
-approvo»), con le cinque scelte; prima del codice restano i testi. Le scelte
+approvo»), con le cinque scelte, e testi approvati lo stesso giorno;
+prossimo: la parte A, con l'ADR dal Coordinatore. Le scelte
 di prodotto sono dell'utente (sotto, «Le scelte dell'utente»); il resto è
 deciso dall'agente su delega dell'utente
 **Fase**: 4 · **Branch**: `docs/TASK-394-member-outfit-tags` (proposta,
@@ -308,7 +309,10 @@ con le parole dell'utente.
 ## I testi
 
 Bozze dell'agente, 2026-11-05, nelle cinque lingue (ADR-0172: nel codice la
-base è l'inglese). **Da approvare** (criteri di accettazione). Il tono segue i
+base è l'inglese). **Approvati dall'utente il 2026-11-05** («Sì, approvo
+tutti», sull'anteprima in italiano). Tornano per un sì solo la frase della
+Privacy «Pubblicità» riscritta, se la parte B esce prima di Style, e il nome
+della società di Google per Web Risk. Il tono segue i
 testi di oggi: frasi brevi, «tu», «MuW» come soggetto. «Shop on {store}» e
 «Report» ci sono già (TASK-384, TASK-121); `{store}` è il nome del negozio
 noto o il dominio. Termini e Privacy cambiano con la parte B, insieme alla
@@ -520,7 +524,7 @@ Questa PR:
 - [x] Le scelte 1–5 hanno una risposta dell'utente scritta qui
       (2026-11-05).
 - [x] Il sì dell'utente sulla proposta intera (scelta 6, 2026-11-05).
-- [ ] Il sì dell'utente sui testi nelle cinque lingue.
+- [x] Il sì dell'utente sui testi nelle cinque lingue (2026-11-05).
 
 Le parti (scritti ora, controllati con loro):
 
