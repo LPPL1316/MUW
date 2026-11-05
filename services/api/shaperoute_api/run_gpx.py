@@ -22,6 +22,8 @@ import xml.etree.ElementTree as ET
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 
+from shaperoute_api.sports import API_SPORTS
+
 GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"
 CREATOR = "MuW"
 # 7 decimals of a degree are about 1 cm, as in the route's GPX.
@@ -33,8 +35,8 @@ Span = tuple[float, float]
 """A pause, (from, to), on the clock of the fixes."""
 
 # The activities whose track says its sport in `<type>`: the walk only, its
-# GPX otherwise a run's (TASK-371).
-GPX_TYPES = {"walking": "walking"}
+# GPX otherwise a run's (TASK-371); each sport says it (TASK-376).
+GPX_TYPES = {sport.activity: sport.gpx_type for sport in API_SPORTS if sport.gpx_type}
 
 
 def gpx_type(activity: str | None) -> str | None:

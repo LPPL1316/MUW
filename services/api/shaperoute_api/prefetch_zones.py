@@ -38,6 +38,7 @@ import urllib.request
 from collections.abc import Callable, Iterable, Sequence
 from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 from typing import Literal, Protocol
 
@@ -52,6 +53,7 @@ from route_engine.stops import union
 from shaperoute_api.activity_graphs import ROAD_ACTIVITIES
 from shaperoute_api.cities import CitySearch
 from shaperoute_api.places import KEY_VARIABLE, PlaceSearch
+from shaperoute_api.sports import API_SPORTS
 from shaperoute_api.themed import search_radius_m
 from shaperoute_api.themes import THEMES
 from shaperoute_api.zone_extract import zone_from_extract
@@ -210,29 +212,49 @@ def zone_box(centre: LatLon) -> BBox:
     return union(boxes)
 
 
-def bike_zone_box(centre: LatLon) -> BBox:
-    """The area a bike route of up to 30 km from a city's centre needs, the
-    engine's far search included: every shape of the catalogue, the circle
-    the widest, about 26 x 26 km (ADR-0153). A shorter route fits it from a
-    start farther out: 20 km within about 3.4 km of the centre, 10 km within
-    6.9; a word, whose letters fold its line, needs less than a shape."""
-    return union(
-        [
-            zone_area(
-                get_shape(shape)(SHAPE_POINTS), centre, BIKE_DISTANCE_M, FAR_OFFSET_M
-            )
-            for shape in SUPPORTED_SHAPES
-        ]
-    )
+@cache
+def longest_route_box(activity: str) -> Callable[[LatLon], BBox]:
+    """The box of the area a route of `activity` up to its longest
+    (models.DISTANCE_LIMITS_M) from a city's centre needs, the engine's far
+    search included: every shape of the catalogue, the circle the widest.
+    The same function for the same activity."""
+    longest = DISTANCE_LIMITS_M[activity][1]
+
+    def box(centre: LatLon) -> BBox:
+        return union(
+            [
+                zone_area(get_shape(shape)(SHAPE_POINTS), centre, longest, FAR_OFFSET_M)
+                for shape in SUPPORTED_SHAPES
+            ]
+        )
+
+    return box
+
+
+# The area a bike route of up to 30 km from a city's centre needs: about
+# 26 x 26 km (ADR-0153). A shorter route fits it from a start farther out:
+# 20 km within about 3.4 km of the centre, 10 km within 6.9; a word, whose
+# letters fold its line, needs less than a shape.
+bike_zone_box = longest_route_box("cycling")
+
+
+def _box_of(activity: str, box: str) -> Callable[[LatLon], BBox]:
+    return zone_box if box == "explore" else longest_route_box(activity)
 
 
 # The box of each activity's zones, and whether they keep the street names
-# (ADR-0057): the bike network has the roads whose sidewalks are apart.
+# (ADR-0057): each sport on roads says them (shaperoute_api/sports,
+# TASK-376); the bike network has the roads whose sidewalks are apart.
 ZONE_BOXES: dict[str, Callable[[LatLon], BBox]] = {
-    "running": zone_box,
-    "cycling": bike_zone_box,
+    sport.activity: _box_of(sport.activity, sport.zones.box)
+    for sport in API_SPORTS
+    if sport.zones is not None
 }
-STREET_NAMES = {"running": True, "cycling": False}
+STREET_NAMES = {
+    sport.activity: sport.zones.street_names
+    for sport in API_SPORTS
+    if sport.zones is not None
+}
 
 
 def box_size_km(box: BBox) -> tuple[float, float]:
