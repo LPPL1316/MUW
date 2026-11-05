@@ -1,7 +1,8 @@
 # TASK-397 — Il VO₂ max nel profilo pubblico
 
 **Stato**: Proposto · proposta in main (#810); scelte e testi
-dell'interfaccia approvati; privacy e App Privacy da approvare; nessun
+dell'interfaccia e informativa della parte A approvati; Salute e App
+Privacy con la parte C; nessun
 codice prima del sì sulla
 proposta e della lista dei file data al Coordinatore
 **Fase**: 5 · **Branch**: `docs/TASK-397-vo2max-proposal` (documenti); il
@@ -55,12 +56,19 @@ titolare ha detto sì; si spegne in Impostazioni.
    5.1.3) per mostrare ad altri un dato di Salute.
 3. **Testi**: «Approvo così» (2026-11-05) — i testi inglesi qui sotto; le
    traduzioni in it, de, fr, es le fa l'agente con la parte B.
+4. **Informativa, parte A**: «Approvo così» (2026-11-05). Sotto i record
+   personali, app e sito: «If you choose «Show it», other members also see
+   your VO₂ max on your profile. Until Apple Health comes in a later update,
+   it is our estimate from your running bests of the last 12 months, worked
+   out by our server. Turn it off in Settings and it disappears from your
+   profile.» Le traduzioni le fa l'agente; il sito lo pubblica il
+   Coordinatore col sì dell'utente.
 
 ## Domande aperte (ognuna col sì dell'utente)
 
-1. **La riga dell'informativa** (app e sito) e la voce «Health» di App
-   Privacy: con la parte A per la stima, con la parte C per il valore di
-   Salute.
+1. **L'informativa per Salute** (cosa si legge, cosa va al server, la
+   cancellazione allo spegnimento) e la voce «Health» di App Privacy: con la
+   parte C, nella 1.0.2.
 2. **Il testo nuovo di `NSHealthShareUsageDescription`**: uno solo per
    battito (345 C), dati del corpo (374 C) e VO₂ max, scritto con quei due
    task.
