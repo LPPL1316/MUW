@@ -112,6 +112,10 @@ Una alla volta, ciascuna con la proposta dell'agente:
 
 1. **Nome ed emoji** (2026-11-05): «Hike» ⛰️. La proposta era «Hike» 🥾;
    l'utente ha scelto la montagna.
+2. **La rete** (2026-11-05): la rete a piedi della corsa senza le strade
+   delle auto (niente `trunk`, `primary`, `secondary`, `tertiary`) e senza
+   sentieri oltre `sac_scale` T3, come la proposta. È `outdoor` di
+   `hike.md`: 46 forme su 54 sulle sei zone.
 
 ## Criteri di accettazione
 
