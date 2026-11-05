@@ -268,7 +268,8 @@ con le parole dell'utente.
    degli iscritti; la proposta resta com'è.
 3. **Il link è obbligatorio?** Proposta: no. Tipo e marca sì; modello e link
    facoltativi: «Nike, scarpe» senza link risponde già a «che scarpe sono?».
-   — *Risposta*: da chiedere.
+   — *Risposta* (2026-11-05): «No, facoltativo». Tipo e marca obbligatori,
+   modello e link facoltativi; senza link la scheda non ha «Shop».
 4. **Come si vedono i puntini.** Proposta: nascosti, con l'icona della
    gruccia nell'angolo; un tocco sulla foto li mostra. Alternativa: sempre
    visibili, come in Style.
