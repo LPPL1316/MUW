@@ -22406,6 +22406,25 @@ quello dell'allungamento. Ora:
    lasciata, e `TabShell` tiene `drag` a 0 finché un dito non riprende la
    striscia, così il resto dello scorrimento non la sposta.
 Impronta iOS invariata (6f8bba4c), nessuna dipendenza.
+
+**Parte B, l'isola (2026-11-05, deciso dall'agente su delega dell'utente)**:
+1. **Solo `scaleX`/`scaleY` e opacità** su una sola capsula (`color.scrim`,
+   parole in `onScrim`: scura in tutti e due i temi, come quella di iOS).
+   Nasce al 30% della larghezza e al 75% dell'altezza; ogni passo parte 120
+   ms dopo il precedente (larghezza, altezza, parole), tutto sulla molla
+   `island`; resta 1,8 s, poi si chiude nell'ordine inverso. Le molle non
+   aspettano la fine della precedente: in sequenza la coda di ognuna
+   rallenterebbe tutto.
+2. **Qualcosa di nuovo detto mentre è aperta** cambia le parole e fa
+   ripartire il tempo, senza chiudere e riaprire: le molle partono da dove
+   sono.
+3. **Un solo punto, scelto dall'agente**: «Sent to {name}.» di «Send to a
+   friend», una conferma breve dopo un gesto, il caso tipico dell'isola. I
+   problemi restano scritti sopra la lista. Dentro un `Modal` l'isola va nel
+   `Modal` (`useIsland` restituisce l'elemento da mettere per ultimo).
+4. Durata e misure sono costanti di `Island.tsx`, non in `tokens.ts`, che
+   altri task stanno toccando.
+Scartato: un'isola sola in cima all'app (sotto un `Modal` non si vede).
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
 **Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente

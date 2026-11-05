@@ -188,6 +188,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   allungamento, capsula e icona che partono al tocco invece che dopo la
   pagina, nessun salto se tocco e swipe si sovrappongono. Impronta 6f8bba4c.
   Video in `out/TASK-388/a2-*`; merge del Coordinatore dopo l'ok dell'utente.
+  **A2 in `main`** (#780, 07d5833c, 2026-11-05); l'anteprima sul telefono la
+  pubblica il Coordinatore.
+  **Parte B, l'isola** (2026-11-05, branch `feat/TASK-388-b-island`):
+  `src/ui/Island.tsx` e `useIsland`, una capsula scura in alto che si allarga,
+  poi si alza, mostra le parole e si richiude, con la molla `island`; con
+  «Riduci movimento» solo una dissolvenza. Collegata a un solo punto:
+  «Sent to {name}.» di «Send to a friend» (`SendToFriend`); dove altro
+  usarla lo decide l'utente. Impronta 6f8bba4c. Video in `out/TASK-388/b-*`.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia

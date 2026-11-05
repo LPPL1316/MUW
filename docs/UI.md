@@ -601,6 +601,13 @@ pieno in dissolvenza. Una vibrazione leggera solo quando un tocco cambia scheda.
 «Riduci movimento» la capsula compare in dissolvenza dove va, le icone
 solo sfumano.
 
+**L'isola** (TASK-388 B, `src/ui/Island.tsx`): una capsula scura in alto al
+centro per una parola breve dopo un gesto, come la Dynamic Island. Nasce
+piccola, si allarga, poi si alza; le parole compaiono quando è aperta,
+restano un attimo, poi va via nello stesso modo. Non prende i tocchi. Con
+«Riduci movimento» compare e sparisce solo in dissolvenza. Oggi la usa solo
+«Sent to {name}.» di «Send to a friend»; dove altro, lo decide l'utente.
+
 **Un header uguale su tutte le pagine**: il cuore giallo e «MuW» a
 sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
 (lo dice la barra). **La campanella** (parte C) sta a destra, prima dello
