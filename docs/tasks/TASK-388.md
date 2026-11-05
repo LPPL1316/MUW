@@ -400,7 +400,8 @@ li tocca. Branch `fix/TASK-388-c3-style-sheet` da `main`.
 - [x] Il tocco fuori chiude; il post lo sa a foglio giù
       (`StylePost.test.tsx`).
 - [x] Solo JS, impronta `6f8bba4c` invariata; testi invariati.
-- [ ] Video in `out/TASK-388/c3-*` e l'ok dell'utente.
+- [x] Video in `out/TASK-388/c3-*` e l'ok dell'utente: «Sì, approvo»,
+      2026-11-05.
 
 ### File toccati (C3)
 
@@ -420,4 +421,5 @@ docs/UI.md
 Style di prova sulla ricerca (solo nella copia, tolto dopo: il Feed lì non
 carica senza API): il foglio sale in ~0,35 s e si ferma senza rimbalzo, il
 tocco fuori lo fa scendere (`c3-open-frames.jpg`, `c3-close-frames.jpg`).
-Aspetta l'ok dell'utente.
+Approvato dall'utente il 2026-11-05 («Sì, approvo»); merge del Coordinatore
+a CI verde, dopo la #811.
