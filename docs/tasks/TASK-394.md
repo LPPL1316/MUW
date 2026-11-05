@@ -312,8 +312,10 @@ Bozze dell'agente, 2026-11-05, nelle cinque lingue (ADR-0172: nel codice la
 base è l'inglese). **Approvati dall'utente il 2026-11-05** («Sì, approvo
 tutti», sull'anteprima in italiano). Anche la variante della Privacy
 «Pubblicità» per una parte B che esce prima di Style (D.2b) è approvata, lo
-stesso giorno («SI APPROVO»). Torna per un sì solo il nome della società di
-Google per Web Risk. Il tono segue i
+stesso giorno («SI APPROVO»). Per il nome della società di Google che fa Web
+Risk l'utente ha dato il sì in anticipo (2026-11-05, «OK SI»): lo si copia dal
+contratto di Google Cloud quando l'utente lo attiva, senza un'altra domanda
+(D.4). Il tono segue i
 testi di oggi: frasi brevi, «tu», «MuW» come soggetto. «Shop on {store}» e
 «Report» ci sono già (TASK-384, TASK-121); `{store}` è il nome del negozio
 noto o il dominio. Termini e Privacy cambiano con la parte B, insieme alla
@@ -453,7 +455,8 @@ merge, e il sito la riprende.
    - ES: Cuando denuncias un dibujo, una prenda etiquetada, un comentario o un perfil, …
 4. **«Chi altro riceve dati»**, un punto in più (la società di Google che
    firma il contratto di Web Risk si scrive quando l'utente lo attiva, come
-   «Google Ireland Limited» per Firebase):
+   «Google Ireland Limited» per Firebase: «Google» diventa quel nome, copiato
+   dal contratto; sì anticipato dell'utente, 2026-11-05, «OK SI»):
    - EN: Google, with its Web Risk service, receives from our server parts of the fingerprint (hash) of some links that members add to their items, to check that they do not lead to dangerous sites: never the whole link, nor who added it or who opens it.
    - IT: Google, con il suo servizio Web Risk, riceve dal nostro server pezzi dell'impronta (hash) di alcuni link che gli iscritti mettono sui loro capi, per controllare che non portino a siti pericolosi: mai il link intero, né chi l'ha messo o chi lo apre.
    - DE: Google erhält mit seinem Dienst Web Risk von unserem Server Teile des Fingerabdrucks (Hash) mancher Links, die Mitglieder an ihre Teile setzen, um zu prüfen, dass sie nicht zu gefährlichen Seiten führen: nie den ganzen Link, und nie, wer ihn gesetzt hat oder wer ihn öffnet.
