@@ -2868,6 +2868,18 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   ridisegno sul server.
   **Chiuso il 2026-11-05**: #807 in main (`325f7d56`); vedi «Completato».
 
+- **TASK-398 — «town cat 5000» rosso in CI: l'immagine ubuntu-26.04, non la
+  ricerca** (2026-11-05; numero dal Coordinatore). Il test cadeva su main e su
+  ogni PR con `d080e87a95000aa5`: dalle 16:00Z `ubuntu-latest` è ubuntu-26.04,
+  e lì lo stesso codice, con lo stesso Python e le stesse librerie, dà un altro
+  digest (42/42 run verdi su 24.04, 3/3 rossi su 26.04). Niente budget a tempo
+  (è un numero di tracce), niente ordine di hash. Il digest di 26.04 entra
+  nella tupla di «town cat 5000», come per «town heart 5000»; `route_engine`
+  non si tocca, impronta ferma. Rischio da guardare, senza azione: il server
+  su un Ubuntu più nuovo potrebbe disegnare di un soffio diverso. Branch
+  `fix/TASK-398-flaky-cat-search`; la unisce il Coordinatore a CI verde.
+  `tasks/TASK-398.md`.
+
 ## Completato
 
 - **TASK-395 — La ricerca non divide più per zero quando un percorso non disegna niente**
