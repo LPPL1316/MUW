@@ -190,6 +190,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la tastiera. Si tiene sempre in kg e cm. Branch `fix/TASK-383-body-units`;
   la unisce il Coordinatore a CI verde; OTA col sì dell'utente. Solo app,
   nessun testo nuovo. `tasks/TASK-383.md`.
+  **Chiuso il 2026-11-05**: #759 in main (`a5c1d5b2`); vedi «Completato».
 
 - **TASK-384 — «MuW Style»: post con modelli AI in outfit sportivi e tag «Shop»**
   (2026-11-04; numero dal Coordinatore, ADR-0326). Proposta in `docs/STYLE.md`, solo documenti;
@@ -2659,6 +2660,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
+  (2026-11-04; seguito di TASK-374 A). #759 in main (`a5c1d5b2`): «kg» e «cm», con le miglia
+  «lb», «ft» e «in», stanno nel riquadro dopo il numero; un tocco sull'unità apre la tastiera.
+  Si tiene sempre in kg e cm. Solo JS, impronta dal Coordinatore con l'anteprima; in produzione
+  con il prossimo OTA del Coordinatore, dopo il server 0043–0046. `tasks/TASK-383.md`.
 - **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
   (2026-11-05; seguito di TASK-369 B). #767 in main (830a147e): `mapdraw/sentOutline.ts`
   controlla il contorno arrotondato con la regola del motore e ne toglie gli angoli che si
