@@ -20,6 +20,7 @@ import { EnterSwitch } from "../contest/EnterSwitch";
 import { t, tLater } from "../i18n";
 import type { ImageSource } from "../route/pickImage";
 import { activityOffered } from "../settings/sport";
+import { profileOf } from "../sports";
 import {
   color,
   fontSize,
@@ -75,24 +76,10 @@ export function waitingText(visibility: Visibility): string {
     : t("Saved on the phone. Others see it when you are back online.");
 }
 
-/** What a run was, as a word: a day on the snow by its sport (TASK-375). */
+/** What a run was, as a word: a day on the snow by its sport (TASK-375),
+ * the name each sport says in src/sports (TASK-376 part B3c). */
 export function activityName(activity: RunActivity): string {
-  switch (activity) {
-    case "running":
-      return t("Run");
-    case "cycling":
-      return t("Bike");
-    case "paddling":
-      return t("Paddle");
-    case "swimming":
-      return t("Open water swim");
-    case "walking":
-      return t("Walk");
-    case "skiing":
-      return t("Ski");
-    case "xc_skiing":
-      return t("Cross-country ski");
-  }
+  return t(profileOf(activity).name);
 }
 
 /** The first empty place for a photo, 1 to DRAWING_MAX_PHOTOS; null when
