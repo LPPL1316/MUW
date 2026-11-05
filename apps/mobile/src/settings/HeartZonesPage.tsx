@@ -1,6 +1,7 @@
-import { useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import {
   Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -228,12 +229,15 @@ function BpmField({ label, shown, range, byHand, caption, onKeep }: BpmFieldProp
           </Tap>
         )}
       </View>
-      <BpmInput
-        value={text ?? (shown === null ? "" : String(shown))}
-        onChangeText={setText}
-        onEndEditing={done}
-        accessibilityLabel={label}
-      />
+      {/* In a row, so the box is as wide as what it holds. */}
+      <View style={styles.boxRow}>
+        <BpmInput
+          value={text ?? (shown === null ? "" : String(shown))}
+          onChangeText={setText}
+          onEndEditing={done}
+          accessibilityLabel={label}
+        />
+      </View>
       {caption !== null && <Text style={styles.caption}>{caption}</Text>}
       {problem !== null && (
         <Text style={styles.problem} accessibilityLiveRegion="polite">
@@ -244,11 +248,19 @@ function BpmField({ label, shown, range, byHand, caption, onKeep }: BpmFieldProp
   );
 }
 
-/** A box for beats a minute, with «bpm» after it. */
+/** A box for beats a minute, with «bpm» inside it after the number
+ * (TASK-386, as «Body» has it since TASK-383): a tap anywhere in the box,
+ * «bpm» too, types in it. */
 function BpmInput(input: TextInputProps) {
+  const ref = useRef<TextInput>(null);
   return (
-    <View style={styles.inputRow}>
+    <Pressable
+      style={styles.box}
+      onPress={() => ref.current?.focus()}
+      accessible={false}
+    >
       <TextInput
+        ref={ref}
         style={styles.input}
         placeholderTextColor={color.textFaint}
         keyboardAppearance="dark"
@@ -258,7 +270,7 @@ function BpmInput(input: TextInputProps) {
         {...input}
       />
       <Text style={styles.unit}>bpm</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -294,7 +306,9 @@ function ZoneRow({ zone, zones, heart }: ZoneRowProps) {
       <Text style={styles.zoneName}>{name}</Text>
       <Text style={styles.zoneFrom}>{`${zone.fromBpm} –`}</Text>
       {last ? (
-        <View style={styles.inputRow}>
+        // Not typed: no frame, but the number and «bpm» where the boxes
+        // above have them.
+        <View style={styles.fixedBox}>
           <Text style={styles.zoneTop}>{zone.toBpm}</Text>
           <Text style={styles.unit}>bpm</Text>
         </View>
@@ -309,6 +323,9 @@ function ZoneRow({ zone, zones, heart }: ZoneRowProps) {
     </View>
   );
 }
+
+/** The boxes' border, which the frameless top of zone 5 makes up for. */
+const BOX_BORDER = 1;
 
 const styles = StyleSheet.create({
   page: {
@@ -368,26 +385,40 @@ const styles = StyleSheet.create({
     fontSize: fontSize.body,
     fontWeight: fontWeight.semibold,
   },
-  inputRow: {
+  boxRow: {
+    flexDirection: "row",
+  },
+  box: {
+    minWidth: 120,
+    minHeight: MIN_TAP_SIZE,
     flexDirection: "row",
     alignItems: "center",
     gap: space.sm,
-  },
-  input: {
-    minWidth: 80,
-    minHeight: MIN_TAP_SIZE,
-    borderWidth: 1,
+    borderWidth: BOX_BORDER,
     borderColor: color.border,
     borderRadius: radius.md,
     paddingHorizontal: space.md,
+    backgroundColor: color.surface,
+  },
+  fixedBox: {
+    minWidth: 120,
+    minHeight: MIN_TAP_SIZE,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.sm,
+    paddingHorizontal: space.md + BOX_BORDER,
+  },
+  input: {
+    flexGrow: 1,
+    minWidth: 48,
+    minHeight: MIN_TAP_SIZE,
     paddingVertical: space.sm,
     fontSize: fontSize.input,
     color: color.text,
-    backgroundColor: color.surface,
   },
   unit: {
     color: color.textMuted,
-    fontSize: fontSize.body,
+    fontSize: fontSize.input,
   },
   caption: {
     color: color.textMuted,
@@ -422,8 +453,8 @@ const styles = StyleSheet.create({
     fontSize: fontSize.body,
   },
   zoneTop: {
-    minWidth: 80,
-    paddingHorizontal: space.md,
+    flexGrow: 1,
+    minWidth: 48,
     color: color.text,
     fontSize: fontSize.input,
   },
