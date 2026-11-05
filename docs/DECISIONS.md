@@ -23138,3 +23138,52 @@ cambiarla avrebbe allargato il task a un file di tutti.
 una sottoquery (`vo2max_sql`) e l'orologio degli account (`Profiles.now`).
 
 ---
+
+## ADR-0314 — L'app per Apple Watch: Swift nativo, tutti gli sport, anche senza telefono
+
+**Stato**: Proposto · 2026-11-05 · TASK-370. Scelta di prodotto
+dell'utente (punto 1); il resto deciso dall'agente su delega dell'utente,
+da confermare con le scelte ancora aperte del task.
+
+**Contesto**: l'utente vuole un'app per Apple Watch «completa per tutti gli
+sport» e, alla domanda sulla prima versione, ha scelto «Subito anche senza
+telefono». Oggi la guida (svolte, fuori rotta, rientro) è JavaScript sul
+telefono; React Native non gira su watchOS; un OTA non arriva al codice
+dell'orologio.
+
+**Decisione**:
+1. **Prima versione anche senza telefono** (utente): l'orologio porta
+   percorsi già decisi, li segue, registra col suo GPS e salva in Salute; la
+   traccia passa al telefono quando torna vicino.
+2. **L'orologio non disegna percorsi**: il Route Engine resta sul telefono e
+   sul server. Disegnare dall'orologio (cellular + API) è fuori dalla prima
+   versione.
+3. **App nativa SwiftUI** (watchOS 10+) come target dell'app con
+   `@bacons/apple-targets`; il ponte con `react-native-watch-connectivity`.
+   Le due dipendenze hanno il sì dell'utente del 2026-10-30 (TASK-323 E).
+4. **La guida riscritta in Swift** (`WatchGuide`, puro) e tenuta uguale al
+   TypeScript con gli stessi fixture JSON di `navigation/fixtures/`, verdi
+   in jest e in XCTest.
+5. **Un'attività, un allenamento** (TASK-321): se registra l'orologio, è lui
+   a salvare l'allenamento in Salute; il telefono non lo riscrive. Il
+   battito in tempo reale arriva al telefono col mirroring di
+   `HKWorkoutSession`.
+6. **Gli sport dell'orologio vengono dal registro** `src/sports/`, con un
+   test che tiene uguali le due liste.
+7. **Assorbe TASK-323 E** e il battito in tempo reale rimandato da TASK-169
+   e TASK-374.
+8. **La build**: una sua, la **1.1**, dopo la 1.0.2 (scelta dell'utente del
+   2026-11-05, «Build sua, la 1.1»).
+
+**Alternative**:
+- **Prima col telefono, poi da solo**: meno lavoro all'inizio, scartata
+  dall'utente.
+- **Solo battito e comandi**: troppo poco rispetto a «completa».
+- **Guida calcolata sul telefono e mandata all'orologio**: non funziona
+  senza telefono.
+
+**Conseguenze**: due copie della logica di guida (TypeScript e Swift),
+legate dai fixture; ogni correzione all'orologio richiede una build per
+l'App Store; serve un Apple Watch vero per le prove.
+
+---
