@@ -64,6 +64,27 @@ tutto: è corto apposta.
   si tiene fuori dall'impronta (`WALK_ONLY`, come `ANCHORED_ONLY`,
   `DRAWN_WATER_ONLY`): la camminata è entrata senza ridisegnare nulla.
 
+## Il contratto e l'API
+
+- **2026-11-05, TASK-376 B2 — i registri del contratto e dell'API.** Uno
+  sport è un file di `packages/shared-types/src/sports/` (nome e distanze,
+  o `recordOnly`) e uno di `services/api/shaperoute_api/sports/` (`ApiSport`:
+  tipo Strava, frase della descrizione, zone in memoria e box di prefetch se
+  va su strada, record personali, `<type>` del GPX); una riga in ciascun
+  `index.ts` / `__init__.py`. `index.ts`, `strava.py`, `activity_graphs.py`,
+  `personal_bests.py`, `activities.py`, `prefetch_zones.py`, `run_gpx.py` e
+  `schemas.py` ne ricavano le tabelle di prima, nello stesso ordine.
+- **Il contratto importa valori con l'estensione `.ts`** (lo vuole `node
+  --test`): l'app compila solo con `allowImportingTsExtensions` nel suo
+  tsconfig (B2). Metro e jest risolvono il percorso esatto.
+- **I moduli `shaperoute_api/sports/` vanno sul telefono** (li importano
+  `activity_graphs.py` e `schemas.py`, dentro `engine.zip`): niente
+  database, niente fastapi, e lo zip si rifà quando cambiano
+  (`python tools/phone_engine/phone_engine.py engine`).
+- **I `Literal` restano scritti a mano** (`RunActivity`, `personal_bests.Sport`):
+  un tipo non si ricava da una tupla in Python. Uno sport nuovo li allunga di
+  un nome; `test_sport_registry_api.py` dice quando non coincidono.
+
 ## Il banco e Overpass
 
 - **2026-11-04, TASK-376 — Overpass rifiuta spesso** (502 «pieno», 429

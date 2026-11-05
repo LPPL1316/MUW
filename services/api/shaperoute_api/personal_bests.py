@@ -28,69 +28,27 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Literal, Protocol, cast
 
 import numpy as np
 from psycopg import Connection
 from psycopg.rows import DictRow
 from route_engine.track_score import TrackPoint
 
+from shaperoute_api.sports import API_SPORTS
+from shaperoute_api.sports.base import Distance, SportBests
+from shaperoute_api.sports.cycling import BY_BIKE, BY_BIKE_KMH  # noqa: F401
+from shaperoute_api.sports.running import ON_FOOT  # noqa: F401
+
 Sport = Literal["running", "cycling"]
 
-
-@dataclass(frozen=True)
-class Distance:
-    name: str
-    """What the app names it with: 5k, half, marathon, 160k."""
-    metres: float
-    record_s: int
-    """The fastest time anyone ever made over it, rounded down: a time
-    faster than this is not believed."""
-
-
-@dataclass(frozen=True)
-class SportBests:
-    max_step_kmh: float
-    distances: tuple[Distance, ...]
-
-
-def _at_speed(metres: float, kmh: float) -> int:
-    return int(metres / (kmh / 3.6))
-
-
-# On foot (the user's choice 1). The men's records, World Athletics, as of
-# 2026-11: 5000 m 12:35.36 (Cheptegei, 2020), 10,000 m 26:11.00 (Cheptegei,
-# 2020), half marathon 56:42 (Kiplimo, 2025), marathon 2:00:35 (Kiptum,
-# 2023). No record is kept over 15, 30 and 60 km: the floor is a round time
-# under what the best ever ran there on the way to a longer race. Rounded
-# down, a floor never refuses a true time.
-ON_FOOT = SportBests(
-    max_step_kmh=25,
-    distances=(
-        Distance("5k", 5_000, 755),
-        Distance("10k", 10_000, 1_571),
-        Distance("15k", 15_000, 40 * 60),
-        Distance("half", 21_097.5, 3_402),
-        Distance("30k", 30_000, 85 * 60),
-        Distance("marathon", 42_195, 7_235),
-        Distance("60k", 60_000, 180 * 60),
-    ),
-)
-
-# By bike (the user's choice 3). No road record is kept over these
-# distances, and a descent goes faster than the hour record (56.792 km,
-# Ganna, 2022): the floor is the speed of a jump of the GPS, 90 km/h
-# throughout (decided by the agent on the user's behalf, ADR-0312).
-BY_BIKE_KMH = 90
-BY_BIKE = SportBests(
-    max_step_kmh=BY_BIKE_KMH,
-    distances=tuple(
-        Distance(f"{km}k", km * 1_000, _at_speed(km * 1_000, BY_BIKE_KMH))
-        for km in (10, 20, 40, 50, 100, 160)
-    ),
-)
-
-SPORTS: dict[Sport, SportBests] = {"running": ON_FOOT, "cycling": BY_BIKE}
+# The bests of each sport that has them, in the order of the sports
+# (shaperoute_api/sports, TASK-376): the rules of each are in its file.
+SPORTS: dict[Sport, SportBests] = {
+    cast(Sport, sport.activity): sport.bests
+    for sport in API_SPORTS
+    if sport.bests is not None
+}
 
 EARTH_RADIUS_M = 6_371_008.8
 # A run whose metres round to the distance covers it, as distance_m rounds
