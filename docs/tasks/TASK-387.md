@@ -1,7 +1,8 @@
 # TASK-387 — Le app vecchie non ricevono le attività che non sanno leggere
 
-**Stato**: In lavorazione · 2026-11-05
-**Fase**: 4 · **Branch**: `feat/TASK-387-reads-guard`
+**Stato**: Done · 2026-11-05
+**Fase**: 4 · **Branch**: `feat/TASK-387-reads-guard` (#794), chiusura
+`docs/TASK-387-close`
 **Numeri**: TASK-387 e ADR-0328, assegnati dal Coordinatore. Richiesta
 dell'utente del 2026-11-04: «sì protezione».
 
@@ -64,7 +65,7 @@ commenti, le push, i conteggi del profilo.
       (un test per lato).
 - [x] Test dei file toccati, `ruff`, `black`, `tsc` verdi in locale
       (2026-11-05: 320 + 105 + 73 test dell'API, 307 di `src/api` nell'app).
-- [ ] CI verde.
+- [x] CI verde (#794, unita dal Coordinatore il 2026-11-05).
 
 ## File toccati
 
@@ -99,6 +100,17 @@ apps/mobile/src/api/reads.test.ts                   (nuovo)
 apps/mobile/src/api/accounts.ts
 apps/mobile/src/api/accounts.test.ts
 ```
+
+## Esito
+
+**Fatto il 2026-11-05**: #794 in `main` (`bf02766f`), unita dal Coordinatore
+prima della #781 di TASK-390, che lui ha riallineato (i test di drawings e
+reads insieme passano). Nessuna migrazione, nessun testo nuovo, solo JS
+nell'app: impronta iOS invariata. Restano il server, poi l'OTA con l'header,
+poi il nuoto (#765), del Coordinatore col sì dell'utente. Uno sport nuovo
+aggiunge un valore in `reads.py`, `fixtures/reads.json` e `src/api/reads.ts`
+(ADR-0328, «Conseguenze»); la palestra di TASK-385 vorrà `gym` e
+`trackless`.
 
 ## Dopo il merge (del Coordinatore, col sì dell'utente)
 
