@@ -68,6 +68,7 @@ from shaperoute_api.follows import install_follows
 from shaperoute_api.game import install_game
 from shaperoute_api.graphs import MapDataUnavailableError
 from shaperoute_api.group_runs import install_group_runs
+from shaperoute_api.gym_sessions import install_gym_sessions
 from shaperoute_api.images import (
     AnyRequest,
     ImageRequest,
@@ -363,6 +364,9 @@ def create_app(
     # The runs an account publishes as drawings, cut for the others
     # (TASK-117); they need a token.
     install_drawings(app)
+    # The workouts at the gym, saved without a track, and their sets
+    # (TASK-385); they need a token.
+    install_gym_sessions(app)
     # Up to three photos of a drawing, besides its map (TASK-208); they need
     # a token.
     install_drawing_photos(app)

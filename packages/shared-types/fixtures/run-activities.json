@@ -1,5 +1,6 @@
 {
   "record_activities": ["skiing", "xc_skiing"],
+  "trackless_activities": ["gym"],
   "run_activities": [
     "running",
     "cycling",

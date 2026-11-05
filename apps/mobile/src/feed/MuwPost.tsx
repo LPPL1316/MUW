@@ -16,20 +16,15 @@ import {
 import { Tap } from "../ui/Tap";
 import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
-import { muwLabel, muwTitle } from "./muwLabel";
+import { muwLabel, muwSport, muwTitle } from "./muwLabel";
 
 const FEET_IN_A_METRE = 3.28084;
 
-/** The sport of the route, with its emoji, in the app's words. */
+/** The sport of the route, with its emoji, in the app's words: a ride's
+ * for a sport that has no MuW label of its own (muwSport). */
 function sport(activity: string): string {
-  switch (activity) {
-    case "running":
-      return `🏃‍♂️ ${t("Run")}`;
-    case "paddling":
-      return `🛶 ${t("Paddle")}`;
-    default:
-      return `🚴 ${t("Bike")}`;
-  }
+  const { emoji, name } = muwSport(activity);
+  return `${emoji} ${t(name)}`;
 }
 
 type Props = {
@@ -56,7 +51,8 @@ export function MuwPost({ route, width, onOpen }: Props) {
       ? `↑ ${Math.round(route.climb_m * FEET_IN_A_METRE)} ft`
       : `↑ ${route.climb_m} m`;
   const facts = [sport(route.activity), distanceLabel(route.route_m, units)];
-  if (route.activity !== "paddling") {
+  // No climb on the water.
+  if (muwSport(route.activity).onWater !== true) {
     facts.push(climb);
   }
   const thumb = width - 2 * space.md;

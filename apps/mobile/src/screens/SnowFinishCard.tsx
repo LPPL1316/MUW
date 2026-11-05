@@ -7,6 +7,7 @@ import { t } from "../i18n";
 import type { FreeRun } from "../navigation/freeRun";
 import { postOfTrack } from "../share/postRun";
 import { SharePostButton } from "../share/SharePost";
+import { profileOf } from "../sports";
 import {
   color,
   fontSize,
@@ -56,7 +57,8 @@ export function SnowFinishCard({ run, activity, onResume, onDone }: Props) {
   // The time, the pace and the metres climbed as a run's.
   const numbers = useRunNumbers(track, false);
   const day = useMemo(() => snowDay(track), [track]);
-  const skiing = activity === "skiing";
+  // Downhill the metres skied, lifts left out (src/sports).
+  const skiing = profileOf(activity).skied === true;
   const total = runDistanceLabel(skiing ? day.skiedM : track.distanceM, numbers.units);
   const speed = speedUnit(numbers.units);
   return (

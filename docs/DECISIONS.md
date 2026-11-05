@@ -22034,6 +22034,61 @@ dell'utente):
     giornata senza impianti trovati, perché non conosce la traccia: è un
     caso raro, e non mostra niente di sbagliato. In `App.tsx` ci sono solo
     il campo `lifts` di `FreeFinished` e il prop di `MapView`.
+11. (D1, 2026-11-05; le scelte sono dell'utente: «Nel post, per tutti» e
+    «Tutte le Alpi»; il modo è deciso dall'agente su delega dell'utente) I
+    nomi di impianti e piste vengono dagli estratti Geofabrik di Italia,
+    Austria, Svizzera, Francia, Germania e Slovenia, non da Overpass
+    (ADR-0154). Il filtro è `osmium tags-filter w/aerialway
+    nwr/piste:type=downhill`. `ski_extract.py` scrive le linee in riquadri
+    di 0,25° in `cache/ski/`, uniti estratto dopo estratto, così un
+    impianto di confine resta uno solo. `ski_names.py` confronta la traccia
+    con quelle linee, in metri, sul server:
+    - **una risalita** è un tratto entro 30 m da un impianto che lo percorre
+      dal basso in alto, come OSM disegna gli impianti, per almeno il 60%
+      della sua lunghezza. Fra due impianti vicini la prende il più vicino;
+      un impianto con stazione intermedia conta una sola volta;
+    - **una pista** si conta dopo 150 m fuori dagli impianti, entro 30 m da
+      una pista con quel nome. Una pista fatta di più vie è un nome solo, e
+      tre punti di GPS lontani non la spezzano;
+    - **senza nome:** le piste senza nome non si contano; gli impianti senza
+      nome restano, con il loro tipo.
+
+    Una giornata di 8.000 punti contro 2.000 linee richiede 0,19 s: con D2
+    il risultato si scrive una volta in `runs` (migrazione 0048, riservata),
+    invece di ricalcolarlo a ogni lettura del Feed.
+12. (D2, 2026-11-05; il modo è deciso dall'agente su delega dell'utente, la
+    rotta a parte d'accordo con il Coordinatore) I nomi si scrivono in
+    `runs.ski_names` (0048) quando si salva una giornata `skiing`, e una
+    volta sola: i riquadri nuovi non cambiano le giornate già salvate. Gli
+    impianti senza nome non si scrivono.
+
+    Il post li dà con una rotta sua, `GET /drawings/{id}/ski-names`, e non
+    con un campo del dettaglio. Così `DrawingDetail`, la sua fixture e la
+    decina di test dell'app che la leggono restano come sono, e
+    `drawings.py` non si tocca. La rotta vede ciò che vede il dettaglio: chi
+    può aprire il post (`drawing_seen_sql`) e solo un'app che legge lo sci
+    (`X-MuW-Reads`, ADR-0328); negli altri casi risponde `404`. Un'altra
+    attività e una giornata senza nomi danno due elenchi vuoti. Il server
+    trova i riquadri nella sua cache (`install_ski_names` in
+    `__main__.py`); senza i riquadri, la giornata si salva senza nomi.
+13. (D3, 2026-11-05; i testi e la riga della privacy sono dell'utente,
+    approvati con «Sì, approvati» e «Sì, approvata», il modo è deciso
+    dall'agente su delega dell'utente) Il post di una giornata di sci
+    (`skiing`) chiede i nomi quando si apre, e li mostra sotto la
+    descrizione e i tag: il titolo «Lifts and pistes», poi una riga
+    «{name} ×{times}» per ogni impianto e per ogni pista. VoiceOver legge
+    «{name}, {times} times» oppure «{name}, once», perché «×» non si legge
+    «volte».
+
+    Mentre i nomi arrivano non si vede niente, e niente si vede neanche in
+    una giornata senza nomi o se la rete non risponde: un elenco vuoto o un
+    errore non dicono niente a chi guarda. Il fondo e gli altri sport non
+    chiedono niente. La richiesta passa dalla porta dei post
+    (`skiNamesOf`), l'unico punto che ha l'account dentro la scheda, così
+    `App.tsx` resta com'è.
+
+    La riga della privacy approvata chiude la sezione sulle corse e le
+    tracce GPS, nell'app e nelle pagine del sito, che si rigenerano da lì.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
@@ -22791,6 +22846,66 @@ prima della B.
 
 ---
 
+## ADR-0327, precisazione — La parte A: dove sta la palestra nel server e nei tipi
+
+**Stato**: Attiva · 2026-11-05 · TASK-385 parte A, decisa dall'agente su
+delega dell'utente; lista dei file approvata dal Coordinatore.
+
+**Decisione**:
+
+1. **Un endpoint suo**, `PUT /me/gym-sessions/{key}`, invece di
+   `PUT /me/activities/{key}`: quello vuole una traccia di almeno due punti
+   e ci costruisce sopra metri, punteggio, record e gioco. Lì `activity:
+   "gym"` è `422`. La corsa senza traccia ha `distance_m` 0 e nessun luogo.
+2. **Il CHECK dei disegni** non può leggere la corsa: invece di un trigger,
+   una colonna `drawings.trackless` che l'API mette vera pubblicando una
+   corsa senza traccia; il CHECK accetta un disegno visibile senza traccia
+   solo se è `trackless`, e un `trackless` non ha traccia.
+3. **I tipi**: nel server `gym` entra in `RunActivity` e nel registro degli
+   sport (`ApiSport.trackless`); in `shared-types` sta in un gruppo suo,
+   `TRACKLESS_SPORTS` / `TRACKLESS_ACTIVITIES`, **fuori** da
+   `RUN_ACTIVITIES` fino alla parte B0. Dentro, l'app di oggi manderebbe
+   `gym` in `X-MuW-Reads` (`reads.ts` lo ricava da lì) e romperebbero le due
+   mappe di Salute (`Record<RunActivity, …>`) e i profili degli sport di
+   TASK-376 B3: la B0 lo sposta con quelle righe.
+4. **Strava** risponde `422 invalid_request` a una palestra, senza un codice
+   d'errore nuovo nel contratto; `SPORT_TYPES` non la contiene.
+5. **Recuperi e «Show exercises»** in una tabella `gym_sessions`, una riga
+   per corsa; il proprietario vede sempre i suoi esercizi.
+6. **I tetti non rifiutano**: una serie sopra il tetto si salva, ma per i
+   traguardi non conta (`gym_catalog.measured`). Il database tiene solo
+   limiti larghi; i campi di ogni tipo li controlla l'API. Un allenamento
+   dura al più 24 ore e ha al più 500 serie.
+7. **Le risposte lasciano fuori i campi vuoti** di una serie, come
+   `shared-types` li descrive (facoltativi).
+
+**Conseguenze**: nessuna dipendenza, nessun testo dell'app, impronta iOS e
+del motore invariate. Server e migrazione 0047 in produzione col sì
+dell'utente, anche prima della B0: l'header tiene fuori i post senza
+traccia.
+## ADR-0326, precisazione — MuW Style nell'app (TASK-384 parte B)
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente,
+dentro la proposta approvata; (a) e (b) viste dal Coordinatore.
+
+1. **(a) La scheda «Style» e le card ci sono solo quando GET /style ha almeno
+   un post.** Un'API senza Style, o senza post usciti, lascia il Feed com'era:
+   l'app si può pubblicare prima del primo post.
+2. **(b) Senza account, con dei post, le schede sono «All · Style».**
+   «Following» vuole un account; i post Style sono di MuW e per tutti.
+3. **Il posto in «All»**: dopo il 7° disegno e poi ogni 7, sempre fra due
+   disegni; se il posto è di un annuncio scende di uno, e il successivo conta
+   da lì, così in nessuna finestra di 8 righe ce ne sono due.
+4. **I testi approvati stanno in una tabella per lingua** (`styleWords.ts`),
+   come «Following» in `FeedTabs.tsx`: nelle tabelle di `t`, che vanno per
+   testo inglese, «Running», «Bike» o «Women» sono già altre parole.
+5. **Prezzo e giorno senza `Intl`**: «€84.99» in inglese, «84,99 €» nelle
+   altre lingue; il mese abbreviato dalla tabella.
+6. **«Shop» apre solo una pagina https** che l'API risponde, con
+   `Linking.openURL`: il browser del telefono. Se l'API non risponde, non si
+   apre niente e il pulsante torna attivo, senza un testo nuovo.
+7. **L'interruttore sta sul telefono** (`style-in-feed.json`), come la
+   scheda scelta: l'API non lo sa.
 ## ADR-0332 — Il VO₂ max nel profilo pubblico: da Salute, se no stimato dai record, solo dopo un sì
 
 **Stato**: Proposto · 2026-11-05 · TASK-397. Fonte e visibilità sono
@@ -22865,3 +22980,69 @@ legge ancora, e l'età); mostrarlo senza un sì (scelta dell'utente, e Apple
 5.1.3).
 
 ---
+
+## ADR-0321 — L'escursionismo: una rete sua, fuori dalle strade delle auto, sulla struttura degli sport
+
+**Stato**: Accettato · 2026-11-05 · TASK-377. Le scelte dell'utente, il
+2026-11-05, sono in `tasks/TASK-377.md`:
+
+- la rete senza strade delle auto (punto 2);
+- `sac_scale` fino a T3;
+- 1–30 km;
+- nel gioco come la camminata;
+- acceso appena pronto.
+
+Pilota della struttura degli
+sport (ADR-0320), scelta dell'utente del 2026-11-04; numeri dal
+Coordinatore. Le scelte di prodotto sono dell'utente, una alla volta, in
+`tasks/TASK-377.md`. I punti tecnici qui sotto sono decisi dall'agente su
+delega dell'utente, e restano proposti finché le scelte non ci sono.
+
+**Contesto**: la camminata (ADR-0315) usa la rete «foot» della corsa, che
+tiene ogni strada dove si può andare a piedi, comprese quelle trafficate.
+Un'escursione le evita. Il banco ha provato due reti senza toccare il
+motore (`docs/sports/hike.md`):
+
+- **solo sentieri**: a Trento resta un pezzo di 88 km attorno alla
+  partenza, con 3 forme su 9;
+- **«foot» senza le strade delle auto**: 46 forme su 54 sulle sei zone; in
+  montagna 6–7 su 9, e la rete lì è soprattutto `track` e `path`.
+
+**Decisione (proposta)**:
+
+1. **Un'attività `hiking`** fra quelle che si disegnano (`PLANNED_SPORTS`),
+   nei file nuovi di ogni strato e con una riga in ogni registro, come dice
+   `docs/sports/COME-AGGIUNGERE.md`. Ogni file fuori ricetta è una deroga
+   scritta in `CONDIVISO.md`.
+2. **Una rete nuova `hike`** (`route_engine/networks/hike.py`). È il
+   filtro «foot» senza `trunk`, `primary`, `secondary` e `tertiary`, ed
+   esclude `sac_scale` oltre T3 («demanding mountain hiking»). Ogni via
+   resta percorribile nei due sensi, come «foot». Ha file di cache suoi
+   (`hike_*`).
+3. **La prima rete nuova dopo la bici** porta `__main__.py` e `anchored.py`
+   a `OsmnxSource.for_activity` (`CONDIVISO.md`, «Il motore»).
+4. **L'impronta del motore cambia**: server, migrazione (numero dal
+   Coordinatore) e notte degli esempi si fanno solo col sì dell'utente.
+5. **Sul telefono**: un `SportProfile` con Apple `.hiking` (24), Health
+   Connect `EXERCISE_TYPE_HIKING` (37), l'energia ACSM a piedi con la
+   salita, e la rete `hike` sul telefono se le zone si scaricano come per
+   «foot». Solo JavaScript: l'impronta iOS non si muove.
+
+**Restano all'utente**:
+
+- nome ed emoji;
+- la rete fra le due misurate;
+- le distanze (il banco ha provato 5–20 km);
+- il limite `sac_scale`;
+- se conta nel gioco e nei record;
+- i testi;
+- quando si accende.
+
+**Alternative**:
+
+- **Solo sentieri**: troppo frammentata vicino alle città.
+- **La rete «foot» così com'è**: è la camminata, già fatta.
+- **Preferire i sentieri col peso degli archi invece di togliere le
+  strade**: cambierebbe la ricerca del motore per tutti. Se serve, si
+  valuta dopo la parte A, misurando quanto di ogni percorso sta su `track`
+  e `path`.

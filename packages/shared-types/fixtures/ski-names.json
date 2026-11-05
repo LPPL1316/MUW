@@ -1,0 +1,10 @@
+{
+  "lifts": [
+    { "name": "Seggiovia Col Raiser", "type": "chair_lift", "times": 3 },
+    { "name": "Ciampinoi", "type": "gondola", "times": 1 }
+  ],
+  "pistes": [
+    { "name": "Pista Rossa", "type": "intermediate", "times": 2 },
+    { "name": "Gran Risa", "type": "", "times": 1 }
+  ]
+}

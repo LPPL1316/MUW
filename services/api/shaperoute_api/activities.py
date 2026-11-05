@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import pathlib
 import threading
 import urllib.parse
 from collections import OrderedDict
@@ -89,6 +90,7 @@ from shaperoute_api.schemas import (
     TrackFixBody,
     Walk,
 )
+from shaperoute_api.ski_names import names_json, ski_names_from
 from shaperoute_api.sports import API_SPORTS
 
 # Years of a run a day, and one account cannot fill the database.
@@ -131,7 +133,14 @@ Key = Annotated[str, Path(pattern=KEY_PATTERN)]
 # What a run was (TASK-208): the activities of the API, walking.API_ACTIVITIES,
 # and those recorded without a shape, RECORD_ACTIVITIES (TASK-375, ADR-0319).
 RunActivity = Literal[
-    "running", "cycling", "paddling", "swimming", "walking", "skiing", "xc_skiing"
+    "running",
+    "cycling",
+    "paddling",
+    "swimming",
+    "walking",
+    "skiing",
+    "xc_skiing",
+    "gym",
 ]
 # A day on the snow: recorded and shown, never planned by the engine. Its
 # speeds are no runner's nor rider's, so it gives no personal best. The
@@ -139,6 +148,11 @@ RunActivity = Literal[
 # Literal for the types, the same names (test_sport_registry_api.py).
 RECORD_ACTIVITIES: tuple[RunActivity, ...] = tuple(
     cast(RunActivity, sport.activity) for sport in API_SPORTS if sport.record_only
+)
+# A workout at the gym (TASK-385, ADR-0327): saved without a track by
+# gym_sessions.py, never by PUT /me/activities/{key}, which wants one.
+TRACKLESS_ACTIVITIES: tuple[RunActivity, ...] = tuple(
+    cast(RunActivity, sport.activity) for sport in API_SPORTS if sport.trackless
 )
 # Where a run comes from (TASK-312, ADR-0272): recorded by the app, or a file
 # of another app read on the phone. Only `muw` counts for the shape game and
@@ -255,6 +269,8 @@ class ActivityRequestBody(BaseModel):
             raise ValueError("rotation_deg is the route's: there is none")
         if self.source != MUW and self.points is not None:
             raise ValueError("a run from another app followed no route of MuW")
+        if self.activity in TRACKLESS_ACTIVITIES:
+            raise ValueError("a workout at the gym is saved by /me/gym-sessions")
         # As POST /track-scores checks them (schemas.py).
         problem = walks_problem(self.walks, len(self.points or []))
         if problem is not None:
@@ -630,7 +646,10 @@ def _track_wkt(track: Sequence[TrackPoint]) -> str:
     )
 
 
-def _line(geojson: str) -> list[LatLon]:
+def _line(geojson: str | None) -> list[LatLon]:
+    # A workout at the gym has no track (TASK-385): no line.
+    if geojson is None:
+        return []
     coordinates: list[list[float]] = json.loads(geojson)["coordinates"]
     return [(lat, lon) for lon, lat in coordinates]
 
@@ -729,6 +748,9 @@ class Activities:
     database: Database
     places: PlaceNames
     now: Callable[[], datetime] = now_utc
+    ski_dir: pathlib.Path | None = None
+    """The ski tiles of the cache (ski_names_api.install_ski_names); None:
+    a day of skiing is saved without its lifts and pistes."""
 
     def listing(
         self,
@@ -790,6 +812,15 @@ class Activities:
             if body.activity in RECORD_ACTIVITIES
             else run_bests(run.track, run.pauses)
         )
+        # The lifts and pistes of a day of skiing, found once, here
+        # (TASK-375 part D2): the post shows them (ski_names_api.py).
+        ski_names = (
+            Jsonb(
+                names_json(ski_names_from([p.latlon for p in run.track], self.ski_dir))
+            )
+            if body.activity == "skiing" and self.ski_dir is not None
+            else None
+        )
         # Asked before the transaction: the service may take seconds.
         place = self.places.name_of(run.start)
         with self.database.connect() as conn:
@@ -814,10 +845,10 @@ class Activities:
                 "INSERT INTO runs (user_id, key, route, route_similarity, shape,"
                 " word, style, title, track, pauses, started_at, distance_m,"
                 " duration_s, score, fidelity, place, created_at, walks, activity,"
-                " route_rotation_deg, climb_m, source)"
+                " route_rotation_deg, climb_m, source, ski_names)"
                 " VALUES (%s, %s, ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s,"
                 " ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-                " %s, %s, %s)"
+                " %s, %s, %s, %s)"
                 f" RETURNING {COLUMNS}",
                 (
                     user_id,
@@ -842,6 +873,7 @@ class Activities:
                     body.rotation_deg,
                     run.climb_m,
                     body.source,
+                    ski_names,
                 ),
             ).fetchone()
             assert row is not None
@@ -894,7 +926,8 @@ def activities_of(
 ) -> Activities:
     """In the database of the accounts, on the same clock."""
     places: PlaceNames = request.app.state.run_places
-    return Activities(accounts.database, places, accounts.now)
+    ski_dir = getattr(request.app.state, "ski_dir", None)
+    return Activities(accounts.database, places, accounts.now, ski_dir)
 
 
 def activity_routes() -> APIRouter:

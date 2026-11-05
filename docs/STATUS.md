@@ -189,6 +189,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
   migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
   **Parte A chiusa il 2026-11-05**: #773 in main (fa027173); vedi «Completato».
+- **TASK-384 B — MuW Style nell'app** (2026-11-05; via dell'utente e del Coordinatore). Una card
+  ogni 8 righe in «All» (mai nei primi 3, mai in «Following»), puntini e scheda con «Shop» nel
+  browser, la lente «Style» con i filtri, l'interruttore in «Settings», Termini e Privacy nuovi;
+  tutto solo quando GET /style ha un post. Branch `feat/TASK-384-b-style-app`. Prossimo: la C, i
+  primi 6 post dalle foto di Gemini dell'utente. `tasks/TASK-384.md`.
+  **Parte B chiusa il 2026-11-05**: #809 in main (726791ff). Copia della privacy sul sito e OTA
+  col sì dell'utente; il foglio passa a `ui/SheetModal` con TASK-388.
 - **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
   l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
   brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
@@ -309,6 +316,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
   2026-11-05: proposta in `main` (#766); i post senza traccia passano
   dall'header di TASK-387 (`gym` + `trackless`), niente filtro proprio.
+  Parte A (API e database, migrazione 0047) in PR da
+  `feat/TASK-385-a-gym-api`; server col sì dell'utente.
 
 - **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
   (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo
@@ -351,6 +360,31 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   come prima. B2 (contratto e API) e B3 (app) dopo la #758.
   **Parte B1 in `main`** (#763, 2026-11-04 sera). B2 (contratto e API):
   lista dei file al Coordinatore il 2026-11-05, codice al suo via; poi B3.
+  **Parte B in `main`** (2026-11-05): B2 #798, B3a #806, B3b #814, B3c #818.
+  Ogni sport ha un file suo nel contratto, nell'API e nell'app
+  (`SportProfile`). Le tabelle di prima si ricavano dai file, uguali, e
+  l'impronta iOS resta `6f8bba4c`. Resta solo `settings/sport.ts`, dopo la
+  #765. Prossimo: la parte C, cioè la ricetta definitiva e il pilota
+  Escursionismo (TASK-377).
+  **Parte C1 in PR** (2026-11-05): `docs/sports/COME-AGGIUNGERE.md`
+  riscritto sulla struttura della parte B: file nuovi, una riga per
+  registro e i punti fissi ancora scritti a mano. Poi il pilota TASK-377.
+  **C1 in `main`** (#820). **TASK-377 parte 0 in PR** (2026-11-05):
+  misurate col banco due reti per l'escursionismo. «foot» senza le strade
+  delle auto riesce 46 volte su 54 sulle sei zone; solo sentieri, 3 su 9 a
+  Trento. Scritti `hike.md` e ADR-0321 come proposto. Prossimo: le scelte
+  dell'utente, una alla volta (`tasks/TASK-377.md`).
+  **Parte 0 in `main`** (#821). **Scelte dell'utente** (2026-11-05):
+  - «Hike» ⛰️;
+  - la rete a piedi senza strade delle auto;
+  - da 1 a 30 km;
+  - sentieri fino a T3;
+  - nel gioco come la camminata;
+  - tre testi approvati in cinque lingue;
+  - acceso appena pronto.
+
+  ADR-0321 accettato. Prossimo: 377-A, motore, contratto e API, dopo la
+  lista al Coordinatore.
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
@@ -388,6 +422,32 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - 2026-11-05: **C2 in `main`** (#783, 9adb22d1), nell'anteprima del
     Coordinatore. La parte C è chiusa. La parte D resta chiusa finché il
     Coordinatore non ne ha parlato con l'utente; poi E (la prova sulla neve).
+  - 2026-11-05: l'utente apre la parte D («INIZIA LA PARTE D»); la proposta
+    è nella #799. Le scelte: i nomi nel post, visibili a tutti; tutte le
+    Alpi. **D1** è sul server ma non va online: l'estratto di impianti e
+    piste, e il loro confronto con la traccia (ADR-0319, punto 11). Nessuna
+    rotta e nessuna migrazione. Prossimo: D2 (API e colonna 0048), con la
+    sua lista al Coordinatore; poi D3 (app), con i testi e la riga della
+    privacy col sì dell'utente.
+  - 2026-11-05: D1 in `main` (#802); testi e riga della privacy approvati
+    dall'utente (#804). **D2**: i nomi si scrivono in `runs.ski_names`
+    (migrazione 0048) quando si salva una giornata di sci, e il post li dà
+    con `GET /drawings/{id}/ski-names`, rispettando chi può vedere il post e
+    `X-MuW-Reads` (ADR-0319, punto 12). Per andare online servono il
+    deploy, la 0048 e gli estratti delle Alpi, comandi dell'utente col suo
+    sì. Prossimo: D3, l'elenco nel post dell'app e la riga della privacy,
+    con la lista al Coordinatore.
+  - 2026-11-05: D2 in `main` (#813). **D3**: il post di una giornata di sci
+    mostra «Lifts and pistes», con i nomi e quante volte; la riga della
+    privacy è nell'app e nelle pagine del sito (ADR-0319, punto 13). Solo
+    JavaScript, quindi l'impronta resta 6f8bba4c. Per andare online, col sì
+    dell'utente e insieme al Coordinatore, servono:
+    - il server con la 0048 e gli estratti delle Alpi;
+    - la pagina della privacy sul sito;
+    - l'OTA.
+
+    Finché il server non ha la rotta, l'elenco non si vede. Lo sci resta
+    `ready: false`. Prossimo: la parte E, la prova sulla neve.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -2759,6 +2819,28 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la unisce il Coordinatore. Prossimo: le cinque scelte dell'utente, una alla
   volta, poi il sì sulla proposta, i testi e l'ADR dal Coordinatore; la parte B
   (app) dopo TASK-384 B. `tasks/TASK-394.md`.
+  **Proposta in `main`** (#805, ae6c2e2a). Parte B dopo TASK-384 B e 376 B3b,
+  quando il Coordinatore dice che i file sono liberi. **Scelta 1**
+  (2026-11-05): «Ogni link https», con Google Web Risk (Google Cloud, un
+  prerequisito dell'utente) e un elenco nostro di domini bloccati. **Scelta
+  2**: «No, per ora»: MuW non guadagna sui link degli iscritti. **Scelta 3**:
+  «No, facoltativo»: il link non è obbligatorio, tipo e marca sì. **Scelta
+  4**: «Nascosti, gruccia»: i puntini si vedono dopo un tocco sulla foto.
+  **Scelta 5**: «L'autore del post»: solo lui vede i totali di aperture e
+  «Shop» dei suoi capi, mai chi. Prossimo: il sì sulla proposta intera.
+  **Proposta approvata dall'utente il 2026-11-05** («Sì, approvo»);
+  prossimo: i testi in cinque lingue (app, Help, Termini, Privacy), poi la
+  parte A con l'ADR dal Coordinatore.
+  **Testi approvati il 2026-11-05** («Sì, approvo tutti»), in
+  `tasks/TASK-394.md`; Termini e Privacy cambiano con la parte B. Prossimo:
+  la parte A (API), con l'ADR e la lista dei file al Coordinatore prima del
+  codice. Prerequisito dell'utente: Google Cloud con Web Risk.
+  **Scelte e testi in `main`** (#808, 507e45dd); parte A con ADR-0333 e
+  migrazione 0050, in una sessione nuova. Approvata anche la frase della
+  Privacy «Pubblicità» per una parte B prima di Style (2026-11-05, «SI
+  APPROVO», `tasks/TASK-394.md` D.2b). Sì anticipato sul nome della società
+  di Google per Web Risk (2026-11-05, «OK SI»): si copia dal contratto quando
+  l'utente lo attiva. Nessun testo di TASK-394 aspetta più un sì.
 - **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
   Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
   Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,
@@ -2771,8 +2853,46 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente sui testi, poi la lista dei file della parte A al Coordinatore.
   `tasks/TASK-397.md`.
 
+- **TASK-395 — La ricerca non divide più per zero quando un percorso non
+  disegna niente** (2026-11-05; numero dal Coordinatore; seguito di TASK-297
+  C). Una parola o una forma a pezzi con la penna alzata, su un grafo piccolo
+  (la ricerca lontana, ADR-0040, che ricarica lo stesso grafo), metteva ogni
+  lettera su un nodo suo: il percorso era fatto solo dei tratti a piedi, la
+  distanza disegnata 0, e `optimizer.next_scale` cadeva con
+  `ZeroDivisionError`. Ora quel tracciato si salta come uno caduto su un solo
+  nodo (TASK-277): la ricerca va avanti, e se niente disegna la risposta è
+  «cannot be drawn here, nor within 2 km». Solo `optimizer.py`, il test nuovo
+  `tests/test_next_scale.py` e `engine.zip` (dentro cambia solo
+  `optimizer.py`). Branch `fix/TASK-395-next-scale-zero`; la unisce il
+  Coordinatore a CI verde; niente server né OTA. `tasks/TASK-395.md`.
+  Le impronte del motore che si muovono (`e13ded92b52d`, `db4ee081c4a4`)
+  disegnano gli stessi nove percorsi fissi (prova in
+  `tests/fixtures/same_routes/`): due righe in `SAME_ROUTES_AS`, nessun
+  ridisegno sul server.
+  **Chiuso il 2026-11-05**: #807 in main (`325f7d56`); vedi «Completato».
+
+- **TASK-398 — «town cat 5000» rosso in CI: l'immagine ubuntu-26.04, non la
+  ricerca** (2026-11-05; numero dal Coordinatore). Il test cadeva su main e su
+  ogni PR con `d080e87a95000aa5`: dalle 16:00Z `ubuntu-latest` è ubuntu-26.04,
+  e lì lo stesso codice, con lo stesso Python e le stesse librerie, dà un altro
+  digest (42/42 run verdi su 24.04, 3/3 rossi su 26.04). Niente budget a tempo
+  (è un numero di tracce), niente ordine di hash. Il digest di 26.04 entra
+  nella tupla di «town cat 5000», come per «town heart 5000»; `route_engine`
+  non si tocca, impronta ferma. Rischio da guardare, senza azione: il server
+  su un Ubuntu più nuovo potrebbe disegnare di un soffio diverso. Branch
+  `fix/TASK-398-flaky-cat-search`; la unisce il Coordinatore a CI verde.
+  `tasks/TASK-398.md`.
+
 ## Completato
 
+- **TASK-395 — La ricerca non divide più per zero quando un percorso non disegna niente**
+  (2026-11-05; seguito di TASK-297 C). #807 in main (`325f7d56`): in `optimizer.search` un
+  tracciato che non disegna niente (ogni lettera con la penna alzata sul suo nodo, solo i tratti
+  a piedi) si salta come uno caduto su un solo nodo, invece di far cadere `next_scale` con
+  `ZeroDivisionError`; se niente disegna, «cannot be drawn here, nor within 2 km». Stessi nove
+  percorsi fissi (prova `e13ded92b52d`), due righe in `SAME_ROUTES_AS`: nessun ridisegno.
+  `engine.zip` rifatto. Prossimo, col sì dell'utente: il server al prossimo aggiornamento e il
+  telefono con il prossimo OTA. `tasks/TASK-395.md`.
 - **TASK-384 A — L'API di MuW Style** (2026-11-05; ADR-0326). #773 in main (`fa027173`):
   migrazione `0046_style_posts.sql`, `GET /style` con tema, genere e pagine, il post, la foto,
   `POST /style/tags/{id}/open` e `/shop` contati per giorno senza dati personali, il link di

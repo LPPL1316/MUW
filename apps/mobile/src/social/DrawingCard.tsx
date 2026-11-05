@@ -31,6 +31,7 @@ import { followable, runnable } from "./drawingRoute";
 import { useDrawingsDoor } from "./drawingsDoor";
 import { useFollowsDoor } from "./followsDoor";
 import { activityName } from "./PublicParts";
+import { SkiNamesList } from "./SkiNamesList";
 import { useDrawingGpx } from "./useDrawingGpx";
 
 type Props = {
@@ -58,7 +59,8 @@ export const PHOTO_HEIGHT = 160;
  * A drawing on the map (TASK-117), under it: its title (without one, the
  * day it was run), the day, what it was and the km (the miles with
  * «Miles», TASK-182); then its photos, to scroll sideways, how it went,
- * and the names tagged, each of which opens its profile (TASK-208). Never
+ * and the names tagged, each of which opens its profile (TASK-208); a day
+ * of skiing, its lifts and pistes by name (TASK-375 part D). Never
  * the score (TASK-241, the user's choice), nor the time of day: the
  * others see the drawing, not when somebody runs. Its comments open from
  * a button (TASK-120), and next to it are its reactions (TASK-119). Under
@@ -140,6 +142,8 @@ export function DrawingCard({
           ))}
         </View>
       )}
+      {/* The lifts and pistes of a day of skiing (TASK-375 part D). */}
+      {drawing.activity === "skiing" && <SkiNamesList drawingId={drawing.id} />}
       {/* The reactions and the actions, after a hairline. */}
       <Hairline />
       <DrawingReactions

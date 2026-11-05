@@ -725,7 +725,10 @@ def search(
 
     def attempt(p: Placement, scale: float) -> Attempt | None:
         """`p` traced at `scale`; None when its outline falls on a single
-        road node (TASK-277): no route, and no distance to rescale from."""
+        road node (TASK-277): no route, and no distance to rescale from.
+        The same when the route draws nothing, every letter of a word with
+        the pen up on its own node and only the walks between them left
+        (TASK-395): its ratio would be 0, and next_scale divides by it."""
         shifts: tuple[tuple[float, float], ...] = ()
         if word is None:
             outline = placed(p, scale)
@@ -745,6 +748,8 @@ def search(
         try:
             route = trace(outline)
         except CollapsedShapeError:
+            return None
+        if drawn_distance(route) <= 0.0:
             return None
         if word is None:
             sim = similarity(route.points, outline)

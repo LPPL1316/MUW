@@ -1,4 +1,4 @@
-import type { FeedFilter } from "@shaperoute/shared-types";
+import type { FeedFilter, StylePost as StylePostBody } from "@shaperoute/shared-types";
 import { type ReactElement, useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -23,10 +23,16 @@ import { FeedMapShooter } from "../feed/FeedMaps";
 import { drawingHeight, FeedPost } from "../feed/FeedPost";
 import { isShown, type ShownPost, shownPost } from "../feed/feedPosts";
 import { loadFeedTab, saveFeedTab } from "../feed/feedTabChoice";
-import { feedTabName, FeedTabs } from "../feed/FeedTabs";
+import { type FeedTab, feedTabName, FeedTabs } from "../feed/FeedTabs";
 import { SAMPLE_FEED, type SamplePost } from "../feed/sampleFeed";
 import { type FeedItem, feedWithAds } from "../feed/feedWithAds";
 import { type Feed, type FeedShown, useFeed } from "../feed/useFeed";
+// MuW Style (TASK-384, ADR-0326): its posts in «All» and its lens.
+import { feedWithStyle, type StyleItem } from "../feed/feedWithStyle";
+import { useStyleInFeed } from "../feed/styleInFeedChoice";
+import { StyleLens } from "../feed/StyleLens";
+import { StylePost } from "../feed/StylePost";
+import { useStylePosts } from "../feed/useStylePosts";
 import { t } from "../i18n";
 import { useDrawingsDoor } from "../social/drawingsDoor";
 import { usePeopleDoor } from "../social/peopleDoor";
@@ -49,7 +55,7 @@ type Props = {
 
 /** A row of the list: a member's drawing, or an example. */
 type Post = SamplePost | ShownPost;
-type Item = FeedItem<Post, NativeAd>;
+type Item = FeedItem<Post, NativeAd> | StyleItem;
 
 /** How far from the end of the list, in screens, the next page is asked. */
 const MORE_AT_SCREENS = 1;
@@ -85,7 +91,10 @@ function postsOf(tab: FeedFilter, shown: FeedShown): readonly Post[] {
  * of «Explore» since TASK-367 part B; above the drawings of «All»,
  * while the API has a contest, its card (TASK-299, docs/CONCORSI.md §7),
  * asked with the feed and with each pull. Between the drawings, one ad every
- * 5 (TASK-235, ADR-0198).
+ * 5 (TASK-235, ADR-0198). While the API has MuW Style posts (TASK-384,
+ * ADR-0326), one row in 8 of «All» at most is one of them, unless «Settings»
+ * turned them off, and a third tab, «Style», has them all; without an
+ * account the tabs are then «All» and «Style».
  */
 export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
   const insets = useSafeAreaInsets();
@@ -100,20 +109,38 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
   const following = useFeed(active && chosen === "following", "following");
   const olderApi = (shown: FeedShown) =>
     shown.kind === "ready" && shown.filtered === false;
-  const all = useFeed(active && (chosen === "all" || olderApi(following.shown)), "all");
+  // MuW Style: the lens only while the API has a post (TASK-384).
+  const stylePosts = useStylePosts(active);
+  const withStyle = stylePosts.length > 0;
+  const styleInFeed = useStyleInFeed();
+  const [styleOpened, setStyleOpened] = useState(chosen === "style");
+  const all = useFeed(
+    active &&
+      (chosen === "all" ||
+        (chosen === "style" && !withStyle) ||
+        olderApi(following.shown)),
+    "all",
+  );
   const tabsKnown = !olderApi(following.shown) && !olderApi(all.shown);
   const signedIn = all.signedIn;
-  const withTabs = signedIn && tabsKnown;
-  // Without an account there is only «All»; the choice waits for the next one.
-  const tab = withTabs ? chosen : "all";
+  const withFollowing = signedIn && tabsKnown;
+  const withTabs = withFollowing || withStyle;
+  // Without an account there is no «Following»; the choice waits for the next one.
+  const tab: FeedTab =
+    (chosen === "following" && !withFollowing) || (chosen === "style" && !withStyle)
+      ? "all"
+      : chosen;
   const { open, openProblem } = useDrawingsDoor();
   const { open: findPeople } = usePeopleDoor();
   const contest = useContest(active);
-  const onChoose = useCallback((next: FeedFilter) => {
+  const onChoose = useCallback((next: FeedTab) => {
     setChosen(next);
     saveFeedTab(next);
     if (next === "following") {
       setOpened(true);
+    }
+    if (next === "style") {
+      setStyleOpened(true);
     }
   }, []);
   const onRefreshAll = useCallback(() => {
@@ -134,7 +161,12 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
         {/* The tabs, with an account (TASK-362). */}
         {withTabs && (
           <View style={[styles.bar, { paddingTop: insets.top + space.lg }]}>
-            <FeedTabs tab={tab} onChoose={onChoose} />
+            <FeedTabs
+              tab={tab}
+              onChoose={onChoose}
+              following={withFollowing}
+              style={withStyle}
+            />
           </View>
         )}
         <FeedList
@@ -142,6 +174,7 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
           tab="all"
           feed={all}
           visible={tab === "all"}
+          stylePosts={styleInFeed ? stylePosts : NO_STYLE}
           onRefresh={onRefreshAll}
           header={
             <View style={styles.header}>
@@ -158,7 +191,7 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
           }
           empty={null}
         />
-        {withTabs && opened && (
+        {withFollowing && opened && (
           <FeedList
             {...shared}
             tab="following"
@@ -212,10 +245,19 @@ export function FeedScreen({ onOpen, active = true, ads = feedAds() }: Props) {
             }
           />
         )}
+        {withStyle && styleOpened && (
+          <StyleLens
+            visible={tab === "style"}
+            cardWidth={cardWidth}
+            insetBottom={insets.bottom}
+          />
+        )}
       </View>
     </View>
   );
 }
+
+const NO_STYLE: readonly StylePostBody[] = [];
 
 type ListProps = {
   tab: FeedFilter;
@@ -229,6 +271,8 @@ type ListProps = {
   header: ReactElement;
   /** What a tab shows when it has read that it has nothing. */
   empty: ReactElement | null;
+  /** The MuW Style posts to put between the drawings: only in «All». */
+  stylePosts?: readonly StylePostBody[];
   onRefresh: () => void;
   open: (drawing: ShownPost["drawing"]) => void;
   onOpen: (post: SamplePost) => void;
@@ -245,6 +289,7 @@ function FeedList({
   insetBottom,
   header,
   empty,
+  stylePosts = NO_STYLE,
   onRefresh,
   open,
   onOpen,
@@ -252,7 +297,10 @@ function FeedList({
   const { shown, signedIn, refreshing, refresh, more } = feed;
   const posts = useMemo(() => postsOf(tab, shown), [tab, shown]);
   const { ads: placed, see } = useFeedAds(posts.length, active && visible, ads);
-  const items = useMemo(() => feedWithAds(posts, placed), [posts, placed]);
+  const items = useMemo<Item[]>(
+    () => feedWithStyle(feedWithAds(posts, placed), stylePosts),
+    [posts, placed, stylePosts],
+  );
   // The posts that have been on the screen: an ad never goes where the user
   // is looking.
   const onViewableItemsChanged = useCallback(
@@ -318,10 +366,16 @@ function FeedList({
         onEndReachedThreshold={MORE_AT_SCREENS}
         data={items}
         keyExtractor={(item) =>
-          item.kind === "post" ? item.post.id : `ad-${item.slot}`
+          item.kind === "post"
+            ? item.post.id
+            : item.kind === "style"
+              ? `style-${item.style.id}`
+              : `ad-${item.slot}`
         }
         renderItem={({ item }) =>
-          item.kind === "post" ? (
+          item.kind === "style" ? (
+            <StylePost post={item.style} width={cardWidth} />
+          ) : item.kind === "post" ? (
             <FeedPost
               post={item.post}
               width={cardWidth}

@@ -4,6 +4,7 @@ import type {
   DrawingPhoto,
   DrawingsPage,
   MyDrawing,
+  SkiNames,
 } from "@shaperoute/shared-types";
 import { DRAWING_MAX_PHOTOS } from "@shaperoute/shared-types";
 import {
@@ -31,6 +32,7 @@ import {
   saveDrawing,
   worthAgain,
 } from "../api/drawings";
+import { fetchSkiNames } from "../api/skiNames";
 import { themedOf } from "../contest/contestApi";
 import { enteredIn, keptContest } from "../contest/contestKept";
 import { sendEntry } from "../contest/sendEntry";
@@ -130,6 +132,10 @@ export type DrawingsDoor = {
   /** From the map elsewhere, «Profile» left closed: «Draw it near me»
    * goes to «Draw» (TASK-313). */
   leave: () => void;
+  /** The lifts and pistes of a day of skiing (TASK-375 part D); null with
+   * nobody signed in, or when the API did not give them. Without it (a
+   * door of a test made before it) there are no names. */
+  skiNamesOf?: (drawingId: string) => Promise<SkiNames | null>;
 };
 
 const NO_KEYS: ReadonlySet<string> = new Set();
@@ -152,6 +158,7 @@ const NOTHING: DrawingsDoor = {
   opened: null,
   back: () => {},
   leave: () => {},
+  skiNamesOf: async () => null,
 };
 
 /** Without «Profile» around it (a test of one screen): no drawings. */
@@ -455,6 +462,21 @@ export function useDrawingsOf(
     [baseUrl, ended, fetchFn, key, token],
   );
 
+  const skiNamesOf = useCallback(
+    async (drawingId: string) => {
+      if (token === null || baseUrl === null) {
+        return null;
+      }
+      const outcome = await fetchSkiNames(baseUrl, token, drawingId, { fetchFn, key });
+      if (outcome.kind === "ok") {
+        return outcome.value;
+      }
+      ended(token, outcome);
+      return null;
+    },
+    [baseUrl, ended, fetchFn, key, token],
+  );
+
   const [opening, setOpening] = useState<string | null>(null);
   // With the token it was opened with: nobody else's drawing on the map.
   const [opened, setOpened] = useState<{
@@ -529,6 +551,7 @@ export function useDrawingsOf(
       opened: opened !== null && opened.token === token ? opened.drawing : null,
       back,
       leave,
+      skiNamesOf,
     }),
     [
       publicKeys,
@@ -549,6 +572,7 @@ export function useDrawingsOf(
       opened,
       back,
       leave,
+      skiNamesOf,
     ],
   );
 }

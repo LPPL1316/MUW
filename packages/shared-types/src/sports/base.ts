@@ -18,6 +18,13 @@ export interface RecordedSport {
   readonly recordOnly: true;
 }
 
+/** A sport saved without a track (TASK-385, ADR-0327): never planned, its
+ * sets in place of a line. */
+export interface TracklessSport {
+  readonly activity: string;
+  readonly trackless: true;
+}
+
 /** The activities of `sports`, in their order, each its own literal. */
 export type ActivitiesOf<T extends readonly { readonly activity: string }[]> = {
   readonly [K in keyof T]: T[K]["activity"];

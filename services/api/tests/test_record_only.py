@@ -28,7 +28,11 @@ from test_personal_bests import (
     signed_up,
 )
 
-from shaperoute_api.activities import RECORD_ACTIVITIES, RunActivity
+from shaperoute_api.activities import (
+    RECORD_ACTIVITIES,
+    TRACKLESS_ACTIVITIES,
+    RunActivity,
+)
 from shaperoute_api.activity_graphs import check_supported
 from shaperoute_api.db import Database, migrations
 from shaperoute_api.strava import SPORT_TYPES
@@ -48,8 +52,16 @@ def _fixture() -> dict[str, Any]:
 def test_the_activities_of_a_run_are_those_of_shared_types() -> None:
     fixture = _fixture()
     assert list(RECORD_ACTIVITIES) == fixture["record_activities"]
-    assert list(get_args(RunActivity)) == fixture["run_activities"]
-    assert list(get_args(RunActivity)) == [*API_ACTIVITIES, *RECORD_ACTIVITIES]
+    # Then a workout at the gym, saved without a track (TASK-385).
+    assert list(get_args(RunActivity)) == [
+        *fixture["run_activities"],
+        *fixture["trackless_activities"],
+    ]
+    assert list(get_args(RunActivity)) == [
+        *API_ACTIVITIES,
+        *RECORD_ACTIVITIES,
+        *TRACKLESS_ACTIVITIES,
+    ]
 
 
 @pytest.mark.parametrize("activity", RECORD_ACTIVITIES)
@@ -70,7 +82,8 @@ def test_the_engine_and_its_fingerprint_know_nothing_of_the_snow() -> None:
 
 
 def test_every_activity_of_a_run_has_its_sport_on_strava() -> None:
-    assert set(SPORT_TYPES) == set(get_args(RunActivity))
+    # But a workout at the gym, which has no track to send (TASK-385).
+    assert set(SPORT_TYPES) == set(get_args(RunActivity)) - set(TRACKLESS_ACTIVITIES)
     assert SPORT_TYPES["skiing"] == "AlpineSki"
     assert SPORT_TYPES["xc_skiing"] == "NordicSki"
 
@@ -172,5 +185,7 @@ def test_the_migration_keeps_the_walk_of_0043(
     shutil.copy(record[0], tmp_path / MIGRATION)
     assert migrated.migrate(tmp_path) == [MIGRATION.removesuffix(".sql")]
     after = re.findall(r"'([a-z_]+)'", _runs_check(migrated))
-    # Each name once, in the order of RunActivity: the walk kept, then the snow.
-    assert after == list(get_args(RunActivity))
+    # Each name once, in the order of RunActivity: the walk kept, then the
+    # snow; the gym comes with 0047 (TASK-385).
+    gym = set(TRACKLESS_ACTIVITIES)
+    assert after == [a for a in get_args(RunActivity) if a not in gym]

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A made-up ski area for test_ski_extract.py (TASK-375 part D): two lifts,
+     three downhill pistes (one named by its relation, one an area), and
+     what is left out: a station, a zip line, a nordic piste and a piste
+     whose nodes are not in the file. -->
+<osm version="0.6" generator="hand">
+  <node id="1" lat="46.5500" lon="11.7500"/>
+  <node id="2" lat="46.5590" lon="11.7500"/>
+  <node id="3" lat="46.5500" lon="11.7520"/>
+  <node id="4" lat="46.5590" lon="11.7520"/>
+  <node id="5" lat="46.5590" lon="11.7501"/>
+  <node id="6" lat="46.5591" lon="11.7502"/>
+  <node id="7" lat="46.5520" lon="11.7600"/>
+  <node id="8" lat="46.5530" lon="11.7650"/>
+  <node id="9" lat="46.5560" lon="11.7460"/>
+  <node id="10" lat="46.5530" lon="11.7460"/>
+  <node id="11" lat="46.5590" lon="11.7560"/>
+  <node id="12" lat="46.5545" lon="11.7570"/>
+  <node id="13" lat="46.5500" lon="11.7560"/>
+  <node id="14" lat="46.5505" lon="11.7540"/>
+  <node id="15" lat="46.5505" lon="11.7545"/>
+  <node id="16" lat="46.5510" lon="11.7545"/>
+  <node id="17" lat="46.5510" lon="11.7540"/>
+  <node id="18" lat="46.5400" lon="11.7400"/>
+  <node id="19" lat="46.5420" lon="11.7400"/>
+  <way id="100">
+    <nd ref="1"/>
+    <nd ref="2"/>
+    <tag k="aerialway" v="chair_lift"/>
+    <tag k="name" v="Seggiovia Col Raiser"/>
+  </way>
+  <way id="101">
+    <nd ref="3"/>
+    <nd ref="4"/>
+    <tag k="aerialway" v="drag_lift"/>
+  </way>
+  <way id="102">
+    <nd ref="5"/>
+    <nd ref="6"/>
+    <tag k="aerialway" v="station"/>
+    <tag k="name" v="Col Raiser"/>
+  </way>
+  <way id="103">
+    <nd ref="7"/>
+    <nd ref="8"/>
+    <tag k="aerialway" v="zip_line"/>
+  </way>
+  <way id="200">
+    <nd ref="2"/>
+    <nd ref="9"/>
+    <nd ref="10"/>
+    <nd ref="1"/>
+    <tag k="piste:type" v="downhill"/>
+    <tag k="piste:name" v="Pista Rossa"/>
+    <tag k="piste:difficulty" v="intermediate"/>
+  </way>
+  <way id="201">
+    <nd ref="11"/>
+    <nd ref="12"/>
+  </way>
+  <way id="202">
+    <nd ref="12"/>
+    <nd ref="13"/>
+    <tag k="piste:type" v="downhill"/>
+  </way>
+  <way id="203">
+    <nd ref="14"/>
+    <nd ref="15"/>
+    <nd ref="16"/>
+    <nd ref="17"/>
+    <nd ref="14"/>
+    <tag k="area" v="yes"/>
+    <tag k="piste:type" v="downhill"/>
+    <tag k="piste:difficulty" v="novice"/>
+    <tag k="name" v="Campo scuola"/>
+  </way>
+  <way id="204">
+    <nd ref="18"/>
+    <nd ref="19"/>
+    <tag k="piste:type" v="nordic"/>
+    <tag k="name" v="Anello"/>
+  </way>
+  <way id="205">
+    <nd ref="98"/>
+    <nd ref="99"/>
+    <tag k="piste:type" v="downhill"/>
+    <tag k="name" v="Broken"/>
+  </way>
+  <relation id="300">
+    <member type="way" ref="201" role=""/>
+    <member type="way" ref="202" role=""/>
+    <tag k="type" v="route"/>
+    <tag k="route" v="piste"/>
+    <tag k="piste:type" v="downhill"/>
+    <tag k="name" v="Gran Risa"/>
+    <tag k="piste:difficulty" v="advanced"/>
+  </relation>
+</osm>
