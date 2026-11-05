@@ -2709,9 +2709,19 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   corsa, bici e pagaia. Nessuna migrazione, nessun testo nuovo. Dopo il
   merge: server e OTA di produzione col sì dell'utente, poi il nuoto
   (#765). `tasks/TASK-387.md`.
+  **Chiuso il 2026-11-05**: #794 in main (`bf02766f`); vedi «Completato».
 
 ## Completato
 
+- **TASK-387 — Le app vecchie non ricevono le attività che non sanno leggere**
+  (2026-11-05; ADR-0328). #794 in main (`bf02766f`): l'app manda
+  `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in ogni richiesta di `ask`;
+  il server toglie ciò che l'header non dichiara da Feed, ricerca, profili,
+  concorsi (posti veri, vincitore illeggibile `null`), corse di gruppo,
+  messaggi («[Drawing]»), preferiti, «My activities», foto del profilo e
+  campanella; i dettagli illeggibili sono 404. Senza header solo corsa, bici
+  e pagaia. Prossimo, del Coordinatore col sì dell'utente: server, poi OTA
+  con l'header, poi il nuoto (#765).
 - **TASK-392 — Il logo stilizzato nell'header** (2026-11-05; ADR-0311, precisazione). #787 in
   main (650d7685): l'header delle pagine della barra ha il cuore su giallo (`HeartBadge`, 32
   punti) e «MuW» in `fontSize.title` grassetto; in cima a «Draw» resta solo «Run without a
