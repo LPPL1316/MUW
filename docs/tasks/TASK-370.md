@@ -165,11 +165,69 @@ provato, senza tenere ferme le altre cose.
 2. **La build** (2026-11-05): «Build sua, la 1.1» — dopo la 1.0.2, che
    esce senza aspettare l'orologio.
 
+3. **L'Apple Watch per provare** (2026-11-05): «Sì, Series 6 o più nuovo»,
+   con watchOS 10 o più: basta per battito, vibrazioni, GPS e uscite senza
+   telefono.
+
 **Da chiedere, una per volta** (con una proposta pronta):
-3. L'Apple Watch per provare: c'è, e quale modello / watchOS.
 4. Gli schemi delle vibrazioni (alle prime prove al polso).
 5. I testi nelle cinque lingue.
 6. La riga della privacy e l'etichetta App Privacy.
+
+## Parte A, il piano (2026-11-05)
+
+**Il vincolo della build**: la 1.1 è una build sua, dopo la 1.0.2, e gli
+OTA di `main` devono continuare ad arrivare alla 1.0.1 e alla 1.0.2. Quindi
+**fino alla build 1.1 l'impronta iOS di `main` non si muove**: ogni PR della
+parte A la controlla (`ios-fingerprint` su una copia pulita con
+`APP_VARIANT=production`, prima e dopo uguali). Le dipendenze native e il
+plugin entrano in `main` solo con l'ultima PR, **A-flip**, quando l'utente e
+il Coordinatore fissano la 1.1.
+
+**A1 — Il nucleo, senza nativo** (in `main` subito, impronta invariata):
+- `apps/mobile/targets/watch/Core/` (nuova): un pacchetto Swift puro
+  (`Package.swift`, `WatchCore`): lo stato dell'allenamento (pronto, conto
+  alla rovescia, in corso, in pausa, finito) e le sue transizioni, i
+  messaggi telefono↔orologio con la versione, la tabella degli sport;
+  XCTest con `swift test`, senza Xcode project né `prebuild`.
+- `apps/mobile/src/watch/` (nuova): `watchMessages.ts` (puro: gli stessi
+  messaggi, con dei fixture JSON letti anche da XCTest), `watchSports.ts`
+  (puro: la tabella degli sport dell'orologio dal registro `src/sports/`;
+  un test jest la confronta con `targets/watch/Core/.../sports.json`, che
+  si rigenera con uno script), test jest.
+- `.github/workflows/watch.yml` (nuova): `swift test` su un runner macOS,
+  solo quando cambia `apps/mobile/targets/watch/` (i minuti macOS costano
+  di più: per questo il filtro sui percorsi).
+
+**A2 — L'app dell'orologio** (in `main`, impronta invariata finché il
+plugin non è in `app.json`):
+- `apps/mobile/targets/watch/` (nuova): `expo-target.config.js`
+  (`type: "watch"`, bundle `.watchkitapp`, entitlement HealthKit), l'app
+  SwiftUI (scelta dello sport, avvio, numeri, pausa, ripresa, fine),
+  `HKWorkoutSession` + `HKLiveWorkoutBuilder`, il mirroring al telefono,
+  `WCSession`. I testi dell'orologio, in A, sono solo quelli che l'app ha
+  già, con le loro traduzioni.
+- Le prove nel simulatore di watchOS e sull'orologio dell'utente con un
+  `prebuild` locale che aggiunge il plugin solo con una variabile
+  d'ambiente (`MUW_WATCH=1` in `app.config.ts`); senza, la config di `main`
+  è quella di oggi.
+
+**A3 — Il telefono** (in `main`, solo JavaScript, il modulo nativo caricato
+solo se c'è, come `haptics/haptics.ts`):
+- `src/watch/watchLink.ts` (il ponte su `react-native-watch-connectivity`,
+  niente in un'app senza), `src/watch/useWatch.ts` (manda lo stato della
+  corsa da `runControl`, riceve pausa, ripresa e fine dal polso, e il
+  battito), `src/watch/WatchHeart.tsx` (il battito con la zona),
+  `__mocks__/react-native-watch-connectivity.ts`, test.
+- File esistenti, una riga o poche: `src/screens/RunDashboard.tsx` (e
+  `FreeRunScreen.tsx` se non la usa) per montare `useWatch` e mostrare il
+  battito; `src/health/HealthRunEnd.tsx` o `workout.ts` per non riscrivere
+  in Salute l'allenamento che l'orologio ha già salvato.
+
+**A-flip — L'interruttore nativo** (solo alla build 1.1): `app.json` (il
+plugin `@bacons/apple-targets`), `apps/mobile/package.json` e
+`package-lock.json` (le due dipendenze), `app.config.ts` (via la variabile
+`MUW_WATCH`). Qui l'impronta iOS cambia, ed è voluto.
 
 ## File toccati
 
@@ -181,8 +239,9 @@ docs/DECISIONS.md (ADR-0314, aggiunta)
 docs/STATUS.md (aggiunta)
 ```
 
-Parti A–D (previsti, ognuno con la sua lista al Coordinatore prima di
-partire):
+Parte A: vedi «Parte A, il piano» sopra (lista mandata al Coordinatore
+il 2026-11-05). Parti B–D (previsti, ognuno con la sua lista al
+Coordinatore prima di partire):
 
 ```
 apps/mobile/targets/watch/ (nuova: target, Swift, XCTest)
