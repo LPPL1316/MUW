@@ -143,6 +143,7 @@ from shaperoute_api.style_posts import install_style_posts
 from shaperoute_api.themed import ThemedJobBody, ThemedJobs, ThemedRequestBody
 from shaperoute_api.track_scores import score_run
 from shaperoute_api.user_photos import install_user_photos
+from shaperoute_api.vo2max import install_vo2max
 from shaperoute_api.way_back_api import install_way_back
 
 log = logging.getLogger(__name__)
@@ -349,6 +350,8 @@ def create_app(
     # Username and bio, and the profile the others see (TASK-116); both need
     # a token.
     install_profiles(app)
+    # The VO₂ max on the profile, with its owner's yes (TASK-397).
+    install_vo2max(app)
     # The email and the phone number of an account, changed by their owner
     # (TASK-183); both need a token.
     install_contact(app)

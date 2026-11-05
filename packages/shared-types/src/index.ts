@@ -994,6 +994,54 @@ export interface PublicProfile {
    * older than TASK-368.
    */
   personal_bests?: PersonalBest[];
+  /**
+   * The VO₂ max (TASK-397, ADR-0332): null without its owner's yes, or
+   * without a value of Health of the last 365 days and without a running
+   * best to estimate it from. Missing from an API older than TASK-397.
+   */
+  vo2max?: Vo2Max | null;
+}
+
+/** Where a VO₂ max comes from (TASK-397). */
+export type Vo2MaxSource = "apple_health" | "health_connect" | "estimate";
+
+/**
+ * A VO₂ max as the profile shows it (TASK-397): of Apple Health or Health
+ * Connect if measured in the last 365 days, else MuW's estimate from the
+ * running bests of the last 365 days (Daniels's VDOT).
+ */
+export interface Vo2Max {
+  /** Millilitres of oxygen per kg per minute, rounded. */
+  value: number;
+  source: Vo2MaxSource;
+  /** YYYY-MM-DD: the day it was measured; for the estimate, of the run. */
+  measured_on: string;
+  /** The best the estimate comes from (5k … marathon); null for Health. */
+  from_distance: (typeof RUNNING_BEST_DISTANCES)[number] | null;
+}
+
+/**
+ * GET and PUT /me/vo2max (TASK-397): the owner's yes, off until given,
+ * and what the others see with it (null when there is none).
+ */
+export interface Vo2MaxSettings {
+  show: boolean;
+  vo2max: Vo2Max | null;
+}
+
+/** PUT /me/vo2max: the yes, or its end (the value of Health goes too). */
+export interface Vo2MaxSettingsRequest {
+  show: boolean;
+}
+
+/**
+ * PUT /me/vo2max/reading (TASK-397): the last value of Health, only after
+ * the yes (409 without), between 10 and 90; the day, never the hour.
+ */
+export interface Vo2MaxReadingRequest {
+  value: number;
+  measured_on: string;
+  source: Exclude<Vo2MaxSource, "estimate">;
 }
 
 /** The distances of the personal bests on foot (TASK-368), in their order. */

@@ -90,6 +90,7 @@ test("a profile seen by the others has no email, role or internal id", () => {
     "public_id",
     "reactions",
     "username",
+    "vo2max",
   ]);
   assert.equal(seen.public_id, signedIn.user.public_id);
 });

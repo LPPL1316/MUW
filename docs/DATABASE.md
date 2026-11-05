@@ -951,6 +951,25 @@ questa non ne ha bisogno):
 - Nessuna riga di prima cambia, e nessun backfill: prima di questa nessuna
   giornata di sci si poteva salvare. Test in `test_ski_names_api.py`.
 
+Migrazione `0049_vo2max.sql` (TASK-397 parte A, ADR-0332 e la sua
+precisazione, `API.md` «VO₂ max»; il numero è del Coordinatore):
+
+- **`vo2max`**, una riga per account che ha risposto a «Show your VO₂
+  max?»: `user_id` (chiave, `ON DELETE CASCADE` su `users`), `show` (il sì
+  del titolare, `false` finché non lo dà), `value` (ml/kg/min, fra 10 e 90),
+  `source` (`apple_health` o `health_connect`) e `measured_on` (il giorno,
+  mai l'ora).
+- **Il valore viene da Salute e solo col sì**: `value`, `source` e
+  `measured_on` sono tutti e tre `NULL` o tutti e tre presenti, e `show`
+  spento vuole `value` `NULL` (`CHECK`). Spegnere il sì lo cancella nella
+  stessa scrittura; un valore nuovo prende il posto del vecchio, nessuna
+  cronologia.
+- **La stima non si tiene**: si calcola a ogni lettura dai `run_bests`
+  degli ultimi 365 giorni (`vo2max_estimate.py`), così non c'è niente da
+  rimettere in pari quando un record cambia o una corsa si cancella.
+- Nessun indice oltre la chiave; nessuna riga di prima cambia, nessun
+  backfill. Test in `test_vo2max.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno

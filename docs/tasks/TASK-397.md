@@ -1,12 +1,9 @@
 # TASK-397 — Il VO₂ max nel profilo pubblico
 
-**Stato**: Proposto · proposta in main (#810); scelte e testi
-dell'interfaccia e informativa della parte A approvati; Salute e App
-Privacy con la parte C; nessun
-codice prima del sì sulla
-proposta e della lista dei file data al Coordinatore
-**Fase**: 5 · **Branch**: `docs/TASK-397-vo2max-proposal` (documenti); il
-codice `feat/TASK-397-a-…`
+**Stato**: In lavorazione · proposta in main (#810), testi e informativa
+della parte A approvati (#824); parte A (API) in PR; B, C, D dopo
+**Fase**: 5 · **Branch**: `docs/TASK-397-vo2max-proposal` (documenti);
+`feat/TASK-397-a-vo2max-api` (parte A)
 **Dipende da**: TASK-368 (i record, chiuso) per la stima; la #806 (TASK-376
 B3a) per `health/`; TASK-374 C e TASK-345 C per il giro di Salute della
 1.0.2; TASK-321 C per Android
@@ -62,7 +59,15 @@ titolare ha detto sì; si spegne in Impostazioni.
    it is our estimate from your running bests of the last 12 months, worked
    out by our server. Turn it off in Settings and it disappears from your
    profile.» Le traduzioni le fa l'agente; il sito lo pubblica il
-   Coordinatore col sì dell'utente.
+   Coordinatore col sì dell'utente. Va con la parte B: le pagine del sito si
+   generano dal testo dell'app (`site/tools/make_privacy.mjs` da
+   `apps/mobile/src/about/content/*.ts`), e devono essere sul sito prima
+   dell'OTA che manda i dati (Coordinatore, 2026-11-05).
+5. **I passi** (2026-11-05): «CONFERMO» alla parte A sul server di
+   produzione, una volta in main; «OK VA BENE» alle parti A–D, all'OTA della
+   parte B e, con la 1.0.2, all'informativa su Salute e alla voce «Health»
+   di App Privacy. Il testo di quell'informativa non è ancora scritto: si
+   mostra all'utente prima di usarlo.
 
 ## Domande aperte (ognuna col sì dell'utente)
 
@@ -77,11 +82,12 @@ titolare ha detto sì; si spegne in Impostazioni.
 
 In ADR-0332 (deciso dall'agente su delega dell'utente). In breve:
 
-- **Il sì sta sul server**: `accounts.show_vo2max`, spento per tutti. Senza
-  il sì il server non tiene né mostra niente.
+- **Il sì sta sul server**, nella tabella `vo2max` (precisazione di
+  ADR-0332), spento per tutti. Senza il sì il server non tiene né mostra
+  niente.
 - **Il valore di Salute resta sul telefono** fino al sì; dopo, il telefono
-  manda solo l'ultimo numero e il suo giorno (`PUT /me/vo2max`). Spento,
-  il server cancella il numero.
+  manda solo l'ultimo numero e il suo giorno (`PUT /me/vo2max/reading`).
+  Spento, il server cancella il numero.
 - **La stima la fa il server**, dai record di corsa che ha già: formula di
   Daniels e Gilbert (VDOT), sui record degli ultimi 365 giorni dal 5K alla
   maratona, il più alto. Arrotondata all'intero.
@@ -131,15 +137,23 @@ Questa PR (documenti): `docs/tasks/TASK-397.md` (nuovo), `docs/DECISIONS.md`
 La lista precisa di ogni parte va al Coordinatore prima della parte. Per
 ora:
 
-- **A**: `services/api/migrations/NNNN_vo2max.sql` (nuovo, numero dal
-  Coordinatore); `services/api/shaperoute_api/vo2max.py` e
-  `vo2max_estimate.py` (nuovi); `services/api/tests/test_vo2max.py` e
-  `test_vo2max_estimate.py` (nuovi); righe aggiunte in `profiles.py` e in
-  `app.py` (il router); `packages/shared-types` (tipo e fixture
-  `public-profile.json`, righe aggiunte); `docs/API.md` («Profile»).
+- **A** (approvata dal Coordinatore il 2026-11-05): nuovi
+  `services/api/migrations/0049_vo2max.sql`,
+  `services/api/shaperoute_api/vo2max.py` e `vo2max_estimate.py`,
+  `services/api/tests/test_vo2max.py` e `test_vo2max_estimate.py`,
+  `packages/shared-types/fixtures/vo2max-settings.json` e
+  `vo2max-reading-request.json`, `packages/shared-types/test/vo2max.test.ts`;
+  righe in `services/api/shaperoute_api/profiles.py`, `app.py`,
+  `services/api/tests/test_profiles.py`, `packages/shared-types/src/index.ts`,
+  `fixtures/public-profile.json`, `test/accounts.test.ts` (una riga);
+  `docs/API.md` («Profile» e «VO₂ max»), `docs/DATABASE.md` (la `0049`),
+  `docs/DECISIONS.md` (precisazione di ADR-0332), `docs/STATUS.md`, questo
+  file.
 - **B**: `apps/mobile/src/profile/ProfileVo2Max.tsx` e il suo test (nuovi);
   righe in `ProfileHome.tsx`, `UserProfilePage.tsx`, `SettingsPage.tsx`,
-  `api/profiles.ts`; `locales/*.json` (righe aggiunte).
+  `api/profiles.ts`; `locales/*.json` (righe aggiunte); l'informativa
+  approvata in `apps/mobile/src/about/content/*.ts` (cinque lingue), con
+  `site/privacy` rigenerato e `PRIVACY_UPDATED`.
 - **C**: `apps/mobile/src/health/vo2max.ts` e test (nuovi); righe in
   `health/appleHealth.ts` (dopo la #806), `app.json` (il testo, nel giro
   della 1.0.2).

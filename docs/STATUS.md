@@ -2860,6 +2860,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `docs/TASK-397-vo2max-proposal`; la unisce il Coordinatore. Prossimo: il sì
   dell'utente sui testi, poi la lista dei file della parte A al Coordinatore.
   `tasks/TASK-397.md`.
+  **2026-11-05**: testi e informativa della parte A approvati (#824); parte A
+  (API, migrazione `0049_vo2max.sql`, `GET`/`PUT /me/vo2max`, `PUT`/`DELETE
+  /me/vo2max/reading`, `vo2max` nel profilo) in PR da
+  `feat/TASK-397-a-vo2max-api`; server col «CONFERMO» dell'utente dopo il
+  merge. Prossimo: la parte B (app e informativa nelle cinque lingue).
 
 - **TASK-395 — La ricerca non divide più per zero quando un percorso non
   disegna niente** (2026-11-05; numero dal Coordinatore; seguito di TASK-297

@@ -1,0 +1,9 @@
+{
+  "show": true,
+  "vo2max": {
+    "value": 48,
+    "source": "apple_health",
+    "measured_on": "2026-11-03",
+    "from_distance": null
+  }
+}
