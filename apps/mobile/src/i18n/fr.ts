@@ -773,6 +773,8 @@ export const FR: Table = {
   // src/screens/FreeRunScreen.tsx, SnowFinishCard.tsx (TASK-375 part C)
   "Your day": "Ta journée",
   "White: where you skied.": "Blanc : là où tu as skié.",
+  "White: your descents. Dashed: the lifts.":
+    "Blanc : tes descentes. Pointillés : les remontées.",
   "Skied: {distance}": "Skié : {distance}",
   Descents: "Descentes",
   Vertical: "Dénivelé",

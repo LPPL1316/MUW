@@ -18,6 +18,7 @@ import { useActivitiesDoor } from "./src/activities/activitiesDoor";
 import { ActivityCard } from "./src/activities/ActivityCard";
 import { type Drawn, sameLine } from "./src/activities/recordedRun";
 import { RunEnd } from "./src/activities/RunEnd";
+import { type Lifts, snowLiftsOf } from "./src/activities/snowLifts";
 import { apiUrl } from "./src/api/apiUrl";
 import { PickStart } from "./src/location/PickStart";
 import {
@@ -291,10 +292,12 @@ type FreeFinished = {
   line: LatLon[];
   /** «Run» again would go on with its track. */
   resumable: boolean;
+  lifts: Lifts | null;
 };
 
 function freeFinishedRun(run: FreeRun, resumable: boolean): FreeFinished {
-  return { run, line: run.track.fixes.map((fix) => fix.point), resumable };
+  const line = run.track.fixes.map((fix) => fix.point);
+  return { run, line, resumable, lifts: snowLiftsOf(run) };
 }
 
 /** A run without a route left when the app was last open, if any. */
@@ -1396,6 +1399,7 @@ function MuW() {
                     ? freeLine
                     : null
             }
+            lifts={freeFinishing ? freeFinished.lifts : null}
             following={
               navigating && navigation.status === "following"
                 ? navigation.position

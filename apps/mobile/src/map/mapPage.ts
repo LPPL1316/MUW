@@ -165,6 +165,9 @@ export const FIRST_MARK_RADIUS = 9;
 export const TRACK_COLOR = track.color;
 export const TRACK_WIDTH = track.width;
 export const TRACK_OPACITY = track.opacity;
+/** The lifts of a day of skiing (TASK-375 part C2): the track's line,
+ * dashed as the stretches with the bike on foot. */
+export const LIFT_DASH = onFoot.dash;
 
 /**
  * The start asked for. MapLibre's default marker is a light blue that reads
@@ -281,6 +284,8 @@ export function buildMapPage(language: Language = appLanguage()): string {
     // Off the route (TASK-303): the dotted line back to it.
     var rejoin = noRoute;
     var track = noRoute;
+    // A day of skiing (TASK-375 part C2): its lifts, dashed.
+    var lifts = noRoute;
     var stops = noRoute;
     var others = noRoute;
     // «Draw on the map» (TASK-281): the figure as drawn, its links dashed
@@ -458,6 +463,21 @@ export function buildMapPage(language: Language = appLanguage()): string {
           "line-color": ${toScript(TRACK_COLOR)},
           "line-width": ${TRACK_WIDTH},
           "line-opacity": ${TRACK_OPACITY},
+        },
+      });
+      // The lifts of a day of skiing, beside its descents: the same line,
+      // dashed.
+      map.addSource("lifts", { type: "geojson", data: lifts });
+      map.addLayer({
+        id: "lifts",
+        type: "line",
+        source: "lifts",
+        layout: { "line-join": "round" },
+        paint: {
+          "line-color": ${toScript(TRACK_COLOR)},
+          "line-width": ${TRACK_WIDTH},
+          "line-opacity": ${TRACK_OPACITY},
+          "line-dasharray": ${toScript(LIFT_DASH)},
         },
       });
       // «Draw on the map» (TASK-281): the figure in the route's yellow, as
@@ -678,6 +698,13 @@ export function buildMapPage(language: Language = appLanguage()): string {
       var source = map.getSource("track");
       if (source) {
         source.setData(track);
+      }
+    }
+    function setLifts(data) {
+      lifts = data;
+      var source = map.getSource("lifts");
+      if (source) {
+        source.setData(lifts);
       }
     }
     // The map turned, by the app or by two fingers: the app is told each
@@ -1695,6 +1722,19 @@ export function buildMapPage(language: Language = appLanguage()): string {
           });
         } else if (message.type === "clearTrack") {
           setTrack(noRoute);
+        } else if (message.type === "showLifts") {
+          setTrack({
+            type: "Feature",
+            properties: {},
+            geometry: { type: "MultiLineString", coordinates: message.skied },
+          });
+          setLifts({
+            type: "Feature",
+            properties: {},
+            geometry: { type: "MultiLineString", coordinates: message.lifts },
+          });
+        } else if (message.type === "clearLifts") {
+          setLifts(noRoute);
         } else if (message.type === "showProgress") {
           showProgress(message);
         } else if (message.type === "clearProgress") {

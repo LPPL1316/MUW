@@ -174,6 +174,16 @@ con «Sì, approvati», nella tabella sopra): `apps/mobile/src/settings/sport.ts
 `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 7) e questa lista.
 `trackStore.ts` e `api/activities.ts` alla fine non servono.
 
+Parte C2 (approvata dal Coordinatore il 2026-11-05):
+`apps/mobile/src/activities/snowLifts.ts` e `snowLifts.test.ts` (nuovi),
+`apps/mobile/src/map/MapViewLifts.test.tsx` e `mapPageLifts.test.ts`
+(nuovi), `apps/mobile/src/map/messages.ts`, `apps/mobile/src/map/mapPage.ts`,
+`apps/mobile/src/map/MapView.tsx`, `apps/mobile/App.tsx` (il campo `lifts`
+e il prop di `MapView`), `apps/mobile/src/screens/FreeRunScreen.tsx`,
+`apps/mobile/src/screens/SnowFinishCard.test.tsx` (la riga del banner, chiesta
+al Coordinatore), `apps/mobile/src/i18n/{it,de,fr,es}.ts`; documenti:
+`docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 10) e questa lista.
+
 Parte C1 (approvata dal Coordinatore il 2026-11-05):
 `apps/mobile/src/activities/snowDay.ts` e `snowDay.test.ts` (nuovi),
 `apps/mobile/src/screens/SnowFinishCard.tsx` e `SnowFinishCard.test.tsx`

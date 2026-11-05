@@ -321,6 +321,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     letti sul telefono; il fondo con distanza, passo e salita; niente
     calorie (testi approvati, ADR-0319 punto 9). Prossimo: C2, le risalite
     tratteggiate sulla mappa, col via del Coordinatore.
+  - 2026-11-05: **C2**: sulla mappa di fine giornata di sci le discese sono
+    piene e le risalite tratteggiate (ADR-0319 punto 10). Prossimo: la parte
+    D (nomi di impianti e piste sul server: server e riga privacy col sì
+    dell'utente).
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
