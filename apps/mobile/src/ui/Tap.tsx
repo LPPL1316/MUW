@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 import { motion } from "../theme/tokens";
-import { springTo } from "./motion";
+import { type SpringName, springTo } from "./motion";
 import { useReduceMotion } from "./useReduceMotion";
 
 type Props = Omit<PressableProps, "style"> & {
@@ -21,6 +21,8 @@ type Props = Omit<PressableProps, "style"> & {
   style?: StyleProp<ViewStyle>;
   /** How small it gets under the finger: `motion.pressScale` unless told. */
   pressScale?: number;
+  /** The spring it comes back on: `snappy` unless told. */
+  settle?: SpringName;
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -40,6 +42,7 @@ export function Tap({
   ref,
   style,
   pressScale = motion.pressScale,
+  settle = "snappy",
   onPressIn,
   onPressOut,
   ...rest
@@ -69,7 +72,7 @@ export function Tap({
     }).start();
   }
   function release() {
-    springTo(pressed, 0, "snappy").start();
+    springTo(pressed, 0, settle).start();
   }
 
   // The spring passes 0 by a hair: the size a hair past whole, the light
