@@ -171,7 +171,8 @@ Le domande, una alla volta:
 
 ## File toccati
 
-Parte D1 (proposta al Coordinatore il 2026-11-05; solo file nuovi, nessun
+Parte D1 (approvata dal Coordinatore il 2026-11-05; il codice dopo le
+risposte alle domande 1 e 2; solo file nuovi, nessun
 file esistente del server): `services/api/shaperoute_api/ski_extract.py`
 (il comando una tantum: dall'estratto filtrato con osmium al file degli
 impianti e delle piste), `services/api/shaperoute_api/ski_names.py` (il
