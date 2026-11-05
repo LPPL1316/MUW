@@ -23011,3 +23011,59 @@ tre testi nuovi nelle tabelle, già approvati. L'OTA va in produzione col sì
 dell'utente prima della parte B, che fa registrare la palestra.
 
 ---
+## ADR-0321 — L'escursionismo: una rete sua, fuori dalle strade delle auto, sulla struttura degli sport
+
+**Stato**: Proposto · 2026-11-05 · TASK-377. Pilota della struttura degli
+sport (ADR-0320), scelta dell'utente del 2026-11-04; numeri dal
+Coordinatore. Le scelte di prodotto sono dell'utente, una alla volta, in
+`tasks/TASK-377.md`. I punti tecnici qui sotto sono decisi dall'agente su
+delega dell'utente, e restano proposti finché le scelte non ci sono.
+
+**Contesto**: la camminata (ADR-0315) usa la rete «foot» della corsa, che
+tiene ogni strada dove si può andare a piedi, comprese quelle trafficate.
+Un'escursione le evita. Il banco ha provato due reti senza toccare il
+motore (`docs/sports/hike.md`):
+
+- **solo sentieri**: a Trento resta un pezzo di 88 km attorno alla
+  partenza, con 3 forme su 9;
+- **«foot» senza le strade delle auto**: 46 forme su 54 sulle sei zone; in
+  montagna 6–7 su 9, e la rete lì è soprattutto `track` e `path`.
+
+**Decisione (proposta)**:
+
+1. **Un'attività `hiking`** fra quelle che si disegnano (`PLANNED_SPORTS`),
+   nei file nuovi di ogni strato e con una riga in ogni registro, come dice
+   `docs/sports/COME-AGGIUNGERE.md`. Ogni file fuori ricetta è una deroga
+   scritta in `CONDIVISO.md`.
+2. **Una rete nuova `hike`** (`route_engine/networks/hike.py`). È il
+   filtro «foot» senza `trunk`, `primary`, `secondary` e `tertiary`, ed
+   esclude `sac_scale` oltre T3 («demanding mountain hiking»). Ogni via
+   resta percorribile nei due sensi, come «foot». Ha file di cache suoi
+   (`hike_*`).
+3. **La prima rete nuova dopo la bici** porta `__main__.py` e `anchored.py`
+   a `OsmnxSource.for_activity` (`CONDIVISO.md`, «Il motore»).
+4. **L'impronta del motore cambia**: server, migrazione (numero dal
+   Coordinatore) e notte degli esempi si fanno solo col sì dell'utente.
+5. **Sul telefono**: un `SportProfile` con Apple `.hiking` (24), Health
+   Connect `EXERCISE_TYPE_HIKING` (37), l'energia ACSM a piedi con la
+   salita, e la rete `hike` sul telefono se le zone si scaricano come per
+   «foot». Solo JavaScript: l'impronta iOS non si muove.
+
+**Restano all'utente**:
+
+- nome ed emoji;
+- la rete fra le due misurate;
+- le distanze (il banco ha provato 5–20 km);
+- il limite `sac_scale`;
+- se conta nel gioco e nei record;
+- i testi;
+- quando si accende.
+
+**Alternative**:
+
+- **Solo sentieri**: troppo frammentata vicino alle città.
+- **La rete «foot» così com'è**: è la camminata, già fatta.
+- **Preferire i sentieri col peso degli archi invece di togliere le
+  strade**: cambierebbe la ricerca del motore per tutti. Se serve, si
+  valuta dopo la parte A, misurando quanto di ogni percorso sta su `track`
+  e `path`.

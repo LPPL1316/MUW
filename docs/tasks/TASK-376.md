@@ -1,8 +1,8 @@
 # TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la ricetta
 
-**Stato**: In corso — parte A in `main` (#736); parte B1 (il registro del
-motore) in `main` (#763); B2 (contratto e API) con la lista dei file al
-Coordinatore, poi B3 (app)
+**Stato**: In corso — parte A in `main` (#736); parte B in `main` (B1 #763,
+B2 #798, B3a #806, B3b #814, B3c #818) tranne `settings/sport.ts`, che
+aspetta la #765; parte C: C1, la ricetta, in PR, poi il pilota TASK-377
 **Fase**: 4 · **Branch**: `feat/TASK-376-a-sport-bench` (parte A),
 `feat/TASK-376-b-sport-registry` (parte B) · **ADR**: ADR-0320 · numeri dal
 Coordinatore (2026-11-04) · sessione «Coordinatore Sport»
@@ -104,10 +104,18 @@ meno a lungo: **B1** il motore, **B2** contratto e API, **B3** l'app.
 - [x] A: `docs/sports/` con README, CONDIVISO, COME-AGGIUNGERE (bozza) e le
       misure di base di corsa, bici e canoa.
 - [x] A: ADR-0320 scritto.
-- [ ] B: corsa, bici, canoa, nuoto, camminata, sci identici: suite intere
+- [x] B: corsa, bici, canoa, nuoto, camminata, sci identici: suite intere
       verdi, `compare` del banco senza peggioramenti, impronta iOS invariata.
+      Ogni PR è entrata con la CI verde. Il banco ha misurato B1, l'unica parte
+      che tocca il motore, con `compare --same` senza differenze. L'impronta
+      iOS è `6f8bba4c`, misurata su B2 (la riga del tsconfig); B3 è solo
+      JavaScript.
 - [ ] B: aggiungere uno sport di prova tocca solo file nuovi più una riga per
-      punto di registrazione (test che lo dimostra).
+      punto di registrazione (test che lo dimostra). I registri ci sono in
+      motore, contratto, API e app. Restano scritti a mano, e vanno allungati
+      di un nome: i `Literal` di Python e il «Settings» dell'app
+      (`settings/sport.ts`, dopo la #765). Il test arriva con la parte C:
+      la ricetta lo chiede al pilota.
 - [ ] C: ricetta definitiva; il pilota la segue senza deroghe.
 
 ## File toccati
@@ -328,3 +336,37 @@ bici: il primo sport con una rete nuova li passa a
 2026-11-05: parte B1 in `main` (#763, 2026-11-04 sera), con la #758. Lista
 dei file di B2 mandata al Coordinatore (sopra, «File toccati»); il codice
 parte dal suo via.
+
+2026-11-05, chiusura della parte B. In `main`:
+
+- B2 (#798): `packages/shared-types/src/sports/` e
+  `shaperoute_api/sports/`, le tabelle del contratto e dell'API ricavate
+  uguali. `engine.zip` è stato rifatto. L'impronta iOS è ancora `6f8bba4c`.
+- B3a (#806): `apps/mobile/src/sports/` con un `SportProfile` per sport.
+  Le tabelle delle distanze, di Salute, della ricerca, delle reti, delle
+  calorie, della corsa libera e delle rotte MuW si leggono dal profilo.
+- B3b (#814): le schermate leggono dal profilo quello che prima
+  confrontavano con catene di `activity === "…"`. Sono «Disegna», Feed,
+  rotte MuW, record, corsa e neve.
+- B3c, prima metà (#818): il nome dello sport nel modulo per pubblicare.
+
+Resta della parte B solo `settings/sport.ts`, dopo la #765 (TASK-323). Le
+scoperte sono in `docs/sports/CONDIVISO.md`, sezioni «Il contratto e
+l'API» e «L'app». Prossimo: la parte C, cioè `COME-AGGIUNGERE.md` riscritto
+sulla struttura di B e il pilota Escursionismo (TASK-377).
+
+2026-11-05, parte C1: `docs/sports/COME-AGGIUNGERE.md` è riscritto sulla
+struttura della parte B. Per ogni strato dice:
+
+- i file nuovi;
+- le righe nei registri;
+- i punti ancora scritti a mano, elencati uno per uno.
+
+Nell'app sono `settings/sport.ts`, l'import dei file, `runTime.ts`, la
+lista degli sport pubblicabili e i testi `i18n`. Nell'API sono i `Literal`,
+`reads.py`, la migrazione dei CHECK e il gioco.
+
+La chiusura di uno sport confronta il diff con la ricetta, e ogni deroga va
+in `CONDIVISO.md`. Il Coordinatore ha approvato il piano di C e del pilota
+il 2026-11-05. Prossimo: 377-0, cioè TASK-377.md, `hike.md`, ADR-0321
+proposto e la misura dei sentieri col banco, dopo il merge di C1.

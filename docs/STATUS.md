@@ -359,6 +359,20 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   come prima. B2 (contratto e API) e B3 (app) dopo la #758.
   **Parte B1 in `main`** (#763, 2026-11-04 sera). B2 (contratto e API):
   lista dei file al Coordinatore il 2026-11-05, codice al suo via; poi B3.
+  **Parte B in `main`** (2026-11-05): B2 #798, B3a #806, B3b #814, B3c #818.
+  Ogni sport ha un file suo nel contratto, nell'API e nell'app
+  (`SportProfile`). Le tabelle di prima si ricavano dai file, uguali, e
+  l'impronta iOS resta `6f8bba4c`. Resta solo `settings/sport.ts`, dopo la
+  #765. Prossimo: la parte C, cioè la ricetta definitiva e il pilota
+  Escursionismo (TASK-377).
+  **Parte C1 in PR** (2026-11-05): `docs/sports/COME-AGGIUNGERE.md`
+  riscritto sulla struttura della parte B: file nuovi, una riga per
+  registro e i punti fissi ancora scritti a mano. Poi il pilota TASK-377.
+  **C1 in `main`** (#820). **TASK-377 parte 0 in PR** (2026-11-05):
+  misurate col banco due reti per l'escursionismo. «foot» senza le strade
+  delle auto riesce 46 volte su 54 sulle sei zone; solo sentieri, 3 su 9 a
+  Trento. Scritti `hike.md` e ADR-0321 come proposto. Prossimo: le scelte
+  dell'utente, una alla volta (`tasks/TASK-377.md`).
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
