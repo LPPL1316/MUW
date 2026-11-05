@@ -72,7 +72,8 @@ Tocca una promessa fatta a chi ha già pubblicato:
   - Privacy, «Share»: «Il video mostra la mappa attorno alla corsa,
     partenza e arrivo compresi.»
   - Data dell'informativa: 5 novembre 2026.
-  - Due frasi in più con la stessa modifica, in attesa del sì dell'utente:
+  - Due frasi in più con la stessa modifica, approvate dall'utente il
+    2026-11-05 («Sì, approvo»):
     il paragrafo dei messaggi in «Privacy» («Un disegno è una copia del
     percorso e arriva intero, con la sua partenza: sia una corsa che mandi,
     come nel Feed, sia un percorso che hai pianificato.») e una frase di
