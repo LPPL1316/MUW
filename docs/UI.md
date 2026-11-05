@@ -592,11 +592,12 @@ build.
 
 **Il movimento della barra** (TASK-388, ADR-0329): dietro la scheda attiva
 una capsula morbida (`surfaceRaised`) che scivola alla nuova con la molla
-`snappy`, un poco allungata a metà corsa; con lo swipe segue il dito, e dal
-profilo al Feed fa il giro uscendo a destra ed entrando da sinistra.
-L'icona premuta scende a 0,88 e torna appena oltre la misura; quella che
-prende la scheda sale di 1,5 pt e passa dal contorno al pieno in
-dissolvenza. Una vibrazione leggera solo quando un tocco cambia scheda. Con
+`glide`, smorzata criticamente: parte al tocco, prima che la pagina sia
+costruita, e si ferma sulla scheda senza superarla (A2, 2026-11-05); con lo
+swipe segue il dito, e dal profilo al Feed fa il giro uscendo a destra ed
+entrando da sinistra. L'icona premuta scende a 0,9 e torna con la stessa
+molla; quella che prende la scheda sale di 1,5 pt e passa dal contorno al
+pieno in dissolvenza. Una vibrazione leggera solo quando un tocco cambia scheda. Con
 «Riduci movimento» la capsula compare in dissolvenza dove va, le icone
 solo sfumano.
 

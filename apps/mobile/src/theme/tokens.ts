@@ -439,6 +439,10 @@ export const motion = {
     snappy: { stiffness: 270, damping: 25, mass: 1 },
     smooth: { stiffness: 170, damping: 24, mass: 1 },
     island: { stiffness: 160, damping: 20, mass: 1 },
+    /** ~0.39 s, critically damped, never passes its mark: the tab bar,
+     * where a bounce at every change of page read as clunky (TASK-388 A2).
+     * It has taken over from `snappy` there. */
+    glide: { stiffness: 256, damping: 32, mass: 1 },
   },
   /** Something arriving on screen: a fade, rising this many points. */
   appearMs: 220,

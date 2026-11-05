@@ -25,8 +25,12 @@ test.each(NAMES)(
   },
 );
 
-test("the three as the token says: snappy and island bounce a hair, smooth hardly at all", () => {
+test("as the token says: snappy and island bounce a hair, smooth hardly at all, glide never", () => {
   expect(springOvershoot(motion.spring.snappy)).toBeCloseTo(0.025, 2);
+  // The tab bar's (A2): critically damped, it never passes its mark.
+  expect(springDampingFraction(motion.spring.glide)).toBe(1);
+  expect(springOvershoot(motion.spring.glide)).toBe(0);
+  expect(springResponse(motion.spring.glide)).toBeCloseTo(0.39, 2);
   expect(springOvershoot(motion.spring.island)).toBeCloseTo(0.017, 2);
   expect(springOvershoot(motion.spring.smooth)).toBeLessThan(0.001);
   expect(springOvershoot({ stiffness: 100, damping: 20, mass: 1 })).toBe(0);

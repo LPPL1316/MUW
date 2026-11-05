@@ -8,7 +8,6 @@ import {
 } from "react";
 import {
   Animated,
-  Easing,
   type ImageSourcePropType,
   StyleSheet,
   Text,
@@ -24,7 +23,6 @@ import {
   fontSize,
   fontWeight,
   MIN_TAP_SIZE,
-  motion,
   radius,
   space,
 } from "../theme/tokens";
@@ -65,13 +63,9 @@ export const TAB_BAR_HEIGHT = 50;
 export const TAB_CAPSULE_WIDTH = 56;
 export const TAB_CAPSULE_HEIGHT = 34;
 /** How small an icon gets under the finger. */
-export const TAB_PRESS_SCALE = 0.88;
+export const TAB_PRESS_SCALE = 0.9;
 /** How far the icon taking its tab rises, in points. */
 export const TAB_ICON_RISE = 1.5;
-/** How much the capsule stretches half way, for each tab it crosses, and at
- * most: a drop moving, never a band. */
-export const TAB_STRETCH_PER_TAB = 0.08;
-export const TAB_STRETCH_MOST = 0.2;
 
 export type BarTab = {
   /** The page's name: the tour finds the tab by it. */
@@ -102,9 +96,14 @@ type Props = {
  * The tab bar at the foot of the app (TASK-367, ADR-0311), as Instagram's:
  * one icon a page, no words, over the home indicator. The page on screen is
  * told by the bolder line, by light and by a soft capsule behind it, never
- * by the route's yellow. The capsule slides to a new tab on the spring
- * `snappy`, stretching a little half way as a drop does (TASK-388,
- * ADR-0329); with «Reduce Motion» it fades in where it goes, nothing slides.
+ * by the route's yellow. The capsule glides to a new tab on the spring
+ * `glide`, which never passes its mark (TASK-388, ADR-0329); with «Reduce
+ * Motion» it fades in where it goes, nothing slides.
+ *
+ * A touched tab sets the capsule and its icon off at the touch, before the
+ * app builds the page: the springs run on the UI thread while JS builds it,
+ * so a heavy page («Feed», «Explore» the first time) no longer holds them
+ * back.
  */
 export function TabBar({ tabs, page, onTab, drag }: Props) {
   const insets = useSafeAreaInsets();
@@ -115,8 +114,17 @@ export function TabBar({ tabs, page, onTab, drag }: Props) {
 
   // The capsule's tab, as a number: 2.5 is half way from the third to the fourth.
   const [at] = useState(() => new Animated.Value(page));
-  const [stretch] = useState(() => new Animated.Value(1));
   const [shown] = useState(() => new Animated.Value(1));
+  // Each icon's light, 1 lit: made the first time it is asked for.
+  const [lights] = useState(() => new Map<number, Animated.Value>());
+  function lightOf(index: number): Animated.Value {
+    let light = lights.get(index);
+    if (light === undefined) {
+      light = new Animated.Value(index === page ? 1 : 0);
+      lights.set(index, light);
+    }
+    return light;
+  }
 
   // Where the finger last had the pages: a page reached by sliding is where
   // the capsule already is, and the spring has nothing to do.
@@ -131,6 +139,45 @@ export function TabBar({ tabs, page, onTab, drag }: Props) {
     return () => drag.removeListener(id);
   }, [drag]);
 
+  // The tab the capsule goes to or stands on, and the icon lit or lighting.
+  const heading = useRef(page);
+  const lit = useRef(page);
+
+  function moveTo(index: number, from?: number) {
+    heading.current = index;
+    if (still) {
+      at.setValue(index);
+      shown.setValue(0);
+      fadeTo(shown, 1).start();
+      return;
+    }
+    if (from === undefined) {
+      springTo(at, index, "glide").start();
+      return;
+    }
+    // From where a finger left it: round the bar if that is nearer, and
+    // back to the tab's own number at rest.
+    const to = index + Math.round((from - index) / count) * count;
+    at.setValue(from);
+    springTo(at, to, "glide").start(({ finished }) => {
+      if (finished && to !== index) {
+        at.setValue(index);
+      }
+    });
+  }
+
+  function lightUp(index: number) {
+    const was = lit.current;
+    if (was === index) {
+      return;
+    }
+    lit.current = index;
+    const turn = (light: Animated.Value, to: number) =>
+      (still ? fadeTo(light, to) : springTo(light, to, "glide")).start();
+    turn(lightOf(was), 0);
+    turn(lightOf(index), 1);
+  }
+
   const before = useRef(page);
   // In the commit that brings the page, so it never shows a frame behind.
   useLayoutEffect(() => {
@@ -139,38 +186,36 @@ export function TabBar({ tabs, page, onTab, drag }: Props) {
       return;
     }
     before.current = page;
-    if (still) {
-      at.setValue(page);
-      shown.setValue(0);
-      fadeTo(shown, 1).start();
-      return;
-    }
+    lightUp(page);
     // A finger brought the pages a whole page or more: the capsule is there.
     const slid = Math.round(dragged.current);
     dragged.current = 0;
-    let start = from;
     if (slid !== 0) {
-      start = (((from + slid) % count) + count) % count;
+      const start = (((from + slid) % count) + count) % count;
       at.setValue(start);
-      if (start === page) {
-        return;
-      }
+      heading.current = start;
     }
-    const reach = Math.min(
-      TAB_STRETCH_MOST,
-      TAB_STRETCH_PER_TAB * Math.abs(page - start),
-    );
-    springTo(at, page, "snappy").start();
-    Animated.sequence([
-      Animated.timing(stretch, {
-        toValue: 1 + reach,
-        duration: motion.pressMs,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }),
-      springTo(stretch, 1, "snappy"),
-    ]).start();
-  }, [page, still, at, stretch, shown, count]);
+    // Unless the touch has sent it already.
+    if (heading.current !== page) {
+      moveTo(page);
+    }
+  });
+
+  function touched(index: number) {
+    // A light buzz for a new tab only, not for every touch.
+    selectionFeel();
+    const from = dragged.current === 0 ? undefined : heading.current + dragged.current;
+    moveTo(index, from);
+    lightUp(index);
+    // The app may keep its page («Messages» for nobody signed in, from the
+    // profile): once it has answered, the capsule goes back.
+    setTimeout(() => {
+      if (before.current !== heading.current) {
+        lightUp(before.current);
+        moveTo(before.current);
+      }
+    }, 0);
+  }
 
   // Two more capsules a whole bar away on either side: sliding from the
   // last page round to the first, one leaves at the right edge as the
@@ -200,10 +245,7 @@ export function TabBar({ tabs, page, onTab, drag }: Props) {
           <Animated.View
             key={round}
             testID={round === 1 ? "tab-capsule" : `tab-capsule-${round}`}
-            style={[
-              styles.capsule,
-              { opacity: shown, transform: [{ translateX }, { scaleX: stretch }] },
-            ]}
+            style={[styles.capsule, { opacity: shown, transform: [{ translateX }] }]}
           />
         ))}
       </View>
@@ -220,10 +262,10 @@ export function TabBar({ tabs, page, onTab, drag }: Props) {
             <Tap
               style={styles.tab}
               pressScale={TAB_PRESS_SCALE}
+              settle="glide"
               onPress={() => {
-                // A light buzz for a new tab only, not for every touch.
                 if (index !== page) {
-                  selectionFeel();
+                  touched(index);
                 }
                 onTab(index);
               }}
@@ -231,7 +273,7 @@ export function TabBar({ tabs, page, onTab, drag }: Props) {
               accessibilityState={{ selected }}
               accessibilityLabel={tab.label}
             >
-              <Glyph tab={tab} selected={selected} still={still} />
+              <Glyph tab={tab} selected={selected} on={lightOf(index)} still={still} />
               {(tab.count ?? 0) > 0 && (
                 <View style={styles.count}>
                   <Text style={styles.countText}>{countLabel(tab.count ?? 0)}</Text>
@@ -245,25 +287,20 @@ export function TabBar({ tabs, page, onTab, drag }: Props) {
   );
 }
 
-type GlyphProps = { tab: BarTab; selected: boolean; still: boolean };
+type GlyphProps = {
+  tab: BarTab;
+  selected: boolean;
+  /** Its light, moved by the bar: 1 lit. */
+  on: Animated.Value;
+  still: boolean;
+};
 
 /**
  * A tab's icon: taking its tab it rises a point and a half and its outline
  * gives way to the bolder line in a cross fade; with «Reduce Motion» only
  * the fade.
  */
-function Glyph({ tab, selected, still }: GlyphProps) {
-  const [on] = useState(() => new Animated.Value(selected ? 1 : 0));
-  const was = useRef(selected);
-  useEffect(() => {
-    if (was.current === selected) {
-      return;
-    }
-    was.current = selected;
-    const to = selected ? 1 : 0;
-    (still ? fadeTo(on, to) : springTo(on, to, "snappy")).start();
-  }, [selected, still, on]);
-
+function Glyph({ tab, selected, on, still }: GlyphProps) {
   const rise = on.interpolate({
     inputRange: [0, 1],
     outputRange: [0, still ? 0 : -TAB_ICON_RISE],
@@ -278,7 +315,6 @@ function Glyph({ tab, selected, still }: GlyphProps) {
   if (!tab.icon) {
     return null;
   }
-  // The spring passes its mark by a hair: the light never past full.
   const lit = on.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 1],

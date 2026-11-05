@@ -143,12 +143,16 @@ export function TabShell({ pages, page, onPage, action }: Props) {
   // bar has taken it: the capsule never shows a frame behind.
   const [drag] = useState(() => new Animated.Value(0));
   const scrolled = useRef({ x: start.x, drag: 0, page });
+  // A tab touched while the strip still slides: the bar has taken the
+  // capsule from where the finger left it, and it stays the bar's until a
+  // finger takes the strip again.
+  const tapped = useRef(false);
   useLayoutEffect(() => {
     const { x, drag: last, page: was } = scrolled.current;
     // A new page stands where the strip is, or right by it: the round
     // nearest none. The same page, the round the finger was on.
     const near = page === was ? last : 0;
-    const away = pagesFromPage(x, width, now, page, count, near);
+    const away = tapped.current ? 0 : pagesFromPage(x, width, now, page, count, near);
     scrolled.current = { x, drag: away, page };
     drag.setValue(away);
   }, [drag, now, page, count, width]);
@@ -227,13 +231,22 @@ export function TabShell({ pages, page, onPage, action }: Props) {
     if (index === page) {
       reselectOf(pages[index].title).reselect();
     } else {
+      tapped.current = true;
+      scrolled.current = { ...scrolled.current, drag: 0 };
+      drag.setValue(0);
       onPage(index);
     }
   }
 
+  function onBeginDrag() {
+    tapped.current = false;
+  }
+
   function onScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
     const x = event.nativeEvent.contentOffset.x;
-    const away = pagesFromPage(x, width, now, page, count, scrolled.current.drag);
+    const away = tapped.current
+      ? 0
+      : pagesFromPage(x, width, now, page, count, scrolled.current.drag);
     scrolled.current = { x, drag: away, page };
     drag.setValue(away);
     // The first pixels of a page build it: it slides in whole.
@@ -307,6 +320,7 @@ export function TabShell({ pages, page, onPage, action }: Props) {
         onLayout={onLayout}
         scrollEventThrottle={16}
         onScroll={onScroll}
+        onScrollBeginDrag={onBeginDrag}
         onMomentumScrollEnd={onMomentumEnd}
         onScrollEndDrag={onDragEnd}
       >

@@ -152,6 +152,28 @@ test("flicks one after the other, before the strip rests: the capsule goes on ro
   await frames(10, () => expect(capsuleX()).toBeCloseTo(under(0), 3));
 });
 
+test("a tab touched while the strip still slides: the capsule goes from where the finger left it, without a jump", async () => {
+  await render(<Shell />);
+  await slide(STRIP_START, 0.4);
+  expect(capsuleX()).toBeCloseTo(under(1.4), 3);
+
+  await fireEvent.press(screen.getByRole("tab", { name: "Feed" }));
+  expect(screen.getByRole("tab", { name: "Feed" })).toBeSelected();
+  // Still where the finger left it: the page came, nothing jumped.
+  expect(capsuleX()).toBeCloseTo(under(1.4), 0);
+
+  const xs: number[] = [capsuleX()];
+  await frames(4, () => xs.push(capsuleX()));
+  // What is left of the slide moves the strip, not the capsule.
+  await slide(STRIP_START, 0.6);
+  await frames(56, () => xs.push(capsuleX()));
+  // Always back towards «Feed», never a frame away from it.
+  for (let i = 1; i < xs.length; i += 1) {
+    expect(xs[i]).toBeLessThanOrEqual(xs[i - 1] + 0.001);
+  }
+  expect(capsuleX()).toBeCloseTo(under(0), 1);
+});
+
 test("the pages from the app's page: counted from the strip's, the round nearest the last", () => {
   const now = { page: 3, place: 1002 };
   // The strip at rest on «Explore», two places on from «Draw».

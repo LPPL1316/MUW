@@ -1,6 +1,6 @@
 # TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso, l'«isola», fogli e liste
 
-**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); prossima la B
+**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); A2, la barra più fluida, in PR; prossima la B
 **Fase**: 4 · **Branch**: `feat/TASK-388-a-springs-tab-bar` (parte A) ·
 **ADR**: ADR-0329 · numeri dal Coordinatore (2026-11-04)
 
@@ -147,6 +147,68 @@ docs/STATUS.md                                 (righe aggiunte)
 docs/INDEX.md                                  (una riga)
 docs/UI.md                                     (la barra e il movimento)
 ```
+
+## A2 — La barra più fluida (2026-11-05)
+
+Dal Coordinatore, dopo la prova dell'utente sull'anteprima 0fd6c1dc (`main`
+0d7819c4): «funziona magari se riesci a migliorarla un attimo è un po'
+macchinosa rendila più fluida», a proposito del rimbalzo della barra al
+cambio di scheda. Branch `fix/TASK-388-a2-smoother-tab-bar` da `main`; la
+PR la unisce il Coordinatore.
+
+Cosa c'era: la capsula partiva nel commit della pagina nuova, quindi dopo
+che JS aveva costruito Feed o Explore, e da lì faceva due rimbalzi (`snappy`
+e la sequenza dell'allungamento); l'icona premuta tornava oltre la misura
+mentre quella nuova saliva con un altro rimbalzo.
+
+Cosa cambia (ADR-0329, aggiornamento A2):
+
+- la molla `glide` in `motion.spring` (256/32, risposta ~0,39 s, smorzamento
+  critico, oltre il segno 0) per capsula, icone e ritorno del tocco (`Tap`
+  con la prop `settle`); niente allungamento; tocco a 0,9;
+- capsula e icona partono al tocco, prima di `onTab`: su iOS la molla va
+  subito al thread UI e corre mentre JS costruisce la pagina. Se l'app tiene
+  la sua pagina, la capsula torna indietro;
+- un tocco durante uno swipe parte da dove il dito ha lasciato la capsula;
+  `TabShell` tiene `drag` a 0 fino al dito successivo.
+
+### Criteri di accettazione (A2)
+
+- [x] `glide`: risposta 0,35–0,5 s, smorzamento 1, nessun rimbalzo
+      (`motion.test.ts`).
+- [x] La capsula arriva sulla scheda senza mai superarla né allungarsi, un
+      fotogramma dopo l'altro sempre avanti (`TabBarMotion.test.tsx`).
+- [x] La molla parte prima che l'app riceva `onTab`, e la pagina che arriva
+      non ne fa partire un'altra (`TabBarMotion.test.tsx`).
+- [x] L'app che tiene la sua pagina: la capsula torna (`TabBarMotion.test.tsx`).
+- [x] Tocco a metà swipe: nessun salto, sempre verso la scheda, lo
+      scorrimento che resta non la sposta (`TabShellDrag.test.tsx`).
+- [x] Impronta iOS invariata: `6f8bba4c`.
+- [ ] Video prima/dopo in `out/TASK-388/a2-*` e l'ok dell'utente.
+
+### File toccati (A2)
+
+```
+apps/mobile/src/theme/tokens.ts
+apps/mobile/src/ui/motion.test.ts
+apps/mobile/src/ui/Tap.tsx
+apps/mobile/src/ui/Tap.test.tsx
+apps/mobile/src/tabs/TabBar.tsx
+apps/mobile/src/tabs/TabBarMotion.test.tsx
+apps/mobile/src/tabs/TabShell.tsx
+apps/mobile/src/tabs/TabShellDrag.test.tsx
+docs/tasks/TASK-388.md
+docs/DECISIONS.md   (righe aggiunte in ADR-0329)
+docs/STATUS.md      (righe aggiunte)
+docs/UI.md
+```
+
+### Esito A2
+
+Fatto nel codice e nei test (`jest src/tabs src/ui src/tour`: 216 verdi,
+`tsc` pulito). Nei video del simulatore la capsula non si ferma più a metà
+mentre Explore si costruisce e non supera Feed al ritorno. Aspetta l'ok
+dell'utente sui video, poi il merge del Coordinatore.
 
 ## Fuori scope
 
