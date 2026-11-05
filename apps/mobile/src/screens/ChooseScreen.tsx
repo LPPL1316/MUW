@@ -103,8 +103,10 @@ export function ChooseScreen({
 }: Props) {
   const insets = useSafeAreaInsets();
   // A day on the snow has no shape to draw (TASK-375, ADR-0319): «Draw» is
-  // its recording only.
-  const recordOnly = isRecordOnly(useSport()) && onRun !== undefined;
+  // its recording only; a workout at the gym, its start (TASK-385 part B).
+  const sport = useSport();
+  const gym = sport === "gym";
+  const recordOnly = (isRecordOnly(sport) || gym) && onRun !== undefined;
   // The start by its street (TASK-361): only while the GPS is the start and
   // answers; any other line (searching, refused, a place) says more.
   const onGps = mode === "gps" && !searching && !denied;
@@ -148,7 +150,12 @@ export function ChooseScreen({
             </View>
           </View>
           {recordOnly ? (
-            <RecordDay label={runLabel} icon={runIcon} onPress={onRun} />
+            <RecordDay
+              label={runLabel}
+              icon={runIcon}
+              onPress={onRun}
+              hint={gym ? t("No route in the gym: MuW times your workout.") : undefined}
+            />
           ) : (
             <>
               <TourPartView name={TOUR_PART.start} style={styles.startCard}>
@@ -223,16 +230,20 @@ export function ChooseScreen({
 /**
  * «Draw» for a sport recorded without a shape (TASK-375, ADR-0319): no start,
  * no shape, no distance, only the yellow «Record your day» and the line
- * that says why.
+ * that says why; for the gym «Start workout» and its own line (TASK-385
+ * part B).
  */
 export function RecordDay({
   label,
   icon,
   onPress,
+  hint,
 }: {
   label: string;
   icon?: string;
   onPress: () => void;
+  /** The line under it; absent, the slopes'. */
+  hint?: string;
 }) {
   return (
     <View style={styles.recordCard} testID="record-day">
@@ -251,7 +262,7 @@ export function RecordDay({
         <Text style={styles.recordText}>{label}</Text>
       </Pressable>
       <Text style={styles.status}>
-        {t("No shapes on the slopes: MuW records your day.")}
+        {hint ?? t("No shapes on the slopes: MuW records your day.")}
       </Text>
     </View>
   );

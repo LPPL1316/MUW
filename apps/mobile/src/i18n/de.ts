@@ -1163,6 +1163,28 @@ export const DE: Table = {
   "{n} exercises · {s} sets": "{n} Übungen · {s} Sätze",
   "{n} rests · avg {time} · {total} resting":
     "{n} Satzpausen · Ø {time} · {total} Pause",
+  // src/gym/ (TASK-385 part B), approved on 2026-11-04
+  "Start workout": "Training starten",
+  "No route in the gym: MuW times your workout.":
+    "Im Fitnessstudio keine Route: MuW stoppt dein Training.",
+  "+ Exercise": "+ Übung",
+  "Search exercises": "Übungen suchen",
+  "Add “{name}”": "„{name}“ hinzufügen",
+  "Set {n}": "Satz {n}",
+  Reps: "Wdh.",
+  "Added weight": "Zusatzgewicht",
+  Incline: "Steigung",
+  Level: "Stufe",
+  Floors: "Stockwerke",
+  "Log set": "Satz eintragen",
+  "Same again": "Nochmal gleich",
+  Rest: "Satzpause",
+  Custom: "Eigene",
+  "Next: {exercise} · set {n}": "Als Nächstes: {exercise} · Satz {n}",
+  "Rest over — next set": "Pause vorbei – nächster Satz",
+  "Still training?": "Trainierst du noch?",
+  "Yes, keep going": "Ja, weiter",
+  "Finish workout": "Training beenden",
   // src/screens/ChooseScreen.tsx (TASK-375)
   "No shapes on the slopes: MuW records your day.":
     "Keine Formen auf der Piste: MuW zeichnet deinen Tag auf.",
