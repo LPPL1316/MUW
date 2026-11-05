@@ -160,6 +160,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-392 — Il logo stilizzato nell'header, non più in cima a «Draw»**
+  (2026-11-05; numero dal Coordinatore; ADR-0311, precisazione). L'header delle pagine della
+  barra mostra il cuore su giallo (`HeartBadge`, 32 punti) e «MuW» grande in grassetto, al posto
+  del cuore di Lucide; in cima a «Draw» resta solo «Run without a route». Cambia la scelta di
+  TASK-367 sui loghi dentro le pagine, solo per «Draw». Solo app, nessun testo nuovo. Branch
+  `feat/TASK-392-header-logo`; la unisce il Coordinatore a CI verde; anteprima e OTA dal
+  Coordinatore. `tasks/TASK-392.md`.
 - **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
