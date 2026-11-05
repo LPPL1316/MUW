@@ -160,6 +160,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-401 — Le indicazioni a schermo bloccato** (2026-11-05; numeri dal
+  Coordinatore, ADR-0335 «Proposto»; richiesta dell'utente «dai le indicazioni del
+  percorso anche da iPhone bloccato con una notifica esterna», scelta «Live Activity, poi
+  anche OTA»). Parte A: una notifica locale senza suono, una alla volta, alla svolta
+  annunciata dalla voce (freccia, metri, «% drawn»), con un OTA. Parte B: la Live Activity
+  sul lock screen e nella Dynamic Island, nella 1.0.2, con `@bacons/apple-targets`
+  (la aggiunge 401 B, TASK-370 la riusa nella 1.1). Branch
+  `docs/TASK-401-lock-screen-directions`, solo proposta. Prossima domanda all'utente: i
+  testi della notifica. `tasks/TASK-401.md`.
 - **TASK-370 — L'app per Apple Watch, per tutti gli sport, anche senza telefono**
   (2026-11-05; numeri riservati dal Coordinatore il 2026-11-04, ADR-0314 «Proposto»;
   richiesta dell'utente «l'app per apple watch completa per tutti gli sport», scelta

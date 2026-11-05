@@ -23309,3 +23309,53 @@ senza toccare il motore (`docs/sports/gravel.md`):
 - **Preferire lo sterrato col costo degli archi**: vedi il punto 6.
 - **Un solo sport «Gravel/MTB» sulla rete `mtb`**: possibile, è la prima
   domanda all'utente.
+
+## ADR-0335 — Le indicazioni a schermo bloccato: notifica con un OTA, Live Activity nella 1.0.2
+
+**Stato**: Proposto · 2026-11-05 · TASK-401. Scelta di prodotto
+dell'utente (punto 1); il resto deciso dall'agente su delega dell'utente,
+da confermare con le scelte ancora aperte del task.
+
+**Contesto**: a schermo bloccato la corsa registra e la voce dice le svolte
+(ADR-0225), ma sul lock screen non si vede niente. L'utente vuole vedere
+«quella percentuale, svolta a destra, sinistra» senza sbloccare. Una
+notifica locale è solo JavaScript (`expo-notifications` è già nella build
+1.0.1) e arriva con un OTA; una Live Activity vuole un widget extension e
+un modulo nativo, cioè una build per l'App Store.
+
+**Decisione**:
+
+1. **Tutte e due, in quest'ordine** (utente, «Live Activity, poi anche
+   OTA»): parte A, una notifica locale con un OTA; parte B, la Live
+   Activity (lock screen e Dynamic Island) nella build 1.0.2.
+2. **Una sola uscita in più del navigatore**: notifica e Live Activity
+   mostrano la stessa indicazione della voce, dallo stesso `onFix`; nessuna
+   logica di guida nuova.
+3. **La notifica**: solo con l'app dietro, senza suono, sempre con lo
+   stesso identificativo (una alla volta), alla svolta annunciata, al fuori
+   rotta e al rientro; si toglie a fine corsa e con l'app davanti. Permesso
+   delle notifiche push, come il recupero della palestra (ADR-0327).
+4. **La Live Activity si aggiorna dal telefono** quando cambia ciò che si
+   vede, al massimo una volta al secondo; niente push di ActivityKit,
+   niente server. Con la Live Activity attiva la notifica non parte.
+5. **Il nativo**: widget extension SwiftUI in `apps/mobile/targets/
+   live-activity/` con `@bacons/apple-targets`, più un modulo Expo locale
+   (`start`, `update`, `end`). Il JavaScript controlla che il modulo ci sia:
+   sulla 1.0.1 resta la notifica.
+6. **La dipendenza con TASK-370**: `@bacons/apple-targets` arriva con la
+   1.0.2 e la aggiunge TASK-401 B; TASK-370 (build 1.1) mette `targets/watch/`
+   accanto. Versione e plugin si concordano con la sua sessione; la
+   dipendenza e il codice nativo partono solo col sì dell'utente e il via
+   del Coordinatore sulla lista dei file.
+
+**Alternative**:
+
+- **Solo la notifica**: arriva subito, ma non conta i metri e non c'è nella
+  Dynamic Island. Scartata dall'utente come unica strada.
+- **Solo la Live Activity**: niente fino alla revisione della 1.0.2.
+  Scartata dall'utente.
+- **Una libreria Live Activity già fatta** (per esempio `expo-live-activity`):
+  porta il suo target e un aspetto a modello fisso; due sistemi di target
+  nell'app quando arriva l'orologio. Meglio un solo `@bacons/apple-targets`.
+- **Aggiornare la notifica fissa del servizio su Android**: expo-location
+  non la cambia senza riavviare il GPS. Su Android la parte A manda la sua.
