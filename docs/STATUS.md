@@ -248,6 +248,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **C in `main`** (#803, fed77512, 2026-11-05). **C2** (branch
   `fix/TASK-388-c2-sheet-scrim`): lo sfondo scuro dei filtri della ricerca
   sfuma sul posto invece di salire con il foglio (`SheetModal` `dim`).
+  **C2 in `main`** (#811, 62b1a952, 2026-11-05). **C3** (branch
+  `fix/TASK-388-c3-style-sheet`): il foglio del prodotto di «Style»
+  (`StyleProductSheet`, TASK-384 B) passa a `SheetModal` e sale sulla stessa
+  molla degli altri fogli; video approvato dall'utente il 2026-11-05 («Sì,
+  approvo»). Righe scritte dal Coordinatore.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
