@@ -70,11 +70,12 @@ test("every row works: only the sports to come say «Soon»", async () => {
   await show();
   // The notifications were the last settings to come (TASK-185). The bike
   // (TASK-190) and paddling (TASK-191) are ready in «Sport» (TASK-189),
-  // and in Expo Go and preview swimming in open water (TASK-323); walking
-  // (TASK-371), alpine and cross-country skiing (TASK-375) and paragliding
-  // (TASK-305 D0) are the sports to come.
-  expect(screen.getAllByText("Soon")).toHaveLength(4);
-  expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(4);
+  // and in Expo Go and preview swimming in open water (TASK-323), and the
+  // alpine ski (TASK-375 D4); walking (TASK-371), cross-country skiing
+  // (TASK-375) and paragliding (TASK-305 D0) are the sports to come.
+  expect(screen.getAllByText("Soon")).toHaveLength(3);
+  expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(3);
+  expect(screen.queryByLabelText("Ski, coming soon")).toBeNull();
   expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
   expect(screen.getByLabelText("Walk, coming soon")).toBeOnTheScreen();
   expect(screen.getByLabelText("Paragliding, coming soon")).toBeOnTheScreen();

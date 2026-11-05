@@ -170,6 +170,30 @@ Le domande, una alla volta:
    Alpi».** Si parte con gli estratti Geofabrik di Italia, Austria,
    Svizzera, Francia, Germania e Slovenia. Scaricarli e filtrarli sul
    server sono comandi dell'utente.
+   **Allargata dall'utente, 2026-11-05: «Sì, tutto il mondo»**, alla
+   domanda se si potessero avere tutti i comprensori del mondo. Il codice
+   non cambia, perché `ski_extract` legge qualunque estratto. Cambiano solo
+   i comandi del server.
+
+   **Il piano.** Si scaricano i sette continenti di Geofabrik, circa
+   89 GB, uno per volta.
+   - Prima di ogni download lo script guarda lo spazio libero.
+   - L'estratto intero si cancella dopo i suoi riquadri.
+   - Ogni continente filtrato si taglia in 36 fasce di 10° di
+     longitudine, perché `ski_extract` tenga in memoria una fascia alla
+     volta.
+
+   **Come procede.** Il Coordinatore dà i comandi all'utente in tre parti:
+   1. l'Europa, partita il 2026-11-05 alle 17:29Z, con 55 GB liberi su
+      40 necessari;
+   2. Nord America e Asia;
+   3. Russia, Sud America, Oceania e Africa.
+
+   **La riserva, se il disco diventasse stretto.** L'utente ha scritto
+   «in più scaricate». La versione di scorta va un paese per volta: sono
+   71 estratti, circa 64 GB in tutto, e al massimo servono circa 8 GB
+   liberi (il Canada). I comandi del server li passa all'utente solo il
+   Coordinatore.
 3. **I testi** (titolo dell'elenco, la riga senza nomi), in cinque lingue.
    **Risposta dell'utente, 2026-11-05: «Sì, approvati».**
 
@@ -196,6 +220,17 @@ Le domande, una alla volta:
    | de | «Bei einem Skitag vergleicht unser Server die gespeicherte Spur mit den Liften und Pisten von OpenStreetMap, die er selbst vorhält, um festzuhalten, welche du genommen hast und wie oft. Die Namen erscheinen im Beitrag, für alle, die ihn sehen können. Nichts geht an einen anderen Dienst.» |
    | fr | «Pour une journée de ski, notre serveur compare la trace enregistrée aux remontées et pistes d'OpenStreetMap, qu'il garde lui-même, pour noter celles que tu as prises et combien de fois. Les noms apparaissent dans la publication, pour qui peut la voir. Rien ne part vers un autre service.» |
    | es | «En una jornada de esquí, nuestro servidor compara la traza guardada con los remontes y pistas de OpenStreetMap, que guarda él mismo, para anotar cuáles tomaste y cuántas veces. Los nombres aparecen en la publicación, para quien pueda verla. Nada va a otro servicio.» |
+
+### D4 — lo sci acceso nelle build dello store (2026-11-05)
+
+L'utente, dopo la D3: «PUBBLICHIAMO E TESTIUAMO A PUBBLICAZIONE SULL APP
+SULLA FIDUCIA», cioè prova lo sci dall'app pubblicata, senza aspettare la
+prova sulla neve. Il Coordinatore ha aperto la D4: lo **sci alpino**
+diventa `ready: true` in `sport.ts`, così le build dello store lo mostrano
+(ADR-0278). Lo **sci di fondo** resta «Soon», perché l'utente ha detto
+«sci». Il server è già a 9c617cb5, con le parti A–D e le migrazioni 0044 e
+0048. Solo JavaScript: l'impronta resta 6f8bba4c. Va online con l'OTA di
+produzione, che fa il Coordinatore col sì dell'utente.
 
 ## File toccati
 
@@ -245,6 +280,15 @@ della privacy approvata in `apps/mobile/src/about/content/{en,it,de,fr,es}.ts`
 e le pagine rigenerate `site/privacy/index.html` e
 `site/privacy/{it,de,fr,es}/index.html`. Documenti: `docs/STATUS.md`,
 `docs/DECISIONS.md` (ADR-0319, punto 13) e questa lista.
+
+Parte D4 (approvata dal Coordinatore il 2026-11-05):
+`apps/mobile/src/settings/sport.ts` (la riga dello sci a `ready: true`) e i
+test che contano gli sport: `settings/sport.test.ts`,
+`settings/SportSetting.test.tsx`, `settings/SportButton.test.tsx`,
+`settings/SportStoreBuild.test.tsx`, `profile/SettingsPage.test.tsx` e,
+aggiunto col sì del Coordinatore, `settings/snowSport.test.ts` (il test
+della parte A che voleva lo sci «Soon»). Documenti: `docs/STATUS.md` e
+questa lista.
 
 Questa PR (documenti): `docs/tasks/TASK-375.md` (nuovo), `docs/DECISIONS.md`
 (ADR-0319), `docs/STATUS.md` (una voce), `docs/INDEX.md` (una riga).

@@ -447,6 +447,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
     Finché il server non ha la rotta, l'elenco non si vede. Lo sci resta
     `ready: false`. Prossimo: la parte E, la prova sulla neve.
+  - 2026-11-05: D3 in `main` (#817); il server è a 9c617cb5, con la 0048 e
+    la privacy sul sito. **D4**: lo sci alpino è acceso (`ready: true`),
+    anche nelle build dello store, perché l'utente vuole provarlo dall'app
+    pubblicata. Il fondo resta «Soon». Solo JavaScript, impronta 6f8bba4c.
+    Prossimo: l'OTA di produzione col sì dell'utente, gli estratti delle
+    Alpi (o del mondo, se l'utente dice sì), poi la parte E.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
