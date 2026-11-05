@@ -189,6 +189,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
   migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
   **Parte A chiusa il 2026-11-05**: #773 in main (fa027173); vedi «Completato».
+- **TASK-384 B — MuW Style nell'app** (2026-11-05; via dell'utente e del Coordinatore). Una card
+  ogni 8 righe in «All» (mai nei primi 3, mai in «Following»), puntini e scheda con «Shop» nel
+  browser, la lente «Style» con i filtri, l'interruttore in «Settings», Termini e Privacy nuovi;
+  tutto solo quando GET /style ha un post. Branch `feat/TASK-384-b-style-app`. Prossimo: la C, i
+  primi 6 post dalle foto di Gemini dell'utente. `tasks/TASK-384.md`.
 - **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
   l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
   brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR

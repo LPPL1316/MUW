@@ -36,9 +36,12 @@ let feedAnswer: () => Response | Promise<Response>;
 /** What the page asked the API, but for the contest, which it asks as it
  * opens to know whether to show its card (TASK-299). */
 function asked(): string[] {
-  return fetchSpy.mock.calls
-    .map(([url]) => String(url).replace(API, ""))
-    .filter((path) => path !== "/contests/current");
+  return (
+    fetchSpy.mock.calls
+      .map(([url]) => String(url).replace(API, ""))
+      // The contest's card and MuW Style (TASK-384) are read beside the feed.
+      .filter((path) => path !== "/contests/current" && !path.startsWith("/style"))
+  );
 }
 
 function Around({
@@ -106,7 +109,8 @@ test("signed in, the page shows the drawings the members published", async () =>
   expect(screen.queryByText(SAMPLE_FEED[0].user)).toBeNull();
   // Asked once, with the token, never with the phone's position.
   expect(asked()).toEqual(["/feed?filter=all"]);
-  expect(fetchSpy.mock.calls[0][1]).toMatchObject({
+  const feedCall = fetchSpy.mock.calls.find(([url]) => String(url).includes("/feed"));
+  expect(feedCall?.[1]).toMatchObject({
     headers: { Authorization: `Bearer ${SESSION.token}` },
   });
 });
