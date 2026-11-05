@@ -244,6 +244,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   CI verde; OTA col sì dell'utente. Solo app, nessun testo nuovo. `tasks/TASK-381.md`.
   **Chiuso il 2026-11-04**: #750 in main (9e2089a9); vedi «Completato».
 
+- **TASK-385 — «Gym» 🏋️, la palestra senza percorso** (ADR-0327 proposto;
+  richiesta dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
+  `docs/TASK-385-gym-proposal` (documenti). Scelte dell'utente fatte: nome,
+  kcal MET sempre, esercizi subito con il catalogo completo (anche tapis
+  roulant e macchine cardio), elenco nel post nascondibile, prima foto o
+  riquadro dei numeri, azioni tolte, traguardi con figure, classifica
+  mensile, video della serie (1.0.2), timer di recupero, testi approvati.
+  Sessione senza traccia: migrazione e post nascosti alle app vecchie
+  (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
+  Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
+
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
   «Dentro il riquadro» per peso e altezza: «Sì, task a parte». «bpm» stava piccolo e grigio a
