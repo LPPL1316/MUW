@@ -2664,6 +2664,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso il 2026-10-29**: D in `main` con la #639 (dd607e89), quindi
   A–D tutte in `main`. Voce in «Completato».
 
+- **TASK-387 — Le app vecchie non ricevono le attività che non sanno
+  leggere** (ADR-0328; «sì protezione» dell'utente, 2026-11-04; numeri e
+  via dal Coordinatore). Branch `feat/TASK-387-reads-guard`, una PR per API
+  e app. L'app manda `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in
+  ogni richiesta di `ask`; il server toglie da Feed, ricerca, profili,
+  concorsi, corse di gruppo, messaggi, preferiti, «My activities», foto del
+  profilo e campanella ciò che l'header non dichiara; senza header solo
+  corsa, bici e pagaia. Nessuna migrazione, nessun testo nuovo. Dopo il
+  merge: server e OTA di produzione col sì dell'utente, poi il nuoto
+  (#765). `tasks/TASK-387.md`.
+
 ## Completato
 
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
