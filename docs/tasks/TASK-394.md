@@ -81,7 +81,7 @@ gli utenti), per ora solo i link.
 | Pezzo | In Style | Per i capi degli iscritti |
 |---|---|---|
 | La forma del tag | `post_product_tags`: `x`, `y` fra 0 e 1, `item`, `brand`, `product_name`, `retailer`, `url`, `active` | Gli stessi campi, senza prezzo e senza `checked_at`, in una tabella legata alle foto dei disegni |
-| Il controllo del link | `style_links.RETAILER_HOSTS`, `MAX_URL_LENGTH` | Lo stesso elenco di siti, allargato (scelta 1): importato da un file nuovo, non cambiato |
+| Il controllo del link | `style_links.RETAILER_HOSTS`, `MAX_URL_LENGTH` | Ogni sito `https` (scelta 1), con Web Risk e un elenco di domini bloccati; `RETAILER_HOSTS` dà solo il nome del negozio noto |
 | La scheda | `StyleProductSheet` di TASK-384 B | La stessa, con le righe di Style facoltative |
 | «Shop» | un `POST` che conta e risponde il link; il browser di sistema | Uguale |
 | I conteggi | `product_tag_clicks`: aperture e «Shop» per tag e per giorno, senza persona; 120 tocchi l'ora per indirizzo, contati solo in memoria | Uguale, in una tabella sua |
@@ -110,13 +110,34 @@ in produzione.
    /drawings/{id}` e nel Feed, solo a chi vede la foto; `POST
    /outfit-tags/{id}/open` e `/shop` come in Style. Un'app vecchia ignora il
    campo nuovo; `X-MuW-Reads` non serve (non è un'attività nuova).
-4. **Il link**: solo `https`, un sito dell'elenco, niente utente, password,
-   porta o indirizzo IP, al più 1000 caratteri. Il server lo **riscrive**
-   tenendo solo schema, host e percorso: via query e frammento, quindi via
-   codici affiliati, `utm_` e rimandi. Dove il negozio ha una forma
-   riconoscibile si controlla anche il percorso (Amazon `/dp/{ASIN}`). **Il
-   server non visita mai il link**: nessuna richiesta ai negozi a nome di chi
-   scrive.
+4. **Il link** (scelta 1, «Ogni link https»): solo `https`, un nome di
+   dominio (niente indirizzo IP, utente, password o porta), al più 1000
+   caratteri. Rifiutati (`422`): gli accorciatori noti (bit.ly, tinyurl, t.co,
+   goo.gl e simili), che nascondono dove si arriva; i domini del nostro
+   elenco di bloccati; i link che **Google Web Risk** dà per malware,
+   phishing o software indesiderato. Il server **pulisce** il link: via il
+   frammento e i parametri noti di tracciamento e di affiliazione (`utm_*`,
+   `fbclid`, `gclid`, il `tag` di Amazon, quelli di Awin e simili); il resto
+   della query resta, perché su un sito qualunque non si sa quali parametri
+   servono alla pagina. **Il server non visita mai il link**: nessuna
+   richiesta ai negozi a nome di chi scrive.
+   - **Web Risk, non Safe Browsing**: l'API Safe Browsing di Google è solo
+     per uso non commerciale, e MuW guadagna con Style. Web Risk sta su
+     Google Cloud (un prerequisito dell'utente, sotto).
+   - **Nella sua forma «Update API»**: il server tiene in locale i prefissi
+     delle impronte (hash) delle liste di Google e chiede a Google solo
+     quando un prefisso combacia, mandando il prefisso, **mai il link**. Il
+     controllo si rifà a ogni «Shop», perché le liste cambiano: un link
+     diventato pericoloso dopo il salvataggio non si apre più, e la scheda
+     dice che il link non è disponibile.
+   - **L'elenco dei bloccati** è nostro, in una tabella, e cresce con le
+     segnalazioni: Web Risk non conosce i siti per adulti né lo spam.
+   - **La scheda mostra sempre il dominio** a cui porta il link: «Shop on
+     {store}», dove `{store}` è il nome del negozio per i siti noti
+     (`RETAILER_HOSTS`: «Zalando») e il dominio per gli altri
+     («nike.com»). Un dominio con lettere di alfabeti diversi si mostra in
+     punycode (`xn--…`), così un sito che imita un altro non si traveste.
+   - **Nei test** Web Risk è finto: niente rete, risposte sempre uguali.
 5. **Marca e modello** passano da `comment_filter.py`, come i commenti; al più
    40 e 80 caratteri; un indirizzo scritto lì è rifiutato (`422`): un link
    sta solo nel campo link.
@@ -132,11 +153,16 @@ in produzione.
 
 ## Moderazione e abusi
 
-- **Link spam o pericolosi**: con l'elenco chiuso di siti (scelta 1) un link
-  può portare solo alla pagina di un negozio vero. Restano fuori phishing,
-  accorciatori (bit.ly), siti per adulti, malware, e il proprio sito o
-  profilo usato come pubblicità. Un sito nuovo entra con una riga di codice e
-  una PR.
+- **Link spam o pericolosi** (scelta 1, ogni link `https`): Web Risk ferma
+  malware e phishing noti, al salvataggio e a ogni «Shop»; gli accorciatori
+  sono rifiutati sempre; il resto (siti per adulti, spam, il proprio sito
+  usato come pubblicità, un link a cose diverse dal capo) lo prendono le
+  segnalazioni. **Più moderazione a mano**: ogni capo segnalato arriva per
+  email con il link intero e il dominio; «Hide» nasconde il capo, e un
+  dominio da fermare per tutti entra nell'elenco dei bloccati.
+- **Codici affiliati propri**: il server toglie quelli noti; uno sconosciuto
+  può restare nel link. Finché il guadagno non c'è, i Termini vietano i link
+  affiliati propri, e si segnalano.
 - **Il testo libero non diventa mai un link**: marca e modello sono testo, e
   un indirizzo scritto lì è rifiutato.
 - **Limiti**: 5 capi per foto, 10 per post; salvarli conta come aggiornare il
@@ -163,8 +189,8 @@ di oggi, dove «MuW non mostra pubblicità» resta vero.
 **Termini**
 
 - «Come usare MuW»: un punto in più nell'elenco dei «non»: usare i capi per
-  spam, per link a cose diverse da quello che indossi, o per pubblicità che
-  non dichiari.
+  spam, per link a cose diverse da quello che indossi, per link affiliati
+  tuoi (scelta 1), o per pubblicità che non dichiari.
 - «Quello che pubblichi»: i capi che segni e i loro link sono parte di quello
   che pubblichi (restano tuoi, li togli quando vuoi).
 - «Pubblicità» (il testo di TASK-384): i link che gli iscritti mettono sui
@@ -184,6 +210,10 @@ di oggi, dove «MuW non mostra pubblicità» resta vero.
   diritto al negozio, senza Awin, e da lì il negozio registra la visita con i
   suoi cookie.
 - «Segnalazioni»: «un capo segnato» fra le cose che si segnalano.
+- «Chi altro riceve dati» (scelta 1): Google, con Web Risk, riceve dal
+  nostro server pezzi dell'impronta di alcuni link messi dagli iscritti, per
+  controllare che non portino a siti pericolosi: mai il link intero, né chi
+  l'ha messo o chi lo apre.
 - **App Privacy e Data safety**: nessun dato nuovo legato alla persona (i
   capi sono contenuto pubblicato insieme alle foto; i conteggi non hanno
   persona). Da rileggere sui moduli alla consegna della parte B.
@@ -224,7 +254,10 @@ con le parole dell'utente.
    fuori elenco: «MuW can't open links to this site yet.». Alternativa: ogni
    link `https`, con un controllo esterno (Google Safe Browsing, un servizio
    in più che riceve i link) e più moderazione a mano.
-   — *Risposta*: da chiedere.
+   — *Risposta* (2026-11-05): «Ogni link https». Il controllo esterno è
+   Google Web Risk e non Safe Browsing (solo uso non commerciale), nella
+   forma che manda a Google prefissi di impronte e mai i link: «Il disegno
+   tecnico», punto 4, e «Moderazione e abusi».
 2. **MuW guadagna sui link degli iscritti?** Proposta: no, per ora. I link
    restano puliti, la scheda non dice «Pubblicità», i Termini dicono che MuW
    non ci guadagna. Alternativa: MuW mette il suo link Awin dove c'è
@@ -248,6 +281,15 @@ con le parole dell'utente.
    nelle cinque lingue), approvati a parte.
    — *Risposta*: da chiedere.
 
+## Prerequisiti dell'utente
+
+- **Google Cloud con Web Risk** (scelta 1): un progetto Google Cloud con la
+  fatturazione attiva e l'API Web Risk accesa, e la sua chiave nel `.env`
+  del server, mai nel repository. Web Risk è gratuito fino a una quota
+  mensile; il listino si legge quando si attiva. Senza la chiave la parte A
+  rifiuta ogni link fuori da `RETAILER_HOSTS`, invece di lasciarlo passare
+  senza controllo.
+
 ## Le parti, dopo il sì
 
 Ogni parte: un branch da `main`, una PR, la lista dei file al Coordinatore
@@ -263,6 +305,8 @@ la riga che li aggancia.
   services/api/migrations/00NN_outfit_tags.sql            (nuovo)
   services/api/shaperoute_api/outfit_tags.py              (nuovo)
   services/api/shaperoute_api/outfit_links.py             (nuovo; importa RETAILER_HOSTS, style_links.py non cambia)
+  services/api/shaperoute_api/web_risk.py                 (nuovo; la lista locale e il controllo, finto nei test)
+  .env.example                                            (la chiave di Web Risk)
   services/api/shaperoute_api/app.py                      (poche righe, in fondo)
   services/api/shaperoute_api/drawings.py                 (i capi nei dettagli)
   services/api/shaperoute_api/feed.py                     (i capi nel Feed)
@@ -313,8 +357,11 @@ Questa PR:
 
 Le parti (scritti ora, controllati con loro):
 
-- [ ] A: un link `http`, fuori elenco, con utente, porta o IP, o un indirizzo
-      nella marca → `422`; un link con query e frammento si salva senza.
+- [ ] A: un link `http`, con utente, porta o IP, un accorciatore, un dominio
+      bloccato, un link che Web Risk (finto nei test) dà per pericoloso, o un
+      indirizzo nella marca → `422`; il frammento e i parametri di
+      tracciamento e affiliazione noti si tolgono, il resto della query resta.
+- [ ] A: a Web Risk non arriva mai un link intero (un test sul finto).
 - [ ] A: chi non vede la foto non vede i suoi capi; un capo nascosto lo vede
       solo l'autore; una foto sostituita o tolta perde i suoi capi.
 - [ ] A: i conteggi non tengono account, indirizzo o telefono (un test come

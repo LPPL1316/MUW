@@ -2743,6 +2743,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la unisce il Coordinatore. Prossimo: le cinque scelte dell'utente, una alla
   volta, poi il sì sulla proposta, i testi e l'ADR dal Coordinatore; la parte B
   (app) dopo TASK-384 B. `tasks/TASK-394.md`.
+  **Proposta in `main`** (#805, ae6c2e2a). Parte B dopo TASK-384 B e 376 B3b,
+  quando il Coordinatore dice che i file sono liberi. **Scelta 1**
+  (2026-11-05): «Ogni link https», con Google Web Risk (Google Cloud, un
+  prerequisito dell'utente) e un elenco nostro di domini bloccati.
 
 ## Completato
 
