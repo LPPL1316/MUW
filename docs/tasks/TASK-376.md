@@ -2,7 +2,7 @@
 
 **Stato**: In corso — parte A in `main` (#736); parte B in `main` (B1 #763,
 B2 #798, B3a #806, B3b #814, B3c #818) tranne `settings/sport.ts`, che
-aspetta la #765; poi la parte C
+aspetta la #765; parte C: C1, la ricetta, in PR, poi il pilota TASK-377
 **Fase**: 4 · **Branch**: `feat/TASK-376-a-sport-bench` (parte A),
 `feat/TASK-376-b-sport-registry` (parte B) · **ADR**: ADR-0320 · numeri dal
 Coordinatore (2026-11-04) · sessione «Coordinatore Sport»
@@ -354,3 +354,19 @@ Resta della parte B solo `settings/sport.ts`, dopo la #765 (TASK-323). Le
 scoperte sono in `docs/sports/CONDIVISO.md`, sezioni «Il contratto e
 l'API» e «L'app». Prossimo: la parte C, cioè `COME-AGGIUNGERE.md` riscritto
 sulla struttura di B e il pilota Escursionismo (TASK-377).
+
+2026-11-05, parte C1: `docs/sports/COME-AGGIUNGERE.md` è riscritto sulla
+struttura della parte B. Per ogni strato dice:
+
+- i file nuovi;
+- le righe nei registri;
+- i punti ancora scritti a mano, elencati uno per uno.
+
+Nell'app sono `settings/sport.ts`, l'import dei file, `runTime.ts`, la
+lista degli sport pubblicabili e i testi `i18n`. Nell'API sono i `Literal`,
+`reads.py`, la migrazione dei CHECK e il gioco.
+
+La chiusura di uno sport confronta il diff con la ricetta, e ogni deroga va
+in `CONDIVISO.md`. Il Coordinatore ha approvato il piano di C e del pilota
+il 2026-11-05. Prossimo: 377-0, cioè TASK-377.md, `hike.md`, ADR-0321
+proposto e la misura dei sentieri col banco, dopo il merge di C1.
