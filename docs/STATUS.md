@@ -2743,6 +2743,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la unisce il Coordinatore. Prossimo: le cinque scelte dell'utente, una alla
   volta, poi il sì sulla proposta, i testi e l'ADR dal Coordinatore; la parte B
   (app) dopo TASK-384 B. `tasks/TASK-394.md`.
+- **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
+  Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
+  Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,
+  se no la stima di MuW dai record di corsa (VDOT di Daniels) con la scritta
+  «stima»; visibile a chi apre il profilo solo dopo un sì, spegnibile in
+  Impostazioni. A (API) e B (app, solo stima) possono andare con un OTA; C
+  (lettura da Salute) entra nel testo unico di `NSHealthShareUsageDescription`
+  della 1.0.2 con TASK-345 C e TASK-374 C. Branch
+  `docs/TASK-397-vo2max-proposal`; la unisce il Coordinatore. Prossimo: il sì
+  dell'utente sui testi, poi la lista dei file della parte A al Coordinatore.
+  `tasks/TASK-397.md`.
 
 ## Completato
 
