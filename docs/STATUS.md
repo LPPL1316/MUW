@@ -350,6 +350,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     piene e le risalite tratteggiate (ADR-0319 punto 10). Prossimo: la parte
     D (nomi di impianti e piste sul server: server e riga privacy col sì
     dell'utente).
+  - 2026-11-05: **C2 in `main`** (#783, 9adb22d1), nell'anteprima del
+    Coordinatore. La parte C è chiusa. La parte D resta chiusa finché il
+    Coordinatore non ne ha parlato con l'utente; poi E (la prova sulla neve).
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
