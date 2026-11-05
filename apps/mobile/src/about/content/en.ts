@@ -341,6 +341,7 @@ const privacy: AboutDocument = {
         "A run often starts and ends at your door. This is why a run becomes visible to the other members only after you choose «Everyone» or «Followers» under «Who can see it», and then they see the whole track, start and end included, with the title you gave it, and without times, pauses or the planned route. Your choice is kept on this phone for your next run: it starts from the last one you saved, you see it before «Save», and you can change it. An activity added from a file always starts on «Only me».",
         "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file, without times.",
         "A photo you publish can have the drawing of your run inside the picture. It is the same drawing the Feed shows.",
+        "For a day of skiing, our server compares the saved track with the lifts and pistes of OpenStreetMap, which it keeps itself, to write which ones you took and how many times. The names show on the post, for whoever can see it. Nothing goes to another service.",
       ],
     },
     {

@@ -781,6 +781,11 @@ export const FR: Table = {
   "Top speed": "Vitesse max",
   Lifts: "Remontées",
 
+  // src/social/SkiNamesList.tsx (TASK-375 part D)
+  "Lifts and pistes": "Remontées et pistes",
+  "{name}, {times} times": "{name}, {times} fois",
+  "{name}, once": "{name}, une fois",
+
   // src/screens/SignInScreen.tsx
   "Sign up": "S'inscrire",
   "Log in": "Se connecter",

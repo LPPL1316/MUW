@@ -340,6 +340,7 @@ const privacy: AboutDocument = {
         "Une course commence et finit souvent devant ta porte. C'est pourquoi une course ne devient visible pour les autres membres qu'après que tu as choisi «Tout le monde» ou «Abonnés» sous «Qui peut la voir», et ils voient alors la trace entière, départ et arrivée compris, avec le titre que tu lui as donné, et sans les temps, les pauses ni le parcours prévu. Ton choix reste sur ce téléphone pour la course suivante : elle part du dernier enregistré, tu le vois avant «Enregistrer» et tu peux le changer. Une activité ajoutée depuis un fichier part toujours de «Moi seulement».",
         "Qui peut voir une de tes courses peut aussi la suivre avec «Démarrer» et enregistrer cette même trace comme fichier GPX, sans les temps.",
         "Une photo que tu publies peut contenir le dessin de ta course dans l'image. C'est le même dessin que celui du Feed.",
+        "Pour une journée de ski, notre serveur compare la trace enregistrée aux remontées et pistes d'OpenStreetMap, qu'il garde lui-même, pour noter celles que tu as prises et combien de fois. Les noms apparaissent dans la publication, pour qui peut la voir. Rien ne part vers un autre service.",
       ],
     },
     {

@@ -407,6 +407,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     deploy, la 0048 e gli estratti delle Alpi, comandi dell'utente col suo
     sì. Prossimo: D3, l'elenco nel post dell'app e la riga della privacy,
     con la lista al Coordinatore.
+  - 2026-11-05: D2 in `main` (#813). **D3**: il post di una giornata di sci
+    mostra «Lifts and pistes», con i nomi e quante volte; la riga della
+    privacy è nell'app e nelle pagine del sito (ADR-0319, punto 13). Solo
+    JavaScript, quindi l'impronta resta 6f8bba4c. Per andare online, col sì
+    dell'utente e insieme al Coordinatore, servono:
+    - il server con la 0048 e gli estratti delle Alpi;
+    - la pagina della privacy sul sito;
+    - l'OTA.
+
+    Finché il server non ha la rotta, l'elenco non si vede. Lo sci resta
+    `ready: false`. Prossimo: la parte E, la prova sulla neve.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta

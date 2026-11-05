@@ -340,6 +340,7 @@ const privacy: AboutDocument = {
         "Una carrera a menudo empieza y termina en tu puerta. Por eso una carrera solo es visible para los demás miembros después de que elijas «Todos» o «Seguidores» en «Quién puede verla», y entonces ven el recorrido entero, con la salida y la llegada, con el título que le diste, y sin tiempos, pausas ni la ruta prevista. Tu elección se queda en este teléfono para la siguiente carrera: empieza con la última guardada, la ves antes de «Guardar» y puedes cambiarla. Una actividad añadida desde un archivo siempre empieza en «Solo yo».",
         "Quien puede ver una de tus carreras también puede seguirla con «Empezar» y guardar ese mismo recorrido como archivo GPX, sin tiempos.",
         "Una foto que publiques puede llevar dentro de la imagen el dibujo de tu carrera. Es el mismo dibujo que muestra el Feed.",
+        "En una jornada de esquí, nuestro servidor compara la traza guardada con los remontes y pistas de OpenStreetMap, que guarda él mismo, para anotar cuáles tomaste y cuántas veces. Los nombres aparecen en la publicación, para quien pueda verla. Nada va a otro servicio.",
       ],
     },
     {
