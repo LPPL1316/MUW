@@ -205,6 +205,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
   ADR-0322 accettato. Prossimo: 378-A, motore, contratto e API, dopo la
   #838 e la lista al Coordinatore con il numero della migrazione.
+  **Scelte in `main`** (#841). Lista della parte A approvata dal
+  Coordinatore, con la migrazione 0052 e i profili dell'app perché `main`
+  resti pubblicabile. Prossimo: 378-A in una sessione nuova, dopo la #838.
 
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,

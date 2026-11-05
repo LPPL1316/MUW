@@ -1,8 +1,8 @@
 # TASK-378 — Gravel e MTB: la bici fuori dall'asfalto
 
-**Stato**: In corso — parte 0 in `main` (#840) e scelte dell'utente
-(2026-11-05); prossimo: la parte A, dopo il via del Coordinatore sulla lista
-e il numero della migrazione.
+**Stato**: In corso — parte 0 in `main` (#840, #841); lista della parte A
+approvata dal Coordinatore, migrazione 0052 (2026-11-05); prossimo: la parte
+A in una sessione sua, dopo la #838.
 **Fase**: 4 · **Branch**: `docs/TASK-378-0-gravel` (parte 0), poi
 `feat/TASK-378-a-gravel-engine-api`, `feat/TASK-378-b-gravel-app` ·
 **ADR**: ADR-0322 · numeri dal Coordinatore (2026-11-04) · sessione
@@ -62,9 +62,8 @@ task), ADR-0153, ADR-0167, ADR-0321 (il pilota).
 ### Parte A — motore, contratto, API (dopo le scelte, in una sessione sua)
 
 Dopo la #838 (377-A) in `main`: tocca gli stessi registri, e porta già
-`__main__.py` e `anchored.py` a `OsmnxSource.for_activity`. La lista va al
-Coordinatore, che dà il numero della migrazione (la prima libera era 0052
-il 2026-11-05):
+`__main__.py` e `anchored.py` a `OsmnxSource.for_activity`. Lista approvata
+dal Coordinatore il 2026-11-05, con la migrazione 0052:
 
 ```
 services/route-engine/route_engine/networks/mtb.py              (nuovo)
@@ -91,13 +90,22 @@ services/api/shaperoute_api/sports/__init__.py                  (due righe)
 services/api/shaperoute_api/activities.py                       (due nomi nel Literal)
 services/api/shaperoute_api/personal_bests.py                   (due nomi nel Literal Sport)
 services/api/shaperoute_api/reads.py                            (due righe)
-services/api/migrations/0052_gravel_mtb.sql                     (nuovo, numero dal Coordinatore)
+services/api/migrations/0052_gravel_mtb.sql                     (nuovo)
 services/api/tests/test_gravel_mtb_api.py                       (nuovo)
 services/api/tests/test_sport_registry_api.py
+apps/mobile/src/sports/gravel_biking.ts, mountain_biking.ts    (nuovi: i profili, perché main resti pubblicabile)
+apps/mobile/src/sports/index.ts                                (due righe)
+apps/mobile/src/search/searchFilters.ts                        (l'esclusione, come in 377-A)
+i test dell'app che contano le attività                        (le liste, come in 377-A)
 apps/mobile/assets/engine/engine.zip                            (rifatto, ultimo commit)
 docs/tasks/TASK-378.md, docs/STATUS.md, docs/sports/CONDIVISO.md, docs/sports/gravel.md
 ```
 
+- **L'aggiunta del Coordinatore**: `main` deve restare pubblicabile. Se
+  `gravel_biking` e `mountain_biking` entrano nel contratto, l'app vuole i
+  loro profili, altrimenti `profileOf` dà errore e l'app non parte. Per
+  questo i profili entrano già nella parte A. Nessuna riga in
+  `settings/sport.ts` fino alla parte B.
 - **Il gioco non cambia**: Gravel e MTB ne restano fuori come la bici, e
   `game_rules.py` non si tocca.
 - **L'impronta del motore cambia** con la rete `mtb`. Server, migrazione e
@@ -175,8 +183,8 @@ di quelle di oggi (`cycling`, `hiking`).
 
 - [x] 0: le misure delle reti sono in `gravel.md`; ADR-0322 è proposto.
 - [x] 0: le scelte dell'utente sono scritte qui, una per una (2026-11-05).
-- [ ] 0: la lista della parte A è al Coordinatore, con la domanda sul numero
-      della migrazione.
+- [x] 0: la lista della parte A è al Coordinatore, con la domanda sul numero
+      della migrazione (approvata, 0052, 2026-11-05).
 - [ ] A: un percorso gravel/MTB sul grafo di prova pedala dove la bici
       spinge; test deterministici; corsa, bici e canoa invariate al banco
       (`compare`).
@@ -226,3 +234,14 @@ volta:
 
 ADR-0322 accettato. Prossimo: la lista della parte A al Coordinatore, col
 numero della migrazione, dopo la #838.
+
+2026-11-05: la #841 è in `main`. Il Coordinatore ha approvato la lista
+della parte A, con i profili dell'app in più, e ha dato la migrazione
+0052. Prossimo: la parte A in una sessione nuova, dopo la #838. Server,
+migrazione, prova delle impronte e notte degli esempi si fanno solo col sì
+dell'utente.
+
+- Gli script del banco sono in `out/TASK-378/` nel worktree della parte 0,
+  che è ignorato da git.
+- I download grezzi delle sei zone (`cache/raw_*.pickle`) servono a non
+  riscaricare.
