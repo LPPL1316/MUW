@@ -40,10 +40,10 @@ describe("StyleRow", () => {
     expect(screen.getAllByTestId("style-line").length).toBeGreaterThanOrEqual(2);
   });
 
-  it("draws nothing for a run too short to show", async () => {
+  it("draws nothing for a run of one fix", async () => {
     await render(
       <StyleRow
-        run={{ ...RUN, track: north(350), distanceM: 350 }}
+        run={{ ...RUN, track: north(0), distanceM: 350 }}
         style="night"
         onChange={() => {}}
       />,

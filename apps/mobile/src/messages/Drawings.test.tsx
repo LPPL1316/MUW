@@ -121,7 +121,7 @@ function api(answers: Record<string, () => Response>) {
 
 // --- The copy ---
 
-test("a run of one's own goes without its first and last 200 m", () => {
+test("a run of one's own goes whole, start and end too", () => {
   const run = {
     place: "Trento",
     shape: "heart",
@@ -135,19 +135,16 @@ test("a run of one's own goes without its first and last 200 m", () => {
     track: north(11),
   } as unknown as ActivityDetail;
   const drawing = drawingOfRun(run);
-  const points = drawing?.points ?? [];
-  // Cut where the 200 m fall, between two fixes: the fixes between stay.
-  expect(points.slice(1, -1)).toEqual(north(11).slice(2, 9));
-  expect(points[0][0]).toBeCloseTo(46.0018, 4);
-  expect(points[points.length - 1][0]).toBeCloseTo(46.0082, 4);
+  // Every fix, the first and the last too (ADR-0330).
+  expect(drawing?.points).toEqual(north(11));
   expect(drawing).toMatchObject({
     city: "Trento",
     shape: "heart",
     similarity: 0.82,
     activity: "running",
   });
-  // Too short to keep any of it: nothing to send.
-  expect(drawingOfRun({ ...run, track: north(3) })).toBeNull();
+  // One fix is no line: nothing to send.
+  expect(drawingOfRun({ ...run, track: north(1) })).toBeNull();
 });
 
 test("a drawing of the Feed goes as the API gave it, named by its route", () => {

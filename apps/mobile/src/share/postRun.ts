@@ -5,7 +5,6 @@ import { routeActivity } from "../activities/snow";
 import type { ActivityDetail, RunPost, RunPostRequest } from "../api/activities";
 import { turnOf } from "../explore/recommendedRoutes";
 import { t } from "../i18n";
-import { metresBetween } from "../map/coordinates";
 import { clockLabel } from "../navigation/freeRun";
 import { isPaddle, paddlePaceLabel } from "../navigation/paddle";
 import { isSwim, swimPaceLabel } from "../navigation/swim";
@@ -22,7 +21,7 @@ export type PostRun = {
   key: string | null;
   /** The title over the drawing; null shows none. */
   title: string | null;
-  /** What was run, whole: the post leaves out its ends (POST_CUT_M). */
+  /** What was run, whole: the post draws all of it (ADR-0330). */
   track: LatLon[];
   distanceM: number;
   /** The time of the run, its pauses left out. */
@@ -94,13 +93,6 @@ export function postOfTrack(
   };
 }
 
-/**
- * The first and the last metres of the track the post never shows: where a
- * run starts and ends is often a door. The same as a drawing others see
- * (ADR-0114, the API's DRAWING_CUT_M).
- */
-export const POST_CUT_M = 200;
-
 /** A number of the run the post can show, each one on or off. Never its
  * score: the post has none (TASK-241, the user's choice). */
 export type PostResult = "distance" | "time" | "pace";
@@ -164,33 +156,11 @@ export function postCaption(
   return caption === "" ? null : caption;
 }
 
-/** The point `share` of the way from `a` to `b`. */
-function between(a: LatLon, b: LatLon, share: number): LatLon {
-  return [a[0] + (b[0] - a[0]) * share, a[1] + (b[1] - a[1]) * share];
-}
-
-/** The line from `cut` metres along it to its end; empty when it is not
- * that long. */
-function fromMetres(line: LatLon[], cut: number): LatLon[] {
-  let walked = 0;
-  for (let i = 1; i < line.length; i += 1) {
-    const step = metresBetween(line[i - 1], line[i]);
-    if (walked + step > cut) {
-      const start = between(line[i - 1], line[i], (cut - walked) / step);
-      return [start, ...line.slice(i)];
-    }
-    walked += step;
-  }
-  return [];
-}
-
 /**
- * The track without its first and last `cut` metres along it, the cuts
- * falling between two fixes where they must. Empty for a run shorter than
- * both ends together: the post then shows its numbers alone.
+ * The line the post draws: the whole track, start and end too, as the
+ * drawing others see (ADR-0330). Empty with fewer than two fixes: the post
+ * then shows its numbers alone.
  */
-export function withoutEnds(track: LatLon[], cut: number = POST_CUT_M): LatLon[] {
-  const ahead = fromMetres(track, cut);
-  const kept = fromMetres([...ahead].reverse(), cut).reverse();
-  return kept.length > 1 ? kept : [];
+export function postLine(track: readonly LatLon[]): LatLon[] {
+  return track.length > 1 ? [...track] : [];
 }

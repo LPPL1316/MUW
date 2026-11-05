@@ -127,7 +127,7 @@ describe("«Privacy» is final, approved by the user (TASK-237 D)", () => {
   test.each(CONTENTS)("in «%s», with the day of the approval", (_, content) => {
     expect(content.privacy.draft).toBe(false);
     expect(content.privacy.updated).toMatch(
-      /^4 November 2026$|^4 novembre 2026$|^4\. November 2026$|^4 de noviembre de 2026$/,
+      /^5 November 2026$|^5 novembre 2026$|^5\. November 2026$|^5 de noviembre de 2026$/,
     );
   });
 
@@ -292,7 +292,7 @@ test("«Privacy» says how the account is deleted and what goes with it", () => 
   );
   expect(english).toMatch(/«Settings», «Delete account»/);
   expect(english).toMatch(/out of every backup within 14 days/);
-  expect(english).toMatch(/without its first and last 200 m/);
+  expect(english).toMatch(/the whole track, start and end included/);
   expect(english).toMatch(/at least 16/);
   const italian = all(IT.privacy);
   expect(italian).toMatch(
@@ -300,7 +300,7 @@ test("«Privacy» says how the account is deleted and what goes with it", () => 
   );
   expect(italian).toMatch(/«Impostazioni», «Elimina account»/);
   expect(italian).toMatch(/fuori da ogni copia entro 14 giorni/);
-  expect(italian).toMatch(/senza i primi e gli ultimi 200 m/);
+  expect(italian).toMatch(/la traccia intera, partenza e arrivo compresi/);
   expect(italian).toMatch(/almeno 16 anni/);
 });
 

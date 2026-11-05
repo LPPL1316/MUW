@@ -4,18 +4,16 @@ import { Image, type ImageSourcePropType, StyleSheet, View } from "react-native"
 
 import { fitLines, type Segment } from "../../activities/fitLines";
 import { bearingOf } from "../../map/turnedMap";
-import { withoutEnds } from "../../share/postRun";
+import { postLine } from "../../share/postRun";
 import { color } from "../../theme/tokens";
 import { type Box, COMPOSED_RATIO, layoutFrame, type PostLayout } from "./layoutFrame";
 
 /**
- * The line a photo carries: the run's track without its ends, the same cut
- * as the Feed's and the shared post's (POST_CUT_M). A picture made with it
- * cannot be cut afterwards, so its first and last 200 m are never in it:
- * often a door (TASK-348, ADR-0301).
+ * The line a photo carries: the run's whole track, start and end too, as
+ * the Feed and the shared post draw it (TASK-348, ADR-0330).
  */
 export function composedLine(track: readonly LatLon[]): LatLon[] {
-  return withoutEnds([...track]);
+  return postLine(track);
 }
 
 type Props = {

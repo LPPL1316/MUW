@@ -55,7 +55,7 @@ type Props = {
 /**
  * «Drawings» in a profile (TASK-117, ADR-0159): the runs it made public,
  * the latest first, three a row, a page at a time. Each is the run as the
- * others see it, small and without its first and last 200 m, on the map
+ * others see it, small and whole (ADR-0330), on the map
  * of where it was run (TASK-332); a tap opens it on the map. Never its
  * score (TASK-241).
  */

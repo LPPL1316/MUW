@@ -8,11 +8,11 @@ import { bearingOf } from "../map/turnedMap";
 import { color, fontWeight } from "../theme/tokens";
 import {
   POST_RESULTS,
+  postLine,
   type PostResult,
   type PostRun,
   resultName,
   resultValue,
-  withoutEnds,
 } from "./postRun";
 import { isTap, type Sticker } from "./stickers";
 
@@ -48,8 +48,8 @@ type Props = {
 /**
  * The post as it is shared (TASK-231): on the yellow of Sgrava, the logo,
  * the title, the drawing the run made in black, the results chosen and the
- * emoji where the runner dragged them. The ends of the track are left out
- * (POST_CUT_M). A run along a turned route is drawn turned back, so the
+ * emoji where the runner dragged them. The whole track is drawn, start and
+ * end too (ADR-0330). A run along a turned route is drawn turned back, so the
  * drawing reads upright (TASK-232). The ref is the View the picture is
  * made of.
  */
@@ -63,7 +63,7 @@ export const PostImage = forwardRef<View, Props>(function PostImage(
   const line = width * LINE;
   const bearing = bearingOf(run.rotationDeg);
   const [segments] = useMemo(
-    () => fitLines([withoutEnds(run.track)], boxWidth, boxHeight, line, bearing),
+    () => fitLines([postLine(run.track)], boxWidth, boxHeight, line, bearing),
     [run.track, boxWidth, boxHeight, line, bearing],
   );
   const results = POST_RESULTS.filter(

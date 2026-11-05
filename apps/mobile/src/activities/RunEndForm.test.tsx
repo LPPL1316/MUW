@@ -95,8 +95,7 @@ async function save() {
 }
 
 const OWNER = 7;
-const EVERY_MEMBER =
-  "Every member sees it in your profile, without the first and last 200 m.";
+const EVERY_MEMBER = "Every member sees it in your profile.";
 
 beforeEach(() => {
   mockSport = "run";
