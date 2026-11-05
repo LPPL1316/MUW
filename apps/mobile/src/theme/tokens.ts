@@ -430,17 +430,19 @@ export const motion = {
    * The app's springs, for `Animated.spring` through `../ui/motion` only: no
    * screen makes up its own. Mass 1. In the words of SwiftUI, `response` is
    * 2π/√stiffness and the damping fraction damping/(2√stiffness):
-   * - `snappy`, ~0.38 s, passes its mark by ~2.5%: a control let go;
+   * - `snappy`, ~0.38 s, passes its mark by ~2.5%: a control let go, the
+   *   tab bar's capsule, an icon taking its tab;
    * - `smooth`, ~0.48 s, passes by less than 0.1%: a sheet, a page;
-   * - `island`, ~0.5 s, passes by ~1.7%: the island opening and closing;
-   * - `glide`, ~0.39 s, critically damped, never passes its mark: the tab
-   *   bar, where a bounce at every change of page read as clunky (A2).
+   * - `island`, ~0.5 s, passes by ~1.7%: the island opening and closing.
    */
   spring: {
     snappy: { stiffness: 270, damping: 25, mass: 1 },
-    glide: { stiffness: 256, damping: 32, mass: 1 },
     smooth: { stiffness: 170, damping: 24, mass: 1 },
     island: { stiffness: 160, damping: 20, mass: 1 },
+    /** ~0.39 s, critically damped, never passes its mark: the tab bar,
+     * where a bounce at every change of page read as clunky (TASK-388 A2).
+     * It has taken over from `snappy` there. */
+    glide: { stiffness: 256, damping: 32, mass: 1 },
   },
   /** Something arriving on screen: a fade, rising this many points. */
   appearMs: 220,
