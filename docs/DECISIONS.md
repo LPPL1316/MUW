@@ -23359,3 +23359,15 @@ un modulo nativo, cioè una build per l'App Store.
   nell'app quando arriva l'orologio. Meglio un solo `@bacons/apple-targets`.
 - **Aggiornare la notifica fissa del servizio su Android**: expo-location
   non la cambia senza riavviare il GPS. Su Android la parte A manda la sua.
+
+## ADR-0335, aggiunta — Il testo della notifica è la frase della voce
+
+**Stato**: Proposto · 2026-11-05 · TASK-401. Scelta di prodotto
+dell'utente.
+
+Alla domanda «Cosa scrive la notifica a schermo bloccato?» l'utente ha
+scelto **«Frase della voce + %»** (contro «Corta, stile navigatore»): il
+titolo della notifica è la frase che la voce dice in quel momento, con la
+freccia davanti; fuori rotta «Off the route»; sotto «{percent}% drawn ·
+{distance} left». Le frasi della voce sono già approvate e tradotte in
+cinque lingue; l'unico testo nuovo è «{distance} left», nelle unità scelte.

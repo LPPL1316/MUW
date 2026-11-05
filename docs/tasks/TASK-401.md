@@ -73,9 +73,11 @@ come la voce e la vibrazione.
   sostituisce quella di prima invece di accumularle.
 - **Senza suono**: parla già la voce; la notifica si vede e basta (su
   Android un canale suo «Directions», importanza bassa).
-- **Cosa dice** (testi da approvare): titolo con la freccia e la svolta,
-  «↱ Turn right in 50 m»; sotto il nome della via, se c'è, e
-  «42% drawn».
+- **Cosa dice** (scelta dell'utente del 2026-11-05, «Frase della voce +
+  %»): il titolo è **la stessa frase che dice la voce** in quel momento,
+  con la freccia davanti («↱ In 50 m, turn right onto Via Roma»); fuori
+  rotta «⚠ Off the route». Sotto, sempre: «42% drawn · 3.1 km left». Unico
+  testo nuovo «{distance} left».
 - **Il permesso** è quello delle notifiche push, chiesto come per il
   recupero della palestra; rifiutato, resta la voce come oggi.
 - Limite: una notifica non si aggiorna da sola metro per metro; mostra i
@@ -128,8 +130,11 @@ tiene il Coordinatore con l'utente.
 ### Le scelte ancora aperte (una alla volta, all'utente)
 
 1. ~~Notifica, Live Activity o tutte e due~~ → tutte e due (2026-11-05).
-2. **Parte A, i testi** della notifica (svolta, fuori rotta, rientro) in
-   cinque lingue.
+2. ~~Parte A, i testi~~ → **«Frase della voce + %»** (2026-11-05, contro
+   «Corta, stile navigatore»): il titolo è la frase che dice la voce, già
+   approvata e tradotta; fuori rotta «Off the route», che c'è già; sotto
+   «42% drawn · 3.1 km left». Unico testo nuovo «{distance} left», con la
+   distanza nelle unità scelte (km o mi), da tradurre in cinque lingue.
 3. **Parte B, cosa mostra** il riquadro e l'isola compatta; e senza percorso
    («Run without a route»): niente Live Activity, o tempo, distanza e passo.
 4. **Parte B, la fine**: il riquadro sparisce a fine corsa o resta qualche
@@ -142,7 +147,7 @@ tiene il Coordinatore con l'utente.
 **Parte 0 (questa PR)**: questo file, ADR-0335 «Proposto», le righe in
 `STATUS.md`.
 
-**Parte A** (dopo la scelta 2):
+**Parte A** (scelta 2 fatta; parte col via del Coordinatore):
 1. `navigation/lockNotice.ts` + test: quando parte, cosa dice, che si
    sostituisce, che si toglie a fine corsa e con l'app davanti, che col
    permesso rifiutato non fa niente.

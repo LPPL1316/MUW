@@ -169,6 +169,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (la aggiunge 401 B, TASK-370 la riusa nella 1.1). Branch
   `docs/TASK-401-lock-screen-directions`, solo proposta. Prossima domanda all'utente: i
   testi della notifica. `tasks/TASK-401.md`.
+  **2026-11-05**: testi scelti dall'utente, «Frase della voce + %» (la frase della voce come
+  titolo, sotto «42% drawn · 3.1 km left»; unico testo nuovo «{distance} left»). Parte A
+  aspetta il via del Coordinatore sulla lista dei file. PR #847.
 - **TASK-370 — L'app per Apple Watch, per tutti gli sport, anche senza telefono**
   (2026-11-05; numeri riservati dal Coordinatore il 2026-11-04, ADR-0314 «Proposto»;
   richiesta dell'utente «l'app per apple watch completa per tutti gli sport», scelta
