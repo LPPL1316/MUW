@@ -397,7 +397,8 @@ non cambiano.
 - [x] Lo strato non prende tocchi: il tocco fuori dal foglio lo chiude
       ancora.
 - [x] Solo JS, impronta `6f8bba4c` invariata; nessun colore a mano.
-- [ ] Video in `out/TASK-388/c2-*` e l'ok dell'utente.
+- [x] Video in `out/TASK-388/c2-*` e l'ok dell'utente: «Sì, approvo»,
+      2026-11-05.
 
 ### File toccati (C2)
 
@@ -417,7 +418,8 @@ docs/UI.md
 eslint puliti. Video `out/TASK-388/c2-scrim.mov` sull'app vera (ricerca, i
 filtri): lo schermo si scurisce in alto e in basso nello stesso momento, cioè
 sul posto, mentre il foglio sale (`c2-scrim-frames.jpg`); chiuso, schiarisce
-in ~0,4 s. Aspetta l'ok dell'utente.
+in ~0,4 s. L'utente l'ha approvato il 2026-11-05 («Sì, approvo»); merge del
+Coordinatore a CI verde.
 
 ## Fuori scope
 
