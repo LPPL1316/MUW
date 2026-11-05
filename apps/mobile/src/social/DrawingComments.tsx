@@ -6,7 +6,6 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -28,7 +27,9 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Cascade } from "../ui/Cascade";
 import { IslandLayer } from "../ui/IslandLayer";
+import { SheetModal } from "../ui/SheetModal";
 import { useBlockedNow } from "./blockedNow";
 import { useCommentChoices } from "./commentChoices";
 import { useCommentsDoor } from "./commentsDoor";
@@ -171,13 +172,7 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
   }
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
+    <SheetModal visible={visible} onRequestClose={onClose}>
       <KeyboardAvoidingView
         style={styles.fill}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -260,7 +255,7 @@ export function CommentsSheet({ visible, comments, onClose }: SheetProps) {
         {/* «Thanks» of a report, over the sheet (TASK-388). */}
         <IslandLayer />
       </KeyboardAvoidingView>
-    </Modal>
+    </SheetModal>
   );
 }
 
@@ -325,14 +320,16 @@ function CommentsList({ comments, list, me, onHold, onAction, onAuthor }: ListPr
       contentContainerStyle={styles.listContent}
       data={comments.comments}
       keyExtractor={(comment) => comment.id}
-      renderItem={({ item }) => (
-        <CommentRow
-          comment={item}
-          me={me}
-          onHold={onHold}
-          onAction={onAction}
-          onAuthor={onAuthor}
-        />
+      renderItem={({ item, index }) => (
+        <Cascade index={index}>
+          <CommentRow
+            comment={item}
+            me={me}
+            onHold={onHold}
+            onAction={onAction}
+            onAuthor={onAuthor}
+          />
+        </Cascade>
       )}
       keyboardShouldPersistTaps="handled"
       ListEmptyComponent={

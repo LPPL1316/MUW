@@ -238,7 +238,10 @@ describe("the super like", () => {
     expect(
       await screen.findByRole("button", { name: `Your reaction: ${HEART}` }),
     ).toBeTruthy();
-    expect(screen.queryByRole("header", { name: "Super like" })).toBeNull();
+    // The sheet goes down on its spring, then it is gone (TASK-388 C).
+    await waitFor(() =>
+      expect(screen.queryByRole("header", { name: "Super like" })).toBeNull(),
+    );
     expect(onSuperLiked).toHaveBeenCalledTimes(1);
   });
 
@@ -250,7 +253,9 @@ describe("the super like", () => {
     await fireEvent.changeText(screen.getByLabelText("Comment"), "Almost");
     await fireEvent.press(screen.getByRole("button", { name: "Cancel" }));
 
-    expect(screen.queryByRole("header", { name: "Super like" })).toBeNull();
+    await waitFor(() =>
+      expect(screen.queryByRole("header", { name: "Super like" })).toBeNull(),
+    );
     expect(value.leave).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Your reaction: Fire" })).toBeTruthy();
     expect(onSuperLiked).not.toHaveBeenCalled();

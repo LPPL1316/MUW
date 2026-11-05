@@ -224,6 +224,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Scelta dell'utente (2026-11-05): anche «Thanks for telling us…» dopo ogni
   segnalazione (post, profilo, messaggio, commento), con `sayInIsland` e un
   `IslandLayer` sopra l'app in `Root.tsx`; stessa PR, la #786.
+  **B in `main`** (#786, dde301bd, 2026-11-05); anteprima e OTA col
+  Coordinatore. **Parte C, fogli e liste** (2026-11-05, branch
+  `feat/TASK-388-c-sheets-lists`): `SheetModal` (i sette fogli dal basso
+  salgono e scendono sulla molla `smooth`) e `Cascade` (conversazioni,
+  campanella, commenti, risultati della ricerca entrano una riga dopo
+  l'altra). Impronta 6f8bba4c. Video in `out/TASK-388/c-*`; merge del
+  Coordinatore dopo l'ok dell'utente.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
@@ -378,6 +385,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - 2026-11-05: **C2 in `main`** (#783, 9adb22d1), nell'anteprima del
     Coordinatore. La parte C è chiusa. La parte D resta chiusa finché il
     Coordinatore non ne ha parlato con l'utente; poi E (la prova sulla neve).
+  - 2026-11-05: l'utente apre la parte D («INIZIA LA PARTE D»); la proposta
+    è nella #799. Le scelte: i nomi nel post, visibili a tutti; tutte le
+    Alpi. **D1** è sul server ma non va online: l'estratto di impianti e
+    piste, e il loro confronto con la traccia (ADR-0319, punto 11). Nessuna
+    rotta e nessuna migrazione. Prossimo: D2 (API e colonna 0048), con la
+    sua lista al Coordinatore; poi D3 (app), con i testi e la riga della
+    privacy col sì dell'utente.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -1038,6 +1052,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `paddleExamples.json` a ridisegno finito; il codice di E (Apple Watch,
   ora che TASK-321 B è in `main`, sul Mac con Xcode); la prova in acqua
   (primavera 2027).
+  **Prima in preview** (2026-11-05, scelta dell'utente, «Subito in
+  preview»): branch `feat/TASK-323-swim-preview`, il nuoto acceso in Expo Go
+  e `preview` (`preview: true` in `sport.ts`), lo store ancora senza fino
+  alla #765 (ferma per TASK-387). Poi un OTA della sola `preview`. Niente
+  nuoti pubblicati nel Feed finché TASK-387 non è sul server. Aggiunta ad
+  ADR-0283.
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
@@ -2743,6 +2763,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la unisce il Coordinatore. Prossimo: le cinque scelte dell'utente, una alla
   volta, poi il sì sulla proposta, i testi e l'ADR dal Coordinatore; la parte B
   (app) dopo TASK-384 B. `tasks/TASK-394.md`.
+- **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
+  Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
+  Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,
+  se no la stima di MuW dai record di corsa (VDOT di Daniels) con la scritta
+  «stima»; visibile a chi apre il profilo solo dopo un sì, spegnibile in
+  Impostazioni. A (API) e B (app, solo stima) possono andare con un OTA; C
+  (lettura da Salute) entra nel testo unico di `NSHealthShareUsageDescription`
+  della 1.0.2 con TASK-345 C e TASK-374 C. Branch
+  `docs/TASK-397-vo2max-proposal`; la unisce il Coordinatore. Prossimo: il sì
+  dell'utente sui testi, poi la lista dei file della parte A al Coordinatore.
+  `tasks/TASK-397.md`.
 
 ## Completato
 

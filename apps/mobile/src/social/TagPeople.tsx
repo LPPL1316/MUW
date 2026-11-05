@@ -1,7 +1,6 @@
 import type { Person } from "@shaperoute/shared-types";
 import {
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -20,6 +19,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { SheetModal } from "../ui/SheetModal";
 import { useFollowsDoor } from "./followsDoor";
 import { PeopleSearch } from "./PeopleSearch";
 
@@ -41,16 +41,10 @@ type Props = {
  */
 export function TagPeople({ visible, onPick, onClose, fetchFn, apiKey }: Props) {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
+    <SheetModal visible={visible} onRequestClose={onClose}>
       {/* Mounted with the sheet: each opening starts from an empty field. */}
       <SheetBody onPick={onPick} onClose={onClose} fetchFn={fetchFn} apiKey={apiKey} />
-    </Modal>
+    </SheetModal>
   );
 }
 

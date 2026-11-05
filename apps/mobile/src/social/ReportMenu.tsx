@@ -4,7 +4,7 @@ import {
   REPORT_REASONS,
 } from "@shaperoute/shared-types";
 import { type ReactNode, useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { accountProblem, sessionEnded } from "../account/messages";
@@ -20,6 +20,7 @@ import {
   space,
 } from "../theme/tokens";
 import { sayInIsland } from "../ui/IslandLayer";
+import { SheetModal } from "../ui/SheetModal";
 import { Tap } from "../ui/Tap";
 import { markBlocked } from "./blockedNow";
 
@@ -141,13 +142,7 @@ export function ReportMenu({
       >
         <Text style={styles.moreText}>…</Text>
       </Tap>
-      <Modal
-        visible={step.kind !== "closed"}
-        transparent
-        animationType="slide"
-        statusBarTranslucent
-        onRequestClose={close}
-      >
+      <SheetModal visible={step.kind !== "closed"} onRequestClose={close}>
         <Pressable
           style={styles.backdrop}
           onPress={close}
@@ -207,7 +202,7 @@ export function ReportMenu({
             onPress={close}
           />
         </Sheet>
-      </Modal>
+      </SheetModal>
     </>
   );
 }
