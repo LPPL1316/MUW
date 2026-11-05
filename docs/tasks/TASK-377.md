@@ -116,6 +116,10 @@ Una alla volta, ciascuna con la proposta dell'agente:
    delle auto (niente `trunk`, `primary`, `secondary`, `tertiary`) e senza
    sentieri oltre `sac_scale` T3, come la proposta. È `outdoor` di
    `hike.md`: 46 forme su 54 sulle sei zone.
+3. **Le distanze** (2026-11-05): da 1 a 30 km, gli stessi limiti della
+   camminata. La proposta era 3–20 km. Oltre i 20 km, in montagna, i
+   cerchi del banco non riescono e il motore ci mette fino a 102 s a dirlo:
+   la parte A lo misura a 25 e 30 km.
 
 ## Criteri di accettazione
 
