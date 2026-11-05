@@ -55,7 +55,7 @@ test("Expo Go and preview turn on the sports tried there first: the swim (TASK-3
 });
 
 test("a store build leaves out the sports not ready, and keeps the order", () => {
-  expect(STORE.map((option) => option.id)).toEqual(["run", "bike", "paddle"]);
+  expect(STORE.map((option) => option.id)).toEqual(["run", "bike", "paddle", "ski"]);
   expect(STORE.every((option) => option.ready)).toBe(true);
 });
 
@@ -67,13 +67,20 @@ test("in a store build `SPORTS` itself has no «Paragliding»", () => {
     }));
     const store = jest.requireActual<typeof import("./sport")>("./sport");
     expect(store.isStoreBuild()).toBe(true);
-    expect(store.SPORTS.map((option) => option.id)).toEqual(["run", "bike", "paddle"]);
+    expect(store.SPORTS.map((option) => option.id)).toEqual([
+      "run",
+      "bike",
+      "paddle",
+      "ski",
+    ]);
   });
 });
 
 test("«Settings» of a store build has no «Soon» row", async () => {
   await render(<SportSetting sports={STORE} />);
-  expect(screen.getAllByRole("radio")).toHaveLength(3);
+  // Run, bike, paddle and the alpine ski (TASK-375 D4).
+  expect(screen.getAllByRole("radio")).toHaveLength(4);
+  expect(screen.getByRole("radio", { name: "Ski" })).toBeOnTheScreen();
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
   expect(screen.queryByText("🪂")).toBeNull();
@@ -85,7 +92,7 @@ test("«Settings» of a store build has no «Soon» row", async () => {
 test("the sport menu of «Draw» in a store build has no «Soon» row", async () => {
   await render(<SportButton sports={STORE} />);
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
-  expect(screen.getAllByRole("radio")).toHaveLength(3);
+  expect(screen.getAllByRole("radio")).toHaveLength(4);
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
 });

@@ -1,7 +1,7 @@
 import type { Activity, LatLon, RunActivity } from "@shaperoute/shared-types";
 
 import { whereAndWhat } from "../activities/activityText";
-import { routeActivity } from "../activities/snow";
+import { isTrackless, routeActivity } from "../activities/snow";
 import type { ActivityDetail, RunPost, RunPostRequest } from "../api/activities";
 import { turnOf } from "../explore/recommendedRoutes";
 import { t } from "../i18n";
@@ -119,7 +119,8 @@ export function resultName(result: PostResult): string {
 export function resultValue(run: PostRun, result: PostResult): string | null {
   switch (result) {
     case "distance":
-      return runDistanceLabel(run.distanceM);
+      // A workout at the gym has none (TASK-385 B0).
+      return isTrackless(run.activity) ? null : runDistanceLabel(run.distanceM);
     case "time":
       return clockLabel(run.durationMs);
     case "pace":

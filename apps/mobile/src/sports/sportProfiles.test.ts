@@ -40,7 +40,7 @@ const MPH_KMH = 1.609344;
 it("has a profile for every activity of a saved run, in their order", () => {
   expect(SPORT_PROFILES.map((sport) => sport.activity)).toEqual([...RUN_ACTIVITIES]);
   expect(DEFAULT_ACTIVITY).toBe("running");
-  expect(() => profileOf("gym" as never)).toThrow("no sport profile for gym");
+  expect(() => profileOf("climbing" as never)).toThrow("no sport profile for climbing");
 });
 
 it("gives «Draw» the distances of before", () => {
@@ -88,6 +88,8 @@ it("gives Apple Health and Health Connect the numbers of before", () => {
     walking: 52,
     skiing: 61,
     xc_skiing: 60,
+    // `.traditionalStrengthTraining` (TASK-385).
+    gym: 50,
   });
   expect(Object.entries(DISTANCE_TYPE)).toEqual([
     ["running", "HKQuantityTypeIdentifierDistanceWalkingRunning"],
@@ -104,6 +106,8 @@ it("gives Apple Health and Health Connect the numbers of before", () => {
     walking: 79,
     skiing: 61,
     xc_skiing: 61,
+    // EXERCISE_TYPE_STRENGTH_TRAINING (TASK-385).
+    gym: 70,
   });
 });
 
@@ -170,6 +174,7 @@ it("starts a run without a route and labels a MuW route as before", () => {
     "walking",
     "cycling",
     undefined,
+    undefined,
   ]);
   expect(muwLabel("running")).toBe("Route created by MuW – run it yourself");
   expect(muwLabel("paddling")).toBe("Route created by MuW – paddle it yourself");
@@ -209,6 +214,7 @@ it("gives the screens what they told apart before (part B3b)", () => {
     walking: "🚶",
     skiing: "⛷️",
     xc_skiing: "🎿",
+    gym: "🏋️",
   });
   expect(tableOf((sport) => sport.pace)).toEqual({
     paddling: "paddle",

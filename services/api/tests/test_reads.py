@@ -76,11 +76,10 @@ def test_several_lines_of_the_header_add_up() -> None:
     )
 
 
-def test_the_app_of_today_reads_every_activity_but_no_trackless_post() -> None:
+def test_the_app_of_today_reads_everything() -> None:
     reads = reads_from([_fixture()["this_app"]])
-    # But a workout at the gym, which comes with the screens of TASK-385 B0.
-    assert reads.activities == tuple(a for a in EVERYTHING.activities if a != "gym")
-    assert not reads.trackless
+    # A workout at the gym and its post without a line too (TASK-385 B0).
+    assert reads == EVERYTHING
 
 
 def test_shows_asks_the_activity_and_the_track() -> None:

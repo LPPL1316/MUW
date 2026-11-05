@@ -19,8 +19,11 @@ import { Tap } from "../ui/Tap";
 import { runDistanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { type RefusedRun, useActivitiesDoor } from "./activitiesDoor";
+import { GymTile } from "../gym/GymTile";
+import { clockLabel } from "../navigation/freeRun";
 import { runFacts, startedLabel, whereAndWhat } from "./activityText";
 import { RunDrawing } from "./RunDrawing";
+import { isTrackless } from "./snow";
 
 /** The side of a run's drawing in the list. */
 const DRAWING = 88;
@@ -250,7 +253,9 @@ function ActivityRow({
   const where = whereAndWhat(activity, activity.route_preview !== null);
   // Written again when «Settings» changes the units (TASK-182).
   useUnits();
-  const facts = runFacts(activity);
+  // A workout at the gym has no distance: its time (TASK-385 B0).
+  const gym = isTrackless(activity.activity);
+  const facts = gym ? clockLabel(activity.duration_s * 1000) : runFacts(activity);
   return (
     <View style={styles.row} testID="activity-row">
       <Tap
@@ -264,13 +269,17 @@ function ActivityRow({
           { when, where, facts },
         )}
       >
-        <RunDrawing
-          route={activity.route_preview}
-          track={activity.track_preview}
-          width={DRAWING}
-          height={DRAWING}
-          rotationDeg={activity.rotation_deg}
-        />
+        {gym ? (
+          <GymTile width={DRAWING} height={DRAWING} />
+        ) : (
+          <RunDrawing
+            route={activity.route_preview}
+            track={activity.track_preview}
+            width={DRAWING}
+            height={DRAWING}
+            rotationDeg={activity.rotation_deg}
+          />
+        )}
         <View style={styles.words}>
           <Text style={styles.when} numberOfLines={1}>
             {when}

@@ -11,9 +11,11 @@ import {
 } from "react-native";
 
 import { sportPaceLabel } from "../activities/activityText";
+import { isTrackless } from "../activities/snow";
 import { drawingPhotoSource } from "../api/drawings";
 import { cityName } from "../explore/recommendedRoutes";
 import { RouteThumb } from "../explore/RouteThumb";
+import { GymTile } from "../gym/GymTile";
 import { t } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
 import { bearingOf } from "../map/turnedMap";
@@ -40,7 +42,7 @@ import { useUnits } from "../units/useUnits";
 import { ActionBar } from "./ActionBar";
 import { isImportedPost, isShown } from "./feedPosts";
 import { postEnergy } from "./postEnergy";
-import { RouteMap } from "./RouteMap";
+import { drawingHeight, RouteMap } from "./RouteMap";
 import type { SamplePost } from "./sampleFeed";
 import { turnedLine } from "./turnedLine";
 
@@ -90,11 +92,13 @@ export function postFacts(post: SamplePost): string {
   const what = named !== null && sameWords(named, post.title) ? null : named;
   // A member's drawing has the seconds; an example only its minutes.
   const ms = isShown(post) ? post.drawing.duration_s * 1000 : post.minutes * 60_000;
+  // A workout at the gym has no distance nor pace: its time (TASK-385 B0).
+  const gym = isTrackless(post.activity);
   const facts = [
     what,
-    distanceLabel(post.route_m),
+    gym ? null : distanceLabel(post.route_m),
     durationLabel(post.minutes * 60_000),
-    sportPaceLabel(post.activity, post.route_m, ms),
+    gym ? null : sportPaceLabel(post.activity, post.route_m, ms),
     postEnergy(post),
   ]
     .filter((fact): fact is string => fact !== null)
@@ -196,15 +200,25 @@ export function FeedPost({ post, width, onOpen }: Props) {
           source: drawingPhotoSource(apiUrl, state.session.token, photo),
         }))
       : [];
+  // A workout at the gym has no line: its tile in place of the map, and
+  // never ordered, its first photo first (the user's choice, TASK-385).
+  const gym = isTrackless(post.activity);
   // The pages in the post's order, the map among the photos (TASK-348,
   // ADR-0301); never ordered, the map first.
+  const order = isShown(post) ? post.drawing.order : null;
+  const ordered = itemsOf(
+    order,
+    photos.map((photo) => photo.n),
+  );
   const pages =
     photos.length === 0
       ? []
-      : itemsOf(
-          isShown(post) ? post.drawing.order : null,
-          photos.map((photo) => photo.n),
-        );
+      : gym && (order === null || order === undefined)
+        ? [
+            ...ordered.filter((item) => item.kind !== "drawing"),
+            { kind: "drawing" as const },
+          ]
+        : ordered;
   // Each page of the photos takes a tap itself (TASK-330): were the card
   // the one touched, iOS would not let the photos scroll inside it, and the
   // swipe would turn the app's page to «Draw» instead. A page is as wide as
@@ -250,7 +264,13 @@ export function FeedPost({ post, width, onOpen }: Props) {
           title: post.title,
           facts: heard,
         });
-  const drawing = (
+  const drawing = gym ? (
+    <GymTile
+      width={width}
+      height={drawingHeight(width)}
+      durationS={isShown(post) ? post.drawing.duration_s : post.minutes * 60}
+    />
+  ) : (
     <RouteMap
       id={post.id}
       line={post.line}
@@ -273,15 +293,18 @@ export function FeedPost({ post, width, onOpen }: Props) {
   const wordsOnPhoto = (
     <>
       <Scrim height={SCRIM_HEIGHT} />
-      <View
-        style={styles.thumb}
-        pointerEvents="none"
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        testID="feed-photo-thumb"
-      >
-        <RouteThumb line={upright} width={THUMB} height={THUMB} />
-      </View>
+      {/* No figure in the corner of a workout at the gym: it has none. */}
+      {!gym && (
+        <View
+          style={styles.thumb}
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          testID="feed-photo-thumb"
+        >
+          <RouteThumb line={upright} width={THUMB} height={THUMB} />
+        </View>
+      )}
       <View
         style={styles.wordsOnPhoto}
         pointerEvents="none"
