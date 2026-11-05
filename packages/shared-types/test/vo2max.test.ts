@@ -30,7 +30,8 @@ test("a VO₂ max is a whole number of a day, from Health or estimated", () => {
   // Only the estimate says which best it comes from.
   assert.equal(vo2max.source === "estimate", vo2max.from_distance !== null);
   assert.ok(
-    vo2max.from_distance === null || RUNNING_BEST_DISTANCES.includes(vo2max.from_distance),
+    vo2max.from_distance === null ||
+      RUNNING_BEST_DISTANCES.includes(vo2max.from_distance),
   );
 });
 
