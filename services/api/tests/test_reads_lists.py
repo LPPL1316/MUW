@@ -35,9 +35,7 @@ from shaperoute_api.reads import EVERYTHING, OLD_APP, READS_HEADER, reads_from
 FIXTURES = (
     Path(__file__).resolve().parents[3] / "packages" / "shared-types" / "fixtures"
 )
-THIS_APP = json.loads((FIXTURES / "reads.json").read_text(encoding="utf-8"))[
-    "this_app"
-]
+THIS_APP = json.loads((FIXTURES / "reads.json").read_text(encoding="utf-8"))["this_app"]
 SNOW_KEY = "a1b2c3d4e5f60718"
 Headers = dict[str, str]
 
@@ -51,23 +49,23 @@ def reading(headers: Headers, kinds: str = THIS_APP) -> Headers:
     return {**headers, READS_HEADER: kinds}
 
 
-def posted(client: TestClient, headers: Headers, key: str, activity: str) -> str:
+def posted(app: TestClient, headers: Headers, key: str, activity: str) -> str:
     """A run of `activity` published for everyone, its drawing's id."""
-    saved(client, headers, key, activity=activity)
-    return str(drawn(client, headers, key)["id"])
+    saved(app, headers, key, activity=activity)
+    return str(drawn(app, headers, key)["id"])
 
 
-def three_posts(client: TestClient, headers: Headers) -> dict[str, str]:
+def three_posts(app: TestClient, headers: Headers) -> dict[str, str]:
     """A run, a walk and a day on the snow, published by `headers`: the
     activity of each drawing id."""
     return {
-        posted(client, headers, KEY, "running"): "running",
-        posted(client, headers, OTHER_KEY, "walking"): "walking",
-        posted(client, headers, SNOW_KEY, "skiing"): "skiing",
+        posted(app, headers, KEY, "running"): "running",
+        posted(app, headers, OTHER_KEY, "walking"): "walking",
+        posted(app, headers, SNOW_KEY, "skiing"): "skiing",
     }
 
 
-def activities_of(posts: list[dict[str, Any]], key: str = "id") -> list[str]:
+def activities_of(posts: list[dict[str, Any]]) -> list[str]:
     return sorted(post["activity"] for post in posts)
 
 
@@ -209,12 +207,14 @@ def test_a_contest_shows_only_the_posts_the_app_reads_keeping_their_places(
 # --- Group runs ---
 
 
-def group_run(client: TestClient, headers: Headers, wall: WallClock, **changes: Any) -> str:
-    answer = client.post(
+def group_run(
+    app: TestClient, headers: Headers, clock: WallClock, **changes: Any
+) -> str:
+    answer = app.post(
         "/group-runs",
         json={
             **_load("group-run-request.json"),
-            "starts_at": (wall.t + timedelta(days=1)).isoformat(),
+            "starts_at": (clock.t + timedelta(days=1)).isoformat(),
             **changes,
         },
         headers=headers,
@@ -324,6 +324,23 @@ def test_the_favorites_hold_only_the_activities_the_app_reads(
     assert kept(me) == ["running"]
     assert kept(reading(me, "walking")) == ["running"]
     assert kept(reading(me)) == ["running", "swimming"]
+
+
+def test_my_activities_hold_only_the_activities_the_app_reads(
+    client: TestClient,  # noqa: F811
+) -> None:
+    me = signed_up(client)
+    three_posts(client, me)
+
+    def mine(headers: Headers) -> tuple[list[str], int]:
+        answer = client.get("/me/activities", headers=headers)
+        assert answer.status_code == 200, answer.text
+        body = answer.json()
+        return activities_of(body["activities"]), body["total"]
+
+    assert mine(me) == (["running"], 3)
+    assert mine(reading(me, "xc_skiing,skiing")) == (["running", "skiing"], 3)
+    assert mine(reading(me)) == (["running", "skiing", "walking"], 3)
 
 
 # --- What opens a drawing: the photos of a profile, the bell ---

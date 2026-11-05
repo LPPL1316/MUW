@@ -22532,11 +22532,12 @@ sull'ordine degli OTA lascia esposto chi non aggiorna.
    base, oggi `swimming,walking,skiing,xc_skiing`. Non `trackless`, finché
    nessuna schermata sa mostrare un post senza linea. La tolleranza B0
    resta, seconda linea di difesa.
-8. **L'ordine non rompe niente**: l'header senza la guardia non cambia
-   niente; la guardia senza l'header tratta l'app di oggi come vecchia, e le
-   toglie solo i post di nuoto salvati dalle build di sviluppo (camminata e
-   sci il server non li salva ancora: 0043 e 0044 non ci sono). Meglio
-   l'OTA prima o insieme al server.
+8. **L'ordine del rilascio** lo tiene il Coordinatore con l'utente: prima
+   il server con la guardia, poi l'OTA con l'header, poi il nuoto (#765).
+   Nessun passo rompe qualcosa: fra il server e l'OTA l'app di produzione è
+   trattata come vecchia e perde solo i post di nuoto salvati dalle build di
+   sviluppo (camminata e sci il server non li salva ancora: 0043 e 0044 non
+   ci sono); l'header senza la guardia non cambierebbe niente.
 
 **Fuori per scelta**: `/muw-routes` (il catalogo lo pubblica MuW: uno sport
 nuovo ci entra quando le app che lo leggono sono in produzione), `/style`

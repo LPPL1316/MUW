@@ -65,7 +65,9 @@ commenti, le push, i conteggi del profilo.
 
 ## File toccati
 
-In attesa dell'ok del Coordinatore (mandati il 2026-11-05).
+Approvati dal Coordinatore il 2026-11-05, i tre segnalati compresi
+(`drawings.py` dopo la #781, riallineato con un merge da `main`;
+`activities.py` prima di TASK-376 B2; una riga di `test_record_only.py`).
 
 ```
 docs/tasks/TASK-387.md                              (nuovo)
@@ -97,6 +99,6 @@ apps/mobile/src/api/accounts.test.ts
 
 ## Dopo il merge (del Coordinatore, col sì dell'utente)
 
-Il server aggiornato da `main` (nessuna migrazione) e un OTA di produzione
-con l'header. L'ordine non rompe niente (ADR-0328). Poi la #765 del nuoto
-può andare avanti.
+Nell'ordine scelto dal Coordinatore: il server aggiornato da `main`
+(nessuna migrazione), poi un OTA di produzione con l'header, poi la #765
+del nuoto (ADR-0328, punto 8).
