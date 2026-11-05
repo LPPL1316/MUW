@@ -7,6 +7,7 @@ import {
 
 import { tLater } from "../i18n";
 import { activityOffered } from "../settings/sport";
+import { profileOf } from "../sports";
 import type { CategoryKey } from "./categories";
 
 /** The distances the sheet offers, in metres: `max` null is open. */
@@ -62,13 +63,10 @@ export const SEARCH_ACTIVITIES: readonly Activity[] = ACTIVITIES.filter((activit
   activityOffered(activity),
 );
 
-export const ACTIVITY_LABELS: Readonly<Record<Activity, string>> = {
-  running: tLater("Run"),
-  cycling: tLater("Bike"),
-  paddling: tLater("Paddle"),
-  swimming: tLater("Open water swim"),
-  walking: tLater("Walk"),
-};
+/** The name of each sport the sheet may offer (src/sports, TASK-376 B3). */
+export const ACTIVITY_LABELS = Object.fromEntries(
+  ACTIVITIES.map((activity) => [activity, profileOf(activity).name]),
+) as Readonly<Record<Activity, string>>;
 
 export function bandOf(key: string | null): DistanceBand | null {
   return DISTANCE_BANDS.find((band) => band.key === key) ?? null;

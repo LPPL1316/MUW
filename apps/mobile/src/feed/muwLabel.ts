@@ -2,21 +2,18 @@ import type { MuwRoute } from "@shaperoute/shared-types";
 
 import { t } from "../i18n";
 import type { Language } from "../i18n/languages";
+import { SPORT_PROFILES } from "../sports";
+import { RIDE_IT_YOURSELF } from "../sports/cycling";
 
 /**
  * What every MuW route says on its card (TASK-365, ADR-0310), approved by the
  * user in five languages: who made it, and that nobody ran it yet. Never
- * left out.
+ * left out. Each sport says its own in src/sports (TASK-376 part B3); one
+ * that says none, a ride's.
  */
 export function muwLabel(activity: string): string {
-  switch (activity) {
-    case "running":
-      return t("Route created by MuW – run it yourself");
-    case "paddling":
-      return t("Route created by MuW – paddle it yourself");
-    default:
-      return t("Route created by MuW – ride it yourself");
-  }
+  const sport = SPORT_PROFILES.find((profile) => profile.activity === activity);
+  return t(sport?.muwLabel ?? RIDE_IT_YOURSELF);
 }
 
 /** The route's title in `language`, in English when the file has none. */
