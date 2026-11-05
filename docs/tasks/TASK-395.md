@@ -52,6 +52,25 @@ percorsi che si trovavano prima si trovano uguali.
 `route_engine/optimizer.py`. È un asset JavaScript dell'app: l'impronta iOS
 (`6f8bba4c`) non cambia.
 
+## Le impronte del motore
+
+Cambiando `optimizer.py` cambiano le impronte del codice del motore
+(`route_store.code_fingerprint`): quella di tutti i percorsi tranne il nuoto
+da `c9702b94404d` a `e13ded92b52d`, quella del nuoto da `11647a97e632` a
+`db4ee081c4a4`; quella degli esempi della canoa resta `fb16815e3876`. Senza
+altro, il server considererebbe vecchi tutti i percorsi tenuti e gli esempi
+(la CI dell'API rossa in `test_walk_fingerprint`).
+
+La strada di TASK-376 B1 (ADR-0320), con l'ok del Coordinatore su
+`route_store.py` e sulle prove: `python tests/test_same_routes.py` sul Mac
+(`darwin-arm64`) ha scritto `tests/fixtures/same_routes/e13ded92b52d.json`, e
+i nove percorsi fissi (corsa, bici, canoa, nuoto) hanno gli stessi hash della
+prova di `c9702b94404d`. Quindi due righe in `SAME_ROUTES_AS`, in catena come
+dice il suo commento: `e13ded92b52d → c9702b94404d` e
+`db4ee081c4a4 → 11647a97e632`, che portano a `5b5e026cea9b` e
+`b9d00c37d28d`. I percorsi tenuti e gli esempi restano validi: nessun
+ridisegno sul server.
+
 ## Criteri di accettazione
 
 - [x] Il crash riprodotto con un test deterministico, senza rete:
@@ -64,6 +83,9 @@ percorsi che si trovavano prima si trovano uguali.
       `test_collapsed_outline`, `test_pen_up`, `test_image_pieces`: 109
       verdi); ruff e black puliti.
 - [x] `engine.zip` rifatto per ultimo; `tools/phone_engine` verde.
+- [x] Le impronte che si muovono hanno la loro prova e la loro riga in
+      `SAME_ROUTES_AS`: stessi nove percorsi fissi, `test_same_routes` e i
+      test delle impronte dell'API verdi.
 - [ ] CI verde.
 
 ## File toccati
@@ -72,6 +94,8 @@ percorsi che si trovavano prima si trovano uguali.
 services/route-engine/route_engine/optimizer.py
 services/route-engine/tests/test_next_scale.py
 apps/mobile/assets/engine/engine.zip
+services/api/shaperoute_api/route_store.py      (solo SAME_ROUTES_AS, ok del Coordinatore)
+services/api/tests/fixtures/same_routes/e13ded92b52d.json   (nuovo)
 docs/tasks/TASK-395.md
 docs/STATUS.md
 ```

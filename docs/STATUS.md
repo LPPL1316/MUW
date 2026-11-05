@@ -2756,6 +2756,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `tests/test_next_scale.py` e `engine.zip` (dentro cambia solo
   `optimizer.py`). Branch `fix/TASK-395-next-scale-zero`; la unisce il
   Coordinatore a CI verde; niente server né OTA. `tasks/TASK-395.md`.
+  Le impronte del motore che si muovono (`e13ded92b52d`, `db4ee081c4a4`)
+  disegnano gli stessi nove percorsi fissi (prova in
+  `tests/fixtures/same_routes/`): due righe in `SAME_ROUTES_AS`, nessun
+  ridisegno sul server.
 
 ## Completato
 
