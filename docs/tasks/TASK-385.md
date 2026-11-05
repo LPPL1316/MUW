@@ -120,8 +120,8 @@ In ADR-0327 (deciso dall'agente su delega dell'utente).
 
 | Parte | Cosa | Dipende da | Server · testi · OTA |
 |---|---|---|---|
-| A | API e database: `gym`, sessione senza traccia, le serie, i post senza traccia nascosti a chi non li sa leggere, esclusioni (record, gioco, GPX, Strava), contratto, test | #758, 376 B2 | migrazione col numero del Coordinatore; server col sì |
-| B0 | L'app **legge** i post senza traccia: card, dettaglio, profilo, ricerca, messaggi, l'elenco degli esercizi; manda l'header | A | OTA di produzione col sì, **prima** di B |
+| A | API e database: `gym`, sessione senza traccia, le serie, `gym` fra i valori di `X-MuW-Reads` (ADR-0328), esclusioni (record, gioco, GPX, Strava), contratto, test | #758, 376 B2 | migrazione col numero del Coordinatore; server col sì |
+| B0 | L'app **legge** i post senza traccia: card, dettaglio, profilo, ricerca, messaggi, l'elenco degli esercizi; aggiunge `gym,trackless` all'header | A | OTA di produzione col sì, **prima** di B |
 | B | L'app **registra**: «Gym», «Start workout», schermata della sessione, catalogo e serie, timer di recupero, «Pause», «Still training?», fine sessione, «Save» | B0 in produzione da qualche giorno, 376 B3 | testi col sì |
 | C | Calorie (MET dei pesi, formule delle macchine cardio) e Salute / Health Connect come allenamento di forza | B | — |
 | D | Il post senza disegno: fino a 10 foto, il riquadro dei numeri, «Show exercises», condivisione, azioni tolte | B, TASK-348 | testi col sì |
@@ -148,10 +148,14 @@ Questa PR (documenti): `docs/tasks/TASK-385.md` (nuovo),
   numero dal Coordinatore); `services/api/shaperoute_api/sports/gym.py` e
   `gym_sets.py` (nuovi); `tests/test_gym.py` (nuovo); punti di
   registrazione: `RECORD_ACTIVITIES`/`RunActivity`, `activities.py`,
-  `strava.py`, il filtro dei disegni (`drawings.py` `shown_sql`, da
-  confermare); `docs/API.md`, `docs/DATABASE.md`.
-- **B0**: `apps/mobile/src/api/drawings.ts` (+ test), il client che manda
-  l'header, la card e il dettaglio (`feed/FeedPost.tsx`,
+  `strava.py`, `reads.py` (`gym` in `NEWER_ACTIVITIES`) e
+  `packages/shared-types/fixtures/reads.json` (`gym` in `kinds`), con la
+  prova sul database del filtro «senza traccia» di ADR-0328; `docs/API.md`,
+  `docs/DATABASE.md`. Il filtro dei disegni non si scrive: c'è già
+  (TASK-387, precisazione di ADR-0327 del 2026-11-05).
+- **B0**: `apps/mobile/src/api/drawings.ts` (+ test),
+  `apps/mobile/src/api/reads.ts` (`gym` e `trackless` in `READS`, nello
+  stesso OTA della card), la card e il dettaglio (`feed/FeedPost.tsx`,
   `social/PublicParts.tsx`); file nuovi `gym/GymPostTile.tsx`,
   `gym/ExerciseList.tsx`.
 - **B**: `apps/mobile/src/sports/gym.ts` (nuovo, dopo 376 B3), file nuovi in
@@ -203,3 +207,10 @@ I nomi degli esercizi e delle figure sono in `docs/sports/gym.md`.
   del Feed dal server nuovo senza scartarla (test).
 - [ ] Ogni parte ha test deterministici; impronta iOS 6f8bba4c invariata
   fino alla parte H; impronta del motore invariata.
+
+## Note
+
+- 2026-11-05: la proposta è in `main` (#766). TASK-387 (ADR-0328) ha messo
+  l'header unico `X-MuW-Reads` con `trackless`: la palestra lo usa invece di
+  un filtro suo (precisazione di ADR-0327). Liste di A e B0 aggiornate qui
+  sopra. Il codice aspetta ancora TASK-376 B2 e B3.

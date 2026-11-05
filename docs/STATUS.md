@@ -294,6 +294,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Sessione senza traccia: migrazione e post nascosti alle app vecchie
   (header). Codice dopo la #758 e TASK-376 B2 e B3, lista dei file al
   Coordinatore; server e OTA col sì. `tasks/TASK-385.md`, `sports/gym.md`.
+  2026-11-05: proposta in `main` (#766); i post senza traccia passano
+  dall'header di TASK-387 (`gym` + `trackless`), niente filtro proprio.
 
 - **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
   (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo

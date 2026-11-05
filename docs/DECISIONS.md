@@ -22715,3 +22715,30 @@ cartelle, la regola in `tools/ci_changes.py` cambia nella stessa PR. `site.yml`
 continua a girare quando cambia `docs/DEPLOY.md`, che i suoi test leggono.
 
 ---
+
+## ADR-0327, precisazione — La palestra usa l'header di ADR-0328
+
+**Stato**: Attiva · 2026-11-05 · TASK-385, decisa dall'agente su delega
+dell'utente. Il punto 3 di ADR-0327 voleva un header della palestra,
+`X-MuW-Reads: trackless`, e un filtro scritto dalla parte A. Nel frattempo
+TASK-387 (ADR-0328, in `main`) ha messo un header solo per tutti gli sport
+nuovi, con `trackless` già fra i valori e la condizione «senza traccia» già
+nel frammento SQL e nel filtro in Python di `reads.py`.
+
+**Decisione**: la palestra non scrive un filtro suo. La parte A aggiunge
+`gym` a `NEWER_ACTIVITIES` in `reads.py` e a `kinds` in
+`packages/shared-types/fixtures/reads.json`, e porta la prova sul database
+che ADR-0328 punto 3 rimanda alla migrazione della palestra. Un post di
+palestra passa solo se l'header dice **sia** `gym` **sia** `trackless`; il
+dettaglio senza i due valori è 404, come voleva ADR-0327. La parte B0
+aggiunge i due valori a `READS` in `apps/mobile/src/api/reads.ts` nello
+stesso OTA che sa mostrare la card e il dettaglio senza linea, non prima:
+fino a quel giorno l'app di produzione non riceve post di palestra.
+
+**Conseguenze**: dalla parte A esce il punto di registrazione «il filtro
+dei disegni (`drawings.py` `shown_sql`)», dalla B0 «il client che manda
+l'header»; entrano `reads.py`, `reads.json` e `reads.ts`, una riga
+ciascuno. L'ordine dei rilasci di ADR-0327 non cambia: la B0 in produzione
+prima della B.
+
+---
