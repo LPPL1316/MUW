@@ -7,6 +7,13 @@
  * and services/route-engine/tests/test_contract.py.
  */
 
+import {
+  activitiesOf,
+  PLANNED_SPORTS,
+  RECORDED_SPORTS,
+  RUNNING,
+} from "./sports/index.ts";
+
 /** A point as [latitude, longitude], WGS84, in that order. */
 export type LatLon = [lat: number, lon: number];
 
@@ -59,14 +66,8 @@ export type Placement = (typeof PLACEMENTS)[number];
  * (TASK-191, ADR-0161), swimming in open water 20–150 m from the shore,
  * lap after lap, a shape of the catalogue or a drawing (TASK-323,
  * ADR-0283), or walking, drawn as a run on the same foot network (TASK-371,
- * ADR-0315). */
-export const ACTIVITIES = [
-  "running",
-  "cycling",
-  "paddling",
-  "swimming",
-  "walking",
-] as const;
+ * ADR-0315). Each sport says its own in sports/ (TASK-376, ADR-0320). */
+export const ACTIVITIES = activitiesOf(PLANNED_SPORTS);
 export type Activity = (typeof ACTIVITIES)[number];
 
 /** The activities of the API (route_engine/walking.py API_ACTIVITIES):
@@ -78,7 +79,7 @@ export type ApiActivity = (typeof API_ACTIVITIES)[number];
 /** The activities recorded without a shape (TASK-375, ADR-0319): alpine
  * skiing and cross-country skiing. The route engine plans none of them, so
  * they are no ApiActivity: only a saved run says them. */
-export const RECORD_ACTIVITIES = ["skiing", "xc_skiing"] as const;
+export const RECORD_ACTIVITIES = activitiesOf(RECORDED_SPORTS);
 export type RecordActivity = (typeof RECORD_ACTIVITIES)[number];
 
 /** What a saved run was (PUT /me/activities/{key}): an activity of the API,
@@ -94,8 +95,8 @@ export const RUN_SOURCES = ["muw", "file"] as const;
 export type RunSource = (typeof RUN_SOURCES)[number];
 
 /** Plausible target distances for running, in metres. */
-export const MIN_DISTANCE_M = 1_000;
-export const MAX_DISTANCE_M = 50_000;
+export const MIN_DISTANCE_M = RUNNING.distanceM[0];
+export const MAX_DISTANCE_M = RUNNING.distanceM[1];
 
 /** The target distances of each activity, [lowest, highest] in metres:
  * running as above, cycling 10–30 km (TASK-190), paddling 1–5 km
@@ -104,13 +105,9 @@ export const MAX_DISTANCE_M = 50_000;
  * `invalid_request`, with the limits in the message. */
 export const DISTANCE_LIMITS_M: Readonly<
   Record<ApiActivity, readonly [lowest: number, highest: number]>
-> = {
-  running: [MIN_DISTANCE_M, MAX_DISTANCE_M],
-  cycling: [10_000, 30_000],
-  paddling: [1_000, 5_000],
-  swimming: [500, 3_000],
-  walking: [1_000, 30_000],
-};
+> = Object.fromEntries(
+  PLANNED_SPORTS.map((sport) => [sport.activity, sport.distanceM]),
+) as Record<ApiActivity, readonly [lowest: number, highest: number]>;
 
 /** A swim goes round its shape at most this many times (TASK-323): 130 m of
  * band hold about half a kilometre of shape. */
