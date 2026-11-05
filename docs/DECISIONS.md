@@ -22295,6 +22295,19 @@ prova solo con i test.
   fine passa alla pagina accanto (UIKit). Toglierlo vorrebbe cambiare le file;
   `tabs/TabSwipeOwners.test.ts` controlla che ogni scroll orizzontale rimbalzi.
 
+### Precisazione — TASK-391 (2026-11-05)
+
+**Deciso dall'agente su delega dell'utente**, numero dal Coordinatore. Una
+pagina che lo swipe porta sullo schermo non si ricostruisce più quando lo
+swipe si ferma: la si è vista scorrere intera e deve restare così.
+«Messages» rilegge la lista sul posto, tenendo quella vecchia finché arriva
+la nuova; il profilo si ricostruisce quando lascia lo schermo per un'altra
+scheda, fuori vista, e al ritorno da una sua pagina aperta sopra l'app come
+prima. Scartato: rileggere sul posto anche il profilo, che vorrebbe cambiare
+`useOwnProfile`, le liste di chi segue e la galleria; il prezzo della scelta
+è che un follow fatto su un'altra scheda si vede nei numeri del profilo alla
+visita dopo.
+
 ---
 
 ## ADR-0326, precisazione — L'API di MuW Style (TASK-384 parte A)
