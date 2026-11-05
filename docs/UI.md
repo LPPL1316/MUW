@@ -613,7 +613,7 @@ si chiude e il grazie arriva nell'isola. Altri punti li decide l'utente.
 
 **Fogli e liste** (TASK-388 C): i fogli dal basso (il «+» dei messaggi, il
 foglio di un messaggio, i filtri della ricerca, il super like, «Tag
-people», i commenti, il «…») salgono su una molla che rallenta fino al
+people», i commenti, il «…», il prodotto di un post Style) salgono su una molla che rallenta fino al
 posto e scendono allo stesso modo; un tocco a metà li riporta indietro da
 dove sono. Le liste che arrivano (conversazioni, campanella, commenti,
 risultati della ricerca) entrano una riga dopo l'altra, in dissolvenza e

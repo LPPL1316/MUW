@@ -379,3 +379,45 @@ posto, si chiudono scendendo; i risultati «Hearts» entrano uno dopo l'altro
   all'utente con il costo (una build nativa nuova).
 - Dove usare l'«isola» oltre al primo punto: lo decide l'utente.
 - Un OTA di produzione: col sì dell'utente.
+
+## C3 — Il foglio dei prodotti Style (2026-11-05)
+
+Dopo la parte C è arrivato in `main` il foglio di un prodotto dei post Style
+(TASK-384 B, #809), ancora con la `Modal` «slide» di sistema. Lista dei file
+approvata dal Coordinatore («via sulla lista»); `StyleProductSheet` e
+`StylePost.test` sono di TASK-384, chiuso per la parte B, e nessuna PR aperta
+li tocca. Branch `fix/TASK-388-c3-style-sheet` da `main`.
+
+- `StyleProductSheet` passa a `SheetModal`, come `MessageSheet`: tiene il suo
+  `open`; il tocco fuori e il «indietro» di Android chiudono, e il post
+  sente `onClose` solo quando il foglio è giù (`onHidden`). Niente `dim`: lo
+  sfondo resta trasparente, com'era.
+
+### Criteri di accettazione (C3)
+
+- [x] Il foglio sale e scende sulla molla `smooth` dei fogli; con «Riduci
+      movimento» sfuma.
+- [x] Il tocco fuori chiude; il post lo sa a foglio giù
+      (`StylePost.test.tsx`).
+- [x] Solo JS, impronta `6f8bba4c` invariata; testi invariati.
+- [ ] Video in `out/TASK-388/c3-*` e l'ok dell'utente.
+
+### File toccati (C3)
+
+```
+apps/mobile/src/feed/StyleProductSheet.tsx
+apps/mobile/src/feed/StylePost.test.tsx
+docs/tasks/TASK-388.md
+docs/STATUS.md      (righe aggiunte, dopo la #811)
+docs/UI.md
+```
+
+### Esito C3
+
+`StylePost.test.tsx` 8 (il tocco fuori ora aspetta il foglio giù) e
+`SheetModal.test.tsx` verdi, `tsc`, eslint e prettier puliti. Video
+`out/TASK-388/c3-style-sheet.mov` nella copia del simulatore, con un post
+Style di prova sulla ricerca (solo nella copia, tolto dopo: il Feed lì non
+carica senza API): il foglio sale in ~0,35 s e si ferma senza rimbalzo, il
+tocco fuori lo fa scendere (`c3-open-frames.jpg`, `c3-close-frames.jpg`).
+Aspetta l'ok dell'utente.
