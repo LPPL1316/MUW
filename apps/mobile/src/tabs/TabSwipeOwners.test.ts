@@ -39,6 +39,9 @@ const ROWS = [
   "explore/StopPhotos.tsx",
   "game/NewChallenge.tsx",
   "route/WhileRouting.tsx",
+  // Over the app, in a workout at the gym: the groups of «+ Exercise»
+  // (TASK-385 B).
+  "gym/ExercisePicker.tsx",
 ];
 
 /** The one that hands the finger on: the drawing, then the photo, of a card

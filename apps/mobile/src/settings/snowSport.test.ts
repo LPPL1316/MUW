@@ -51,7 +51,9 @@ test("«Ski» is on, in the store builds too (D4); «Cross-country ski» still �
 test("a day on the snow is saved as its own activity, the others as their route", () => {
   expect(runActivityOf("ski")).toBe("skiing");
   expect(runActivityOf("xc_ski")).toBe("xc_skiing");
-  for (const sport of EVERY.filter((id) => !isRecordOnly(id))) {
+  // The gym is saved as a workout, without a route (TASK-385 B).
+  expect(runActivityOf("gym")).toBe("gym");
+  for (const sport of EVERY.filter((id) => !isRecordOnly(id) && id !== "gym")) {
     expect(runActivityOf(sport)).toBe(activityOf(sport));
   }
   expect(runActivityOf("walk")).toBe("walking");

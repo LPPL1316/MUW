@@ -23107,6 +23107,44 @@ motore (`docs/sports/hike.md`):
   valuta dopo la parte A, misurando quanto di ogni percorso sta su `track`
   e `path`.
 
+## ADR-0327, precisazione — La parte B: come il telefono registra un allenamento senza GPS
+
+**Stato**: Attiva · 2026-11-05 · TASK-385 parte B, deciso dall'agente su
+delega dell'utente; la lista dei file l'ha approvata il Coordinatore.
+
+1. **Lo stato è un valore solo**, in `gym/workout.ts`: inizio, pause, l'esercizio
+   in corso, le serie, il recupero (inizio e fine), i recuperi contati, l'ultima
+   cosa fatta. Ogni azione dà un valore nuovo, scritto subito in
+   `gym-workout.json` (`keptList`): l'app chiusa a metà riapre sull'allenamento.
+   Il tempo è quello dell'orologio, senza GPS né modalità in background.
+2. **Il recupero conta da solo**: finito mentre nessuno guarda, vale fino alla
+   sua fine; interrotto da una serie, da «Skip» o da «Pause», vale quanto è
+   durato. Una serie o un recupero chiudono una «Pause». «Still training?» dopo
+   30 minuti senza niente; senza risposta per altri 5 minuti l'allenamento si
+   chiude all'ultima serie scritta (o all'ultima cosa fatta, senza serie). I 5
+   minuti sono dell'agente.
+3. **L'avviso del recupero**: con l'app aperta vibrazione e `chime()`, e un
+   tocco leggero 10 s prima; una notifica locale si programma solo quando l'app
+   va in background e si toglie quando torna, così con l'app aperta non suona
+   due volte. Il permesso è `askPushPermission`, chiesto al primo recupero.
+4. **«Save» passa da una coda sua**, `gym-outbox.json`: quella delle corse vuole
+   una traccia. 422 e 409 restano sul telefono e non si rimandano, come per le
+   corse. La chiave è l'inizio in base 36 più otto caratteri a caso.
+5. **Un tempo scritto senza «:»** vale secondi per una serie a tempo e minuti
+   per un blocco cardio. Le serie aggiunte alla fine non sono `live` e hanno
+   l'ora della fine.
+6. **Testi**: solo quelli approvati e parole già nell'app («Pause», «Resume»,
+   «Save», «Discard», «Keep it», «Delete», «Done», «Stop»). I gruppi del
+   catalogo stanno in `gym/groups.ts` nelle cinque lingue, non in `t()`: «Back»
+   è già «Indietro». Il tipo di un esercizio col nome libero si sceglie con le
+   parole dei campi: «Weight», «Reps», «Time», «Cardio». Tre parole che altre
+   schermate usano già restano come sono: «Geschw.» (non «Geschwindigkeit»),
+   «Temps» (non «Durée»), «Omitir» (non «Saltar»). Il messaggio di un salvataggio
+   fallito sul telefono è quello delle corse.
+7. **«Gym» è `ready: true`, anche nelle build dello store**: l'utente ha
+   detto «ok accendi» il 2026-11-05, insieme al sì all'OTA di produzione con
+   la B0, invece di aspettare qualche giorno. Le app senza la B0 non vedono
+   comunque i post di palestra: il server li tiene fuori (`X-MuW-Reads`).
 ## ADR-0332, precisazione — Il sì e il valore di Salute in una tabella loro, `vo2max`
 
 **Stato**: Attiva · 2026-11-05 · TASK-397 parte A, decisa dall'agente su

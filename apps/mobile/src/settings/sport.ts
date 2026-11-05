@@ -12,9 +12,19 @@ import { t, tLater } from "../i18n";
  * Paragliding (TASK-305 D0, ADR-0265) is only «Soon» for now: never chosen,
  * so never a route, and wherever the sports are told apart it goes as a
  * run. A day of alpine skiing («Ski») or of cross-country skiing is
- * recorded without a shape (TASK-375, ADR-0319): `recordOnly`. */
+ * recorded without a shape (TASK-375, ADR-0319): `recordOnly`. A workout
+ * at the gym («Gym», TASK-385 part B, ADR-0327) has no route and no GPS:
+ * «Draw» offers only «Start workout». */
 export type Sport =
-  "run" | "bike" | "paddle" | "walk" | "swim" | "ski" | "xc_ski" | "paragliding";
+  | "run"
+  | "bike"
+  | "paddle"
+  | "walk"
+  | "swim"
+  | "ski"
+  | "xc_ski"
+  | "gym"
+  | "paragliding";
 
 export type SportOption = {
   id: Sport;
@@ -64,6 +74,10 @@ export const ALL_SPORTS: readonly SportOption[] = [
     ready: false,
     recordOnly: true,
   },
+  // Saved as "gym" (runActivityOf), without a track (TASK-385 part B); on in
+  // the store builds too, the user's «ok accendi» (2026-11-05): the server
+  // keeps its posts from the apps that cannot read them (X-MuW-Reads).
+  { id: "gym", emoji: "🏋️", name: tLater("Gym"), ready: true },
   { id: "paragliding", emoji: "🪂", name: tLater("Paragliding"), ready: false },
 ];
 
@@ -211,6 +225,8 @@ export function runActivityOf(sport: Sport): RunActivity {
       return "skiing";
     case "xc_ski":
       return "xc_skiing";
+    case "gym":
+      return "gym";
     default:
       return activityOf(sport);
   }
@@ -233,6 +249,9 @@ export function withoutRouteLabel(sport: Sport): string {
     case "xc_ski":
       // No shapes on the slopes (TASK-375): the only way to go.
       return t("Record your day");
+    case "gym":
+      // No route in the gym (TASK-385 part B): the workout's own start.
+      return t("Start workout");
     default:
       return t("Run without a route");
   }

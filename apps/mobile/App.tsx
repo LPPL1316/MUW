@@ -42,6 +42,8 @@ import {
 import { PlayOverlay } from "./src/game/PlayOverlay";
 import { PlayRow } from "./src/game/PlayRow";
 import { onOpenPlay } from "./src/game/unlocks";
+import { GymWorkoutHost } from "./src/gym/GymWorkoutHost";
+import { startGymWorkout } from "./src/gym/useWorkout";
 import {
   loadRecentCities,
   remember,
@@ -1671,6 +1673,8 @@ function MuW() {
         {/* The stretching, over the whole screen, until done or skipped
             (TASK-285 part B). */}
         {stretching && <StretchScreen onLeave={() => setStretching(false)} />}
+        {/* A workout at the gym, over everything until saved (TASK-385 B). */}
+        <GymWorkoutHost />
       </MapScreen>
       {/* Over the map, opposite the way back: keep the route shown. */}
       <FavoriteHeart route={onMap} />
@@ -1756,7 +1760,9 @@ function MuW() {
                   }
                   onRun={() => {
                     Keyboard.dismiss();
-                    setScreen("run");
+                    // A workout at the gym has its own screen (TASK-385 B).
+                    if (sport === "gym") startGymWorkout();
+                    else setScreen("run");
                   }}
                   runLabel={withoutRouteLabel(sport)}
                   runIcon={withoutRouteIcon(sport)}

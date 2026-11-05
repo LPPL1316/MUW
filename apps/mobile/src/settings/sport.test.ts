@@ -1,9 +1,13 @@
 import {
   activityOf,
+  ALL_SPORTS,
   canChoose,
   DEFAULT_SPORT,
+  isRecordOnly,
   loadSport,
+  runActivityOf,
   saveSport,
+  shownSports,
   SPORT_FILE,
   SPORTS,
   type SportOption,
@@ -65,6 +69,7 @@ test("run, bike, paddle, swim and the alpine ski can be chosen (TASK-190, TASK-1
     "Walk",
     "Ski",
     "Cross-country ski",
+    "Gym",
     "Paragliding",
   ]);
   expect(SPORTS.filter((option) => option.ready).map((option) => option.id)).toEqual([
@@ -73,6 +78,7 @@ test("run, bike, paddle, swim and the alpine ski can be chosen (TASK-190, TASK-1
     "paddle",
     "swim",
     "ski",
+    "gym",
   ]);
   expect(canChoose("run")).toBe(true);
   expect(canChoose("bike")).toBe(true);
@@ -133,6 +139,28 @@ test("«Walk» 🚶 comes after the swim, «Soon» until the server walks (TASK-
   // Asked as a walk, drawn as a run on the foot network (part A).
   expect(activityOf("walk")).toBe("walking");
   expect(withoutRouteLabel("walk")).toBe("Walk without a route");
+});
+
+test("«Gym» 🏋️ before «Paragliding», on in the store builds too (TASK-385 B)", () => {
+  // The user's «ok accendi» (2026-11-05).
+  expect(ALL_SPORTS.find((option) => option.id === "gym")).toEqual({
+    id: "gym",
+    emoji: "🏋️",
+    name: "Gym",
+    ready: true,
+  });
+  expect(shownSports(ALL_SPORTS, true).some((option) => option.id === "gym")).toBe(
+    true,
+  );
+  const index = SPORTS.findIndex((option) => option.id === "gym");
+  expect(SPORTS[index + 1]?.id).toBe("paragliding");
+  expect(canChoose("gym")).toBe(true);
+  saveSport("gym");
+  expect(loadSport()).toBe("gym");
+  // No route, no shape, no GPS: saved as "gym", started by «Start workout».
+  expect(runActivityOf("gym")).toBe("gym");
+  expect(isRecordOnly("gym")).toBe(false);
+  expect(withoutRouteLabel("gym")).toBe("Start workout");
 });
 
 test("«Draw» asks for a bike route with «Bike», the water with «Paddle»", () => {
