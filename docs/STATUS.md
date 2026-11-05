@@ -355,6 +355,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   come prima. B2 (contratto e API) e B3 (app) dopo la #758.
   **Parte B1 in `main`** (#763, 2026-11-04 sera). B2 (contratto e API):
   lista dei file al Coordinatore il 2026-11-05, codice al suo via; poi B3.
+  **Parte B in `main`** (2026-11-05): B2 #798, B3a #806, B3b #814, B3c #818.
+  Ogni sport ha un file suo nel contratto, nell'API e nell'app
+  (`SportProfile`). Le tabelle di prima si ricavano dai file, uguali, e
+  l'impronta iOS resta `6f8bba4c`. Resta solo `settings/sport.ts`, dopo la
+  #765. Prossimo: la parte C, cioè la ricetta definitiva e il pilota
+  Escursionismo (TASK-377).
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
