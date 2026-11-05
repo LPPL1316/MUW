@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react-native";
 import { StyleSheet, Text } from "react-native";
 
 import { ChooseScreen } from "../screens/ChooseScreen";
+import { AppHeader } from "../tabs/AppHeader";
 import { color } from "../theme/tokens";
 import { HeartBadge, heartSegments } from "./HeartBadge";
 import { HEART_BOX, HEART_POINTS, heartHeight } from "./heartLine";
@@ -102,28 +103,9 @@ describe("HeartBadge", () => {
   });
 });
 
-describe("the heart at the top of «Draw»", () => {
-  async function choose() {
-    await render(
-      <ChooseScreen
-        status="From your position"
-        denied={false}
-        mode="gps"
-        onMode={jest.fn()}
-        searching={false}
-        onPlace={jest.fn()}
-        near={null}
-        mapError={null}
-        footer={<Text>Draw route</Text>}
-        onRun={jest.fn()}
-      >
-        <Text>Shapes</Text>
-      </ChooseScreen>,
-    );
-  }
-
+describe("the logo in the header", () => {
   it("stands just before the name «MuW»", async () => {
-    await choose();
+    await render(<AppHeader />);
     // The rendered tree: the heart's next sibling is the name.
     type Node = {
       type: string;
@@ -153,9 +135,33 @@ describe("the heart at the top of «Draw»", () => {
     expect(next).toMatchObject({ type: "Text", children: ["MuW"] });
   });
 
-  it("leaves the name the only thing a screen reader hears there", async () => {
-    await choose();
-    expect(screen.getAllByText("MuW")).toHaveLength(1);
+  it("is read once, as the name", async () => {
+    await render(<AppHeader />);
+    expect(screen.getByLabelText("MuW")).toBeOnTheScreen();
     expect(screen.queryByTestId("heart-badge")).toBeNull();
+  });
+});
+
+describe("the top of «Draw»", () => {
+  it("leaves the logo to the header: only the run button is there", async () => {
+    await render(
+      <ChooseScreen
+        status="From your position"
+        denied={false}
+        mode="gps"
+        onMode={jest.fn()}
+        searching={false}
+        onPlace={jest.fn()}
+        near={null}
+        mapError={null}
+        footer={<Text>Draw route</Text>}
+        onRun={jest.fn()}
+      >
+        <Text>Shapes</Text>
+      </ChooseScreen>,
+    );
+    expect(screen.queryByTestId("heart-badge", HIDDEN)).toBeNull();
+    expect(screen.queryByText("MuW")).toBeNull();
+    expect(screen.getByText("Run without a route")).toBeOnTheScreen();
   });
 });

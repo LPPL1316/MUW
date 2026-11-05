@@ -1,6 +1,6 @@
 # TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro
 
-**Stato**: In revisione · 2026-11-04
+**Stato**: Done · 2026-11-05
 **Fase**: 4 · **Branch**: `fix/TASK-386-zones-bpm-box`
 **Numeri**: TASK-386, assegnato dal Coordinatore. Seguito di TASK-383
 («Body», PR #759) e di TASK-374 B (ADR-0318 §6 e §15).
@@ -43,7 +43,7 @@ condiviso.
       si toglie).
 - [x] I test di prima di `HeartZonesPage` restano verdi; typecheck, lint e
       Prettier verdi in locale sui file toccati.
-- [ ] CI verde.
+- [x] CI verde (#761 in main, cebe5412).
 
 ## File toccati
 
@@ -65,4 +65,9 @@ docs/UI.md
 
 ## Esito
 
-(da scrivere a merge fatto)
+«bpm» sta dentro il riquadro di ogni casella di «Heart rate zones», come
+le unità di «Body», e un tocco su «bpm» apre la tastiera; la cima della zona
+5 resta senza riquadro, allineata. #761 in main il 2026-11-05 (`cebe5412`),
+dopo due merge di `main` senza conflitti veri. Solo JS: l'anteprima, la prova
+sul telefono e l'OTA di produzione sono del Coordinatore, l'OTA col sì
+dell'utente.

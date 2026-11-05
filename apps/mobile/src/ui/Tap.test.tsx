@@ -82,6 +82,24 @@ test("the caller's pressIn and pressOut still arrive, under the animated look", 
   expect(style.transform?.[0]?.scale).toBe(1);
 });
 
+test("told another spring, it comes back on that one", async () => {
+  const still = { start: jest.fn(), stop: jest.fn(), reset: jest.fn() };
+  jest.spyOn(Animated, "timing").mockReturnValue(still);
+  const spring = jest.spyOn(Animated, "spring").mockReturnValue(still);
+  await render(
+    <Tap testID="tap" settle="glide">
+      <Text>Go</Text>
+    </Tap>,
+  );
+  await fireEvent(screen.getByTestId("tap"), "pressIn");
+  await fireEvent(screen.getByTestId("tap"), "pressOut");
+  expect(spring.mock.calls[0][1]).toMatchObject({
+    toValue: 0,
+    ...motion.spring.glide,
+    useNativeDriver: true,
+  });
+});
+
 describe("on fake timers", () => {
   beforeEach(() => {
     jest.useFakeTimers();

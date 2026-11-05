@@ -777,6 +777,17 @@ export const DE: Table = {
   "Avg /100 m": "Ø /100 m",
   "Last 100 m": "Letzte 100",
 
+  // src/screens/FreeRunScreen.tsx, SnowFinishCard.tsx (TASK-375 part C)
+  "Your day": "Dein Tag",
+  "White: where you skied.": "Weiß: wo du gefahren bist.",
+  "White: your descents. Dashed: the lifts.":
+    "Weiß: deine Abfahrten. Gestrichelt: die Lifte.",
+  "Skied: {distance}": "Gefahren: {distance}",
+  Descents: "Abfahrten",
+  Vertical: "Höhenmeter",
+  "Top speed": "Höchsttempo",
+  Lifts: "Liftfahrten",
+
   // src/screens/SignInScreen.tsx
   "Sign up": "Registrieren",
   "Log in": "Anmelden",

@@ -1,19 +1,13 @@
 import { act, fireEvent, render, screen } from "@testing-library/react-native";
+import { useState } from "react";
 import { Animated, Dimensions, StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { selectionFeel } from "../haptics/haptics";
 import { motion } from "../theme/tokens";
 import { runAnimationsOnJs } from "../ui/animationsOnJs.testing";
-import { springOvershoot } from "../ui/motion";
 import { useReduceMotion } from "../ui/useReduceMotion";
-import {
-  type BarTab,
-  TAB_CAPSULE_WIDTH,
-  TAB_ICON_RISE,
-  TAB_STRETCH_MOST,
-  TabBar,
-} from "./TabBar";
+import { type BarTab, TAB_CAPSULE_WIDTH, TAB_ICON_RISE, TabBar } from "./TabBar";
 
 // The capsule, the icons and the buzz of the tab bar (TASK-388, ADR-0329),
 // watched frame by frame on fake timers.
@@ -45,11 +39,12 @@ function look(testID: string): Look {
 function capsuleX(testID = "tab-capsule"): number {
   return look(testID).transform[0].translateX;
 }
-function capsuleStretch(): number {
-  return look("tab-capsule").transform[1].scaleX;
-}
 
-function bar(page: number, onTab = jest.fn(), drag?: Animated.Value) {
+function bar(
+  page: number,
+  onTab: (index: number) => void = jest.fn(),
+  drag?: Animated.Value,
+) {
   return (
     <SafeAreaProvider
       initialMetrics={{
@@ -80,32 +75,68 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test("the capsule slides to the new tab and stops there, passing it by a hair", async () => {
+test("the capsule glides to the new tab and stops there, never past it, never stretched", async () => {
   const { rerender } = await render(bar(0));
   expect(capsuleX()).toBeCloseTo(under(0), 3);
 
   await rerender(bar(3));
   const xs: number[] = [];
-  let widest = 1;
   await frames(60, () => {
     xs.push(capsuleX());
-    widest = Math.max(widest, capsuleStretch());
+    // Only a slide: no stretch, no second movement on top of it.
+    expect(look("tab-capsule").transform).toHaveLength(1);
   });
 
   // It slid, it did not jump: the first frame is still near the start.
   expect(xs[0] - under(0)).toBeLessThan(SLOT);
-  // Passed by no more than the spring says (under 3% of the way), and back.
-  const way = under(3) - under(0);
-  const past = Math.max(...xs) - under(3);
-  expect(past).toBeGreaterThan(0);
-  expect(past / way).toBeLessThanOrEqual(springOvershoot(motion.spring.snappy) + 0.001);
-  expect(past / way).toBeLessThan(0.03);
+  // Critically damped (A2): always onwards, never past the tab and back.
+  for (let i = 1; i < xs.length; i += 1) {
+    expect(xs[i]).toBeGreaterThanOrEqual(xs[i - 1] - 0.001);
+  }
+  expect(Math.max(...xs)).toBeLessThanOrEqual(under(3) + 0.01);
   expect(capsuleX()).toBeCloseTo(under(3), 1);
+  // On the bar's spring.
+  expect(motion.spring.glide).toEqual({ stiffness: 256, damping: 32, mass: 1 });
+});
 
-  // Stretched half way, a little, and whole again at rest.
-  expect(widest).toBeGreaterThan(1);
-  expect(widest).toBeLessThanOrEqual(1 + TAB_STRETCH_MOST + 0.01);
-  expect(capsuleStretch()).toBeCloseTo(1, 2);
+test("a touched tab sets the capsule off at the touch, before the page comes, and the page starts nothing new", async () => {
+  const spring = jest.spyOn(Animated, "spring");
+  const toExplore = () =>
+    spring.mock.calls.filter(([, config]) => config.toValue === 3);
+  let atAnswer = -1;
+  function Bar() {
+    const [page, setPage] = useState(0);
+    return bar(page, (index: number) => {
+      // What the app hears: the spring is already on its way.
+      atAnswer = toExplore().length;
+      setPage(index);
+    });
+  }
+  await render(<Bar />);
+  await fireEvent.press(screen.getByRole("tab", { name: "Explore" }));
+  expect(atAnswer).toBeGreaterThan(0);
+  expect(toExplore()[0][1]).toMatchObject({
+    ...motion.spring.glide,
+    useNativeDriver: true,
+  });
+  // The page came: nothing started again for it.
+  expect(toExplore().length).toBe(atAnswer);
+
+  await frames(60);
+  expect(toExplore().length).toBe(atAnswer);
+  expect(capsuleX()).toBeCloseTo(under(3), 1);
+  expect(look("tab-icon-on-Explore").opacity).toBe(1);
+  expect(look("tab-icon-on-Feed").opacity).toBe(0);
+});
+
+test("a page the app keeps: the capsule set off at the touch comes back", async () => {
+  // As «Messages» for nobody signed in, on the profile already.
+  await render(bar(0));
+  await fireEvent.press(screen.getByRole("tab", { name: "Messages" }));
+  await frames(60);
+  expect(capsuleX()).toBeCloseTo(under(0), 1);
+  expect(look("tab-icon-on-Feed").opacity).toBe(1);
+  expect(look("tab-icon-on-Messages").opacity).toBe(0);
 });
 
 test("a new tab half way goes on from where the capsule is, without a jump", async () => {
@@ -172,9 +203,8 @@ test("with «Reduce Motion» no spring starts: the capsule fades in where it goe
   const { rerender } = await render(bar(0));
   await rerender(bar(3));
 
-  // There at once, nothing slides, nothing stretches.
+  // There at once, nothing slides.
   expect(capsuleX()).toBeCloseTo(under(3), 3);
-  expect(capsuleStretch()).toBe(1);
   expect(look("tab-capsule").opacity).toBe(0);
   await frames(Math.ceil(motion.pressMs / FRAME) + 2);
   expect(look("tab-capsule").opacity).toBe(1);

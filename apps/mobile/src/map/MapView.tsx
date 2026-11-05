@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { WebView } from "react-native-webview";
 
+import { type Lifts, splitAtLifts } from "../activities/snowLifts";
 import { t } from "../i18n";
 import { useLanguage } from "../i18n/useLanguage";
 import { usePocketOn } from "../navigation/pocketOn";
@@ -32,6 +33,7 @@ import { buildMapPage, isExternalUrl } from "./mapPage";
 import {
   type CanvasMode,
   clearCanvas,
+  clearLifts,
   clearProgress,
   clearRejoin,
   clearRoute,
@@ -47,6 +49,7 @@ import {
   setMove,
   setPick,
   setPosition,
+  showLifts,
   showOthers,
   showProgress,
   showRejoin,
@@ -103,6 +106,9 @@ type Props = {
   others?: LatLon[][];
   /** The run to draw over the route, or null for none (TASK-113). */
   track?: LatLon[] | null;
+  /** The lifts of a day of skiing, as stretches of `track` (TASK-375 part
+   * C2): dashed, the descents solid. None draws the track as a run's. */
+  lifts?: Lifts | null;
   /** While navigating, the phone's position: the map follows it (TASK-049). */
   following?: LatLon | null;
   /** Where the runner is heading, in degrees clockwise from north: the
@@ -170,6 +176,7 @@ export function MapView({
   onFoot = null,
   others = NO_OTHERS,
   track = null,
+  lifts = null,
   following = null,
   heading = null,
   progress = null,
@@ -212,6 +219,7 @@ export function MapView({
   const routeShown = useRef(false);
   const followed = useRef(false);
   const trackShown = useRef(false);
+  const liftsShown = useRef(false);
   const stopsShown = useRef(false);
   const othersShown = useRef(false);
   const progressShown = useRef(false);
@@ -311,13 +319,23 @@ export function MapView({
       return;
     }
     if (track && track.length > 1) {
-      webView.current?.injectJavaScript(pageScript(showTrack(track)));
+      if (lifts !== null && lifts.length > 0) {
+        const cut = splitAtLifts(track, lifts);
+        webView.current?.injectJavaScript(pageScript(showLifts(cut.skied, cut.lifts)));
+        liftsShown.current = true;
+      } else {
+        webView.current?.injectJavaScript(pageScript(showTrack(track)));
+      }
       trackShown.current = true;
     } else if (trackShown.current) {
       webView.current?.injectJavaScript(pageScript(clearTrack()));
       trackShown.current = false;
     }
-  }, [ready, track]);
+    if ((!track || lifts === null || lifts.length === 0) && liftsShown.current) {
+      webView.current?.injectJavaScript(pageScript(clearLifts()));
+      liftsShown.current = false;
+    }
+  }, [ready, track, lifts]);
 
   useEffect(() => {
     if (!ready) {
