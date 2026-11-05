@@ -18061,7 +18061,8 @@ suo sì.
 
 ## ADR-0283 — Il nuoto in acque libere: l'acqua della canoa con la fascia dei bagnanti, le curve con un nome a riva, l'orologio in due fasi
 
-**Stato**: Proposto · 2026-10-28 (TASK-323). Scelta dell'utente dello stesso
+**Stato**: Accettato · 2026-11-05, il nuoto acceso per tutti (#765).
+Proposto il 2026-10-28 (TASK-323). Scelta dell'utente dello stesso
 giorno: «parti proprio con il progetto secondo me funziona», dopo la
 proposta in chat. Fascia e distanze si confermano coi campioni di A1;
 nome, testi e avviso di sicurezza con la parte C; dipendenza e build

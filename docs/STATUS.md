@@ -1135,6 +1135,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   alla #765 (ferma per TASK-387). Poi un OTA della sola `preview`. Niente
   nuoti pubblicati nel Feed finché TASK-387 non è sul server. Aggiunta ad
   ADR-0283.
+  **Chiuso il 2026-11-05**: #800 (preview) e #765 (per tutti, `b30bda0c`)
+  in main; vedi «Completato».
 - **TASK-317 — L'attesa in «Draw»: un testo da corridore e i disegni del
   Feed** (ADR-0277; richiesta e scelta dell'utente del 2026-10-28, numero e
   condizioni dal Coordinatore). Branch `feat/TASK-317-draw-waiting`. Prima
@@ -2912,6 +2914,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-323 — Nuoto in acque libere, «Open water swim»** (2026-11-05;
+  ADR-0283). Parti A–D in main, E il piano (#744); il nuoto si sceglie in
+  ogni build: in preview con la #800, per tutti con la #765 (`b30bda0c`),
+  in produzione con l'OTA che l'utente approva. Il server tiene i nuoti
+  lontani dalle app che non li leggono (TASK-387). Resta, ognuno col sì
+  dell'utente: `draw_examples --swim` sul server (dopo gli estratti dello
+  sci, i comandi dal Coordinatore), `shore_extract` (le curve senza nome a
+  riva fino ad allora), il controllo di `paddleExamples.json`, il codice
+  dell'orologio (E, sul Mac con Xcode), la prova in acqua (primavera
+  2027). `tasks/TASK-323.md`.
 - **TASK-399 — Nel Feed il nome di chi ha pubblicato apre il suo profilo** (2026-11-05;
   richiesta dell'utente). #830: sul disegno di un iscritto la riga dell'iniziale e del nome è un
   pulsante a sé, fuori da quello della card, e apre il profilo come i tag (TASK-208) e i commenti
