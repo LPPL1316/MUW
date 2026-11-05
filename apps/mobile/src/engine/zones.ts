@@ -8,6 +8,7 @@ import {
 
 import { apiKey as configuredKey, keyHeaders } from "../api/apiUrl";
 import { nearParams } from "../places/photon";
+import { type Network, tableOf } from "../sports";
 import type { PageZone } from "./page";
 import {
   PHONE_HEADER,
@@ -31,16 +32,14 @@ import {
 export const SPACE_LIMIT_BYTES = 2_000_000_000;
 export const ZONE_SUFFIX = ".zone.json.gz";
 
-export type Network = "foot" | "bike";
+export type { Network };
 
-/** The network of each activity the phone draws: paddling is the
- * server's, it needs the water (TASK-214, choice 5). */
-export const NETWORKS: Readonly<Partial<Record<Activity, Network>>> = {
-  running: "foot",
-  cycling: "bike",
-  // A walk is drawn as a run, on the foot zones (TASK-371).
-  walking: "foot",
-};
+/** The network of each activity the phone draws, as each sport says it in
+ * src/sports (TASK-376 B3): paddling is the server's, it needs the water
+ * (TASK-214, choice 5); a walk is drawn as a run, on the foot zones. */
+export const NETWORKS = tableOf((sport) => sport.network) as Readonly<
+  Partial<Record<Activity, Network>>
+>;
 
 export type ZoneEntry = {
   name: string;
