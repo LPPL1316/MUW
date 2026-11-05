@@ -2695,6 +2695,44 @@ codice in `muw_routes.py`.
 - **`climb_m` è una stima** da tessere di elevazione, non una misura: nessuno ha
   pedalato questi percorsi. La somiglianza non si manda.
 
+### Style (TASK-384, ADR-0326)
+
+I post di MuW Style: una foto generata con l'AI e i puntini dei capi, ognuno
+con il suo prodotto e «Shop» (`STYLE.md`). Nessun token: non dicono nulla di
+chi chiede. Tipi in `shared-types` (`StylePost`, `StylePage`, `StyleTag`,
+`StyleShop`), esempi in `fixtures/style-post.json` e `style-page.json`; il
+codice in `style_posts.py`, `style_links.py` e `style_import.py`.
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /style?theme=&gender=&before=&limit=` | i post usciti, dal più recente; `limit` 1–50, 20 di base | `200` `StylePage` |
+| `GET /style/{id}` | uno | `200` `StylePost`, o `404 http_error` |
+| `GET /style/{id}/image` | la sua foto | `200` `image/jpeg`, o `404` |
+| `POST /style/tags/{id}/open` | un prodotto aperto | `204`, o `404` |
+| `POST /style/tags/{id}/shop` | «Shop» toccato: cosa aprire nel browser | `200` `StyleShop`, o `404` |
+
+- **Fuori da `GET /feed`**, che non cambia: un'app già pubblicata non li
+  chiede. Un'API precedente risponde `404`: l'app non mostra nulla di più.
+  Senza il database, `503`.
+- **Si vede un post** da `publish_at`, finché non è nascosto, e solo con
+  almeno un puntino di un prodotto ancora venduto (`active`). Le pagine
+  vanno avanti con `before`, l'`id` dell'ultimo; `null` alla fine.
+- **Un prezzo letto più di 7 giorni prima non si dice**: `price_eur` e
+  `price_seen_on` sono `null`, e l'app scrive «Vedi il prezzo».
+- **«Shop»** risponde la pagina del negozio, o il deep link di Awin quando il
+  server ha `SHAPEROUTE_AWIN_PUBLISHER_ID` e l'id del negozio in
+  `SHAPEROUTE_AWIN_ADVERTISERS`. La pagina è sempre di un sito del negozio
+  (`style_links.RETAILER_HOSTS`): una riga con un altro indirizzo è `404`.
+- **I conteggi** (`open`, `shop`) sono un numero in più per puntino e per
+  giorno, e nient'altro: nessun account, indirizzo o telefono. Oltre 120
+  tocchi in un'ora da uno stesso indirizzo, contati solo in memoria, un
+  tocco ha la sua risposta ma non si conta.
+- **I post si caricano** con `python -m shaperoute_api.style_import
+  MS-001.json MS-001.jpg`, solo dopo il sì dell'utente: il file ha la forma
+  di `tests/fixtures/style/MS-001.json`, un campo in più o in meno è un
+  errore, e un post già caricato non si sovrascrive. `--hide MS-001` lo
+  nasconde.
+
 ### Drawing search (TASK-344, ADR-0297)
 
 La ricerca dei disegni dalla lente del Feed: le stesse regole del feed su

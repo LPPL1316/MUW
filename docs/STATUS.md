@@ -160,6 +160,10 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
+  `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
+  in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
+  migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
 - **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
   l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
   brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
@@ -219,6 +223,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con la regola del motore, e ne toglie gli angoli che si toccano. Solo JS: server, motore,
   contratto e testi invariati, impronta iOS 6f8bba4c. Branch `fix/TASK-382-paddle-edit-422`;
   prova sul telefono e OTA col sì dell'utente. `tasks/TASK-382.md`.
+  **Chiuso il 2026-11-05**: #767 (830a147e) e #769 (f4e7a2ad) in main; vedi «Completato».
 
 - **TASK-389 — Il test della pool che a volte contava tre connessioni**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-288 B; ADR-0249, precisazione).
@@ -2642,6 +2647,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   1–4, un tocco su «bpm» apre la tastiera; zona 5 senza riquadro, allineata. Solo JS, nessun
   testo nuovo. Anteprima, prova sul telefono e OTA di produzione col Coordinatore, l'OTA col sì
   dell'utente. `tasks/TASK-386.md`.
+- **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
+  (2026-11-05; seguito di TASK-369 B). #767 in main (830a147e): `mapdraw/sentOutline.ts`
+  controlla il contorno arrotondato con la regola del motore e ne toglie gli angoli che si
+  toccano. #769 (f4e7a2ad): un 422 «outline: …» dice che il contorno non sta sulle strade (o
+  sull'acqua), mai «Something went wrong». Solo JS, testi esistenti. Prova sul telefono con
+  l'esempio del lago e OTA di produzione col sì dell'utente. `tasks/TASK-382.md`.
 - **TASK-389 — Il test della pool che a volte contava tre connessioni** (2026-11-04; seguito di
   TASK-288 B). La terza riga era un autovacuum worker su `spatial_ref_sys`: il test conta solo i
   client, aspetta il numero giusto e legge il conteggio della pool. Sul Mac il file è passato

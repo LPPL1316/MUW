@@ -1,7 +1,8 @@
 # TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato
 
-**Stato**: In revisione · 2026-11-04
-**Fase**: 4 · **Branch**: `fix/TASK-382-paddle-edit-422`
+**Stato**: Done · 2026-11-05 — #767 (830a147e), #769 (f4e7a2ad)
+**Fase**: 4 · **Branch**: `fix/TASK-382-paddle-edit-422`, poi
+`fix/TASK-382-b-outline-message` (parte B)
 **Numeri**: TASK-382, assegnato dal Coordinatore. Seguito di TASK-369 parte B
 (ADR-0313). Nessun ADR nuovo: una precisazione di ADR-0245.
 
@@ -70,6 +71,18 @@ o nativo: impronta del motore invariata (`test_drawn_water_fingerprint`
 verde), impronta iOS 6f8bba4c (solo JS, non misurata in una copia pulita).
 Funziona col server di oggi.
 
+## Parte B: il messaggio (#769)
+
+Su richiesta del Coordinatore: un 422 «outline: …» (un contorno che
+`parse_outline` rifiuta, che si incrocia per esempio) non mostra più
+«Something went wrong on our side» con un «Try again» che fallirebbe
+sempre. `route/problems.ts` lo riconosce dal prefisso del messaggio: a
+terra dice «This outline does not fit the roads here. Try another
+distance, another start, or a simpler picture.», sull'acqua il testo
+dell'acqua (`waterProblemText`, con «pick a shape»). Testi che c'erano già,
+nessuno nuovo; gli altri `invalid_request` restano come prima. Il test è
+in `problems.test.ts`.
+
 ## Criteri di accettazione
 
 - [x] Test deterministico lato app (`sentOutline.test.ts`): la traccia
@@ -93,7 +106,7 @@ Funziona col server di oggi.
 - [x] Test delle suite che usano `canvasRequest` (`src/mapdraw`,
       `AppEditDrawing`, `onPhoneFreehand`), tsc, eslint, Prettier, ruff e
       black verdi in locale; la suite intera è della CI.
-- [ ] CI verde.
+- [x] CI verde (#767 e #769).
 - [ ] Prova sul telefono, dall'utente, con l'anteprima: lo stesso esempio
       del lago, «Edit the drawing», «Draw route».
 
@@ -112,6 +125,16 @@ docs/STATUS.md                                                  (righe aggiunte)
 docs/DECISIONS.md                                               (righe aggiunte)
 ```
 
+Parte B (#769):
+
+```
+apps/mobile/src/route/problems.ts
+apps/mobile/src/route/problems.test.ts
+```
+
+Chiusura (PR dei documenti): `docs/tasks/TASK-382.md`, `docs/STATUS.md` e
+`docs/DECISIONS.md` (righe aggiunte).
+
 ## Fuori scope
 
 - **Il corpo esatto mandato dal telefono** non è nel log: la causa è
@@ -120,5 +143,14 @@ docs/DECISIONS.md                                               (righe aggiunte)
   è confrontata con quel corpo. La prova sul telefono la conferma.
 - **Il messaggio per un `invalid_request` sconosciuto** resta quello
   generico con «Try again»: cambiarlo vorrebbe un testo nuovo, col sì
-  dell'utente.
+  dell'utente. Quello di un contorno rifiutato è cambiato nella parte B,
+  con testi che c'erano già.
 - **L'OTA** (anteprima e produzione), col sì dell'utente.
+
+## Esito
+
+In `main` dal 2026-11-05: #767 (830a147e) manda il contorno come il motore lo
+prende; se il motore lo rifiuta lo stesso, #769 (f4e7a2ad) dice perché. Solo
+JS, testi esistenti, impronta del motore invariata. Restano all'utente,
+col Coordinatore: la prova sul telefono con l'anteprima (l'esempio del lago,
+«Edit the drawing», «Draw route») e l'OTA di produzione.

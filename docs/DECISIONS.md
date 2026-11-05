@@ -22181,6 +22181,31 @@ prova solo con i test.
 
 ---
 
+## ADR-0326, precisazione — L'API di MuW Style (TASK-384 parte A)
+
+**Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente,
+dentro la proposta approvata; migrazione e righe condivise col via del
+Coordinatore.
+
+1. **I post entrano solo con `style_import.py`**, da un file con i campi
+   esatti e una foto JPEG: nessun endpoint scrive un post. Un post caricato
+   non si sovrascrive; si nasconde.
+2. **Il link affiliato si fa a ogni «Shop»** dalla pagina del negozio
+   tenuta nella riga: cambiare programma o ID è cambiare `.env`, non le
+   righe. La pagina deve essere di un sito del negozio, così una riga
+   sbagliata non manda il telefono altrove.
+3. **«Shop» è un `POST` che risponde il link**: lo stesso tocco conta e dà
+   l'indirizzo, e l'elenco dei post non porta link che l'app potrebbe aprire
+   senza contare.
+4. **Un limite per indirizzo solo in memoria** (120 tocchi l'ora) tiene i
+   conteggi puliti senza scrivere l'indirizzo, come per «Send feedback».
+5. **Le foto in `data/media/style`**, sotto il `--media-dir` di sempre
+   (ADR-0289): non sono nelle copie del database, e si rigenerano dai
+   prompt.
+
+Scartato: un endpoint di amministrazione per caricare i post (una
+superficie in più sul server pubblico per una cosa che si fa a mano e di
+rado); il link affiliato scritto nella riga (legato all'ID di oggi).
 ## ADR-0329 — I movimenti come iOS: molle condivise con un rimbalzo appena percettibile
 
 **Stato**: Proposta · 2026-11-04 · TASK-388. Il brief è dell'utente
@@ -22309,5 +22334,21 @@ da sola, e due varianti della pool con una connessione in più lo fanno ancora
 fallire. Scartato: un margine come «da 2 a 3», che lascerebbe passare proprio
 la connessione in più, e il nome dell'applicazione sulle connessioni della
 pool, che avrebbe cambiato il server.
+
+---
+
+## ADR-0245, precisazione — Un contorno rifiutato dice perché, non «our side»
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
+(TASK-382, parte B, #769; richiesta del Coordinatore). Un 422
+`invalid_request` il cui messaggio comincia con «outline: » è un contorno
+che `parse_outline` rifiuta, che si incrocia per esempio: non è un guasto
+del server, e un «Try again» fallirebbe sempre. `route/problems.ts` lo
+riconosce dal prefisso: a terra mostra il testo che c'era già per un
+contorno che non sta sulle strade, sull'acqua quello dell'acqua
+(`waterProblemText`, con «pick a shape»). Nessun testo nuovo; gli altri
+`invalid_request` restano col messaggio generico. Scartato: un testo nuovo
+per il contorno che si incrocia (vorrebbe il sì dell'utente, e dopo #767
+il caso è raro).
 
 ---

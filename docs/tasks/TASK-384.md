@@ -169,6 +169,38 @@ con la parola breve della lingua.
 - **C — Contenuti**: le immagini generate e i tag posizionati, approvati
   dall'utente a gruppi, poi l'uscita 2–3 al giorno.
 
+## Parte A — l'API (branch `feat/TASK-384-a-style-api`)
+
+Via del Coordinatore il 2026-11-04 con la lista dei file e la migrazione
+`0046_style_posts.sql`; righe in `app.py` e `shared-types/src/index.ts` in un
+blocco a parte, in fondo (li toccano anche TASK-376 B2 e TASK-387).
+
+- `0046_style_posts.sql`: `style_posts`, `post_product_tags`,
+  `product_tag_clicks` (`DATABASE.md`).
+- `style_posts.py`: `GET /style`, `GET /style/{id}`, la foto, `POST
+  /style/tags/{id}/open` e `/shop` (`API.md` «Style»).
+- `style_links.py`: il deep link di Awin dagli ID in `.env`, solo verso i
+  siti dei negozi.
+- `style_import.py`: carica un post approvato (JSON + JPEG) o lo nasconde.
+  **Nessun post caricato**: si fa sul server, col sì dell'utente.
+- Test: `test_style_posts.py` (col database, in CI; c'è
+  `test_nothing_personal_is_kept`), `test_style_import.py`,
+  `test_style_links.py`; `shared-types/test/style.test.ts`.
+- **Fuori**: il controllo giornaliero dei link (aspetta il feed di Awin,
+  cioè l'iscrizione dell'utente), l'app (parte B), immagini e post (C).
+  Server, migrazione e `.env` sul server solo col sì dell'utente.
+
+File toccati della parte A: `services/api/migrations/0046_style_posts.sql`,
+`services/api/shaperoute_api/style_posts.py`, `style_links.py`,
+`style_import.py` (nuovi), `services/api/shaperoute_api/app.py` (5 righe),
+`services/api/tests/test_style_posts.py`, `test_style_import.py`,
+`test_style_links.py`, `services/api/tests/fixtures/style/MS-001.json`
+(nuovi), `packages/shared-types/src/index.ts` (in fondo),
+`packages/shared-types/fixtures/style-post.json`, `style-page.json`,
+`packages/shared-types/test/style.test.ts` (nuovi), `.env.example`,
+`docs/API.md`, `docs/DATABASE.md`, `docs/DECISIONS.md`,
+`docs/tasks/TASK-384.md`, `docs/STATUS.md`.
+
 ## File toccati (questa PR)
 
 - `docs/tasks/TASK-384.md` (nuovo)

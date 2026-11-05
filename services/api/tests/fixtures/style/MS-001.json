@@ -1,0 +1,38 @@
+{
+  "id": "MS-001",
+  "theme": "running",
+  "gender": "men",
+  "title": {
+    "en": "Rainy 10K",
+    "it": "10 km sotto la pioggia",
+    "de": "10 km im Regen",
+    "fr": "10 km sous la pluie",
+    "es": "10 km bajo la lluvia"
+  },
+  "image_tool": "Google Imagen",
+  "publish_at": "2026-11-20T08:00:00+01:00",
+  "tags": [
+    {
+      "x": 0.52,
+      "y": 0.34,
+      "item": "jacket",
+      "brand": "ASICS",
+      "product_name": "ROAD PACKABLE JACKET - Running jacket - midnight",
+      "price_eur": 84.99,
+      "price_seen_at": "2026-11-18T20:00:00+00:00",
+      "retailer": "zalando",
+      "url": "https://www.zalando.it/asics-road-packable-jacket-giacca-da-running-midnight-as142f03e-k12.html"
+    },
+    {
+      "x": 0.47,
+      "y": 0.9,
+      "item": "shoes",
+      "brand": "adidas Performance",
+      "product_name": "GALAXY 8 M - Road running shoes - core black/grey six/carbon",
+      "price_eur": 48.99,
+      "price_seen_at": "2026-11-01T20:00:00+00:00",
+      "retailer": "zalando",
+      "url": "https://www.zalando.it/adidas-performance-galaxy-8-scarpe-da-corsa-su-strada-core-blackgrey-sixcarbon-ad542a5uo-q12.html"
+    }
+  ]
+}
