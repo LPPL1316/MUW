@@ -2746,7 +2746,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Proposta in `main`** (#805, ae6c2e2a). Parte B dopo TASK-384 B e 376 B3b,
   quando il Coordinatore dice che i file sono liberi. **Scelta 1**
   (2026-11-05): «Ogni link https», con Google Web Risk (Google Cloud, un
-  prerequisito dell'utente) e un elenco nostro di domini bloccati.
+  prerequisito dell'utente) e un elenco nostro di domini bloccati. **Scelta
+  2**: «No, per ora»: MuW non guadagna sui link degli iscritti.
 - **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
   Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
   Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,

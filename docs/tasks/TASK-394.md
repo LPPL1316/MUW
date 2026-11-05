@@ -264,7 +264,8 @@ con le parole dell'utente.
    (Zalando): guadagna MuW, ma il post dell'iscritto diventa pubblicità di
    MuW, va segnato «Pubblicità · Link affiliati», e il programma deve
    accettare link messi dagli utenti.
-   — *Risposta*: da chiedere.
+   — *Risposta* (2026-11-05): «No, per ora». Nessun link Awin sui capi
+   degli iscritti; la proposta resta com'è.
 3. **Il link è obbligatorio?** Proposta: no. Tipo e marca sì; modello e link
    facoltativi: «Nike, scarpe» senza link risponde già a «che scarpe sono?».
    — *Risposta*: da chiedere.
