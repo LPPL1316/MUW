@@ -120,6 +120,11 @@ Una alla volta, ciascuna con la proposta dell'agente:
    camminata. La proposta era 3–20 km. Oltre i 20 km, in montagna, i
    cerchi del banco non riescono e il motore ci mette fino a 102 s a dirlo:
    la parte A lo misura a 25 e 30 km.
+4. **La difficoltà dei sentieri** (2026-11-05): fino a `sac_scale` T3,
+   «demanding mountain hiking», come nelle misure di `hike.md`. La
+   proposta era T2, più prudente per percorsi disegnati per chiunque.
+   L'utente ha scelto T3. I testi dovranno dire che i sentieri possono
+   essere impegnativi: è la domanda sui testi.
 
 ## Criteri di accettazione
 
