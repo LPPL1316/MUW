@@ -22491,5 +22491,52 @@ without a route». Ora l'header ha `HeartBadge` da 32 punti e «MuW» in
 scelta di TASK-367 di lasciare i loghi dentro le pagine; «Explore» e
 «Paddle» tengono il loro. Scartato: un logo più piccolo dell'originale per
 tenere l'header basso (l'utente ha chiesto lo stesso logo).
+## ADR-0331 — La CI salta i test sulle PR di soli documenti e cancella i run superati
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
+(TASK-393; richiesta dell'utente del 2026-11-05).
+
+**Contesto**: ogni PR faceva girare i cinque job di `ci.yml`, anche quelle
+di soli documenti (chiusure, righe di STATUS). Il job `api` dura 25–30
+minuti; con 8–11 run insieme la coda delle unioni si fermava per un'ora, e i
+run delle head vecchie dello stesso branch continuavano. Il ruleset «protect
+main» chiede i check `route-engine`, `mobile`, `api`, `ai`.
+
+**Decisione**:
+
+- ogni job di `ci.yml` comincia con `tools/ci_changes.py`: sul merge commit
+  della PR (checkout con `fetch-depth: 2`) confronta col primo genitore,
+  cioè `main`, senza rinomine e con `-z`. Se ogni percorso è un documento —
+  tutto `docs/`, e i `.md` fuori da `apps/`, `packages/`, `services/`,
+  `tools/`, `site/`, `deploy/` — gli altri passi hanno `if:` falso e il job
+  finisce verde con lo stesso nome. Nel dubbio (nessun merge commit, git che
+  fallisce, nessun file) gira tutto; su `main` gira sempre tutto;
+- `concurrency` in `ci.yml` e `site.yml`: per le PR il gruppo è
+  `ci-<ref>` / `site-<ref>` con `cancel-in-progress`; per i push su `main`
+  il gruppo è l'id del run, così nessun run di `main` aspetta o viene
+  cancellato. `mirror.yml` resta col suo gruppo `mirror`, senza
+  cancellazione.
+
+**Perché così**: un filtro `paths` in `on:` non fa partire il workflow e
+lascia i check obbligatori «Expected» per sempre. Un job saltato con `if:`
+a livello di job conta come riuscito, ma con un job `changes` in `needs:`
+un suo errore farebbe saltare, quindi passare, tutti gli altri senza test;
+con il controllo dentro ogni job, un errore del controllo fa fallire il job.
+I `.md` dentro `apps/` e `packages/` li controlla prettier
+(`format:check`), quelli del pacchetto `route_engine` finiscono in
+`engine.zip`: lì sono codice. Un gruppo `ci-${{ github.ref }}` anche per
+`main` avrebbe messo in fila i run di `main` e cancellato quelli in attesa.
+I gruppi valgono per tutto il repository: lo stesso prefisso in due
+workflow farebbe cancellare l'uno dall'altro.
+
+**Scartato**: un'azione di terzi per i percorsi (non serve, e vorrebbe il sì
+del Coordinatore); un job `changes` con `needs:` (sopra); saltare solo i job
+che una PR di codice non tocca (fuori scope: ogni PR di codice fa girare
+tutto come prima).
+
+**Conseguenze**: una PR di soli documenti finisce in pochi secondi per job.
+Se un test comincia a leggere un file di `docs/` o un `.md` fuori da quelle
+cartelle, la regola in `tools/ci_changes.py` cambia nella stessa PR. `site.yml`
+continua a girare quando cambia `docs/DEPLOY.md`, che i suoi test leggono.
 
 ---

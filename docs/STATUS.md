@@ -167,6 +167,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   TASK-367 sui loghi dentro le pagine, solo per «Draw». Solo app, nessun testo nuovo. Branch
   `feat/TASK-392-header-logo`; la unisce il Coordinatore a CI verde; anteprima e OTA dal
   Coordinatore. `tasks/TASK-392.md`.
+- **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; numeri dal
+  Coordinatore; ADR-0331; richiesta dell'utente). Ogni job di `ci.yml` comincia con
+  `tools/ci_changes.py`: se la PR cambia solo `docs/` e `.md` fuori dalle cartelle di codice,
+  gli altri passi saltano e i check obbligatori finiscono verdi con lo stesso nome; per il
+  codice e su `main` non cambia niente. Un push nuovo su una PR cancella il run vecchio
+  (`concurrency`, anche in `site.yml`). Branch `chore/TASK-393-ci-skip-docs-only`; la unisce
+  il Coordinatore a CI verde. `tasks/TASK-393.md`.
 - **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
@@ -277,6 +284,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   La zona 5, che non si scrive, resta senza riquadro con «bpm» allo stesso posto. Branch
   `fix/TASK-386-zones-bpm-box`; la unisce il Coordinatore a CI verde; OTA col sì dell'utente.
   Solo app, nessun testo nuovo, `BodyPage.tsx` non toccato. `tasks/TASK-386.md`.
+  **Chiuso il 2026-11-05**: #761 in main (cebe5412); vedi «Completato».
 
 - **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
   ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
@@ -2673,6 +2681,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro** (2026-11-05; seguito di TASK-383 e
+  TASK-374 B). #761 in main (cebe5412): «bpm» dentro le caselle di FC massima, a riposo e zone
+  1–4, un tocco su «bpm» apre la tastiera; zona 5 senza riquadro, allineata. Solo JS, nessun
+  testo nuovo. Anteprima, prova sul telefono e OTA di produzione col Coordinatore, l'OTA col sì
+  dell'utente. `tasks/TASK-386.md`.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; seguito di TASK-374 A). #759 in main (`a5c1d5b2`): «kg» e «cm», con le miglia
   «lb», «ft» e «in», stanno nel riquadro dopo il numero; un tocco sull'unità apre la tastiera.

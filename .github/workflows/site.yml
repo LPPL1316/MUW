@@ -25,6 +25,14 @@ on:
       - "apps/mobile/src/about/content/**"
       - "docs/DEPLOY.md"
 
+# Come in ci.yml (TASK-393, ADR-0331): un push nuovo su una PR cancella il
+# run ancora in corso; su main ogni run ha un gruppo suo. I filtri `paths`
+# qui bastano, «site» non è un check obbligatorio; e i test leggono
+# docs/DEPLOY.md, quindi qui una PR di soli documenti può far girare tutto.
+concurrency:
+  group: site-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   site:
     runs-on: ubuntu-latest
