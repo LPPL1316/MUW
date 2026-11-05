@@ -190,6 +190,10 @@ blocco a parte, in fondo (li toccano anche TASK-376 B2 e TASK-387).
   cioè l'iscrizione dell'utente), l'app (parte B), immagini e post (C).
   Server, migrazione e `.env` sul server solo col sì dell'utente.
 
+**Esito**: #773 in main il 2026-11-05 (`fa027173`), CI verde. Server: 0046 e il
+codice di A sono in produzione dal 2026-11-05 (f10033ce); restano, col sì
+dell'utente, gli ID Awin nel `.env` del server e i post.
+
 File toccati della parte A: `services/api/migrations/0046_style_posts.sql`,
 `services/api/shaperoute_api/style_posts.py`, `style_links.py`,
 `style_import.py` (nuovi), `services/api/shaperoute_api/app.py` (5 righe),

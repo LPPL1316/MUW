@@ -188,6 +188,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
   migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
+  **Parte A chiusa il 2026-11-05**: #773 in main (fa027173); vedi «Completato».
 - **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
   l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
   brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
@@ -2734,6 +2735,14 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-384 A — L'API di MuW Style** (2026-11-05; ADR-0326). #773 in main (`fa027173`):
+  migrazione `0046_style_posts.sql`, `GET /style` con tema, genere e pagine, il post, la foto,
+  `POST /style/tags/{id}/open` e `/shop` contati per giorno senza dati personali, il link di
+  Awin solo con gli ID in `.env` (altrimenti la pagina del negozio), `style_import.py` per
+  caricare o nascondere un post approvato; tipi in `shared-types`. Testi #771 in main.
+  Server: 0046 e il codice di A sono in produzione dal 2026-11-05 (f10033ce); restano, col sì
+  dell'utente, gli ID Awin nel `.env` del server e i post. Prossimo: l'iscrizione ad Awin
+  (dell'utente); la parte B (app) e la C (immagini e post).
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; ADR-0330). #781 in main (`ab1215a2`): il server tiene in
   `drawings.track` la traccia intera, senza orari (`shown_track`), e una corsa
