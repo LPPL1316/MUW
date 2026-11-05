@@ -235,6 +235,10 @@ lista dei file; sei test esistenti aggiunti col suo sì (tre dopo la CI).
   solo quando GET /style ha almeno un post; senza account le schede sono
   «All · Style».
 
+**Esito**: #809 in main il 2026-11-05 (`726791ff`), impronta iOS 6f8bba4c.
+Il foglio del prodotto passa a `ui/SheetModal` nella sessione delle
+animazioni (TASK-388).
+
 File toccati della parte B: `apps/mobile/src/api/style.ts`,
 `style.test.ts`; `apps/mobile/src/feed/useStylePosts.ts`,
 `feedWithStyle.ts`, `feedWithStyle.test.ts`, `StylePost.tsx`,
