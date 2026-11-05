@@ -23,6 +23,9 @@ export type Energy =
   | { kind: "oxygen"; mlKgPerM: number; mlKgPerMUp: number }
   | { kind: "met"; bands: readonly MetBand[] };
 
+/** A text of «Draw» in km and in miles, its `{…}` marks filled where shown. */
+export type InUnits = { km: string; mi: string };
+
 /** The two networks of the engine on the phone (engine/zones.ts). */
 export type Network = "foot" | "bike";
 
@@ -31,6 +34,31 @@ export interface SportProfile {
   /** In English, as «Settings» and the search's filters name it: where it is
    * shown, `t(name)` (TASK-210). */
   name: string;
+  emoji: string;
+  /** How its pace is written: per 500 m on the water, per 100 m swimming;
+   * none, a run's per km (activities/activityText.ts). */
+  pace?: "paddle" | "swim";
+  /** On a lake or the sea: no climb to speak of. */
+  onWater?: boolean;
+  /** «Draw» offers it shapes only, no drawing and no word (TASK-191). */
+  shapesOnly?: boolean;
+  /** «Draw» offers it no word (TASK-323): a shape or a drawing. */
+  noWords?: boolean;
+  /** Its route is laps, and «Draw» shows them (TASK-323 C2, SwimResult). */
+  laps?: boolean;
+  /** Whose pace gives the time under the distance in «Draw» (TASK-361);
+   * none, no time. */
+  timeAt?: "runner" | "walker";
+  /** What «Draw» says of a drawing in parts and of a word: the metres drawn
+   * and the metres between them, `{drawn}`/`{letters}` and `{between}`;
+   * a run's when not said. */
+  partsBetween?: InUnits;
+  lettersBetween?: InUnits;
+  /** The personal bests (TASK-368): the distances in order, and whether
+   * they are named as races, «5K», or in km, «40 km». */
+  bests?: { distances: readonly string[]; named: "race" | "km" };
+  /** The distance of its day is the one skied, lifts left out (TASK-375). */
+  skied?: boolean;
   /** What «Draw» offers, [lowest, highest] in whole km; none for a sport
    * recorded without a shape. */
   drawKm?: Limits;

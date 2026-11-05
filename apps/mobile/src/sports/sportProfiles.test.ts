@@ -1,16 +1,21 @@
 import {
   ACTIVITIES,
+  CYCLING_BEST_DISTANCES,
   DISTANCE_LIMITS_M,
   RUN_ACTIVITIES,
+  RUNNING_BEST_DISTANCES,
 } from "@shaperoute/shared-types";
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 
+import { sportPaceLabel } from "../activities/activityText";
 import { metAt } from "../body/energy";
 import { NETWORKS } from "../engine/zones";
-import { muwLabel } from "../feed/muwLabel";
+import { muwLabel, muwSport } from "../feed/muwLabel";
 import { DISTANCE_TYPE } from "../health/appleWorkout";
 import { freeRunActivity } from "../navigation/freeSport";
+import { paddlePaceLabel } from "../navigation/paddle";
+import { swimPaceLabel } from "../navigation/swim";
 import {
   APP_DISTANCE_LIMITS_KM,
   APP_DISTANCE_LIMITS_MI,
@@ -18,7 +23,14 @@ import {
   distanceStep,
 } from "../route/distance";
 import { ACTIVITY_LABELS } from "../search/searchFilters";
-import { DEFAULT_ACTIVITY, profileOf, SPORT_PROFILES, tableOf } from "./index";
+import { paceLabel } from "../units/format";
+import {
+  DEFAULT_ACTIVITY,
+  findProfile,
+  profileOf,
+  SPORT_PROFILES,
+  tableOf,
+} from "./index";
 
 // TASK-376 part B3 (ADR-0320): the tables of the app, read from the sports,
 // are the ones written by hand before, value for value and in order.
@@ -186,4 +198,67 @@ it("keeps the sport files free of screens and of each other", () => {
       ]).toContain(path);
     }
   }
+});
+
+it("gives the screens what they told apart before (part B3b)", () => {
+  expect(tableOf((sport) => sport.emoji)).toEqual({
+    running: "🏃‍♂️",
+    cycling: "🚴",
+    paddling: "🛶",
+    swimming: "🏊",
+    walking: "🚶",
+    skiing: "⛷️",
+    xc_skiing: "🎿",
+  });
+  expect(tableOf((sport) => sport.pace)).toEqual({
+    paddling: "paddle",
+    swimming: "swim",
+  });
+  expect(tableOf((sport) => sport.onWater)).toEqual({ paddling: true, swimming: true });
+  expect(tableOf((sport) => sport.shapesOnly)).toEqual({ paddling: true });
+  expect(tableOf((sport) => sport.noWords)).toEqual({ swimming: true });
+  expect(tableOf((sport) => sport.laps)).toEqual({ swimming: true });
+  expect(tableOf((sport) => sport.timeAt)).toEqual({
+    running: "runner",
+    walking: "walker",
+  });
+  expect(tableOf((sport) => sport.skied)).toEqual({ skiing: true });
+  expect(tableOf((sport) => sport.bests)).toEqual({
+    running: { distances: RUNNING_BEST_DISTANCES, named: "race" },
+    cycling: { distances: CYCLING_BEST_DISTANCES, named: "km" },
+  });
+  expect(tableOf((sport) => sport.partsBetween?.km)).toEqual({
+    running: "{drawn} km of drawing + {between} km walking between the parts",
+    cycling: "{drawn} km of drawing + {between} km riding between the parts",
+    paddling: "{drawn} km of drawing + {between} km paddling between the parts",
+    swimming: "{drawn} km of drawing + {between} km swimming between the parts",
+  });
+  expect(tableOf((sport) => sport.lettersBetween?.mi)).toEqual({
+    running: "{letters} mi of letters + {between} mi walking between them",
+    cycling: "{letters} mi of letters + {between} mi riding between them",
+  });
+  expect(findProfile("hiking")).toBeUndefined();
+  expect(findProfile(undefined)).toBeUndefined();
+});
+
+it("writes a pace and shows a MuW route's sport as before", () => {
+  // 5 km in 25 minutes.
+  const ms = 25 * 60_000;
+  expect(sportPaceLabel("paddling", 5000, ms)).toBe(paddlePaceLabel(5000, ms));
+  expect(sportPaceLabel("swimming", 5000, ms)).toBe(swimPaceLabel(5000, ms));
+  for (const activity of [
+    "running",
+    "cycling",
+    "walking",
+    "skiing",
+    "hiking",
+    undefined,
+  ]) {
+    expect(sportPaceLabel(activity, 5000, ms)).toBe(paceLabel(5000, ms));
+  }
+  expect(
+    ["running", "paddling", "cycling", "walking", "swimming"].map(
+      (a) => muwSport(a).activity,
+    ),
+  ).toEqual(["running", "paddling", "cycling", "cycling", "cycling"]);
 });

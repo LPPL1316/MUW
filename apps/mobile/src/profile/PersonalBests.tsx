@@ -1,8 +1,4 @@
-import {
-  CYCLING_BEST_DISTANCES,
-  type PersonalBest,
-  RUNNING_BEST_DISTANCES,
-} from "@shaperoute/shared-types";
+import { type PersonalBest } from "@shaperoute/shared-types";
 import { StyleSheet, Text, View } from "react-native";
 
 import { dayLabel } from "../activities/activityText";
@@ -10,6 +6,7 @@ import { useActivitiesDoor } from "../activities/activitiesDoor";
 import { t, tLater } from "../i18n";
 import { clockLabel } from "../navigation/freeRun";
 import { useDrawingsDoor } from "../social/drawingsDoor";
+import { profileOf } from "../sports";
 import {
   color,
   font,
@@ -35,7 +32,7 @@ export function distanceName(best: Pick<PersonalBest, "sport" | "distance">): st
     return t(named);
   }
   const km = best.distance.replace(/k$/, "");
-  return best.sport === "running" ? `${km}K` : `${km} km`;
+  return profileOf(best.sport).bests?.named === "race" ? `${km}K` : `${km} km`;
 }
 
 /** «24:31», «1:51:02»: the moving time of a best. */
@@ -48,8 +45,7 @@ function ofSport(
   bests: readonly PersonalBest[],
   sport: PersonalBest["sport"],
 ): PersonalBest[] {
-  const order: readonly string[] =
-    sport === "running" ? RUNNING_BEST_DISTANCES : CYCLING_BEST_DISTANCES;
+  const order: readonly string[] = profileOf(sport).bests?.distances ?? [];
   return bests
     .filter((best) => best.sport === sport)
     .sort((a, b) => order.indexOf(a.distance) - order.indexOf(b.distance));

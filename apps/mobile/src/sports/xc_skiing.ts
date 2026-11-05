@@ -6,6 +6,7 @@ import type { SportProfile } from "./base";
 export const XC_SKIING: SportProfile = {
   activity: "xc_skiing",
   name: tLater("Cross-country ski"),
+  emoji: "🎿",
   // `.crossCountrySkiing`.
   appleWorkout: 60,
   // EXERCISE_TYPE_SKIING: Health Connect has no type of its own for it.

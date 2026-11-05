@@ -1,7 +1,7 @@
-import { MIN_DISTANCE_M } from "@shaperoute/shared-types";
+import { MIN_DISTANCE_M, RUNNING_BEST_DISTANCES } from "@shaperoute/shared-types";
 
 import { tLater } from "../i18n";
-import type { SportProfile } from "./base";
+import type { InUnits, SportProfile } from "./base";
 
 /**
  * The longest distance the app offers for a run (ADR-0034). At Trento a new
@@ -11,10 +11,26 @@ import type { SportProfile } from "./base";
  */
 export const MAX_APP_DISTANCE_KM = 21;
 
+/** What «Draw» says of a drawing in parts and of a word on foot, and for a
+ * sport that says none: walked between them. */
+export const ON_FOOT_PARTS: InUnits = {
+  km: tLater("{drawn} km of drawing + {between} km walking between the parts"),
+  mi: tLater("{drawn} mi of drawing + {between} mi walking between the parts"),
+};
+export const ON_FOOT_LETTERS: InUnits = {
+  km: tLater("{letters} km of letters + {between} km walking between them"),
+  mi: tLater("{letters} mi of letters + {between} mi walking between them"),
+};
+
 /** A run: on the foot network, drawn on the phone too. */
 export const RUNNING: SportProfile = {
   activity: "running",
   name: tLater("Run"),
+  emoji: "🏃‍♂️",
+  timeAt: "runner",
+  partsBetween: ON_FOOT_PARTS,
+  lettersBetween: ON_FOOT_LETTERS,
+  bests: { distances: RUNNING_BEST_DISTANCES, named: "race" },
   drawKm: [MIN_DISTANCE_M / 1000, MAX_APP_DISTANCE_KM],
   appleWorkout: 37,
   appleDistance: "HKQuantityTypeIdentifierDistanceWalkingRunning",
