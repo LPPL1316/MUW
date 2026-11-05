@@ -106,6 +106,13 @@ Il profilo usa Apple `.hiking` (24) e Health Connect `EXERCISE_TYPE_HIKING`
 (37). L'energia segue l'ACSM a piedi, come la camminata, con la salita.
 L'impronta iOS non si muove (solo JavaScript): si misura comunque.
 
+## Scelte dell'utente
+
+Una alla volta, ciascuna con la proposta dell'agente:
+
+1. **Nome ed emoji** (2026-11-05): «Hike» ⛰️. La proposta era «Hike» 🥾;
+   l'utente ha scelto la montagna.
+
 ## Criteri di accettazione
 
 - [x] 0: le misure delle reti sono in `hike.md`; ADR-0321 è proposto.
