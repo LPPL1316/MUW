@@ -162,8 +162,10 @@ provato, senza tenere ferme le altre cose.
 1. **Fin dove nella prima versione** (2026-11-05): «Subito anche senza
    telefono».
 
+2. **La build** (2026-11-05): «Build sua, la 1.1» — dopo la 1.0.2, che
+   esce senza aspettare l'orologio.
+
 **Da chiedere, una per volta** (con una proposta pronta):
-2. La build: nella 1.0.2 o una sua (proposta: una sua, la 1.1).
 3. L'Apple Watch per provare: c'è, e quale modello / watchOS.
 4. Gli schemi delle vibrazioni (alle prime prove al polso).
 5. I testi nelle cinque lingue.

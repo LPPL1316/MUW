@@ -23172,8 +23172,8 @@ dell'orologio.
    test che tiene uguali le due liste.
 7. **Assorbe TASK-323 E** e il battito in tempo reale rimandato da TASK-169
    e TASK-374.
-8. **La build** (nella 1.0.2 o in una sua, la 1.1) la sceglie l'utente; la
-   proposta è una build sua.
+8. **La build**: una sua, la **1.1**, dopo la 1.0.2 (scelta dell'utente del
+   2026-11-05, «Build sua, la 1.1»).
 
 **Alternative**:
 - **Prima col telefono, poi da solo**: meno lavoro all'inizio, scartata
