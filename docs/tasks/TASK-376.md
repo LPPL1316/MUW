@@ -199,8 +199,19 @@ services/api/shaperoute_api/prefetch_zones.py               (ZONE_BOXES, STREET_
 services/api/shaperoute_api/run_gpx.py                      (GPX_TYPES dal registro)
 services/api/shaperoute_api/schemas.py                      (ACTIVITY_DESCRIPTION: una frase per sport)
 services/api/tests/test_sport_registry_api.py               (nuovo)
+apps/mobile/tsconfig.json                                   (una riga: allowImportingTsExtensions)
+apps/mobile/assets/engine/engine.zip                        (rifatto, ultimo commit)
 docs/tasks/TASK-376.md, docs/STATUS.md (righe proprie), docs/sports/CONDIVISO.md
 ```
+
+Gli ultimi due file li ha approvati il Coordinatore il 2026-11-05.
+- **`tsconfig.json` dell'app.** Il contratto importa valori con `.ts`, e
+  senza la riga l'app dà TS5097. La condizione era che l'impronta iOS
+  restasse quella della 1.0.1: misurata su una copia pulita del branch
+  (`npm ci`), è ancora `6f8bba4c`.
+- **`engine.zip`.** `activity_graphs.py` e `schemas.py` vanno sul telefono.
+  Lo zip si rifà come ultimo commit, dopo il riallineamento su `main`; se git
+  dà un conflitto sullo zip, lo si rigenera dai sorgenti uniti.
 
 Restano fuori, apposta: `route_engine/walking.py` (la camminata resta fuori
 dall'impronta del motore, WALK_ONLY), `themes.py` (parole delle sfide, non lo
