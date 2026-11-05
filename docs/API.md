@@ -1107,6 +1107,26 @@ registra e si salva, ma nessun percorso la disegna:
   (`fixtures/run-activities.json`). `Activity` e `ApiActivity` non
   cambiano. Un'API di prima rifiuta le due attività con `422`.
 
+### Quello che un'app sa leggere: `X-MuW-Reads` (TASK-387, ADR-0328)
+
+Ogni richiesta dell'app dice nell'header `X-MuW-Reads` i tipi in più che sa
+mostrare, separati da virgole: `swimming`, `walking`, `skiing`,
+`xc_skiing`, `trackless` (una corsa o un post senza traccia). Nome e valori
+senza maiuscole/minuscole; spazi e valori sconosciuti ignorati
+(`fixtures/reads.json`). **Senza l'header** la richiesta è di una build
+vecchia: riceve solo `running`, `cycling` e `paddling`, con la traccia.
+
+Il server toglie ciò che l'header non dichiara da `GET /feed`,
+`GET /search/drawings`, `GET /users/{id}/drawings`, `GET /me/drawings`,
+`GET /contests/current`, `GET /contests`, `GET /contests/{id}/entries`
+(i posti restano quelli veri; un vincitore illeggibile ha `drawing: null`),
+`GET /group-runs`, `GET /users/{id}/group-runs`, `GET /me/favorites`,
+`GET /me/activities`, `GET /users/{id}/photos` e `GET /notifications`. In
+`GET /conversations/{id}/messages` un disegno illeggibile diventa
+«[Drawing]» davanti al testo e `attachment` è `null`. `GET /drawings/{id}`,
+`GET /group-runs/{id}` e `GET /messages/{id}/drawing` rispondono `404`.
+L'app di oggi manda `swimming,walking,skiing,xc_skiing`.
+
 ### Una parola invece di una forma (TASK-056)
 
 Un `RouteRequest` ha `shape` **oppure** `word`: l'altro manca o è `null`.

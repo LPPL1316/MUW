@@ -183,6 +183,8 @@ e il prop di `MapView`), `apps/mobile/src/screens/FreeRunScreen.tsx`,
 `apps/mobile/src/screens/SnowFinishCard.test.tsx` (la riga del banner, approvata
 dal Coordinatore), `apps/mobile/src/i18n/{it,de,fr,es}.ts`; documenti:
 `docs/STATUS.md`, `docs/DECISIONS.md` (ADR-0319, punto 10) e questa lista.
+**In `main` il 2026-11-05** (#783, 9adb22d1); con C1 (#778) la parte C è
+chiusa.
 
 Parte C1 (approvata dal Coordinatore il 2026-11-05):
 `apps/mobile/src/activities/snowDay.ts` e `snowDay.test.ts` (nuovi),

@@ -21,6 +21,10 @@ Score, metres and seconds are the run's, counted by the API when it was
 saved: nothing here takes them from the app. Deleting the run, or the
 account, deletes its drawing (ON DELETE CASCADE); deleting an account
 tagged takes its name off the drawing.
+
+The lists and the drawing alone leave out what the app does not read, as
+its header X-MuW-Reads says (reads.py, TASK-387): an app of before the walks
+and the days on the snow never receives one, and finds none by its id.
 """
 
 from __future__ import annotations
@@ -61,6 +65,7 @@ from shaperoute_api.activities import (
 from shaperoute_api.db import Database
 from shaperoute_api.follows import apart_sql, follows_sql
 from shaperoute_api.push import notify_tagged, tagged_before
+from shaperoute_api.reads import EVERYTHING, Reads, Shown
 from shaperoute_api.recommended import preview
 from shaperoute_api.schemas import ErrorBody
 
@@ -632,11 +637,14 @@ class Drawings:
             run_id = run_of(conn, user_id, key)
             return None if run_id is None else _mine_of_run(conn, run_id)
 
-    def all_mine(self, user_id: int) -> MyDrawingsBody:
+    def all_mine(self, user_id: int, reads: Reads = EVERYTHING) -> MyDrawingsBody:
+        """The drawings of the account's runs, of the activities `reads`
+        shows."""
         with self.database.connect() as conn:
             rows = conn.execute(
                 f"SELECT {MINE_COLUMNS} FROM drawings d"
                 " JOIN runs r ON r.id = d.run_id WHERE r.user_id = %s"
+                f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}"
                 " ORDER BY r.started_at DESC, r.id DESC",
                 (user_id,),
             ).fetchall()
@@ -741,10 +749,12 @@ class Drawings:
         public_id: str,
         limit: int = PAGE_SIZE,
         cursor: str | None = None,
+        reads: Reads = EVERYTHING,
     ) -> DrawingsBody | None:
-        """A page of the drawings of a profile that `viewer_id` sees, the
-        latest run first; None: no such profile, or one a block keeps apart
-        from `viewer_id` (TASK-121), as its profile."""
+        """A page of the drawings of a profile that `viewer_id` sees, of the
+        activities `reads` shows, the latest run first; `total` counts them
+        all. None: no such profile, or one a block keeps apart from
+        `viewer_id` (TASK-121), as its profile."""
         try:
             wanted = UUID(public_id)
         except ValueError:
@@ -757,7 +767,10 @@ class Drawings:
             ).fetchone()
             if user is None:
                 return None
-            where = f"r.user_id = %s AND {shown_sql('%s')}"
+            where = (
+                f"r.user_id = %s AND {shown_sql('%s')}"
+                f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}"
+            )
             values: list[Any] = [user["id"], viewer_id]
             if cursor is not None:
                 where += " AND (r.started_at, d.id) < (%s, %s)"
@@ -786,9 +799,12 @@ class Drawings:
             total=count["n"],
         )
 
-    def seen(self, viewer_id: int, drawing_id: str) -> DrawingDetailBody | None:
-        """The drawing as `viewer_id` may see it (drawing_seen_sql); None
-        otherwise, as for an id that is not there."""
+    def seen(
+        self, viewer_id: int, drawing_id: str, reads: Reads = EVERYTHING
+    ) -> DrawingDetailBody | None:
+        """The drawing as `viewer_id` may see it (drawing_seen_sql), of an
+        activity `reads` shows; None otherwise, as for an id that is not
+        there."""
         try:
             wanted = UUID(drawing_id)
         except ValueError:
@@ -797,7 +813,8 @@ class Drawings:
             row = conn.execute(
                 f"SELECT {SEEN_COLUMNS}, u.public_id, u.username FROM drawings d"
                 " JOIN runs r ON r.id = d.run_id JOIN users u ON u.id = r.user_id"
-                f" WHERE d.id = %s AND {drawing_seen_sql('%s')}",
+                f" WHERE d.id = %s AND {drawing_seen_sql('%s')}"
+                f" AND {reads.sql('r.activity', 'r.track IS NOT NULL')}",
                 (wanted, viewer_id),
             ).fetchone()
             if row is None:
@@ -823,8 +840,9 @@ def drawing_routes() -> APIRouter:
     def my_drawings(
         drawings: Annotated[Drawings, Depends(drawings_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
     ) -> MyDrawingsBody:
-        return drawings.all_mine(user.id)
+        return drawings.all_mine(user.id, reads)
 
     @router.get("/me/activities/{key}/drawing", responses={404: {"model": ErrorBody}})
     def my_drawing(
@@ -859,10 +877,11 @@ def drawing_routes() -> APIRouter:
         public_id: str,
         drawings: Annotated[Drawings, Depends(drawings_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
         limit: Annotated[int, Query(ge=1, le=MAX_PAGE_SIZE)] = PAGE_SIZE,
         cursor: Annotated[str | None, Query(pattern=CURSOR_PATTERN)] = None,
     ) -> DrawingsBody:
-        found = drawings.of_profile(user.id, public_id, limit, cursor)
+        found = drawings.of_profile(user.id, public_id, limit, cursor, reads)
         if found is None:
             raise HTTPException(404, NO_PROFILE)
         return found
@@ -872,8 +891,9 @@ def drawing_routes() -> APIRouter:
         drawing_id: str,
         drawings: Annotated[Drawings, Depends(drawings_of)],
         user: Annotated[UserBody, Depends(current_user)],
+        reads: Shown,
     ) -> DrawingDetailBody:
-        found = drawings.seen(user.id, drawing_id)
+        found = drawings.seen(user.id, drawing_id, reads)
         if found is None:
             raise HTTPException(404, NO_DRAWING)
         return found

@@ -63,6 +63,7 @@ Trova la riga che descrive il tuo task, leggi solo quei documenti.
 | Il mio corpo: dati del corpo, kcal di corsa/bici/paddle, zone del battito | `tasks/TASK-374.md`, `DECISIONS.md` ADR-0318 |
 | Lo sci alpino, «Ski»: piste e impianti, le tre opzioni, la giornata registrata | `tasks/TASK-373.md`, `DECISIONS.md` ADR-0317 e ADR-0278 |
 | Gli sport «Record only» senza forma: sci alpino e di fondo, `RECORD_ACTIVITIES`, le metriche della giornata, impianti e piste per nome | `tasks/TASK-375.md`, `DECISIONS.md` ADR-0319 e ADR-0317 |
+| Le app vecchie e le attività nuove: l'header `X-MuW-Reads`, cosa toglie il server da ogni lista, uno sport nuovo da aggiungere | `tasks/TASK-387.md`, `DECISIONS.md` ADR-0328, `API.md` («Quello che un'app sa leggere») |
 | «Edit the drawing» su ogni disegno: emoji, parole, percorsi a tema, corse libere e importate, sull'acqua; la copia senza legami | `tasks/TASK-369.md`, `DECISIONS.md` ADR-0313 e ADR-0299, `UI.md` «Edit the drawing: la figura sulla mappa» |
 | Aggiungere uno sport: il registro, il banco `tools/sport_bench/`, le zone fisse, le misure di ogni sport | `tasks/TASK-376.md`, `DECISIONS.md` ADR-0320, `sports/README.md`, `sports/COME-AGGIUNGERE.md`, `sports/CONDIVISO.md` |
 | La palestra «Gym»: sessione senza traccia, esercizi e serie, timer di recupero, traguardi, classifica mensile | `tasks/TASK-385.md`, `DECISIONS.md` ADR-0327, `sports/gym.md` |

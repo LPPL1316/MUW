@@ -173,6 +173,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   TASK-367 sui loghi dentro le pagine, solo per «Draw». Solo app, nessun testo nuovo. Branch
   `feat/TASK-392-header-logo`; la unisce il Coordinatore a CI verde; anteprima e OTA dal
   Coordinatore. `tasks/TASK-392.md`.
+  **Chiuso il 2026-11-05**: #787 in main (650d7685); vedi «Completato».
 - **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; numeri dal
   Coordinatore; ADR-0331; richiesta dell'utente). Ogni job di `ci.yml` comincia con
   `tools/ci_changes.py`: se la PR cambia solo `docs/` e `.md` fuori dalle cartelle di codice,
@@ -289,6 +290,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lista. Ora «Messages» rilegge sul posto e il profilo si ricostruisce quando lo si lascia.
   Branch `fix/TASK-391-tab-landing-flash`; la unisce il Coordinatore a CI verde; OTA col sì
   dell'utente. Solo app, nessun testo nuovo, `TabShell`/`TabBar` non toccati. `tasks/TASK-391.md`.
+  **Done** (2026-11-05): #785 in `main` (68fbd14b), nella preview del Coordinatore; da vedere
+  sul telefono, OTA di produzione col sì dell'utente.
 
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
@@ -356,6 +359,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
     piene e le risalite tratteggiate (ADR-0319 punto 10). Prossimo: la parte
     D (nomi di impianti e piste sul server: server e riga privacy col sì
     dell'utente).
+  - 2026-11-05: **C2 in `main`** (#783, 9adb22d1), nell'anteprima del
+    Coordinatore. La parte C è chiusa. La parte D resta chiusa finché il
+    Coordinatore non ne ha parlato con l'utente; poi E (la prova sulla neve).
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
@@ -2699,8 +2705,23 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   **Chiuso il 2026-10-29**: D in `main` con la #639 (dd607e89), quindi
   A–D tutte in `main`. Voce in «Completato».
 
+- **TASK-387 — Le app vecchie non ricevono le attività che non sanno
+  leggere** (ADR-0328; «sì protezione» dell'utente, 2026-11-04; numeri e
+  via dal Coordinatore). Branch `feat/TASK-387-reads-guard`, una PR per API
+  e app. L'app manda `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in
+  ogni richiesta di `ask`; il server toglie da Feed, ricerca, profili,
+  concorsi, corse di gruppo, messaggi, preferiti, «My activities», foto del
+  profilo e campanella ciò che l'header non dichiara; senza header solo
+  corsa, bici e pagaia. Nessuna migrazione, nessun testo nuovo. Dopo il
+  merge: server e OTA di produzione col sì dell'utente, poi il nuoto
+  (#765). `tasks/TASK-387.md`.
+
 ## Completato
 
+- **TASK-392 — Il logo stilizzato nell'header** (2026-11-05; ADR-0311, precisazione). #787 in
+  main (650d7685): l'header delle pagine della barra ha il cuore su giallo (`HeartBadge`, 32
+  punti) e «MuW» in `fontSize.title` grassetto; in cima a «Draw» resta solo «Run without a
+  route». Da fare: l'utente guarda l'altezza dell'header nell'anteprima; OTA col suo sì.
 - **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; ADR-0331). #788 in
   main (d99d2033): ogni job di `ci.yml` comincia con `tools/ci_changes.py`; se la PR cambia
   solo `docs/` e `.md` fuori dalle cartelle di codice, i job finiscono verdi in 6–7 s con gli
