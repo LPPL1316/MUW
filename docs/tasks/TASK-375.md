@@ -166,7 +166,10 @@ Le domande, una alla volta:
    vede chiunque può vedere il post.
 2. **Quali comprensori all'inizio.** Proposta: l'Italia, dall'estratto
    che il server ha già; Austria, Svizzera, Francia dopo, con la memoria
-   del server misurata.
+   del server misurata. **Risposta dell'utente, 2026-11-05: «Tutte le
+   Alpi».** Si parte con gli estratti Geofabrik di Italia, Austria,
+   Svizzera, Francia, Germania e Slovenia. Scaricarli e filtrarli sul
+   server sono comandi dell'utente.
 3. **I testi** (titolo dell'elenco, la riga senza nomi), in cinque lingue.
 4. **La riga della privacy**: che la traccia della giornata si confronta,
    sul server di MuW, con le linee di OpenStreetMap.
