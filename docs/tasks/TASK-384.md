@@ -208,7 +208,7 @@ File toccati della parte A: `services/api/migrations/0046_style_posts.sql`,
 ## Parte B — l'app (branch `feat/TASK-384-b-style-app`)
 
 Via dell'utente il 2026-11-05 («Sì, avvia la B») e del Coordinatore sulla
-lista dei file; tre test esistenti aggiunti col suo sì.
+lista dei file; sei test esistenti aggiunti col suo sì (tre dopo la CI).
 
 - **Dove**: in «All», dopo il 7° disegno, poi ogni 7 (una riga su 8), mai
   nei primi 3, mai in fondo, mai due di fila; un posto già di un annuncio
@@ -246,7 +246,9 @@ File toccati della parte B: `apps/mobile/src/api/style.ts`,
 `feed/feedTabChoice.ts`, `profile/SettingsPage.tsx`,
 `about/content/{en,it,de,fr,es}.ts`, `about/documents.test.ts`,
 `about/AboutPage.test.tsx`, `screens/FeedScreenPosts.test.tsx`,
-`screens/FeedScreenTabs.test.tsx`, `profile/SettingsPage.test.tsx`;
+`screens/FeedScreenTabs.test.tsx`, `profile/SettingsPage.test.tsx`,
+`__tests__/AppFeed.test.tsx`, `__tests__/AppPages.test.tsx`,
+`tabs/TabSwipeOwners.test.ts`;
 `site/privacy/{,it/,de/,es/,fr/}index.html`; `docs/UI.md`,
 `docs/DECISIONS.md`, `docs/tasks/TASK-384.md`, `docs/STATUS.md`.
 

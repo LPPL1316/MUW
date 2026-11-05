@@ -50,9 +50,17 @@ let underItsId: () => Response;
  * asks as it opens to know whether to show «Play» (TASK-296), and the
  * contest, which «Feed» asks to know whether to show its card (TASK-299). */
 function asked(): string[] {
-  return fetchSpy.mock.calls
-    .map(([url]) => String(url).replace(API, ""))
-    .filter((path) => path !== "/game/catalog" && path !== "/contests/current");
+  return (
+    fetchSpy.mock.calls
+      .map(([url]) => String(url).replace(API, ""))
+      // MuW Style (TASK-384) is read with «Feed», as the contest is.
+      .filter(
+        (path) =>
+          path !== "/game/catalog" &&
+          path !== "/contests/current" &&
+          !path.startsWith("/style"),
+      )
+  );
 }
 
 async function onFeed() {
