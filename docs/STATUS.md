@@ -283,6 +283,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   lista. Ora «Messages» rilegge sul posto e il profilo si ricostruisce quando lo si lascia.
   Branch `fix/TASK-391-tab-landing-flash`; la unisce il Coordinatore a CI verde; OTA col sì
   dell'utente. Solo app, nessun testo nuovo, `TabShell`/`TabBar` non toccati. `tasks/TASK-391.md`.
+  **Done** (2026-11-05): #785 in `main` (68fbd14b), nella preview del Coordinatore; da vedere
+  sul telefono, OTA di produzione col sì dell'utente.
 
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
