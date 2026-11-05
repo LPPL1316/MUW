@@ -44,7 +44,13 @@ test("the tests run as Expo Go: every sport, «Paragliding» included", () => {
 test("Expo Go and preview turn on the sports tried there first (`preview`, TASK-323)", () => {
   // The swim went this way before the store builds had it; none does now.
   expect(ALL_SPORTS.some((option) => option.preview === true)).toBe(false);
-  const tried = { id: "walk", emoji: "🚶", name: "Walk", ready: false, preview: true } as const;
+  const tried = {
+    id: "walk",
+    emoji: "🚶",
+    name: "Walk",
+    ready: false,
+    preview: true,
+  } as const;
   expect(shownSports([tried], false)).toEqual([{ ...tried, ready: true }]);
   // A store build still leaves it out, as any sport not ready.
   expect(shownSports([tried], true)).toEqual([]);
