@@ -22336,3 +22336,19 @@ la connessione in più, e il nome dell'applicazione sulle connessioni della
 pool, che avrebbe cambiato il server.
 
 ---
+
+## ADR-0245, precisazione — Un contorno rifiutato dice perché, non «our side»
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente
+(TASK-382, parte B, #769; richiesta del Coordinatore). Un 422
+`invalid_request` il cui messaggio comincia con «outline: » è un contorno
+che `parse_outline` rifiuta, che si incrocia per esempio: non è un guasto
+del server, e un «Try again» fallirebbe sempre. `route/problems.ts` lo
+riconosce dal prefisso: a terra mostra il testo che c'era già per un
+contorno che non sta sulle strade, sull'acqua quello dell'acqua
+(`waterProblemText`, con «pick a shape»). Nessun testo nuovo; gli altri
+`invalid_request` restano col messaggio generico. Scartato: un testo nuovo
+per il contorno che si incrocia (vorrebbe il sì dell'utente, e dopo #767
+il caso è raro).
+
+---

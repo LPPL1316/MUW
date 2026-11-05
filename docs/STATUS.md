@@ -223,6 +223,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con la regola del motore, e ne toglie gli angoli che si toccano. Solo JS: server, motore,
   contratto e testi invariati, impronta iOS 6f8bba4c. Branch `fix/TASK-382-paddle-edit-422`;
   prova sul telefono e OTA col sì dell'utente. `tasks/TASK-382.md`.
+  **Chiuso il 2026-11-05**: #767 (830a147e) e #769 (f4e7a2ad) in main; vedi «Completato».
 
 - **TASK-389 — Il test della pool che a volte contava tre connessioni**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-288 B; ADR-0249, precisazione).
@@ -2640,6 +2641,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
+  (2026-11-05; seguito di TASK-369 B). #767 in main (830a147e): `mapdraw/sentOutline.ts`
+  controlla il contorno arrotondato con la regola del motore e ne toglie gli angoli che si
+  toccano. #769 (f4e7a2ad): un 422 «outline: …» dice che il contorno non sta sulle strade (o
+  sull'acqua), mai «Something went wrong». Solo JS, testi esistenti. Prova sul telefono con
+  l'esempio del lago e OTA di produzione col sì dell'utente. `tasks/TASK-382.md`.
 - **TASK-389 — Il test della pool che a volte contava tre connessioni** (2026-11-04; seguito di
   TASK-288 B). La terza riga era un autovacuum worker su `spatial_ref_sys`: il test conta solo i
   client, aspetta il numero giusto e legge il conteggio della pool. Sul Mac il file è passato
