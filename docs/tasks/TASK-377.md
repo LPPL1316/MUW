@@ -125,6 +125,9 @@ Una alla volta, ciascuna con la proposta dell'agente:
    proposta era T2, più prudente per percorsi disegnati per chiunque.
    L'utente ha scelto T3. I testi dovranno dire che i sentieri possono
    essere impegnativi: è la domanda sui testi.
+5. **Gioco e record** (2026-11-05): come la camminata, che era la
+   proposta. I metri contano nel gioco come quelli di una corsa, con gli
+   stessi controlli. Niente tempi migliori e niente record personali.
 
 ## Criteri di accettazione
 
