@@ -294,6 +294,8 @@ I nomi degli esercizi e delle figure sono in `docs/sports/gym.md`.
 - 2026-11-05: parte B0 scritta: l'app legge i post di palestra (riquadro,
   esercizi, miniature) e manda `gym,trackless`. OTA di produzione col sì
   dell'utente, prima della parte B.
+- 2026-11-05: parte B0 in `main` (#822, a02b7959); va nell'OTA di produzione
+  col sì dell'utente, prima della parte B.
 - 2026-11-05: parte B scritta: «Start workout» in «Draw», la schermata
   dell'allenamento, il catalogo con la ricerca e il nome libero, le serie
   dei quattro tipi, il recupero con l'avviso, «Pause», «Still training?»,
