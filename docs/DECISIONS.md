@@ -23228,10 +23228,22 @@ l'App Store; serve un Apple Watch vero per le prove.
 
 ## ADR-0322 — Gravel e MTB: la bici di oggi per il gravel, una rete sua per la MTB
 
-**Stato**: Proposto · 2026-11-05 · TASK-378. Numeri dal Coordinatore
-(2026-11-04). Le scelte di prodotto sono dell'utente, una alla volta, in
-`tasks/TASK-378.md`. I punti tecnici qui sotto sono decisi dall'agente su
-delega dell'utente, e restano proposti finché le scelte non ci sono.
+**Stato**: Accettato · 2026-11-05 · TASK-378. Le scelte dell'utente, il
+2026-11-05, sono in `tasks/TASK-378.md`:
+
+- due sport, «Gravel» 🚲 sulla rete bike e «MTB» 🚵 sulla rete `mtb`;
+- 10–30 km per tutte e due;
+- sentieri MTB fino a `mtb:scale` S2 (senza scala, `sac_scale` T2);
+- fuori dal gioco come la bici, con record personali propri;
+- i testi approvati;
+- accesi appena pronti.
+
+Le attività del contratto si chiamano `gravel_biking` e `mountain_biking`
+(deciso dall'agente su delega dell'utente).
+
+Numeri dal Coordinatore (2026-11-04). Le scelte di prodotto sono
+dell'utente, una alla volta, in `tasks/TASK-378.md`. I punti tecnici qui
+sotto sono decisi dall'agente su delega dell'utente.
 
 **Contesto**: la bici (`cycling`, ADR-0153, ADR-0167) pedala già ogni
 `track`. Un `path` lo pedala solo con `bicycle=designated`: negli altri casi

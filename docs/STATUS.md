@@ -194,6 +194,17 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   Proposta: Gravel sulla rete della bici, MTB con una rete sua. Prossimo:
   le scelte dell'utente, una alla volta (`tasks/TASK-378.md`,
   `sports/gravel.md`).
+  **Parte 0 in `main`** (#840). **Scelte dell'utente** (2026-11-05):
+  - due sport, «Gravel» 🚲 sulla rete della bici e «MTB» 🚵 su una rete
+    sua;
+  - da 10 a 30 km;
+  - sentieri MTB fino a S2;
+  - fuori dal gioco come la bici, con record propri;
+  - i testi approvati in cinque lingue;
+  - accesi appena pronti.
+
+  ADR-0322 accettato. Prossimo: 378-A, motore, contratto e API, dopo la
+  #838 e la lista al Coordinatore con il numero della migrazione.
 
 - **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
   (2026-11-05; numeri dal Coordinatore, ADR-0330). Scelta dell'utente: «Via,
