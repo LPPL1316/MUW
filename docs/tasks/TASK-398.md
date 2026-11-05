@@ -1,6 +1,10 @@
 # TASK-398 — «town cat 5000» rosso in CI: l'immagine ubuntu-26.04, non la ricerca
 
-**Stato**: In review · 2026-11-05
+**Stato**: Done · 2026-11-05
+
+**Esito**: #827 in main (`42e0433a`), CI verde anche su ubuntu-26.04; la CI
+di `route-engine` è sbloccata per tutte le PR. Chiusura scritta dal
+Coordinatore.
 **Fase**: 4 · **Branch**: `fix/TASK-398-flaky-cat-search`
 **Numeri**: TASK-398, assegnato dal Coordinatore. Nessun ADR: nessun
 comportamento del motore cambia.
@@ -71,6 +75,6 @@ percorsi fissi (`tests/test_same_routes.py`) sulla macchina nuova.
 
 ## Criteri di accettazione
 
-- [ ] La CI `route-engine` passa su ubuntu-26.04.
+- [x] La CI `route-engine` passa su ubuntu-26.04.
 - [x] Nessun file di `route_engine` toccato; impronta del motore invariata.
 - [x] Il diff tocca solo i file elencati.
