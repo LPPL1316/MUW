@@ -363,6 +363,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   l'impronta iOS resta `6f8bba4c`. Resta solo `settings/sport.ts`, dopo la
   #765. Prossimo: la parte C, cioè la ricetta definitiva e il pilota
   Escursionismo (TASK-377).
+  **Parte C1 in PR** (2026-11-05): `docs/sports/COME-AGGIUNGERE.md`
+  riscritto sulla struttura della parte B: file nuovi, una riga per
+  registro e i punti fissi ancora scritti a mano. Poi il pilota TASK-377.
 
 - **TASK-375 — La categoria «Record only»: sci alpino e sci di fondo
   senza forma** (ADR-0319 **proposto**; numeri dal Coordinatore il
