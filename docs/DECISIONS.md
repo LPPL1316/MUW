@@ -23033,3 +23033,35 @@ motore (`docs/sports/hike.md`):
   strade**: cambierebbe la ricerca del motore per tutti. Se serve, si
   valuta dopo la parte A, misurando quanto di ogni percorso sta su `track`
   e `path`.
+
+## ADR-0332, precisazione — Il sì e il valore di Salute in una tabella loro, `vo2max`
+
+**Stato**: Attiva · 2026-11-05 · TASK-397 parte A, decisa dall'agente su
+delega dell'utente; file approvati dal Coordinatore. Cambia i punti 1, 2 e
+5 di ADR-0332, non le scelte dell'utente.
+
+**Contesto**: il punto 1 metteva il sì in una colonna degli account, con
+`PATCH /me` e `GET /me`. La tabella è `users` e la forma di `User` sta in
+`accounts.py` (`USER_COLUMNS`, `UserBody`), che la parte A non tocca:
+cambiarla avrebbe allargato il task a un file di tutti.
+
+**Decisione**:
+1. **Una tabella sua**, `vo2max` (migrazione `0049`): `user_id`, `show`,
+   `value`, `source`, `measured_on`, con `CHECK` che vogliono i tre campi
+   del valore insieme e solo col sì.
+2. **Endpoint suoi** in `vo2max.py`: `GET` e `PUT /me/vo2max` (`{"show"}`)
+   al posto di `GET /me` e `PATCH /me`; `PUT` e `DELETE
+   /me/vo2max/reading` per il valore di Salute. La risposta,
+   `Vo2MaxSettings`, dà anche a sì spento il `Vo2Max` che si vedrebbe: è
+   quello che l'app mostra al titolare con «Only you see this».
+3. **Il giorno della stima** è quello della corsa da cui viene, così
+   `measured_on` c'è sempre.
+4. **L'esempio del profilo** in `fixtures/public-profile.json` ha `vo2max:
+   null`: con un oggetto, il JSON letto da TypeScript avrebbe `source:
+   string` e i test dell'app che lo usano come `PublicProfile` non
+   compilerebbero più. La forma intera sta in `fixtures/vo2max-settings.json`.
+
+**Conseguenze**: `accounts.py` non cambia; il profilo prende il campo con
+una sottoquery (`vo2max_sql`) e l'orologio degli account (`Profiles.now`).
+
+---

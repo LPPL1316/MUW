@@ -1801,6 +1801,18 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   `personal_bests.py`, `profile_bests.py`; un'API precedente non li ha. Le
   corse salvate prima: `python -m shaperoute_api.personal_bests_backfill`,
   una volta, sul server, col sì dell'utente.
+- **Il VO₂ max** (TASK-397, ADR-0332): `vo2max`, `null` finché il titolare
+  non dice sì (`PUT /me/vo2max`, sotto) e quando non c'è niente da
+  mostrare; altrimenti un `Vo2Max`: `value` (ml/kg/min, intero), `source`
+  (`apple_health`, `health_connect` o `estimate`), `measured_on` (il
+  giorno: della misura, o della corsa da cui viene la stima) e
+  `from_distance` (il record della stima, da `5k` a `marathon`; `null` per
+  Salute). Prima il valore di Salute se misurato negli ultimi 365 giorni,
+  poi la stima, poi niente. La stima è il VDOT di Daniels e Gilbert, il più
+  alto fra i record di corsa (`personal_bests`, a piedi, il `60k` escluso)
+  delle corse cominciate negli ultimi 365 giorni, arrotondato, tenuto fra
+  20 e 90; si calcola a ogni lettura. `vo2max.py`, `vo2max_estimate.py`;
+  un'API precedente non ha il campo.
 - **`GET /users/{public_id}/photos`** (TASK-324): le foto dei disegni che
   chi guarda vede sul profilo, dalla corsa più recente e nello stesso
   disegno per posto; `limit` da 1 a 60 (30), `cursor` dalla pagina prima
@@ -1818,6 +1830,38 @@ not_signed_in`; senza database, `503 accounts_unavailable`. Tipi in
   `public_id`: l'app nuova lo legge lo stesso e dice «Editing the profile
   is not available on this API yet.». L'app pubblicata ignora i campi in
   più.
+
+### VO₂ max (TASK-397, ADR-0332)
+
+Il sì del titolare e il valore di Apple Salute o Health Connect che il
+telefono manda dopo il sì. Vogliono il token (`401 not_signed_in`); senza
+database `503 accounts_unavailable`. Tipi in `shared-types`
+(`Vo2MaxSettings`, `Vo2MaxSettingsRequest`, `Vo2MaxReadingRequest`,
+`Vo2Max`), esempi in `fixtures/vo2max-settings.json` e
+`fixtures/vo2max-reading-request.json`; il codice in `vo2max.py`,
+la tabella `vo2max` (`DATABASE.md`, migrazione `0049`).
+
+| Endpoint | Cosa | Risposta |
+|---|---|---|
+| `GET /me/vo2max` | il sì e cosa vedono gli altri | `200` `Vo2MaxSettings` |
+| `PUT /me/vo2max` | `{"show": true}` o `false` | `200` `Vo2MaxSettings` |
+| `PUT /me/vo2max/reading` | l'ultimo valore di Salute | `200` `Vo2MaxSettings`, `409`, `422` |
+| `DELETE /me/vo2max/reading` | togliere il valore di Salute | `204` |
+
+- **`Vo2MaxSettings`** è `show` e `vo2max`: il `Vo2Max` che il profilo
+  mostra col sì, con la stessa regola di «Profile», anche a sì spento (per
+  far vedere al titolare cosa vedrebbero gli altri); `null` senza niente.
+- **Spegnere** (`{"show": false}`) cancella nella stessa scrittura il valore
+  di Salute; riacceso, il profilo mostra la stima finché il telefono non
+  manda un valore nuovo.
+- **Il valore di Salute**: `value` fra 10 e 90, `measured_on` come
+  `YYYY-MM-DD` (mai l'ora), `source` `apple_health` o `health_connect`;
+  campi in più o fuori forma `422 invalid_request`. Un giorno dopo domani
+  (un giorno di margine per i fusi) `422` «A VO₂ max cannot be measured
+  after today.». Senza il sì `409 http_error` «Turn on «Show VO₂ max on my
+  profile» first.». Uno solo per account: il nuovo prende il posto del
+  vecchio.
+- Mai negli annunci, negli elenchi o nelle ricerche: solo nel profilo.
 
 ### Email and phone number (TASK-183, ADR-0150)
 

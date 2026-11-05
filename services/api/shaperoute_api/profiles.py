@@ -10,7 +10,8 @@ bio, picture (profile_photos.py), number of drawings published
 (drawings.py), how many it follows and how many follow it, and where the one
 who asks stands towards it (follows.py); since TASK-324 its totals: metres,
 climb and reactions received (profile_totals.py); since TASK-368 its
-personal bests (profile_bests.py). Never the email, the role, the
+personal bests (profile_bests.py); since TASK-397 its VO₂ max, with its
+owner's yes (vo2max.py). Never the email, the role, the
 internal id or when the account was made. It needs the token of an account:
 what members share is for members, as the feed (ADR-0114, point 4). The id
 is the random `public_id` of the account, not `id`: a sequence would let
@@ -23,7 +24,9 @@ from __future__ import annotations
 import base64
 import re
 import unicodedata
+from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -43,6 +46,7 @@ from shaperoute_api.accounts import (
     accounts_of,
     contest_wins_sql,
     current_user,
+    now_utc,
 )
 from shaperoute_api.badges import Badge, badges_sql
 from shaperoute_api.db import Database
@@ -61,6 +65,7 @@ from shaperoute_api.profile_totals import (
     reactions_received_sql,
 )
 from shaperoute_api.schemas import ErrorBody
+from shaperoute_api.vo2max import Vo2MaxBody, shown, since_of, vo2max_sql
 
 MAX_BIO_LENGTH = 160
 
@@ -122,6 +127,11 @@ class PublicProfileBody(BaseModel):
     personal_bests: list[PersonalBestBody] = Field(
         description="On foot, then by bike, by distance; [] without one."
     )
+    # The VO₂ max (TASK-397, ADR-0332): only with its owner's yes.
+    vo2max: Vo2MaxBody | None = Field(
+        description="Of Health, else estimated from the running bests; null"
+        " without the yes or without either."
+    )
 
 
 def checked_username(value: str) -> str:
@@ -148,6 +158,7 @@ class Profiles:
     """The profiles of the accounts in the database."""
 
     database: Database
+    now: Callable[[], datetime] = now_utc
 
     def edit(self, user_id: int, body: EditProfileRequestBody) -> UserBody:
         """The account with what `body` changes; 409 for a username taken."""
@@ -176,6 +187,7 @@ class Profiles:
             wanted = UUID(public_id)
         except ValueError:
             return None
+        now = self.now()
         with self.database.connect() as conn:
             row = conn.execute(
                 "SELECT u.public_id, u.username, u.bio, p.jpeg,"
@@ -190,16 +202,18 @@ class Profiles:
                 f" {climb_total_sql('u.id')} AS climb_m,"
                 f" {reactions_received_sql('u.id', '%s')} AS reactions,"
                 f" {badges_sql('u.id', '%s')} AS badges,"
-                f" {personal_bests_sql('u.id', '%s')} AS personal_bests"
+                f" {personal_bests_sql('u.id', '%s')} AS personal_bests,"
+                f" {vo2max_sql('u.id', '%s')} AS vo2max"
                 " FROM users u LEFT JOIN profile_photos p ON p.user_id = u.id"
                 " WHERE u.public_id = %s"
                 # Across a block the profile is not there (TASK-121).
                 f" AND NOT {apart_sql('%s', 'u.id')}",
-                (viewer_id,) * 7 + (wanted, viewer_id),
+                (viewer_id,) * 7 + (since_of(now), wanted, viewer_id),
             ).fetchone()
         if row is None:
             return None
         jpeg = row["jpeg"]
+        vo2max = row["vo2max"]
         return PublicProfileBody(
             public_id=row["public_id"],
             username=row["username"],
@@ -215,12 +229,13 @@ class Profiles:
             reactions=row["reactions"],
             badges=row["badges"],
             personal_bests=row["personal_bests"],
+            vo2max=shown(vo2max, now.date()) if vo2max["show"] else None,
         )
 
 
 def profiles_of(accounts: Annotated[Accounts, Depends(accounts_of)]) -> Profiles:
-    """In the database of the accounts."""
-    return Profiles(accounts.database)
+    """In the database of the accounts, on their clock."""
+    return Profiles(accounts.database, accounts.now)
 
 
 def profile_routes() -> APIRouter:
