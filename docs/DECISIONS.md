@@ -22010,6 +22010,28 @@ dell'utente):
     giornata senza impianti trovati, perché non conosce la traccia: è un
     caso raro, e non mostra niente di sbagliato. In `App.tsx` ci sono solo
     il campo `lifts` di `FreeFinished` e il prop di `MapView`.
+11. (D1, 2026-11-05; le scelte sono dell'utente: «Nel post, per tutti» e
+    «Tutte le Alpi»; il modo è deciso dall'agente su delega dell'utente) I
+    nomi di impianti e piste vengono dagli estratti Geofabrik di Italia,
+    Austria, Svizzera, Francia, Germania e Slovenia, non da Overpass
+    (ADR-0154). Il filtro è `osmium tags-filter w/aerialway
+    nwr/piste:type=downhill`. `ski_extract.py` scrive le linee in riquadri
+    di 0,25° in `cache/ski/`, uniti estratto dopo estratto, così un
+    impianto di confine resta uno solo. `ski_names.py` confronta la traccia
+    con quelle linee, in metri, sul server:
+    - **una risalita** è un tratto entro 30 m da un impianto che lo percorre
+      dal basso in alto, come OSM disegna gli impianti, per almeno il 60%
+      della sua lunghezza. Fra due impianti vicini la prende il più vicino;
+      un impianto con stazione intermedia conta una sola volta;
+    - **una pista** si conta dopo 150 m fuori dagli impianti, entro 30 m da
+      una pista con quel nome. Una pista fatta di più vie è un nome solo, e
+      tre punti di GPS lontani non la spezzano;
+    - **senza nome:** le piste senza nome non si contano; gli impianti senza
+      nome restano, con il loro tipo.
+
+    Una giornata di 8.000 punti contro 2.000 linee richiede 0,19 s: con D2
+    il risultato si scrive una volta in `runs` (migrazione 0048, riservata),
+    invece di ricalcolarlo a ogni lettura del Feed.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i
