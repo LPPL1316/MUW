@@ -2816,6 +2816,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   la unisce il Coordinatore. Prossimo: le cinque scelte dell'utente, una alla
   volta, poi il sì sulla proposta, i testi e l'ADR dal Coordinatore; la parte B
   (app) dopo TASK-384 B. `tasks/TASK-394.md`.
+  **Proposta in `main`** (#805, ae6c2e2a). Parte B dopo TASK-384 B e 376 B3b,
+  quando il Coordinatore dice che i file sono liberi. **Scelta 1**
+  (2026-11-05): «Ogni link https», con Google Web Risk (Google Cloud, un
+  prerequisito dell'utente) e un elenco nostro di domini bloccati. **Scelta
+  2**: «No, per ora»: MuW non guadagna sui link degli iscritti. **Scelta 3**:
+  «No, facoltativo»: il link non è obbligatorio, tipo e marca sì. **Scelta
+  4**: «Nascosti, gruccia»: i puntini si vedono dopo un tocco sulla foto.
+  **Scelta 5**: «L'autore del post»: solo lui vede i totali di aperture e
+  «Shop» dei suoi capi, mai chi. Prossimo: il sì sulla proposta intera.
+  **Proposta approvata dall'utente il 2026-11-05** («Sì, approvo»);
+  prossimo: i testi in cinque lingue (app, Help, Termini, Privacy), poi la
+  parte A con l'ADR dal Coordinatore.
+  **Testi approvati il 2026-11-05** («Sì, approvo tutti»), in
+  `tasks/TASK-394.md`; Termini e Privacy cambiano con la parte B. Prossimo:
+  la parte A (API), con l'ADR e la lista dei file al Coordinatore prima del
+  codice. Prerequisito dell'utente: Google Cloud con Web Risk.
+  **Scelte e testi in `main`** (#808, 507e45dd); parte A con ADR-0333 e
+  migrazione 0050, in una sessione nuova. Approvata anche la frase della
+  Privacy «Pubblicità» per una parte B prima di Style (2026-11-05, «SI
+  APPROVO», `tasks/TASK-394.md` D.2b).
 - **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
   Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
   Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,
