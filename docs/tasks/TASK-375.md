@@ -173,11 +173,12 @@ Le domande, una alla volta:
    **Allargata dall'utente, 2026-11-05: «Sì, tutto il mondo»**, alla
    domanda se si potessero avere tutti i comprensori del mondo. Il codice
    non cambia, perché `ski_extract` legge qualunque estratto. Cambiano solo
-   i comandi del server: i sette continenti di Geofabrik, circa 89 GB, uno
-   per volta, guardando lo spazio prima di ogni download. Ogni continente
-   filtrato si taglia in 36 fasce di 10° di longitudine, così `ski_extract`
-   tiene in memoria una fascia alla volta. L'estratto intero si cancella
-   dopo i suoi riquadri. I comandi li lancia l'utente, col suo sì, dopo la
+   i comandi del server. Poi l'utente ha chiesto «in più scaricate»: si
+   scaricano 71 estratti Geofabrik dei paesi dove si scia, circa 64 GB,
+   uno per volta. Prima di ogni download lo script guarda lo spazio, e
+   l'estratto intero si cancella dopo i suoi riquadri. Così sul disco
+   servono al massimo circa 8 GB, quanti ne servono per il Canada, il più
+   grande (6,5 GB). I comandi li lancia l'utente, col suo sì, dopo la
    lettura del Coordinatore.
 3. **I testi** (titolo dell'elenco, la riga senza nomi), in cinque lingue.
    **Risposta dell'utente, 2026-11-05: «Sì, approvati».**
