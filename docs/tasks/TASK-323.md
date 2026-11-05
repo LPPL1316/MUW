@@ -1,9 +1,9 @@
 # TASK-323 — Nuoto in acque libere («Open water swim»)
 
-**Stato**: In lavorazione · A1 scritta, in bozza (2026-10-29, «A1, dove si
-è» più sotto); i documenti in `main` con la #609. L'utente il 2026-10-28:
-«parti proprio con il progetto secondo me funziona»; le parti partono una
-alla volta, ognuna nella sua sessione
+**Stato**: Done · 2026-11-05, il nuoto acceso per tutti (#765,
+`b30bda0c`); le parti A–D in `main`, E il piano. Restano, fuori dal task,
+gli esempi sul server, i nomi a riva, l'orologio e la prova in acqua
+(«Esito»)
 **Fase**: 5 · **Branch**: `docs/TASK-323-open-water-swim` (documenti); le
 parti `feat/TASK-323-a1-swim-band` e così via
 **Dipende da**: TASK-191 (l'acqua della canoa, in `main`). La parte C dopo
@@ -716,14 +716,14 @@ docs/DECISIONS.md, docs/STATUS.md, docs/tasks/TASK-323.md
 
 ## Criteri di accettazione (del task intero)
 
-- [ ] Dalla CLI, senza rete né chiavi, un giro a nuoto sta tutto fra la
+- [x] Dalla CLI, senza rete né chiavi, un giro a nuoto sta tutto fra la
       distanza minima e massima dalla riva scelte e parte e torna alla
       stessa spiaggia.
-- [ ] La canoa dà gli stessi percorsi di prima, punto per punto.
+- [x] La canoa dà gli stessi percorsi di prima, punto per punto.
 - [ ] Ogni curva ha un nome a riva dove l'estratto ne ha uno entro 300 m.
-- [ ] «Open water swim» si sceglie nell'app, con l'avviso di sicurezza
+- [x] «Open water swim» si sceglie nell'app, con l'avviso di sicurezza
       approvato dall'utente.
-- [ ] Un nuoto registrato (telefono nella boa o file dell'orologio) diventa
+- [x] Un nuoto registrato (telefono nella boa o file dell'orologio) diventa
       un disegno nel Feed.
 - [ ] (E) L'Apple Watch vibra alle curve e fuori rotta in una prova in
       acqua.
@@ -763,4 +763,21 @@ Una per volta, quando serve la parte:
 
 ## Esito
 
-*(si compila a fine task)*
+Chiuso il 2026-11-05. Il nuoto in acque libere si sceglie in ogni build:
+in Expo Go e `preview` dalla #800, per tutti dalla #765 (`b30bda0c`), in
+produzione con l'OTA che l'utente approva. Disegni, Explore, Start, il
+giro registrato nel Feed, Apple Salute e Health Connect come nuoto. Il
+server (migrazione 0040) tiene i nuoti lontani dalle app che non li
+leggono (TASK-387, `X-MuW-Reads`). Impronta iOS invariata, 6f8bba4c.
+
+Due criteri restano aperti, ognuno col sì dell'utente:
+
+- i nomi a riva: le curve hanno il nome solo dopo `shore_extract` sul
+  server; fino ad allora il motore le dice senza nome;
+- (E) l'Apple Watch: il piano è in `main` (#744), il codice va scritto sul
+  Mac con Xcode, la prova in acqua in primavera 2027.
+
+Sul server, coi comandi del Coordinatore: `draw_examples --swim` (2–4 ore,
+dopo gli estratti dello sci; senza esempi il telefono disegna da sé il
+primo nuoto, più lento) e il controllo di `paddleExamples.json` a
+ridisegno finito.
