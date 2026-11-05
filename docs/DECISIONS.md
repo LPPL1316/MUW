@@ -23115,9 +23115,10 @@ delega dell'utente; la lista dei file l'ha approvata il Coordinatore.
    schermate usano già restano come sono: «Geschw.» (non «Geschwindigkeit»),
    «Temps» (non «Durée»), «Omitir» (non «Saltar»). Il messaggio di un salvataggio
    fallito sul telefono è quello delle corse.
-7. **«Gym» è `ready: false, preview: true`**: si vede solo in Expo Go e
-   `preview`. Nelle build dello store si accende col sì dell'utente, dopo
-   qualche giorno di B0 in produzione.
+7. **«Gym» è `ready: true`, anche nelle build dello store**: l'utente ha
+   detto «ok accendi» il 2026-11-05, insieme al sì all'OTA di produzione con
+   la B0, invece di aspettare qualche giorno. Le app senza la B0 non vedono
+   comunque i post di palestra: il server li tiene fuori (`X-MuW-Reads`).
 ## ADR-0332, precisazione — Il sì e il valore di Salute in una tabella loro, `vo2max`
 
 **Stato**: Attiva · 2026-11-05 · TASK-397 parte A, decisa dall'agente su

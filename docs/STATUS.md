@@ -324,9 +324,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   dell'utente.
   Parte B (l'app registra l'allenamento: esercizi, serie, recupero,
   «Pause», «Still training?», fine e «Save») in PR da
-  `feat/TASK-385-b-gym-workout`; «Gym» solo in Expo Go e `preview`, nelle
-  build dello store col sì dell'utente dopo qualche giorno di B0 in
-  produzione.
+  `feat/TASK-385-b-gym-workout`; «Gym» accesa anche nelle build dello store
+  col sì dell'utente («ok accendi», 2026-11-05).
 
 - **TASK-391 — Lo swipe che arriva su «Messages» o sul profilo: niente pagina che si svuota**
   (2026-11-05; numero dal Coordinatore; video dell'utente). Arrivando con lo swipe, il profilo

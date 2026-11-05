@@ -209,9 +209,8 @@ Questa PR (documenti): `docs/tasks/TASK-385.md` (nuovo),
     concorso. Le mappe di Salute leggono il profilo (TASK-376 B3a): non
     cambiano.
 - **B** (lista approvata dal Coordinatore il 2026-11-05; branch
-  `feat/TASK-385-b-gym-workout`; «Gym» `ready: false, preview: true`, accesa
-  nelle build dello store solo col sì dell'utente dopo qualche giorno di B0
-  in produzione):
+  `feat/TASK-385-b-gym-workout`; «Gym» `ready: true` anche nelle build
+  dello store, col sì dell'utente del 2026-11-05, «ok accendi»):
   - file nuovi in `apps/mobile/src/gym/`: `workout.ts` (lo stato puro),
     `workoutStore.ts` (`gym-workout.json`), `useWorkout.ts`, `restTimer.ts`,
     `restAlert.ts` (vibrazione, `chime()`, notifica locale), `setKinds.ts`
@@ -302,5 +301,6 @@ I nomi degli esercizi e delle figure sono in `docs/sports/gym.md`.
   dell'allenamento, il catalogo con la ricerca e il nome libero, le serie
   dei quattro tipi, il recupero con l'avviso, «Pause», «Still training?»,
   le correzioni alla fine e «Save» (`PUT /me/gym-sessions/{key}`, con la
-  coda sul telefono). «Gym» `ready: false, preview: true`. Prossima: C
-  (kcal e Salute) e D (il post).
+  coda sul telefono). L'utente il 2026-11-05: «ok si» all'OTA di produzione
+  con la B0 e «ok accendi» per «Gym» nelle build dello store, subito:
+  `ready: true` nella stessa PR. Prossima: C (kcal e Salute) e D (il post).

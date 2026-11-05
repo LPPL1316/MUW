@@ -82,9 +82,9 @@ export const ALL_SPORTS: readonly SportOption[] = [
     recordOnly: true,
   },
   // Saved as "gym" (runActivityOf), without a track (TASK-385 part B); on in
-  // Expo Go and `preview` only, in the store builds with the user's yes
-  // once the app that reads its posts (part B0) has been out for days.
-  { id: "gym", emoji: "🏋️", name: tLater("Gym"), ready: false, preview: true },
+  // the store builds too, the user's «ok accendi» (2026-11-05): the server
+  // keeps its posts from the apps that cannot read them (X-MuW-Reads).
+  { id: "gym", emoji: "🏋️", name: tLater("Gym"), ready: true },
   { id: "paragliding", emoji: "🪂", name: tLater("Paragliding"), ready: false },
 ];
 

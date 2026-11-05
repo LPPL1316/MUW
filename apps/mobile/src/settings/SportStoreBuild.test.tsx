@@ -41,12 +41,11 @@ test("the tests run as Expo Go: every sport, «Paragliding» included", () => {
   expect(SPORTS.map((option) => option.id)).toContain("paragliding");
 });
 
-test("Expo Go and preview turn on the sports tried there first: the swim (TASK-323) and the gym (TASK-385 B)", () => {
+test("Expo Go and preview turn on the sports tried there first: the swim (TASK-323)", () => {
   const shown = shownSports(ALL_SPORTS, false);
   expect(shown.find((option) => option.id === "swim")?.ready).toBe(true);
-  expect(shown.find((option) => option.id === "gym")?.ready).toBe(true);
   // The others as they are.
-  for (const option of shown.filter((o) => o.id !== "swim" && o.id !== "gym")) {
+  for (const option of shown.filter((o) => o.id !== "swim")) {
     expect(option).toBe(ALL_SPORTS.find((o) => o.id === option.id));
   }
   // A store build still leaves it out, until TASK-387 is on the server.
@@ -56,7 +55,13 @@ test("Expo Go and preview turn on the sports tried there first: the swim (TASK-3
 });
 
 test("a store build leaves out the sports not ready, and keeps the order", () => {
-  expect(STORE.map((option) => option.id)).toEqual(["run", "bike", "paddle", "ski"]);
+  expect(STORE.map((option) => option.id)).toEqual([
+    "run",
+    "bike",
+    "paddle",
+    "ski",
+    "gym",
+  ]);
   expect(STORE.every((option) => option.ready)).toBe(true);
 });
 
@@ -73,14 +78,15 @@ test("in a store build `SPORTS` itself has no «Paragliding»", () => {
       "bike",
       "paddle",
       "ski",
+      "gym",
     ]);
   });
 });
 
 test("«Settings» of a store build has no «Soon» row", async () => {
   await render(<SportSetting sports={STORE} />);
-  // Run, bike, paddle and the alpine ski (TASK-375 D4).
-  expect(screen.getAllByRole("radio")).toHaveLength(4);
+  // Run, bike, paddle, the alpine ski (TASK-375 D4) and the gym (TASK-385 B).
+  expect(screen.getAllByRole("radio")).toHaveLength(5);
   expect(screen.getByRole("radio", { name: "Ski" })).toBeOnTheScreen();
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
@@ -93,7 +99,7 @@ test("«Settings» of a store build has no «Soon» row", async () => {
 test("the sport menu of «Draw» in a store build has no «Soon» row", async () => {
   await render(<SportButton sports={STORE} />);
   await fireEvent.press(screen.getByRole("button", { name: "Sport, Run" }));
-  expect(screen.getAllByRole("radio")).toHaveLength(4);
+  expect(screen.getAllByRole("radio")).toHaveLength(5);
   expect(screen.queryByText("Soon")).toBeNull();
   expect(screen.queryByLabelText("Paragliding, coming soon")).toBeNull();
 });

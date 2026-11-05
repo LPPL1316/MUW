@@ -144,18 +144,16 @@ test("«Walk» 🚶 comes after the swim, «Soon» until the server walks (TASK-
   expect(withoutRouteLabel("walk")).toBe("Walk without a route");
 });
 
-test("«Gym» 🏋️ before «Paragliding», on in Expo Go and preview only (TASK-385 B)", () => {
-  // Not in the store builds until the user's yes, days after the app that
-  // reads its posts (part B0) is out.
+test("«Gym» 🏋️ before «Paragliding», on in the store builds too (TASK-385 B)", () => {
+  // The user's «ok accendi» (2026-11-05).
   expect(ALL_SPORTS.find((option) => option.id === "gym")).toEqual({
     id: "gym",
     emoji: "🏋️",
     name: "Gym",
-    ready: false,
-    preview: true,
+    ready: true,
   });
   expect(shownSports(ALL_SPORTS, true).some((option) => option.id === "gym")).toBe(
-    false,
+    true,
   );
   const index = SPORTS.findIndex((option) => option.id === "gym");
   expect(SPORTS[index + 1]?.id).toBe("paragliding");
