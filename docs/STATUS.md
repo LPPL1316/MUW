@@ -2879,8 +2879,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   su un Ubuntu più nuovo potrebbe disegnare di un soffio diverso. Branch
   `fix/TASK-398-flaky-cat-search`; la unisce il Coordinatore a CI verde.
   `tasks/TASK-398.md`.
+  **Chiuso il 2026-11-05**: #827 in main (`42e0433a`); vedi «Completato».
 
 ## Completato
+
+- **TASK-398 — «town cat 5000» rosso in CI: l'immagine ubuntu-26.04**
+  (2026-11-05). #827 in main (`42e0433a`): dalle 16:00Z `ubuntu-latest` è
+  ubuntu-26.04 e la ricerca del gatto del paese finto dà un altro digest con
+  lo stesso codice; il test accetta i due, come «town heart 5000». Motore e
+  impronta invariati. Rischio da guardare: prima di aggiornare il sistema del
+  server, rifare `tests/test_same_routes.py` sulla macchina nuova.
 
 - **TASK-395 — La ricerca non divide più per zero quando un percorso non disegna niente**
   (2026-11-05; seguito di TASK-297 C). #807 in main (`325f7d56`): in `optimizer.search` un
