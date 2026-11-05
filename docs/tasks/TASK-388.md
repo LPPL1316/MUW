@@ -1,6 +1,6 @@
 # TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso, l'«isola», fogli e liste
 
-**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); A2 in `main` (#780, 07d5833c); parte B, l'isola, in PR
+**Stato**: In corso — parte A in `main` (#770, 0d7819c4, 2026-11-05); A2 in `main` (#780, 07d5833c); parte B in `main` (#786, dde301bd); parte C, fogli e liste, in PR
 **Fase**: 4 · **Branch**: `feat/TASK-388-a-springs-tab-bar` (parte A) ·
 **ADR**: ADR-0329 · numeri dal Coordinatore (2026-11-04)
 
@@ -285,6 +285,93 @@ o quello nel foglio dei commenti. I test toccati sono verdi (57 + 39 di
 video di questo collegamento: nella copia del simulatore l'API è spenta e
 una segnalazione non parte. L'isola è la stessa del video
 `b-island.mov`.
+
+**B in `main`** il 2026-11-05 (#786, dde301bd), unita dal Coordinatore;
+anteprima e OTA li segue lui con l'utente.
+
+## Parte C — Fogli e liste (2026-11-05)
+
+Branch `feat/TASK-388-c-sheets-lists` da `main` (dde301bd, con la #760 e la
+#786 dentro); lista dei file approvata dal Coordinatore prima del codice.
+Fatto così (ADR-0329, «Parte C»):
+
+- `src/ui/SheetModal.tsx`: un `Modal` trasparente con `animationType="none"`
+  il cui contenuto sale sulla molla `smooth` e scende allo stesso modo. Il
+  `Modal` resta finché il foglio è giù; chiuso a metà scende da dove si
+  trova, riaperto mentre scende torna su, con il contenuto da capo. Mentre
+  scende non prende tocchi. Con «Riduci movimento» solo una dissolvenza.
+  Passa `onDismiss` (iOS, TASK-358) e ha `onHidden` per chi lo smonta.
+- I sette fogli dal basso che usavano `animationType="slide"` su un `Modal`
+  trasparente: «+» dei messaggi (`AttachButton`), il foglio di un messaggio
+  (`MessageSheet`, che ora si chiude da sé e poi chiama `onClose`), i filtri
+  della ricerca (`FilterSheet`), il super like (`SuperLikeSheet`, solo il
+  foglio), «Tag people» (`TagPeople`), i commenti (`DrawingComments`), il
+  «…» (`ReportMenu`).
+- `src/ui/Cascade.tsx`: `<Cascade index>` fa entrare una riga in
+  dissolvenza, 6 punti più in basso, sulla molla `smooth`, 25 ms dopo la
+  precedente; solo le prime 6. Con «Riduci movimento» le righe ci sono
+  subito. Sulle liste: le conversazioni (`ConversationList`), la campanella
+  (`BellOverlay`), i commenti (`DrawingComments`), i risultati della ricerca
+  (`ResultsGrid`).
+
+Restano come sono: i `Modal` a tutto schermo (Body, Heart zones, Send to a
+friend, il picker dei disegni, `OutlineBoard`, `SharePost`), che salgono con
+la pagina nativa di iOS; le note in dissolvenza; `FeedScreen` (la riga di
+TASK-365); `tokens.ts` (le costanti stanno nei file nuovi).
+
+### Criteri di accettazione (C)
+
+- [x] Il foglio sale sulla molla `smooth`, mai oltre il suo posto di più di
+      un punto; chiuso, scende e poi sparisce, e `onHidden` arriva dopo
+      (`SheetModal.test.tsx`).
+- [x] Riaperto mentre scende: nessun salto, torna su da dove si trova, con
+      il contenuto da capo.
+- [x] Con «Riduci movimento» nessuna molla, solo la dissolvenza.
+- [x] La cascata: righe una dopo l'altra, dal basso, solo le prime 6; con
+      «Riduci movimento» nessun movimento (`Cascade.test.tsx`).
+- [x] «+» dei messaggi: la libreria si apre ancora solo a foglio sparito
+      (TASK-358, `Attachments.test.tsx`).
+- [x] Testi invariati, nessun colore a mano, nessuna dipendenza; solo JS,
+      impronta iOS `6f8bba4c` invariata.
+- [x] Video in `out/TASK-388/c-*` e l'ok dell'utente («Sì, approvo», 2026-11-05).
+
+### File toccati (C)
+
+```
+apps/mobile/src/ui/SheetModal.tsx            (nuovo)
+apps/mobile/src/ui/SheetModal.test.tsx       (nuovo)
+apps/mobile/src/ui/Cascade.tsx               (nuovo)
+apps/mobile/src/ui/Cascade.test.tsx          (nuovo)
+apps/mobile/src/messages/AttachButton.tsx
+apps/mobile/src/messages/MessageSheet.tsx
+apps/mobile/src/messages/ConversationList.tsx
+apps/mobile/src/messages/Attachments.test.tsx
+apps/mobile/src/search/FilterSheet.tsx
+apps/mobile/src/search/ResultsGrid.tsx
+apps/mobile/src/social/SuperLikeSheet.tsx
+apps/mobile/src/social/TagPeople.tsx
+apps/mobile/src/social/DrawingComments.tsx
+apps/mobile/src/social/ReportMenu.tsx
+apps/mobile/src/social/DrawingReactions.test.tsx
+apps/mobile/src/bell/BellOverlay.tsx
+docs/tasks/TASK-388.md
+docs/DECISIONS.md   (righe aggiunte in ADR-0329)
+docs/STATUS.md      (righe aggiunte)
+docs/UI.md
+```
+
+### Esito C
+
+Fatto nel codice e nei test: `SheetModal.test.tsx` 5, `Cascade.test.tsx` 3;
+verdi le cartelle toccate (486) e le schermate che usano questi pezzi (382),
+`tsc` ed eslint puliti. Due test esistenti aspettano ora che il foglio sia
+giù: `Attachments.test.tsx` (la libreria dopo il foglio) e
+`DrawingReactions.test.tsx` (il super like). Video
+`out/TASK-388/c-sheet-list.mov` nella copia del simulatore, app vera senza
+banco di prova: i filtri della ricerca salgono in ~0,35 s e si fermano sul
+posto, si chiudono scendendo; i risultati «Hearts» entrano uno dopo l'altro
+(`c-sheet-frames.jpg`, `c-cascade-frames.jpg`). Approvato dall'utente il
+2026-11-05 («Sì, approvo»); merge del Coordinatore a CI verde.
 
 ## Fuori scope
 

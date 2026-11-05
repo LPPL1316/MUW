@@ -85,6 +85,28 @@ tutto: è corto apposta.
   un tipo non si ricava da una tupla in Python. Uno sport nuovo li allunga di
   un nome; `test_sport_registry_api.py` dice quando non coincidono.
 
+## L'app
+
+- **2026-11-05, TASK-376 B3a — il profilo di ogni sport.** Uno sport è un
+  file di `apps/mobile/src/sports/` con il suo `SportProfile`:
+  - il nome;
+  - le distanze di «Disegna», con passo e partenza;
+  - i numeri di Apple Salute e Health Connect;
+  - la rete del motore sul telefono;
+  - come si contano le calorie;
+  - cosa diventa una corsa senza percorso;
+  - la scritta delle rotte MuW.
+
+  Poi serve una riga in `index.ts`. Le tabelle di prima si ricavano con
+  `tableOf`, uguali e nello stesso ordine: `route/distance.ts`,
+  `health/appleWorkout.ts`, `health/healthConnectWorkout.ts`,
+  `search/searchFilters.ts`, `engine/zones.ts`, `body/energy.ts`,
+  `navigation/freeSport.ts`, `feed/muwLabel.ts`.
+- **Un file di sport importa solo** il contratto, `../i18n` (`tLater`), il
+  tipo `Limits` e `./base`, mai una schermata: lo prova
+  `sportProfiles.test.ts`. I testi restano nelle tabelle `i18n` di oggi; il
+  file dello sport ne tiene la chiave inglese.
+
 ## Il banco e Overpass
 
 - **2026-11-04, TASK-376 — Overpass rifiuta spesso** (502 «pieno», 429

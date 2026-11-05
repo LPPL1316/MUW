@@ -6,6 +6,7 @@ import type {
   RecordingMethod,
 } from "react-native-health-connect";
 
+import { tableOf } from "../sports";
 import { SYNC_VERSION, type Workout } from "./workout";
 
 /**
@@ -15,20 +16,11 @@ import { SYNC_VERSION, type Workout } from "./workout";
  * Pure: only types come from the library, never its code.
  */
 
-/** ExerciseSessionRecord.EXERCISE_TYPE_…, Health Connect's own numbers. */
-const EXERCISE_TYPE: Readonly<Record<RunActivity, number>> = {
-  running: 56,
-  cycling: 8,
-  paddling: 46,
-  // EXERCISE_TYPE_SWIMMING_OPEN_WATER (TASK-323).
-  swimming: 73,
-  // EXERCISE_TYPE_WALKING (TASK-371).
-  walking: 79,
-  // EXERCISE_TYPE_SKIING, downhill and cross-country alike: Health Connect
-  // has no type of its own for the second (TASK-375).
-  skiing: 61,
-  xc_skiing: 61,
-};
+/** ExerciseSessionRecord.EXERCISE_TYPE_…, Health Connect's own numbers:
+ * each sport says its own in src/sports (TASK-376 part B3). */
+const EXERCISE_TYPE = tableOf((sport) => sport.healthConnect) as Readonly<
+  Record<RunActivity, number>
+>;
 
 /** ExerciseSegment.EXERCISE_SEGMENT_TYPE_PAUSE: right for every exercise. */
 const PAUSE_SEGMENT = 39;
