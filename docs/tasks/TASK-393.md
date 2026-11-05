@@ -1,6 +1,6 @@
 # TASK-393 — La CI salta i test sulle PR di soli documenti
 
-**Stato**: In lavorazione · 2026-11-05
+**Stato**: Done · 2026-11-05: #788 in main (d99d2033), unita dal Coordinatore
 **Fase**: 4 · **Branch**: `chore/TASK-393-ci-skip-docs-only`
 **Numeri**: TASK-393 e ADR-0331, assegnati dal Coordinatore. Seguito di
 TASK-248 e TASK-349 (i tempi dei job).
@@ -69,12 +69,12 @@ docs/STATUS.md
 
 ## Criteri di accettazione
 
-- [ ] Una PR di soli documenti: i quattro check obbligatori e `docker`
+- [x] Una PR di soli documenti: i quattro check obbligatori e `docker`
       verdi in meno di un minuto ciascuno, i test saltati (run di prova
       linkato nella PR).
-- [ ] Una PR di codice: gli stessi passi di prima (il run della PR stessa).
-- [ ] Un push nuovo su una PR cancella il run ancora in corso.
-- [ ] `tools/test_ci_changes.py` verde in CI (job route-engine, passo
+- [x] Una PR di codice: gli stessi passi di prima (il run della PR stessa).
+- [x] Un push nuovo su una PR cancella il run ancora in corso.
+- [x] `tools/test_ci_changes.py` verde in CI (job route-engine, passo
       «Tools»).
 
 ## Fuori scope
@@ -91,3 +91,24 @@ documenti col workflow nuovo serve una PR il cui merge commit abbia il
 temporaneo verso un altro branch temporaneo (mai `main`), il secondo con
 quel branch aggiunto a `on.pull_request.branches`. Poi la PR si chiude e i
 due branch si cancellano.
+
+## Esito
+
+#788 in main il 2026-11-05 (d99d2033). I run, linkati nella descrizione
+della #788:
+
+- **soli documenti** (run 42006260553, dalla PR di prova #789): i cinque
+  job verdi in 6–7 s ciascuno, solo checkout e `Changes`, ogni altro passo
+  saltato; `Changes` ha visto un solo percorso, `docs/ci-probe-TASK-393.md`;
+- **run superato** (42006248543): il primo push della prova, cancellato dal
+  secondo arrivato 5 s dopo;
+- **codice** (42006183888, la #788): ogni passo come prima, tutto verde;
+  `api` 30m53s, `route-engine` 8m25s (i 30 test di
+  `tools/test_ci_changes.py` nel passo «Tools»), `docker` 5m01s, `mobile`
+  3m10s, `ai` 21s; `site` 7s, nel suo run;
+- **push su `main`** (42010683683, d99d2033): `Changes` scrive `code=true`
+  e ogni passo gira.
+
+La #789 è chiusa senza merge e i due branch `chore/TASK-393-probe-*` sono
+cancellati. Questa chiusura è la prima PR di soli documenti col workflow
+nuovo in `main`.
