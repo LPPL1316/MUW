@@ -22560,6 +22560,10 @@ dell'utente)**:
    prime 6 righe; una riga che arriva dopo (una pagina in più) entra da
    sola. Su conversazioni, campanella, commenti e risultati della ricerca;
    non su «Feed» (riga di TASK-365 in sospeso).
+5. **C2, lo sfondo che sfuma** (l'utente: «VA BENE», 2026-11-05): il punto
+   2 non resta per dopo. `SheetModal` ha `dim`, uno strato `color.scrim`
+   fermo dietro il foglio che segue la stessa molla del foglio fino a 0,5;
+   oggi lo usa solo `FilterSheet`, l'unico foglio con lo sfondo scuro.
 ## ADR-0245, precisazione — Il contorno di «Draw route» si controlla come parte
 
 **Stato**: Attiva · 2026-11-04 · deciso dall'agente su delega dell'utente
@@ -23114,3 +23118,34 @@ delega dell'utente; la lista dei file l'ha approvata il Coordinatore.
 7. **«Gym» è `ready: false, preview: true`**: si vede solo in Expo Go e
    `preview`. Nelle build dello store si accende col sì dell'utente, dopo
    qualche giorno di B0 in produzione.
+## ADR-0332, precisazione — Il sì e il valore di Salute in una tabella loro, `vo2max`
+
+**Stato**: Attiva · 2026-11-05 · TASK-397 parte A, decisa dall'agente su
+delega dell'utente; file approvati dal Coordinatore. Cambia i punti 1, 2 e
+5 di ADR-0332, non le scelte dell'utente.
+
+**Contesto**: il punto 1 metteva il sì in una colonna degli account, con
+`PATCH /me` e `GET /me`. La tabella è `users` e la forma di `User` sta in
+`accounts.py` (`USER_COLUMNS`, `UserBody`), che la parte A non tocca:
+cambiarla avrebbe allargato il task a un file di tutti.
+
+**Decisione**:
+1. **Una tabella sua**, `vo2max` (migrazione `0049`): `user_id`, `show`,
+   `value`, `source`, `measured_on`, con `CHECK` che vogliono i tre campi
+   del valore insieme e solo col sì.
+2. **Endpoint suoi** in `vo2max.py`: `GET` e `PUT /me/vo2max` (`{"show"}`)
+   al posto di `GET /me` e `PATCH /me`; `PUT` e `DELETE
+   /me/vo2max/reading` per il valore di Salute. La risposta,
+   `Vo2MaxSettings`, dà anche a sì spento il `Vo2Max` che si vedrebbe: è
+   quello che l'app mostra al titolare con «Only you see this».
+3. **Il giorno della stima** è quello della corsa da cui viene, così
+   `measured_on` c'è sempre.
+4. **L'esempio del profilo** in `fixtures/public-profile.json` ha `vo2max:
+   null`: con un oggetto, il JSON letto da TypeScript avrebbe `source:
+   string` e i test dell'app che lo usano come `PublicProfile` non
+   compilerebbero più. La forma intera sta in `fixtures/vo2max-settings.json`.
+
+**Conseguenze**: `accounts.py` non cambia; il profilo prende il campo con
+una sottoquery (`vo2max_sql`) e l'orologio degli account (`Profiles.now`).
+
+---
