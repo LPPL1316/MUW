@@ -1,7 +1,13 @@
-# Gravel e MTB (da decidere)
+# Gravel e MTB («Gravel» 🚲, «MTB» 🚵)
 
-TASK-378, ADR-0322 proposto. Uno sport o due, nomi, emoji, distanze, rete e
-testi sono scelte dell'utente: qui ci sono le misure che le preparano.
+TASK-378, ADR-0322. Le scelte dell'utente del 2026-11-05 sono in
+`tasks/TASK-378.md`:
+
+- Gravel `gravel_biking` sulla rete bike di oggi;
+- MTB `mountain_biking` sulla rete `mtb` qui sotto, fino a `mtb:scale` S2;
+- 10–30 km per tutte e due.
+
+Qui ci sono le misure che hanno preparato le scelte.
 
 ## Le reti provate (TASK-378 parte 0, 2026-11-05)
 
