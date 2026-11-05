@@ -2615,8 +2615,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; seguito di TASK-374 A). #759 in main (`a5c1d5b2`): «kg» e «cm», con le miglia
   «lb», «ft» e «in», stanno nel riquadro dopo il numero; un tocco sull'unità apre la tastiera.
-  Si tiene sempre in kg e cm. Solo JS, impronta dal Coordinatore con l'anteprima; OTA di
-  produzione col sì dell'utente. `tasks/TASK-383.md`.
+  Si tiene sempre in kg e cm. Solo JS, impronta dal Coordinatore con l'anteprima; in produzione
+  con il prossimo OTA del Coordinatore, dopo il server 0043–0046. `tasks/TASK-383.md`.
 - **TASK-389 — Il test della pool che a volte contava tre connessioni** (2026-11-04; seguito di
   TASK-288 B). La terza riga era un autovacuum worker su `spatial_ref_sys`: il test conta solo i
   client, aspetta il numero giusto e legge il conteggio della pool. Sul Mac il file è passato

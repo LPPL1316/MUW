@@ -74,6 +74,8 @@ docs/UI.md
 #759 in `main` il 2026-11-04 (`a5c1d5b2`). Nella pagina «Body» l'unità sta
 dentro il riquadro, dopo il numero: «kg» e «cm», con le miglia «lb», «ft» e
 «in»; un tocco sull'unità apre la tastiera. Si tiene sempre in kg e cm.
-Solo JS: l'impronta la controlla il Coordinatore con l'anteprima; l'OTA di
-produzione parte col sì dell'utente. I «bpm» di «Heart rate zones» sono
-TASK-386 (#761).
+Solo JS: l'impronta la controlla il Coordinatore con l'anteprima. L'utente
+ha detto sì all'OTA di produzione («Sì, OTA ora», 2026-11-05): parte con il
+prossimo OTA del Coordinatore, dopo il giro sul server (migrazioni
+0043–0046), perché `main` dopo `9e2089a9` ha parti che le chiamano. I «bpm»
+di «Heart rate zones» sono TASK-386 (#761).
