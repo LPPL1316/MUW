@@ -152,6 +152,11 @@ https://claude.ai/artifact/XRMFiZ9BWbWnKkdJ9Udtjf. Sei regole, tutte in
    arriva in dissolvenza in 220 ms salendo di 6 pt; i fogli salgono in
    280 ms e rallentano alla fine. Niente rimbalzi. La vibrazione al tocco
    vuole `expo-haptics`, nativo: con una build e il sì dell'utente.
+   **Aggiornato da TASK-388 (ADR-0329):** ciò che si muove si assesta su una
+   molla di `motion.spring` (`snappy`, `smooth`, `island`), appena oltre il
+   segno e mai elastica; `Tap` scende ancora in 120 ms e torna con
+   `snappy`. La vibrazione c'è dove la build ha `expo-haptics` (TASK-361),
+   altrimenti niente. Con «Riduci movimento» solo dissolvenze brevi.
 5. **I due toni disegnati**, non invertiti: la scala dei grigi è pensata
    due volte; `Scrim` è scuro in tutti e due; la linea gialla tiene il
    bordo scuro sul chiaro. Un tono «di sistema» che segue il telefono
@@ -584,6 +589,16 @@ quello delle richieste di follow. VoiceOver legge ogni scheda col suo nome
 («Messages, 3 waiting») e quella sullo schermo come selezionata. La barra è
 quasi opaca (`background` al 95%): il blur vero chiede `expo-blur`, una
 build.
+
+**Il movimento della barra** (TASK-388, ADR-0329): dietro la scheda attiva
+una capsula morbida (`surfaceRaised`) che scivola alla nuova con la molla
+`snappy`, un poco allungata a metà corsa; con lo swipe segue il dito, e dal
+profilo al Feed fa il giro uscendo a destra ed entrando da sinistra.
+L'icona premuta scende a 0,88 e torna appena oltre la misura; quella che
+prende la scheda sale di 1,5 pt e passa dal contorno al pieno in
+dissolvenza. Una vibrazione leggera solo quando un tocco cambia scheda. Con
+«Riduci movimento» la capsula compare in dissolvenza dove va, le icone
+solo sfumano.
 
 **Un header uguale su tutte le pagine**: il cuore giallo e «MuW» a
 sinistra, il pulsante dello sport a destra; nessun nome di pagina in alto
@@ -1220,7 +1235,10 @@ mappa è quella di prima.
   zone: «Zone 1 Recovery», «Zone 2 Endurance», «Zone 3 Tempo», «Zone 4
   Threshold», «Zone 5 Max», ognuna con «108 –» e il limite alto in una
   casella. Il limite alto delle zone 1–4 si scrive a mano e diventa l'inizio
-  della zona dopo; quello della zona 5 è la FC massima. Sotto la tabella, solo
+  della zona dopo; quello della zona 5 è la FC massima. In ogni casella
+  «bpm» sta dentro il riquadro, dopo il numero, e un tocco su di esso apre la
+  tastiera; il limite della zona 5, che non si scrive, non ha riquadro ma
+  tiene «bpm» allo stesso posto (TASK-386). Sotto la tabella, solo
   se un limite è stato cambiato, «Back to calculated zones». Senza anno di
   nascita né FC massima, al posto della tabella: «Add your year of birth or
   your max heart rate to see your zones.». Una FC fuori dai limiti dice

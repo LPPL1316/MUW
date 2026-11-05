@@ -160,6 +160,26 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
+  `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
+  in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
+  migrazione e `.env` sul server col sì dell'utente. Prossimo: la parte B (app). `tasks/TASK-384.md`.
+- **TASK-388 — Movimenti stile Apple: molle condivise, la barra in basso,
+  l'«isola», fogli e liste** (ADR-0329, aggiorna il «mai rimbalzi» di ADR-0293;
+  brief dell'utente del 2026-11-04; numeri dal Coordinatore). Tre parti, una PR
+  ciascuna, solo `Animated` di React Native sul driver nativo, impronta iOS
+  invariata; video prima/dopo e ok dell'utente prima di ogni merge.
+  **Parte A** (branch `feat/TASK-388-a-springs-tab-bar`): `motion.spring`
+  (`snappy`, `smooth`, `island`), `src/ui/motion.ts`, `Tap` che torna con la
+  molla, la capsula della `TabBar` che scivola, icone che salgono e si
+  riempiono, vibrazione al cambio di scheda. La prop `drag` (la capsula segue
+  lo swipe) si cabla in `TabShell` dopo il merge della #764 di TASK-379.
+  Poi B (l'«isola», un solo punto dell'app) e C (fogli e liste, dopo la #760).
+  `tasks/TASK-388.md`.
+  Parte A in PR, la #770, in bozza; aspetto approvato dall'utente il
+  2026-11-04 («Sì, approvo»), impronta iOS 6f8bba4c. Dopo la #764 `TabShell`
+  passa a `TabBar` lo spostamento del dito (`drag`): la capsula segue lo swipe.
+  La unisce il Coordinatore a CI verde.
 - **TASK-383 — «Body»: l'unità di peso e altezza dentro il riquadro**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-374 A). L'utente:
   «aggiungi i cm nel altezza ed i kg». L'unità c'era già, piccola e grigia
@@ -204,6 +224,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   con la regola del motore, e ne toglie gli angoli che si toccano. Solo JS: server, motore,
   contratto e testi invariati, impronta iOS 6f8bba4c. Branch `fix/TASK-382-paddle-edit-422`;
   prova sul telefono e OTA col sì dell'utente. `tasks/TASK-382.md`.
+  **Chiuso il 2026-11-05**: #767 (830a147e) e #769 (f4e7a2ad) in main; vedi «Completato».
 
 - **TASK-389 — Il test della pool che a volte contava tre connessioni**
   (2026-11-04; numero dal Coordinatore; seguito di TASK-288 B; ADR-0249, precisazione).
@@ -221,6 +242,15 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   un suo `SafeAreaProvider`. Branch `fix/TASK-381-share-post-inset`; la unisce il Coordinatore a
   CI verde; OTA col sì dell'utente. Solo app, nessun testo nuovo. `tasks/TASK-381.md`.
   **Chiuso il 2026-11-04**: #750 in main (9e2089a9); vedi «Completato».
+
+- **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro**
+  (2026-11-04; numero dal Coordinatore; seguito di TASK-383 e TASK-374 B). L'utente, dopo
+  «Dentro il riquadro» per peso e altezza: «Sì, task a parte». «bpm» stava piccolo e grigio a
+  destra delle caselle; ora sta dentro, dopo il numero e nella sua dimensione, in «Max heart
+  rate», «Resting heart rate» e nei limiti delle zone 1–4, e un tocco su «bpm» apre la tastiera.
+  La zona 5, che non si scrive, resta senza riquadro con «bpm» allo stesso posto. Branch
+  `fix/TASK-386-zones-bpm-box`; la unisce il Coordinatore a CI verde; OTA col sì dell'utente.
+  Solo app, nessun testo nuovo, `BodyPage.tsx` non toccato. `tasks/TASK-386.md`.
 
 - **TASK-376 — Fase 0 degli sport: il registro, il banco condiviso, la
   ricetta** (ADR-0320 proposto; brief dell'utente del 2026-11-04; numeri dal
@@ -2617,6 +2647,12 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   «lb», «ft» e «in», stanno nel riquadro dopo il numero; un tocco sull'unità apre la tastiera.
   Si tiene sempre in kg e cm. Solo JS, impronta dal Coordinatore con l'anteprima; in produzione
   con il prossimo OTA del Coordinatore, dopo il server 0043–0046. `tasks/TASK-383.md`.
+- **TASK-382 — «Edit the drawing» sull'acqua: il 422 del contorno arrotondato**
+  (2026-11-05; seguito di TASK-369 B). #767 in main (830a147e): `mapdraw/sentOutline.ts`
+  controlla il contorno arrotondato con la regola del motore e ne toglie gli angoli che si
+  toccano. #769 (f4e7a2ad): un 422 «outline: …» dice che il contorno non sta sulle strade (o
+  sull'acqua), mai «Something went wrong». Solo JS, testi esistenti. Prova sul telefono con
+  l'esempio del lago e OTA di produzione col sì dell'utente. `tasks/TASK-382.md`.
 - **TASK-389 — Il test della pool che a volte contava tre connessioni** (2026-11-04; seguito di
   TASK-288 B). La terza riga era un autovacuum worker su `spatial_ref_sys`: il test conta solo i
   client, aspetta il numero giusto e legge il conteggio della pool. Sul Mac il file è passato

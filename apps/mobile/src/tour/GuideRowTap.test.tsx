@@ -9,6 +9,7 @@ import { GuideRow, WatchTourButton } from "./GuideRow";
 
 test("the guide row shrinks under the finger and opens the guide", async () => {
   const timing = jest.spyOn(Animated, "timing");
+  const spring = jest.spyOn(Animated, "spring");
   const onOpen = jest.fn();
   await render(<GuideRow onOpen={onOpen} />);
   const row = screen.getByRole("button");
@@ -18,13 +19,14 @@ test("the guide row shrinks under the finger and opens the guide", async () => {
     expect.objectContaining({ toValue: 1, duration: motion.pressMs }),
   );
   await fireEvent(row, "pressOut");
-  expect(timing).toHaveBeenLastCalledWith(
+  expect(spring).toHaveBeenLastCalledWith(
     expect.anything(),
-    expect.objectContaining({ toValue: 0, duration: motion.releaseMs }),
+    expect.objectContaining({ toValue: 0, ...motion.spring.snappy }),
   );
   await fireEvent.press(row);
   expect(onOpen).toHaveBeenCalledTimes(1);
   timing.mockRestore();
+  spring.mockRestore();
 });
 
 test("«Watch the tour» answers the same way", async () => {
