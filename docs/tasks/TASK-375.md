@@ -161,7 +161,9 @@ Le domande, una alla volta:
 
 1. **Dove compaiono i nomi e chi li vede.** Proposta: nella scheda della
    giornata (il post), per chi può vedere il post; la fine giornata resta
-   com'è, senza aspettare la rete.
+   com'è, senza aspettare la rete. **Risposta dell'utente, 2026-11-05:
+   «Nel post, per tutti».** I nomi stanno nel post della giornata e li
+   vede chiunque può vedere il post.
 2. **Quali comprensori all'inizio.** Proposta: l'Italia, dall'estratto
    che il server ha già; Austria, Svizzera, Francia dopo, con la memoria
    del server misurata.
