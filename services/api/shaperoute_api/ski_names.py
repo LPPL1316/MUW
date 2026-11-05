@@ -23,6 +23,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import shapely
@@ -63,6 +64,19 @@ class SkiNames:
 
 
 NOTHING = SkiNames(lifts=(), pistes=())
+
+
+def names_json(names: SkiNames) -> dict[str, list[dict[str, Any]]]:
+    """`names` as `runs.ski_names` keeps them (migration 0048) and the post
+    shows them: lifts without a name are left out, as the user chose
+    (2026-11-05), so no text names a kind of lift."""
+
+    def rows(used: Sequence[Used]) -> list[dict[str, Any]]:
+        return [
+            {"name": u.name, "type": u.type, "times": u.times} for u in used if u.name
+        ]
+
+    return {"lifts": rows(names.lifts), "pistes": rows(names.pistes)}
 
 
 def ski_names_from(points: Sequence[LatLon], cache_dir: Path) -> SkiNames:

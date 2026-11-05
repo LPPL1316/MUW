@@ -28,6 +28,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import pathlib
 import threading
 import urllib.parse
 from collections import OrderedDict
@@ -89,6 +90,7 @@ from shaperoute_api.schemas import (
     TrackFixBody,
     Walk,
 )
+from shaperoute_api.ski_names import names_json, ski_names_from
 from shaperoute_api.sports import API_SPORTS
 
 # Years of a run a day, and one account cannot fill the database.
@@ -746,6 +748,9 @@ class Activities:
     database: Database
     places: PlaceNames
     now: Callable[[], datetime] = now_utc
+    ski_dir: pathlib.Path | None = None
+    """The ski tiles of the cache (ski_names_api.install_ski_names); None:
+    a day of skiing is saved without its lifts and pistes."""
 
     def listing(
         self,
@@ -807,6 +812,15 @@ class Activities:
             if body.activity in RECORD_ACTIVITIES
             else run_bests(run.track, run.pauses)
         )
+        # The lifts and pistes of a day of skiing, found once, here
+        # (TASK-375 part D2): the post shows them (ski_names_api.py).
+        ski_names = (
+            Jsonb(
+                names_json(ski_names_from([p.latlon for p in run.track], self.ski_dir))
+            )
+            if body.activity == "skiing" and self.ski_dir is not None
+            else None
+        )
         # Asked before the transaction: the service may take seconds.
         place = self.places.name_of(run.start)
         with self.database.connect() as conn:
@@ -831,10 +845,10 @@ class Activities:
                 "INSERT INTO runs (user_id, key, route, route_similarity, shape,"
                 " word, style, title, track, pauses, started_at, distance_m,"
                 " duration_s, score, fidelity, place, created_at, walks, activity,"
-                " route_rotation_deg, climb_m, source)"
+                " route_rotation_deg, climb_m, source, ski_names)"
                 " VALUES (%s, %s, ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s,"
                 " ST_GeomFromText(%s, 4326), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,"
-                " %s, %s, %s)"
+                " %s, %s, %s, %s)"
                 f" RETURNING {COLUMNS}",
                 (
                     user_id,
@@ -859,6 +873,7 @@ class Activities:
                     body.rotation_deg,
                     run.climb_m,
                     body.source,
+                    ski_names,
                 ),
             ).fetchone()
             assert row is not None
@@ -911,7 +926,8 @@ def activities_of(
 ) -> Activities:
     """In the database of the accounts, on the same clock."""
     places: PlaceNames = request.app.state.run_places
-    return Activities(accounts.database, places, accounts.now)
+    ski_dir = getattr(request.app.state, "ski_dir", None)
+    return Activities(accounts.database, places, accounts.now, ski_dir)
 
 
 def activity_routes() -> APIRouter:

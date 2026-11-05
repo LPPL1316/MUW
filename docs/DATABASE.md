@@ -932,6 +932,25 @@ numero è del Coordinatore):
 - Nessuna posizione: un allenamento in palestra non ha luoghi né distanza
   (`distance_m` 0, `place` nullo). Test in `test_gym.py`.
 
+Migrazione `0048_run_ski_names.sql` (TASK-375 parte D2, ADR-0319, `API.md`
+«Ski names»; il numero è del Coordinatore. La `0047` è della palestra, e
+questa non ne ha bisogno):
+
+- **`runs.ski_names`** (`jsonb`, facoltativa, un oggetto): gli impianti presi e
+  le piste fatte in una giornata di sci, in questa forma: `{"lifts": [...],
+  "pistes": [...]}`. Ogni voce è `{"name", "type", "times"}`, nell'ordine
+  della giornata.
+- **Quando si scrive:** l'API la scrive una volta, quando la giornata si
+  salva, dai riquadri dello sci della cache (`ski_names.py`). Le giornate
+  già salvate restano come sono anche con riquadri nuovi.
+- **Senza nome:** gli impianti senza nome non ci sono, come ha scelto
+  l'utente.
+- **Valori vuoti:** `NULL` per ogni altra attività e per una giornata
+  salvata da un server senza i riquadri. Due elenchi vuoti per una
+  giornata in cui non si è trovato niente.
+- Nessuna riga di prima cambia, e nessun backfill: prima di questa nessuna
+  giornata di sci si poteva salvare. Test in `test_ski_names_api.py`.
+
 ## Come si memorizza una traccia
 
 In PostGIS, non come GPX su un disco: le domande «vicino a me» si fanno
