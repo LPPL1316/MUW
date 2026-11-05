@@ -2752,6 +2752,9 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   4**: «Nascosti, gruccia»: i puntini si vedono dopo un tocco sulla foto.
   **Scelta 5**: «L'autore del post»: solo lui vede i totali di aperture e
   «Shop» dei suoi capi, mai chi. Prossimo: il sì sulla proposta intera.
+  **Proposta approvata dall'utente il 2026-11-05** («Sì, approvo»);
+  prossimo: i testi in cinque lingue (app, Help, Termini, Privacy), poi la
+  parte A con l'ADR dal Coordinatore.
 - **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
   Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
   Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,

@@ -1,8 +1,8 @@
 # TASK-394 — I capi che indossi: tag sui propri post con il link al negozio
 
-**Stato**: Proposta · 2026-11-05 · solo documenti, nessun codice. Le scelte
-di prodotto sono dell'utente (sotto, «Le scelte dell'utente»): le cinque
-fatte il 2026-11-05, manca il sì sulla proposta intera; il resto è
+**Stato**: Todo — proposta approvata dall'utente (2026-11-05, «Sì,
+approvo»), con le cinque scelte; prima del codice restano i testi. Le scelte
+di prodotto sono dell'utente (sotto, «Le scelte dell'utente»); il resto è
 deciso dall'agente su delega dell'utente
 **Fase**: 4 · **Branch**: `docs/TASK-394-member-outfit-tags` (proposta,
 #805), `docs/TASK-394-choices` (le scelte, #808), poi una PR per parte
@@ -302,7 +302,8 @@ con le parole dell'utente.
    «L'autore vede i conteggi».
 6. **La proposta intera**, poi **i testi** (app, Help, Termini e Privacy
    nelle cinque lingue), approvati a parte.
-   — *Risposta*: da chiedere.
+   — *Risposta* (2026-11-05): «Sì, approvo», sulla proposta con le cinque
+   scelte. Non copre i testi, che si approvano a parte («I testi», sotto).
 
 ## Prerequisiti dell'utente
 
@@ -377,7 +378,8 @@ Questa PR:
       con i file.
 - [x] Le scelte 1–5 hanno una risposta dell'utente scritta qui
       (2026-11-05).
-- [ ] Il sì dell'utente sulla proposta intera (scelta 6).
+- [x] Il sì dell'utente sulla proposta intera (scelta 6, 2026-11-05).
+- [ ] Il sì dell'utente sui testi nelle cinque lingue.
 
 Le parti (scritti ora, controllati con loro):
 
