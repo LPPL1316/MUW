@@ -171,6 +171,18 @@ Le domande, una alla volta:
    Svizzera, Francia, Germania e Slovenia. Scaricarli e filtrarli sul
    server sono comandi dell'utente.
 3. **I testi** (titolo dell'elenco, la riga senza nomi), in cinque lingue.
+   **Risposta dell'utente, 2026-11-05: «Sì, approvati».**
+
+   | Dove | en · it · de · fr · es |
+   |---|---|
+   | Titolo dell'elenco nel post | «Lifts and pistes» · Impianti e piste · Lifte und Pisten · Remontées et pistes · Remontes y pistas |
+   | Una riga | «{name} ×{times}», uguale in tutte le lingue |
+   | VoiceOver di una riga | «{name}, {times} times» · {name}, {times} volte · {name}, {times}-mal · {name}, {times} fois · {name}, {times} veces |
+   | VoiceOver, una volta sola | «{name}, once» · {name}, una volta · {name}, einmal · {name}, une fois · {name}, una vez |
+
+   Approvate con i testi anche due regole. Gli impianti senza nome non si
+   mostrano, così non serve un testo per ogni tipo. In una giornata senza
+   nomi trovati l'elenco non compare.
 4. **La riga della privacy**: che la traccia della giornata si confronta,
    sul server di MuW, con le linee di OpenStreetMap.
 
