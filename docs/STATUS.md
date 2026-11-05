@@ -2748,7 +2748,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   (2026-11-05): «Ogni link https», con Google Web Risk (Google Cloud, un
   prerequisito dell'utente) e un elenco nostro di domini bloccati. **Scelta
   2**: «No, per ora»: MuW non guadagna sui link degli iscritti. **Scelta 3**:
-  «No, facoltativo»: il link non è obbligatorio, tipo e marca sì.
+  «No, facoltativo»: il link non è obbligatorio, tipo e marca sì. **Scelta
+  4**: «Nascosti, gruccia»: i puntini si vedono dopo un tocco sulla foto.
 - **TASK-397 — Il VO₂ max nel profilo pubblico** (2026-11-05; numeri dal
   Coordinatore, ADR-0332; richiesta dell'utente). Proposta, solo documenti.
   Scelte dell'utente: il valore di Apple Salute / Health Connect quando c'è,

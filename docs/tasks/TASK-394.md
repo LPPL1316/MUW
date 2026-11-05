@@ -273,7 +273,8 @@ con le parole dell'utente.
 4. **Come si vedono i puntini.** Proposta: nascosti, con l'icona della
    gruccia nell'angolo; un tocco sulla foto li mostra. Alternativa: sempre
    visibili, come in Style.
-   — *Risposta*: da chiedere.
+   — *Risposta* (2026-11-05): «Nascosti, gruccia». I post Style continuano
+   a mostrarli sempre.
 5. **Chi vede i conteggi.** Proposta: nessuno nell'app, per ora; il server li
    tiene senza persona, perché serviranno se arriva il guadagno.
    Alternativa: l'autore vede sul suo post quante volte sono stati aperti i
