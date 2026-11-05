@@ -385,6 +385,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   - 2026-11-05: **C2 in `main`** (#783, 9adb22d1), nell'anteprima del
     Coordinatore. La parte C è chiusa. La parte D resta chiusa finché il
     Coordinatore non ne ha parlato con l'utente; poi E (la prova sulla neve).
+  - 2026-11-05: l'utente apre la parte D («INIZIA LA PARTE D»); la proposta
+    è nella #799. Le scelte: i nomi nel post, visibili a tutti; tutte le
+    Alpi. **D1** è sul server ma non va online: l'estratto di impianti e
+    piste, e il loro confronto con la traccia (ADR-0319, punto 11). Nessuna
+    rotta e nessuna migrazione. Prossimo: D2 (API e colonna 0048), con la
+    sua lista al Coordinatore; poi D3 (app), con i testi e la riga della
+    privacy col sì dell'utente.
 - **TASK-371 — La camminata, «Walk»** (ADR-0315, proposta; richiesta
   dell'utente del 2026-11-04; numeri dal Coordinatore). Branch
   `docs/TASK-371-walk` (documenti). Scelte dell'utente: 1–30 km, si aspetta
