@@ -166,6 +166,8 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   `drawing_retrack.py`, nessuna migrazione) in PR; parte B (app + testi +
   `site/privacy`) dopo. Il ricalcolo in produzione è un comando dell'utente,
   col suo sì, solo dopo che la privacy nuova è sul sito. `tasks/TASK-390.md`.
+  **Chiuso il 2026-11-05**: #781 (`ab1215a2`) e #782 (`cb80209a`) in main;
+  vedi «Completato».
 - **TASK-392 — Il logo stilizzato nell'header, non più in cima a «Draw»**
   (2026-11-05; numero dal Coordinatore; ADR-0311, precisazione). L'header delle pagine della
   barra mostra il cuore su giallo (`HeartBadge`, 32 punti) e «MuW» grande in grassetto, al posto
@@ -2730,6 +2732,16 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m**
+  (2026-11-05; ADR-0330). #781 in main (`ab1215a2`): il server tiene in
+  `drawings.track` la traccia intera, senza orari (`shown_track`), e una corsa
+  di 300 m si pubblica; `python -m shaperoute_api.drawing_retrack` conta i
+  disegni tagliati e con `--apply` li ridisegna interi, lasciando chi li vede e
+  le date. #782 in main (`cb80209a`): immagine, video, foto composta e disegno
+  nei messaggi usano la traccia intera; testi e privacy (5 novembre 2026)
+  nelle cinque lingue, in app e in `site/privacy/`. Prossimo, del Coordinatore
+  col sì dell'utente: la privacy sul sito, il server, il ricalcolo (prima
+  conta, poi `--apply`), l'OTA.
 - **TASK-387 — Le app vecchie non ricevono le attività che non sanno leggere**
   (2026-11-05; ADR-0328). #794 in main (`bf02766f`): l'app manda
   `X-MuW-Reads: swimming,walking,skiing,xc_skiing` in ogni richiesta di `ask`;
