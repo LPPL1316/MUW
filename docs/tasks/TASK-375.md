@@ -173,13 +173,27 @@ Le domande, una alla volta:
    **Allargata dall'utente, 2026-11-05: «Sì, tutto il mondo»**, alla
    domanda se si potessero avere tutti i comprensori del mondo. Il codice
    non cambia, perché `ski_extract` legge qualunque estratto. Cambiano solo
-   i comandi del server. Poi l'utente ha chiesto «in più scaricate»: si
-   scaricano 71 estratti Geofabrik dei paesi dove si scia, circa 64 GB,
-   uno per volta. Prima di ogni download lo script guarda lo spazio, e
-   l'estratto intero si cancella dopo i suoi riquadri. Così sul disco
-   servono al massimo circa 8 GB, quanti ne servono per il Canada, il più
-   grande (6,5 GB). I comandi li lancia l'utente, col suo sì, dopo la
-   lettura del Coordinatore.
+   i comandi del server.
+
+   **Il piano.** Si scaricano i sette continenti di Geofabrik, circa
+   89 GB, uno per volta.
+   - Prima di ogni download lo script guarda lo spazio libero.
+   - L'estratto intero si cancella dopo i suoi riquadri.
+   - Ogni continente filtrato si taglia in 36 fasce di 10° di
+     longitudine, perché `ski_extract` tenga in memoria una fascia alla
+     volta.
+
+   **Come procede.** Il Coordinatore dà i comandi all'utente in tre parti:
+   1. l'Europa, partita il 2026-11-05 alle 17:29Z, con 55 GB liberi su
+      40 necessari;
+   2. Nord America e Asia;
+   3. Russia, Sud America, Oceania e Africa.
+
+   **La riserva, se il disco diventasse stretto.** L'utente ha scritto
+   «in più scaricate». La versione di scorta va un paese per volta: sono
+   71 estratti, circa 64 GB in tutto, e al massimo servono circa 8 GB
+   liberi (il Canada). I comandi del server li passa all'utente solo il
+   Coordinatore.
 3. **I testi** (titolo dell'elenco, la riga senza nomi), in cinque lingue.
    **Risposta dell'utente, 2026-11-05: «Sì, approvati».**
 
