@@ -1,6 +1,12 @@
 # TASK-390 — Il disegno intero: via il taglio dei primi e ultimi 200 m
 
-**Stato**: In lavorazione · 2026-11-05
+**Stato**: Done · 2026-11-05
+
+**Esito**: #781 (`ab1215a2`) e #782 (`cb80209a`) in main, CI verde. I disegni
+si vedono interi, partenza e arrivo compresi, nell'API e nell'app; testi e
+privacy nuovi nelle cinque lingue. Restano, del Coordinatore col sì
+dell'utente: la privacy sul sito, il server, `drawing_retrack` (conta, poi
+`--apply`), l'OTA.
 **Fase**: 4 · **Branch**: `feat/TASK-390-a-whole-track` (parte A),
 `feat/TASK-390-b-whole-drawing` (parte B)
 **Numeri**: TASK-390 e ADR-0330, assegnati dal Coordinatore. Cambia il punto
@@ -92,15 +98,15 @@ Parte A:
       ridisegna intero un disegno tagliato, lascia chi lo vede e la data;
       un secondo giro non cambia niente (`test_drawing_retrack.py`).
 - [x] ruff, black e i test toccati verdi in locale.
-- [ ] CI verde.
+- [x] CI verde.
 
 Parte B:
 
-- [ ] Immagine, video, foto composta e disegno in un messaggio usano la
+- [x] Immagine, video, foto composta e disegno in un messaggio usano la
       traccia intera.
-- [ ] I testi approvati nelle cinque lingue, in app e sul sito; nessuna
+- [x] I testi approvati nelle cinque lingue, in app e sul sito; nessuna
       chiave vecchia rimasta.
-- [ ] typecheck, lint, Prettier e i test toccati verdi; CI verde.
+- [x] typecheck, lint, Prettier e i test toccati verdi; CI verde.
 
 ## File toccati
 
