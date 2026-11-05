@@ -60,6 +60,9 @@ class ApiSport:
     """Its words in the API's description of `activity`, if any."""
     record_only: bool = False
     """Recorded without a shape, never planned (TASK-375, ADR-0319)."""
+    trackless: bool = False
+    """Saved without a track, never planned nor sent to Strava (TASK-385,
+    ADR-0327): a workout at the gym."""
     zones: Zones | None = None
     """Drawn on roads: its zones. None on the water, a walk on a run's,
     a day on the snow on none."""

@@ -22842,6 +22842,43 @@ prima della B.
 
 ---
 
+## ADR-0327, precisazione — La parte A: dove sta la palestra nel server e nei tipi
+
+**Stato**: Attiva · 2026-11-05 · TASK-385 parte A, decisa dall'agente su
+delega dell'utente; lista dei file approvata dal Coordinatore.
+
+**Decisione**:
+
+1. **Un endpoint suo**, `PUT /me/gym-sessions/{key}`, invece di
+   `PUT /me/activities/{key}`: quello vuole una traccia di almeno due punti
+   e ci costruisce sopra metri, punteggio, record e gioco. Lì `activity:
+   "gym"` è `422`. La corsa senza traccia ha `distance_m` 0 e nessun luogo.
+2. **Il CHECK dei disegni** non può leggere la corsa: invece di un trigger,
+   una colonna `drawings.trackless` che l'API mette vera pubblicando una
+   corsa senza traccia; il CHECK accetta un disegno visibile senza traccia
+   solo se è `trackless`, e un `trackless` non ha traccia.
+3. **I tipi**: nel server `gym` entra in `RunActivity` e nel registro degli
+   sport (`ApiSport.trackless`); in `shared-types` sta in un gruppo suo,
+   `TRACKLESS_SPORTS` / `TRACKLESS_ACTIVITIES`, **fuori** da
+   `RUN_ACTIVITIES` fino alla parte B0. Dentro, l'app di oggi manderebbe
+   `gym` in `X-MuW-Reads` (`reads.ts` lo ricava da lì) e romperebbero le due
+   mappe di Salute (`Record<RunActivity, …>`) e i profili degli sport di
+   TASK-376 B3: la B0 lo sposta con quelle righe.
+4. **Strava** risponde `422 invalid_request` a una palestra, senza un codice
+   d'errore nuovo nel contratto; `SPORT_TYPES` non la contiene.
+5. **Recuperi e «Show exercises»** in una tabella `gym_sessions`, una riga
+   per corsa; il proprietario vede sempre i suoi esercizi.
+6. **I tetti non rifiutano**: una serie sopra il tetto si salva, ma per i
+   traguardi non conta (`gym_catalog.measured`). Il database tiene solo
+   limiti larghi; i campi di ogni tipo li controlla l'API. Un allenamento
+   dura al più 24 ore e ha al più 500 serie.
+7. **Le risposte lasciano fuori i campi vuoti** di una serie, come
+   `shared-types` li descrive (facoltativi).
+
+**Conseguenze**: nessuna dipendenza, nessun testo dell'app, impronta iOS e
+del motore invariate. Server e migrazione 0047 in produzione col sì
+dell'utente, anche prima della B0: l'header tiene fuori i post senza
+traccia.
 ## ADR-0326, precisazione — MuW Style nell'app (TASK-384 parte B)
 
 **Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente,

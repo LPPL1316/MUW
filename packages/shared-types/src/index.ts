@@ -12,6 +12,7 @@ import {
   PLANNED_SPORTS,
   RECORDED_SPORTS,
   RUNNING,
+  TRACKLESS_SPORTS,
 } from "./sports/index.ts";
 
 /** A point as [latitude, longitude], WGS84, in that order. */
@@ -86,6 +87,13 @@ export type RecordActivity = (typeof RECORD_ACTIVITIES)[number];
  * or one recorded without a shape. */
 export const RUN_ACTIVITIES = [...API_ACTIVITIES, ...RECORD_ACTIVITIES] as const;
 export type RunActivity = (typeof RUN_ACTIVITIES)[number];
+
+/** The activities saved without a track (TASK-385, ADR-0327): a workout at
+ * the gym, PUT /me/gym-sessions/{key}. Not yet in RUN_ACTIVITIES: the app
+ * takes them there with the screens that show a post without a line (part
+ * B0), and with them `gym,trackless` in its X-MuW-Reads (api/reads.ts). */
+export const TRACKLESS_ACTIVITIES = activitiesOf(TRACKLESS_SPORTS);
+export type TracklessActivity = (typeof TRACKLESS_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
  * the app; "file", a GPX, TCX or FIT file of another app, read on the phone
@@ -2506,3 +2514,5 @@ export interface StylePage {
 export interface StyleShop {
   url: string;
 }
+
+export * from "./gym.ts";

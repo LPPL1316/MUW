@@ -51,9 +51,11 @@ BEFORE_STREET_NAMES = {"running": True, "cycling": False}
 def test_the_sports_are_those_of_the_contract_in_its_order() -> None:
     names = [sport.activity for sport in API_SPORTS]
     contract = json.loads(RUN_ACTIVITIES_JSON.read_text("utf-8"))
-    assert names == contract["run_activities"]
+    # A workout at the gym after them (TASK-385): the API saves it, the
+    # contract keeps it apart until the app shows it.
+    assert names == contract["run_activities"] + contract["trackless_activities"]
     assert list(SPORTS_BY_ACTIVITY) == names
-    planned = [s.activity for s in API_SPORTS if not s.record_only]
+    planned = [s.activity for s in API_SPORTS if not s.record_only and not s.trackless]
     assert tuple(planned) == API_ACTIVITIES
     assert list(get_args(RunActivity)) == names
 

@@ -2,7 +2,8 @@
 
 An app says in X-MuW-Reads the kinds it reads besides running, cycling and
 paddling, separated by commas: `swimming`, `walking`, `skiing`, `xc_skiing`,
-and `trackless` for a run or a drawing without a track (TASK-385). A request
+`gym`, and `trackless` for a run or a drawing without a track (TASK-385): a
+workout at the gym, which has none, needs both. A request
 without it comes from a build of before, which reads those three only, each
 with its track. Every list of runs, drawings, routes or group runs leaves
 out what the request does not read; a drawing or a group run it does not
@@ -26,7 +27,14 @@ READS_HEADER = "X-MuW-Reads"
 # What every app has always read (TASK-191 for paddling).
 OLD_APP_ACTIVITIES: tuple[str, ...] = ("running", "cycling", "paddling")
 # The activities added after them, each read only by the apps that say so.
-NEWER_ACTIVITIES: tuple[str, ...] = ("swimming", "walking", "skiing", "xc_skiing")
+NEWER_ACTIVITIES: tuple[str, ...] = (
+    "swimming",
+    "walking",
+    "skiing",
+    "xc_skiing",
+    # A workout at the gym (TASK-385): shown only with `trackless` too.
+    "gym",
+)
 TRACKLESS = "trackless"
 KINDS: tuple[str, ...] = (*NEWER_ACTIVITIES, TRACKLESS)
 

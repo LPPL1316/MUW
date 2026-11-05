@@ -56,6 +56,7 @@ from shaperoute_api.accounts import (
 from shaperoute_api.activities import (
     EPOCH,
     MICROSECOND,
+    TRACKLESS_ACTIVITIES,
     UNKNOWN_ACTIVITY,
     Key,
     RunActivity,
@@ -103,6 +104,9 @@ TAG_UNKNOWN = "Only MuW members can be tagged: one of these is not."
 TAG_YOURSELF = "You cannot tag yourself."
 TAG_TWICE = "Each person is tagged once."
 TOO_SHORT = "This run is too short to publish."
+# A workout at the gym has no track and a run has one (TASK-385): the
+# drawing cannot make one the other.
+NOT_TRACKLESS = "A workout at the gym stays one, and a run stays a run."
 NO_DRAWING = "No drawing with this id."
 PHOTOS_ON_THE_PHONE = (
     "Photos stay on the phone while only you see this run: choose Everyone or"
@@ -676,8 +680,16 @@ class Drawings:
                 # Again on every change, from the run as it is kept: the
                 # same run, the same line.
                 shown = shown_track(_line(run["track"]))
-                if visibility != "only_me" and not shown:
+                # A workout at the gym has no track (TASK-385, ADR-0327):
+                # published without a line, to the apps that read it.
+                trackless = run["track"] is None
+                if visibility != "only_me" and not shown and not trackless:
                     raise AccountError(422, "invalid_request", TOO_SHORT)
+                if (
+                    body.activity is not None
+                    and (body.activity in TRACKLESS_ACTIVITIES) != trackless
+                ):
+                    raise AccountError(422, "invalid_request", NOT_TRACKLESS)
                 before = conn.execute(
                     "SELECT published_at FROM drawings"
                     " WHERE run_id = %s AND visibility <> 'only_me'",
@@ -690,10 +702,11 @@ class Drawings:
                     published_at = now if before is None else before["published_at"]
                 drawing = conn.execute(
                     "INSERT INTO drawings (run_id, title, visibility, description,"
-                    " track, published_at, updated_at) VALUES (%s, %s, %s, %s,"
-                    " ST_GeomFromText(%s, 4326), %s, %s)"
+                    " track, trackless, published_at, updated_at)"
+                    " VALUES (%s, %s, %s, %s, ST_GeomFromText(%s, 4326), %s, %s, %s)"
                     " ON CONFLICT (run_id) DO UPDATE SET title = EXCLUDED.title,"
                     " visibility = EXCLUDED.visibility, track = EXCLUDED.track,"
+                    " trackless = EXCLUDED.trackless,"
                     " published_at = EXCLUDED.published_at,"
                     f" updated_at = EXCLUDED.updated_at{set_description}"
                     " RETURNING id",
@@ -703,6 +716,7 @@ class Drawings:
                         visibility,
                         description,
                         _line_wkt(shown) if shown else None,
+                        trackless,
                         published_at,
                         now,
                     ),

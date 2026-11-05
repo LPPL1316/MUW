@@ -906,6 +906,32 @@ Migrazione `0046_style_posts.sql` (TASK-384 parte A, ADR-0326, `API.md`
 - Nessuna riga di prima cambia, e `drawings` e `GET /feed` non si toccano.
   Test in `test_style_posts.py` e `test_style_import.py`.
 
+Migrazione `0047_gym.sql` (TASK-385 parte A, ADR-0327, `API.md` «Gym»; il
+numero è del Coordinatore):
+
+- **`runs`**: `gym` entra nel CHECK delle attività (letto e allargato, come
+  la 0044); `track` diventa facoltativa, ma solo per `gym`
+  (`runs_track_check`: `track IS NOT NULL OR activity = 'gym'`). Le corse
+  di prima restano come sono.
+- **`drawings`**: una colonna `trackless` (falsa di base), che l'API mette
+  vera quando pubblica una corsa senza traccia. Il CHECK di 0014 (un
+  disegno visibile ha una traccia) diventa `drawings_track_check`:
+  `visibility = 'only_me' OR track IS NOT NULL OR trackless`; e
+  `drawings_trackless_check` vieta un disegno `trackless` con una traccia.
+  `preview` resta nulla per questi.
+- **`gym_sessions`**: una riga per allenamento, chiave la sua corsa (`ON
+  DELETE CASCADE`): `show_exercises`, `rests` (quanti recuperi) e `rest_s`
+  (i loro secondi sommati); ogni recupero resta sul telefono.
+- **`gym_sets`**: le serie in ordine, `(run_id, n)` chiave (`ON DELETE
+  CASCADE`): `exercise` (la chiave del catalogo) **o** `name` (scritto a
+  mano), `kind` (`load`, `bodyweight`, `timed`, `cardio`), `reps`,
+  `load_kg`, `duration_s`, `distance_m`, `speed_kmh`, `incline_pct`,
+  `level`, `floors`, `at_s` (quando è stata segnata, dall'inizio) e `live`
+  (durante l'allenamento o aggiunta dopo). I campi di ogni tipo li
+  controlla `gym_sessions.py`; il database tiene solo i limiti larghi.
+- Nessuna posizione: un allenamento in palestra non ha luoghi né distanza
+  (`distance_m` 0, `place` nullo). Test in `test_gym.py`.
+
 Migrazione `0048_run_ski_names.sql` (TASK-375 parte D2, ADR-0319, `API.md`
 «Ski names»; il numero è del Coordinatore. La `0047` è della palestra, e
 questa non ne ha bisogno):
