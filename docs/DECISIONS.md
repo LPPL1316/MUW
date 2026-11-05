@@ -22056,6 +22056,21 @@ dell'utente):
     Una giornata di 8.000 punti contro 2.000 linee richiede 0,19 s: con D2
     il risultato si scrive una volta in `runs` (migrazione 0048, riservata),
     invece di ricalcolarlo a ogni lettura del Feed.
+12. (D2, 2026-11-05; il modo è deciso dall'agente su delega dell'utente, la
+    rotta a parte d'accordo con il Coordinatore) I nomi si scrivono in
+    `runs.ski_names` (0048) quando si salva una giornata `skiing`, e una
+    volta sola: i riquadri nuovi non cambiano le giornate già salvate. Gli
+    impianti senza nome non si scrivono.
+
+    Il post li dà con una rotta sua, `GET /drawings/{id}/ski-names`, e non
+    con un campo del dettaglio. Così `DrawingDetail`, la sua fixture e la
+    decina di test dell'app che la leggono restano come sono, e
+    `drawings.py` non si tocca. La rotta vede ciò che vede il dettaglio: chi
+    può aprire il post (`drawing_seen_sql`) e solo un'app che legge lo sci
+    (`X-MuW-Reads`, ADR-0328); negli altri casi risponde `404`. Un'altra
+    attività e una giornata senza nomi danno due elenchi vuoti. Il server
+    trova i riquadri nella sua cache (`install_ski_names` in
+    `__main__.py`); senza i riquadri, la giornata si salva senza nomi.
 
 **Conseguenze**: un altro sport senza forma (una camminata in montagna, lo
 scialpinismo) costa una riga in `RECORD_ACTIVITIES`, una migrazione e i

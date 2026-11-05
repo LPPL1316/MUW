@@ -2752,6 +2752,35 @@ codice in `style_posts.py`, `style_links.py` e `style_import.py`.
   errore, e un post già caricato non si sovrascrive. `--hide MS-001` lo
   nasconde.
 
+### Ski names (TASK-375 parte D2, ADR-0319)
+
+`GET /drawings/{id}/ski-names`, con il token: gli impianti presi e le piste
+fatte nella giornata di sci del post.
+
+**Il formato**
+- La risposta ha la forma di `packages/shared-types/fixtures/ski-names.json`,
+  cioè `{"lifts": [...], "pistes": [...]}`.
+- Ogni voce è `{"name", "type", "times"}`, una volta sola e nell'ordine
+  della giornata.
+- `type` è l'`aerialway` dell'impianto o la `piste:difficulty` della pista,
+  vuoto se OSM non la dà.
+- Gli impianti senza nome non ci sono.
+
+**Da dove vengono**
+- I nomi si trovano una volta, quando la giornata si salva (`PUT
+  /me/activities/{key}` con `activity` `skiing`), dai riquadri dello sci
+  della cache (`MAPS.md`, «Impianti e piste da sci da un estratto»).
+- Si confronta la traccia sul server, e la posizione non va ad altri
+  servizi.
+- Un server avviato senza `install_ski_names`, come i test, salva la
+  giornata senza nomi.
+
+**Le risposte**
+- **`404`:** per chi non può vedere il post, come per il dettaglio. Anche
+  per un'app che in `X-MuW-Reads` non dice `skiing` (TASK-387).
+- **Due elenchi vuoti:** per un'altra attività e per una giornata senza
+  nomi trovati. L'app allora non mostra niente.
+
 ### Drawing search (TASK-344, ADR-0297)
 
 La ricerca dei disegni dalla lente del Feed: le stesse regole del feed su

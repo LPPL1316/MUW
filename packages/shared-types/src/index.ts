@@ -1282,6 +1282,28 @@ export interface DrawingDetail extends DrawingFields {
   track: LatLon[];
 }
 
+/** A lift taken or a piste skied in a day of skiing (TASK-375 part D). */
+export interface SkiUse {
+  name: string;
+  /** The lift's aerialway ("chair_lift"…) or the piste's difficulty
+   * ("intermediate"…); empty when OpenStreetMap has none. */
+  type: string;
+  /** How many times, 1 or more. */
+  times: number;
+}
+
+/**
+ * GET /drawings/{id}/ski-names (ADR-0319): the lifts and pistes of a day of
+ * skiing, each once, in the order of the day. Lifts without a name are left
+ * out. Two empty lists for another sport, or a day where none was found:
+ * the post then shows nothing. A 404 as for the drawing itself, also for an
+ * app whose X-MuW-Reads does not say `skiing`.
+ */
+export interface SkiNames {
+  lifts: SkiUse[];
+  pistes: SkiUse[];
+}
+
 /** The limit of a comment, checked by the API too (TASK-120). */
 export const COMMENT_MAX_LENGTH = 500;
 
