@@ -167,6 +167,7 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
   codice e su `main` non cambia niente. Un push nuovo su una PR cancella il run vecchio
   (`concurrency`, anche in `site.yml`). Branch `chore/TASK-393-ci-skip-docs-only`; la unisce
   il Coordinatore a CI verde. `tasks/TASK-393.md`.
+  **Chiuso il 2026-11-05**: #788 in main (d99d2033); vedi «Completato».
 - **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
@@ -2674,6 +2675,11 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## Completato
 
+- **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; ADR-0331). #788 in
+  main (d99d2033): ogni job di `ci.yml` comincia con `tools/ci_changes.py`; se la PR cambia
+  solo `docs/` e `.md` fuori dalle cartelle di codice, i job finiscono verdi in 6–7 s con gli
+  stessi nomi, invece dei 30 minuti di `api`. Codice e `main` girano come prima. Un push nuovo
+  su una PR cancella il run vecchio (`ci.yml` e `site.yml`). `tasks/TASK-393.md`.
 - **TASK-386 — «Heart rate zones»: «bpm» dentro il riquadro** (2026-11-05; seguito di TASK-383 e
   TASK-374 B). #761 in main (cebe5412): «bpm» dentro le caselle di FC massima, a riposo e zone
   1–4, un tocco su «bpm» apre la tastiera; zona 5 senza riquadro, allineata. Solo JS, nessun
