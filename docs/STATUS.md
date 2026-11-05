@@ -160,6 +160,13 @@ Dal 2026-09-24 più sessioni lavorano insieme, con le regole di
 
 ## In lavorazione
 
+- **TASK-393 — La CI salta i test sulle PR di soli documenti** (2026-11-05; numeri dal
+  Coordinatore; ADR-0331; richiesta dell'utente). Ogni job di `ci.yml` comincia con
+  `tools/ci_changes.py`: se la PR cambia solo `docs/` e `.md` fuori dalle cartelle di codice,
+  gli altri passi saltano e i check obbligatori finiscono verdi con lo stesso nome; per il
+  codice e su `main` non cambia niente. Un push nuovo su una PR cancella il run vecchio
+  (`concurrency`, anche in `site.yml`). Branch `chore/TASK-393-ci-skip-docs-only`; la unisce
+  il Coordinatore a CI verde. `tasks/TASK-393.md`.
 - **TASK-384 A — l'API di MuW Style** (2026-11-04; via e migrazione `0046` dal Coordinatore).
   `GET /style`, il post, la foto, i due conteggi senza dati personali, il link di Awin dagli ID
   in `.env`, `style_import.py` per caricare un post approvato. Nessun post caricato; server,
