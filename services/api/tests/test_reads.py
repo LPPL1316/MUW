@@ -52,7 +52,7 @@ def test_every_activity_a_run_says_is_read_by_someone() -> None:
     assert list(get_args(RunActivity)) == [*OLD_APP_ACTIVITIES, *NEWER_ACTIVITIES]
 
 
-@pytest.mark.parametrize("lines", [[], [""], [" "], [","], ["gym, surfing"]])
+@pytest.mark.parametrize("lines", [[], [""], [" "], [","], ["climbing, surfing"]])
 def test_no_value_known_is_an_app_of_before(lines: list[str]) -> None:
     assert reads_from(lines) == OLD_APP
     assert OLD_APP == Reads(("running", "cycling", "paddling"), trackless=False)
@@ -65,7 +65,7 @@ def test_case_and_spaces_do_not_count() -> None:
 
 
 def test_an_unknown_value_is_left_out_and_the_known_ones_kept() -> None:
-    assert reads_from(["gym,walking,surfing"]) == Reads(
+    assert reads_from(["climbing,walking,surfing"]) == Reads(
         ("running", "cycling", "paddling", "walking")
     )
 
@@ -76,10 +76,10 @@ def test_several_lines_of_the_header_add_up() -> None:
     )
 
 
-def test_the_app_of_today_reads_every_activity_but_no_trackless_post() -> None:
+def test_the_app_of_today_reads_everything() -> None:
     reads = reads_from([_fixture()["this_app"]])
-    assert reads.activities == EVERYTHING.activities
-    assert not reads.trackless
+    # A workout at the gym and its post without a line too (TASK-385 B0).
+    assert reads == EVERYTHING
 
 
 def test_shows_asks_the_activity_and_the_track() -> None:

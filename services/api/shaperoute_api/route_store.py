@@ -107,6 +107,9 @@ SAME_ROUTES_AS: dict[str, str] = {
     "c9702b94404d": "5b5e026cea9b",  # every route but a swim
     "11647a97e632": "b9d00c37d28d",  # the swims
     "fb16815e3876": "574fbfba41eb",  # the app's paddling examples
+    # TASK-395: a trace that draws nothing is passed over, not divided by.
+    "e13ded92b52d": "c9702b94404d",  # every route but a swim
+    "db4ee081c4a4": "11647a97e632",  # the swims
 }
 
 

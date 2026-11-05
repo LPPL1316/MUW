@@ -1,9 +1,9 @@
-import {
-  type Activity,
-  DISTANCE_LIMITS_M,
-  MIN_DISTANCE_M,
-} from "@shaperoute/shared-types";
+import { type Activity, MIN_DISTANCE_M } from "@shaperoute/shared-types";
 
+import { profileOf, tableOf } from "../sports";
+import { PADDLING_START_KM } from "../sports/paddling";
+import { MAX_APP_DISTANCE_KM } from "../sports/running";
+import { SWIM_STEP, SWIMMING_START_KM } from "../sports/swimming";
 import {
   type Limits,
   readDistance,
@@ -19,13 +19,8 @@ import {
 } from "../units/distanceInput";
 import { appUnits, type Units } from "../units/units";
 
-/**
- * The longest distance the app offers for a run (ADR-0034). At Trento a new
- * 21 km zone downloads in about 105 s and the route takes 35–50 s, well
- * within the 5 minutes the app waits; a 30 km zone alone takes about 280 s
- * to download. The engine and the contract go up to MAX_DISTANCE_M.
- */
-export const MAX_APP_DISTANCE_KM = 21;
+// Each sport says its own in src/sports (TASK-376 part B3, ADR-0320).
+export { MAX_APP_DISTANCE_KM, PADDLING_START_KM, SWIM_STEP, SWIMMING_START_KM };
 export const MIN_DISTANCE_KM = MIN_DISTANCE_M / 1000;
 
 /**
@@ -39,21 +34,9 @@ export const MIN_DISTANCE_KM = MIN_DISTANCE_M / 1000;
  * 1–30 km (TASK-371, the user's choice): past 21 km the foot zone may take
  * longer to download, as for a run, and the panel warns from 15 km.
  */
-export const APP_DISTANCE_LIMITS_KM: Readonly<
+export const APP_DISTANCE_LIMITS_KM = tableOf((sport) => sport.drawKm) as Readonly<
   Record<Activity, readonly [lowest: number, highest: number]>
-> = {
-  running: [MIN_DISTANCE_KM, MAX_APP_DISTANCE_KM],
-  cycling: [DISTANCE_LIMITS_M.cycling[0] / 1000, DISTANCE_LIMITS_M.cycling[1] / 1000],
-  paddling: [
-    DISTANCE_LIMITS_M.paddling[0] / 1000,
-    DISTANCE_LIMITS_M.paddling[1] / 1000,
-  ],
-  swimming: [
-    DISTANCE_LIMITS_M.swimming[0] / 1000,
-    DISTANCE_LIMITS_M.swimming[1] / 1000,
-  ],
-  walking: [DISTANCE_LIMITS_M.walking[0] / 1000, DISTANCE_LIMITS_M.walking[1] / 1000],
-};
+>;
 
 /** Above this the panel warns that the route takes longer (ADR-0034). */
 export const LONG_DISTANCE_KM = 15;
@@ -65,16 +48,11 @@ export const LONG_DISTANCE_KM = 15;
  * by half a mile, 0.5 to 1.5 (0.8 to 2.4 km: 2 mi are past the 3 km). A
  * walk from 1 to 18.
  */
-export const APP_DISTANCE_LIMITS_MI: Readonly<Record<Activity, Limits>> = {
-  running: milesWithin("running"),
-  cycling: milesWithin("cycling"),
-  paddling: milesWithin("paddling"),
-  swimming: [0.5, 1.5],
-  walking: milesWithin("walking"),
-};
+export const APP_DISTANCE_LIMITS_MI = tableOf((sport) =>
+  sport.drawKm === undefined ? undefined : (sport.drawMi ?? milesWithin(sport.drawKm)),
+) as Readonly<Record<Activity, Limits>>;
 
-function milesWithin(activity: Activity): Limits {
-  const [lowest, highest] = APP_DISTANCE_LIMITS_KM[activity];
+function milesWithin([lowest, highest]: Limits): Limits {
   return wholeMilesWithin(lowest * 1000, highest * 1000);
 }
 
@@ -136,13 +114,9 @@ export function toDistanceM(
 /** What − and + add to the distance; a mile with «Miles». */
 export const DISTANCE_STEP_KM = 1;
 
-/** A swim goes by half a km, or half a mile (TASK-323 C2, the user's
- * choice): 0.5 to 3 km are six steps, whole km would be three. */
-export const SWIM_STEP = 0.5;
-
 /** How far − and + go for `activity`, in its units: one, half for a swim. */
 export function distanceStep(activity: Activity): number {
-  return activity === "swimming" ? SWIM_STEP : DISTANCE_STEP_KM;
+  return profileOf(activity).step ?? DISTANCE_STEP_KM;
 }
 
 /**
@@ -219,18 +193,6 @@ export function offeredDistanceM(
 }
 
 /**
- * Where the distance field starts for paddling (TASK-191, ADR-0169): 2 km,
- * which the shapes fit on the sea too, 200 m off the shore (ADR-0161: the
- * heart up to 3 km); the examples of «Explore» are 2 km as well. A run's
- * 5 km fits the paddling limits, but at sea most shapes do not fit at it.
- */
-export const PADDLING_START_KM = 2;
-
-/** Where it starts for a swim (TASK-323 C2, the user's choice): 1 km, two
- * laps of most shapes on a straight coast (ADR-0283). */
-export const SWIMMING_START_KM = 1;
-
-/**
  * The distance field for a sport, at the opening or just chosen: paddling
  * starts from PADDLING_START_KM; a run and a bike route keep the distance
  * typed, brought within their limits (fitDistance). With «Miles» the same
@@ -241,10 +203,6 @@ export function distanceForSport(
   activity: Activity,
   units: Units = appUnits(),
 ): string {
-  if (activity === "paddling") {
-    return fitDistance(String(PADDLING_START_KM), activity, units);
-  }
-  return activity === "swimming"
-    ? fitDistance(String(SWIMMING_START_KM), activity, units)
-    : fitDistance(text, activity, units);
+  const start = profileOf(activity).startKm;
+  return fitDistance(start === undefined ? text : String(start), activity, units);
 }

@@ -20,6 +20,7 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { Cascade } from "../ui/Cascade";
 import { messageLine } from "./attachmentText";
 import { listWhen } from "./messageTime";
 import { useMessagesDoor } from "./messagesDoor";
@@ -156,12 +157,13 @@ export function ConversationList({ box, visit, onOpen, fetchFn, apiKey }: Props)
         </Text>
       )}
       {list?.kind === "ready" &&
-        list.conversations.map((conversation) => (
-          <Row
-            key={conversation.person.public_id}
-            conversation={conversation}
-            onPress={() => onOpen(conversation.person)}
-          />
+        list.conversations.map((conversation, index) => (
+          <Cascade key={conversation.person.public_id} index={index}>
+            <Row
+              conversation={conversation}
+              onPress={() => onOpen(conversation.person)}
+            />
+          </Cascade>
         ))}
       {list?.kind === "ready" && list.next !== null && (
         <Pressable

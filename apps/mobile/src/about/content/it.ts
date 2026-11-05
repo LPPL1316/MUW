@@ -7,7 +7,7 @@ import type { AboutContent, AboutDocument } from "../documents";
  * as TASK-210 G names them: «Feed», «Disegna», «Esplora».
  */
 
-const UPDATED = "10 ottobre 2026";
+const UPDATED = "5 novembre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B); redated for the whole drawing (TASK-390). */
 const PRIVACY_UPDATED = "5 novembre 2026";
 
@@ -216,7 +216,9 @@ const terms: AboutDocument = {
     },
     {
       heading: "Pubblicità",
-      blocks: ["MuW non mostra pubblicità."],
+      blocks: [
+        "MuW mostra dei post suoi, segnati «Pubblicità · Link affiliati», con i link ai negozi (MuW Style). Se compri da uno di questi link, il negozio paga a MuW una commissione; per te il prezzo non cambia. La vendita è fra te e il negozio: MuW non vende questi prodotti e non risponde di prezzo, disponibilità, consegna o resi. Le foto di questi post sono fatte con l'AI e lo dicono: le persone che vedi non esistono, e i capi sono simili ai prodotti, non sono i prodotti. Puoi togliere questi post dal Feed in «Impostazioni». MuW non mostra altra pubblicità.",
+      ],
     },
     {
       heading: "Servizi di altri",
@@ -336,6 +338,7 @@ const privacy: AboutDocument = {
         "Una corsa spesso parte e finisce davanti a casa. Per questo diventa visibile agli altri iscritti solo dopo che hai scelto «Tutti» o «Follower» sotto «Chi può vederla», e allora vedono la traccia intera, partenza e arrivo compresi, con il titolo che le hai dato, e senza orari, pause né il percorso pianificato. La tua scelta resta su questo telefono per la corsa successiva: parte dall'ultima che hai salvato, la vedi prima di «Salva» e puoi cambiarla. Un'attività aggiunta da un file parte sempre da «Solo io».",
         "Chi può vedere una tua corsa può anche seguirla con «Parti» e salvarne la stessa traccia come file GPX, senza orari.",
         "Una foto che pubblichi può avere dentro l'immagine il disegno della tua corsa. È lo stesso disegno che mostra il Feed.",
+        "Per una giornata di sci, il nostro server confronta la traccia salvata con gli impianti e le piste di OpenStreetMap, che tiene da sé, per scrivere quali hai preso e quante volte. I nomi compaiono nel post, per chi può vederlo. Niente va a un altro servizio.",
       ],
     },
     {
@@ -408,7 +411,7 @@ const privacy: AboutDocument = {
     {
       heading: "Pubblicità",
       blocks: [
-        "MuW non mostra annunci e non usa servizi pubblicitari: nessun dato su di te va a una rete pubblicitaria, e l'app non chiede mai di tracciarti nelle altre app.",
+        "MuW mostra i suoi post Style con i link ai negozi, segnati «Pubblicità · Link affiliati». MuW non usa reti pubblicitarie, e l'app non chiede mai di tracciarti nelle altre app. Quando apri un prodotto o tocchi «Compra», il nostro server aggiunge solo uno al conteggio di quel giorno per quel prodotto: non sa chi sei né quale telefono era. «Compra» apre il sito del negozio nel tuo browser passando dal link della nostra rete di affiliazione, Awin: da lì Awin e il negozio registrano il clic e l'eventuale acquisto, con i loro cookie e secondo le loro informative, perché MuW riceva la commissione. Da loro MuW riceve solo i totali di clic, vendite e commissioni, mai chi sei.",
       ],
     },
     {

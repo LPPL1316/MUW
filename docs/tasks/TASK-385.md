@@ -1,7 +1,7 @@
 # TASK-385 — «Gym» 🏋️: l'allenamento in palestra, senza percorso
 
-**Stato**: Proposto · solo documenti; scelte e testi approvati; nessun
-codice prima che il Coordinatore abbia la lista dei file di ogni parte
+**Stato**: In corso · proposta in `main` (#766, #796); parte A (API e
+database) in PR; ogni parte dopo la sua lista dei file al Coordinatore
 **Fase**: 5 · **Branch**: `docs/TASK-385-gym-proposal` (documenti); il
 codice `feat/TASK-385-a-…`
 **Dipende da**: la #758 (TASK-375 B2), TASK-376 B2 e B3 (il registro degli
@@ -143,21 +143,71 @@ Questa PR (documenti): `docs/tasks/TASK-385.md` (nuovo),
 `docs/sports/gym.md` (nuovo), `docs/DECISIONS.md` (ADR-0327),
 `docs/STATUS.md` (una voce), `docs/INDEX.md` (una riga).
 
-- **A**: `packages/shared-types/src/sports/gym.ts` (nuovo, dopo 376 B2), una
-  fixture e un test nuovi; `services/api/migrations/NNNN_gym.sql` (nuovo,
-  numero dal Coordinatore); `services/api/shaperoute_api/sports/gym.py` e
-  `gym_sets.py` (nuovi); `tests/test_gym.py` (nuovo); punti di
-  registrazione: `RECORD_ACTIVITIES`/`RunActivity`, `activities.py`,
-  `strava.py`, `reads.py` (`gym` in `NEWER_ACTIVITIES`) e
-  `packages/shared-types/fixtures/reads.json` (`gym` in `kinds`), con la
-  prova sul database del filtro «senza traccia» di ADR-0328; `docs/API.md`,
-  `docs/DATABASE.md`. Il filtro dei disegni non si scrive: c'è già
-  (TASK-387, precisazione di ADR-0327 del 2026-11-05).
-- **B0**: `apps/mobile/src/api/drawings.ts` (+ test),
-  `apps/mobile/src/api/reads.ts` (`gym` e `trackless` in `READS`, nello
-  stesso OTA della card), la card e il dettaglio (`feed/FeedPost.tsx`,
-  `social/PublicParts.tsx`); file nuovi `gym/GymPostTile.tsx`,
-  `gym/ExerciseList.tsx`.
+- **A** (lista approvata dal Coordinatore il 2026-11-05, migrazione 0047;
+  branch `feat/TASK-385-a-gym-api`):
+  - file nuovi: `services/api/migrations/0047_gym.sql`,
+    `services/api/shaperoute_api/gym_catalog.py`, `gym_sessions.py`,
+    `sports/gym.py`; `services/api/tests/test_gym.py`,
+    `test_gym_catalog.py`; `packages/shared-types/src/gym.ts`,
+    `src/sports/gym.ts`, `fixtures/gym-exercises.json`,
+    `fixtures/gym-session.json`, `test/gym.test.ts`;
+  - righe in file esistenti: `reads.py` e `fixtures/reads.json` (`gym`),
+    `drawings.py` (`keep()` pubblica senza linea; il disegno non cambia una
+    corsa in palestra né il contrario), `app.py` (il router),
+    `activities.py` (`gym` in `RunActivity`, `TRACKLESS_ACTIVITIES`, `422`
+    per `activity: "gym"`, `_line(None)`), `strava.py` (fuori da
+    `SPORT_TYPES`, `422`), `sports/base.py` (`trackless`) e
+    `sports/__init__.py` (una riga); `shared-types` `src/index.ts`
+    (`TRACKLESS_ACTIVITIES` e la riga di export), `src/sports/base.ts`
+    (`TracklessSport`), `src/sports/index.ts` (una riga),
+    `fixtures/run-activities.json` (`trackless_activities`);
+  - test di prima che contano le attività, una riga ciascuno:
+    `test_sport_registry_api.py`, `test_record_only.py`,
+    `test_walking_api.py`, `test_reads.py` (`gym` non è più un valore
+    sconosciuto);
+  - documenti: `docs/API.md` («Gym» e una riga in `X-MuW-Reads`),
+    `docs/DATABASE.md` (0047), `docs/DECISIONS.md` (precisazione),
+    `docs/STATUS.md` (righe proprie), questo file.
+  `run_gpx.py` non cambia: il GPX di una corsa lo fa solo Strava.
+  `apps/mobile/assets/engine/engine.zip` rifatto
+  (`tools/phone_engine/phone_engine.py engine`): porta i moduli dell'API che
+  il motore del telefono importa, e fra questi il registro degli sport con
+  `sports/gym.py`. Solo un file dell'app, non nativo: impronta iOS invariata.
+- **B0** (lista approvata dal Coordinatore il 2026-11-05; branch
+  `feat/TASK-385-b0-trackless-posts`):
+  - file nuovi: `apps/mobile/src/sports/gym.ts` (🏋️ «Gym», Apple 50
+    `traditionalStrengthTraining`, Health Connect 70 `STRENGTH_TRAINING`,
+    verificati sulle librerie), `gym/catalog.ts` (i 91 esercizi con i nomi),
+    `gym/GymTile.tsx` (il riquadro giallo), `gym/ExerciseList.tsx`,
+    `gym/GymDetail.tsx` (gli esercizi nella scheda del disegno),
+    `api/gym.ts` (`GET /drawings/{id}/exercises`) e i test
+    `gym/catalog.test.ts`, `gym/GymTile.test.tsx`,
+    `gym/ExerciseList.test.tsx`, `api/gym.test.ts`,
+    `feed/tracklessFeed.test.tsx`;
+  - `shared-types`: `src/index.ts` (`RUN_ACTIVITIES` prende
+    `TRACKLESS_ACTIVITIES`), `fixtures/run-activities.json`,
+    `fixtures/reads.json` (`this_app` con `gym,trackless`),
+    `test/runActivities.test.ts`, `test/sportRegistry.test.ts`,
+    `test/gym.test.ts`; nell'API solo i test che leggono le stesse fixture
+    (`test_record_only.py`, `test_sport_registry_api.py`, `test_reads.py`,
+    `test_gym.py`);
+  - righe nell'app: `api/reads.ts` (+ `reads.test.ts`, `accounts.test.ts`),
+    `sports/index.ts`, `sports/sportProfiles.test.ts`,
+    `sports/activityName.test.ts`, `i18n/it.ts`, `de.ts`, `fr.ts`, `es.ts`
+    (tre testi approvati), `activities/snow.ts` (`isTrackless`,
+    `routeActivity`), `social/PublicParts.tsx` (solo il chip «Gym», niente
+    concorso), `feed/FeedPost.tsx` (il riquadro al posto della mappa, la
+    prima foto prima, niente miniatura né km), `social/DrawingCard.tsx`
+    (gli esercizi, il tempo al posto dei km, niente «Draw it near me» né
+    «Edit the drawing»; al posto di `App.tsx`), `social/DrawingsGrid.tsx`,
+    `search/DrawingResultCard.tsx`, `search/ResultsGrid.tsx` (una riga),
+    `activities/ActivitiesList.tsx`, `activities/ActivityCard.tsx` (niente
+    linea, Strava né «Send to a friend»), `share/postRun.ts` (niente
+    distanza per la palestra), `feed/postEnergy.ts` (niente kcal fino alla
+    parte C; aggiunto per tsc, approvato dal Coordinatore);
+  - `contest/ContestCard.tsx` esce: un post di palestra non entra in un
+    concorso. Le mappe di Salute leggono il profilo (TASK-376 B3a): non
+    cambiano.
 - **B**: `apps/mobile/src/sports/gym.ts` (nuovo, dopo 376 B3), file nuovi in
   `apps/mobile/src/gym/` (sessione, catalogo, serie, timer di recupero,
   notifica locale, fine sessione) e i loro test; punti di registrazione:
@@ -214,3 +264,9 @@ I nomi degli esercizi e delle figure sono in `docs/sports/gym.md`.
   l'header unico `X-MuW-Reads` con `trackless`: la palestra lo usa invece di
   un filtro suo (precisazione di ADR-0327). Liste di A e B0 aggiornate qui
   sopra. Il codice aspetta ancora TASK-376 B2 e B3.
+- 2026-11-05: parte A scritta (API, database, tipi; migrazione 0047). Il
+  server può andare col sì dell'utente anche prima della B0: l'header tiene
+  fuori i post senza traccia. Prossima: B0, l'app che li legge.
+- 2026-11-05: parte B0 scritta: l'app legge i post di palestra (riquadro,
+  esercizi, miniature) e manda `gym,trackless`. OTA di produzione col sì
+  dell'utente, prima della parte B.

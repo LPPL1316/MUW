@@ -40,9 +40,12 @@ let fetchSpy: jest.SpiedFunction<typeof fetch>;
 let following: unknown;
 
 function asked(): string[] {
-  return fetchSpy.mock.calls
-    .map(([url]) => String(url).replace(API, ""))
-    .filter((path) => path !== "/contests/current");
+  return (
+    fetchSpy.mock.calls
+      .map(([url]) => String(url).replace(API, ""))
+      // The contest's card and MuW Style (TASK-384) are read beside the feed.
+      .filter((path) => path !== "/contests/current" && !path.startsWith("/style"))
+  );
 }
 
 function Around({

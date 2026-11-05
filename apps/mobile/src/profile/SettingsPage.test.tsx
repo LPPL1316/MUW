@@ -69,12 +69,13 @@ test("the account, by name and email", async () => {
 test("every row works: only the sports to come say «Soon»", async () => {
   await show();
   // The notifications were the last settings to come (TASK-185). The bike
-  // (TASK-190), paddling (TASK-191) and swimming in open water (TASK-323)
-  // are ready in «Sport» (TASK-189); walking (TASK-371), alpine and
-  // cross-country skiing (TASK-375) and paragliding (TASK-305 D0) are the
-  // sports to come.
-  expect(screen.getAllByText("Soon")).toHaveLength(4);
-  expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(4);
+  // (TASK-190), paddling (TASK-191), swimming in open water (TASK-323) and
+  // the alpine ski (TASK-375 D4) are ready in «Sport» (TASK-189); walking
+  // (TASK-371), cross-country skiing (TASK-375) and paragliding (TASK-305
+  // D0) are the sports to come.
+  expect(screen.getAllByText("Soon")).toHaveLength(3);
+  expect(screen.getAllByLabelText(/coming soon$/)).toHaveLength(3);
+  expect(screen.queryByLabelText("Ski, coming soon")).toBeNull();
   expect(screen.queryByLabelText("Open water swim, coming soon")).toBeNull();
   expect(screen.getByLabelText("Walk, coming soon")).toBeOnTheScreen();
   expect(screen.getByLabelText("Paragliding, coming soon")).toBeOnTheScreen();
@@ -143,7 +144,17 @@ test("the notifications are three switches kept in the account, email and push o
   expect(screen.getByText("NOTIFICATIONS")).toBeOnTheScreen();
   const email = screen.getByRole("switch", { name: "Email notifications" });
   const push = screen.getByRole("switch", { name: "Push notifications" });
-  expect(screen.getAllByRole("switch")).toHaveLength(3);
+  // The three of the notifications; MuW Style's is in «Preferences» (TASK-384).
+  const notifications = [
+    "Email notifications",
+    "Push notifications",
+    "Email when I'm away",
+  ];
+  expect(
+    screen
+      .getAllByRole("switch")
+      .filter((row) => notifications.includes(row.props.accessibilityLabel)),
+  ).toHaveLength(3);
   expect(email).not.toBeChecked();
   expect(push).not.toBeChecked();
   expect(screen.getByRole("switch", { name: "Email when I'm away" })).toBeChecked();

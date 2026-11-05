@@ -10,16 +10,16 @@ import {
   View,
 } from "react-native";
 
+import { sportPaceLabel } from "../activities/activityText";
+import { isTrackless } from "../activities/snow";
 import { drawingPhotoSource } from "../api/drawings";
 import { cityName } from "../explore/recommendedRoutes";
 import { RouteThumb } from "../explore/RouteThumb";
-import { t, tLater } from "../i18n";
+import { GymTile } from "../gym/GymTile";
+import { t } from "../i18n";
 import { shapeName } from "../i18n/shapeNames";
 import { bearingOf } from "../map/turnedMap";
-import { paddlePaceLabel } from "../navigation/paddle";
-import { swimPaceLabel } from "../navigation/swim";
 import { durationLabel } from "../screens/FinishScreen";
-import { SPORTS } from "../settings/sport";
 import { useBlockedNow } from "../social/blockedNow";
 import { itemsOf } from "../social/composer/postOrder";
 import { useFollowsDoor } from "../social/followsDoor";
@@ -34,14 +34,15 @@ import {
   radius,
   space,
 } from "../theme/tokens";
+import { DEFAULT_ACTIVITY, findProfile } from "../sports";
 import { Scrim } from "../ui/Scrim";
 import { Tap } from "../ui/Tap";
-import { distanceLabel, paceLabel } from "../units/format";
+import { distanceLabel } from "../units/format";
 import { useUnits } from "../units/useUnits";
 import { ActionBar } from "./ActionBar";
 import { isImportedPost, isShown } from "./feedPosts";
 import { postEnergy } from "./postEnergy";
-import { RouteMap } from "./RouteMap";
+import { drawingHeight, RouteMap } from "./RouteMap";
 import type { SamplePost } from "./sampleFeed";
 import { turnedLine } from "./turnedLine";
 
@@ -69,20 +70,6 @@ export function shapeLabel(shape: string): string {
   return shapeName(shape);
 }
 
-/** The sports' names, as their buttons say them: shown with `t(name)`, in
- * the app's language («Pagaia», «Bici»; TASK-210, part H). */
-const PADDLE = SPORTS.find((sport) => sport.id === "paddle")?.name ?? tLater("Paddle");
-const BIKE = SPORTS.find((sport) => sport.id === "bike")?.name ?? tLater("Bike");
-// Its row is «Soon» in a store build until the app swims (TASK-323 D).
-const SWIM =
-  SPORTS.find((sport) => sport.id === "swim")?.name ?? tLater("Open water swim");
-// «Soon» too, in a store build, until the server walks (TASK-371).
-const WALK = SPORTS.find((sport) => sport.id === "walk")?.name ?? tLater("Walk");
-// A day on the snow (TASK-375): «Soon» too, until the day has its numbers.
-const SKI = SPORTS.find((sport) => sport.id === "ski")?.name ?? tLater("Ski");
-const XC_SKI =
-  SPORTS.find((sport) => sport.id === "xc_ski")?.name ?? tLater("Cross-country ski");
-
 function sameWords(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
@@ -105,33 +92,25 @@ export function postFacts(post: SamplePost): string {
   const what = named !== null && sameWords(named, post.title) ? null : named;
   // A member's drawing has the seconds; an example only its minutes.
   const ms = isShown(post) ? post.drawing.duration_s * 1000 : post.minutes * 60_000;
+  // A workout at the gym has no distance nor pace: its time (TASK-385 B0).
+  const gym = isTrackless(post.activity);
   const facts = [
     what,
-    distanceLabel(post.route_m),
+    gym ? null : distanceLabel(post.route_m),
     durationLabel(post.minutes * 60_000),
-    post.activity === "paddling"
-      ? paddlePaceLabel(post.route_m, ms)
-      : post.activity === "swimming"
-        ? swimPaceLabel(post.route_m, ms)
-        : paceLabel(post.route_m, ms),
+    gym ? null : sportPaceLabel(post.activity, post.route_m, ms),
     postEnergy(post),
   ]
     .filter((fact): fact is string => fact !== null)
     .join(" · ");
+  // The sport's name, as its button says it (src/sports), shown with
+  // `t(name)` in the app's language («Pagaia», «Bici»; TASK-210, part H);
+  // a run says none.
+  const profile = findProfile(post.activity);
   const sport =
-    post.activity === "paddling"
-      ? PADDLE
-      : post.activity === "cycling"
-        ? BIKE
-        : post.activity === "swimming"
-          ? SWIM
-          : post.activity === "walking"
-            ? WALK
-            : post.activity === "skiing"
-              ? SKI
-              : post.activity === "xc_skiing"
-                ? XC_SKI
-                : null;
+    profile === undefined || profile.activity === DEFAULT_ACTIVITY
+      ? null
+      : profile.name;
   const withSport = sport === null ? facts : `${t(sport)} · ${facts}`;
   return isImportedPost(post) ? `${t("Imported")} · ${withSport}` : withSport;
 }
@@ -221,15 +200,25 @@ export function FeedPost({ post, width, onOpen }: Props) {
           source: drawingPhotoSource(apiUrl, state.session.token, photo),
         }))
       : [];
+  // A workout at the gym has no line: its tile in place of the map, and
+  // never ordered, its first photo first (the user's choice, TASK-385).
+  const gym = isTrackless(post.activity);
   // The pages in the post's order, the map among the photos (TASK-348,
   // ADR-0301); never ordered, the map first.
+  const order = isShown(post) ? post.drawing.order : null;
+  const ordered = itemsOf(
+    order,
+    photos.map((photo) => photo.n),
+  );
   const pages =
     photos.length === 0
       ? []
-      : itemsOf(
-          isShown(post) ? post.drawing.order : null,
-          photos.map((photo) => photo.n),
-        );
+      : gym && (order === null || order === undefined)
+        ? [
+            ...ordered.filter((item) => item.kind !== "drawing"),
+            { kind: "drawing" as const },
+          ]
+        : ordered;
   // Each page of the photos takes a tap itself (TASK-330): were the card
   // the one touched, iOS would not let the photos scroll inside it, and the
   // swipe would turn the app's page to «Draw» instead. A page is as wide as
@@ -275,7 +264,13 @@ export function FeedPost({ post, width, onOpen }: Props) {
           title: post.title,
           facts: heard,
         });
-  const drawing = (
+  const drawing = gym ? (
+    <GymTile
+      width={width}
+      height={drawingHeight(width)}
+      durationS={isShown(post) ? post.drawing.duration_s : post.minutes * 60}
+    />
+  ) : (
     <RouteMap
       id={post.id}
       line={post.line}
@@ -298,15 +293,18 @@ export function FeedPost({ post, width, onOpen }: Props) {
   const wordsOnPhoto = (
     <>
       <Scrim height={SCRIM_HEIGHT} />
-      <View
-        style={styles.thumb}
-        pointerEvents="none"
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        testID="feed-photo-thumb"
-      >
-        <RouteThumb line={upright} width={THUMB} height={THUMB} />
-      </View>
+      {/* No figure in the corner of a workout at the gym: it has none. */}
+      {!gym && (
+        <View
+          style={styles.thumb}
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          testID="feed-photo-thumb"
+        >
+          <RouteThumb line={upright} width={THUMB} height={THUMB} />
+        </View>
+      )}
       <View
         style={styles.wordsOnPhoto}
         pointerEvents="none"

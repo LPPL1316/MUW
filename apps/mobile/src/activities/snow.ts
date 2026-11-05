@@ -3,6 +3,8 @@ import {
   RECORD_ACTIVITIES,
   type RecordActivity,
   type RunActivity,
+  TRACKLESS_ACTIVITIES,
+  type TracklessActivity,
 } from "@shaperoute/shared-types";
 
 /**
@@ -23,11 +25,30 @@ export function isOnSnow(
   );
 }
 
-/** The activity of a route, or none for a day on the snow, which has none. */
+/**
+ * A workout at the gym (TASK-385, ADR-0327): saved without a track, its
+ * post shows its numbers in place of the line, and like a day on the snow
+ * it has nothing of a route.
+ */
+export function isTrackless(
+  activity: RunActivity | null | undefined,
+): activity is TracklessActivity {
+  return (
+    activity !== null &&
+    activity !== undefined &&
+    (TRACKLESS_ACTIVITIES as readonly string[]).includes(activity)
+  );
+}
+
+/** The activity of a route, or none for a day on the snow or a workout at
+ * the gym, which have none. */
 export function routeActivity(
   activity: RunActivity | null | undefined,
 ): Activity | undefined {
-  return activity === null || activity === undefined || isOnSnow(activity)
+  return activity === null ||
+    activity === undefined ||
+    isOnSnow(activity) ||
+    isTrackless(activity)
     ? undefined
     : activity;
 }

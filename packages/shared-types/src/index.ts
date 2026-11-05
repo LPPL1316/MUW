@@ -12,6 +12,7 @@ import {
   PLANNED_SPORTS,
   RECORDED_SPORTS,
   RUNNING,
+  TRACKLESS_SPORTS,
 } from "./sports/index.ts";
 
 /** A point as [latitude, longitude], WGS84, in that order. */
@@ -82,9 +83,20 @@ export type ApiActivity = (typeof API_ACTIVITIES)[number];
 export const RECORD_ACTIVITIES = activitiesOf(RECORDED_SPORTS);
 export type RecordActivity = (typeof RECORD_ACTIVITIES)[number];
 
-/** What a saved run was (PUT /me/activities/{key}): an activity of the API,
- * or one recorded without a shape. */
-export const RUN_ACTIVITIES = [...API_ACTIVITIES, ...RECORD_ACTIVITIES] as const;
+/** The activities saved without a track (TASK-385, ADR-0327): a workout at
+ * the gym, PUT /me/gym-sessions/{key}. The app reads them since part B0,
+ * which shows a post without a line. */
+export const TRACKLESS_ACTIVITIES = activitiesOf(TRACKLESS_SPORTS);
+export type TracklessActivity = (typeof TRACKLESS_ACTIVITIES)[number];
+
+/** What a saved run was: an activity of the API, one recorded without a
+ * shape (PUT /me/activities/{key}), or one saved without a track
+ * (PUT /me/gym-sessions/{key}). */
+export const RUN_ACTIVITIES = [
+  ...API_ACTIVITIES,
+  ...RECORD_ACTIVITIES,
+  ...TRACKLESS_ACTIVITIES,
+] as const;
 export type RunActivity = (typeof RUN_ACTIVITIES)[number];
 
 /** Where a saved run comes from (TASK-312, ADR-0272): "muw", recorded by
@@ -1280,6 +1292,28 @@ export interface DrawingDetail extends DrawingFields {
   public: boolean;
   /** Empty only for the owner's private run too short to publish. */
   track: LatLon[];
+}
+
+/** A lift taken or a piste skied in a day of skiing (TASK-375 part D). */
+export interface SkiUse {
+  name: string;
+  /** The lift's aerialway ("chair_lift"…) or the piste's difficulty
+   * ("intermediate"…); empty when OpenStreetMap has none. */
+  type: string;
+  /** How many times, 1 or more. */
+  times: number;
+}
+
+/**
+ * GET /drawings/{id}/ski-names (ADR-0319): the lifts and pistes of a day of
+ * skiing, each once, in the order of the day. Lifts without a name are left
+ * out. Two empty lists for another sport, or a day where none was found:
+ * the post then shows nothing. A 404 as for the drawing itself, also for an
+ * app whose X-MuW-Reads does not say `skiing`.
+ */
+export interface SkiNames {
+  lifts: SkiUse[];
+  pistes: SkiUse[];
 }
 
 /** The limit of a comment, checked by the API too (TASK-120). */
@@ -2484,3 +2518,5 @@ export interface StylePage {
 export interface StyleShop {
   url: string;
 }
+
+export * from "./gym.ts";

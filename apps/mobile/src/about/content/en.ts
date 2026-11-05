@@ -10,7 +10,7 @@ import type { AboutContent, AboutDocument } from "../documents";
  * fill, and nothing here may be made up to fill them.
  */
 
-const UPDATED = "10 October 2026";
+const UPDATED = "5 November 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day the contacts (TASK-262 C), the figure drawn by hand (TASK-320), the activities added from a file (TASK-312 B), Apple Health and Health Connect (TASK-321 B) and the drawing inside a published photo (TASK-348) entered; redated for the whole drawing (TASK-390). */
 const PRIVACY_UPDATED = "5 November 2026";
 
@@ -219,7 +219,9 @@ const terms: AboutDocument = {
     },
     {
       heading: "Advertising",
-      blocks: ["MuW shows no advertising."],
+      blocks: [
+        "MuW shows posts of its own, marked «Ad · Affiliate links», with links to shops (MuW Style). If you buy through one of these links, the shop pays MuW a commission; the price for you does not change. The sale is between you and the shop: MuW does not sell these products and does not answer for their price, availability, delivery or returns. The photos of these posts are made with AI and say so: the people in them do not exist, and the items shown are similar to the products, not the products themselves. You can hide these posts from the Feed in «Settings». MuW shows no other advertising.",
+      ],
     },
     {
       heading: "Services of others",
@@ -339,6 +341,7 @@ const privacy: AboutDocument = {
         "A run often starts and ends at your door. This is why a run becomes visible to the other members only after you choose «Everyone» or «Followers» under «Who can see it», and then they see the whole track, start and end included, with the title you gave it, and without times, pauses or the planned route. Your choice is kept on this phone for your next run: it starts from the last one you saved, you see it before «Save», and you can change it. An activity added from a file always starts on «Only me».",
         "Whoever can see one of your runs can also follow it with «Start» and save that same track as a GPX file, without times.",
         "A photo you publish can have the drawing of your run inside the picture. It is the same drawing the Feed shows.",
+        "For a day of skiing, our server compares the saved track with the lifts and pistes of OpenStreetMap, which it keeps itself, to write which ones you took and how many times. The names show on the post, for whoever can see it. Nothing goes to another service.",
       ],
     },
     {
@@ -411,7 +414,7 @@ const privacy: AboutDocument = {
     {
       heading: "Advertising",
       blocks: [
-        "MuW shows no adverts and uses no advertising service: nothing about you goes to an advertising network, and the app never asks to track you across other apps.",
+        "MuW shows its own Style posts with links to shops, marked «Ad · Affiliate links». MuW uses no advertising network, and the app never asks to track you across other apps. When you open a product or tap «Shop», our server only adds one to that day's count for that product: it does not know who you are or which phone it was. «Shop» opens the shop's site in your browser through the link of our affiliate network, Awin: from there Awin and the shop record the click and any purchase, with their cookies and under their own privacy policies, so that MuW can be paid its commission. From them MuW receives only totals of clicks, sales and commissions, never who you are.",
       ],
     },
     {

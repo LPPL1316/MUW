@@ -19,7 +19,9 @@ import {
   space,
 } from "../theme/tokens";
 import { useUnits } from "../units/useUnits";
+import { clockLabel } from "../navigation/freeRun";
 import { runFacts, startedLabel, whereAndWhat } from "./activityText";
+import { isTrackless } from "./snow";
 
 type Props = {
   activity: ActivityDetail;
@@ -47,6 +49,9 @@ export function ActivityCard({ activity, onList, onDelete }: Props) {
   useUnits();
   const withRoute = activity.points !== null;
   const imported = isImported(activity);
+  // A workout at the gym (TASK-385 B0): no line, no distance, nothing to
+  // send as a route nor to Strava.
+  const gym = isTrackless(activity.activity);
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -56,14 +61,18 @@ export function ActivityCard({ activity, onList, onDelete }: Props) {
           {imported && <ImportedMark />}
         </View>
       </View>
-      <Text style={styles.facts}>{runFacts(activity)}</Text>
-      <Text style={styles.message}>
-        {t(
-          withRoute
-            ? "Yellow: the route. White: what you ran."
-            : "White: what you ran.",
-        )}
+      <Text style={styles.facts}>
+        {gym ? clockLabel(activity.duration_s * 1000) : runFacts(activity)}
       </Text>
+      {!gym && (
+        <Text style={styles.message}>
+          {t(
+            withRoute
+              ? "Yellow: the route. White: what you ran."
+              : "White: what you ran.",
+          )}
+        </Text>
+      )}
       {!confirming && <SharePostButton makeRun={() => postOfActivity(activity)} />}
       {!confirming && (
         <PublicRow
@@ -73,8 +82,8 @@ export function ActivityCard({ activity, onList, onDelete }: Props) {
           rotationDeg={activity.rotation_deg ?? null}
         />
       )}
-      {!confirming && !imported && <StravaActivityRow activity={activity} />}
-      {!confirming && (
+      {!confirming && !imported && !gym && <StravaActivityRow activity={activity} />}
+      {!confirming && !gym && (
         <SendDrawingButton
           drawing={() => drawingOfRun(activity)}
           style={styles.button}

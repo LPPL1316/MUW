@@ -788,6 +788,11 @@ export const DE: Table = {
   "Top speed": "Höchsttempo",
   Lifts: "Liftfahrten",
 
+  // src/social/SkiNamesList.tsx (TASK-375 part D)
+  "Lifts and pistes": "Lifte und Pisten",
+  "{name}, {times} times": "{name}, {times}-mal",
+  "{name}, once": "{name}, einmal",
+
   // src/screens/SignInScreen.tsx
   "Sign up": "Registrieren",
   "Log in": "Anmelden",
@@ -1153,6 +1158,11 @@ export const DE: Table = {
   // src/settings/sport.ts, social/PublicParts.tsx (TASK-375: a day on the snow)
   Ski: "Ski",
   "Cross-country ski": "Langlauf",
+  // src/sports/gym.ts, src/gym/ (TASK-385 B0: a workout at the gym)
+  Gym: "Fitnessstudio",
+  "{n} exercises · {s} sets": "{n} Übungen · {s} Sätze",
+  "{n} rests · avg {time} · {total} resting":
+    "{n} Satzpausen · Ø {time} · {total} Pause",
   // src/screens/ChooseScreen.tsx (TASK-375)
   "No shapes on the slopes: MuW records your day.":
     "Keine Formen auf der Piste: MuW zeichnet deinen Tag auf.",

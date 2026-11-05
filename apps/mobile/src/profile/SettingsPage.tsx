@@ -15,6 +15,7 @@ import { LanguageSetting } from "../settings/LanguageSetting";
 import { NotificationsSetting } from "../settings/NotificationsSetting";
 import { PhoneSetting } from "../settings/PhoneSetting";
 import { SportSetting } from "../settings/SportSetting";
+import { StyleSetting } from "../settings/StyleSetting";
 import { ToneSetting } from "../settings/ToneSetting";
 import { UnitsSetting } from "../settings/UnitsSetting";
 import { useFeedbackService } from "../settings/useFeedbackService";
@@ -90,6 +91,8 @@ export function SettingsPage({
         <UnitsSetting />
         <BodySetting />
         <ToneSetting />
+        {/* MuW Style is advertising: it can be turned off (TASK-384). */}
+        <StyleSetting />
       </Section>
       {/* Kept in the account; nothing is sent yet (TASK-185). */}
       <Section label={t("NOTIFICATIONS")}>

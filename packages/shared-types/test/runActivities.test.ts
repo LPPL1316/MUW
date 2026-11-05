@@ -11,6 +11,7 @@ import {
   type RecordActivity,
   RUN_ACTIVITIES,
   type RunActivity,
+  TRACKLESS_ACTIVITIES,
 } from "../src/index.ts";
 
 // The same JSON is checked by the API's test_record_only.py (TASK-375).
@@ -18,7 +19,11 @@ import {
 test("a saved run says an activity of the API or one recorded without a shape", () => {
   assert.deepEqual([...RECORD_ACTIVITIES], fixture.record_activities);
   assert.deepEqual([...RUN_ACTIVITIES], fixture.run_activities);
-  assert.deepEqual([...RUN_ACTIVITIES], [...API_ACTIVITIES, ...RECORD_ACTIVITIES]);
+  // And a workout at the gym, saved without a track (TASK-385).
+  assert.deepEqual(
+    [...RUN_ACTIVITIES],
+    [...API_ACTIVITIES, ...RECORD_ACTIVITIES, ...TRACKLESS_ACTIVITIES],
+  );
 });
 
 test("the route engine plans none of the activities recorded without a shape", () => {

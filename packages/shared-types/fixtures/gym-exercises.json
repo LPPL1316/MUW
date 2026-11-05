@@ -1,0 +1,305 @@
+{
+  "note": "TASK-385, ADR-0327: the catalog of docs/sports/gym.md, read by the tests of the API and of the app. Loads in kg (a dumbbell's per hand), distances in metres, times in seconds.",
+  "figures": ["mouse", "rabbit", "fox", "wolf", "bear", "rhino", "gorilla"],
+  "scales": {
+    "L-XL": {
+      "measure": "load_kg",
+      "levels": [40, 80, 120, 160, 200, 250, 300],
+      "cap": 1000
+    },
+    "L-big": {
+      "measure": "load_kg",
+      "levels": [40, 60, 80, 100, 140, 180, 220],
+      "cap": null
+    },
+    "L-M": {
+      "measure": "load_kg",
+      "levels": [20, 40, 60, 80, 100, 120, 140],
+      "cap": 350
+    },
+    "L-S": { "measure": "load_kg", "levels": [10, 20, 30, 40, 50, 60, 80], "cap": 200 },
+    "L-XS": { "measure": "load_kg", "levels": [4, 6, 8, 10, 14, 18, 24], "cap": 80 },
+    "B-hard": { "measure": "reps", "levels": [1, 3, 5, 10, 15, 20, 30], "cap": 150 },
+    "B-easy": {
+      "measure": "reps",
+      "levels": [10, 20, 30, 40, 50, 75, 100],
+      "cap": 500
+    },
+    "T": {
+      "measure": "duration_s",
+      "levels": [30, 60, 120, 180, 300, 480, 600],
+      "cap": 7200
+    },
+    "C-run": {
+      "measure": "distance_m",
+      "levels": [1000, 3000, 5000, 10000, 15000, 21000, 42000],
+      "cap": 100000
+    },
+    "C-bike": {
+      "measure": "distance_m",
+      "levels": [5000, 10000, 20000, 30000, 40000, 60000, 100000],
+      "cap": 300000
+    },
+    "C-row": {
+      "measure": "distance_m",
+      "levels": [1000, 2000, 5000, 10000, 15000, 21000, 42000],
+      "cap": 100000
+    },
+    "C-time": {
+      "measure": "duration_s",
+      "levels": [300, 600, 900, 1200, 1800, 2700, 3600],
+      "cap": 14400
+    }
+  },
+  "exercises": [
+    {
+      "key": "bench_press",
+      "group": "chest",
+      "kind": "load",
+      "scale": "L-M",
+      "cap": 360
+    },
+    { "key": "incline_bench_press", "group": "chest", "kind": "load", "scale": "L-M" },
+    { "key": "decline_bench_press", "group": "chest", "kind": "load", "scale": "L-M" },
+    {
+      "key": "dumbbell_bench_press",
+      "group": "chest",
+      "kind": "load",
+      "scale": "L-XS"
+    },
+    { "key": "dumbbell_fly", "group": "chest", "kind": "load", "scale": "L-XS" },
+    { "key": "chest_press_machine", "group": "chest", "kind": "load", "scale": "L-M" },
+    { "key": "pec_deck", "group": "chest", "kind": "load", "scale": "L-S" },
+    { "key": "cable_crossover", "group": "chest", "kind": "load", "scale": "L-S" },
+    { "key": "push_up", "group": "chest", "kind": "bodyweight", "scale": "B-easy" },
+    { "key": "dips", "group": "chest", "kind": "bodyweight", "scale": "B-hard" },
+    {
+      "key": "deadlift",
+      "group": "back",
+      "kind": "load",
+      "scale": "L-big",
+      "cap": 510
+    },
+    { "key": "pull_up", "group": "back", "kind": "bodyweight", "scale": "B-hard" },
+    { "key": "chin_up", "group": "back", "kind": "bodyweight", "scale": "B-hard" },
+    { "key": "assisted_pull_up", "group": "back", "kind": "load", "scale": null },
+    { "key": "lat_pulldown", "group": "back", "kind": "load", "scale": "L-M" },
+    { "key": "seated_cable_row", "group": "back", "kind": "load", "scale": "L-M" },
+    { "key": "row_machine", "group": "back", "kind": "load", "scale": "L-M" },
+    { "key": "barbell_row", "group": "back", "kind": "load", "scale": "L-M" },
+    { "key": "dumbbell_row", "group": "back", "kind": "load", "scale": "L-S" },
+    { "key": "t_bar_row", "group": "back", "kind": "load", "scale": "L-M" },
+    { "key": "straight_arm_pulldown", "group": "back", "kind": "load", "scale": "L-S" },
+    {
+      "key": "back_extension",
+      "group": "back",
+      "kind": "bodyweight",
+      "scale": "B-easy"
+    },
+    {
+      "key": "back_squat",
+      "group": "legs",
+      "kind": "load",
+      "scale": "L-big",
+      "cap": 510
+    },
+    { "key": "front_squat", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "smith_squat", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "leg_press", "group": "legs", "kind": "load", "scale": "L-XL" },
+    { "key": "hack_squat", "group": "legs", "kind": "load", "scale": "L-XL" },
+    { "key": "leg_extension", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "leg_curl", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "romanian_deadlift", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "lunge", "group": "legs", "kind": "load", "scale": "L-XS" },
+    {
+      "key": "bulgarian_split_squat",
+      "group": "legs",
+      "kind": "load",
+      "scale": "L-XS"
+    },
+    { "key": "step_up", "group": "legs", "kind": "load", "scale": "L-XS" },
+    {
+      "key": "hip_thrust",
+      "group": "legs",
+      "kind": "load",
+      "scale": "L-big",
+      "cap": 600
+    },
+    { "key": "glute_machine", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "hip_abduction", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "hip_adduction", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "standing_calf_raise", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "seated_calf_raise", "group": "legs", "kind": "load", "scale": "L-M" },
+    { "key": "overhead_press", "group": "shoulders", "kind": "load", "scale": "L-S" },
+    {
+      "key": "dumbbell_shoulder_press",
+      "group": "shoulders",
+      "kind": "load",
+      "scale": "L-XS"
+    },
+    {
+      "key": "shoulder_press_machine",
+      "group": "shoulders",
+      "kind": "load",
+      "scale": "L-S"
+    },
+    { "key": "lateral_raise", "group": "shoulders", "kind": "load", "scale": "L-XS" },
+    { "key": "front_raise", "group": "shoulders", "kind": "load", "scale": "L-XS" },
+    { "key": "rear_delt_fly", "group": "shoulders", "kind": "load", "scale": "L-XS" },
+    { "key": "reverse_pec_deck", "group": "shoulders", "kind": "load", "scale": "L-S" },
+    { "key": "face_pull", "group": "shoulders", "kind": "load", "scale": "L-S" },
+    { "key": "upright_row", "group": "shoulders", "kind": "load", "scale": "L-S" },
+    { "key": "shrug", "group": "shoulders", "kind": "load", "scale": "L-M" },
+    { "key": "barbell_curl", "group": "arms", "kind": "load", "scale": "L-S" },
+    { "key": "dumbbell_curl", "group": "arms", "kind": "load", "scale": "L-XS" },
+    { "key": "hammer_curl", "group": "arms", "kind": "load", "scale": "L-XS" },
+    { "key": "preacher_curl", "group": "arms", "kind": "load", "scale": "L-S" },
+    { "key": "cable_curl", "group": "arms", "kind": "load", "scale": "L-S" },
+    { "key": "biceps_curl_machine", "group": "arms", "kind": "load", "scale": "L-S" },
+    { "key": "triceps_pushdown", "group": "arms", "kind": "load", "scale": "L-S" },
+    { "key": "skull_crusher", "group": "arms", "kind": "load", "scale": "L-S" },
+    {
+      "key": "overhead_triceps_extension",
+      "group": "arms",
+      "kind": "load",
+      "scale": "L-XS"
+    },
+    {
+      "key": "close_grip_bench_press",
+      "group": "arms",
+      "kind": "load",
+      "scale": "L-M"
+    },
+    { "key": "triceps_machine", "group": "arms", "kind": "load", "scale": "L-S" },
+    { "key": "wrist_curl", "group": "arms", "kind": "load", "scale": "L-XS" },
+    { "key": "crunch", "group": "core", "kind": "bodyweight", "scale": "B-easy" },
+    { "key": "ab_crunch_machine", "group": "core", "kind": "load", "scale": "L-S" },
+    { "key": "cable_crunch", "group": "core", "kind": "load", "scale": "L-S" },
+    {
+      "key": "hanging_leg_raise",
+      "group": "core",
+      "kind": "bodyweight",
+      "scale": "B-hard"
+    },
+    {
+      "key": "russian_twist",
+      "group": "core",
+      "kind": "bodyweight",
+      "scale": "B-easy"
+    },
+    { "key": "ab_wheel", "group": "core", "kind": "bodyweight", "scale": "B-hard" },
+    { "key": "plank", "group": "core", "kind": "timed", "scale": "T" },
+    { "key": "side_plank", "group": "core", "kind": "timed", "scale": "T" },
+    { "key": "wall_sit", "group": "core", "kind": "timed", "scale": "T" },
+    { "key": "power_clean", "group": "full_body", "kind": "load", "scale": "L-M" },
+    { "key": "snatch", "group": "full_body", "kind": "load", "scale": "L-M" },
+    { "key": "kettlebell_swing", "group": "full_body", "kind": "load", "scale": "L-S" },
+    { "key": "farmer_carry", "group": "full_body", "kind": "load", "scale": "L-S" },
+    { "key": "burpee", "group": "full_body", "kind": "bodyweight", "scale": "B-easy" },
+    {
+      "key": "box_jump",
+      "group": "full_body",
+      "kind": "bodyweight",
+      "scale": "B-easy"
+    },
+    { "key": "battle_ropes", "group": "full_body", "kind": "timed", "scale": "T" },
+    {
+      "key": "treadmill",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-run",
+      "fields": ["duration_s", "distance_m", "speed_kmh", "incline_pct"]
+    },
+    {
+      "key": "curved_treadmill",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-run",
+      "fields": ["duration_s", "distance_m"]
+    },
+    {
+      "key": "exercise_bike",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-bike",
+      "fields": ["duration_s", "distance_m", "level"]
+    },
+    {
+      "key": "spin_bike",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-bike",
+      "fields": ["duration_s", "distance_m", "level"]
+    },
+    {
+      "key": "recumbent_bike",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-bike",
+      "fields": ["duration_s", "distance_m", "level"]
+    },
+    {
+      "key": "air_bike",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-bike",
+      "fields": ["duration_s", "distance_m"]
+    },
+    {
+      "key": "elliptical",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-run",
+      "fields": ["duration_s", "distance_m", "level"]
+    },
+    {
+      "key": "rowing_machine",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-row",
+      "fields": ["duration_s", "distance_m", "level"]
+    },
+    {
+      "key": "ski_machine",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-row",
+      "fields": ["duration_s", "distance_m"]
+    },
+    {
+      "key": "stair_climber",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-time",
+      "fields": ["duration_s", "floors", "level"]
+    },
+    {
+      "key": "stepper",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-time",
+      "fields": ["duration_s", "level"]
+    },
+    {
+      "key": "vertical_climber",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-time",
+      "fields": ["duration_s"]
+    },
+    {
+      "key": "arm_ergometer",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-time",
+      "fields": ["duration_s", "level"]
+    },
+    {
+      "key": "jump_rope",
+      "group": "cardio",
+      "kind": "cardio",
+      "scale": "C-time",
+      "fields": ["duration_s"]
+    }
+  ]
+}

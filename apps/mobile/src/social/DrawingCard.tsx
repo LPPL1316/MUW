@@ -3,15 +3,17 @@ import { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { dayLabel } from "../activities/activityText";
-import { isOnSnow } from "../activities/snow";
+import { isOnSnow, isTrackless } from "../activities/snow";
 import { useWinnerDrawingId } from "../contest/contestKept";
 import { WinnerBadge } from "../contest/WinnerBadge";
 import { ExploreStart } from "../explore/ExploreStart";
+import { GymDetail } from "../gym/GymDetail";
 import type { StartView } from "../explore/useStartDirections";
 import { t } from "../i18n";
 import { ImportedMark } from "../imports/ImportedMark";
 import { drawingOfDrawing } from "../messages/messageDrawing";
 import { SendDrawingButton } from "../messages/SendDrawingButton";
+import { durationLabel } from "../screens/FinishScreen";
 import {
   color,
   font,
@@ -31,6 +33,7 @@ import { followable, runnable } from "./drawingRoute";
 import { useDrawingsDoor } from "./drawingsDoor";
 import { useFollowsDoor } from "./followsDoor";
 import { activityName } from "./PublicParts";
+import { SkiNamesList } from "./SkiNamesList";
 import { useDrawingGpx } from "./useDrawingGpx";
 
 type Props = {
@@ -58,7 +61,8 @@ export const PHOTO_HEIGHT = 160;
  * A drawing on the map (TASK-117), under it: its title (without one, the
  * day it was run), the day, what it was and the km (the miles with
  * «Miles», TASK-182); then its photos, to scroll sideways, how it went,
- * and the names tagged, each of which opens its profile (TASK-208). Never
+ * and the names tagged, each of which opens its profile (TASK-208); a day
+ * of skiing, its lifts and pistes by name (TASK-375 part D). Never
  * the score (TASK-241, the user's choice), nor the time of day: the
  * others see the drawing, not when somebody runs. Its comments open from
  * a button (TASK-120), and next to it are its reactions (TASK-119). Under
@@ -90,9 +94,13 @@ export function DrawingCard({
   const [superLikes, setSuperLikes] = useState(0);
   const photos = drawing.photos ?? [];
   const tags = drawing.tags ?? [];
+  // A workout at the gym has no distance: its time (TASK-385 B0).
+  const gym = isTrackless(drawing.activity);
   const facts = [
     ...(drawing.activity === undefined ? [] : [activityName(drawing.activity)]),
-    runDistanceLabel(drawing.distance_m, units),
+    gym
+      ? durationLabel(drawing.duration_s * 1000)
+      : runDistanceLabel(drawing.distance_m, units),
   ].join(" · ");
   return (
     <View style={styles.card}>
@@ -140,6 +148,10 @@ export function DrawingCard({
           ))}
         </View>
       )}
+      {/* The lifts and pistes of a day of skiing (TASK-375 part D). */}
+      {drawing.activity === "skiing" && <SkiNamesList drawingId={drawing.id} />}
+      {/* The exercises of a workout at the gym (TASK-385 B0). */}
+      {gym && <GymDetail drawingId={drawing.id} />}
       {/* The reactions and the actions, after a hairline. */}
       <Hairline />
       <DrawingReactions
@@ -179,12 +191,12 @@ export function DrawingCard({
           textStyle={styles.buttonText}
         />
       )}
-      {onDrawAgain !== undefined && !isOnSnow(drawing.activity) && (
+      {onDrawAgain !== undefined && !isOnSnow(drawing.activity) && !gym && (
         <Tap style={styles.button} onPress={onDrawAgain} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Draw it near me")}</Text>
         </Tap>
       )}
-      {onEditDrawing !== undefined && !isOnSnow(drawing.activity) && (
+      {onEditDrawing !== undefined && !isOnSnow(drawing.activity) && !gym && (
         <Tap style={styles.button} onPress={onEditDrawing} accessibilityRole="button">
           <Text style={styles.buttonText}>{t("Edit the drawing")}</Text>
         </Tap>

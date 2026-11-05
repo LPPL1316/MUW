@@ -9,7 +9,7 @@ import type { AboutContent, AboutDocument } from "../documents";
  * of 2026-10-07).
  */
 
-const UPDATED = "10. Oktober 2026";
+const UPDATED = "5. November 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B); redated for the whole drawing (TASK-390). */
 const PRIVACY_UPDATED = "5. November 2026";
 
@@ -218,7 +218,9 @@ const terms: AboutDocument = {
     },
     {
       heading: "Werbung",
-      blocks: ["MuW zeigt keine Werbung."],
+      blocks: [
+        "MuW zeigt eigene Beiträge, gekennzeichnet mit «Werbung · Affiliate-Links», mit Links zu Shops (MuW Style). Wenn du über einen dieser Links kaufst, zahlt der Shop MuW eine Provision; für dich ändert sich der Preis nicht. Der Kauf findet zwischen dir und dem Shop statt: MuW verkauft diese Produkte nicht und haftet nicht für Preis, Verfügbarkeit, Lieferung oder Rücksendung. Die Fotos dieser Beiträge sind mit KI erstellt und als solche gekennzeichnet: Die Personen darauf gibt es nicht, und die gezeigten Teile ähneln den Produkten, sind aber nicht die Produkte selbst. Du kannst diese Beiträge in «Einstellungen» aus dem Feed ausblenden. Andere Werbung zeigt MuW nicht.",
+      ],
     },
     {
       heading: "Dienste anderer",
@@ -338,6 +340,7 @@ const privacy: AboutDocument = {
         "Ein Lauf beginnt und endet oft an deiner Haustür. Deshalb wird ein Lauf für die anderen Mitglieder erst sichtbar, nachdem du unter «Wer kann es sehen» «Alle» oder «Follower» gewählt hast, und dann sehen sie die ganze Spur, mit Start und Ziel, mit dem Titel, den du ihr gegeben hast, und ohne Zeiten, Pausen oder die geplante Route. Deine Wahl bleibt für den nächsten Lauf auf diesem Telefon: Er beginnt mit der zuletzt gespeicherten, du siehst sie vor «Speichern» und kannst sie ändern. Eine aus einer Datei hinzugefügte Aktivität beginnt immer mit «Nur ich».",
         "Wer einen deiner Läufe sehen kann, kann ihm auch mit «Start» folgen und dieselbe Spur als GPX-Datei speichern, ohne Zeiten.",
         "Ein Foto, das du veröffentlichst, kann die Zeichnung deines Laufs im Bild enthalten. Es ist dieselbe Zeichnung wie im Feed.",
+        "Bei einem Skitag vergleicht unser Server die gespeicherte Spur mit den Liften und Pisten von OpenStreetMap, die er selbst vorhält, um festzuhalten, welche du genommen hast und wie oft. Die Namen erscheinen im Beitrag, für alle, die ihn sehen können. Nichts geht an einen anderen Dienst.",
       ],
     },
     {
@@ -410,7 +413,7 @@ const privacy: AboutDocument = {
     {
       heading: "Werbung",
       blocks: [
-        "MuW zeigt keine Anzeigen und nutzt keinen Werbedienst: Nichts über dich geht an ein Werbenetzwerk, und die App fragt nie, ob sie dich über andere Apps hinweg verfolgen darf.",
+        "MuW zeigt eigene Style-Beiträge mit Links zu Shops, gekennzeichnet mit «Werbung · Affiliate-Links». MuW nutzt kein Werbenetzwerk, und die App fragt nie, ob sie dich über andere Apps hinweg verfolgen darf. Wenn du ein Produkt öffnest oder auf «Kaufen» tippst, zählt unser Server nur für diesen Tag und dieses Produkt eins dazu: Er weiß nicht, wer du bist oder welches Telefon es war. «Kaufen» öffnet die Seite des Shops in deinem Browser über den Link unseres Affiliate-Netzwerks Awin: Ab dort erfassen Awin und der Shop den Klick und einen möglichen Kauf, mit ihren Cookies und nach ihren eigenen Datenschutzerklärungen, damit MuW seine Provision erhält. Von ihnen bekommt MuW nur Summen von Klicks, Verkäufen und Provisionen, nie, wer du bist.",
       ],
     },
     {

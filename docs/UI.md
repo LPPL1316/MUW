@@ -611,6 +611,15 @@ to {name}.» di «Send to a friend» e «Thanks for telling us. We will look at
 it.» dopo ogni segnalazione (post, profilo, messaggio, commento): il foglio
 si chiude e il grazie arriva nell'isola. Altri punti li decide l'utente.
 
+**Fogli e liste** (TASK-388 C): i fogli dal basso (il «+» dei messaggi, il
+foglio di un messaggio, i filtri della ricerca, il super like, «Tag
+people», i commenti, il «…») salgono su una molla che rallenta fino al
+posto e scendono allo stesso modo; un tocco a metà li riporta indietro da
+dove sono. Le liste che arrivano (conversazioni, campanella, commenti,
+risultati della ricerca) entrano una riga dopo l'altra, in dissolvenza e
+salendo di poco, solo le prime sei. Con «Riduci movimento» i fogli solo
+sfumano e le righe ci sono subito.
+
 **Un header uguale su tutte le pagine**: il logo a sinistra, cioè il
 cuore su giallo da 32 punti e «MuW» in `fontSize.title` grassetto (da
 TASK-392; prima il cuore pieno di Lucide), il pulsante dello sport a destra; nessun nome di pagina in alto
@@ -673,6 +682,14 @@ barra qui sopra, e lo swipe è quello qui sopra.
   «Follow people to see their drawings here.» e il pulsante «Find people to
   follow», che apre «Find friends», sopra i propri disegni se ne ha; chi segue
   qualcuno senza disegni ha il suo messaggio; gli esempi qui non compaiono mai.
+  Con dei post di **MuW Style** sul server (TASK-384, ADR-0326) c'è una terza
+  scheda, **«Style»** (senza account: «All» e «Style»), con i soli post Style,
+  i filtri per tema e genere e le pagine; in «All» una riga su 8 al massimo è
+  uno di loro, dopo il 7° disegno, mai in «Following». La card ha il logo di
+  MuW, la foto fatta con l'AI, un puntino per prodotto e sotto, sempre,
+  «AI-generated» e «Ad · Affiliate links»; il puntino apre una scheda con
+  prezzo o «See price», le due righe fisse e «Shop on {store}», che apre il
+  browser. «Style posts in the Feed» in «Settings» li toglie da «All».
   Se una lettura non arriva, «Couldn't load the Feed.» con «Try again», al posto
   degli esempi. Con un'API che non conosce ancora le schede (la pagina non dice
   la sua scheda) le schede spariscono e resta il feed che l'API manda. Senza account non ci sono schede: solo «All» con gli esempi
