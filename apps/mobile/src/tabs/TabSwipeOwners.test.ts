@@ -14,9 +14,11 @@ const SRC = join(__dirname, "..");
  * below. Most lie in the pages; the others keep the same rule, so they may
  * move into one. */
 const ROWS = [
-  // In «Feed»: the photos of a post, and of the posts of a contest.
+  // In «Feed»: the photos of a post, and of the posts of a contest; the
+  // filters of the lens «Style» (TASK-384).
   "feed/FeedPost.tsx",
   "contest/ContestGallery.tsx",
+  "feed/StyleLens.tsx",
   // In «Draw»: «NEAR YOU».
   "route/NearYou.tsx",
   // In «Explore», on land and on the water, and its search.

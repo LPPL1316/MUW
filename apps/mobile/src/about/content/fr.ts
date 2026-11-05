@@ -9,7 +9,7 @@ import type { AboutContent, AboutDocument } from "../documents";
  * of 2026-10-07).
  */
 
-const UPDATED = "10 octobre 2026";
+const UPDATED = "5 novembre 2026";
 /** «Privacy» is final since the user approved it (TASK-237 D; without ads, TASK-267 B); dated the day Apple Health and Health Connect entered (TASK-321 B); redated for the whole drawing (TASK-390). */
 const PRIVACY_UPDATED = "5 novembre 2026";
 
@@ -218,7 +218,9 @@ const terms: AboutDocument = {
     },
     {
       heading: "Publicité",
-      blocks: ["MuW n'affiche pas de publicité."],
+      blocks: [
+        "MuW affiche ses propres posts, marqués « Publicité · Liens affiliés », avec des liens vers des boutiques (MuW Style). Si tu achètes via l'un de ces liens, la boutique verse une commission à MuW ; pour toi, le prix ne change pas. La vente se fait entre toi et la boutique : MuW ne vend pas ces produits et ne répond pas de leur prix, de leur disponibilité, de la livraison ni des retours. Les photos de ces posts sont créées par IA et l'indiquent : les personnes qu'on y voit n'existent pas, et les articles montrés ressemblent aux produits sans être les produits eux-mêmes. Tu peux masquer ces posts du Feed dans «Réglages». MuW n'affiche aucune autre publicité.",
+      ],
     },
     {
       heading: "Services d'autres",
@@ -410,7 +412,7 @@ const privacy: AboutDocument = {
     {
       heading: "Publicité",
       blocks: [
-        "MuW n'affiche pas d'annonces et n'utilise aucun service publicitaire : rien sur toi ne part vers un réseau publicitaire, et l'app ne demande jamais à te suivre à travers d'autres apps.",
+        "MuW affiche ses propres posts Style avec des liens vers des boutiques, marqués « Publicité · Liens affiliés ». MuW n'utilise aucun réseau publicitaire, et l'app ne demande jamais à te suivre à travers d'autres apps. Quand tu ouvres un produit ou touches « Acheter », notre serveur ajoute seulement un au compte de ce jour pour ce produit : il ne sait pas qui tu es ni de quel téléphone il s'agit. « Acheter » ouvre le site de la boutique dans ton navigateur via le lien de notre réseau d'affiliation, Awin : à partir de là, Awin et la boutique enregistrent le clic et l'éventuel achat, avec leurs cookies et selon leurs propres politiques de confidentialité, pour que MuW reçoive sa commission. D'eux, MuW ne reçoit que des totaux de clics, de ventes et de commissions, jamais qui tu es.",
       ],
     },
     {

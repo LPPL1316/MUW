@@ -31,6 +31,7 @@ import { onFootOf } from "../route/onFoot";
 import { isPenUpShape } from "../route/penUpShapes";
 import type { AnyRouteRequest } from "../route/useRouteRequest";
 import { walksOf } from "../route/walks";
+import { DEFAULT_ACTIVITY } from "../sports";
 import { distanceLabel } from "../units/format";
 import { favoriteKey } from "./favoriteKey";
 
@@ -96,7 +97,7 @@ function onFoot(
  * run's request is the one of before, field for field.
  */
 function drawnFor(activity: Activity): { activity?: Activity } {
-  return activity === "running" ? {} : { activity };
+  return activity === DEFAULT_ACTIVITY ? {} : { activity };
 }
 
 function keepable(fields: Omit<FavoriteRequest, "similarity">, similarity: number) {

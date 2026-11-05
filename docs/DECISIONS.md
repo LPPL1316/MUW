@@ -22846,6 +22846,29 @@ delega dell'utente; lista dei file approvata dal Coordinatore.
 del motore invariate. Server e migrazione 0047 in produzione col sì
 dell'utente, anche prima della B0: l'header tiene fuori i post senza
 traccia.
+## ADR-0326, precisazione — MuW Style nell'app (TASK-384 parte B)
+
+**Stato**: Attiva · 2026-11-05 · deciso dall'agente su delega dell'utente,
+dentro la proposta approvata; (a) e (b) viste dal Coordinatore.
+
+1. **(a) La scheda «Style» e le card ci sono solo quando GET /style ha almeno
+   un post.** Un'API senza Style, o senza post usciti, lascia il Feed com'era:
+   l'app si può pubblicare prima del primo post.
+2. **(b) Senza account, con dei post, le schede sono «All · Style».**
+   «Following» vuole un account; i post Style sono di MuW e per tutti.
+3. **Il posto in «All»**: dopo il 7° disegno e poi ogni 7, sempre fra due
+   disegni; se il posto è di un annuncio scende di uno, e il successivo conta
+   da lì, così in nessuna finestra di 8 righe ce ne sono due.
+4. **I testi approvati stanno in una tabella per lingua** (`styleWords.ts`),
+   come «Following» in `FeedTabs.tsx`: nelle tabelle di `t`, che vanno per
+   testo inglese, «Running», «Bike» o «Women» sono già altre parole.
+5. **Prezzo e giorno senza `Intl`**: «€84.99» in inglese, «84,99 €» nelle
+   altre lingue; il mese abbreviato dalla tabella.
+6. **«Shop» apre solo una pagina https** che l'API risponde, con
+   `Linking.openURL`: il browser del telefono. Se l'API non risponde, non si
+   apre niente e il pulsante torna attivo, senza un testo nuovo.
+7. **L'interruttore sta sul telefono** (`style-in-feed.json`), come la
+   scheda scelta: l'API non lo sa.
 ## ADR-0332 — Il VO₂ max nel profilo pubblico: da Salute, se no stimato dai record, solo dopo un sì
 
 **Stato**: Proposto · 2026-11-05 · TASK-397. Fonte e visibilità sono

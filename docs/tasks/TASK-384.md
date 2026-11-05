@@ -205,6 +205,53 @@ File toccati della parte A: `services/api/migrations/0046_style_posts.sql`,
 `docs/API.md`, `docs/DATABASE.md`, `docs/DECISIONS.md`,
 `docs/tasks/TASK-384.md`, `docs/STATUS.md`.
 
+## Parte B — l'app (branch `feat/TASK-384-b-style-app`)
+
+Via dell'utente il 2026-11-05 («Sì, avvia la B») e del Coordinatore sulla
+lista dei file; sei test esistenti aggiunti col suo sì (tre dopo la CI).
+
+- **Dove**: in «All», dopo il 7° disegno, poi ogni 7 (una riga su 8), mai
+  nei primi 3, mai in fondo, mai due di fila; un posto già di un annuncio
+  scende di un disegno. Mai in «Following» (`feedWithStyle.ts`).
+- **La card**: logo e nome di MuW, il titolo, la foto 4:5 (con la chiave
+  dell'API), un puntino bianco col bordo su ogni prodotto, e sotto, sempre,
+  «AI-generated» e «Ad · Affiliate links» (`StylePost.tsx`).
+- **La scheda**: marca, nome, prezzo col giorno o «See price», il negozio,
+  le due righe fisse e «Shop on {store}», che conta e apre la pagina nel
+  browser del telefono, mai dentro l'app (`StyleProductSheet.tsx`). Aprirla
+  conta una apertura per il giorno.
+- **La lente «Style»**: una terza scheda con tutti i post, i filtri per tema
+  e genere (un filtro toccato di nuovo si toglie), le pagine, «No Style posts
+  yet.» (`StyleLens.tsx`).
+- **«Settings»**: «Style posts in the Feed», acceso all'inizio, sul telefono;
+  spento toglie i post da «All», non dalla lente (`StyleSetting.tsx`).
+- **Testi**: quelli approvati, in `feed/styleWords.ts`; prezzo e giorno
+  scritti a mano, senza `Intl`.
+- **Termini e Privacy**: i paragrafi «Pubblicità» approvati nelle cinque
+  lingue; Termini datati 5 novembre 2026, Privacy già al 5 novembre; le
+  cinque pagine `site/privacy/` rigenerate. La copia sul sito la fa fare il
+  Coordinatore all'utente, con l'OTA.
+- Scelte su delega (ADR-0326, precisazione B): la scheda «Style» e le card
+  solo quando GET /style ha almeno un post; senza account le schede sono
+  «All · Style».
+
+File toccati della parte B: `apps/mobile/src/api/style.ts`,
+`style.test.ts`; `apps/mobile/src/feed/useStylePosts.ts`,
+`feedWithStyle.ts`, `feedWithStyle.test.ts`, `StylePost.tsx`,
+`StylePost.test.tsx`, `StyleProductSheet.tsx`, `StyleLens.tsx`,
+`styleWords.ts`, `styleWords.test.ts`, `styleInFeedChoice.ts`,
+`styleInFeedChoice.test.ts`; `apps/mobile/src/settings/StyleSetting.tsx`,
+`StyleSetting.test.tsx`; `apps/mobile/src/screens/FeedScreenStyle.test.tsx`
+(nuovi); `apps/mobile/src/screens/FeedScreen.tsx`, `feed/FeedTabs.tsx`,
+`feed/feedTabChoice.ts`, `profile/SettingsPage.tsx`,
+`about/content/{en,it,de,fr,es}.ts`, `about/documents.test.ts`,
+`about/AboutPage.test.tsx`, `screens/FeedScreenPosts.test.tsx`,
+`screens/FeedScreenTabs.test.tsx`, `profile/SettingsPage.test.tsx`,
+`__tests__/AppFeed.test.tsx`, `__tests__/AppPages.test.tsx`,
+`tabs/TabSwipeOwners.test.ts`;
+`site/privacy/{,it/,de/,es/,fr/}index.html`; `docs/UI.md`,
+`docs/DECISIONS.md`, `docs/tasks/TASK-384.md`, `docs/STATUS.md`.
+
 ## File toccati (questa PR)
 
 - `docs/tasks/TASK-384.md` (nuovo)

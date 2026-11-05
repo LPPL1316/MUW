@@ -30,7 +30,7 @@ test("«Help» is not a draft: no notice, no day", async () => {
 test("«Terms» says it is a draft before anything else, with its day", async () => {
   await render(<AboutPage id="terms" />);
   expect(screen.getByText("Draft — not final yet.")).toBeOnTheScreen();
-  expect(screen.getByText("Last updated: 10 October 2026")).toBeOnTheScreen();
+  expect(screen.getByText("Last updated: 5 November 2026")).toBeOnTheScreen();
   expect(screen.getByRole("header", { name: EN.terms.title })).toBeOnTheScreen();
   // What the user still has to fill stands out, as it is written.
   expect(screen.getAllByText("[name]").length).toBeGreaterThan(0);
@@ -70,7 +70,7 @@ test("with the app in German the draft is German, and still a draft (TASK-210 F)
   // VoiceOver is told the text is German.
   expect(title.props.accessibilityLanguage).toBe("de-DE");
   expect(screen.getByText("Entwurf – noch nicht endgültig.")).toBeOnTheScreen();
-  expect(screen.getByText("Zuletzt aktualisiert: 10. Oktober 2026")).toBeOnTheScreen();
+  expect(screen.getByText("Zuletzt aktualisiert: 5. November 2026")).toBeOnTheScreen();
   // The places to fill are the same as in English, and stand out.
   expect(screen.getAllByText("[name]").length).toBeGreaterThan(0);
   expect(screen.getAllByText("[governing law]").length).toBeGreaterThan(0);
